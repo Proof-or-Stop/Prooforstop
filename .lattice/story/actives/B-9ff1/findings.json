@@ -1658,6 +1658,25 @@
       ],
       "signatureTag": "doc-code-drift|jsonl|resolvedreason-claims-e918048",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9ff1:F-074",
+      "desc": "F-071's resolvedReason claims the finding was 'corrected by an appended tradeoff note on B-def6' naming checklist_update as the true INIT/PLAN/DEV phase-list source, and that 'the appended note tells the next reader to read allowedPhases at command-policy.ts'. No such note exists: git log -- .lattice/story/actives/B-def6/background.md shows only the single INIT commit 78975820d5, and git diff HEAD -- that path is empty. The file's Key Insights section (line 28) still reads verbatim 'scope_contract_acknowledge is not available in TEST phase (allowed phases are INIT, PLAN, DEV)' - the original false claim F-071 was filed against, uncorrected and unqualified. The underlying source citation itself is accurate (command-policy.ts:411 confirms scope_contract_acknowledge allowedPhases=['DEV','REVIEW'], and command-policy.ts:173 confirms checklist_update allowedPhases=['INIT','PLAN','DEV']) but the claimed remediation artifact was never written.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-18T21:22:38.508Z",
+      "reviewRound": "2026-08-18T20:31:09.389Z",
+      "reviewRunId": "B-9ff1:RR-089",
+      "_hash": "dcc02a821e2ca495db45ab8ae5cb937dfa280134b064aff5caf7a5646b97a489",
+      "files": [
+        ".lattice/story/actives/B-def6/background.md",
+        ".lattice/story/actives/B-9ff1/findings.json"
+      ],
+      "signatureTag": "doc-code-drift|md|resolvedreason-claims-finding",
+      "signatureTagSource": "auto"
     }
   ]
 }
