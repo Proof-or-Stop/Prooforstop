@@ -1147,6 +1147,38 @@
         "scanEscalationReason": null
       },
       "_hash": "6f330a2e56d281bc873966623caa75b3eec73d22ffc89299b3e98239ff5cdfa1"
+    },
+    {
+      "id": "B-9ff1:RP-036",
+      "agent": "lattice-review-test-coverage",
+      "note": "Second re-bind (comment-only commit 19aeb9de6f) verified genuine: all 108 records fresh, 106 non-waiver carry mechanical:true/receipt.selectorMatched:true/receipt.exitCode:0, headHash spans 22 distinct commits in 5-5...3 pattern all resolving to real commits chronologically 18:18:01-18:19:46, distribution 66/15/8/6/6/4/1+2 waivers matches exactly, all share current materialHash 3b4b61a2/storyFilesHash e106dc77. New story B-e5bf verified to exist and genuinely cover both stranded pins (CHK-012:edge:1, CHK-013:adversarial:0) by exact CHK id/selector text, not merely nominal. Registration: all 5 red-w2d-*.mjs + dist smoke appear exactly once in validate.commands (111 total). All 5 harnesses + smoke re-run exit 0. git status clean; rev-list HEAD..main=3 but those 3 commits (B-d15e, B-e5bf inits) do not touch B-9ff1 files.",
+      "createdAt": "2026-08-18T17:25:45.161Z",
+      "reviewRound": "2026-08-14T03:33:29.693Z",
+      "reviewRunId": "B-9ff1:RR-053",
+      "envelopeId": "a77e301f3ce8b8ad77a22bbc550adb42593183daf775067debe9ec2af4884d97",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-9ff1/background.md",
+          ".lattice/story/actives/B-9ff1/checklist.json",
+          ".lattice/story/actives/B-9ff1/plan.md",
+          ".lattice/story/actives/B-9ff1/test-evidence.json",
+          ".lattice/story/actives/B-e5bf/background.md",
+          "lattice.config.json"
+        ],
+        "filesTriagedByName": [
+          "packages/main/dist/tasks/red-evidence-envelope-smoke.js",
+          "packages/main/tests/red/red-w2d-assertion-digest-scope.mjs",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs",
+          "packages/main/tests/red/red-w2d-entropy-differential.mjs",
+          "packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "packages/main/tests/red/red-w2d-specificity-conjunction.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "40f821adcf670c3e1dea4b4140309702525fae2e34aa1461981c9b18201454d4"
     }
   ]
 }
