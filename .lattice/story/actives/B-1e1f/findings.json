@@ -45,7 +45,7 @@
       "desc": "quality-fail-closed: packages/main/src/core/certification-window.ts:675-679 detectCertificationWindowMaterialDrift treats undefined current storyFilesHash/materialHash as no drift. currentMaterialHash/currentStoryFilesHash return undefined on git failure, so refresh/heavy keep an ADMITTED or RUNNING window live instead of invalidating. Unreadable frozen identity is not fail-closed.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-18T09:22:59.432Z",
@@ -56,7 +56,9 @@
         "packages/main/src/core/certification-window.ts"
       ],
       "signatureTag": "edge|ts|quality-fail-closed",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 6a26e8cc13: fail-closed admit/authorize plus smoke coverage for verifier drift, peer write, lane baseline, receipt binding, and retry storm.",
+      "resolvedAt": "2026-08-18T09:33:14.655Z"
     },
     {
       "id": "B-1e1f:F-004",
