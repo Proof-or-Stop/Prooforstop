@@ -401,6 +401,33 @@
         "scanEscalationReason": null
       },
       "_hash": "51e0ba98fcf03ce6de7507ceeebd7ec764ae8f754f4894eadec0e6d337fca1c9"
+    },
+    {
+      "id": "B-7dff:RP-014",
+      "agent": "lattice-review-concept",
+      "note": "Round 7 re-review after RP-011 was discarded for envelope invalidation (my own metadata commits landed post-verdict), not for code change. Confirmed source freeze independently via git diff priorHeadHash..HEAD on source paths = empty, and review_incremental_context reports changedFiles: (none). keyed-scheduler.ts extraction is a clean move, no orphaned scheduler residue. Targeted lane task: verified every symbol/command/count/story-id cited in the F-011-F-015 resolutions and the two rewritten waiver rows against the live tree, none fabricated. No concept-deletion residue, no fabricated symbol/command/count/story-id found. No blocker.",
+      "createdAt": "2026-08-18T23:00:16.706Z",
+      "reviewRound": "2026-08-18T22:56:37.139Z",
+      "reviewRunId": "B-7dff:RR-028",
+      "envelopeId": "a2a04f95894dfc415f543ae8c388824885ccf17ac260138e3a3239271a53b61f",
+      "writerSessionId": "sess-c8142ac4cb69f1c755df4c1fc223e028",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7dff/checklist.json",
+          ".lattice/story/actives/B-7dff/findings.json"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/core/keyed-scheduler.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "98639e4591c07a56f2898841ae25c2587b8d35954add70bc2432964004fa0e70"
     }
   ]
 }
