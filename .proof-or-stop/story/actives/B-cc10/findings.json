@@ -1241,6 +1241,24 @@
       "signatureTag": "missing|ts|packages-main-tasks",
       "signatureTagSource": "auto",
       "resolvedAt": "2026-08-18T18:15:19.890Z"
+    },
+    {
+      "id": "B-cc10:F-068",
+      "desc": "packages/main/src/tasks/full-suite-runner.ts:124 RESOURCE_POLICY entry for test:runtime-fact-contract (class runtime-lock, key stateDirKey(runtime), access shared) is one of the 5 stateDirKey() call sites the F-064 fix routed through the resolver, but it is NOT exercised by any of the 4 named regression witnesses. Verified by direct injection: reverting this one line to the hardcoded literal key .lattice/runtime and rebuilding leaves test:full-suite-runner-smoke PASS (142/142, unchanged), test:runtime-fact-contract PASS exit 0 (that script never reads RESOURCE_POLICY at all -- it verifies unrelated facts: entrypoint-authority/cli-entrypoint/node-version/etc.), and test:main-write-lock-coverage PASS exit 0. Root cause: this claim only feeds canonicalizeEntries/shouldSerialize (full-suite-runner.ts:467-475), i.e. scheduler mutual-exclusion between concurrent full-suite members touching the runtime dir, not filesystem correctness like the approvedRoots allowlist (which the smoke test DOES catch -- confirmed by the same injection technique on that allowlist line, which correctly makes the smoke test fail with runner-cleanable target is outside an approved owned root). A spelling regression at this specific site degrades silently: this members claimed lock key stops canonically colliding with other members correct canonical-spelling claims, quietly weakening serialization instead of throwing. None of the 4 suites cited as full coverage for F-064 detect this specific site regressing.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-18T18:16:28.194Z",
+      "reviewRound": "2026-08-18T03:33:16.325Z",
+      "reviewRunId": "B-cc10:RR-091",
+      "_hash": "f726b5bda4fd6fcf5f81b72bf85e335f3292e5204420d275d8d6d50d69021ac4",
+      "files": [
+        "packages/main/src/tasks/full-suite-runner.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
