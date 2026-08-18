@@ -102,7 +102,7 @@
       "desc": "packages/main/src/tasks/topology-signing-source-guard-smoke.ts section 3 (lines 103-137): the smoke shells to `git rev-parse HEAD` and rebuilds/runs against dist/ with no isolation from concurrent in-place source mutation by another process. Empirically reproduced: immediately after `npm run build`, one invocation of `node dist/tasks/topology-signing-source-guard-smoke.js` threw `dispatch provenance ... is missing or unverifiable` even though the committed source is deterministic (confirmed clean on 4 subsequent runs plus an independent field-rename mutation test). Root-caused via .lattice/story/actives/B-49ed/review-passes.json RP-002 note, which documents lattice-review-concept mutating this same file in place, rebuilding, running a mutation probe, and restoring — my build/run interleaved with that window. This is a real flake surface for any CI or multi-agent-review setup that runs `npm run build && run-all-smokes` while a parallel reviewer session is doing source mutation probes against the same working tree/dist, not a defect in the story diff itself.",
       "severity": "low",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-18T03:58:27.593Z",
@@ -110,7 +110,11 @@
       "reviewRunId": "B-49ed:RR-006",
       "_hash": "83965454069c95a471fdefbd59ba4d6b4f153d52eb76b9c12f6790f66bedd590",
       "signatureTag": "adversarial|unknown|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Real observation, but the root cause is my orchestration rather than this story's diff, and I want that recorded plainly rather than filed against the code.\n\nI dispatched four reviewers in parallel into a SINGLE shared worktree. Two of them independently did the right thing for their lane -- lattice-review-concept mutated the smoke in place to prove section 3 is not vacuous, and lattice-review-quality renamed a production field to prove the test fails loudly -- and each rebuilt dist/ around its probe. Those two probes overlapped, so quality observed one non-deterministic failure. Both reviewers restored cleanly and the committed source is deterministic: quality confirmed 4 consecutive clean runs plus an independent mutation test, and git diff is clean.\n\nSo the flake is not in the delivered code. It is a property of running mutation-probing reviewers concurrently against one working tree and one dist/ output. That is a real hazard for multi-agent review generally, and it is the same class as the epoch-lock contention I hit on B-3f3d, where my own status polling starved a reviewer through 45 failed writes.\n\nAccepted rather than fixed because fixing it means changing how reviewers are dispatched (per-reviewer worktrees, or a build lock), which is framework work outside this story's scope. The honest mitigation for now is operational: when a reviewer's lane involves mutating source to prove a test bites, it should not share a worktree with another reviewer doing the same.",
+      "resolvedAt": "2026-08-18T03:59:16.884Z",
+      "resolutionType": "accepted_risk",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
