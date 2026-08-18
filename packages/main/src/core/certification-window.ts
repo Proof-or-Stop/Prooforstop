@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 import { existsSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
+import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from './evidence-freshness.js';
 import { withMkdirLock } from './mkdir-lock.js';
 
 export const CERTIFICATION_WINDOW_STATES = [
@@ -321,7 +322,7 @@ export function loadReviewInventoryAdmitApis(): ReviewInventoryAdmitApis | null 
   const modulePath = fileURLToPath(new URL('./review-inventory-epoch.js', import.meta.url));
   if (!existsSync(modulePath)) return null;
   try {
-    const required = createRequire(import.meta.url)(modulePath) as Record<string, unknown>;
+    const required = createRequire(import.meta.url)('./review-inventory-epoch.js') as Record<string, unknown>;
     const finalized = required.finalizedUnconsumedReviewInventory;
     const consume = required.consumeReviewInventoryReceipt;
     if (typeof finalized !== 'function' || typeof consume !== 'function') return null;
@@ -793,6 +794,65 @@ export function refreshCertificationWindowLineage(args: {
 
 export function heavyCertificationStatusNext(storyId: string): string {
   return `proof-or-stop certification_window_status --storyId=${storyId}`;
+}
+
+/**
+ * Test-only: persist a signed ADMITTED window + PrecertReceipt bound to the
+ * current HEAD / materialHash / storyFilesHash and official verifier/test
+ * identities. Inventory completeness never authorizes PRE_CERT here.
+ */
+export function persistSyntheticAdmittedWindowForTest(args: {
+  store: CertificationWindowStorePort;
+  storyId: string;
+  projectRoot: string;
+  gitCwd?: string;
+  inventory?: CertificationWindowInventoryBinding;
+}): { window: CertificationWindow; receipt: PrecertReceipt } {
+  if (args.inventory?.authorizesTest === true) {
+    throw new Error('persistSyntheticAdmittedWindowForTest: inventory binding must not set authorizesTest=true');
+  }
+  const gitCwd = args.gitCwd ?? args.projectRoot;
+  const headHash = currentGitHead(gitCwd) ?? '';
+  const materialHash = currentMaterialHash(gitCwd, 'HEAD', args.projectRoot) ?? '';
+  const storyFilesHash = currentStoryFilesHash(gitCwd, 'HEAD', args.projectRoot) ?? '';
+  const frozen: CertificationWindowFrozenIdentity = {
+    headHash,
+    materialHash,
+    storyFilesHash,
+    expectedMainSha: headHash,
+    verifierIdentity: PRECERT_VERIFIER_IDENTITY,
+    testIdentity: PRECERT_TEST_IDENTITY,
+  };
+  const loaded = loadVerifiedCertificationWindow(args.store, args.storyId);
+  const latest = loaded.window;
+  const latestFrozen = latest?.frozen;
+  const identityMatches = Boolean(
+    latestFrozen
+    && latestFrozen.headHash === frozen.headHash
+    && latestFrozen.materialHash === frozen.materialHash
+    && latestFrozen.storyFilesHash === frozen.storyFilesHash
+    && latestFrozen.expectedMainSha === frozen.expectedMainSha
+    && latestFrozen.verifierIdentity === frozen.verifierIdentity
+    && latestFrozen.testIdentity === frozen.testIdentity,
+  );
+  if (latest && (latest.state === 'ADMITTED' || latest.state === 'RUNNING') && !identityMatches) {
+    persistInvalidatedCertificationWindow({
+      store: args.store,
+      storyId: args.storyId,
+      current: frozen,
+      reason: 'synthetic test re-admit on a new frozen identity',
+    });
+  }
+  return persistAdmittedCertificationWindow({
+    store: args.store,
+    storyId: args.storyId,
+    frozen,
+    inventory: {
+      authority: INVENTORY_COMPLETENESS_AUTHORITY,
+      ...args.inventory,
+      authorizesTest: false,
+    },
+  });
 }
 
 export function refuseHeavyCertificationUnlessAdmitted(args: {
