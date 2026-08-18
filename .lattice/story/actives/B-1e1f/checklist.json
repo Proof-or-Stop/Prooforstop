@@ -86,7 +86,61 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-002:admit-all-facts",
+            "desc": "certification_window_begin --storyId=<id> when (1) current Review Inventory epoch is FINALIZED on the same storyFilesHash lineage, (2) no open verified blocking findings, (3) required verification coverage has no missing intents, (4) local main is an ancestor and expected main SHA is recorded, (5) worktree is clean of non-runtime material, and (6) Git-index plus evidence-target writability preflight passes → prints State: ADMITTED, frozen head/main/storyFiles hashes, and exactly one Next:. WHY: only full PRE_CERT fact set admits.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-002:consume-b3f3d-path",
+            "desc": "Successful admit calls B-3f3d finalizedUnconsumedReviewInventory and consumeReviewInventoryReceipt (no second freshness hash; merge/clean reuse done_prepare classifiers) → the signed window records the consumed inventory epoch/receipt id. WHY: consume existing inventory, do not reimplement epochs.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-002:inventory-not-finalized",
+            "desc": "certification_window_begin when no current FINALIZED Review Inventory exists on this story-files lineage → non-zero exit, stdout/stderr contains [pre_cert_inventory_not_finalized], State is not ADMITTED, and Next: names the single inventory-finalize recovery command. WHY: plan Verify line 1.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/certification-window-smoke.js",
+              "selector": "[pre_cert_inventory_not_finalized]"
+            }
+          },
+          {
+            "id": "CHK-002:main-not-merged",
+            "desc": "certification_window_begin when local main is not an ancestor or expected main SHA is missing → non-zero [pre_cert_main_not_merged], no ADMITTED window, Next: names the single merge/done_prepare recovery command. WHY: plan Verify line 2.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-002:blocking-findings-open",
+            "desc": "certification_window_begin with an open verified blocking finding → non-zero [pre_cert_blocking_findings_open], no ADMITTED window, Next: names the single finding-recovery command. Dirty non-runtime tree or missing required verification intents likewise fail closed with a stable blocker code (reuse done_prepare clean/coverage classifiers). WHY: plan Verify line 3 plus remaining admit facts.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-002:missing-b3f3d-api-fail-closed",
+            "desc": "Load the admit path when finalizedUnconsumedReviewInventory / consumeReviewInventoryReceipt are absent (this worktree branched from main without B-3f3d) → begin fail-closes with a stable blocker and never admits. A stub that always returns ADMITTED is a product defect. WHY: decision preMortem 1; no stub-always-admit.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-002:whole-tree-drift-not-fresh",
+            "desc": "Admit candidate whose materialHash drifted while storyFilesHash is unchanged (whole-tree drift) or whose inventory receipt belongs to another story / another storyFilesHash lineage → refuse; do not treat whole-tree drift as fresh and do not invent a second freshness hash. WHY: keep current strict freshness.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
