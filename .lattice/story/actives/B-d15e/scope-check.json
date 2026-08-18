@@ -1,6 +1,6 @@
 {
   "storyId": "B-d15e",
-  "checkedAt": "2026-08-18T17:21:03.386Z",
+  "checkedAt": "2026-08-18T17:24:12.925Z",
   "features": [
     {
       "feature": "Emit FULL_SUITE_BUDGET_MS as performanceBudgetMs in the full-suite JSON result artifact.",
@@ -11,8 +11,8 @@
     },
     {
       "feature": "Add regression coverage proving receipt consumers observe the runtime-enforced canonical budget.",
-      "covered_by": null,
-      "status": "gap",
+      "covered_by": "CHK-002",
+      "status": "covered",
       "excluded_by": null,
       "source": "description"
     }
@@ -157,13 +157,13 @@
   },
   "summary": {
     "total": 2,
-    "covered": 1,
+    "covered": 2,
     "excluded": 0,
-    "gaps": 1,
+    "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "",
-  "_hash": "4768459bf0a253c7942e5a4ae550f97d9cbbc856983a1a767f1fbc647550c6b9",
+  "_hash": "6c53a25e3c83d350f8236fe0fd669572776de75627cbc4733771589915a1d77b",
   "openQuestions": []
 }
