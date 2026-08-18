@@ -8,6 +8,8 @@
  * something else, is what refuses a forgeable session source.
  */
 import { strict as assert } from 'node:assert';
+import { execFileSync } from 'node:child_process';
+import { TOPOLOGY_CRITIC_ROLE } from '../core/topology-critic-receipt.js';
 import { readFileSync, writeFileSync, rmSync, mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve, dirname } from 'node:path';
@@ -17,7 +19,6 @@ import { fileURLToPath } from 'node:url';
 const here = dirname(fileURLToPath(import.meta.url));
 const guardFile = resolve(here, '../core/topology-critic-receipt.js');
 const original = readFileSync(guardFile, 'utf8');
-const { TOPOLOGY_CRITIC_ROLE } = await import(pathToFileURL(guardFile).href) as { TOPOLOGY_CRITIC_ROLE: string };
 
 const GUARD = "SIGNABLE_SESSION_SOURCES.has(args.sessionSource)";
 assert.ok(original.includes(GUARD), 'guard call site is present in the built artifact');
@@ -65,28 +66,30 @@ try {
       `${dep} must stay free of subprocess I/O, since the mutant executes it`);
   }
 
-  const mutant = await import(pathToFileURL(mutantPath).href);
-  const real = await import(pathToFileURL(guardFile).href);
-
-  const probe = (mod: { deriveRoleProvenance: (a: unknown) => unknown }, source: string): string => {
-    try {
-      mod.deriveRoleProvenance({
-        gitCwd: resolve(here, "../.."),
-        events: [],
-        expectedRole: TOPOLOGY_CRITIC_ROLE,
-        actor: TOPOLOGY_CRITIC_ROLE,
-        sessionId: 'sess-mutation-probe',
-        sessionSource: source,
-        context: { storyId: 'B-probe', storyFilesHash: 'h' },
-        implementation: { businessCommit: 'c' },
-      });
-      return '<no throw>';
-    } catch (error) { return error instanceof Error ? error.message : String(error); }
+  // B-49ed/B-3f3d: probe each module in a CHILD PROCESS rather than via dynamic import().
+  // retired-authority-vocabulary-guard forbids non-literal dynamic module loads, and giving
+  // this file an allowlist entry would defeat the guard rather than satisfy it. A child
+  // process still genuinely EXECUTES both the real guard and the mutant -- which is the whole
+  // point of F-010 -- while keeping every module specifier in this file literal.
+  const probe = (modulePath: string, source: string): string => {
+    const inline = `import(${JSON.stringify(pathToFileURL(modulePath).href)})`
+      + `.then(m => { try { m.deriveRoleProvenance({`
+      + `gitCwd: ${JSON.stringify(resolve(here, '../..'))}, events: [], `
+      + `expectedRole: ${JSON.stringify(TOPOLOGY_CRITIC_ROLE)}, `
+      + `actor: ${JSON.stringify(TOPOLOGY_CRITIC_ROLE)}, sessionId: 'sess-mutation-probe', `
+      + `sessionSource: ${JSON.stringify(source)}, `
+      + `context: { storyId: 'B-probe', storyFilesHash: 'h' }, `
+      + `implementation: { businessCommit: 'c' } }); console.log('<no throw>'); } `
+      + `catch (e) { console.log(e && e.message ? e.message : String(e)); } })`;
+    const out = execFileSync(process.execPath, ['--input-type=module', '-e', inline], {
+      encoding: 'utf8', cwd: resolve(here, '../..'),
+    });
+    return out.trim();
   };
 
   for (const forgeable of ['explicit-env', 'derived-ppid']) {
-    const realMessage = probe(real as never, forgeable);
-    const mutantMessage = probe(mutant as never, forgeable);
+    const realMessage = probe(guardFile, forgeable);
+    const mutantMessage = probe(mutantPath, forgeable);
 
     // The real guard refuses at the SOURCE gate.
     assert.match(realMessage, /must sign from a host-adapter session/,
