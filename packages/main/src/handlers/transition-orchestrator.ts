@@ -1444,13 +1444,30 @@ async function runStoryTransitionInner(
       if (oldPhase === 'REVIEW' && args.phase === 'DEV') {
         // Consume authority before publishing phase=DEV. A consume failure cannot
         // leave unauthorized DEV; a later write failure requires a new epoch.
-        consumeReviewInventoryReceipt(
+        const consumedReceiptId = consumeReviewInventoryReceipt(
           store,
           args.storyId,
           story.currentReviewRound ?? '',
           remediationCutoff!,
           () => assertReviewInventoryContextFreshLocked(ctx, args.storyId),
         );
+        // B-3f3d F-119: CHK-004's userSees promises the accepted rollback reports which epoch
+        // authorized it, the aggregate finding count, and that the receipt does NOT authorize
+        // TEST. The consume was silent, so an operator could not see any of that. Reported from
+        // the consumed record itself -- the epoch id and family count are read back, not
+        // recomputed, so the line cannot drift from what was actually consumed.
+        if (consumedReceiptId) {
+          const consumedEpoch = store.readReviewInventoryEpochs(args.storyId)
+            .epochs.filter((row: { state?: string }) => row.state === 'FINALIZED').slice(-1)[0];
+          const familyCount = consumedEpoch
+            ? new Set(consumedEpoch.waves.flatMap(wave => wave.verifiedFindingFamilies)).size
+            : 0;
+          process.stderr.write(
+            `Remediation authorized once by epoch ${consumedEpoch?.epochId ?? consumedReceiptId}\n`
+            + `Aggregate verified finding families: ${familyCount}\n`
+            + 'This receipt does not authorize TEST\n',
+          );
+        }
       }
       store.writeStory(args.storyId, story);
     } finally {
