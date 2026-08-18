@@ -12,7 +12,7 @@
     "skipped": []
   },
   "limitations": "The specificity metric is inverted on a nameable class of real input and this story ships it that way. Measured: SIGSEGV (7 bytes, 15.65 bits), ENOMEM (6, 11.51), HTTP 404 (8, 20.00) and Error 500 (9, 21.77) are all REJECTED, while the vaguer phrase 'test failed' (11, 34.05) is ADMITTED - because character-level Shannon entropy measures alphabet diversity, not semantic specificity, so short well-known constants score below longer generic English. ENOMEM sits below the NON-TUNABLE 12-bit hard floor, so no policy can ever admit it: a RED assertion can never pin on ENOMEM. This is NOT a soundness break - R1-4 independently requires every present-in-red matcher to have matched the actual RED output, so an admitted vague literal still cannot make a fabricated RED satisfiable, and greenExempt waives only the absent-at-GREEN conjunct per-matcher - but it is a real usability limit: an operator whose failure signature is a short constant must pad it with surrounding line text. The current behaviour is pinned by a characterization fixture so that changing the formula fails mechanically; the fixture is explicitly not an endorsement. The spec and the code also disagree in three places about whether matcher-value bounds apply to class values: §1.1.1 scopes them to literal-line, §1.6 R1-3 bounds any matcher value, §1.2 restates it unqualified. Two of those are normative and they contradict each other; the code implements the §1.1.1 reading and which reading SHOULD win is open. Separately, the spec never describes the candidate-envelope schema this command validates, so the implementation's most load-bearing scope decision is documented only in a source comment. Both are B-595c's.",
-  "pitfalls": "Three worth carrying. FIRST, and it is the headline: across six review rounds the CODE drew zero findings, while the story owner's own audit prose drew nine, every one filed by the concept lane and none self-caught. The shape repeated - claiming a verification that was not performed, then claiming it again inside the correction. 'Verified independently' had checked one of two locations. A correction said it was 'appended' when finding_resolve --resolution is a plain overwrite. The replacement 'verbatim' block was a retyping that silently dropped 377 of 1216 bytes, including the original's own honesty caveat - caught by a difflib diff whose shape (three scattered deletions plus an em-dash/hyphen substitution) proved retyping rather than truncation. Five records said 'filed as follow-up' with nothing filed. A correction to F-058 was written into F-062 instead of F-058, which is the record the follow-up story cites. The rule that came out of it: before writing any sentence about verification, ownership or tool behaviour into an audit record, run the one command that would falsify it - nine times out of nine the reviewer ran that command and the author had not. SECOND, reviewers must decline to record a pass while a blocking finding is open; the concept lane did this three times and it is the only reason this story did not close on false records. Ask each lane the question only it can answer: the behavior lane found the specificity inversion by being asked whether the rule rejects what it should NOT, the inverse of what every other lane was asking. THIRD, mechanics. A cross-host quorum binds storyFilesHash, not the whole tree: merging 41 commits of other stories left fullQuorum 3/3 intact via drift-accept, and a whole four-lane round was run here on the false premise that the quorum had died - reviewer Prompt Envelopes are a SEPARATE binding that does go stale on a merge. story_advance carries a flat 900000ms watchdog that a 111-command validate now exceeds at command 40; the route through is a standalone validate under a raised LATTICE_MAX_TIMEOUT_MS producing a stored PASS the gate then reuses, and that variable must never be set on a gate command because it is baked into effectiveEnvironmentDigest. verification_evidence_batch_add executes its pinned commands serially against a 300s no-output watchdog, so a 108-record batch aborts; batch by five.",
+  "pitfalls": "Three worth carrying. FIRST, and it is the headline, stated WITHOUT a count because three attempts to attach one were each false and each caught by a reviewer (B-9ff1:F-066, F-067, F-068, F-069): the reviewer lane whose job was auditing the story owner's STATEMENTS about the code found defects there repeatedly, in a story whose code was in good shape, and none of those defects was self-caught. Re-derive rather than trust a restatement - grouping findings.json on createdAt and grepping resolvedReason for a cited commit shows twenty findings filed on 2026-08-18 across four lanes, four of them citing a source commit, so 'all prose, zero code findings' was false at every width I tried it. The shape repeated - claiming a verification that was not performed, then claiming it again inside the correction. 'Verified independently' had checked one of two locations. A correction said it was 'appended' when finding_resolve --resolution is a plain overwrite. The replacement 'verbatim' block was a retyping that silently dropped 377 of 1216 bytes, including the original's own honesty caveat - caught by a difflib diff whose shape (three scattered deletions plus an em-dash/hyphen substitution) proved retyping rather than truncation. Five records said 'filed as follow-up' with nothing filed. A correction to F-058 was written into F-062 instead of F-058, which is the record the follow-up story cites. The rule that came out of it: before writing any sentence about verification, ownership or tool behaviour into an audit record, run the one command that would falsify it - every time, the reviewer ran that command and the author had not. SECOND, reviewers must decline to record a pass while a blocking finding is open; the concept lane did this three times and it is the only reason this story did not close on false records. Ask each lane the question only it can answer: the behavior lane found the specificity inversion by being asked whether the rule rejects what it should NOT, the inverse of what every other lane was asking. THIRD, mechanics. A cross-host quorum binds storyFilesHash, not the whole tree: merging 41 commits of other stories left fullQuorum 3/3 intact via drift-accept, and a whole four-lane round was run here on the false premise that the quorum had died - reviewer Prompt Envelopes are a SEPARATE binding that does go stale on a merge. story_advance carries a flat 900000ms watchdog that a 111-command validate now exceeds at command 40; the route through is a standalone validate under a raised LATTICE_MAX_TIMEOUT_MS producing a stored PASS the gate then reuses, and that variable must never be set on a gate command because it is baked into effectiveEnvironmentDigest. verification_evidence_batch_add executes its pinned commands serially against a 300s no-output watchdog, so a 108-record batch aborts; batch by five.",
   "phaseStats": {
     "INIT": {
       "count": 1,
@@ -27,19 +27,19 @@
       "durationMs": 1704127
     },
     "DEV": {
-      "count": 3,
-      "durationMs": 23405231
+      "count": 4,
+      "durationMs": 23464856
     },
     "REVIEW": {
-      "count": 3,
-      "durationMs": 418346906
+      "count": 4,
+      "durationMs": 419752730
     },
     "TEST": {
       "count": 1,
-      "durationMs": 96275
+      "durationMs": 3084181
     }
   },
-  "totalDurationMs": 444470369,
+  "totalDurationMs": 448923724,
   "fixtureStats": {
     "totalRuns": 0,
     "totalCases": 0,
@@ -52,5 +52,5 @@
     "open": 0
   },
   "createdAt": "2026-08-18T19:40:21.858Z",
-  "updatedAt": "2026-08-18T19:40:21.858Z"
+  "updatedAt": "2026-08-18T20:54:35.213Z"
 }
