@@ -1685,6 +1685,35 @@
         "scanEscalationReason": null
       },
       "_hash": "4728ea990f6268e7dbcff1d81f5976b542d64b523daf1b7903d1e715eff6141b"
+    },
+    {
+      "id": "B-9ff1:RP-054",
+      "agent": "lattice-review-concept",
+      "note": "Re-verified F-068's fourth-lane claim by independent re-derivation, not restatement. summary.json.pitfalls: both false strings ('across six review rounds the CODE drew zero findings', 'nine times out of nine') are absent from summary.json (only remain, as expected, quoted inside findings.json's own finding text). The replacement states the headline without a count, names F-066/F-067/F-068/F-069 as the reason no count is attached, and ships the derivation. I re-ran that derivation independently against findings.json rather than trusting the prose: grouping by createdAt.slice(0,10) gives exactly 20 findings on 2026-08-18 across 4 agents (concept 11, main 3, behavior 4, test-coverage 2); grepping resolvedReason for '(commit|source) <hash>' phrasing naming an actual fix commit gives exactly 4 (F-052 and F-053 -> 19aeb9de6f, F-059 -> 77a5ffab9e, F-060 -> 90c21f7f4d) -- confirmed by cross-checking that the excluded hex tokens (f0ac49ba3b, a67bb17, 8d1d2bb, e367ec1) do not appear in git log, i.e. they are a recovery blob ref and three dev-memory entry ids, not source commits. Both figures match the story's own stated 20/4. No other summary field (limitations, outcomeDiff, changes, actualTranscript, usage, expectedOutcome) carries 'zero findings', 'none against the code', 'all prose', a 'six review rounds' claim, or any 'nine' token. F-068.resolvedReason plainly states the first resolution was wrong: 'MY FIRST RESOLUTION SAID THIS WAS FIXED BY e367ec1. That was wrong...e367ec1 corrected the dev-memory ledger and nothing else...summary.json's pitfalls field still carried the original false sentence' -- recorded as an owned error, not quietly amended. B-1b2b/background.md and checklist.json capture the retrieval-path argument precisely: CHK-002 states 'the acceptance test is a retrieval, not a schema' and 'a field only the writer sets and nothing enforces at read time reproduces today's situation with extra ceremony'; CHK-003 requires proving it against B-9ff1's own three-entry chain (a67bb17/8d1d2bb/e367ec1) as the motivating case with a repro-first demonstration; CHK-004 requires superseded entries stay id-reachable rather than deleted. This is not softened into a bare schema field. Mechanics: findings.json has 69 records, 0 open (68 resolved + 1 dismissed); git rev-list --count HEAD..main = 0; node packages/main/tests/red/red-w2d-specificity-conjunction.mjs exits 0 (PASS, conjunction differential intact). git status --porcelain shows only process-events.jsonl/prompt-envelopes.json/review-runs.json, self-caused by this review round's own dispatch+review_run_start calls. No twelfth catch found; concept lane passes.",
+      "createdAt": "2026-08-18T21:01:47.067Z",
+      "reviewRound": "2026-08-18T20:31:09.389Z",
+      "reviewRunId": "B-9ff1:RR-085",
+      "envelopeId": "8a04d8467b21555f19033a633e325516547409e3e0695841f9a8a65a11b1a654",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/dev-memory/experience.jsonl",
+          ".lattice/story/actives/B-1b2b/background.md",
+          ".lattice/story/actives/B-1b2b/checklist.json",
+          ".lattice/story/actives/B-9ff1/background.md",
+          ".lattice/story/actives/B-9ff1/findings.json",
+          ".lattice/story/actives/B-9ff1/plan.md",
+          ".lattice/story/actives/B-9ff1/summary.json"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-9ff1/checklist.json",
+          "packages/main/tests/red/red-w2d-specificity-conjunction.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3d4c44f1783f2b7385ae8d9ecb578dbb802db77e10941107307862de4bb6d41a"
     }
   ]
 }
