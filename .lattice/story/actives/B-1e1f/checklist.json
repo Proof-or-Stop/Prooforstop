@@ -6,7 +6,7 @@
       "context": "Create one deep owner, not a thin handler wrapper around review-inventory-epoch.ts. The window has states BLOCKED/ADMITTED/RUNNING/FINALIZED/INVALIDATED/CANCELLED, binds storyId, expected main SHA, headHash, materialHash, storyFilesHash, verifier/test identity, and the inventory epoch/receipt it consumed. Register the artifact and commands in the process-fact registry and process-fact-levels with an explicit gateConsumer. Status must print State, frozen identity, blockers, and exactly one Next command.",
       "relatedDocs": [
         "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
-        "AGENTS.md#流程事实双层契约",
+        "AGENTS.md",
         "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md"
       ],
       "userSees": "proof-or-stop certification_window_status --storyId=B-xxxx prints State: BLOCKED or State: ADMITTED, the frozen head/main/storyFiles hashes when admitted, and exactly one Next: line.",
