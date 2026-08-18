@@ -31,6 +31,21 @@
       "_hash": "277f59f0c54b7186c722db913f1bca9c1b3bae81623c48b38de1b8581766fc7c",
       "signatureTag": "edge|unknown|packages-main-tasks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-49ed:F-003",
+      "desc": "CHK-002 userSees claims 'no test sets LATTICE_SESSION_ID to establish a signing identity', but at least 24 files under packages/main/src/tasks/ still directly assign process.env.LATTICE_SESSION_ID (or set it as a literal in an env object) to establish a signing/owner identity for CLI invocations under test, e.g. decision-doc-promotion-smoke.ts:48, delivery-context-pack-smoke.ts:482/489, evidence-refresh-smoke.ts:374/381, done-required-validation-smoke.ts:321/329, live-smoke-transcript-smoke.ts:827/1178/1185, frozen-claim-snapshot-hook-smoke.ts:70, plan-skeleton-smoke.ts:224/231, checklist-reload-hint-smoke.ts:64, proofstory-acceptance-basis-smoke.ts:68. This is the exact CHK-002 scope stated in plan.md (167 lines/29 files under packages/main/src/tasks/), and 29 files still contain the literal today. Since these tests dispatch/CLI-invoke under an explicit-env session id, any of them that exercise deriveRoleProvenance-gated commands would now hit the new CHK-001 guard and fail (or were silently routed around it), not migrated per plan. Fix: either complete the migration through the shared adapter-session-env.ts helper for all remaining files, or narrow CHK-002 userSees/scope to the subset actually migrated and file a follow-up for the rest.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-08-18T03:43:14.470Z",
+      "reviewRound": "2026-08-18T02:48:29.207Z",
+      "reviewRunId": "B-49ed:RR-002",
+      "_hash": "b86c94c8b1863263dadd72f2a8e5ce57892034c8373873ea64c1a3dd61b85fcd",
+      "signatureTag": "missing|unknown|usersees-claims-test",
+      "signatureTagSource": "auto"
     }
   ]
 }
