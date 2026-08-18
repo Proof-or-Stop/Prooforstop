@@ -84,6 +84,11 @@ packages/koala-observer-cli/
 .lattice/runtime/owner-session-tokens/
 .proof-or-stop/traces/
 .proof-or-stop/locks/
+# transient mkdir-lock directories (B-d877 R2: now carry a holder.json token, so
+# an accidental commit while one is briefly held would track/churn runtime state;
+# these <name>.lock/ dirs — checklist/finding/review-run/init-check — are managed
+# runtime locks, never story metadata).
+**/*.lock/
 .proof-or-stop/usage/
 .lattice/usage/
 .proof-or-stop/learning/
