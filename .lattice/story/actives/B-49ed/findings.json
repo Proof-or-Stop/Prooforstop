@@ -1,0 +1,21 @@
+{
+  "findings": [
+    {
+      "id": "B-49ed:F-001",
+      "desc": "signing-guard-mutation-proof-smoke.ts proves guard removal by regex-matching the SIGNABLE_SESSION_SOURCES Set literal in the COMPILED dist artifact (topology-critic-receipt.js), then mutating a copy in a temp dir. This is verified SAFE (real artifact is read-only throughout; mutation writes only to a fresh mkdtemp path cleaned in a finally block; byte-identical check at the end confirms no residue) and the brittleness is bounded (assert.ok(match) at line 25 fails loudly, not silently, if the build output shape ever changes the Set literal formatting) -- but it is still coupled to esbuild/tsc output formatting (e.g. quote style, whether the Set literal stays inline vs gets split across lines by a future compiler/minifier change) rather than to TS source AST. A more robust alternative would regex/parse the TS SOURCE (topology-critic-receipt.ts) instead of dist, or use a source-level import + monkey-patch of the Set at runtime instead of string surgery on compiled output. Not blocking: the current test passes, fails loudly on drift, and the constraint (prove BUILT guard removal without recompiling) is a real one under time pressure. Recording as advisory since a finding is more useful than a pass here.",
+      "severity": "low",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-08-18T03:41:50.713Z",
+      "reviewRound": "2026-08-18T02:48:29.207Z",
+      "_hash": "a240df23b2deb054729172a62ff27010d46db1087b376305b3ecb66346b0a953",
+      "files": [
+        "packages/main/src/tasks/signing-guard-mutation-proof-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|signing-guard-mutation",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
