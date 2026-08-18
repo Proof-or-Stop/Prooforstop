@@ -506,7 +506,7 @@
       "desc": "packages/main/src/tasks/signing-guard-mutation-proof-smoke.ts:143-145 the second cleanup root, process.cwd(), is not something this test proved it created. It is a guess at where resolveSessionIdentity landed the owner-session-tokens store, added only because a prior round observed the root test:signing-guard-mutation-proof invocation path lands there instead of resolve(here, \"../..\"). But packages/main/src/core/owner-session.ts:59 shows process.cwd() is itself a FALLBACK inside git-root discovery when no .git is found upward -- i.e. under an unexpected cwd (nested worktree, CI sandbox launched from a different directory, a future caller that chdir()s before invoking this script), this line deletes <that cwd>/.lattice/runtime/owner-session-tokens unconditionally, with force:true and no existence/ownership check first. Contrast with the frameworks own runner-cleanable mechanism in full-suite-runner.ts (cleanupManifestForEntry / cleanupOwnedTargets, lines 199-224): it records existedBefore before the run, refuses to delete anything that pre-existed launch (target pre-existed launch; cleanup refused), checks an ownership marker/token before touching a directory, and rejects symlinks in the path (assertOwnedPathHasNoSymlink). This proof bypasses all of that and is registered in RESOURCE_POLICY as a plain repoRead (access: shared) -- i.e. declared read-only -- when it actually performs an unscoped, ungated, force-deleting write. Fix: capture existedBefore for both candidate roots BEFORE the resolveSessionIdentity probes run, and only rmSync a root that (a) did not exist beforehand or (b) can be confirmed via an ownership marker this run wrote, mirroring cleanupOwnedTargets rather than reinventing an unguarded version of it. At minimum, stop deleting under process.cwd() unconditionally -- that path was never proved to be this runs artifact.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-18T05:30:11.975Z",
@@ -518,7 +518,11 @@
         "packages/main/src/tasks/full-suite-runner.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Correct, and it converges with behavior's F-025 on the same defect from a different angle. Your additional point is the one I had not seen: this smoke is registered in RESOURCE_POLICY as repoRead, declaring itself read-only, while performing an unscoped force-delete. You also established that process.cwd() is itself a fallback in owner-session.ts when git-root discovery fails, so an unexpected cwd is not hypothetical.\n\nFixed by removing the cwd dependency entirely rather than by adding existedBefore or ownership marking: the probes now run under a mkdtemp root, so there is no delete outside a directory this run created. That is simpler than cleanupOwnedTargets-style marking and achieves the same guarantee for this case.\n\nVerified from both invocation paths without pre-clearing: no residue at either former location, no leftover temp dir.",
+      "resolvedAt": "2026-08-18T05:32:39.966Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-49ed:F-027",
