@@ -18,23 +18,31 @@
  *     a shell-style config entry against a plain allowlisted pinned command, and returns a
  *     configured 0/negative timeoutMs verbatim (relying on the separate resolveCommandTimeoutMs
  *     safety net downstream, not on resolvePinnedCommandTimeoutMs itself, to sanitize it);
- *   - B-16df F-004: validation-executor.ts and verifier.ts remain byte-for-byte unmodified
- *     from main (git diff, soft-skip on environment failure); checklist.ts's own source
- *     text invokes the shared resolvePinnedCommandTimeoutMs(root, command) helper at
- *     exactly 4 call sites (declared exactly once — no duplicated matching logic outside
- *     it); and a very large configured timeoutMs is clamped end-to-end via
- *     resolveCommandTimeoutMs to MAX_NODE_TIMER_DELAY_MS (not an unbounded-timeout vector);
+ *   - B-16df F-004: checklist.ts's own source text invokes the shared
+ *     resolvePinnedCommandTimeoutMs(root, command) helper at exactly 4 call sites (declared
+ *     exactly once — no duplicated matching logic outside it); and a very large configured
+ *     timeoutMs is clamped end-to-end via resolveCommandTimeoutMs to MAX_NODE_TIMER_DELAY_MS
+ *     (not an unbounded-timeout vector). B-16df's companion H-003 assertion — that
+ *     validation-executor.ts and verifier.ts are byte-for-byte unmodified from main — is no
+ *     longer made here; see section 12 and BUG-B16DF-BYTEPIN for why a standing registered
+ *     suite command cannot carry a per-story scope claim;
  *   - B-16df F-008: tokenizeCommandString (validation-executor.ts) and splitShellWords
  *     (verifier.ts) normalize equivalently for allowlist-legal, whitespace/quoting-varied
  *     input on BOTH the config side and the pinned-command side (parsing parity + evasion
  *     resistance), and a pinned command whose args are a strict PREFIX of a longer configured
- *     args array never partial-matches (returns undefined, CHK-003:edge:1).
+ *     args array never partial-matches (returns undefined, CHK-003:edge:1);
+ *   - B-3434 F-044: the exact membership of VERIFICATION_COMMAND_EXECUTABLE_ALLOWLIST
+ *     (validation-executor.ts) -- the executable allowlist parseAllowlistedCommand enforces for
+ *     pinned verification-evidence commands -- is pinned against a literal expected set, and
+ *     parseAllowlistedCommand rejects a representative non-member leading token (`bash`). Adding
+ *     to or removing from that allowlist fails section 17 by name. This covers that one constant
+ *     and that one rejection path only; it is not a general substitute for the removed byte-pin.
  *
  * Hermetic: all sub-plans run with projectRoot = os.tmpdir() so no real config/git-status
  * side effects leak in. Sections 12-13 are the sole exception: they read this repo's own
- * source/git state (REPO_ROOT, resolved from this file's own compiled location) rather than
- * a temp dir, since H-003/H-002 are claims ABOUT this repo's actual source, not synthesized
- * fixtures. Every other section's mkdtempSync tmp dir is removed via rmSync in a per-section
+ * source state (REPO_ROOT, resolved from this file's own compiled location) rather than
+ * a temp dir, since H-002 is a claim ABOUT this repo's actual source, not a synthesized
+ * fixture. Every other section's mkdtempSync tmp dir is removed via rmSync in a per-section
  * try/finally (B-16df F-001) so repeated `lattice validate` runs don't leak stray tmpdirs.
  * Registered in lattice.config.json validate.commands for ongoing regression protection.
  *
@@ -42,7 +50,6 @@
  */
 
 import { mkdtempSync, writeFileSync, readFileSync, existsSync, rmSync } from 'node:fs';
-import { execSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
@@ -53,6 +60,7 @@ import {
   executeValidationPlan,
   runSingleAllowlistedCommand,
   parseAllowlistedCommand,
+  VERIFICATION_COMMAND_EXECUTABLE_ALLOWLIST,
 } from '../core/validation-executor.js';
 import type { ValidationCommand, ValidationPlan } from '../core/validation-types.js';
 
@@ -60,8 +68,11 @@ import type { ValidationCommand, ValidationPlan } from '../core/validation-types
  * B-16df F-004: resolved repo root, computed from this compiled file's own location
  * (packages/main/dist/tasks/<this file> → up 4 directories to the repo root) — mirrors
  * the existing `deprecated-gc-smoke.ts` `realRoot` pattern. Sections 12-13 below use this
- * (NOT process.cwd(), which a caller could invoke this smoke from anywhere) to run `git
- * diff` and read checklist.ts's own source text.
+ * (NOT process.cwd(), which a caller could invoke this smoke from anywhere) to locate the
+ * repo-root marker file and read checklist.ts's own source text. Section 12 no longer runs
+ * `git diff` (see BUG-B16DF-BYTEPIN in section 12); the only two reads through REPO_ROOT are
+ * now existsSync on lattice.config.json (section 12) and readFileSync on
+ * packages/main/src/handlers/checklist.ts (section 13).
  */
 const REPO_ROOT = join(new URL(import.meta.url).pathname, '../../../../..');
 
@@ -360,38 +371,41 @@ void (async () => {
       rmSync(zeroTimeoutRoot, { recursive: true, force: true });
     }
 
-    // 12. B-16df F-004 (H-003): validation-executor.ts and verifier.ts — the shared
-    //     validate-command execution/config-parsing primitives this story's fix builds on
-    //     top of — must remain byte-for-byte unmodified from main. The fix lives entirely
-    //     in checklist.ts's new resolvePinnedCommandTimeoutMs helper + its call sites,
-    //     never by editing either shared primitive. First a hard sanity check that
-    //     REPO_ROOT actually resolved to the real repo root (so a broken path computation
-    //     fails loudly here rather than being silently swallowed by the soft-skip below);
-    //     then `git diff main` against both files must produce empty output. Soft-skip
-    //     (console.warn, no hard failure) only if `git diff` ITSELF throws (e.g. `git` is
-    //     missing or `main` is unresolvable in some CI checkout) -- that guard covers ONLY the
-    //     execSync call. B-16df F-006: the check(...) assertion on the diff CONTENT must NEVER
-    //     live inside that same try/catch, or a genuine modification (check() throwing) would
-    //     be caught by the environment-only catch and silently downgraded to a console.warn
-    //     SOFT-SKIP instead of failing the smoke -- so it runs unguarded below, gated only on
-    //     whether execSync actually produced output (diffOutput !== null), never on whether
-    //     that output happens to be empty.
+    // 12. REPO_ROOT sanity check. Section 13 below reads this repo's OWN checklist.ts source
+    //     through REPO_ROOT (not process.cwd(), since a caller can invoke this smoke from
+    //     anywhere), so a broken path computation must fail loudly here rather than silently
+    //     reading the wrong file or nothing at all.
+    //
+    //     WHAT WAS REMOVED HERE, AND WHY (BUG-B16DF-BYTEPIN).
+    //     This section also used to assert, as B-16df's F-004 / H-003, that
+    //     packages/main/src/core/validation-executor.ts and packages/main/src/handlers/verifier.ts
+    //     were byte-for-byte unmodified from main. It ran
+    //       git diff main -- packages/main/src/core/validation-executor.ts packages/main/src/handlers/verifier.ts
+    //     via execSync inside a try/catch that soft-skipped (console.warn) only if execSync
+    //     itself threw (B-16df F-006 kept the content assertion outside that catch), then
+    //     asserted the diff output was empty. B-16df's own fix was confined to checklist.ts's
+    //     new resolvePinnedCommandTimeoutMs helper and its call sites, and this assertion was
+    //     how that story evidenced it had not edited either shared primitive.
+    //
+    //     A standing registered validate.commands entry cannot express a per-story scope
+    //     claim. On main the diff is trivially empty, so the assertion proves nothing where it
+    //     actually runs; off main it is a blanket prohibition on ever editing two actively
+    //     developed core files, no matter how correct or well reviewed that edit is. It
+    //     therefore deterministically failed for B-3434, whose entire purpose is to change both
+    //     of those files: B-3434 added boundPersistedValidationEvidence to validation-executor.ts
+    //     and calls it from verifier.ts's evidence write path. (The read ceiling those thresholds
+    //     are fractions of, METADATA_BLOB_READ_MAX_BUFFER_BYTES, is declared in
+    //     core/done-prepare-generated-metadata.ts -- which is where the execFileSync maxBuffer
+    //     calls are. validation-executor.ts contains no execFileSync call of its own.) So the
+    //     byte-pin was an unconditional red for that story
+    //     regardless of its correctness, and the same for every future story that touches
+    //     either file.
+    //
+    //     "This story did not modify file X" is a statement about ONE story's diff. It belongs
+    //     to that story's own scope contract (allowedModify / protectedFiles) and to its diff
+    //     review, both of which are evaluated per story against that story's declared
+    //     boundary -- not to a suite command every later story is forced to satisfy.
     check('REPO_ROOT resolved to the actual repo root (lattice.config.json present there)', existsSync(join(REPO_ROOT, 'lattice.config.json')));
-    let diffOutput: string | null = null;
-    try {
-      diffOutput = execSync(
-        'git diff main -- packages/main/src/core/validation-executor.ts packages/main/src/handlers/verifier.ts',
-        { cwd: REPO_ROOT, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] },
-      );
-    } catch (e) {
-      console.warn(`validate-command-timeout-smoke: SOFT-SKIP git-diff-vs-main check (H-003) — execSync itself failed (e.g. git missing / main unresolvable), not a content evaluation — ${e instanceof Error ? e.message : String(e)}`);
-    }
-    if (diffOutput !== null) {
-      check(
-        'validation-executor.ts and verifier.ts are byte-for-byte unmodified from main (empty git diff)',
-        diffOutput.trim().length === 0,
-      );
-    }
 
     // 13. B-16df F-004 (H-002): all 4 real runSingleAllowlistedCommand call sites in
     //     checklist.ts must route through the ONE shared resolvePinnedCommandTimeoutMs
@@ -558,6 +572,47 @@ void (async () => {
     } finally {
       rmSync(argsLengthRoot, { recursive: true, force: true });
     }
+
+    // 17. B-3434 F-044 (allowlist membership + rejection). Every section above that touches
+    //     parseAllowlistedCommand / resolvePinnedCommandTimeoutMs passes a command whose leading
+    //     token is `node`, so all of them stay green no matter what else
+    //     VERIFICATION_COMMAND_EXECUTABLE_ALLOWLIST (validation-executor.ts) contains. That was
+    //     measured, not assumed: with `bash` added to the allowlist in a disposable copy of this
+    //     tree, this file passed 44/44 with exit 0 -- a security-relevant widening (a pinned
+    //     verification-evidence command could then launch an arbitrary shell) that nothing in the
+    //     repository failed on. So pin the set itself.
+    //
+    //     17a states the expected membership as a literal and reports the actual membership in the
+    //     assertion name, so an addition or a removal fails here and says which token moved.
+    //     17b is the paired behavioural half: pinning the set only matters if a non-member is
+    //     actually refused, so assert parseAllowlistedCommand throws the not-allowlisted error for
+    //     a representative non-member leading token. The two halves fail independently -- 17a on a
+    //     set edit alone, 17b if the set is edited AND this file's literal is edited to agree, or
+    //     if the enforcement in parseAllowlistedCommand is weakened while the set stays intact.
+    //
+    //     SCOPE: this pins ONE constant and ONE rejection path. It is not, and does not restore,
+    //     the removed byte-pin's incidental whole-file coverage of validation-executor.ts and
+    //     verifier.ts (see section 12).
+    const EXPECTED_ALLOWLIST = ['bun', 'node', 'npm', 'npx', 'pnpm', 'tsx', 'yarn'];
+    const actualAllowlist = [...VERIFICATION_COMMAND_EXECUTABLE_ALLOWLIST].sort();
+    check(
+      `VERIFICATION_COMMAND_EXECUTABLE_ALLOWLIST membership is exactly [${EXPECTED_ALLOWLIST.join(', ')}] ` +
+        `(actual: [${actualAllowlist.join(', ')}]) -- any addition or removal must be a reviewed, deliberate change`,
+      JSON.stringify(actualAllowlist) === JSON.stringify(EXPECTED_ALLOWLIST),
+    );
+
+    const NON_MEMBER_COMMAND = 'bash -c "echo hi"';
+    let nonMemberError: unknown = null;
+    try {
+      parseAllowlistedCommand(NON_MEMBER_COMMAND);
+    } catch (e) {
+      nonMemberError = e;
+    }
+    check(
+      'parseAllowlistedCommand rejects a pinned command whose leading token is not in the allowlist (`bash -c "echo hi"` throws verification command executable "bash" is not allowlisted)',
+      nonMemberError instanceof Error &&
+        nonMemberError.message.includes('verification command executable "bash" is not allowlisted'),
+    );
 
     console.log(`validate-command-timeout smoke passed: ${passed} assertions`);
   } catch (e) {
