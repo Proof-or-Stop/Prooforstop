@@ -210,23 +210,22 @@
         {
           "intentRef": "CHK-002:happy:0",
           "kind": "integration_test",
-          "file": "packages/main/src/tasks/topology-signing-source-guard-smoke.ts",
           "command": "node packages/main/dist/tasks/topology-signing-source-guard-smoke.js",
           "result": "pass",
-          "note": "The migration did not weaken coverage. No test was made to pass by deleting an identity assertion; story-owner-lease-smoke, which holds 74 of the LATTICE_SESSION_ID references and asserts explicit-env semantics, was deliberately left unmigrated and still exits 0.",
+          "note": "verification_run executed the pinned verifier for CHK-002:happy:0",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "fe818ee7113805e6930881de1c87ab61e5fec63eac4e0a00a7f77f7db98638c2",
-            "outputTail": "Topology signing source guard: PASS\n  refused (forgeable): explicit-env, derived-ppid\n  accepted (host-derived): host-adapter, generated-token\n  bound production call sites: 2/2\n  migrated fixture env resolves to: host-adapter\n",
+            "outputDigest": "88b4f50d8fb285081317d0a79b2e6d8ec7b4bfe58d5d666d0a62e3e530c26a2f",
+            "outputTail": "Topology signing source guard: PASS\n  refused (forgeable): explicit-env, derived-ppid\n  accepted (host-derived): host-adapter, generated-token\n  bound production call sites: 2/2\n  migrated fixture env resolves to: host-adapter\n  accepted sources complete provenance for: critic + exclusion approver\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-18T02:48:03.915Z",
+            "executedAt": "2026-08-18T05:10:17.191Z",
             "timeoutMs": 270000
           },
-          "headHash": "1f790e190ca959ca7269a8f1f11c2cb2275b699a",
-          "materialHash": "85c0be5ad0c38e74669a3c1b64ac7a6c4c7fd82ce2715853ac9a5bf4802b1396",
-          "storyFilesHash": "acfb27a08d9cc5cfdb1c852c065344c65922109d02c168d6d3436ccc4127a888",
-          "timestamp": "2026-08-18T02:48:04.062Z"
+          "headHash": "d98b886386685200796a2f345449a2e2a7ab8921",
+          "materialHash": "007801d9ce6e75d05549350ffaa01537a36ebfd1a786eecac625ee27ed235e49",
+          "storyFilesHash": "39c94f8fe6c26143b7037a10df85d685dd9652d77845052c057efe3b7c061179",
+          "timestamp": "2026-08-18T05:10:17.337Z"
         }
       ],
       "userSeesSnapshot": {
