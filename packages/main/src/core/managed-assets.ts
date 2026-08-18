@@ -198,7 +198,11 @@ interface ManagedAssetPathInfo {
   actualRelPath?: string;
 }
 
-const MANIFEST_REL_PATH = '.lattice/managed-assets.json';
+// B-cc10: was hardcoded '.lattice/managed-assets.json', so the runtime kept
+// recreating the DEPRECATED state dir after CHK-003's move — the directory
+// reappeared on every CLI invocation and repeatedly tripped the half-done
+// detector. Route it through the resolver like every other state path.
+const MANIFEST_REL_PATH = `${PROOF_OR_STOP_STATE_DIR}/managed-assets.json`;
 const INIT_DOC_SECTION_RE = /<!--\s*lattice:start\s*-->[\s\S]*?<!--\s*lattice:end\s*-->/;
 
 function packageRoot(): string {
