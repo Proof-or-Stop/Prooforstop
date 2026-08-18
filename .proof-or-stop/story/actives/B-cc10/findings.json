@@ -282,6 +282,21 @@
       ],
       "signatureTag": "missing|ts|code-drift-packages",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-cc10:F-017",
+      "desc": "concept-cleanup: docs/CLI.md describes the deprecated adapter-dir/manifest paths (.lattice-codex/lattice.json, .lattice/lattice.json) as CURRENT behavior with zero deprecation framing, contradicting CHK-003/CHK-004's canonical rename to .proof-or-stop-codex/proof-or-stop.json. Lines docs/CLI.md:1018-1023 (npm run test:codex-assets section) and docs/CLI.md:1131-1135 (Claude Code section) present .lattice-codex/lattice.json, .lattice-codex/settings.json, .lattice-codex/agents, and .lattice/lattice.json as the paths a reader should currently expect/consult -- not as retained-for-reads aliases. This story DID edit docs/CLI.md (CHK-006 bin-alias removal note) but left this separate, still-live section using the old spellings untouched, so a reader following docs/CLI.md verbatim after this migration lands would look for adapter state at the wrong (deprecated) path. Note: docs/CLI.md:1135 also contains what appears to be a leaked local absolute filesystem path (/Users/jek/Documents/Work/Orchestrate/...) in markdown link targets, unrelated to this migration but adjacent and worth cleaning in the same pass. Not caught by the automated brand-prose/brand-exec gates in scripts/verify-lattice-residue.mjs because those specifically scan for bare `lattice <cmd>` invocation prose, not stale path documentation.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-18T03:47:41.957Z",
+      "reviewRound": "2026-08-18T03:33:16.325Z",
+      "reviewRunId": "B-cc10:RR-014",
+      "_hash": "aad29eaa5156a09837e15148a5894846341751844b6cab9430dbb2fa01d5f2df",
+      "signatureTag": "missing|unknown|concept-cleanup-docs",
+      "signatureTagSource": "auto"
     }
   ]
 }
