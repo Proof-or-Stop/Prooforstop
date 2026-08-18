@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-38b7",
+  "state": "candidate",
+  "ledgerHash": "sha256:43e58606efb624c1dcd6aadfa4bedaabf53a48ce3a05efc35d921bdc80b0c3c8",
+  "milestones": [
+    {
+      "id": "M1",
+      "sourceRequirementId": "DOC-PROMOTION",
+      "claim": "The approved dynamic-validation plan is managed as one canonical repository decision document.",
+      "doneMeans": "The exact target Markdown exists in the Story diff, contains no machine-local absolute paths, and preserves the approved Revision 3 status and safety contract.",
+      "requiredEvidence": [
+        "docs_check",
+        "scope_check"
+      ],
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [],
+      "status": "planned"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "AUDIT-PROVENANCE",
+      "claim": "The promoted document preserves dual-audit provenance and does not overstate DYN-3 authority.",
+      "doneMeans": "The document records Claude and Agy final DYN-1 approval, zero critical or high findings, remaining nonblocking obligations, and DYN-2/DYN-3 enforcement gates.",
+      "requiredEvidence": [
+        "docs_check"
+      ],
+      "checklistRefs": [
+        "CHK-002",
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-08-18T18:28:56.193Z",
+  "updatedAt": "2026-08-18T18:28:56.193Z"
+}
