@@ -384,7 +384,7 @@
       "desc": "packages/main/src/tasks/signing-guard-mutation-proof-smoke.ts:90 rmSync(resolve(here, \"../../.lattice\"), {recursive:true, force:true}) deletes the ENTIRE packages/main/.lattice tree, not just the runtime/owner-session-tokens subtree it created. Currently this is masked by the ordering bug in F-019 (the delete fires before the writes it targets exist), but once that ordering is fixed, a recursive delete scoped to the whole .lattice directory rather than the specific owner-session-tokens path is broader than necessary. In this repos normal operation, packages/main/.lattice is not where production runtime state lives (that is the git worktree root .lattice, e.g. .lattice/locks/main-write.lock, .lattice/story/actives/), so under CURRENT invocation patterns (root: process.cwd() only ever resolving to packages/main or repo root for this smoke) the blast radius does not currently reach main-write-lock or story state. But the delete is not scoped defensively: it does not check the directory only contains what this test wrote, and does not use a dedicated scratch root the way story-owner-lease-smoke.ts does (LATTICE_OWNER_SESSION_SMOKE_ROOT env var to sandbox its own owner-session writes away from the real project root). Given this storys own F-006/F-013 history of shared-worktree races where reviewer-side probes mutated real state in this same worktree, a fix for F-019s ordering bug should also scope the delete to rmSync(join(root, \"runtime\", \"owner-session-tokens\")) or similarly narrow, rather than the whole .lattice directory, so a future caller of this smoke with a different cwd cannot accidentally wipe unrelated .lattice state (locks, story artifacts) that happens to also live under whatever root: process.cwd() resolves to at call time.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-behavior",
       "createdAt": "2026-08-18T04:54:53.863Z",
@@ -392,7 +392,11 @@
       "reviewRunId": "B-49ed:RR-022",
       "_hash": "a717c9eaa8f24ebb220076c25ab30434167a04a6924ac5b58fde61dd6457d8de",
       "signatureTag": "missing|unknown|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Correct. The cleanup deleted the whole .lattice tree when it only created .lattice/runtime/owner-session-tokens. Given this story's own F-006 and F-013 history of shared-worktree races, a delete broader than what the test created is the wrong default even where it happens not to reach production state today.\n\nNarrowed to the owner-session-tokens subtree specifically, applied to both candidate roots. Fixed together with F-019 since the ordering bug and the scope were in the same statement.",
+      "resolvedAt": "2026-08-18T04:59:26.311Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-49ed:F-021",
