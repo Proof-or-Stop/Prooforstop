@@ -1,0 +1,56 @@
+{
+  "storyId": "B-d15e",
+  "changes": "`full-suite-runner.ts` now emits `performanceBudgetMs` from `FULL_SUITE_BUDGET_MS`; `full-suite-runner-smoke.ts` requires that canonical mapping and mechanically rejects a restored numeric shadow copy.",
+  "usage": "Run `npm test` normally; any current full-suite JSON result produced with `--json-output` now reports the active 1200000ms policy instead of the retired 300000ms value.",
+  "expectedOutcome": "The full-suite JSON result contains `\"performanceBudgetMs\": 1200000`, and the focused runner smoke prints `full-suite-runner-smoke: PASS` while rejecting the old numeric initializer.",
+  "actualTranscript": "The captured real-machine command `npm run test:full-suite-runner-smoke` exited 0 and printed `full-suite-runner-smoke: PASS (153 assertions)`, including `result artifact derives its performance budget from the canonical constant without a numeric shadow copy` and `numeric performance budget shadow-copy mutation is rejected`; routine validation passed 105/105 commands.",
+  "outcomeDiff": "No product difference: the actual transcript matches the expected canonical mapping and mutation rejection.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Frozen historical B-9812 receipts still retain their original 300000ms telemetry by design; this story changes current artifacts only and does not change runtime budgets, scheduling, or timeouts.",
+  "pitfalls": "The first CHK-002 intent used `npm --prefix packages/main`, which changes cwd and is not the registered root smoke entry; it was corrected through a PLAN rollback. The first REVIEW-to-TEST attempt passed 75 commands but hit the CLI 900000ms outer max at command 76; because phase remained REVIEW and no evidence was written, the same gate was safely rerun once with the documented `LATTICE_MAX_TIMEOUT_MS=7200000` override and passed all 105 commands. Do not retry validation after TEST entry at unchanged material.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 137750
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 17549
+    },
+    "PLAN": {
+      "count": 2,
+      "durationMs": 618316
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 584226
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 2404050
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 559690
+    }
+  },
+  "totalDurationMs": 4322099,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-08-18T18:26:07.401Z",
+  "updatedAt": "2026-08-18T18:26:07.401Z"
+}

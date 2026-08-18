@@ -23,6 +23,9 @@ function assertWithDetail(condition: unknown, stableMessage: string, detail: str
   if (!condition) throw new Error(`${stableMessage}: ${detail}`);
   checks.push(stableMessage);
 }
+function resultArtifactUsesCanonicalBudget(source: string): boolean {
+  return /performanceBudgetMs:\s*FULL_SUITE_BUDGET_MS\b/.test(source) && !/performanceBudgetMs:\s*\d[\d_]*/.test(source);
+}
 const isolatedTempRootsMatch = (roots: string[], expected: string | undefined): boolean =>
   roots.length === 4 && new Set(roots).size === 1 && roots[0] === expected;
 function createFixtureBuildBinding(root: string): void {
@@ -71,9 +74,13 @@ async function main(): Promise<void> {
     || (osProbe.status === 2 && osReceipt.overallStatus === 'UNSUPPORTED' && osReceipt.mutationDetected === false), 'dedicated fixed-port OS receipt never disguises unsupported capability as collision detection');
   rmSync(osReceiptPath, { force: true });
   const rootPackage = JSON.parse(readFileSync(join(process.cwd(), 'package.json'), 'utf8')) as { scripts?: Record<string, string> };
+  const runnerSource = readFileSync(join(process.cwd(), 'packages/main/src/tasks/full-suite-runner.ts'), 'utf8');
   assert(rootPackage.scripts?.build?.startsWith('npm --prefix packages/main run build && npm --prefix packages/utils run build'), 'standard root build prepares main and utils runtime');
   assert(rootPackage.scripts?.test === 'node packages/main/dist/tasks/full-suite-runner.js', 'root test has no ignored compatibility arguments');
   assert(rootPackage.scripts?.build?.endsWith('node scripts/verify-full-suite-build-binding.mjs'), 'standard root build fails closed on stale full-suite dist');
+  assert(resultArtifactUsesCanonicalBudget(runnerSource), 'result artifact derives its performance budget from the canonical constant without a numeric shadow copy');
+  const numericBudgetMutation = runnerSource.replace('performanceBudgetMs: FULL_SUITE_BUDGET_MS', 'performanceBudgetMs: 300_000');
+  assert(numericBudgetMutation !== runnerSource && !resultArtifactUsesCanonicalBudget(numericBudgetMutation), 'numeric performance budget shadow-copy mutation is rejected');
   const canonicalClassCounts = new Map<string, number>();
   for (const item of FULL_SUITE_ENTRIES) for (const resource of item.resources) canonicalClassCounts.set(resource.class, (canonicalClassCounts.get(resource.class) ?? 0) + 1);
   for (const resourceClass of ['git-common-dir', 'fixed-path', 'fixed-port', 'runtime-lock', 'main-write-lock']) {
