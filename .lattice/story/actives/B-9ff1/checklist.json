@@ -1893,18 +1893,19 @@
           "command": "node packages/main/tests/red/red-w2d-rejection-matrix.mjs",
           "result": "pass",
           "note": "The baseline accept() has a single admissible present-in-red literal-line matcher and NO class matcher at all, and asserts ok === true — rule 3 constrains only class matchers, so a pure literal-line set needs nothing added.",
-          "headHash": "2a01df278e178aa3baeb8ab4c5b30f261ee58a33",
-          "materialHash": "afa81bb4c922fbac27b79bf2d648ef4f701321616311a6d94b95c7ee31e02127",
-          "storyFilesHash": "de9c8a2f86bf8a9d9425dd09cf249a0533821140017f8e3bfcfaea0ea1abd6fd",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "77a53c2905d498b2bb2bbf4f05b0e59d8267cb9ed171c24241fec9ac09b69245",
             "outputTail": "tifactRef \"c:/outside\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"C:/\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"Z:/repo/packages/x.js\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"C:outside\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"C:\\\\outside\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"//server/share/x.js\"\n  ACCEPT             CHK-005: a repo-relative path whose FIRST segment merely contains a colon\n  REJECT R1-3        CHK-005: supplementaryArtifact is explicitly null (§0.4 forbids null for an absent optional field)\n  ACCEPT             CHK-005: supplementaryArtifact OMITTED entirely is admissible\n  REJECT R1-3        CHK-005: supplementaryArtifact expectation outside the closed enum\n  REJECT R1-3        CHK-005: supplementaryArtifact without targetArtifactRef\n  REJECT R1-2        CHK-011: below-threshold literal is R1-2, NOT R1-3\n  REJECT R1-2        CHK-002: empty value is R1-2 (§1.3 rule 1 non-emptiness), NOT R1-3\n  REJECT R1-3        CHK-002: the sibling clause `trimmed` stays R1-3 (explicitly enumerated there)\n  REJECT R1-2        CHK-011: the sibling clause `blocklisted` stays R1-2\n  REJECT R1-2        CHK-011: blocklisted literal .* is R1-2, NOT R1-3\n  REJECT R1-2        CHK-011: class-only present-in-red set is R1-2, NOT R1-3\n  REJECT R1-1        CHK-011: targetExercisedProof absent entirely is R1-1, NOT R1-6\n  REJECT R1-1        CHK-011: targetExercisedProof is not an object\n  REJECT R1-1        CHK-011: targetExercisedProof.method undefined\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"artifact-presence\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"path-touch\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"Harness-Token\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"\"\n  REJECT R1-1        CHK-011: targetExercisedProof.adapterId absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-1        CHK-011: targetExercisedProof.testCaseRef absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-1        CHK-011: targetExercisedProof.targetBindingDigest absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-6        CHK-011: NO committed binding registered for the target\n  REJECT R1-6        CHK-011: adapterId mismatching the committed binding\n  REJECT R1-6        CHK-011: correct adapterId but WRONG testCaseRef is R1-6 (mismatch), NOT R1-1 (missing)\n  REJECT R1-6        CHK-011: targetBindingDigest computed WITH createdAt included\n  REJECT R1-6        CHK-011: targetBindingDigest that recomputes to nothing\n  REJECT R1-5        adapterId absent from policy.runnerAdapterRegistry is R1-5\n  REJECT R1-5        CHK-011: testCaseRef \"free-form:not-derived\" matches no registered testCaseRefPattern is R1-5\n  REJECT R1-5        CHK-011: testCaseRef \"npm-script:\" matches no registered testCaseRefPattern is R1-5\n  REJECT R1-5        CHK-011: testCaseRef \"npm-script:test x\" matches no registered testCaseRefPattern is R1-5\n  REJECT R1-5        CHK-011: testCaseRef \"NPM-SCRIPT:test:x\" matches no registered testCaseRefPattern is R1-5\n  REJECT R1-5        CHK-011: testCaseRef \"prefix-npm-script:test:x\" matches no registered testCaseRefPattern is R1-5\n  REJECT R1-5        CHK-011: testCaseRef \"npm-script:test:x-suffix\\n\" matches no registered testCaseRefPattern is R1-5\n  REJECT R1-5        CHK-011: an npm-script testCaseRef under the node-test@1 adapter is R1-5\n  ACCEPT             CHK-011: the same ref IS admissible under the adapter whose pattern matches it\n  REJECT R1-2+R1-3   CHK-011: R1-2 and R1-3 co-occur and neither suppresses the other\n  REJECT R1-1+R1-2   CHK-011: R1-1 and R1-2 co-occur\n  REJECT R1-2+R1-3   CHK-015: an over-count envelope ALSO reports its §1.3 rule-3 violation (count does not suppress specificity)\n  REJECT R1-3        CHK-015: ZERO matchers reports the count bound ALONE (no fabricated §1.3 finding)\n  REJECT R1-2+R1-3   CHK-015: over-count + a below-floor literal are BOTH reported\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-13T20:43:40.755Z"
+            "executedAt": "2026-08-18T16:56:23.100Z",
+            "timeoutMs": 180000
           },
-          "timestamp": "2026-08-13T20:45:39.168Z"
+          "headHash": "cd21228c922fd6c75416b69811811c1134ae8a5c",
+          "materialHash": "061a9ced05e05fbdc6622a4289a8ee2acd7a4f74bc759ae2f48cc930df232605",
+          "storyFilesHash": "194ee4bc662de50e0f7278313fab5cf6ceefcb8ac49b24f716565fc40d75d6ec",
+          "timestamp": "2026-08-18T16:56:23.860Z"
         }
       ]
     },
@@ -1979,18 +1980,19 @@
           "command": "node packages/main/tests/red/red-w2d-entropy-differential.mjs",
           "result": "pass",
           "note": "For the realistic error line the table asserts close(entropyBits(value), refTotalBits(value)) where refTotalBits is an independent in-file reference Buffer.byteLength(v) * H(v): 185.06 total bits vs a per-symbol H of 4.30. NOTE: the value is 43 bytes, not the 26-byte string named in the intent text.",
-          "headHash": "2a01df278e178aa3baeb8ab4c5b30f261ee58a33",
-          "materialHash": "afa81bb4c922fbac27b79bf2d648ef4f701321616311a6d94b95c7ee31e02127",
-          "storyFilesHash": "de9c8a2f86bf8a9d9425dd09cf249a0533821140017f8e3bfcfaea0ea1abd6fd",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "ceb09b7e85e65eded254c194dc9d134562f8e403c3b1fda9de33e551022f0d82",
             "outputTail": "red-w2d-entropy-differential: PASS\n  formula anchors: ab=2.0 aabb=4.0 a=0.0 abcdefgh=24.0 (per-symbol rival is constant 1.0 for ab/aabb)\n  differential rows: 9/12 (floor 8)\n  DIFFER  \"Error: Cannot find module '/repo/dist/x.js'\"  total= 185.06 perSymbol= 4.30 spec=ADMIT  rival=REJECT  realistic module-resolution failure\n  DIFFER  \"AssertionError: expected 1 to equal 2\"        total= 150.02 perSymbol= 4.05 spec=ADMIT  rival=REJECT  realistic assertion failure\n  DIFFER  \"npm ERR! missing script: test\"                total= 107.37 perSymbol= 3.70 spec=ADMIT  rival=REJECT  realistic npm failure line\n  DIFFER  \"TypeError: x is not a function\"               total= 117.33 perSymbol= 3.91 spec=ADMIT  rival=REJECT  realistic type failure\n  DIFFER  \"ENOENT: no such file or directory\"            total= 135.35 perSymbol= 4.10 spec=ADMIT  rival=REJECT  realistic errno line\n  DIFFER  \"FAIL packages/main/tests/red/x.mjs\"           total= 143.46 perSymbol= 4.22 spec=ADMIT  rival=REJECT  realistic reporter line\n  DIFFER  \"exit status 1 (expected 0)\"                   total=  94.21 perSymbol= 3.62 spec=ADMIT  rival=REJECT  realistic exit line\n  DIFFER  \"abcdefgh\"                                     total=  24.00 perSymbol= 3.00 spec=ADMIT  rival=REJECT  boundary: exactly 24.0 total bits (>= is inclusive)\n  DIFFER  \"aabbccddeeff\"                                 total=  31.02 perSymbol= 2.58 spec=ADMIT  rival=REJECT  12 bytes over 6 symbols = 31.0 total bits\n  agree   \"aabbccdd\"                                     total=  16.00 perSymbol= 2.00 spec=REJECT rival=REJECT  AGREE: 8 bytes over 4 symbols = 16.0 total bits, below the floor\n  agree   \"aaaaaaaaaaaaaaaaaaaaaaaaaaaa\"                 total=   0.00 perSymbol= 0.00 spec=REJECT rival=REJECT  AGREE: 28 identical bytes, H = 0 so total = 0 (zero-entropy boundary)\n  agree   \"ab\"                                           total=   2.00 perSymbol= 1.00 spec=REJECT rival=REJECT  AGREE: 2.0 total bits, below the floor either way\n  multi-byte separation: bytes=26.53 (ADMIT) vs code-units=14.84 (REJECT)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-13T20:43:41.021Z"
+            "executedAt": "2026-08-18T16:56:23.285Z",
+            "timeoutMs": 180000
           },
-          "timestamp": "2026-08-13T20:45:39.168Z"
+          "headHash": "cd21228c922fd6c75416b69811811c1134ae8a5c",
+          "materialHash": "061a9ced05e05fbdc6622a4289a8ee2acd7a4f74bc759ae2f48cc930df232605",
+          "storyFilesHash": "194ee4bc662de50e0f7278313fab5cf6ceefcb8ac49b24f716565fc40d75d6ec",
+          "timestamp": "2026-08-18T16:56:23.860Z"
         },
         {
           "intentRef": "CHK-009:edge:0",
@@ -1999,18 +2001,19 @@
           "command": "node packages/main/tests/red/red-w2d-entropy-differential.mjs",
           "result": "pass",
           "note": "Hand-computable anchors: entropyBits(\"ab\") is asserted 2.0 and entropyBits(\"aabb\") 4.0, while rivalPerSymbol is asserted CONSTANT 1.0 across both — doubling the length doubles the total while the per-symbol value does not move, which is the multiplication by byte length.",
-          "headHash": "2a01df278e178aa3baeb8ab4c5b30f261ee58a33",
-          "materialHash": "afa81bb4c922fbac27b79bf2d648ef4f701321616311a6d94b95c7ee31e02127",
-          "storyFilesHash": "de9c8a2f86bf8a9d9425dd09cf249a0533821140017f8e3bfcfaea0ea1abd6fd",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "ceb09b7e85e65eded254c194dc9d134562f8e403c3b1fda9de33e551022f0d82",
             "outputTail": "red-w2d-entropy-differential: PASS\n  formula anchors: ab=2.0 aabb=4.0 a=0.0 abcdefgh=24.0 (per-symbol rival is constant 1.0 for ab/aabb)\n  differential rows: 9/12 (floor 8)\n  DIFFER  \"Error: Cannot find module '/repo/dist/x.js'\"  total= 185.06 perSymbol= 4.30 spec=ADMIT  rival=REJECT  realistic module-resolution failure\n  DIFFER  \"AssertionError: expected 1 to equal 2\"        total= 150.02 perSymbol= 4.05 spec=ADMIT  rival=REJECT  realistic assertion failure\n  DIFFER  \"npm ERR! missing script: test\"                total= 107.37 perSymbol= 3.70 spec=ADMIT  rival=REJECT  realistic npm failure line\n  DIFFER  \"TypeError: x is not a function\"               total= 117.33 perSymbol= 3.91 spec=ADMIT  rival=REJECT  realistic type failure\n  DIFFER  \"ENOENT: no such file or directory\"            total= 135.35 perSymbol= 4.10 spec=ADMIT  rival=REJECT  realistic errno line\n  DIFFER  \"FAIL packages/main/tests/red/x.mjs\"           total= 143.46 perSymbol= 4.22 spec=ADMIT  rival=REJECT  realistic reporter line\n  DIFFER  \"exit status 1 (expected 0)\"                   total=  94.21 perSymbol= 3.62 spec=ADMIT  rival=REJECT  realistic exit line\n  DIFFER  \"abcdefgh\"                                     total=  24.00 perSymbol= 3.00 spec=ADMIT  rival=REJECT  boundary: exactly 24.0 total bits (>= is inclusive)\n  DIFFER  \"aabbccddeeff\"                                 total=  31.02 perSymbol= 2.58 spec=ADMIT  rival=REJECT  12 bytes over 6 symbols = 31.0 total bits\n  agree   \"aabbccdd\"                                     total=  16.00 perSymbol= 2.00 spec=REJECT rival=REJECT  AGREE: 8 bytes over 4 symbols = 16.0 total bits, below the floor\n  agree   \"aaaaaaaaaaaaaaaaaaaaaaaaaaaa\"                 total=   0.00 perSymbol= 0.00 spec=REJECT rival=REJECT  AGREE: 28 identical bytes, H = 0 so total = 0 (zero-entropy boundary)\n  agree   \"ab\"                                           total=   2.00 perSymbol= 1.00 spec=REJECT rival=REJECT  AGREE: 2.0 total bits, below the floor either way\n  multi-byte separation: bytes=26.53 (ADMIT) vs code-units=14.84 (REJECT)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-13T20:43:41.287Z"
+            "executedAt": "2026-08-18T16:56:23.435Z",
+            "timeoutMs": 180000
           },
-          "timestamp": "2026-08-13T20:45:39.168Z"
+          "headHash": "cd21228c922fd6c75416b69811811c1134ae8a5c",
+          "materialHash": "061a9ced05e05fbdc6622a4289a8ee2acd7a4f74bc759ae2f48cc930df232605",
+          "storyFilesHash": "194ee4bc662de50e0f7278313fab5cf6ceefcb8ac49b24f716565fc40d75d6ec",
+          "timestamp": "2026-08-18T16:56:23.860Z"
         },
         {
           "intentRef": "CHK-009:edge:1",
@@ -2019,18 +2022,19 @@
           "command": "node packages/main/tests/red/red-w2d-entropy-differential.mjs",
           "result": "pass",
           "note": "assert.ok(close(entropyBits(\"a\"), 0), \"a single distinct byte has H = 0, so entropyBits = 1 x 0 = 0\") — the degenerate one-byte case where the total-bits and per-symbol formulas coincide at zero; the file also asserts entropyBits(\"\") === 0.",
-          "headHash": "2a01df278e178aa3baeb8ab4c5b30f261ee58a33",
-          "materialHash": "afa81bb4c922fbac27b79bf2d648ef4f701321616311a6d94b95c7ee31e02127",
-          "storyFilesHash": "de9c8a2f86bf8a9d9425dd09cf249a0533821140017f8e3bfcfaea0ea1abd6fd",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "ceb09b7e85e65eded254c194dc9d134562f8e403c3b1fda9de33e551022f0d82",
             "outputTail": "red-w2d-entropy-differential: PASS\n  formula anchors: ab=2.0 aabb=4.0 a=0.0 abcdefgh=24.0 (per-symbol rival is constant 1.0 for ab/aabb)\n  differential rows: 9/12 (floor 8)\n  DIFFER  \"Error: Cannot find module '/repo/dist/x.js'\"  total= 185.06 perSymbol= 4.30 spec=ADMIT  rival=REJECT  realistic module-resolution failure\n  DIFFER  \"AssertionError: expected 1 to equal 2\"        total= 150.02 perSymbol= 4.05 spec=ADMIT  rival=REJECT  realistic assertion failure\n  DIFFER  \"npm ERR! missing script: test\"                total= 107.37 perSymbol= 3.70 spec=ADMIT  rival=REJECT  realistic npm failure line\n  DIFFER  \"TypeError: x is not a function\"               total= 117.33 perSymbol= 3.91 spec=ADMIT  rival=REJECT  realistic type failure\n  DIFFER  \"ENOENT: no such file or directory\"            total= 135.35 perSymbol= 4.10 spec=ADMIT  rival=REJECT  realistic errno line\n  DIFFER  \"FAIL packages/main/tests/red/x.mjs\"           total= 143.46 perSymbol= 4.22 spec=ADMIT  rival=REJECT  realistic reporter line\n  DIFFER  \"exit status 1 (expected 0)\"                   total=  94.21 perSymbol= 3.62 spec=ADMIT  rival=REJECT  realistic exit line\n  DIFFER  \"abcdefgh\"                                     total=  24.00 perSymbol= 3.00 spec=ADMIT  rival=REJECT  boundary: exactly 24.0 total bits (>= is inclusive)\n  DIFFER  \"aabbccddeeff\"                                 total=  31.02 perSymbol= 2.58 spec=ADMIT  rival=REJECT  12 bytes over 6 symbols = 31.0 total bits\n  agree   \"aabbccdd\"                                     total=  16.00 perSymbol= 2.00 spec=REJECT rival=REJECT  AGREE: 8 bytes over 4 symbols = 16.0 total bits, below the floor\n  agree   \"aaaaaaaaaaaaaaaaaaaaaaaaaaaa\"                 total=   0.00 perSymbol= 0.00 spec=REJECT rival=REJECT  AGREE: 28 identical bytes, H = 0 so total = 0 (zero-entropy boundary)\n  agree   \"ab\"                                           total=   2.00 perSymbol= 1.00 spec=REJECT rival=REJECT  AGREE: 2.0 total bits, below the floor either way\n  multi-byte separation: bytes=26.53 (ADMIT) vs code-units=14.84 (REJECT)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-13T20:43:41.540Z"
+            "executedAt": "2026-08-18T16:56:23.583Z",
+            "timeoutMs": 180000
           },
-          "timestamp": "2026-08-13T20:45:39.168Z"
+          "headHash": "cd21228c922fd6c75416b69811811c1134ae8a5c",
+          "materialHash": "061a9ced05e05fbdc6622a4289a8ee2acd7a4f74bc759ae2f48cc930df232605",
+          "storyFilesHash": "194ee4bc662de50e0f7278313fab5cf6ceefcb8ac49b24f716565fc40d75d6ec",
+          "timestamp": "2026-08-18T16:56:23.860Z"
         },
         {
           "intentRef": "CHK-009:edge:2",
@@ -2039,18 +2043,19 @@
           "command": "node packages/main/tests/red/red-w2d-entropy-differential.mjs",
           "result": "pass",
           "note": "For \"\\u{1F4A5} boom\" the file asserts valueByteLength === 9 while String.length === 7, then that entropyBits equals the BYTE-based reference (26.53) and that the byte and code-unit measurements land on OPPOSITE sides of the 24-bit floor, with matcherValueSpecificity following the byte verdict.",
-          "headHash": "2a01df278e178aa3baeb8ab4c5b30f261ee58a33",
-          "materialHash": "afa81bb4c922fbac27b79bf2d648ef4f701321616311a6d94b95c7ee31e02127",
-          "storyFilesHash": "de9c8a2f86bf8a9d9425dd09cf249a0533821140017f8e3bfcfaea0ea1abd6fd",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "ceb09b7e85e65eded254c194dc9d134562f8e403c3b1fda9de33e551022f0d82",
             "outputTail": "red-w2d-entropy-differential: PASS\n  formula anchors: ab=2.0 aabb=4.0 a=0.0 abcdefgh=24.0 (per-symbol rival is constant 1.0 for ab/aabb)\n  differential rows: 9/12 (floor 8)\n  DIFFER  \"Error: Cannot find module '/repo/dist/x.js'\"  total= 185.06 perSymbol= 4.30 spec=ADMIT  rival=REJECT  realistic module-resolution failure\n  DIFFER  \"AssertionError: expected 1 to equal 2\"        total= 150.02 perSymbol= 4.05 spec=ADMIT  rival=REJECT  realistic assertion failure\n  DIFFER  \"npm ERR! missing script: test\"                total= 107.37 perSymbol= 3.70 spec=ADMIT  rival=REJECT  realistic npm failure line\n  DIFFER  \"TypeError: x is not a function\"               total= 117.33 perSymbol= 3.91 spec=ADMIT  rival=REJECT  realistic type failure\n  DIFFER  \"ENOENT: no such file or directory\"            total= 135.35 perSymbol= 4.10 spec=ADMIT  rival=REJECT  realistic errno line\n  DIFFER  \"FAIL packages/main/tests/red/x.mjs\"           total= 143.46 perSymbol= 4.22 spec=ADMIT  rival=REJECT  realistic reporter line\n  DIFFER  \"exit status 1 (expected 0)\"                   total=  94.21 perSymbol= 3.62 spec=ADMIT  rival=REJECT  realistic exit line\n  DIFFER  \"abcdefgh\"                                     total=  24.00 perSymbol= 3.00 spec=ADMIT  rival=REJECT  boundary: exactly 24.0 total bits (>= is inclusive)\n  DIFFER  \"aabbccddeeff\"                                 total=  31.02 perSymbol= 2.58 spec=ADMIT  rival=REJECT  12 bytes over 6 symbols = 31.0 total bits\n  agree   \"aabbccdd\"                                     total=  16.00 perSymbol= 2.00 spec=REJECT rival=REJECT  AGREE: 8 bytes over 4 symbols = 16.0 total bits, below the floor\n  agree   \"aaaaaaaaaaaaaaaaaaaaaaaaaaaa\"                 total=   0.00 perSymbol= 0.00 spec=REJECT rival=REJECT  AGREE: 28 identical bytes, H = 0 so total = 0 (zero-entropy boundary)\n  agree   \"ab\"                                           total=   2.00 perSymbol= 1.00 spec=REJECT rival=REJECT  AGREE: 2.0 total bits, below the floor either way\n  multi-byte separation: bytes=26.53 (ADMIT) vs code-units=14.84 (REJECT)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-13T20:43:41.800Z"
+            "executedAt": "2026-08-18T16:56:23.730Z",
+            "timeoutMs": 180000
           },
-          "timestamp": "2026-08-13T20:45:39.168Z"
+          "headHash": "cd21228c922fd6c75416b69811811c1134ae8a5c",
+          "materialHash": "061a9ced05e05fbdc6622a4289a8ee2acd7a4f74bc759ae2f48cc930df232605",
+          "storyFilesHash": "194ee4bc662de50e0f7278313fab5cf6ceefcb8ac49b24f716565fc40d75d6ec",
+          "timestamp": "2026-08-18T16:56:23.860Z"
         },
         {
           "intentRef": "CHK-009:adversarial:0",
