@@ -469,6 +469,25 @@
       ],
       "signatureTag": "missing|ts|packages-main-init",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-cc10:F-027",
+      "desc": "doc-code-drift: CLAUDE.md:878 (lattice-residue gate table) states the gate has \"三个独立 check\" (three independent checks) and enumerates exactly [koala], [brand-prose], [brand-exec]. This story's CHK-007 commit (2a2ad35268) added a fourth check, [brand-decision] (scripts/verify-lattice-residue.mjs:562-580), which flips .lattice/lattice.config.json/@lattice-derived path literals from exempt to FORBIDDEN as path-decision sites in product runtime source -- exactly the CHK-007 acceptance criterion (\"Flip those rows from exempt to forbidden\"). CLAUDE.md was not updated to mention this fourth check or its purpose, so the doc undercounts the gate and omits behavior CHK-007 explicitly added. plan.md CHK-007 file list only names scripts/verify-lattice-residue.mjs, so CLAUDE.md sync was never scoped -- but the doc's existing three-check description is now stale relative to the code it documents.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-18T04:24:12.938Z",
+      "reviewRound": "2026-08-18T03:33:16.325Z",
+      "reviewRunId": "B-cc10:RR-030",
+      "_hash": "0941d0bd400196590d1c5d1db46b54cc90d8843cc25d1e75b6d848e8d3047c6c",
+      "files": [
+        "CLAUDE.md",
+        "scripts/verify-lattice-residue.mjs"
+      ],
+      "signatureTag": "missing|md|code-drift-claude",
+      "signatureTagSource": "auto"
     }
   ]
 }
