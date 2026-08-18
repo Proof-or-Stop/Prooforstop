@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-d15e",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Add focused regression coverage that rejects a numeric shadow copy",
+    "Make full-suite JSON performanceBudgetMs reference FULL_SUITE_BUDGET_MS"
+  ],
+  "excluded": [
+    "Change the runtime full-suite budget, scheduler concurrency, or member timeouts",
+    "Change unrelated DONE or validation policy",
+    "Rewrite frozen B-9812 historical receipts or contract captures"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "User explicitly requested a fast independent story to solve the annotated full-suite budget receipt mismatch repository-wide.",
+  "createdAt": "2026-08-18T17:16:08.517Z",
+  "updatedAt": "2026-08-18T17:16:08.517Z",
+  "_hash": "1726c921af71a512a5b8a88749827d41446a1eef778e3acec814193b498d6fd2"
+}

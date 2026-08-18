@@ -1,0 +1,36 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Provide a reviewer-visible path to repair a stale (command, selector) evidence pin without discarding the proven receipt",
+      "context": "packages/main/src/handlers/checklist.ts rejects a recorded pass with receipt_selector_mismatch (~line 749) when the pinned selector literal no longer appears in the pinned command's output. The pin is deliberately immutable, and verification_intent_repair (~line 2131) only backfills MISSING intents - it cannot correct an existing pin. Today the only route is a waiver, which discards the coverage claim even when the underlying behaviour is proven and only a counted literal drifted.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Prove the repair cannot be used to launder a genuinely failing intent into a passing one",
+      "context": "Any repair path is a hole in the immutability that makes pinned evidence trustworthy. The repair MUST re-execute the pinned command and derive the verdict from the fresh receipt, never accept a caller-supplied result, and MUST record the superseded selector alongside the new one so an auditor can see what changed and why. A committed regression must show that repairing a pin whose command now EXITS NON-ZERO still fails.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Record the two B-9ff1 waivers this closes, and remove them if the repair makes them unnecessary",
+      "context": "B-9ff1 CHK-012:edge:1 waives selector '.lattice tree byte-identical after 7 invocations' while red-w2d-command-readonly.mjs now prints 8 DIRECT handler invocations; CHK-013:adversarial:0 waives '25 tagged rejection fixtures' while red-evidence-envelope-smoke.js now prints 33. Both were verified by an independent reviewer re-running the harnesses: the behaviour holds and only the counted literal drifted. These are the motivating cases and the acceptance evidence for this story.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Stop counted literals from being pinned as selectors in the first place",
+      "context": "The deeper cause is that a selector containing a count is stranded by the next fixture addition. B-3434 recorded the same lesson for its own pins ('a pinned selector is immutable once bound and a count-bearing one is stranded by the next fixture change'). Decide whether to warn or reject at pin time when a candidate selector contains a bare integer, and state which and why.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

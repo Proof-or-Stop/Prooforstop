@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-d15e",
+  "allowedCommands": [
+    "git diff",
+    "git status",
+    "node bin/proof-or-stop.js --version",
+    "npm --prefix packages/main run build",
+    "npm run test:full-suite-runner-smoke",
+    "npm run test:process-fact-contract"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "Bash",
+    "Grep",
+    "Read"
+  ],
+  "allowedPaths": [
+    "packages/main/src/tasks/full-suite-runner-smoke.ts",
+    "packages/main/src/tasks/full-suite-runner.ts"
+  ],
+  "excludedCommands": [
+    "git clean",
+    "git push",
+    "git reset",
+    "npm test"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".lattice/story/actives/B-9812",
+    "scripts/verify-full-suite-contract.mjs"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Keep the implementation to the production artifact mapping and one focused smoke assertion. Historical B-9812 evidence remains immutable.",
+  "createdAt": "2026-08-18T17:16:09.005Z",
+  "updatedAt": "2026-08-18T17:16:09.005Z",
+  "_hash": "de4c8a327d4501226861443185f91814a52ecac915b6c5694c9a713bf265802a"
+}

@@ -1,5 +1,41 @@
 # Changelog
 
+## Proof-or-Stop v0.3.263 - 2026-08-18
+
+This release removes a telemetry drift in the full-suite result artifact: the
+reported performance budget now comes from the same canonical policy constant
+that governs the suite, rather than from an independent numeric copy.
+
+**Full-suite budget integrity**
+
+- **Canonical result telemetry (B-d15e).** The full-suite result writer now sets
+  `performanceBudgetMs` from `FULL_SUITE_BUDGET_MS`. Operators and downstream
+  consumers therefore see the actual 1,200,000 ms policy budget in the emitted JSON
+  instead of the obsolete 300,000 ms shadow value.
+- **Single source of truth.** Runtime enforcement and reported telemetry now move
+  together when the canonical budget changes, eliminating the possibility that a
+  successful run is described against a different threshold than the one it used.
+- **No scheduler behavior change.** This is a reporting-integrity correction only;
+  it does not alter suite concurrency, member timeouts, process cleanup, or the
+  canonical runtime budget itself.
+
+**Regression protection**
+
+- Extended `full-suite-runner-smoke` to require exactly one
+  `performanceBudgetMs` initializer and require that initializer to reference
+  `FULL_SUITE_BUDGET_MS`.
+- Added a mutation check that replaces the canonical reference with the former
+  numeric value and proves the smoke test rejects the shadow copy.
+- The full runner smoke inventory passes with 153 assertions and emits
+  `full-suite-runner-smoke: PASS`.
+
+**Verification**
+
+- `packages/main` builds successfully from the released source.
+- Routine validation, DONE-required validation, and live-smoke evidence completed
+  before the Story reached DONE.
+- The CLI version was advanced to `0.3.263`.
+
 ## Proof-or-Stop v0.3.262 - 2026-08-18
 
 This release removes the one-mebibyte process-buffer cliff that could prevent

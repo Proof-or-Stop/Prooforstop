@@ -555,7 +555,7 @@ async function main(): Promise<void> {
   const critical = [...results].sort((a, b) => b.durationMs - a.durationMs)[0];
   if (jsonOutput) writeResultArtifact(jsonOutput, {
     schemaVersion: 'lattice.full_suite_result.v2', startIdentity, endIdentity, identityDrift,
-    performanceBudgetMs: 300_000, performanceBudgetApplied, budgetBreached,
+    performanceBudgetMs: FULL_SUITE_BUDGET_MS, performanceBudgetApplied, budgetBreached,
     headHash: startIdentity.headHash, materialHash: startIdentity.materialHash, startedAt: wallStartedAt, durationMs, jobs,
     maxWorkers: jobs, workerUtilization: results.reduce((sum, result) => sum + result.durationMs, 0) / Math.max(1, durationMs * jobs),
     processLaunchCount, retries: 0, passed: results.length - failures.length, total: results.length,
