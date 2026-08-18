@@ -70,6 +70,39 @@
       },
       "readDiagnostics": [],
       "_hash": "55044d2076be82ddd3307f5e6894c6989dae69404ee0167eeac7a002f95fd4ed"
+    },
+    {
+      "id": "B-d15e:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage PASS: 3/3 intents have mechanical tool receipts, 0 must gaps, 0 waivers. Current source has exactly one canonical initializer and zero numeric initializers; DEV real-file 300_000 mutation bit the focused assertion, exact restoration was confirmed, and independent REVIEW rerun passed all 153 focused-smoke assertions with both implementation files clean.",
+      "createdAt": "2026-08-18T17:41:47.726Z",
+      "reviewRound": "2026-08-18T17:36:43.661Z",
+      "reviewRunId": "B-d15e:RR-003",
+      "envelopeId": "8b315a192c685fbb345844c0c0432156541ed6f89ab9534a9f090007997bfdfb",
+      "writerSessionId": "sess-16bf8624eb481d60a21f8c9110aff79e",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "5bb7b9cc04b62f1660998eb61247ec23cdcf4a03e4e7da8ab153283220be83d6"
+      },
+      "readDiagnostics": [],
+      "_hash": "7a0065351b2fe47797c57c9c2b8a51d2a01f25be7e7556fb5f17b359ebacbac2"
     }
   ]
 }
