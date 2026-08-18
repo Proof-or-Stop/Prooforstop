@@ -1962,6 +1962,31 @@
         "scanEscalationReason": null
       },
       "_hash": "1bd5db0eb98c4fce81e992b6fe0db84c696db16626d418c995e7c5694bc72939"
+    },
+    {
+      "id": "B-9ff1:RP-063",
+      "agent": "lattice-review-concept",
+      "note": "Bookkeeping close verified, not a new audit. F-076/F-077 resolutions each state plainly what is wrong (5e945ca's self-referential open-line and B-1b2b's embedded live-query id), name B-85a7 as owner, and do not claim B-85a7 has fixed anything - F-077 says so explicitly, F-076 only describes B-85a7's scope/acceptance criterion, never completion. Confirmed B-85a7 phase=INIT, checklist 0/5, endedAt=null. B-85a7 background.md + checklist.json capture both shapes (CHK-002 self-referential absolution, CHK-003 volatile embedded retrieval id), explicitly preserve the safe ordinal-about-the-chain case as legal (CHK-004, citing the B-9ff1 over-correction), and CHK-005 requires any proposed rule be validated against the recorded F-066..F-077 chain rather than invented examples, with the shipping bar stated as: a rule that would not have blocked the offending text is not worth shipping. findings.json: 77 total, 0 open. git rev-list --count HEAD..main = 0. git status --porcelain dirty only with review_run_start's own prompt-envelopes.json/review-runs.json bookkeeping (swept by this pass commit per repo convention, no code/content drift). node packages/main/tests/red/red-w2d-specificity-conjunction.mjs exit 0.",
+      "createdAt": "2026-08-18T21:56:34.326Z",
+      "reviewRound": "2026-08-18T20:31:09.389Z",
+      "reviewRunId": "B-9ff1:RR-100",
+      "envelopeId": "5cada528a19b97a344c66919cfe8101604f60f7b669a8a3e901d07d78796bebe",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-85a7/background.md",
+          ".lattice/story/actives/B-85a7/checklist.json",
+          ".lattice/story/actives/B-85a7/index.json",
+          ".lattice/story/actives/B-9ff1/findings.json"
+        ],
+        "filesTriagedByName": [
+          "packages/main/tests/red/red-w2d-specificity-conjunction.mjs (executed for exit-code evidence)"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "371f975bad3a1b456785f799d2165085aad54dae05b184e756799e3723a5ef8a"
     }
   ]
 }
