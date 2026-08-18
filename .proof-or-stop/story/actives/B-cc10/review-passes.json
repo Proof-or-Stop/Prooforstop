@@ -38,6 +38,34 @@
         "scanEscalationReason": null
       },
       "_hash": "bfe4f89604f7ea00bebbfa31fac1423cfb8d2111028cdefb42eb8067f06c65e2"
+    },
+    {
+      "id": "B-cc10:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed the two flagged changes in acceptance-discovery-adapters.ts (present-first resolveSnapshotConfigFilename probe, narrowed failure-cleanup loop) by static trace plus live repro against a canonical-only fixture and the existing proofstory-acceptance-basis-smoke.ts symlink/oversize regression tests (both still pass after rebuild). Presence-first is correct: consumers (detectAcceptanceDiscoverySupport, configuredSourceInventory) still gate on readSourceSafely().text !== undefined, so a present-but-unreadable (symlinked/oversized) config cannot be silently accepted as valid content -- only the NAME resolution changed, not the content-safety gate. The narrowed cleanup loop correctly preserves genuine (present, non-resolved) failures via a fresh lstat check and only discards failures for names that are genuinely absent; traced no leak path for a legitimate absent-name failure to survive incorrectly, nor for a real oversize/symlink failure on a non-resolved candidate to be wrongly discarded. One genuine defect found and filed separately (F-031): line 1272 of the same file still hardcodes source-file:config:lattice.config.json, missed by the CHK-004 rename sweep -- confirmed pre-existing in main and unconverted here. Also swept all changed files under packages/main/src and packages/utils/src for the hardcoded-deprecated-spelling-as-decision pattern (existsSync/comparison/read-path probes using a bare literal where a resolver exists): no other instances found. The @lattice/core hits in rollout-check.ts, test-auto.ts, runtime-environment-checks.ts, and worktree.ts are all correct read-both (Set.has or canonical-then-fallback) patterns, not asymmetric bugs. packages/utils/src/handlers/tool-status.ts correctly iterates STATE_DIR_NAMES via the resolver (F-021 already fixed). No new dead code, no new unsafe `as any` casts, no new empty catch blocks introduced by this diff. Assuming lint/tsc green per dispatch brief; this review covered only subjective quality (dead code, type safety, I/O isolation, error handling, duplicated logic) plus the two explicitly flagged changes and the requested hardcoded-spelling-as-decision hunt.",
+      "createdAt": "2026-08-18T09:21:35.030Z",
+      "reviewRound": "2026-08-18T03:33:16.325Z",
+      "reviewRunId": "B-cc10:RR-039",
+      "envelopeId": "291719a4e97fa1ee186212032a02f28011aa6383d1cd5f6c516ae5d19147884c",
+      "writerSessionId": "sess-eed55994d1ba42fe85d07fd953696373",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/brand-paths.ts",
+          "packages/main/src/core/rollout-check.ts",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/handlers/test-auto.ts",
+          "packages/main/src/handlers/worktree.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/utils/src/handlers/tool-status.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "1de7ee4896aa19b44df478ca42fc901104618f0da636fc4d53ba15639e82432b"
     }
   ]
 }
