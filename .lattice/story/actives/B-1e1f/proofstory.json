@@ -32,21 +32,20 @@
         "CHK-005"
       ],
       "verificationIntentRefs": [
-        "CHK-001:happy:0",
-        "CHK-002:happy:0",
-        "CHK-002:edge:0",
-        "CHK-003:happy:0",
-        "CHK-003:edge:0",
-        "CHK-004:happy:0",
-        "CHK-005:happy:0"
+        "CHK-001:status-surface",
+        "CHK-002:admit-all-facts",
+        "CHK-002:inventory-not-finalized",
+        "CHK-003:admitted-heavy-binds-identity",
+        "CHK-003:premature-done-required-refused",
+        "CHK-004:source-commit-invalidates",
+        "CHK-005:replay-line-and-exit"
       ],
       "milestoneIds": [],
-      "acceptanceClaim": "Official heavy certification cannot start without a current ADMITTED CertificationWindow, and a source mutation cannot keep old receipts as PASS.",
-      "note": "Core admit, choke, and invalidation proofs."
+      "acceptanceClaim": "Official heavy certification cannot start without a current ADMITTED CertificationWindow, and a source mutation cannot keep old receipts as PASS."
     }
   ],
   "diagnosticGaps": [],
-  "note": "Bind the U-01b acceptance claim to all five checklist items and their must intents.",
+  "note": "Bind U-01b claim to authored custom intent ids that already have mechanical receipts.",
   "createdAt": "2026-08-18T07:14:19.198Z",
-  "updatedAt": "2026-08-18T07:14:19.198Z"
+  "updatedAt": "2026-08-18T10:00:20.415Z"
 }
