@@ -1225,6 +1225,21 @@
       "resolvedAt": "2026-08-18T17:42:29.133Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-9ff1:F-057",
+      "desc": ".lattice/story/actives/B-9ff1/checklist.json:4-3427 — every checklist item (CHK-001 through CHK-016, first id at line 4, last at line 3241) has no userSees/userSeesSnapshot field at all (confirmed via checklist_get output: item keys are only id/title/context/relatedDocs/status/startTime/endTime/verificationIntent/verificationEvidence). WHY: my role instructions require raising a medium finding when userSees is empty so the operator-visible-output promise gets recorded; for this story's single delivered command (red_evidence_envelope_check) the two most operator-facing items, CHK-012 (land the command) and CHK-014 (define the ADMISSIBLE success transcript), are exactly the ones where a userSees string describing the actual printed report (e.g. \"Red-evidence envelope: ADMISSIBLE\" / \"NOT ADMISSIBLE\" plus the assertionDigest/binding/policyDigest lines) would have let a reviewer check the promise against the real CLI text without re-deriving it from source, as I had to do by running the command directly. Fix suggestion: add userSees to CHK-012/CHK-014 quoting the literal report header lines from packages/main/src/handlers/red-evidence.ts:518-528 and 531-540.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-08-18T17:59:12.594Z",
+      "reviewRound": "2026-08-14T03:33:29.693Z",
+      "reviewRunId": "B-9ff1:RR-057",
+      "_hash": "ff8464baf86b98554b1051043780c1251a7c7bb76f034cba5bcf78dd4e04afac",
+      "signatureTag": "missing|unknown|lattice-story-actives",
+      "signatureTagSource": "auto"
     }
   ]
 }
