@@ -11,11 +11,13 @@ import { strict as assert } from 'node:assert';
 import { readFileSync, writeFileSync, mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve, dirname } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { fileURLToPath } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const guardFile = resolve(here, '../core/topology-critic-receipt.js');
 const original = readFileSync(guardFile, 'utf8');
+const { TOPOLOGY_CRITIC_ROLE } = await import(pathToFileURL(guardFile).href) as { TOPOLOGY_CRITIC_ROLE: string };
 
 const GUARD = "SIGNABLE_SESSION_SOURCES.has(args.sessionSource)";
 assert.ok(original.includes(GUARD), 'guard call site is present in the built artifact');
@@ -25,24 +27,58 @@ const match = setLiteral.exec(original);
 assert.ok(match, 'SIGNABLE_SESSION_SOURCES set literal is present');
 assert.ok(!match[1].includes('explicit-env'), 'control: explicit-env is NOT accepted before mutation');
 
-// Mutate a COPY only; the real artifact is never written.
+// Mutate a COPY only; the real artifact is never written. B-49ed F-010: an earlier version
+// of this proof wrote the mutant and then re-ran the same regex against its own substitution
+// output, which holds by construction and proved nothing about runtime behaviour. The mutant
+// is now IMPORTED AND EXECUTED, and the real guard is executed alongside it, so the assertion
+// is about what deriveRoleProvenance actually does rather than about string replacement.
 const scratch = mkdtempSync(join(tmpdir(), 'b49ed-mutation-'));
 try {
   const weakened = original.replace(setLiteral, "new Set(['host-adapter', 'generated-token', 'explicit-env', 'derived-ppid'])");
   assert.notEqual(weakened, original, 'mutation actually changed the artifact');
-  const mutantPath = join(scratch, 'mutant.js');
+  // The mutant must sit beside the original so its relative imports still resolve.
+  const mutantPath = join(dirname(guardFile), `__b49ed-mutant-${process.pid}.js`);
   writeFileSync(mutantPath, weakened, 'utf8');
 
-  const mutated = readFileSync(mutantPath, 'utf8');
-  const mutatedSet = setLiteral.exec(mutated);
-  assert.ok(mutatedSet, 'mutant still parses');
-  assert.ok(mutatedSet[1].includes('explicit-env'), 'mutant accepts explicit-env, so the guard is what refuses it');
-  assert.ok(mutatedSet[1].includes('derived-ppid'), 'mutant accepts derived-ppid too');
+  try {
+    const mutant = await import(pathToFileURL(mutantPath).href);
+    const real = await import(pathToFileURL(guardFile).href);
 
-  // And the unmutated artifact still refuses both.
-  const controlSet = setLiteral.exec(readFileSync(guardFile, 'utf8'));
-  assert.ok(controlSet && !controlSet[1].includes('explicit-env'), 'control restored: explicit-env still refused');
-  assert.ok(controlSet && !controlSet[1].includes('derived-ppid'), 'control restored: derived-ppid still refused');
+    const probe = (mod: { deriveRoleProvenance: (a: unknown) => unknown }, source: string): string => {
+      try {
+        mod.deriveRoleProvenance({
+          gitCwd: resolve(here, "../.."),
+          events: [],
+          expectedRole: TOPOLOGY_CRITIC_ROLE,
+          actor: TOPOLOGY_CRITIC_ROLE,
+          sessionId: 'sess-mutation-probe',
+          sessionSource: source,
+          context: { storyId: 'B-probe', storyFilesHash: 'h' },
+          implementation: { businessCommit: 'c' },
+        });
+        return '<no throw>';
+      } catch (error) { return error instanceof Error ? error.message : String(error); }
+    };
+
+    for (const forgeable of ['explicit-env', 'derived-ppid']) {
+      const realMessage = probe(real as never, forgeable);
+      const mutantMessage = probe(mutant as never, forgeable);
+
+      // The real guard refuses at the SOURCE gate.
+      assert.match(realMessage, /must sign from a host-adapter session/,
+        `real guard refuses ${forgeable}`);
+      // The weakened guard does NOT refuse at the source gate -- it gets further, to the
+      // dispatch lookup. That difference is only observable by executing both.
+      assert.doesNotMatch(mutantMessage, /must sign from a host-adapter session/,
+        `mutant must NOT refuse ${forgeable} at the source gate, or the guard is not what refuses it`);
+      assert.match(mutantMessage, /no current registered dispatch provenance/,
+        `mutant reaches the dispatch lookup for ${forgeable}`);
+    }
+  } finally {
+    rmSync(mutantPath, { force: true });
+  }
+
+  assert.equal(readFileSync(guardFile, 'utf8'), original, 'the real guard artifact is untouched by the probe');
 } finally {
   rmSync(scratch, { recursive: true, force: true });
 }
