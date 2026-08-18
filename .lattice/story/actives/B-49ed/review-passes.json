@@ -199,6 +199,28 @@
         "scanEscalationReason": null
       },
       "_hash": "e71747670a5d6f150214c09ba7bde0ddb7aa5421aee5da8a6c7eef82f66a1df5"
+    },
+    {
+      "id": "B-49ed:RP-009",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed the two delta fixes since last verdict. (1) signing-guard-mutation-proof-smoke.ts probe() rewrite: ran retired-authority-vocabulary-guard-smoke directly (PASS), confirmed the guard has no execFileSync/spawnSync/child_process detection (only scans import()/require() non-literal loads and vm/Function usage) -- filed F-029 medium/missing: trades a flagged violation for the same violation class on an unmonitored surface. Confirmed interpolated values are all compile-time constants / JSON.stringify-escaped, so no injection risk. (2) validation-reuse-merge-lineage-smoke.ts rmScratch() maxRetries fix: ran the smoke 3x consecutively, all passed. maxRetries:10/retryDelay:50 is Node's documented mechanism for ENOTEMPTY/EBUSY races on recursive rmSync of a freshly-used git-repo tree on macOS; no call site holds a persistent lock, so this is the correct fix. No new findings on item 2. One finding filed total (F-029, medium).",
+      "createdAt": "2026-08-18T09:56:20.263Z",
+      "reviewRound": "2026-08-18T05:27:28.263Z",
+      "reviewRunId": "B-49ed:RR-031",
+      "envelopeId": "d784d8a5f2b5eff1fb1b0cbc92d85dfe5e99f450ef4b4fcde36ab247f2e74f96",
+      "writerSessionId": "sess-623213bafdae2991f875ad06d5d08040",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/signing-guard-mutation-proof-smoke.ts",
+          "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e1db4ea14e57c926d30672678f753988695f4140c6aebde0b3a40ffc9dc94405"
     }
   ]
 }
