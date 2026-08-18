@@ -512,6 +512,43 @@
         "scanEscalationReason": null
       },
       "_hash": "a9d1cca136c3797358ecf29ad62fa1ad8c09712ea4f8b060a536360399939e73"
+    },
+    {
+      "id": "B-1e1f:RP-011",
+      "agent": "lattice-review-quality",
+      "note": "Incremental quality review of 0eab2a28836 remediating F-014. Dedicated setReviewInventoryAdmitApisForTest(null) begin prints [pre_cert_inventory_api_absent] and stays BLOCKED; hook resets to undefined; default no-receipt path still asserts [pre_cert_inventory_not_finalized] with production APIs present. No dead code, unused imports, as-any, empty catch, or shell/fn isolation issue. The null override is the existing typed test seam; persistBlocked + refuseBlocked is the real handler path. No new CLAUDE.md/README promises. No new quality blocker.",
+      "createdAt": "2026-08-18T12:30:52.891Z",
+      "reviewRound": "2026-08-18T12:26:21.171Z",
+      "reviewRunId": "B-1e1f:RR-015",
+      "envelopeId": "99472865f0c552102a708664623876f6eb010b6cb97a8f6e8ad8e0c13ef5e23c",
+      "writerSessionId": "sess-cf96145de9cf012e",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-1e1f/background.md",
+          ".lattice/story/actives/B-1e1f/plan.md",
+          "packages/main/src/tasks/certification-window-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/certification-window.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "4543e885087b69482a5ba57056600647a18aec3e7f0275caf512f5ff17013566"
     }
   ]
 }
