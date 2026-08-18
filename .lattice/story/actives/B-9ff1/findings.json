@@ -1269,7 +1269,7 @@
       "desc": "packages/main/src/handlers/red-evidence.ts:482-489 — the fail-closed policy-missing wrapper text names WHAT is missing but never says WHERE to fix it. Reproduced as-shipped in this worktree (no redEvidence block in lattice.config.json): `node bin/lattice.js red_evidence_envelope_check --storyId=B-9ff1 --assertionFile=<file>` prints exactly \"red_evidence_envelope_check: the red-evidence policy does not resolve, so no envelope can be validated (fail-closed):\\n  - red_evidence_policy_missing: pinnedPath\" (twice, per the known cli-engine.ts double-print). Neither this text nor the `lattice doctor` advisory line (resolveRedEvidenceDoctorLine, packages/main/src/core/red-evidence/policy.ts:662-673, which renders the identical \"red_evidence_policy_missing: pinnedPath\" substring) names lattice.config.json, the `redEvidence` config key, or the `pinnedPath` field shape (array of absolute directories). An operator who has never touched this subsystem is told a policy key is missing but not which file/JSON path to add it to, and has to grep the source (as I did, packages/main/src/core/red-evidence/policy.ts:391-404) to find it. The spec (docs/requirements/decisions/red-evidence-subsystem-spec.md:368-369) pins the diagnostic SUBSTRING \"red_evidence_policy_missing: pinnedPath\" verbatim, but does not forbid the surrounding wrapper prose (which is this command's own text, not spec-pinned) from adding a location pointer. Fix suggestion: append a location hint to the wrapper in red-evidence.ts:484-488, e.g. \"...(fail-closed): configure this in lattice.config.json under a top-level \\\"redEvidence\\\" block, e.g. {\\\"pinnedPath\\\":[\\\"/absolute/dir\\\"]}:\\n<diagnostics>\", without altering the pinned diagnostic line itself.",
       "severity": "low",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-behavior",
       "createdAt": "2026-08-18T17:59:56.082Z",
@@ -1277,7 +1277,11 @@
       "reviewRunId": "B-9ff1:RR-057",
       "_hash": "5dad0ab12da76929cbba42813b7627b133ebbd8a846ec29d3c641be6903ab44e",
       "signatureTag": "edge|unknown|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 77a5ffab9e and verified by running the command rather than by reading the diff. The precondition failure now reads: 'red_evidence_policy_missing: pinnedPath' followed by 'Set these under the \"redEvidence\" block in lattice.config.json at the project root; run `proof-or-stop doctor` to see the resolved red-evidence policy.' The lane's scoping was what made this safe to fix in-story: it verified that spec:738-742 pins only the red_evidence_policy_missing: pinnedPath SUBSTRING and not the surrounding wrapper prose, so a location hint cannot break conformance. Confirmed after the change - the pinned substring is emitted unchanged, red-w2d-rejection-matrix (142 fixtures) and red-evidence-envelope-smoke both exit 0, and tsc is clean. Worth more than its LOW severity: this is the FIRST thing a new project hits, because the command cannot run at all until the policy resolves, and 'names what is missing but not where to set it' is the difference between a two-minute fix and an afternoon of grep. The lane also confirmed lattice doctor's advisory line had the same omission; that line is outside this story's files and is not changed here.",
+      "resolvedAt": "2026-08-18T18:02:54.392Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
