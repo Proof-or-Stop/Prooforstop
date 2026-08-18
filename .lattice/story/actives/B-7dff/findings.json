@@ -285,6 +285,21 @@
       "resolvedAt": "2026-08-18T16:47:06.027Z",
       "resolutionType": "superseded",
       "resolveEvidenceStrength": "medium"
+    },
+    {
+      "id": "B-7dff:F-015",
+      "desc": "quality-review: B-7dff:F-014 resolvedReason (finding-resolve at .lattice/story/actives/B-7dff/findings.json, resolvedAt=2026-08-18T16:47:06.027Z) claims the deferred concurrency-headroom-vs-flat-ceiling policy divergence was \"Filed as a dedicated task carrying the reviewers analysis... and a pointer to this storys git history\" -- but no such task exists anywhere in the tracked system. Exhaustively checked: (1) proof-or-stop story_list --active/--phase=DONE/--phase=DISCARDED/--phase=IDEA --full: zero stories reference headroom/CONCURRENCY_HEADROOM/reconcil in title or description; (2) grep -rl B-7dff across all .lattice/story/actives/*/background.md and index.json finds only one other story, B-2614, and its background.md covers a different, narrower problem (wall-clock budget constants mismatched to host speed: FULL_SUITE_BUDGET_MS/DEFAULT_TIMEOUT_MS/resolvePinnedCommandTimeoutMs/CLI max-timeout) with zero mention of CONCURRENCY_HEADROOM_FACTOR, withConcurrencyHeadroom, or the flat-ceiling-vs-1.5x-scaling question F-014 actually raised; (3) proof-or-stop bug_list --full: no match; (4) no story anywhere has createdAt on or after 2026-08-18T16:00 (the last story creation in this tree is B-2614 at 2026-08-17T23:06), i.e. nothing was created after F-014 itself was raised (16:44) or resolved (16:47). The underlying deferral decision is reasonable on its own terms -- medium severity, confirmed non-live-regression, genuine cross-cutting scope beyond this storys CHK-001..005, and by review round 6 medium findings are already advisory-only per CLAUDE.md round-decay table -- but the resolvedReason specific claim of a durable follow-up artifact is false, so the documented safety-margin divergence between full-suite-runner.ts withConcurrencyHeadroom (1.5x scaling at jobs>1) and validation-executor.ts resolveCommandTimeoutMs (flat ceiling, no jobs parameter) now has zero tracked disposition once this story reaches DONE and the finding record ages out of routine view.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-18T21:53:32.476Z",
+      "reviewRound": "2026-08-18T21:47:17.192Z",
+      "reviewRunId": "B-7dff:RR-026",
+      "_hash": "8797a45a0ee8d149b076bdc947124b0c9b370c3faac0fc152ec8ad8bdf17d4ac",
+      "signatureTag": "missing|unknown|quality-review-7dff",
+      "signatureTagSource": "auto"
     }
   ]
 }
