@@ -119,6 +119,24 @@
       ],
       "signatureTag": "adversarial|mjs|adversarial-verificationevidence-moveispurerenamecommit",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-cc10:F-008",
+      "desc": "CHK-003:adversarial:0 witness scripts/verify-state-dir-migration.mjs:49 uses a loose threshold (n > 7000) for trackedArchiveFiles instead of an exact expected count, so it would not catch a partial loss of up to several hundred archive files during the move (current count is 7583/7588). This check has only coarse discriminating power on its own; it is not the sole line of defense (the two named-archive readability + phase checks and the git log --follow check in the same script do have real discriminating power for content/history loss), so this is advisory rather than blocking.",
+      "severity": "low",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-18T03:45:10.406Z",
+      "reviewRound": "2026-08-18T03:33:16.325Z",
+      "reviewRunId": "B-cc10:RR-016",
+      "_hash": "152a3bb9f6328e24738b77b73b5af0f5d2e312eeed339744d7426a73108c92ba",
+      "files": [
+        "scripts/verify-state-dir-migration.mjs"
+      ],
+      "signatureTag": "edge|mjs|adversarial-witness-scripts",
+      "signatureTagSource": "auto"
     }
   ]
 }
