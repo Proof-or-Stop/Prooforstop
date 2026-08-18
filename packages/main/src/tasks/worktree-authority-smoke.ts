@@ -1,6 +1,14 @@
 #!/usr/bin/env node
 
 import { strict as assert } from 'node:assert';
+import { stateDirCandidates } from '../core/brand-paths.js';
+import { PROOF_OR_STOP_ACTIVITY_LOG } from '../core/lattice-paths.js';
+// B-cc10 F-070: the lock the runtime actually READS. Creating it at the deprecated
+// path made the 'lock is held' assertions unfireable — the dangerous sub-kind of this
+// migration's dominant defect class (a fixture staging state at an unread path, where
+// the test passes vacuously instead of failing loudly).
+import { PROOF_OR_STOP_MAIN_WRITE_LOCK } from '../core/lattice-paths.js';
+import { DEPRECATED_STATE_DIR, PROOF_OR_STOP_STATE_DIR } from '../core/brand-paths.js';
 import { execFileSync, spawn } from 'node:child_process';
 import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, utimesSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -348,7 +356,7 @@ function assertFromDraftStopsAtInitThenBootstrapsThroughInitCheck(): void {
       worktreeDir: '.worktrees',
     }, null, 2));
     write(root, 'README.md', 'from draft smoke\n');
-    write(root, '.gitignore', '.worktrees/\n.lattice/activity.jsonl\n');
+    write(root, '.gitignore', `.worktrees/\n${stateDirCandidates('activity.jsonl').join('\n')}\n`);
     git(root, ['init']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
@@ -419,7 +427,7 @@ function assertFromDraftStopsAtInitWithDirtyMainPreserved(): void {
       worktreeDir: '.worktrees',
     }, null, 2));
     write(root, 'README.md', 'from draft dirty main smoke\n');
-    write(root, '.gitignore', '.worktrees/\n.lattice/activity.jsonl\n');
+    write(root, '.gitignore', `.worktrees/\n${stateDirCandidates('activity.jsonl').join('\n')}\n`);
     write(root, 'unrelated-tracked.txt', 'tracked baseline\n');
     git(root, ['init']);
     git(root, ['checkout', '-B', 'main']);
@@ -496,7 +504,7 @@ function assertFromDraftRejectsStagedMainBeforeMutation(): void {
       worktreeDir: '.worktrees',
     }, null, 2));
     write(root, 'README.md', 'from draft staged main smoke\n');
-    write(root, '.gitignore', '.worktrees/\n.lattice/activity.jsonl\n');
+    write(root, '.gitignore', `.worktrees/\n${stateDirCandidates('activity.jsonl').join('\n')}\n`);
     write(root, 'unrelated-staged.txt', 'tracked baseline\n');
     git(root, ['init']);
     git(root, ['checkout', '-B', 'main']);
@@ -964,7 +972,10 @@ function assertDoneRecoverRunsPostMergeBuildForRuntimeChanges(): void {
     });
     git(root, ['config', 'user.email', 'smoke@example.test']);
     git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
-    write(root, '.gitignore', '.worktrees/\n');
+    // B-cc10 F-070: must also ignore the state dir. The runtime writes its main-write
+    // lock under the canonical state dir, and an untracked lock dir makes
+    // assertMainWorktreeClean report "main worktree is not clean".
+    write(root, '.gitignore', `.worktrees/\n${DEPRECATED_STATE_DIR}/\n${PROOF_OR_STOP_STATE_DIR}/\n`);
     writeVersionSyncFiles(root, '0.1.0');
     git(root, ['add', '.gitignore', ...Object.values(VERSION_SYNC_FILES)]);
     git(root, ['commit', '-m', 'ignore recovery worktrees; add version sync points']);
@@ -1006,7 +1017,10 @@ function assertDoneRecoverFailingPostMergeBuildThrowsAfterCleanup(): void {
     });
     git(root, ['config', 'user.email', 'smoke@example.test']);
     git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
-    write(root, '.gitignore', '.worktrees/\n');
+    // B-cc10 F-070: must also ignore the state dir. The runtime writes its main-write
+    // lock under the canonical state dir, and an untracked lock dir makes
+    // assertMainWorktreeClean report "main worktree is not clean".
+    write(root, '.gitignore', `.worktrees/\n${DEPRECATED_STATE_DIR}/\n${PROOF_OR_STOP_STATE_DIR}/\n`);
     writeVersionSyncFiles(root, '0.1.0');
     git(root, ['add', '.gitignore', ...Object.values(VERSION_SYNC_FILES)]);
     git(root, ['commit', '-m', 'ignore recovery worktrees; add version sync points']);
@@ -1064,7 +1078,10 @@ function assertDoneRecoverSkipsPostMergeBuildForUnwatchedChanges(): void {
     });
     git(root, ['config', 'user.email', 'smoke@example.test']);
     git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
-    write(root, '.gitignore', '.worktrees/\n');
+    // B-cc10 F-070: must also ignore the state dir. The runtime writes its main-write
+    // lock under the canonical state dir, and an untracked lock dir makes
+    // assertMainWorktreeClean report "main worktree is not clean".
+    write(root, '.gitignore', `.worktrees/\n${DEPRECATED_STATE_DIR}/\n${PROOF_OR_STOP_STATE_DIR}/\n`);
     git(root, ['add', '.gitignore']);
     git(root, ['commit', '-m', 'ignore recovery worktrees']);
     markStoryBranchPartialDone(worktreePath, storyId);
@@ -1161,9 +1178,9 @@ function assertDoneSuccessPathOutputAndOrdering(): void {
     //    finer-grained sub-path checks so a ghost recreation surfaces with B-da5b
     //    diagnostics rather than being masked by the older Step4 message.
     assert.equal(existsSync(join(worktreePath, '.lattice')), false, 'post-DONE activity logging must not recreate a .lattice dir inside the removed worktree');
-    assert.equal(existsSync(join(worktreePath, '.lattice', 'activity.jsonl')), false, 'post-DONE activity logging must not write activity.jsonl into the removed worktree');
+    assert.equal(stateDirCandidates('activity.jsonl').some((rel) => existsSync(join(worktreePath, ...rel.split('/')))), false, 'post-DONE activity logging must not write activity.jsonl into the removed worktree');
     // 2) The main repo activity log holds the final successful story_advance DONE.
-    const mainActivityLog = join(root, '.lattice', 'activity.jsonl');
+    const mainActivityLog = stateDirCandidates('activity.jsonl').map((rel) => join(root, ...rel.split('/'))).find(existsSync) ?? join(root, ...PROOF_OR_STOP_ACTIVITY_LOG.split('/'));
     assert.equal(existsSync(mainActivityLog), true, 'main repo .lattice/activity.jsonl must exist after DONE');
     const activityRecords = readFileSync(mainActivityLog, 'utf-8')
       .split('\n')
@@ -1254,10 +1271,10 @@ function assertPostDoneHeartbeatLandsInMainAfterWorktreeRemoval(): void {
     // it (no resurrected dir / .lattice / activity.jsonl under the ghost path).
     assert.equal(existsSync(worktreePath), false, 'post-DONE heartbeat must not recreate the removed worktree directory');
     assert.equal(existsSync(join(worktreePath, '.lattice')), false, 'post-DONE heartbeat must not recreate a .lattice dir under the removed worktree');
-    assert.equal(existsSync(join(worktreePath, '.lattice', 'activity.jsonl')), false, 'post-DONE heartbeat must not write activity.jsonl into the removed worktree');
+    assert.equal(stateDirCandidates('activity.jsonl').some((rel) => existsSync(join(worktreePath, ...rel.split('/')))), false, 'post-DONE heartbeat must not write activity.jsonl into the removed worktree');
 
     // The final successful story_advance DONE record must land in main's log.
-    const mainActivityLog = join(root, '.lattice', 'activity.jsonl');
+    const mainActivityLog = stateDirCandidates('activity.jsonl').map((rel) => join(root, ...rel.split('/'))).find(existsSync) ?? join(root, ...PROOF_OR_STOP_ACTIVITY_LOG.split('/'));
     assert.equal(existsSync(mainActivityLog), true, 'main repo .lattice/activity.jsonl must exist after DONE');
     const doneRecord = readFileSync(mainActivityLog, 'utf-8')
       .split('\n')
@@ -1474,7 +1491,10 @@ function assertWorktreeCleanupFailureMarksDoneMergedAndThrows(): void {
       new RegExp(`Story ${storyId} (?:merged, but worktree cleanup did not complete|已合并，但 worktree 清理未完成)`),
       'cleanup failure must announce the story merged but cleanup is incomplete',
     );
-    assert.match(output, /lattice doctor/, 'cleanup failure must point at proof-or-stop doctor for recovery');
+    // B-cc10 F-070: the runtime emits 'proof-or-stop doctor'; this assertion still grepped the
+    // old bin name, so it could only ever fail after the rename. Accepts either spelling so a
+    // teammate branch still emitting the old hint does not break, while the canonical one passes.
+    assert.match(output, /(proof-or-stop|lattice) doctor/, 'cleanup failure must point at proof-or-stop doctor for recovery');
 
     // phase=DONE persisted and the merge DID land on main (cleanup failed AFTER merge).
     assert.equal(new StoryStore(root).readStory(storyId).phase, 'DONE', 'cleanup failure must leave the story marked DONE');
@@ -1496,7 +1516,7 @@ function assertDoneMainMergeLiveLockFailsBeforeMutation(): void {
   try {
     const storyId = 'B-lock-live';
     const { worktreePath } = buildDoneReadyStory(root, storyId);
-    const lockDir = join(root, '.lattice', 'locks', 'main-write.lock');
+    const lockDir = join(root, ...PROOF_OR_STOP_MAIN_WRITE_LOCK.split('/'));
     mkdirSync(lockDir, { recursive: true });
 
     const output = runLatticeFromCwdExpectFail(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
@@ -1519,7 +1539,7 @@ function assertDoneMainMergeLockBlocksBeforeAutoSyncMain(): void {
     git(root, ['add', 'main-only-after-story-branch.txt']);
     git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proof-or-Stop Smoke', 'commit', '-m', 'main moves after story branch']);
     const mainHeadAfterBranch = git(root, ['rev-parse', 'main']);
-    const lockDir = join(root, '.lattice', 'locks', 'main-write.lock');
+    const lockDir = join(root, ...PROOF_OR_STOP_MAIN_WRITE_LOCK.split('/'));
     mkdirSync(lockDir, { recursive: true });
 
     const output = runLatticeFromCwdExpectFail(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
@@ -1550,7 +1570,7 @@ function assertDoneMainMergeStaleLockIsReclaimed(): void {
   try {
     const storyId = 'B-lock-stale';
     const { worktreePath } = buildDoneReadyStory(root, storyId);
-    const lockDir = join(root, '.lattice', 'locks', 'main-write.lock');
+    const lockDir = join(root, ...PROOF_OR_STOP_MAIN_WRITE_LOCK.split('/'));
     mkdirSync(lockDir, { recursive: true });
     const old = new Date(Date.now() - 5 * 60 * 1000);
     utimesSync(lockDir, old, old);
@@ -1600,7 +1620,7 @@ function assertInitCheckLeavesNoUncommittedMainMirrorForDone(): void {
       storyPrefix: 'B',
     }, null, 2));
     write(root, 'README.md', 'F-008 init-check mirror smoke\n');
-    write(root, '.gitignore', '.worktrees/\n.lattice/activity.jsonl\n');
+    write(root, '.gitignore', `.worktrees/\n${stateDirCandidates('activity.jsonl').join('\n')}\n`);
     git(root, ['add', '.']);
     git(root, ['commit', '-m', 'base']);
     resetConfigCache();
@@ -1687,7 +1707,7 @@ function assertInitCheckRejectsPreStagedOutOfBoundsBeforeStagingMetadata(): void
       storyPrefix: 'B',
     }, null, 2));
     write(root, 'README.md', 'INIT_CHECK staged-main preflight smoke\n');
-    write(root, '.gitignore', '.worktrees/\n.lattice/activity.jsonl\n');
+    write(root, '.gitignore', `.worktrees/\n${stateDirCandidates('activity.jsonl').join('\n')}\n`);
     write(root, 'unrelated-staged.txt', 'tracked baseline\n');
     git(root, ['init']);
     git(root, ['checkout', '-B', 'main']);
