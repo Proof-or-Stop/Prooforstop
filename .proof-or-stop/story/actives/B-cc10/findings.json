@@ -519,7 +519,7 @@
       "desc": "packages/main/src/tasks/proofstory-topology-critic-smoke.ts:265 asserts against the real repository's Codex agent-prompt mirror using the deprecated-only path: readFileSync(join(repositoryRoot, '.lattice-codex/agents/lattice-review-topology-critic.md'), 'utf8'). repositoryRoot (line 40, resolve(sourceRoot, '..', '..')) resolves to the actual repo root, NOT an isolated scratch fixture, so this is not covered by the recorded bounded-residual exemption for tasks/ fixture-building code -- it reads this repo's own live source tree. After CHK-003's git mv, .lattice-codex no longer exists on disk (verified: only .proof-or-stop-codex/agents/lattice-review-topology-critic.md is present); the sibling assertion one line above (line 264, .claude/agents/...) passes fine since .claude was not renamed. This smoke check will throw ENOENT the next time it runs, unlike its immediate neighbor. Fix: change the path to .proof-or-stop-codex/agents/... (or use PROOF_OR_STOP_ADAPTER_DIR from brand-paths.ts) to match the canonical spelling this story established everywhere else.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-18T04:26:28.196Z",
@@ -530,7 +530,8 @@
         "packages/main/src/tasks/proofstory-topology-critic-smoke.ts"
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-08-18T04:38:02.208Z"
     },
     {
       "id": "B-cc10:F-030",
