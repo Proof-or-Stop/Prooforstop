@@ -1677,6 +1677,25 @@
       ],
       "signatureTag": "doc-code-drift|md|resolvedreason-claims-finding",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9ff1:F-075",
+      "desc": "F-072's resolvedReason claims 'CORRECTED by an appended tradeoff note narrowing B-1b2b: tag-derived protection exists today... What remains substantive is that the protection is EMERGENT rather than enforced'. No such note exists: git log -- .lattice/story/actives/B-1b2b/background.md shows only the single INIT commit 07c3076305, and git diff HEAD -- that path is empty. The file's Key Insights section still reads verbatim 'a future session asking about the same trigger can surface the SUPERSEDED entry alone, with its false sentence and no indication anything replaced it' - the exact claim the finding disproved, uncorrected and unnarrowed. Re-ran the cited check myself: dev_memory_search --query=a67bb17 --limit=1 --json and --query=8d1d2bb --limit=1 --json both currently return e918048 (not a superseded entry alone), so the substance of the narrowed-scope claim (retrieval protection is real but emergent/tag-dependent) is plausible on its own merits, but it was never actually written into B-1b2b's background.md as the resolution states.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-18T21:22:47.281Z",
+      "reviewRound": "2026-08-18T20:31:09.389Z",
+      "reviewRunId": "B-9ff1:RR-089",
+      "_hash": "cb0db7362061191a61b6568665aaed38f909b76d317d4c1831b87ebbf1f84256",
+      "files": [
+        ".lattice/story/actives/B-1b2b/background.md",
+        ".lattice/story/actives/B-9ff1/findings.json"
+      ],
+      "signatureTag": "doc-code-drift|md|resolvedreason-claims-corrected",
+      "signatureTagSource": "auto"
     }
   ]
 }
