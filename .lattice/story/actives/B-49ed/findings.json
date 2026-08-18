@@ -182,6 +182,24 @@
       "resolvedAt": "2026-08-18T04:07:04.850Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-49ed:F-010",
+      "desc": "packages/main/src/tasks/signing-guard-mutation-proof-smoke.ts:28-48 (CHK-003:adversarial:0 evidence) never executes the mutated guard, so it cannot prove behavior. This sharpens F-001/F-002 (both resolved as low/advisory, framed as compiled-output brittleness) into a distinct claim: the gap is not merely that the proof is coupled to dist formatting -- it is that the mutant is NEVER RUN. Lines 31-40: original.replace(setLiteral, weakenedText) produces a string, writeFileSync writes that string to a scratch path, and the ONLY subsequent check is setLiteral.exec(mutated) re-running the SAME regex against that SAME string and asserting the substring the .replace() call itself inserted is present. mutant.js is never require()d, import()ed, or execed. This is tautological: for any string S and any regex/replacement pair, S.replace(r,x).match(r)[1].includes(x) holds by construction, independent of whether deriveRoleProvenance (the actual guarded function) would behave any differently. So this test provides ZERO evidence that reverting SIGNABLE_SESSION_SOURCES would make the REAL running guard admit explicit-env/derived-ppid -- only that a string-substitution produced the substring it was told to produce. This falls short of CHK-003s title (Prove the guard bites under mutation) and userSees (reverting the CHK-001 guard makes it fail with an assertion naming the forgeable session source) -- reverting the guard would not even touch this scratch-file code path, so this smoke would keep passing identically even with SIGNABLE_SESSION_SOURCES weakened for real. Contrast with topology-signing-source-guard-smoke.ts in the SAME story (used for CHK-001/CHK-005 evidence), which calls the real deriveRoleProvenance/resolveSessionIdentity functions directly and asserts on real thrown errors -- that is genuine mutation-adjacent behavioral testing; this file is not. Fix: make the mutant executable and actually run it, e.g. write the weakened TEXT as a real ESM module to a temp .mjs path re-exporting a standalone predicate function extracted from the same logic, dynamic import() it, and assert its return value differs from the unmutated import -- or, simpler, monkeypatch/inject a weakened Set into deriveRoleProvenance via a test-only seam and re-invoke the real function, the same pattern topology-signing-source-guard-smoke.ts already demonstrates works.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-18T04:07:53.552Z",
+      "reviewRound": "2026-08-18T03:52:40.426Z",
+      "reviewRunId": "B-49ed:RR-012",
+      "_hash": "beea1573b4fcd7f824235e94f52c0d143cf1d68395a3f559cb0f58f1e124e65b",
+      "files": [
+        "packages/main/src/tasks/signing-guard-mutation-proof-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
