@@ -241,6 +241,21 @@
       "_hash": "541d5f6b883bfb20a92ef984c6fac05b3af528b8cc95e09c2440202ac29ad136",
       "signatureTag": "missing|unknown|concept-cleanup-signing",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-49ed:F-013",
+      "desc": "packages/main/src/tasks/signing-guard-mutation-proof-smoke.ts:40-41: the mutant is written to <dirname(guardFile)>/__b49ed-mutant-<pid>.js, i.e. inside packages/main/dist/core/, which is also the tree hashed by scripts/full-suite-build-binding.mjs:verifyBuildBinding (every readFileSync/readdirSync under dist folds into distDigest). Reproduced directly: touching a stray file in dist/core while the manifest exists makes verifyBuildBinding throw stale full-suite dist: source/dist build binding mismatch (confirmed via node --input-type=module against the real worktree dist). verifyBuildBinding runs unconditionally at the top of scripts/build-main-with-binding.mjs on every npm run build invocation (the fast path used by the pre-push hook and CLAUDE.md build discipline). So any process that runs npm run build (or re-verifies the binding) while this smoke test's mutant file transiently exists between writeFileSync and the finally rmSync will see a spurious stale-dist failure and force an unnecessary rebuild under the build lock -- a real, demonstrated concurrency hazard, not just cosmetic residue. Using a tmpdir-based scratch path (as the file's own now-dead mkdtempSync scratch var originally implied) with a same-directory symlink, or writing outside dist entirely and resolving relative imports another way, would avoid touching the hashed tree at all. Crash-safety is fine (dist is gitignored and the atomic dist.staging/dist.trash swap discards orphans on next build), but the live concurrent-verify race is real.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-18T04:26:46.280Z",
+      "reviewRound": "2026-08-18T04:18:52.650Z",
+      "reviewRunId": "B-49ed:RR-016",
+      "_hash": "0763be12dbafeb77aaffe9bc5c9ba6f7d8f662ecac44e700a7539ff333bc5d5d",
+      "signatureTag": "adversarial|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
