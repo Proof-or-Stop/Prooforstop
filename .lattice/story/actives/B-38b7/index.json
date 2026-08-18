@@ -4,7 +4,7 @@
   "title": "Promote the dual-audited Story-aware dynamic validation plan into canonical project documentation",
   "description": "Move the approved Revision 3 Story-aware dynamic validation execution plan from an external audit artifact into the repository decision-document namespace so future DYN Stories, reviewers, and scope gates consume one versioned source of truth. This Story only promotes and verifies documentation; it does not implement dynamic validation behavior.",
   "type": "chore",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "medium",
   "source": "User-approved Claude CLI and Agy CLI dual-audited Revision 3 artifact on 2026-08-18",
   "keywords": [
@@ -26,6 +26,20 @@
       "user": "Harmonygo",
       "sessionId": "sess-5aaf3aea912d91e603a20c148ae32025",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-08-18T18:29:55.562Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-5aaf3aea912d91e603a20c148ae32025",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-38b7",
+    "branch": "story/B-38b7",
+    "createdAt": "2026-08-18T18:29:53.373Z"
+  }
 }
