@@ -1469,6 +1469,41 @@
         "scanEscalationReason": null
       },
       "_hash": "fa6649a1fcd3a055a325c39a0a1df1bd5d55debb130735b2f5d21f8c0934382b"
+    },
+    {
+      "id": "B-3434:RP-057",
+      "agent": "lattice-review-quality",
+      "note": "Re-binds RP-054 after main-merge moved materialHash 9663bdc713c1->188e365b7d84 (three commits touching only full-suite-runner.ts/-smoke.ts merged in, rev-list HEAD..main=0). Scope limited to the merge interaction per dispatch instruction; story's own content was already reviewed and passed at RP-054 and is unchanged. Verified: (1) git log --oneline main~3..main with and without a pathspec filter for the two runner files are byte-identical, confirming all three merged commits touch only full-suite-runner.ts and full-suite-runner-smoke.ts. (2) git diff main HEAD --stat -- . :(exclude).lattice shows only this story's own files (done-prepare-generated-metadata.ts, validation-executor.ts, verifier.ts, review-incremental-context.ts+smoke, lattice.config.json, the decision doc, and red/smoke tests) -- neither full-suite-runner.ts nor full-suite-runner-smoke.ts appear, and none of the four explicitExcludes (cli-engine.ts, done-required-timeout-budget.ts, process-fact-registry.ts, scripts/verify-process-fact-contract.mjs) appear. (3) git rev-list --count HEAD..main is 0. (4) Read the full main~3..main diff of both merged files: the change is self-contained suite-scheduling/timeout/concurrency logic (FULL_SUITE_BUDGET_MS, defaultJobs, effectiveEntryTimeoutMs, withConcurrencyHeadroom) with zero imports from or textual references to validation-executor.ts, done-prepare-generated-metadata.ts, verifier.ts, or lattice.config.json in either direction (grep both ways returned empty). (5) npx tsc --noEmit -p packages/main is clean. (6) node packages/main/dist/tasks/full-suite-runner-smoke.js exits 0, PASS (151 assertions), including new assertions for the merged concurrency/budget logic. JUDGMENT: NO -- the merged runner changes cannot interact with anything this story owns; the two file sets are disjoint with no cross-references in either direction, and TS/smoke evidence confirms the merged tree compiles and the affected suite entry-point still passes post-merge. Full validate/npm test not re-run per instruction (owner-reported 105/105 and 49/49 green on main).",
+      "createdAt": "2026-08-18T12:38:35.607Z",
+      "reviewRound": "2026-08-18T12:34:40.850Z",
+      "reviewRunId": "B-3434:RR-111",
+      "envelopeId": "1b5c1486449019fbcbf03ef78e2fc4986511842b11f22f58e7156b7eac613296",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "lattice.config.json",
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts",
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "packages/main/tests/red/red-1734-bootstrap-depfree.mjs",
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0891ff9806f261ef4c910e7e89bb625c2f19e437802da54f8256d4d640d75104"
     }
   ]
 }
