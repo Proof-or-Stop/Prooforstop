@@ -232,7 +232,7 @@
       "desc": "concept-cleanup: signing-guard-mutation-proof-smoke.ts:35,83 — the mkdtempSync(...)/rmSync scratch tempdir is residue from the pre-F-010 tautological approach (old version wrote the mutant into scratch via join(scratch,\"mutant.js\")). The F-010 rewrite now writes the mutant beside the guard file at join(dirname(guardFile), `__b49ed-mutant-${process.pid}.js`) instead, so scratch is created and destroyed every run but never read from or written into. Dead code, not a functional bug; should be removed to avoid confusing future readers about where the mutant actually lives.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-18T04:25:01.852Z",
@@ -240,7 +240,11 @@
       "reviewRunId": "B-49ed:RR-015",
       "_hash": "541d5f6b883bfb20a92ef984c6fac05b3af528b8cc95e09c2440202ac29ad136",
       "signatureTag": "missing|unknown|concept-cleanup-signing",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Correct. The F-010 rewrite moved the mutant beside the guard file (so its relative imports resolve) but left the mkdtempSync scratch dir from the previous approach: created at module level, removed in a finally, never read or written in between. Dead weight that would mislead a future reader about where the mutant actually lives.\n\nRemoved the scratch dir, the now-orphaned outer try/finally, and the unused tmpdir import. The inner try/finally around the mutant file already guarantees cleanup.\n\nRe-verified the proof still bites after the cleanup rather than assuming a pure deletion was safe: widening SIGNABLE_SESSION_SOURCES in the real guard makes the smoke exit 1, restoring it exits 0, git diff on the guard is empty. A refactor that silently defanged this proof would have been worse than the residue it removed.",
+      "resolvedAt": "2026-08-18T04:27:49.440Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-49ed:F-013",
