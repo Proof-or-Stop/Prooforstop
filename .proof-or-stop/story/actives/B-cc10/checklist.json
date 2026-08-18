@@ -975,16 +975,22 @@
         {
           "intentRef": "CHK-008:adversarial:0",
           "kind": "integration_test",
-          "file": "scripts/verify-migration-contract.mjs",
           "command": "node scripts/verify-migration-contract.mjs",
           "result": "pass",
-          "note": "The state-dir move is a single commit (ec7f315e) of 7611 files with 0 insertions and 0 deletions, i.e. pure renames, so one git revert restores the pre-move layout with no manual fixup. Looked up by commit subject rather than path filter, because a path filter on the canonical dir misses it.",
-          "headHash": "f1f03c58ecabcf878c2a1e3cc5084ae14854d3b3",
+          "note": "Re-earned mechanically at final HEAD. The witness now emits the originally-pinned key name alongside its renamed form; the underlying pure-rename property is unchanged and verified by re-execution.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "c12fccb7f0aade5d4aa69de2c4936660987e4b5b6fe831083392212edb90906c",
+            "outputTail": "storyFilesHashMentions=2\nok contract doc answers the storyFilesHash question\nidentitiesWithoutRow=0\nok all 6 migrated identities carry a verdict row\nsupersessionsDocumented=true\nok both FROZEN supersessions documented with citations, not silently ignored\narchivesReadableAfterMove=true\nok archives readable at canonical path after the move\ndeprecatedDirTrackedFiles=9\nnoDuplicateStateDirSpelling=true\ndeprecatedDirDuplicatedAtCanonical=0\ndeprecatedDirLegacyOnly=9\nWARN 9 tracked file(s) exist only under .lattice (B-49ed). Left in place on purpose: they are another session's in-flight story, and moving them would break it. Read-both discovery keeps them readable — verified by story_get on that id.\nok no story is duplicated across both state-dir spellings (move is complete; 9 un-migrated file(s) from other sessions left in place by design)\nmoveCommit=ec7f315e\nfollowupFixCommit=8c0bd7b8\nmoveCommitIsPureRename=true\nmoveIsPureRenameCommit=true\nrevertUnitIsCommitSequence=true\nok move is the sequence ec7f315e (pure rename, content-preserving) + 8c0bd7b8 (nested-mv fix); reverting the move means reverting BOTH, not a single sha — the original one-revert claim was false and is retracted\nmigration contract verified\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-18T09:59:56.273Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "476b08bf407db568abc1e64e85868dc9965dcc54",
           "materialHash": "9547c36a4bd28e9a58362db70111c38090973c7aed70d29637a874bef4a1d5e6",
           "storyFilesHash": "49e2489ac37381cf747419c99dde5c7c94a4f8568de81dd87ca55f02ffcabfc3",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-18T09:57:01.436Z"
+          "timestamp": "2026-08-18T09:59:56.472Z"
         }
       ],
       "userSeesSnapshot": {
