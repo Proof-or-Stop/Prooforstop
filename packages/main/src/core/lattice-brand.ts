@@ -23,8 +23,10 @@ export const PROOF_OR_STOP_PRIMARY_BIN = 'proof-or-stop' as const;
 
 /**
  * Deprecated bin alias, kept working so in-flight stories, git hooks and
- * operator muscle memory keep resolving. B-cdf6 makes the rename additive at
- * the CLI boundary: `proof-or-stop` is canonical, `lattice` still runs.
+ * operator muscle memory keep resolving. B-cdf6 made the rename additive at the
+ * CLI boundary; B-cc10 CHK-006 then DELETED bin/lattice.js, so `lattice` no longer
+ * runs as a bin — only `proof-or-stop` does. The identifiers this module owns
+ * (env keys, salts, role IDs) are still read-both; the BIN alias is gone.
  */
 export const PROOF_OR_STOP_DEPRECATED_BIN = 'lattice' as const;
 

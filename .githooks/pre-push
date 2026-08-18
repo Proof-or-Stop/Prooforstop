@@ -73,7 +73,7 @@ const approvalCandidates = [
 const approvalPath = approvalCandidates.find((candidate) => fs.existsSync(candidate)) || approvalCandidates[0];
 function reject(message) {
   console.error(`[pre-push] REJECTED: ${message}`);
-  console.error("[pre-push] Remote writes are default-denied. Run `lattice release_approve_push --confirm` from a clean local main, then retry `git push origin main` before the approval expires.");
+  console.error("[pre-push] Remote writes are default-denied. Run `proof-or-stop release_approve_push --confirm` from a clean local main, then retry `git push origin main` before the approval expires.");
   process.exit(1);
 }
 let approval;
