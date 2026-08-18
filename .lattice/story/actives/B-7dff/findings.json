@@ -199,6 +199,26 @@
       "resolvedAt": "2026-08-17T21:33:07.991Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "medium"
+    },
+    {
+      "id": "B-7dff:F-011",
+      "desc": "CHK-001:happy:0 (must, pinned to npm test) still carries a deferred_gate_evidence waiver whose premise (no passing receipt is obtainable) is now false on the merged tree. checklist.json waiverType=deferred_gate_evidence note says the receipt runner caps a command at 270000ms against a ~334s suite with jobs=4, and blames an exit-1 from a whole-suite 300000ms budget. On HEAD dae7446798, full-suite-runner.ts:261 sets FULL_SUITE_BUDGET_MS=1_200_000 (not 300000) and defaultJobs (line 328) is CPU-derived (measured jobs=2, 49/49 passed per the line-323 comment; merge-settling run measured 585.2s exit 0) -- the exit-1/300000ms narrative in the waiver text no longer describes this tree at all. More importantly: checklist.ts:399-490 (resolveEvidenceCommandTimeout, EVIDENCE_COMMAND_TIMEOUT_CAP_MS=7_200_000) lets verification_evidence_add raise a pinned command receipt budget up to 2h with a >=30-char commandTimeoutReason -- so npm test (observed 585.2s-832.8s across runs, both comfortably under the 7.2M ms cap) can now earn a real mechanical receipt instead of being waived. Corroborating: proof-or-stop status reports M1 as Failed specifically because Verification intent CHK-001:happy:0 has no passing evidence or permanent non-failing waiver. A deferred waiver whose blocking condition is now mechanically resolvable should be replaced with a real integration_test evidence row (verification_evidence_add with a commandTimeoutMs override, e.g. >=1,000,000ms to clear the observed 832.8s worst case, plus a qualifying reason) rather than merely reworded, before this story closes.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-18T16:32:47.185Z",
+      "reviewRound": "2026-08-18T16:19:02.994Z",
+      "reviewRunId": "B-7dff:RR-021",
+      "_hash": "f3b2e0008c70b79f6e9014dea9a4570385bb5b568afe88b160fbee6e5e675456",
+      "files": [
+        "packages/main/src/tasks/full-suite-runner.ts",
+        "packages/main/src/handlers/checklist.ts",
+        ".lattice/story/actives/B-7dff/checklist.json"
+      ],
+      "signatureTag": "missing|ts|happy-pinned-test",
+      "signatureTagSource": "auto"
     }
   ]
 }
