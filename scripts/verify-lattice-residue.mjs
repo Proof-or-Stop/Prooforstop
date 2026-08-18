@@ -285,6 +285,12 @@ const DOC_SCAN_ROOTS = [
   'docs',
   'packages/main/templates',
   '.claude/agents',
+  // B-cc10 F-054: scan the CANONICAL adapter dir. This listed '.lattice-codex/agents', which
+  // CHK-003 renamed — so `git ls-files -- <deleted path>` returned an EMPTY list and this root
+  // contributed ZERO files while 17 live role-prompt mirrors sat unscanned. The check reported
+  // PASS on nothing: the same "looks verified but isn't" failure this gate exists to catch,
+  // inside the gate itself. Both spellings are listed so a pre-migration tree is still covered.
+  '.proof-or-stop-codex/agents',
   '.lattice-codex/agents',
 ];
 

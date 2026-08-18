@@ -278,6 +278,29 @@ runtime had stopped reading.** Three sub-kinds, in ascending order of danger:
    vacuously. `dev-memory-lifecycle-gates` had TWO such sites, the first masking the second.
    **A test whose sabotage misses still reports green — strictly worse than a red test.**
 
+4. **Invisible — runtime-GENERATED text (B-cc10 F-041, F-047..F-050, F-054).** Added after the
+   first three, because it defeats every gate this story built. Advisory strings assembled at
+   runtime (template literals, regex rewriters) told operators to run `lattice <cmd>` after
+   CHK-006 deleted that bin, so the instruction failed with `MODULE_NOT_FOUND`. All four
+   residue checks are structurally blind to it: they grep for STATIC literals, and this text
+   does not exist as a literal anywhere. Most of the affected files were also untouched by
+   this story's diff, so a diff-scoped review misses them too. Seven user-facing sites were
+   found only by enumerating the class directly
+   (`grep -rnE 'Run \`?lattice |Use lattice |Next: lattice |rerun lattice '`), including one
+   the reviewers' own list had missed. The worst instance was `.githooks/pre-push`'s rejection
+   message — the recovery instruction shown to an operator whose push was just blocked.
+
+   **The same blindness hit the gate itself (F-054):** `verify-lattice-residue.mjs`'s
+   `DOC_SCAN_ROOTS` still listed the renamed `.lattice-codex/agents`, so
+   `git ls-files -- <deleted path>` returned an empty list, that root contributed ZERO files,
+   and `[brand-prose]` reported PASS while 17 live role-prompt mirrors went unscanned. A gate
+   pointed at a path that no longer exists reports success on nothing. Proven fixed by planting
+   a violation in a canonical mirror and observing exit 1.
+
+   **Write paths are the higher-impact subclass (F-046, F-051, and the `.gitignore` gap).** A
+   stale READ fails loudly; a stale WRITE silently recreates the directory the migration
+   removed. Three separate instances appeared in this story.
+
 One case ran the other way: `red-1734-bootstrap-depfree` pinned the OLD brand string while
 production correctly printed the new one — **code right, test stale.** Its regex now accepts
 either brand so it survives the next rename.
