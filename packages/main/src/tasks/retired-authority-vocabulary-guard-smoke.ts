@@ -4071,7 +4071,11 @@ function assertShippedExecutableRootPositiveControls(): void {
   for (const [label, specifier] of [
     ['package imports alias', '#compat'],
     ['conditional wildcard package imports alias', '#compat/legacy-delivery-claims-compat'],
-    ['package self-reference alias', '@lattice/core/compat'],
+    // B-cc10 F-009 follow-through: a self-reference specifier resolves against the
+    // fixture manifest's OWN name, which this story renamed to @proof-or-stop/core just
+    // above (line ~4061). Leaving the deprecated spelling here made the alias
+    // unresolvable, so the guard failed on a name mismatch it created itself.
+    ['package self-reference alias', '@proof-or-stop/core/compat'],
   ] as const) {
     assert.ok(
       resolvePackageAlias(aliasControlFile, specifier, hermeticEdges).targets.includes(normalizeModulePath(LEGACY_DELIVERY_COMPAT_MODULE)),
