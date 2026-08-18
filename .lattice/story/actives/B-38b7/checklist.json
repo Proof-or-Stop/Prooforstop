@@ -1,0 +1,71 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Promote the approved Revision 3 plan into the decision-document namespace",
+      "context": "Create the repository-relative Markdown source from the dual-audited artifact without changing its accepted safety rules or introducing local absolute paths.",
+      "relatedDocs": [
+        "docs/requirements/decisions/testing-infra.md",
+        "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+      ],
+      "userSees": "The repository contains docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md with Status Approved for repository import and DYN-1 observe-only implementation.",
+      "excludes": [
+        "Implementing dynamic selection or receipt reuse"
+      ],
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "test": []
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Preserve the external audit decisions and repository-relative provenance",
+      "context": "Retain Claude and Agy verdicts, remediation mapping, inspected source snapshot, enforcement prerequisites, rollback, mutation matrix, and explicit distinction between DYN-1 approval and DYN-3 authority.",
+      "relatedDocs": [
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "userSees": "The document records both final audit approvals, no open critical or high findings for DYN-1, and the remaining DYN-3 blocking evidence requirements.",
+      "excludes": [
+        "Claiming dynamic TEST authority is already approved"
+      ],
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "test": []
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Verify canonical documentation hygiene without changing runtime behavior",
+      "context": "Check Markdown structure, absence of machine-local absolute paths, Proof-or-Stop residue policy, git diff scope, and exact single-file delivery.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+      ],
+      "userSees": "Documentation verification reports balanced Markdown fences, zero machine-local paths, and a one-file documentation-only product diff.",
+      "excludes": [
+        "Running root npm test or changing the not-yet-available canonical-document registry"
+      ],
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "test": []
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
