@@ -61,6 +61,21 @@
       "_hash": "cc1857ec8c332ddc4ca82d221049114da3ad1cfdb25abb622adf392582565576",
       "signatureTag": "happy|unknown|usersees-names-wrong",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-49ed:F-005",
+      "desc": "The scope-plan exclusion approver call site (proofstory.ts:550) is a bound signing role identical in risk profile to the critic (:565), per this story's own decision rationale, but its LEGITIMATE (accepted-session) path through topology_exclusion_approval_set is never exercised end to end anywhere in the current test suite. Its only production call sites in tests are inside proofstory-topology-critic-smoke.ts (lines ~505/538 for the negative/rejected cases, and the one positive-path call implied by the test flow), and that whole smoke test currently exits 1 at an assert.equal(basis.status, 'complete') check (see F-004) BEFORE it ever reaches the exclusion-approval flow. So a legitimate exclusion approver signing under a genuine host-adapter/generated-token session and an existing decisionRef has zero executed coverage right now -- the CHK-001 dispatcher's stated concern (\"I have not seen it exercised end to end\") is correct and unresolved. deriveRoleProvenance's source-gate logic is shared code covered generically by topology-signing-source-guard-smoke.ts for both roles, so the sessionSource check itself is proven for this role too, but the FULL production call site (authority check -> deriveRoleProvenance -> issueTopologyExclusionApproval -> store write -> verifyTopologyExclusionApproval) has never been driven with a real accepted session and a real exclusion. Fix: add a manual_transcript or automated test that dispatches lattice-review-scope-plan under a genuine host-adapter session, calls topology_exclusion_approval_set against a real exclusionRef from state.context.exclusions, and asserts it succeeds -- independent of fixing the unrelated basis-discovery defect blocking proofstory-topology-critic-smoke.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-08-18T03:43:57.751Z",
+      "reviewRound": "2026-08-18T02:48:29.207Z",
+      "reviewRunId": "B-49ed:RR-002",
+      "_hash": "d02ccc1ee0170eda008d4ad55033299d466cc4f14cbc346513df017d69d85a3e",
+      "signatureTag": "missing|unknown|scope-plan-exclusion",
+      "signatureTagSource": "auto"
     }
   ]
 }
