@@ -683,6 +683,10 @@ export const LATTICE_LIFECYCLE_ARTIFACT_FILENAMES: ReadonlySet<string> = new Set
   // dev_memory_preflight_ack. Consumed by the DEV-entry gate
   // (evaluateDevMemoryPreflightGate in core/machine.ts).
   'dev-memory-preflight-ack.json',
+  // B-1e1f: signed PRE_CERT CertificationWindow written by StoryStore
+  // (readCertificationWindows/writeCertificationWindows). Independently gated
+  // by refuseHeavyCertificationUnlessAdmitted; not closeout evidence.
+  'certification-window.json',
 ]);
 
 /**
@@ -700,6 +704,9 @@ export const REVIEW_RETENTION_PROTOCOL_METADATA_PATHS: ReadonlySet<string> = new
   'test-runs.json',
   'owner-lease.json',
   'closeout-write-receipts.jsonl',
+  // Independently gated PRE_CERT process fact. Writing it after REVIEW must
+  // not be treated as an untrusted closeout artifact.
+  'certification-window.json',
 ]);
 
 export const LATTICE_LIFECYCLE_ARTIFACT_RELATIVE_PATHS: ReadonlySet<string> = new Set([

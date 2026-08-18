@@ -59,6 +59,7 @@ import type { HandlerContext } from '../handlers/context.js';
 import { computeActiveReviewers } from '../handlers/reviewer-list.js';
 import { createLegacyLocalOnlyDeliveryClaims } from '../core/legacy-delivery-claims-compat.js';
 import { evaluateOptionalLiveSmokeTranscript } from '../core/live-smoke-transcript-evidence.js';
+import { persistSyntheticAdmittedWindowForTest } from '../core/certification-window.js';
 
 const legacyPromptHash = (roleId: string): string => hashReviewPrompt(resolvePromptRoleBody(roleId, {
   version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
@@ -539,6 +540,7 @@ try {
   assert.equal(evaluateOptionalLiveSmokeTranscript(store, runtimeStoryId).status, 'valid', 'a passing capture restores valid executed evidence');
   createDeliveryContextPackHandlers(handlerCtx).delivery_context_pack({ storyId: runtimeStoryId, write: true });
   assertWriterReceipt('evidence/delivery-context-pack.json', 'delivery_context_pack');
+  persistSyntheticAdmittedWindowForTest({ store, storyId: runtimeStoryId, projectRoot: repo });
   await createDoneRequiredValidationHandlers(handlerCtx).done_required_validate({ storyId: runtimeStoryId });
   assertWriterReceipt('done-required-evidence.json', 'done_required_validate');
   console.log('PASS canonical DONE-required lineage recorded');
