@@ -4,8 +4,8 @@
       "id": "CHK-001",
       "title": "Prove both gates ignore an item-level withdrawal, repro-first",
       "context": "Isolated fixture (mkdtemp, never a real story): take it to REVIEW, withdraw one checklist item that SHARES an acceptance binding with a delivered item, then observe story_advance --phase=TEST refused twice - evaluateReviewCompleteness with review_completeness_missing_evidence naming the withdrawn intents, and the channel gate with 'has no dispatch/subagent_result evidence'. Both must be OBSERVED. Include controls: a non-withdrawn item with genuinely missing evidence must still be refused (rules out 'skips everything'), and a fully-covered item must still pass (rules out 'refuses everything'). If either gate already handles item-level withdrawal, the premise is refuted and items 2-5 must be re-scoped rather than executed.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-08-18T22:24:28.655Z",
       "endTime": null,
       "userSees": "node packages/main/tests/red/red-b45a5-*.mjs prints RED rows for both gates on the pre-fix tree and exits non-zero.",
       "files": {
