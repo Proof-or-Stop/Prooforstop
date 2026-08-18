@@ -251,12 +251,33 @@ written — so treat any single number here as a floor, not a ceiling:
 | Vacuously-passing guards (F-054/F-055/F-056) | +3 | scan roots named the renamed adapter dir, so they scanned zero files and reported PASS |
 | Found after the "28" was written (F-057, F-061, the second CLAUDE.md/AGENTS.md destruction, the second `**/*.lock/` loss, F-062) | +5 | four were self-inflicted during repair, not rename fallout; one was a fix that was not durable |
 
-**Honest total: 33 validate-suite defects fixed**, of which 8 were invisible to the suite used
-to measure the first 25. **All 33 are fixed.**
+One more arrived after that table was written (F-064/F-065, test-coverage lane), so the count
+is **35** — and the fact that it keeps moving is itself the finding, which is why this section
+is framed as waves rather than a total.
 
-Do not confuse that 33 with the **63 reviewer findings** in this story's finding ledger (61
+F-064 deserves its own note because it widens the "invisible" class above. The
+`[brand-decision]` gate flags the retired literal when it appears in a comparison
+(`.startsWith` / `.includes` / `===` / `!==`). In `full-suite-runner.ts` the literal was a
+**data value** — fed into a `RESOURCE_POLICY` table and only compared one level removed, via
+`pathIsContained()` and `target === approved`. A regex over comparison expressions cannot see
+that, so the gate passed while product runtime source still hardcoded the retired directory.
+
+The latent hazard there was not the policy keys but the `approvedRoots` containment allowlist:
+a cleanup safety check pinned to the DEPRECATED dir would have started throwing "outside an
+approved owned root" the moment the runtime wrote a cleanable target under the canonical one. A
+safety check pinned to the old spelling fails in the *safe-looking* direction — it refuses to
+clean up — which is why nothing surfaced it until a reviewer read the data flow by hand.
+
+**Generalisation:** grep-shaped gates see literals in the positions the gate author imagined.
+Prefer making the retired spelling *unrepresentable* (resolver-derived helpers) over adding
+another pattern to the gate.
+
+**Honest total: 35 validate-suite defects fixed**, of which 8 were invisible to the suite used
+to measure the first 25. **All 35 are fixed.**
+
+Do not confuse that 35 with the **65 reviewer findings** in this story's finding ledger (64
 resolved, 1 dismissed as a probe artifact, 3 of them critical). The two count different things:
-33 is defects that broke the validate suite; 63 is everything six reviewer rounds raised,
+35 is defects that broke the validate suite; 65 is everything seven reviewer rounds raised,
 including docs drift, dead code, and overclaims in this very file. Final state:
 `status=pass`, `allPass=true`, verification coverage **24/24** (21 mechanical receipts +
 3 audited permanent waivers).
