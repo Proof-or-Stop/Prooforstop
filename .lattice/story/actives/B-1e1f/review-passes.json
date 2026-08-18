@@ -579,6 +579,43 @@
       },
       "readDiagnostics": [],
       "_hash": "e4e2a15c6ceaa15ae368faac99d98f040b2b595537457e01d10da3784b84bdbc"
+    },
+    {
+      "id": "B-1e1f:RP-013",
+      "agent": "lattice-review-quality",
+      "note": "Incremental quality review of 252623dab9. collectAdmitFacts now passes an isEvidenceFresh callback so matching current vs evidence storyFilesHash does not count headHash-only metadata HEAD moves as missingRequired (the 31-intent false stale). Callback is fail-closed: both hashes must be truthy and equal; missing either side stays stale. buildVerificationCoverage still applies fail/waiver/missing before freshness, so this does not cover failed evidence. Whole-tree materialHash drift remains refused in inventoryLineageRefusal, not via coverage. refuseHeavyCertificationUnlessAdmitted is unchanged in core/certification-window.ts. authorizesTest stays false (inventoryBinding copies receipt; mock+begin assert false). Smoke adds unit cases for match/missing-current/missing-evidence and an integration begin that admits with fake evidence headHash plus matching storyFilesHash. No dead code, unused import, as-any, empty-catch swallow, shell/fn isolation break, or new CLAUDE.md/README promise. No quality blocker.",
+      "createdAt": "2026-08-18T13:34:05.709Z",
+      "reviewRound": "2026-08-18T13:28:26.046Z",
+      "reviewRunId": "B-1e1f:RR-017",
+      "envelopeId": "d26591e0f8cb0922feb938c088d8ff4c9a02836c66ab21de61e5f672d053601c",
+      "writerSessionId": "sess-cf96145de9cf012e",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-1e1f/background.md",
+          ".lattice/story/actives/B-1e1f/plan.md",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/verification.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "3af0bbfa8dc9caf6021b5bce7332db2dcc82d76ade566dd877faac7a60ce500b"
     }
   ]
 }
