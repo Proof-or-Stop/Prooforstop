@@ -91,23 +91,22 @@
         {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "logic_test",
-          "file": "packages/main/src/tasks/topology-signing-source-guard-smoke.ts",
           "command": "node packages/main/dist/tasks/topology-signing-source-guard-smoke.js",
           "result": "pass",
-          "note": "Assertion 1 requires both signing roles to refuse explicit-env and derived-ppid, and asserts the refusal does NOT reach the dispatch lookup, proving it happens before any verdict branch. Mutation-proven: deleting the guard makes this smoke fail with lattice-review-topology-critic must refuse explicit-env.",
-          "headHash": "745df2059bf3a71bf90e098426fb32e99c0c1f15",
-          "materialHash": "007801d9ce6e75d05549350ffaa01537a36ebfd1a786eecac625ee27ed235e49",
-          "storyFilesHash": "39c94f8fe6c26143b7037a10df85d685dd9652d77845052c057efe3b7c061179",
+          "note": "verification_run executed the pinned verifier for CHK-001:adversarial:0",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "88b4f50d8fb285081317d0a79b2e6d8ec7b4bfe58d5d666d0a62e3e530c26a2f",
             "outputTail": "Topology signing source guard: PASS\n  refused (forgeable): explicit-env, derived-ppid\n  accepted (host-derived): host-adapter, generated-token\n  bound production call sites: 2/2\n  migrated fixture env resolves to: host-adapter\n  accepted sources complete provenance for: critic + exclusion approver\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-18T05:23:11.183Z",
+            "executedAt": "2026-08-18T05:35:15.433Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-18T05:23:12.798Z"
+          "headHash": "f0cee011b1ec5cc7531e0529657f6b7f70dd0324",
+          "materialHash": "3787ec8f4016e946d92809f891a2759118786c70315fb0592b306595ea8baaf7",
+          "storyFilesHash": "74ee83eed31f681bcba47598128ee4f80ff2430bc252bfc3b04d932115e4cad4",
+          "timestamp": "2026-08-18T05:35:15.674Z"
         }
       ],
       "userSeesSnapshot": {
