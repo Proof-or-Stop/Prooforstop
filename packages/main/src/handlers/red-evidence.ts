@@ -484,7 +484,7 @@ export function createRedEvidenceHandlers(ctx: HandlerContext): Record<string, (
         throw new Error(
           `red_evidence_envelope_check: the red-evidence policy does not resolve, so no envelope can be validated (fail-closed):\n${policyResult.diagnostics
             .map((diagnostic) => `  - ${diagnostic.message}`)
-            .join('\n')}`,
+            .join('\n')}\nSet these under the "redEvidence" block in lattice.config.json at the project root; run \`proof-or-stop doctor\` to see the resolved red-evidence policy.`,
         );
       }
 
