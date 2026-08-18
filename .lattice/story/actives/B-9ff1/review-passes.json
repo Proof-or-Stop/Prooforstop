@@ -1360,6 +1360,36 @@
         "scanEscalationReason": null
       },
       "_hash": "0dfb5ed638a6f7c43ac7613469f95ed3ae0263a50bbd2d98d16473581fd05fdc"
+    },
+    {
+      "id": "B-9ff1:RP-043",
+      "agent": "lattice-review-concept",
+      "note": "Verified the F-065 fix to F-058 using F-056's git-archaeology method: recovered F-058's pre-fix resolvedReason from commit 411c7ea7648074e26c55156778a204763dbc95c3 (2472 chars), confirmed it is a byte-exact substring of current block [1] (found at index 375, not a retyping), confirmed block [2] contains both 'greenExempt' and 'R1-4', states the absent-at-GREEN half is defeasible while the RED/R1-4 half survives, and plainly says the correction was originally written in the wrong place. F-065's own resolution states the general citation rule without claiming findings.json gained any history mechanism. B-595c/background.md:41 cites 'B-9ff1:F-058' under item 3 (CHK-003's deferred specificity-metric decision); a reader following that citation now reaches F-058's corrected block [2], not the original unconditional claim. git diff --name-only 90c21f7f4d HEAD touches only .lattice/ paths (no source drift). findings.json has 65 findings, 0 with status open (64 resolved, 1 dismissed). git rev-list --count HEAD..main == 0. git status --porcelain empty. red-w2d-specificity-conjunction.mjs exits 0. No new defect found; this lane's prior pass (RP-037/RR-056) was superseded by F-065 itself, so this is a fresh verification pass, not a reuse.",
+      "createdAt": "2026-08-18T18:39:40.081Z",
+      "reviewRound": "2026-08-14T03:33:29.693Z",
+      "reviewRunId": "B-9ff1:RR-070",
+      "envelopeId": "a68b9187a830764320d590f9697d88f6a238bf9daffcdacbad3df10d040c4077",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-595c/background.md",
+          ".lattice/story/actives/B-595c/checklist.json",
+          ".lattice/story/actives/B-595c/index.json",
+          ".lattice/story/actives/B-9ff1/background.md",
+          ".lattice/story/actives/B-9ff1/checklist.json",
+          ".lattice/story/actives/B-9ff1/findings.json",
+          ".lattice/story/actives/B-9ff1/plan.md",
+          ".lattice/story/actives/B-9ff1/review-passes.json",
+          ".lattice/story/actives/B-9ff1/review-runs.json"
+        ],
+        "filesTriagedByName": [
+          "packages/main/tests/red/red-w2d-specificity-conjunction.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f780dacae20cf23c0f711f1f8ea25d05d839c55cd735c0617cb313b5971c9e66"
     }
   ]
 }
