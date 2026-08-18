@@ -1,13 +1,14 @@
 #!/usr/bin/env node
 /**
- * B-1e1f CHK-001: CertificationWindow signed process-fact smoke.
+ * B-1e1f CHK-001/CHK-002: CertificationWindow signed process-fact + admit smoke.
  *
  * Covers status surface, process-fact registration, tamper fail-closed,
- * and the inventory-receipt-is-not-PRE_CERT fence. Begin stays fail-closed
- * when B-3f3d inventory APIs are absent.
+ * inventory-is-not-PRE_CERT, and PRE_CERT admit from inventory/merge/clean/coverage.
+ * Missing B-3f3d APIs stay fail-closed; never stub-always-admit.
  */
 
 import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -15,26 +16,36 @@ import { StoryStore } from '../core/store.js';
 import { PROCESS_FACT_LEVELS } from '../core/process-fact-levels.js';
 import { PROCESS_FACT_REGISTRY } from '../core/process-fact-registry.js';
 import { COMMAND_POLICIES } from '../core/command-policy.js';
+import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { createCertificationWindowHandlers } from '../handlers/certification-window.js';
 import {
   CERTIFICATION_WINDOW_FILE,
   CERTIFICATION_WINDOW_STATES,
   INVENTORY_COMPLETENESS_AUTHORITY,
+  PRE_CERT_BLOCKING_FINDINGS_OPEN,
+  PRE_CERT_COVERAGE_MISSING,
+  PRE_CERT_DIRTY_TREE,
   PRE_CERT_INVENTORY_API_ABSENT,
+  PRE_CERT_INVENTORY_NOT_FINALIZED,
+  PRE_CERT_MAIN_NOT_MERGED,
   PRE_CERT_WINDOW_TAMPERED,
   emptyCertificationWindowData,
+  evaluateCertificationWindowAdmit,
   inventoryReceiptAuthorizesPrecert,
   loadReviewInventoryAdmitApis,
   nextPrecertReceiptId,
   projectCertificationWindowStatus,
   renderCertificationWindowStatus,
+  setReviewInventoryAdmitApisForTest,
   verifyCertificationWindow,
   verifyPrecertReceipt,
   windowAuthorizesHeavyCertification,
   withSignedCertificationWindow,
   withSignedPrecertReceipt,
   type CertificationWindow,
+  type CertificationWindowAdmitFacts,
   type PrecertReceipt,
+  type ReviewInventoryAdmitApis,
 } from '../core/certification-window.js';
 
 function makeRoot(): string {
@@ -107,7 +118,9 @@ try {
 }
 assert.equal(beginFailed, true, 'begin must fail-closed when inventory APIs are absent');
 assertStatusSurface(beginOutput, 'BLOCKED');
+assert.match(beginOutput, new RegExp(`\\[${PRE_CERT_INVENTORY_NOT_FINALIZED}\\]`));
 assert.match(beginOutput, new RegExp(`\\[${PRE_CERT_INVENTORY_API_ABSENT}\\]`));
+assert.match(beginOutput, /^Next: proof-or-stop review_inventory_finalize /m);
 assert.doesNotMatch(beginOutput, /^State: ADMITTED$/m);
 assert.equal(loadReviewInventoryAdmitApis(), null, 'this worktree must not stub inventory admit APIs');
 
@@ -267,5 +280,304 @@ for (const name of ['certification_window_begin', 'certification_window_status',
   assert.ok(registry?.semantics.includes('gate-evidence'));
 }
 
+function baseAdmitFacts(overrides: Partial<CertificationWindowAdmitFacts> = {}): CertificationWindowAdmitFacts {
+  return {
+    inventoryApisPresent: true,
+    inventory: {
+      epoch: {
+        epochId: 'epoch-1',
+        storyId: 'B-cw10',
+        reviewRound: 'round-1',
+        cutoff: { materialHash: 'm'.repeat(64), storyFilesHash: 's'.repeat(64) },
+      },
+      receipt: {
+        receiptId: 'INV-1',
+        storyId: 'B-cw10',
+        reviewRound: 'round-1',
+        authority: INVENTORY_COMPLETENESS_AUTHORITY,
+        authorizesTest: false,
+        cutoff: { materialHash: 'm'.repeat(64), storyFilesHash: 's'.repeat(64) },
+      },
+    },
+    currentStoryId: 'B-cw10',
+    headHash: 'a'.repeat(40),
+    materialHash: 'm'.repeat(64),
+    storyFilesHash: 's'.repeat(64),
+    expectedMainSha: 'd'.repeat(40),
+    mainIsAncestor: true,
+    openBlockingFindingIds: [],
+    missingRequiredIntents: 0,
+    dirtyNonRuntimePaths: [],
+    gitIndexReadable: true,
+    evidenceTargetWritable: true,
+    ...overrides,
+  };
+}
+
+const admittedDecision = evaluateCertificationWindowAdmit(baseAdmitFacts());
+assert.equal(admittedDecision.admit, true, 'full fact set must admit');
+
+const missingApiDecision = evaluateCertificationWindowAdmit(baseAdmitFacts({ inventoryApisPresent: false }));
+assert.equal(missingApiDecision.admit, false);
+assert.equal(missingApiDecision.blockerCode, PRE_CERT_INVENTORY_NOT_FINALIZED);
+assert.match(String(missingApiDecision.blockerDetail), new RegExp(`\\[${PRE_CERT_INVENTORY_API_ABSENT}\\]`));
+
+const missingInventory = evaluateCertificationWindowAdmit(baseAdmitFacts({ inventory: null }));
+assert.equal(missingInventory.admit, false);
+assert.equal(missingInventory.blockerCode, PRE_CERT_INVENTORY_NOT_FINALIZED);
+
+const wholeTreeDrift = evaluateCertificationWindowAdmit(baseAdmitFacts({
+  materialHash: 'z'.repeat(64),
+}));
+assert.equal(wholeTreeDrift.admit, false, 'materialHash-only drift must not admit');
+assert.equal(wholeTreeDrift.blockerCode, PRE_CERT_INVENTORY_NOT_FINALIZED);
+assert.match(String(wholeTreeDrift.blockerDetail), /Whole-tree materialHash drift/);
+
+const otherStoryInventory = evaluateCertificationWindowAdmit(baseAdmitFacts({
+  inventory: {
+    epoch: { epochId: 'epoch-x', storyId: 'B-other', cutoff: { materialHash: 'm'.repeat(64), storyFilesHash: 's'.repeat(64) } },
+    receipt: { receiptId: 'INV-x', storyId: 'B-other', cutoff: { materialHash: 'm'.repeat(64), storyFilesHash: 's'.repeat(64) } },
+  },
+}));
+assert.equal(otherStoryInventory.admit, false);
+assert.equal(otherStoryInventory.blockerCode, PRE_CERT_INVENTORY_NOT_FINALIZED);
+
+const findingsDecision = evaluateCertificationWindowAdmit(baseAdmitFacts({
+  openBlockingFindingIds: ['B-cw10:F-001'],
+}));
+assert.equal(findingsDecision.admit, false);
+assert.equal(findingsDecision.blockerCode, PRE_CERT_BLOCKING_FINDINGS_OPEN);
+
+const coverageDecision = evaluateCertificationWindowAdmit(baseAdmitFacts({ missingRequiredIntents: 2 }));
+assert.equal(coverageDecision.admit, false);
+assert.equal(coverageDecision.blockerCode, PRE_CERT_COVERAGE_MISSING);
+
+const mainDecision = evaluateCertificationWindowAdmit(baseAdmitFacts({ mainIsAncestor: false }));
+assert.equal(mainDecision.admit, false);
+assert.equal(mainDecision.blockerCode, PRE_CERT_MAIN_NOT_MERGED);
+
+const dirtyDecision = evaluateCertificationWindowAdmit(baseAdmitFacts({ dirtyNonRuntimePaths: ['src/foo.ts'] }));
+assert.equal(dirtyDecision.admit, false);
+assert.equal(dirtyDecision.blockerCode, PRE_CERT_DIRTY_TREE);
+
+function git(cwd: string, args: string[]): string {
+  return execFileSync('git', args, { cwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
+}
+
+function makeGitRoot(): string {
+  const gitRoot = mkdtempSync(join(tmpdir(), 'lattice-certification-window-git-'));
+  git(gitRoot, ['init', '-b', 'main']);
+  git(gitRoot, ['config', 'user.email', 'cert-window@example.test']);
+  git(gitRoot, ['config', 'user.name', 'cert-window']);
+  writeFileSync(join(gitRoot, 'lattice.config.json'), JSON.stringify({
+    storyDir: '.lattice/story/actives',
+    storyPrefix: 'B',
+  }));
+  writeFileSync(join(gitRoot, 'README.md'), 'certification window smoke\n');
+  git(gitRoot, ['add', 'lattice.config.json', 'README.md']);
+  git(gitRoot, ['commit', '-m', 'init']);
+  return gitRoot;
+}
+
+function mockInventoryApis(args: {
+  storyId: string;
+  materialHash: string;
+  storyFilesHash: string;
+  otherStoryId?: string;
+  driftedMaterialHash?: string;
+}): { apis: ReviewInventoryAdmitApis; consumed: string[] } {
+  const consumed: string[] = [];
+  const inventoryStoryId = args.otherStoryId ?? args.storyId;
+  const materialHash = args.driftedMaterialHash ?? args.materialHash;
+  const apis: ReviewInventoryAdmitApis = {
+    finalizedUnconsumedReviewInventory: () => ({
+      epoch: {
+        epochId: 'epoch-1',
+        storyId: inventoryStoryId,
+        reviewRound: 'round-1',
+        state: 'FINALIZED',
+        receiptId: 'INV-1',
+        cutoff: { materialHash, storyFilesHash: args.storyFilesHash },
+      },
+      receipt: {
+        receiptId: 'INV-1',
+        epochId: 'epoch-1',
+        storyId: inventoryStoryId,
+        reviewRound: 'round-1',
+        authority: INVENTORY_COMPLETENESS_AUTHORITY,
+        authorizesTest: false,
+        cutoff: { materialHash, storyFilesHash: args.storyFilesHash },
+      },
+    }),
+    consumeReviewInventoryReceipt: () => {
+      consumed.push('INV-1');
+      return 'INV-1';
+    },
+  };
+  return { apis, consumed };
+}
+
+function beginCaught(handlers: ReturnType<typeof createCertificationWindowHandlers>, id: string): string {
+  try {
+    return handlers.certification_window_begin({ storyId: id });
+  } catch (error) {
+    return error instanceof Error ? error.message : String(error);
+  }
+}
+
+setReviewInventoryAdmitApisForTest({
+  finalizedUnconsumedReviewInventory: () => null,
+  consumeReviewInventoryReceipt: () => {
+    throw new Error('consume must not run without a finalized inventory');
+  },
+});
+const noInventoryHandlers = createCertificationWindowHandlers({
+  store,
+  root,
+  scanRoot: join(root, 'packages', 'main'),
+});
+const noInventoryOutput = beginCaught(noInventoryHandlers, 'B-cw11');
+assertStatusSurface(noInventoryOutput, 'BLOCKED');
+assert.match(noInventoryOutput, new RegExp(`\\[${PRE_CERT_INVENTORY_NOT_FINALIZED}\\]`));
+assert.match(noInventoryOutput, /^Next: proof-or-stop review_inventory_finalize /m);
+assert.doesNotMatch(noInventoryOutput, /^State: ADMITTED$/m);
+
+const gitRoot = makeGitRoot();
+const admitStoryId = 'B-cw12';
+const admitStore = makeStore(gitRoot, admitStoryId);
+admitStore.writeChecklist(admitStoryId, { items: [] });
+const admitHead = currentGitHead(gitRoot);
+const admitMaterial = currentMaterialHash(gitRoot, 'HEAD', gitRoot);
+const admitStoryFiles = currentStoryFilesHash(gitRoot, 'HEAD', gitRoot);
+assert.ok(admitHead && admitMaterial && admitStoryFiles, 'git-backed hashes must resolve');
+const admitMock = mockInventoryApis({
+  storyId: admitStoryId,
+  materialHash: admitMaterial,
+  storyFilesHash: admitStoryFiles,
+});
+setReviewInventoryAdmitApisForTest(admitMock.apis);
+const admitHandlers = createCertificationWindowHandlers({
+  store: admitStore,
+  root: gitRoot,
+  scanRoot: join(gitRoot, 'packages', 'main'),
+});
+const admittedBegin = admitHandlers.certification_window_begin({ storyId: admitStoryId });
+assertStatusSurface(admittedBegin, 'ADMITTED');
+assert.match(admittedBegin, new RegExp(`^headHash: ${admitHead}$`, 'm'));
+assert.match(admittedBegin, /^expectedMainSha: /m);
+assert.match(admittedBegin, new RegExp(`^storyFilesHash: ${admitStoryFiles}$`, 'm'));
+assert.deepEqual(admitMock.consumed, ['INV-1']);
+const admittedOnDisk = admitStore.readCertificationWindows(admitStoryId);
+assert.equal(admittedOnDisk.windows.at(-1)?.inventory?.epochId, 'epoch-1');
+assert.equal(admittedOnDisk.windows.at(-1)?.inventory?.receiptId, 'INV-1');
+
+const unmergedRoot = makeGitRoot();
+git(unmergedRoot, ['checkout', '-b', 'story/B-cw13']);
+git(unmergedRoot, ['checkout', 'main']);
+writeFileSync(join(unmergedRoot, 'README.md'), 'main moved ahead\n');
+git(unmergedRoot, ['add', 'README.md']);
+git(unmergedRoot, ['commit', '-m', 'main ahead']);
+git(unmergedRoot, ['checkout', 'story/B-cw13']);
+const unmergedStoryId = 'B-cw13';
+const unmergedStore = makeStore(unmergedRoot, unmergedStoryId);
+unmergedStore.writeChecklist(unmergedStoryId, { items: [] });
+const unmergedMock = mockInventoryApis({
+  storyId: unmergedStoryId,
+  materialHash: currentMaterialHash(unmergedRoot, 'HEAD', unmergedRoot)!,
+  storyFilesHash: currentStoryFilesHash(unmergedRoot, 'HEAD', unmergedRoot)!,
+});
+setReviewInventoryAdmitApisForTest(unmergedMock.apis);
+const unmergedHandlers = createCertificationWindowHandlers({
+  store: unmergedStore,
+  root: unmergedRoot,
+  scanRoot: join(unmergedRoot, 'packages', 'main'),
+});
+const unmergedOutput = beginCaught(unmergedHandlers, unmergedStoryId);
+assertStatusSurface(unmergedOutput, 'BLOCKED');
+assert.match(unmergedOutput, new RegExp(`\\[${PRE_CERT_MAIN_NOT_MERGED}\\]`));
+assert.match(unmergedOutput, /^Next: proof-or-stop done_prepare /m);
+assert.equal(unmergedMock.consumed.length, 0);
+
+const findingRoot = makeGitRoot();
+const findingStoryId = 'B-cw14';
+const findingStore = makeStore(findingRoot, findingStoryId);
+findingStore.writeChecklist(findingStoryId, { items: [] });
+findingStore.writeFindings(findingStoryId, {
+  findings: [{
+    id: `${findingStoryId}:F-001`,
+    desc: 'open verified blocker',
+    severity: 'critical',
+    category: 'missing',
+    status: 'open',
+    evidenceState: 'verified',
+  }],
+});
+const findingMock = mockInventoryApis({
+  storyId: findingStoryId,
+  materialHash: currentMaterialHash(findingRoot, 'HEAD', findingRoot)!,
+  storyFilesHash: currentStoryFilesHash(findingRoot, 'HEAD', findingRoot)!,
+});
+setReviewInventoryAdmitApisForTest(findingMock.apis);
+const findingHandlers = createCertificationWindowHandlers({
+  store: findingStore,
+  root: findingRoot,
+  scanRoot: join(findingRoot, 'packages', 'main'),
+});
+const findingOutput = beginCaught(findingHandlers, findingStoryId);
+assertStatusSurface(findingOutput, 'BLOCKED');
+assert.match(findingOutput, new RegExp(`\\[${PRE_CERT_BLOCKING_FINDINGS_OPEN}\\]`));
+assert.match(findingOutput, /^Next: proof-or-stop finding_list /m);
+assert.equal(findingMock.consumed.length, 0);
+
+const dirtyRoot = makeGitRoot();
+const dirtyStoryId = 'B-cw15';
+const dirtyStore = makeStore(dirtyRoot, dirtyStoryId);
+dirtyStore.writeChecklist(dirtyStoryId, { items: [] });
+writeFileSync(join(dirtyRoot, 'oops.txt'), 'non-runtime dirty');
+const dirtyMock = mockInventoryApis({
+  storyId: dirtyStoryId,
+  materialHash: currentMaterialHash(dirtyRoot, 'HEAD', dirtyRoot)!,
+  storyFilesHash: currentStoryFilesHash(dirtyRoot, 'HEAD', dirtyRoot)!,
+});
+setReviewInventoryAdmitApisForTest(dirtyMock.apis);
+const dirtyHandlers = createCertificationWindowHandlers({
+  store: dirtyStore,
+  root: dirtyRoot,
+  scanRoot: join(dirtyRoot, 'packages', 'main'),
+});
+const dirtyOutput = beginCaught(dirtyHandlers, dirtyStoryId);
+assertStatusSurface(dirtyOutput, 'BLOCKED');
+assert.match(dirtyOutput, new RegExp(`\\[${PRE_CERT_DIRTY_TREE}\\]`));
+assert.equal(dirtyMock.consumed.length, 0);
+
+const driftRoot = makeGitRoot();
+const driftStoryId = 'B-cw16';
+const driftStore = makeStore(driftRoot, driftStoryId);
+driftStore.writeChecklist(driftStoryId, { items: [] });
+const driftMock = mockInventoryApis({
+  storyId: driftStoryId,
+  materialHash: currentMaterialHash(driftRoot, 'HEAD', driftRoot)!,
+  storyFilesHash: currentStoryFilesHash(driftRoot, 'HEAD', driftRoot)!,
+  driftedMaterialHash: 'f'.repeat(64),
+});
+setReviewInventoryAdmitApisForTest(driftMock.apis);
+const driftHandlers = createCertificationWindowHandlers({
+  store: driftStore,
+  root: driftRoot,
+  scanRoot: join(driftRoot, 'packages', 'main'),
+});
+const driftOutput = beginCaught(driftHandlers, driftStoryId);
+assertStatusSurface(driftOutput, 'BLOCKED');
+assert.match(driftOutput, new RegExp(`\\[${PRE_CERT_INVENTORY_NOT_FINALIZED}\\]`));
+assert.match(driftOutput, /Whole-tree materialHash drift/);
+assert.equal(driftMock.consumed.length, 0);
+
+setReviewInventoryAdmitApisForTest(undefined);
+assert.equal(loadReviewInventoryAdmitApis(), null, 'production loader must stay fail-closed after test override reset');
+
 console.log('certification-window-smoke: PASS');
 console.log(blockedStatus);
+console.log(admittedBegin);
+console.log(noInventoryOutput);
+console.log(unmergedOutput);
+console.log(findingOutput);

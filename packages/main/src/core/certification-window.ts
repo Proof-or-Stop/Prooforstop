@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import { existsSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
 import { withMkdirLock } from './mkdir-lock.js';
 
@@ -26,10 +27,19 @@ export const PRECERT_AUTHORITY = 'pre-cert';
 export const INVENTORY_COMPLETENESS_AUTHORITY = 'inventory-completeness-only';
 
 export const PRE_CERT_INVENTORY_API_ABSENT = 'pre_cert_inventory_api_absent';
+export const PRE_CERT_INVENTORY_NOT_FINALIZED = 'pre_cert_inventory_not_finalized';
+export const PRE_CERT_MAIN_NOT_MERGED = 'pre_cert_main_not_merged';
+export const PRE_CERT_BLOCKING_FINDINGS_OPEN = 'pre_cert_blocking_findings_open';
+export const PRE_CERT_COVERAGE_MISSING = 'pre_cert_coverage_missing';
+export const PRE_CERT_DIRTY_TREE = 'pre_cert_dirty_tree';
+export const PRE_CERT_PREFLIGHT_FAILED = 'pre_cert_preflight_failed';
 export const PRE_CERT_WINDOW_MISSING = 'pre_cert_window_missing';
 export const PRE_CERT_WINDOW_TAMPERED = 'pre_cert_window_tampered';
 export const PRE_CERT_RECEIPT_TAMPERED = 'pre_cert_receipt_tampered';
 export const PRE_CERT_INVENTORY_NOT_AUTHORITY = 'pre_cert_inventory_not_certification_authority';
+
+export const PRECERT_VERIFIER_IDENTITY = 'proof-or-stop:done_required_validate';
+export const PRECERT_TEST_IDENTITY = 'npm test';
 
 export interface CertificationWindowFrozenIdentity {
   headHash: string;
@@ -102,17 +112,67 @@ export interface CertificationWindowStorePort {
   runtimeLockDirPath(storyId: string, category: string, name: string): string;
 }
 
-export interface ReviewInventoryAdmitApis {
-  finalizedUnconsumedReviewInventory: (
-    store: unknown,
-    storyId: string,
-  ) => { epoch?: { epochId?: string }; receipt?: InventoryCompletenessReceipt } | null;
+export interface ReviewInventoryEpochAdmitView {
+  epochId?: string;
+  storyId?: string;
+  reviewRound?: string;
+  state?: string;
+  consumedAt?: string;
+  receiptId?: string;
+  cutoff?: { headHash?: string; materialHash?: string; storyFilesHash?: string };
 }
 
 export interface InventoryCompletenessReceipt {
   receiptId?: string;
+  epochId?: string;
+  storyId?: string;
+  reviewRound?: string;
   authority?: string;
   authorizesTest?: boolean;
+  consumedAt?: string;
+  invalidatedAt?: string;
+  cutoff?: { headHash?: string; materialHash?: string; storyFilesHash?: string };
+}
+
+export interface ReviewInventoryAdmitPair {
+  epoch?: ReviewInventoryEpochAdmitView;
+  receipt?: InventoryCompletenessReceipt;
+}
+
+export interface ReviewInventoryAdmitApis {
+  finalizedUnconsumedReviewInventory: (
+    store: unknown,
+    storyId: string,
+  ) => ReviewInventoryAdmitPair | null;
+  consumeReviewInventoryReceipt: (
+    store: unknown,
+    storyId: string,
+    reviewRound: string,
+    currentCutoff: { materialHash: string; storyFilesHash?: string },
+    validateInventoryContext?: () => void,
+  ) => string | null;
+}
+
+export interface CertificationWindowAdmitFacts {
+  inventoryApisPresent: boolean;
+  inventory: ReviewInventoryAdmitPair | null;
+  currentStoryId: string;
+  headHash?: string;
+  materialHash?: string;
+  storyFilesHash?: string;
+  expectedMainSha?: string | null;
+  mainIsAncestor: boolean;
+  openBlockingFindingIds: string[];
+  missingRequiredIntents: number;
+  dirtyNonRuntimePaths: string[];
+  gitIndexReadable: boolean;
+  evidenceTargetWritable: boolean;
+}
+
+export interface CertificationWindowAdmitDecision {
+  admit: boolean;
+  blockerCode?: string;
+  blockerDetail?: string;
 }
 
 export interface CertificationWindowStatusProjection {
@@ -235,17 +295,60 @@ export function nextPrecertReceiptId(data: CertificationWindowData, storyId: str
   return `${storyId}:PRECERT-${String(data.receipts.length + 1).padStart(3, '0')}`;
 }
 
-/**
- * Optional B-3f3d inventory APIs. This worktree does not ship them; begin stays
- * fail-closed instead of stub-always-admitting. CHK-002 wires the real import.
- */
-export function loadReviewInventoryAdmitApis(): ReviewInventoryAdmitApis | null {
-  const modulePath = fileURLToPath(new URL('./review-inventory-epoch.js', import.meta.url));
-  if (!existsSync(modulePath)) return null;
-  return null;
+let reviewInventoryAdmitApisOverride: ReviewInventoryAdmitApis | null | undefined;
+
+/** Test seam only. Pass `undefined` to restore production loading. */
+export function setReviewInventoryAdmitApisForTest(
+  apis: ReviewInventoryAdmitApis | null | undefined,
+): void {
+  reviewInventoryAdmitApisOverride = apis;
 }
 
-export function nextCommandForState(storyId: string, state: CertificationWindowState): string {
+/**
+ * Optional B-3f3d inventory APIs. Missing exports stay fail-closed; never stub-always-admit.
+ */
+export function loadReviewInventoryAdmitApis(): ReviewInventoryAdmitApis | null {
+  if (reviewInventoryAdmitApisOverride !== undefined) return reviewInventoryAdmitApisOverride;
+  const modulePath = fileURLToPath(new URL('./review-inventory-epoch.js', import.meta.url));
+  if (!existsSync(modulePath)) return null;
+  try {
+    const required = createRequire(import.meta.url)(modulePath) as Record<string, unknown>;
+    const finalized = required.finalizedUnconsumedReviewInventory;
+    const consume = required.consumeReviewInventoryReceipt;
+    if (typeof finalized !== 'function' || typeof consume !== 'function') return null;
+    return {
+      finalizedUnconsumedReviewInventory: finalized as ReviewInventoryAdmitApis['finalizedUnconsumedReviewInventory'],
+      consumeReviewInventoryReceipt: consume as ReviewInventoryAdmitApis['consumeReviewInventoryReceipt'],
+    };
+  } catch {
+    return null;
+  }
+}
+
+export function nextCommandForBlocker(storyId: string, blockerCode?: string | null): string {
+  switch (blockerCode) {
+    case PRE_CERT_INVENTORY_NOT_FINALIZED:
+    case PRE_CERT_INVENTORY_API_ABSENT:
+    case PRE_CERT_INVENTORY_NOT_AUTHORITY:
+      return `proof-or-stop review_inventory_finalize --storyId=${storyId}`;
+    case PRE_CERT_MAIN_NOT_MERGED:
+      return `proof-or-stop done_prepare --storyId=${storyId} --mergeMain`;
+    case PRE_CERT_BLOCKING_FINDINGS_OPEN:
+      return `proof-or-stop finding_list --storyId=${storyId}`;
+    case PRE_CERT_COVERAGE_MISSING:
+      return `proof-or-stop validate --story=${storyId}`;
+    case PRE_CERT_DIRTY_TREE:
+      return `proof-or-stop done_prepare --storyId=${storyId}`;
+    default:
+      return `proof-or-stop certification_window_begin --storyId=${storyId}`;
+  }
+}
+
+export function nextCommandForState(
+  storyId: string,
+  state: CertificationWindowState,
+  blockerCode?: string | null,
+): string {
   if (state === 'INVALIDATED') {
     return `proof-or-stop story_advance --storyId=${storyId} --phase=REVIEW`;
   }
@@ -255,7 +358,7 @@ export function nextCommandForState(storyId: string, state: CertificationWindowS
   if (state === 'FINALIZED') {
     return `proof-or-stop certification_window_status --storyId=${storyId}`;
   }
-  return `proof-or-stop certification_window_begin --storyId=${storyId}`;
+  return nextCommandForBlocker(storyId, blockerCode);
 }
 
 export function projectCertificationWindowStatus(
@@ -269,18 +372,106 @@ export function projectCertificationWindowStatus(
       window: null,
       receipt: null,
       blockerCode: PRE_CERT_WINDOW_MISSING,
-      nextCommand: nextCommandForState(storyId, 'BLOCKED'),
+      nextCommand: nextCommandForState(storyId, 'BLOCKED', PRE_CERT_WINDOW_MISSING),
     };
   }
+  const blockerCode = window.blockerCode
+    ?? (window.state === 'INVALIDATED' ? window.invalidation?.blockerCode ?? null : null)
+    ?? (window.state === 'BLOCKED' ? PRE_CERT_WINDOW_MISSING : null);
   return {
     storyId,
     window,
     receipt,
-    blockerCode: window.blockerCode
-      ?? (window.state === 'INVALIDATED' ? window.invalidation?.blockerCode ?? null : null)
-      ?? (window.state === 'BLOCKED' ? PRE_CERT_WINDOW_MISSING : null),
-    nextCommand: nextCommandForState(storyId, window.state),
+    blockerCode,
+    nextCommand: nextCommandForState(storyId, window.state, blockerCode),
   };
+}
+
+function inventoryLineageRefusal(facts: CertificationWindowAdmitFacts): string | null {
+  const pair = facts.inventory;
+  const receipt = pair?.receipt;
+  const epoch = pair?.epoch;
+  if (!pair || !receipt) return 'No FINALIZED unconsumed Review Inventory receipt is present.';
+  const inventoryStoryId = receipt.storyId || epoch?.storyId;
+  if (inventoryStoryId && inventoryStoryId !== facts.currentStoryId) {
+    return `Inventory receipt belongs to ${inventoryStoryId}, not ${facts.currentStoryId}.`;
+  }
+  const receiptMaterial = receipt.cutoff?.materialHash ?? epoch?.cutoff?.materialHash;
+  const receiptStoryFiles = receipt.cutoff?.storyFilesHash ?? epoch?.cutoff?.storyFilesHash;
+  if (!facts.materialHash || !facts.storyFilesHash || !receiptMaterial || !receiptStoryFiles) {
+    return 'Inventory cutoff or current certification hashes are missing; refuse rather than invent a second freshness hash.';
+  }
+  if (receiptStoryFiles !== facts.storyFilesHash) {
+    return 'Inventory receipt is not on the current storyFilesHash lineage.';
+  }
+  if (receiptMaterial !== facts.materialHash) {
+    return 'Whole-tree materialHash drift is not an unchanged certification identity.';
+  }
+  return null;
+}
+
+/**
+ * Admit PRE_CERT only from inventory, merge, clean-tree, and coverage facts.
+ * Whole-tree materialHash-only drift is never treated as a matching identity.
+ */
+export function evaluateCertificationWindowAdmit(
+  facts: CertificationWindowAdmitFacts,
+): CertificationWindowAdmitDecision {
+  if (!facts.inventoryApisPresent) {
+    return {
+      admit: false,
+      blockerCode: PRE_CERT_INVENTORY_NOT_FINALIZED,
+      blockerDetail: `[${PRE_CERT_INVENTORY_API_ABSENT}] Review inventory admit APIs are absent; begin stays fail-closed and does not stub-always-admit. Inventory completeness is not PRE_CERT.`,
+    };
+  }
+  const lineageRefusal = inventoryLineageRefusal(facts);
+  if (lineageRefusal) {
+    return {
+      admit: false,
+      blockerCode: PRE_CERT_INVENTORY_NOT_FINALIZED,
+      blockerDetail: lineageRefusal,
+    };
+  }
+  if (facts.openBlockingFindingIds.length > 0) {
+    return {
+      admit: false,
+      blockerCode: PRE_CERT_BLOCKING_FINDINGS_OPEN,
+      blockerDetail: `Open verified blocking findings: ${facts.openBlockingFindingIds.join(', ')}`,
+    };
+  }
+  if (facts.missingRequiredIntents > 0) {
+    return {
+      admit: false,
+      blockerCode: PRE_CERT_COVERAGE_MISSING,
+      blockerDetail: `${facts.missingRequiredIntents} required verification intent(s) are missing coverage.`,
+    };
+  }
+  if (!facts.mainIsAncestor || !facts.expectedMainSha) {
+    return {
+      admit: false,
+      blockerCode: PRE_CERT_MAIN_NOT_MERGED,
+      blockerDetail: facts.expectedMainSha
+        ? 'Local main is not an ancestor of HEAD.'
+        : 'Local main SHA is missing; expected main SHA cannot be recorded.',
+    };
+  }
+  if (facts.dirtyNonRuntimePaths.length > 0) {
+    return {
+      admit: false,
+      blockerCode: PRE_CERT_DIRTY_TREE,
+      blockerDetail: `Worktree has non-runtime dirty paths: ${facts.dirtyNonRuntimePaths.slice(0, 8).join(', ')}`,
+    };
+  }
+  if (!facts.gitIndexReadable || !facts.evidenceTargetWritable) {
+    return {
+      admit: false,
+      blockerCode: PRE_CERT_PREFLIGHT_FAILED,
+      blockerDetail: !facts.gitIndexReadable
+        ? 'Git index is not readable.'
+        : 'Certification evidence target is not writable.',
+    };
+  }
+  return { admit: true };
 }
 
 function countExactLines(text: string, prefix: string): number {
@@ -398,6 +589,54 @@ export function persistCancelledCertificationWindow(args: {
     data.windows = data.windows.map(row => row.windowId === latest.windowId ? cancelled : row);
     args.store.writeCertificationWindows(args.storyId, data);
     return cancelled;
+  });
+}
+
+export function persistAdmittedCertificationWindow(args: {
+  store: CertificationWindowStorePort;
+  storyId: string;
+  frozen: CertificationWindowFrozenIdentity;
+  inventory: CertificationWindowInventoryBinding;
+}): { window: CertificationWindow; receipt: PrecertReceipt } {
+  return withCertificationWindowLock(args.store, args.storyId, () => {
+    const data = args.store.readCertificationWindows(args.storyId);
+    const latest = latestCertificationWindow(data);
+    if (latest && verifyCertificationWindow(latest) && (latest.state === 'ADMITTED' || latest.state === 'RUNNING')) {
+      const existing = receiptForWindow(data, latest);
+      if (existing && verifyPrecertReceipt(existing)) {
+        return { window: latest, receipt: existing };
+      }
+    }
+    const now = new Date().toISOString();
+    const windowId = nextCertificationWindowId(data, args.storyId);
+    const receiptId = nextPrecertReceiptId(data, args.storyId);
+    const window = withSignedCertificationWindow({
+      schemaVersion: CERTIFICATION_WINDOW_SCHEMA,
+      windowId,
+      storyId: args.storyId,
+      state: 'ADMITTED',
+      createdAt: now,
+      updatedAt: now,
+      frozen: args.frozen,
+      inventory: args.inventory,
+      receiptId,
+    });
+    const receipt = withSignedPrecertReceipt({
+      schemaVersion: PRECERT_RECEIPT_SCHEMA,
+      receiptId,
+      windowId,
+      storyId: args.storyId,
+      authority: PRECERT_AUTHORITY,
+      authorizesHeavyCertification: true,
+      frozen: args.frozen,
+      inventoryEpochId: args.inventory.epochId,
+      inventoryReceiptId: args.inventory.receiptId,
+      createdAt: now,
+    });
+    data.windows.push(window);
+    data.receipts.push(receipt);
+    args.store.writeCertificationWindows(args.storyId, data);
+    return { window, receipt };
   });
 }
 
