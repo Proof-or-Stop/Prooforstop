@@ -375,7 +375,9 @@
       "sourcePointers": [
         "docs/requirements/decisions/story-files-hash-material-drift.md",
         ".lattice/story/actives/B-1e1f/decision.json"
-      ]
+      ],
+      "resolution": "Follow story-files-hash-material-drift.md consumer table. storyFilesHash remains the story-owned related-drift signal. PRE_CERT window identity records both materialHash and storyFilesHash plus expected main SHA; admit does not treat materialHash-only whole-tree drift as an unchanged certification identity, and it does not rewrite stored receipt hashes. DONE-required stays on the current strict policy. This is not a new freshness function and not a cache-relaxation path.",
+      "resolvedAt": "2026-08-18T07:10:15.838Z"
     }
   ]
 }
