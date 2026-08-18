@@ -129,7 +129,7 @@
       "desc": "packages/main/src/tasks/certification-window-replay-smoke.ts:1-3 CHK-005:no-quorum-or-lane-weakening is a must adversarial intent (replay/smoke passing must not reduce required reviewer-lane or host-quorum counts vs the pre-story baseline). The pin is a 3-line re-import of certification-window-smoke.js with selector certification-window-smoke: PASS and note 'no lane or quorum policy change'. The smoke never reads reviewer-lane policy, quorum membership, or a baseline count; plan.md DoneWhen explicitly requires unchanged reviewer lane/host counts. This is broad PASS evidence that does not correspond to the intent. high",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-18T09:26:12.799Z",
@@ -142,7 +142,9 @@
         ".lattice/story/actives/B-1e1f/plan.md"
       ],
       "signatureTag": "adversarial|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 6a26e8cc13: fail-closed admit/authorize plus smoke coverage for verifier drift, peer write, lane baseline, receipt binding, and retry storm.",
+      "resolvedAt": "2026-08-18T09:33:20.496Z"
     },
     {
       "id": "B-1e1f:F-008",
