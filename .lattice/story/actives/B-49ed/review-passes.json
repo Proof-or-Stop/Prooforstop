@@ -171,6 +171,34 @@
         "scanEscalationReason": null
       },
       "_hash": "5b2756cab596f78026a9716a89e76a12cf374b8791d4e2640380cc8eb756bb68"
+    },
+    {
+      "id": "B-49ed:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage review round 2 (post F-021/F-022 fix). F-021 (critical, RESOURCE_POLICY registration): independently confirmed FIXED with no fourth layer found. Traced full-suite-runner.ts entriesFromSerialReference+validateInventory directly (node eval): both test:topology-signing-source-guard and test:signing-guard-mutation-proof resolve cleanly, 51/51 members. Ran both proofs standalone (PASS) and ran the actual scheduled full-suite-runner.js directly (not npm wrapper) at --jobs 6: both proofs PASS in-scheduler (0.5s/0.3s); confirmed 48/51 passed, only test:flow-stability-smoke TIMEOUT (branch has zero diff on that file, reproduces standalone in 0s, consistent with runner --jobs 6 resource contention, not a regression from this story). Checked test:serial-reference-prefix (concatenated ahead of test:serial-reference, same policy path) and scripts/verify-full-suite-contract.mjs (unrelated: story-B-9812-scoped manual infra, not wired into package.json scripts/validate/DONE gate) as candidate fourth authorities -- neither is. F-022 (verificationEvidence refresh): confirmed CHK-002s 3 intents are fresh (materialHash/storyFilesHash match current HEAD). However found a NEW gap, filed as F-023 (medium): the other 12 of 15 intents (CHK-001/003/004/005) are STALE per findStaleEvidence -- storyFilesHash drift, not mere materialHash noise, because full-suite-runner.ts (story-owned, touched by the F-021 commit) changed after those receipts were captured. Per CLAUDE.md this is the strong-signal drift class requiring re-attestation via verification_evidence_refresh_stale before DONE, not just CHK-002. On the evidence-pin judgement call: the refusal to bind the full-suite run to CHK-002:adversarial:0 is correct and there is no legitimate bypass -- verification_evidence_add/_run intents are pinned per-command by design (B-ec67 evidence-pin seatbelt/core/evidence-pin-guard.ts), specifically to prevent laundering a broader runs pass into an intent pinned to a narrower command. Recording the full-suite pass only in the finding-resolution note is the correct and only available attestation path; this is not a gap in the framework.",
+      "createdAt": "2026-08-18T05:21:10.255Z",
+      "reviewRound": "2026-08-18T05:10:42.248Z",
+      "reviewRunId": "B-49ed:RR-024",
+      "envelopeId": "7d48f573a9ffa11dd865861b94ec06d95c2ab8d8a0aec72df2fc8c50679017c9",
+      "writerSessionId": "sess-bb4571e896a18423ba2230f65e1f00a8",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-49ed/checklist.json",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/evidence-pin-guard.ts",
+          "packages/main/src/core/evidence-stale-hint.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "scripts/verify-full-suite-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e71747670a5d6f150214c09ba7bde0ddb7aa5421aee5da8a6c7eef82f66a1df5"
     }
   ]
 }
