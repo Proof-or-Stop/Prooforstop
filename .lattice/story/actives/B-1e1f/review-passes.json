@@ -362,6 +362,65 @@
       },
       "readDiagnostics": [],
       "_hash": "3418f7f84d7f416913c18beaed8a17113b7c3f2b699b26330d732d6434d43968"
+    },
+    {
+      "id": "B-1e1f:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check after 09d765e2ce and 100e3b9cff: no mass concept deletion. persistSyntheticAdmittedWindowForTest is additive/test-only and still forces authorizesTest=false. Heavy choke refuseHeavyCertificationUnlessAdmitted remains on done_required_validate and validate --full. Retargets lattice local bootstrap is not ready and the drop-acceptance-basis-prompt mutation regex to proof-or-stop have zero live leftovers; the only lattice acceptance_basis_generate mention is a pre-existing backward-compat comment in acceptance-coverage-basis.ts. inventoryReceiptAuthorizesPrecert still always false. CausalEvidence/ReviewRemediation/AcceptanceAmendment not introduced.",
+      "createdAt": "2026-08-18T11:25:47.390Z",
+      "reviewRound": "2026-08-18T11:20:11.059Z",
+      "reviewRunId": "B-1e1f:RR-011",
+      "envelopeId": "13317344cf7e336e5663e638e550e71b733917047067bfb1764eb9f97104997a",
+      "writerSessionId": "sess-cf96145de9cf012e",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-1e1f/background.md",
+          ".lattice/story/actives/B-1e1f/checklist.json",
+          ".lattice/story/actives/B-1e1f/decision.json",
+          ".lattice/story/actives/B-1e1f/plan.md",
+          ".lattice/story/actives/B-1e1f/understanding.json",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/done-required-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "packages/main/tests/red/red-1734-bootstrap-depfree.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "7639ac7e56195a8842a66abcc38693af8594c26193266ed29e249c9f999c3371"
+      },
+      "readDiagnostics": [],
+      "_hash": "f5b14fa222ba7b64011d839e8f5f083ee2a71c76a5bb59dd1cab4e509097766d"
     }
   ]
 }
