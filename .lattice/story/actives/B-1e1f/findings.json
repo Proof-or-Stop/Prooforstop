@@ -5,7 +5,7 @@
       "desc": "quality-fail-closed: packages/main/src/handlers/certification-window.ts:87-102 collectAdmitFacts catch blocks set missingRequiredIntents=0 and openBlockingFindingIds=[] when coverage or finding/policy reads throw, so certification_window_begin can ADMIT. The same function fail-closes an unreadable dirty-tree classifier. PRE_CERT admit must refuse when required facts cannot be computed.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-18T09:22:56.628Z",
@@ -16,7 +16,9 @@
         "packages/main/src/handlers/certification-window.ts"
       ],
       "signatureTag": "adversarial|ts|quality-fail-closed",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 6a26e8cc13: fail-closed admit/authorize plus smoke coverage for verifier drift, peer write, lane baseline, receipt binding, and retry storm.",
+      "resolvedAt": "2026-08-18T09:33:11.889Z"
     },
     {
       "id": "B-1e1f:F-002",
