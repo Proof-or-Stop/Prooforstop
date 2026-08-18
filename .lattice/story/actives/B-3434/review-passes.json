@@ -1388,6 +1388,40 @@
         "scanEscalationReason": null
       },
       "_hash": "387cf4ecbcc9653109676e9c74504d157b658b731d3072d1b86a91c737a1ce5e"
+    },
+    {
+      "id": "B-3434:RP-054",
+      "agent": "lattice-review-quality",
+      "note": "Re-binds RP-049 after the excluded file was removed from this story's diff and landed on main instead; the scope gate's refusal of scripts/verify-process-fact-contract.mjs as an explicitExclude was correct, and my RP-049 caveat should not be read as licence for further edits to this story's four excluded files. Verified: (1) git diff main HEAD -- scripts/verify-process-fact-contract.mjs is empty (0 lines) -- the excluded file is out of this story's diff; git rev-list --count HEAD..main is 0 (HEAD is main's a127f91457 plus this story's own merge/metadata, story is not behind main). (2) The fix is present in the worktree: all four drop-acceptance-basis-* mutations (prompt/handler/contract/registry) exit 1, unmutated run exits 0; spot-read scripts/verify-process-fact-contract.mjs:591 confirms the exact claimed change, the drop-acceptance-basis-prompt regex is now the brand-agnostic non-capturing alternation (?:lattice|proof-or-stop) acceptance_basis_generate. (3) git diff main HEAD --stat -- . :(exclude).lattice touches only this story's own 13 files (done-prepare-generated-metadata.ts, verifier.ts, validation-executor.ts, review-incremental-context.ts + its smoke, lattice.config.json, the decision doc, and the red/smoke test files) -- none of the four explicitExclude paths appear. (4) npx tsc --noEmit -p packages/main is clean. No re-audit of prior findings performed per instruction; full validate/npm test not re-run (owner-reported 105/105, allPass true, missingRequired 0). PROCESS NOTE: RR-094 was stale by the time this round ran -- process-events.jsonl shows a REVIEW->DEV->REVIEW reopen at 2026-08-18T08:14:23-30Z (the round-reopen this task describes), which set a new story.currentReviewRound; RR-094's bound reviewRound is the prior 2026-08-17T15:06:34.379Z round, and a live probe against RR-094 confirmed the round-mismatch rejection. review_run_start was therefore called (contrary to the dispatch's instruction, which predated or raced the reopen) to obtain this round's valid reviewRunId RR-106, which correctly chains priorReviewRunId=RR-094 / priorPassRef=RP-049 as its incremental basis; no story content, code, or scope was touched by that call, only round/prompt-envelope metadata.",
+      "createdAt": "2026-08-18T09:13:01.426Z",
+      "reviewRound": "2026-08-18T08:14:30.177Z",
+      "reviewRunId": "B-3434:RR-106",
+      "envelopeId": "e5f0d47112a2a21869649fa7fcf1a0b0ea5b1acbfc0eb82365b924a00a35fb07",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "lattice.config.json",
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts",
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "packages/main/tests/red/red-1734-bootstrap-depfree.mjs",
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "09be69e7dfe0dda41088ee99fa128d7934db0fb1da18505e2ba90d1399531e7b"
     }
   ]
 }
