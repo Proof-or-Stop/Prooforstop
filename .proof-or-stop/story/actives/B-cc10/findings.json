@@ -1017,6 +1017,24 @@
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-cc10:F-056",
+      "desc": "scripts/verify-process-fact-contract.mjs:3636 comparePromptSemantics() hardcodes mirrorDirs = [\".claude/agents\", \".lattice-codex/agents\"] instead of resolving the canonical adapter dir (the fix pattern already exists 20 lines earlier in the SAME file at line 23: CODEX_AGENTS_DIR = [\".proof-or-stop-codex/agents\", \".lattice-codex/agents\"].find(existsSync)). Since .lattice-codex no longer exists on disk, promptMap.has(mirrorRel) is false for every one of the 17 Codex prompt files, so the per-file branch at line 3660 hits the soft warn() path (\"missing; no semantic drift comparison available\") instead of the semantic-token diff comparison. warn() only appends to a warnings array that is printed at the end (line 8058-8061) and NEVER affects the exit code (only failures.length gates process.exit(1) at line 8074-8079). Reproduced live: `node scripts/verify-process-fact-contract.mjs` exits 0 while printing 17 distinct \".lattice-codex/agents/*.md missing; no semantic drift comparison available\" lines. This means the entire registry-vs-Codex-mirror semantic drift check (missing/extra command or path tokens, the exact defense this contract exists for) is currently disabled for the Codex host, and test:process-fact-contract (wired into the live test:serial-reference suite) cannot detect it drifting.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-18T11:11:54.204Z",
+      "reviewRound": "2026-08-18T03:33:16.325Z",
+      "reviewRunId": "B-cc10:RR-065",
+      "_hash": "c7fe6b268fbf6f46c463c3f9c9be0520848e56f768eb73f397e17f260ab36a9d",
+      "files": [
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "missing|mjs|scripts-verify-process",
+      "signatureTagSource": "auto"
     }
   ]
 }
