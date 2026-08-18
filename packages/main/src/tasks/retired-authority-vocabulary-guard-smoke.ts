@@ -363,7 +363,8 @@ const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   // the review_lane_missing diagnostic this file exists to test). No approved
   // call shape or occurrence count changed; the whole-file structural
   // fingerprint just moves with any source edit to this file.
-  ['packages/main/src/tasks/closeout-trust-smoke.ts', 'adb4b265eb726c0919808d3f99b191f646ac88b4f0f2c30bd904a6938a14d932'],
+  // B-1e1f: repinned after persistSyntheticAdmittedWindowForTest; approved call shapes/occurrence counts unchanged.
+  ['packages/main/src/tasks/closeout-trust-smoke.ts', '49af08591ff783654df81918b26db7a9be9478e0fa3655fadaeabb79e0cb6d37'],
   // B-1507 CHK-001: repinned after verification_run was added to
   // MILESTONE_STATUS_APPEND_COMMANDS in cli-engine.ts. The approved non-literal
   // loader call site (runCli → import(`file://${initPath}`)) is unchanged; this
