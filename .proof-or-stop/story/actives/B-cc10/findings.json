@@ -997,6 +997,24 @@
       ],
       "signatureTag": "missing|mjs|scripts-verify-lattice",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-cc10:F-055",
+      "desc": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts:64-67 activeTextDirs still lists the deleted .lattice-codex directory instead of .proof-or-stop-codex. listFilesFromRoot (line 581) returns [] for a nonexistent scan root, so activeTextDirs.flatMap(dir => listFiles(dir, ACTIVE_SCAN_EXTENSIONS)) silently contributes ZERO files from the Codex host-adapter mirror. Confirmed .proof-or-stop-codex/agents exists on disk with 17 files, none included in activeFiles. Same sabotage-that-misses class as F-054 (verify-lattice-residue.mjs), but in the guard actually wired into the live test:serial-reference suite (npm run test:retired-authority-vocabulary-guard, currently PASS exit 0, confirmed independently). A stale lattice-cmd-style line regenerated into any of the 17 Codex agent mirrors would go undetected by this guard.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-18T11:09:56.245Z",
+      "reviewRound": "2026-08-18T03:33:16.325Z",
+      "reviewRunId": "B-cc10:RR-064",
+      "_hash": "4ce85c1a8345dc795e7bb751d7cc0e6b0626cf232ac1c635d62181ffa9655e4c",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
