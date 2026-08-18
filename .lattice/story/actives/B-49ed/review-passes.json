@@ -443,6 +443,24 @@
         "scanEscalationReason": null
       },
       "_hash": "37682bf9a1459e1f0cd42ba44b242ad3b6951e3fba8d30263d16928a9e9b3433"
+    },
+    {
+      "id": "B-49ed:RP-019",
+      "agent": "lattice-review-behavior",
+      "note": "Re-issued at current HEAD (df2b165) after commit 7bfff86f23 landed. Verified independently: (1) red-1734-bootstrap-depfree.mjs:183 now asserts proof-or-stop local bootstrap is not ready, matching bin/bootstrap-runner.js:32 actual output; ran the real fresh-checkout spawn test end-to-end (exit 0, all VI-OK), then reverted to the stale lattice-prefixed regex to confirm it fails (exit 1, AssertionError) proving the assertion genuinely bites rather than being vacuous; restored file clean via git diff. (2) verify-process-fact-contract.mjs:592 regex now brand-agnostic /^Acceptance-basis boundary:.*$/m, matches the sole line at lattice-implementer.md:13, ran the drop-acceptance-basis-prompt mutation directly: control passes, mutant fails with acceptance basis contract must keep a sole verifier writer... (exit 1), confirming the strip is no longer a no-op. Scanned all 20 mutation regexes in the file for other brand-hardcoded patterns; none found besides the two already fixed (this one plus the prior -topology one). Both fixed files reproduce the pre-fix failure at main@16e2077461 independently verified via git show. No behavioral or edge-case regressions found; scope is exactly the two changed files per review_incremental_context.",
+      "createdAt": "2026-08-18T15:52:43.185Z",
+      "reviewRound": "2026-08-18T12:55:09.009Z",
+      "reviewRunId": "B-49ed:RR-046",
+      "envelopeId": "77a78b512e6a9f83802e630eba02ace8f4cf2f0feb3acb6c527eee3c2a876fef",
+      "writerSessionId": "sess-4292375d1d751b41",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "89b30b3bc4522f6844cc09908cffe05491fe44b0518d559978e4f39c95d3e745"
     }
   ]
 }
