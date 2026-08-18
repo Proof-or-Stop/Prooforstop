@@ -1,0 +1,34 @@
+{
+  "passes": [
+    {
+      "id": "B-49ed:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check for the sessionSource guard: migration complete, no stale references, no half-migrated helpers found.",
+      "createdAt": "2026-08-18T03:37:16.384Z",
+      "reviewRound": "2026-08-18T02:48:29.207Z",
+      "reviewRunId": "B-49ed:RR-001",
+      "envelopeId": "cd4af74a1d39fdbfee05289488f6daeae54f1dad964294d9df7f71aa7b9fdf18",
+      "writerSessionId": "sess-25934e96946adb5a03ddc1adead40c65",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/adapter-session-env.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
+          "packages/main/src/tasks/signing-guard-mutation-proof-smoke.ts",
+          "packages/main/src/tasks/topology-signing-source-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "packages/main/package.json",
+          "packages/main/src/core/owner-session-adapters.ts",
+          "packages/main/src/core/owner-session.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f505f6e7f456dcd1856c6d280b605b028eae317f42bdb9bdb0043ca51a4baf17"
+    }
+  ]
+}
