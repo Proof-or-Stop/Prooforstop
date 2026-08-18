@@ -837,7 +837,7 @@
       "desc": "packages/lab/src/core/config.ts:36-37 defaultTarget() hardcodes entryFile/editableFiles = [\".lattice-codex/agents/test-case-reviewer.md\"] and [\".lattice-codex/agents/test-intent.md\"] for the test-case-reviewer/test-intent lab targets. After this storys CHK-003 directory move, .lattice-codex no longer exists on disk in this worktree -- only .proof-or-stop-codex/agents/{test-case-reviewer,test-intent}.md exist (verified with find). buildExperimentConfig for either target now produces a LabTargetConfig pointing at a nonexistent file, so a lattice-lab run against these two targets cannot read/edit the real prompt. packages/lab/src/core/config.ts has zero commits on this branch (pre-existing collateral of the rename, not a new regression introduced by this storys commits) -- flagging per the explicit bug-hunt instruction (hardcoded deprecated spelling used as a decision/read path) since it sits directly in the migrations blast radius and is currently broken.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-18T10:47:41.853Z",
@@ -845,7 +845,8 @@
       "reviewRunId": "B-cc10:RR-054",
       "_hash": "81eb82568be741d7d0be36f5dfdfa6f86253a876f70366ed515717437ab51a99",
       "signatureTag": "missing|unknown|packages-core-config",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-08-18T10:51:09.213Z"
     },
     {
       "id": "B-cc10:F-046",
