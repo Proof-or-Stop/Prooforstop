@@ -1,0 +1,43 @@
+{
+  "passes": [
+    {
+      "id": "B-cc10:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept-deletion residue scan clean. Verified: (1) F-006 holds -- story_get/checklist_get on B-49ed (deprecated .lattice/story/actives path) return real data via read-both resolver. (2) F-030 holds -- forbiddenPathGlobs includes both .proof-or-stop/story/** and .lattice/story/**. (3) bin/lattice.js and bin/lattice-codex.js deleted, zero surviving invocation references outside CHANGELOG announcement and frozen decision docs; pre-push hook case-matches both @lattice/core and @proof-or-stop/core. (4) all @lattice/core references outside dist/node_modules/story-archives are legitimate read-both detection code with B-cc10 CHK-005 comments; package.json names correct. (5) .lattice-codex -> .proof-or-stop-codex and config/manifest renames route through a real shared resolver (core/brand-paths.ts), consumed by config.ts and codex-adapter-checks.ts, not hardcoded per-site. (6) .gitignore has full .proof-or-stop/* rules mirroring .lattice/*. (7) verify-lattice-residue.mjs: 4/4 checks PASS. (8) .lattice-serve.json intentionally out of scope per identity-migration.md six-item enumeration, not a silent gap. (9) git log --follow on migrated archive shows history preserved through git mv. No blocking findings this round.",
+      "createdAt": "2026-08-18T09:18:31.006Z",
+      "reviewRound": "2026-08-18T03:33:16.325Z",
+      "reviewRunId": "B-cc10:RR-038",
+      "envelopeId": "86c4fadc8cb8c27941154eeed5f84d770bfa3ccd6a0750f2d4ebfba44f030c4d",
+      "writerSessionId": "sess-eed55994d1ba42fe85d07fd953696373",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".githooks/pre-push",
+          ".gitignore",
+          "bin/lattice-codex.js",
+          "bin/lattice.js",
+          "CHANGELOG.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/core/brand-paths.ts",
+          "packages/main/src/core/config.ts"
+        ],
+        "filesTriagedByName": [
+          "package.json",
+          "packages/lab/package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/core/rollout-check.ts",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/handlers/test-auto.ts",
+          "packages/main/src/handlers/worktree.ts",
+          "packages/main/src/init-assets.ts",
+          "packages/utils/package.json",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "bfe4f89604f7ea00bebbfa31fac1423cfb8d2111028cdefb42eb8067f06c65e2"
+    }
+  ]
+}
