@@ -194,7 +194,7 @@
       "desc": "packages/main/src/tasks/certification-window-smoke.ts:717-724 CHK-004:test-or-verifier-mutation-invalidates is still not covered by corresponding evidence. 6a26e8cc13 added a unit call to detectCertificationWindowMaterialDrift(runningWindow, {verifierIdentity:\"mutated-verifier\"}) and asserts drifted=true. That does not perform a material write to test or verifier inputs, does not drive status/heavy/DONE to persist State: INVALIDATED on that discriminator, and cannot happen on the operator path because currentCertificationIdentity still hardcodes PRECERT_VERIFIER_IDENTITY/PRECERT_TEST_IDENTITY (handlers/certification-window.ts:154-155). The only INVALIDATED path in the smoke is still a src/app.ts source commit (703-708). Recorded verificationEvidence remains head 77f13328 (before 6a26e8cc13) with note \"material change invalidates at next status\" and selector State: INVALIDATED. high",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-18T09:41:53.117Z",
@@ -208,7 +208,9 @@
         "packages/main/src/core/certification-window.ts"
       ],
       "signatureTag": "edge|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Smoke now commits tests/app.test.ts with source and asserts official test-identity drift.",
+      "resolvedAt": "2026-08-18T09:45:50.119Z"
     },
     {
       "id": "B-1e1f:F-011",
