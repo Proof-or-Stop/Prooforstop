@@ -1617,18 +1617,19 @@
           "command": "node packages/main/tests/red/red-w2d-specificity-conjunction.mjs",
           "result": "pass",
           "note": "The differential row \"aaaaaaaaaaaa\": 12 bytes clears minMatcherLen 8 (Y) while entropyBits is 0.00 against the 24-bit floor (N). The loop asserts impl.rule2 === false (the AND verdict) with the message naming the OR verdict true, and the envelope rejects carrying R1-2 and explicitly NOT R1-3.",
-          "headHash": "2a01df278e178aa3baeb8ab4c5b30f261ee58a33",
-          "materialHash": "afa81bb4c922fbac27b79bf2d648ef4f701321616311a6d94b95c7ee31e02127",
-          "storyFilesHash": "de9c8a2f86bf8a9d9425dd09cf249a0533821140017f8e3bfcfaea0ea1abd6fd",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "806242dd043ad77589213545118e9ef600186eaa029b53b811baf860c22d5498",
             "outputTail": "red-w2d-specificity-conjunction: PASS\n  rule 1: all 8 blocklist entries reject R1-2; membership not substring; no silent trim (untrimmed is R1-3)\n  rule 2 differential rows: 14 (length-only 12, entropy-only 2, floor 10)\n  DIFFER  \"aaaaaaaa\"                                     len=  8>= 8?Y bits=   0.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"aaaaaaaaaaaa\"                                 len= 12>= 8?Y bits=   0.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"xxxxxxxx\"                                     len=  8>= 8?Y bits=   0.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"========\"                                     len=  8>= 8?Y bits=   0.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"--------\"                                     len=  8>= 8?Y bits=   0.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"abababababab\"                                 len= 12>= 8?Y bits=  12.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"aabbaabb\"                                     len=  8>= 8?Y bits=   8.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"abcabcabcabc\"                                 len= 12>= 8?Y bits=  19.02>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"ababababab\"                                   len= 10>= 8?Y bits=  10.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"aaaaaaaaab\"                                   len= 10>= 8?Y bits=   4.69>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"zzzzzzzzzzzz\"                                 len= 12>= 8?Y bits=   0.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"abcabcab\"                                     len=  8>= 8?Y bits=  12.49>=24?N  AND=REJECT OR=ADMIT\n  agree   \"aabbccddeeff\"                                 len= 12>= 8?Y bits=  31.02>=24?Y  AND=ADMIT  OR=ADMIT\n  agree   \"Error: Cannot find module '/repo/dist/x.js'\"  len= 43>= 8?Y bits= 185.06>=24?Y  AND=ADMIT  OR=ADMIT\n  agree   \"abcdefgh\"                                     len=  8>= 8?Y bits=  24.00>=24?Y  AND=ADMIT  OR=ADMIT\n  agree   \"Err\"                                          len=  3>= 8?N bits=   2.75>=24?N  AND=REJECT OR=REJECT\n  agree   \"ab\"                                           len=  2>= 8?N bits=   2.00>=24?N  AND=REJECT OR=REJECT\n  DIFFER  \"Cannot find\"                                  len= 11>=16?N bits=  33.30>=24?Y  AND=REJECT OR=ADMIT\n  DIFFER  \"no such file\"                                 len= 12>=16?N bits=  41.02>=24?Y  AND=REJECT OR=ADMIT\n  rule 3: class-only / multi-class / no-present-in-red / inadmissible-literal+class all reject R1-2 (never R1-3)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-13T20:43:38.015Z"
+            "executedAt": "2026-08-18T16:56:19.775Z",
+            "timeoutMs": 180000
           },
-          "timestamp": "2026-08-13T20:45:39.168Z"
+          "headHash": "6a9b286efd8ef54bad464ca6219b91febe55c120",
+          "materialHash": "061a9ced05e05fbdc6622a4289a8ee2acd7a4f74bc759ae2f48cc930df232605",
+          "storyFilesHash": "194ee4bc662de50e0f7278313fab5cf6ceefcb8ac49b24f716565fc40d75d6ec",
+          "timestamp": "2026-08-18T16:56:20.518Z"
         },
         {
           "intentRef": "CHK-007:edge:1",
@@ -1637,18 +1638,19 @@
           "command": "node packages/main/tests/red/red-w2d-specificity-conjunction.mjs",
           "result": "pass",
           "note": "The other single-floor direction: row \"Cannot find\" is evaluated under the LEGAL raised policy minMatcherLen: 16, where len 11 fails (N) but bits 33.30 clears 24 (Y); rule2 is asserted false (AND) where OR would admit. The intent's 7-byte exemplar \"Zq!@#$%\" is unreachable by construction — under the frozen default a <8-byte value can carry at most 7*log2(7) = 19.65 bits — which the file states in its header; the raised-policy row proves the same direction and additionally that the floors come from the resolved policy.",
-          "headHash": "2a01df278e178aa3baeb8ab4c5b30f261ee58a33",
-          "materialHash": "afa81bb4c922fbac27b79bf2d648ef4f701321616311a6d94b95c7ee31e02127",
-          "storyFilesHash": "de9c8a2f86bf8a9d9425dd09cf249a0533821140017f8e3bfcfaea0ea1abd6fd",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "806242dd043ad77589213545118e9ef600186eaa029b53b811baf860c22d5498",
             "outputTail": "red-w2d-specificity-conjunction: PASS\n  rule 1: all 8 blocklist entries reject R1-2; membership not substring; no silent trim (untrimmed is R1-3)\n  rule 2 differential rows: 14 (length-only 12, entropy-only 2, floor 10)\n  DIFFER  \"aaaaaaaa\"                                     len=  8>= 8?Y bits=   0.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"aaaaaaaaaaaa\"                                 len= 12>= 8?Y bits=   0.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"xxxxxxxx\"                                     len=  8>= 8?Y bits=   0.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"========\"                                     len=  8>= 8?Y bits=   0.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"--------\"                                     len=  8>= 8?Y bits=   0.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"abababababab\"                                 len= 12>= 8?Y bits=  12.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"aabbaabb\"                                     len=  8>= 8?Y bits=   8.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"abcabcabcabc\"                                 len= 12>= 8?Y bits=  19.02>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"ababababab\"                                   len= 10>= 8?Y bits=  10.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"aaaaaaaaab\"                                   len= 10>= 8?Y bits=   4.69>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"zzzzzzzzzzzz\"                                 len= 12>= 8?Y bits=   0.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"abcabcab\"                                     len=  8>= 8?Y bits=  12.49>=24?N  AND=REJECT OR=ADMIT\n  agree   \"aabbccddeeff\"                                 len= 12>= 8?Y bits=  31.02>=24?Y  AND=ADMIT  OR=ADMIT\n  agree   \"Error: Cannot find module '/repo/dist/x.js'\"  len= 43>= 8?Y bits= 185.06>=24?Y  AND=ADMIT  OR=ADMIT\n  agree   \"abcdefgh\"                                     len=  8>= 8?Y bits=  24.00>=24?Y  AND=ADMIT  OR=ADMIT\n  agree   \"Err\"                                          len=  3>= 8?N bits=   2.75>=24?N  AND=REJECT OR=REJECT\n  agree   \"ab\"                                           len=  2>= 8?N bits=   2.00>=24?N  AND=REJECT OR=REJECT\n  DIFFER  \"Cannot find\"                                  len= 11>=16?N bits=  33.30>=24?Y  AND=REJECT OR=ADMIT\n  DIFFER  \"no such file\"                                 len= 12>=16?N bits=  41.02>=24?Y  AND=REJECT OR=ADMIT\n  rule 3: class-only / multi-class / no-present-in-red / inadmissible-literal+class all reject R1-2 (never R1-3)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-13T20:43:38.279Z"
+            "executedAt": "2026-08-18T16:56:19.929Z",
+            "timeoutMs": 180000
           },
-          "timestamp": "2026-08-13T20:45:39.168Z"
+          "headHash": "6a9b286efd8ef54bad464ca6219b91febe55c120",
+          "materialHash": "061a9ced05e05fbdc6622a4289a8ee2acd7a4f74bc759ae2f48cc930df232605",
+          "storyFilesHash": "194ee4bc662de50e0f7278313fab5cf6ceefcb8ac49b24f716565fc40d75d6ec",
+          "timestamp": "2026-08-18T16:56:20.518Z"
         },
         {
           "intentRef": "CHK-007:edge:2",
@@ -1657,18 +1659,19 @@
           "command": "node packages/main/tests/red/red-w2d-specificity-conjunction.mjs",
           "result": "pass",
           "note": "The boundary block asserts valueByteLength(\"abcdefgh\") === policy.minMatcherLen and entropyBits(\"abcdefgh\") === policy.minMatcherEntropyBits, then rule2 === true (\"both floors are inclusive (>=)\"), while the neighbour \"abcdefga\" (8 bytes, 22.0 bits) is asserted rule2 === false — one bit below rejects.",
-          "headHash": "2a01df278e178aa3baeb8ab4c5b30f261ee58a33",
-          "materialHash": "afa81bb4c922fbac27b79bf2d648ef4f701321616311a6d94b95c7ee31e02127",
-          "storyFilesHash": "de9c8a2f86bf8a9d9425dd09cf249a0533821140017f8e3bfcfaea0ea1abd6fd",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "806242dd043ad77589213545118e9ef600186eaa029b53b811baf860c22d5498",
             "outputTail": "red-w2d-specificity-conjunction: PASS\n  rule 1: all 8 blocklist entries reject R1-2; membership not substring; no silent trim (untrimmed is R1-3)\n  rule 2 differential rows: 14 (length-only 12, entropy-only 2, floor 10)\n  DIFFER  \"aaaaaaaa\"                                     len=  8>= 8?Y bits=   0.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"aaaaaaaaaaaa\"                                 len= 12>= 8?Y bits=   0.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"xxxxxxxx\"                                     len=  8>= 8?Y bits=   0.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"========\"                                     len=  8>= 8?Y bits=   0.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"--------\"                                     len=  8>= 8?Y bits=   0.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"abababababab\"                                 len= 12>= 8?Y bits=  12.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"aabbaabb\"                                     len=  8>= 8?Y bits=   8.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"abcabcabcabc\"                                 len= 12>= 8?Y bits=  19.02>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"ababababab\"                                   len= 10>= 8?Y bits=  10.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"aaaaaaaaab\"                                   len= 10>= 8?Y bits=   4.69>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"zzzzzzzzzzzz\"                                 len= 12>= 8?Y bits=   0.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"abcabcab\"                                     len=  8>= 8?Y bits=  12.49>=24?N  AND=REJECT OR=ADMIT\n  agree   \"aabbccddeeff\"                                 len= 12>= 8?Y bits=  31.02>=24?Y  AND=ADMIT  OR=ADMIT\n  agree   \"Error: Cannot find module '/repo/dist/x.js'\"  len= 43>= 8?Y bits= 185.06>=24?Y  AND=ADMIT  OR=ADMIT\n  agree   \"abcdefgh\"                                     len=  8>= 8?Y bits=  24.00>=24?Y  AND=ADMIT  OR=ADMIT\n  agree   \"Err\"                                          len=  3>= 8?N bits=   2.75>=24?N  AND=REJECT OR=REJECT\n  agree   \"ab\"                                           len=  2>= 8?N bits=   2.00>=24?N  AND=REJECT OR=REJECT\n  DIFFER  \"Cannot find\"                                  len= 11>=16?N bits=  33.30>=24?Y  AND=REJECT OR=ADMIT\n  DIFFER  \"no such file\"                                 len= 12>=16?N bits=  41.02>=24?Y  AND=REJECT OR=ADMIT\n  rule 3: class-only / multi-class / no-present-in-red / inadmissible-literal+class all reject R1-2 (never R1-3)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-13T20:43:38.545Z"
+            "executedAt": "2026-08-18T16:56:20.081Z",
+            "timeoutMs": 180000
           },
-          "timestamp": "2026-08-13T20:45:39.168Z"
+          "headHash": "6a9b286efd8ef54bad464ca6219b91febe55c120",
+          "materialHash": "061a9ced05e05fbdc6622a4289a8ee2acd7a4f74bc759ae2f48cc930df232605",
+          "storyFilesHash": "194ee4bc662de50e0f7278313fab5cf6ceefcb8ac49b24f716565fc40d75d6ec",
+          "timestamp": "2026-08-18T16:56:20.518Z"
         },
         {
           "intentRef": "CHK-007:adversarial:0",
@@ -1677,18 +1680,19 @@
           "command": "node packages/main/tests/red/red-w2d-specificity-conjunction.mjs",
           "result": "pass",
           "note": "The table asserts differentialRows >= MIN_DIFFERENTIAL_ROWS (10) and that BOTH single-floor directions are populated (lengthOnlyRows > 0 and entropyOnlyRows > 0); the run reports 14 diverging rows (12 length-only, 2 entropy-only), each of which individually asserts the AND verdict against the named OR verdict.",
-          "headHash": "2a01df278e178aa3baeb8ab4c5b30f261ee58a33",
-          "materialHash": "afa81bb4c922fbac27b79bf2d648ef4f701321616311a6d94b95c7ee31e02127",
-          "storyFilesHash": "de9c8a2f86bf8a9d9425dd09cf249a0533821140017f8e3bfcfaea0ea1abd6fd",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "806242dd043ad77589213545118e9ef600186eaa029b53b811baf860c22d5498",
             "outputTail": "red-w2d-specificity-conjunction: PASS\n  rule 1: all 8 blocklist entries reject R1-2; membership not substring; no silent trim (untrimmed is R1-3)\n  rule 2 differential rows: 14 (length-only 12, entropy-only 2, floor 10)\n  DIFFER  \"aaaaaaaa\"                                     len=  8>= 8?Y bits=   0.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"aaaaaaaaaaaa\"                                 len= 12>= 8?Y bits=   0.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"xxxxxxxx\"                                     len=  8>= 8?Y bits=   0.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"========\"                                     len=  8>= 8?Y bits=   0.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"--------\"                                     len=  8>= 8?Y bits=   0.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"abababababab\"                                 len= 12>= 8?Y bits=  12.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"aabbaabb\"                                     len=  8>= 8?Y bits=   8.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"abcabcabcabc\"                                 len= 12>= 8?Y bits=  19.02>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"ababababab\"                                   len= 10>= 8?Y bits=  10.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"aaaaaaaaab\"                                   len= 10>= 8?Y bits=   4.69>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"zzzzzzzzzzzz\"                                 len= 12>= 8?Y bits=   0.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"abcabcab\"                                     len=  8>= 8?Y bits=  12.49>=24?N  AND=REJECT OR=ADMIT\n  agree   \"aabbccddeeff\"                                 len= 12>= 8?Y bits=  31.02>=24?Y  AND=ADMIT  OR=ADMIT\n  agree   \"Error: Cannot find module '/repo/dist/x.js'\"  len= 43>= 8?Y bits= 185.06>=24?Y  AND=ADMIT  OR=ADMIT\n  agree   \"abcdefgh\"                                     len=  8>= 8?Y bits=  24.00>=24?Y  AND=ADMIT  OR=ADMIT\n  agree   \"Err\"                                          len=  3>= 8?N bits=   2.75>=24?N  AND=REJECT OR=REJECT\n  agree   \"ab\"                                           len=  2>= 8?N bits=   2.00>=24?N  AND=REJECT OR=REJECT\n  DIFFER  \"Cannot find\"                                  len= 11>=16?N bits=  33.30>=24?Y  AND=REJECT OR=ADMIT\n  DIFFER  \"no such file\"                                 len= 12>=16?N bits=  41.02>=24?Y  AND=REJECT OR=ADMIT\n  rule 3: class-only / multi-class / no-present-in-red / inadmissible-literal+class all reject R1-2 (never R1-3)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-13T20:43:38.811Z"
+            "executedAt": "2026-08-18T16:56:20.232Z",
+            "timeoutMs": 180000
           },
-          "timestamp": "2026-08-13T20:45:39.168Z"
+          "headHash": "6a9b286efd8ef54bad464ca6219b91febe55c120",
+          "materialHash": "061a9ced05e05fbdc6622a4289a8ee2acd7a4f74bc759ae2f48cc930df232605",
+          "storyFilesHash": "194ee4bc662de50e0f7278313fab5cf6ceefcb8ac49b24f716565fc40d75d6ec",
+          "timestamp": "2026-08-18T16:56:20.518Z"
         },
         {
           "intentRef": "CHK-007:adversarial:1",
@@ -1697,18 +1701,19 @@
           "command": "node packages/main/tests/red/red-w2d-specificity-conjunction.mjs",
           "result": "pass",
           "note": "The row \"xxxxxxxx\" is exactly at the 8-byte floor with a single distinct byte, so entropyBits = 8 * 0 = 0.00 and the entropy floor fails; rule2 is asserted false and the envelope rejects R1-2 — length alone never admits.",
-          "headHash": "2a01df278e178aa3baeb8ab4c5b30f261ee58a33",
-          "materialHash": "afa81bb4c922fbac27b79bf2d648ef4f701321616311a6d94b95c7ee31e02127",
-          "storyFilesHash": "de9c8a2f86bf8a9d9425dd09cf249a0533821140017f8e3bfcfaea0ea1abd6fd",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "806242dd043ad77589213545118e9ef600186eaa029b53b811baf860c22d5498",
             "outputTail": "red-w2d-specificity-conjunction: PASS\n  rule 1: all 8 blocklist entries reject R1-2; membership not substring; no silent trim (untrimmed is R1-3)\n  rule 2 differential rows: 14 (length-only 12, entropy-only 2, floor 10)\n  DIFFER  \"aaaaaaaa\"                                     len=  8>= 8?Y bits=   0.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"aaaaaaaaaaaa\"                                 len= 12>= 8?Y bits=   0.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"xxxxxxxx\"                                     len=  8>= 8?Y bits=   0.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"========\"                                     len=  8>= 8?Y bits=   0.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"--------\"                                     len=  8>= 8?Y bits=   0.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"abababababab\"                                 len= 12>= 8?Y bits=  12.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"aabbaabb\"                                     len=  8>= 8?Y bits=   8.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"abcabcabcabc\"                                 len= 12>= 8?Y bits=  19.02>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"ababababab\"                                   len= 10>= 8?Y bits=  10.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"aaaaaaaaab\"                                   len= 10>= 8?Y bits=   4.69>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"zzzzzzzzzzzz\"                                 len= 12>= 8?Y bits=   0.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"abcabcab\"                                     len=  8>= 8?Y bits=  12.49>=24?N  AND=REJECT OR=ADMIT\n  agree   \"aabbccddeeff\"                                 len= 12>= 8?Y bits=  31.02>=24?Y  AND=ADMIT  OR=ADMIT\n  agree   \"Error: Cannot find module '/repo/dist/x.js'\"  len= 43>= 8?Y bits= 185.06>=24?Y  AND=ADMIT  OR=ADMIT\n  agree   \"abcdefgh\"                                     len=  8>= 8?Y bits=  24.00>=24?Y  AND=ADMIT  OR=ADMIT\n  agree   \"Err\"                                          len=  3>= 8?N bits=   2.75>=24?N  AND=REJECT OR=REJECT\n  agree   \"ab\"                                           len=  2>= 8?N bits=   2.00>=24?N  AND=REJECT OR=REJECT\n  DIFFER  \"Cannot find\"                                  len= 11>=16?N bits=  33.30>=24?Y  AND=REJECT OR=ADMIT\n  DIFFER  \"no such file\"                                 len= 12>=16?N bits=  41.02>=24?Y  AND=REJECT OR=ADMIT\n  rule 3: class-only / multi-class / no-present-in-red / inadmissible-literal+class all reject R1-2 (never R1-3)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-13T20:43:39.079Z"
+            "executedAt": "2026-08-18T16:56:20.385Z",
+            "timeoutMs": 180000
           },
-          "timestamp": "2026-08-13T20:45:39.168Z"
+          "headHash": "6a9b286efd8ef54bad464ca6219b91febe55c120",
+          "materialHash": "061a9ced05e05fbdc6622a4289a8ee2acd7a4f74bc759ae2f48cc930df232605",
+          "storyFilesHash": "194ee4bc662de50e0f7278313fab5cf6ceefcb8ac49b24f716565fc40d75d6ec",
+          "timestamp": "2026-08-18T16:56:20.518Z"
         }
       ]
     },
