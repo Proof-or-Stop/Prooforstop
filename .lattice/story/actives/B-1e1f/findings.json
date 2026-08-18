@@ -228,6 +228,26 @@
       ],
       "signatureTag": "adversarial|ts|packages-main-tasks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-1e1f:F-012",
+      "desc": "packages/main/src/tasks/certification-window-smoke.ts:740-747 CHK-005:no-quorum-or-lane-weakening is still not corresponding evidence. computeActiveReviewers({riskSignals:[]},{items:[]}) only asserts the hardcoded baseline names concept/quality/test-coverage. It does not read host-quorum membership or counts, does not compare against a pre-story baseline, and cannot fail if this story dropped host-quorum or canPassReviewGuard requirements. The smoke has no quorum assertion (only this lane-name check). Evidence remains certification-window-replay-smoke.js at 77f13328 with note \"no lane or quorum policy change\" and selector certification-window-smoke: PASS. high",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-18T09:42:27.145Z",
+      "reviewRound": "2026-08-18T09:32:35.438Z",
+      "reviewRunId": "B-1e1f:RR-004",
+      "_hash": "3bad2b633100021dfee768ef12a32edfeb157a31196407e62b10adf22b2f35d2",
+      "files": [
+        "packages/main/src/tasks/certification-window-replay-smoke.ts",
+        "packages/main/src/tasks/certification-window-smoke.ts",
+        ".lattice/story/actives/B-1e1f/plan.md"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
