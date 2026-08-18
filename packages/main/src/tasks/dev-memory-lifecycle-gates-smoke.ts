@@ -53,6 +53,7 @@ import { createFindingHandlers } from '../handlers/finding.js';
 import { createPlaybookRuntimeMemoryHandlers } from '../handlers/playbook-runtime-memory.js';
 import { createDeliveryCheckHandlers } from '../handlers/delivery-check.js';
 import type { HandlerContext } from '../handlers/context.js';
+import { PROOF_OR_STOP_STATE_DIR } from '../core/brand-paths.js';
 
 const NOW = '2026-08-14T12:00:00.000Z';
 
@@ -273,7 +274,10 @@ function assertReasonedDowngradeBypass(): void {
     // experience.jsonl FILE with a DIRECTORY so readFileSync throws EISDIR
     // (same forced-throw pattern used elsewhere in this codebase, e.g.
     // experience-layer-review-dispatch-hint-smoke.ts).
-    mkdirSync(join(root, '.lattice', 'dev-memory', 'experience.jsonl'), { recursive: true });
+    // B-cc10: plant the sabotage where the runtime READS. At the deprecated path this was
+    // a silent no-op after the rename: the pack build succeeded, so the expected exception
+    // never fired and the test stopped exercising its own scenario.
+    mkdirSync(join(root, PROOF_OR_STOP_STATE_DIR, 'dev-memory', 'experience.jsonl'), { recursive: true });
 
     assert.throws(
       () => ackHandler(root)({ storyId }),
@@ -373,7 +377,9 @@ function assertFindingResolveAdvisory(): void {
       try {
         // Force buildMemoryFreshnessPack to throw: replace experience.jsonl with a
         // DIRECTORY so readFileSync throws EISDIR deep inside readProjectMemoryEntries.
-        mkdirSync(join(root, '.lattice', 'dev-memory', 'experience.jsonl'), { recursive: true });
+        // B-cc10: sabotage the CANONICAL path — at the deprecated one this fail-safe test
+        // was a silent no-op, so the advisory assertion below was never really exercised.
+        mkdirSync(join(root, PROOF_OR_STOP_STATE_DIR, 'dev-memory', 'experience.jsonl'), { recursive: true });
         const ctx = mkCtx(root);
         const findingHandlers = createFindingHandlers(ctx);
         const storyId = 'B-devmem-find-failsafe';
@@ -514,7 +520,7 @@ function assertDoneGateFinishDecision(): void {
     // recognize the path as a non-blocking runtime artifact AND exclude it from
     // materialHash so an already-signed delivery-check/test-evidence binding
     // is never retroactively invalidated by writing this file.
-    const registryEntry = findRuntimeArtifactEntry(`.lattice/dev-memory/finish-decisions/${storyId}.json`);
+    const registryEntry = findRuntimeArtifactEntry(`${PROOF_OR_STOP_STATE_DIR}/dev-memory/finish-decisions/${storyId}.json`);
     check('CHK-003 F-005: finish-decision path is a recognized runtime-artifact-registry entry (non-blocking, not unexpected_dirty_files)',
       registryEntry?.id === 'dev-memory-finish-decision');
     check('CHK-003 F-005: finish-decision path is materialHash-excluded',
@@ -533,7 +539,7 @@ function assertDoneGateFinishDecision(): void {
     // caught the reverted approach and now proves the registry exclusion still
     // holds even if the file is committed by some other means (e.g. a future
     // autoCommitStoryMetadata sweep of the story dir, or a manual commit).
-    git(root, ['add', '--', `.lattice/dev-memory/finish-decisions/${storyId}.json`]);
+    git(root, ['add', '--', `${PROOF_OR_STOP_STATE_DIR}/dev-memory/finish-decisions/${storyId}.json`]);
     git(root, ['commit', '-m', 'commit the finish-decision record for the F-005/F-006 regression check']);
     const materialHashAfterCommit = currentMaterialHash(root, 'HEAD', root);
     check('CHK-003 F-006: materialHash is unchanged even after the finish-decision file is actually COMMITTED (the real regression scenario)',
@@ -542,7 +548,7 @@ function assertDoneGateFinishDecision(): void {
       canFinishGuard(context) === true);
 
     // ── adversarial: fail-closed on a corrupt record ──
-    const finishDecisionPath = `.lattice/dev-memory/finish-decisions/${storyId}.json`;
+    const finishDecisionPath = `${PROOF_OR_STOP_STATE_DIR}/dev-memory/finish-decisions/${storyId}.json`;
     write(root, finishDecisionPath, '{ not valid json ::::');
     check('CHK-003 adversarial: readDevMemoryFinishDecision treats corrupt JSON as absent (fail-closed)',
       readDevMemoryFinishDecision(root, storyId) === null);
