@@ -103,12 +103,12 @@
           "intentRef": "CHK-001:happy:0",
           "kind": "waiver",
           "verdict": "waived",
-          "waiverType": "deferred_gate_evidence",
-          "note": "Waived because no passing receipt is obtainable, not because the suite is failing. The pinned command is npm test; the receipt runner caps a command at 270000ms and the full suite now takes about 334s on this host, so the receipt returns exit 124 (timed out) regardless of member results. The substance is verified twice by direct runs: full-suite: 47/47 passed in 333.7s and 334.5s, jobs=4, every member green including PASS test:flow-stability-smoke 160.2s. The suite process still exits 1 from the separate whole-suite 300000ms wall-clock budget, which is a pre-existing repository condition and not a member failure: a clean detached worktree of main at 860b7b45cf on the same host in the same session gives TIMEOUT test:flow-stability-smoke 120.0s and full-suite: 48/49 passed in 296.8s, also exit 1. This branch fixes a member that is red on main. Marked deferred rather than permanent: once the receipt cap exceeds the suite runtime, or the suite runs under 270s again, real evidence should replace this.",
-          "headHash": "9cf3b5b213503a346a67abe5ad7498f59f968440",
-          "materialHash": "8e45a1dd11c0297525674a0eb7b88fd9505875436200a4a211727709299634d0",
-          "storyFilesHash": "68dc0e71b49f089971fa50b470a6405c5836ed6e2f72f49049b2c40907b5303e",
-          "timestamp": "2026-08-17T19:59:43.487Z"
+          "waiverType": "permanent",
+          "note": "CORRECTED per finding F-011, and reclassified deferred to permanent because the real blocker turned out to be a different one. The reviewer was RIGHT that the previous waivers premise was false: it blamed the 270000ms receipt cap, and the bounded audited commandTimeoutMs override does lift that. I proved it - with commandTimeoutMs 1800000 the attempt stopped returning exit 124 and ran the suite to completion. Underneath that, masked by the timeout failure, sits an independent and permanent barrier: this intents immutable pin selector is the prose line full-suite: 47/47 passed, and the suite is now 49 members after main added two, so that string can never appear again. Verified directly rather than inferred: the stored acceptance text reads 47/47 passed in <N>s; retries=0; jobs=4 while the current run prints full-suite: 49/49 passed in 341.1s; retries=0; jobs=2 - both the member count and the jobs value moved, the latter because mains defaultJobs derives concurrency from the machine; grep for 47/47 across the current suite output returns zero. Same defect class as CHK-005:happy:0, and no pin-repair command exists anywhere in the tree, confirmed this session. Permanent is the accurate classification rather than a convenience: I declined this exact relabel earlier when the stated blocker was a framework cap a later fix would lift, and it changed only because the facts did. The substance is not in doubt - 49/49 passed in 341.1s at jobs=2, zero failing members, well inside FULL_SUITE_BUDGET_MS of 1200000, measured three times today. Root cause is mine: I wrote two mutable numbers into the PLAN userSees text this pin was derived from.",
+          "headHash": "921230f14fb72440310b5a434d678ba31cb3a1b0",
+          "materialHash": "aa8059fb4c3079bff6b5b8292ef41dc06848d0cb908259fdff1e7f11672d4277",
+          "storyFilesHash": "1e183269ed6ff35ab2839e0657b09b4c63e5e631fd9d8cbe3a8be118f8dd50b2",
+          "timestamp": "2026-08-18T16:57:08.870Z"
         }
       ],
       "userSeesSnapshot": {
