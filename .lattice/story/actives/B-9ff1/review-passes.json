@@ -999,6 +999,46 @@
         "scanEscalationReason": null
       },
       "_hash": "5965942e286a21a1b449f44b161b57c9d6ec5e50a91248d1077bebc16f37aa09"
+    },
+    {
+      "id": "B-9ff1:RP-032",
+      "agent": "lattice-review-quality",
+      "note": "Genuine independent quality audit (not a merge check) of B-9ff1's own code post main-merge (head 4b9a9be). Read all 4 deliverables (envelope.ts, specificity.ts, handlers/red-evidence.ts, tasks smoke) plus the full 1607-line spec doc line-by-line and all 3 named red-w2d-*.mjs RED tests in full. Verified the 4 story-specified load-bearing properties independently: (1) MATCHER_KINDS closure is a runtime array-membership check against a hardcoded literal (not policy-derived), and the one 'as MatcherKind' cast at envelope.ts:458 is guarded by that prior runtime check -- no cast/passthrough/config value can widen kind past {literal-line,class}. (2) specificity.ts:128 rule2 = lengthFloor && entropyFloor, confirmed both by reading and by executing red-w2d-specificity-conjunction.mjs (PASS, 14 differential rows). (3) Spot-checked every R1-1/R1-2/R1-3/R1-5/R1-6 code comment and rejection call site against spec Sec1.6 verbatim -- exact match, no spec-divergent-but-internally-consistent tagging found; R1-4 correctly excluded as run-time-only (out of this leaf's scope). (4) Ran red-w2d-command-readonly.mjs (PASS): asserts a positive git-only spawn allowlist (never npm/node/sh/bash) plus a before/after .lattice content-hash manifest, and independently read the handler's red_evidence_envelope_check function body confirming no store.write*/autoCommitStoryMetadata/withMkdirLock calls on that path. Also ran npx tsc --noEmit -p packages/main (clean) and the built smoke packages/main/dist/tasks/red-evidence-envelope-smoke.js (OK, 33 fixtures). Checked for dead code/unused exports (all exports are consumed multiple times; no true dead code) and for I/O escapes (envelope.ts/specificity.ts import no fs/child_process/clock). No genuine defects found; story has been through 9 rounds of prior review iteration (49 findings resolved total, 2 in this lane, both already fixed) and the code and tests reflect that maturity.",
+      "createdAt": "2026-08-18T17:05:10.599Z",
+      "reviewRound": "2026-08-14T03:33:29.693Z",
+      "reviewRunId": "B-9ff1:RR-045",
+      "envelopeId": "28c8484be86336a564ef96cd4381b64469e45f99f615247f386223790be90ae1",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-9ff1/background.md",
+          ".lattice/story/actives/B-9ff1/plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "packages/main/src/core/red-evidence/envelope.ts",
+          "packages/main/src/core/red-evidence/registries.ts",
+          "packages/main/src/core/red-evidence/specificity.ts",
+          "packages/main/src/handlers/red-evidence.ts",
+          "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs",
+          "packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "packages/main/tests/red/red-w2d-specificity-conjunction.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-9ff1/checklist.json",
+          "lattice.config.json",
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/red-evidence/canon.ts",
+          "packages/main/src/core/red-evidence/target-bindings.ts",
+          "packages/main/src/registry.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "33e48fa0770368c3f0257a7048900289d87a2bb8e819b909d8d2b8e46656416e"
     }
   ]
 }
