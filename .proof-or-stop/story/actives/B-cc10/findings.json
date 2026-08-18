@@ -1320,6 +1320,25 @@
       "signatureTag": "missing|ts|concept-cleanup-validation",
       "signatureTagSource": "auto",
       "resolvedAt": "2026-08-18T18:43:50.108Z"
+    },
+    {
+      "id": "B-cc10:F-072",
+      "desc": "doc-code-drift: docs/requirements/decisions/proof-or-stop-identity-migration.md:292 states the finding ledger has 69 reviewer findings (68 resolved, 1 dismissed). Mechanically verified against .proof-or-stop/story/actives/B-cc10/findings.json at this HEAD: the ledger now has 71 findings (70 resolved, 1 dismissed, 0 open) -- two more (F-070, F-071) landed after this sentence was written, fixed by commit b2d698895c (fix(F-070,F-071): fixtures staged state at paths the runtime stopped reading). F-070/F-071 do not need a new row in the Wave table above it (they are outside the 104-command validate.commands suite that table measures -- confirmed via proof-or-stop.config.json and F-070s own text -- so they do not change the 37 validate-suite-defect total), but the raw 69/68 ledger count sentence is now stale and should read 71/70/1.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-18T19:08:36.570Z",
+      "reviewRound": "2026-08-18T03:33:16.325Z",
+      "reviewRunId": "B-cc10:RR-097",
+      "_hash": "8225228589bd25dd5c71f6d1686bb9fbd13f87969238f267d7ad653e62bc355c",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+        ".proof-or-stop/story/actives/B-cc10/findings.json"
+      ],
+      "signatureTag": "missing|md|code-drift-docs",
+      "signatureTagSource": "auto"
     }
   ]
 }
