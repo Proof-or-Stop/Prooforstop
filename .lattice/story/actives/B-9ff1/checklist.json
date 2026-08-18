@@ -2855,13 +2855,13 @@
             "outputDigest": "baf3f621e674fa2a87bdc575b6829472fdc5bc2895d3229acdaffb2b25c7bd07",
             "outputTail": "red-evidence-envelope-smoke: OK — total-bits entropy (8 differential rows) + byte measurement, rule 2 AND-not-OR (both single-floor directions), rule 1 blocklist (8/8) + rule 3 all tagged R1-2, assertionDigest scope proven in BOTH directions, 33 tagged rejection fixtures covering R1-1/R1-2/R1-3/R1-5/R1-6 with R1-2 and R1-3 never collapsed, tag routing pinned BY CODE for the §1.3 rule-1 triple (empty + blocklisted R1-2 vs trimmed R1-3), matcher COUNT and §1.3 specificity independently reported, the count bound proven policy-resolved by a two-policy differential (8 vs 3), candidate policyDigest/assertionDigest optional-but-checked in all four cells, the ADMISSIBLE success transcript (assertionDigest + matched binding + policyDigest), a byte-identical .lattice tree with no gate verdict change — byte-identical here meaning NET across the batch of DIRECT handler invocations (one snapshot before the batch, one after, not per-invocation), over a manifest of file paths and content hashes only (empty directories, file modes and symlink identity are not recorded), and with the CLI entrypoint not exercised — and all three registry contracts pass.\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-18T20:57:00.660Z",
+            "executedAt": "2026-08-18T21:14:40.243Z",
             "timeoutMs": 180000
           },
-          "headHash": "3820795503a4f01fd4349013a0cb22bcf9038487",
-          "materialHash": "bc686b2f71757e59022ad80ecb22eac19081f2c016c3d7f1ff03040e9ee5b7ea",
-          "storyFilesHash": "707b1c15de4ee2a6a9aa189b995026ebb96fb0219e28d2dbe6716d5efd1d4d8e",
-          "timestamp": "2026-08-18T20:57:14.549Z"
+          "headHash": "0ffb5c4ed9c6b482ff76b04e03098889db6c6fdb",
+          "materialHash": "74ba6947b1c41083339703c4c1dbf86ec21cae9e86ccd8c60a5be79e41fc5b2b",
+          "storyFilesHash": "2220f1b50fb7e4fc746a2f73bee61bb91ffaf829122ad460bc2f1d6b2ef0a9c1",
+          "timestamp": "2026-08-18T21:14:54.691Z"
         },
         {
           "intentRef": "CHK-013:adversarial:0",
@@ -2870,10 +2870,10 @@
           "waiverType": "permanent",
           "file": "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
           "note": "WAIVER — the behaviour IS proven; the immutable pin is not correctable. The envelope smoke asserts every one of the four section 1.6 rejection tags with at least one fixture per tag, so no tag is silently untested, and it exits 0. The pinned selector reads '25 tagged rejection fixtures'. That count was TRUE when the intent was authored; the REVIEW round then required additional fixtures (kind:'class' enum coverage per finding F-004, the over-count-plus-rule-3 case per F-009, the pattern-mismatch and drive-qualified-path cases per F-008 and F-010), so the smoke now truthfully prints '33 tagged rejection fixtures'. The pin is immutable by design (checklist.ts receipt_selector_mismatch); checklist_update rejects the verification key and verification_intent_repair only backfills MISSING intents, so the count cannot be amended. Reducing the fixture set back to 25 to satisfy the pin, or printing a stale count, would both trade real coverage or honesty for a green check - rejected. Recorded as a visible, attributable waiver. The tooling gap is filed as its own task.",
-          "headHash": "3820795503a4f01fd4349013a0cb22bcf9038487",
-          "materialHash": "bc686b2f71757e59022ad80ecb22eac19081f2c016c3d7f1ff03040e9ee5b7ea",
-          "storyFilesHash": "707b1c15de4ee2a6a9aa189b995026ebb96fb0219e28d2dbe6716d5efd1d4d8e",
-          "timestamp": "2026-08-18T20:57:14.549Z"
+          "headHash": "0ffb5c4ed9c6b482ff76b04e03098889db6c6fdb",
+          "materialHash": "74ba6947b1c41083339703c4c1dbf86ec21cae9e86ccd8c60a5be79e41fc5b2b",
+          "storyFilesHash": "2220f1b50fb7e4fc746a2f73bee61bb91ffaf829122ad460bc2f1d6b2ef0a9c1",
+          "timestamp": "2026-08-18T21:14:54.691Z"
         }
       ]
     },
@@ -2957,13 +2957,13 @@
             "outputDigest": "baf3f621e674fa2a87bdc575b6829472fdc5bc2895d3229acdaffb2b25c7bd07",
             "outputTail": "red-evidence-envelope-smoke: OK — total-bits entropy (8 differential rows) + byte measurement, rule 2 AND-not-OR (both single-floor directions), rule 1 blocklist (8/8) + rule 3 all tagged R1-2, assertionDigest scope proven in BOTH directions, 33 tagged rejection fixtures covering R1-1/R1-2/R1-3/R1-5/R1-6 with R1-2 and R1-3 never collapsed, tag routing pinned BY CODE for the §1.3 rule-1 triple (empty + blocklisted R1-2 vs trimmed R1-3), matcher COUNT and §1.3 specificity independently reported, the count bound proven policy-resolved by a two-policy differential (8 vs 3), candidate policyDigest/assertionDigest optional-but-checked in all four cells, the ADMISSIBLE success transcript (assertionDigest + matched binding + policyDigest), a byte-identical .lattice tree with no gate verdict change — byte-identical here meaning NET across the batch of DIRECT handler invocations (one snapshot before the batch, one after, not per-invocation), over a manifest of file paths and content hashes only (empty directories, file modes and symlink identity are not recorded), and with the CLI entrypoint not exercised — and all three registry contracts pass.\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-18T20:57:04.732Z",
+            "executedAt": "2026-08-18T21:14:44.438Z",
             "timeoutMs": 180000
           },
-          "headHash": "3820795503a4f01fd4349013a0cb22bcf9038487",
-          "materialHash": "bc686b2f71757e59022ad80ecb22eac19081f2c016c3d7f1ff03040e9ee5b7ea",
-          "storyFilesHash": "707b1c15de4ee2a6a9aa189b995026ebb96fb0219e28d2dbe6716d5efd1d4d8e",
-          "timestamp": "2026-08-18T20:57:14.549Z"
+          "headHash": "0ffb5c4ed9c6b482ff76b04e03098889db6c6fdb",
+          "materialHash": "74ba6947b1c41083339703c4c1dbf86ec21cae9e86ccd8c60a5be79e41fc5b2b",
+          "storyFilesHash": "2220f1b50fb7e4fc746a2f73bee61bb91ffaf829122ad460bc2f1d6b2ef0a9c1",
+          "timestamp": "2026-08-18T21:14:54.691Z"
         },
         {
           "intentRef": "CHK-014:happy:1",
@@ -2975,16 +2975,16 @@
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "2850d56b3d22f3b65e8f2bc330a1b5816ca4f1e2ef181f210b3a10fe58d98d30",
-            "outputTail": "red-w2d-command-readonly: PASS\n  registration: MAIN_TOOLS + command-policy(readOnly/none) + process-fact L0 + READ_ONLY_COMMANDS + registered handler\n  success output: assertionDigest sha256:60f9d33cddb2b692b9ba243ffa33038b0c089b0654afeb559f01ad1daa383515 / binding M1 npm-script@1 npm-script:test:x / policyDigest sha256:470db38278a59387f2105c8bcdcca59ee52c8706cb3c69f7e150d3cd1154d767\n  inadmissible: tagged R1-2 rejection, success output absent; .lattice manifest of file paths and content hashes NET identical across the batch of 8 DIRECT handler invocations (aggregate before/after, not per-invocation; no empty directories, file modes or symlink identity recorded; the CLI wrapper is not exercised here)\n  spawn set observed across those invocations: execFileSync git rev-parse + execFileSync git worktree + execSync git rev-parse + spawnSync git rev-parse + spawnSync git show (32 calls) — read-only git, no runner/harness/shell\n  validate pipeline: packages/main/dist/tasks/red-evidence-envelope-smoke.js resolved via configuredValidationCommands and run via runValidationCommand -> exit 0 in 4091ms\n",
+            "outputDigest": "ff13ab2bead05c5b30de434f355628d5b51a172e31e0d341304a9324dea4bdab",
+            "outputTail": "red-w2d-command-readonly: PASS\n  registration: MAIN_TOOLS + command-policy(readOnly/none) + process-fact L0 + READ_ONLY_COMMANDS + registered handler\n  success output: assertionDigest sha256:60f9d33cddb2b692b9ba243ffa33038b0c089b0654afeb559f01ad1daa383515 / binding M1 npm-script@1 npm-script:test:x / policyDigest sha256:470db38278a59387f2105c8bcdcca59ee52c8706cb3c69f7e150d3cd1154d767\n  inadmissible: tagged R1-2 rejection, success output absent; .lattice manifest of file paths and content hashes NET identical across the batch of 8 DIRECT handler invocations (aggregate before/after, not per-invocation; no empty directories, file modes or symlink identity recorded; the CLI wrapper is not exercised here)\n  spawn set observed across those invocations: execFileSync git rev-parse + execFileSync git worktree + execSync git rev-parse + spawnSync git rev-parse + spawnSync git show (32 calls) — read-only git, no runner/harness/shell\n  validate pipeline: packages/main/dist/tasks/red-evidence-envelope-smoke.js resolved via configuredValidationCommands and run via runValidationCommand -> exit 0 in 4192ms\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-18T20:57:09.634Z",
+            "executedAt": "2026-08-18T21:14:49.442Z",
             "timeoutMs": 180000
           },
-          "headHash": "3820795503a4f01fd4349013a0cb22bcf9038487",
-          "materialHash": "bc686b2f71757e59022ad80ecb22eac19081f2c016c3d7f1ff03040e9ee5b7ea",
-          "storyFilesHash": "707b1c15de4ee2a6a9aa189b995026ebb96fb0219e28d2dbe6716d5efd1d4d8e",
-          "timestamp": "2026-08-18T20:57:14.549Z"
+          "headHash": "0ffb5c4ed9c6b482ff76b04e03098889db6c6fdb",
+          "materialHash": "74ba6947b1c41083339703c4c1dbf86ec21cae9e86ccd8c60a5be79e41fc5b2b",
+          "storyFilesHash": "2220f1b50fb7e4fc746a2f73bee61bb91ffaf829122ad460bc2f1d6b2ef0a9c1",
+          "timestamp": "2026-08-18T21:14:54.691Z"
         },
         {
           "intentRef": "CHK-014:edge:0",
@@ -2996,16 +2996,16 @@
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "5ae04ccfcfa329e65a537851a26b72a5ed1cbbf1c4f5e6307d5e33ba04f11cd9",
-            "outputTail": "red-w2d-command-readonly: PASS\n  registration: MAIN_TOOLS + command-policy(readOnly/none) + process-fact L0 + READ_ONLY_COMMANDS + registered handler\n  success output: assertionDigest sha256:60f9d33cddb2b692b9ba243ffa33038b0c089b0654afeb559f01ad1daa383515 / binding M1 npm-script@1 npm-script:test:x / policyDigest sha256:470db38278a59387f2105c8bcdcca59ee52c8706cb3c69f7e150d3cd1154d767\n  inadmissible: tagged R1-2 rejection, success output absent; .lattice manifest of file paths and content hashes NET identical across the batch of 8 DIRECT handler invocations (aggregate before/after, not per-invocation; no empty directories, file modes or symlink identity recorded; the CLI wrapper is not exercised here)\n  spawn set observed across those invocations: execFileSync git rev-parse + execFileSync git worktree + execSync git rev-parse + spawnSync git rev-parse + spawnSync git show (32 calls) — read-only git, no runner/harness/shell\n  validate pipeline: packages/main/dist/tasks/red-evidence-envelope-smoke.js resolved via configuredValidationCommands and run via runValidationCommand -> exit 0 in 3970ms\n",
+            "outputDigest": "1beeeedf6877142b16b63445cb801c94a6ea2e6045098acae68ff41446c274b0",
+            "outputTail": "red-w2d-command-readonly: PASS\n  registration: MAIN_TOOLS + command-policy(readOnly/none) + process-fact L0 + READ_ONLY_COMMANDS + registered handler\n  success output: assertionDigest sha256:60f9d33cddb2b692b9ba243ffa33038b0c089b0654afeb559f01ad1daa383515 / binding M1 npm-script@1 npm-script:test:x / policyDigest sha256:470db38278a59387f2105c8bcdcca59ee52c8706cb3c69f7e150d3cd1154d767\n  inadmissible: tagged R1-2 rejection, success output absent; .lattice manifest of file paths and content hashes NET identical across the batch of 8 DIRECT handler invocations (aggregate before/after, not per-invocation; no empty directories, file modes or symlink identity recorded; the CLI wrapper is not exercised here)\n  spawn set observed across those invocations: execFileSync git rev-parse + execFileSync git worktree + execSync git rev-parse + spawnSync git rev-parse + spawnSync git show (32 calls) — read-only git, no runner/harness/shell\n  validate pipeline: packages/main/dist/tasks/red-evidence-envelope-smoke.js resolved via configuredValidationCommands and run via runValidationCommand -> exit 0 in 4306ms\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-18T20:57:14.392Z",
+            "executedAt": "2026-08-18T21:14:54.565Z",
             "timeoutMs": 180000
           },
-          "headHash": "3820795503a4f01fd4349013a0cb22bcf9038487",
-          "materialHash": "bc686b2f71757e59022ad80ecb22eac19081f2c016c3d7f1ff03040e9ee5b7ea",
-          "storyFilesHash": "707b1c15de4ee2a6a9aa189b995026ebb96fb0219e28d2dbe6716d5efd1d4d8e",
-          "timestamp": "2026-08-18T20:57:14.549Z"
+          "headHash": "0ffb5c4ed9c6b482ff76b04e03098889db6c6fdb",
+          "materialHash": "74ba6947b1c41083339703c4c1dbf86ec21cae9e86ccd8c60a5be79e41fc5b2b",
+          "storyFilesHash": "2220f1b50fb7e4fc746a2f73bee61bb91ffaf829122ad460bc2f1d6b2ef0a9c1",
+          "timestamp": "2026-08-18T21:14:54.691Z"
         },
         {
           "intentRef": "CHK-014:edge:1",
