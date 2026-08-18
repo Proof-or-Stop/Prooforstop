@@ -25,6 +25,7 @@ import { createReviewInventoryHandlers } from '../handlers/review-inventory.js';
 import { createDoneRequiredValidationHandlers } from '../handlers/done-required-validation.js';
 import { createVerifierHandlers } from '../handlers/verifier.js';
 import { computeActiveReviewers } from '../handlers/reviewer-list.js';
+import { buildVerificationCoverage } from '../core/verification.js';
 import {
   CERTIFICATION_WINDOW_FILE,
   CERTIFICATION_WINDOW_STATES,
@@ -367,6 +368,57 @@ const coverageDecision = evaluateCertificationWindowAdmit(baseAdmitFacts({ missi
 assert.equal(coverageDecision.admit, false);
 assert.equal(coverageDecision.blockerCode, PRE_CERT_COVERAGE_MISSING);
 
+function coverageMissingAfterHeadDrift(args: {
+  currentStoryFilesHash?: string;
+  evidenceStoryFilesHash?: string;
+}): number {
+  return buildVerificationCoverage({
+    items: [{
+      id: 'CHK-001',
+      title: 'headHash-only drift coverage',
+      context: 'coverage remains admissible when storyFilesHash matches',
+      status: 'done',
+      startTime: null,
+      endTime: null,
+      verificationIntent: {
+        happy: [{ desc: 'mechanical coverage stays fresh', type: 'logic', priority: 'must' }],
+        edge: [],
+        adversarial: [],
+      },
+      verificationEvidence: [{
+        intentRef: 'CHK-001:happy:0',
+        kind: 'logic_test',
+        result: 'pass',
+        note: 'headHash-only drift fixture',
+        headHash: 'e'.repeat(40),
+        ...(args.evidenceStoryFilesHash ? { storyFilesHash: args.evidenceStoryFilesHash } : {}),
+      }],
+    }],
+  }, 'f'.repeat(40), (_evidenceHead, evidence) => {
+    const recorded = evidence?.storyFilesHash;
+    return Boolean(args.currentStoryFilesHash && recorded && recorded === args.currentStoryFilesHash);
+  }).missingRequired;
+}
+
+const matchingStoryFilesMissing = coverageMissingAfterHeadDrift({
+  currentStoryFilesHash: 's'.repeat(64),
+  evidenceStoryFilesHash: 's'.repeat(64),
+});
+assert.equal(matchingStoryFilesMissing, 0, 'matching storyFilesHash must not count headHash-only drift as missing');
+assert.equal(
+  evaluateCertificationWindowAdmit(baseAdmitFacts({ missingRequiredIntents: matchingStoryFilesMissing })).admit,
+  true,
+  'evaluate must still admit when coverage evidence headHash differs but storyFilesHash matches',
+);
+assert.ok(
+  coverageMissingAfterHeadDrift({ currentStoryFilesHash: 's'.repeat(64) }) > 0,
+  'missing evidence storyFilesHash must stay missing/stale',
+);
+assert.ok(
+  coverageMissingAfterHeadDrift({ evidenceStoryFilesHash: 's'.repeat(64) }) > 0,
+  'missing current storyFilesHash must stay missing/stale',
+);
+
 const mainDecision = evaluateCertificationWindowAdmit(baseAdmitFacts({ mainIsAncestor: false }));
 assert.equal(mainDecision.admit, false);
 assert.equal(mainDecision.blockerCode, PRE_CERT_MAIN_NOT_MERGED);
@@ -497,6 +549,52 @@ assert.deepEqual(admitMock.consumed, ['INV-1']);
 const admittedOnDisk = admitStore.readCertificationWindows(admitStoryId);
 assert.equal(admittedOnDisk.windows.at(-1)?.inventory?.epochId, 'epoch-1');
 assert.equal(admittedOnDisk.windows.at(-1)?.inventory?.receiptId, 'INV-1');
+
+const headDriftRoot = makeGitRoot();
+const headDriftStoryId = 'B-cw24';
+const headDriftStore = makeStore(headDriftRoot, headDriftStoryId);
+const headDriftStoryFiles = currentStoryFilesHash(headDriftRoot, 'HEAD', headDriftRoot)!;
+headDriftStore.writeChecklist(headDriftStoryId, {
+  items: [{
+    id: 'CHK-001',
+    title: 'headHash-only drift coverage',
+    context: 'collectAdmitFacts must not treat matching storyFilesHash as missing',
+    status: 'done',
+    startTime: null,
+    endTime: null,
+    verificationIntent: {
+      happy: [{ desc: 'mechanical coverage stays fresh', type: 'logic', priority: 'must' }],
+      edge: [],
+      adversarial: [],
+    },
+    verificationEvidence: [{
+      intentRef: 'CHK-001:happy:0',
+      kind: 'logic_test',
+      result: 'pass',
+      note: 'headHash-only drift fixture',
+      headHash: 'e'.repeat(40),
+      storyFilesHash: headDriftStoryFiles,
+    }],
+  }],
+});
+const headDriftMock = mockInventoryApis({
+  storyId: headDriftStoryId,
+  materialHash: currentMaterialHash(headDriftRoot, 'HEAD', headDriftRoot)!,
+  storyFilesHash: headDriftStoryFiles,
+});
+setReviewInventoryAdmitApisForTest(headDriftMock.apis);
+const headDriftHandlers = createCertificationWindowHandlers({
+  store: headDriftStore,
+  root: headDriftRoot,
+  scanRoot: join(headDriftRoot, 'packages', 'main'),
+});
+const headDriftBegin = headDriftHandlers.certification_window_begin({ storyId: headDriftStoryId });
+assertStatusSurface(headDriftBegin, 'ADMITTED');
+assert.equal(headDriftMock.consumed.length, 1, 'matching storyFilesHash must admit even when evidence headHash differs');
+assert.equal(
+  headDriftStore.readCertificationWindows(headDriftStoryId).windows.at(-1)?.inventory?.authorizesTest,
+  false,
+);
 
 const unmergedRoot = makeGitRoot();
 git(unmergedRoot, ['checkout', '-b', 'story/B-cw13']);

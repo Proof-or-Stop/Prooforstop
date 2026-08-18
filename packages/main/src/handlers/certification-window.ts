@@ -90,7 +90,15 @@ function collectAdmitFacts(
   const expectedMainSha = donePrepareExpectedMainSha(gitCwd);
   let missingRequiredIntents = 0;
   try {
-    missingRequiredIntents = buildVerificationCoverage(ctx.store.readChecklist(storyId), headHash).missingRequired;
+    // headHash-only metadata commits are not a re-run signal when storyFilesHash still matches.
+    missingRequiredIntents = buildVerificationCoverage(
+      ctx.store.readChecklist(storyId),
+      headHash,
+      (_evidenceHead, evidence) => {
+        const recorded = evidence?.storyFilesHash;
+        return Boolean(storyFilesHash && recorded && recorded === storyFilesHash);
+      },
+    ).missingRequired;
   } catch {
     missingRequiredIntents = Number.MAX_SAFE_INTEGER;
   }
