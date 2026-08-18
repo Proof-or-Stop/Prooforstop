@@ -18,6 +18,43 @@ never called from production. This story connects it, and proves the connection 
    Constructing them only through the validated CLI would make the anti-bypass proof theatre.
 5. Serial. CHK-002 and CHK-003 both touch gate logic the RED artifact measures.
 
+
+## Pre-execution tightenings (from the independent intent-collision analysis)
+
+The authoritative wording lives in `intent-collision.json` `acceptedInterpretation`. These are the five
+places an implementer is most likely to satisfy the words while shipping the wrong thing.
+
+1. **EXCLUDE, never mark satisfied.** In `evaluateReviewCompleteness`, subtract the withdrawn item's
+   intent refs from the required set BEFORE the coverage loop. Emit no gap; write no synthetic evidence.
+2. **Ref set = positional AND alias.** "The withdrawn item's intent refs" means both `itemId:lane:index`
+   and any authored `intent.id` alias (`verificationIntentRefSet` proofstory.ts:819, `intentRef`
+   verification.ts:24). A `startsWith(itemId + ':')` prefix match is NOT acceptable.
+3. **Channel gate needs a THIRD bucket.** Render withdrawn items with the authorizing `decisionId`.
+   Do NOT reuse `evidencedItems` - line 340 prints it under `Covered:` and line 640 as "all CHK covered",
+   which would record work never done as covered. Do NOT reuse `exemptedItems` - line 338 prints
+   `plan.md Owner=main-agent exempted:`, a false attribution. Note `checkDispatchEvidence`'s opts carry no
+   decision at all: plumb it in rather than shortcutting through `item.status`.
+4. **CHK-004 fixture requirement, or the anti-bypass proof is hollow.** The "decision does not list this
+   item" case MUST use a decision that withdraws a DIFFERENT, REAL item, so its
+   `withdrawnChecklistItemRefs` is non-empty. Otherwise this naive implementation passes CHK-004 clean:
+   it calls the helper (satisfying the letter) and then keys the skip on the string.
+
+       const withdrawnIds = withdrawnChecklistItemIdsFrom(decision);
+       if (withdrawnIds.size > 0 && item.status === "withdrawn") continue;
+
+   That implementation MUST fail CHK-004. Build every unbacked state by writing JSON directly - direct
+   edits are the threat model, and constructing them only through the validated CLI would make the proof
+   theatre.
+5. **CHK-005 targets exactly three rows.** B-8df9 carries FOUR permanent waivers. The fourth,
+   `CHK-002:happy:0`, is a legitimate selector-pin waiver and MUST SURVIVE: deleting it leaves that intent
+   uncovered, and since CHK-002 is `done` rather than withdrawn no skip applies, so `AB-001` would newly
+   FAIL the very completeness gate this item exists to show passing.
+
+**Knowingly out of scope:** `core/verification.ts:212` already performs a bare
+`isWithdrawnChecklistStatus(item.status)` skip on a DONE-blocking path - a pre-existing instance of the
+weaker pattern this story argues against. Not touched here; tracked by the deferred consumer-derivation
+follow-up. The anti-bypass claim in this story covers the two named gates only.
+
 ## CHK-001: Prove both gates ignore an item-level withdrawal, repro-first
 
 **Owner**: lattice-implementer · **DependsOn**: none
