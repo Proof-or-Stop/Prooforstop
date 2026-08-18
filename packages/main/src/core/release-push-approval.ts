@@ -7,9 +7,9 @@ export const RELEASE_PUSH_APPROVAL_SCHEMA = 'lattice.remote-push-approval.v1';
 // deprecated path, so every release_approve_push recreated `.lattice/tmp/` on a migrated repo.
 // The `lattice.remote-push-approval.v1` SCHEMA literal is deliberately FROZEN and unchanged —
 // only the path moves. .githooks/pre-push is updated in the same commit to read BOTH spellings,
-// because a one-sided rename here silently breaks release approval.
+// because a one-sided rename here silently breaks release approval. The hook keeps its own
+// inline deprecated-path fallback, so no exported deprecated constant is needed here.
 export const RELEASE_PUSH_APPROVAL_REL_PATH = `${PROOF_OR_STOP_STATE_DIR}/tmp/remote-push-approval.json`;
-export const DEPRECATED_RELEASE_PUSH_APPROVAL_REL_PATH = '.lattice/tmp/remote-push-approval.json';
 export const DEFAULT_RELEASE_PUSH_TTL_SECONDS = 300;
 export const MAX_RELEASE_PUSH_TTL_SECONDS = 900;
 
