@@ -289,7 +289,7 @@
       "desc": "packages/main/src/tasks/signing-guard-mutation-proof-smoke.ts:35,83: the mkdtempSync scratch directory is created and rmSync-cleaned but never read or written -- the mutated content goes straight to mutantPath in dirname(guardFile), not into scratch. Dead weight left over from a prior scratch-dir-based design; safe to delete both lines (and the mkdtempSync/tmpdir imports if unused elsewhere in the file).",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-18T04:27:07.942Z",
@@ -297,7 +297,11 @@
       "reviewRunId": "B-49ed:RR-016",
       "_hash": "8f1793358acd3f03c6ddab6ba344e1bfd2e973a078f83960cc3d5edae0f78564",
       "signatureTag": "missing|unknown|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Duplicate of B-49ed:F-012, filed independently by lattice-review-concept in the same round. Same dead mkdtempSync scratch dir left over after the F-010 rewrite moved the mutant beside the guard file. Already removed, along with the orphaned outer try/finally and the unused tmpdir import, and the proof was re-verified to still bite after that cleanup.\n\nNote the scratch dir has since returned in a different role: the F-013 fix relocates the mutant OUT of dist into a mkdtemp scratch dir, so mkdtempSync is live again and genuinely used. The dead-code instance this finding names is gone.",
+      "resolvedAt": "2026-08-18T04:40:38.341Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
