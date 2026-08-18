@@ -131,6 +131,13 @@ experiments/recovery-runner/analysis-out.*
 .proof-or-stop/runtime/
 .proof-or-stop/traces/
 .proof-or-stop/locks/
+# transient mkdir-lock directories (B-d877 R2: now carry a holder.json token, so
+# an accidental commit while one is briefly held would track/churn runtime state;
+# these <name>.lock/ dirs — checklist/finding/review-run/init-check — are managed
+# runtime locks, never story metadata).
+**/*.lock/
+.Lattice/authority.md
+.Lattice/artifacts/baseline/
 .proof-or-stop/usage/
 .proof-or-stop/learning/
 .proof-or-stop/authority.md
