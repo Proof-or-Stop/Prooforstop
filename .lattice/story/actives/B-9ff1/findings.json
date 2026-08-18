@@ -1746,7 +1746,7 @@
       "desc": "The B-1b2b correction committed in c44410f6f8 (fixing F-072/F-075) states: \"the check is cheap - `dev_memory_search --query=a67bb17 --limit=1 --json` returns e367ec1, the correction, not a67bb17; same for --query=8d1d2bb\". Re-running that exact command now returns id=5e945ca (e367ec1 has itself since been superseded by 5e945ca, which supersedes a67bb17/8d1d2bb/e367ec1/e918048). The correction embeds a specific dev-memory entry id as permanent, committed story-background prose - precisely the \"second copy of something that lives elsewhere and changes without you\" anti-pattern that 5e945ca itself names as the rule to avoid - and the cited id has already gone stale within the same day, inside the very commit written to fix an earlier round of this same defect class. The SUBSTANTIVE point the correction makes (retrieval surfaces the current correction, not a lone superseded entry) still holds under the current id, so the correction is not wrong in effect, only its cited literal token is now inaccurate.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-18T21:51:35.155Z",
@@ -1768,7 +1768,11 @@
         ".lattice/dev-memory/experience.jsonl"
       ],
       "signatureTag": "doc-code-drift|md|1b2b-correction-committed",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Upheld, and deferred to B-85a7 with the same reasoning as F-076. WHAT IS WRONG: the correction appended to B-1b2b in commit c44410f6f8 disproves a stale claim by pasting a live query result into permanent prose, naming the dev-memory id that retrieval returned at the time. That id has since been superseded again, so the correction is stale in exactly the way the text it corrected was stale - the 'second copy that drifts' anti-pattern, recurring inside the commit written to fix an earlier instance of it. The lane found this without being asked to look for it. WHAT REMAINS TRUE: the substantive claim of that correction is unaffected. Retrieval does surface a correction rather than a lone superseded entry, and the narrowed scope for B-1b2b - that the protection is emergent rather than enforced, depending on a correction's author writing supersedes tags and naming the old ids - still holds. Only the embedded literal is wrong. OWNER: B-85a7 covers this as the second of its two shapes - rejecting a dev-memory identifier embedded as a claimed CURRENT retrieval result, while keeping legal the naming of which entries an entry supersedes, because that is metadata about a fixed chain rather than a claim about present state. NOT CLAIMED: B-85a7 is in INIT and nothing is fixed yet. The offending sentence stays in B-1b2b's background until that story acts; whoever picks it up should expect the id it names to have moved again, which is the finding's own point.",
+      "resolvedAt": "2026-08-18T21:53:39.141Z",
+      "resolutionType": "partially_mitigated",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
