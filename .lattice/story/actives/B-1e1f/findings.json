@@ -35,6 +35,24 @@
       ],
       "signatureTag": "adversarial|ts|quality-fail-closed",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-1e1f:F-003",
+      "desc": "quality-fail-closed: packages/main/src/core/certification-window.ts:675-679 detectCertificationWindowMaterialDrift treats undefined current storyFilesHash/materialHash as no drift. currentMaterialHash/currentStoryFilesHash return undefined on git failure, so refresh/heavy keep an ADMITTED or RUNNING window live instead of invalidating. Unreadable frozen identity is not fail-closed.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-18T09:22:59.432Z",
+      "reviewRound": "2026-08-18T09:16:08.689Z",
+      "reviewRunId": "B-1e1f:RR-002",
+      "_hash": "a263b5b49cdb4b8995c5d0bcd0ba55fca1fc381f9f6d55dc523ee36969520f29",
+      "files": [
+        "packages/main/src/core/certification-window.ts"
+      ],
+      "signatureTag": "edge|ts|quality-fail-closed",
+      "signatureTagSource": "auto"
     }
   ]
 }
