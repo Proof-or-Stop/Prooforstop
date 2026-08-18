@@ -421,6 +421,60 @@
       },
       "readDiagnostics": [],
       "_hash": "f5b14fa222ba7b64011d839e8f5f083ee2a71c76a5bb59dd1cab4e509097766d"
+    },
+    {
+      "id": "B-1e1f:RP-009",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: 31/31 must intents still have mechanical pass receipts after 09d765e2ce/100e3b9cff/263b657. persistSyntheticAdmittedWindowForTest is test-only (authorizesTest forced false) and does not weaken refuseHeavyCertificationUnlessAdmitted; official heavy smokes now admit a signed window so they can exercise timeout/heartbeat instead of dying at PRE_CERT. Premature refuse, admitted-heavy bind, invalidation, and no-stub-always-admit remain covered by certification-window-smoke/replay/heavy-choke receipts. require() literal and drop-acceptance-basis-prompt retarget are guard fixes, not missing coverage. Refreshed hashes at 100e3b9cff are not treated as missing.",
+      "createdAt": "2026-08-18T11:27:19.591Z",
+      "reviewRound": "2026-08-18T11:20:11.059Z",
+      "reviewRunId": "B-1e1f:RR-012",
+      "envelopeId": "8b6de575d6613f53e747e0a61ec8c4bb2cf1780739fda8a175176ff0cc28cbe9",
+      "writerSessionId": "sess-cf96145de9cf012e",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-1e1f/background.md",
+          ".lattice/story/actives/B-1e1f/plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/tasks/certification-window-heavy-choke-smoke.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "packages/main/tests/red/red-1734-bootstrap-depfree.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "c5ea3901c714a293bdf6d7caac3d589e9685457aa85efee4cbf032f66dc21fd1"
+      },
+      "readDiagnostics": [],
+      "_hash": "8b733b945cea33b8bd7ed8a34b040594dc1319440811702dcc87b01581f2c227"
     }
   ]
 }
