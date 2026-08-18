@@ -209,6 +209,26 @@
       ],
       "signatureTag": "missing|md|promise-undelivered-scope",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-cc10:F-013",
+      "desc": "doc-code-drift: docs/requirements/decisions/proof-or-stop-identity-migration.md:183 (Known residual drift for CHK-007) claims \"CLAUDE.md:192 still documents the old @lattice/core/dev-host import in its debug.ts example\". This is now stale/false: CLAUDE.md was rewritten by commit ad5dc15253 down to 12 lines total (see companion finding on the undisclosed CLAUDE.md/AGENTS.md content deletion), so line 192 does not exist and no dev-host import example exists anywhere in CLAUDE.md any more. A repo-wide grep for \"@lattice/core/dev-host\" only matches this decision doc itself, not any live code or doc. The CHK-007 residual-drift note needs to be corrected or removed: the fixture exemption in scripts/verify-lattice-residue.mjs may still be accurate, but its stated rationale (a live CLAUDE.md example) is no longer true.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-18T03:46:55.595Z",
+      "reviewRound": "2026-08-18T03:33:16.325Z",
+      "reviewRunId": "B-cc10:RR-017",
+      "_hash": "1441882821df930d9749dd784e19e9c7a447aa3b09a7c0cec9d71be993ca3855",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+        "CLAUDE.md",
+        "scripts/verify-lattice-residue.mjs"
+      ],
+      "signatureTag": "missing|md|code-drift-docs",
+      "signatureTagSource": "auto"
     }
   ]
 }
