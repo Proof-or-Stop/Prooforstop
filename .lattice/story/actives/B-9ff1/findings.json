@@ -1645,7 +1645,7 @@
       "desc": "F-070's resolvedReason claims e918048 was self-verified to 'contain no count words' and 'carries NEITHER a count NOR any reproduced list'. Direct read of .lattice/dev-memory/experience.jsonl id=e918048 shows count words present: summary says 'four versions of one lesson, the first three each false'; lesson says 'Three earlier versions each attached a count', 'The third one - e367ec1', 'got wrong twice'. This is a fifth iteration of the exact defect the entry itself warns against (trigger: 'About to write a COUNT ... into a lesson') and the F-070 resolution's verification claim is false.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-18T21:22:28.760Z",
@@ -1657,7 +1657,11 @@
         ".lattice/story/actives/B-9ff1/findings.json"
       ],
       "signatureTag": "doc-code-drift|jsonl|resolvedreason-claims-e918048",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Upheld exactly as stated. e918048's summary asserts 'this one carries no count' in the SAME sentence that says 'four versions of one lesson, the first three each false', and the lesson body uses 'Three earlier versions', 'The third one', 'got wrong twice'. The claim is false at the width it was written, and F-070's resolution repeated it by saying the entry had been 'self-verified... checked to contain no count words'. WHY MY SELF-CHECK MISSED IT: I grepped for the specific figures that had been wrong before (TWENTY, the lane split, FOUR of them) and for the exclusion-list command names. It found none, and I reported the broader property. The check was narrower than the claim - the same defect one level up, which is what the lane caught. FIXED by 5e945ca, and the fix is a DISTINCTION rather than another round of deletion, because deleting the ordinals would have been an over-correction: an ordinal about THIS chain ('the third version', 'superseded twice') is stable, since the chain is fixed once written and nothing can drift it. A figure about the ARTIFACT - findings filed, lane split, commits cited, allowed phases, exclusion lists - is a second copy of something that lives elsewhere and changes without you. Only the second kind must never be written; for those, run the query at the moment you need it and resolve candidate hex tokens against git log first, since several look like commits but are dev-memory ids or recovery blob refs. 5e945ca also states the rule that would have prevented this instance: do not claim a property of your own text wider than the check you ran - 'contains none of <these tokens>' is verifiable, 'carries no count' is not unless you looked for all of them. 5e945ca makes NO self-property claim at all; the two occurrences of the phrase in it are quotations identifying the false claim and illustrating the verifiable form. I verified that by reading the sentence contexts rather than by grepping the phrase, which is the check my earlier probe should have been.",
+      "resolvedAt": "2026-08-18T21:25:29.089Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9ff1:F-074",
