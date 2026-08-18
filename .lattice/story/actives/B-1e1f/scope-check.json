@@ -362,8 +362,11 @@
         ".lattice/story/actives/B-1e1f/background.md",
         ".lattice/story/actives/B-1e1f/decision.json",
         "docs/requirements/decisions/story-files-hash-material-drift.md",
-        "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
-      ]
+        "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+      ],
+      "resolution": "The committed objective spec for this PLAN is this story envelope: background.md, understanding.json, decision.json, checklist.json, and plan.md. Those artifacts transcribe U-01b from a local untracked analysis file that is not yet in the decisions corpus. Until that file is committed, do not treat its absence as a second source of truth. The committed constraint docs that still bind this story are docs/requirements/decisions/story-files-hash-material-drift.md, docs/requirements/decisions/done-prepare-automation-execution-plan.md, docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md, and B-3f3d review-inventory-epoch-and-saturation-gate.md once story/B-3f3d is merged. DEV of CHK-001 may add the analysis file as a tracked decision; that is documentation, not a new scope.",
+      "resolvedAt": "2026-08-18T07:10:10.250Z"
     },
     {
       "id": "OQ-2",
