@@ -162,6 +162,13 @@
       "status": "open",
       "foundAt": "2026-08-18T06:02:01.837Z",
       "fixedAt": null
+    },
+    {
+      "id": "BUG-CRITIC-FINDINGS-BLOCKED-ON-B-49ED",
+      "title": "B-3f3d's three remaining open findings (F-113, F-117, F-121, all high, all from lattice-review-topology-critic) cannot be cleared inside this worktree, and the reason is now mechanically established rather than inferred. F-113 and F-117 report that topology_critic_receipt_set threw for both verdicts; that specific cause was fixed here in commit 9f9f53a514, which moved the basis requirement off an unconditional throw onto the pass branch. F-121 reports 'no current registered dispatch provenance'. Running lattice dispatch does NOT clear it: every dispatch event is keyed to the session that RAN the command, and inspection of process-events.jsonl shows the critic-lane events belong to sess-60b0d01c (mine), sess-db9d3c15, sess-f1ed9b22 and one hand-set sess-critic-b3f3d, while deriveRoleProvenance matches on the SIGNING session's own id. A freshly spawned critic subagent always has a different session id, so the match can never succeed. That is BUG-CRITIC-DISPATCH-PROVENANCE-UNSATISFIABLE, and the fix for it lives in story B-49ed (requiring sessionSource host-adapter, so a host-derived session satisfies provenance without the implementer minting it). Verified that B-49ed's guard is absent from this worktree: grep for SIGNABLE_SESSION_SOURCES in packages/main/src/core/topology-critic-receipt.ts returns nothing here. So these three findings are blocked on B-49ed merging, not on further work in B-3f3d.",
+      "status": "open",
+      "foundAt": "2026-08-18T07:43:56.941Z",
+      "fixedAt": null
     }
   ]
 }
