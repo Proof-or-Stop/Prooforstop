@@ -421,7 +421,7 @@
       "desc": "scripts/verify-core-package-rename.mjs:94-142 (CHK-005:adversarial:0, the direct F-009 fix): the new stranded-mention sweep block (added to answer F-009) runs AFTER the only process.exit(1) gate in the file (lines 94-98, which checks the pre-existing `failures` array populated by lines 48-92). The sweep block calls check() at line 138 which pushes into the SAME failures array on a stranded-mention hit, but nothing re-inspects failures.length after line 142 — execution falls through unconditionally to `console.log(\\\"core package rename verified\\\")` and the script exits 0 regardless. Reproduced live: staged a tracked file (scripts/f009-strand-probe/probe.mjs) containing only `@lattice/core` with no canonical mention -> script printed `deprecatedCoreNameWithoutCanonical=1`, `stranded: scripts/f009-strand-probe/probe.mjs`, and `FAIL every @lattice/core mention...` -> yet exited 0 and printed the final `core package rename verified` banner. Contrast: temporarily renaming root package.json to trigger the OQ-2 boundary check (which IS before the line-94 gate) correctly exits 1. So the CHK-005:adversarial:0 evidence note`s claim \\\"Proven fail-closed by stranding a file\\\" does not hold for the actual mechanism landed in response to F-009 -- the repo-wide sweep this story added to satisfy the intent`s own acceptance criterion (`grep for @lattice/core ... returns nothing`) will silently pass on a future real stranding regression instead of blocking CHK-005/CHK-007 residue enforcement. Fix: after the sweep block, either move its check() calls before the line 94 gate, or add a second `if (failures.length > 0) process.exit(1)` after line 142 (and before the final success log).",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-18T04:23:33.143Z",
@@ -432,7 +432,8 @@
         "scripts/verify-core-package-rename.mjs"
       ],
       "signatureTag": "adversarial|mjs|scripts-verify-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-08-18T04:25:32.333Z"
     },
     {
       "id": "B-cc10:F-025",
