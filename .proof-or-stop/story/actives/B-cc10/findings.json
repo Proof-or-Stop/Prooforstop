@@ -403,7 +403,7 @@
       "desc": "concept-cleanup: config filename rename (CHK-004: lattice.config.json -> proof-or-stop.config.json, canonical) incomplete in operator-facing docs. docs/CLI.md:923 states literally \"The canonical and only active project config file is `lattice.config.json`\" -- this is now false; the project actually ships/loads proof-or-stop.config.json as canonical (verified: repo root has proof-or-stop.config.json, no lattice.config.json; packages/main/src/core/config.ts:657 PROOF_OR_STOP_CONFIG_FILENAME is canonical, lattice.config.json is deprecated read-only fallback). AGENTS.md:29 section header \"## 项目配置（lattice.config.json）\" and AGENTS.md:118 \"worktreeDir 字段自定义\" prose also present the deprecated filename as the primary/only one to edit, not as a legacy fallback. An operator following either doc verbatim would create/edit the wrong (deprecated) filename. Also docs/CLI.md:925 says external-reference-policy \"scans only lattice.config.json\" -- code (runtime-environment-checks.ts boundedReferenceFiles using PROJECT_CONFIG_FILENAMES) actually scans both spellings, so this description under-states scan coverage too.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-18T04:23:11.184Z",
@@ -415,7 +415,8 @@
         "AGENTS.md"
       ],
       "signatureTag": "missing|md|concept-cleanup-config",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-08-18T04:37:56.729Z"
     },
     {
       "id": "B-cc10:F-024",
