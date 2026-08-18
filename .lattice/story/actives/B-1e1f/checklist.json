@@ -157,7 +157,55 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-003:admitted-heavy-binds-identity",
+            "desc": "With current window ADMITTED (or already RUNNING), done_required_validate / validate --full / lattice.config.json doneRequiredCommands may start → they bind command receipts to the frozen window identity (headHash, expected main SHA, storyFilesHash, verifier/test identity) and do not spawn a second concurrent suite on the same window. WHY: after admit, one heavy path binds to the frozen candidate.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-003:routine-validate-outside-window",
+            "desc": "proof-or-stop validate without --full, and validate --channel/--concept/--lint, on a story with no ADMITTED window → those commands start and do not emit [pre_cert_window_required] or refuse for missing PRE_CERT. WHY: preMortem 2; REVIEW preflight and routine validate stay cheap.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-003:premature-done-required-refused",
+            "desc": "done_required_validate --storyId=<id> with no current ADMITTED or RUNNING CertificationWindow → exits non-zero with [pre_cert_window_required] BEFORE any root npm test / doneRequiredCommands child process is spawned; Next: proof-or-stop certification_window_status --storyId=<id>. WHY: plan Verify; refuse premature heavy.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/certification-window-heavy-choke-smoke.js",
+              "selector": "[pre_cert_window_required]"
+            }
+          },
+          {
+            "id": "CHK-003:premature-validate-full-refused",
+            "desc": "validate --full --story=<id> (and any command list taken from lattice.config.json doneRequiredCommands) with no ADMITTED/RUNNING window → same [pre_cert_window_required] refuse and zero heavy child processes. Window states BLOCKED|INVALIDATED|CANCELLED|FINALIZED also refuse a new heavy start. WHY: choke the official heavy allowlist only; membership of doneRequiredCommands is unchanged.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-003:no-child-on-retry-storm",
+            "desc": "Retry done_required_validate / validate --full in a tight loop without an admitted window → every attempt exits [pre_cert_window_required] and the process table shows zero root-npm-test / full-suite child processes across the storm. WHY: a host that ignores the first refusal must not leak a 35-45 minute suite.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-003:handler-bypass-still-choked",
+            "desc": "Invoke the done-required-validation / verifier --full handler or core runner directly (not only the CLI flag parser) without an ADMITTED/RUNNING window → still refuse before spawning the suite. Mis-wrapping createVerifierHandlers.validate so --channel/--lint are treated as heavy is a defect (those slices must still start). WHY: choke points are the official heavy entrypoints, not prompt text.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
