@@ -885,7 +885,7 @@
       "desc": "Same class as the already-fixed F-041 (machine.ts/session.ts), but NOT covered by that fix -- 3 more live runtime-emitted user-facing strings still instruct the deleted `lattice` bin as an invocation: (1) packages/main/src/core/lattice-hosts.ts:300,380,392,404 -- nextActionForStatus()/installStepsForHost() emit 'Run lattice host list --format=json...' and 'Use lattice host probe --host=codex/claude-code/antigravity...' as prose steps, immediately adjacent to a `commands:` array in the SAME object that correctly uses `node bin/proof-or-stop.js host_probe ...` -- so the two are now internally inconsistent, and `lattice host probe` fails with Cannot find module since bin/lattice.js is deleted (verified live: `node bin/lattice.js` -> MODULE_NOT_FOUND). (2) packages/lab/src/handlers/lab.ts:18 -- formatCreateResult() prints 'Next: lattice lab run --config <path> --dry-run' on every `lab experiment create`, which also now fails (verified: `proof-or-stop lab run` -> Unknown command; correct form is `proof-or-stop lab_run`). None of these three files were touched by this story's commits, and none are covered by the residue gate for the same structural reason F-041 stated: the text is a static-looking but user-facing runtime string not scanned by any of the 4 lattice-residue checks (lattice-hosts.ts/lab.ts are not in EXECUTABLE_SCAN_ROOTS or DOC_SCAN_ROOTS, and these are plain string literals not caught by [koala] either since 'lattice' itself is not a koala token).",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-18T10:56:24.293Z",
@@ -893,7 +893,8 @@
       "reviewRunId": "B-cc10:RR-059",
       "_hash": "187de780f7e88ddd8e57e66b036389dae7645148e1a27a553809a8228c34566c",
       "signatureTag": "missing|unknown|same-class-already",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-08-18T11:08:13.250Z"
     },
     {
       "id": "B-cc10:F-049",
