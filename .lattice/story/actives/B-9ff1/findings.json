@@ -1624,7 +1624,7 @@
       "desc": "Cross-vendor review host B (codex, 2026-08-18), first surfacer. B-1b2b's background claims a relevance-ranked retrieval can return superseded dev-memory entries a67bb17 or 8d1d2bb alone without replacement information. Host B ran dev_memory_search --query=<id> --limit=1 --json for both and each returned e367ec1, the correction; session preflight also reported both old ids suppressed. The missing formal supersede/withdraw writer remains substantive, but the retrieval hole as described is already mitigated and the story's scope should be narrowed.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-08-18T21:13:21.633Z",
@@ -1634,7 +1634,11 @@
         ".lattice/story/actives/B-1b2b/background.md"
       ],
       "signatureTag": "doc-code-drift|md|cross-vendor-review",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Upheld. I re-ran host B's exact command rather than trusting either its report or my own earlier probe - and my earlier probe was the one that was wrong: a --limit=2 text-mode run with a hex grep appeared to show the superseded entries returned, because e367ec1's own body names them, and I nearly reported that host B had erred. The exact command returns e367ec1 as the top hit for both ids. CORRECTED by an appended tradeoff note narrowing B-1b2b: tag-derived protection exists today, so the story is not an emergency fix for an open hole. What remains substantive is that the protection is EMERGENT rather than enforced - it depends on a correction's author remembering to write supersedes tags and name the old ids, nothing enforces either, nothing marks the superseded entry itself, and an entry retrieved by a different trigger than the one the correction was tagged for is unprotected. The acceptance test stays a retrieval, but one where the correction did NOT hand-write the tags.",
+      "resolvedAt": "2026-08-18T21:13:24.731Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
