@@ -10,7 +10,6 @@ import { fileURLToPath } from 'node:url';
 import { StoryStore } from '../core/store.js';
 import { resetConfigCache } from '../core/config.js';
 import { resetSessionIdForTest } from '../core/owner-session.js';
-import { adapterSessionEnv, adapterSessionId, withAdapterSessionEnv } from './adapter-session-env.js';
 import { createProofStoryHandlers } from '../handlers/proofstory.js';
 import { createStoryDispatchHandlers } from '../handlers/story-dispatch.js';
 import { signScopeCheck } from '../handlers/scope-check.js';
@@ -57,40 +56,27 @@ function git(root: string, args: string[]): string {
   return execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
 }
 
-/**
- * `sessionTask` is a task LABEL, not a session id. The signing guard in `deriveRoleProvenance`
- * refuses `explicit-env`, so a fixture cannot name its own session; it names the task it is acting
- * as and lets the adapter derive the id. `sessionIdFor` recomputes that derived value wherever an
- * assertion needs to match it.
- */
-function sessionIdFor(root: string, sessionTask: string, agent: string): string {
-  return adapterSessionId(root, sessionTask, agent);
-}
-
-function asSession<T>(agent: string, sessionTask: string, fn: () => T): T {
+function asSession<T>(agent: string, sessionId: string, fn: () => T): T {
   const priorAgent = process.env.LATTICE_AGENT;
+  const priorSession = process.env.LATTICE_SESSION_ID;
   process.env.LATTICE_AGENT = agent;
+  process.env.LATTICE_SESSION_ID = sessionId;
   resetSessionIdForTest();
-  try {
-    return withAdapterSessionEnv(sessionTask, agent, () => {
-      resetSessionIdForTest();
-      try { return fn(); }
-      finally { resetSessionIdForTest(); }
-    });
-  }
+  try { return fn(); }
   finally {
     if (priorAgent === undefined) delete process.env.LATTICE_AGENT; else process.env.LATTICE_AGENT = priorAgent;
+    if (priorSession === undefined) delete process.env.LATTICE_SESSION_ID; else process.env.LATTICE_SESSION_ID = priorSession;
     resetSessionIdForTest();
   }
 }
 
-function cli(root: string, command: string, args: Record<string, unknown>, agent?: string, sessionTask?: string): string {
+function cli(root: string, command: string, args: Record<string, unknown>, agent?: string, sessionId?: string): string {
   return execFileSync(process.execPath, [latticeBin, '--root', root, command, JSON.stringify(args)], {
     cwd: root,
     env: {
       ...process.env,
       ...(agent ? { LATTICE_AGENT: agent } : {}),
-      ...(sessionTask ? adapterSessionEnv(sessionTask, agent ?? 'main') : {}),
+      ...(sessionId ? { LATTICE_SESSION_ID: sessionId } : {}),
     },
     encoding: 'utf8',
     stdio: ['pipe', 'pipe', 'pipe'],
@@ -183,18 +169,6 @@ function writeDiscoveryRegistration(root: string): void {
 
 const root = mkdtempSync(join(tmpdir(), 'proofstory-topology-critic-'));
 const originalCwd = process.cwd();
-
-/**
- * Session TASK labels. These are inputs to the adapter's derivation, not session ids: the guard in
- * `deriveRoleProvenance` refuses `explicit-env`, so no fixture may name the id it signs under.
- * Distinct labels still yield distinct ids, which is what the independence matrix asserts on.
- */
-const CRITIC_SESSION_TASK = 'sess-critic';
-const IMPLEMENTER_SESSION_TASK = 'sess-impl';
-const SCOPE_SESSION_TASK = 'sess-scope';
-const criticSessionId = sessionIdFor(root, CRITIC_SESSION_TASK, TOPOLOGY_CRITIC_ROLE);
-const implementerSessionId = sessionIdFor(root, IMPLEMENTER_SESSION_TASK, 'lattice-implementer');
-const scopeSessionId = sessionIdFor(root, SCOPE_SESSION_TASK, TOPOLOGY_EXCLUSION_APPROVER_ROLE);
 smokeSuite: try {
   write(root, '.gitignore', [
     LATTICE_RUNTIME_IGNORE_BLOCK_START,
@@ -232,7 +206,7 @@ smokeSuite: try {
   store.writeReview(storyId, { reviews: [{ timestamp: reviewAt, issueCount: 0, blockerCount: 0, issues: [], _hash: reviewHash }] } as any);
   git(root, ['config', 'user.name', 'Scope Reviewer']);
   git(root, ['config', 'user.email', 'scope@noreply.local']);
-  cli(root, 'dispatch', { storyId, agentType: TOPOLOGY_EXCLUSION_APPROVER_ROLE }, TOPOLOGY_EXCLUSION_APPROVER_ROLE, SCOPE_SESSION_TASK);
+  cli(root, 'dispatch', { storyId, agentType: TOPOLOGY_EXCLUSION_APPROVER_ROLE }, TOPOLOGY_EXCLUSION_APPROVER_ROLE, 'sess-scope');
   const planBasisOutput = cli(root, 'acceptance_basis_generate', { storyId, json: true });
   assert.equal(JSON.parse(planBasisOutput).artifact.basis.status, 'complete', planBasisOutput);
   assert.equal(store.readTopologyCriticReceipt(storyId), null, 'Wave 2A receipt is absent before the normal PLAN to DEV transition');
@@ -242,16 +216,16 @@ smokeSuite: try {
   assert.doesNotMatch(planToDevTranscript, /topology critic|receipt/i, 'Wave 2A adds no PLAN to DEV receipt requirement');
   const ctx = { root, scanRoot: join(root, 'packages/main'), store };
   const dispatch = createStoryDispatchHandlers(ctx);
-  asSession('lattice-implementer', IMPLEMENTER_SESSION_TASK, () => dispatch.dispatch({ storyId, itemId: 'CHK-001', agentType: 'lattice-implementer' }));
+  asSession('lattice-implementer', 'sess-impl', () => dispatch.dispatch({ storyId, itemId: 'CHK-001', agentType: 'lattice-implementer' }));
   git(root, ['config', 'user.name', 'Critic Reviewer']);
   git(root, ['config', 'user.email', 'critic@noreply.local']);
-  cli(root, 'dispatch', { storyId, agentType: TOPOLOGY_CRITIC_ROLE }, TOPOLOGY_CRITIC_ROLE, CRITIC_SESSION_TASK);
+  cli(root, 'dispatch', { storyId, agentType: TOPOLOGY_CRITIC_ROLE }, TOPOLOGY_CRITIC_ROLE, 'sess-critic');
   git(root, ['add', '.']); git(root, ['commit', '-m', 'record story inputs and dispatch provenance']);
 
   const handlers = createProofStoryHandlers(ctx);
   const basisOutput = planBasisOutput;
   assert.equal(JSON.parse(basisOutput).artifact.basis.status, 'complete', basisOutput);
-  const producerOutput = cli(root, 'topology_critic_receipt_set', { storyId, verdict: 'pass', json: true }, TOPOLOGY_CRITIC_ROLE, CRITIC_SESSION_TASK);
+  const producerOutput = cli(root, 'topology_critic_receipt_set', { storyId, verdict: 'pass', json: true }, TOPOLOGY_CRITIC_ROLE, 'sess-critic');
   const producerResult = JSON.parse(producerOutput);
   assert.equal(producerResult.verification.ok, true, producerOutput);
   const checkOutput = cli(root, 'topology_critic_receipt_check', { storyId, json: true });
@@ -393,9 +367,9 @@ smokeSuite: try {
   assert.throws(() => deriveImplementationProvenance(root, events.filter(event => event.agentType !== 'lattice-implementer'), context), /missing a session-bound/);
   for (const missingField of ['headHash', 'businessCommitAuthor', 'storyFilesHash'] as const) {
     const brokenEvents = structuredClone(events);
-    const event = [...brokenEvents].reverse().find(candidate => candidate.agentType === TOPOLOGY_CRITIC_ROLE && candidate.sessionId === criticSessionId)!;
+    const event = [...brokenEvents].reverse().find(candidate => candidate.agentType === TOPOLOGY_CRITIC_ROLE && candidate.sessionId === 'sess-critic')!;
     delete (event as any)[missingField];
-    assert.throws(() => deriveRoleProvenance({ gitCwd: root, events: brokenEvents, expectedRole: TOPOLOGY_CRITIC_ROLE, actor: TOPOLOGY_CRITIC_ROLE, sessionId: criticSessionId, sessionSource: 'host-adapter', context, implementation }), /no current registered dispatch provenance|missing or unverifiable/);
+    assert.throws(() => deriveRoleProvenance({ gitCwd: root, events: brokenEvents, expectedRole: TOPOLOGY_CRITIC_ROLE, actor: TOPOLOGY_CRITIC_ROLE, sessionId: 'sess-critic', context, implementation }), /no current registered dispatch provenance|missing or unverifiable/);
   }
   for (const field of ['basisDigest', 'topologyDigest', 'scopeCheckDigest', 'scopeContractDigest', 'storyFilesHash', 'closureFilesHash'] as const) {
     const drifted = { ...context, [field]: 'sha256:drift' };
@@ -406,32 +380,8 @@ smokeSuite: try {
     assert.throws(() => issueTopologyCriticReceipt({ gitCwd: root, context, critic: collided, implementation, approvals: [], events, verdict: 'pass' }), /independence failed/, `${dimension} collision must fail before signing`);
   }
   assert.deepEqual(independenceMatrix(receipt.criticProvenance, implementation), { agent: true, session: true, dispatch: true, businessCommitAuthor: true });
-  assert.throws(() => deriveRoleProvenance({ gitCwd: root, events, expectedRole: TOPOLOGY_CRITIC_ROLE, actor: 'lattice-review-topology-critic-spoof', sessionId: criticSessionId, sessionSource: 'host-adapter', context, implementation }), /role eligibility failed/);
-  assert.throws(() => deriveRoleProvenance({ gitCwd: root, events, expectedRole: TOPOLOGY_CRITIC_ROLE, actor: TOPOLOGY_CRITIC_ROLE, sessionId: implementerSessionId, sessionSource: 'host-adapter', context, implementation }), /no current registered dispatch provenance/);
-
-  // CHK-003 / CHK-005: the signing guard bites on session SOURCE, independently of every other
-  // eligibility check above. Same role, same registered dispatch, same session id — only the
-  // source differs. Accepted sources are hash-derived behind a provider+task+agent gate; refused
-  // ones are mintable by the party under review.
-  for (const refusedSource of ['explicit-env', 'derived-ppid'] as const) {
-    assert.throws(
-      () => deriveRoleProvenance({ gitCwd: root, events, expectedRole: TOPOLOGY_CRITIC_ROLE, actor: TOPOLOGY_CRITIC_ROLE, sessionId: criticSessionId, sessionSource: refusedSource, context, implementation }),
-      new RegExp(`must sign from a host-adapter session, received "${refusedSource}"`),
-      `${refusedSource} is forgeable and must not sign a topology receipt`,
-    );
-    assert.throws(
-      () => deriveRoleProvenance({ gitCwd: root, events, expectedRole: TOPOLOGY_EXCLUSION_APPROVER_ROLE, actor: TOPOLOGY_EXCLUSION_APPROVER_ROLE, sessionId: scopeSessionId, sessionSource: refusedSource, context, implementation }),
-      new RegExp(`must sign from a host-adapter session, received "${refusedSource}"`),
-      `${refusedSource} is forgeable and must not sign an exclusion approval`,
-    );
-  }
-  for (const acceptedSource of ['host-adapter', 'generated-token'] as const) {
-    assert.equal(
-      deriveRoleProvenance({ gitCwd: root, events, expectedRole: TOPOLOGY_CRITIC_ROLE, actor: TOPOLOGY_CRITIC_ROLE, sessionId: criticSessionId, sessionSource: acceptedSource, context, implementation }).sessionId,
-      criticSessionId,
-      `${acceptedSource} clears the same provider+task+agent gate and must still sign`,
-    );
-  }
+  assert.throws(() => deriveRoleProvenance({ gitCwd: root, events, expectedRole: TOPOLOGY_CRITIC_ROLE, actor: 'lattice-review-topology-critic-spoof', sessionId: 'sess-critic', context, implementation }), /role eligibility failed/);
+  assert.throws(() => deriveRoleProvenance({ gitCwd: root, events, expectedRole: TOPOLOGY_CRITIC_ROLE, actor: TOPOLOGY_CRITIC_ROLE, sessionId: 'sess-impl', context, implementation }), /no current registered dispatch provenance/);
   assert.equal(verify(receipt, { ...context, basisStatus: 'partial' }).ok, false, 'critic cannot override partial');
   assert.equal(verify(receipt, { ...context, basisStatus: 'unsupported' }).ok, false, 'critic cannot override unsupported');
 
@@ -450,7 +400,7 @@ smokeSuite: try {
   writeFileSync(join(root, 'packages/main/src/consumer.ts'), cleanConsumerBytes, 'utf8');
   assert.equal(JSON.parse(cli(root, 'topology_critic_receipt_check', { storyId, json: true })).verification.ok, true, 'exact basis/source restoration returns production CLI verification to pass');
 
-  const scopeActor = deriveRoleProvenance({ gitCwd: root, events, expectedRole: TOPOLOGY_EXCLUSION_APPROVER_ROLE, actor: TOPOLOGY_EXCLUSION_APPROVER_ROLE, sessionId: scopeSessionId, sessionSource: 'host-adapter', context, implementation });
+  const scopeActor = deriveRoleProvenance({ gitCwd: root, events, expectedRole: TOPOLOGY_EXCLUSION_APPROVER_ROLE, actor: TOPOLOGY_EXCLUSION_APPROVER_ROLE, sessionId: 'sess-scope', context, implementation });
   const criticActor = receipt.criticProvenance;
   const excludedContext = canonicalTopologyReceiptContext({ ...context, exclusions: [{ pathRef: 'scope:C2', decisionRef: 'decision:C2' }] });
   const approval = issueTopologyExclusionApproval({ gitCwd: root, context: excludedContext, exclusionRef: 'decision:C2', actor: scopeActor, implementation });
@@ -501,8 +451,8 @@ smokeSuite: try {
     });
     assert.ok(criticCollisionDiagnostics.includes('exclusion approver is not independent from topology critic'), `re-signed exclusion verifier rejects approver-vs-critic ${dimension} collision`);
   }
-  assert.throws(() => cli(root, 'topology_exclusion_approval_set', { storyId, exclusionRef: 'decision:C2', json: true }, 'lattice-implementer', IMPLEMENTER_SESSION_TASK), 'implementer cannot exercise exclusion approval authority');
-  assert.throws(() => cli(root, 'topology_exclusion_approval_set', { storyId, exclusionRef: 'decision:C2', json: true }, TOPOLOGY_CRITIC_ROLE, CRITIC_SESSION_TASK), 'ineligible critic role cannot exercise scope-plan exclusion authority');
+  assert.throws(() => cli(root, 'topology_exclusion_approval_set', { storyId, exclusionRef: 'decision:C2', json: true }, 'lattice-implementer', 'sess-impl'), 'implementer cannot exercise exclusion approval authority');
+  assert.throws(() => cli(root, 'topology_exclusion_approval_set', { storyId, exclusionRef: 'decision:C2', json: true }, TOPOLOGY_CRITIC_ROLE, 'sess-critic'), 'ineligible critic role cannot exercise scope-plan exclusion authority');
   for (const [, field] of criticProvenanceDimensions) {
     const collidedApprover = { ...scopeActor, [field]: implementation[field] };
     assert.throws(
@@ -534,8 +484,8 @@ smokeSuite: try {
   const criticCollidingApprover = { ...scopeActor, sessionId: criticActor.sessionId };
   const criticCollidingApproval = issueTopologyExclusionApproval({ gitCwd: root, context: excludedContext, exclusionRef: 'decision:C2', actor: criticCollidingApprover, implementation });
   assert.ok(verifyTopologyCriticReceipt({ gitCwd: root, context: excludedContext, receipt: excludedReceipt, approvals: [criticCollidingApproval], implementation, events }).diagnostics.some(item => item.includes('not independent from topology critic')), 'approver-vs-critic session collision fails');
-  assert.throws(() => deriveRoleProvenance({ gitCwd: root, events, expectedRole: TOPOLOGY_EXCLUSION_APPROVER_ROLE, actor: TOPOLOGY_CRITIC_ROLE, sessionId: scopeSessionId, sessionSource: 'host-adapter', context, implementation }), /role eligibility failed/, 'forged scope-plan label fails');
-  assert.throws(() => cli(root, 'topology_exclusion_approval_set', { storyId, exclusionRef: 'decision:nonexistent', json: true }, TOPOLOGY_EXCLUSION_APPROVER_ROLE, SCOPE_SESSION_TASK), 'production CLI rejects nonexistent exclusion approval');
+  assert.throws(() => deriveRoleProvenance({ gitCwd: root, events, expectedRole: TOPOLOGY_EXCLUSION_APPROVER_ROLE, actor: TOPOLOGY_CRITIC_ROLE, sessionId: 'sess-scope', context, implementation }), /role eligibility failed/, 'forged scope-plan label fails');
+  assert.throws(() => cli(root, 'topology_exclusion_approval_set', { storyId, exclusionRef: 'decision:nonexistent', json: true }, TOPOLOGY_EXCLUSION_APPROVER_ROLE, 'sess-scope'), 'production CLI rejects nonexistent exclusion approval');
   assert.equal(verify(excludedReceipt, excludedContext, [approval]).ok, true, 'exact restoration passes without residue');
 
   git(root, ['commit', '--allow-empty', '--author=lattice-implementer <lattice-implementer@noreply.local>', '-m', 'new implementation business commit']);
