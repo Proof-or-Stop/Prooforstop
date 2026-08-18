@@ -2,7 +2,7 @@
  * B-c55d CHK-001: story owner lease core (local session ownership).
  *
  * session-ownership-and-write-leases.md rollout step 2b — "story owner lease".
- * Implements local Proofbound session ownership coordination so that, when multiple
+ * Implements local Proof-or-Stop session ownership coordination so that, when multiple
  * agent sessions run in parallel, "one story has one mutating owner" is a
  * mechanically-enforced fact rather than something humans negotiate in chat.
  *
@@ -627,13 +627,13 @@ export function formatNonOwnerError(
     ? 'The owner lease is STALE (no heartbeat for 30+ minutes).'
     : 'The owner lease is still ACTIVE.';
   const sameWorktreeGuidance = ownerCwdMatchesCurrent(lease.cwd, ctx.currentCwd)
-    ? ` Owner cwd matches the current cwd (${normalizedCwdForCompare(lease.cwd)}), so this may be a same-worktree context switch. Run lattice session_brief and confirm no live conflicting session; the lease is not transferred unless you rerun with an explicit takeover flag.`
+    ? ` Owner cwd matches the current cwd (${normalizedCwdForCompare(lease.cwd)}), so this may be a same-worktree context switch. Run proof-or-stop session_brief and confirm no live conflicting session; the lease is not transferred unless you rerun with an explicit takeover flag.`
     : '';
   const nextAction = stale
     ? `Use read-only commands, wait for the owner, or rerun with --takeover to transfer the stale lease.`
     : `Use read-only commands, wait for the owner, or rerun with --forceTakeover to seize the active lease (a deliberate human override).`;
   return (
-    `${ctx.storyId} is owned by Proofbound session ${lease.sessionId}, heartbeat ${ageStr} ` +
+    `${ctx.storyId} is owned by Proof-or-Stop session ${lease.sessionId}, heartbeat ${ageStr} ` +
     `(owner cwd: ${lease.cwd}). "${ctx.command}" is an owner-gated ${ctx.ownershipClass} command, ` +
     `so this session (${ctx.currentSessionId}) cannot run it. ${staleStr}${sameWorktreeGuidance} ${nextAction}`
   );

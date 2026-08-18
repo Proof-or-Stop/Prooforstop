@@ -1,0 +1,219 @@
+{
+  "schemaVersion": "proofstory.contract.v1",
+  "storyId": "B-6693",
+  "diagnosticOnly": false,
+  "hardeningLevel": "high_assurance",
+  "triggerReasons": [
+    {
+      "code": "high_assurance_risk",
+      "message": "High-risk or gate/security wording selects high-assurance intent hardening.",
+      "requires": "high-assurance"
+    },
+    {
+      "code": "collision_required_high_assurance",
+      "message": "High-assurance work requires an independent intent-collision result.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "collision_required_standard",
+      "message": "Ambiguity, user impact, behavior change, or multi-deliverable intent makes intent collision diagnostically required.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "red_evidence_required",
+      "message": "Bug, regression, security/auth/session, benchmark, or explicit behavior-change work should have red evidence.",
+      "requires": "red-evidence"
+    }
+  ],
+  "originalIntentRequestHash": "sha256:fe49d37097f34a124a5146b38cecf7fa2000a7b8a2c5dd22cde7ca5071b65d12",
+  "acceptanceBindings": [
+    {
+      "id": "REQ-WORKSPACE-CAPACITY",
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002",
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:adversarial:0"
+      ],
+      "milestoneIds": [],
+      "acceptanceClaim": "With one official validation holding workspace capacity, a different-story or no-story validate/done_required_validate reports the holder without entering its callback, then automatically runs after release and produces its own normal PASS evidence while command inventories and timeout budgets remain unchanged.",
+      "note": "The acceptance claim is anchored by the user-visible wait-and-run intent and the fixed global-to-story lock-order adversarial intent. The remaining checklist intents remain independently evidenced implementation coverage.",
+      "verificationTopology": {
+        "schemaVersion": "proofstory.acceptance_topology.v1",
+        "producerRefs": [
+          {
+            "id": "P-WORKSPACE-CAPACITY",
+            "sourceRef": {
+              "refKind": "planned",
+              "plannedPathDeclarationRef": "CHK-001:happy:0:VPP-WORKSPACE-CAPACITY",
+              "endpointRef": "EP-CAPACITY-LEASE"
+            }
+          }
+        ],
+        "consumerRefs": [
+          {
+            "id": "C-OFFICIAL-VALIDATION",
+            "sourceRef": {
+              "refKind": "planned",
+              "plannedPathDeclarationRef": "CHK-001:happy:0:VPP-WORKSPACE-CAPACITY",
+              "endpointRef": "EP-OFFICIAL-VALIDATION"
+            },
+            "producerRefs": [
+              "P-WORKSPACE-CAPACITY"
+            ]
+          }
+        ],
+        "positiveAssertionRefs": [
+          {
+            "id": "A-POS-5",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-001:happy:0"
+            },
+            "producerRefs": [
+              "P-WORKSPACE-CAPACITY"
+            ],
+            "consumerRefs": [
+              "C-OFFICIAL-VALIDATION"
+            ]
+          }
+        ],
+        "mutationCaseRefs": [
+          {
+            "id": "A-MUT-17",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-001:adversarial:0"
+            },
+            "producerRefs": [
+              "P-WORKSPACE-CAPACITY"
+            ],
+            "consumerRefs": [
+              "C-OFFICIAL-VALIDATION"
+            ]
+          }
+        ],
+        "transcriptAssertionRefs": [
+          {
+            "id": "A-TRANSCRIPT-1",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-001:happy:0"
+            },
+            "producerRefs": [
+              "P-WORKSPACE-CAPACITY"
+            ],
+            "consumerRefs": [
+              "C-OFFICIAL-VALIDATION"
+            ]
+          }
+        ],
+        "commandRefs": [
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "process-fact:acceptance_basis"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "process-fact:acceptance_basis_generate"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "process-fact:acceptance_topology_check"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "process-fact:artifact:acceptance-basis.json"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "process-fact:pre_review_check"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "process-fact:pre_review_check_read"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "process-fact:artifact:pre-review-check.json"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:process-fact:acceptance_basis->consumer:<audit-only>"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/core/acceptance-topology.ts#buildAcceptanceMatrixReport->consumer:packages/main/src/handlers/proofstory.ts#buildAcceptanceMatrixReport"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/core/acceptance-topology.ts#evaluateAcceptanceTopologyCheck->consumer:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceTopologyCheck"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceRolloutForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluateAcceptanceRolloutForContext"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceTopologyForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluateAcceptanceTopologyForContext"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/handlers/proofstory.ts#evaluatePreReviewCheckForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluatePreReviewCheckForContext"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/core/validation-execution-lock.ts#resolveSharedLockRoot->consumer:packages/main/src/handlers/transition-orchestrator.ts#resolveSharedLockRoot"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/core/validation-execution-lock.ts#sanitizeLockSegment->consumer:packages/main/src/handlers/transition-orchestrator.ts#sanitizeLockSegment"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/core/pre-review-check.ts#issuePreReviewCheckArtifact->consumer:packages/main/src/handlers/proofstory.ts#issuePreReviewCheckArtifact"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/core/pre-review-check.ts#loadVerifiedPreReviewExecutableProof->consumer:packages/main/src/handlers/proofstory.ts#loadVerifiedPreReviewExecutableProof"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/core/pre-review-check.ts#verifyPreReviewCheckArtifact->consumer:packages/main/src/handlers/proofstory.ts#verifyPreReviewCheckArtifact"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/core/pre-review-live-proof.ts#canonicalPreReviewAssertionSourceRef->consumer:packages/main/src/core/pre-review-check.ts#canonicalPreReviewAssertionSourceRef"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/core/pre-review-live-proof.ts#decodePreReviewCaseRecords->consumer:packages/main/src/core/pre-review-check.ts#decodePreReviewCaseRecords"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/core/pre-review-live-proof.ts#preReviewExecutableProvenanceIsCurrent->consumer:packages/main/src/core/pre-review-check.ts#preReviewExecutableProvenanceIsCurrent"
+          }
+        ]
+      }
+    }
+  ],
+  "diagnosticGaps": [],
+  "note": "B-6693 acceptance binding maps the capacity mechanism plus every pre-review proof path discovered after the focused rollout consumer entered declared scope.",
+  "createdAt": "2026-08-14T15:29:47.703Z",
+  "updatedAt": "2026-08-14T16:52:24.366Z"
+}

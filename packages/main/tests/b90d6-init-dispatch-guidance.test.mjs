@@ -112,7 +112,7 @@ function freezeScope(root, store, storyId) {
 
 function assertIncludesInitPreflight(reason, storyId, label) {
   assert.ok(reason, `${label}: expected a blocking reason`);
-  assert.match(reason, new RegExp(`lattice init_preflight --storyId=${storyId}`), label);
+  assert.match(reason, new RegExp(`proof-or-stop init_preflight --storyId=${storyId}`), label);
 }
 
 function assertInitCheckGuardGuidance() {
@@ -178,7 +178,7 @@ function assertInitPreflightFailureRouting() {
     assert.match(report, /mode: read-only \(no commands run, no evidence written\)/);
     assert.match(report, /\[MISSING\] scope-boundary/);
     assert.match(report, /gate: BLOCKED/);
-    assert.match(report, new RegExp(`lattice init_preflight --storyId=${storyId}`));
+    assert.match(report, new RegExp(`proof-or-stop init_preflight --storyId=${storyId}`));
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -195,12 +195,12 @@ function assertSessionAndNextInitGuidance() {
 
     const brief = session.session_brief({ concise: true });
     assert.match(brief, new RegExp(`Story ${storyId} is in INIT with no worktree`));
-    assert.match(brief, new RegExp(`lattice init_preflight --storyId=${storyId}`));
+    assert.match(brief, new RegExp(`proof-or-stop init_preflight --storyId=${storyId}`));
     assert.match(brief, /read-only; it does not write evidence or create worktrees/);
-    assert.match(brief, new RegExp(`lattice story_advance --storyId=${storyId} --phase=INIT_CHECK`));
+    assert.match(brief, new RegExp(`proof-or-stop story_advance --storyId=${storyId} --phase=INIT_CHECK`));
 
     const next = session.next({ concise: true });
-    assert.match(next, new RegExp(`lattice init_preflight --storyId=${storyId}`));
+    assert.match(next, new RegExp(`proof-or-stop init_preflight --storyId=${storyId}`));
     assert.match(next, /INIT_CHECK/);
   } finally {
     rmSync(root, { recursive: true, force: true });
@@ -249,7 +249,7 @@ function assertStoryCreateAndGlobalHelpInitGuidance() {
     assert.match(output, /spawn two INIT reviewers in parallel/);
     assert.match(output, /lattice-review-story-init/);
     assert.match(output, /product-reviewer/);
-    assert.match(output, new RegExp(`lattice init_preflight --storyId=${storyId}`));
+    assert.match(output, new RegExp(`proof-or-stop init_preflight --storyId=${storyId}`));
     assert.match(output, /read-only, writes no evidence, and creates no worktree/);
     assert.match(output, new RegExp(`"phase":"INIT_CHECK"`));
 
@@ -260,8 +260,8 @@ function assertStoryCreateAndGlobalHelpInitGuidance() {
         encoding: 'utf8',
         stdio: ['pipe', 'pipe', 'pipe'],
       });
-      assert.match(help, /lattice story_create/);
-      assert.match(help, /lattice init_preflight --storyId=B-xxx/);
+      assert.match(help, /proof-or-stop story_create/);
+      assert.match(help, /proof-or-stop init_preflight --storyId=B-xxx/);
       assert.match(help, /Read-only INIT_CHECK prerequisite report; writes no evidence and creates no worktree/);
       assert.match(help, /After preflight READY; create local worktree\/local branch/);
     } finally {
@@ -293,16 +293,16 @@ function assertScopePlanDispatchAndReviewGuidance() {
     assert.match(result.prompt, /Review PLAN scope coverage/);
     assert.match(result.prompt, /Must read story artifacts/);
     assert.match(result.prompt, /Dispatch output is not gate evidence/);
-    assert.match(result.prompt, /lattice scope_check_save/);
+    assert.match(result.prompt, /proof-or-stop scope_check_save/);
     assert.equal(store.readScopeCheck(storyId), null, 'dispatch must not create scope-check gate evidence');
 
     const storyReview = createStoryReviewHandlers(ctx(root, store))
       .story_review({ storyId });
     const issue = storyReview.issues.find((entry) => entry.type === 'missing_scope_check');
     assert.ok(issue, 'story_review should report missing_scope_check');
-    assert.match(issue.message, new RegExp(`lattice dispatch --storyId=${storyId} --agentType=lattice-review-scope-plan`));
+    assert.match(issue.message, new RegExp(`proof-or-stop dispatch --storyId=${storyId} --agentType=lattice-review-scope-plan`));
     assert.match(issue.message, /dispatch output is not gate evidence/);
-    assert.match(issue.message, /lattice scope_check_save/);
+    assert.match(issue.message, /proof-or-stop scope_check_save/);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

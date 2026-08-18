@@ -69,7 +69,7 @@ reviewers real numbers, killing the "claimed 12, actually 20" counting errors fr
 F-013).
 
 ### 2c. Preferred ergonomic form — `verification_run`
-Add `lattice verification_run --storyId … --intentRef …` that resolves the intent,
+Add `proof-or-stop verification_run --storyId … --intentRef …` that resolves the intent,
 executes its declared verifier, captures exit/output metadata, and atomically
 writes the evidence. Ideally `verification_evidence_add` should not accept a
 caller-authored command for automated proof at all — it accepts a receipt id or an
@@ -137,9 +137,9 @@ message is genuinely useful — as a SEATBELT, not the enforcement floor (that i
 
 ## 7. How to start
 1. Read `docs/evidence-integrity-program-spec.md` §1 (M1) and §3 Step 2.
-2. `cd /Users/jek/Documents/Work/proofbound`; `lattice session_brief`; check for an
-   existing story on this before creating (`lattice story_list`).
-3. `lattice story_create` (type=feature, this adds a schema field + new command;
+2. `cd /Users/jek/Documents/Work/proofbound`; `proof-or-stop session_brief`; check for an
+   existing story on this before creating (`proof-or-stop story_list`).
+3. `proof-or-stop story_create` (type=feature, this adds a schema field + new command;
    likely high-assurance → full cross-host quorum review). Background must cite
    F-049/F-050/F-045/F-061 + a date. Split into ≥2 stories if large: (i) schema +
    pinned binding + refuse-on-mismatch; (ii) `verification_run` ergonomic command;

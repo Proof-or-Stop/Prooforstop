@@ -1,0 +1,78 @@
+{
+  "principles": [
+    "Read-before-write, write-in-the-moment, write-backstop-at-end: each of the three gates covers a distinct lifecycle moment, not three copies of the same check",
+    "Fail-closed on genuine gates, fail-open (advisory only) on the reminder -- CHK-001/CHK-003 are hard requirements because the artifact they check is cheap to produce and has no legitimate reason to be skipped; CHK-002 is non-blocking because forcing a decision on every single finding would produce noise, not signal",
+    "An honest negative answer is always a complete answer -- no minimum count, no forced positive capture, to avoid incentivizing fabricated entries",
+    "Mirror existing patterns exactly rather than inventing new ones -- INIT_CHECK gating mirrors scope_boundary_set, the finding_resolve splice mirrors the existing commitHint pattern, the DONE check mirrors canFinishGuard's simple existence-check style",
+    "Boolean guard and human-readable message must be added in lockstep at both of machine.ts's two mirrored functions, since there is no shared array enforcing parity in this codebase's guard architecture"
+  ],
+  "drivers": [
+    "The two-part user requirement (read consulted during dev, write happens during dev not just at the end) that a DONE-gate-only design was explicitly shown not to satisfy",
+    "Zero disruption to dev_memory_capture/preflight/finish's existing schema and behavior -- this story only adds gates around existing commands, it does not change what those commands do",
+    "Backward compatibility for the ~19 already-in-flight stories in this repo at the time of writing -- CHK-003 in particular will newly block DONE for every story that hasn't yet recorded a finish_decision, so the refusal message must make the one-line fix (`dev_memory_finish_decision --decision=no-reusable-lesson --reason=...`) immediately obvious"
+  ],
+  "options": [
+    {
+      "name": "three-gate-design",
+      "pros": [
+        "Directly maps to the two-part requirement",
+        "Reuses 3 well-established existing patterns in this codebase, minimal novel machinery",
+        "Advisory-only middle gate avoids noise while still nudging in-the-moment capture"
+      ],
+      "cons": [
+        "Touches 3 separate subsystems (INIT_CHECK gate, a handler's output string, the DONE gate) instead of 1",
+        "CHK-003 is a real one-time disruption for every currently in-flight story until they each record one finish_decision"
+      ]
+    },
+    {
+      "name": "DONE-gate-only",
+      "pros": [
+        "Single touchpoint, smallest possible change",
+        "Matches the existing summary_set/delivery-check precedent exactly with no new patterns"
+      ],
+      "cons": [
+        "Does not address the read-during-dev half of the requirement at all",
+        "Forces only one reflection checkpoint at the very end of what can be a many-hour multi-round story, risking lumped or forgotten intermediate lessons -- this was the user's specific, repeated objection to this option"
+      ]
+    },
+    {
+      "name": "fully-automatic-hook-based-capture",
+      "pros": [
+        "Closest to zero agent burden -- a hook could in principle auto-capture without any explicit agent action"
+      ],
+      "cons": [
+        "Requires a sub-agent (or heuristic) to JUDGE whether something is worth capturing, which is inherently unreliable and could either spam junk entries or silently miss real lessons with no visible signal either way",
+        "Not a Lattice-CLI-level change at all -- would live in Claude Code's own hook config, so it would only help Claude sessions, not Codex or other agents working on this same shared repo, defeating the point of using the git-tracked shared dev-memory store"
+      ]
+    }
+  ],
+  "chosen": "three-gate-design",
+  "rationale": "Only this option satisfies both stated halves of the user's requirement (read during dev, write during dev) using patterns this codebase already trusts, applies uniformly to every agent/host working on the repo (not just Claude Code sessions), and keeps the non-blocking/advisory-only philosophy exactly where the story's own tradeoff analysis says it belongs.",
+  "preMortem": [
+    {
+      "scenario": "CHK-003 suddenly blocks DONE for stories that were already mid-flight before this story merged, with no clear path to unblock",
+      "trigger": "A story reaches story_advance --phase=DONE after this story's canFinishGuard change lands on main but before that story's owner has ever heard of dev_memory_finish_decision",
+      "consequence": "Confusion, wasted time, or a bypass workaround being invented ad-hoc",
+      "mitigation": "The refusal message names the exact one-line fix command with all three valid decision values inline; the fix itself takes seconds (an honest no-reusable-lesson answer is always valid) -- verified as part of TEST-phase closeout by confirming the exact message text is copy-pasteable and correct"
+    },
+    {
+      "scenario": "CHK-001's gate is implemented on only the primary PLAN->DEV door and silently does not apply to the other three DEV-entry doors",
+      "trigger": "An implementer adds the check only to canStartDevGuard since that's the door the story-lifecycle docs mention by name, missing canSkipPlanGuard/canReenterDevGuard",
+      "consequence": "The gate is gameable -- express-channel or rollback stories bypass the read-before-code requirement entirely, defeating the whole point of CHK-001",
+      "mitigation": "verificationIntent for CHK-001 explicitly includes an adversarial case asserting all four doors block; this is the single most important test in the whole story and must be verified against the real guard functions, not mocked"
+    },
+    {
+      "scenario": "CHK-002's advisory computation throws inside finding_resolve and the exception is not actually caught, silently breaking finding_resolve for every caller",
+      "trigger": "The memory subsystem hits a genuine error (corrupt experience.jsonl, filesystem permission issue, etc.) at the exact moment a finding is being resolved",
+      "consequence": "A cosmetic feature (an advisory nudge) becomes a hard regression that blocks resolving findings project-wide -- much worse than doing nothing",
+      "mitigation": "verificationIntent for CHK-002 explicitly includes an adversarial case simulating a memory-subsystem throw and asserting finding_resolve still succeeds and returns its normal result; the advisory computation must be wrapped in try/catch with zero rethrow paths"
+    },
+    {
+      "scenario": "The boolean guard (canFinishGuard) and its human-readable message twin (getGuardFailureReason) drift out of sync for the new CHK-003 check",
+      "trigger": "An implementer adds the check to one of the two mirrored functions in machine.ts but forgets the other, since there is no shared data structure enforcing parity in this codebase's guard architecture (confirmed during PLAN research)",
+      "consequence": "Either the gate silently fails to block (message says pass but boolean blocks) or blocks with a useless/wrong error message, both of which erode trust in every other gate message in the system",
+      "mitigation": "Both additions must be made in the same commit and verified together; a regression check asserting the boolean and message agree for both the present-record and missing-record cases is part of CHK-003's verificationIntent"
+    }
+  ],
+  "timestamp": "2026-08-14T10:30:40.350Z"
+}

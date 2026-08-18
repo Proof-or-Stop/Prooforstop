@@ -1,0 +1,28 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-5e2c",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Automatically hand off only storyScopedMutating commands in PLAN, REVIEW, or TEST when stale same-host same-canonical-worktree and no prior owner lattice CLI process is in flight.",
+    "Distinguish absent owner lease from malformed lease.",
+    "Keep DEV, dangerousMutating, agent_prompt direct acquisition, terminal, active, malformed, remote, derived-identity, PID-live, EPERM, and unknown states manual or fail-closed.",
+    "Persist required Story process-event handoff authorization before lease publication.",
+    "Serialize acquire, refresh, release, explicit takeover, and automatic handoff under one per-story owner-lease transaction lock with atomic publication.",
+    "Update session UX, process-fact contract, owner and convergence focused smokes, adopted ownership decisions, story lifecycle, AGENTS.md, and CLAUDE.md.",
+    "Upgrade the existing convergence-breaker takeover-count as the sole atomic idempotent operational counter keyed by transferId, with lease pending reconciliation."
+  ],
+  "excluded": [
+    "A direct file-system or git worktree write fence",
+    "A second takeover counter or lease-only durable audit",
+    "Automatic agent_prompt foreign takeover",
+    "Automatic ownership handoff in DEV or for dangerousMutating",
+    "Changes to main-write-lock, validation capacity, pre-story intake, release push, or full-suite behavior",
+    "Host-session death detection or new host liveness adapter protocol",
+    "Remote branch publication"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "User requested the stale-owner Story through DONE without repeated confirmation; INIT Proof-or-Stop narrowed the safe result to TEST and other non-code phases, not DEV or dangerous commands.",
+  "createdAt": "2026-08-16T12:07:11.953Z",
+  "updatedAt": "2026-08-16T12:07:11.953Z",
+  "_hash": "73725c87c6bdaf847baa45f3c926ba246f6ad089d5db08dc2ba60c93acd2305b"
+}

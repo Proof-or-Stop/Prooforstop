@@ -1,10 +1,10 @@
 # Authority Receipt Gate End-to-End Plan
 
-> **Retired legacy note:** Authority Server and server-backed receipt semantics in this document are retired/out-of-core for the active Proofbound CLI. Current implementation baselines are local proof admissibility (`admissibilityStatus`, `assuranceLevel`, `evidenceScope`), gate-consumed local evidence, signed/offline receipt bundles, and local review quorum assurance. Do not use this document as active Authority Server implementation guidance.
+> **Retired legacy note:** Authority Server and server-backed receipt semantics in this document are retired/out-of-core for the active Proof-or-Stop CLI. Current implementation baselines are local proof admissibility (`admissibilityStatus`, `assuranceLevel`, `evidenceScope`), gate-consumed local evidence, signed/offline receipt bundles, and local review quorum assurance. Do not use this document as active Authority Server implementation guidance.
 
 > Status: execution plan with current server and CLI/gate baseline noted.
-> Scope: cross-repo Authority Server + Runner + Proofbound CLI + lifecycle gates.
-> Trigger: current local Proofbound has receipt verification and gate-consumption
+> Scope: cross-repo Authority Server + Runner + Proof-or-Stop CLI + lifecycle gates.
+> Trigger: current local Proof-or-Stop has receipt verification and gate-consumption
 > primitives, but the complete live Authority job -> receipt -> consumed gate
 > chain still needs production rollout validation.
 
@@ -31,7 +31,7 @@ The key distinction is deliberate:
 - A `gate_decision` receipt proves that the Authority Server evaluated current
   story state, policy, evidence, hashes, and target phase and returned a gate
   verdict.
-- Proofbound lifecycle gates must consume the verified `gate_decision` receipt as
+- Proof-or-Stop lifecycle gates must consume the verified `gate_decision` receipt as
   the authority conclusion. Evidence receipts can support that conclusion, but
   they cannot replace it.
 
@@ -42,9 +42,9 @@ This plan therefore covers a cross-repo implementation, not a single CLI patch.
 This document is the overview. Execution details live in smaller owner-specific
 documents:
 
-- [Proofbound Authority Receipt Contract](lattice-authority-receipt-contract.md)
+- [Proof-or-Stop Authority Receipt Contract](lattice-authority-receipt-contract.md)
 - [Authority Runner Session and Evidence Envelope](authority-runner-session-evidence-envelope.md)
-- [Proofbound CLI Authority Client and Receipt Ref](lattice-cli-authority-client-receipt-ref.md)
+- [Proof-or-Stop CLI Authority Client and Receipt Ref](lattice-cli-authority-client-receipt-ref.md)
 - [Lifecycle Gate Receipt Consumption](lifecycle-gate-receipt-consumption.md)
 - [Authority Receipt Cross-Repo Live Smoke](authority-receipt-cross-repo-live-smoke.md)
 
@@ -83,7 +83,7 @@ receipt-ref consumption primitives:
   `runnerSessionIds`.
 - staging advertises `productionEnforceAuthority=true` with a configured,
   non-ephemeral, non-production-inert server key.
-- Proofbound CLI exposes `authority_receipt_verify` / `lattice authority receipt
+- Proof-or-Stop CLI exposes `authority_receipt_verify` / `proof-or-stop authority receipt
   verify`.
 - `AuthorityClient.fetchGateReceiptProof()` fetches a server-relative proof path.
 - `authority-receipt-refs.json` has store APIs and an L4 process fact registry
@@ -109,7 +109,7 @@ the receipt/gate contracts must not depend on a particular host product.
 
 | Term | Meaning |
 | --- | --- |
-| Local Proofbound session | Local workflow/session identity such as owner lease, activity log, or `session_brief` context. Useful for local audit, not Authority evidence. |
+| Local Proof-or-Stop session | Local workflow/session identity such as owner lease, activity log, or `session_brief` context. Useful for local audit, not Authority evidence. |
 | Authority runner session id | Identity for one runner session under an Authority URL, actor key, runner id, and repo root. It must be bound through heartbeat, claim, evidence, and receipt verification. |
 | Run id | Authority job/run binding used by evidence, such as `producerRunId`, `verifierRunId`, or `JobSpec.runId`. L2+ requires producer and verifier run independence. |
 | Evidence envelope | Structured evidence payload bound to story, repo snapshot, command/transcript/diff hashes, run ids, provider/model/vendor, nonce, timestamp, and actor signature. |
@@ -142,10 +142,10 @@ evidence; this sync only corrects stale plan status.
 
 | Stream | Owner | Primary deliverables | Hard prerequisite for live pass |
 | --- | --- | --- | --- |
-| Authority Server | Proofbound Authority Python server | stable receipt contract, subject/digest fields or documented mapping, server public key discovery, actor/key registry, runner registry, job queue, evidence acceptance, gate decision receipts | deployed server with stable schema and trusted public key distribution |
+| Authority Server | Proof-or-Stop Authority Python server | stable receipt contract, subject/digest fields or documented mapping, server public key discovery, actor/key registry, runner registry, job queue, evidence acceptance, gate decision receipts | deployed server with stable schema and trusted public key distribution |
 | Runner / host execution plane | Mac Runner, Runner CLI, host integrations | runner identity, heartbeat, job claim, provider execution, transcript/diff capture, signed evidence envelope, evidence submission, receipt retrieval | registered actor key and server-accepted runner/session/job contract |
-| Proofbound CLI | Orchestrate / Proofbound CLI repo | env/config loader, authority client, receipt fetch/verify, receipt-ref artifact writer, fake/contract-only classifier, status output | server and runner contracts available, or local contract server explicitly marked fake/contract-only |
-| Lifecycle gates | Orchestrate / Proofbound CLI repo | receipt-ref gate predicate, process fact registry updates, REVIEW/TEST/DONE consumption, stale/revoked/mismatched diagnostics | real receipt verification path and reviewed receipt-ref schema |
+| Proof-or-Stop CLI | Orchestrate / Proof-or-Stop CLI repo | env/config loader, authority client, receipt fetch/verify, receipt-ref artifact writer, fake/contract-only classifier, status output | server and runner contracts available, or local contract server explicitly marked fake/contract-only |
+| Lifecycle gates | Orchestrate / Proof-or-Stop CLI repo | receipt-ref gate predicate, process fact registry updates, REVIEW/TEST/DONE consumption, stale/revoked/mismatched diagnostics | real receipt verification path and reviewed receipt-ref schema |
 | Cross-repo validation | release/e2e coordination | live server + registered runner + story-scoped job + evidence + gate_decision receipt + consumed receipt ref | real Authority URL, actor key, runner id, session id, server public key, and story-scoped job |
 
 ## Contract Decisions and Baseline
@@ -212,7 +212,7 @@ The session id must be bound at minimum through:
 - server-issued job spec or run metadata;
 - evidence envelope metadata or signed payload;
 - gate decision input digest, directly or through accepted evidence records;
-- receipt-ref artifact consumed by Proofbound gates.
+- receipt-ref artifact consumed by Proof-or-Stop gates.
 
 ### 4. Freshness Binding
 
@@ -320,14 +320,14 @@ projection should be structured like this:
       "sessionId": "asess-...",
       "evidenceDigests": ["sha256:..."],
       "verifiedAt": "2026-06-10T00:00:00.000Z",
-      "verifiedBy": "lattice authority receipt verify",
+      "verifiedBy": "proof-or-stop authority receipt verify",
       "classification": "production-gate-decision",
       "eligibleGates": ["TEST"],
       "consumptionEvents": [
         {
           "gate": "TEST",
           "consumedAt": "2026-06-10T00:00:00.000Z",
-          "consumer": "lattice validate",
+          "consumer": "proof-or-stop validate",
           "decisionId": "B-xxxx:validation:...",
           "result": "pass"
         }
@@ -381,7 +381,7 @@ Acceptance:
 - server tests reject unsigned envelopes;
 - server tests reject wrong story/run/session/job binding;
 - server signs gate receipts only after policy and schema checks pass;
-- server exposes enough receipt metadata for Proofbound to verify subject binding.
+- server exposes enough receipt metadata for Proof-or-Stop to verify subject binding.
 
 ### Phase 2: Runner / Host Execution Plane
 
@@ -406,12 +406,12 @@ Acceptance:
 - failed provider execution produces a failed envelope/receipt path, not a
   production completion claim.
 
-### Phase 3: Proofbound CLI Authority Client
+### Phase 3: Proof-or-Stop CLI Authority Client
 
 Hard prerequisite: this phase must not start as ordinary CLI work. It requires
 explicit enforce-mode product approval and must stay inside an isolated
 Authority client path described by the authority-client role decision. Server
-and runner readiness alone are not approval to make ordinary Proofbound CLI a
+and runner readiness alone are not approval to make ordinary Proof-or-Stop CLI a
 production authority client.
 
 Deliverables:
@@ -433,7 +433,7 @@ Acceptance:
 - verified receipt refs include story/head/material/run/session binding;
 - fake server outputs are labeled contract-only and cannot satisfy gates.
 
-### Phase 4: Proofbound Lifecycle Gate Consumption
+### Phase 4: Proof-or-Stop Lifecycle Gate Consumption
 
 Hard prerequisite: this phase requires explicit enforce-mode product approval,
 a reviewed receipt-ref schema, and a real receipt verification path. It must not
@@ -508,13 +508,13 @@ This transcript is only valid when backed by the structured artifacts above.
 1. Server: receipt subject/digest and gate decision metadata alignment.
 2. Server: session/job/evidence binding tests.
 3. Runner host: claim/execute/sign/submit path.
-4. Proofbound CLI: Authority env loader and session identity lifecycle.
-5. Proofbound CLI: receipt fetch/verify primitive against real server public keys.
-6. Proofbound CLI: receipt-ref story artifact writer.
-7. Proofbound CLI: REVIEW/TEST/DONE gate predicate consumption.
-8. Cross-repo validation: live server + runner + Proofbound gate proof.
+4. Proof-or-Stop CLI: Authority env loader and session identity lifecycle.
+5. Proof-or-Stop CLI: receipt fetch/verify primitive against real server public keys.
+6. Proof-or-Stop CLI: receipt-ref story artifact writer.
+7. Proof-or-Stop CLI: REVIEW/TEST/DONE gate predicate consumption.
+8. Cross-repo validation: live server + runner + Proof-or-Stop gate proof.
 
-The Proofbound CLI stories may use a local contract server for deterministic tests,
+The Proof-or-Stop CLI stories may use a local contract server for deterministic tests,
 but the story title, artifact names, and validation notes must say
 `contract-only` until a real Authority Server and runner produce a verified
 receipt.

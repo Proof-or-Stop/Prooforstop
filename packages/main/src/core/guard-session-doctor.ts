@@ -1,5 +1,5 @@
 /**
- * Guard session doctor scan — read-only diagnostic for `lattice doctor`.
+ * Guard session doctor scan — read-only diagnostic for `proof-or-stop doctor`.
  *
  * Reports:
  *   (1) Whether a Claude Code PreToolUse hook is installed in
@@ -167,7 +167,7 @@ export function scanGuardSessions(
 }
 
 /**
- * Render the guard session scan as `lattice doctor` text-report lines.
+ * Render the guard session scan as `proof-or-stop doctor` text-report lines.
  *
  * Style mirrors `renderStoryOwnerLeaseScan`: ✓ when healthy, ⚠ per problem.
  */
@@ -217,7 +217,7 @@ export function renderGuardSessionDoctorSection(scan: GuardSessionDoctorScan): s
   if (scan.withViolations.length > 0) {
     lines.push(
       '',
-      `  → Run: lattice guard_session_check '{"storyId":"<id>"}' to see violation details.`,
+      `  → Run: proof-or-stop guard_session_check '{"storyId":"<id>"}' to see violation details.`,
       `  → Resolve by removing out-of-scope changes or running scope_contract_acknowledge.`,
     );
   }

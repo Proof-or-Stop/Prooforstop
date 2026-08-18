@@ -27,7 +27,7 @@ import {
   resolveReproFirstPreflightMode,
 } from '../core/repro-evidence-binding-gate.js';
 import { buildMaterialClassificationSnapshot, MaterialCodePolicyError } from '../core/material-code-policy.js';
-import { loadConfig, LATTICE_CONFIG_FILENAME } from '../core/config.js';
+import { loadConfig, PROOF_OR_STOP_CONFIG_FILENAME } from '../core/config.js';
 import { buildMemoryFreshnessPack, renderMemoryFreshnessPack } from '../core/playbook-runtime-memory.js';
 import { surfaceRuntimeMemoryPack } from '../core/experience-pack-surface.js';
 import { verificationIntentHasPlannedPathDeclarations } from '../core/acceptance-topology.js';
@@ -161,8 +161,8 @@ export function renderReproFirstStoryCreatePreflight(args: {
         `Repro-first STORY_INTAKE preflight could not classify material code for ${args.storyId}: the material-code policy failed closed. [repro_first_material_policy_error]`,
         `  ${err.message}`,
         isFreshness
-          ? `  → Ensure the workspace/git tree is present and readable (a workspace/git error, not a ${LATTICE_CONFIG_FILENAME} problem), then retry.`
-          : `  → Fix ${LATTICE_CONFIG_FILENAME} (the material-code policy fails closed rather than degrading to a TS-only whitelist), then retry.`,
+          ? `  → Ensure the workspace/git tree is present and readable (a workspace/git error, not a ${PROOF_OR_STOP_CONFIG_FILENAME} problem), then retry.`
+          : `  → Fix ${PROOF_OR_STOP_CONFIG_FILENAME} (the material-code policy fails closed rather than degrading to a TS-only whitelist), then retry.`,
       ].join('\n');
       if (mode === 'enforce') throw new Error(message);
       return `⚠ ${message}`;
@@ -267,7 +267,7 @@ const HIGH_RISK_PATTERNS: Array<{ pattern: RegExp; category: string }> = [
   { pattern: /\b(auth|authn|authz|security|password|token|secret|credential)\b|(?:\u5bc6\u7801|\u53e3\u4ee4|\u51ed\u636e|\u79d8\u94a5|\u5bc6\u94a5|\u9274\u6743|\u8ba4\u8bc1|\u6388\u6743|\u6743\u9650|\u5b89\u5168)/iu, category: 'Security/Credentials' },
   { pattern: /\b(migration|schema migration|destructive|drop\s+table|truncate)\b|(?:\u6570\u636e\u8fc1\u79fb|\u6570\u636e\u5e93\u8fc1\u79fb|\u8fc1\u79fb|\u8868\u7ed3\u6784|\u7834\u574f\u6027|\u5220\u5e93|\u5220\u8868|\u6e05\u8868|\u6e05\u7a7a\u6570\u636e|\u6e05\u7a7a\u8868|\u622a\u65ad)/iu, category: 'Data Migration/Destructive' },
   { pattern: /\b(machine\.ts|state machine|phase flow|story_advance|DONE gate|TEST gate|guard logic)\b|(?:\u72b6\u6001\u673a|\u72b6\u6001\u6d41|\u9636\u6bb5\u6d41|\u9636\u6bb5\u6d41\u8f6c|\u5b88\u536b\u903b\u8f91|\u95e8\u7981|\u95e8\u69db|\u95e8\u63a7|\u95f8\u95e8)/iu, category: 'State Machine/Gate' },
-  { pattern: /\b(validate\.ts|lattice validate|lattice validate|validation protocol|verifier|fixture runner|test\s*runner|test_auto)\b|(?:\u9a8c\u8bc1\u6846\u67b6|\u6821\u9a8c\u6846\u67b6|\u9a8c\u8bc1\u534f\u8bae|\u9a8c\u8bc1\u95e8\u7981|\u9a8c\u8bc1\u95e8\u69db|\u6d4b\u8bd5\u8fd0\u884c\u5668|fixture\s*\u8fd0\u884c\u5668|\u81ea\u52a8\u6d4b\u8bd5)/iu, category: 'Validation Framework' },
+  { pattern: /\b(validate\.ts|proof-or-stop validate|proof-or-stop validate|validation protocol|verifier|fixture runner|test\s*runner|test_auto)\b|(?:\u9a8c\u8bc1\u6846\u67b6|\u6821\u9a8c\u6846\u67b6|\u9a8c\u8bc1\u534f\u8bae|\u9a8c\u8bc1\u95e8\u7981|\u9a8c\u8bc1\u95e8\u69db|\u6d4b\u8bd5\u8fd0\u884c\u5668|fixture\s*\u8fd0\u884c\u5668|\u81ea\u52a8\u6d4b\u8bd5)/iu, category: 'Validation Framework' },
   { pattern: /\b(git\s+(restore|reset|clean|push --force))\b|(?:git\s*(?:\u6062\u590d|\u91cd\u7f6e|\u6e05\u7406|\u5f3a\u63a8)|\u5f3a\u5236\u63a8\u9001|\u7834\u574f\u6027\s*git)/iu, category: 'git Destructive Operation' },
   { pattern: /\b(production|incident|hotfix|p0|p1)\b|(?:\u751f\u4ea7\u73af\u5883|\u751f\u4ea7\u4e8b\u6545|\u751f\u4ea7|\u7ebf\u4e0a|\u4e8b\u6545|\u7d27\u6025|\u7d27\u6025\u4fee\u590d|\u70ed\u4fee|\u70ed\u4fee\u590d)/iu, category: 'Production/Emergency' },
   { pattern: /\b(PII|personally identifiable|GDPR|compliance)\b|(?:\u9690\u79c1|\u5408\u89c4|\u4e2a\u4eba\u4fe1\u606f|\u654f\u611f\u4fe1\u606f|\u7528\u6237\u6570\u636e|\u6570\u636e\u4fdd\u62a4)/iu, category: 'Compliance/Privacy' },
@@ -388,7 +388,7 @@ const RECENT_CONCURRENT_WINDOW_MS = 30 * 60 * 1000;
  * created within the last 30 minutes that are still active (phase ∉
  * DONE/DISCARDED). If any exist, the operator likely has a parallel agent
  * working the same backlog — surface the list on stderr so it is visible even
- * under a `lattice story_create | tail` pipe. Returns '' when nothing matches so
+ * under a `proof-or-stop story_create | tail` pipe. Returns '' when nothing matches so
  * the caller never emits a false-positive line.
  *
  * `justCreatedId` is excluded so the freshly minted story does not list
@@ -923,7 +923,7 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
       // B-6812 CHK-003 (G3): advisory text — riskHint, keyword-overlap
       // dupWarning — is collected here but written to STDERR right before the
       // create result is returned, never spliced into the stdout return value.
-      // Rationale: `lattice story_create | tail` silently swallows stdout tail
+      // Rationale: `proof-or-stop story_create | tail` silently swallows stdout tail
       // lines; the create conclusion (`Story B-xxxx created ...`) must stay on
       // stdout as the command's return value, while duplicate / concurrency
       // warnings must survive pipes by going to stderr (matches the existing
@@ -966,8 +966,8 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         // CHK-001 implements: dismissing every auto-elevated category rolls the
         // priority back and clears the high-risk gate; partial dismiss does not.
         lines.push('False positive resolution (mention vs modify): keyword detection cannot distinguish "mention" from "modify" of the domain.');
-        lines.push('  If false positive (only mentioned, not modified), use lattice story_review_dismiss for full revert:');
-        lines.push(`    lattice story_review_dismiss '{"storyId":"${storyId}","category":"<the category hit above>","reason":"explain why this is a false positive"}'`);
+        lines.push('  If false positive (only mentioned, not modified), use proof-or-stop story_review_dismiss for full revert:');
+        lines.push(`    proof-or-stop story_review_dismiss '{"storyId":"${storyId}","category":"<the category hit above>","reason":"explain why this is a false positive"}'`);
         lines.push('  Once all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gate is lifted (partial dismiss does not revert).');
         riskHint = lines.join('\n');
       }
@@ -1173,13 +1173,13 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         // init_check_set with a forged signature (anti-self-absolution). Only after review passes can story_advance INIT_CHECK proceed.
         const initReviewHint =
           `\n\n→ Now please spawn two INIT reviewers in parallel:\n` +
-          `  · Agent({ subagent_type: "lattice-review-story-init", prompt: \`Review the initial background + checklist of story ${storyId} (run lattice dispatch '{"storyId":"${storyId}","agentType":"lattice-review-story-init"}' to get the standard prompt)\` })\n` +
-          `  · Agent({ subagent_type: "product-reviewer", prompt: \`Run lattice dispatch '{"storyId":"${storyId}","agentType":"product-reviewer"}' to get the standard prompt; whether pass/fail, must call init_check_set, agentId must be exactly product-reviewer\` })\n` +
-          `  · Do not have the main agent self-invoke lattice init_check_set (the CLI does not mechanically validate agentId, but the reviewer template fresh-context fence + CLAUDE.md behavior rules require invocation by an independent subagent—main agent self-invocation effectively bypasses the reviewer, violating the anti-self-absolution convention)\n` +
+          `  · Agent({ subagent_type: "lattice-review-story-init", prompt: \`Review the initial background + checklist of story ${storyId} (run proof-or-stop dispatch '{"storyId":"${storyId}","agentType":"lattice-review-story-init"}' to get the standard prompt)\` })\n` +
+          `  · Agent({ subagent_type: "product-reviewer", prompt: \`Run proof-or-stop dispatch '{"storyId":"${storyId}","agentType":"product-reviewer"}' to get the standard prompt; whether pass/fail, must call init_check_set, agentId must be exactly product-reviewer\` })\n` +
+          `  · Do not have the main agent self-invoke proof-or-stop init_check_set (the CLI does not mechanically validate agentId, but the reviewer template fresh-context fence + CLAUDE.md behavior rules require invocation by an independent subagent—main agent self-invocation effectively bypasses the reviewer, violating the anti-self-absolution convention)\n` +
           `${renderAgentLivenessGuidance({ label: 'INIT reviewers' })}\n` +
           `  · INIT_CHECK gate requires both lattice-review-story-init and product-reviewer to have persisted via init_check_set; critical/high issues will block advancement\n` +
-          `  · Before story_advance, run lattice init_preflight --storyId=${storyId}; it is read-only, writes no evidence, and creates no worktree\n` +
-          `  · After init_preflight reports READY, call lattice story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}' to enter INIT_CHECK`;
+          `  · Before story_advance, run proof-or-stop init_preflight --storyId=${storyId}; it is read-only, writes no evidence, and creates no worktree\n` +
+          `  · After init_preflight reports READY, call proof-or-stop story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}' to enter INIT_CHECK`;
         const nonGitHint = !isGitRepository(ctx.root)
           ? `\n⚠ Current directory is not a git repo: story is recorded, but INIT_CHECK/worktree flow still requires git init + initial commit first.`
           : '';

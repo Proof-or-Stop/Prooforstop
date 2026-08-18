@@ -1,0 +1,350 @@
+{
+  "schemaVersion": "proofstory.acceptance_basis_artifact.v1",
+  "basis": {
+    "schemaVersion": "proofstory.acceptance_coverage_basis.v1",
+    "storyId": "B-3e5d",
+    "phaseBasis": "plan",
+    "status": "partial",
+    "generatedBy": {
+      "verifier": "acceptance-coverage-basis-verifier",
+      "command": "lattice acceptance_basis_generate",
+      "algorithmVersion": "v1"
+    },
+    "discoveryProfileRef": "profile:typescript-proof-gate:plan:v1",
+    "discoveryProfileDigest": "sha256:45ef323962cb942f0df4ca6d9947f3bd0b553d4a509e149d5fef27175dd9f18d",
+    "discoveryMethods": [
+      "scope_contract",
+      "process_fact_registry",
+      "handler_dispatch_inventory",
+      "static_call_graph",
+      "runtime_trace"
+    ],
+    "adapterResults": [
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "handler-dispatch-inventory:plan:v1",
+        "method": "handler_dispatch_inventory",
+        "pathRefs": [
+          "path:process-fact:acceptance_basis->consumer:<audit-only>",
+          "path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+          "path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate"
+        ],
+        "coverageClaim": "complete_for_scope",
+        "blindSpots": [],
+        "provenanceRefs": [
+          "source-file:lattice.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745",
+          "source-file:packages/main/src/cli/command-catalog.ts:sha256:befa682d22057a3ad808c0ae50aa7ddcb5ad2951cbfe98f9561428657cc979a0",
+          "source-file:packages/main/src/handlers/proofstory.ts:sha256:de0d4a41293d8c824b81d1e5eb364127e83f1ddef432ceffd64f0944a354d94e",
+          "source-file:packages/main/src/registry.ts:sha256:64ea207cf5a4f7dc91b715870b2a1e09775e59fbac0eb2a982d6e18c5e339fed"
+        ],
+        "asymmetryPolicy": {
+          "kind": "exhaustive",
+          "policyRef": "policy:handler_dispatch_inventory:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:checklist:CHK-002",
+            "scope:checklist:CHK-003",
+            "scope:checklist:CHK-004",
+            "scope:checklist:CHK-005",
+            "scope:checklist:CHK-006",
+            "scope:checklist:CHK-007",
+            "scope:file:packages/main/src/handlers/transition-orchestrator.ts",
+            "scope:file:packages/main/src/tasks/field-regression-cli-smoke.ts",
+            "scope:file:packages/main/tests/red/red-B-new-concurrent-done-race.mjs",
+            "scope:file:packages/main/tests/red/red-B-new-retired-channel-lane.mjs",
+            "scope:file:packages/main/tests/red/red-b49d4-harness-registration.mjs"
+          ]
+        },
+        "resultDigest": "sha256:ea114d418e5246f60780d257a5e1053fd40ebe304107e183f93fc8daf133cae9"
+      },
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "process-fact-registry:plan:v1",
+        "method": "process_fact_registry",
+        "pathRefs": [
+          "path:process-fact:acceptance_basis->consumer:<audit-only>",
+          "path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+          "path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
+          "path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
+        ],
+        "coverageClaim": "complete_for_scope",
+        "blindSpots": [],
+        "provenanceRefs": [
+          "process-fact:acceptance_basis:da66e0998516b4d2ca3f45bc57585700a1f0675eeb30267234df766ee32d288f",
+          "process-fact:acceptance_basis_generate:c705ec303891a791afa607f361da9b178764f8186b88c4336bdd4441d32fe0b9",
+          "process-fact:acceptance_topology_check:98a1a08190c79f0f548f297fa08b2d573493faec90f156fe9e07e66f9e3ff095",
+          "process-fact:artifact:acceptance-basis.json:8cab0c9d56e68c579428c321969642d3f94a3596133e9393c047c110b44dcd82",
+          "source-file:lattice.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745",
+          "source-file:packages/main/src/core/acceptance-topology.ts:sha256:84368d03a6a5ed3157ae5fae7d760f3711b68220e46eb21a65d1910253d276ac",
+          "source-file:packages/main/src/handlers/proofstory.ts:sha256:de0d4a41293d8c824b81d1e5eb364127e83f1ddef432ceffd64f0944a354d94e",
+          "source-file:packages/main/src/handlers/transition-orchestrator.ts:sha256:2c79f867132abe627872631162124b0df18bf70fefae545451b1ef78b779f17c",
+          "source-file:packages/main/src/registry.ts:sha256:64ea207cf5a4f7dc91b715870b2a1e09775e59fbac0eb2a982d6e18c5e339fed",
+          "source-file:scripts/verify-process-fact-contract.mjs:sha256:e8b0c6d01a5f2ebf9558e78d909c60f745ce031ec1cf1fa5232ec1f64e153dcc"
+        ],
+        "asymmetryPolicy": {
+          "kind": "exhaustive",
+          "policyRef": "policy:process_fact_registry:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:checklist:CHK-002",
+            "scope:checklist:CHK-003",
+            "scope:checklist:CHK-004",
+            "scope:checklist:CHK-005",
+            "scope:checklist:CHK-006",
+            "scope:checklist:CHK-007",
+            "scope:file:packages/main/src/handlers/transition-orchestrator.ts",
+            "scope:file:packages/main/src/tasks/field-regression-cli-smoke.ts",
+            "scope:file:packages/main/tests/red/red-B-new-concurrent-done-race.mjs",
+            "scope:file:packages/main/tests/red/red-B-new-retired-channel-lane.mjs",
+            "scope:file:packages/main/tests/red/red-b49d4-harness-registration.mjs"
+          ]
+        },
+        "resultDigest": "sha256:833b222cdacfbc2219f51aca67c6bc8861c8a021f1206063944bd69047f10f50"
+      },
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "runtime-trace:plan:v1",
+        "method": "runtime_trace",
+        "pathRefs": [],
+        "coverageClaim": "complete_for_scope",
+        "blindSpots": [],
+        "provenanceRefs": [
+          "runtime-fact-registry:sha256:87ef03b700851edd8ffd68380361b4d635c8436f7bd3fac51a4b920a4056a6d6",
+          "runtime-trace:story:B-3e5d:bounded"
+        ],
+        "asymmetryPolicy": {
+          "kind": "bounded_non_exhaustive",
+          "policyRef": "policy:bounded-runtime:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:checklist:CHK-002",
+            "scope:checklist:CHK-003",
+            "scope:checklist:CHK-004",
+            "scope:checklist:CHK-005",
+            "scope:checklist:CHK-006",
+            "scope:checklist:CHK-007",
+            "scope:file:packages/main/src/handlers/transition-orchestrator.ts",
+            "scope:file:packages/main/src/tasks/field-regression-cli-smoke.ts",
+            "scope:file:packages/main/tests/red/red-B-new-concurrent-done-race.mjs",
+            "scope:file:packages/main/tests/red/red-B-new-retired-channel-lane.mjs",
+            "scope:file:packages/main/tests/red/red-b49d4-harness-registration.mjs"
+          ]
+        },
+        "resultDigest": "sha256:5f49fd6b3a2884addbb50be7d3bd090be108fa9a1da4403f40f71899681974fa"
+      },
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "scope-contract:plan:v1",
+        "method": "scope_contract",
+        "pathRefs": [],
+        "coverageClaim": "complete_for_scope",
+        "blindSpots": [],
+        "provenanceRefs": [
+          "scope:checklist:CHK-001",
+          "scope:checklist:CHK-002",
+          "scope:checklist:CHK-003",
+          "scope:checklist:CHK-004",
+          "scope:checklist:CHK-005",
+          "scope:checklist:CHK-006",
+          "scope:checklist:CHK-007",
+          "scope:file:packages/main/src/handlers/transition-orchestrator.ts",
+          "scope:file:packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "scope:file:packages/main/tests/red/red-B-new-concurrent-done-race.mjs",
+          "scope:file:packages/main/tests/red/red-B-new-retired-channel-lane.mjs",
+          "scope:file:packages/main/tests/red/red-b49d4-harness-registration.mjs",
+          "source-file:lattice.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745"
+        ],
+        "asymmetryPolicy": {
+          "kind": "exhaustive",
+          "policyRef": "policy:scope_contract:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:checklist:CHK-002",
+            "scope:checklist:CHK-003",
+            "scope:checklist:CHK-004",
+            "scope:checklist:CHK-005",
+            "scope:checklist:CHK-006",
+            "scope:checklist:CHK-007",
+            "scope:file:packages/main/src/handlers/transition-orchestrator.ts",
+            "scope:file:packages/main/src/tasks/field-regression-cli-smoke.ts",
+            "scope:file:packages/main/tests/red/red-B-new-concurrent-done-race.mjs",
+            "scope:file:packages/main/tests/red/red-B-new-retired-channel-lane.mjs",
+            "scope:file:packages/main/tests/red/red-b49d4-harness-registration.mjs"
+          ]
+        },
+        "resultDigest": "sha256:9604713d5ea77232775e8057119b6b9991138f371f25509bb83e91f8ec718fe7"
+      },
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "static-call-graph:plan:v1",
+        "method": "static_call_graph",
+        "pathRefs": [
+          "path:process-fact:acceptance_basis->consumer:<audit-only>",
+          "path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+          "path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
+          "path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
+        ],
+        "coverageClaim": "complete_for_scope",
+        "blindSpots": [],
+        "provenanceRefs": [
+          "source-file:lattice.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745",
+          "source-file:packages/main/src/core/acceptance-topology.ts:sha256:84368d03a6a5ed3157ae5fae7d760f3711b68220e46eb21a65d1910253d276ac",
+          "source-file:packages/main/src/handlers/proofstory.ts:sha256:de0d4a41293d8c824b81d1e5eb364127e83f1ddef432ceffd64f0944a354d94e",
+          "source-file:packages/main/src/handlers/transition-orchestrator.ts:sha256:2c79f867132abe627872631162124b0df18bf70fefae545451b1ef78b779f17c",
+          "source-file:packages/main/src/tasks/field-regression-cli-smoke.ts:sha256:a05f4171d09c8ae49c56bc72a582cf29e8bb18f6cc8399c9e2f67b380fdd137b",
+          "source-file:packages/main/tests/red/red-B-new-concurrent-done-race.mjs:sha256:cac6b3efe53a9191f7409a5d9a5dd2cd15d161f8c0b35c557aeda6016b4744bb",
+          "source-file:packages/main/tests/red/red-B-new-retired-channel-lane.mjs:sha256:8fb191d7d0ad96d9433d6e21b8cbcbf7fef77abfb0f859e24eb9c323a2124e15",
+          "source-file:packages/main/tests/red/red-b49d4-harness-registration.mjs:sha256:80b872335203b07dc9c3958a8c3905ffca1657fe6a72f568b1365fbd73f7853a",
+          "source-file:scripts/verify-process-fact-contract.mjs:sha256:e8b0c6d01a5f2ebf9558e78d909c60f745ce031ec1cf1fa5232ec1f64e153dcc"
+        ],
+        "asymmetryPolicy": {
+          "kind": "exhaustive",
+          "policyRef": "policy:static_call_graph:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:checklist:CHK-002",
+            "scope:checklist:CHK-003",
+            "scope:checklist:CHK-004",
+            "scope:checklist:CHK-005",
+            "scope:checklist:CHK-006",
+            "scope:checklist:CHK-007",
+            "scope:file:packages/main/src/handlers/transition-orchestrator.ts",
+            "scope:file:packages/main/src/tasks/field-regression-cli-smoke.ts",
+            "scope:file:packages/main/tests/red/red-B-new-concurrent-done-race.mjs",
+            "scope:file:packages/main/tests/red/red-B-new-retired-channel-lane.mjs",
+            "scope:file:packages/main/tests/red/red-b49d4-harness-registration.mjs"
+          ]
+        },
+        "resultDigest": "sha256:3e6b9233b938997c2657ccaf0c6d098cb074555111622912068c0d6c3d4e4ba6"
+      }
+    ],
+    "scopeRefs": [
+      "scope:checklist:CHK-001",
+      "scope:checklist:CHK-002",
+      "scope:checklist:CHK-003",
+      "scope:checklist:CHK-004",
+      "scope:checklist:CHK-005",
+      "scope:checklist:CHK-006",
+      "scope:checklist:CHK-007",
+      "scope:file:packages/main/src/handlers/transition-orchestrator.ts",
+      "scope:file:packages/main/src/tasks/field-regression-cli-smoke.ts",
+      "scope:file:packages/main/tests/red/red-B-new-concurrent-done-race.mjs",
+      "scope:file:packages/main/tests/red/red-B-new-retired-channel-lane.mjs",
+      "scope:file:packages/main/tests/red/red-b49d4-harness-registration.mjs"
+    ],
+    "sourceInventoryRefs": [
+      "artifact:acceptance-basis.json",
+      "process-fact:acceptance_basis:da66e0998516b4d2ca3f45bc57585700a1f0675eeb30267234df766ee32d288f",
+      "process-fact:acceptance_basis_generate:c705ec303891a791afa607f361da9b178764f8186b88c4336bdd4441d32fe0b9",
+      "process-fact:acceptance_topology_check:98a1a08190c79f0f548f297fa08b2d573493faec90f156fe9e07e66f9e3ff095",
+      "process-fact:artifact:acceptance-basis.json:8cab0c9d56e68c579428c321969642d3f94a3596133e9393c047c110b44dcd82",
+      "source-file:closure:packages/main/src/core/acceptance-topology.ts",
+      "source-file:closure:packages/main/src/handlers/proofstory.ts",
+      "source-file:closure:packages/main/src/handlers/transition-orchestrator.ts",
+      "source-file:closure:packages/main/src/tasks/field-regression-cli-smoke.ts",
+      "source-file:closure:packages/main/tests/red/red-B-new-concurrent-done-race.mjs",
+      "source-file:closure:packages/main/tests/red/red-B-new-retired-channel-lane.mjs",
+      "source-file:closure:packages/main/tests/red/red-b49d4-harness-registration.mjs",
+      "source-file:closure:scripts/verify-process-fact-contract.mjs",
+      "source-file:config:lattice.config.json",
+      "source-file:consumer:acceptance_basis:packages/main/src/core/acceptance-topology.ts",
+      "source-file:consumer:acceptance_basis:packages/main/src/handlers/transition-orchestrator.ts",
+      "source-file:consumer:acceptance_basis:scripts/verify-process-fact-contract.mjs",
+      "source-file:consumer:acceptance_basis_generate:packages/main/src/core/acceptance-topology.ts",
+      "source-file:consumer:acceptance_basis_generate:packages/main/src/handlers/transition-orchestrator.ts",
+      "source-file:consumer:acceptance_basis_generate:scripts/verify-process-fact-contract.mjs",
+      "source-file:consumer:acceptance_topology_check:packages/main/src/core/acceptance-topology.ts",
+      "source-file:consumer:acceptance_topology_check:packages/main/src/handlers/transition-orchestrator.ts",
+      "source-file:consumer:acceptance_topology_check:scripts/verify-process-fact-contract.mjs",
+      "source-file:consumer:artifact%3Aacceptance-basis.json:packages/main/src/core/acceptance-topology.ts",
+      "source-file:consumer:artifact%3Aacceptance-basis.json:packages/main/src/handlers/proofstory.ts",
+      "source-file:consumer:artifact%3Aacceptance-basis.json:packages/main/src/handlers/transition-orchestrator.ts",
+      "source-file:consumer:artifact%3Aacceptance-basis.json:scripts/verify-process-fact-contract.mjs",
+      "source-file:producer:acceptance_basis:packages/main/src/handlers/proofstory.ts",
+      "source-file:producer:acceptance_basis:packages/main/src/registry.ts",
+      "source-file:producer:acceptance_basis_generate:packages/main/src/handlers/proofstory.ts",
+      "source-file:producer:acceptance_basis_generate:packages/main/src/registry.ts",
+      "source-file:producer:acceptance_topology_check:packages/main/src/handlers/proofstory.ts",
+      "source-file:producer:acceptance_topology_check:packages/main/src/registry.ts",
+      "source-file:producer:artifact%3Aacceptance-basis.json:packages/main/src/handlers/proofstory.ts",
+      "source-file:producer:artifact%3Aacceptance-basis.json:packages/main/src/registry.ts"
+    ],
+    "plannedPathRecords": [],
+    "plannedActualReconciliations": [],
+    "enumeratedPathRefs": [
+      "path:process-fact:acceptance_basis->consumer:<audit-only>",
+      "path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+      "path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
+      "path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
+    ],
+    "excludedPathRefs": [],
+    "blindSpots": [
+      "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_basis->consumer:<audit-only>",
+      "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+      "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
+      "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
+    ],
+    "snapshotSeal": {
+      "schemaVersion": "proofstory.acceptance_snapshot_seal.v1",
+      "inventoryDirectoryDigest": "sha256:291d2d262f88c3e70ed4aa6b65090bcabe8ef91481f6792cbd85f58aa39820f3",
+      "inventoryDirectoryCount": 21,
+      "sourceSnapshotDigest": "sha256:f1f7dfad6589100d0d129e7a95cede3c875165cc69c348cd09f4c2278b524acc",
+      "sourceSnapshotCount": 798,
+      "configSnapshotDigest": "sha256:0ee5353bc6952bfe94d1069b907334faddd661fb9ae33a7ae8c051c177c72090",
+      "status": "partial",
+      "issues": [
+        {
+          "code": "derivation_diagnostic",
+          "targetKind": "inventory",
+          "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_basis->consumer:<audit-only>"
+        },
+        {
+          "code": "derivation_diagnostic",
+          "targetKind": "inventory",
+          "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
+        },
+        {
+          "code": "derivation_diagnostic",
+          "targetKind": "inventory",
+          "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate"
+        },
+        {
+          "code": "derivation_diagnostic",
+          "targetKind": "inventory",
+          "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
+        }
+      ],
+      "sealDigest": "sha256:a2e56c1e85634b88b31317ff176e9394e8aba7c3062979f0a536810abc57c472"
+    },
+    "binding": {
+      "headHash": "62570a4ee97dc80dbfc6db1e5c125083eee644e4",
+      "materialHash": "bf031be79bd6883b1568b65641b70d661d77111769d52ed8499a635c81e8ed1d",
+      "storyFilesHash": "bddb83e47b59c444162d6a6f82f82ec29544dbf63fb49980d89dc05006ed1139",
+      "scopeCheckDigest": "sha256:e1fccce753ce0e1457e184ba7c3c078e8c554e347ae21838ca4e225dc600b762",
+      "scopeContractDigest": "sha256:13a4cb28474622f2fdd4dc3447d4d80a2b1f95a634ec791da8cfd9d68a461de8",
+      "closureFilesHash": "sha256:98df869f0d8727475649cd232aea49c932dcbd5a54482283f6f4ac3fefb49382"
+    },
+    "receiptRef": "receipt:coverage-basis:B-3e5d:plan:974163e32197cafc",
+    "basisDigest": "sha256:5aff417715bf4aadaa60ae48821c7eeb0a73b886c85e7fa6738af4bfe6040ebb"
+  },
+  "receipt": {
+    "schemaVersion": "proofstory.acceptance_basis_receipt.v1",
+    "receiptRef": "receipt:coverage-basis:B-3e5d:plan:974163e32197cafc",
+    "issuer": "acceptance-coverage-basis-verifier",
+    "issuerKeyId": "sha256:296cf7b2d23ab87226356b1e45ea3a1ec48eee6266df59e0aefea56e1de3c722",
+    "signerPublicKey": "xd1c+IbCBeVwFfhaDuRVFXxOCL3kqkMx7weu8ckyaAw=",
+    "storyId": "B-3e5d",
+    "phaseBasis": "plan",
+    "basisDigest": "sha256:5aff417715bf4aadaa60ae48821c7eeb0a73b886c85e7fa6738af4bfe6040ebb",
+    "topologyDigest": "sha256:f964bda86b87f26e13e8fc8373d7c2be20ede4d2b1cd84239c7028d352773925",
+    "scopeCheckDigest": "sha256:e1fccce753ce0e1457e184ba7c3c078e8c554e347ae21838ca4e225dc600b762",
+    "scopeContractDigest": "sha256:13a4cb28474622f2fdd4dc3447d4d80a2b1f95a634ec791da8cfd9d68a461de8",
+    "headHash": "62570a4ee97dc80dbfc6db1e5c125083eee644e4",
+    "materialHash": "bf031be79bd6883b1568b65641b70d661d77111769d52ed8499a635c81e8ed1d",
+    "storyFilesHash": "bddb83e47b59c444162d6a6f82f82ec29544dbf63fb49980d89dc05006ed1139",
+    "closureFilesHash": "sha256:98df869f0d8727475649cd232aea49c932dcbd5a54482283f6f4ac3fefb49382",
+    "sealDigest": "sha256:a2e56c1e85634b88b31317ff176e9394e8aba7c3062979f0a536810abc57c472",
+    "workspaceIdentityDigest": "sha256:f714163f884bc555713b6ff2716b28cfc1d6c0fb5ef82314e6532c0282ded437",
+    "signature": "obRfyVvXDSiNzGw4mBi0KCnfnSrUh5wLsQhYMbhCtnSwNbKk4NKwrH38KryKeNlO/D7YnP1nA90yiUFJiX0+Aw=="
+  }
+}

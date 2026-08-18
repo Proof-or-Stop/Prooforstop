@@ -1,0 +1,145 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-08-14T03:14:15.626Z",
+      "issueCount": 6,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "acceptance_binding_missing_verification_intent_refs: AB-fb7b-001 has no verificationIntentRefs. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 3 undigested unknowns: RESOLVED (decision_set): RED shape = a fast structural invariant smoke wired into validate.commands (bootstrap-runner requires utils/dist + test invokes full-suite-runner + pretest actually builds both packages, main before utils) PLUS a behavioral repro-first RED that runs npm run pretest and asserts packages/utils/dist is produced; both are non-destructive (no dist removal).; RESOLVED (decision_set): the always-on pretest main build is additive and reproduces identical dist bytes, so it does not conflict with the packages-main-build proof receipt or materialHash freshness.; RESOLVED (decision_set): register the fast structural smoke in validate.commands as the permanent guard; keep the heavier behavioral RED as tests/red evidence only (not in validate.commands, to avoid a build on every validate)."
+        },
+        {
+          "type": "touchpoint_mapping_missing",
+          "severity": "advisory",
+          "message": "None of the checklist items have the files field filled in (legacy story compatibility mode); cannot perform coverage validation on understanding.touchpoints. Please list the changed files in files.modify/create/test for at least one item to enable strict touchpoint-to-files validation"
+        },
+        {
+          "type": "missing_scope_check",
+          "severity": "blocker",
+          "message": "missing_scope_check: scope-check.json is missing PLAN gate evidence. Start a story-level PLAN scope reviewer with `lattice dispatch --storyId=B-fb7b --agentType=lattice-review-scope-plan`; dispatch output is not gate evidence, and the lattice-review-scope-plan / scope-plan reviewer must finish by calling `lattice scope_check_save`. The implementation/main agent must not self-sign this evidence or manually edit story metadata. Local CLI guidance is not remote completion and must not be presented as receipt verification or production/full completion."
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-fb7b is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "5887012defd8620b9ad81cbaabfbaf502a6aea42a25f6d012c5ce0fd8cbd15db"
+    },
+    {
+      "timestamp": "2026-08-14T03:14:48.256Z",
+      "issueCount": 6,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "acceptance_binding_missing_verification_intent_refs: AB-fb7b-001 has no verificationIntentRefs. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 3 undigested unknowns: RESOLVED (decision_set): RED shape = a fast structural invariant smoke wired into validate.commands (bootstrap-runner requires utils/dist + test invokes full-suite-runner + pretest actually builds both packages, main before utils) PLUS a behavioral repro-first RED that runs npm run pretest and asserts packages/utils/dist is produced; both are non-destructive (no dist removal).; RESOLVED (decision_set): the always-on pretest main build is additive and reproduces identical dist bytes, so it does not conflict with the packages-main-build proof receipt or materialHash freshness.; RESOLVED (decision_set): register the fast structural smoke in validate.commands as the permanent guard; keep the heavier behavioral RED as tests/red evidence only (not in validate.commands, to avoid a build on every validate)."
+        },
+        {
+          "type": "touchpoint_mapping_missing",
+          "severity": "advisory",
+          "message": "None of the checklist items have the files field filled in (legacy story compatibility mode); cannot perform coverage validation on understanding.touchpoints. Please list the changed files in files.modify/create/test for at least one item to enable strict touchpoint-to-files validation"
+        },
+        {
+          "type": "missing_scope_check",
+          "severity": "blocker",
+          "message": "missing_scope_check: scope-check.json is missing PLAN gate evidence. Start a story-level PLAN scope reviewer with `lattice dispatch --storyId=B-fb7b --agentType=lattice-review-scope-plan`; dispatch output is not gate evidence, and the lattice-review-scope-plan / scope-plan reviewer must finish by calling `lattice scope_check_save`. The implementation/main agent must not self-sign this evidence or manually edit story metadata. Local CLI guidance is not remote completion and must not be presented as receipt verification or production/full completion."
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-fb7b is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "61068d920344fcedf892891cec90998ca0f902762bc96418ff43550bddbc3b4e"
+    },
+    {
+      "timestamp": "2026-08-14T03:22:17.507Z",
+      "issueCount": 5,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 3 undigested unknowns: RESOLVED (decision_set): RED shape = a fast structural invariant smoke wired into validate.commands (bootstrap-runner requires utils/dist + test invokes full-suite-runner + pretest actually builds both packages, main before utils) PLUS a behavioral repro-first RED that runs npm run pretest and asserts packages/utils/dist is produced; both are non-destructive (no dist removal).; RESOLVED (decision_set): the always-on pretest main build is additive and reproduces identical dist bytes, so it does not conflict with the packages-main-build proof receipt or materialHash freshness.; RESOLVED (decision_set): register the fast structural smoke in validate.commands as the permanent guard; keep the heavier behavioral RED as tests/red evidence only (not in validate.commands, to avoid a build on every validate)."
+        },
+        {
+          "type": "touchpoint_mapping_missing",
+          "severity": "advisory",
+          "message": "None of the checklist items have the files field filled in (legacy story compatibility mode); cannot perform coverage validation on understanding.touchpoints. Please list the changed files in files.modify/create/test for at least one item to enable strict touchpoint-to-files validation"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"Fast structural invariant smoke (packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts) asserting the full chain (bootstrap-runner requires utils/dist + test invokes full-suite-runner + pretest builds both, main before utils) is registered in lattice.config.json validate.commands as the permanent regression guard\" but there is no corresponding checklist item and it is not excluded"
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-fb7b is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "30b1a7d94c5c3771ce7d2b0169afe3994ef5c77728987666a7fa9757626a4a3e"
+    },
+    {
+      "timestamp": "2026-08-14T03:26:32.783Z",
+      "issueCount": 4,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 3 undigested unknowns: RESOLVED (decision_set): RED shape = a fast structural invariant smoke wired into validate.commands (bootstrap-runner requires utils/dist + test invokes full-suite-runner + pretest actually builds both packages, main before utils) PLUS a behavioral repro-first RED that runs npm run pretest and asserts packages/utils/dist is produced; both are non-destructive (no dist removal).; RESOLVED (decision_set): the always-on pretest main build is additive and reproduces identical dist bytes, so it does not conflict with the packages-main-build proof receipt or materialHash freshness.; RESOLVED (decision_set): register the fast structural smoke in validate.commands as the permanent guard; keep the heavier behavioral RED as tests/red evidence only (not in validate.commands, to avoid a build on every validate)."
+        },
+        {
+          "type": "touchpoint_mapping_missing",
+          "severity": "advisory",
+          "message": "None of the checklist items have the files field filled in (legacy story compatibility mode); cannot perform coverage validation on understanding.touchpoints. Please list the changed files in files.modify/create/test for at least one item to enable strict touchpoint-to-files validation"
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-fb7b is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "2e9e92d246dd6b5ecd57065b283ce6860f672abd22283a968740ae39343fa668"
+    }
+  ]
+}

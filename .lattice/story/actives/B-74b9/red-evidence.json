@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-74b9",
+  "records": [
+    {
+      "id": "RED-20260815203025",
+      "trigger": "proofstory-acceptance-basis-smoke.ts's plannedBeforeCode assertion is 'partial' not 'complete' due to two snapshot_missing blind spots (acceptance-rollout.ts, run-proofstory-acceptance-rollout-cohort.mjs) not stubbed in the fixture's synthetic pureRoot",
+      "acceptanceTargetRef": "AB-001",
+      "baselineHeadHash": "b4d8e324209f56004d47b94ce646a050336ad8f4",
+      "baselineMaterialHash": "b16219b479143eaf5429942c8ba6f3c31e5f45d342f1833fb829c915e5b2731e",
+      "observedFailure": "AssertionError: valid PLAN endpoints are structurally complete before implementation files exist -- actual: 'partial', expected: 'complete'; blindSpots included snapshot-seal:snapshot_missing:source_file:packages/main/src/core/acceptance-rollout.ts and scripts/run-proofstory-acceptance-rollout-cohort.mjs. Directly observed by running node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js on the pre-fix tree before writeCanonicalAcceptanceRegistration was extended with the two missing stub files.",
+      "failingCommand": "node packages/main/tests/red/red-B-74b9-chk001-acceptance-basis.mjs",
+      "expectedGreenCommand": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
+      "greenRelation": {
+        "targetRef": "AB-001",
+        "relation": "same_acceptance",
+        "command": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js"
+      },
+      "note": "RED confirmed by direct pre-fix repro; fix adds two stub write() calls to writeCanonicalAcceptanceRegistration.",
+      "createdAt": "2026-08-15T20:30:25.798Z"
+    },
+    {
+      "id": "RED-20260815203026",
+      "trigger": "field-regression-cli-smoke.ts's assertReviewRunStartCliSurface calls review_pass_set without the now-required --readManifest, so the fixture's own /already stale|stale/i assertion fails on an argument-validation message instead of the staleness scenario it was written to test",
+      "acceptanceTargetRef": "AB-002",
+      "baselineHeadHash": "b4d8e324209f56004d47b94ce646a050336ad8f4",
+      "baselineMaterialHash": "b16219b479143eaf5429942c8ba6f3c31e5f45d342f1833fb829c915e5b2731e",
+      "observedFailure": "AssertionError: The input did not match /already stale|stale/i. Input: 'Argument validation failed:\\n  readManifest: Invalid input: expected object, received undefined\\n...'. Directly observed by running node packages/main/dist/tasks/field-regression-cli-smoke.js on the pre-fix tree before a valid readManifest was added to the review_pass_set call.",
+      "failingCommand": "node packages/main/tests/red/red-B-74b9-chk002-readmanifest.mjs",
+      "expectedGreenCommand": "node packages/main/dist/tasks/field-regression-cli-smoke.js",
+      "greenRelation": {
+        "targetRef": "AB-002",
+        "relation": "same_acceptance",
+        "command": "node packages/main/dist/tasks/field-regression-cli-smoke.js"
+      },
+      "note": "RED confirmed by direct pre-fix repro; fix passes a valid readManifest object matching other passing tests' shape.",
+      "createdAt": "2026-08-15T20:30:26.316Z"
+    },
+    {
+      "id": "RED-20260815203026",
+      "trigger": "worktree-authority-smoke.ts's assertDoneRecoverRunsPostMergeBuildForRuntimeChanges synthetic root has no package.json, so done_recover's now-wired bumpVersionOnDoneMerge throws ENOENT before the stubbed build runner is ever reached",
+      "acceptanceTargetRef": "AB-003",
+      "baselineHeadHash": "b4d8e324209f56004d47b94ce646a050336ad8f4",
+      "baselineMaterialHash": "b16219b479143eaf5429942c8ba6f3c31e5f45d342f1833fb829c915e5b2731e",
+      "observedFailure": "Error: DONE post-merge version bump failed before any commit: ENOENT: no such file or directory, open '<tmpdir>/package.json' from bumpVersionOnDoneMerge (core/version-bump.ts), called via handlers/done-recover.ts's done_recover handler. Directly observed by running node packages/main/dist/tasks/worktree-authority-smoke.js on the pre-fix tree before the five version sync-point files were added to the fixture's synthetic root scaffold.",
+      "failingCommand": "node packages/main/tests/red/red-B-74b9-chk003-version-bump.mjs",
+      "expectedGreenCommand": "node -e \"const {spawnSync}=require('child_process');const r=spawnSync(process.execPath,['packages/main/dist/tasks/worktree-authority-smoke.js'],{encoding:'utf8'});const out=(r.stdout||'')+(r.stderr||'');process.exit(out.includes('DONE post-merge version bump failed before any commit')?1:0);\"",
+      "greenRelation": {
+        "targetRef": "AB-003",
+        "relation": "same_acceptance",
+        "command": "node -e \"const {spawnSync}=require('child_process');const r=spawnSync(process.execPath,['packages/main/dist/tasks/worktree-authority-smoke.js'],{encoding:'utf8'});const out=(r.stdout||'')+(r.stderr||'');process.exit(out.includes('DONE post-merge version bump failed before any commit')?1:0);\""
+      },
+      "note": "RED confirmed by direct pre-fix repro; fix adds the five version sync-point stub files to the fixture's synthetic root. NOTE: after this fix the whole-file run still exits non-zero, but ONLY due to a confirmed-unrelated, separately-tracked pre-existing bug in a downstream assertion (task_a8d49518), verified via isolated reproduction on a clean untouched main checkout -- see CHK-003 verificationIntent INT-CHK003-GREEN for full detail.",
+      "createdAt": "2026-08-15T20:30:26.847Z"
+    }
+  ],
+  "createdAt": "2026-08-15T20:30:25.798Z",
+  "updatedAt": "2026-08-15T20:30:26.847Z"
+}

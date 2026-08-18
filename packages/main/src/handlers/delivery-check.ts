@@ -1,5 +1,5 @@
 /**
- * Delivery Check handler — lattice delivery_check_set
+ * Delivery Check handler — proof-or-stop delivery_check_set
  *
  * Signing utility functions for the TEST → DONE hard gate artifact delivery-check.json.
  *

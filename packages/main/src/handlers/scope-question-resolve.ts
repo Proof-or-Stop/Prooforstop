@@ -1,5 +1,5 @@
 /**
- * B-ed3e CHK-003: Open Question resolve handler — lattice scope_question_resolve
+ * B-ed3e CHK-003: Open Question resolve handler — proof-or-stop scope_question_resolve
  *
  * Main agent writes a written resolution for Open Questions raised by the scope-plan reviewer.
  *

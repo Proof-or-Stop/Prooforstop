@@ -31,6 +31,7 @@ export type {
   QueueGovernanceReport,
   QueueGovernanceRow,
 } from '../control-status.js';
+import { readBrandEnv } from '../../brand-env.js';
 
 const TERMINAL_PHASES = new Set(['DONE', 'DISCARDED', 'META']);
 const MIGRATION_TITLE_RUN_PATTERN = /^Tier-C provider-execution receipt verification(?: \([^)]+\))? run\b/;
@@ -171,7 +172,7 @@ export function setQueueException(root: string, input: QueueExceptionSetInput): 
     storyFilesHash: storyFilesHashFor(root, storyIds),
     dashboardMode: input.dashboardMode ?? 'collapsed',
     cleanupPolicy: 'preserve',
-    actor: input.actor?.trim() || process.env.LATTICE_AGENT || process.env.USER || 'unknown',
+    actor: input.actor?.trim() || readBrandEnv('AGENT') || process.env.USER || 'unknown',
     reason: input.reason.trim(),
     createdAt: now,
   };

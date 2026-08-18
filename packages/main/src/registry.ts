@@ -1,5 +1,5 @@
 /**
- * Handler Registry — Proofbound 的工具注册中心
+ * Handler Registry — Proof-or-Stop 的工具注册中心
  *
  * 设计目的：让 main 暴露一个清晰的注册接口，外部包（如 @lattice/utils）
  * 可以把自己的 handler 通过 registry.register / registerBatch 注入进来，
@@ -129,6 +129,7 @@ import { createBaselineHandlers } from './handlers/baseline.js';
 import { createBaselineSuiteHandlers } from './handlers/baseline-suite.js';
 import { createRedEvidenceHandlers } from './handlers/red-evidence.js';
 import { nextStoryId } from './handlers/context.js';
+import { readBrandEnv } from './core/brand-env.js';
 
 export type HandlerFn = (...args: any[]) => any;
 
@@ -242,7 +243,7 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   registry.registerBatch(createCheckHandlers(ctx));
 
   // B-a2f1 CHK-003: recover_evidence — single-shot stale-evidence recovery
-  // (refuse-on-non-metadata-dirt → verification_evidence_refresh_stale → lattice validate).
+  // (refuse-on-non-metadata-dirt → verification_evidence_refresh_stale → proof-or-stop validate).
   registry.registerBatch(createRecoverEvidenceHandlers(ctx));
 
   // B-cf60: artifact_declare — per-story declared product artifact registration.
@@ -360,8 +361,8 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   // B-6bfd CHK-004: guard session projection — guard_session_start/status/check
   registry.registerBatch(createGuardSessionHandlers(ctx));
 
-  // B-ad2c: dev_memory_* — lightweight experience capture outside Proofbound story gates.
-  // Non-authoritative: entries cannot satisfy Proofbound DONE gate evidence.
+  // B-ad2c: dev_memory_* — lightweight experience capture outside Proof-or-Stop story gates.
+  // Non-authoritative: entries cannot satisfy Proof-or-Stop DONE gate evidence.
   registry.registerBatch(createDevMemoryHandlers(ctx));
 
   // B-0aa1: repro-first candidate-only evidence intake MVP.
@@ -374,7 +375,7 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   registry.registerBatch(createQuantumClaimAdmissibilityHandlers(ctx));
   registry.registerBatch(createPlaybookRuntimeMemoryHandlers(ctx));
 
-  // Host-neutral capability discovery for Proofbound adapters.
+  // Host-neutral capability discovery for Proof-or-Stop adapters.
   registry.registerBatch(createCapabilityListHandlers());
 
   // B-097f/B-235e: agent_prompt returns the canonical package-registry host
@@ -384,7 +385,7 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   registry.registerBatch(createAgentPromptHandlers(ctx));
   registry.registerBatch(createPromptMeasurementHandlers());
 
-  // Proofbound productized export and cross-host handoff surfaces.
+  // Proof-or-Stop productized export and cross-host handoff surfaces.
   registry.registerBatch(createLatticeCliHandlers(ctx));
   registry.registerBatch(createLatticeAutopilotHandlers(ctx));
   // Autopilot projection/executor surfaces (autopilot_run/status/execute/doctor).
@@ -451,7 +452,7 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
  * 新代码请用 createMainRegistry。
  */
 export function createToolHandlers(store: StoryStore, projectRoot?: string, log?: (msg: string) => void) {
-  const root = projectRoot || process.env.LATTICE_PROJECT_ROOT || process.cwd();
+  const root = projectRoot || readBrandEnv('PROJECT_ROOT') || process.cwd();
   const config = loadConfig(root);
   const scanRoot = join(root, config.scanRoot);
   const ctx: HandlerContext = { store, root, scanRoot, log };

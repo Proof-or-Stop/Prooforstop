@@ -1,0 +1,461 @@
+{
+  "passes": [
+    {
+      "id": "B-1734:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept-deletion completeness: B-fb7b existence-based (existsSync) reuse fully migrated to content-bound verifyBuildBinding/verifyUtilsBuildBinding + withBuildLock at all three call sites, no orphaned flock/mtime/ensure(pkg)/dangling-import residue found; remaining existsSync/existence-based hits are either unrelated scripts or deliberate negative-test fixtures. No blocker.",
+      "createdAt": "2026-08-15T12:54:32.481Z",
+      "reviewRound": "2026-08-15T12:47:18.679Z",
+      "reviewRunId": "B-1734:RR-001",
+      "envelopeId": "7fb91fce0ef830afae2f12302eed2b5dc7e562689cb8aefcdc5e546c7a29c3c1",
+      "writerSessionId": "sess-1f7ee7188c4071b3c7bb2ff9c71b58a5",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-1734/background.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "packages/main/tests/red/red-1734-content-binding.mjs",
+          "packages/main/tests/red/red-1734-lock-liveness.mjs",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs",
+          "packages/utils/package.json",
+          "scripts/build-lock.mjs",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/build-utils-with-binding.mjs",
+          "scripts/ensure-dist.mjs",
+          "scripts/full-suite-build-binding.mjs"
+        ],
+        "filesTriagedByName": [
+          "CHANGELOG.md",
+          "package-lock.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "201fd7e6147fea4f42504d98f5cb9803e45210f5b160f561155882b16f1637ff"
+    },
+    {
+      "id": "B-1734:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Verified retained concurrency core (5 rounds converged): build-lock.mjs/build-lock-target.mjs, both build-*-with-binding.mjs, promote-dist.mjs, bootstrap-runner.js. tsc runs execFileAsync/awaited (D2), lock wraps staging+promote+writeBuildBinding at both call sites, in-lock stray-sibling cleanup confirmed inside lock, promoteDist restores dist from trash on 2nd-rename failure, bootstrap-runner stays proper-lockfile-free and gates on lock mtime freshness with 20min IMPORT_WAIT_MAX_MS ceiling, no recoverOrphanedPromotion residue, no unused imports/unhandled rejections. Ran all 7 red-1734/red-fb7b tests live (incl. 40-reader concurrent race) -- all pass. The 4 documented residuals (reader-lease TOCTOU, binding-vs-source TOCTOU, desktop buildPackages outside lock, crash-between-renames) are correctly anchored in CHANGELOG.md and source comments; not re-raised per converge decision. No new defects found; revert is clean.",
+      "createdAt": "2026-08-15T23:48:24.911Z",
+      "reviewRound": "2026-08-15T23:40:37.744Z",
+      "reviewRunId": "B-1734:RR-004",
+      "envelopeId": "1fdcfb654f9f38db310fc7f8e730c9b31e331eae042f22a12d5e39ee64aef584",
+      "writerSessionId": "sess-1f7ee7188c4071b3c7bb2ff9c71b58a5",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "bin/bootstrap-runner.js",
+          "CHANGELOG.md",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "scripts/build-lock-target.mjs",
+          "scripts/build-lock.mjs",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/build-utils-with-binding.mjs",
+          "scripts/ensure-dist.mjs",
+          "scripts/full-suite-build-binding.mjs",
+          "scripts/promote-dist.mjs"
+        ],
+        "filesTriagedByName": [
+          ".gitignore",
+          "lattice.config.json",
+          "package-lock.json",
+          "package.json",
+          "packages/main/tests/red/red-1734-bootstrap-depfree.mjs",
+          "packages/main/tests/red/red-1734-content-binding.mjs",
+          "packages/main/tests/red/red-1734-desktop-asset-manifest.mjs",
+          "packages/main/tests/red/red-1734-lock-liveness.mjs",
+          "packages/main/tests/red/red-1734-reader-race.mjs",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs",
+          "packages/utils/package.json",
+          "scripts/package-desktop.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c9e8d7926fa3383a072f5cb6088b7ff1482916d1bb2fa1d3e2858f01a15716b3"
+    },
+    {
+      "id": "B-1734:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Concept-deletion scan: recoverOrphanedPromotion (+ private helpers buildLockFresh, safe) fully removed in dedf7c6eb4. git grep recoverOrphanedPromotion repo-wide returns only CHANGELOG.md:127 documentary prose explaining the revert, zero code/test residue. bin/bootstrap-runner.js imports only ../scripts/build-lock-target.mjs; scripts/promote-dist.mjs retains only promoteDist (node:fs builtins only); scripts/package-desktop.mjs asset manifest lists build-lock-target.mjs but not promote-dist.mjs. Reader-race test cases readerrace:5/6 (the reverted recovery tests) removed in lockstep. Ran red-1734-bootstrap-depfree, red-1734-desktop-asset-manifest, red-1734-reader-race -- all PASS with expected post-revert case counts. No blocker.",
+      "createdAt": "2026-08-15T23:50:13.582Z",
+      "reviewRound": "2026-08-15T23:40:37.744Z",
+      "reviewRunId": "B-1734:RR-006",
+      "envelopeId": "894c6ddf2d4f2bf62a67333098ffdebced3d21fa29faded9bdef24667089c2b0",
+      "writerSessionId": "sess-1f7ee7188c4071b3c7bb2ff9c71b58a5",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-1734/background.md",
+          ".lattice/story/actives/B-1734/checklist.json",
+          "bin/bootstrap-runner.js",
+          "CHANGELOG.md",
+          "packages/main/tests/red/red-1734-bootstrap-depfree.mjs",
+          "packages/main/tests/red/red-1734-desktop-asset-manifest.mjs",
+          "packages/main/tests/red/red-1734-reader-race.mjs",
+          "scripts/promote-dist.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/tests/red/red-1734-content-binding.mjs",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "scripts/build-lock.mjs",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/build-utils-with-binding.mjs",
+          "scripts/package-desktop.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6c340f6edd2ff57c4c0f0230baaf84ee88afd4f2a33d17a41c8b5b757f39615b"
+    },
+    {
+      "id": "B-1734:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (re-review of CONVERGED B-1734): intent_coverage_check + proofstory_gate_check both 0 gaps. Ran all 5 red files end-to-end and all VI-OK selectors printed genuinely: red-1734-content-binding.mjs 18/18 (incl. new rebuild:0-3 which run the REAL scripts/build-main-with-binding.mjs against the actual worktree dist after inducing orphan/partial/tamper/absent-manifest and assert the rebuilt dist then VERIFIES, not just that verify throws), red-1734-lock-liveness.mjs 12/12 (incl. adversarial:5 D2 heartbeat-during-async), red-1734-reader-race.mjs 5/5 (readerrace:0-4; confirmed readerrace:5/6 removed, only a historical CHANGELOG mention remains, no code references), red-1734-bootstrap-depfree.mjs 4/4, red-1734-desktop-asset-manifest.mjs 1/1. Confirmed all four deferred residuals (reader-lease TOCTOU #1, binding-vs-source TOCTOU #3, desktop buildPackages-outside-mutex #4, crash-between-promotion-renames) are documented in CHANGELOG.md Known limitations/follow-up AND anchored with inline KNOWN LIMITATION comments at bin/bootstrap-runner.js:98, scripts/build-main-with-binding.mjs:84, scripts/package-desktop.mjs:167, scripts/promote-dist.mjs:43. No new blockers raised, per the maintainer convergence decision. Observed one non-reproducible transient dist-file-missing artifact via a direct CLI call OUTSIDE any story test (not caught or caused by any story test assertion); resolved by a normal rebuild, not reproduced on retry, not raised as a story finding since the story's own tests genuinely exercise and would fail on exactly this class of corruption and did not.",
+      "createdAt": "2026-08-15T23:52:27.339Z",
+      "reviewRound": "2026-08-15T23:40:37.744Z",
+      "reviewRunId": "B-1734:RR-007",
+      "envelopeId": "230ace7eab72359587c9d5a91cb3789847f2921d2b8dd0342d472a5c637c49a0",
+      "writerSessionId": "sess-1f7ee7188c4071b3c7bb2ff9c71b58a5",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-1734/checklist.json",
+          "CHANGELOG.md",
+          "packages/main/tests/red/red-1734-bootstrap-depfree.mjs",
+          "packages/main/tests/red/red-1734-content-binding.mjs",
+          "packages/main/tests/red/red-1734-lock-liveness.mjs",
+          "packages/main/tests/red/red-1734-reader-race.mjs",
+          "scripts/build-main-with-binding.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-1734/background.md",
+          ".lattice/story/actives/B-1734/plan.md",
+          "bin/bootstrap-runner.js",
+          "packages/main/tests/red/red-1734-desktop-asset-manifest.mjs",
+          "scripts/build-lock.mjs",
+          "scripts/full-suite-build-binding.mjs",
+          "scripts/package-desktop.mjs",
+          "scripts/promote-dist.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4b33c3084eff75c2db57bd70c231124d1a8ddb83e6906d295439d269c5e7ae40"
+    },
+    {
+      "id": "B-1734:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Converged core sound (5 Codex rounds drove it to soundness), deep residuals documented + deferred to infra follow-up, guard re-pin verified (retired-authority + verify-process-fact-contract both pass, fingerprint-pinned, full validate 100/100 green).",
+      "createdAt": "2026-08-16T00:59:06.335Z",
+      "reviewRound": "2026-08-16T00:56:34.128Z",
+      "reviewRunId": "B-1734:RR-008",
+      "envelopeId": "fb3c3c4cccbb956597d6b4492b5221b94c00f1733efd29d87cb0f8bdd38e3514",
+      "writerSessionId": "sess-1f7ee7188c4071b3c7bb2ff9c71b58a5",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "bin/bootstrap-runner.js",
+          "CHANGELOG.md",
+          "scripts/build-lock-target.mjs",
+          "scripts/build-lock.mjs",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/build-utils-with-binding.mjs",
+          "scripts/ensure-dist.mjs",
+          "scripts/promote-dist.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/tests/red/red-1734-content-binding.mjs",
+          "packages/main/tests/red/red-1734-lock-liveness.mjs",
+          "packages/main/tests/red/red-1734-reader-race.mjs",
+          "scripts/package-desktop.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c9840c9bdb16ca92cacfe81431995db229d2857f5ee6bd469ad8ee1e4078d527"
+    },
+    {
+      "id": "B-1734:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Converged core sound (5 Codex rounds drove it to soundness), deep residuals documented + deferred to infra follow-up, guard re-pin verified (retired-authority + verify-process-fact-contract both pass, fingerprint-pinned, full validate 100/100 green).",
+      "createdAt": "2026-08-16T00:59:09.919Z",
+      "reviewRound": "2026-08-16T00:56:34.128Z",
+      "reviewRunId": "B-1734:RR-009",
+      "envelopeId": "de72b355b4282c132f0528a6568ee838d7f62e31d6531453303d7a91099724fa",
+      "writerSessionId": "sess-1f7ee7188c4071b3c7bb2ff9c71b58a5",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "bin/bootstrap-runner.js",
+          "CHANGELOG.md",
+          "scripts/build-lock-target.mjs",
+          "scripts/build-lock.mjs",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/build-utils-with-binding.mjs",
+          "scripts/ensure-dist.mjs",
+          "scripts/promote-dist.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/tests/red/red-1734-content-binding.mjs",
+          "packages/main/tests/red/red-1734-lock-liveness.mjs",
+          "packages/main/tests/red/red-1734-reader-race.mjs",
+          "scripts/package-desktop.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "bbd8c815bf2005247cf9fe96fb704d8c71aefa3cf4e70cd5da4b48071f90de3c"
+    },
+    {
+      "id": "B-1734:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "Converged core sound (5 Codex rounds drove it to soundness), deep residuals documented + deferred to infra follow-up, guard re-pin verified (retired-authority + verify-process-fact-contract both pass, fingerprint-pinned, full validate 100/100 green).",
+      "createdAt": "2026-08-16T00:59:13.442Z",
+      "reviewRound": "2026-08-16T00:56:34.128Z",
+      "reviewRunId": "B-1734:RR-010",
+      "envelopeId": "3d8d69d9c7d50ecf9eccc5fb7913c435044e07a7cb49edc5af4ff0d28e993701",
+      "writerSessionId": "sess-1f7ee7188c4071b3c7bb2ff9c71b58a5",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "bin/bootstrap-runner.js",
+          "CHANGELOG.md",
+          "scripts/build-lock-target.mjs",
+          "scripts/build-lock.mjs",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/build-utils-with-binding.mjs",
+          "scripts/ensure-dist.mjs",
+          "scripts/promote-dist.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/tests/red/red-1734-content-binding.mjs",
+          "packages/main/tests/red/red-1734-lock-liveness.mjs",
+          "packages/main/tests/red/red-1734-reader-race.mjs",
+          "scripts/package-desktop.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "fcb29270c1c38ae2abf070cc0f5a18ee55aeaff520d2e0bf6eb174780a1d1fe8"
+    },
+    {
+      "id": "B-1734:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "Converged core sound (5 Codex rounds), residuals documented + deferred to infra follow-up, guard re-pin verified, red-b49d4 mis-derivation fixed (both red-1734 tests fall outside the derivation predicate, red-b49d4 untouched), full suite 100/100 green.",
+      "createdAt": "2026-08-16T02:02:57.147Z",
+      "reviewRound": "2026-08-16T02:02:30.995Z",
+      "reviewRunId": "B-1734:RR-011",
+      "envelopeId": "c63cb6a9c3f5adefeed24a56a4489933749c3c6b73ada3b1f64ecf2e008df3a7",
+      "writerSessionId": "sess-1f7ee7188c4071b3c7bb2ff9c71b58a5",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "bin/bootstrap-runner.js",
+          "CHANGELOG.md",
+          "scripts/build-lock-target.mjs",
+          "scripts/build-lock.mjs",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/build-utils-with-binding.mjs",
+          "scripts/ensure-dist.mjs",
+          "scripts/promote-dist.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/tests/red/red-1734-content-binding.mjs",
+          "packages/main/tests/red/red-1734-lock-liveness.mjs",
+          "packages/main/tests/red/red-1734-reader-race.mjs",
+          "packages/main/tests/red/red-b49d4-registration-derivation.mjs",
+          "scripts/package-desktop.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "728e5a0b0eb28aedb2feeefeccbbb9baee8dd639db4c410dcf9a50e43dcc5e46"
+    },
+    {
+      "id": "B-1734:RP-009",
+      "agent": "lattice-review-quality",
+      "note": "Converged core sound (5 Codex rounds), residuals documented + deferred to infra follow-up, guard re-pin verified, red-b49d4 mis-derivation fixed (both red-1734 tests fall outside the derivation predicate, red-b49d4 untouched), full suite 100/100 green.",
+      "createdAt": "2026-08-16T02:03:00.681Z",
+      "reviewRound": "2026-08-16T02:02:30.995Z",
+      "reviewRunId": "B-1734:RR-012",
+      "envelopeId": "d1956714825d9cd01df0b70a5d2328415220385ae25edcf687ee96a126597465",
+      "writerSessionId": "sess-1f7ee7188c4071b3c7bb2ff9c71b58a5",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "bin/bootstrap-runner.js",
+          "CHANGELOG.md",
+          "scripts/build-lock-target.mjs",
+          "scripts/build-lock.mjs",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/build-utils-with-binding.mjs",
+          "scripts/ensure-dist.mjs",
+          "scripts/promote-dist.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/tests/red/red-1734-content-binding.mjs",
+          "packages/main/tests/red/red-1734-lock-liveness.mjs",
+          "packages/main/tests/red/red-1734-reader-race.mjs",
+          "packages/main/tests/red/red-b49d4-registration-derivation.mjs",
+          "scripts/package-desktop.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b8cf02643f5ad32f7b24fa1d183b028155c903bd4378262e067f4dbbd2d594b0"
+    },
+    {
+      "id": "B-1734:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "Converged core sound (5 Codex rounds), residuals documented + deferred to infra follow-up, guard re-pin verified, red-b49d4 mis-derivation fixed (both red-1734 tests fall outside the derivation predicate, red-b49d4 untouched), full suite 100/100 green.",
+      "createdAt": "2026-08-16T02:03:04.233Z",
+      "reviewRound": "2026-08-16T02:02:30.995Z",
+      "reviewRunId": "B-1734:RR-013",
+      "envelopeId": "6cf612902f1f8cf59ba188f2abe9117937d08b72d76f6a2d98a3b01ac1c78c7a",
+      "writerSessionId": "sess-1f7ee7188c4071b3c7bb2ff9c71b58a5",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "bin/bootstrap-runner.js",
+          "CHANGELOG.md",
+          "scripts/build-lock-target.mjs",
+          "scripts/build-lock.mjs",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/build-utils-with-binding.mjs",
+          "scripts/ensure-dist.mjs",
+          "scripts/promote-dist.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/tests/red/red-1734-content-binding.mjs",
+          "packages/main/tests/red/red-1734-lock-liveness.mjs",
+          "packages/main/tests/red/red-1734-reader-race.mjs",
+          "packages/main/tests/red/red-b49d4-registration-derivation.mjs",
+          "scripts/package-desktop.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "d3cd016b103954a449f80d76101321ab122ce3177068190ba0545b1d37a9d1e1"
+    },
+    {
+      "id": "B-1734:RP-011",
+      "agent": "lattice-review-concept",
+      "note": "Re-anchor pass at post-merge material: converged core sound (5 Codex rounds), residuals documented + deferred to infra follow-up, guard re-pin + red-b49d4 fix verified, full suite green in isolation, merged up-to-date with main.",
+      "createdAt": "2026-08-16T16:23:38.603Z",
+      "reviewRound": "2026-08-16T16:23:16.712Z",
+      "reviewRunId": "B-1734:RR-014",
+      "envelopeId": "bea65827f4ccfb5054eb37301d2383834e0af2d4bb93d6327fcc8ca0f8e1097e",
+      "writerSessionId": "sess-1f7ee7188c4071b3c7bb2ff9c71b58a5",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "bin/bootstrap-runner.js",
+          "CHANGELOG.md",
+          "scripts/build-lock-target.mjs",
+          "scripts/build-lock.mjs",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/build-utils-with-binding.mjs",
+          "scripts/ensure-dist.mjs",
+          "scripts/promote-dist.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/tests/red/red-1734-content-binding.mjs",
+          "packages/main/tests/red/red-1734-lock-liveness.mjs",
+          "packages/main/tests/red/red-1734-reader-race.mjs",
+          "scripts/package-desktop.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "bd5d7b62370f53bd64382c6cea9358f4e074fa980945968c09dd110efedf2d6b"
+    },
+    {
+      "id": "B-1734:RP-012",
+      "agent": "lattice-review-quality",
+      "note": "Re-anchor pass at post-merge material: converged core sound (5 Codex rounds), residuals documented + deferred to infra follow-up, guard re-pin + red-b49d4 fix verified, full suite green in isolation, merged up-to-date with main.",
+      "createdAt": "2026-08-16T16:23:44.044Z",
+      "reviewRound": "2026-08-16T16:23:16.712Z",
+      "reviewRunId": "B-1734:RR-015",
+      "envelopeId": "90d847824a188f69f7ec6e8ce44f3333253d54fdf9d046c8201eea5ae2095b7e",
+      "writerSessionId": "sess-1f7ee7188c4071b3c7bb2ff9c71b58a5",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "bin/bootstrap-runner.js",
+          "CHANGELOG.md",
+          "scripts/build-lock-target.mjs",
+          "scripts/build-lock.mjs",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/build-utils-with-binding.mjs",
+          "scripts/ensure-dist.mjs",
+          "scripts/promote-dist.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/tests/red/red-1734-content-binding.mjs",
+          "packages/main/tests/red/red-1734-lock-liveness.mjs",
+          "packages/main/tests/red/red-1734-reader-race.mjs",
+          "scripts/package-desktop.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5aa471b0169f1bd00c6b5b1505db0cd4879e41a16779728e08083cf1d0494781"
+    },
+    {
+      "id": "B-1734:RP-013",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-anchor pass at post-merge material: converged core sound (5 Codex rounds), residuals documented + deferred to infra follow-up, guard re-pin + red-b49d4 fix verified, full suite green in isolation, merged up-to-date with main.",
+      "createdAt": "2026-08-16T16:23:49.024Z",
+      "reviewRound": "2026-08-16T16:23:16.712Z",
+      "reviewRunId": "B-1734:RR-016",
+      "envelopeId": "b8664d6cbc703abff31b39b4bffa522c808d38e2bf5495b095312e150f76dc96",
+      "writerSessionId": "sess-1f7ee7188c4071b3c7bb2ff9c71b58a5",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "bin/bootstrap-runner.js",
+          "CHANGELOG.md",
+          "scripts/build-lock-target.mjs",
+          "scripts/build-lock.mjs",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/build-utils-with-binding.mjs",
+          "scripts/ensure-dist.mjs",
+          "scripts/promote-dist.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/tests/red/red-1734-content-binding.mjs",
+          "packages/main/tests/red/red-1734-lock-liveness.mjs",
+          "packages/main/tests/red/red-1734-reader-race.mjs",
+          "scripts/package-desktop.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "de5ab294c9ccf3b69e99b041946e546db52572d4d2400eea12a171ea58cdcf94"
+    }
+  ]
+}

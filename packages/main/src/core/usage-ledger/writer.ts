@@ -42,6 +42,7 @@ import {
   type UsageLedgerRecordInput,
   validateUsageLedgerRecord,
 } from './record.js';
+import { readBrandEnv } from '../brand-env.js';
 
 /** Relative path of the ledger from the project root. */
 export const USAGE_LEDGER_DIR = join('.lattice', 'usage');
@@ -65,7 +66,7 @@ export const GENESIS_PREVIOUS_HASH = null;
  * restarting the process.
  */
 export function isUsageLedgerEnabled(env: NodeJS.ProcessEnv = process.env): boolean {
-  const raw = env.LATTICE_USAGE_LEDGER;
+  const raw = readBrandEnv('USAGE_LEDGER', env);
   if (raw === undefined) return true;
   const normalized = raw.trim().toLowerCase();
   return normalized === '1' || normalized === 'true' || normalized === 'on' || normalized === 'yes';
@@ -144,7 +145,7 @@ export function resolveLedgerLockPath(projectRoot: string): string {
 }
 
 function nonNegativeIntEnv(env: NodeJS.ProcessEnv, key: string, fallback: number): number {
-  const raw = env[key];
+  const raw = readBrandEnv(key, env);
   if (raw === undefined) return fallback;
   const parsed = Number(raw.trim());
   return Number.isInteger(parsed) && parsed >= 0 ? parsed : fallback;
@@ -299,8 +300,8 @@ function maybeReclaimAbandonedLock(lockDir: string, staleMs: number): void {
  * callers go through appendUsageRecord only.
  */
 export function acquireLedgerLock(lockDir: string, env: NodeJS.ProcessEnv): string | null {
-  const waitMs = nonNegativeIntEnv(env, 'LATTICE_USAGE_LEDGER_LOCK_WAIT_MS', DEFAULT_LOCK_WAIT_MS);
-  const staleMs = nonNegativeIntEnv(env, 'LATTICE_USAGE_LEDGER_LOCK_STALE_MS', DEFAULT_LOCK_STALE_MS);
+  const waitMs = nonNegativeIntEnv(env, 'PROOF_OR_STOP_USAGE_LEDGER_LOCK_WAIT_MS', DEFAULT_LOCK_WAIT_MS);
+  const staleMs = nonNegativeIntEnv(env, 'PROOF_OR_STOP_USAGE_LEDGER_LOCK_STALE_MS', DEFAULT_LOCK_STALE_MS);
   const deadline = Date.now() + waitMs;
   for (;;) {
     let acquired = false;

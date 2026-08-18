@@ -137,11 +137,22 @@ function basename(token: string): string {
   return token.replace(/\\/g, '/').split('/').pop() ?? token;
 }
 
+// B-cdf6:F-042 — recognized ONLY the deprecated bin, so producer-command provenance
+// worked for `lattice acceptance_matrix` and silently FAILED for the canonical
+// `proof-or-stop acceptance_matrix`. That is backwards from the read-both contract:
+// the new name is canonical and must be recognized, the old one is kept for
+// compatibility. Both are accepted now, and the deprecated spellings are retained
+// deliberately so evidence recorded before the rename still resolves.
+const ACCEPTANCE_WRAPPER_BASENAMES = ['proof-or-stop', 'lattice'] as const;
+const ACCEPTANCE_WRAPPER_SCRIPTS = ['bin/proof-or-stop.js', 'bin/lattice.js'] as const;
+
 function isLatticeWrapper(token: string): boolean {
   const normalized = token.replace(/\\/g, '/').replace(/^\.\//, '');
-  return basename(normalized) === 'lattice'
-    || normalized === 'bin/lattice.js'
-    || normalized.endsWith('/bin/lattice.js');
+  const base = basename(normalized);
+  return (ACCEPTANCE_WRAPPER_BASENAMES as readonly string[]).includes(base)
+    || (ACCEPTANCE_WRAPPER_SCRIPTS as readonly string[]).some(
+      script => normalized === script || normalized.endsWith(`/${script}`),
+    );
 }
 
 function skipsRootOption(tokens: string[], index: number): number {

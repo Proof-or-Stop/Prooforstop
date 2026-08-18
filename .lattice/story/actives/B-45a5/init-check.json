@@ -1,0 +1,73 @@
+{
+  "storyId": "B-45a5",
+  "checkedAt": "2026-08-16T22:56:43.166Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "medium",
+      "desc": "Anti-backdoor construction is asymmetric between CHK-002 and CHK-003. CHK-002 explicitly forbids the naive path (Do NOT route this through core/checklist-status.ts, it would yield a naive status===withdrawn skip) and names the required helper. CHK-003 targets handlers/validate-channel.ts checkDispatchEvidence, which I verified currently takes opts={checklist, events, mainAgentOwnedItems} with ZERO scope-shrinkage-decision awareness (no decisionRef plumbing at all) -- the only field already on hand for a checklist item is its bare status. CHK-003's context only says Same structural backing as the previous item and never restates the explicit prohibition against a bare status check, even though this file is structurally more exposed to the naive shortcut than CHK-002's target (which is already decision-aware two lines above the insertion point). CHK-004's own test case status=withdrawn with NO decisionRef would catch a naive implementation before DONE, so there is a backstop, but the checklist text itself leaves room for a fresh implementer (who per CLAUDE.md fresh-worker-per-item model gets only this item's title+context) to satisfy CHK-003 literally via item.status alone. Recommend restating CHK-002's explicit prohibition in CHK-003's context before DEV."
+    },
+    {
+      "id": "INIT-002",
+      "severity": "medium",
+      "desc": "CHK-005 mutates a DIFFERENT, currently-active story (B-8df9, verified: phase=REVIEW in its own worktree .worktrees/B-8df9, separate from B-45a5's own worktree). I confirmed by executing a command against B-8df9 from the wrong cwd that Lattice enforces a hard per-story cwd gate (Story B-8df9 must execute lattice commands inside the worktree), so this item requires operating inside .worktrees/B-8df9, not B-45a5's worktree -- and per CLAUDE.md's story-owner-lease section this is exactly the cross-session write-coordination scenario the framework has dedicated machinery for. Neither background.md nor CHK-005's context mentions that this item touches a second worktree/story, or that lease/ownership should be checked before mutating B-8df9's evidence while it is live in REVIEW. The CLI's own error message is self-guiding (it names the correct cd target), which mitigates but does not fully cover the gap, since nothing in CHK-005 itself signals up front that a worktree switch is required."
+    },
+    {
+      "id": "INIT-003",
+      "severity": "medium",
+      "desc": "background.md's Solution Tradeoffs section discusses a candidate deliverable (deriving the withdrawal-consumer set generally, so future REVIEW-path gates do not repeat this same missed-wiring pattern) at length, then explicitly declines to resolve it: its inclusion here is a judgement call, not an obvious yes. No checklist item addresses recurrence prevention / consumer-set derivation, and the background never states plainly whether this is deliberately out of scope for B-45a5 or deferred to a future story. A reader six months from now cannot tell whether this is an intentional exclusion or a dropped promise. Recommend either adding an explicit checklist item or a one-line explicit scope statement (e.g., out of scope for this story, tracked separately)."
+    },
+    {
+      "id": "INIT-004",
+      "severity": "low",
+      "desc": "CHK-004's enumerated anti-bypass test list covers userConfirmed absent/false but does not explicitly name the sibling case where decision itself is the other legal value, rejected (verified in packages/main/src/core/types.ts:2881 the field type is confirmed|rejected), combined with an otherwise well-formed item listing and userConfirmed=true. decisionAuthorizesWithdrawal requires BOTH decision===confirmed AND userConfirmed===true, so a rejected-but-userConfirmed-true decision is a distinct unbacked-withdrawal case not named in the cover at least list. The at least wording already signals non-exhaustiveness so this is minor, but worth naming explicitly given how central CHK-004 is to the story."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-08-16T22:48:17.109Z",
+      "issues": [
+        {
+          "id": "I-PR-1",
+          "severity": "medium",
+          "desc": "No userSees on any checklist item and no understanding.outcome yet. The story describes the engineering fix precisely but never states what the operator SEES differently after this ships. At PLAN, the outcome must be written as a concrete transcript -- e.g. story_advance --phase=TEST succeeding without waivers for a withdrawn item, with the exact terminal output that replaces the current gate refusal. Without this the story risks passing all engineering checks while the product acceptance criterion (a user-visible transcript proving the waiver prose is gone) remains undefined."
+        },
+        {
+          "id": "I-PR-2",
+          "severity": "low",
+          "desc": "CHK-005 references three B-8df9 waivers (CHK-004:happy:0 / edge:0 / adversarial:0) that do not yet exist -- B-8df9 is currently at INIT_CHECK. The item context correctly acknowledges the ordering constraint (must happen BEFORE B-8df9 reaches DONE), but the waivers cannot be deleted until B-8df9 progresses far enough to create them. This is a sequencing advisory: CHK-005 is not executable until B-8df9 reaches at least DEV and creates the waiver evidence rows. If B-8df9 stalls or is discarded, CHK-005 becomes vacuous and should be withdrawn rather than waived."
+        }
+      ]
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-08-16T22:56:43.166Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "medium",
+          "desc": "Anti-backdoor construction is asymmetric between CHK-002 and CHK-003. CHK-002 explicitly forbids the naive path (Do NOT route this through core/checklist-status.ts, it would yield a naive status===withdrawn skip) and names the required helper. CHK-003 targets handlers/validate-channel.ts checkDispatchEvidence, which I verified currently takes opts={checklist, events, mainAgentOwnedItems} with ZERO scope-shrinkage-decision awareness (no decisionRef plumbing at all) -- the only field already on hand for a checklist item is its bare status. CHK-003's context only says Same structural backing as the previous item and never restates the explicit prohibition against a bare status check, even though this file is structurally more exposed to the naive shortcut than CHK-002's target (which is already decision-aware two lines above the insertion point). CHK-004's own test case status=withdrawn with NO decisionRef would catch a naive implementation before DONE, so there is a backstop, but the checklist text itself leaves room for a fresh implementer (who per CLAUDE.md fresh-worker-per-item model gets only this item's title+context) to satisfy CHK-003 literally via item.status alone. Recommend restating CHK-002's explicit prohibition in CHK-003's context before DEV."
+        },
+        {
+          "id": "INIT-002",
+          "severity": "medium",
+          "desc": "CHK-005 mutates a DIFFERENT, currently-active story (B-8df9, verified: phase=REVIEW in its own worktree .worktrees/B-8df9, separate from B-45a5's own worktree). I confirmed by executing a command against B-8df9 from the wrong cwd that Lattice enforces a hard per-story cwd gate (Story B-8df9 must execute lattice commands inside the worktree), so this item requires operating inside .worktrees/B-8df9, not B-45a5's worktree -- and per CLAUDE.md's story-owner-lease section this is exactly the cross-session write-coordination scenario the framework has dedicated machinery for. Neither background.md nor CHK-005's context mentions that this item touches a second worktree/story, or that lease/ownership should be checked before mutating B-8df9's evidence while it is live in REVIEW. The CLI's own error message is self-guiding (it names the correct cd target), which mitigates but does not fully cover the gap, since nothing in CHK-005 itself signals up front that a worktree switch is required."
+        },
+        {
+          "id": "INIT-003",
+          "severity": "medium",
+          "desc": "background.md's Solution Tradeoffs section discusses a candidate deliverable (deriving the withdrawal-consumer set generally, so future REVIEW-path gates do not repeat this same missed-wiring pattern) at length, then explicitly declines to resolve it: its inclusion here is a judgement call, not an obvious yes. No checklist item addresses recurrence prevention / consumer-set derivation, and the background never states plainly whether this is deliberately out of scope for B-45a5 or deferred to a future story. A reader six months from now cannot tell whether this is an intentional exclusion or a dropped promise. Recommend either adding an explicit checklist item or a one-line explicit scope statement (e.g., out of scope for this story, tracked separately)."
+        },
+        {
+          "id": "INIT-004",
+          "severity": "low",
+          "desc": "CHK-004's enumerated anti-bypass test list covers userConfirmed absent/false but does not explicitly name the sibling case where decision itself is the other legal value, rejected (verified in packages/main/src/core/types.ts:2881 the field type is confirmed|rejected), combined with an otherwise well-formed item listing and userConfirmed=true. decisionAuthorizesWithdrawal requires BOTH decision===confirmed AND userConfirmed===true, so a rejected-but-userConfirmed-true decision is a distinct unbacked-withdrawal case not named in the cover at least list. The at least wording already signals non-exhaustiveness so this is minor, but worth naming explicitly given how central CHK-004 is to the story."
+        }
+      ]
+    }
+  ],
+  "_hash": "b54e55d0c4a9e891d38b1ee83e1a55b3d47ae0a1af1f4a82444b8d8114154e98"
+}

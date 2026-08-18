@@ -12,7 +12,7 @@ import { execSync } from 'child_process';
 import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 import type { HandlerContext } from './context.js';
-import { loadConfig, pickProjectConfigPath, LATTICE_CONFIG_FILENAME } from '../core/config.js';
+import { loadConfig, pickProjectConfigPath, PROOF_OR_STOP_CONFIG_FILENAME } from '../core/config.js';
 import { executeBrowserCases, type BrowserStep, type BrowserCaseResult } from '../tasks/browser-executor.js';
 import { FixtureProfilerSession } from '../tasks/profiler.js';
 import { saveTraceSnapshot, loadTraceSnapshot } from '../tasks/trace-store.js';
@@ -77,13 +77,13 @@ export function createTestAutoHandlers(ctx: HandlerContext) {
         }, null, 2);
       }
 
-      // Proofbound 自身项目禁止全量测试（自己测自己会副作用污染）
+      // Proof-or-Stop 自身项目禁止全量测试（自己测自己会副作用污染）
       try {
         const pkgPath = join(root, 'packages', 'main', 'package.json');
         if (existsSync(pkgPath)) {
           const pkg = JSON.parse(readFileSync(pkgPath, 'utf-8'));
           if (pkg.name === CANONICAL_CORE_PACKAGE_NAME) {
-            throw new Error('Proofbound 自身项目禁止 test_auto 全量测试（会自己测自己导致副作用污染）。请运行 lattice validate --story=<storyId>，并用 checklist_update 或 verification_evidence_add 记录 verificationEvidence');
+            throw new Error('Proof-or-Stop 自身项目禁止 test_auto 全量测试（会自己测自己导致副作用污染）。请运行 proof-or-stop validate --story=<storyId>，并用 checklist_update 或 verification_evidence_add 记录 verificationEvidence');
           }
         }
       } catch (e: any) {
@@ -96,7 +96,7 @@ export function createTestAutoHandlers(ctx: HandlerContext) {
 
       // CHK-004: storyId 已废弃
       if (args.storyId) {
-        warnings.push('⚠ storyId 已废弃，test_auto 现在始终执行全量回归。当前 story 验证请用 lattice validate --story=<storyId> 并记录 verificationEvidence');
+        warnings.push('⚠ storyId 已废弃，test_auto 现在始终执行全量回归。当前 story 验证请用 proof-or-stop validate --story=<storyId> 并记录 verificationEvidence');
       }
       progress(`[DEBUG] root=${root}`);
       progress(`[DEBUG] config.fixturesDir=${config.fixturesDir}`);
@@ -186,10 +186,10 @@ export function createTestAutoHandlers(ctx: HandlerContext) {
             for (const c of group.cases) {
               // DEBUG: 追踪项目配置文件（lattice canonical / legacy）被谁改了
               const _cfgPicked = pickProjectConfigPath(root);
-              const _cfgPath = _cfgPicked?.path ?? join(root, LATTICE_CONFIG_FILENAME);
+              const _cfgPath = _cfgPicked?.path ?? join(root, PROOF_OR_STOP_CONFIG_FILENAME);
               const _cfgLabel = _cfgPicked
                 ? `${_cfgPicked.filename}${_cfgPicked.legacy ? ' (legacy)' : ' (canonical)'}`
-                : `${LATTICE_CONFIG_FILENAME} (canonical, missing)`;
+                : `${PROOF_OR_STOP_CONFIG_FILENAME} (canonical, missing)`;
               let _cfgBefore = '';
               try { _cfgBefore = readFileSync(_cfgPath, 'utf-8').slice(0, 30); } catch {}
               progress(`${fileName}:${c.name} START → ${_cfgLabel}: ${_cfgBefore.replace(/\n/g, ' ')}`);
@@ -277,7 +277,7 @@ export function createTestAutoHandlers(ctx: HandlerContext) {
         }
       }
 
-      // CHK-004: test_auto 全量回归不写 bug/evidence（当前流程用 lattice validate + verificationEvidence）
+      // CHK-004: test_auto 全量回归不写 bug/evidence（当前流程用 proof-or-stop validate + verificationEvidence）
       const totalCases = fixtureResults.reduce((sum, r) => sum + r.cases.length, 0);
       const passedCases = fixtureResults.reduce((sum, r) => sum + r.cases.filter(c => c.passed).length, 0);
       const browserAllPassed = browserResults.every(r => r.passed);

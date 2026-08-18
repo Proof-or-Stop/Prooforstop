@@ -122,7 +122,7 @@ function seedSignals(root: string, signals: FindingSignal[]): void {
 }
 
 /** Minimal lattice.config.json so StoryStore + config resolve in the temp root. */
-function writeLatticeConfig(root: string): void {
+function writeProofOrStopConfig(root: string): void {
   write(root, 'lattice.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
@@ -236,7 +236,7 @@ check('CHK-002 happy:0 — ON-arm REVIEW guidance contains the hints section aft
   const onId = findStoryIdForArm('on');
   assert.equal(resolveHintMode(onId), 'on', 'precondition: onId is ON arm (sha256 first byte even)');
   const root = mkTempRoot();
-  writeLatticeConfig(root);
+  writeProofOrStopConfig(root);
   seedStory(new StoryStore(root), onId, 'REVIEW');
   seedSignals(root, hintYieldingSignals());
 
@@ -263,14 +263,14 @@ check('CHK-002 edge:0 — OFF-arm REVIEW guidance is BYTE-IDENTICAL to the no-hi
 
   // Baseline: same OFF story, NO signals seeded => no hints at all.
   const baselineRoot = mkTempRoot();
-  writeLatticeConfig(baselineRoot);
+  writeProofOrStopConfig(baselineRoot);
   seedStory(new StoryStore(baselineRoot), offId, 'REVIEW');
   const baseline = reviewNextSteps(baselineRoot, offId);
   assert.equal(surfacedEvents(baselineRoot).length, 0, 'baseline: no hints => no event');
 
   // OFF arm WITH signals: section must be suppressed → byte-identical guidance.
   const offRoot = mkTempRoot();
-  writeLatticeConfig(offRoot);
+  writeProofOrStopConfig(offRoot);
   seedStory(new StoryStore(offRoot), offId, 'REVIEW');
   seedSignals(offRoot, hintYieldingSignals());
   const offText = reviewNextSteps(offRoot, offId);
@@ -289,7 +289,7 @@ check('CHK-002 edge:0 — OFF-arm REVIEW guidance is BYTE-IDENTICAL to the no-hi
 check('CHK-003 edge:0 — cross-site dedup: PLAN plan:<phase> event vs REVIEW ISO-key event are disjoint; second REVIEW buildNextSteps adds no event; REVIEW reviewRound == ISO currentReviewRound', () => {
   const onId = findStoryIdForArm('on');
   const root = mkTempRoot();
-  writeLatticeConfig(root);
+  writeProofOrStopConfig(root);
   const store = new StoryStore(root);
   // Start in PLAN so story_review keys on plan:<phase>.
   seedStory(store, onId, 'PLAN');
@@ -346,7 +346,7 @@ check('CHK-002 adversarial:1 — buildNextSteps does NOT fire experience_hint_su
     'precondition: onId is ON arm (would render + fire a hint if the REVIEW IIFE ran unguarded)');
 
   const root = mkTempRoot();
-  writeLatticeConfig(root);
+  writeProofOrStopConfig(root);
   // Seed the story in a NON-REVIEW phase (DEV) WITH finding-signals: if the
   // eager REVIEW IIFE fired surfaceExperienceHints, it would write an event keyed
   // on plan:DEV and (on the ON arm) render a section.
@@ -380,14 +380,14 @@ check('CHK-003 adversarial:0 — INVARIANT: resolveReviewPromptHash byte-identic
   const reviewerPrompt = 'REVIEW reviewer prompt: examine the diff for the story.';
 
   const onRoot = mkTempRoot();
-  writeLatticeConfig(onRoot);
+  writeProofOrStopConfig(onRoot);
   seedStory(new StoryStore(onRoot), onId, 'REVIEW');
   seedSignals(onRoot, hintYieldingSignals());
   reviewNextSteps(onRoot, onId); // surface ON-arm hints (non-empty render)
   const onHash = resolveReviewPromptHash(reviewerPrompt);
 
   const offRoot = mkTempRoot();
-  writeLatticeConfig(offRoot);
+  writeProofOrStopConfig(offRoot);
   seedStory(new StoryStore(offRoot), offId, 'REVIEW');
   seedSignals(offRoot, hintYieldingSignals());
   reviewNextSteps(offRoot, offId); // surface OFF-arm hints (empty render)
@@ -401,7 +401,7 @@ check('CHK-003 adversarial:0 — INVARIANT: resolveReviewPromptHash byte-identic
 check('CHK-001 edge:0 (GOLDEN) — story_review _reviewPrompt bytes + event payload byte-identical to pre-extraction literals on the ON arm', () => {
   assert.equal(resolveHintMode(GOLDEN_ON_ID), 'on', 'golden precondition: GOLDEN_ON_ID is ON arm');
   const root = mkTempRoot();
-  writeLatticeConfig(root);
+  writeProofOrStopConfig(root);
   seedStory(new StoryStore(root), GOLDEN_ON_ID, 'PLAN');
   seedSignals(root, hintYieldingSignals());
 
@@ -423,7 +423,7 @@ check('CHK-001 edge:0 (GOLDEN) — story_review _reviewPrompt bytes + event payl
 check('CHK-001 edge:1 (GOLDEN) — story_review _reviewPrompt bytes + event payload byte-identical to pre-extraction literals on the OFF arm (lossless event)', () => {
   assert.equal(resolveHintMode(GOLDEN_OFF_ID), 'off', 'golden precondition: GOLDEN_OFF_ID is OFF arm');
   const root = mkTempRoot();
-  writeLatticeConfig(root);
+  writeProofOrStopConfig(root);
   seedStory(new StoryStore(root), GOLDEN_OFF_ID, 'PLAN');
   seedSignals(root, hintYieldingSignals());
 
@@ -453,7 +453,7 @@ check('CHK-001 happy:0 — surfaceExperienceHints leaf ON-arm returns rendered s
   const onId = findStoryIdForArm('on');
   assert.equal(resolveHintMode(onId), 'on', 'precondition: onId is ON arm (sha256 first byte even)');
   const root = mkTempRoot();
-  writeLatticeConfig(root);
+  writeProofOrStopConfig(root);
   // NOTE: the leaf reads .lattice/learning/ at the canonical main-repo root when
   // the temp root is a git worktree, but these temp roots are NON-git dirs, so
   // resolveLearningRoot falls back to the temp root itself and the seeded signals
@@ -496,7 +496,7 @@ check('CHK-001 happy:0 — surfaceExperienceHints leaf ON-arm returns rendered s
 check('CHK-001 adversarial:0 — a load/track failure inside surfaceExperienceHints is swallowed (renderedSection empty, fired=false, no throw, no partial event)', () => {
   const onId = findStoryIdForArm('on');
   const root = mkTempRoot();
-  writeLatticeConfig(root);
+  writeProofOrStopConfig(root);
   seedSignals(root, hintYieldingSignals()); // valid hints => the leaf reaches the append/track step
 
   // Occupy the runtime activity-log path with a DIRECTORY so appendActivityLog's
@@ -528,7 +528,7 @@ check('CHK-002 adversarial:0 — a hint-surface failure never blocks/alters the 
 
   // Baseline REVIEW guidance with NO signals (no hints, no event).
   const baselineRoot = mkTempRoot();
-  writeLatticeConfig(baselineRoot);
+  writeProofOrStopConfig(baselineRoot);
   seedStory(new StoryStore(baselineRoot), onId, 'REVIEW');
   const baseline = reviewNextSteps(baselineRoot, onId);
 
@@ -536,7 +536,7 @@ check('CHK-002 adversarial:0 — a hint-surface failure never blocks/alters the 
   // the leaf's try/catch must swallow it, leaving the guidance byte-identical to
   // the no-hints baseline and the transition unaffected.
   const root = mkTempRoot();
-  writeLatticeConfig(root);
+  writeProofOrStopConfig(root);
   seedStory(new StoryStore(root), onId, 'REVIEW');
   write(root, '.lattice/learning/finding-signals.json', '{ not valid json');
   const text = reviewNextSteps(root, onId);
@@ -570,7 +570,7 @@ check('CHK-002 adversarial:0 — a hint-path failure inside buildNextSteps never
   assert.equal(resolveHintMode(onId), 'on', 'precondition: onId is ON arm (the leaf reaches the failing track step)');
 
   const root = mkTempRoot();
-  writeLatticeConfig(root);
+  writeProofOrStopConfig(root);
   seedStory(new StoryStore(root), onId, 'REVIEW');
   seedSignals(root, hintYieldingSignals()); // valid hints => the leaf reaches the append/track step
 

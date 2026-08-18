@@ -11,7 +11,7 @@
 
 ## Why This Document Exists
 
-Story B-785e proved that Proofbound can finish a non-runtime product capability story, record an artifact release, and ingest the DONE experience into playbook learning. The live evidence is real (one-time manual observation, captured here as motivation — it is NOT a test input; see M0):
+Story B-785e proved that Proof-or-Stop can finish a non-runtime product capability story, record an artifact release, and ingest the DONE experience into playbook learning. The live evidence is real (one-time manual observation, captured here as motivation — it is NOT a test input; see M0):
 
 - `.lattice/artifact-releases.jsonl` contains an artifact release for `B-785e` (`AR-4e885ed0209e5a32330cdc33`) with five released docs/experiment paths.
 - `.lattice/learning/playbook-promotion-health.jsonl` records `DONE candidate ingest applied; proposedCount=1; candidateCreatedCount=1`.
@@ -25,7 +25,7 @@ DONE experience candidate exists
 but no first-class product capability release is linked to the playbook lineage
 ```
 
-The result is that Proofbound remembers "a DONE story produced a lesson", but it does not yet remember "a reusable product capability version was released and this playbook candidate is about that capability".
+The result is that Proof-or-Stop remembers "a DONE story produced a lesson", but it does not yet remember "a reusable product capability version was released and this playbook candidate is about that capability".
 
 This document defines the execution plan to close that gap without weakening the existing safety boundary that candidate playbooks are inert until explicitly exposed, evaluated, and promoted by evidence.
 
@@ -78,7 +78,7 @@ So the right fix is not "activate every DONE candidate". The right fix is to mak
 2. Do not optimize arbitrarily.
 3. Only fix real correctness and product-semantics issues.
 4. Preserve consistency of logic across DONE, artifact release, capability release, and playbook promotion.
-5. Keep Lattice / Proofbound host-neutral. No capability release or playbook lifecycle step may belong to Codex, Claude, Antigravity, or any one host namespace. **The cross-host source of truth is the git-tracked `capability-releases.jsonl` ledger, not the git-ignored `playbooks.json`** (see M4/M8 durability model).
+5. Keep Proof-or-Stop / Proof-or-Stop host-neutral. No capability release or playbook lifecycle step may belong to Codex, Claude, Antigravity, or any one host namespace. **The cross-host source of truth is the git-tracked `capability-releases.jsonl` ledger, not the git-ignored `playbooks.json`** (see M4/M8 durability model).
 6. Do not conflate runtime semver with non-runtime product capability releases.
 7. Do not make candidate playbooks active runtime guidance without exposure and outcome evidence.
 8. Every persisted identity (record id, idempotency key, capability digest, version) MUST be deterministic and merge-stable — reproducible on a fresh clean checkout, and identical across a DONE re-merge / recovery of the same content. No identity may embed a volatile input (merge SHA, wall-clock, stateful counter).
@@ -282,8 +282,8 @@ Existing candidates without capability lineage remain valid but are reported as 
 Add two read-only commands as **pure ledger clones** of `handlers/artifact-release.ts` (its json/text renderers + read-only boundary asserts):
 
 ```bash
-lattice capability_release_list --json
-lattice capability_release_status --storyId=B-785e --json
+proof-or-stop capability_release_list --json
+proof-or-stop capability_release_status --storyId=B-785e --json
 ```
 
 Register each across all five mechanical sites (command-catalog schema/description, registry `registerBatch`, handler, `command-policy.ts` — mirror the `artifact_release_*` entries at `command-policy.ts:180-181` with `ownershipClass:'readOnly', destructiveRisk:'none', allowedPhases:'all'`, and `core/config.ts` `DEFAULT_PHASE_TOOLS['*']` — add a `'capability_release_*'` wildcard mirroring the `'artifact_release_*'` entry at `config.ts:225`) plus `process-fact-levels.ts` L0 entries (mirror `:80-81`). Without the policy entry `getCommandPolicy` returns undefined and the commands lose their read-only guarantees; without the `DEFAULT_PHASE_TOOLS` entry the commands are not exposed across phases even though `allowedPhases:'all'` — the phase-tool whitelist gates availability independently of command-policy.
@@ -318,8 +318,8 @@ Every follow-up exposure writes a record with: `playbookId`, `capabilityReleaseI
 **The standalone `capability_release_backfill` command (M8) is the follow-up story:**
 
 ```bash
-lattice capability_release_backfill --dryRun --storyId=B-785e --json
-lattice capability_release_backfill --apply --storyId=B-785e --digest=<dry-run-digest> --json
+proof-or-stop capability_release_backfill --dryRun --storyId=B-785e --json
+proof-or-stop capability_release_backfill --apply --storyId=B-785e --digest=<dry-run-digest> --json
 ```
 
 Backfill rules: may enrich existing candidate lineage; must not create duplicate candidates; must not activate candidates; must not infer `helped`; must be idempotent; `--apply` requires a `--digest` matching the dry-run plan digest or refuses (a write-guard, since backfill mutates the ledger and enriches candidates; classify its `destructiveRisk`/`allowedPhases` deliberately as a writer, not read-only).
@@ -355,9 +355,9 @@ node packages/main/dist/tasks/product-capability-release-red-smoke.js       # M0
 node packages/main/dist/tasks/product-capability-release-smoke.js            # M1-M3: schema/ledger/digest/idempotency/reader-fail-closed
 node packages/main/dist/tasks/playbook-capability-lineage-smoke.js           # M4: optional-field parse, enrichment, re-apply no-op, recover-path
 node packages/main/dist/tasks/capability-release-invariants-smoke.js         # M6/M7 assert + hermetic backfill proof
-lattice capability_release_status --storyId=B-785e --json                    # M5 read CLI (renders; no live mutation)
-lattice playbook_promotion_status --json                                     # M5 candidate-lineage column
-lattice validate --json
+proof-or-stop capability_release_status --storyId=B-785e --json                    # M5 read CLI (renders; no live mutation)
+proof-or-stop playbook_promotion_status --json                                     # M5 candidate-lineage column
+proof-or-stop validate --json
 ```
 
 Expected proofs (each tagged to its milestone):
@@ -373,8 +373,8 @@ Expected proofs (each tagged to its milestone):
 ### Follow-up subset (separate story)
 
 ```bash
-lattice capability_release_backfill --dryRun --storyId=B-785e --json
-lattice capability_release_backfill --apply --storyId=B-785e --digest=<dry-run-digest> --json
+proof-or-stop capability_release_backfill --dryRun --storyId=B-785e --json
+proof-or-stop capability_release_backfill --apply --storyId=B-785e --digest=<dry-run-digest> --json
 ```
 
 ## Risk Register

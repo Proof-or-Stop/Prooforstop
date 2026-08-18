@@ -20,9 +20,9 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
-  renderLatticeBootstrapScript,
+  renderProofOrStopBootstrapScript,
 } from '../init-assets.js';
-import { formatLatticeProductLine, formatLatticeVersionLine } from '../core/lattice-brand.js';
+import { formatProofOrStopProductLine, formatLatticeVersionLine } from '../core/lattice-brand.js';
 import { loadConfig, resetConfigCache } from '../core/config.js';
 
 const packageRoot = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
@@ -33,10 +33,10 @@ function writeText(root: string, relPath: string, content: string): void {
   writeFileSync(full, content);
 }
 
-assert.equal(formatLatticeVersionLine(), formatLatticeProductLine(), 'version output should be exactly the product line');
+assert.equal(formatLatticeVersionLine(), formatProofOrStopProductLine(), 'version output should be exactly the product line');
 
 // The generated bootstrap advertises only the canonical lattice entrypoint.
-const bootstrap = renderLatticeBootstrapScript(packageRoot);
+const bootstrap = renderProofOrStopBootstrapScript(packageRoot);
 assert.match(bootstrap, /coreCliEngineCandidates/, 'generated bootstrap must resolve the core CLI engine');
 assert.match(bootstrap, /runCli/, 'generated bootstrap must invoke the lattice CLI runner');
 

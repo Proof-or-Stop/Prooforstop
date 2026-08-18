@@ -210,7 +210,7 @@ try {
 
   console.log(JSON.stringify({
     measurementKind: 'byte-exact prompt components; token counts are byte/4 estimates',
-    storyScopedHostUsage: 'reported separately from this deterministic smoke via read-only lattice usage_sweep; it is a non-authoritative, overlapping attribution when multiAttribution=true',
+    storyScopedHostUsage: 'reported separately from this deterministic smoke via read-only proof-or-stop usage_sweep; it is a non-authoritative, overlapping attribution when multiAttribution=true',
     baselinePostFixPromptBytes: promptBytes(baselinePrompt),
     largeCorpusPostFixPromptBytes: postBytes,
     promptByteDeltaAfterAddingCorpus: postBytes - promptBytes(baselinePrompt),

@@ -193,36 +193,36 @@ function localSteps(storyId: string | undefined, targetPhase: AutopilotUntilPhas
   const steps: AutopilotStep[] = [
     {
       id: 'session-brief',
-      command: 'lattice session_brief',
+      command: 'proof-or-stop session_brief',
       purpose: 'Load current lifecycle status and next action guidance.',
       mutates: false,
       authorityRequired: false,
     },
     {
       id: 'docs',
-      command: 'lattice aux_doc_list',
+      command: 'proof-or-stop aux_doc_list',
       purpose: 'Inspect relevant project documentation before taking action.',
       mutates: false,
       authorityRequired: false,
     },
     {
       id: 'story',
-      command: storyId ? `lattice story_get --storyId=${storyId}` : 'lattice story_list --active',
+      command: storyId ? `proof-or-stop story_get --storyId=${storyId}` : 'proof-or-stop story_list --active',
       purpose: 'Bind the autopilot loop to an explicit active Story.',
       mutates: false,
       authorityRequired: false,
     },
     {
       id: 'validate',
-      command: storyId ? `lattice validate --story=${storyId}` : 'lattice validate',
+      command: storyId ? `proof-or-stop validate --story=${storyId}` : 'proof-or-stop validate',
       purpose: 'Run project validation before lifecycle advancement.',
       mutates: true,
       authorityRequired: false,
     },
     {
       id: 'asset-check',
-      command: 'lattice check',
-      purpose: 'Confirm Proofbound managed assets are not drifted.',
+      command: 'proof-or-stop check',
+      purpose: 'Confirm Proof-or-Stop managed assets are not drifted.',
       mutates: false,
       authorityRequired: false,
     },
@@ -230,7 +230,7 @@ function localSteps(storyId: string | undefined, targetPhase: AutopilotUntilPhas
   if (targetPhase === 'DONE' || targetPhase === 'TEST') {
     steps.push({
       id: 'codex-adapter',
-      command: storyId ? `lattice codex verify --storyId=${storyId}` : 'lattice codex verify',
+      command: storyId ? `proof-or-stop codex verify --storyId=${storyId}` : 'proof-or-stop codex verify',
       purpose: 'Refresh Codex adapter evidence when Codex assets are in scope.',
       mutates: true,
       authorityRequired: false,
@@ -239,7 +239,7 @@ function localSteps(storyId: string | undefined, targetPhase: AutopilotUntilPhas
   if (storyId) {
     steps.push({
       id: 'advance-target',
-      command: `lattice story_advance${storyArg} --phase=${targetPhase}`,
+      command: `proof-or-stop story_advance${storyArg} --phase=${targetPhase}`,
       purpose: `Attempt lifecycle advancement toward ${targetPhase} after evidence gates pass.`,
       mutates: true,
       authorityRequired: false,
@@ -303,7 +303,7 @@ export function buildAutopilotRun(
     plannedSteps,
     executedSteps: dryRun ? [] : plannedSteps.slice(0, maxSteps).filter(step => !step.authorityRequired),
     nextActions: [...nextActions],
-    note: 'Local autopilot is pure local Proofbound workflow; server Authority modes are retired from active runtime.',
+    note: 'Local autopilot is pure local Proof-or-Stop workflow; server Authority modes are retired from active runtime.',
   };
 }
 
@@ -326,6 +326,6 @@ export function buildAutopilotStatus(
     multiHostPolicy: multiHostPolicyProjection({}),
     receiptVerified: false,
     productionDone: false,
-    nextActions: ['Use lattice autopilot run for projection, or lattice autopilot execute --mode=local --storyId=B-xxx for bounded local execution.'],
+    nextActions: ['Use proof-or-stop autopilot run for projection, or proof-or-stop autopilot execute --mode=local --storyId=B-xxx for bounded local execution.'],
   };
 }

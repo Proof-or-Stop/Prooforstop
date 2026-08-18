@@ -23,7 +23,7 @@
  */
 
 import { execSync } from 'child_process';
-import type { LatticeConfig } from './config.js';
+import type { ProofOrStopConfig } from './config.js';
 import type { StoryStore } from './store.js';
 import {
   DIRTY_WORKTREE_CATEGORIES,
@@ -54,7 +54,7 @@ export function readGitStatusLines(gitCwd: string): { ok: true; lines: string[] 
 // Task B-cf60: when a storyId/store is available, mix in declaredArtifactPaths from the
 // per-story declared-artifacts.json so declared paths flip from unexpected → declared.
 export function classifierOptionsForCheck(
-  config: LatticeConfig,
+  config: ProofOrStopConfig,
   storyId: string | undefined,
   store: StoryStore | undefined,
   projectRoot?: string,

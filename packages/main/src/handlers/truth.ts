@@ -76,7 +76,7 @@ export function createTruthHandlers(ctx: HandlerContext) {
       }
 
       let architecture = '# Project Architecture (auto-extracted)\n\n';
-      architecture += '> Auto-generated from code metadata by `lattice truth_extract`\n\n';
+      architecture += '> Auto-generated from code metadata by `proof-or-stop truth_extract`\n\n';
       architecture += '## File Structure\n\n';
       for (const [file, functions] of byFile) {
         architecture += `### ${file}\n\n`;
@@ -91,7 +91,7 @@ export function createTruthHandlers(ctx: HandlerContext) {
 
       if (stories.length > 0) {
         let storySummary = '# Story Summary (auto-extracted)\n\n';
-        storySummary += '> Auto-generated from Story data by `lattice truth_extract`\n\n';
+        storySummary += '> Auto-generated from Story data by `proof-or-stop truth_extract`\n\n';
         for (const story of stories) {
           storySummary += `## ${story.id}: ${story.title} [${story.phase}]\n\n`;
           storySummary += `${story.description}\n\n`;
@@ -121,7 +121,7 @@ export function createTruthHandlers(ctx: HandlerContext) {
         `- ${extractedDir}/stories.md (${stories.length} Stories)`,
         `- ${extractedDir}/features.md (${featureTasks.length} features)`,
         '',
-        '→ Run lattice truth_nav to update navigation',
+        '→ Run proof-or-stop truth_nav to update navigation',
       ].join('\n');
     },
   };

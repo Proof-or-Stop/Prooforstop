@@ -53,6 +53,613 @@
       ],
       "signatureTag": "missing|ts|concurrency-hardening-follow",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-META-framework-audit:F-004",
+      "desc": "Story owner lease liveness is decided ONLY by the heartbeatAt timestamp and never checks whether the recorded pid is still alive, so a dead process that left a fresh heartbeat locks its OWN successor session out of the story. Observed on B-cdf6: owner-lease.json recorded sessionId sess-9a7d88c7fd9facada1536ec0cf731786 / pid 56154 / heartbeatAt 2026-08-11T14:12:17Z. `ps -p 56154` shows the process is GONE, yet because heartbeatAt is inside STALE_LEASE_THRESHOLD_MS (30 min, story-owner-lease.ts:437) the lease is classified ACTIVE and `proof-or-stop doctor` reports `stale leases: 0`. Consequently `node bin/lattice-codex.js verify_codex` was refused as an owner-gated storyScopedMutating command even though the CURRENT session identity is the SAME sessionId (session_brief reports `sess-9a7d88c7fd9facada1536ec0cf731786 [host-adapter provider=claude-code]`). Two distinct defects: (1) liveness ignores the pid it already parses and stores (pid is read at story-owner-lease.ts:194-195 and persisted at :212, but never consulted in the staleness decision at :417); (2) the same-session fast path used by the verify_codex gate did not recognise an identical sessionId as self, so the operator is locked out of their own story with no non-dangerous exit. The only available recovery is --forceTakeover, which the CLI documents as 'a deliberate human override ... the operator KNOWS they are seizing a live session's lock' - semantically wrong here, because there is no live session to seize. This pushes operators toward routinely using the most dangerous flag for a benign self-recovery, eroding the meaning of the override.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-08-11T14:32:24.803Z",
+      "reviewRound": "",
+      "gapFingerprint": "cf146740efca0531cc512496fb8fbe8d44f62ee45e10e37b20f6e9325072a15e",
+      "files": [
+        "packages/main/src/core/story-owner-lease.ts:417",
+        "packages/main/src/core/story-owner-lease.ts:437",
+        "packages/main/src/core/story-owner-lease.ts:194",
+        "packages/main/src/core/story-owner-lease.ts:212",
+        ".lattice/story/actives/B-cdf6/owner-lease.json",
+        "packages/main/src/core/story-owner-lease.ts",
+        "packages/main/src/cli-engine.ts"
+      ],
+      "_hash": "f88e07183b450dd5b8efa7067875a699351f307f8cfc4202d42a67c5be44ee4b"
+    },
+    {
+      "id": "B-META-framework-audit:F-005",
+      "desc": "verify_codex's agents-mirror check and `init`'s codex-asset writer disagree on WHICH render mode is canonical for the 5 reconstruction-backed roles, so a freshly initialised full-mode project fails its own adapter verification. `init --profile=all --asset-mode=full` writes a MODULAR body (marker `<!-- proofbound:modular-role-body:v1 -->`, 3927 bytes for lattice-evaluator.md) into .lattice-codex/agents/, while codex-adapter-checks.ts:387 compares that file against renderPromptEntryForHost(entry, 'codex'), which returns the LEGACY-FULL-CONTEXT reconstruction (8896 bytes, marker `<!-- lattice:start -->`). First divergence is line 6, the marker itself. Affected files: lattice-evaluator.md, lattice-implementer.md, lattice-review-delivery.md, lattice-review-scope-plan.md, lattice-review-story-init.md - exactly the roles that resolve through the legacy-full-context path (which is the DEFAULT mode per prompt-role-contract-registry.ts, not a dead branch). Consequence: `verify_codex` reports `drift .lattice-codex/agents/<file>` and exits non-zero on a project that init itself just created, so scripts/verify-entrypoints.mjs check 8/28 cannot pass and the codex-adapter REVIEW->TEST CLI gate is unreachable for any story that touches Codex adapter assets. PROVEN PRE-EXISTING, independent of the B-cdf6 brand rename: running the identical probe against the pristine main checkout (/Users/qipan/work/repo/Prooforstop) reproduces the same mismatch with the same shape (expected 8896 / actual 3927 / DRIFT), and `git log -S'proofbound:modular-role-body'` attributes the marker to commit a260249f64 (B-235e, 'serve reviewer bootstraps from registry'), not to this story.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-08-11T15:07:47.811Z",
+      "reviewRound": "",
+      "gapFingerprint": "54d9e1da9ea37583e5a7376729ffe1cec335d5d912815aa30063e3142f42fd87",
+      "files": [
+        "packages/main/src/core/codex-adapter-checks.ts:387",
+        "packages/main/src/core/prompt-registry.ts",
+        "scripts/verify-entrypoints.mjs:512",
+        "packages/main/src/core/prompt-role-contract-registry.ts",
+        "packages/main/src/core/codex-adapter-checks.ts",
+        "packages/main/src/cli-init.ts"
+      ],
+      "_hash": "e6193f17591b7cf7e5eadd638c0caa682503bde980bbe9312656c6f6ae10c7b5"
+    },
+    {
+      "id": "B-META-framework-audit:F-006",
+      "desc": "The convergence breaker's own remediation instruction is wrong for DEV-phase stories, so the operator it is trying to help is sent to a command that cannot diagnose anything. On B-cdf6 (phase=DEV) the freeze message said verbatim: 'Next action (a human, not an autopilot session): run `proof-or-stop done_prepare --dryRun --storyId=B-cdf6` to see the real blocker'. Running exactly that returns 'DONE prepare: BLOCKED / blockedAt: preflight / reason: story B-cdf6 is in DEV; done_prepare only runs for TEST stories', i.e. done_prepare refuses by design outside TEST and reports the phase mismatch instead of the blocker. The freeze is emitted from any phase-advance attempt (DEV->REVIEW here), but its advice assumes the story is already in TEST. Consequence: a human clearing a DEV-phase freeze gets no diagnostic at all from the recommended path and must reconstruct the real blocker by hand (in this case by reading checklist.json and recomputing must-intent coverage), which is exactly the manual work the breaker message claims to save. The freeze itself was legitimate; only its guidance is phase-blind.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-08-11T18:08:35.096Z",
+      "reviewRound": "",
+      "gapFingerprint": "e31fe4786331021698f370e0c8c0a191a28dc3989f5a4205928e7e030ce5941d",
+      "files": [
+        "packages/main/src/core/convergence-breaker.ts",
+        "packages/main/src/handlers/done-prepare.ts"
+      ],
+      "_hash": "026f1e778b875994a8827f07133bf3f82334d8ab823e44e414bf6cce63e0d273"
+    },
+    {
+      "id": "B-META-framework-audit:F-007",
+      "desc": "The convergence breaker's gate-repeat counter cannot distinguish a genuine runaway loop from correct incremental convergence, so it PENALISES the safer repair style. On B-cdf6 the DEV->REVIEW gate reported 'N required verification intent(s) lack passing evidence or waiver'. Each retry followed a real fix that STRICTLY REDUCED the blocker set: first attempt reported 2 missing intents, then after recording evidence 2 remained but with different membership, then after mechanizing both the count reached 0 (independently verified: must=36 covered=36). That is monotonic progress toward the gate, not a loop. Nevertheless the breaker tripped on 'gate-repeat 3>=2' and hard-froze the story, requiring a human ack. Perverse incentive: the counter rewards batching every fix and hitting the gate once, and punishes the fix-one-verify-one loop - even though small verified steps are the lower-risk style and are what CLAUDE.md's own Debugging Contract prescribes ('one variable at a time', 'never mix multiple candidate fixes in one commit'). With a threshold of 2, any story whose gate legitimately lists 3+ independent missing items cannot be converged incrementally without tripping the brake.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-08-11T18:08:35.744Z",
+      "reviewRound": "",
+      "gapFingerprint": "9fd8e6450350993ca0ed45d850e27f8b849e45f55094f78fa59ee03cfa367c71",
+      "files": [
+        "packages/main/src/core/convergence-breaker.ts",
+        "CLAUDE.md"
+      ],
+      "_hash": "a0ad3d502e80eb1ee4cd184e001c3b09820607157e566bb4e8af80b3e5506830"
+    },
+    {
+      "id": "B-META-framework-audit:F-008",
+      "desc": "The convergence-breaker freeze is UNCLEARABLE from inside a Claude Code session, including by the human operator, because isInteractiveAckAllowed() requires isTTY === true and every command channel in this host pipes stdio. Verified on B-cdf6: the assistant's tool-spawned shell reports 'stdin TTY: false | stdout TTY: false' with CI and LATTICE_AUTOPILOT both unset, so the refusal is driven purely by the TTY test at core/convergence-breaker.ts:378. Critically, the USER then ran the identical story_resume --ack --reason command themselves via the host's bash-input channel and got the byte-identical refusal - so the check cannot distinguish the human operator from the agent, and a frozen story becomes a hard dead end for BOTH. The story was otherwise fully ready to advance (independently verified: must-intent coverage 36/36, root npm test green, all 3 brand gates PASS, tsc exit 0, 13 salt literals unchanged, clean tree), so the freeze blocks a legitimately convergent story with no in-environment exit. The module's own doc comment concedes the design limit: 'Truly un-spoofable human presence would require an out-of-band confirmation channel (e.g. a signed operator token), which is out of scope for this story.' That is an honest statement of intent, but combined with a TTY-only test it yields a gate that is simultaneously spoofable in principle (the agent controls its own process) and impassable in practice for the legitimate human.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-08-11T18:14:33.997Z",
+      "reviewRound": "",
+      "gapFingerprint": "4a5dd44cc387df0a6f6f23dd07dc9827fb11e97ebb1d4478f2d0d47b5ef19517",
+      "files": [
+        "packages/main/src/core/convergence-breaker.ts:371",
+        "packages/main/src/core/convergence-breaker.ts:378",
+        "packages/main/src/handlers/story-resume.ts",
+        "packages/main/src/core/convergence-breaker.ts"
+      ],
+      "_hash": "a06897aa91e108bd252cc39729848a9a4231bb81e7f6bfa022da55a99b8e1267"
+    },
+    {
+      "id": "B-META-framework-audit:F-009",
+      "desc": "CORRECTION to B-META-framework-audit:F-008, plus the real compounding defect. F-008 claimed a real terminal ALSO fails the convergence-breaker TTY check. That is WRONG and is corrected here: when the human ran the identical story_resume --ack command from a genuine interactive terminal, it PASSED isInteractiveAckAllowed() and was rejected one layer later by the story-owner lease instead: 'B-cdf6 is owned by Proof-or-Stop session sess-9a7d88c7fd9facada1536ec0cf731786, heartbeat 27s ago ... this session (sess-6cd8e9d7ef4103e2) cannot run it. The owner lease is still ACTIVE.' So the TTY heuristic behaves correctly for a real human; only an agent-piped stdio channel fails it, which is the intended direction. The REAL defect is the COMPOSITION of two owner-gated brakes: (1) the convergence-breaker freeze can only be cleared from an interactive TTY, i.e. by the human, but (2) story_resume is also classified storyScopedMutating and therefore owner-lease-gated, and the lease is held by the AGENT's session (the F-004 dead-pid / shifting-identity defect). The human who is the only party allowed to clear the freeze is thus the party least likely to hold the lease, so clearing a freeze requires the human to additionally --forceTakeover a lease held by the very agent session that caused the freeze. Escalating to the most dangerous override flag becomes routine for a benign recovery, which erodes what that flag is supposed to signal.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-08-11T18:15:50.312Z",
+      "reviewRound": "",
+      "gapFingerprint": "2db0f2247328a58491cdf8f837fa30f907674643dcc2cbe84a21e0b270d4338b",
+      "files": [
+        "packages/main/src/core/convergence-breaker.ts:378",
+        "packages/main/src/core/story-owner-lease.ts",
+        "packages/main/src/cli-engine.ts",
+        "packages/main/src/core/convergence-breaker.ts"
+      ],
+      "_hash": "7882a11eb8144a79ad88758bb3903e21e32776328cd7be5cf5c73f10ec2b94b7"
+    },
+    {
+      "id": "B-META-framework-audit:F-010",
+      "desc": "The documented convergence-breaker recovery path is a COMPLETE DEADLOCK for a human operator, empirically closed on all three natural attempts, and the only exit is to assert another session's identity via an env var. Measured on B-cdf6 with the story otherwise fully ready (must-intent coverage 36/36, npm test green, 3 brand gates PASS, tsc exit 0, clean tree). Attempt matrix, all run by the HUMAN in a real interactive terminal: (1) `story_resume --ack --reason=...` with the shell's natural derived identity -> refused by the owner-lease gate ('this session (sess-6cd8e9d7ef4103e2) cannot run it ... lease is still ACTIVE'); (2) same plus `--forceTakeover` -> the lease DID transfer, but the flag made the command 'takeover-carrying', which is precisely the class the breaker gate intercepts (cli-engine.ts:1394 'Gates story_advance and takeover-carrying commands only'), so it was refused by the FREEZE it was invoking to clear; (3) same without the flag but with `export LATTICE_SESSION_ID=human-terminal-qipan` as the CLI's own degraded-identity warning advises -> refused by the lease gate again, because the fixed id is a NEW identity and therefore still not the owner ('this session (human-terminal-qipan) cannot run it'). So each remedy trips the other gate: no takeover => not owner; takeover => frozen; fixed id => not owner. The lease cannot even be waited out quickly because its heartbeat keeps refreshing on each attempt, holding it under the 30-minute stale threshold.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-08-11T18:20:41.414Z",
+      "reviewRound": "",
+      "gapFingerprint": "a52faa68f84307f4f597e1b5497d884c13e3fc98a900dcfc0d7e1836ea4311c9",
+      "files": [
+        "packages/main/src/cli-engine.ts:1387",
+        "packages/main/src/cli-engine.ts:1394",
+        "packages/main/src/core/convergence-breaker.ts:378",
+        "packages/main/src/core/story-owner-lease.ts",
+        "packages/main/src/cli-engine.ts",
+        "packages/main/src/core/convergence-breaker.ts"
+      ],
+      "_hash": "16f4bde43c5dccee1edded655eb2dae9c962acebfefba7dd60aaac28f7f25e23"
+    },
+    {
+      "id": "B-META-framework-audit:F-011",
+      "desc": "scope_boundary_set enforces userConfirmed:true but does NOT require the `confirmation` field to be non-empty, so a story can carry a cryptographically-signed, gate-consumed record asserting 'the user confirmed this scope' with ZERO record of what the user actually said. Observed on B-cdf6: scope-boundary.json has userConfirmed:true, 9 allowedScope and 11 excludedScope entries, a valid _hash, and an EMPTY confirmation - verified both on the current file and on the earliest version in git history, so the user's words were never captured at any point. Downstream consequence, found when the user challenged one specific decision: the retained `bin/lattice.js` deprecated alias was justified in the mapping table as 'out of scope - 32 in-flight stories invoke it', but the user had never said that. The user's actual instruction was only a principle ('the rename should influence current state or future works, not past works or history'); the alias-retention clause came from an OPTION THE ASSISTANT ITSELF DRAFTED in a multiple-choice question, and the user's one-word-equivalent selection of that option was then treated as authorising every sub-clause inside it. With confirmation empty there was no way to audit that substitution - the assistant's inference and the user's instruction became indistinguishable in the record. The user had to detect it by reading docs/CLI.md and asking 'on what basis was this decided'.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-08-11T18:23:03.297Z",
+      "reviewRound": "",
+      "gapFingerprint": "e52dace71b06d56bcd67965adcf9648c39dc81f64593ff7d0ed0d430c98b2237",
+      "files": [
+        "packages/main/src/handlers/scope-boundary.ts",
+        ".lattice/story/actives/B-cdf6/scope-boundary.json",
+        "docs/requirements/decisions/brand-rename-mapping.md"
+      ],
+      "_hash": "99846a5fc93a1a2abdceedb787375622aacc7a5615a1691ca672c5ecd6cdc6b1"
+    },
+    {
+      "id": "B-META-framework-audit:F-012",
+      "desc": "A verification intent whose proof is 'the root DONE-blocking suite passes' CANNOT be satisfied by a tool-executed receipt, because the receipt executor's command budget is shorter than the suite it is being asked to witness. DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS = 270_000 (core/validation-executor.ts:43) is applied by runSingleAllowlistedCommand, which handlers/checklist.ts:644 uses to run the pinned command before checking the selector at :646. Root npm test on B-cdf6 needs longer than 270s (a completed out-of-band run produced a 1544-line log with REAL_EXIT=0). Consequence: three separate attempts to pin `npm test` (and a wrapper around it) were each refused at EXACTLY 270.3s with `receipt_selector_absent` - the suite was killed mid-run so the verdict line was never printed, and the refusal message names only the absent selector, giving no hint that a timeout occurred. verification_evidence_add exposes no timeout parameter, so a caller cannot raise the ceiling. The perverse result: the single most important gate evidence in the lifecycle - 'the DONE-blocking suite is green' - is the one thing that cannot be mechanically witnessed, pushing the operator toward a nonMechanicalReason attestation, which the DEV->REVIEW gate then correctly refuses as non-mechanical. The intent becomes unsatisfiable by either route.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-08-11T18:29:02.897Z",
+      "reviewRound": "",
+      "gapFingerprint": "99e3ae02002ff51b444edac5d14ebf9d159285be19f86bcf11ac34d581fed5b7",
+      "files": [
+        "packages/main/src/core/validation-executor.ts:43",
+        "packages/main/src/handlers/checklist.ts:644",
+        "packages/main/src/handlers/checklist.ts:646",
+        "packages/main/src/core/validation-executor.ts",
+        "packages/main/src/handlers/checklist.ts"
+      ],
+      "_hash": "0c4b6c9788f71b7cce17e23225f61f0e03154a9b28250665e148cd8126fa4303"
+    },
+    {
+      "id": "B-META-framework-audit:F-013",
+      "desc": "verify_codex's 'Global fallback heartbeat' check fails on any repository large enough that session_brief exceeds 30 seconds, reporting it as an adapter defect rather than as a timeout. Measured on B-cdf6's worktree: DEFAULT_GLOBAL_FALLBACK_HEARTBEAT_TIMEOUT_MS = 30_000 (core/codex-adapter-checks.ts:87) but a real global-fallback session_brief run takes ~101s (measured twice, once with the deprecated LATTICE_* env spelling and once with the canonical PROOF_OR_STOP_* spelling; both completed successfully and printed '# proof-or-stop session brief'). So the underlying code path is HEALTHY and the check still reports [x] 'heartbeat command failed'. The cost is 319 active stories under .lattice/story/actives being aggregated, i.e. repository scale, not a code defect. CLI startup itself is fast (0.45s for --version), which isolates the cost to session_brief's data aggregation rather than to module loading. CAUTION FOR FUTURE DIAGNOSIS: comparing against the main checkout is misleading here - main's session_brief appears to run in 0.03s but is actually CRASHING instantly with MODULE_NOT_FOUND because main has no built dist, so 'main is 3400x faster' is an artifact of comparing a working command against a crash. I made exactly that mistake before checking main's actual output.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-08-12T04:23:43.883Z",
+      "reviewRound": "",
+      "gapFingerprint": "7d1e9b3d21784858455598626023aee3eca1f789791ee94319450413d9b95caf",
+      "files": [
+        "packages/main/src/core/codex-adapter-checks.ts:87",
+        "packages/main/src/core/codex-adapter-checks.ts:750",
+        "packages/main/src/core/codex-adapter-checks.ts"
+      ],
+      "_hash": "30d62f328d1bbdd18e4f22ebf109fa95329413786248c9495ef363923985b749"
+    },
+    {
+      "id": "B-META-framework-audit:F-014",
+      "desc": "The convergence breaker's pass-rate counter PUNISHES EFFECTIVE REVIEW. It tripped on B-cdf6 with 'pass-rate 2/12=17%<35%' where the 12 review runs and 2 passes are: concept 2 runs, quality 3, test-coverage 4, docs 3, with clean passes only from docs and concept. The low ratio is not a runaway signature - it is the direct arithmetic consequence of reviewers DOING THEIR JOB WELL. Across those runs they registered 19 findings including 1 critical and 7 high, every one of which was independently reproducible and 13 of which were genuinely fixed. Specifically: the critical F-006 (a verifier that reported GREEN for a suite that never ran, proven with a 2-line stub), F-016 (a persisted config key renamed with no read-both fallback, silently ignoring existing projects' values on merge), F-022 (an AST-fingerprint guard left red, meaning CLAUDE.md's 'lattice validate 全绿' bar was not actually met), and F-021 (an evidence row still claiming mechanical:true for a design that had been deleted). A lane that finds a real bug CANNOT record a pass - review_pass_set would be a false 'no blocker' claim - so each honest finding mathematically drives the pass-rate DOWN. The incentive is inverted: a story whose reviewers rubber-stamp everything sails through at 100%, while a story whose reviewers catch a critical defect gets hard-frozen. Compounding it, fixing findings changes material, which stales reviewer Prompt Envelopes and forces re-runs, which adds MORE runs to the denominator while the numerator can only grow after every finding in that lane is resolved.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-08-12T05:25:15.754Z",
+      "reviewRound": "",
+      "gapFingerprint": "29095a7ea1cc12a87223a2673ae4201164eaf0777ef80e8a855e7750617de593",
+      "files": [
+        "packages/main/src/core/convergence-breaker.ts",
+        ".lattice/story/actives/B-cdf6/breaker-state.json"
+      ],
+      "_hash": "fff78579b7c004acf207ced1e8347799a42f63fffea5f77510e970e83cbb767a"
+    },
+    {
+      "id": "B-META-framework-audit:F-015",
+      "desc": "The same AST fingerprint literal is mirrored in THREE independent places with no single source of truth, so repinning it correctly in two of them still breaks the build - and the breakage surfaces far from the edit. Locations: (1) packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts (the BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS map, the functional consumer); (2) scripts/verify-process-fact-contract.mjs:1883-1889 (a closeout-trust boundary list); (3) scripts/verify-process-fact-contract.mjs:1985-1986 (a separate reconstruction-completeness TOKEN LIST that asserts the hash STRINGS still appear verbatim inside file (1)). Measured on B-cdf6: fixing a legitimate fingerprint drift (F-022) updated (1) and (2) but not (3), which then failed with 'retired vocabulary guard must enforce narrow compatibility usage: 1ec6b25b...' - and because package.json chains test:process-fact-contract with &&, npm test went RED. Nothing in the F-022 edit site hints that a third copy exists; location (3) is a flat list of opaque token strings with no filename adjacency, so it is invisible to a reader editing the map in (1) and invisible to a grep for the surrounding identifier. Worse, the failure is semantically MISLEADING: the message says the guard 'must enforce narrow compatibility usage', which reads as a policy violation in the guard, when the actual cause is a stale expectation in a mirror. The CHK-002 implementer had already been bitten by the (1)/(2) pair and documented it; (3) was still missed, which is evidence that documentation alone does not fix a three-way mirror.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-08-12T05:57:55.750Z",
+      "reviewRound": "",
+      "gapFingerprint": "d9618eb64282fb8f5c0f8ed04602f9e6ddfe4b8981ecd8652b31acf5c7404ff8",
+      "files": [
+        "scripts/verify-process-fact-contract.mjs:1985",
+        "scripts/verify-process-fact-contract.mjs:1883",
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts:1439",
+        "scripts/verify-process-fact-contract.mjs",
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "_hash": "ae4b2d9be5f3daa4aa63073ef083caabe63e1926b4014131d15ffa5478b119c4"
+    },
+    {
+      "id": "B-META-framework-audit:F-016",
+      "desc": "A ProofStory acceptance binding can only be authored in PLAN, but whether an intent is RECEIPTABLE is often only discoverable in REVIEW - and by then the only remedy resets the whole story. Measured on B-cdf6: the reviewGateMode=enforce completeness gate blocks REVIEW->TEST with 'review_completeness_missing_evidence: Verification intent CHK-005:happy:0 is bound to ProofStory acceptance coverage but lacks passing verification evidence', because proofstory.ts:845-851 deliberately (and correctly) refuses to count a deferred_gate_evidence waiver as coverage. The bound intent is STRUCTURALLY un-receiptable: it is pinned immutably to a command that runs the real ~21min suite, exceeding the 270s receipt-executor ceiling (F-012), so providing the command times out and omitting it is refused as receipt_command_mismatch. The obvious fix - drop that ref from the binding - is impossible without a full rewind: proofstory_contract_set reports 'Allowed phases: PLAN' (refused in both REVIEW and DEV), and returning to PLAN resets every non-pending checklist item to pending (checklist.ts:1277), which here means discarding 6 completed items plus 23 resolved findings' worth of lifecycle state. So the practical choice collapses to (a) reclassify the waiver as 'permanent' - which the gate DOES accept - or (b) rewind the entire story. Option (a) is a one-word edit that silently converts 'temporarily unprovable, revisit when F-012 is fixed' into 'permanently unprovable', which is exactly the kind of semantic downgrade an audit trail should resist; option (b) is disproportionate. Neither is good, and the operator is pushed toward (a) by cost alone.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-08-12T07:55:16.671Z",
+      "reviewRound": "",
+      "gapFingerprint": "39f97f37d58d42a46913236aac7411c0c510bd26940d5d09733e4df541207df8",
+      "files": [
+        "packages/main/src/core/proofstory.ts:845",
+        "packages/main/src/handlers/checklist.ts:1277",
+        "packages/main/src/core/validation-executor.ts:43",
+        "packages/main/src/core/proofstory.ts",
+        "packages/main/src/core/command-policy.ts"
+      ],
+      "_hash": "6103691b286028e2e689d51adf67cec73a915ccf4b8809b8c90f0c025913a4f6"
+    },
+    {
+      "id": "B-META-framework-audit:F-017",
+      "desc": "Two independent wall-clock budgets govern one verification-evidence write and are NOT reconciled, so raising the sanctioned one is silently insufficient. B-cdf6 fixed B-META-framework-audit:F-012 by adding a bounded audited per-evidence override (commandTimeoutMs, cap 7200000ms matching lattice.config.json's own budget for the same command). But cli-engine.ts:1058-1060 still applies an OUTER CLI watchdog that defaults to 5 minutes idle and a per-command max budget, and kills the process (exit 2 for verification_evidence_add) regardless of the inner commandTimeoutMs. So an operator who correctly sets commandTimeoutMs=2700000 for a 21-24 minute witness still gets killed at 5 minutes unless they ALSO raise LATTICE_IDLE_TIMEOUT_MS and LATTICE_MAX_TIMEOUT_MS in the same invocation - two env vars whose names appear nowhere in the failure they prevent. The inner budget is a first-class, validated, audited, receipt-stamped parameter; the outer one is an env var with a hardcoded default. Nothing validates that the inner budget is achievable under the outer one, so the framework accepts a request it knows it cannot honour. Credit where due: the implementer disclosed this limitation unprompted and documented it in the refusal message, the --help text and CLAUDE.md, rather than shipping it silently - which is why it is a medium follow-up rather than a latent trap.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-08-12T09:55:15.924Z",
+      "reviewRound": "",
+      "gapFingerprint": "b2f43dca67ec013fea8dd473430db1deb5d7bccba74deb1fb2f5049773c49f6b",
+      "files": [
+        "packages/main/src/cli-engine.ts:1058",
+        "packages/main/src/core/validation-executor.ts:61",
+        "lattice.config.json:146",
+        "packages/main/src/cli-engine.ts",
+        "packages/main/src/handlers/checklist.ts"
+      ],
+      "_hash": "e90afdb78698957beeb697e2031eda5e2a91309634a5ffe9608f77e45e7bea8f"
+    },
+    {
+      "id": "B-META-framework-audit:F-018",
+      "desc": "The local bootstrap reports a RESOURCE-EXHAUSTION failure as a MISSING-BUILD failure, sending the reader to a remedy that cannot help. Observed during B-cdf6: a full npm test run went red with 7 failure lines, and the top of each was 'proof-or-stop local bootstrap is not ready.' followed by 'Recovery: 1. npm --prefix packages/main run build / 2. npm --prefix packages/utils run build / 3. Retry the same command' - i.e. it tells you to build. The dist WAS built and the build was not the problem. The true cause appears only at the BOTTOM of the message: 'Original error: ENFILE: file table overflow, open .../packages/main/dist/handlers/frozen-claim-drift-check.js'. Statistical proof it was purely environmental: that run contained 32 ENFILE occurrences and ZERO AssertionError lines, and an immediate clean re-run on a quieter machine returned REAL_EXIT=0 with ENFILE 0 and AssertionError 0 against the identical tree. So the bootstrap treats 'cannot open the file' as 'the file is not there', which are different failures with different remedies. Note also a near-miss in diagnosis: another story's `npm test --jobs 4` was concurrently running and was the obvious culprit, but timestamps excluded it (that process started 21:54:17 while this failure occurred 21:53:04, 73s earlier) - so an operator following the loudest signal would have blamed the wrong thing twice over.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-08-12T14:27:18.595Z",
+      "reviewRound": "",
+      "gapFingerprint": "9eadf160977527dccd78fb009866845f38e4099eb8e9240564d681ca617843b5",
+      "files": [
+        "bin/bootstrap-runner.js"
+      ],
+      "_hash": "bd5e47e3d9f0269b0bafa7bb1afaec5826ea5fe004b98788148cf3e6e317b2a3"
+    },
+    {
+      "id": "B-META-framework-audit:F-019",
+      "desc": "Resolving a reviewer finding invalidates that reviewer's Prompt Envelope, which forces a re-run, whose new finding (if any) repeats the cycle - so an effective review round is self-perpetuating and the cost is unbounded in practice. Measured on B-cdf6: 18 review runs produced 6 passes. The gate rejects with 'finding <id> Prompt Envelope is invalid: eligibilityDigest, changedFilesDigest, impactedFilesDigest do not match authoritative recomputation' and, critically, it rejects on findings that are ALREADY RESOLVED (F-024 and F-025 were both status=resolved when they blocked). It also fails BEFORE the CLI preflight gates execute (0 gate lines in that run's output), so a story cannot even learn whether its remaining gates pass until every envelope is re-bound. The mechanism itself is correct and desirable - a verdict computed against pre-fix material must not vouch for post-fix material - but there is no convergence guarantee: fixing findings is exactly what changes material, and changed material is exactly what stales the verdicts, so the only way to converge is for a round to produce ZERO findings. On this story that took: round 1 four lanes / 19 findings, round 2 three lanes, round 3+ five further re-runs, each ~5-30 minutes of reviewer time plus (for the suite-witnessing lane) a 21-26 minute test run. This interacts badly with two other recorded defects: F-007/F-014 (the convergence breaker counts those honest re-runs as a runaway signature and hard-froze the story three times, each needing a human --ack) and F-010 (the unfreeze path is itself deadlocked and needs the lease-owner-identity workaround).",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-08-12T15:02:42.454Z",
+      "reviewRound": "",
+      "gapFingerprint": "c5906760e9c2e61d19863bc0230613e6becdea5941cf2816babae93787dde565",
+      "files": [
+        "packages/main/src/core/machine.ts",
+        "packages/main/src/handlers/phase-gates.ts",
+        ".lattice/story/actives/B-cdf6/review-runs.json"
+      ],
+      "_hash": "2f4c65bde105f19a393d75ed998f19eae032b4626b9275cf9d344d858ba8566a"
+    },
+    {
+      "id": "B-META-framework-audit:F-020",
+      "desc": "A rename-exposed stale pin in a LIVE gate test was skipped on the reasoning that tests/red/** is 'past RED evidence'. Commit 78178ef2b6 of this story explicitly excluded tests/red/** from the brand sweep with that rationale, but red-b2aa7-chk006-receipt.mjs and red-b2aa7-f005-receipt.mjs are registered as lattice.config.json validate.commands[61] and [67] - they are LIVE gate inputs, not inert history. They hardcoded the old bin name while asserting the emitted repair guidance ('lattice red_evidence_get' at chk006:323 and f005:151), so when redEvidenceRepairGuidance() was CORRECTLY rebranded per brand-rename-mapping.md:121 ('Hardcoded lattice <cmd> hints and error strings | RENAMED'), both receipts began failing. Consequence: `proof-or-stop validate` was red - i.e. CLAUDE.md's own '全绿 = 可以提交' bar was unmet - while root `npm test` stayed green, because these two commands are in validate.commands but NOT in the npm test chain. So the story could look green on the most-run signal while the mandated gate was red. Diagnostic subtlety worth recording: the failure text described a BEHAVIOUR regression ('the repair round trip stopped being lossless: the malformed original is no longer preserved byte-identically...'), which is misleading - a per-sub-condition probe proved every behavioural assertion still held and only the brand literal differed. The same misdiagnosis-risk pattern as F-012/F-013/F-018.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-08-12T17:28:12.216Z",
+      "reviewRound": "",
+      "gapFingerprint": "b484bca2e588b4274bd2dd7f4897360c1b0bc4084b633c8a843ea8d1975fbe47",
+      "files": [
+        "packages/main/tests/red/red-b2aa7-chk006-receipt.mjs:323",
+        "packages/main/tests/red/red-b2aa7-f005-receipt.mjs:151",
+        "lattice.config.json",
+        "packages/main/tests/red/red-b2aa7-chk006-receipt.mjs",
+        "packages/main/tests/red/red-b2aa7-f005-receipt.mjs"
+      ],
+      "_hash": "b1e9a778d9f9f643b4292ed596c9a35b90e85233b3fe762a28dbab73db6d5fc2"
+    },
+    {
+      "id": "B-META-framework-audit:F-021",
+      "desc": "Convergence-breaker freeze and owner-lease gate form a CLOSED LOOP with no legal path through, making the breaker's own printed recovery instructions impossible to follow. Observed live on B-cdf6. enforceConvergenceBreakerGate (core/convergence-breaker.ts:838) gates TWO entries: command === 'story_advance', AND any command carrying --takeover/--forceTakeover. story_resume has NO exemption. So when a frozen story's owner lease is held by a different session: (a) plain `story_resume --ack` is refused by enforceStoryOwnerLeaseGate because story_resume is classified ownershipClass:storyScopedMutating; (b) `story_resume --ack --forceTakeover` is refused by the BREAKER because it is now a takeover-carrying command on a frozen story. The story_resume handler never executes in either case - the --ack and --reason are never read. Proof: the error text returned for attempt (b) was renderBreakerFreeze's story_advance message, not any story_resume-specific refusal. This directly contradicts two stated design intents: config.ts:431 says the ack 'must be available in every phase', and command-policy.ts:155 says story_resume is the human-only escape hatch that 'a looping agent cannot self-service'. Gating the escape hatch defeats its purpose. The takeover gate's rationale ('a frozen runaway cannot keep seizing leases to extend the storm') is sound for other commands but must carve out story_resume. Workaround found by inspection, not documented anywhere: a --forceTakeover attempt still TRANSFERS the lease at the lease layer before the breaker throws, so a SECOND plain `story_resume --ack` then succeeds. Relying on a partial side-effect of a failed command is not a supportable recovery path.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-08-13T04:52:40.453Z",
+      "reviewRound": "",
+      "gapFingerprint": "ac7a780323d29b4852e67e860bee3d0723f8c66bbfa4efbda23639e5ea398771",
+      "files": [
+        "packages/main/src/core/convergence-breaker.ts:838",
+        "packages/main/src/core/command-policy.ts:155",
+        "packages/main/src/core/config.ts:431",
+        "packages/main/src/core/convergence-breaker.ts"
+      ],
+      "_hash": "54946364d5284cd39ba1ee346d111550a0df0e782bd61c366ba6b814df137cbb"
+    },
+    {
+      "id": "B-META-framework-audit:F-022",
+      "desc": "The convergence breaker counts the framework's OWN metadata churn as agent failure, freezing a story that had no unmet gate. Observed on B-cdf6: breaker froze on 'gate-repeat 2>=2'. The actual loop is self-inflicted: every finding_resolve auto-commits story metadata under .lattice/story/actives/<id>/ -> HEAD advances -> every reviewer review-pass binding becomes head-stale -> canPassReviewGuard fails closed -> bumpGateFailureCount increments -> at 2 the breaker freezes and demands human intervention. MEASURED: `git diff --name-only <pass-binding-sha> HEAD | grep -v '^.lattice/story/actives/B-cdf6/'` returned ZERO files. Only story metadata moved. CLAUDE.md's own DONE-convergence discipline states that headHash-only drift 'is usually metadata/provenance movement, NOT a strong re-run signal' - but the gate-failure counter that feeds the breaker does not apply that distinction, so advisory-grade drift escalates into a hard freeze. This is adjacent to but DISTINCT from B-META-framework-audit:F-019: F-019 records the evidence churn itself (19 review runs -> 7 passes on one story); this records that the churn also drives the runaway detector, which then requires a human to clear a condition no human caused.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-08-13T04:52:41.326Z",
+      "reviewRound": "",
+      "gapFingerprint": "01a2e6c1f4d90d951509ec9eab11b475a42aa8e50113e0a6c4197ebe82bb7d7c",
+      "files": [
+        "packages/main/src/core/convergence-breaker.ts:731",
+        "packages/main/src/core/convergence-breaker.ts:838",
+        "CLAUDE.md#Host-DONE-convergence",
+        "packages/main/src/core/convergence-breaker.ts"
+      ],
+      "_hash": "10b238f44fc4f695f5146d44c5676c9d34ae0934a21e75c4f056c93ff93f90fa"
+    },
+    {
+      "id": "B-META-framework-audit:F-023",
+      "desc": "SCOPE CORRECTION to B-META-framework-audit:F-022, filed by its own author after the gate proved part of that claim too broad. F-022 asserted that the convergence breaker counts 'the framework's OWN metadata churn' as failure. The metadata-churn half is real and stands (measured 0 material files across 6 metadata-only commits; currentStoryFilesHash explicitly EXCLUDES story metadata via isMaterialExcludedPath at evidence-freshness.ts:464, so metadata commits genuinely cannot move storyFilesHash). But I then generalized that into treating EVERY review_evidence_invalid rejection on this story as framework churn, and the next rejection disproved it. MEASUREMENT: after committing a real material fix (03b39c852c, deleting dead code in packages/main/src/core/review-run.ts), storyFilesHash moved 99a2928aca0111 -> 239eac2c56d43c. Runs RR-025/RR-026 (concept/quality, bound after the fix) match current; RR-021/RR-023 (test-coverage/docs, bound before it) still hold the old hash. Those two lanes passed on code that no longer exists, so the gate was CORRECT to reject them - this is the 'related drift / storyFilesHash is the strong signal' case that CLAUDE.md's DONE-convergence discipline already documents, not a framework defect. LESSON, which is the reusable part: a host that has correctly diagnosed one framework bug will reach for it as the explanation for the next superficially-similar rejection. The error message distinguished the two cases precisely ('storyFilesHash does not match current story-owned file state' vs the earlier envelope-digest wording) and I did not read the distinction until I recomputed the hashes myself. Diagnosis must be re-derived per rejection, not inherited from the previous one.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-08-13T05:09:05.646Z",
+      "reviewRound": "",
+      "gapFingerprint": "b1bb8a0065b43a1da2c0ab69da33cbefe5d2c32465f2331d447597ae2ab0b197",
+      "files": [
+        "packages/main/src/core/evidence-freshness.ts:458",
+        "packages/main/src/core/evidence-freshness.ts:464",
+        "CLAUDE.md#Host-DONE-convergence",
+        "packages/main/src/core/evidence-freshness.ts",
+        "packages/main/src/core/convergence-breaker.ts"
+      ],
+      "_hash": "e7161807110b9dcfeb77b739a0c929fa04992b119f86ed8aed44e0259303c743"
+    },
+    {
+      "id": "B-META-framework-audit:F-024",
+      "desc": "A verificationIntent receipt selector pinned to a MONOTONICALLY-GROWING COUNTER becomes unsatisfiable on legitimate improvement, and because the pin is immutable from DEV onward the only exit is a waiver - so adding a test silently converts a real mechanical receipt into a waiver. Concrete instance: B-cdf6 CHK-004:edge:0 pinned selector='29/29' against `node scripts/verify-lattice-residue.mjs --self-test`. Line 553 renders `${n}/${n} detector unit tests` from the ACTUAL test count, so the token is a live counter; detector tests were added and it now reads 38/38. `git log -S\"29/29\" -- scripts/verify-lattice-residue.mjs` returns NO commit, i.e. 29/29 was never a durable property of the file - the pin captured one transient moment. Every legitimate repair route is closed by design: re-run -> [receipt_selector_absent]; supply a durable selector -> [receipt_selector_mismatch] ('the verification pin is immutable'); verificationIntent frozen from DEV; verification_intent_repair only back-fills MISSING lanes. The immutability is CORRECT (it prevents editing a pin to match whatever output appears) - the defect is on the authoring side, with no guard against pinning a volatile token in the first place. Perverse incentive worth naming: the cheapest way to restore the receipt is to DELETE 9 detector tests. NOTE this is the mirror image of B-META F-012/F-013: those were guards reporting a plausible substitute for what they observed; this is a guard reporting accurately ([receipt_selector_absent] is literally true) while the underlying check PASSES, so the honest report still routes a green check into a waiver.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-08-13T05:24:38.051Z",
+      "reviewRound": "",
+      "gapFingerprint": "b3dea23a1d9849ce7778a0f7998b59f5054c31a8a6d308a64386b5c85ee241b5",
+      "files": [
+        "scripts/verify-lattice-residue.mjs:553",
+        ".lattice/story/actives/B-cdf6/checklist.json#CHK-004:edge:0",
+        "scripts/verify-lattice-residue.mjs"
+      ],
+      "_hash": "9a25bab4bf6c78cc823ca1cc1a6b9303cd7e82d89218fea1f0ab2b9ba2fb6b84"
+    },
+    {
+      "id": "B-META-framework-audit:F-025",
+      "desc": "The `run-all-smokes` suite carries 66 FAILING smokes out of 334 on clean main, yet it is NOT in lattice.config.json's doneRequiredCommands -- so `npm test` (the DONE gate) is GREEN while a third of the smoke suite is red, and nothing blocks a DONE on that basis. MEASURED on untouched main (ac4b8e44f8), output captured to a log: `Final: 255/334 passed in 2460.8s`, 66 FAIL lines. I enumerated doneRequiredCommands and confirmed none of `run-all-smokes` / `test:all` / `test:legacy` appears in the chain that `npm test` runs.\n\nWHY THIS IS A GATE DEFECT AND NOT MERELY UNTIDY: this is how a REAL regression from an in-flight story reached REVIEW undetected. B-cdf6 broke decision-doc-promotion-smoke (passes on main, fails on the branch, brand assertions pinned to the pre-rename bin). No CLI preflight gate, no DEV->REVIEW gate and no `npm test` run surfaced it. It was found only because a concept-lane reviewer chose to grep for the pattern by hand. A defect class that only an LLM reviewer's discretionary sweep can catch is not mechanically gated at all -- which is precisely the two-layer contract (prompt guidance PLUS hardcoded CLI/gate fallback) that CLAUDE.md's 'process fact' section requires.\n\nSECONDARY EFFECT -- the red baseline is self-concealing: because 66 failures are normal-looking there, a newly-broken smoke is indistinguishable from the pre-existing noise. Triaging one story's regression required running the full suite on BOTH main and the branch (~41 min each) and diffing, because there is no green baseline to compare against.\n\nTHIRD EFFECT -- the suite is load-fragile, so even a diff is unreliable: at load average 35.9 the suite reported 20 failures in a few minutes; on a quiet machine main reported 66 in 2460s. Timeout-based assertions (e.g. mkfifo blocking reads with a 2000ms ceiling in tests/milestone-status.test.mjs:3158) flip under concurrency. I reproduced this: that assertion failed once under heavy parallel load, then passed three consecutive times quiet, including on clean main.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-08-13T09:24:52.273Z",
+      "reviewRound": "",
+      "gapFingerprint": "bd9a180a0b6a1376e29967d9462455fb96a0bc2c9345838510e62484ff8e2c15",
+      "files": [
+        "lattice.config.json#doneRequiredCommands",
+        "packages/main/src/tasks/run-all-smokes.ts:125",
+        "packages/main/tests/milestone-status.test.mjs:3158",
+        "lattice.config.json",
+        "packages/main/src/tasks/run-all-smokes.ts"
+      ],
+      "_hash": "6d1b0ae68c264ef73c71884b1f5c6259e47a75331fe50999c2386297cbf71521"
+    },
+    {
+      "id": "B-META-framework-audit:F-026",
+      "desc": "scripts/verify-entrypoints.mjs:551 asserts `check --json` returns ok===true immediately after `init --profile=all --asset-mode=full`, but init deliberately does NOT write project-local .claude/agents/* under the B-097f runtime-owned-agent-assets design, so `check` reports MISSING:17 and ok:false. The assertion therefore cannot pass by design. MEASURED byte-identical on the PRISTINE main checkout (ac4b8e44f8): ok:False, {OK:35, MISSING:17, STALE_SAFE:0, INCOMPATIBLE:0} — the same result as on the B-cdf6 branch, so this predates and is independent of the proof-or-stop rename. The script seeds the mirror itself via seedClaudeAgentMirror() at :519 for the verify_codex assertion, but the :551 check assertion runs with no seed.\n\nWHY THIS MATTERS BEYOND ONE ASSERTION: verify-entrypoints.mjs is the pinned verifier for B-cdf6's CHK-002:adversarial:1 intent ('verify-entrypoints.mjs passes after its pinned header assertions are updated'). Because the script has never been green on main, that intent can only ever carry a deferred_gate_evidence waiver, which by design does not count toward acceptance coverage — so any story pinning this script is structurally unable to reach full coverage until the script itself is repaired. Same shape as F-025 (run-all-smokes red 66/334 on main yet outside doneRequiredCommands): a red-on-main asset silently becomes a permanent coverage hole for whoever references it.\n\nSCOPE NOTE: three OTHER F-005 defects in this chain were fixed under this story (cli-init.ts, managed-assets.ts, verify-entrypoints.mjs:1010) and verified — fresh-init verify_codex went 5-files-drift -> 9/9 pass, check STALE_SAFE 5 -> 0. This fourth one was deliberately NOT fixed: repairing it means either changing `check`'s MISSING semantics or relaxing the assertion so it stops requiring files the design says init must not write. Both are core B-097f design decisions owned by the agent-prompt consolidation plan, and relaxing another plan's check to let this story's gate pass is the same anti-pattern the reviewer blocked as F-024.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-08-14T03:56:39.285Z",
+      "reviewRound": "",
+      "gapFingerprint": "1d5732e118dfece012e9355a3178474a65de8e96415fff467118ba28de259a28",
+      "files": [
+        "scripts/verify-entrypoints.mjs:551",
+        "scripts/verify-entrypoints.mjs:519",
+        "docs/requirements/decisions/lifecycle-artifact-scope.md",
+        "scripts/verify-entrypoints.mjs",
+        "packages/main/src/core/managed-assets.ts"
+      ],
+      "_hash": "af6280d1f5132345683ca5cb82533bec85fdd7541a792ecd45de5c21b2342962"
+    },
+    {
+      "id": "B-META-framework-audit:F-027",
+      "desc": "scripts/verify-entrypoints.mjs is LOAD-SENSITIVE and returns non-deterministic verdicts on identical committed code, which makes it unusable as a pinned verification receipt even when the code under test is correct. MEASURED on one unchanged commit (8c0a0f248e), four consecutive executions: exit 0 with 'ok 28/28'; exit 1 at 11/28; exit 0 with 28/28; and exit 1 when executed by verification_evidence_add's own receipt executor. The failing runs stopped at DIFFERENT checks - one at the `serve` launcher assertion expecting the '\\u1F428 proof-or-stop serve' banner (scripts/verify-entrypoints.mjs:681), which fails because the spawned server produced no output in time, not because the banner is wrong (verified present at packages/main/src/verifier/serve.ts:826).\n\nWHY THIS IS A GATE-INTEGRITY PROBLEM, not just a slow test: the receipt executor runs the pinned command itself and derives result from the real exit code - correctly refusing a caller-claimed result:pass with [receipt_exit_nonzero]. That is the right behaviour. But when the pinned command is itself flaky, the ONLY way a host can obtain the receipt is to re-run until a green roll happens, which converts a mechanical receipt into a lottery ticket. A host under delivery pressure is thereby incentivised to retry rather than to fix, and nothing in the recorded evidence would distinguish 'passed because correct' from 'passed on the third attempt'.\n\nSAME CLASS AS the milestone-status mkfifo defect already observed this session: tests/milestone-status.test.mjs:3158 asserts NOT ETIMEDOUT against a 2000ms ceiling and flipped under load average 35.9, then passed three times quiet including on pristine main. Both are wall-clock assertions competing with unrelated machine load. This script is worse because it spawns full `init --profile=all --asset-mode=full` runs plus live servers across 28 checks, so its exposure to timing is far larger and a single flaky check fails the whole run.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-08-14T08:31:59.437Z",
+      "reviewRound": "",
+      "gapFingerprint": "5849c029c82c80d1c6d0de38a0c7a4c180172324a32d2257163b854df295ce30",
+      "files": [
+        "scripts/verify-entrypoints.mjs:681",
+        "packages/main/src/verifier/serve.ts:826",
+        "packages/main/tests/milestone-status.test.mjs:3158",
+        "scripts/verify-entrypoints.mjs"
+      ],
+      "_hash": "e164a88a2a893a79b909ba36e49bbcedffba2974043bff829d5350887b302b1f"
+    },
+    {
+      "id": "B-META-framework-audit:F-028",
+      "desc": "RETRACTION of B-META-framework-audit:F-026's stated mechanism and conclusion, filed by its own author after the quality lane disproved it (B-cdf6:F-035). F-026 claimed verify-entrypoints.mjs:551 failed because init does not write .claude/agents/* under B-097f, producing MISSING:17, and concluded the defect was 'owned by the agent-prompt consolidation plan, not fixable here'. BOTH the mechanism and the conclusion were WRONG.\n\nWHAT IS ACTUALLY TRUE: the script calls seedClaudeAgentMirror(tempDir) at :519, which populates all 17 files into .claude/agents; the check runs at :550-551; cleanup only runs at :620. So the mirror IS present when the assertion executes. Reproduced with the mirror seeded exactly as the script does it: MISSING:0, and the real failure was STALE_SAFE:5 on precisely the 5 MODULAR_COMPLEX_ROLE_IDS - a live third copy of the F-005 branch in managed-assets.ts:902-916 (filed as B-cdf6:F-034). My MISSING:17 measurement came from running check WITHOUT the seed, i.e. I reproduced a scenario the script never executes, then attributed the script's failure to it.\n\nCONSEQUENCE OF THE ERROR: the wrong mechanism produced a wrong ownership verdict, and that verdict would have pushed a fixable defect out of scope. It was in fact fixed here in minutes once correctly identified, and fixing it plus the bin-alias projectRoot defect took verify-entrypoints.mjs from red-since-before-this-story to exit 0 / 28/28.\n\nERROR CLASS: this is the plausible-substitute-for-observed-mechanism pattern that B-META F-012/F-013/F-018/F-020 already document - and notably I filed several of those myself, then committed the same error in F-026. Worth recording because it shows the pattern is not confined to product guards: an AUDIT RECORD can misreport its own mechanism just as a guard can, and a wrong audit record is more durable because nothing re-executes it. The specific trigger was reproducing a simplified scenario (bare init + check) instead of the actual execution path (init + seed + check), then treating the simplified result as evidence about the real one.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-08-14T08:32:25.739Z",
+      "reviewRound": "",
+      "gapFingerprint": "93a7a6d4613b103ffa323889bece36df1a1335cfbc72976db1db953a8bdde59e",
+      "files": [
+        "scripts/verify-entrypoints.mjs:519",
+        "scripts/verify-entrypoints.mjs:551",
+        "packages/main/src/core/managed-assets.ts:902",
+        "scripts/verify-entrypoints.mjs",
+        "packages/main/src/core/managed-assets.ts"
+      ],
+      "_hash": "6310e6e9772a2901202b4b123f6efea9c9cae38abcf2c54b163a7a637931ff69"
+    },
+    {
+      "id": "B-META-framework-audit:F-029",
+      "desc": "CONCURRENT finding_add CALLS SILENTLY DESTROY REVIEWER FINDINGS. findings.json is written with a non-atomic read-modify-write and the next id is derived from the in-memory array length, so two lanes writing near-simultaneously lose one record AND then REUSE its id for a different finding. Two distinct reviewers' verified findings were irrecoverably overwritten in this story's ledger; I recovered their content only from git history.\n\nPROVEN FROM GIT, not inferred. Successive auto-commits of .lattice/story/actives/B-cdf6/findings.json show the array LOSING an element and then reusing the freed id:\n  36501da2de -> 42 findings, tail F-040,F-041,F-042\n  b8d0d0170e -> 41 findings, tail F-039,F-040,F-041   <-- count DROPPED, F-042 destroyed\n  35c0773ad4 -> 42 findings, tail F-040,F-041,F-042   <-- F-042 id REUSED by a different lane\n  4201ce6681 -> 43 findings, tail F-041,F-042,F-043   <-- F-041 id also now reused\n\nWHAT WAS LOST. At 36501da2de, F-041 was lattice-review-concept/high (bin-rename residue in live paths: global-agents-unit-smoke.ts:159, handlers/lattice-cli.ts configRepairCommandFor, handlers/verifier.ts + handlers/story-review.ts verification_intent_repair hints, core/autopilot-executor.ts displayCommand) and F-042 was lattice-review-test-coverage/high (core/acceptance-topology.ts isLatticeWrapper recognizes only lattice / bin/lattice.js and never learned proof-or-stop, so the CANONICAL command's producer provenance is unrecognized while the DEPRECATED one is). At HEAD both ids belong to lattice-review-quality instead. Neither original survives in findings.json.\n\nWHY THIS IS CRITICAL RATHER THAN MERELY UNTIDY. (1) It destroys AUDIT EVIDENCE - the artifact the REVIEW->TEST gate consumes - so a story can advance while a verified high-severity finding has been erased. (2) It is SILENT: no error, no warning, both finding_add calls report success. (3) It CORRUPTS BY ALIASING rather than merely dropping: an id that one reviewer's resolution text references now points at an unrelated finding from another lane, so cross-references in resolutions and commit messages become wrong. (4) The framework already has a main-write-lock for other paths (core/main-write-lock.ts) and per-story owner leases, but reviewer finding writes are exempt from the lease by design (ownershipClass reviewerWrite, so independent reviewers can submit) - and nothing serializes them against each other. The same window applies to review-runs.json: the quality lane reported its review run RR-054 vanished entirely and had to restart as RR-053.\n\nPARALLEL REVIEW IS A DOCUMENTED, RECOMMENDED WORKFLOW (CLAUDE.md tells the host to run the opt-in reviewer set in parallel), so this is not an exotic race - it is the normal path.",
+      "severity": "critical",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-08-14T09:23:17.308Z",
+      "reviewRound": "",
+      "gapFingerprint": "2a134681b8edb293fb6578810dee79f0c508528229a7f0f8ccee9cebbae2f08a",
+      "files": [
+        ".lattice/story/actives/B-cdf6/findings.json",
+        "packages/main/src/handlers/finding.ts",
+        "packages/main/src/core/main-write-lock.ts"
+      ],
+      "_hash": "fd81350b185de82f10992cb305567d5e90b8a7f29f33b59b33aab8871eef139e"
+    },
+    {
+      "id": "B-META-framework-audit:F-030",
+      "desc": "THE BRAND GATE CANNOT SEE THE PLACE THE BRAND LEAKS MOST. scripts/verify-lattice-residue.mjs runs three checks; the two that detect bare `lattice <subcommand>` prose/exec usage are scoped to DOC_SCAN_ROOTS (README.md, CLAUDE.md, AGENTS.md, docs, packages/main/templates, .claude/agents, .lattice-codex/agents) and EXECUTABLE_SCAN_ROOTS (bin, .codex, package.json, lattice.config.json, CITATION.cff, packages/utils/src). NEITHER includes packages/main/src, which is scanned only for the older `koala` token. So a handler that PRINTS `lattice config repair ...` to a user is invisible to the gate.\n\nMEASURED CONSEQUENCE, not hypothetical: the gate reported 3/3 PASS on this branch while NINE user-facing sites in packages/main/src were live. They were found only by LLM reviewers reading code, across three separate rounds:\n  F-041/F-044 (5 sites): handlers/lattice-cli.ts configRepairCommandFor, handlers/verifier.ts:471,\n    handlers/story-review.ts:438, core/autopilot-executor.ts:224, tasks/global-agents-unit-smoke.ts:159\n  F-046 (4 sites): handlers/lattice-cli.ts:174 (ambiguous-gitRoot note), :345 (thrown Error text),\n    :205 plus tasks/lattice-cli-migration-smoke.ts:253,256 (a claim that became FACTUALLY FALSE - it said the\n    package 'exposes only the lattice bin' when package.json lists proof-or-stop primary + lattice alias)\n\nThat is the exact failure mode CLAUDE.md's two-layer process-fact contract exists to prevent: a rule enforced only by reviewer diligence, with no mechanical fallback. Each round I fixed what a reviewer pointed at and declared the sweep complete; the gate could not contradict me because it was not looking there.\n\nWHY IT CANNOT SIMPLY BE ADDED AS A GATED ROOT TODAY - measured before proposing: a conservative approximation of the brand-exec pattern over `git ls-files packages/main/src`, excluding comment-only lines, returns ~108 candidate hits. Most are legitimate and must NOT be rewritten: prose about the installed global binary ('global lattice still reports a legacy raw heartbeat identity'), the auto-commit marker '\\u2713 lattice metadata auto-committed:' whose exact text is asserted elsewhere, FROZEN story-metadata titles, and `.lattice-codex/` path fragments. Adding the root as a hard gate would fail closed on all of them. The file already documents the correct escalation path for exactly this situation - roots start 'counted' and are 'promoted to GATED once its detector count reached a measured 0' (see the EXECUTABLE_SCAN_ROOTS comment for packages/utils/src) - but there is NO code-level counted-roots mechanism, only that prose note, so nothing tracks the 108 or ratchets it downward.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-08-14T11:57:03.520Z",
+      "reviewRound": "",
+      "gapFingerprint": "feb98cc0bd7e35f0da1c05f121cae48322e82f55a3158fd7bf79cd589749b044",
+      "files": [
+        "scripts/verify-lattice-residue.mjs:139",
+        "scripts/verify-lattice-residue.mjs:175",
+        "CLAUDE.md#lattice-residue",
+        "scripts/verify-lattice-residue.mjs"
+      ],
+      "_hash": "85b3d88ebda6be08bd1363a87890c931c829e1f3a12363f7ddff69a0a9799a66"
+    },
+    {
+      "id": "B-META-framework-audit:F-031",
+      "desc": "SUPERSEDES THE HIT-COUNT IN B-META-framework-audit:F-030. Anyone reading F-030 must use the reproduction command below instead of the '~108 candidate hits' figure in its desc, which is wrong AND unfixable in place (findings are append-only; there is no finding_update command).\n\nTWO SEPARATE DEFECTS, both found by the docs lane (B-cdf6:F-048 then B-cdf6:F-051):\n\n(1) THE NUMBER WAS WRONG. F-030 says ~108. I had produced that from my own approximating regex, not from the gate's detector, while writing 'measured first'. Correct method: import isBrandProseResidue from scripts/verify-lattice-residue.mjs and apply it line-by-line over `git ls-files packages/main/src`.\n\n(2) THE CORRECTION NEVER LANDED WHERE IT MATTERS. I recorded the fix in the resolvedReason of a DIFFERENT story's finding (B-cdf6:F-048). F-030's own desc still reads '~108 candidate hits' and 'nothing tracks the 108 or ratchets it downward'. A reader of F-030 - the durable record a future implementer sizes the work from - sees only the wrong number. A resolution note on another story's finding is not consumed by any gate and is not where that reader looks. This is the same shape as the original error: recording a correction somewhere plausible rather than where the claim actually lives.\n\n(3) THE COUNT IS A MOVING TARGET, which is the decisive reason to stop quoting numbers at all. Measured with the same method at three heads during a single review round: 161/84 at one head, 159/83 at 0c630092fe (the docs lane's independent isolated-worktree run), and 153/80 at dabc2b5140. It drifts on every commit touching packages/main/src. So ANY frozen figure is stale on arrival, and seeding F-030's proposed count-based ratchet with one would make its first run report a spurious increase and fail - reproducing in miniature the exact failure F-048 was filed to prevent. The docs lane's recommendation is adopted: replace the number with the command.\n\nF-030's qualitative conclusions are all unaffected and remain correct: packages/main/src is outside both DOC_SCAN_ROOTS and EXECUTABLE_SCAN_ROOTS, the tree is scanned only for the older koala token, the gate therefore reported 3/3 PASS while nine user-facing leaks were live, adding the root outright fails closed on a large majority of legitimate hits, and the two-stage counted-then-gated ratchet the file's own comments describe is still the right fix. A larger true count strengthens that case rather than weakening it.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-08-14T13:43:24.811Z",
+      "reviewRound": "",
+      "gapFingerprint": "f078503cc6a56710295fa3bd2322a461ec0743a06eb099c40b6ea6fdd93f6cf5",
+      "files": [
+        "B-META-framework-audit:F-030",
+        "scripts/verify-lattice-residue.mjs:110",
+        "B-cdf6:F-051",
+        "scripts/verify-lattice-residue.mjs"
+      ],
+      "_hash": "a9bbac4c6498d39c0fb3b8f940b9dea5ae56f88984258f0f6d750f2cef8a0453"
+    },
+    {
+      "id": "B-META-framework-audit:F-032",
+      "desc": "FREEZE DISCIPLINE COVERS SOURCE BUT NOT BUILD OUTPUT, so a host can invalidate live reviewers without any tracked change. Observed concretely: the concept lane filed B-cdf6:F-056 at CRITICAL claiming matchesRuntimeCommitSubject was not read-both, with an accurate reproduction against packages/main/dist. The committed source at the very head it reviewed DID contain the deprecated branch and `git diff --stat HEAD` was empty. The dist was genuinely broken at sample time because I had deliberately deleted that branch and rebuilt in order to prove a new test was not vacuous, then restored and rebuilt. The reviewer's evidence was correct about disk state and its reasoning was sound; it simply was not the committed state.\n\nWHY THE EXISTING PROTECTIONS DO NOT CATCH THIS. Reviewer bindings are validated against headHash / materialHash / storyFilesHash - all computed from GIT. dist/ is gitignored build output, so mutating it produces ZERO hash movement: no binding goes stale, no diff_pack_changed rejection, no clean-tree refusal. Every mechanism that correctly caught my mid-round SOURCE edits (quality's F-040, the CLI's own uncommitted-material refusal) is structurally blind to a mid-round BUILD mutation. Meanwhile reviewers are explicitly told to verify by execution, which means running dist - so the one artifact they are directed to trust is the one nothing protects.\n\nIMPACT IS NOT LIMITED TO WASTED WORK. A false CRITICAL costs a full review round (this one did). The symmetric case is worse: a host that rebuilds dist from PASSING code while a reviewer samples it could obtain a green verdict for source that does not produce that behaviour. Nothing in the evidence chain would record the discrepancy, because the pass is bound to git hashes that never moved.\n\nNOT HYPOTHETICAL AND NOT RARE: two separate lanes ran the same destructive delete-rebuild-restore experiment on shared dist during this single review round - I did it for F-052, and the quality lane independently repeated it to verify my claim (its RP-025 report says so explicitly). It is a natural thing for a careful reviewer to do, which is exactly why it needs a guard rather than a convention.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-08-14T15:20:02.734Z",
+      "reviewRound": "",
+      "gapFingerprint": "7e26fee1c79f021fd2efaf6b30cbae2a3d608ec1636577f8cf6c3ceb2b0dc04f",
+      "files": [
+        "packages/main/src/core/auto-commit-metadata.ts",
+        "packages/main/dist/core/auto-commit-metadata.js",
+        "B-cdf6:F-056",
+        "B-cdf6:F-040"
+      ],
+      "_hash": "5d5e3a2e63a881fccf0e00122e4c8038e7226b7f87e5bb8286375c2e2ba94d6b"
+    },
+    {
+      "id": "B-META-framework-audit:F-033",
+      "desc": "Concurrent dist/ rebuild during a DONE-required suite run produces a FALSE RED indistinguishable from a real regression, leaving no trace in any evidence record. Observed in B-cdf6: done_required_validate ran `npm test` while packages/main/dist was being regenerated in the same worktree; a spawned CLI hit the half-written tree and failed with \"proof-or-stop local bootstrap is not ready. Missing build artifacts: packages/main/dist/cli-engine.js\" (npm test exitCode=1 at 85s). The identical suite passes exit 0 in ~254s with dist stable, so the red was purely a race. This is the concrete failure mode of the invisibility logged as F-032 (dist/ is gitignored, so mutating it moves no hash and every freshness/binding check stays blind). Impact: the message names missing build artifacts, so it reads like a packaging defect and sends debugging into the wrong subsystem; and the run is recorded as executed/failed, making the false red durable evidence in a DONE-blocking gate. Occurred THREE times in this one story: (1) a destructive dist rebuild during a live reviewer round caused a false-positive concept finding, (2) this false suite red, (3) a gap_log invocation itself failed bootstrap while a refresh rebuilt dist. Suggested remedy: have done_required_validate/validate hold or observe a build lock (or assert dist mtime stability across the run) and classify bootstrap-not-ready as an infrastructure refusal, like the existing timeout/lock refusals, rather than command-failed.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-gap-log",
+      "createdAt": "2026-08-16T10:32:03.999Z",
+      "reviewRound": "",
+      "gapFingerprint": "815afa47e23d2db0530b167b6bf66d9751a05eb7829cde6e45385af722063cae",
+      "files": [
+        "packages/main/src/handlers/done-required-validate.ts",
+        "packages/main/src/core/validation-executor.ts",
+        "scripts/build-main-with-binding.mjs"
+      ],
+      "_hash": "8fd3e01282f083e638862325e765c5aaf0545964b6188e11c1da48c908c45f58"
+    },
+    {
+      "id": "B-META-framework-audit:F-034",
+      "desc": "Managed-asset ownership predicate for the shared .claude/hooks/*.cjs group is dead for one of its own members. managed-assets.ts:941 recognizes ownership via `actual.includes(\"lattice\") || actual.includes(\"LATTICE\")`, but .claude/hooks/log-tools.cjs contains zero occurrences of that token (grep -ic lattice returns 0), so the predicate never fires for that file. Consequence: `check --apply` cannot reliably auto-repair its own generated hook, misclassifying it as STALE_LOCAL_EDIT in cases the manifest-hash fallback does not cover. PRE-EXISTING, not caused by the B-cdf6 rename: verified the predicate is byte-identical on pristine main and that .claude/hooks/log-tools.cjs is unchanged by this story (git diff main...HEAD is empty for that path). Logged here rather than fixed in B-cdf6 because it belongs to the managed-assets subsystem, and because it is the same structural class as two rename-scoped findings this story DID fix (B-cdf6:F-066 in this same file, and B-cdf6:F-068): an ownership/recognition predicate that tests for a literal the generated artifact never actually contains, so the check silently never fires. Suggested remedy: derive each ownership predicate from the generator output (or the manifest digest) rather than hand-written substring guesses, and add a smoke asserting every managed asset predicate returns true for its own freshly-rendered content — that single assertion would have caught F-066, F-067 and any future sibling at once.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-gap-log",
+      "createdAt": "2026-08-17T02:57:37.218Z",
+      "reviewRound": "",
+      "gapFingerprint": "5395315635d500e5f427ce6f6ef98729c8d8bdee594a7e582734946af69568de",
+      "files": [
+        "packages/main/src/core/managed-assets.ts:941",
+        ".claude/hooks/log-tools.cjs",
+        "packages/main/src/core/managed-assets.ts:1080-1084",
+        "packages/main/src/core/managed-assets.ts"
+      ],
+      "_hash": "fd2b28bc1cc99eb70b808eb40d57e12ce1e9bf39bff0e6f5967d8415e952709d"
+    },
+    {
+      "id": "B-META-framework-audit:F-035",
+      "desc": "validate --concept gate uses substring/generic-word matching for deleted symbols, producing overwhelming false-positive noise that can mask real dangling references. Measured in B-cdf6: the gate reported \"14 symbol(s) deleted, 15435 residual reference(s)\" and blocked REVIEW->TEST. A concept reviewer cross-checked every symbol and found ZERO genuine defects: the bare word \"main\" alone accounted for 15326 of 15435 residuals (99.3%), matching the git branch name, the packages/main directory path, and even Chinese prose inside .githooks/pre-push — not a deleted function. Of the other 13 symbols, 8 were correctly @deprecated re-export aliases (deliberate backward compatibility), 3 showed literally 0 residuals (cleanly renamed, no alias needed), and 2 had only substring collisions with distinct never-deleted helpers (runLatticeFromCwd, runLatticeResidueGate, runLatticeAuthorityControlPlaneOnce match a grep for runLattice). Impact: a gate whose signal is 99.3 percent noise trains operators to wave it through, which is exactly when it will miss a real dangling reference; it also forces an expensive LLM concept-review spawn on every rename-shaped story. Suggested remedy: match on exact identifier boundaries (and skip single generic words like \"main\" that collide with paths and branch names) rather than substring containment; optionally exclude symbols that resolve to a live export alias, since those are by definition not dangling.",
+      "severity": "low",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-gap-log",
+      "createdAt": "2026-08-17T04:37:31.730Z",
+      "reviewRound": "",
+      "gapFingerprint": "38f91a226ede89109e770f9c80c0299f9750b4f10a464a3039c18caec3cfe1d1",
+      "files": [
+        "packages/main/src/handlers/validate-concept.ts",
+        "packages/main/src/handlers/validate.ts"
+      ],
+      "_hash": "0909836e7105d94bc51abc25007dd68f492ead0a2d6ac92697a42e1eace00156"
     }
   ]
 }

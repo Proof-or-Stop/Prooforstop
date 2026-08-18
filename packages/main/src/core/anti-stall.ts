@@ -80,7 +80,7 @@ export function testAntiStall(
   return renderAntiStall({
     storyId,
     title: `TEST blocked${bugHint}`,
-    retry: `lattice validate then fix remaining failures`,
+    retry: `proof-or-stop validate then fix remaining failures`,
     fix: `story_advance '{"storyId":"${storyId}","phase":"DEV"}' to roll back and fix code`,
   });
 }
@@ -89,7 +89,7 @@ export function waitingAntiStall(storyId: string): string {
   return renderAntiStall({
     storyId,
     title: 'story waiting with no active progress',
-    retry: `lattice status then resume the current phase`,
-    fix: `lattice checklist_get '{"storyId":"${storyId}"}' to identify next actionable item`,
+    retry: `proof-or-stop status then resume the current phase`,
+    fix: `proof-or-stop checklist_get '{"storyId":"${storyId}"}' to identify next actionable item`,
   });
 }

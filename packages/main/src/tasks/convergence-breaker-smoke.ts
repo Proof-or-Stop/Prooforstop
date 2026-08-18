@@ -458,7 +458,7 @@ let digestMatrixSummary = '';
   // five OwnershipClass values at :66-71). The former `mutating` is not a member
   // of that enum and never appears in a rendered message.
   const leaseNonOwner = (age: string): string => // core/story-owner-lease.ts:616-640
-    `B-bf52 is owned by Proofbound session main-agent-s2s1-stable-f93ff408f3, heartbeat ${age} ago ` +
+    `B-bf52 is owned by Proof-or-Stop session main-agent-s2s1-stable-f93ff408f3, heartbeat ${age} ago ` +
     `(owner cwd: /Users/jek/Documents/Work/proofbound/.worktrees/B-bf52). "story_advance" is an owner-gated storyScopedMutating command, ` +
     `so this session (worker-s2s1) cannot run it. The owner lease is still ACTIVE. ` +
     `Use read-only commands, wait for the owner, or rerun with --forceTakeover to seize the active lease (a deliberate human override).`;

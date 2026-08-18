@@ -1,11 +1,11 @@
-# Proofbound Authority M1-M16 Generated Proof And Live E2E Plan
+# Proof-or-Stop Authority M1-M16 Generated Proof And Live E2E Plan
 
-> **Retired legacy note:** Authority Server and server-backed receipt semantics in this document are retired/out-of-core for the active Proofbound CLI. Current implementation baselines are local proof admissibility (`admissibilityStatus`, `assuranceLevel`, `evidenceScope`), gate-consumed local evidence, signed/offline receipt bundles, and local review quorum assurance. Do not use this document as active Authority Server implementation guidance.
+> **Retired legacy note:** Authority Server and server-backed receipt semantics in this document are retired/out-of-core for the active Proof-or-Stop CLI. Current implementation baselines are local proof admissibility (`admissibilityStatus`, `assuranceLevel`, `evidenceScope`), gate-consumed local evidence, signed/offline receipt bundles, and local review quorum assurance. Do not use this document as active Authority Server implementation guidance.
 
 ## Purpose
 
-This document proves that the Proofbound Authority M1-M16 implementation artifacts
-have been generated in the Proofbound CLI worktree, and defines the dedicated live
+This document proves that the Proof-or-Stop Authority M1-M16 implementation artifacts
+have been generated in the Proof-or-Stop CLI worktree, and defines the dedicated live
 execution run still required to prove the whole chain:
 
 ```text
@@ -28,7 +28,7 @@ Core review principles for this proof and the live run:
 
 ## Scope
 
-`M1-M16` in this document refers to the sixteen Proofbound Authority milestones in
+`M1-M16` in this document refers to the sixteen Proof-or-Stop Authority milestones in
 `lattice-authority-live-integration.md`:
 
 - M1 Contract Lock
@@ -43,8 +43,8 @@ Core review principles for this proof and the live run:
 - M10 Gate Evaluation Loop
 - M11 End-To-End Authority Autopilot
 - M12 Deployment And Global Verification
-- M13 Proofbound Story Planner
-- M14 Proofbound Job Planner
+- M13 Proof-or-Stop Story Planner
+- M14 Proof-or-Stop Job Planner
 - M15 Natural-Language-To-DONE E2E
 - M16 Multi-Host Final Verification
 
@@ -56,7 +56,7 @@ separate document describes the broader unattended completion product track.
 | Status | Meaning |
 | --- | --- |
 | Generated complete | The milestone has concrete requirements, CLI/code surfaces, contracts, and smoke or live-test harnesses in this worktree. It is reproducible by inspecting the referenced files and running the listed commands. |
-| Live E2E pending | The milestone has generated artifacts, but the final localhost run has not yet proven the whole queued job + evidence + receipt + multi-host chain against Python Proofbound Authority. |
+| Live E2E pending | The milestone has generated artifacts, but the final localhost run has not yet proven the whole queued job + evidence + receipt + multi-host chain against Python Proof-or-Stop Authority. |
 | Live E2E complete | The final run has produced a non-skipped transcript from `http://localhost:6789/` with job id, run id, evidence refs, verified native receipt, and multi-host certification refs. |
 
 The current proof is: **M1-M16 are generated complete**. The full live E2E chain
@@ -69,7 +69,7 @@ is still **live E2E pending** until the execution plan below is run.
 | M1 Contract Lock | `docs/requirements/decisions/lattice-authority-live-integration.md`, `docs/requirements/decisions/lattice-unattended-completion-plan.md`, `docs/requirements/NAV.md`, `packages/main/src/core/command-policy.ts`, `packages/main/src/core/process-fact-levels.ts` | `rg -n "M1.*Contract Lock|Contract Lock" docs/requirements/decisions/lattice-authority-live-integration.md`; `npm --prefix packages/main run build`; `git diff --check` | Generated complete | A frozen contract is not live server evidence. |
 | M2 Cross-Language Crypto Fixtures | `packages/main/src/core/lattice-authority-native.ts`, `packages/main/src/core/authority-signing.ts`, `packages/main/src/tasks/authority-runner-contracts-smoke.ts`, `packages/main/src/tasks/authority-receipt-classification-smoke.ts`, `packages/main/src/tasks/authority-live-python-stub-smoke.ts` | `npm --prefix packages/main run test:authority-runner-contracts`; `npm --prefix packages/main run test:authority-receipt-classification`; `npm --prefix packages/main run test:authority-live-python-stub` | Generated complete | Stub signing agreement does not prove a production server key. |
 | M3 Authority Metadata And Bootstrap | `packages/main/src/core/authority-client.ts`, `packages/main/src/core/authority-mode.ts`, `packages/main/src/tasks/authority-live-python-smoke.ts`, `docs/requirements/decisions/lattice-authority-customer-api-key-access.md` | `npm --prefix packages/main run test:authority-client`; `npm --prefix packages/main run test:authority-live-python` with live env; `curl -s http://localhost:6789/v1/authority/policy` | Generated complete | If `test:authority-live-python` prints `SKIPPED`, M3 live proof is absent. |
-| M4 Native Receipt Verifier | `packages/main/src/core/authority-receipt-classification.ts`, `packages/main/src/core/lattice-authority-native.ts`, `packages/main/src/core/authority-client.ts`, `packages/main/src/tasks/authority-completion-smoke.ts`, `packages/main/src/tasks/autopilot-authority-smoke.ts` | `npm --prefix packages/main run test:authority-completion`; `npm --prefix packages/main run test:autopilot-authority-smoke`; `lattice authority receipt verify --receiptFile=<receipt.json> --serverPublicKey=<hex> --receiptKind=gate_decision --json` | Generated complete | CLI verifies receipts; it must not mint server receipts. |
+| M4 Native Receipt Verifier | `packages/main/src/core/authority-receipt-classification.ts`, `packages/main/src/core/lattice-authority-native.ts`, `packages/main/src/core/authority-client.ts`, `packages/main/src/tasks/authority-completion-smoke.ts`, `packages/main/src/tasks/autopilot-authority-smoke.ts` | `npm --prefix packages/main run test:authority-completion`; `npm --prefix packages/main run test:autopilot-authority-smoke`; `proof-or-stop authority receipt verify --receiptFile=<receipt.json> --serverPublicKey=<hex> --receiptKind=gate_decision --json` | Generated complete | CLI verifies receipts; it must not mint server receipts. |
 | M5 Live Runner Control Plane | `packages/main/src/core/authority-runner.ts`, `packages/main/src/core/authority-runner-live-client.ts`, `packages/main/src/core/authority-job-loop-live.ts`, `packages/main/src/tasks/authority-runner-client-smoke.ts`, `packages/main/src/tasks/authority-runner-events-smoke.ts`, `packages/main/src/tasks/authority-live-python-smoke.ts` | `npm --prefix packages/main run test:authority-runner-client`; `npm --prefix packages/main run test:authority-runner-events`; `npm --prefix packages/main run test:authority-live-python` | Generated complete | Register/heartbeat/claim/release is not enough for Authority DONE. |
 | M6 Authority Job Schema | `packages/main/src/core/authority-contracts.ts`, `packages/main/src/core/authority-runner-contracts.ts`, `packages/main/src/core/planner.ts`, `packages/main/src/core/planned-steps-executor.ts` | `npm --prefix packages/main run test:authority-runner-contracts`; `npm --prefix packages/main run test:planner-unattended-smoke`; `rg -n "plannedSteps|providerPolicy|worktreePolicy|receiptPolicy" packages/main/src/core` | Generated complete | Schema validity does not prove a real queued job was executed. |
 | M7 Provider Executor | `packages/main/src/providers/codex-cli.ts`, `packages/main/src/providers/claude-cli.ts`, `packages/main/src/core/planned-steps-executor.ts`, `packages/main/src/core/worktree-policy.ts`, `packages/main/src/tasks/provider-codex-smoke.ts`, `packages/main/src/tasks/provider-claude-smoke.ts`, `packages/main/src/tasks/worktree-policy-smoke.ts` | `npm --prefix packages/main run test:provider-codex-smoke`; `npm --prefix packages/main run test:provider-claude-smoke`; `npm --prefix packages/main run test:worktree-policy-smoke` | Generated complete | Provider success never equals validation success or Authority DONE. |
@@ -77,18 +77,18 @@ is still **live E2E pending** until the execution plan below is run.
 | M9 Repair And Stop Policy | `packages/main/src/core/repair-retry-loop.ts`, `packages/main/src/core/planned-steps-executor.ts`, `packages/main/src/core/budget-meter.ts`, `packages/main/src/tasks/repair-retry-loop-smoke.ts`, `packages/main/src/tasks/repair-retry-integration-smoke.ts`, `packages/main/src/tasks/budget-meter-smoke.ts` | `npm --prefix packages/main run test:repair-retry-loop-smoke`; `npm --prefix packages/main run test:repair-retry-integration-smoke`; `npm --prefix packages/main run test:budget-meter-smoke` | Generated complete | Repair can fix validation failures only; it cannot repair gate/receipt failure into DONE. |
 | M10 Gate Evaluation Loop | `packages/main/src/core/authority-completion.ts`, `packages/main/src/core/authority-client.ts`, `packages/main/src/core/planned-steps-executor.ts`, `packages/main/src/tasks/authority-completion-smoke.ts`, `packages/main/src/tasks/evidence-live-wiring-smoke.ts` | `npm --prefix packages/main run test:authority-completion`; `npm --prefix packages/main run test:evidence-live-wiring-smoke`; live `POST /v1/gates/evaluate` transcript in final run | Generated complete | A stub-signed gate receipt proves verifier logic only, not production Authority DONE. |
 | M11 End-To-End Authority Autopilot | `packages/main/src/core/authority-job-loop.ts`, `packages/main/src/core/authority-job-loop-live.ts`, `packages/main/src/core/autopilot-executor.ts`, `packages/main/src/core/authority-runner.ts`, `packages/main/src/tasks/authority-job-loop-smoke.ts`, `packages/main/src/tasks/authority-job-loop-live-smoke.ts`, `packages/main/src/tasks/autopilot-execute-smoke.ts` | `npm --prefix packages/main run test:authority-job-loop`; `npm --prefix packages/main run test:authority-job-loop-live-smoke`; `npm --prefix packages/main run test:autopilot-execute-smoke` | Generated complete | The final queued-job live run must still prove no dangling lease and receipt-backed terminal state. |
-| M12 Deployment And Global Verification | `README.md`, `docs/guide.md`, `docs/requirements/decisions/lattice-authority-live-integration.md`, `package.json`, `packages/main/package.json`, global `lattice` command routing in `packages/main/src/cli-engine.ts` | `npm --prefix packages/main run build`; `lattice check`; `lattice autopilot status --json`; `npm --prefix packages/main run test:authority-live-python` with `http://localhost:6789/` | Generated complete | Global/local parity and server deployment are proven only by the final live transcript, not by package-local tests alone. |
-| M13 Proofbound Story Planner | `packages/main/src/core/planner.ts`, `packages/main/src/handlers/planner.ts`, `packages/main/src/cli-engine.ts`, `packages/main/src/tasks/planner-unattended-smoke.ts`, `packages/main/src/tasks/natural-language-to-done-smoke.ts` | `npm --prefix packages/main run test:planner-unattended-smoke`; `npm --prefix packages/main run test:natural-language-to-done-smoke`; `lattice planner run --request="<request>" --mode=local --until=DONE --planOnly --json` | Generated complete | Planner output is not DONE until execution, evidence, and final gates pass. |
-| M14 Proofbound Job Planner | `packages/main/src/core/planner.ts`, `packages/main/src/core/authority-contracts.ts`, `packages/main/src/core/planned-steps-executor.ts`, `packages/main/src/tasks/planner-unattended-smoke.ts` | `npm --prefix packages/main run test:planner-unattended-smoke`; `lattice planner run --request="<request>" --mode=authority --until=DONE --planOnly --json` | Generated complete | A generated JobPlan is not a claimed Authority job until the server queues and runner claims it. |
-| M15 Natural-Language-To-DONE E2E | `packages/main/src/tasks/natural-language-to-done-smoke.ts`, `packages/main/src/tasks/planner-unattended-smoke.ts`, `packages/main/src/tasks/authority-job-loop-live-smoke.ts`, `packages/main/src/core/planner.ts`, `packages/main/src/core/authority-completion.ts` | `npm --prefix packages/main run test:natural-language-to-done-smoke`; `npm --prefix packages/main run test:planner-unattended-smoke`; live `lattice planner run --mode=authority --until=DONE --json` in final run | Generated complete | Current smoke can use a signing-correct stub; production natural-language-to-DONE requires live receipt and final certification. |
-| M16 Multi-Host Final Verification | `packages/main/src/core/verdicts.ts`, `packages/main/src/handlers/verdict.ts`, `packages/main/src/core/authority-client.ts`, `packages/main/src/tasks/multi-host-authority-smoke.ts`, `packages/main/src/tasks/planner-unattended-smoke.ts` | `npm --prefix packages/main run test:multi-host-authority-smoke`; `lattice authority verdict submit --jobId=<job> --runId=<run> --receiptId=<receipt> --gateInputDigest=<digest> --json`; `lattice authority job status --jobId=<job> --receiptFile=<receipt.json> --json` | Generated complete | Host verdicts cannot replace a native gate receipt; fullAuthorityDone requires both. |
+| M12 Deployment And Global Verification | `README.md`, `docs/guide.md`, `docs/requirements/decisions/lattice-authority-live-integration.md`, `package.json`, `packages/main/package.json`, global `proof-or-stop` command routing in `packages/main/src/cli-engine.ts` | `npm --prefix packages/main run build`; `proof-or-stop check`; `proof-or-stop autopilot status --json`; `npm --prefix packages/main run test:authority-live-python` with `http://localhost:6789/` | Generated complete | Global/local parity and server deployment are proven only by the final live transcript, not by package-local tests alone. |
+| M13 Proof-or-Stop Story Planner | `packages/main/src/core/planner.ts`, `packages/main/src/handlers/planner.ts`, `packages/main/src/cli-engine.ts`, `packages/main/src/tasks/planner-unattended-smoke.ts`, `packages/main/src/tasks/natural-language-to-done-smoke.ts` | `npm --prefix packages/main run test:planner-unattended-smoke`; `npm --prefix packages/main run test:natural-language-to-done-smoke`; `proof-or-stop planner run --request="<request>" --mode=local --until=DONE --planOnly --json` | Generated complete | Planner output is not DONE until execution, evidence, and final gates pass. |
+| M14 Proof-or-Stop Job Planner | `packages/main/src/core/planner.ts`, `packages/main/src/core/authority-contracts.ts`, `packages/main/src/core/planned-steps-executor.ts`, `packages/main/src/tasks/planner-unattended-smoke.ts` | `npm --prefix packages/main run test:planner-unattended-smoke`; `proof-or-stop planner run --request="<request>" --mode=authority --until=DONE --planOnly --json` | Generated complete | A generated JobPlan is not a claimed Authority job until the server queues and runner claims it. |
+| M15 Natural-Language-To-DONE E2E | `packages/main/src/tasks/natural-language-to-done-smoke.ts`, `packages/main/src/tasks/planner-unattended-smoke.ts`, `packages/main/src/tasks/authority-job-loop-live-smoke.ts`, `packages/main/src/core/planner.ts`, `packages/main/src/core/authority-completion.ts` | `npm --prefix packages/main run test:natural-language-to-done-smoke`; `npm --prefix packages/main run test:planner-unattended-smoke`; live `proof-or-stop planner run --mode=authority --until=DONE --json` in final run | Generated complete | Current smoke can use a signing-correct stub; production natural-language-to-DONE requires live receipt and final certification. |
+| M16 Multi-Host Final Verification | `packages/main/src/core/verdicts.ts`, `packages/main/src/handlers/verdict.ts`, `packages/main/src/core/authority-client.ts`, `packages/main/src/tasks/multi-host-authority-smoke.ts`, `packages/main/src/tasks/planner-unattended-smoke.ts` | `npm --prefix packages/main run test:multi-host-authority-smoke`; `proof-or-stop authority verdict submit --jobId=<job> --runId=<run> --receiptId=<receipt> --gateInputDigest=<digest> --json`; `proof-or-stop authority job status --jobId=<job> --receiptFile=<receipt.json> --json` | Generated complete | Host verdicts cannot replace a native gate receipt; fullAuthorityDone requires both. |
 
 Generated-complete conclusion:
 
 ```text
 M1-M16 all have generated requirement, CLI/code, and verification harness
 artifacts in this worktree. The remaining proof is not generation; it is one
-dedicated live E2E execution against Python Proofbound Authority.
+dedicated live E2E execution against Python Proof-or-Stop Authority.
 ```
 
 ## Required Live E2E Execution Plan
@@ -126,10 +126,10 @@ Pass condition:
 - no whitespace/check failure;
 - every failure is classified as a real correctness issue before fixing.
 
-### E1. Start Python Proofbound Authority On localhost:6789
+### E1. Start Python Proof-or-Stop Authority On localhost:6789
 
 Purpose: prove the server used for live evidence is the real local Python
-Proofbound Authority, not a stub or alternate port.
+Proof-or-Stop Authority, not a stub or alternate port.
 
 Commands:
 
@@ -209,7 +209,7 @@ export LATTICE_AUTHORITY_SESSION_ID=session-live-1
 export LATTICE_AUTHORITY_PROJECT_ID=project-live-1
 ```
 
-Runtime environment for actual Proofbound CLI authority mode:
+Runtime environment for actual Proof-or-Stop CLI authority mode:
 
 ```bash
 export LATTICE_AUTHORITY_MODE=enforce
@@ -228,7 +228,7 @@ export LATTICE_AUTHORITY_PROJECT_ID=project-live-1
 
 Pass condition:
 
-- `lattice authority status --json` reports customer API key configured without
+- `proof-or-stop authority status --json` reports customer API key configured without
   printing the key;
 - missing customer API key blocks mutating requests;
 - missing actor key blocks signed runner operations;
@@ -279,7 +279,7 @@ Input requirements for the queued job:
 Preferred command path:
 
 ```bash
-lattice planner run \
+proof-or-stop planner run \
   --request="<small correctness-scoped change>" \
   --interactionMode=autonomous \
   --mode=authority \
@@ -310,7 +310,7 @@ synthesis or a job-file-only fixture.
 Command:
 
 ```bash
-lattice autopilot execute \
+proof-or-stop autopilot execute \
   --mode=authority \
   --storyId=<story-id> \
   --until=DONE \
@@ -343,7 +343,7 @@ Purpose: prove `authorityDone` comes from a native server-signed receipt.
 Command shape:
 
 ```bash
-lattice authority receipt verify \
+proof-or-stop authority receipt verify \
   --receiptFile=<gate-decision-receipt.json> \
   --serverPublicKey="$LATTICE_AUTHORITY_SERVER_PUBLIC_KEY" \
   --serverPublicKeyEncoding=hex \
@@ -406,7 +406,7 @@ Each host reviews the same anchors:
 Submit server-backed verdicts:
 
 ```bash
-lattice authority verdict submit \
+proof-or-stop authority verdict submit \
   --jobId=<job-id> \
   --runId=<run-id> \
   --storyId=<story-id> \
@@ -426,7 +426,7 @@ lattice authority verdict submit \
 Check final status:
 
 ```bash
-lattice authority job status \
+proof-or-stop authority job status \
   --jobId=<job-id> \
   --runId=<run-id> \
   --receiptFile=<gate-decision-receipt.json> \
@@ -454,13 +454,13 @@ Commands:
 unset LATTICE_AUTHORITY_MODE
 unset LATTICE_AUTHORITY_URL
 
-lattice autopilot execute \
+proof-or-stop autopilot execute \
   --mode=local \
   --storyId=<story-id> \
   --until=TEST \
   --json
 
-lattice planner run \
+proof-or-stop planner run \
   --request="<small correctness-scoped change>" \
   --interactionMode=autonomous \
   --mode=local \

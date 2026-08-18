@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-3e5d",
+  "allowedCommands": [],
+  "allowedTools": [],
+  "allowedPaths": [
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/tasks/field-regression-cli-smoke.ts",
+    "packages/main/tests/red/red-B-new-concurrent-done-race.mjs",
+    "packages/main/tests/red/red-B-new-retired-channel-lane.mjs",
+    "packages/main/tests/red/red-b49d4-harness-registration.mjs"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Fix-and-test-only story; no product-facing CLI surface changes beyond the two smoke-test files and the transition-orchestrator lock/error-translation fix.",
+  "createdAt": "2026-08-16T11:40:34.475Z",
+  "updatedAt": "2026-08-16T11:40:34.475Z",
+  "_hash": "7c68cdb5d46ab749d1dae888aa2e756678577be7c2fdf155d2485733d4bea1ae"
+}

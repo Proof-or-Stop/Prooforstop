@@ -36,6 +36,24 @@ const {
   createMilestoneStatusHandlers,
 } = await import(join(distRoot, 'handlers/milestone-status.js'));
 const { createStoryAdvanceHandlers } = await import(join(distRoot, 'handlers/story-advance.js'));
+const { createPlaybookRuntimeMemoryHandlers } = await import(join(distRoot, 'handlers/playbook-runtime-memory.js'));
+
+/**
+ * B-a7c5 CHK-003: canFinishGuard now ALSO requires a dev_memory_finish_decision
+ * record. `.lattice/dev-memory/` is git-tracked (unlike `.lattice/story/`, which
+ * is materialHash-EXCLUDED), so this write must be committed BEFORE a fixture
+ * computes/signs its `preEvidenceMaterialHash` — never after — so it cannot
+ * retroactively invalidate a delivery-check/test-evidence materialHash binding
+ * already signed against an earlier HEAD.
+ */
+function satisfyDevMemoryFinishDecisionAndCommit(root, store, storyId, git) {
+  createPlaybookRuntimeMemoryHandlers({ store, root, scanRoot: root })
+    .dev_memory_finish_decision({ storyId, decision: 'no-reusable-lesson', reason: 'milestone-status.test.mjs fixture; no lesson to capture' });
+  if (git(['status', '--porcelain', '--', '.lattice/dev-memory'])) {
+    git(['add', '.lattice/dev-memory']);
+    git(['commit', '-m', 'dev-memory finish decision']);
+  }
+}
 
 function story(storyId = 'B-7ba7') {
   return {
@@ -361,7 +379,7 @@ function storyDirs(root) {
     ], { cwd: root, encoding: 'utf8' });
     assert.match(checklistAddText, /Checklist item CHK-001 added to B-cli-marker-icons/);
     assert.ok(
-      checklistAddText.includes('Advisory: milestone ledger exists for B-cli-marker-icons; if this new checklist item (CHK-001) changes milestone coverage, update/sync the ledger with `lattice milestone_ledger_add` or an explicit ledger update.'),
+      checklistAddText.includes('Advisory: milestone ledger exists for B-cli-marker-icons; if this new checklist item (CHK-001) changes milestone coverage, update/sync the ledger with `proof-or-stop milestone_ledger_add` or an explicit ledger update.'),
       'ledger-backed checklist_add output includes the milestone ledger advisory',
     );
     assert.match(checklistAddText, /Milestone Status - B-cli-marker-icons/);
@@ -758,7 +776,7 @@ function assertEvidenceRefShape(evidenceRef) {
   });
   assert.deepEqual(report.groups, { completed: [], current: [], remaining: [] });
   assert.match(report.risks.join('\n'), /Missing milestone ledger/);
-  assert.match(report.nextActions.join('\n'), /lattice milestone_ledger_set --storyId=B-7ba7/);
+  assert.match(report.nextActions.join('\n'), /proof-or-stop milestone_ledger_set --storyId=B-7ba7/);
 
   const text = renderMilestoneStatusReport(report);
   assertTextContract(text);
@@ -1960,6 +1978,7 @@ function assertEvidenceRefShape(evidenceRef) {
     git(['commit', '-m', 'init']);
 
     const store = new StoryStore(root);
+    satisfyDevMemoryFinishDecisionAndCommit(root, store, storyId, git);
     const preEvidenceHead = git(['rev-parse', 'HEAD']);
     const preEvidenceMaterialHash = currentMaterialHash(root, 'HEAD', root);
     assert.ok(preEvidenceMaterialHash, 'fixture must be able to compute a material hash');
@@ -2009,7 +2028,7 @@ function assertEvidenceRefShape(evidenceRef) {
       }),
     ], storyId));
     store.writeTestEvidence(storyId, {
-      command: `lattice validate --story=${storyId} --json`,
+      command: `proof-or-stop validate --story=${storyId} --json`,
       output: JSON.stringify({ allPass: true }),
       result: 'PASS',
       timestamp: '2026-07-04T11:00:00.000Z',
@@ -2127,6 +2146,7 @@ function assertEvidenceRefShape(evidenceRef) {
 
     process.chdir(worktreeRoot);
     const store = new StoryStore(worktreeRoot);
+    satisfyDevMemoryFinishDecisionAndCommit(worktreeRoot, store, storyId, gitWorktree);
     const preEvidenceHead = gitWorktree(['rev-parse', 'HEAD']);
     const preEvidenceMaterialHash = currentMaterialHash(worktreeRoot, 'HEAD', worktreeRoot);
     assert.ok(preEvidenceMaterialHash, 'worktree fixture must be able to compute a material hash');
@@ -2176,7 +2196,7 @@ function assertEvidenceRefShape(evidenceRef) {
       }),
     ], storyId));
     store.writeTestEvidence(storyId, {
-      command: `lattice validate --story=${storyId} --json`,
+      command: `proof-or-stop validate --story=${storyId} --json`,
       output: JSON.stringify({ allPass: true }),
       result: 'PASS',
       timestamp: '2026-07-04T11:00:00.000Z',
@@ -2618,7 +2638,7 @@ function assertEvidenceRefShape(evidenceRef) {
   // the story id and the actual uncovered refs, and points at --help.
   assert.match(desyncGap.message, /verification_evidence_add/, 'the primary remedy names verification_evidence_add');
   assert.match(desyncGap.message, /verification_evidence_batch_add/, 'the primary remedy offers the batch variant');
-  assert.match(desyncGap.message, /lattice verification_evidence_add --help/, 'the primary remedy points at the command help');
+  assert.match(desyncGap.message, /proof-or-stop verification_evidence_add --help/, 'the primary remedy points at the command help');
   assert.match(desyncGap.message, /allowed in every phase/, 'the primary remedy states it is phase-legal everywhere the gap surfaces');
   assert.match(desyncGap.message, /CHK-DS-1:happy:0, CHK-DS-2:happy:0/, 'the primary remedy names the actual uncovered intent refs');
   assert.match(desyncGap.message, /on story B-hint-desync/, 'the primary remedy names THIS story');
@@ -2630,7 +2650,7 @@ function assertEvidenceRefShape(evidenceRef) {
   // is named — with BOTH caveats and a --help pointer, and with NO fake-JSON
   // partial-update template.
   assert.match(desyncGap.message, /milestone_ledger_set/, 'genuine ledger lag still surfaces the ledger repair command');
-  assert.match(desyncGap.message, /lattice milestone_ledger_set --help/, 'the secondary remedy points at the command help');
+  assert.match(desyncGap.message, /proof-or-stop milestone_ledger_set --help/, 'the secondary remedy points at the command help');
   assert.match(desyncGap.message, /FULL-REPLACES the ledger \(re-submit the complete milestone list/, 'the full-replace caveat is explicit (F-001)');
   assert.match(desyncGap.message, /PLAN-phase-only \(return the story to PLAN first\)/, 'the PLAN-phase-only caveat is explicit (F-005)');
   assert.doesNotMatch(desyncGap.message, /"milestones":\[\.\.\./, 'no invalid-JSON partial-update template survives (F-001)');
@@ -2854,6 +2874,7 @@ function assertEvidenceRefShape(evidenceRef) {
     gitMain(['worktree', 'add', '-b', `story/${storyId}`, worktreeRoot]);
 
     const store = new StoryStore(worktreeRoot);
+    satisfyDevMemoryFinishDecisionAndCommit(worktreeRoot, store, storyId, gitWorktree);
     const preEvidenceHead = gitWorktree(['rev-parse', 'HEAD']);
     const preEvidenceMaterialHash = currentMaterialHash(worktreeRoot, 'HEAD', worktreeRoot);
     assert.ok(preEvidenceMaterialHash, 'CLI worktree fixture must be able to compute a material hash');
@@ -2908,7 +2929,7 @@ function assertEvidenceRefShape(evidenceRef) {
       }),
     ], storyId));
     store.writeTestEvidence(storyId, {
-      command: `lattice validate --story=${storyId} --json`,
+      command: `proof-or-stop validate --story=${storyId} --json`,
       output: JSON.stringify({ allPass: true }),
       result: 'PASS',
       timestamp: '2026-07-04T11:00:00.000Z',

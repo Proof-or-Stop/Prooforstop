@@ -66,8 +66,8 @@ const adapterSurfaceTerms = [
   'verify_codex',
   'bin/lattice-codex.js',
   '.codex/hooks.json',
-  'lattice codex verify',
-  'lattice codex doctor',
+  'proof-or-stop codex verify',
+  'proof-or-stop codex doctor',
 ];
 
 for (const term of adapterSurfaceTerms) {

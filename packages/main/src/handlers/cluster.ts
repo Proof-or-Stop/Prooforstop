@@ -200,7 +200,7 @@ function renderDispatchPrompt(
   lines.push('');
   lines.push(`    Resolves: ${cluster.clusterId}`);
   lines.push('');
-  lines.push('(lattice validate / finding_list auto-resolve the cluster via this marker.)');
+  lines.push('(proof-or-stop validate / finding_list auto-resolve the cluster via this marker.)');
   return lines.join('\n');
 }
 

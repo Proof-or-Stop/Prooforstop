@@ -214,7 +214,7 @@ try {
     const seenChangedCwd: string[] = [];
     const logReader: GitLogReader = ({ projectRoot }) => {
       seenLogCwd.push(projectRoot);
-      return 'abc1234|lattice-implementer|lattice: story init';
+      return 'abc1234|lattice-implementer|proof-or-stop: story init';
     };
     const changedReader: GitChangedFilesReader = ({ projectRoot }) => {
       seenChangedCwd.push(projectRoot);

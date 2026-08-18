@@ -202,7 +202,7 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
             projectRoot: workspace.metadataRoot || ctx.root,
           });
           if (!dispatchBinding.ok) {
-            throw new Error(`review_run_start: ${dispatchBinding.reason}; rerun lattice dispatch for ${lane}`);
+            throw new Error(`review_run_start: ${dispatchBinding.reason}; rerun proof-or-stop dispatch for ${lane}`);
           }
           const incremental = reviewIncrementalContext(store, signedWorkspaceRoot, args.storyId, lane, {
             findingsCutoffAt: startedAt,

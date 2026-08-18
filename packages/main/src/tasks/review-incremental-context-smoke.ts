@@ -4,7 +4,7 @@
  * (core/review-incremental-context.ts, CHK-001) reports the right shape for a
  * returning reviewer, a first-timer, and a rename, AND proves the LOAD-BEARING
  * invariant of this whole story: calling reviewIncrementalContext (and having the
- * lattice review_incremental_context CLI registered) changes NOTHING about the
+ * proof-or-stop review_incremental_context CLI registered) changes NOTHING about the
  * REVIEW→TEST gate canPassReviewGuard.
  *
  * HARD INVARIANT this guard defends: the incremental helper is a pure read-only
@@ -27,6 +27,14 @@
  *       isFirstPass=true, priorHeadHash=null, full main...HEAD diff, while
  *       priorVerdict stays NON-null. Pins the documented contract that consumers
  *       must key off isFirstPass (not priorVerdict) for "no incremental baseline".
+ *   (f) BOUNDED-PATHS DEGRADATION — a prior that DOES resolve but whose diff to
+ *       HEAD does not fit the bounded review-basis path lists: the read degrades
+ *       to the full story diff against main (reason code
+ *       FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_PATHS, contextMode full,
+ *       reviewBasis null) while still reporting the resolved prior. Asserts the
+ *       boundary is exact — at the cap an incremental basis is emitted, one path
+ *       over it degrades — against the same bounded-path rule prompt-contracts
+ *       enforces rather than against a restated number.
  *   (d) GATE-UNCHANGED ASSERTION (the load-bearing one) — exercises the REAL
  *       canPassReviewGuard (imported from core/machine.ts) over deterministic
  *       fixture stories and asserts the actual gate semantics:
@@ -62,7 +70,11 @@ import {
   reviewIncrementalContext,
 } from '../core/review-incremental-context.js';
 import { BASELINE_RUNTIME_CONTRACT } from '../core/prompt-measurement.js';
-import { domainSeparatedDigest } from '../core/prompt-contracts.js';
+import {
+  FULL_TASK_CONTEXT_LIMITS,
+  domainSeparatedDigest,
+  validateIncrementalReviewBasis,
+} from '../core/prompt-contracts.js';
 import {
   assembleFullPromptEnvelope,
   buildFullTaskContext,
@@ -77,8 +89,10 @@ import { canPassReviewGuard, type StoryMachineContext } from '../core/machine.js
 import { resetConfigCache } from '../core/config.js';
 import { signFinding, signReviewPass } from '../core/finding-verify.js';
 import {
+  changedFilesBetweenRenameAware,
   classifyEvidenceFreshness,
   currentGitHead,
+  isMaterialExcludedPath,
 } from '../core/evidence-freshness.js';
 import {
   collectReviewerEvidenceState,
@@ -101,11 +115,11 @@ import type {
   StoryInfo,
 } from '../core/types.js';
 
-/** Marker line printed by the smoke so `lattice validate` output is greppable. */
+/** Marker line printed by the smoke so `proof-or-stop validate` output is greppable. */
 const MARKER = 'review-incremental-context-smoke:';
 const DIST_CLI_PATH = fileURLToPath(new URL('../cli.js', import.meta.url));
 
-const COMMIT_ENV = ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke'];
+const COMMIT_ENV = ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proof-or-Stop Smoke'];
 
 function git(cwd: string, args: string[]): string {
   return execFileSync('git', args, {
@@ -865,6 +879,171 @@ function runIncrementalCases(): void {
     runTemporalCutoffRegression(root);
     void headSha; // headSha is HEAD; referenced for clarity in fixture wiring above.
   } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+/**
+ * The material path count the incremental branch measures between a bound
+ * headHash and HEAD, computed with the same production helpers that branch uses.
+ */
+function materialDiffPathCount(root: string, baseSha: string): number {
+  return changedFilesBetweenRenameAware(root, baseSha, 'HEAD')
+    .filter(path => !isMaterialExcludedPath(path, root)).length;
+}
+
+/**
+ * (f) BOUNDED-PATHS DEGRADATION — the branch that fires when a prior DOES
+ * resolve but sits too far behind HEAD to diff incrementally.
+ *
+ * Distinct from cases (b) and (e): here the prior pass is trusted AND its bound
+ * headHash resolves, so neither of the isFirstPass sub-cases applies. What
+ * disqualifies it is only distance — the prior-to-HEAD diff does not fit the
+ * bounded path lists the review-basis contract accepts.
+ *
+ * Fixture (one repo, two priors, no magic numbers — every count is derived from
+ * FULL_TASK_CONTEXT_LIMITS.pathsPerList):
+ *   C0 main   seed: `cap` bulk files + the story file
+ *   C1 main   modifies bulk file 0                     <- the AT-CAP prior binds here
+ *   C2 main   modifies bulk files 1..cap-1             <- `main` stays here
+ *   C3 story  modifies the story file                  <- HEAD
+ * so diff(C1..HEAD) = (cap-1) bulk + 1 story = EXACTLY cap, diff(C0..HEAD) =
+ * cap bulk + 1 story = cap+1, and the full story diff against main is the one
+ * story file. The two priors differ ONLY in the commit they are bound to, so
+ * the boundary is the only variable between the two observations.
+ *
+ * The boundary is pinned to the contract, not to the literal 512: at the cap an
+ * incremental basis is emitted and finalize already ran it through
+ * validateIncrementalReviewBasis, and that same basis with ONE more path is
+ * asserted to be rejected by that validator — i.e. the guard's `>` fires exactly
+ * where prompt-contracts' bounded-path rule starts rejecting.
+ *
+ * Note on contextMode at the cap: it is 'full' on BOTH sides here, because
+ * ordinary `src/**` paths independently classify FULL_PRIVATE_IMPLEMENTATION_V1.
+ * That is why "did the guard fire" is asserted through the guard's own signals —
+ * its reason code, whether a review basis was emitted, and which diff was
+ * served — rather than through contextMode, which cannot discriminate.
+ */
+function runBoundedPathsDegradationCase(): void {
+  const cap = FULL_TASK_CONTEXT_LIMITS.pathsPerList;
+  const bounded = 'FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_PATHS';
+  const storyId = 'B-bounded-paths';
+  const role = 'lattice-review-quality';
+  const storyFile = 'src/story.ts';
+  const bulkFile = (index: number) => `src/bulk/f${String(index).padStart(5, '0')}.ts`;
+  const root = mkdtempSync(join(tmpdir(), 'lattice-incremental-bounded-paths-'));
+  try {
+    write(root, '.gitignore', '.lattice/activity.jsonl\n');
+    write(root, storyFile, 'export const story = 0;\n');
+    for (let index = 0; index < cap; index += 1) write(root, bulkFile(index), `export const bulk${index} = 0;\n`);
+    git(root, ['init']);
+    git(root, ['checkout', '-B', 'main']);
+    git(root, ['add', '.']);
+    git(root, [...COMMIT_ENV, 'commit', '-m', 'seed bounded-paths base']);
+    const overCapBaseSha = currentGitHead(root)!;
+
+    write(root, bulkFile(0), 'export const bulk0 = 1;\n');
+    git(root, ['add', '.']);
+    git(root, [...COMMIT_ENV, 'commit', '-m', 'main advances by one bulk path']);
+    const atCapBaseSha = currentGitHead(root)!;
+
+    for (let index = 1; index < cap; index += 1) write(root, bulkFile(index), `export const bulk${index} = 1;\n`);
+    git(root, ['add', '.']);
+    git(root, [...COMMIT_ENV, 'commit', '-m', 'main advances by the remaining bulk paths']);
+
+    git(root, ['checkout', '-b', `story/${storyId}`]);
+    write(root, storyFile, 'export const story = 1;\n');
+    git(root, ['add', '.']);
+    git(root, [...COMMIT_ENV, 'commit', '-m', 'story material change ahead of main']);
+
+    const story = reviewStory(storyId, 2, ts(1));
+    const priorAtCap = trustedReviewEvidence(storyId, role, 'RR-AT-CAP', ts(5), ts(6), atCapBaseSha);
+    const priorOverCap = trustedReviewEvidence(storyId, role, 'RR-OVER-CAP', ts(5), ts(6), overCapBaseSha);
+    const storeFor = (evidence: ReturnType<typeof trustedReviewEvidence>) => buildFixtureStore({
+      story,
+      runs: [evidence.run],
+      passes: [evidence.pass],
+      promptEnvelopes: [evidence.envelope],
+    });
+
+    // ---- AT EXACTLY THE CAP: the guard must NOT fire ----
+    const atCap = reviewIncrementalContext(storeFor(priorAtCap), root, storyId, role);
+    assert.equal(atCap.eligibilityReasonCodes.includes(bounded), false, `at exactly the cap the guard must not raise ${bounded}`);
+    assert.equal(atCap.changedFiles.length, cap, 'fixture must place the incremental diff at EXACTLY the bounded path cap');
+    assert.equal(atCap.isFirstPass, false, 'at the cap the trusted prior is the baseline');
+    assert.equal(atCap.priorHeadHash, atCapBaseSha, 'at the cap changedFiles is the diff from the prior headHash');
+    assert.notEqual(atCap.reviewBasis, null, 'at the cap the incremental review basis is still emitted');
+    assert.equal(atCap.reviewBasis!.changedFiles.length, cap, 'the emitted basis carries the full at-cap path list');
+    assert.ok(atCap.changedFiles.includes(storyFile), 'the at-cap incremental diff still contains the story file');
+
+    // Boundary pinned to the contract rather than to the number: finalize already
+    // validated the basis above, and that same basis plus ONE path is rejected by
+    // the very rule the guard exists to keep satisfiable.
+    validateIncrementalReviewBasis(atCap.reviewBasis!);
+    assert.throws(
+      () => validateIncrementalReviewBasis({
+        ...atCap.reviewBasis!,
+        changedFiles: [...atCap.reviewBasis!.changedFiles, 'src/one-path-over-the-cap.ts'],
+      }),
+      /IncrementalReviewBasis\.changedFiles exceeds/,
+      'the guard threshold must be the same bounded-path rule prompt-contracts enforces',
+    );
+
+    // ---- ONE PATH OVER THE CAP: the guard must fire and degrade ----
+    // The degraded context no longer exposes the oversized diff, so the fixture's
+    // distance is measured directly, through the same production helpers the
+    // branch under test uses.
+    assert.equal(
+      materialDiffPathCount(root, overCapBaseSha),
+      cap + 1,
+      'fixture must place the over-cap incremental diff exactly ONE path over the bound',
+    );
+    const overCap = reviewIncrementalContext(storeFor(priorOverCap), root, storyId, role);
+    assert.ok(overCap.eligibilityReasonCodes.includes(bounded), `one path over the cap must raise ${bounded}`);
+    assert.equal(overCap.contextMode, 'full', 'the degraded context must stay full');
+    assert.equal(overCap.reviewBasis, null, 'the degraded context must emit NO incremental review basis');
+    assert.equal(overCap.reviewBasisDigest, null, 'a suppressed basis must leave no basis digest behind');
+    assert.equal(overCap.scopeChanged, true, 'the degraded context shows everything, so scopeChanged stays true');
+
+    // The served diff is the story's net diff against main — NOT main's own
+    // already-reviewed churn that pushed the incremental diff over the bound.
+    assert.deepEqual(
+      overCap.changedFiles,
+      [storyFile],
+      'the degraded context serves the story net diff against main, not the oversized prior-to-HEAD set',
+    );
+
+    // The resolved prior is reported for audit (it is real state), and reporting
+    // it moves informational fields ONLY: against a same-repo first-timer the
+    // served diff, its digest, the impact-derived reason codes and contextMode
+    // are identical — the prior identity is the only difference.
+    const firstTimer = reviewIncrementalContext(buildFixtureStore({ story }), root, storyId, role);
+    assert.equal(firstTimer.isFirstPass, true, 'control: a lane with no prior evidence is a first pass');
+    assert.equal(firstTimer.priorPassRef, null, 'control: a first pass has no prior pass reference');
+    assert.equal(overCap.isFirstPass, false, 'a resolvable trusted prior must NOT be reported as a first pass');
+    assert.equal(overCap.priorPassRef, priorOverCap.pass.id, 'the degraded context reports the real prior pass');
+    assert.equal(overCap.priorReviewRunId, priorOverCap.run.reviewRunId, 'the degraded context reports the real prior run');
+    assert.equal(overCap.priorHeadHash, overCapBaseSha, 'the degraded context reports the real prior headHash');
+    assert.equal(overCap.priorVerdict, `PASS (${priorOverCap.pass.id})`, 'the degraded context reports the real prior verdict');
+    assert.deepEqual(overCap.changedFiles, firstTimer.changedFiles, 'the prior must not change WHICH files are served');
+    assert.equal(overCap.changedFilesDigest, firstTimer.changedFilesDigest, 'the prior must not change the changed-files digest');
+    assert.equal(overCap.impactedFilesDigest, firstTimer.impactedFilesDigest, 'the prior must not change the impacted-files digest');
+    assert.equal(overCap.contextMode, firstTimer.contextMode, 'the prior must not change contextMode');
+    assert.equal(overCap.scopeChanged, firstTimer.scopeChanged, 'the prior must not change scopeChanged');
+    assert.equal(overCap.freshnessClassification, firstTimer.freshnessClassification, 'the prior must not change the freshness classification');
+    assert.deepEqual(
+      overCap.eligibilityReasonCodes.filter(code => code !== bounded),
+      firstTimer.eligibilityReasonCodes.filter(code => code !== 'FULL_MISSING_TRUSTED_PRIOR_PASS'),
+      'apart from its own FULL_ reason code the degraded context classifies exactly like the first pass',
+    );
+    assert.notEqual(
+      overCap.eligibilityDigest,
+      firstTimer.eligibilityDigest,
+      'the resolved prior IS bound into the authoritative eligibility digest (audit fidelity, not eligibility)',
+    );
+    console.log(`${MARKER} (f) BOUNDED-PATHS DEGRADATION: cap=${cap} stays incremental (basis emitted, no ${bounded}); cap+1 degrades to the ${overCap.changedFiles.length}-path story diff with reviewBasis=null and the real prior ${overCap.priorPassRef} still reported`);
+  } finally {
+    resetConfigCache();
     rmSync(root, { recursive: true, force: true });
   }
 }
@@ -1710,6 +1889,7 @@ function runScheduleMutationTrial(): {
 
 function run(): void {
   runPolicyCases();
+  runBoundedPathsDegradationCase();
   runFixtureDuplicateIdentityCases();
   assertLargeDiffReviewMetadataStability();
   runIncrementalCases();
@@ -1792,6 +1972,8 @@ if (isDirectRun) {
     runDeterministicTicketReclaimAbaCase();
   } else if (process.argv.includes('--cutoff-verifier-only')) {
     runProductionVerifierTemporalCutoffRegression();
+  } else if (process.argv.includes('--bounded-paths-only')) {
+    runBoundedPathsDegradationCase();
   } else if (process.argv.includes('--guard-map-only')) {
     runIncrementalGuardClassMatrix();
   } else if (process.argv.includes('--schedule-mutation-only')) {

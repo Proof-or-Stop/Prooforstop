@@ -8,6 +8,7 @@ import type {
   DeliveryCheckData, ImplementationReviewResultData, ReviewRunData, GrillData,
   DeclaredArtifactsData, ScopeContractData, GuardSessionData, ReviewLoopRecord,
   ScopeBoundaryData, ExecutionBoundaryData, ScopeFreezeCheckData, DoneRequiredEvidenceData,
+  DevMemoryPreflightAckData,
   ScopeExtensionProposalData, ScopeExtensionDecisionData, ScopeDiscardDigestData,
   DecisionDocProposalFile, OriginalIntentSnapshotData, MilestoneLedgerData,
   ProofStoryContractData, IntentCollisionData, ScopeShrinkageDecisionData,
@@ -434,7 +435,7 @@ export class StoryStore {
     this.writeJson(storyId, 'summary.json', data);
   }
 
-  // ── Findings (Proofbound reviewer findings) ──
+  // ── Findings (Proof-or-Stop reviewer findings) ──
   // B-9bd9 CHK-002: Finding type extended with driftHash / lastSeenAt / firstSeenRound / resolvedReason / resolvedAt
   // The three new fields are only used by the audit meta-store (B-META-framework-audit); legacy findings without these fields are treated as legacy,
   // JSON passthrough does not affect serialization.
@@ -617,6 +618,21 @@ export class StoryStore {
 
   writeExecutionBoundary(storyId: string, data: ExecutionBoundaryData): void {
     this.writeJson(storyId, 'execution-boundary.json', data);
+  }
+
+  // B-a7c5 CHK-001: per-story dev-memory preflight acknowledgement, consumed
+  // by evaluateDevMemoryPreflightGate at every DEV-entry door.
+  readDevMemoryPreflightAck(storyId: string): DevMemoryPreflightAckData | null {
+    try {
+      return this.readJson<DevMemoryPreflightAckData>(storyId, 'dev-memory-preflight-ack.json');
+    } catch (e) {
+      if (e instanceof StoryArtifactMissingError) return null;
+      throw e;
+    }
+  }
+
+  writeDevMemoryPreflightAck(storyId: string, data: DevMemoryPreflightAckData): void {
+    this.writeJson(storyId, 'dev-memory-preflight-ack.json', data);
   }
 
   readScopeFreezeCheck(storyId: string): ScopeFreezeCheckData | null {

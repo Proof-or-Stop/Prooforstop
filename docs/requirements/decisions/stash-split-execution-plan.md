@@ -3,9 +3,9 @@
 ## Purpose
 
 Safely process `stash@{0}` without applying the whole stash. The stash was
-created on main as `park unrelated lattice path cleanup and layer4 doc before
+created on main as `park unrelated proof-or-stop path cleanup and layer4 doc before
 B-b5b2 DONE` and contains multiple unrelated buckets. Each bucket must become a
-separate future Proofbound story with its own tests and evidence.
+separate future Proof-or-Stop story with its own tests and evidence.
 
 ## Non-Negotiable Rules
 
@@ -32,7 +32,7 @@ Mechanical inventory command:
 EXPECTED_STASH_OBJECT=c4dcc3aff95fd999712d7f19dcf856f791cf0d05
 STASH_OBJECT=$(git rev-parse 'stash@{0}')
 test "$STASH_OBJECT" = "$EXPECTED_STASH_OBJECT"
-git log -1 --format=%s "$STASH_OBJECT" | grep -Fx 'On main: park unrelated lattice path cleanup and layer4 doc before B-b5b2 DONE'
+git log -1 --format=%s "$STASH_OBJECT" | grep -Fx 'On main: park unrelated proof-or-stop path cleanup and layer4 doc before B-b5b2 DONE'
 git stash show --name-status --include-untracked "$STASH_OBJECT"
 git ls-tree -r --name-only "${STASH_OBJECT}^3"
 ```
@@ -115,7 +115,7 @@ Handling:
 Acceptance:
 
 - Runtime artifact contract verification passes.
-- `lattice doctor` reports the intended runtime artifact scan semantics.
+- `proof-or-stop doctor` reports the intended runtime artifact scan semantics.
 - Any docs touched in this bucket describe only runtime artifact policy.
 
 ### Bucket C: Smoke Expectation Repairs
@@ -202,7 +202,7 @@ Acceptance:
 EXPECTED_STASH_OBJECT=c4dcc3aff95fd999712d7f19dcf856f791cf0d05
 STASH_OBJECT=$(git rev-parse 'stash@{0}')
 test "$STASH_OBJECT" = "$EXPECTED_STASH_OBJECT"
-git log -1 --format=%s "$STASH_OBJECT" | grep -Fx 'On main: park unrelated lattice path cleanup and layer4 doc before B-b5b2 DONE'
+git log -1 --format=%s "$STASH_OBJECT" | grep -Fx 'On main: park unrelated proof-or-stop path cleanup and layer4 doc before B-b5b2 DONE'
 git stash show --name-status --include-untracked "$STASH_OBJECT"
 git ls-tree -r --name-only "${STASH_OBJECT}^3"
 ```

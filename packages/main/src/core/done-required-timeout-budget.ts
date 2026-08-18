@@ -5,6 +5,7 @@ import { resolveDoneRequiredPolicy } from './done-required-validation.js';
 import { resolveCommandTimeoutMs } from './validation-executor.js';
 import type { ValidationCommand } from './validation-types.js';
 import { PRE_REVIEW_LIVE_PROOF_COMMAND, PRE_REVIEW_LIVE_PROOF_TIMEOUT_MS } from './pre-review-check.js';
+import { readBrandEnv } from './brand-env.js';
 
 export const NODE_TIMER_MAX_MS = 2_147_483_647;
 export const DEFAULT_DONE_PREPARE_PHASE_TIMEOUT_MS = 240_000;
@@ -112,9 +113,11 @@ export function doneRequiredDerivedBudget(root: string): TimeoutBudget {
 }
 
 export function donePreparePhaseBudget(root: string, phaseEnv: string, derived?: TimeoutBudget): TimeoutBudget {
-  const phaseOverride = positiveInt(process.env[phaseEnv]);
+  // Routed through readBrandEnv (not a raw process.env[phaseEnv] lookup) so a phase
+  // override still applies when the operator exported the deprecated LATTICE_* spelling.
+  const phaseOverride = positiveInt(readBrandEnv(phaseEnv));
   if (phaseOverride) return { timeoutMs: phaseOverride, source: 'phase-env' };
-  const globalOverride = positiveInt(process.env.LATTICE_DONE_PREPARE_PHASE_TIMEOUT_MS);
+  const globalOverride = positiveInt(readBrandEnv('DONE_PREPARE_PHASE_TIMEOUT_MS'));
   if (globalOverride) return { timeoutMs: globalOverride, source: 'global-phase-env' };
   return derived ?? { timeoutMs: DEFAULT_DONE_PREPARE_PHASE_TIMEOUT_MS, source: 'default' };
 }
@@ -172,7 +175,11 @@ function recognizedLiveSmokeCommand(
   // inert inline assignment needed by the owner-lease workflow.
   if (!trimmed || /[;&|<>\n\r`]|\$\(/.test(trimmed)) return null;
   const match = trimmed.match(
-    /^(?:LATTICE_SESSION_ID=[A-Za-z0-9_.:-]+\s+)?([^\s]+)\s+(done_required_validate|done_prepare)(?:\s|$)/,
+    // B-cdf6:F-062 — accept EITHER session-id env prefix. This recognizer previously
+    // matched only the deprecated `LATTICE_SESSION_ID=` spelling, so a caller using the
+    // canonical `PROOF_OR_STOP_SESSION_ID=` silently lost the wider live-smoke timeout
+    // budget with no error. Read-both applies to parsing too, not just to env lookup.
+    /^(?:(?:PROOF_OR_STOP|LATTICE)_SESSION_ID=[A-Za-z0-9_.:-]+\s+)?([^\s]+)\s+(done_required_validate|done_prepare)(?:\s|$)/,
   );
   if (!match || !trustedLatticeExecutable(root, match[1], env)) return null;
   return match[2] === 'done_required_validate' || match[2] === 'done_prepare' ? match[2] : null;
@@ -210,7 +217,7 @@ export function liveSmokeCaptureBudget(
   // terminate/reap it; commandCliMaxBudget adds the separate outer-wrapper
   // grace. For an arbitrary/untrusted command an inherited max may only LOWER
   // the fixed capture safety ceiling.
-  const inheritedMax = positiveInt(env.LATTICE_MAX_TIMEOUT_MS);
+  const inheritedMax = positiveInt(readBrandEnv('MAX_TIMEOUT_MS', env));
   let nestedMaxTimeoutMs: number | undefined;
   let saturationAdjusted = false;
   if (recognizedCommand) {
@@ -231,7 +238,7 @@ export function liveSmokeCaptureBudget(
     legalTimeoutMs = Math.min(legalTimeoutMs, inheritedMax);
   }
 
-  const override = positiveInt(env.LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS);
+  const override = positiveInt(readBrandEnv('LIVE_SMOKE_CAPTURE_TIMEOUT_MS', env));
   if (override !== undefined && override < legalTimeoutMs) {
     return {
       timeoutMs: override,
@@ -252,13 +259,15 @@ export function liveSmokeCaptureBudget(
   };
 }
 
+// Canonical spellings. Every consumer resolves these via readBrandEnv, which also
+// accepts the deprecated LATTICE_* spelling of the same suffix.
 const CLOSEOUT_PHASE_ENVS = [
-  'LATTICE_DONE_PREPARE_DONE_REQUIRED_VALIDATION_TIMEOUT_MS',
-  'LATTICE_DONE_PREPARE_DONE_CLOSURE_TIMEOUT_MS',
-  'LATTICE_DONE_PREPARE_REVIEW_ASSURANCE_TIMEOUT_MS',
-  'LATTICE_DONE_PREPARE_RUNTIME_CHANGE_TIMEOUT_MS',
-  'LATTICE_DONE_PREPARE_CLEAN_TREE_TIMEOUT_MS',
-  'LATTICE_DONE_PREPARE_PRODUCE_COMMAND_TIMEOUT_MS',
+  'PROOF_OR_STOP_DONE_PREPARE_DONE_REQUIRED_VALIDATION_TIMEOUT_MS',
+  'PROOF_OR_STOP_DONE_PREPARE_DONE_CLOSURE_TIMEOUT_MS',
+  'PROOF_OR_STOP_DONE_PREPARE_REVIEW_ASSURANCE_TIMEOUT_MS',
+  'PROOF_OR_STOP_DONE_PREPARE_RUNTIME_CHANGE_TIMEOUT_MS',
+  'PROOF_OR_STOP_DONE_PREPARE_CLEAN_TREE_TIMEOUT_MS',
+  'PROOF_OR_STOP_DONE_PREPARE_PRODUCE_COMMAND_TIMEOUT_MS',
 ] as const;
 
 export function commandCliMaxBudget(
@@ -287,7 +296,7 @@ export function commandCliMaxBudget(
   const phases = enabledPhaseEnvs.map((env) => donePreparePhaseBudget(
     root,
     env,
-    env === 'LATTICE_DONE_PREPARE_DONE_REQUIRED_VALIDATION_TIMEOUT_MS' ? derived : undefined,
+    env === 'PROOF_OR_STOP_DONE_PREPARE_DONE_REQUIRED_VALIDATION_TIMEOUT_MS' ? derived : undefined,
   ).timeoutMs);
   return {
     timeoutMs: safeTimeoutSum([routine, ...phases]),
@@ -308,6 +317,6 @@ export function effectiveCommandCliMaxBudget(
 ): TimeoutBudget {
   const derived = commandCliMaxBudget(root, command, args, env);
   if (command === 'live_smoke_transcript' && derived.source === 'derived-command-budget') return derived;
-  const explicit = positiveInt(env.LATTICE_MAX_TIMEOUT_MS);
+  const explicit = positiveInt(readBrandEnv('MAX_TIMEOUT_MS', env));
   return explicit === undefined ? derived : { timeoutMs: explicit, source: 'explicit-max-env' };
 }

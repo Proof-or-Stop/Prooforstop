@@ -164,7 +164,7 @@ export function checkSemanticScope(
   const rolloutWarn = diffPack.astAnchorMode === 'warn';
 
   for (const hunk of diffPack.hunks) {
-    // Story metadata / Proofbound internal files are never semantically gated.
+    // Story metadata / Proof-or-Stop internal files are never semantically gated.
     // Only docs/story/ and .lattice/ are exempt; any other runtime path is
     // intentionally not exempt and should surface as a path/scope violation.
     if (hunk.path.startsWith('docs/story/') || hunk.path.startsWith('.lattice/')) continue;

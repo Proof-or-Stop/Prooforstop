@@ -1,0 +1,471 @@
+{
+  "findings": [
+    {
+      "id": "B-fb7b:F-001",
+      "desc": "packages/main/tests/red/red-fb7b-guard-bite.mjs:103-104 -- CHK-001:adversarial:2 evidence is a byte-identical duplicate of adversarial:4 (both call biteCase with the same {test:...}-only fixture and only assert the compiled structural smoke exits non-zero). The RED test red-fb7b-pretest-builds-utils.mjs is never invoked with the pretest key removed, so the intent claim RED test must FAIL at the first structural assertion is unproven by the recorded evidence -- it tests the smoke, not the RED, which is exactly what adversarial:4 already independently proves. Manually verified the underlying claim IS true (running red-fb7b-pretest-builds-utils.mjs with pretest deleted throws AssertionError at the first assert.ok), but the bound evidence command does not exercise that path at all.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-14T03:50:13.818Z",
+      "reviewRound": "2026-08-14T03:42:25.197Z",
+      "reviewRunId": "B-fb7b:RR-001",
+      "_hash": "468e5dabebdc3b14ce7e1af7bcb7636a401443307ab2b7783f37a22c49ac51ea",
+      "signatureTag": "adversarial|unknown|packages-main-tests",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-fb7b:F-002",
+      "desc": "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts:44-53 -- CHK-001:edge:2 intent explicitly requires a filesystem check (\"confirm packages/main/dist/index.js ALSO exists\"), but the bound evidence (the structural smoke) only does a regex string match on the pretest script text (buildsMain check) and never calls existsSync on packages/main/dist/index.js. Neither this smoke nor the RED test (which only checks packages/utils/dist/index.js) nor guard-bite ever verifies the main dist artifact exists on disk after npm run pretest. A pretest whose main-build sub-command silently fails or no-ops (while its literal script text still matches the --prefix packages/main run build regex) would pass this evidence unnoticed, so the edge case as literally specified is not covered.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-14T03:50:20.861Z",
+      "reviewRound": "2026-08-14T03:42:25.197Z",
+      "reviewRunId": "B-fb7b:RR-001",
+      "_hash": "632118cea727d80d8bdefa649ab9b3f6794f06b65b9b57e70600ef9ca434c7e4",
+      "signatureTag": "edge|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-fb7b:F-003",
+      "desc": "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts:45-46 and packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs:40-41: buildsMain and buildsUtils both OR-fall back to the SAME loose regex /\\bnpm\\s+run\\s+build\\b/, which matches any namespaced npm script whose token starts with \"build\" followed by a non-word char (e.g. build:post, build:fast) — not just an exact \"build\" script. Reproduced live: a fixture pretest of \"npm --prefix packages/main run build && npm run build:post\" (never builds packages/utils at all) makes the compiled smoke print PASS and exit 0 (verified against packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js from this worktree build). This is exactly the adversarial class CHK-001:adversarial:1 (\"pretest builds only packages/main, omits utils\") requires the guard to catch, and the guard-bite fixture (packages/main/tests/red/red-fb7b-guard-bite.mjs biteCase adversarial:1) only tests the literal string \"npm --prefix packages/main run build\" (no bare npm-run-build token), so it never exercises this loophole. Compounding: the RED step 4 (red-fb7b-pretest-builds-utils.mjs ~lines 62-66) calls execFileSync(pretest) then only existsSync(packages/utils/dist/index.js) with no delete/mtime/hash freshness check beforehand; since dist is gitignored and never cleaned, a stale pre-existing packages/utils/dist/index.js (present in this very worktree from an earlier real build) makes that assertion pass even when the pretest under test never touched utils, contradicting the file's own comment that this behavioral step is un-gameable. Net effect: the only guard actually wired into validate.commands (the structural smoke) can be defeated by a plausible future pretest edit using a namespaced build script, and the RED's behavioral check would not catch it either in a normal already-built dev/CI environment. Fix: tighten both regexes to require an exact script-name boundary (e.g. end-of-string/&&/; immediately after \"build\", not just a generic \\b) or drop the generic fallback and require the explicit --prefix packages/main|packages/utils forms; separately have the RED delete/rename packages/utils/dist before running pretest so its behavioral proof is actually fresh.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-14T03:51:45.028Z",
+      "reviewRound": "2026-08-14T03:42:25.197Z",
+      "reviewRunId": "B-fb7b:RR-004",
+      "_hash": "2e4ff5acd3ab0cb26f3b2b3b7c1daa48b8cb602eb21ea195181162a85f381870",
+      "signatureTag": "adversarial|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-fb7b:F-004",
+      "desc": "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts:45-46 (identically duplicated at packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs:40-41): the buildsMain/buildsUtils fallback regex /\\bnpm\\s+run\\s+build\\b/ is unanchored at the script-name boundary and matches any npm script name that merely STARTS with build followed by a non-word char (e.g. npm run build:lab, npm run build-x), not only the literal build script. Concretely reproduced: a fixture with pretest=\"npm run build:lab\" (an existing root script that builds only the unrelated packages/lab, never main or utils) makes the compiled structural smoke print PASS and exit 0 -- i.e. the permanent validate.commands regression guard reports success for a pretest that builds neither packages/main nor packages/utils. The main-before-utils ordering assertion is also silently skipped for any such string because it only fires when literal packages/main and packages/utils substrings are both present (mainIdx>=0 && utilsIdx>=0), which is false for build:lab-style forms. This is a false negative in the guard whose entire purpose is to keep this exact regression (utils never built) from recurring undetected; none of the guard-bite adversarial fixtures (GB-ADV0..4) exercise this bare/mis-anchored npm run build* form, so the gap is untested. Fix: require the fallback match to target the literal build script only (e.g. /\\bnpm\\s+run\\s+build(?:\\s|$)/ with no trailing word/`:`/`-` char after build, or drop the bare-match OR-branch entirely and require explicit --prefix packages/main|packages/utils run build tokens), and add a guard-bite adversarial case for a build:lab-style pretest.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-08-14T03:52:38.821Z",
+      "reviewRound": "2026-08-14T03:42:25.197Z",
+      "reviewRunId": "B-fb7b:RR-005",
+      "_hash": "a5b2de4c67cd77ceaebee7e6b4932c689fc50e665af71eed09baf9241c3714eb",
+      "signatureTag": "adversarial|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-fb7b:F-005",
+      "desc": "Re-verified F-003 on current HEAD bae253f (material unchanged since fix commits 84e8bf2d/8bdc42ffa8): both loopholes are closed.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "disproven",
+      "disprovenEvidence": {
+        "summary": "F-003 fix confirmed sound on current material. (1) Anchored fallback regex runsExactRootBuild = /\\bnpm\\s+run\\s+build(?![\\w:-])/ in both packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts:40 and packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs:29 now rejects namespaced siblings: unit-tested build:lab, build-x, buildx, build_foo, and the exact F-003 repro pretest \"npm --prefix packages/main run build && npm run build:post\" all correctly compute buildsUtils=false (assertion fails), while the true root build script \"npm run build\" and the real two-package pretest still pass. Live-ran the compiled dist smoke (packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js, byte-identical logic to source, no diff vs source) and confirmed exit 0 on the real pretest, and confirmed guard-bite's new GB-ADVLAB-BIT case (fixture pretest='npm run build:lab', a real root script that only builds packages/lab) makes the structural smoke fail as required. (2) The RED behavioral step (red-fb7b-pretest-builds-utils.mjs lines ~62-70) now captures startedAtMs=Date.now() before execFileSync('npm',['run','pretest']) and asserts statSync(utilsIndex).mtimeMs >= startedAtMs - 2000, plus a parallel existsSync check on packages/main/dist/index.js. Reproduced the freshness guard directly: a fixture with a 10-minute-stale packages/utils/dist/index.js and a no-op pretest computes fresh=false, i.e. a stale pre-existing artifact cannot pass. packages/utils uses plain tsc (no --incremental, no tsbuildinfo cache) so every real pretest run rewrites dist/index.js and updates its mtime, so the 2s tolerance is only clock-skew slack, not a stale-artifact loophole. Live-ran both node packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs (PASS, ~12.5s) and node packages/main/tests/red/red-fb7b-guard-bite.mjs (all 9 selectors incl. GB-ADVLAB-BIT and GB-ADV2-BIT print, GB-ALL-PASS, exit 0) on current HEAD; git diff between the evidence-recorded commit 8bdc42ffa8 and current HEAD bae253f touches only .lattice bookkeeping files, confirming the material implementing the fix is unchanged since the evidence was captured. git status --porcelain clean after all runs (dist rebuilds do not dirty the tree). Code-quality check on the new lines: guard-bite fixtures (makeFixture/runRedIn/runSmokeIn and the two ad-hoc temp-dir blocks) all wrap cleanup in try/finally with rmSync(root,{recursive:true,force:true}); verified no residue left after a live run (the only stray tmpdir found was from my own manual repro command, not story code, and was cleaned up separately). No blocking defect found in this area.",
+        "sourceRefs": [
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts:40-46",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs:29-35",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs:62-70",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs:120-123"
+        ],
+        "reproCommand": "node packages/main/tests/red/red-fb7b-guard-bite.mjs && node packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs"
+      },
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-14T04:19:37.054Z",
+      "reviewRound": "2026-08-14T04:14:43.557Z",
+      "reviewRunId": "B-fb7b:RR-009",
+      "_hash": "0060f228db607d731fb04cede15881b2c1adf192a69fb5c51582ac6bf4c47f0d",
+      "signatureTag": "adversarial|unknown|verified-current-head",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-fb7b:F-006",
+      "desc": "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts:49-50 (identically at packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs:43-44) -- the round-2 F-003/F-004 fix anchored ONLY the bare-fallback regex (runsExactRootBuild), but left the two --prefix regexes (/--prefix\\s+packages\\/main\\s+run\\s+build/ and /--prefix\\s+packages\\/utils\\s+run\\s+build/) unanchored at the script-name boundary -- same defect class, different branch. Reproduced live against the compiled smoke: pretest=\"npm --prefix packages/main run build:fast && npm --prefix packages/utils run build:fast\" makes test-suite-utils-autobuild-smoke.js print PASS and exit 0, even though build:fast is a namespaced sibling that is NOT the real build script (packages/main and packages/utils currently only define a \"build\" script, but the guard exists precisely to catch a future namespaced-sibling regression like this, which is exactly the class F-003/F-004 already fixed for the bare form). No guard-bite case (red-fb7b-guard-bite.mjs) exercises a --prefix + namespaced-sibling combination, so this false-pass is untested and undetected. Fix: apply the same negative-lookahead anchor used for runsExactRootBuild to both --prefix regexes, e.g. /--prefix\\s+packages\\/main\\s+run\\s+build(?![\\w:-])/ and /--prefix\\s+packages\\/utils\\s+run\\s+build(?![\\w:-])/, and add a guard-bite adversarial fixture covering the --prefix namespaced-sibling loophole.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-08-14T04:23:44.862Z",
+      "reviewRound": "2026-08-14T04:14:43.557Z",
+      "reviewRunId": "B-fb7b:RR-006",
+      "_hash": "6e19f5a90e6aeb3ae14b5057a9335b87ed515b7c7a44c2355475501802d27f66",
+      "signatureTag": "adversarial|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-fb7b:F-007",
+      "desc": "Re-verified F-004 on current HEAD (commits 84e8bf2d14 + 8bdc42ffa8): the fallback regex is now anchored at the script-name boundary and no longer false-passes namespaced siblings.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "disproven",
+      "disprovenEvidence": {
+        "summary": "fixed by anchored regex: packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts:48 and packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs:42 now define runsExactRootBuild = /\\bnpm\\s+run\\s+build(?![\\w:-])/, whose negative lookahead rejects a trailing word char, colon, or hyphen. Re-ran F-004s exact repro live: a fixture pretest of npm run build:lab (F-004s literal reproduction case) now makes the compiled structural smoke FAIL (AssertionError: pretest does not build packages/utils: npm run build:lab, exit 1), same for npm run build-x and npm run buildx. The exact root npm run build script and the explicit --prefix packages/main run build && --prefix packages/utils run build forms still PASS. Also confirmed via the committed guard-bite fixture: node packages/main/tests/red/red-fb7b-guard-bite.mjs prints GB-ADVLAB-BIT (a dedicated build:lab-loophole adversarial case added by the fix commit) among all 9 selectors, ending GB-ALL-PASS, exit 0. Ran the real (non-fixture) smoke and RED on current material: node packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js -> PASS; node packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs -> PASS.",
+        "sourceRefs": [
+          "B-fb7b:F-004",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts:44-53",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs:39-51",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs:122"
+        ],
+        "reproCommand": "node packages/main/tests/red/red-fb7b-guard-bite.mjs"
+      },
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-08-14T04:24:03.456Z",
+      "reviewRound": "2026-08-14T04:14:43.557Z",
+      "reviewRunId": "B-fb7b:RR-006",
+      "_hash": "e24090f9caa081c60111958170fb37b9f12b607ea36b5682cc4dbd5e522ec301",
+      "signatureTag": "adversarial|unknown|verified-current-head",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-fb7b:F-008",
+      "desc": "Re-verified F-001 on current HEAD 847854aa (material unchanged since fix commit 8bdc42ffa8): CHK-001:adversarial:2 evidence is no longer byte-identical to adversarial:4.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "disproven",
+      "disprovenEvidence": {
+        "summary": "F-001 fix confirmed sound. packages/main/tests/red/red-fb7b-guard-bite.mjs now defines two distinct code paths: adversarial:4 (lines 123, GB-ADV4-BIT) still calls biteCase/runSmokeIn against a {test:...}-only fixture, asserting the COMPILED STRUCTURAL SMOKE exits non-zero. adversarial:2 (lines 127-135, GB-ADV2-BIT) was rewritten to call a new helper runRedIn(root), which spawns the actual repro-first RED (red-fb7b-pretest-builds-utils.mjs, copied into the isolated fixture by makeFixture) against the same no-pretest fixture and asserts the RED itself exits non-zero -- a genuinely different artifact and code path from adversarial:4, directly proving the intent claim (\"RED test must FAIL at the first structural assertion\") rather than re-proving what adversarial:4 already covers. Live-ran node packages/main/tests/red/red-fb7b-guard-bite.mjs on a freshly rebuilt dist (npm --prefix packages/main run build && npm --prefix packages/utils run build, both exit 0) -- all 9 selectors printed including both GB-ADV2-BIT and GB-ADV4-BIT distinctly, ending GB-ALL-PASS red-fb7b-guard-bite: pretest guard family bites on every broken variant and the invariants hold, exit 0. git diff --stat 8bdc42ffa8..847854aa -- . \":!.lattice\" is empty, confirming no non-bookkeeping code changed since the evidence-bound commit, so the recorded verificationEvidence (headHash 8bdc42ffa8031976ce6c9bafffe25d5e9f1602da, materialHash dbb8bfd9834bed030879081eeb6c3562890749aa1ad4a9ca312c02be54621aab) remains current. No blocking defect found in this area.",
+        "sourceRefs": [
+          "B-fb7b:F-001",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs:61-68",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs:119-135"
+        ],
+        "reproCommand": "node packages/main/tests/red/red-fb7b-guard-bite.mjs"
+      },
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-14T04:27:56.256Z",
+      "reviewRound": "2026-08-14T04:14:43.557Z",
+      "reviewRunId": "B-fb7b:RR-007",
+      "_hash": "5bbefc35a290dc3c57d7df70b5d169a11ead34beb1e85395780e8db06babc1c5",
+      "signatureTag": "adversarial|unknown|verified-current-head",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-fb7b:F-009",
+      "desc": "Re-verified F-002 on current HEAD 847854aa (material unchanged since fix commit 8bdc42ffa8): CHK-001:edge:2 gap (packages/main/dist/index.js existence never checked on disk) is closed.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "disproven",
+      "disprovenEvidence": {
+        "summary": "F-002 fix confirmed sound. packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs (the RED that CHK-001:happy:0/happy:1 evidence is bound to, sharing the underlying build-both-packages invariant with edge:2) now runs the REAL npm run pretest against the live worktree (line 70) and then asserts existsSync(mainIndex) at line 72, with message: after npm run pretest, packages/main/dist/index.js must also exist (main build not regressed) -- directly addressing the original gap that neither the smokes regex-only check nor the RED previously performed a filesystem existence check on packages/main/dist/index.js. The exact adversarial scenario named in F-002 (a pretest whose main-build sub-command silently no-ops while the literal script text still matches the smokes buildsMain regex) is now caught: since dist is gitignored and this RED runs the actual command, a main-build sub-command that does not really produce packages/main/dist/index.js in a clean/rebuilt worktree fails the existsSync assertion. Residual, narrower-scope note, non-blocking: unlike the utils check, this existsSync(mainIndex) assertion has no mtime-freshness gate, so it could not detect a main-build no-op if a stale pre-existing packages/main/dist/index.js already sits on disk at RED-run time; edge:2s literal intent text only asks to confirm packages/main/dist/index.js ALSO exists, not freshness, and validate.commands[0] already rebuilds packages/main immediately before this guard runs in the real lattice validate pipeline, so this residual gap is not filed as a new finding. Live-reran: rebuilt both packages (npm --prefix packages/main run build && npm --prefix packages/utils run build, both exit 0), then node packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs -> PASS red-fb7b-pretest-builds-utils, exit 0; node packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js -> PASS test-suite-utils-autobuild-smoke, exit 0. git diff --stat 8bdc42ffa8..847854aa -- . :!.lattice is empty, confirming no non-bookkeeping code changed since the evidence-bound commit (headHash 8bdc42ffa8031976ce6c9bafffe25d5e9f1602da, materialHash dbb8bfd9834bed030879081eeb6c3562890749aa1ad4a9ca312c02be54621aab).",
+        "sourceRefs": [
+          "B-fb7b:F-002",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs:64-76"
+        ],
+        "reproCommand": "node packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs"
+      },
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-14T04:28:37.702Z",
+      "reviewRound": "2026-08-14T04:14:43.557Z",
+      "reviewRunId": "B-fb7b:RR-007",
+      "_hash": "6133827c10e39370fb40cc04aab9247073ecb67809a7bf3fe516f2c8ad576810",
+      "signatureTag": "edge|unknown|verified-current-head",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-fb7b:F-010",
+      "desc": "Re-verified F-006 on current HEAD 24e2c689bf (fix commit fd8054daa6, no material drift since): the --prefix packages/main|utils run build regexes are now anchored with the same (?![\\w:-]) negative lookahead as the bare-fallback regex, closing the namespaced-sibling loophole.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "disproven",
+      "disprovenEvidence": {
+        "summary": "F-006 fix confirmed sound on current material. packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts:50-51 and packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs:44-45 now define buildsMain = /--prefix\\s+packages\\/main\\s+run\\s+build(?![\\w:-])/.test(pretest) || runsExactRootBuild and the parallel buildsUtils with the utils prefix -- the same negative lookahead already used for the bare npm-run-build fallback is now applied to both --prefix forms. Independently re-derived and ran the regex logic outside the guard-bite fixture harness (node -e with the literal pattern text copied from the current source): --prefix packages/main run build:fast / build:lab / build-x (and the parallel utils forms) all compute buildsMain=false / buildsUtils=false (guard correctly FAILS), while the real two-package pretest (npm --prefix packages/main run build && npm --prefix packages/utils run build) and the exact npm run build both still compute true/true (guard correctly PASSES). Live-ran on a freshly, sequentially rebuilt dist (npm --prefix packages/main run build then npm --prefix packages/utils run build, both exit 0): node packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js -> PASS, exit 0; node packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs -> PASS, exit 0; node packages/main/tests/red/red-fb7b-guard-bite.mjs -> all 11 selectors printed incl. the new GB-ADVFAST-BIT (--prefix + build:fast namespaced-sibling fixture), ending GB-ALL-PASS, exit 0. git diff --stat fd8054daa6..HEAD -- . \":(exclude).lattice\" is empty, confirming no non-bookkeeping material changed since the fix commit. git status --porcelain after all rebuilds shows only .lattice bookkeeping churn (dist is gitignored, rebuilds do not dirty the tree). Note for the record: running the guard-bite/RED/smoke scripts concurrently against the shared live dist tree races (the RED and pretest both rmSync+rebuild packages/main/dist), producing transient spurious MODULE_NOT_FOUND failures unrelated to the regex fix -- re-running them sequentially (as the real validate.commands pipeline does) confirms all PASS deterministically. No blocking defect found in this area.",
+        "sourceRefs": [
+          "B-fb7b:F-006",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts:44-58",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs:38-52",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs:15-16,124"
+        ],
+        "reproCommand": "npm --prefix packages/main run build && npm --prefix packages/utils run build && node packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js && node packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs && node packages/main/tests/red/red-fb7b-guard-bite.mjs"
+      },
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-08-14T04:41:55.698Z",
+      "reviewRound": "2026-08-14T04:36:50.768Z",
+      "reviewRunId": "B-fb7b:RR-014",
+      "_hash": "129bddac2893944f4e15e0ced45060a510fc833cf4c205c862ee452951b479ea",
+      "signatureTag": "adversarial|unknown|verified-current-head",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-fb7b:F-011",
+      "desc": "scripts/build-main-with-binding.mjs:13 rmSync(dist,{recursive:true,force:true}) intermittently throws ENOTEMPTY on macOS (observed 3/20 re-runs at material 6f0e3911, e.g. Error: ENOTEMPTY: directory not empty, rmdir .../packages/main/dist/tasks, reproduced via both `node packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs` and direct `npm run pretest`/execFileSync). CHK-001 wires this exact build into the pretest npm-lifecycle hook now fired on EVERY `npm test` (previously only inside validate.commands[0] during `lattice validate`), materially increasing exposure to this pre-existing race. This falsifies the must happy-path claims CHK-001:happy:0 (npm run pretest -> exits 0) and CHK-001:happy:2 (bare npm test -> full-suite bootstrap succeeds), and makes the RED witness CHK-001:happy:1 itself flaky rather than deterministic. None of the 13 verificationIntent refs test, retry-guard, or waive this failure mode; guard-bite GB-LIFECYCLE-FIRES only exercises an isolated stub-pretest fixture, never the real rmSync path, so it cannot catch this. Severity high: the storys purpose is to stop npm test from failing unpredictably on a fresh checkout, and it still can, roughly 1 in 7 times locally, via a different but equally opaque crash.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-14T10:26:58.244Z",
+      "reviewRound": "2026-08-14T10:16:51.753Z",
+      "reviewRunId": "B-fb7b:RR-032",
+      "_hash": "f1ccdc3526b6ee7ddfffb6e578febeefddf6affa022acc8330e40cb1b6844368",
+      "files": [
+        "scripts/build-main-with-binding.mjs",
+        "package.json",
+        "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs"
+      ],
+      "signatureTag": "missing|mjs|scripts-build-main",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Resolved by shared build lock; reviewers disproved via disproven counters.",
+      "resolvedAt": "2026-08-14T12:36:24.433Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-fb7b:F-012",
+      "desc": "CHK-001 concurrency boundary: the new root pretest (package.json:15, npm --prefix packages/main run build && npm --prefix packages/utils run build) now fires automatically on every npm test invocation and transitively calls scripts/build-main-with-binding.mjs:13 (rmSync(dist,{recursive:true,force:true}) followed by a non-atomic tsc rebuild, no lock/retry). When two processes invoke pretest/build against the SAME worktree concurrently -- a real, recurring pattern in this project own review workflow, where multiple reviewer lanes (behavior/quality/docs/concept) independently re-run verification commands against the same shared worktree during REVIEW -- the rm-rf races with the other process writing into dist/tasks and crashes with an unhandled ENOTEMPTY: directory not empty, rmdir .../packages/main/dist/tasks (reproduced directly in this session; stack trace roots at build-main-with-binding.mjs:13 via package.json pretest, exit status 1). Before this story, npm test never auto-triggered a build, so this race window barely existed; after this story, every npm test call now multiplies build invocations, increasing exposure to this pre-existing non-atomic rm-rf-then-rebuild race in exactly the shared-worktree conditions this codebase own review pipeline creates. The checklist edge test (CHK-001:edge:1) only proves two SEQUENTIAL pretest runs stay clean; no test covers concurrent/overlapping pretest invocation, so this crash mode is undetected. Net effect: instead of the clean, documented Missing build artifacts recovery path this story explicitly cites as the trigger event, done_required validation or npm test can now crash with a confusing unhandled ENOTEMPTY node exception under concurrent worktree usage.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-08-14T10:28:38.397Z",
+      "reviewRound": "2026-08-14T10:16:51.753Z",
+      "reviewRunId": "B-fb7b:RR-033",
+      "_hash": "ac429642c674e98a7088d4208b273b1c8a7b612d46b8333ad42daf1978685e2c",
+      "signatureTag": "adversarial|unknown|concurrency-boundary-root",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Resolved by shared build lock; reviewers disproved via disproven counters.",
+      "resolvedAt": "2026-08-14T12:36:25.107Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-fb7b:F-013",
+      "desc": "scripts/build-main-with-binding.mjs:17 rmSync(dist,{recursive:true,force:true,maxRetries:10,retryDelay:100}) does NOT reliably close the F-011/F-012 concurrent-rebuild ENOTEMPTY race; the commit message claim (\"Verified: 5 concurrent builds all exit 0, zero ENOTEMPTY\") is falsified by direct reproduction on current HEAD 4b8109a069. maxRetries:10 with retryDelay:100 (Node linear backoff, delay=retryDelay*attempt) sums to only ~5.5s of retry budget before rmSync gives up and re-throws. A single packages/main build takes ~21-30s wall-clock in this environment (measured directly). Ran 3 rounds of 5-way concurrent `node scripts/build-main-with-binding.mjs`: rounds 1-2 all 5/5 succeeded, but round 3 crashed all 5/5 processes with the identical Error: ENOTEMPTY: directory not empty, rmdir .../packages/main/dist/core at rmSync (node:fs:1248:10) -> build-main-with-binding.mjs:17, each process failing at elapsed=~5.68s -- exactly matching retry-budget exhaustion, proving the retries fire but are insufficient to survive sustained concurrent tsc writes over a full build cycle (as opposed to the brief macOS-Spotlight-only race F-011 originally described). This is precisely the F-012 shared-worktree multi-reviewer-lane scenario the fix was supposed to close, and it still crashes done_required/npm test with an unhandled, confusing ENOTEMPTY under that exact condition roughly 1/3 of the time in this repro. Severity high: the fix reduces but does not eliminate the crash it claims to resolve, and no test in the diff (red-fb7b-guard-bite.mjs, red-fb7b-pretest-builds-utils.mjs) exercises a real multi-process concurrent rmSync/tsc race -- only isolated stub-pretest fixtures per RR-032/RR-033 prior findings -- so this regression is undetected by the story own verification suite.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-14T10:44:54.180Z",
+      "reviewRound": "2026-08-14T10:38:58.044Z",
+      "reviewRunId": "B-fb7b:RR-035",
+      "_hash": "d5f8d95f0bf96a975befdd41d4d9fa92cb05fde4a4db3cf781e557076df77153",
+      "files": [
+        "scripts/build-main-with-binding.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|scripts-build-main",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by the shared main+utils build mutex (scripts/build-lock.mjs, commit eab8a74651); reviewers independently disproved via F-016/F-017/F-018/F-019/F-020 after verifying 15 concurrent pretests exit 0 with zero ENOTEMPTY/TS2307.",
+      "resolvedAt": "2026-08-14T12:36:22.416Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-fb7b:F-014",
+      "desc": "Re-verified F-012 on current HEAD (fix commit 3979c2f718, scripts/build-main-with-binding.mjs:17: rmSync(dist,{recursive:true,force:true,maxRetries:10,retryDelay:100})): the retry backoff REDUCES but does NOT eliminate the ENOTEMPTY crash under real concurrent shared-worktree access -- the exact scenario F-012 describes. Reproduced live, three independent ways, all crashing on the same patched line (build-main-with-binding.mjs:17): (1) my own `npm --prefix packages/main run build && npm --prefix packages/utils run build` crashed with `Error: ENOTEMPTY: directory not empty, rmdir .../packages/main/dist/tasks` (captured in /tmp/rebuild-main.log) while a concurrent process was independently rebuilding the SAME worktree (confirmed via `ps aux` showing concurrent `npm run pretest`/`npm run build`/`node scripts/build-main-with-binding.mjs` processes at the same wall-clock time -- this project's own review pipeline creating exactly the shared-worktree concurrency F-012 warns about; at one point 20 such processes were observed running simultaneously against this single worktree). (2) An independent controlled 3-round x 5-concurrent stress test of the SAME retry-protected script (captured at /tmp/rbuild_3_1.log through _5.log): rounds 1-2 passed cleanly (exit=0, ~28-30s elapsed, full tsc compile), but round 3 crashed ALL 5 concurrent invocations simultaneously with `ENOTEMPTY: directory not empty, rmdir .../packages/main/dist/core` at the identical build-main-with-binding.mjs:17 call site, each failing fast after only ~5.7s (i.e. the 10-retry/100ms-linear-backoff budget was exhausted well before the tsc write contention cleared). (3) My own build-restore retry loop independently reproduced the identical ENOTEMPTY on dist/core at build-main-with-binding.mjs:17 on a later attempt (/tmp/main-rebuild-attempt-1.log and again /tmp/gate-rebuild-1.log), each requiring a second retry to reach a stable build, and even after a stable build was confirmed via `lattice --version`, the very next CLI invocation seconds later hit Missing build artifacts again because dist had been deleted mid-flight by the same ongoing concurrent activity. Net effect: maxRetries:10/retryDelay:100 (bounded to roughly a few seconds of linear backoff) is insufficient when contention is sustained across the ~20-30s tsc compile window by multiple concurrent OS processes touching the same dist tree, which is exactly the multi-reviewer-lane / shared-worktree condition described in the original finding and which was actively occurring live in this worktree throughout this re-verification. F-012 is NOT resolved by commit 3979c2f718; the fix lowers the failure probability but the unhandled crash still reproduces non-deterministically, repeatedly, under real concurrent load. Fix direction: either a filesystem lock/mutex around the dist rebuild (flock or a lockfile with wait), or increase maxRetries/retryDelay enough to cover a full compile cycle, or make pretest/build itself serialize concurrent invocations against the same worktree instead of relying on rmSync retry alone.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-08-14T10:51:13.914Z",
+      "reviewRound": "2026-08-14T10:38:58.044Z",
+      "reviewRunId": "B-fb7b:RR-036",
+      "_hash": "56bdf547386b3b29b785ab19bfa1af8d9f85f198fae5aed61314f7292b5c3adc",
+      "files": [
+        "scripts/build-main-with-binding.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|verified-current-head",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by the shared main+utils build mutex (scripts/build-lock.mjs, commit eab8a74651); reviewers independently disproved via F-016/F-017/F-018/F-019/F-020 after verifying 15 concurrent pretests exit 0 with zero ENOTEMPTY/TS2307.",
+      "resolvedAt": "2026-08-14T12:36:23.085Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-fb7b:F-015",
+      "desc": "Re-verified F-011/F-012/F-013/F-014 on current HEAD 8c9d6b4753 (code fix commit 75eb6c2c03 'serialize dist rebuild with a per-tree filesystem lock', claims '15 builds across 3 rounds of 5 concurrent invocations all exit 0 with zero ENOTEMPTY'). That claim is TRUE but too narrow: it only stress-tested `node scripts/build-main-with-binding.mjs` (packages/main build alone), not the actual CHK-001 surface (`npm run pretest` = packages/main build THEN packages/utils build). The withBuildLock() mutex in scripts/build-main-with-binding.mjs:20-46 correctly serializes concurrent packages/main rebuilds against EACH OTHER (confirmed: 2 clean rounds x 5-concurrent build-main-with-binding.mjs runs, 10/10 exit 0, properly queued/serialized by elapsed time). But packages/utils/package.json build script is bare `\"build\": \"tsc\"` -- no lock, no retry -- and packages/utils/src/{tool-defs.ts,register.ts,handlers/*.ts,types/main-core-zod.d.ts} import directly from `../../main/dist/*.js` / `../../../main/dist/*.js` (undocumented cross-package coupling on compiled output). The lock only covers packages/main's own rm+tsc+writeBinding critical section; it does NOT hold across a process's subsequent utils-build phase, so a SECOND concurrent process's (lock-protected, but independently-scheduled) packages/main rebuild can delete+rewrite packages/main/dist WHILE a FIRST process's unprotected packages/utils tsc is reading it. Reproduced directly and repeatedly on current HEAD: (1) 3 rounds x 5-concurrent `node packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs` -> 13/15 runs FAILED (round1 5/5 fail, round2 4/5 fail, round3 4/5 fail), all failing inside the RED's own `execFileSync(npm run pretest)` step with `Command failed: npm run pretest`, status 2. (2) A cleaner isolated wrapper running plain `execFileSync('npm',['run',pretest'])` with utf8 capture, 2 rounds x 5-concurrent -> 8/10 FAILED, every failure decoding to the SAME symptom: packages/utils tsc emitting `error TS2307: Cannot find module '../../main/dist/cli-engine.js'` (or `../../../main/dist/handlers/context.js`, `.../core/config.js`, etc.) -- i.e. packages/main/dist was mid-rewrite-or-absent when a sibling process's packages/utils tsc tried to resolve it. This directly falsifies CHK-001:happy:0 (`npm run pretest` -> exits 0) and CHK-001:happy:2 (bare `npm test` self-bootstraps) under the exact shared-worktree multi-process condition F-012/F-013/F-014 already established is real and recurring in this project's own review pipeline; none of the 13 CHK-001 verificationIntent refs, nor the new lock, test/cover concurrent pretest (only isolated single-process fixtures). F-011..F-014 are NOT resolved by commit 75eb6c2c03 -- the fix narrowed the failure mode (ENOTEMPTY under sustained main-only contention -> now TS2307 under cross-package contention) but did not close it. Fix direction: extend the lock's critical section (or a shared lock keyed by the whole repo/pretest, not just packages/main) to cover packages/utils's tsc invocation too, so no concurrent packages/main rebuild can run while ANY process's packages/utils build is reading packages/main/dist.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-14T11:16:01.331Z",
+      "reviewRound": "2026-08-14T10:38:58.044Z",
+      "reviewRunId": "B-fb7b:RR-039",
+      "_hash": "26314a3971aaae6d34463aede443697783671bbddf74e11508c33dc986986868",
+      "files": [
+        "scripts/build-main-with-binding.mjs",
+        "packages/utils/package.json",
+        "packages/utils/src/tool-defs.ts",
+        "packages/utils/src/register.ts",
+        "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|verified-current-head",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by the shared main+utils build mutex (scripts/build-lock.mjs, commit eab8a74651); reviewers independently disproved via F-016/F-017/F-018/F-019/F-020 after verifying 15 concurrent pretests exit 0 with zero ENOTEMPTY/TS2307.",
+      "resolvedAt": "2026-08-14T12:36:23.759Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-fb7b:F-016",
+      "desc": "Re-verified F-011 on current HEAD 8ad0cfbf8c (code fix commit eab8a74651 'shared main+utils build lock closes cross-package rebuild race'): the F-011 ENOTEMPTY race is closed. build-main-with-binding.mjs:13-23 now wraps the whole rm(dist)+tsc+writeBuildBinding critical section inside withBuildLock(projectRoot, ...) from the new scripts/build-lock.mjs -- a per-repo mkdirSync mutex (300s stale-lock steal, 900s wait timeout) -- so no second process's rmSync/tsc can interleave with this one's dist rewrite, removing the root cause of the intermittent rmdir-not-empty crash. Live-verified on current material: node packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs -> PASS; node packages/main/tests/red/red-fb7b-guard-bite.mjs -> all 9 selectors incl. GB-ALL-PASS, exit 0; node packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js -> PASS. Also observed a genuinely concurrent 5-way `npm run pretest` stress round against this exact shared worktree during this review session (launched independently by a sibling reviewer lane, logged at scratchpad/pretest_1..5.log, finish timestamps 13:11-13:14 confirming queued/serialized rather than racing execution): 5/5 exit 0, zero ENOTEMPTY, zero TS2307. git status --porcelain clean after all runs (dist remains gitignored, rebuilds do not dirty the tree). git diff --stat between the evidence-bound commit f391051ada and current HEAD touches only .lattice bookkeeping, confirming no code drift since the checklist evidence was captured.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "disproven",
+      "disprovenEvidence": {
+        "summary": "F-011 (rmSync ENOTEMPTY under concurrent pretest invocation) is fixed by commit eab8a74651: the entire packages/main rm+tsc+binding critical section in scripts/build-main-with-binding.mjs now runs inside withBuildLock(projectRoot, fn) from the new scripts/build-lock.mjs, a per-repo filesystem mutex, so concurrent invocations serialize instead of racing on dist. Re-ran the story's own guards (RED, guard-bite, compiled structural smoke) on current HEAD, all pass, and observed a live 5-way concurrent npm run pretest round in the shared worktree during this review complete 5/5 clean with zero ENOTEMPTY.",
+        "sourceRefs": [
+          "B-fb7b:F-011",
+          "scripts/build-lock.mjs:1-40",
+          "scripts/build-main-with-binding.mjs:13-23",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs"
+        ],
+        "reproCommand": "node packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs && node packages/main/tests/red/red-fb7b-guard-bite.mjs && node packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js"
+      },
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-14T12:23:39.726Z",
+      "reviewRound": "2026-08-14T10:38:58.044Z",
+      "reviewRunId": "B-fb7b:RR-042",
+      "_hash": "52ec70d5bcbf432b7e10e6385a7e487b54a2e3eef9dff2de5076d18512381a82",
+      "files": [
+        "scripts/build-lock.mjs",
+        "scripts/build-main-with-binding.mjs",
+        "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs"
+      ],
+      "signatureTag": "missing|mjs|verified-current-head",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Adversarially disproven counter-finding: the concurrency hazard it probed is fully handled by the shared main+utils build mutex (scripts/build-lock.mjs). Retained as audit trail; superseded at the frozen final tree.",
+      "resolvedAt": "2026-08-14T12:51:28.249Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-fb7b:F-017",
+      "desc": "Re-verified F-015 on current HEAD 8ad0cfbf8c (code fix commit eab8a74651 'shared main+utils build lock closes cross-package rebuild race'): the cross-package TS2307 race F-015 describes (a concurrent packages/main rebuild mid-rewrite while a sibling process's packages/utils tsc reads packages/main/dist) is closed by extracting the mutex into a shared, repo-keyed scripts/build-lock.mjs and having BOTH scripts/build-main-with-binding.mjs and the new scripts/build-utils-with-lock.mjs (wired via packages/utils/package.json's build script) take the SAME lock keyed by projectRoot, so a packages/main rebuild and any packages/utils tsc invocation across ALL concurrent processes in this worktree now mutually exclude, not just main-vs-main as the prior, narrower fix (75eb6c2c03) did. Live-verified on current material: node packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs -> PASS; node packages/main/tests/red/red-fb7b-guard-bite.mjs -> all 9 selectors incl. GB-ALL-PASS, exit 0; node packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js -> PASS. Also observed a genuinely concurrent 5-way `npm run pretest` stress round (main-then-utils, the exact CHK-001/F-015 surface) against this shared worktree during this review session, launched independently by a sibling reviewer lane (scratchpad/pretest_1..5.log, finish timestamps 13:11-13:14 confirming serialized, non-overlapping completion): 5/5 exit 0, grep for TS2307/ENOTEMPTY across all 5 logs found zero matches. git status --porcelain clean after all runs. git diff --stat between the evidence-bound commit f391051ada and current HEAD touches only .lattice bookkeeping, confirming no code drift since the checklist evidence was captured.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "disproven",
+      "disprovenEvidence": {
+        "summary": "F-015 (packages/utils tsc racing a concurrent packages/main rebuild -> TS2307 'Cannot find module ../../main/dist/*') is fixed by commit eab8a74651: scripts/build-lock.mjs is now a shared, repo-keyed mutex used by BOTH scripts/build-main-with-binding.mjs and the new scripts/build-utils-with-lock.mjs (packages/utils/package.json build script rewired to it), so main rebuild and utils tsc can never interleave across any number of concurrent processes in the worktree. Re-ran the story's own guards on current HEAD, all pass, and a live 5-way concurrent npm run pretest round (the exact main-then-utils CHK-001 surface F-015 targets) in the shared worktree during this review completed 5/5 clean with zero TS2307/ENOTEMPTY, superseding the prior narrower fix's 13/15 failure rate under the same repro.",
+        "sourceRefs": [
+          "B-fb7b:F-015",
+          "scripts/build-lock.mjs:1-40",
+          "scripts/build-utils-with-lock.mjs:1-17",
+          "packages/utils/package.json:12",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs"
+        ],
+        "reproCommand": "node packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs && node packages/main/tests/red/red-fb7b-guard-bite.mjs && node packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js"
+      },
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-14T12:23:54.160Z",
+      "reviewRound": "2026-08-14T10:38:58.044Z",
+      "reviewRunId": "B-fb7b:RR-042",
+      "_hash": "ba7d4d8f56ceb7195d9227dcd550c67b2dbbe83f7f252f79af9953f2e3600cd7",
+      "files": [
+        "scripts/build-lock.mjs",
+        "scripts/build-utils-with-lock.mjs",
+        "packages/utils/package.json",
+        "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|verified-current-head",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Adversarially disproven counter-finding: the concurrency hazard it probed is fully handled by the shared main+utils build mutex (scripts/build-lock.mjs). Retained as audit trail; superseded at the frozen final tree.",
+      "resolvedAt": "2026-08-14T12:51:29.535Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-fb7b:F-018",
+      "desc": "Re-verified F-013 on current HEAD 8f03b57 (fix commit eab8a74651, shared per-repo build mutex): the maxRetries-budget-too-short concurrent-rebuild race F-013 identified is closed by a different mechanism (a lock, not a bigger retry budget).",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "disproven",
+      "disprovenEvidence": {
+        "summary": "F-013 (retry-only approach cannot outlast a full concurrent compile) is superseded: commit eab8a74651 replaces reliance on rmSync maxRetries/retryDelay with a shared per-repo mutex (scripts/build-lock.mjs, exported withBuildLock). Both packages/main (scripts/build-main-with-binding.mjs, whole rm+tsc+writeBuildBinding critical section) and the new locked packages/utils build (scripts/build-utils-with-lock.mjs, wired via packages/utils/package.json build script) take the SAME lock keyed by sha256(projectRoot), so overlapping build invocations now WAIT/serialize instead of racing for filesystem access -- the retry budget no longer needs to survive a full concurrent compile because concurrent FS contention between builds no longer occurs; maxRetries:10/retryDelay:100 is now only a secondary guard against brief non-build touchers (Spotlight/mdworker), which is a materially different and much smaller contention window than F-013 measured. Code-quality check on the lock itself: atomic mkdirSync-as-mutex (correct on POSIX), EEXIST retry loop with 200ms sleepSync backoff, stale-lock reclaim gated on mtimeMs>300000ms (10x the ~21-30s measured single-build duration, so no false-steal against a live holder under normal contention), WAIT_TIMEOUT_MS=900000ms upper bound, lock always released via try/finally on both the fn() success and throw paths (no leak on build failure), no re-entrant/nested acquisition anywhere in the diff, lock keyed by project root so different worktrees never cross-serialize. No dead code, no `as any`, no empty-catch error swallowing (the two empty catches are intentional TOCTOU no-ops for a lock already released between check and read/remove). Live-verified in this review round: ran 5 concurrent `npm run pretest` in this live shared worktree while OTHER unrelated concurrent build processes from other agents in this same story review pipeline were simultaneously also rebuilding the same trees (confirmed via `lsof -p <pid>` cwd) -- 5/5 exit 0, zero ENOTEMPTY/TS2307, `git status --porcelain` clean afterward (dist is gitignored). Also ran a clean single-shot pretest + the structural smoke (test-suite-utils-autobuild-smoke.js) + guard-bite (red-fb7b-guard-bite.mjs, all 11 selectors incl. GB-ALL-PASS) + the RED (red-fb7b-pretest-builds-utils.mjs) during a quiet window, all PASS with a clean tree.",
+        "sourceRefs": [
+          "B-fb7b:F-013",
+          "scripts/build-lock.mjs:1-40",
+          "scripts/build-utils-with-lock.mjs:1-17",
+          "scripts/build-main-with-binding.mjs:1-23",
+          "packages/utils/package.json:12"
+        ],
+        "reproCommand": "npm run pretest && node packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js && node packages/main/tests/red/red-fb7b-guard-bite.mjs && node packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs"
+      },
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-14T12:24:05.118Z",
+      "reviewRound": "2026-08-14T10:38:58.044Z",
+      "reviewRunId": "B-fb7b:RR-041",
+      "_hash": "417ae916339eb2432147deac9c07216255af144af81340945235fd25f9a29db8",
+      "signatureTag": "adversarial|unknown|verified-current-head",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Adversarially disproven counter-finding: the concurrency hazard it probed is fully handled by the shared main+utils build mutex (scripts/build-lock.mjs). Retained as audit trail; superseded at the frozen final tree.",
+      "resolvedAt": "2026-08-14T12:51:30.745Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-fb7b:F-019",
+      "desc": "Re-verified F-012 on current HEAD (material unchanged since fix commit eab8a74651 -- git diff eab8a74651..HEAD touches only .lattice bookkeeping). F-012 described the root pretest (package.json, npm --prefix packages/main run build && npm --prefix packages/utils run build) crashing with ENOTEMPTY under concurrent shared-worktree invocation because the main dist rm-rf/tsc rebuild had no lock. Commit eab8a74651 (scripts/build-lock.mjs, an atomic-mkdir per-repo mutex keyed by projectRoot with a 300s stale-holder steal and 900s wait timeout) is now taken by BOTH scripts/build-main-with-binding.mjs and the new scripts/build-utils-with-lock.mjs (wired as packages/utils package.json build script), so overlapping main-build and utils-build invocations serialize instead of racing. Verified live: (1) node packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js -> PASS, exit 0. (2) node packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs -> PASS, exit 0. (3) node packages/main/tests/red/red-fb7b-guard-bite.mjs -> all 9 selectors incl. GB-ALL-PASS, exit 0. (4) Ran 5 concurrent npm run pretest invocations against this same live worktree (which itself had other reviewer-lane build/lattice activity concurrently in-flight at the time -- the exact shared-worktree condition F-012 describes): 5/5 exit 0, grep for ENOTEMPTY/TS2307/Error across all 5 captured logs found nothing. (5) git status --porcelain clean after the run (dist rebuilds do not dirty the tree); packages/main/dist/index.js and packages/utils/dist/index.js both present and current. F-012 is resolved.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "disproven",
+      "disprovenEvidence": {
+        "summary": "Shared per-repo build lock (scripts/build-lock.mjs, commit eab8a74651) taken by both the main build and the new locked utils build serializes overlapping pretest/build invocations. 5/5 concurrent npm run pretest runs against a live, actively-contended shared worktree all exit 0 with no ENOTEMPTY/TS2307; smoke, RED, and guard-bite all PASS; tree stays clean.",
+        "sourceRefs": [
+          "scripts/build-lock.mjs:1-40",
+          "scripts/build-main-with-binding.mjs:1-20",
+          "scripts/build-utils-with-lock.mjs:1-17",
+          "packages/utils/package.json:9-11"
+        ],
+        "reproCommand": "for i in 1 2 3 4 5; do ( npm run pretest --silent >/tmp/pretest_c$i.log 2>&1; echo EXIT_$i=$? >>/tmp/pretest_c$i.log ) & done; wait; grep EXIT_ /tmp/pretest_c*.log"
+      },
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-08-14T12:26:28.330Z",
+      "reviewRound": "2026-08-14T10:38:58.044Z",
+      "reviewRunId": "B-fb7b:RR-040",
+      "_hash": "b800b1aa7d049ce50e75053d2eecc002185b78a087a944db8fa051860fb49cee",
+      "signatureTag": "adversarial|unknown|verified-current-head",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Adversarially disproven counter-finding: the concurrency hazard it probed is fully handled by the shared main+utils build mutex (scripts/build-lock.mjs). Retained as audit trail; superseded at the frozen final tree.",
+      "resolvedAt": "2026-08-14T12:51:31.961Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-fb7b:F-020",
+      "desc": "Re-verified F-014 on current HEAD (material unchanged since fix commit eab8a74651 -- git diff eab8a74651..HEAD touches only .lattice bookkeeping). F-014 re-confirmed that the earlier maxRetries/retryDelay-only fix (commit 3979c2f718) reduced but did not eliminate the ENOTEMPTY crash under sustained real concurrent shared-worktree load, because a bounded retry budget cannot outlast a full ~20-30s tsc compile under contention. Commit eab8a74651 replaces the retry-only approach with a blocking mutex: scripts/build-lock.mjs (atomic mkdir, 300s stale-holder steal, 900s wait timeout) held across the whole rm+tsc+binding critical section in scripts/build-main-with-binding.mjs, and now also by the new scripts/build-utils-with-lock.mjs -- so a contending process WAITS for the lock instead of racing and exhausting a retry budget. Verified live: smoke (test-suite-utils-autobuild-smoke.js) PASS exit 0; RED (red-fb7b-pretest-builds-utils.mjs) PASS exit 0; guard-bite (red-fb7b-guard-bite.mjs) all 9 selectors incl. GB-ALL-PASS exit 0. Directly re-ran the same repro shape that F-014 used -- 5 concurrent npm run pretest against this live worktree while other reviewer-lane build/lattice processes were independently and concurrently rebuilding the same dist trees at the same wall-clock time (confirmed via ps aux showing concurrent build-main-with-binding.mjs/build-utils-with-lock.mjs invocations from other lanes during this run, i.e. the exact sustained multi-process shared-worktree condition F-014 reproduced against): 5/5 pretest invocations exit 0, no ENOTEMPTY/TS2307/Error in any of the 5 captured logs. git status --porcelain clean; packages/main/dist/index.js and packages/utils/dist/index.js present and current afterward. Because the fix is now a wait-for-lock mutex (not a bounded retry), it is not subject to the F-014 root cause (retry-budget exhaustion under a compile-length contention window). F-014 is resolved.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "disproven",
+      "disprovenEvidence": {
+        "summary": "The retry-budget approach that F-014 falsified has been replaced by a blocking per-repo mutex (scripts/build-lock.mjs, commit eab8a74651) with a 900s wait timeout, held by both the main and utils builds across their full rm+tsc critical sections. A concurrent invocation now waits for the lock rather than racing and exhausting a bounded retry window. 5 of 5 concurrent pretest runs against a live, actively multi-process-contended shared worktree all exit 0 with zero ENOTEMPTY/TS2307; smoke, RED, and guard-bite all PASS; tree stays clean.",
+        "sourceRefs": [
+          "scripts/build-lock.mjs:14-40",
+          "scripts/build-main-with-binding.mjs:9-20",
+          "scripts/build-utils-with-lock.mjs:9-17"
+        ],
+        "reproCommand": "for i in 1 2 3 4 5; do ( npm run pretest --silent >/tmp/pretest_c$i.log 2>&1; echo EXIT_$i=$? >>/tmp/pretest_c$i.log ) & done; wait; grep EXIT_ /tmp/pretest_c*.log"
+      },
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-08-14T12:27:08.768Z",
+      "reviewRound": "2026-08-14T10:38:58.044Z",
+      "reviewRunId": "B-fb7b:RR-040",
+      "_hash": "c13fdfdd16f1a49d547644eb83610ed7a65403177ff54bc5f6f166800d658142",
+      "signatureTag": "adversarial|unknown|verified-current-head",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Adversarially disproven counter-finding: the concurrency hazard it probed is fully handled by the shared main+utils build mutex (scripts/build-lock.mjs). Retained as audit trail; superseded at the frozen final tree.",
+      "resolvedAt": "2026-08-14T12:51:33.239Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

@@ -1,5 +1,5 @@
 /**
- * lattice audit — framework self-introspection audit (B-9bd9 CHK-001, MVP)
+ * proof-or-stop audit — framework self-introspection audit (B-9bd9 CHK-001, MVP)
  *
  * Mechanically scans CLAUDE.md promises vs actual CLI behavior drift.
  *
@@ -51,6 +51,13 @@ export interface AuditResult {
   stillDriftingCount?: number;
   resolvedCount?: number;
   skippedCount?: number;
+  /**
+   * B-cdf6 CHK-005: how many distinct documented commands the drift extractor actually pulled out
+   * of the scanned docs. Structured consumers must read this alongside `newCount`: a
+   * `newCount: 0` with `extractedCommandCount: 0` is a VACUOUS scan (extractor blindness), not a
+   * clean one.
+   */
+  extractedCommandCount?: number;
   reportPath?: string;
 }
 
@@ -177,6 +184,7 @@ export function createAuditHandlers(ctx: HandlerContext): AuditHandlers {
           rowsStill,
           resolvedIds,
           skipped: report.skipped,
+          extractedCommands: report.extractedCommands,
         });
 
         // 7. state.json lastAuditAt
@@ -195,6 +203,13 @@ export function createAuditHandlers(ctx: HandlerContext): AuditHandlers {
       if (report.skipped.length > 0) {
         console.log(`  (skipped ${report.skipped.length} — see report)`);
       }
+      // B-cdf6 CHK-005: always print how many documented commands the extractor actually saw, so
+      // "0 new drift" cannot be read as clean when the real cause is that the extractor matched
+      // nothing. Zero extractions is called out explicitly as scanner blindness, not a pass.
+      console.log(`  scanned ${report.extractedCommands.length} documented command(s)`);
+      if (report.extractedCommands.length === 0) {
+        console.log('  ⚠ extracted 0 documented commands — this is scanner blindness, NOT a clean scan (check the bin-token extractor)');
+      }
       console.log(`  report: ${reportPath}`);
 
       return {
@@ -205,6 +220,7 @@ export function createAuditHandlers(ctx: HandlerContext): AuditHandlers {
         stillDriftingCount,
         resolvedCount,
         skippedCount: report.skipped.length,
+        extractedCommandCount: report.extractedCommands.length,
         reportPath,
       };
     },
@@ -218,6 +234,8 @@ interface ReportInputs {
   rowsStill: AuditRowEntry[];
   resolvedIds: string[];
   skipped: SkippedEntry[];
+  /** B-cdf6 CHK-005: distinct documented command names the extractor saw (blindness signal). */
+  extractedCommands: string[];
 }
 
 function writeReport(inp: ReportInputs): string {
@@ -233,13 +251,20 @@ function writeReport(inp: ReportInputs): string {
   lines.push(`- still-drifting: ${inp.rowsStill.length}`);
   lines.push(`- resolved-by-nature: ${inp.resolvedIds.length}`);
   lines.push(`- skipped: ${inp.skipped.length}`);
+  lines.push(`- documented commands scanned: ${inp.extractedCommands.length}`);
   lines.push('');
 
   const rows = [...inp.rowsNew, ...inp.rowsStill];
   lines.push('## Drifts');
   lines.push('');
   if (rows.length === 0) {
-    lines.push('_no drift_');
+    // B-cdf6 CHK-005: "no drift" is only meaningful when the extractor actually extracted
+    // something. Zero extractions means the scan was vacuous; say so instead of implying clean.
+    if (inp.extractedCommands.length === 0) {
+      lines.push('_VACUOUS SCAN — the command extractor matched 0 documented commands, so this is NOT evidence of a clean scan._');
+    } else {
+      lines.push('_no drift_');
+    }
   } else {
     lines.push('| drift-type | section-path | symbol | severity | status | firstSeenRound | lastSeenAt |');
     lines.push('|---|---|---|---|---|---|---|');

@@ -127,7 +127,7 @@ export function commitInitCheckMetadataAndMergeMain(root: string, store: StorySt
       return '';
     }
 
-    const commitMessage = `lattice: INIT_CHECK metadata ${storyId}`;
+    const commitMessage = `proof-or-stop: INIT_CHECK metadata ${storyId}`;
     const story = store.readStory(storyId);
     const worktreePath = story.worktree?.path;
     const storyBranch = story.worktree?.branch || `story/${storyId}`;

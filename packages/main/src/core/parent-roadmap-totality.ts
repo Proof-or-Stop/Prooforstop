@@ -191,7 +191,7 @@ const B43DE_CLOSED_ROW_DATA: Array<{
       'packages/main/src/core/process-fact-levels.ts',
       'scripts/verify-process-fact-contract.mjs',
     ],
-    claimBoundary: 'Local process-fact registry and static verifier coverage for gate-consumed Proofbound CLI facts.',
+    claimBoundary: 'Local process-fact registry and static verifier coverage for gate-consumed Proof-or-Stop facts.',
   },
   {
     rowId: 'M5',

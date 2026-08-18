@@ -1,0 +1,55 @@
+{
+  "storyId": "B-3434",
+  "changes": "Removed the 1 MiB execFileSync default that made DONE metadata silently unreliable, and shipped CHK-004 as outcome B. packages/main/src/core/done-prepare-generated-metadata.ts now passes METADATA_BLOB_READ_MAX_BUFFER_BYTES = 33554432 on all ten git read sites; the bare catches that swallowed ENOBUFS are replaced by typed results that distinguish absent from unreadable, with describeContentReadFailure reading stderr only and describeDiagnosticStreamFailure allowed to include hook stdout, both capped. packages/main/src/core/validation-executor.ts gains boundPersistedValidationEvidence: it builds the record a write site would write, serialises it in the format core/store.ts uses, counts those bytes, and drives a staged reduction against that count rather than an estimate, returning one of unmodified, reduced, verdict_only or refused; snapshotPersistedRecord returns JSON.parse of the measured text so the returned graph carries no own toJSON, getter or Proxy trap. All three write sites in packages/main/src/handlers/verifier.ts refuse to write when withinBound is false or the record is null. An advisory fires at 25 percent of the read ceiling and the bound sits at 75 percent, both derived from the ceiling rather than chosen beside it. Two regression harnesses ship and are registered in lattice.config.json validate.commands: packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs, which embeds the pre-fix helper verbatim so it fails against the old code, and packages/main/src/tasks/validation-evidence-buffer-smoke.ts. CHK-004 required a binding outcome - either the bounding ships, or a committed rationale records why and names the change that will address it - and required shipping whichever the decision was. The decision was the second branch, and it shipped: docs/requirements/decisions/validation-evidence-artifact-growth.md is that committed rationale, with the measured transcripts and the named change that would make the measurement a proof.",
+  "usage": "Nothing to invoke. done_prepare and the DONE gate read blobs through the raised ceiling automatically, and lattice validate bounds test-evidence.json on every run through the same code path. An operator sees the difference in two places: a blob above 33554432 bytes now fails loudly as unreadable with the captured byte count in the message instead of returning null, and validate prints a sizing advisory once the serialised artifact passes 8388608 bytes, naming the measured size and the limit, worded so it cannot be read as a failure. When the artifact cannot be brought under 25165824 bytes the evidence write is refused with a structured failure naming the size and the bound, rather than written and left to break the next metadata commit.",
+  "expectedOutcome": "The original acceptance claim, delivered in full: a committed regression stages a blob larger than one mebibyte, drives the metadata commit path, and the commit succeeds where it previously failed with verified metadata changed after manifest verification. The normalized outcome likewise: a story whose validation evidence artifact exceeds one mebibyte can persist that evidence and enter TEST, and an unreadable blob reports its real cause instead of presenting as a digest difference. Concretely: a tracked file larger than 1 MiB is hashed correctly rather than silently skipped; a file larger than the new ceiling fails with a diagnostic instead of a null; the aggregate evidence artifact is reduced to fit rather than growing until it breaks the metadata commit; and the growth dimension CHK-004 names, the number of configured validate commands serialised into test-evidence.json, is covered.",
+  "actualTranscript": "Real git blobs, committed to a scratch repository by the behavior lane at the shipping revision and read through the shipped dist - not the RED harness's own 34554432-byte fixture: a 5 MiB blob reads correctly with sha256 matching an independently computed digest; a 40 MiB blob fails as unreadable with 'ENOBUFS: output exceeded the 33554432-byte read ceiling; 33562624 bytes were captured before the ceiling and discarded'; a missing path is absent with real git text. Sizing, from validation-evidence-buffer-smoke: the 100-command shape this repository actually has measures 2520038 bytes, unmodified, within_budget, output byte-identical to the pre-story serialisation; 400 commands of all-quote output measure 38878838 bytes unbounded, past the read ceiling, and 19617036 after reduction; 300 commands by 100000 chars reduce to 148987 bytes with 250200 detail lines replaced by counted markers; 180000 heterogeneous detail entries reduce to 16029894 bytes keeping 180001 detail lines, so a reducible artifact is reduced rather than discarded for a stub; a 200000-entry verificationCoverage is refused at 53489880 bytes and nothing is written. The incident artifact that motivated this story measured 1369692 bytes at 100 entries against a 1048576-byte ceiling, after the command list grew from 56 to 100 in one day, and it blocked every REVIEW to TEST transition in the repository. Full suite at the shipping revision: 97 of 97 commands pass, verification coverage gap 0, test-evidence.json result PASS.",
+  "outcomeDiff": "Nothing asked for is outstanding. The original acceptanceClaim and normalizedOutcome are both met in full and are covered by the single acceptance binding AB-001, whose verification intents all pass. CHK-004 was satisfied through the second of the two binding outcomes it names, and that outcome shipped as code plus a committed rationale rather than as a written opinion. One property is identified for future work and is NOT claimed here: that the number the code measures always equals the bytes StoryStore writes. Four routes by which the two can disagree are recorded with executed transcripts. The serialisation format is duplicated from core/store.ts rather than shared with it, and the smoke assertion that looked like a pin compares two hand-written copies of the same formula (B-3434:F-033; measured at 158 expected, 158 measured, 168 written). JSON.parse returns objects on a live Object.prototype, so an inherited toJSON answers again at write time even for a plain object literal (cross-vendor finding; 67 bytes reported within bound, 31457342 on disk). finish() takes record and fileBytes as two independent trusted parameters instead of re-deriving one from the other (B-3434:F-035). And the F-029 source check cannot see an in-place mutation of the record between the gate and the write (B-3434:F-037; reproduced with one line, no cast, zero new tsc errors, smoke unaffected). None is reachable from real input: every production buildRecord closure builds a fresh plain object literal with no toJSON, getter or Proxy in its graph. All four are written into the decision document as the acceptance surface for the story that will own them.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Everything this story owed is delivered; what follows is the honest boundary of what its code establishes. The bound is a live measurement of a real serialisation, and all three write sites refuse to write when withinBound is false or the record is null - but the code cannot prove the measured number equals the bytes on disk, because the writer that produces those bytes lives in packages/main/src/core/store.ts, which this story's allowedModify does not name. Nine review rounds on this side of that seam could not build the property, which is why CHK-004 took its second branch: the reason is structural, not effort. The property needs a writer-owned canonical boundary - one component that serialises, measures and writes the exact measured bytes, with a measure-only entry point the reduction search also routes through, so there is one serialiser and no second copy of the format. A separate story will own that, and B-3434:F-036 is sequenced after it: the uniform snapshot currently costs smoke wall-clock 9.9s to about 18.5s for no benefit, since the reduction loop consumes only .bytes and the terminal call re-snapshots on its own, but the cheaper search still needs its number from the boundary. The decision document is that story's work order and names all of it.",
+  "pitfalls": "Three worth carrying forward. First, the recurring defect this story is a case study in: a claim in prose wider than what the code enforces, which appeared in eight forms across twelve rounds, where each fix's own new comments introduced the next instance. The converging answer was to make the property derived rather than remembered, and where that was impossible, to delete the claim rather than narrow it. Second, cross-vendor review earned its cost here rather than satisfying a policy: five genuine codex exec reviews ran, and in four consecutive rounds codex found a real defect that four Claude lanes at the same revision had missed, including one in a correction that had just been written to fix the previous one. Because cross-host findings are filed under main, which has no registered reviewer lane, none of them gated anything until a Claude lane reproduced each by execution and refiled it under its own lane; that gap is filed as follow-up work. Third, two operational facts. This story's own RED harness had never run in the standing suite for twelve rounds; only the full validate run caught it, through the repository's own registration guard, because every checklist selector bound to direct invocation of the harness and so 'the regression passes' and 'the regression is wired into the suite' stayed silently distinct claims. And the standing suite is now over its default watchdog: the persisted evidence records 931983 ms of command time across 97 commands, 941.9s wall, against a 900000 ms default, where the 96-command predecessor measured 879647 ms and finished at 889.7s with roughly a one percent margin - so registering this story's own 3.5s harness is what tipped it over, and the one successful full run needed LATTICE_MAX_TIMEOUT_MS raised to 2400000; that variable is baked into effectiveEnvironmentDigest, so it was set only on the standalone validate and deliberately not on any gate command. Both are filed as separate follow-up work.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 36263327
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 28422
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 1512224
+    },
+    "DEV": {
+      "count": 3,
+      "durationMs": 1492361
+    },
+    "REVIEW": {
+      "count": 3,
+      "durationMs": 56742047
+    },
+    "TEST": {
+      "count": 3,
+      "durationMs": 25975706
+    }
+  },
+  "totalDurationMs": 122014644,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-08-16T01:27:08.836Z",
+  "updatedAt": "2026-08-16T10:13:50.392Z"
+}

@@ -1,0 +1,68 @@
+{
+  "principles": [
+    "Reuse the existing config-normalization logic (configuredValidationCommands) rather than re-implementing validate.commands[] parsing a second time",
+    "Mirror the semantics resolveCommandTimeoutMs already uses for lattice validate so both execution paths agree on the same command's effective timeout",
+    "No behavior change for commands with no configured override: the 270s default must stay exactly as-is",
+    "No circular import between core/validation-executor.ts and handlers/verifier.ts",
+    "Matching must not silently cross-match a different command that merely shares an executable"
+  ],
+  "drivers": [
+    "Cannot modify the lattice validate execution path or its default-ceiling semantics (excludedScope)",
+    "Cannot introduce a circular import between validation-executor.ts and verifier.ts (flagged by INIT review)",
+    "Fix must generalize beyond quorum-submit-smoke.js to any current or future validate.commands[] entry with a raised timeoutMs"
+  ],
+  "options": [
+    {
+      "name": "checklist-layer-lookup",
+      "pros": [
+        "No circular import: checklist.ts already depends one-way on both validation-executor.ts and verifier.ts, and is imported by neither",
+        "A single shared helper reused at all 4 existing call sites avoids duplicating the matching logic four times",
+        "runSingleAllowlistedCommand's own signature and behavior for any other caller stays exactly as documented (options.timeoutMs still wins when explicitly passed)"
+      ],
+      "cons": [
+        "Any future caller of runSingleAllowlistedCommand outside checklist.ts must remember to do the same lookup+pass rather than getting it automatically",
+        "Splits 'resolve a pinned command's effective timeout' logic across two files: matching in checklist.ts, floor/clamping in validation-executor.ts's resolveCommandTimeoutMs"
+      ]
+    },
+    {
+      "name": "executor-layer-lazy-import",
+      "pros": [
+        "Every current and future caller of runSingleAllowlistedCommand gets the fix automatically with no call-site changes",
+        "Keeps all 'resolve a command's effective timeout' logic in one file (validation-executor.ts)"
+      ],
+      "cons": [
+        "A dynamic import() to dodge a same-package circular dependency is a workaround for a design smell, not a real fix, and can behave surprisingly under bundlers/tree-shaking",
+        "Still a de-facto circular dependency at the module-graph level even without a static deadlock - exactly what the INIT reviewer flagged as worth avoiding"
+      ]
+    }
+  ],
+  "chosen": "checklist-layer-lookup",
+  "rationale": "Avoids the circular import outright instead of working around it with a lazy import; matches the alternative the INIT reviewer's own finding already named; centralizes the {executable,args} matching behind one shared helper called from all 4 existing checklist.ts call sites, and keeps validation-executor.ts's resolveCommandTimeoutMs untouched as required by scope-boundary.json. Matching key is strict {command,args} array equality (not label): label is cosmetic/user-facing text that can be renamed independent of the actual command, and args-based disambiguation is exactly what CHK-003's regression coverage already targets. configuredValidationCommands(root) is called fresh inside the shared helper on each invocation rather than cached/threaded from elsewhere - a single small local JSON read is negligible next to the command execution itself, and avoids adding cache-invalidation complexity this story does not need.",
+  "preMortem": [
+    {
+      "scenario": "The new helper matches by parsed {executable,args} but a configured entry uses shell:true with a raw shell string instead of {command,args}, so the parsed pinned command never matches and the override is silently never picked up for shell-style config entries.",
+      "trigger": "A future validate.commands[] entry is authored using the raw shell-string shorthand instead of the structured {command,args} object form.",
+      "consequence": "That command's evidence-pinning path silently falls back to the 270s default forever, reproducing this exact bug for a different config shape.",
+      "mitigation": "Pinned verification commands are always allowlisted executable+args per parseAllowlistedCommand and can never be shell-style by construction, so this cannot occur for the evidence-pinning path itself; CHK-003's regression coverage documents this as an intentional non-match, not a gap."
+    },
+    {
+      "scenario": "Two configured validate.commands[] entries parse to the identical {executable,args} pair (e.g. a copy-pasted config edit) but carry different timeoutMs values.",
+      "trigger": "A future lattice.config.json edit duplicates a command with a changed timeoutMs but leaves the old entry in place.",
+      "consequence": "The matcher picks whichever entry appears first in the array, non-deterministically from the config author's perspective, silently applying the wrong budget.",
+      "mitigation": "Matching uses the first array match deterministically; documented as a config-authoring constraint (no duplicate {command,args} entries with different timeoutMs) rather than something the runtime needs to detect for this story."
+    },
+    {
+      "scenario": "configuredValidationCommands(root) reads and parses lattice.config.json on every runSingleAllowlistedCommand invocation, adding I/O to a path already called once per checklist item during evidence recording.",
+      "trigger": "A story with many checklist items pins many different commands within one verification_evidence_batch_add call.",
+      "consequence": "Negligible in practice (one small local JSON read, no network) but could read as unnecessary repeated I/O in review.",
+      "mitigation": "No caching added given the file is small and local; noted as a possible follow-up only if it becomes a measured concern, not required for this story."
+    },
+    {
+      "scenario": "quorum-submit-smoke.ts already carries its own --grep argv filter from B-3144 as a workaround; after this fix lands, a future story or agent might remove that filter believing it's now redundant.",
+      "trigger": "A later cleanup pass sees the timeout bug fixed and assumes the --grep workaround is now unnecessary.",
+      "consequence": "Evidence recording for that command becomes slower (356-360s per call) even though nothing forces it - not a correctness regression, just an avoidable slowdown and a wasted B-3144 optimization.",
+      "mitigation": "scope-boundary.json already excludes touching quorum-submit-smoke.ts's --grep mechanism in this story; both mechanisms are complementary (fast targeted runs via --grep, correct budget honoring for full runs) and neither supersedes the other."
+    }
+  ],
+  "timestamp": "2026-08-14T11:28:23.429Z"
+}

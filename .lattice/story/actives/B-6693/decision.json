@@ -1,0 +1,104 @@
+{
+  "principles": [
+    "Serialize scarce workspace validation capacity at every official validation mode while preserving story-scoped evidence isolation.",
+    "Make contention observable and self-resolving through asynchronous wait, bounded holder progress, and automatic continuation.",
+    "Use one git-common-dir capacity path and a fixed workspace-to-story acquisition order.",
+    "Keep proof budgets and command inventories unchanged; remove contention instead of weakening gates.",
+    "Fail closed on unknown capacity ownership and reclaim only mechanically proven dead or identity-mismatched holders."
+  ],
+  "drivers": [
+    "Different-story, no-story, and --channel/--concept/--lint early-return modes bypass a per-story lock key.",
+    "The legacy story classifier permits age-only ownerless reclaim, which is too permissive for a workspace-global capacity lease.",
+    "Routine and DONE-required validation must retain distinct evidence artifacts, freshness rules, and configured timeout budgets."
+  ],
+  "options": [
+    {
+      "name": "A: Replace the story lock with one global fail-fast lock",
+      "pros": [
+        "Small surface change",
+        "Prevents concurrent official validation"
+      ],
+      "cons": [
+        "Fails required wait-and-run UX",
+        "Conflates capacity and evidence ownership",
+        "Drops story-level defense"
+      ]
+    },
+    {
+      "name": "B: Re-key the current story lock globally and keep its age-based classifier",
+      "pros": [
+        "Reuses existing lock path and smoke"
+      ],
+      "cons": [
+        "Unknown aged ownership can be stolen",
+        "Changes story-lock semantics",
+        "Does not provide safe async waiting"
+      ]
+    },
+    {
+      "name": "C: Add an outer async workspace lease with strict liveness classification and retain the legacy inner story lock",
+      "pros": [
+        "Covers every validate mode and DONE-required",
+        "Preserves story evidence behavior",
+        "Unknown capacity holders fail closed",
+        "Supports progress, abort, and automatic continuation"
+      ],
+      "cons": [
+        "Requires an async acquisition loop",
+        "Requires capacity-specific classifier and focused cross-process smoke"
+      ]
+    },
+    {
+      "name": "D: Also coordinate direct npm test through inherited tokens",
+      "pros": [
+        "Could cover every full-suite invocation"
+      ],
+      "cons": [
+        "Expands into arbitrary shell coordination",
+        "Risks child-process self-deadlock",
+        "Violates bare npm exclusion"
+      ]
+    }
+  ],
+  "chosen": "C: Add an outer async workspace lease with strict liveness classification and retain the legacy inner story lock",
+  "rationale": "Option C fixes the real capacity race for all official validate modes, including no-story and early selective paths, while retaining the existing per-story evidence lock unchanged. A stricter capacity classifier prevents age-only takeover of unknown ownership; asynchronous acquisition keeps heartbeats and cancellation live without changing proof budgets.",
+  "preMortem": [
+    {
+      "scenario": "Selective validate bypasses capacity",
+      "trigger": "Wrapper remains only around the three existing story-aware branches",
+      "consequence": "--lint or another early-return mode competes with TEST",
+      "mitigation": "Place the capacity boundary around the complete validate handler execution and add real CLI selective-mode smoke."
+    },
+    {
+      "scenario": "Unknown aged lease is stolen",
+      "trigger": "Capacity reuses classifyValidationExecutionLock age-first semantics",
+      "consequence": "Two official validations execute concurrently",
+      "mitigation": "Use a capacity-specific classifier that treats unknown as active/blocked and only returns stale for provable dead or identity mismatch."
+    },
+    {
+      "scenario": "Waiter blocks the event loop",
+      "trigger": "Implementation uses synchronous acquireMkdirLock polling",
+      "consequence": "Heartbeat and watchdog timers stop",
+      "mitigation": "Use fail-fast probes plus abortable awaited timers; prove heartbeat advances while waiting."
+    },
+    {
+      "scenario": "Nested validation deadlocks",
+      "trigger": "Capacity ownership is not AsyncLocal propagated",
+      "consequence": "Official nested operation waits on itself",
+      "mitigation": "Track capacity lock key in AsyncLocal context and prove nested-owner versus sibling behavior."
+    },
+    {
+      "scenario": "Queue time weakens proof limits",
+      "trigger": "Implementation raises timeout budgets",
+      "consequence": "PASS no longer means documented gates",
+      "mitigation": "Do not edit inventory or budget sources; assert clean diff and timeout identity."
+    },
+    {
+      "scenario": "Bare npm is assumed protected",
+      "trigger": "Help omits boundary",
+      "consequence": "Users recreate contention from shell",
+      "mitigation": "State official-only scope in both command help and docs and mechanically prove direct npm bypass."
+    }
+  ],
+  "timestamp": "2026-08-14T15:26:42.945Z"
+}

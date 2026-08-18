@@ -5,7 +5,7 @@
  * @type feature
  * @priority high
  * @description
- *   Read-only adapter that assembles the data shape future Proofbound
+ *   Read-only adapter that assembles the data shape future Proof-or-Stop
  *   observability UI surfaces need without parsing `session_brief`/`status`
  *   Markdown and without reading backing story JSON directly. It consumes the
  *   local assurance story projection row-by-row, then opens a fresh `StoryStore`
@@ -103,7 +103,7 @@ export interface ObservabilitySnapshotSections {
   parallel: ObservabilityParallelEntry[];
 }
 
-export interface LatticeObservabilitySnapshot {
+export interface ProofOrStopObservabilitySnapshot {
   schemaVersion: typeof OBSERVABILITY_SNAPSHOT_SCHEMA_VERSION;
   readOnly: true;
   generatedAt: string;
@@ -204,7 +204,7 @@ function recoveryPointsFor(story: CanonicalStory): Array<{ id: string; kind: str
 }
 
 function resumeCommandFor(row: LocalAssuranceStoryRow): string {
-  return `cd ${row.activeCwd} && lattice story_export --storyId=${row.storyId} --format=json`;
+  return `cd ${row.activeCwd} && proof-or-stop story_export --storyId=${row.storyId} --format=json`;
 }
 
 function asLane(value: unknown): ObservabilityParallelEntry['lane'] {
@@ -297,7 +297,7 @@ export function buildObservabilitySnapshot(
   rootStore: StoryStore,
   projectRoot: string,
   options: ObservabilitySnapshotOptions = {},
-): LatticeObservabilitySnapshot {
+): ProofOrStopObservabilitySnapshot {
   const warnings: string[] = [];
   const storeFactory = options.storeFactory ?? defaultStoreFactory;
   const localProjection = options.projection ?? resolveLocalAssuranceStories(rootStore, projectRoot, {
@@ -395,3 +395,12 @@ export function buildObservabilitySnapshot(
     warnings,
   };
 }
+
+/*
+ * Deprecated brand aliases (B-cdf6 CHK-006).
+ *
+ * Durable, not transitional: this repository is multi-developer, so a teammate
+ * branch importing the old symbol must keep compiling when it merges. Never remove.
+ */
+/** @deprecated Use `ProofOrStopObservabilitySnapshot`. */
+export type LatticeObservabilitySnapshot = ProofOrStopObservabilitySnapshot;

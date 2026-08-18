@@ -7,10 +7,10 @@ tools: Grep, Glob, Bash
 <!-- proofbound:modular-role-body:v1 -->
 ## Closing Self-Check (Mandatory after completing first-pass check)
 
-After completing all checks below, additionally ask yourself: **Does this diff contain any "promised but undelivered" parts?** Any `lattice <cmd>` examples newly added to CLAUDE.md / README, handler schema fields, ENV variables, or behavior paragraphs — all must be cross-checked against the code to verify corresponding implementations exist. If "promised but undelivered" is found → **critical finding** (category=`missing`, prefix desc with `doc-promise-undelivered:`).
+After completing all checks below, additionally ask yourself: **Does this diff contain any "promised but undelivered" parts?** Any `proof-or-stop <cmd>` examples newly added to CLAUDE.md / README, handler schema fields, ENV variables, or behavior paragraphs — all must be cross-checked against the code to verify corresponding implementations exist. If "promised but undelivered" is found → **critical finding** (category=`missing`, prefix desc with `doc-promise-undelivered:`).
 
 ## 0. Project Context
-The Lattice framework conventions above (auto-injected by build) define the system architecture and concepts.
+The Proof-or-Stop framework conventions above (auto-injected by build) define the system architecture and concepts.
 
 You only do one thing: check whether this change deletes or replaces a concept, and if so, grep the entire repository to confirm zero residue.
 
@@ -24,9 +24,9 @@ You only do one thing: check whether this change deletes or replaces a concept, 
    ```
 4. grep result > 0 → file a finding:
    ```bash
-   lattice finding_add '{"storyId":"B-xxx","reviewRunId":"<reviewRunId from review_run_start>","desc":"concept-cleanup: concept X deletion incomplete: Y file still has N references","severity":"critical","category":"missing","agent":"lattice-review-concept"}'
+   proof-or-stop finding_add '{"storyId":"B-xxx","reviewRunId":"<reviewRunId from review_run_start>","desc":"concept-cleanup: concept X deletion incomplete: Y file still has N references","severity":"critical","category":"missing","agent":"lattice-review-concept"}'
    ```
-5. No concept deletion/replacement → forbidden to use `finding_add` to record pass-only; call `lattice review_pass_set '{"storyId":"B-xxx","reviewRunId":"<reviewRunId from review_run_start>","agent":"lattice-review-concept","note":"No concept deletion/replacement this round; concept residue check completed, no blocker."}'`
+5. No concept deletion/replacement → forbidden to use `finding_add` to record pass-only; call `proof-or-stop review_pass_set '{"storyId":"B-xxx","reviewRunId":"<reviewRunId from review_run_start>","agent":"lattice-review-concept","note":"No concept deletion/replacement this round; concept residue check completed, no blocker."}'`
 
 ## Input Constraints (fresh-context hygiene)
 
@@ -45,13 +45,13 @@ Your input contains only the following, and does NOT include the main agent's fu
 ## Rules
 
 - Only grep, do not modify code
-- **Every finding must be registered via `lattice finding_add`; describing it only in text is forbidden. An unregistered finding equals no discovery.**
+- **Every finding must be registered via `proof-or-stop finding_add`; describing it only in text is forbidden. An unregistered finding equals no discovery.**
 - finding_add must include the agent parameter, with the value being this reviewer's name (e.g., "lattice-review-concept"), to ensure correct finding attribution.
 - The first action of the current REVIEW round is `review_run_start`; if code or documentation continues to change during the review, the current run becomes stale and must go back to DEV for a fix and re-submission, then DEV→REVIEW enters a new round — do not re-run it as a fix within the same REVIEW round.
-- After the review ends, confirm that all discovered issues have been registered via `lattice finding_add`, then output the number of registered findings as the final summary
-- When there are no findings, forbidden to use `finding_add` to pad a pass; must call `lattice review_pass_set` to record the scope this reviewer has checked and the reason for no blocker.
-- When the current REVIEW round begins, first call `lattice review_run_start {"storyId":"B-xxx","agent":"<reviewer-name>"}`; record the returned `reviewRunId`, and all `finding_add` / `review_pass_set` in this round must carry this field.
-- Example of pass record with no blocker: `lattice review_pass_set {"storyId":"B-xxx","agent":"<reviewer-name>","reviewRunId":"<reviewRunId from review_run_start>","note":"..."}`.
+- After the review ends, confirm that all discovered issues have been registered via `proof-or-stop finding_add`, then output the number of registered findings as the final summary
+- When there are no findings, forbidden to use `finding_add` to pad a pass; must call `proof-or-stop review_pass_set` to record the scope this reviewer has checked and the reason for no blocker.
+- When the current REVIEW round begins, first call `proof-or-stop review_run_start {"storyId":"B-xxx","agent":"<reviewer-name>"}`; record the returned `reviewRunId`, and all `finding_add` / `review_pass_set` in this round must carry this field.
+- Example of pass record with no blocker: `proof-or-stop review_pass_set {"storyId":"B-xxx","agent":"<reviewer-name>","reviewRunId":"<reviewRunId from review_run_start>","note":"..."}`.
 - Items marked with @deprecated do not count as residue
 - References in comments also count as residue (comments mislead future developers)
 - Items retained for backward compat (e.g., old phase enum values in types.ts) do not count, but must be confirmed to have a backward compat comment

@@ -486,7 +486,7 @@ export function runReviewCliGates(
     const mdContents = mdReader(deps.projectRoot);
     // B-a7b0 CHK-002: cross-reference the REAL managed-asset registry. Detect the
     // project's profile + assetMode so listManagedAssetDefinitions returns the
-    // assets `lattice init` would actually generate for this repo. The check is
+    // assets `proof-or-stop init` would actually generate for this repo. The check is
     // provider-injected — paths are never hardcoded in the gate. A registry-
     // resolution failure degrades to no contradiction check (never crashes the gate).
     let managedAssetDefs: Pick<ManagedAssetDefinition, 'relPath' | 'kind'>[] | undefined;

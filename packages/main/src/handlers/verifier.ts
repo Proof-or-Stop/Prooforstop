@@ -7,21 +7,21 @@
  * @description
  *   Back-link docs/requirements/decisions/testing-infra.md:38 to the verifier
  *   implementation: when no validate.ts/js/mts exists, no configured
- *   validate.command(s) exist, and no fallback command can be discovered, Proofbound
+ *   validate.command(s) exist, and no fallback command can be discovered, Proof-or-Stop
  *   returns warn/skip instead of failure. Projects needing strong validation
  *   gates must configure validate.command(s).
  * @changes
  *   - [CHK-001] Bind no-validator warn/skip requirement to verifier implementation
  *   - [CHK-002] Cover no-entry warn/skip and configured-command hard-fail behavior
  *
- * Verifier handlers — lattice validate / status / serve
+ * Verifier handlers — proof-or-stop validate / status / serve
  *
  * These commands prefer the project's validate.ts file when present (D/M/F verifier
  * pattern), then fall back to configured or auto-discovered language test commands.
  *
- * lattice validate   → validate.ts/js/mts or configured/discovered project tests
- * lattice status     → spawn `npx tsx validate.ts --status` in project root
- * lattice serve      → spawn `npx tsx serve.ts` or start falcon serve in project root
+ * proof-or-stop validate   → validate.ts/js/mts or configured/discovered project tests
+ * proof-or-stop status     → spawn `npx tsx validate.ts --status` in project root
+ * proof-or-stop serve      → spawn `npx tsx serve.ts` or start falcon serve in project root
  */
 
 import { execFileSync, execSync, spawn } from 'node:child_process';
@@ -36,13 +36,16 @@ import { loadConfig } from '../core/config.js';
 import type { ValidationCommand, ValidationProgressReporter } from '../core/validation-types.js';
 import type { RoutineValidationIdentity, RoutineValidationSourceKind, ValidationCommandResult } from '../core/validation-types.js';
 import {
+  VALIDATION_EVIDENCE_BOUND_BYTES,
+  boundPersistedValidationEvidence,
   executeValidationPlan,
+  formatValidationEvidenceAdvisory,
   formatValidationProgressEvent,
   formatWorktreePollutionDetails,
   runValidationCommand,
   stripAnsi,
 } from '../core/validation-executor.js';
-import { withValidationExecutionLock } from '../core/validation-execution-lock.js';
+import { withOfficialValidationExecution } from '../core/validation-execution-lock.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -52,7 +55,7 @@ import { runLintGateCli, resolveChangedFiles } from './validate-lint.js';
 import { buildVerificationCoverage, renderVerificationCoverage, detectLegacyEvidenceWithoutIntent, VERIFICATION_INTENT_REPAIR_COMMAND } from '../core/verification.js';
 import { captureEvidenceHashSnapshot, checkEvidenceFreshnessForGit, checkEvidenceHashSnapshotReuse, currentMaterialHash, currentStoryFilesHash, isMaterialExcludedPath } from '../core/evidence-freshness.js';
 import { syncClusterResolves } from '../core/cluster-sync.js';
-import { resolveGitCwd, resolveProjectGitCwd, evaluateStoryDirConfigInsideGitRoot } from '../core/story-signed-workspace-resolution.js';
+import { resolveGitCwd, resolveProjectGitRoot, evaluateStoryDirConfigInsideGitRoot } from '../core/story-signed-workspace-resolution.js';
 import { resolveVerificationIntentPolicy, resolveWorkflowPolicy } from '../core/workflow-policy.js';
 import type { ChecklistData, TestEvidenceData, VerificationEvidence } from '../core/types.js';
 import {
@@ -67,6 +70,7 @@ import {
   rollbackDonePrepareGeneratedMetadataTransaction,
 } from '../core/done-prepare-generated-metadata.js';
 import { normalizeRelPath } from '../core/lattice-paths.js';
+import { readBrandEnv } from '../core/brand-env.js';
 
 const STATUS_FALLBACK_TIMEOUT_MS = 10_000;
 const SHELL_META_RE = /[;&|<>$()`]/;
@@ -186,7 +190,7 @@ function filterFocusedConfiguredCommands(commands: ValidationCommand[], focus: s
   if (selected.length === 0) {
     throw new Error(
       `validate --focus=${focus}: no configured validate.commands are tagged with focus "${focus}"; ` +
-      `tag one or more commands with focus: ["${focus}"] or run lattice validate --json for full validation.`,
+      `tag one or more commands with focus: ["${focus}"] or run proof-or-stop validate --json for full validation.`,
     );
   }
   return selected;
@@ -467,7 +471,7 @@ function decorateStoryVerification(ctx: HandlerContext, storyId: string, result:
   // hint naming the repair command. Additive only — never alters coverage math
   // or allPass, so the hint can never become a pass condition.
   for (const h of legacyHints) {
-    details.push(`Legacy evidence without intent: ${h.itemId} ${h.lane} has verificationEvidence (${h.intentRef}) but no verificationIntent.${h.lane} — run \`lattice ${VERIFICATION_INTENT_REPAIR_COMMAND}\` to backfill the intent (this is a schema repair, NOT a coverage pass).`);
+    details.push(`Legacy evidence without intent: ${h.itemId} ${h.lane} has verificationEvidence (${h.intentRef}) but no verificationIntent.${h.lane} — run \`proof-or-stop ${VERIFICATION_INTENT_REPAIR_COMMAND}\` to backfill the intent (this is a schema repair, NOT a coverage pass).`);
   }
   const allPass = Boolean(result.allPass) && coverage.missingRequired === 0;
   return {
@@ -712,19 +716,52 @@ function reusedStoryValidationResult(args: {
     paths: managedPaths,
   });
   recordValidationTerminal(args.ctx, args.storyId, args.gitCwd, reused, args.identity);
-  args.ctx.store.writeTestEvidence(args.storyId, {
-    command: `lattice validate --story=${args.storyId} --json`,
-    output: JSON.stringify(reused),
-    result: 'PASS',
-    timestamp: new Date().toISOString(),
-    ...(headHash ? { headHash } : {}),
-    ...(materialHash ? { materialHash } : {}),
-    ...(storyFilesHash ? { storyFilesHash } : {}),
-    verificationCoverage: args.snapshot.coverage,
-    commandExecution: priorCommandExecution,
-    disposition: 'reused',
-    routineValidationIdentity: args.identity,
+  // B-3434 F-014: the reuse path wrote JSON.stringify(reused) with no bound at all, so a reused
+  // result from a large command set produced the same oversized file the executed path was fixed
+  // for. Same boundary, same enforcement: bound the serialised record, not the inner string.
+  //
+  // The command string is NOT cosmetic: assessStoredValidationPassAdmissibility compares this exact
+  // field against `proof-or-stop validate --story=<id> --json` (phase-gates.ts) and any other value
+  // is rejected with `command_mismatch`, which would silently disable reuse entirely.
+  const reusedBound = boundPersistedValidationEvidence({
+    result: reused,
+    buildRecord: (output): TestEvidenceData => ({
+      command: `proof-or-stop validate --story=${args.storyId} --json`,
+      output,
+      result: 'PASS',
+      timestamp: new Date().toISOString(),
+      ...(headHash ? { headHash } : {}),
+      ...(materialHash ? { materialHash } : {}),
+      ...(storyFilesHash ? { storyFilesHash } : {}),
+      verificationCoverage: args.snapshot.coverage,
+      commandExecution: priorCommandExecution,
+      disposition: 'reused',
+      routineValidationIdentity: args.identity,
+    }),
   });
+  const reusedAdvisory = formatValidationEvidenceAdvisory(reusedBound);
+  if (reusedAdvisory) args.ctx.log?.(reusedAdvisory);
+  // The null test is not belt-and-braces: `record` is `T | null` precisely so that the write below
+  // is unreachable without one. A null record is always reported as refused, so this condition is
+  // the same condition twice - stated in the form the compiler can carry to the write.
+  if (!reusedBound.withinBound || reusedBound.record === null) {
+    // Structured refusal, matching every sibling failure in this function. A raw throw here made
+    // one condition surface differently from the identical condition in
+    // persistStoryValidationEvidence, which returns a result the caller can render and classify.
+    return externalResult({
+      provider: 'lattice-verifier-reuse-persistence',
+      status: 'fail',
+      failureKind: 'infra_failure',
+      summary: 'Validation reuse refused because its evidence file exceeds the persisted size bound',
+      details: [
+        'canonical-pass-persistence-failed: reused evidence file could not be reduced under the bound',
+        `boundBytes=${VALIDATION_EVIDENCE_BOUND_BYTES} fileBytes=${reusedBound.fileBytes} disposition=${reusedBound.disposition}`,
+      ],
+      warnings: [],
+      commands: [],
+    });
+  }
+  args.ctx.store.writeTestEvidence(args.storyId, reusedBound.record);
   const commitResult = commitValidationReuseMetadataTransaction({
     projectRoot: args.ctx.root,
     gitCwd: args.gitCwd,
@@ -832,13 +869,23 @@ function persistStoryValidationEvidence(
     disposition: 'executed',
     commandExecutions: commandResults.length,
   });
-  const evidence = (hashes: {
+  // B-3434: the artifact grows with the NUMBER of configured validate commands (per-command output
+  // is already capped upstream by trimOutput), and once it passed the metadata read ceiling nothing
+  // could commit test-evidence.json at all.
+  //
+  // The size decision is made over the RECORD as it would serialise into the file, not over the
+  // inner output string: StoryStore stringifies this record a second time, escaping the output
+  // string again, which roughly doubles quote-heavy content on the way to disk. Bounding the inner
+  // string alone left a reachable wedge where an in-bound string produced an out-of-bound file, the
+  // metadata commit hit the blob ceiling, and no story could persist evidence. What that measurement
+  // does and does not settle is described on boundPersistedValidationEvidence.
+  const evidenceRecord = (output: string, hashes: {
     headHash?: string;
     materialHash?: string;
     storyFilesHash?: string;
   } = {}): TestEvidenceData => ({
     command,
-    output: JSON.stringify(result),
+    output,
     result: allPass ? 'PASS' : 'FAIL',
     ...(failureKind ? { failureKind } : {}),
     timestamp: new Date().toISOString(),
@@ -851,6 +898,19 @@ function persistStoryValidationEvidence(
     }),
     disposition: 'executed',
     ...(identity ? { routineValidationIdentity: identity } : {}),
+  });
+  // ONE computation gates and writes. The gate used to run without the hashes and the write with
+  // them, discarding the second measurement - two artifacts, one measured, the other stored. The
+  // hash fields add a measurable ~232 bytes, so a record sitting in that window passed a gate it
+  // would have failed. That is the F-014 shape again at a smaller scale, and the repair is the same
+  // one: measure the artifact you are about to write, not a near relative of it.
+  const boundEvidence = (hashes: {
+    headHash?: string;
+    materialHash?: string;
+    storyFilesHash?: string;
+  } = {}) => boundPersistedValidationEvidence({
+    result,
+    buildRecord: (output) => evidenceRecord(output, hashes),
   });
 
   let gitCwd: string;
@@ -894,7 +954,15 @@ function persistStoryValidationEvidence(
     // PASS and never append a terminal/receipt without a git-backed boundary.
     if (!allPass && /not a git repository/i.test(reason)) {
       try {
-        ctx.store.writeTestEvidence(storyId, evidence());
+        // Same rule on the degraded path: gate and write the SAME computation.
+        const fallbackBound = boundEvidence();
+        if (!fallbackBound.withinBound || fallbackBound.record === null) {
+          return persistenceFailure(
+            `${reason}; non-git FAIL evidence exceeds the ${VALIDATION_EVIDENCE_BOUND_BYTES}-byte bound `
+            + `(file measures ${fallbackBound.fileBytes} bytes; disposition=${fallbackBound.disposition})`,
+          );
+        }
+        ctx.store.writeTestEvidence(storyId, fallbackBound.record);
       } catch (fallbackError: any) {
         return persistenceFailure(`${reason}; non-git FAIL evidence fallback failed: ${String(fallbackError?.message || fallbackError)}`);
       }
@@ -902,8 +970,24 @@ function persistStoryValidationEvidence(
     return persistenceFailure(reason);
   }
 
+  // Computed once, with the hashes, AFTER they are known: this exact record is measured, gated and
+  // written, and nothing on this path computes it a second time. That is a statement about the count
+  // and not about what reaches the writer: the gate below and the write that follows read the same
+  // mutable record, so a line inserted between them that mutates it in place diverges the written
+  // bytes from the measured ones without adding a second computation (B-3434:F-037).
+  const persistedBound = boundEvidence(hashes);
+  const sizingAdvisory = formatValidationEvidenceAdvisory(persistedBound);
+  if (sizingAdvisory) ctx.log?.(sizingAdvisory);
+  if (!persistedBound.withinBound || persistedBound.record === null) {
+    return persistenceFailure(
+      `serialised validation evidence file could not be reduced under the `
+      + `${VALIDATION_EVIDENCE_BOUND_BYTES}-byte bound (file measures ${persistedBound.fileBytes} bytes; `
+      + `disposition=${persistedBound.disposition})`,
+    );
+  }
+
   try {
-    ctx.store.writeTestEvidence(storyId, evidence(hashes));
+    ctx.store.writeTestEvidence(storyId, persistedBound.record);
     recordValidationTerminal(ctx, storyId, gitCwd, result, identity);
   } catch (error: any) {
     const rollback = rollbackDonePrepareGeneratedMetadataTransaction({
@@ -981,7 +1065,7 @@ function validationProgressReporter(ctx: HandlerContext): ValidationProgressRepo
 }
 
 function validateFileDefaultTimeoutMs(): number | undefined {
-  const raw = Number(process.env.LATTICE_VALIDATE_FILE_TIMEOUT_MS);
+  const raw = Number(readBrandEnv('VALIDATE_FILE_TIMEOUT_MS'));
   return Number.isFinite(raw) && raw > 0 ? Math.floor(raw) : undefined;
 }
 
@@ -1010,7 +1094,7 @@ function decorateAndMaybePersistStoryValidation(
       ctx,
       storyId,
       executed,
-      `lattice validate --story=${storyId} --json`,
+      `proof-or-stop validate --story=${storyId} --json`,
       identity,
       commandResults,
       expectedCommandCount,
@@ -1024,7 +1108,7 @@ function decorateAndMaybePersistStoryValidation(
 export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...args: any[]) => any> {
   return {
     /**
-     * lattice validate [--full[=filter]] [--story=B-xxx] [--json]
+     * proof-or-stop validate [--full[=filter]] [--story=B-xxx] [--json]
      *
      * Runs the project's validate.ts with appropriate flags.
      * Returns human-readable output by default, or ExternalVerifierResult with --json.
@@ -1060,12 +1144,33 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
       // headSha read below (currentHead / `git rev-parse --short HEAD`) runs from
       // the REAL gitRoot on a wrapper-root layout. With a real --story use the
       // id-keyed resolveGitCwd; otherwise the id-independent project-level resolver.
-      // Both fall back to projectRoot verbatim when no gitRoot resolves, so plain
-      // repos stay byte-identical and the existing `undefined`/not-git graceful
-      // degradation of each reader is preserved.
+      // Genuine non-Git projects still use projectRoot verbatim. An explicit
+      // configured gitRoot is authoritative, however: if it cannot resolve,
+      // stop before capacity acquisition rather than mint a wrapper-local lock.
+      const projectConfig = loadConfig(projectRoot);
+      const configuredGitRootExpected = Boolean(projectConfig.gitRoot?.trim());
+      const resolvedProjectGitRoot = args.story
+        ? null
+        : resolveProjectGitRoot(projectRoot, projectConfig.gitRoot);
+      if (!args.story && configuredGitRootExpected && !resolvedProjectGitRoot) {
+        throw new Error(
+          `validate: configured gitRoot could not be resolved for workspace validation capacity under ${projectRoot}`,
+        );
+      }
       const handlerGitCwd = args.story
-        ? resolveGitCwd({ store: ctx.store, storyId: args.story, metadataRoot: projectRoot, projectRoot })
-        : resolveProjectGitCwd(projectRoot, projectRoot, loadConfig(projectRoot));
+        ? resolveGitCwd({ store: ctx.store, storyId: args.story, metadataRoot: projectRoot, projectRoot, config: projectConfig })
+        : (resolvedProjectGitRoot ?? projectRoot);
+      return await withOfficialValidationExecution({
+        root: projectRoot,
+        storyId: args.story,
+        workspaceRoot: handlerGitCwd,
+        requireGitIdentity: Boolean(args.story) || configuredGitRootExpected || existsSync(join(handlerGitCwd, '.git')),
+        command: 'validate',
+        abortSignal: args.abortSignal,
+        deadlineAt: args.deadlineAt,
+        deadlineError: args.deadlineError,
+        onWaitProgress: (message) => ctx.log?.(message),
+      }, async () => {
       if (args.story) {
         assertCwdInWorktree(ctx.store, args.story);
         if (!args.noSync) {
@@ -1202,14 +1307,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
               ...(reuse && built ? { reuse: { ...reuse, identityDigest: built.identity.digest } } : {}),
             };
           };
-          const decorated = args.story
-            ? await withValidationExecutionLock({
-              root: projectRoot,
-              storyId: args.story,
-              workspaceRoot: handlerGitCwd,
-              command: 'validate',
-            }, buildNoValidatorResult)
-            : buildNoValidatorResult();
+          const decorated = buildNoValidatorResult();
           if (args.json) return JSON.stringify(decorated);
           return renderExternalResult(decorated);
         }
@@ -1280,14 +1378,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           );
           return reuse && built ? { ...decorated, reuse: { ...reuse, identityDigest: built.identity.digest } } : decorated;
         };
-        const decorated = args.story
-          ? await withValidationExecutionLock({
-            root: projectRoot,
-            storyId: args.story,
-            workspaceRoot: handlerGitCwd,
-            command: 'validate',
-          }, runPlanAndPersist)
-          : await runPlanAndPersist();
+        const decorated = await runPlanAndPersist();
         for (const cmd of decorated.commands ?? []) {
           ctx.log?.(`ran: ${cmd.command} ${cmd.args.join(' ')}`);
         }
@@ -1470,18 +1561,12 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
         }
         return maybePrefixFocusedText(output + (code !== 0 ? `\n(exit code: ${code})` : ''), focus);
       };
-      return args.story
-        ? await withValidationExecutionLock({
-          root: projectRoot,
-          storyId: args.story,
-          workspaceRoot: handlerGitCwd,
-          command: 'validate',
-        }, runValidateFileAndRender)
-        : await runValidateFileAndRender();
+      return await runValidateFileAndRender();
+      });
     },
 
     /**
-     * lattice status [--concise]
+     * proof-or-stop status [--concise]
      *
      * Unified project status: story progress + Machine code status.
      * Two sections run in parallel (Promise.all).
@@ -1505,7 +1590,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
         const validateFile = findValidateFile(projectRoot);
         if (!validateFile) return '';
 
-        // Try serve cache first (if lattice serve is running, result is instant)
+        // Try serve cache first (if proof-or-stop serve is running, result is instant)
         try {
           const { stablePort } = await import('../verifier/browser-executor.js');
           const httpPort = stablePort(projectRoot, 1);
@@ -1523,7 +1608,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           const cmd = `npx tsx ${validateFile} --status`;
           const body = [
             `✗ ${cmd} timed out after ${Math.round(STATUS_FALLBACK_TIMEOUT_MS / 1000)}s.`,
-            '  Run `lattice validate` for full diagnostics, or start `lattice serve` to use cached status.',
+            '  Run `proof-or-stop validate` for full diagnostics, or start `proof-or-stop serve` to use cached status.',
           ];
           if (output.trim()) body.push(...output.trim().split('\n').map(line => `  ${line}`));
           return '\n── Code Verification ──\n' + body.join('\n');
@@ -1541,7 +1626,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
     },
 
     /**
-     * lattice serve [--dev="..."] [--port=N]
+     * proof-or-stop serve [--dev="..."] [--port=N]
      *
      * Start HTTP API server for real-time debugging.
      * This is a long-running process, so we spawn it and return the startup info.

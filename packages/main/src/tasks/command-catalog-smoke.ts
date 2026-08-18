@@ -247,13 +247,13 @@ assert.doesNotMatch(
 const commandHelpExpectations: Array<{ args: string[]; includes: string[] }> = [
   {
     args: ['story_create', '--help'],
-    includes: ['Proofbound CLI', 'lattice story_create', '--checklist', '--scopeBoundary'],
+    includes: ['Proof-or-Stop', 'proof-or-stop story_create', '--checklist', '--scopeBoundary'],
   },
   {
     args: ['story_advance', '--help'],
     includes: [
-      'Proofbound CLI',
-      'lattice story_advance',
+      'Proof-or-Stop',
+      'proof-or-stop story_advance',
       '--phase',
       'INIT_CHECK',
       '--dryRun',
@@ -265,11 +265,13 @@ const commandHelpExpectations: Array<{ args: string[]; includes: string[] }> = [
   },
   {
     args: ['validate', '--help'],
-    includes: ['Proofbound CLI', 'lattice validate', '--story', '--json'],
+    includes: ['Proof-or-Stop', 'proof-or-stop validate', '--story', '--json'],
   },
   {
     args: ['conduit_status', '--help'],
-    includes: ['Proofbound CLI', 'lattice conduit_status', '--format'],
+    // B-cdf6 CHK-002: conduit_status has no longHelp block, so its only usage
+    // line is the renderer-generated one, which now mirrors the invoked bin.
+    includes: ['Proof-or-Stop', 'proof-or-stop conduit_status', '--format'],
   },
 ];
 
@@ -281,9 +283,18 @@ for (const { args, includes } of commandHelpExpectations) {
 }
 
 const helpOutput = runCli(['help']);
-assert.match(helpOutput, /Proofbound CLI/, 'lattice help should retain Proofbound branding');
-assert.match(helpOutput, /host_runtime_probe/, 'lattice help should include host runtime commands');
-assert.match(runCli(['help', '--full']), /antigravity/, 'lattice help --full should include antigravity host text');
+// B-cdf6 CHK-002: the product name is now Proof-or-Stop (the legacy 'Proofbound'
+// spelling was ruled RENAMED, not an approved prose form), and help usage lines
+// mirror the invoked bin token.
+assert.match(helpOutput, /Proof-or-Stop/, 'help should carry Proof-or-Stop branding');
+// The legacy spelling must appear NOWHERE in help output. CHK-006 completed the
+// prose sweep, so this is now total rather than banner-only: the literal below is
+// deliberately the pre-rename spelling and must NOT be normalized — normalizing it
+// would make this line assert the absence of the CURRENT brand, inverting the guard.
+assert.doesNotMatch(helpOutput, /Proofbound/, 'help must not print the legacy Proofbound product name anywhere');
+assert.doesNotMatch(helpOutput, /Usage: lattice /, 'help must not teach the deprecated bin as the usage form');
+assert.match(helpOutput, /host_runtime_probe/, 'proof-or-stop help should include host runtime commands');
+assert.match(runCli(['help', '--full']), /antigravity/, 'proof-or-stop help --full should include antigravity host text');
 
 const quantumCliOutput = runDistCli([
   '--root',

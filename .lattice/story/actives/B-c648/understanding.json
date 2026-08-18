@@ -1,0 +1,25 @@
+{
+  "task": "为 Story ID 分配前的聚焦调研建立 Mechanism Placement Proof 架构决策文档，并完成 Claude CLI 与 agy CLI 独立审计。",
+  "outcome": "用户看到：已生成 docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md；文档明确 story_create 分配 ID 前的 PROCEED / NEEDS_RESEARCH / STOP_NO_STORY 判定、与 Repro-First 和 verificationIntent 的边界、B-3783 示例、落地波次及双 CLI 审计处置。",
+  "facts": [
+    "Repro-First 已提供 pre-story candidate evidence，但只证明目标故障及可选 spike，不证明最小机制落点。",
+    "story_draft 与 draft_check_set 位于 Story ID 之前，但当前签名不绑定结构化机制调研。",
+    "story_create 是 direct、fromDraft、planner、story_create_from_repro 的共同 Story 分配入口。",
+    "verificationIntent 的 plannedPathDeclarations 只能在 PLAN 作者化，因此发生在 Story ID 分配之后。",
+    "Acceptance topology 能在 PLAN 和 pre-REVIEW 重算证明路径，但不能阻止方向错误的 Story 被创建。",
+    "B-fb7b 已把 B-3783 类事件定位为 root npm test 经 full-suite 子进程进入 bin/lattice.js，再由 bootstrap-runner 要求 utils/dist。"
+  ],
+  "constraints": [
+    "不新增平行生命周期或第二真相源。",
+    "pre-story 产物只能是 candidate evidence，不能冒充 REVIEW、TEST、DONE 或 Authority proof。",
+    "所有 gate-consumed 流程事实必须有 prompt 与 CLI/handler 双层契约，并登记 process-fact registry。",
+    "必须在所有 story_create 路径的 nextStoryId 之前 fail closed。",
+    "本 Story 只交付文档，不实现运行时代码。",
+    "文档必须记录 Claude CLI 与 Antigravity CLI (agy) 的独立审计和 finding dispositions。"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md"
+  ],
+  "timestamp": "2026-08-14T03:23:45.438Z"
+}

@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-7dff",
+  "checkedAt": "2026-08-17T11:33:43.517Z",
+  "mode": "maintenance",
+  "status": "pass",
+  "scopeBoundaryHash": "288c5183d7352d103029b079c380a1c24eb3f98ad9e82b32023a50c9d33a400b",
+  "executionBoundaryHash": "bf76ef1fe204f5d14a9a586451613e6a61ca6729d8f53c1d7188a1b199d524ed",
+  "freshnessHash": "2079abba112701e85bbade7a0443bab1fd4f1133f7a69693921319ef5dd81a32",
+  "effectiveExcludedKeywords": [
+    "Any change to the 300000ms full-suite performance budget or its enforcement",
+    "Changing which commands are in validate.commands or in the DONE-required policy",
+    "Raising the default jobs count for the existing full-suite runner",
+    "Reordering done_prepare closeout phases so cheap gates run before validation",
+    "Splitting or speeding up quorum-submit-smoke.js, which is the 267-271s critical-path floor; it is explicitly deferred to a follow-on story"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Any change to the 300000ms full-suite performance budget or its enforcement",
+      "source": "scopeBoundary.excluded",
+      "text": "Any change to the 300000ms full-suite performance budget or its enforcement",
+      "excluded": true
+    },
+    {
+      "keyword": "Changing which commands are in validate.commands or in the DONE-required policy",
+      "source": "scopeBoundary.excluded",
+      "text": "Changing which commands are in validate.commands or in the DONE-required policy",
+      "excluded": true
+    },
+    {
+      "keyword": "Raising the default jobs count for the existing full-suite runner",
+      "source": "scopeBoundary.excluded",
+      "text": "Raising the default jobs count for the existing full-suite runner",
+      "excluded": true
+    },
+    {
+      "keyword": "Reordering done_prepare closeout phases so cheap gates run before validation",
+      "source": "scopeBoundary.excluded",
+      "text": "Reordering done_prepare closeout phases so cheap gates run before validation",
+      "excluded": true
+    },
+    {
+      "keyword": "Splitting or speeding up quorum-submit-smoke.js, which is the 267-271s critical-path floor; it is explicitly deferred to a follow-on story",
+      "source": "scopeBoundary.excluded",
+      "text": "Splitting or speeding up quorum-submit-smoke.js, which is the 267-271s critical-path floor; it is explicitly deferred to a follow-on story",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "a4407e8f3035baa5b1c90856d3210d136ab4215a4c4ae02467a31da21f23c507"
+}

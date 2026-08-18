@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-6693",
+  "checkedAt": "2026-08-14T15:11:31.671Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "2bc47ceb884aa3c46ff77683e91f6c92ca6b77f8a8b47e4944b94cdac1a98c1b",
+  "executionBoundaryHash": "a018855197764eda2d47efb04e6e1225d99b6f4c4db048943d7349a282a2dbaa",
+  "freshnessHash": "5c6362cb6bb99adee67de6d0fabdf58ba0d5ed70180b583be1518b948c1c444a",
+  "effectiveExcludedKeywords": [
+    "Authority",
+    "Bare npm test/full-suite automatic locking",
+    "Changes to validation commands, test membership, member timeouts, total budgets, evidence freshness, or read-only commands",
+    "customerKeyRef",
+    "Layer4",
+    "Remote publication or unrelated lifecycle behavior",
+    "repair UX"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Bare npm test/full-suite automatic locking",
+      "source": "scopeBoundary.excluded",
+      "text": "Bare npm test/full-suite automatic locking",
+      "excluded": true
+    },
+    {
+      "keyword": "Changes to validation commands, test membership, member timeouts, total budgets, evidence freshness, or read-only commands",
+      "source": "scopeBoundary.excluded",
+      "text": "Changes to validation commands, test membership, member timeouts, total budgets, evidence freshness, or read-only commands",
+      "excluded": true
+    },
+    {
+      "keyword": "Remote publication or unrelated lifecycle behavior",
+      "source": "scopeBoundary.excluded",
+      "text": "Remote publication or unrelated lifecycle behavior",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "33086cb05d1f0a3a4453a15b59192b7f78af4980d5246dc662dcf2133f7f0574"
+}

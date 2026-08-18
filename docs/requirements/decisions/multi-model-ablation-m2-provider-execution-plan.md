@@ -198,5 +198,5 @@ valid outcome row for this protocol.
 - No H-M1 or H-M3 proof exists.
 - No Phase 1 directional readout exists.
 - No model-agnostic wording is unlocked.
-- No Proofbound product gate, DONE gate, playbook, runtime memory, or default
+- No Proof-or-Stop product gate, DONE gate, playbook, runtime memory, or default
   agent behavior is affected.

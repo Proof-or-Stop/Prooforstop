@@ -1,0 +1,55 @@
+{
+  "storyId": "B-c648",
+  "changes": "新增一份完整的 pre-story Mechanism Placement Proof 架构与执行计划，定义 story ID 分配前的聚焦调研证明、三种 verdict、统一门禁、绑定与 freshness、分波实施和 B-3783 示例；并补入 Claude CLI 与 agy CLI 的独立审计、finding 处置及 canonical host_run receipts。",
+  "usage": "在采用本方案时，先在 STORY_INTAKE 候选阶段生成聚焦调研与机制审查 artifacts；只有精确绑定且 verdict=PROCEED 的候选才允许 story_create 分配 ID，NEEDS_RESEARCH 返回继续调研，STOP_NO_STORY 停止建 Story。",
+  "expectedOutcome": "用户能从同一 Markdown 文档判断已有 Proof-or-Stop 是否覆盖前提核准、缺口在哪里、最小架构增量是什么、如何 fail closed，以及如何按实施波次落地并验证。",
+  "actualTranscript": "文档包含完整机制、schema、gate、freshness、四条创建路径、B-3783 演算、rollout 和测试矩阵；Claude 与 agy 均完成独立审计且无未解决 BLOCKER/HIGH；94 条 routine validate 命令 PASS，9/9 verification intents 有机械证据，delivery-check PASS。",
+  "outcomeDiff": "预期与实际一致：交付的是经双 CLI 审计并由 Lattice receipts 反查的架构提案文档；没有把提案中的未来 runtime enforcement 冒充为本 Story 已实现代码。",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none — fully covered; this audited proposal deliberately ships documentation only, exactly as requested. Local host receipts are diagnostic provenance and do not claim verified external release authority.",
+  "pitfalls": "不要把 PLAN verificationIntent、REVIEW/TEST/DONE 证据或 Repro-First 当成 story 分配前的机制落点证明；不要通过 latest artifact 查找、forceNew、repro bypass 或 draft 路径绕过精确 artifact 绑定；agy 不提供 usage 数字时必须保留 unavailableReason，禁止补造 token 计数。",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 202041
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 82232
+    },
+    "PLAN": {
+      "count": 2,
+      "durationMs": 1466225
+    },
+    "DEV": {
+      "count": 3,
+      "durationMs": 3139267
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 2233794
+    },
+    "TEST": {
+      "count": 2,
+      "durationMs": 958641
+    }
+  },
+  "totalDurationMs": 8083267,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-08-14T05:33:20.874Z",
+  "updatedAt": "2026-08-14T05:33:20.874Z"
+}

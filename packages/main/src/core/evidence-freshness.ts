@@ -3,7 +3,7 @@ import { createHash } from 'crypto';
 import { resolve as resolvePath } from 'path';
 import { isMaterialExcludedRuntimeArtifactPath } from './runtime-artifact-registry.js';
 import { loadConfig } from './config.js';
-import { LATTICE_STORY_DIR, LEGACY_DOCS_STORY_DIR } from './lattice-paths.js';
+import { PROOF_OR_STOP_STORY_DIR, LEGACY_DOCS_STORY_DIR } from './lattice-paths.js';
 
 export const GIT_TREE_OUTPUT_MAX_BUFFER = 32 * 1024 * 1024;
 
@@ -135,7 +135,7 @@ const GIT_EXEC_OPTS = {
 };
 
 const DEFAULT_STORY_METADATA_PREFIXES = [
-  `${LATTICE_STORY_DIR.replace(/\/actives$/, '')}/`,
+  `${PROOF_OR_STOP_STORY_DIR.replace(/\/actives$/, '')}/`,
   `${LEGACY_DOCS_STORY_DIR.replace(/\/actives$/, '')}/`,
   'docs/framework-audit/',
 ];

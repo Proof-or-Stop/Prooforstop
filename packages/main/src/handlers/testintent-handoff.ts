@@ -51,12 +51,12 @@ export function createTestIntentHandoffHandlers(ctx: HandlerContext) {
       const missingList = missingIntentItems.map((item) => `${item.id} "${item.title}"`).join(', ') || '(none)';
 
       const prompt = [
-        `You are the test-intent agent for Proofbound story ${args.storyId}.`,
+        `You are the test-intent agent for Proof-or-Stop story ${args.storyId}.`,
         '',
         'Follow the repository test-intent agent contract:',
         '- First review checklist split quality against the story description.',
         '- If the split is wrong, report concrete checklist changes and stop.',
-        '- If the split is acceptable, write testIntent for each testable item via lattice checklist_update.',
+        '- If the split is acceptable, write testIntent for each testable item via proof-or-stop checklist_update.',
         '- Main agent must not write testIntent; you own this handoff.',
         '- Do not edit docs/story or fixture JSON directly.',
         `- Run commands from this story worktree: ${worktreeHint}`,
@@ -77,7 +77,7 @@ export function createTestIntentHandoffHandlers(ctx: HandlerContext) {
         'Use type=browser only for browser-visible UI interaction. Use verification evidence kind=waiver for truly non-automatable docs/config/process items; use waiverType=deferred_gate_evidence only for gate-self-test cases that cannot be verified until a later phase.',
         '',
         'After updating, run:',
-        `lattice story_review '{"storyId":"${args.storyId}"}'`,
+        `proof-or-stop story_review '{"storyId":"${args.storyId}"}'`,
         '',
         'Report: split review result, per-item intent counts, skipped null-intent items and reasons.',
       ].join('\n');
@@ -99,11 +99,11 @@ export function createTestIntentHandoffHandlers(ctx: HandlerContext) {
         },
         nextActions: [
           'Send prompt to the test-intent agent in the story worktree.',
-          'Let that agent update checklist verificationIntent via lattice checklist_update.',
-          `Run lattice story_review '{"storyId":"${args.storyId}"}' again.`,
+          'Let that agent update checklist verificationIntent via proof-or-stop checklist_update.',
+          `Run proof-or-stop story_review '{"storyId":"${args.storyId}"}' again.`,
         ],
         commandExamples: missingIntentItems.map((item) =>
-          `lattice checklist_update '{"storyId":"${args.storyId}","itemId":"${item.id}","verificationIntent":{"happy":[{"desc":"...","type":"cli","priority":"must"}],"edge":[{"desc":"...","type":"cli","priority":"must"}],"adversarial":[{"desc":"...","type":"logic","priority":"must"}]},"agent":"test-intent"}'`
+          `proof-or-stop checklist_update '{"storyId":"${args.storyId}","itemId":"${item.id}","verificationIntent":{"happy":[{"desc":"...","type":"cli","priority":"must"}],"edge":[{"desc":"...","type":"cli","priority":"must"}],"adversarial":[{"desc":"...","type":"logic","priority":"must"}]},"agent":"test-intent"}'`
         ),
         prompt,
       };

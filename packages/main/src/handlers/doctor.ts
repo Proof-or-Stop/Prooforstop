@@ -1,7 +1,7 @@
 /**
- * lattice doctor — output health issues from the last 24 hours (grouped by category)
+ * proof-or-stop doctor — output health issues from the last 24 hours (grouped by category)
  *
- * Lets users periodically run `lattice doctor` to check whether Proofbound itself has hidden PERSIST failures.
+ * Lets users periodically run `proof-or-stop doctor` to check whether Proof-or-Stop itself has hidden PERSIST failures.
  * Previously these failures were silently swallowed by catch, making post-hoc retrospection impossible.
  *
  * B-7241 follow-up: `--repair` mode scans for orphan directories under `.worktrees/`
@@ -42,7 +42,7 @@ import {
   scanAuxiliaryWorktreeResidues,
   type AuxiliaryCleanupResult,
 } from '../core/auxiliary-worktree-cleanup.js';
-import { LATTICE_REPAIR_IGNORE } from '../core/lattice-paths.js';
+import { PROOF_OR_STOP_REPAIR_IGNORE } from '../core/lattice-paths.js';
 import {
   evaluateStoryDirConfigInsideGitRoot,
   type StoryDirInsideGitRootResult,
@@ -363,7 +363,7 @@ export function createDoctorHandlers(ctx: HandlerContext) {
       lines.push(`agentAssetMode: ${agentAssets.agentAssetMode}`);
       if (agentAssets.hasStaleProjectLocal) {
         lines.push(
-          `  ⚠ ${agentAssets.projectLocalManagedFiles.length} managed agent file(s) in .claude/agents shadow the global ~/.claude/agents source; run lattice init --upgrade to migrate`,
+          `  ⚠ ${agentAssets.projectLocalManagedFiles.length} managed agent file(s) in .claude/agents shadow the global ~/.claude/agents source; run proof-or-stop init --upgrade to migrate`,
         );
       } else {
         lines.push('  ✓ agent prompts resolve from the global ~/.claude/agents single source');
@@ -373,14 +373,14 @@ export function createDoctorHandlers(ctx: HandlerContext) {
       // session should be the loudest thing on an otherwise healthy report.
       for (const line of renderHostBurnScan(hostBurnScan, { disabled: burnDisabled, brief })) lines.push(line);
       lines.push('');
-      lines.push(`lattice doctor — health issues`);
+      lines.push(`proof-or-stop doctor — health issues`);
       lines.push(`  source: ${getHealthPath()}`);
       lines.push(`  total : ${summary.total} issues recorded`);
       lines.push(`  shown : ${summary.recent.length} (${summary.recentWindow === '24h' ? 'last 24h' : 'most recent'})`);
       lines.push('');
 
       if (summary.total === 0 && cleanupTargets.length === 0 && auxiliaryWorktrees.length === 0 && trackedRuntimeArtifacts.length === 0 && partialDone.length === 0) {
-        lines.push('✓ No health issues recorded. Proofbound is healthy.');
+        lines.push('✓ No health issues recorded. Proof-or-Stop is healthy.');
       } else if (summary.total === 0 && (cleanupTargets.length > 0 || auxiliaryWorktrees.length > 0)) {
         lines.push('⚠ No health issues recorded, but worktree cleanup issues were found.');
       } else if (summary.total === 0 && partialDone.length > 0) {
@@ -443,7 +443,7 @@ export function createDoctorHandlers(ctx: HandlerContext) {
             lines.push(`  ✗ ${failed.path}: ${failed.error}`);
           }
         } else {
-          lines.push('→ Re-run: lattice doctor --repair to untrack repairable runtime artifacts.');
+          lines.push('→ Re-run: proof-or-stop doctor --repair to untrack repairable runtime artifacts.');
         }
       }
       lines.push('');
@@ -482,7 +482,7 @@ export function createDoctorHandlers(ctx: HandlerContext) {
           lines.push(`→ terminal registered = story already DONE/DISCARDED but git still registers the worktree.`);
           lines.push(`→ orphan dirs = directory still exists under .worktrees/ but git worktree list no longer recognizes it.`);
           lines.push(`→ terminal dirs = worktree directory of DONE/DISCARDED story still exists.`);
-          lines.push(`→ Rerun: lattice doctor --repair to clean up these leftovers.`);
+          lines.push(`→ Rerun: proof-or-stop doctor --repair to clean up these leftovers.`);
         }
       }
       if (auxiliaryWorktrees.length > 0) {
@@ -499,7 +499,7 @@ export function createDoctorHandlers(ctx: HandlerContext) {
           }
           for (const failed of auxiliaryRepairFailed) lines.push(`  ✗ ${failed.path}: ${failed.error}`);
         } else {
-          lines.push('  → safe-cleanup entries can be removed with: lattice doctor --repair');
+          lines.push('  → safe-cleanup entries can be removed with: proof-or-stop doctor --repair');
           lines.push('  → dirty-worktree / missing-from-main / unknown entries require manual review.');
         }
       }
@@ -509,7 +509,7 @@ export function createDoctorHandlers(ctx: HandlerContext) {
       for (const line of renderPartialDoneSummary(partialDone)) lines.push(line);
       if (partialDone.length > 0) {
         lines.push('→ partial-DONE = story.phase is DONE but story branch is not merged into main.');
-        lines.push('→ Run the listed lattice done_recover command after main is clean.');
+        lines.push('→ Run the listed proof-or-stop done_recover command after main is clean.');
       }
 
       lines.push('');
@@ -527,7 +527,7 @@ export function createDoctorHandlers(ctx: HandlerContext) {
         `orphanTemps=${ownerSessionTokenStore.orphanTemps}`,
       );
       if (ownerSessionTokenStore.needsRepair && !args?.repair) {
-        lines.push('  ⚠ generated-token store needs bounded cleanup; run lattice doctor --repair.');
+        lines.push('  ⚠ generated-token store needs bounded cleanup; run proof-or-stop doctor --repair.');
       } else if (ownerSessionTokenRepair) {
         lines.push(
           `  repaired generated-token store: expired=${ownerSessionTokenRepair.removedExpired} ` +
@@ -574,7 +574,7 @@ export function createDoctorHandlers(ctx: HandlerContext) {
       lines.push(renderCodexAdapterChecks(codex).split('\n').map((line, index) => index === 0 ? `  ${line}` : `  ${line}`).join('\n'));
       if (brief) {
         lines.push('');
-        lines.push('→ Brief view. Full diagnostics: lattice doctor --full (or LATTICE_BRIEF_OUTPUT=0); --format=json keeps the full machine shape.');
+        lines.push('→ Brief view. Full diagnostics: proof-or-stop doctor --full (or LATTICE_BRIEF_OUTPUT=0); --format=json keeps the full machine shape.');
       }
 
       return lines.join('\n');
@@ -584,7 +584,7 @@ export function createDoctorHandlers(ctx: HandlerContext) {
 
 /**
  * B-c054 (W2a): resolve the optional redEvidence policy block into exactly one
- * non-gating advisory health line for `lattice doctor`. The resolver reports the
+ * non-gating advisory health line for `proof-or-stop doctor`. The resolver reports the
  * §1.2 policyDigest when a valid block is present, else the fail-closed
  * diagnostic (e.g. `red_evidence_policy_missing: pinnedPath` when absent).
  * Doctor is not a gate: this scan catches its own errors, never throws, writes
@@ -866,13 +866,13 @@ function tryWorktreeRemove(root: string, target: string): void {
 }
 
 function isRepairIgnoredDir(target: string): boolean {
-  return existsSync(join(target, LATTICE_REPAIR_IGNORE));
+  return existsSync(join(target, PROOF_OR_STOP_REPAIR_IGNORE));
 }
 
 function markRepairIgnored(target: string, reason: string): void {
   try {
     writeFileSync(
-      join(target, LATTICE_REPAIR_IGNORE),
+      join(target, PROOF_OR_STOP_REPAIR_IGNORE),
       JSON.stringify({ reason, timestamp: new Date().toISOString() }, null, 2) + '\n',
       'utf-8',
     );
@@ -1111,7 +1111,7 @@ function scanStoryMetadataProtection(root: string, store: HandlerContext['store'
  * byte-for-byte (preMortem #2: no wholesale rewrite / reorder). Idempotent: an
  * already-neutralized line is left untouched.
  */
-const MANAGED_SUPERSEDE_MARKER = '# superseded by lattice managed allowlist (lattice doctor --repair)';
+const MANAGED_SUPERSEDE_MARKER = '# superseded by lattice managed allowlist (proof-or-stop doctor --repair)';
 
 function neutralizeConflictingLatticeDirIgnore(content: string): { content: string; changed: boolean } {
   const lines = content.split('\n');
@@ -1172,7 +1172,7 @@ function repairStoryMetadataAllowlist(root: string, gitCwd: string = root): { wr
 
 /**
  * Render the story metadata protection scan as doctor text. A clear ✗ block +
- * `→ lattice doctor --repair` pointer when unsafe; a pass line otherwise.
+ * `→ proof-or-stop doctor --repair` pointer when unsafe; a pass line otherwise.
  */
 function renderStoryMetadataProtectionScan(
   scan: StoryMetadataProtectionScan,
@@ -1208,12 +1208,12 @@ function renderStoryMetadataProtectionScan(
       lines.push(`  ✗ repair failed: ${repair.error}`);
     } else if (repair.wrote) {
       lines.push('  ✓ installed managed ignore-volatile/track-metadata allowlist in .gitignore');
-      lines.push('  → `lattice doctor --repair` will be a no-op now; commit the .gitignore change, then `git add` + commit story metadata.');
+      lines.push('  → `proof-or-stop doctor --repair` will be a no-op now; commit the .gitignore change, then `git add` + commit story metadata.');
     } else {
       lines.push('  ✓ managed allowlist already present (repair is a no-op)');
     }
   } else if (scan.needsRepair) {
-    lines.push('  → lattice doctor --repair to install the managed allowlist so story metadata stays tracked while runtime stays ignored.');
+    lines.push('  → proof-or-stop doctor --repair to install the managed allowlist so story metadata stays tracked while runtime stays ignored.');
   }
   return lines;
 }
