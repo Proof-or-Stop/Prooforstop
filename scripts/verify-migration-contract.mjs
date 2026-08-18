@@ -96,21 +96,43 @@ duplicated.length === 0
       + ` ${legacyOnly.length} un-migrated file(s) from other sessions left in place by design)`)
   : fail(`${duplicated.length} file(s) readable at BOTH .lattice and .proof-or-stop — half-done move, abort`);
 
-// CHK-008 adversarial: the move was ONE commit whose renames are pure, so one revert undoes it.
-// Find the state-dir move commit by SUBJECT, not by path filter. A path filter on
-// the canonical dir misses it: that commit recorded its renames under a nested
-// path (the first attempt's mv landed inside an existing dir), which is exactly the
-// defect the follow-up commit corrected.
+// CHK-008 adversarial (B-cc10 F-007): the ORIGINAL claim here was "git revert <sha>
+// alone restores the pre-move layout with no manual fixup", evidenced by the move
+// commit's diffstat being a pure rename. That claim was FALSE and this check was
+// measuring the wrong thing: it validated only the FIRST commit (ec7f315e0a, a genuine
+// pure rename) while the move actually required a SECOND, non-pure commit
+// (8c0bd7b87c: 7594 files, 523 insertions) to fix a nested-mv defect and re-flip the
+// canonical constants. The test-coverage reviewer reproduced the failing revert.
+//
+// Rather than delete an inconvenient check or restate the false claim, assert the
+// property that is actually TRUE and worth protecting: the move is fully described by
+// a known, bounded commit SEQUENCE, every member is reachable, and the state-dir move
+// itself introduced no content edits (the pure-rename property of the mv commit) —
+// while recording explicitly that a follow-up fix commit is part of the move and that
+// reverting the move therefore means reverting the sequence, not a single sha.
 const moveSha = execFileSync('git',
   ['log', '--format=%H', '--grep=CHK-003: move state dirs', '-1'], { encoding: 'utf8' }).trim();
+const fixSha = execFileSync('git',
+  ['log', '--format=%H', '--grep=CHK-003: fix nested move', '-1'], { encoding: 'utf8' }).trim();
 const stat = moveSha
   ? execFileSync('git', ['show', '--shortstat', '--format=', moveSha], { encoding: 'utf8' })
   : '';
-const pure = /0 insertions/.test(stat) && /0 deletions/.test(stat);
-console.log(`moveIsPureRenameCommit=${pure}`);
-pure
-  ? ok(`move commit ${moveSha.slice(0, 8)} is pure rename (0 insertions, 0 deletions) — one revert undoes it`)
-  : fail(`move commit is not a pure rename: ${stat.trim()}`);
+const mvIsPure = /0 insertions/.test(stat) && /0 deletions/.test(stat);
+console.log(`moveCommit=${moveSha.slice(0, 8) || 'unresolved'}`);
+console.log(`followupFixCommit=${fixSha.slice(0, 8) || 'none'}`);
+console.log(`moveCommitIsPureRename=${mvIsPure}`);
+console.log(`revertUnitIsCommitSequence=${Boolean(moveSha && fixSha)}`);
+if (!moveSha) {
+  fail('could not resolve the state-dir move commit; the migration contract is unverifiable');
+} else if (!mvIsPure) {
+  fail(`the mv commit itself edited content, so the move is not content-preserving: ${stat.trim()}`);
+} else if (!fixSha) {
+  fail('expected a CHK-003 follow-up fix commit to be part of the move sequence but found none');
+} else {
+  ok(`move is the sequence ${moveSha.slice(0, 8)} (pure rename, content-preserving) + `
+    + `${fixSha.slice(0, 8)} (nested-mv fix); reverting the move means reverting BOTH, `
+    + 'not a single sha — the original one-revert claim was false and is retracted');
+}
 
 console.log(bad === 0 ? 'migration contract verified' : `migration contract FAILED (${bad})`);
 process.exit(bad === 0 ? 0 : 1);

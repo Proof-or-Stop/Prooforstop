@@ -183,3 +183,53 @@ the same commit: `scripts/verify-runtime-fact-contract.mjs` and
 Correspondingly `CLAUDE.md:192` still documents the old `@lattice/core/dev-host` import in its
 `debug.ts` example while `cli-init.ts` now emits the canonical spelling. Both belong to CHK-007,
 which owns flipping `@lattice/core` from exempt to **forbidden** in product runtime source.
+
+## CHK-008 revert claim: RETRACTED (B-cc10 F-007)
+
+The CHK-008 adversarial intent originally claimed: *"`git revert <sha>` alone restores the
+pre-move layout with no manual fixup"*, evidenced by the move commit's diffstat being a pure
+rename. **That claim was false.** The state-dir move is a two-commit sequence:
+
+| Commit | Nature |
+|---|---|
+| `ec7f315e0a` | the `git mv` itself — genuine pure rename, 0 insertions / 0 deletions |
+| `8c0bd7b87c` | required follow-up — 7594 files, 523 insertions: fixes a nested-mv defect and re-flips the canonical constants |
+
+The witness had been validating only the first commit's diffstat, so it confirmed a property
+nobody disputed while leaving the actual claim untested. The `lattice-review-test-coverage`
+reviewer caught it and reproduced the failure: `git revert ec7f315e0a` on current HEAD produces
+dozens of file-location conflicts rather than a clean restore.
+
+**Corrected claim, now asserted mechanically:** the move is fully described by a bounded,
+reachable commit *sequence*; the `mv` commit itself is content-preserving; and reverting the
+move means reverting **both** commits, not a single sha. `scripts/verify-migration-contract.mjs`
+checks exactly that and fails closed if either commit becomes unreachable.
+
+This is recorded rather than quietly amended because the original evidence was cited as
+satisfying a `must` intent, and a reader comparing the intent to reality deserves to see that
+the mismatch was found by review, not by the author.
+
+## Residual: 52 task fixtures still construct the deprecated state dir (B-cc10 F-001)
+
+`packages/main/src/tasks` has ~52 files (~180 occurrences) that hardcode `'.lattice'` when
+BUILDING temp-dir fixtures, e.g. `deprecated-gc-smoke.ts:39` does `mkdirSync(join(tmp,'.lattice'))`
+and then calls a resolver-based reader.
+
+**The predicted breakage did not materialise, and that was verified rather than assumed.** The
+concern was that once `PROOF_OR_STOP_STATE_DIR` flipped, fixture-writer and production-reader
+would disagree and these smokes would fail. They pass: read-both means the resolver still
+resolves the deprecated spelling, so writer and reader still agree. `deprecated-gc-smoke` was run
+post-flip and passes.
+
+**What remains true** is a coverage gap rather than a break: those fixtures exercise the
+PRE-migration on-disk shape, so they no longer test the layout a fresh project now gets. They are
+therefore load-bearing for the read-both path and NOT for the canonical path.
+
+**Deliberately not bulk-rewritten in this story.** A blind sweep of 180 occurrences across 52
+files would be exactly the mistake this story already made once with `CLAUDE.md`: a
+whole-file/whole-class rewrite where a targeted, reasoned edit was correct. Several of these
+fixtures legitimately test deprecated-path handling, so flipping them all would DELETE the
+coverage that proves read-both works. Distinguishing per-file requires reading each fixture's
+intent, which is its own scoped task.
+
+Recorded here so it is a known, bounded residual with a stated reason, not an omission.
