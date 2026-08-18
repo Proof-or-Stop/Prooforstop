@@ -93,7 +93,7 @@
       "desc": "concept-cleanup: state-dir read-both rename (CHK-002/CHK-003) is incomplete at the StoryStore discovery/read layer. packages/main/src/core/store.ts:64-68 builds legacyBaseDirs from only LEGACY_DOCS_STORY_DIR (docs/story/actives, a different older migration), never from PROOF_OR_STOP_STORY_DIR_NAMES (packages/main/src/core/lattice-paths.ts:41-43), which is the canonical read-both list this same story built specifically to enumerate every accepted spelling of the story dir, including .lattice/story/actives. That list is wired into evidence-freshness.ts (storyFilesHash exclusion) but NOT into store.ts (candidateStoryDirs at store.ts:111-113, listStoryIds at store.ts:241-247). Repro: a story archive still on disk under .lattice/story/actives/B-49ed/ (brought in by a main merge, INIT_CHECK-complete, files present) is fully invisible: story_get --storyId=B-49ed --slim --fields=story prints story:null at EXIT 0 (story-query.ts:481-483 swallows StoryArtifactMissingError into null), it never appears in session_brief's ledger, and it is entirely absent from listStoryIds(). This directly contradicts the story's own stated acceptance criterion in docs/requirements/decisions/proof-or-stop-identity-migration.md line 105 (All 344 archived story directories remain readable after migration) and the CHK-003 userSees claim (story_get succeeds against .proof-or-stop for archived stories). Compounding factor: story_get silently returns null/exit-0 instead of failing loud the way checklist_get does for the same story (checklist_get correctly errors non-zero naming both tried paths), so the read gap is invisible to a caller checking only the exit code.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-18T03:44:05.750Z",
@@ -101,7 +101,8 @@
       "reviewRunId": "B-cc10:RR-014",
       "_hash": "77a70cdf26cd496b685b2d63453cd25b8e634366b2ca07ee7d03cc2c877a9569",
       "signatureTag": "missing|unknown|concept-cleanup-state",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-08-18T04:00:10.179Z"
     },
     {
       "id": "B-cc10:F-007",
