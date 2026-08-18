@@ -1421,6 +1421,32 @@
         "scanEscalationReason": null
       },
       "_hash": "293c238319e8790f68359e547f3a3a9e8c3ee04dd377e7c6c88f93bcdc4a20c1"
+    },
+    {
+      "id": "B-9ff1:RP-045",
+      "agent": "lattice-review-concept",
+      "note": "RP-043 re-verified post-merge: B-d15e's 1-line telemetry fix (performanceBudgetMs: FULL_SUITE_BUDGET_MS) does not touch fullSuiteBudgetIsSatisfiable() or entry caps -- no second budget concept, no stale guarantee in 377d655464/fb915112f6/5778eab10d. Smoke exits 0 (153 assertions incl. the new shadow-copy-rejection assertion). Story's own artifacts (red-evidence core/handler/tests/spec) show zero diff since 90c21f7f4d. findings.json 65/65 closed (resolved+dismissed only). HEAD==main. Red test exits 0.",
+      "createdAt": "2026-08-18T18:54:08.672Z",
+      "reviewRound": "2026-08-14T03:33:29.693Z",
+      "reviewRunId": "B-9ff1:RR-073",
+      "envelopeId": "430e9ced5a4c354db3f46af389115506b7755fa0811a3fc6132bb95a1e61fd50",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-9ff1/findings.json",
+          "packages/main/dist/tasks/full-suite-runner-smoke.js",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/tests/red/red-w2d-specificity-conjunction.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-9ff1/prompt-envelopes.json",
+          ".lattice/story/actives/B-9ff1/review-runs.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "105333d57a16ed08a612f5903bbbc639ffb179989568316b95b32922dc6e7ddb"
     }
   ]
 }
