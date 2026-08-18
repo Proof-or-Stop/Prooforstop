@@ -449,7 +449,7 @@
       "desc": "12 of 15 verificationEvidence receipts (all of CHK-001, CHK-003, CHK-004, CHK-005; only CHK-002s 3 intents were refreshed) are STALE per the frameworks own findStaleEvidence/checkEvidenceFreshnessForGit: reason=\"evidence storyFilesHash does not match current story-owned file state\". This is storyFilesHash drift (not mere whole-tree materialHash noise) because packages/main/src/tasks/full-suite-runner.ts, a story-owned file in this branchs main...HEAD diff, was modified by the F-021 fix commit 9f5dc1357d AFTER those 12 receipts were captured. Per CLAUDE.md DONE-convergence rules, storyFilesHash drift is the strong signal requiring re-attestation, unlike materialHash-only drift which downgrades to advisory. Practically this means 12 must-priority intents currently carry pass receipts whose command-backed proof no longer binds to the current tree; per renderEvidenceStaleHint they are demoted to non-mechanical attestations until refreshed. Recovery: run verification_evidence_refresh_stale --storyId=B-49ed (or done_prepare --refreshStale) before DONE to re-execute and re-bind all 12, not just re-verify CHK-002.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-18T05:20:38.141Z",
@@ -457,7 +457,11 @@
       "reviewRunId": "B-49ed:RR-024",
       "_hash": "3c0725bdab4adadc7a49e9fd916a484d3d5349ef2f69481b6fb528fcd4384032",
       "signatureTag": "missing|unknown|verificationevidence-receipts-002s",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Correct, and correctly classified. 12 of 15 intents were stale because my F-021 commit modified packages/main/src/tasks/full-suite-runner.ts, story-owned material in the main...HEAD diff, after those receipts were captured. Per CLAUDE.md's DONE-convergence rules that is storyFilesHash drift, the strong-signal class requiring re-attestation, not the advisory whole-tree materialHash class. I would likely have misread it as benign had the finding not named the distinction.\n\nFixed with verification_evidence_refresh_stale --storyId=B-49ed. The REVIEW to TEST gate then reported reviewer evidence satisfied, leaving only an unrelated english-artifacts CJK failure which is also now fixed.\n\nRecording the reviewer's two answers to questions I raised, since both closed uncertainties I could not close alone. There is NO fourth membership authority beyond root test:serial-reference and RESOURCE_POLICY: it checked test:serial-reference-prefix, which funnels into the same policy check, and scripts/verify-full-suite-contract.mjs, which is unrelated B-9812 infra wired to no script or gate. And recording the full-suite pass only in a finding resolution rather than as intent evidence is the correct and only legitimate path, because the evidence-pin seatbelt exists precisely to stop a broader command's pass being laundered into an intent pinned to a narrower one.",
+      "resolvedAt": "2026-08-18T05:24:46.443Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
