@@ -3636,7 +3636,12 @@ function promptSemanticTokens(text) {
 async function comparePromptSemantics(promptMap) {
   const templateDir = 'packages/main/templates/agents';
   // B-cc10 F-055: include the canonical adapter mirror; the renamed one yields nothing.
-  const mirrorDirs = ['.claude/agents', '.proof-or-stop-codex/agents', '.lattice-codex/agents'];
+  // B-cc10 F-056: compare against mirror dirs that EXIST. Listing an absent dir made every
+  // role warn 'missing; no semantic drift comparison available' — 17 lines of noise that
+  // buried real signal, and (before the canonical dir was added) meant zero mirrors were
+  // compared at all while the check still exited 0 because the miss only warn()s.
+  const mirrorDirs = ['.claude/agents', '.proof-or-stop-codex/agents', '.lattice-codex/agents']
+    .filter((dir) => existsSync(join(root, dir)));
   const registryModule = await importBuiltModule('packages/main/dist/core/prompt-registry.js');
   if (!registryModule?.readPromptRegistry || !registryModule?.renderPromptEntryForHost) {
     fail('packages/main/dist/core/prompt-registry.js must expose the canonical host prompt renderer');
