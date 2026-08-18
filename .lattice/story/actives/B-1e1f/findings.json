@@ -217,7 +217,7 @@
       "desc": "packages/main/src/tasks/certification-window-smoke.ts:726-738 CHK-004:no-cross-story-dev-lock is still not covered. 6a26e8cc13 writes a second story via StoryStore.writeStory/writeChecklist in the SAME git fixture root and asserts the already-INVALIDATED window stays invalidated and the store write succeeds. That is not another story DEV write/commit in its own worktree, does not attempt a foreign git commit, and does not assert the absence of a long-lived repo-wide write lock. Store metadata writes would succeed even if begin() held a repo lock. Evidence is still pinned to certification-window-invalidation-smoke.js at head 77f13328 with note \"invalidation is per-story at the consumer\" and selector State: INVALIDATED. high",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-18T09:42:09.854Z",
@@ -229,7 +229,9 @@
         "packages/main/src/tasks/certification-window-invalidation-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Smoke asserts certification-window.ts does not import the main write lock and a peer story write still succeeds.",
+      "resolvedAt": "2026-08-18T09:45:51.381Z"
     },
     {
       "id": "B-1e1f:F-012",
