@@ -1075,7 +1075,7 @@
       "desc": "doc-promise-undelivered: docs/requirements/decisions/proof-or-stop-identity-migration.md defect-class section (added by F-053, commit 875e768c9b) documents the \"Invisible — runtime-GENERATED text\" class via F-041/F-047..F-050/F-054 as if that enumeration were now complete/current, but three MORE confirmed instances of the identical zero-file-scan-root sub-pattern landed afterward and are undocumented: F-055 (commit 254af9ddd0, retired-authority-vocabulary-guard-smoke activeTextDirs + 8 other real-repo readers, severity high), F-056 (commit eaf7d086ac, verify-process-fact-contract mirrorDirs degraded a hard fail() to a soft warn() so it silently compared ZERO of 17 prompt mirrors while exiting 0, severity high), and F-057 (commit c65ee3f0a2, executable fallback that would EXECUTE the deleted bin, severity medium). grep -n \"F-055\\\\|F-056\\\\|F-057\" on the doc returns nothing. Three confirmed instances is a materially stronger claim (an established recurring class, not an isolated one-off) than the doc currently states, and the doc is the section most recently amended specifically because an earlier revision undercounted this exact class.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-08-18T13:42:00.486Z",
@@ -1086,7 +1086,8 @@
         "docs/requirements/decisions/proof-or-stop-identity-migration.md"
       ],
       "signatureTag": "missing|md|promise-undelivered-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-08-18T13:44:20.561Z"
     },
     {
       "id": "B-cc10:F-060",
