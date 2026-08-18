@@ -1297,6 +1297,41 @@
       },
       "readDiagnostics": [],
       "_hash": "da5ab27659a39167738dc0f58d7381509c3fdb7411a87aa8c6655d2fb4deeee6"
+    },
+    {
+      "id": "B-9ff1:RP-041",
+      "agent": "lattice-review-test-coverage",
+      "note": "F-060 fixture verified as closing my own scoped gap: the CHARACTERIZATION block in red-w2d-specificity-conjunction.mjs pins the 5 real-world values (SIGSEGV/ENOMEM/HTTP 404/Error 500 reject, test failed admit) via live-derived booleans (not hardcoded bits) PLUS an ordering invariant (admitted row's entropyBits strictly exceeds every rejected row's) that is not implied by the per-row checks alone -- confirmed by mutation analysis that this ordering check catches drift the boolean-only checks would miss. Registration confirmed sufficient: fixture lives inside the already-registered red-w2d-specificity-conjunction.mjs harness (exactly 1 occurrence in validate.commands, no new entry needed since the harness itself is what runs). Ran all 5 red-w2d-*.mjs harnesses plus dist/tasks/red-evidence-envelope-smoke.js: all exit 0. Registration count confirmed by JSON-parsing lattice.config.json: each of the 5 harnesses + the smoke appears exactly once among 111 validate.commands. Sixth re-bind verified via checklist.json verificationEvidence: 108 total (106 non-waiver + 2 permanent waivers), all 106 non-waiver mechanical:true/selectorMatched:true/exitCode:0 (0 non-conforming), headHash spans 22 distinct real git commit objects in a 21x5 + 1x3 pattern, all 108 share one materialHash (bf5024d9...) and one storyFilesHash (e19dc251...), and once manual_transcript entries missing an explicit file field are attributed by their command field, the per-harness distribution is exactly 66/15/8/6/6/4/1 (rejection-matrix/specificity-conjunction/command-readonly/digest-scope/entropy-differential/smoke/w2c-validate-registration) + 2 waivers, matching the dispatch claim. findings.json: 65 total, 64 resolved + 1 dismissed, none open (F-065 was open when I started this pass and resolved during my review; git rev-list --count HEAD..main was 2 at the start of this pass due to an unrelated B-38b7 story landing on main and dropped to 0 after review_run_start triggered a content-neutral merge of main into story/B-9ff1 -- verified the merge touched only .lattice/story/actives/B-38b7/* files, nothing under packages/main). git status --porcelain is empty of code changes (only this review's own story-metadata writes). Did not run full lattice validate or root npm test per scope.",
+      "createdAt": "2026-08-18T18:34:30.437Z",
+      "reviewRound": "2026-08-14T03:33:29.693Z",
+      "reviewRunId": "B-9ff1:RR-067",
+      "envelopeId": "719477e4fa800a01817e07ae16334eea0f76b8cfe631d6f895f96b69a6475e52",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-9ff1/background.md",
+          ".lattice/story/actives/B-9ff1/checklist.json",
+          ".lattice/story/actives/B-9ff1/findings.json",
+          ".lattice/story/actives/B-9ff1/plan.md",
+          "lattice.config.json",
+          "packages/main/tests/red/red-w2d-specificity-conjunction.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-9ff1/review-runs.json",
+          ".lattice/story/actives/B-9ff1/test-evidence.json",
+          "packages/main/dist/core/red-evidence/specificity.js",
+          "packages/main/dist/tasks/red-evidence-envelope-smoke.js",
+          "packages/main/src/core/red-evidence/specificity.ts",
+          "packages/main/tests/red/red-w2d-assertion-digest-scope.mjs",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs",
+          "packages/main/tests/red/red-w2d-entropy-differential.mjs",
+          "packages/main/tests/red/red-w2d-rejection-matrix.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "913a8dd82de4b1e7d5a39c44b90ebfdfc92fddcad610cd356ec782bfbdc6c382"
     }
   ]
 }
