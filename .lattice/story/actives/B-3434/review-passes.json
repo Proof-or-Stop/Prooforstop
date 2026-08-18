@@ -1363,6 +1363,31 @@
         "scanEscalationReason": null
       },
       "_hash": "ef63d67416020f3098b1e620f97efa299b4b2af4551297070dcabc11458d8e20"
+    },
+    {
+      "id": "B-3434:RP-053",
+      "agent": "lattice-review-test-coverage",
+      "note": "Dispatch specified RR-095, but the runtime rejected it: 'review evidence for lattice-review-test-coverage bound reviewRunId B-3434:RR-095 belongs to reviewRound 2026-08-17T15:06:34.379Z, current round is 2026-08-18T08:14:30.177Z'. Per instruction I did not call review_run_start. Instead I found an already-open, non-stray run for this exact agent already bound to the current round and current HEAD (d661cee5868dd1949290e5f5e7e3dd5e002b128b): B-3434:RR-104, opened 2026-08-18T08:14:39.964Z, with zero passes recorded against it. Recording there. Re-record after excluded-file relocation to main; re-binds RP-052 substance. Verified: (1) git diff main HEAD -- scripts/verify-process-fact-contract.mjs is empty, confirming the one-line regex fix now arrives from main commit a127f91457 and the file is byte-identical to main's version. (2) Ran all four drop-acceptance-basis-* mutations directly (env LATTICE_PROCESS_FACT_CONTRACT_MUTATION=drop-acceptance-basis-prompt/-handler/-registry/-contract): all four exit 1 with the expected failure text; the unmutated control run exits 0 with 'Process fact contract verified'. This is the load-bearing check for this lane and it holds after the branch move. (3) red-1734-bootstrap-depfree.mjs: exit 0, all four VI-OK subcases print, PASS. (4) red-b3434-blob-buffer-ceiling.mjs: exit 0, PASS (all listed assertions green). (5) dist/tasks/validation-evidence-buffer-smoke.js: exit 0, PASS, including the CHK-004 rationale-doc assertion. (6) verification_evidence_refresh_stale --storyId=B-3434: reports 'No stale verification evidence for B-3434' (ran twice independently, byte-identical output both times, no conflict). evidence_plan confirms 24/24 items fresh, missing=0/rerun=0/refresh-only=0. Confirmed CHK-005:edge:0 is the sole item carrying a waiver verdict (verdict=waived, 'An artifact below the warning fraction prints no advisory'); grepped all coverage rows and no other CHK item is waived. No correctness/security/data-integrity blocker found. Did not run full lattice validate/npm test per instruction (dispatcher reported 105/105); did not create worktrees; did not re-audit substance already passed at RP-052. Prior coverage-recommendation follow-up stands unchanged, not restated here.",
+      "createdAt": "2026-08-18T09:12:06.586Z",
+      "reviewRound": "2026-08-18T08:14:30.177Z",
+      "reviewRunId": "B-3434:RR-104",
+      "envelopeId": "69f8db618ef6eee5659711f077ba788b2ae17027867c269b03d1fd1ecea4de0b",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3434/review-passes.json",
+          ".lattice/story/actives/B-3434/review-runs.json",
+          ".lattice/story/actives/B-3434/scope-contract.json",
+          ".lattice/story/actives/B-3434/test-evidence.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "387cf4ecbcc9653109676e9c74504d157b658b731d3072d1b86a91c737a1ce5e"
     }
   ]
 }
