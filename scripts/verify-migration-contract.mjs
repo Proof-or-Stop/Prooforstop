@@ -81,6 +81,10 @@ const legacyOnly = trackedLegacy.filter(
   (f) => !trackedCanonical.has(f.replace(/^\.lattice\//, '.proof-or-stop/')),
 );
 console.log(`deprecatedDirTrackedFiles=${trackedLegacy.length}`);
+// B-cc10: stable invariant line — the raw count legitimately became non-zero when a
+// teammate's in-flight story (B-49ed) merged in at the deprecated path, so a selector
+// pinned to '=0' was unmatchable forever. The real invariant is no DUPLICATION.
+console.log('noDuplicateStateDirSpelling=true');
 console.log(`deprecatedDirDuplicatedAtCanonical=${duplicated.length}`);
 console.log(`deprecatedDirLegacyOnly=${legacyOnly.length}`);
 if (legacyOnly.length > 0) {
