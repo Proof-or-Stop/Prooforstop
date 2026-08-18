@@ -1482,6 +1482,33 @@
         "scanEscalationReason": null
       },
       "_hash": "a7fcec98a84fbfc6d6cc639a7ebd71a47406b51a0720224889c3903c6fa7b3ec"
+    },
+    {
+      "id": "B-9ff1:RP-047",
+      "agent": "lattice-review-behavior",
+      "note": "Post-merge narrow re-verification round per dispatcher scope (no module re-audit; B-d15e merged 41 commits touching full-suite-runner.ts, a file this story does not own). (1) red_evidence_envelope_check --storyId=B-9ff1 --assertionFile=/tmp/b9-b.json against a policy-less minimal envelope still fails closed with the exact substring red_evidence_policy_missing: pinnedPath and still names the fix location (Set these under the redEvidence block in lattice.config.json at the project root; run proof-or-stop doctor to see the resolved red-evidence policy) - identical to the F-059 fix verified pre-merge; grepped envelope.ts/specificity.ts/red-evidence.ts/red-evidence-envelope-smoke.ts for full-suite-runner and found zero references, confirming the two subsystems are disjoint. (2) red-w2d-specificity-conjunction.mjs F-058 characterization rows unchanged post-merge: SIGSEGV 15.65, ENOMEM 11.51, HTTP 404 20.00, Error 500 21.77, test failed 34.05; exit 0. (3) All four other red-w2d harnesses (assertion-digest-scope, command-readonly, entropy-differential, rejection-matrix) exit 0; dist/tasks/red-evidence-envelope-smoke.js exits 0 with the full OK transcript (entropy/rule2/rule1/rule3/assertionDigest/rejection-matrix/count-bound/policyDigest/success-transcript/byte-identical-tree/registry-contracts). (4) findings.json = 65 entries, 0 open (64 resolved + 1 dismissed); git rev-list --count HEAD..main = 0 (head ca250a9, story is current with main post-merge); git status --porcelain empty before and after this round's commands. Did not run full lattice validate or root npm test per dispatcher instruction. Fresh review run (RR-074) started specifically because RP-040 was bound to the pre-merge head and quorum_submit correctly refused it as stale.",
+      "createdAt": "2026-08-18T18:58:16.486Z",
+      "reviewRound": "2026-08-14T03:33:29.693Z",
+      "reviewRunId": "B-9ff1:RR-074",
+      "envelopeId": "f7ee0c696f7c6847323d71bb50618ac6da43ab341c0ff031b90b9818779b93fa",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-9ff1/findings.json",
+          ".lattice/story/actives/B-9ff1/review-passes.json"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-9ff1/background.md",
+          ".lattice/story/actives/B-9ff1/checklist.json",
+          ".lattice/story/actives/B-9ff1/plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b55a13f26635e076cc8aa47eea48e7a31244ea92652dd9ac279fc2b9120488f9"
     }
   ]
 }
