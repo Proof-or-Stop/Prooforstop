@@ -2,13 +2,13 @@
   "schema": "lattice.done-required-evidence",
   "version": 1,
   "storyId": "B-3434",
-  "status": "PASS",
-  "startedAt": "2026-08-16T14:53:05.355Z",
-  "endedAt": "2026-08-16T14:58:12.539Z",
-  "durationMs": 307184,
-  "headHash": "4aab5a0b7c4f2bdc41e20e5d278326d47c245adb",
-  "materialHash": "5d81d552280a3e71475513596ff555a671c3c1c8019ca1b8d0a3a0f3651810ac",
-  "storyFilesHash": "086f8112b54ffdbaa25567a6582aa0223c4982ae7770e21f0e4ff9ec81f4e034",
+  "status": "FAIL",
+  "startedAt": "2026-08-18T10:08:40.566Z",
+  "endedAt": "2026-08-18T10:10:45.656Z",
+  "durationMs": 125090,
+  "headHash": "016a4e7302961c8a5f6264ff7b3350eb2bf26567",
+  "materialHash": "dd831ee411ab73c0ab21649a34ea8a70f359adc99bfc69acc2f98244733d61bd",
+  "storyFilesHash": "33e83546c3e0678311af8c328be9dff1f7e3ba2a92e7cf09edd52da7e1ec39b5",
   "policyHash": "6e3b308d27b3ecbdc367f7f51340bbd181a7f52483c83a6298eb0d6378cd18c3",
   "commandSetHash": "03ffa95173e47709916f9181a6a61b482281186802535c1d9c22cbc09baf1fad",
   "receipts": [
@@ -40,17 +40,17 @@
       "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-3434",
       "status": "PASS",
       "exitCode": 0,
-      "durationMs": 11081,
-      "outputDigest": "b41f87496cb66df04d1d37c5b3d95bb6c149c30921ee5b02428cba16da33431d",
-      "outputTail": "\n> @lattice/core@0.3.258 build\n> node ../../scripts/build-main-with-binding.mjs\n\n",
-      "startedAt": "2026-08-16T14:53:05.355Z",
-      "endedAt": "2026-08-16T14:53:16.439Z",
-      "effectiveEnvironmentDigest": "ae16087a510aa398baf81d52582ef4eefb0d7613922af506d85fc9804b7c867a",
+      "durationMs": 1665,
+      "outputDigest": "416fe2b3ee8c261d24a0df87c07c4a235c41aedf47903e3940ee643954d64396",
+      "outputTail": "\n> @lattice/core@0.3.261 build\n> node ../../scripts/build-main-with-binding.mjs\n\n",
+      "startedAt": "2026-08-18T10:08:40.567Z",
+      "endedAt": "2026-08-18T10:08:42.232Z",
+      "effectiveEnvironmentDigest": "fc7d0d8aaf497043bd9a80d31e90865c31008125ec71cfe5c6c23fdb768a4854",
       "executableDigest": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
       "shellExecutableDigest": null,
-      "headHash": "4aab5a0b7c4f2bdc41e20e5d278326d47c245adb",
-      "materialHash": "5d81d552280a3e71475513596ff555a671c3c1c8019ca1b8d0a3a0f3651810ac",
-      "storyFilesHash": "086f8112b54ffdbaa25567a6582aa0223c4982ae7770e21f0e4ff9ec81f4e034"
+      "headHash": "016a4e7302961c8a5f6264ff7b3350eb2bf26567",
+      "materialHash": "dd831ee411ab73c0ab21649a34ea8a70f359adc99bfc69acc2f98244733d61bd",
+      "storyFilesHash": "33e83546c3e0678311af8c328be9dff1f7e3ba2a92e7cf09edd52da7e1ec39b5"
     },
     {
       "label": "root full test suite",
@@ -72,20 +72,22 @@
         "timeoutMs": 7200000
       },
       "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-3434",
-      "status": "PASS",
-      "exitCode": 0,
-      "durationMs": 295861,
-      "outputDigest": "4494c4582cada0924dd046423190746dbc2d98211a2fbfda383d4432ad76c753",
-      "outputTail": "\n> lattice@0.3.258 pretest\n> node scripts/ensure-dist.mjs\n\n\n> lattice@0.3.258 test\n> node packages/main/dist/tasks/full-suite-runner.js\n\nPASS test:milestone-status 65.0s\nPASS test:brief-output 56.1s\nPASS test:review-incremental-context-smoke 146.3s\nPASS test:experiments 26.2s\nPASS test:main-write-lock-coverage 0.3s\nPASS test:production-test-seam-guard 1.6s\nPASS test:lattice-residue 0.3s\nPASS test:proof-or-stop-prompt-baseline 13.8s\nPASS test:review-convergence-smoke 0.2s\nPASS test:review-loop-smoke 1.0s\nPASS test:delivery-context-pack-smoke 11.9s\nPASS test:full-suite-runner-smoke 35.0s\nPASS test:full-suite-resource-sentinel 0.3s\nPASS test:review-assurance-floor-smoke 15.2s\nPASS test:scope-shrinkage-withdrawal-floor-smoke 1.6s\nPASS test:withdrawn-disposition-smoke 2.0s\nPASS test:global-core-realpath 0.7s\nPASS test:review-assurance-floor-storyfileshash-smoke 0.5s\nPASS test:docs-drift-smoke 0.2s\nPASS test:docs-drift-wrapper-root 1.2s\nPASS test:gitroot-cwd-contract 0.3s\nPASS test:proofstory-intent-hardening-smoke 207.5s\nPASS test:process-fact-contract 4.1s\nPASS test:runtime-fact-contract 1.8s\nPASS test:evidence-quality 0.2s\nPASS test:anti-stall 0.1s\nPASS test:storydir-inside-gitroot-smoke 0.7s\nPASS test:gitroot-cwd-routing 1.9s\nPASS test:bare-gate-gitroot-cwd 0.4s\nPASS test:project-gitroot-cwd 0.4s\nPASS test:done-oracle-wrapper-root 1.7s\nPASS test:done-premerge-mainsha-recheck 8.2s\nPASS test:done-escalation-drift-advisory 1.4s\nPASS test:review-escalation-freshness-root 4.0s\nPASS test:dispatch-checklist-doctor-wrapper-root 1.1s\nPASS test:graceful-sites-gitroot-cwd 0.8s\nPASS test:experience-hint-worktree-cache 1.3s\nPASS test:done-merge-experience-refresh 2.8s\nPASS test:experience-coverage-gap 1.2s\nPASS test:proofstory-acceptance-rollout 237.3s\nPASS test:e2e 3.0s\nPASS test:experience-arm-gate 0.2s\nPASS test:closeout-trust 33.7s\nPASS test:convergence-breaker 0.4s\nPASS test:experience-arm-isolation-e2e 10.1s\nPASS test:nested-worktree-bootstrap 16.0s\nPASS test:flow-stability-smoke 118.3s\nfull-suite: 47/47 passed in 295.0s; retries=0; jobs=4\n",
-      "startedAt": "2026-08-16T14:53:16.566Z",
-      "endedAt": "2026-08-16T14:58:12.427Z",
-      "effectiveEnvironmentDigest": "ae16087a510aa398baf81d52582ef4eefb0d7613922af506d85fc9804b7c867a",
+      "status": "FAIL",
+      "exitCode": 1,
+      "durationMs": 122814,
+      "outputDigest": "4e480ba53967a6361e4799cc916a748ff72257aec197e181be1157b875975825",
+      "outputTail": "an documents can mislead hosts after implementation is already DONE.\n      lesson: When a document describes future or plan-only work, do not conclude the task is undone from that document alone. First check current Lattice facts: session_brief, story phase/summary, convergence_check or gap_analyze, and concrete code/data evidence. Treat accepted outcome records, DONE summaries, current code, and fresh validation as stronger than stale planning prose.\n      reuse: Before telling the user a task is missing, search dev-memory for stale-doc or truth-first lessons and verify with live Lattice facts.\n    - a4d08a8 workflow/global: Canonical Lattice execution hosts are Codex CLI, Claude Code CLI, and Antigravity CLI.\n      lesson: Use exactly three current host labels for Lattice multi-host work: Codex CLI, Claude Code CLI, and Antigravity CLI. Antigravity CLI is launched with `agy`; the old Gemini CLI naming/semantics are deprecated and should not be used for new docs, host policies, verdict labels, or developer-facing instructions.\n      reuse: When host taxonomy, multi-host review, host verdicts, or CLI delegation names are needed, retrieve the canonical hosts memory: Codex CLI, Claude Code CLI, Antigravity CLI (`agy`), not Gemini CLI.\n  render: maxLines=60 omittedCount=0\n⚠ 2 other stories were also created within the last full-suite: 0/49 passed in 120.6s; retries=0; jobs=4\n30 minutes:\n  - B-e196 [INIT] Auto ledger story create no rows\n  - B-ed44 [INIT] Auto ledger story create\n[2.0s] planner_create_story done\n[0.2s] running planner_draft...\n[0.2s] planner_draft done\n[0.1s] running planner_create_story...\n⚠ Runtime memory STORY_INTAKE advisory only; it is not gate evidence and cannot satisfy DONE.\n## Memory Runtime Preflight\n  authority=non_authoritative gateEvidence=false\n  packDigest: f2844aea8a453e0c005454f3a6bebfb96aebfaf03cca674658d88d338c007911\n  topHitIds: 9890b83, a4d08a8\n  freshness: fresh\n  sourceDigests: project=none global=889ac11e70324e9d28e316839b209a85edc8e1492050106cb1a8c24c6a59d9a6 playbooks=none signatures=none\n  Dev-memory (2):\n    - 9890b83 failure-mode/global: Old plan documents can mislead hosts after implementation is already DONE.\n      lesson: When a document describes future or plan-only work, do not conclude the task is undone from that document alone. First check current Lattice facts: session_brief, story phase/summary, convergence_check or gap_analyze, and concrete code/data evidence. Treat accepted outcome records, DONE summaries, current code, and fresh validation as stronger than stale planning prose.\n      reuse: Before telling the user a task is missing, search dev-memory for stale-doc or truth-first lessons and verify with live Lattice facts.\n    - a4d08a8 workflow/global: Canonical Lattice execution hosts are Codex CLI, Claude Code CLI, and Antigravity CLI.\n      lesson: Use exactly three current host labels for Lattice multi-host work: Codex CLI, Claude Code CLI, and Antigravity CLI. Antigravity CLI is launched with `agy`; the old Gemini CLI naming/semantics are deprecated and should not be used for new docs, host policies, verdict labels, or developer-facing instructions.\n      reuse: When host taxonomy, multi-host review, host verdicts, or CLI delegation names are needed, retrieve the canonical hosts memory: Codex CLI, Claude Code CLI, Antigravity CLI (`agy`), not Gemini CLI.\n  render: maxLines=60 omittedCount=0\n⚠ 3 other stories were also created within the last 30 minutes:\n  - B-a5ac [INIT] Implement an explicit planner milestone ledger pass-through.\n  - B-e196 [INIT] Auto ledger story create no rows\n  - B-ed44 [INIT] Auto ledger story create\n[2.2s] planner_create_story done\n[0.3s] running plan_skeleton...\n[0.6s] plan_skeleton done\n[0.1s] running plan_skeleton...\n⚠ session identity degraded: derived-ppid; export LATTICE_SESSION_ID or use a supported host adapter with task + agent/role identity before repeated mutating commands.\n[0.8s] plan_skeleton done\n[0.2s] r\n...[truncated 4955 chars]",
+      "startedAt": "2026-08-18T10:08:42.504Z",
+      "endedAt": "2026-08-18T10:10:45.319Z",
+      "effectiveEnvironmentDigest": "fc7d0d8aaf497043bd9a80d31e90865c31008125ec71cfe5c6c23fdb768a4854",
       "executableDigest": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
       "shellExecutableDigest": null,
-      "headHash": "4aab5a0b7c4f2bdc41e20e5d278326d47c245adb",
-      "materialHash": "5d81d552280a3e71475513596ff555a671c3c1c8019ca1b8d0a3a0f3651810ac",
-      "storyFilesHash": "086f8112b54ffdbaa25567a6582aa0223c4982ae7770e21f0e4ff9ec81f4e034"
+      "headHash": "016a4e7302961c8a5f6264ff7b3350eb2bf26567",
+      "materialHash": "dd831ee411ab73c0ab21649a34ea8a70f359adc99bfc69acc2f98244733d61bd",
+      "storyFilesHash": "33e83546c3e0678311af8c328be9dff1f7e3ba2a92e7cf09edd52da7e1ec39b5"
     }
   ],
-  "reasons": []
+  "reasons": [
+    "command-failed: FAIL root full test suite: npm test exitCode=1"
+  ]
 }
