@@ -302,6 +302,21 @@
       "resolvedAt": "2026-08-18T04:40:38.341Z",
       "resolutionType": "duplicate",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-49ed:F-016",
+      "desc": "packages/main/package.json:114-115 defines test:topology-signing-source-guard and test:signing-guard-mutation-proof, but root package.json test:serial-reference (which is the DONE-required membership list read by full-suite-runner.js from the ROOT package.json only, per full-suite-runner.ts:522 resolve(cwd,\"package.json\")) does not reference either name. Verified mechanically: `(pkg.scripts[\"test:serial-reference-prefix\"]+pkg.scripts[\"test:serial-reference\"]).includes(name)` is false for both. The story text says CHK-002 F-014 fix corrected the finding by noting run-all-smokes.ts auto-discovers *-smoke.js by directory scan, so the two smokes were already reachable via npm run test:legacy/test:all -- that correction is true but insufficient: docs/requirements/decisions/done-full-test-gate-execution-plan.md establishes that root `npm test` (full-suite-runner.js, closed membership via test:serial-reference) is the actual DONE-required proof for this self-hosted repo, not test:legacy. Adding the named scripts to packages/main/package.json did not add them to root test:serial-reference, so these two new smokes are still NOT part of the DONE-blocking root suite -- only reachable via the looser test:legacy discovery path. If the intent (matching the sibling entries already in test:serial-reference, e.g. test:full-suite-runner-smoke) was for these to be DONE-required members, that wiring is still missing.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-18T04:47:23.861Z",
+      "reviewRound": "2026-08-18T04:41:21.380Z",
+      "reviewRunId": "B-49ed:RR-021",
+      "_hash": "0a5ccb0315fb2a9a2dca103d78de62d6cfa87db9b85cf809dd39558ee760f602",
+      "signatureTag": "missing|unknown|packages-main-package",
+      "signatureTagSource": "auto"
     }
   ]
 }
