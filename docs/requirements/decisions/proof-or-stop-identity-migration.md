@@ -67,6 +67,11 @@ This began as an open unknown, was twice reasoned about incorrectly, and is now 
 Algorithm (`story-files-hash-material-drift.md:25-32`): step 4 excludes story metadata and runtime
 artifacts; step 5 hashes each remaining `path + blob-object-id`, sorted **by path**.
 
+**PATHS ARE HASHED** — not just file contents (`story-files-hash-material-drift.md:30-31`).
+This is why renaming a directory can move `storyFilesHash` even when every byte of content is
+identical, and it is the reason the state-dir rename had to be treated as a CHK-002
+correctness requirement rather than CHK-003 cleanup.
+
 Measured against the built `dist`:
 
 ```

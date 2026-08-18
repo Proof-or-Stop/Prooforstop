@@ -1259,7 +1259,7 @@ export function getGuardFailureReason(
     if (!evaluateDevMemoryPreflightGate(storyId, store)) {
       return `Cannot enter DEV: dev-memory preflight has not been acknowledged for this story. ` +
         `[missing_dev_memory_preflight_ack]\n` +
-        `→ Run \`lattice dev_memory_preflight_ack --storyId=${storyId}\` first (or, if the ` +
+        `→ Run \`proof-or-stop dev_memory_preflight_ack --storyId=${storyId}\` first (or, if the ` +
         `preflight pack build itself is failing, --reason="<why>" to record a reasoned downgrade).`;
     }
     // F-003: when the story takes the express (INIT_CHECK→DEV quickPath) channel, the
@@ -1420,7 +1420,7 @@ export function getGuardFailureReason(
     if (!finishDecision) {
       return `Cannot enter DONE: dev_memory_finish_decision has not been recorded. ` +
         `[missing_dev_memory_finish_decision]\n` +
-        `→ Run \`lattice dev_memory_finish_decision --storyId=${storyId} ` +
+        `→ Run \`proof-or-stop dev_memory_finish_decision --storyId=${storyId} ` +
         `--decision=captured|no-reusable-lesson|defer-with-reason\`.`;
     }
 

@@ -46,11 +46,10 @@ log.length >= 2
 const n = execFileSync('git', ['ls-files', '.proof-or-stop/story/actives'], { encoding: 'utf8' })
   .trim().split('\n').filter(Boolean).length;
 console.log(`trackedArchiveFiles=${n}`);
-// B-cc10: also emit a STABLE invariant line. A verification selector pinned to the raw
-// count (trackedArchiveFiles=7583) breaks every time the story legitimately adds metadata
-// files, so the receipt could never be re-earned even though the witness still passes.
-// Selectors should assert the INVARIANT, not a snapshot value.
-console.log('archiveFloorHeld=true');
+// B-cc10: a STABLE invariant line is emitted AFTER the floor check below, once the result is
+// actually known. F-042: it used to print here, unconditionally, BEFORE the check ran — an
+// assertion that looked computed but was a literal. That is the same "looks verified but
+// isn't" class this story exists to eliminate, so it must be derived, never asserted early.
 // B-cc10 F-008: 'n > 7000' was too loose — it would have accepted losing ~580 archive
 // files during the move. Derive the floor from the commit BEFORE the move instead of
 // hardcoding it, so the check tracks reality rather than a number that rots.
@@ -74,6 +73,8 @@ if (preMoveCount === null) {
   fail(`archive files LOST in the move: ${n} tracked now vs ${preMoveCount} before (delta ${n - preMoveCount})`);
 } else {
   ok(`${n} archive files tracked at canonical path (>= ${preMoveCount} pre-move; no loss)`);
+  // Derived from the check that just passed, so a selector pinned to it means something.
+  console.log('archiveFloorHeld=true');
 }
 
 console.log(bad === 0 ? 'state dir migration verified' : `state dir migration FAILED (${bad})`);
