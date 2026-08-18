@@ -46,6 +46,21 @@
       "_hash": "b86c94c8b1863263dadd72f2a8e5ce57892034c8373873ea64c1a3dd61b85fcd",
       "signatureTag": "missing|unknown|usersees-claims-test",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-49ed:F-004",
+      "desc": "CHK-003 userSees names the wrong smoke as its acceptance criterion: it says 'proofstory-topology-critic-smoke reports PASS, and reverting the CHK-001 guard makes it fail with an assertion naming the forgeable session source'. Running packages/main/dist/tasks/proofstory-topology-critic-smoke.js today exits 1 on an assertion at basis.status (expected complete, actual partial) that is unrelated to the signing-source guard and pre-existing (the file is byte-identical to main before this story touched it, per git diff main..HEAD~1 vs main). It never reaches the session-source guard or exclusion-approval code paths, so it cannot report PASS and cannot demonstrate the mutation-revert behaviour userSees describes. The actual verificationEvidence recorded for CHK-003 correctly points to two DIFFERENT, newly-added files instead (topology-signing-source-guard-smoke.ts and signing-guard-mutation-proof-smoke.ts, both of which do pass and do prove the guard mechanically), so the guard itself is adequately proven -- but the userSees text is stale/inaccurate and still promises an outcome the code does not produce. Fix: update CHK-003 userSees to name topology-signing-source-guard-smoke / signing-guard-mutation-proof-smoke (the tests actually used), not proofstory-topology-critic-smoke.",
+      "severity": "medium",
+      "category": "happy",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-08-18T03:43:35.645Z",
+      "reviewRound": "2026-08-18T02:48:29.207Z",
+      "reviewRunId": "B-49ed:RR-002",
+      "_hash": "cc1857ec8c332ddc4ca82d221049114da3ad1cfdb25abb622adf392582565576",
+      "signatureTag": "happy|unknown|usersees-names-wrong",
+      "signatureTagSource": "auto"
     }
   ]
 }
