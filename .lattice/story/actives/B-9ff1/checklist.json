@@ -1788,18 +1788,19 @@
           "command": "node packages/main/tests/red/red-w2d-rejection-matrix.mjs",
           "result": "pass",
           "note": "This accept() fixture is exactly the rule-3 satisfying shape: matchers [literal L1 \"Error: Cannot find module '/repo/dist/x.js'\" present-in-red, class C1 \"stderr-nonempty\" present-in-red] validates ok === true, so a class matcher supplemented by an admissible present-in-red literal is admissible.",
-          "headHash": "2a01df278e178aa3baeb8ab4c5b30f261ee58a33",
-          "materialHash": "afa81bb4c922fbac27b79bf2d648ef4f701321616311a6d94b95c7ee31e02127",
-          "storyFilesHash": "de9c8a2f86bf8a9d9425dd09cf249a0533821140017f8e3bfcfaea0ea1abd6fd",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "77a53c2905d498b2bb2bbf4f05b0e59d8267cb9ed171c24241fec9ac09b69245",
             "outputTail": "tifactRef \"c:/outside\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"C:/\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"Z:/repo/packages/x.js\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"C:outside\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"C:\\\\outside\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"//server/share/x.js\"\n  ACCEPT             CHK-005: a repo-relative path whose FIRST segment merely contains a colon\n  REJECT R1-3        CHK-005: supplementaryArtifact is explicitly null (§0.4 forbids null for an absent optional field)\n  ACCEPT             CHK-005: supplementaryArtifact OMITTED entirely is admissible\n  REJECT R1-3        CHK-005: supplementaryArtifact expectation outside the closed enum\n  REJECT R1-3        CHK-005: supplementaryArtifact without targetArtifactRef\n  REJECT R1-2        CHK-011: below-threshold literal is R1-2, NOT R1-3\n  REJECT R1-2        CHK-002: empty value is R1-2 (§1.3 rule 1 non-emptiness), NOT R1-3\n  REJECT R1-3        CHK-002: the sibling clause `trimmed` stays R1-3 (explicitly enumerated there)\n  REJECT R1-2        CHK-011: the sibling clause `blocklisted` stays R1-2\n  REJECT R1-2        CHK-011: blocklisted literal .* is R1-2, NOT R1-3\n  REJECT R1-2        CHK-011: class-only present-in-red set is R1-2, NOT R1-3\n  REJECT R1-1        CHK-011: targetExercisedProof absent entirely is R1-1, NOT R1-6\n  REJECT R1-1        CHK-011: targetExercisedProof is not an object\n  REJECT R1-1        CHK-011: targetExercisedProof.method undefined\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"artifact-presence\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"path-touch\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"Harness-Token\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"\"\n  REJECT R1-1        CHK-011: targetExercisedProof.adapterId absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-1        CHK-011: targetExercisedProof.testCaseRef absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-1        CHK-011: targetExercisedProof.targetBindingDigest absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-6        CHK-011: NO committed binding registered for the target\n  REJECT R1-6        CHK-011: adapterId mismatching the committed binding\n  REJECT R1-6        CHK-011: correct adapterId but WRONG testCaseRef is R1-6 (mismatch), NOT R1-1 (missing)\n  REJECT R1-6        CHK-011: targetBindingDigest computed WITH createdAt included\n  REJECT R1-6        CHK-011: targetBindingDigest that recomputes to nothing\n  REJECT R1-5        adapterId absent from policy.runnerAdapterRegistry is R1-5\n  REJECT R1-5        CHK-011: testCaseRef \"free-form:not-derived\" matches no registered testCaseRefPattern is R1-5\n  REJECT R1-5        CHK-011: testCaseRef \"npm-script:\" matches no registered testCaseRefPattern is R1-5\n  REJECT R1-5        CHK-011: testCaseRef \"npm-script:test x\" matches no registered testCaseRefPattern is R1-5\n  REJECT R1-5        CHK-011: testCaseRef \"NPM-SCRIPT:test:x\" matches no registered testCaseRefPattern is R1-5\n  REJECT R1-5        CHK-011: testCaseRef \"prefix-npm-script:test:x\" matches no registered testCaseRefPattern is R1-5\n  REJECT R1-5        CHK-011: testCaseRef \"npm-script:test:x-suffix\\n\" matches no registered testCaseRefPattern is R1-5\n  REJECT R1-5        CHK-011: an npm-script testCaseRef under the node-test@1 adapter is R1-5\n  ACCEPT             CHK-011: the same ref IS admissible under the adapter whose pattern matches it\n  REJECT R1-2+R1-3   CHK-011: R1-2 and R1-3 co-occur and neither suppresses the other\n  REJECT R1-1+R1-2   CHK-011: R1-1 and R1-2 co-occur\n  REJECT R1-2+R1-3   CHK-015: an over-count envelope ALSO reports its §1.3 rule-3 violation (count does not suppress specificity)\n  REJECT R1-3        CHK-015: ZERO matchers reports the count bound ALONE (no fabricated §1.3 finding)\n  REJECT R1-2+R1-3   CHK-015: over-count + a below-floor literal are BOTH reported\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-13T20:43:39.374Z"
+            "executedAt": "2026-08-18T16:56:21.435Z",
+            "timeoutMs": 180000
           },
-          "timestamp": "2026-08-13T20:45:39.168Z"
+          "headHash": "355405725dbbce3531be3b48d209548198ee63d0",
+          "materialHash": "061a9ced05e05fbdc6622a4289a8ee2acd7a4f74bc759ae2f48cc930df232605",
+          "storyFilesHash": "194ee4bc662de50e0f7278313fab5cf6ceefcb8ac49b24f716565fc40d75d6ec",
+          "timestamp": "2026-08-18T16:56:22.176Z"
         },
         {
           "intentRef": "CHK-008:edge:0",
@@ -1808,18 +1809,19 @@
           "command": "node packages/main/tests/red/red-w2d-rejection-matrix.mjs",
           "result": "pass",
           "note": "reject() row for matchers [{ id: C1, kind: class, value: stderr-nonempty, polarity: present-in-red }] asserts the unique tag set is exactly [\"R1-2\"] — a present-in-red set consisting only of a class matcher would accept any failing run and is refused.",
-          "headHash": "2a01df278e178aa3baeb8ab4c5b30f261ee58a33",
-          "materialHash": "afa81bb4c922fbac27b79bf2d648ef4f701321616311a6d94b95c7ee31e02127",
-          "storyFilesHash": "de9c8a2f86bf8a9d9425dd09cf249a0533821140017f8e3bfcfaea0ea1abd6fd",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "77a53c2905d498b2bb2bbf4f05b0e59d8267cb9ed171c24241fec9ac09b69245",
             "outputTail": "tifactRef \"c:/outside\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"C:/\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"Z:/repo/packages/x.js\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"C:outside\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"C:\\\\outside\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"//server/share/x.js\"\n  ACCEPT             CHK-005: a repo-relative path whose FIRST segment merely contains a colon\n  REJECT R1-3        CHK-005: supplementaryArtifact is explicitly null (§0.4 forbids null for an absent optional field)\n  ACCEPT             CHK-005: supplementaryArtifact OMITTED entirely is admissible\n  REJECT R1-3        CHK-005: supplementaryArtifact expectation outside the closed enum\n  REJECT R1-3        CHK-005: supplementaryArtifact without targetArtifactRef\n  REJECT R1-2        CHK-011: below-threshold literal is R1-2, NOT R1-3\n  REJECT R1-2        CHK-002: empty value is R1-2 (§1.3 rule 1 non-emptiness), NOT R1-3\n  REJECT R1-3        CHK-002: the sibling clause `trimmed` stays R1-3 (explicitly enumerated there)\n  REJECT R1-2        CHK-011: the sibling clause `blocklisted` stays R1-2\n  REJECT R1-2        CHK-011: blocklisted literal .* is R1-2, NOT R1-3\n  REJECT R1-2        CHK-011: class-only present-in-red set is R1-2, NOT R1-3\n  REJECT R1-1        CHK-011: targetExercisedProof absent entirely is R1-1, NOT R1-6\n  REJECT R1-1        CHK-011: targetExercisedProof is not an object\n  REJECT R1-1        CHK-011: targetExercisedProof.method undefined\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"artifact-presence\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"path-touch\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"Harness-Token\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"\"\n  REJECT R1-1        CHK-011: targetExercisedProof.adapterId absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-1        CHK-011: targetExercisedProof.testCaseRef absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-1        CHK-011: targetExercisedProof.targetBindingDigest absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-6        CHK-011: NO committed binding registered for the target\n  REJECT R1-6        CHK-011: adapterId mismatching the committed binding\n  REJECT R1-6        CHK-011: correct adapterId but WRONG testCaseRef is R1-6 (mismatch), NOT R1-1 (missing)\n  REJECT R1-6        CHK-011: targetBindingDigest computed WITH createdAt included\n  REJECT R1-6        CHK-011: targetBindingDigest that recomputes to nothing\n  REJECT R1-5        adapterId absent from policy.runnerAdapterRegistry is R1-5\n  REJECT R1-5        CHK-011: testCaseRef \"free-form:not-derived\" matches no registered testCaseRefPattern is R1-5\n  REJECT R1-5        CHK-011: testCaseRef \"npm-script:\" matches no registered testCaseRefPattern is R1-5\n  REJECT R1-5        CHK-011: testCaseRef \"npm-script:test x\" matches no registered testCaseRefPattern is R1-5\n  REJECT R1-5        CHK-011: testCaseRef \"NPM-SCRIPT:test:x\" matches no registered testCaseRefPattern is R1-5\n  REJECT R1-5        CHK-011: testCaseRef \"prefix-npm-script:test:x\" matches no registered testCaseRefPattern is R1-5\n  REJECT R1-5        CHK-011: testCaseRef \"npm-script:test:x-suffix\\n\" matches no registered testCaseRefPattern is R1-5\n  REJECT R1-5        CHK-011: an npm-script testCaseRef under the node-test@1 adapter is R1-5\n  ACCEPT             CHK-011: the same ref IS admissible under the adapter whose pattern matches it\n  REJECT R1-2+R1-3   CHK-011: R1-2 and R1-3 co-occur and neither suppresses the other\n  REJECT R1-1+R1-2   CHK-011: R1-1 and R1-2 co-occur\n  REJECT R1-2+R1-3   CHK-015: an over-count envelope ALSO reports its §1.3 rule-3 violation (count does not suppress specificity)\n  REJECT R1-3        CHK-015: ZERO matchers reports the count bound ALONE (no fabricated §1.3 finding)\n  REJECT R1-2+R1-3   CHK-015: over-count + a below-floor literal are BOTH reported\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-13T20:43:39.652Z"
+            "executedAt": "2026-08-18T16:56:21.592Z",
+            "timeoutMs": 180000
           },
-          "timestamp": "2026-08-13T20:45:39.168Z"
+          "headHash": "355405725dbbce3531be3b48d209548198ee63d0",
+          "materialHash": "061a9ced05e05fbdc6622a4289a8ee2acd7a4f74bc759ae2f48cc930df232605",
+          "storyFilesHash": "194ee4bc662de50e0f7278313fab5cf6ceefcb8ac49b24f716565fc40d75d6ec",
+          "timestamp": "2026-08-18T16:56:22.176Z"
         },
         {
           "intentRef": "CHK-008:edge:1",
@@ -1828,18 +1830,19 @@
           "command": "node packages/main/tests/red/red-w2d-specificity-conjunction.mjs",
           "result": "pass",
           "note": "assertRule3Rejection([klass C1 stderr-nonempty, literal L1 absent-in-green, literal L2 present-in-green], \"literal-line matchers exist but none is present-in-red\") requires a R1-2 rejection: literal-line matchers being PRESENT does not save the envelope when none of them carries present-in-red polarity.",
-          "headHash": "2a01df278e178aa3baeb8ab4c5b30f261ee58a33",
-          "materialHash": "afa81bb4c922fbac27b79bf2d648ef4f701321616311a6d94b95c7ee31e02127",
-          "storyFilesHash": "de9c8a2f86bf8a9d9425dd09cf249a0533821140017f8e3bfcfaea0ea1abd6fd",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "806242dd043ad77589213545118e9ef600186eaa029b53b811baf860c22d5498",
             "outputTail": "red-w2d-specificity-conjunction: PASS\n  rule 1: all 8 blocklist entries reject R1-2; membership not substring; no silent trim (untrimmed is R1-3)\n  rule 2 differential rows: 14 (length-only 12, entropy-only 2, floor 10)\n  DIFFER  \"aaaaaaaa\"                                     len=  8>= 8?Y bits=   0.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"aaaaaaaaaaaa\"                                 len= 12>= 8?Y bits=   0.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"xxxxxxxx\"                                     len=  8>= 8?Y bits=   0.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"========\"                                     len=  8>= 8?Y bits=   0.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"--------\"                                     len=  8>= 8?Y bits=   0.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"abababababab\"                                 len= 12>= 8?Y bits=  12.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"aabbaabb\"                                     len=  8>= 8?Y bits=   8.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"abcabcabcabc\"                                 len= 12>= 8?Y bits=  19.02>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"ababababab\"                                   len= 10>= 8?Y bits=  10.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"aaaaaaaaab\"                                   len= 10>= 8?Y bits=   4.69>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"zzzzzzzzzzzz\"                                 len= 12>= 8?Y bits=   0.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"abcabcab\"                                     len=  8>= 8?Y bits=  12.49>=24?N  AND=REJECT OR=ADMIT\n  agree   \"aabbccddeeff\"                                 len= 12>= 8?Y bits=  31.02>=24?Y  AND=ADMIT  OR=ADMIT\n  agree   \"Error: Cannot find module '/repo/dist/x.js'\"  len= 43>= 8?Y bits= 185.06>=24?Y  AND=ADMIT  OR=ADMIT\n  agree   \"abcdefgh\"                                     len=  8>= 8?Y bits=  24.00>=24?Y  AND=ADMIT  OR=ADMIT\n  agree   \"Err\"                                          len=  3>= 8?N bits=   2.75>=24?N  AND=REJECT OR=REJECT\n  agree   \"ab\"                                           len=  2>= 8?N bits=   2.00>=24?N  AND=REJECT OR=REJECT\n  DIFFER  \"Cannot find\"                                  len= 11>=16?N bits=  33.30>=24?Y  AND=REJECT OR=ADMIT\n  DIFFER  \"no such file\"                                 len= 12>=16?N bits=  41.02>=24?Y  AND=REJECT OR=ADMIT\n  rule 3: class-only / multi-class / no-present-in-red / inadmissible-literal+class all reject R1-2 (never R1-3)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-13T20:43:39.928Z"
+            "executedAt": "2026-08-18T16:56:21.743Z",
+            "timeoutMs": 180000
           },
-          "timestamp": "2026-08-13T20:45:39.168Z"
+          "headHash": "355405725dbbce3531be3b48d209548198ee63d0",
+          "materialHash": "061a9ced05e05fbdc6622a4289a8ee2acd7a4f74bc759ae2f48cc930df232605",
+          "storyFilesHash": "194ee4bc662de50e0f7278313fab5cf6ceefcb8ac49b24f716565fc40d75d6ec",
+          "timestamp": "2026-08-18T16:56:22.176Z"
         },
         {
           "intentRef": "CHK-008:edge:2",
@@ -1848,18 +1851,19 @@
           "command": "node packages/main/tests/red/red-w2d-specificity-conjunction.mjs",
           "result": "pass",
           "note": "assertRule3Rejection([klass C1 \"stderr-nonempty\" stream stderr, klass C2 \"nonzero-exit\" stream combined], \"multiple class matchers as the only present-in-red\") requires a R1-2 rejection — stacking two class matchers does not add specificity.",
-          "headHash": "2a01df278e178aa3baeb8ab4c5b30f261ee58a33",
-          "materialHash": "afa81bb4c922fbac27b79bf2d648ef4f701321616311a6d94b95c7ee31e02127",
-          "storyFilesHash": "de9c8a2f86bf8a9d9425dd09cf249a0533821140017f8e3bfcfaea0ea1abd6fd",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "806242dd043ad77589213545118e9ef600186eaa029b53b811baf860c22d5498",
             "outputTail": "red-w2d-specificity-conjunction: PASS\n  rule 1: all 8 blocklist entries reject R1-2; membership not substring; no silent trim (untrimmed is R1-3)\n  rule 2 differential rows: 14 (length-only 12, entropy-only 2, floor 10)\n  DIFFER  \"aaaaaaaa\"                                     len=  8>= 8?Y bits=   0.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"aaaaaaaaaaaa\"                                 len= 12>= 8?Y bits=   0.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"xxxxxxxx\"                                     len=  8>= 8?Y bits=   0.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"========\"                                     len=  8>= 8?Y bits=   0.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"--------\"                                     len=  8>= 8?Y bits=   0.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"abababababab\"                                 len= 12>= 8?Y bits=  12.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"aabbaabb\"                                     len=  8>= 8?Y bits=   8.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"abcabcabcabc\"                                 len= 12>= 8?Y bits=  19.02>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"ababababab\"                                   len= 10>= 8?Y bits=  10.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"aaaaaaaaab\"                                   len= 10>= 8?Y bits=   4.69>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"zzzzzzzzzzzz\"                                 len= 12>= 8?Y bits=   0.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"abcabcab\"                                     len=  8>= 8?Y bits=  12.49>=24?N  AND=REJECT OR=ADMIT\n  agree   \"aabbccddeeff\"                                 len= 12>= 8?Y bits=  31.02>=24?Y  AND=ADMIT  OR=ADMIT\n  agree   \"Error: Cannot find module '/repo/dist/x.js'\"  len= 43>= 8?Y bits= 185.06>=24?Y  AND=ADMIT  OR=ADMIT\n  agree   \"abcdefgh\"                                     len=  8>= 8?Y bits=  24.00>=24?Y  AND=ADMIT  OR=ADMIT\n  agree   \"Err\"                                          len=  3>= 8?N bits=   2.75>=24?N  AND=REJECT OR=REJECT\n  agree   \"ab\"                                           len=  2>= 8?N bits=   2.00>=24?N  AND=REJECT OR=REJECT\n  DIFFER  \"Cannot find\"                                  len= 11>=16?N bits=  33.30>=24?Y  AND=REJECT OR=ADMIT\n  DIFFER  \"no such file\"                                 len= 12>=16?N bits=  41.02>=24?Y  AND=REJECT OR=ADMIT\n  rule 3: class-only / multi-class / no-present-in-red / inadmissible-literal+class all reject R1-2 (never R1-3)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-13T20:43:40.224Z"
+            "executedAt": "2026-08-18T16:56:21.895Z",
+            "timeoutMs": 180000
           },
-          "timestamp": "2026-08-13T20:45:39.168Z"
+          "headHash": "355405725dbbce3531be3b48d209548198ee63d0",
+          "materialHash": "061a9ced05e05fbdc6622a4289a8ee2acd7a4f74bc759ae2f48cc930df232605",
+          "storyFilesHash": "194ee4bc662de50e0f7278313fab5cf6ceefcb8ac49b24f716565fc40d75d6ec",
+          "timestamp": "2026-08-18T16:56:22.176Z"
         },
         {
           "intentRef": "CHK-008:adversarial:0",
@@ -1868,18 +1872,19 @@
           "command": "node packages/main/tests/red/red-w2d-specificity-conjunction.mjs",
           "result": "pass",
           "note": "assertRule3Rejection([klass C1 stderr-nonempty, literal L1 \"aaaaaaaaaaaa\"], \"the only present-in-red literal is INADMISSIBLE (fails rule 2), so the class matcher is left as the sole evidence\") requires R1-2: rule 2 removes the literal from the surviving present-in-red set, and rule 3 then fires on the class matcher left behind.",
-          "headHash": "2a01df278e178aa3baeb8ab4c5b30f261ee58a33",
-          "materialHash": "afa81bb4c922fbac27b79bf2d648ef4f701321616311a6d94b95c7ee31e02127",
-          "storyFilesHash": "de9c8a2f86bf8a9d9425dd09cf249a0533821140017f8e3bfcfaea0ea1abd6fd",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "806242dd043ad77589213545118e9ef600186eaa029b53b811baf860c22d5498",
             "outputTail": "red-w2d-specificity-conjunction: PASS\n  rule 1: all 8 blocklist entries reject R1-2; membership not substring; no silent trim (untrimmed is R1-3)\n  rule 2 differential rows: 14 (length-only 12, entropy-only 2, floor 10)\n  DIFFER  \"aaaaaaaa\"                                     len=  8>= 8?Y bits=   0.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"aaaaaaaaaaaa\"                                 len= 12>= 8?Y bits=   0.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"xxxxxxxx\"                                     len=  8>= 8?Y bits=   0.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"========\"                                     len=  8>= 8?Y bits=   0.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"--------\"                                     len=  8>= 8?Y bits=   0.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"abababababab\"                                 len= 12>= 8?Y bits=  12.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"aabbaabb\"                                     len=  8>= 8?Y bits=   8.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"abcabcabcabc\"                                 len= 12>= 8?Y bits=  19.02>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"ababababab\"                                   len= 10>= 8?Y bits=  10.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"aaaaaaaaab\"                                   len= 10>= 8?Y bits=   4.69>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"zzzzzzzzzzzz\"                                 len= 12>= 8?Y bits=   0.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"abcabcab\"                                     len=  8>= 8?Y bits=  12.49>=24?N  AND=REJECT OR=ADMIT\n  agree   \"aabbccddeeff\"                                 len= 12>= 8?Y bits=  31.02>=24?Y  AND=ADMIT  OR=ADMIT\n  agree   \"Error: Cannot find module '/repo/dist/x.js'\"  len= 43>= 8?Y bits= 185.06>=24?Y  AND=ADMIT  OR=ADMIT\n  agree   \"abcdefgh\"                                     len=  8>= 8?Y bits=  24.00>=24?Y  AND=ADMIT  OR=ADMIT\n  agree   \"Err\"                                          len=  3>= 8?N bits=   2.75>=24?N  AND=REJECT OR=REJECT\n  agree   \"ab\"                                           len=  2>= 8?N bits=   2.00>=24?N  AND=REJECT OR=REJECT\n  DIFFER  \"Cannot find\"                                  len= 11>=16?N bits=  33.30>=24?Y  AND=REJECT OR=ADMIT\n  DIFFER  \"no such file\"                                 len= 12>=16?N bits=  41.02>=24?Y  AND=REJECT OR=ADMIT\n  rule 3: class-only / multi-class / no-present-in-red / inadmissible-literal+class all reject R1-2 (never R1-3)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-13T20:43:40.481Z"
+            "executedAt": "2026-08-18T16:56:22.048Z",
+            "timeoutMs": 180000
           },
-          "timestamp": "2026-08-13T20:45:39.168Z"
+          "headHash": "355405725dbbce3531be3b48d209548198ee63d0",
+          "materialHash": "061a9ced05e05fbdc6622a4289a8ee2acd7a4f74bc759ae2f48cc930df232605",
+          "storyFilesHash": "194ee4bc662de50e0f7278313fab5cf6ceefcb8ac49b24f716565fc40d75d6ec",
+          "timestamp": "2026-08-18T16:56:22.176Z"
         },
         {
           "intentRef": "CHK-008:adversarial:1",
