@@ -2233,13 +2233,13 @@
             "outputDigest": "daa85340fd3b76bfe6fad92e49b9cb286a31548b7872503b51c28f6a4e9b1221",
             "outputTail": "red-w2d-assertion-digest-scope: PASS\n  assertionDigest sha256:1a194fecf0fecf89e19b291a809a4d09ad6cb039c236ac91aceb3f5157977027\n  positive: CANON(assertion minus assertionDigest) === stored\n  negative: CANON(full stored object) !== stored; CANON(subobject minus policyDigest) !== stored\n  greenExempt:false omitted (no digest fork); greenExempt:true covered; key order + JSON roundtrip stable\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-18T18:03:41.739Z",
+            "executedAt": "2026-08-18T18:16:57.738Z",
             "timeoutMs": 180000
           },
-          "headHash": "c771e4eb4251645b684dad406d2c05497ca9d641",
-          "materialHash": "070e3b04a06ef88b2292212ed596109655092531cd552f245d2987ea38900ef7",
-          "storyFilesHash": "27eedc523f6ab2291ebcf75c05dedc904f653975aea6f837a1f00b7282e61245",
-          "timestamp": "2026-08-18T18:03:42.633Z"
+          "headHash": "b1e3c12cce611114cfafeb7b47c019b3c4448af2",
+          "materialHash": "bf5024d95ef26ea2b61f7085960be8456c115df5f4b05bddb1c7c077951e5817",
+          "storyFilesHash": "e19dc251097bc185bc6b4d2f8c45bcb562dcc743e103a9319e5568403f5491f5",
+          "timestamp": "2026-08-18T18:16:58.608Z"
         },
         {
           "intentRef": "CHK-010:adversarial:1",
@@ -2254,13 +2254,13 @@
             "outputDigest": "daa85340fd3b76bfe6fad92e49b9cb286a31548b7872503b51c28f6a4e9b1221",
             "outputTail": "red-w2d-assertion-digest-scope: PASS\n  assertionDigest sha256:1a194fecf0fecf89e19b291a809a4d09ad6cb039c236ac91aceb3f5157977027\n  positive: CANON(assertion minus assertionDigest) === stored\n  negative: CANON(full stored object) !== stored; CANON(subobject minus policyDigest) !== stored\n  greenExempt:false omitted (no digest fork); greenExempt:true covered; key order + JSON roundtrip stable\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-18T18:03:41.908Z",
+            "executedAt": "2026-08-18T18:16:57.906Z",
             "timeoutMs": 180000
           },
-          "headHash": "c771e4eb4251645b684dad406d2c05497ca9d641",
-          "materialHash": "070e3b04a06ef88b2292212ed596109655092531cd552f245d2987ea38900ef7",
-          "storyFilesHash": "27eedc523f6ab2291ebcf75c05dedc904f653975aea6f837a1f00b7282e61245",
-          "timestamp": "2026-08-18T18:03:42.633Z"
+          "headHash": "b1e3c12cce611114cfafeb7b47c019b3c4448af2",
+          "materialHash": "bf5024d95ef26ea2b61f7085960be8456c115df5f4b05bddb1c7c077951e5817",
+          "storyFilesHash": "e19dc251097bc185bc6b4d2f8c45bcb562dcc743e103a9319e5568403f5491f5",
+          "timestamp": "2026-08-18T18:16:58.608Z"
         }
       ]
     },
@@ -2381,13 +2381,13 @@
             "outputDigest": "77a53c2905d498b2bb2bbf4f05b0e59d8267cb9ed171c24241fec9ac09b69245",
             "outputTail": "tifactRef \"c:/outside\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"C:/\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"Z:/repo/packages/x.js\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"C:outside\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"C:\\\\outside\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"//server/share/x.js\"\n  ACCEPT             CHK-005: a repo-relative path whose FIRST segment merely contains a colon\n  REJECT R1-3        CHK-005: supplementaryArtifact is explicitly null (§0.4 forbids null for an absent optional field)\n  ACCEPT             CHK-005: supplementaryArtifact OMITTED entirely is admissible\n  REJECT R1-3        CHK-005: supplementaryArtifact expectation outside the closed enum\n  REJECT R1-3        CHK-005: supplementaryArtifact without targetArtifactRef\n  REJECT R1-2        CHK-011: below-threshold literal is R1-2, NOT R1-3\n  REJECT R1-2        CHK-002: empty value is R1-2 (§1.3 rule 1 non-emptiness), NOT R1-3\n  REJECT R1-3        CHK-002: the sibling clause `trimmed` stays R1-3 (explicitly enumerated there)\n  REJECT R1-2        CHK-011: the sibling clause `blocklisted` stays R1-2\n  REJECT R1-2        CHK-011: blocklisted literal .* is R1-2, NOT R1-3\n  REJECT R1-2        CHK-011: class-only present-in-red set is R1-2, NOT R1-3\n  REJECT R1-1        CHK-011: targetExercisedProof absent entirely is R1-1, NOT R1-6\n  REJECT R1-1        CHK-011: targetExercisedProof is not an object\n  REJECT R1-1        CHK-011: targetExercisedProof.method undefined\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"artifact-presence\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"path-touch\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"Harness-Token\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"\"\n  REJECT R1-1        CHK-011: targetExercisedProof.adapterId absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-1        CHK-011: targetExercisedProof.testCaseRef absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-1        CHK-011: targetExercisedProof.targetBindingDigest absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-6        CHK-011: NO committed binding registered for the target\n  REJECT R1-6        CHK-011: adapterId mismatching the committed binding\n  REJECT R1-6        CHK-011: correct adapterId but WRONG testCaseRef is R1-6 (mismatch), NOT R1-1 (missing)\n  REJECT R1-6        CHK-011: targetBindingDigest computed WITH createdAt included\n  REJECT R1-6        CHK-011: targetBindingDigest that recomputes to nothing\n  REJECT R1-5        adapterId absent from policy.runnerAdapterRegistry is R1-5\n  REJECT R1-5        CHK-011: testCaseRef \"free-form:not-derived\" matches no registered testCaseRefPattern is R1-5\n  REJECT R1-5        CHK-011: testCaseRef \"npm-script:\" matches no registered testCaseRefPattern is R1-5\n  REJECT R1-5        CHK-011: testCaseRef \"npm-script:test x\" matches no registered testCaseRefPattern is R1-5\n  REJECT R1-5        CHK-011: testCaseRef \"NPM-SCRIPT:test:x\" matches no registered testCaseRefPattern is R1-5\n  REJECT R1-5        CHK-011: testCaseRef \"prefix-npm-script:test:x\" matches no registered testCaseRefPattern is R1-5\n  REJECT R1-5        CHK-011: testCaseRef \"npm-script:test:x-suffix\\n\" matches no registered testCaseRefPattern is R1-5\n  REJECT R1-5        CHK-011: an npm-script testCaseRef under the node-test@1 adapter is R1-5\n  ACCEPT             CHK-011: the same ref IS admissible under the adapter whose pattern matches it\n  REJECT R1-2+R1-3   CHK-011: R1-2 and R1-3 co-occur and neither suppresses the other\n  REJECT R1-1+R1-2   CHK-011: R1-1 and R1-2 co-occur\n  REJECT R1-2+R1-3   CHK-015: an over-count envelope ALSO reports its §1.3 rule-3 violation (count does not suppress specificity)\n  REJECT R1-3        CHK-015: ZERO matchers reports the count bound ALONE (no fabricated §1.3 finding)\n  REJECT R1-2+R1-3   CHK-015: over-count + a below-floor literal are BOTH reported\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-18T18:03:42.097Z",
+            "executedAt": "2026-08-18T18:16:58.083Z",
             "timeoutMs": 180000
           },
-          "headHash": "c771e4eb4251645b684dad406d2c05497ca9d641",
-          "materialHash": "070e3b04a06ef88b2292212ed596109655092531cd552f245d2987ea38900ef7",
-          "storyFilesHash": "27eedc523f6ab2291ebcf75c05dedc904f653975aea6f837a1f00b7282e61245",
-          "timestamp": "2026-08-18T18:03:42.633Z"
+          "headHash": "b1e3c12cce611114cfafeb7b47c019b3c4448af2",
+          "materialHash": "bf5024d95ef26ea2b61f7085960be8456c115df5f4b05bddb1c7c077951e5817",
+          "storyFilesHash": "e19dc251097bc185bc6b4d2f8c45bcb562dcc743e103a9319e5568403f5491f5",
+          "timestamp": "2026-08-18T18:16:58.608Z"
         },
         {
           "intentRef": "CHK-011:happy:1",
@@ -2402,13 +2402,13 @@
             "outputDigest": "77a53c2905d498b2bb2bbf4f05b0e59d8267cb9ed171c24241fec9ac09b69245",
             "outputTail": "tifactRef \"c:/outside\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"C:/\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"Z:/repo/packages/x.js\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"C:outside\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"C:\\\\outside\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"//server/share/x.js\"\n  ACCEPT             CHK-005: a repo-relative path whose FIRST segment merely contains a colon\n  REJECT R1-3        CHK-005: supplementaryArtifact is explicitly null (§0.4 forbids null for an absent optional field)\n  ACCEPT             CHK-005: supplementaryArtifact OMITTED entirely is admissible\n  REJECT R1-3        CHK-005: supplementaryArtifact expectation outside the closed enum\n  REJECT R1-3        CHK-005: supplementaryArtifact without targetArtifactRef\n  REJECT R1-2        CHK-011: below-threshold literal is R1-2, NOT R1-3\n  REJECT R1-2        CHK-002: empty value is R1-2 (§1.3 rule 1 non-emptiness), NOT R1-3\n  REJECT R1-3        CHK-002: the sibling clause `trimmed` stays R1-3 (explicitly enumerated there)\n  REJECT R1-2        CHK-011: the sibling clause `blocklisted` stays R1-2\n  REJECT R1-2        CHK-011: blocklisted literal .* is R1-2, NOT R1-3\n  REJECT R1-2        CHK-011: class-only present-in-red set is R1-2, NOT R1-3\n  REJECT R1-1        CHK-011: targetExercisedProof absent entirely is R1-1, NOT R1-6\n  REJECT R1-1        CHK-011: targetExercisedProof is not an object\n  REJECT R1-1        CHK-011: targetExercisedProof.method undefined\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"artifact-presence\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"path-touch\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"Harness-Token\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"\"\n  REJECT R1-1        CHK-011: targetExercisedProof.adapterId absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-1        CHK-011: targetExercisedProof.testCaseRef absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-1        CHK-011: targetExercisedProof.targetBindingDigest absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-6        CHK-011: NO committed binding registered for the target\n  REJECT R1-6        CHK-011: adapterId mismatching the committed binding\n  REJECT R1-6        CHK-011: correct adapterId but WRONG testCaseRef is R1-6 (mismatch), NOT R1-1 (missing)\n  REJECT R1-6        CHK-011: targetBindingDigest computed WITH createdAt included\n  REJECT R1-6        CHK-011: targetBindingDigest that recomputes to nothing\n  REJECT R1-5        adapterId absent from policy.runnerAdapterRegistry is R1-5\n  REJECT R1-5        CHK-011: testCaseRef \"free-form:not-derived\" matches no registered testCaseRefPattern is R1-5\n  REJECT R1-5        CHK-011: testCaseRef \"npm-script:\" matches no registered testCaseRefPattern is R1-5\n  REJECT R1-5        CHK-011: testCaseRef \"npm-script:test x\" matches no registered testCaseRefPattern is R1-5\n  REJECT R1-5        CHK-011: testCaseRef \"NPM-SCRIPT:test:x\" matches no registered testCaseRefPattern is R1-5\n  REJECT R1-5        CHK-011: testCaseRef \"prefix-npm-script:test:x\" matches no registered testCaseRefPattern is R1-5\n  REJECT R1-5        CHK-011: testCaseRef \"npm-script:test:x-suffix\\n\" matches no registered testCaseRefPattern is R1-5\n  REJECT R1-5        CHK-011: an npm-script testCaseRef under the node-test@1 adapter is R1-5\n  ACCEPT             CHK-011: the same ref IS admissible under the adapter whose pattern matches it\n  REJECT R1-2+R1-3   CHK-011: R1-2 and R1-3 co-occur and neither suppresses the other\n  REJECT R1-1+R1-2   CHK-011: R1-1 and R1-2 co-occur\n  REJECT R1-2+R1-3   CHK-015: an over-count envelope ALSO reports its §1.3 rule-3 violation (count does not suppress specificity)\n  REJECT R1-3        CHK-015: ZERO matchers reports the count bound ALONE (no fabricated §1.3 finding)\n  REJECT R1-2+R1-3   CHK-015: over-count + a below-floor literal are BOTH reported\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-18T18:03:42.287Z",
+            "executedAt": "2026-08-18T18:16:58.256Z",
             "timeoutMs": 180000
           },
-          "headHash": "c771e4eb4251645b684dad406d2c05497ca9d641",
-          "materialHash": "070e3b04a06ef88b2292212ed596109655092531cd552f245d2987ea38900ef7",
-          "storyFilesHash": "27eedc523f6ab2291ebcf75c05dedc904f653975aea6f837a1f00b7282e61245",
-          "timestamp": "2026-08-18T18:03:42.633Z"
+          "headHash": "b1e3c12cce611114cfafeb7b47c019b3c4448af2",
+          "materialHash": "bf5024d95ef26ea2b61f7085960be8456c115df5f4b05bddb1c7c077951e5817",
+          "storyFilesHash": "e19dc251097bc185bc6b4d2f8c45bcb562dcc743e103a9319e5568403f5491f5",
+          "timestamp": "2026-08-18T18:16:58.608Z"
         },
         {
           "intentRef": "CHK-011:edge:0",
@@ -2423,13 +2423,13 @@
             "outputDigest": "77a53c2905d498b2bb2bbf4f05b0e59d8267cb9ed171c24241fec9ac09b69245",
             "outputTail": "tifactRef \"c:/outside\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"C:/\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"Z:/repo/packages/x.js\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"C:outside\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"C:\\\\outside\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"//server/share/x.js\"\n  ACCEPT             CHK-005: a repo-relative path whose FIRST segment merely contains a colon\n  REJECT R1-3        CHK-005: supplementaryArtifact is explicitly null (§0.4 forbids null for an absent optional field)\n  ACCEPT             CHK-005: supplementaryArtifact OMITTED entirely is admissible\n  REJECT R1-3        CHK-005: supplementaryArtifact expectation outside the closed enum\n  REJECT R1-3        CHK-005: supplementaryArtifact without targetArtifactRef\n  REJECT R1-2        CHK-011: below-threshold literal is R1-2, NOT R1-3\n  REJECT R1-2        CHK-002: empty value is R1-2 (§1.3 rule 1 non-emptiness), NOT R1-3\n  REJECT R1-3        CHK-002: the sibling clause `trimmed` stays R1-3 (explicitly enumerated there)\n  REJECT R1-2        CHK-011: the sibling clause `blocklisted` stays R1-2\n  REJECT R1-2        CHK-011: blocklisted literal .* is R1-2, NOT R1-3\n  REJECT R1-2        CHK-011: class-only present-in-red set is R1-2, NOT R1-3\n  REJECT R1-1        CHK-011: targetExercisedProof absent entirely is R1-1, NOT R1-6\n  REJECT R1-1        CHK-011: targetExercisedProof is not an object\n  REJECT R1-1        CHK-011: targetExercisedProof.method undefined\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"artifact-presence\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"path-touch\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"Harness-Token\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"\"\n  REJECT R1-1        CHK-011: targetExercisedProof.adapterId absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-1        CHK-011: targetExercisedProof.testCaseRef absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-1        CHK-011: targetExercisedProof.targetBindingDigest absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-6        CHK-011: NO committed binding registered for the target\n  REJECT R1-6        CHK-011: adapterId mismatching the committed binding\n  REJECT R1-6        CHK-011: correct adapterId but WRONG testCaseRef is R1-6 (mismatch), NOT R1-1 (missing)\n  REJECT R1-6        CHK-011: targetBindingDigest computed WITH createdAt included\n  REJECT R1-6        CHK-011: targetBindingDigest that recomputes to nothing\n  REJECT R1-5        adapterId absent from policy.runnerAdapterRegistry is R1-5\n  REJECT R1-5        CHK-011: testCaseRef \"free-form:not-derived\" matches no registered testCaseRefPattern is R1-5\n  REJECT R1-5        CHK-011: testCaseRef \"npm-script:\" matches no registered testCaseRefPattern is R1-5\n  REJECT R1-5        CHK-011: testCaseRef \"npm-script:test x\" matches no registered testCaseRefPattern is R1-5\n  REJECT R1-5        CHK-011: testCaseRef \"NPM-SCRIPT:test:x\" matches no registered testCaseRefPattern is R1-5\n  REJECT R1-5        CHK-011: testCaseRef \"prefix-npm-script:test:x\" matches no registered testCaseRefPattern is R1-5\n  REJECT R1-5        CHK-011: testCaseRef \"npm-script:test:x-suffix\\n\" matches no registered testCaseRefPattern is R1-5\n  REJECT R1-5        CHK-011: an npm-script testCaseRef under the node-test@1 adapter is R1-5\n  ACCEPT             CHK-011: the same ref IS admissible under the adapter whose pattern matches it\n  REJECT R1-2+R1-3   CHK-011: R1-2 and R1-3 co-occur and neither suppresses the other\n  REJECT R1-1+R1-2   CHK-011: R1-1 and R1-2 co-occur\n  REJECT R1-2+R1-3   CHK-015: an over-count envelope ALSO reports its §1.3 rule-3 violation (count does not suppress specificity)\n  REJECT R1-3        CHK-015: ZERO matchers reports the count bound ALONE (no fabricated §1.3 finding)\n  REJECT R1-2+R1-3   CHK-015: over-count + a below-floor literal are BOTH reported\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-18T18:03:42.479Z",
+            "executedAt": "2026-08-18T18:16:58.443Z",
             "timeoutMs": 180000
           },
-          "headHash": "c771e4eb4251645b684dad406d2c05497ca9d641",
-          "materialHash": "070e3b04a06ef88b2292212ed596109655092531cd552f245d2987ea38900ef7",
-          "storyFilesHash": "27eedc523f6ab2291ebcf75c05dedc904f653975aea6f837a1f00b7282e61245",
-          "timestamp": "2026-08-18T18:03:42.633Z"
+          "headHash": "b1e3c12cce611114cfafeb7b47c019b3c4448af2",
+          "materialHash": "bf5024d95ef26ea2b61f7085960be8456c115df5f4b05bddb1c7c077951e5817",
+          "storyFilesHash": "e19dc251097bc185bc6b4d2f8c45bcb562dcc743e103a9319e5568403f5491f5",
+          "timestamp": "2026-08-18T18:16:58.608Z"
         },
         {
           "intentRef": "CHK-011:edge:1",
