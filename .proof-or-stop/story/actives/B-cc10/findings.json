@@ -1202,6 +1202,26 @@
       "signatureTag": "missing|ts|packages-main-core",
       "signatureTagSource": "auto",
       "resolvedAt": "2026-08-18T18:04:39.791Z"
+    },
+    {
+      "id": "B-cc10:F-066",
+      "desc": "doc-code-drift: docs/requirements/decisions/proof-or-stop-identity-migration.md:183-190 (section \"Known residual drift for CHK-007\") claims \"CLAUDE.md:192 still documents the old @lattice/core/dev-host import in its debug.ts example while cli-init.ts now emits the canonical spelling\". This is factually false as of current HEAD: CLAUDE.md line 192 already reads @proof-or-stop/core/dev-host (confirmed via grep and via `git diff main...HEAD -- CLAUDE.md`, which shows this exact line was already renamed within this story's diff). The residue-script fixture at scripts/verify-lattice-residue.mjs:674 (the actual code artifact) is correct and its own comment is accurate -- only the decision doc's prose claim about CLAUDE.md's current content is stale. A reader following this section to find a residual defect will find none, because it was already fixed; the doc should either drop the CLAUDE.md claim or state it was resolved.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-18T18:09:17.461Z",
+      "reviewRound": "2026-08-18T03:33:16.325Z",
+      "reviewRunId": "B-cc10:RR-089",
+      "_hash": "b0f60446f23d9bedef6dfde31fc952d38dd2db0debfedc154151d07130a2f04f",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+        "CLAUDE.md",
+        "scripts/verify-lattice-residue.mjs"
+      ],
+      "signatureTag": "missing|md|code-drift-docs",
+      "signatureTagSource": "auto"
     }
   ]
 }
