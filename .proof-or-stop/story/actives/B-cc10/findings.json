@@ -1286,7 +1286,7 @@
       "desc": "concept-cleanup: worktree-repair-smoke.ts and worktree-authority-smoke.ts (both live smokes, discovered by run-all-smokes.ts filesystem scan and NOT skipped in packages/main/smoke-manifest.json) both FAIL with exit 1 on a clean build: their synthetic .gitignore fixtures (worktree-repair-smoke.ts:42-47, worktree-authority-smoke.ts:967/1009/1067) only ignore the deprecated .lattice/* spelling, never the canonical .proof-or-stop/*. done_recover's acquireDoneMainMergeLock -> acquireMainWriteLockRegistered creates .proof-or-stop/locks/main-write.lock/ (canonical-only write, correct per this migration) BEFORE assertMainWorktreeClean runs, so the untracked .proof-or-stop/ directory trips \"done_recover refused: main worktree is not clean\" in every fixture repo that never learned to ignore the new canonical path. Reproduced independently on HEAD 5433ef44bd with a fresh npm --prefix packages/main run build: node packages/main/dist/tasks/worktree-repair-smoke.js and node packages/main/dist/tasks/worktree-authority-smoke.js both exit 1 with the line \"?? .proof-or-stop/\". Neither fixture is listed in proof-or-stop.config.json validate.commands, so proof-or-stop validate does not catch this; only npm run test:all/test:legacy/test:coverage (filesystem-scan discovery) would. NOT dead code and NOT vacuous-pass in the classic sense -- these are live, currently-FAILING regressions caused by an incomplete migration of the fixtures own synthetic .gitignore scaffolding.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-18T18:30:16.529Z",
@@ -1298,7 +1298,8 @@
         "packages/main/src/tasks/worktree-authority-smoke.ts"
       ],
       "signatureTag": "missing|ts|concept-cleanup-worktree",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-08-18T18:43:48.782Z"
     },
     {
       "id": "B-cc10:F-071",
