@@ -515,6 +515,24 @@
       ],
       "signatureTag": "adversarial|ts|packages-main-tasks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-49ed:F-027",
+      "desc": "packages/main/src/tasks/signing-guard-mutation-proof-smoke.ts:35,46,56-57 F-002 (accepted_risk) disposed of the regex-brittleness risk on the basis that the regex only PARSED the dist artifact and a shape mismatch would fail loudly at the guard-presence assert before any mutation happened. That reasoning no longer covers what this file does. The set-literal replace and the relative-import rewrite (from ./x -> absolute file:// URL) now feed a mutant that is written to disk and actually EXECUTED via dynamic import, and that execution drives deriveRoleProvenance with gitCwd: resolve(here, ../..) -- the real repo -- which shells out to git through execFileSync (currentImplementationBusinessCommit / topologyDispatchBusinessAuthor in topology-critic-receipt.ts). So a regex that mismatches in a way that is not loud (e.g. the import-rewrite regex at line 46 silently fails to rewrite a specifier it should have caught, or matches something unintended) no longer just produces a proof that proves nothing -- it can produce a rewritten module that gets loaded and executed with real subprocess calls against the working tree. The file does defend against the easy case (assert.doesNotMatch at lines 51-52 catches any surviving relative specifier form) but there is no check that authority-signing.js / digest.js -- the two modules transitively reached through the rewritten imports -- stay side-effect-free at import time; that safety currently holds only because those two files happen to contain no I/O, not because the proof enforces it. F-002s accepted_risk should be revisited: either extend its rationale to explicitly cover the execute path (transitively-loaded modules must stay pure, and that invariant is not mechanically checked here), or add a note-level guard (e.g. assert no I/O primitives appear in the transitively-imported dist files before importing them) so the disposition matches what the code now does rather than what it did on F-002s round.",
+      "severity": "low",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-18T05:30:26.910Z",
+      "reviewRound": "2026-08-18T05:27:28.263Z",
+      "reviewRunId": "B-49ed:RR-027",
+      "_hash": "49138d26190e9299ab0574c82ff961a3fa4073634c2e61ef7fe1c89fddb26f89",
+      "files": [
+        "packages/main/src/tasks/signing-guard-mutation-proof-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
