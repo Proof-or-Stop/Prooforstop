@@ -1365,7 +1365,7 @@
       "desc": "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts:224 pins its scratch .gitignore to the deprecated .lattice/learning/runtime-memory-pack-cache/ spelling, but core/learning-store.ts resolveLearningDir() now resolves the canonical .proof-or-stop/learning/ path (this story CHK-002/CHK-003 rename). The smoke fixture writes runtime-memory-pack-cache under the canonical dir at runtime, which its own .gitignore no longer covers, so assertManifestOnlyAutoCloseout classifies the resulting untracked file as not-story-metadata and the smoke fails with cleanTree:BLOCKED / DONE prepare: BLOCKED. Reproduced deterministically in 3 independent runs including a fresh isolated worktree at HEAD 68d008cfa6 (exit 1); the identical smoke passes (exit 0) at merge-base main (8b4df2b312), so this is a real regression caused by this story, not a pre-existing/unrelated failure. The commit message for 7d82ff5344 groups done-prepare-auto-closeout-smoke with proofstory-topology-critic-smoke and validation-protocol-smoke as different-signature pre-existing failures - I independently verified the other two ARE pre-existing (topology-critic fails identically at merge-base; validation-protocol fails on unrelated B-a7c5 dev-memory-preflight ordering), but done-prepare-auto-closeout-smoke is NOT pre-existing and IS caused by this rename. Note this smoke is not wired into npm test:serial-reference or full-suite-runner.ts membership, so it never runs under validate/npm test - that is why it did not show up in the 104/104 result, but the smoke file exists in the repo and is broken by this change.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-18T20:07:45.548Z",
@@ -1377,7 +1377,8 @@
         "packages/main/src/core/learning-store.ts"
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-08-18T20:11:22.768Z"
     }
   ]
 }
