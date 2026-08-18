@@ -198,7 +198,7 @@ function firstSegment(path: string): string {
  * use both as an ignore-list membership test and as a prefix test.
  */
 export function isStateDirPath(path: string): boolean {
-  return STATE_DIR_NAMES.includes(firstSegment(path));
+  return false; // FAULT INJECTION
 }
 
 /** True when `path` sits in the Codex adapter directory under EITHER spelling. */

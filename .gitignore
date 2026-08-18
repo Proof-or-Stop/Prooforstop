@@ -80,10 +80,18 @@ packages/koala-observer-cli/
 **/breaker-state.json
 **/takeover-count.json
 **/gate-failure-counts.json
+.proof-or-stop/runtime/owner-session-tokens/
 .lattice/runtime/owner-session-tokens/
+.proof-or-stop/traces/
+.proof-or-stop/locks/
+.proof-or-stop/usage/
 .lattice/usage/
+.proof-or-stop/learning/
 .lattice/learning/
+.proof-or-stop/authority.md
+.proof-or-stop/artifacts/baseline/
 .lattice/artifacts/baseline/
+.proof-or-stop/benchmarks/memory-playbook/
 .lattice/benchmarks/memory-playbook/
 # /lattice runtime artifacts (managed)
 
@@ -120,27 +128,3 @@ experiments/recovery-runner/powered/
 experiments/recovery-runner/ablation-run-records.jsonl.exclusions.jsonl
 experiments/recovery-runner/analysis-out.*
 
-# lattice runtime artifacts (managed)
-.proof-or-stop/*
-!.proof-or-stop/story/
-.proof-or-stop/story/*
-!.proof-or-stop/story/actives/
-!.proof-or-stop/story/actives/**
-.proof-or-stop/story/actives/**/activity.jsonl
-.proof-or-stop/runtime/owner-session-tokens/
-.proof-or-stop/runtime/
-.proof-or-stop/traces/
-.proof-or-stop/locks/
-# transient mkdir-lock directories (B-d877 R2: now carry a holder.json token, so
-# an accidental commit while one is briefly held would track/churn runtime state;
-# these <name>.lock/ dirs — checklist/finding/review-run/init-check — are managed
-# runtime locks, never story metadata).
-**/*.lock/
-.Lattice/authority.md
-.Lattice/artifacts/baseline/
-.proof-or-stop/usage/
-.proof-or-stop/learning/
-.proof-or-stop/authority.md
-.proof-or-stop/artifacts/baseline/
-.proof-or-stop/benchmarks/memory-playbook/
-# /lattice runtime artifacts (managed)

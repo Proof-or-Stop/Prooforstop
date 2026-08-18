@@ -241,7 +241,11 @@ Recorded here so it is a known, bounded residual with a stated reason, not an om
 
 ## Validate suite state at close (B-cc10)
 
-The rename broke **25 of 104** validate commands. **All 25 are fixed.** Final state:
+The rename broke **25 of 104** validate commands, and review then found **three more
+defects that the suite could not have counted** — guards that were passing VACUOUSLY
+(F-054, F-055, F-056: scan roots naming the renamed adapter dir, so they scanned zero files
+and reported PASS). Honest total: **28 rename-induced defects fixed**, of which 3 were
+invisible to the very suite used to measure the other 25. **All 28 are fixed.** Final state:
 `status=pass`, `allPass=true`, verification coverage **24/24** (21 mechanical receipts +
 3 audited permanent waivers).
 
@@ -289,6 +293,20 @@ runtime had stopped reading.** Three sub-kinds, in ascending order of danger:
    (`grep -rnE 'Run \`?lattice |Use lattice |Next: lattice |rerun lattice '`), including one
    the reviewers' own list had missed. The worst instance was `.githooks/pre-push`'s rejection
    message — the recovery instruction shown to an operator whose push was just blocked.
+
+   **This class recurred THREE times in guards, not once.** Listed together because three
+   instances is a materially stronger claim than one:
+
+   | Finding | Guard | Consequence |
+   |---|---|---|
+   | F-054 | `verify-lattice-residue.mjs` `DOC_SCAN_ROOTS` | `[brand-prose]` scanned 0 of 17 prompt mirrors, reported PASS |
+   | F-055 | `retired-authority-vocabulary-guard-smoke.ts` `activeTextDirs` | same, and this one is wired into the live `test:serial-reference` suite |
+   | F-056 | `verify-process-fact-contract.mjs` `mirrorDirs` | worst variant: the miss only `warn()`s, so `comparePromptSemantics()` compared 0 of 17 mirrors while exiting 0 |
+
+   F-057 is the executable sibling: `codex-adapter-checks.ts` fell back to *running* the
+   deleted `lattice` bin. Note the discovery site in that same file correctly probes BOTH
+   names — discovering which CLI is installed and choosing one to execute have opposite
+   correctness requirements, so only the execute site changed.
 
    **The same blindness hit the gate itself (F-054):** `verify-lattice-residue.mjs`'s
    `DOC_SCAN_ROOTS` still listed the renamed `.lattice-codex/agents`, so
