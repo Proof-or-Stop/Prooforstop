@@ -11,6 +11,23 @@
       "blockerCode": "pre_cert_inventory_not_finalized",
       "blockerDetail": "[pre_cert_inventory_api_absent] Review inventory admit APIs are absent; begin stays fail-closed and does not stub-always-admit. Inventory completeness is not PRE_CERT.",
       "_hash": "dab5945a82d48667276e937371be582b3782230860550cb3be487e0f670ebfea"
+    },
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-1e1f:CW-002",
+      "storyId": "B-1e1f",
+      "state": "BLOCKED",
+      "createdAt": "2026-08-18T13:17:11.033Z",
+      "updatedAt": "2026-08-18T13:17:11.033Z",
+      "blockerCode": "pre_cert_coverage_missing",
+      "blockerDetail": "31 required verification intent(s) are missing coverage.",
+      "inventory": {
+        "epochId": "B-1e1f:RIE-001",
+        "receiptId": "B-1e1f:RIE-001:RCP-001",
+        "authority": "inventory-completeness-only",
+        "authorizesTest": false
+      },
+      "_hash": "af190160d14acaee4c875ed2e1a62baada50a94582829d7226d440b9ef20bc1f"
     }
   ],
   "receipts": []
