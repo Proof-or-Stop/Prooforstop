@@ -1240,6 +1240,21 @@
       "_hash": "ff8464baf86b98554b1051043780c1251a7c7bb76f034cba5bcf78dd4e04afac",
       "signatureTag": "missing|unknown|lattice-story-actives",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9ff1:F-058",
+      "desc": "packages/main/src/core/red-evidence/envelope.ts:502-513 (§1.3 rule 2 length-AND-entropy conjunction, defaults minMatcherLen=8 / minMatcherEntropyBits=24) — the empirical Shannon-entropy floor rejects several genuinely narrow, real-world single-line failure signatures purely for low character variety, not for being generic/catch-all. Live-reproduced end to end (temporarily added redEvidence.pinnedPath to lattice.config.json, ran node bin/lattice.js red_evidence_envelope_check against a one-matcher envelope, then reverted the config to a byte-identical clean tree): value \"SIGSEGV\" (a specific, unambiguous POSIX signal name) -> R1-2 matcher-below-specificity-floor \"len=7 < minMatcherLen=8; entropyBits=15.65 < minMatcherEntropyBits=24\"; value \"ENOMEM\" (a specific errno constant) -> \"len=6 < minMatcherLen=8; entropyBits=11.51 < minMatcherEntropyBits=24\"; value \"HTTP 404\" (8 bytes, passes length) -> \"entropyBits=20.00 < minMatcherEntropyBits=24\"; value \"Error 500\" -> \"entropyBits=21.77 < minMatcherEntropyBits=24\". Meanwhile the semantically vaguer, more generic phrase \"test failed\" (11 bytes) PASSES at entropyBits=34.05, purely because it has more distinct characters. WHY this is a functional-correctness gap and not just a tunable default: the spec's stated intent (section 0.1 / 1.3) is to reject vacuous or catch-all assertions that could match too much unrelated output, but character-level Shannon entropy measures alphabet diversity, not semantic narrowness — a short well-known constant that names exactly one real condition (SIGSEGV, ENOMEM, an HTTP status line) is being scored as less \"specific\" than a longer generic English phrase that could describe almost any failure. An operator whose test harness legitimately emits one of these short tokens as a whole stderr line gets a rejection that reads as a floor-math failure with no semantic justification. (The floors are project-tunable down to the §1.12 hard minimums of minMatcherLenMin=4 / minMatcherEntropyBitsMin=12, which is a workaround, not a fix for the default experience.) Fix suggestion: either lower the shipped default minMatcherEntropyBits, or supplement the length+entropy conjunction with a well-known-token allowance (e.g. a short allowlist/registry pattern analogous to matcherClassRegistry) for standard OS signal/errno names and HTTP status lines, so short-but-unambiguous literals are not conflated with short-and-vague ones.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-08-18T17:59:30.039Z",
+      "reviewRound": "2026-08-14T03:33:29.693Z",
+      "reviewRunId": "B-9ff1:RR-057",
+      "_hash": "ba9541718d886e16659519c1d34ed7b4735b6ac3c31cc24194082226b091a91b",
+      "signatureTag": "edge|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
