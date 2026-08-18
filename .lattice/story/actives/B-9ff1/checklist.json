@@ -2064,18 +2064,19 @@
           "command": "node packages/main/tests/red/red-w2d-entropy-differential.mjs",
           "result": "pass",
           "note": "The 12-row table asserts differentialRows >= MIN_DIFFERENTIAL_ROWS (8) — 9 rows found — and, structurally, that EVERY spec-ADMIT row is one the per-symbol rival REJECTs; each row separately asserts impl.entropyFloor === the total-bits verdict with the per-symbol verdict named in the failure message.",
-          "headHash": "2a01df278e178aa3baeb8ab4c5b30f261ee58a33",
-          "materialHash": "afa81bb4c922fbac27b79bf2d648ef4f701321616311a6d94b95c7ee31e02127",
-          "storyFilesHash": "de9c8a2f86bf8a9d9425dd09cf249a0533821140017f8e3bfcfaea0ea1abd6fd",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "ceb09b7e85e65eded254c194dc9d134562f8e403c3b1fda9de33e551022f0d82",
             "outputTail": "red-w2d-entropy-differential: PASS\n  formula anchors: ab=2.0 aabb=4.0 a=0.0 abcdefgh=24.0 (per-symbol rival is constant 1.0 for ab/aabb)\n  differential rows: 9/12 (floor 8)\n  DIFFER  \"Error: Cannot find module '/repo/dist/x.js'\"  total= 185.06 perSymbol= 4.30 spec=ADMIT  rival=REJECT  realistic module-resolution failure\n  DIFFER  \"AssertionError: expected 1 to equal 2\"        total= 150.02 perSymbol= 4.05 spec=ADMIT  rival=REJECT  realistic assertion failure\n  DIFFER  \"npm ERR! missing script: test\"                total= 107.37 perSymbol= 3.70 spec=ADMIT  rival=REJECT  realistic npm failure line\n  DIFFER  \"TypeError: x is not a function\"               total= 117.33 perSymbol= 3.91 spec=ADMIT  rival=REJECT  realistic type failure\n  DIFFER  \"ENOENT: no such file or directory\"            total= 135.35 perSymbol= 4.10 spec=ADMIT  rival=REJECT  realistic errno line\n  DIFFER  \"FAIL packages/main/tests/red/x.mjs\"           total= 143.46 perSymbol= 4.22 spec=ADMIT  rival=REJECT  realistic reporter line\n  DIFFER  \"exit status 1 (expected 0)\"                   total=  94.21 perSymbol= 3.62 spec=ADMIT  rival=REJECT  realistic exit line\n  DIFFER  \"abcdefgh\"                                     total=  24.00 perSymbol= 3.00 spec=ADMIT  rival=REJECT  boundary: exactly 24.0 total bits (>= is inclusive)\n  DIFFER  \"aabbccddeeff\"                                 total=  31.02 perSymbol= 2.58 spec=ADMIT  rival=REJECT  12 bytes over 6 symbols = 31.0 total bits\n  agree   \"aabbccdd\"                                     total=  16.00 perSymbol= 2.00 spec=REJECT rival=REJECT  AGREE: 8 bytes over 4 symbols = 16.0 total bits, below the floor\n  agree   \"aaaaaaaaaaaaaaaaaaaaaaaaaaaa\"                 total=   0.00 perSymbol= 0.00 spec=REJECT rival=REJECT  AGREE: 28 identical bytes, H = 0 so total = 0 (zero-entropy boundary)\n  agree   \"ab\"                                           total=   2.00 perSymbol= 1.00 spec=REJECT rival=REJECT  AGREE: 2.0 total bits, below the floor either way\n  multi-byte separation: bytes=26.53 (ADMIT) vs code-units=14.84 (REJECT)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-13T20:43:42.073Z"
+            "executedAt": "2026-08-18T16:56:24.757Z",
+            "timeoutMs": 180000
           },
-          "timestamp": "2026-08-13T20:45:39.168Z"
+          "headHash": "19559e3bb6b66cffd18a2cae0b6713bcf25f4d6d",
+          "materialHash": "061a9ced05e05fbdc6622a4289a8ee2acd7a4f74bc759ae2f48cc930df232605",
+          "storyFilesHash": "194ee4bc662de50e0f7278313fab5cf6ceefcb8ac49b24f716565fc40d75d6ec",
+          "timestamp": "2026-08-18T16:56:25.566Z"
         },
         {
           "intentRef": "CHK-009:adversarial:1",
@@ -2084,18 +2085,19 @@
           "command": "node packages/main/tests/red/red-w2d-entropy-differential.mjs",
           "result": "pass",
           "note": "The row \"aaaaaaaaaaaaaaaaaaaaaaaaaaaa\" is labelled agree (NOT differential) in the rendered table: 28 bytes, H = 0, total 0.00, both formulas REJECT. It is asserted like every other row (entropyBits equals byteLength x H, and the implementation verdict is the spec verdict) and is kept explicitly labelled so the table cannot be read as proving more than it does.",
-          "headHash": "2a01df278e178aa3baeb8ab4c5b30f261ee58a33",
-          "materialHash": "afa81bb4c922fbac27b79bf2d648ef4f701321616311a6d94b95c7ee31e02127",
-          "storyFilesHash": "de9c8a2f86bf8a9d9425dd09cf249a0533821140017f8e3bfcfaea0ea1abd6fd",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "ceb09b7e85e65eded254c194dc9d134562f8e403c3b1fda9de33e551022f0d82",
             "outputTail": "red-w2d-entropy-differential: PASS\n  formula anchors: ab=2.0 aabb=4.0 a=0.0 abcdefgh=24.0 (per-symbol rival is constant 1.0 for ab/aabb)\n  differential rows: 9/12 (floor 8)\n  DIFFER  \"Error: Cannot find module '/repo/dist/x.js'\"  total= 185.06 perSymbol= 4.30 spec=ADMIT  rival=REJECT  realistic module-resolution failure\n  DIFFER  \"AssertionError: expected 1 to equal 2\"        total= 150.02 perSymbol= 4.05 spec=ADMIT  rival=REJECT  realistic assertion failure\n  DIFFER  \"npm ERR! missing script: test\"                total= 107.37 perSymbol= 3.70 spec=ADMIT  rival=REJECT  realistic npm failure line\n  DIFFER  \"TypeError: x is not a function\"               total= 117.33 perSymbol= 3.91 spec=ADMIT  rival=REJECT  realistic type failure\n  DIFFER  \"ENOENT: no such file or directory\"            total= 135.35 perSymbol= 4.10 spec=ADMIT  rival=REJECT  realistic errno line\n  DIFFER  \"FAIL packages/main/tests/red/x.mjs\"           total= 143.46 perSymbol= 4.22 spec=ADMIT  rival=REJECT  realistic reporter line\n  DIFFER  \"exit status 1 (expected 0)\"                   total=  94.21 perSymbol= 3.62 spec=ADMIT  rival=REJECT  realistic exit line\n  DIFFER  \"abcdefgh\"                                     total=  24.00 perSymbol= 3.00 spec=ADMIT  rival=REJECT  boundary: exactly 24.0 total bits (>= is inclusive)\n  DIFFER  \"aabbccddeeff\"                                 total=  31.02 perSymbol= 2.58 spec=ADMIT  rival=REJECT  12 bytes over 6 symbols = 31.0 total bits\n  agree   \"aabbccdd\"                                     total=  16.00 perSymbol= 2.00 spec=REJECT rival=REJECT  AGREE: 8 bytes over 4 symbols = 16.0 total bits, below the floor\n  agree   \"aaaaaaaaaaaaaaaaaaaaaaaaaaaa\"                 total=   0.00 perSymbol= 0.00 spec=REJECT rival=REJECT  AGREE: 28 identical bytes, H = 0 so total = 0 (zero-entropy boundary)\n  agree   \"ab\"                                           total=   2.00 perSymbol= 1.00 spec=REJECT rival=REJECT  AGREE: 2.0 total bits, below the floor either way\n  multi-byte separation: bytes=26.53 (ADMIT) vs code-units=14.84 (REJECT)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-13T20:43:42.325Z"
+            "executedAt": "2026-08-18T16:56:24.934Z",
+            "timeoutMs": 180000
           },
-          "timestamp": "2026-08-13T20:45:39.168Z"
+          "headHash": "19559e3bb6b66cffd18a2cae0b6713bcf25f4d6d",
+          "materialHash": "061a9ced05e05fbdc6622a4289a8ee2acd7a4f74bc759ae2f48cc930df232605",
+          "storyFilesHash": "194ee4bc662de50e0f7278313fab5cf6ceefcb8ac49b24f716565fc40d75d6ec",
+          "timestamp": "2026-08-18T16:56:25.566Z"
         }
       ]
     },
@@ -2162,18 +2164,19 @@
           "command": "node packages/main/tests/red/red-w2d-assertion-digest-scope.mjs",
           "result": "pass",
           "note": "assert.equal(canonDigestOmitting(stored, \"assertionDigest\"), DIGEST) plus computeAssertionDigest(stored) === DIGEST: recomputing over the stored envelope with only the self field stripped — policyDigest still inside — reproduces the stored assertionDigest, which is also asserted to match /^sha256:[0-9a-f]{64}$/.",
-          "headHash": "2a01df278e178aa3baeb8ab4c5b30f261ee58a33",
-          "materialHash": "afa81bb4c922fbac27b79bf2d648ef4f701321616311a6d94b95c7ee31e02127",
-          "storyFilesHash": "de9c8a2f86bf8a9d9425dd09cf249a0533821140017f8e3bfcfaea0ea1abd6fd",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "daa85340fd3b76bfe6fad92e49b9cb286a31548b7872503b51c28f6a4e9b1221",
             "outputTail": "red-w2d-assertion-digest-scope: PASS\n  assertionDigest sha256:1a194fecf0fecf89e19b291a809a4d09ad6cb039c236ac91aceb3f5157977027\n  positive: CANON(assertion minus assertionDigest) === stored\n  negative: CANON(full stored object) !== stored; CANON(subobject minus policyDigest) !== stored\n  greenExempt:false omitted (no digest fork); greenExempt:true covered; key order + JSON roundtrip stable\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-13T20:43:42.579Z"
+            "executedAt": "2026-08-18T16:56:25.096Z",
+            "timeoutMs": 180000
           },
-          "timestamp": "2026-08-13T20:45:39.168Z"
+          "headHash": "19559e3bb6b66cffd18a2cae0b6713bcf25f4d6d",
+          "materialHash": "061a9ced05e05fbdc6622a4289a8ee2acd7a4f74bc759ae2f48cc930df232605",
+          "storyFilesHash": "194ee4bc662de50e0f7278313fab5cf6ceefcb8ac49b24f716565fc40d75d6ec",
+          "timestamp": "2026-08-18T16:56:25.566Z"
         },
         {
           "intentRef": "CHK-010:edge:0",
@@ -2182,18 +2185,19 @@
           "command": "node packages/main/tests/red/red-w2d-assertion-digest-scope.mjs",
           "result": "pass",
           "note": "assert.notEqual(canonDigest(stored), DIGEST): CANON over the FULL stored object with assertionDigest left in produces a different digest, and canon(canonicalAssertionSubobject(stored)) is asserted NOT to contain \"assertionDigest\" — a validator that forgets to strip the self field is caught.",
-          "headHash": "2a01df278e178aa3baeb8ab4c5b30f261ee58a33",
-          "materialHash": "afa81bb4c922fbac27b79bf2d648ef4f701321616311a6d94b95c7ee31e02127",
-          "storyFilesHash": "de9c8a2f86bf8a9d9425dd09cf249a0533821140017f8e3bfcfaea0ea1abd6fd",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "daa85340fd3b76bfe6fad92e49b9cb286a31548b7872503b51c28f6a4e9b1221",
             "outputTail": "red-w2d-assertion-digest-scope: PASS\n  assertionDigest sha256:1a194fecf0fecf89e19b291a809a4d09ad6cb039c236ac91aceb3f5157977027\n  positive: CANON(assertion minus assertionDigest) === stored\n  negative: CANON(full stored object) !== stored; CANON(subobject minus policyDigest) !== stored\n  greenExempt:false omitted (no digest fork); greenExempt:true covered; key order + JSON roundtrip stable\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-13T20:43:42.829Z"
+            "executedAt": "2026-08-18T16:56:25.258Z",
+            "timeoutMs": 180000
           },
-          "timestamp": "2026-08-13T20:45:39.168Z"
+          "headHash": "19559e3bb6b66cffd18a2cae0b6713bcf25f4d6d",
+          "materialHash": "061a9ced05e05fbdc6622a4289a8ee2acd7a4f74bc759ae2f48cc930df232605",
+          "storyFilesHash": "194ee4bc662de50e0f7278313fab5cf6ceefcb8ac49b24f716565fc40d75d6ec",
+          "timestamp": "2026-08-18T16:56:25.566Z"
         },
         {
           "intentRef": "CHK-010:edge:1",
@@ -2202,18 +2206,19 @@
           "command": "node packages/main/tests/red/red-w2d-assertion-digest-scope.mjs",
           "result": "pass",
           "note": "assert.notEqual(canonDigest(withoutPolicyDigest), DIGEST) after deleting policyDigest, plus the positive assertion that canon(canonicalAssertionSubobject(stored)) DOES contain \"policyDigest\" — the policy digest is inside the assertion-digest scope, so dropping it changes the result.",
-          "headHash": "2a01df278e178aa3baeb8ab4c5b30f261ee58a33",
-          "materialHash": "afa81bb4c922fbac27b79bf2d648ef4f701321616311a6d94b95c7ee31e02127",
-          "storyFilesHash": "de9c8a2f86bf8a9d9425dd09cf249a0533821140017f8e3bfcfaea0ea1abd6fd",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "daa85340fd3b76bfe6fad92e49b9cb286a31548b7872503b51c28f6a4e9b1221",
             "outputTail": "red-w2d-assertion-digest-scope: PASS\n  assertionDigest sha256:1a194fecf0fecf89e19b291a809a4d09ad6cb039c236ac91aceb3f5157977027\n  positive: CANON(assertion minus assertionDigest) === stored\n  negative: CANON(full stored object) !== stored; CANON(subobject minus policyDigest) !== stored\n  greenExempt:false omitted (no digest fork); greenExempt:true covered; key order + JSON roundtrip stable\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-13T20:43:43.089Z"
+            "executedAt": "2026-08-18T16:56:25.432Z",
+            "timeoutMs": 180000
           },
-          "timestamp": "2026-08-13T20:45:39.168Z"
+          "headHash": "19559e3bb6b66cffd18a2cae0b6713bcf25f4d6d",
+          "materialHash": "061a9ced05e05fbdc6622a4289a8ee2acd7a4f74bc759ae2f48cc930df232605",
+          "storyFilesHash": "194ee4bc662de50e0f7278313fab5cf6ceefcb8ac49b24f716565fc40d75d6ec",
+          "timestamp": "2026-08-18T16:56:25.566Z"
         },
         {
           "intentRef": "CHK-010:adversarial:0",
