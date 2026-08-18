@@ -288,7 +288,55 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-005:replay-line-and-exit",
+            "desc": "Run the focused PRE_CERT replay/smoke from an unfinalized or dirty or unmerged candidate, then fixture-admit and allow one heavy-path call → prints 'PRE_CERT replay: premature_heavy_runs=0 admitted_heavy_runs=1 post_cert_source_commits=0' and exits 0. WHY: plan Verify / userSees; the B-9812-shaped premature run is refused and an admitted window runs at most once.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/certification-window-replay-smoke.js",
+              "selector": "PRE_CERT replay: premature_heavy_runs=0 admitted_heavy_runs=1 post_cert_source_commits=0"
+            }
+          },
+          {
+            "id": "CHK-005:zero-child-on-premature",
+            "desc": "The replay's premature heavy entrypoint (done_required_validate / validate --full) against the unfinalized/dirty/unmerged fixture → is refused and the smoke asserts zero child suite processes; premature_heavy_runs remains 0. WHY: refuse is not just a log line after the suite starts.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-005:drift-requires-second-admit",
+            "desc": "After the fixture admit, apply related story-owned drift → window INVALIDATES, a second admit is required, and a second heavy-path call without that new admit is refused. Report counters still satisfy premature_heavy_runs=0 admitted_heavy_runs=1 post_cert_source_commits=0 for the canonical replay (the extra refuse is not counted as an admitted run). WHY: related drift cannot reuse the first window.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-005:counters-are-reported",
+            "desc": "Replay output reports both heavy_certification_runs (via premature_heavy_runs and admitted_heavy_runs) and post_cert_source_commits; the canonical passing fixture has post_cert_source_commits=0. WHY: plan context requires those metrics, not wall-clock savings.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-005:no-quorum-or-lane-weakening",
+            "desc": "The replay/smoke passing does not reduce required reviewer-lane counts or host-quorum counts versus the pre-story baseline; asserting the metric by dropping lanes/hosts is a defect. WHY: plan DoneWhen and excludes.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-005:no-stub-always-admit-to-pass-metric",
+            "desc": "A replay that stub-always-admits (including when B-3f3d inventory APIs are absent) or that increments admitted_heavy_runs without a real ADMITTED window / that counts a premature suite as admitted → must fail. Second heavy after the first admitted run without a post-invalidation re-admit must not increment admitted_heavy_runs. WHY: metrics cannot be gamed; fail closed if inventory APIs are missing.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
