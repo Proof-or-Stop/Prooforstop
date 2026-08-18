@@ -75,6 +75,31 @@
         "scanEscalationReason": null
       },
       "_hash": "1f6801cbed3c01d46ffe62c25b194c5c9af6c6bcc7e22f76a130f8e9e01ea883"
+    },
+    {
+      "id": "B-49ed:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-audited F-010 rewrite: verified genuinely non-vacuous by independently reproducing the bite outside the repo (widened SIGNABLE_SESSION_SOURCES in a scratch dist copy, smoke failed with AssertionError; restored, smoke passed exit 0). Traced guard source topology-critic-receipt.ts:162-175 against compiled dist to confirm the smokes two assertions (source-gate throw vs dispatch-lookup throw) are the real, first two divergence points, not coincidental string matches. No leftover mutant files; finally-block cleanup verified robust; distinct file paths confirm real vs mutant are distinct ESM module instances. F-011 accepted, both halves correct: CHK-002:happy:0 evidence runs only the narrow smoke with no selector, never compares a full-suite pass count against the literal intent text; accepted_risk with weak strength is the right call given environment-blocked full-suite baseline attempts, not a blocking gap. F-005 follow-up confirmed: CHK-001:edge:0 now carries a fresh verification_run receipt whose outputTail includes the new section-3 completion line, obtained via re-execution of the existing pin rather than re-pinning. finding_list shows 0 open findings across all 11 filed, all resolved with recorded evidence. No new coverage gaps found this round.",
+      "createdAt": "2026-08-18T04:22:13.821Z",
+      "reviewRound": "2026-08-18T04:18:52.650Z",
+      "reviewRunId": "B-49ed:RR-014",
+      "envelopeId": "a58a566f0768b275eb11fd4266889d1555b450881359ac7af27c87f4e7aa1bb8",
+      "writerSessionId": "sess-bb4571e896a18423ba2230f65e1f00a8",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-49ed/checklist.json",
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/tasks/signing-guard-mutation-proof-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/dist/core/topology-critic-receipt.js",
+          "packages/main/src/tasks/topology-signing-source-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "27e0eb94c56677d4ad217e12e84628934ac4943e712d297148ac2d47496a9b6c"
     }
   ]
 }
