@@ -101,6 +101,24 @@
       "_hash": "77a70cdf26cd496b685b2d63453cd25b8e634366b2ca07ee7d03cc2c877a9569",
       "signatureTag": "missing|unknown|concept-cleanup-state",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-cc10:F-007",
+      "desc": "CHK-008:adversarial:0 verificationEvidence (moveIsPureRenameCommit=true) does not actually establish the claimed intent (\"git revert <sha> alone restores the pre-move layout with no manual fixup\"). The real state-dir move required TWO commits: ec7f315e0a (matched by verify-migration-contract.mjs grep --grep=CHK-003: move state dirs, diffstat 0 insertions/0 deletions) landed the mv NESTED at .proof-or-stop/.lattice/... and also reverted the canonical PROOF_OR_STOP_STATE_DIR constant back to .lattice; the actual fix to the final canonical layout + constants is a SEPARATE commit 8c0bd7b87c (fix nested move + flip canonical dir constants, 523 insertions/73 deletions) that is NOT a pure rename. I safely reproduced: `git revert --no-commit ec7f315e0a` on current HEAD (4402ba9a7a) produces dozens of git file-location CONFLICT errors and a non-zero exit rather than a clean restore (aborted immediately, repo confirmed clean via git status --porcelain). The witness checks the diffstat of the wrong (superseded/defective) commit instead of testing actual end-to-end revertibility of the current HEAD, so a green moveIsPureRenameCommit=true does not discriminate a genuinely non-atomic, non-single-commit-revertible migration from an atomic one -- which is exactly the CHK-008 property it exists to prove.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-18T03:44:25.353Z",
+      "reviewRound": "2026-08-18T03:33:16.325Z",
+      "reviewRunId": "B-cc10:RR-016",
+      "_hash": "8420c52b4e475d521f482a877ffa220888bd7fa4490353279f635f41f2322e2b",
+      "files": [
+        "scripts/verify-migration-contract.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|adversarial-verificationevidence-moveispurerenamecommit",
+      "signatureTagSource": "auto"
     }
   ]
 }
