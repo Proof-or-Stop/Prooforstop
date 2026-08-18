@@ -172,7 +172,40 @@
       "context": "B-8df9 CHK-004:happy:0 / edge:0 / adversarial:0 currently carry kind=waiver rows whose note states they are a framework gap and must not be read as evidence. Once this story lands they are obsolete and must be removed so the withdrawal completes mechanically with no prose in the DONE path. This must happen BEFORE B-8df9 reaches DONE; evidence recorded into a completed story cannot practically be revised afterwards. Verify afterwards that B-8df9's REVIEW completeness and channel gates both pass with zero waivers present.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "B-8df9 CHK-004 carries zero waiver rows and both its gates pass without them.",
+      "files": {
+        "modify": [
+          ".lattice/story/actives/B-45a5/plan.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/red/red-b45a5-withdrawal-gates.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The three obsolete waiver rows are removed from B-8df9 CHK-004",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "B-8df9's review-completeness and channel gates both pass with zero waivers present",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Nothing else in B-8df9's evidence is altered by the removal",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
