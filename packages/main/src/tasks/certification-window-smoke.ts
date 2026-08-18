@@ -5,8 +5,9 @@
  *
  * Covers status surface, process-fact registration, tamper fail-closed,
  * inventory-is-not-PRE_CERT, and PRE_CERT admit from inventory/merge/clean/coverage.
- * Production inventory APIs are present; begin without a FINALIZED receipt
- * stays fail-closed; never stub-always-admit.
+ * Production inventory APIs are present; default begin without a FINALIZED
+ * receipt stays fail-closed as [pre_cert_inventory_not_finalized]. A dedicated
+ * null-API override exercises [pre_cert_inventory_api_absent]; never stub-always-admit.
  */
 
 import assert from 'node:assert/strict';
@@ -439,6 +440,18 @@ function beginCaught(handlers: ReturnType<typeof createCertificationWindowHandle
   }
 }
 
+setReviewInventoryAdmitApisForTest(null);
+const absentApiHandlers = createCertificationWindowHandlers({
+  store,
+  root,
+  scanRoot: join(root, 'packages', 'main'),
+});
+const absentApiOutput = beginCaught(absentApiHandlers, 'B-cw23');
+assertStatusSurface(absentApiOutput, 'BLOCKED');
+assert.match(absentApiOutput, new RegExp(`\\[${PRE_CERT_INVENTORY_API_ABSENT}\\]`));
+assert.doesNotMatch(absentApiOutput, /^State: ADMITTED$/m);
+setReviewInventoryAdmitApisForTest(undefined);
+
 setReviewInventoryAdmitApisForTest({
   finalizedUnconsumedReviewInventory: () => null,
   consumeReviewInventoryReceipt: () => {
@@ -821,6 +834,7 @@ console.log(invalidatedStatus);
 console.log('certification-window-smoke: PASS');
 console.log(blockedStatus);
 console.log(admittedBegin);
+console.log(absentApiOutput);
 console.log(noInventoryOutput);
 console.log(unmergedOutput);
 console.log(findingOutput);
