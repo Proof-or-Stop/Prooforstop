@@ -7819,7 +7819,7 @@
       "desc": "packages/main/src/core/command-policy.ts:433 and packages/main/src/core/config.ts:490-497 (commit 783dc6105e) widened acceptance_basis_generate allowedPhases/REVIEW phaseTools to include REVIEW, breaking a live basis-regeneration deadlock. This is a lifecycle-widening change to gate scope with zero verificationIntent recorded on any checklist item and zero test invoking acceptance_basis_generate while story phase=REVIEW: every existing acceptance_basis_generate smoke call (proofstory-acceptance-basis-smoke.ts, proofstory-topology-critic-smoke.ts, proofstory-pre-review-check-smoke.ts, proofstory-acceptance-topology-gate-smoke.ts, flow-stability-smoke.ts) only invokes it during PLAN phase. No regression test exercises basis regeneration mid-REVIEW leaving reviewer verdict state, currentReviewRound binding, and review-inventory epoch state unaffected. Independent corroboration: running validate on this story head reports current-verification-coverage-incomplete plus untrusted-lineage-path for exactly command-policy.ts, config.ts, review-inventory-epoch.ts, review-inventory.ts and the decision doc.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-17T08:52:21.101Z",
@@ -7962,7 +7962,11 @@
         "packages/main/src/core/config.ts"
       ],
       "signatureTag": "missing|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Correct: a lifecycle gate-scope change shipped with zero coverage. I verified the gap rather than assuming it -- the three files mentioning acceptance_basis_generate reference it only in fixture strings, and none invokes it with phase=REVIEW.\n\nAdded packages/main/src/tasks/acceptance-basis-review-phase-smoke.ts. It asserts BOTH directions, since a widening is only safe if it is exactly as wide as intended: PLAN/DEV/REVIEW allowed, INIT/INIT_CHECK/TEST/DONE still refused. It separately asserts the REVIEW phaseTools entry, because allowedPhases alone silently fails without it -- that two-layer shape is what made the original fix take two attempts.\n\nMutation-proven rather than merely green: reverting allowedPhases to ['PLAN','DEV'] makes it exit 1, restoring exits 0, and the source diff is clean afterwards.\n\nRegistered in root test:serial-reference and in full-suite-runner's RESOURCE_POLICY. The second is load-bearing: I reproduced the canonical inventory mismatch abort before adding it, so without that entry the whole suite fails closed rather than skipping this one test. Same trap as B-49ed F-021, which is why I checked for it this time instead of finding out later.",
+      "resolvedAt": "2026-08-18T06:09:12.903Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3f3d:F-116",
