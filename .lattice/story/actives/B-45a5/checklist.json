@@ -131,7 +131,40 @@
       "context": "This is the anti-bypass deliverable and is as important as the skip. Cover at least: status=withdrawn with NO decisionRef; a decisionRef naming a decision that does not exist; a decisionRef naming a real decision that does NOT list that item; and a decision whose userConfirmed is absent or false. Each must still be refused by both gates. Without these the fix converts a correct gate into a back door.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Editing status to withdrawn by hand, without a real confirmed decision listing that item, still fails both gates.",
+      "files": {
+        "modify": [
+          "packages/main/tests/red/red-b45a5-withdrawal-gates.mjs"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/red/red-b45a5-withdrawal-gates.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "status=withdrawn with no decisionRef is refused by both gates",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A decisionRef naming a nonexistent decision, and one naming a real decision that does not list the item, are both refused",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A decision overwritten to decision=rejected / userConfirmed=false stops authorizing the skip; states are built by direct JSON write since that is the actual threat model",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
