@@ -21,7 +21,7 @@
 #   2. package.json 存在但 `node` 不在 PATH → 无法解析 name、也无法跑递归 tsc
 #      gate → **fail-closed**：向 stderr 打印明确警告并 exit 1 拒绝 push。
 #      这里 **不能 fail-open**——静默 exit 0 会让 tsc gate 被无声绕过（F-002）。
-#   3. `node` 可用，但 package.json 的 `name` 字段 ≠ `@lattice/core`
+#   3. `node` 可用，但 package.json 的 `name` 字段不在名字集合内（`@proof-or-stop/core` / `@lattice/core`）
 #      → 确实非 Lattice 自举仓 → exit 0 放行。
 # 注意：本仓是扁平布局 `packages/main`。
 #

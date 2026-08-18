@@ -185,9 +185,20 @@ the same commit: `scripts/verify-runtime-fact-contract.mjs` and
 `scripts/verify-lattice-residue.mjs` holds a fixture asserting
 `"import { devHost } from '@lattice/core/dev-host';"` is **exempt**, commented
 "npm package name (FROZEN — pre-push hook gates on it)". That exemption rationale is now stale.
-Correspondingly `CLAUDE.md:192` still documents the old `@lattice/core/dev-host` import in its
-`debug.ts` example while `cli-init.ts` now emits the canonical spelling. Both belong to CHK-007,
-which owns flipping `@lattice/core` from exempt to **forbidden** in product runtime source.
+~~Correspondingly `CLAUDE.md:192` still documents the old `@lattice/core/dev-host` import in its
+`debug.ts` example.~~ **RETRACTED (B-cc10 F-066):** that half was already false when written —
+`CLAUDE.md:192` reads `@proof-or-stop/core/dev-host` at this HEAD, renamed within this story's own
+diff. A reader following the claim would hunt a defect that does not exist. Only the residue-script
+fixture exemption above is genuinely still open, and it belongs to CHK-007, which owns flipping
+`@lattice/core` from exempt to **forbidden** in product runtime source.
+
+Found while verifying F-066 (same drift class, different file): `CLAUDE.md:1070` and the
+`.githooks/pre-push` header comment both said the hook's self-repo check requires the name
+`@lattice/core`. The package is now `@proof-or-stop/core`, so as written they told a reader the
+hook no-ops on this repo. The hook itself is fine — B-cdf6 deliberately widened the comparison to
+a name SET so that a later rename could never silently disarm the recursive tsc gate, and B-cc10
+is exactly the rename it was hardened against. Prose corrected in both places; the code was
+already right.
 
 ## CHK-008 revert claim: RETRACTED (B-cc10 F-007)
 
