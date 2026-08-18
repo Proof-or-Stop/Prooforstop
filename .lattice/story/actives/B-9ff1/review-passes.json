@@ -1226,6 +1226,37 @@
         "scanEscalationReason": null
       },
       "_hash": "b9f2a803067501fc39f8fec81a5ace2283afe4511ae482a1ef50d7892ddce259"
+    },
+    {
+      "id": "B-9ff1:RP-039",
+      "agent": "lattice-review-behavior",
+      "note": "Verified disposition of F-057/F-058/F-059 (filed by this lane last round) rather than re-auditing the module. F-059 fix (commit 77a5ffab9e) confirmed by operator execution of red_evidence_envelope_check: prints a location hint while the spec-pinned substring red_evidence_policy_missing: pinnedPath is unchanged; red-w2d-rejection-matrix (142 fixtures) and red-evidence-envelope-smoke both exit 0. F-058 accepted_risk reasoning independently verified against registries.ts HARD_FLOORS.minMatcherEntropyBitsMin=12, enforced as a non-tunable floor in policy.ts, confirming ENOMEM (11.51 bits) is permanently inadmissible; the no-soundness-break claim is corroborated by the spec's separate R1-4 literal-match-in-RED-output gate. F-057 accepted_risk deferral verified: all 16 checklist items and all 16 review.json missing_user_sees advisories confirmed, and the claimed 108-entry re-bind cost is exact. No new findings; tree clean, 0 commits behind main, findings.json 59/59 resolved-or-dismissed.",
+      "createdAt": "2026-08-18T18:11:50.712Z",
+      "reviewRound": "2026-08-14T03:33:29.693Z",
+      "reviewRunId": "B-9ff1:RR-062",
+      "envelopeId": "ba764feea8ee9aa4ae8aa5d39c808f2b2ad664b9d8df64e7b746addbd654eb02",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-9ff1/background.md",
+          ".lattice/story/actives/B-9ff1/checklist.json",
+          ".lattice/story/actives/B-9ff1/findings.json",
+          ".lattice/story/actives/B-9ff1/plan.md",
+          "packages/main/src/core/red-evidence/registries.ts",
+          "packages/main/src/handlers/red-evidence.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "packages/main/dist/tasks/red-evidence-envelope-smoke.js",
+          "packages/main/src/core/red-evidence/envelope.ts",
+          "packages/main/src/core/red-evidence/policy.ts",
+          "packages/main/tests/red/red-w2d-rejection-matrix.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5ee59a711fb8a32240afec6a8f2171c0f223a4d156bbb0d4bcdea854869ecc84"
     }
   ]
 }
