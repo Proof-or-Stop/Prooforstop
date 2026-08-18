@@ -108,7 +108,14 @@ const base = {
   LATTICE_OWNER_SESSION_ADAPTER_TASK: 'b49ed-edge',
   LATTICE_OWNER_SESSION_ADAPTER_AGENT: 'lattice-review-topology-critic',
 } as Record<string, string>;
-const inputs = { hostname: 'h', root: process.cwd(), ppid: 1 };
+// B-49ed F-025: use an isolated scratch root rather than process.cwd(). Nothing downstream
+// needs `root` to be a real project: detectProvider reads env only, the token store treats
+// projectRoot as opaque path material, and the assertions below check sessionSource, never
+// sessionId. Probing under cwd meant the cleanup had to delete under cwd too -- with an
+// isolated root the probes write only here, so nothing outside this dir is ever removed.
+// Same precedent as story-owner-lease-smoke.ts's dedicated smoke root.
+const probeRoot = mkdtempSync(join(tmpdir(), 'b49ed-session-probe-'));
+const inputs = { hostname: 'h', root: probeRoot, ppid: 1 };
 
 // Same two identity dimensions, no boundary -> host-adapter.
 const asAdapter = resolveSessionIdentity({ ...base } as never, inputs);
@@ -133,16 +140,13 @@ const missingAgent = resolveSessionIdentity(
 assert.notEqual(missingAgent.sessionSource, 'generated-token',
   'generated-token still requires the agent identity dimension');
 
-// B-49ed F-017/F-019/F-020: the resolveSessionIdentity probes above write an
+// B-49ed F-017/F-019/F-020/F-025: the resolveSessionIdentity probes above write an
 // owner-session-tokens store under a `.lattice/runtime` dir, and .gitignore's
 // `.lattice/runtime/` pattern is root-anchored so it does not cover packages/main/.lattice.
 // This must run AFTER those probes -- an earlier version placed it before them and was
-// therefore inert. The landing site depends on cwd (process.cwd() feeds the session root),
-// so clean both candidates, and scope to the runtime subtree actually created rather than
-// deleting a whole .lattice tree.
-for (const root of [resolve(here, '../..'), process.cwd()]) {
-  rmSync(join(root, '.lattice', 'runtime', 'owner-session-tokens'), { recursive: true, force: true });
-}
+// therefore inert. Since F-025 the probes write under an isolated scratch root instead of
+// cwd, so cleanup is a single scoped removal of that root -- nothing outside it is touched.
+rmSync(probeRoot, { recursive: true, force: true });
 
 console.log('  generated-token requires: provider + task + agent + boundary');
 console.log('  host-adapter requires: provider + task + agent');
