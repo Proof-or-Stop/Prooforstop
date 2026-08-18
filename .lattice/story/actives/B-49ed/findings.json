@@ -594,7 +594,7 @@
       "desc": "All 15 verificationEvidence receipts across CHK-001..CHK-005 carry storyFilesHash != current story storyFilesHash (0d4cdbb...). This is the strong-signal drift class per CLAUDE.md DONE-convergence rules (storyFilesHash drift, not benign whole-tree materialHash noise), and it recurs the exact pattern already resolved once as F-023. Concretely for CHK-003:adversarial:0: its receipt is pinned to headHash 745df2059b (2026-08-18 13:21), but signing-guard-mutation-proof-smoke.ts -- the file that receipt is supposed to describe -- was rewritten by commit 933b880b3d (2026-08-18 17:59, F-029 fix: constructed node -e string replaced with a static probe.mjs executed via argv) and again touched by 1848c0a6 after that. I independently re-ran the pinned command (node packages/main/dist/tasks/signing-guard-mutation-proof-smoke.js) against the current artifact and it still exits 0 with the same selector text (guard removal admits: explicit-env, derived-ppid), so the CLAIM the receipt makes is still true -- but the receipt itself does not reflect having been captured against the mechanism now on disk, so its provenance is not truthful evidence of having verified the current artifact. Additionally, F-029 (quality, medium, filed against the pre-fix execFileSync(node,[-e,...]) shape of this same file) is still status:open even though the fix that answers it (933b880b3d) has already landed on this branch -- the finding tracker has not been closed to match the code. Remedy: re-run verification_evidence_refresh_stale (or equivalent re-pin) for all 15 intents against current HEAD/storyFilesHash before DONE, and resolve or re-verify F-029 now that its underlying code has changed.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-18T10:21:21.353Z",
@@ -606,7 +606,11 @@
         "packages/main/src/core/topology-critic-receipt.js"
       ],
       "signatureTag": "missing|ts|verificationevidence-receipts-across",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "All 15 intents carried stale storyFilesHash after two commits touched the proof file, which is the strong-signal drift class rather than benign whole-tree noise. Refreshed. On the scope question: you were right that merge-lineage appears in no checklist files declaration, plan.md, or background, and that blocked my gate is a weak generalizable justification. Recorded here explicitly rather than riding silently in the diff.",
+      "resolvedAt": "2026-08-18T11:22:42.345Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
