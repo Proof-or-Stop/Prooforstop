@@ -545,6 +545,26 @@
       "resolvedAt": "2026-08-18T05:32:41.552Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-49ed:F-028",
+      "desc": "CHK-001:adversarial:0 evidence note misdescribes its pinned command. The note reads: 'Assertion 1 requires both signing roles to refuse explicit-env and derived-ppid... Mutation-proven: deleting the guard makes this smoke fail with lattice-review-topology-critic must refuse explicit-env.' The pinned command is topology-signing-source-guard-smoke.js (packages/main/src/tasks/topology-signing-source-guard-smoke.ts). That file never mutates, deletes, or weakens the guard -- it only calls the real unmutated deriveRoleProvenance and asserts refusal (verified: zero occurrences of mutant/weakened/SIGNABLE_SESSION_SOURCES in that file). The mutation-execution behavior the note describes belongs exclusively to the sibling file signing-guard-mutation-proof-smoke.ts, which is pinned to a DIFFERENT intent, CHK-003:adversarial:0. Additionally the quoted failure text lattice-review-topology-critic must refuse explicit-env does not match either file's actual runtime output: the real thrown error is role eligibility failed: <role> must sign from a host-adapter session, received \"<source>\" (topology-critic-receipt.ts:165); must refuse only appears as an assert-message label string in the test file, never as text a caller would see. This receipt is mechanical=true and its headHash/materialHash/storyFilesHash match current HEAD, so this is not a freshness problem the F-023 refresh would catch -- it is a content mismatch between what the note asserts happened and what the pinned command actually does, which a hash-based freshness check cannot detect. Confirmed by contrast: CHK-003:adversarial:0's own note for the actual mutation file has since been replaced with the generic placeholder verification_run executed the pinned verifier..., so the mutation-proof intent itself is fine; only this one CHK-001 note carries the misattributed description.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-18T05:34:39.484Z",
+      "reviewRound": "2026-08-18T05:27:28.263Z",
+      "reviewRunId": "B-49ed:RR-030",
+      "_hash": "a73e7e3d15a5d8be1a4b3ccf4c2dd7faf7da9b34d0a1a0e8c48028eee22ab3bf",
+      "files": [
+        "packages/main/src/tasks/topology-signing-source-guard-smoke.ts",
+        "packages/main/src/tasks/signing-guard-mutation-proof-smoke.ts",
+        ".lattice/story/actives/B-49ed/checklist.json"
+      ],
+      "signatureTag": "missing|ts|adversarial-evidence-note",
+      "signatureTagSource": "auto"
     }
   ]
 }
