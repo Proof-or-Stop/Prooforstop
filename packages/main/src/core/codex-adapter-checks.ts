@@ -26,13 +26,8 @@ import {
 import type { StoryStore } from './store.js';
 import type { ProcessEvent } from './types.js';
 import { readBrandEnv } from './brand-env.js';
-import {
-  ADAPTER_DIR_NAMES,
-  PROOF_OR_STOP_ADAPTER_DIR,
-  PROOF_OR_STOP_MANIFEST_FILENAME,
-  adapterDirCandidates,
-  adapterManifestCandidates,
-} from './brand-paths.js';
+
+import { ADAPTER_DIR_NAMES, PROOF_OR_STOP_ADAPTER_DIR, PROOF_OR_STOP_MANIFEST_FILENAME, adapterDirCandidates, adapterManifestCandidates, PROOF_OR_STOP_STATE_DIR } from './brand-paths.js';
 
 export type CodexAdapterCheckStatus = 'pass' | 'warn' | 'fail';
 
@@ -371,6 +366,8 @@ const isGlobalThinProject = isManagedGlobalThinRoot;
 
 /** Canonical adapter manifest relative path — the only one ever WRITTEN. */
 const CANONICAL_CODEX_MANIFEST_REL = `${PROOF_OR_STOP_ADAPTER_DIR}/${PROOF_OR_STOP_MANIFEST_FILENAME}`;
+/** B-cc10 F-019: canonical state-dir manifest path for user-facing check messages. */
+const CANONICAL_STATE_MANIFEST_REL = `${PROOF_OR_STOP_STATE_DIR}/${PROOF_OR_STOP_MANIFEST_FILENAME}`;
 
 /**
  * Resolve the Codex adapter manifest read-both (B-cc10 CHK-002).
@@ -398,10 +395,12 @@ function checkAgentAssetResolution(resolution: AgentAssetResolution, checks: Cod
 }
 
 function checkManifest(root: string, checks: CodexAdapterCheck[], resolution: AgentAssetResolution): CodexPromptMode | null {
-  // Resolver priority: canonical .lattice/lattice.json first; legacy
-  // .Lattice/lattice.json remains read-only compatible.
+  // B-cc10 F-019: user-facing messages must name the CANONICAL paths. Resolver
+  // priority is canonical first with the deprecated spelling still read-only
+  // compatible; these strings previously advertised the deprecated names, which
+  // told users to look for files a migrated project no longer has.
   if (isGlobalThinProject(root)) {
-    push(checks, 'manifest', 'Codex manifest', 'pass', true, 'global-thin project: Codex adapter behavior runs from global lattice CLI (.lattice/lattice.json present)');
+    push(checks, 'manifest', 'Codex manifest', 'pass', true, `global-thin project: Codex adapter behavior runs from the global proof-or-stop CLI (${CANONICAL_STATE_MANIFEST_REL} present)`);
     return 'registry';
   }
   const selection = resolveCodexManifest(root);
@@ -413,11 +412,11 @@ function checkManifest(root: string, checks: CodexAdapterCheck[], resolution: Ag
         'Codex manifest',
         'pass',
         true,
-        `runtime-owned default: .lattice-codex/lattice.json not required for package prompt registry (hash=${resolution.promptRegistryHash.slice(0, 12)})`,
+        `runtime-owned default: ${CANONICAL_CODEX_MANIFEST_REL} not required for package prompt registry (hash=${resolution.promptRegistryHash.slice(0, 12)})`,
       );
       return 'registry';
     }
-    push(checks, 'manifest', 'Codex manifest', 'fail', true, 'missing .lattice-codex/lattice.json', LOCAL_INIT_VERIFY_COMMAND);
+    push(checks, 'manifest', 'Codex manifest', 'fail', true, `missing ${CANONICAL_CODEX_MANIFEST_REL}`, LOCAL_INIT_VERIFY_COMMAND);
     return null;
   }
   const manifestPath = join(root, selection.relPath);

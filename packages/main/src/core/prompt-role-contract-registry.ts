@@ -1,11 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-import {
-  MANIFEST_FILENAMES,
-  adapterManifestCandidates,
-  stateDirCandidates,
-} from './brand-paths.js';
+import { MANIFEST_FILENAMES, adapterManifestCandidates, stateDirCandidates, PROOF_OR_STOP_ADAPTER_DIR } from './brand-paths.js';
 
 import {
   canonicalJsonStringify,
@@ -129,7 +125,10 @@ function reviewerHostRenderSource(
     return globalSource;
   }
   if (globalSource) return globalSource;
-  const relDir = host === 'claude' ? '.claude/agents' : '.lattice-codex/agents';
+  // B-cc10 F-018: derive the adapter dir; this file already uses read-both
+  // adapterManifestCandidates()/stateDirCandidates() above, so a hardcoded
+  // deprecated spelling here made the fallback branch miss canonical-only projects.
+  const relDir = host === 'claude' ? '.claude/agents' : `${PROOF_OR_STOP_ADAPTER_DIR}/agents`;
   return existsSync(join(projectRoot, relDir, file)) ? 'full-asset' : 'package-registry';
 }
 
@@ -164,7 +163,10 @@ export function reviewerHostRenderIdentity(
   }
   const packageTemplate = resolvePromptTemplateBody(entry, rolloutMode);
   const source = reviewerHostRenderSource(projectRoot, host, entry.file);
-  const relDir = host === 'claude' ? '.claude/agents' : '.lattice-codex/agents';
+  // B-cc10 F-018: derive the adapter dir; this file already uses read-both
+  // adapterManifestCandidates()/stateDirCandidates() above, so a hardcoded
+  // deprecated spelling here made the fallback branch miss canonical-only projects.
+  const relDir = host === 'claude' ? '.claude/agents' : `${PROOF_OR_STOP_ADAPTER_DIR}/agents`;
   const bootstrap = renderPromptEntryForHost(entry, host);
   const bootstrapDigest = domainSeparatedDigest(`reviewer-${host}-bootstrap.raw-utf8.v1`, bootstrap);
   if (source === 'full-asset') {
