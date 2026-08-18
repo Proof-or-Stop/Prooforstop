@@ -1076,6 +1076,44 @@
         "scanEscalationReason": null
       },
       "_hash": "a8bdd0edc9e6e01bb7612a20760a267f5262fa3ef75cf295ab9ac07e4cfb61b7"
+    },
+    {
+      "id": "B-9ff1:RP-034",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage review of the post-merge re-bind: verified the 108-record evidence distribution matches the expected 66/15/8/6/6/4/1 command breakdown + 2 waivers exactly; confirmed bijection of 108 verificationIntent refs to 108 verificationEvidence records (0 missing, 0 orphan, 0 duplicate); confirmed genuine re-execution via 22 distinct headHash values each tied to real commits, uniform materialHash/storyFilesHash matching current HEAD, and mechanical:true+selectorMatched:true+exitCode:0 on all 106 non-waiver records; confirmed all 5 red-w2d-*.mjs harnesses plus red-evidence-envelope-smoke.js are registered in lattice.config.json validate.commands via JSON parse (each exactly once of 111); ran all 5 harnesses plus the smoke fresh myself, all exit 0; audited both waivers (CHK-012:edge:1, CHK-013:adversarial:0) on their merits and accept both as genuine immutable-pin edge cases, not coverage holes, independently corroborated by my own harness runs (8 invocations, 33 fixtures) and by source-level confirmation that the (command,selector) pin is truly immutable once set; confirmed all 8 manual_transcript records carry mechanical:true with full command receipts identical in rigor to logic_test evidence (the kind label does not gate execution rigor in this codebase; intent.type does), so none of them stands in for a mechanizable assertion. No test-coverage-scope blocker found. Note for the orchestrating agent (out of my lane): findings.json actually shows 50 total findings (48 resolved, 1 dismissed, 1 open), not the 3 the dispatch context stated, and a NEW finding B-9ff1:F-050 (concept lane, low severity, open) landed during this review wave concerning spec-authorization of the exit:07 leading-zero rejection -- that is a concept-lane matter, not a coverage gap (the behavior IS tested), but it is open and should be tracked.",
+      "createdAt": "2026-08-18T17:07:12.298Z",
+      "reviewRound": "2026-08-14T03:33:29.693Z",
+      "reviewRunId": "B-9ff1:RR-047",
+      "envelopeId": "b584f101fe6d9551071b98e7ce2e672d1451859689670b188f0ddbb42af47e3d",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-9ff1/background.md",
+          ".lattice/story/actives/B-9ff1/checklist.json",
+          ".lattice/story/actives/B-9ff1/findings.json",
+          ".lattice/story/actives/B-9ff1/plan.md",
+          ".lattice/story/actives/B-9ff1/review-runs.json",
+          ".lattice/story/actives/B-9ff1/scope-contract.json",
+          "lattice.config.json",
+          "packages/main/src/core/evidence-quality.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "packages/main/dist/tasks/red-evidence-envelope-smoke.js",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+          "packages/main/tests/red/red-w2c-validate-registration.mjs",
+          "packages/main/tests/red/red-w2d-assertion-digest-scope.mjs",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs",
+          "packages/main/tests/red/red-w2d-entropy-differential.mjs",
+          "packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "packages/main/tests/red/red-w2d-specificity-conjunction.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "532b6cd10e81f6506108f38779861122648e01d6761c7a81e191b000d0eddcaf"
     }
   ]
 }
