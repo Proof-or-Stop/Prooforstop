@@ -1,0 +1,87 @@
+{
+  "schemaVersion": "proofstory.contract.v1",
+  "storyId": "B-45a5",
+  "diagnosticOnly": false,
+  "hardeningLevel": "high_assurance",
+  "triggerReasons": [
+    {
+      "code": "high_assurance_risk",
+      "message": "High-risk or gate/security wording selects high-assurance intent hardening.",
+      "requires": "high-assurance"
+    },
+    {
+      "code": "collision_required_high_assurance",
+      "message": "High-assurance work requires an independent intent-collision result.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "collision_required_standard",
+      "message": "Ambiguity, user impact, behavior change, or multi-deliverable intent makes intent collision diagnostically required.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "red_evidence_required",
+      "message": "Bug, regression, security/auth/session, benchmark, or explicit behavior-change work should have red evidence.",
+      "requires": "red-evidence"
+    },
+    {
+      "code": "scope_ambiguity",
+      "message": "Broad or absolute scope wording should have scope clarification before future enforcement.",
+      "requires": "scope-clarification"
+    }
+  ],
+  "originalIntentRequestHash": "sha256:17e79732fed533161a4b2be8600680449340737fde84b58e3ffc9f23a98b81a9",
+  "acceptanceBindings": [
+    {
+      "id": "AB-001",
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002",
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0",
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0",
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:adversarial:0"
+      ],
+      "milestoneIds": [],
+      "note": "The claim that both REVIEW-path gates skip a decision-backed withdrawn item is carried by the repro artifact (CHK-001) plus the two wirings (CHK-002 completeness, CHK-003 channel). CHK-001 adversarial is the negative control that rules out a gate which skips everything."
+    },
+    {
+      "id": "AB-002",
+      "checklistRefs": [
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "CHK-004:happy:0",
+        "CHK-004:edge:0",
+        "CHK-004:adversarial:0"
+      ],
+      "milestoneIds": [],
+      "note": "The anti-bypass half of the acceptance claim: an unbacked or unconfirmed withdrawal is still refused by both gates. Separated from AB-001 because a fix can satisfy the skip while failing this entirely, and that combination is the shipped-back-door outcome."
+    },
+    {
+      "id": "AB-003",
+      "checklistRefs": [
+        "CHK-005"
+      ],
+      "verificationIntentRefs": [
+        "CHK-005:happy:0",
+        "CHK-005:edge:0",
+        "CHK-005:adversarial:0"
+      ],
+      "milestoneIds": [],
+      "note": "Delivery proof: B-8df9 CHK-004 carries zero waivers and its gates pass without them, while its unrelated CHK-002:happy:0 selector-pin waiver survives. Without this the story ends at the code compiles."
+    }
+  ],
+  "diagnosticGaps": [],
+  "note": "Bindings map the snapshot acceptanceClaim: skip only via the decision-backed helper (AB-001), unbacked withdrawals still refused (AB-002), waivers removed and B-8df9 green (AB-003).",
+  "createdAt": "2026-08-18T22:23:54.169Z",
+  "updatedAt": "2026-08-18T22:23:54.169Z"
+}
