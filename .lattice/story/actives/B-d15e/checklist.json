@@ -29,7 +29,11 @@
         "happy": [
           {
             "desc": "Inspect the production result writer and build packages/main: it contains exactly one performanceBudgetMs initializer, that initializer references FULL_SUITE_BUDGET_MS, no numeric performanceBudgetMs initializer remains, and the build exits 0.",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "npm --prefix packages/main run build",
+              "selector": "build-main-with-binding.mjs"
+            }
           }
         ],
         "edge": [],
@@ -41,7 +45,30 @@
         "headHash": "92534bc237a6131311dc449afcfb6e43078b1671",
         "attestedAt": "2026-08-18T17:26:43.794Z",
         "materialHash": "0fb55e3fed351391267243f244998c000ae8e53738f7e7eb0e0d8f4457e0bfb9"
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/full-suite-runner.ts",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "The production writer has one canonical performanceBudgetMs initializer, no numeric initializer, and the current packages/main source builds successfully.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "f884f679d0239a6c889aefa95f72b49422aa4c8abcf72d23a7ef6b0753e29d6d",
+            "outputTail": "\n> @lattice/core@0.3.262 build\n> node ../../scripts/build-main-with-binding.mjs\n\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-18T17:34:31.183Z",
+            "timeoutMs": 290000
+          },
+          "headHash": "a8f06f65aa7916b30e5bea8328866514f31a1976",
+          "materialHash": "f001d7115e3f0966cc1dc27ce7eb6cfb43ddb821cc8148b55fb85b612347ed80",
+          "storyFilesHash": "7a459d75a61d67fee24be9bc690d28d0aea53e97f8f67437da20a4d9d8f401d3",
+          "timestamp": "2026-08-18T17:34:31.333Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
