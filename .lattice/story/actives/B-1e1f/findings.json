@@ -17,6 +17,24 @@
       ],
       "signatureTag": "adversarial|ts|quality-fail-closed",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-1e1f:F-002",
+      "desc": "quality-fail-closed: packages/main/src/core/certification-window.ts:266 windowAuthorizesHeavyCertification(window, null) returns Boolean(window.receiptId). loadVerifiedCertificationWindow:653-654 only verifies a receipt when one is found, so deleting receipts[] from certification-window.json while leaving a signed ADMITTED window+receiptId still authorizes done_required_validate / validate --full. A missing PRE_CERT receipt must fail closed.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-18T09:22:58.024Z",
+      "reviewRound": "2026-08-18T09:16:08.689Z",
+      "reviewRunId": "B-1e1f:RR-002",
+      "_hash": "77e2a3ff89922562c35afb46856bbe80d8fcb90cc2255300aa58ac8f14c1b119",
+      "files": [
+        "packages/main/src/core/certification-window.ts"
+      ],
+      "signatureTag": "adversarial|ts|quality-fail-closed",
+      "signatureTagSource": "auto"
     }
   ]
 }
