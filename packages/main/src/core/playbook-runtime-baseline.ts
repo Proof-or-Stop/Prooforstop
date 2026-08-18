@@ -28,7 +28,7 @@ import {
   type RuntimeMemoryIndex,
 } from './playbook-runtime-memory-index.js';
 import { deleteBrandEnv, readBrandEnv, setBrandEnv } from './brand-env.js';
-import { PROOF_OR_STOP_CONFIG_FILENAME } from './brand-paths.js';
+import { PROOF_OR_STOP_CONFIG_FILENAME, PROOF_OR_STOP_STATE_DIR } from './brand-paths.js';
 
 export type PlaybookRuntimeBaselineProfile = 'small' | 'full';
 
@@ -1242,7 +1242,7 @@ function materializeRuntimeCorpus(recordsRaw: string): RuntimeCorpusMaterializat
   writeFileSync(join(root, PROOF_OR_STOP_CONFIG_FILENAME), JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.lattice/story/actives',
+    storyDir: `${PROOF_OR_STOP_STATE_DIR}/story/actives`,
     requirementsDir: 'docs/requirements',
   }, null, 2) + '\n', 'utf8');
 
