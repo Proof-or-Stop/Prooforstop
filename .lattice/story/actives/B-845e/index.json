@@ -1,0 +1,40 @@
+{
+  "storyId": "B-845e",
+  "name": "diagnose-test-advance-slowness",
+  "title": "Diagnose why story_advance to TEST is slow",
+  "description": "Measure each REVIEW-to-TEST step on a tiny case and record which step dominates wall-clock time. The story id used for the original complaint is not the subject; the TEST-phase advance path is.",
+  "type": "chore",
+  "phase": "INIT",
+  "priority": "high",
+  "keywords": [
+    "performance",
+    "story-advance",
+    "TEST",
+    "timing"
+  ],
+  "riskSignals": [
+    {
+      "category": "State Machine/Gate",
+      "matched": "story_advance"
+    },
+    {
+      "category": "Production/Emergency",
+      "matched": "production"
+    }
+  ],
+  "priorityElevatedFrom": "medium",
+  "createdAt": "2026-08-18T14:50:58.881Z",
+  "startedAt": "2026-08-18T14:50:58.881Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-08-18T14:50:59.549Z",
+      "branch": "main",
+      "user": "Pan Qi",
+      "sessionId": "sess-32f40d2752c4eb99",
+      "agent": "main"
+    }
+  ]
+}
