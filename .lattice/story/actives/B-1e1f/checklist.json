@@ -16,7 +16,59 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-001:status-surface",
+            "desc": "Call certification_window_status --storyId=<id> on a story with a CertificationWindow artifact (or none yet) → stdout contains exactly one 'State:' line whose value is one of BLOCKED|ADMITTED|RUNNING|FINALIZED|INVALIDATED|CANCELLED and exactly one 'Next:' line naming a single recovery/next command. WHY: operator surface from plan Verify; status is the gate-consumed readout, not inventory completeness.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node bin/proof-or-stop.js certification_window_status --storyId=B-1e1f",
+              "selector": "Next:"
+            }
+          },
+          {
+            "id": "CHK-001:admitted-frozen-identity",
+            "desc": "After a successful admit, certification_window_status → prints State: ADMITTED plus the frozen headHash, expected main SHA, and storyFilesHash bound on the signed window. WHY: plan userSees/DoneWhen require frozen identity on the PRE_CERT receipt.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-001:blocked-no-frozen-identity",
+            "desc": "certification_window_status while State is BLOCKED (no successful admit) → does not print an admitted frozen head/main/storyFiles identity as if the candidate were certified; still prints State: BLOCKED and exactly one Next:. WHY: BLOCKED must not impersonate ADMITTED.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-001:registry-gate-consumer",
+            "desc": "certification_window_begin/status/cancel plus the CertificationWindow artifact are registered in process-fact-registry and process-fact-levels with an explicit gateConsumer; npm run test:process-fact-contract exits 0. Status prose never claims a Review Inventory receipt authorizes certification. WHY: process-fact dual contract; inventory completeness is not PRE_CERT.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm run test:process-fact-contract",
+              "selector": "process-fact"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-001:tampered-window-fail-closed",
+            "desc": "Mutate the on-disk signed CertificationWindow (state, hashes, or inventory receipt id) without going through begin/status/cancel → next status/begin/heavy/DONE consumer fail-closes as tampered/invalid and does not treat the window as ADMITTED. WHY: signed gate-consumed fact; prompt-only status text is not evidence.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-001:inventory-receipt-not-precert",
+            "desc": "Present a FINALIZED Review Inventory receipt (authorizesTest=false / inventory-completeness-only) as if it were a PRE_CERT CertificationWindow → heavy entrypoints and window status still refuse certification authority; inventory hashes are not rewritten. WHY: chosen option A; B-3f3d inventory must never become PRE_CERT.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
