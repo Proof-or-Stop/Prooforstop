@@ -1179,6 +1179,29 @@
         "scanEscalationReason": null
       },
       "_hash": "40f821adcf670c3e1dea4b4140309702525fae2e34aa1461981c9b18201454d4"
+    },
+    {
+      "id": "B-9ff1:RP-037",
+      "agent": "lattice-review-concept",
+      "note": "F-051 block [1] byte-exactness re-verified mechanically, not by re-reading: git show f0ac49ba3b:.lattice/story/actives/B-9ff1/findings.json recovered the stored original (1216 chars); Python substring test confirms it appears verbatim inside the current F-051.resolvedReason (found at offset 383-1599), and all three named clauses ('could never be referenced by any envelope', \"done quietly by the implementation's own story\", 'length-bounded when they are not.') are present inside that recovered original, hence inside the current field by construction of the substring test. Went further than asked: extracted the actual bad 'verbatim' block [1] shipped at commit 4d02467b71 (the pre-F-056-fix state, len 4005) and diffed it against the recovered original with difflib -- exactly 4 non-equal ops: one em-dash-to-hyphen substitution plus three separate internal deletions (not one tail cut), totalling 1216-839=377 dropped chars, matching block [4]'s claim exactly and confirming 'RETYPING' over 'truncation-by-tool' is the correct characterization (a tool truncation would be one contiguous cut, not three scattered deletions plus a character substitution). The three deleted spans match the three named clauses exactly. Block [4] does not soften: it calls the drop 'worst', names it as removed from 'the very block built to demonstrate honesty by construction', states the fourth-instance pattern, and states plainly that all four catches were mine (the lane's), never the implementer's. F-056's resolvedReason does NOT claim the tooling gap is closed -- it states explicitly 'findings.json still has no append-only resolution history and finding_resolve still overwrites, so a future re-resolve can silently drop these four blocks exactly as this chain kept doing. A durable fix belongs in the resolution writer, not in prose.' It also discloses the reviewer's own defect rather than omitting it: 'the lane disclosed that its own F-056 desc carries shell-quoting artifacts and a malformed --files element; cosmetic, substance and citations intact, and disclosed rather than hidden.' Verified against the raw F-056.desc/files fields directly: desc contains literal doubled-backslash-quote escape artifacts (\\\\'' sequences) from shell quoting, and files is a one-element array whose single string is itself a bracketed/escaped path (\"[\\\\\".lattice/story/actives/B-9ff1/findings.json\\\\\"]\") rather than a bare path -- both defects real and both disclosed, not hidden. No source drift: git diff --name-only 19aeb9de6f..HEAD and git log --name-only over the same range both show .lattice/ paths only. findings.json: 56 total, 0 open (55 resolved, 1 dismissed; no status outside {resolved, dismissed}). git rev-list --count HEAD..main = 0. git status --porcelain was clean at HEAD before this run's own review_run_start writes (review-runs.json/prompt-envelopes.json dirt is this pass's own bookkeeping, matching the historical pattern where review_pass_set's own commit sweeps it in). node packages/main/tests/red/red-w2d-rejection-matrix.mjs: PASS, 142 fixtures, exit 0. Reused RR-056 (this lane, this round, same head 4f3fce5702); RR-055 was an inadvertent duplicate start immediately prior with the same head/round and was not used for this pass.",
+      "createdAt": "2026-08-18T17:48:34.810Z",
+      "reviewRound": "2026-08-14T03:33:29.693Z",
+      "reviewRunId": "B-9ff1:RR-056",
+      "envelopeId": "b8e52464b3a3f895e9800c9acfa484e6719bc0b84286e59a8e34a366d7a640e3",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-9ff1/findings.json",
+          ".lattice/story/actives/B-9ff1/review-runs.json"
+        ],
+        "filesTriagedByName": [
+          "packages/main/tests/red/red-w2d-rejection-matrix.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5eba782af4785dcc1231afa7322d1dc949f2db2d321f07a3bfa81ca4d2933d2d"
     }
   ]
 }
