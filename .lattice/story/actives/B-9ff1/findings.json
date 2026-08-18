@@ -1593,6 +1593,23 @@
       ],
       "signatureTag": "doc-code-drift|jsonl|cross-vendor-review",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9ff1:F-071",
+      "desc": "Cross-vendor review host B (codex, 2026-08-18), first surfacer. B-def6's background states that scope_contract_acknowledge allows phases INIT, PLAN, DEV. packages/main/src/core/command-policy.ts:411 declares allowedPhases: ['DEV', 'REVIEW']. The story's central TEST-phase gap remains genuine.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-08-18T21:13:20.813Z",
+      "reviewRound": "2026-08-18T20:31:09.389Z",
+      "_hash": "85ec225ad04341457d91cde3fa43787f6af4ffc5b1d00efaf7a65032558f3cc1",
+      "files": [
+        ".lattice/story/actives/B-def6/background.md"
+      ],
+      "signatureTag": "doc-code-drift|md|cross-vendor-review",
+      "signatureTagSource": "auto"
     }
   ]
 }
