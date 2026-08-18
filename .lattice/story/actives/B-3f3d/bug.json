@@ -141,6 +141,27 @@
       "status": "open",
       "foundAt": "2026-08-17T14:42:20.379Z",
       "fixedAt": null
+    },
+    {
+      "id": "BUG-CRITIC-DISPATCH-PROVENANCE-UNSATISFIABLE",
+      "title": "deriveRoleProvenance (topology-critic-receipt.ts:139-158) requires a recorded dispatch process-event whose sessionId EQUALS the signing session's own id, plus matching storyId, businessCommit and storyFilesHash. But 'dispatch' is not in the topology critic's allowedCommandIds (prompt-role-contract-registry.ts:300 lists only topology_critic_receipt_set, topology_critic_receipt_check, review_run_start, finding_add, review_pass_set, review_inventory_critic_set), so the critic cannot record the dispatch event it needs. A dispatch issued by the orchestrating agent records that agent's sessionId, which never matches the freshly-spawned subagent's session, so it does not satisfy the check either. Verified live: two independently dispatched critic sessions both failed with 'no current registered dispatch provenance for lattice-review-topology-critic in session sess-710f...' on BOTH verdicts, while review_run_start from the same sessions succeeded. Result: topology_critic_receipt_set is unreachable for any correctly-sandboxed critic subagent, independently of the basis-verification deadlock already fixed in 9f9f53a514. Either the host must inject dispatch provenance into the subagent session, or dispatch must be recordable by the critic role, or the binding must key on something the critic can actually present.",
+      "status": "open",
+      "foundAt": "2026-08-17T14:59:50.058Z",
+      "fixedAt": null
+    },
+    {
+      "id": "BUG-INDEPENDENCE-MATRIX-IS-TEXTUAL-ONLY",
+      "title": "independenceMatrix (topology-critic-receipt.ts:181-188) establishes independence by four textual !== comparisons (agentId, sessionId, dispatchId, businessCommitAuthor) between the critic and the implementation provenance. Neither deriveRoleProvenance (139-179) nor deriveImplementationProvenance (119-137) verifies WHO originated or recorded a dispatch event; both simply read sessionId off the most recent matching ProcessEvent on disk. Consequence: an implementer who also dispatches can mint a session id, record a dispatch event under it, hand that id to the critic subagent via the documented LATTICE_SESSION_ID host-adapter override, and the matrix reports session independence as true while the implementer controlled both sides of the comparison. I attempted exactly this and an independent topology critic refused to adopt the supplied session, correctly identifying that the proxy is void when one party originates both identities. Verified live: the dispatch event recorded under an arbitrary implementer-chosen session id carried a valid headHash and businessCommitAuthorSource git-var:GIT_AUTHOR_IDENT, i.e. it satisfies every mechanical check. The mechanism cannot catch this class of bypass; only the reviewer refusing at the point of session adoption catches it. Either bind identity to something the implementer cannot mint, or document that critic independence rests on reviewer refusal rather than on the matrix.",
+      "status": "open",
+      "foundAt": "2026-08-17T15:14:24.252Z",
+      "fixedAt": null
+    },
+    {
+      "id": "BUG-PROMPT-ENVELOPE-UNREPAIRABLE",
+      "title": "REVIEW to TEST validates the Prompt Envelope of findings that are already RESOLVED, and no command can repair a stale envelope. On B-3f3d the gate refuses with review_evidence_invalid naming F-088 through F-092 for eligibilityDigest/changedFilesDigest/impactedFilesDigest/reviewBasisDigest mismatch against authoritative recomputation; four of those five (F-088, F-090, F-091, F-092) are status=resolved and only F-089 is open, yet all five still block. Envelopes are written at dispatch/review_run time (handlers/story-dispatch.ts, handlers/review-run.ts) and bound to the material state then current, so a later material change staleifies them permanently. verification_evidence_refresh_stale does not touch them and timed out at 300s here; no envelope-specific repair command exists in the CLI surface. The only apparent recovery is a fresh reviewer round that mints new envelopes, which for a topology-critic-lane finding such as F-089 interacts with BUG-CRITIC-FINDINGS-INVISIBLE. Either resolved findings should be exempt from envelope validation, or a repair path should exist.",
+      "status": "open",
+      "foundAt": "2026-08-18T06:02:01.837Z",
+      "fixedAt": null
     }
   ]
 }
