@@ -8,6 +8,15 @@ import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { currentMaterialHash } from '../core/evidence-freshness.js';
+// B-cc10 F-064: the state-dir spelling in RESOURCE_POLICY keys and in
+// cleanupManifestForEntry's approvedRoots allowlist must come from the resolver,
+// never from a hand-typed literal. These are decision-relevant values one level
+// removed from a comparison (policy data fed to pathIsContained / target===approved),
+// which is precisely the shape the [brand-decision] gate's regex cannot see.
+import { PROOF_OR_STOP_STATE_DIR, stateDirCandidates } from '../core/brand-paths.js';
+
+/** Resolver-derived state-dir path for resource keys. Canonical spelling only. */
+export const stateDirKey = (...segments: readonly string[]): string => [PROOF_OR_STOP_STATE_DIR, ...segments].join('/');
 
 export type ResourceClass = 'git-common-dir' | 'fixed-path' | 'fixed-port' | 'runtime-lock' | 'main-write-lock';
 export type ResourceAccess = 'shared' | 'exclusive';
@@ -88,14 +97,14 @@ const repoRead = (name: string, options: Omit<FullSuiteEntry, 'name' | 'resource
 // fails closed before execution.
 const RESOURCE_POLICY: Record<string, FullSuiteEntry> = Object.fromEntries([
   repoRead('test:full-suite-runner-smoke', {}, [
-    { class: 'fixed-path', key: '.lattice/runtime/full-suite-fixed-sentinel', access: 'exclusive' },
+    { class: 'fixed-path', key: stateDirKey('runtime', 'full-suite-fixed-sentinel'), access: 'exclusive' },
     { class: 'fixed-port', key: '43127', access: 'exclusive' },
   ]),
   repoRead('test:full-suite-resource-sentinel', {}, [
     { class: 'fixed-port', key: '43127', access: 'exclusive' },
-    { class: 'fixed-path', key: '.lattice/runtime/full-suite-fixed-sentinel', access: 'exclusive', ownership: 'runner-cleanable' },
-    { class: 'runtime-lock', key: '.lattice/runtime/full-suite-runtime-sentinel.lock', access: 'exclusive', ownership: 'runner-cleanable' },
-    { class: 'main-write-lock', key: '.lattice/locks/full-suite-main-write-sentinel.lock', access: 'exclusive', ownership: 'runner-cleanable' },
+    { class: 'fixed-path', key: stateDirKey('runtime', 'full-suite-fixed-sentinel'), access: 'exclusive', ownership: 'runner-cleanable' },
+    { class: 'runtime-lock', key: stateDirKey('runtime', 'full-suite-runtime-sentinel.lock'), access: 'exclusive', ownership: 'runner-cleanable' },
+    { class: 'main-write-lock', key: stateDirKey('locks', 'full-suite-main-write-sentinel.lock'), access: 'exclusive', ownership: 'runner-cleanable' },
   ]),
   repoRead('test:main-write-lock-coverage'),
   repoRead('test:production-test-seam-guard', {}, [{ class: 'fixed-path', key: 'package.json', access: 'shared' }]),
@@ -114,7 +123,7 @@ const RESOURCE_POLICY: Record<string, FullSuiteEntry> = Object.fromEntries([
   isolated('test:review-assurance-floor-storyfileshash-smoke'), isolated('test:docs-drift-smoke'),
   isolated('test:docs-drift-wrapper-root'), isolated('test:gitroot-cwd-contract'), repoRead('test:process-fact-contract'),
   isolated('test:closeout-trust'),
-  repoRead('test:runtime-fact-contract', {}, [{ class: 'runtime-lock', key: '.lattice/runtime', access: 'shared' }]),
+  repoRead('test:runtime-fact-contract', {}, [{ class: 'runtime-lock', key: stateDirKey('runtime'), access: 'shared' }]),
   repoRead('test:evidence-quality'), repoRead('test:anti-stall'), isolated('test:storydir-inside-gitroot-smoke'),
   isolated('test:gitroot-cwd-routing'), isolated('test:bare-gate-gitroot-cwd'), isolated('test:project-gitroot-cwd'),
   isolated('test:done-oracle-wrapper-root'), isolated('test:done-premerge-mainsha-recheck'),
@@ -192,7 +201,12 @@ function observeOwnedTarget(path: string): OwnedTargetPreflight {
 
 export function cleanupManifestForEntry(entry: FullSuiteEntry, cwd: string): OwnedTargetPreflight[] {
   const root = realpathSync(cwd);
-  const approvedRoots = [join(root, '.lattice', 'runtime'), join(root, '.lattice', 'locks')].map(path => canonicalFilesystemPath(cwd, path));
+  // Read-both: a runner-cleanable target under EITHER spelling stays inside an
+  // approved owned root, so cleanup does not start throwing the moment the
+  // runtime writes to the canonical dir (or a teammate's branch still writes the
+  // deprecated one). Canonical first, matching the resolver's ordering.
+  const approvedRoots = [...stateDirCandidates('runtime'), ...stateDirCandidates('locks')]
+    .map(candidate => canonicalFilesystemPath(cwd, join(root, ...candidate.split('/'))));
   return entry.resources.filter(claim => claim.ownership === 'runner-cleanable').map(claim => {
     if (!claim.canonicalKey) throw new Error(`runner-cleanable resource is not canonicalized for ${entry.name}`);
     const target = claim.canonicalKey.slice(claim.canonicalKey.indexOf(':') + 1);

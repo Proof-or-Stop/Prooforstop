@@ -12,6 +12,7 @@ import {
   fullSuiteBudgetBreached, identityChanged, isUnderFullSuiteBudget, killProcessTree, parsePositiveInteger, parseRunnerArgs, shouldEnforceFullSuiteBudget,
   resetInterruptForTest, runEntry, runScheduled, validateInventory, writeResultArtifact,
   observedOutputSignatures, pathIsContained, validateJsonOutputPath,
+  stateDirKey,
   type FullSuiteEntry, type FullSuiteResult, type ResourceClaim,
 } from './full-suite-runner.js';
 
@@ -43,7 +44,7 @@ async function main(): Promise<void> {
     mutationBites: { removedFixedPortKey: false, inventoryOmission: false },
     lifecycle: { normalCleanup: false, normalCompletionGrandchild: false, timeoutGrandchild: false, externalInterrupt: false, outsideRootRefused: false },
   };
-  const collisionPath = join(process.cwd(), '.lattice', 'runtime', 'full-suite-fixed-sentinel');
+  const collisionPath = join(process.cwd(), ...stateDirKey('runtime', 'full-suite-fixed-sentinel').split('/'));
   mkdirSync(collisionPath, { recursive: true });
   const sentinelPath = resolve(dirname(fileURLToPath(import.meta.url)), 'full-suite-resource-sentinel.js');
   let collisionFailed = false;
@@ -361,14 +362,14 @@ async function main(): Promise<void> {
     writeFileSync(join(realSentinelRoot, 'package.json'), JSON.stringify({ scripts: { 'test:real-sentinel': `node ${JSON.stringify(realSentinelScript)}` } }));
     execFileSync('git', ['add', '.'], { cwd: realSentinelRoot }); execFileSync('git', ['commit', '-m', 'fixture'], { cwd: realSentinelRoot, stdio: 'ignore' });
     const realSentinelPaths = [
-      join(realSentinelRoot, '.lattice', 'runtime', 'full-suite-runtime-sentinel.lock'),
-      join(realSentinelRoot, '.lattice', 'locks', 'full-suite-main-write-sentinel.lock'),
-      join(realSentinelRoot, '.lattice', 'runtime', 'full-suite-fixed-sentinel'),
+      join(realSentinelRoot, ...stateDirKey('runtime', 'full-suite-runtime-sentinel.lock').split('/')),
+      join(realSentinelRoot, ...stateDirKey('locks', 'full-suite-main-write-sentinel.lock').split('/')),
+      join(realSentinelRoot, ...stateDirKey('runtime', 'full-suite-fixed-sentinel').split('/')),
     ];
     const realSentinelEntry = canonicalizeEntries([{ ...entry('test:real-sentinel'), resources: [
-      { class: 'runtime-lock', key: '.lattice/runtime/full-suite-runtime-sentinel.lock', access: 'exclusive', ownership: 'runner-cleanable' },
-      { class: 'main-write-lock', key: '.lattice/locks/full-suite-main-write-sentinel.lock', access: 'exclusive', ownership: 'runner-cleanable' },
-      { class: 'fixed-path', key: '.lattice/runtime/full-suite-fixed-sentinel', access: 'exclusive', ownership: 'runner-cleanable' },
+      { class: 'runtime-lock', key: stateDirKey('runtime', 'full-suite-runtime-sentinel.lock'), access: 'exclusive', ownership: 'runner-cleanable' },
+      { class: 'main-write-lock', key: stateDirKey('locks', 'full-suite-main-write-sentinel.lock'), access: 'exclusive', ownership: 'runner-cleanable' },
+      { class: 'fixed-path', key: stateDirKey('runtime', 'full-suite-fixed-sentinel'), access: 'exclusive', ownership: 'runner-cleanable' },
     ] }], realSentinelRoot)[0]!;
     const runRealSentinelInterrupted = async (mutation?: 'missing-runtime' | 'tampered-main'): Promise<FullSuiteResult> => {
       const readyFile = join(root, `real-sentinel-ready-${mutation ?? 'baseline'}`);
