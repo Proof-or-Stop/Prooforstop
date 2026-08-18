@@ -1,5 +1,58 @@
 # Changelog
 
+## Proof-or-Stop v0.3.262 - 2026-08-18
+
+This release removes the one-mebibyte process-buffer cliff that could prevent
+large validation evidence from being committed, and adds bounded artifact sizing
+so growth remains visible and controlled before it reaches the new ceiling.
+
+**Evidence persistence**
+
+- **Explicit metadata read ceiling (B-3434).** Every synchronous Git blob and tree
+  read in the generated-metadata commit path now uses a 32 MiB `maxBuffer`, replacing
+  Node's implicit 1 MiB default. The fix covers `isolatedBlobHash`, `isolatedGit`,
+  `treeBlobHash`, and their sibling reads rather than patching only the originally
+  observed failure site.
+- **Large artifacts commit successfully.** Regression coverage proves that staged
+  blobs of 1,400,000 bytes and exactly 1,048,577 bytes—one byte above the former
+  limit—survive index verification, tree verification, and immutable metadata commit.
+- **Read failures remain fail-closed.** Missing blobs, unreadable blobs, and genuine
+  digest changes are represented as distinct outcomes. An unreadable blob can no
+  longer collapse to a null digest and be misreported as metadata changing after
+  verification.
+
+**Bounded diagnostics and artifact growth**
+
+- **Actionable overflow errors.** Buffer exhaustion reports the 32 MiB ceiling and
+  captured byte count while discarding partial blob content. Silent hook failures
+  preserve their exit status, and hook-provided diagnostic text remains visible.
+- **Persisted-record-aware sizing.** Validation evidence is measured as the complete
+  record that will actually be serialized to disk, including JSON escaping, rather
+  than estimating only the inner output string.
+- **Progressive evidence reduction.** When a record approaches its budget, duplicated
+  command output, detail lines, and warnings are replaced with explicit omission
+  markers while pass/fail state and command identity remain intact. A minimal valid
+  verdict record is retained as the final bounded fallback.
+- **Early growth warnings.** Advisory and hard thresholds are derived from the same
+  metadata read ceiling, providing headroom before an artifact can block lifecycle
+  progress.
+
+**Execution and suite reliability**
+
+- Full-suite concurrency now derives from the host instead of using a fixed value,
+  and declared time budgets scale with the selected concurrency.
+- Flow-stability receives a measured cap so the complete suite remains satisfiable
+  under the runner's own scheduling policy.
+
+**Verification**
+
+- Added `validation-evidence-buffer-smoke` covering large blobs, exact-boundary
+  behavior, failure taxonomy, bounded diagnostics, record sizing, reduction stages,
+  and verdict preservation.
+- Added `red-b3434-blob-buffer-ceiling.mjs` as the reproducer and regression guard.
+- Routine validation and DONE-required validation completed before the Story reached
+  DONE; the CLI version was advanced to `0.3.262`.
+
 ## Proof-or-Stop v0.3.261 - 2026-08-17
 
 This release completes the public CLI brand migration and makes mechanical
