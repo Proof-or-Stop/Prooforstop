@@ -113,7 +113,7 @@
       "desc": "CHK-008:adversarial:0 verificationEvidence (moveIsPureRenameCommit=true) does not actually establish the claimed intent (\"git revert <sha> alone restores the pre-move layout with no manual fixup\"). The real state-dir move required TWO commits: ec7f315e0a (matched by verify-migration-contract.mjs grep --grep=CHK-003: move state dirs, diffstat 0 insertions/0 deletions) landed the mv NESTED at .proof-or-stop/.lattice/... and also reverted the canonical PROOF_OR_STOP_STATE_DIR constant back to .lattice; the actual fix to the final canonical layout + constants is a SEPARATE commit 8c0bd7b87c (fix nested move + flip canonical dir constants, 523 insertions/73 deletions) that is NOT a pure rename. I safely reproduced: `git revert --no-commit ec7f315e0a` on current HEAD (4402ba9a7a) produces dozens of git file-location CONFLICT errors and a non-zero exit rather than a clean restore (aborted immediately, repo confirmed clean via git status --porcelain). The witness checks the diffstat of the wrong (superseded/defective) commit instead of testing actual end-to-end revertibility of the current HEAD, so a green moveIsPureRenameCommit=true does not discriminate a genuinely non-atomic, non-single-commit-revertible migration from an atomic one -- which is exactly the CHK-008 property it exists to prove.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-18T03:44:25.353Z",
@@ -124,7 +124,8 @@
         "scripts/verify-migration-contract.mjs"
       ],
       "signatureTag": "adversarial|mjs|adversarial-verificationevidence-moveispurerenamecommit",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-08-18T04:14:43.346Z"
     },
     {
       "id": "B-cc10:F-008",
