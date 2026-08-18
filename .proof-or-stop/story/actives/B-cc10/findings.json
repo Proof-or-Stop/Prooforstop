@@ -368,7 +368,7 @@
       "desc": "packages/utils/src/handlers/tool-status.ts:57 runtimeLogPath = join(root, PROOF_OR_STOP_DIR, 'activity.jsonl') only checks the CANONICAL state dir; it has no fallback to the DEPRECATED spelling (.lattice/activity.jsonl) the way most other consumers in this diff do via STATE_DIR_NAMES. tool_status's own comment (line 4, 56) describes 'dual-source' as runtime-path + legacy docs/story/ path, and concatenates both when present (line 59), so a partially-migrated repo whose activity.jsonl still lives only under the deprecated .lattice/ (not yet re-written under .proof-or-stop/, e.g. right after this story's git-mv but before any command has run to recreate the file at the canonical path) would have that history silently excluded from tool_status output -- undercounting usage stats rather than erroring. Lower severity than the other findings since this is read-only reporting, not a correctness gate, but it is the same missed-consumer pattern: should iterate STATE_DIR_NAMES from brand-paths.ts (or lattice-paths.ts) the same way core/config.ts and other consumers in this diff do.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-18T04:09:32.718Z",
@@ -376,7 +376,8 @@
       "reviewRunId": "B-cc10:RR-022",
       "_hash": "da69a325e3896870a6ceade87dba92d11fa048c05433b90c4db00ac04155347c",
       "signatureTag": "missing|unknown|packages-utils-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-08-18T04:17:43.947Z"
     }
   ]
 }
