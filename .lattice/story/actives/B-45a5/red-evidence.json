@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-45a5",
+  "records": [
+    {
+      "id": "RED-20260818221605",
+      "trigger": "The two REVIEW-path gates never consult the item-level withdrawal helper, so a confirmed user-approved withdrawal still has evidence and dispatch records demanded for it.",
+      "acceptanceTargetRef": "CHK-003:happy:0",
+      "baselineHeadHash": "9eb5ec8f53432f578b13f462dc30e38d10165ffd",
+      "baselineMaterialHash": "ba6562c4561c54fca30fe771976d9f081d39507ba987f5187a931d25bcc8cbd9",
+      "observedFailure": "Executed unit-level probe against the compiled gate. withdrawnChecklistItemIdsFrom(decision) correctly resolves the withdrawn set to [CHK-002] for a decision with decision=confirmed and userConfirmed=true, yet checkDispatchEvidence returns ok=false with issues=[CHK-002] - it still demands dispatch evidence for that item. Its opts are {checklist, events, mainAgentOwnedItems} and carry no decision record at all, so it cannot consult the withdrawal even in principle. CONTROL: the delivered CHK-001, which has dispatch evidence, is correctly NOT an offender, so the gate is discriminating rather than failing everything. Independently corroborated in production on story B-8df9, where the same defect produced two live refusals: review_completeness_missing_evidence naming CHK-004 happy/edge/adversarial, and \"CHK-004 has no dispatch/subagent_result evidence\".",
+      "failingCommand": "node .lattice/story/actives/B-45a5/evidence/red-probe-channel-gate.mjs",
+      "expectedGreenCommand": "node .lattice/story/actives/B-45a5/evidence/red-probe-channel-gate.mjs",
+      "greenRelation": {
+        "targetRef": "CHK-003:happy:0",
+        "relation": "same_acceptance",
+        "command": "node .lattice/story/actives/B-45a5/evidence/red-probe-channel-gate.mjs"
+      },
+      "note": "Pre-DEV probe recorded before any fix, at baseline HEAD. CHK-001 formalizes this into a registered artifact under packages/main/tests/red/ that also covers evaluateReviewCompleteness and the four anti-bypass cases.",
+      "createdAt": "2026-08-18T22:16:05.204Z"
+    }
+  ],
+  "createdAt": "2026-08-18T22:16:05.204Z",
+  "updatedAt": "2026-08-18T22:16:05.204Z"
+}
