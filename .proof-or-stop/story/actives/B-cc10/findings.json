@@ -845,6 +845,21 @@
       "_hash": "81eb82568be741d7d0be36f5dfdfa6f86253a876f70366ed515717437ab51a99",
       "signatureTag": "missing|unknown|packages-core-config",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-cc10:F-046",
+      "desc": "core/release-push-approval.ts:5 RELEASE_PUSH_APPROVAL_REL_PATH = \".lattice/tmp/remote-push-approval.json\" is a hardcoded file PATH under the deprecated state dir, distinct from the deliberately-FROZEN schema literal lattice.remote-push-approval.v1 (brand-rename-mapping.md:135 only freezes the schema string, never the path; the migration decision doc docs/requirements/decisions/proof-or-stop-identity-migration.md:30 likewise only cites the schema). .githooks/pre-push:66 independently hardcodes the SAME literal path (by design -- the hook must not depend on the CLI resolver), so writer and reader currently agree and nothing is broken today. But this storys own stated goal is to retire .lattice as a live runtime path; this write path was left permanently pointed at .lattice/tmp/, so every future release_approve_push on a canonical-only project will still materialize a .lattice/tmp/ directory going forward -- the exact recreates-the-deprecated-dir shape already fixed elsewhere in this story for managed-assets.json. Distinct from the deliberate non-defect list (which only names the schema, not this path).",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-18T10:48:57.466Z",
+      "reviewRound": "2026-08-18T03:33:16.325Z",
+      "reviewRunId": "B-cc10:RR-054",
+      "_hash": "39310a538961863a1da4d10ccc9e268dd70ff2e6663c27d6b48a7d0e92ea720f",
+      "signatureTag": "missing|unknown|core-release-push",
+      "signatureTagSource": "auto"
     }
   ]
 }
