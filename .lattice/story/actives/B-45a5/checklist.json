@@ -49,7 +49,40 @@
       "context": "core/proofstory.ts:2084. The helper withdrawnChecklistItemIdsFrom(decision) already exists at core/proofstory.ts:1622 and is currently called only by tasks/scope-shrinkage-withdrawal-floor-smoke.ts. Use IT, not a status comparison: it takes the decision record as input, so the backing requirement is structural. Do NOT route this through core/checklist-status.ts - that module has zero decisionRef awareness in its 42 lines, and using it would yield a naive status==='withdrawn' skip that anyone can trigger by editing one JSON field.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "A story with a withdrawn item advances; the completeness gate prints pass instead of review_completeness_missing_evidence naming that item.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/proofstory.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/red/red-b45a5-withdrawal-gates.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "evaluateReviewCompleteness no longer reports gaps for intents of a decision-backed withdrawn item",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Intents of NON-withdrawn items are still demanded exactly as before",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The skip is reached only via withdrawnChecklistItemIdsFrom(decision); no code path keys on item.status alone",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
