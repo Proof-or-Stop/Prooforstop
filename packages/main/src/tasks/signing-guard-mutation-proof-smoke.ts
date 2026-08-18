@@ -92,12 +92,6 @@ try {
 
 
 assert.equal(readFileSync(guardFile, 'utf8'), original, 'the real guard artifact is byte-identical after the proof');
-// B-49ed F-017: probing resolveSessionIdentity below writes packages/main/.lattice/runtime/
-// owner-session-tokens, and .gitignore's `.lattice/runtime/` pattern is root-anchored so it
-// does NOT cover that path. The smoke created it, so the smoke removes it rather than
-// broadening a repo-wide ignore for one test's side effect.
-rmSync(resolve(here, '../../.lattice'), { recursive: true, force: true });
-
 console.log('Signing guard mutation proof: PASS');
 console.log('  guard removal admits: explicit-env, derived-ppid');
 console.log('  guard intact refuses: explicit-env, derived-ppid');
@@ -138,6 +132,17 @@ const missingAgent = resolveSessionIdentity(
     LATTICE_OWNER_SESSION_ADAPTER_GENERATED: 'true', LATTICE_OWNER_SESSION_ADAPTER_BOUNDARY: 'b49ed' } as never, inputs);
 assert.notEqual(missingAgent.sessionSource, 'generated-token',
   'generated-token still requires the agent identity dimension');
+
+// B-49ed F-017/F-019/F-020: the resolveSessionIdentity probes above write an
+// owner-session-tokens store under a `.lattice/runtime` dir, and .gitignore's
+// `.lattice/runtime/` pattern is root-anchored so it does not cover packages/main/.lattice.
+// This must run AFTER those probes -- an earlier version placed it before them and was
+// therefore inert. The landing site depends on cwd (process.cwd() feeds the session root),
+// so clean both candidates, and scope to the runtime subtree actually created rather than
+// deleting a whole .lattice tree.
+for (const root of [resolve(here, '../..'), process.cwd()]) {
+  rmSync(join(root, '.lattice', 'runtime', 'owner-session-tokens'), { recursive: true, force: true });
+}
 
 console.log('  generated-token requires: provider + task + agent + boundary');
 console.log('  host-adapter requires: provider + task + agent');
