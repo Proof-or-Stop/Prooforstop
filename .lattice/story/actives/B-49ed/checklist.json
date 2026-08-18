@@ -187,24 +187,23 @@
         },
         {
           "intentRef": "CHK-002:adversarial:0",
-          "kind": "logic_test",
-          "file": "packages/main/src/tasks/topology-signing-source-guard-smoke.ts",
+          "kind": "integration_test",
           "command": "node packages/main/dist/tasks/topology-signing-source-guard-smoke.js",
           "result": "pass",
-          "note": "No identity assertion was deleted to make a test pass. The migrated fixtures still assert on session ids; they resolve them via adapterSessionId instead of hardcoded literals. story-owner-lease-smoke keeps all 74 LATTICE_SESSION_ID uses because it tests explicit-env lease semantics, and it still passes. Per-smoke before/after on an idle machine shows no regression.",
+          "note": "verification_run executed the pinned verifier for CHK-002:adversarial:0",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "fe818ee7113805e6930881de1c87ab61e5fec63eac4e0a00a7f77f7db98638c2",
-            "outputTail": "Topology signing source guard: PASS\n  refused (forgeable): explicit-env, derived-ppid\n  accepted (host-derived): host-adapter, generated-token\n  bound production call sites: 2/2\n  migrated fixture env resolves to: host-adapter\n",
+            "outputDigest": "88b4f50d8fb285081317d0a79b2e6d8ec7b4bfe58d5d666d0a62e3e530c26a2f",
+            "outputTail": "Topology signing source guard: PASS\n  refused (forgeable): explicit-env, derived-ppid\n  accepted (host-derived): host-adapter, generated-token\n  bound production call sites: 2/2\n  migrated fixture env resolves to: host-adapter\n  accepted sources complete provenance for: critic + exclusion approver\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-17T16:53:38.885Z",
+            "executedAt": "2026-08-18T05:10:20.004Z",
             "timeoutMs": 270000
           },
-          "headHash": "0977d27484364db293264394075cd47fe48dd374",
-          "materialHash": "3348a8157eb8b98c7c3c78fe5baefb42f4ecac47c862ba99385591d770c94a22",
-          "storyFilesHash": "c9631adb725714fcbe853350b034d67cb84b800b9e650e1a2c57888ac4d394e4",
-          "timestamp": "2026-08-17T16:53:39.021Z"
+          "headHash": "6bffffbf9f52f8b3e5035405c512e7143b8f0d93",
+          "materialHash": "007801d9ce6e75d05549350ffaa01537a36ebfd1a786eecac625ee27ed235e49",
+          "storyFilesHash": "39c94f8fe6c26143b7037a10df85d685dd9652d77845052c057efe3b7c061179",
+          "timestamp": "2026-08-18T05:10:20.144Z"
         },
         {
           "intentRef": "CHK-002:happy:0",
