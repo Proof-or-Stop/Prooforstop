@@ -1447,6 +1447,28 @@
         "scanEscalationReason": null
       },
       "_hash": "927fc90fbca6b3faef608f8d51a7bf4f29e1aa8e88f03daec4b465e4f925e4c2"
+    },
+    {
+      "id": "B-3434:RP-056",
+      "agent": "lattice-review-test-coverage",
+      "note": "Post-merge re-bind verification (materialHash 9663bdc7->188e365b). All 24 verificationEvidence records cross-checked directly in checklist.json against evidence_plan/evidence_inspect: missing=0 rerun=0 refresh-only=0 fresh=24, all headHash/materialHash/storyFilesHash bound to current HEAD 385d493. Confirmed exactly one waiver (CHK-005:edge:0, permanent, unchanged note) and no second waiver introduced during rebind. Confirmed CHK-001/002/003 (13 records) bind command node packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs and CHK-004/005 non-waiver records (10 records) bind command node packages/main/dist/tasks/validation-evidence-buffer-smoke.js -- no generic fallback command on any record, receipts and outputTail text intact. Independently re-ran both commands (exit 0 each) and confirmed git rev-list --count HEAD..main = 0. Test coverage review passed: verificationIntent-to-verificationEvidence coverage remains intact after the batched re-bind, no blocker.",
+      "createdAt": "2026-08-18T12:37:50.200Z",
+      "reviewRound": "2026-08-18T12:34:40.850Z",
+      "reviewRunId": "B-3434:RR-110",
+      "envelopeId": "b4d543296d88a06e20e1da229f9485ef97400c1ee43c533870cb6df22fcddb33",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3434/background.md",
+          ".lattice/story/actives/B-3434/checklist.json",
+          ".lattice/story/actives/B-3434/plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "fa6649a1fcd3a055a325c39a0a1df1bd5d55debb130735b2f5d21f8c0934382b"
     }
   ]
 }
