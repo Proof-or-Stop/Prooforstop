@@ -224,7 +224,14 @@ export const RUNTIME_ARTIFACT_REGISTRY: RuntimeArtifactRegistryEntry[] = [
     id: 'runtime-locks',
     description: 'Main write lock and other mkdir-style coordination locks under <state-dir>/locks/.',
     matchers: stateDirPrefix('locks/'),
-    ignorePatterns: stateDirIgnore('locks/'),
+    // B-cc10 F-062: `**/*.lock/` must be REGISTRY-owned, not hand-typed into .gitignore.
+    // It lived only as a literal inside the generator-owned managed block, so
+    // mergeLatticeRuntimeIgnores() regenerated that block WITHOUT it — meaning the next
+    // `init --upgrade` would delete the rule again (it had already been lost twice). The
+    // pattern is deliberately state-dir-INDEPENDENT: transient <name>.lock/ dirs
+    // (checklist/finding/review-run/init-check) each carry a holder.json token and appear
+    // wherever the artifact they guard lives, not only under <state-dir>/locks/.
+    ignorePatterns: [...stateDirIgnore('locks/'), '**/*.lock/'],
     materialHash: 'exclude',
     volatile: true,
     repairableTrackedArtifact: true,
