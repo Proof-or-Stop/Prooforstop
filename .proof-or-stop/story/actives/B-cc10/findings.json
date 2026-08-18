@@ -869,7 +869,7 @@
       "desc": ".githooks/pre-push:11,76 (rejection message an operator sees on a denied push still says \"Run `lattice release_approve_push --confirm`\") -- CHK-006 in this same story deleted bin/lattice.js, so that exact instruction now fails with Cannot find module. Directly caused by this story: F-046 edited this very file (adding the two-sided remote-push-approval read fallback) but left the adjacent, now-broken command name untouched. lattice-residue [brand-exec]/[brand-prose] structurally cannot catch it: EXECUTABLE_SCAN_ROOTS = bin/.codex/package.json/config-files/CITATION.cff/packages-utils-src (no .githooks), and DOC_SCAN_ROOTS restricts to *.md (pre-push is not markdown) -- a real live-UX gap outside both gated surfaces, not a deliberate exemption.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-18T10:54:46.339Z",
@@ -877,7 +877,8 @@
       "reviewRunId": "B-cc10:RR-059",
       "_hash": "c0257d60440fbeca280325cd94f6f5cdff25eee215fcfe8cec828ef9a7c77a93",
       "signatureTag": "missing|unknown|githooks-push-rejection",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-08-18T11:08:11.084Z"
     },
     {
       "id": "B-cc10:F-048",
