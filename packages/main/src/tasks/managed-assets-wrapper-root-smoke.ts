@@ -5,8 +5,8 @@
  * wrapper-root layout:
  *
  *   metadataRoot/              <- not a git repo; Proof-or-Stop metadata/assets live here
- *     lattice.config.json      <- { gitRoot: "repo" }
- *     .lattice/Lattice.md      <- managed asset path base
+ *     proof-or-stop.config.json  <- { gitRoot: "repo" }
+ *     .proof-or-stop/Lattice.md      <- managed asset path base
  *     repo/                    <- configured gitRoot subdir
  *
  * The contract is deliberately split:
