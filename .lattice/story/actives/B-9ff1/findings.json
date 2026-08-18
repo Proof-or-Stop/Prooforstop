@@ -1463,6 +1463,21 @@
       "resolvedAt": "2026-08-18T18:22:46.660Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-9ff1:F-065",
+      "desc": "findings.json:1249 (B-9ff1:F-058 resolvedReason, resolvedAt 2026-08-18T18:02:53.179Z) was never edited after F-062 (created 18:17:20Z, resolved 18:22:44Z, findings.json:1367) established that its \"NOT A SOUNDNESS BREAK ... an admitted matcher must still literally appear in the RED output and be absent at GREEN\" claim was stated unconditionally when spec:190-192/456-458 define an implemented greenExempt:true carve-out. Verified by grep: F-058.resolvedReason (2472 chars) contains neither the string \"greenExempt\" nor \"R1-4\"; it still asserts the original unconditional absent-at-GREEN claim verbatim, with no pointer to F-062. The corrected statement (\"test failed being admitted does not make a fabricated RED satisfiable, because R1-4 independently requires...; the absent-at-GREEN requirement is a separate conjunct greenExempt can waive per-matcher\") exists ONLY inside F-062s own resolvedReason text. This breaks the precedent this same round set for the sibling correction: F-061 (findings.json, resolved 18:22:42Z) produced a direct edit appending a \"CITATION CORRECTION\" paragraph into F-059s own resolvedReason (confirmed present, resolvedAt 18:23:09Z, after F-061). F-058 got no analogous edit despite F-062 identifying an equivalent defect in it. A future reader who opens F-058 - the actual record about the specificity-metric inversion, which is also the record cited by B-595c background.md CHK-003 - reads the false unconditional claim with no cross-reference to the correction, unless they independently know to also read F-062. This is the exact defect class F-064 (this same round, upheld high) was filed against: a correction that exists somewhere in the record set but never reaches the artifact a reader would actually consult.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-18T18:30:14.177Z",
+      "reviewRound": "2026-08-14T03:33:29.693Z",
+      "reviewRunId": "B-9ff1:RR-065",
+      "_hash": "9c6c45a39cd7a010e1cadba6a09f6bca32d8411b3ca8e31557192bf4173bbf3a",
+      "signatureTag": "adversarial|unknown|findings-json-1249",
+      "signatureTagSource": "auto"
     }
   ]
 }
