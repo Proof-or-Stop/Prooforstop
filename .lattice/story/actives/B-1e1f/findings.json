@@ -276,6 +276,46 @@
       "signatureTagSource": "auto",
       "resolvedReason": "Smoke asserts done_required_validate and validate --full call refuseHeavyCertificationUnlessAdmitted and the running receipt frozen identity matches the window.",
       "resolvedAt": "2026-08-18T09:45:54.043Z"
+    },
+    {
+      "id": "B-1e1f:F-014",
+      "desc": "CHK-002:missing-b3f3d-api-fail-closed lacks a mechanical receipt after refresh. packages/main/src/tasks/certification-window-smoke.ts:133 now asserts the default begin does NOT emit [pre_cert_inventory_api_absent]; the remaining inventoryApisPresent=false check at :334-337 is never printed; console.log at :818-826 therefore cannot satisfy the pinned selector. verification_evidence_refresh_stale demoted this must intent to a non-mechanical attestation on ae72c4c. WHY: after the production loader became non-null, the executable pin no longer proves the absent-API fail-closed path. severity=high",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-18T12:17:27.920Z",
+      "reviewRound": "2026-08-18T12:08:07.771Z",
+      "reviewRunId": "B-1e1f:RR-013",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-1e1f/background.md",
+          ".lattice/story/actives/B-1e1f/plan.md",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/tasks/certification-window-heavy-choke-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "569b79d048eeb7a05269b39943a6abc10b9d0752203be221bdaa41b7255074e0",
+      "files": [
+        "packages/main/src/tasks/certification-window-smoke.ts",
+        "packages/main/src/core/certification-window.ts",
+        "packages/main/src/core/review-inventory-epoch.ts"
+      ],
+      "signatureTag": "missing|ts|missing-b3f3d-fail",
+      "signatureTagSource": "auto"
     }
   ]
 }
