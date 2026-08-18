@@ -1052,6 +1052,21 @@
       "resolvedAt": "2026-08-14T11:39:04.244Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-9ff1:F-050",
+      "desc": "packages/main/src/core/red-evidence/envelope.ts:275-286 (isValidExpectedExitClass/EXIT_CLASS_EXACT): the code additionally requires exit:<n> to be in canonical no-leading-zero decimal form (regex ^exit:(0|[1-9][0-9]*)$), rejecting e.g. expectedExitClass:\"exit:07\" as R1-3 (tested explicitly in red-w2d-rejection-matrix.mjs line 378). Spec §1.1.2 defines the enum member only as '\"exit:<n>\" (an exact exit code, 0 < n <= 255)' with no canonical-form/no-leading-zero requirement stated anywhere in §1.1.2 or §0 (verified: no 'leading zero' or 'canonical form' text exists anywhere in the spec file). This is a validation the code performs that the spec text does not authorise -- a hand-authored envelope using \"exit:07\" to mean exit code 7 (a value squarely inside the spec's 0<n<=255 range) is rejected by the code with no spec basis cited. It is very likely a deliberate, defensible strictness choice consistent with this codebase's pervasive no-normalization philosophy (case-sensitive enums, no silent trimming elsewhere in this same file), and it is fail-closed (rejects a stricter set, never admits something the spec forbids), so severity is low. Unlike every other interpretive gap-fill in this file (see the DRIVE_QUALIFIED_PREFIX path note, the greenExempt presence-vs-truth note, the R1-2/R1-3 rule-1-triple-split note), this one carries no 'review B-9ff1 F-XXX, adjudicated' comment recording that a reviewer considered and accepted it -- so unlike those, it has not yet been through the story's own adjudication discipline. Recommend either citing spec-external rationale in a comment (matching this file's own established pattern) or relaxing the regex to accept any digit string satisfying 0<n<=255 regardless of leading zeros.",
+      "severity": "low",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-18T17:05:16.933Z",
+      "reviewRound": "2026-08-14T03:33:29.693Z",
+      "reviewRunId": "B-9ff1:RR-049",
+      "_hash": "84752773d2388ac5c1118e89edfabdbc4d7ebeb212902ad95596e8c7aaaa197a",
+      "signatureTag": "edge|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
