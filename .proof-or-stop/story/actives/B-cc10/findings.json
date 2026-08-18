@@ -229,6 +229,25 @@
       ],
       "signatureTag": "missing|md|code-drift-docs",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-cc10:F-014",
+      "desc": "doc-code-drift: CHANGELOG.md v0.3.261 entry (added by CHK-006 commit a5a75f7768/b27383a0fc) states \"Not affected: the lattice npm bin alias ... and the @lattice/core package name are separate identities and remain retained.\" This is factually wrong at the time it was written: CHK-005 (commits 0eb0d46aff/ad5dc15253) landed BEFORE CHK-006 in this same story and already renamed packages/main/package.json name from @lattice/core to @proof-or-stop/core (verified: grep \"name\" packages/main/package.json now shows @proof-or-stop/core). No CHANGELOG entry anywhere documents the @lattice/core -> @proof-or-stop/core rename at all; the only mention of it is this one entry, and it asserts the opposite of what happened. A reader trusting the changelog would wrongly conclude the npm package identity is unchanged.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-18T03:47:15.386Z",
+      "reviewRound": "2026-08-18T03:33:16.325Z",
+      "reviewRunId": "B-cc10:RR-017",
+      "_hash": "9ae5b0ca54ab877f329af75c4d193a63142f1bc16116ac894adba97a1880e573",
+      "files": [
+        "CHANGELOG.md",
+        "packages/main/package.json"
+      ],
+      "signatureTag": "missing|md|code-drift-changelog",
+      "signatureTagSource": "auto"
     }
   ]
 }
