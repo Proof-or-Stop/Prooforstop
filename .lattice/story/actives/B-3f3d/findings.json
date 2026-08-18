@@ -8118,7 +8118,7 @@
       "desc": "packages/main/src/tasks/review-inventory-epoch-smoke.ts:782 CHK-005 userSees mismatch: userSees promises the replay report prints the literal labeled lines Baseline mutation-driven redispatches: >=5 / New mutation-driven redispatches: 0 / Accepted OPEN commits: 0 / Remediation DEV transitions: 1 / Clean final-review epochs: <=1, plus every quality-regression counter as 0, or prints FAIL otherwise. The actual code at line 782 only runs console.log(JSON.stringify({ result: PASS_STRING, replay: replayA }, null, 2)), emitting raw camelCase JSON keys such as baselineMutationDrivenRedispatches, proposedMutationDrivenRedispatches, acceptedOpenMaterialCommits, aggregatedRemediationTransitions, finalReviewEpochsWithoutRegression. None of the five literal userSees strings, nor the word FAIL, ever appear in this file (grep repo-wide: zero hits for those exact report labels). On failure this script throws an uncaught node assert.AssertionError with nonzero exit; it never prints FAIL. A reader following the userSees contract would search for output text this tool never produces. Fix: either change the smoke task to print the five literal labeled lines (and FAIL on failure) as promised, or correct CHK-005 userSees to describe the actual JSON field names.",
       "severity": "medium",
       "category": "happy",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-behavior",
       "createdAt": "2026-08-17T09:34:58.907Z",
@@ -8146,7 +8146,11 @@
       "readDiagnostics": [],
       "_hash": "8e907f72c97756a15560b01e5c8292f3375c48d38a3741ca4e0aa813b96e4012",
       "signatureTag": "happy|unknown|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Correct: none of the promised literals existed anywhere in the source, and line 782 emitted only a JSON dump.\n\nThis one was genuinely fixable rather than acceptable, and the distinction matters. Unlike F-120, where the promised lane states are values the type does not have and the label is pinned by an existing assertion, here every value CHK-005 promises was ALREADY being computed -- just buried in a JSON blob under different key names. So satisfying the promise required emitting what was already true, not inventing anything or bending a type.\n\nThe report now prints each promised line from its real counter, so a regression changes the printed number rather than disappearing into the blob. The FAIL branch the promise also names is implemented and real, not decorative.\n\nVerified both directions rather than only the green one: a healthy run prints all promised lines and exits 0; forcing baselineRedispatches to 0 makes it print FAIL and exit 1, and the source is restored byte-identical afterwards.",
+      "resolvedAt": "2026-08-18T06:12:17.832Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3f3d:F-119",
