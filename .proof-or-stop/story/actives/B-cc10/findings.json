@@ -965,7 +965,7 @@
       "desc": "doc-promise-undelivered: docs/requirements/decisions/proof-or-stop-identity-migration.md has zero mention of F-041 (high severity, resolved), despite the doc dedicating standalone sections to every other REVIEW-round finding on this same defect-landscape topic (F-001 at line 217, F-007 at line 192, F-032/F-040 at line 298). F-041 documented a genuinely NEW defect sub-class beyond the doc's existing Loud/Quiet/Dangerous-sabotage taxonomy (`## The dominant defect class`, line 265): runtime-GENERATED advisory text (machine.ts:1262/1423, session.ts:590) instructing operators to run the now-deleted `lattice <cmd>`, which the finding text itself states none of the four lattice-residue gates (koala/brand-prose/brand-exec/brand-decision) can catch because it is generated text, not a static literal. This directly undercuts CHK-006's own stated acceptance bar (prove nothing depends on the removed aliases) yet the decision doc, which otherwise thoroughly narrates every prior review-round lesson including two lower-severity findings from the same round (F-042, F-046), is silent on it. A future reader of this doc would conclude the four residue gates plus the validate-suite fixes covered the full defect landscape of this migration, which F-041 disproves.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-08-18T10:59:48.305Z",
@@ -978,7 +978,8 @@
         "packages/main/src/handlers/session.ts"
       ],
       "signatureTag": "missing|md|promise-undelivered-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-08-18T11:11:07.515Z"
     },
     {
       "id": "B-cc10:F-054",
