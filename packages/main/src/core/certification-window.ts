@@ -263,11 +263,18 @@ export function windowAuthorizesHeavyCertification(
 ): boolean {
   if (!window || !verifyCertificationWindow(window)) return false;
   if (window.state !== 'ADMITTED' && window.state !== 'RUNNING') return false;
-  if (!receipt) return Boolean(window.receiptId);
-  if (!verifyPrecertReceipt(receipt)) return false;
-  return receipt.windowId === window.windowId
-    && receipt.storyId === window.storyId
-    && receipt.receiptId === window.receiptId;
+  if (!receipt || !verifyPrecertReceipt(receipt)) return false;
+  if (receipt.windowId !== window.windowId || receipt.storyId !== window.storyId || receipt.receiptId !== window.receiptId) {
+    return false;
+  }
+  const frozen = window.frozen;
+  if (!frozen) return false;
+  return receipt.frozen.headHash === frozen.headHash
+    && receipt.frozen.materialHash === frozen.materialHash
+    && receipt.frozen.storyFilesHash === frozen.storyFilesHash
+    && receipt.frozen.expectedMainSha === frozen.expectedMainSha
+    && receipt.frozen.verifierIdentity === frozen.verifierIdentity
+    && receipt.frozen.testIdentity === frozen.testIdentity;
 }
 
 export function withCertificationWindowLock<T>(
@@ -664,6 +671,8 @@ export interface CertificationWindowCurrentIdentity {
   verifierIdentity?: string;
   testIdentity?: string;
   headHash?: string;
+  /** True when the workspace is a git repo but current hashes could not be read. */
+  hashUnavailable?: boolean;
 }
 
 export function detectCertificationWindowMaterialDrift(
@@ -672,6 +681,9 @@ export function detectCertificationWindowMaterialDrift(
 ): { drifted: boolean; reason?: string } {
   const frozen = window.frozen;
   if (!frozen) return { drifted: false };
+  if (current.hashUnavailable) {
+    return { drifted: true, reason: 'current certification hashes are missing' };
+  }
   if (current.storyFilesHash && frozen.storyFilesHash && current.storyFilesHash !== frozen.storyFilesHash) {
     return { drifted: true, reason: 'storyFilesHash changed' };
   }

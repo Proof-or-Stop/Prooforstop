@@ -21,6 +21,7 @@ import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../c
 import { createCertificationWindowHandlers } from '../handlers/certification-window.js';
 import { createDoneRequiredValidationHandlers } from '../handlers/done-required-validation.js';
 import { createVerifierHandlers } from '../handlers/verifier.js';
+import { computeActiveReviewers } from '../handlers/reviewer-list.js';
 import {
   CERTIFICATION_WINDOW_FILE,
   CERTIFICATION_WINDOW_STATES,
@@ -33,6 +34,9 @@ import {
   PRE_CERT_MAIN_NOT_MERGED,
   PRE_CERT_WINDOW_REQUIRED,
   PRE_CERT_WINDOW_TAMPERED,
+  PRECERT_TEST_IDENTITY,
+  PRECERT_VERIFIER_IDENTITY,
+  detectCertificationWindowMaterialDrift,
   isOfficialHeavyValidateInvocation,
   emptyCertificationWindowData,
   evaluateCertificationWindowAdmit,
@@ -624,6 +628,11 @@ const prematureDone = await caught(() => chokeDone.done_required_validate({ stor
 assert.match(prematureDone, new RegExp(`\\[${PRE_CERT_WINDOW_REQUIRED}\\]`));
 assert.match(prematureDone, new RegExp(`Next: proof-or-stop certification_window_status --storyId=${chokeStoryId}`));
 assert.equal(existsSync(join(chokeRoot, heavyMarker)), false, 'done_required_validate must not spawn heavy children without an admitted window');
+for (let i = 0; i < 3; i += 1) {
+  const storm = await caught(() => chokeDone.done_required_validate({ storyId: chokeStoryId }));
+  assert.match(storm, new RegExp(`\\[${PRE_CERT_WINDOW_REQUIRED}\\]`));
+}
+assert.equal(existsSync(join(chokeRoot, heavyMarker)), false, 'retry storm must not spawn a heavy child');
 
 const prematureFull = await caught(() => chokeValidate.validate({ storyId: chokeStoryId, full: true }));
 assert.match(prematureFull, new RegExp(`\\[${PRE_CERT_WINDOW_REQUIRED}\\]`));
@@ -673,6 +682,17 @@ assert.doesNotMatch(admittedHeavy, new RegExp(`\\[${PRE_CERT_WINDOW_REQUIRED}\\]
 assert.equal(existsSync(join(replayRoot, heavyMarker)), true, 'admitted window may start the official heavy command');
 const runningStatus = replayWindowHandlers.certification_window_status({ storyId: replayStoryId });
 assertStatusSurface(runningStatus, 'RUNNING');
+const runningWindow = replayStore.readCertificationWindows(replayStoryId).windows.at(-1);
+const runningReceipt = replayStore.readCertificationWindows(replayStoryId).receipts.at(-1);
+assert.ok(runningWindow && runningReceipt, 'admitted heavy must keep a signed receipt');
+assert.equal(
+  windowAuthorizesHeavyCertification(runningWindow, runningReceipt),
+  true,
+  'heavy start must stay bound to the frozen receipt identity',
+);
+assert.deepEqual(runningReceipt.frozen, runningWindow.frozen);
+assert.equal(runningReceipt.frozen.verifierIdentity, PRECERT_VERIFIER_IDENTITY);
+assert.equal(runningReceipt.frozen.testIdentity, PRECERT_TEST_IDENTITY);
 
 writeFileSync(join(replayRoot, '.lattice', 'story', 'actives', replayStoryId, 'note.md'), 'metadata-only\n');
 git(replayRoot, ['add', `.lattice/story/actives/${replayStoryId}/note.md`]);
@@ -693,6 +713,38 @@ assert.deepEqual(afterReceipt?.frozen, admittedFrozen, 'stored receipt frozen id
 
 const postCertHeavy = await caught(() => replayDone.done_required_validate({ storyId: replayStoryId }));
 assert.match(postCertHeavy, new RegExp(`\\[${PRE_CERT_WINDOW_REQUIRED}\\]`));
+
+const verifierDrift = detectCertificationWindowMaterialDrift(runningWindow!, {
+  materialHash: runningWindow!.frozen?.materialHash,
+  storyFilesHash: runningWindow!.frozen?.storyFilesHash,
+  verifierIdentity: 'mutated-verifier',
+  testIdentity: PRECERT_TEST_IDENTITY,
+});
+assert.equal(verifierDrift.drifted, true, 'official verifier identity change must drift');
+assert.match(String(verifierDrift.reason), /verifier identity/);
+
+const peerStoryId = 'B-cw22';
+const peerStore = makeStore(replayRoot, peerStoryId);
+peerStore.writeStory(peerStoryId, {
+  ...peerStore.readStory(peerStoryId),
+  title: 'peer story still writable',
+});
+peerStore.writeChecklist(peerStoryId, { items: [] });
+assert.equal(
+  replayWindowHandlers.certification_window_status({ storyId: replayStoryId }).includes('State: INVALIDATED'),
+  true,
+  'peer story metadata write must not restore this window',
+);
+assert.ok(peerStore.readStory(peerStoryId).title.includes('peer'), 'peer DEV write must succeed without a repo-wide lock');
+
+const reviewerNames = computeActiveReviewers(
+  { riskSignals: [] },
+  { items: [] },
+).map(row => row.name);
+assert.ok(
+  ['concept', 'quality', 'test-coverage'].every(name => reviewerNames.includes(name)),
+  `baseline reviewer lanes must remain present, got ${JSON.stringify(reviewerNames)}`,
+);
 
 setReviewInventoryAdmitApisForTest(undefined);
 assert.equal(loadReviewInventoryAdmitApis(), null, 'production loader must stay fail-closed after test override reset');

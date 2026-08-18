@@ -1,5 +1,8 @@
 import type { HandlerContext } from './context.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
+import { reportHealthIssue } from '../core/health.js';
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
 import { isFindingBlocking } from '../core/advisory.js';
 import { loadConfig } from '../core/config.js';
 import {
@@ -42,7 +45,9 @@ import {
 function persistHint(root: string, storyId: string, command: string): string {
   try {
     return autoCommitStoryMetadata(root, storyId, command);
-  } catch {
+  } catch (error) {
+    const reported = error instanceof Error ? error : { message: String(error) };
+    reportHealthIssue(`persist:certification-window:${command}`, reported, { storyId, root });
     return '';
   }
 }
@@ -87,7 +92,7 @@ function collectAdmitFacts(
   try {
     missingRequiredIntents = buildVerificationCoverage(ctx.store.readChecklist(storyId), headHash).missingRequired;
   } catch {
-    missingRequiredIntents = 0;
+    missingRequiredIntents = Number.MAX_SAFE_INTEGER;
   }
   let openBlockingFindingIds: string[] = [];
   try {
@@ -98,7 +103,7 @@ function collectAdmitFacts(
       .filter(finding => isFindingBlocking(finding, effectiveBlockingSeverities, roundCount))
       .map(finding => finding.id);
   } catch {
-    openBlockingFindingIds = [];
+    openBlockingFindingIds = ['<findings-unreadable>'];
   }
   let dirtyNonRuntimePaths: string[] = [];
   try {
@@ -138,12 +143,17 @@ export function currentCertificationIdentity(
     metadataRoot: ctx.root,
     projectRoot: ctx.root,
   });
+  const headHash = currentGitHead(gitCwd);
+  const materialHash = currentMaterialHash(gitCwd, 'HEAD', ctx.root);
+  const storyFilesHash = currentStoryFilesHash(gitCwd, 'HEAD', ctx.root);
+  const gitRepo = existsSync(join(gitCwd, '.git'));
   return {
-    headHash: currentGitHead(gitCwd),
-    materialHash: currentMaterialHash(gitCwd, 'HEAD', ctx.root),
-    storyFilesHash: currentStoryFilesHash(gitCwd, 'HEAD', ctx.root),
+    headHash,
+    materialHash,
+    storyFilesHash,
     verifierIdentity: PRECERT_VERIFIER_IDENTITY,
     testIdentity: PRECERT_TEST_IDENTITY,
+    hashUnavailable: gitRepo && (!materialHash || !storyFilesHash),
   };
 }
 
