@@ -143,6 +143,34 @@
         "scanEscalationReason": null
       },
       "_hash": "397b1abba903bfe15d4cc8c55acae92ce1831a833afb1c8d4f33a7de09645895"
+    },
+    {
+      "id": "B-49ed:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Concept-residue scan of the F-010->F-012->F-013 churn (mutation-proof rewrite -> scratch removal -> relocation) found no stale residue: (1) confirmed the previously-flagged duplicate byte-identity assertion in signing-guard-mutation-proof-smoke.ts is fixed, only one remains near end of file; (2) independently reproduced the mutation-proof bite by widening the real compiled SIGNABLE_SESSION_SOURCES guard (dist copy, restored after) -- smoke correctly threw and exited non-zero, then passed again after restore; (3) independently reproduced the import-rewrite regex claim by appending a re-export statement to the compiled guard and confirming the relocation still resolves it correctly, so the assertion is sound not vacuous; (4) grepped for stale-identifier / dist-mutant-path / old-count residue across touched files and repo -- all clean, remaining explicit-session-env uses in topology-signing-source-guard-smoke.ts are deliberate trap/control cases proving a downgrade regression is caught, not residue. One low finding filed (F-018): package.json description field converted from literal CJK to escaped unicode by an incidental json-writing tool call, now the sole outlier vs sibling packages which keep literal CJK -- cosmetic but should be restored for consistency since no CLI gate currently catches escaped-form drift. Wave 4 acceptance-topology chain is out of this story's scope (no touchpoints), not reviewed.",
+      "createdAt": "2026-08-18T04:48:44.305Z",
+      "reviewRound": "2026-08-18T04:41:21.380Z",
+      "reviewRunId": "B-49ed:RR-020",
+      "envelopeId": "f0e883f441021293fc819b40c28aed8bd9b6a839aa3b69da3a4510936cfa2eb0",
+      "writerSessionId": "sess-25934e96946adb5a03ddc1adead40c65",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/package.json",
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/adapter-session-env.ts",
+          "packages/main/src/tasks/signing-guard-mutation-proof-smoke.ts",
+          "packages/main/src/tasks/topology-signing-source-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/package-lock.json",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/proofstory-topology-critic-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5b2756cab596f78026a9716a89e76a12cf374b8791d4e2640380cc8eb756bb68"
     }
   ]
 }
