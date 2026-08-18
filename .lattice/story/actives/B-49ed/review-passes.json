@@ -221,6 +221,32 @@
         "scanEscalationReason": null
       },
       "_hash": "e1db4ea14e57c926d30672678f753988695f4140c6aebde0b3a40ffc9dc94405"
+    },
+    {
+      "id": "B-49ed:RP-010",
+      "agent": "lattice-review-quality",
+      "note": "Re-reviewed F-029 fix in signing-guard-mutation-proof-smoke.ts: verified via TS-AST parse + smoke reruns + guard-mutation control test that probe.mjs is a literal, non-interpolated fixture written outside the vocabulary guard scan scope. No blocking issues.",
+      "createdAt": "2026-08-18T10:16:41.435Z",
+      "reviewRound": "2026-08-18T05:27:28.263Z",
+      "reviewRunId": "B-49ed:RR-032",
+      "envelopeId": "bfb7745881ff7a2802dd66e581a3054132c09dac8f36d949179ce267bad8ebd6",
+      "writerSessionId": "sess-623213bafdae2991f875ad06d5d08040",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/signing-guard-mutation-proof-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-49ed/checklist.json",
+          ".lattice/story/actives/B-49ed/plan.md",
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/adapter-session-env.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "63b1c1f88e46f4845a19ccbc591a450cc3f6a13e7159335ba41ca69429c9555f"
     }
   ]
 }
