@@ -62,6 +62,9 @@ const activeTextFiles = [
 ] as const;
 
 const activeTextDirs = [
+  // B-cc10 F-055: canonical first. listFilesFromRoot returns [] for a nonexistent root,
+  // so listing only the renamed dir contributed ZERO files and the guard passed on nothing.
+  '.proof-or-stop-codex',
   '.lattice-codex',
   '.claude/agents',
   'packages/main/templates/agents',

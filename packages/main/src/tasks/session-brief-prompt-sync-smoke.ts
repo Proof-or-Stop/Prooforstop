@@ -39,6 +39,8 @@ const targetDocs = [
   'packages/main/src/cli-prompts.ts',
   ...agentFiles('packages/main/templates/agents'),
   ...agentFiles('.claude/agents'),
+  // B-cc10 F-055: canonical first; a renamed root silently yields zero files.
+  ...agentFiles('.proof-or-stop-codex/agents'),
   ...agentFiles('.lattice-codex/agents'),
 ];
 

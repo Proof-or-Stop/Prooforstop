@@ -3635,7 +3635,8 @@ function promptSemanticTokens(text) {
 
 async function comparePromptSemantics(promptMap) {
   const templateDir = 'packages/main/templates/agents';
-  const mirrorDirs = ['.claude/agents', '.lattice-codex/agents'];
+  // B-cc10 F-055: include the canonical adapter mirror; the renamed one yields nothing.
+  const mirrorDirs = ['.claude/agents', '.proof-or-stop-codex/agents', '.lattice-codex/agents'];
   const registryModule = await importBuiltModule('packages/main/dist/core/prompt-registry.js');
   if (!registryModule?.readPromptRegistry || !registryModule?.renderPromptEntryForHost) {
     fail('packages/main/dist/core/prompt-registry.js must expose the canonical host prompt renderer');
