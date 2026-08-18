@@ -688,9 +688,9 @@
         "Long-lived repo-wide write lock during DEV",
         "ReviewRemediation ledger transaction"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-08-18T09:10:35.841Z",
       "verificationIntent": {
         "happy": [
           {
@@ -880,7 +880,14 @@
           "storyFilesHash": "592ef7e3d4af24d75f0efafbcbafa98b079057d8ced7a16a74cd07c967ad0b64",
           "timestamp": "2026-08-18T09:10:14.287Z"
         }
-      ]
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "c5b0968e1a70530101869e2b97503173c27a942b40c049909ee615bc98d90589",
+        "storyFilesHash": "592ef7e3d4af24d75f0efafbcbafa98b079057d8ced7a16a74cd07c967ad0b64",
+        "headHash": "d73ee513ff3826bd16ecedd2099529838c3ff2e2",
+        "attestedAt": "2026-08-18T09:10:36.166Z",
+        "materialHash": "16062ce0120228dd2074901bedb56e6a5d97f3aa01cb373d51143594fe9c586a"
+      }
     },
     {
       "id": "CHK-005",
