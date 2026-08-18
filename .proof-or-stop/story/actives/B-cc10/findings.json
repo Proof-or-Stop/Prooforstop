@@ -901,7 +901,7 @@
       "desc": "Fourth site of the same class as F-048 (found after filing it, recorded separately rather than silently folded in): packages/main/src/core/planned-steps-executor.ts:1083 -- when a planned step is blocked, the returned nextActions array adds 'Resolve blocked planned step <id>, then rerun lattice planner run.' This is live/reachable (part of the planner_run status nextActions returned to the operator). The correct invocation is `proof-or-stop planner_run` / alias `proof-or-stop planner run` (verified: `node bin/proof-or-stop.js planner_run --help` resolves; `node bin/lattice.js` -> MODULE_NOT_FOUND since CHK-006 deleted the bin). Same structural gate blindness as F-041/F-048: a plain string literal in core/, not scanned by any of the 4 lattice-residue checks.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-18T10:57:04.363Z",
@@ -909,7 +909,8 @@
       "reviewRunId": "B-cc10:RR-059",
       "_hash": "f8e914776cd32afbe0faec94c6628c06dc648077bdfc8346c7b9a8703a358e88",
       "signatureTag": "missing|unknown|fourth-site-same",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-08-18T11:08:14.615Z"
     },
     {
       "id": "B-cc10:F-050",
