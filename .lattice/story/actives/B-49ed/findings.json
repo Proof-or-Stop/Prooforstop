@@ -575,7 +575,7 @@
       "desc": "packages/main/src/tasks/signing-guard-mutation-proof-smoke.ts:75-108 (probe function): the F-010 fix replaces a dynamic import() (flagged by retired-authority-vocabulary-guard-smoke as an unapproved non-literal dynamic module load / dynamic code generation) with execFileSync(process.execPath, [\"--input-type=module\",\"-e\",inline], ...), where `inline` is a JS source string built by string concatenation and executed by a spawned node process. This is the same violation class (constructing then executing arbitrary code) relocated to a surface the guard's static AST scanner never inspects (it only scans import()/require() calls and vm/new Function usage in the file it analyzes -- it has no model of \"spawn node -e <constructed string>\" as code execution). The guard now reports PASS, but that is an artifact of scanner blindness, not evidence of safety: this file lives inside packages/main/src, which IS in the guard's SHIPPED_EXECUTABLE_SOURCE_DIRS scan scope, so the intent of the guard (forbid dynamically constructed/executed code in shipped source) is defeated rather than honored. Concretely this establishes a precedent: the next time a test needs dynamic execution, node -e becomes an easy unflagged escape hatch, silently eroding the guard's coverage over time. Note: the interpolated values themselves (JSON.stringify of compile-time-constant paths/role strings/literal array entries) are NOT an injection risk -- no attacker/external input reaches the constructed string -- so this is a guard-coverage/architecture problem, not a live security exploit today. Recommend either: (a) extending the guard's AST scan to also flag execFileSync/spawnSync(process.execPath, [...\"-e\"|\"--input-type=module\"...]) as a dynamic-code-generation pattern (closing the gap rather than routing around it), or (b) getting an explicit, reasoned allowlist entry for this call site (the same mechanism used elsewhere in the guard for other benign non-literal loaders) with a comment explaining why child-process execution of a constructed string is the accepted exception here -- rather than leaving the guard silently blind to this class.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-18T09:55:50.512Z",
@@ -583,7 +583,11 @@
       "reviewRunId": "B-49ed:RR-031",
       "_hash": "96918f6925523161bf9c02d6af5fd8aea7e3ac41147be40247749c68480c64cf",
       "signatureTag": "missing|unknown|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by removing runtime code construction entirely: a static probe.mjs is executed with module path, session source, gitCwd and role passed as argv. Quality re-reviewed with the TypeScript compiler API and confirmed the remaining argv-driven import is categorically different from shipped source a scanner missed. Verified zero -e occurrences remain, vocabulary guard exits 0, and the proof still bites.",
+      "resolvedAt": "2026-08-18T11:22:40.951Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-49ed:F-030",
