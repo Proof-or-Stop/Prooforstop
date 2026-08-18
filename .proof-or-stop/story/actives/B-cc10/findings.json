@@ -538,7 +538,7 @@
       "desc": "concept-cleanup: state-dir rename (CHK-002/CHK-003: .lattice -> .proof-or-stop, canonical) incomplete in the executor forbidden-write protection. Two independent \"the automated executor must never edit story/fixture JSON directly\" glob lists still name ONLY the deprecated spelling: packages/main/src/core/worktree-policy.ts:66 DEFAULT_FAIL_CLOSED_WORKTREE_POLICY.forbiddenPathGlobs=[\".lattice/story/**\", \"docs/story/**\", ...] and packages/main/src/core/planner.ts:370 FORBIDDEN_WORKTREE_GLOBS=[\".lattice/story/**\", \"docs/story/**\", ...]. These feed planned-steps-executor.ts:980 evaluateForbiddenEdits -> worktree-policy.ts matchesForbiddenGlob, which does literal glob-prefix matching (verified: globToRegExp(\".lattice/story/**\") cannot match a path starting with \".proof-or-stop/story/\" -- disjoint literal prefixes, not a superset). Since .proof-or-stop/story/** is now the canonical, live story-data path (confirmed: .proof-or-stop/story holds the actual story archives; .lattice/story does not exist in this repo), an autonomous executor writing directly to .proof-or-stop/story/actives/<id>/checklist.json would NOT be flagged as a forbidden edit by this postflight check -- silently defeating the protection this glob list exists to enforce. No .proof-or-stop/story/** sibling entry exists in either list.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-18T04:28:24.705Z",
@@ -550,7 +550,8 @@
         "packages/main/src/core/planner.ts"
       ],
       "signatureTag": "missing|ts|concept-cleanup-state",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-08-18T04:38:03.558Z"
     }
   ]
 }
