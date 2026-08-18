@@ -275,7 +275,7 @@
       "desc": "doc-code-drift: packages/main/src/init-assets.ts LATTICE_CODEX_ADAPTER_MANIFEST (lines 170 and 201) still asserts \"The deprecated bin/lattice-codex.js alias is retained and still works\" and \"...the bin/lattice-codex.js alias is deprecated but retained\", with an in-code comment at line 198-200 explicitly saying this mention \"is intentional and stays.\" This is now false: CHK-006 of this same story deleted bin/lattice-codex.js entirely (confirmed: file absent on disk, git diff main...HEAD -- bin/lattice-codex.js shows a pure deletion). This manifest is not just source code prose -- it materializes verbatim into .proof-or-stop-codex/lattice.json (the CHK-003/CHK-004 deliverable at the new adapter path in this very worktree), so the false claim ships as user/agent-facing content read by Proof-or-Stop tooling. init-assets.ts was last touched by CHK-007 (commit 2a2ad35268), which runs after CHK-006 in the dependency chain, so the stale text survived past the point where it became false. `node bin/proof-or-stop.js check` does not currently flag this drift.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-08-18T03:47:32.138Z",
@@ -287,7 +287,8 @@
         ".proof-or-stop-codex/lattice.json"
       ],
       "signatureTag": "missing|ts|code-drift-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-08-18T04:00:16.882Z"
     },
     {
       "id": "B-cc10:F-017",
