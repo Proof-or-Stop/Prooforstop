@@ -518,7 +518,7 @@ Minimum smoke matrix:
 |---|---|
 | clean REVIEW target | report passes from existing proof and prints REVIEW next command only |
 | open verified finding while phase is REVIEW | blocked row plus `review_inventory_begin`/`review_inventory_status` until a finalized receipt authorizes DEV |
-| open verified finding while phase is TEST | blocked row plus direct TEST-to-DEV rollback command |
+| open verified finding while phase is TEST | blocked row plus the same `reviewRemediationCommand` inventory path as REVIEW; there is no direct TEST-to-DEV rollback branch (B-3f3d F-116) |
 | stale validation | blocked row with `lattice validate --story=B-xxxx` next command |
 | missing delivery check | `missing_delivery_check` row, no delivery signature written |
 | stale pre-merge `done_prepare` | blocked DONE row with `done_prepare` rerun command |
