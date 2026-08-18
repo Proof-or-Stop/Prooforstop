@@ -28,7 +28,52 @@
         "authorizesTest": false
       },
       "_hash": "af190160d14acaee4c875ed2e1a62baada50a94582829d7226d440b9ef20bc1f"
+    },
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-1e1f:CW-003",
+      "storyId": "B-1e1f",
+      "state": "ADMITTED",
+      "createdAt": "2026-08-18T14:03:57.785Z",
+      "updatedAt": "2026-08-18T14:03:57.785Z",
+      "frozen": {
+        "headHash": "48c298becbd5423d7c9384450a00ca7fab27ba3c",
+        "materialHash": "f398ba5576b3c772e2d57b2e058e19b806db0382c1671d01c7b85f72003d82a1",
+        "storyFilesHash": "e33de1ec82429cbd39e57c7cc3142051979ebb07c6bf32dfc47a1c43d556acc6",
+        "expectedMainSha": "cc19b191dcf33f3a5c04bd8bfe843d5973b5d05d",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventory": {
+        "epochId": "B-1e1f:RIE-003",
+        "receiptId": "B-1e1f:RIE-003:RCP-001",
+        "authority": "inventory-completeness-only",
+        "authorizesTest": false
+      },
+      "receiptId": "B-1e1f:PRECERT-001",
+      "_hash": "1139ecff24aa2d5151690a0dc50a15c6f6d675d60f86b5b07c0c981ae6e08379"
     }
   ],
-  "receipts": []
+  "receipts": [
+    {
+      "schemaVersion": "proofbound.precert_receipt.v1",
+      "receiptId": "B-1e1f:PRECERT-001",
+      "windowId": "B-1e1f:CW-003",
+      "storyId": "B-1e1f",
+      "authority": "pre-cert",
+      "authorizesHeavyCertification": true,
+      "frozen": {
+        "headHash": "48c298becbd5423d7c9384450a00ca7fab27ba3c",
+        "materialHash": "f398ba5576b3c772e2d57b2e058e19b806db0382c1671d01c7b85f72003d82a1",
+        "storyFilesHash": "e33de1ec82429cbd39e57c7cc3142051979ebb07c6bf32dfc47a1c43d556acc6",
+        "expectedMainSha": "cc19b191dcf33f3a5c04bd8bfe843d5973b5d05d",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventoryEpochId": "B-1e1f:RIE-003",
+      "inventoryReceiptId": "B-1e1f:RIE-003:RCP-001",
+      "createdAt": "2026-08-18T14:03:57.785Z",
+      "_hash": "e49ea64da3dc0714e7f71083093c69b07fd98801dfed7b275faa9e85e869ad29"
+    }
+  ]
 }
