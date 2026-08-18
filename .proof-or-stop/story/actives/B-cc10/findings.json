@@ -297,6 +297,21 @@
       "_hash": "aad29eaa5156a09837e15148a5894846341751844b6cab9430dbb2fa01d5f2df",
       "signatureTag": "missing|unknown|concept-cleanup-docs",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-cc10:F-018",
+      "desc": "packages/main/src/core/prompt-role-contract-registry.ts:132 and :167 hardcode relDir = host === 'claude' ? '.claude/agents' : '.lattice-codex/agents' -- the DEPRECATED-only adapter dir spelling, in the SAME FILE that correctly uses read-both adapterManifestCandidates() / stateDirCandidates() a few lines above (110-114, 88-90). This is the exact bug class the story targets: line 133 existsSync(join(projectRoot, relDir, file)) is the fallback branch of reviewerHostRenderSource() reached whenever the codex/global manifest does not resolve to package-registry/full-asset (e.g. a fully-migrated full-asset-mode Codex project with only canonical .proof-or-stop-codex/agents/*.md on disk and no promptMode/assetMode field). For such a project this existsSync would find nothing under the deprecated .lattice-codex/agents, misclassify source as package-registry, and line 170 'if (source === full-asset)' would then SKIP assertExactHostAsset entirely -- silently disabling the content-drift check that reviewerHostRenderIdentity() exists to provide (consumed by review_run_start and story_dispatch). Line 167 has the identical hardcoded literal feeding assertExactHostAsset's own join(). Should derive from PROOF_OR_STOP_ADAPTER_DIR / ADAPTER_DIR_NAMES in brand-paths.ts, probing both spellings like the manifest lookup above it already does.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-18T03:48:29.220Z",
+      "reviewRound": "2026-08-18T03:33:16.325Z",
+      "reviewRunId": "B-cc10:RR-015",
+      "_hash": "8e118a8b8c27e1cd8b5b621601dd337d1956ddcae13d750a80d694f3692b7b02",
+      "signatureTag": "missing|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
