@@ -733,6 +733,26 @@
       ],
       "signatureTag": "missing|md|code-drift-docs",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-cc10:F-040",
+      "desc": "doc-promise-undelivered: docs/requirements/decisions/proof-or-stop-identity-migration.md never records the pin-methodology lesson that F-007/F-032 evidence actually establishes. Both retracted/waived pins in this story (CHK-003 exact-snapshot count trackedArchiveFiles=7583, CHK-008 deprecatedDirTrackedFiles=0 broken by teammate story B-49ed, CHK-002 phase-name pin) were exact-value pins that broke on legitimate drift rather than real defects, while the fixes (scripts/verify-state-dir-migration.mjs archiveFloorHeld=true, scripts/verify-migration-contract.mjs noDuplicateStateDirSpelling=true) demonstrate the correct alternative: pin an invariant, not a point-in-time count. verify-migration-contract.mjs:128-132 also shows a second reusable technique -- re-emitting a superseded key name alongside the corrected one so an old pin stays matchable without reverting the rename. Neither technique is written anywhere in the decision doc even though the doc otherwise carefully narrates the F-007 retraction and the F-001 residual. A future migration story with the same exact-count-pin failure mode has no doc pointer to this lesson.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-18T10:33:05.874Z",
+      "reviewRound": "2026-08-18T03:33:16.325Z",
+      "reviewRunId": "B-cc10:RR-051",
+      "_hash": "53e40920032a668924ccd50446765043a3efadb9cb82442d1bae0e37864e6b38",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+        "scripts/verify-migration-contract.mjs",
+        "scripts/verify-state-dir-migration.mjs"
+      ],
+      "signatureTag": "missing|md|promise-undelivered-docs",
+      "signatureTagSource": "auto"
     }
   ]
 }
