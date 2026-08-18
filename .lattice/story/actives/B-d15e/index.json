@@ -4,11 +4,11 @@
   "title": "Align full-suite result budget telemetry with the canonical budget",
   "description": "The full-suite JSON result artifact reports performanceBudgetMs as 300000 although runtime enforcement uses FULL_SUITE_BUDGET_MS=1200000. Emit the canonical value and add regression coverage so receipt consumers observe the actual policy.",
   "type": "bug",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "medium",
   "createdAt": "2026-08-18T17:14:05.302Z",
   "startedAt": "2026-08-18T17:14:05.302Z",
-  "endedAt": null,
+  "endedAt": "2026-08-18T18:43:43.038Z",
   "events": [
     {
       "phase": "INIT",
@@ -81,12 +81,16 @@
       "user": "Harmonygo",
       "sessionId": "sess-5844d0e06dc1f9df4f0b1dabc0baa31e",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-08-18T18:43:43.038Z",
+      "branch": "story/B-d15e",
+      "user": "Harmonygo",
+      "sessionId": "sess-5844d0e06dc1f9df4f0b1dabc0baa31e",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-d15e",
-    "branch": "story/B-d15e",
-    "createdAt": "2026-08-18T17:16:21.147Z"
-  },
   "currentReviewRound": "2026-08-18T17:36:43.661Z"
 }
