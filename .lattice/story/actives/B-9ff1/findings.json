@@ -1121,7 +1121,7 @@
       "desc": "Cross-vendor review host B (codex, 2026-08-18), first surfacer, in response to an unprompted question put to it by the story owner. envelope.ts:87 read 'adjudicated — do not re-litigate.' A source comment instructing a future reviewer not to re-examine a decision is convenient for the author and hostile to review. Host B noted precisely that the prohibition occurred ONLY in the digest block; the matcher block at :70 was merely labelled 'adjudicated'.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-08-18T17:17:58.839Z",
@@ -1131,7 +1131,11 @@
         "packages/main/src/core/red-evidence/envelope.ts"
       ],
       "signatureTag": "cleanup|ts|cross-vendor-review",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 19aeb9de6f. The reasoning stays, the prohibition goes: the header now reads 'adjudicated; the reasoning is recorded so a reviewer can check it, not so a reviewer can skip it.' The matcher block at :70 needed no change, matching host B's scoping. This finding is worth more than its LOW severity suggests because it was self-demonstrating: host B raised its other two findings precisely BECAUSE it had not read these blocks, and an unaware reviewer is the only kind that would still catch a frozen adjudication that was WRONG. A directive not to look is especially indefensible in this module, whose entire purpose is making an assertion checkable rather than asked-to-be-believed. Comment-only; no validation behaviour moved. Verified after: tsc clean, build ok, all five red-w2d harnesses and the envelope smoke exit 0.",
+      "resolvedAt": "2026-08-18T17:18:01.704Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
