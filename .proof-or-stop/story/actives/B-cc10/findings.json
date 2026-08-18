@@ -1053,6 +1053,21 @@
       "signatureTag": "missing|unknown|packages-main-core",
       "signatureTagSource": "auto",
       "resolvedAt": "2026-08-18T11:19:29.264Z"
+    },
+    {
+      "id": "B-cc10:F-058",
+      "desc": ".gitignore:78-88 and .gitignore:123-146 now contain TWO separate `# lattice runtime artifacts (managed)` ... `# /lattice runtime artifacts (managed)` blocks (confirmed: main has exactly 1 START marker, HEAD has 2). Introduced by commit 2a2ad35268 (B-cc10 CHK-007), which appended a brand-new managed block at the end of the file for the canonical-dir patterns instead of regenerating the pre-existing block near the top via listRuntimeArtifactIgnorePatterns(). cli-init.ts:mergeLatticeRuntimeIgnores() builds GITIGNORE_RUNTIME_BLOCK_RE with a NON-global regex and calls existingContent.match(...) / .replace(...), which only ever finds/updates the FIRST START..END pair. I ran mergeLatticeRuntimeIgnores() against the live .gitignore content (using the built listRuntimeArtifactIgnorePatterns()) and it reported changed:false while 2 START markers remained in the output -- so `proof-or-stop init --upgrade` can never self-heal or dedupe this; the stray second block is now permanently orphaned from the managed-asset machinery it claims to belong to. Separately (same root cause, lower severity), commit 593ed6824f hand-added a full duplicate `.proof-or-stop/*` negation block near the TOP of the file (mirroring the existing !.lattice/* negations by hand) instead of extending the same generator, so those top-of-file rules will also silently drift from listRuntimeArtifactIgnorePatterns() over time.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-18T13:41:13.776Z",
+      "reviewRound": "2026-08-18T03:33:16.325Z",
+      "reviewRunId": "B-cc10:RR-072",
+      "_hash": "3a622ef7053b92b8afb2b8c60b3306006ce06e635db89ed87a872363bab013df",
+      "signatureTag": "missing|unknown|gitignore-gitignore-contain",
+      "signatureTagSource": "auto"
     }
   ]
 }
