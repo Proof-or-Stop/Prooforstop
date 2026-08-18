@@ -71,19 +71,19 @@
           "command": "node packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
           "result": "pass",
           "note": "Bound to the committed regression and smoke landed by this story; the selector is a stable assertion sentence with no count in it, because a pinned selector is immutable once bound and a count-bearing one is stranded by the next fixture change.",
-          "headHash": "fdf1a8f5f6042262fdd27b51c21d6106a6380005",
-          "materialHash": "dd831ee411ab73c0ab21649a34ea8a70f359adc99bfc69acc2f98244733d61bd",
-          "storyFilesHash": "81c2297f9ba5aaa338d9772feeaa88900c54e2901a008270af95dc57f7bc30ac",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "3fbb8ffbdd4f38d0eb26d0e690edd7b424e31a9abf1d97ec94290ebec48725fd",
-            "outputTail": "✓ fixture blob survives the git pipeline above 1,048,576 bytes\n✓ commitImmutableMetadataTree commits a 1,400,000-byte staged blob\n✓ commitImmutableMetadataTree commits a 1,048,577-byte staged blob (one byte past the old default)\n✓ isolatedBlobHash, isolatedGit and treeBlobHash each pass maxBuffer to execFileSync\n✓ isolatedBlobHash and treeBlobHash return the correct sha256 for a readable blob\n✓ an absent blob and an unreadable blob are distinct, diagnostic, and never compare equal\n✓ an unreadable blob during the commit path never reports \"verified metadata changed\"\n✓ a genuine post-verification change still reports \"verified metadata changed\"\n    over-ceiling read: ceiling=33554432 blob=34554432 errorChars=118\n    over-ceiling error: ENOBUFS: output exceeded the 33554432-byte read ceiling; 33562624 bytes were captured before the ceiling and discarded\n    commit reason chars: 231\n✓ a read above the ceiling reports the ceiling and the captured size, never blob content\n✓ the pre-fix helper returns null for the same fixture that the shipped helper reads\n    silent-hook reason: git pre-commit hook failed: exit 7: Command failed: /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/b3434-silent-hook-rpcUG5/no-hooks/pre-commit\n✓ a hook that exits non-zero with both streams empty still reports its exit status\n    talking-hook reason: git pre-commit hook failed: failing pre-commit\n✓ a hook that prints its reason is reported verbatim, without an exit-status prefix\n\nred-b3434-blob-buffer-ceiling: PASS\n",
+            "outputDigest": "c3cb5b9341a32690a3fdb384f60893015423c39e45b04069207a797d5cf29554",
+            "outputTail": "✓ fixture blob survives the git pipeline above 1,048,576 bytes\n✓ commitImmutableMetadataTree commits a 1,400,000-byte staged blob\n✓ commitImmutableMetadataTree commits a 1,048,577-byte staged blob (one byte past the old default)\n✓ isolatedBlobHash, isolatedGit and treeBlobHash each pass maxBuffer to execFileSync\n✓ isolatedBlobHash and treeBlobHash return the correct sha256 for a readable blob\n✓ an absent blob and an unreadable blob are distinct, diagnostic, and never compare equal\n✓ an unreadable blob during the commit path never reports \"verified metadata changed\"\n✓ a genuine post-verification change still reports \"verified metadata changed\"\n    over-ceiling read: ceiling=33554432 blob=34554432 errorChars=118\n    over-ceiling error: ENOBUFS: output exceeded the 33554432-byte read ceiling; 33562624 bytes were captured before the ceiling and discarded\n    commit reason chars: 231\n✓ a read above the ceiling reports the ceiling and the captured size, never blob content\n✓ the pre-fix helper returns null for the same fixture that the shipped helper reads\n    silent-hook reason: git pre-commit hook failed: exit 7: Command failed: /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/b3434-silent-hook-qW7XJT/no-hooks/pre-commit\n✓ a hook that exits non-zero with both streams empty still reports its exit status\n    talking-hook reason: git pre-commit hook failed: failing pre-commit\n✓ a hook that prints its reason is reported verbatim, without an exit-status prefix\n\nred-b3434-blob-buffer-ceiling: PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-17T23:50:06.856Z",
+            "executedAt": "2026-08-18T11:46:46.481Z",
             "timeoutMs": 180000
           },
-          "timestamp": "2026-08-17T23:54:28.787Z"
+          "headHash": "7d5b1eacde5d515f0d8bc71d5c8cc5c34d0e0ce8",
+          "materialHash": "188e365b7d8448ab880341cef366b4c1ffbee6bbfd1e7fc67be055056ba3ea58",
+          "storyFilesHash": "33e83546c3e0678311af8c328be9dff1f7e3ba2a92e7cf09edd52da7e1ec39b5",
+          "timestamp": "2026-08-18T11:47:17.094Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -91,19 +91,19 @@
           "command": "node packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
           "result": "pass",
           "note": "Bound to the committed regression and smoke landed by this story; the selector is a stable assertion sentence with no count in it, because a pinned selector is immutable once bound and a count-bearing one is stranded by the next fixture change.",
-          "headHash": "fdf1a8f5f6042262fdd27b51c21d6106a6380005",
-          "materialHash": "dd831ee411ab73c0ab21649a34ea8a70f359adc99bfc69acc2f98244733d61bd",
-          "storyFilesHash": "81c2297f9ba5aaa338d9772feeaa88900c54e2901a008270af95dc57f7bc30ac",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "0a1a2831e246d4ed7592093856052a3dbefa59ce26a65f36224159fa173e0c90",
-            "outputTail": "✓ fixture blob survives the git pipeline above 1,048,576 bytes\n✓ commitImmutableMetadataTree commits a 1,400,000-byte staged blob\n✓ commitImmutableMetadataTree commits a 1,048,577-byte staged blob (one byte past the old default)\n✓ isolatedBlobHash, isolatedGit and treeBlobHash each pass maxBuffer to execFileSync\n✓ isolatedBlobHash and treeBlobHash return the correct sha256 for a readable blob\n✓ an absent blob and an unreadable blob are distinct, diagnostic, and never compare equal\n✓ an unreadable blob during the commit path never reports \"verified metadata changed\"\n✓ a genuine post-verification change still reports \"verified metadata changed\"\n    over-ceiling read: ceiling=33554432 blob=34554432 errorChars=118\n    over-ceiling error: ENOBUFS: output exceeded the 33554432-byte read ceiling; 33562624 bytes were captured before the ceiling and discarded\n    commit reason chars: 231\n✓ a read above the ceiling reports the ceiling and the captured size, never blob content\n✓ the pre-fix helper returns null for the same fixture that the shipped helper reads\n    silent-hook reason: git pre-commit hook failed: exit 7: Command failed: /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/b3434-silent-hook-pa7c0q/no-hooks/pre-commit\n✓ a hook that exits non-zero with both streams empty still reports its exit status\n    talking-hook reason: git pre-commit hook failed: failing pre-commit\n✓ a hook that prints its reason is reported verbatim, without an exit-status prefix\n\nred-b3434-blob-buffer-ceiling: PASS\n",
+            "outputDigest": "0e95851eb3a5554136d8dca8e9cfeb9e76f1893fa8ea3433df91bcfbf512570c",
+            "outputTail": "✓ fixture blob survives the git pipeline above 1,048,576 bytes\n✓ commitImmutableMetadataTree commits a 1,400,000-byte staged blob\n✓ commitImmutableMetadataTree commits a 1,048,577-byte staged blob (one byte past the old default)\n✓ isolatedBlobHash, isolatedGit and treeBlobHash each pass maxBuffer to execFileSync\n✓ isolatedBlobHash and treeBlobHash return the correct sha256 for a readable blob\n✓ an absent blob and an unreadable blob are distinct, diagnostic, and never compare equal\n✓ an unreadable blob during the commit path never reports \"verified metadata changed\"\n✓ a genuine post-verification change still reports \"verified metadata changed\"\n    over-ceiling read: ceiling=33554432 blob=34554432 errorChars=118\n    over-ceiling error: ENOBUFS: output exceeded the 33554432-byte read ceiling; 33562624 bytes were captured before the ceiling and discarded\n    commit reason chars: 231\n✓ a read above the ceiling reports the ceiling and the captured size, never blob content\n✓ the pre-fix helper returns null for the same fixture that the shipped helper reads\n    silent-hook reason: git pre-commit hook failed: exit 7: Command failed: /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/b3434-silent-hook-OiPbCv/no-hooks/pre-commit\n✓ a hook that exits non-zero with both streams empty still reports its exit status\n    talking-hook reason: git pre-commit hook failed: failing pre-commit\n✓ a hook that prints its reason is reported verbatim, without an exit-status prefix\n\nred-b3434-blob-buffer-ceiling: PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-17T23:50:10.579Z",
+            "executedAt": "2026-08-18T11:46:53.884Z",
             "timeoutMs": 180000
           },
-          "timestamp": "2026-08-17T23:54:28.787Z"
+          "headHash": "7d5b1eacde5d515f0d8bc71d5c8cc5c34d0e0ce8",
+          "materialHash": "188e365b7d8448ab880341cef366b4c1ffbee6bbfd1e7fc67be055056ba3ea58",
+          "storyFilesHash": "33e83546c3e0678311af8c328be9dff1f7e3ba2a92e7cf09edd52da7e1ec39b5",
+          "timestamp": "2026-08-18T11:47:17.094Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -111,19 +111,19 @@
           "command": "node packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
           "result": "pass",
           "note": "Bound to the committed regression and smoke landed by this story; the selector is a stable assertion sentence with no count in it, because a pinned selector is immutable once bound and a count-bearing one is stranded by the next fixture change.",
-          "headHash": "fdf1a8f5f6042262fdd27b51c21d6106a6380005",
-          "materialHash": "dd831ee411ab73c0ab21649a34ea8a70f359adc99bfc69acc2f98244733d61bd",
-          "storyFilesHash": "81c2297f9ba5aaa338d9772feeaa88900c54e2901a008270af95dc57f7bc30ac",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "c789cfb2c26863c85715127bf18a8d68d1853d1b9a088677de906bde975ee7e8",
-            "outputTail": "✓ fixture blob survives the git pipeline above 1,048,576 bytes\n✓ commitImmutableMetadataTree commits a 1,400,000-byte staged blob\n✓ commitImmutableMetadataTree commits a 1,048,577-byte staged blob (one byte past the old default)\n✓ isolatedBlobHash, isolatedGit and treeBlobHash each pass maxBuffer to execFileSync\n✓ isolatedBlobHash and treeBlobHash return the correct sha256 for a readable blob\n✓ an absent blob and an unreadable blob are distinct, diagnostic, and never compare equal\n✓ an unreadable blob during the commit path never reports \"verified metadata changed\"\n✓ a genuine post-verification change still reports \"verified metadata changed\"\n    over-ceiling read: ceiling=33554432 blob=34554432 errorChars=118\n    over-ceiling error: ENOBUFS: output exceeded the 33554432-byte read ceiling; 33562624 bytes were captured before the ceiling and discarded\n    commit reason chars: 231\n✓ a read above the ceiling reports the ceiling and the captured size, never blob content\n✓ the pre-fix helper returns null for the same fixture that the shipped helper reads\n    silent-hook reason: git pre-commit hook failed: exit 7: Command failed: /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/b3434-silent-hook-GW4wCR/no-hooks/pre-commit\n✓ a hook that exits non-zero with both streams empty still reports its exit status\n    talking-hook reason: git pre-commit hook failed: failing pre-commit\n✓ a hook that prints its reason is reported verbatim, without an exit-status prefix\n\nred-b3434-blob-buffer-ceiling: PASS\n",
+            "outputDigest": "88fc9228c9129cd365a25935b6d35ce798823ef1ad7c90f5949c2975e0ef3599",
+            "outputTail": "✓ fixture blob survives the git pipeline above 1,048,576 bytes\n✓ commitImmutableMetadataTree commits a 1,400,000-byte staged blob\n✓ commitImmutableMetadataTree commits a 1,048,577-byte staged blob (one byte past the old default)\n✓ isolatedBlobHash, isolatedGit and treeBlobHash each pass maxBuffer to execFileSync\n✓ isolatedBlobHash and treeBlobHash return the correct sha256 for a readable blob\n✓ an absent blob and an unreadable blob are distinct, diagnostic, and never compare equal\n✓ an unreadable blob during the commit path never reports \"verified metadata changed\"\n✓ a genuine post-verification change still reports \"verified metadata changed\"\n    over-ceiling read: ceiling=33554432 blob=34554432 errorChars=118\n    over-ceiling error: ENOBUFS: output exceeded the 33554432-byte read ceiling; 33562624 bytes were captured before the ceiling and discarded\n    commit reason chars: 231\n✓ a read above the ceiling reports the ceiling and the captured size, never blob content\n✓ the pre-fix helper returns null for the same fixture that the shipped helper reads\n    silent-hook reason: git pre-commit hook failed: exit 7: Command failed: /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/b3434-silent-hook-kaFTA5/no-hooks/pre-commit\n✓ a hook that exits non-zero with both streams empty still reports its exit status\n    talking-hook reason: git pre-commit hook failed: failing pre-commit\n✓ a hook that prints its reason is reported verbatim, without an exit-status prefix\n\nred-b3434-blob-buffer-ceiling: PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-17T23:50:16.976Z",
+            "executedAt": "2026-08-18T11:47:01.317Z",
             "timeoutMs": 180000
           },
-          "timestamp": "2026-08-17T23:54:28.787Z"
+          "headHash": "7d5b1eacde5d515f0d8bc71d5c8cc5c34d0e0ce8",
+          "materialHash": "188e365b7d8448ab880341cef366b4c1ffbee6bbfd1e7fc67be055056ba3ea58",
+          "storyFilesHash": "33e83546c3e0678311af8c328be9dff1f7e3ba2a92e7cf09edd52da7e1ec39b5",
+          "timestamp": "2026-08-18T11:47:17.094Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
@@ -131,19 +131,19 @@
           "command": "node packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
           "result": "pass",
           "note": "Bound to the committed regression and smoke landed by this story; the selector is a stable assertion sentence with no count in it, because a pinned selector is immutable once bound and a count-bearing one is stranded by the next fixture change.",
-          "headHash": "fdf1a8f5f6042262fdd27b51c21d6106a6380005",
-          "materialHash": "dd831ee411ab73c0ab21649a34ea8a70f359adc99bfc69acc2f98244733d61bd",
-          "storyFilesHash": "81c2297f9ba5aaa338d9772feeaa88900c54e2901a008270af95dc57f7bc30ac",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "f24228c301990996bbf62a1214395117e5c991fbacb4de1e88ca4be33ba072ae",
-            "outputTail": "✓ fixture blob survives the git pipeline above 1,048,576 bytes\n✓ commitImmutableMetadataTree commits a 1,400,000-byte staged blob\n✓ commitImmutableMetadataTree commits a 1,048,577-byte staged blob (one byte past the old default)\n✓ isolatedBlobHash, isolatedGit and treeBlobHash each pass maxBuffer to execFileSync\n✓ isolatedBlobHash and treeBlobHash return the correct sha256 for a readable blob\n✓ an absent blob and an unreadable blob are distinct, diagnostic, and never compare equal\n✓ an unreadable blob during the commit path never reports \"verified metadata changed\"\n✓ a genuine post-verification change still reports \"verified metadata changed\"\n    over-ceiling read: ceiling=33554432 blob=34554432 errorChars=118\n    over-ceiling error: ENOBUFS: output exceeded the 33554432-byte read ceiling; 33562624 bytes were captured before the ceiling and discarded\n    commit reason chars: 231\n✓ a read above the ceiling reports the ceiling and the captured size, never blob content\n✓ the pre-fix helper returns null for the same fixture that the shipped helper reads\n    silent-hook reason: git pre-commit hook failed: exit 7: Command failed: /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/b3434-silent-hook-3t3xrK/no-hooks/pre-commit\n✓ a hook that exits non-zero with both streams empty still reports its exit status\n    talking-hook reason: git pre-commit hook failed: failing pre-commit\n✓ a hook that prints its reason is reported verbatim, without an exit-status prefix\n\nred-b3434-blob-buffer-ceiling: PASS\n",
+            "outputDigest": "3ed2faf676afa47bf45bda43119ab3eca2538e6942246bc8f480467d859491e7",
+            "outputTail": "✓ fixture blob survives the git pipeline above 1,048,576 bytes\n✓ commitImmutableMetadataTree commits a 1,400,000-byte staged blob\n✓ commitImmutableMetadataTree commits a 1,048,577-byte staged blob (one byte past the old default)\n✓ isolatedBlobHash, isolatedGit and treeBlobHash each pass maxBuffer to execFileSync\n✓ isolatedBlobHash and treeBlobHash return the correct sha256 for a readable blob\n✓ an absent blob and an unreadable blob are distinct, diagnostic, and never compare equal\n✓ an unreadable blob during the commit path never reports \"verified metadata changed\"\n✓ a genuine post-verification change still reports \"verified metadata changed\"\n    over-ceiling read: ceiling=33554432 blob=34554432 errorChars=118\n    over-ceiling error: ENOBUFS: output exceeded the 33554432-byte read ceiling; 33562624 bytes were captured before the ceiling and discarded\n    commit reason chars: 231\n✓ a read above the ceiling reports the ceiling and the captured size, never blob content\n✓ the pre-fix helper returns null for the same fixture that the shipped helper reads\n    silent-hook reason: git pre-commit hook failed: exit 7: Command failed: /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/b3434-silent-hook-h8fAlE/no-hooks/pre-commit\n✓ a hook that exits non-zero with both streams empty still reports its exit status\n    talking-hook reason: git pre-commit hook failed: failing pre-commit\n✓ a hook that prints its reason is reported verbatim, without an exit-status prefix\n\nred-b3434-blob-buffer-ceiling: PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-17T23:50:23.423Z",
+            "executedAt": "2026-08-18T11:47:08.987Z",
             "timeoutMs": 180000
           },
-          "timestamp": "2026-08-17T23:54:28.787Z"
+          "headHash": "7d5b1eacde5d515f0d8bc71d5c8cc5c34d0e0ce8",
+          "materialHash": "188e365b7d8448ab880341cef366b4c1ffbee6bbfd1e7fc67be055056ba3ea58",
+          "storyFilesHash": "33e83546c3e0678311af8c328be9dff1f7e3ba2a92e7cf09edd52da7e1ec39b5",
+          "timestamp": "2026-08-18T11:47:17.094Z"
         }
       ]
     },
@@ -226,19 +226,19 @@
           "command": "node packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
           "result": "pass",
           "note": "Bound to the committed regression and smoke landed by this story; the selector is a stable assertion sentence with no count in it, because a pinned selector is immutable once bound and a count-bearing one is stranded by the next fixture change.",
-          "headHash": "fdf1a8f5f6042262fdd27b51c21d6106a6380005",
-          "materialHash": "dd831ee411ab73c0ab21649a34ea8a70f359adc99bfc69acc2f98244733d61bd",
-          "storyFilesHash": "81c2297f9ba5aaa338d9772feeaa88900c54e2901a008270af95dc57f7bc30ac",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "7b72265b16848e144fd6c2eb7890f410e24163136f596c7beecc2a05b4a656a0",
-            "outputTail": "✓ fixture blob survives the git pipeline above 1,048,576 bytes\n✓ commitImmutableMetadataTree commits a 1,400,000-byte staged blob\n✓ commitImmutableMetadataTree commits a 1,048,577-byte staged blob (one byte past the old default)\n✓ isolatedBlobHash, isolatedGit and treeBlobHash each pass maxBuffer to execFileSync\n✓ isolatedBlobHash and treeBlobHash return the correct sha256 for a readable blob\n✓ an absent blob and an unreadable blob are distinct, diagnostic, and never compare equal\n✓ an unreadable blob during the commit path never reports \"verified metadata changed\"\n✓ a genuine post-verification change still reports \"verified metadata changed\"\n    over-ceiling read: ceiling=33554432 blob=34554432 errorChars=118\n    over-ceiling error: ENOBUFS: output exceeded the 33554432-byte read ceiling; 33562624 bytes were captured before the ceiling and discarded\n    commit reason chars: 231\n✓ a read above the ceiling reports the ceiling and the captured size, never blob content\n✓ the pre-fix helper returns null for the same fixture that the shipped helper reads\n    silent-hook reason: git pre-commit hook failed: exit 7: Command failed: /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/b3434-silent-hook-09blqX/no-hooks/pre-commit\n✓ a hook that exits non-zero with both streams empty still reports its exit status\n    talking-hook reason: git pre-commit hook failed: failing pre-commit\n✓ a hook that prints its reason is reported verbatim, without an exit-status prefix\n\nred-b3434-blob-buffer-ceiling: PASS\n",
+            "outputDigest": "0f272a711f7d503b41357dd069916fc2689f56a3ab5ebf02415921fe2bc89a36",
+            "outputTail": "✓ fixture blob survives the git pipeline above 1,048,576 bytes\n✓ commitImmutableMetadataTree commits a 1,400,000-byte staged blob\n✓ commitImmutableMetadataTree commits a 1,048,577-byte staged blob (one byte past the old default)\n✓ isolatedBlobHash, isolatedGit and treeBlobHash each pass maxBuffer to execFileSync\n✓ isolatedBlobHash and treeBlobHash return the correct sha256 for a readable blob\n✓ an absent blob and an unreadable blob are distinct, diagnostic, and never compare equal\n✓ an unreadable blob during the commit path never reports \"verified metadata changed\"\n✓ a genuine post-verification change still reports \"verified metadata changed\"\n    over-ceiling read: ceiling=33554432 blob=34554432 errorChars=118\n    over-ceiling error: ENOBUFS: output exceeded the 33554432-byte read ceiling; 33562624 bytes were captured before the ceiling and discarded\n    commit reason chars: 231\n✓ a read above the ceiling reports the ceiling and the captured size, never blob content\n✓ the pre-fix helper returns null for the same fixture that the shipped helper reads\n    silent-hook reason: git pre-commit hook failed: exit 7: Command failed: /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/b3434-silent-hook-0WCOh2/no-hooks/pre-commit\n✓ a hook that exits non-zero with both streams empty still reports its exit status\n    talking-hook reason: git pre-commit hook failed: failing pre-commit\n✓ a hook that prints its reason is reported verbatim, without an exit-status prefix\n\nred-b3434-blob-buffer-ceiling: PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-17T23:50:30.131Z",
+            "executedAt": "2026-08-18T11:47:16.758Z",
             "timeoutMs": 180000
           },
-          "timestamp": "2026-08-17T23:54:28.787Z"
+          "headHash": "7d5b1eacde5d515f0d8bc71d5c8cc5c34d0e0ce8",
+          "materialHash": "188e365b7d8448ab880341cef366b4c1ffbee6bbfd1e7fc67be055056ba3ea58",
+          "storyFilesHash": "33e83546c3e0678311af8c328be9dff1f7e3ba2a92e7cf09edd52da7e1ec39b5",
+          "timestamp": "2026-08-18T11:47:17.094Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
