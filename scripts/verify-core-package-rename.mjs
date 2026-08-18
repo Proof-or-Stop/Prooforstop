@@ -91,11 +91,11 @@ check(
   oq2BoundaryHeld,
 );
 
-if (failures.length > 0) {
-  console.error(`\ncore package rename verification FAILED (${failures.length}):`);
-  for (const f of failures) console.error(`  - ${f}`);
-  process.exit(1);
-}
+// B-cc10 F-024: the failure gate MOVED to the very end of this file. It used to sit
+// here, BEFORE the repo-wide sweep below, so any failure the sweep found printed 'FAIL'
+// and then fell through to 'verified' and exit 0 — a fail-OPEN witness, which is worse
+// than no witness because it launders a green result. Every check must be registered
+// before the single gate runs.
 
 // B-cc10 F-009: the CHK-005 adversarial intent asks for a repo-wide check that
 // @lattice/core no longer appears outside node_modules / dist / the state dirs. The
@@ -139,6 +139,12 @@ if (failures.length > 0) {
     'every @lattice/core mention sits beside the canonical name (read-both), none stranded',
     deprecatedOnly.length === 0,
   );
+}
+
+if (failures.length > 0) {
+  console.error(`\ncore package rename verification FAILED (${failures.length}):`);
+  for (const f of failures) console.error(`  - ${f}`);
+  process.exit(1);
 }
 
 console.log('\ncore package rename verified');
