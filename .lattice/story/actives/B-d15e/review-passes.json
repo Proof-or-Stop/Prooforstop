@@ -1,0 +1,40 @@
+{
+  "passes": [
+    {
+      "id": "B-d15e:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion or broad replacement is present. Repository-wide residue scans found no production numeric performanceBudgetMs initializer; the sole old 300_000 initializer text is an intentional mutation that the smoke rejects. No new doc, CLI, schema, environment, or behavior promise is undelivered.",
+      "createdAt": "2026-08-18T17:40:12.809Z",
+      "reviewRound": "2026-08-18T17:36:43.661Z",
+      "reviewRunId": "B-d15e:RR-002",
+      "envelopeId": "dc557f2449f23c5375993ac3533f6f0040cb8e8584805c8c359e4c445abc8831",
+      "writerSessionId": "sess-3c653109ac0127b636e0b97f3ce4a350",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-d15e/background.md",
+          ".lattice/story/actives/B-d15e/checklist.json",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "5bb7b9cc04b62f1660998eb61247ec23cdcf4a03e4e7da8ab153283220be83d6"
+      },
+      "readDiagnostics": [],
+      "_hash": "c3d78e0ce7c5145d748165c879d6bc87b6d037c7eebc906a4534bdd568b32ed2"
+    }
+  ]
+}
