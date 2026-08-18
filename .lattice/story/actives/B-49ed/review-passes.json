@@ -420,6 +420,29 @@
         "scanEscalationReason": null
       },
       "_hash": "8bd134fcad822d884a54b33d7c99ffe7fad05b0171ae270ab54f55e614913a93"
+    },
+    {
+      "id": "B-49ed:RP-018",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-review after HEAD moved (commit 7bfff86f23). Changed files are only red-1734-bootstrap-depfree.mjs and scripts/verify-process-fact-contract.mjs, both unrelated to this story checklist. Independently reproduced pre-fix failure and post-fix pass for both assertions, ran all 4 drop-acceptance-basis-* mutations (all bite, control passes), confirmed -topology sibling was already brand-agnostic, and audited remaining text.replace mutation regexes plus lattice-prefixed literals in the file: no other brand-hardcoded no-op mutation regexes found. B-49ed verificationIntent/Evidence remains 5/5 items with 3/3 must intents covered by passing evidence; headHash-only staleness confirmed by re-running the pinned smoke tests (topology-signing-source-guard-smoke, signing-guard-mutation-proof-smoke) which still pass at current HEAD.",
+      "createdAt": "2026-08-18T15:47:40.839Z",
+      "reviewRound": "2026-08-18T12:55:09.009Z",
+      "reviewRunId": "B-49ed:RR-045",
+      "envelopeId": "65d95fef31de02a3043a8c494016e09674c7a257a7ba363390ea350033810d3c",
+      "writerSessionId": "sess-4292375d1d751b41",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "bin/bootstrap-runner.js",
+          "packages/main/templates/agents/lattice-implementer.md",
+          "packages/main/tests/red/red-1734-bootstrap-depfree.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "37682bf9a1459e1f0cd42ba44b242ad3b6951e3fba8d30263d16928a9e9b3433"
     }
   ]
 }
