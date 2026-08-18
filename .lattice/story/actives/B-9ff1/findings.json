@@ -1071,6 +1071,24 @@
       "resolvedAt": "2026-08-18T17:07:49.992Z",
       "resolutionType": "accepted_risk",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-9ff1:F-051",
+      "desc": "Cross-vendor review host B (codex, 2026-08-18), first surfacer. The §1.2 policy table's Meaning column reads 'max bytes per matcher `value`' with no qualification, while the normative field definition at spec:183-184 scopes BOTH the trimmed requirement and maxMatcherLen to `literal-line` only. Host B's probe showed a 513-byte class value and an untrimmed class value are both admitted (ok=true, no rejection codes) against maxMatcherLen=512. Host B initially reported this as a code defect and, after being shown spec:183-184 and envelope.ts:70-85, itself re-dispositioned it as a SPEC-TEXT defect: the code follows the normative field definition and the §1.2 summary row is the imprecise one.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-08-18T17:17:57.284Z",
+      "reviewRound": "2026-08-14T03:33:29.693Z",
+      "_hash": "8fb4365540a0499c6d766caff234f5a46a8962cda837fa4a91e13cd95429f2ec",
+      "files": [
+        "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+        "packages/main/src/core/red-evidence/envelope.ts"
+      ],
+      "signatureTag": "spec-boundary|md|cross-vendor-review",
+      "signatureTagSource": "auto"
     }
   ]
 }
