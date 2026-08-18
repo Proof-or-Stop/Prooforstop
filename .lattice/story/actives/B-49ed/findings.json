@@ -16,6 +16,21 @@
       ],
       "signatureTag": "edge|ts|signing-guard-mutation",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-49ed:F-002",
+      "desc": "packages/main/src/tasks/signing-guard-mutation-proof-smoke.ts:23-25,50 proves guard removal by regex-matching the SIGNABLE_SESSION_SOURCES Set literal in the COMPILED dist artifact (dist/core/topology-critic-receipt.js) and mutating a COPY in a fresh mkdtemp dir. Verified safe: the real dist file is only read (never written), the mutant is written only under the mkdtemp scratch dir which is rmSync-cleaned in a finally block, and the test itself asserts byte-identical restoration at the end (confirmed empirically by re-running the smoke: PASS, and diffing the real dist file before/after -- unchanged). The brittleness the author flagged is real but bounded, not silent: assert.ok(match, ...) at line 25 fails LOUDLY if the build output ever changes the Set literal formatting (e.g. minification, multi-line reformat), because the guard-presence check at line 21 and the set-literal regex at line 24 both run before any mutation; a shape change breaks the proof-of-concept itself rather than letting a weakened guard through silently. Suggestion (non-blocking): parsing/matching the TS SOURCE (topology-critic-receipt.ts) instead of the compiled dist output would decouple the proof from build-tool formatting choices, at the cost of not proving the SHIPPED artifact contains the guard. Recording as a finding rather than a pass per reviewer instruction; this is advisory, not a blocker.",
+      "severity": "low",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-18T03:42:44.966Z",
+      "reviewRound": "2026-08-18T02:48:29.207Z",
+      "reviewRunId": "B-49ed:RR-004",
+      "_hash": "277f59f0c54b7186c722db913f1bca9c1b3bae81623c48b38de1b8581766fc7c",
+      "signatureTag": "edge|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
