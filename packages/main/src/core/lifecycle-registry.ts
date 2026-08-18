@@ -687,6 +687,11 @@ export const LATTICE_LIFECYCLE_ARTIFACT_FILENAMES: ReadonlySet<string> = new Set
   // (readCertificationWindows/writeCertificationWindows). Independently gated
   // by refuseHeavyCertificationUnlessAdmitted; not closeout evidence.
   'certification-window.json',
+  // B-1e1f: signed review-inventory epochs written by StoryStore
+  // (readReviewInventoryEpochs/writeReviewInventoryEpochs). Independently
+  // gated completeness process fact; writing it after REVIEW must not be
+  // treated as an untrusted closeout artifact.
+  'review-inventory-epochs.json',
 ]);
 
 /**
@@ -707,6 +712,9 @@ export const REVIEW_RETENTION_PROTOCOL_METADATA_PATHS: ReadonlySet<string> = new
   // Independently gated PRE_CERT process fact. Writing it after REVIEW must
   // not be treated as an untrusted closeout artifact.
   'certification-window.json',
+  // Independently gated completeness process fact. Writing it after REVIEW
+  // must not be treated as an untrusted closeout artifact.
+  'review-inventory-epochs.json',
 ]);
 
 export const LATTICE_LIFECYCLE_ARTIFACT_RELATIVE_PATHS: ReadonlySet<string> = new Set([
