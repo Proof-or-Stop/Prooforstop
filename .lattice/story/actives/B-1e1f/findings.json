@@ -108,7 +108,7 @@
       "desc": "packages/main/src/tasks/certification-window-smoke.ts:642-696 CHK-004:no-cross-story-dev-lock is a must adversarial intent (another story DEV write/commit in its own worktree succeeds; this window takes no repo-wide write lock; consumers persist INVALIDATED even if status was never called). The pinned invalidation/replay smoke never creates a second story or worktree, never attempts a foreign DEV commit, and never asserts the absence of a long-lived repo lock. Its evidence selector is only State: INVALIDATED from the same B-cw21 source commit, so the lock/isolation claim is uncovered. high",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-18T09:26:11.439Z",
@@ -120,7 +120,9 @@
         "packages/main/src/tasks/certification-window-invalidation-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 6a26e8cc13: fail-closed admit/authorize plus smoke coverage for verifier drift, peer write, lane baseline, receipt binding, and retry storm.",
+      "resolvedAt": "2026-08-18T09:33:19.067Z"
     },
     {
       "id": "B-1e1f:F-007",
