@@ -44,6 +44,7 @@ import { createQuorumSubmitHandlers } from '../handlers/quorum-submit.js';
 import type { HandlerContext } from '../handlers/context.js';
 import { reviewerPromptHostForProvider } from '../handlers/story-dispatch.js';
 import type { ChecklistData, Finding, ReviewPass, ReviewRun, StoryInfo } from '../core/types.js';
+import { STATE_DIR_NAMES } from '../core/brand-paths.js';
 
 const STORY_ID = 'B-quorum-smoke';
 const DIST_CLI_PATH = fileURLToPath(new URL('../cli.js', import.meta.url));
@@ -188,9 +189,14 @@ function makeFixture(
   const root = mkdtempSync(join(tmpdir(), 'lattice-quorum-submit-'));
   writeConfig(root);
   write(root, '.gitignore', [
-    '.lattice/autopilot-verdicts/',
-    '.lattice/activity.jsonl',
-    '.lattice/locks/',
+    // B-cc10: list BOTH state-dir spellings. The runtime writes under the canonical
+    // dir, so a fixture ignoring only the deprecated one left '?? .proof-or-stop/'
+    // untracked and failed its own clean-baseline assertion.
+    ...STATE_DIR_NAMES.flatMap((dir) => [
+      `${dir}/autopilot-verdicts/`,
+      `${dir}/activity.jsonl`,
+      `${dir}/locks/`,
+    ]),
     ...MIRRORED_REPO_IGNORE_PATTERNS,
     '',
   ].join('\n'));

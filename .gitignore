@@ -10,6 +10,25 @@ dist.trash-*
 # Lattice worktree + runtime
 .worktrees/
 **/activity.jsonl
+# B-cc10: the CANONICAL state dir needs the same rules as the deprecated one. Without
+# them every worktree showed '?? .proof-or-stop/' untracked, which broke each fixture
+# and command that asserts a clean tree (quorum baselines, done_recover, main-sync).
+.proof-or-stop/activity.legacy-koala.jsonl
+.proof-or-stop/*
+!.proof-or-stop/artifact-releases.jsonl
+!.proof-or-stop/capability-releases.jsonl
+!.proof-or-stop/Lattice.md
+!.proof-or-stop/proof-or-stop.json
+!.proof-or-stop/dev-memory/
+!.proof-or-stop/dev-memory/**
+!.proof-or-stop/story/
+.proof-or-stop/story/*
+!.proof-or-stop/story/actives/
+!.proof-or-stop/story/actives/**
+.proof-or-stop/story/actives/**/activity.jsonl
+.proof-or-stop/runtime/
+
+# Deprecated state dir (still read; rules retained for pre-migration trees)
 .lattice/activity.legacy-koala.jsonl
 .lattice/*
 !.lattice/artifact-releases.jsonl
