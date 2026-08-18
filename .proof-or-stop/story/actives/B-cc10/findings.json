@@ -1189,7 +1189,7 @@
       "desc": "packages/main/src/core/main-write-lock.ts lines 8 and 176 (doc comments) still say the canonical lock path is '.lattice/locks/main-write.lock/'. The actual resolved value (via PROOF_OR_STOP_MAIN_WRITE_LOCK in core/lattice-paths.ts, derived from core/brand-paths.ts's PROOF_OR_STOP_STATE_DIR) is now '.proof-or-stop/locks/main-write.lock/'. No functional bug (the real constant is resolver-derived, not hardcoded), but the prose contradicts the current canonical path and should be updated to avoid misleading a future reader.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-18T16:02:53.287Z",
@@ -1200,7 +1200,8 @@
         "packages/main/src/core/main-write-lock.ts"
       ],
       "signatureTag": "missing|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-08-18T18:04:39.791Z"
     }
   ]
 }
