@@ -271,6 +271,21 @@
       "_hash": "1298e5fdd40cd033f19e5a6a6f6b9d2d1524aac77070e142a7d738ca1b0ab082",
       "signatureTag": "missing|unknown|packages-main-tasks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-49ed:F-015",
+      "desc": "packages/main/src/tasks/signing-guard-mutation-proof-smoke.ts:35,83: the mkdtempSync scratch directory is created and rmSync-cleaned but never read or written -- the mutated content goes straight to mutantPath in dirname(guardFile), not into scratch. Dead weight left over from a prior scratch-dir-based design; safe to delete both lines (and the mkdtempSync/tmpdir imports if unused elsewhere in the file).",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-18T04:27:07.942Z",
+      "reviewRound": "2026-08-18T04:18:52.650Z",
+      "reviewRunId": "B-49ed:RR-016",
+      "_hash": "8f1793358acd3f03c6ddab6ba344e1bfd2e973a078f83960cc3d5edae0f78564",
+      "signatureTag": "missing|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
