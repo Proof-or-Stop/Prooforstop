@@ -1501,6 +1501,21 @@
       "resolvedAt": "2026-08-18T20:41:21.555Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-9ff1:F-067",
+      "desc": ".lattice/dev-memory/experience.jsonl entry 8d1d2bb (SECOND CORRECTION on entry f260849) states the flat 900000ms budget applies to \"any command other than done_required_validate / done_prepare / live_smoke_transcript\", citing packages/main/src/core/done-required-timeout-budget.ts:290. That line (`if (command !== 'done_prepare') return { timeoutMs: 15 * 60_000, source: 'default' };`) itself excludes only done_prepare by name; done_required_validate is excluded one line above (289) unconditionally, but live_smoke_transcript is excluded only conditionally at line 279 (`command === 'live_smoke_transcript' && typeof args.capture === 'string'`). live_smoke_transcript has a documented capture-less default/status mode (packages/main/src/core/lifecycle-orchestrate.ts:265 comment: \"live_smoke_transcript STATUS = its read-only DEFAULT (NO --capture/--write)\"; CLI usage in packages/main/src/handlers/live-smoke-transcript.ts:23 shows --capture as optional). In that default status invocation, live_smoke_transcript falls through exactly like a standalone `validate` call and DOES get the flat 900000ms default -- it is not unconditionally excluded as the entry lists it alongside done_required_validate/done_prepare. The correction, written specifically to fix a prior imprecision about this same line, introduces a new one.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-18T20:48:48.733Z",
+      "reviewRound": "2026-08-18T20:31:09.389Z",
+      "reviewRunId": "B-9ff1:RR-081",
+      "_hash": "841dda395e814abd172c0db486f358e9f9dc010fe24fd8cac1ec87a28555e5af",
+      "signatureTag": "edge|unknown|lattice-memory-experience",
+      "signatureTagSource": "auto"
     }
   ]
 }
