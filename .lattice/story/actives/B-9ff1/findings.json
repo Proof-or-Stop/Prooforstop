@@ -1368,7 +1368,7 @@
       "desc": "findings.json F-058.resolvedReason severity-mitigating claim: NOT A SOUNDNESS BREAK, stated precisely so the severity is not inflated: an admitted matcher must still literally appear in the RED output and be absent at GREEN, so test failed passing does not make a fabricated RED satisfiable. This is stated as an unconditional guarantee of the GREEN predicate, but section 1.1.1 (spec:190-192) and section 1.5 pattern-absent (spec:456-458) both define an explicit, spec-legal, IMPLEMENTED exception: a present-in-red matcher may carry greenExempt:true, and pattern-absent is defined as NO matcher with effective green-absence polarity (every absent-in-green matcher, plus every present-in-red matcher NOT marked greenExempt) matched -- so a greenExempt:true matcher is explicitly excluded from the absent-at-GREEN requirement. Nothing in section 1.3 rule 3 (the sole present-in-red literal-line requirement) forbids that same matcher from also carrying greenExempt:true. Confirmed implemented, not merely textual: packages/main/src/core/red-evidence/envelope.ts:412-418 validates greenExempt is legal ONLY on polarity present-in-red, and red-w2d-rejection-matrix.mjs (run this round, 142 fixtures, exit 0) exercises ACCEPT for greenExempt:true on a present-in-red matcher (CHK-003). So an admitted matcher marked greenExempt is verified appear in RED (R1-4) but is NOT required to be absent at GREEN -- the resolutions must ... be absent at GREEN is an overgeneralization of what section 1.5 actually guarantees, unverified against this documented exception. I did not find that this alone lets a FABRICATED RED become satisfiable end-to-end (GREEN-BIND material-diff, R1-5 non-derived-command, and target-exists/adapter-linkage are independent constraints greenExempt does not touch), so the ultimate not a soundness break conclusion is plausibly still correct in substance -- but the resolutions own framing (stated precisely so the severity is not inflated) asserts a precision it did not actually verify against section 1.1.1s own carve-out, which is the same pattern (an unverified precision claim inside a severity-justifying argument) this round was specifically asked to check for.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-18T18:17:20.870Z",
@@ -1392,7 +1392,11 @@
         ".lattice/story/actives/B-9ff1/findings.json"
       ],
       "signatureTag": "edge|ts|findings-json-resolvedreason",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Upheld. F-058's soundness argument was stated unconditionally when the spec defines an implemented exception. I wrote that an admitted matcher 'must still literally appear in the RED output and be absent at GREEN', prefaced by 'stated precisely so the severity is not inflated' - and that prefix is the problem, because it asserts a precision I had not checked against greenExempt. Verified now: §1.1.1 defines greenExempt as an optional boolean legal ONLY on polarity 'present-in-red', and a matcher carrying it is exempt from the implicit absent-in-green requirement; it is implemented at envelope.ts:412-418 and exercised by red-w2d-rejection-matrix.mjs. So the absent-at-GREEN half of my sentence is defeasible by an explicit, legal, tested carve-out. THE CONCLUSION SURVIVES, and the lane said so: the RED half - the matcher must literally appear in the RED run output - is not exempted by greenExempt, and R1-4 gates it independently of the specificity floors, so passing the entropy floor alone still cannot fabricate a satisfiable RED. The corrected statement: 'test failed' being admitted by the specificity heuristic does not make a fabricated RED satisfiable, because R1-4 independently requires every present-in-red matcher to have matched the actual RED output; the absent-at-GREEN requirement is a separate conjunct that greenExempt can waive per-matcher. Severity of F-058 is unchanged; what changes is that its justification no longer claims a precision it did not have.",
+      "resolvedAt": "2026-08-18T18:22:44.068Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9ff1:F-063",
