@@ -938,6 +938,21 @@
       "_hash": "0f481ec27b89ce9116692f1e75a76667be3cb043ddcbd7b9bff2d8fb4c6a6543",
       "signatureTag": "missing|unknown|quality-cleanup-packages",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-cc10:F-052",
+      "desc": "quality-cleanup: packages/main/src/core/release-push-approval.ts:12 exports DEPRECATED_RELEASE_PUSH_APPROVAL_REL_PATH but it has zero consumers anywhere in packages/*/src (grep confirms it only appears in its own definition line plus the compiled dist mirror). The read-both fallback in .githooks/pre-push builds its own approvalCandidates array with the literal .lattice/tmp/remote-push-approval.json inline rather than importing this constant, and no other caller references it. Dead export -- either wire it into the pre-push candidate list (single source of truth for the deprecated path) or remove the export.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-18T10:58:53.305Z",
+      "reviewRound": "2026-08-18T03:33:16.325Z",
+      "reviewRunId": "B-cc10:RR-060",
+      "_hash": "c7a310c6613425be3ea90f39aaa6c3cefb6df97d4792f31ef2941f8e19b025e7",
+      "signatureTag": "missing|unknown|quality-cleanup-packages",
+      "signatureTagSource": "auto"
     }
   ]
 }
