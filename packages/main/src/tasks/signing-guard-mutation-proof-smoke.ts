@@ -92,6 +92,12 @@ try {
 
 
 assert.equal(readFileSync(guardFile, 'utf8'), original, 'the real guard artifact is byte-identical after the proof');
+// B-49ed F-017: probing resolveSessionIdentity below writes packages/main/.lattice/runtime/
+// owner-session-tokens, and .gitignore's `.lattice/runtime/` pattern is root-anchored so it
+// does NOT cover that path. The smoke created it, so the smoke removes it rather than
+// broadening a repo-wide ignore for one test's side effect.
+rmSync(resolve(here, '../../.lattice'), { recursive: true, force: true });
+
 console.log('Signing guard mutation proof: PASS');
 console.log('  guard removal admits: explicit-env, derived-ppid');
 console.log('  guard intact refuses: explicit-env, derived-ppid');
