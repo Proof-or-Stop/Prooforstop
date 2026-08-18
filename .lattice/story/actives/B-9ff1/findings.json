@@ -1142,7 +1142,7 @@
       "desc": "F-051's resolvedReason claims the §1.2 policy table's Meaning column is 'the' imprecise restatement of the literal-line-scoped maxMatcherLen/trim rule ('The §1.2 table is a policy-key summary whose one-line Meaning column dropped the qualification present in the field definition'), implying the §1.1 field definition at spec:183-184 is the sole qualified text and the §1.2 table the sole unqualified one. But spec.md:499-503 (R1-3, a NORMATIVE rejection rule, not a descriptive summary table) restates the identical rule with the identical missing qualification: 'any matcher value longer than policy.maxMatcherLen or carrying leading/trailing whitespace ... is REJECTED', with no kind restriction -- verified by direct read, not inference. Taken literally, R1-3 would require rejecting an over-length or untrimmed CLASS value too, which contradicts both the code (envelope.ts:70-85, which scopes the bound to literal-line only) and Host B's own probe cited in the same finding (a 513-byte untrimmed class value admitted, ok=true). The resolvedReason's phrase 'verified independently' checked spec:183-184 against the §1.2 table but not against R1-3, so it understates which spec passages need the follow-up correction: a fix to §1.2's table alone would leave R1-3's normative text still contradicting the code. Recommend the follow-up spec-fix scope recorded for this finding be broadened to cover both spec.md:293 and spec.md:499-503, not §1.2 alone.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-18T17:27:44.125Z",
@@ -1154,7 +1154,11 @@
         "packages/main/src/core/red-evidence/envelope.ts"
       ],
       "signatureTag": "missing|md|resolvedreason-claims-policy",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Accepted in full; the lane is right and this finding is the most valuable one filed in the round because it falsified a claim I had made while closing another finding. F-051's resolution named the §1.2 policy table as the sole imprecise restatement of the matcher-value bounds. The lane found a second and more authoritative one: spec:499-504, rule R1-3, is a normative rejection rule rather than a summary table, and it bounds 'ANY matcher value' with no kind restriction while separately enumerating class values in the same sentence. Verified directly by reading spec:497-505 rather than taking the report on trust. CONSEQUENCES, recorded rather than smoothed over. First, F-051's resolution has been corrected by an appended note; the original text stays visible because a correction that erases its subject is not a correction. Second, my 'verified independently' phrasing in F-051 asserted more than I had done: I compared the §1.2 table against §1.1.1 and never searched the spec for further restatements, which is precisely the claim-wider-than-the-evidence defect this subsystem exists to make impossible, committed by me in prose written to close a finding about it. Third, and this is why the lane filed it rather than merely commenting: the follow-up spec fix would have been scoped to §1.2 alone and would have left the normative R1-3 contradiction in place, so the spec would still have contradicted the shipped code after the 'fix'. The follow-up scope is now all three sites, and the open decision — whether class values should be length- and whitespace-bounded, where R1-3's reading is arguably better than the code's — is named as a decision for the spec owner rather than presumed settled in the implementation's favour. No code change: under either reading the code is fail-closed for literal-line values, which is where every specificity intent's evidence lives, and changing class-value bounds is a behaviour change that must follow the spec decision rather than precede it.",
+      "resolvedAt": "2026-08-18T17:30:01.943Z",
+      "resolutionType": "accepted_risk",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
