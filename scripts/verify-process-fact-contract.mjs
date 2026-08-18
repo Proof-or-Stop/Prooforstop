@@ -17,10 +17,16 @@ const hanCharacterPattern = /[\u3400-\u9fff]/;
 const codeLikeCommandNamePattern = /^[a-z][a-z0-9_.-]*(?::[a-z][a-z0-9_.-]*)*$/;
 const artifactFactNamePattern = /^artifact:[a-z0-9_.-]+(?:\/[a-z0-9_.-]+)*$/;
 
+// B-cc10: resolve the codex adapter agents dir instead of hardcoding the deprecated
+// spelling. With the old name, all 23 prompt mirrors read as "missing; no semantic drift
+// comparison available", so this contract failed and took several dependent smokes with it.
+const CODEX_AGENTS_DIR = ['.proof-or-stop-codex/agents', '.lattice-codex/agents']
+  .find((rel) => existsSync(rel)) ?? '.proof-or-stop-codex/agents';
+
 const promptDirs = [
   'packages/main/templates/agents',
   '.claude/agents',
-  '.lattice-codex/agents',
+  CODEX_AGENTS_DIR,
 ];
 
 const currentCategories = new Set(['happy', 'edge', 'adversarial', 'missing']);
@@ -1387,7 +1393,7 @@ function assertProofStoryProgressiveBoundary() {
   const acceptancePromptPaths = [
     'packages/main/templates/agents/lattice-implementer.md',
     '.claude/agents/lattice-implementer.md',
-    '.lattice-codex/agents/lattice-implementer.md',
+    `${CODEX_AGENTS_DIR}/lattice-implementer.md`,
   ];
   const acceptanceRequiredSemantics = process.env.LATTICE_PROCESS_FACT_CONTRACT_MUTATION === 'drop-acceptance-basis-contract'
     ? requiredProcessFactSemantics.acceptance_basis_generate.filter(item => item !== 'workspace-binding')
@@ -1586,14 +1592,14 @@ function assertProofStoryProgressiveBoundary() {
         rolloutPromptTokens.every(token => read(templatePath).toLowerCase().includes(token)))
       && rolloutBootstrapOnlyReviewerNames.every(name =>
         !read(`.claude/agents/${name}.md`).toLowerCase().includes('acceptance_rollout_check')
-        && !read(`.lattice-codex/agents/${name}.md`).toLowerCase().includes('acceptance_rollout_check')),
+        && !read(`${CODEX_AGENTS_DIR}/${name}.md`).toLowerCase().includes('acceptance_rollout_check')),
     'acceptance rollout contract must keep verifier-derived frozen membership, >=3 matched pairs per arm, all thresholds, signed current receipt, genuine full-3x2, real lifecycle consumer, mode-invariant rollback, and canonical template-sourced role guidance (not regenerable host shims)',
   );
   const topologyCriticText = read('packages/main/src/core/topology-critic-receipt.ts');
   const topologyCriticPromptPaths = [
     'packages/main/templates/agents/lattice-review-topology-critic.md',
     '.claude/agents/lattice-review-topology-critic.md',
-    '.lattice-codex/agents/lattice-review-topology-critic.md',
+    `${CODEX_AGENTS_DIR}/lattice-review-topology-critic.md`,
   ];
   const topologyCriticPolicy = commandPolicyEntries.get('topology_critic_receipt_set');
   assert(
@@ -1811,7 +1817,7 @@ function assertCloseoutTrustBoundary() {
   }
   for (const promptPath of [
     'packages/main/templates/agents/product-reviewer.md',
-    '.lattice-codex/agents/product-reviewer.md',
+    `${CODEX_AGENTS_DIR}/product-reviewer.md`,
     '.claude/agents/product-reviewer.md',
   ]) {
     const promptText = read(promptPath);
