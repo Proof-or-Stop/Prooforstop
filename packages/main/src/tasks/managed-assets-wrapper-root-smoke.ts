@@ -118,7 +118,7 @@ try {
   // story); assert the canonical path rather than the pre-rename literal.
   assert.equal(checkJson.manifestPath, PROOF_OR_STOP_STATE_DIR + '/managed-assets.json', 'manifestPath remains assetRoot-relative');
   assert.ok(
-    checkJson.items.some((item: any) => item.relPath === '.lattice/Lattice.md' && item.status === 'MISSING'),
+    checkJson.items.some((item: any) => item.relPath === PROOF_OR_STOP_STATE_DIR + '/Lattice.md' && item.status === 'MISSING'),
     'check should evaluate relPath under metadataRoot/assetRoot, not gitRoot',
   );
 
@@ -140,7 +140,7 @@ try {
   const applyJson = JSON.parse(runCli(metadataRoot, ['check', '--apply', '--json']));
   assert.equal(applyJson.ok, true, 'check --apply should repair safe metadata-root drift');
   assert.ok(
-    applyJson.applied.includes('.lattice/Lattice.md'),
+    applyJson.applied.includes(PROOF_OR_STOP_STATE_DIR + '/Lattice.md'),
     'applied paths should remain assetRoot-relative',
   );
   assert.equal(applyJson.metadataRoot, canonicalMetadataRoot, 'apply JSON metadataRoot');
@@ -148,11 +148,11 @@ try {
   assert.equal(applyJson.gitRoot, canonicalGitRoot, 'apply JSON gitRoot');
   assert.equal(applyJson.pathsRelativeTo, 'assetRoot', 'apply JSON pathsRelativeTo');
   assert.equal(applyJson.assetRootGitRootSplit, true, 'apply JSON split flag');
-  assertExists(metadataRoot, '.lattice/Lattice.md', 'metadataRoot managed Proof-or-Stop guide');
-  assertExists(metadataRoot, '.lattice/managed-assets.json', 'metadataRoot managed manifest');
-  assertMissing(gitRoot, '.lattice/managed-assets.json', 'gitRoot managed manifest');
+  assertExists(metadataRoot, PROOF_OR_STOP_STATE_DIR + '/Lattice.md', 'metadataRoot managed Proof-or-Stop guide');
+  assertExists(metadataRoot, PROOF_OR_STOP_STATE_DIR + '/managed-assets.json', 'metadataRoot managed manifest');
+  assertMissing(gitRoot, PROOF_OR_STOP_STATE_DIR + '/managed-assets.json', 'gitRoot managed manifest');
   assert.equal(
-    readFileSync(join(gitRoot, '.lattice', 'Lattice.md'), 'utf8'),
+    readFileSync(join(gitRoot, PROOF_OR_STOP_STATE_DIR, 'Lattice.md'), 'utf8'),
     gitRootSentinel,
     'check --apply should not write managed assets under configured gitRoot',
   );
@@ -162,7 +162,7 @@ try {
   assertIncludes(okText, `gitRoot: ${canonicalGitRoot} (separate from assetRoot; managed assets are not rooted here)`, 'OK text');
   assert.ok(
     okText.indexOf('Paths: managed asset relPath/applied/manifestPath values are relative to assetRoot.')
-      < okText.indexOf('Manifest: .lattice/managed-assets.json'),
+      < okText.indexOf('Manifest: ' + PROOF_OR_STOP_STATE_DIR + '/managed-assets.json'),
     'OK text should show root guidance before manifest output',
   );
 
