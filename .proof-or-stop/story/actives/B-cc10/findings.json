@@ -721,7 +721,7 @@
       "desc": "doc-code-drift: docs/requirements/decisions/proof-or-stop-identity-migration.md:237-245 (\"Validate suite state at close\") is now stale in exactly the F-035 pattern this story flagged before. It states \"The rename broke 25 of 104 validate commands. 23 were fixed; 2 remain\" and names validation-reuse-merge-lineage-smoke and proofstory-acceptance-basis-smoke as remaining/pre-existing-on-main failures. 33+ commits have landed since this section was written (130fb11a8a), including fix(F-033,F-035) repoRoot walk-up fix in 12 files, fix(F-032) legacy-key re-emission + 3 audit waivers, and fix(F-031)/fix(F-034). finding_list confirms F-031 through F-035 are all status=resolved. The section makes no reference to any of this follow-up work and still reads as though 2 commands are outstanding, while reported current reality is validate status=pass, allPass=true, 104/104 commands, coverage 24/24. A reader hitting this section after CHK-008/Residual sections (which ARE kept current) would reasonably but wrongly conclude 2 commands are still red.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-08-18T10:32:46.134Z",
@@ -732,7 +732,8 @@
         "docs/requirements/decisions/proof-or-stop-identity-migration.md"
       ],
       "signatureTag": "missing|md|code-drift-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-08-18T10:36:09.577Z"
     },
     {
       "id": "B-cc10:F-040",
