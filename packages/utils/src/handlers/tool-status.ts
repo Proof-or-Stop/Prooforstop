@@ -10,6 +10,7 @@ import type { HandlerContext } from '../../../main/dist/handlers/context.js';
 // this reader follows the rename instead of silently reading a path that no longer
 // exists (which would look like "no activity recorded" rather than an error).
 import { PROOF_OR_STOP_DIR } from '../../../main/dist/core/lattice-paths.js';
+import { STATE_DIR_NAMES } from '../../../main/dist/core/brand-paths.js';
 import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 
@@ -53,15 +54,20 @@ export function createToolStatusHandlers(ctx: HandlerContext) {
       const limit = args?.limit ?? 20;
       const format = args?.format ?? 'text';
 
-      // Dual-source: runtime path (.lattice/activity.jsonl) + legacy path (docs/story/activity.jsonl)
-      const runtimeLogPath = join(root, PROOF_OR_STOP_DIR, 'activity.jsonl');
+      // Dual-source: runtime state-dir activity log + legacy docs/story path.
+      // B-cc10 F-021: probe EVERY accepted state-dir spelling, canonical first. This
+      // only checked the canonical dir, so a repo whose activity.jsonl still sits under
+      // the deprecated spelling (e.g. right after the git-mv, before any command has
+      // recreated it canonically) silently undercounted its own history — contradicting
+      // this handler's documented dual-source design.
+      const runtimeLogPaths = STATE_DIR_NAMES.map(dir => join(root, dir, 'activity.jsonl'));
       const legacyLogPath = join(root, 'docs', 'story', 'activity.jsonl');
-      const logPaths = [runtimeLogPath, legacyLogPath].filter(p => existsSync(p));
+      const logPaths = [...runtimeLogPaths, legacyLogPath].filter(p => existsSync(p));
 
       if (logPaths.length === 0) {
         return format === 'json'
-          ? { error: 'activity.jsonl not found', logPaths: [runtimeLogPath, legacyLogPath] }
-          : `(no data) activity.jsonl not found (looked in ${runtimeLogPath} and ${legacyLogPath})`;
+          ? { error: 'activity.jsonl not found', logPaths: [...runtimeLogPaths, legacyLogPath] }
+          : `(no data) activity.jsonl not found (looked in ${[...runtimeLogPaths, legacyLogPath].join(', ')})`;
       }
 
       const cutoff = Date.now() - days * 24 * 60 * 60 * 1000;
