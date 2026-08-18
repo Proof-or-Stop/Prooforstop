@@ -558,7 +558,7 @@
       "desc": "packages/main/src/core/acceptance-discovery-adapters.ts:1272 registeredProcessFactClosureFromGraph() hardcodes the literal string source-file:config:lattice.config.json into sourceInventoryRefs unconditionally, regardless of which config filename spelling the workspace actually has. This is exactly the bug class this story targets: a hardcoded deprecated spelling used as a decision value where a resolver already exists in the same file (resolveSnapshotConfigFilename / CONFIG_FILENAMES). Not cosmetic: acceptance-coverage-basis.ts:206 inventorySourceFile() regex-extracts lattice.config.json from this ref and feeds it into computeClosureFilesHashFromSnapshots (line 216). For a canonical-only project (proof-or-stop.config.json present, lattice.config.json absent), the actual read snapshot is keyed under proof-or-stop.config.json, so the hardcoded lattice.config.json entry never matches a snapshot and line 225 emits a spurious closure source lacks immutable bounded snapshot blind spot, mapped to a snapshot_missing seal issue (line 304), downgrading deriveAcceptanceCoverageBasis status from complete to partial even when discovery genuinely succeeded. Verified live: deriveRegisteredProcessFactClosure() run against a fixture containing ONLY proof-or-stop.config.json (no lattice.config.json) still returns sourceInventoryRefs containing the literal source-file:config:lattice.config.json. All existing smoke fixtures in proofstory-acceptance-basis-smoke.ts write lattice.config.json exclusively, which masks the bug because the hardcoded literal happens to match what was actually read; no fixture exercises a canonical-only project through this path. Fix: derive the ref from the resolved config filename (via the readContext used to build the graph, or CONFIG_FILENAMES) instead of hardcoding the deprecated spelling.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-18T09:19:45.131Z",
@@ -570,7 +570,8 @@
         "packages/main/src/core/acceptance-coverage-basis.ts"
       ],
       "signatureTag": "missing|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-08-18T09:51:22.867Z"
     },
     {
       "id": "B-cc10:F-032",
