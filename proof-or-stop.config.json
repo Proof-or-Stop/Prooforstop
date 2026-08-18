@@ -328,6 +328,13 @@
       {
         "command": "node",
         "args": [
+          "packages/main/tests/red/red-cc10-chk006-removed-bin-aliases.mjs"
+        ],
+        "timeoutMs": 180000
+      },
+      {
+        "command": "node",
+        "args": [
           "packages/main/tests/red/red-b2aa7-chk009-receipt.mjs"
         ],
         "timeoutMs": 180000
