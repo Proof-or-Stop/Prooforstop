@@ -490,6 +490,24 @@
       "signatureTag": "missing|md|code-drift-claude",
       "signatureTagSource": "auto",
       "resolvedAt": "2026-08-18T04:25:33.793Z"
+    },
+    {
+      "id": "B-cc10:F-028",
+      "desc": "concept-cleanup: state-dir rename (CHK-002/CHK-003: .lattice -> .proof-or-stop, canonical) incomplete in packages/main/src/core/memory-benchmark-real-data.ts. This file (untouched by the B-cc10 diff, used live by handlers/memory-benchmark.ts for the memory_benchmark_real_data command) hardcodes ONLY the deprecated spelling with no read-both fallback: ACTIVITY_SOURCE=.lattice/activity.jsonl (line 190), DEV_MEMORY_SOURCE=.lattice/dev-memory/experience.jsonl (line 191), DEFAULT_STORY_ROOTS=[.lattice/story/actives, docs/story/actives] (line 187), PROTECTED_STORY_OUTPUT_ROOTS=[.lattice/story, docs/story] (line 188). Empirically reproduced against this exact repo (fully migrated: .proof-or-stop/activity.jsonl has 1477 real lines, .lattice has only a leftover locks/ dir): `node bin/proof-or-stop.js memory_benchmark_real_data --json` returns verdict=FAIL, pass=false, reasons=[\"missing real activity source: .lattice/activity.jsonl\"], sources[0]={sourcePath:.lattice/activity.jsonl, exists:false} -- even though the real activity log exists at the canonical path with real content. This is a live functional regression (a shipped command silently reports FAIL/missing-source instead of reading real data), not a doc-only issue, and falls in CHK-002 scope (\"Route every literal through the resolver\").",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-18T04:26:15.317Z",
+      "reviewRound": "2026-08-18T03:33:16.325Z",
+      "reviewRunId": "B-cc10:RR-031",
+      "_hash": "7a55bd998e282df9eebca64281e493b525d7f58e0eb03b958ed66309376595f5",
+      "files": [
+        "packages/main/src/core/memory-benchmark-real-data.ts"
+      ],
+      "signatureTag": "missing|ts|concept-cleanup-state",
+      "signatureTagSource": "auto"
     }
   ]
 }
