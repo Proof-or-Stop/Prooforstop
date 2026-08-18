@@ -84,7 +84,8 @@
 // same mis-tagging error in a different direction.
 //
 // ARE `policyDigest` / `assertionDigest` REQUIRED HERE? (review B-9ff1,
-// adjudicated — do not re-litigate.) §1.1 numbers them among the four envelope
+// adjudicated; the reasoning is recorded so a reviewer can check it, not so a
+// reviewer can skip it.) §1.1 numbers them among the four envelope
 // fields, and for a STORED v2 record they ARE required: §1.10 embeds both and
 // §3.4 makes them idempotency-key components, so a record missing either is
 // malformed. THIS function does not validate a stored record. It validates a
@@ -92,7 +93,10 @@
 // `assertionDigest` before a run is spent, and `assertionDigest` covers
 // `policyDigest`, which in turn covers a policy the operator resolves from
 // config rather than authors. Demanding that the operator pre-supply the two
-// values this pre-flight exists to derive would be circular, and would force
+// values this pre-flight exists to derive is OPERATIONALLY circular — not
+// mathematically circular, since `assertionDigest` excludes itself by
+// construction (§1.1.4), a distinction the cross-vendor reviewer drew and this
+// comment previously blurred — and it would force
 // hand-computed digests into candidate files — the exact fabrication surface
 // §1.1.4 exists to remove. THE RULE, therefore:
 //   - a candidate MAY omit either field (they are then computed / resolved), and
