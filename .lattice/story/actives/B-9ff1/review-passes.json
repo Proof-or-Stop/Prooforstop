@@ -1114,6 +1114,39 @@
         "scanEscalationReason": null
       },
       "_hash": "532b6cd10e81f6506108f38779861122648e01d6761c7a81e191b000d0eddcaf"
+    },
+    {
+      "id": "B-9ff1:RP-035",
+      "agent": "lattice-review-quality",
+      "note": "Round 10, narrow re-verification of comment-only commit 19aeb9de6f (F-053 fix) following RP-032 full audit at prior head 4b9a9be; nothing else changed, pass went stale only on materialHash. git show 19aeb9de6f: exactly 1 file (envelope.ts), 6 insertions/2 deletions, both hunks entirely // line-comments (lines 87-88, 95-98 new numbering) inside the top-of-file docblock, confirmed against full file re-read (744 lines) -- no import, type, enum member, branch, regex, or string-literal used at runtime changed. Commit-message claims checked against the diff and each is accurate: (1) line 87 no longer reads 'do not re-litigate', replaced with 'the reasoning is recorded so a reviewer can check it, not so a reviewer can skip it', and the surrounding S1.1/S1.10/S3.4 reasoning paragraph is retained verbatim; (2) the matcher block at line 70 ('review B-9ff1, adjudicated') is outside both changed hunks and unchanged, confirmed by git show -U0 hunk ranges (87 and 95 only); (3) the circularity sentence now reads 'OPERATIONALLY circular -- not mathematically circular, since assertionDigest excludes itself by construction (S1.1.4)', stating the reason the mathematical reading does not apply. Cross-checked against findings.json F-051/F-052/F-053: F-053 resolvedReason cites this exact commit and wording; F-051/F-052 are accepted_risk (spec-text follow-up, no code change), consistent with 'What this does NOT change' paragraph. Re-ran: npx tsc --noEmit -p packages/main exit 0; node packages/main/dist/tasks/red-evidence-envelope-smoke.js exit 0 (OK transcript); node packages/main/tests/red/red-w2d-rejection-matrix.mjs exit 0 (142 fixtures PASS). No blocker. Noted but out of my lane's scope: git rev-list --count HEAD..main is 3 (main has advanced with unrelated B-d15e/B-e5bf story-init commits since this branch was cut) and the worktree carried transient uncommitted changes to prompt-envelopes.json/review-runs.json from a concurrently running lattice-review-concept RR-050 run in this shared worktree at time of check -- neither is code under this story's diff.",
+      "createdAt": "2026-08-18T17:24:24.460Z",
+      "reviewRound": "2026-08-14T03:33:29.693Z",
+      "reviewRunId": "B-9ff1:RR-052",
+      "envelopeId": "38d49a438a604da881f51085c44363dc104ee467e99bd45b49de6375f47c8eb5",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-9ff1/background.md",
+          ".lattice/story/actives/B-9ff1/findings.json",
+          ".lattice/story/actives/B-9ff1/plan.md",
+          "packages/main/src/core/red-evidence/envelope.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-9ff1/checklist.json",
+          "packages/main/src/core/red-evidence/specificity.ts",
+          "packages/main/src/handlers/red-evidence.ts",
+          "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+          "packages/main/tests/red/red-w2d-assertion-digest-scope.mjs",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs",
+          "packages/main/tests/red/red-w2d-entropy-differential.mjs",
+          "packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "packages/main/tests/red/red-w2d-specificity-conjunction.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6f330a2e56d281bc873966623caa75b3eec73d22ffc89299b3e98239ff5cdfa1"
     }
   ]
 }
