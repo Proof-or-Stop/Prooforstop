@@ -462,6 +462,21 @@
       "resolvedAt": "2026-08-18T05:24:46.443Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-49ed:F-024",
+      "desc": "concept-residue: CHK-003 relatedDocs points at CLAUDE.md#handler-coding-conventions, but no such anchor exists. CLAUDE.md:725 has \"## Handler 编码约定\" (Chinese heading); its markdown slug is #handler-编码约定, not the invented English #handler-coding-conventions. grep -rn \"handler-coding-conventions\" across the repo returns zero hits except this one relatedDocs string. The prior CJK anchor (which at least pointed at a real, if non-English, heading) was swapped for an anchor that resolves to nothing at all -- trading an english-artifacts gate failure for a dead link, in the same checklist item whose own title is \"Prove the guard bites under mutation\" and whose adversarial intent is about proving guards actually bite. Fix: either link CLAUDE.md#handler-编码约定 (the real slug) or add/reference an actual English-titled anchor for that section.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-18T05:26:26.694Z",
+      "reviewRound": "2026-08-18T05:24:29.603Z",
+      "reviewRunId": "B-49ed:RR-025",
+      "_hash": "6ab419cee8decfb670a926aed24ebff1bb0b68f86c79bc4e298a4d6df62105bf",
+      "signatureTag": "missing|unknown|concept-residue-relateddocs",
+      "signatureTagSource": "auto"
     }
   ]
 }
