@@ -1338,6 +1338,31 @@
         "scanEscalationReason": "not applicable: capped verification round on a single commit per explicit dispatch instruction, not a full story audit. Partially read for this round: scripts/verify-process-fact-contract.mjs, packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs, lattice.config.json, .lattice/story/actives/B-3434/scope-check.json, .lattice-codex/agents/lattice-implementer.md, packages/main/templates/agents/lattice-implementer.md, .claude/agents/lattice-implementer.md"
       },
       "_hash": "4a4e8faeb70b2b5513a236f8d93c0004ecb7f2fbac1ec3c98e1031051cee30fd"
+    },
+    {
+      "id": "B-3434:RP-052",
+      "agent": "lattice-review-test-coverage",
+      "note": "Verified all three fixes in 97d56156fc independently; no re-audit of the story. (1) verify-process-fact-contract.mjs: ran all four mutations (drop-acceptance-basis-prompt/-handler/-registry/-contract) plus the unmutated control directly -- all four exit 1, control exits 0. drop-acceptance-basis-prompt's failure text matches proofstory-acceptance-basis-smoke.ts:1545's assertion regex. Also ran that smoke end-to-end: PASS in 56s. Confirmed via git show the fix is one regex on line 591. Read scope-contract.json acknowledgement 7/index-6: it correctly invokes OQ-B3434-1's own 'if an implementer finds otherwise that is a real expansion to raise explicitly' clause, names the exact defect, and the diff is confined to that one regex -- legitimate, disclosed, minimal explicitExclude expansion. No objection. (2) red-1734-bootstrap-depfree.mjs: ran directly, all four subcases (0,1,2,3) print VI-OK and PASS in <0.1s. Confirmed bin/bootstrap-runner.js:32 literally prints 'proof-or-stop local bootstrap is not ready.' so the old /lattice local bootstrap is not ready/i regex genuinely could not match -- real defect, not a false alarm. git show confirms the commit touches only line 183, so subcases 0/1/3 were never broken, matching the claim. (3) review-pass-discard-smoke timeout: ran standalone in this quiet solo worktree -- 90.14s wall, consistent with the reported 83s-quiet figure. 300000ms gives roughly 2x margin over the reported 155s-under-load worst case and matches sibling convention (red-b49d4-registration-derivation.mjs and red-1734-reader-race.mjs already at 300000ms). No objection to the margin. COVERAGE RECOMMENDATION (follow-up, not built here): the shared shape across all five brand-rename casualties tonight is a guard whose own trigger literal drifted out from under it, so it stopped biting silently. Two generalizable checks, one per shape actually seen: (a) self-verifying mutation harnesses -- every text.replace/regex mutation branch in verify-process-fact-contract.mjs read() (this fix covers 1 of ~20) should assert its own replacement actually changed the file content and throw loudly on a zero-match, turning a silently-disarmed mutation into an immediate hard failure instead of something a human must notice via asymmetric sibling exit codes, which is how this one was actually caught -- I grepped the other ~19 branches while verifying and none reference the retired brand literal today, so this is preventive, not a live defect elsewhere in the file; (b) for assertions pinned to real program output (the depfree shape), a lint tied to the rename event that greps test files for the retired brand token used as a bare literal (not already folded into a brand-agnostic alternation like the two this story fixed) and fails CI when found. HOUSEKEEPING: I mistakenly called review_run_start once before reading the full dispatch, creating a duplicate run B-3434:RR-097 at the same headHash/materialHash/storyFilesHash/reviewRound as the assigned B-3434:RR-095; it is inert and unused. This pass is recorded against the assigned B-3434:RR-095 as instructed.",
+      "createdAt": "2026-08-18T08:05:11.637Z",
+      "reviewRound": "2026-08-17T15:06:34.379Z",
+      "reviewRunId": "B-3434:RR-095",
+      "envelopeId": "a463a314228407e991138f457883beffdc720cc5f667d12346ea6aab5b6bade3",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3434/scope-contract.json",
+          "bin/bootstrap-runner.js",
+          "lattice.config.json",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/tests/red/red-1734-bootstrap-depfree.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "ef63d67416020f3098b1e620f97efa299b4b2af4551297070dcabc11458d8e20"
     }
   ]
 }
