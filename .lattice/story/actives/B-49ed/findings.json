@@ -332,6 +332,21 @@
       "_hash": "996f14edca61697cd0c4d332a710de7617a2fa08f0ecf8f58aba11baa8e3bb93",
       "signatureTag": "missing|unknown|gitignore-pattern-lattice",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-49ed:F-018",
+      "desc": "packages/main/package.json:12 concept-residue: description field was rewritten from literal CJK characters to \\uXXXX escapes by an incidental JSON-writing tool (python json.dump), making it the sole outlier vs packages/utils/package.json and packages/lab/package.json which both keep literal CJK descriptions untouched. Semantically identical but introduces a silent style inconsistency the english-artifacts gate will not catch (it scans for literal CJK in commit/story metadata, not escaped code points in source JSON), so it persists undetected unless fixed now. Restore to literal characters to match sibling packages.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-18T04:48:18.678Z",
+      "reviewRound": "2026-08-18T04:41:21.380Z",
+      "reviewRunId": "B-49ed:RR-020",
+      "_hash": "787fbfe3065c362720bca2a56a536a7803ad1cf4d8fa8e50a1d9f87b94106b5d",
+      "signatureTag": "missing|unknown|packages-main-package",
+      "signatureTagSource": "auto"
     }
   ]
 }
