@@ -152,6 +152,24 @@
       ],
       "signatureTag": "missing|ts|topology-signing-source",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-49ed:F-009",
+      "desc": "CHK-002:happy:0 is NOT the only attestation-based evidence in this story: all three CHK-004 intents (happy:0, edge:0, adversarial:0) are kind=manual_transcript, mechanical=false, with no receipt block -- narrative descriptions of a single manual CLI invocation each. This is architecturally sound (CHK-004 intents are type=manual, outside EXECUTABLE_INTENT_TYPES in core/verification.ts, so coverageStatusForCoveredEvidence correctly treats mechanical:false as covered rather than gating it -- manual host-adapter-driven verification is a deliberate escape hatch, not a bypass). Flagging only so the storys own self-assessment is corrected: CHK-002:happy:0 is the sole EXECUTABLE-intent (type=cli) evidence resting on a mechanical:true plus receipt kind=integration_test entry (confirmed present, receipt.selectorMatched=true, receipt.exitCode=0), so that specific claim is now actually true for CHK-002:happy:0 -- but the broader premise that it is the only attestation in the story undercounts by 3.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-18T04:04:52.828Z",
+      "reviewRound": "2026-08-18T03:52:40.426Z",
+      "reviewRunId": "B-49ed:RR-009",
+      "_hash": "ae0862420a0f9c88511613b14e49195414427fc1430cbf4cd5197598bdfff66b",
+      "files": [
+        ".lattice/story/actives/B-49ed/checklist.json"
+      ],
+      "signatureTag": "missing|json|happy-attestation-based",
+      "signatureTagSource": "auto"
     }
   ]
 }
