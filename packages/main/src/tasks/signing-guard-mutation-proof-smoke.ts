@@ -53,6 +53,18 @@ assert.doesNotMatch(relocated, /import\(\s*['"]\.\.?\//, 'no relative dynamic im
 writeFileSync(mutantPath, relocated, 'utf8');
 
 try {
+  // B-49ed F-027: F-002 accepted the regex's brittleness when this proof only PARSED the
+  // artifact. It now REWRITES and EXECUTES it, and execution drives deriveRoleProvenance,
+  // which shells out to git. So a silently-missed specifier would no longer just produce a
+  // useless proof -- it could execute an unintended module with real subprocess calls.
+  // Assert the transitively-loaded modules are I/O-free, so that safety is enforced here
+  // rather than being an accident of what those files happen to contain today.
+  for (const dep of ['authority-signing.js', 'digest.js']) {
+    const depSource = readFileSync(join(dirname(guardFile), dep), 'utf8');
+    assert.doesNotMatch(depSource, /child_process|execFileSync|execSync|spawnSync/,
+      `${dep} must stay free of subprocess I/O, since the mutant executes it`);
+  }
+
   const mutant = await import(pathToFileURL(mutantPath).href);
   const real = await import(pathToFileURL(guardFile).href);
 
