@@ -1327,6 +1327,37 @@
       "resolvedAt": "2026-08-18T18:16:11.773Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-9ff1:F-061",
+      "desc": "findings.json F-059.resolvedReason (edited 2026-08-18T18:12:52Z) appends a CITATION CORRECTION paragraph claiming: This resolution originally cited spec:738-742 ... That was WRONG and I have verified it myself: ... The correct location is spec:368-369, attributed as (behavior lane, RP-039). I independently confirmed the underlying fix is correct (spec:738-742 is section 1.11 rule 4, the entropy formula, len(value) x H; the sole occurrence of red_evidence_policy_missing anywhere in the 1607-line spec is at line 369, confirmed by direct read and grep) but the ATTRIBUTION to RP-039 does not hold against the artifact it names. review-passes.json B-9ff1:RP-039 (agent lattice-review-behavior, createdAt 2026-08-18T18:11:50.712Z, the only RP-039 record in the file) never mentions a citation error, spec:738-742, or spec:368-369 anywhere in its note (Verified disposition of F-057/F-058/F-059 ... No new findings), and its own readManifest lists docs/requirements/decisions/red-evidence-subsystem-spec.md only under filesTriagedByName, not filesReadFully -- so the pass cited as having verified this citation did not, per its own signed manifest, fully read the document the claim is about. process-events.jsonl has no matching entry (grepped for 738/citation/mis-transcribed/narrative typo: zero hits). No finding_add exists anywhere in findings.json for either the original wrong citation or this correction -- the whole episode (a false claim, its catch, and its fix) happened as a direct edit to an already-resolved findings.json field, bypassing the finding_add -> review -> resolve discipline this story is built on. This is the same claiming a property of my own verification instead of running the check that would establish it defect already confirmed four times in this stories own F-051/F-054/F-055/F-056 chain (all rated high), recurring a fifth time, live, during the current REVIEW round, on one of the exact three items this round was scoped to check -- this time via an unregistered direct edit rather than even a finding.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-18T18:17:04.058Z",
+      "reviewRound": "2026-08-14T03:33:29.693Z",
+      "reviewRunId": "B-9ff1:RR-063",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-9ff1/findings.json",
+          ".lattice/story/actives/B-9ff1/review-passes.json",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-9ff1/process-events.jsonl"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5dd0e243d585fd06e20c2f7cafc51aa0bbc913a11a80b883effa822988c317ee",
+      "files": [
+        ".lattice/story/actives/B-9ff1/findings.json",
+        ".lattice/story/actives/B-9ff1/review-passes.json",
+        "docs/requirements/decisions/red-evidence-subsystem-spec.md"
+      ],
+      "signatureTag": "missing|json|findings-json-resolvedreason",
+      "signatureTagSource": "auto"
     }
   ]
 }
