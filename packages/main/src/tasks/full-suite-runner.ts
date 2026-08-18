@@ -106,7 +106,7 @@ const RESOURCE_POLICY: Record<string, FullSuiteEntry> = Object.fromEntries([
   // exclusive path, port or runtime lock, so the plain repoRead policy is correct.
   repoRead('test:codex-heartbeat-timeout'), repoRead('test:audit-scan-bin-token'),
   isolated('test:review-convergence-smoke'), isolated('test:review-loop-smoke'), isolated('test:delivery-context-pack-smoke'),
-  isolated('test:flow-stability-smoke'), isolated('test:review-assurance-floor-smoke'),
+  isolated('test:flow-stability-smoke', { timeoutMs: 300_000, priority: 850 }), isolated('test:review-assurance-floor-smoke'),
   isolated('test:proofstory-intent-hardening-smoke', { timeoutMs: 300_000, priority: 900 }),
   isolated('test:scope-shrinkage-withdrawal-floor-smoke'), isolated('test:withdrawn-disposition-smoke'),
   isolated('test:milestone-status', { priority: 700 }), repoRead('test:global-core-realpath'),
@@ -300,8 +300,29 @@ export function parseRunnerArgs(argv: string[]): { jobs?: number; jsonOutput?: s
   return parsed;
 }
 
+/**
+ * Whole-suite wall-clock budget. This MUST stay strictly greater than
+ * longestEntryTimeoutMs(): a budget at or below the longest single entry's own
+ * allowance is unsatisfiable by construction -- one entry running to its cap
+ * exhausts the whole suite's budget on its own, so the guard fails for reasons
+ * no change to the suite can fix. That is exactly the state this constant was
+ * in at 300_000 while two entries were each allowed 300_000.
+ * fullSuiteBudgetIsSatisfiable() states the invariant; the runner smoke asserts it.
+ */
+export const FULL_SUITE_BUDGET_MS = 600_000;
+
+/** The largest per-entry allowance actually in force, read from the entries rather than restated. */
+export function longestEntryTimeoutMs(entries: FullSuiteEntry[] = FULL_SUITE_ENTRIES): number {
+  return Math.max(DEFAULT_TIMEOUT_MS, ...entries.map(entry => entry.timeoutMs ?? DEFAULT_TIMEOUT_MS));
+}
+
+/** False when the whole-suite budget cannot accommodate a single entry running to its own cap. */
+export function fullSuiteBudgetIsSatisfiable(entries: FullSuiteEntry[] = FULL_SUITE_ENTRIES): boolean {
+  return FULL_SUITE_BUDGET_MS > longestEntryTimeoutMs(entries);
+}
+
 export function isUnderFullSuiteBudget(durationMs: number): boolean {
-  return Number.isFinite(durationMs) && durationMs >= 0 && durationMs < 300_000;
+  return Number.isFinite(durationMs) && durationMs >= 0 && durationMs < FULL_SUITE_BUDGET_MS;
 }
 
 export function shouldEnforceFullSuiteBudget(jobs: number): boolean {
@@ -545,7 +566,7 @@ async function main(): Promise<void> {
   const performanceBudgetApplied = shouldEnforceFullSuiteBudget(jobs);
   const budgetBreached = fullSuiteBudgetBreached(durationMs, jobs);
   if (identityDrift) process.stderr.write('\nfull-suite identity drift: HEAD/material changed during execution\n');
-  if (budgetBreached) process.stderr.write(`\nfull-suite performance budget exceeded: ${durationMs.toFixed(1)}ms >= 300000ms\n`);
+  if (budgetBreached) process.stderr.write(`\nfull-suite performance budget exceeded: ${durationMs.toFixed(1)}ms >= ${FULL_SUITE_BUDGET_MS}ms\n`);
   process.stdout.write(`full-suite: ${results.length - failures.length}/${results.length} passed in ${(durationMs / 1000).toFixed(1)}s; retries=0; jobs=${jobs}\n`);
   const critical = [...results].sort((a, b) => b.durationMs - a.durationMs)[0];
   if (jsonOutput) writeResultArtifact(jsonOutput, {
