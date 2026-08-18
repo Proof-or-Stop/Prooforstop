@@ -128,8 +128,8 @@
       "id": "CHK-002",
       "title": "Wire evaluateReviewCompleteness to the decision-backed item-level helper",
       "context": "core/proofstory.ts:2084. The helper withdrawnChecklistItemIdsFrom(decision) already exists at core/proofstory.ts:1622 and is currently called only by tasks/scope-shrinkage-withdrawal-floor-smoke.ts. Use IT, not a status comparison: it takes the decision record as input, so the backing requirement is structural. Do NOT route this through core/checklist-status.ts - that module has zero decisionRef awareness in its 42 lines, and using it would yield a naive status==='withdrawn' skip that anyone can trigger by editing one JSON field.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-08-18T23:45:19.417Z",
       "endTime": null,
       "userSees": "A story with a withdrawn item advances; the completeness gate prints pass instead of review_completeness_missing_evidence naming that item.",
       "files": {
