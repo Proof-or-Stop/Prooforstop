@@ -353,6 +353,25 @@
         "scanEscalationReason": null
       },
       "_hash": "45fa75b9a4659ef96180207857a6756cd9c5220b06c6f1cedb66d3a4d3e777b0"
+    },
+    {
+      "id": "B-49ed:RP-015",
+      "agent": "lattice-review-behavior",
+      "note": "Independently re-verified all four points post RP-006 delta, not just re-read prior claims. (1) topology-critic-receipt.ts and proofstory.ts unchanged since their sole founding commit 930539c28e, which predates all four signing-guard-mutation-proof-smoke rewrites; SIGNABLE_SESSION_SOURCES throw at topology-critic-receipt.ts:164-166 fires before the dispatch-event lookup at :167, for both call sites (proofstory.ts:550 approver, :565 critic), both passing sessionSource: getSessionIdentity().sessionSource. (2) topology-signing-source-guard-smoke.ts section 3 (untouched since F-005) drives full deriveRoleProvenance for BOTH TOPOLOGY_CRITIC_ROLE and TOPOLOGY_EXCLUSION_APPROVER_ROLE with a valid dispatch event; built and ran it, got PASS including accepted sources complete provenance for: critic + exclusion approver. (3) Read issueTopologyCriticReceipt:424 and verifyTopologyCriticReceipt:487 -- only verdict=pass throws/blocks on basisStatus!==complete; reproduced independently via an isolated probe outside the worktree importing the built module: request_changes succeeded with basisStatus:partial, pass threw critic cannot override partial discovery. This is the same mechanism 9f9f53a514 introduced (no separate stale-vs-partial code path exists). (4) Ran signing-guard-mutation-proof-smoke.js: PASS/exit0 with current static-argv probe.mjs shape (confirmed no dynamic import()/node -e in current source). Independently reproduced the mutation cycle on a scratch copy of dist outside the repo: widening SIGNABLE_SESSION_SOURCES in the real artifact copy caused exit1 via the files own pre-mutation control assertion, restoring caused exit0. Confirmed retired-authority-vocabulary-guard-smoke.js still passes with this file present. Confirmed via entriesFromSerialReference (using the correct concatenated test:serial-reference-prefix + test:serial-reference, matching full-suite-runner.ts:529) that both test:topology-signing-source-guard and test:signing-guard-mutation-proof are present with no unknownPolicy/stalePolicy/missingScripts entries in the 51-member canonical DONE-blocking inventory. No blocking issues found.",
+      "createdAt": "2026-08-18T13:22:19.727Z",
+      "reviewRound": "2026-08-18T12:55:09.009Z",
+      "reviewRunId": "B-49ed:RR-038",
+      "envelopeId": "cea82ef032ec7c714e61b2aa1c2c1e9537f55ce7c814b5d63b80ff9e4bf6435a",
+      "writerSessionId": "sess-bb4571e896a18423ba2230f65e1f00a8",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/session-ownership-and-write-leases.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "90512a33bd7a81e934398b1ea4d0ad0aa2c3b6519bcbe3427c86c9b9ccb02bbe"
     }
   ]
 }
