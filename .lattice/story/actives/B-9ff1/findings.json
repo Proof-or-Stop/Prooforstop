@@ -1714,7 +1714,7 @@
       "desc": "F-073 resolvedReason claims 5e945ca \"makes NO self-property claim at all\" and that its two \"carries no count\" occurrences are only quotations. That check was too narrow: 5e945ca opens with \"THE LESSON, with nothing in it that can go stale: a reviewer lane whose job was auditing the story owner's STATEMENTS about the code found defects there repeatedly...\" - a self-referential claim that a clause of its OWN text is free of a property (staleness-inducing content), the exact \"carries no X\" shape as e918048's falsified \"carries no count\", recursed one level. Confirmed via `dev_memory_search --query=a67bb17 --limit=1 --json` (top hit id=5e945ca) and reading the full lesson field: \"with nothing in it that can go stale\" and \"carries no count\" are structurally the same self-property-claim pattern; only the latter phrase was checked (as a quotation-vs-assertion distinction), the former was not checked at all. F-073's own verification (\"I verified that by reading the sentence contexts\") was narrower than the property it asserted (\"NO self-property claim AT ALL\") - which is exactly the rule 5e945ca states must not happen (\"do not claim a property of your own text wider than the check you ran\"). This is a sixth occurrence of the pattern the human anticipated when priming this exact check.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-18T21:51:22.285Z",
@@ -1735,7 +1735,11 @@
         ".lattice/story/actives/B-9ff1/findings.json"
       ],
       "signatureTag": "doc-promise-undelivered|jsonl|resolvedreason-claims-5e945ca",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Upheld, and deferred to B-85a7 rather than corrected here, on the reviewing lane's explicit judgement that deferral is acceptable and that another in-story correction would repeat the pattern rather than end it. The human running this story set that termination condition before the round began, precisely because the alternative depends on the story owner judging 'this time it is fine' - a judgement falsified repeatedly today. WHAT IS WRONG: 5e945ca opens 'THE LESSON, with nothing in it that can go stale'. That is an assertion that a body of its own prose lacks a property, which is the same shape as the 'carries no count' claim the entry exists to correct. And F-073's resolution said 5e945ca 'makes NO self-property claim at all' on the strength of having checked that two occurrences of one phrase were quotations - a narrower check than the claim it supported. Both halves are the same defect the chain keeps producing. WHY DEFERRAL IS RIGHT HERE rather than convenient: the substantive content of 5e945ca is unaffected - the distinction it draws between an ordinal about the correction chain (stable) and a figure about an artifact (a second copy that drifts) holds, and so does the rule that a property claim must not exceed the check performed. What is wrong is an opening flourish. Nothing in B-9ff1's shipped code is involved; the text is non-authoritative and is not gate evidence. OWNER: B-85a7, which scopes the structural answer the lane recommended - a format rule at write time that rejects an entry asserting its own text lacks a property, while keeping quotation of a false claim legal, since quoting is how this chain was documented at all. Its acceptance criterion is that any proposed rule is validated against this recorded chain rather than invented examples: a rule that would not have blocked the offending text is not worth shipping.",
+      "resolvedAt": "2026-08-18T21:53:36.896Z",
+      "resolutionType": "partially_mitigated",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9ff1:F-077",
