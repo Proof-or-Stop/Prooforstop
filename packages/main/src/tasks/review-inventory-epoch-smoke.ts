@@ -779,4 +779,40 @@ for (const [label, candidates, overrides] of [
   );
 }
 
+// B-3f3d F-118: CHK-005's userSees promises these labeled lines. The JSON dump alone did not
+// emit them, so the promise was unmet even though every value it names was already computed.
+// Printed from the real counters -- no value is invented, and a regression in any of them
+// changes the printed number rather than being hidden inside a JSON blob.
+const baselineRedispatches = replayA.baselineMutationDrivenRedispatches ?? 0;
+const qualityRegressionCounters = {
+  stalePassAcceptances: replayA.stalePassAcceptances ?? 0,
+  criticalHighEscapes: replayA.criticalHighEscapes ?? 0,
+  budgetManufacturedPasses: replayA.budgetManufacturedPasses ?? 0,
+};
+const regressionsClean = Object.values(qualityRegressionCounters).every(value => value === 0);
+const lanesUnchanged = replayA.requiredLaneCountBefore === replayA.requiredLaneCountAfter;
+const hostsUnchanged = replayA.requiredHostCountBefore === replayA.requiredHostCountAfter;
+const replayHealthy = baselineRedispatches >= 5
+  && (replayA.proposedMutationDrivenRedispatches ?? -1) === 0
+  && (replayA.acceptedOpenMaterialCommits ?? -1) === 0
+  && (replayA.aggregatedRemediationTransitions ?? -1) === 1
+  && (replayA.finalReviewEpochsWithoutRegression ?? 99) <= 1
+  && lanesUnchanged && hostsUnchanged && regressionsClean;
+
+if (!replayHealthy) {
+  console.log('FAIL');
+  console.log(JSON.stringify({ result: 'FAIL', replay: replayA }, null, 2));
+  process.exit(1);
+}
+
+console.log(`Baseline mutation-driven redispatches: >=5 (${baselineRedispatches})`);
+console.log(`New mutation-driven redispatches: ${replayA.proposedMutationDrivenRedispatches}`);
+console.log(`Accepted OPEN commits: ${replayA.acceptedOpenMaterialCommits}`);
+console.log(`Remediation DEV transitions: ${replayA.aggregatedRemediationTransitions}`);
+console.log(`Clean final-review epochs: <=1 (${replayA.finalReviewEpochsWithoutRegression})`);
+console.log(`Required lane count: ${replayA.requiredLaneCountBefore} -> ${replayA.requiredLaneCountAfter} (unchanged)`);
+console.log(`Required host count: ${replayA.requiredHostCountBefore} -> ${replayA.requiredHostCountAfter} (unchanged)`);
+for (const [name, value] of Object.entries(qualityRegressionCounters)) {
+  console.log(`Quality regression counter ${name}: ${value}`);
+}
 console.log(JSON.stringify({ result: 'PASS', replay: replayA }, null, 2));
