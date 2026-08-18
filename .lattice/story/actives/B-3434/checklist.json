@@ -590,19 +590,19 @@
           "command": "node packages/main/dist/tasks/validation-evidence-buffer-smoke.js",
           "result": "pass",
           "note": "Bound to the committed regression and smoke landed by this story; the selector is a stable assertion sentence with no count in it, because a pinned selector is immutable once bound and a count-bearing one is stranded by the next fixture change.",
-          "headHash": "fdf1a8f5f6042262fdd27b51c21d6106a6380005",
-          "materialHash": "dd831ee411ab73c0ab21649a34ea8a70f359adc99bfc69acc2f98244733d61bd",
-          "storyFilesHash": "81c2297f9ba5aaa338d9772feeaa88900c54e2901a008270af95dc57f7bc30ac",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "567a59329154a64eed87400eaa13b44b76b163f5c99021269e8f299bd23da9a0",
             "outputTail": "✓ advisory and bound are fractions of the metadata read ceiling this story set\n✓ within_budget / advisory / bounded tiers with an inclusive, deterministic boundary\n✓ the persisted measurement applies the two-space format (a duplicate of the core/store.ts formula, not a pin of it)\n✓ realistic 100-command artifact is unbounded and silent\n    fileBytes=2520044 state=within_budget\n✓ quote-heavy output is bounded at the FILE, where the second escaping pass lands\n    innerBytes=19549963 unboundedFile=38878844 boundedFile=19617042\n✓ oversized realistic artifact is bounded with visible markers and JSON contract intact\n    fileBytes=148993 elidedCommandOutputs=300 elidedDetailLines=250200\n✓ non-output bulk capped with a diagnostic count\n    elidedCommandEntries=87 fileBytes=21325604\n    unknown field: fileBytes=945 disposition=verdict_only\n    key name: fileBytes=945 disposition=verdict_only\n    verdict-bearing scalar: fileBytes=1115 disposition=verdict_only\n✓ bulk outside the modelled dimensions falls back to an admissible record sized by construction\n    cyclic: disposition=verdict_only withinBound=true\n    BigInt: disposition=verdict_only withinBound=true\n    always-throwing getter: disposition=verdict_only withinBound=true\n    throwing proxy trap: disposition=verdict_only withinBound=true\n✓ cyclic, BigInt, throwing-getter and throwing-proxy inputs are bounded rather than propagated\n✓ an oversized non-object input is refused rather than given an invented verdict record\n    fileBytes=31457741 disposition=refused\n✓ heterogeneous density is reduced to fit rather than discarded for the stub\n    disposition=reduced fileBytes=16029900 detailsKept=180001\n✓ an oversized array is refused rather than handed a verdict record it never carried\n    unboundedFile=31500458 fileBytes=31500458 disposition=refused\n✓ an unmeetable bound is refused, with text that reads as a refusal\n    fileBytes=53489886 disposition=refused\n✓ the size gate sees the final record, hash fields included, and one computation both gates and writes\n    hashDelta=232 withoutHashes=25165823 withHashes=refused\n✓ the persisted record is a snapshot of the bytes that were counted, not the object they were counted from\n    fileBytes=1113 toJSONCallsDuringBounding=2\n    object result: builds=10 record=null disposition=refused\n    non-object result: builds=1 record=null disposition=refused\n    array result: builds=1 record=null disposition=refused\n✓ a throwing builder yields an honest refusal rather than a second unguarded build\n✓ advisory names measured size and limit and cannot be read as a failure\n    fileBytes=22676844 state=advisory\n✓ advisory is log-only and bounding never mutates the caller result or its verdict\n✓ CHK-004 disposition observed: outcome B shipped - the reduction is wired into both evidence write paths, and the deferred guarantee is recorded in a committed rationale\n    rationale=docs/requirements/decisions/validation-evidence-artifact-growth.md bytes=18205 findingIdsNamed=B-3434:F-001,B-3434:F-033,B-3434:F-034,B-3434:F-035,B-3434:F-036,B-3434:F-037\nvalidation-evidence-buffer-smoke: PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-17T23:52:06.050Z",
+            "executedAt": "2026-08-18T11:50:15.855Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-17T23:54:28.788Z"
+          "headHash": "1fa96dcfd3b124fc281a5d6c2610206991d063fc",
+          "materialHash": "188e365b7d8448ab880341cef366b4c1ffbee6bbfd1e7fc67be055056ba3ea58",
+          "storyFilesHash": "33e83546c3e0678311af8c328be9dff1f7e3ba2a92e7cf09edd52da7e1ec39b5",
+          "timestamp": "2026-08-18T11:52:08.512Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -610,19 +610,19 @@
           "command": "node packages/main/dist/tasks/validation-evidence-buffer-smoke.js",
           "result": "pass",
           "note": "Bound to the committed regression and smoke landed by this story; the selector is a stable assertion sentence with no count in it, because a pinned selector is immutable once bound and a count-bearing one is stranded by the next fixture change.",
-          "headHash": "fdf1a8f5f6042262fdd27b51c21d6106a6380005",
-          "materialHash": "dd831ee411ab73c0ab21649a34ea8a70f359adc99bfc69acc2f98244733d61bd",
-          "storyFilesHash": "81c2297f9ba5aaa338d9772feeaa88900c54e2901a008270af95dc57f7bc30ac",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "567a59329154a64eed87400eaa13b44b76b163f5c99021269e8f299bd23da9a0",
             "outputTail": "✓ advisory and bound are fractions of the metadata read ceiling this story set\n✓ within_budget / advisory / bounded tiers with an inclusive, deterministic boundary\n✓ the persisted measurement applies the two-space format (a duplicate of the core/store.ts formula, not a pin of it)\n✓ realistic 100-command artifact is unbounded and silent\n    fileBytes=2520044 state=within_budget\n✓ quote-heavy output is bounded at the FILE, where the second escaping pass lands\n    innerBytes=19549963 unboundedFile=38878844 boundedFile=19617042\n✓ oversized realistic artifact is bounded with visible markers and JSON contract intact\n    fileBytes=148993 elidedCommandOutputs=300 elidedDetailLines=250200\n✓ non-output bulk capped with a diagnostic count\n    elidedCommandEntries=87 fileBytes=21325604\n    unknown field: fileBytes=945 disposition=verdict_only\n    key name: fileBytes=945 disposition=verdict_only\n    verdict-bearing scalar: fileBytes=1115 disposition=verdict_only\n✓ bulk outside the modelled dimensions falls back to an admissible record sized by construction\n    cyclic: disposition=verdict_only withinBound=true\n    BigInt: disposition=verdict_only withinBound=true\n    always-throwing getter: disposition=verdict_only withinBound=true\n    throwing proxy trap: disposition=verdict_only withinBound=true\n✓ cyclic, BigInt, throwing-getter and throwing-proxy inputs are bounded rather than propagated\n✓ an oversized non-object input is refused rather than given an invented verdict record\n    fileBytes=31457741 disposition=refused\n✓ heterogeneous density is reduced to fit rather than discarded for the stub\n    disposition=reduced fileBytes=16029900 detailsKept=180001\n✓ an oversized array is refused rather than handed a verdict record it never carried\n    unboundedFile=31500458 fileBytes=31500458 disposition=refused\n✓ an unmeetable bound is refused, with text that reads as a refusal\n    fileBytes=53489886 disposition=refused\n✓ the size gate sees the final record, hash fields included, and one computation both gates and writes\n    hashDelta=232 withoutHashes=25165823 withHashes=refused\n✓ the persisted record is a snapshot of the bytes that were counted, not the object they were counted from\n    fileBytes=1113 toJSONCallsDuringBounding=2\n    object result: builds=10 record=null disposition=refused\n    non-object result: builds=1 record=null disposition=refused\n    array result: builds=1 record=null disposition=refused\n✓ a throwing builder yields an honest refusal rather than a second unguarded build\n✓ advisory names measured size and limit and cannot be read as a failure\n    fileBytes=22676844 state=advisory\n✓ advisory is log-only and bounding never mutates the caller result or its verdict\n✓ CHK-004 disposition observed: outcome B shipped - the reduction is wired into both evidence write paths, and the deferred guarantee is recorded in a committed rationale\n    rationale=docs/requirements/decisions/validation-evidence-artifact-growth.md bytes=18205 findingIdsNamed=B-3434:F-001,B-3434:F-033,B-3434:F-034,B-3434:F-035,B-3434:F-036,B-3434:F-037\nvalidation-evidence-buffer-smoke: PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-17T23:52:26.212Z",
+            "executedAt": "2026-08-18T11:50:53.423Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-17T23:54:28.788Z"
+          "headHash": "1fa96dcfd3b124fc281a5d6c2610206991d063fc",
+          "materialHash": "188e365b7d8448ab880341cef366b4c1ffbee6bbfd1e7fc67be055056ba3ea58",
+          "storyFilesHash": "33e83546c3e0678311af8c328be9dff1f7e3ba2a92e7cf09edd52da7e1ec39b5",
+          "timestamp": "2026-08-18T11:52:08.512Z"
         },
         {
           "intentRef": "CHK-004:adversarial:1",
@@ -630,19 +630,19 @@
           "command": "node packages/main/dist/tasks/validation-evidence-buffer-smoke.js",
           "result": "pass",
           "note": "Bound to the committed regression and smoke landed by this story; the selector is a stable assertion sentence with no count in it, because a pinned selector is immutable once bound and a count-bearing one is stranded by the next fixture change.",
-          "headHash": "fdf1a8f5f6042262fdd27b51c21d6106a6380005",
-          "materialHash": "dd831ee411ab73c0ab21649a34ea8a70f359adc99bfc69acc2f98244733d61bd",
-          "storyFilesHash": "81c2297f9ba5aaa338d9772feeaa88900c54e2901a008270af95dc57f7bc30ac",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "567a59329154a64eed87400eaa13b44b76b163f5c99021269e8f299bd23da9a0",
             "outputTail": "✓ advisory and bound are fractions of the metadata read ceiling this story set\n✓ within_budget / advisory / bounded tiers with an inclusive, deterministic boundary\n✓ the persisted measurement applies the two-space format (a duplicate of the core/store.ts formula, not a pin of it)\n✓ realistic 100-command artifact is unbounded and silent\n    fileBytes=2520044 state=within_budget\n✓ quote-heavy output is bounded at the FILE, where the second escaping pass lands\n    innerBytes=19549963 unboundedFile=38878844 boundedFile=19617042\n✓ oversized realistic artifact is bounded with visible markers and JSON contract intact\n    fileBytes=148993 elidedCommandOutputs=300 elidedDetailLines=250200\n✓ non-output bulk capped with a diagnostic count\n    elidedCommandEntries=87 fileBytes=21325604\n    unknown field: fileBytes=945 disposition=verdict_only\n    key name: fileBytes=945 disposition=verdict_only\n    verdict-bearing scalar: fileBytes=1115 disposition=verdict_only\n✓ bulk outside the modelled dimensions falls back to an admissible record sized by construction\n    cyclic: disposition=verdict_only withinBound=true\n    BigInt: disposition=verdict_only withinBound=true\n    always-throwing getter: disposition=verdict_only withinBound=true\n    throwing proxy trap: disposition=verdict_only withinBound=true\n✓ cyclic, BigInt, throwing-getter and throwing-proxy inputs are bounded rather than propagated\n✓ an oversized non-object input is refused rather than given an invented verdict record\n    fileBytes=31457741 disposition=refused\n✓ heterogeneous density is reduced to fit rather than discarded for the stub\n    disposition=reduced fileBytes=16029900 detailsKept=180001\n✓ an oversized array is refused rather than handed a verdict record it never carried\n    unboundedFile=31500458 fileBytes=31500458 disposition=refused\n✓ an unmeetable bound is refused, with text that reads as a refusal\n    fileBytes=53489886 disposition=refused\n✓ the size gate sees the final record, hash fields included, and one computation both gates and writes\n    hashDelta=232 withoutHashes=25165823 withHashes=refused\n✓ the persisted record is a snapshot of the bytes that were counted, not the object they were counted from\n    fileBytes=1113 toJSONCallsDuringBounding=2\n    object result: builds=10 record=null disposition=refused\n    non-object result: builds=1 record=null disposition=refused\n    array result: builds=1 record=null disposition=refused\n✓ a throwing builder yields an honest refusal rather than a second unguarded build\n✓ advisory names measured size and limit and cannot be read as a failure\n    fileBytes=22676844 state=advisory\n✓ advisory is log-only and bounding never mutates the caller result or its verdict\n✓ CHK-004 disposition observed: outcome B shipped - the reduction is wired into both evidence write paths, and the deferred guarantee is recorded in a committed rationale\n    rationale=docs/requirements/decisions/validation-evidence-artifact-growth.md bytes=18205 findingIdsNamed=B-3434:F-001,B-3434:F-033,B-3434:F-034,B-3434:F-035,B-3434:F-036,B-3434:F-037\nvalidation-evidence-buffer-smoke: PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-17T23:52:46.770Z",
+            "executedAt": "2026-08-18T11:51:30.802Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-17T23:54:28.788Z"
+          "headHash": "1fa96dcfd3b124fc281a5d6c2610206991d063fc",
+          "materialHash": "188e365b7d8448ab880341cef366b4c1ffbee6bbfd1e7fc67be055056ba3ea58",
+          "storyFilesHash": "33e83546c3e0678311af8c328be9dff1f7e3ba2a92e7cf09edd52da7e1ec39b5",
+          "timestamp": "2026-08-18T11:52:08.512Z"
         }
       ]
     },
@@ -740,19 +740,19 @@
           "command": "node packages/main/dist/tasks/validation-evidence-buffer-smoke.js",
           "result": "pass",
           "note": "Bound to the committed regression and smoke landed by this story; the selector is a stable assertion sentence with no count in it, because a pinned selector is immutable once bound and a count-bearing one is stranded by the next fixture change.",
-          "headHash": "fdf1a8f5f6042262fdd27b51c21d6106a6380005",
-          "materialHash": "dd831ee411ab73c0ab21649a34ea8a70f359adc99bfc69acc2f98244733d61bd",
-          "storyFilesHash": "81c2297f9ba5aaa338d9772feeaa88900c54e2901a008270af95dc57f7bc30ac",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "567a59329154a64eed87400eaa13b44b76b163f5c99021269e8f299bd23da9a0",
             "outputTail": "✓ advisory and bound are fractions of the metadata read ceiling this story set\n✓ within_budget / advisory / bounded tiers with an inclusive, deterministic boundary\n✓ the persisted measurement applies the two-space format (a duplicate of the core/store.ts formula, not a pin of it)\n✓ realistic 100-command artifact is unbounded and silent\n    fileBytes=2520044 state=within_budget\n✓ quote-heavy output is bounded at the FILE, where the second escaping pass lands\n    innerBytes=19549963 unboundedFile=38878844 boundedFile=19617042\n✓ oversized realistic artifact is bounded with visible markers and JSON contract intact\n    fileBytes=148993 elidedCommandOutputs=300 elidedDetailLines=250200\n✓ non-output bulk capped with a diagnostic count\n    elidedCommandEntries=87 fileBytes=21325604\n    unknown field: fileBytes=945 disposition=verdict_only\n    key name: fileBytes=945 disposition=verdict_only\n    verdict-bearing scalar: fileBytes=1115 disposition=verdict_only\n✓ bulk outside the modelled dimensions falls back to an admissible record sized by construction\n    cyclic: disposition=verdict_only withinBound=true\n    BigInt: disposition=verdict_only withinBound=true\n    always-throwing getter: disposition=verdict_only withinBound=true\n    throwing proxy trap: disposition=verdict_only withinBound=true\n✓ cyclic, BigInt, throwing-getter and throwing-proxy inputs are bounded rather than propagated\n✓ an oversized non-object input is refused rather than given an invented verdict record\n    fileBytes=31457741 disposition=refused\n✓ heterogeneous density is reduced to fit rather than discarded for the stub\n    disposition=reduced fileBytes=16029900 detailsKept=180001\n✓ an oversized array is refused rather than handed a verdict record it never carried\n    unboundedFile=31500458 fileBytes=31500458 disposition=refused\n✓ an unmeetable bound is refused, with text that reads as a refusal\n    fileBytes=53489886 disposition=refused\n✓ the size gate sees the final record, hash fields included, and one computation both gates and writes\n    hashDelta=232 withoutHashes=25165823 withHashes=refused\n✓ the persisted record is a snapshot of the bytes that were counted, not the object they were counted from\n    fileBytes=1113 toJSONCallsDuringBounding=2\n    object result: builds=10 record=null disposition=refused\n    non-object result: builds=1 record=null disposition=refused\n    array result: builds=1 record=null disposition=refused\n✓ a throwing builder yields an honest refusal rather than a second unguarded build\n✓ advisory names measured size and limit and cannot be read as a failure\n    fileBytes=22676844 state=advisory\n✓ advisory is log-only and bounding never mutates the caller result or its verdict\n✓ CHK-004 disposition observed: outcome B shipped - the reduction is wired into both evidence write paths, and the deferred guarantee is recorded in a committed rationale\n    rationale=docs/requirements/decisions/validation-evidence-artifact-growth.md bytes=18205 findingIdsNamed=B-3434:F-001,B-3434:F-033,B-3434:F-034,B-3434:F-035,B-3434:F-036,B-3434:F-037\nvalidation-evidence-buffer-smoke: PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-17T23:53:08.333Z",
+            "executedAt": "2026-08-18T11:52:08.144Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-17T23:54:28.788Z"
+          "headHash": "1fa96dcfd3b124fc281a5d6c2610206991d063fc",
+          "materialHash": "188e365b7d8448ab880341cef366b4c1ffbee6bbfd1e7fc67be055056ba3ea58",
+          "storyFilesHash": "33e83546c3e0678311af8c328be9dff1f7e3ba2a92e7cf09edd52da7e1ec39b5",
+          "timestamp": "2026-08-18T11:52:08.512Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -760,10 +760,10 @@
           "verdict": "waived",
           "waiverType": "permanent",
           "note": "Permanent waiver, and the reason is worth recording because it is the second time this exact mechanism has stranded an intent. The pinned selector embedded a runtime-computed byte count, 1212174, taken from the smoke's synthetic 100-command fixture. Review finding F-004 flagged that pin as unsafe for precisely this reason, and then finding F-001 forced the fixture to be CORRECTED: it now builds details the way executeValidationPlan actually does, duplicating every command output line, so the same realistic 100-command shape measures 2487463 bytes. The number changed because the fixture became more truthful, not because behaviour regressed. The pin is immutable by design and there is no sanctioned amend path, so the two available escapes were both rejected: printing the old literal so a stale pin matches would be publishing a number the code no longer produces, and wiping the pin to re-pin it would defeat the mechanism that exists to prevent exactly that. The behaviour this intent asserts - an artifact below the warning fraction prints no advisory - IS proven, by the section now reading 'realistic 100-command artifact is unbounded and silent', which asserts both bounded=false and a null advisory. Only the pin is unfixable.",
-          "headHash": "29968050ffdd36b97c78cb57e69e2cfb428c93e1",
-          "materialHash": "543ef0c90c755b98263607812a7c1eaf53c4779e60f8e16c83c2a272f27c5847",
-          "storyFilesHash": "fcf513514db53785c82d6cd599b938d6b01162df7e9a8e73afe19ca3ebdad4f5",
-          "timestamp": "2026-08-15T11:52:28.071Z"
+          "headHash": "1fa96dcfd3b124fc281a5d6c2610206991d063fc",
+          "materialHash": "188e365b7d8448ab880341cef366b4c1ffbee6bbfd1e7fc67be055056ba3ea58",
+          "storyFilesHash": "33e83546c3e0678311af8c328be9dff1f7e3ba2a92e7cf09edd52da7e1ec39b5",
+          "timestamp": "2026-08-18T11:52:08.512Z"
         },
         {
           "intentRef": "CHK-005:edge:1",
