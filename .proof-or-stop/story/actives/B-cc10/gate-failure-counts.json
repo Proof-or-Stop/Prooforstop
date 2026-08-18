@@ -1,26 +1,8 @@
 {
-  "story_advance/bd72c7a4143e": {
+  "story_advance/9e7298992a65": {
     "count": 1,
     "command": "story_advance",
-    "lastReason": "pre_review_check requires the verifier-owned PLAN acceptance basis",
-    "lastAt": "2026-08-17T17:28:24.694Z"
-  },
-  "story_advance/52d2e028161f": {
-    "count": 2,
-    "command": "story_advance",
-    "lastReason": "Cannot enter REVIEW: 5 required verification intent(s) lack passing evidence or waiver:\n  - CHK-001:edge:0 [missing] The doc names an identity with NO verdict recorded and the CHK-001 self-check catches it before DEV proceeds\n  - CHK-001:adversarial:0 [missing] A reader cannot conclude a FROZEN row was silently ignored: both supersessions (@lattice/core, bin aliases) appear with citations\n  - CHK-008:happy:0 [non_mechanical] On a scratch clone, story_get on an archived story succeeds BOTH after ",
-    "lastAt": "2026-08-17T17:29:38.391Z"
-  },
-  "story_advance/3b355b09b5cd": {
-    "count": 1,
-    "command": "story_advance",
-    "lastReason": "Cannot enter REVIEW: Scope gate: fail (15278 unacknowledged violation(s), mode=enforce)\n\nScope gate: fail (15278 unacknowledged violation(s), mode=enforce)\nChanged files (15326):\n  .codex/hooks/lattice-evidence-pretool.cjs\n  .codex/hooks/lattice-scope-pretool.cjs\n  .gitignore\n  .lattice-codex/README.md\n  .lattice-codex/agents/implementation-reviewer.md\n  .lattice-codex/agents/lattice-evaluator-cli.md\n  .lattice-codex/agents/lattice-evaluator.md\n  .lattice-codex/agents/lattice-implementer.md\n  .l",
-    "lastAt": "2026-08-17T17:32:40.349Z"
-  },
-  "story_advance/c78b8cbc96b8": {
-    "count": 2,
-    "command": "story_advance",
-    "lastReason": "Convergence breaker FROZEN for B-cc10: this story tripped the runaway signature and already spent its one automatic recovery, so story_advance is hard-blocked until a human reviews it. Tripped counters: gate-repeat 2>=2. This is the hard brake that the B-f458 14-hour burn lacked. Next action (a human, not an autopilot session): run `proof-or-stop done_prepare --dryRun --storyId=B-cc10` to see the real blocker, then `proof-or-stop story_resume --storyId=B-cc10 --ack --reason=\"<why it is safe to c",
-    "lastAt": "2026-08-18T03:05:48.638Z"
+    "lastReason": "B-cc10 is owned by Proof-or-Stop session sess-72451d14f06a59a4, heartbeat 24s ago (owner cwd: /Users/qipan/work/repo/Prooforstop/.worktrees/B-cc10). \"story_advance\" is an owner-gated storyScopedMutating command, so this session (sess-eed55994d1ba42fe85d07fd953696373) cannot run it. The owner lease is still ACTIVE. Owner cwd matches the current cwd (/Users/qipan/work/repo/Prooforstop/.worktrees/B-cc10), so this may be a same-worktree context switch. Run proof-or-stop session_brief and confirm no ",
+    "lastAt": "2026-08-18T03:32:54.289Z"
   }
 }
