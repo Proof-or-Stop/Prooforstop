@@ -71,7 +71,7 @@
       "desc": "The scope-plan exclusion approver call site (proofstory.ts:550) is a bound signing role identical in risk profile to the critic (:565), per this story's own decision rationale, but its LEGITIMATE (accepted-session) path through topology_exclusion_approval_set is never exercised end to end anywhere in the current test suite. Its only production call sites in tests are inside proofstory-topology-critic-smoke.ts (lines ~505/538 for the negative/rejected cases, and the one positive-path call implied by the test flow), and that whole smoke test currently exits 1 at an assert.equal(basis.status, 'complete') check (see F-004) BEFORE it ever reaches the exclusion-approval flow. So a legitimate exclusion approver signing under a genuine host-adapter/generated-token session and an existing decisionRef has zero executed coverage right now -- the CHK-001 dispatcher's stated concern (\"I have not seen it exercised end to end\") is correct and unresolved. deriveRoleProvenance's source-gate logic is shared code covered generically by topology-signing-source-guard-smoke.ts for both roles, so the sessionSource check itself is proven for this role too, but the FULL production call site (authority check -> deriveRoleProvenance -> issueTopologyExclusionApproval -> store write -> verifyTopologyExclusionApproval) has never been driven with a real accepted session and a real exclusion. Fix: add a manual_transcript or automated test that dispatches lattice-review-scope-plan under a genuine host-adapter session, calls topology_exclusion_approval_set against a real exclusionRef from state.context.exclusions, and asserts it succeeds -- independent of fixing the unrelated basis-discovery defect blocking proofstory-topology-critic-smoke.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-behavior",
       "createdAt": "2026-08-18T03:43:57.751Z",
@@ -79,7 +79,11 @@
       "reviewRunId": "B-49ed:RR-002",
       "_hash": "d02ccc1ee0170eda008d4ad55033299d466cc4f14cbc346513df017d69d85a3e",
       "signatureTag": "missing|unknown|scope-plan-exclusion",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Correct finding and a real gap I introduced. I bound the exclusion approver at handlers/proofstory.ts:550 deliberately, on the argument that the same forgery applies to an exclusion approval, but I never proved a legitimate approver could still complete. The existing smoke only proved accepted sources get PAST the source gate: it passed events: [] so an accepted source still failed at the next check (dispatch provenance), which shows the guard did not short-circuit but does NOT show the full path completes. The only test of the approver's real approval path lives in proofstory-topology-critic-smoke, which exits 1 on a pre-existing basis.status assertion before ever reaching that flow (see F-004), so the coverage was genuinely zero.\n\nFixed by adding section 3 to topology-signing-source-guard-smoke.ts: for BOTH roles and BOTH accepted sources, deriveRoleProvenance now runs to completion against a matching dispatch event with a real HEAD hash, and the returned provenance is asserted to carry the expected agentId and to bind the actor's own session id. The smoke prints 'accepted sources complete provenance for: critic + exclusion approver' and exits 0. This closes the risk that the guard silently broke the approver role while the critic role kept working.",
+      "resolvedAt": "2026-08-18T03:46:23.893Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
