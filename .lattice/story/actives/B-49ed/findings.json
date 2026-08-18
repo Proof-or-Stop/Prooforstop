@@ -403,7 +403,7 @@
       "desc": "F-016 fix is incomplete: full-suite-runner.ts RESOURCE_POLICY has no entry for test:topology-signing-source-guard or test:signing-guard-mutation-proof, so the root npm test preflight (entriesFromSerialReference in full-suite-runner.ts main()) now throws canonical inventory mismatch unknownPolicy=[test:topology-signing-source-guard,test:signing-guard-mutation-proof] before executing ANY of the 51 suite members. Reproduced live: npm --prefix packages/main run build then node packages/main/dist/tasks/full-suite-runner.js exits 1 immediately with exactly that message and zero tests run. F-016s claim both scripts are now genuinely inside the DONE-blocking suite is false -- they broke the DONE-blocking suite entirely. Fix requires adding matching RESOURCE_POLICY entries (e.g. repoRead(\"test:topology-signing-source-guard\"), repoRead(\"test:signing-guard-mutation-proof\")) in packages/main/src/tasks/full-suite-runner.ts alongside the test:serial-reference addition.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-18T04:58:17.330Z",
@@ -415,7 +415,11 @@
         "package.json"
       ],
       "signatureTag": "missing|ts|incomplete-full-suite",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Critical and entirely my fault. My F-016 fix added both scripts to root test:serial-reference but not to full-suite-runner.ts's RESOURCE_POLICY, which is a third independent membership authority. entriesFromSerialReference fails closed on any serial-reference member lacking a policy entry, so instead of adding two proofs to the DONE-blocking suite I stopped the suite from running at all.\n\nReproduced exactly as reported: node packages/main/dist/tasks/full-suite-runner.js exited 1 with 'canonical inventory mismatch unknownPolicy=[test:topology-signing-source-guard,test:signing-guard-mutation-proof]' and zero of the members executed.\n\nThe reviewer also identified why I missed it: the comment at lines 103-107 claiming a policy entry was already handled describes a DIFFERENT story's additions (test:codex-heartbeat-timeout / test:audit-scan-bin-token, tagged B-cdf6), not mine. I read it as covering my case.\n\nFixed with repoRead entries for both, which is correct since neither proof spawns a CLI. Verified the suite now executes members rather than aborting. Added a comment recording that omission is fatal rather than merely skipping, so the next person is not misled the same way.\n\nWorth stating plainly: this is the third layer of this same question I have gotten wrong in a row -- scripts missing entirely, then present in packages/main but not root, then root but not RESOURCE_POLICY. Every one was caught by a reviewer rather than by me.",
+      "resolvedAt": "2026-08-18T05:03:17.745Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-49ed:F-022",
