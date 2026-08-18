@@ -526,6 +526,25 @@
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-cc10:F-030",
+      "desc": "concept-cleanup: state-dir rename (CHK-002/CHK-003: .lattice -> .proof-or-stop, canonical) incomplete in the executor forbidden-write protection. Two independent \"the automated executor must never edit story/fixture JSON directly\" glob lists still name ONLY the deprecated spelling: packages/main/src/core/worktree-policy.ts:66 DEFAULT_FAIL_CLOSED_WORKTREE_POLICY.forbiddenPathGlobs=[\".lattice/story/**\", \"docs/story/**\", ...] and packages/main/src/core/planner.ts:370 FORBIDDEN_WORKTREE_GLOBS=[\".lattice/story/**\", \"docs/story/**\", ...]. These feed planned-steps-executor.ts:980 evaluateForbiddenEdits -> worktree-policy.ts matchesForbiddenGlob, which does literal glob-prefix matching (verified: globToRegExp(\".lattice/story/**\") cannot match a path starting with \".proof-or-stop/story/\" -- disjoint literal prefixes, not a superset). Since .proof-or-stop/story/** is now the canonical, live story-data path (confirmed: .proof-or-stop/story holds the actual story archives; .lattice/story does not exist in this repo), an autonomous executor writing directly to .proof-or-stop/story/actives/<id>/checklist.json would NOT be flagged as a forbidden edit by this postflight check -- silently defeating the protection this glob list exists to enforce. No .proof-or-stop/story/** sibling entry exists in either list.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-18T04:28:24.705Z",
+      "reviewRound": "2026-08-18T03:33:16.325Z",
+      "reviewRunId": "B-cc10:RR-033",
+      "_hash": "a8b2e13eebe86826f6ff7e566f02d65c0638151312fdfd0aefa5eab7c85042de",
+      "files": [
+        "packages/main/src/core/worktree-policy.ts",
+        "packages/main/src/core/planner.ts"
+      ],
+      "signatureTag": "missing|ts|concept-cleanup-state",
+      "signatureTagSource": "auto"
     }
   ]
 }
