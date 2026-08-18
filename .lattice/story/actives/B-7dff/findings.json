@@ -219,6 +219,26 @@
       ],
       "signatureTag": "missing|ts|happy-pinned-test",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-7dff:F-012",
+      "desc": "CHK-005:happy:0 (must) carries a permanent waiver whose core justification (bound to an immutable pin whose selector is a prose count-string the story's own scope keeps invalidating, e.g. the original PLAN pin 104/94/10, then 107/97/10 at waiver time; no pin-repair command exists -- confirmed by grep, no pin_repair/repairPin symbol anywhere) is still true and does not need to change. But the waiver note also asserts a specific current-state substance claim -- the plan classifies 107 commands / 97 declared / 10 exclusive by fail-closed default, and the 10 remaining barriers are the ones the audit proved write repo-shared paths -- and that claim is now stale against the merged tree. Measured directly against HEAD dae7446798 via resolveValidationCommandResourceClaims over configuredValidationCommands(): 110 commands / 97 declared / 13 exclusiveByDefault (matches the VI-OK B7DFF-CHK002-CONFIGURED-PLAN-CLASSIFIED line in the current validate-resource-claims.test.mjs receipt). Of the 13 exclusive-by-default commands, only the original 10 PROVEN_UNSAFE_TO_SHARE entries from the CHK-005 audit are covered (VI-OK B7DFF-CHK005-AUDITED-BARRIERS-HELD still reports exactly 10); the merge introduced 3 additional undeclared commands that fall back to the fail-closed exclusive barrier but were never examined by CHK-005's audit: node packages/main/dist/tasks/validation-evidence-buffer-smoke.js, node packages/main/dist/tasks/codex-heartbeat-timeout-smoke.js, and node packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs. This is not a safety regression -- fail-closed-by-default is exactly the CHK-002 contract and it is working correctly for these 3 -- but the permanent waiver's stated evidence (107/97/10, all barriers accounted for) no longer describes the tree it will be read against for the rest of the story's life. Recommend rewriting the waiver's substance paragraph (not its unsatisfiable-pin rationale, which remains valid) to state the current 110/97/13 counts and explicitly name the 3 newly-merged, not-yet-audited barrier commands, so a future reader is not told a materially smaller and pre-merge picture.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-18T16:33:03.142Z",
+      "reviewRound": "2026-08-18T16:19:02.994Z",
+      "reviewRunId": "B-7dff:RR-021",
+      "_hash": "501f1e5e84670e74b1b7e71eac1e73f5ee0fa028ad2aff4da99380e5e33364e9",
+      "files": [
+        "lattice.config.json",
+        "packages/main/tests/validate-resource-claims.test.mjs",
+        ".lattice/story/actives/B-7dff/checklist.json"
+      ],
+      "signatureTag": "missing|json|happy-carries-permanent",
+      "signatureTagSource": "auto"
     }
   ]
 }
