@@ -1036,6 +1036,21 @@
       ],
       "signatureTag": "missing|mjs|scripts-verify-process",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-cc10:F-057",
+      "desc": "packages/main/src/core/codex-adapter-checks.ts:1019 (checkGlobalFallback -> runHeartbeat call): `resolveGlobalCliCommandPath(root) ?? PROOF_OR_STOP_DEPRECATED_BIN` -- when NO global CLI is found on PATH under either name, the fallback command it actually attempts to exec is the literal string 'lattice' (PROOF_OR_STOP_DEPRECATED_BIN), not the canonical 'proof-or-stop' (PROOF_OR_STOP_PRIMARY_BIN). This file was touched by this story (commit 88eca7e5df, F-005/F-015/F-018/F-019) and its 'Global fallback heartbeat' check is precisely the feature that probes the lattice/proof-or-stop bin identity CHK-006 retires -- so it is squarely in this story's stated concept-deletion scope, not an unrelated pre-existing bug outside review. Reproduced live: on a machine whose global `lattice` shim points at a repo checkout with bin/lattice.js already deleted (i.e. the exact post-DONE state this story creates on main), `verify-entrypoints.mjs` check 8/28 (verified regression: this check PASSES on main, FAILS on B-cc10 HEAD when reproduced against a real global-fallback probe) fails with `heartbeat command failed: ... Cannot find module .../bin/lattice.js`, because the ONLY global entrypoint on PATH is the now-broken `lattice` name and there is no `proof-or-stop` global shim yet. Post-DONE, every operator who has not yet re-pointed their global shim from `lattice` to `proof-or-stop` will get this exact failure the first time verify_codex's global-fallback heartbeat runs with no canonical name on PATH -- and the fallback deliberately chooses the name this story just declared dead instead of the name it promotes. Suggest: swap the `?? PROOF_OR_STOP_DEPRECATED_BIN` fallback to `?? PROOF_OR_STOP_PRIMARY_BIN`.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-18T11:17:07.375Z",
+      "reviewRound": "2026-08-18T03:33:16.325Z",
+      "reviewRunId": "B-cc10:RR-066",
+      "_hash": "1b74db108f8b6aa409b6b7d7e27b1475b78683f1f551cf3c6a0514df0b8cb7f0",
+      "signatureTag": "missing|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
