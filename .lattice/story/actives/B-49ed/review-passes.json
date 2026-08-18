@@ -396,6 +396,30 @@
         "scanEscalationReason": null
       },
       "_hash": "eb613d85f44c1aebbd4d23555971393f6ef79625c114b7239027ea9086e79923"
+    },
+    {
+      "id": "B-49ed:RP-017",
+      "agent": "lattice-review-concept",
+      "note": "Re-review after HEAD moved to 7bfff86f23; independently re-verified both stale-brand fixes (bootstrap hint + mutation regex) by running the actual affected scripts, not just reading the diff. No concept-deletion residue.",
+      "createdAt": "2026-08-18T15:42:05.708Z",
+      "reviewRound": "2026-08-18T12:55:09.009Z",
+      "reviewRunId": "B-49ed:RR-040",
+      "envelopeId": "5f63c04978428f151ed912a3779c42b7fbc6c6155ea81cd74ef4ee69a37fb303",
+      "writerSessionId": "sess-4292375d1d751b41",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "bin/bootstrap-runner.js",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/templates/agents/lattice-implementer.md",
+          "packages/main/tests/red/red-1734-bootstrap-depfree.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "8bd134fcad822d884a54b33d7c99ffe7fad05b0171ae270ab54f55e614913a93"
     }
   ]
 }
