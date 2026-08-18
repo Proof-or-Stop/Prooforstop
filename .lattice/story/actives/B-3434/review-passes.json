@@ -1249,6 +1249,30 @@
         "scanEscalationReason": null
       },
       "_hash": "377336c11349d9ea3c6ce58bc83443b77c5eecec9d4c7b1398be18ae3fb260d4"
+    },
+    {
+      "id": "B-3434:RP-048",
+      "agent": "lattice-review-behavior",
+      "note": "Verified capped-round commit 97d56156fc in isolation, per fix3.md. git show --stat is exactly the three claimed files (lattice.config.json, packages/main/tests/red/red-1734-bootstrap-depfree.mjs, scripts/verify-process-fact-contract.mjs), one line each, nothing under packages/main/src/core or packages/main/src/handlers -- no production behaviour changed. Confirmed both broadened regexes actually match live text: bin/bootstrap-runner.js:32 prints 'proof-or-stop local bootstrap is not ready.' and .lattice-codex/agents/lattice-implementer.md:107 reads 'proof-or-stop acceptance_basis_generate'; both alternations still match the old brand too, so no historical-fixture regression. timeoutMs bump (180000->300000) on review-pass-discard-smoke is config-only. Story's own deliverable re-run and unchanged: red-b3434-blob-buffer-ceiling.mjs PASS (all disposition/ceiling assertions), validation-evidence-buffer-smoke.js PASS. npx tsc --noEmit -p packages/main clean, no diagnostics. Did not re-run lattice validate or npm test (reported 105/105, allPass true, coverage gap 0). No genuine correctness/security/data-integrity blocker found; no notes for follow-up.",
+      "createdAt": "2026-08-18T08:00:15.362Z",
+      "reviewRound": "2026-08-17T15:06:34.379Z",
+      "reviewRunId": "B-3434:RR-093",
+      "envelopeId": "fb007550e22dfc89b741f71aab19474ac55f0930b099b14c0de03428b15bd5e3",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice-codex/agents/lattice-implementer.md",
+          "bin/bootstrap-runner.js",
+          "lattice.config.json",
+          "packages/main/tests/red/red-1734-bootstrap-depfree.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "236f9c9f3fbc7ddbe343f8319f470788553ed4f4aa266f0ab60ad4af60a7c9f1"
     }
   ]
 }
