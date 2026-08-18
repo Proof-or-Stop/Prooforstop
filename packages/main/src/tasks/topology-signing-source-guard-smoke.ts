@@ -22,6 +22,7 @@
  */
 
 import { strict as assert } from 'node:assert';
+import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -123,3 +124,47 @@ console.log(`  refused (forgeable): ${REFUSED.join(', ')}`);
 console.log(`  accepted (host-derived): ${ACCEPTED.join(', ')}`);
 console.log(`  bound production call sites: ${boundCallSites}/${boundCallSites}`);
 console.log('  migrated fixture env resolves to: host-adapter');
+
+// 3. B-49ed F-005: the two checks above only prove an accepted source gets PAST the source
+//    gate; neither proves a legitimate actor can complete deriveRoleProvenance. That gap
+//    mattered most for the exclusion approver at handlers/proofstory.ts:550, which this story
+//    newly bound and which had no executed accepted-path coverage anywhere in the suite.
+//    Here both roles run the FULL function with a matching dispatch event and must succeed.
+{
+  const businessCommit = 'c'.repeat(40);
+  const storyFilesHash = 'h'.repeat(64);
+  const headHash = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: packageRoot, encoding: 'utf8' }).trim();
+  const context = { storyId: 'B-probe', storyFilesHash } as never;
+  const implementation = { businessCommit } as never;
+
+  for (const role of ROLES) {
+    for (const source of ACCEPTED) {
+      const sessionId = `sess-${role}-${source}`;
+      const events = [{
+        type: 'dispatch',
+        agentType: role,
+        sessionId,
+        storyId: 'B-probe',
+        businessCommit,
+        storyFilesHash,
+        headHash,
+        businessCommitAuthor: 'probe <probe@local>',
+        businessCommitAuthorSource: 'git-var:GIT_AUTHOR_IDENT',
+      }] as never;
+
+      const actor = deriveRoleProvenance({
+        gitCwd: packageRoot,
+        events,
+        expectedRole: role,
+        actor: role,
+        sessionId,
+        sessionSource: source as never,
+        context,
+        implementation,
+      });
+      assert.equal(actor.agentId, role, `${role} completes deriveRoleProvenance from a ${source} session`);
+      assert.equal(actor.sessionId, sessionId, `${role} provenance binds its own session id`);
+    }
+  }
+}
+console.log('  accepted sources complete provenance for: critic + exclusion approver');
