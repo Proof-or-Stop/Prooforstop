@@ -7,6 +7,10 @@ import { pathToFileURL } from 'node:url';
 import ts from 'typescript';
 
 const root = process.cwd();
+// --quiet suppresses only the verbose listings (registry entries, inventory
+// file paths). Verification logic and asserted literals are unchanged; the
+// default (no flag) output stays byte-identical.
+const quiet = process.argv.slice(2).includes('--quiet');
 const failures = [];
 const warnings = [];
 const hanCharacterPattern = /[\u3400-\u9fff]/;
@@ -69,10 +73,15 @@ const validatePrimaryReferenceDocPaths = [
   'docs/requirements/decisions/host-neutral-observability-console.md',
   'docs/requirements/decisions/truth-source.md',
 ];
+// B-cdf6 CHK-005: the validate-command term follows the renamed canonical bin. Every doc in
+// activeLifecycleDocPaths is an ACTIVE doc that tells a reader what to run now, so per
+// docs/requirements/decisions/brand-rename-mapping.md it is RENAMED, not frozen. The assertion is
+// unchanged in strength — each doc must still literally contain each term, so dropping the
+// validate guidance from a lifecycle doc still fails.
 const activeLifecycleDocCurrentTerms = [
   'verificationIntent',
   'verificationEvidence',
-  'lattice validate',
+  'proof-or-stop validate',
   'checklist_update',
 ];
 const legacyCommandDocContextPattern = /\blegacy\b|\bcompat\b|\bmaintenance\b|兼容|维护|旧|迁移|背景|destructive/i;
@@ -152,6 +161,9 @@ const requiredProcessFactSemantics = {
   acceptance_basis: ['schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding'],
   pre_review_check: ['artifact', 'signed-artifact', 'schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'execution-evidence', 'gate-evidence'],
   pre_review_check_read: ['schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'execution-evidence', 'gate-evidence'],
+  acceptance_rollout_report: ['artifact', 'signed-artifact', 'schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'execution-evidence', 'host-verdict', 'gate-evidence'],
+  acceptance_rollout_report_read: ['schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'execution-evidence', 'host-verdict', 'gate-evidence'],
+  acceptance_rollout_check: ['schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'execution-evidence', 'host-verdict', 'gate-evidence'],
   topology_exclusion_approval_set: ['artifact', 'signed-artifact', 'schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'reviewer-lane'],
   topology_critic_receipt_set: ['artifact', 'signed-artifact', 'schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'reviewer-lane'],
   topology_critic_receipt_check: ['schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'reviewer-lane'],
@@ -181,6 +193,7 @@ const requiredProcessFactSemantics = {
 };
 const requiredRuntimeFactSemantics = {
   'runtime:acceptance_topology_plan_dev_gate': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'workspace-binding', 'verification-policy', 'gate-evidence'],
+  'runtime:acceptance_rollout_dev_review_gate': ['runtime-behavior', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding', 'verification-policy', 'execution-evidence', 'host-verdict', 'gate-evidence'],
   'runtime:topology_critic_authority_verification': ['runtime-behavior', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding', 'reviewer-lane', 'verification-policy'],
   'runtime:evidence_environment_gate_projection': ['runtime-behavior', 'execution-evidence', 'schema-contract', 'normalization-policy', 'freshness-policy', 'verification-policy', 'gate-evidence'],
   'runtime:prompt_envelope_review_gate': ['runtime-behavior', 'prompt-envelope', 'schema-contract', 'freshness-policy', 'review-run', 'review-pass', 'gate-evidence'],
@@ -236,6 +249,7 @@ const requiredArtifactFacts = [
   { name: 'artifact:proofstory.json', path: 'proofstory.json', signed: false },
   { name: 'artifact:topology-exclusion-approvals.json', path: 'topology-exclusion-approvals.json', signed: true, signaturePattern: /Ed25519\(canonical scope-plan approval binding exclusion\/basis\/topology\/scope\/story\/closure\/provenance\)/ },
   { name: 'artifact:topology-critic-receipt.json', path: 'topology-critic-receipt.json', signed: true, signaturePattern: /Ed25519\(canonical critic receipt binding role\/provenance\/basis\/topology\/scope\/story\/closure\/findings\/exclusions\/verdict\/time\)/ },
+  { name: 'artifact:acceptance-rollout-report.json', path: 'acceptance-rollout-report.json', signed: true, signaturePattern: /Ed25519\(canonical verifier-derived report binding frozen membership\/source inventory\/window\/thresholds\/verdict\/workspace\/full-3x2\)/ },
   { name: 'artifact:intent-collision.json', path: 'intent-collision.json', signed: false },
   { name: 'artifact:scope-shrinkage-decision.json', path: 'scope-shrinkage-decision.json', signed: false },
   { name: 'artifact:red-evidence.json', path: 'red-evidence.json', signed: false },
@@ -282,11 +296,11 @@ const scopeContractParallelDevEntryConsumerPattern = /parallel-decomposition DEV
 const legacyCommandPolicyGuidance = {
   test_auto: {
     destructiveRisk: 'workspace-destructive',
-    patterns: [/(?:lattice|koala) validate --story=<storyId>/, /verificationEvidence/, /dryRun/, /confirm/, /git restore\/git clean/],
+    patterns: [/(?:proof-or-stop|lattice|koala) validate --story=<storyId>/, /verificationEvidence/, /dryRun/, /confirm/, /git restore\/git clean/],
   },
   test_story: {
     destructiveRisk: 'fixture-write',
-    patterns: [/(?:lattice|koala) validate --story=<storyId>/, /verification_evidence_add|verificationEvidence/],
+    patterns: [/(?:proof-or-stop|lattice|koala) validate --story=<storyId>/, /verification_evidence_add|verificationEvidence/],
   },
   test_fixture: {
     destructiveRisk: 'fixture-write',
@@ -467,7 +481,11 @@ const evidenceBoundaryDocPaths = [
 const requiredEvidenceBoundaryPhrases = [
   'prompt-only worker claims are not mechanical evidence',
   'dispatch/process-event/commit evidence',
-  'Lattice cannot mechanically prove true subagent context isolation',
+  // B-cdf6 CHK-005: product-name prose follows the renamed canonical form `Proof-or-Stop` (see
+  // docs/requirements/decisions/brand-rename-mapping.md, first RENAMED row). The phrase is still
+  // pinned in full, so deleting or softening the "cannot mechanically prove isolation" boundary
+  // claim from CLAUDE.md / testing-infra.md still fails this check.
+  'Proof-or-Stop cannot mechanically prove true subagent context isolation',
   'transcript/delivery evidence is required; prompt-only user-value claims are not enough',
   'non-mechanical user approval',
 ];
@@ -571,7 +589,7 @@ function read(relPath) {
   let text = readFileSync(absPath, 'utf8');
   const mutation = process.env.LATTICE_PROCESS_FACT_CONTRACT_MUTATION;
   if (mutation === 'drop-acceptance-basis-prompt' && relPath.endsWith('lattice-implementer.md')) {
-    text = text.replace(/^Acceptance-basis boundary: only `lattice acceptance_basis_generate`.*$/m, '');
+    text = text.replace(/^Acceptance-basis boundary: only `(?:lattice|proof-or-stop) acceptance_basis_generate`.*$/m, '');
   }
   if (mutation === 'drop-acceptance-basis-handler' && relPath === 'packages/main/src/handlers/proofstory.ts') {
     text = text.replace(/acceptance_basis_generate/g, 'basis_generate_removed');
@@ -617,6 +635,18 @@ function read(relPath) {
   }
   if (mutation === 'allow-arbitrary-pre-review-command' && relPath === 'packages/main/src/core/pre-review-check.ts') {
     text = text.replace('transcript.actual?.command !== PRE_REVIEW_LIVE_PROOF_COMMAND', "typeof transcript.actual?.command !== 'string'");
+  }
+  if (mutation === 'drop-acceptance-rollout-prompt' && /\/agents\/(?:lattice-implementer|test-case-reviewer|lattice-review-(?:topology-critic|concept|quality|test-coverage|docs|delivery))\.md$/.test(relPath)) {
+    text = text.replace(/acceptance_rollout_check/g, 'rollout_check_removed');
+  }
+  if (mutation === 'drop-acceptance-rollout-handler' && relPath === 'packages/main/src/handlers/proofstory.ts') {
+    text = text.replace(/acceptance_rollout_report/g, 'rollout_report_removed');
+  }
+  if (mutation === 'drop-acceptance-rollout-consumer' && relPath === 'packages/main/src/handlers/transition-orchestrator.ts') {
+    text = text.replace(/runAcceptanceRolloutGate/g, 'rollout_gate_removed');
+  }
+  if (mutation === 'weaken-acceptance-rollout-3x2' && relPath === 'packages/main/src/core/acceptance-rollout.ts') {
+    text = text.replace("record.quorum.rounds === 3", 'record.quorum.rounds >= 1');
   }
   return text;
 }
@@ -1313,6 +1343,9 @@ function assertProofStoryProgressiveBoundary() {
     'acceptance_basis',
     'pre_review_check',
     'pre_review_check_read',
+    'acceptance_rollout_report',
+    'acceptance_rollout_report_read',
+    'acceptance_rollout_check',
     'intent_collision_set',
     'intent_collision_get',
     'scope_shrinkage_decision_set',
@@ -1376,7 +1409,10 @@ function assertProofStoryProgressiveBoundary() {
       && acceptanceWriterPolicy?.status === 'gateEvidence'
       && acceptanceWriterPolicy.gateEvidence === true
       && /name:\s*'acceptance_basis_generate',\s*level:\s*'L4'[\s\S]{0,500}acceptance_topology_check/.test(processLevelText)
-      && acceptancePromptPaths.every(path => read(path).includes('lattice acceptance_basis_generate'))
+      // B-cdf6 CHK-005: the sole-writer command is now taught under the renamed canonical bin.
+      // Assertion strength is unchanged — all three prompt surfaces must still name the writer
+      // command, so dropping the acceptance-basis boundary from any of them still fails.
+      && acceptancePromptPaths.every(path => read(path).includes('proof-or-stop acceptance_basis_generate'))
       && acceptanceRequiredSemantics.includes('workspace-binding'),
     'acceptance basis contract must keep a sole verifier writer, caller-forgery schema rejection, registered adapter omission/disagreement checks, structured seal binding, signed receipt verification, and canonical freshness consumption',
   );
@@ -1441,6 +1477,117 @@ function assertProofStoryProgressiveBoundary() {
       && preReviewPolicy.gateEvidence === true
       && policyBlockHasOwnershipClass(preReviewPolicy, 'storyScopedMutating'),
     'pre-review contract must keep one signed verifier writer, read-only verifier parity, stable PR_* semantics, process-fact registration, and the DEV to REVIEW lifecycle consumer',
+  );
+  const acceptanceRolloutText = read('packages/main/src/core/acceptance-rollout.ts');
+  const acceptanceRolloutSmokeText = read('packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts');
+  const acceptanceRolloutRunnerText = read('scripts/run-proofstory-acceptance-rollout-cohort.mjs');
+  const preReviewScenarioText = read('packages/main/src/tasks/proofstory-pre-review-check-smoke.ts');
+  const acceptancePlanText = read('docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md');
+  const rolloutPromptNames = [
+    'lattice-implementer',
+    'test-case-reviewer',
+    'lattice-review-topology-critic',
+    'lattice-review-concept',
+    'lattice-review-quality',
+    'lattice-review-test-coverage',
+    'lattice-review-docs',
+    'lattice-review-delivery',
+  ];
+  // B-4043 F-014: the acceptance-rollout role guidance is sourced from the
+  // canonical package templates (the REAL delivery path — review_run_start /
+  // agent_prompt resolve each role body from templates/agents), NOT from the
+  // regenerable host shims under .claude/agents / .lattice-codex/agents (those
+  // are thin/mirror adapters that `lattice init --upgrade` rewrites). Validate
+  // the tokens in the template source, and prove the guidance does not depend
+  // on the bootstrap-only modular-reviewer shims.
+  const rolloutPromptTemplates = rolloutPromptNames.map(
+    name => `packages/main/templates/agents/${name}.md`,
+  );
+  // Modular reviewer roles render as a body-free review_run_start bootstrap in
+  // the host shim; their guidance must live in the template and reach them via
+  // review_run_start, never via the shim.
+  const rolloutBootstrapOnlyReviewerNames = [
+    'lattice-review-concept',
+    'lattice-review-quality',
+    'lattice-review-test-coverage',
+    'lattice-review-docs',
+  ];
+  const rolloutPromptTokens = [
+    'acceptance_topology_check',
+    'pre_review_check_read',
+    'acceptance_rollout_report_read',
+    'acceptance_rollout_check',
+    'full 3 rounds',
+    'codex-cli',
+    'claude-cli',
+    '3x1',
+    'rollback',
+  ];
+  const rolloutPolicy = commandPolicyEntries.get('acceptance_rollout_report');
+  assert(
+    catalogText.includes("name: 'acceptance_rollout_report'")
+      && catalogText.includes("name: 'acceptance_rollout_report_read'")
+      && catalogText.includes("name: 'acceptance_rollout_check'")
+      && catalogText.includes('eligibleMembership: z.never()')
+      && catalogText.includes('aggregate: z.never()')
+      && handlerText.includes('acceptance_rollout_report(args')
+      && handlerText.includes('acceptance_rollout_report_read(args')
+      && handlerText.includes('acceptance_rollout_check(args')
+      && handlerText.includes('deriveAcceptanceRolloutReport')
+      && handlerText.includes('issueAcceptanceRolloutArtifact')
+      && handlerText.includes('evaluateAcceptanceRolloutForContext')
+      && acceptanceRolloutText.includes('export function deriveAcceptanceRolloutReport')
+      && acceptanceRolloutText.includes('ACCEPTANCE_ROLLOUT_MIN_MATCHED_PAIRS = 3')
+      && acceptanceRolloutText.includes('issueAcceptanceRolloutObservationFromProduction')
+      && acceptanceRolloutText.includes("quorum.schemaVersion !== 'lattice.quorum_submit.v1'")
+      && acceptanceRolloutText.includes("['cat-file', '-e'")
+      && acceptanceRolloutText.includes('quorum.reviewerPasses.some')
+      && acceptanceRolloutText.includes("run('acceptance_topology_check')")
+      && acceptanceRolloutText.includes("run('pre_review_check_read')")
+      && acceptanceRolloutText.includes('mutationCommitSha')
+      && acceptanceRolloutText.includes('restorationCommitSha')
+      && acceptanceRolloutText.includes('restored control did not rerun PASS')
+      && acceptanceRolloutText.includes('caller ${label} does not match production command replay')
+      && acceptanceRolloutText.includes('AR_REGISTERED_CAMPAIGN_INCOMPLETE')
+      && acceptanceRolloutText.includes('AR_OMISSION_DETECTION_BELOW_100')
+      && acceptanceRolloutText.includes('AR_FALSE_BLOCK_NONZERO')
+      && acceptanceRolloutText.includes('AR_MISLABELED_3X1_NONZERO')
+      && acceptanceRolloutText.includes('AR_WAIVER_DELTA_POSITIVE')
+      && acceptanceRolloutText.includes('AR_CHECK_INVENTORY_SHRANK')
+      && acceptanceRolloutText.includes('checkEvidenceFreshnessForGit')
+      && acceptanceRolloutRunnerText.includes('export function runProofStoryAcceptanceRolloutCohort')
+      && acceptanceRolloutRunnerText.includes("'.lattice', 'story', 'actives'")
+      && acceptanceRolloutSmokeText.includes('export async function runProofStoryAcceptanceRolloutSmoke')
+      && acceptanceRolloutSmokeText.includes('runAcceptanceRolloutGate')
+      && acceptanceRolloutSmokeText.includes('mode changes preserve report byte-for-byte')
+      && acceptanceRolloutSmokeText.includes('--issuer-mutations')
+      && acceptanceRolloutSmokeText.includes('restoration commit is missing or malformed')
+      && acceptanceRolloutSmokeText.includes('restoration commit must be later than mutation commit')
+      && preReviewScenarioText.includes('Array.from({ length: 5 }')
+      && preReviewScenarioText.includes('Array.from({ length: 17 }')
+      && preReviewScenarioText.includes("['A-TRANSCRIPT-1', 'transcript']")
+      && preReviewScenarioText.includes('LATTICE_ACCEPTANCE_ROLLOUT_COHORT_FILE')
+      && preReviewScenarioText.includes('scenario execution refuses to spawn the expensive registered cohort runner')
+      && !preReviewScenarioText.includes("execFileSync(process.execPath, [join(repositoryRoot, 'scripts/run-proofstory-acceptance-rollout-cohort.mjs')")
+      && acceptancePlanText.includes('five positive paths and the seventeen')
+      && acceptancePlanText.includes('5 positive / 17 mutation / 1 transcript')
+      && acceptancePlanText.includes('illustrative, abridged shape of the implemented canonical')
+      && transitionOrchestratorText.includes('runAcceptanceRolloutGate')
+      && transitionOrchestratorText.includes('if (report.blocking)')
+      && configText.includes('acceptanceRolloutGateMode')
+      && configText.includes('resolveAcceptanceRolloutGateMode')
+      && processRegistryText.includes('runtime:acceptance_rollout_dev_review_gate')
+      && processRegistryText.includes('artifact:acceptance-rollout-report.json')
+      && processLevelText.includes('runtime:acceptance_rollout_dev_review_gate')
+      && rolloutPolicy?.status === 'gateEvidence'
+      && rolloutPolicy.gateEvidence === true
+      && policyBlockHasOwnershipClass(rolloutPolicy, 'storyScopedMutating')
+      && rolloutPromptTemplates.every(templatePath =>
+        rolloutPromptTokens.every(token => read(templatePath).toLowerCase().includes(token)))
+      && rolloutBootstrapOnlyReviewerNames.every(name =>
+        !read(`.claude/agents/${name}.md`).toLowerCase().includes('acceptance_rollout_check')
+        && !read(`.lattice-codex/agents/${name}.md`).toLowerCase().includes('acceptance_rollout_check')),
+    'acceptance rollout contract must keep verifier-derived frozen membership, >=3 matched pairs per arm, all thresholds, signed current receipt, genuine full-3x2, real lifecycle consumer, mode-invariant rollback, and canonical template-sourced role guidance (not regenerable host shims)',
   );
   const topologyCriticText = read('packages/main/src/core/topology-critic-receipt.ts');
   const topologyCriticPromptPaths = [
@@ -1736,10 +1883,26 @@ function assertCloseoutTrustBoundary() {
     'b2c006a5becbd456a5728bb7615cf999cb514137383bc935b128073240899d98',
     '458d8aeaf36286e2ca0cafe968c2e9559d46e57e6920ca9581ea58ee38b77887',
     '51af0fd5730add5aeff160f50c83b7dd70d2e5cdcfa0430e58acf4058acfb844',
-    '235d6921b553cf992430f8e36324aca0bb7eefaa745195a1a67fb3d953032ca1',
-    'a2468ce54d0093b7b84176ed03dd43bbd58e56278c3f1410f2029f2056abdbc0',
-    '20149fa438b1ec78fc9c9713eb3cc4a890bc58a1d82e7a5fa0d588e9c4e7ee91',
-    '518890b58fd8e369488721d66d954f9589a049a42066635f42c057227788ae45',
+    'adb4b265eb726c0919808d3f99b191f646ac88b4f0f2c30bd904a6938a14d932',
+    // B-cdf6 CHK-002: repinned alongside retired-authority-vocabulary-guard-smoke.ts
+    // after the user-facing bin rename changed cli-engine.ts hint/error strings.
+    //
+    // B-cdf6:F-057 follow-on: this is the SECOND copy of that fingerprint. When the
+    // guard's own allowlist was repinned I updated only that file, and this verifier —
+    // which cross-checks that the guard pins the expected value — kept the old hash and
+    // failed closed. The two are coupled by design (the comment above already said so),
+    // so they must always move together. Same re-approval basis as the guard: the
+    // cli-engine.ts diff vs main touches zero import()/require() calls, arguments or
+    // path producers, and the approved loader call site is byte-identical to main.
+    // Moved again with the guard by commit 32a083b987 (delivery-review follow-up:
+    // one diagnostic string + a BRAND_ENV_PREFIX import in cli-engine.ts). This time
+    // both copies were updated in the same commit, as the note above requires.
+    'dd11e51a1c4a87b78a9bd5fed12d46fb9eb32c900ca311b9b809d843b553fa79',
+    // B-6693 (merged in) also moved this canonical AST, only to separate
+    // direct-validate watchdog cancellation from DONE-result classification.
+    // The benign runCli/initPath/import(`file://${initPath}`) call site is unchanged.
+    '03a8ffa356ad17e46e04ad5622fa7a49d4f08528fdd8d9525b6cc2add5bba527',
+    '5a263419aa715dfec4d45e35a81b887c8aafb2c57344f5b4b9d8de284ce1503e',
     'f215f9c4e894a84ba7e2e844324902fcd2dec1e208e4259d64e2c447f1c85a83',
     'post-call assignment of canonical report.claims into an exported container must invalidate the complete importer fingerprint',
     'changing the path producer behind an otherwise identical benign loader call must invalidate its source fingerprint',
@@ -1831,10 +1994,11 @@ function assertCloseoutTrustBoundary() {
     '4b92b436fb13a06cf2dfd2079c6b0dec787ef8807cd54f8b6db24c1002a0e61a',
     "'packages/main/src/handlers/fixture-executors.ts'",
     'acaa12e34e6e9b3304d176b9cbb65d9edfcdfa3ec9fc7db57a14d83411f026c7',
-    'the fixture executor is the sixth exact whole-source executable exemption; no broad pattern exemptions are allowed',
+    '34f3b6ba8d8e2f8150e0b2fce0c8d2813f7638998a1697a429a13a934a8f7659',
+    'bin/bootstrap-runner.js is pinned in both the benign-loader and dynamic-code exemption maps, making seven exact whole-source executable exemption entries; no broad pattern exemptions are allowed',
     'BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS',
-    '1ec6b25bb116809b885adb83768d9fb96d24ad7549f31a144507dc4d84875765',
-    '4df693798fca7584fd2666249134120b891d6336ff433768891b5ed6483da1b8',
+    '34f3b6ba8d8e2f8150e0b2fce0c8d2813f7638998a1697a429a13a934a8f7659',
+    'd03acdc43d743f67f80bb5194205c48dbeb44676580a6b3cbcc1d3e411ed65ec',
     'PackageAliasEdge',
     'buildPackageAliasEdgeInventory',
     'PACKAGE_ALIAS_EDGE_INVENTORY',
@@ -2574,7 +2738,12 @@ function assertCloseoutTrustBoundary() {
     assert(!closeoutTrustText.includes(removedHelper), `closeout trust must not expose unused pseudo-authority helper ${removedHelper}`);
   }
   const packageText = read('package.json');
-  assert(packageText.includes('test:closeout-trust') && /"test"[^\n]+npm run test:closeout-trust/.test(packageText), 'package.json: closeout trust handler/replay smoke must remain in routine npm test');
+  const rootPackage = JSON.parse(packageText);
+  const canonicalRoutineIncludes = (pkg, name) => [pkg.scripts?.['test:serial-reference-prefix'], pkg.scripts?.['test:serial-reference']]
+    .filter(Boolean).join(' && ').split(/\s*&&\s*/).includes(`npm run ${name}`);
+  assert(rootPackage.scripts?.test === 'node packages/main/dist/tasks/full-suite-runner.js' && canonicalRoutineIncludes(rootPackage, 'test:closeout-trust'), 'package.json: closeout trust handler/replay smoke must remain in canonical routine npm test membership');
+  assert(!canonicalRoutineIncludes({ scripts: { ...rootPackage.scripts, 'test:serial-reference': rootPackage.scripts['test:serial-reference'].replace('npm run test:closeout-trust', '') } }, 'test:closeout-trust'), 'package.json: deleting closeout trust from the main serial-reference must fail membership');
+  assert(!canonicalRoutineIncludes({ scripts: { ...rootPackage.scripts, 'test:serial-reference-prefix': '' } }, 'test:full-suite-runner-smoke'), 'package.json: deleting the prefix serial-reference must fail membership');
 }
 
 // ── B-70a6 F-003 (cross-host MAJOR): PLAN->INIT reopen audit semantics ──
@@ -3242,8 +3411,10 @@ function scanBraceState(line, state) {
 }
 
 function commandBlocks(text, command) {
-  const commandPattern = new RegExp(`\\b(?:lattice|koala)\\s+${command}\\b`);
-  const anyCliCommandPattern = /\b(?:lattice|koala)\s+[a-z_][a-z0-9_]*\b/;
+  // `proof-or-stop` is the canonical bin; `lattice` / `koala` stay accepted so this
+  // detector keeps recognizing pre-rename prompt text (B-cdf6 CHK-006).
+  const commandPattern = new RegExp(`\\b(?:proof-or-stop|lattice|koala)\\s+${command}\\b`);
+  const anyCliCommandPattern = /\b(?:proof-or-stop|lattice|koala)\s+[a-z_][a-z0-9_]*\b/;
   const lines = text.split(/\r?\n/);
   const blocks = [];
 
@@ -4910,8 +5081,15 @@ function assertDoneRequiredValidationCommandContract(cliToolNameSet, registry, l
     assert(reuseText.includes(token), `DONE-required pre-run reuse must preserve canonical/shared-lineage check: ${token}`);
   }
   const routineReuseText = read('packages/main/src/core/validation-evidence-reuse.ts');
-  for (const token of ['merge-base', '--is-ancestor', 'rev-list', 'diff-tree', 'isStoryMetadataPath', 'untrusted-lineage-path', 'effectiveEnvironmentDigest', 'buildValidationExecutableLookup', "env.PATHEXT ?? '.COM;.EXE;.BAT;.CMD'", "command.includes('\\\\')", 'platformPath.isAbsolute(command)', 'identity-missing-malformed-or-legacy', 'current-verification-coverage-incomplete', 'head-changed-during-reuse-evaluation']) {
+  for (const token of ['untrusted-lineage-path', 'effectiveEnvironmentDigest', 'buildValidationExecutableLookup', "env.PATHEXT ?? '.COM;.EXE;.BAT;.CMD'", "command.includes('\\\\')", 'platformPath.isAbsolute(command)', 'identity-missing-malformed-or-legacy', 'current-verification-coverage-incomplete', 'head-changed-during-reuse-evaluation']) {
     assert(routineReuseText.includes(token), `shared routine validation reuse contract missing ${token}`);
+  }
+  // B-f00c: the merge-lineage git-command logic was extracted into the shared
+  // validation-lineage.ts classifier (used by both the reuse and admissibility copies).
+  // The net-endpoint diff replaces the per-commit union, so rev-list is no longer used.
+  const lineageText = read('packages/main/src/core/validation-lineage.ts');
+  for (const token of ['merge-base', '--is-ancestor', 'diff-tree', 'isStoryMetadataPath']) {
+    assert(lineageText.includes(token), `shared merge-lineage classifier contract missing ${token}`);
   }
   const validationEnvironmentText = read('packages/main/src/core/validation-command-environment.ts');
   const expectedValidationTransportKeys = [
@@ -4961,7 +5139,12 @@ function assertDoneRequiredValidationCommandContract(cliToolNameSet, registry, l
     `shared validation command environment transport digest mismatch: ${expectedTransportDigest}`,
   );
   for (const token of [
-    'new Set<string>(VALIDATION_TRANSPORT_ENV_KEY_LIST)',
+    // B-cdf6 CHK-006 Pass B: the pinned list stays byte-frozen (its digest is
+    // compared against already-persisted receipts), and the new brand spellings
+    // are folded in at the FILTER via brandEnvNames() so a PROOF_OR_STOP_* export
+    // is still stripped without entering the digested list.
+    'VALIDATION_TRANSPORT_ENV_KEY_LIST.flatMap((key) =>',
+    'isBrandEnvName(key) ? [...brandEnvNames(key)] : [key],',
     "platform === 'win32'",
     "effective[canonicalKey('PWD')] = cwd",
     'effective[canonicalKey(key)] = value',
@@ -4986,7 +5169,11 @@ function assertDoneRequiredValidationCommandContract(cliToolNameSet, registry, l
     'routine identity and validation command spawn must consume the same effective environment normalizer',
   );
   const budgetText = read('packages/main/src/core/done-required-timeout-budget.ts');
-  for (const token of ['NODE_TIMER_MAX_MS', 'resolveCommandTimeoutMs', 'derived-command-budget', 'LATTICE_DONE_PREPARE_PHASE_TIMEOUT_MS']) {
+  // B-cdf6 CHK-006 Pass B: the phase-timeout override is now read through the
+  // read-both brand resolver, so the pinned token is the resolver call (which
+  // accepts BOTH `PROOF_OR_STOP_DONE_PREPARE_PHASE_TIMEOUT_MS` and the legacy
+  // `LATTICE_` spelling) rather than one hardcoded variable name.
+  for (const token of ['NODE_TIMER_MAX_MS', 'resolveCommandTimeoutMs', 'derived-command-budget', "readBrandEnv('DONE_PREPARE_PHASE_TIMEOUT_MS')"]) {
     assert(budgetText.includes(token), `DONE-required timeout budget contract missing ${token}`);
   }
   const validationExecutorText = read('packages/main/src/core/validation-executor.ts');
@@ -7292,9 +7479,11 @@ function printProcessFactLevelRegistrySummary() {
       console.log(`flow fact policy: ${policyId}${dispositionSuffix}${artifactSuffix}${gateSuffix}`);
     }
   }
-  console.log('- registry entries:');
-  for (const entry of [...entries].sort((a, b) => a.name.localeCompare(b.name))) {
-    console.log(formatProcessFactRegistryEntry(entry));
+  if (!quiet) {
+    console.log('- registry entries:');
+    for (const entry of [...entries].sort((a, b) => a.name.localeCompare(b.name))) {
+      console.log(formatProcessFactRegistryEntry(entry));
+    }
   }
 }
 
@@ -7369,11 +7558,11 @@ const inventory = [
         patterns: [
           'getGuardFailureReason',
           'runReviewCliGates',
-          'lattice validate --json',
+          'proof-or-stop validate --json',
           'verifierHandlers.validate',
           { label: 'test-evidence writer call', absentRegex: /\.writeTestEvidence\s*\(/ },
           'Cannot enter TEST: CLI gate preflight execution error',
-          'Cannot enter TEST: lattice validate execution error',
+          'Cannot enter TEST: proof-or-stop validate execution error',
         ],
       },
       {
@@ -7709,7 +7898,7 @@ const inventory = [
     files: [
       {
         // B-3fad CHK-003: B-56d3 moved the REVIEW→TEST gate machinery
-        // (runReviewCliGates / the `lattice validate --json` gate / the two
+        // (runReviewCliGates / the `proof-or-stop validate --json` gate / the two
         // English `Cannot enter TEST` strings) into phase-gates.ts. B-914f
         // keeps test-evidence persistence exclusively in verifier.ts.
         // story-advance.ts keeps buildDoneChecklist (DONE checklist assembly).
@@ -7720,12 +7909,12 @@ const inventory = [
         relPath: 'packages/main/src/handlers/phase-gates.ts',
         patterns: [
           'runReviewCliGates',
-          'lattice validate --json',
+          'proof-or-stop validate --json',
           'buildDoneChecklist',
           'verifierHandlers.validate',
           { label: 'test-evidence writer call', absentRegex: /\.writeTestEvidence\s*\(/ },
           'Cannot enter TEST: CLI gate preflight execution error',
-          'Cannot enter TEST: lattice validate execution error',
+          'Cannot enter TEST: proof-or-stop validate execution error',
         ],
       },
       {
@@ -7856,13 +8045,16 @@ if (warnings.length) {
 }
 console.log('');
 console.log('Process Fact Inventory');
+let inventoryFileCount = 0;
 for (const entry of inventory) {
-  console.log(`- ${entry.name}`);
+  if (!quiet) console.log(`- ${entry.name}`);
   for (const file of entry.files) {
     assertFilePatterns(entry.name, file.relPath, file.patterns);
-    console.log(`  ${file.relPath}`);
+    inventoryFileCount += 1;
+    if (!quiet) console.log(`  ${file.relPath}`);
   }
 }
+if (quiet) console.log(`- entries: ${inventory.length} (${inventoryFileCount} files checked)`);
 
 if (failures.length) {
   console.error('');

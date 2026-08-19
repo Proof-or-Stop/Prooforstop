@@ -18,7 +18,7 @@ function wantsJson(args: { format?: string; json?: boolean } | undefined): boole
 
 function renderRun(result: AutopilotRunResult): string {
   const lines = [
-    `Proofbound autopilot run (${result.schemaVersion})`,
+    `Proof-or-Stop autopilot run (${result.schemaVersion})`,
     `status: ${result.status}`,
     `mode: ${result.mode}`,
     `targetPhase: ${result.targetPhase}`,
@@ -55,7 +55,7 @@ function renderRun(result: AutopilotRunResult): string {
 
 function renderStatus(result: AutopilotStatusResult): string {
   return [
-    `Proofbound autopilot status (${result.schemaVersion})`,
+    `Proof-or-Stop autopilot status (${result.schemaVersion})`,
     `localAvailable: ${result.localAvailable}`,
     `defaultMode: ${result.defaultMode}`,
     `modes: ${result.modes.join(', ')}`,
@@ -78,7 +78,7 @@ function renderStatus(result: AutopilotStatusResult): string {
 
 function renderExecute(result: AutopilotExecuteResult): string {
   const lines = [
-    `Proofbound autopilot execute (${result.schemaVersion})`,
+    `Proof-or-Stop autopilot execute (${result.schemaVersion})`,
     `status: ${result.status}`,
     `mode: ${result.mode}`,
     `targetPhase: ${result.targetPhase}`,
@@ -230,7 +230,7 @@ export function createAutopilotHandlers(ctx: HandlerContext) {
       };
       if (wantsJson(args)) return result;
       return [
-        `Proofbound autopilot doctor (${result.schemaVersion})`,
+        `Proof-or-Stop autopilot doctor (${result.schemaVersion})`,
         `ok: ${result.ok}`,
         `localStatus: ${local.status}`,
         `authorityReady: ${status.authorityReady}`,

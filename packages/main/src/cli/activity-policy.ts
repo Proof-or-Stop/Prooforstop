@@ -1,3 +1,4 @@
+import { readBrandEnv } from '../core/brand-env.js';
 export const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
   'session_brief',
   'next',
@@ -17,6 +18,8 @@ export const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
   'acceptance_topology_check',
   'acceptance_basis',
   'pre_review_check_read',
+  'acceptance_rollout_report_read',
+  'acceptance_rollout_check',
   'topology_critic_receipt_check',
   'finding_list',
   'bug_list',
@@ -119,18 +122,26 @@ export function isReadOnlyCommand(cmdName: string, args: Record<string, unknown>
 }
 
 export function resolveActivitySource(): string {
-  return process.env.LATTICE_ACTIVITY_SOURCE || 'cli';
+  return readBrandEnv('ACTIVITY_SOURCE') || 'cli';
 }
 
 export function isCodexActivitySource(): boolean {
-  return (process.env.LATTICE_ACTIVITY_SOURCE || '') === 'codex';
+  return (readBrandEnv('ACTIVITY_SOURCE') || '') === 'codex';
 }
 
 export function inferCodexEntrypoint(): string {
-  if (process.env.LATTICE_CODEX_ENTRYPOINT) return process.env.LATTICE_CODEX_ENTRYPOINT;
+  const explicitEntrypoint = readBrandEnv('CODEX_ENTRYPOINT');
+  if (explicitEntrypoint) return explicitEntrypoint;
   const invoked = process.argv[1] || '';
-  if (invoked.includes('lattice-codex')) return 'local-wrapper';
-  if (process.env.LATTICE_ACTIVITY_SOURCE === 'codex') return 'global-fallback';
+  // B-cdf6:F-068 — recognize BOTH wrapper filenames. This tested only the
+  // deprecated `bin/lattice-codex.js` shape, so an invocation through the canonical
+  // `bin/proof-or-stop-codex.js` would fall through and be misclassified as
+  // `global-fallback`. Currently masked in the shipped flow because the generated
+  // wrapper sets CODEX_ENTRYPOINT explicitly above, but the asymmetry is exactly
+  // the class this rename must not leave behind: the new name unrecognized while
+  // the old one works.
+  if (invoked.includes('proof-or-stop-codex') || invoked.includes('lattice-codex')) return 'local-wrapper';
+  if (readBrandEnv('ACTIVITY_SOURCE') === 'codex') return 'global-fallback';
   return 'cli';
 }
 
@@ -139,7 +150,7 @@ export function shouldWriteActivityLog(cmdName: string, args: Record<string, unk
   // a plain usage_sweep writes no activity row (read-only) while a --out sweep
   // (a write) is recorded like any other mutating command.
   if (isReadOnlyCommand(cmdName, args)) {
-    return process.env.LATTICE_ACTIVITY_RECORD_READONLY === '1';
+    return readBrandEnv('ACTIVITY_RECORD_READONLY') === '1';
   }
   if (args.dryRun === true) return false;
   return true;

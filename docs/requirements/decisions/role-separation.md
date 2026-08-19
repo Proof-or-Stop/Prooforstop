@@ -1,4 +1,4 @@
-# Proofbound Multi-Role Separation Refactor Plan
+# Proof-or-Stop Multi-Role Separation Refactor Plan
 
 > 2026.04 · Split the 4 responsibilities of plan / adversarial / implementation / test-verification from "one main agent holding all of them" into roles that can evolve independently
 
@@ -40,7 +40,7 @@ the smoke fail.
 
 ## Background
 
-lattice currently has only 1.5 actual roles:
+proof-or-stop currently has only 1.5 actual roles:
 - **main agent**: the primary driver throughout PLAN / DEV / TEST_CASE / TEST / DONE
 - **test-intent-reviewer**: only reviews the text quality of testIntent
 - **test-case-reviewer**: only reviews fixture design
@@ -59,9 +59,9 @@ This document proposes a **gradual role-separation plan**, not splitting into 4 
 
 ### Why not split into 4 independent agents all at once
 
-1. **The boundary of the "adversarial" role is extremely hard to draw cleanly**. The most common failure mode of an independent red-team agent is not failing to find faults, but finding a pile of generic template faults (what if the disk is full / what if the network goes down), drowning out the truly high-signal risks. lattice's existing `riskSignals` + B-5010's `story_review_dismiss` mechanism already prove this indirectly — dismiss exists precisely because story_review has too many false-positives.
+1. **The boundary of the "adversarial" role is extremely hard to draw cleanly**. The most common failure mode of an independent red-team agent is not failing to find faults, but finding a pile of generic template faults (what if the disk is full / what if the network goes down), drowning out the truly high-signal risks. proof-or-stop's existing `riskSignals` + B-5010's `story_review_dismiss` mechanism already prove this indirectly — dismiss exists precisely because story_review has too many false-positives.
 2. **4 independent agents = 4 context windows**. Each sub-agent launch is a fresh context, and the context passed between plan → adversarial → implementation → test has to be rebuilt inline in the prompt, so the token cost stacks up linearly. Not worth it under a solo-dev budget.
-3. **lattice's existing mechanisms (phase state machine / watchdog / activity.jsonl / signed review / hooks) all assume "one agent is present throughout"**. Splitting into 4 roles at once means all of these mechanisms have to be changed in sync, and the change surface is too large to roll back safely.
+3. **proof-or-stop's existing mechanisms (phase state machine / watchdog / activity.jsonl / signed review / hooks) all assume "one agent is present throughout"**. Splitting into 4 roles at once means all of these mechanisms have to be changed in sync, and the change surface is too large to roll back safely.
 4. **Whether the real pain points actually require 4 roles to solve is not yet verified**. If the real root cause is prompt quality or checklist granularity, splitting into more agents will not help.
 
 ### The role that is truly worth making independent
@@ -72,7 +72,7 @@ After tracing the pain points back to their source, **only the "implementation" 
 - Once independent, its tool permissions can be tightened (read/edit code + run tests only; cannot touch phase / cannot touch story metadata)
 - It can run in an independent worktree, naturally isolating side effects
 
-**The "test-verification" role actually does not need an LLM**. lattice already has the deterministic script test_auto; the only thing that truly needs LLM judgment is "root-cause analysis when a test fails" — and that is an on-demand diagnostic role, not a resident role.
+**The "test-verification" role actually does not need an LLM**. proof-or-stop already has the deterministic script test_auto; the only thing that truly needs LLM judgment is "root-cause analysis when a test fails" — and that is an on-demand diagnostic role, not a resident role.
 
 **The "adversarial" role is implemented in phase 1 using a self-critique mode** (after the plan agent finishes writing the checklist, it switches mental mode and finds faults in its own work). This saves one context cold start compared to an independent agent, and empirically the effect is close; crucially, it **lets us first verify whether the boundary is workable**. If the self-critique data shows that the adversarial output really has value, then we consider splitting out an independent agent.
 
@@ -94,7 +94,7 @@ After tracing the pain points back to their source, **only the "implementation" 
 │  "get it     │        │  "root-cause   │
 │   done"      │        │   analysis"    │
 │  - Read/Edit │        │  - read diff   │
-│  - Bash(lattice│        │  - read fail   │
+│  - Bash(proof-or-stop│        │  - read fail   │
 │     /node/   │        │    log         │
 │     npm)     │        │  - write       │
 │  - worktree  │        │    bug.json    │
@@ -206,7 +206,7 @@ Wave 3: (conditional on S-12 outcome) S-13
 
 ## Wave 0: Verify the ROI of an Independent Implementer
 
-**Goal**: without changing the lattice phase machine or any existing artifact, delegate the actual execution of the two phases DEV + TEST_CASE to an independent sub-agent, and observe the effect on the "shortcut rate" after 2 weeks.
+**Goal**: without changing the proof-or-stop phase machine or any existing artifact, delegate the actual execution of the two phases DEV + TEST_CASE to an independent sub-agent, and observe the effect on the "shortcut rate" after 2 weeks.
 
 **What Wave 0 does NOT change**:
 - The phase list stays the same
@@ -227,9 +227,9 @@ Wave 3: (conditional on S-12 outcome) S-13
 Create `.claude/agents/lattice-implementer.md`, defining a CC sub-agent dedicated to the "implementation" role. This agent is invoked by the main agent via `Agent(subagent_type: "lattice-implementer", ...)`, and is responsible for the concrete coding work of the DEV and TEST_CASE phases.
 
 Key design:
-- Tightened permissions: only a subset of Read / Edit / Write / Glob / Grep / Bash. Bash allowlist: `lattice:*`, `node:*`, `npm:*`, `pnpm:*`, `git:(status|diff|log|add|commit)`. Blocklist: `rm`, `git reset --hard`, `git push`, `curl | sh`
+- Tightened permissions: only a subset of Read / Edit / Write / Glob / Grep / Bash. Bash allowlist: `proof-or-stop:*`, `node:*`, `npm:*`, `pnpm:*`, `git:(status|diff|log|add|commit)`. Blocklist: `rm`, `git reset --hard`, `git push`, `curl | sh`
 - `permissionMode: acceptEdits` (no confirmation prompt)
-- `isolation: worktree` (automatically reuses lattice's worktree-per-story)
+- `isolation: worktree` (automatically reuses proof-or-stop's worktree-per-story)
 - The system prompt's mental mode is locked to "get it done", explicitly blocking it from advancing the phase / writing bug.json / modifying checklist metadata
 - The prompt ends with a hard line: "When done, return only a plain-text summary; do not attempt story_advance, and do not decide on your own whether to enter the TEST phase"
 
@@ -237,17 +237,17 @@ The agent's input prompt is constructed by the main agent and must contain:
 1. The current story id + phase
 2. The list of checklist items with status != done (including title + context)
 3. A short index of files already read (to avoid the sub-agent re-Reading)
-4. The Proofbound commands it is allowed to call (`checklist_update`, `update_task_state`, `fixture_batch_add`)
-5. The list of Proofbound commands it is blocked from calling
+4. The Proof-or-Stop commands it is allowed to call (`checklist_update`, `update_task_state`, `fixture_batch_add`)
+5. The list of Proof-or-Stop commands it is blocked from calling
 
 **Checklist**
 
 1. **title**: Create the `.claude/agents/lattice-implementer.md` file and its frontmatter
-   **context**: The frontmatter contains `name`, `description`, `whenToUse`, `tools`, `disallowedTools`, `permissionMode: acceptEdits`, `isolation: worktree`, `model: inherit`. whenToUse must make clear "only invoked by the main agent during the DEV / TEST_CASE phase of a lattice story, not responding to the user directly"
+   **context**: The frontmatter contains `name`, `description`, `whenToUse`, `tools`, `disallowedTools`, `permissionMode: acceptEdits`, `isolation: worktree`, `model: inherit`. whenToUse must make clear "only invoked by the main agent during the DEV / TEST_CASE phase of a proof-or-stop story, not responding to the user directly"
 
 2. **title**: Write the body of the system prompt
    **context**: 5 sections:
-   - "You are the lattice implementer" (role anchoring)
+   - "You are the proof-or-stop implementer" (role anchoring)
    - "Your sole goal: complete the pending items in the checklist" (mental mode lock)
    - "Strictly blocked" (cannot story_advance / cannot change phase / cannot write bug.json / cannot change a checklist item's testIntent)
    - "Tool usage conventions" (read-before-edit / only one in_progress per item / call update_task_state when done)
@@ -282,7 +282,7 @@ The agent's input prompt is constructed by the main agent and must contain:
 
 **Description**
 
-Make the main agent **naturally inclined to** delegate to the implementer when it enters the DEV or TEST_CASE phase. This story is a refactor of prompts + flow; it **does not modify lattice's core code**.
+Make the main agent **naturally inclined to** delegate to the implementer when it enters the DEV or TEST_CASE phase. This story is a refactor of prompts + flow; it **does not modify proof-or-stop's core code**.
 
 Two points are changed:
 1. **Add a section about role separation at the top of CLAUDE.md**: tell the main agent that "the code-writing work of DEV and TEST_CASE should be delegated to the lattice-implementer sub-agent"
@@ -291,14 +291,14 @@ Two points are changed:
 Note: **not mandatory**. The main agent may choose not to delegate, because some stories are extremely fine-grained (chore / docs type), where delegating to a sub-agent is more expensive than doing it yourself. Let the main agent judge for itself based on the story's type and priority.
 
 **Why not hardcode delegate at the code level**:
-- lattice's core value is "the mechanism does not assume an agent implementation"; hardcoding delegate would bind lattice to CC
+- proof-or-stop's core value is "the mechanism does not assume an agent implementation"; hardcoding delegate would bind proof-or-stop to CC
 - the main agent could be CC, or it could be an observer/Mastra agent (you are currently pursuing both paths)
 - hardcoding would require maintaining two phase machines at once, too heavy
 
 **Checklist**
 
 1. **title**: Add a "sub-agent role separation" subsection at the top of `packages/lattice/CLAUDE.md`
-   **context**: Explain that lattice supports the implementer sub-agent, and give the trigger conditions: delegate is recommended when story.type is in `[feature, bug, refactor]` and priority >= medium and the checklist item count >= 2. When type is in `[chore, docs]` or the item count < 2, it is faster for the main agent to do it itself
+   **context**: Explain that proof-or-stop supports the implementer sub-agent, and give the trigger conditions: delegate is recommended when story.type is in `[feature, bug, refactor]` and priority >= medium and the checklist item count >= 2. When type is in `[chore, docs]` or the item count < 2, it is faster for the main agent to do it itself
 
 2. **title**: Add a delegate suggestion to the hint when story_advance enters DEV
    **context**: In the `story_advance.DEV` hint in `handlers/hints.ts`, append a line: "Recommend Agent(subagent_type='lattice-implementer', description='execute DEV', prompt='story id + pending checklist items + allowed tools')". Only append when story.type/priority/size meets the conditions
@@ -443,7 +443,7 @@ The review result is written into this story's `decision.json`, as the basis for
 
 **Description**
 
-Current state: test_auto is a lattice handler that the main agent calls as an ordinary tool. The problem: the LLM can choose not to call it, call it and selectively read the result, or read it and selectively report.
+Current state: test_auto is a proof-or-stop handler that the main agent calls as an ordinary tool. The problem: the LLM can choose not to call it, call it and selectively read the result, or read it and selectively report.
 
 Refactor: turn test_auto into an action that is **triggered automatically** when entering `story_advance --phase TEST`. The main agent does not need to (and cannot) call test_auto explicitly; it can only call story_advance, and test_auto runs as a side effect of the phase transition, with the result written into test-runs.json, and then the phase lands at TEST or falls back to DEV (depending on the result).
 
@@ -505,7 +505,7 @@ The analyst's output:
 3. Write `bug.json` (if it is `code-bug` or `test-bug`)
 
 The analyst's tightened permissions:
-- tools: Read / Glob / Grep / Bash(git diff|log|show) / `lattice bug_report`
+- tools: Read / Glob / Grep / Bash(git diff|log|show) / `proof-or-stop bug_report`
 - **cannot Edit / Write** — it only diagnoses, it does not fix
 - **cannot story_advance** — phase advancement is the main agent's business
 
@@ -514,7 +514,7 @@ The analyst's tightened permissions:
 **Checklist**
 
 1. **title**: Create `.claude/agents/lattice-test-analyst.md`
-   **context**: frontmatter: name, whenToUse="Use when lattice test phase fails and needs root cause analysis", tools (Read/Glob/Grep/Bash allowlist), disallowedTools (Edit/Write/NotebookEdit), permissionMode: acceptEdits, isolation: worktree (reuse the story worktree)
+   **context**: frontmatter: name, whenToUse="Use when proof-or-stop test phase fails and needs root cause analysis", tools (Read/Glob/Grep/Bash allowlist), disallowedTools (Edit/Write/NotebookEdit), permissionMode: acceptEdits, isolation: worktree (reuse the story worktree)
 
 2. **title**: Write the diagnosis workflow in the system prompt
    **context**: 5 steps: (1) read testResult.firstFailure.stdoutTail (2) git diff HEAD to see recent changes (3) read the source files of the failing cases (4) classify the root cause (5) write bug.json or return a decision. Particularly emphasize: cannot touch code/tests, can only write bug.json
@@ -721,7 +721,7 @@ Give the critique output a persistence location `docs/story/actives/B-xxxx/plan-
 }
 ```
 
-Two new lattice handlers:
+Two new proof-or-stop handlers:
 - `plan_critique_record`: called by the main agent in critique mode, appends critiques
 - `plan_critique_resolve`: called by the main agent after switching back to plan mode, marks resolve/dismiss
 
@@ -890,7 +890,7 @@ Details left blank. The Wave 3 checklist will be filled in when we actually ente
 
 **Description**
 
-Done alongside S-02. Add a layer of role check at the common entry of the lattice handler:
+Done alongside S-02. Add a layer of role check at the common entry of the proof-or-stop handler:
 
 ```ts
 const ROLE_ARTIFACT_WRITE: Record<string, Set<string>> = {
@@ -1009,22 +1009,22 @@ After each rollback, a retrospective (review.md) must be written, answering at l
 
 **Do not split into 4 independent agents at once**. Split out the most certain one first (implementer), and use 2 weeks of data to verify whether role isolation can reduce the real pain points. If it can, then make test execution deterministic (Wave 1). If that is OK too, then try the adversarial role with self-critique mode (Wave 2). Only if self-critique is not enough do we consider an independent red-team agent (Wave 3).
 
-Every wave has a mandatory gate story and a rollback playbook. The gate's data decision matters more than the coding itself — that is the step that truly decides what lattice looks like.
+Every wave has a mandatory gate story and a rollback playbook. The gate's data decision matters more than the coding itself — that is the step that truly decides what proof-or-stop looks like.
 
 ---
 
 ## Advisory Read-Only Reviewer Mode (`LATTICE_REVIEWER_READONLY=1`)
 
 Some workflows delegate read-only review to an external Claude/Codex/Gemini process that is
-**not** a normal Proofbound gate reviewer. These advisory reviewers should not be able to call
-mutating Proofbound commands — they are expected to return structured text or JSON findings to the
+**not** a normal Proof-or-Stop gate reviewer. These advisory reviewers should not be able to call
+mutating Proof-or-Stop commands — they are expected to return structured text or JSON findings to the
 owner session, which then records evidence through the normal gate.
 
 ### Dispatch rule for owner agents
 
 When an **owner session** launches an advisory external reviewer (Claude/Codex/Gemini), it
 **must** set `LATTICE_REVIEWER_READONLY=1` on that spawned process only — not on the owner
-session itself or on any normal Proofbound gate reviewer subagent.
+session itself or on any normal Proof-or-Stop gate reviewer subagent.
 
 ```bash
 # Correct: sandbox only the advisory process
@@ -1035,7 +1035,7 @@ LATTICE_REVIEWER_READONLY=1 claude --model sonnet ... --prompt "inspect src/ and
 ```
 
 The owner instructs the advisory reviewer to return structured JSON or plain-text findings and
-**explicitly prohibits** the reviewer from calling any of the following Proofbound commands:
+**explicitly prohibits** the reviewer from calling any of the following Proof-or-Stop commands:
 
 - `review_pass_set` — would forge a gate-pass artifact
 - `finding_add` — would forge a signed finding
@@ -1062,9 +1062,9 @@ When set on a spawned reviewer process:
 
 ### Advisory reviewer output is not gate evidence
 
-A read-only reviewer cannot produce a Proofbound `review_pass_set` record, a signed `finding_add`
+A read-only reviewer cannot produce a Proof-or-Stop `review_pass_set` record, a signed `finding_add`
 entry, or any other lifecycle artifact. Owner sessions that receive advisory reviewer output
-must explicitly call the relevant Proofbound commands themselves to materialize evidence.
+must explicitly call the relevant Proof-or-Stop commands themselves to materialize evidence.
 
 ### If LATTICE_REVIEWER_READONLY was omitted
 
@@ -1073,14 +1073,14 @@ the owner must treat the reviewer's output as **non-sandboxed advisory text** an
 scrutiny before recording any evidence:
 
 1. **Do not assume the reviewer only read.** The reviewer may have called mutating commands.
-   Check `lattice finding_list`, `lattice story_get`, and relevant artifact files (e.g.
+   Check `proof-or-stop finding_list`, `proof-or-stop story_get`, and relevant artifact files (e.g.
    `review-passes.json`, `init-check.json`) to see if the reviewer wrote anything unexpected.
-2. **Verify each claim independently** using `lattice` commands or direct file inspection before
+2. **Verify each claim independently** using `proof-or-stop` commands or direct file inspection before
    calling `finding_add`, `review_pass_set`, or `verification_evidence_add`.
 3. **Discard any gate artifacts** (finding hashes, review pass records) that appear to have
    been written by the advisory reviewer directly — re-run or re-record them through the owner.
 
-### Normal Proofbound gate reviewers must NOT set this mode
+### Normal Proof-or-Stop gate reviewers must NOT set this mode
 
 Standard reviewers (`lattice-review-*` subagents in REVIEW phase) need to call `review_run_start`,
 `finding_add`, `review_pass_set`, `init_check_set`, `scope_check_save`, and
@@ -1101,7 +1101,7 @@ all of those calls and break the review lifecycle.
 
 ## References
 
-- `docs/requirements/decisions/cc-learnings.md` — the existing lattice refactor plan, the predecessor and baseline of this document
+- `docs/requirements/decisions/cc-learnings.md` — the existing proof-or-stop refactor plan, the predecessor and baseline of this document
 - `docs/requirements/decisions/task-checklist-cc-style.md` — the CC TodoWrite-style refactor, the source of this document's prompt pattern
 - `CC/src/tools/AgentTool/builtInAgents.ts` — CC's built-in sub-agent definitions, the reference for the implementer/test-analyst agent definitions
 - `packages/lattice/packages/main/src/handlers/story-advance.ts` — the B-7eed auto-merge implementation, the basis for the Wave 1 S-05 refactor

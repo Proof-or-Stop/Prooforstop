@@ -69,6 +69,23 @@ function jsonRun<T = any>(root: string, command: string, args: Record<string, un
   return JSON.parse(run(root, command, { ...args, json: true })) as T;
 }
 
+// B-a7c5 CHK-001: canStartDevGuard/canSkipPlanGuard/canReenterDevGuard now ALSO
+// require a dev-memory preflight acknowledgement, checked BEFORE the
+// ProofStory DEV gate this file exists to test. Every fixture writes a
+// satisfying ack up front -- otherwise assertDevAdmissionBlocked would
+// observe missing_dev_memory_preflight_ack instead of the ProofStory-specific
+// block/message this file exists to test.
+function ackDevMemoryPreflightForProofstory(store: StoryStore, storyId: string): void {
+  store.writeDevMemoryPreflightAck(storyId, {
+    schemaVersion: 'lattice.dev_memory_preflight_ack.v1',
+    storyId,
+    packDigest: 'proofstory-intent-hardening-smoke-synthetic-digest',
+    topHitIds: [],
+    acknowledgedAt: new Date().toISOString(),
+    acknowledgedBy: 'proofstory-intent-hardening-smoke',
+  });
+}
+
 function writeLifecycleGateBlockedStory(store: StoryStore, storyId: string, phase: Extract<StoryPhase, 'REVIEW' | 'TEST'>): void {
   const now = new Date().toISOString();
   store.writeStory(storyId, {
@@ -99,6 +116,7 @@ function writeLifecycleGateBlockedStory(store: StoryStore, storyId: string, phas
       },
     }],
   });
+  ackDevMemoryPreflightForProofstory(store, storyId);
 }
 
 function assertDevAdmissionBlocked(root: string, store: StoryStore, storyId: string, currentPhase: Extract<StoryPhase, 'PLAN' | 'REVIEW' | 'TEST'>): void {
@@ -192,6 +210,7 @@ try {
   const checklist: ChecklistData = { items: checklistItems };
   store.writeStory(storyId, story);
   store.writeChecklist(storyId, checklist);
+  ackDevMemoryPreflightForProofstory(store, storyId);
   git(root, ['add', '.lattice']);
   git(root, ['commit', '-m', 'story metadata']);
 
@@ -1630,6 +1649,7 @@ try {
   assert.equal(typoGate.missingRedEvidence.length, 0, 'documented typo example has no red evidence diagnostic gap');
   assert.equal(typoGate.scopeAmbiguity.length, 0, 'documented typo example has no scope ambiguity diagnostic gap');
 
+  console.log(`LATTICE_FULL_SUITE_SUMMARY=${JSON.stringify({ assertions: ['intent-hardening-matrix', 'scope-collision', 'red-evidence', 'milestone-intent'], mutations: ['scope-ambiguity', 'collision-omission', 'red-evidence-omission', 'milestone-coverage-omission'] })}`);
   console.log('ProofStory intent hardening smoke passed');
 } finally {
   rmSync(root, { recursive: true, force: true });

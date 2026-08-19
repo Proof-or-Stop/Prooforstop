@@ -1,0 +1,191 @@
+{
+  "storyId": "B-cdf6",
+  "name": "rename-lattice-to-proof-or-stop-docs",
+  "title": "Rename the lattice CLI brand to proof-or-stop: bin, active docs, and brand-pinned gates",
+  "description": "The command tool and product are being rebranded from lattice to proof-or-stop. Replace every lattice brand mention in ACTIVE documentation with the appropriate proof-or-stop form, and rename the user-facing CLI invocation so the docs stay truthful. Scope boundaries that must hold: (1) frozen historical records under .lattice/story/ are an audit trail and must NOT be rewritten; (2) signature salt literals such as lattice-review-integrity-v1 are hashed into stored _hash fields on live artifacts, so renaming them would invalidate every existing signature and gate-block all active stories; (3) the .lattice/ on-disk state directory and lattice-* agent role IDs may only move if code, host shims and docs move atomically. Docs must never claim a command or path that does not actually work.",
+  "type": "refactor",
+  "phase": "DONE",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "Security/Credentials",
+      "matched": "token"
+    },
+    {
+      "category": "State Machine/Gate",
+      "matched": "TEST gate"
+    },
+    {
+      "category": "Validation Framework",
+      "matched": "lattice validate"
+    }
+  ],
+  "createdAt": "2026-08-10T17:34:12.215Z",
+  "startedAt": "2026-08-10T17:34:12.215Z",
+  "endedAt": "2026-08-17T06:59:56.369Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-08-10T17:34:12.790Z",
+      "branch": "main",
+      "user": "qipan",
+      "sessionId": "sess-3be919ab7a0f6cdaa2f48fcda27f7e8b",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-08-10T18:14:43.518Z",
+      "branch": "main",
+      "user": "Pan Qi",
+      "sessionId": "sess-3be919ab7a0f6cdaa2f48fcda27f7e8b",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-08-10T18:15:34.496Z",
+      "branch": "story/B-cdf6",
+      "user": "Pan Qi",
+      "sessionId": "sess-9a7d88c7fd9facada1536ec0cf731786",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-11T03:45:32.087Z",
+      "branch": "story/B-cdf6",
+      "user": "Pan Qi",
+      "sessionId": "sess-9a7d88c7fd9facada1536ec0cf731786",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-11T19:24:58.503Z",
+      "branch": "story/B-cdf6",
+      "user": "Pan Qi",
+      "sessionId": "sess-c6bba4b3dfe060d4",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-12T05:33:32.916Z",
+      "branch": "story/B-cdf6",
+      "user": "Pan Qi",
+      "sessionId": "sess-c6bba4b3dfe060d4",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-12T05:39:22.640Z",
+      "branch": "story/B-cdf6",
+      "user": "Pan Qi",
+      "sessionId": "sess-c6bba4b3dfe060d4",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-12T07:53:22.490Z",
+      "branch": "story/B-cdf6",
+      "user": "Pan Qi",
+      "sessionId": "sess-c6bba4b3dfe060d4",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-12T07:54:43.806Z",
+      "branch": "story/B-cdf6",
+      "user": "Pan Qi",
+      "sessionId": "sess-c6bba4b3dfe060d4",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-13T05:19:28.280Z",
+      "branch": "story/B-cdf6",
+      "user": "Pan Qi",
+      "sessionId": "sess-c6bba4b3dfe060d4",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-13T05:25:24.496Z",
+      "branch": "story/B-cdf6",
+      "user": "Pan Qi",
+      "sessionId": "sess-c6bba4b3dfe060d4",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-16T08:05:55.174Z",
+      "branch": "story/B-cdf6",
+      "user": "Pan Qi",
+      "sessionId": "sess-c6bba4b3dfe060d4",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-16T08:06:30.924Z",
+      "branch": "story/B-cdf6",
+      "user": "Pan Qi",
+      "sessionId": "sess-c6bba4b3dfe060d4",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-08-16T08:54:19.459Z",
+      "branch": "story/B-cdf6",
+      "user": "Pan Qi",
+      "sessionId": "sess-c6bba4b3dfe060d4",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-17T02:24:41.542Z",
+      "branch": "story/B-cdf6",
+      "user": "Pan Qi",
+      "sessionId": "sess-c6bba4b3dfe060d4",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-17T02:24:56.778Z",
+      "branch": "story/B-cdf6",
+      "user": "Pan Qi",
+      "sessionId": "sess-c6bba4b3dfe060d4",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-08-17T06:16:42.784Z",
+      "branch": "story/B-cdf6",
+      "user": "Pan Qi",
+      "sessionId": "sess-c6bba4b3dfe060d4",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-08-17T06:59:56.369Z",
+      "branch": "story/B-cdf6",
+      "user": "Pan Qi",
+      "sessionId": "sess-c6bba4b3dfe060d4",
+      "agent": "main"
+    }
+  ],
+  "currentReviewRound": "2026-08-17T02:24:56.778Z"
+}

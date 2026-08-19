@@ -1,13 +1,13 @@
 # ProofStory Acceptance Topology and Pre-Review Gates — Execution Plan
 
-Status: **WAVES 1/1A/2/2A/3 IMPLEMENTED — WAVE 3A SKIPPED FOR FLAT ROLLOUT — WAVE 4 NOT IMPLEMENTED**
+Status: **WAVES 1/1A/2/2A/3/4 IMPLEMENTED — WAVE 3A SKIPPED FOR FLAT ROLLOUT**
 Story: `B-4444`  
 Motivating incident: `B-407c` (evidence only; no changes to that Story)  
 Decision owner: human approval after document audit
 
 ## 1. Executive decision
 
-Proofbound should not add a separately writable `acceptance_matrix` artifact.
+Proof-or-Stop should not add a separately writable `acceptance_matrix` artifact.
 The milestone ledger and ProofStory contract already own the facts from which an
 acceptance matrix would be built. A second store would introduce precedence,
 synchronization, and false-completion risks.
@@ -36,9 +36,10 @@ its own existence.
 This document records the staged design and its implementation status.
 `B-4444` was the audited documentation deliverable; subsequent implementation
 Stories shipped Waves 1, 1A, 2, 2A, and 3. Wave 3A was intentionally skipped
-because the current rollout is flat and project-wide. Wave 4 remains future
-work; this document does not claim prompt integration or measured rollout is
-complete.
+because the current rollout is flat and project-wide. Wave 4 implements only
+that flat boundary: prompt integration, verifier-owned measured cohorts, and
+opt-in project enforcement. It does not claim selective high-risk applicability
+or production/public authority.
 
 ### 1.1 Guarantee boundary
 
@@ -85,15 +86,15 @@ The target outcome is not “eliminate REVIEW.” It is:
 
 ## 3. Current implementation versus target
 
-| Surface | Current implementation through Wave 3 | Remaining target |
+| Surface | Current implementation through Wave 4 | Remaining target |
 |---|---|---|
 | `MilestoneLedgerItem` | Owns requirement claim, `doneMeans`, required evidence classes, checklist refs, verification-intent refs, and candidate/confirmed intent binding | Remains unchanged as the canonical intent-totality ledger |
 | `ProofStoryAcceptanceBinding` | Owns an acceptance binding ID plus claim/checklist/intent/milestone refs and optional versioned `verificationTopology` | No separate writable matrix |
 | `verificationIntent` | Declares planned happy, edge, and adversarial scenarios plus optional versioned planned-path declarations; topology references stable intent/declaration/endpoint IDs | Remains checklist-scoped |
 | `verificationEvidence` | Records observed command/manual/docs results against intent refs | Remains the observation store; topology references evidence IDs/receipts rather than copying results |
-| ProofStory DEV diagnostics | Check intent artifacts, known refs, coverage, and structural topology through `acceptance_topology_check` | Wave 4 measures rollout behavior |
+| ProofStory DEV diagnostics | Check intent artifacts, known refs, coverage, and structural topology through `acceptance_topology_check` | Wave 4 measures rollout behavior through a signed frozen cohort |
 | `evaluateReviewCompleteness` | At REVIEW → TEST, checks bound intent refs have passing evidence | Remains in place; consumes the stronger topology after implementation |
-| DEV → REVIEW transition | Consumes `pre_review_check` under the configured flat project rollout mode | Wave 4 may promote the measured project-level mode |
+| DEV → REVIEW transition | Consumes `pre_review_check` and the flat rollout report under independently configured modes | Wave 4 enforce blocks only on the same mode-invariant rollout diagnostics |
 | Acceptance matrix | Derived read-only rendering; no canonical writable artifact | Remains non-evidentiary |
 
 The current source facts behind this table are in:
@@ -545,7 +546,7 @@ For example:
   "status": "complete",
   "generatedBy": {
     "verifier": "acceptance-coverage-basis-verifier",
-    "command": "lattice acceptance_basis_generate --storyId=B-4444",
+    "command": "proof-or-stop acceptance_basis_generate --storyId=B-4444",
     "algorithmVersion": "v1"
   },
   "discoveryProfileRef": "profile:typescript-proof-gate:plan:v1",
@@ -654,7 +655,7 @@ above:
   "status": "complete",
   "generatedBy": {
     "verifier": "acceptance-coverage-basis-verifier",
-    "command": "lattice pre_review_check --storyId=B-4444",
+    "command": "proof-or-stop pre_review_check --storyId=B-4444",
     "algorithmVersion": "v1"
   },
   "discoveryProfileRef": "profile:typescript-proof-gate:pre-review:v1",
@@ -749,8 +750,9 @@ above:
 ```
 
 The PLAN and pre-REVIEW refs, receipts, and digests are deliberately different.
-The example illustrates the target shape only. It is not a claim that this
-schema or command exists.
+The example is an illustrative, abridged shape of the implemented canonical
+schema and command; omitted fields and values remain governed by the runtime
+schema and verifier.
 
 ### 5.4 PLAN-safe new-path example
 
@@ -1155,13 +1157,16 @@ target. A formatted arbitrary digest, stale runner, or stale/overwritten `dist` 
 not executable evidence; a fresh runner build and proof issuance restores admissibility.
 
 The machine records come from the bounded production pre-review scenario suite, not from replaying
-the topology as a data structure. Its ledger binds the four positive paths and the seventeen
+the topology as a data structure. Its ledger binds the five positive paths and the seventeen
 adversarial intents to their executed checks: deterministic projection; producer/read/lifecycle
 parity; signed-field tamper; authority replay; planned-to-actual and discovery-state mutations;
 topology omission; adapter/reconciliation tamper; wrong-polarity plus clean rerun; transcript
 cardinality; bypass attempts; equal-cutoff freshness; legacy/config rollback; stable direct versus
 lifecycle codes; critic freshness/replay; the process-fact contract; and the no-later-wave scan.
 The transcript case consumes the producer/consumer events recorded by that execution.
+The canonical inventory is exactly **5 positive / 17 mutation / 1 transcript**; the
+process-fact contract checks this cardinality so documentation cannot silently lag the
+registered executable catalog.
 That bounded mode executes the production producer/read/lifecycle chain and
 the required exact-cardinality, authority, planned→actual, restoration, and
 tamper mutations within the fixed live-smoke safety ceiling. Merely printing a
@@ -1298,22 +1303,27 @@ Every cell is a link or ID derived from canonical inputs. The result column is a
 computed diagnostic such as `structurally-complete`, `ready-for-review`,
 `warning`, or `blocked`; it is not persisted as a new completion fact.
 
-Implemented command surface through Wave 3:
+Implemented command surface through Wave 4:
 
 ```text
-lattice acceptance_basis_generate --storyId=B-xxxx [--json]
-lattice acceptance_basis --storyId=B-xxxx [--json]
-lattice acceptance_topology_check --storyId=B-xxxx [--json]
-lattice pre_review_check --storyId=B-xxxx [--json]
-lattice pre_review_check_read --storyId=B-xxxx [--json]
-lattice acceptance_matrix --storyId=B-xxxx [--json]   # read-only renderer
+proof-or-stop acceptance_basis_generate --storyId=B-xxxx [--json]
+proof-or-stop acceptance_basis --storyId=B-xxxx [--json]
+proof-or-stop acceptance_topology_check --storyId=B-xxxx [--json]
+proof-or-stop pre_review_check --storyId=B-xxxx [--json]
+proof-or-stop pre_review_check_read --storyId=B-xxxx [--json]
+proof-or-stop acceptance_rollout_report --storyId=B-xxxx [--json]
+proof-or-stop acceptance_rollout_report_read --storyId=B-xxxx [--json]
+proof-or-stop acceptance_rollout_check --storyId=B-xxxx [--json]
+proof-or-stop acceptance_matrix --storyId=B-xxxx [--json]   # read-only renderer
 ```
 
-Implementation status through Wave 3: `acceptance_topology_check`,
+Implementation status through Wave 4: `acceptance_topology_check`,
 `pre_review_check`, and `acceptance_matrix` exist. The PLAN basis writer is
 named `acceptance_basis_generate`; `pre_review_check_read` is the explicit
 read-only pre-review verifier. Wave 3A was skipped under the flat project-level
-rollout. Wave 4 remains outside this status and is not implemented.
+rollout. Wave 4 adds the three rollout commands above, a signed
+`acceptance-rollout-report.json`, and the flat DEV→REVIEW consumer. No selective
+per-Story applicability is inferred.
 
 ## 12. Rollout and rollback
 
@@ -1511,8 +1521,8 @@ structural semantics under its existing observe/warn/enforce rollout. A critic
 receipt was produced and verified through the explicit CLI set/check path; its
 absence or failure could not independently block PLAN → DEV. Those Wave 2A
 mechanics did not themselves imply later-wave completion. Wave 3 executable
-evidence was implemented separately; Wave 3A selective applicability and Wave 4
-rollout remain outside the implemented scope.
+evidence was implemented separately; Wave 3A selective applicability remains
+outside the implemented flat Wave 4 scope.
 
 ### Wave 3 — Executable pre-review evidence
 
@@ -1553,7 +1563,7 @@ proof-gate Stories.
 
 ### Wave 4 — Prompt integration and measured rollout
 
-Status: **NOT IMPLEMENTED**
+Status: **IMPLEMENTED — FLAT PROJECT BOUNDARY**
 
 Outcome: update role guidance, enable warn telemetry, measure impact, and opt in
 bounded project-level enforcement. Selective high-risk per-Story enforcement is
@@ -1565,6 +1575,33 @@ is additionally required for selective per-Story or per-policy enforcement.
 Exit: current 3×2 high-risk review/quorum; false-pass and false-block thresholds
 met; rollback tested; no degraded 3×1 evidence is labeled authority.  
 Stop: review rounds fall only because checks were weakened or waivers increased.
+
+Implemented contract:
+
+- `runProofStoryAcceptanceRolloutCohort` materializes and reads back real
+  temporary Story artifact trees. Every row runs the production
+  `acceptance_topology_check` and `pre_review_check` paths, then records real
+  reviewer runs/passes and a production `quorum_submit` metadata commit. The
+  verifier checks that commit's exact six `host_verdict` rows before signing the
+  observation. Callers cannot supply detected/blocked outcomes, review-round or
+  usage totals, adapter identity, or quorum claims.
+- `deriveAcceptanceRolloutReport` requires at least three matched baseline /
+  candidate pairs in each arm and computes the report from source records. The
+  registered measured run contains three seeded defect pairs plus docs-only,
+  legacy, and ordinary false-block control pairs.
+- Promotion requires every registered seed detected, overall false-pass count
+  zero, supported omission detection 100%, false-block rate zero, mislabeled
+  3×1 count zero, waiver delta `<= 0`, non-shrinking check inventory, supported
+  `codex-cli+claude-cli` adapters, and genuine three-round/two-host evidence.
+- `acceptance_rollout_report` is the sole signed report writer;
+  `acceptance_rollout_report_read` and `acceptance_rollout_check` are read-only.
+  DEV→REVIEW consumes the same evaluator. Observe, warn, and enforce keep the
+  same status and ordered diagnostics; only enforce blocks.
+- Rollback changes only `proofStory.acceptanceRolloutGateMode` to `warn` or
+  `observe`. It never deletes or rewrites a report, receipt, failed attempt, or
+  prior evidence.
+- The measured output is local full-3×2 assurance. It is not a release,
+  production, public-authority, or selective high-risk claim.
 
 Each wave is a separate Story unless its scope reviewer proves a smaller safe
 decomposition. A wave cannot claim later-wave completion.
@@ -1669,6 +1706,35 @@ Initial success is not “zero review findings.” A healthy target is fewer rep
 findings for already-known obligation classes while independent REVIEW continues
 to find genuinely unmodeled issues.
 
+Wave 4 measured flat cohort:
+
+The canonical test producer executes the twelve hermetic production cases with
+a bounded three-process pool. The focused consumer then reuses that exact
+verifier-owned frozen cohort after proving the copied runner digest is
+byte-identical; it does not regenerate the same cohort a second time. All six
+pairs, signed source records, mutation diagnostics, and the real consumer
+enforce/rollback checks remain unchanged.
+
+| Metric | Result |
+|---|---|
+| Seeded matched pairs | `3` baseline + `3` candidate |
+| False-block control pairs | docs-only `1`, legacy `1`, ordinary `1` per arm |
+| Registered seed detection | `3/3` (`100%`) |
+| Overall seeded false passes | `0` |
+| Supported omission detection | `1/1` (`100%`) |
+| False blocks | `0` |
+| Mislabeled degraded 3×1 | `0` |
+| Waiver delta | `0` across the full six-pair cohort |
+| Check inventory shrinkage | `0` |
+| Counted adapter/quorum | `codex-cli + claude-cli`, three rounds, `full-3x2` |
+
+The focused smoke replays membership omission/ineligible/window/digest/N<3,
+incomplete campaigns, signed-observation and gate-result tamper, degraded 3×1
+receipt truncation, real transition consumption, exact restoration, mode
+invariance, and non-destructive rollback. The registered cohort separately
+executes omission, forgery, freshness, docs-only, legacy, and ordinary cases
+through the production gate and quorum paths.
+
 ## 18. Risks and pre-mortem
 
 | Failure scenario | Trigger | Consequence | Mitigation |
@@ -1696,27 +1762,27 @@ to find genuinely unmodeled issues.
 | REVIEW metrics improve deceptively | More waivers or fewer checks | Quality regression | Track false pass/block, waivers, and seeded defects |
 | 3×1 is reported as 3×2 | Host identity not bound | Fake independence | Existing signed host quorum only |
 
-## 19. Decision record and remaining Wave 4 questions
+## 19. Decision record and resolved Wave 4 policy
 
 1. **Resolved:** `verificationTopology` is nested on each acceptance binding in
    the same `proofstory.json` envelope.
-2. Which claim classes require transcript assertions by default: all
-   user-visible/orchestration claims, or a narrower configured taxonomy?
-3. Which claim classes require mutation cases by default? The proposed default is
-   behavior, lifecycle, proof, and safety claims, with docs-only exemptions.
+2. **Resolved in Wave 4:** all user-visible and orchestration claims require
+   transcript assertions.
+3. **Resolved in Wave 4:** behavior, lifecycle, proof, and safety claims require
+   biting mutation cases; docs-only is exempt.
 4. **Resolved for Waves 1–3:** DEV → REVIEW uses the existing flat project-level
    ProofStory gate mode.
-5. What measured thresholds authorize warn → enforce (false-block rate, seeded
-   defect detection, minimum Story sample size)? These must be set before Wave 4.
+5. **Resolved in Wave 4:** at least three matched pairs in each arm; every
+   registered seed detected; overall false-pass zero; supported omission
+   detection 100%; false-block zero; mislabeled 3×1 zero; waiver delta `<=0`;
+   inventory non-shrinking.
 6. **Resolved:** `acceptance_matrix` is the dedicated L0/read-only renderer.
 7. **Resolved for the current rollout:** enforcement remains project-wide and
    flat. Selective enforcement requires a future Wave 3A implementation.
-8. Which discovery adapters are sufficient to classify each supported
-   language/framework as `complete`, and which combinations require runtime
-   traces? The reconciliation rule is already fixed: union all discovered paths,
-   and unexplained disagreement yields `partial`. Until adapter sufficiency is
-   answered, unsupported adapters must return `partial` or `unsupported`, never
-   optimistic completeness.
+8. **Resolved for the implemented flat Wave 4 boundary:** only the registered
+   combined `codex-cli+claude-cli` profile counts. Unknown, partial, unsupported,
+   missing, or disagreeing adapters fail promotion. Broader framework profiles
+   remain unsupported, never optimistic completeness.
 9. **Resolved:** the signed coverage basis is a dedicated durable verifier-owned
    process artifact with non-caller-writable path inventory.
 10. **Resolved in Wave 2A:** registered critic/exclusion roles and signed
@@ -1727,8 +1793,8 @@ to find genuinely unmodeled issues.
 Mark **Pass** only if every required row below is true. Otherwise mark
 **Request changes** and cite the section/row.
 
-- [ ] The document accurately marks Waves 1/1A/2/2A/3 implemented, Wave 3A
-      skipped under flat rollout, and Wave 4 not implemented.
+- [ ] The document accurately marks Waves 1/1A/2/2A/3/4 implemented and Wave 3A
+      skipped under the flat rollout, without implying selective applicability.
 - [ ] Milestone ledger remains the canonical intent-totality and `doneMeans`
       owner.
 - [ ] ProofStory acceptance bindings remain the acceptance-claim reference owner.
@@ -1809,8 +1875,8 @@ Mark **Pass** only if every required row below is true. Otherwise mark
       the independently derived basis, and the gate fails.
 - [ ] Success metrics include false passes, false blocks, waiver use, and total
       cost—not only fewer REVIEW rounds.
-- [ ] Remaining Wave 4 decisions are resolved or explicitly accepted before
-      Wave 4 implementation.
+- [ ] Wave 4 thresholds, adapters, current-receipt, full-3×2, and rollback
+      boundaries match the executable evaluator and focused smoke.
 
 Audit result:
 

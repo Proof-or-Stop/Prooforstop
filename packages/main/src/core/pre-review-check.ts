@@ -21,7 +21,12 @@ import { verifyAcceptanceBasisReceipt } from './acceptance-basis-receipt.js';
 import { verifyAcceptanceCoverageBasis } from './acceptance-coverage-basis.js';
 import { latestCausallyValidCloseoutReceipt } from './closeout-trust.js';
 import { evaluateLiveSmokeTranscriptValue } from './live-smoke-transcript-evidence.js';
-import { canonicalPreReviewAssertionSourceRef, decodePreReviewCaseRecords, preReviewExecutableProvenanceIsCurrent } from './pre-review-live-proof.js';
+import {
+  canonicalPreReviewAssertionSourceRef,
+  decodePreReviewCaseRecords,
+  preReviewExecutableProvenanceIsCurrent,
+} from './pre-review-live-proof.js';
+import { readBrandEnv } from './brand-env.js';
 
 const KEY_FILE = 'lattice-pre-review-check-verifier-v1.key';
 const EXECUTABLE_PROOF_PREFIX = 'PROOFSTORY_PRE_REVIEW_PROOF=';
@@ -125,7 +130,7 @@ export function loadVerifiedPreReviewExecutableProof(input: {
   cutoffAt: string;
   storyFilesHash: string;
 }): PreReviewExecutableProofV1 | null {
-  const reject = (reason: string): null => { if (process.env.LATTICE_DEBUG_PRE_REVIEW_PROOF === '1') process.stderr.write(`[pre-review-proof] ${reason}\n`); return null; };
+  const reject = (reason: string): null => { if (readBrandEnv('DEBUG_PRE_REVIEW_PROOF') === '1') process.stderr.write(`[pre-review-proof] ${reason}\n`); return null; };
   const canonicalGitCwd = realpathSync(input.gitCwd);
   const canonicalMetadataRoot = realpathSync(input.metadataRoot);
   const canonicalStoryDir = realpathSync(input.storyDir);
@@ -185,7 +190,8 @@ export function loadVerifiedPreReviewExecutableProof(input: {
   const assertionsById = new Map(assertionRows);
   const exactKindsAndSources = records.every(record => {
     const expected = assertionsById.get(record[0]);
-    return expected?.[0] === record[1] && canonicalPreReviewAssertionSourceRef(expected[1]) === record[9];
+    return expected?.[0] === record[1]
+      && canonicalPreReviewAssertionSourceRef(expected[1]) === record[9];
   });
   const distinctMutationTargets = new Set(mutations.map(record => `${record[2]}\0${record[3]}`)).size === mutations.length;
   const outcomesBite = records.every(record => record[5] === record[6] && record[7] === true);
@@ -314,9 +320,9 @@ function executableProofState(contract: ProofStoryContractData | null, proof: Pr
 
 function remediationFor(codes: readonly PreReviewCheckCodeV1[]): string[] {
   return stable(codes.map(code => code === 'PR_ARTIFACT_MISSING'
-    ? 'Run lattice pre_review_check --storyId=<id> after recording a current canonical live_smoke_transcript proof.'
+    ? 'Run proof-or-stop pre_review_check --storyId=<id> after recording a current canonical live_smoke_transcript proof.'
     : code === 'PR_ARTIFACT_TAMPERED'
-      ? 'Discard the invalid pre-review artifact and reissue it through lattice pre_review_check; do not edit StoryStore files directly.'
+      ? 'Discard the invalid pre-review artifact and reissue it through proof-or-stop pre_review_check; do not edit StoryStore files directly.'
       : code === 'PR_TOPOLOGY_CRITIC_REATTESTATION_REQUIRED'
         ? 'Obtain a fresh independent topology critic receipt bound to the current pre-review basis, then reissue pre_review_check.'
         : 'Repair the reported PR_* condition, recapture verifier-owned executable proof, and reissue pre_review_check.'));

@@ -7,7 +7,10 @@
  */
 export const COMPLEX_ROLE_PROMPT_BUDGETS = Object.freeze({
   roleContractBytes: 12_000,
-  implementerRoleContractBytes: 10_000,
+  // B-4043: raised from 10_000 — the implementer prompt now carries the
+  // acceptance-rollout boundary guidance moved out of the host shim, matching
+  // its sibling complex roles' role-body budget.
+  implementerRoleContractBytes: 12_000,
   incrementalBytes: 27_000,
   fullBytes: 44_000,
 });

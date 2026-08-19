@@ -1,0 +1,668 @@
+{
+  "findings": [
+    {
+      "id": "B-6693:F-001",
+      "desc": "packages/main/src/core/validation-execution-lock.ts:177-191 and packages/main/src/core/mkdir-lock.ts:279-286 — HIGH: workspace-capacity stale recovery is not identity-conditional. acquireMkdirLock reads holder A, then classifyValidationCapacityLock re-reads heartbeat from the mutable fixed path; if A releases and live successor B acquires between those reads, the A/B mismatch is classified stale and rmSync(lockDir,{recursive:true}) deletes B. A waiter can then acquire alongside B, violating the one-official-validation invariant. Use an identity-stable unique-ticket/compare-and-delete reclaim (or revalidate the same ownership token atomically) and add an ABA successor race regression; static mismatch fixtures do not cover this interleaving.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-15T00:38:00.807Z",
+      "reviewRound": "2026-08-15T00:32:05.278Z",
+      "reviewRunId": "B-6693:RR-001",
+      "_hash": "a94229f3ab119600601076f0d113b8f2100a2ecb3499765ce54cec413603afd1",
+      "files": [
+        "packages/main/src/core/validation-execution-lock.ts",
+        "packages/main/src/core/mkdir-lock.ts",
+        "packages/main/src/tasks/validate-execution-lock-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-core",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commit 6c85b1143c: fixed-path capacity reclaim was replaced by never-reused UUID bakery tickets with atomic exact-ticket quarantine; stale A cleanup cannot delete successor B. Covered by 20-round 12-waiter ABA stress with maxConcurrency=1.",
+      "resolvedAt": "2026-08-15T11:20:38.748Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-6693:F-002",
+      "desc": "packages/main/src/core/validation-execution-lock.ts:207-225,238-241,421-424; packages/main/src/handlers/verifier.ts:1066-1077 — the capacity key is derived from options.root even though the handler already passes the resolved signed git workspace as workspaceRoot. In a supported bare metadataRoot/configured-gitRoot layout, git -C options.root fails and resolveSharedLockRoot silently falls back to the metadata wrapper, so the lease is not keyed by the repository git-common-dir as docs/CLI.md:907 and testing-infra.md:55 promise; separate wrappers over one repository can run official validations concurrently, and a transient git-probe failure similarly splits linked-worktree locks. Separate capacityRoot/workspaceRoot from the legacy story-evidence root, fail closed on an expected-git identity resolution failure, and add a wrapper-root/common-dir regression.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-15T00:38:23.634Z",
+      "reviewRound": "2026-08-15T00:32:05.278Z",
+      "reviewRunId": "B-6693:RR-001",
+      "_hash": "69cae9fe2ed81a49c9b24f6c00675d9c23571ad58482d163ed159010f026bde6",
+      "files": [
+        "packages/main/src/core/validation-execution-lock.ts",
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/src/handlers/done-required-validation.ts",
+        "packages/main/src/tasks/validate-execution-lock-smoke.ts",
+        "docs/CLI.md",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "signatureTag": "spec-boundary|ts|packages-main-core",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commit 6c85b1143c: workspace capacity identity is derived from the supplied workspaceRoot git-common-dir; official callers requireGitIdentity and fail closed in wrapper/non-git ambiguity. Linked-worktree and wrapper regressions pass.",
+      "resolvedAt": "2026-08-15T11:20:39.932Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-6693:F-003",
+      "desc": "packages/main/src/core/validation-execution-lock.ts:453 — stale-capacity takeover is not ownership-atomic. withWorkspaceValidationCapacity passes classifyValidationCapacityLock into acquireMkdirLock, whose stale branch classifies the observed holder and then recursively removes the shared path without atomically isolating/revalidating that exact ownership token (packages/main/src/core/mkdir-lock.ts:285-286). With multiple waiters, one waiter can reclaim the dead holder, a successor can acquire, and another waiter that already classified the old holder stale can delete the successor's live lease, breaking maxConcurrency=1. Reproduced against built HEAD with 12 worker threads and a mechanically dead seed: after 159 rounds, overlaps=1 and errors=8. Replace classify-then-rm with atomic stale-directory/token isolation before deletion and add a simultaneous multi-waiter stale-recovery regression.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-15T00:38:55.215Z",
+      "reviewRound": "2026-08-15T00:32:05.278Z",
+      "reviewRunId": "B-6693:RR-002",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-6693/background.md",
+          ".lattice/story/actives/B-6693/plan.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/handlers/done-required-validation.ts",
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-6693/checklist.json",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "79fc1b4777c7a1d459d062cd717d483f750657733863f103587245d5363a4797"
+      },
+      "readDiagnostics": [],
+      "_hash": "37e487afe054b734774951430c2a69ad7794ea2a7fbdccc87173660fe2d63ac9",
+      "files": [
+        "packages/main/src/core/validation-execution-lock.ts",
+        "packages/main/src/core/mkdir-lock.ts",
+        "packages/main/src/tasks/validate-execution-lock-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-core",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commit 6c85b1143c: classify-then-recursive-delete was removed from capacity acquisition; atomic rename isolates the exact UUID candidate before deletion, and failed rename remains active. Mechanical 12-waiter stress now passes with zero overlap.",
+      "resolvedAt": "2026-08-15T11:20:41.224Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-6693:F-004",
+      "desc": "packages/main/src/tasks/validate-execution-lock-smoke.ts:288-340,563-584,845-915,921-954,963-984 — HIGH: verificationEvidence records PASS for all 29 must intents, mostly by reusing the 5-group focused smoke, but the executable cases do not discriminate at least these required claims: CHK-001:happy:0 and CHK-001:adversarial:2 never run contending validators from two linked worktrees (only same-root handlers plus lock-path equality); CHK-001:edge:1 has abort coverage but no active-owner deadline case proving neither callback nor inner story lock is entered; CHK-002:happy:1 covers only validate -> done_required_validate, not the reverse order or both evidence artifacts; CHK-002:edge:1 never kills a live child owner with a queued successor; CHK-002:edge:2 never queues three waiters or asserts maxConcurrency=1/eventual entry; CHK-002:adversarial:0 only observes lock presence during persistence without a competing story or overwrite check; CHK-002:adversarial:1 does not integrate same-story official nesting with an independent queued process; CHK-003:happy:0 never validates DONE-required evidence hash bindings; CHK-003:edge:0/edge:1/edge:2 and CHK-003:adversarial:0 have no inventory+120/180/300 snapshot, read-only-command bypass, stale-evidence replacement, or bare-npm-test bypass cases. CHK-003:adversarial:1 additionally records only `npm --prefix packages/main run build`, omitting its required protected-file `git diff --exit-code` command. Therefore these regressions can survive while the focused command and 29/29 receipts remain green. Independent review reproduced focused PASS, protected-file zero diff, and exact-58 terminal PASS; the blocker is missing discriminating evidence, not an asserted implementation defect.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-15T00:39:31.127Z",
+      "reviewRound": "2026-08-15T00:32:05.278Z",
+      "reviewRunId": "B-6693:RR-004",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-6693/background.md",
+          ".lattice/story/actives/B-6693/checklist.json",
+          ".lattice/story/actives/B-6693/plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/handlers/done-required-validation.ts",
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b5293a06dd9649e28e1c138fe7b33e79f1e4bf51e97e3e3c8496d4db5e541773",
+      "files": [
+        "packages/main/src/tasks/validate-execution-lock-smoke.ts",
+        "packages/main/src/core/validation-execution-lock.ts",
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/src/handlers/done-required-validation.ts",
+        "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-tasks",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commit 6c85b1143c: expanded discriminating coverage includes linked worktrees, wrapper fail-closed identity, reverse validate/done evidence, killed owner and killed-before-publication, 12 waiters, reentrancy/sibling exclusion, deadline/abort no-inner, verdict writer capacity, bare/read-only bypass, and protected inventory/timeout zero diff. Full lock smoke passes 22 groups.",
+      "resolvedAt": "2026-08-15T11:20:42.571Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-6693:F-005",
+      "desc": "F-002 remains incompletely resolved for no-story validate. packages/main/src/handlers/verifier.ts:1066-1073 collapses unresolved project-level Git resolution to projectRoot, then decides requireGitIdentity only from Boolean(args.story) or the physical existence of <handlerGitCwd>/.git. In a metadata-wrapper project that explicitly configures gitRoot, an invalid or transiently failed Git probe makes resolveProjectGitCwd return the non-Git metadata root; because args.story is absent and that wrapper has no .git, requireGitIdentity becomes false. packages/main/src/core/validation-execution-lock.ts:249-264 then deliberately falls back to the wrapper root instead of failing closed, so this official no-story validate can mint a capacity namespace different from a live validation under the actual git-common-dir. Mechanical reproduction against current dist with an existing non-Git configured-repo printed {configuredGitRoot:\"configured-repo\", workspaceRoot:\"<metadata-wrapper>\", requireGitIdentity:false, capacityPath:\"<metadata-wrapper>/.lattice/locks/validation-capacity.lock\", underMetadataWrapper:true}; calling validationCapacityLockPath(wrapper,true) on the same identity rejects as intended. This contradicts docs/requirements/decisions/testing-infra.md:55 and docs/CLI.md:907, which promise that expected/configured Git identity resolution fails closed. The focused 11-group contract still passes because packages/main/src/tasks/validate-execution-lock-smoke.ts:1193-1216 calls withWorkspaceValidationCapacity directly with requireGitIdentity:true; it never drives the no-story verifier handler through a configured-gitRoot resolution failure. Preserve the genuine non-Git fallback, but derive expected-Git from the configured workspace contract/resolution result (not only args.story or .git existence) and add a handler-level wrapper regression proving callback non-entry on unresolved configured Git identity.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-15T11:27:06.503Z",
+      "reviewRound": "2026-08-15T11:20:16.320Z",
+      "reviewRunId": "B-6693:RR-005",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-6693/background.md",
+          ".lattice/story/actives/B-6693/plan.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/handlers/done-required-validation.ts",
+          "packages/main/src/handlers/verdict.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-6693/checklist.json",
+          "docs/CLI.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/story-signed-workspace-resolution.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "bbb93fcc6bb9815793a6458667293e3f05646e4d4b422a7bde8b98f3393bd5a9",
+      "files": [
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/src/core/story-signed-workspace-resolution.ts",
+        "packages/main/src/core/validation-execution-lock.ts",
+        "packages/main/src/tasks/validate-execution-lock-smoke.ts",
+        "docs/requirements/decisions/testing-infra.md",
+        "docs/CLI.md"
+      ],
+      "signatureTag": "adversarial|ts|remains-incompletely-resolved",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commit 6fcfb1c599: no-story validate now loads config once, treats an explicit configured gitRoot as authoritative, resolves it directly, and fails before capacity acquisition or callback when unresolved. Handler-level regression proves no wrapper lock is minted.",
+      "resolvedAt": "2026-08-15T11:36:18.126Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-6693:F-006",
+      "desc": "quality-cleanup: packages/main/src/core/validation-execution-lock.ts:593 ignores the boolean returned by quarantineValidationCapacityCandidate during release. A deterministic chmod fault probe made renameSync fail after a successful callback: withWorkspaceValidationCapacity still returned callback-ok, left its numbered .ticket owned by the still-live PID, and a same-process successor hit workspace validation capacity wait deadline exceeded. This violates CHK-002:edge:0 release/eventual-success semantics and can stall every later official validation in a long-lived CLI/MCP host without any release error. Treat release isolation failure explicitly (while preserving an original callback failure) and add fault-injection coverage for failed release rename/quarantine cleanup.",
+      "severity": "high",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-15T11:27:53.313Z",
+      "reviewRound": "2026-08-15T11:20:16.320Z",
+      "reviewRunId": "B-6693:RR-009",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-6693/background.md",
+          ".lattice/story/actives/B-6693/plan.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/core/validation-execution-lock.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-6693/checklist.json",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/done-required-validation.ts",
+          "packages/main/src/handlers/verdict.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3fa28651884ba24df718007eb341101a6190365c72ec51f6c58f5022fd0a468a",
+      "files": [
+        "packages/main/src/core/validation-execution-lock.ts",
+        "packages/main/src/tasks/validate-execution-lock-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|quality-cleanup-packages",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commit 6fcfb1c599: exact-ticket release uses bounded isolation retries; persistent failure is explicit after successful callback, preserves original callback errors, and marks only the owned UUID ticket mechanically reclaimable. Deterministic permission-failure regression proves repaired successor entry and no leak.",
+      "resolvedAt": "2026-08-15T11:36:19.100Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-6693:F-007",
+      "desc": "doc-code-drift: docs/CLI.md:907, docs/requirements/decisions/testing-infra.md:55, and docs/requirements/decisions/done-full-test-gate-execution-plan.md:30 state that persistent release-isolation failure marks the exact ticket mechanically reclaimable for a successor; the plan also says that failure is reported without replacing an original callback error. packages/main/src/core/validation-execution-lock.ts:486-514 explicitly allows markValidationCapacityTicketReleased to fail, leaving the ticket fail-closed and requiring filesystem repair. Lines 643-650 discard releaseError when the callback already failed, so that release failure is not separately reported. Update the docs to describe both marker-success recovery and marker-failure filesystem-repair branches, and state accurately that an original callback error takes precedence rather than claiming both errors are reported.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-15T11:38:52.215Z",
+      "reviewRound": "2026-08-15T11:36:01.591Z",
+      "reviewRunId": "B-6693:RR-011",
+      "_hash": "9bcb97e602275113abd4d74eb01ec02b2edce972d94a83ce3110dfc32b7e3b88",
+      "files": [
+        "docs/CLI.md",
+        "docs/requirements/decisions/testing-infra.md",
+        "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+        "packages/main/src/core/validation-execution-lock.ts"
+      ],
+      "signatureTag": "missing|md|code-drift-docs",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 3aa0f14bc3 makes the operator documentation match runtime behavior: marker-success permits mechanical recovery, marker-failure remains fail-closed and requires filesystem repair, and the original callback or wait error remains primary.",
+      "resolvedAt": "2026-08-15T12:36:39.820Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-6693:F-008",
+      "desc": ".lattice/story/actives/B-6693/checklist.json:62 and :357 still pin the focused/full verification selectors to exact `5 assertion groups` and `16 assertion groups`, but packages/main/src/tasks/validate-execution-lock-smoke.ts:1424 and :1438 now emit exact `13 assertion groups` and `24 assertion groups`. Reproduction on HEAD f6b8ba8: build PASS; focused outputs 13; full outputs 24; exact58 PASS. Because verification_evidence_refresh_stale re-executes each immutable pin through selector matching, these current commands cannot refresh the affected stale mechanical receipts: the selector is absent and those rows are demoted. Session brief already reports all 29 must-intent evidence rows stale; 24 capacity-smoke intents have obsolete selectors. Update the intent pins/selectors in DEV and re-run/re-record current mechanical evidence before coverage can pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-15T11:41:41.495Z",
+      "reviewRound": "2026-08-15T11:36:01.591Z",
+      "reviewRunId": "B-6693:RR-012",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-6693/background.md",
+          ".lattice/story/actives/B-6693/checklist.json",
+          ".lattice/story/actives/B-6693/plan.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/done-required-validation.ts",
+          "packages/main/src/handlers/verdict.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9348f8905796a5ec95f6f9a636e3cc90c2d27ec74a5042dc17e5b508fcbe6af0",
+      "files": [
+        ".lattice/story/actives/B-6693/checklist.json",
+        "packages/main/src/tasks/validate-execution-lock-smoke.ts",
+        "packages/main/src/handlers/checklist.ts"
+      ],
+      "signatureTag": "missing|json|lattice-story-actives",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 2bd3249f5a added the managed strict verification pin schema; commit 9d18e3dc78 repaired all 24 obsolete 5/16 selectors to exact 14/25; every pinned command was reexecuted at the current material and verification_evidence_refresh_stale dry-run reports no stale evidence.",
+      "resolvedAt": "2026-08-15T12:36:40.877Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-6693:F-009",
+      "desc": "packages/main/src/core/validation-execution-lock.ts:623-626 — queued waiter abort/deadline cleanup still bypasses the hardened releaseValidationCapacityTicket path: it calls quarantineValidationCapacityCandidate once and ignores false. Under the same deterministic parent-directory permission fault covered for acquired-owner release, the waiter deadline is preserved but its published UUID ticket remains. Because holder.json names the current live PID and the heartbeat identity still matches, classifyValidationCapacityLock at lines 187-201 keeps that abandoned ticket active indefinitely; after the true owner releases, a successor reaches its own deadline without entering. Reproduced on HEAD f6b8ba8b876895cdc532b096397791d4f10f1d94: two tickets were present before chmod 0555; waiter returned queued-waiter-deadline with both tickets remaining; after owner release the waiter ticket remained; successor returned successor-deadline and successorEntered=false. Route published-ticket cleanup in the acquisition catch through the same bounded ownership-safe release/mark-reclaimable mechanism while preserving the original abort/deadline error, and add a queued-waiter cancellation plus isolation-failure regression. Current smoke coverage at packages/main/src/tasks/validate-execution-lock-smoke.ts:1214-1284 exercises only post-acquisition callback release.",
+      "severity": "high",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-15T11:42:44.351Z",
+      "reviewRound": "2026-08-15T11:36:01.591Z",
+      "reviewRunId": "B-6693:RR-010",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-6693/background.md",
+          ".lattice/story/actives/B-6693/plan.md",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/handlers/done-required-validation.ts",
+          "packages/main/src/handlers/verdict.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-6693/checklist.json",
+          "docs/CLI.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "d553028c975724ed5bf9b775092db72ba7535deee99ac70c9f2f4769f996745a",
+      "files": [
+        "packages/main/src/core/validation-execution-lock.ts",
+        "packages/main/src/tasks/validate-execution-lock-smoke.ts",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "signatureTag": "edge|ts|packages-main-core",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 3aa0f14bc3 routes abort and deadline cleanup through bounded exact-UUID ticket release, preserves the original sentinel error, leaves the active owner untouched, and proves post-repair successor entry with no ticket leak in deterministic regressions.",
+      "resolvedAt": "2026-08-15T12:36:41.979Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-6693:F-010",
+      "desc": "packages/main/src/core/validation-execution-lock.ts:35-36,87-95,577 — HIGH concurrency defect: reentrancy ownership is keyed only by lock path, not the current acquisition lockId/generation. A timer created inside owner A retains A AsyncLocalStorage after A returns; when owner B later holds the same path, heldValidationLockPaths is true again and detached A is falsely treated as B reentrancy, bypassing capacity. Current-dist deterministic repro produced {detachedEntered:true,overlap:true}. Bind global and ALS ownership to the same acquisition token and add a detached-old-context versus new-owner regression; the same path-only pattern in the inner story lock must also be audited.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-15T12:57:25.448Z",
+      "reviewRound": "2026-08-15T12:35:26.980Z",
+      "reviewRunId": "B-6693:RR-020",
+      "_hash": "2baf30e5b5f333256612949ce3ebf6b8b4d5c27b34f08a35e037418741908d7c",
+      "files": [
+        "packages/main/src/core/validation-execution-lock.ts",
+        "packages/main/src/tasks/validate-execution-lock-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-core",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit fe96056b33 binds both workspace-capacity and per-story active ownership to never-reused acquisition tokens; reentrancy requires exact ALS/current-token equality. Checked-in detached owner-A versus owner-B regressions for capacity and official capacity plus story lock prove maxConcurrency=1.",
+      "resolvedAt": "2026-08-15T13:52:23.742Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-6693:F-011",
+      "desc": "packages/main/src/tasks/validate-execution-lock-smoke.ts:1547-1577 — HIGH proof-count defect: the focused prefix invokes 15 distinct assertion-group functions but prints and pins 14; the full path then invokes 11 more (26 total) but prints and pins 25. Exact 14/25 selectors therefore certify a manually stale undercount, and removal of one real group could remain green without changing the pinned terminal text. Derive/verify the count mechanically or correct both terminal counts and managed selectors/evidence together.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-15T12:57:27.567Z",
+      "reviewRound": "2026-08-15T12:35:26.980Z",
+      "reviewRunId": "B-6693:RR-020",
+      "_hash": "52b8b4b8b848b1ed5c61ede6666644653ca131fc32baa20f0266bad10d704eeb",
+      "files": [
+        "packages/main/src/tasks/validate-execution-lock-smoke.ts",
+        "packages/main/src/cli/command-schemas.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-tasks",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit fe96056b33 corrects actual terminal counts to focused 15 and full 26. Managed commit c2c48c835b migrates exactly 24 pins with old14/old25 zero; all 14 focused and 10 full pinned receipts were independently reexecuted with selectorMatched=true and stale dry-run is zero.",
+      "resolvedAt": "2026-08-15T13:52:24.777Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-6693:F-012",
+      "desc": "packages/main/src/cli-engine.ts:1062-1087 and packages/main/src/handlers/verifier.ts:1079-1088 — HIGH production cleanup defect: direct validate is excluded from structuredWatchdog, so args.abortSignal/deadlineAt are undefined and watchdog timeout calls process.exit(2) instead of aborting the capacity waiter through F-009 cleanup. A real CLI probe held workspace capacity and ran validate with LATTICE_MAX_TIMEOUT_MS=250: it logged aborting with structured result but exited 2 with empty stdout, left two tickets while owner held and one dead waiter ticket after owner release; only a later successor reclaimed it. Include validate in structured cancellation/deadline propagation and add a real CLI contention watchdog regression asserting classified output and zero waiter ticket immediately after timeout.",
+      "severity": "high",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-15T12:57:29.688Z",
+      "reviewRound": "2026-08-15T12:35:26.980Z",
+      "reviewRunId": "B-6693:RR-020",
+      "_hash": "d99f09bf7e4c81141ccaae458a90a8740f15b7cbf37977e502ad5f60466cccbb",
+      "files": [
+        "packages/main/src/cli-engine.ts",
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/src/core/validation-execution-lock.ts",
+        "packages/main/src/tasks/validate-execution-lock-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|packages-main-engine",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit fe96056b33 includes direct validate in structured watchdog propagation while keeping done-result classification separate. Real child CLI contention regression proves classified max-timeout exit 1, callback zero, no inner story lock, waiter cleanup, and successor direct acquisition; current focused/full receipts all pass.",
+      "resolvedAt": "2026-08-15T13:52:25.777Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-6693:F-013",
+      "desc": "packages/main/src/tasks/validate-execution-lock-smoke.ts:877-910 — MEDIUM regression-quality gap: the checked-in 12-waiter ABA stress uses Promise.all in one Node event loop while all filesystem classification/rename/remove operations are synchronous, so it cannot create the parallel Worker/process interleaving that originally exposed F-003. External Worker stress has passed, but that proof is not retained by the suite and a future fixed-path classify-then-delete regression could escape. Add a checked-in worker_threads or child-process stale-reclaim stress with an overlap sentinel and exact ticket-leak assertions.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-15T12:58:16.730Z",
+      "reviewRound": "2026-08-15T12:35:26.980Z",
+      "reviewRunId": "B-6693:RR-020",
+      "_hash": "601bcc6e672385971360ec4d876852af22dfe37fec3d641229983a31afab92e7",
+      "files": [
+        "packages/main/src/tasks/validate-execution-lock-smoke.ts",
+        "packages/main/src/core/validation-execution-lock.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-tasks",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit fe96056b33 upgrades the stale/ABA stress to checked-in cross-process contenders while preserving the existing assertion group, proving 12 waiters, maxConcurrency=1, zero overlap/errors, and zero ticket leak.",
+      "resolvedAt": "2026-08-15T13:52:26.824Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-6693:F-014",
+      "desc": "doc-code-drift: docs/CLI.md:907, docs/requirements/decisions/testing-infra.md:55, and docs/requirements/decisions/done-full-test-gate-execution-plan.md:30 describe direct validate structured watchdog/deadline cleanup but omit the repaired terminal-classification boundary. packages/main/src/cli-engine.ts:1062-1125 deliberately separates structuredDoneResult (done_prepare/done_required_validate only) from structuredWatchdog (also validate), so direct validate keeps isCanonicalCommandFailure rather than inheriting DONE structured-result classification. Add that distinction so structured cancellation is not read as a change to validate stdout/exit semantics.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-15T13:54:48.209Z",
+      "reviewRound": "2026-08-15T13:52:04.519Z",
+      "reviewRunId": "B-6693:RR-023",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "30d69b45cc16fb75c85ead58b05d22c9821d894240274a51836627ed42bd1d3a",
+      "files": [
+        "docs/CLI.md",
+        "docs/requirements/decisions/testing-infra.md",
+        "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+        "packages/main/src/cli-engine.ts"
+      ],
+      "signatureTag": "missing|md|code-drift-docs",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 61532dba5d updates all three capacity documents: direct validate uses structured watchdog only for abort/deadline propagation and waiter cleanup, while structuredDoneResult and the DONE-result classifier remain exclusive to done_prepare/done_required_validate and validate retains its existing classification/exit contract.",
+      "resolvedAt": "2026-08-15T20:10:31.650Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-6693:F-015",
+      "desc": "doc-code-drift: the capacity documentation at docs/CLI.md:907, docs/requirements/decisions/testing-infra.md:55, and docs/requirements/decisions/done-full-test-gate-execution-plan.md:30 omits the final retained proof boundary added for F-011/F-013. packages/main/src/tasks/validate-execution-lock-smoke.ts:913-994 now runs checked-in independent child-process stale-reclaim stress with maxConcurrency=1, zero overlap, and zero queue leaks; lines 1742-1774 define exact focused/full terminal contracts of 15 and 26 assertion groups. Document the cross-process regression and current exact 15/26 terminal/pin values so operator assurance does not silently rely on the weaker prior in-process-only or stale 14/25 proof.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-15T13:54:59.964Z",
+      "reviewRound": "2026-08-15T13:52:04.519Z",
+      "reviewRunId": "B-6693:RR-023",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1154b9b442595916262a5e569bbb8974e0ab6c8e8add03f2b1da7aa23c60e229",
+      "files": [
+        "docs/CLI.md",
+        "docs/requirements/decisions/testing-infra.md",
+        "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+        "packages/main/src/tasks/validate-execution-lock-smoke.ts"
+      ],
+      "signatureTag": "missing|md|code-drift-capacity",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 61532dba5d records in all three documents the checked-in exact-12 child-process stale/ABA regression, distinguishes it from the in-process cohort and runtime guarantees, and states the exact managed focused15/full26 terminal-pin contract; current docs evidence is refreshed.",
+      "resolvedAt": "2026-08-15T20:10:32.673Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-6693:F-016",
+      "desc": "packages/main/src/tasks/validate-execution-lock-smoke.ts:892-907 runs/asserts 12 waiters only as Promise calls inside one Node process. The genuinely independent child-process cohort at :958 spawns `length: 8` and at :987 asserts exactly 8 starts. Thus the checked-in focused15/full26 smoke does not prove the required exact-12 cross-process/execution-context stress; both commands pass while this requirement remains absent. Change the child cohort to 12 and assert 12 process starts, maxConcurrency=1, zero overlap, and zero leaked queue artifacts. The new detached-generation and real CLI-watchdog assertions are discriminating against the prior implementation, but they do not substitute for the missing 12-process capacity stress.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-15T13:57:27.390Z",
+      "reviewRound": "2026-08-15T13:52:04.519Z",
+      "reviewRunId": "B-6693:RR-024",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-6693/background.md",
+          ".lattice/story/actives/B-6693/checklist.json",
+          ".lattice/story/actives/B-6693/plan.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/command-schemas.ts",
+          "packages/main/src/handlers/done-required-validation.ts",
+          "packages/main/src/handlers/verdict.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6ce13368848f25300c7516268e7f08d598f2712333fb20b5280dc9bad9cddd8c",
+      "files": [
+        "packages/main/src/tasks/validate-execution-lock-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-tasks",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 61532dba5d changes the genuine child-process cohort from 8 to exact 12 and asserts all 12 results, maxConcurrency=1, zero overlap, zero child errors, and zero queue leaks without adding a top-level group. Build, 14 focused15 receipts, 10 full26 receipts and dry-run zero stale all pass.",
+      "resolvedAt": "2026-08-15T20:10:33.649Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-6693:F-017",
+      "desc": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts:367 — verified integration regression: B-6693 edits packages/main/src/cli-engine.ts but leaves its pinned canonical AST fingerprint at ef1c4e..., so the approved runCli → import(`file://${initPath}`) call is rejected as an unapproved non-literal dynamic load (current digest c38c840...). Repro: node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js exits 1. Re-audit the unchanged loader call and repin the canonical guard fingerprint; canonical validation cannot pass until this member is restored.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-15T20:54:11.628Z",
+      "reviewRound": "2026-08-15T20:10:20.018Z",
+      "reviewRunId": "B-6693:RR-029",
+      "_hash": "7e3a9d2e2bf3452ac90e12b63e0adb781aa2748514861c907943df80331d8020",
+      "signatureTag": "missing|unknown|packages-main-tasks",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commit d6529bdfc8f973117bdaa99817d1189ef8d0d7b9. Independent original repro `node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js` exited 0 with `retired authority vocabulary guard PASS builds=788 cacheHits=2 fullAnalysis=1256 astCandidates=489 reachability=34`. The canonical cli-engine AST repin preserves the same runCli anchor, cli-init initPath producer, and import callsite; relocation, producer-mutation, nested-anchor, and loader-replacement controls still bite. Production semantics are unchanged because this is a test-only pin repair.",
+      "resolvedAt": "2026-08-15T21:05:52.277Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-6693:F-018",
+      "desc": "packages/main/src/tasks/flow-stability-smoke.ts:3951 — verified integration contract regression: the TEST fail fixture creates a non-Git temp root, so the new B-6693 story-scoped workspace-capacity git-common-dir requirement now fails before the configured node -e process.exit(5) validator runs. Repro: node packages/main/dist/tasks/review-pass-discard-smoke.js exits 1 via flow-stability-smoke; actual is Cannot enter TEST: lattice validate execution error / cannot resolve git-common-dir identity, expected Cannot enter TEST: lattice validate did not pass. Make the fixture a valid Git-backed story workspace (or equivalently preserve its intended semantic-failure setup) so it still proves allPass=false, FAIL evidence persistence, and actor lifecycle behavior under the new capacity precondition.",
+      "severity": "high",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-15T20:54:27.998Z",
+      "reviewRound": "2026-08-15T20:10:20.018Z",
+      "reviewRunId": "B-6693:RR-029",
+      "_hash": "cc73f747f4f2dc75f1f81bf71fcc00e8b5a60123a1d615762258a0a3af17c111",
+      "signatureTag": "edge|unknown|packages-main-tasks",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commit d6529bdfc8f973117bdaa99817d1189ef8d0d7b9. Independent original repro `node packages/main/dist/tasks/flow-stability-smoke.js` exited 0 and ended with `✓ flow stability smoke passed`. The fixture now creates a minimal Git main branch with an empty HEAD so workspace-capacity identity resolves; its configured `process.exit(5)` still reaches and asserts `Cannot enter TEST: lattice validate did not pass`, and the FAIL test-evidence record is persisted. Production fail-closed behavior and validate result/exit classification are unchanged because this is a test-only fixture repair.",
+      "resolvedAt": "2026-08-15T21:05:58.742Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-6693:F-019",
+      "desc": "scripts/verify-process-fact-contract.mjs:1875 — concept-cleanup verified HIGH: F-017 repinned the retired-authority guard from ef1c4e… to c38c840… in packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts, but the canonical process-fact verifier still requires the deleted ef1c4e… fingerprint. Repro: `node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js` exits 0, while `node scripts/verify-process-fact-contract.mjs` exits 1 with `retired vocabulary guard must enforce narrow compatibility usage: ef1c4e...`. The repair is incomplete and canonical validation remains red; synchronize the verifier token to the independently audited c38c840… fingerprint and extend scope to this script before returning to REVIEW.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-15T21:47:35.145Z",
+      "reviewRound": "2026-08-15T21:03:08.116Z",
+      "reviewRunId": "B-6693:RR-030",
+      "_hash": "aa2a6de6758908bc741deb5c2e092ad8786f1890bde98053c8870167b1aad7f4",
+      "files": [
+        "scripts/verify-process-fact-contract.mjs",
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "signatureTag": "missing|mjs|scripts-verify-process",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commit 19422b0ccbe882272573ed4f53968e5acce19c56. Independent original repro `node scripts/verify-process-fact-contract.mjs` exited 0 and ended with `Process fact contract verified`. The verifier now expects the already-audited cli-engine canonical AST fingerprint c38c8402e4ae4a4ab38fe3dfeb69a99461c4a528ffbf76a1313c53b1912c8754; the benign runCli/initPath/import callsite is unchanged, and only the test-side whole-file fingerprint expectation changed. Production semantics are unchanged.",
+      "resolvedAt": "2026-08-15T22:23:48.192Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

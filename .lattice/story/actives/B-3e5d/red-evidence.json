@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-3e5d",
+  "records": [
+    {
+      "id": "RED-20260816115608",
+      "trigger": "Two concurrent story_advance --phase=DONE processes racing the same story from its own worktree",
+      "acceptanceTargetRef": "sha256:7a6f13ff8921cac77e010b0ddb81452f5677ef97eb1a36e5bef2727866806c9e",
+      "baselineHeadHash": "14a6038d627a63df4fec090676d06596f93d213c",
+      "baselineMaterialHash": "b20b9152f1a30335e5e0c2112ded70ef1a569e7b2747028d9111f6b3060e8308",
+      "observedFailure": "The losing racer crashed with a raw AssertionError wrapping an uncaught Error: File not found: <worktree>/.lattice/story/actives/<storyId>/index.json, instead of a clean explanatory message, because ctx.store (bound to the worktree path at CLI bootstrap) was read after the worktree had already been deleted by the winning DONE.",
+      "failingCommand": "node packages/main/tests/red/red-B-new-concurrent-done-race.mjs",
+      "expectedGreenCommand": "node packages/main/dist/tasks/worktree-authority-smoke.js",
+      "greenRelation": {
+        "targetRef": "sha256:7a6f13ff8921cac77e010b0ddb81452f5677ef97eb1a36e5bef2727866806c9e",
+        "relation": "same_acceptance",
+        "command": "node packages/main/dist/tasks/worktree-authority-smoke.js"
+      },
+      "note": "Pre-fix: red-B-new-concurrent-done-race.mjs asserted the raw ENOENT crash signature and passed (proving the defect). Post-fix: the same script's own defect-still-present assertion now fails, confirming worktree-authority-smoke.js passes end-to-end.",
+      "createdAt": "2026-08-16T11:56:08.243Z"
+    },
+    {
+      "id": "RED-20260816115615",
+      "trigger": "field-regression-cli-smoke.ts exercised the deliberately-retired lattice-review-channel lane via reviewer_list forceReviewer and via a pass-only finding_add call",
+      "acceptanceTargetRef": "sha256:7a6f13ff8921cac77e010b0ddb81452f5677ef97eb1a36e5bef2727866806c9e",
+      "baselineHeadHash": "14a6038d627a63df4fec090676d06596f93d213c",
+      "baselineMaterialHash": "b20b9152f1a30335e5e0c2112ded70ef1a569e7b2747028d9111f6b3060e8308",
+      "observedFailure": "reviewer_list --forceReviewer=channel was asserted as forceable and finding_add for RP-004 was routed through lattice-review-channel, contradicting prompt-role-contract-registry.ts's hard assertion that lattice-review-channel is status:retired and defaultDispatch:false.",
+      "failingCommand": "node packages/main/tests/red/red-B-new-retired-channel-lane.mjs",
+      "expectedGreenCommand": "node packages/main/dist/tasks/field-regression-cli-smoke.js",
+      "greenRelation": {
+        "targetRef": "sha256:7a6f13ff8921cac77e010b0ddb81452f5677ef97eb1a36e5bef2727866806c9e",
+        "relation": "same_acceptance",
+        "command": "node packages/main/dist/tasks/field-regression-cli-smoke.js"
+      },
+      "note": "Pre-fix: red-B-new-retired-channel-lane.mjs asserted the stale channel-lane-forceable behavior and passed (proving the defect). Post-fix: the same script's own defect-still-present assertion now fails, confirming field-regression-cli-smoke.js passes end-to-end with channel rejected and RP-004 routed through lattice-review-test-coverage.",
+      "createdAt": "2026-08-16T11:56:15.642Z"
+    }
+  ],
+  "createdAt": "2026-08-16T11:56:08.243Z",
+  "updatedAt": "2026-08-16T11:56:15.642Z"
+}

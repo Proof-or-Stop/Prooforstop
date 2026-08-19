@@ -1,9 +1,19 @@
-# Proofbound Role Prompt 模块化与预算治理执行方案
+# Proof-or-Stop Role Prompt 模块化与预算治理执行方案
 
 Status: accepted
 Source story: B-7ffc
 Source proposal: DDP-001
 Created: 2026-07-17
+
+## Canonical race burn-in execution (B-9812)
+
+`review-incremental-context-smoke` always retains the three deterministic
+concurrent-writer masks (`11111`, `01010`, and `10101`) and all gate/mutation
+assertions. Canonical root testing runs the `10101` burn-in once because the
+historical twenty iterations are identical repetitions of that fixed mask.
+Soak testing retains the original twenty repetitions by setting
+`LATTICE_INCREMENTAL_STRESS=1`; this is an opt-in stress tier, not a substitute
+for the deterministic canonical matrix.
 
 ## Decision
 
@@ -45,20 +55,20 @@ Cons:
 
 ## Chosen Approach
 
-Use the canonical Proofbound decision-doc promotion flow, preserve the reviewed execution plan below, and execute its Stories sequentially.
+Use the canonical Proof-or-Stop decision-doc promotion flow, preserve the reviewed execution plan below, and execute its Stories sequentially.
 
 ### 1. 文档目的
 
-本方案用于减少 Proofbound 角色 Prompt 的重复内容、上下文成本和多轮复审开销，同时保持现有流程事实、角色权限、证据要求和 fail-closed 门禁不被削弱。
+本方案用于减少 Proof-or-Stop 角色 Prompt 的重复内容、上下文成本和多轮复审开销，同时保持现有流程事实、角色权限、证据要求和 fail-closed 门禁不被削弱。
 
-本方案是执行文档，不直接授权删除角色、放宽门禁或改变 reviewer evidence 的法律写入路径。所有实现仍应通过独立 Lattice Story 完成，并按照正常的 PLAN、DEV、REVIEW、TEST、DONE 流程验证。
+本方案是执行文档，不直接授权删除角色、放宽门禁或改变 reviewer evidence 的法律写入路径。所有实现仍应通过独立 Proof-or-Stop Story 完成，并按照正常的 PLAN、DEV、REVIEW、TEST、DONE 流程验证。
 
 ### 2. 背景与当前基线
 
-当前 `proof-or-stop-prompt-baseline.json` 记录 16 个角色的最终 `agent_prompt` 输出。
+当前 `proof-or-stop-prompt-baseline.json` 记录 **17** 个角色的最终 `agent_prompt` 输出（`expectedRoleCount: 17`，由 `scripts/verify-proof-or-stop-prompt-baseline.mjs` 的 `EXPECTED_ROLE_COUNT` 钉住；其中 13 个带 `lattice-` 前缀，该前缀的迁移由 `proof-or-stop-agent-prompt-consolidation-execution-plan.md` 负责）。
 
 这 16 项是历史兼容基线，不等于当前 active role 集合。其中
-`lattice-review-channel` 已退役，由 `lattice validate --channel` 的机械 gate
+`lattice-review-channel` 已退役，由 `proof-or-stop validate --channel` 的机械 gate
 接管；它只应保留在 compatibility/audit baseline 中，不得作为待迁移的 active
 reviewer 重新启用。
 
@@ -217,7 +227,7 @@ PromptEnvelope
 
 #### 6.1 装配信任边界
 
-1. 扩展现有 `lattice agent_prompt --role=<name>`，使其在需要 Story 上下文时接受
+1. 扩展现有 `proof-or-stop agent_prompt --role=<name>`，使其在需要 Story 上下文时接受
    `--storyId=<id>`；不提供由调用方强制选择 context mode 的参数，full 或
    incremental 完全由 CLI eligibility 结果决定。
 2. Runtime Contract、Role Contract、Task Context、eligibility 和 digest 必须
@@ -502,7 +512,7 @@ Prompt Envelope 不另建一套 run/attempt authority：
 - 不进入 reviewer Prompt 迁移、增量装配、active role count 或 reviewer-wave
   预算。
 - 来源、commit author、dispatch/process event 和角色证据检查继续由
-  `lattice validate --channel` 及其 handler/gate 机械执行。
+  `proof-or-stop validate --channel` 及其 handler/gate 机械执行。
 - 现有 prompt 资产只为历史审计或兼容读取保留，不得产生可计入新 Story
   receipt/quorum 的 reviewer pass。
 
@@ -675,7 +685,7 @@ tests 应由这些字段渲染或生成断言，不能再手工维护一份语�
 
 ### 9. 增量复审设计
 
-本节扩展现有 `lattice review_incremental_context`，不另建第二套增量事实源。
+本节扩展现有 `proof-or-stop review_incremental_context`，不另建第二套增量事实源。
 现有命令继续保持严格只读和 advisory；第一阶段复用它的 prior verdict、
 bound headHash、rename-aware changed files、`scopeChanged` 和 `isFirstPass`
 计算。只有可信装配、Prompt Envelope 签名绑定和 gate consumer 同时落地后，
@@ -1160,7 +1170,7 @@ tokens、review findings 和流程收敛数据。模型、token estimator、cont
   `unavailable(<reason>)`，包括 0 也不得伪装成已观测值；任何不可重建、篡改、
   版本偏移、arm 不对称、样本/重复不足或无效召回 denominator 均为
   `INCONCLUSIVE`，不输出 savings/recall claim。Story 的正式完成状态仍以
-  Lattice lifecycle 的 DONE 证据为准。
+  Proof-or-Stop lifecycle 的 DONE 证据为准。
 
 #### Story 4：Incremental eligibility 与 impact policy
 
@@ -1509,7 +1519,7 @@ node bin/lattice.js verify_codex
 
 - Treat this file as planning authority, not implementation evidence.
 - Execute Story 1 through Story 7 in order; create the budget-enforce follow-up only when its evidence conditions are met.
-- Each implementation milestone requires its own Proofbound Story, scope, independent review, validation, and DONE convergence.
+- Each implementation milestone requires its own Proof-or-Stop Story, scope, independent review, validation, and DONE convergence.
 - Current runtime facts and accepted DONE evidence override stale planning prose if implementation later diverges.
 
 ## Verification Requirements
@@ -1527,6 +1537,6 @@ node bin/lattice.js verify_codex
 
 ## Supersession
 
-If this decision changes, update this file through a Proofbound story. Because
+If this decision changes, update this file through a Proof-or-Stop story. Because
 this file is under `docs/requirements/decisions/*.md`, DONE requires the local
 decision-doc 3x2 host verdict quorum.

@@ -1,0 +1,46 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-2625",
+  "allowedCommands": [
+    "agy *",
+    "claude *",
+    "git add *",
+    "git commit *",
+    "git diff *",
+    "git status *",
+    "node bin/lattice.js *",
+    "npm --prefix packages/main run build",
+    "npm run test:*",
+    "npm test"
+  ],
+  "allowedTools": [
+    "Antigravity CLI",
+    "Claude Code CLI",
+    "Codex CLI"
+  ],
+  "allowedPaths": [
+    "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+    "docs/requirements/decisions/testing-infra.md",
+    "packages/main/src/core/validation-execution-lock.ts",
+    "packages/main/src/handlers/done-required-validation.ts",
+    "packages/main/src/tasks/full-suite-runner-smoke.ts",
+    "packages/main/src/tasks/full-suite-runner.ts",
+    "packages/main/src/tasks/validation-execution-lock-smoke.ts"
+  ],
+  "excludedCommands": [
+    "git clean -fd",
+    "git push *",
+    "git reset --hard"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    "lattice.config.json",
+    "package-lock.json",
+    "package.json"
+  ],
+  "confirmedBy": "codex-root",
+  "confirmationNote": "Execution is restricted to the existing capacity authority, root runner, focused regressions, and two decision docs; budgets and inventory files are protected.",
+  "createdAt": "2026-08-16T11:15:55.100Z",
+  "updatedAt": "2026-08-16T11:15:55.100Z",
+  "_hash": "35ad76895999217a8a22225e8d88167f7e57494c0588647b61a916521d59f6a6"
+}

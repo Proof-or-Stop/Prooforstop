@@ -1,0 +1,42 @@
+{
+  "findings": [
+    {
+      "id": "B-3e5d:F-001",
+      "desc": "packages/main/src/handlers/transition-orchestrator.ts:897 — CHK-001's transitionLockRoot reroute is behaviorally a no-op layered on an already-correct mechanism, and the 12-line rationale comment above it (lines 885-896) misdiagnoses the crash. acquireStoryTransitionLock(root, storyId) -> storyTransitionLockPath (packages/main/src/core/story-transition-lock.ts:211) already calls resolveSharedLockRoot(root), which independently re-derives the git-common-dir-based shared main-repo root from WHATEVER root string is passed (worktree path or main root), per its own docstring (story-transition-lock.ts:199-217, B-d877 R2 FIX B, added specifically so the lock 'SURVIVEs worktree removal'). Verified empirically against the built dist: calling storyTransitionLockPath(worktreePath, id) and storyTransitionLockPath(mainRepoRoot, id) on a real git worktree layout produced the IDENTICAL lockDir string. acquireMkdirLock (mkdir-lock.ts:253) also resolves lockDir ONCE up front (never re-resolved during the poll loop), so this was never actually vulnerable to being deleted out from under a poller the way the comment claims. The real, load-bearing fix for the observed crash is CHK-002's StoryArtifactMissingError translation (line ~943) alone -- confirmed by running the RED test (red-B-new-concurrent-done-race.mjs) against the current build: it now throws its own GREEN-signal assertion (worktree-authority-smoke.js passes), which is fully explained by CHK-002 since the lock path was unaffected by CHK-001 either way. Net effect of CHK-001: three extra git subprocess spawns (detectDoneStoryWorktreeContext calls rev-parse --abbrev-ref HEAD, rev-parse --show-toplevel, rev-parse --path-format=absolute --git-common-dir) added to the hot path of EVERY story_advance transition of EVERY phase (not just DONE, not just racing ones) for zero behavioral gain, plus a misleading root-cause narrative that could mislead a future maintainer investigating this exact lock. Recommend either removing the redundant reroute (letting acquireStoryTransitionLock's existing resolveSharedLockRoot do the job it already does) or, if kept for defense-in-depth, correcting the comment to say so rather than asserting a causal mechanism that does not hold.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-16T12:58:20.935Z",
+      "reviewRound": "2026-08-16T12:41:32.748Z",
+      "reviewRunId": "B-3e5d:RR-001",
+      "_hash": "12b738ad3cf7a4b4e481931f37ac15795c2244b28068724f176c65a3dfdebf73",
+      "signatureTag": "adversarial|unknown|packages-main-handlers",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Confirmed correct: acquireStoryTransitionLock already resolves its lock directory via storyTransitionLockPath -> resolveSharedLockRoot (git-common-dir based, B-d877 R2 FIX B) regardless of the root string passed in, so the CHK-001 reroute was a no-op. Reverted at commit 023a09f932: acquireStoryTransitionLock is now called with ctx.root exactly as before this story, removing the misleading rationale comment and the three unnecessary git subprocess spawns per transition. Re-verified worktree-authority-smoke.js, field-regression-cli-smoke.js, and red-B-new-concurrent-done-race.mjs all still pass/GREEN after the revert -- the concurrent-DONE-race fix is CHK-002 (the StoryArtifactMissingError translation) alone.",
+      "resolvedAt": "2026-08-16T13:05:54.111Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3e5d:F-002",
+      "desc": "packages/main/tests/red/red-B-new-concurrent-done-race.mjs:24-27 (the \"After the fix (transitionLock resolved to the stable main repo root, same as the DONE main-merge lock)\" line) still narrates the reverted CHK-001 lock-reroute as the causal mechanism that makes the losing racer fail cleanly. Per F-001's resolution (commit 023a09f932), that reroute was reverted as a no-op -- acquireStoryTransitionLock is called with ctx.root exactly as before this story, and the lock directory was always resolved to the shared root internally via resolveSharedLockRoot regardless of the argument. The real fix this RED script actually proves is CHK-002 (the StoryArtifactMissingError translation at transition-orchestrator.ts:942-947), not a lock reroute. This is documentation-only (the script's assert.notEqual/assert.match/assert.doesNotMatch logic at lines 61-64 is unaffected and still correctly detects the pre-fix defect signature; re-ran it directly and it correctly exits 1 post-revert, confirming no functional regression), but a future maintainer reading this RED script for why it constitutes evidence for CHK-001/CHK-002 would be misled about the actual mechanism, mirroring the exact class of issue F-001 already caught once in the production code comment. Low severity: no functional/coverage impact, comment-only.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-16T13:26:19.539Z",
+      "reviewRound": "2026-08-16T13:05:43.588Z",
+      "reviewRunId": "B-3e5d:RR-005",
+      "_hash": "63fcc9bd3374b0e6bb0d11393ef47bcf140ce401da618267293ad3da87b04b56",
+      "signatureTag": "missing|unknown|packages-main-tests",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Corrected the RED script's header comment at commit aa9a5a877b: it now describes the actual mechanism (the transition lock was always shared-rooted via resolveSharedLockRoot inside acquireStoryTransitionLock; the real crash was ctx.store bound to the worktree path at CLI bootstrap, fixed by the narrow StoryArtifactMissingError translation) instead of narrating the reverted, no-op lock reroute as the fix. Documentation-only; re-verified the script's assertions are unaffected (still exits 1 with the correct GREEN signal against the current dist build).",
+      "resolvedAt": "2026-08-16T13:31:08.191Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

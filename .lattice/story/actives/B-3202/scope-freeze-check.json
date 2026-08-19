@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-3202",
+  "checkedAt": "2026-07-28T21:35:05.502Z",
+  "mode": "maintenance",
+  "status": "pass",
+  "scopeBoundaryHash": "dd7e53b8d8416469e97476f46e305c6fb6d7c3987523e2134dc1c6d86f7e6766",
+  "executionBoundaryHash": "425e81d701e85d783b09fcfd2939377e199b57584dc4c31fe6beaba99e15a4b0",
+  "freshnessHash": "8c56f3496b8905365f0690f97ee1103544a1e48a94b616ef2ae06431dbd71344",
+  "effectiveExcludedKeywords": [
+    "packages/main/src/cli",
+    "packages/main/src/core",
+    "packages/main/src/handlers"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "packages/main/src/cli",
+      "source": "scopeBoundary.excluded",
+      "text": "packages/main/src/cli",
+      "excluded": true
+    },
+    {
+      "keyword": "packages/main/src/core",
+      "source": "scopeBoundary.excluded",
+      "text": "packages/main/src/core",
+      "excluded": true
+    },
+    {
+      "keyword": "packages/main/src/handlers",
+      "source": "scopeBoundary.excluded",
+      "text": "packages/main/src/handlers",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "623355222a8ee612a2095a1379534fc14fd40f1689045238f75a153de23c3284"
+}

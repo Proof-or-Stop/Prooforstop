@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-74af",
+  "records": [
+    {
+      "id": "RED-20260812094943",
+      "trigger": "Elapsed wall time is currently treated as sufficient evidence to restart a still-running host-native agent.",
+      "acceptanceTargetRef": "CHK-002:adversarial:0",
+      "baselineHeadHash": "3f84033062160eb1bca439e356f2bcd2976a84de",
+      "baselineMaterialHash": "f5fdca086062ae55057afdb09f1e9b74b57adba36bec3c58a099193167abb3a2",
+      "observedFailure": "The source scan found five effective guidance surfaces that authorize restart after 4 or 10 minutes without consulting authoritative host task status.",
+      "failingCommand": "zsh -lc 'if rg -n \"4 minutes|10 minutes/600s|treat.*stuck|re-dispatch and restart\" packages/main/src/handlers/story-dispatch.ts packages/main/src/handlers/story-create.ts packages/main/src/handlers/transition-effects.ts packages/main/src/core/machine.ts; then print -u2 \"elapsed-only restart guidance found\"; exit 1; fi'",
+      "expectedGreenCommand": "zsh -lc 'if rg -n \"4 minutes|10 minutes/600s|treat.*stuck|re-dispatch and restart\" packages/main/src/handlers/story-dispatch.ts packages/main/src/handlers/story-create.ts packages/main/src/handlers/transition-effects.ts packages/main/src/core/machine.ts; then print -u2 \"elapsed-only restart guidance found\"; exit 1; fi'",
+      "greenRelation": {
+        "targetRef": "CHK-002:adversarial:0",
+        "relation": "regression_to_green",
+        "command": "zsh -lc 'if rg -n \"4 minutes|10 minutes/600s|treat.*stuck|re-dispatch and restart\" packages/main/src/handlers/story-dispatch.ts packages/main/src/handlers/story-create.ts packages/main/src/handlers/transition-effects.ts packages/main/src/core/machine.ts; then print -u2 \"elapsed-only restart guidance found\"; exit 1; fi'"
+      },
+      "note": "Pre-fix source scan captured in PLAN before implementation; protected explicit subprocess timeout modules are not part of this scan.",
+      "createdAt": "2026-08-12T09:49:43.412Z"
+    }
+  ],
+  "createdAt": "2026-08-12T09:49:43.412Z",
+  "updatedAt": "2026-08-12T09:49:43.412Z"
+}

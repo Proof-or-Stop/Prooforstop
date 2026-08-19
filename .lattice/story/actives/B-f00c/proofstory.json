@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "proofstory.contract.v1",
+  "storyId": "B-f00c",
+  "diagnosticOnly": false,
+  "hardeningLevel": "standard",
+  "triggerReasons": [
+    {
+      "code": "collision_required_standard",
+      "message": "Ambiguity, user impact, behavior change, or multi-deliverable intent makes intent collision diagnostically required.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "red_evidence_required",
+      "message": "Bug, regression, security/auth/session, benchmark, or explicit behavior-change work should have red evidence.",
+      "requires": "red-evidence"
+    },
+    {
+      "code": "scope_ambiguity",
+      "message": "Broad or absolute scope wording should have scope clarification before future enforcement.",
+      "requires": "scope-clarification"
+    }
+  ],
+  "originalIntentRequestHash": "sha256:9fa61777cb6a600183fd313ae63c6a0bd601e36057ee3f6331348dfb4bc813e8",
+  "acceptanceBindings": [
+    {
+      "id": "AB-merge-lineage-netdiff",
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:happy:1",
+        "CHK-002:happy:0",
+        "CHK-002:happy:1",
+        "CHK-002:adversarial:2"
+      ],
+      "milestoneIds": [],
+      "acceptanceClaim": "classifyTrustedValidationLineage and the admissibility path return trusted (reuse allowed) when a merge re-introduces content-unchanged story files, and return rejected untrusted-lineage-path when a non-metadata file's content genuinely differs between evidenceHead and currentHead.",
+      "note": "CHK-001 happy proves both copies route through the shared net-diff classifier; CHK-002 happy proves RED->GREEN, and adversarial:2 proves the single smoke exercises both the reuse and admissibility paths."
+    }
+  ],
+  "diagnosticGaps": [],
+  "note": "Single acceptance binding for the merge-lineage net-diff fix across both classifier copies.",
+  "createdAt": "2026-07-26T03:26:37.952Z",
+  "updatedAt": "2026-07-26T03:26:37.952Z"
+}

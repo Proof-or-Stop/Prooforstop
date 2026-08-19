@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-9812",
+  "mode": "maintenance",
+  "allowed": [
+    "acceptance rollout cohort reuse and bounded case parallelism",
+    "canonical root npm test orchestration and smoke manifest",
+    "DONE-required root npm test receipt compatibility",
+    "machine-readable benchmark and assertion inventory equivalence checks",
+    "review incremental context and intent hardening test runtime optimization",
+    "safe concurrency resource classification and cleanup"
+  ],
+  "excluded": [
+    "allowing failed or timed-out tests to become green through automatic retry",
+    "changing product behavior unrelated to test execution",
+    "removing current deterministic coverage solely to meet the budget",
+    "running concurrent writers against an unisolated shared repository",
+    "weakening production gates or evidence freshness semantics"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "The user requested a framework-compliant Story that reduces the complete suite to under five minutes and guarantees safe concurrent execution.",
+  "createdAt": "2026-08-12T12:30:36.394Z",
+  "updatedAt": "2026-08-12T12:30:36.394Z",
+  "_hash": "be6a9da70151976d4929ffffe4f0fc5ccfd3eaa5e2cf9703c5ce25020ca182b2"
+}

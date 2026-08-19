@@ -1,0 +1,43 @@
+{
+  "storyId": "B-3253",
+  "name": "proofstory-topology-focused-regression-repair",
+  "title": "Repair ProofStory topology provenance and focused regression coverage",
+  "description": "Fix the executable-evidence provenance carry-forward defect exposed by proofstory-acceptance-topology-smoke, restore the acceptance basis/topology gate/topology critic temporary-repository fixtures against the current registered global closure, and ensure these focused regressions cannot silently fall out of routine validation. The fix must preserve fail-closed coverage-basis behavior and must not weaken assertions merely to make tests green.",
+  "type": "bug",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "Production/Emergency",
+      "matched": "production"
+    }
+  ],
+  "createdAt": "2026-07-28T22:18:28.868Z",
+  "startedAt": "2026-07-28T22:18:28.868Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-28T22:18:29.921Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-da20c7f8979c9756768738c51324dc67",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-28T22:30:58.914Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-da20c7f8979c9756768738c51324dc67",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-3253",
+    "branch": "story/B-3253",
+    "createdAt": "2026-07-28T22:30:55.845Z"
+  }
+}

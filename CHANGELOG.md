@@ -1,6 +1,494 @@
 # Changelog
 
-## Unreleased
+## Proof-or-Stop v0.3.263 - 2026-08-18
+
+This release removes a telemetry drift in the full-suite result artifact: the
+reported performance budget now comes from the same canonical policy constant
+that governs the suite, rather than from an independent numeric copy.
+
+**Full-suite budget integrity**
+
+- **Canonical result telemetry (B-d15e).** The full-suite result writer now sets
+  `performanceBudgetMs` from `FULL_SUITE_BUDGET_MS`. Operators and downstream
+  consumers therefore see the actual 1,200,000 ms policy budget in the emitted JSON
+  instead of the obsolete 300,000 ms shadow value.
+- **Single source of truth.** Runtime enforcement and reported telemetry now move
+  together when the canonical budget changes, eliminating the possibility that a
+  successful run is described against a different threshold than the one it used.
+- **No scheduler behavior change.** This is a reporting-integrity correction only;
+  it does not alter suite concurrency, member timeouts, process cleanup, or the
+  canonical runtime budget itself.
+
+**Regression protection**
+
+- Extended `full-suite-runner-smoke` to require exactly one
+  `performanceBudgetMs` initializer and require that initializer to reference
+  `FULL_SUITE_BUDGET_MS`.
+- Added a mutation check that replaces the canonical reference with the former
+  numeric value and proves the smoke test rejects the shadow copy.
+- The full runner smoke inventory passes with 153 assertions and emits
+  `full-suite-runner-smoke: PASS`.
+
+**Verification**
+
+- `packages/main` builds successfully from the released source.
+- Routine validation, DONE-required validation, and live-smoke evidence completed
+  before the Story reached DONE.
+- The CLI version was advanced to `0.3.263`.
+
+## Proof-or-Stop v0.3.262 - 2026-08-18
+
+This release removes the one-mebibyte process-buffer cliff that could prevent
+large validation evidence from being committed, and adds bounded artifact sizing
+so growth remains visible and controlled before it reaches the new ceiling.
+
+**Evidence persistence**
+
+- **Explicit metadata read ceiling (B-3434).** Every synchronous Git blob and tree
+  read in the generated-metadata commit path now uses a 32 MiB `maxBuffer`, replacing
+  Node's implicit 1 MiB default. The fix covers `isolatedBlobHash`, `isolatedGit`,
+  `treeBlobHash`, and their sibling reads rather than patching only the originally
+  observed failure site.
+- **Large artifacts commit successfully.** Regression coverage proves that staged
+  blobs of 1,400,000 bytes and exactly 1,048,577 bytes—one byte above the former
+  limit—survive index verification, tree verification, and immutable metadata commit.
+- **Read failures remain fail-closed.** Missing blobs, unreadable blobs, and genuine
+  digest changes are represented as distinct outcomes. An unreadable blob can no
+  longer collapse to a null digest and be misreported as metadata changing after
+  verification.
+
+**Bounded diagnostics and artifact growth**
+
+- **Actionable overflow errors.** Buffer exhaustion reports the 32 MiB ceiling and
+  captured byte count while discarding partial blob content. Silent hook failures
+  preserve their exit status, and hook-provided diagnostic text remains visible.
+- **Persisted-record-aware sizing.** Validation evidence is measured as the complete
+  record that will actually be serialized to disk, including JSON escaping, rather
+  than estimating only the inner output string.
+- **Progressive evidence reduction.** When a record approaches its budget, duplicated
+  command output, detail lines, and warnings are replaced with explicit omission
+  markers while pass/fail state and command identity remain intact. A minimal valid
+  verdict record is retained as the final bounded fallback.
+- **Early growth warnings.** Advisory and hard thresholds are derived from the same
+  metadata read ceiling, providing headroom before an artifact can block lifecycle
+  progress.
+
+**Execution and suite reliability**
+
+- Full-suite concurrency now derives from the host instead of using a fixed value,
+  and declared time budgets scale with the selected concurrency.
+- Flow-stability receives a measured cap so the complete suite remains satisfiable
+  under the runner's own scheduling policy.
+
+**Verification**
+
+- Added `validation-evidence-buffer-smoke` covering large blobs, exact-boundary
+  behavior, failure taxonomy, bounded diagnostics, record sizing, reduction stages,
+  and verdict preservation.
+- Added `red-b3434-blob-buffer-ceiling.mjs` as the reproducer and regression guard.
+- Routine validation and DONE-required validation completed before the Story reached
+  DONE; the CLI version was advanced to `0.3.262`.
+
+## Proof-or-Stop v0.3.261 - 2026-08-17
+
+This release completes the public CLI brand migration and makes mechanical
+verification receipts honor realistic command budgets without weakening timeout
+controls.
+
+**CLI and product identity**
+
+- **Canonical `proof-or-stop` entrypoint (B-cdf6).** Added `bin/proof-or-stop.js`
+  as the primary CLI entrypoint and retained `lattice` as a deprecated compatibility
+  alias, so existing automation continues to work while new help text and examples
+  point to the canonical command.
+- **Centralized brand resolution.** Expanded the brand registry with canonical and
+  compatibility bin names, normalized usage rendering for direct script execution,
+  and a forward-readable version alias while preserving the stable version-bump
+  symbol consumed by release automation.
+- **Repository-wide surface alignment.** Updated active documentation, generated
+  agent assets, hooks, command help, templates, diagnostics, task output, and
+  brand-pinned gates. Added a migration mapping and negative verification script so
+  retired public-facing terms cannot silently return.
+- **Environment compatibility.** Added centralized branded environment lookup so
+  canonical variables are preferred while supported legacy variables remain readable
+  during migration.
+
+**Verification command reliability**
+
+- **Configured timeout inheritance (B-16df).** Pinned verification commands now
+  resolve an exact executable-and-arguments match against
+  `validate.commands[].timeoutMs`. Commands with an approved project-level budget no
+  longer fall back to the fixed 270-second evidence default.
+- **Bounded explicit overrides.** Evidence writes may provide an attributable timeout
+  override with a required reason. Runtime validation rejects invalid or excessive
+  values, caps the budget at 7,200,000 ms, and records the effective override on the
+  execution receipt.
+- **Clear timeout diagnosis.** A command killed by its wall-clock ceiling now reports
+  a dedicated timeout refusal with elapsed time and active budget instead of being
+  misreported as a missing output selector.
+- **All evidence paths covered.** Single-add, batch-add, rerun, and stale-evidence
+  refresh paths share the same resolution rule. An explicit audited override takes
+  precedence; otherwise the project configuration is inherited; unmatched commands
+  retain the safe default.
+
+**Merge integrity and verification**
+
+- Reconciled the brand migration and timeout work without dropping either side's
+  enforcement semantics.
+- `packages/main` build completed successfully.
+- The validation-timeout smoke suite passed all 45 assertions.
+- The brand negative gate detected an injected regression and accepted the clean tree.
+
+## Proof-or-Stop v0.3.260 - 2026-08-16
+
+This release lands the cross-platform build-concurrency hardening deferred from
+B-fb7b (finalized as B-1734): a portable `proper-lockfile` build mutex, a
+content-bound idempotent build skip, an atomic `dist` staging-swap, and an
+async-`tsc` heartbeat — so concurrent builders and the ~90 non-holding `dist`
+readers (above all `bin/bootstrap-runner.js`) can no longer corrupt or observe a
+half-built `dist`. Four deep concurrency residuals are documented and deferred to
+a dedicated build-concurrency infrastructure follow-up.
+
+**Fixed**
+
+- **Cross-platform build mutex + content-bound idempotent build (B-1734).** Closes
+  the four independent concurrency findings deferred from B-fb7b. Added
+  `scripts/build-lock.mjs` — `withBuildLock(repoKey, fn)` wraps every build's
+  rm+tsc+write critical section in a [`proper-lockfile`](https://www.npmjs.com/package/proper-lockfile)
+  mutex using the portable default mkdir strategy (no `flock`/`fcntl`/native module,
+  so it works on Mac/Linux/Windows). It is configured `stale: 30000`,
+  `update: 10000`: the correctness invariant `update < stale/2` means a **live**
+  long-running build always refreshes its heartbeat before the stale threshold, so
+  a waiter can never age-steal it (B-fb7b finding #1), while a **dead** holder's
+  lock ages past `stale` and is reclaimed race-safely (finding #2); `retries` make
+  concurrent builders wait. The lock releases on both normal completion and error.
+- The build skip decision is now **content-bound** via the existing
+  `verifyBuildBinding` (sha256 over all `packages/main/src`+config and all
+  `packages/main/dist`), replacing the shipped mtime/existence checks that
+  misclassified deleted-source orphans, partial builds, and tampered outputs as
+  fresh (findings #3/#4). `scripts/build-main-with-binding.mjs` skips instantly on
+  a lock-free fast-path when the binding verifies, and only rm+rebuilds (under the
+  mutex, with a double-check) when it is stale — so rebuilds are rare and the
+  rm-during-read window is closed. A parallel `packages/utils` binding
+  (`writeUtilsBuildBinding`/`verifyUtilsBuildBinding`, new
+  `scripts/build-utils-with-binding.mjs`) folds `packages/utils/src`+config **and**
+  the `packages/main/dist` it links against into its `sourceDigest`, so utils
+  rebuilds whenever main/dist changes. `scripts/ensure-dist.mjs` (the `pretest`) is
+  no longer existence-based: it delegates to the two content-bound + locked build
+  scripts, main before utils. Two concurrent `npm test` invocations in one worktree
+  now both complete without `ENOTEMPTY`/`MODULE_NOT_FOUND`/`TS2307`. New repro-first
+  REDs `red-1734-lock-liveness` and `red-1734-content-binding` are wired into
+  `validate.commands`; the `test-suite-utils-autobuild-smoke` structural guard and
+  the `red-fb7b-*` behavioral/guard-bite harnesses were updated to the content-bound
+  behavior.
+- **Concurrent-build hardening (B-1734 REVIEW round).** Three additional safety
+  fixes on top of the mutex: (1) the build-lock retry budget is now a REAL
+  exponential backoff (`minTimeout: 200`, `factor: 2`, `maxTimeout: 1000`,
+  `retries: 600` ≈ 10 min). The prior `factor: 1` collapsed every one of 120
+  retries to a flat 200 ms — a 24 s budget that a slow CI build could exceed,
+  crashing the waiter with an uncaught `ELOCKED` instead of waiting. (2) The lock
+  target open in `withBuildLock` no longer swallows errors in a bare `catch {}`: a
+  genuine `EACCES`/`ENOSPC` now surfaces instead of being masked as a confusing
+  downstream `proper-lockfile` realpath error. (3) The build is now an **atomic
+  staging-swap**: `tsc` emits into a `dist.staging` sibling and the new dist is
+  promoted by a single rename, so the ~90 non-lock-holding readers of
+  `packages/main/dist` (above all `bin/bootstrap-runner.js`, imported by every
+  `bin/lattice.js` call) never see an absent/partial dist during a rebuild. The
+  in-place `rmSync(dist)` + seconds-long in-place `tsc` — which exposed a
+  half-removed dist to unprotected readers and produced `MODULE_NOT_FOUND` — is
+  gone. `bin/bootstrap-runner.js` is additionally made lock-aware: while a build
+  lock is held it WAITS and retries across the microsecond rename gap instead of
+  crashing (the wait ceiling is revised to an absolute 20-minute wall-clock bound
+  in the second review round below), while a genuine "never built" (no lock active)
+  still fails fast with the recovery hint. New live-reproduced RED
+  `red-1734-reader-race` races dozens of real `bin/lattice.js` readers against a
+  real rebuild and asserts zero `MODULE_NOT_FOUND`; `red-1734-lock-liveness` now
+  also asserts the derived retry wait budget exceeds any single build (≥ 5 min).
+  The transient `dist.staging` / `dist.trash-*` swap siblings are gitignored.
+- **Concurrent-build hardening, second independent cross-host round (B-1734).** Four
+  MAJOR findings against the concurrent-build-safety changes:
+  (C3) `bin/bootstrap-runner.js` transitively imported `proper-lockfile` (via
+  `scripts/build-lock.mjs`), so a fresh checkout without `node_modules` threw
+  `ERR_MODULE_NOT_FOUND` at ESM module-init — before the recovery hint could print.
+  The lock target and stale threshold moved to a new dependency-free
+  `scripts/build-lock-target.mjs` (only `node:` built-ins; exports `buildLockTarget`
+  and `BUILD_LOCK_STALE_MS`, now the single source of truth for
+  `BUILD_LOCK_OPTIONS.stale`); bootstrap imports from there, never from
+  `build-lock.mjs`.
+  (C4) the concurrent-reader wait was a fixed 60 s cap that abandoned a legitimately
+  slow build (main build timeout is 290 s, builder retry budget ~10 min) even while
+  the lock was fresh and heartbeating. It is now an absolute 20-minute wall-clock
+  ceiling (`IMPORT_WAIT_MAX_MS`); a reader keeps waiting while `buildInProgress()`
+  reports a fresh lock and only gives up on a genuinely never-built repo or past the
+  ceiling.
+  (C1) the `build-utils-with-binding.mjs` pre-lock verify-and-exit fast-path could
+  validate against a still-visible OLD `packages/main/dist` while a concurrent main
+  build held the shared lock and was about to swap in a NEW main/dist, leaving the
+  utils binding stale — so utils+main were not actually mutually exclusive. That
+  fast-path is removed; utils now always takes the shared lock and relies on the
+  in-lock double-check verify (main/dist is stable under the lock). `build-main`'s
+  fast-path is kept — its binding is self-contained (main src+dist only).
+  (C2) the promotion `renameSync(dist,trash); renameSync(staging,dist)` left dist
+  ABSENT if the second rename failed after the first succeeded. A shared
+  `scripts/promote-dist.mjs` now restores the old dist from trash before rethrowing.
+  The atomic rename already shrank the absent-dist window to a single rename syscall
+  (microseconds); `bin/lattice.js` readers close even that via the build-lock wait in
+  `bin/bootstrap-runner.js`. A documented residual remains for the ~90 DIRECT
+  (non-bootstrap) dist consumers — fully closing it needs a cross-platform
+  versioned-pointer / directory-junction architecture (Windows junction rename
+  semantics make it cross-platform-risky), deferred as a follow-up (C2b), not
+  implemented here. New RED `red-1734-bootstrap-depfree` (fresh-checkout / no
+  `proper-lockfile`) is wired into `validate.commands`; `red-1734-reader-race` gains
+  `readerrace:2` (C4 ceiling + fresh-lock wait), `readerrace:3` (C2 crash-restore),
+  and `readerrace:4` (C1 no pre-lock fast-path). The `test-suite-utils-autobuild-smoke`
+  guard and `red-fb7b-guard-bite` fixtures read the stale threshold from the new
+  dependency-free module.
+- **Concurrent-build hardening, third independent cross-host round (B-1734).** Three MAJOR
+  findings against the concurrent-build-safety changes:
+  (D2) `tsc` ran via `execFileSync`, which BLOCKS the Node event loop for the whole
+  ~15s+ compile. `proper-lockfile`'s heartbeat (`setInterval`, every 10 s) cannot
+  fire while the loop is blocked, so a build lasting longer than the 30 s stale
+  threshold had its LIVE lock reclaimed by another builder — silently reintroducing
+  the B-fb7b live-holder age-steal (`bin/bootstrap-runner.js`'s `buildInProgress()`
+  freshness gate had the same blind spot). Both `build-main-with-binding.mjs` and
+  `build-utils-with-binding.mjs` now run `tsc` as an AWAITED async child
+  (`promisify(execFile)`) inside an `async` `withBuildLock` callback, so the event
+  loop stays free and the heartbeat keeps the lock fresh throughout the compile; a
+  `tsc` failure still rejects out of `withBuildLock` (its `finally` releases the
+  lock) so the scripts exit non-zero. `red-1734-lock-liveness` gains `adversarial:5`
+  (a ~12 s liveness proof that the lock mtime advances across a held async critical
+  section) and `adversarial:6` (static: the tsc step is an awaited async child, never
+  `execFileSync`).
+  (D1) `bin/bootstrap-runner.js` statically imports `scripts/build-lock-target.mjs`
+  (and now `scripts/promote-dist.mjs`), but the desktop asset manifest in
+  `scripts/package-desktop.mjs` shipped `bin/bootstrap-runner.js` WITHOUT them, so a
+  packaged desktop runtime crashed with `ERR_MODULE_NOT_FOUND` at bootstrap
+  module-init. Both `scripts/` modules are added to the manifest `files` array. New
+  RED `red-1734-desktop-asset-manifest` computes bootstrap's transitive static import
+  graph and asserts every `scripts/` module in it is shipped by the manifest, catching
+  this and any future drift; it is wired into `validate.commands`.
+  (D3) the promotion is not process-crash-safe: a SIGKILL/host crash AFTER
+  `renameSync(dist, trash)` but BEFORE `renameSync(staging, dist)` bypasses the
+  in-process catch and leaves `dist` absent until the NEXT build rebuilds it from
+  source (that build's fast-path verify fails on an absent `dist`, forcing a full
+  rebuild). A cross-process self-heal (`recoverOrphanedPromotion`) that restored the
+  orphaned `dist.trash-*` at build/bootstrap startup was implemented and then
+  **REVERTED** in the convergence round below: its freshness check and its
+  restore/delete ran WITHOUT holding the build lock, so a builder that acquired the
+  lock immediately after the check could have its live `dist.staging` deleted by
+  recovery — a NEW cross-process race. Only the sound parts are kept:
+  `scripts/promote-dist.mjs` retains the in-process crash-restore (C2), and each
+  build's LOCKED section best-effort sweeps stray `dist.staging` / `dist.trash-*`
+  siblings from a prior crash (safe precisely because the held lock excludes every
+  other builder). `bin/bootstrap-runner.js` no longer imports `promote-dist.mjs`; it
+  again imports ONLY the dependency-free `scripts/build-lock-target.mjs`, and
+  `scripts/promote-dist.mjs` was removed from the desktop asset manifest.
+  `red-1734-reader-race`'s crash-orphan-restore / recovery-no-op cases
+  (`readerrace:5`, `readerrace:6`) were removed with the revert (`readerrace:3`, the
+  retained in-process C2 crash-restore, stays); `red-1734-bootstrap-depfree`'s
+  `depfree:3` now asserts bootstrap's whole static graph (bootstrap-runner.js +
+  build-lock-target.mjs) is third-party-free. The residual mid-promotion crash window
+  is documented under Known limitations / follow-up below.
+
+**Known limitations / follow-up (B-1734)**
+
+The build mutex + content-bound skip + atomic staging-swap close the four B-fb7b
+concurrency findings for the common builder-vs-builder and reader-vs-builder cases,
+but four deep concurrency residuals are deliberately **DEFERRED** to a dedicated
+build-concurrency infrastructure follow-up story (full reader/writer leasing +
+crash-safe promotion + routing every build call-site through the lock — e.g. an
+immutable versioned-dir + atomic current-pointer design). Each residual is marked
+with an anchoring comment at its site in the source:
+
+- **Reader-lease TOCTOU (#1).** `bin/bootstrap-runner.js` checks `!buildInProgress()`
+  and THEN imports `dist` without holding a read lease, so a builder can acquire the
+  lock and promote in the gap between the check and the import. The single-rename
+  atomic swap makes this astronomically unlikely but does not eliminate it.
+- **Binding-vs-source TOCTOU (#3).** `scripts/build-main-with-binding.mjs` hashes
+  source into the manifest AFTER `tsc` already read it; a source file edited between
+  the two can leave the manifest pairing a new source digest with output compiled from
+  old source. Inherent to editing source mid-build.
+- **Desktop packaging bypasses the mutex (#4).** `scripts/package-desktop.mjs`
+  `buildPackages()` runs `tsc` directly against the shared `dist`, outside
+  `withBuildLock` + the staging-swap — a 4th build call-site not yet routed through the
+  lock.
+- **Crash between the two promotion renames.** A SIGKILL/host crash between
+  `scripts/promote-dist.mjs`'s two renames leaves `dist` absent until the next build
+  rebuilds it from source. The earlier cross-process auto-restore was reverted because
+  it could delete a concurrent live builder's staging (see D3 above).
+
+## Proof-or-Stop v0.3.258 - 2026-08-16
+
+This release strengthens validation reliability, lifecycle decision quality,
+and regression coverage across four completed workstreams.
+
+**Validation infrastructure**
+
+- **Workspace-wide validation serialization (B-6693).** Reworked the validation
+  execution lock so concurrent stories share one bounded capacity policy instead
+  of competing independently. The lock now covers routine validation,
+  DONE-required validation, verifier execution, and verdict paths; exposes clearer
+  ownership and contention diagnostics; and is backed by expanded smoke coverage,
+  including a live concurrency transcript.
+- **Reliable full-suite bootstrapping (B-fb7b).** Added a root `pretest` step that
+  ensures both `packages/main` and `packages/utils` build outputs exist before the
+  full suite starts. The bootstrap is idempotent and preserves already-present
+  outputs, preventing a parallel test invocation from deleting artifacts another
+  invocation is using.
+
+**Lifecycle safeguards**
+
+- **Mandatory development-memory checkpoints (B-a7c5).** DEV now requires an
+  acknowledged memory preflight, DONE requires a recorded finish decision, and
+  finding resolution surfaces a capture reminder. New registry, policy, handler,
+  storage, documentation, and smoke-test coverage keeps these facts mechanically
+  enforced rather than relying on narrative guidance.
+
+**Regression hardening**
+
+- **Three previously silent fixture failures now bite (B-74b9).** Repaired the
+  acceptance-basis, review-pass read-manifest, and DONE-recovery version-bump
+  fixtures so each proves its intended failure mode. Dedicated RED checks and
+  validate registration prevent the fixtures from passing vacuously after future
+  shared-path changes.
+
+**Verification**
+
+- Each workstream completed routine validation and DONE-required validation.
+- The release adds focused smoke and RED coverage for validation locking, package
+  bootstrapping, lifecycle gates, acceptance-basis checks, read manifests, and
+  version-bump recovery.
+
+## Proofbound 0.3.254 - 2026-08-14
+
+**Fixed**
+
+- **Redundant DONE-validation re-runs after a main-merge (B-f00c).** Extracted a
+  shared merge-lineage classifier — `packages/main/src/core/validation-lineage.ts`
+  (`netDiffChangedPaths` + `classifyMergeLineage`) — now used by both
+  `classifyTrustedValidationLineage` (`validation-evidence-reuse.ts`) and
+  `validationHeadLineage` (`validation-evidence-admissibility.ts`), which were
+  previously byte-equivalent copies. It computes a net endpoint `git diff-tree`
+  (`-z`, 1 GiB `maxBuffer`) instead of a per-commit `-m` union, so a merge that
+  re-introduces content-unchanged story files no longer flags them as
+  `untrusted-lineage-path`. This eliminates a redundant full-suite re-validation
+  and the `autopilot_review_submit --deriveBindings` hard-throw during the
+  hot-main closeout window, while a genuine non-metadata content change still
+  refuses reuse and an empty net diff stays trusted. New
+  `validation-reuse-merge-lineage-smoke` covers both classifier paths plus the
+  negative, empty-diff, large-diff (`maxBuffer`) and diff-failed cases and is
+  wired into `validate.commands`; `scripts/verify-process-fact-contract.mjs` now
+  tracks the git-command tokens in the shared module.
+
+- **Root `npm test` now self-bootstraps `packages/utils` (B-fb7b).** Added a root
+  `pretest` script (`scripts/ensure-dist.mjs`) that ensures `packages/main` then
+  `packages/utils` `dist` exist before the full suite runs. Previously
+  `validate.commands` auto-built only `packages/main`, so a worktree without
+  `packages/utils/dist` ran the full suite (via done_required's `npm test`) with utils
+  absent, and any sub-test that spawns `bin/lattice.js` aborted in `bootstrap-runner.js`
+  with `Missing build artifacts: packages/utils/dist/index.js`. The pretest fires through
+  the npm lifecycle, closing the gap at the exact point utils is needed.
+
+  The bootstrap is deliberately **existence-based**: it builds a package's `dist` only
+  when that `dist` is absent, and never `rm -rf dist`+rebuilds a present one — so a
+  repeated `npm test` cannot destroy a `dist` a concurrent invocation's suite is reading.
+  Freshness (rebuild on a source change) stays owned by the `packages-main-build` validate
+  proof, which rm+rebuilds from source; within a worktree the build output is at a fixed
+  HEAD, so an already-present `dist` is the correct one to reuse. `dist` is gitignored, so
+  the bootstrap never dirties the tree. A fast structural guard
+  (`test-suite-utils-autobuild-smoke`, wired into `validate.commands`), a behavioral
+  repro-first RED (`red-fb7b-pretest-builds-utils.mjs`), and a guard-bite verifier
+  (`red-fb7b-guard-bite.mjs`) keep the bootstrap from regressing. The worktree handler and
+  `bootstrap-runner.js` are intentionally left untouched (their human recovery hint stays).
+
+  Scope note: an independent cross-host review of an in-story attempt to also add a
+  crash-safe concurrent-build mutex + content-bound idempotent build surfaced several MAJOR
+  correctness bugs in a hand-rolled `mkdir` lock and `mtime` freshness heuristic (age-steal
+  of a live holder; a check-then-delete reclaim race; `mtime` misclassifying deleted-source
+  orphans and partial builds). That is a genuine infrastructure problem, disproportionate to
+  this bootstrap, so it is deferred to a dedicated follow-up story; this change carries only
+  the minimal existence-based bootstrap.
+
+## Proofbound 0.3.251 - 2026-07-31
+
+Dependency-security maintenance round: clears every high-severity advisory
+surfaced by `npm audit` across the root and workspaces by bumping the direct
+dependencies that carried the vulnerable transitives.
+
+**Security**
+
+- **Root `@modelcontextprotocol/sdk` ^1.29.0 → ^1.30.0.** Pulls patched
+  transitives: `hono` 4.12.9 → 4.12.33 (a large batch of cookie / path-traversal
+  / JSX-injection / cache-leak advisories), `@hono/node-server` → 2.0.12
+  (serve-static path traversal / middleware bypass), `fast-uri` → 3.1.5 (path
+  traversal + host-confusion), and patched `body-parser` / `qs` / `ip-address` /
+  `express-rate-limit`.
+- **Root `c8` ^11.0.0 → ^12.0.0.** Clears the `brace-expansion` DoS advisories
+  (GHSA-3jxr-9vmj-r5cp, GHSA-mh99-v99m-4gvg).
+- **`packages/main` `ws` ^8.20.0 → ^8.21.1.** Clears the ws uninitialized-memory
+  disclosure and fragment-DoS advisories (GHSA-58qx-3vcg-4xpx,
+  GHSA-96hv-2xvq-fx4p).
+
+**Tooling**
+
+- Added `scripts/audit-gate.mjs`, a cross-workspace audit gate that fails on any
+  high/critical advisory outside a documented allowlist. Run RED before this
+  round (4 high-severity packages), GREEN after.
+
+**Known exception**
+
+- `pkg` (GHSA-22r3-9w55-cj54, moderate local privilege escalation) has no
+  upstream fix and is a build-only devtool used by `scripts/package-desktop.mjs`;
+  it is allowlisted and tracked for migration to the maintained `@yao-pkg/pkg`
+  fork.
+
+## Proofbound 0.3.250 - 2026-07-31
+
+Rolls up CLI versions 0.3.234 through 0.3.250 — eighteen stories landed since
+v0.3.233. The theme is **evidence integrity**: verification evidence becomes
+mechanically executed and receipted instead of caller-asserted, a
+content-addressed red-evidence record chain lands behind recovery commands,
+review convergence gets a mandatory circuit breaker, and the ProofStory
+acceptance-topology pipeline completes with Wave 4.
+
+**Highlights**
+
+- **Mechanical evidence receipts (B-ec67, B-1507, B-3b88, B-2296).**
+  Verification intents now pin a (command, selector) pair and the tool executes
+  them itself instead of trusting a caller-authored pass (B-ec67); a new
+  `verification_run` command lands, the stale-evidence refresh re-executes the
+  pinned command, and a fail-open PreToolUse early-warning hook is added
+  (B-1507); self-contradictory evidence rows are rejected and `refresh_stale`
+  can no longer launder unverified pass assertions (B-3b88); checklist
+  `userSees` claims are bound to a normalized claim-digest + materialHash
+  snapshot, surfacing a non-blocking FROZEN_CLAIM_DRIFT advisory when either
+  drifts (B-2296, Phase 1 of 2).
+- **Red-evidence record chain (B-c054, B-e10d, B-506e, B-2aa7, B-49d4).**
+  RFC 8785 canonicalization and fail-closed red-evidence policy resolution
+  land, surfaced in doctor (B-c054); a registered target-binding store with the
+  owner-gated `red_evidence_binding_set` command (B-e10d); the v2 record-chain
+  plane behind `red_evidence_quarantine` / `red_evidence_recover` (B-506e);
+  legacy v1 red-evidence artifacts are validated before enforce-gate
+  evaluation (B-2aa7); and red-harness validate registration is derived
+  instead of asserting a fixed allowlist (B-49d4).
+- **Review convergence and lifecycle (B-7813, B-bf52, B-f88e, B-1909, B-8b69,
+  B-70a6).** The advisory review-convergence stall detector becomes a
+  mandatory blocking adjudication, so a story can no longer mint unlimited
+  ordinary review rounds without a recorded escalation, re-plan, finding
+  resolution, or unreachable-item declaration (B-7813); the convergence
+  breaker no longer collapses substantively different gate failures into one
+  repeat counter (B-bf52); a storyFilesHash downgrade no longer collides a
+  superseded quorum into permanent invalidity (B-f88e); undeliverable
+  checklist items and acceptance bindings are recorded as withdrawn instead of
+  delivered (B-1909); and a gated PLAN→INIT reopen lets a scope-flagged frozen
+  title on a worktree story be fixed (B-8b69), with the reopen reason
+  persisted into the phase_transition audit event (B-70a6).
+- **Acceptance topology Wave 4 (B-4043).** Prompt integration and measured
+  rollout complete the ProofStory acceptance-topology pipeline begun in
+  0.3.233.
+- **Cleanups (B-a539, B-3783).** The duplicated reviewer-scan-budget smoke
+  entry is removed from validate.commands (B-a539), and command-catalog-smoke
+  respects retired dispatch agents via bidirectional consistency (B-3783).
 
 ## Proofbound 0.3.233 - 2026-07-24
 

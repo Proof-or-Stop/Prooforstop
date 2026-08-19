@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-38b7",
+  "mode": "maintenance",
+  "allowed": [
+    "Create docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md from the approved Revision 3 artifact",
+    "Preserve the dual-audit record, implementation gates, rollback, mutation matrix, and relative repository references",
+    "Run documentation and residue verification without changing runtime behavior"
+  ],
+  "excluded": [
+    "Implement DYN-1 through DYN-5 production behavior",
+    "Modify validation scheduler, executor, receipt, gate, package, or config code",
+    "Register a canonical-document runtime entry before the registry is available on main",
+    "Run full performance benchmarks"
+  ],
+  "confirmedBy": "codex-side-conversation",
+  "confirmationNote": "User said: 同意，执行吧, approving the audited-document promotion sequence.",
+  "createdAt": "2026-08-18T18:28:56.193Z",
+  "updatedAt": "2026-08-18T18:28:56.193Z",
+  "_hash": "43224a5975796562acb21a1ddb549ba7ace9f3bd1086ed13df5e903d4cf8caba"
+}

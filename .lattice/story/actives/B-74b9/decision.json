@@ -1,0 +1,66 @@
+{
+  "principles": [
+    "Prefer fixing the stale test assumption over changing correct production logic",
+    "Repro-first: every fix is preceded by a committed RED script that fails on the pre-fix tree",
+    "Minimal, targeted diffs -- no unrelated refactors or scope creep into Authority Server / PROCESS_FACT_REGISTRY redesign",
+    "Leave a clear registration decision (validate.commands) so this class of regression cannot go silent again",
+    "Preserve each fixture's original discriminating intent (do not just silence the assertion)"
+  ],
+  "drivers": [
+    "All three failures are fixture-side staleness relative to correct, intentional production changes -- production code should not be weakened to accommodate stale fixtures",
+    "None of the three fixtures are in lattice.config.json validate.commands, so this class of regression is currently invisible to the standard REVIEW/validate loop",
+    "User explicitly required repro-first (RED before GREEN) for each of the three, bundled into one story driven to DONE"
+  ],
+  "options": [
+    {
+      "name": "Fixture-only fixes (update stale synthetic setup in each fixture)",
+      "pros": [
+        "Smallest possible diff; zero risk to real production behavior",
+        "Directly addresses the confirmed root cause in all three cases (fixture assumptions predate real registry/schema/version-bump changes)",
+        "Fast to review and verify"
+      ],
+      "cons": [
+        "If worktree-authority-smoke.ts's root cause turns out to need done_recover itself to handle a missing package.json more gracefully in real partial-DONE recovery scenarios (not just this fixture), a fixture-only fix would paper over a genuine production gap"
+      ]
+    },
+    {
+      "name": "Fixture fixes plus defensive production hardening",
+      "pros": [
+        "Covers the fixture-only case AND any latent production robustness gap in bumpVersionOnDoneMerge/done_recover"
+      ],
+      "cons": [
+        "Larger diff and larger REVIEW surface for a story whose confirmed root causes (checked directly against source) are fixture staleness, not production bugs",
+        "Risk of scope creep beyond what was actually confirmed by investigation"
+      ]
+    }
+  ],
+  "chosen": "Fixture-only fixes (update stale synthetic setup in each fixture)",
+  "rationale": "Direct source investigation (buildBoundedSourceGraph, command-catalog.ts required readManifest, bumpVersionOnDoneMerge's package.json requirement) confirmed all three production code paths are behaving exactly as intended; the fixtures are stale relative to legitimate prior changes. CHK-003's DEV work will attempt the fixture-only fix first per the recorded unknown, and only touch production code if that investigation surfaces a genuine gap.",
+  "preMortem": [
+    {
+      "scenario": "The fixture-only fix for worktree-authority-smoke.ts (stubbing package.json in the synthetic root) makes the RED script pass but masks a real gap where done_recover crashes on genuine partial-DONE recoveries whose worktree predates the version-bump feature",
+      "trigger": "A real partial-DONE recovery on an older worktree lacking expected version sync-point files",
+      "consequence": "done_recover throws in production exactly like the fixture did, but now with no test coverage catching it since the fixture was fixed to avoid the exact condition",
+      "mitigation": "During DEV, explicitly check whether bumpVersionOnDoneMerge already has a defined behavior for a pre-version-bump-era worktree (e.g. an existence check or version marker); if none exists, escalate to the two-option decision (fixture-only vs defensive hardening) instead of silently choosing fixture-only"
+    },
+    {
+      "scenario": "Adding the two missing stub files to proofstory-acceptance-basis-smoke.ts's writeCanonicalAcceptanceRegistration accidentally changes the semantic content in a way that makes the fixture pass vacuously (e.g. stub content that trivially satisfies every adapter) rather than genuinely re-proving the intended acceptance-basis invariant",
+      "trigger": "Copy-pasting an existing stub's shape without checking what each new file's real production counterpart's structural role actually is",
+      "consequence": "The fixture goes green but stops discriminating a genuine future regression in the acceptance-rollout closure logic",
+      "mitigation": "After the fix, deliberately break the fix (revert the new stub content) and confirm the fixture fails again with the original snapshot_missing error, proving the fixture still has real discriminating power"
+    },
+    {
+      "scenario": "Fixing field-regression-cli-smoke.ts's --readManifest argument by passing an empty or trivial object makes the CLI call succeed but the fixture's original staleness assertion (/already stale|stale/i) never actually gets exercised because the new readManifest happens to avoid the staleness code path entirely",
+      "trigger": "Constructing a minimal readManifest object just to satisfy the required-field validator, without checking what shape actually triggers the staleness branch being tested",
+      "consequence": "The fixture passes but silently stops testing the staleness scenario it was written for, identical in kind to F-002/F-003/F-004's non-discriminating-evidence class from B-a7c5",
+      "mitigation": "Match the readManifest shape used by other currently-passing tests that exercise the same staleness code path (per CHK-002's context), and confirm the fixed fixture's assertion actually matches against real 'already stale' output, not just against any non-crashing output"
+    },
+    {
+      "scenario": "Registering one or more of the three fixtures into lattice.config.json validate.commands (CHK-004) introduces flakiness or excessive runtime into the concurrent validate suite, since worktree-authority-smoke.ts and field-regression-cli-smoke.ts spawn real git repos and CLI subprocesses",
+      "trigger": "Adding all three unconditionally without checking their runtime cost or concurrency-safety against the rest of validate.commands",
+      "consequence": "lattice validate becomes slower or intermittently flaky for every story in the repo, a much broader blast radius than this story's actual bug fixes",
+      "mitigation": "CHK-004 explicitly evaluates and records a per-fixture registration decision rather than blanket-registering all three; only register a fixture if its runtime/isolation profile matches other validate.commands entries of similar shape (e.g. other worktree-spawning smoke tests already in that list)"
+    }
+  ],
+  "timestamp": "2026-08-15T19:57:19.178Z"
+}

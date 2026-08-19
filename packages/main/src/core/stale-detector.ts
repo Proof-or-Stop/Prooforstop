@@ -8,7 +8,7 @@
  * Design principles:
  *   - Never throw (PROBE class). An error in any single rule only affects that rule; the overall fallback is return [].
  *   - Do not write health (warnings are soft reminders, not health issues)
- *   - When there is no active story, return [] directly to avoid disturbing lattice help / lattice doctor
+ *   - When there is no active story, return [] directly to avoid disturbing proof-or-stop help / proof-or-stop doctor
  */
 
 import { execSync } from 'child_process';
@@ -23,7 +23,7 @@ export interface StaleThresholds {
   /** How long a checklist item can stay in_progress before it is treated as forgotten, in minutes. */
   itemStale: number;
   /** How long since the last lattice command counts as idle, in minutes. */
-  idleLattice: number;
+  idleProofOrStop: number;
   /** How long an open bug can remain unfixed before it is overdue, in minutes. Default: 24h = 1440. */
   bugStale: number;
 }
@@ -31,7 +31,7 @@ export interface StaleThresholds {
 export const DEFAULT_STALE_THRESHOLDS: StaleThresholds = {
   phaseStale: 30,
   itemStale: 30,
-  idleLattice: 60,
+  idleProofOrStop: 60,
   bugStale: 1440,
 };
 
@@ -52,7 +52,20 @@ function resolveThresholds(root: string): StaleThresholds {
     return {
       phaseStale: typeof u.phaseStale === 'number' && u.phaseStale > 0 ? u.phaseStale : DEFAULT_STALE_THRESHOLDS.phaseStale,
       itemStale: typeof u.itemStale === 'number' && u.itemStale > 0 ? u.itemStale : DEFAULT_STALE_THRESHOLDS.itemStale,
-      idleLattice: typeof u.idleLattice === 'number' && u.idleLattice > 0 ? u.idleLattice : DEFAULT_STALE_THRESHOLDS.idleLattice,
+      // B-cdf6:F-016 — READ-BOTH for a PERSISTED config field. This key was
+      // `staleThresholds.idleLattice` on main (introduced by B-fbca) and is readable from
+      // real `lattice.config.json` files on disk today. Reading only the new name would
+      // SILENTLY ignore an existing project's configured value and fall back to the
+      // 60-minute default with no warning — precisely the multi-developer
+      // behaviour-change-on-merge that core/brand-env.ts prevents for env vars but does
+      // NOT cover, because brand-env.ts only wraps process.env reads, not config files.
+      // Canonical name wins when both are present; the deprecated name is still honoured.
+      idleProofOrStop:
+        typeof u.idleProofOrStop === 'number' && u.idleProofOrStop > 0
+          ? u.idleProofOrStop
+          : typeof u.idleLattice === 'number' && u.idleLattice > 0
+            ? u.idleLattice
+            : DEFAULT_STALE_THRESHOLDS.idleProofOrStop,
       bugStale: typeof u.bugStale === 'number' && u.bugStale > 0 ? u.bugStale : DEFAULT_STALE_THRESHOLDS.bugStale,
     };
   } catch {
@@ -135,7 +148,7 @@ function checkIdleLattice(root: string, thresholds: StaleThresholds, now: number
     const ts = Date.parse(tsRaw);
     if (!Number.isFinite(ts)) return null;
     const diff = now - ts;
-    if (diff > thresholds.idleLattice * 60_000) {
+    if (diff > thresholds.idleProofOrStop * 60_000) {
       return `It has been ${formatMinutes(diff)} since the last lattice command; remember to continue the flow`;
     }
   } catch { /* PROBE */ }

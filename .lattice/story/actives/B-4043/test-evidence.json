@@ -1,0 +1,1841 @@
+{
+  "command": "lattice validate --story=B-4043 --json",
+  "output": "{\"provider\":\"lattice-verifier-reused\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Validation PASS reused (trusted-story-metadata-descendant); commandExecutions=0\",\"details\":[\"disposition=reused existingEvidenceBasis=fresh lineage=trusted-story-metadata-descendant\",\"identityDigest=ca63719e9603385b45381f01a4bc2035f5b874b56dee19a8854abfbf2f4477bf\",\"commandExecutions=0\",\"Verification intent coverage: 15/15 covered (0 required missing)\",\"  ✓ CHK-001:happy:role-guidance [happy/must/cli] covered via manual_transcript — Build and contract checks prove the mirrored Codex and Claude implementer/reviewer guidance names the canonical acceptance_topology_check, pre_review_check_read, acceptance rollout report/check, current-receipt, full-3x2, and rollback commands, while registered CLI/handler/process-fact consumers—not prompt prose—remain the only admission authority.\",\"  ✓ CHK-001:edge:mirror-mode [edge/must/logic] covered via logic_test — A mirror and mode-invariance check proves Codex and Claude guidance cannot drift and observe, warn, and enforce expose the same ordered diagnostics/status; only enforce changes blocking semantics.\",\"  ✓ CHK-001:adversarial:prompt-authority [adversarial/must/logic] covered via logic_test — Targeted mutations that remove a required command from either host prompt, replace full 3x2 with degraded 3x1, or claim prompt text is gate evidence must fail the mirror/process-fact contract with a stable reason, and restoration must return the clean control to PASS.\",\"  ✓ CHK-002:happy:real-cohort-receipt [happy/must/cli] covered via manual_transcript — A reproducible runner executes comparable real baseline and candidate high-assurance Story cohorts and the verifier deterministically derives aggregates and PASS/FAIL from source case records, binding the eligibility rule, evaluation window, complete eligible membership, at least 3 matched baseline/candidate pairs (at least 3 cases in each arm), sample identities, project/threshold version, story/material hashes, cost, review rounds, waivers, adapter results, and full-3x2 provider/quorum evidence into a signed/hash-verified receipt; caller-supplied membership, verdicts, or aggregates are rejected.\",\"  ✓ CHK-002:edge:false-block-controls [edge/must/cli] covered via manual_transcript — The same cohort includes docs-only, legacy, and ordinary single-outcome controls plus honest partial/unsupported adapter cases, reports a zero false-block rate for supported controls, and exposes identical computed metrics and diagnostics through write/read/check surfaces without mode-dependent relabeling.\",\"  ✓ CHK-002:adversarial:seeded-defects [adversarial/must/logic] covered via logic_test — Real-consumer seeded omission and forgery mutations—including removing C2 only from topology while its independently derived basis retains C2—must be detected across the registered campaign; omitting any eligible row, adding any ineligible row, altering the evaluation window, eligible membership, canonical order, membership digest, source rows, hashes, signature, freshness, provider identity, or using fewer than 3 matched pairs (fewer than 3 cases in either arm), and relabeling degraded 3x1 as full 3x2 must each fail with deterministic codes, then restoration must reproduce the clean PASS transcript.\",\"  ✓ CHK-003:happy:bounded-thresholds [happy/must/logic] covered via logic_test — The canonical flat project policy mechanically requires transcripts for user-visible/orchestration claims, biting mutations for behavior/lifecycle/proof/safety with docs-only exemption, registered supported adapter profiles, at least 3 comparable matched samples in each cohort arm, an overall false-pass rate of 0 across every registered seeded defect class, 100% supported omission detection, 0% false blocks, 0 mislabeled 3x1 campaigns, waiver delta <=0, and a non-shrinking check inventory before warn-to-enforce admission can PASS.\",\"  ✓ CHK-003:edge:inconclusive-boundary [edge/must/cli] covered via manual_transcript — Insufficient samples, unknown/partial/unsupported adapters, unexplained adapter disagreement, and claim-taxonomy gaps fail promotion with stable diagnostics while remaining honestly partial/unsupported; flat project scope is preserved and no selective Story/policy applicability is inferred without Wave 3A.\",\"  ✓ CHK-003:adversarial:threshold-bypass [adversarial/must/logic] covered via logic_test — Boundary mutations at fewer than 3 matched pairs, any incomplete registered seeded-defect campaign, any missed non-omission seeded defect, overall false-pass above 0, omission detection below 100%, false-block above 0, any mislabeled 3x1, positive waiver delta, or a removed check must each fail closed; caller attempts to lower thresholds, omit adapter or campaign records, forge aggregate PASS, or exploit observe/warn mode must not change the canonical diagnostic result.\",\"  ✓ CHK-004:happy:enforce-and-rollback [happy/must/cli] covered via manual_transcript — An explicit project-level enforce promotion succeeds only when the gate mechanically verifies a current signed PASS rollout receipt whose cohort satisfies every configured threshold and a current genuine full-3x2 quorum; a tested rollback to warn/observe removes blocking while preserving the report, receipt, prior mode transitions, diagnostics, and evidence history byte-for-byte.\",\"  ✓ CHK-004:edge:mode-invariant-diagnostics [edge/must/logic] covered via logic_test — Observe, warn, and enforce compute the same status, ordered diagnostics, threshold evaluation, and receipt classification; observe/warn remain non-blocking, enforce alone changes admission, and repeated promotion/rollback is deterministic without selective per-Story behavior.\",\"  ✓ CHK-004:adversarial:fail-closed-mutations [adversarial/must/logic] covered via logic_test — Clean control PASS → independently target missing/stale/tampered/failing receipt, degraded 3x1, forged host identity, positive waiver delta, weaker inventory, false-block, and omission-detection failures → each real gate consumer must reject with its named code → restoration must return clean PASS; rollback must never delete or rewrite the failed attempts or historical signed artifacts.\",\"  ✓ CHK-005:happy:canonical-wave4-status [happy/must/docs] covered via manual_transcript — Only after the real cohort and enforcement/rollback verification pass, docs checks prove the canonical Story 6 plan and CLI guide consistently replace Wave 4 NOT IMPLEMENTED with the exact demonstrated flat-rollout status, thresholds, measured cohort results, reproducible commands, receipt/quorum authority boundary, and rollback procedure.\",\"  ✓ CHK-005:edge:authority-and-exclusions [edge/must/docs] covered via manual_transcript — Canonical documentation explicitly keeps Wave 3A selective per-Story/per-policy applicability unimplemented and excluded, describes partial/unsupported adapters and degraded 3x1 as non-authority, and does not promote local full-3x2 evidence into production/public authority.\",\"  ✓ CHK-005:adversarial:no-status-overclaim [adversarial/must/docs] covered via manual_transcript — A docs/contract audit must fail if Wave 4 status is advanced without the current signed rollout receipt, if quoted metrics/thresholds/commands disagree with verifier output, if rollback history is described as deletable, if Wave 3A is implied implemented, or if any stale NOT IMPLEMENTED/overbroad authority claim contradicts the canonical status.\"],\"warnings\":[],\"timestamp\":\"2026-07-28T17:17:32.762Z\",\"commands\":[],\"disposition\":\"reused\",\"commandExecutions\":0,\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":15,\"reason\":\"verificationIntent entries present (15)\"},\"verificationCoverage\":{\"total\":15,\"required\":15,\"covered\":15,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:role-guidance\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"Build and contract checks prove the mirrored Codex and Claude implementer/reviewer guidance names the canonical acceptance_topology_check, pre_review_check_read, acceptance rollout report/check, current-receipt, full-3x2, and rollback commands, while registered CLI/handler/process-fact consumers—not prompt prose—remain the only admission authority.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:role-guidance\",\"kind\":\"manual_transcript\",\"command\":\"node scripts/verify-process-fact-contract.mjs --quiet\",\"result\":\"pass\",\"note\":\"Tool-executed under the B-ec67 pinned-command contract: the CLI itself runs the command and derives the result from the real exit code plus selector match.\",\"headHash\":\"d765daf74fde7b9c0298ce05a8f8ddd585bbfec2\",\"materialHash\":\"1c2d6c3c89f6697068d50b2de3f8224dca302bd15a8b126a8dd1276c81b640cb\",\"storyFilesHash\":\"f25bb43b739ccfaa5635ec6ba92e1313af35a334ba29b7f6e8a5bf07ddf2fd26\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"374685801e80f56814dbe109843cd5e20302ecf84b51e5414c72415ea19b9f67\",\"outputTail\":\"Process Fact Contract\\nPrompt guides; CLI/handler/gate decides\\n\\nScope: process facts only — phase/state transitions, pass/no-issue confirmations, findings/categories/roles, and evidence/check artifacts.\\nOut of scope: ordinary explanatory prose, narrative rationale, and benign Claude/Codex wording differences that do not alter commands or artifact paths.\\n\\n\\nProcess Fact Registry\\n- entries: 445 (346 CLI, 39 runtime, 10 reviewer lanes, 46 artifacts)\\n- levels: L0=161, L1=44, L2=67, L3=12, L4=161\\n- kinds: artifact=25, command=273, execution-status=6, finding=3, flow-policy=7, gate-evidence=54, host-availability-probe=1, host-verdict=2, review-pass=1, review-run=1, reviewer-lane=10, runtime-behavior=39, signed-artifact=21, validation-status=2\\n- flow fact policies:\\nflow fact policy: express-verification-policy -> express-exempt -> gate validate verification coverage and story_review PLAN fast-path advisory gate\\nflow fact policy: finding -> artifact findings.json -> gate storyMachine.canPassReview REVIEW to TEST gate\\nflow fact policy: pass-only-normalization -> finding_add:pass-only->review_pass_set -> artifact review-passes.json -> gate storyMachine.canPassReview REVIEW to TEST gate\\nflow fact policy: review-pass -> artifact review-passes.json -> gate storyMachine.canPassReview REVIEW to TEST gate\\nflow fact policy: review-pass-supersession -> artifact review-passes.json -> gate storyMachine.canPassReview REVIEW to TEST gate\\nflow fact policy: review-round-iso-string -> artifact findings.json -> gate review signatures and storyMachine.canPassReview REVIEW to TEST gate\\nflow fact policy: review-run-boundary -> artifact review-runs.json -> gate storyMachine.canPassReview REVIEW to TEST gate\\nPrompt drift scan: 35 reviewer prompt files checked\\n\\nProcess Fact Inventory\\n- entries: 15 (55 files checked)\\n\\nProcess fact contract verified\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-07-28T15:40:53.177Z\"},\"timestamp\":\"2026-07-28T15:48:05.295Z\"}},{\"intentRef\":\"CHK-001:edge:mirror-mode\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"A mirror and mode-invariance check proves Codex and Claude guidance cannot drift and observe, warn, and enforce expose the same ordered diagnostics/status; only enforce changes blocking semantics.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:mirror-mode\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js --proof-scenarios --cohort=/tmp/b4043-cohort-r4-final.json --story=B-4043\",\"result\":\"pass\",\"note\":\"Tool-executed under the B-ec67 pinned-command contract: the CLI itself runs the command and derives the result from the real exit code plus selector match.\",\"headHash\":\"d765daf74fde7b9c0298ce05a8f8ddd585bbfec2\",\"materialHash\":\"1c2d6c3c89f6697068d50b2de3f8224dca302bd15a8b126a8dd1276c81b640cb\",\"storyFilesHash\":\"f25bb43b739ccfaa5635ec6ba92e1313af35a334ba29b7f6e8a5bf07ddf2fd26\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"fde2c15fc2db9b77e7498688d044fd18e0442ca17ce2825b6071c95757a135c7\",\"outputTail\":\"\\\",\\\"PASS\\\",true,[[\\\"mutation-applied\\\",47],[\\\"diagnostic-observed\\\",48],[\\\"control-rerun\\\",49]],\\\"intent:CHK-002:edge:false-block-controls\\\"],[\\\"A-MUT-3\\\",\\\"mutation\\\",\\\"artifact:signature\\\",\\\"field-tamper\\\",\\\"tamper signed pre-review artifact field\\\",\\\"PR_ARTIFACT_TAMPERED\\\",\\\"PR_ARTIFACT_TAMPERED\\\",true,[[\\\"mutation-applied\\\",12],[\\\"diagnostic-observed\\\",13],[\\\"control-rerun\\\",14]],\\\"intent:CHK-003:edge:inconclusive-boundary\\\"],[\\\"A-MUT-4\\\",\\\"mutation\\\",\\\"authority:direct-store-replay\\\",\\\"authority-replay\\\",\\\"direct StoryStore proof without causal receipt\\\",\\\"PR_AUTHORITY_INADMISSIBLE\\\",\\\"PR_AUTHORITY_INADMISSIBLE\\\",true,[[\\\"mutation-applied\\\",0],[\\\"diagnostic-observed\\\",1],[\\\"control-rerun\\\",2]],\\\"intent:CHK-004:edge:mode-invariant-diagnostics\\\"],[\\\"A-MUT-5\\\",\\\"mutation\\\",\\\"planned-actual:consumer-symbol\\\",\\\"planned-actual\\\",\\\"remove declared current consumer symbol\\\",\\\"PR_PLANNED_PATH_UNRESOLVED\\\",\\\"PR_PLANNED_PATH_UNRESOLVED\\\",true,[[\\\"mutation-applied\\\",24],[\\\"diagnostic-observed\\\",25],[\\\"control-rerun\\\",26]],\\\"intent:CHK-005:edge:authority-and-exclusions\\\"],[\\\"A-MUT-6\\\",\\\"mutation\\\",\\\"role-guidance:authority-boundary\\\",\\\"prompt-contract-mutations\\\",\\\"remove required command, degrade full-3x2 to 3x1, and promote prompt prose to authority; every mutant must fail\\\",\\\"PROMPT_CONTRACT_REJECTED\\\",\\\"PROMPT_CONTRACT_REJECTED\\\",true,[[\\\"mutation-applied\\\",50],[\\\"diagnostic-observed\\\",51],[\\\"control-rerun\\\",52]],\\\"intent:CHK-001:adversarial:prompt-authority\\\"],[\\\"A-MUT-7\\\",\\\"mutation\\\",\\\"topology:consumer-omission\\\",\\\"topology-omission\\\",\\\"remove current topology consumer against retained basis\\\",\\\"PR_NEW_PATH_UNMAPPED\\\",\\\"PR_NEW_PATH_UNMAPPED\\\",true,[[\\\"mutation-applied\\\",9],[\\\"diagnostic-observed\\\",10],[\\\"control-rerun\\\",11]],\\\"intent:CHK-002:adversarial:seeded-defects\\\"],[\\\"A-MUT-8\\\",\\\"mutation\\\",\\\"basis:adapter-record\\\",\\\"adapter-tamper\\\",\\\"remove signed adapter result\\\",\\\"PR_ARTIFACT_TAMPERED\\\",\\\"PR_ARTIFACT_TAMPERED\\\",true,[[\\\"mutation-applied\\\",15],[\\\"diagnostic-observed\\\",16],[\\\"control-rerun\\\",17]],\\\"intent:CHK-003:adversarial:threshold-bypass\\\"],[\\\"A-MUT-9\\\",\\\"mutation\\\",\\\"mutation:observed-polarity\\\",\\\"polarity-restore\\\",\\\"replace observed mutation outcome then rerun clean control\\\",\\\"PR_MUTATION_DID_NOT_BITE\\\",\\\"PR_MUTATION_DID_NOT_BITE\\\",true,[[\\\"mutation-applied\\\",21],[\\\"diagnostic-observed\\\",22],[\\\"control-rerun\\\",23]],\\\"intent:CHK-004:adversarial:fail-closed-mutations\\\"],[\\\"A-POS-1\\\",\\\"positive\\\",\\\"role-guidance:codex-claude-mirrors\\\",\\\"prompt-contract\\\",\\\"execute exact role guidance token and mirror contract over all Codex/Claude role pairs\\\",\\\"PASS\\\",\\\"PASS\\\",true,[[\\\"producer-evaluated\\\",39],[\\\"consumer-verified\\\",40]],\\\"intent:CHK-001:happy:role-guidance\\\"],[\\\"A-POS-2\\\",\\\"positive\\\",\\\"rollout:verified-cohort-receipt\\\",\\\"rollout-receipt-verification\\\",\\\"load the frozen registered production cohort, issue a signed report, and verify the exact current receipt without respawning the cohort runner\\\",\\\"PASS\\\",\\\"PASS\\\",true,[[\\\"producer-evaluated\\\",41],[\\\"consumer-verified\\\",42]],\\\"intent:CHK-002:happy:real-cohort-receipt\\\"],[\\\"A-POS-3\\\",\\\"positive\\\",\\\"rollout:bounded-threshold-matrix\\\",\\\"threshold-contract\\\",\\\"evaluate every canonical promotion threshold from the verifier-derived report metrics\\\",\\\"PASS\\\",\\\"PASS\\\",true,[[\\\"producer-evaluated\\\",43],[\\\"consumer-verified\\\",44]],\\\"intent:CHK-003:happy:bounded-thresholds\\\"],[\\\"A-POS-4\\\",\\\"positive\\\",\\\"docs:canonical-wave4-status\\\",\\\"docs-contract\\\",\\\"execute canonical Wave 4 status and exact live-proof inventory contract check\\\",\\\"PASS\\\",\\\"PASS\\\",true,[[\\\"producer-evaluated\\\",45],[\\\"consumer-verified\\\",46]],\\\"intent:CHK-005:happy:canonical-wave4-status\\\"],[\\\"A-POS-5\\\",\\\"positive\\\",\\\"rollout:focused-enforce-rollback\\\",\\\"focused-rollout-control\\\",\\\"execute focused Wave 4 rollout smoke with enforce, rollback, and history-preservation controls\\\",\\\"PASS\\\",\\\"PASS\\\",true,[[\\\"producer-evaluated\\\",59],[\\\"consumer-verified\\\",60]],\\\"intent:CHK-004:happy:enforce-and-rollback\\\"],[\\\"A-TRANSCRIPT-1\\\",\\\"transcript\\\",\\\"events:producer-consumer\\\",\\\"event-log-relation\\\",\\\"actual producer invocation precedes canonical lifecycle consumer\\\",\\\"ORDERED\\\",\\\"ORDERED\\\",true,[[\\\"producer-evaluated\\\",6],[\\\"consumer-verified\\\",7]],\\\"intent:CHK-004:happy:enforce-and-rollback\\\"]]\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-07-28T15:42:19.705Z\"},\"timestamp\":\"2026-07-28T15:48:05.295Z\"}},{\"intentRef\":\"CHK-001:adversarial:prompt-authority\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"Targeted mutations that remove a required command from either host prompt, replace full 3x2 with degraded 3x1, or claim prompt text is gate evidence must fail the mirror/process-fact contract with a stable reason, and restoration must return the clean control to PASS.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:prompt-authority\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js --proof-scenarios --cohort=/tmp/b4043-cohort-r4-final.json --story=B-4043\",\"result\":\"pass\",\"note\":\"Tool-executed under the B-ec67 pinned-command contract: the CLI itself runs the command and derives the result from the real exit code plus selector match.\",\"headHash\":\"d765daf74fde7b9c0298ce05a8f8ddd585bbfec2\",\"materialHash\":\"1c2d6c3c89f6697068d50b2de3f8224dca302bd15a8b126a8dd1276c81b640cb\",\"storyFilesHash\":\"f25bb43b739ccfaa5635ec6ba92e1313af35a334ba29b7f6e8a5bf07ddf2fd26\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"fde2c15fc2db9b77e7498688d044fd18e0442ca17ce2825b6071c95757a135c7\",\"outputTail\":\"\\\",\\\"PASS\\\",true,[[\\\"mutation-applied\\\",47],[\\\"diagnostic-observed\\\",48],[\\\"control-rerun\\\",49]],\\\"intent:CHK-002:edge:false-block-controls\\\"],[\\\"A-MUT-3\\\",\\\"mutation\\\",\\\"artifact:signature\\\",\\\"field-tamper\\\",\\\"tamper signed pre-review artifact field\\\",\\\"PR_ARTIFACT_TAMPERED\\\",\\\"PR_ARTIFACT_TAMPERED\\\",true,[[\\\"mutation-applied\\\",12],[\\\"diagnostic-observed\\\",13],[\\\"control-rerun\\\",14]],\\\"intent:CHK-003:edge:inconclusive-boundary\\\"],[\\\"A-MUT-4\\\",\\\"mutation\\\",\\\"authority:direct-store-replay\\\",\\\"authority-replay\\\",\\\"direct StoryStore proof without causal receipt\\\",\\\"PR_AUTHORITY_INADMISSIBLE\\\",\\\"PR_AUTHORITY_INADMISSIBLE\\\",true,[[\\\"mutation-applied\\\",0],[\\\"diagnostic-observed\\\",1],[\\\"control-rerun\\\",2]],\\\"intent:CHK-004:edge:mode-invariant-diagnostics\\\"],[\\\"A-MUT-5\\\",\\\"mutation\\\",\\\"planned-actual:consumer-symbol\\\",\\\"planned-actual\\\",\\\"remove declared current consumer symbol\\\",\\\"PR_PLANNED_PATH_UNRESOLVED\\\",\\\"PR_PLANNED_PATH_UNRESOLVED\\\",true,[[\\\"mutation-applied\\\",24],[\\\"diagnostic-observed\\\",25],[\\\"control-rerun\\\",26]],\\\"intent:CHK-005:edge:authority-and-exclusions\\\"],[\\\"A-MUT-6\\\",\\\"mutation\\\",\\\"role-guidance:authority-boundary\\\",\\\"prompt-contract-mutations\\\",\\\"remove required command, degrade full-3x2 to 3x1, and promote prompt prose to authority; every mutant must fail\\\",\\\"PROMPT_CONTRACT_REJECTED\\\",\\\"PROMPT_CONTRACT_REJECTED\\\",true,[[\\\"mutation-applied\\\",50],[\\\"diagnostic-observed\\\",51],[\\\"control-rerun\\\",52]],\\\"intent:CHK-001:adversarial:prompt-authority\\\"],[\\\"A-MUT-7\\\",\\\"mutation\\\",\\\"topology:consumer-omission\\\",\\\"topology-omission\\\",\\\"remove current topology consumer against retained basis\\\",\\\"PR_NEW_PATH_UNMAPPED\\\",\\\"PR_NEW_PATH_UNMAPPED\\\",true,[[\\\"mutation-applied\\\",9],[\\\"diagnostic-observed\\\",10],[\\\"control-rerun\\\",11]],\\\"intent:CHK-002:adversarial:seeded-defects\\\"],[\\\"A-MUT-8\\\",\\\"mutation\\\",\\\"basis:adapter-record\\\",\\\"adapter-tamper\\\",\\\"remove signed adapter result\\\",\\\"PR_ARTIFACT_TAMPERED\\\",\\\"PR_ARTIFACT_TAMPERED\\\",true,[[\\\"mutation-applied\\\",15],[\\\"diagnostic-observed\\\",16],[\\\"control-rerun\\\",17]],\\\"intent:CHK-003:adversarial:threshold-bypass\\\"],[\\\"A-MUT-9\\\",\\\"mutation\\\",\\\"mutation:observed-polarity\\\",\\\"polarity-restore\\\",\\\"replace observed mutation outcome then rerun clean control\\\",\\\"PR_MUTATION_DID_NOT_BITE\\\",\\\"PR_MUTATION_DID_NOT_BITE\\\",true,[[\\\"mutation-applied\\\",21],[\\\"diagnostic-observed\\\",22],[\\\"control-rerun\\\",23]],\\\"intent:CHK-004:adversarial:fail-closed-mutations\\\"],[\\\"A-POS-1\\\",\\\"positive\\\",\\\"role-guidance:codex-claude-mirrors\\\",\\\"prompt-contract\\\",\\\"execute exact role guidance token and mirror contract over all Codex/Claude role pairs\\\",\\\"PASS\\\",\\\"PASS\\\",true,[[\\\"producer-evaluated\\\",39],[\\\"consumer-verified\\\",40]],\\\"intent:CHK-001:happy:role-guidance\\\"],[\\\"A-POS-2\\\",\\\"positive\\\",\\\"rollout:verified-cohort-receipt\\\",\\\"rollout-receipt-verification\\\",\\\"load the frozen registered production cohort, issue a signed report, and verify the exact current receipt without respawning the cohort runner\\\",\\\"PASS\\\",\\\"PASS\\\",true,[[\\\"producer-evaluated\\\",41],[\\\"consumer-verified\\\",42]],\\\"intent:CHK-002:happy:real-cohort-receipt\\\"],[\\\"A-POS-3\\\",\\\"positive\\\",\\\"rollout:bounded-threshold-matrix\\\",\\\"threshold-contract\\\",\\\"evaluate every canonical promotion threshold from the verifier-derived report metrics\\\",\\\"PASS\\\",\\\"PASS\\\",true,[[\\\"producer-evaluated\\\",43],[\\\"consumer-verified\\\",44]],\\\"intent:CHK-003:happy:bounded-thresholds\\\"],[\\\"A-POS-4\\\",\\\"positive\\\",\\\"docs:canonical-wave4-status\\\",\\\"docs-contract\\\",\\\"execute canonical Wave 4 status and exact live-proof inventory contract check\\\",\\\"PASS\\\",\\\"PASS\\\",true,[[\\\"producer-evaluated\\\",45],[\\\"consumer-verified\\\",46]],\\\"intent:CHK-005:happy:canonical-wave4-status\\\"],[\\\"A-POS-5\\\",\\\"positive\\\",\\\"rollout:focused-enforce-rollback\\\",\\\"focused-rollout-control\\\",\\\"execute focused Wave 4 rollout smoke with enforce, rollback, and history-preservation controls\\\",\\\"PASS\\\",\\\"PASS\\\",true,[[\\\"producer-evaluated\\\",59],[\\\"consumer-verified\\\",60]],\\\"intent:CHK-004:happy:enforce-and-rollback\\\"],[\\\"A-TRANSCRIPT-1\\\",\\\"transcript\\\",\\\"events:producer-consumer\\\",\\\"event-log-relation\\\",\\\"actual producer invocation precedes canonical lifecycle consumer\\\",\\\"ORDERED\\\",\\\"ORDERED\\\",true,[[\\\"producer-evaluated\\\",6],[\\\"consumer-verified\\\",7]],\\\"intent:CHK-004:happy:enforce-and-rollback\\\"]]\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-07-28T15:43:48.352Z\"},\"timestamp\":\"2026-07-28T15:48:05.295Z\"}},{\"intentRef\":\"CHK-002:happy:real-cohort-receipt\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"A reproducible runner executes comparable real baseline and candidate high-assurance Story cohorts and the verifier deterministically derives aggregates and PASS/FAIL from source case records, binding the eligibility rule, evaluation window, complete eligible membership, at least 3 matched baseline/candidate pairs (at least 3 cases in each arm), sample identities, project/threshold version, story/material hashes, cost, review rounds, waivers, adapter results, and full-3x2 provider/quorum evidence into a signed/hash-verified receipt; caller-supplied membership, verdicts, or aggregates are rejected.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:real-cohort-receipt\",\"kind\":\"manual_transcript\",\"command\":\"node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js --proof-scenarios --cohort=/tmp/b4043-cohort-r4-final.json --story=B-4043\",\"result\":\"pass\",\"note\":\"Tool-executed under the B-ec67 pinned-command contract. Pinned to the story's own designated proof: proofstory-pre-review-check-smoke.ts:425 declares scenario A-POS-2 (rollout:verified-cohort-receipt) with canonicalSourceRef 'intent:CHK-002:happy:real-cohort-receipt', and that scenario verifies the frozen cohort's signed receipt WITHOUT respawning the expensive cohort runner. The CLI executes it and derives the result from the real exit code plus selector match.\",\"headHash\":\"d765daf74fde7b9c0298ce05a8f8ddd585bbfec2\",\"materialHash\":\"1c2d6c3c89f6697068d50b2de3f8224dca302bd15a8b126a8dd1276c81b640cb\",\"storyFilesHash\":\"f25bb43b739ccfaa5635ec6ba92e1313af35a334ba29b7f6e8a5bf07ddf2fd26\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"fde2c15fc2db9b77e7498688d044fd18e0442ca17ce2825b6071c95757a135c7\",\"outputTail\":\"\\\",\\\"PASS\\\",true,[[\\\"mutation-applied\\\",47],[\\\"diagnostic-observed\\\",48],[\\\"control-rerun\\\",49]],\\\"intent:CHK-002:edge:false-block-controls\\\"],[\\\"A-MUT-3\\\",\\\"mutation\\\",\\\"artifact:signature\\\",\\\"field-tamper\\\",\\\"tamper signed pre-review artifact field\\\",\\\"PR_ARTIFACT_TAMPERED\\\",\\\"PR_ARTIFACT_TAMPERED\\\",true,[[\\\"mutation-applied\\\",12],[\\\"diagnostic-observed\\\",13],[\\\"control-rerun\\\",14]],\\\"intent:CHK-003:edge:inconclusive-boundary\\\"],[\\\"A-MUT-4\\\",\\\"mutation\\\",\\\"authority:direct-store-replay\\\",\\\"authority-replay\\\",\\\"direct StoryStore proof without causal receipt\\\",\\\"PR_AUTHORITY_INADMISSIBLE\\\",\\\"PR_AUTHORITY_INADMISSIBLE\\\",true,[[\\\"mutation-applied\\\",0],[\\\"diagnostic-observed\\\",1],[\\\"control-rerun\\\",2]],\\\"intent:CHK-004:edge:mode-invariant-diagnostics\\\"],[\\\"A-MUT-5\\\",\\\"mutation\\\",\\\"planned-actual:consumer-symbol\\\",\\\"planned-actual\\\",\\\"remove declared current consumer symbol\\\",\\\"PR_PLANNED_PATH_UNRESOLVED\\\",\\\"PR_PLANNED_PATH_UNRESOLVED\\\",true,[[\\\"mutation-applied\\\",24],[\\\"diagnostic-observed\\\",25],[\\\"control-rerun\\\",26]],\\\"intent:CHK-005:edge:authority-and-exclusions\\\"],[\\\"A-MUT-6\\\",\\\"mutation\\\",\\\"role-guidance:authority-boundary\\\",\\\"prompt-contract-mutations\\\",\\\"remove required command, degrade full-3x2 to 3x1, and promote prompt prose to authority; every mutant must fail\\\",\\\"PROMPT_CONTRACT_REJECTED\\\",\\\"PROMPT_CONTRACT_REJECTED\\\",true,[[\\\"mutation-applied\\\",50],[\\\"diagnostic-observed\\\",51],[\\\"control-rerun\\\",52]],\\\"intent:CHK-001:adversarial:prompt-authority\\\"],[\\\"A-MUT-7\\\",\\\"mutation\\\",\\\"topology:consumer-omission\\\",\\\"topology-omission\\\",\\\"remove current topology consumer against retained basis\\\",\\\"PR_NEW_PATH_UNMAPPED\\\",\\\"PR_NEW_PATH_UNMAPPED\\\",true,[[\\\"mutation-applied\\\",9],[\\\"diagnostic-observed\\\",10],[\\\"control-rerun\\\",11]],\\\"intent:CHK-002:adversarial:seeded-defects\\\"],[\\\"A-MUT-8\\\",\\\"mutation\\\",\\\"basis:adapter-record\\\",\\\"adapter-tamper\\\",\\\"remove signed adapter result\\\",\\\"PR_ARTIFACT_TAMPERED\\\",\\\"PR_ARTIFACT_TAMPERED\\\",true,[[\\\"mutation-applied\\\",15],[\\\"diagnostic-observed\\\",16],[\\\"control-rerun\\\",17]],\\\"intent:CHK-003:adversarial:threshold-bypass\\\"],[\\\"A-MUT-9\\\",\\\"mutation\\\",\\\"mutation:observed-polarity\\\",\\\"polarity-restore\\\",\\\"replace observed mutation outcome then rerun clean control\\\",\\\"PR_MUTATION_DID_NOT_BITE\\\",\\\"PR_MUTATION_DID_NOT_BITE\\\",true,[[\\\"mutation-applied\\\",21],[\\\"diagnostic-observed\\\",22],[\\\"control-rerun\\\",23]],\\\"intent:CHK-004:adversarial:fail-closed-mutations\\\"],[\\\"A-POS-1\\\",\\\"positive\\\",\\\"role-guidance:codex-claude-mirrors\\\",\\\"prompt-contract\\\",\\\"execute exact role guidance token and mirror contract over all Codex/Claude role pairs\\\",\\\"PASS\\\",\\\"PASS\\\",true,[[\\\"producer-evaluated\\\",39],[\\\"consumer-verified\\\",40]],\\\"intent:CHK-001:happy:role-guidance\\\"],[\\\"A-POS-2\\\",\\\"positive\\\",\\\"rollout:verified-cohort-receipt\\\",\\\"rollout-receipt-verification\\\",\\\"load the frozen registered production cohort, issue a signed report, and verify the exact current receipt without respawning the cohort runner\\\",\\\"PASS\\\",\\\"PASS\\\",true,[[\\\"producer-evaluated\\\",41],[\\\"consumer-verified\\\",42]],\\\"intent:CHK-002:happy:real-cohort-receipt\\\"],[\\\"A-POS-3\\\",\\\"positive\\\",\\\"rollout:bounded-threshold-matrix\\\",\\\"threshold-contract\\\",\\\"evaluate every canonical promotion threshold from the verifier-derived report metrics\\\",\\\"PASS\\\",\\\"PASS\\\",true,[[\\\"producer-evaluated\\\",43],[\\\"consumer-verified\\\",44]],\\\"intent:CHK-003:happy:bounded-thresholds\\\"],[\\\"A-POS-4\\\",\\\"positive\\\",\\\"docs:canonical-wave4-status\\\",\\\"docs-contract\\\",\\\"execute canonical Wave 4 status and exact live-proof inventory contract check\\\",\\\"PASS\\\",\\\"PASS\\\",true,[[\\\"producer-evaluated\\\",45],[\\\"consumer-verified\\\",46]],\\\"intent:CHK-005:happy:canonical-wave4-status\\\"],[\\\"A-POS-5\\\",\\\"positive\\\",\\\"rollout:focused-enforce-rollback\\\",\\\"focused-rollout-control\\\",\\\"execute focused Wave 4 rollout smoke with enforce, rollback, and history-preservation controls\\\",\\\"PASS\\\",\\\"PASS\\\",true,[[\\\"producer-evaluated\\\",59],[\\\"consumer-verified\\\",60]],\\\"intent:CHK-004:happy:enforce-and-rollback\\\"],[\\\"A-TRANSCRIPT-1\\\",\\\"transcript\\\",\\\"events:producer-consumer\\\",\\\"event-log-relation\\\",\\\"actual producer invocation precedes canonical lifecycle consumer\\\",\\\"ORDERED\\\",\\\"ORDERED\\\",true,[[\\\"producer-evaluated\\\",6],[\\\"consumer-verified\\\",7]],\\\"intent:CHK-004:happy:enforce-and-rollback\\\"]]\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-07-28T15:45:05.338Z\"},\"timestamp\":\"2026-07-28T15:48:05.295Z\"}},{\"intentRef\":\"CHK-002:edge:false-block-controls\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"The same cohort includes docs-only, legacy, and ordinary single-outcome controls plus honest partial/unsupported adapter cases, reports a zero false-block rate for supported controls, and exposes identical computed metrics and diagnostics through write/read/check surfaces without mode-dependent relabeling.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:false-block-controls\",\"kind\":\"manual_transcript\",\"command\":\"node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js --cohort=/tmp/b4043-cohort-r4-final.json\",\"result\":\"pass\",\"note\":\"Tool-executed under the B-ec67 pinned-command contract: the CLI itself runs the acceptance-rollout smoke against the frozen cohort and derives the result from the real exit code plus selector match.\",\"headHash\":\"d765daf74fde7b9c0298ce05a8f8ddd585bbfec2\",\"materialHash\":\"1c2d6c3c89f6697068d50b2de3f8224dca302bd15a8b126a8dd1276c81b640cb\",\"storyFilesHash\":\"f25bb43b739ccfaa5635ec6ba92e1313af35a334ba29b7f6e8a5bf07ddf2fd26\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"3611bffca42a41e3c3f5214c2ee9ef91887fb418a2f669d7b3e5be7b486cebdf\",\"outputTail\":\"Switched to a new branch 'story/B-REAL'\\nProofStory acceptance rollout smoke: PASS (57 assertions)\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-07-28T15:45:30.516Z\"},\"timestamp\":\"2026-07-28T15:48:05.295Z\"}},{\"intentRef\":\"CHK-002:adversarial:seeded-defects\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Real-consumer seeded omission and forgery mutations—including removing C2 only from topology while its independently derived basis retains C2—must be detected across the registered campaign; omitting any eligible row, adding any ineligible row, altering the evaluation window, eligible membership, canonical order, membership digest, source rows, hashes, signature, freshness, provider identity, or using fewer than 3 matched pairs (fewer than 3 cases in either arm), and relabeling degraded 3x1 as full 3x2 must each fail with deterministic codes, then restoration must reproduce the clean PASS transcript.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:seeded-defects\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js --cohort=/tmp/b4043-cohort-r4-final.json\",\"result\":\"pass\",\"note\":\"Tool-executed under the B-ec67 pinned-command contract: the CLI itself runs the acceptance-rollout smoke against the frozen cohort and derives the result from the real exit code plus selector match.\",\"headHash\":\"d765daf74fde7b9c0298ce05a8f8ddd585bbfec2\",\"materialHash\":\"1c2d6c3c89f6697068d50b2de3f8224dca302bd15a8b126a8dd1276c81b640cb\",\"storyFilesHash\":\"f25bb43b739ccfaa5635ec6ba92e1313af35a334ba29b7f6e8a5bf07ddf2fd26\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"3611bffca42a41e3c3f5214c2ee9ef91887fb418a2f669d7b3e5be7b486cebdf\",\"outputTail\":\"Switched to a new branch 'story/B-REAL'\\nProofStory acceptance rollout smoke: PASS (57 assertions)\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-07-28T15:45:54.756Z\"},\"timestamp\":\"2026-07-28T15:48:05.295Z\"}},{\"intentRef\":\"CHK-003:happy:bounded-thresholds\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"The canonical flat project policy mechanically requires transcripts for user-visible/orchestration claims, biting mutations for behavior/lifecycle/proof/safety with docs-only exemption, registered supported adapter profiles, at least 3 comparable matched samples in each cohort arm, an overall false-pass rate of 0 across every registered seeded defect class, 100% supported omission detection, 0% false blocks, 0 mislabeled 3x1 campaigns, waiver delta <=0, and a non-shrinking check inventory before warn-to-enforce admission can PASS.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:bounded-thresholds\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js --cohort=/tmp/b4043-cohort-r4-final.json\",\"result\":\"pass\",\"note\":\"Tool-executed under the B-ec67 pinned-command contract: the CLI itself runs the acceptance-rollout smoke against the frozen cohort and derives the result from the real exit code plus selector match.\",\"headHash\":\"d765daf74fde7b9c0298ce05a8f8ddd585bbfec2\",\"materialHash\":\"1c2d6c3c89f6697068d50b2de3f8224dca302bd15a8b126a8dd1276c81b640cb\",\"storyFilesHash\":\"f25bb43b739ccfaa5635ec6ba92e1313af35a334ba29b7f6e8a5bf07ddf2fd26\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"3611bffca42a41e3c3f5214c2ee9ef91887fb418a2f669d7b3e5be7b486cebdf\",\"outputTail\":\"Switched to a new branch 'story/B-REAL'\\nProofStory acceptance rollout smoke: PASS (57 assertions)\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-07-28T15:46:18.308Z\"},\"timestamp\":\"2026-07-28T15:48:05.295Z\"}},{\"intentRef\":\"CHK-003:edge:inconclusive-boundary\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"Insufficient samples, unknown/partial/unsupported adapters, unexplained adapter disagreement, and claim-taxonomy gaps fail promotion with stable diagnostics while remaining honestly partial/unsupported; flat project scope is preserved and no selective Story/policy applicability is inferred without Wave 3A.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:inconclusive-boundary\",\"kind\":\"manual_transcript\",\"command\":\"node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js --cohort=/tmp/b4043-cohort-r4-final.json\",\"result\":\"pass\",\"note\":\"Tool-executed under the B-ec67 pinned-command contract: the CLI itself runs the acceptance-rollout smoke against the frozen cohort and derives the result from the real exit code plus selector match.\",\"headHash\":\"d765daf74fde7b9c0298ce05a8f8ddd585bbfec2\",\"materialHash\":\"1c2d6c3c89f6697068d50b2de3f8224dca302bd15a8b126a8dd1276c81b640cb\",\"storyFilesHash\":\"f25bb43b739ccfaa5635ec6ba92e1313af35a334ba29b7f6e8a5bf07ddf2fd26\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"3611bffca42a41e3c3f5214c2ee9ef91887fb418a2f669d7b3e5be7b486cebdf\",\"outputTail\":\"Switched to a new branch 'story/B-REAL'\\nProofStory acceptance rollout smoke: PASS (57 assertions)\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-07-28T15:46:41.545Z\"},\"timestamp\":\"2026-07-28T15:48:05.295Z\"}},{\"intentRef\":\"CHK-003:adversarial:threshold-bypass\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"Boundary mutations at fewer than 3 matched pairs, any incomplete registered seeded-defect campaign, any missed non-omission seeded defect, overall false-pass above 0, omission detection below 100%, false-block above 0, any mislabeled 3x1, positive waiver delta, or a removed check must each fail closed; caller attempts to lower thresholds, omit adapter or campaign records, forge aggregate PASS, or exploit observe/warn mode must not change the canonical diagnostic result.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:threshold-bypass\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js --cohort=/tmp/b4043-cohort-r4-final.json\",\"result\":\"pass\",\"note\":\"Tool-executed under the B-ec67 pinned-command contract: the CLI itself runs the acceptance-rollout smoke against the frozen cohort and derives the result from the real exit code plus selector match.\",\"headHash\":\"d765daf74fde7b9c0298ce05a8f8ddd585bbfec2\",\"materialHash\":\"1c2d6c3c89f6697068d50b2de3f8224dca302bd15a8b126a8dd1276c81b640cb\",\"storyFilesHash\":\"f25bb43b739ccfaa5635ec6ba92e1313af35a334ba29b7f6e8a5bf07ddf2fd26\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"3611bffca42a41e3c3f5214c2ee9ef91887fb418a2f669d7b3e5be7b486cebdf\",\"outputTail\":\"Switched to a new branch 'story/B-REAL'\\nProofStory acceptance rollout smoke: PASS (57 assertions)\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-07-28T15:47:02.796Z\"},\"timestamp\":\"2026-07-28T15:48:05.295Z\"}},{\"intentRef\":\"CHK-004:happy:enforce-and-rollback\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"An explicit project-level enforce promotion succeeds only when the gate mechanically verifies a current signed PASS rollout receipt whose cohort satisfies every configured threshold and a current genuine full-3x2 quorum; a tested rollback to warn/observe removes blocking while preserving the report, receipt, prior mode transitions, diagnostics, and evidence history byte-for-byte.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:enforce-and-rollback\",\"kind\":\"manual_transcript\",\"command\":\"node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js --cohort=/tmp/b4043-cohort-r4-final.json\",\"result\":\"pass\",\"note\":\"Tool-executed under the B-ec67 pinned-command contract: the CLI itself runs the acceptance-rollout smoke against the frozen cohort and derives the result from the real exit code plus selector match.\",\"headHash\":\"d765daf74fde7b9c0298ce05a8f8ddd585bbfec2\",\"materialHash\":\"1c2d6c3c89f6697068d50b2de3f8224dca302bd15a8b126a8dd1276c81b640cb\",\"storyFilesHash\":\"f25bb43b739ccfaa5635ec6ba92e1313af35a334ba29b7f6e8a5bf07ddf2fd26\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"3611bffca42a41e3c3f5214c2ee9ef91887fb418a2f669d7b3e5be7b486cebdf\",\"outputTail\":\"Switched to a new branch 'story/B-REAL'\\nProofStory acceptance rollout smoke: PASS (57 assertions)\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-07-28T15:47:24.246Z\"},\"timestamp\":\"2026-07-28T15:48:05.295Z\"}},{\"intentRef\":\"CHK-004:edge:mode-invariant-diagnostics\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"Observe, warn, and enforce compute the same status, ordered diagnostics, threshold evaluation, and receipt classification; observe/warn remain non-blocking, enforce alone changes admission, and repeated promotion/rollback is deterministic without selective per-Story behavior.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:edge:mode-invariant-diagnostics\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js --cohort=/tmp/b4043-cohort-r4-final.json\",\"result\":\"pass\",\"note\":\"Tool-executed under the B-ec67 pinned-command contract: the CLI itself runs the acceptance-rollout smoke against the frozen cohort and derives the result from the real exit code plus selector match.\",\"headHash\":\"d765daf74fde7b9c0298ce05a8f8ddd585bbfec2\",\"materialHash\":\"1c2d6c3c89f6697068d50b2de3f8224dca302bd15a8b126a8dd1276c81b640cb\",\"storyFilesHash\":\"f25bb43b739ccfaa5635ec6ba92e1313af35a334ba29b7f6e8a5bf07ddf2fd26\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"3611bffca42a41e3c3f5214c2ee9ef91887fb418a2f669d7b3e5be7b486cebdf\",\"outputTail\":\"Switched to a new branch 'story/B-REAL'\\nProofStory acceptance rollout smoke: PASS (57 assertions)\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-07-28T15:47:44.686Z\"},\"timestamp\":\"2026-07-28T15:48:05.295Z\"}},{\"intentRef\":\"CHK-004:adversarial:fail-closed-mutations\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"Clean control PASS → independently target missing/stale/tampered/failing receipt, degraded 3x1, forged host identity, positive waiver delta, weaker inventory, false-block, and omission-detection failures → each real gate consumer must reject with its named code → restoration must return clean PASS; rollback must never delete or rewrite the failed attempts or historical signed artifacts.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:fail-closed-mutations\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js --cohort=/tmp/b4043-cohort-r4-final.json\",\"result\":\"pass\",\"note\":\"Tool-executed under the B-ec67 pinned-command contract: the CLI itself runs the acceptance-rollout smoke against the frozen cohort and derives the result from the real exit code plus selector match.\",\"headHash\":\"d765daf74fde7b9c0298ce05a8f8ddd585bbfec2\",\"materialHash\":\"1c2d6c3c89f6697068d50b2de3f8224dca302bd15a8b126a8dd1276c81b640cb\",\"storyFilesHash\":\"f25bb43b739ccfaa5635ec6ba92e1313af35a334ba29b7f6e8a5bf07ddf2fd26\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"3611bffca42a41e3c3f5214c2ee9ef91887fb418a2f669d7b3e5be7b486cebdf\",\"outputTail\":\"Switched to a new branch 'story/B-REAL'\\nProofStory acceptance rollout smoke: PASS (57 assertions)\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-07-28T15:48:05.280Z\"},\"timestamp\":\"2026-07-28T15:48:05.295Z\"}},{\"intentRef\":\"CHK-005:happy:canonical-wave4-status\",\"itemId\":\"CHK-005\",\"lane\":\"happy\",\"desc\":\"Only after the real cohort and enforcement/rollback verification pass, docs checks prove the canonical Story 6 plan and CLI guide consistently replace Wave 4 NOT IMPLEMENTED with the exact demonstrated flat-rollout status, thresholds, measured cohort results, reproducible commands, receipt/quorum authority boundary, and rollback procedure.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:happy:canonical-wave4-status\",\"kind\":\"manual_transcript\",\"command\":\"node scripts/verify-process-fact-contract.mjs\",\"result\":\"pass\",\"note\":\"Genuinely executed at head 1c9601dfb6: exit 0, 'Process fact contract verified'.\",\"headHash\":\"d765daf74fde7b9c0298ce05a8f8ddd585bbfec2\",\"materialHash\":\"1c2d6c3c89f6697068d50b2de3f8224dca302bd15a8b126a8dd1276c81b640cb\",\"storyFilesHash\":\"f25bb43b739ccfaa5635ec6ba92e1313af35a334ba29b7f6e8a5bf07ddf2fd26\",\"mechanical\":false,\"nonMechanicalReason\":\"receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt\",\"timestamp\":\"2026-07-28T15:48:05.295Z\"}},{\"intentRef\":\"CHK-005:edge:authority-and-exclusions\",\"itemId\":\"CHK-005\",\"lane\":\"edge\",\"desc\":\"Canonical documentation explicitly keeps Wave 3A selective per-Story/per-policy applicability unimplemented and excluded, describes partial/unsupported adapters and degraded 3x1 as non-authority, and does not promote local full-3x2 evidence into production/public authority.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:edge:authority-and-exclusions\",\"kind\":\"manual_transcript\",\"command\":\"LATTICE_ACTIVE_STORY_ID=B-4043 LATTICE_ACCEPTANCE_ROLLOUT_COHORT_FILE=/tmp/b4043-cohort-r4-final.json node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js --proof-scenarios\",\"result\":\"pass\",\"note\":\"Genuinely executed at head 1c9601dfb6 against a cohort regenerated at this same head (2026-07-27T11:36:44Z): exit 0; all mutations BITING, wave leakage absent.\",\"headHash\":\"d765daf74fde7b9c0298ce05a8f8ddd585bbfec2\",\"materialHash\":\"1c2d6c3c89f6697068d50b2de3f8224dca302bd15a8b126a8dd1276c81b640cb\",\"storyFilesHash\":\"f25bb43b739ccfaa5635ec6ba92e1313af35a334ba29b7f6e8a5bf07ddf2fd26\",\"mechanical\":false,\"nonMechanicalReason\":\"receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt\",\"timestamp\":\"2026-07-28T15:48:05.295Z\"}},{\"intentRef\":\"CHK-005:adversarial:no-status-overclaim\",\"itemId\":\"CHK-005\",\"lane\":\"adversarial\",\"desc\":\"A docs/contract audit must fail if Wave 4 status is advanced without the current signed rollout receipt, if quoted metrics/thresholds/commands disagree with verifier output, if rollback history is described as deletable, if Wave 3A is implied implemented, or if any stale NOT IMPLEMENTED/overbroad authority claim contradicts the canonical status.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:adversarial:no-status-overclaim\",\"kind\":\"manual_transcript\",\"command\":\"LATTICE_ACTIVE_STORY_ID=B-4043 LATTICE_ACCEPTANCE_ROLLOUT_COHORT_FILE=/tmp/b4043-cohort-r4-final.json node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js --proof-scenarios\",\"result\":\"pass\",\"note\":\"Genuinely executed at head 1c9601dfb6 against a cohort regenerated at this same head (2026-07-27T11:36:44Z): exit 0; all mutations BITING, wave leakage absent.\",\"headHash\":\"d765daf74fde7b9c0298ce05a8f8ddd585bbfec2\",\"materialHash\":\"1c2d6c3c89f6697068d50b2de3f8224dca302bd15a8b126a8dd1276c81b640cb\",\"storyFilesHash\":\"f25bb43b739ccfaa5635ec6ba92e1313af35a334ba29b7f6e8a5bf07ddf2fd26\",\"mechanical\":false,\"nonMechanicalReason\":\"receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt\",\"timestamp\":\"2026-07-28T15:48:05.295Z\"}}]},\"reuse\":{\"lineage\":\"trusted-story-metadata-descendant\",\"existingEvidenceBasis\":\"fresh\",\"refusalReasons\":[],\"identityDigest\":\"ca63719e9603385b45381f01a4bc2035f5b874b56dee19a8854abfbf2f4477bf\"}}",
+  "result": "PASS",
+  "timestamp": "2026-07-28T17:17:33.010Z",
+  "headHash": "e1b669b14d604883900bb29bbc6114b8b2840914",
+  "materialHash": "1c2d6c3c89f6697068d50b2de3f8224dca302bd15a8b126a8dd1276c81b640cb",
+  "storyFilesHash": "f25bb43b739ccfaa5635ec6ba92e1313af35a334ba29b7f6e8a5bf07ddf2fd26",
+  "verificationCoverage": {
+    "total": 15,
+    "required": 15,
+    "covered": 15,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:role-guidance",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "Build and contract checks prove the mirrored Codex and Claude implementer/reviewer guidance names the canonical acceptance_topology_check, pre_review_check_read, acceptance rollout report/check, current-receipt, full-3x2, and rollback commands, while registered CLI/handler/process-fact consumers—not prompt prose—remain the only admission authority.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:role-guidance",
+          "kind": "manual_transcript",
+          "command": "node scripts/verify-process-fact-contract.mjs --quiet",
+          "result": "pass",
+          "note": "Tool-executed under the B-ec67 pinned-command contract: the CLI itself runs the command and derives the result from the real exit code plus selector match.",
+          "headHash": "d765daf74fde7b9c0298ce05a8f8ddd585bbfec2",
+          "materialHash": "1c2d6c3c89f6697068d50b2de3f8224dca302bd15a8b126a8dd1276c81b640cb",
+          "storyFilesHash": "f25bb43b739ccfaa5635ec6ba92e1313af35a334ba29b7f6e8a5bf07ddf2fd26",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "374685801e80f56814dbe109843cd5e20302ecf84b51e5414c72415ea19b9f67",
+            "outputTail": "Process Fact Contract\nPrompt guides; CLI/handler/gate decides\n\nScope: process facts only — phase/state transitions, pass/no-issue confirmations, findings/categories/roles, and evidence/check artifacts.\nOut of scope: ordinary explanatory prose, narrative rationale, and benign Claude/Codex wording differences that do not alter commands or artifact paths.\n\n\nProcess Fact Registry\n- entries: 445 (346 CLI, 39 runtime, 10 reviewer lanes, 46 artifacts)\n- levels: L0=161, L1=44, L2=67, L3=12, L4=161\n- kinds: artifact=25, command=273, execution-status=6, finding=3, flow-policy=7, gate-evidence=54, host-availability-probe=1, host-verdict=2, review-pass=1, review-run=1, reviewer-lane=10, runtime-behavior=39, signed-artifact=21, validation-status=2\n- flow fact policies:\nflow fact policy: express-verification-policy -> express-exempt -> gate validate verification coverage and story_review PLAN fast-path advisory gate\nflow fact policy: finding -> artifact findings.json -> gate storyMachine.canPassReview REVIEW to TEST gate\nflow fact policy: pass-only-normalization -> finding_add:pass-only->review_pass_set -> artifact review-passes.json -> gate storyMachine.canPassReview REVIEW to TEST gate\nflow fact policy: review-pass -> artifact review-passes.json -> gate storyMachine.canPassReview REVIEW to TEST gate\nflow fact policy: review-pass-supersession -> artifact review-passes.json -> gate storyMachine.canPassReview REVIEW to TEST gate\nflow fact policy: review-round-iso-string -> artifact findings.json -> gate review signatures and storyMachine.canPassReview REVIEW to TEST gate\nflow fact policy: review-run-boundary -> artifact review-runs.json -> gate storyMachine.canPassReview REVIEW to TEST gate\nPrompt drift scan: 35 reviewer prompt files checked\n\nProcess Fact Inventory\n- entries: 15 (55 files checked)\n\nProcess fact contract verified\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-28T15:40:53.177Z"
+          },
+          "timestamp": "2026-07-28T15:48:05.295Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:mirror-mode",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "A mirror and mode-invariance check proves Codex and Claude guidance cannot drift and observe, warn, and enforce expose the same ordered diagnostics/status; only enforce changes blocking semantics.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:mirror-mode",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js --proof-scenarios --cohort=/tmp/b4043-cohort-r4-final.json --story=B-4043",
+          "result": "pass",
+          "note": "Tool-executed under the B-ec67 pinned-command contract: the CLI itself runs the command and derives the result from the real exit code plus selector match.",
+          "headHash": "d765daf74fde7b9c0298ce05a8f8ddd585bbfec2",
+          "materialHash": "1c2d6c3c89f6697068d50b2de3f8224dca302bd15a8b126a8dd1276c81b640cb",
+          "storyFilesHash": "f25bb43b739ccfaa5635ec6ba92e1313af35a334ba29b7f6e8a5bf07ddf2fd26",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "fde2c15fc2db9b77e7498688d044fd18e0442ca17ce2825b6071c95757a135c7",
+            "outputTail": "\",\"PASS\",true,[[\"mutation-applied\",47],[\"diagnostic-observed\",48],[\"control-rerun\",49]],\"intent:CHK-002:edge:false-block-controls\"],[\"A-MUT-3\",\"mutation\",\"artifact:signature\",\"field-tamper\",\"tamper signed pre-review artifact field\",\"PR_ARTIFACT_TAMPERED\",\"PR_ARTIFACT_TAMPERED\",true,[[\"mutation-applied\",12],[\"diagnostic-observed\",13],[\"control-rerun\",14]],\"intent:CHK-003:edge:inconclusive-boundary\"],[\"A-MUT-4\",\"mutation\",\"authority:direct-store-replay\",\"authority-replay\",\"direct StoryStore proof without causal receipt\",\"PR_AUTHORITY_INADMISSIBLE\",\"PR_AUTHORITY_INADMISSIBLE\",true,[[\"mutation-applied\",0],[\"diagnostic-observed\",1],[\"control-rerun\",2]],\"intent:CHK-004:edge:mode-invariant-diagnostics\"],[\"A-MUT-5\",\"mutation\",\"planned-actual:consumer-symbol\",\"planned-actual\",\"remove declared current consumer symbol\",\"PR_PLANNED_PATH_UNRESOLVED\",\"PR_PLANNED_PATH_UNRESOLVED\",true,[[\"mutation-applied\",24],[\"diagnostic-observed\",25],[\"control-rerun\",26]],\"intent:CHK-005:edge:authority-and-exclusions\"],[\"A-MUT-6\",\"mutation\",\"role-guidance:authority-boundary\",\"prompt-contract-mutations\",\"remove required command, degrade full-3x2 to 3x1, and promote prompt prose to authority; every mutant must fail\",\"PROMPT_CONTRACT_REJECTED\",\"PROMPT_CONTRACT_REJECTED\",true,[[\"mutation-applied\",50],[\"diagnostic-observed\",51],[\"control-rerun\",52]],\"intent:CHK-001:adversarial:prompt-authority\"],[\"A-MUT-7\",\"mutation\",\"topology:consumer-omission\",\"topology-omission\",\"remove current topology consumer against retained basis\",\"PR_NEW_PATH_UNMAPPED\",\"PR_NEW_PATH_UNMAPPED\",true,[[\"mutation-applied\",9],[\"diagnostic-observed\",10],[\"control-rerun\",11]],\"intent:CHK-002:adversarial:seeded-defects\"],[\"A-MUT-8\",\"mutation\",\"basis:adapter-record\",\"adapter-tamper\",\"remove signed adapter result\",\"PR_ARTIFACT_TAMPERED\",\"PR_ARTIFACT_TAMPERED\",true,[[\"mutation-applied\",15],[\"diagnostic-observed\",16],[\"control-rerun\",17]],\"intent:CHK-003:adversarial:threshold-bypass\"],[\"A-MUT-9\",\"mutation\",\"mutation:observed-polarity\",\"polarity-restore\",\"replace observed mutation outcome then rerun clean control\",\"PR_MUTATION_DID_NOT_BITE\",\"PR_MUTATION_DID_NOT_BITE\",true,[[\"mutation-applied\",21],[\"diagnostic-observed\",22],[\"control-rerun\",23]],\"intent:CHK-004:adversarial:fail-closed-mutations\"],[\"A-POS-1\",\"positive\",\"role-guidance:codex-claude-mirrors\",\"prompt-contract\",\"execute exact role guidance token and mirror contract over all Codex/Claude role pairs\",\"PASS\",\"PASS\",true,[[\"producer-evaluated\",39],[\"consumer-verified\",40]],\"intent:CHK-001:happy:role-guidance\"],[\"A-POS-2\",\"positive\",\"rollout:verified-cohort-receipt\",\"rollout-receipt-verification\",\"load the frozen registered production cohort, issue a signed report, and verify the exact current receipt without respawning the cohort runner\",\"PASS\",\"PASS\",true,[[\"producer-evaluated\",41],[\"consumer-verified\",42]],\"intent:CHK-002:happy:real-cohort-receipt\"],[\"A-POS-3\",\"positive\",\"rollout:bounded-threshold-matrix\",\"threshold-contract\",\"evaluate every canonical promotion threshold from the verifier-derived report metrics\",\"PASS\",\"PASS\",true,[[\"producer-evaluated\",43],[\"consumer-verified\",44]],\"intent:CHK-003:happy:bounded-thresholds\"],[\"A-POS-4\",\"positive\",\"docs:canonical-wave4-status\",\"docs-contract\",\"execute canonical Wave 4 status and exact live-proof inventory contract check\",\"PASS\",\"PASS\",true,[[\"producer-evaluated\",45],[\"consumer-verified\",46]],\"intent:CHK-005:happy:canonical-wave4-status\"],[\"A-POS-5\",\"positive\",\"rollout:focused-enforce-rollback\",\"focused-rollout-control\",\"execute focused Wave 4 rollout smoke with enforce, rollback, and history-preservation controls\",\"PASS\",\"PASS\",true,[[\"producer-evaluated\",59],[\"consumer-verified\",60]],\"intent:CHK-004:happy:enforce-and-rollback\"],[\"A-TRANSCRIPT-1\",\"transcript\",\"events:producer-consumer\",\"event-log-relation\",\"actual producer invocation precedes canonical lifecycle consumer\",\"ORDERED\",\"ORDERED\",true,[[\"producer-evaluated\",6],[\"consumer-verified\",7]],\"intent:CHK-004:happy:enforce-and-rollback\"]]\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-28T15:42:19.705Z"
+          },
+          "timestamp": "2026-07-28T15:48:05.295Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:prompt-authority",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "Targeted mutations that remove a required command from either host prompt, replace full 3x2 with degraded 3x1, or claim prompt text is gate evidence must fail the mirror/process-fact contract with a stable reason, and restoration must return the clean control to PASS.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:prompt-authority",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js --proof-scenarios --cohort=/tmp/b4043-cohort-r4-final.json --story=B-4043",
+          "result": "pass",
+          "note": "Tool-executed under the B-ec67 pinned-command contract: the CLI itself runs the command and derives the result from the real exit code plus selector match.",
+          "headHash": "d765daf74fde7b9c0298ce05a8f8ddd585bbfec2",
+          "materialHash": "1c2d6c3c89f6697068d50b2de3f8224dca302bd15a8b126a8dd1276c81b640cb",
+          "storyFilesHash": "f25bb43b739ccfaa5635ec6ba92e1313af35a334ba29b7f6e8a5bf07ddf2fd26",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "fde2c15fc2db9b77e7498688d044fd18e0442ca17ce2825b6071c95757a135c7",
+            "outputTail": "\",\"PASS\",true,[[\"mutation-applied\",47],[\"diagnostic-observed\",48],[\"control-rerun\",49]],\"intent:CHK-002:edge:false-block-controls\"],[\"A-MUT-3\",\"mutation\",\"artifact:signature\",\"field-tamper\",\"tamper signed pre-review artifact field\",\"PR_ARTIFACT_TAMPERED\",\"PR_ARTIFACT_TAMPERED\",true,[[\"mutation-applied\",12],[\"diagnostic-observed\",13],[\"control-rerun\",14]],\"intent:CHK-003:edge:inconclusive-boundary\"],[\"A-MUT-4\",\"mutation\",\"authority:direct-store-replay\",\"authority-replay\",\"direct StoryStore proof without causal receipt\",\"PR_AUTHORITY_INADMISSIBLE\",\"PR_AUTHORITY_INADMISSIBLE\",true,[[\"mutation-applied\",0],[\"diagnostic-observed\",1],[\"control-rerun\",2]],\"intent:CHK-004:edge:mode-invariant-diagnostics\"],[\"A-MUT-5\",\"mutation\",\"planned-actual:consumer-symbol\",\"planned-actual\",\"remove declared current consumer symbol\",\"PR_PLANNED_PATH_UNRESOLVED\",\"PR_PLANNED_PATH_UNRESOLVED\",true,[[\"mutation-applied\",24],[\"diagnostic-observed\",25],[\"control-rerun\",26]],\"intent:CHK-005:edge:authority-and-exclusions\"],[\"A-MUT-6\",\"mutation\",\"role-guidance:authority-boundary\",\"prompt-contract-mutations\",\"remove required command, degrade full-3x2 to 3x1, and promote prompt prose to authority; every mutant must fail\",\"PROMPT_CONTRACT_REJECTED\",\"PROMPT_CONTRACT_REJECTED\",true,[[\"mutation-applied\",50],[\"diagnostic-observed\",51],[\"control-rerun\",52]],\"intent:CHK-001:adversarial:prompt-authority\"],[\"A-MUT-7\",\"mutation\",\"topology:consumer-omission\",\"topology-omission\",\"remove current topology consumer against retained basis\",\"PR_NEW_PATH_UNMAPPED\",\"PR_NEW_PATH_UNMAPPED\",true,[[\"mutation-applied\",9],[\"diagnostic-observed\",10],[\"control-rerun\",11]],\"intent:CHK-002:adversarial:seeded-defects\"],[\"A-MUT-8\",\"mutation\",\"basis:adapter-record\",\"adapter-tamper\",\"remove signed adapter result\",\"PR_ARTIFACT_TAMPERED\",\"PR_ARTIFACT_TAMPERED\",true,[[\"mutation-applied\",15],[\"diagnostic-observed\",16],[\"control-rerun\",17]],\"intent:CHK-003:adversarial:threshold-bypass\"],[\"A-MUT-9\",\"mutation\",\"mutation:observed-polarity\",\"polarity-restore\",\"replace observed mutation outcome then rerun clean control\",\"PR_MUTATION_DID_NOT_BITE\",\"PR_MUTATION_DID_NOT_BITE\",true,[[\"mutation-applied\",21],[\"diagnostic-observed\",22],[\"control-rerun\",23]],\"intent:CHK-004:adversarial:fail-closed-mutations\"],[\"A-POS-1\",\"positive\",\"role-guidance:codex-claude-mirrors\",\"prompt-contract\",\"execute exact role guidance token and mirror contract over all Codex/Claude role pairs\",\"PASS\",\"PASS\",true,[[\"producer-evaluated\",39],[\"consumer-verified\",40]],\"intent:CHK-001:happy:role-guidance\"],[\"A-POS-2\",\"positive\",\"rollout:verified-cohort-receipt\",\"rollout-receipt-verification\",\"load the frozen registered production cohort, issue a signed report, and verify the exact current receipt without respawning the cohort runner\",\"PASS\",\"PASS\",true,[[\"producer-evaluated\",41],[\"consumer-verified\",42]],\"intent:CHK-002:happy:real-cohort-receipt\"],[\"A-POS-3\",\"positive\",\"rollout:bounded-threshold-matrix\",\"threshold-contract\",\"evaluate every canonical promotion threshold from the verifier-derived report metrics\",\"PASS\",\"PASS\",true,[[\"producer-evaluated\",43],[\"consumer-verified\",44]],\"intent:CHK-003:happy:bounded-thresholds\"],[\"A-POS-4\",\"positive\",\"docs:canonical-wave4-status\",\"docs-contract\",\"execute canonical Wave 4 status and exact live-proof inventory contract check\",\"PASS\",\"PASS\",true,[[\"producer-evaluated\",45],[\"consumer-verified\",46]],\"intent:CHK-005:happy:canonical-wave4-status\"],[\"A-POS-5\",\"positive\",\"rollout:focused-enforce-rollback\",\"focused-rollout-control\",\"execute focused Wave 4 rollout smoke with enforce, rollback, and history-preservation controls\",\"PASS\",\"PASS\",true,[[\"producer-evaluated\",59],[\"consumer-verified\",60]],\"intent:CHK-004:happy:enforce-and-rollback\"],[\"A-TRANSCRIPT-1\",\"transcript\",\"events:producer-consumer\",\"event-log-relation\",\"actual producer invocation precedes canonical lifecycle consumer\",\"ORDERED\",\"ORDERED\",true,[[\"producer-evaluated\",6],[\"consumer-verified\",7]],\"intent:CHK-004:happy:enforce-and-rollback\"]]\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-28T15:43:48.352Z"
+          },
+          "timestamp": "2026-07-28T15:48:05.295Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:real-cohort-receipt",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "A reproducible runner executes comparable real baseline and candidate high-assurance Story cohorts and the verifier deterministically derives aggregates and PASS/FAIL from source case records, binding the eligibility rule, evaluation window, complete eligible membership, at least 3 matched baseline/candidate pairs (at least 3 cases in each arm), sample identities, project/threshold version, story/material hashes, cost, review rounds, waivers, adapter results, and full-3x2 provider/quorum evidence into a signed/hash-verified receipt; caller-supplied membership, verdicts, or aggregates are rejected.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:real-cohort-receipt",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js --proof-scenarios --cohort=/tmp/b4043-cohort-r4-final.json --story=B-4043",
+          "result": "pass",
+          "note": "Tool-executed under the B-ec67 pinned-command contract. Pinned to the story's own designated proof: proofstory-pre-review-check-smoke.ts:425 declares scenario A-POS-2 (rollout:verified-cohort-receipt) with canonicalSourceRef 'intent:CHK-002:happy:real-cohort-receipt', and that scenario verifies the frozen cohort's signed receipt WITHOUT respawning the expensive cohort runner. The CLI executes it and derives the result from the real exit code plus selector match.",
+          "headHash": "d765daf74fde7b9c0298ce05a8f8ddd585bbfec2",
+          "materialHash": "1c2d6c3c89f6697068d50b2de3f8224dca302bd15a8b126a8dd1276c81b640cb",
+          "storyFilesHash": "f25bb43b739ccfaa5635ec6ba92e1313af35a334ba29b7f6e8a5bf07ddf2fd26",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "fde2c15fc2db9b77e7498688d044fd18e0442ca17ce2825b6071c95757a135c7",
+            "outputTail": "\",\"PASS\",true,[[\"mutation-applied\",47],[\"diagnostic-observed\",48],[\"control-rerun\",49]],\"intent:CHK-002:edge:false-block-controls\"],[\"A-MUT-3\",\"mutation\",\"artifact:signature\",\"field-tamper\",\"tamper signed pre-review artifact field\",\"PR_ARTIFACT_TAMPERED\",\"PR_ARTIFACT_TAMPERED\",true,[[\"mutation-applied\",12],[\"diagnostic-observed\",13],[\"control-rerun\",14]],\"intent:CHK-003:edge:inconclusive-boundary\"],[\"A-MUT-4\",\"mutation\",\"authority:direct-store-replay\",\"authority-replay\",\"direct StoryStore proof without causal receipt\",\"PR_AUTHORITY_INADMISSIBLE\",\"PR_AUTHORITY_INADMISSIBLE\",true,[[\"mutation-applied\",0],[\"diagnostic-observed\",1],[\"control-rerun\",2]],\"intent:CHK-004:edge:mode-invariant-diagnostics\"],[\"A-MUT-5\",\"mutation\",\"planned-actual:consumer-symbol\",\"planned-actual\",\"remove declared current consumer symbol\",\"PR_PLANNED_PATH_UNRESOLVED\",\"PR_PLANNED_PATH_UNRESOLVED\",true,[[\"mutation-applied\",24],[\"diagnostic-observed\",25],[\"control-rerun\",26]],\"intent:CHK-005:edge:authority-and-exclusions\"],[\"A-MUT-6\",\"mutation\",\"role-guidance:authority-boundary\",\"prompt-contract-mutations\",\"remove required command, degrade full-3x2 to 3x1, and promote prompt prose to authority; every mutant must fail\",\"PROMPT_CONTRACT_REJECTED\",\"PROMPT_CONTRACT_REJECTED\",true,[[\"mutation-applied\",50],[\"diagnostic-observed\",51],[\"control-rerun\",52]],\"intent:CHK-001:adversarial:prompt-authority\"],[\"A-MUT-7\",\"mutation\",\"topology:consumer-omission\",\"topology-omission\",\"remove current topology consumer against retained basis\",\"PR_NEW_PATH_UNMAPPED\",\"PR_NEW_PATH_UNMAPPED\",true,[[\"mutation-applied\",9],[\"diagnostic-observed\",10],[\"control-rerun\",11]],\"intent:CHK-002:adversarial:seeded-defects\"],[\"A-MUT-8\",\"mutation\",\"basis:adapter-record\",\"adapter-tamper\",\"remove signed adapter result\",\"PR_ARTIFACT_TAMPERED\",\"PR_ARTIFACT_TAMPERED\",true,[[\"mutation-applied\",15],[\"diagnostic-observed\",16],[\"control-rerun\",17]],\"intent:CHK-003:adversarial:threshold-bypass\"],[\"A-MUT-9\",\"mutation\",\"mutation:observed-polarity\",\"polarity-restore\",\"replace observed mutation outcome then rerun clean control\",\"PR_MUTATION_DID_NOT_BITE\",\"PR_MUTATION_DID_NOT_BITE\",true,[[\"mutation-applied\",21],[\"diagnostic-observed\",22],[\"control-rerun\",23]],\"intent:CHK-004:adversarial:fail-closed-mutations\"],[\"A-POS-1\",\"positive\",\"role-guidance:codex-claude-mirrors\",\"prompt-contract\",\"execute exact role guidance token and mirror contract over all Codex/Claude role pairs\",\"PASS\",\"PASS\",true,[[\"producer-evaluated\",39],[\"consumer-verified\",40]],\"intent:CHK-001:happy:role-guidance\"],[\"A-POS-2\",\"positive\",\"rollout:verified-cohort-receipt\",\"rollout-receipt-verification\",\"load the frozen registered production cohort, issue a signed report, and verify the exact current receipt without respawning the cohort runner\",\"PASS\",\"PASS\",true,[[\"producer-evaluated\",41],[\"consumer-verified\",42]],\"intent:CHK-002:happy:real-cohort-receipt\"],[\"A-POS-3\",\"positive\",\"rollout:bounded-threshold-matrix\",\"threshold-contract\",\"evaluate every canonical promotion threshold from the verifier-derived report metrics\",\"PASS\",\"PASS\",true,[[\"producer-evaluated\",43],[\"consumer-verified\",44]],\"intent:CHK-003:happy:bounded-thresholds\"],[\"A-POS-4\",\"positive\",\"docs:canonical-wave4-status\",\"docs-contract\",\"execute canonical Wave 4 status and exact live-proof inventory contract check\",\"PASS\",\"PASS\",true,[[\"producer-evaluated\",45],[\"consumer-verified\",46]],\"intent:CHK-005:happy:canonical-wave4-status\"],[\"A-POS-5\",\"positive\",\"rollout:focused-enforce-rollback\",\"focused-rollout-control\",\"execute focused Wave 4 rollout smoke with enforce, rollback, and history-preservation controls\",\"PASS\",\"PASS\",true,[[\"producer-evaluated\",59],[\"consumer-verified\",60]],\"intent:CHK-004:happy:enforce-and-rollback\"],[\"A-TRANSCRIPT-1\",\"transcript\",\"events:producer-consumer\",\"event-log-relation\",\"actual producer invocation precedes canonical lifecycle consumer\",\"ORDERED\",\"ORDERED\",true,[[\"producer-evaluated\",6],[\"consumer-verified\",7]],\"intent:CHK-004:happy:enforce-and-rollback\"]]\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-28T15:45:05.338Z"
+          },
+          "timestamp": "2026-07-28T15:48:05.295Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:false-block-controls",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "The same cohort includes docs-only, legacy, and ordinary single-outcome controls plus honest partial/unsupported adapter cases, reports a zero false-block rate for supported controls, and exposes identical computed metrics and diagnostics through write/read/check surfaces without mode-dependent relabeling.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:false-block-controls",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js --cohort=/tmp/b4043-cohort-r4-final.json",
+          "result": "pass",
+          "note": "Tool-executed under the B-ec67 pinned-command contract: the CLI itself runs the acceptance-rollout smoke against the frozen cohort and derives the result from the real exit code plus selector match.",
+          "headHash": "d765daf74fde7b9c0298ce05a8f8ddd585bbfec2",
+          "materialHash": "1c2d6c3c89f6697068d50b2de3f8224dca302bd15a8b126a8dd1276c81b640cb",
+          "storyFilesHash": "f25bb43b739ccfaa5635ec6ba92e1313af35a334ba29b7f6e8a5bf07ddf2fd26",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "3611bffca42a41e3c3f5214c2ee9ef91887fb418a2f669d7b3e5be7b486cebdf",
+            "outputTail": "Switched to a new branch 'story/B-REAL'\nProofStory acceptance rollout smoke: PASS (57 assertions)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-28T15:45:30.516Z"
+          },
+          "timestamp": "2026-07-28T15:48:05.295Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:seeded-defects",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "Real-consumer seeded omission and forgery mutations—including removing C2 only from topology while its independently derived basis retains C2—must be detected across the registered campaign; omitting any eligible row, adding any ineligible row, altering the evaluation window, eligible membership, canonical order, membership digest, source rows, hashes, signature, freshness, provider identity, or using fewer than 3 matched pairs (fewer than 3 cases in either arm), and relabeling degraded 3x1 as full 3x2 must each fail with deterministic codes, then restoration must reproduce the clean PASS transcript.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:seeded-defects",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js --cohort=/tmp/b4043-cohort-r4-final.json",
+          "result": "pass",
+          "note": "Tool-executed under the B-ec67 pinned-command contract: the CLI itself runs the acceptance-rollout smoke against the frozen cohort and derives the result from the real exit code plus selector match.",
+          "headHash": "d765daf74fde7b9c0298ce05a8f8ddd585bbfec2",
+          "materialHash": "1c2d6c3c89f6697068d50b2de3f8224dca302bd15a8b126a8dd1276c81b640cb",
+          "storyFilesHash": "f25bb43b739ccfaa5635ec6ba92e1313af35a334ba29b7f6e8a5bf07ddf2fd26",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "3611bffca42a41e3c3f5214c2ee9ef91887fb418a2f669d7b3e5be7b486cebdf",
+            "outputTail": "Switched to a new branch 'story/B-REAL'\nProofStory acceptance rollout smoke: PASS (57 assertions)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-28T15:45:54.756Z"
+          },
+          "timestamp": "2026-07-28T15:48:05.295Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:bounded-thresholds",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "The canonical flat project policy mechanically requires transcripts for user-visible/orchestration claims, biting mutations for behavior/lifecycle/proof/safety with docs-only exemption, registered supported adapter profiles, at least 3 comparable matched samples in each cohort arm, an overall false-pass rate of 0 across every registered seeded defect class, 100% supported omission detection, 0% false blocks, 0 mislabeled 3x1 campaigns, waiver delta <=0, and a non-shrinking check inventory before warn-to-enforce admission can PASS.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:bounded-thresholds",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js --cohort=/tmp/b4043-cohort-r4-final.json",
+          "result": "pass",
+          "note": "Tool-executed under the B-ec67 pinned-command contract: the CLI itself runs the acceptance-rollout smoke against the frozen cohort and derives the result from the real exit code plus selector match.",
+          "headHash": "d765daf74fde7b9c0298ce05a8f8ddd585bbfec2",
+          "materialHash": "1c2d6c3c89f6697068d50b2de3f8224dca302bd15a8b126a8dd1276c81b640cb",
+          "storyFilesHash": "f25bb43b739ccfaa5635ec6ba92e1313af35a334ba29b7f6e8a5bf07ddf2fd26",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "3611bffca42a41e3c3f5214c2ee9ef91887fb418a2f669d7b3e5be7b486cebdf",
+            "outputTail": "Switched to a new branch 'story/B-REAL'\nProofStory acceptance rollout smoke: PASS (57 assertions)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-28T15:46:18.308Z"
+          },
+          "timestamp": "2026-07-28T15:48:05.295Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:inconclusive-boundary",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "Insufficient samples, unknown/partial/unsupported adapters, unexplained adapter disagreement, and claim-taxonomy gaps fail promotion with stable diagnostics while remaining honestly partial/unsupported; flat project scope is preserved and no selective Story/policy applicability is inferred without Wave 3A.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:inconclusive-boundary",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js --cohort=/tmp/b4043-cohort-r4-final.json",
+          "result": "pass",
+          "note": "Tool-executed under the B-ec67 pinned-command contract: the CLI itself runs the acceptance-rollout smoke against the frozen cohort and derives the result from the real exit code plus selector match.",
+          "headHash": "d765daf74fde7b9c0298ce05a8f8ddd585bbfec2",
+          "materialHash": "1c2d6c3c89f6697068d50b2de3f8224dca302bd15a8b126a8dd1276c81b640cb",
+          "storyFilesHash": "f25bb43b739ccfaa5635ec6ba92e1313af35a334ba29b7f6e8a5bf07ddf2fd26",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "3611bffca42a41e3c3f5214c2ee9ef91887fb418a2f669d7b3e5be7b486cebdf",
+            "outputTail": "Switched to a new branch 'story/B-REAL'\nProofStory acceptance rollout smoke: PASS (57 assertions)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-28T15:46:41.545Z"
+          },
+          "timestamp": "2026-07-28T15:48:05.295Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:threshold-bypass",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "Boundary mutations at fewer than 3 matched pairs, any incomplete registered seeded-defect campaign, any missed non-omission seeded defect, overall false-pass above 0, omission detection below 100%, false-block above 0, any mislabeled 3x1, positive waiver delta, or a removed check must each fail closed; caller attempts to lower thresholds, omit adapter or campaign records, forge aggregate PASS, or exploit observe/warn mode must not change the canonical diagnostic result.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:threshold-bypass",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js --cohort=/tmp/b4043-cohort-r4-final.json",
+          "result": "pass",
+          "note": "Tool-executed under the B-ec67 pinned-command contract: the CLI itself runs the acceptance-rollout smoke against the frozen cohort and derives the result from the real exit code plus selector match.",
+          "headHash": "d765daf74fde7b9c0298ce05a8f8ddd585bbfec2",
+          "materialHash": "1c2d6c3c89f6697068d50b2de3f8224dca302bd15a8b126a8dd1276c81b640cb",
+          "storyFilesHash": "f25bb43b739ccfaa5635ec6ba92e1313af35a334ba29b7f6e8a5bf07ddf2fd26",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "3611bffca42a41e3c3f5214c2ee9ef91887fb418a2f669d7b3e5be7b486cebdf",
+            "outputTail": "Switched to a new branch 'story/B-REAL'\nProofStory acceptance rollout smoke: PASS (57 assertions)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-28T15:47:02.796Z"
+          },
+          "timestamp": "2026-07-28T15:48:05.295Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:happy:enforce-and-rollback",
+        "itemId": "CHK-004",
+        "lane": "happy",
+        "desc": "An explicit project-level enforce promotion succeeds only when the gate mechanically verifies a current signed PASS rollout receipt whose cohort satisfies every configured threshold and a current genuine full-3x2 quorum; a tested rollback to warn/observe removes blocking while preserving the report, receipt, prior mode transitions, diagnostics, and evidence history byte-for-byte.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:happy:enforce-and-rollback",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js --cohort=/tmp/b4043-cohort-r4-final.json",
+          "result": "pass",
+          "note": "Tool-executed under the B-ec67 pinned-command contract: the CLI itself runs the acceptance-rollout smoke against the frozen cohort and derives the result from the real exit code plus selector match.",
+          "headHash": "d765daf74fde7b9c0298ce05a8f8ddd585bbfec2",
+          "materialHash": "1c2d6c3c89f6697068d50b2de3f8224dca302bd15a8b126a8dd1276c81b640cb",
+          "storyFilesHash": "f25bb43b739ccfaa5635ec6ba92e1313af35a334ba29b7f6e8a5bf07ddf2fd26",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "3611bffca42a41e3c3f5214c2ee9ef91887fb418a2f669d7b3e5be7b486cebdf",
+            "outputTail": "Switched to a new branch 'story/B-REAL'\nProofStory acceptance rollout smoke: PASS (57 assertions)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-28T15:47:24.246Z"
+          },
+          "timestamp": "2026-07-28T15:48:05.295Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:edge:mode-invariant-diagnostics",
+        "itemId": "CHK-004",
+        "lane": "edge",
+        "desc": "Observe, warn, and enforce compute the same status, ordered diagnostics, threshold evaluation, and receipt classification; observe/warn remain non-blocking, enforce alone changes admission, and repeated promotion/rollback is deterministic without selective per-Story behavior.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:edge:mode-invariant-diagnostics",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js --cohort=/tmp/b4043-cohort-r4-final.json",
+          "result": "pass",
+          "note": "Tool-executed under the B-ec67 pinned-command contract: the CLI itself runs the acceptance-rollout smoke against the frozen cohort and derives the result from the real exit code plus selector match.",
+          "headHash": "d765daf74fde7b9c0298ce05a8f8ddd585bbfec2",
+          "materialHash": "1c2d6c3c89f6697068d50b2de3f8224dca302bd15a8b126a8dd1276c81b640cb",
+          "storyFilesHash": "f25bb43b739ccfaa5635ec6ba92e1313af35a334ba29b7f6e8a5bf07ddf2fd26",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "3611bffca42a41e3c3f5214c2ee9ef91887fb418a2f669d7b3e5be7b486cebdf",
+            "outputTail": "Switched to a new branch 'story/B-REAL'\nProofStory acceptance rollout smoke: PASS (57 assertions)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-28T15:47:44.686Z"
+          },
+          "timestamp": "2026-07-28T15:48:05.295Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:adversarial:fail-closed-mutations",
+        "itemId": "CHK-004",
+        "lane": "adversarial",
+        "desc": "Clean control PASS → independently target missing/stale/tampered/failing receipt, degraded 3x1, forged host identity, positive waiver delta, weaker inventory, false-block, and omission-detection failures → each real gate consumer must reject with its named code → restoration must return clean PASS; rollback must never delete or rewrite the failed attempts or historical signed artifacts.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:adversarial:fail-closed-mutations",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js --cohort=/tmp/b4043-cohort-r4-final.json",
+          "result": "pass",
+          "note": "Tool-executed under the B-ec67 pinned-command contract: the CLI itself runs the acceptance-rollout smoke against the frozen cohort and derives the result from the real exit code plus selector match.",
+          "headHash": "d765daf74fde7b9c0298ce05a8f8ddd585bbfec2",
+          "materialHash": "1c2d6c3c89f6697068d50b2de3f8224dca302bd15a8b126a8dd1276c81b640cb",
+          "storyFilesHash": "f25bb43b739ccfaa5635ec6ba92e1313af35a334ba29b7f6e8a5bf07ddf2fd26",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "3611bffca42a41e3c3f5214c2ee9ef91887fb418a2f669d7b3e5be7b486cebdf",
+            "outputTail": "Switched to a new branch 'story/B-REAL'\nProofStory acceptance rollout smoke: PASS (57 assertions)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-28T15:48:05.280Z"
+          },
+          "timestamp": "2026-07-28T15:48:05.295Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:happy:canonical-wave4-status",
+        "itemId": "CHK-005",
+        "lane": "happy",
+        "desc": "Only after the real cohort and enforcement/rollback verification pass, docs checks prove the canonical Story 6 plan and CLI guide consistently replace Wave 4 NOT IMPLEMENTED with the exact demonstrated flat-rollout status, thresholds, measured cohort results, reproducible commands, receipt/quorum authority boundary, and rollback procedure.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:happy:canonical-wave4-status",
+          "kind": "manual_transcript",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Genuinely executed at head 1c9601dfb6: exit 0, 'Process fact contract verified'.",
+          "headHash": "d765daf74fde7b9c0298ce05a8f8ddd585bbfec2",
+          "materialHash": "1c2d6c3c89f6697068d50b2de3f8224dca302bd15a8b126a8dd1276c81b640cb",
+          "storyFilesHash": "f25bb43b739ccfaa5635ec6ba92e1313af35a334ba29b7f6e8a5bf07ddf2fd26",
+          "mechanical": false,
+          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
+          "timestamp": "2026-07-28T15:48:05.295Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:edge:authority-and-exclusions",
+        "itemId": "CHK-005",
+        "lane": "edge",
+        "desc": "Canonical documentation explicitly keeps Wave 3A selective per-Story/per-policy applicability unimplemented and excluded, describes partial/unsupported adapters and degraded 3x1 as non-authority, and does not promote local full-3x2 evidence into production/public authority.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:edge:authority-and-exclusions",
+          "kind": "manual_transcript",
+          "command": "LATTICE_ACTIVE_STORY_ID=B-4043 LATTICE_ACCEPTANCE_ROLLOUT_COHORT_FILE=/tmp/b4043-cohort-r4-final.json node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js --proof-scenarios",
+          "result": "pass",
+          "note": "Genuinely executed at head 1c9601dfb6 against a cohort regenerated at this same head (2026-07-27T11:36:44Z): exit 0; all mutations BITING, wave leakage absent.",
+          "headHash": "d765daf74fde7b9c0298ce05a8f8ddd585bbfec2",
+          "materialHash": "1c2d6c3c89f6697068d50b2de3f8224dca302bd15a8b126a8dd1276c81b640cb",
+          "storyFilesHash": "f25bb43b739ccfaa5635ec6ba92e1313af35a334ba29b7f6e8a5bf07ddf2fd26",
+          "mechanical": false,
+          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
+          "timestamp": "2026-07-28T15:48:05.295Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:adversarial:no-status-overclaim",
+        "itemId": "CHK-005",
+        "lane": "adversarial",
+        "desc": "A docs/contract audit must fail if Wave 4 status is advanced without the current signed rollout receipt, if quoted metrics/thresholds/commands disagree with verifier output, if rollback history is described as deletable, if Wave 3A is implied implemented, or if any stale NOT IMPLEMENTED/overbroad authority claim contradicts the canonical status.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:adversarial:no-status-overclaim",
+          "kind": "manual_transcript",
+          "command": "LATTICE_ACTIVE_STORY_ID=B-4043 LATTICE_ACCEPTANCE_ROLLOUT_COHORT_FILE=/tmp/b4043-cohort-r4-final.json node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js --proof-scenarios",
+          "result": "pass",
+          "note": "Genuinely executed at head 1c9601dfb6 against a cohort regenerated at this same head (2026-07-27T11:36:44Z): exit 0; all mutations BITING, wave leakage absent.",
+          "headHash": "d765daf74fde7b9c0298ce05a8f8ddd585bbfec2",
+          "materialHash": "1c2d6c3c89f6697068d50b2de3f8224dca302bd15a8b126a8dd1276c81b640cb",
+          "storyFilesHash": "f25bb43b739ccfaa5635ec6ba92e1313af35a334ba29b7f6e8a5bf07ddf2fd26",
+          "mechanical": false,
+          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
+          "timestamp": "2026-07-28T15:48:05.295Z"
+        }
+      }
+    ]
+  },
+  "commandExecution": {
+    "schema": "lattice.routine-validation-command-execution",
+    "version": 1,
+    "status": "PASS",
+    "complete": true,
+    "commandCount": 91,
+    "requiredFailureCount": 0,
+    "optionalFailureCount": 0
+  },
+  "disposition": "reused",
+  "routineValidationIdentity": {
+    "schema": "lattice.routine-validation-identity",
+    "version": 1,
+    "source": {
+      "kind": "configured",
+      "inputDigest": "7b270141a8b93a3e7c2dcc1c3aa81a932f1fb3281b6f4c644dc7d11bbb3e310e",
+      "entrypointDigest": null
+    },
+    "commands": [
+      {
+        "label": "configured validate.commands[0]",
+        "command": "npm",
+        "args": [
+          "--prefix",
+          "packages/main",
+          "run",
+          "build"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 290000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[1]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/milestone-status.test.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[2]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[3]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/production-test-seam-guard.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[4]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/capability-list-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[5]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/command-catalog-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[6]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/review-pass-discard-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[7]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[8]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/verification-run-and-guard-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[9]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/init-window-data-loss-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[10]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/validate-command-timeout-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[11]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/validate-progress-heartbeat-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[12]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/validate-focused-full-layering-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[13]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/main-sync-readiness-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[14]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[15]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/codex-adapter-gate-scope-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[16]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/delivery-check-freshness-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[17]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/done-required-validation-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[18]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/done-required-freshness-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[19]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/done-required-head-drift-proof.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[20]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/artifact-release-ledger-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[21]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/version-bump-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[22]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/parallel-decomposition-gate-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[23]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/parallel-gate-config-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[24]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/parallel-wave-advisory-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[25]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[26]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/adversarial-review-contract-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[27]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[28]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/adversarial-review-verifier-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[29]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/adversarial-review-critic-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[30]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/adversarial-review-round-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[31]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/material-hash-large-tree-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[32]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/lifecycle-orchestrate-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[33]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/init-preflight-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[34]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/english-early-check-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[35]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/quorum-submit-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 1200000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[36]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/receipt-bundle-contract-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[37]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/gate-strength-contract-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[38]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/lifecycle-registry-contract.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[39]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/product-capability-release-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[40]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/product-capability-release-red-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[41]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/playbook-capability-lineage-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[42]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/capability-release-invariants-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[43]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/story-files-hash-batch-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[44]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/capability-release-backfill-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[45]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/capability-candidate-exposure-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[46]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/capability-candidate-promotion-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[47]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[48]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/experience-pack-arm-switch-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[49]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/gate-repeat-block-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 120000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[50]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/scope-shrinkage-withdrawal-floor-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[51]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/withdrawn-disposition-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[52]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/red-evidence-policy-canon-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[53]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/red-evidence-target-binding-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[54]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/review-budget-stall-adjudication-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[55]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/red-evidence-chain-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[56]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-artifact-validation.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[57]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-migration-scan.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[58]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-chk004-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[59]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-chk005-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[60]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-chk006-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[61]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-chk007-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[62]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-chk009-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[63]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-chk011-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[64]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-doc-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[65]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-baseline-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[66]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-f005-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[67]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-write-quarantine-race.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[68]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-quarantine-derivation.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[69]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-validate-registration.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[70]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[71]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b49d4-registration-derivation.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 300000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[72]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b49d4-chk002-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[73]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-s3-differential-probe.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[74]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-s3-digest-collapse.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[75]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2a-canon-differential.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[76]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2a-policy-failclosed.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[77]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2b-binding-store.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[78]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2b-wiring-contract.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[79]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-binding-corrupt-chain.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[80]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-binding-freeze-race.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[81]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-gate-guard.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[82]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-head-consistency.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[83]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-quarantine-race.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[84]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-rejection-matrix.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[85]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-schema-failclosed.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[86]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[87]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-wiring-detectability.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[88]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/frozen-claim-drift-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[89]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/frozen-claim-snapshot-hook-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[90]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
+          "--issuer-mutations"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2c148753cf9d989c632952502a08c6a5a56e28532ce60d58f8cf2ff0674737a5",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      }
+    ],
+    "invocation": {
+      "full": null,
+      "focus": null,
+      "profile": "strict"
+    },
+    "verificationPolicyDigest": "8c3d7fbca041e9da06176a1bc6c09078bf7ba19c3e4cd307397e2b25e0fd09bc",
+    "runtime": {
+      "platform": "darwin",
+      "arch": "arm64",
+      "node": "v22.13.0"
+    },
+    "digest": "ca63719e9603385b45381f01a4bc2035f5b874b56dee19a8854abfbf2f4477bf"
+  }
+}

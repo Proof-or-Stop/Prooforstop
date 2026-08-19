@@ -44,21 +44,21 @@ untouched.
 
 Verdict: executed-pass (corrected).
 
-Canonical root: the review was executed in the canonical Proofbound worktree at
+Canonical root: the review was executed in the canonical Proof-or-Stop worktree at
 `/Users/jek/Documents/Work/proofbound/.worktrees/B-b550`. The retired
 Orchestrate root was not used as implementation truth.
 
-Live Proofbound context:
+Live Proof-or-Stop context:
 
-- `lattice session_brief --storyId=B-b550` reported Story `B-b550`, phase `DEV`,
+- `proof-or-stop session_brief --storyId=B-b550` reported Story `B-b550`, phase `DEV`,
   and the same canonical worktree path.
-- Version note (takeover audit correction): the installed global `lattice` binary
+- Version note (takeover audit correction): the installed global `proof-or-stop` binary
   reports `0.3.160`, but the worktree SOURCE under review declares `0.3.159` (both
   the root and `packages/main` `package.json`). This review's truth is the
   worktree source tree, so `0.3.159` is the authoritative version for the reviewed
   code; the earlier `0.3.160` citation was the installed binary, not the source.
 - The stale-root lesson from dev-memory was applied: old Orchestrate planning
-  prose is not allowed to override current source, tests, and Lattice facts.
+  prose is not allowed to override current source, tests, and Proof-or-Stop facts.
 
 Command-surface inventory:
 
@@ -123,13 +123,13 @@ Source facts:
 Live rejection evidence:
 
 ```text
-lattice milestone_status --storyId=B-b550 --surpriseFlag=true
+proof-or-stop milestone_status --storyId=B-b550 --surpriseFlag=true
 Argument validation failed:
   (root): Unrecognized key: "surpriseFlag"
 ```
 
 ```text
-lattice milestone_closeout --storyId=B-b550 --surpriseFlag=true
+proof-or-stop milestone_closeout --storyId=B-b550 --surpriseFlag=true
 Argument validation failed:
   (root): Unrecognized key: "surpriseFlag"
 ```
@@ -137,7 +137,7 @@ Argument validation failed:
 Read-only status evidence:
 
 ```text
-lattice milestone_status --storyId=B-b550 --format=json
+proof-or-stop milestone_status --storyId=B-b550 --format=json
 mode.readOnly=true
 mode.runCommands=false
 mode.writeEvidence=false
@@ -190,7 +190,7 @@ State behavior:
 Confirmed binding evidence from this story:
 
 ```text
-lattice milestone_ledger_get --storyId=B-b550 --json
+proof-or-stop milestone_ledger_get --storyId=B-b550 --json
 state=confirmed
 ledgerHash=sha256:7e6ee013ad6725702ffe65de67d190a818d5fefe115e1750d41b57d47f4ca724
 acceptedIntentBinding.intentCollisionId=IC-20260705121840
@@ -243,7 +243,7 @@ Source facts:
   requirement.
 
 Missing-ledger next action is a recommendation to run
-`lattice milestone_ledger_set --storyId=...`; the `milestone_status` command
+`proof-or-stop milestone_ledger_set --storyId=...`; the `milestone_status` command
 itself does not perform that write.
 
 Correction (takeover audit): the original matrix stated the strict-DONE

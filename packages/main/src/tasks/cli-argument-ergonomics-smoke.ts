@@ -41,7 +41,7 @@ const storyCreate = schemaFor('story_create').parse({
     '2026-05-03 User feedback: validation-type stories using type test are rejected, forcing users to guess the chore type when first creating a validation task.',
     '',
     '## Key Insight',
-    'Validation-type tasks are semantically closer to chore in Proofbound, but users naturally type test; the CLI should absorb this common expression difference.',
+    'Validation-type tasks are semantically closer to chore in Proof-or-Stop, but users naturally type test; the CLI should absorb this common expression difference.',
     '',
     '## Trade-off Decision',
     'Keep the persisted StoryType set unchanged, and only normalize test to chore at the CLI schema layer to avoid breaking downstream type checks.',
@@ -89,7 +89,7 @@ try {
   assert.match(invalidVerificationIntent.stderr, /logic[\s\S]*cli[\s\S]*browser[\s\S]*manual[\s\S]*docs/);
   assert.match(invalidVerificationIntent.stderr, /Argument validation failed \(summary\)/);
   assert.doesNotMatch(invalidVerificationIntent.stderr, /Command "checklist_update" is not available in .* phase/);
-  assert.doesNotMatch(invalidVerificationIntent.stdout, /Don't know what to do now|lattice status/);
+  assert.doesNotMatch(invalidVerificationIntent.stdout, /Don't know what to do now|proof-or-stop status/);
 } finally {
   rmSync(isolatedCwd, { recursive: true, force: true });
 }

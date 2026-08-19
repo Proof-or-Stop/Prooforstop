@@ -1,0 +1,84 @@
+{
+  "principles": [
+    "An infrastructure failure must never be presented as a data difference",
+    "Fix the observed defect and its identical latent siblings together",
+    "A limit that can be reached must be measurable before it is reached",
+    "A growth cliff must end in a shipped consequence, not an opinion"
+  ],
+  "drivers": [
+    "No story in the repository can enter TEST until this is fixed",
+    "The failure is silent and its message names the wrong cause",
+    "The artifact grows with the configured command count, which grew seventy-nine percent in one day"
+  ],
+  "options": [
+    {
+      "name": "explicit-ceiling-and-honest-error",
+      "pros": [
+        "Fixes the observed defect and its latent siblings in one pass",
+        "Makes the next ceiling failure diagnosable in minutes rather than hours",
+        "Small, reviewable, self-bootstrapping"
+      ],
+      "cons": [
+        "Moves the cliff rather than removing it unless paired with a growth disposition"
+      ]
+    },
+    {
+      "name": "bound-the-artifact-only",
+      "pros": [
+        "Removes the growth cliff at its source"
+      ],
+      "cons": [
+        "Leaves every other blob read carrying the same latent limit",
+        "Does nothing for diagnosability",
+        "Larger design surface than a bugfix story should carry alone"
+      ]
+    },
+    {
+      "name": "raise-ceiling-only",
+      "pros": [
+        "Smallest possible change",
+        "Unblocks every story immediately"
+      ],
+      "cons": [
+        "Reproduces the identical failure at a higher number",
+        "No regression, so it returns silently",
+        "Leaves the misleading message that made this expensive"
+      ]
+    }
+  ],
+  "chosen": "explicit-ceiling-and-honest-error",
+  "rationale": "Raising the ceiling alone reproduces the same failure at a higher number with no regression and no honest message, which is precisely how this defect survived undetected. Bounding the artifact alone leaves every sibling blob read carrying the identical latent limit and does nothing for diagnosability. The chosen option fixes the defect and its siblings, makes the next occurrence diagnosable, and is paired with a binding disposition for aggregate growth plus a near-limit advisory so the cliff is marked rather than merely moved.",
+  "preMortem": [
+    {
+      "scenario": "Ceiling added only to the helper observed to fail",
+      "trigger": "An implementer patches isolatedBlobHash and stops there because that is the one the transcript named",
+      "consequence": "isolatedGit and treeBlobHash reproduce the identical defect from a different call site",
+      "mitigation": "CHK-001 requires auditing every blob and tree read in the module, not only the observed one"
+    },
+    {
+      "scenario": "The catch is replaced but still collapses two distinct cases",
+      "trigger": "The repair focuses on the message text rather than on what the caller can distinguish",
+      "consequence": "The message improves without becoming diagnostic, so the next occurrence costs the same hours",
+      "mitigation": "CHK-002 requires blob genuinely absent and blob could not be read to remain distinguishable, with the underlying error surfaced"
+    },
+    {
+      "scenario": "The regression uses a fixture below the limit",
+      "trigger": "A small fixture is chosen for speed, as every existing test in this area did",
+      "consequence": "It passes on the unfixed tree and proves nothing, which is exactly why the defect was never caught",
+      "mitigation": "CHK-003 requires a blob above 1048576 bytes and demonstration that it fails on the pre-fix tree"
+    },
+    {
+      "scenario": "CHK-004 closes with a written opinion and no shipped consequence",
+      "trigger": "Urgency to unblock the repository makes the rationale branch attractive as an escape rather than a decision",
+      "consequence": "The unexamined growth cliff this story exists to end is recreated at a higher number",
+      "mitigation": "CHK-004 requires shipping whichever branch is chosen, and the rationale branch must name a concrete successor change rather than a vague intention"
+    },
+    {
+      "scenario": "The advisory threshold is measured against the wrong ceiling",
+      "trigger": "The one-mebibyte figure is the memorable number from the incident, so it is reused as the denominator",
+      "consequence": "The advisory fires at the wrong point and either never warns or warns constantly",
+      "mitigation": "CHK-005 measures the fraction against the ceiling this story sets, not against any external default"
+    }
+  ],
+  "timestamp": "2026-08-15T10:27:21.173Z"
+}

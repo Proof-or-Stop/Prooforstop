@@ -86,9 +86,9 @@ The runbook summarizes operations and links to these sources; it must not become
 
 `AGENTS.md` directly retains only the constraints that must be visible before following a link:
 
-- `lattice session_brief` is the first command in a new or resumed session.
+- `proof-or-stop session_brief` is the first command in a new or resumed session.
 - User instructions override repository defaults.
-- Story and fixture stores are not edited directly; use the Lattice CLI.
+- Story and fixture stores are not edited directly; use the Proof-or-Stop CLI.
 - Work follows the Story lifecycle unless the user explicitly requests an allowed quick path.
 - Engineering completion is not the same as user-value completion.
 - Ownership, lock, destructive-command, and blind-retry prohibitions that are needed before any action.
@@ -418,7 +418,7 @@ Add a retired-authority vocabulary guard over active decision docs, operational 
 
 - `packages/main/src/handlers/aux-doc.ts`: discover `.lattice/Lattice.md` and the runbook in addition to root entrypoints; expose roles without claiming every discovered document is normative.
 - `packages/main/src/core/runtime-environment-checks.ts`: keep root marker discovery host-neutral and include the canonical guide where appropriate.
-- `packages/main/src/core/rollout-check.ts`: stop treating `CLAUDE.md` or retired root `LATTICE.md` as the Lattice guide; recognize `.lattice/Lattice.md` explicitly.
+- `packages/main/src/core/rollout-check.ts`: stop treating `CLAUDE.md` or retired root `LATTICE.md` as the Proof-or-Stop guide; recognize `.lattice/Lattice.md` explicitly.
 - `packages/main/src/core/cluster-compute.ts`: update common-document assumptions used for project clustering.
 - `packages/main/src/core/dirty-worktree.ts`: retain root docs in material/dirty classification where required; thinness does not make them non-material.
 - `packages/main/src/handlers/session.ts`, `story-create.ts`, `init-check.ts`, `checklist.ts`, `done-effects.ts`, `recover-evidence.ts`, `artifact-declare.ts`, `finding.ts`, `gap-log.ts`, `story-review.ts`, and `validate-lint.ts`: classify references found by the migration scan and route behavior-affecting document lookup through the registry.
@@ -430,7 +430,7 @@ This inventory is a migration baseline, not permission to ignore new hits. Each 
 The B-c1f1 implementer ran the required bounded scan in the Story worktree and froze the inspectable baseline at commit `7d7bebed3815af54e6fb8cd7303faa2bd7cb0147`, which contains this evidence section. The appendix at the end of this plan records every one of that snapshot's 600 matched lines. The reproducible command shape was:
 
 ```bash
-git grep -nI -E '(CLAUDE\.md|AGENTS\.md|(^|[^./])LATTICE\.md|\.lattice/Lattice\.md|((canonical|complete|shared|workflow|process|rule|instruction|summary|detail|authority|规范|权威|规则|详见).{0,80}(Claude|AGENTS|Lattice))|((Claude|AGENTS|Lattice).{0,80}(canonical|complete|shared|workflow|process|rule|instruction|summary|detail|authority|规范|权威|规则|详见)))' \
+git grep -nI -E '(CLAUDE\.md|AGENTS\.md|(^|[^./])LATTICE\.md|\.lattice/Lattice\.md|((canonical|complete|shared|workflow|process|rule|instruction|summary|detail|authority|规范|权威|规则|详见).{0,80}(Claude|AGENTS|Proof-or-Stop))|((Claude|AGENTS|Proof-or-Stop).{0,80}(canonical|complete|shared|workflow|process|rule|instruction|summary|detail|authority|规范|权威|规则|详见)))' \
   -- AGENTS.md CLAUDE.md .lattice/Lattice.md docs packages/main/src packages/main/templates scripts \
   ':(exclude)docs/story/**' ':(exclude)tests/fixtures/**' \
   ':(exclude)packages/main/tests/fixtures/**' ':(exclude)packages/main/dist/**' \
@@ -488,7 +488,7 @@ The first implementation Story adds tests before changing production consumers. 
 | Required constraints | Deleting all root prose can still pass a pointer-only check | Effective host closures directly expose session-first, user-priority, no-direct-store-edit, lifecycle, ownership safety, and user-value constraints |
 | Links and anchors | A stale local anchor or retired target is accepted | Missing file, missing anchor, retired authority, or import/navigation cycle fails |
 | Non-duplication | Root files may contain full lifecycle/Finding/DONE sections | Lifecycle tables, Finding schema bodies, reviewer manuals, CLI encyclopedias, and legacy compatibility chapters fail root checks |
-| Audit source | A bad command placed only in the canonical runbook is invisible | `lattice audit --framework` reports the runbook path and bad command |
+| Audit source | A bad command placed only in the canonical runbook is invisible | `proof-or-stop audit --framework` reports the runbook path and bad command |
 | Docs drift | Preflight reads only root `CLAUDE.md` | Preflight reads the registry-selected set from the git root and reports missing required sources |
 | Process facts | Thin root files fail because detailed terms are absent | Detailed terms are required only in owning decision docs; removing a required fact there fails |
 | Retired prose authority | Plain-text “canonical rule is in CLAUDE.md” statements pass because they contain no link | Retired-authority vocabulary guard reports the exact active document and phrase unless it is a bounded host-discovery, historical-lineage, or neutral-fixture allowlist entry |
@@ -503,7 +503,7 @@ Implement `packages/main/src/tasks/thin-entrypoint-failure-exercises-smoke.ts` a
 | Failure | Fixture / setup | Expected failure | Recovery assertion | Owning Story |
 |---|---|---|---|---|
 | Stale link or anchor | Create a temporary canonical registry containing `.lattice/Lattice.md` with a link to `docs/dev/lattice-agent-runbook.md#missing-anchor`; create the target file without that heading | Link/anchor verifier exits non-zero and reports the source path, target path, and missing anchor; no fallback to the legacy root makes it pass | Add the exact target heading, rerun, and assert the same fixture passes without changing the registry role | Story 1 (validator and exercise), re-run in Story 2 against real guide/runbook |
-| Conflicting runbook command | Put ``lattice command_that_does_not_exist`` in a temporary runbook selected by `viewsForMechanicalAudit()` while the command registry omits it | Projection/audit test exits non-zero and attributes the unknown command to the runbook, not `CLAUDE.md` | Replace it with a registered command or deliberately add the command through its own reviewed runtime Story; rerun and assert green | Story 3 |
+| Conflicting runbook command | Put ``proof-or-stop command_that_does_not_exist`` in a temporary runbook selected by `viewsForMechanicalAudit()` while the command registry omits it | Projection/audit test exits non-zero and attributes the unknown command to the runbook, not `CLAUDE.md` | Replace it with a registered command or deliberately add the command through its own reviewed runtime Story; rerun and assert green | Story 3 |
 | Same-path provenance laundering | Parameterize the fixture over temporary `AGENTS.md` and `CLAUDE.md`: each file contains its valid declared thin slots and one unique detailed lifecycle fact in their complement; register disjoint canonical and legacy-fallback views for that same path, then exercise a deliberately overlapping variant | In both host files the unique detailed fact is legacy-only and blocks readiness; the overlap variant fails selector validation before extraction. Neither may gain canonical provenance because the physical path also has a canonical view | Add the unique detailed fact to its real normative owner (not a thin slot), keep the root occurrence as fallback, and assert it merges with both provenance records; remove the overlap and assert the validated selectors remain disjoint | Stories 1 and 3 |
 | Selector absence/partial state machine | Execute the three required selector-state fixtures: `required` with all markers absent; recognized legacy `empty-if-all-absent` with all markers absent; and every listed partial/malformed state | Required/absent and all partial/malformed cases fail with no provenance; recognized legacy/all-absent returns empty canonical selection plus full legacy complement | Add every required marker for a thin asset and assert valid disjoint ranges, or restore the exact recognized legacy all-absent asset; no other state passes | Story 1 |
 | Fact-snapshot freshness | Create a passing readiness artifact, then independently mutate one document byte, a view-definition flag, a selector field, and only `allowedClaimSlots`, without updating the artifact | Each mutation changes the appropriate blob/content/registry/view/selector digest and makes facts plus dependent review/readiness stale at the same snapshot/HEAD gate | Re-extract and re-review each mutated snapshot; assert only the artifact bound to the new complete snapshot passes | Stories 1, 3, and 6 |
@@ -623,7 +623,7 @@ After Stories 1–7 merge to main, the B-e514 owner must:
 3. Preserve the repository-local OMX prohibition outside the managed block.
 4. Remove the B-e514-specific repository-root budget exemption and prove the actual root files pass the same hard checks as fresh init.
 5. Re-run entrypoint, process-fact, audit reachability, managed preservation, build, routine validation, DONE-required validation when configured, and the full suite.
-6. Refresh all stale review, delivery, and verification evidence indicated by Lattice before DONE.
+6. Refresh all stale review, delivery, and verification evidence indicated by Proof-or-Stop before DONE.
 
 B-e514 is not silently superseded and its scope is not expanded to code/templates/tests. If it becomes unrecoverable, a human must explicitly discard it and create one replacement root-entrypoint Story; the replacement then becomes the sole owner, and B-e514's commits must not also be merged. Concurrent root-document owners are prohibited.
 
@@ -689,9 +689,9 @@ The TSV has exactly 600 data rows and seven non-empty fields per row. Its digest
 
 ```tsv
 path:line	matchedPhrase	category	behavioralStatus	disposition	targetAuthority	owningStory
-.lattice/Lattice.md:6	Lattice	host-neutral guide	behavioral	retain-as-host-discovery	host-neutral guide	Story 2
+.lattice/Lattice.md:6	Proof-or-Stop	host-neutral guide	behavioral	retain-as-host-discovery	host-neutral guide	Story 2
 AGENTS.md:2	AGENTS.md	root entrypoint	behavioral	retain-as-host-discovery	root-entrypoint convergence	Story 8
-AGENTS.md:18	Lattice	root entrypoint	behavioral	retain-as-host-discovery	root-entrypoint convergence	Story 8
+AGENTS.md:18	Proof-or-Stop	root entrypoint	behavioral	retain-as-host-discovery	root-entrypoint convergence	Story 8
 AGENTS.md:136	Claude	root entrypoint	behavioral	retain-as-host-discovery	root-entrypoint convergence	Story 8
 AGENTS.md:303	AGENTS.md	root entrypoint	behavioral	retain-as-host-discovery	root-entrypoint convergence	Story 8
 CLAUDE.md:2	CLAUDE.md	root entrypoint	behavioral	retain-as-host-discovery	root-entrypoint convergence	Story 8
@@ -703,7 +703,7 @@ CLAUDE.md:373	CLAUDE.md	root entrypoint	behavioral	retain-as-host-discovery	root
 CLAUDE.md:433	CLAUDE.md	root entrypoint	behavioral	retain-as-host-discovery	root-entrypoint convergence	Story 8
 CLAUDE.md:550	CLAUDE.md	root entrypoint	behavioral	retain-as-host-discovery	root-entrypoint convergence	Story 8
 CLAUDE.md:672	CLAUDE.md	root entrypoint	behavioral	retain-as-host-discovery	root-entrypoint convergence	Story 8
-CLAUDE.md:774	Lattice	root entrypoint	behavioral	retain-as-host-discovery	root-entrypoint convergence	Story 8
+CLAUDE.md:774	Proof-or-Stop	root entrypoint	behavioral	retain-as-host-discovery	root-entrypoint convergence	Story 8
 docs/CLI.md:39	CLAUDE.md	operational/other docs	behavioral	migrate	operational-authority cleanup	Story 5
 docs/CLI.md:169	Claude	operational/other docs	behavioral	migrate	operational-authority cleanup	Story 5
 docs/CLI.md:188	Claude	operational/other docs	behavioral	migrate	operational-authority cleanup	Story 5
@@ -736,7 +736,7 @@ docs/requirements/decisions/cc-learnings.md:795	CLAUDE.md	active normative docs	
 docs/requirements/decisions/cc-learnings.md:811	Claude	active normative docs	behavioral	migrate	normative-authority migration	Story 5
 docs/requirements/decisions/cc-learnings.md:821	CLAUDE.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
 docs/requirements/decisions/cc-learnings.md:833	CLAUDE.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
-docs/requirements/decisions/cell06-docker-server-execution-checklist.md:497	Lattice	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/cell06-docker-server-execution-checklist.md:497	Proof-or-Stop	active normative docs	behavioral	migrate	normative-authority migration	Story 5
 docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md:894	CLAUDE.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
 docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md:895	CLAUDE.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
 docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md:896	CLAUDE.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
@@ -768,7 +768,7 @@ docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md
 docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md:503	AGENTS.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
 docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md:118	AGENTS.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
 docs/requirements/decisions/legacy-to-lattice-role-naming-execution-plan.md:35	CLAUDE.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
-docs/requirements/decisions/legacy-to-lattice-role-naming-execution-plan.md:106	Lattice	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/legacy-to-lattice-role-naming-execution-plan.md:106	Proof-or-Stop	active normative docs	behavioral	migrate	normative-authority migration	Story 5
 docs/requirements/decisions/legacy-to-lattice-role-naming-execution-plan.md:167	CLAUDE.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
 docs/requirements/decisions/legacy-to-lattice-role-naming-execution-plan.md:183	CLAUDE.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
 docs/requirements/decisions/lifecycle-artifact-scope.md:170	.lattice/Lattice.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
@@ -897,13 +897,13 @@ docs/requirements/decisions/stack-layering.md:316	Claude	active normative docs	b
 docs/requirements/decisions/story-lifecycle.md:78	CLAUDE.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
 docs/requirements/decisions/story-lifecycle.md:114	CLAUDE.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
 docs/requirements/decisions/testing-infra.md:118	AGENTS.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
-docs/requirements/decisions/testing-infra.md:148	Lattice	active normative docs	behavioral	migrate	normative-authority migration	Story 5
-docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md:161	Lattice	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/testing-infra.md:148	Proof-or-Stop	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md:161	Proof-or-Stop	active normative docs	behavioral	migrate	normative-authority migration	Story 5
 packages/main/src/claude-md-sync.ts:2	CLAUDE.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
 packages/main/src/claude-md-sync.ts:14	CLAUDE.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
 packages/main/src/claude-md-sync.ts:73	CLAUDE.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
-packages/main/src/cli-engine.ts:730	Lattice	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
-packages/main/src/cli-engine.ts:758	Lattice	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
+packages/main/src/cli-engine.ts:730	Proof-or-Stop	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
+packages/main/src/cli-engine.ts:758	Proof-or-Stop	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
 packages/main/src/cli-init.ts:198	AGENTS.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
 packages/main/src/cli-init.ts:199	Claude	init/managed assets	behavioral	migrate	init-managed assets	Story 7
 packages/main/src/cli-init.ts:209	AGENTS.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
@@ -930,9 +930,9 @@ packages/main/src/cli/command-catalog.ts:1934	CLAUDE.md	init/managed assets	beha
 packages/main/src/cli/command-catalog.ts:1935	CLAUDE.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
 packages/main/src/cli/command-catalog.ts:1942	CLAUDE.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
 packages/main/src/cli/command-catalog.ts:2283	CLAUDE.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
-packages/main/src/cli/help-renderer.ts:235	Lattice	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
-packages/main/src/cli/ownership-gate.ts:174	Lattice	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
-packages/main/src/cli/ownership-gate.ts:183	Lattice	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
+packages/main/src/cli/help-renderer.ts:235	Proof-or-Stop	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
+packages/main/src/cli/ownership-gate.ts:174	Proof-or-Stop	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
+packages/main/src/cli/ownership-gate.ts:183	Proof-or-Stop	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
 packages/main/src/core/advisory.ts:21	CLAUDE.md	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
 packages/main/src/core/audit-meta-store.ts:87	CLAUDE.md	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
 packages/main/src/core/audit-meta-store.ts:243	CLAUDE.md	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
@@ -963,7 +963,7 @@ packages/main/src/core/dirty-worktree.ts:279	CLAUDE.md	aux/runtime discovery	beh
 packages/main/src/core/finding-verify.ts:128	CLAUDE.md	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
 packages/main/src/core/guard-utils.ts:3	CLAUDE.md	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
 packages/main/src/core/guard-utils.ts:91	CLAUDE.md	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
-packages/main/src/core/lattice-brand.ts:14	Lattice	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
+packages/main/src/core/lattice-brand.ts:14	Proof-or-Stop	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
 packages/main/src/core/lattice-dispatch.ts:886	Claude	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
 packages/main/src/core/lattice-dispatch.ts:1828	Claude	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
 packages/main/src/core/lattice-dispatch.ts:1829	Claude	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
@@ -972,14 +972,14 @@ packages/main/src/core/lattice-dispatch.ts:2511	Claude	other source/comments	beh
 packages/main/src/core/lattice-dispatch.ts:2661	Claude	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
 packages/main/src/core/lattice-dispatch.ts:2703	Claude	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
 packages/main/src/core/lattice-dispatch.ts:2727	Claude	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
-packages/main/src/core/lattice-evidence.ts:82	Lattice	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
-packages/main/src/core/lattice-evidence.ts:100	Lattice	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
-packages/main/src/core/lattice-evidence.ts:268	Lattice	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
+packages/main/src/core/lattice-evidence.ts:82	Proof-or-Stop	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
+packages/main/src/core/lattice-evidence.ts:100	Proof-or-Stop	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
+packages/main/src/core/lattice-evidence.ts:268	Proof-or-Stop	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
 packages/main/src/core/lattice-hosts.ts:389	Claude	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
 packages/main/src/core/managed-assets.ts:500	AGENTS.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
 packages/main/src/core/managed-assets.ts:501	CLAUDE.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
 packages/main/src/core/managed-assets.ts:532	LATTICE.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
-packages/main/src/core/managed-assets.ts:579	Lattice	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/core/managed-assets.ts:579	Proof-or-Stop	init/managed assets	behavioral	migrate	init-managed assets	Story 7
 packages/main/src/core/managed-assets.ts:585	AGENTS.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
 packages/main/src/core/managed-assets.ts:591	AGENTS.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
 packages/main/src/core/managed-assets.ts:616	CLAUDE.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
@@ -1004,10 +1004,10 @@ packages/main/src/core/rollout-check.ts:230	AGENTS.md	aux/runtime discovery	beha
 packages/main/src/core/rollout-check.ts:231	CLAUDE.md	aux/runtime discovery	behavioral	migrate	discovery registry	Story 3
 packages/main/src/core/rollout-check.ts:232	LATTICE.md	aux/runtime discovery	behavioral	migrate	discovery registry	Story 3
 packages/main/src/core/rollout-check.ts:381	AGENTS.md	aux/runtime discovery	behavioral	migrate	discovery registry	Story 3
-packages/main/src/core/rollout-check.ts:382	Lattice	aux/runtime discovery	behavioral	migrate	discovery registry	Story 3
+packages/main/src/core/rollout-check.ts:382	Proof-or-Stop	aux/runtime discovery	behavioral	migrate	discovery registry	Story 3
 packages/main/src/core/rollout-check.ts:386	AGENTS.md	aux/runtime discovery	behavioral	migrate	discovery registry	Story 3
-packages/main/src/core/runtime-artifact-registry.ts:198	Lattice	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
-packages/main/src/core/runtime-artifact-registry.ts:200	Lattice	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
+packages/main/src/core/runtime-artifact-registry.ts:198	Proof-or-Stop	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
+packages/main/src/core/runtime-artifact-registry.ts:200	Proof-or-Stop	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
 packages/main/src/core/runtime-environment-checks.ts:593	AGENTS.md	aux/runtime discovery	behavioral	migrate	discovery registry	Story 3
 packages/main/src/handlers/agent-prompt.ts:13	CLAUDE.md	review/preflight/prompts	behavioral	migrate	bounded review routing	Story 4
 packages/main/src/handlers/artifact-declare.ts:11	CLAUDE.md	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
@@ -1115,8 +1115,8 @@ packages/main/src/tasks/flow-stability-smoke.ts:3903	CLAUDE.md	lifecycle hints	b
 packages/main/src/tasks/flow-stability-smoke.ts:3914	CLAUDE.md	lifecycle hints	behavioral	migrate	lifecycle hint routing	Story 4
 packages/main/src/tasks/gap-log-smoke.ts:86	CLAUDE.md	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
 packages/main/src/tasks/gap-log-smoke.ts:107	CLAUDE.md	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
-packages/main/src/tasks/init-check-atomicity-smoke.ts:215	Lattice	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
-packages/main/src/tasks/init-check-atomicity-smoke.ts:347	Lattice	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
+packages/main/src/tasks/init-check-atomicity-smoke.ts:215	Proof-or-Stop	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
+packages/main/src/tasks/init-check-atomicity-smoke.ts:347	Proof-or-Stop	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
 packages/main/src/tasks/main-write-lock-coverage.ts:9	CLAUDE.md	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
 packages/main/src/tasks/managed-assets-wrapper-root-smoke.ts:9	.lattice/Lattice.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
 packages/main/src/tasks/managed-assets-wrapper-root-smoke.ts:116	.lattice/Lattice.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
@@ -1124,26 +1124,26 @@ packages/main/src/tasks/managed-assets-wrapper-root-smoke.ts:138	.lattice/Lattic
 packages/main/src/tasks/managed-assets-wrapper-root-smoke.ts:146	.lattice/Lattice.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
 packages/main/src/tasks/playbook-runtime-memory-index-smoke.ts:124	Claude	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
 packages/main/src/tasks/playbook-runtime-memory-index-smoke.ts:578	Claude	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
-packages/main/src/tasks/prompt-registry-smoke.ts:89	Lattice	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
+packages/main/src/tasks/prompt-registry-smoke.ts:89	Proof-or-Stop	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
 packages/main/src/tasks/provider-claude-smoke.ts:6	Claude	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
 packages/main/src/tasks/provider-claude-smoke.ts:250	Claude	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
 packages/main/src/tasks/repro-first-candidate-smoke.ts:46	CLAUDE.md	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
 packages/main/src/tasks/repro-first-candidate-smoke.ts:47	CLAUDE.md	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
-packages/main/src/tasks/retired-root-guard-smoke.ts:25	Lattice	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
-packages/main/src/tasks/retired-root-guard-smoke.ts:30	Lattice	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
-packages/main/src/tasks/retired-root-guard-smoke.ts:36	Lattice	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
-packages/main/src/tasks/retired-root-guard-smoke.ts:48	Lattice	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
+packages/main/src/tasks/retired-root-guard-smoke.ts:25	Proof-or-Stop	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
+packages/main/src/tasks/retired-root-guard-smoke.ts:30	Proof-or-Stop	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
+packages/main/src/tasks/retired-root-guard-smoke.ts:36	Proof-or-Stop	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
+packages/main/src/tasks/retired-root-guard-smoke.ts:48	Proof-or-Stop	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
 packages/main/src/tasks/review-host-execution-readiness-smoke.ts:189	Claude	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
 packages/main/src/tasks/session-brief-prompt-sync-smoke.ts:38	CLAUDE.md	lifecycle hints	behavioral	migrate	lifecycle hint routing	Story 4
 packages/main/src/tasks/story-create-concurrency-smoke.ts:330	AGENTS.md	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
 packages/main/src/tasks/thin-init-assets-smoke.ts:15	.lattice/Lattice.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
 packages/main/src/tasks/thin-init-assets-smoke.ts:166	LATTICE.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
-packages/main/src/tasks/thin-init-assets-smoke.ts:171	Lattice	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/tasks/thin-init-assets-smoke.ts:171	Proof-or-Stop	init/managed assets	behavioral	migrate	init-managed assets	Story 7
 packages/main/src/tasks/thin-init-assets-smoke.ts:174	.lattice/Lattice.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
 packages/main/src/tasks/thin-init-assets-smoke.ts:176	AGENTS.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
 packages/main/src/tasks/thin-init-assets-smoke.ts:179	AGENTS.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
 packages/main/src/tasks/thin-init-assets-smoke.ts:180	AGENTS.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
-packages/main/src/tasks/thin-init-assets-smoke.ts:181	Lattice	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/tasks/thin-init-assets-smoke.ts:181	Proof-or-Stop	init/managed assets	behavioral	migrate	init-managed assets	Story 7
 packages/main/src/tasks/thin-init-assets-smoke.ts:182	AGENTS.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
 packages/main/src/tasks/thin-init-assets-smoke.ts:183	AGENTS.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
 packages/main/src/tasks/thin-init-assets-smoke.ts:185	.lattice/Lattice.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
@@ -1164,7 +1164,7 @@ packages/main/src/tasks/usage-ledger-default-on-smoke.ts:19	Claude	verification/
 packages/main/src/tasks/usage-ledger-default-on-smoke.ts:244	Claude	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
 packages/main/src/tasks/usage-ledger-default-on-smoke.ts:357	Claude	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
 packages/main/src/tasks/usage-ledger-dispatch-smoke.ts:456	Claude	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
-packages/main/src/tasks/validation-protocol-smoke.ts:413	Lattice	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
+packages/main/src/tasks/validation-protocol-smoke.ts:413	Proof-or-Stop	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
 packages/main/src/tasks/validation-protocol-smoke.ts:1183	LATTICE.md	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
 packages/main/src/tasks/validation-protocol-smoke.ts:1184	LATTICE.md	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
 packages/main/src/tasks/validation-protocol-smoke.ts:1206	LATTICE.md	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
@@ -1203,8 +1203,8 @@ scripts/verify-codex-assets.mjs:95	AGENTS.md	verification/test fixtures	behavior
 scripts/verify-codex-assets.mjs:96	AGENTS.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
 scripts/verify-codex-assets.mjs:97	AGENTS.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
 scripts/verify-codex-assets.mjs:124	AGENTS.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
-scripts/verify-dev-memory.mjs:781	Lattice	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
-scripts/verify-dev-memory.mjs:801	Lattice	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
+scripts/verify-dev-memory.mjs:781	Proof-or-Stop	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
+scripts/verify-dev-memory.mjs:801	Proof-or-Stop	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
 scripts/verify-entrypoints.mjs:99	.lattice/Lattice.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
 scripts/verify-entrypoints.mjs:137	LATTICE.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
 scripts/verify-entrypoints.mjs:142	AGENTS.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7

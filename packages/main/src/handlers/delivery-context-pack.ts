@@ -21,7 +21,7 @@ import {
  * P6 — `delivery_context_pack`: the delivery-review CONTEXT PRODUCER for the
  * Lifecycle Readiness plan.
  *
- *   lattice delivery_context_pack --storyId=B-xxxx [--write] [--format=text|json]
+ *   proof-or-stop delivery_context_pack --storyId=B-xxxx [--write] [--format=text|json]
  *
  * Default (no --write) is READ-ONLY: it gathers and prints the structured
  * delivery context pack the delivery reviewer needs — the delivery-scoped git

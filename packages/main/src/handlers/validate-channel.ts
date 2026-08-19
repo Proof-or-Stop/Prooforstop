@@ -29,6 +29,8 @@ import { computeChannel } from '../core/workflow-policy.js';
 import { loadConfig } from '../core/config.js';
 import { isStoryMetadataPath as isSharedStoryMetadataPath } from '../core/evidence-freshness.js';
 import type { StoryInfo, ChecklistData, DecisionData, ProcessEvent } from '../core/types.js';
+import type { ScopeShrinkageDecisionData } from '../core/types.js';
+import { withdrawnChecklistItemIdsFrom } from '../core/proofstory.js';
 
 export interface ChannelOffender {
   sha: string;
@@ -47,7 +49,7 @@ export interface ChannelCheckResult {
    * F-003 (B-fdcf Round 1): evidence source label, used by renderChannelResult to output
    * the `all CHK covered (via <source>)` phrase promised by userSees.
    * - 'subagent_result' — all via Agent() direct dispatch path (subagent_result events)
-   * - 'dispatch'        — all via lattice dispatch (dispatch events)
+   * - 'dispatch'        — all via proof-or-stop dispatch (dispatch events)
    * - 'dispatch + subagent_result' — mixed
    * - 'commit_author' — commit author=lattice-implementer as a signal of direct Agent execution
    * Set only when status=pass and evidencedItems exists; undefined for pure waiver / no-commit scenarios.
@@ -173,8 +175,16 @@ export function isStoryMetadataPath(file: string): boolean {
   return isSharedStoryMetadataPath(file);
 }
 
+// B-cdf6:F-053 — READ-BOTH, and this one gates a transition. This matched only the
+// DEPRECATED subject prefix, so once F-047/F-049 renamed the writers, a legitimate
+// metadata-only auto-commit written under the canonical prefix was misclassified as a
+// channel offender by the validate --channel REVIEW->TEST gate (via isAcceptableCommit
+// -> the offenders filter). Demonstrated on this repo's own log: the subject
+// "proof-or-stop: record B-cdf6 validate metadata" returned false while the old form
+// returned true. Both prefixes are accepted now — the deprecated one deliberately, so
+// pre-rename history keeps classifying correctly.
 export function isMetadataOnlyLatticeCommit(c: Pick<ChannelOffender, 'subject' | 'files'>): boolean {
-  return /^\s*lattice:/.test(c.subject)
+  return /^\s*(?:proof-or-stop|lattice):/.test(c.subject)
     && Array.isArray(c.files)
     && c.files.length > 0
     && c.files.every(isStoryMetadataPath);
@@ -237,7 +247,19 @@ export function parseMainAgentOwnedItems(planContent: string | null): Set<string
  *
  * Each CHK-xxx must have evidence: `dispatch` event OR `subagent_result` event, deduplicated by checklistId / itemId.
  * If only subagent_result exists and success=false → report `dispatch exists but subagent failed`.
- * CHKs declaring `**Owner**: main-agent` in plan.md are exempt.
+ *
+ * THREE ways an item can leave the loop without being an issue, and the buckets
+ * are disjoint (the loop below tests them in this order):
+ *   1. B-45a5 CHK-003 — WITHDRAWN: the item is a member of
+ *      `withdrawnChecklistItemIdsFrom(scopeShrinkageDecision)`. That helper reads
+ *      ONLY the decision record (confirmed + userConfirmed), never a checklist
+ *      item, so what makes this safe is decision membership — NOT an
+ *      `item.status` string. An item hand-edited to a withdrawn-looking status is
+ *      not in the set and is still refused. Checked FIRST so an authorized
+ *      withdrawal is never laundered into either bucket below. → `withdrawnItems`.
+ *   2. OWNER-EXEMPT: CHKs declaring `**Owner**: main-agent` in plan.md.
+ *      → `exemptedItems`.
+ *   3. EVIDENCED: the dispatch / subagent_result evidence above. → `evidencedItems`.
  */
 export interface DispatchEvidenceIssue {
   itemId: string;
@@ -252,6 +274,14 @@ export interface DispatchEvidenceResult {
   exemptedItems: string[];
   /** item ids with evidence found (dispatch or success=true subagent_result) */
   evidencedItems: string[];
+  /**
+   * B-45a5 CHK-003: item ids EXCLUDED because a confirmed, user-confirmed
+   * scope-shrinkage decision withdrew them. Deliberately its own bucket: they
+   * are neither `evidencedItems` (rendered `Covered:`, which would record work
+   * never done as covered) nor `exemptedItems` (rendered
+   * `plan.md Owner=main-agent exempted:`, a false attribution).
+   */
+  withdrawnItems: string[];
   details: string[];
 }
 
@@ -259,9 +289,20 @@ export function checkDispatchEvidence(opts: {
   checklist: Pick<ChecklistData, 'items'>;
   events: ProcessEvent[];
   mainAgentOwnedItems: Set<string>;
+  /**
+   * B-45a5 CHK-003: the story's scope-shrinkage decision record. It is the ONLY
+   * thing that can excuse an item from the dispatch requirement, because no
+   * work is dispatched for an item a confirmed decision withdrew. Absent/null
+   * (legacy callers, unreadable record) excuses nothing.
+   */
+  scopeShrinkageDecision?: ScopeShrinkageDecisionData | null;
 }): DispatchEvidenceResult {
-  const { checklist, events, mainAgentOwnedItems } = opts;
+  const { checklist, events, mainAgentOwnedItems, scopeShrinkageDecision } = opts;
   const items = checklist?.items ?? [];
+  // Membership BY ITEM ID in the decision-resolved set is the sole key: the
+  // helper reads only the decision record (confirmed + userConfirmed) and never
+  // inspects a checklist item, so hand-editing item.status excuses nothing.
+  const withdrawnIds = withdrawnChecklistItemIdsFrom(scopeShrinkageDecision);
 
   // Dedup collection: evidence set per itemId
   type Evidence = { hasDispatch: boolean; successResult: boolean; failureResult: boolean };
@@ -296,11 +337,18 @@ export function checkDispatchEvidence(opts: {
   const issues: DispatchEvidenceIssue[] = [];
   const exemptedItems: string[] = [];
   const evidencedItems: string[] = [];
+  const withdrawnItems: string[] = [];
 
   for (const item of items) {
     // F-012 (B-fdcf Round 1): ChecklistItem.id is already string, no need to force-cast as any
     const id = item.id;
     if (!id) continue;
+    // Checked FIRST so an authorized withdrawal is never laundered into the
+    // owner-exemption bucket and mis-attributed to a plan.md owner.
+    if (withdrawnIds.has(id)) {
+      withdrawnItems.push(id);
+      continue;
+    }
     if (mainAgentOwnedItems.has(id)) {
       exemptedItems.push(id);
       continue;
@@ -334,6 +382,12 @@ export function checkDispatchEvidence(opts: {
   }
 
   const details: string[] = [];
+  if (withdrawnItems.length > 0) {
+    // Rendered with the authorizing decision id so a reader can trace the
+    // exclusion back to the record that granted it.
+    const decisionId = scopeShrinkageDecision?.decisionId ?? 'decision id absent';
+    details.push(`withdrawn (${decisionId}): ${withdrawnItems.join(', ')}`);
+  }
   if (exemptedItems.length > 0) {
     details.push(`plan.md Owner=main-agent exempted: ${exemptedItems.join(', ')}`);
   }
@@ -349,6 +403,7 @@ export function checkDispatchEvidence(opts: {
     issues,
     exemptedItems,
     evidencedItems,
+    withdrawnItems,
     details,
   };
 }
@@ -482,10 +537,18 @@ export function checkCommitAuthor(
   } catch { events = []; }
   const planContent = planReader(storyId, projectRoot);
   const ownedByMain = parseMainAgentOwnedItems(planContent);
+  // B-45a5 CHK-003: plumb the decision record through; without it the gate has
+  // no authorized way to know an item was withdrawn. Unreadable record -> null,
+  // which excuses nothing (fail-closed).
+  let scopeShrinkageDecision: ScopeShrinkageDecisionData | null = null;
+  try {
+    scopeShrinkageDecision = store.readScopeShrinkageDecision(storyId);
+  } catch { scopeShrinkageDecision = null; }
   const evidence = checkDispatchEvidence({
     checklist,
     events,
     mainAgentOwnedItems: ownedByMain,
+    scopeShrinkageDecision,
   });
 
   // No-commit boundary: author check passes. Evidence check still runs—normal channel with no commits should still have dispatch/subagent_result records
@@ -590,7 +653,7 @@ export function checkCommitAuthor(
 }
 
 /**
- * B-9d95 CHK-006: CLI entry for `lattice validate --channel`.
+ * B-9d95 CHK-006: CLI entry for `proof-or-stop validate --channel`.
  *
  * Does not spawn pytest / does not run full validate.ts—directly calls checkCommitAuthor, emitting
  * structured result + human-readable render. Used as an independent branch in REVIEW→TEST preflight.

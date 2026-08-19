@@ -94,7 +94,7 @@ different heartbeat layer:
   `assetMode=global-thin` are eligible for runtime activity logging;
 - `cli-engine` activity logging uses the runtime activity-root helper instead
   of requiring only `lattice.config.json`;
-- `lattice codex verify` global fallback heartbeat can observe
+- `proof-or-stop codex verify` global fallback heartbeat can observe
   `session_brief` activity in a global-thin project;
 - `thin-init-assets-smoke` covers canonical roots, valid global-thin roots, and
   malformed / wrong-assetMode roots.

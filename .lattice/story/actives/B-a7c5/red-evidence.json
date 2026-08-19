@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-a7c5",
+  "records": [
+    {
+      "id": "RED-20260814110425",
+      "trigger": "Story adds new blocking dev-memory lifecycle gates (CHK-001/CHK-003); this is explicit behavior-change/gate work, so red evidence is required by the ProofStory high-assurance classifier.",
+      "acceptanceTargetRef": "CHK-001,CHK-003",
+      "baselineHeadHash": "e2ccc7ddd0083e3fac066e1fc5a5432eae57b6c8",
+      "baselineMaterialHash": "1188c12cbc81d51c8853a119b71a365741a4ff52df441eea034a9d868d490cab",
+      "observedFailure": "Today none of the four DEV-entry guards (canStartDevGuard, canSkipPlanGuard, canReenterDevGuard) or the DONE guard (canFinishGuard) in packages/main/src/core/machine.ts reference dev-memory in any form -- grep -c 'devMemory|dev_memory|DevMemory' packages/main/src/core/machine.ts returns 0. A story can enter DEV via any of the three doors, or reach DONE, with zero recorded dev-memory preflight acknowledgement or finish-decision, which is exactly the gap this story closes.",
+      "failingCommand": "grep -c 'devMemory\\|dev_memory\\|DevMemory' packages/main/src/core/machine.ts",
+      "expectedGreenCommand": "grep -c 'devMemory\\|dev_memory\\|DevMemory' packages/main/src/core/machine.ts",
+      "greenRelation": {
+        "targetRef": "CHK-001,CHK-003",
+        "relation": "replacement",
+        "command": "grep -c 'devMemory\\|dev_memory\\|DevMemory' packages/main/src/core/machine.ts"
+      },
+      "note": "Baseline captured pre-DEV on worktree HEAD. failingCommand today returns 0 (no dev-memory reference in any of the four guards); after CHK-001/CHK-003 land, the same command must return >0 (guard code references the new preflight-ack/finish-decision reader functions). This is a presence/absence structural check, not a behavior regression, hence greenRelation=replacement rather than same_acceptance.",
+      "createdAt": "2026-08-14T11:04:25.561Z"
+    },
+    {
+      "id": "RED-20260814110635",
+      "trigger": "Story adds new blocking dev-memory lifecycle gates (CHK-001/CHK-003); this is explicit behavior-change/gate work, so red evidence is required by the ProofStory high-assurance classifier.",
+      "acceptanceTargetRef": "AB-001",
+      "baselineHeadHash": "e2ccc7ddd0083e3fac066e1fc5a5432eae57b6c8",
+      "baselineMaterialHash": "1188c12cbc81d51c8853a119b71a365741a4ff52df441eea034a9d868d490cab",
+      "observedFailure": "Today none of the four DEV-entry guards (canStartDevGuard, canSkipPlanGuard, canReenterDevGuard) or the DONE guard (canFinishGuard) in packages/main/src/core/machine.ts reference dev-memory in any form -- grep -c 'devMemory|dev_memory|DevMemory' packages/main/src/core/machine.ts returns 0. A story can enter DEV via any of the three doors, or reach DONE, with zero recorded dev-memory preflight acknowledgement or finish-decision, which is exactly the gap this story closes.",
+      "failingCommand": "grep -c 'devMemory\\|dev_memory\\|DevMemory' packages/main/src/core/machine.ts",
+      "expectedGreenCommand": "grep -c 'devMemory\\|dev_memory\\|DevMemory' packages/main/src/core/machine.ts",
+      "greenRelation": {
+        "targetRef": "AB-001",
+        "relation": "replacement",
+        "command": "grep -c 'devMemory\\|dev_memory\\|DevMemory' packages/main/src/core/machine.ts"
+      },
+      "note": "Baseline captured pre-DEV on worktree HEAD. failingCommand today returns 0 (no dev-memory reference in any of the four guards); after CHK-001/CHK-003 land, the same command must return >0. Corrected acceptanceTargetRef/greenTargetRef to AB-001 (the proofstory_contract_set acceptance binding id) after discovering resolveExpectedRedTargets only accepts requestHash/binding-id/verificationIntentRef/milestoneId, not raw checklist ids.",
+      "createdAt": "2026-08-14T11:06:35.307Z"
+    }
+  ],
+  "createdAt": "2026-08-14T11:04:25.561Z",
+  "updatedAt": "2026-08-14T11:06:35.307Z"
+}

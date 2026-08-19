@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-3e5d",
+  "checkedAt": "2026-08-16T11:40:38.465Z",
+  "mode": "custom",
+  "status": "pass",
+  "scopeBoundaryHash": "eb1a448062a2abf2e77d9dffd5650666f91aa96b40bb232d236e7bfbe01ac8cd",
+  "executionBoundaryHash": "7c68cdb5d46ab749d1dae888aa2e756678577be7c2fdf155d2485733d4bea1ae",
+  "freshnessHash": "862bece3fe807b217252a7ca7ede5bc167f1cf82305da73719c292e4ccdf15c6",
+  "effectiveExcludedKeywords": [
+    "No broader refactor of the DONE lifecycle, review-run binding, or reviewer-lane registry beyond the two defects in scope",
+    "No changes to worktree-authority-smoke.ts test bodies beyond what already passes; no changes to prompt-role-contract-registry.ts or flow-fact-policy.ts (both already correct, referenced read-only)"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "No broader refactor of the DONE lifecycle, review-run binding, or reviewer-lane registry beyond the two defects in scope",
+      "source": "scopeBoundary.excluded",
+      "text": "No broader refactor of the DONE lifecycle, review-run binding, or reviewer-lane registry beyond the two defects in scope",
+      "excluded": true
+    },
+    {
+      "keyword": "No changes to worktree-authority-smoke.ts test bodies beyond what already passes; no changes to prompt-role-contract-registry.ts or flow-fact-policy.ts (both already correct, referenced read-only)",
+      "source": "scopeBoundary.excluded",
+      "text": "No changes to worktree-authority-smoke.ts test bodies beyond what already passes; no changes to prompt-role-contract-registry.ts or flow-fact-policy.ts (both already correct, referenced read-only)",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "c3130113df9e0c73ec8475863cc096d87bdbda5d037e71eee9b20364486b5a56"
+}

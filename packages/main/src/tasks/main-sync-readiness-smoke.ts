@@ -198,7 +198,7 @@ function assertBehindStory(root: string): void {
   assert.equal(readiness.behindCount, 1);
   assert.equal(
     renderMainSyncReadinessAdvisory(readiness),
-    `main-sync readiness: story/${BEHIND_STORY} is behind main by 1 commits; advisory/read-only; run lattice done_prepare '{"storyId":"${BEHIND_STORY}","mergeMain":true,"refreshStale":true,"validate":true}'`,
+    `main-sync readiness: story/${BEHIND_STORY} is behind main by 1 commits; advisory/read-only; run proof-or-stop done_prepare '{"storyId":"${BEHIND_STORY}","mergeMain":true,"refreshStale":true,"validate":true}'`,
   );
 
   const reviewReport = buildStoryReadinessReport({ storyId: BEHIND_STORY, target: 'REVIEW', store, root });
@@ -214,7 +214,7 @@ function assertBehindStory(root: string): void {
   assert.equal(testReport.claims.localReady, true, 'behind-main state alone does not fail TEST readiness');
 
   const brief = createSessionHandlers(context).session_brief();
-  assert.match(brief, new RegExp(`main-sync readiness: story/${BEHIND_STORY} is behind main by 1 commits; advisory/read-only; run lattice done_prepare`));
+  assert.match(brief, new RegExp(`main-sync readiness: story/${BEHIND_STORY} is behind main by 1 commits; advisory/read-only; run proof-or-stop done_prepare`));
   assert.match(brief, /## Main-sync readiness/);
 
   assert.equal(store.readStory(BEHIND_STORY).phase, beforePhase, 'readiness checks must not mutate phase');

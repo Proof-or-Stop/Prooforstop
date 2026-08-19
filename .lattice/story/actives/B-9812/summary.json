@@ -1,0 +1,56 @@
+{
+  "storyId": "B-9812",
+  "changes": "Root npm test now runs the complete 47-member canonical inventory through a resource-aware parallel scheduler with strict terminal failure semantics, process-tree cleanup on every exit path, bounded reports, isolated temporary roots, and optimized acceptance/incremental long tails.",
+  "usage": "From a standard clean checkout run npm run build, then run npm test; the default jobs=4 canonical suite reports each member and writes an optional atomic JSON artifact when --json-output is supplied.",
+  "expectedOutcome": "The complete canonical suite executes safely in parallel and finishes below 300000ms on three consecutive same-material clean-checkout runs, without retries masking failures or descendant processes leaking.",
+  "actualTranscript": "Final same-material jobs=4 runs passed 47/47 in 216146ms, 220808ms, and 223474ms with launches=47, retries=0, identityDrift=false; serial oracle passed 47/47; F-053 heartbeat repro proved normal-exit descendants are reaped; DONE-required and 93-command validation passed.",
+  "outcomeDiff": "No difference: the delivered behavior matches the expected complete, safe, sub-five-minute canonical test execution.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none — fully covered",
+  "pitfalls": "The main pitfalls were stale material bindings after lifecycle metadata and a normal-exit grandchild leak; strict replay exposed both, final receipts were regenerated, and future changes to runner output or canonical members must refresh serial and three-run evidence.",
+  "phaseStats": {
+    "INIT": {
+      "count": 2,
+      "durationMs": 343435
+    },
+    "INIT_CHECK": {
+      "count": 2,
+      "durationMs": 48588
+    },
+    "PLAN": {
+      "count": 2,
+      "durationMs": 857627
+    },
+    "DEV": {
+      "count": 12,
+      "durationMs": 78913983
+    },
+    "REVIEW": {
+      "count": 12,
+      "durationMs": 9225687
+    },
+    "TEST": {
+      "count": 2,
+      "durationMs": 3801079
+    }
+  },
+  "totalDurationMs": 93190992,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-08-13T14:23:47.386Z",
+  "updatedAt": "2026-08-13T14:23:47.386Z"
+}

@@ -5,7 +5,7 @@ description: TEST-phase delivery review - reverse-scans git diff to verify docs 
 tools: Read, Grep, Glob, Bash
 ---
 <!-- lattice:start -->
-# Lattice Load-Bearing Runtime Guide
+# Proof-or-Stop Load-Bearing Runtime Guide
 
 This embedded slice is intentionally compact. It replaces the old full guide
 snapshot while preserving the process facts that prompts rely on. For broad
@@ -15,11 +15,11 @@ assuming hidden context.
 ## Session And Story Flow
 
 - At the start of every new session or interrupted-work resume, first run
-  `lattice session_brief` from the current story worktree.
-- Before acting, run `lattice aux_doc_list` and read only the relevant
+  `proof-or-stop session_brief` from the current story worktree.
+- Before acting, run `proof-or-stop aux_doc_list` and read only the relevant
   source-of-truth files. If an aux command is unavailable, fall back to shell
   search/read tools.
-- Story operations must use Lattice CLI commands. Do not directly read or write
+- Story operations must use Proof-or-Stop CLI commands. Do not directly read or write
   story metadata under `docs/story/`, and do not write fixtures directly under
   `tests/fixtures/`.
 - Current lifecycle:
@@ -34,30 +34,30 @@ For routine status refreshes, prefer compact read-only queries. These examples
 are opt-in; default `story_get` and `checklist_get` output remains full.
 
 ```bash
-lattice story_get '{"storyId":"B-xxxx","slim":true,"fields":["story","checklist","review"]}'
-lattice checklist_get '{"storyId":"B-xxxx","slim":true,"fields":["counts","items"]}'
+proof-or-stop story_get '{"storyId":"B-xxxx","slim":true,"fields":["story","checklist","review"]}'
+proof-or-stop checklist_get '{"storyId":"B-xxxx","slim":true,"fields":["counts","items"]}'
 ```
 
 Before evidence-sensitive conclusions or mutations, reload the full output:
 
 ```bash
-lattice story_get '{"storyId":"B-xxxx"}'
-lattice checklist_get '{"storyId":"B-xxxx"}'
+proof-or-stop story_get '{"storyId":"B-xxxx"}'
+proof-or-stop checklist_get '{"storyId":"B-xxxx"}'
 ```
 
 ## Fresh-Context Fence
 
 Fresh-context separation is a prompt and evidence discipline, not a hidden
-mechanical identity boundary. Subagents and the main agent can look similar to
-the shell, so auditability comes from structured Lattice facts plus this fence.
+mechanical identity boundary. Subagents and the main agent can look similar to the
+shell, so auditability comes from structured Proof-or-Stop facts plus this fence.
 
 - A worker/reviewer must infer only from its provided inputs, code diff, story
-  metadata exposed by Lattice commands, and explicitly read source files.
+  metadata exposed by Proof-or-Stop commands, and explicitly read source files.
 - Do not assume the main agent's private intent or full conversation history.
 - For reviewer lanes, an unregistered issue is not a finding. Every real issue
-  must be recorded with `lattice finding_add`; no-issue conclusions must be
-  recorded with `lattice review_pass_set`.
-- For implementer lanes, mark checklist progress through `lattice
+  must be recorded with `proof-or-stop finding_add`; no-issue conclusions must
+  be recorded with `proof-or-stop review_pass_set`.
+- For implementer lanes, mark checklist progress through `proof-or-stop
   checklist_update` and record verificationEvidence for completed items.
 
 ## Process Fact Contract
@@ -69,7 +69,7 @@ normalization, signing, validation, and gate consumption.
 - Reviewer conclusions such as no finding / no blocker / check passed must use
   `review_pass_set`. Pass-only `finding_add` is a misuse.
 - Reviewer evidence for the current REVIEW round must first call
-  `lattice review_run_start {"storyId":"B-xxx","agent":"<reviewer-name>"}`
+  `proof-or-stop review_run_start {"storyId":"B-xxx","agent":"<reviewer-name>"}`
   to obtain a `reviewRunId`; every `finding_add` / `review_pass_set` in
   that round must carry the current `reviewRunId`.
 - `finding_add` categories are `happy|edge|adversarial|missing`. Legacy
@@ -87,9 +87,9 @@ normalization, signing, validation, and gate consumption.
 
 ## Local Admissibility And Handoff Boundaries
 
-- Local Proofbound evidence can be admissible when it is fresh, scoped, and gate-consumed through `admissibilityStatus`, `assuranceLevel`, and `evidenceScope`.
+- Local Proof-or-Stop evidence can be admissible when it is fresh, scoped, and gate-consumed through `admissibilityStatus`, `assuranceLevel`, and `evidenceScope`.
 - Local tests, prompt text, and story metadata may support local admissibility only when they are recorded as structured gate evidence.
-- Handoff packs are bounded overflow execution. Story ownership, merge responsibility, DONE readiness, signed/offline receipt bundles, and local review quorum assurance remain local Proofbound responsibilities unless a human explicitly changes the boundary.
+- Handoff packs are bounded overflow execution. Story ownership, merge responsibility, DONE readiness, signed/offline receipt bundles, and local review quorum assurance remain local Proof-or-Stop responsibilities unless a human explicitly changes the boundary.
 
 ## Debugging Contract
 
@@ -129,7 +129,7 @@ Your input is **only**:
 
 ## 2. Obtain storyId
 
-The main agent passes `storyId` (e.g. `B-xxxx`) in the spawn prompt. Use this value in all subsequent Lattice CLI commands.
+The main agent passes `storyId` (e.g. `B-xxxx`) in the spawn prompt. Use this value in all subsequent Proof-or-Stop CLI commands.
 
 ## 3. Procedure (6 steps)
 
@@ -159,7 +159,7 @@ For each documentation change that **promises** a new feature, handler, command,
 ```json
 {
   "docPath": "CLAUDE.md#section",
-  "promise": "lattice delivery_check_set command accepts storyId + docsPromises + ...",
+  "promise": "proof-or-stop delivery_check_set command accepts storyId + docsPromises + ...",
   "verifiedBy": "diff/grep",
   "evidence": "handler registered in registry.ts, Zod schema in cli-engine.ts",
   "waiverReason": null
@@ -229,7 +229,7 @@ In refusal case:
 If no critical refusal triggered:
 
 ```bash
-lattice delivery_check_set '{"storyId":"B-xxx","docsPromises":[...],"realMachineTests":[...],"closingSelfCheck":{...}}'
+proof-or-stop delivery_check_set '{"storyId":"B-xxx","docsPromises":[...],"realMachineTests":[...],"closingSelfCheck":{...}}'
 ```
 
 Then output a short summary (3-8 lines):
@@ -238,10 +238,10 @@ Then output a short summary (3-8 lines):
 - closingSelfCheck fields
 - Final line: `delivery_check_set saved for <storyId>` or `Refused to save (<reason>)`
 
-## 4. `lattice delivery_check_set` call template
+## 4. `proof-or-stop delivery_check_set` call template
 
 ```bash
-lattice delivery_check_set '{
+proof-or-stop delivery_check_set '{
   "storyId": "B-xxx",
   "docsPromises": [
     {
@@ -285,3 +285,5 @@ Pre-call self-check:
 - If a docs promise refers to something that existed before this story (not in the diff), note it in evidence as "pre-existing, not introduced by this story" and mark `verified: true`
 - If you encounter a file you cannot read, note it in the relevant promise evidence field
 - Output MUST include the `delivery_check_set` CLI call (unless critical refusal), text-only output without the save call is incomplete
+
+Wave 4 delivery promises require independently reading `acceptance_topology_check`, `pre_review_check_read`, `acceptance_rollout_report_read`, and `acceptance_rollout_check`; prompt prose is not gate evidence. Require a current signed PASS receipt and genuine full 3 rounds × 2 hosts (`codex-cli` + `claude-cli`), never degraded 3x1. Observe/warn/enforce keep identical status/diagnostics and enforce alone blocks. Rollback is config-only and must preserve every report and prior evidence.

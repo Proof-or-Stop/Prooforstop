@@ -8,9 +8,10 @@ import { fileURLToPath } from 'node:url';
 import {
   LOAD_BEARING_LATTICE_PROMPT_SLICE,
   isModularReviewerRoleId,
+  readPromptRegistry,
   renderCodexPromptContent,
+  renderPromptEntryForHost,
 } from '../core/prompt-registry.js';
-import { renderReviewerRunBootstrapForTemplate } from '../core/global-agents.js';
 import { StoryStore } from '../core/store.js';
 import type { ChecklistData, StoryInfo } from '../core/types.js';
 import { createChecklistHandlers } from '../handlers/checklist.js';
@@ -47,7 +48,7 @@ const requiredSourcePaths = [
 ];
 
 const requiredPromptPhrases = [
-  'lattice session_brief',
+  'proof-or-stop session_brief',
   'Fresh-Context Fence',
   'Process Fact Contract',
   'review_run_start',
@@ -63,11 +64,11 @@ const compactQueryGuidancePhrases = [
   'For routine status refreshes, prefer compact read-only queries',
   'These examples',
   'are opt-in; default `story_get` and `checklist_get` output remains full',
-  `lattice story_get '{"storyId":"B-xxxx","slim":true,"fields":["story","checklist","review"]}'`,
-  `lattice checklist_get '{"storyId":"B-xxxx","slim":true,"fields":["counts","items"]}'`,
+  `proof-or-stop story_get '{"storyId":"B-xxxx","slim":true,"fields":["story","checklist","review"]}'`,
+  `proof-or-stop checklist_get '{"storyId":"B-xxxx","slim":true,"fields":["counts","items"]}'`,
   'Before evidence-sensitive conclusions or mutations, reload the full output',
-  `lattice story_get '{"storyId":"B-xxxx"}'`,
-  `lattice checklist_get '{"storyId":"B-xxxx"}'`,
+  `proof-or-stop story_get '{"storyId":"B-xxxx"}'`,
+  `proof-or-stop checklist_get '{"storyId":"B-xxxx"}'`,
 ];
 
 const modularReviewerSafetyPhrases = [
@@ -178,13 +179,21 @@ function assertMirrorsMatch(): void {
     const claudeContent = readRepo(`.claude/agents/${file}`);
     const codexContent = readRepo(`.lattice-codex/agents/${file}`);
     const roleId = file.replace(/\.md$/, '');
-    const codexPackageContent = renderCodexPromptContent(packageContent);
-    const expectedClaude = isModularReviewerRoleId(roleId)
-      ? renderReviewerRunBootstrapForTemplate(packageContent, file)
+    // B-cdf6:F-036 — this was a FOURTH hand-rolled copy of the complex-role render
+    // rule, found by the concept lane after three others were consolidated. Like the
+    // rest it branched only on isModularReviewerRoleId, so it computed the wrong
+    // expected content for the 5 MODULAR_COMPLEX_ROLE_IDS (10 mismatches: 5 roles x 2
+    // hosts). It was latent only because a pre-existing assertion earlier in this file
+    // ('expected lattice managed block', which fails identically on main) aborts the
+    // run before this function executes. Delegating to renderPromptEntryForHost — the
+    // single helper the other three sites now use — is what stops a fifth copy.
+    const registryEntry = readPromptRegistry().agents.find(entry => entry.agentId === roleId);
+    const expectedClaude = registryEntry
+      ? renderPromptEntryForHost(registryEntry, 'claude')
       : packageContent;
-    const expectedCodex = isModularReviewerRoleId(roleId)
-      ? renderReviewerRunBootstrapForTemplate(codexPackageContent, file)
-      : codexPackageContent;
+    const expectedCodex = registryEntry
+      ? renderPromptEntryForHost(registryEntry, 'codex')
+      : renderCodexPromptContent(packageContent);
     assert.equal(claudeContent, expectedClaude, `.claude asset matches canonical host input for ${file}`);
     assert.equal(codexContent, expectedCodex, `.lattice-codex asset matches canonical host input for ${file}`);
     if (isModularReviewerRoleId(roleId)) {

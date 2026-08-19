@@ -1,0 +1,56 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-16df",
+  "checkedAt": "2026-08-14T11:25:32.147Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "d918e11b0dabeefafbf98cb0c372f2b14cf08aa062857234e3aa9dec1faacadf",
+  "executionBoundaryHash": "dca4a459cffdf9de4bf41d7345d00311a13b5e94122088803c97c777c721a92b",
+  "freshnessHash": "e7cc7857edc868f6b62ee209cbaab854b75b945abce2436532492530a3bf7c9e",
+  "effectiveExcludedKeywords": [
+    "Any quorum/runId-scheme or other unrelated subsystem changes",
+    "Authority",
+    "Changing any configured timeoutMs value in lattice.config.json itself",
+    "customerKeyRef",
+    "Layer4",
+    "Modifying resolveCommandTimeoutMs or the lattice validate path (executeValidationPlan/runValidationCommand) - already correct, not touched",
+    "Raising DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS globally - rejected alternative recorded in background.md Solution Tradeoffs",
+    "repair UX",
+    "Requiring every caller to pass timeoutMs explicitly per call site - rejected alternative recorded in background.md Solution Tradeoffs"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Any quorum/runId-scheme or other unrelated subsystem changes",
+      "source": "scopeBoundary.excluded",
+      "text": "Any quorum/runId-scheme or other unrelated subsystem changes",
+      "excluded": true
+    },
+    {
+      "keyword": "Changing any configured timeoutMs value in lattice.config.json itself",
+      "source": "scopeBoundary.excluded",
+      "text": "Changing any configured timeoutMs value in lattice.config.json itself",
+      "excluded": true
+    },
+    {
+      "keyword": "Modifying resolveCommandTimeoutMs or the lattice validate path (executeValidationPlan/runValidationCommand) - already correct, not touched",
+      "source": "scopeBoundary.excluded",
+      "text": "Modifying resolveCommandTimeoutMs or the lattice validate path (executeValidationPlan/runValidationCommand) - already correct, not touched",
+      "excluded": true
+    },
+    {
+      "keyword": "Raising DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS globally - rejected alternative recorded in background.md Solution Tradeoffs",
+      "source": "scopeBoundary.excluded",
+      "text": "Raising DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS globally - rejected alternative recorded in background.md Solution Tradeoffs",
+      "excluded": true
+    },
+    {
+      "keyword": "Requiring every caller to pass timeoutMs explicitly per call site - rejected alternative recorded in background.md Solution Tradeoffs",
+      "source": "scopeBoundary.excluded",
+      "text": "Requiring every caller to pass timeoutMs explicitly per call site - rejected alternative recorded in background.md Solution Tradeoffs",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "6cf045e17754d6b48420277a7d2173b8697ba6e48598f71dfb62775b46520431"
+}

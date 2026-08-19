@@ -11,8 +11,10 @@ import { StoryStore } from '../core/store.js';
 import type { ChecklistData, ClosingSelfCheck, DocsPromise, RealMachineTest, StoryInfo } from '../core/types.js';
 import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
 import { signDeliveryCheck } from '../core/delivery-check-hash.js';
+import { createPlaybookRuntimeMemoryHandlers } from '../handlers/playbook-runtime-memory.js';
 import { assertCwdInWorktree } from '../handlers/context.js';
 import { createDoneRecoverHandlers } from '../handlers/done-recover.js';
+import { VERSION_SYNC_FILES } from '../core/version-bump.js';
 import {
   isDoneMainRuntimeBuildInput,
   runDoneMainPackageBuildAfterMerge,
@@ -45,7 +47,35 @@ function write(root: string, path: string, content: string): void {
   writeFileSync(join(root, path), content);
 }
 
-function runLattice(root: string, command: string, args: Record<string, unknown>): string {
+// B-74b9 CHK-003: bumpVersionOnDoneMerge (wired into done_recover's post-merge path) requires
+// all five version sync points to exist and agree on a version, or applyPatchBump throws ENOENT
+// reading them from the filesystem (they are never absent on any real repo root -- every real
+// Proofbound checkout has package.json et al. by construction). Synthetic fixture roots that
+// exercise done_recover's post-merge path need this same scaffold.
+function writeVersionSyncFiles(root: string, version: string): void {
+  write(root, VERSION_SYNC_FILES.rootPackageJson, `{\n  "name": "lattice",\n  "version": "${version}",\n  "description": ""\n}\n`);
+  write(root, VERSION_SYNC_FILES.rootPackageLock, JSON.stringify({
+    name: 'lattice',
+    version,
+    lockfileVersion: 3,
+    packages: {
+      '': { name: 'lattice', version },
+      'packages/main': { name: '@lattice/core', version },
+    },
+  }, null, 2) + '\n');
+  write(root, VERSION_SYNC_FILES.mainPackageJson, `{\n  "name": "@lattice/core",\n  "version": "${version}",\n  "type": "module"\n}\n`);
+  write(root, VERSION_SYNC_FILES.mainPackageLock, JSON.stringify({
+    name: '@lattice/core',
+    version,
+    lockfileVersion: 3,
+    packages: {
+      '': { name: '@lattice/core', version },
+    },
+  }, null, 2) + '\n');
+  write(root, VERSION_SYNC_FILES.brand, `export const LATTICE_CLI_VERSION = '${version}' as const;\n`);
+}
+
+function runProofOrStop(root: string, command: string, args: Record<string, unknown>): string {
   return execFileSync(process.execPath, [cliPath, command, JSON.stringify(args)], {
     cwd: root,
     env: { ...process.env, LATTICE_PROJECT_ROOT: root },
@@ -65,9 +95,9 @@ function runLatticeFromCwd(cwd: string, command: string, args: Record<string, un
   });
 }
 
-function runLatticeExpectFail(root: string, command: string, args: Record<string, unknown>): string {
+function runProofOrStopExpectFail(root: string, command: string, args: Record<string, unknown>): string {
   try {
-    runLattice(root, command, args);
+    runProofOrStop(root, command, args);
   } catch (e: any) {
     return [
       e?.stdout?.toString?.() ?? '',
@@ -92,7 +122,7 @@ function runLatticeFromCwdExpectFail(cwd: string, command: string, args: Record<
 }
 
 /**
- * Spawn one real `lattice story_advance` OS child process from `cwd`; resolves
+ * Spawn one real `proof-or-stop story_advance` OS child process from `cwd`; resolves
  * with its exit code + combined stdout/stderr. Real child processes (not an
  * in-process `Promise.all`) are required for a genuine multi-session race: an
  * in-process call would serialize on a single event loop and the unified main
@@ -175,7 +205,7 @@ function assertRecordedWorktreeRejectsMainCwd(): void {
     git(root, ['checkout', '-B', 'main']);
     write(root, 'README.md', 'authority smoke\n');
     git(root, ['add', '.']);
-    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke', 'commit', '-m', 'base']);
+    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proof-or-Stop Smoke', 'commit', '-m', 'base']);
     resetConfigCache();
     const store = new StoryStore(root);
     const storyId = 'B-authority';
@@ -216,7 +246,7 @@ function assertInitCheckChecklistMutationRejectsMainCwd(): void {
     git(root, ['checkout', '-B', 'main']);
     write(root, 'README.md', 'init check authority smoke\n');
     git(root, ['add', '.']);
-    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke', 'commit', '-m', 'base']);
+    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proof-or-Stop Smoke', 'commit', '-m', 'base']);
     resetConfigCache();
     const store = new StoryStore(root);
     const storyId = 'B-init-authority';
@@ -231,7 +261,7 @@ function assertInitCheckChecklistMutationRejectsMainCwd(): void {
     });
 
     process.chdir(root);
-    const output = runLatticeExpectFail(root, 'checklist_add', {
+    const output = runProofOrStopExpectFail(root, 'checklist_add', {
       storyId,
       title: 'Should not land in main',
       context: 'INIT_CHECK linked stories must still use the story worktree authority.',
@@ -270,9 +300,9 @@ function assertTerminalStoriesDoNotRedirect(): void {
 }
 
 function recordPassingInitAndScopeGates(root: string, storyId: string): void {
-  runLattice(root, 'init_check_set', { storyId, issues: [], agentId: 'lattice-review-story-init' });
-  runLattice(root, 'init_check_set', { storyId, issues: [], agentId: 'product-reviewer', agent: 'product-reviewer' });
-  runLattice(root, 'scope_boundary_set', {
+  runProofOrStop(root, 'init_check_set', { storyId, issues: [], agentId: 'lattice-review-story-init' });
+  runProofOrStop(root, 'init_check_set', { storyId, issues: [], agentId: 'product-reviewer', agent: 'product-reviewer' });
+  runProofOrStop(root, 'scope_boundary_set', {
     storyId,
     mode: 'custom',
     allowedScope: ['Materialize reviewed draft metadata and bootstrap the story worktree only through INIT_CHECK.'],
@@ -281,7 +311,7 @@ function recordPassingInitAndScopeGates(root: string, storyId: string): void {
     actor: 'worktree-authority-smoke',
     confirmation: 'B-85ba F-006 fromDraft smoke expects conservative INIT creation followed by explicit INIT_CHECK bootstrap.',
   });
-  runLattice(root, 'execution_boundary_set', {
+  runProofOrStop(root, 'execution_boundary_set', {
     storyId,
     allowedCommands: [
       'story_create --fromDraft',
@@ -298,7 +328,7 @@ function recordPassingInitAndScopeGates(root: string, storyId: string): void {
     actor: 'worktree-authority-smoke',
     notes: 'FromDraft smoke may inspect bounded lifecycle metadata and the eventual worktree bootstrap.',
   });
-  runLattice(root, 'scope_freeze_check', {
+  runProofOrStop(root, 'scope_freeze_check', {
     storyId,
     status: 'PASS',
     actor: 'worktree-authority-smoke',
@@ -322,10 +352,10 @@ function assertFromDraftStopsAtInitThenBootstrapsThroughInitCheck(): void {
     git(root, ['init']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
-    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke', 'commit', '-m', 'base']);
+    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proof-or-Stop Smoke', 'commit', '-m', 'base']);
     resetConfigCache();
 
-    runLattice(root, 'story_draft', {
+    runProofOrStop(root, 'story_draft', {
       name: draftName,
       title: 'From draft smoke story',
       description: 'Synthetic from-draft story for worktree bootstrap.',
@@ -337,12 +367,12 @@ function assertFromDraftStopsAtInitThenBootstrapsThroughInitCheck(): void {
         context: 'The fromDraft CLI path must stop at INIT; worktree bootstrap happens later through gated INIT_CHECK.',
       }],
     });
-    runLattice(root, 'draft_check_set', {
+    runProofOrStop(root, 'draft_check_set', {
       draftName,
       issues: [],
       agentId: 'lattice-review-story-init',
     });
-    const output = runLattice(root, 'story_create', { fromDraft: draftName });
+    const output = runProofOrStop(root, 'story_create', { fromDraft: draftName });
     const storyId = output.match(/Story\s+(B-[a-f0-9]+)/)?.[1];
     assert.ok(storyId, `story_create --from-draft should print story id, got: ${output}`);
     const story = new StoryStore(root).readStory(storyId);
@@ -354,7 +384,7 @@ function assertFromDraftStopsAtInitThenBootstrapsThroughInitCheck(): void {
     assert.doesNotMatch(git(root, ['worktree', 'list', '--porcelain']), new RegExp(`story/${storyId}`), 'fromDraft creation must not register a story worktree');
 
     recordPassingInitAndScopeGates(root, storyId);
-    const advanced = runLattice(root, 'story_advance', { storyId, phase: 'INIT_CHECK' });
+    const advanced = runProofOrStop(root, 'story_advance', { storyId, phase: 'INIT_CHECK' });
     assert.match(advanced, /advanced to INIT_CHECK/, 'explicit INIT_CHECK advance should succeed');
     assert.match(advanced, /INIT_CHECK metadata committed/, 'INIT_CHECK output should report main metadata commit');
 
@@ -394,10 +424,10 @@ function assertFromDraftStopsAtInitWithDirtyMainPreserved(): void {
     git(root, ['init']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
-    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke', 'commit', '-m', 'base']);
+    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proof-or-Stop Smoke', 'commit', '-m', 'base']);
     resetConfigCache();
 
-    runLattice(root, 'story_draft', {
+    runProofOrStop(root, 'story_draft', {
       name: draftName,
       title: 'From draft dirty main smoke story',
       description: 'Synthetic from-draft story for dirty main preservation.',
@@ -409,13 +439,13 @@ function assertFromDraftStopsAtInitWithDirtyMainPreserved(): void {
         context: 'The fromDraft CLI path must commit bounded metadata without consuming user changes or creating a worktree.',
       }],
     });
-    runLattice(root, 'draft_check_set', {
+    runProofOrStop(root, 'draft_check_set', {
       draftName,
       issues: [],
       agentId: 'lattice-review-story-init',
     });
     git(root, ['add', '--', `docs/story/drafts/${draftName}`]);
-    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke', 'commit', '-m', 'draft metadata']);
+    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proof-or-Stop Smoke', 'commit', '-m', 'draft metadata']);
 
     write(root, 'unrelated-tracked.txt', 'tracked user edit that must remain dirty\n');
     write(root, 'unrelated-untracked.txt', 'untracked user edit that must remain dirty\n');
@@ -423,7 +453,7 @@ function assertFromDraftStopsAtInitWithDirtyMainPreserved(): void {
     assert.equal(git(root, ['diff', '--name-only', '--', 'unrelated-tracked.txt']), 'unrelated-tracked.txt');
     assert.match(dirtyBefore, /\?\? unrelated-untracked\.txt/);
 
-    const output = runLattice(root, 'story_create', { fromDraft: draftName });
+    const output = runProofOrStop(root, 'story_create', { fromDraft: draftName });
     const storyId = output.match(/Story\s+(B-[a-f0-9]+)/)?.[1];
     assert.ok(storyId, `story_create --from-draft should print story id, got: ${output}`);
     const story = new StoryStore(root).readStory(storyId);
@@ -471,10 +501,10 @@ function assertFromDraftRejectsStagedMainBeforeMutation(): void {
     git(root, ['init']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
-    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke', 'commit', '-m', 'base']);
+    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proof-or-Stop Smoke', 'commit', '-m', 'base']);
     resetConfigCache();
 
-    runLattice(root, 'story_draft', {
+    runProofOrStop(root, 'story_draft', {
       name: draftName,
       title: 'From draft staged main smoke story',
       description: 'Synthetic from-draft story for staged main preflight.',
@@ -486,19 +516,19 @@ function assertFromDraftRejectsStagedMainBeforeMutation(): void {
         context: 'The fromDraft CLI path must reject staged user changes before mutating story, draft, or worktree state.',
       }],
     });
-    runLattice(root, 'draft_check_set', {
+    runProofOrStop(root, 'draft_check_set', {
       draftName,
       issues: [],
       agentId: 'lattice-review-story-init',
     });
     git(root, ['add', '--', `docs/story/drafts/${draftName}`]);
-    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke', 'commit', '-m', 'draft metadata']);
+    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proof-or-Stop Smoke', 'commit', '-m', 'draft metadata']);
 
     write(root, 'unrelated-staged.txt', 'staged user edit that must remain staged\n');
     git(root, ['add', '--', 'unrelated-staged.txt']);
     assert.equal(git(root, ['diff', '--cached', '--name-status', '--', 'unrelated-staged.txt']), 'M\tunrelated-staged.txt');
 
-    const output = runLatticeExpectFail(root, 'story_create', { fromDraft: draftName });
+    const output = runProofOrStopExpectFail(root, 'story_create', { fromDraft: draftName });
     assert.match(output, /requires a clean git index before mutating story\/draft\/worktree metadata/);
     assert.match(output, /unrelated-staged\.txt/);
     const store = new StoryStore(root);
@@ -545,7 +575,7 @@ function writeDoneGateEvidence(store: StoryStore, root: string, storyId: string)
   const docsPromises: DocsPromise[] = [];
   const realMachineTests: RealMachineTest[] = [{
     featureId: 'nested-done-cleanup',
-    transcript: 'lattice story_advance DONE was invoked from PVSC/child and cleaned the canonical worktree root.',
+    transcript: 'proof-or-stop story_advance DONE was invoked from PVSC/child and cleaned the canonical worktree root.',
   }];
   const closingSelfCheck: ClosingSelfCheck = {
     hasRealMachineTest: true,
@@ -565,6 +595,16 @@ function writeDoneGateEvidence(store: StoryStore, root: string, storyId: string)
     closingSelfCheck,
     _hash: signDeliveryCheck(storyId, docsPromises, realMachineTests, closingSelfCheck, '', materialHash),
   });
+
+  // B-a7c5 CHK-003: canFinishGuard now ALSO requires a dev_memory_finish_decision
+  // record. This shared fixture helper drives real story_advance DONE calls in
+  // 4 places in this file -- without a satisfying record here, every one of
+  // them would refuse before reaching the DONE-cleanup/worktree-authority
+  // behavior this file exists to test. No explicit git add/commit needed --
+  // every call site already runs `git add . && git commit` immediately after
+  // this function returns, which picks up this write too.
+  createPlaybookRuntimeMemoryHandlers({ store, root, scanRoot: join(root, 'packages/main') })
+    .dev_memory_finish_decision({ storyId, decision: 'no-reusable-lesson', reason: 'worktree-authority-smoke fixture; no lesson to capture' });
 }
 
 function assertDoneFromNestedCwdUsesCanonicalWorktreeRoot(): void {
@@ -595,7 +635,7 @@ function assertDoneFromNestedCwdUsesCanonicalWorktreeRoot(): void {
     git(root, ['init']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
-    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke', 'commit', '-m', 'base']);
+    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proof-or-Stop Smoke', 'commit', '-m', 'base']);
     resetConfigCache();
 
     const storyId = 'B-nested-done';
@@ -607,7 +647,7 @@ function assertDoneFromNestedCwdUsesCanonicalWorktreeRoot(): void {
       createdAt: '2026-05-08T10:00:00.000Z',
     });
     git(root, ['add', '.']);
-    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke', 'commit', '-m', 'story metadata']);
+    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proof-or-Stop Smoke', 'commit', '-m', 'story metadata']);
     git(root, ['branch', `story/${storyId}`]);
     git(root, ['worktree', 'add', worktreePath, `story/${storyId}`]);
 
@@ -615,7 +655,7 @@ function assertDoneFromNestedCwdUsesCanonicalWorktreeRoot(): void {
     const worktreeStore = new StoryStore(worktreePath);
     writeDoneGateEvidence(worktreeStore, worktreePath, storyId);
     git(worktreePath, ['add', '.']);
-    git(worktreePath, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke', 'commit', '-m', 'done gate evidence']);
+    git(worktreePath, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proof-or-Stop Smoke', 'commit', '-m', 'done gate evidence']);
 
     const nestedCwd = join(worktreePath, 'PVSC', 'child');
     mkdirSync(nestedCwd, { recursive: true });
@@ -651,7 +691,7 @@ function assertDoneRejectsMismatchedStoryBranchBeforeMutation(): void {
     git(root, ['init']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
-    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke', 'commit', '-m', 'base']);
+    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proof-or-Stop Smoke', 'commit', '-m', 'base']);
     resetConfigCache();
 
     const storyId = 'B-expected';
@@ -664,19 +704,19 @@ function assertDoneRejectsMismatchedStoryBranchBeforeMutation(): void {
       createdAt: '2026-05-08T10:00:00.000Z',
     });
     git(root, ['add', '.']);
-    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke', 'commit', '-m', 'story metadata']);
+    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proof-or-Stop Smoke', 'commit', '-m', 'story metadata']);
     git(root, ['branch', wrongBranch]);
     git(root, ['worktree', 'add', worktreePath, wrongBranch]);
     write(root, 'main-only-after-wrong-story-branch.txt', 'main commit that must not auto-merge before wrong-branch rejection\n');
     git(root, ['add', 'main-only-after-wrong-story-branch.txt']);
-    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke', 'commit', '-m', 'main moves after wrong story branch checkout']);
+    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proof-or-Stop Smoke', 'commit', '-m', 'main moves after wrong story branch checkout']);
     const mainHeadAfterCheckout = git(root, ['rev-parse', 'main']);
 
     resetConfigCache();
     const worktreeStore = new StoryStore(worktreePath);
     writeDoneGateEvidence(worktreeStore, worktreePath, storyId);
     git(worktreePath, ['add', '.']);
-    git(worktreePath, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke', 'commit', '-m', 'done gate evidence on wrong branch']);
+    git(worktreePath, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proof-or-Stop Smoke', 'commit', '-m', 'done gate evidence on wrong branch']);
 
     const output = runLatticeFromCwdExpectFail(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
     assert.match(output, /detected branch story\/B-other but expected story\/B-expected/);
@@ -707,7 +747,7 @@ function assertDoneRejectsNonStoryLinkedWorktreeBeforeMutation(): void {
     git(root, ['init']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
-    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke', 'commit', '-m', 'base']);
+    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proof-or-Stop Smoke', 'commit', '-m', 'base']);
     resetConfigCache();
 
     const storyId = 'B-non-story';
@@ -720,19 +760,19 @@ function assertDoneRejectsNonStoryLinkedWorktreeBeforeMutation(): void {
       createdAt: '2026-05-08T10:00:00.000Z',
     });
     git(root, ['add', '.']);
-    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke', 'commit', '-m', 'story metadata']);
+    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proof-or-Stop Smoke', 'commit', '-m', 'story metadata']);
     git(root, ['branch', wrongBranch]);
     git(root, ['worktree', 'add', worktreePath, wrongBranch]);
     write(root, 'main-only-after-non-story-branch.txt', 'main commit that must not auto-merge before non-story rejection\n');
     git(root, ['add', 'main-only-after-non-story-branch.txt']);
-    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke', 'commit', '-m', 'main moves after non-story branch checkout']);
+    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proof-or-Stop Smoke', 'commit', '-m', 'main moves after non-story branch checkout']);
     const mainHeadAfterCheckout = git(root, ['rev-parse', 'main']);
 
     resetConfigCache();
     const worktreeStore = new StoryStore(worktreePath);
     writeDoneGateEvidence(worktreeStore, worktreePath, storyId);
     git(worktreePath, ['add', '.']);
-    git(worktreePath, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke', 'commit', '-m', 'done gate evidence on non-story branch']);
+    git(worktreePath, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proof-or-Stop Smoke', 'commit', '-m', 'done gate evidence on non-story branch']);
 
     const output = runLatticeFromCwdExpectFail(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
     assert.match(output, /detected branch feature\/not-story but expected story\/B-non-story/);
@@ -793,7 +833,7 @@ function buildDoneReadyStory(
   git(root, ['init']);
   git(root, ['checkout', '-B', 'main']);
   git(root, ['add', '.']);
-  git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke', 'commit', '-m', 'base']);
+  git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proof-or-Stop Smoke', 'commit', '-m', 'base']);
   resetConfigCache();
 
   const worktreePath = join(root, '.worktrees', storyId);
@@ -804,7 +844,7 @@ function buildDoneReadyStory(
     createdAt: '2026-05-08T10:00:00.000Z',
   });
   git(root, ['add', '.']);
-  git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke', 'commit', '-m', 'story metadata']);
+  git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proof-or-Stop Smoke', 'commit', '-m', 'story metadata']);
   git(root, ['branch', `story/${storyId}`]);
   git(root, ['worktree', 'add', worktreePath, `story/${storyId}`]);
 
@@ -816,7 +856,7 @@ function buildDoneReadyStory(
     const worktreeStore = new StoryStore(worktreePath);
     writeDoneGateEvidence(worktreeStore, worktreePath, storyId);
     git(worktreePath, ['add', '.']);
-    git(worktreePath, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke', 'commit', '-m', 'done gate evidence']);
+    git(worktreePath, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proof-or-Stop Smoke', 'commit', '-m', 'done gate evidence']);
   }
   return { worktreePath, store };
 }
@@ -908,7 +948,7 @@ function markStoryBranchPartialDone(worktreePath: string, storyId: string): void
   story.endedAt = story.endedAt || '2026-05-08T10:30:00.000Z';
   worktreeStore.writeStory(storyId, story);
   git(worktreePath, ['add', worktreeStore.storyDirRel()]);
-  git(worktreePath, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke', 'commit', '-m', 'partial done state']);
+  git(worktreePath, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proof-or-Stop Smoke', 'commit', '-m', 'partial done state']);
 }
 
 function assertDoneRecoverRunsPostMergeBuildForRuntimeChanges(): void {
@@ -919,14 +959,15 @@ function assertDoneRecoverRunsPostMergeBuildForRuntimeChanges(): void {
       beforeEvidence: (wt) => {
         write(wt, 'packages/main/src/recovered-runtime.ts', 'export const recoveredRuntime = true;\n');
         git(wt, ['add', 'packages/main/src/recovered-runtime.ts']);
-        git(wt, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke', 'commit', '-m', 'runtime input change']);
+        git(wt, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proof-or-Stop Smoke', 'commit', '-m', 'runtime input change']);
       },
     });
     git(root, ['config', 'user.email', 'smoke@example.test']);
-    git(root, ['config', 'user.name', 'Proofbound Smoke']);
+    git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
     write(root, '.gitignore', '.worktrees/\n');
-    git(root, ['add', '.gitignore']);
-    git(root, ['commit', '-m', 'ignore recovery worktrees']);
+    writeVersionSyncFiles(root, '0.1.0');
+    git(root, ['add', '.gitignore', ...Object.values(VERSION_SYNC_FILES)]);
+    git(root, ['commit', '-m', 'ignore recovery worktrees; add version sync points']);
     markStoryBranchPartialDone(worktreePath, storyId);
 
     let buildCalls = 0;
@@ -960,14 +1001,15 @@ function assertDoneRecoverFailingPostMergeBuildThrowsAfterCleanup(): void {
       beforeEvidence: (wt) => {
         write(wt, 'packages/main/src/recovered-runtime-fail.ts', 'export const recoveredRuntimeFail = true;\n');
         git(wt, ['add', 'packages/main/src/recovered-runtime-fail.ts']);
-        git(wt, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke', 'commit', '-m', 'runtime input change']);
+        git(wt, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proof-or-Stop Smoke', 'commit', '-m', 'runtime input change']);
       },
     });
     git(root, ['config', 'user.email', 'smoke@example.test']);
-    git(root, ['config', 'user.name', 'Proofbound Smoke']);
+    git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
     write(root, '.gitignore', '.worktrees/\n');
-    git(root, ['add', '.gitignore']);
-    git(root, ['commit', '-m', 'ignore recovery worktrees']);
+    writeVersionSyncFiles(root, '0.1.0');
+    git(root, ['add', '.gitignore', ...Object.values(VERSION_SYNC_FILES)]);
+    git(root, ['commit', '-m', 'ignore recovery worktrees; add version sync points']);
     markStoryBranchPartialDone(worktreePath, storyId);
 
     let buildCalls = 0;
@@ -1017,11 +1059,11 @@ function assertDoneRecoverSkipsPostMergeBuildForUnwatchedChanges(): void {
       beforeEvidence: (wt) => {
         write(wt, 'docs/requirements/decisions/recover-skip.md', '# Recover skip smoke\n');
         git(wt, ['add', 'docs/requirements/decisions/recover-skip.md']);
-        git(wt, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke', 'commit', '-m', 'docs only change']);
+        git(wt, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proof-or-Stop Smoke', 'commit', '-m', 'docs only change']);
       },
     });
     git(root, ['config', 'user.email', 'smoke@example.test']);
-    git(root, ['config', 'user.name', 'Proofbound Smoke']);
+    git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
     write(root, '.gitignore', '.worktrees/\n');
     git(root, ['add', '.gitignore']);
     git(root, ['commit', '-m', 'ignore recovery worktrees']);
@@ -1098,7 +1140,7 @@ function assertDoneSuccessPathOutputAndOrdering(): void {
 
     // Step1 (metadata commit) — the DONE commit landed on the merged branch.
     const mergedLog = git(root, ['log', '--oneline', 'main']);
-    assert.match(mergedLog, new RegExp(`lattice: mark ${storyId} DONE \\+ clear worktree`), 'Step2 metadata commit must be merged into main');
+    assert.match(mergedLog, new RegExp(`proof-or-stop: mark ${storyId} DONE \\+ clear worktree`), 'Step2 metadata commit must be merged into main');
     assert.match(mergedLog, new RegExp(`merge: ${storyId}`), 'Step3 --no-ff merge commit must be present on main');
 
     // Terminal state: story DONE, worktree + branch gone.
@@ -1312,7 +1354,7 @@ function assertMergeConflictPreMergeGateKeepsStoryTest(): void {
       beforeEvidence: (wt) => {
         writeFileSync(join(wt, 'conflict.txt'), 'story branch version\n');
         git(wt, ['add', 'conflict.txt']);
-        git(wt, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke', 'commit', '-m', 'story edits conflict.txt']);
+        git(wt, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proof-or-Stop Smoke', 'commit', '-m', 'story edits conflict.txt']);
       },
     });
 
@@ -1320,7 +1362,7 @@ function assertMergeConflictPreMergeGateKeepsStoryTest(): void {
     // branched → the branch falls behind main and cannot cleanly merge.
     writeFileSync(join(root, 'conflict.txt'), 'main branch version\n');
     git(root, ['add', 'conflict.txt']);
-    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke', 'commit', '-m', 'main edits conflict.txt']);
+    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proof-or-Stop Smoke', 'commit', '-m', 'main edits conflict.txt']);
 
     const output = runLatticeFromCwdExpectFail(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
     assert.match(output, /Cannot enter DONE/, 'a merge conflict must trip a DONE pre-merge gate');
@@ -1368,7 +1410,7 @@ function assertRealMergeFailureMarksDoneAndThrows(): void {
       beforeEvidence: (wt) => {
         writeFileSync(join(wt, 'shared.txt'), 'story branch content\n');
         git(wt, ['add', 'shared.txt']);
-        git(wt, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke', 'commit', '-m', 'story adds shared.txt']);
+        git(wt, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proof-or-Stop Smoke', 'commit', '-m', 'story adds shared.txt']);
       },
     });
 
@@ -1401,7 +1443,7 @@ function assertRealMergeFailureMarksDoneAndThrows(): void {
 /**
  * CHK-002 case ③ — a worktree cleanup failure (post-merge) leaves the story
  * DONE and merged but throws the "merged, but worktree cleanup did not complete" error with the
- * lattice doctor recovery hint. The cleanup is forced to fail by making the
+ * proof-or-stop doctor recovery hint. The cleanup is forced to fail by making the
  * .worktrees/ parent directory read-only so neither `git worktree remove` nor
  * the residual `rm -rf` can rmdir the worktree.
  *
@@ -1432,7 +1474,7 @@ function assertWorktreeCleanupFailureMarksDoneMergedAndThrows(): void {
       new RegExp(`Story ${storyId} (?:merged, but worktree cleanup did not complete|已合并，但 worktree 清理未完成)`),
       'cleanup failure must announce the story merged but cleanup is incomplete',
     );
-    assert.match(output, /lattice doctor/, 'cleanup failure must point at lattice doctor for recovery');
+    assert.match(output, /lattice doctor/, 'cleanup failure must point at proof-or-stop doctor for recovery');
 
     // phase=DONE persisted and the merge DID land on main (cleanup failed AFTER merge).
     assert.equal(new StoryStore(root).readStory(storyId).phase, 'DONE', 'cleanup failure must leave the story marked DONE');
@@ -1475,7 +1517,7 @@ function assertDoneMainMergeLockBlocksBeforeAutoSyncMain(): void {
     const { worktreePath } = buildDoneReadyStory(root, storyId);
     writeFileSync(join(root, 'main-only-after-story-branch.txt'), 'main commit that lock must not auto-sync\n');
     git(root, ['add', 'main-only-after-story-branch.txt']);
-    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke', 'commit', '-m', 'main moves after story branch']);
+    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proof-or-Stop Smoke', 'commit', '-m', 'main moves after story branch']);
     const mainHeadAfterBranch = git(root, ['rev-parse', 'main']);
     const lockDir = join(root, '.lattice', 'locks', 'main-write.lock');
     mkdirSync(lockDir, { recursive: true });
@@ -1548,7 +1590,7 @@ function assertInitCheckLeavesNoUncommittedMainMirrorForDone(): void {
   try {
     git(root, ['init', '-b', 'main']);
     git(root, ['config', 'user.email', 'smoke@example.test']);
-    git(root, ['config', 'user.name', 'Proofbound Smoke']);
+    git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
     write(root, 'lattice.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
@@ -1563,7 +1605,7 @@ function assertInitCheckLeavesNoUncommittedMainMirrorForDone(): void {
     git(root, ['commit', '-m', 'base']);
     resetConfigCache();
 
-    const created = runLattice(root, 'story_create', {
+    const created = runProofOrStop(root, 'story_create', {
       name: 'init-check-f008',
       title: 'Init check F-008 regression',
       description: 'Verify INIT_CHECK commits its main-side story metadata mirror so DONE does not self-block.',
@@ -1586,7 +1628,7 @@ function assertInitCheckLeavesNoUncommittedMainMirrorForDone(): void {
 
     recordPassingInitAndScopeGates(root, storyId);
 
-    const advanced = runLattice(root, 'story_advance', { storyId, phase: 'INIT_CHECK' });
+    const advanced = runProofOrStop(root, 'story_advance', { storyId, phase: 'INIT_CHECK' });
     assert.match(advanced, /advanced to INIT_CHECK/, 'INIT_CHECK advance should succeed');
     assert.match(advanced, /INIT_CHECK metadata committed/, 'INIT_CHECK output should report the metadata mirror was committed');
 
@@ -1650,7 +1692,7 @@ function assertInitCheckRejectsPreStagedOutOfBoundsBeforeStagingMetadata(): void
     git(root, ['init']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['config', 'user.email', 'smoke@example.test']);
-    git(root, ['config', 'user.name', 'Proofbound Smoke']);
+    git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
     git(root, ['add', '.']);
     git(root, ['commit', '-m', 'base']);
     resetConfigCache();

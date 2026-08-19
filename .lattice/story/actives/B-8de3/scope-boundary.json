@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-8de3",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Atomic evidence ref writes",
+    "Atomic same-directory immutable evidence object writes",
+    "Concurrency and crash regressions for same-digest writers",
+    "Mechanical healing of corrupt existing digest objects"
+  ],
+  "excluded": [
+    "Changing evidence artifact content-addressing semantics",
+    "Changing lifecycle gate policy or review admissibility",
+    "Pre-Story Mechanism Placement Proof enforcement itself",
+    "Story owner takeover and validation capacity behavior"
+  ],
+  "confirmedBy": "codex-root",
+  "confirmationNote": "User authorized completing the documented Proof-or-Stop mechanism and all prerequisites through DONE; B-8de3 is the existing enforce-mode prerequisite identified by the audited plan.",
+  "createdAt": "2026-08-16T11:16:44.516Z",
+  "updatedAt": "2026-08-16T11:16:44.516Z",
+  "_hash": "51c8133038352b2068ab3fe7abb382f30fd7e8176daf4b0f0564b26fd96647db"
+}

@@ -309,7 +309,7 @@ function spawnHook(payload: string | undefined): { status: number | null; stderr
 
   // 6a') lattice story-metadata command carrying CJK -> warning, exit 0.
   const cjkLattice = JSON.stringify({
-    tool_input: { command: `lattice checklist_update '{"title":"${ZH_FIX}"}'` },
+    tool_input: { command: `proof-or-stop checklist_update '{"title":"${ZH_FIX}"}'` },
   });
   const aa = spawnHook(cjkLattice);
   assert.equal(aa.status, 0, "hook 6a': CJK lattice metadata command must exit 0");
@@ -341,7 +341,7 @@ function spawnHook(payload: string | undefined): { status: number | null; stderr
 }
 
 // ─── Test 7: init-rerun Claude hook merge — both PreToolUse hooks survive ─────
-// Regression guard for the cb19e86e8 fix: re-running `lattice init` on a project
+// Regression guard for the cb19e86e8 fix: re-running `proof-or-stop init` on a project
 // whose .claude/settings.json ALREADY has ONLY the scope-pretool PreToolUse
 // entry must MERGE the english-only-guard entry in (not silently drop it) while
 // keeping the scope hook exactly once (the old loop only inspected hooks[0], so

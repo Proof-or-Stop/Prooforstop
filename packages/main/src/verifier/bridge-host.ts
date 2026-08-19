@@ -2,7 +2,7 @@
  * bridge-host.ts — generic Bridge WS host
  *
  * Project calls startBridgeHost(bridge, machine, port),
- * the framework's lattice serve connects to act as an HTTP→WS proxy.
+ * the framework's proof-or-stop serve connects to act as an HTTP→WS proxy.
  *
  * Protocol:
  *   server→client  {type:'init', machine:{name,transitions,...}, state, machineState}

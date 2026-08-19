@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-c648",
+  "allowedCommands": [
+    "agy *",
+    "claude *",
+    "git add *",
+    "git commit *",
+    "git diff*",
+    "git status*",
+    "node bin/lattice.js *",
+    "node packages/main/dist/tasks/full-suite-runner.js *",
+    "npm --prefix packages/main run build",
+    "rg *",
+    "sed *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "exec_command"
+  ],
+  "allowedPaths": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "docs/evidence/evidence-platform-architecture.md",
+    "docs/requirements/decisions",
+    "docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md",
+    "lattice.config.json",
+    "package.json",
+    "packages/main/src",
+    "scripts"
+  ],
+  "excludedCommands": [
+    "cp docs/story*",
+    "git clean*",
+    "git push*",
+    "git reset*",
+    "git restore*",
+    "mv docs/story*",
+    "rm *"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx",
+    "docs/story",
+    "packages/main/tests/fixtures"
+  ],
+  "confirmedBy": "codex-main",
+  "confirmationNote": "Documentation-only design Story. Read relevant mechanism sources; write only the new decision document and Lattice-managed metadata. Runtime implementation is explicitly excluded.",
+  "createdAt": "2026-08-14T03:21:45.071Z",
+  "updatedAt": "2026-08-14T03:21:45.071Z",
+  "_hash": "2ab2b8bf246849dd2cff3f8d34854de86caf558e23d10e244956c84814c5dae1"
+}

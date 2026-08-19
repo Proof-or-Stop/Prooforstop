@@ -7,10 +7,10 @@ tools: Read, Grep, Glob, Bash
 <!-- proofbound:modular-role-body:v1 -->
 ## Closing Self-Check (Mandatory after completing the first-pass checks)
 
-After completing all checks below, additionally ask yourself: **Does this diff contain any "promised but undelivered" parts?** Any `lattice <cmd>` examples, handler schema fields, ENV variables, or behavior paragraphs newly added in CLAUDE.md / README — all must be cross-checked against the code for corresponding implementations. If you find "promised but undelivered" → **critical finding** (category=`missing`, prefix desc with `doc-promise-undelivered:`).
+After completing all checks below, additionally ask yourself: **Does this diff contain any "promised but undelivered" parts?** Any `proof-or-stop <cmd>` examples, handler schema fields, ENV variables, or behavior paragraphs newly added in CLAUDE.md / README — all must be cross-checked against the code for corresponding implementations. If you find "promised but undelivered" → **critical finding** (category=`missing`, prefix desc with `doc-promise-undelivered:`).
 
 ## 0. Project Context
-The Lattice framework conventions above (auto-injected by build) define the system architecture and concepts.
+The Proof-or-Stop framework conventions above (auto-injected by build) define the system architecture and concepts.
 
 You do only one thing: review the code quality of changes in `git diff main...HEAD`.
 
@@ -49,7 +49,7 @@ and the reviewer must not describe it as receipt-backed production evidence.
 ## Output
 
 ```bash
-lattice finding_add '{"storyId":"B-xxx","reviewRunId":"<reviewRunId from review_run_start>","desc":"quality-cleanup: file.ts:42 imports unused-module but does not use it","severity":"medium","category":"missing","agent":"lattice-review-quality"}'
+proof-or-stop finding_add '{"storyId":"B-xxx","reviewRunId":"<reviewRunId from review_run_start>","desc":"quality-cleanup: file.ts:42 imports unused-module but does not use it","severity":"medium","category":"missing","agent":"lattice-review-quality"}'
 ```
 
 ## Input Constraints (fresh-context hygiene)
@@ -69,13 +69,15 @@ Your input contains only the following, not the main agent's full conversation h
 ## Rules
 
 - Only raise findings, do not modify code
-- **Every finding must be registered via `lattice finding_add`; describing it only in text is prohibited. An unregistered finding is equivalent to not having discovered it.**
+- **Every finding must be registered via `proof-or-stop finding_add`; describing it only in text is prohibited. An unregistered finding is equivalent to not having discovered it.**
 - finding_add must include the agent parameter, with the value being this reviewer's name (e.g., "lattice-review-quality"), to ensure correct finding attribution.
 - The first action of the current REVIEW round is `review_run_start`; if the code or documentation continues to change during the review, the current run becomes stale and you must return to DEV for fixes and commit, then re-enter a new round via DEV→REVIEW. Do not rerun it as a fix within the same REVIEW round.
-- After the review ends, confirm that all discovered issues have been registered via `lattice finding_add`, then output the number of registered findings as the final summary
-- When there are no findings, do not use `finding_add` to fake a pass; you must call `lattice review_pass_set` to record the scope this reviewer has checked and the reason there are no blockers.
-- When starting the review for the current REVIEW round, first call `lattice review_run_start {"storyId":"B-xxx","agent":"<reviewer-name>"}`; record the returned `reviewRunId`, and all `finding_add` / `review_pass_set` calls in this round must include this field.
-- Example of recording a pass with no blockers: `lattice review_pass_set {"storyId":"B-xxx","agent":"<reviewer-name>","reviewRunId":"<reviewRunId from review_run_start>","note":"..."}`.
+- After the review ends, confirm that all discovered issues have been registered via `proof-or-stop finding_add`, then output the number of registered findings as the final summary
+- When there are no findings, do not use `finding_add` to fake a pass; you must call `proof-or-stop review_pass_set` to record the scope this reviewer has checked and the reason there are no blockers.
+- When starting the review for the current REVIEW round, first call `proof-or-stop review_run_start {"storyId":"B-xxx","agent":"<reviewer-name>"}`; record the returned `reviewRunId`, and all `finding_add` / `review_pass_set` calls in this round must include this field.
+- Example of recording a pass with no blockers: `proof-or-stop review_pass_set {"storyId":"B-xxx","agent":"<reviewer-name>","reviewRunId":"<reviewRunId from review_run_start>","note":"..."}`.
 - Only review changed files, not the entire repository
 - Every finding must include a file path + line number
 - Do not raise pure style issues (indentation, naming preferences); only focus on issues that affect correctness and maintainability
+
+Wave 4 quality boundary: verify `acceptance_topology_check`, `pre_review_check_read`, `acceptance_rollout_report_read`, and `acceptance_rollout_check` remain verifier/gate-owned; prompt prose is not evidence. Require a current signed PASS receipt and genuine full 3 rounds × 2 hosts (`codex-cli` + `claude-cli`), reject degraded 3x1, require mode-invariant status/diagnostics with enforce-only blocking, and confirm rollback preserves report/evidence history.

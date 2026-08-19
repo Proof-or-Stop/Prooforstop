@@ -653,7 +653,7 @@ export function resolveRedEvidencePolicy(
 }
 
 /**
- * Render the single, non-gating red-evidence health line for `lattice doctor`.
+ * Render the single, non-gating red-evidence health line for `proof-or-stop doctor`.
  * Returns the resolved `policyDigest` when a valid block is present, else the
  * fail-closed diagnostic. Never throws (doctor is not a gate); an unexpected
  * error degrades to a scan-error diagnostic. The rendered line contains the

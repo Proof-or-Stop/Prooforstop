@@ -2,7 +2,7 @@
 
 /**
  * B-198c CHK-004 consolidated test suite: storyDir-inside-gitRoot detection
- * helper + `lattice doctor` check + early advisory (story_create /
+ * helper + `proof-or-stop doctor` check + early advisory (story_create /
  * session_brief), exercised end-to-end against real-git temp fixtures.
  *
  * The git-backed lifecycle must git-commit story metadata (scoped story branch

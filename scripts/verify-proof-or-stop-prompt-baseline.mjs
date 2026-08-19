@@ -41,6 +41,32 @@ const PROBE_LEGACY_VOCABULARY_POLICY = process.argv.includes('--probe-legacy-voc
 const PROBE_PROMPT_POLICY_MANIFEST = process.argv.includes('--probe-prompt-policy-manifest');
 const PROBE_BASELINE_DRIFT = process.argv.includes('--probe-baseline-drift');
 const PROBE_ROLE_MATRIX_SNAPSHOT_DRIFT = process.argv.includes('--probe-role-matrix-snapshot-drift');
+/**
+ * Independent approval manifest binding every role ID to the exact hash of its approved prompt
+ * body. EXPECTED_ROLE_COUNT (17) is unchanged and still asserted.
+ *
+ * B-cdf6 CHK-005: 15 of the 17 templateHash values were RE-APPROVED after the
+ * `lattice` -> `proof-or-stop` bin rename rewrote command-invocation prose inside the registry
+ * templates. This is a repin to new correct content addresses, not a relaxation: the manifest
+ * still binds each role to one exact body hash, so any unapproved prompt edit still fails. Audit
+ * performed before repinning: `git diff main...HEAD -- packages/main/templates/agents/` contains
+ * no changed line that mentions neither brand token (i.e. every diff line is a brand-token swap),
+ * and the two roles whose hashes did NOT move (implementation-reviewer, lattice-review-topology-critic)
+ * are exactly the templates the rename did not touch.
+ *
+ * B-cdf6 CHK-003 follow-up: 5 more templateHash values were RE-APPROVED
+ * (lattice-evaluator, lattice-implementer, lattice-review-delivery,
+ * lattice-review-scope-plan, lattice-review-story-init). CHK-005 repinned only what the
+ * TEMPLATE rewrite moved; it could not move these, because these 5 roles resolve through
+ * `legacy-full-context` reconstruction, whose inputs are the INJECTED payloads in
+ * `core/prompt-registry.ts` (`LOAD_BEARING_LATTICE_PROMPT_SLICE` and
+ * `STORY_INIT_LEGACY_TAIL`). Those payloads still taught `lattice <cmd>` to every spawned
+ * agent and are rebranded here, so exactly the 5 reconstruction-backed roles move.
+ * EXPECTED_ROLE_COUNT stays 17 and every role stays bound to one exact hash — a repin to
+ * verified new content addresses, never a relaxation. Audited before repinning: normalizing
+ * brand tokens and line-wrapping makes the new injected slice byte-identical to the previous
+ * one, i.e. the drift is brand-only with no semantic edit.
+ */
 const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   {
     role: 'implementation-reviewer',
@@ -48,75 +74,75 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'lattice-evaluator-cli',
-    templateHash: '4c57b63c4aa43c852517cd964bbddb7ecced6e9e8f7446764389c1bc3ac2b08f',
+    templateHash: '9ffa0541c787078ae112f3edabf152fffca64b630f32f83d4367b1b310c4595e',
   },
   {
     role: 'lattice-evaluator',
-    templateHash: 'c072e8cc5c84adac5f15c4d60b95a495896da1c0bf7a3c1482506862eed1b026',
+    templateHash: 'dd8cf73174e1ddf292b7b4cf9ebb70ff8c32584f44ccb78f2221b33da8407b97',
   },
   {
     role: 'lattice-implementer',
-    templateHash: '76733faf83b5eab773d86960c6aa51d87261d8db0660f81a332250c931a62229',
+    templateHash: '0ef513cc1e77c69d7ca5751a98e998143bfab5ac3eb7bc64a4c0cf2346cabf41',
   },
   {
     role: 'lattice-review-behavior',
-    templateHash: 'd485faa700196506a07dc8704f534b215eba1fd1ac1c111acbbd1a830098e7e4',
+    templateHash: 'ff3926a26d0a5ea2c9f77682df750c47b3c9707c41a6eced0f67fbadfbe7c27d',
   },
   {
     role: 'lattice-review-channel',
-    templateHash: '19db37079e222e6d68bc52535e814d544932a365f7df79df8995399bf41b1829',
+    templateHash: 'f49ae178d354b3cd940da3bd28d729fb6b602cbd6a2bf2d9b23dbf555460035d',
   },
   {
     role: 'lattice-review-concept',
-    templateHash: '8448a26c4189ac1bb84b93f8e8f875869886816269b41da118dcde7d1c000e95',
+    templateHash: 'a8b1ecd5020c6d0d091678d8c31f9c09bb12110e8da2658932570120fd86e0ca',
   },
   {
     role: 'lattice-review-delivery',
-    templateHash: '5357c140ba9b47f51f362cca7b4aa9289a1d15367427f3ee302a53439dd44b57',
+    templateHash: '4b3b207a265c5b9a1ba9845761720c19cddcdee6eec9bfd5f672b55bbc1b50af',
   },
   {
     role: 'lattice-review-docs',
-    templateHash: 'da2c9653cb15766a5937a417eb8b4c86e293485cb5e622dd08b144b5d0ac4681',
+    templateHash: '6808a26c1be23445dbb342d2e7110181c4e2d6b9ce581cfa41a2dfdea2a16d1e',
   },
   {
     role: 'lattice-review-quality',
-    templateHash: '2ddcabec412f69ce951b4c779013e0350bf70c184bb6c5cc6935a5f01c17eaee',
+    templateHash: 'bf99a4151d4406490259efb51a037d28be730115f07b18d5abd63ac21598f32d',
   },
   {
     role: 'lattice-review-scope-plan',
-    templateHash: '13506f659f3f83f5aba146e1c46aafb253af346820f49acd41d711ae1eb58a86',
+    templateHash: '9ac7cff64b53fc33555e4c5ef6f963a5c5bd09e7420d317a2312aafac9cfbd07',
   },
   {
     role: 'lattice-review-story-init',
-    templateHash: '8fd4d65d1c0e4d956bcb527899ddcb4182dddb1cbc847b74ba19d0695642bf81',
+    templateHash: 'd63524b25475f370f642168881f680846424d7a80a69867219ccc9f969fd5ae6',
   },
   {
     role: 'lattice-review-test-coverage',
-    templateHash: 'd0b67884622aaf5c99959639328709005223df5686e2f0efce32303321a47f31',
+    templateHash: '5d1f5bac9cb33991d591189f9b944b307e96600a1dd89e2d24fda6dd0f352f90',
   },
   {
     role: 'lattice-review-topology-critic',
-    templateHash: 'a7c1adcf0e363f91352093d6f7b0185001cc20ec390a6e8f9cf709ceb2e06575',
+    templateHash: '7db4368e21a0a2250ef7f8a7feee6b04fb85bfd518f72e8c188336ac90f80b35',
   },
   {
     role: 'product-reviewer',
-    templateHash: '22301c95c459aba6d0df1941619823fde9d1d89a944121c846dced952483703e',
+    templateHash: 'e23eec314c5a5f3dff0d34768c15ff94546881999a223544456cfe695f995b2a',
   },
   {
     role: 'test-case-reviewer',
-    templateHash: '470e5e5baa99e19b0c7d06546f4e20d931b1315fd77bf06383ce8842a2e8574a',
+    templateHash: '3292b8c15a696f588c9fcda45218aefeabb56668d47fa0e74cd163cbaf9da0a5',
   },
   {
     role: 'test-intent',
-    templateHash: '170e49b7abf5a4ff4b949315c5ff41f32d11696c1f84e0909a5935d03ab7816d',
+    templateHash: '168d1a5b862f0949aaa44223f21f42e67ff4df938805ac6ebf0fd55677be3fc2',
   },
 ].map(entry => Object.freeze(entry)));
 const APPROVED_ROLE_BODY_ROLLOUT_MANIFEST = Object.freeze([
   ['lattice-review-behavior', 'a080d3aa9d47ec6062ee4181e3b57b2b4ead3f427cb0659a2f54d459cfe52ef2', 'd485faa700196506a07dc8704f534b215eba1fd1ac1c111acbbd1a830098e7e4', 'af59ecd12840fddf54f63038cb844bb54395814fdf330e385631ac18057256d8', '3ebf56716b7a9354a147df2ee221ba63e3439cf837a67393dea2bc26d649eab0', '0ce97a4f6fafaac9c89a729502924fcdd121ae846b5588bc1055f5065e18f02d', '0691de5b1497033422f8c0a31103e9473a5a58ee4add491dcd0846919ac0442a', '32683356fbb8b38e6b5b2f423d275c1cc9dd17b0010c9308a37fab0a1b65e767', '3072ff34e5cce36f95471204bd05dcacc6c60671027cd91299c8ebdebf39ec99'],
-  ['lattice-review-concept', 'cbb397fa7ad831fdfa3f305e19ce8c0c99f52909d26eb44634f685ba9eafdd8a', '8448a26c4189ac1bb84b93f8e8f875869886816269b41da118dcde7d1c000e95', '197d76c8d93d85f4ec8cc45b581be70fd8526b4f971f5eeaaad23ca1b04f0ff2', '73dcd6e40d6f177c841e3d577bc3ff29b1d6a227279f9e4eef253d452c33d333', '72d2be508d5d5beb674249ac7278ec873b76bfc1593812fd2cdc8e71fc961b87', '43309f2da0a3f960dd77dc1d324df82f3728fe8812886506e7de61938862278e', 'd229d4b658987832547aac50f8943a6d0064329da64814e53b7c1713c2d4584a', 'd0745c41b0de57f3fbc8e257460ebcbbac5aadf75a3ffabe1ee4882ea3627eb5'],
-  ['lattice-review-docs', '9f86f7a379b27783887c17ee579201f6abfc9812d0e7c5689f98b26a02290f59', 'da2c9653cb15766a5937a417eb8b4c86e293485cb5e622dd08b144b5d0ac4681', '9aaa80a9426a04ea031a7feeb6cd409a236ca6493286bf50f3e5deed012009f7', '681e6b24ba8a6aa5f13d31268e7bfb562ef3a04f0a41bdc08ec2780be7219fb0', 'a18c1c4de753f9239f23172fb3a68ba97fe1497441908b073db87c13e6a44300', '2a98f7147169dae06ffd9ebdc3407787d506d797904c3541a6a4296151ca7bed', 'e7e4fe5ef7d07fb216322bb07ddbc260a6dad6ff0a3d8f4cf5c61e01522d1465', '7cf3f04a59a222b080f80a9cf48fc412a95fe2b7b2f6a88f1c32f211513ff03b'],
-  ['lattice-review-quality', 'f7ec0664bb245e2608145959821f8b45d8f0dd67da07035d034e68dcc2b73280', '2ddcabec412f69ce951b4c779013e0350bf70c184bb6c5cc6935a5f01c17eaee', 'ea63f5812defd28c23b8f6b9bdbcd058ac25cad6569484a85a15614e26a346f0', '1400d1ed9c57c2ae45e7bb007a687cfa4b0a87a0badb77f929fb007ea0b7b1e3', '4f2b3ab09a545108b6cb4bc572608e954323af898a5135201caa0b01f069bc88', 'b36cc9647cff071f2da311cc4b1c71ec60e6a3b8d036e1baeab1ccb5255ec93e', 'f319917c7f3e95dbcd5198642cfb90d00f148933292ec9fe5c5a861a4eab3b83', '951c608af92cc4e359e6d9ecea76f18396b8c494b3556026da18bd35a00b8a08'],
-  ['lattice-review-test-coverage', '145ce07871027bd935e5f928423406d8a31b58a5aabd3e72e89cafe5fa3002a0', 'd0b67884622aaf5c99959639328709005223df5686e2f0efce32303321a47f31', '9845080b4d332e675cced9230749066c0a72bab5e830d54417c7f6206a5e7dc7', 'c916bc0a53f4c1465a605def7d6cde3601c5843e8b61475d73fa1a9b0a4d8742', 'b59fe6e97931bbe44bee880c790082541e3865a414e9bbc131d73796d8a033d2', 'bc636c86ab8646c9e0f26dc172452c5e091fbd33a739f50e05a1c92ddecb489c', 'd804817a176bd8b243af5c352d73b7607c75464d968d186170b630d961c7e2dd', '71cbf09b0b4cf5316e42e3f62c3ca4d60966a318cc8cf2fd6ed60fbce5044f7b'],
+  ['lattice-review-concept', 'c53202553b19cada7d13a7bef8cf6c7e268ccbc5310a7349620bca3f455b726c', '3bca56bbd0c5666bfa5553136140f0fc955e0a89f2378af28699bd8b38d0ed7a', '197d76c8d93d85f4ec8cc45b581be70fd8526b4f971f5eeaaad23ca1b04f0ff2', 'aa959585d8566f2974f4de6b636b92ec63a1d433eaebe7416341b12bf7e38f43', 'cdb5f4abe7224db712a61b7c5fc1912a5af1551371262132ff07ffc6a9ea4622', '1e45b2db67503b833934d78c489267c8964a45faa9c67e77a476060f7bb0ca63', '5333050f9af3b04ef751a73fb49382a0446f371ddc9cd4dc63bd219cc2bf86e1', 'daaee0f7c78df598ca5c9180a00527bb0ef401cc472b4e0a48995b6d6a564eb1'],
+  ['lattice-review-docs', 'ec9b7fec4b4a67beaeda0da095be5de1d2c35d80104edbc8486b2101fd6e03af', '835a0182ce5480c7d7cef9d350ae26a2a3aa11db4fcd3fea418f3c99e38b92a6', '9aaa80a9426a04ea031a7feeb6cd409a236ca6493286bf50f3e5deed012009f7', '6dc808cd000a19b8f897011d8e84ccb221320b9141c4538b5de95208b8a96a47', '904e311351654b9e16917747d459a05c46a31e2b6db892ddb796a1f63efce76b', '10bb3416dd7081f3bed5c2569210e1b40e7c7f8e766582f5a8fcc0d340b30b1f', '776ee19f31724fc24b02047627113b3c1211ca25295e3111c953c89ad2b502e5', '5866702beea655d933491ebfef927d0441887bce5f35fa9c45a20fe5c4544c6c'],
+  ['lattice-review-quality', '1a11e779e4b877d7c75e4fbc98538db25f8ded2e53428fb627d2bf8734f3a504', '4bbf141d64e12ca6e16ec82d1cb397ca2011267100ec8596760349c1c0b17f15', 'ea63f5812defd28c23b8f6b9bdbcd058ac25cad6569484a85a15614e26a346f0', '10ad8484f6f24c3a92041a64c26ca82ac394139e7c51ea984e265241d21ab15b', 'ea06fe995cad296be48b924bbf52a32955c69606bebee9d56be843c5587ff539', '969abfc83df845b61c2cfc2149d57e22c290928dbccdc62bce04491315035d27', '1c2fe6227362a4b8dbdd8ab3e2de550bbbc89a8e4b9881c41327d96645dde52a', 'f8385e50c90f1ad9ffe3f14b6ae5f2d3e408d74240b169787d2ccf2a79b8b249'],
+  ['lattice-review-test-coverage', '2eadef36e4da2e034d722b0d5b0be0a2e9e61fc8e4200cd2ed373f4c8573ca88', '99d5e95ee4d3075b1808c5f1f48ecd2ece3e785b7402c744627f2ffbd2dbc6c0', '9845080b4d332e675cced9230749066c0a72bab5e830d54417c7f6206a5e7dc7', 'f605de383aca246bbfc1d107237d89cb8c377f01168e81d2cdf61331200358d3', 'f09f04111090048a98f80224e72c224cba7c9469fa6ed24fb6f90cd2b94e6256', '683a981cb491c7efcdcf737d64e100e37e9667f18a2276392ddb0023e5dc3e3f', 'f632600b708c6a05a24e94c4c9ec805567eaa1d5db81e51f17bf5f98f8a8f495', '71895876e4451e4e7ff20887432daafccabe0a2e724b6dbf4d216901f543b5e2'],
 ].map(([role, legacyBodySha256, modularBodySha256, roleSemanticDigest, roleRenderDigest, legacyClaudeRenderDigest, legacyCodexRenderDigest, modularClaudeRenderDigest, modularCodexRenderDigest]) => Object.freeze({
   role,
   legacyBodySha256,
@@ -173,7 +199,7 @@ const DIRECT_STORY_REFERENCE_ALLOWLIST = [
   {
     role: 'lattice-review-channel',
     classification: 'process-event-evidence-reference',
-    excerpt: 'The truly reliable evidence source is the `dispatch` / `subagent_result` events in **`docs/story/actives/<storyId>/process-events.jsonl`**: every time the main agent uses `lattice dispatch` to assign work, it appends `{"type":"dispatch","checklistId":"CHK-xxx",...}`; once the worker finishes, it may append `{"type":"subagent_result","checklistId":"CHK-xxx","success":true,...}`.',
+    excerpt: 'The truly reliable evidence source is the `dispatch` / `subagent_result` events in **`docs/story/actives/<storyId>/process-events.jsonl`**: every time the main agent uses `proof-or-stop dispatch` to assign work, it appends `{"type":"dispatch","checklistId":"CHK-xxx",...}`; once the worker finishes, it may append `{"type":"subagent_result","checklistId":"CHK-xxx","success":true,...}`.',
   },
   {
     role: 'lattice-review-channel',
@@ -530,6 +556,41 @@ const DIRECT_STORY_CLASSIFIER_PROBES = [
     role: 'lattice-review-quality',
     excerpt: 'Do not copy or move files into docs/story; use Lattice CLI commands instead.',
     classification: 'policy-reminder',
+    grandfathered: false,
+  },
+  // B-cdf6 CHK-005: renamed-brand counterparts of the three CLI-mediation reminders above. Added
+  // rather than substituted, so the classifier is pinned on BOTH brand spellings: it must keep
+  // recognizing a "route story ops through the CLI" reminder as a policy-reminder under the new
+  // name (the regression that misfired as a bogus direct-write) while still recognizing the old
+  // name for not-yet-migrated prompt text.
+  {
+    name: 'negative direct read/write policy reminder (renamed brand)',
+    role: 'lattice-review-quality',
+    excerpt: '- Story operations must use Proof-or-Stop CLI commands. Do not directly read or write story metadata under `docs/story/`.',
+    classification: 'policy-reminder',
+    grandfathered: false,
+  },
+  {
+    name: 'negative direct read/edit prohibited reminder (renamed brand)',
+    role: 'lattice-implementer',
+    excerpt: '- Directly Read/Edit JSON files under `docs/story/`: all story changes go through the Proof-or-Stop CLI',
+    classification: 'policy-reminder',
+    grandfathered: false,
+  },
+  {
+    name: 'negative copy policy reminder (renamed brand)',
+    role: 'lattice-review-quality',
+    excerpt: 'Do not copy or move files into docs/story; use Proof-or-Stop CLI commands instead.',
+    classification: 'policy-reminder',
+    grandfathered: false,
+  },
+  // B-cdf6 CHK-005 adversarial: widening the brand alternation must NOT let an unrelated product
+  // name bless a story-metadata instruction. This stays classified as an unregistered write.
+  {
+    name: 'unknown brand CLI prefix cannot bless a story write (renamed-brand widening guard)',
+    role: 'lattice-review-docs',
+    excerpt: 'Use the Bogus-Brand CLI for docs/story/actives/B-1234/index.json; then use Edit to update it.',
+    classification: 'direct-write',
     grandfathered: false,
   },
   {
@@ -1710,23 +1771,39 @@ function isStrictNegativeStorySegment(segment) {
   );
 }
 
+/**
+ * The product name a CLI-mediation reminder may use.
+ *
+ * B-cdf6 CHK-005: these classifier regexes used to hardcode `lattice cli`. After the rename, a
+ * prompt line reading "Story operations must use Proof-or-Stop CLI commands" stopped matching, so
+ * a PROHIBITION REMINDER was misclassified as an unregistered `direct-write` instruction — a false
+ * positive that blocked baseline collection while claiming a policy violation that did not exist.
+ * Accepting both brand names keeps the classifier semantics identical (the segment must still be a
+ * pure "route story ops through the CLI" clause and nothing else); it does not admit any new
+ * action verb, path, or instruction shape.
+ */
+const CLI_BRAND_NAME_SOURCE = String.raw`(?:lattice|proof-or-stop)\s+cli`;
+
 function isStrictCliMediatedStorySegment(segment) {
   const directive = normalizeStoryPolicySegment(segment);
   return (
-    /^(?:story\s+operations\s+must\s+use|use)\s+(?:the\s+)?lattice\s+cli(?:\s+commands?)?(?:\s+instead)?$/i.test(
-      directive,
-    ) ||
-    /^all\s+story\s+changes\s+go\s+through\s+(?:the\s+)?lattice\s+cli$/i.test(
-      directive,
-    )
+    new RegExp(
+      String.raw`^(?:story\s+operations\s+must\s+use|use)\s+(?:the\s+)?${CLI_BRAND_NAME_SOURCE}(?:\s+commands?)?(?:\s+instead)?$`,
+      'i',
+    ).test(directive) ||
+    new RegExp(
+      String.raw`^all\s+story\s+changes\s+go\s+through\s+(?:the\s+)?${CLI_BRAND_NAME_SOURCE}$`,
+      'i',
+    ).test(directive)
   );
 }
 
 function isStrictDirectEditCliReminder(segment) {
   const directive = normalizeStoryPolicySegment(segment);
-  return /^directly\s+read\s*\/\s*edit\s+json\s+files?\s+under\s+docs\/story\/?\s*:\s*all\s+story\s+changes\s+go\s+through\s+(?:the\s+)?lattice\s+cli$/i.test(
-    directive,
-  );
+  return new RegExp(
+    String.raw`^directly\s+read\s*\/\s*edit\s+json\s+files?\s+under\s+docs\/story\/?\s*:\s*all\s+story\s+changes\s+go\s+through\s+(?:the\s+)?${CLI_BRAND_NAME_SOURCE}$`,
+    'i',
+  ).test(directive);
 }
 
 function isKnownWrappedStoryPolicyFragment(segment) {

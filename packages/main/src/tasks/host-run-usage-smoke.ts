@@ -406,7 +406,7 @@ function makeRepairRunner(result: AutopilotCommandResult, sink: RepairSink): Aut
 }
 
 function repairStep(): AutopilotStep {
-  return { id: 'validate', command: 'lattice validate', purpose: 'run gates', mutates: false, authorityRequired: false };
+  return { id: 'validate', command: 'proof-or-stop validate', purpose: 'run gates', mutates: false, authorityRequired: false };
 }
 
 function repairRequest(): AutopilotCommandRequest {

@@ -1,0 +1,32 @@
+{
+  "task": "Fix the shared-worktree concurrent-build hazard that corrupts dist: add a cross-platform build mutex and make the build skip decision content-bound instead of mtime/existence.",
+  "outcome": "Concurrent npm test invocations in one worktree never corrupt dist (no ENOTEMPTY/TS2307/MODULE_NOT_FOUND); a live long-running build is never age-stolen from its lock, a dead holder is reclaimed race-free, and builds skip only when a content-hash binding proves dist matches source.",
+  "facts": [
+    "The build currently has NO lock (B-fb7b reverted scripts/build-lock.mjs after Codex found it buggy).",
+    "scripts/full-suite-build-binding.mjs already exports verifyBuildBinding/writeBuildBinding/treeDigest: sha256 over all packages/main src+tsconfig+package.json (sourceDigest) and all packages/main/dist (distDigest).",
+    "proper-lockfile is a pure-JS cross-platform lock (mkdir strategy + mtime heartbeat) that works on Mac/Linux/Windows.",
+    "There are three distinct build call sites: scripts/ensure-dist.mjs (the pretest), scripts/build-main-with-binding.mjs (which IS the packages-main-build validate command via npm --prefix packages/main run build), and the packages/utils build (tsc).",
+    "packages/utils tsc links against packages/main/dist, so utils freshness depends on main/dist too."
+  ],
+  "constraints": [
+    "Cross-platform (Mac/Linux/Windows) — proper-lockfile, not POSIX-only flock (which would need a native module).",
+    "No atomic-publish/symlink dist-swap (YAGNI; Windows symlink perms fragile).",
+    "Touch only build infrastructure per the enforce scope contract."
+  ],
+  "unknowns": [
+    "DEV-time detail: exact proper-lockfile stale/update interval config (stale>=30s, update<stale/2) to guarantee a live holder is never age-stolen.",
+    "DEV-time detail: the shape of the packages/utils build-binding manifest and where its sourceDigest incorporates the packages/main/dist it links against."
+  ],
+  "touchpoints": [
+    "scripts/build-lock.mjs",
+    "scripts/ensure-dist.mjs",
+    "scripts/build-main-with-binding.mjs",
+    "scripts/full-suite-build-binding.mjs",
+    "scripts/build-utils-with-binding.mjs",
+    "packages/utils/package.json",
+    "package.json",
+    "lattice.config.json",
+    "packages/main/tests/red/"
+  ],
+  "timestamp": "2026-08-15T12:01:46.138Z"
+}

@@ -1651,6 +1651,37 @@ export function effectiveAcceptanceBindings(
   return bindings.filter((binding) => !withdrawn.has(binding.id));
 }
 
+/**
+ * B-45a5 CHK-002: the verification-intent refs owned EXCLUSIVELY by checklist
+ * items that a confirmed, user-confirmed decision withdrew.
+ *
+ * Membership is `withdrawnChecklistItemIdsFrom(decision)` BY ITEM ID, and that
+ * set is the SOLE key: no `item.status` comparison participates anywhere on
+ * this path, so hand-editing a status field withdraws nothing. The decision
+ * record is the only input that can authorize an exclusion.
+ *
+ * "Refs" means BOTH forms a binding may name — the positional
+ * `itemId:lane:index` and any authored `intent.id` alias — so this reuses
+ * `verificationIntentRefSet`, the same producer the rest of the file uses. A
+ * prefix match on the item id would miss the alias entirely.
+ *
+ * Refs that a SURVIVING item also owns (an authored alias reused across items)
+ * are deliberately NOT returned: withdrawing one item must never loosen the
+ * requirement carried by an item that was not withdrawn.
+ */
+function withdrawnItemIntentRefs(
+  items: readonly ChecklistItem[],
+  decision: ScopeShrinkageDecisionData | null | undefined,
+): Set<string> {
+  const withdrawnIds = withdrawnChecklistItemIdsFrom(decision);
+  const survivingRefs = verificationIntentRefSet(items.filter((item) => !withdrawnIds.has(item.id)));
+  const refs = new Set<string>();
+  for (const ref of verificationIntentRefSet(items.filter((item) => withdrawnIds.has(item.id)))) {
+    if (!survivingRefs.has(ref)) refs.add(ref);
+  }
+  return refs;
+}
+
 // B-2c03: `-`, `/`, and `.` are \b word boundaries, so shrinkage trigger words
 // inside path-like/code-like tokens (core/partial-done-recovery.ts, `deferred`,
 // name.test.mjs) match as if they were prose claims. Strip those tokens before
@@ -2002,7 +2033,7 @@ export function evaluateDoneIntentEquivalence(
     // Primary remedy: recording passing evidence for the uncovered refs is the
     // mechanism that clears this gap, and the command is legal in every phase.
     const primaryRemedy = allMissingRefs.length > 0
-      ? ` → Fix (primary, allowed in every phase): record passing verification evidence for uncovered intent ref(s) ${allMissingRefs.join(', ')} on story ${input.story.storyId} — lattice verification_evidence_add (or lattice verification_evidence_batch_add for several at once); see lattice verification_evidence_add --help.`
+      ? ` → Fix (primary, allowed in every phase): record passing verification evidence for uncovered intent ref(s) ${allMissingRefs.join(', ')} on story ${input.story.storyId} — proof-or-stop verification_evidence_add (or proof-or-stop verification_evidence_batch_add for several at once); see proof-or-stop verification_evidence_add --help.`
       : '';
     // Secondary remedy: only when at least one row genuinely lags delivered
     // checklist coverage (ledger-lag correction) or has no verificationIntentRefs
@@ -2010,7 +2041,7 @@ export function evaluateDoneIntentEquivalence(
     const anyRowLags = uncoveredRows.some((row) => rowLagsChecklist(row));
     const anyRowUnbound = uncoveredRows.some((row) => row.verificationIntentRefs.length === 0);
     const secondaryRemedy = (anyRowLags || anyRowUnbound)
-      ? ' → Only if a ledger row itself needs correction: lattice milestone_ledger_set (see lattice milestone_ledger_set --help) — CAUTION: it FULL-REPLACES the ledger (re-submit the complete milestone list, not just the rows above) and it is PLAN-phase-only (return the story to PLAN first).'
+      ? ' → Only if a ledger row itself needs correction: proof-or-stop milestone_ledger_set (see proof-or-stop milestone_ledger_set --help) — CAUTION: it FULL-REPLACES the ledger (re-submit the complete milestone list, not just the rows above) and it is PLAN-phase-only (return the story to PLAN first).'
       : '';
     gaps.push(gap(
       'uncovered_required_milestones',
@@ -2126,6 +2157,14 @@ export function evaluateReviewCompleteness(
   for (const milestone of input.milestoneLedger?.milestones ?? []) {
     if (shrinkageIds.has(milestone.id)) continue;
     milestone.verificationIntentRefs.forEach((ref) => refs.add(ref));
+  }
+  // B-45a5 CHK-002: an ITEM withdrawn by a confirmed decision is EXCLUDED from
+  // the required set, not marked satisfied. Its intent refs are subtracted here
+  // — before the coverage loop — so no `review_completeness_missing_evidence`
+  // gap is emitted for them and no synthetic evidence is ever written. Only the
+  // decision record authorizes this; see withdrawnItemIntentRefs.
+  for (const ref of withdrawnItemIntentRefs(input.checklist.items, input.scopeShrinkageDecision)) {
+    refs.delete(ref);
   }
   for (const ref of refs) {
     if (!evidenceCoversIntent(evidence, ref)) {

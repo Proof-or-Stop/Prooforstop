@@ -1,8 +1,36 @@
 # Test Runner Consolidation Plan
 
+## Canonical root-suite execution (B-9812)
+
+The root `npm test` contract is now distinct from smoke auto-discovery. It uses
+`full-suite-runner.ts`, whose explicit resource-classified inventory is checked
+bidirectionally against `test:serial-reference` before execution. Unknown,
+duplicate, missing, or extra members fail closed. Compatible isolated/read-only
+members share a bounded worker pool; repo writers take an exclusive lock.
+Timeouts kill the member process group, output is bounded, and a first-run FAIL
+or TIMEOUT is terminal: the canonical path never retries to green. The prior
+`run-all-smokes` discovery runner remains available for its broader noncanonical
+smoke/coverage use cases.
+
+Exclusive path claims may additionally declare runner-cleanable ownership. The
+runner records each canonical target's pre-spawn existence, type, and owner
+marker, limits targets to the exact project `.lattice/runtime` and
+`.lattice/locks` subtrees, rejects any pre-existing/symlinked/out-of-bound target
+before spawn, and uses a per-launch ownership token. PASS requires every declared
+owned target already absent. FAIL, TIMEOUT, and INTERRUPT remove a target only
+when it was absent before launch and now carries the exact launch token; an empty,
+missing-marker, tampered, foreign, or nonempty target is retained and makes the
+result fail closed.
+
+The canonical runner smoke itself creates the fixed-path collision fixture and
+probes port 43127, so its manifest declares the same exclusive fixed-path and
+fixed-port keys as the resource sentinel. This keeps the real fixture writer and
+port probe mutually exclusive with the sentinel at all worker counts; the smoke
+is not treated as a read-only member.
+
 This decision document records the chosen architecture for consolidating the
-project's test runner and decomposes the implementation into follow-up Proofbound
-stories. The deliberation history is captured under Proofbound story **B-35aa**.
+project's test runner and decomposes the implementation into follow-up Proof-or-Stop
+stories. The deliberation history is captured under Proof-or-Stop story **B-35aa**.
 
 ## Current State
 
@@ -33,7 +61,7 @@ state, then cleaning up. Smokes are **integration scenarios**, not unit tests.
 
 - **`testing-infra.md`** (the project-level validation entry) documents:
   - **Project-native validation policy**: prefer `npm test` / `pytest` /
-    `go test` / `cargo test` etc. as the validation entry; Proofbound does not
+    `go test` / `cargo test` etc. as the validation entry; Proof-or-Stop does not
     require any project to use a TypeScript `validate.ts`.
   - **General black-box command** as a first-class executor (applicable to
     `go test`, `pytest`, `ctest`, `mvn test`, `swift test`, `xcodebuild test`,
@@ -130,13 +158,13 @@ Same as B but without c8 wiring.
    from the runner's worker pool; coverage comes from c8 wrapping the runner;
    ergonomics come from `test:all` / `test:tag` / `test:select`.
 
-4. **No framework lock-in.** If a future Proofbound contributor wants to swap the
+4. **No framework lock-in.** If a future Proof-or-Stop contributor wants to swap the
    in-house runner for some new option, they replace the runner without
    touching any smoke.
 
-## Follow-up Proofbound Stories
+## Follow-up Proof-or-Stop Stories
 
-Each follow-up story goes through its own full Proofbound workflow (INIT →
+Each follow-up story goes through its own full Proof-or-Stop workflow (INIT →
 INIT_CHECK → PLAN → DEV → REVIEW → TEST → DONE). One-paragraph scope sketches
 follow; future `story_create` calls may quote them verbatim.
 

@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-7dff",
+  "id": "IC-20260817113611",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "The request is a latency refactor of the routine validate execution path only: reuse the existing keyed scheduler so the configured command plan runs concurrently under declared resource claims, with identical per-command results. It is not a request to change which commands run, to speed up any individual command (quorum-submit-smoke.js stays as is and is the 271s floor), to raise the full-suite worker count, or to reorder done_prepare phases.",
+  "acceptedInterpretationHash": "sha256:515c6be0ba72f14ec7c2ef8d68f8242e4af30e0407a3bee4faebc43616621b62",
+  "notes": "Re-confirmed after adding verificationIntentRefs to the four milestone rows; the interpretation itself is unchanged.",
+  "ledgerHashBeforeDecision": "sha256:db3f18dd4001ce62ce51a18355cf5f83f2e4df222ebe9e2d255e2c5b716697d1",
+  "confirmedLedgerHash": "sha256:db3f18dd4001ce62ce51a18355cf5f83f2e4df222ebe9e2d255e2c5b716697d1",
+  "createdAt": "2026-08-17T11:36:11.557Z",
+  "updatedAt": "2026-08-17T11:38:29.233Z"
+}

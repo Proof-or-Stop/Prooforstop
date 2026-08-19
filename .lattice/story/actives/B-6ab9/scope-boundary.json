@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-6ab9",
+  "mode": "maintenance",
+  "allowed": [
+    "Add one-full-plus-three-focused matrix proof bundle",
+    "Add scheduler, receipt-integrity, and wiring mutation controls",
+    "Extract per-row receipt validation where required",
+    "Measure the legacy four-full-matrix Red baseline",
+    "Refresh the bounded authority-scan fixture only when canonical generation requires it",
+    "Update testing-infra and thin-entrypoint migration documentation"
+  ],
+  "excluded": [
+    "Change validation or evidence timeout budgets",
+    "Migrate production consumers or lifecycle gates",
+    "Modify B-3cec checklist, verification intents, or historical evidence",
+    "Modify root package scripts, test inventory, or retry policy",
+    "Reduce or skip any of the 26 historical rows",
+    "Use cross-process cached receipts as execution proof"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "User approved a separate optimization Story with a measured approximately 12-minute Red baseline and a 4-5-minute Green target without weakening proof.",
+  "createdAt": "2026-08-17T15:34:35.788Z",
+  "updatedAt": "2026-08-17T15:34:35.788Z",
+  "_hash": "9c812f901aa7932fd8dc9670414f5b8d5a7d3ec050c14cd94dada164e3477861"
+}

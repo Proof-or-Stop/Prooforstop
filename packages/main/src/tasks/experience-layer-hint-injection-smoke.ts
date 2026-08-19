@@ -137,7 +137,7 @@ function seedSignals(root: string, signals: FindingSignal[]): void {
 }
 
 /** Minimal lattice.config.json so StoryStore + config resolve in the temp root. */
-function writeLatticeConfig(root: string): void {
+function writeProofOrStopConfig(root: string): void {
   write(root, 'lattice.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
@@ -378,7 +378,7 @@ check('non-empty hints => section carries the advisory label + summaries', () =>
 
 check('story_review with signals => advisory section present in _reviewPrompt + exactly one event', () => {
   const root = mkTempRoot();
-  writeLatticeConfig(root);
+  writeProofOrStopConfig(root);
   const store = new StoryStore(root);
   const storyId = onArmId('B-hint1-'); // ON arm so the advisory SECTION renders (B-06b3 gate)
   seedStory(store, storyId);
@@ -397,7 +397,7 @@ check('story_review with signals => advisory section present in _reviewPrompt + 
 
 check('advisory section mirrors grillSection placement (appears before Checklist)', () => {
   const root = mkTempRoot();
-  writeLatticeConfig(root);
+  writeProofOrStopConfig(root);
   const store = new StoryStore(root);
   const storyId = onArmId('B-hint-place-'); // ON arm so the advisory SECTION renders (B-06b3 gate)
   seedStory(store, storyId);
@@ -413,7 +413,7 @@ check('advisory section mirrors grillSection placement (appears before Checklist
 
 check('story_review with zero signals => section ABSENT and no event written', () => {
   const root = mkTempRoot();
-  writeLatticeConfig(root);
+  writeProofOrStopConfig(root);
   const store = new StoryStore(root);
   const storyId = 'B-hint0';
   seedStory(store, storyId);
@@ -426,7 +426,7 @@ check('story_review with zero signals => section ABSENT and no event written', (
 
 check('story_review with all-filtered signals => no event (no-op boundary)', () => {
   const root = mkTempRoot();
-  writeLatticeConfig(root);
+  writeProofOrStopConfig(root);
   const store = new StoryStore(root);
   const storyId = 'B-hint-filtered';
   seedStory(store, storyId);
@@ -439,7 +439,7 @@ check('story_review with all-filtered signals => no event (no-op boundary)', () 
 
 check('special-character signals render without breaking prompt structure', () => {
   const root = mkTempRoot();
-  writeLatticeConfig(root);
+  writeProofOrStopConfig(root);
   const store = new StoryStore(root);
   const storyId = onArmId('B-hint-inj-'); // ON arm so the advisory SECTION renders (B-06b3 gate)
   seedStory(store, storyId);
@@ -464,7 +464,7 @@ check('special-character signals render without breaking prompt structure', () =
 
 check('CHK-003:edge:0 surface twice same run => one event', () => {
   const root = mkTempRoot();
-  writeLatticeConfig(root);
+  writeProofOrStopConfig(root);
   const store = new StoryStore(root);
   const storyId = 'B-hint-dedup';
   // Seed a REVIEW-round story so currentReviewRound is the stable per-run key.

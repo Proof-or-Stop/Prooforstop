@@ -1,20 +1,20 @@
-# Proofbound Runtime-Owned Agent Assets Execution Plan
+# Proof-or-Stop Runtime-Owned Agent Assets Execution Plan
 
 Date: 2026-06-15
 
 ## Purpose
 
-This document defines the execution plan for moving Proofbound agent prompt assets
+This document defines the execution plan for moving Proof-or-Stop agent prompt assets
 to a runtime-owned model.
 
 The principle is:
 
 ```text
-Proofbound agent templates belong to the local Proofbound CLI runtime, not to each
+Proof-or-Stop agent templates belong to the local Proof-or-Stop CLI runtime, not to each
 business project.
 ```
 
-Offline execution still uses the local installed Proofbound CLI package. It does
+Offline execution still uses the local installed Proof-or-Stop CLI package. It does
 not require copying all templates, or even thin prompt config, into every
 project.
 
@@ -39,14 +39,14 @@ Confirmed local result:
   delta:   -517,370 B (~129,343 tok)
 ```
 
-The current local global `lattice` binary points at:
+The current local global `proof-or-stop` binary points at:
 
 ```text
 /Users/jek/Documents/Work/Orchestrate/packages/main/dist/cli.js
 ```
 
 Therefore the CLI code and package prompt registry are available to any project
-that invokes this local global Proofbound CLI.
+that invokes this local global Proof-or-Stop CLI.
 
 However, older projects may already contain materialized prompt assets such as:
 
@@ -86,7 +86,7 @@ asset-mode config.
 "Offline" should mean:
 
 ```text
-the local Proofbound CLI package is installed and can render prompts locally
+the local Proof-or-Stop CLI package is installed and can render prompts locally
 ```
 
 It should not mean:
@@ -102,7 +102,7 @@ deliberate full-asset mode.
 
 ### Default Behavior
 
-By default, a Proofbound project should not need project-local prompt assets.
+By default, a Proof-or-Stop project should not need project-local prompt assets.
 
 Expected default:
 
@@ -112,7 +112,7 @@ business project
   AGENTS.md / requirements     project instructions and source of truth
   .lattice/story/...           story metadata
 
-local Proofbound CLI runtime
+local Proof-or-Stop CLI runtime
   prompt registry
   agent templates
   host adapter defaults
@@ -133,8 +133,8 @@ Project-local assets remain allowed only when explicitly requested.
 
 | Mode | Meaning | Requirement |
 | --- | --- | --- |
-| runtime-owned default | Use prompt registry from local Proofbound CLI. | No project prompt assets. |
-| pinned-runtime | Use a specific installed local Proofbound CLI version/path. | Explicit config with reason. |
+| runtime-owned default | Use prompt registry from local Proof-or-Stop CLI. | No project prompt assets. |
+| pinned-runtime | Use a specific installed local Proof-or-Stop CLI version/path. | Explicit config with reason. |
 | full-asset mode | Materialize prompt files into the project. | Explicit flag, warning, and drift checks. |
 | debug override | Temporary local prompt override. | Explicit file rule and clear expiry. |
 
@@ -144,8 +144,8 @@ Full-asset mode is a compatibility/debug mode, not the default.
 
 This plan supports both:
 
-- Proofbound CLI local Non-authority execution;
-- Proofbound Authority Server receipt-backed execution.
+- Proof-or-Stop CLI local Non-authority execution;
+- Proof-or-Stop Authority Server receipt-backed execution.
 
 But the asset ownership model must not blur authority boundaries.
 
@@ -213,9 +213,9 @@ packages/main/src/handlers/codex-adapter.ts
 
 Questions to answer mechanically:
 
-- When does Proofbound read package registry prompts?
-- When does Proofbound materialize `.claude/agents`?
-- When does Proofbound materialize `.lattice-codex/agents`?
+- When does Proof-or-Stop read package registry prompts?
+- When does Proof-or-Stop materialize `.claude/agents`?
+- When does Proof-or-Stop materialize `.lattice-codex/agents`?
 - Which config file forces `global-thin` today?
 - Which commands currently write prompt assets?
 - Which commands merely inspect prompt assets?
@@ -234,7 +234,7 @@ Change default prompt resolution so that absence of project-local prompt asset
 config means:
 
 ```text
-use local Proofbound CLI package prompt registry
+use local Proof-or-Stop CLI package prompt registry
 ```
 
 Do not require `.lattice/lattice.json` or `.lattice-codex/lattice.json` solely to say
@@ -255,8 +255,8 @@ Those are project facts, not prompt asset ownership facts.
 Acceptance:
 
 - A project with no `.claude/agents`, no `.lattice-codex/agents`, and no prompt asset
-  config still runs Proofbound host/reviewer commands through the runtime registry.
-- `lattice doctor` or the relevant adapter doctor reports
+  config still runs Proof-or-Stop host/reviewer commands through the runtime registry.
+- `proof-or-stop doctor` or the relevant adapter doctor reports
   `mode=runtime-owned`.
 
 ### Phase 3. Detect Stale Project-Local Agent Assets
@@ -266,10 +266,10 @@ Extend existing doctor/adapter checks before adding a new command.
 Preferred surfaces:
 
 ```text
-lattice doctor
-lattice codex_doctor
-lattice verify_codex
-lattice lattice_config_doctor
+proof-or-stop doctor
+proof-or-stop codex_doctor
+proof-or-stop verify_codex
+proof-or-stop lattice_config_doctor
 ```
 
 Only add a new command if the existing surfaces cannot express the result
@@ -303,7 +303,7 @@ commands.
 Candidate command:
 
 ```text
-lattice lattice_config_repair --agent-assets=runtime-owned
+proof-or-stop lattice_config_repair --agent-assets=runtime-owned
 ```
 
 If existing command flags are preferred, add the smallest clear flag to the
@@ -357,15 +357,15 @@ Full-asset mode remains useful for:
 But it must require an explicit action such as:
 
 ```text
-lattice init --asset-mode=full
-lattice lattice_config_repair --agent-assets=full
+proof-or-stop init --asset-mode=full
+proof-or-stop lattice_config_repair --agent-assets=full
 ```
 
 Full-asset mode output must say:
 
 ```text
 This project now carries local prompt assets. They can drift from the runtime
-registry. Run verify/doctor after Proofbound CLI upgrades.
+registry. Run verify/doctor after Proof-or-Stop CLI upgrades.
 ```
 
 Acceptance:
@@ -434,9 +434,9 @@ work.
 From each project root:
 
 ```bash
-lattice doctor
-lattice codex_doctor
-lattice verify_codex --json
+proof-or-stop doctor
+proof-or-stop codex_doctor
+proof-or-stop verify_codex --json
 ```
 
 Expected clean result:
@@ -463,7 +463,7 @@ If local assets are found, classify:
 Use an explicit repair command once implemented:
 
 ```bash
-lattice lattice_config_repair --agent-assets=runtime-owned
+proof-or-stop lattice_config_repair --agent-assets=runtime-owned
 ```
 
 Until that exists, do not manually delete assets in bulk unless a human has
@@ -473,9 +473,9 @@ is a correctness-sensitive migration.
 ### Step 4. Verify
 
 ```bash
-lattice verify_codex --json
-lattice doctor
-lattice session_brief
+proof-or-stop verify_codex --json
+proof-or-stop doctor
+proof-or-stop session_brief
 ```
 
 For a project with active stories, also run the project-specific validation
@@ -501,10 +501,10 @@ The capability is complete only when all of these are true:
 
 - Do not remove project structure config such as `lattice.config.json`.
 - Do not remove legitimate project guidance such as `AGENTS.md`.
-- Do not auto-delete project files during ordinary Proofbound commands.
+- Do not auto-delete project files during ordinary Proof-or-Stop commands.
 - Do not introduce network dependency for offline prompt rendering.
 - Do not make local prompt registry verification imply Authority completion.
-- Do not optimize unrelated Proofbound flows merely because they appear nearby.
+- Do not optimize unrelated Proof-or-Stop flows merely because they appear nearby.
 
 ## Review Plan
 
@@ -551,7 +551,7 @@ claude --print --permission-mode plan --tools Read,Glob,Grep \
 
 Audit criteria:
 
-- host-neutral Proofbound design;
+- host-neutral Proof-or-Stop design;
 - local Non-authority and Authority Server path separation;
 - do not optimize for optimization;
 - do not optimize arbitrarily;
@@ -617,15 +617,15 @@ template/adapter rewrites outside its declared scope.
   `.claude/agents/*.md` and reads each file's frontmatter to register the
   `subagent_type` + `tools` sandbox). So Claude keeps one file per role, but the
   file is a **content-free thin shim**: frontmatter (`name`/`description`/`tools`)
-  plus a body that instructs the agent to run `lattice agent_prompt --role=<name>`.
+  plus a body that instructs the agent to run `proof-or-stop agent_prompt --role=<name>`.
   The role **body** is never copied or symlinked onto disk; it is served by the
-  new `lattice agent_prompt` command, which reads the canonical registry template
+  new `proof-or-stop agent_prompt` command, which reads the canonical registry template
   (`templates/agents/<role>.md`) — the same template set the prompt registry
   manifest (`promptRegistryManifest()`) is built from and that the Codex manifest
-  resolves against (byte-for-byte one source). `lattice init` writes zero project `.claude/agents` files; the 16 shims
+  resolves against (byte-for-byte one source). `proof-or-stop init` writes zero project `.claude/agents` files; the 16 shims
   live once in global `~/.claude/agents`. Migration of pre-existing project-local
-  managed files is explicit (`lattice init --upgrade` only; normal init merely
-  WARNs), deletes only managed basenames, preserves user files. `lattice doctor`
+  managed files is explicit (`proof-or-stop init --upgrade` only; normal init merely
+  WARNs), deletes only managed basenames, preserves user files. `proof-or-stop doctor`
   reports `agentAssetMode: runtime-owned`. See
   `lifecycle-artifact-scope.md` → "Policy: host-neutral prompt content, thin host
   adapters (B-097f)".

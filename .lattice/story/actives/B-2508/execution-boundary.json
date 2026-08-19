@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-2508",
+  "allowedCommands": [
+    "document verification",
+    "git status/log/diff",
+    "lattice lifecycle commands",
+    "read-only session analysis"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "exec_command",
+    "research subagent"
+  ],
+  "allowedPaths": [
+    "docs/requirements/decisions/b-9812-codex-implementation-session-postmortem-and-efficiency-plan.md"
+  ],
+  "excludedCommands": [
+    "destructive cleanup",
+    "git push",
+    "remote publish"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+    "docs/story/**",
+    "tests/fixtures/**"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "Documentation-only execution boundary for the requested B-9812 postmortem.",
+  "createdAt": "2026-08-14T09:08:10.143Z",
+  "updatedAt": "2026-08-14T09:08:10.143Z",
+  "_hash": "c4e128b04e0ab048b046426cf1be752bc0194e116afc4976934a028fb67ac5dd"
+}

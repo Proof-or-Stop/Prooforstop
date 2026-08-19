@@ -1,0 +1,1072 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Acquire a shared workspace validation capacity lease before story validation",
+      "context": "Existing validationExecutionLockPath is story-scoped, so B-a7c5 and B-9ff1 validations ran concurrently for 20-30 minutes and caused unrelated canonical members to hit unchanged 120/180/300-second limits. Add a worktree-independent capacity mutex keyed by git common dir, acquired before the per-story evidence lock in fixed global→story order. Contention waits with bounded heartbeat progress instead of failing immediately.",
+      "relatedDocs": [
+        "docs/requirements/decisions/testing-infra.md",
+        "docs/requirements/decisions/session-ownership-and-write-leases.md"
+      ],
+      "status": "done",
+      "startTime": "2026-08-14T15:30:16.494Z",
+      "endTime": "2026-08-14T15:58:17.151Z",
+      "userSees": "A second official validation prints \"waiting for workspace validation capacity\" with the active holder story/command and heartbeat age, then starts automatically after the first validation releases the lease.",
+      "excludes": [
+        "Do not protect a bare direct npm test invocation; the protected product entrypoints are lattice validate and lattice done_required_validate.",
+        "Do not replace the existing per-story evidence serialization lock."
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/handlers/done-required-validation.ts"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only. Hold lattice validate --story=B-cap-a in one linked worktree, start lattice validate --story=B-cap-b in another, and assert B callback entry count stays zero while A holds; B stderr reports waiting for workspace validation capacity with holder story/command and heartbeat age; after A releases, both processes exit 0 automatically and persist distinct PASS evidence. WHY: proves the requested user-visible wait-and-run contract instead of fail-fast contention.",
+            "type": "cli",
+            "priority": "must",
+            "plannedPathDeclarations": [
+              {
+                "schemaVersion": "proofstory.verification_planned_path_declaration.v1",
+                "id": "VPP-WORKSPACE-CAPACITY",
+                "relation": "producer_to_consumer",
+                "producer": {
+                  "id": "EP-CAPACITY-LEASE",
+                  "role": "producer",
+                  "expectedArtifactKind": "source_file",
+                  "expectedFileRef": "packages/main/src/core/validation-execution-lock.ts",
+                  "expectedSymbolOrFact": "withWorkspaceValidationCapacity",
+                  "fileDeclarationRef": "CHK-001:files:modify:0"
+                },
+                "consumers": [
+                  {
+                    "id": "EP-OFFICIAL-VALIDATION",
+                    "role": "consumer",
+                    "expectedArtifactKind": "source_file",
+                    "expectedFileRef": "packages/main/src/core/validation-execution-lock.ts",
+                    "expectedSymbolOrFact": "withOfficialValidationExecution",
+                    "fileDeclarationRef": "CHK-001:files:modify:0"
+                  }
+                ],
+                "outputFactRef": "workspace-validation-capacity-lease"
+              }
+            ],
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only",
+              "selector": "validate-execution-lock workspace capacity contract passed: 15 assertion groups"
+            }
+          },
+          {
+            "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only. Hold a no-story lattice validate --json, then start story-scoped validate and done_required_validate probes one at a time; assert each waits on the same git-common-dir capacity path and enters only after its predecessor releases. WHY: no-story official validation must not remain a concurrency bypass.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only",
+              "selector": "validate-execution-lock workspace capacity contract passed: 15 assertion groups"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only. Keep the first lease alive across at least two heartbeat periods and assert an independent event-loop timer fires, holder heartbeat timestamps advance, and bounded wait progress is emitted without synchronous polling. WHY: an async waiter must not freeze the owner heartbeat and falsely manufacture staleness.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only",
+              "selector": "validate-execution-lock workspace capacity contract passed: 15 assertion groups"
+            }
+          },
+          {
+            "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only. Abort one queued waiter and exhaust another queued wait deadline; assert each exits with the classified abort/deadline result, never enters its validation callback, never acquires the inner story lock, and leaves the active owner untouched. WHY: cancellation must stop before protected work starts.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only",
+              "selector": "validate-execution-lock workspace capacity contract passed: 15 assertion groups"
+            }
+          },
+          {
+            "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only. Nest capacity acquisition in the same AsyncLocal context while a concurrent sibling competes; assert the nested call is reentrant, the sibling remains queued, and both finish after ordered release. WHY: reentrancy must not become process-wide bypass.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only",
+              "selector": "validate-execution-lock workspace capacity contract passed: 15 assertion groups"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only. Instrument acquisition order and assert every story-scoped official validation acquires workspace capacity before the existing story evidence lock, never the reverse; induce overlapping waiters and assert no deadlock. WHY: fixed global-to-story ordering prevents lock inversion.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only",
+              "selector": "validate-execution-lock workspace capacity contract passed: 15 assertion groups"
+            }
+          },
+          {
+            "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only. Exercise the capacity-specific classifier with four lease states: age-only expired but still live matching owner; unknown or malformed identity; mechanically proven local-dead owner; and holder/heartbeat identity mismatch. Assert age-only and unknown/malformed leases are never reclaimed, while only the mechanically proven local-dead and identity-mismatch leases are reclaimed before callback entry. WHY: capacity takeover requires mechanical identity proof and must not inherit a permissive age-only rule.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only",
+              "selector": "validate-execution-lock workspace capacity contract passed: 15 assertion groups"
+            }
+          },
+          {
+            "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only. Run probes in two independent git repositories and in two linked worktrees of one repository; assert independent repositories overlap while linked worktrees serialize through the canonical git-common-dir lease. WHY: coordination scope is workspace identity, not machine-global path or cwd.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only",
+              "selector": "validate-execution-lock workspace capacity contract passed: 15 assertion groups"
+            }
+          },
+          {
+            "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only. Capture stdout and stderr separately for a queued --json validate; JSON.parse every stdout record and assert wait, holder, and heartbeat progress exists only on stderr. WHY: diagnostics must not corrupt machine-readable output.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only",
+              "selector": "validate-execution-lock workspace capacity contract passed: 15 assertion groups"
+            }
+          }
+        ]
+      },
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "5daae09cf309d8cc736dd42550ff87feaf82ad85844ddba5440b14bdac9d3412",
+        "storyFilesHash": "8048bb0d675e6c770ba8615e67de66866be60bf1297068b2d7e8babd1fccbacb",
+        "headHash": "a073b4633560b1f73667331f4577aed92800fc0e",
+        "attestedAt": "2026-08-14T15:58:17.317Z",
+        "materialHash": "e4abdd57246dbb5ab7b7dfbe3f2dc336d1fc6139c4415ea056455aa878f76b4c"
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only",
+          "result": "pass",
+          "note": "Current focused exact-15 contract with exact-12 child-process capacity stress",
+          "headHash": "590aad96d735b56934c32af159b43c7bbb27db52",
+          "materialHash": "abc4962cb5fdb7ae26a3632aa47d0c361e4d2cf72c6af2068a56ac8bddf09aaa",
+          "storyFilesHash": "1afe1907261706599a13ccda038c993ae73fd437a0faa5b3643bb97caf3f6a58",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "0c5747715d2a0f64a8f10f7e95b3c8d37ad7e79408d8f2d8f70afe741b96a5d7",
+            "outputTail": "validate-execution-lock workspace capacity contract passed: 15 assertion groups\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-15T23:30:03.323Z"
+          },
+          "timestamp": "2026-08-15T23:49:43.777Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only",
+          "result": "pass",
+          "note": "Current focused exact-15 contract with exact-12 child-process capacity stress",
+          "headHash": "590aad96d735b56934c32af159b43c7bbb27db52",
+          "materialHash": "abc4962cb5fdb7ae26a3632aa47d0c361e4d2cf72c6af2068a56ac8bddf09aaa",
+          "storyFilesHash": "1afe1907261706599a13ccda038c993ae73fd437a0faa5b3643bb97caf3f6a58",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "0c5747715d2a0f64a8f10f7e95b3c8d37ad7e79408d8f2d8f70afe741b96a5d7",
+            "outputTail": "validate-execution-lock workspace capacity contract passed: 15 assertion groups\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-15T23:30:36.292Z"
+          },
+          "timestamp": "2026-08-15T23:49:43.777Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only",
+          "result": "pass",
+          "note": "Current focused exact-15 contract with exact-12 child-process capacity stress",
+          "headHash": "590aad96d735b56934c32af159b43c7bbb27db52",
+          "materialHash": "abc4962cb5fdb7ae26a3632aa47d0c361e4d2cf72c6af2068a56ac8bddf09aaa",
+          "storyFilesHash": "1afe1907261706599a13ccda038c993ae73fd437a0faa5b3643bb97caf3f6a58",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "0c5747715d2a0f64a8f10f7e95b3c8d37ad7e79408d8f2d8f70afe741b96a5d7",
+            "outputTail": "validate-execution-lock workspace capacity contract passed: 15 assertion groups\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-15T23:31:07.802Z"
+          },
+          "timestamp": "2026-08-15T23:49:43.777Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only",
+          "result": "pass",
+          "note": "Current focused exact-15 contract with exact-12 child-process capacity stress",
+          "headHash": "590aad96d735b56934c32af159b43c7bbb27db52",
+          "materialHash": "abc4962cb5fdb7ae26a3632aa47d0c361e4d2cf72c6af2068a56ac8bddf09aaa",
+          "storyFilesHash": "1afe1907261706599a13ccda038c993ae73fd437a0faa5b3643bb97caf3f6a58",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "0c5747715d2a0f64a8f10f7e95b3c8d37ad7e79408d8f2d8f70afe741b96a5d7",
+            "outputTail": "validate-execution-lock workspace capacity contract passed: 15 assertion groups\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-15T23:31:39.153Z"
+          },
+          "timestamp": "2026-08-15T23:49:43.777Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only",
+          "result": "pass",
+          "note": "Current focused exact-15 contract with exact-12 child-process capacity stress",
+          "headHash": "590aad96d735b56934c32af159b43c7bbb27db52",
+          "materialHash": "abc4962cb5fdb7ae26a3632aa47d0c361e4d2cf72c6af2068a56ac8bddf09aaa",
+          "storyFilesHash": "1afe1907261706599a13ccda038c993ae73fd437a0faa5b3643bb97caf3f6a58",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "0c5747715d2a0f64a8f10f7e95b3c8d37ad7e79408d8f2d8f70afe741b96a5d7",
+            "outputTail": "validate-execution-lock workspace capacity contract passed: 15 assertion groups\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-15T23:32:10.838Z"
+          },
+          "timestamp": "2026-08-15T23:49:43.777Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only",
+          "result": "pass",
+          "note": "Current focused exact-15 contract with exact-12 child-process capacity stress",
+          "headHash": "590aad96d735b56934c32af159b43c7bbb27db52",
+          "materialHash": "abc4962cb5fdb7ae26a3632aa47d0c361e4d2cf72c6af2068a56ac8bddf09aaa",
+          "storyFilesHash": "1afe1907261706599a13ccda038c993ae73fd437a0faa5b3643bb97caf3f6a58",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "0c5747715d2a0f64a8f10f7e95b3c8d37ad7e79408d8f2d8f70afe741b96a5d7",
+            "outputTail": "validate-execution-lock workspace capacity contract passed: 15 assertion groups\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-15T23:32:42.175Z"
+          },
+          "timestamp": "2026-08-15T23:49:43.777Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only",
+          "result": "pass",
+          "note": "Current focused exact-15 contract with exact-12 child-process capacity stress",
+          "headHash": "590aad96d735b56934c32af159b43c7bbb27db52",
+          "materialHash": "abc4962cb5fdb7ae26a3632aa47d0c361e4d2cf72c6af2068a56ac8bddf09aaa",
+          "storyFilesHash": "1afe1907261706599a13ccda038c993ae73fd437a0faa5b3643bb97caf3f6a58",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "0c5747715d2a0f64a8f10f7e95b3c8d37ad7e79408d8f2d8f70afe741b96a5d7",
+            "outputTail": "validate-execution-lock workspace capacity contract passed: 15 assertion groups\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-15T23:33:15.695Z"
+          },
+          "timestamp": "2026-08-15T23:49:43.777Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only",
+          "result": "pass",
+          "note": "Current focused exact-15 contract with exact-12 child-process capacity stress",
+          "headHash": "590aad96d735b56934c32af159b43c7bbb27db52",
+          "materialHash": "abc4962cb5fdb7ae26a3632aa47d0c361e4d2cf72c6af2068a56ac8bddf09aaa",
+          "storyFilesHash": "1afe1907261706599a13ccda038c993ae73fd437a0faa5b3643bb97caf3f6a58",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "0c5747715d2a0f64a8f10f7e95b3c8d37ad7e79408d8f2d8f70afe741b96a5d7",
+            "outputTail": "validate-execution-lock workspace capacity contract passed: 15 assertion groups\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-15T23:33:50.441Z"
+          },
+          "timestamp": "2026-08-15T23:49:43.777Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:3",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only",
+          "result": "pass",
+          "note": "Current focused exact-15 contract with exact-12 child-process capacity stress",
+          "headHash": "590aad96d735b56934c32af159b43c7bbb27db52",
+          "materialHash": "abc4962cb5fdb7ae26a3632aa47d0c361e4d2cf72c6af2068a56ac8bddf09aaa",
+          "storyFilesHash": "1afe1907261706599a13ccda038c993ae73fd437a0faa5b3643bb97caf3f6a58",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "0c5747715d2a0f64a8f10f7e95b3c8d37ad7e79408d8f2d8f70afe741b96a5d7",
+            "outputTail": "validate-execution-lock workspace capacity contract passed: 15 assertion groups\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-15T23:34:22.198Z"
+          },
+          "timestamp": "2026-08-15T23:49:43.777Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Prove cross-story wait-and-run, stale recovery, reentrancy, and release behavior",
+      "context": "Use two different story IDs/worktree roots to prove the second official validation displays live holder/heartbeat diagnostics, does not start its callback while the first lease is held, then automatically acquires after release and succeeds with its own valid evidence. Also verify bounded wait behavior, stale dead-owner reclaim, nested same-context reentrancy, fixed lock ordering, and release after success/throw/signal where applicable.",
+      "relatedDocs": [
+        "docs/requirements/decisions/testing-infra.md",
+        "docs/requirements/decisions/done-full-test-gate-execution-plan.md"
+      ],
+      "status": "done",
+      "startTime": "2026-08-14T16:02:41.926Z",
+      "endTime": "2026-08-14T16:13:34.407Z",
+      "userSees": "Two concurrent official validations no longer race: terminal B reports the active holder while waiting, then both terminal A and terminal B end with their own PASS evidence in order.",
+      "excludes": [
+        "Do not treat fail-fast lock contention as success.",
+        "Do not accept a proof where the waiting validation never runs after release."
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only. Launch different-story validate processes A then B against linked worktrees, hold A after callback entry, and assert B emits holder diagnostics without entering; release A and assert terminal order is A PASS evidence then B callback then B PASS evidence, with both children exiting 0. WHY: directly proves wait-and-run and rejects fail-fast or wait-forever implementations.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
+              "selector": "validate-execution-lock smoke passed: 26 assertion groups"
+            }
+          },
+          {
+            "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only. Hold lattice validate for story A, queue lattice done_required_validate for story B, then reverse the roles; assert both entrypoint pairs serialize and each command writes its own expected evidence artifact only after its callback runs. WHY: both official gates must consume one shared capacity mechanism.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
+              "selector": "validate-execution-lock smoke passed: 26 assertion groups"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only. Exercise owner callback success and throw paths with a queued successor; assert the lease directory is released in finally, the successor enters exactly once, and the thrown owner result remains a failure rather than being converted to PASS. WHY: cleanup must preserve command truth.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
+              "selector": "validate-execution-lock smoke passed: 26 assertion groups"
+            }
+          },
+          {
+            "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only. Terminate a child owner after it acquires capacity, retain a queued child, and assert the queued child does not enter while ownership is live, reclaims only after dead-holder classification and stale policy allow it, then exits 0 without orphan lock files. WHY: abrupt process loss must converge safely.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
+              "selector": "validate-execution-lock smoke passed: 26 assertion groups"
+            }
+          },
+          {
+            "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only. Hold one owner while three independent waiters queue; assert sampled max concurrent callback count is exactly one, every non-aborted waiter eventually runs after successive releases, and progress output is rate-bounded rather than emitted per poll. WHY: serialization must not trade races for starvation or log flooding.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
+              "selector": "validate-execution-lock smoke passed: 26 assertion groups"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only. Delay story A after validation command exit but before evidence persistence and start story B; assert B cannot enter capacity until A persistence finishes and A evidence cannot overwrite B evidence afterward. WHY: the capacity lease must cover the complete official evidence critical section, not only child execution.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
+              "selector": "validate-execution-lock smoke passed: 26 assertion groups"
+            }
+          },
+          {
+            "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only. Run a same-story nested validation from the owning AsyncLocal context and a same-story independent process concurrently; assert only the true nested call is reentrant, the independent process queues, and the existing per-story evidence lock is still acquired inside capacity. WHY: preserving the inner lock must not permit sibling-context bypass.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
+              "selector": "validate-execution-lock smoke passed: 26 assertion groups"
+            }
+          },
+          {
+            "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only. Seed capacity leases with malformed metadata, unknown identity, and age-only expiry and assert none is deleted and callback entry remains zero; then seed a mechanically proven local-dead holder and a holder/heartbeat identity mismatch and assert each is reclaimed. In the same smoke, rerun the existing story-scoped stale-lock assertions unchanged. WHY: proves the new strict classifier is capacity-specific and does not silently alter legacy story-lock classification.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
+              "selector": "validate-execution-lock smoke passed: 26 assertion groups"
+            }
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
+          "result": "pass",
+          "note": "Current full exact-26 contract with exact-12 child-process capacity stress",
+          "headHash": "590aad96d735b56934c32af159b43c7bbb27db52",
+          "materialHash": "abc4962cb5fdb7ae26a3632aa47d0c361e4d2cf72c6af2068a56ac8bddf09aaa",
+          "storyFilesHash": "1afe1907261706599a13ccda038c993ae73fd437a0faa5b3643bb97caf3f6a58",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "247a4ac852aba88001d392f15be100301436c5b37a6122a82cff7f161b90e74a",
+            "outputTail": "validate-execution-lock smoke passed: 26 assertion groups\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-15T23:35:15.687Z"
+          },
+          "timestamp": "2026-08-15T23:49:43.777Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
+          "result": "pass",
+          "note": "Current full exact-26 contract with exact-12 child-process capacity stress",
+          "headHash": "590aad96d735b56934c32af159b43c7bbb27db52",
+          "materialHash": "abc4962cb5fdb7ae26a3632aa47d0c361e4d2cf72c6af2068a56ac8bddf09aaa",
+          "storyFilesHash": "1afe1907261706599a13ccda038c993ae73fd437a0faa5b3643bb97caf3f6a58",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "247a4ac852aba88001d392f15be100301436c5b37a6122a82cff7f161b90e74a",
+            "outputTail": "validate-execution-lock smoke passed: 26 assertion groups\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-15T23:36:08.840Z"
+          },
+          "timestamp": "2026-08-15T23:49:43.777Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
+          "result": "pass",
+          "note": "Current full exact-26 contract with exact-12 child-process capacity stress",
+          "headHash": "590aad96d735b56934c32af159b43c7bbb27db52",
+          "materialHash": "abc4962cb5fdb7ae26a3632aa47d0c361e4d2cf72c6af2068a56ac8bddf09aaa",
+          "storyFilesHash": "1afe1907261706599a13ccda038c993ae73fd437a0faa5b3643bb97caf3f6a58",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "247a4ac852aba88001d392f15be100301436c5b37a6122a82cff7f161b90e74a",
+            "outputTail": "validate-execution-lock smoke passed: 26 assertion groups\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-15T23:37:00.350Z"
+          },
+          "timestamp": "2026-08-15T23:49:43.778Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
+          "result": "pass",
+          "note": "Current full exact-26 contract with exact-12 child-process capacity stress",
+          "headHash": "590aad96d735b56934c32af159b43c7bbb27db52",
+          "materialHash": "abc4962cb5fdb7ae26a3632aa47d0c361e4d2cf72c6af2068a56ac8bddf09aaa",
+          "storyFilesHash": "1afe1907261706599a13ccda038c993ae73fd437a0faa5b3643bb97caf3f6a58",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "247a4ac852aba88001d392f15be100301436c5b37a6122a82cff7f161b90e74a",
+            "outputTail": "validate-execution-lock smoke passed: 26 assertion groups\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-15T23:37:54.616Z"
+          },
+          "timestamp": "2026-08-15T23:49:43.778Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
+          "result": "pass",
+          "note": "Current full exact-26 contract with exact-12 child-process capacity stress",
+          "headHash": "590aad96d735b56934c32af159b43c7bbb27db52",
+          "materialHash": "abc4962cb5fdb7ae26a3632aa47d0c361e4d2cf72c6af2068a56ac8bddf09aaa",
+          "storyFilesHash": "1afe1907261706599a13ccda038c993ae73fd437a0faa5b3643bb97caf3f6a58",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "247a4ac852aba88001d392f15be100301436c5b37a6122a82cff7f161b90e74a",
+            "outputTail": "validate-execution-lock smoke passed: 26 assertion groups\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-15T23:38:51.021Z"
+          },
+          "timestamp": "2026-08-15T23:49:43.778Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
+          "result": "pass",
+          "note": "Current full exact-26 contract with exact-12 child-process capacity stress",
+          "headHash": "590aad96d735b56934c32af159b43c7bbb27db52",
+          "materialHash": "abc4962cb5fdb7ae26a3632aa47d0c361e4d2cf72c6af2068a56ac8bddf09aaa",
+          "storyFilesHash": "1afe1907261706599a13ccda038c993ae73fd437a0faa5b3643bb97caf3f6a58",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "247a4ac852aba88001d392f15be100301436c5b37a6122a82cff7f161b90e74a",
+            "outputTail": "validate-execution-lock smoke passed: 26 assertion groups\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-15T23:39:48.594Z"
+          },
+          "timestamp": "2026-08-15T23:49:43.778Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
+          "result": "pass",
+          "note": "Current full exact-26 contract with exact-12 child-process capacity stress",
+          "headHash": "590aad96d735b56934c32af159b43c7bbb27db52",
+          "materialHash": "abc4962cb5fdb7ae26a3632aa47d0c361e4d2cf72c6af2068a56ac8bddf09aaa",
+          "storyFilesHash": "1afe1907261706599a13ccda038c993ae73fd437a0faa5b3643bb97caf3f6a58",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "247a4ac852aba88001d392f15be100301436c5b37a6122a82cff7f161b90e74a",
+            "outputTail": "validate-execution-lock smoke passed: 26 assertion groups\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-15T23:40:44.395Z"
+          },
+          "timestamp": "2026-08-15T23:49:43.778Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
+          "result": "pass",
+          "note": "Current full exact-26 contract with exact-12 child-process capacity stress",
+          "headHash": "590aad96d735b56934c32af159b43c7bbb27db52",
+          "materialHash": "abc4962cb5fdb7ae26a3632aa47d0c361e4d2cf72c6af2068a56ac8bddf09aaa",
+          "storyFilesHash": "1afe1907261706599a13ccda038c993ae73fd437a0faa5b3643bb97caf3f6a58",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "247a4ac852aba88001d392f15be100301436c5b37a6122a82cff7f161b90e74a",
+            "outputTail": "validate-execution-lock smoke passed: 26 assertion groups\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-15T23:41:36.260Z"
+          },
+          "timestamp": "2026-08-15T23:49:43.778Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "0128fffe2c16ec2573de2b0d761d723f494bec191b92455997817fd77f628866",
+        "storyFilesHash": "8048bb0d675e6c770ba8615e67de66866be60bf1297068b2d7e8babd1fccbacb",
+        "headHash": "a22a59c4a3a12139dae57c475a12c9e71bca58f2",
+        "attestedAt": "2026-08-14T16:13:34.557Z",
+        "materialHash": "e4abdd57246dbb5ab7b7dfbe3f2dc336d1fc6139c4415ea056455aa878f76b4c"
+      }
+    },
+    {
+      "id": "CHK-003",
+      "title": "Prove official validation gates retain their existing commands and budgets",
+      "context": "Both lattice validate and lattice done_required_validate must consume the workspace capacity lease without changing configured command inventories, per-command timeouts, root full-suite 120/300-second proof thresholds, evidence bindings, or direct read-only commands. Document and test that a bare npm test/full-suite invocation bypasses this official coordination boundary and therefore must not be run concurrently with official validation.",
+      "relatedDocs": [
+        "docs/requirements/decisions/done-full-test-gate-execution-plan.md"
+      ],
+      "status": "done",
+      "startTime": "2026-08-14T16:13:35.502Z",
+      "endTime": "2026-08-14T16:17:19.965Z",
+      "userSees": "Official validate and done_required_validate retain their existing PASS output and evidence, while help/diagnostics state that bare npm test is outside the workspace lease boundary.",
+      "excludes": [
+        "Do not wrap or alter bare npm test in this Story.",
+        "Do not change any validation command, member timeout, suite threshold, or evidence freshness rule."
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/cli/command-catalog.ts",
+          "docs/CLI.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js. Run the hermetic lattice validate and lattice done_required_validate success paths through workspace capacity and assert their existing PASS result shapes and evidence files remain bound to the invoking story plus current HEAD, materialHash, and storyFilesHash. WHY: serialization is not permission to weaken or rewrite gate evidence.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
+              "selector": "validate-execution-lock smoke passed: 26 assertion groups"
+            }
+          },
+          {
+            "desc": "Command: node bin/lattice.js validate --help && node bin/lattice.js done_required_validate --help && rg -n \"bare npm test|workspace validation capacity|outside.*lease|not protected\" docs/CLI.md docs/requirements/decisions/testing-infra.md docs/requirements/decisions/done-full-test-gate-execution-plan.md. Expect both official entrypoints to describe shared capacity and the docs to state unambiguously that direct bare npm test bypasses it and must not run concurrently with official validation. WHY: users need an accurate coordination boundary.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only. Snapshot configured validate and done-required command labels, args, and timeoutMs before contention and compare after both queued runs; assert identical inventories and unchanged 120-second member, 180-second member, and 300-second full-suite proof thresholds. WHY: fixing contention must not silently raise the gate ceiling or skip work.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only",
+              "selector": "validate-execution-lock workspace capacity contract passed: 15 assertion groups"
+            }
+          },
+          {
+            "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only. While capacity is held, run representative read-only commands session_brief, story_get, and checklist_get in the fixture and assert they complete without waiting or creating capacity-holder metadata. WHY: the lease is scoped to expensive official validation, not general CLI reads.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only",
+              "selector": "validate-execution-lock workspace capacity contract passed: 15 assertion groups"
+            }
+          },
+          {
+            "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js. Produce fresh validation evidence, change story-owned material, and assert existing freshness readers still classify the prior evidence stale; rerun under capacity and assert only the fresh replacement passes. WHY: the lease must not act as an evidence freshness bypass.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
+              "selector": "validate-execution-lock smoke passed: 26 assertion groups"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only. Inspect the root npm test dispatch and run a hermetic bare-test probe while a workspace lease is held; assert the bare probe does not acquire or wait on the Lattice capacity lease, while official validate does wait. WHY: the stated exclusion must be mechanically true rather than accidental documentation.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only",
+              "selector": "validate-execution-lock workspace capacity contract passed: 15 assertion groups"
+            }
+          },
+          {
+            "desc": "Command: git diff --exit-code main...HEAD -- lattice.config.json package.json packages/main/package.json packages/main/src/tasks/full-suite-runner.ts packages/main/src/tasks/full-suite-runner-smoke.ts. Expect no diff in validation inventory or full-suite budget sources for this Story, then run npm --prefix packages/main run build. WHY: the implementation must solve coordination without ad-hoc timeout overrides or test pruning.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run build",
+              "selector": "build-main-with-binding.mjs"
+            }
+          },
+          {
+            "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only. Invoke both official handlers through their real CLI dispatch and assert a test sentinel fails if either reaches its callback while another holder is active; require both handler cases to pass when capacity is enabled. WHY: a helper that exists but is wired to only one entrypoint is not a solution.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only",
+              "selector": "validate-execution-lock workspace capacity contract passed: 15 assertion groups"
+            }
+          },
+          {
+            "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only. Queue --json official validation and assert stdout remains parseable structured output with the same terminal result schema while all capacity wait progress is confined to stderr. WHY: new observability must preserve automation compatibility.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only",
+              "selector": "validate-execution-lock workspace capacity contract passed: 15 assertion groups"
+            }
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "docs_check",
+          "file": "docs/CLI.md",
+          "result": "pass",
+          "note": "All three operator and decision docs distinguish validate deadline propagation from DONE-result classification and record exact-12 cross-process plus focused15/full26 regression contracts",
+          "headHash": "590aad96d735b56934c32af159b43c7bbb27db52",
+          "materialHash": "abc4962cb5fdb7ae26a3632aa47d0c361e4d2cf72c6af2068a56ac8bddf09aaa",
+          "storyFilesHash": "1afe1907261706599a13ccda038c993ae73fd437a0faa5b3643bb97caf3f6a58",
+          "mechanical": false,
+          "timestamp": "2026-08-15T23:49:43.778Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "Current build compiles exact-12 cross-process regression and final documentation contract",
+          "headHash": "590aad96d735b56934c32af159b43c7bbb27db52",
+          "materialHash": "abc4962cb5fdb7ae26a3632aa47d0c361e4d2cf72c6af2068a56ac8bddf09aaa",
+          "storyFilesHash": "1afe1907261706599a13ccda038c993ae73fd437a0faa5b3643bb97caf3f6a58",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "5d5b9ac4d64b5fb711e02b8d6eeb1dcf3f49e52e702ff551d45f5b980c6a326a",
+            "outputTail": "\n> @lattice/core@0.3.256 build\n> node ../../scripts/build-main-with-binding.mjs\n\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-15T23:45:16.417Z"
+          },
+          "timestamp": "2026-08-15T23:49:43.778Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
+          "result": "pass",
+          "note": "Current full exact-26 contract with exact-12 child-process capacity stress",
+          "headHash": "590aad96d735b56934c32af159b43c7bbb27db52",
+          "materialHash": "abc4962cb5fdb7ae26a3632aa47d0c361e4d2cf72c6af2068a56ac8bddf09aaa",
+          "storyFilesHash": "1afe1907261706599a13ccda038c993ae73fd437a0faa5b3643bb97caf3f6a58",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "247a4ac852aba88001d392f15be100301436c5b37a6122a82cff7f161b90e74a",
+            "outputTail": "validate-execution-lock smoke passed: 26 assertion groups\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-15T23:42:31.562Z"
+          },
+          "timestamp": "2026-08-15T23:49:43.778Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:2",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
+          "result": "pass",
+          "note": "Current full exact-26 contract with exact-12 child-process capacity stress",
+          "headHash": "590aad96d735b56934c32af159b43c7bbb27db52",
+          "materialHash": "abc4962cb5fdb7ae26a3632aa47d0c361e4d2cf72c6af2068a56ac8bddf09aaa",
+          "storyFilesHash": "1afe1907261706599a13ccda038c993ae73fd437a0faa5b3643bb97caf3f6a58",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "247a4ac852aba88001d392f15be100301436c5b37a6122a82cff7f161b90e74a",
+            "outputTail": "validate-execution-lock smoke passed: 26 assertion groups\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-15T23:44:32.430Z"
+          },
+          "timestamp": "2026-08-15T23:49:43.778Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only",
+          "result": "pass",
+          "note": "Current focused exact-15 contract with exact-12 child-process capacity stress",
+          "headHash": "590aad96d735b56934c32af159b43c7bbb27db52",
+          "materialHash": "abc4962cb5fdb7ae26a3632aa47d0c361e4d2cf72c6af2068a56ac8bddf09aaa",
+          "storyFilesHash": "1afe1907261706599a13ccda038c993ae73fd437a0faa5b3643bb97caf3f6a58",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "0c5747715d2a0f64a8f10f7e95b3c8d37ad7e79408d8f2d8f70afe741b96a5d7",
+            "outputTail": "validate-execution-lock workspace capacity contract passed: 15 assertion groups\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-15T23:43:03.357Z"
+          },
+          "timestamp": "2026-08-15T23:49:43.778Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only",
+          "result": "pass",
+          "note": "Current focused exact-15 contract with exact-12 child-process capacity stress",
+          "headHash": "590aad96d735b56934c32af159b43c7bbb27db52",
+          "materialHash": "abc4962cb5fdb7ae26a3632aa47d0c361e4d2cf72c6af2068a56ac8bddf09aaa",
+          "storyFilesHash": "1afe1907261706599a13ccda038c993ae73fd437a0faa5b3643bb97caf3f6a58",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "0c5747715d2a0f64a8f10f7e95b3c8d37ad7e79408d8f2d8f70afe741b96a5d7",
+            "outputTail": "validate-execution-lock workspace capacity contract passed: 15 assertion groups\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-15T23:43:35.064Z"
+          },
+          "timestamp": "2026-08-15T23:49:43.778Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only",
+          "result": "pass",
+          "note": "Current focused exact-15 contract with exact-12 child-process capacity stress",
+          "headHash": "590aad96d735b56934c32af159b43c7bbb27db52",
+          "materialHash": "abc4962cb5fdb7ae26a3632aa47d0c361e4d2cf72c6af2068a56ac8bddf09aaa",
+          "storyFilesHash": "1afe1907261706599a13ccda038c993ae73fd437a0faa5b3643bb97caf3f6a58",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "0c5747715d2a0f64a8f10f7e95b3c8d37ad7e79408d8f2d8f70afe741b96a5d7",
+            "outputTail": "validate-execution-lock workspace capacity contract passed: 15 assertion groups\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-15T23:45:05.076Z"
+          },
+          "timestamp": "2026-08-15T23:49:43.778Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:2",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only",
+          "result": "pass",
+          "note": "Current focused exact-15 contract with exact-12 child-process capacity stress",
+          "headHash": "590aad96d735b56934c32af159b43c7bbb27db52",
+          "materialHash": "abc4962cb5fdb7ae26a3632aa47d0c361e4d2cf72c6af2068a56ac8bddf09aaa",
+          "storyFilesHash": "1afe1907261706599a13ccda038c993ae73fd437a0faa5b3643bb97caf3f6a58",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "0c5747715d2a0f64a8f10f7e95b3c8d37ad7e79408d8f2d8f70afe741b96a5d7",
+            "outputTail": "validate-execution-lock workspace capacity contract passed: 15 assertion groups\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-15T23:45:50.965Z"
+          },
+          "timestamp": "2026-08-15T23:49:43.778Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:3",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only",
+          "result": "pass",
+          "note": "Current focused exact-15 contract with exact-12 child-process capacity stress",
+          "headHash": "590aad96d735b56934c32af159b43c7bbb27db52",
+          "materialHash": "abc4962cb5fdb7ae26a3632aa47d0c361e4d2cf72c6af2068a56ac8bddf09aaa",
+          "storyFilesHash": "1afe1907261706599a13ccda038c993ae73fd437a0faa5b3643bb97caf3f6a58",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "0c5747715d2a0f64a8f10f7e95b3c8d37ad7e79408d8f2d8f70afe741b96a5d7",
+            "outputTail": "validate-execution-lock workspace capacity contract passed: 15 assertion groups\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-15T23:46:24.728Z"
+          },
+          "timestamp": "2026-08-15T23:49:43.778Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "72c9fde62f287d9d30fd6d9e4e294d3be520fc1ee7e00cc48b8133a6ed011491",
+        "storyFilesHash": "8048bb0d675e6c770ba8615e67de66866be60bf1297068b2d7e8babd1fccbacb",
+        "headHash": "a4a8f6495d90168f4f929c6652b62d1f3d516ac6",
+        "attestedAt": "2026-08-14T16:17:20.205Z",
+        "materialHash": "e4abdd57246dbb5ab7b7dfbe3f2dc336d1fc6139c4415ea056455aa878f76b4c"
+      }
+    },
+    {
+      "id": "CHK-004",
+      "title": "Synchronize the canonical pre-review focused rollout assertion count",
+      "context": "The registered focused rollout smoke now passes 58 assertions, but proofstory-pre-review-check-smoke still matches the stale literal 57, causing canonical live proof to exit 1 after a genuine PASS. Update the exact contract and add a regression that proves stale 57 rejects while current 58 passes; do not weaken the exact-count check.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+      ],
+      "userSees": "The canonical pre-review live proof accepts \"ProofStory acceptance rollout smoke: PASS (58 assertions)\" and exits 0 instead of reporting a false focused-control failure.",
+      "excludes": [
+        "Do not change acceptance-rollout behavior, scenario inventory, timeout budgets, or replace the exact assertion-count contract with a loose PASS substring."
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+        ],
+        "create": [],
+        "test": []
+      },
+      "status": "done",
+      "startTime": "2026-08-14T16:38:15.028Z",
+      "endTime": "2026-08-14T16:50:02.080Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Command: node scripts/run-proofstory-pre-review-live-proof.mjs under the canonical frozen-cohort environment. Execute the real nested acceptance-rollout smoke, require its exact output line ProofStory acceptance rollout smoke: PASS (58 assertions) to be accepted by the focused rollout consumer, and require the canonical process to exit 0 with PROOFSTORY_PRE_REVIEW_PROOF=. WHY: proves the live producer output, not a synthetic PASS string, reaches and satisfies the pre-review consumer.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/run-proofstory-pre-review-live-proof.mjs",
+              "selector": "PROOFSTORY_PRE_REVIEW_PROOF="
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Run the same canonical command and prove the stale exact 57-assertion output is rejected; changing the expected count back to 57 or accepting both 57 and 58 must make the command exit nonzero before PROOFSTORY_PRE_REVIEW_PROOF= is emitted.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/run-proofstory-pre-review-live-proof.mjs",
+              "selector": "PROOFSTORY_PRE_REVIEW_PROOF="
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Run the same canonical command and prove loose PASS text, a count-free output, and any non-58 assertion count are rejected while exact PASS (58 assertions) is accepted; loosening the consumer matcher must make the command exit nonzero.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/run-proofstory-pre-review-live-proof.mjs",
+              "selector": "PROOFSTORY_PRE_REVIEW_PROOF="
+            }
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "integration_test",
+          "command": "node scripts/run-proofstory-pre-review-live-proof.mjs",
+          "result": "pass",
+          "note": "Canonical registered 12-record frozen-cohort live proof rerun after F-019; exact 58 terminal and mutation rejection contract passed mechanically.",
+          "headHash": "590aad96d735b56934c32af159b43c7bbb27db52",
+          "materialHash": "abc4962cb5fdb7ae26a3632aa47d0c361e4d2cf72c6af2068a56ac8bddf09aaa",
+          "storyFilesHash": "1afe1907261706599a13ccda038c993ae73fd437a0faa5b3643bb97caf3f6a58",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "8183821c9f5c46afe36e30d461638e4f2689caf022b46fdd3e770df4e1593490",
+            "outputTail": "PROOFSTORY_PRE_REVIEW_PROOF={\"schemaVersion\":\"proofstory.pre_review_executable_proof.v1\",\"storyId\":\"B-6693\",\"producer\":\"registered-verification-command\",\"verifier\":\"pre-review-check-command-runner\",\"commandDigests\":[\"sha256:4e7809e32bcf6aaca93cb53b4de8b4076245c605df8496ccf2dc50b141670531\"],\"caseRecordsEncoding\":\"gzip-base64\",\"caseRecords\":\"H4sIAAAAAAACE31RTW8aMRD9K9acbQmUBtq90QQpUdUEsVQ9IA6DdwAL41mN7U3331e72SUc2pw89hs/vY/tFhZm9Vqae9BQc3TJNQQahL3nnIoD2xypMhQOLJZM975HewYNIzSsGsshCXvQQH/I5kRq2FC/sSH1RQ2LKl74TOrNpZMaaLUaebXCUKmTi4mlNbVQJGkwOQ5q4I+gYbUoy+uRJJPebqEWrrIlMdSgz5ioAn3/bae3YDnEfCExDYk7uA6YTXY7DS4kCql4ePphJpNpccK6bosJdH8W5uevjZnOQcMlp14BaIicxVLxhg2ZPedQobSgob97wjMeu/CixaDe5fTKR2W9t1GMOrAoj4nEdN9VbC/7d3eL7+XyZXMzjA5HIQbr2vc27mad1srhMXBMzhred4H10Hyw3oVmhCQH0Hdf/2Ebq4Ykojj0V/Ob9eKlfFg/rzZmChqSYIhWXJ26ehsKKRbXvEdHI2Q8H42QH0NDmzL6jxRcaNjikAxZqigqi4GDs+iVdweyrfWkbnhf14/L9fLxdvqs9tl/Wp9/VvruLzM4M+4MAwAA\",\"provenance\":{\"runnerPath\":\"scripts/run-proofstory-pre-review-live-proof.mjs\",\"runnerDigest\":\"sha256:e45f9001861defcd91a85f1c8f10df27d24487f95bb80dfd8ed6dde7c6a0f2e9\",\"targetPath\":\"packages/main/dist/tasks/proofstory-pre-review-check-smoke.js\",\"targetDigest\":\"sha256:e9581ea2a4a78655e1b48c229af010c44d0176004c993a084b475bfb70ccae7f\",\"buildCommand\":\"npm --prefix packages/main run build\"},\"bindingProofs\":[]}\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-15T23:47:33.537Z"
+          },
+          "timestamp": "2026-08-15T23:49:43.778Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "command": "node scripts/run-proofstory-pre-review-live-proof.mjs",
+          "result": "pass",
+          "note": "Canonical registered 12-record frozen-cohort live proof rerun after F-019; exact 58 terminal and mutation rejection contract passed mechanically.",
+          "headHash": "590aad96d735b56934c32af159b43c7bbb27db52",
+          "materialHash": "abc4962cb5fdb7ae26a3632aa47d0c361e4d2cf72c6af2068a56ac8bddf09aaa",
+          "storyFilesHash": "1afe1907261706599a13ccda038c993ae73fd437a0faa5b3643bb97caf3f6a58",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "8183821c9f5c46afe36e30d461638e4f2689caf022b46fdd3e770df4e1593490",
+            "outputTail": "PROOFSTORY_PRE_REVIEW_PROOF={\"schemaVersion\":\"proofstory.pre_review_executable_proof.v1\",\"storyId\":\"B-6693\",\"producer\":\"registered-verification-command\",\"verifier\":\"pre-review-check-command-runner\",\"commandDigests\":[\"sha256:4e7809e32bcf6aaca93cb53b4de8b4076245c605df8496ccf2dc50b141670531\"],\"caseRecordsEncoding\":\"gzip-base64\",\"caseRecords\":\"H4sIAAAAAAACE31RTW8aMRD9K9acbQmUBtq90QQpUdUEsVQ9IA6DdwAL41mN7U3331e72SUc2pw89hs/vY/tFhZm9Vqae9BQc3TJNQQahL3nnIoD2xypMhQOLJZM975HewYNIzSsGsshCXvQQH/I5kRq2FC/sSH1RQ2LKl74TOrNpZMaaLUaebXCUKmTi4mlNbVQJGkwOQ5q4I+gYbUoy+uRJJPebqEWrrIlMdSgz5ioAn3/bae3YDnEfCExDYk7uA6YTXY7DS4kCql4ePphJpNpccK6bosJdH8W5uevjZnOQcMlp14BaIicxVLxhg2ZPedQobSgob97wjMeu/CixaDe5fTKR2W9t1GMOrAoj4nEdN9VbC/7d3eL7+XyZXMzjA5HIQbr2vc27mad1srhMXBMzhred4H10Hyw3oVmhCQH0Hdf/2Ebq4Ykojj0V/Ob9eKlfFg/rzZmChqSYIhWXJ26ehsKKRbXvEdHI2Q8H42QH0NDmzL6jxRcaNjikAxZqigqi4GDs+iVdweyrfWkbnhf14/L9fLxdvqs9tl/Wp9/VvruLzM4M+4MAwAA\",\"provenance\":{\"runnerPath\":\"scripts/run-proofstory-pre-review-live-proof.mjs\",\"runnerDigest\":\"sha256:e45f9001861defcd91a85f1c8f10df27d24487f95bb80dfd8ed6dde7c6a0f2e9\",\"targetPath\":\"packages/main/dist/tasks/proofstory-pre-review-check-smoke.js\",\"targetDigest\":\"sha256:e9581ea2a4a78655e1b48c229af010c44d0176004c993a084b475bfb70ccae7f\",\"buildCommand\":\"npm --prefix packages/main run build\"},\"bindingProofs\":[]}\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-15T23:48:39.336Z"
+          },
+          "timestamp": "2026-08-15T23:49:43.778Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "command": "node scripts/run-proofstory-pre-review-live-proof.mjs",
+          "result": "pass",
+          "note": "Canonical registered 12-record frozen-cohort live proof rerun after F-019; exact 58 terminal and mutation rejection contract passed mechanically.",
+          "headHash": "590aad96d735b56934c32af159b43c7bbb27db52",
+          "materialHash": "abc4962cb5fdb7ae26a3632aa47d0c361e4d2cf72c6af2068a56ac8bddf09aaa",
+          "storyFilesHash": "1afe1907261706599a13ccda038c993ae73fd437a0faa5b3643bb97caf3f6a58",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "8183821c9f5c46afe36e30d461638e4f2689caf022b46fdd3e770df4e1593490",
+            "outputTail": "PROOFSTORY_PRE_REVIEW_PROOF={\"schemaVersion\":\"proofstory.pre_review_executable_proof.v1\",\"storyId\":\"B-6693\",\"producer\":\"registered-verification-command\",\"verifier\":\"pre-review-check-command-runner\",\"commandDigests\":[\"sha256:4e7809e32bcf6aaca93cb53b4de8b4076245c605df8496ccf2dc50b141670531\"],\"caseRecordsEncoding\":\"gzip-base64\",\"caseRecords\":\"H4sIAAAAAAACE31RTW8aMRD9K9acbQmUBtq90QQpUdUEsVQ9IA6DdwAL41mN7U3331e72SUc2pw89hs/vY/tFhZm9Vqae9BQc3TJNQQahL3nnIoD2xypMhQOLJZM975HewYNIzSsGsshCXvQQH/I5kRq2FC/sSH1RQ2LKl74TOrNpZMaaLUaebXCUKmTi4mlNbVQJGkwOQ5q4I+gYbUoy+uRJJPebqEWrrIlMdSgz5ioAn3/bae3YDnEfCExDYk7uA6YTXY7DS4kCql4ePphJpNpccK6bosJdH8W5uevjZnOQcMlp14BaIicxVLxhg2ZPedQobSgob97wjMeu/CixaDe5fTKR2W9t1GMOrAoj4nEdN9VbC/7d3eL7+XyZXMzjA5HIQbr2vc27mad1srhMXBMzhred4H10Hyw3oVmhCQH0Hdf/2Ebq4Ykojj0V/Ob9eKlfFg/rzZmChqSYIhWXJ26ehsKKRbXvEdHI2Q8H42QH0NDmzL6jxRcaNjikAxZqigqi4GDs+iVdweyrfWkbnhf14/L9fLxdvqs9tl/Wp9/VvruLzM4M+4MAwAA\",\"provenance\":{\"runnerPath\":\"scripts/run-proofstory-pre-review-live-proof.mjs\",\"runnerDigest\":\"sha256:e45f9001861defcd91a85f1c8f10df27d24487f95bb80dfd8ed6dde7c6a0f2e9\",\"targetPath\":\"packages/main/dist/tasks/proofstory-pre-review-check-smoke.js\",\"targetDigest\":\"sha256:e9581ea2a4a78655e1b48c229af010c44d0176004c993a084b475bfb70ccae7f\",\"buildCommand\":\"npm --prefix packages/main run build\"},\"bindingProofs\":[]}\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-15T23:49:43.767Z"
+          },
+          "timestamp": "2026-08-15T23:49:43.778Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "9aa2953931b5ef3d096752f67fc3da68e8606918112e23eb8c0f7e1bbe351d4a",
+        "storyFilesHash": "6e8b67d8ede40771ef025cf9b6164389dffcf9606d08f57a897622771250d577",
+        "headHash": "a0d14539f55fd0f462b4db1444e201e00ecb66a6",
+        "attestedAt": "2026-08-14T16:50:02.251Z",
+        "materialHash": "9ebb3d33074ea81fac97874b99974bd0cda03ba18188a7962abf50e7527ad008"
+      }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-08-14T15:30:16.494Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Begin independently implemented workspace validation capacity mechanism",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-08-14T15:58:17.151Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Implementation commits 089a77ca4c and a073b46335 reviewed; independent build and focused contract passed",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-08-14T16:02:41.926Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Record independent tool-executed wait-and-run and failure-path evidence",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-08-14T16:13:34.407Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "8/8 tool-executed full smoke receipts recorded; implementation and release-race follow-up committed",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-08-14T16:13:35.502Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Record gate-invariance, documentation boundary, and protected-budget evidence",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-08-14T16:17:19.965Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "9/9 gate-invariance, documentation, protected-budget, and official-handler evidence recorded",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-08-14T16:50:02.080Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Commit 907e77c239 strictly synchronizes the canonical terminal contract to 58; build, focused terminal contract, canonical live proof, and all 3 mechanical intent receipts pass."
+    }
+  ]
+}

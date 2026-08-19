@@ -137,7 +137,7 @@ assert.ok(list.categories.some(c => c.id === 'prewrite-guard'), 'prewrite-guard 
 
 // Human output is present and useful.
 const text = renderCapabilityListText(list);
-assert.match(text, /Proofbound capability profiles/);
+assert.match(text, /Proof-or-Stop capability profiles/);
 assert.match(text, /unknown\/fallback/);
 assert.match(text, /authorityImpact=local-assurance-required/);
 assert.doesNotMatch(text, /fatal=/);

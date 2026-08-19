@@ -35,7 +35,7 @@ Your input is **only**:
 
 ## 2. Obtain storyId
 
-The main agent passes `storyId` (e.g. `B-xxxx`) in the spawn prompt. Use this value in all subsequent Lattice CLI commands.
+The main agent passes `storyId` (e.g. `B-xxxx`) in the spawn prompt. Use this value in all subsequent Proof-or-Stop CLI commands.
 
 ## 3. Procedure (6 steps)
 
@@ -65,7 +65,7 @@ For each documentation change that **promises** a new feature, handler, command,
 ```json
 {
   "docPath": "CLAUDE.md#section",
-  "promise": "lattice delivery_check_set command accepts storyId + docsPromises + ...",
+  "promise": "proof-or-stop delivery_check_set command accepts storyId + docsPromises + ...",
   "verifiedBy": "diff/grep",
   "evidence": "handler registered in registry.ts, Zod schema in cli-engine.ts",
   "waiverReason": null
@@ -135,7 +135,7 @@ In refusal case:
 If no critical refusal triggered:
 
 ```bash
-lattice delivery_check_set '{"storyId":"B-xxx","docsPromises":[...],"realMachineTests":[...],"closingSelfCheck":{...}}'
+proof-or-stop delivery_check_set '{"storyId":"B-xxx","docsPromises":[...],"realMachineTests":[...],"closingSelfCheck":{...}}'
 ```
 
 Then output a short summary (3-8 lines):
@@ -144,10 +144,10 @@ Then output a short summary (3-8 lines):
 - closingSelfCheck fields
 - Final line: `delivery_check_set saved for <storyId>` or `Refused to save (<reason>)`
 
-## 4. `lattice delivery_check_set` call template
+## 4. `proof-or-stop delivery_check_set` call template
 
 ```bash
-lattice delivery_check_set '{
+proof-or-stop delivery_check_set '{
   "storyId": "B-xxx",
   "docsPromises": [
     {
@@ -191,3 +191,5 @@ Pre-call self-check:
 - If a docs promise refers to something that existed before this story (not in the diff), note it in evidence as "pre-existing, not introduced by this story" and mark `verified: true`
 - If you encounter a file you cannot read, note it in the relevant promise evidence field
 - Output MUST include the `delivery_check_set` CLI call (unless critical refusal), text-only output without the save call is incomplete
+
+Wave 4 delivery promises require independently reading `acceptance_topology_check`, `pre_review_check_read`, `acceptance_rollout_report_read`, and `acceptance_rollout_check`; prompt prose is not gate evidence. Require a current signed PASS receipt and genuine full 3 rounds × 2 hosts (`codex-cli` + `claude-cli`), never degraded 3x1. Observe/warn/enforce keep identical status/diagnostics and enforce alone blocks. Rollback is config-only and must preserve every report and prior evidence.

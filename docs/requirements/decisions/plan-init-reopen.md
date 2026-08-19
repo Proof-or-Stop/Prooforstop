@@ -4,7 +4,7 @@
 
 When a PLAN scope review legitimately flags a frozen checklist title/context on a
 worktree'd story, there is no sanctioned way to fix it. The documented recovery —
-`lattice story_advance --phase=INIT_CHECK` — fails for two independent reasons:
+`proof-or-stop story_advance --phase=INIT_CHECK` — fails for two independent reasons:
 
 1. **dev_start path/reuse bug.** Run from inside the worktree, `dev_start`'s reuse
    early-return resolves `story.worktree.path` via `getRepoRoot()`
@@ -28,7 +28,7 @@ Add a **gated PLAN→INIT reopen** transition. INIT is the only phase where
 restores the flagged-title recovery **without weakening** the INIT_CHECK scope-freeze
 invariant.
 
-- Command: `lattice story_advance '{"storyId":"B-x","phase":"INIT","reason":"…"}'`.
+- Command: `proof-or-stop story_advance '{"storyId":"B-x","phase":"INIT","reason":"…"}'`.
 - New machine event `REOPEN`, PLAN→INIT edge guarded by `canReopenToInit`
   (PLAN-only, owner-lease gated). A non-empty `reason` is required and enforced in
   the transition orchestrator.

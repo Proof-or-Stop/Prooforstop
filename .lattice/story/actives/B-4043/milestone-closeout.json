@@ -1,0 +1,102 @@
+{
+  "schemaVersion": "proofbound.milestone_closeout.v1",
+  "storyId": "B-4043",
+  "phase": "TEST",
+  "generatedAt": "2026-07-28T17:18:42.780Z",
+  "sourceReport": {
+    "schemaVersion": "proofbound.milestone_status.v1",
+    "digest": "4105c81e1acc4d0c2572c41f6d6acafb7d472b85e55a619c852f2463c1db26b5",
+    "ledger": {
+      "present": true,
+      "state": "confirmed",
+      "hash": "sha256:54c9ee014757e559436eb38673936ec038bd2e3743b192be67f3175e91e47169"
+    },
+    "groups": {
+      "completed": [
+        "M1",
+        "M2",
+        "M3",
+        "M4",
+        "M5"
+      ],
+      "current": [],
+      "remaining": []
+    },
+    "risks": [],
+    "nextActions": [
+      "No milestone action; all ledger rows are completed or not applicable."
+    ]
+  },
+  "bindings": {
+    "headHash": "2451132a8fa432b42b26c3d39fa1443daffcf056",
+    "materialHash": "1c2d6c3c89f6697068d50b2de3f8224dca302bd15a8b126a8dd1276c81b640cb",
+    "storyFilesHash": "f25bb43b739ccfaa5635ec6ba92e1313af35a334ba29b7f6e8a5bf07ddf2fd26"
+  },
+  "rows": [
+    {
+      "milestone": "M1",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "All in-scope Codex and Claude roles guide agents to canonical verifier-owned rollout facts without prompt authority.",
+      "acceptance": "Mirrored role contract passes and prompt/process-fact mutations bite.",
+      "evidence": [
+        "CHK-001:happy:role-guidance [pass/manual_transcript] node scripts/verify-process-fact-contract.mjs --quiet note=Tool-executed under the B-ec67 pinned-command contract: the CLI itself runs the command and derives the result from the real exit code plus selector match.",
+        "CHK-001:edge:mirror-mode [pass/logic_test] node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js --proof-scenarios --cohort=/tmp/b4043-cohort-r4-final.json --story=B-4043 note=Tool-executed under the B-ec67 pinned-command contract: the CLI itself runs the command and derives the result from the real exit code plus selector match.",
+        "CHK-001:adversarial:prompt-authority [pass/logic_test] node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js --proof-scenarios --cohort=/tmp/b4043-cohort-r4-final.json --story=B-4043 note=Tool-executed under the B-ec67 pinned-command contract: the CLI itself runs the command and derives the result from the real exit code plus selector match."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M2",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "A frozen verifier-derived real baseline/candidate cohort produces a signed reproducible rollout report.",
+      "acceptance": "At least three paired samples per arm execute; aggregates reproduce from bound records and caller selection/verdict/aggregate tampering is rejected.",
+      "evidence": [
+        "CHK-002:happy:real-cohort-receipt [pass/manual_transcript] node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js --proof-scenarios --cohort=/tmp/b4043-cohort-r4-final.json --story=B-4043 note=Tool-executed under the B-ec67 pinned-command contract. Pinned to the story's own designated proof: proofstory-pre-review-check-smoke.ts:425 declares scenario A-POS-2 (rollout:verified-cohort-receipt) with canonicalSourceRef 'intent:CHK-002:happy:real-cohort-receipt', and that scenario verifies the frozen cohort's signed receipt WITHOUT respawning the expensive cohort runner. The CLI executes it and derives the result from the real exit code plus selector match.",
+        "CHK-002:edge:false-block-controls [pass/manual_transcript] node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js --cohort=/tmp/b4043-cohort-r4-final.json note=Tool-executed under the B-ec67 pinned-command contract: the CLI itself runs the acceptance-rollout smoke against the frozen cohort and derives the result from the real exit code plus selector match.",
+        "CHK-002:adversarial:seeded-defects [pass/logic_test] node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js --cohort=/tmp/b4043-cohort-r4-final.json note=Tool-executed under the B-ec67 pinned-command contract: the CLI itself runs the acceptance-rollout smoke against the frozen cohort and derives the result from the real exit code plus selector match."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M3",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Warn-to-enforce eligibility uses explicit conservative thresholds and honest adapter classifications.",
+      "acceptance": "Zero false passes across all registered seeded defects, 100 percent supported omission detection, zero false blocks, zero mislabeled 3x1, waiver delta <=0, non-shrinking inventory and supported adapters all pass; every boundary mutation fails closed.",
+      "evidence": [
+        "CHK-003:happy:bounded-thresholds [pass/logic_test] node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js --cohort=/tmp/b4043-cohort-r4-final.json note=Tool-executed under the B-ec67 pinned-command contract: the CLI itself runs the acceptance-rollout smoke against the frozen cohort and derives the result from the real exit code plus selector match.",
+        "CHK-003:edge:inconclusive-boundary [pass/manual_transcript] node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js --cohort=/tmp/b4043-cohort-r4-final.json note=Tool-executed under the B-ec67 pinned-command contract: the CLI itself runs the acceptance-rollout smoke against the frozen cohort and derives the result from the real exit code plus selector match.",
+        "CHK-003:adversarial:threshold-bypass [pass/logic_test] node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js --cohort=/tmp/b4043-cohort-r4-final.json note=Tool-executed under the B-ec67 pinned-command contract: the CLI itself runs the acceptance-rollout smoke against the frozen cohort and derives the result from the real exit code plus selector match."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M4",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Flat project enforcement consumes the current rollout receipt and full 3x2; rollback preserves history.",
+      "acceptance": "Production transition passes only with current qualifying evidence, all stale/tamper/degraded mutations reject, and observe/warn rollback removes blocking without rewriting artifacts.",
+      "evidence": [
+        "CHK-004:happy:enforce-and-rollback [pass/manual_transcript] node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js --cohort=/tmp/b4043-cohort-r4-final.json note=Tool-executed under the B-ec67 pinned-command contract: the CLI itself runs the acceptance-rollout smoke against the frozen cohort and derives the result from the real exit code plus selector match.",
+        "CHK-004:edge:mode-invariant-diagnostics [pass/logic_test] node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js --cohort=/tmp/b4043-cohort-r4-final.json note=Tool-executed under the B-ec67 pinned-command contract: the CLI itself runs the acceptance-rollout smoke against the frozen cohort and derives the result from the real exit code plus selector match.",
+        "CHK-004:adversarial:fail-closed-mutations [pass/logic_test] node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js --cohort=/tmp/b4043-cohort-r4-final.json note=Tool-executed under the B-ec67 pinned-command contract: the CLI itself runs the acceptance-rollout smoke against the frozen cohort and derives the result from the real exit code plus selector match."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M5",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Canonical Story 6 and CLI docs state the exact measured Wave 4 boundary and exclusions.",
+      "acceptance": "Docs match current verifier output/commands/thresholds/rollback, mark flat Wave 4 implemented only after evidence, keep Wave 3A not implemented, and avoid authority overclaim.",
+      "evidence": [
+        "CHK-005:happy:canonical-wave4-status [pass/manual_transcript] node scripts/verify-process-fact-contract.mjs note=Genuinely executed at head 1c9601dfb6: exit 0, 'Process fact contract verified'.",
+        "CHK-005:edge:authority-and-exclusions [pass/manual_transcript] LATTICE_ACTIVE_STORY_ID=B-4043 LATTICE_ACCEPTANCE_ROLLOUT_COHORT_FILE=/tmp/b4043-cohort-r4-final.json node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js --proof-scenarios note=Genuinely executed at head 1c9601dfb6 against a cohort regenerated at this same head (2026-07-27T11:36:44Z): exit 0; all mutations BITING, wave leakage absent.",
+        "CHK-005:adversarial:no-status-overclaim [pass/manual_transcript] LATTICE_ACTIVE_STORY_ID=B-4043 LATTICE_ACCEPTANCE_ROLLOUT_COHORT_FILE=/tmp/b4043-cohort-r4-final.json node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js --proof-scenarios note=Genuinely executed at head 1c9601dfb6 against a cohort regenerated at this same head (2026-07-27T11:36:44Z): exit 0; all mutations BITING, wave leakage absent."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    }
+  ]
+}

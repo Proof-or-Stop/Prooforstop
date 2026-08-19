@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-7dff",
+  "sourceText": "Operator, 2026-08-17: after a latency audit of done_prepare, \"story 把第 1 项（routine validate 复用 runScheduled 调度器）做掉\" (turn the first optimisation item - routine validate reusing the runScheduled scheduler - into a story and do it), followed by \"继续把，直到 B-7dff done 为止，并且别让我做决定，按照整个流程来\" (keep going until B-7dff is done, do not make me decide, follow the whole process).",
+  "normalizedOutcome": "lattice validate executes its configured command plan through the shared keyed parallel scheduler instead of a sequential loop, so a full routine validate finishes in roughly the duration of its slowest single command instead of the sum of all of them, with per-command results unchanged.",
+  "acceptanceClaim": "A single regression run measures the same command plan serially and in parallel, prints both durations and the speedup, and asserts that every command produces an identical pass/fail outcome in both modes.",
+  "keyRequirementIds": [
+    "REQ-001"
+  ],
+  "requestHash": "sha256:d7820b97d75ee7845b20b9b5159e65f27641922ead1b7c41f00f2d958ee37fdf",
+  "createdAt": "2026-08-17T11:36:10.542Z",
+  "updatedAt": "2026-08-17T11:36:10.542Z"
+}

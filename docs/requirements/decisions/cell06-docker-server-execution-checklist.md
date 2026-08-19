@@ -7,7 +7,7 @@ authorize execution by itself.
 ## Purpose
 
 Cell 06 is the E2 `A2prime` control arm. It must use the Cell 03-derived usage
-lock for budget and sequencing only. It must not receive Proofbound memory,
+lock for budget and sequencing only. It must not receive Proof-or-Stop memory,
 playbooks, Cell 03 solutions, reviewer feedback, B-991d summaries, paper text,
 or any other semantic guidance.
 
@@ -32,7 +32,7 @@ same sterile mount and auth rules.
 Local Docker is acceptable when:
 
 - The runner mounts only allowlisted Cell 06 input/output directories.
-- The runner does not mount `/Users/jek`, `~/.codex`, Proofbound, `.lattice`,
+- The runner does not mount `/Users/jek`, `~/.codex`, Proof-or-Stop, `.lattice`,
   the paper repo, or Cell 03 full outputs.
 - Each account uses a separate container `CODEX_HOME`.
 - The prompt and input manifests pass contamination scan before execution.
@@ -44,7 +44,7 @@ A clean server is preferable when:
 - Local machine contention, sleep, network changes, or long-running sessions
   make a multi-day run fragile.
 - More accounts or shards need to run in parallel.
-- The operator wants stronger evidence that no local Proofbound/paper files
+- The operator wants stronger evidence that no local Proof-or-Stop/paper files
   were available on the host at all.
 - The run should continue while the local machine is offline.
 
@@ -56,7 +56,7 @@ prove the same sterile inputs.
 
 ## Non-Negotiable Experimental Boundary
 
-- The controller may use Proofbound state, Cell 03 usage lock, manifests, and
+- The controller may use Proof-or-Stop state, Cell 03 usage lock, manifests, and
   validators.
 - The Cell 06 runner must see only allowlisted row inputs.
 - `reviewerFamily` is structurally `not_applicable`.
@@ -70,7 +70,7 @@ prove the same sterile inputs.
 
 ## Server Preparation Checklist
 
-Use a clean machine that does not contain the Proofbound repo, the paper repo,
+Use a clean machine that does not contain the Proof-or-Stop repo, the paper repo,
 `.lattice`, old Codex sessions, or Cell 03 full outputs.
 
 Recommended baseline:
@@ -81,7 +81,7 @@ Recommended baseline:
 - At least 100 GB free disk for row packages, logs, and output JSONL.
 - A dedicated Unix user, for example `cell06`.
 - No global `~/.codex` from unrelated work.
-- No host-level `.lattice`, playbook, dev-memory, paper, or Proofbound docs.
+- No host-level `.lattice`, playbook, dev-memory, paper, or Proof-or-Stop docs.
 
 Create the server directory:
 
@@ -98,11 +98,11 @@ chmod 700 secrets secrets/account-a secrets/account-b
 Forbidden server uploads:
 
 ```text
-Proofbound repo
-Proofbound .lattice
-Proofbound docs
-Proofbound playbooks
-Proofbound dev-memory
+Proof-or-Stop repo
+Proof-or-Stop .lattice
+Proof-or-Stop docs
+Proof-or-Stop playbooks
+Proof-or-Stop dev-memory
 lattice-Paper repo
 Cell 03 full workspaces
 Cell 03 solutions
@@ -209,7 +209,7 @@ single `codex exec` invocation. Do not export it job-wide.
 
 ## Shard Manifest
 
-The Proofbound controller should produce a frozen shard manifest before any
+The Proof-or-Stop controller should produce a frozen shard manifest before any
 provider execution. Deterministic split:
 
 ```text
@@ -278,7 +278,7 @@ dev-memory
 playbook
 finding-signals
 .lattice
-Proofbound docs
+Proof-or-Stop docs
 paper text
 hidden oracle
 ```
@@ -289,7 +289,7 @@ not as examples or guidance.
 ## Runner Command Template
 
 Use one container per shard. Mount only the account auth, shard input, and shard
-output. Do not mount host home, Proofbound, `.lattice`, or paper directories.
+output. Do not mount host home, Proof-or-Stop, `.lattice`, or paper directories.
 
 Account A / shard 0:
 
@@ -352,7 +352,7 @@ docker run --rm \
 ```
 
 If the runner needs to write solution files, use a per-row writable work
-directory generated from the input package, not a mounted Proofbound repo.
+directory generated from the input package, not a mounted Proof-or-Stop repo.
 
 ## Parallel Execution Checklist
 
@@ -419,7 +419,7 @@ dev-memory
 playbook
 finding-signals
 .lattice
-Proofbound memory
+Proof-or-Stop memory
 future-cell03-results/full
 lattice-Paper
 ```
@@ -493,13 +493,13 @@ the server under `/opt/proofbound-cell06/secrets/account-*`.
 11. Reassign only unstarted quota-failed rows if needed.
 12. Merge outputs.
 13. Run full merge validator and contamination scan.
-14. Copy final evidence bundle back to the Proofbound controller.
-15. Open/complete the Cell 06 Lattice story with validation, review, delivery
+14. Copy final evidence bundle back to the Proof-or-Stop controller.
+15. Open/complete the Cell 06 Proof-or-Stop story with validation, review, delivery
     check, DONE, and paper evidence mirror.
 
 ## Done Criteria For Server Preparation
 
-- Server contains no Proofbound repo, `.lattice`, paper repo, or Cell 03 full
+- Server contains no Proof-or-Stop repo, `.lattice`, paper repo, or Cell 03 full
   outputs.
 - Docker image builds and records digest.
 - Account A and B authenticate in separate auth homes.

@@ -93,8 +93,12 @@ assert.deepEqual(
   ['capability_claim_formal_evaluate', '--help'],
 );
 
+// B-cdf6 CHK-005: the product name asserted below is now 'Proof-or-Stop'
+// (LATTICE_PRODUCT_NAME, approved RENAMED row in brand-rename-mapping.md; `Proof-or-Stop` is a legacy
+// spelling on the normalize list). Same repin CHK-002 applied to command-catalog-smoke; the
+// branding assertions themselves are kept, not dropped.
 const storyAdvanceHelp = runCli(['story_advance', '--help']);
-assert.match(storyAdvanceHelp, /Proofbound CLI/, 'tool help keeps Proofbound branding');
+assert.match(storyAdvanceHelp, /Proof-or-Stop/, 'tool help keeps Proof-or-Stop branding');
 assert.match(storyAdvanceHelp, /Dry-run: optional via --dryRun/, 'optional dry-run class remains visible');
 assert.match(storyAdvanceHelp, /Owner lease meta options/, 'owner lease help remains visible');
 
@@ -104,19 +108,19 @@ assert.match(storyReconcileHelp, /Dry-run: default-on via --dryRun=true\./, 'def
 const hostInstallHelp = runCli(['host_install', '--help']);
 assert.match(hostInstallHelp, /Dry-run: always-on\./, 'always-on dry-run class remains visible');
 
-// B-7c05 CHK-003: `lattice help` is BRIEF by default. Branding + every command
+// B-7c05 CHK-003: `proof-or-stop help` is BRIEF by default. Branding + every command
 // name (no command silently dropped) stay on the brief catalog; the verbose
 // host wording (antigravity/agy) lives in per-command descriptions, so those
 // assertions move to `help --full`.
 const globalHelp = runCli(['help']);
-assert.match(globalHelp, /Proofbound CLI/, 'brief global help keeps Proofbound branding');
+assert.match(globalHelp, /Proof-or-Stop/, 'brief global help keeps Proof-or-Stop branding');
 assert.match(globalHelp, /host_runtime_list/, 'brief global help keeps every command name');
 assert.match(globalHelp, /help --full/, 'brief global help points at the full catalog');
 const briefHelpBytes = Buffer.byteLength(globalHelp, 'utf8');
 assert.ok(briefHelpBytes < 16000, `brief help must stay under the 16000-byte budget, got ${briefHelpBytes}`);
 
 const globalHelpFull = runCli(['help', '--full']);
-assert.match(globalHelpFull, /Proofbound CLI/, 'full global help keeps Proofbound branding');
+assert.match(globalHelpFull, /Proof-or-Stop/, 'full global help keeps Proof-or-Stop branding');
 assert.match(globalHelpFull, /host_runtime_list/, 'full global help keeps host runtime section entries');
 assert.match(globalHelpFull.toLowerCase(), /antigravity/, 'full help keeps current host wording');
 assert.match(globalHelpFull.toLowerCase(), /\bagy\b/, 'full help keeps antigravity alias wording');
@@ -124,7 +128,7 @@ assert.doesNotMatch(globalHelpFull.toLowerCase(), /current[^\n.]*gemini|gemini[^
 assert.ok(globalHelpFull.length > globalHelp.length, 'full help is larger than the brief catalog');
 
 const versionThroughLatticeNamespace = runCli(['lattice', 'version']);
-assert.match(versionThroughLatticeNamespace, /Proofbound CLI/, 'lattice version special path remains in runCli');
+assert.match(versionThroughLatticeNamespace, /Proof-or-Stop/, 'proof-or-stop version special path remains in runCli');
 
 const hostRuntimeList = runJson<{ schemaVersion: string }>(['lattice', 'host', 'runtime', 'list', '--json']);
 assert.equal(hostRuntimeList.schemaVersion, 'lattice.host_runtime_list.v1');

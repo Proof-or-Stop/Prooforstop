@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-45a5",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Add a repro-first RED artifact under packages/main/tests/red/ proving both gates ignore an item-level withdrawal, and register it in lattice.config.json",
+    "Add anti-bypass coverage proving an unbacked or unconfirmed withdrawal skips nothing in either gate",
+    "Delete the three obsolete kind=waiver rows on B-8df9 CHK-004 once both gates read the withdrawal",
+    "Give handlers/validate-channel.ts checkDispatchEvidence the same decision-backed skip so a withdrawn item does not require dispatch evidence",
+    "Wire evaluateReviewCompleteness (core/proofstory.ts:2084) to read item-level withdrawal via the existing decision-backed helper withdrawnChecklistItemIdsFrom (core/proofstory.ts:1622)"
+  ],
+  "excluded": [
+    "Any change to B-8df9 beyond deleting the three obsolete CHK-004 waiver rows",
+    "Any skip keyed on a bare status string. An item is skippable ONLY through withdrawnChecklistItemIdsFrom(decision), which requires decision==='confirmed' AND userConfirmed===true. Routing through core/checklist-status.ts is forbidden: it has zero decisionRef awareness and would yield a gate anyone can bypass by editing one JSON field",
+    "Changes to core/checklist-status.ts itself",
+    "Deriving the checklist-status consumer set to prevent recurrence; raised and deliberately declined here, tracked as its own follow-up because it is a codebase-wide audit rather than a gate fix",
+    "Mutating acceptance bindings, or unfreezing proofstory_contract_set from its PLAN-only classification",
+    "Weakening either gate for items that are NOT withdrawn; the review-completeness and normal-channel disciplines stay strict"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User authorized this story explicitly and set its sequencing: after discovering that a user-approved withdrawal forced waiver prose in B-8df9, the instruction was that Lattice must prove what it claims and where it cannot that must be stated as a framework defect, then 'agree, proceed in this order until done' - fix the framework FIRST, then return to finish B-8df9. The detailed boundary below is the main agent's derivation, constrained by two draft-review rounds (round 1: 2 high, draft discarded; round 2: 1 medium 2 low) and two INIT reviewers (0 critical / 0 high).",
+  "createdAt": "2026-08-16T22:58:09.205Z",
+  "updatedAt": "2026-08-16T22:58:09.205Z",
+  "_hash": "2641ff38df6d1e6aef87be3cd39075d14df32362442132fd0330625b649b5787"
+}

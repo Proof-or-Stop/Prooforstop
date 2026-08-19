@@ -7,11 +7,12 @@
     "type": "git",
     "directory": "packages/main"
   },
-  "version": "0.3.248",
+  "version": "0.3.265",
   "description": "通用项目开发框架 — AI-driven Story 工作流 CLI",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
+    "proof-or-stop": "dist/cli.js",
     "lattice": "dist/cli.js"
   },
   "exports": {
@@ -19,7 +20,7 @@
     "./test": "./dist/tasks/test-flow-e2e.js"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "node ../../scripts/build-main-with-binding.mjs",
     "dev": "tsc --watch",
     "start": "node dist/index.js",
     "test:e2e": "node dist/tasks/cli-e2e.js",
@@ -40,6 +41,7 @@
     "test:experience-layer-signature-backfill": "node dist/tasks/experience-layer-signature-backfill-smoke.js",
     "test:experience-layer-effectiveness": "node dist/tasks/experience-layer-effectiveness-smoke.js",
     "test:run-all-smokes-smoke": "node dist/tasks/run-all-smokes-smoke.js",
+    "test:full-suite-runner-smoke": "node dist/tasks/full-suite-runner-smoke.js",
     "test:milestone-status": "node tests/milestone-status.test.mjs",
     "test:global-core-realpath": "node tests/global-core-realpath.test.mjs",
     "test:docs-drift-smoke": "node dist/tasks/docs-drift-path-drift-smoke.js",
@@ -112,7 +114,7 @@
   },
   "dependencies": {
     "@lattice/lab": "0.3.65",
-    "ws": "^8.20.0",
+    "ws": "^8.21.1",
     "xstate": "^5.30.0",
     "zod": "^4.4.3"
   },

@@ -1,0 +1,20 @@
+{
+  "task": "Make current full-suite result telemetry report the same budget enforced by runtime.",
+  "outcome": "A generated full-suite JSON result shows \"performanceBudgetMs\": 1200000, and `npm run test:full-suite-runner-smoke` prints PASS while rejecting a restored numeric shadow copy.",
+  "facts": [
+    "FULL_SUITE_BUDGET_MS is the canonical runtime budget and currently equals 1200000.",
+    "The JSON artifact writer currently records performanceBudgetMs as a separate 300000 literal.",
+    "Frozen B-9812 receipts describe historical behavior and are outside this story."
+  ],
+  "constraints": [
+    "Do not change runtime budget, default concurrency, resource scheduling, or member timeouts.",
+    "Do not rewrite historical receipts or verify-full-suite-contract.mjs.",
+    "Keep the regression focused and fast."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/tasks/full-suite-runner.ts",
+    "packages/main/src/tasks/full-suite-runner-smoke.ts"
+  ],
+  "timestamp": "2026-08-18T17:16:53.670Z"
+}

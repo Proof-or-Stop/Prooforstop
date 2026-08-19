@@ -7,7 +7,7 @@ Created: 2026-07-02
 ## Purpose
 
 This document defines the adapter-pack framework that should sit above the
-existing Proofbound proof-admissibility base.
+existing Proof-or-Stop proof-admissibility base.
 
 The goal is to let future domains add claim-specific schemas, verifiers, gate
 policies, and benchmark controls without creating a second proof manager,
@@ -16,8 +16,8 @@ storage system, ledger, or lifecycle gate stack.
 The framework claim is narrow:
 
 ```text
-Proofbound can decide whether a claim is admissible for a lifecycle consumer.
-Proofbound cannot claim that a domain result is scientifically true.
+Proof-or-Stop can decide whether a claim is admissible for a lifecycle consumer.
+Proof-or-Stop cannot claim that a domain result is scientifically true.
 ```
 
 ## Current Base
@@ -67,12 +67,12 @@ Pack names and statuses:
 - `ClaimAdmissibilityPack`: the generic interface for a pack.
 - `DomainPack`: a pack specialized for a domain such as PINNs or computational
   quantum mechanics.
-- `Proofbound code runtime pack`: the mature existing path for code/runtime
+- `Proof-or-Stop code runtime pack`: the mature existing path for code/runtime
   lifecycle claims.
 
 Boundary rules:
 
-- The Proofbound code runtime pack is the existing, mature path.
+- The Proof-or-Stop code runtime pack is the existing, mature path.
 - PINN remains a design contract for a future domain pack.
 - Quantum local diagnostic M0-M5 is implemented as explicitly separated
   read-only surfaces.
@@ -200,7 +200,7 @@ produces verified evidence inputs for the gate policy adapter.
 
 ## Gate Policy Plugin
 
-Gate policy adapters map domain claims to existing Proofbound lifecycle
+Gate policy adapters map domain claims to existing Proof-or-Stop lifecycle
 consumers.
 
 Responsibilities:

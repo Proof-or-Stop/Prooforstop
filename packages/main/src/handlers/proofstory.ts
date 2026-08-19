@@ -7,7 +7,9 @@
  */
 
 import type { HandlerContext } from './context.js';
-import type { AcceptanceBasisArtifactV1, ChecklistData, MilestoneNotApplicableDecision, ProofStoryBindingDisposition, ProofStoryContractData, ProofStoryGateMode, RedEvidenceData, RedEvidenceRecord, ScopeShrinkageDecisionData } from '../core/types.js';
+import { execFileSync } from 'node:child_process';
+import { join } from 'node:path';
+import type { AcceptanceBasisArtifactV1, AcceptanceRolloutCohortInputV1, ChecklistData, MilestoneNotApplicableDecision, ProofStoryBindingDisposition, ProofStoryContractData, ProofStoryGateMode, RedEvidenceData, RedEvidenceRecord } from '../core/types.js';
 import {
   describeRedEvidenceReadFailure,
   redEvidenceQuarantinedRecords,
@@ -55,7 +57,7 @@ import { currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { resolveStoryCommandWorkspace } from './context.js';
 import { digestCanonicalJson } from '../core/digest.js';
 import { verifyScopeCheckSignature } from './scope-check.js';
-import { loadConfig, resolveAcceptanceTopologyGateMode } from '../core/config.js';
+import { loadConfig, resolveAcceptanceRolloutGateMode, resolveAcceptanceTopologyGateMode } from '../core/config.js';
 import { getSessionId } from '../core/owner-session.js';
 import { resolveAgentMutationAuthority } from '../core/agent-dispatch-registry.js';
 import {
@@ -69,6 +71,14 @@ import {
   verifyTopologyCriticReceipt,
 } from '../core/topology-critic-receipt.js';
 import { issuePreReviewCheckArtifact, loadVerifiedPreReviewExecutableProof, verifyPreReviewCheckArtifact, type PreReviewCheckInput, type PreReviewCheckReport } from '../core/pre-review-check.js';
+import {
+  currentAcceptanceRolloutBinding,
+  deriveAcceptanceRolloutReport,
+  issueAcceptanceRolloutArtifact,
+  verifyAcceptanceRolloutArtifact,
+  type AcceptanceRolloutVerification,
+} from '../core/acceptance-rollout.js';
+import { readBrandEnv } from '../core/brand-env.js';
 
 type JsonFlag = { json?: boolean };
 type ModeFlag = { mode?: ProofStoryGateMode; dryRun?: boolean };
@@ -88,6 +98,49 @@ function renderStored(kind: string, data: unknown, args: JsonFlag): string {
 
 function resolveMode(args: ModeFlag): ProofStoryGateMode {
   return args.mode ?? 'observe';
+}
+
+function loadRegisteredAcceptanceRolloutCohort(workspaceRoot: string): AcceptanceRolloutCohortInputV1 {
+  const runner = join(workspaceRoot, 'scripts/run-proofstory-acceptance-rollout-cohort.mjs');
+  const output = execFileSync(process.execPath, [runner], {
+    cwd: workspaceRoot,
+    encoding: 'utf8',
+    env: { ...process.env, PROOF_OR_STOP_AGENT: 'acceptance-rollout-verifier' },
+    maxBuffer: 16 * 1024 * 1024,
+  });
+  const parsed = JSON.parse(output) as AcceptanceRolloutCohortInputV1;
+  if (parsed.schemaVersion !== 'proofstory.acceptance_rollout_cohort_input.v1'
+    || parsed.generatedBy !== 'runProofStoryAcceptanceRolloutCohort'
+    || parsed.runnerPath !== 'scripts/run-proofstory-acceptance-rollout-cohort.mjs') {
+    throw new Error('acceptance rollout: registered cohort runner returned an invalid envelope');
+  }
+  return parsed;
+}
+
+/** Shared production verifier for CLI read/check and transition-orchestrator. */
+export function evaluateAcceptanceRolloutForContext(ctx: HandlerContext, storyId: string): AcceptanceRolloutVerification {
+  const workspace = resolveStoryCommandWorkspace(ctx.store, storyId, ctx.root);
+  const artifact = ctx.store.readAcceptanceRolloutReport(storyId);
+  const cohort = artifact ? {
+    schemaVersion: 'proofstory.acceptance_rollout_cohort_input.v1' as const,
+    generatedBy: 'runProofStoryAcceptanceRolloutCohort' as const,
+    evaluationWindow: artifact.report.evaluationWindow,
+    eligibilityRuleVersion: artifact.report.eligibilityRuleVersion,
+    thresholdVersion: artifact.report.thresholdVersion,
+    registeredSeedIds: artifact.report.registeredSeedIds,
+    sourceRecords: artifact.report.sourceRecords,
+    sourceInventoryDigest: artifact.report.sourceInventoryDigest,
+    runnerPath: 'scripts/run-proofstory-acceptance-rollout-cohort.mjs' as const,
+    runnerDigest: artifact.report.binding.runnerDigest,
+  } : undefined;
+  return verifyAcceptanceRolloutArtifact({
+    artifact,
+    gitCwd: workspace.signedWorkspaceRoot,
+    metadataRoot: workspace.metadataRoot,
+    expectedStoryId: storyId,
+    ...(cohort ? { expectedCohort: cohort } : {}),
+    mode: resolveAcceptanceRolloutGateMode(loadConfig(ctx.root)),
+  });
 }
 
 function enforceOrRender(report: { blocking: boolean; mode: ProofStoryGateMode }, text: string): string {
@@ -491,7 +544,7 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
   return {
     topology_exclusion_approval_set(args: { storyId: string; exclusionRef: string; json?: boolean }): string {
       if (!args.storyId || !args.exclusionRef) throw new Error('storyId and exclusionRef are required');
-      const authority = resolveAgentMutationAuthority({ command: 'topology_exclusion_approval_set', payloadActors: [], envActor: process.env.LATTICE_AGENT });
+      const authority = resolveAgentMutationAuthority({ command: 'topology_exclusion_approval_set', payloadActors: [], envActor: readBrandEnv('AGENT') });
       if (authority.entry?.canonicalName !== TOPOLOGY_EXCLUSION_APPROVER_ROLE) throw new Error('topology exclusion approval requires registered lattice-review-scope-plan authority');
       const state = currentTopologyReceiptState(args.storyId);
       const actor = deriveRoleProvenance({ gitCwd: state.current.workspace.signedWorkspaceRoot, events: state.events, expectedRole: TOPOLOGY_EXCLUSION_APPROVER_ROLE, actor: authority.actor, sessionId: getSessionId(), context: state.context, implementation: state.implementation });
@@ -506,7 +559,7 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
 
     topology_critic_receipt_set(args: { storyId: string; verdict: 'pass' | 'request_changes'; json?: boolean }): string {
       if (!args.storyId || !args.verdict) throw new Error('storyId and verdict are required');
-      const authority = resolveAgentMutationAuthority({ command: 'topology_critic_receipt_set', payloadActors: [], envActor: process.env.LATTICE_AGENT });
+      const authority = resolveAgentMutationAuthority({ command: 'topology_critic_receipt_set', payloadActors: [], envActor: readBrandEnv('AGENT') });
       if (authority.entry?.canonicalName !== TOPOLOGY_CRITIC_ROLE) throw new Error('topology critic receipt requires registered lattice-review-topology-critic authority');
       const state = currentTopologyReceiptState(args.storyId);
       const critic = deriveRoleProvenance({ gitCwd: state.current.workspace.signedWorkspaceRoot, events: state.events, expectedRole: TOPOLOGY_CRITIC_ROLE, actor: authority.actor, sessionId: getSessionId(), context: state.context, implementation: state.implementation });
@@ -630,6 +683,77 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
         ...report.remediation.map(item => `Remediation: ${item}`),
       ].join('\n');
     },
+
+    acceptance_rollout_report(args: { storyId: string; json?: boolean }): string {
+      rejectBasisWriteShape(args as Record<string, unknown>, ['storyId', 'json']);
+      if (!args.storyId) throw new Error('storyId is required');
+      store.readStory(args.storyId);
+      const workspace = resolveStoryCommandWorkspace(store, args.storyId, ctx.root);
+      const cohort = loadRegisteredAcceptanceRolloutCohort(workspace.signedWorkspaceRoot);
+      const report = deriveAcceptanceRolloutReport({
+        storyId: args.storyId,
+        cohort,
+        binding: currentAcceptanceRolloutBinding(workspace.signedWorkspaceRoot, workspace.metadataRoot),
+        gitCwd: workspace.signedWorkspaceRoot,
+      });
+      const artifact = issueAcceptanceRolloutArtifact({
+        gitCwd: workspace.signedWorkspaceRoot,
+        report,
+      });
+      const verification = verifyAcceptanceRolloutArtifact({
+        artifact,
+        gitCwd: workspace.signedWorkspaceRoot,
+        metadataRoot: workspace.metadataRoot,
+        expectedStoryId: args.storyId,
+        expectedCohort: cohort,
+        mode: resolveAcceptanceRolloutGateMode(loadConfig(ctx.root)),
+      });
+      if (!verification.ok) {
+        throw new Error(`acceptance_rollout_report refused non-promotable cohort: ${verification.diagnostics.join(',')}`);
+      }
+      store.writeAcceptanceRolloutReport(args.storyId, artifact);
+      const commitHint = autoCommitStoryMetadata(ctx.root, args.storyId, 'acceptance_rollout_report');
+      if (args.json) return stringify({ artifact, verification });
+      return [
+        'Acceptance rollout report: PASS',
+        `Story: ${args.storyId}`,
+        `sampleCount=${report.metrics.registeredSeedCount}`,
+        `seededDetection=${report.metrics.detectedSeedCount === report.metrics.registeredSeedCount ? '100%' : '0%'}`,
+        `falseBlockRate=${report.metrics.falseBlockRate * 100}%`,
+        `waiverDelta=${report.metrics.waiverDelta}`,
+        'quorum=full-3x2',
+        `receipt=${artifact.receipt.receiptRef}`,
+      ].join('\n') + commitHint;
+    },
+
+    acceptance_rollout_report_read(args: { storyId: string; json?: boolean }): string {
+      rejectBasisWriteShape(args as Record<string, unknown>, ['storyId', 'json']);
+      if (!args.storyId) throw new Error('storyId is required');
+      const verification = evaluateAcceptanceRolloutForContext(ctx, args.storyId);
+      if (args.json) return stringify(verification);
+      return [
+        `Acceptance rollout report: ${verification.ok ? 'PASS' : 'FAIL'}`,
+        `Story: ${args.storyId}`,
+        `receipt=${verification.receipt}`,
+        `quorum=${verification.quorum}`,
+        `codes=${verification.diagnostics.join(',') || 'none'}`,
+      ].join('\n');
+    },
+
+    acceptance_rollout_check(args: { storyId: string; json?: boolean }): string {
+      rejectBasisWriteShape(args as Record<string, unknown>, ['storyId', 'json']);
+      if (!args.storyId) throw new Error('storyId is required');
+      const verification = evaluateAcceptanceRolloutForContext(ctx, args.storyId);
+      if (args.json) return stringify(verification);
+      return [
+        `Acceptance rollout policy: ${verification.ok ? 'PASS promotionEligible=true' : 'FAIL promotionEligible=false'}`,
+        `Story: ${args.storyId}`,
+        `mode=${verification.mode}; status=${verification.status}; blocking=${verification.blocking}`,
+        `receipt=${verification.receipt}; quorum=${verification.quorum}`,
+        `codes=${verification.diagnostics.join(',') || 'none'}`,
+      ].join('\n');
+    },
+
     original_intent_snapshot_set(args: {
       storyId: string;
       sourceText: string;

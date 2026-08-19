@@ -7,12 +7,12 @@ The current test contract is centered on the story checklist:
 1. The PLAN phase records the happy/edge/adversarial `verificationIntent` for each checklist item.
 2. The DEV phase implements the code and records the `verificationEvidence` (command, summary, intentRef, hash, etc.) via `checklist_update`.
 3. The REVIEW phase has the reviewer agent/lane (including the `lattice-review-test-coverage` coverage-review lane) check the implementation and evidence coverage.
-4. The TEST phase runs `lattice validate`, writing validation evidence, bugs, and stale/missing-evidence results.
-5. The DONE phase may additionally require `done_required_validate --storyId=<id>` when a project opts into `doneRequiredCommands` / `validationProfiles.done`; this writes separate DONE-required evidence and does not change ordinary `lattice validate`.
+4. The TEST phase runs `proof-or-stop validate`, writing validation evidence, bugs, and stale/missing-evidence results.
+5. The DONE phase may additionally require `done_required_validate --storyId=<id>` when a project opts into `doneRequiredCommands` / `validationProfiles.done`; this writes separate DONE-required evidence and does not change ordinary `proof-or-stop validate`.
 
 ### Project-Native Validation
 
-Prefer using the project's own validation commands (such as `npm test`, `pytest`, `go test`, `cargo test`) to produce evidence. Proofbound does not require every project to have a TypeScript `validate.ts`, nor does it require passing through a fixture to count as validation.
+Prefer using the project's own validation commands (such as `npm test`, `pytest`, `go test`, `cargo test`) to produce evidence. Proof-or-Stop does not require every project to have a TypeScript `validate.ts`, nor does it require passing through a fixture to count as validation.
 
 ### Browser Real-Machine Tests
 
@@ -22,7 +22,7 @@ Browser black-box validation can still serve as `verificationEvidence`:
 2. Execute the user-visible flow in a real browser
 3. Associate the transcript, screenshot/trace, command, and result with the corresponding `verificationIntent` via `checklist_update`
 
-User-value acceptance can only be approximated, not disguised as a fully automatic proof: transcript/delivery evidence is required; prompt-only user-value claims are not enough. The user's final approval is non-mechanical user approval, and the Proofbound gate can only consume a transcript, verificationEvidence, delivery-check / product-reviewer evidence, or a waiver.
+User-value acceptance can only be approximated, not disguised as a fully automatic proof: transcript/delivery evidence is required; prompt-only user-value claims are not enough. The user's final approval is non-mechanical user approval, and the Proof-or-Stop gate can only consume a transcript, verificationEvidence, delivery-check / product-reviewer evidence, or a waiver.
 
 ### Grill Planning Artifact Boundary
 
@@ -30,11 +30,11 @@ User-value acceptance can only be approximated, not disguised as a fully automat
 
 ### Legacy Fixture Compatibility
 
-`test_auto` / `test_story` / `test_fixture` / `fixture_batch_add` / `fixture_update` / `test_add` / `task_coverage` are the old fixture/test family, retained for old stories, migration, diagnosis, and maintenance. They are not the default flow for the current story; the new flow should prefer `verificationIntent`, `verificationEvidence`, and `lattice validate`.
+`test_auto` / `test_story` / `test_fixture` / `fixture_batch_add` / `fixture_update` / `test_add` / `task_coverage` are the old fixture/test family, retained for old stories, migration, diagnosis, and maintenance. They are not the default flow for the current story; the new flow should prefer `verificationIntent`, `verificationEvidence`, and `proof-or-stop validate`.
 
 ## Test Execution
 
-`lattice validate` is the project-level validation entry point, and cannot assume every project has a TypeScript `validate.ts`. Execution priority:
+`proof-or-stop validate` is the project-level validation entry point, and cannot assume every project has a TypeScript `validate.ts`. Execution priority:
 
 1. When the project root has `validate.ts` / `validate.js` / `validate.mts`, execute via the original D/M/F verifier path.
 2. Otherwise, read the **project config**: canonical `lattice.config.json` is the only active config file. Legacy `lattice.config.json` is ignored by the active loader, so its `validate.command` or `validate.commands` are not executed.
@@ -42,15 +42,21 @@ User-value acceptance can only be approximated, not disguised as a fully automat
    - **Swift / Package.swift is not in the auto-fallback list**: the Mac Native App is retired and is no longer a current product entry point; to run `swift test`, you must explicitly declare a `validate.commands` entry in `lattice.config.json`.
 4. When no validation entry is still found, return `warn/skip`, and do not misjudge a non-TS project such as Python/Go/C++ as a failure; a project that needs a hard gate must explicitly configure a validation command.
 
-The success prompt of `lattice validate` must use the current story phase and the gate oracle, rather than hardcoding DONE:
+The success prompt of `proof-or-stop validate` must use the current story phase and the gate oracle, rather than hardcoding DONE:
 after the DEV phase passes, the prompt is to commit and enter REVIEW; after the REVIEW phase passes, the prompt is to enter TEST;
 after the TEST phase passes, the prompt is to view the DONE pre-check, and per the hint of the failed rows, fill in gate items such as summary, delivery check, dirty tree, and missing/stale `verificationEvidence`.
 
-The REVIEW→TEST validation entry must be fail-closed. A `review-preflight` import/runtime exception, a `lattice validate` handler execution exception, or a JSON parse exception are all gate infrastructure failures, and must block entry into TEST and output `Cannot enter TEST` plus a re-runnable command; these exceptions must not be downgraded to a warning. A `warn/skip` that is explicitly returned by the validate policy when no validation entry is found is still handled per the validate JSON semantics, distinct from the runner itself crashing.
+The REVIEW→TEST validation entry must be fail-closed. A `review-preflight` import/runtime exception, a `proof-or-stop validate` handler execution exception, or a JSON parse exception are all gate infrastructure failures, and must block entry into TEST and output `Cannot enter TEST` plus a re-runnable command; these exceptions must not be downgraded to a warning. A `warn/skip` that is explicitly returned by the validate policy when no validation entry is found is still handled per the validate JSON semantics, distinct from the runner itself crashing.
 
 ## DONE-Required Validation
 
-`lattice validate` is routine TEST evidence. `done_required_validate --storyId=<id>` is the separate DONE-required evidence writer for projects that explicitly configure `doneRequiredCommands` or `validationProfiles.done` in `lattice.config.json`.
+`proof-or-stop validate` is routine TEST evidence. `done_required_validate --storyId=<id>` is the separate DONE-required evidence writer for projects that explicitly configure `doneRequiredCommands` or `validationProfiles.done` in `lattice.config.json`.
+
+Both official entrypoints and derived host-verdict binding use a shared workspace validation capacity lease keyed by the resolved Git workspace's git-common-dir rather than the metadata wrapper. Expected Git identity resolution fails closed, including no-story validation with an explicit but unresolved configured `gitRoot`; genuinely non-Git projects use their project root. This covers story and no-story `validate`, including `--channel`, `--concept`, and `--lint`. A contending command waits asynchronously, emits the rate-bounded phrase `waiting for workspace validation capacity` plus holder/heartbeat details on stderr/progress, and starts automatically after release. Story-scoped validation always acquires workspace capacity before its existing per-story evidence lock. Reentrancy requires the async context's acquisition token to equal the currently active token for that exact lock path; path equality alone never transfers ownership across generations. Capacity takeover is strict: age-only expiry and missing/malformed ownership stay blocked; only mechanically proven local-dead ownership or holder/heartbeat identity mismatch is reclaimable. Each acquisition prepares complete identity before atomically publishing a never-reused UUID ticket; stale recovery atomically renames that exact ticket to a unique quarantine and deletes only the quarantine, never the shared root or a successor ticket. Owner release and queued-waiter abort/deadline cleanup use bounded ownership-safe retries. Persistent isolation failure attempts a best-effort released marker on only that unique ticket; marker success permits mechanical successor recovery after filesystem repair, while marker failure remains fail-closed until repair. A successful callback reports release failure. An original callback, abort, or deadline error stays primary and does not separately surface the secondary cleanup failure. Direct `validate` enters the structured watchdog only to propagate abort/deadline into this wait and clean its waiter ticket; it preserves the existing `validate` classification and exit contract. `structuredDoneResult` and the DONE-result classifier remain exclusive to `done_prepare` / `done_required_validate`. Derived host-verdict binding intentionally exposes no caller-authored abort/deadline fields; its CLI host timeout remains the outer cancellation boundary unless a future public interface change adds structured cancellation. Independent repositories do not contend.
+
+The checked-in regression/evidence contract exercises an exact-12 child-process stale/ABA cohort, distinct from the exact-12 in-process Promise cohort, and asserts `maxConcurrency=1`, zero overlap, zero child errors, and zero queue-artifact leaks. This does not promise a user-visible runtime concurrency level. The managed terminal pins remain exact: focused `validate-execution-lock workspace capacity contract passed: 15 assertion groups`; full `validate-execution-lock smoke passed: 26 assertion groups`.
+
+The coordination boundary is intentionally the Proofbound handlers. A bare `npm test` or direct full-suite process is outside the lease and must not run concurrently with `proof-or-stop validate` or `proof-or-stop done_required_validate`. This mechanism serializes execution only; it does not alter validation commands, timeout budgets, evidence bindings, freshness, or the routine/DONE-required split.
 
 Missing DONE-required config is advisory and non-blocking for external projects; the DONE checklist must not claim full-suite assurance in that case. Malformed opted-in config fails closed. When a policy exists, DONE blocks on missing, failing, stale, policy-drifted, or command-set-drifted `done-required-evidence.json`. Its receipts must cover the effective policy commands exactly in order and match command, args, cwd, and shell identity; artifact-level PASS cannot substitute for per-receipt PASS results.
 
@@ -76,7 +82,7 @@ The legacy `test_auto` is a compatibility runner, not a unified entry point. The
 5. Collect a V8 profiler trace, detect call-chain changes, and output warnings
 6. Aggregate results such as total / passed / failed / warnings / trace snapshot
 
-It does not write `bug.json`, nor does it write `test-evidence.json` / `verificationEvidence`. Bug management and validation-evidence writing belong to `lattice validate` / the gate or explicit bug/evidence commands; a real legacy maintenance run may still execute a workspace-destructive cleanup (`git restore . && git clean -fd`).
+It does not write `bug.json`, nor does it write `test-evidence.json` / `verificationEvidence`. Bug management and validation-evidence writing belong to `proof-or-stop validate` / the gate or explicit bug/evidence commands; a real legacy maintenance run may still execute a workspace-destructive cleanup (`git restore . && git clean -fd`).
 
 The focused smoke for outcome semantics covers dashboard/session wording, the `summary_set.outcomeKind` schema, verification-evidence verdict rendering, and worktree authority wording:
 
@@ -101,17 +107,17 @@ Configuration example:
 ```
 
 The JSON receipt of `validate.command` / `validate.commands` is audit evidence: each command should record
-`command`, `args`, `code`, `durationMs`, `output`, and `shell=true` when shell semantics are needed. When a string command contains shell semantics such as `cd`/`&&`/a pipe/a redirect, Proofbound will execute it
-as a deliberate shell receipt; a structured command object does not go through the shell by default, unless `"shell": true` is written explicitly. When a required command fails, `lattice validate` hard-fails; when an `optional:true`
+`command`, `args`, `code`, `durationMs`, `output`, and `shell=true` when shell semantics are needed. When a string command contains shell semantics such as `cd`/`&&`/a pipe/a redirect, Proof-or-Stop will execute it
+as a deliberate shell receipt; a structured command object does not go through the shell by default, unless `"shell": true` is written explicitly. When a required command fails, `proof-or-stop validate` hard-fails; when an `optional:true`
 command fails, it only returns a warn.
 
-The Validation scan of `lattice doctor` is a project-level advisory and does not replace `lattice validate`:
+The Validation scan of `proof-or-stop doctor` is a project-level advisory and does not replace `proof-or-stop validate`:
 it states whether `validate.ts/js/mts` exists, whether canonical `lattice.config.json` has a validation command configured,
 the labels of the auto-discovered fallback commands, whether it is in a no-validator warning, and whether the shell-style config
 will leave a `shell=true` receipt. It must not write a project-specific test count or an assumption such as PVSC here;
 when a hard gate is needed, an explicit validate command should be configured. Swift / Package.swift is not in the auto-fallback (the Mac Native App is retired), and the doctor output will explicitly note that an explicit `validate.commands` is needed before `swift test` will run.
 
-The `Runtime scan:` of `lattice doctor` is another kind of advisory / warn output: it checks Proofbound runtime environment facts,
+The `Runtime scan:` of `proof-or-stop doctor` is another kind of advisory / warn output: it checks Proof-or-Stop runtime environment facts,
 does not write validation evidence, and does not enter the `process-fact-registry`. The runtime facts are declared by
 `packages/main/src/core/runtime-fact-registry.ts`, and `scripts/verify-runtime-fact-contract.mjs` validates the registry ID, output key, checker wiring,
 the doctor JSON `runtime` section, and text source coverage. `external-reference-policy` only does a bounded
@@ -133,7 +139,7 @@ and is not handled as a runtime artifact.
 
 - **DEV phase**: validate with project-native commands, and write `verificationEvidence` via `checklist_update`; the legacy `test_auto` is available only when maintaining old fixtures, and must clearly warn that it may modify actual files
 - **REVIEW phase**: the reviewer lane (including `lattice-review-test-coverage`) first does `review_run_start` to create the current round's signed reviewer run, then consumes `verificationIntent` / `verificationEvidence`; when there are no blockers it writes `review_pass_set` + `reviewRunId`
-- **TEST phase**: `lattice validate` writes validation evidence; the legacy `test_auto`, if explicitly invoked in a maintenance scenario, will still execute `git restore . && git clean -fd`
+- **TEST phase**: `proof-or-stop validate` writes validation evidence; the legacy `test_auto`, if explicitly invoked in a maintenance scenario, will still execute `git restore . && git clean -fd`
 
 ## Flow Fact Policy
 
@@ -145,21 +151,21 @@ Process facts must be protected by two layers of code policy and gate, not only 
 - pass-only finding_add normalization: a pass-only finding with low severity and an agent of `lattice-review-*` is converted to `review_pass_set`; one containing contradictory semantics such as failure / blocker / missing / failed, a non-reviewer, or a non-low severity must all be kept as a finding.
 - review run freshness: `review_run_start` records `headHash/materialHash`. If a code or document material change makes the run stale, the old `reviewRunId` is no longer usable, and the reviewer must re-run `review_run_start` before submitting a finding/pass.
 - Express exemption: when the channel is express and there is zero `verificationIntent`, it outputs `Verification policy: express-exempt (channel=express; PLAN verificationIntent intentionally skipped)`; normal / fast with zero intent only displays the ordinary coverage-missing wording, not `express-exempt`.
-- Worker evidence boundary: prompt-only worker claims are not mechanical evidence. Auditable worker facts only come from structured records such as `lattice dispatch` / dispatch/process-event/commit evidence / commit author; Lattice cannot mechanically prove true subagent context isolation, and can only prove observable assignment evidence.
+- Worker evidence boundary: prompt-only worker claims are not mechanical evidence. Auditable worker facts only come from structured records such as `proof-or-stop dispatch` / dispatch/process-event/commit evidence / commit author; Proof-or-Stop cannot mechanically prove true subagent context isolation, and can only prove observable assignment evidence.
 
 ## Test Flow
 
 - PLAN: use `verificationIntent` to describe the happy/edge/adversarial acceptance of each checklist item.
 - DEV: after implementing, run project-native commands or the browser flow, and write the `verificationEvidence` with `checklist_update`.
 - REVIEW: the reviewer lane `lattice-review-test-coverage` checks whether every `verificationIntent` has traceable evidence; it first does `review_run_start` to get the `reviewRunId`, and when there are no blockers it records a pass via `review_pass_set` + `reviewRunId`. The internal coverage validation consumes `verificationIntent` / `verificationEvidence`, and is not a separate CLI command.
-- TEST: `lattice validate` runs the project-level validation and records validation evidence; when evidence is missing or stale, it returns `allPass:false`.
+- TEST: `proof-or-stop validate` runs the project-level validation and records validation evidence; when evidence is missing or stale, it returns `allPass:false`.
 - DONE: only accepts a result where PASS, bug fixed, evidence fresh, summary/delivery gate are satisfied, and any opted-in DONE-required policy has fresh PASS evidence.
 
 ## CLI Tools
 
 | Tool | Purpose |
 |---|---|
-| `lattice validate` | The current standard project-level validation entry point, writes validation evidence / bug / stale-evidence results |
+| `proof-or-stop validate` | The current standard project-level validation entry point, writes validation evidence / bug / stale-evidence results |
 | `done_required_validate` | Opt-in DONE-required validation entry point, writes `done-required-evidence.json`; advisory when no policy exists |
 | `checklist_update` | Records the checklist status, `verificationIntent`, and `verificationEvidence` in the DEV phase |
 | `grill_start` / `grill_record` / `grill_close` / `grill_get` | PLAN planning context; not gateEvidence, produces no validation evidence |
@@ -179,7 +185,7 @@ Process facts must be protected by two layers of code policy and gate, not only 
 
 ## Cross-Language Execution Protocol
 
-A legacy fixture is a language-agnostic test protocol, not a JS script container. `execute` represents only the legacy `js.execute` executor; projects such as Python, Go, C++, Java, and Rust should prefer producing `verificationEvidence` via `command` / a language executor / a native test command, then have `lattice validate` consume it in the TEST phase. Swift / Objective-C (Mac Native App) is retired and is no longer a current default product validation entry point; it will only be executed when explicitly opted in via `validate.commands` or the legacy `swift.test` / `objc.xcodebuild` executor.
+A legacy fixture is a language-agnostic test protocol, not a JS script container. `execute` represents only the legacy `js.execute` executor; projects such as Python, Go, C++, Java, and Rust should prefer producing `verificationEvidence` via `command` / a language executor / a native test command, then have `proof-or-stop validate` consume it in the TEST phase. Swift / Objective-C (Mac Native App) is retired and is no longer a current default product validation entry point; it will only be executed when explicitly opted in via `validate.commands` or the legacy `swift.test` / `objc.xcodebuild` executor.
 
 The first batch of built-in executors:
 
@@ -191,7 +197,7 @@ The first batch of built-in executors:
 | `go.test` | Go standard entry, default `go test ./...` |
 | `java.junit` | Java/JUnit standard entry, default `mvn test`, optional `buildTool:"gradle"` |
 | `cpp.binary` | C/C++ test binary entry |
-| `swift.test` | Swift Package standard entry, default `swift test`; used only when the legacy executor is explicitly declared (the Mac Native App is retired, **not** in the auto-fallback list of `lattice validate`) |
+| `swift.test` | Swift Package standard entry, default `swift test`; used only when the legacy executor is explicitly declared (the Mac Native App is retired, **not** in the auto-fallback list of `proof-or-stop validate`) |
 | `objc.xcodebuild` | Objective-C / Apple-platform standard entry, default `xcodebuild test`; same as `swift.test`, only via explicit legacy executor opt-in |
 | `rust.cargo` | Rust standard entry, default `cargo test` |
 

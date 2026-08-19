@@ -1,0 +1,96 @@
+## Trigger Event
+
+On 2026-08-11 the user asked, in the working repo Prooforstop, to rename the command tool from `lattice` to `proof-or-stop` and to replace all lattice wording in the documentation with the appropriate proof-or-stop form. A first pass at scoping revealed the request cannot be executed as a literal global find-and-replace without breaking the framework, so it was routed through the full Story flow per CLAUDE.md rule 1. Baseline measurement at that time: 4,378 case-insensitive lattice occurrences across 572 markdown files, and 8,398 occurrences across 602 TypeScript files under packages/*/src. HEAD was f4963774ce.
+
+## Key Insights
+
+The `lattice` token is not a pure brand string; it is load-bearing in four distinct ways, each with a different correct treatment.
+
+First, thirteen signature salt literals (`lattice-review-integrity-v1`, `lattice-init-check-integrity-v1`, `lattice-delivery-check-integrity-v1`, `lattice-draft-check-integrity-v1`, `lattice-finding-integrity-v1`, `lattice-review-pass-integrity-v1`, `lattice-review-run-integrity-v1`, `lattice-review-scope-binding-v1`, `lattice-review-run-workspace-binding-v1`, `lattice-scope-check-integrity-v1`, `lattice-closeout-write-receipt-integrity-v3`, `lattice-final-host-check-v1`, `lattice-stall-adjudication-integrity-v1`) are hashed into `_hash` fields already persisted on live artifacts. Renaming a salt silently invalidates every stored signature, so all 31 active stories would immediately read as tampered and gate-block.
+
+Second, `.lattice/` is a live on-disk state directory (locks, activity.jsonl, authority.md, learning/, evidence/, dev-memory/), alongside `.lattice-serve.json` and `.lattice-codex/`. Renaming it in docs only makes the docs wrong; renaming it in both code and docs orphans existing state.
+
+Third, 13 `lattice-`prefixed agent role IDs (out of 17 total registry role templates) are `subagent_type` values resolved against host shims in `~/.claude/agents` plus the registry manifest, so docs, shims and registry must move atomically or spawning breaks.
+
+Fourth, 391 of the roughly 574 affected markdown files live under `.lattice/story/` and are frozen historical records that CLAUDE.md rule 8 forbids touching directly; rewriting them would falsify the audit trail. That leaves roughly 183 active docs as the real work surface. The total drifts upward as this story's own artifacts are written, so 391 frozen is the stable figure and the active count is approximate by nature.
+
+A further complication: the brand state is already mixed rather than clean. Proofbound appears 1,177 times, proof-or-stop 439, ProofStory 267, plus stray one-off spellings (Prooforstop, proof-stop, Proof-Or-Stop, proofstop, PROOFBOUND). ProofStory appears to be a distinct domain concept rather than a brand variant and must be preserved. A naive replace would deepen this inconsistency instead of resolving it. Finally, `scripts/verify-lattice-residue.mjs` is an existing zero-tolerance REVIEW-to-TEST gate that enforces the PREVIOUS koala-to-lattice rebrand and whose self-test explicitly asserts that `lattice-review-integrity-v1` is clean, which now directly contradicts the new brand direction.
+## Corrected freeze criterion + multi-developer merge constraint (2026-08-11, mid-DEV)
+
+Two user corrections arrived after CHK-001..CHK-005 were marked done. Both change the design, and the second one changes it more than the first.
+
+### Correction 1: the freeze test was too permissive
+
+Verbatim (translated): "Any lattice that has NO effect on the past evidence chain must be refactored, including filenames, documentation, and code; any lattice that DOES affect the past evidence chain gets compatibility handling - do not change or affect the past, but do not let it affect the future either. After the story completes, lattice is frozen into the past; current state and future are proof-or-stop."
+
+The CHK-001 mapping table conflated COUPLING with EVIDENCE. It froze env-var names, bin filenames, npm package names, the state directory and code identifiers on the grounds that renaming them requires coordinated edits. Under the corrected test that reasoning is invalid: coordinated edits are work, not evidence. Audited, the ONLY true past-evidence dependency is the 13 salt string literals, which are hashed into _hash fields on already-persisted artifacts (12 such files exist under .lattice/story/actives/B-cdf6/ alone).
+
+Consequence: my CHK-003 adversarial:2 evidence note asserted that every surviving lattice token in the active-doc surface traces to a FROZEN row in the mapping table. That was FALSE at the time I recorded it - bin/lattice.js was not in the table at all, and .codex/ plus packages/main/src prose were outside every gate scan root, so the gate passing gave false confidence. The user found this by inspection, which is exactly the failure the gate was supposed to prevent.
+
+### Correction 2: the repository is multi-developer
+
+Verbatim (translated): "this repository is developed by multiple people; you need to guarantee that other people's code still works normally after it is merged in."
+
+Verified empirically rather than assumed: git log shows two distinct authors over the last 60 commits (Harmonygo 58, Pan Qi 2), and local main is 2 commits ahead of origin/main. So teammate branches authored against the lattice-era names WILL merge into this rename.
+
+This is a stronger requirement than migration compatibility. Compatibility shims cannot be a temporary convenience for old on-disk STATE that a later story removes; they must be a durable bilingual contract for old CODE that does not exist in this repo yet. A teammate branch may:
+  - import { runLattice, LatticeConfig, ... } from '@lattice/core'
+  - export LATTICE_* env vars in scripts and CI
+  - read or write .lattice/ paths and lattice.config.json
+  - invoke node bin/lattice.js
+  - reference @lattice/core as a package dependency (14 files import it today)
+
+Design consequences:
+1. Renames must be ADDITIVE at every boundary another developer's code can touch. Old name keeps resolving; new name becomes canonical for docs and new writes.
+2. Package name and bin entries: keep lattice as an alias, add proof-or-stop. Never remove.
+3. Exported code identifiers: if renamed, re-export the old symbol name as a deprecated alias so a teammate's import does not fail to resolve at build time. A silent build break on merge is the worst outcome, because it surfaces as the teammate's problem in their branch.
+4. Env vars: read BOTH names, preferring the new one; never require the new one.
+5. .githooks/pre-push:148 arms on the exact string @lattice/core and exits 0 on mismatch. If the package is renamed without updating this line in the same commit, the recursive-tsc defense SILENTLY SELF-DISARMS - the dangerous failure mode is that it looks fine.
+6. Deleting bin/lattice.js is explicitly out of scope: 32 in-flight stories and this worktree's own guard path invoke it.
+
+### Gate scan roots must widen
+
+The previous gate passed while init-assets.ts (31 stale invocations, and it is what init writes into NEW user projects), .codex/ (17 tokens) and the bin filenames were all unscanned. Extend DOC_SCAN_ROOTS to cover packages/*/src prose, scripts/, bin/, .codex/ and the repo-root files, so this miss class is caught mechanically rather than by user inspection.
+
+## Adversarial Review Corrections (2026-08-11, pre-PLAN)
+
+Four reviewers ran on the INIT snapshot: lattice-review-story-init and product-reviewer (both required, both PASS, no blockers), plus two extra adversarial lanes requested by the user — Fable-high and Codex gpt-5.6-sol-xhigh. The Codex lane exhausted its turn budget twice before emitting a report; its exploration trace independently converged on the same surfaces (docs-drift extractor, pre-push package gate, prompt-baseline hashes, brand constants) but produced no citable findings, so the findings below are attributed to Fable-high and were then INDEPENDENTLY VERIFIED by the main agent against the real files. Two reviewer claims were corrected in that verification and are recorded here in corrected form.
+
+### Corrected factual errors in the original background
+
+1. Frozen-archive count — CORRECTED IN PLACE above (Key Insights, fourth paragraph). The original text claimed "302 of the 572 affected markdown files live under .lattice/story/". Verified truth: 391 frozen archives under .lattice/story/, leaving roughly 183 active docs, out of about 574 total files containing the brand token. Cause of the error: a `cut -d/ -f1-2` path grouping truncated deeper paths. Consequence: the ACTIVE doc surface — the actual work of CHK-003 — is about 33 percent smaller than originally stated. Caveat for future readers: the TOTAL count drifts upward while this story runs, because the story's own artifacts contain the brand token and are themselves markdown; 391 frozen is the stable anchor and any active-doc count is approximate.
+
+2. Agent role-ID count — CORRECTED IN PLACE above (Key Insights, third paragraph). The original text and CHK-001 claimed "sixteen lattice-* agent role IDs". Verified truth: packages/main/templates/agents/ holds 17 role templates, of which exactly 13 carry the `lattice-` prefix; scripts/verify-proof-or-stop-prompt-baseline.mjs pins EXPECTED_ROLE_COUNT = 17. CLAUDE.md's own "16 thin-shim" claim (stated there in Chinese) is likewise stale. For a story whose safety rests on an exact freeze list, an off-by-three enumeration could silently miss or over-freeze roles.
+
+3. Reviewer citation corrected. Fable-high located the docs-drift command extractor at packages/main/src/handlers/validate-docs-drift.ts:59. That file contains ZERO occurrences of the brand token; the cited regex is not there. The real extractor is packages/main/src/core/audit-scan.ts:100 — `/\blattice\s+([a-z](?:[a-z0-9_]*[a-z0-9])?)\b/g`. The finding itself is real and load-bearing; only the file:line was wrong.
+
+### Verified gate-breaking findings (the story as scoped cannot reach DONE)
+
+4. Vacuous docs-drift blindness (high, verified by reading audit-scan.ts:95-135). scanCommandDrift extracts `lattice <cmd>` and then shells `lattice <cmd> --help`, reporting drift on non-zero exit. If CHK-003 rewrites docs to `proof-or-stop <cmd>`, the regex matches nothing, the loop body never executes, and the scan returns zero drifts. This does NOT fail loudly — it PASSES VACUOUSLY, which is strictly worse: docs could reference nonexistent commands forever undetected, defeating the exact drift class the gate exists to catch. The extractor must learn both bin tokens, with a test.
+
+5. process-fact-contract pins prompt literals (high, verified). scripts/verify-process-fact-contract.mjs asserts literal command strings including `lattice acceptance_basis_generate` against the agent prompt shims that CHK-003 rewrites (see :583, :586, :1333). Root `npm test` runs this, and lattice.config.json doneRequiredCommands includes the root suite, so DONE blocks.
+
+6. prompt-baseline hash pinning (high, verified). scripts/verify-proof-or-stop-prompt-baseline.mjs freezes a per-role templateHash manifest plus baselines under docs/requirements/baselines/. Rewriting packages/main/templates/agents/*.md changes every hash, hard-failing the 4th script in root npm test.
+
+7. Residue-script path coupling (high, verified). packages/main/src/handlers/review-preflight.ts:91 hardcodes `scripts/verify-lattice-residue.mjs` and fails closed when absent. CHK-004 promises to reconcile that script's name, so renaming it without updating review-preflight.ts plus the package.json script plus the CLAUDE.md gate table in the SAME commit blocks this story's own REVIEW-to-TEST advance. Separately, the new brand gate CANNOT copy the koala gate's allowlist-free zero-tolerance design: roughly 8,398 legitimate frozen-identifier hits exist in packages/*/src, so an exemption model is structurally required.
+
+8. CLI self-documentation still teaches the old brand (medium, verified). packages/main/src/core/lattice-brand.ts:5 sets LATTICE_PRIMARY_BIN = 'lattice', and help output derives Usage lines from that constant rather than from invokedAs, so `proof-or-stop help` would print `Usage: lattice ...`. packages/main/src/handlers/session.ts:777 prints the literal `# lattice session brief` — the most-seen string in the product given CLAUDE.md rule 0 — and it is pinned by scripts/verify-entrypoints.mjs:277 and :515. Also note LATTICE_PRODUCT_NAME is already 'Proofbound CLI', so `--version` prints Proofbound, not Proof-or-Stop; CHK-001 must rule on whether that is the approved prose form or another variant to normalize.
+
+9. Freeze list is incomplete (medium, verified). .githooks/pre-push:148 gates the entire recursive-tsc pre-push defense on PKG_NAME equal to `@lattice/core` — renaming the package silently SELF-DISARMS that gate rather than failing. Also unlisted: root package.json name `lattice`, `lattice.config.json` (the only config filename ever loaded), the `LATTICE_*` env-var prefix, `<!-- lattice:start -->` managed-block markers, the `lattice.remote-push-approval.v1` schema literal, and `.lattice-serve.json`.
+
+10. CHANGELOG.md unclassified (low). 72 brand hits; neither in CHK-003's active-doc list nor in the frozen list. Rewriting shipped release notes would falsify release history, so it likely deserves an explicit FROZEN verdict — but the mapping table must say so rather than leave it ambiguous. CITATION.cff is clean (0 hits).
+
+### Scope verdict
+
+Both required reviewers judged the chosen scope (rename the user-facing bin, keep `lattice` as a deprecated alias, freeze salts/state-dir/role-IDs) to be a faithful and defensible reading of the user's request, and the deferral of signature-invalidating identifier renames to be the correct product call. The adversarial lanes did not overturn that scope decision; what they overturned is the CLAIM THAT THE SCOPE IS COMPLETE. Three independent brand-pinned test surfaces plus a required CLI version bump were missing, so CHK-005 is added to cover mechanical reconciliation, and CHK-001's mapping table is extended to rule on the additional frozen identifiers and on the runtime-visible output surface.
+
+
+## Solution Tradeoffs
+
+Three scopes were weighed. (A) Docs prose only, freezing every identifier: zero runtime risk and no signature invalidation, but leaves the shipped command still named `lattice`, so the rebrand is cosmetic and docs must keep showing the old command name. (B) Docs plus the user-facing command name, adding `proof-or-stop` as the primary bin with `lattice` retained as a deprecated alias, while salts, state dirs and role IDs stay frozen: delivers a genuinely renamed tool and truthful docs, keeps all stored signatures valid, and keeps 31 in-flight stories and the pre-push hook working. (C) Full rename including salts, state dir and role IDs: brand-pure but invalidates every persisted `_hash`, orphans `.lattice/` state and would require a dedicated signature-migration and state-migration design plus a flag day.
+
+Option B is chosen as the target for this story because it is the largest scope that is both user-visible and reversible without a data migration. The deprecated alias is the load-bearing safety property: it makes the change additive at the CLI boundary. Identifier-level renaming (option C) is deliberately deferred to a separate story so that a brand change never silently doubles as a signature-invalidation event.
+
+## Conversational Texture
+
+The user's first instruction was a direct imperative to do the replacement. When the assistant instead surfaced the scope problem and asked two clarifying questions, the user rejected the question tool and restated the request as: use our proof-or-stop method to do it. That is an explicit instruction to stop negotiating scope in chat and instead route the decision through the framework's own PLAN machinery, where the mapping table and the frozen-surface list become reviewable artifacts rather than chat opinions. The irony noted during scoping is that this repo IS the tool being renamed, so `lattice session_brief` prints the very brand string under replacement, and the rename is self-referential: the framework must be used to rename the framework.

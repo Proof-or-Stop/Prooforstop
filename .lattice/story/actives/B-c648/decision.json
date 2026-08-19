@@ -1,0 +1,91 @@
+{
+  "principles": [
+    "在 Story ID 分配前阻止错误前提进入正式生命周期。",
+    "复用既有权威入口与 candidate-evidence 基础设施，避免双写和优先级冲突。",
+    "未知不是通过：无法核准执行链或机制落点时必须停在 intake。",
+    "调研结论必须绑定可重放来源、独立 review 与 freshness，不能靠自述。",
+    "pre-story 证明只决定是否值得创建 Story，不替代后续 verificationIntent、REVIEW、TEST 或 DONE。"
+  ],
+  "drivers": [
+    "B-3783 类错误方向 Story 的真实成本。",
+    "story_create 作为所有创建路径的共同分配 choke point。",
+    "Proof-or-Stop 流程事实双层契约与 fail-closed 纪律。",
+    "现有 Evidence Runtime 和 draft signature 可扩展性。",
+    "对 docs-only、探索性和不可枚举任务保持有界适用性。"
+  ],
+  "options": [
+    {
+      "name": "A: 扩展现有 STORY_INTAKE 的 Mechanism Placement Proof",
+      "pros": [
+        "在 Story ID 前机械拦截",
+        "复用 candidate evidence、draft review、story_create 和现有 lifecycle",
+        "可与 Repro-First 组合而不改变其证据边界",
+        "所有创建路径可在单一 choke point 覆盖"
+      ],
+      "cons": [
+        "需要新增 artifact schema、review command、freshness 与 draft binding",
+        "enforce 前必须处理 evidence store 原子写风险",
+        "需要配置 applicability 以避免文档任务被过度阻塞"
+      ]
+    },
+    {
+      "name": "B: 新增 PRE_STORY_RESEARCH 生命周期阶段",
+      "pros": [
+        "流程图直观",
+        "阶段级状态可见"
+      ],
+      "cons": [
+        "Story ID 已经存在才可能进入阶段，无法满足分配前 stop",
+        "扩大 state machine、command policy 和迁移面",
+        "形成与 Repro-First intake 重叠的第二流程"
+      ]
+    },
+    {
+      "name": "C: 仅在 reviewer prompt 中要求聚焦调研",
+      "pros": [
+        "实现快",
+        "无需 schema 或 handler"
+      ],
+      "cons": [
+        "无法证明实际读取与执行链核准",
+        "不能阻止 direct/planner/repro 路径绕过",
+        "freshness、签名和 no-ID stop 均不可机械验证"
+      ]
+    }
+  ],
+  "chosen": "A: 扩展现有 STORY_INTAKE 的 Mechanism Placement Proof",
+  "rationale": "A 是唯一同时满足分配前 stop、单一权威入口、candidate-only 证据边界和全创建路径覆盖的方案。B 的阶段语义发生得太晚，C 违反流程事实双层契约。",
+  "preMortem": [
+    {
+      "scenario": "direct story_create、planner 或 repro 路径中至少一条绕过新 gate",
+      "trigger": "gate 只接在 story_draft 或 story_create_from_repro 的局部分支",
+      "consequence": "错误前提仍可分配 Story ID，机制保证为假",
+      "mitigation": "先归一化为 NormalizedStoryCandidate，在所有 nextStoryId 调用之前调用同一个 evaluateMechanismIntakeGate，并为四条路径做 smoke tests"
+    },
+    {
+      "scenario": "研究文件变化后仍复用旧 review",
+      "trigger": "artifact 只绑定 HEAD 或自由文本，没有绑定实际调研依据文件",
+      "consequence": "旧结论对新代码错误放行",
+      "mitigation": "对 source path + git blob hash + locator 生成 researchFilesHash；依据文件变化即 stale，head-only 漂移且依据不变仅 advisory"
+    },
+    {
+      "scenario": "candidate evidence 被误当成验证或完成证据",
+      "trigger": "story 创建时直接生成 verificationEvidence 或 gate 读取 candidate verdict 当作 REVIEW/TEST PASS",
+      "consequence": "绕过独立验证并造成 false DONE",
+      "mitigation": "artifact scope 固定为 evidence-candidate；story binding 只保留 digest refs；verificationIntent 由 PLAN 独立作者化，后续 topology 从当前 workspace 重算"
+    },
+    {
+      "scenario": "证据存储并发写入导致 digest 对象被永久污染",
+      "trigger": "在 B-8de3 指出的 non-atomic immutable-object store 风险关闭前启用 enforce",
+      "consequence": "intake 错误 fail 或被 poisoned artifact 干扰",
+      "mitigation": "先 shadow/warn；enforce rollout 明确依赖 evidence-store atomic write/validation 完成"
+    },
+    {
+      "scenario": "docs-only 或纯探索任务被不必要阻塞",
+      "trigger": "applicability 只依赖宽泛关键词或要求所有任务回答完整执行链",
+      "consequence": "流程成本过高，用户通过 bypass 逃逸",
+      "mitigation": "配置适用范围；docs-only 使用结构化 not_applicable reason，unknown 只在需要此机制的 material/high-risk 类型 fail closed"
+    }
+  ],
+  "timestamp": "2026-08-14T03:24:10.168Z"
+}

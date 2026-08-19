@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-a7c5",
+  "mode": "feature",
+  "allowed": [
+    "A new CLI command (or extension of an existing one) to record that acknowledgement, e.g. dev_memory_preflight_ack or similar, writing a JSON artifact under .lattice/story/actives/<id>/",
+    "A new required DONE-gate check (in canFinishGuard / core/machine.ts or wherever the DONE checklist is assembled) requiring a recorded dev_memory_finish_decision for the story before DONE, accepting captured | no-reusable-lesson | defer-with-reason as satisfying answers",
+    "A non-blocking advisory reminder appended to finding_resolve's own output prompting in-the-moment dev_memory_capture consideration (text-only, does not block or mutate anything beyond finding_resolve's existing behavior)",
+    "Any necessary changes to core/command-policy.ts, core/config.ts, cli/command-catalog.ts for wiring the new/extended commands into the phase-tool allowlists",
+    "New INIT_CHECK-phase gate requiring a recorded dev-memory preflight acknowledgement before a story may enter DEV (mirrors the existing scope_boundary_set/execution_boundary_set/scope_freeze_check INIT_CHECK-gating pattern)",
+    "New smoke test(s) covering all three gate points"
+  ],
+  "excluded": [
+    "Any change to playbooks.json / signature-registry.json or the global (~/.lattice) dev-memory scope",
+    "Changing dev_memory_capture/dev_memory_finish/dev_memory_preflight's existing core logic or schema beyond what is needed to add the acknowledgement/decision-tracking artifacts above",
+    "Making the finding_resolve reminder a hard gate (it must remain non-blocking per the explicit design tradeoff recorded in background.md)",
+    "Requiring a minimum COUNT or specific number of dev-memory captures per story (an honest no-reusable-lesson decision must remain a fully valid, non-blocking answer)",
+    "The broader document-context scaling architecture (thin entrypoints, task-scoped canonical document escalation, recall-risk controls) -- that is B-dcf9's separate, larger-scoped effort"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User directed this design after three rounds of back-and-forth clarifying the exact requirement (read-during-dev + write-during-dev, not just a DONE-gate backstop), then explicitly said '可以，开这个story先写设计目标和意图对吧' (yes, open the story, start with writing the design goals and intent) on 2026-08-14.",
+  "createdAt": "2026-08-14T10:12:51.649Z",
+  "updatedAt": "2026-08-14T10:12:51.649Z",
+  "_hash": "4f04f767be6014f4db2bd6a98306e46dc59a584b648e0c919edbbec45c698ac4"
+}

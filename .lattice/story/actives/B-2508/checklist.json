@@ -1,0 +1,32 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Publish the B-9812 implementation-session postmortem and prioritized optimization backlog",
+      "context": "Use the original Codex rollout as the session authority, Lattice story_get and Git history as lifecycle authorities, and current decision documents as design authorities. Separate measured facts, derived calculations, and proposed targets.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-files-hash-material-drift.md",
+        "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+        "docs/requirements/decisions/session-ownership-and-write-leases.md",
+        "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+        "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md"
+      ],
+      "userSees": "A repository decision document contains the exact B-9812 timeline, Turn 10/11 evidence, ranked optimizations, safety constraints, and measurable acceptance targets.",
+      "excludes": [
+        "Changing production code",
+        "Weakening evidence or review gates",
+        "Editing other in-progress analysis documents"
+      ],
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/requirements/decisions/b-9812-codex-implementation-session-postmortem-and-efficiency-plan.md"
+        ],
+        "test": []
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

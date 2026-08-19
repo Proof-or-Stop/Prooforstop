@@ -1,9 +1,9 @@
 # Host-run usage capture (`host_run`) and the read-only usage sweep (`usage_sweep`)
 
-Proofbound launches host CLIs (Codex, Claude, Antigravity/agy) for reviewer and
-quorum work. `lattice host_run` is the single launcher **choke point** that runs
+Proof-or-Stop launches host CLIs (Codex, Claude, Antigravity/agy) for reviewer and
+quorum work. `proof-or-stop host_run` is the single launcher **choke point** that runs
 those hosts and writes LLM usage-ledger rows for every run, so host-side spend is
-attributed instead of invisible. `lattice usage_sweep` is a strictly read-only
+attributed instead of invisible. `proof-or-stop usage_sweep` is a strictly read-only
 companion that retro-attributes host transcript stores for runs that never went
 through the choke point.
 
@@ -14,7 +14,7 @@ probe rows: host-side reviewer launches, quorum cross-host reviews, and long
 desktop sessions all burned real tokens that the ledger never recorded. Every
 lattice-initiated host run now flows through `host_run`, which records a
 preflight estimate row and a provider-reported final row per run. Runs that
-Proofbound cannot route through the choke point (interactive desktop sessions)
+Proof-or-Stop cannot route through the choke point (interactive desktop sessions)
 are covered after the fact by the read-only `usage_sweep`.
 
 Usage rows are diagnostics only (`gateEvidence=false`). They never gate the
@@ -24,7 +24,7 @@ phase.
 ## `host_run`
 
 ```
-lattice host_run --host <codex|claude|agy> --agentType <type> \
+proof-or-stop host_run --host <codex|claude|agy> --agentType <type> \
   [--storyId B-xxxx] [--phase DEV] \
   ( --prompt "<text>" | --promptFile <path> ) \
   [--reviewRunId B-xxxx:RR-001] [--lane <reviewer-lane>] \
@@ -111,7 +111,7 @@ reason 请求 full context；feature flag 本身不会授予 incremental eligibi
 原始 ReviewRun/round/Envelope 解释，不能因后来切换 flag 被重新绑定。
 
 ```
-lattice host_run --host codex --storyId B-xxxx --agentType reviewer \
+proof-or-stop host_run --host codex --storyId B-xxxx --agentType reviewer \
   --reviewRunId B-xxxx:RR-001 --lane lattice-review-quality \
   --promptFile reviewer-prompt.txt
 ```
@@ -120,17 +120,17 @@ lattice host_run --host codex --storyId B-xxxx --agentType reviewer \
 
 ```
 # Codex host
-lattice host_run --host codex --storyId B-xxxx --agentType reviewer \
+proof-or-stop host_run --host codex --storyId B-xxxx --agentType reviewer \
   --reviewRunId B-xxxx:RR-002 --lane lattice-review-quality \
   --promptFile quorum-prompt.txt
 
 # Claude host
-lattice host_run --host claude --storyId B-xxxx --agentType reviewer \
+proof-or-stop host_run --host claude --storyId B-xxxx --agentType reviewer \
   --reviewRunId B-xxxx:RR-002 --lane lattice-review-quality \
   --promptFile quorum-prompt.txt
 
 # Antigravity / agy host
-lattice host_run --host agy --storyId B-xxxx --agentType reviewer \
+proof-or-stop host_run --host agy --storyId B-xxxx --agentType reviewer \
   --reviewRunId B-xxxx:RR-002 --lane lattice-review-quality \
   --promptFile quorum-prompt.txt
 ```
@@ -246,7 +246,7 @@ Blocked rows are provider-honest: a refusal records the provider of the host
 that was asked to run (`openai` for codex, `anthropic` for claude,
 `antigravity` for agy), never a hard-coded default.
 
-The autopilot claude repair launch (`lattice autopilot execute
+The autopilot claude repair launch (`proof-or-stop autopilot execute
 --allowClaudeRepair`) passes the **same pre-spawn admission**: with the ledger
 ON, an over-budget or over-cap repair is refused before the claude runner is
 invoked (recording the same blocked row, provider `anthropic`) and holds a
@@ -282,7 +282,7 @@ then byte-identical to a raw launch (no preflight, no final, no slot files).
 ## `usage_sweep` (read-only retro-attribution)
 
 ```
-lattice usage_sweep --since 2026-07-01 [--json]
+proof-or-stop usage_sweep --since 2026-07-01 [--json]
 ```
 
 `usage_sweep` stream-reads `~/.codex/sessions/**/rollout-*.jsonl` and

@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-f88e",
+  "sourceText": "User (2026-07-28), after reviewing the red reproduction output: agreed to open a story that lands the red test as a registered guard and fixes the quorum downgrade collision. Earlier in the same conversation the user asked why the inconsistency mattered, then asked for a red test to prove the problem reproduces before any fix.",
+  "normalizedOutcome": "A complete 3x2 quorum at the current material counts as 3/3 valid rounds even when a superseded quorum for the same runIds exists at an older material sharing its storyFilesHash, and a registered red test permanently guards that behaviour.",
+  "acceptanceClaim": "The registered red test red-f88e-quorum-downgrade-collision.mjs exits 1 before the fix with the 0/3 collision message and exits 0 after it, with no manufactured duplicate-identity reasons.",
+  "keyRequirementIds": [
+    "REQ-001-no-manufactured-duplicate",
+    "REQ-002-registered-red-guard"
+  ],
+  "requestHash": "sha256:b59409370ff04f64db407f2c59c13a0885aa7fc7f3e020c94c74202a6e608729",
+  "createdAt": "2026-07-30T01:01:24.051Z",
+  "updatedAt": "2026-07-30T01:01:24.051Z"
+}

@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-ff5c",
+  "allowedCommands": [
+    "git diff --check",
+    "git diff --no-index --check",
+    "git status --short",
+    "lattice checklist_get",
+    "lattice story_get",
+    "lattice validate",
+    "rg",
+    "sed -n",
+    "shasum -a 256",
+    "wc -l"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    ".worktrees/B-2508/docs/requirements/decisions/b-9812-codex-implementation-session-postmortem-and-efficiency-plan.md",
+    "docs/requirements/decisions/claude-session-b-cdf6-review-convergence-analysis-and-optimization.md",
+    "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+    "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+  ],
+  "excludedCommands": [
+    "git clean",
+    "git push",
+    "git reset",
+    "git restore",
+    "rm -rf"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    "bin",
+    "docs/story",
+    "packages",
+    "scripts",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "qipan",
+  "confirmationNote": "Documentation-only synthesis. The three source reports are read-only content-addressed inputs pinned by SHA-256 in CHK-001. Only the single integrated decision document may be created; no runtime, gate, fixture, source-postmortem, network, deployment, or remote Git mutation is authorized.",
+  "createdAt": "2026-08-14T11:43:21.496Z",
+  "updatedAt": "2026-08-14T11:43:21.496Z",
+  "_hash": "5a3d0172582697ba4d0adc59fe229a9fde8cbe91b9eb6da35a39ceb09c9e4abf"
+}

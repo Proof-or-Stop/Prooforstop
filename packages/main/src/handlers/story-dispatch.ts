@@ -55,6 +55,7 @@ import { getSessionIdentity } from '../core/owner-session.js';
 import type { OwnerSessionHostProvider } from '../core/owner-session-adapters.js';
 import type { PromptHost } from '../core/prompt-registry.js';
 import { currentImplementationBusinessCommit, topologyDispatchBusinessAuthor } from '../core/topology-critic-receipt.js';
+import { renderAgentLivenessGuidance } from '../core/agent-liveness-policy.js';
 
 // B-45ed CHK-008: agent-type → background injection strategy mapping table
 // Source: CLAUDE.md "background.md tiered injection (subagent)" subsection
@@ -145,7 +146,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         lines.push(`- WARNING MODE_MISMATCH — signed candidate artifact mode=${routed.mode}, configured mode=${mode}; continue review and ask the Story owner to rerun candidate_spec_route.`);
       } else {
         lines.push(`- STOP — MODE_MISMATCH: signed candidate artifact mode=${routed.mode}, configured mode=${mode}. Do not submit scope/review evidence until the Story owner reruns candidate_spec_route.`);
-        lines.push(`- Exact owner resolution action: lattice candidate_spec_route '{"storyId":"${storyId}"}'`);
+        lines.push(`- Exact owner resolution action: proof-or-stop candidate_spec_route '{"storyId":"${storyId}"}'`);
         return;
       }
     }
@@ -157,13 +158,13 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     }
     if (mode === 'warn') {
       lines.push(`- WARNING — candidate routing escalation is unresolved (${reasons}); continue review, record the advisory, and do not hard-block evidence.`);
-      lines.push(`- Advisory owner action: lattice candidate_spec_route '{"storyId":"${storyId}","fullScanReason":"<specific justified tool-driven broad-scan reason>"}'`);
+      lines.push(`- Advisory owner action: proof-or-stop candidate_spec_route '{"storyId":"${storyId}","fullScanReason":"<specific justified tool-driven broad-scan reason>"}'`);
       return;
     }
     lines.push(scopePlan
       ? '- STOP — candidate routing escalation is unresolved. Do not call scope_check_save with this artifact.'
       : `STOP — candidate routing escalation is unresolved (${reasons}). Do not submit review_pass_set or finding evidence using this artifact.`);
-    lines.push(`- Exact owner resolution action: lattice candidate_spec_route '{"storyId":"${storyId}","fullScanReason":"<specific justified tool-driven broad-scan reason>"}'`);
+    lines.push(`- Exact owner resolution action: proof-or-stop candidate_spec_route '{"storyId":"${storyId}","fullScanReason":"<specific justified tool-driven broad-scan reason>"}'`);
     if (scopePlan) lines.push('- Resume only after the newly signed candidate artifact reports fullScan=true and a nonblank scanEscalationReason.');
   }
 
@@ -201,7 +202,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         type: 'dispatch',
         storyId: args.storyId,
         phase: story.phase,
-        source: 'lattice dispatch',
+        source: 'proof-or-stop dispatch',
         targetKind: args.targetKind,
         agentType,
         sessionId: getSessionIdentity().sessionId,
@@ -349,10 +350,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
   }
 
   function appendDispatchLivenessGuidance(lines: string[], label: string): void {
-    lines.push('Execution rhythm / liveness:');
-    lines.push(`- After starting, first output \`DISPATCH_START:${label}\` so the main agent knows the process has started.`);
-    lines.push('- If there is no output for 4 minutes, the main agent should ask about status once; if there is still no result after 10 minutes/600s, consider it stalled and feel free to restart this reviewer/worker.');
-    lines.push('- If this is a retry, please explain the previous stalled state in the final reply, to avoid mistaking network/startup failures for review conclusions.');
+    lines.push(renderAgentLivenessGuidance({ label, startSignal: `DISPATCH_START:${label}` }));
     lines.push('');
   }
 
@@ -381,15 +379,14 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         '- Whether the checklist is broken down into items that are user-observable, verifiable, and non-overlapping',
         '- Whether there are high-risk signals but insufficient PLAN/decision/verification preparation',
         '',
-        'Execution rhythm / timeout:',
+        renderAgentLivenessGuidance({ label: 'lattice-review-story-init/story', startSignal: 'INIT_REVIEW_START' }),
         '- After starting, first output `INIT_REVIEW_START`; after finishing reading background/checklist, output `INIT_REVIEW_READ_DONE`.',
         '- Within 5 minutes at the latest, you must choose one of two: call init_check_set, or output an explicit blocker + current blocking point.',
-        '- If there is no output for 4 minutes, the main agent should treat the reviewer as stuck and may rerun this dispatch to restart the reviewer.',
         '',
         'Hard requirements:',
         `- Regardless of whether the conclusion is pass or fail, you must call init_check_set once to record the result; merely outputting a textual conclusion does not count as complete.`,
-        `- When issues are found, also call: lattice init_check_set '{"storyId":"${args.storyId}","issues":[{"severity":"low","desc":"..."}],"agentId":"lattice-review-story-init"}'`,
-        `- If there are no issues, pass an empty array for issues: lattice init_check_set '{"storyId":"${args.storyId}","issues":[],"agentId":"lattice-review-story-init"}'`,
+        `- When issues are found, also call: proof-or-stop init_check_set '{"storyId":"${args.storyId}","issues":[{"severity":"low","desc":"..."}],"agentId":"lattice-review-story-init"}'`,
+        `- If there are no issues, pass an empty array for issues: proof-or-stop init_check_set '{"storyId":"${args.storyId}","issues":[],"agentId":"lattice-review-story-init"}'`,
         '- The INIT_CHECK gate also requires product-reviewer to call init_check_set; you are only responsible for the lattice-review-story-init record.',
         '- Do not directly edit story files.',
       ].join('\n'),
@@ -421,11 +418,13 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         '- Whether each checklist item has a user-observable outcome',
         '- Whether the post-completion outcome lets the user recognize the work as complete, rather than still wondering what comes next',
         '',
+        renderAgentLivenessGuidance({ label: 'product-reviewer/story', startSignal: 'DISPATCH_START:product-reviewer/story' }),
+        '',
         'Hard requirements:',
         '- Whether the conclusion is pass or fail, you must call init_check_set once to record the result; outputting only a text conclusion does not count as complete.',
         `- agentId must be passed exactly as "product-reviewer". Do not pass "lattice-review-story-init"; that is a different reviewer and will cause the INIT_CHECK gate to keep reporting a missing product-reviewer.`,
-        `- When issues are found, also call: lattice init_check_set '{"storyId":"${args.storyId}","issues":[{"severity":"medium","desc":"..."}],"agentId":"product-reviewer"}'`,
-        `- If there are no issues, pass an empty array for issues: lattice init_check_set '{"storyId":"${args.storyId}","issues":[],"agentId":"product-reviewer"}'`,
+        `- When issues are found, also call: proof-or-stop init_check_set '{"storyId":"${args.storyId}","issues":[{"severity":"medium","desc":"..."}],"agentId":"product-reviewer"}'`,
+        `- If there are no issues, pass an empty array for issues: proof-or-stop init_check_set '{"storyId":"${args.storyId}","issues":[],"agentId":"product-reviewer"}'`,
         '- critical/high issues will hard-block INIT_CHECK; medium/low will be recorded as advisory.',
         '- Do not edit story files directly.',
       ].join('\n'),
@@ -448,7 +447,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       throw new Error(
         `scope_check_save is PLAN-only; current phase ${story.phase} is unsupported for ` +
         `story-level lattice-review-scope-plan dispatch on ${args.storyId}. ` +
-        'Run this dispatch only while the story is in PLAN, or use lattice session_brief / lattice next for current-phase guidance.',
+        'Run this dispatch only while the story is in PLAN, or use proof-or-stop session_brief / proof-or-stop next for current-phase guidance.',
       );
     }
 
@@ -497,7 +496,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     lines.push('- Track readManifest with filesReadFully, filesTriagedByName, scanEscalationReason, candidateSpecSetDigest, and corpusDigest. Put full-read files in filesReadFully, filename/title-only triage in filesTriagedByName, and use scanEscalationReason only for a justified tool-driven full decisions-directory scan.');
     lines.push('');
     lines.push('Finish by calling scope_check_save:');
-    lines.push(`- lattice scope_check_save '{"storyId":"${args.storyId}","features":[{"feature":"<promise or constraint>","covered_by":"<CHK-xxx or null>","status":"covered|excluded|gap|orphan-suspect|drift","excluded_by":"<reason or null>","source":"<artifact path>"}],"summary":{"total":1,"covered":0,"excluded":0,"gaps":1},"readManifest":{"filesReadFully":["docs/requirements/decisions/<candidate>.md"],"filesTriagedByName":["docs/requirements/decisions/<triaged>.md"],"scanEscalationReason":null,"candidateSpecSetDigest":"${routed?.artifactDigest ?? '<current candidate artifact digest>'}","corpusDigest":"${routed?.corpusDigest ?? '<current corpus digest>'}"},"openQuestions":[]}'`);
+    lines.push(`- proof-or-stop scope_check_save '{"storyId":"${args.storyId}","features":[{"feature":"<promise or constraint>","covered_by":"<CHK-xxx or null>","status":"covered|excluded|gap|orphan-suspect|drift","excluded_by":"<reason or null>","source":"<artifact path>"}],"summary":{"total":1,"covered":0,"excluded":0,"gaps":1},"readManifest":{"filesReadFully":["docs/requirements/decisions/<candidate>.md"],"filesTriagedByName":["docs/requirements/decisions/<triaged>.md"],"scanEscalationReason":null,"candidateSpecSetDigest":"${routed?.artifactDigest ?? '<current candidate artifact digest>'}","corpusDigest":"${routed?.corpusDigest ?? '<current corpus digest>'}"},"openQuestions":[]}'`);
     lines.push('- If there are no gaps, still call scope_check_save with the complete feature list and accurate summary counts.');
 
     return { prompt: lines.join('\n') };
@@ -511,12 +510,15 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     return { prompt: [
       `Independently review the current ProofStory acceptance topology for ${args.storyId}.`,
       `Working directory: ${root}`,
+      '',
+      renderAgentLivenessGuidance({ label: 'lattice-review-topology-critic/story', startSignal: 'DISPATCH_START:lattice-review-topology-critic/story' }),
+      '',
       'Use the canonical lattice-review-topology-critic role. Do not edit implementation or story files.',
-      `Run lattice acceptance_basis '{"storyId":"${args.storyId}","json":true}' and inspect topology, scope, exclusions, discovery status, and closure.`,
+      `Run proof-or-stop acceptance_basis '{"storyId":"${args.storyId}","json":true}' and inspect topology, scope, exclusions, discovery status, and closure.`,
       'A missing, partial, unsupported, stale, or tampered basis cannot receive pass.',
       'Every exclusion must already have a separately attributable lattice-review-scope-plan approval.',
-      `Finish with lattice topology_critic_receipt_set '{"storyId":"${args.storyId}","verdict":"pass"}' or verdict=request_changes.`,
-      `Then run lattice topology_critic_receipt_check '{"storyId":"${args.storyId}"}' to verify the persisted signed receipt.`,
+      `Finish with proof-or-stop topology_critic_receipt_set '{"storyId":"${args.storyId}","verdict":"pass"}' or verdict=request_changes.`,
+      `Then run proof-or-stop topology_critic_receipt_check '{"storyId":"${args.storyId}"}' to verify the persisted signed receipt.`,
     ].join('\n') };
   }
 
@@ -554,8 +556,8 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     lines.push('');
     lines.push(`Current phase: ${story.phase}. Review lane: ${lane}.`);
     lines.push('Conclusion record (must choose one):');
-    lines.push(`- Start the reviewer run: lattice review_run_start '{"storyId":"${args.storyId}","agent":"${lane}"}' and copy the returned reviewRunId.`);
-    lines.push(`- Has issues: lattice finding_add '{"storyId":"${args.storyId}","reviewRunId":"<reviewRunId>","desc":"<file:line WHY + severity>","severity":"high|medium|low","category":"missing|edge|adversarial|happy","agent":"${lane}"}'`);
+    lines.push(`- Start the reviewer run: proof-or-stop review_run_start '{"storyId":"${args.storyId}","agent":"${lane}"}' and copy the returned reviewRunId.`);
+    lines.push(`- Has issues: proof-or-stop finding_add '{"storyId":"${args.storyId}","reviewRunId":"<reviewRunId>","desc":"<file:line WHY + severity>","severity":"high|medium|low","category":"missing|edge|adversarial|happy","agent":"${lane}"}'`);
     lines.push('- No blocker: call review_pass_set with the returned reviewRunId and a truthful readManifest covering the story-level review.');
     return { prompt: lines.join('\n') };
   }
@@ -673,7 +675,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       appendDispatchLivenessGuidance(lines, `${displayAgent}/${shortFid}`);
 
       if (bgPolicy === 'required') {
-        const prefix = bgExists ? '' : '⚠ missing, strongly recommend running `lattice background_set` first — ';
+        const prefix = bgExists ? '' : '⚠ missing, strongly recommend running `proof-or-stop background_set` first — ';
         lines.push(`Required reading: ${prefix}${bgPath}`);
         lines.push('');
       } else if (bgPolicy === 'advisory') {
@@ -688,7 +690,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       lines.push('');
       lines.push('After completion:');
       appendImplementerCommitSteps(lines, `${args.storyId} ${shortFid}: resolve finding`);
-      lines.push(`- lattice finding_resolve '{"storyId":"${args.storyId}","findingId":"${finding.id}","resolution":"<your fix description>"}'`);
+      lines.push(`- proof-or-stop finding_resolve '{"storyId":"${args.storyId}","findingId":"${finding.id}","resolution":"<your fix description>"}'`);
 
       return { prompt: lines.join('\n') };
   }
@@ -727,7 +729,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       const bgExists = existsSync(bgAbs);
 
       // 5. extract Verify section from the plan.md section (fall back if not found)
-      const verifyText = extractVerifyFromSection(planSection) || 'lattice validate all green';
+      const verifyText = extractVerifyFromSection(planSection) || 'proof-or-stop validate all green';
 
       // 6. Files section rendering (if item.files is missing, display "(not declared)")
       const filesBlock = renderFilesBlock(item.files);
@@ -755,7 +757,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         lines.push('Review materials:');
         let idx = 1;
         if (bgPolicy === 'required') {
-          const prefix = bgExists ? '' : '⚠ missing, strongly recommend writing `lattice background_set` first — ';
+          const prefix = bgExists ? '' : '⚠ missing, strongly recommend writing `proof-or-stop background_set` first — ';
           lines.push(`${idx}. Required reading background.md to understand intent — ${prefix}${bgPath}`);
           idx++;
         }
@@ -793,10 +795,10 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         }
         lines.push('');
         lines.push('Conclusion record (must choose one of two):');
-        lines.push(`- First start this round's reviewer run: lattice review_run_start '{"storyId":"${args.storyId}","agent":"${displayAgent}"}', copy the reviewRunId from the output`);
-        lines.push(`- Has issues: lattice finding_add '{"storyId":"${args.storyId}","reviewRunId":"<reviewRunId from review_run_start>","desc":"<file:line WHY + severity>","severity":"high|medium|low","category":"missing|edge|adversarial|happy","agent":"${displayAgent}"}'`);
+        lines.push(`- First start this round's reviewer run: proof-or-stop review_run_start '{"storyId":"${args.storyId}","agent":"${displayAgent}"}', copy the reviewRunId from the output`);
+        lines.push(`- Has issues: proof-or-stop finding_add '{"storyId":"${args.storyId}","reviewRunId":"<reviewRunId from review_run_start>","desc":"<file:line WHY + severity>","severity":"high|medium|low","category":"missing|edge|adversarial|happy","agent":"${displayAgent}"}'`);
         lines.push('- Track readManifest with filesReadFully, filesTriagedByName, scanEscalationReason, candidateSpecSetDigest, and corpusDigest; include it on no-blocker review_pass_set. Non-decision entries remain signed manifest evidence; mechanical decisions-doc read mismatch fails closed.');
-        lines.push(`- No blocker: lattice review_pass_set '{"storyId":"${args.storyId}","agent":"${displayAgent}","reviewRunId":"<reviewRunId from review_run_start>","note":"reviewed ${args.itemId}: checked implementation against the item context and found no blocker.","readManifest":{"filesReadFully":["<file reviewed in full>"],"filesTriagedByName":["<file triaged by name>"],"scanEscalationReason":null,"candidateSpecSetDigest":"${routed?.artifactDigest ?? '<current candidate artifact digest>'}","corpusDigest":"${routed?.corpusDigest ?? '<current corpus digest>'}"}}'`);
+        lines.push(`- No blocker: proof-or-stop review_pass_set '{"storyId":"${args.storyId}","agent":"${displayAgent}","reviewRunId":"<reviewRunId from review_run_start>","note":"reviewed ${args.itemId}: checked implementation against the item context and found no blocker.","readManifest":{"filesReadFully":["<file reviewed in full>"],"filesTriagedByName":["<file triaged by name>"],"scanEscalationReason":null,"candidateSpecSetDigest":"${routed?.artifactDigest ?? '<current candidate artifact digest>'}","corpusDigest":"${routed?.corpusDigest ?? '<current corpus digest>'}"}}'`);
 
         void story;
 
@@ -817,7 +819,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       lines.push('Required reading (in order):');
       let idx = 1;
       if (bgPolicy === 'required') {
-        const prefix = bgExists ? '' : '⚠ missing, strongly recommend writing `lattice background_set` first — ';
+        const prefix = bgExists ? '' : '⚠ missing, strongly recommend writing `proof-or-stop background_set` first — ';
         lines.push(`${idx}. Required reading background.md to understand intent — ${prefix}${bgPath}`);
         idx++;
       }
@@ -859,7 +861,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       lines.push('');
       lines.push('After completion:');
       appendImplementerCommitSteps(lines, `${args.storyId} ${args.itemId}: ${item.title}`);
-      lines.push(`- lattice checklist_update '{"storyId":"${args.storyId}","itemId":"${args.itemId}","status":"done"}'`);
+      lines.push(`- proof-or-stop checklist_update '{"storyId":"${args.storyId}","itemId":"${args.itemId}","status":"done"}'`);
 
       // Use story.phase to eliminate unused variable warning (also convenient for reading context when extending CHK-008)
       void story;
@@ -1068,10 +1070,14 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       // clusterId branch — reuse cluster.ts's finding_dispatch (outputs string).
       // Wrap as { prompt } to keep the interface consistent.
       const clusterHandlers = createClusterHandlers(ctx);
-      const prompt = clusterHandlers.finding_dispatch({
+      const clusterPrompt = clusterHandlers.finding_dispatch({
         storyId: args.storyId,
         clusterId: args.clusterId!,
       });
+      const prompt = `${renderAgentLivenessGuidance({
+        label: `${canonicalType}/${args.clusterId!}`,
+        startSignal: `DISPATCH_START:${canonicalType}/${args.clusterId!}`,
+      })}\n\n${clusterPrompt}`;
       appendDispatchEvent({
         storyId: args.storyId,
         agentType: canonicalType,

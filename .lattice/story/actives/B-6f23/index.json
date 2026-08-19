@@ -1,0 +1,37 @@
+{
+  "storyId": "B-6f23",
+  "name": "agent-liveness-bounded-parallel-runner",
+  "title": "Run the nested agent-liveness smoke suite with bounded parallelism",
+  "description": "The root DONE-required full suite deterministically fails after a cold build because flow-stability-smoke serially launches seven agent-liveness child smokes, exceeding the 120-second member timeout and the 300-second full-suite budget. Preserve both gates and reduce the critical path by executing independent child smokes with bounded concurrency.",
+  "type": "bug",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "createdAt": "2026-08-14T13:45:49.570Z",
+  "startedAt": "2026-08-14T13:45:49.570Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-08-14T13:45:50.162Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-1891a70e464a9061254e4db64da92f30",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-08-14T13:47:53.196Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-1891a70e464a9061254e4db64da92f30",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-6f23",
+    "branch": "story/B-6f23",
+    "createdAt": "2026-08-14T13:47:50.263Z"
+  }
+}

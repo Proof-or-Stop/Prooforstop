@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-137a",
+  "allowedCommands": [
+    "git add *",
+    "git commit *",
+    "git diff*",
+    "git log*",
+    "git merge*",
+    "git rev-parse*",
+    "git status*",
+    "git worktree*",
+    "lattice *",
+    "node bin/lattice.js *",
+    "node packages/main/dist/tasks/*",
+    "npm --prefix packages/main run build",
+    "rg *",
+    "sed *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "exec_command",
+    "independent lifecycle reviewers",
+    "lattice lifecycle CLI"
+  ],
+  "allowedPaths": [
+    ".lattice",
+    "docs/host-run-usage.md",
+    "docs/requirements/decisions",
+    "package-lock.json",
+    "package.json",
+    "packages/main/package-lock.json",
+    "packages/main/package.json",
+    "packages/main/src",
+    "scripts"
+  ],
+  "excludedCommands": [
+    "git clean*",
+    "git push*",
+    "git reset --hard*",
+    "npm publish*",
+    "rm -rf*"
+  ],
+  "excludedTools": [
+    "native host subagent management APIs as production dependencies",
+    "remote deployment tools"
+  ],
+  "excludedPaths": [
+    ".remember",
+    "B-cdf6-flow.html",
+    "B-cdf6-flow.md",
+    "CODEX-FINDINGS.md",
+    "docs/story",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Story metadata and fixture evidence are mutated only through Lattice CLI. Provider production code is verified with injected/system-process seams; no remote publishing or production mutation. Existing unrelated untracked files are preserved. Formal lifecycle reviewers may use the host-supported agent mechanism but the implemented feature does not depend on native subagent APIs.",
+  "createdAt": "2026-08-13T15:42:25.964Z",
+  "updatedAt": "2026-08-13T15:42:25.964Z",
+  "_hash": "6457a9462da332ee596eb778f3a79478fc0e8e6aa36b5c69d23014ded04d2e7c"
+}

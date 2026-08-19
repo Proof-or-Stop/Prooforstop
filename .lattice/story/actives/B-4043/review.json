@@ -1,0 +1,287 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-07-23T16:38:19.578Z",
+      "issueCount": 11,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-004",
+          "message": "CHK-004 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-005",
+          "message": "CHK-005 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when Integrate role guidance with canonical acceptance topology and pre-review commands + Produce verifier-owned before-and-after rollout cohorts and deterministic success metrics are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 1 high-risk signal(s): Validation Framework. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run lattice story_review_dismiss '{\"storyId\":\"B-4043\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_original_intent_snapshot: Intent MVP requires original_intent_snapshot_set with sourceText, normalizedOutcome, and acceptanceClaim. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_intent_collision: Intent collision is triggered but no pass decision with acceptedInterpretation is present. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "missing_scope_check",
+          "severity": "blocker",
+          "message": "missing_scope_check: scope-check.json is missing PLAN gate evidence. Start a story-level PLAN scope reviewer with `lattice dispatch --storyId=B-4043 --agentType=lattice-review-scope-plan`; dispatch output is not gate evidence, and the lattice-review-scope-plan / scope-plan reviewer must finish by calling `lattice scope_check_save`. The implementation/main agent must not self-sign this evidence or manually edit story metadata. Local CLI guidance is not remote completion and must not be presented as receipt verification or production/full completion."
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-4043 is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "bd10e2d544f2fa1efe8d67409a2f62aefad9e7b5d886ff82cccdd028a05ab730"
+    },
+    {
+      "timestamp": "2026-07-23T16:47:46.221Z",
+      "issueCount": 7,
+      "blockerCount": 3,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when Integrate role guidance with canonical acceptance topology and pre-review commands + Produce verifier-owned before-and-after rollout cohorts and deterministic success metrics are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 1 high-risk signal(s): Validation Framework. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run lattice story_review_dismiss '{\"storyId\":\"B-4043\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "scope_ambiguity: Scope ambiguity is triggered but no scope contract or explicit shrinkage decision is configured. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"Wave 4 integrates canonical acceptance topology/pre-review/rollout guidance into both Codex and Claude role assets without making prompt prose authority\" but there is no corresponding checklist item and it is not excluded"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"Measured rollout uses a real reproducible comparable baseline/candidate high-assurance Story cohort rather than synthetic-only fixtures\" but there is no corresponding checklist item and it is not excluded"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"Flat project rollout thresholds cover transcript/mutation taxonomy, supported adapter sufficiency, sample floor, omission detection, false blocks, degraded-host mislabeling, waivers and non-shrinking checks\" but there is no corresponding checklist item and it is not excluded"
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-4043 is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "0ebf3364a12417c94eef12696df0256b1640be9cfec9f2571dd1a397c837ce4b"
+    },
+    {
+      "timestamp": "2026-07-23T16:52:08.905Z",
+      "issueCount": 4,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when Integrate role guidance with canonical acceptance topology and pre-review commands + Produce verifier-owned before-and-after rollout cohorts and deterministic success metrics are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 1 high-risk signal(s): Validation Framework. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run lattice story_review_dismiss '{\"storyId\":\"B-4043\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "scope_ambiguity: Scope ambiguity is triggered but no scope contract or explicit shrinkage decision is configured. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-4043 is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "83b4f4f903c29275f92878c3ce8726b720212a9f62d1a8cba5ec96fc56df6aab"
+    },
+    {
+      "timestamp": "2026-07-23T16:59:27.640Z",
+      "issueCount": 2,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when Integrate role guidance with canonical acceptance topology and pre-review commands + Produce verifier-owned before-and-after rollout cohorts and deterministic success metrics are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 1 high-risk signal(s): Validation Framework. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run lattice story_review_dismiss '{\"storyId\":\"B-4043\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        }
+      ],
+      "_hash": "82c763a1f659aa0183a35141bdc3a0e4ea3b3c0a7667e0161a84af2887250af3"
+    },
+    {
+      "timestamp": "2026-07-23T17:24:39.283Z",
+      "issueCount": 2,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when Integrate role guidance with canonical acceptance topology and pre-review commands + Produce verifier-owned before-and-after rollout cohorts and deterministic success metrics are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 1 high-risk signal(s): Validation Framework. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run lattice story_review_dismiss '{\"storyId\":\"B-4043\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        }
+      ],
+      "_hash": "63abaa3ea47678e33c923e2ef9da3311c73a270ec62d868903476515b73583b4"
+    },
+    {
+      "timestamp": "2026-07-23T17:41:32.775Z",
+      "issueCount": 2,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when Integrate role guidance with canonical acceptance topology and pre-review commands + Produce verifier-owned before-and-after rollout cohorts and deterministic success metrics are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 1 high-risk signal(s): Validation Framework. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run lattice story_review_dismiss '{\"storyId\":\"B-4043\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        }
+      ],
+      "_hash": "c1812142df8c5bcece03abfc6917496c789b6f9e51456fc9e848715b02c7bd6b"
+    },
+    {
+      "timestamp": "2026-07-23T17:46:31.937Z",
+      "issueCount": 2,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when Integrate role guidance with canonical acceptance topology and pre-review commands + Produce verifier-owned before-and-after rollout cohorts and deterministic success metrics are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 1 high-risk signal(s): Validation Framework. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run lattice story_review_dismiss '{\"storyId\":\"B-4043\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        }
+      ],
+      "_hash": "322d44dca10cb096265a0e0d14e49c92999728f89f6be0af5f6b6619c847b599"
+    },
+    {
+      "timestamp": "2026-07-23T17:51:35.247Z",
+      "issueCount": 2,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when Integrate role guidance with canonical acceptance topology and pre-review commands + Produce verifier-owned before-and-after rollout cohorts and deterministic success metrics are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 1 high-risk signal(s): Validation Framework. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run lattice story_review_dismiss '{\"storyId\":\"B-4043\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        }
+      ],
+      "_hash": "9329a0e71a6a0fa30dea06c58a16740d40fe2569c446903e595b06a0e7b5c674"
+    },
+    {
+      "timestamp": "2026-07-23T17:53:25.872Z",
+      "issueCount": 2,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when Integrate role guidance with canonical acceptance topology and pre-review commands + Produce verifier-owned before-and-after rollout cohorts and deterministic success metrics are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 1 high-risk signal(s): Validation Framework. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run lattice story_review_dismiss '{\"storyId\":\"B-4043\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        }
+      ],
+      "_hash": "bd8f0d6b6b3ca2af989e5534a5d8e4925d7356aef8fd4726cd848f93dc13995a"
+    },
+    {
+      "timestamp": "2026-07-23T17:58:02.934Z",
+      "issueCount": 2,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when Integrate role guidance with canonical acceptance topology and pre-review commands + Produce verifier-owned before-and-after rollout cohorts and deterministic success metrics are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 1 high-risk signal(s): Validation Framework. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run lattice story_review_dismiss '{\"storyId\":\"B-4043\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        }
+      ],
+      "_hash": "50d335ef68d0ded0b2b79bcf66cd2bd1b14d23b13ee384125d8eae2e17d2ed63"
+    },
+    {
+      "timestamp": "2026-07-23T18:02:39.228Z",
+      "issueCount": 2,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when Integrate role guidance with canonical acceptance topology and pre-review commands + Produce verifier-owned before-and-after rollout cohorts and deterministic success metrics are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 1 high-risk signal(s): Validation Framework. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run lattice story_review_dismiss '{\"storyId\":\"B-4043\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        }
+      ],
+      "_hash": "e0954949999f46c55f3a1fae5970c25762bffdfad04e90372189b37bf48fc4b2"
+    }
+  ]
+}

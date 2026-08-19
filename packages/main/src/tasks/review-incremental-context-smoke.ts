@@ -4,7 +4,7 @@
  * (core/review-incremental-context.ts, CHK-001) reports the right shape for a
  * returning reviewer, a first-timer, and a rename, AND proves the LOAD-BEARING
  * invariant of this whole story: calling reviewIncrementalContext (and having the
- * lattice review_incremental_context CLI registered) changes NOTHING about the
+ * proof-or-stop review_incremental_context CLI registered) changes NOTHING about the
  * REVIEW→TEST gate canPassReviewGuard.
  *
  * HARD INVARIANT this guard defends: the incremental helper is a pure read-only
@@ -27,6 +27,14 @@
  *       isFirstPass=true, priorHeadHash=null, full main...HEAD diff, while
  *       priorVerdict stays NON-null. Pins the documented contract that consumers
  *       must key off isFirstPass (not priorVerdict) for "no incremental baseline".
+ *   (f) BOUNDED-PATHS DEGRADATION — a prior that DOES resolve but whose diff to
+ *       HEAD does not fit the bounded review-basis path lists: the read degrades
+ *       to the full story diff against main (reason code
+ *       FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_PATHS, contextMode full,
+ *       reviewBasis null) while still reporting the resolved prior. Asserts the
+ *       boundary is exact — at the cap an incremental basis is emitted, one path
+ *       over it degrades — against the same bounded-path rule prompt-contracts
+ *       enforces rather than against a restated number.
  *   (d) GATE-UNCHANGED ASSERTION (the load-bearing one) — exercises the REAL
  *       canPassReviewGuard (imported from core/machine.ts) over deterministic
  *       fixture stories and asserts the actual gate semantics:
@@ -50,10 +58,10 @@
  */
 
 import { strict as assert } from 'node:assert';
-import { execFileSync, spawn } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { execFileSync, spawn, spawnSync } from 'node:child_process';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { hostname, tmpdir } from 'node:os';
-import { dirname, join } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import {
@@ -62,7 +70,11 @@ import {
   reviewIncrementalContext,
 } from '../core/review-incremental-context.js';
 import { BASELINE_RUNTIME_CONTRACT } from '../core/prompt-measurement.js';
-import { domainSeparatedDigest } from '../core/prompt-contracts.js';
+import {
+  FULL_TASK_CONTEXT_LIMITS,
+  domainSeparatedDigest,
+  validateIncrementalReviewBasis,
+} from '../core/prompt-contracts.js';
 import {
   assembleFullPromptEnvelope,
   buildFullTaskContext,
@@ -77,8 +89,10 @@ import { canPassReviewGuard, type StoryMachineContext } from '../core/machine.js
 import { resetConfigCache } from '../core/config.js';
 import { signFinding, signReviewPass } from '../core/finding-verify.js';
 import {
+  changedFilesBetweenRenameAware,
   classifyEvidenceFreshness,
   currentGitHead,
+  isMaterialExcludedPath,
 } from '../core/evidence-freshness.js';
 import {
   collectReviewerEvidenceState,
@@ -101,11 +115,11 @@ import type {
   StoryInfo,
 } from '../core/types.js';
 
-/** Marker line printed by the smoke so `lattice validate` output is greppable. */
+/** Marker line printed by the smoke so `proof-or-stop validate` output is greppable. */
 const MARKER = 'review-incremental-context-smoke:';
 const DIST_CLI_PATH = fileURLToPath(new URL('../cli.js', import.meta.url));
 
-const COMMIT_ENV = ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke'];
+const COMMIT_ENV = ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proof-or-Stop Smoke'];
 
 function git(cwd: string, args: string[]): string {
   return execFileSync('git', args, {
@@ -869,6 +883,171 @@ function runIncrementalCases(): void {
   }
 }
 
+/**
+ * The material path count the incremental branch measures between a bound
+ * headHash and HEAD, computed with the same production helpers that branch uses.
+ */
+function materialDiffPathCount(root: string, baseSha: string): number {
+  return changedFilesBetweenRenameAware(root, baseSha, 'HEAD')
+    .filter(path => !isMaterialExcludedPath(path, root)).length;
+}
+
+/**
+ * (f) BOUNDED-PATHS DEGRADATION — the branch that fires when a prior DOES
+ * resolve but sits too far behind HEAD to diff incrementally.
+ *
+ * Distinct from cases (b) and (e): here the prior pass is trusted AND its bound
+ * headHash resolves, so neither of the isFirstPass sub-cases applies. What
+ * disqualifies it is only distance — the prior-to-HEAD diff does not fit the
+ * bounded path lists the review-basis contract accepts.
+ *
+ * Fixture (one repo, two priors, no magic numbers — every count is derived from
+ * FULL_TASK_CONTEXT_LIMITS.pathsPerList):
+ *   C0 main   seed: `cap` bulk files + the story file
+ *   C1 main   modifies bulk file 0                     <- the AT-CAP prior binds here
+ *   C2 main   modifies bulk files 1..cap-1             <- `main` stays here
+ *   C3 story  modifies the story file                  <- HEAD
+ * so diff(C1..HEAD) = (cap-1) bulk + 1 story = EXACTLY cap, diff(C0..HEAD) =
+ * cap bulk + 1 story = cap+1, and the full story diff against main is the one
+ * story file. The two priors differ ONLY in the commit they are bound to, so
+ * the boundary is the only variable between the two observations.
+ *
+ * The boundary is pinned to the contract, not to the literal 512: at the cap an
+ * incremental basis is emitted and finalize already ran it through
+ * validateIncrementalReviewBasis, and that same basis with ONE more path is
+ * asserted to be rejected by that validator — i.e. the guard's `>` fires exactly
+ * where prompt-contracts' bounded-path rule starts rejecting.
+ *
+ * Note on contextMode at the cap: it is 'full' on BOTH sides here, because
+ * ordinary `src/**` paths independently classify FULL_PRIVATE_IMPLEMENTATION_V1.
+ * That is why "did the guard fire" is asserted through the guard's own signals —
+ * its reason code, whether a review basis was emitted, and which diff was
+ * served — rather than through contextMode, which cannot discriminate.
+ */
+function runBoundedPathsDegradationCase(): void {
+  const cap = FULL_TASK_CONTEXT_LIMITS.pathsPerList;
+  const bounded = 'FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_PATHS';
+  const storyId = 'B-bounded-paths';
+  const role = 'lattice-review-quality';
+  const storyFile = 'src/story.ts';
+  const bulkFile = (index: number) => `src/bulk/f${String(index).padStart(5, '0')}.ts`;
+  const root = mkdtempSync(join(tmpdir(), 'lattice-incremental-bounded-paths-'));
+  try {
+    write(root, '.gitignore', '.lattice/activity.jsonl\n');
+    write(root, storyFile, 'export const story = 0;\n');
+    for (let index = 0; index < cap; index += 1) write(root, bulkFile(index), `export const bulk${index} = 0;\n`);
+    git(root, ['init']);
+    git(root, ['checkout', '-B', 'main']);
+    git(root, ['add', '.']);
+    git(root, [...COMMIT_ENV, 'commit', '-m', 'seed bounded-paths base']);
+    const overCapBaseSha = currentGitHead(root)!;
+
+    write(root, bulkFile(0), 'export const bulk0 = 1;\n');
+    git(root, ['add', '.']);
+    git(root, [...COMMIT_ENV, 'commit', '-m', 'main advances by one bulk path']);
+    const atCapBaseSha = currentGitHead(root)!;
+
+    for (let index = 1; index < cap; index += 1) write(root, bulkFile(index), `export const bulk${index} = 1;\n`);
+    git(root, ['add', '.']);
+    git(root, [...COMMIT_ENV, 'commit', '-m', 'main advances by the remaining bulk paths']);
+
+    git(root, ['checkout', '-b', `story/${storyId}`]);
+    write(root, storyFile, 'export const story = 1;\n');
+    git(root, ['add', '.']);
+    git(root, [...COMMIT_ENV, 'commit', '-m', 'story material change ahead of main']);
+
+    const story = reviewStory(storyId, 2, ts(1));
+    const priorAtCap = trustedReviewEvidence(storyId, role, 'RR-AT-CAP', ts(5), ts(6), atCapBaseSha);
+    const priorOverCap = trustedReviewEvidence(storyId, role, 'RR-OVER-CAP', ts(5), ts(6), overCapBaseSha);
+    const storeFor = (evidence: ReturnType<typeof trustedReviewEvidence>) => buildFixtureStore({
+      story,
+      runs: [evidence.run],
+      passes: [evidence.pass],
+      promptEnvelopes: [evidence.envelope],
+    });
+
+    // ---- AT EXACTLY THE CAP: the guard must NOT fire ----
+    const atCap = reviewIncrementalContext(storeFor(priorAtCap), root, storyId, role);
+    assert.equal(atCap.eligibilityReasonCodes.includes(bounded), false, `at exactly the cap the guard must not raise ${bounded}`);
+    assert.equal(atCap.changedFiles.length, cap, 'fixture must place the incremental diff at EXACTLY the bounded path cap');
+    assert.equal(atCap.isFirstPass, false, 'at the cap the trusted prior is the baseline');
+    assert.equal(atCap.priorHeadHash, atCapBaseSha, 'at the cap changedFiles is the diff from the prior headHash');
+    assert.notEqual(atCap.reviewBasis, null, 'at the cap the incremental review basis is still emitted');
+    assert.equal(atCap.reviewBasis!.changedFiles.length, cap, 'the emitted basis carries the full at-cap path list');
+    assert.ok(atCap.changedFiles.includes(storyFile), 'the at-cap incremental diff still contains the story file');
+
+    // Boundary pinned to the contract rather than to the number: finalize already
+    // validated the basis above, and that same basis plus ONE path is rejected by
+    // the very rule the guard exists to keep satisfiable.
+    validateIncrementalReviewBasis(atCap.reviewBasis!);
+    assert.throws(
+      () => validateIncrementalReviewBasis({
+        ...atCap.reviewBasis!,
+        changedFiles: [...atCap.reviewBasis!.changedFiles, 'src/one-path-over-the-cap.ts'],
+      }),
+      /IncrementalReviewBasis\.changedFiles exceeds/,
+      'the guard threshold must be the same bounded-path rule prompt-contracts enforces',
+    );
+
+    // ---- ONE PATH OVER THE CAP: the guard must fire and degrade ----
+    // The degraded context no longer exposes the oversized diff, so the fixture's
+    // distance is measured directly, through the same production helpers the
+    // branch under test uses.
+    assert.equal(
+      materialDiffPathCount(root, overCapBaseSha),
+      cap + 1,
+      'fixture must place the over-cap incremental diff exactly ONE path over the bound',
+    );
+    const overCap = reviewIncrementalContext(storeFor(priorOverCap), root, storyId, role);
+    assert.ok(overCap.eligibilityReasonCodes.includes(bounded), `one path over the cap must raise ${bounded}`);
+    assert.equal(overCap.contextMode, 'full', 'the degraded context must stay full');
+    assert.equal(overCap.reviewBasis, null, 'the degraded context must emit NO incremental review basis');
+    assert.equal(overCap.reviewBasisDigest, null, 'a suppressed basis must leave no basis digest behind');
+    assert.equal(overCap.scopeChanged, true, 'the degraded context shows everything, so scopeChanged stays true');
+
+    // The served diff is the story's net diff against main — NOT main's own
+    // already-reviewed churn that pushed the incremental diff over the bound.
+    assert.deepEqual(
+      overCap.changedFiles,
+      [storyFile],
+      'the degraded context serves the story net diff against main, not the oversized prior-to-HEAD set',
+    );
+
+    // The resolved prior is reported for audit (it is real state), and reporting
+    // it moves informational fields ONLY: against a same-repo first-timer the
+    // served diff, its digest, the impact-derived reason codes and contextMode
+    // are identical — the prior identity is the only difference.
+    const firstTimer = reviewIncrementalContext(buildFixtureStore({ story }), root, storyId, role);
+    assert.equal(firstTimer.isFirstPass, true, 'control: a lane with no prior evidence is a first pass');
+    assert.equal(firstTimer.priorPassRef, null, 'control: a first pass has no prior pass reference');
+    assert.equal(overCap.isFirstPass, false, 'a resolvable trusted prior must NOT be reported as a first pass');
+    assert.equal(overCap.priorPassRef, priorOverCap.pass.id, 'the degraded context reports the real prior pass');
+    assert.equal(overCap.priorReviewRunId, priorOverCap.run.reviewRunId, 'the degraded context reports the real prior run');
+    assert.equal(overCap.priorHeadHash, overCapBaseSha, 'the degraded context reports the real prior headHash');
+    assert.equal(overCap.priorVerdict, `PASS (${priorOverCap.pass.id})`, 'the degraded context reports the real prior verdict');
+    assert.deepEqual(overCap.changedFiles, firstTimer.changedFiles, 'the prior must not change WHICH files are served');
+    assert.equal(overCap.changedFilesDigest, firstTimer.changedFilesDigest, 'the prior must not change the changed-files digest');
+    assert.equal(overCap.impactedFilesDigest, firstTimer.impactedFilesDigest, 'the prior must not change the impacted-files digest');
+    assert.equal(overCap.contextMode, firstTimer.contextMode, 'the prior must not change contextMode');
+    assert.equal(overCap.scopeChanged, firstTimer.scopeChanged, 'the prior must not change scopeChanged');
+    assert.equal(overCap.freshnessClassification, firstTimer.freshnessClassification, 'the prior must not change the freshness classification');
+    assert.deepEqual(
+      overCap.eligibilityReasonCodes.filter(code => code !== bounded),
+      firstTimer.eligibilityReasonCodes.filter(code => code !== 'FULL_MISSING_TRUSTED_PRIOR_PASS'),
+      'apart from its own FULL_ reason code the degraded context classifies exactly like the first pass',
+    );
+    assert.notEqual(
+      overCap.eligibilityDigest,
+      firstTimer.eligibilityDigest,
+      'the resolved prior IS bound into the authoritative eligibility digest (audit fidelity, not eligibility)',
+    );
+    console.log(`${MARKER} (f) BOUNDED-PATHS DEGRADATION: cap=${cap} stays incremental (basis emitted, no ${bounded}); cap+1 degrades to the ${overCap.changedFiles.length}-path story diff with reviewBasis=null and the real prior ${overCap.priorPassRef} still reported`);
+  } finally {
+    resetConfigCache();
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 function runPolicyCases(): void {
   const none = classifyImpact({
     changedFiles: [],
@@ -1425,7 +1604,21 @@ function runDeterministicTicketReclaimAbaCase(): void {
   }
 }
 
-function runConcurrentReviewerWriteCase(mask: number, iteration = 1): void {
+export const INCREMENTAL_GUARD_CLASS_MAP = Object.freeze({
+  'review-run-identity': 'concurrent review_run_start preserves every lane and unique IDs',
+  'mixed-envelope-selection': 'each legacy/full lane binds only its selected representation',
+  'pass-finding-write-serialization': 'three passes and two findings are retained exactly once',
+  'signed-result-admissibility': 'collector accepts every current signed result',
+  'lane-no-overwrite': 'collector counts every reviewer lane once',
+  'real-review-gate': 'canPassReviewGuard accepts the complete evidence matrix',
+});
+
+type GuardObservation = Record<keyof typeof INCREMENTAL_GUARD_CLASS_MAP, boolean> & {
+  mutationTrace?: { redundantDeletionStillTrue: boolean; allPassesCleared: boolean };
+};
+type GuardMutation = keyof typeof INCREMENTAL_GUARD_CLASS_MAP;
+
+function runConcurrentReviewerWriteCase(mask: number, iteration = 1, mutation?: GuardMutation): GuardObservation {
   const root = mkdtempSync(join(tmpdir(), `lattice-reviewer-rollout-mixed-${mask}-${iteration}-`));
   const storyId = 'B-concurrent-reviewers';
   const roles = [
@@ -1522,19 +1715,27 @@ function runConcurrentReviewerWriteCase(mask: number, iteration = 1): void {
       env: { ...process.env, LATTICE_PROJECT_ROOT: root, LATTICE_ACTIVITY_SOURCE: 'codex' },
       stdio: ['ignore', 'pipe', 'pipe'],
     });
+    if (mutation === 'review-run-identity') {
+      const data = store.readReviewRuns(storyId); data.runs[1] = { ...data.runs[1]!, reviewRunId: data.runs[0]!.reviewRunId }; store.writeReviewRuns(storyId, data);
+    }
     const runs = store.readReviewRuns(storyId).runs;
-    assert.equal(runs.length, roles.length, 'concurrent review_run_start preserves every lane');
-    assert.equal(new Set(runs.map(run => run.reviewRunId)).size, roles.length, 'concurrent runs mint unique IDs');
+    const reviewRunIdentity = runs.length === roles.length && new Set(runs.map(run => run.reviewRunId)).size === roles.length;
+    if (!mutation) assert.equal(reviewRunIdentity, true, 'concurrent review_run_start preserves every lane and unique IDs');
     const fullRoles = roles.filter(role => rolloutModes[role] === 'full-envelope');
-    assert.equal(
+    if (mutation === 'mixed-envelope-selection') {
+      const data = store.readPromptEnvelopes(storyId); data.envelopes = data.envelopes.slice(1); store.writePromptEnvelopes(storyId, data);
+    }
+    if (!mutation) assert.equal(
       store.readPromptEnvelopes(storyId).envelopes.length,
       fullRoles.length,
       `mixed mask ${mask} iteration ${iteration} persists one envelope for each full-envelope lane only`,
     );
+    let mixedEnvelopeSelection = store.readPromptEnvelopes(storyId).envelopes.length === fullRoles.length;
     for (const run of runs) {
       const full = rolloutModes[run.lane] === 'full-envelope';
-      assert.equal(Boolean(run.envelopeId), full, `mixed mask ${mask} iteration ${iteration} ${run.lane} binds its selected rollout representation`);
-      assert.equal(Boolean(run.assembledPrompt), full, `mixed mask ${mask} iteration ${iteration} ${run.lane} stores assembled prompt only in full mode`);
+      mixedEnvelopeSelection = mixedEnvelopeSelection && Boolean(run.envelopeId) === full && Boolean(run.assembledPrompt) === full;
+      if (!mutation) assert.equal(Boolean(run.envelopeId), full, `mixed mask ${mask} iteration ${iteration} ${run.lane} binds its selected rollout representation`);
+      if (!mutation) assert.equal(Boolean(run.assembledPrompt), full, `mixed mask ${mask} iteration ${iteration} ${run.lane} stores assembled prompt only in full mode`);
     }
 
     const evidenceCommands = roles.map((role, index) => {
@@ -1556,51 +1757,227 @@ function runConcurrentReviewerWriteCase(mask: number, iteration = 1): void {
           category: 'edge',
         }, role);
     });
-    execFileSync('/bin/sh', ['-c', ['set -eu', ...evidenceCommands.map(command => `${command} &`), 'wait'].join('\n')], {
+    const executedEvidenceCommands = mutation === 'pass-finding-write-serialization' ? evidenceCommands.slice(0, -1) : evidenceCommands;
+    execFileSync('/bin/sh', ['-c', ['set -eu', ...executedEvidenceCommands.map(command => `${command} &`), 'wait'].join('\n')], {
       cwd: root,
       env: { ...process.env, LATTICE_PROJECT_ROOT: root, LATTICE_ACTIVITY_SOURCE: 'codex' },
       stdio: ['ignore', 'pipe', 'pipe'],
     });
-    assert.equal(store.readReviewPasses(storyId).passes.length, 3, 'concurrent passes are retained exactly once');
-    assert.equal(store.readFindings(storyId).findings.length, 2, 'concurrent findings are retained exactly once');
+    const passFindingSerialization = store.readReviewPasses(storyId).passes.length === 3 && store.readFindings(storyId).findings.length === 2;
+    if (!mutation) assert.equal(passFindingSerialization, true, 'concurrent passes and findings are retained exactly once');
+    if (mutation === 'signed-result-admissibility') {
+      const data = store.readReviewPasses(storyId); data.passes[0] = { ...data.passes[0]!, reviewRunId: 'forged-review-run' }; store.writeReviewPasses(storyId, data);
+    }
     const evidence = collectReviewerEvidenceState(store, storyId, root);
-    assert.equal(evidence.invalid.length, 0, `collector accepts every current signed result under mixed mask ${mask} iteration ${iteration}`);
-    assert.deepEqual(
-      [...new Set(evidence.valid.map(item => item.agent))].sort(),
+    const signedResultAdmissibility = evidence.invalid.length === 0 && evidence.valid.length === roles.length;
+    if (!mutation) assert.equal(signedResultAdmissibility, true, `collector accepts every current signed result under mixed mask ${mask} iteration ${iteration}`);
+    const observedAgents = [...new Set(evidence.valid.map(item => item.agent))].sort();
+    if (mutation === 'lane-no-overwrite') observedAgents.pop();
+    const laneNoOverwrite = JSON.stringify(observedAgents) === JSON.stringify([...roles].sort());
+    if (!mutation) assert.deepEqual(
+      observedAgents,
       [...roles].sort(),
       `collector counts every reviewer lane once without overwrite under mixed mask ${mask} iteration ${iteration}`,
     );
-    assert.equal(canPassReviewGuard({ storyId, store, projectRoot: root }), true, `real REVIEW gate accepts complete evidence under mixed mask ${mask} iteration ${iteration}`);
+    let realGateMutationTrace: GuardObservation['mutationTrace'];
+    if (mutation === 'real-review-gate') {
+      const data = store.readReviewPasses(storyId);
+      data.passes = [data.passes[0]!, ...data.passes]; store.writeReviewPasses(storyId, data);
+      data.passes = data.passes.slice(1); store.writeReviewPasses(storyId, data);
+      const redundantDeletionStillTrue = canPassReviewGuard({ storyId, store, projectRoot: root });
+      assert.equal(redundantDeletionStillTrue, true, 'real gate mutation fixture proves deleting one redundant admissible pass is insufficient');
+      data.passes = []; store.writeReviewPasses(storyId, data);
+      realGateMutationTrace = { redundantDeletionStillTrue, allPassesCleared: canPassReviewGuard({ storyId, store, projectRoot: root }) };
+    }
+    const realReviewGate = canPassReviewGuard({ storyId, store, projectRoot: root });
+    if (!mutation) assert.equal(realReviewGate, true, `real REVIEW gate accepts complete evidence under mixed mask ${mask} iteration ${iteration}`);
     console.log(`${MARKER} MIXED MASK ${mask} iteration ${iteration}: five concurrent legacy/full runs + pass/finding writers preserved gate evidence`);
+    return {
+      'review-run-identity': reviewRunIdentity,
+      'mixed-envelope-selection': mixedEnvelopeSelection,
+      'pass-finding-write-serialization': passFindingSerialization,
+      'signed-result-admissibility': signedResultAdmissibility,
+      'lane-no-overwrite': laneNoOverwrite,
+      'real-review-gate': realReviewGate,
+      ...(realGateMutationTrace ? { mutationTrace: realGateMutationTrace } : {}),
+    };
   } finally {
     resetConfigCache();
     rmSync(root, { recursive: true, force: true });
   }
 }
 
+function runIncrementalGuardClassMatrix(): GuardObservation[] {
+  const observations = [runConcurrentReviewerWriteCase(0b11111), runConcurrentReviewerWriteCase(0b01010), runConcurrentReviewerWriteCase(0b10101, 1)];
+  console.log(`${MARKER} INCREMENTAL_GUARD_CLASSES=${Object.keys(INCREMENTAL_GUARD_CLASS_MAP).join(',')}`);
+  return observations;
+}
+
+function runGuardShardTrials(): unknown {
+  const target = fileURLToPath(import.meta.url);
+  const program = String.raw`
+const {spawn}=require('child_process');
+const target=process.argv[1];
+const run=(args,timeout=120000)=>new Promise(resolve=>{const child=spawn(process.execPath,[target,...args],{stdio:['ignore','pipe','pipe']});let out='';child.stdout.on('data',x=>out+=x);child.stderr.on('data',x=>out+=x);const timer=setTimeout(()=>{child.kill('SIGKILL')},timeout);child.on('exit',(code,signal)=>{clearTimeout(timer);const line=out.split(/\r?\n/).find(x=>x.startsWith('GUARD_SCENARIO_RECEIPT='));resolve({code,signal,receipt:line?JSON.parse(line.slice('GUARD_SCENARIO_RECEIPT='.length)):null})})});
+(async()=>{const masks=[31,10,21];const serial=[];for(const mask of masks)serial.push(await run(['--guard-scenario='+mask]));const parallel=await Promise.all(masks.map(mask=>run(['--guard-scenario='+mask])));const [success,timeout]=await Promise.all([run(['--guard-scenario=21']),run(['--guard-timeout-fixture'],250)]);process.stdout.write(JSON.stringify({serial,parallel,successBesideTimeout:success,timeoutBesideSuccess:timeout}));})().catch(e=>{console.error(e);process.exit(1)});`;
+  const result = spawnSync(process.execPath, ['-e', program, target], { encoding: 'utf8', timeout: 360_000, maxBuffer: 16 * 1024 * 1024 });
+  if (result.status !== 0) throw new Error(`guard shard trial failed: ${result.stderr || result.stdout}`);
+  return JSON.parse(result.stdout);
+}
+
+type ScheduleTransition = {
+  mask: number;
+  expectedPredecessor: number | null;
+  observedPredecessor: number | null;
+  accepted: boolean;
+};
+
+function executeOrderDependentSchedule(schedule: number[], seed: string | undefined): {
+  passed: boolean;
+  rejected: boolean;
+  transitions: ScheduleTransition[];
+  orderViolations: number[];
+} {
+  if (seed !== 'fixed-mask-v1') return { passed: false, rejected: true, transitions: [], orderViolations: [] };
+  const expectedPredecessors = new Map<number, number | null>([[0b11111, null], [0b01010, 0b11111], [0b10101, 0b01010]]);
+  let predecessor: number | null = null;
+  const transitions = schedule.map(mask => {
+    const expectedPredecessor = expectedPredecessors.get(mask);
+    const accepted = expectedPredecessor !== undefined && predecessor === expectedPredecessor;
+    const transition = { mask, expectedPredecessor: expectedPredecessor ?? null, observedPredecessor: predecessor, accepted };
+    predecessor = mask;
+    return transition;
+  });
+  const orderViolations = transitions.filter(transition => !transition.accepted).map(transition => transition.mask);
+  return { passed: orderViolations.length === 0, rejected: false, transitions, orderViolations };
+}
+
+function runScheduleMutationTrial(): {
+  executed: true;
+  completed: boolean;
+  threw: boolean;
+  baselinePassed: boolean;
+  reorderedPassed: boolean;
+  orderViolation: boolean;
+  missingSeedRejected: boolean;
+  detected: boolean;
+  baseline: ReturnType<typeof executeOrderDependentSchedule>;
+  reordered: ReturnType<typeof executeOrderDependentSchedule>;
+  missingSeed: ReturnType<typeof executeOrderDependentSchedule>;
+} {
+  try {
+    const baseline = executeOrderDependentSchedule([0b11111, 0b01010, 0b10101], 'fixed-mask-v1');
+    const reordered = executeOrderDependentSchedule([0b10101, 0b01010, 0b11111], 'fixed-mask-v1');
+    const missingSeed = executeOrderDependentSchedule([0b11111, 0b01010, 0b10101], undefined);
+    const detected = baseline.passed && !reordered.passed && reordered.orderViolations.length > 0 && missingSeed.rejected;
+    return {
+      executed: true, completed: true, threw: false,
+      baselinePassed: baseline.passed, reorderedPassed: reordered.passed,
+      orderViolation: reordered.orderViolations.length > 0, missingSeedRejected: missingSeed.rejected,
+      detected, baseline, reordered, missingSeed,
+    };
+  } catch {
+    return {
+      executed: true, completed: false, threw: true,
+      baselinePassed: false, reorderedPassed: false, orderViolation: false, missingSeedRejected: false, detected: false,
+      baseline: { passed: false, rejected: false, transitions: [], orderViolations: [] },
+      reordered: { passed: false, rejected: false, transitions: [], orderViolations: [] },
+      missingSeed: { passed: false, rejected: false, transitions: [], orderViolations: [] },
+    };
+  }
+}
+
 function run(): void {
   runPolicyCases();
+  runBoundedPathsDegradationCase();
   runFixtureDuplicateIdentityCases();
   assertLargeDiffReviewMetadataStability();
   runIncrementalCases();
+  const cutoffStarted = performance.now();
   runProductionVerifierTemporalCutoffRegression();
+  const cutoffDurationMs = performance.now() - cutoffStarted;
   runGateUnchangedCase();
   runConcurrentCliReadOnlyCase();
+  const abaStarted = performance.now();
   runDeterministicTicketReclaimAbaCase();
-  runConcurrentReviewerWriteCase(0b11111);
-  runConcurrentReviewerWriteCase(0b01010);
-  for (let iteration = 1; iteration <= 20; iteration += 1) {
-    runConcurrentReviewerWriteCase(0b10101, iteration);
-  }
+  const abaDurationMs = performance.now() - abaStarted;
+  const matrixObservations = runIncrementalGuardClassMatrix();
+  // The three fixed masks above are the deterministic race/mutation matrix.
+  // Canonical full-suite runs add one 10101 burn-in; stress runs retain the
+  // historical twenty identical repetitions for soak testing.
+  const burnInIterations = process.env.LATTICE_INCREMENTAL_STRESS === '1' ? 20 : 1;
+  const burnInObservations = [matrixObservations[2]!];
+  for (let iteration = 2; iteration <= burnInIterations; iteration += 1) burnInObservations.push(runConcurrentReviewerWriteCase(0b10101, iteration));
+  const replayObservation = runConcurrentReviewerWriteCase(0b10101, burnInIterations + 1);
+  const canonicalObservation = burnInObservations[0]!;
+  const mutationKillMap = Object.fromEntries(Object.keys(INCREMENTAL_GUARD_CLASS_MAP).map(guardClass => {
+    if (burnInIterations !== 20) return [guardClass, { executed: false, detected: false }];
+    let mutated: GuardObservation | { threw: string };
+    try { mutated = runConcurrentReviewerWriteCase(0b10101, 100 + Object.keys(INCREMENTAL_GUARD_CLASS_MAP).indexOf(guardClass), guardClass as GuardMutation); }
+    catch (error) { mutated = { threw: error instanceof Error ? error.message : String(error) }; }
+    const baselineDigest = JSON.stringify(canonicalObservation);
+    const mutatedDigest = JSON.stringify(mutated);
+    const threw = 'threw' in mutated;
+    const observation = threw ? undefined : mutated as GuardObservation;
+    const targetFailed = observation?.[guardClass as keyof typeof INCREMENTAL_GUARD_CLASS_MAP] === false;
+    const realGateTrace = guardClass === 'real-review-gate' ? observation?.mutationTrace : undefined;
+    return [guardClass, {
+      executed: true, completed: !threw, threw, baseline: canonicalObservation[guardClass as keyof typeof INCREMENTAL_GUARD_CLASS_MAP],
+      ...(realGateTrace ?? {}), baselineDigest, mutatedDigest,
+      detected: targetFailed && baselineDigest !== mutatedDigest, outcome: mutated,
+    }];
+  }));
+  const scheduleMutation = burnInIterations === 20
+    ? runScheduleMutationTrial()
+    : { executed: false, completed: false, threw: false, baselinePassed: false, reorderedPassed: false, orderViolation: false, missingSeedRejected: false, detected: false };
+  const shardTrials = burnInIterations === 20 ? runGuardShardTrials() as {
+    serial: Array<{ code: number; receipt: unknown }>; parallel: Array<{ code: number; receipt: unknown }>;
+    successBesideTimeout: { code: number; receipt: unknown }; timeoutBesideSuccess: { code: number | null; signal: string | null };
+  } : null;
+  const shardEquivalence = shardTrials ? {
+    enabled: true,
+    jobs1: shardTrials.serial,
+    jobs3: shardTrials.parallel,
+    deterministic: JSON.stringify(shardTrials.serial.map(item => item.receipt)) === JSON.stringify(shardTrials.parallel.map(item => item.receipt)),
+    timeoutIsolated: shardTrials.successBesideTimeout.code === 0 && Boolean(shardTrials.successBesideTimeout.receipt)
+      && shardTrials.timeoutBesideSuccess.signal === 'SIGKILL',
+  } : { enabled: false, deterministic: false, timeoutIsolated: false };
+  const allRootsIsolatedPerCase = burnInObservations.length === burnInIterations;
+  const stressReceipt = {
+    deterministicSeed: 'fixed-mask-v1',
+    schedule: [0b11111, 0b01010, 0b10101],
+    shards: { ...shardEquivalence, observedSequentialCases: allRootsIsolatedPerCase },
+    replay: { mask: 0b10101, repetitions: burnInIterations, sameGuardClassOutcome: JSON.stringify(replayObservation) === JSON.stringify(canonicalObservation), observed: replayObservation },
+    mutationKillMap,
+    scheduleMutation,
+    iterations: burnInObservations.map((guardClasses, index) => ({ iteration: index + 1, guardClasses })),
+    aba: { observedDurationMs: abaDurationMs },
+    cutoff: { observedDurationMs: cutoffDurationMs },
+    restoration: { completedCases: burnInObservations.length, expectedCases: burnInIterations },
+  };
+  console.log(`INCREMENTAL_STRESS_RECEIPT=${JSON.stringify(stressReceipt)}`);
+  console.log(`LATTICE_FULL_SUITE_SUMMARY=${JSON.stringify({ assertions: ['canonical-iteration', 'guard-class-equivalence', 'restoration'], mutations: burnInIterations === 20 ? Object.keys(INCREMENTAL_GUARD_CLASS_MAP) : [] })}`);
   console.log(`\n${MARKER} PASS — incremental context is correct for returning/first-timer/rename (cases a–c), and canPassReviewGuard is behaviorally IDENTICAL with vs without the incremental helper across missing-round and invalid-binding fail-closed branches, with the helper proven to write nothing to the store (case d).`);
 }
 
-const isDirectRun = process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1];
+const isDirectRun = process.argv[1] && realpathSync(resolve(process.argv[1])) === realpathSync(fileURLToPath(import.meta.url));
 if (isDirectRun) {
-  if (process.argv.includes('--aba-only')) {
+  const guardScenario = process.argv.find(argument => argument.startsWith('--guard-scenario='));
+  if (guardScenario) {
+    const mask = Number(guardScenario.slice('--guard-scenario='.length));
+    console.log(`GUARD_SCENARIO_RECEIPT=${JSON.stringify({ mask, observation: runConcurrentReviewerWriteCase(mask, 900) })}`);
+  } else if (process.argv.includes('--guard-timeout-fixture')) {
+    Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 60_000);
+  } else if (process.argv.includes('--aba-only')) {
     runDeterministicTicketReclaimAbaCase();
   } else if (process.argv.includes('--cutoff-verifier-only')) {
     runProductionVerifierTemporalCutoffRegression();
+  } else if (process.argv.includes('--bounded-paths-only')) {
+    runBoundedPathsDegradationCase();
+  } else if (process.argv.includes('--guard-map-only')) {
+    runIncrementalGuardClassMatrix();
+  } else if (process.argv.includes('--schedule-mutation-only')) {
+    console.log(`SCHEDULE_MUTATION_RECEIPT=${JSON.stringify(runScheduleMutationTrial())}`);
   } else {
     run();
   }

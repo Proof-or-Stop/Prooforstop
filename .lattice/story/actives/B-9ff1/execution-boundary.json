@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-9ff1",
+  "allowedCommands": [
+    "git",
+    "node bin/lattice.js red_evidence_envelope_check",
+    "node packages/main/dist/tasks/command-catalog-smoke.js",
+    "node packages/main/dist/tasks/command-ownership-contract.js",
+    "node packages/main/dist/tasks/lifecycle-registry-contract.js",
+    "node packages/main/dist/tasks/red-evidence-envelope-smoke.js",
+    "node packages/main/tests/red/red-w2d-*.mjs",
+    "node scripts/verify-process-fact-contract.mjs",
+    "npm --prefix packages/main run build",
+    "npx tsc --noEmit -p packages/main"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "lattice.config.json",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/agent-dispatch-registry.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/lifecycle-registry.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/red-evidence/envelope.ts",
+    "packages/main/src/core/red-evidence/specificity.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/handlers/red-evidence.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/tasks/command-catalog-smoke.ts",
+    "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+    "packages/main/tests/red",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "createdAt": "2026-08-13T16:23:37.263Z",
+  "updatedAt": "2026-08-13T16:23:37.263Z",
+  "_hash": "0eaf13efc90c059e050fa39aee637a96dc2ea1508533e30e9a76453995b19fd4"
+}

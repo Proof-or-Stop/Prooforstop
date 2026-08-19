@@ -23,7 +23,7 @@ verifies them offline). Verified against the current CLI:
      string templates and only rejects string collisions. Two "independent" hosts in one store is a
      naming convention, not two signed attestations.
   3. **No cross-host collection:** `dispatch_auto` picks ONE host; non-Claude hosts (Codex) are
-     supervised-only/scaffolded — Proofbound does not auto-drive host B or collect its signed verdict.
+     supervised-only/scaffolded — Proof-or-Stop does not auto-drive host B or collect its signed verdict.
 - **Not covered by pre-reg:** the locked `lattice-experiment-protocol.md` has H1/H2/H3 only; a
   cross-host quorum-formation hypothesis (H4) must be added by amendment.
 - **Autopilot:** checkpoint/resume + 429/network health-aware pause/resume are production;
@@ -158,7 +158,7 @@ go/no-go decisions taken together.
   trust claim", per the threat model §3).
 - Do not flip `tab:tier` before the evidence exists (M5 is last).
 
-## 5. Lattice story sequence (all via the story workflow)
+## 5. Proof-or-Stop story sequence (all via the story workflow)
 1. M0 threat-model doc — story (docs; repro-first exempt).
 2. M1 automatic cross-host review + disagreement surfacing (crypto-deferred) — story B-f57a
    (material code; repro-first RED/SPIKE done).

@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-6693",
+  "sourceText": "停在TEST怎么解决？那就并行TEST是不是可以解决门禁上限问题？能不能解决？别问我。",
+  "normalizedOutcome": "Official Proofbound validation commands in the same git workspace no longer run concurrently and cause unchanged 120/180/300-second proof gates to fail from resource contention; a second command visibly waits and then runs automatically.",
+  "acceptanceClaim": "With one official validation holding workspace capacity, a different-story or no-story validate/done_required_validate reports the holder without entering its callback, then automatically runs after release and produces its own normal PASS evidence while command inventories and timeout budgets remain unchanged.",
+  "keyRequirementIds": [
+    "REQ-BARE-NPM-BOUNDARY",
+    "REQ-PROOF-BUDGET-INVARIANCE",
+    "REQ-WAIT-AND-RUN",
+    "REQ-WORKSPACE-CAPACITY"
+  ],
+  "requestHash": "sha256:fe49d37097f34a124a5146b38cecf7fa2000a7b8a2c5dd22cde7ca5071b65d12",
+  "createdAt": "2026-08-14T15:21:11.398Z",
+  "updatedAt": "2026-08-14T15:21:11.398Z"
+}

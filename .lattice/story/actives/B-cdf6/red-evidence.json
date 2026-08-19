@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-cdf6",
+  "records": [
+    {
+      "id": "RED-001-bin-absent",
+      "trigger": "AB-001-bin-rename: the user asked to rename the command tool to proof-or-stop, so invoking the tool under the new name must succeed.",
+      "acceptanceTargetRef": "AB-001-bin-rename",
+      "baselineHeadHash": "4f2a6aa7d76c7be07196fc10d0c400cafa594804",
+      "baselineMaterialHash": "f5fdca086062ae55057afdb09f1e9b74b57adba36bec3c58a099193167abb3a2",
+      "observedFailure": "Observed on baseline HEAD in the B-cdf6 worktree: (1) `command -v proof-or-stop` exits 1 - the name does not resolve on PATH; (2) `node bin/proof-or-stop.js --version` throws MODULE_NOT_FOUND from node:internal/modules/cjs/loader because bin/proof-or-stop.js does not exist; bin/ contains only bootstrap-runner.js, lattice-codex.js and lattice.js. Control observation proving the harness itself works: `node bin/lattice.js --version` succeeds and prints 'Proofbound CLI 0.3.251', which additionally exhibits the legacy product-name string this story normalizes to Proof-or-Stop.",
+      "failingCommand": "command -v proof-or-stop || node bin/proof-or-stop.js --version",
+      "expectedGreenCommand": "node bin/proof-or-stop.js --version",
+      "greenRelation": {
+        "targetRef": "AB-001-bin-rename",
+        "relation": "same_acceptance",
+        "command": "node bin/proof-or-stop.js --version"
+      },
+      "note": "Red evidence for the rename's central user-visible claim. The red state is definitional rather than a defect: the new bin genuinely does not exist yet, so the failing command is the honest pre-state. Green is reached by CHK-002 adding the bin entry plus wrapper, at which point the same command prints the version. The lattice control invocation is recorded so a reviewer can distinguish 'new name missing' from 'CLI broken in this worktree'.",
+      "createdAt": "2026-08-11T03:44:53.495Z"
+    }
+  ],
+  "createdAt": "2026-08-11T03:44:53.495Z",
+  "updatedAt": "2026-08-11T03:44:53.495Z"
+}

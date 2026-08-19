@@ -1,0 +1,47 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Make all six pre-story allocation questions mechanically answerable in the architecture plan",
+      "context": "Extend the normative probe/review schemas, freshness, verdict derivation, story_create ordering, reason codes, rollout and verification matrix with causeClassification, activeStoryAssessment and conflictAssessment. Preserve Q1-Q5 compatibility while making PROCEED require code-change necessity and zero unresolved conflicts.",
+      "relatedDocs": [
+        "docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md",
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/session-ownership-and-write-leases.md",
+        "docs/evidence/evidence-platform-architecture.md"
+      ],
+      "userSees": "The decision document contains an explicit six-question proof table and machine-checkable rules showing when to reuse an existing mechanism or Story, perform a non-code recovery, research a conflict, or create a minimal implementation Story.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Independently re-audit the strengthened six-proof contract",
+      "context": "Run focused Claude CLI and agy CLI reviews over the amended normative sections, reconcile any BLOCKER/HIGH findings, and record the amendment audit without rewriting the historical B-c648 audit record.",
+      "relatedDocs": [
+        "docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md",
+        "docs/host-run-usage.md",
+        "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
+      ],
+      "userSees": "The audit addendum identifies the two hosts, their verdicts, material findings and dispositions, and confirms whether all six questions are fail-closed without overclaiming local host receipts.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

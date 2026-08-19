@@ -1,0 +1,93 @@
+{
+  "principles": [
+    "A gate relaxation must be structurally impossible to trigger without the fact it relaxes for",
+    "Prefer wiring a capability that already exists over building a parallel one",
+    "A check must read the property it guarantees, not a proxy for it",
+    "Where the framework cannot prove something mechanically, say so as a defect rather than accepting prose in its place"
+  ],
+  "drivers": [
+    "withdrawnChecklistItemIdsFrom exists, is tested, and has no production caller - the capability is built but unwired",
+    "It takes the decision record as input and enforces confirmed + userConfirmed, so backing is structural rather than remembered",
+    "core/checklist-status.ts is the tempting route and is the dangerous one: 11 consumers, zero decisionRef awareness",
+    "A withdrawal decided during REVIEW is B-1909's own stated trigger, and is exactly the granularity left unwired",
+    "The current workaround is three waiver rows whose own text says the framework could not do this mechanically - which stopped being true when B-1909 landed the helper"
+  ],
+  "options": [
+    {
+      "name": "A-wire-existing-helper",
+      "pros": [
+        "Uses a decision-backed helper that already exists and is already covered by a smoke",
+        "Backing is structural: the function cannot be satisfied by a status string because it never reads one",
+        "Mutates nothing - no binding changes, PLAN freeze preserved",
+        "Both gates stay strict for every item that is not withdrawn"
+      ],
+      "cons": [
+        "Wires two hand-named files, which is the same method that left them unwired in the first place",
+        "Requires separate anti-bypass proof, since 'it uses the right helper' is a claim until executed"
+      ]
+    },
+    {
+      "name": "B-status-predicate",
+      "pros": [
+        "Smallest possible diff",
+        "Reuses core/checklist-status.ts, the module built for withdrawal semantics"
+      ],
+      "cons": [
+        "FATAL: checklist-status.ts has zero decisionRef awareness, so this ships a gate anyone bypasses by writing status='withdrawn' into a JSON file",
+        "Turns a correct-but-inconvenient gate into a back door - strictly worse than the bug",
+        "Included here because it is the intuitive fix and must be recorded as rejected, not silently avoided"
+      ]
+    },
+    {
+      "name": "C-mutate-binding",
+      "pros": [
+        "Removes the demand at its source rather than skipping it at the gate"
+      ],
+      "cons": [
+        "The affected binding covered a withdrawn AND a delivered item, so whole-binding withdrawal drops real coverage",
+        "proofstory_contract_set is PLAN-frozen by deliberate B-1909 design; unfreezing it to satisfy a gate inverts the intended direction",
+        "Already refused in practice on B-8df9"
+      ]
+    },
+    {
+      "name": "D-derive-consumers",
+      "pros": [
+        "Prevents the fourth recurrence of the enumeration defect rather than fixing the third instance"
+      ],
+      "cons": [
+        "A codebase-wide audit, not a gate fix; the exclusion triage is the bulk of the work",
+        "Does not unblock B-8df9, which is the reason this story exists now",
+        "Better as its own story, and is tracked as one"
+      ]
+    }
+  ],
+  "chosen": "A-wire-existing-helper",
+  "rationale": "Option B is the one worth arguing against, because it is what a hurried implementer will actually write: it is a two-line change in the module explicitly built for withdrawal semantics. It is rejected because that module has zero decisionRef awareness, so the resulting skip keys on a string any editor can write - converting a gate that is currently merely inconvenient into one that is bypassable by anyone with file access. That is strictly worse than the defect. The execution boundary therefore blocks core/checklist-status.ts as a path, so the tempting route is mechanically closed rather than merely discouraged. Option A is chosen because the safety property is structural rather than procedural: withdrawnChecklistItemIdsFrom takes the DECISION RECORD as input and calls decisionAuthorizesWithdrawal, which requires confirmed + userConfirmed, and it never inspects a checklist item at all - so there is no way to satisfy it with a status field. C was already refused in practice on B-8df9 and would have dropped delivered coverage. D is the right long-term answer to recurrence and is tracked separately; folding it in would widen a narrow gate fix into a codebase audit and would not unblock B-8df9.",
+  "preMortem": [
+    {
+      "scenario": "An implementer ships the naive status check anyway and the words of the checklist are technically satisfied",
+      "trigger": "CHK-002 or CHK-003 lands with `item.status === 'withdrawn'` guarding the skip",
+      "consequence": "The gate becomes bypassable by editing one JSON field - a back door shipped as a bug fix",
+      "mitigation": "core/checklist-status.ts is a BLOCKED path in the execution boundary; CHK-004 exists solely to prove unbacked withdrawals skip nothing, and must be written so a naive implementation fails it"
+    },
+    {
+      "scenario": "CHK-004's anti-bypass cases are written but are all unreachable via the sanctioned CLI, so they prove nothing about the real threat",
+      "trigger": "Every case is constructed through scope_shrinkage_decision_set, which validates at write time",
+      "consequence": "The anti-bypass proof becomes theatre and the real threat - direct JSON edits - stays untested",
+      "mitigation": "Construct the unbacked states by writing the JSON directly, which IS the threat model; the decision='rejected' overwrite case is additionally CLI-reachable and covers the sanctioned path"
+    },
+    {
+      "scenario": "CHK-001's repro is built against a fixture whose shape differs from the real B-8df9 case and passes for the wrong reason",
+      "trigger": "The fixture withdraws an item that does NOT share an acceptance binding with a delivered item",
+      "consequence": "The gate might skip it for an unrelated reason and the repro would go green after a fix that does not address the real case",
+      "mitigation": "CHK-001 requires the withdrawn item to SHARE a binding with a delivered item, mirroring B-8df9's AB-002, plus both positive and negative controls"
+    },
+    {
+      "scenario": "Deleting B-8df9's waivers desynchronises that story's evidence and forces it through another full review round",
+      "trigger": "CHK-005 edits B-8df9's checklist.json while B-8df9 sits in REVIEW in its own worktree",
+      "consequence": "B-8df9 needs a re-attestation round it would not otherwise have needed, or worse, its owner lease rejects the write",
+      "mitigation": "Do it from B-8df9's own worktree with its session id, expect a re-attestation round there regardless since main will have moved, and verify both gates pass with zero waivers before declaring the item done"
+    }
+  ],
+  "timestamp": "2026-08-16T23:00:35.583Z"
+}

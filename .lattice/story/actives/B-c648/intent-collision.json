@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-c648",
+  "id": "IC-20260814033739",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "B-c648 is a documentation-only Story that creates one canonical Mechanism Placement Proof architecture decision and records two independent audits: Claude CLI and Antigravity CLI invoked through agy. It does not implement runtime enforcement, modify B-fb7b, or create a new lifecycle phase.",
+  "acceptedInterpretationHash": "sha256:71d15cd37f30d1d92655d9e8bc7cdc705e0a589d192b8e91de1626dfc97ac879",
+  "notes": "Independent Claude CLI intent-collision review found one coherent interpretation: agy is the repository-standard Antigravity CLI name; CHK-001 plus CHK-002 cover all three original key requirements; the acceptance binding covers both checklist items and all six intent refs; runtime implementation is explicitly excluded. Claude could not persist because the live owner lease correctly rejected a non-owner mutation, so the owning main session records the unchanged PASS verdict.",
+  "createdAt": "2026-08-14T03:37:39.796Z",
+  "updatedAt": "2026-08-14T03:37:39.796Z"
+}

@@ -1,0 +1,54 @@
+{
+  "storyId": "B-3e5d",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/tasks/field-regression-cli-smoke.ts",
+    "packages/main/tests/red/red-b49d4-harness-registration.mjs"
+  ],
+  "allowedCreate": [
+    "packages/main/tests/red/red-B-new-concurrent-done-race.mjs",
+    "packages/main/tests/red/red-B-new-retired-channel-lane.mjs"
+  ],
+  "allowedTest": [
+    "packages/main/tests/red/red-B-new-concurrent-done-race.mjs"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "packages/main/src/Broadly re-rooting ctx.store to protect every read site during a DONE race, beyond the one StoryArtifactMissingError call site in transition-orchestrator.ts",
+    "packages/main/src/Changes to prompt-role-contract-registry.ts or flow-fact-policy.ts"
+  ],
+  "scopeChangeReason": "Initialized from PLAN checklist files (7 items, all with files.modify/create/test declared) and decision.json's chosen=narrow-catch-and-translate option.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Mandatory side-effect of dev_memory_capture, which the F-001 review finding recommended running to record a reusable lesson about no-op root-reroute fixes; not covered by RUNTIME_ARTIFACT_REGISTRY.",
+      "timestamp": "2026-08-16T13:30:08.788Z",
+      "paths": [
+        ".lattice/dev-memory/experience.jsonl"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/dev-memory/experience.jsonl"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "aa9a5a877b4082f3ba4524206b1d31d7e9dcfd0e",
+      "materialHash": "bf671b94f6d0239b93d69cb554fc1eb5352357b50bad963be7a5f3eae0b451f3"
+    }
+  ],
+  "createdAt": "2026-08-16T11:56:21.365Z",
+  "updatedAt": "2026-08-16T13:30:08.788Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/handlers/transition-orchestrator.ts": "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/tasks/field-regression-cli-smoke.ts": "packages/main/src/tasks/field-regression-cli-smoke.ts",
+    "packages/main/tests/red/red-b49d4-harness-registration.mjs": "packages/main/tests/red/red-b49d4-harness-registration.mjs",
+    "packages/main/tests/red/red-B-new-concurrent-done-race.mjs": "packages/main/tests/red/red-B-new-concurrent-done-race.mjs",
+    "packages/main/tests/red/red-B-new-retired-channel-lane.mjs": "packages/main/tests/red/red-B-new-retired-channel-lane.mjs",
+    "packages/main/src/Broadly re-rooting ctx.store to protect every read site during a DONE race, beyond the one StoryArtifactMissingError call site in transition-orchestrator.ts": "Broadly re-rooting ctx.store to protect every read site during a DONE race, beyond the one StoryArtifactMissingError call site in transition-orchestrator.ts",
+    "packages/main/src/Changes to prompt-role-contract-registry.ts or flow-fact-policy.ts": "Changes to prompt-role-contract-registry.ts or flow-fact-policy.ts",
+    ".lattice/dev-memory/experience.jsonl": ".lattice/dev-memory/experience.jsonl"
+  }
+}

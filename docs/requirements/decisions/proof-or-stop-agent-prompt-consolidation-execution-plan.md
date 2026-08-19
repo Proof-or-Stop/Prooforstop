@@ -38,8 +38,8 @@ Naming note: all canonical agent role IDs in the target state use the
 lanes, and in-flight evidence may still contain legacy role IDs such as
 `lattice-*`, `product-reviewer`, `implementation-reviewer`, `test-intent`, or
 `test-case-reviewer` until the implementation migration lands. Those names are
-treated as transitional aliases only. CLI commands such as `lattice validate`
-and `lattice agent_prompt` remain command names and are not renamed by this
+treated as transitional aliases only. CLI commands such as `proof-or-stop validate`
+and `proof-or-stop agent_prompt` remain command names and are not renamed by this
 document.
 
 ## Three-Host Review Consensus
@@ -76,7 +76,7 @@ and the resulting judgment.
 
 | Suggestion | Project evidence | Judgment for this plan |
 |---|---|---|
-| Split gates into hard gates, reviewer gates, and advisory lanes. | `packages/main/src/core/machine.ts` has phase guards for INIT_CHECK, DEV entry, REVIEW entry, REVIEW->TEST, and DONE. `packages/main/src/handlers/transition-orchestrator.ts` additionally runs REVIEW->TEST CLI preflight, `lattice validate`, and DONE pre-merge gates. | Accepted with correction: do not list only four hard gates. DEV->REVIEW is also a hard checklist/evidence gate. |
+| Split gates into hard gates, reviewer gates, and advisory lanes. | `packages/main/src/core/machine.ts` has phase guards for INIT_CHECK, DEV entry, REVIEW entry, REVIEW->TEST, and DONE. `packages/main/src/handlers/transition-orchestrator.ts` additionally runs REVIEW->TEST CLI preflight, `proof-or-stop validate`, and DONE pre-merge gates. | Accepted with correction: do not list only four hard gates. DEV->REVIEW is also a hard checklist/evidence gate. |
 | Treat reviewer output as lane-scoped only after `review_run_start`. | `packages/main/src/core/review-run.ts` restricts `REVIEW_RUN_LANES`; `packages/main/src/handlers/finding.ts` only treats `agent.startsWith('lattice-review-')` as reviewer evidence; `packages/main/src/core/reviewer-quorum.ts` maps active reviewers to lanes. | Accepted. This is exactly why M0.5 must normalize role IDs across review-run, finding/pass, quorum, and process-fact readers before new prompt writes. |
 | Keep evaluator/product/implementation advisory unless they have a structured sink. | `packages/main/src/handlers/evaluate.ts` already has `evaluate_save`, and `packages/main/src/core/done-oracle.ts` consumes `eval-evidence.json` when workflow policy requires evaluator evidence. `proof-or-stop-product-reviewer` is required by INIT via `REQUIRED_INIT_CHECK_AGENTS` in `packages/main/src/core/init-check-gate.ts`. `proof-or-stop-implementation-reviewer` is not in `REVIEW_RUN_LANES`. | Partially accepted. Raw evaluator JSON remains advisory; `evaluate_save` evidence can be gate-consumed by policy. Product reviewer cannot be downgraded until INIT is migrated. Implementation reviewer should be folded/retired for Proof-or-Stop rather than kept as a third code-review lane. |
 | Add artifact schema / writer / reader / freshness table. | `packages/main/src/cli/command-schemas.ts`, `packages/main/src/handlers/checklist.ts`, `packages/main/src/handlers/delivery-check.ts`, `packages/main/src/core/evidence-freshness.ts`, and `packages/main/src/core/delivery-check-hash.ts` already define real fields and freshness behavior. | Accepted. The plan now documents current writer/reader/freshness contracts and marks gaps where implementation must harden them. |
@@ -145,7 +145,7 @@ This is a host/CLI output contract, not a per-agent hand-rendering duty.
 
 Current code-backed evidence:
 
-- `lattice milestone_status` is an L0 read-only progress projection over the
+- `proof-or-stop milestone_status` is an L0 read-only progress projection over the
   existing milestone ledger, checklist, verification intent/evidence, story
   phase, and summary facts.
 - The CLI already auto-appends the rendered milestone status table after
@@ -160,7 +160,7 @@ Current code-backed evidence:
   and/or aggregate reviewer state into the status projection.
 - The rendered UX has six user-facing row states: Done, In Progress, Pending
   Review, Not Started, Blocked, and Failed.
-- Standalone `lattice milestone_status` with no `milestone-ledger.json` renders
+- Standalone `proof-or-stop milestone_status` with no `milestone-ledger.json` renders
   a normal `Milestone Status - <storyId>` report with `Ledger: missing` and a
   blocked current row. The distinct `Checklist-derived ledger (no milestone
   ledger set)` block is the CLI auto-append fallback for configured mutating
@@ -172,9 +172,9 @@ Rules for this prompt consolidation:
 | Situation | Required behavior |
 |---|---|
 | A command changes story phase, checklist status, milestone ledger, verification evidence, delivery check, or summary state. | The user must see current progress UX in the same human-facing interaction. Prefer the CLI auto-append path. |
-| A command changes reviewer pass/finding state. | Current code does not auto-append progress UX for this path. Until a later implementation story changes that, the host must show reviewer impact through normal review output and run `lattice milestone_status --storyId=<id>` before a human-facing handoff when progress state is relevant. |
+| A command changes reviewer pass/finding state. | Current code does not auto-append progress UX for this path. Until a later implementation story changes that, the host must show reviewer impact through normal review output and run `proof-or-stop milestone_status --storyId=<id>` before a human-facing handoff when progress state is relevant. |
 | The command output already includes `Milestone Status - <storyId>` or `Checklist-derived ledger (no milestone ledger set) - <storyId>`. | Do not duplicate the table. The UX requirement is satisfied. |
-| A progress-relevant state-changing command, handoff, or final response does not auto-append progress UX but the response is human-facing. | The host/owner session must run `lattice milestone_status --storyId=<id>` and show or attach the result. This does not apply to unrelated read-only command output. |
+| A progress-relevant state-changing command, handoff, or final response does not auto-append progress UX but the response is human-facing. | The host/owner session must run `proof-or-stop milestone_status --storyId=<id>` and show or attach the result. This does not apply to unrelated read-only command output. |
 | Output is machine JSON (`--json` / `--format=json`). | Do not inject Markdown into machine stdout. The next human-facing handoff or final response must include the progress view when progress is relevant. |
 | An agent is producing findings, passes, evaluator JSON, delivery input, or implementation evidence. | The agent must not hand-write or guess milestone status. It writes structured facts; `milestone_status` renders the UX. |
 
@@ -205,7 +205,7 @@ Rules:
   - story title, description, acceptance wording, and risk signals;
   - current diff, changed files, exported symbols, command names, config keys,
     and public docs anchors;
-  - `lattice aux_doc_list` or its available replacement;
+  - `proof-or-stop aux_doc_list` or its available replacement;
   - bounded `rg` results over docs, capped to the top N relevant documents with
     the cap recorded by the agent or routing surface.
 - A full `decisions/*.md` scan is allowed only when at least one escalation
@@ -262,7 +262,7 @@ The consolidated system should present the 16 prompts as four classes:
 | `proof-or-stop-review-quality` | REVIEW reviewer for dead code, type safety, maintainability, I/O shell isolation, and proof metadata consistency. | Catches maintainability and narrow correctness risks not covered by lint. | Duplicates `proof-or-stop-implementation-reviewer`. Repeats docs-promise reverse checks. | Keep. Own maintainability and code-quality risks. Retire or fold `proof-or-stop-implementation-reviewer` into this lane. Remove docs-promise check. |
 | `proof-or-stop-review-docs` | REVIEW reviewer for code/documentation drift around changed symbols. | Catches stale docs, bad command examples, schema mismatch, and docs/code disagreement. | Shares docs-promise checks with several other reviewers and overlaps with `delivery` docsPromises. Symbol extraction can miss behavior/config changes. | Keep. Make this the single REVIEW owner of doc-code drift and docs-promised-code-missing checks. Add non-symbol anchors for CLI commands/config/env changes. |
 | `proof-or-stop-review-concept` | REVIEW reviewer for concept deletion/replacement residue. | Prevents retired terminology or old concepts from lingering after a rename/removal. | Concept residue scan can overlap with docs review and quality cleanup. It also carries docs-promise self-check unrelated to concept cleanup. | Keep as conditional/CLI-triggered lane. Own only concept residue. Remove docs-promise check. |
-| `proof-or-stop-review-channel` | REVIEW reviewer for normal-channel dispatch evidence using `process-events.jsonl`. | Originally prevented main-agent self-writing in normal channel. | Top-level docs say this LLM agent is retired in favor of `lattice validate --channel`. It reads `docs/story/.../process-events.jsonl` directly and duplicates the channel CLI gate. | Retire as active reviewer. Keep only as historical compatibility prompt, or replace body with "use `lattice validate --channel`". |
+| `proof-or-stop-review-channel` | REVIEW reviewer for normal-channel dispatch evidence using `process-events.jsonl`. | Originally prevented main-agent self-writing in normal channel. | Top-level docs say this LLM agent is retired in favor of `proof-or-stop validate --channel`. It reads `docs/story/.../process-events.jsonl` directly and duplicates the channel CLI gate. | Retire as active reviewer. Keep only as historical compatibility prompt, or replace body with "use `proof-or-stop validate --channel`". |
 | `proof-or-stop-review-test-coverage` | REVIEW reviewer for `verificationIntent` to `verificationEvidence` coverage. | Current replacement for legacy TEST_CASE_REVIEW value. | Correct high-level role, but must be stricter about starting with `review_run_start`, using current CLI shape, and never resurrecting legacy phases. | Keep. Make it the sole owner of verification coverage review. |
 | `proof-or-stop-review-delivery` | TEST/DONE-adjacent delivery reviewer that verifies docs promises, real machine tests, and closing self-check. | Prevents green engineering checks from becoming false product delivery. | Overlaps with `proof-or-stop-review-docs` on docs promises and with `proof-or-stop-product-reviewer` on user-value closure. | Keep. Own final delivery artifact (`delivery_check_set`) only. Consume docs-review output when available; do not duplicate all REVIEW doc drift checks unless no docs reviewer ran. |
 | `proof-or-stop-evaluator` | Browser/product evaluator using browser API. | Exercises UI like a user and scores functionality/usability. | Overlaps with `behavior` and `proof-or-stop-product-reviewer`; output is JSON text, not structured Proof-or-Stop evidence. | Keep as optional evaluator. Clarify advisory status or add a structured evidence sink if it should gate. |
@@ -506,7 +506,7 @@ Problem it solved:
 Required prompt changes:
 
 - Retire as active reviewer because channel validation is now a CLI gate:
-  `lattice validate --channel --story=<id>`.
+  `proof-or-stop validate --channel --story=<id>`.
 - Replace body with a compatibility notice or mark it legacy/retired in prompt
   registry metadata.
 - Remove direct `process-events.jsonl` reading from active prompts.
@@ -756,11 +756,11 @@ kept in sync with registry metadata once M1 adds structured prompt status.
 
 ### Milestone Ledger State Vocabulary
 
-Use the same six-state vocabulary as the current `lattice milestone_status`
+Use the same six-state vocabulary as the current `proof-or-stop milestone_status`
 human UX for prompt-consolidation milestone tracking. Prompt status such as
 `active`, `conditional`, `advisory`, `folded`, `retired`, `legacy`, or
 `not_routed` is registry/routing metadata, not a milestone row state. The
-user-visible progress UX must come from `lattice milestone_status`, not from
+user-visible progress UX must come from `proof-or-stop milestone_status`, not from
 agents translating these states by hand.
 
 | State | Meaning |
@@ -798,7 +798,7 @@ Important ledger rule:
 | `proof-or-stop-review-quality` | REVIEW | Code quality, maintainability, type safety, layering. | Catches dead code, unsafe casts, swallowed errors, and maintainability risks. | Current diff, changed files, source reads, narrow proof metadata context. | `review_run_start`, then `finding_add` or `review_pass_set`. | Active, needs duplicate doc-check removal. | Ledger derives reviewer lane state from signed review run and finding/pass. | Owns quality only; behavior correctness and docs drift belong elsewhere. |
 | `proof-or-stop-review-docs` | REVIEW | Docs/code consistency and docs promise verification. | Prevents docs from promising nonexistent commands/fields/behavior and prevents stale docs. | Current diff, changed symbols, changed docs, command/config/env anchors, related source files. | `review_run_start`, then `finding_add` or `review_pass_set`. | Active, should become sole REVIEW docs owner. | Ledger derives docs-review state from signed review run and finding/pass. | Owns REVIEW doc drift; delivery owns final delivery promise artifact. |
 | `proof-or-stop-review-concept` | REVIEW conditional | Concept deletion/rename residue scan. | Prevents stale concepts and retired terminology from surviving migrations. | Current diff, deleted/replaced concept terms, repository grep results. | `review_run_start`, then `finding_add` or `review_pass_set`. | Conditional-active, not default-routed; needs trigger/overlap cleanup. | When no trigger exists, routing metadata records `not_routed` with reason; milestone rows use the real UX states only when a story owns concept work. | Only owns concept residue, not generic docs or quality review. |
-| `proof-or-stop-review-channel` | REVIEW replaced by CLI | Historical dispatch/channel evidence review. | Previously detected normal-channel main-agent self-writing. | Story/checklist/process events in old prompt. | Historically `finding_add`/`review_pass_set`; target is no LLM output. | Retired / CLI-replaced. | Routing metadata marks it retired/CLI-only; channel status comes from `lattice validate --channel`, not a milestone `done` row. | Isolated into CLI gate; no active reviewer overlap. |
+| `proof-or-stop-review-channel` | REVIEW replaced by CLI | Historical dispatch/channel evidence review. | Previously detected normal-channel main-agent self-writing. | Story/checklist/process events in old prompt. | Historically `finding_add`/`review_pass_set`; target is no LLM output. | Retired / CLI-replaced. | Routing metadata marks it retired/CLI-only; channel status comes from `proof-or-stop validate --channel`, not a milestone `done` row. | Isolated into CLI gate; no active reviewer overlap. |
 | `proof-or-stop-review-test-coverage` | REVIEW | `verificationIntent` to `verificationEvidence` coverage audit. | Ensures must intents have concrete evidence or waiver. | `storyId`, checklist, validation coverage output, evidence records. | `review_run_start`, then coverage findings or `review_pass_set`. | Active, needs first-command/CLI-shape hardening. | Ledger derives verification coverage state from review run plus validation evidence. | Sole owner of verification coverage; legacy test-case reviewer is not active. |
 | `proof-or-stop-review-delivery` | TEST / DONE closeout | Signed delivery promise and machine-test review. | Prevents false DONE and unsupported final delivery claims. | `storyId`, current diff, docs promises, tests/transcripts, source grep proof. | `delivery_check_set`, or refusal with explicit reason. | Active, needs docs/product boundary clarification. | Ledger derives delivery state from signed `delivery_check_set`; refusal maps to `blocked`. | Owns final delivery artifact; docs reviewer owns REVIEW doc drift. |
 | `proof-or-stop-evaluator` | TEST optional/policy-gated | Browser/UI product exercise via browser API. | Finds user-visible UI defects through actual operation. | `serveUrl`, checklist, browser status/DOM/actions/console. | Raw JSON report; optional `eval-evidence.json` via `evaluate_save`. | Optional raw lane; policy-gated only after `evaluate_save`. | Ledger ignores raw JSON; persisted `eval-evidence.json` is consumed only by evaluator policy. | Does not replace behavior review or delivery check. |
@@ -817,15 +817,15 @@ that fact.
 
 | Prompt | Trigger | Required first command | Allowed writes | Required output | Canonical agent/lane | Blocking semantics |
 |---|---|---|---|---|---|---|
-| `proof-or-stop-review-story-init` | INIT before INIT_CHECK. | `lattice story_get` plus `lattice checklist_get`, or a future `lattice init_context_get`. | `init_check_set` only. | Signed INIT pass/issues; equivalent fresh-context fence if `init-self-check.json` is removed. | `proof-or-stop-review-story-init`; legacy `lattice-review-story-init` accepted read-only during alias window. | High/critical INIT issues block INIT_CHECK. Missing fresh-context fence blocks if the current gate requires it. |
-| `proof-or-stop-review-scope-plan` | PLAN before DEV. | `lattice story_get` plus `lattice checklist_get`, or a future `lattice scope_context_get`. | `scope_check_save` only. | Requirement coverage map with `covered`, `excluded`, `gap`, `orphan-suspect`, and open questions. | `proof-or-stop-review-scope-plan`. | Open gaps/questions block PLAN->DEV unless explicitly waived by the gate policy. |
-| `proof-or-stop-implementer` | DEV when channel policy, risk, or owner dispatch requires worker evidence. | `lattice checklist_get` or assigned plan/context command. | Code/docs commits, checklist status, `verification_evidence_add`; `checklist_update verificationEvidence` is compatibility only. | Implemented checklist item plus concrete verification evidence bound to the intent. | `proof-or-stop-implementer`. | Missing required evidence blocks DEV->REVIEW/TEST through coverage and validation gates. Implementer never advances phase. |
-| `proof-or-stop-review-behavior` | REVIEW when behavior/user-visible code changed. | `lattice review_run_start`. | `finding_add` or `review_pass_set`. | Behavior finding/pass bound to current review run. | `proof-or-stop-review-behavior`. | Verified open critical/high findings block REVIEW->TEST; suspected findings are advisory by evidenceState policy. |
-| `proof-or-stop-review-quality` | REVIEW for changed source or process code. | `lattice review_run_start`. | `finding_add` or `review_pass_set`. | Quality finding/pass bound to current review run. | `proof-or-stop-review-quality`. | Verified open critical/high findings block REVIEW->TEST. |
-| `proof-or-stop-review-docs` | REVIEW when docs, CLI commands, config, schemas, public names, or documented behavior may drift. | `lattice review_run_start`. | `finding_add` or `review_pass_set`. | Docs/code drift finding/pass. | `proof-or-stop-review-docs`. | Verified open critical/high findings block REVIEW->TEST. If this lane is not routed, delivery must run a final docs-promise fallback scan. |
-| `proof-or-stop-review-concept` | REVIEW only when rename/removal/concept-deletion trigger exists. | `lattice review_run_start`. | `finding_add` or `review_pass_set`. | Concept residue finding/pass, or `not_routed` routing metadata with reason. | `proof-or-stop-review-concept`. | Triggered verified open critical/high findings block REVIEW->TEST; untriggered lane is skipped by routing metadata, not by a fake pass. |
-| `proof-or-stop-review-test-coverage` | REVIEW baseline for non-trivial stories. | `lattice review_run_start`. | `finding_add` or `review_pass_set`. | `verificationIntent` to `verificationEvidence` coverage finding/pass. | `proof-or-stop-review-test-coverage`. | Missing/stale must-evidence blocks REVIEW->TEST or TEST validation. |
-| `proof-or-stop-review-delivery` | TEST/DONE closeout. | `lattice validate` / `lattice done_prepare` context, and `done_required_validate` status when project policy configures DONE-required commands, then delivery evidence command. | `delivery_check_set` only. | Signed delivery pass/refusal with test/transcript/docs-promise basis. | `proof-or-stop-review-delivery`. | Refusal or stale/missing delivery evidence blocks DONE; missing fresh DONE-required evidence blocks only when that policy is configured. |
+| `proof-or-stop-review-story-init` | INIT before INIT_CHECK. | `proof-or-stop story_get` plus `proof-or-stop checklist_get`, or a future `proof-or-stop init_context_get`. | `init_check_set` only. | Signed INIT pass/issues; equivalent fresh-context fence if `init-self-check.json` is removed. | `proof-or-stop-review-story-init`; legacy `lattice-review-story-init` accepted read-only during alias window. | High/critical INIT issues block INIT_CHECK. Missing fresh-context fence blocks if the current gate requires it. |
+| `proof-or-stop-review-scope-plan` | PLAN before DEV. | `proof-or-stop story_get` plus `proof-or-stop checklist_get`, or a future `proof-or-stop scope_context_get`. | `scope_check_save` only. | Requirement coverage map with `covered`, `excluded`, `gap`, `orphan-suspect`, and open questions. | `proof-or-stop-review-scope-plan`. | Open gaps/questions block PLAN->DEV unless explicitly waived by the gate policy. |
+| `proof-or-stop-implementer` | DEV when channel policy, risk, or owner dispatch requires worker evidence. | `proof-or-stop checklist_get` or assigned plan/context command. | Code/docs commits, checklist status, `verification_evidence_add`; `checklist_update verificationEvidence` is compatibility only. | Implemented checklist item plus concrete verification evidence bound to the intent. | `proof-or-stop-implementer`. | Missing required evidence blocks DEV->REVIEW/TEST through coverage and validation gates. Implementer never advances phase. |
+| `proof-or-stop-review-behavior` | REVIEW when behavior/user-visible code changed. | `proof-or-stop review_run_start`. | `finding_add` or `review_pass_set`. | Behavior finding/pass bound to current review run. | `proof-or-stop-review-behavior`. | Verified open critical/high findings block REVIEW->TEST; suspected findings are advisory by evidenceState policy. |
+| `proof-or-stop-review-quality` | REVIEW for changed source or process code. | `proof-or-stop review_run_start`. | `finding_add` or `review_pass_set`. | Quality finding/pass bound to current review run. | `proof-or-stop-review-quality`. | Verified open critical/high findings block REVIEW->TEST. |
+| `proof-or-stop-review-docs` | REVIEW when docs, CLI commands, config, schemas, public names, or documented behavior may drift. | `proof-or-stop review_run_start`. | `finding_add` or `review_pass_set`. | Docs/code drift finding/pass. | `proof-or-stop-review-docs`. | Verified open critical/high findings block REVIEW->TEST. If this lane is not routed, delivery must run a final docs-promise fallback scan. |
+| `proof-or-stop-review-concept` | REVIEW only when rename/removal/concept-deletion trigger exists. | `proof-or-stop review_run_start`. | `finding_add` or `review_pass_set`. | Concept residue finding/pass, or `not_routed` routing metadata with reason. | `proof-or-stop-review-concept`. | Triggered verified open critical/high findings block REVIEW->TEST; untriggered lane is skipped by routing metadata, not by a fake pass. |
+| `proof-or-stop-review-test-coverage` | REVIEW baseline for non-trivial stories. | `proof-or-stop review_run_start`. | `finding_add` or `review_pass_set`. | `verificationIntent` to `verificationEvidence` coverage finding/pass. | `proof-or-stop-review-test-coverage`. | Missing/stale must-evidence blocks REVIEW->TEST or TEST validation. |
+| `proof-or-stop-review-delivery` | TEST/DONE closeout. | `proof-or-stop validate` / `proof-or-stop done_prepare` context, and `done_required_validate` status when project policy configures DONE-required commands, then delivery evidence command. | `delivery_check_set` only. | Signed delivery pass/refusal with test/transcript/docs-promise basis. | `proof-or-stop-review-delivery`. | Refusal or stale/missing delivery evidence blocks DONE; missing fresh DONE-required evidence blocks only when that policy is configured. |
 | `proof-or-stop-evaluator` | Optional UI/browser exercise. | Browser status/load command chosen by host. | No direct story writes; owner may call `evaluate_save` after parsing evaluator JSON. | Raw JSON plus optional `eval-evidence.json` through `evaluate_save`. | `proof-or-stop-evaluator`. | Raw JSON never blocks. `eval-evidence.json` can block DONE only when workflow policy requires evaluator evidence. |
 | `proof-or-stop-evaluator-cli` | Optional CLI/core exercise. | Bridge/API status command or CLI shell preflight. | No direct story writes; owner may call `evaluate_save` after parsing evaluator JSON. | Raw JSON plus optional `eval-evidence.json` through `evaluate_save`. | `proof-or-stop-evaluator-cli`. | Raw JSON never blocks. `eval-evidence.json` can block DONE only when workflow policy requires evaluator evidence. |
 
@@ -844,8 +844,8 @@ inventing new required fields where the CLI already has a schema.
 | `scope-contract.json` acknowledgements | Owner/CLI via `scope_contract_acknowledge`, deliberately allowed only in DEV/REVIEW. | Existing contract plus append-only acknowledgement facts: actor, reason, timestamp, paths, optional anchors/hunk digest(s), and current structured phase/head/material provenance. | Acknowledgement paths are consumed by the path scope gate today. Review scope binding separately uses `digestScopeContract`. | `digestScopeContract` hashes mode, allow/create/test paths, protected files, explicit excludes, file rules, and protected anchors; it explicitly excludes runtime acknowledgements. Acknowledgements therefore do not change the current review-binding digest. | `scope-contract.json` is already recognized by the scope classifier through `LATTICE_LIFECYCLE_ARTIFACT_FILENAMES`, despite not being in the base `LIFECYCLE_ARTIFACTS` array; there is no current path-classification gap for it. The semantic gap is that acknowledgement content/provenance is absent from review binding. M4.C1 must add a planned composite scope-defining digest/re-attestation contract covering semantically relevant acknowledgements plus milestone ledger and slice plan. Do not broaden acknowledgement to TEST. |
 | Review run | `review_run_start`. | lane from `REVIEW_RUN_LANES`, `reviewRunId`, review round, `headHash`, `materialHash`, optional `storyFilesHash`, prompt hash, workspace binding. | `finding_add`, `review_pass_set`, REVIEW->TEST gate, quorum. | Evidence must bind to the current run/round and fresh workspace binding. Current code only accepts `lattice-review-*` lanes. | M0.5 must normalize canonical `proof-or-stop-*` roles before new reviewer evidence writes. |
 | Finding / review pass | `finding_add`, `review_pass_set`. | Signed finding/pass with `agent`, `reviewRunId`, severity/category or note; `evidenceState` defaults to verified. | REVIEW->TEST in `core/machine.ts`; review escalation/floor downstream. | Reviewer evidence must pass signature/run binding; suspected/disproven findings are advisory. | Keep pass-only `finding_add` normalization, but ensure canonical role IDs are written after M0.5. |
-| `verificationEvidence` | `verification_evidence_add`; legacy compatibility through `checklist_update verificationEvidence`. | `intentRef`, `kind`, `note`, optional `file`, `command`, `result`, `verdict`, `waiverType`, `attestation`, `actorTrust`, `factProvenance`; writer auto-stamps `headHash`, `materialHash`, `storyFilesHash`, `timestamp`. | DEV->REVIEW evidence gate, REVIEW coverage, `lattice validate`, DONE stale-evidence hints. | `checkEvidenceFreshnessForGit` compares current material/story files; storyFilesHash match can downgrade whole-tree drift to re-attestation advisory. | Prefer `verification_evidence_add`; document minimum fields from the existing schema, not a new ad hoc schema. |
-| `test-evidence.json` | `lattice validate`. | PASS/FAIL plus head/material binding. | DONE gate and DONE pre-check. | DONE verifies PASS and recorded snapshot/material binding. | No prompt writes. Keep as CLI-owned validation evidence. |
+| `verificationEvidence` | `verification_evidence_add`; legacy compatibility through `checklist_update verificationEvidence`. | `intentRef`, `kind`, `note`, optional `file`, `command`, `result`, `verdict`, `waiverType`, `attestation`, `actorTrust`, `factProvenance`; writer auto-stamps `headHash`, `materialHash`, `storyFilesHash`, `timestamp`. | DEV->REVIEW evidence gate, REVIEW coverage, `proof-or-stop validate`, DONE stale-evidence hints. | `checkEvidenceFreshnessForGit` compares current material/story files; storyFilesHash match can downgrade whole-tree drift to re-attestation advisory. | Prefer `verification_evidence_add`; document minimum fields from the existing schema, not a new ad hoc schema. |
+| `test-evidence.json` | `proof-or-stop validate`. | PASS/FAIL plus head/material binding. | DONE gate and DONE pre-check. | DONE verifies PASS and recorded snapshot/material binding. | No prompt writes. Keep as CLI-owned validation evidence. |
 | `done-required-evidence.json` | `done_required_validate`. | Command-set/policy result bound to current HEAD/material/storyFiles/policy when `doneRequiredCommands` or DONE-required policy is configured. | DONE-required gate only for projects that opt in. | Fresh PASS evidence is blocking only under configured policy; without policy the command is advisory/no full-suite assurance. | Delivery and final prompts may cite this evidence when present, but must not imply it exists or is required for projects without a DONE-required policy. |
 | `delivery-check.json` | `delivery_check_set`. | `docsPromises`, `realMachineTests`, `closingSelfCheck`, `agentId`, `headHash`, `materialHash`, optional `storyFilesHash`, review round, `_hash`. | TEST/DONE closeout and DONE gate. | `_hash` covers promises/tests/self-check/reviewRound/materialHash/storyFilesHash; material drift is stale unless signed storyFilesHash still matches. | Delivery prompt can cite evaluator transcript only when it exists; docs fallback only when docs reviewer was not routed. |
 | `evidence/delivery-context-pack.json` | Owner/CLI via explicit `delivery_context_pack --write`; default command is read-only. | Persisted delivery-review context: delivery diff, docs promises, real-machine test refs, validation ref, review round, delivery-check/waiver status, `isSigner:false`, and false Authority/production claims. | Delivery reviewer context only; it is not a signer and no gate consumes it as a delivery pass. | The atomic write re-reads the temporary file and `JSON.parse` checks syntax only. It does not runtime-validate schema/shape, sign the artifact, or add an independent freshness hash; regenerate it from current facts before delivery review. | Non-gate closeout context only. If M4.C1 grants writer-provenance/path trust, it must first add runtime schema validation; closed-set registration alone must not promote the payload to gate evidence. Current lifecycle and process-fact artifact registries still omit this path. |
@@ -914,7 +914,7 @@ The required closeout order is:
 4. Before retaining review evidence, compare the reviewed product/material diff
    and current semantic scope binding, then compare the planned composite
    scope-defining artifact digest.
-5. Run `lattice validate`; run `done_required_validate` only when the project
+5. Run `proof-or-stop validate`; run `done_required_validate` only when the project
    configures a DONE-required policy.
 6. Regenerate delivery context and invoke the delivery agent. The delivery
    agent identifies/reports missing roll-up coverage and verifies delivery, but
@@ -976,7 +976,7 @@ round requires current-round reviewer evidence.
 | Maintainability/code hygiene | `proof-or-stop-review-quality` | Behavior reviewer reports user-visible defects, not style/maintainability-only issues. |
 | Docs/code drift and docs-promised-code-missing in REVIEW | `proof-or-stop-review-docs` | Remove `doc-promise-undelivered` checks from behavior/quality/concept/channel. |
 | Concept residue | `proof-or-stop-review-concept` when triggered | Docs/quality should not duplicate concept-cleanup findings unless concept lane is not routed. |
-| Channel compliance | CLI gate `lattice validate --channel` | No LLM channel reviewer in active REVIEW routing. |
+| Channel compliance | CLI gate `proof-or-stop validate --channel` | No LLM channel reviewer in active REVIEW routing. |
 | Verification coverage | `proof-or-stop-review-test-coverage` | Legacy `proof-or-stop-test-case-reviewer` is not used in new flow. |
 | Product exercise transcript | `proof-or-stop-evaluator` / `proof-or-stop-evaluator-cli` if invoked | Behavior/delivery can consume transcript, not invent it. |
 | Final delivery promise | `proof-or-stop-review-delivery` | Docs reviewer owns REVIEW drift; delivery owns final signed closeout. |
@@ -993,10 +993,10 @@ CLI hints/spawn guidance after the registry knows each prompt's status.
 | PLAN scope review | `proof-or-stop-review-scope-plan` | `proof-or-stop-test-intent` only for legacy stories, or future `proof-or-stop-verification-intent` if created. | None. | Legacy `test-intent` alias warns and routes away for new stories. |
 | DEV normal/risk-signaled work | `proof-or-stop-implementer` when channel policy requires worker evidence. | None. | Main-agent DEV for express/fast paths if `express-exempt` policy allows it. | No phase advancement by implementer. |
 | DEV express/fast trivial work | Main agent plus CLI evidence, if policy allows. | `proof-or-stop-implementer` if risk signals, owner policy, or channel gate requires it. | None. | Express exemption must be a structured policy fact, not prompt prose. |
-| REVIEW baseline for code stories | `proof-or-stop-review-test-coverage`, plus `proof-or-stop-review-behavior` and/or `proof-or-stop-review-quality` according to touched files. | `proof-or-stop-review-docs` when docs/public commands/config/schemas may drift; `proof-or-stop-review-concept` when rename/removal trigger exists. | None for implementation-reviewer; its useful checks are folded into behavior/quality. | `proof-or-stop-review-channel` replaced by `lattice validate --channel`. |
+| REVIEW baseline for code stories | `proof-or-stop-review-test-coverage`, plus `proof-or-stop-review-behavior` and/or `proof-or-stop-review-quality` according to touched files. | `proof-or-stop-review-docs` when docs/public commands/config/schemas may drift; `proof-or-stop-review-concept` when rename/removal trigger exists. | None for implementation-reviewer; its useful checks are folded into behavior/quality. | `proof-or-stop-review-channel` replaced by `proof-or-stop validate --channel`. |
 | REVIEW docs touched or public behavior documented | `proof-or-stop-review-docs`. | `proof-or-stop-review-concept` if terminology changed. | None. | If docs reviewer is not routed, delivery must run final docs-promise fallback. |
 | REVIEW concept deletion/rename | `proof-or-stop-review-concept`. | `proof-or-stop-review-docs` for docs/code drift caused by the rename. | None. | Concept lane is `not_routed` with a reason when no trigger exists. |
-| TEST validation | CLI `lattice validate`. | `proof-or-stop-evaluator` / `proof-or-stop-evaluator-cli` when UI/CLI user exercise is needed. | Evaluator raw JSON is advisory; persisted `eval-evidence.json` is policy-gated. | Legacy TEST_CASE prompts not used. |
+| TEST validation | CLI `proof-or-stop validate`. | `proof-or-stop-evaluator` / `proof-or-stop-evaluator-cli` when UI/CLI user exercise is needed. | Evaluator raw JSON is advisory; persisted `eval-evidence.json` is policy-gated. | Legacy TEST_CASE prompts not used. |
 | DONE closeout | `proof-or-stop-review-delivery` plus CLI `done_prepare` / DONE-required policy when configured. | `proof-or-stop-product-reviewer` only if not folded and structured. | Evaluator transcript may be consumed, not invented. | Free-text product approval is not gate evidence. |
 | Legacy story already in legacy phase | Existing legacy aliases accepted under compatibility policy. | Canonical prefixed legacy prompts show legacy-only banner. | None. | New stories must not route to legacy phases. |
 
@@ -1010,7 +1010,7 @@ Subprojects:
 
 - M0.1 Record the exact 16 prompt filenames and current template hashes from
   `promptRegistryManifest()`.
-- M0.2 Capture current `lattice agent_prompt --role=<name>` output for every
+- M0.2 Capture current `proof-or-stop agent_prompt --role=<name>` output for every
   role as comparison artifacts.
 - M0.3 Produce a role-overlap matrix covering phase, commands, direct file
   access, output artifact, and overlap category. Review every human-authored
@@ -1082,7 +1082,7 @@ Subprojects:
   read/gate consumers.
 - M0.5.2c Rename or alias template files, YAML frontmatter, prompt registry
   entries, host shims, Codex manifests, and package prompt registry records so
-  `lattice agent_prompt --role=proof-or-stop-review-quality` resolves the
+  `proof-or-stop agent_prompt --role=proof-or-stop-review-quality` resolves the
   canonical prompt body.
 - M0.5.3 Add role normalization for `agent_prompt`, `review_run_start`,
   `finding_add`, `review_pass_set`, pass-only finding normalization, quorum
@@ -1125,8 +1125,8 @@ Subprojects:
 
 Exit criteria:
 
-- `lattice agent_prompt --role=proof-or-stop-review-quality` works.
-- `lattice agent_prompt --role=lattice-review-quality` warns and resolves as a
+- `proof-or-stop agent_prompt --role=proof-or-stop-review-quality` works.
+- `proof-or-stop agent_prompt --role=lattice-review-quality` warns and resolves as a
   legacy alias, or fails with a precise replacement if no compatibility is
   needed.
 - New review/finding/pass evidence is written with `proof-or-stop-*` lanes.
@@ -1179,9 +1179,9 @@ Subprojects:
 
 Exit criteria:
 
-- `lattice agent_prompt --role=<name>` can display role status or the registry
+- `proof-or-stop agent_prompt --role=<name>` can display role status or the registry
   exposes it to callers.
-- `lattice reviewer_list` and routing docs stop treating retired prompts as
+- `proof-or-stop reviewer_list` and routing docs stop treating retired prompts as
   default reviewer lanes.
 - Unknown or legacy role usage produces guidance pointing to the active
   `proof-or-stop-*` role.
@@ -1294,7 +1294,7 @@ Subprojects:
   `init-self-check.json` write path while preserving any fresh-context /
   anti-self-exemption fence semantics as signed CLI evidence.
 - M4.5 Replace `proof-or-stop-review-channel` direct process-events inspection with
-  `lattice validate --channel`, or retire the prompt.
+  `proof-or-stop validate --channel`, or retire the prompt.
 - M4.6 Move static prompt scans for direct story writes, legacy vocabulary, and
   non-allowlisted `lattice-*` role residue into this milestone so later prompt
   rewrites cannot regress.
@@ -1338,7 +1338,7 @@ Subprojects:
   templates so smoke tests verify the actual current text.
 - M5.4 Update prompt-registry smoke tests to include all active prompts that
   must carry the guide.
-- M5.5 Add a test that `lattice agent_prompt --role=<name>` output contains no
+- M5.5 Add a test that `proof-or-stop agent_prompt --role=<name>` output contains no
   unexpanded placeholder markers such as `lattice:start-slot`.
 
 Exit criteria:
@@ -1447,9 +1447,9 @@ the taxonomy.
 
 Subprojects:
 
-- M8.1 Update `lattice reviewer_list` or equivalent routing output to show
+- M8.1 Update `proof-or-stop reviewer_list` or equivalent routing output to show
   active, conditional, advisory, retired, and legacy roles.
-- M8.2 Update `lattice agent_prompt --role=<legacy>` to print a clear legacy
+- M8.2 Update `proof-or-stop agent_prompt --role=<legacy>` to print a clear legacy
   warning before body content and point to the canonical `proof-or-stop-*`
   role.
 - M8.3 Update `session_brief`, phase hints, and docs to route:
@@ -1459,7 +1459,7 @@ Subprojects:
   - REVIEW coverage to `proof-or-stop-review-test-coverage`
   - TEST/DONE delivery to `proof-or-stop-review-delivery`
 - M8.4 Replace any route to `proof-or-stop-review-channel` with
-  `lattice validate --channel`.
+  `proof-or-stop validate --channel`.
 - M8.5 Add examples of correct spawn prompts that include storyId, phase,
   allowed inputs, and required first CLI command.
 - M8.6 Expose the max default REVIEW lanes and conditional routing reason so
@@ -1498,7 +1498,7 @@ Subprojects:
 - M9.7 Measure speed impact: default REVIEW lane count, full decisions scan
   frequency, sample-story token/time baseline, and evaluator opt-in cost.
 - M9.8 If CLI/runtime behavior changed, bump the CLI patch version, sync
-  package/lock/version constants, rebuild, and verify `lattice --version`.
+  package/lock/version constants, rebuild, and verify `proof-or-stop --version`.
 - M9.9 Run `node bin/lattice.js verify_codex` when Codex prompt assets,
   manifests, wrappers, or telemetry/gate code changed.
 - M9.10 Add the TEST parent-roll-up regression: a canonical
@@ -1585,7 +1585,7 @@ coverage:
 
 ## Story Breakdown And Parallel Execution Plan
 
-Recommended implementation size: **27 Lattice stories**: **26
+Recommended implementation size: **27 Proof-or-Stop stories**: **26
 prompt-consolidation stories plus 1 independent CLI lifecycle story**. This is
 the smallest recommended breakdown that keeps the dangerous rename, gate,
 prompt, routing, and rollout changes independently reviewable and revertible

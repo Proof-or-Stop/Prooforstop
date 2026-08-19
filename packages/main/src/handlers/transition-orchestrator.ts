@@ -105,7 +105,7 @@ import { runWithMainWriteLockContext } from '../core/main-write-lock.js';
 import { acquireStoryTransitionLock } from '../core/story-transition-lock.js';
 import { acquireMkdirLock, type AcquiredMkdirLock } from '../core/mkdir-lock.js';
 import { resolveSharedLockRoot, sanitizeLockSegment } from '../core/validation-execution-lock.js';
-import { LATTICE_DIR } from '../core/lattice-paths.js';
+import { PROOF_OR_STOP_DIR } from '../core/lattice-paths.js';
 import { buildMemoryFreshnessPack, renderMemoryFreshnessPack } from '../core/playbook-runtime-memory.js';
 import { surfaceRuntimeMemoryPack } from '../core/experience-pack-surface.js';
 import {
@@ -114,7 +114,7 @@ import {
   readLifecycleMetadataOutputHashes,
   type LifecycleMetadataTransaction,
 } from '../core/auto-commit-metadata.js';
-import { evaluateAcceptanceTopologyForContext, evaluatePreReviewCheckForContext } from './proofstory.js';
+import { evaluateAcceptanceRolloutForContext, evaluateAcceptanceTopologyForContext, evaluatePreReviewCheckForContext } from './proofstory.js';
 
 export function runPreReviewCheckGate(ctx: HandlerContext, storyId: string): string {
   const report = evaluatePreReviewCheckForContext(ctx, storyId);
@@ -126,7 +126,25 @@ export function runPreReviewCheckGate(ctx: HandlerContext, storyId: string): str
     ...report.remediation.map(item => `  remediation=${item}`),
   ].join('\n');
   if (report.blocking) {
-    throw new Error(`Cannot enter REVIEW: executable pre-review gate blocked DEV admission.${rendered}\n\n-> Run lattice pre_review_check after current evidence, then obtain the independent topology-critic re-attestation when enforce mode requires it.`);
+    throw new Error(`Cannot enter REVIEW: executable pre-review gate blocked DEV admission.${rendered}\n\n-> Run proof-or-stop pre_review_check after current evidence, then obtain the independent topology-critic re-attestation when enforce mode requires it.`);
+  }
+  return rendered;
+}
+
+/** Wave 4 flat-project consumer. Diagnostics are mode-invariant; enforce alone blocks. */
+export function runAcceptanceRolloutGate(ctx: HandlerContext, storyId: string): string {
+  const report = evaluateAcceptanceRolloutForContext(ctx, storyId);
+  const rendered = [
+    '\nAcceptance rollout enforcement:',
+    `  mode=${report.mode}; status=${report.status}; blocking=${report.blocking}`,
+    `  receipt=${report.receipt}; quorum=${report.quorum}`,
+    `  codes=${report.diagnostics.join(',') || 'none'}`,
+  ].join('\n');
+  if (report.blocking) {
+    throw new Error(
+      `Cannot enter REVIEW: acceptance rollout enforcement blocked DEV admission.${rendered}\n\n` +
+      '-> Run proof-or-stop acceptance_rollout_report, then acceptance_rollout_check. Roll back by setting proofStory.acceptanceRolloutGateMode to warn or observe; prior reports remain immutable.',
+    );
   }
   return rendered;
 }
@@ -276,7 +294,7 @@ function runtimeDirtyStateForPhaseAdvance(
   }
   return {
     state: 'metadata-only',
-    detail: 'only Proofbound metadata/runtime/declared-artifact dirty state was detected',
+    detail: 'only Proof-or-Stop metadata/runtime/declared-artifact dirty state was detected',
   };
 }
 
@@ -863,6 +881,19 @@ async function runStoryTransitionInner(
     // acquireDoneMainMergeLock (see the DONE pre-check block) — a fixed lock
     // ordering that makes a DONE and a concurrent same-story rollback mutually
     // exclude without any circular wait.
+    //
+    // B-3e5d F-001: `ctx.root` here may be a story worktree that a winning DONE
+    // later removes, but that is already handled INSIDE acquireStoryTransitionLock
+    // — storyTransitionLockPath resolves through resolveSharedLockRoot (git-
+    // common-dir based, B-d877 R2 FIX B) before touching disk, so the lock
+    // directory itself is always anchored at the stable shared root regardless of
+    // which worktree/root string is passed in here. Rerouting the ROOT ARGUMENT
+    // at this call site (an earlier revision of this fix) was therefore a no-op:
+    // confirmed by comparing storyTransitionLockPath(worktreePath, id) against
+    // storyTransitionLockPath(mainRepoRoot, id) on a real worktree layout — both
+    // resolve to the identical lock directory. The actual crash this story fixes
+    // is the loser's OWN story-metadata read after it wakes up (see the
+    // StoryArtifactMissingError translation below), not the lock's location.
     transitionLock = acquireStoryTransitionLock(ctx.root, args.storyId);
 
     // B-9bd9 CHK-002: meta-story never enters DONE (long-lived cross-story container, only carries findings)
@@ -889,10 +920,38 @@ async function runStoryTransitionInner(
     // above, so a concurrent transition cannot slip a reopen past it.
     // For every ordinary transition `pendingReopenAudit` is absent and this is a
     // pure no-op that returns the very object just read.
+    //
+    // `store` here is `ctx.store`, bound to this invocation's root at CLI
+    // bootstrap — for a CWD-gated phase run from inside the story's own
+    // worktree, that root IS the worktree path, fixed for the life of this
+    // process. The transitionLock above now blocks on the STABLE main repo
+    // root, so a concurrent DONE racer can win, finish, and delete this
+    // worktree entirely WHILE this process is still parked waiting on that
+    // lock. The moment it wakes, this read runs against a root that no longer
+    // exists on disk, and StoryStore surfaces that as a raw
+    // StoryArtifactMissingError ("File not found: .../index.json") — a
+    // confusing crash instead of the clean "someone else already finished
+    // this" explanation callers are meant to see. Recognized narrowly (missing
+    // artifact AND the invocation root itself is gone, not just this one
+    // story record) and translated; any other StoryArtifactMissingError
+    // (a genuinely unknown story id, root still present) rethrows unchanged.
+    let initialStoryRead: StoryInfo;
+    try {
+      initialStoryRead = store.readStory(args.storyId);
+    } catch (e: any) {
+      if (e?.name === 'StoryArtifactMissingError' && !existsSync(ctx.root)) {
+        throw new Error(
+          `Cannot advance ${args.storyId} to ${args.phase}: this worktree no longer exists — ` +
+          `a concurrent DONE transition for ${args.storyId} already completed and removed it. ` +
+          `Retry from main.`,
+        );
+      }
+      throw e;
+    }
     const reconciledReopenAudit = reconcilePendingReopenAudit(
       store,
       args.storyId,
-      store.readStory(args.storyId),
+      initialStoryRead,
     );
     if (reconciledReopenAudit.status === 'recovered') {
       ctx.log?.(
@@ -939,7 +998,7 @@ async function runStoryTransitionInner(
     }
     let preReviewGateReport = '';
     if (story.phase === 'DEV' && args.phase === 'REVIEW') {
-      preReviewGateReport = runPreReviewCheckGate(ctx, args.storyId);
+      preReviewGateReport = runPreReviewCheckGate(ctx, args.storyId) + runAcceptanceRolloutGate(ctx, args.storyId);
     }
 
     // Dependency completion check (soft warning, non-blocking)
@@ -1034,7 +1093,7 @@ async function runStoryTransitionInner(
           ctx.log?.(`⚠ ${syncResult.message}`);
         }
       }
-      // B-0e53: capture main's sha AFTER autoSyncMain so Proofbound's own sync is
+      // B-0e53: capture main's sha AFTER autoSyncMain so Proof-or-Stop's own sync is
       // already in the baseline. The re-check before writeStory compares against
       // this; only an EXTERNAL advance after this point trips the abort.
       syncedMainSha = readMainSha(doneGitCwd);
@@ -1066,7 +1125,7 @@ async function runStoryTransitionInner(
         throw new Error(
           `Cannot reopen ${args.storyId} to INIT: a reason of at least ${REOPEN_REASON_MIN} characters is required ` +
           `(explain why the frozen checklist title/context must change — e.g. which PLAN scope review flagged it). ` +
-          `Re-run: lattice story_advance '{"storyId":"${args.storyId}","phase":"INIT","reason":"<why>"}'.`,
+          `Re-run: proof-or-stop story_advance '{"storyId":"${args.storyId}","phase":"INIT","reason":"<why>"}'.`,
         );
       }
     }
@@ -1099,7 +1158,7 @@ async function runStoryTransitionInner(
       await runReviewToTestPreflightGate(ctx, args.storyId, actor);
     }
 
-    // B-56d3: DEV→TEST lattice validate gate (runValidateGate). The verifier is
+    // B-56d3: DEV→TEST proof-or-stop validate gate (runValidateGate). The verifier is
     // the sole writer of canonical test-evidence; the gate only consumes JSON.
     // B-6974: gate no longer stops the actor; the orchestrator's finally does.
     if (args.phase === 'TEST') {
@@ -1318,7 +1377,7 @@ async function runStoryTransitionInner(
     // recovery instead of a time reclaim) is a deliberately-deferred follow-up.
     const persistClaimPath = join(
       resolveSharedLockRoot(ctx.root),
-      LATTICE_DIR, 'locks', 'transition-cas',
+      PROOF_OR_STOP_DIR, 'locks', 'transition-cas',
       `${sanitizeLockSegment(args.storyId)}.claim`,
     );
     let persistClaim: AcquiredMkdirLock;
@@ -1497,7 +1556,7 @@ async function runStoryTransitionInner(
         );
       }
       if (committed.commitSha) {
-        metadataCommitReport = `\n✓ lattice metadata auto-committed: lattice: record ${args.storyId} test-transition metadata (${committed.commitSha.slice(0, 7)})`;
+        metadataCommitReport = `\n✓ proof-or-stop metadata auto-committed: proof-or-stop: record ${args.storyId} test-transition metadata (${committed.commitSha.slice(0, 7)})`;
       }
     }
 

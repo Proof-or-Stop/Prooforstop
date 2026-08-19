@@ -1,0 +1,480 @@
+{
+  "passes": [
+    {
+      "id": "B-f00c:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept-residue scan clean. Old per-commit diff-tree -m union + rev-list evidenceHead..currentHead walk fully removed from both classifier files; both now import classifyMergeLineage from the same shared validation-lineage.ts. Old reject codes empty-descendant-lineage/lineage_empty have zero remaining references. Only surviving -m diff-tree call in src is an explicitly-labeled OLD-behavior reference inside the new smoke test, used for its RED-comparison assertion, not residue. lattice.config.json wires the new smoke in; dist matches source.",
+      "createdAt": "2026-07-26T03:49:04.289Z",
+      "reviewRound": "2026-07-26T03:46:02.664Z",
+      "reviewRunId": "B-f00c:RR-004",
+      "envelopeId": "102a545ad3ad9e2e32cdfb9f88362faf4c1899284b4cba5b5ecdfb24fdfc73e5",
+      "writerSessionId": "sess-c932726c0fccd3480f50a4b536497e27",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-f00c/background.md",
+          ".lattice/story/actives/B-f00c/checklist.json",
+          ".lattice/story/actives/B-f00c/plan.md",
+          "lattice.config.json",
+          "packages/main/src/core/validation-evidence-admissibility.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-lineage.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "7de68e4f72bd777eeab0aaa1c0f23e300ff386513280f3e90817cac44781b11a"
+    },
+    {
+      "id": "B-f00c:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 concept-residue re-check after F-001/F-002 fix commit 8f2eaa3208. No concept deletion/replacement beyond round-1 classifier consolidation. Verified: (1) no diff-tree -m residue in packages/main/src except the smoke's explicitly-documented perCommitUnionChanged reference helper used solely for a mutation-resistance assertion; (2) no empty-descendant-lineage/lineage_empty residue in src (only in .lattice story metadata describing the historical bug); (3) both validation-evidence-reuse.ts and validation-evidence-admissibility.ts import classifyMergeLineage from the same ./validation-lineage.js; (4) the new changedPathsFn injectable param defaults to netDiffChangedPaths and is only overridden by the new smoke test 7 (F-001 diff-failed coverage) -- both production call sites pass one arg; (5) the default:{const _exhaustive:never=...} guards added to both MergeLineageClassification.kind switches are the standard exhaustiveness idiom (all 5 kinds already handled), not dead/orphaned code -- tsc build succeeds and node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js passes. No blocker.",
+      "createdAt": "2026-07-26T04:05:22.194Z",
+      "reviewRound": "2026-07-26T03:46:02.664Z",
+      "reviewRunId": "B-f00c:RR-007",
+      "envelopeId": "4f731fc34393cb4930e0f10b6f4d366ca4b762289586c4d6f259f0e6e4143af9",
+      "writerSessionId": "sess-c932726c0fccd3480f50a4b536497e27",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "lattice.config.json",
+          "packages/main/src/core/validation-evidence-admissibility.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-lineage.ts",
+          "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-f00c/background.md",
+          ".lattice/story/actives/B-f00c/checklist.json",
+          ".lattice/story/actives/B-f00c/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "32a5934f1a78351d1d319ad2cfea176ef1d8bac24a8f54e275342762d7489da0"
+    },
+    {
+      "id": "B-f00c:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 re-verify of F-001/F-002 fixes (commit 8f2eaa3208). (a) Exhaustiveness guards confirmed via tsc --noEmit in an isolated scratch copy: adding a hypothetical 6th MergeLineageClassification kind causes TS2322 at both switch sites. (b) Injectable changedPathsFn: both production call sites call classifyMergeLineage with a single args object, so default netDiffChangedPaths is always used in production; 2nd param only exercised by smoke test 7 (diff-failed injection) -- no bypass. (c) Security property: NEGATIVE smoke (genuine non-metadata content change) still rejected on both classifyTrustedValidationLineage and admissibility path; verified via green smokes. (d) Other 8 reuse factors in evaluateRoutineValidationReuse are outside the changed diff hunk, byte-unchanged. Also ran tsc --noEmit clean (no dist mutation) plus done-required-freshness-smoke.js and done-required-head-drift-proof.js green. No findings this round.",
+      "createdAt": "2026-07-26T04:07:31.123Z",
+      "reviewRound": "2026-07-26T03:46:02.664Z",
+      "reviewRunId": "B-f00c:RR-008",
+      "envelopeId": "741dde30604ba06c3e6f37b8adaa4979ebd6fd67c2799b7416386223ba931724",
+      "writerSessionId": "sess-c932726c0fccd3480f50a4b536497e27",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-f00c/background.md",
+          ".lattice/story/actives/B-f00c/checklist.json",
+          ".lattice/story/actives/B-f00c/findings.json",
+          ".lattice/story/actives/B-f00c/plan.md",
+          "lattice.config.json",
+          "packages/main/src/core/validation-evidence-admissibility.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-lineage.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "2ef26391a82b316feeb6e6e12c356557cda71374f20dbeee2988c205d26e39fa"
+    },
+    {
+      "id": "B-f00c:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Concept-residue check for the round-2 fix of F-003: production replaces the per-commit git diff-tree -m union + rev-list enumeration with a shared net-endpoint-diff classifier (classifyMergeLineage in validation-lineage.ts). Grepped repo (excluding node_modules/dist/.git) for residual concept tokens: (1) rev-list — zero occurrences in validation-evidence-reuse.ts / validation-evidence-admissibility.ts (both now only call classifyMergeLineage); the sole rev-list use inside validation-reuse-merge-lineage-smoke.ts is an explicitly-labeled reference reimplementation of the OLD pre-fix algorithm used deliberately for the RED case, not residue; other repo-wide rev-list hits are unrelated commit-count usages (lifecycle-readiness.ts, done-oracle.ts, etc.). (2) lineage_empty / empty-descendant-lineage reject codes — zero occurrences anywhere in packages/main/src or scripts (fully removed, matching F-002 fix). (3) diff-tree -m per-commit union pattern — zero occurrences in production src, only appears in a comment describing what was replaced. (4) scripts/verify-process-fact-contract.mjs now asserts merge-base/--is-ancestor/diff-tree/isStoryMetadataPath tokens against validation-lineage.ts (the shared classifier) and dropped the stale rev-list token from the routine-reuse list; no orphaned/contradictory reference to the old location remains. (5) Both production copies import classifyMergeLineage from the SAME ./validation-lineage.js path (single source, no divergence possible). Independently rebuilt (npm run build) and ran scripts/verify-process-fact-contract.mjs (pass) and validation-reuse-merge-lineage-smoke.js (pass). No blocker.",
+      "createdAt": "2026-07-26T04:41:47.152Z",
+      "reviewRound": "2026-07-26T03:46:02.664Z",
+      "reviewRunId": "B-f00c:RR-010",
+      "envelopeId": "3018c79305bc4d2c8f8fb08be7173020ef240413c417c76b3a2f481cab9a8158",
+      "writerSessionId": "sess-c932726c0fccd3480f50a4b536497e27",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-f00c/background.md",
+          ".lattice/story/actives/B-f00c/checklist.json",
+          ".lattice/story/actives/B-f00c/plan.md",
+          "lattice.config.json",
+          "packages/main/src/core/validation-evidence-admissibility.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-lineage.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "ff28af8d21683e49c64ff0aa799fd47577730d22b46e5eb45734d276818d00b8"
+    },
+    {
+      "id": "B-f00c:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Round-3 final re-verify. Re-read background.md + checklist.json + full task-context; git diff main...HEAD --name-only for changed src files (validation-lineage.ts new, validation-evidence-reuse.ts, validation-evidence-admissibility.ts, done-required-validation-smoke.ts, validation-reuse-merge-lineage-smoke.ts, lattice.config.json, scripts/verify-process-fact-contract.mjs). Verified commit 72ab8ff83f (F-003 fix) correctly moves the process-fact-contract static token check to read the 4 canonical lineage git-command tokens (merge-base, --is-ancestor, diff-tree, isStoryMetadataPath) from the new shared module validation-lineage.ts, and legitimately drops rev-list (no longer used by the net-endpoint diff algorithm) -- guard intent preserved, no weakening. Confirmed no stale references to the dropped rev-list/lineage_empty tokens anywhere in src/scripts/docs. Ran full npm test (background, exit code 0) plus targeted direct runs: node scripts/verify-process-fact-contract.mjs (exit 0, contract verified), node dist/tasks/validation-reuse-merge-lineage-smoke.js (exit 0), node dist/tasks/done-required-validation-smoke.js (exit 0). Independently re-derived the security property in an isolated scratch worktree outside this repo using the built classifyMergeLineage directly: a merge re-listing a story's own content-unchanged file classifies trusted-descendant (false positive fixed), and a genuine non-metadata content change landing on main and merged in still classifies untrusted with the changed path listed (protection preserved). Re-confirmed round-2 items (exhaustive switch via an assigned never variable in both consumer switches; injectable changedPathsFn used only by the smoke test, never by a production call site) remain correctly fixed in the current diff. Quality check: no dead code, no unused imports (execFileSync and isStoryMetadataPath cleanly removed from both consumer files after extraction), no unsafe any casts, no empty-catch swallowing beyond the pre-existing not-ancestor pattern that returns a distinct classification kind. No README or CLAUDE.md changes in this diff, so no doc-promise-undelivered risk. No new quality issues found. PASS, no blockers.",
+      "createdAt": "2026-07-26T04:52:06.993Z",
+      "reviewRound": "2026-07-26T03:46:02.664Z",
+      "reviewRunId": "B-f00c:RR-011",
+      "envelopeId": "da33a39bda5c258e27c46b6cbbe947cd44caf5b4b4db2ec58c12cfad8ef601ee",
+      "writerSessionId": "sess-c932726c0fccd3480f50a4b536497e27",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-f00c/background.md",
+          ".lattice/story/actives/B-f00c/checklist.json",
+          ".lattice/story/actives/B-f00c/findings.json",
+          ".lattice/story/actives/B-f00c/scope-contract.json",
+          "lattice.config.json",
+          "packages/main/src/core/validation-evidence-admissibility.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-lineage.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-f00c/index.json",
+          "packages/main/src/core/evidence-freshness.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "23e6dafb4f6735d881dcf56d10a02357e176cf72f054bb6dd5465dabedf8a85f"
+    },
+    {
+      "id": "B-f00c:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-3 retry, fast targeted verification (prior attempt timed out on contended full npm test; NOT re-run here per instruction -- relying on 2 already-recorded exit-0 full-suite runs: RP-005 lattice-review-quality at ee50f24927, plus main-agent direct run; HEAD 4f1807821a is materially identical, only 2 metadata-only .lattice commits ahead of ee50f24927 per git show --stat). Ran node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js directly: exit 0 (validation reuse merge-lineage smoke passed). Ran npm run test:process-fact-contract directly: prints Process fact contract verified (F-003 regression confirmed fixed on current HEAD). Verified npm run build produces zero dist diff (dist in sync with src, so the dist smoke run reflects current source). Coverage check: all 18 must-priority verificationIntent entries (CHK-001 9, CHK-002 9) have a corresponding verificationEvidence entry with result=pass/verdict=success, zero missing, zero fail. Confirmed CHK-001:edge:0 evidence note cites smoke test 7 (grep of validation-reuse-merge-lineage-smoke.ts confirms test 7 asserts kind=diff-failed via injected changedPathsFn on an ancestor-OK scenario, distinct from the not-ancestor catch). Confirmed CHK-001:adversarial:2 evidence is command-backed (command: npm test, headHash e0607fa4=post F-003-fix commit) not a bare assertion. findings.json: all 3 findings (F-001 medium/missing, F-002 low/missing, F-003 high/adversarial) are status=resolved/evidenceState=verified with strong resolveEvidenceStrength and commit-anchored resolvedReason. No new coverage gap found this round.",
+      "createdAt": "2026-07-26T04:55:13.439Z",
+      "reviewRound": "2026-07-26T03:46:02.664Z",
+      "reviewRunId": "B-f00c:RR-013",
+      "envelopeId": "6dda27bec059fe9ef9e5a994b9ab450e249b46b0f66780059d7836b58a7b34bc",
+      "writerSessionId": "sess-c932726c0fccd3480f50a4b536497e27",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-f00c/background.md",
+          ".lattice/story/actives/B-f00c/checklist.json",
+          ".lattice/story/actives/B-f00c/findings.json",
+          ".lattice/story/actives/B-f00c/review-passes.json",
+          "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/validation-evidence-admissibility.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-lineage.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "d1fa81c04ce4f2bf1073b2a138b4043e12ba49c2879b303e56e5d81b78b8b4f4"
+    },
+    {
+      "id": "B-f00c:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "Fresh re-attestation at current material (head adc4bb4) after stale_closeout_review reopen; no code changed since prior RP-003 pass, only story metadata advanced through the merge/rebuild. Re-verified quality of the diff vs main: (1) validation-lineage.ts is the single shared classifyMergeLineage/netDiffChangedPaths helper — net git diff-tree -r --no-commit-id --name-only --no-renames -z <evidenceHead> <currentHead> with 1GiB maxBuffer, -z NUL split, empty-net-diff classifies trusted-descendant, ancestry check (merge-base --is-ancestor) and diff computation are in separate try/catch so a diff failure surfaces kind:diff-failed distinct from not-ancestor. (2) Both validation-evidence-reuse.ts::classifyTrustedValidationLineage and validation-evidence-admissibility.ts::validationHeadLineage now import classifyMergeLineage from the same ./validation-lineage.js and route all 5 classification kinds through exhaustive switches with a `const _exhaustive: never` compile-time guard against silent divergence; no leftover per-commit -m/rev-list logic in either consumer. (3) No dead code/unused imports: removed execFileSync/isStoryMetadataPath imports from both consumers are gone, evidence-freshness re-exports still used elsewhere; `as never` casts appear only in the new smoke test fixture construction, matching the pre-existing idiom used in 50+ other smoke tasks in this repo, not a new type-safety regression. (4) done-required-validation-smoke.ts modify-then-revert assertion correctly flipped to reusable=true (byte-identical endpoint), matching the intentional semantic change; scripts/verify-process-fact-contract.mjs token list correctly updated to check validation-lineage.ts instead of the old inline reuse-file tokens. (5) I/O isolation: git subprocess calls are confined to validation-lineage.ts (single call site), no shell/bridge concerns apply to this backend module. Independently rebuilt (npm run build in packages/main, tsc clean) and re-ran fresh: node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js (pass — covers RED mutation-resistance, negative genuine-change refusal, empty-net-diff-trusted, large-diff maxBuffer, not-ancestor fail-closed, diff-failed split-catch), node packages/main/dist/tasks/done-required-validation-smoke.js (pass), node scripts/verify-process-fact-contract.mjs (pass). No proof/receipt/provider/run metadata surfaces touched by this diff (out of scope for the narrow dual-location proof-metadata rule). No blocker.",
+      "createdAt": "2026-08-13T16:39:28.825Z",
+      "reviewRound": "2026-08-13T16:36:56.172Z",
+      "reviewRunId": "B-f00c:RR-015",
+      "envelopeId": "4ef67898a0335927c68ecafe81ae50f4417e6b488610965a8b34fb6939333031",
+      "writerSessionId": "sess-348b0b3a81297912e0437edeaee6b9d7",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-f00c/background.md",
+          ".lattice/story/actives/B-f00c/checklist.json",
+          ".lattice/story/actives/B-f00c/findings.json",
+          ".lattice/story/actives/B-f00c/review-passes.json",
+          "lattice.config.json",
+          "packages/main/src/core/validation-evidence-admissibility.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-lineage.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "1d2a24e744248b24c57ec91f79558729af2dcd6b33c8c567d16f789490a642de"
+    },
+    {
+      "id": "B-f00c:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "Re-attestation at current material (head adc4bb4) after stale_closeout_review reset from main-merge. Concept check: per-commit git diff-tree -m union merge-lineage logic previously duplicated across two consumer files is fully deleted; both now import classifyMergeLineage/netDiffChangedPaths exclusively from new shared module validation-lineage.ts. Repo-wide grep for diff-tree.*-m and rev-list --reverse in *.ts finds zero production residue; the sole match is validation-reuse-merge-lineage-smoke.ts perCommitUnionChanged(), explicitly labeled a reference implementation of the OLD algorithm used deliberately for the mutation-resistance RED assertion, not residue. isStoryMetadataPath import removed from both consumer files. process-fact-contract relocated its token checks to validation-lineage.ts and dropped obsolete rev-list check. lattice.config.json wires new smoke into validate.commands. Independently verified: clean rebuild, validation-reuse-merge-lineage-smoke.js PASS (7 cases), done-required-validation-smoke.js PASS, validation-evidence-reuse-smoke.js PASS, verify-process-fact-contract.mjs PASS. Checklist CHK-001/CHK-002 both done. Prior findings F-001/F-002/F-003 all resolved/verified, resolutions match current diff. No blocker.",
+      "createdAt": "2026-08-13T16:41:15.555Z",
+      "reviewRound": "2026-08-13T16:36:56.172Z",
+      "reviewRunId": "B-f00c:RR-014",
+      "envelopeId": "052c775e0ab142d3c723af05ec8576f23ef377719f84c32fcd7953cbbd21ba84",
+      "writerSessionId": "sess-348b0b3a81297912e0437edeaee6b9d7",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-f00c/checklist.json",
+          ".lattice/story/actives/B-f00c/findings.json",
+          "packages/main/src/core/validation-evidence-admissibility.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-lineage.ts",
+          "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-f00c/background.md",
+          ".lattice/story/actives/B-f00c/plan.md",
+          "lattice.config.json",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4debcc8c85717a0799518bd5f2451bbb8d27e8b2d353b518ae6c5d43c04263db"
+    },
+    {
+      "id": "B-f00c:RP-009",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: F-004 fix verified genuine (rebuilt + ran validation-reuse-merge-lineage-smoke.js fresh, passes; independently reverted GIT_LINEAGE_MAXBUFFER to 1MiB and confirmed the same smoke crashes with uncaught ENOBUFS, restored + rebuilt clean tree). All 18 verificationIntent slots (CHK-001 x9, CHK-002 x9) have exactly one pass-result logic_test evidence each with distinct behavior-specific notes. Smoke wired into lattice.config.json validate.commands normal tier. All 4 story findings resolved/verified. No blocker.",
+      "createdAt": "2026-08-13T17:01:29.311Z",
+      "reviewRound": "2026-08-13T16:55:49.597Z",
+      "reviewRunId": "B-f00c:RR-021",
+      "envelopeId": "f2d2883ffbac79fcc9c579b661c7f2800339083c63e73cd05407c82193165803",
+      "writerSessionId": "sess-348b0b3a81297912e0437edeaee6b9d7",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-f00c/background.md",
+          ".lattice/story/actives/B-f00c/checklist.json",
+          ".lattice/story/actives/B-f00c/plan.md",
+          "packages/main/src/core/validation-lineage.ts",
+          "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "packages/main/src/core/validation-evidence-admissibility.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9e335abe4a2b9e9eb50967032598e5d72a37abd97ded601f56d91d469b6381f4"
+    },
+    {
+      "id": "B-f00c:RP-010",
+      "agent": "lattice-review-quality",
+      "note": "Re-attestation at current material (head 4361ba5) after F-004 fix commit 8165a3f, the only material-code delta since prior clean pass RP-007 (verified via git diff adc4bb4..4361ba5 -- packages/: 1 file, 32 lines, confined to block 5 of validation-reuse-merge-lineage-smoke.ts). Reviewed the fix for code quality: (1) assert.throws(fn, /maxBuffer|ENOBUFS/i, msg) is correct Node assert/strict usage -- experimentally confirmed the regex matches the real error (spawnSync git ENOBUFS, e.code=ENOBUFS) that Node v22.13.0 throws on maxBuffer overflow, and confirmed assert.throws tests the regex against error.message with the 3rd arg used as the custom failure message, not a second matcher. (2) Fixture generation is reasonably fast: measured block 5 in isolation at roughly 5.3s (file writes ~0.68s, git add+commit dominates at ~3.5s, rmSync ~1s), full 7-block smoke suite ~9.7s wall -- well within any validate-tier budget. rawArgs in the smoke (diff-tree -r --no-commit-id --name-only --no-renames -z) exactly matches netDiffChangedPaths' production git invocation in validation-lineage.ts line 21, and the 1 GiB override literal in the smoke's comment matches GIT_LINEAGE_MAXBUFFER at validation-lineage.ts line 9. (3) No dead code / unused imports / type issues in the diff: rawSize is consumed by assert.ok, changed by the two trailing asserts, FILE_COUNT by both the loop bound and the length assertion; no new any/as-any casts. (4) Mutation-resistance verified live: temporarily reverted the GIT_LINEAGE_MAXBUFFER constant from its 1 GiB value down to Node's 1 MiB default in validation-lineage.ts, rebuilt, reran the smoke -- it threw ENOBUFS and failed (exit 1) inside netDiffChangedPaths, confirming block 5's new assertions are genuinely discriminating (not a vacuous pass) and would have caught the original F-004 gap. Restored the file, rebuilt, reran clean (exit 0), and confirmed git status shows zero diff on validation-lineage.ts. (5) Independently rebuilt (npm run build in packages/main, tsc clean, no errors) and reran fresh at true HEAD: node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js (pass, exit 0), node packages/main/dist/tasks/done-required-validation-smoke.js (pass), node scripts/verify-process-fact-contract.mjs (pass). No proof/receipt/provider/run metadata surfaces touched by this diff. No blocker.",
+      "createdAt": "2026-08-13T17:01:37.049Z",
+      "reviewRound": "2026-08-13T16:55:49.597Z",
+      "reviewRunId": "B-f00c:RR-019",
+      "envelopeId": "38462466a74e122f3095b665f553745ff2b8fba8a59299bd92fc878f7f081d54",
+      "writerSessionId": "sess-348b0b3a81297912e0437edeaee6b9d7",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-f00c/background.md",
+          ".lattice/story/actives/B-f00c/checklist.json",
+          ".lattice/story/actives/B-f00c/plan.md",
+          ".lattice/story/actives/B-f00c/review-passes.json",
+          "packages/main/src/core/validation-lineage.ts",
+          "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "packages/main/src/core/validation-evidence-admissibility.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Unchanged since RP-007 full read, verified by git diff adc4bb4..4361ba5 showing zero code delta outside validation-reuse-merge-lineage-smoke.ts; this round focuses on the F-004 delta plus fresh build/run re-verification."
+      },
+      "_hash": "0a72c6ce0ad965722b8cd7918cbb2c2e6535a8550b9af894079f8587a7022a3c"
+    },
+    {
+      "id": "B-f00c:RP-011",
+      "agent": "lattice-review-concept",
+      "note": "Concept-residue scan clean at current material (0d7da02): old per-commit diff-tree -m union + rev-list evidenceHead..currentHead walk fully removed from both classifier files (validation-evidence-reuse.ts, validation-evidence-admissibility.ts); both now import classifyMergeLineage from shared validation-lineage.ts. Removed reject codes lineage_empty/empty-descendant-lineage have zero remaining production references (only in historical docs/story metadata + a deliberately-labeled OLD-algorithm reference in the smoke RED comparison). Also independently re-verified the F-005 ENOBUFS-flake fix (commit e0df48c00d): read current block 5, confirmed exactly 2 heavy git spawns remain (no-override throw-proof + one override netDiffChangedPaths call whose result classifyMergeLineage reuses via injected changedPathsFn) plus a narrow ENOBUFS-only retry. Rebuilt packages/main clean, then ran the smoke 8-way concurrently (8/8 clean) and 20x sequentially (10/20 completed clean, 0 failures, remainder still running) under genuinely heavy real system load (load avg ~28, 61% sys CPU) -- harsher than the originally observed ~16% flake condition. No blocker.",
+      "createdAt": "2026-08-13T17:30:52.663Z",
+      "reviewRound": "2026-08-13T17:18:14.443Z",
+      "reviewRunId": "B-f00c:RR-022",
+      "envelopeId": "5f17aad7841c96638d65a10706e4ff0d22d6fb5a94fccbc4c7be835639aaf0b3",
+      "writerSessionId": "sess-348b0b3a81297912e0437edeaee6b9d7",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-f00c/background.md",
+          ".lattice/story/actives/B-f00c/checklist.json",
+          "packages/main/src/core/validation-lineage.ts",
+          "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/core/validation-evidence-admissibility.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/handlers/worktree.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "d96efb5ff8990fcef686d9103b517ac7e9711ba321a7e03877894491f163dbe3"
+    },
+    {
+      "id": "B-f00c:RP-012",
+      "agent": "lattice-review-quality",
+      "note": "Re-attestation at current material (0d7da02) after F-005 fix (e0df48c0). Only validation-reuse-merge-lineage-smoke.ts changed since prior quality pass RP-010 (head 4361ba5). Reviewed withEnobufsRetry (sync busy-wait acceptable in a synchronous test-only file, bounded 150-450ms, deliberately avoids spawning a sleep process which would defeat the fix), the changedPathsFn injection reuse in block 5 (semantically sound: same immutable git query already exercised directly via netDiffChangedPaths for maxBuffer robustness, injection only re-tests classification logic on the same large dataset, no coverage loss), no dead code (old rawSize/measurement call fully removed), tsc --noEmit clean. Rebuilt (npm run build) and reran the smoke fresh: 1 solo + 16-way concurrent + 5x sequential, all clean, no ENOBUFS. done-required-validation-smoke.js also passes. Both smokes remain wired in lattice.config.json validate.commands.",
+      "createdAt": "2026-08-13T17:31:39.567Z",
+      "reviewRound": "2026-08-13T17:18:14.443Z",
+      "reviewRunId": "B-f00c:RR-023",
+      "envelopeId": "f6d2516e74178b9a9b08064b19b884f56b0dbc0ca3175265ba38d66777749c6a",
+      "writerSessionId": "sess-348b0b3a81297912e0437edeaee6b9d7",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-f00c/background.md",
+          ".lattice/story/actives/B-f00c/checklist.json",
+          "packages/main/src/core/validation-lineage.ts",
+          "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "packages/main/src/core/validation-evidence-admissibility.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b4f8a5c729b6a018b312bb35446bb98fc901aac845f81e6f8c5a8b16eef71ac1"
+    },
+    {
+      "id": "B-f00c:RP-013",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage review at current material (HEAD 0d7da02a76, includes F-005 fix e0df48c00d). All 18 verificationIntent slots (CHK-001 x9, CHK-002 x9) remain distinctly covered by validation-reuse-merge-lineage-smoke.ts. Verified block 5 (large-diff maxBuffer case) still genuinely exercises GIT_LINEAGE_MAXBUFFER via a real unmocked override git spawn (netDiffChangedPaths, the exact same function used as classifyMergeLineage default changedPathsFn) -- the F-005 call-reduction only dedups a second identical redundant spawn by injecting the already-fetched changed-paths array into classifyMergeLineage, it does not mock away the maxBuffer-dependent git call itself. Rebuilt fresh (npm run build in packages/main, clean tsc) and re-ran the compiled smoke 35x sequential + 32x concurrent (67 total): 100% pass, zero ENOBUFS/maxBuffer errors, matching the fix commit own claim of 40 sequential + 30 concurrent clean runs. Confirmed smoke still wired into lattice.config.json validate.commands normal tier, and both consumer files (validation-evidence-reuse.ts, validation-evidence-admissibility.ts) still import classifyMergeLineage from the single shared validation-lineage.ts with zero diff-tree -m matches via grep. No coverage weakening found; no blocker.",
+      "createdAt": "2026-08-13T17:42:51.745Z",
+      "reviewRound": "2026-08-13T17:18:14.443Z",
+      "reviewRunId": "B-f00c:RR-025",
+      "envelopeId": "b406225a3cae1048597283128d6ede8fae41b8a91147340570e470cf7086f7d3",
+      "writerSessionId": "sess-348b0b3a81297912e0437edeaee6b9d7",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-f00c/background.md",
+          ".lattice/story/actives/B-f00c/checklist.json",
+          "lattice.config.json",
+          "packages/main/src/core/validation-evidence-admissibility.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-lineage.ts",
+          "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-f00c/findings.json",
+          ".lattice/story/actives/B-f00c/test-evidence.json",
+          "package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "dd44691d2c6238d64ce751fcf32cad72a4e3d795a0e7cf4c7f3aeb42507ffc88"
+    },
+    {
+      "id": "B-f00c:RP-014",
+      "agent": "lattice-review-quality",
+      "note": "Re-attestation pass at head 07ed7ff. Diff since prior pass (0d7da02, RP-012) is metadata-only: finding_resolve of F-005 (findings.json/review-runs.json/review-passes.json/prompt-envelopes.json/process-events.jsonl/process-metrics.json). No source files changed (verified via git diff 0d7da02..HEAD --stat). All findings F-001..F-005 status=resolved. Rebuilt packages/main (npm run build, clean) and re-ran node dist/tasks/validation-reuse-merge-lineage-smoke.js: PASS (exit 0). No dead code, unsafe as any, empty catch, or bridge/shell isolation violations found in the reviewed diff. No new blockers.",
+      "createdAt": "2026-08-13T17:45:11.764Z",
+      "reviewRound": "2026-08-13T17:18:14.443Z",
+      "reviewRunId": "B-f00c:RR-026",
+      "envelopeId": "508d326898e73849861666fed3bc8c1634e8d7ab6ba1b2c1b586c004304d573e",
+      "writerSessionId": "sess-348b0b3a81297912e0437edeaee6b9d7",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-f00c/background.md",
+          ".lattice/story/actives/B-f00c/checklist.json",
+          ".lattice/story/actives/B-f00c/findings.json",
+          ".lattice/story/actives/B-f00c/plan.md",
+          "packages/main/src/core/validation-evidence-admissibility.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-lineage.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "dda01fee9dd8c470ef3934977b8ed60130dbd278b983a11c62b2c3bdbc4fe8f4"
+    },
+    {
+      "id": "B-f00c:RP-015",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-attestation at current head 07ed7ff (incremental, metadata-only change since RP-013/0d7da02: finding_resolve for F-005, no code touched). Verified: checklist CHK-001/CHK-002 both done, all 5 findings (F-001-F-005) resolved, all verificationIntent items (happy/edge/adversarial) map to must-priority cli evidence via validation-reuse-merge-lineage-smoke.js. Confirmed no src/test diff since last pass (git diff --stat 0d7da02..07ed7ff touches only .lattice/story metadata), rebuilt packages/main from source (tsc clean), and re-ran node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js -> validation reuse merge-lineage smoke passed. No blocker.",
+      "createdAt": "2026-08-13T17:45:19.428Z",
+      "reviewRound": "2026-08-13T17:18:14.443Z",
+      "reviewRunId": "B-f00c:RR-027",
+      "envelopeId": "9d01d73ecf86c78770bc4de4edf73bf6063d2b5a6d47ce171dceeca927f5e14f",
+      "writerSessionId": "sess-348b0b3a81297912e0437edeaee6b9d7",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-f00c/background.md",
+          ".lattice/story/actives/B-f00c/checklist.json",
+          ".lattice/story/actives/B-f00c/findings.json",
+          ".lattice/story/actives/B-f00c/plan.md",
+          "packages/main/src/core/validation-evidence-admissibility.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-lineage.ts",
+          "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "adf8c56bd7f6c895b148a908f6e8a501eee0c70c2cec4cd56674b04331aa167a"
+    },
+    {
+      "id": "B-f00c:RP-016",
+      "agent": "lattice-review-concept",
+      "note": "Re-attestation at current head: since my last CONCEPT pass (RP-011, commit 0d7da02, verifying the F-005 ENOBUFS-flake fix), the only intervening change is a metadata-only commit (07ed7ff) that resolved finding B-f00c:F-005 via finding_resolve -- confirmed zero code diff (git diff 0d7da02..HEAD -- packages/ scripts/ lattice.config.json is empty; only .lattice/ story-metadata commits followed, from other reviewer lanes running in parallel). Changed-file scope vs main is unchanged: lattice.config.json, validation-evidence-admissibility.ts, validation-evidence-reuse.ts, validation-lineage.ts, done-required-validation-smoke.ts, validation-reuse-merge-lineage-smoke.ts, verify-process-fact-contract.mjs. Re-ran the concept-residue grep sweep for the retired per-commit diff-tree -m union algorithm and its removed reject codes (lineage_empty, empty-descendant-lineage) across production *.ts/*.md/*.json (excluding node_modules/dist/.git/.lattice-metadata/the spec proposal doc) -- zero residue; both consumer sites still route through the single shared classifyMergeLineage in validation-lineage.ts. Rebuilt packages/main (tsc, clean) and re-ran node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js -- passed. Both checklist items (CHK-001, CHK-002) remain done; all findings F-001 through F-005 are resolved. No blocker.",
+      "createdAt": "2026-08-13T17:46:54.587Z",
+      "reviewRound": "2026-08-13T17:18:14.443Z",
+      "reviewRunId": "B-f00c:RR-029",
+      "envelopeId": "c8d0f7e0dc486e17b13774a14e876b8ed71e0a2259fca4dae172a96a6755ad77",
+      "writerSessionId": "sess-348b0b3a81297912e0437edeaee6b9d7",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-f00c/background.md",
+          ".lattice/story/actives/B-f00c/checklist.json",
+          "packages/main/src/core/validation-lineage.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/done-validation-reuse-merge-lineage-fix-proposal.md",
+          "lattice.config.json",
+          "packages/main/src/core/validation-evidence-admissibility.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9c63be92ef5e523f5507a950ef2e012f57b611717d84072750f7760265098b3d"
+    }
+  ]
+}

@@ -1,0 +1,126 @@
+{
+  "storyId": "B-1734",
+  "mode": "enforce",
+  "allowedModify": [
+    "scripts/build-main-with-binding.mjs",
+    "scripts/ensure-dist.mjs",
+    "scripts/full-suite-build-binding.mjs",
+    "packages/utils/package.json",
+    "package.json",
+    "package-lock.json",
+    "lattice.config.json",
+    "CHANGELOG.md",
+    "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+    "packages/main/tests/red/red-b49d4-harness-registration.mjs",
+    "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs",
+    "packages/main/tests/red/red-fb7b-guard-bite.mjs"
+  ],
+  "allowedCreate": [
+    "scripts/build-lock.mjs",
+    "scripts/build-utils-with-binding.mjs",
+    "packages/main/tests/red/red-1734-lock-liveness.mjs",
+    "packages/main/tests/red/red-1734-content-binding.mjs"
+  ],
+  "allowedTest": [
+    "packages/main/tests/red/**"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "packages/core/**",
+    "packages/lab/**"
+  ],
+  "scopeChangeReason": "Refine DEV file set: the existing B-fb7b build tests (red-fb7b-pretest-builds-utils.mjs, red-fb7b-guard-bite.mjs) and the structural smoke assert the existence-based pretest, so they must be updated to the content-bound behavior; new REDs are named for this story (red-1734-*). CHANGELOG.md stays modifiable (delivered at DONE).",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Necessary touchpoints for the concurrent-build-safety hardening surfaced by the genuine Codex cross-host review: build-lock-target.mjs is the dependency-free lock-target module (C3, so bin/bootstrap-runner.js can inspect the build lock without transitively importing proper-lockfile and crashing a fresh checkout); bootstrap-runner.js gains the reader wait-for-lock resilience (C3/C4); promote-dist.mjs is the shared crash-safe atomic-swap promotion (C2); .gitignore excludes the dist.staging/dist.trash-* atomic-swap transient siblings. All serve the same build-mutex/atomic-dist goal as the in-scope build scripts.",
+      "timestamp": "2026-08-15T20:01:06.961Z",
+      "paths": [
+        ".gitignore",
+        "bin/bootstrap-runner.js",
+        "scripts/build-lock-target.mjs",
+        "scripts/promote-dist.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".gitignore",
+        "bin/bootstrap-runner.js",
+        "scripts/build-lock-target.mjs",
+        "scripts/promote-dist.mjs"
+      ],
+      "affectedPathCount": 4,
+      "phase": "DEV",
+      "headHash": "807ec4de955380a50c25d5e26c83a2254db53086",
+      "materialHash": "185ba2f8093225094c6ec2704d471c74d4b81ab8f05a7dba8679c2982d953499"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Codex D1 fix: bin/bootstrap-runner.js now statically imports scripts/build-lock-target.mjs and scripts/promote-dist.mjs (for dep-free lock inspection + crash-recovery), so the desktop asset manifest in package-desktop.mjs must ship those two files or packaged binaries crash with ERR_MODULE_NOT_FOUND at bootstrap init. Same build-safety touchpoint set as the acknowledged bootstrap-runner.js change.",
+      "timestamp": "2026-08-15T20:32:35.506Z",
+      "paths": [
+        "scripts/package-desktop.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "scripts/package-desktop.mjs"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "83b36cc61d5b53ffc18517a3ad67afcec564992f",
+      "materialHash": "5394d8cee3654fc635bd698093e42089b5ff5eb5d60a7f8e73c6a9cfdac328c5"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Mandatory guard re-pin caused by the in-scope bootstrap-runner.js reader-resilience change: retired-authority-vocabulary-guard pins bootstrap-runner's canonical AST fingerprint, so B-1734's bootstrap edits require re-pinning its (unchanged) approved dynamic dist-import sites and exempting the 2 new unresolved-index-source sites the importDistModules refactor introduced. verify-process-fact-contract.mjs is the second independent tracker of the same fingerprint (per the B-3144 lesson that this fingerprint lives in two mechanisms). Both are the guard-side counterpart of the already-acknowledged bin/bootstrap-runner.js touchpoint.",
+      "timestamp": "2026-08-16T00:41:39.244Z",
+      "paths": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "6f0ce0a9d4b4883d0959fb30817f24be6dccf59c",
+      "materialHash": "1bbdfaf0c9300e0156d5160189d903a6b385e866e0c113c983964c70f6b8105f"
+    }
+  ],
+  "createdAt": "2026-08-15T11:38:40.619Z",
+  "updatedAt": "2026-08-16T00:41:39.244Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "scripts/build-main-with-binding.mjs": "scripts/build-main-with-binding.mjs",
+    "scripts/ensure-dist.mjs": "scripts/ensure-dist.mjs",
+    "scripts/full-suite-build-binding.mjs": "scripts/full-suite-build-binding.mjs",
+    "packages/utils/package.json": "packages/utils/package.json",
+    "package.json": "package.json",
+    "package-lock.json": "package-lock.json",
+    "lattice.config.json": "lattice.config.json",
+    "CHANGELOG.md": "CHANGELOG.md",
+    "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts": "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+    "packages/main/tests/red/red-b49d4-harness-registration.mjs": "packages/main/tests/red/red-b49d4-harness-registration.mjs",
+    "scripts/build-lock.mjs": "scripts/build-lock.mjs",
+    "scripts/build-utils-with-binding.mjs": "scripts/build-utils-with-binding.mjs",
+    "packages/main/tests/red/red-e165-lock-liveness.mjs": "packages/main/tests/red/red-e165-lock-liveness.mjs",
+    "packages/main/tests/red/red-e165-content-binding.mjs": "packages/main/tests/red/red-e165-content-binding.mjs",
+    "packages/main/tests/red/red-e165-guard-bite.mjs": "packages/main/tests/red/red-e165-guard-bite.mjs",
+    "packages/main/tests/red/**": "packages/main/tests/red/**",
+    "packages/core/**": "packages/core/**",
+    "packages/lab/**": "packages/lab/**",
+    "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs": "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs",
+    "packages/main/tests/red/red-fb7b-guard-bite.mjs": "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+    "packages/main/tests/red/red-1734-lock-liveness.mjs": "packages/main/tests/red/red-1734-lock-liveness.mjs",
+    "packages/main/tests/red/red-1734-content-binding.mjs": "packages/main/tests/red/red-1734-content-binding.mjs",
+    ".gitignore": ".gitignore",
+    "bin/bootstrap-runner.js": "bin/bootstrap-runner.js",
+    "scripts/build-lock-target.mjs": "scripts/build-lock-target.mjs",
+    "scripts/promote-dist.mjs": "scripts/promote-dist.mjs",
+    "scripts/package-desktop.mjs": "scripts/package-desktop.mjs",
+    "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs": "scripts/verify-process-fact-contract.mjs"
+  }
+}

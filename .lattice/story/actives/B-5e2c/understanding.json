@@ -1,0 +1,38 @@
+{
+  "task": "仅在非代码阶段且没有旧 owner Lattice 命令在执行时，自动原子转移同 worktree 的陈旧 Story owner lease。",
+  "outcome": "PLAN、REVIEW、TEST 的符合条件 storyScopedMutating context switch 无需人工确认；DEV、dangerous、agent_prompt、活动或歧义 owner 继续 fail-closed，真实竞争者只有一个继续。",
+  "facts": [
+    "Owner lease pid 是最近 lattice CLI 进程而非 host session；ESRCH 只证明没有该 Lattice 命令在途。",
+    "DEV agent 可绕过 Lattice 直接写源码或运行 git，因此 DEV 不能自动转移。",
+    "dangerousMutating 共享 owner gate，但不应静默接管。",
+    "agent_prompt 直接调用 acquireOrRefreshOwnerLease，绕过统一 CLI gate；它必须保持 manual-only，但共享底层事务安全。",
+    "takeover-count.json 已是 convergence-breaker 唯一 operational counter；另造 lease 内 counter 会分裂。",
+    "Story process-events 是可持久化并随 Story 归档的流程审计载体。"
+  ],
+  "constraints": [
+    "自动分支仅 phase in PLAN REVIEW TEST 且 ownershipClass=storyScopedMutating。",
+    "stale、canonical same realpath、same hostname、双方 stable supported session identity、last CLI pid authoritative ESRCH 必须同时成立。",
+    "所有 owner lease mutation 共用 per-story transaction lock 与 atomic rename。",
+    "先持久化带 transferId 的 Story process-event authorization；失败不得写 lease。",
+    "takeover-count 以 transferId 原子幂等记账；lease pending marker 未清除前任何命令不得继续。",
+    "explicit takeover/forceTakeover 保持；DEV/dangerous/agent_prompt 只允许显式或拒绝。"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/story-owner-lease.ts",
+    "packages/main/src/cli/ownership-gate.ts",
+    "packages/main/src/handlers/agent-prompt.ts",
+    "packages/main/src/handlers/session.ts",
+    "packages/main/src/core/convergence-breaker.ts",
+    "packages/main/src/tasks/story-owner-lease-smoke.ts",
+    "packages/main/src/tasks/convergence-breaker-smoke.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "docs/requirements/decisions/session-ownership-and-write-leases.md",
+    "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+    "docs/requirements/decisions/story-lifecycle.md",
+    "AGENTS.md",
+    "CLAUDE.md"
+  ],
+  "timestamp": "2026-08-16T12:06:20.538Z"
+}

@@ -291,7 +291,7 @@ export interface VerificationIntentPin {
 }
 
 export interface VerificationIntentItem {
-  /** Optional stable id. If absent, Proofbound derives CHK-001:happy:0 from lane/index. */
+  /** Optional stable id. If absent, Proof-or-Stop derives CHK-001:happy:0 from lane/index. */
   id?: string;
   desc: string;
   type: VerificationIntentType;
@@ -453,7 +453,7 @@ export interface AcceptanceCoverageBasisV1 {
   status: 'complete' | 'partial' | 'unsupported';
   generatedBy: {
     verifier: 'acceptance-coverage-basis-verifier';
-    command: 'lattice acceptance_basis_generate' | 'lattice pre_review_check';
+    command: 'proof-or-stop acceptance_basis_generate' | 'proof-or-stop pre_review_check';
     algorithmVersion: 'v1';
   };
   discoveryProfileRef: string;
@@ -620,6 +620,212 @@ export interface PreReviewCheckArtifactV1 {
   signature: string;
 }
 
+export type AcceptanceRolloutClaimClassV1 =
+  | 'user_visible'
+  | 'orchestration'
+  | 'behavior'
+  | 'lifecycle'
+  | 'proof'
+  | 'safety'
+  | 'docs_only'
+  | 'legacy'
+  | 'ordinary';
+
+export type AcceptanceRolloutDefectClassV1 =
+  | 'omission'
+  | 'forgery'
+  | 'freshness'
+  | 'authority'
+  | 'quorum'
+  | 'threshold'
+  | 'control';
+
+export interface AcceptanceRolloutGateArtifactV1 {
+  schemaVersion: 'proofstory.acceptance_rollout_gate_artifact.v1';
+  command: 'acceptance_topology_check' | 'pre_review_check';
+  storyId: string;
+  pairId: string;
+  arm: 'baseline' | 'candidate';
+  report: Record<string, unknown>;
+  artifactDigest: string;
+}
+
+export interface AcceptanceRolloutHostVerdictReceiptV1 {
+  type: 'host_verdict';
+  verdictId: string;
+  runId: string;
+  hostId: 'codex-cli' | 'claude-cli';
+  provider: 'codex' | 'claude';
+  sessionId: string;
+  keyId: string;
+  decision: 'pass' | 'fail' | 'blocked';
+  materialDigest: string;
+  storyFilesHash: string;
+  validationDigest: string;
+  promptDigest: string;
+  timestamp: string;
+}
+
+export interface AcceptanceRolloutObservationReceiptV1 {
+  schemaVersion: 'proofstory.acceptance_rollout_observation_receipt.v1';
+  storyId: string;
+  pairId: string;
+  arm: 'baseline' | 'candidate';
+  gateArtifacts: AcceptanceRolloutGateArtifactV1[];
+  hostVerdicts: AcceptanceRolloutHostVerdictReceiptV1[];
+  quorumReceipt: {
+    schemaVersion: 'lattice.quorum_submit.v1';
+    storyId: string;
+    rounds: number;
+    emittedCount: number;
+    verdictIds: string[];
+    runIds: string[];
+    metadataCommitSha: string;
+    reviewerPasses: Array<{ lane: string; passId: string; reviewRunId?: string }>;
+    assuranceLevel: 'full-3x2' | 'degraded-single-host' | 'ordinary-review';
+  };
+  reviewRoundIds: string[];
+  waiverRefs: string[];
+  usageEvents: Array<{ eventId: string; costUnits: number }>;
+  transcriptRefs: string[];
+  mutationResults: Array<{
+    mutationId: string;
+    expectedCode: string;
+    observedCode: string;
+    mutationCommitSha: string;
+    restorationCommitSha: string;
+    controlRestored: boolean;
+  }>;
+  checkInventory: string[];
+  issuedAt: string;
+  issuerKeyId: string;
+  signerPublicKey: string;
+  signature: string;
+}
+
+export interface AcceptanceRolloutSourceRecordV1 {
+  schemaVersion: 'proofstory.acceptance_rollout_source_record.v1';
+  pairId: string;
+  arm: 'baseline' | 'candidate';
+  storyId: string;
+  completedAt: string;
+  comparableGroup: 'high_assurance';
+  eligible: boolean;
+  claimClass: AcceptanceRolloutClaimClassV1;
+  seededDefectId?: string;
+  defectClass: AcceptanceRolloutDefectClassV1;
+  defectPresent: boolean;
+  shouldBlock: boolean;
+  observationReceipt: AcceptanceRolloutObservationReceiptV1;
+  sourceDigest: string;
+}
+
+export interface AcceptanceRolloutCohortInputV1 {
+  schemaVersion: 'proofstory.acceptance_rollout_cohort_input.v1';
+  generatedBy: 'runProofStoryAcceptanceRolloutCohort';
+  evaluationWindow: { start: string; end: string };
+  eligibilityRuleVersion: 'proofstory.acceptance_rollout_eligibility.v1';
+  thresholdVersion: 'proofstory.acceptance_rollout_thresholds.v1';
+  registeredSeedIds: string[];
+  sourceRecords: AcceptanceRolloutSourceRecordV1[];
+  sourceInventoryDigest: string;
+  runnerPath: 'scripts/run-proofstory-acceptance-rollout-cohort.mjs';
+  runnerDigest: string;
+}
+
+export type AcceptanceRolloutDiagnosticCodeV1 =
+  | 'AR_REPORT_MISSING'
+  | 'AR_REPORT_TAMPERED'
+  | 'AR_REPORT_STALE'
+  | 'AR_WINDOW_INVALID'
+  | 'AR_SOURCE_RECORD_INVALID'
+  | 'AR_SOURCE_EVIDENCE_INVALID'
+  | 'AR_MEMBERSHIP_DIGEST_MISMATCH'
+  | 'AR_ELIGIBLE_MEMBERSHIP_INCOMPLETE'
+  | 'AR_INELIGIBLE_MEMBER'
+  | 'AR_SAMPLE_COUNT_LT_3'
+  | 'AR_MATCHED_PAIR_MISSING'
+  | 'AR_ADAPTER_UNSUPPORTED'
+  | 'AR_TRANSCRIPT_REQUIRED'
+  | 'AR_MUTATION_REQUIRED'
+  | 'AR_REGISTERED_CAMPAIGN_INCOMPLETE'
+  | 'AR_FALSE_PASS_NONZERO'
+  | 'AR_OMISSION_DETECTION_BELOW_100'
+  | 'AR_FALSE_BLOCK_NONZERO'
+  | 'AR_MISLABELED_3X1_NONZERO'
+  | 'AR_WAIVER_DELTA_POSITIVE'
+  | 'AR_CHECK_INVENTORY_SHRANK'
+  | 'AR_QUORUM_NOT_FULL_3X2';
+
+export interface AcceptanceRolloutMetricsV1 {
+  matchedPairCount: number;
+  baselineSampleCount: number;
+  candidateSampleCount: number;
+  registeredSeedCount: number;
+  detectedSeedCount: number;
+  falsePassCount: number;
+  omissionSeedCount: number;
+  omissionDetectedCount: number;
+  omissionDetectionRate: number;
+  falseBlockCount: number;
+  falseBlockRate: number;
+  mislabeled3x1Count: number;
+  waiverDelta: number;
+  inventoryShrankCount: number;
+  baselineReviewRounds: number;
+  candidateReviewRounds: number;
+  baselineCostUnits: number;
+  candidateCostUnits: number;
+}
+
+export interface AcceptanceRolloutReportV1 {
+  schemaVersion: 'proofstory.acceptance_rollout_report.v1';
+  storyId: string;
+  projectPolicy: 'flat-project';
+  eligibilityRuleVersion: 'proofstory.acceptance_rollout_eligibility.v1';
+  thresholdVersion: 'proofstory.acceptance_rollout_thresholds.v1';
+  evaluationWindow: { start: string; end: string };
+  eligibleMembership: Array<{ pairId: string; baselineStoryId: string; candidateStoryId: string }>;
+  membershipDigest: string;
+  sourceInventoryDigest: string;
+  registeredSeedIds: string[];
+  sourceRecords: AcceptanceRolloutSourceRecordV1[];
+  metrics: AcceptanceRolloutMetricsV1;
+  diagnostics: AcceptanceRolloutDiagnosticCodeV1[];
+  verdict: 'pass' | 'fail';
+  binding: {
+    headHash: string;
+    materialHash: string;
+    storyFilesHash: string;
+    runnerDigest: string;
+  };
+  reportDigest: string;
+}
+
+export interface AcceptanceRolloutReceiptV1 {
+  schemaVersion: 'proofstory.acceptance_rollout_receipt.v1';
+  receiptRef: string;
+  issuer: 'acceptance-rollout-verifier';
+  issuerKeyId: string;
+  signerPublicKey: string;
+  storyId: string;
+  reportDigest: string;
+  membershipDigest: string;
+  sourceInventoryDigest: string;
+  verdict: 'pass' | 'fail';
+  headHash: string;
+  materialHash: string;
+  storyFilesHash: string;
+  issuedAt: string;
+  signature: string;
+}
+
+export interface AcceptanceRolloutArtifactV1 {
+  schemaVersion: 'proofstory.acceptance_rollout_artifact.v1';
+  report: AcceptanceRolloutReportV1;
+  receipt: AcceptanceRolloutReceiptV1;
+}
+
 export interface TopologyActorProvenanceV1 {
   agentId: string;
   sessionId: string;
@@ -776,6 +982,27 @@ export interface VerificationExecutionReceipt {
   selectorMatched: boolean;
   /** ISO timestamp when the command was executed. */
   executedAt: string;
+  /**
+   * B-cdf6 (B-META F-012): the wall-clock ceiling the run was actually armed with, in ms.
+   * Always stamped so a reviewer can see the budget the receipt was earned under.
+   */
+  timeoutMs?: number;
+  /**
+   * B-cdf6 (B-META F-012): present ONLY when the caller RAISED the per-command ceiling
+   * above the {@link DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS} default via
+   * `commandTimeoutMs` + `commandTimeoutReason`. A raised budget is an exceptional act,
+   * so it must explain itself and stay gate-visible: this block lives inside the
+   * TOOL-OWNED receipt (which every caller-facing schema strips), so it can never be
+   * caller-injected onto a receipt that was actually earned under the default.
+   */
+  timeoutOverride?: {
+    /** The raised ceiling in ms, as effectively armed. */
+    timeoutMs: number;
+    /** The default ceiling this run was raised ABOVE, for a reviewer's reference. */
+    defaultTimeoutMs: number;
+    /** Attributable ≥ 30-char justification for raising the budget. */
+    reason: string;
+  };
 }
 
 export interface VerificationEvidence {
@@ -1487,7 +1714,7 @@ export interface TestEvidenceData {
   traceCoverage?: string[];
   /** git HEAD hash at test time (used by DONE gate evidence freshness check) */
   headHash?: string;
-  /** non-Proofbound metadata file tree hash at test time (metadata-only commits should not make evidence stale) */
+  /** non-Proof-or-Stop metadata file tree hash at test time (metadata-only commits should not make evidence stale) */
   materialHash?: string;
   /** Hash of story-owned material files vs merge-base main captured at test time. */
   storyFilesHash?: string;
@@ -1795,7 +2022,7 @@ export type ProcessEventType =
   | 'decision_doc_proposal'
   | 'decision_doc_save'
   | 'auxiliary_worktree_cleanup'
-  // B-6bfd CHK-004: Proofbound-managed guard session projection lifecycle events.
+  // B-6bfd CHK-004: Proof-or-Stop-managed guard session projection lifecycle events.
   | 'guard_session_start'
   | 'guard_session_check'
   | 'phase_transition'
@@ -1858,7 +2085,7 @@ export interface ScopeCheckData {
   };
   /**
    * B-ed3e CHK-003: 6th channel Open Questions. Reviewer writes here when scanning the full decisions/ directory and finding
-   * contradictions/questions that are "seen but not classified". Main agent must use `lattice scope_question_resolve`
+   * contradictions/questions that are "seen but not classified". Main agent must use `proof-or-stop scope_question_resolve`
    * to resolve them in writing (prevents self-absolution); the PLAN gate blocks unresolved OQs.
    * Signature domain excludes this field (resolution is a main agent action, not part of reviewer signature _hash).
    */
@@ -2575,7 +2802,7 @@ export interface SemanticScopeGateResult {
   summary: string;
 }
 
-// ── Guard Session (B-6bfd CHK-004: Proofbound-managed guarded session projection) ──
+// ── Guard Session (B-6bfd CHK-004: Proof-or-Stop-managed guarded session projection) ──
 //
 // A guard session is a *projection* of scope protection for a Lattice-dispatched
 // agent. It is NOT a competing session truth source and NOT a write-ownership
@@ -2589,9 +2816,9 @@ export interface SemanticScopeGateResult {
  * - native-pretool   — Claude Code with a verified native PreToolUse hook; forbidden
  *                      writes are intercepted before they land.
  * - wrapped-preapply — Codex, Antigravity/agy, or legacy Gemini invoked via
- *                      Proofbound dispatch/pre-apply flow; the flow's pre-apply step
+ *                      Proof-or-Stop dispatch/pre-apply flow; the flow's pre-apply step
  *                      checks scope before writing.
- * - watcher-fallback — provider has no pre-write interception; Proofbound can only detect
+ * - watcher-fallback — provider has no pre-write interception; Proof-or-Stop can only detect
  *                      forbidden writes after the fact, never pretend blocking exists.
  * - active           — legacy alias for native-pretool (kept for backwards compat).
  * - inactive         — no guard session is running (used by renderers only).
@@ -3224,6 +3451,31 @@ export interface ReviewLoopPolicy {
   requireHumanForProtectedFiles: boolean;
   stopOnTestRegression: boolean;
   stopOnScopeViolation: boolean;
+}
+
+// ── Dev-Memory Lifecycle Gates (B-a7c5) ──
+
+/**
+ * Per-story acknowledgement that `dev_memory_preflight`'s pack builder ran
+ * (or, if the build threw, that a reasoned downgrade was recorded) before
+ * this story entered DEV. This is a structurally SEPARATE artifact from a
+ * `DevMemoryEntry` JSONL row: it carries no `gateEvidence`/`authority`
+ * fields because it never claimed non-authoritative status over lesson
+ * CONTENT in the first place — it only records that the read-side ritual
+ * happened. See `evaluateDevMemoryPreflightGate` in core/machine.ts and
+ * docs/requirements/decisions/dev-memory.md's Non-Goals annotation.
+ */
+export interface DevMemoryPreflightAckData {
+  schemaVersion: 'lattice.dev_memory_preflight_ack.v1';
+  storyId: string;
+  /** Digest of the preflight pack actually seen, or null on a reasoned downgrade. */
+  packDigest: string | null;
+  /** Ids of the entries actually seen in the preflight pack (empty on a reasoned downgrade). */
+  topHitIds: string[];
+  acknowledgedAt: string;
+  acknowledgedBy: string;
+  /** Present only when the preflight pack build threw and a bypass reason was recorded instead. */
+  downgradeReason?: string;
 }
 
 export const WORKFLOW_PRESETS: Record<WorkflowProfile, WorkflowPolicy> = {

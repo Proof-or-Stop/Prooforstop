@@ -1,0 +1,132 @@
+{
+  "schemaVersion": "proofstory.contract.v1",
+  "storyId": "B-cdf6",
+  "diagnosticOnly": false,
+  "hardeningLevel": "high_assurance",
+  "triggerReasons": [
+    {
+      "code": "high_assurance_risk",
+      "message": "High-risk or gate/security wording selects high-assurance intent hardening.",
+      "requires": "high-assurance"
+    },
+    {
+      "code": "collision_required_high_assurance",
+      "message": "High-assurance work requires an independent intent-collision result.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "collision_required_standard",
+      "message": "Ambiguity, user impact, behavior change, or multi-deliverable intent makes intent collision diagnostically required.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "red_evidence_required",
+      "message": "Bug, regression, security/auth/session, benchmark, or explicit behavior-change work should have red evidence.",
+      "requires": "red-evidence"
+    },
+    {
+      "code": "scope_ambiguity",
+      "message": "Broad or absolute scope wording should have scope clarification before future enforcement.",
+      "requires": "scope-clarification"
+    }
+  ],
+  "originalIntentRequestHash": "sha256:fca1148e4b7c9a37b6c7364f3f7e365d2c3fd8212376215d8572ea5a536cc68d",
+  "acceptanceBindings": [
+    {
+      "id": "AB-001-bin-rename",
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:happy:1",
+        "CHK-002:edge:0",
+        "CHK-002:edge:1",
+        "CHK-002:adversarial:0"
+      ],
+      "milestoneIds": [],
+      "acceptanceClaim": "Running `proof-or-stop --version` and `proof-or-stop help` succeeds with no output line containing the old bin name, and `lattice --version` still prints the same version.",
+      "note": "Covers both halves of the alias contract: the new bin resolves and prints the new name, AND the deprecated lattice alias still resolves to the same version. CHK-002:adversarial:0 is the mechanical no-old-bin-name assertion (grep -c 'Usage: lattice' returns 0)."
+    },
+    {
+      "id": "AB-002-active-docs-prose",
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:adversarial:0",
+        "CHK-003:happy:0",
+        "CHK-003:happy:1",
+        "CHK-003:adversarial:2"
+      ],
+      "milestoneIds": [],
+      "acceptanceClaim": "Active documentation reads proof-or-stop for commands and Proof-or-Stop for the product name, with every surviving lattice token traceable to a FROZEN row in the approved mapping table.",
+      "note": "CHK-001 produces the mapping table that gates every replacement; CHK-003 applies it. The adversarial refs are the traceability requirement, so a surviving token must be justified rather than merely tolerated."
+    },
+    {
+      "id": "AB-003-freeze-past-records",
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:adversarial:0",
+        "CHK-003:adversarial:1"
+      ],
+      "milestoneIds": [],
+      "acceptanceClaim": "git diff --stat on .lattice/story and CHANGELOG.md is empty, proving historical records were not rewritten.",
+      "note": "This is the user's governing past-vs-future rule expressed as a mechanical check. Also enforced independently at the path level by execution-boundary.json blockedPaths, so the freeze holds even if a bulk sweep is attempted. CHK-003:adversarial:1 additionally protects the host-neutral invariant (no prompt body copied into host shim dirs)."
+    },
+    {
+      "id": "AB-004-gates-stay-green",
+      "checklistRefs": [
+        "CHK-004",
+        "CHK-005"
+      ],
+      "verificationIntentRefs": [
+        "CHK-004:adversarial:0",
+        "CHK-005:happy:0",
+        "CHK-005:adversarial:0",
+        "CHK-005:adversarial:1",
+        "CHK-005:adversarial:2"
+      ],
+      "milestoneIds": [],
+      "acceptanceClaim": "Root npm test passes, and the docs-drift command extractor still reports drift for a bogus command rather than passing vacuously.",
+      "note": "The negative regression refs are the load-bearing ones: they prove the rename did not convert a loud gate into a silent vacuous pass, which was the highest-severity risk found in adversarial review."
+    }
+  ],
+  "diagnosticGaps": [
+    {
+      "code": "missing_intent_collision",
+      "severity": "warn",
+      "artifact": "intent-collision.json",
+      "message": "Intent collision is triggered but no pass decision with acceptedInterpretation is present.",
+      "triggeredBy": [
+        "collision_required_high_assurance",
+        "collision_required_standard"
+      ]
+    },
+    {
+      "code": "missing_red_evidence",
+      "severity": "warn",
+      "artifact": "red-evidence.json",
+      "message": "Red evidence is triggered but no current red evidence record binds baseline head/material to the correct acceptance target and green relation.",
+      "triggeredBy": [
+        "red_evidence_required"
+      ]
+    },
+    {
+      "code": "scope_ambiguity",
+      "severity": "warn",
+      "artifact": "scope-contract.json",
+      "message": "Scope ambiguity is triggered but no scope contract or explicit shrinkage decision is configured.",
+      "triggeredBy": [
+        "scope_ambiguity"
+      ]
+    }
+  ],
+  "note": "Acceptance bindings for the lattice-to-proof-or-stop rename. The snapshot acceptanceClaim is a conjunction of four independently checkable clauses, so it is decomposed into one binding per clause, each bound to the checklist item that delivers it and the verificationIntent refs that prove it.",
+  "createdAt": "2026-08-11T03:42:15.599Z",
+  "updatedAt": "2026-08-11T03:42:15.599Z"
+}

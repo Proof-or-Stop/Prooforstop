@@ -60,7 +60,7 @@ function initRepo(): string {
   const root = mkdtempSync(join(tmpdir(), 'lattice-plan-init-reopen-'));
   git(root, ['init']);
   git(root, ['config', 'user.email', 'smoke@example.test']);
-  git(root, ['config', 'user.name', 'Proofbound Smoke']);
+  git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
   write(root, 'lattice.config.json', JSON.stringify({
     scanRoot: 'packages/main', rootDir: 'src', storyDir: '.lattice/story/actives',
     requirementsDir: 'docs/requirements', worktreeDir: '.worktrees',
