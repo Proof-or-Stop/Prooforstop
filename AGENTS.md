@@ -206,7 +206,7 @@ proof-or-stop gap_log '{"category":"missing","severity":"medium","evidence":"<ga
 
 ### Subagent 定义
 
-Codex subagent prompt 是 **Proof-or-Stop adapter 约定**，由 Proof-or-Stop tooling 读取，不是 Codex runtime 官方约定。Full asset mode 会物化 `.proof-or-stop-codex/agents/` 下的 Markdown + YAML frontmatter prompt；thin asset mode 可省略本地 prompt copy，改由 `.proof-or-stop-codex/lattice.json` 的 package prompt registry 解析。legacy Codex adapter manifest 仍兼容。Codex 官方自定义 agent 约定是小写 `~/.codex/agents/` 或项目 `.codex/agents/` + TOML 文件；Codex native PreToolUse hook 使用小写 `.codex/hooks.json` / `.codex/hooks/`，在大小写不敏感文件系统上可能显示为 `.proof-or-stop-codex/hooks` alias。`.claude/hooks`、`.claude/settings.json`、`.claude/skills` 仍是 Claude Code 专属资产；不要创建会误导用户的 `.proof-or-stop-codex/settings.json`。full 模式下 prompt 格式为 Markdown + YAML frontmatter：
+Codex subagent prompt 是 **Proof-or-Stop adapter 约定**，由 Proof-or-Stop tooling 读取，不是 Codex runtime 官方约定。Full asset mode 会物化 `.proof-or-stop-codex/agents/` 下的 Markdown + YAML frontmatter prompt；thin asset mode 可省略本地 prompt copy，改由 `.proof-or-stop-codex/proof-or-stop.json` 的 package prompt registry 解析。legacy Codex adapter manifest 仍兼容。Codex 官方自定义 agent 约定是小写 `~/.codex/agents/` 或项目 `.codex/agents/` + TOML 文件；Codex native PreToolUse hook 使用小写 `.codex/hooks.json` / `.codex/hooks/`，在大小写不敏感文件系统上可能显示为 `.proof-or-stop-codex/hooks` alias。`.claude/hooks`、`.claude/settings.json`、`.claude/skills` 仍是 Claude Code 专属资产；不要创建会误导用户的 `.proof-or-stop-codex/settings.json`。full 模式下 prompt 格式为 Markdown + YAML frontmatter：
 
 ```markdown
 ---
