@@ -8641,6 +8641,49 @@
       ],
       "signatureTag": "edge|ts|packages-main-handlers",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3f3d:F-129",
+      "desc": "packages/main/src/handlers/prewrite-guard.ts:205-206 concept-cleanup: B-cc10 read-both state-dir decision is missing at the OPEN-inventory material exemption. The filters !file.startsWith('.lattice/locks/') and !file.startsWith('.lattice/runtime/') are deprecated-literal DECISION sites (the F-065/F-061 shape brand-paths.ts exists to prevent). They recognize only DEPRECATED_STATE_DIR. Canonical writes land under .proof-or-stop/locks/ and .proof-or-stop/runtime/ (main-write-lock.ts canonical lock path; PROOF_OR_STOP_STATE_DIR). Those paths are silently ignored by the exemption, so they become materialTargets and OPEN_REVIEW_INVENTORY_MATERIAL_MUTATION denies them, while .lattice/locks|runtime still pass. Adjacent residue at :217 recovery still teaches `lattice review_inventory_cancel` instead of `proof-or-stop review_inventory_cancel`. Fix: derive both prefixes from stateDirCandidates('locks') / stateDirCandidates('runtime') or STATE_DIR_NAMES; do not hardcode .lattice/. HIGH.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-19T17:31:34.683Z",
+      "reviewRound": "2026-08-19T16:56:02.376Z",
+      "reviewRunId": "B-3f3d:RR-596",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/brand-paths.ts",
+          "packages/main/src/handlers/prewrite-guard.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/artifact-release.ts",
+          "packages/main/src/core/main-write-lock.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/done-prepare.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "a2c971f88a479801eabdd3581b46385af4fe2e1b218b8573c6702a14a9e0d76c",
+      "files": [
+        "packages/main/src/handlers/prewrite-guard.ts",
+        "packages/main/src/core/brand-paths.ts",
+        "packages/main/src/core/main-write-lock.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-handlers",
+      "signatureTagSource": "auto"
     }
   ]
 }
