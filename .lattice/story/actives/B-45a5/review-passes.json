@@ -31,6 +31,32 @@
         "scanEscalationReason": null
       },
       "_hash": "10b7ed5bd7e21878cd946a7c5cbb0d5f9f1bf0db8888ecb23255345738ead2dd"
+    },
+    {
+      "id": "B-45a5:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 narrow re-attestation of F-001/F-002 fixes plus F-003 spillover. F-001 label now states all three clauses incl. anti-bypass D1-D5 and C9/E1 alias-collision; ran red-b45a5-withdrawal-gates.mjs directly, exit=0/VERDICT=GREEN, all rows in the label are actually asserted. F-002 docstring enumerates the three disjoint exemption buckets in test order, verified decision-membership is the sole key not item.status. F-003 spillover: buildAliasCollision reuses the real applier + shared helpers, no duplicated withdrawn-notion; B45A5-VERDICT emitted from one const referenced twice, cannot diverge. git diff main...HEAD --stat: only 4 code/test files touched, no concept deleted/replaced this round so no residue grep applies. No blocker.",
+      "createdAt": "2026-08-19T02:33:18.224Z",
+      "reviewRound": "2026-08-19T01:51:47.991Z",
+      "reviewRunId": "B-45a5:RR-005",
+      "envelopeId": "6acb2067f9bad1136da01344d5cc52ed23f9089df22465fa25130ffc599d4da6",
+      "writerSessionId": "sess-b45a5-main",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "lattice.config.json",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/handlers/validate-channel.ts",
+          "packages/main/tests/red/red-b45a5-withdrawal-gates.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-45a5/checklist.json",
+          ".lattice/story/actives/B-45a5/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b926f089d42a9e477c0f5f37c3aa2020950a8f328c237667012a883d24ce6b09"
     }
   ]
 }
