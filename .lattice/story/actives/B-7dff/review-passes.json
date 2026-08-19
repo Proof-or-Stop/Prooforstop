@@ -640,6 +640,38 @@
         "scanEscalationReason": null
       },
       "_hash": "59b24aaefd56bee68eaafe55a6542ccbdffcf9e9a4833cd1001138ccd967c068"
+    },
+    {
+      "id": "B-7dff:RP-021",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage complete: all 15 must-priority verificationIntents across CHK-001..CHK-005 have valid evidence (13 logic_test/integration_test rows, all mechanical:true with real receipts exitCode/outputDigest/selectorMatched/executedAt, result=pass; plus 2 permanent, well-justified waivers on CHK-001:happy:0 and CHK-005:happy:0 for a pin selector citing full-suite member counts that change run to run). No missing/failing intent. No evidence kind overstates its command: logic_test rows are honestly self-audited as in-process/no-spawn including a documented self-correction (F-009); integration_test rows on CHK-003:happy:0/CHK-004:happy:0 are justified with explicit real-child-process-spawn evidence (dist import + process.execPath). Investigated the delivery reviewer's milestone_status M1-M4 Blocked flag per the requested second opinion: I agree it is mechanical rebinding lag, not a coverage defect. Root-caused directly: milestone_status flags evidence=stale uniformly on ALL CHK-001..CHK-004 rows (not just CHK-001:happy:0) because current storyFilesHash 0bab1cc35f5b differs from the storyFilesHash most evidence was stamped with (7446a31ff3c1, captured at merge commit 19ff5225fa). Verified via git diff --name-status -M 19ff5225fa..HEAD that the only files touched since that stamp are .lattice/story/actives/B-7dff/* (excluded story metadata: checklist.json, delivery-check.json, summary.json, review-passes.json, review-runs.json, test-evidence.json, process-events/metrics, prompt-envelopes, closeout-write-receipts, done-required-evidence) plus .lattice/dev-memory/finish-decisions/B-7dff.json (new, deliberately materialHash-excluded per B-a7c5 F-005) and .lattice/dev-memory/experience.jsonl (+3 lines, confirmed via git diff --stat). Zero source or test files changed. experience.jsonl sits outside the runtime-artifact-registry exclusion (only .lattice/dev-memory/finish-decisions/ is excluded, not the sibling experience.jsonl), so the mandatory closeout dev-memory step still perturbs storyFilesHash even though it touches no story-owned code; this is an infra registry gap outside my review-only charter to fix, not a verificationIntent/Evidence coverage gap in this story. Separately, CHK-001:happy:0's own earlier storyFilesHash move (pre-merge 1e183269 stamped at 16:57, never re-stamped after the merge) IS a real content-touching drift: git diff 921230f1..19ff5225fa shows the main merge brought in changes to packages/main/src/tasks/full-suite-runner.ts and full-suite-runner-smoke.ts (B-d15e budget-telemetry changes to the same files CHK-001 owns), which is why the executable CHK-001 edge/adversarial evidence was correctly re-captured post-merge at 7446a31f with fresh receipts. The waiver's substance (a fixed prose selector can never match a member count/jobs value that varies run to run) is a permanent structural claim unaffected by that merge's content, so re-verifying it was unnecessary in substance even though its citation numbers predate the merge. No blocker. No coverage defect.",
+      "createdAt": "2026-08-19T01:12:04.795Z",
+      "reviewRound": "2026-08-19T01:00:24.757Z",
+      "reviewRunId": "B-7dff:RR-035",
+      "envelopeId": "225c8ab5805b83340dc99ec4534002f75a5d4bdd43fa2dbcbc4f96ad2ca6396c",
+      "writerSessionId": "sess-c8142ac4cb69f1c755df4c1fc223e028",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7dff/background.md",
+          ".lattice/story/actives/B-7dff/checklist.json",
+          ".lattice/story/actives/B-7dff/plan.md"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "packages/main/src/core/keyed-scheduler.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/validate-parallel-equivalence-smoke.ts",
+          "packages/main/tests/validate-plan-scheduling.test.mjs",
+          "packages/main/tests/validate-resource-claims.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ca2825beb8c84c0806afaada39ff96ead9a54cea2c11a62353ce97406373939d"
     }
   ]
 }
