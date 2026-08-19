@@ -2106,6 +2106,26 @@
         "scanEscalationReason": null
       },
       "_hash": "b5d47ef05e7c47836a2f43362fc2c0330d8957aa08ba6e3f6c8b1a5de7e21991"
+    },
+    {
+      "id": "B-9ff1:RP-068",
+      "agent": "lattice-review-behavior",
+      "note": "Post-merge bookkeeping round (185+118 main commits landed while story sat in TEST). Scoped re-check, not a full module re-audit, per operator instruction. Confirmed operator-visible behavior of red_evidence_envelope_check unchanged after merges touching validate-channel.ts, lattice-brand.ts, package.json: command still fail-closes on unresolved policy, names the redEvidence block in lattice.config.json, and emits red_evidence_policy_missing: pinnedPath. Ran red-w2d-specificity-conjunction.mjs (exit 0): five characterization rows unchanged (SIGSEGV 15.65 REJECT, ENOMEM 11.51 REJECT, HTTP 404 20.00 REJECT, Error 500 21.77 REJECT, test failed 34.05 ADMIT). Diffed summary.json limitations field across the two most recent summary_set commits (891f67c -> bf72877): byte-identical, still carries the specificity inversion, the four measured pairs, the ENOMEM non-tunable 12-bit hard-floor point, and the ships-unfixed framing (\"this story ships it that way\"). Ran the other four w2d harnesses (assertion-digest-scope, command-readonly, entropy-differential, rejection-matrix) and red-evidence-envelope-smoke.js: all exit 0. findings.json: 77 total, 0 open. git rev-list --count HEAD..main == 0. No blocker found.",
+      "createdAt": "2026-08-19T15:17:15.301Z",
+      "reviewRound": "2026-08-19T15:13:53.073Z",
+      "reviewRunId": "B-9ff1:RR-108",
+      "envelopeId": "a1abdeddabf01e0b44d8aa26ac96bd1fac2c645a8d33369bb70353a2f0d5a2e8",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-9ff1/summary.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "f7ad6cd5dcb8b1730ea806617165b53ff63a88a947fb416605185e2c754c3c15"
     }
   ]
 }
