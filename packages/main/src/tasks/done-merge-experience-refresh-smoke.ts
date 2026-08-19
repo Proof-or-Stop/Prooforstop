@@ -46,6 +46,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 
 import { resetConfigCache } from '../core/config.js';
+import { stateDirCandidates } from '../core/brand-paths.js';
 import { StoryStore } from '../core/store.js';
 import { readFindingSignals } from '../core/learning-store.js';
 import { applyDoneMergeEffects } from '../handlers/done-effects.js';
@@ -122,7 +123,12 @@ function buildDoneReadyStoryWithLinkedWorktree(storyId: string): { root: string;
     workflow: { profile: 'light' },
   }, null, 2));
   write(root, 'README.md', `done-merge-experience-refresh-smoke ${storyId}\n`);
-  write(root, '.gitignore', '.worktrees/\n.linked-worktrees/\n.lattice/learning/\n.lattice/activity.jsonl\n');
+  write(root, '.gitignore', [
+    '.worktrees/',
+    '.linked-worktrees/',
+    ...stateDirCandidates('learning').map((rel) => `${rel}/`),
+    ...stateDirCandidates('activity.jsonl'),
+  ].join('\n') + '\n');
   write(root, 'packages/main/src/app.ts', 'export const app = true;\n');
 
   git(root, ['init']);
