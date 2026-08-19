@@ -404,7 +404,11 @@
           {
             "desc": "A decision overwritten to decision=rejected / userConfirmed=false stops authorizing the skip; states are built by direct JSON write since that is the actual threat model",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b45a5-withdrawal-gates.mjs --attest",
+              "selector": "B45A5-ROW-D45=REFUSED"
+            }
           }
         ]
       },
@@ -455,6 +459,26 @@
           "materialHash": "87f4096fa933aa59df41f406573aa3656c8595fde0ca2b9f6681a9e2919b1314",
           "storyFilesHash": "2937959c67ac6635b498d08971f008d55f2d2b821a101a88b9c4c5b4a19cf892",
           "timestamp": "2026-08-19T01:09:50.524Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-b45a5-withdrawal-gates.mjs",
+          "command": "node packages/main/tests/red/red-b45a5-withdrawal-gates.mjs --attest",
+          "result": "pass",
+          "note": "Row D45 is the joint over both routes to the state this lane names: a decision that DOES list the item but no longer authorizes it. D4 reaches it by direct JSON write - the real applier performs the withdrawal, then a raw writeFileSync on scope-shrinkage-decision.json flips decision to rejected and userConfirmed to false while leaving withdrawnChecklistItemRefs untouched. D5 reaches the identical state through the CLI, a second scope_shrinkage_decision_set with decision=rejected whose union logic carries the refs forward. Both are still refused by BOTH gates. Row C8 measures the premise that makes this non-vacuous: in both fixtures the record STILL lists the item while withdrawnChecklistItemIdsFrom resolves to the empty set, so what is measured is the authorization test and not a vanished ref - exactly what a bare withdrawnChecklistItemRefs.includes(id) shortcut would still honour. Ablation: replacing the helper with new Set(decision.withdrawnChecklistItemRefs) in dist turns D45 BYPASSED while B1/B2/B3 and all ten controls stay green, and the three D1..D3 rows stay REFUSED, so this row is independently load-bearing. Selector is the stable row id and stays REFUSED after the fix.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "6f95154ad585f372f0a46a7aa51b9f30fe12161d97cb67de48e9e2456380b13f",
+            "outputTail": "se launderedIntoCoveredOrExempted=false\n    observed: decision=confirmed/true id=SD-a90a246b refs=[CHK-003] helperResolves=[CHK-003]\n    observed: detail: withdrawn (SD-a90a246b): CHK-003\n    observed: detail: Covered: CHK-001\n    observed: detail: channel gate fail: CHK-002 has no dispatch/subagent_result evidence\nB45A5-ROW-D2=REFUSED\n  an item whose decisionRef names a decision id that does not exist: is it still refused by BOTH gates? REFUSED = yes\n    observed: subject=CHK-002 owns refs=[CHK-002:happy:0 INT-FORGED-ALIAS] still demanded=[CHK-002:happy:0 INT-FORGED-ALIAS] completenessRefuses=true\n    observed: channel ok=false offenders=[CHK-002] channelRefuses=true inWithdrawnBucket=false launderedIntoCoveredOrExempted=false\n    observed: decision=confirmed/true id=SD-495332e2 refs=[CHK-003] helperResolves=[CHK-003]\n    observed: detail: withdrawn (SD-495332e2): CHK-003\n    observed: detail: Covered: CHK-001\n    observed: detail: channel gate fail: CHK-002 has no dispatch/subagent_result evidence\nB45A5-ROW-D3=REFUSED\n  an item whose decisionRef names the story's REAL confirmed decision, which withdraws a DIFFERENT item and does not list this one: is it still refused by BOTH gates? REFUSED = yes\n    observed: subject=CHK-002 owns refs=[CHK-002:happy:0 INT-FORGED-ALIAS] still demanded=[CHK-002:happy:0 INT-FORGED-ALIAS] completenessRefuses=true\n    observed: channel ok=false offenders=[CHK-002] channelRefuses=true inWithdrawnBucket=false launderedIntoCoveredOrExempted=false\n    observed: decision=confirmed/true id=SD-8964f47c refs=[CHK-003] helperResolves=[CHK-003]\n    observed: detail: withdrawn (SD-8964f47c): CHK-003\n    observed: detail: Covered: CHK-001\n    observed: detail: channel gate fail: CHK-002 has no dispatch/subagent_result evidence\nB45A5-ROW-D4=REFUSED\n  an item whose decision DOES list it but was overwritten on disk to decision=rejected / userConfirmed=false: is it still refused by BOTH gates? REFUSED = yes\n    observed: subject=CHK-002 owns refs=[CHK-002:happy:0 INT-FORGED-ALIAS] still demanded=[CHK-002:happy:0 INT-FORGED-ALIAS] completenessRefuses=true\n    observed: channel ok=false offenders=[CHK-002] channelRefuses=true inWithdrawnBucket=false launderedIntoCoveredOrExempted=false\n    observed: decision=rejected/false id=SD-f4f3b06e refs=[CHK-002] helperResolves=[]\n    observed: detail: Covered: CHK-001\n    observed: detail: channel gate fail: CHK-002 has no dispatch/subagent_result evidence\nB45A5-ROW-D5=REFUSED\n  the same un-authorization reached through the CLI (a second scope_shrinkage_decision_set with decision=rejected, refs preserved by the union logic): is it still refused by BOTH gates? REFUSED = yes\n    observed: subject=CHK-002 owns refs=[CHK-002:happy:0 INT-FORGED-ALIAS] still demanded=[CHK-002:happy:0 INT-FORGED-ALIAS] completenessRefuses=true\n    observed: channel ok=false offenders=[CHK-002] channelRefuses=true inWithdrawnBucket=false launderedIntoCoveredOrExempted=false\n    observed: decision=rejected/false id=SD-da9843da refs=[CHK-002] helperResolves=[]\n    observed: detail: Covered: CHK-001\n    observed: detail: channel gate fail: CHK-002 has no dispatch/subagent_result evidence\nB45A5-ROW-D23=REFUSED\n  joint: are BOTH a decisionRef naming a decision that does not exist AND a decisionRef naming a real decision that does not list the item refused by both gates? REFUSED = yes\n    observed: derived from the two rows above; MIXED would mean one of the two dangling-authority shapes got through\nB45A5-ROW-D45=REFUSED\n  joint: is a decision overwritten to decision=rejected / userConfirmed=false unable to authorize the skip by EITHER route, the raw file write and the CLI? REFUSED = yes\n    observed: derived from the two rows above; MIXED would mean only one of the two routes to the same un-authorized state is caught\n\nB45A5-VERDICT=GREEN\n  both gates exclude the decision-backed withdrawn item, both still bite on everything that is\n  not withdrawn, and every unbacked withdrawal is still refused by both.\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-19T01:10:01.736Z"
+          },
+          "headHash": "553f22c15402b99e45c981f9fc68cc490d361e56",
+          "materialHash": "87f4096fa933aa59df41f406573aa3656c8595fde0ca2b9f6681a9e2919b1314",
+          "storyFilesHash": "2937959c67ac6635b498d08971f008d55f2d2b821a101a88b9c4c5b4a19cf892",
+          "timestamp": "2026-08-19T01:10:01.869Z"
         }
       ]
     },
