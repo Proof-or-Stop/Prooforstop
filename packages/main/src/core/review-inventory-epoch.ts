@@ -636,6 +636,43 @@ export function reviewInventoryRemediationGate(store: StoryStore, storyId: strin
   return { required: true, ok: true };
 }
 
+/** PRE_CERT completeness-only receipts: empty waves/lanes, never TEST authority. */
+export function isInventoryCompletenessOnlyReceipt(
+  epoch: ReviewInventoryEpoch,
+  receipt: ReviewInventoryReceipt,
+): boolean {
+  return epoch.waves.length === 0
+    && receipt.waveCount === 0
+    && epoch.requiredLanes.length === 0
+    && receipt.requiredLanes.length === 0
+    && receipt.authority === INVENTORY_COMPLETENESS_AUTHORITY
+    && receipt.authorizesTest === false;
+}
+
+function markReviewInventoryConsumed(
+  store: StoryStore,
+  storyId: string,
+  pair: { epoch: ReviewInventoryEpoch; receipt: ReviewInventoryReceipt },
+  reviewRound: string,
+): string {
+  const now = new Date().toISOString();
+  const data = store.readReviewInventoryEpochs(storyId);
+  data.epochs = data.epochs.map(row => {
+    if (row.epochId !== pair.epoch.epochId) return row;
+    const { _hash, ...unsigned } = row;
+    const consumed: Omit<ReviewInventoryEpoch, '_hash'> = { ...unsigned, consumedAt: now, consumedByReviewRound: reviewRound, updatedAt: now };
+    return { ...consumed, _hash: signReviewInventoryEpoch(consumed) };
+  });
+  data.receipts = data.receipts.map(row => {
+    if (row.receiptId !== pair.receipt.receiptId) return row;
+    const { _hash, ...unsigned } = row;
+    const consumed: Omit<ReviewInventoryReceipt, '_hash'> = { ...unsigned, consumedAt: now };
+    return { ...consumed, _hash: signReviewInventoryReceipt(consumed) };
+  });
+  store.writeReviewInventoryEpochs(storyId, data);
+  return pair.receipt.receiptId;
+}
+
 export function consumeReviewInventoryReceipt(
   store: StoryStore,
   storyId: string,
@@ -663,22 +700,61 @@ export function consumeReviewInventoryReceipt(
     if (liveAggregateError) {
       throw new Error(`REVIEW_INVENTORY_LIVE_AGGREGATE_CHANGED: ${liveAggregateError}; begin a fresh inventory epoch`);
     }
-    const now = new Date().toISOString();
+    return markReviewInventoryConsumed(store, storyId, pair, reviewRound);
+  });
+}
+
+/**
+ * PRE_CERT consume. Completeness-only empty-wave receipts skip acceptance-subject
+ * and live-aggregate checks. Wave-saturated receipts keep those checks so a stale
+ * saturation receipt cannot enter a PRE_CERT window.
+ */
+export function consumeReviewInventoryCompletenessReceipt(
+  store: StoryStore,
+  storyId: string,
+  reviewRound: string,
+  currentCutoff: { materialHash: string; storyFilesHash?: string },
+  validateInventoryContext?: () => void,
+): string | null {
+  return withReviewInventoryMutationLock(store, storyId, () => {
+    validateInventoryContext?.();
     const data = store.readReviewInventoryEpochs(storyId);
-    data.epochs = data.epochs.map(row => {
-      if (row.epochId !== pair.epoch.epochId) return row;
-      const { _hash, ...unsigned } = row;
-      const consumed: Omit<ReviewInventoryEpoch, '_hash'> = { ...unsigned, consumedAt: now, consumedByReviewRound: reviewRound, updatedAt: now };
-      return { ...consumed, _hash: signReviewInventoryEpoch(consumed) };
-    });
-    data.receipts = data.receipts.map(row => {
-      if (row.receiptId !== pair.receipt.receiptId) return row;
-      const { _hash, ...unsigned } = row;
-      const consumed: Omit<ReviewInventoryReceipt, '_hash'> = { ...unsigned, consumedAt: now };
-      return { ...consumed, _hash: signReviewInventoryReceipt(consumed) };
-    });
-    store.writeReviewInventoryEpochs(storyId, data);
-    return pair.receipt.receiptId;
+    const latest = data.epochs.at(-1);
+    const latestReceipt = latest?.receiptId
+      ? data.receipts.find(row => row.receiptId === latest.receiptId)
+      : undefined;
+    if (latest && (latest.consumedAt || latestReceipt?.consumedAt)) {
+      throw new Error(
+        `REVIEW_INVENTORY_RECEIPT_ALREADY_CONSUMED: ${latest.receiptId ?? latest.epochId} is already consumed`,
+      );
+    }
+    const pair = finalizedUnconsumedReviewInventory(store, storyId);
+    if (!pair) {
+      throw new Error('REVIEW_INVENTORY_PRE_CERT_BLOCKED: missing valid unconsumed FINALIZED review inventory receipt');
+    }
+    if (reviewRound && pair.epoch.reviewRound !== reviewRound) {
+      throw new Error(
+        `REVIEW_INVENTORY_PRE_CERT_BLOCKED: receipt reviewRound ${pair.epoch.reviewRound} != current ${reviewRound}`,
+      );
+    }
+    if (pair.receipt.cutoff.materialHash !== currentCutoff.materialHash
+      || (pair.receipt.cutoff.storyFilesHash ?? '') !== (currentCutoff.storyFilesHash ?? '')) {
+      throw new Error('REVIEW_INVENTORY_PRE_CERT_BLOCKED: current material/storyFiles no longer match the finalized cutoff');
+    }
+    if (!isInventoryCompletenessOnlyReceipt(pair.epoch, pair.receipt)) {
+      const currentAcceptanceSubjectDigest = reviewInventoryAcceptanceSubjectDigestForStore(store, storyId);
+      if (pair.epoch.scopeDigest !== currentAcceptanceSubjectDigest
+        || pair.receipt.scopeDigest !== currentAcceptanceSubjectDigest) {
+        throw new Error(
+          'REVIEW_INVENTORY_REMEDIATION_BLOCKED: effective ProofStory/checklist acceptance subject changed after finalize; begin a fresh inventory epoch',
+        );
+      }
+      const liveAggregateError = finalizedLiveAggregateError(store, pair);
+      if (liveAggregateError) {
+        throw new Error(`REVIEW_INVENTORY_LIVE_AGGREGATE_CHANGED: ${liveAggregateError}; begin a fresh inventory epoch`);
+      }
+    }
+    return markReviewInventoryConsumed(store, storyId, pair, reviewRound);
   });
 }
 
