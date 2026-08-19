@@ -4,7 +4,7 @@
   "title": "Wire the existing item-level withdrawal helper into the two REVIEW-path gates",
   "description": "withdrawnChecklistItemIdsFrom exists at core/proofstory.ts:1622 and is called only by a smoke test, so evaluateReviewCompleteness (core/proofstory.ts:2084) reads withdrawal at binding and milestone granularity but never at item granularity, and validate-channel.ts has no withdrawal awareness at all. A user-approved withdrawal therefore has no mechanical completion path and the operator must write waivers - prose where proof belongs. Wire both gates through the decision-backed helper, prove an unbacked decisionRef skips nothing, and delete the three B-8df9 waivers this unblocks.",
   "type": "bug",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "keywords": [
     "withdrawn",
@@ -112,6 +112,15 @@
       "user": "Harmonygo",
       "sessionId": "sess-b45a5-main",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-19T12:59:26.603Z",
+      "branch": "story/B-45a5",
+      "user": "Harmonygo",
+      "sessionId": "sess-b45a5-main",
+      "agent": "main"
     }
   ],
   "worktree": {
@@ -119,5 +128,5 @@
     "branch": "story/B-45a5",
     "createdAt": "2026-08-16T22:58:20.896Z"
   },
-  "currentReviewRound": "2026-08-19T03:51:10.195Z"
+  "currentReviewRound": "2026-08-19T12:59:26.603Z"
 }
