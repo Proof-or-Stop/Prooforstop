@@ -1,6 +1,6 @@
 # Changelog
 
-## Proof-or-Stop v0.3.264 - 2026-08-19
+## Proof-or-Stop v0.3.266 - 2026-08-19
 
 **Removed**
 
@@ -37,6 +37,55 @@
   initialized before the rename that carry their own local `bin/lattice.js` are also
   unaffected: `init` and `check` still recognize the old wrapper name in downstream
   projects, so no managed file is stranded.
+
+## Proof-or-Stop v0.3.265 - 2026-08-19
+
+This release makes routine validation safely parallel and makes both REVIEW-path
+gates consistently honor decision-backed item withdrawals.
+
+**Parallel routine validation (B-7dff, v0.3.264)**
+
+- **Shared keyed scheduler.** Extracted the full-suite keyed scheduler into
+  `core/keyed-scheduler.ts` and routed the routine validation plan through the same
+  scheduling model. Results remain in configured command order even when execution
+  completes out of order.
+- **Explicit resource claims.** Validation commands declare the resources they may
+  contend for. Commands without a declaration fail closed into exclusive execution
+  instead of being assumed safe to run concurrently.
+- **Bounded worker selection.** Routine validation reports the worker count and plan
+  classification it used. Concurrency remains bounded by the configured policy and
+  host capacity rather than creating an unbounded process fan-out.
+- **Evidence compatibility.** Per-command exit code, duration, captured output,
+  timeout handling, progress reporting, and persisted result ordering retain their
+  serial semantics.
+- **Pollution attribution.** Worktree changes are attributed to the command that
+  produced them under concurrent execution, with ambiguous overlap handled
+  conservatively rather than assigned to the wrong command.
+- **Measured equivalence.** A real-plan benchmark compares serial and parallel runs,
+  requires identical per-command outcomes, and records makespan and speedup.
+
+**Withdrawal-aware REVIEW gates (B-45a5, v0.3.265)**
+
+- **Decision-backed completeness skip.** `evaluateReviewCompleteness` now uses the
+  existing item-level withdrawal resolver, so a checklist item listed in a confirmed
+  withdrawal decision no longer blocks REVIEW for missing evidence.
+- **Matching channel behavior.** The normal-channel evidence gate uses the same
+  resolver and reports the skipped item together with its withdrawal decision instead
+  of claiming that dispatch evidence is missing.
+- **Fail-closed manual status edits.** Setting an item to `withdrawn` without a real
+  confirmed decision skips nothing; both gates continue to reject the unsupported
+  withdrawal.
+- **Scope remains item-specific.** A withdrawal decision affects only the listed item;
+  evidence requirements for all other checklist items are unchanged.
+
+**Verification**
+
+- Added scheduling, resource-claim, pollution-attribution, and serial/parallel
+  equivalence suites for the routine validation plan.
+- Added a dedicated withdrawal-gate regression suite covering both gates, confirmed
+  decisions, unsupported status edits, and item isolation.
+- Both Stories completed routine validation and DONE-required validation before DONE.
+- The CLI version was advanced through `0.3.264` to `0.3.265`.
 
 ## Proof-or-Stop v0.3.263 - 2026-08-18
 

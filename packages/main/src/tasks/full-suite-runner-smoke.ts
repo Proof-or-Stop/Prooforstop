@@ -15,10 +15,11 @@ import {
   resetInterruptForTest, runEntry, runScheduled, validateInventory, writeResultArtifact,
   observedOutputSignatures, pathIsContained, validateJsonOutputPath,
   stateDirKey,
+  cancelCompletedFullSuiteResult, cancelledFullSuiteResult,
 } from './full-suite-runner.js';
 import { DEPRECATED_STATE_DIR, PROOF_OR_STOP_STATE_DIR } from '../core/brand-paths.js';
 import {
-  type FullSuiteEntry, type FullSuiteResult, type ResourceClaim,
+  type FullSuiteEntry, type FullSuiteResult, type KeyedSchedulerOptions, type ResourceClaim,
 } from './full-suite-runner.js';
 
 const checks: string[] = [];
@@ -45,10 +46,15 @@ function createFixtureBuildBinding(root: string): void {
 const pass = (name: string): FullSuiteResult => ({ name, status: 'PASS', durationMs: 1, output: '' });
 const claim = (key: string, access: 'shared' | 'exclusive' = 'shared'): ResourceClaim => ({ class: 'fixed-path', key, access, canonicalKey: `fixed-path:${key}` });
 const entry = (name: string, resources: ResourceClaim[] = [], priority = 0): FullSuiteEntry => ({ name, resources, priority, tempOwnership: 'runner-owned-unique' });
+// The canonical full-suite policy: the first FAIL/TIMEOUT cancels the rest.
+const cancelOnFirstFailure: KeyedSchedulerOptions<FullSuiteEntry, FullSuiteResult> = {
+  cancellation: 'cancel-on-first-failure', cancelledResult: cancelledFullSuiteResult, cancelCompletedResult: cancelCompletedFullSuiteResult,
+};
 
 async function main(): Promise<void> {
   const observations = {
     aliasCollisions: 0, failClosedThrows: 0, completedMembers: 0,
+    schedulerIsolation: false, cancellationPolicies: { cancelOnFirstFailure: false, runAll: false },
     mutationBites: { removedFixedPortKey: false, inventoryOmission: false },
     lifecycle: { normalCleanup: false, normalCompletionGrandchild: false, timeoutGrandchild: false, externalInterrupt: false, outsideRootRefused: false },
   };
@@ -171,7 +177,7 @@ async function main(): Promise<void> {
     if (item.name === 'unrelated' && active.length) unrelatedOverlap = true;
     active.push(item.name); await new Promise((done) => setTimeout(done, item.name === 'shared-a' ? 60 : 25)); active.splice(active.indexOf(item.name), 1);
     return pass(item.name);
-  });
+  }, cancelOnFirstFailure);
   assert(sharedOverlap, 'shared claims on one key overlap');
   assert(!conflictingOverlap, 'exclusive claim waits for conflicting canonical key');
   assert(unrelatedOverlap, 'unrelated canonical resource keys overlap safely');
@@ -179,10 +185,10 @@ async function main(): Promise<void> {
   await runScheduled([
     entry('port-a', [{ class: 'fixed-port', key: '43127', access: 'exclusive', canonicalKey: 'fixed-port:43127' }]),
     entry('port-b', [{ class: 'fixed-port', key: '43127', access: 'exclusive', canonicalKey: 'fixed-port:43127' }]),
-  ], 2, async item => { if (portActive.length) fixedPortOverlap = true; portActive.push(item.name); await new Promise(done => setTimeout(done, 20)); portActive.pop(); return pass(item.name); });
+  ], 2, async item => { if (portActive.length) fixedPortOverlap = true; portActive.push(item.name); await new Promise(done => setTimeout(done, 20)); portActive.pop(); return pass(item.name); }, cancelOnFirstFailure);
   assert(!fixedPortOverlap, 'fixed-port resource-key ownership token prevents conflicting overlap');
   const ignoredPortEntries = [entry('port-a'), entry('port-b')]; let mutationOverlap = false; const mutationActive: string[] = [];
-  await runScheduled(ignoredPortEntries, 2, async item => { if (mutationActive.length) mutationOverlap = true; mutationActive.push(item.name); await new Promise(done => setTimeout(done, 20)); mutationActive.pop(); return pass(item.name); });
+  await runScheduled(ignoredPortEntries, 2, async item => { if (mutationActive.length) mutationOverlap = true; mutationActive.push(item.name); await new Promise(done => setTimeout(done, 20)); mutationActive.pop(); return pass(item.name); }, cancelOnFirstFailure);
   assert(mutationOverlap, 'fixed-port claim removal mutation bites through ownership-token overlap');
   observations.mutationBites.removedFixedPortKey = mutationOverlap;
   const protectedPairs: Record<string, { overlapCount: number; completionCount: number; blockedWaitMs: number; serialized: boolean }> = {};
@@ -194,22 +200,22 @@ async function main(): Promise<void> {
     const pair = [0, 1].map(index => entry(`${label}-${index}`, [{ class: resourceClass, key, access: 'exclusive', canonicalKey: `${resourceClass}:${key}` }]));
     const pairResults = await runScheduled(pair, 2, async item => {
       if (activeOwners) overlapCount++; activeOwners++; await new Promise(done => setTimeout(done, 20)); activeOwners--; completionCount++; return pass(item.name);
-    });
+    }, cancelOnFirstFailure);
     const blockedWaitMs = pairResults[1]?.lockWaitMs ?? 0;
     protectedPairs[label] = { overlapCount, completionCount, blockedWaitMs, serialized: overlapCount === 0 && completionCount === 2 && blockedWaitMs > 0 };
     assert(protectedPairs[label]!.serialized, `${resourceClass} protected pair serializes from observed ownership and wait telemetry`);
   }
   assert((scheduledResults.find((result) => result.name === 'writer')?.lockWaitMs ?? 0) >= 45, 'lockWaitMs includes deterministic compatibility queue wait');
-  const capacityOnly = await runScheduled([entry('capacity-a'), entry('capacity-b')], 1, async (item) => { await new Promise(done => setTimeout(done, 20)); return pass(item.name); });
+  const capacityOnly = await runScheduled([entry('capacity-a'), entry('capacity-b')], 1, async (item) => { await new Promise(done => setTimeout(done, 20)); return pass(item.name); }, cancelOnFirstFailure);
   observations.completedMembers += scheduledResults.length + capacityOnly.length;
   assert(capacityOnly[1]?.lockWaitMs === 0, 'worker-capacity queue time is not reported as resource lock wait');
 
   const launchOrder: string[] = [];
-  const reportOrder = await runScheduled([entry('inventory-first', [], 1), entry('priority-first', [], 100)], 1, async (item) => { launchOrder.push(item.name); return pass(item.name); });
+  const reportOrder = await runScheduled([entry('inventory-first', [], 1), entry('priority-first', [], 100)], 1, async (item) => { launchOrder.push(item.name); return pass(item.name); }, cancelOnFirstFailure);
   assert(launchOrder[0] === 'priority-first', 'priority affects launch order');
   assert(reportOrder.map(({ name }) => name).join(',') === 'inventory-first,priority-first', 'priority preserves canonical report order');
-  assert((await runScheduled([], 4, async (item) => pass(item.name))).length === 0, 'empty selection completes');
-  assert((await runScheduled([entry('only')], 64, async (item) => pass(item.name))).length === 1, 'jobs above member count executes member once');
+  assert((await runScheduled([], 4, async (item) => pass(item.name), cancelOnFirstFailure)).length === 0, 'empty selection completes');
+  assert((await runScheduled([entry('only')], 64, async (item) => pass(item.name), cancelOnFirstFailure)).length === 1, 'jobs above member count executes member once');
   for (const invalid of ['NaN', 'Infinity', '0', '-1', '1.5', '65', undefined]) {
     let rejected = false; try { parsePositiveInteger(invalid, 'jobs'); } catch { rejected = true; }
     assert(rejected, `invalid jobs value ${String(invalid)} is rejected`);
@@ -249,12 +255,57 @@ async function main(): Promise<void> {
   assert(!identityChanged({ headHash: 'h', materialHash: 'm' }, { headHash: 'h', materialHash: 'm' }) && identityChanged({ headHash: 'h', materialHash: 'm' }, { headHash: 'h', materialHash: 'changed' }), 'start/end identity comparison fails on material drift');
 
   const terminalLaunches: string[] = [];
-  const terminal = await runScheduled([entry('first-fail'), entry('must-not-launch')], 1, async (item) => { terminalLaunches.push(item.name); return item.name === 'first-fail' ? { ...pass(item.name), status: 'FAIL' } : pass(item.name); });
+  const terminal = await runScheduled([entry('first-fail'), entry('must-not-launch')], 1, async (item) => { terminalLaunches.push(item.name); return item.name === 'first-fail' ? { ...pass(item.name), status: 'FAIL' } : pass(item.name); }, cancelOnFirstFailure);
   assert(terminal.filter(({ name }) => name === 'first-fail').length === 1 && terminal.some(({ status }) => status === 'FAIL') && terminal.some(({ name, status }) => name === 'must-not-launch' && status === 'INTERRUPTED') && terminalLaunches.join(',') === 'first-fail', 'failure is terminal and never retried; pending launch is prevented');
   let missingTerminalRejected = false;
-  try { await runScheduled([entry('missing-terminal')], 1, async () => undefined as unknown as FullSuiteResult); } catch { missingTerminalRejected = true; }
+  try { await runScheduled([entry('missing-terminal')], 1, async () => undefined as unknown as FullSuiteResult, cancelOnFirstFailure); } catch { missingTerminalRejected = true; }
   assert(missingTerminalRejected, 'missing terminal aggregation trial fails closed without fabricated PASS');
   observations.mutationBites.inventoryOmission = missingTerminalRejected;
+
+  // Scheduler run state is per call, not per module: a terminal failure in one
+  // run must not cancel a run that happens to overlap it in the same process.
+  const isolationLaunches: string[] = [];
+  const failingRun = runScheduled([entry('isolation-fail'), entry('isolation-blocked')], 1, async (item) => {
+    isolationLaunches.push(item.name);
+    return item.name === 'isolation-fail' ? { ...pass(item.name), status: 'FAIL' as const } : pass(item.name);
+  }, cancelOnFirstFailure);
+  const concurrentRun = runScheduled([entry('isolation-first'), entry('isolation-second')], 1, async (item) => {
+    isolationLaunches.push(item.name); await new Promise(done => setTimeout(done, 40)); return pass(item.name);
+  }, cancelOnFirstFailure);
+  const [isolationFailed, isolationConcurrent] = await Promise.all([failingRun, concurrentRun]);
+  assert(isolationFailed.map(({ name, status }) => `${name}:${status}`).join(',') === 'isolation-fail:FAIL,isolation-blocked:INTERRUPTED',
+    'cancel-on-first-failure still cancels the pending entries of its own run');
+  assert(isolationConcurrent.map(({ name, status }) => `${name}:${status}`).join(',') === 'isolation-first:PASS,isolation-second:PASS'
+    && isolationLaunches.includes('isolation-second') && !isolationLaunches.includes('isolation-blocked'),
+  'a concurrent scheduler run never observes another run cancellation');
+  observations.schedulerIsolation = isolationConcurrent.every(({ status }) => status === 'PASS') && isolationLaunches.includes('isolation-second');
+
+  const runAllLaunches: string[] = [];
+  const runAll = await runScheduled([entry('run-all-fail'), entry('run-all-after')], 1, async (item) => {
+    runAllLaunches.push(item.name);
+    return item.name === 'run-all-fail' ? { ...pass(item.name), status: 'FAIL' as const } : pass(item.name);
+  }, { cancellation: 'run-all' });
+  assert(runAllLaunches.join(',') === 'run-all-fail,run-all-after'
+    && runAll.map(({ name, status }) => `${name}:${status}`).join(',') === 'run-all-fail:FAIL,run-all-after:PASS',
+  'run-all cancellation policy lets every entry finish after a failure');
+  observations.cancellationPolicies = { cancelOnFirstFailure: true, runAll: runAllLaunches.length === 2 };
+
+  let uncanonicalizedLaunches = 0; let uncanonicalizedRejected = false;
+  try {
+    await runScheduled([{ ...entry('uncanonicalized'), resources: [{ class: 'fixed-path', key: '/same', access: 'exclusive' }] }], 1,
+      async (item) => { uncanonicalizedLaunches++; return pass(item.name); }, cancelOnFirstFailure);
+  } catch { uncanonicalizedRejected = true; }
+  assert(uncanonicalizedRejected && uncanonicalizedLaunches === 0, 'uncanonicalized resource claim is rejected before any member executes');
+  let unknownPolicyLaunches = 0; let unknownPolicyRejected = false;
+  try {
+    await runScheduled([entry('unknown-policy')], 1, async (item) => { unknownPolicyLaunches++; return pass(item.name); },
+      { cancellation: 'sometimes' as never, cancelledResult: cancelledFullSuiteResult });
+  } catch { unknownPolicyRejected = true; }
+  assert(unknownPolicyRejected && unknownPolicyLaunches === 0, 'unknown cancellation policy is rejected before any member executes');
+  let missingCancelFactoryRejected = false;
+  try { await runScheduled([entry('missing-cancel-factory')], 1, async (item) => pass(item.name), { cancellation: 'cancel-on-first-failure' }); } catch { missingCancelFactoryRejected = true; }
+  assert(missingCancelFactoryRejected, 'a cancelling policy without a cancelled-result factory fails closed');
+
   let killFailureObserved = false;
   try { killProcessTree(123, () => { const error = new Error('denied') as NodeJS.ErrnoException; error.code = 'EPERM'; throw error; }); } catch (error) { killFailureObserved = String(error).includes('failed to terminate'); }
   assert(killFailureObserved, 'non-ESRCH process tree termination failure is surfaced');
@@ -587,6 +638,8 @@ async function main(): Promise<void> {
     canonicalAliasesCollide: { observed: observations.aliasCollisions >= 2, collisionCount: observations.aliasCollisions },
     unknownAndUnclassifiedFailClosed: { observed: observations.failClosedThrows === 5, throwCount: observations.failClosedThrows },
     workerBoundariesProgress: { observed: observations.completedMembers > 0, completionCount: observations.completedMembers },
+    schedulerIsolation: observations.schedulerIsolation,
+    cancellationPolicies: observations.cancellationPolicies,
     mutationBites: observations.mutationBites,
     lifecycle: observations.lifecycle,
   })}\n`);

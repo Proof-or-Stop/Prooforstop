@@ -1,0 +1,47 @@
+{
+  "storyId": "B-7dff",
+  "mode": "shadow",
+  "allowedModify": [
+    "packages/main/src/tasks/full-suite-runner.ts",
+    "packages/main/src/core/validation-executor.ts",
+    "packages/main/src/core/validation-types.ts",
+    "lattice.config.json",
+    "package.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/keyed-scheduler.ts",
+    "packages/main/src/tasks/*-smoke.ts",
+    "packages/main/tests/**"
+  ],
+  "allowedTest": [
+    "packages/main/tests/**",
+    "packages/main/src/tasks/*-smoke.ts",
+    "scripts/verify-*.mjs"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "packages/main/src/tasks/quorum-submit-smoke.ts",
+    "packages/main/src/handlers/done-prepare.ts",
+    "docs/requirements/decisions/**"
+  ],
+  "scopeChangeReason": "shadow mode: the exact file set of an extraction refactor cannot be fully predicted at PLAN time, so violations should warn and surface in REVIEW rather than wedge DEV. The explicit excludes carry the real boundary: quorum-submit-smoke stays untouched (it is the deferred floor) and done-prepare phase ordering is a separate story.",
+  "acknowledgements": [],
+  "createdAt": "2026-08-17T11:36:11.997Z",
+  "updatedAt": "2026-08-17T11:36:11.997Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/tasks/full-suite-runner.ts": "packages/main/src/tasks/full-suite-runner.ts",
+    "packages/main/src/core/validation-executor.ts": "packages/main/src/core/validation-executor.ts",
+    "packages/main/src/core/validation-types.ts": "packages/main/src/core/validation-types.ts",
+    "lattice.config.json": "lattice.config.json",
+    "package.json": "package.json",
+    "packages/main/src/core/keyed-scheduler.ts": "packages/main/src/core/keyed-scheduler.ts",
+    "packages/main/src/tasks/*-smoke.ts": "packages/main/src/tasks/*-smoke.ts",
+    "packages/main/tests/**": "packages/main/tests/**",
+    "scripts/verify-*.mjs": "scripts/verify-*.mjs",
+    "packages/main/src/tasks/quorum-submit-smoke.ts": "packages/main/src/tasks/quorum-submit-smoke.ts",
+    "packages/main/src/handlers/done-prepare.ts": "packages/main/src/handlers/done-prepare.ts",
+    "docs/requirements/decisions/**": "docs/requirements/decisions/**"
+  }
+}

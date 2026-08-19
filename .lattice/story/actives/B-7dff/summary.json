@@ -1,0 +1,56 @@
+{
+  "storyId": "B-7dff",
+  "changes": "packages/main/src/core/keyed-scheduler.ts is new and is now the single definition of the keyed parallel scheduler (runScheduled, ResourceClaim, claim canonicalization), with per-run state and an explicit cancellation policy. packages/main/src/tasks/full-suite-runner.ts imports it instead of defining it and keeps cancel-on-first-failure. packages/main/src/core/validation-executor.ts replaces its sequential loop with that scheduler under run-all cancellation, resolves a resource claim per command with an exclusive fail-closed default, and cross-checks worktree-pollution observations so a concurrent command is never blamed for another command write. packages/main/src/handlers/verifier.ts wraps the result additively so a new ValidationResult field reaches persisted evidence by construction. lattice.config.json declares claims on 97 of 110 validate commands. New regressions: validate-plan-scheduling, validate-resource-claims, validate-pollution-attribution, validate-parallel-equivalence-smoke, and an on-demand npm run bench:validate-parallel.",
+  "usage": "Nothing to invoke differently: proof-or-stop validate --story=B-xxxx now runs its configured plan concurrently and prints one extra line, for example \"validate scheduler: jobs=4 commands=110 declared=97 exclusiveByDefault=13\". To measure the effect on demand, run npm run bench:validate-parallel, which executes the real plan at jobs=1 and jobs=4 in one invocation and prints both wall times with a variance caveat. It is deliberately not registered in validate.commands because a single run costs 25 minutes or more.",
+  "expectedOutcome": "An operator running proof-or-stop validate sees the same per-command results in the same order as before, plus a scheduler line naming the worker count and how many commands carry a declared resource claim, and the run finishes in less wall time than the sequential equivalent.",
+  "actualTranscript": "validate prints \"validate scheduler: jobs=4 commands=110 declared=97 exclusiveByDefault=13\" and completes with the same per-command outcomes. Measured on one host in one session at declared=97: jobs=1 2225.0s versus jobs=4 1474.9s, a 1.51x reduction, with 106 passed and 1 failed identically in both modes and zero per-command verdict disagreement. The equivalence regression prints \"validate-parallel-equivalence: serial=4.94s parallel=2.50s speedup=1.98x\" on its fixture. npm test reports \"full-suite: 49/49 passed in 341.1s; retries=0; jobs=2\".",
+  "outcomeDiff": "The measured 1.51x is at the bottom of the 1.5-1.7x range this story quoted while in flight, and below the 3.17x its background predicted. The prediction came from a simulation that assumed no resource conflicts; the real number is bounded by quorum-submit-smoke, which runs alone and consumes roughly 46 percent of the parallel makespan. The story background states 3.17x, so a reader comparing the two will find this gap; the measured figure is the one to trust because it comes from a same-tree same-session pair rather than a model.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Two verification intents carry permanent waivers because their immutable pin selectors name counts the tree has since grown past: CHK-001:happy:0 pins \"full-suite: 47/47 passed\" against a suite that is now 49 members, and CHK-005:happy:0 pins a plan-count prose line from when the plan was 104 commands. No pin-repair command exists in the framework, so neither can ever mint a matching receipt; the substance behind both was verified by direct runs recorded in the waiver text. The speedup figure carries real variance: identical runs on this host measured 611.6s and 781.3s, about 28 percent apart, so treat 1.51x as an order-of-magnitude claim rather than a precise constant.",
+  "pitfalls": "The expensive mistakes were all about tree stability rather than code. Any commit that touches a story-owned file invalidates every reviewer receipt and every evidence binding made before it, and a finding-resolution commit counts: that cost three full review rounds here. Evidence refresh is self-invalidating and can need two passes, so freeze all code first and refresh last. A validate or npm test run that overlaps a metadata commit fails with \"full-suite identity drift\" rather than a test failure. The session cwd silently reverts to the main checkout, so every command needs an explicit cd; twice this looked like catastrophic story-artifact loss and was not. When a gate refuses, search for the sanctioned exit before improvising: a waiver was written here for a receipt that the documented commandTimeoutMs override could have produced, and a whole follow-up story was drafted against a stale tree that main had already fixed. Finally, a task chip in the host UI is not a tracked work item; a reviewer caught a resolution claiming work was filed when story_list knew nothing about it, which is why B-9e3d exists.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 3338488
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 71282
+    },
+    "PLAN": {
+      "count": 2,
+      "durationMs": 754214
+    },
+    "DEV": {
+      "count": 9,
+      "durationMs": 17836466
+    },
+    "REVIEW": {
+      "count": 8,
+      "durationMs": 109595468
+    },
+    "TEST": {
+      "count": 2,
+      "durationMs": 4476971
+    }
+  },
+  "totalDurationMs": 136073529,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-08-19T00:26:04.813Z",
+  "updatedAt": "2026-08-19T00:26:04.813Z"
+}
