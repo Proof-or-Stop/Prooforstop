@@ -599,6 +599,47 @@
         "scanEscalationReason": null
       },
       "_hash": "6bbf2bfc07ac036b64a9a22298af02c3c04a2da0b169f51f7d3632a61de6e950"
+    },
+    {
+      "id": "B-7dff:RP-020",
+      "agent": "lattice-review-quality",
+      "note": "Closeout round, minting reviewer evidence immediately before quorum/advance. Verified source freeze directly rather than trusting the claim: git diff between my prior pass (RP-016, baseline commit b35533e3c4) and current HEAD (5a0dd29) touches ONLY 13 .lattice/ story-lifecycle bookkeeping files (summary.json, delivery-check.json, done-required-evidence.json, index.json, process-events.jsonl, process-metrics.json, prompt-envelopes.json, review-passes.json, review-runs.json, test-evidence.json, closeout-write-receipts.jsonl, dev-memory/experience.jsonl, dev-memory/finish-decisions/B-7dff.json) -- zero touches to packages/main/src, packages/main/tests, lattice.config.json, or package.json. This matches exactly the TEST-phase closeout writes named in the dispatch (summary_set, two delivery_check_set runs, dev_memory_finish_decision). Rather than rubber-stamp on that freeze, did a full fresh read of the entire code diff this round: captured git diff main...HEAD for packages/main/src + packages/main/tests (3562 lines across all 13 touched/new files: keyed-scheduler.ts, validation-evidence-reuse.ts, validation-executor.ts, validation-types.ts, verifier.ts, full-suite-runner.ts, full-suite-runner-smoke.ts, validate-parallel-benchmark.ts, validate-parallel-equivalence-smoke.ts, red-B-7dff-sequential-validate-plan.mjs, validate-plan-scheduling.test.mjs, validate-pollution-attribution.test.mjs, validate-resource-claims.test.mjs) and read it top to bottom, plus the lattice.config.json resource-claim reformat. Checked all four role rubric items fresh: (1) dead code -- none; the five keyed-scheduler.ts constants that show zero external call sites (RESOURCE_CLASSES/RESOURCE_ACCESSES/OWNED_RESOURCE_CLASSES/SCHEDULED_STATUSES/CANCELLATION_POLICIES) are consumed internally by validateResourceClaims and the cancellation-policy guard in the same file for runtime self-validation, confirmed live, not dead exports. (2) type safety -- grepped the full diff for as-any casts and loose any-type annotations: zero hits; grepped for both parenthesized and bare empty catch blocks: zero hits. npx tsc --noEmit -p packages/main/tsconfig.json exits 0 on this exact tree. No leftover merge-conflict markers, no new TODO/FIXME in the diff. console.log usages in the diff are confined to validate-parallel-benchmark.ts (explicitly on-demand, non-gate-enforced measurement CLI, documented as such in its own header) and validate-parallel-equivalence-smoke.ts (a smoke test printing its own VI-OK selector lines) -- both are the scripts stated purpose. (3) I/O shell isolation -- N/A, no shells/ or ui.ts touched. (4) proof/receipt metadata review coverage -- N/A, the only job/run-adjacent hunk is the already-covered verifier.ts F-006 additive-spread fix (base spread before externalResult spread, wrapping ValidationResult), which does not touch job.metadata or run.metadata. Substantively the diff is a well-documented, heavily self-tested refactor: keyed-scheduler.ts factors runScheduled/canonicalizeEntries/claimsConflict out of full-suite-runner.ts into a shared core module with per-call closure state (proven isolated between concurrent scheduler runs by a dedicated smoke assertion); validation-executor.ts adds resource-claim-based admission control to executeValidationPlan (fail-closed exclusive-by-default barrier for undeclared commands, run-all cancellation policy so a mid-plan failure never shortens commands[], plan-order restoration despite out-of-order completion, and F-003 concurrent-worktree-pollution attribution which reports ambiguous dirty-tree rows against the candidate SET rather than misattributing to one innocent command, still gated as a required failure); verifier.ts F-006 fix makes externalResult wrapping additive so a future ValidationResult field cannot be silently dropped again, with a structural guard test (section 8 of validate-pollution-attribution.test.mjs) that fails for ANY future dropped key, not just this one. Every new test file carries negative controls and vacuity guards (e.g. validate-parallel-equivalence-smoke.ts section 5 proves the collision probe actually bites when claims are disjoint; validate-pollution-attribution.test.mjs sections 2 and 3 prove serial execution and fail-closed barriers still attribute exactly; section 8 clean-fixture control proves the handshake fixture is not just failing for any reason). Findings ledger confirmed via finding_list: all 15 findings (F-001..F-015) resolved, including my own F-014 (medium, superseded/deferred to story B-9e3d, independently re-confirmed live via story_get: phase INIT, priority high, real background naming this exact defect). My own prior judgement on F-014 is unchanged: the full validate run on this exact merged tree completed with 0 required failures under the flat, un-scaled timeout ceiling, which is live evidence the current per-command timeoutMs margins hold in practice, and reconciling the two timeout-margin policies now that they share one scheduler needs its own measurement and review round, correctly sized as separate tracked work in B-9e3d with a pointer back to this story git history. Nothing since has touched that code path. No blocker.",
+      "createdAt": "2026-08-19T01:06:17.710Z",
+      "reviewRound": "2026-08-19T01:00:24.757Z",
+      "reviewRunId": "B-7dff:RR-033",
+      "envelopeId": "c8ea0882b7ba757e55825eb22d8eb7afef110dc59cb1b4748a80a1ad6d07941f",
+      "writerSessionId": "sess-c8142ac4cb69f1c755df4c1fc223e028",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7dff/checklist.json",
+          ".lattice/story/actives/B-7dff/review-passes.json",
+          "packages/main/src/core/keyed-scheduler.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/validate-parallel-benchmark.ts",
+          "packages/main/src/tasks/validate-parallel-equivalence-smoke.ts",
+          "packages/main/tests/red/red-B-7dff-sequential-validate-plan.mjs",
+          "packages/main/tests/validate-plan-scheduling.test.mjs",
+          "packages/main/tests/validate-pollution-attribution.test.mjs",
+          "packages/main/tests/validate-resource-claims.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-7dff/background.md",
+          ".lattice/story/actives/B-7dff/plan.md",
+          ".lattice/story/actives/B-9e3d/background.md",
+          ".lattice/story/actives/B-9e3d/index.json",
+          "lattice.config.json",
+          "package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "59b24aaefd56bee68eaafe55a6542ccbdffcf9e9a4833cd1001138ccd967c068"
     }
   ]
 }
