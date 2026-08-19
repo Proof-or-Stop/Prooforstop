@@ -4,7 +4,7 @@
   "usage": "proof-or-stop red_evidence_envelope_check --storyId=<id> --assertionFile=<path.json> [--json]. It is read-only and writes no chain record: it validates a CANDIDATE envelope and reports admissibility plus the computed assertionDigest BEFORE a RED run is spent, so a malformed or under-specified assertion is caught without burning an execution. The candidate may omit policyDigest and assertionDigest (computing the latter is the command's purpose); if either IS supplied it must equal the computed value or the envelope is inadmissible with a named diagnostic. The command requires a resolved red-evidence policy; with none configured it fails closed and now tells the operator where to fix it: 'red_evidence_policy_missing: pinnedPath' followed by 'Set these under the \"redEvidence\" block in lattice.config.json at the project root; run proof-or-stop doctor to see the resolved red-evidence policy.'",
   "expectedOutcome": "An operator can submit a candidate assertion envelope and learn, before spending a RED run, whether it is admissible and WHY it is not: each rejection carries its §1.6 tag and a human-readable reason naming the exact value and the exact numbers that failed. An over-broad matcher cannot be admitted: there is no regex language to write one in, degenerate literals are blocklisted, and a value must clear both a length and an entropy floor. The command writes nothing.",
   "actualTranscript": "Executed by four reviewer lanes and a cross-vendor codex host independently. A real rejection reads: '[R1-2] matcher-below-specificity-floor: matcher m1: value \"SIGSEGV\" fails the §1.3 rule 2 CONJUNCTION (length floor AND entropy floor, both inclusive) - len=7 < minMatcherLen=8; entropyBits=15.65 < minMatcherEntropyBits=24' and '[R1-1] target-exercised-proof-absent: assertion.targetExercisedProof is absent or is not an object (§1.6 R1-1): a RED that cannot prove it exercised the named acceptance target cannot satisfy the gate'. With no policy configured the command exits 1 printing the missing key AND the file and block to set it in, plus a doctor pointer; a wrong-SHAPE guess produces a second, more specific diagnostic, so a newcomer is unblocked within two attempts. The read-only claim is proven mechanically, not asserted: red-w2d-command-readonly uses a positive git-only spawn allowlist and a .lattice content-hash manifest that is byte-identical before and after a batch of direct handler invocations. Full validate: 111 of 111 commands pass, verification coverage 108 of 108 fresh with zero gaps.",
-  "outcomeDiff": "No difference on what section 1 asked for; the envelope, the matcher admissibility layer, the specificity rule and the read-only command are all delivered and all covered by registered regressions. What this story DID NOT do, and did not claim to: it does not retire the v1 surface. red_evidence_create and redEvidenceRecordSatisfied are untouched - packages/main/src/core/proofstory.ts has zero diff from the merge base - and command-catalog still lists red_evidence_create alongside the new command with no superseded language, which is correct because retirement is section 6's adoption point, not this leaf's. Five defects this story PROVED are deferred rather than fixed, and each now has a real owner rather than a sentence: B-595c holds the three-site matcher-value bounds contradiction (F-051/F-054), the missing candidate-envelope schema (F-052), the inverted specificity metric (F-058) and the undocumented exit-class canonical form (F-050); B-3654 holds a command documented as append-nothing that appends an activity-log row (F-014). Both were created only after the concept lane established in F-064 that five resolution records had claimed 'filed as follow-up' when nothing had been filed.",
+  "outcomeDiff": "No difference on what section 1 asked for; the envelope, the matcher admissibility layer, the specificity rule and the read-only command are all delivered and all covered by registered regressions. What this story DID NOT do, and did not claim to: it does not retire the v1 surface. red_evidence_create and redEvidenceRecordSatisfied are untouched - packages/main/src/core/proofstory.ts has zero diff from the merge base - and command-catalog still lists red_evidence_create alongside the new command with no superseded language, which is correct because retirement is section 6's adoption point, not this leaf's. Five defects this story PROVED remain open, each one DISCOVERED during the work and absent from the original normalizedOutcome and acceptanceClaim, so none of them is a promise this story retracted; each now has a real owner rather than a sentence: B-595c holds the three-site matcher-value bounds contradiction (F-051/F-054), the missing candidate-envelope schema (F-052), the inverted specificity metric (F-058) and the undocumented exit-class canonical form (F-050); B-3654 holds a command documented as append-nothing that appends an activity-log row (F-014). Both were created only after the concept lane established in F-064 that five resolution records had claimed 'filed as follow-up' when nothing had been filed.",
   "acceptanceVerdict": "accepted",
   "outcomeKind": "success",
   "realMachineCoverage": {
@@ -27,19 +27,19 @@
       "durationMs": 1704127
     },
     "DEV": {
-      "count": 4,
-      "durationMs": 23464856
+      "count": 6,
+      "durationMs": 23476494
     },
     "REVIEW": {
-      "count": 4,
-      "durationMs": 419752730
+      "count": 6,
+      "durationMs": 430377210
     },
     "TEST": {
-      "count": 1,
-      "durationMs": 3084181
+      "count": 4,
+      "durationMs": 64167421
     }
   },
-  "totalDurationMs": 448923724,
+  "totalDurationMs": 520643082,
   "fixtureStats": {
     "totalRuns": 0,
     "totalCases": 0,
@@ -52,5 +52,5 @@
     "open": 0
   },
   "createdAt": "2026-08-18T19:40:21.858Z",
-  "updatedAt": "2026-08-18T20:54:35.213Z"
+  "updatedAt": "2026-08-19T16:49:54.571Z"
 }
