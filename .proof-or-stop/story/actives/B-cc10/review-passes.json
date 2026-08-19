@@ -326,6 +326,40 @@
       },
       "readDiagnostics": [],
       "_hash": "81037fedaf8bf29fbd886c36a700c5934b45964b0919a79a7e574ea725e6d1ec"
+    },
+    {
+      "id": "B-cc10:RP-010",
+      "agent": "lattice-review-concept",
+      "note": "Current-round concept pass at HEAD 07e2360: PROOF_OR_STOP_STATE_DIR is .proof-or-stop; LEARNING_DIR derives from it; F-079/F-080/F-081 pins now use LEARNING_DIR and canonical wrappers. serial-reference exit 0. Remaining .lattice-only gitignore pins are in non-serial-reference smokes (reviewer-batch, lifecycle-orchestrate, done-merge-scope, remote-push-approval, done-readiness-flow-benchmark), not production write paths. bin/lattice.js and bin/lattice-codex.js absent. No blocker.",
+      "createdAt": "2026-08-19T07:53:27.561Z",
+      "reviewRound": "2026-08-18T03:33:16.325Z",
+      "reviewRunId": "B-cc10:RR-112",
+      "envelopeId": "920d2605ec17352b45f833558ce91fce437f87a9e366d8d54ce9bcd6804affc4",
+      "writerSessionId": "sess-00e90f88a0bba188",
+      "sessionSource": "derived-ppid",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md",
+          "packages/main/src/core/brand-paths.ts",
+          "packages/main/src/core/learning-store.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/tasks/experience-hint-worktree-cache-smoke.ts",
+          "packages/main/src/tasks/experience-layer-hint-injection-smoke.ts",
+          "packages/main/src/tasks/experience-layer-playbook-smoke.ts",
+          "packages/main/src/tasks/playbook-promotion-worker-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "scripts/verify-lattice-residue.mjs",
+          "scripts/verify-role-telemetry.mjs",
+          "scripts/verify-session-brief-command-center.mjs",
+          "scripts/verify-workflow-phase-consistency.mjs"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "d5c3775d7bb00a110b5944256a7e7456d0d7f50648ca2080159f2909a699c7ae"
     }
   ]
 }
