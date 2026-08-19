@@ -526,6 +526,42 @@
         "scanEscalationReason": null
       },
       "_hash": "888cb05a7e04b87c86db8d6c4ea408d6675717948a42fdaf1a812c305c3140a9"
+    },
+    {
+      "id": "B-7dff:RP-018",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check on the merged tree (post 19ff5225fa, story level with main, 787 commits). Verified: (1) keyed-scheduler.ts extraction is the sole source of runScheduled/ResourceClaim/ResourceClass/claimsConflict/validateResourceClaims/canonicalizeEntries in packages/main/src, zero duplicate definitions; (2) validation-executor.ts, validation-types.ts, lattice.config.json, keyed-scheduler.ts are byte-identical to the pre-merge story tip, so the merge introduced no residue there; (3) the merge conflict in full-suite-runner.ts + full-suite-runner-smoke.ts resolved cleanly, keeping the storys extraction/tests intact and adopting only two small legitimate additions from main; (4) build (tsc) and all four relevant logic/smoke tests pass on the merged tree: full-suite-runner-smoke 159/159, validate-resource-claims 34/34, validate-plan-scheduling 43/43, validate-pollution-attribution 61/61, validate-parallel-equivalence 18/18; (5) independently re-verified post-merge-specific resolution claims in findings F-012/F-013/F-014/F-015 against the live tree: F-012s 110/97/13 counts and 3 newly-merged undeclared commands match direct config inspection and the VI-OK test receipts; F-013s claim that main already fixed the performanceBudgetMs hardcoded-300000 drift is confirmed present in the merged full-suite-runner.ts; F-014/F-015s claim of a tracked follow-up story B-9e3d is confirmed via story_get (phase INIT, exists). No waiver or resolution text references anything the merge removed or renamed. No orphaned or duplicated symbol from this storys extraction found.",
+      "createdAt": "2026-08-19T00:24:17.899Z",
+      "reviewRound": "2026-08-19T00:17:10.730Z",
+      "reviewRunId": "B-7dff:RR-032",
+      "envelopeId": "7f7fd30bb1c8fa27f4cd281efdfec5ca7ad5912224cb18139efe56c8676d2941",
+      "writerSessionId": "sess-c8142ac4cb69f1c755df4c1fc223e028",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7dff/background.md",
+          ".lattice/story/actives/B-7dff/checklist.json",
+          ".lattice/story/actives/B-7dff/findings.json",
+          ".lattice/story/actives/B-7dff/index.json",
+          ".lattice/story/actives/B-7dff/plan.md",
+          "lattice.config.json",
+          "packages/main/src/core/keyed-scheduler.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/tests/validate-resource-claims.test.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/tasks/validate-parallel-equivalence-smoke.ts",
+          "packages/main/tests/validate-plan-scheduling.test.mjs",
+          "packages/main/tests/validate-pollution-attribution.test.mjs",
+          "scripts/verify-full-suite-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9591961419a385eca27fc0041f9412624301e9150514bed50450922c9f4abf55"
     }
   ]
 }
