@@ -1521,7 +1521,7 @@
       "desc": "doc-code-drift: CLAUDE.md:878 [brand-exec] scan-root list still names only `lattice.config.json`. After B-cc10 CHK-004 the executable-surface gate in scripts/verify-lattice-residue.mjs:323-336 lists BOTH `proof-or-stop.config.json` (canonical, first) and `lattice.config.json` (deprecated), with an explicit comment that naming only the deprecated file makes this root scan NOTHING on a migrated checkout. This worktree has `proof-or-stop.config.json` and no `lattice.config.json`. The same CLAUDE.md paragraph was already edited in this story (adapter dir → `.proof-or-stop-codex/agents`, [brand-decision] + STATE_DIR_NAMES/ADAPTER_DIR_NAMES added) but the brand-exec config root was left on the pre-rename filename. Operator-facing gate description now disagrees with the gate it documents.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-08-19T06:55:52.565Z",
@@ -1576,7 +1576,11 @@
         "scripts/verify-lattice-residue.mjs"
       ],
       "signatureTag": "missing|md|code-drift-claude",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Pinned deprecated identities updated to LEARNING_DIR / bin/proof-or-stop.js / both config scan roots. Targeted smokes passed: experience-layer-playbook 31/31, playbook-promotion-worker 6/6, observability-snapshot-learning-root ok, hint-injection 22/22.",
+      "resolvedAt": "2026-08-19T07:15:58.911Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
