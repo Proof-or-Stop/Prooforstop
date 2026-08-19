@@ -1,0 +1,40 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Make waiver rows visible to the evidence-freshness report",
+      "context": "packages/main/src/handlers/evidence-refresh.ts filters waivers in refreshOnlyDrift()/isWaiver() before checkEvidenceFreshnessForGit runs, so verification_evidence_refresh_stale --dryRun reports \"No stale verification evidence\" for a story whose waiver bindings are far out of date. Whatever the correction policy ends up being, the report must stop being silent.",
+      "relatedDocs": [
+        "CLAUDE.md#verification-intent-evidence"
+      ],
+      "userSees": "verification_evidence_refresh_stale --dryRun on a story with an out-of-date waiver lists that waiver instead of reporting no stale evidence.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Decide and implement the waiver rebinding policy, automatic or operator-driven",
+      "context": "Rebinding a waiver requires no command execution, so an automatic restamp is cheap; but a waiver that silently follows the tree could hide a case where its justification stopped being true. Pick one policy, implement it, and state the reasoning in code rather than in a comment. On B-7dff both waivers were rebound by hand with their text unchanged, which is the behaviour to either automate or deliberately keep manual.",
+      "relatedDocs": [
+        "CLAUDE.md#verification-intent-evidence"
+      ],
+      "userSees": "A stale waiver either is rebound by the documented automatic path, or the tool prints the exact command the operator must run and why the step is not automatic.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Fail earlier than the DONE gate when a consuming gate would reject a stale waiver",
+      "context": "On B-7dff the staleness surfaced only at story_advance DONE, after reviewer receipts and quorum had been minted, and fixing it invalidated all of them. milestone_status showed the problem but disclaims being a gate, which led two reviewers to call it benign. Surface it where it can still be fixed cheaply, for example in done_prepare or lifecycle_check --target=DONE.",
+      "relatedDocs": [
+        "CLAUDE.md#verification-intent-evidence"
+      ],
+      "userSees": "done_prepare or lifecycle_check reports a stale waiver binding as a blocker before reviewer receipts are minted, rather than the DONE advance failing on stale_milestone_evidence afterwards.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
