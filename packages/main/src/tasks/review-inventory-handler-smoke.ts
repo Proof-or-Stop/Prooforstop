@@ -26,7 +26,7 @@ import { computeFinalReviewRoster, renderFinalReviewRoster, type ActiveReviewer 
 
 const storyId = 'B-inventory-handler';
 const reviewRound = '2020-01-01T00:00:00.000Z';
-const cliPath = fileURLToPath(new URL('../../../../bin/lattice.js', import.meta.url));
+const cliPath = fileURLToPath(new URL('../../../../bin/proof-or-stop.js', import.meta.url));
 const repositoryRoot = fileURLToPath(new URL('../../../../', import.meta.url));
 
 function git(root: string, args: string[]): string {
