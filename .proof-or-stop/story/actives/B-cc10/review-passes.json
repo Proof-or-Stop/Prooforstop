@@ -284,6 +284,48 @@
       },
       "readDiagnostics": [],
       "_hash": "5583d29f36e65568b58413fcde691bed123792de07be949668cdff2ac5125051"
+    },
+    {
+      "id": "B-cc10:RP-009",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage lane RR-110 at HEAD 2767cecfad: all 24 must intents still have mechanical evidence or a valid permanent waiver (CHK-002:happy:0 phase pin, CHK-003:adversarial:0 snapshot count, CHK-008:edge:0 teammate leftover .lattice files). F-077/F-078 fixture repairs are load-bearing, not vacuously green: F-077 ignores both state-dir spellings via stateDirCandidates, plants the ABA ticket at store.runtimeLockDirPath, and checks autopilot-verdicts under STATE_DIR_NAMES; F-078 asserts LEARNING_DIR/FINDING_SIGNALS_FILENAME and treats either spelling as a worktree leak. Re-ran the five repaired smokes at this HEAD: review-incremental-context PASS, done-merge-experience-refresh 21/21, done-premerge-mainsha-recheck 14/14, experience-hint-worktree-cache 6/6, experience-coverage-gap 15/15. Note: no recorded full npm run test:serial-reference PASS at 2767cecf; last full logs (/tmp/serial.log, /tmp/serial2.log) failed pre-F-077/F-078. This review also ran the post-F-078 tail nested-worktree-bootstrap, experience-arm-gate, experience-arm-isolation-e2e, brief-output, convergence-breaker, proofstory-acceptance-rollout (all pass); did not re-run e2e/experiments or the full 54-member chain. Evidence receipts remain bound to head 8c17ad17 / storyFilesHash bab7c096; incremental context is RELATED_STORY_MATERIAL_DRIFT from AGENTS.md, CLAUDE.md, and smoke fixtures — not failing the lane solely for that hash drift.",
+      "createdAt": "2026-08-19T06:59:37.434Z",
+      "reviewRound": "2026-08-18T03:33:16.325Z",
+      "reviewRunId": "B-cc10:RR-110",
+      "envelopeId": "b7d1ca5616585016b849e548b8d0692b9f55c2280d8dbd8740088a5d8e0cacdd",
+      "writerSessionId": "sess-46b988c22d77fc26",
+      "sessionSource": "derived-ppid",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/brand-paths.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/tasks/done-merge-experience-refresh-smoke.ts",
+          "packages/main/src/tasks/done-premerge-mainsha-recheck-smoke.ts",
+          "packages/main/src/tasks/experience-coverage-gap-smoke.ts",
+          "packages/main/src/tasks/experience-hint-worktree-cache-smoke.ts",
+          "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "packages/main/src/tasks/session-brief-prompt-sync-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "17c6f8911072e59b6efb260e264211f9b2dd22efad55daf2173023b480c2b59b"
+      },
+      "readDiagnostics": [],
+      "_hash": "81037fedaf8bf29fbd886c36a700c5934b45964b0919a79a7e574ea725e6d1ec"
     }
   ]
 }
