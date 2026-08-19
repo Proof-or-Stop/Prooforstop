@@ -520,6 +520,32 @@
         "scanEscalationReason": null
       },
       "_hash": "dc5d5fde437cb010c46a1c3a013d64f0e8900b13fcec9c19ef222ef269bba85c"
+    },
+    {
+      "id": "B-8df9:RP-019",
+      "agent": "lattice-review-test-coverage",
+      "note": "F-013 correction verified against the record, not against the description of it. review-passes.json RP-015 (behavior lane, RR-020) confirms it covered exactly three attacks: fabricated reviewer entry, erased critical issue, renamed agentId. delivery-check.json docsPromises rows 1-2 confirm the delivery reviewer's own fixture covered unsigned tampering (fabricated reviewer entry) plus the out-of-tool re-sign acceptance, not the erase/rename attacks. summary.json actualTranscript now states this precisely and attributes by review-run id; the re-sign case is framed as the honest bound, matching delivery-check.json wording. H1 control row in red-b8df9-init-check-verdict-signature.mjs (line 554-556) asserts refusedBeforeReSigning && verifiesAfterReSigning && r.advanced; re-ran the artifact live at current head (npm --prefix packages/main run build then node the script): 0 RED/0 BROKEN/24 rows, H1 observed refusedBeforeReSigning=true verifiesAfterReSigning=true gateAdvancesOnTheReSignedRecord=true. Also re-ran red-b8df9-chk002-verdict-shapes.mjs: 0 FAILED/0 BROKEN/17 rows. pitfalls item (5) reads as a plain admission (third instance, count/attribution inflated, credits the catch to this lane, no self-congratulation). Re-confirmed prior findings: lattice validate --story=B-8df9 --json returns allPass=true, status=pass, reused/fresh evidence, 15/15 intent coverage, no staleness references; checklist.json still 6 items / 18 intents; CHK-005/CHK-006 docs_check rows (4 total) still mechanical:false with no selector key present; CHK-002:happy:0 waiver row unchanged from the F-006 resolution text. No blocker.",
+      "createdAt": "2026-08-19T18:42:10.516Z",
+      "reviewRound": "2026-08-19T18:28:53.184Z",
+      "reviewRunId": "B-8df9:RR-026",
+      "envelopeId": "bad1533c5590086ba1815206dcf3782a6c98a45e7724e300c40e0b239e554b59",
+      "writerSessionId": "sess-b8df9-main-agent",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-8df9/delivery-check.json",
+          ".lattice/story/actives/B-8df9/review-passes.json",
+          ".lattice/story/actives/B-8df9/summary.json",
+          "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-8df9/checklist.json",
+          ".lattice/story/actives/B-8df9/findings.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f51e5bda47514fbc1149f223a36f158d0fb7595a89a4399ed22241409ec3ea45"
     }
   ]
 }
