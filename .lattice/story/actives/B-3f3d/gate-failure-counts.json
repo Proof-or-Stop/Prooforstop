@@ -16,5 +16,17 @@
     "command": "story_advance",
     "lastReason": "Cannot enter TEST: pass B-3f3d:RP-322 Prompt Envelope is invalid: reviewer host render identity is stale or does not match current host assets; pass B-3f3d:RP-334 Prompt Envelope is invalid: reviewer host render identity is stale or does not match current host assets; pass B-3f3d:RP-335 Prompt Envelope is invalid: reviewer host render identity is stale or does not match current host assets; pass B-3f3d:RP-341 Prompt Envelope is invalid: reviewer host render identity is stale or does not match cu",
     "lastAt": "2026-08-19T10:15:04.912Z"
+  },
+  "story_advance/ced9a3796f11": {
+    "count": 1,
+    "command": "story_advance",
+    "lastReason": "Cannot enter TEST: Scope gate: fail (5 unacknowledged violation(s), mode=enforce)\n\nScope gate: fail (5 unacknowledged violation(s), mode=enforce)\nChanged files (120):\n  .claude/agents/lattice-review-topology-critic.md\n  .lattice-codex/agents/lattice-review-topology-critic.md\n  .lattice/story/actives/B-3f3d/acceptance-basis.json\n  .lattice/story/actives/B-3f3d/acceptance-rollout-report.json\n  .lattice/story/actives/B-3f3d/bug.json\n  .lattice/story/actives/B-3f3d/candidate-spec-set.json\n  .lattice",
+    "lastAt": "2026-08-19T10:56:28.122Z"
+  },
+  "story_advance/73aae5d911e6": {
+    "count": 1,
+    "command": "story_advance",
+    "lastReason": "Cannot enter TEST: CLI gate preflight did not pass (lattice-residue)\n\nREVIEW→TEST CLI gate preflight:\n  [✓] validate --channel: pass — Normal channel: dispatch/subagent_result structured evidence coverage complete; commit author only as auxiliary signal\n  [!] validate --concept: warn — git diff failed (main...HEAD): spawnSync /bin/sh ENOBUFS\n        recommendation: skip concept LLM reviewer\n  [✓] validate --lint: pass — lint pass: tsc (skipped: ruff, importGraph)\n  [✓] validate --docs-drift: pas",
+    "lastAt": "2026-08-19T11:13:30.874Z"
   }
 }

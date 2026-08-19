@@ -637,10 +637,34 @@
       "phase": "REVIEW",
       "headHash": "11b7d17222353540d9e333d72a40cd572f89efb9",
       "materialHash": "772be7bd58475aa69b031b912dfe6e35d4a456989d97c9d5cead556d9ed9dfe1"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Closeout merge leftovers: scratch readmanifest, handoff/follow-up story specs already committed for F-115/F-092, acceptance-basis REVIEW-phase smoke, and retired-authority bound bump after catalog dedupe. Necessary to pass REVIEW-to-TEST scope gate without reverting shipped closeout artifacts.",
+      "timestamp": "2026-08-19T11:06:02.225Z",
+      "paths": [
+        ".remember-scratch-readmanifest.json",
+        "B-3f3d-FOLLOWUP-STORIES.md",
+        "B-3f3d-HANDOFF.md",
+        "packages/main/src/tasks/acceptance-basis-review-phase-smoke.ts",
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".remember-scratch-readmanifest.json",
+        "B-3f3d-FOLLOWUP-STORIES.md",
+        "B-3f3d-HANDOFF.md",
+        "packages/main/src/tasks/acceptance-basis-review-phase-smoke.ts",
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "affectedPathCount": 5,
+      "phase": "REVIEW",
+      "headHash": "a4ce87de43e6e08b859011cc59c51527896fb4d0",
+      "materialHash": "082b04ca3d44e739bf69b648206d83fbbbe890ee66ea258124d6216135b2f327"
     }
   ],
   "createdAt": "2026-08-14T14:01:52.360Z",
-  "updatedAt": "2026-08-17T03:19:42.491Z",
+  "updatedAt": "2026-08-19T11:06:02.225Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -760,6 +784,11 @@
     "packages/main/src/tasks/prompt-contract-measurement-smoke.ts": "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
     "packages/main/src/tasks/prompt-registry-smoke.ts": "packages/main/src/tasks/prompt-registry-smoke.ts",
     "docs/requirements/decisions/test-runner-consolidation-plan.md": "docs/requirements/decisions/test-runner-consolidation-plan.md",
-    "packages/main/src/tasks/review-assurance-floor-smoke.ts": "packages/main/src/tasks/review-assurance-floor-smoke.ts"
+    "packages/main/src/tasks/review-assurance-floor-smoke.ts": "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+    ".remember-scratch-readmanifest.json": ".remember-scratch-readmanifest.json",
+    "B-3f3d-FOLLOWUP-STORIES.md": "B-3f3d-FOLLOWUP-STORIES.md",
+    "B-3f3d-HANDOFF.md": "B-3f3d-HANDOFF.md",
+    "packages/main/src/tasks/acceptance-basis-review-phase-smoke.ts": "packages/main/src/tasks/acceptance-basis-review-phase-smoke.ts",
+    "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
   }
 }
