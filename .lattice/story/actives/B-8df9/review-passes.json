@@ -341,6 +341,30 @@
         "scanEscalationReason": null
       },
       "_hash": "38e7c880b6ecb79e7a0ad031f52311bf9103edc9188360ad6109336d78935fd0"
+    },
+    {
+      "id": "B-8df9:RP-013",
+      "agent": "lattice-review-test-coverage",
+      "note": "Narrow re-attestation after the CHK-004:happy:0 recovery-and-rewrite (git eac4a6605c restoration + correction appended). Re-verified on disk, not from description: (1) Recount confirms 6 checklist items (5 done + 1 withdrawn: CHK-004) and 18 verificationIntent entries (6 items x happy/edge/adversarial x1). The 10 previously-mechanical rows (CHK-001 happy/edge/adversarial, CHK-002 edge/adversarial, CHK-003 happy/edge/adversarial, CHK-005 edge, CHK-006 edge) are unchanged: all still mechanical:true, all carry a post-merge (2026-08-19) receipt with exitCode 0 and selectorMatched:true. Nothing was added to or dropped from this set. (2) Traced both exclusion paths in source: buildVerificationCoverage (core/verification.ts) skips any item where isWithdrawnChecklistStatus(item.status) is true (checklist-status.ts, status===withdrawn) -- CHK-004.status is still withdrawn on disk, untouched by the rewrite. withdrawnItemIntentRefs (core/proofstory.ts, used by evaluateReviewCompleteness) keys strictly on withdrawnChecklistItemIdsFrom(decision) -- decision.withdrawnChecklistItemRefs from scope-shrinkage-decision.json, gated by decisionAuthorizesWithdrawal (decision===confirmed && userConfirmed===true) -- never on item.status. Read scope-shrinkage-decision.json directly: decisionId SD-7319de10, decision:confirmed, userConfirmed:true, withdrawnChecklistItemRefs:[CHK-004], unchanged by the rewrite. Both gates independently exclude CHK-004 refs from the required set; the CHK-004:happy:0 evidence-note rewrite touched only prose (kind/result/mechanical:false/note), not status or the decision file, so nothing is grandfathered as covered. (3) Read checklist.json directly for the four docs_check rows: CHK-005:happy:0, CHK-005:adversarial:0, CHK-006:happy:0, CHK-006:adversarial:0 -- all still mechanical:false and none carries a selector, verification pin, or receipt field. (4) Ran verification_evidence_refresh_stale --dryRun live: result is No stale verification evidence for B-8df9 -- zero rows flagged stale post the CHK-004 rewrite that moved HEAD. (5) CHK-002:happy:0 permanent waiver row (pinned-selector-broke-on-reword waiver, filed by this lane as F-006) is byte-identical and still timestamped 2026-08-03T05:27:38.203Z, untouched this round. No coverage-accounting defect found. Note: a full validate --channel --story=B-8df9 invocation queued behind a workspace-wide validation-capacity lock held by a concurrent B-9ff1 validate run for about 9 minutes and returned no channel-gate stdout before exiting 0; unrelated shared-workspace contention, not a B-8df9 defect, and it does not affect these findings since both exclusion paths were independently confirmed by direct source and on-disk inspection.",
+      "createdAt": "2026-08-19T16:21:13.227Z",
+      "reviewRound": "2026-08-03T04:27:32.508Z",
+      "reviewRunId": "B-8df9:RR-019",
+      "envelopeId": "9704250ff3aec54a3904debcb6a76093f5d9d6d7453f76490c6a02da88823909",
+      "writerSessionId": "sess-b8df9-main-agent",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-8df9/checklist.json",
+          ".lattice/story/actives/B-8df9/scope-shrinkage-decision.json",
+          "packages/main/src/core/checklist-status.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/verification.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "4c762410458519ae5e16a9c75f0de02eb1b99ad57f202ecd6448a764defa0f4c"
     }
   ]
 }
