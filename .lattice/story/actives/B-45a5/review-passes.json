@@ -196,6 +196,34 @@
         "scanEscalationReason": null
       },
       "_hash": "8d7f3d43c8a275c95a09645adbec7808be2f41c708710ef7f4c7e22864188f9f"
+    },
+    {
+      "id": "B-45a5:RP-008",
+      "agent": "lattice-review-behavior",
+      "note": "Verified by execution, not reading: compiled/rebuilt dist, ran the story own red-evidence artifact (all 22 rows GREEN/REFUSED/CONTROL-OK, exit 0) plus 22 independent probes against mkdtemp fixtures using the real production functions (checkDispatchEvidence, evaluateReviewCompleteness, withdrawnChecklistItemIdsFrom). Confirmed: (1) happy path unaffected; (2) decision-backed withdrawal lands in its own withdrawnItems bucket, never evidencedItems/exemptedItems, and completeness reports 0 gaps (excluded not satisfied); (3) unbacked withdrawal still refused for status-only, dangling decisionRef, decision-not-listing-item, and rejected/userConfirmed:false, PLUS two cases the shipped test does not cover -- malformed decision.json and userConfirmed key entirely absent -- both still refused by both gates; (4) withdrawn+Owner:main-agent ordering: withdrawn bucket wins (checked first), correctly attributed, no masking; (5) state-machine edges: readScopeShrinkageDecision throws (not silently null) on malformed JSON, checkCommitAuthor catches and falls back to null which fails CLOSED (still demands evidence); evaluateReviewCompleteness reaches the same decision record via proofStoryDiagnosticInput at phase-gates.ts:193 UNWRAPPED (pre-existing since 2026-06-30, not touched by this diff) so it throws instead of gracefully demanding -- also fail-closed (aborts, never silently authorizes) but a real asymmetry worth noting, non-blocking. Dangling withdrawnChecklistItemRefs entry is refused at CLI write time by scope_shrinkage_decision_set; via raw file write it is harmlessly ignored by both gates (matches no real item, no crash). End-to-end confirmed on the real B-45a5 story itself: validate --channel shows withdrawn (SD-ccafb44c): CHK-005 in its own bucket with Covered: CHK-001..CHK-004, and validate --json shows verification intent coverage 12/12 with CHK-005 correctly excluded from the required set. No behavioral regression found in the two gates diff.",
+      "createdAt": "2026-08-19T04:03:04.818Z",
+      "reviewRound": "2026-08-19T03:51:10.195Z",
+      "reviewRunId": "B-45a5:RR-011",
+      "envelopeId": "4d0220b7620dcbb6e92b45eb45c9ae54df55d348f7dbd7f61ae45ddde9fbfe97",
+      "writerSessionId": "sess-b45a5-main",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-45a5/background.md",
+          ".lattice/story/actives/B-45a5/plan.md",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/handlers/validate-channel.ts",
+          "packages/main/tests/red/red-b45a5-withdrawal-gates.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "bb5221081e08109c393df84a607ee67547e164c93318bd76a4d0b2ccf5a07ba6"
     }
   ]
 }
