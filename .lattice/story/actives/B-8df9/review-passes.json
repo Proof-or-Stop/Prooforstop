@@ -480,6 +480,46 @@
         "scanEscalationReason": null
       },
       "_hash": "9468ca91f8f3adef511114799516f5c8c69461a5cdb931c10f0eeaffe439a055"
+    },
+    {
+      "id": "B-8df9:RP-018",
+      "agent": "lattice-review-concept",
+      "note": "Round-2+ re-attestation, focused per dispatch on summary.json (the one genuinely new artifact this round; no code changed). (1) limitations tamper-evidence-not-tamper-proofing claim verified: INIT_CHECK_SALT is `export const` at init-check-gate.ts:58 (grep-confirmed, only other occurrence is the self-quoting F-007/CHK-006 correction string). Both halves executed live this round: red-b8df9-init-check-verdict-signature.mjs control H1 (SCOPE BOUND) CONTROL-OK with refusedBeforeReSigning=true and verifiesAfterReSigning=true. RR-004 (behavior) executed the full 24-row suite incl. H1; RR-009 (docs) attests wording never overstates tamper-evidence into tamper-proof -- matches summary's 'two reviewers verified both halves' claim. (2) CHK-004 narrative verified: scope-shrinkage-decision.json SD-7319de10 is decision=confirmed/userConfirmed=true, withdrawnChecklistItemRefs=[CHK-004]; CHK-004:happy:0 note contains the original 633-char waiver text byte-identical to `git show eac4a6605c` as a verbatim substring (diffed programmatically). Correction bound is code-accurate: proofstory.ts:2165-2167 (B-45a5 CHK-002) subtracts withdrawnItemIntentRefs before the coverage loop, validate-channel.ts:305/348-349 buckets withdrawnIds before owner-exemption -- both REVIEW-path, both decision-backed (withdrawnChecklistItemIdsFrom(decision), never item.status). core/verification.ts:212 is `if (isWithdrawnChecklistStatus(item.status)) continue;` -- confirmed bare status-string skip, and confirmed reachable from a DONE-blocking path: buildVerificationCoverage is called by handlers/done-prepare.ts:1165. Claim precisely scoped, not overstated. (3) Both false-record pitfalls verified without softening: (a) selector-pinned-claim-on-docs-type-row corroborated by three independently filed findings from three lanes (F-009 quality, F-011 concept, F-012 test-coverage), all citing checklist.ts enforceAndStampEvidence routing docs-type intents to the attestation-only branch before any selector read; (b) overwrite-while-claiming-append exactly reproduced: original CHK-004:happy:0 note at eac4a6605c is 633 chars, preserved verbatim inside the current note (substring match confirmed). Neither pitfall is softened in summary.json wording. (4) Standing hunts confirmed by grep: no competing init-check signing function; no live doc restates the pre-B-8df9 domain string (story-lifecycle.md:73 and CLAUDE.md:554 both reference the widened domain / describeInitCheckSignatureDomain(), no literal old-domain string found anywhere in packages/docs); no live doc describes the withdrawal gap as still open. (5) Both red guards re-run live this round: red-b8df9-init-check-verdict-signature.mjs 0 RED/0 BROKEN/24 rows; red-b8df9-chk002-verdict-shapes.mjs 0 FAILED/0 BROKEN/17 rows -- matches summary.json actualTranscript exactly. Also ran the standard concept-residue sweep on the round diff (init-check-gate.ts/machine.ts/store.ts/types.ts/command-policy.ts domain-declaration refactor): initCheckAgentResults call sites all consistent with widened InitCheckVerdictSource type, recomputeInitCheckHash callers all coherent, no stale hand-written domain-field-list found outside the deliberate self-quoting correction string. No blocker.",
+      "createdAt": "2026-08-19T18:36:08.570Z",
+      "reviewRound": "2026-08-19T18:28:53.184Z",
+      "reviewRunId": "B-8df9:RR-024",
+      "envelopeId": "7dbad62ac1ea9bc79882989686653da743f2064a97baec99d46fedc882339d03",
+      "writerSessionId": "sess-b8df9-main-agent",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-8df9/scope-shrinkage-decision.json",
+          ".lattice/story/actives/B-8df9/summary.json",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "packages/main/src/core/checklist-status.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/init-check-gate.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/validate-channel.ts",
+          "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-8df9/checklist.json",
+          ".lattice/story/actives/B-8df9/findings.json",
+          ".lattice/story/actives/B-8df9/review-passes.json",
+          "CLAUDE.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/init-check.ts",
+          "packages/main/src/handlers/init-preflight.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "dc5d5fde437cb010c46a1c3a013d64f0e8900b13fcec9c19ef222ef269bba85c"
     }
   ]
 }
