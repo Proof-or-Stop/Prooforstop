@@ -708,6 +708,43 @@
         "scanEscalationReason": null
       },
       "_hash": "5bf677d25bfc129e2949e40707ceed2c201798e1150795191324d464f1b2f73e"
+    },
+    {
+      "id": "B-7dff:RP-023",
+      "agent": "lattice-review-concept",
+      "note": "Re-review (round after RP-019, story-level). Independently verified source freeze before checking scope: RP-019 was bound to headHash 5a0dd29b (materialHash/storyFilesHash identical to current RR-036 binding, 6252802...9e775/0bab1cc...9e775); git diff 5a0dd29b..8310c7f shows only .lattice/story/actives/B-7dff/{checklist,closeout-write-receipts,process-events,prompt-envelopes,review-passes,review-runs,test-evidence} changed across 6 metadata-recording commits, zero packages/main/src files touched, so no new concept-relevant drift exists since the prior concept pass. Concept scope this story: extraction of the full-suite scheduler internals (module globals activeChildren/interruptSignal/interruptError/schedulerCancellationReason, RESOURCE_CLASSES, MAX_JOBS, RunScheduledOptions, canonicalFilesystemPath/pathIsContained/canonicalizeEntries/validateResourceClaims/claimsConflict/parsePositiveInteger/runScheduled) out of tasks/full-suite-runner.ts into new core/keyed-scheduler.ts (read in full, 197 lines) with generic SchedulableEntry/SchedulableResult/KeyedSchedulerOptions and a new run-all cancellation policy for the validate-plan caller, re-exported from full-suite-runner.ts for compatibility; and extraction of formatWorktreePollutionDetails into a shared evaluateWorktreePollution consumed by both the existing per-command formatter and the new set-attributed (concurrentWorktreePollution/attributeWorktreePollution) formatter in validation-executor.ts. Read the full diffs of keyed-scheduler.ts, full-suite-runner.ts, validation-executor.ts, verifier.ts, validation-evidence-reuse.ts, validation-types.ts, package.json, and background.md; reviewed checklist.json via checklist_get. Re-ran repo-wide grep for RunScheduledOptions/schedulerCancellationReason/activeChildren/interruptSignal/interruptError/RESOURCE_CLASSES/MAX_JOBS: zero residual references outside interface field names (state.activeChildren, etc.), the still-exported RESOURCE_CLASSES/MAX_JOBS constants now living in keyed-scheduler.ts, and .lattice/ prose notes documenting the old names. Confirmed every runScheduled(...) call site (full-suite-runner.ts:538, full-suite-runner-smoke.ts x15, executeValidationPlan) passes the required options/cancellation-policy 4th argument; no call site left on the old 3-arg signature. Confirmed the new npm scripts (test:validate-parallel-equivalence, bench:validate-parallel, test:validate-resource-claims, test:validate-pollution-attribution) point at files present in this diff -- no promised-but-undelivered script targets. Confirmed lattice.config.json resources[] additions (grep-sampled: git-common-dir class entries) align with CHK-002's per-command resource-claim declarations. Checked the Wave 4 acceptance-rollout boundary note against this diff: the only matches for acceptance_topology_check/pre_review_check_read/acceptance_rollout_report_read/acceptance_rollout_check/acceptanceRolloutGateMode are inside the generated .lattice/story/actives/B-7dff/acceptance-basis.json process-fact artifact; this story does not modify acceptance-topology.ts, transition-orchestrator.ts, proofstory.ts, registry.ts, or proofStory.acceptanceRolloutGateMode, so that boundary is out of scope this round and not a finding. No concept deletion/replacement residue found. No blocker.",
+      "createdAt": "2026-08-19T01:42:07.998Z",
+      "reviewRound": "2026-08-19T01:00:24.757Z",
+      "reviewRunId": "B-7dff:RR-036",
+      "envelopeId": "27524cee46ce367f93594458ae30bbde782091468d578fff51fa0846345e78f3",
+      "writerSessionId": "sess-c8142ac4cb69f1c755df4c1fc223e028",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7dff/background.md",
+          "package.json",
+          "packages/main/src/core/keyed-scheduler.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/story/actives/B-7dff/plan.md",
+          "lattice.config.json",
+          "packages/main/src/red/red-B-7dff-sequential-validate-plan.mjs",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/validate-parallel-benchmark.ts",
+          "packages/main/src/tasks/validate-parallel-equivalence-smoke.ts",
+          "packages/main/tests/validate-plan-scheduling.test.mjs",
+          "packages/main/tests/validate-pollution-attribution.test.mjs",
+          "packages/main/tests/validate-resource-claims.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "21193457aa0bf948b6d9737b298bec37a2c6d2d79eecf9091f4cfa5d2beb8c4a"
     }
   ]
 }
