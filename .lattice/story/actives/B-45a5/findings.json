@@ -71,6 +71,21 @@
       "resolvedReason": "Correct finding, accepted in full. I traced the same paths and confirm: dev_memory_finish_decision (handlers/playbook-runtime-memory.ts) is what the DONE gate requires and it never writes dev-memory-candidates.jsonl; that file comes only from dev_memory_finish (handlers/dev-memory.ts), a separate non-gate-required command. DONE was reachable without ever emitting it, by recording no-reusable-lesson. My original acknowledgement asserted the gate demanded the command that wrote the file, which was a causal chain I inferred rather than verified. Rewrote the acknowledgement reason to state the accurate chain, to name the extra step as elective on my part, and to keep only the claims that survive independent checking. I also filed an external framework task premised on the same wrong chain; it is being corrected too, since a bug report built on a false premise is worse than none.",
       "resolvedAt": "2026-08-19T13:03:50.881Z",
       "resolutionType": "fixed"
+    },
+    {
+      "id": "B-45a5:F-005",
+      "desc": ".lattice/story/actives/B-45a5/scope-contract.json:56 the F-004 correction fixed the DONE-gate-demands claim but left a second, same-category false claim standing in the very last sentence: \"It is absent from RUNTIME_ARTIFACT_REGISTRY while dev_memory_finish's other output is registered, which is why it trips this gate at all.\" This is checkably false, and is a restatement (not a fix) of the original F-004-flagged \"sibling artefact from the same command\" claim. The RUNTIME_ARTIFACT_REGISTRY entry that covers .lattice/dev-memory/finish-decisions/ (packages/main/src/core/runtime-artifact-registry.ts:139-143, id: dev-memory-finish-decision) is NOT an output of dev_memory_finish. Its own inline comment (runtime-artifact-registry.ts:118-122) attributes the write to \"dev_memory_finish_decision (core/playbook-runtime-memory.ts finishDecisionPath)\", and the handler code confirms it: finishDecisionPath is called only inside dev_memory_finish_decision (packages/main/src/handlers/playbook-runtime-memory.ts:250), a completely separate command from dev_memory_finish (packages/main/src/handlers/dev-memory.ts). dev_memory_finish (story mode) writes exactly one file -- the candidates path via resolveStoryCandidatePath (dev-memory.ts:351) -- and has no other output that is registered anywhere; its only other branch (scope=global, no storyId) writes to resolveGlobalMemoryPath(), which is outside the repo tree and not in RUNTIME_ARTIFACT_REGISTRY either. So the corrected acknowledgement still conflates dev_memory_finish with dev_memory_finish_decision when explaining why the registry gap exists -- the exact category of causal-chain error F-004 was filed over, now moved into the closing sentence instead of fixed. The rest of the corrected acknowledgement (DONE gate requires dev_memory_finish_decision; that command never writes the candidates path; DONE reachable via no-reusable-lesson; 20 candidates; elective, not gate-forced) verified accurate independently.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-19T13:08:13.919Z",
+      "reviewRound": "2026-08-19T12:59:26.603Z",
+      "reviewRunId": "B-45a5:RR-016",
+      "_hash": "e15232129eb0572f2b1c7965c5e99b69997a61209877c3d03ee156b94a0df785",
+      "signatureTag": "missing|unknown|lattice-story-actives",
+      "signatureTagSource": "auto"
     }
   ]
 }
