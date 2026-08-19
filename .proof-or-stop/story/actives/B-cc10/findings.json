@@ -1464,6 +1464,29 @@
       "resolvedAt": "2026-08-19T06:30:40.894Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-cc10:F-079",
+      "desc": "concept-cleanup: .lattice/learning write-path rename is still incomplete after F-078. LEARNING_DIR is join(PROOF_OR_STOP_STATE_DIR,\"learning\") and readFindingSignals/writeFindingSignals only touch that canonical path (learning-store.ts:49,187,278-280). Remaining live smokes still pin the DEPRECATED spelling: (1) experience-layer-playbook-smoke.ts:489 (smoke-manifest live) asserts resolvePlaybooksPath(root).includes(join(\".lattice\",\"learning\")) — unsatisfiable now; the same pin is playbook-promotion-worker-smoke.ts:489. playbook-promotion-worker-smoke.ts:366/381 readdirSync(join(root,\".lattice\",\"learning\",\"proposals\")) after playbook_propose will ENOENT; :420 existsSync(deprecated playbook-promotion-health.jsonl)===false cannot see a canonical write. (2) packages/main/tests/observability-snapshot-learning-root.test.mjs:45 asserts resolvedLearningRoot.endsWith(join(\".lattice\",\"learning\")) while the handler delegates to resolveLearningDir. (3) Sabotage/seed miss: experience-layer-hint-injection-smoke.ts:328 and :344 write malformed/NaN cache to .lattice/learning/finding-signals.json; experience-layer-review-dispatch-hint-smoke.ts:541 plants \"{ not valid json\" at the same deprecated path. loadExperienceHints reads only resolveFindingSignalsPath (.proof-or-stop/learning/...), so those assertions pass vacuously. (4) playbook-seed-promotion-loop-smoke.ts:1207-1347 (pulled in by smoke-manifest playbook-evidence-activation) snapshots only .lattice/learning to prove apply wrote nothing — canonical writes are invisible. This is not the documented F-001 residual (intentional pre-migration fixture trees); these sites assert or sabotage the DEFAULT write path.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-19T06:54:40.933Z",
+      "reviewRound": "2026-08-18T03:33:16.325Z",
+      "reviewRunId": "B-cc10:RR-108",
+      "_hash": "9bf098841aa59765a4ce2089c3fdfda21eaa322bd0cfe29afea92f9962724798",
+      "files": [
+        "packages/main/src/tasks/experience-layer-playbook-smoke.ts",
+        "packages/main/src/tasks/playbook-promotion-worker-smoke.ts",
+        "packages/main/tests/observability-snapshot-learning-root.test.mjs",
+        "packages/main/src/tasks/experience-layer-hint-injection-smoke.ts",
+        "packages/main/src/tasks/experience-layer-review-dispatch-hint-smoke.ts",
+        "packages/main/src/tasks/playbook-seed-promotion-loop-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|concept-cleanup-lattice",
+      "signatureTagSource": "auto"
     }
   ]
 }
