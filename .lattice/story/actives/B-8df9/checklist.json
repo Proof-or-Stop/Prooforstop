@@ -509,20 +509,20 @@
           "kind": "integration_test",
           "command": "node .lattice/story/actives/B-8df9/chk005-corpus-derivation.mjs",
           "result": "pass",
-          "note": "Post-merge re-execution after B-45a5 withdrawal-gate fix landed on main; pinned command and selector unchanged.",
+          "note": "Re-executed after merging main (six sibling validate entries arrived); pinned command and selector unchanged.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "b07f9a5fe04d1b4be8657b4cc80dbb922bdc30f362b07c9acbbfc9288f080f62",
-            "outputTail": "CORPUS_ROOT=/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9\nCORPUS_FILES_ON_DISK_MARKER=299\nCORPUS_FILES_TRACKED_MARKER=299\nCORPUS_FILES_UNTRACKED_LOCAL_ONLY_MARKER=0\nTRACKED_VERIFYING_UNDER_CURRENT_DOMAIN_MARKER=0\nTRACKED_VERIFYING_UNDER_PRE_CHK002_DOMAIN_MARKER=26\nON_DISK_VERIFYING_UNDER_CURRENT_DOMAIN_MARKER=0\nON_DISK_VERIFYING_UNDER_PRE_CHK002_DOMAIN_MARKER=26\nGATED_INIT_STORY_COUNT_MARKER=1\nTRACKED_WITH_UNREGISTERED_ACTOR_MARKER=2\nON_DISK_WITH_UNREGISTERED_ACTOR_MARKER=2\nGATED_INIT_STORY_ID=B-dcf9 ACTORS=lattice-review-story-init+product-reviewer ACTORS_REGISTRY_VALID_FOR_INIT_CHECK_SET=true SIGNATURE_VERIFIES_UNDER_CURRENT_DOMAIN=false SIGNATURE_VERIFIED_UNDER_PRE_CHK002_DOMAIN=true\nUNREGISTERED_ACTOR_MARKER name=codex-init-reviewer files=1\nUNREGISTERED_ACTOR_MARKER name=codex-host files=1\n",
+            "outputDigest": "b3455c3dc67065b394d0b852fc465e2896affff49764625d9e64cbfe384d3231",
+            "outputTail": "CORPUS_ROOT=/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9\nCORPUS_FILES_ON_DISK_MARKER=300\nCORPUS_FILES_TRACKED_MARKER=300\nCORPUS_FILES_UNTRACKED_LOCAL_ONLY_MARKER=0\nTRACKED_VERIFYING_UNDER_CURRENT_DOMAIN_MARKER=0\nTRACKED_VERIFYING_UNDER_PRE_CHK002_DOMAIN_MARKER=26\nON_DISK_VERIFYING_UNDER_CURRENT_DOMAIN_MARKER=0\nON_DISK_VERIFYING_UNDER_PRE_CHK002_DOMAIN_MARKER=26\nGATED_INIT_STORY_COUNT_MARKER=1\nTRACKED_WITH_UNREGISTERED_ACTOR_MARKER=2\nON_DISK_WITH_UNREGISTERED_ACTOR_MARKER=2\nGATED_INIT_STORY_ID=B-dcf9 ACTORS=lattice-review-story-init+product-reviewer ACTORS_REGISTRY_VALID_FOR_INIT_CHECK_SET=true SIGNATURE_VERIFIES_UNDER_CURRENT_DOMAIN=false SIGNATURE_VERIFIED_UNDER_PRE_CHK002_DOMAIN=true\nUNREGISTERED_ACTOR_MARKER name=codex-init-reviewer files=1\nUNREGISTERED_ACTOR_MARKER name=codex-host files=1\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-19T15:36:13.767Z",
+            "executedAt": "2026-08-19T17:24:20.090Z",
             "timeoutMs": 270000
           },
-          "headHash": "66f2593d3427b3c1258af5283aa7dd8451c6a5e4",
-          "materialHash": "b3ae30c9b0573ffc9b04f68dc044699bb59ff4db0c027b33fbfc773796f6e113",
-          "storyFilesHash": "d83d13fa37a415bc9cd4f1eb416740f46003f489fa495e9d66ca63a2f7751f8c",
-          "timestamp": "2026-08-19T15:36:13.909Z"
+          "headHash": "55279d0f2301f1374a544cbfe94ba132fa181cf1",
+          "materialHash": "e4b2e340c75e441473af303dcc88831a3ea10ce855550e4d4e41aa8f2a9bed7a",
+          "storyFilesHash": "0d6dbaf3449487543b2406949abcd4c32dd4f269d173145d4b99b04b20809410",
+          "timestamp": "2026-08-19T17:24:20.210Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
