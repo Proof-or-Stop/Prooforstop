@@ -95,6 +95,17 @@ function setup() {
     events: [{ phase: 'REVIEW', action: 'advance', timestamp: reviewRound }],
   };
   store.writeStory(storyId, story);
+  // Main added a DEV-door preflight ack (B-a7c5). Write it here so later
+  // story_advance DEV assertions observe inventory/cutoff behavior, not
+  // missing_dev_memory_preflight_ack.
+  store.writeDevMemoryPreflightAck(storyId, {
+    schemaVersion: 'lattice.dev_memory_preflight_ack.v1',
+    storyId,
+    packDigest: 'review-inventory-handler-smoke-synthetic-digest',
+    topHitIds: [],
+    acknowledgedAt: reviewRound,
+    acknowledgedBy: 'review-inventory-handler-smoke',
+  });
   store.writeChecklist(storyId, { items: [
     { id: 'CHK-001', title: 'Synthetic handler coverage', context: 'real handler smoke', status: 'done', files: [
       'packages/main/src/subject.ts',
@@ -694,10 +705,10 @@ cli(scopeDrift.root, 'scope_contract_acknowledge', {
 const scopeDriftStatus = cli(scopeDrift.root, 'review_inventory_status', { storyId });
 assert.match(scopeDriftStatus, /State: INVALIDATED/);
 assert.match(scopeDriftStatus, /OPEN_REVIEW_INVENTORY_SCOPE_MUTATION/);
-assert.throws(
-  () => cli(scopeDrift.root, 'review_inventory_finalize', { storyId }),
-  /no OPEN epoch/,
-  'F035: begin -> scope acknowledgement invalidates old lanes and rejects finalize',
+assert.match(
+  cli(scopeDrift.root, 'review_inventory_finalize', { storyId }),
+  /State: FINALIZED[\s\S]*authorizesTest: false/,
+  'F035: begin -> scope acknowledgement invalidates OPEN epoch; finalize then writes PRE_CERT completeness receipt',
 );
 
 const acceptanceDrift = setup();
@@ -719,10 +730,10 @@ cli(acceptanceDrift.root, 'verification_intent_repair', {
 const acceptanceDriftStatus = cli(acceptanceDrift.root, 'review_inventory_status', { storyId });
 assert.match(acceptanceDriftStatus, /State: INVALIDATED/);
 assert.match(acceptanceDriftStatus, /OPEN_REVIEW_INVENTORY_SCOPE_MUTATION/);
-assert.throws(
-  () => cli(acceptanceDrift.root, 'review_inventory_finalize', { storyId }),
-  /no OPEN epoch/,
-  'F037: begin -> verification_intent_repair changes the frozen acceptance subject and rejects finalize',
+assert.match(
+  cli(acceptanceDrift.root, 'review_inventory_finalize', { storyId }),
+  /State: FINALIZED[\s\S]*authorizesTest: false/,
+  'F037: begin -> verification_intent_repair invalidates OPEN epoch; finalize then writes PRE_CERT completeness receipt',
 );
 
 const proofStoryDrift = setup();
@@ -734,10 +745,10 @@ cli(proofStoryDrift.root, 'scope_shrinkage_decision_set', {
   reason: 'Withdraw one acceptance binding after the frozen inventory begins.', approvedBy: 'operator',
 });
 assert.match(cli(proofStoryDrift.root, 'review_inventory_status', { storyId }), /OPEN_REVIEW_INVENTORY_SCOPE_MUTATION/);
-assert.throws(
-  () => cli(proofStoryDrift.root, 'review_inventory_finalize', { storyId }),
-  /no OPEN epoch/,
-  'F042/F044: an acceptance-binding-only withdrawal invalidates the OPEN epoch before finalize',
+assert.match(
+  cli(proofStoryDrift.root, 'review_inventory_finalize', { storyId }),
+  /State: FINALIZED[\s\S]*authorizesTest: false/,
+  'F042/F044: acceptance-binding withdrawal invalidates OPEN epoch; finalize then writes PRE_CERT completeness receipt',
 );
 
 const finalizedProofStoryDrift = setup();
@@ -781,10 +792,10 @@ cli(candidateDrift.root, 'candidate_spec_route', { storyId, hosts: false });
 const candidateDriftStatus = cli(candidateDrift.root, 'review_inventory_status', { storyId });
 assert.match(candidateDriftStatus, /State: INVALIDATED/);
 assert.match(candidateDriftStatus, /OPEN_REVIEW_INVENTORY_CANDIDATE_ROUTING_MUTATION/);
-assert.throws(
-  () => cli(candidateDrift.root, 'review_inventory_finalize', { storyId }),
-  /no OPEN epoch/,
-  'F039: lane universe cannot survive a candidate routing replacement',
+assert.match(
+  cli(candidateDrift.root, 'review_inventory_finalize', { storyId }),
+  /State: FINALIZED[\s\S]*authorizesTest: false/,
+  'F039: candidate routing invalidates OPEN epoch; finalize then writes PRE_CERT completeness receipt',
 );
 
 const publicationRace = setup();
@@ -869,7 +880,11 @@ const driftedData = drifted.store.readReviewInventoryEpochs(storyId);
 assert.equal(driftedData.epochs[0].state, 'INVALIDATED', 'drift persists only the intentional invalidation');
 assert.equal(driftedData.epochs[0].waves.length, 0, 'drift rejection never persists a wave');
 assert.equal(driftedData.receipts.length, 0, 'drift rejection never mints a receipt');
-assert.throws(() => drifted.handlers.review_inventory_finalize({ storyId }), /no OPEN epoch/);
+assert.match(
+  drifted.handlers.review_inventory_finalize({ storyId }),
+  /State: FINALIZED[\s\S]*authorizesTest: false/,
+  'material-drift INVALIDATED epoch: finalize writes PRE_CERT completeness receipt instead of throwing',
+);
 
 const unsupported = setup();
 const unsupportedBegin = unsupported.handlers.review_inventory_begin({ storyId });
