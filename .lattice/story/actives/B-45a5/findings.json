@@ -59,7 +59,7 @@
       "desc": ".lattice/story/actives/B-45a5/scope-contract.json:40 the acknowledgement text for dev-memory-candidates.jsonl overstates its coupling to the DONE gate: it says the file is \"sibling artefact from the same command\" as .lattice/dev-memory/finish-decisions/B-45a5.json and that it \"does not exist until the closeout command the DONE gate itself demands has been run\". Both claims are checkably false. dev-memory-candidates.jsonl is written only by dev_memory_finish (packages/main/src/handlers/dev-memory.ts:351 resolveStoryCandidatePath), while the DONE gate (packages/main/src/core/machine.ts:1417-1425 readDevMemoryFinishDecision) requires only dev_memory_finish_decision (packages/main/src/handlers/playbook-runtime-memory.ts:222-262), a separate handler/command that never calls resolveStoryCandidatePath or touches the candidates file (confirmed: no shared code path, no CLI alias in packages/main/src/cli/command-catalog.ts:3199-3212, and commit eec7bdee1e writing the candidates file precedes commit 5569c68a37 writing the finish-decision record by ~2 minutes, i.e. two separate invocations). dev_memory_finish is not gate-required at all (command-policy.ts:509 status:'supported', not gateEvidence); an operator could have reached DONE via dev_memory_finish_decision alone without ever emitting this file. The bottom-line conclusion (framework-generated, non-product-code, story-metadata artefact, not real scope creep) still holds up independently, but the acknowledgement's stated rationale mischaracterizes which command the DONE gate demands and falsely implies a single-command origin for both artefacts. This should be corrected so the audit trail reflects the actual two-command sequence rather than an inaccurate causal claim.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-19T13:02:55.559Z",
@@ -67,7 +67,10 @@
       "reviewRunId": "B-45a5:RR-013",
       "_hash": "959a14183b38b8c8a0df8419ad4e2e757c9c0f624e7ddd7a8819caf5892df290",
       "signatureTag": "missing|unknown|lattice-story-actives",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Correct finding, accepted in full. I traced the same paths and confirm: dev_memory_finish_decision (handlers/playbook-runtime-memory.ts) is what the DONE gate requires and it never writes dev-memory-candidates.jsonl; that file comes only from dev_memory_finish (handlers/dev-memory.ts), a separate non-gate-required command. DONE was reachable without ever emitting it, by recording no-reusable-lesson. My original acknowledgement asserted the gate demanded the command that wrote the file, which was a causal chain I inferred rather than verified. Rewrote the acknowledgement reason to state the accurate chain, to name the extra step as elective on my part, and to keep only the claims that survive independent checking. I also filed an external framework task premised on the same wrong chain; it is being corrected too, since a bug report built on a false premise is worse than none.",
+      "resolvedAt": "2026-08-19T13:03:50.881Z",
+      "resolutionType": "fixed"
     }
   ]
 }

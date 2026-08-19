@@ -50,10 +50,26 @@
       "phase": "DEV",
       "headHash": "f48d6283e18e7490b369e22fc529137deaad193d",
       "materialHash": "98ec5127fb20b8c868deb48c190d4b2e2091a5ab9fc0f3da9dbeb74535c148df"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "CORRECTED after finding F-004, which showed my first rationale was factually wrong. Accurate chain: the DONE gate requires dev_memory_finish_decision (handlers/playbook-runtime-memory.ts), which never writes this path. This file is written only by dev_memory_finish (handlers/dev-memory.ts resolveStoryCandidatePath) — a SEPARATE, NON-gate-required command I chose to run first so that a decision of captured would refer to real captured candidates rather than being hollow. DONE was reachable without ever emitting this file, by recording no-reusable-lesson instead. So this is an elective artefact of how I satisfied the gate, not something the gate forced. What stands: it is framework-generated story metadata under .lattice/story/actives/B-45a5/ which the execution boundary already permits, contains this story's 20 experience candidates, involves no product code, and could not have been named in plan.md Files lists because it did not exist at PLAN time. It is absent from RUNTIME_ARTIFACT_REGISTRY while dev_memory_finish's other output is registered, which is why it trips this gate at all.",
+      "timestamp": "2026-08-19T13:03:42.879Z",
+      "paths": [
+        ".lattice/story/actives/B-45a5/dev-memory-candidates.jsonl"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-45a5/dev-memory-candidates.jsonl"
+      ],
+      "affectedPathCount": 1,
+      "phase": "REVIEW",
+      "headHash": "a01c92abe1f3e8c0170f4d59b440776073f3f04c",
+      "materialHash": "98ec5127fb20b8c868deb48c190d4b2e2091a5ab9fc0f3da9dbeb74535c148df"
     }
   ],
   "createdAt": "2026-08-18T22:14:46.790Z",
-  "updatedAt": "2026-08-19T12:59:10.481Z",
+  "updatedAt": "2026-08-19T13:03:42.879Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
