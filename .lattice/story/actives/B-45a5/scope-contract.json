@@ -66,10 +66,26 @@
       "phase": "REVIEW",
       "headHash": "a01c92abe1f3e8c0170f4d59b440776073f3f04c",
       "materialHash": "98ec5127fb20b8c868deb48c190d4b2e2091a5ab9fc0f3da9dbeb74535c148df"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "THIRD attempt. F-004 caught a false causal claim; my first correction relocated the same conflation into its closing clause and F-005 caught that too. Stating only what I verified by reading the code myself this time. VERIFIED: (a) resolveStoryCandidatePath is called at handlers/dev-memory.ts:351, inside dev_memory_finish, and in story mode that is the single file it writes; (b) finishDecisionPath is called at exactly one site, handlers/playbook-runtime-memory.ts:250, inside dev_memory_finish_decision - so the registered entry covering .lattice/dev-memory/finish-decisions/ belongs to THAT command, and dev_memory_finish has no registered counterpart output; (c) the DONE gate requires only dev_memory_finish_decision, never dev_memory_finish; (d) this candidates path has no RUNTIME_ARTIFACT_REGISTRY entry, which is why it classifies as unknown and trips the scope gate. WHY IT EXISTS AT ALL: I chose to run dev_memory_finish so that recording decision=captured would refer to real captured candidates rather than being hollow. That choice was mine; DONE was reachable via decision=no-reusable-lesson without ever creating this file. WHAT JUSTIFIES THE ACKNOWLEDGEMENT: it is framework-generated story metadata under .lattice/story/actives/B-45a5/ which the execution boundary already permits, it holds this story's 20 experience candidates, it touches no product code, and it could not have been named in plan.md Files lists because it did not exist at PLAN time.",
+      "timestamp": "2026-08-19T13:08:57.189Z",
+      "paths": [
+        ".lattice/story/actives/B-45a5/dev-memory-candidates.jsonl"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-45a5/dev-memory-candidates.jsonl"
+      ],
+      "affectedPathCount": 1,
+      "phase": "REVIEW",
+      "headHash": "41fa534a4c213af769ba6157f45be7ef714892a3",
+      "materialHash": "98ec5127fb20b8c868deb48c190d4b2e2091a5ab9fc0f3da9dbeb74535c148df"
     }
   ],
   "createdAt": "2026-08-18T22:14:46.790Z",
-  "updatedAt": "2026-08-19T13:03:42.879Z",
+  "updatedAt": "2026-08-19T13:08:57.189Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
