@@ -441,6 +441,45 @@
         "scanEscalationReason": null
       },
       "_hash": "c5d750d8a7908635a0e3234e807ac45a7e148a687a8b842cb62d6585b43aa366"
+    },
+    {
+      "id": "B-8df9:RP-017",
+      "agent": "lattice-review-quality",
+      "note": "Post-merge re-attestation after the SECOND main merge (dd9acdd892, parents 2db203b85f x 03e046ef39; conflict marker only on lattice.config.json). Read background.md + plan.md in full this round. Independently re-derived every claim rather than trusting the note: (1) lattice.config.json validate.commands counts confirmed base=111/ours=113/theirs=117/merged=119 by diffing all four blobs programmatically; ours contributed exactly the 2 claimed unique entries (red-b8df9-init-check-verdict-signature.mjs, red-b8df9-chk002-verdict-shapes.mjs); all 117 theirs(main) entries present in merged in original relative order with zero mismatches on full deep-equality (not just command+args identity); every non-commands field of the config byte-identical between theirs and merged; red-b45a5-withdrawal-gates.mjs confirmed present. (2) Rebuilt (npm --prefix packages/main run build, clean) then ran both story red guards directly on the twice-merged tree: red-b8df9-init-check-verdict-signature.mjs 0 RED/0 BROKEN/24 rows exit 0; red-b8df9-chk002-verdict-shapes.mjs 0 FAILED/0 BROKEN/17 rows exit 0. (3) Inspected all six new sibling validate entries (red-evidence-envelope-smoke + five red-w2d-*): grepped for init-check/initCheck/init_check across their full source and checked imports - zero references; they touch red-evidence/command-policy/activity-policy/store/registry, none touch init-check-gate.ts or handlers/init-check.ts. Bonus check: command-policy.ts merge (main added red_evidence_envelope_check ~line 466) diffed cleanly against B-8df9 pre-merge state - exactly one added line, zero disturbance to this story CHK-006 reason-text edits. (4) Re-executed the four re-recorded docs_check rows (CHK-005:happy:0/adversarial:0, CHK-006:happy:0/adversarial:0) verbatim: chk005-corpus-derivation.mjs exits 0 with CORPUS_FILES_ON_DISK_MARKER=300 (matches note); grep of the two pinned strings in command-policy.ts hit 3 and 2 respectively (matches note exactly). All four notes correctly state mechanical:false and claim no selector, consistent with the prior F-009 correction. (5) CHK-004 restoration: programmatically extracted the quoted ORIGINAL WAIVER TEXT block from happy:0 note and confirmed byte-identical (633 chars) to the untouched edge:0/adversarial:0 notes (633 chars each, identical to each other). RP-011 and RP-016 prior passes correctly attested this same fact. Also ran validate --focus=b8df9-init-check-signature --json: allPass true, both guards pass, build clean. finding_list shows zero open findings (all prior F-001..F-012 resolved/dismissed with evidence). Standard quality sweep on the story-owned diff (init-check-gate.ts, machine.ts, store.ts, types.ts, handlers/init-check.ts, init-preflight-smoke.ts, 692 diff lines): no as any, no empty catches, no TODO/FIXME introduced. No blocker found; every specific claim in this rounds dispatch reproduces exactly.",
+      "createdAt": "2026-08-19T17:34:35.886Z",
+      "reviewRound": "2026-08-19T17:25:22.275Z",
+      "reviewRunId": "B-8df9:RR-023",
+      "envelopeId": "57a219374061712c7195424c48a45afeba0e22106bf72e05bcc202eadeb7d042",
+      "writerSessionId": "sess-b8df9-main-agent",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-8df9/background.md",
+          ".lattice/story/actives/B-8df9/checklist.json",
+          ".lattice/story/actives/B-8df9/findings.json",
+          ".lattice/story/actives/B-8df9/plan.md",
+          ".lattice/story/actives/B-8df9/review-passes.json",
+          "lattice.config.json",
+          "packages/main/src/core/command-policy.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/init-check-gate.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/init-check.ts",
+          "packages/main/src/tasks/init-preflight-smoke.ts",
+          "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+          "packages/main/tests/red/red-w2d-assertion-digest-scope.mjs",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs",
+          "packages/main/tests/red/red-w2d-entropy-differential.mjs",
+          "packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "packages/main/tests/red/red-w2d-specificity-conjunction.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9468ca91f8f3adef511114799516f5c8c69461a5cdb931c10f0eeaffe439a055"
     }
   ]
 }
