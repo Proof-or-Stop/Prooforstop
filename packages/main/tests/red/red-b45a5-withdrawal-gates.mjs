@@ -59,10 +59,83 @@
  * (the withdrawn id comes from the helper, the delivered id from the surviving
  * shared binding, the control id from what is left over).
  *
+ * ── CHK-004: AN UNBACKED WITHDRAWAL MUST SKIP NOTHING ──────────────────────
+ *
+ * Rows D1..D5 are the anti-bypass half, and they matter more than the skip: a
+ * gate anyone opens by editing one JSON field would be worse than the bug the B
+ * rows measure. Each D row puts a withdrawal that NO decision authorizes in
+ * front of BOTH gates and requires both to REFUSE it.
+ *
+ * Every unbacked state is built by writing the store's JSON files DIRECTLY —
+ * that is the actual threat model. `scope_shrinkage_decision_set` validates at
+ * write time, so D1/D2/D3 are unreachable through it BY DESIGN, and building
+ * them only through the CLI would make this proof theatre. D5 is the exception:
+ * it IS CLI-reachable, and is built that way on purpose.
+ *
+ *   D1  status withdrawn, NO decisionRef at all
+ *   D2  a decisionRef naming a decision id that does not exist
+ *   D3  a decisionRef naming the story's REAL decision, which does not list it
+ *   D4  a real decision that DOES list it, overwritten on disk to
+ *       decision=rejected / userConfirmed=false
+ *   D5  the same un-authorization reached through the CLI — a second
+ *       `scope_shrinkage_decision_set` with decision=rejected, whose union logic
+ *       preserves `withdrawnChecklistItemRefs` while dropping the authorization
+ *
+ * ── WHY D1..D3 CARRY A SECOND, GENUINELY WITHDRAWN ITEM ────────────────────
+ *
+ * Their shared fixture family also contains a DIFFERENT, REAL item that the
+ * confirmed decision genuinely withdraws, so `withdrawnChecklistItemRefs` is
+ * NON-EMPTY, and row C5 measures that this item IS excluded by both gates. Each
+ * D row is therefore a DIFFERENTIAL inside one fixture: the forged item and the
+ * backed item are identically situated — no evidence, no dispatch, each named by
+ * a surviving binding it shares with the delivered item — and row C6 measures
+ * that in D3 they are indistinguishable from the ITEM RECORD ALONE: same status,
+ * same decisionRef value. Only the decision record separates them.
+ *
+ * That is what makes this letter-satisfying implementation fail here:
+ *
+ *     const withdrawnIds = withdrawnChecklistItemIdsFrom(decision);
+ *     if (withdrawnIds.size > 0 && item.status === 'withdrawn') continue;
+ *
+ * It calls the helper and then keys the skip on the string, so a non-empty
+ * withdrawal set naming ANOTHER item is enough to wave the forged one through.
+ * With an empty-withdrawal decision it would pass D1..D3 clean, which is why the
+ * fixture requirement above is load-bearing rather than decorative. Verified by
+ * ablation rather than by assertion: patching the compiled dist to exactly that
+ * shape turns D1/D2/D3 BYPASSED.
+ *
+ * The forged item is never hand-shaped either. The fixture reads back what the
+ * REAL applier wrote onto the genuinely withdrawn item and copies those fields
+ * verbatim, so this file contains no literal status token and cannot rot into a
+ * vacuous pass if the product ever renames one.
+ *
+ * ── ABLATION RECORD: WHICH ROW CATCHES WHICH BYPASS ────────────────────────
+ *
+ * Each shape below was compiled INTO dist, measured, then reverted (dist checked
+ * back byte-for-byte by sha256). Every one of them leaves B1/B2/B3 GREEN and all
+ * ten controls CONTROL-OK — that is the point: they all satisfy the letter of
+ * the wiring the B rows measure, and only the D rows tell them apart.
+ *
+ *   naive shape substituted into both gates          D1  D2  D3  D4  D5
+ *   ------------------------------------------------ --- --- --- --- ---
+ *   withdrawnIds.size > 0 && item.status===withdrawn  X   X   X   .   .
+ *   new Set(decision.withdrawnChecklistItemRefs)      .   .   .   X   X
+ *     (the helper's authorization test dropped)
+ *   Boolean(item.decisionRef)                         .   X   X   X   X
+ *
+ *   X = that row went BYPASSED, i.e. the row caught the shape
+ *
+ * No single row catches all three, and the shipped implementation is the only
+ * one of the four that keeps every D row REFUSED. Honest caveat: across these
+ * three ablations D2 never catches anything D3 misses — it is kept because the
+ * dangling-decisionRef case is one of the four this item owes and it pins that
+ * threat explicitly, not because it is independently load-bearing here.
+ *
  * ── TWO MODES ───────────────────────────────────────────────────────────────
  *
- *   (default)   repro-first: exit 1 while either gate is RED, 0 when both are
- *               GREEN, 2 when a control/premise is BROKEN. This is the mode
+ *   (default)   repro-first: exit 1 while either gate is RED or any D row is
+ *               not REFUSED, 0 when both gates are GREEN and every D row is
+ *               REFUSED, 2 when a control/premise is BROKEN. This is the mode
  *               registered in `lattice.config.json`.
  *   --attest    identical measurement, identical rows, but exit 0 whenever the
  *               measurement RAN CLEANLY (all controls/premises OK), so it can be
@@ -72,7 +145,7 @@
  *               does NOT claim the tree is fixed. Read `B45A5-VERDICT=` for that.
  */
 
-import { mkdtempSync, rmSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -228,6 +301,227 @@ function buildFixture(shape) {
   // Dispatch evidence exists ONLY for the delivered item, in both shapes.
   const events = [{ type: 'dispatch', itemId: deliveredId, at }];
   return { root, storyId, store, events };
+}
+
+// ── CHK-004: fixtures carrying an UNBACKED withdrawal ───────────────────────
+
+/** A decision id no record on disk ever carries (row D2). */
+const DANGLING_DECISION_REF = 'SD-00000000';
+
+/**
+ * Overwrite fields of one checklist item BY RAW FILE WRITE.
+ *
+ * Deliberately not `store.writeChecklist` and emphatically not the CLI: the
+ * threat being measured is an operator (or an agent) opening checklist.json in
+ * an editor and changing a field. `scope_shrinkage_decision_set` validates every
+ * ref before it writes, so the D1/D2/D3 states are unreachable through it BY
+ * DESIGN — reaching them any other way than this would mean measuring a state
+ * the threat model does not contain.
+ *
+ * A key whose patch value is `undefined` is DELETED, which is how D1 gets an
+ * item with no `decisionRef` key at all rather than one set to a falsy value.
+ */
+function forgeChecklistItem(store, storyId, itemId, patch) {
+  const path = store.storyFilePath(storyId, 'checklist.json');
+  const raw = JSON.parse(readFileSync(path, 'utf-8'));
+  const item = raw.items.find((entry) => entry.id === itemId);
+  if (!item) throw new Error(`forge: ${storyId} has no checklist item ${itemId}`);
+  for (const [key, value] of Object.entries(patch)) {
+    if (value === undefined) delete item[key];
+    else item[key] = value;
+  }
+  writeFileSync(path, `${JSON.stringify(raw, null, 2)}\n`, 'utf-8');
+}
+
+/** Overwrite fields of the scope-shrinkage decision record BY RAW FILE WRITE (row D4). */
+function forgeDecisionRecord(store, storyId, patch) {
+  const path = store.storyFilePath(storyId, 'scope-shrinkage-decision.json');
+  const raw = JSON.parse(readFileSync(path, 'utf-8'));
+  Object.assign(raw, patch);
+  writeFileSync(path, `${JSON.stringify(raw, null, 2)}\n`, 'utf-8');
+}
+
+/**
+ * Build one fixture whose SUBJECT item looks withdrawn but is not authorized.
+ *
+ * Two families, and the difference is which item the story's single real
+ * decision names:
+ *
+ *   'd1' | 'd2' | 'd3' — the confirmed decision withdraws a DIFFERENT, REAL
+ *     item (`backedId`), so its `withdrawnChecklistItemRefs` is NON-EMPTY and
+ *     the exclusion is demonstrably live in this very fixture (row C5). The
+ *     subject is then forged into a withdrawn-looking state whose `decisionRef`
+ *     is the only thing that varies: absent (d1), dangling (d2), or the real
+ *     decision id (d3). The forged fields are COPIED from what the real applier
+ *     just wrote onto `backedId`, so nothing about the shape is invented here.
+ *
+ *   'd4' | 'd5' — the confirmed decision withdraws the SUBJECT, and the REAL
+ *     applier performs the flip and the stamp, so the item record is entirely
+ *     legitimate. The authorization is then removed from the decision AFTER the
+ *     fact: by raw file write (d4) or through the CLI (d5). Row C8 measures that
+ *     the decision still LISTS the item, so the only thing taken away is the
+ *     authorization — which is exactly what `withdrawnChecklistItemIdsFrom`
+ *     requires and what a `.withdrawnChecklistItemRefs.includes(id)` shortcut
+ *     would miss.
+ *
+ * Everything else mirrors `buildFixture`: the subject owns a positional ref AND
+ * an authored alias, both demanded by a surviving binding it shares with the
+ * delivered item, and the only dispatch event covers the delivered item.
+ */
+function buildForged(variant) {
+  const root = freshRoot(variant);
+  const storyId = 'B-fx01';
+  const store = new StoryStore(root);
+  const handlers = createProofStoryHandlers({ store, root, scanRoot: root });
+  const at = '2026-01-01T00:00:00.000Z';
+  // Does the story's real decision name the SUBJECT (d4/d5) or another item?
+  const decisionNamesSubject = variant === 'd4' || variant === 'd5';
+
+  store.writeStory(storyId, {
+    storyId,
+    name: storyId,
+    title: 'item withdrawal fixture',
+    description: 'isolated fixture story; never a real story',
+    type: 'feature',
+    phase: 'REVIEW',
+    priority: 'medium',
+    riskSignals: [],
+    createdAt: at,
+    startedAt: at,
+    endedAt: null,
+  });
+
+  const deliveredId = 'CHK-001';
+  const forgedId = 'CHK-002';
+  const backedId = 'CHK-003';
+  const forgedAlias = 'INT-FORGED-ALIAS';
+  const backedAlias = 'INT-BACKED-ALIAS';
+
+  // The two candidate items are built by the SAME factory, so they are
+  // identically situated by construction and the only asymmetry between them is
+  // which one the decision names.
+  const undeliveredItem = (id, alias) => ({
+    id,
+    title: 'never delivered',
+    status: 'done',
+    startTime: at,
+    endTime: null,
+    verificationIntent: { happy: [{ id: alias, desc: 'never delivered path', type: 'logic', priority: 'must' }] },
+  });
+
+  const items = [
+    {
+      id: deliveredId,
+      title: 'delivered and fully covered',
+      status: 'done',
+      startTime: at,
+      endTime: at,
+      verificationIntent: { happy: [{ desc: 'delivered path is covered', type: 'logic', priority: 'must' }] },
+      verificationEvidence: [{
+        intentRef: `${deliveredId}:happy:0`,
+        kind: 'logic_test',
+        result: 'pass',
+        note: 'fixture evidence covering the delivered intent',
+        createdAt: at,
+      }],
+    },
+    undeliveredItem(forgedId, forgedAlias),
+  ];
+  if (!decisionNamesSubject) items.push(undeliveredItem(backedId, backedAlias));
+  store.writeChecklist(storyId, { items });
+
+  const bindings = [
+    {
+      id: 'AB-001',
+      acceptanceClaim: 'the delivered path is accepted on its own',
+      checklistRefs: [deliveredId],
+      verificationIntentRefs: [`${deliveredId}:happy:0`],
+      milestoneIds: [],
+    },
+    {
+      id: 'AB-002',
+      acceptanceClaim: 'one acceptance spanning a delivered item and the subject item',
+      checklistRefs: [deliveredId, forgedId],
+      verificationIntentRefs: [`${deliveredId}:happy:0`, `${forgedId}:happy:0`, forgedAlias],
+      milestoneIds: [],
+    },
+  ];
+  if (!decisionNamesSubject) {
+    bindings.push({
+      id: 'AB-003',
+      acceptanceClaim: 'one acceptance spanning a delivered item and the decision-backed item',
+      checklistRefs: [deliveredId, backedId],
+      verificationIntentRefs: [`${deliveredId}:happy:0`, `${backedId}:happy:0`, backedAlias],
+      milestoneIds: [],
+    });
+  }
+  store.writeProofStoryContract(storyId, {
+    schemaVersion: 'proofstory.contract.v1',
+    storyId,
+    diagnosticOnly: false,
+    hardeningLevel: 'standard',
+    triggerReasons: [],
+    acceptanceBindings: bindings,
+    diagnosticGaps: [],
+    createdAt: at,
+    updatedAt: at,
+  });
+
+  // The story's ONE real decision, written by the REAL applier.
+  handlers.scope_shrinkage_decision_set({
+    storyId,
+    decision: 'confirmed',
+    userConfirmed: true,
+    reason: 'this item proved undeliverable and was withdrawn with user confirmation',
+    approvedBy: 'fixture-operator',
+    withdrawnChecklistItemRefs: [decisionNamesSubject ? forgedId : backedId],
+  });
+  const realDecisionId = store.readScopeShrinkageDecision(storyId)?.decisionId ?? null;
+
+  if (!decisionNamesSubject) {
+    // Copy, FIELD FOR FIELD, whatever the applier just wrote onto the item the
+    // decision really withdrew. No status token is invented or hard-coded here,
+    // so the forgery stays byte-faithful even if the product renames one.
+    const applied = store.readChecklist(storyId).items.find((entry) => entry.id === backedId);
+    const decisionRef = variant === 'd1'
+      ? undefined                       // d1: no decisionRef key at all
+      : variant === 'd2'
+        ? DANGLING_DECISION_REF         // d2: names a decision that does not exist
+        : realDecisionId;               // d3: names the REAL decision, which does not list it
+    forgeChecklistItem(store, storyId, forgedId, {
+      status: applied?.status,
+      endTime: applied?.endTime,
+      decisionRef,
+    });
+  } else if (variant === 'd4') {
+    // Raw file write: strip the authorization, leave withdrawnChecklistItemRefs
+    // untouched. This is the shape a `.includes(id)` check would still honour.
+    forgeDecisionRecord(store, storyId, { decision: 'rejected', userConfirmed: false });
+  } else {
+    // The CLI-reachable route to the same state: a second decision_set with no
+    // incoming refs passes the confirmed-required check, and the union logic
+    // carries the existing withdrawnChecklistItemRefs forward unchanged.
+    handlers.scope_shrinkage_decision_set({
+      storyId,
+      decision: 'rejected',
+      userConfirmed: false,
+      reason: 'the withdrawal was walked back after review; scope is restored',
+      approvedBy: 'fixture-operator',
+    });
+  }
+
+  const events = [{ type: 'dispatch', itemId: deliveredId, at }];
+  return {
+    root,
+    storyId,
+    store,
+    events,
+    variant,
+    deliveredId,
+    forgedId,
+    backedId: decisionNamesSubject ? null : backedId,
+    realDecisionId,
+  };
 }
 
 /** Run BOTH real gates over one fixture and return only measured facts. */
@@ -403,6 +697,121 @@ try {
     'guard: the withdrawn item is reported neither as covered nor as an owner exemption by the channel gate');
   observe(`C4 covered=[${subject.channel.evidencedItems.join(' ')}] exempted=[${subject.channel.exemptedItems.join(' ')}] withdrawn=${withdrawnId}`);
 
+  // ── CHK-004: measure the unbacked withdrawals ────────────────────────────
+  //
+  // Built AFTER the subject fixture so the terminal status the forgeries copy is
+  // read back from a withdrawal the REAL applier performed, never written as a
+  // literal in this file.
+  const FORGED_VARIANTS = ['d1', 'd2', 'd3', 'd4', 'd5'];
+  const forged = FORGED_VARIANTS.map((variant) => {
+    const fx = buildForged(variant);
+    return { fx, m: measure(fx) };
+  });
+  const byVariant = new Map(forged.map((entry) => [entry.fx.variant, entry]));
+  const terminalWithdrawnStatus = withdrawnId
+    ? subject.checklist.items.find((i) => i.id === withdrawnId)?.status
+    : undefined;
+
+  /** How BOTH gates actually treated one item in one fixture. Measured, not asserted. */
+  const gateTreatment = (m, itemId) => {
+    const refs = [...refsOwnedBy(m.checklist, itemId)];
+    const demanded = refs.filter((ref) => m.demandedRefs.includes(ref));
+    return {
+      refs,
+      demanded,
+      // Every ref the item owns must STILL be demanded. A subtraction that took
+      // the positional ref but left the alias (or the reverse) is a partial
+      // bypass, and partial is not refused.
+      completenessRefuses: refs.length > 0 && demanded.length === refs.length,
+      channelRefuses: m.channelRefusalFor(itemId),
+      inWithdrawnBucket: (m.channel.withdrawnItems ?? []).includes(itemId),
+      laundered: m.channel.evidencedItems.includes(itemId) || m.channel.exemptedItems.includes(itemId),
+    };
+  };
+
+  // ── C5: in D1..D3 the decision withdraws a DIFFERENT real item, and THAT
+  //        item is genuinely excluded by both gates ──────────────────────────
+  // The make-or-break fixture premise. Two things at once: the withdrawal set is
+  // NON-EMPTY (so `withdrawnIds.size > 0` is true and cannot rescue a
+  // status-keyed skip), and the exclusion is demonstrably LIVE in the same
+  // fixture that refuses the forgery — so a D-row refusal can never be explained
+  // away as "the feature simply is not on here".
+  const unlistedFamily = ['d1', 'd2', 'd3'].map((variant) => byVariant.get(variant));
+  const c5 = unlistedFamily.every((entry) => {
+    if (!entry?.fx.backedId) return false;
+    const resolved = withdrawnChecklistItemIdsFrom(entry.m.decision);
+    const backed = gateTreatment(entry.m, entry.fx.backedId);
+    return resolved.has(entry.fx.backedId)
+      && !resolved.has(entry.fx.forgedId)
+      && resolved.size > 0
+      && backed.demanded.length === 0
+      && !backed.channelRefuses
+      && backed.inWithdrawnBucket;
+  });
+  row('C5', c5 ? 'CONTROL-OK' : 'BROKEN',
+    'premise: in every forged fixture the confirmed decision withdraws a DIFFERENT, REAL item and that item IS excluded by both gates, so the withdrawal set is non-empty and the exclusion is demonstrably live in the same fixture that refuses the forgery');
+  for (const entry of unlistedFamily) {
+    if (!entry) continue;
+    const resolved = [...withdrawnChecklistItemIdsFrom(entry.m.decision)];
+    const backed = entry.fx.backedId ? gateTreatment(entry.m, entry.fx.backedId) : null;
+    observe(`C5 ${entry.fx.variant}: helper resolved=[${resolved.join(' ')}] backed=${entry.fx.backedId} demanded=[${backed?.demanded.join(' ')}] channelRefuses=${backed?.channelRefuses} inWithdrawnBucket=${backed?.inWithdrawnBucket}`);
+  }
+
+  // ── C6: in D3 the forged item and the backed item are indistinguishable
+  //        from the ITEM RECORD ALONE ───────────────────────────────────────
+  const d3 = byVariant.get('d3');
+  const d3Forged = d3?.m.checklist.items.find((i) => i.id === d3.fx.forgedId);
+  const d3Backed = d3?.m.checklist.items.find((i) => i.id === d3.fx.backedId);
+  const c6 = Boolean(d3Forged && d3Backed)
+    && d3Forged.status === d3Backed.status
+    && d3Forged.decisionRef === d3Backed.decisionRef
+    && (d3Forged.verificationEvidence ?? []).length === 0
+    && (d3Backed.verificationEvidence ?? []).length === 0
+    && !d3.fx.events.some((e) => e.itemId === d3Forged.id || e.itemId === d3Backed.id);
+  row('C6', c6 ? 'CONTROL-OK' : 'BROKEN',
+    'premise: in the real-decision-that-does-not-list-it fixture the forged item and the genuinely withdrawn item carry the SAME status and the SAME decisionRef, both without evidence and without dispatch, so nothing on the item record distinguishes them and only the decision record can');
+  observe(`C6 forged=${d3Forged?.id} status=${d3Forged?.status} decisionRef=${d3Forged?.decisionRef} | backed=${d3Backed?.id} status=${d3Backed?.status} decisionRef=${d3Backed?.decisionRef} | dispatchedItems=[${d3?.fx.events.map((e) => e.itemId).join(' ')}]`);
+
+  // ── C7: the forgery actually landed on disk ──────────────────────────────
+  // Without this a D row could be "refused" simply because the hand-edit never
+  // took, which would prove nothing at all.
+  const expectedForgedRef = (variant, realDecisionId) => (
+    variant === 'd1' ? undefined : variant === 'd2' ? DANGLING_DECISION_REF : realDecisionId
+  );
+  const c7 = Boolean(terminalWithdrawnStatus)
+    && forged.every((entry) => {
+      const forgedItem = entry.m.checklist.items.find((i) => i.id === entry.fx.forgedId);
+      return Boolean(forgedItem)
+        && forgedItem.status === terminalWithdrawnStatus
+        && forgedItem.decisionRef === expectedForgedRef(entry.fx.variant, entry.fx.realDecisionId)
+        && refsOwnedBy(entry.m.checklist, entry.fx.forgedId).size >= 2
+        && entry.fx.realDecisionId !== DANGLING_DECISION_REF;
+    });
+  row('C7', c7 ? 'CONTROL-OK' : 'BROKEN',
+    'premise: every forged fixture really is on disk in the intended unbacked state — the subject carries the same terminal status the real applier writes, the intended decisionRef (absent / dangling / real), and both a positional ref and an authored alias');
+  for (const entry of forged) {
+    const forgedItem = entry.m.checklist.items.find((i) => i.id === entry.fx.forgedId);
+    observe(`C7 ${entry.fx.variant}: item=${entry.fx.forgedId} status=${forgedItem?.status} decisionRef=${forgedItem?.decisionRef} expected=${expectedForgedRef(entry.fx.variant, entry.fx.realDecisionId)} refs=[${[...refsOwnedBy(entry.m.checklist, entry.fx.forgedId)].join(' ')}]`);
+  }
+
+  // ── C8: in D4/D5 the decision STILL lists the item ───────────────────────
+  // Only the authorization was removed. If the ref had vanished too, both rows
+  // would be trivially refused and would measure nothing about authorization.
+  const unauthorizedFamily = ['d4', 'd5'].map((variant) => byVariant.get(variant));
+  const c8 = unauthorizedFamily.every((entry) => {
+    const decision = entry?.m.decision;
+    return Boolean(decision)
+      && (decision.withdrawnChecklistItemRefs ?? []).includes(entry.fx.forgedId)
+      && !(decision.decision === 'confirmed' && decision.userConfirmed === true)
+      && withdrawnChecklistItemIdsFrom(decision).size === 0;
+  });
+  row('C8', c8 ? 'CONTROL-OK' : 'BROKEN',
+    'premise: in the un-authorized fixtures the decision record STILL lists the item in withdrawnChecklistItemRefs and only the authorization was taken away, so what the helper resolves to the empty set is exactly what a bare refs.includes(id) shortcut would still honour');
+  for (const entry of unauthorizedFamily) {
+    const decision = entry?.m.decision;
+    observe(`C8 ${entry?.fx.variant}: decision=${decision?.decision}/${decision?.userConfirmed} refs=[${(decision?.withdrawnChecklistItemRefs ?? []).join(' ')}] helperResolves=[${[...withdrawnChecklistItemIdsFrom(decision)].join(' ')}]`);
+  }
+
   const broken = rows.filter((r) => r.verdict === 'BROKEN');
 
   if (broken.length > 0) {
@@ -410,6 +819,9 @@ try {
     row('B1', 'NOT-MEASURED', 'the completeness gate\'s handling of the authorized withdrawal was not evaluated');
     row('B2', 'NOT-MEASURED', 'the channel gate\'s handling of the authorized withdrawal was not evaluated');
     row('B3', 'NOT-MEASURED', 'no joint conclusion is available while a control or premise is BROKEN');
+    for (const id of ['D1', 'D2', 'D3', 'D4', 'D5', 'D23', 'D45']) {
+      row(id, 'NOT-MEASURED', 'no conclusion is drawn about an unbacked withdrawal while a control or premise is BROKEN');
+    }
     exitCode = 2;
   } else {
     // ── B1: completeness gate still demands the withdrawn item's intents ────
@@ -436,7 +848,50 @@ try {
     row('B3', b3,
       'joint: do BOTH REVIEW-path gates ignore an item-level withdrawal authorized by a confirmed decision? RED = yes, GREEN = neither does, MIXED = only one learned about it');
     observe(`B3 derived from the two rows above; MIXED would mean only one gate learned about the withdrawal`);
-    exitCode = b3 === 'GREEN' ? 0 : 1;
+    // ── D1..D5: an UNBACKED withdrawal must skip NOTHING ──────────────────
+    //
+    // REFUSED  = both gates still bite (the required outcome)
+    // PARTIAL  = exactly one gate was fooled
+    // BYPASSED = both were fooled, i.e. the gate is openable by hand-editing JSON
+    const D_CLAIMS = {
+      d1: 'an item marked withdrawn with NO decisionRef at all: is it still refused by BOTH gates? REFUSED = yes',
+      d2: 'an item whose decisionRef names a decision id that does not exist: is it still refused by BOTH gates? REFUSED = yes',
+      d3: 'an item whose decisionRef names the story\'s REAL confirmed decision, which withdraws a DIFFERENT item and does not list this one: is it still refused by BOTH gates? REFUSED = yes',
+      d4: 'an item whose decision DOES list it but was overwritten on disk to decision=rejected / userConfirmed=false: is it still refused by BOTH gates? REFUSED = yes',
+      d5: 'the same un-authorization reached through the CLI (a second scope_shrinkage_decision_set with decision=rejected, refs preserved by the union logic): is it still refused by BOTH gates? REFUSED = yes',
+    };
+    const dVerdicts = new Map();
+    for (const entry of forged) {
+      const id = entry.fx.variant.toUpperCase();
+      const t = gateTreatment(entry.m, entry.fx.forgedId);
+      const verdict = t.completenessRefuses && t.channelRefuses
+        ? 'REFUSED'
+        : (!t.completenessRefuses && !t.channelRefuses ? 'BYPASSED' : 'PARTIAL');
+      dVerdicts.set(id, verdict);
+      row(id, verdict, D_CLAIMS[entry.fx.variant]);
+      observe(`${id} subject=${entry.fx.forgedId} owns refs=[${t.refs.join(' ')}] still demanded=[${t.demanded.join(' ')}] completenessRefuses=${t.completenessRefuses}`);
+      observe(`${id} channel ok=${entry.m.channel.ok} offenders=[${entry.m.offenders.join(' ')}] channelRefuses=${t.channelRefuses} inWithdrawnBucket=${t.inWithdrawnBucket} launderedIntoCoveredOrExempted=${t.laundered}`);
+      observe(`${id} decision=${entry.m.decision?.decision}/${entry.m.decision?.userConfirmed} id=${entry.m.decision?.decisionId} refs=[${(entry.m.decision?.withdrawnChecklistItemRefs ?? []).join(' ')}] helperResolves=[${[...withdrawnChecklistItemIdsFrom(entry.m.decision)].join(' ')}]`);
+      for (const detail of entry.m.channel.details) observe(`${id} detail: ${detail}`);
+    }
+
+    // Joint rows, one per intent lane, so a pinned selector covers every case
+    // that lane claims rather than an arbitrary one of them.
+    const jointVerdict = (ids) => {
+      const values = ids.map((id) => dVerdicts.get(id));
+      if (values.every((v) => v === 'REFUSED')) return 'REFUSED';
+      if (values.every((v) => v === 'BYPASSED')) return 'BYPASSED';
+      return 'MIXED';
+    };
+    row('D23', jointVerdict(['D2', 'D3']),
+      'joint: are BOTH a decisionRef naming a decision that does not exist AND a decisionRef naming a real decision that does not list the item refused by both gates? REFUSED = yes');
+    observe('D23 derived from the two rows above; MIXED would mean one of the two dangling-authority shapes got through');
+    row('D45', jointVerdict(['D4', 'D5']),
+      'joint: is a decision overwritten to decision=rejected / userConfirmed=false unable to authorize the skip by EITHER route, the raw file write and the CLI? REFUSED = yes');
+    observe('D45 derived from the two rows above; MIXED would mean only one of the two routes to the same un-authorized state is caught');
+
+    const unbackedAllRefused = [...dVerdicts.values()].every((v) => v === 'REFUSED');
+    exitCode = b3 === 'GREEN' && unbackedAllRefused ? 0 : 1;
   }
 
   // Same measurement in both modes; only the exit code differs.
@@ -447,17 +902,25 @@ try {
 
 // ── report ──────────────────────────────────────────────────────────────────
 
+// The joint verdict spans BOTH halves: the gates must read an authorized
+// withdrawal (B rows) AND must refuse every unbacked one (D rows). A tree that
+// skips work no decision authorized is not 'green' in any useful sense, so an
+// unbacked bypass overrides an otherwise passing B verdict.
+const unbackedBypass = rows.some((r) => /^D\d+$/.test(r.id) && r.verdict !== 'REFUSED' && r.verdict !== 'NOT-MEASURED');
 const verdict = exitCode === 2
   ? 'BROKEN'
-  : rows.find((r) => r.id === 'B3')?.verdict ?? 'BROKEN';
+  : unbackedBypass
+    ? 'BYPASS'
+    : rows.find((r) => r.id === 'B3')?.verdict ?? 'BROKEN';
 
 const lines = [];
-lines.push('=== B-45a5 CHK-001 — do the two REVIEW-path gates read an item-level withdrawal? ===');
+lines.push('=== B-45a5 — do the two REVIEW-path gates read an item-level withdrawal, and can one be forged? ===');
 if (ATTEST) {
   lines.push('mode=attest: exit 0 certifies the measurement RAN with sound controls, NOT that the tree is fixed.');
   lines.push('             the verdict is carried by the row markers below.');
 } else {
-  lines.push('mode=repro: exit 1 while either gate is RED, 0 when both are GREEN, 2 when a control is BROKEN.');
+  lines.push('mode=repro: exit 1 while either gate is RED or any unbacked withdrawal is not REFUSED,');
+  lines.push('            0 when both gates are GREEN and every D row is REFUSED, 2 when a control is BROKEN.');
 }
 lines.push('');
 for (const r of rows) {
@@ -471,12 +934,15 @@ lines.push('');
 lines.push(`B45A5-VERDICT=${verdict}`);
 if (verdict === 'BROKEN') {
   lines.push('  a control or premise did not behave, so NOTHING is concluded about either gate.');
+} else if (verdict === 'BYPASS') {
+  lines.push('  a withdrawal NO decision authorizes was skipped: the gate is openable by editing JSON.');
 } else if (verdict === 'RED') {
   lines.push('  both gates demand delivery evidence for work a confirmed decision withdrew.');
 } else if (verdict === 'MIXED') {
   lines.push('  exactly one gate learned about the withdrawal; the other did not.');
 } else {
-  lines.push('  both gates exclude the withdrawn item, and both still bite on everything that is not withdrawn.');
+  lines.push('  both gates exclude the decision-backed withdrawn item, both still bite on everything that is');
+  lines.push('  not withdrawn, and every unbacked withdrawal is still refused by both.');
 }
 console.log(lines.join('\n'));
 process.exit(exitCode);
