@@ -8390,7 +8390,7 @@
       "desc": "packages/main/src/core/verification.ts:141 CHK-006 must-gap: after verification_evidence_refresh_stale, 7 executable must intents are mechanical:false (nonMechanicalReason: receipt invalidated because the pinned command was not re-run). The coverage gate scores mechanical:false on logic|cli as non_mechanical and NEVER covers. missingRequired=7/54: B3F3D-006-H1, H2, E1, E2, E3, A1, A3, all pinned to node packages/main/dist/tasks/review-inventory-handler-smoke.js. B3F3D-006-H3 (docs) and B3F3D-006-A2 (mechanical epoch-smoke) remain covered. result=pass on demoted rows is not coverage. Re-run verification_evidence_add for those 7 pinned handler-smoke commands until selector-matched mechanical receipts exist.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-19T08:50:10.991Z",
@@ -8437,7 +8437,11 @@
         "packages/main/src/tasks/review-inventory-handler-smoke.ts"
       ],
       "signatureTag": "missing|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "CHK-006 handler-smoke now produces selector-matched mechanical receipts. Root cause was topology-critic reconstruction drift after merging the B-cdf6 load-bearing slice (expected 077d0e79, got 2300cde0) plus handler-smoke fixtures that still expected throw-on-no-OPEN-epoch and hit missing_dev_memory_preflight_ack. Repinned digest 2300cde0, adapted finalize-without-OPEN to PRE_CERT completeness, wrote DEV-door preflight ack in setup. verification_evidence_refresh_stale then re-executed the pinned command: all seven B3F3D-006-H1/H2/E1/E2/E3/A1/A3 rows are mechanical:true result:pass selectorMatched:true exit 0 on head abce5a5. Coverage is 54/54.",
+      "resolvedAt": "2026-08-19T09:46:38.474Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3f3d:F-125",
