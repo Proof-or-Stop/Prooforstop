@@ -8651,7 +8651,7 @@
       "desc": "packages/main/src/handlers/prewrite-guard.ts:205-206 concept-cleanup: B-cc10 read-both state-dir decision is missing at the OPEN-inventory material exemption. The filters !file.startsWith('.lattice/locks/') and !file.startsWith('.lattice/runtime/') are deprecated-literal DECISION sites (the F-065/F-061 shape brand-paths.ts exists to prevent). They recognize only DEPRECATED_STATE_DIR. Canonical writes land under .proof-or-stop/locks/ and .proof-or-stop/runtime/ (main-write-lock.ts canonical lock path; PROOF_OR_STOP_STATE_DIR). Those paths are silently ignored by the exemption, so they become materialTargets and OPEN_REVIEW_INVENTORY_MATERIAL_MUTATION denies them, while .lattice/locks|runtime still pass. Adjacent residue at :217 recovery still teaches `lattice review_inventory_cancel` instead of `proof-or-stop review_inventory_cancel`. Fix: derive both prefixes from stateDirCandidates('locks') / stateDirCandidates('runtime') or STATE_DIR_NAMES; do not hardcode .lattice/. HIGH.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-19T17:31:34.683Z",
@@ -8687,7 +8687,11 @@
         "packages/main/src/core/main-write-lock.ts"
       ],
       "signatureTag": "missing|ts|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 6cbbbf73 by lattice-implementer: OPEN-inventory lock/runtime exemption now iterates STATE_DIR_NAMES so both .proof-or-stop and .lattice prefixes are excluded; recovery string is proof-or-stop review_inventory_cancel. npm run test:lattice-residue PASS (brand-decision 0).",
+      "resolvedAt": "2026-08-19T18:29:43.182Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3f3d:F-130",
