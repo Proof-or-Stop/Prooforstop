@@ -21509,6 +21509,44 @@
       },
       "readDiagnostics": [],
       "_hash": "ed32cf5bda64532b0ba279a88e6914a26ab297489555a3c4c68dfe6e5140b700"
+    },
+    {
+      "id": "B-3f3d:RP-383",
+      "agent": "lattice-review-docs",
+      "note": "Incremental docs re-review on B-3f3d:RR-605 (SAFE_INCREMENTAL, ELIGIBLE_NO_MATERIAL_CHANGE, prior PASS B-3f3d:RP-378 / RR-590). Step 1 extracted 700+ exported symbols from git diff main...HEAD; incremental context reports changedFiles=[] / impactedFiles=[] / CURRENT_MATERIAL, so no new symbol-to-doc paragraphs beyond the prior binding. Step 2 compared 2 referenced decision paragraphs: review-inventory-epoch-and-saturation-gate.md Operator workflow (39-68) and Wave 4 authority boundary (328-341); triaged proofstory-acceptance-topology Wave 4 heading. Docs still teach proof-or-stop review_inventory_* including review_inventory_cancel; live prewrite-guard.ts:217 still emits lattice review_inventory_cancel, already filed as F-130. No NEW docs family. Wave 4 prose stays diagnostic-only for observe pre_review_check and names signed acceptance_rollout_report_read/check as enforce authority with full-3x2 and config-only rollback.",
+      "createdAt": "2026-08-19T17:52:29.883Z",
+      "reviewRound": "2026-08-19T16:56:02.376Z",
+      "reviewRunId": "B-3f3d:RR-605",
+      "envelopeId": "91db6c87efbbeff83b4d8ca344adc3d7fc8f9e58cf64d7eeb44e9d43ec00c9c4",
+      "writerSessionId": "sess-4292375d1d751b41",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": 2593
+        },
+        "digest": "b1e01a5717a994c8fefe038a6332a65d4f19c58b1a000c94ad165acb0f2f4107"
+      },
+      "readDiagnostics": [],
+      "_hash": "94771a5de925089656f62f313a9c235bd45afa959ee9de4424033ab758208a1a"
     }
   ]
 }

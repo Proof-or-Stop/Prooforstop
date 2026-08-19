@@ -4837,7 +4837,7 @@
       "reviewRound": "2026-08-19T16:56:02.376Z",
       "state": "OPEN",
       "begunAt": "2026-08-19T17:25:41.975Z",
-      "updatedAt": "2026-08-19T17:25:41.975Z",
+      "updatedAt": "2026-08-19T17:44:10.235Z",
       "cutoff": {
         "headHash": "35aa1ad959e3bc01ee18940358d2ce6fec9085b1",
         "materialHash": "18b25d80de9b979f6ef003a95c1c76615b8b41498e1948df00d5bffa4951081d",
@@ -4855,9 +4855,81 @@
       ],
       "initialRunSequenceBoundary": 595,
       "maxWaves": 3,
-      "waves": [],
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-08-19T17:25:41.975Z",
+          "completedAt": "2026-08-19T17:44:10.235Z",
+          "lanes": [
+            {
+              "lane": "lattice-review-concept",
+              "reviewRunId": "B-3f3d:RR-596",
+              "terminal": "finding",
+              "hostIdentity": "97533fb4c8f204761a0a4f7c6d4084a68f5cb3e057148a3706c97dbd68c388ed",
+              "promptIdentity": "13eb82023e8a55d0422ded3ceccd73f024e4342f66cd0018a2eab329c494e7af",
+              "evidenceIds": [
+                "B-3f3d:F-129"
+              ],
+              "coverageDigest": "ea2a6cffe71d28f4cc10682434522224d89e64670e5e669832e3a221fa1b91f5"
+            },
+            {
+              "lane": "lattice-review-quality",
+              "reviewRunId": "B-3f3d:RR-599",
+              "terminal": "finding",
+              "hostIdentity": "97533fb4c8f204761a0a4f7c6d4084a68f5cb3e057148a3706c97dbd68c388ed",
+              "promptIdentity": "603f2374f5f8129015850e821cf99508e2a0f8cdf3a9b8ecb4cb55c44e2d3300",
+              "evidenceIds": [
+                "B-3f3d:F-128"
+              ],
+              "coverageDigest": "da2445d746533f1daf34d9d8aafffb9c8342d6c5effd29a23bd0d22ac91924a8"
+            },
+            {
+              "lane": "lattice-review-test-coverage",
+              "reviewRunId": "B-3f3d:RR-597",
+              "terminal": "pass",
+              "hostIdentity": "97533fb4c8f204761a0a4f7c6d4084a68f5cb3e057148a3706c97dbd68c388ed",
+              "promptIdentity": "508c14436518f769410573d321712485553888312a3a6710dc9c4529737b647f",
+              "evidenceIds": [
+                "B-3f3d:RP-382"
+              ],
+              "coverageDigest": "18f111617f497cb3c1729dbeddea50a68025180fa60e7a829efc175d72280b5a"
+            },
+            {
+              "lane": "lattice-review-behavior",
+              "reviewRunId": "B-3f3d:RR-600",
+              "terminal": "finding",
+              "hostIdentity": "97533fb4c8f204761a0a4f7c6d4084a68f5cb3e057148a3706c97dbd68c388ed",
+              "promptIdentity": "faa26c8762094633f01ad88195093df6b8113bb23f17eecf3f80f853eca2dcf2",
+              "evidenceIds": [
+                "B-3f3d:F-132"
+              ],
+              "coverageDigest": "8ced874911a37fc7a213cd21f0fbac14619c052034fb92038e113763574727f2"
+            },
+            {
+              "lane": "lattice-review-docs",
+              "reviewRunId": "B-3f3d:RR-601",
+              "terminal": "finding",
+              "hostIdentity": "97533fb4c8f204761a0a4f7c6d4084a68f5cb3e057148a3706c97dbd68c388ed",
+              "promptIdentity": "675a97b53bc613dab1ba563bf10024863e6eec7487840608de21fba44625a1c3",
+              "evidenceIds": [
+                "B-3f3d:F-130"
+              ],
+              "coverageDigest": "fb331726cb356531b92842f624c45c2558b7da366802eb3c77429ecc8ba73ec5"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "prewrite-guard-deprecated-state-dir-exemption",
+            "prewrite-guard-legacy-bin-recovery"
+          ],
+          "verifiedFindingSetDigest": "e00483087f11353e1fb241e78deebf3ed28b2901140ea37c6fa40dc83d246ffd",
+          "newVerifiedFindingCount": 2,
+          "criticDigest": "1b3d83e5f11bdf9bacdb4470b14a91edc33c7d67ac41cc1b18b1427979bb4281",
+          "saturated": false,
+          "nextRunSequenceBoundary": 602
+        }
+      ],
       "baselineFindingIds": [],
-      "_hash": "090a34e9810d662772338a63f5b325b1c9240e288a0e3108321a3349a678681e"
+      "_hash": "22cd070aed47c5fd4149af26cbcdbdb6f00e24c566d02278caf4f4b7e93e1147"
     }
   ],
   "receipts": [
@@ -7133,6 +7205,57 @@
       ],
       "createdAt": "2026-08-17T14:38:28.794Z",
       "_hash": "da16dbd18d4f63489ad6c544633490bc3ccf24dab1d8d8e1d35516d026a226a3"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-3f3d:RI-050:CRIT-01",
+      "epochId": "B-3f3d:RI-050",
+      "storyId": "B-3f3d",
+      "reviewRound": "2026-08-19T16:56:02.376Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "35aa1ad959e3bc01ee18940358d2ce6fec9085b1",
+        "materialHash": "18b25d80de9b979f6ef003a95c1c76615b8b41498e1948df00d5bffa4951081d",
+        "storyFilesHash": "54981914791333b77be774db9f7ec8f2700a8f42d768341464ed5d85714c48ba"
+      },
+      "aggregateFindingSetDigest": "e00483087f11353e1fb241e78deebf3ed28b2901140ea37c6fa40dc83d246ffd",
+      "requiredLaneCoverageDigest": "be2051c525f5446976120f30a0edcbb38675b854dbb91abd835b99727a08c413",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-3f3d:RR-602",
+      "terminalEvidenceIds": [
+        "B-3f3d:F-133"
+      ],
+      "readEvidenceDigest": "975efaebe4706896284e490e367634153117f334bf59ebfa47ef6108717a2347",
+      "findingDispositions": [
+        {
+          "findingId": "B-3f3d:F-128",
+          "disposition": "duplicate",
+          "familyKey": "prewrite-guard-deprecated-state-dir-exemption",
+          "canonicalFindingId": "B-3f3d:F-129",
+          "reason": "Quality finding cites the same prewrite-guard.ts:205-206 deprecated-only prefix tests as F-129. Independent source read confirms one defect family; F-128 also notes the line-217 recovery string which is classified separately as F-130."
+        },
+        {
+          "findingId": "B-3f3d:F-129",
+          "disposition": "verified_family",
+          "familyKey": "prewrite-guard-deprecated-state-dir-exemption",
+          "reason": "Independent critic read packages/main/src/handlers/prewrite-guard.ts:203-207 after lanes terminated. OPEN-inventory materialTargets filter hardcodes file.startsWith('.lattice/locks/') and file.startsWith('.lattice/runtime/') only. brand-paths.ts writes PROOF_OR_STOP_STATE_DIR='.proof-or-stop' and exports STATE_DIR_NAMES, isStateDirPath, and stateDirCandidates for read-both decisions. Canonical .proof-or-stop/locks and .proof-or-stop/runtime therefore become materialTargets and deny with OPEN_REVIEW_INVENTORY_MATERIAL_MUTATION. F-129 is the canonical statement of this B-cc10 decision-site miss."
+        },
+        {
+          "findingId": "B-3f3d:F-130",
+          "disposition": "verified_family",
+          "familyKey": "prewrite-guard-legacy-bin-recovery",
+          "reason": "Independent critic read prewrite-guard.ts:217 Recovery line lattice review_inventory_cancel. review-inventory-epoch-and-saturation-gate.md operator workflow teaches proof-or-stop review_inventory_cancel. core/prewrite-guard.ts contains no such string; renderPrewriteGuardResult prints the handler reasons verbatim. Distinct brand-exec recovery-command family from the state-dir exemption prefixes."
+        },
+        {
+          "findingId": "B-3f3d:F-132",
+          "disposition": "duplicate",
+          "familyKey": "prewrite-guard-deprecated-state-dir-exemption",
+          "canonicalFindingId": "B-3f3d:F-129",
+          "reason": "Behavior finding cites prewrite-guard.ts:203-206 and the same canonical versus deprecated state-dir write contract. Independent read confirms it is the same exemption-prefix family as F-129, not a second mutation barrier."
+        }
+      ],
+      "createdAt": "2026-08-19T17:42:47.085Z",
+      "_hash": "e833d7f7601c7db68b331f67984c2e13063eb3c7084c8575896d9410d884d777"
     }
   ]
 }
