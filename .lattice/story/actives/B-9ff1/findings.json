@@ -1779,7 +1779,7 @@
       "desc": "test",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "dismissed",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-19T15:21:41.911Z",
@@ -1787,6 +1787,27 @@
       "reviewRunId": "B-9ff1:RR-109",
       "_hash": "db6973075430d9b972030abac71f5687f7529ca43c23cbda0bd86c6d6f9f856f",
       "signatureTag": "missing|unknown|test",
+      "signatureTagSource": "auto",
+      "dismissReason": "Erroneous placeholder created by lattice-review-quality while probing the correct reviewRunId argument format for finding_add; not a real finding. Superseded by a properly-described finding filed in the same review round.",
+      "dismissedAt": "2026-08-19T15:21:57.024Z",
+      "dismissReasonType": "false_positive"
+    },
+    {
+      "id": "B-9ff1:F-079",
+      "desc": "lattice.config.json validate.commands (post 185-commit merge 2c7fd6899a, .lattice/dev-memory conflicts): the structural conflict resolution collapsed 35 of main's structured {command,args,resources} validate-command entries down to bare command strings, stripping the B-7dff resources:[{class:git-common-dir,key:.,access:shared}] concurrency declaration from each (e.g. packages/main/dist/tasks/adversarial-review-contract-smoke.js, capability-list-smoke.js, review-pass-discard-smoke.js and 32 others). Verified by JSON-parsing both `git show main:lattice.config.json` and the current file (not text diff): main declares resources on 97/111 commands (87%); the current file declares on only 5/117 (4%). No script path was actually dropped (0 missing by normalized-path key across all 117 vs 111 entries), so this is not a rejected-command loss, but per packages/main/src/core/validation-executor.ts resolveValidationCommandResourceClaims (lines ~1636-1664) an undeclared command silently falls back to a single EXCLUSIVE claim on the synthetic validate-plan barrier, forcing it to run alone instead of concurrently with other declared-shared commands ('Under-declaring only costs latency' per that function's own doc comment) -- so this is a real, silent regression of main's B-7dff parallel-validate scheduling optimization across roughly a third of the whole validate.commands array, not a correctness break: tsc --noEmit -p packages/main exits 0, all five red-w2d/*.mjs plus the envelope smoke exit 0, and packages/main/tests/validate-resource-claims.test.mjs still reports PASS (34 assertions) because its only real-config assertion (around line 243, 'both paths are exercised by the real config') is declared.length>0 && byDefault.length>0 -- true even at 5-declared/112-exclusive, so it does not catch this drift. This story's own 6 new commands (the red-w2d harnesses + red-evidence-envelope-smoke) are unaffected and correctly use the dict form. Recommend re-syncing the 35 pre-existing entries' resources declarations from main (git show main:lattice.config.json) as a follow-up before/at this bookkeeping round's close, since silently dropping one side of a structural merge is exactly the failure mode this round was checking for.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-19T15:22:13.356Z",
+      "reviewRound": "2026-08-19T15:13:53.073Z",
+      "reviewRunId": "B-9ff1:RR-109",
+      "_hash": "35b3ee1201ba63eca8bd8c2dce5e3ff40b654d75b429e97784b3cad74eb77a12",
+      "files": [
+        "lattice.config.json"
+      ],
+      "signatureTag": "missing|json|lattice-config-json",
       "signatureTagSource": "auto"
     }
   ]
