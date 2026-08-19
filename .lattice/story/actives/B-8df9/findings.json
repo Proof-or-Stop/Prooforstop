@@ -185,6 +185,26 @@
       "_hash": "b2f04ff8daabec4a86588a36545bd4ce5524aad2fac46cf3ff5ea03a0e12951d",
       "signatureTag": "adversarial|unknown|quality-durability-lattice",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-8df9:F-010",
+      "desc": "concept-drift: .lattice/story/actives/B-8df9/checklist.json CHK-004's three verificationEvidence waiver rows (happy/edge/adversarial) assert 'THIS WAIVER IS A FRAMEWORK GAP, NOT A DISPOSITION ... A user-approved withdrawal has no mechanical completion path, so this waiver is prose standing where proof should be. Filed as a framework defect; do not read it as evidence.' That specific claim was falsified by this same merge: B-45a5 ('Wire the existing item-level withdrawal helper into the two REVIEW-path gates', pulled in at merge commit ab5f930d9e) wires withdrawnChecklistItemIdsFrom(decision) into checkDispatchEvidence (packages/main/src/handlers/validate-channel.ts:305) AND into evaluateReviewCompleteness via withdrawnItemIntentRefs (packages/main/src/core/proofstory.ts:1672-1682, consumed at :2165-2167) -- exactly the mechanical completion path the waiver says does not exist, and it addresses precisely the concern the waiver raised ('whole-binding withdrawal would have dropped delivered CHK-003 coverage' -- the new mechanism withdraws by item id, not by whole acceptance binding). Evidence is append-only so the waiver text itself cannot be edited, and no other LIVE doc in this story (background.md, plan.md, understanding.json, decision.json, scope-shrinkage-decision.json) repeats the stale claim -- but nothing in the current record corrects it either, so a future reader who takes 'Filed as a framework defect; do not read it as evidence' at face value would wrongly conclude the item-level-withdrawal-readability gap is still open post-merge. Recommend a corrective annotation (e.g. a review-pass note or a superseding evidence/audit entry pointing at B-45a5's fix) rather than leaving the claim unqualified in the durable record.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-19T15:47:08.335Z",
+      "reviewRound": "2026-08-03T04:27:32.508Z",
+      "reviewRunId": "B-8df9:RR-012",
+      "_hash": "5b51249a0020e4e0a58bc51bd3ba5df3dd3b9504f1947a17d0cfbca388da1508",
+      "files": [
+        ".lattice/story/actives/B-8df9/checklist.json",
+        "packages/main/src/core/proofstory.ts",
+        "packages/main/src/handlers/validate-channel.ts"
+      ],
+      "signatureTag": "missing|json|concept-drift-lattice",
+      "signatureTagSource": "auto"
     }
   ]
 }
