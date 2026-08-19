@@ -8698,7 +8698,7 @@
       "desc": "doc-code-drift: packages/main/src/handlers/prewrite-guard.ts:217 OPEN_REVIEW_INVENTORY_MATERIAL_MUTATION recovery still teaches `lattice review_inventory_cancel --storyId=...`. renderPrewriteGuardResult prints that Recovery line verbatim to operators. Canonical Operator workflow in docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md:39-68 teaches `proof-or-stop review_inventory_cancel`. core/prewrite-guard.ts has no such string; the live deny path is the handler. Retired `lattice <subcommand>` recovery misdirects OPEN-inventory material-mutation recovery. severity=high",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-08-19T17:33:29.399Z",
@@ -8736,7 +8736,11 @@
         "packages/main/src/core/prewrite-guard.ts"
       ],
       "signatureTag": "missing|ts|code-drift-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 6cbbbf73 by lattice-implementer: OPEN-inventory lock/runtime exemption now iterates STATE_DIR_NAMES so both .proof-or-stop and .lattice prefixes are excluded; recovery string is proof-or-stop review_inventory_cancel. npm run test:lattice-residue PASS (brand-decision 0).",
+      "resolvedAt": "2026-08-19T18:29:44.338Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3f3d:F-131",
