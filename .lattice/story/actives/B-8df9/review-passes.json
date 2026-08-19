@@ -225,6 +225,36 @@
         "scanEscalationReason": null
       },
       "_hash": "9e370dcd318b73e18b03c44b35a6c8d04c0b6937fa0f49a6d8e50030909f95e7"
+    },
+    {
+      "id": "B-8df9:RP-009",
+      "agent": "lattice-review-quality",
+      "note": "Confirmed F-009/F-011/F-012 correction is sound. Verified since RR-011 headHash only .lattice/ metadata changed (git diff, no source/tests/docs). Both red artifacts still 0 RED/0 FAILED/0 BROKEN. On-disk checklist.json shows all four rows (CHK-005:happy:0/adversarial:0, CHK-006:happy:0/adversarial:0) now carry an unhedged retraction (\"That was FALSE\") with mechanical:false, no selector/verification/receipt persisted, matching F-012 root cause exactly. CHK-004:happy:0 superseding annotation cites withdrawnItemIntentRefs (proofstory.ts:1672, consumed 2166) and withdrawnChecklistItemIdsFrom (validate-channel.ts:305) — both confirmed exact by grep; live-ran channel gate directly (dist import, bypassing contended validate capacity lock) confirms withdrawn (SD-7319de10): CHK-004 printed on its own line and absent from Covered list; ran proofstory_review_completeness_check directly, Gaps: 0. nonMechanicalReason on that row correctly frames it as annotation not coverage claim; item.status remains withdrawn. No new finding warranted.",
+      "createdAt": "2026-08-19T16:05:39.098Z",
+      "reviewRound": "2026-08-03T04:27:32.508Z",
+      "reviewRunId": "B-8df9:RR-014",
+      "envelopeId": "e79e911b1737a059b7d73e1937dea549e22ffe08dfb9cc14eddc751957ae5fa7",
+      "writerSessionId": "sess-b8df9-main-agent",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-8df9/checklist.json",
+          ".lattice/story/actives/B-8df9/findings.json",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/validate-channel.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-8df9/background.md",
+          ".lattice/story/actives/B-8df9/plan.md",
+          "packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs",
+          "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "33d304aae262ab7b534dafc85a3373fd9a2db94b22e71a73ef6436bc41a575fa"
     }
   ]
 }
