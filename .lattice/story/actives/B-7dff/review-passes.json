@@ -840,6 +840,36 @@
         "scanEscalationReason": null
       },
       "_hash": "9889c35142442b0bd0c2618cd0c1f38dfa698677a90b869ac0e71bf1fe4b5b3d"
+    },
+    {
+      "id": "B-7dff:RP-027",
+      "agent": "lattice-review-concept",
+      "note": "Re-review (round after RP-025, story-level). Independently verified source freeze via git diff d0e8f1766c4b4bbbcc33f35d7083ab3d693ed615..f5cf0b986190e702d51da11ab946ea5823fe5a23 --stat: only 7 story-bookkeeping files changed (checklist.json, findings.json, process-events.jsonl, process-metrics.json, prompt-envelopes.json, review-passes.json, review-runs.json); zero packages/main/src files, zero lattice.config.json/package.json changes. Confirmed the diff content directly: checklist.json change is the CHK-005:happy:0 permanent waiver being rebound at the current head/material/story-files binding (text and reasoning unchanged, only the binding moved), consistent with dispatch context; findings.json change is F-016 and F-017 (both filed by lattice-review-test-coverage, same defect-class as F-012, CHK-005 twin left stale after CHK-001 was rebound) marked resolved with matching resolvedReason, and a follow-up story B-0f97 was filed for the underlying framework gap (verification_evidence_refresh_stale structurally skipping waiver rows). Concept scope for this story (keyed-scheduler.ts extraction from full-suite-runner.ts, worktree-pollution formatter unification in validation-executor.ts, RunScheduledOptions 4-arg signature migration) was already fully reviewed with zero residue across RP-019/RP-023/RP-025; no new drift since RP-025 to re-review. As a standing check (Wave 4 concept boundary) independent of this story diff, verified via --help that acceptance_topology_check, pre_review_check_read, acceptance_rollout_report_read, and acceptance_rollout_check all remain present in the CLI command set and are untouched by this story diff, so no concept residue there either. No concept deletion/replacement occurred in this round; concept residue check remains satisfied, no blocker.",
+      "createdAt": "2026-08-19T02:13:10.235Z",
+      "reviewRound": "2026-08-19T02:03:22.681Z",
+      "reviewRunId": "B-7dff:RR-043",
+      "envelopeId": "e31096fb245d0ea0ca6e265ac425ba9fa08d164bb86ddb3e0b622fb39ef62c5d",
+      "writerSessionId": "sess-c8142ac4cb69f1c755df4c1fc223e028",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7dff/checklist.json",
+          ".lattice/story/actives/B-7dff/findings.json"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/core/keyed-scheduler.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "scanEscalationReason": "No material (packages/main/src or config) change since RP-025 (verified via git diff --stat between RP-025 bound headHash d0e8f1766c and current head f5cf0b9861); source files re-triaged by name against prior full-read passes (RP-019/RP-023/RP-025), not re-read in full, since diff confirms byte-identical content."
+      },
+      "_hash": "029d35c341397eb31a1360394a3c2d1104ee9730e9b80928dc16769daa68a425"
     }
   ]
 }
