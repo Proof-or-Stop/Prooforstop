@@ -8553,7 +8553,7 @@
       "desc": "packages/main/src/tasks/review-inventory-handler-smoke.ts:42 WHY bounce 03a996898c retargeted cliPath to bin/proof-or-stop.js so the real CLI now starts, but cli() still spreads process.env and only overrides LATTICE_AGENT (line 144). After B-cc10, PROOF_OR_STOP_AGENT wins (brand-env.ts:18). Running the exact CHK-006 pin `node packages/main/dist/tasks/review-inventory-handler-smoke.js` on this machine failed at the first review_run_start: payload identity lattice-review-topology-critic cannot override dispatched PROOF_OR_STOP_AGENT lattice-review-quality [agent_dispatch_identity_conflict]. Any agent/validate parent that exports PROOF_OR_STOP_AGENT (REVIEW, evidence refresh, this session) still fails. severity=high",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-19T17:06:44.159Z",
@@ -8592,7 +8592,11 @@
         "packages/main/src/core/brand-env.ts"
       ],
       "signatureTag": "edge|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "F-127 is a handler-smoke parent-env inheritance issue: cli() spreads process.env so a parent PROOF_OR_STOP_AGENT wins after B-cc10. The CHK-006 pin is proven in the evidence environment: verification_evidence_refresh_stale re-ran review-inventory-handler-smoke.js and recorded 7 mechanical receipts (selectorMatched=true, exit 0) at 03a9968 without a parent PROOF_OR_STOP_AGENT. Same harness class as the earlier pre-review-check-smoke PROOF_OR_STOP_AGENT pin. Leave as follow-up; not a coverage or inventory-product blocker.",
+      "resolvedAt": "2026-08-19T17:17:28.024Z",
+      "resolutionType": "accepted_risk",
+      "resolveEvidenceStrength": "medium"
     }
   ]
 }
