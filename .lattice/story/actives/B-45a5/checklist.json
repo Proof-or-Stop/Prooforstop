@@ -382,7 +382,11 @@
           {
             "desc": "status=withdrawn with no decisionRef is refused by both gates",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b45a5-withdrawal-gates.mjs --attest",
+              "selector": "B45A5-ROW-D1=REFUSED"
+            }
           }
         ],
         "edge": [
@@ -406,7 +410,29 @@
         "headHash": "9552f5f4640909755206c401c6cbac75e2be306f",
         "attestedAt": "2026-08-19T01:06:13.317Z",
         "materialHash": "8b231eafe5f12bc58aebaf70489ca52182a836fc987d1c1e4f81387f3b8483a9"
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-b45a5-withdrawal-gates.mjs",
+          "command": "node packages/main/tests/red/red-b45a5-withdrawal-gates.mjs --attest",
+          "result": "pass",
+          "note": "Row D1 is the exact intent: a checklist item whose status was hand-edited to the terminal withdrawn value with NO decisionRef key at all, built by a raw writeFileSync on the store checklist.json, is still refused by BOTH gates - every ref it owns (positional and authored alias) comes back demanded by evaluateReviewCompleteness and checkDispatchEvidence still reports it as having no dispatch/subagent_result evidence. It is refused for the RIGHT reason, not by coincidence: the same fixture carries a confirmed userConfirmed decision whose helper resolves to a NON-EMPTY set naming a different real item, and row C5 measures that this other item IS excluded by both gates, so the refusal is set non-membership rather than an absent or inert decision. Ablation: compiling withdrawnIds.size>0 && item.status===withdrawn into dist turns this row BYPASSED while B1/B2/B3 stay GREEN. Selector is the stable row id and stays REFUSED after the fix.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "b4f45fc57e8b23d5782fea199f4b9823ca47f555344f321eb4b2144966e9ec73",
+            "outputTail": "y, so what the helper resolves to the empty set is exactly what a bare refs.includes(id) shortcut would still honour\n    observed: d4: decision=rejected/false refs=[CHK-002] helperResolves=[]\n    observed: d5: decision=rejected/false refs=[CHK-002] helperResolves=[]\nB45A5-ROW-B1=GREEN\n  does the completeness gate still report review_completeness_missing_evidence for intents whose owning item a confirmed decision withdrew? RED = yes\n    observed: withdrawn item owns refs=[CHK-002:happy:0 INT-EXTRA-ALIAS] still demanded=[]\n    observed: completeness status=pass blocking=false\nB45A5-ROW-B2=GREEN\n  does the channel gate still report \"has no dispatch/subagent_result evidence\" for an item a confirmed decision withdrew? RED = yes\n    observed: channel ok=true offenders=[]\n    observed: detail: withdrawn (SD-6275ff48): CHK-002\n    observed: detail: Covered: CHK-001\nB45A5-ROW-B3=GREEN\n  joint: do BOTH REVIEW-path gates ignore an item-level withdrawal authorized by a confirmed decision? RED = yes, GREEN = neither does, MIXED = only one learned about it\n    observed: derived from the two rows above; MIXED would mean only one gate learned about the withdrawal\nB45A5-ROW-D1=REFUSED\n  an item marked withdrawn with NO decisionRef at all: is it still refused by BOTH gates? REFUSED = yes\n    observed: subject=CHK-002 owns refs=[CHK-002:happy:0 INT-FORGED-ALIAS] still demanded=[CHK-002:happy:0 INT-FORGED-ALIAS] completenessRefuses=true\n    observed: channel ok=false offenders=[CHK-002] channelRefuses=true inWithdrawnBucket=false launderedIntoCoveredOrExempted=false\n    observed: decision=confirmed/true id=SD-6cb6dd9a refs=[CHK-003] helperResolves=[CHK-003]\n    observed: detail: withdrawn (SD-6cb6dd9a): CHK-003\n    observed: detail: Covered: CHK-001\n    observed: detail: channel gate fail: CHK-002 has no dispatch/subagent_result evidence\nB45A5-ROW-D2=REFUSED\n  an item whose decisionRef names a decision id that does not exist: is it still refused by BOTH gates? REFUSED = yes\n    observed: subject=CHK-002 owns refs=[CHK-002:happy:0 INT-FORGED-ALIAS] still demanded=[CHK-002:happy:0 INT-FORGED-ALIAS] completenessRefuses=true\n    observed: channel ok=false offenders=[CHK-002] channelRefuses=true inWithdrawnBucket=false launderedIntoCoveredOrExempted=false\n    observed: decision=confirmed/true id=SD-1462769e refs=[CHK-003] helperResolves=[CHK-003]\n    observed: detail: withdrawn (SD-1462769e): CHK-003\n    observed: detail: Covered: CHK-001\n    observed: detail: channel gate fail: CHK-002 has no dispatch/subagent_result evidence\nB45A5-ROW-D3=REFUSED\n  an item whose decisionRef names the story's REAL confirmed decision, which withdraws a DIFFERENT item and does not list this one: is it still refused by BOTH gates? REFUSED = yes\n    observed: subject=CHK-002 owns refs=[CHK-002:happy:0 INT-FORGED-ALIAS] still demanded=[CHK-002:happy:0 INT-FORGED-ALIAS] completenessRefuses=true\n    observed: channel ok=false offenders=[CHK-002] channelRefuses=true inWithdrawnBucket=false launderedIntoCoveredOrExempted=false\n    observed: decision=confirmed/true id=SD-90795165 refs=[CHK-003] helperResolves=[CHK-003]\n    observed: detail: withdrawn (SD-90795165): CHK-003\n    observed: detail: Covered: CHK-001\n    observed: detail: channel gate fail: CHK-002 has no dispatch/subagent_result evidence\nB45A5-ROW-D4=REFUSED\n  an item whose decision DOES list it but was overwritten on disk to decision=rejected / userConfirmed=false: is it still refused by BOTH gates? REFUSED = yes\n    observed: subject=CHK-002 owns refs=[CHK-002:happy:0 INT-FORGED-ALIAS] still demanded=[CHK-002:happy:0 INT-FORGED-ALIAS] completenessRefuses=true\n    observed: channel ok=false offenders=[CHK-002] channelRefuses=true inWithdrawnBucket=false launderedIntoCoveredOrExempted=false\n    observed: decision=rejected/false id=SD-37e1454c refs=[CHK-002] helperResolves=[]\n    observed: detail: Covered: CHK-001\n    observed: detail: channel gate fail: CHK-002 has no dispatch/subagent_result evidence\nB45A5-ROW-D5=R",
+            "selectorMatched": true,
+            "executedAt": "2026-08-19T01:06:27.953Z"
+          },
+          "headHash": "7d0e04be1a376d7ef75f173664cf3afa837da786",
+          "materialHash": "8b231eafe5f12bc58aebaf70489ca52182a836fc987d1c1e4f81387f3b8483a9",
+          "storyFilesHash": "f341c432903a92b8b4dbdc80b83be564eba22d3e87d06b61ac37b71add8717b3",
+          "timestamp": "2026-08-19T01:06:28.148Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
