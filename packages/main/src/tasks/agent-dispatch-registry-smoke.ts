@@ -152,6 +152,20 @@ assert.equal(
 );
 const deliveryEntry = AGENT_DISPATCH_REGISTRY.find((entry) => entry.canonicalName === 'lattice-review-delivery');
 assert.deepEqual(deliveryEntry?.allowedPhases, ['TEST'], 'delivery reviewer dispatch is TEST-only');
+const rolloutVerifier = AGENT_DISPATCH_REGISTRY.find((entry) => entry.canonicalName === 'acceptance-rollout-verifier');
+assert.ok(rolloutVerifier, 'acceptance-rollout-verifier must be a registered dispatch actor');
+assert.equal(rolloutVerifier?.roleClass, 'story-reviewer');
+assert.deepEqual(rolloutVerifier?.allowedPhases, ['DEV', 'TEST']);
+assert.equal(
+  assertRegisteredAgentMutationAllowed('acceptance-rollout-verifier', 'review_run_start'),
+  rolloutVerifier,
+  'acceptance-rollout-verifier must be allowed to call review_run_start',
+);
+assert.equal(
+  REVIEW_RUN_LANES.includes('acceptance-rollout-verifier' as (typeof REVIEW_RUN_LANES)[number]),
+  false,
+  'acceptance-rollout-verifier is not a REVIEW evidence lane',
+);
 assert.equal(DEFAULT_PHASE_TOOLS.TEST.includes('delivery_check_set'), true, 'delivery_check_set must be legal in TEST');
 assert.equal(DEFAULT_PHASE_TOOLS.REVIEW.includes('delivery_check_set'), false, 'delivery_check_set must not be legal outside the delivery reviewer dispatch phase');
 assert.equal(DEFAULT_PHASE_TOOLS.TEST.includes('delivery_waiver_add'), true, 'delivery waiver must share the delivery reviewer phase');
@@ -754,6 +768,7 @@ try {
     'delivery-review': /delivery_check_set/,
     'finding-repair': /finding_resolve/,
     'cluster-repair': /Resolves: CL-001/,
+    'rollout-verify': /review_run_start/,
   };
   const actualPromptCoverage = new Set<string>();
   for (const entry of AGENT_DISPATCH_REGISTRY) {

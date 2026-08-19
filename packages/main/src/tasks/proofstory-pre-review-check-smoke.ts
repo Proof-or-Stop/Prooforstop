@@ -261,6 +261,7 @@ function cli(root: string, command: string, args: Record<string, unknown>, allow
       env: {
         ...process.env,
         LATTICE_AGENT: agent,
+        PROOF_OR_STOP_AGENT: agent,
         ...adapterSessionEnv(sessionTask, agent),
       },
       encoding: 'utf8',
