@@ -646,6 +646,28 @@
         "scanEscalationReason": null
       },
       "_hash": "bf676380e18b8d55e311661f8c40ef57a5e23948632ae41e787f313218fe0a4c"
+    },
+    {
+      "id": "B-cc10:RP-020",
+      "agent": "lattice-review-docs",
+      "note": "Incremental docs review at frozen HEAD 24e05a7 (material commit 5767a18c64). Step1 symbols: isolatedHome, previousHome (2 local smoke consts, not exported). Step2: 0 README/CLAUDE/docs hits (fallback 2). Commit touches only codex-heartbeat-timeout-smoke.ts; no CLAUDE.md/AGENTS.md/docs rewrite. Production resolveGlobalCliCommandPath still uses sh -lc; HOME isolation is test-only. No promised-but-undelivered CLI/docs claim; brand-exec paragraph unchanged and unrelated.",
+      "createdAt": "2026-08-19T09:14:20.730Z",
+      "reviewRound": "2026-08-19T08:57:52.581Z",
+      "reviewRunId": "B-cc10:RR-123",
+      "envelopeId": "08ff72c22c44d5f0edb1cbb8a5431e075d32a36b3db63359412518ea18ab9aa1",
+      "writerSessionId": "sess-abf3b2f19cd3a96c",
+      "sessionSource": "derived-ppid",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/codex-heartbeat-timeout-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3c1e4fecc63be85e4c0ab0681e77b4ba71040983e6e7b96cc46fab6c8174a1a0"
     }
   ]
 }
