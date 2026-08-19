@@ -56,7 +56,6 @@ import { createTestIntentHandoffHandlers } from './handlers/testintent-handoff.j
 import { createAuxDocHandlers } from './handlers/aux-doc.js';
 import { createCodexAdapterHandlers } from './handlers/codex-adapter.js';
 import { createReviewRunHandlers } from './handlers/review-run.js';
-import { createReviewInventoryHandlers } from './handlers/review-inventory.js';
 import { createReviewLoopHandlers } from './handlers/review-loop.js';
 import { createCheckHandlers } from './handlers/check.js';
 import { createRecoverEvidenceHandlers } from './handlers/recover-evidence.js';
