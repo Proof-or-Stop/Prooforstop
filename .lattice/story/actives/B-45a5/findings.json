@@ -29,6 +29,21 @@
       "_hash": "c31e2006a3a74c5bbd9c8639483c3a82dd436ac56d1bca741eac3f976fec0692",
       "signatureTag": "missing|unknown|packages-main-handlers",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a5:F-003",
+      "desc": "packages/main/src/core/proofstory.ts:1672-1682 withdrawnItemIntentRefs subtracts any ref also owned by a surviving item (survivingRefs built at line 1677, guard at line 1680). This is unprompted defensive logic (not requested by any CHK-002/003/004 checklist item): it stops an alias collision (two items sharing the same authored verificationIntent.id) from letting a withdrawn item's ref subtraction also remove a surviving item's genuinely-required intent. Verified correct by inspection (plain set-difference; positional refs are inherently per-item since they embed item.id, so only the freeform intent.id alias form can collide) but there is zero test coverage for it: grepping the whole repo (packages/main/tests, packages/main/src/tasks) for withdrawnItemIntentRefs/survivingRefs finds only the definition site in proofstory.ts itself. A future edit that inverts or drops this guard would silently exempt a surviving item's required intent from evaluateReviewCompleteness (a real gate-relaxation bug, not just cosmetic) with no red test catching the regression. Worth a dedicated fixture (two items, one withdrawn, sharing one authored intent.id) rather than relying on code review to keep it correct.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-19T01:58:57.316Z",
+      "reviewRound": "2026-08-19T01:51:47.991Z",
+      "reviewRunId": "B-45a5:RR-001",
+      "_hash": "05175d9805813f9e7da3ce08300d9b6a0567a91b4656b22583bb292616e0c467",
+      "signatureTag": "missing|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
