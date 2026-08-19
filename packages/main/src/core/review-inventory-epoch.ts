@@ -714,7 +714,16 @@ export function persistFinalizedReviewInventory(args: {
   reviewRound: string;
   cutoff: { headHash: string; materialHash: string; storyFilesHash?: string };
 }): { epoch: ReviewInventoryEpoch; receipt: ReviewInventoryReceipt; reused: boolean } {
-  return withReviewInventoryMutationLock(args.store, args.storyId, () => {
+  return withReviewInventoryMutationLock(args.store, args.storyId, () => persistFinalizedReviewInventoryUnlocked(args));
+}
+
+/** Caller must already hold the review-inventory epochs lock. */
+export function persistFinalizedReviewInventoryUnlocked(args: {
+  store: StoryStore;
+  storyId: string;
+  reviewRound: string;
+  cutoff: { headHash: string; materialHash: string; storyFilesHash?: string };
+}): { epoch: ReviewInventoryEpoch; receipt: ReviewInventoryReceipt; reused: boolean } {
     const data = args.store.readReviewInventoryEpochs(args.storyId);
     const latest = data.epochs.at(-1);
     if (latest && latest.state === 'FINALIZED' && !latest.consumedAt && latest.receiptId) {
@@ -777,7 +786,6 @@ export function persistFinalizedReviewInventory(args: {
     data.receipts.push(receipt);
     args.store.writeReviewInventoryEpochs(args.storyId, data);
     return { epoch, receipt, reused: false };
-  });
 }
 
 export function renderFinalizedReviewInventory(epoch: ReviewInventoryEpoch, receipt: ReviewInventoryReceipt): string {

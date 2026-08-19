@@ -46,6 +46,7 @@ import {
 } from './impact-classification-policy.js';
 import {
   domainSeparatedDigest,
+  FULL_TASK_CONTEXT_LIMITS,
   validateIncrementalReviewBasis,
   type IncrementalReviewBasis,
   type PromptFindingProjection,
@@ -807,6 +808,12 @@ export function reviewIncrementalContext(
         ...args.changedFiles,
         ...args.impact.impactedFiles,
       ])].sort();
+      const exceedsIncrementalCap = args.changedFiles.length > FULL_TASK_CONTEXT_LIMITS.pathsPerList
+        || args.impact.impactedFiles.length > FULL_TASK_CONTEXT_LIMITS.pathsPerList
+        || authoritativeReferences.length > FULL_TASK_CONTEXT_LIMITS.pathsPerList;
+      if (exceedsIncrementalCap) {
+        reviewBasis = null;
+      } else {
       reviewBasis = {
         schemaVersion: 'proofbound.incremental-review-basis.v1',
         storyId,
@@ -841,6 +848,7 @@ export function reviewIncrementalContext(
         ...(scopeContract ? { scopeAcknowledgementDigest: digestScopeContract(scopeContract) } : {}),
       };
       validateIncrementalReviewBasis(reviewBasis);
+      }
     }
     const reviewBasisDigest = reviewBasis
       ? domainSeparatedDigest('incremental-review-basis.v1', reviewBasis)
@@ -862,7 +870,7 @@ export function reviewIncrementalContext(
     };
     return {
       role,
-      isFirstPass: !args.prior,
+      isFirstPass: !args.prior || reviewBasis === null,
       priorHeadHash: args.prior?.run.headHash ?? null,
       priorVerdict: args.prior ? `PASS (${args.prior.pass.id})` : null,
       scopeChanged: !args.prior || args.changedFiles.length > 0,
