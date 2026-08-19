@@ -19591,6 +19591,43 @@
       },
       "readDiagnostics": [],
       "_hash": "d345ee0098c8f28b6948f3c3f0ffad3c0e16c221362f74ae85c58f8b9aa62290"
+    },
+    {
+      "id": "B-3f3d:RP-354",
+      "agent": "lattice-review-quality",
+      "note": "Quality review of 723e0f344e catalog dedupe + bound 850. Duplicate review_inventory_finalize catalog row removed; remaining entry documents both OPEN-saturation and no-OPEN completeness paths matching the handler; schema unchanged. Uniqueness already enforced by command-catalog-smoke MAIN_TOOLS duplicate-name assertion. Dynamic-binding instrumentation cap 800->850 is a documented merge-headroom raise (observed 801), not a type-safety or dead-code defect. Lint assumed green. No unused imports, no as-any, no empty catch, no shell/fn isolation issue, no promised-but-undelivered CLI/schema/ENV/docs in this commit.",
+      "createdAt": "2026-08-19T10:37:18.461Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-564",
+      "envelopeId": "781c8bab9c27a494eaa797945fd4bad5409af0d83210f123175891d6992299e3",
+      "writerSessionId": "sess-4292375d1d751b41",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3f3d/background.md",
+          ".lattice/story/actives/B-3f3d/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3f3d/checklist.json",
+          "AGENTS.md",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/tasks/command-catalog-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "_hash": "4213d16d4238192cfd325d7c61105272ad95471416b115c212088bd82b3f02fd"
     }
   ]
 }
