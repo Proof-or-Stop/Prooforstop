@@ -8384,6 +8384,60 @@
       "resolvedAt": "2026-08-19T08:28:00.217Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3f3d:F-124",
+      "desc": "packages/main/src/core/verification.ts:141 CHK-006 must-gap: after verification_evidence_refresh_stale, 7 executable must intents are mechanical:false (nonMechanicalReason: receipt invalidated because the pinned command was not re-run). The coverage gate scores mechanical:false on logic|cli as non_mechanical and NEVER covers. missingRequired=7/54: B3F3D-006-H1, H2, E1, E2, E3, A1, A3, all pinned to node packages/main/dist/tasks/review-inventory-handler-smoke.js. B3F3D-006-H3 (docs) and B3F3D-006-A2 (mechanical epoch-smoke) remain covered. result=pass on demoted rows is not coverage. Re-run verification_evidence_add for those 7 pinned handler-smoke commands until selector-matched mechanical receipts exist.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-19T08:50:10.991Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-556",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3f3d/background.md",
+          ".lattice/story/actives/B-3f3d/plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "packages/main/src/core/verification.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/evidence-integrity-program-spec.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/testing-completeness.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "c53c3b21267fe50b9a1d34ccc9905735fce1cd876d1494c9e121ba031a92d6a5"
+      },
+      "readDiagnostics": [],
+      "_hash": "3d85a25566372b6c7bdf3e845d45133703a5a3136410d80aebaa325bba6995f1",
+      "files": [
+        "packages/main/src/core/verification.ts",
+        "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
