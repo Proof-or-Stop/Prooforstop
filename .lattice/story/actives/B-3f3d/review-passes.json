@@ -19748,6 +19748,38 @@
       },
       "readDiagnostics": [],
       "_hash": "266afac181fc90b131519ec28d1210978e98b3b0c8c074947f488cd32a873d31"
+    },
+    {
+      "id": "B-3f3d:RP-357",
+      "agent": "lattice-review-behavior",
+      "note": "Incremental behavior review of 723e0f344e. MAIN_TOOLS now has exactly one review_inventory_finalize row; cli-engine TOOLS.find maps that name to createReviewInventoryHandlers.review_inventory_finalize (registry.registerBatch, unchanged). Schema still storyId min(1). Handler still has two paths: OPEN saturation mint (authorizesTest false, inventory-completeness-only) and no-OPEN persistFinalizedReviewInventoryUnlocked (authorizesTest false). command-policy/config DEV+TEST allowlist was not changed by this commit, so no new DEV/TEST bypass; receipt still cannot authorize TEST. Bound 800->850 is only assertTypeProgramInstrumentation in retired-authority-vocabulary-guard-smoke.ts (dynamicBindingBuilds counter), not a runtime gate. userSees for CHK-001..006 still produced by unchanged begin/status/finalize/recovery printers. Empty storyId still rejected. Duplicate catalog names no longer make first-match help hide the saturation path. Spec review-inventory-epoch-and-saturation-gate.md still matches: finalize remains zero-new receipt writer for OPEN epochs, completeness is not PRE_CERT. No blocker.",
+      "createdAt": "2026-08-19T10:41:53.270Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-563",
+      "envelopeId": "7631149fb9d5bab7727736ae5ffa921f237ef525bacca8d96edf97bc4746721a",
+      "writerSessionId": "sess-4292375d1d751b41",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
+          "docs/requirements/decisions/framework.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "04311cc3816623547241a92f491e88f5545a383ad1fc244ea839b1affc679724"
     }
   ]
 }
