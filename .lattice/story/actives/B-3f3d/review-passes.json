@@ -19115,6 +19115,63 @@
       },
       "readDiagnostics": [],
       "_hash": "5dc1715496a90cdecf46e788b77e61b2e1bb1ac528f162f48d13cd9396c9aa96"
+    },
+    {
+      "id": "B-3f3d:RP-346",
+      "agent": "lattice-review-quality",
+      "note": "Closeout quality pass on B-3f3d:RR-553 after F-122/F-123 remediation at 101e0ddb84. persistFinalizedReviewInventoryUnlocked is the lock-holder-only writer; review_inventory_finalize already holds withReviewInventoryMutationLock (non-reentrant mkdir lock) so the old nested acquire is gone. persistFinalizedReviewInventory remains the safe locked wrapper. IncrementalReviewBasis over FULL_TASK_CONTEXT_LIMITS.pathsPerList (512) now nulls reviewBasis and sets isFirstPass=true instead of throwing; assembleConditionalReviewPromptEnvelope already treats missing basis as SAFETY_REQUIRES_FULL. PRE_CERT completeness receipt still authorizesTest=false. No new dead-code, type-safety, or I/O-isolation blockers on the closeout. Wave-4 topology/pre-review/rollout checks remain verifier/gate-owned.",
+      "createdAt": "2026-08-19T08:48:03.190Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-553",
+      "envelopeId": "76c58d9ea0161643794c4fc883893717886b3899d783c52c6ff485f342fd755f",
+      "writerSessionId": "sess-4292375d1d751b41",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3f3d/background.md",
+          ".lattice/story/actives/B-3f3d/checklist.json",
+          ".lattice/story/actives/B-3f3d/plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "packages/main/src/core/mkdir-lock.ts",
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/review-run.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/guide-scope-guard.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/prewrite-guard.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "_hash": "f67403d7006045ad6862f1dcc215fd3a3cc35317becf7e6f12dc1386a1649819"
     }
   ]
 }
