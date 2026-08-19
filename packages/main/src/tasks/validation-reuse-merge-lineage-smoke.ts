@@ -12,12 +12,22 @@ import { classifyMergeLineage, netDiffChangedPaths } from '../core/validation-li
 import { classifyTrustedValidationLineage } from '../core/validation-evidence-reuse.js';
 import { evaluateValidationEvidenceAdmissibility } from '../core/validation-evidence-admissibility.js';
 
+// B-3f3d/B-49ed: rmSync with force:true still throws ENOTEMPTY here on macOS when the tree is
+// a git repo -- the platform has not released every entry by the time the recursive unlink
+// walks it, so a fresh scratch dir fails on its own cleanup rather than on leftover residue.
+// maxRetries makes Node re-attempt with a backoff instead of failing the whole smoke, which
+// was blocking command 20 of 103 in validate and therefore every REVIEW to TEST on this branch.
+function rmScratch(dir: string): void {
+  rmSync(dir, { recursive: true, force: true, maxRetries: 10, retryDelay: 50 });
+}
+
+
 function git(root: string, args: string[]): string {
   return execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
 }
 
 function rmForce(root: string): void {
-  rmSync(root, { recursive: true, force: true, maxRetries: 8, retryDelay: 25 });
+  rmScratch(root);
 }
 
 /**

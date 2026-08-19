@@ -78,7 +78,7 @@ function withRepo(fn: (root: string) => void): void {
     git(root, ['branch', '-M', 'main']);
     fn(root);
   } finally {
-    rmSync(root, { recursive: true, force: true });
+    rmSync(root, { recursive: true, force: true, maxRetries: 10, retryDelay: 50 });
   }
 }
 

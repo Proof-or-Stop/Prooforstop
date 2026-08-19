@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-49ed",
+  "records": [
+    {
+      "id": "RED-20260817155653",
+      "trigger": "An implementer holding the owner lease can supply the session identity that a topology critic signs its receipt under, because deriveRoleProvenance never checks where that identity came from.",
+      "acceptanceTargetRef": "CHK-001:adversarial:0",
+      "baselineHeadHash": "5d8fb36e30783686f915f246eb8077701a4d9473",
+      "baselineMaterialHash": "659701c173f479a8eafebaf4441ae7bb8f730f74e48f34ff309daaed661d94c2",
+      "observedFailure": "resolveSessionIdentity({LATTICE_SESSION_ID:'sess-anything-the-implementer-types'}) returns sessionId sess-anything-the-implementer-types with sessionSource explicit-env, and deriveRoleProvenance accepts that session for signing without inspecting its provenance. independenceMatrix then reports session independence as true because it is a textual comparison against the implementation session id, so an implementer who also dispatches controls both sides of the check. Demonstrated live during B-3f3d: a dispatch event recorded under an implementer-chosen session id satisfied every mechanical check, and only an independent critic refusing to adopt the session prevented a self-signed receipt.",
+      "failingCommand": "node /private/tmp/claude-501/-Users-qipan-work-repo-Prooforstop/f41e76b7-9ae9-4b20-9f42-eadd0ed60721/scratchpad/red-b49ed.mjs",
+      "expectedGreenCommand": "node packages/main/dist/tasks/proofstory-topology-critic-smoke.js",
+      "greenRelation": {
+        "targetRef": "CHK-001:adversarial:0",
+        "relation": "same_acceptance",
+        "command": "node packages/main/dist/tasks/proofstory-topology-critic-smoke.js"
+      },
+      "createdAt": "2026-08-17T15:56:53.900Z"
+    }
+  ],
+  "createdAt": "2026-08-17T15:56:53.900Z",
+  "updatedAt": "2026-08-17T15:56:53.900Z"
+}

@@ -58,7 +58,7 @@ import { resolveStoryCommandWorkspace } from './context.js';
 import { digestCanonicalJson } from '../core/digest.js';
 import { verifyScopeCheckSignature } from './scope-check.js';
 import { loadConfig, resolveAcceptanceRolloutGateMode, resolveAcceptanceTopologyGateMode } from '../core/config.js';
-import { getSessionId } from '../core/owner-session.js';
+import { getSessionId, getSessionIdentity } from '../core/owner-session.js';
 import { resolveAgentMutationAuthority } from '../core/agent-dispatch-registry.js';
 import {
   canonicalTopologyReceiptContext,
@@ -547,7 +547,7 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
       const authority = resolveAgentMutationAuthority({ command: 'topology_exclusion_approval_set', payloadActors: [], envActor: readBrandEnv('AGENT') });
       if (authority.entry?.canonicalName !== TOPOLOGY_EXCLUSION_APPROVER_ROLE) throw new Error('topology exclusion approval requires registered lattice-review-scope-plan authority');
       const state = currentTopologyReceiptState(args.storyId);
-      const actor = deriveRoleProvenance({ gitCwd: state.current.workspace.signedWorkspaceRoot, events: state.events, expectedRole: TOPOLOGY_EXCLUSION_APPROVER_ROLE, actor: authority.actor, sessionId: getSessionId(), context: state.context, implementation: state.implementation });
+      const actor = deriveRoleProvenance({ gitCwd: state.current.workspace.signedWorkspaceRoot, events: state.events, expectedRole: TOPOLOGY_EXCLUSION_APPROVER_ROLE, actor: authority.actor, sessionId: getSessionId(), sessionSource: getSessionIdentity().sessionSource, context: state.context, implementation: state.implementation });
       const approval = issueTopologyExclusionApproval({ gitCwd: state.current.workspace.signedWorkspaceRoot, context: state.context, exclusionRef: args.exclusionRef, actor, implementation: state.implementation });
       const approvals = store.readTopologyExclusionApprovals(args.storyId);
       approvals.approvals = [...approvals.approvals.filter(item => item.exclusionRef !== approval.exclusionRef), approval];
@@ -562,7 +562,7 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
       const authority = resolveAgentMutationAuthority({ command: 'topology_critic_receipt_set', payloadActors: [], envActor: readBrandEnv('AGENT') });
       if (authority.entry?.canonicalName !== TOPOLOGY_CRITIC_ROLE) throw new Error('topology critic receipt requires registered lattice-review-topology-critic authority');
       const state = currentTopologyReceiptState(args.storyId);
-      const critic = deriveRoleProvenance({ gitCwd: state.current.workspace.signedWorkspaceRoot, events: state.events, expectedRole: TOPOLOGY_CRITIC_ROLE, actor: authority.actor, sessionId: getSessionId(), context: state.context, implementation: state.implementation });
+      const critic = deriveRoleProvenance({ gitCwd: state.current.workspace.signedWorkspaceRoot, events: state.events, expectedRole: TOPOLOGY_CRITIC_ROLE, actor: authority.actor, sessionId: getSessionId(), sessionSource: getSessionIdentity().sessionSource, context: state.context, implementation: state.implementation });
       const approvals = store.readTopologyExclusionApprovals(args.storyId).approvals;
       const receipt = issueTopologyCriticReceipt({ gitCwd: state.current.workspace.signedWorkspaceRoot, context: state.context, critic, implementation: state.implementation, approvals, events: state.events, verdict: args.verdict });
       store.writeTopologyCriticReceipt(args.storyId, receipt);
