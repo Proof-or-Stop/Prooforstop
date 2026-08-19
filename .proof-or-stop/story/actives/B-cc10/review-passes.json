@@ -220,6 +220,70 @@
         "scanEscalationReason": null
       },
       "_hash": "ec03f428b9e39e88128ef89c98e69cd8b9db12851228b2e131f33ecf64647372"
+    },
+    {
+      "id": "B-cc10:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "Quality pass on F-077/F-078 fixture retargets and remaining serial-reference gitignore/learning-dir pins. F-077: scratchRuntimeGitignore() ignores both state-dir spellings for activity.jsonl/locks/runtime; ABA dead ticket is planted via store.runtimeLockDirPath after metadata commit, which follows storyRuntimeLockPath/PROOF_OR_STOP_DIR (.proof-or-stop/locks/...). Porcelain expansion is setup, not an assertion drop; concurrent read-only now byte-compares autopilot-verdicts under STATE_DIR_NAMES (stronger). F-078: experience-hint-worktree-cache and experience-coverage-gap assert join(LEARNING_DIR, FINDING_SIGNALS_FILENAME) and use stateDirCandidates for worktree-absence (still fails if cache leaks). Comments in those hunks match the code. Remaining serial-reference siblings: no leftover gitignore/learning-dir assertions that pin only .lattice; later serial-reference gitignores already use stateDirCandidates or both STATE_DIR_NAMES. experience-layer-playbook-smoke and playbook-promotion-worker-smoke still pin join(.lattice, learning) and would fail if run, but they are not in test:serial-reference; DONE-required is npm test -> full-suite-runner from serial-reference, so they would not bite DONE-required unless that inventory expands.",
+      "createdAt": "2026-08-19T06:53:10.481Z",
+      "reviewRound": "2026-08-18T03:33:16.325Z",
+      "reviewRunId": "B-cc10:RR-109",
+      "envelopeId": "b7d4b590c2909923b3972d9fc95c7d5bbd624b56c752b0b8e8b8b2dffe0e8f7e",
+      "writerSessionId": "sess-a9006ec7fbfde39b",
+      "sessionSource": "derived-ppid",
+      "readManifest": {
+        "filesReadFully": [
+          "package.json",
+          "packages/main/src/core/brand-paths.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/learning-store.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/tasks/experience-layer-finding-enums-smoke.ts",
+          "packages/main/src/tasks/experience-layer-finding-signals-smoke.ts",
+          "packages/main/src/tasks/experience-layer-playbook-smoke.ts",
+          "packages/main/src/tasks/main-write-lock-smoke.ts",
+          "packages/main/src/tasks/playbook-promotion-worker-smoke.ts",
+          "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "packages/main/src/tasks/session-brief-prompt-sync-smoke.ts",
+          "proof-or-stop.config.json"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "packages/main/src/tasks/done-merge-experience-refresh-smoke.ts",
+          "packages/main/src/tasks/done-premerge-mainsha-recheck-smoke.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/src/tasks/experience-coverage-gap-smoke.ts",
+          "packages/main/src/tasks/experience-hint-worktree-cache-smoke.ts",
+          "packages/main/src/tasks/full-suite-resource-sentinel.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/unattended-dispatch-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "packages/main/src/tasks/worktree-repair-smoke.ts",
+          "RESUME-B-cc10.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "17c6f8911072e59b6efb260e264211f9b2dd22efad55daf2173023b480c2b59b"
+      },
+      "readDiagnostics": [],
+      "_hash": "5583d29f36e65568b58413fcde691bed123792de07be949668cdff2ac5125051"
     }
   ]
 }
