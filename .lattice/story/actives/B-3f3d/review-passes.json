@@ -18899,6 +18899,53 @@
       },
       "readDiagnostics": [],
       "_hash": "1f2bafc4b718062a9c7a6388fa45654d61c22c40617e3a4cbc0568d50df6f5df"
+    },
+    {
+      "id": "B-3f3d:RP-343",
+      "agent": "lattice-review-docs",
+      "note": "Step 1 extracted 70 exported inventory/review symbols including ReviewInventoryEpoch, reviewInventoryRemediationGate, computeFinalReviewRoster, renderReviewInventoryStatus, renderReviewInventoryBegin, POST_REMEDIATION_REVIEW_POLICY_VERSION, computeCanonicalDependencyClosure, and withReviewInventoryMutationLock. Step 2 compared 4 operator paragraphs: review-inventory-epoch-and-saturation-gate.md Operator workflow / State and authority / Saturation rule / Final review after remediation, plus evidence-integrity-program-spec.md section 7. Those TypeScript export names have 0 hits in README/CLAUDE.md (fallback 2); the dedicated decision doc describes the commands and gates instead. Merge restored main AGENTS.md/CLAUDE.md/story-lifecycle.md as expected; the inventory decision still exists and matches command-catalog review_inventory_* commands, four epoch states, mandatory REVIEW-to-DEV receipt via reviewInventoryRemediationGate, wave_advance versus finalize split, and reviewer_list Final-review lanes/Selection/Next projection. No doc-code blocker for this closeout.",
+      "createdAt": "2026-08-19T08:12:38.729Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-548",
+      "envelopeId": "70254bb1067d3d2d83f4285924c3a980c612103f1ab7615e69dc8c3a38871203",
+      "writerSessionId": "sess-4292375d1d751b41",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3f3d/plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/reviewer-list.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": 5075
+        },
+        "digest": "081ebb783cca4f110fa3df2ac7bd13f712a1bf581ca943c58f22c19e1e116814"
+      },
+      "readDiagnostics": [],
+      "_hash": "ba3bd7481874b7dd530bbbbe6dba5f691fa4b02b95b88c532638b7abff3ca5e7"
     }
   ]
 }
