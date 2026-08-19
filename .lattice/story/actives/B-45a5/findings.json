@@ -41,7 +41,7 @@
       "desc": "packages/main/src/core/proofstory.ts:1672-1682 withdrawnItemIntentRefs subtracts any ref also owned by a surviving item (survivingRefs built at line 1677, guard at line 1680). This is unprompted defensive logic (not requested by any CHK-002/003/004 checklist item): it stops an alias collision (two items sharing the same authored verificationIntent.id) from letting a withdrawn item's ref subtraction also remove a surviving item's genuinely-required intent. Verified correct by inspection (plain set-difference; positional refs are inherently per-item since they embed item.id, so only the freeform intent.id alias form can collide) but there is zero test coverage for it: grepping the whole repo (packages/main/tests, packages/main/src/tasks) for withdrawnItemIntentRefs/survivingRefs finds only the definition site in proofstory.ts itself. A future edit that inverts or drops this guard would silently exempt a surviving item's required intent from evaluateReviewCompleteness (a real gate-relaxation bug, not just cosmetic) with no red test catching the regression. Worth a dedicated fixture (two items, one withdrawn, sharing one authored intent.id) rather than relying on code review to keep it correct.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-19T01:58:57.316Z",
@@ -49,7 +49,10 @@
       "reviewRunId": "B-45a5:RR-001",
       "_hash": "05175d9805813f9e7da3ce08300d9b6a0567a91b4656b22583bb292616e0c467",
       "signatureTag": "missing|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Added two rows to packages/main/tests/red/red-b45a5-withdrawal-gates.mjs plus a new buildAliasCollision() fixture. C9 (premise, CONTROL-OK) measures that the collision is real: a withdrawn item CHK-002 and a SURVIVING item CHK-003 both author intent id INT-SHARED-ALIAS, an in-force binding AB-003 demands that alias for the surviving item, the helper resolves the withdrawal to CHK-002 only, and the exclusion is live in this very fixture (the withdrawn item's exclusive positional ref CHK-002:happy:0 is no longer demanded) - so E1 can never be satisfied by the subtraction simply not running. E1 (REFUSED) measures the surviving item: all refs it owns, alias included, must still be demanded by both gates. VERIFIED TO BITE BY ABLATION, not by assertion: removed the survivingRefs subtraction from packages/main/dist/core/proofstory.js withdrawnItemIntentRefs, re-ran, and E1 moved REFUSED -> PARTIAL with exit 1 and B45A5-VERDICT=BYPASS, while a sorted diff of every B45A5-ROW/VERDICT marker shows E1 and VERDICT are the ONLY two that move - all ten earlier controls stay CONTROL-OK, B1/B2/B3 stay GREEN, all seven D rows stay REFUSED, confirming no pre-existing row covered this. dist then restored from backup and verified byte-exact with shasum -a 256 -c (ed16fdb72cf50c1f0290d0bb8e6e8011bc980bbb8d04dc5d2e2bb512f2380a1d, OK). PARTIAL not BYPASSED because checkDispatchEvidence keys on item id and never reads an intent ref, so an alias collision cannot structurally reach it; the header records that honestly and explains why the channel conjunct is kept anyway. PARTIAL is a failing verdict exactly as for a D row. SELECTOR RULE: both new ids carry values designed to stay (C9=CONTROL-OK, E1=REFUSED); no existing pin changed value. Artifact still exits 0 in default mode and 0 in --attest.",
+      "resolvedAt": "2026-08-19T02:14:09.668Z",
+      "resolutionType": "fixed"
     }
   ]
 }
