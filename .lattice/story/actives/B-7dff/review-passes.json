@@ -493,6 +493,39 @@
         "scanEscalationReason": null
       },
       "_hash": "06304e39403852b6e521e6ed193a5ac475e39e03c9213c0c6aa045a45994e000"
+    },
+    {
+      "id": "B-7dff:RP-017",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-8 re-verification on the post-merge tree (merge commit 19ff5225fa, current HEAD af4641ba71). Verified directly against files/commits, not by trusting prose: (1) Freshness - all 13 command-backed verificationEvidence rows carry headHash=19ff5225fa/materialHash=27c0322a.../storyFilesHash=7446a31f...; git diff 19ff5225fa..af4641ba71 touches only .lattice/story/actives/B-7dff/* metadata files, zero code/config paths, so no drift exists between the evidence binding and current HEAD. (2) Genuine re-execution - git show b35533e3c4 (the refresh commit) changes exactly 13 headHash lines in checklist.json, each with a new distinct executedAt (spread 23:05:08-23:06:24Z) and, where content actually changed, a new outputDigest (e.g. the CHK-002/005 shared receipt now reads 110 commands, 97 declared, 13 exclusive, not the old 107/97/10) - real command output, not a restamp. (3) Kind accuracy - the only two integration_test rows (CHK-003:happy:0, CHK-004:happy:0) are pinned to validate-plan-scheduling.test.mjs and validate-parallel-equivalence-smoke.ts, both confirmed by grep to spawn real child processes via process.execPath; no row overstates its kind. (4) Waiver honesty - CHK-001:happy:0 and CHK-005:happy:0 (both permanent, unsatisfiable-pin-text waivers) restate post-merge counts; independently reproduced by reading lattice.config.json directly: 110 total commands, 97 declared, 13 undeclared/exclusive-by-default, and those 13 are exactly the prior 10 audited barriers plus 3 newly-merged-from-main commands the waiver names by exact filename (validation-evidence-buffer-smoke.js, codex-heartbeat-timeout-smoke.js, red-b3434-blob-buffer-ceiling.mjs). The full-suite claim (49/49 passed, no 47/47 anywhere) is independently confirmed from the actual done-required-evidence.json receipt (root full test suite PASS, full-suite: 49/49 passed in 443.2s). No coverage gap, no stale binding, no mislabeled kind, no dishonest waiver found this round.",
+      "createdAt": "2026-08-19T00:24:07.220Z",
+      "reviewRound": "2026-08-19T00:17:10.730Z",
+      "reviewRunId": "B-7dff:RR-030",
+      "envelopeId": "51e91dc7a65af4498973e074fd0d44fa5fd602b140d1c19ff7b29108e430dc43",
+      "writerSessionId": "sess-c8142ac4cb69f1c755df4c1fc223e028",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7dff/background.md",
+          ".lattice/story/actives/B-7dff/checklist.json",
+          ".lattice/story/actives/B-7dff/closeout-write-receipts.jsonl",
+          ".lattice/story/actives/B-7dff/done-required-evidence.json",
+          ".lattice/story/actives/B-7dff/findings.json",
+          ".lattice/story/actives/B-7dff/plan.md",
+          ".lattice/story/actives/B-7dff/review-runs.json",
+          ".lattice/story/actives/B-7dff/test-evidence.json",
+          "lattice.config.json"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-7dff/process-events.jsonl",
+          "packages/main/src/tasks/validate-parallel-equivalence-smoke.ts",
+          "packages/main/tests/validate-plan-scheduling.test.mjs",
+          "packages/main/tests/validate-resource-claims.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "888cb05a7e04b87c86db8d6c4ea408d6675717948a42fdaf1a812c305c3140a9"
     }
   ]
 }
