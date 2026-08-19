@@ -1487,6 +1487,26 @@
       ],
       "signatureTag": "missing|ts|concept-cleanup-lattice",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-cc10:F-080",
+      "desc": "concept-cleanup: CHK-006 deleted bin/lattice.js and bin/lattice-codex.js (both absent at HEAD 2767cec). Live verify scripts still invoke or assert those paths, so they fail only when those scripts actually run (they are outside test:serial-reference, which is why 2767cec stayed green): scripts/verify-role-telemetry.mjs:17,18,20 execFileSync node bin/lattice-codex.js session_brief (npm script test:role-telemetry); scripts/verify-session-brief-command-center.mjs:50 joins worktreeRoot+bin/lattice-codex.js (npm script test:session-brief); scripts/verify-workflow-phase-consistency.mjs:151 assertIncludes(auxFail, \"node bin/lattice.js aux_doc_list\") while init-assets.ts:35/54 now emit node bin/proof-or-stop.js aux_doc_list. Same class as F-041 (runtime-generated command naming a deleted wrapper) and the F-077/F-078 serial-reference pins, just in scripts serial-reference does not run.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-19T06:55:01.687Z",
+      "reviewRound": "2026-08-18T03:33:16.325Z",
+      "reviewRunId": "B-cc10:RR-108",
+      "_hash": "23424a95aca18a6a924db549f2e6fb6d07f596db55cc59f0ac43203a211aca87",
+      "files": [
+        "scripts/verify-role-telemetry.mjs",
+        "scripts/verify-session-brief-command-center.mjs",
+        "scripts/verify-workflow-phase-consistency.mjs"
+      ],
+      "signatureTag": "missing|mjs|concept-cleanup-deleted",
+      "signatureTagSource": "auto"
     }
   ]
 }
