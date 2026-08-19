@@ -1,0 +1,93 @@
+{
+  "schema": "lattice.done-required-evidence",
+  "version": 1,
+  "storyId": "B-cc10",
+  "status": "FAIL",
+  "startedAt": "2026-08-19T11:31:33.786Z",
+  "endedAt": "2026-08-19T11:31:36.179Z",
+  "durationMs": 2393,
+  "headHash": "07ff1cbb6c3f8ac7d3a4514793d81960a830b62f",
+  "materialHash": "f72a9f32a5382ba8437c5ef885d544fd8593efdb81a08b8d3884550259c837f9",
+  "storyFilesHash": "cd6e9ed75b514ab762a1bac1ce952922c78d51197a7b386a96f7eda26c78429c",
+  "policyHash": "6e3b308d27b3ecbdc367f7f51340bbd181a7f52483c83a6298eb0d6378cd18c3",
+  "commandSetHash": "03ffa95173e47709916f9181a6a61b482281186802535c1d9c22cbc09baf1fad",
+  "receipts": [
+    {
+      "label": "packages/main build",
+      "command": "npm",
+      "args": [
+        "--prefix",
+        "packages/main",
+        "run",
+        "build"
+      ],
+      "commandSpec": {
+        "schema": "lattice.command-spec.v2",
+        "digest": "a76398c632d34d84bee8e7f8311b0d8455e09520b58209a489f04c0f7317d9da",
+        "command": "npm",
+        "args": [
+          "--prefix",
+          "packages/main",
+          "run",
+          "build"
+        ],
+        "cwd": ".",
+        "resolvedCwd": "/Users/qipan/work/repo/Prooforstop/.worktrees/B-cc10",
+        "shell": false,
+        "env": {},
+        "timeoutMs": 290000
+      },
+      "cwd": "/Users/qipan/work/repo/Prooforstop/.worktrees/B-cc10",
+      "status": "PASS",
+      "exitCode": 0,
+      "durationMs": 866,
+      "outputDigest": "4a72ad384aa6237df4390003f9fa96d75d8eca071d02df6c7528ea95a339f479",
+      "outputTail": "\n> @proof-or-stop/core@0.3.263 build\n> node ../../scripts/build-main-with-binding.mjs\n\n",
+      "startedAt": "2026-08-19T11:31:33.787Z",
+      "endedAt": "2026-08-19T11:31:34.653Z",
+      "effectiveEnvironmentDigest": "563411afff425314fbd6a2de6229c239391ab5da23dee69c2776ecc02364be81",
+      "executableDigest": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
+      "shellExecutableDigest": null,
+      "headHash": "07ff1cbb6c3f8ac7d3a4514793d81960a830b62f",
+      "materialHash": "f72a9f32a5382ba8437c5ef885d544fd8593efdb81a08b8d3884550259c837f9",
+      "storyFilesHash": "cd6e9ed75b514ab762a1bac1ce952922c78d51197a7b386a96f7eda26c78429c"
+    },
+    {
+      "label": "root full test suite",
+      "command": "npm",
+      "args": [
+        "test"
+      ],
+      "commandSpec": {
+        "schema": "lattice.command-spec.v2",
+        "digest": "6799a93ad997f9caf9d5c45a723d844aa642b9ed152a8a5ed54a2b8a09358df2",
+        "command": "npm",
+        "args": [
+          "test"
+        ],
+        "cwd": ".",
+        "resolvedCwd": "/Users/qipan/work/repo/Prooforstop/.worktrees/B-cc10",
+        "shell": false,
+        "env": {},
+        "timeoutMs": 7200000
+      },
+      "cwd": "/Users/qipan/work/repo/Prooforstop/.worktrees/B-cc10",
+      "status": "FAIL",
+      "exitCode": 1,
+      "durationMs": 1079,
+      "outputDigest": "9c700674effec8fb1e4e9a4e04bb43989d4446adfb838e56fef6d77c20069589",
+      "outputTail": "\n> lattice@0.3.263 pretest\n> node scripts/ensure-dist.mjs\n\n\n> lattice@0.3.263 test\n> node packages/main/dist/tasks/full-suite-runner.js\n\nfull-suite: canonical inventory mismatch unknownPolicy=[test:residue-inject-repro,test:retired-authority-vocabulary-guard,test:brand-path-resolver-smoke,test:config-filename-migration-smoke,test:core-package-rename,test:state-dir-migration,test:migration-contract] stalePolicy=[] missingScripts=[]\n",
+      "startedAt": "2026-08-19T11:31:34.875Z",
+      "endedAt": "2026-08-19T11:31:35.955Z",
+      "effectiveEnvironmentDigest": "563411afff425314fbd6a2de6229c239391ab5da23dee69c2776ecc02364be81",
+      "executableDigest": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
+      "shellExecutableDigest": null,
+      "headHash": "07ff1cbb6c3f8ac7d3a4514793d81960a830b62f",
+      "materialHash": "f72a9f32a5382ba8437c5ef885d544fd8593efdb81a08b8d3884550259c837f9",
+      "storyFilesHash": "cd6e9ed75b514ab762a1bac1ce952922c78d51197a7b386a96f7eda26c78429c"
+    }
+  ],
+  "reasons": [
+    "command-failed: FAIL root full test suite: npm test exitCode=1"
+  ]
+}
