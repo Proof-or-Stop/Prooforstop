@@ -2070,13 +2070,13 @@
             "outputDigest": "ceb09b7e85e65eded254c194dc9d134562f8e403c3b1fda9de33e551022f0d82",
             "outputTail": "red-w2d-entropy-differential: PASS\n  formula anchors: ab=2.0 aabb=4.0 a=0.0 abcdefgh=24.0 (per-symbol rival is constant 1.0 for ab/aabb)\n  differential rows: 9/12 (floor 8)\n  DIFFER  \"Error: Cannot find module '/repo/dist/x.js'\"  total= 185.06 perSymbol= 4.30 spec=ADMIT  rival=REJECT  realistic module-resolution failure\n  DIFFER  \"AssertionError: expected 1 to equal 2\"        total= 150.02 perSymbol= 4.05 spec=ADMIT  rival=REJECT  realistic assertion failure\n  DIFFER  \"npm ERR! missing script: test\"                total= 107.37 perSymbol= 3.70 spec=ADMIT  rival=REJECT  realistic npm failure line\n  DIFFER  \"TypeError: x is not a function\"               total= 117.33 perSymbol= 3.91 spec=ADMIT  rival=REJECT  realistic type failure\n  DIFFER  \"ENOENT: no such file or directory\"            total= 135.35 perSymbol= 4.10 spec=ADMIT  rival=REJECT  realistic errno line\n  DIFFER  \"FAIL packages/main/tests/red/x.mjs\"           total= 143.46 perSymbol= 4.22 spec=ADMIT  rival=REJECT  realistic reporter line\n  DIFFER  \"exit status 1 (expected 0)\"                   total=  94.21 perSymbol= 3.62 spec=ADMIT  rival=REJECT  realistic exit line\n  DIFFER  \"abcdefgh\"                                     total=  24.00 perSymbol= 3.00 spec=ADMIT  rival=REJECT  boundary: exactly 24.0 total bits (>= is inclusive)\n  DIFFER  \"aabbccddeeff\"                                 total=  31.02 perSymbol= 2.58 spec=ADMIT  rival=REJECT  12 bytes over 6 symbols = 31.0 total bits\n  agree   \"aabbccdd\"                                     total=  16.00 perSymbol= 2.00 spec=REJECT rival=REJECT  AGREE: 8 bytes over 4 symbols = 16.0 total bits, below the floor\n  agree   \"aaaaaaaaaaaaaaaaaaaaaaaaaaaa\"                 total=   0.00 perSymbol= 0.00 spec=REJECT rival=REJECT  AGREE: 28 identical bytes, H = 0 so total = 0 (zero-entropy boundary)\n  agree   \"ab\"                                           total=   2.00 perSymbol= 1.00 spec=REJECT rival=REJECT  AGREE: 2.0 total bits, below the floor either way\n  multi-byte separation: bytes=26.53 (ADMIT) vs code-units=14.84 (REJECT)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-19T15:12:06.236Z",
+            "executedAt": "2026-08-19T15:25:03.732Z",
             "timeoutMs": 180000
           },
-          "headHash": "19266d70aecbe288be8833425eb070ac43212b99",
-          "materialHash": "51b394d898becda5e819f6dae6afba8a820414003e48ed44450f4d5118a826f3",
-          "storyFilesHash": "b1a873f7c79eb8d252fe75a245f6e7fb6e91cd5efeb6e2c4809dbcdba879d6fa",
-          "timestamp": "2026-08-19T15:12:06.955Z"
+          "headHash": "19b6e1d3444e43d8147f65d48d293f3fad00de10",
+          "materialHash": "778d9c90a836b92d29f20bd2825104d6db49f9689277c5cf3aef3e43f5789925",
+          "storyFilesHash": "f9c50dda5b8c3d90533076714b57807700e9a140c1304fcb7e011cb8038a5cd9",
+          "timestamp": "2026-08-19T15:25:04.715Z"
         },
         {
           "intentRef": "CHK-009:adversarial:1",
@@ -2091,13 +2091,13 @@
             "outputDigest": "ceb09b7e85e65eded254c194dc9d134562f8e403c3b1fda9de33e551022f0d82",
             "outputTail": "red-w2d-entropy-differential: PASS\n  formula anchors: ab=2.0 aabb=4.0 a=0.0 abcdefgh=24.0 (per-symbol rival is constant 1.0 for ab/aabb)\n  differential rows: 9/12 (floor 8)\n  DIFFER  \"Error: Cannot find module '/repo/dist/x.js'\"  total= 185.06 perSymbol= 4.30 spec=ADMIT  rival=REJECT  realistic module-resolution failure\n  DIFFER  \"AssertionError: expected 1 to equal 2\"        total= 150.02 perSymbol= 4.05 spec=ADMIT  rival=REJECT  realistic assertion failure\n  DIFFER  \"npm ERR! missing script: test\"                total= 107.37 perSymbol= 3.70 spec=ADMIT  rival=REJECT  realistic npm failure line\n  DIFFER  \"TypeError: x is not a function\"               total= 117.33 perSymbol= 3.91 spec=ADMIT  rival=REJECT  realistic type failure\n  DIFFER  \"ENOENT: no such file or directory\"            total= 135.35 perSymbol= 4.10 spec=ADMIT  rival=REJECT  realistic errno line\n  DIFFER  \"FAIL packages/main/tests/red/x.mjs\"           total= 143.46 perSymbol= 4.22 spec=ADMIT  rival=REJECT  realistic reporter line\n  DIFFER  \"exit status 1 (expected 0)\"                   total=  94.21 perSymbol= 3.62 spec=ADMIT  rival=REJECT  realistic exit line\n  DIFFER  \"abcdefgh\"                                     total=  24.00 perSymbol= 3.00 spec=ADMIT  rival=REJECT  boundary: exactly 24.0 total bits (>= is inclusive)\n  DIFFER  \"aabbccddeeff\"                                 total=  31.02 perSymbol= 2.58 spec=ADMIT  rival=REJECT  12 bytes over 6 symbols = 31.0 total bits\n  agree   \"aabbccdd\"                                     total=  16.00 perSymbol= 2.00 spec=REJECT rival=REJECT  AGREE: 8 bytes over 4 symbols = 16.0 total bits, below the floor\n  agree   \"aaaaaaaaaaaaaaaaaaaaaaaaaaaa\"                 total=   0.00 perSymbol= 0.00 spec=REJECT rival=REJECT  AGREE: 28 identical bytes, H = 0 so total = 0 (zero-entropy boundary)\n  agree   \"ab\"                                           total=   2.00 perSymbol= 1.00 spec=REJECT rival=REJECT  AGREE: 2.0 total bits, below the floor either way\n  multi-byte separation: bytes=26.53 (ADMIT) vs code-units=14.84 (REJECT)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-19T15:12:06.378Z",
+            "executedAt": "2026-08-19T15:25:03.914Z",
             "timeoutMs": 180000
           },
-          "headHash": "19266d70aecbe288be8833425eb070ac43212b99",
-          "materialHash": "51b394d898becda5e819f6dae6afba8a820414003e48ed44450f4d5118a826f3",
-          "storyFilesHash": "b1a873f7c79eb8d252fe75a245f6e7fb6e91cd5efeb6e2c4809dbcdba879d6fa",
-          "timestamp": "2026-08-19T15:12:06.955Z"
+          "headHash": "19b6e1d3444e43d8147f65d48d293f3fad00de10",
+          "materialHash": "778d9c90a836b92d29f20bd2825104d6db49f9689277c5cf3aef3e43f5789925",
+          "storyFilesHash": "f9c50dda5b8c3d90533076714b57807700e9a140c1304fcb7e011cb8038a5cd9",
+          "timestamp": "2026-08-19T15:25:04.715Z"
         }
       ]
     },
@@ -2170,13 +2170,13 @@
             "outputDigest": "daa85340fd3b76bfe6fad92e49b9cb286a31548b7872503b51c28f6a4e9b1221",
             "outputTail": "red-w2d-assertion-digest-scope: PASS\n  assertionDigest sha256:1a194fecf0fecf89e19b291a809a4d09ad6cb039c236ac91aceb3f5157977027\n  positive: CANON(assertion minus assertionDigest) === stored\n  negative: CANON(full stored object) !== stored; CANON(subobject minus policyDigest) !== stored\n  greenExempt:false omitted (no digest fork); greenExempt:true covered; key order + JSON roundtrip stable\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-19T15:12:06.526Z",
+            "executedAt": "2026-08-19T15:25:04.097Z",
             "timeoutMs": 180000
           },
-          "headHash": "19266d70aecbe288be8833425eb070ac43212b99",
-          "materialHash": "51b394d898becda5e819f6dae6afba8a820414003e48ed44450f4d5118a826f3",
-          "storyFilesHash": "b1a873f7c79eb8d252fe75a245f6e7fb6e91cd5efeb6e2c4809dbcdba879d6fa",
-          "timestamp": "2026-08-19T15:12:06.955Z"
+          "headHash": "19b6e1d3444e43d8147f65d48d293f3fad00de10",
+          "materialHash": "778d9c90a836b92d29f20bd2825104d6db49f9689277c5cf3aef3e43f5789925",
+          "storyFilesHash": "f9c50dda5b8c3d90533076714b57807700e9a140c1304fcb7e011cb8038a5cd9",
+          "timestamp": "2026-08-19T15:25:04.715Z"
         },
         {
           "intentRef": "CHK-010:edge:0",
@@ -2191,13 +2191,13 @@
             "outputDigest": "daa85340fd3b76bfe6fad92e49b9cb286a31548b7872503b51c28f6a4e9b1221",
             "outputTail": "red-w2d-assertion-digest-scope: PASS\n  assertionDigest sha256:1a194fecf0fecf89e19b291a809a4d09ad6cb039c236ac91aceb3f5157977027\n  positive: CANON(assertion minus assertionDigest) === stored\n  negative: CANON(full stored object) !== stored; CANON(subobject minus policyDigest) !== stored\n  greenExempt:false omitted (no digest fork); greenExempt:true covered; key order + JSON roundtrip stable\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-19T15:12:06.678Z",
+            "executedAt": "2026-08-19T15:25:04.306Z",
             "timeoutMs": 180000
           },
-          "headHash": "19266d70aecbe288be8833425eb070ac43212b99",
-          "materialHash": "51b394d898becda5e819f6dae6afba8a820414003e48ed44450f4d5118a826f3",
-          "storyFilesHash": "b1a873f7c79eb8d252fe75a245f6e7fb6e91cd5efeb6e2c4809dbcdba879d6fa",
-          "timestamp": "2026-08-19T15:12:06.955Z"
+          "headHash": "19b6e1d3444e43d8147f65d48d293f3fad00de10",
+          "materialHash": "778d9c90a836b92d29f20bd2825104d6db49f9689277c5cf3aef3e43f5789925",
+          "storyFilesHash": "f9c50dda5b8c3d90533076714b57807700e9a140c1304fcb7e011cb8038a5cd9",
+          "timestamp": "2026-08-19T15:25:04.715Z"
         },
         {
           "intentRef": "CHK-010:edge:1",
@@ -2212,13 +2212,13 @@
             "outputDigest": "daa85340fd3b76bfe6fad92e49b9cb286a31548b7872503b51c28f6a4e9b1221",
             "outputTail": "red-w2d-assertion-digest-scope: PASS\n  assertionDigest sha256:1a194fecf0fecf89e19b291a809a4d09ad6cb039c236ac91aceb3f5157977027\n  positive: CANON(assertion minus assertionDigest) === stored\n  negative: CANON(full stored object) !== stored; CANON(subobject minus policyDigest) !== stored\n  greenExempt:false omitted (no digest fork); greenExempt:true covered; key order + JSON roundtrip stable\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-19T15:12:06.830Z",
+            "executedAt": "2026-08-19T15:25:04.529Z",
             "timeoutMs": 180000
           },
-          "headHash": "19266d70aecbe288be8833425eb070ac43212b99",
-          "materialHash": "51b394d898becda5e819f6dae6afba8a820414003e48ed44450f4d5118a826f3",
-          "storyFilesHash": "b1a873f7c79eb8d252fe75a245f6e7fb6e91cd5efeb6e2c4809dbcdba879d6fa",
-          "timestamp": "2026-08-19T15:12:06.955Z"
+          "headHash": "19b6e1d3444e43d8147f65d48d293f3fad00de10",
+          "materialHash": "778d9c90a836b92d29f20bd2825104d6db49f9689277c5cf3aef3e43f5789925",
+          "storyFilesHash": "f9c50dda5b8c3d90533076714b57807700e9a140c1304fcb7e011cb8038a5cd9",
+          "timestamp": "2026-08-19T15:25:04.715Z"
         },
         {
           "intentRef": "CHK-010:adversarial:0",
