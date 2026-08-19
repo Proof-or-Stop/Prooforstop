@@ -4797,6 +4797,67 @@
       "cancelReason": "RIE-049 completeness receipt cannot be consumed for remediation DEV: scopeDigest is cutoff digest not acceptance-subject digest. Cancel so closeout can repair handler-smoke mechanical receipts without a sealed inventory.",
       "terminalRunSequenceBoundary": 557,
       "_hash": "5805e4757311ca525877bb83e7f90557e1613f175783c240f98cf33059f04cf8"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-3f3d:RI-049",
+      "storyId": "B-3f3d",
+      "reviewRound": "2026-08-19T16:56:02.376Z",
+      "state": "CANCELLED",
+      "begunAt": "2026-08-19T17:24:39.920Z",
+      "updatedAt": "2026-08-19T17:25:21.930Z",
+      "cutoff": {
+        "headHash": "35aa1ad959e3bc01ee18940358d2ce6fec9085b1",
+        "materialHash": "18b25d80de9b979f6ef003a95c1c76615b8b41498e1948df00d5bffa4951081d",
+        "storyFilesHash": "54981914791333b77be774db9f7ec8f2700a8f42d768341464ed5d85714c48ba"
+      },
+      "scopeDigest": "418e7a8e6ab6c88502493b63aa2ead8135e9eefb7963431629c44835af255e70",
+      "candidateSpecSetDigest": "3d51a2dc54fe1d242dd3626132d862543d5998feae41bcb34a085c0c77be2fbb",
+      "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage",
+        "lattice-review-behavior",
+        "lattice-review-docs"
+      ],
+      "initialRunSequenceBoundary": 595,
+      "maxWaves": 1,
+      "waves": [],
+      "baselineFindingIds": [],
+      "cancelledAt": "2026-08-19T17:25:21.930Z",
+      "cancelReason": "maxWaves=1 cannot complete saturation if the TEST-blocking brand-decision residue is inventoried as a finding; re-begin with maxWaves=3 so a discovery wave plus a zero-new-finding wave can mint a FINALIZED receipt that authorizes remediation DEV",
+      "terminalRunSequenceBoundary": 595,
+      "_hash": "155880165c1b8ff3e7a12a5bab36045d00850d6df90c11fde4ad6af7c378a36f"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-3f3d:RI-050",
+      "storyId": "B-3f3d",
+      "reviewRound": "2026-08-19T16:56:02.376Z",
+      "state": "OPEN",
+      "begunAt": "2026-08-19T17:25:41.975Z",
+      "updatedAt": "2026-08-19T17:25:41.975Z",
+      "cutoff": {
+        "headHash": "35aa1ad959e3bc01ee18940358d2ce6fec9085b1",
+        "materialHash": "18b25d80de9b979f6ef003a95c1c76615b8b41498e1948df00d5bffa4951081d",
+        "storyFilesHash": "54981914791333b77be774db9f7ec8f2700a8f42d768341464ed5d85714c48ba"
+      },
+      "scopeDigest": "418e7a8e6ab6c88502493b63aa2ead8135e9eefb7963431629c44835af255e70",
+      "candidateSpecSetDigest": "3d51a2dc54fe1d242dd3626132d862543d5998feae41bcb34a085c0c77be2fbb",
+      "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage",
+        "lattice-review-behavior",
+        "lattice-review-docs"
+      ],
+      "initialRunSequenceBoundary": 595,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [],
+      "_hash": "090a34e9810d662772338a63f5b325b1c9240e288a0e3108321a3349a678681e"
     }
   ],
   "receipts": [
