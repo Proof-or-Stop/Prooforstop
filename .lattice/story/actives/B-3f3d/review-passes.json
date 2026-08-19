@@ -19537,6 +19537,60 @@
       },
       "readDiagnostics": [],
       "_hash": "ef7d8eac3b18983e9284aefae704146e8ce13ff01ab0325ce0059a239abf36fe"
+    },
+    {
+      "id": "B-3f3d:RP-353",
+      "agent": "lattice-review-behavior",
+      "note": "Closeout behavior review of reconstruction digest pin, PRE_CERT finalize-without-OPEN, and DEV consume. Topology-critic reconstruction remains fail-closed (restoreLegacyPromptTemplate still throws on digest mismatch; pin only moved 077d0e79 -> 2300cde0). Handler-smoke still fail-closes OPEN-epoch incomplete finalize, live-aggregate reconstruction, and story_advance DEV consume. PRE_CERT no-OPEN finalize writes authorizesTest:false inventory-completeness-only; consumeReviewInventoryReceipt still requires a saturated final wave so empty-wave completeness cannot publish DEV or admit PRE_CERT. CHK-001..006 userSees still match begin/status/mutation/rollback/replay/final-review strings. No behavior blocker.",
+      "createdAt": "2026-08-19T10:02:50.544Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-558",
+      "envelopeId": "b77856ac31a04fe0d5d26cebd2ab64d55bbacd52c23a82f5734dae76bed928a6",
+      "writerSessionId": "sess-4292375d1d751b41",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "8acc2e20ee4aa6fa2cb4565c6dcb2eb38db1f507652b3153e488dab147fae5b0"
+      },
+      "readDiagnostics": [],
+      "_hash": "d345ee0098c8f28b6948f3c3f0ffad3c0e16c221362f74ae85c58f8b9aa62290"
     }
   ]
 }
