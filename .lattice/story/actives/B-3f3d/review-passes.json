@@ -20774,6 +20774,37 @@
         "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
       },
       "_hash": "93d085ad3e821b23fdf7e5e9f88f8a9bf28978927b88f8a9fd3e6f72edfaa552"
+    },
+    {
+      "id": "B-3f3d:RP-374",
+      "agent": "lattice-review-test-coverage",
+      "note": "Current-round pass for c0f398a6e0 acceptance-rollout-verifier registration. Actor is registered with review_run_start, omitted from REVIEW_RUN_LANES, cohort CLI pins PROOF_OR_STOP_AGENT to the real lane. No blocking finding.",
+      "createdAt": "2026-08-19T15:29:34.186Z",
+      "reviewRound": "2026-08-19T15:12:31.832Z",
+      "reviewRunId": "B-3f3d:RR-586",
+      "envelopeId": "11a8312d931611cbf23ead1755792121db1f83e9413093bc10bb3107b00d52ba",
+      "writerSessionId": "sess-4292375d1d751b41",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "_hash": "f70f375c9f27c99b1cb3833b5703bdea14ce8da58ff621a3796757260506e067"
     }
   ]
 }
