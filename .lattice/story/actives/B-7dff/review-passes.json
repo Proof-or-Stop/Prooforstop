@@ -870,6 +870,41 @@
         "scanEscalationReason": "No material (packages/main/src or config) change since RP-025 (verified via git diff --stat between RP-025 bound headHash d0e8f1766c and current head f5cf0b9861); source files re-triaged by name against prior full-read passes (RP-019/RP-023/RP-025), not re-read in full, since diff confirms byte-identical content."
       },
       "_hash": "029d35c341397eb31a1360394a3c2d1104ee9730e9b80928dc16769daa68a425"
+    },
+    {
+      "id": "B-7dff:RP-028",
+      "agent": "lattice-review-quality",
+      "note": "Story-level quality re-pass on RR-044. Verified via git diff between prior bound head (d0e8f1766c, RP-026/RR-040) and current HEAD (f5cf0b9861): zero product source changed -- only story-metadata files touched (checklist.json: CHK-005:happy:0 permanent waiver text-unchanged rebind to current head/material/storyFilesHash per resolved F-016/F-017; findings.json: F-016+F-017 resolved with resolveEvidenceStrength=strong; process-events.jsonl/process-metrics.json/prompt-envelopes.json/review-passes.json/review-runs.json: bookkeeping). Independently confirmed both permanent waivers (CHK-001:happy:0 and CHK-005:happy:0) now share the current binding materialHash=6252802...b516dc39/storyFilesHash=0bab1cc...0f9e775. Independently re-verified the follow-up story B-0f97 (Waiver evidence bindings drift silently because the refresh scan excludes them before the freshness check) exists on main, phase=INIT, title matches exactly the F-016/F-017 resolvedReason claim -- not visible from this worktrees checked-out files only because main has advanced past this branchs merge-base (81c88bf448), which is expected pre-merge state, not a defect. Re-verified my own F-014 deferral to story B-9e3d: exists, phase=INIT, title Reconcile the two timeout-margin policies that now share one keyed scheduler matches exactly -- deferral judgement unchanged and remains defensible (medium severity, non-live-regression, margins spot-checked, reconciling changes what ~110 configured timeoutMs values mean and needs its own measurement/review round). All findings F-001..F-017 resolved. No new code-quality findings this round.",
+      "createdAt": "2026-08-19T02:13:56.565Z",
+      "reviewRound": "2026-08-19T02:03:22.681Z",
+      "reviewRunId": "B-7dff:RR-044",
+      "envelopeId": "70f6f2a05ed761dc1b5aa5c2f0328cef4ec1d3d4b992a989b61b3e2cb8f24eb6",
+      "writerSessionId": "sess-c8142ac4cb69f1c755df4c1fc223e028",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7dff/background.md",
+          ".lattice/story/actives/B-7dff/checklist.json",
+          ".lattice/story/actives/B-7dff/findings.json",
+          ".lattice/story/actives/B-7dff/plan.md",
+          ".lattice/story/actives/B-7dff/review-passes.json",
+          ".lattice/story/actives/B-7dff/review-runs.json"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/keyed-scheduler.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/validate-parallel-benchmark.ts",
+          "packages/main/src/tasks/validate-parallel-equivalence-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "d6e5f9ec5b9346aac910157d7508cf1340c23317ff50c5b6971043a0bf6c89a1"
     }
   ]
 }
