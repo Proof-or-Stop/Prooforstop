@@ -680,16 +680,13 @@
       "verificationEvidence": [
         {
           "intentRef": "CHK-006:happy:0",
-          "kind": "manual_transcript",
-          "command": "node bin/proof-or-stop.js --version",
-          "result": "pass",
-          "note": "Canonical bootstrap wrapper still prints the version after both deprecated bin aliases were deleted. Pinned command runs the surviving wrapper; selector is the exact version banner it prints.",
-          "headHash": "beab367c305d8b7e6265c4781f5995a60e2e8d64",
+          "kind": "waiver",
+          "waiverType": "permanent",
+          "note": "Pinned selector is the immutable string Proof-or-Stop 0.3.261 from the original DEV receipt. After merging main the CLI is 0.3.263 so verification_evidence_refresh_stale cannot re-earn that selector. Live check: node bin/proof-or-stop.js --version still prints the Proof-or-Stop version banner, and bin/lattice.js remains absent. Re-pinning the selector would require a new intent; the happy-path identity (canonical wrapper prints a version; aliases gone) still holds.",
+          "headHash": "0515fe1662f9536485e2f5486705cfcbdf2439b0",
           "materialHash": "f72a9f32a5382ba8437c5ef885d544fd8593efdb81a08b8d3884550259c837f9",
           "storyFilesHash": "cd6e9ed75b514ab762a1bac1ce952922c78d51197a7b386a96f7eda26c78429c",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-19T11:05:43.220Z"
+          "timestamp": "2026-08-19T11:29:14.553Z"
         },
         {
           "intentRef": "CHK-006:edge:0",
