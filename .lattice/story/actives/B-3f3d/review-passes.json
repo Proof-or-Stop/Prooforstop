@@ -20668,6 +20668,50 @@
       },
       "readDiagnostics": [],
       "_hash": "2fb811ae9f9ccee2e609136e08290d768d0f08e72cd3f1d17cfb185076647db0"
+    },
+    {
+      "id": "B-3f3d:RP-371",
+      "agent": "lattice-review-docs",
+      "note": "Step1 symbols compared: MODULAR_REVIEWER_ROLE_IDS, ACTIVE_MODULAR_REVIEWER_ROLE_IDS, isModularReviewerRoleId, checklistEnglishAuthoringFields, runEnglishArtifactGate, AUTHOR_METADATA_BASENAMES, assertCurrentReviewRunForEvidence/kind-aware stale_run relax. Step2 paragraphs: 5 (AGENTS.md English-authoring+kind-aware PASS; CLAUDE.md English-authoring; lifecycle-artifact-scope six-migrated-reviewer intro; lifecycle-artifact-scope contract point 2; story-lifecycle REVIEW-run binding bullet). No blocker: English-artifact text matches whole-file author-metadata CJK scan plus recursive authoring leaves (examples non-exhaustive, relatedDocs included, REVIEW→TEST); six migrated reviewer definitions match the six-id roster including topology-critic bootstrap, distinct from five active REVIEW lanes; story-lifecycle fresh PASS wording matches kind-aware material+scope freshness without id-recency, open FINDING still latest-run-only.",
+      "createdAt": "2026-08-19T13:46:39.094Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-582",
+      "envelopeId": "005dfaaf12b1249154f2c44658952656a982e2f7d68611478646103b13e8978c",
+      "writerSessionId": "sess-4292375d1d751b41",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "73e06552d664219b606cf584ac4640043518b43f9e2d4164401c4aafffd1ca7e"
+      },
+      "readDiagnostics": [],
+      "_hash": "23f0b3c374bacfb55c389ed7bb986eaf2a9a4e04e01dda6bd6e126b9ff020fe4"
     }
   ]
 }
