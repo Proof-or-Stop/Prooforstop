@@ -8507,7 +8507,7 @@
       "desc": "Wave-4 closeout re-review on HEAD 4ec358c312 (storyFilesHash 54981914791333b77be774db9f7ec8f2700a8f42d768341464ed5d85714c48ba, materialHash 18b25d80de9b979f6ef003a95c1c76615b8b41498e1948df00d5bffa4951081d): the verifier-owned PLAN acceptance basis remains uncertifiable, so topology-critic pass is forbidden. Independently executed acceptance_basis, acceptance_topology_check, pre_review_check_read, acceptance_rollout_report_read, and acceptance_rollout_check. acceptance_basis status=invalid, receiptVerification.ok=false, code=AT_SCOPE_BINDING_MISSING. Diagnostics: AT_ADAPTER_RESULT_INVALID (issuer/schema/command/phase invalid), AT_COVERAGE_BASIS_PARTIAL (claimed complete vs verifier partial), semantic discovery digest mismatch, scope-contract digest mismatch, closure files hash mismatch, snapshot seal digest mismatch, and storyFilesHash freshness mismatch. Stored binding is head 783dc610 / material 18b021cc / storyFiles 7e57d2d7, not the current HEAD/storyFiles. excludedPathRefs=[] and blindSpots=[] (no unsigned topology exclusions). acceptance_topology_check mode=observe authority=diagnostic_only status=fail structuralPass=false blocking=false; row AB-B3F3D-EFFICIENCY-QUALITY result=inconclusive_basis_unverified; codes AT_ADAPTER_RESULT_INVALID, AT_CLOSURE_FILES_STALE, AT_COVERAGE_BASIS_PARTIAL, AT_SCOPE_BINDING_MISSING. pre_review_check_read mode=observe status=inconclusive ok=false blocking=false authority=inadmissible criticReattestation=not_required; codes include PR_ARTIFACT_TAMPERED, PR_NEW_PATH_UNMAPPED, PR_COVERAGE_BASIS_CHANGED, PR_COVERAGE_INCONCLUSIVE, PR_PLANNED_PATH_UNRESOLVED, PR_ADAPTER_RESULT_INVALID, PR_POSITIVE_EVIDENCE_MISSING, PR_PRODUCTION_PATH_UNPROVEN, PR_MUTATION_EVIDENCE_MISSING, PR_MUTATION_DID_NOT_BITE, PR_CONTROL_NOT_RESTORED, PR_TRANSCRIPT_MISSING, PR_AUTHORITY_INADMISSIBLE, PR_EVIDENCE_STALE, PR_CUTOFF_UNBOUND. acceptance_rollout_report_read and acceptance_rollout_check both status=pass, mode=enforce, blocking=false, receipt=current, quorum=full-3x2 (3 rounds x hostIds claude-cli+codex-cli, mislabeled3x1Count=0); this is genuine full 3x2, not degraded 3x1. Observe/warn/enforce share diagnostics; enforce alone blocks, and the enforce surface currently does not. Review inventory epoch B-3f3d:RIE-049 is CANCELLED, not OPEN, so review_inventory_critic_set is not applicable. A topology-critic pass cannot override an invalid/partial/stale/unverified basis; request_changes is the only honest receipt.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-topology-critic",
       "createdAt": "2026-08-19T17:04:23.997Z",
@@ -8546,7 +8546,11 @@
         "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
       ],
       "signatureTag": "missing|md|wave-closeout-review",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "F-126 restates the Wave-4 critic PLAN-basis / host-adapter signing gap already filed as follow-up (F-125 accepted_risk). acceptance_rollout_check is enforce pass with current full-3x2 receipt. topology_critic_receipt_set cannot sign from this explicit-env owner session (B-49ed SIGNABLE_SESSION_SOURCES host-adapter|generated-token). Inventory epoch is CANCELLED so critic inventory set is N/A. Not a CHK-001..006 must-intent gap.",
+      "resolvedAt": "2026-08-19T17:17:29.225Z",
+      "resolutionType": "accepted_risk",
+      "resolveEvidenceStrength": "medium"
     },
     {
       "id": "B-3f3d:F-127",
