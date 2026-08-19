@@ -8272,6 +8272,61 @@
       "resolvedAt": "2026-08-18T08:09:16.144Z",
       "resolutionType": "superseded",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3f3d:F-122",
+      "desc": "packages/main/src/core/review-inventory-epoch.ts:717 persistFinalizedReviewInventory always acquires withReviewInventoryMutationLock, but the only production caller is review_inventory_finalize's no-OPEN branch at handlers/review-inventory.ts:518-534, which already holds that same lock via inventoryLock (line 518). withMkdirLock is not reentrant: same-process reacquire classifies the live holder PID as active (mkdir-lock.ts:246-256), heartbeatMs=1000 keeps the lease fresh, then the inner acquire waits DEFAULT_DEADLINE_MS and throws lock timeout. Merge of B-1e1f into B-3f3d replaced the fail-closed `no OPEN epoch` throw with this nested-lock call. PRE_CERT nextCommand for INVENTORY_NOT_FINALIZED is review_inventory_finalize, so the documented recovery path deadlocks for 30s. Handler-smoke still asserts /no OPEN epoch/ after INVALIDATED (review-inventory-handler-smoke.ts:697-700). If the lock were reentrant, the helper would still mint a FINALIZED receipt with requiredLanes=[], waves=[], saturationResult=ZERO_NEW_VERIFIED_FINDINGS that begin treats as RECEIPT_UNCONSUMED and consume rejects via finalizedLiveAggregateError. high",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-19T08:15:09.666Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-547",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/mkdir-lock.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "80a5657c13b035d03102fdc964e4da27bd554b8f849ef41907a41c2c4b636738"
+      },
+      "readDiagnostics": [],
+      "_hash": "e2e191a95b5ac8fb180431a24ce39ef0cbb76360627c4461aa40dbae124f2119",
+      "files": [
+        "packages/main/src/core/review-inventory-epoch.ts",
+        "packages/main/src/handlers/review-inventory.ts",
+        "packages/main/src/core/mkdir-lock.ts",
+        "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
