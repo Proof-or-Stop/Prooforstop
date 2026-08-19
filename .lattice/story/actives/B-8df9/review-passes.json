@@ -546,6 +546,32 @@
         "scanEscalationReason": null
       },
       "_hash": "f51e5bda47514fbc1149f223a36f158d0fb7595a89a4399ed22241409ec3ea45"
+    },
+    {
+      "id": "B-8df9:RP-020",
+      "agent": "lattice-review-quality",
+      "note": "Final quality re-attestation confirming RP-017 remains valid; delta since RP-017 (headHash f5d3d79..272a8d4) is metadata-only, confirmed both via review_incremental_context (isFirstPass=false, scopeChanged=false, changedFiles/impactedFiles empty, freshnessClassification=CURRENT_MATERIAL) and independently via git diff --stat f5d3d79..HEAD: all 13 changed paths are under .lattice/story/actives/B-8df9/ (summary.json write+correction, findings.json F-013, review-runs/passes/prompt-envelopes, test-evidence, delivery-check, index.json bookkeeping); zero packages/main/src files touched. Independently judged the corrected summary.json actualTranscript against the underlying record rather than trusting the resolvedReason prose: cross-checked it against review-passes.json RP-015 (behavior lane, RR-020) which states verbatim it constructed 3 independent adversarial cases -- fabricated reviewer entry, erased critical issue, renamed agentId in place -- all three moving the recomputed hash off the stored signature; and against delivery-check.json CHK-002 realMachineTests row, whose own independent-fixture sentence covers exactly hand-injected-reviewer-record (unsigned tampering) plus re-sign-passes behaviour, not erasure or rename. The corrected actualTranscript text matches both source records precisely -- no further inflation found, F-013 fix is accurate and the count (2 out-of-suite probes plus the 2 shipped guards, not conflated) no longer overclaims. Confirmed the cited H1 control row (refusedBeforeReSigning=true, verifiesAfterReSigning=true) is real by grep at red-b8df9-init-check-verdict-signature.mjs:545-556. Rebuilt packages/main fresh (npm --prefix packages/main run build, exit 0) and re-ran both story red guards myself on the rebuilt dist: red-b8df9-init-check-verdict-signature.mjs 0 RED/0 BROKEN/24 rows including H1 CONTROL-OK; red-b8df9-chk002-verdict-shapes.mjs 0 FAILED/0 BROKEN/17 rows. Diffed lattice.config.json between f5d3d79 and HEAD: zero changes, the two red-b8df9 guard registrations (lines 1545, 1556) and the union merge with main are undisturbed, matching what was deep-diffed at RP-017. finding_list confirms all 13 findings (F-001..F-013) resolved or dismissed, zero open, all evidenceState=verified, attention.suspected/disproven both empty. Original RP-017 quality scope (dead code / type safety / I/O isolation / doc-promise-undelivered cross-check across the full diff) stands unchanged since no source moved. No blocker.",
+      "createdAt": "2026-08-19T18:45:30.586Z",
+      "reviewRound": "2026-08-19T18:28:53.184Z",
+      "reviewRunId": "B-8df9:RR-027",
+      "envelopeId": "8bb77cd6bb806076f2be65e5c2e29fe3c3dc34f7651e0df084ad8b529d05cada",
+      "writerSessionId": "sess-b8df9-main-agent",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-8df9/findings.json",
+          ".lattice/story/actives/B-8df9/summary.json"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-8df9/delivery-check.json",
+          ".lattice/story/actives/B-8df9/review-passes.json",
+          "lattice.config.json",
+          "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e3e24f5321e1821e2825a3ec691212ebd4a8f32b6e53dfd439218a7251f03987"
     }
   ]
 }
