@@ -30,6 +30,7 @@ import {
 import { canonicalReviewHostLauncherSpec, type CanonicalReviewHost } from '../core/host-execution-readiness.js';
 import { computeActiveReviewers } from '../handlers/reviewer-list.js';
 import { createDeliveryCheckHandlers } from '../handlers/delivery-check.js';
+import { createPlaybookRuntimeMemoryHandlers } from '../handlers/playbook-runtime-memory.js';
 import type { HandlerContext } from '../handlers/context.js';
 import type { BugData, Finding, ProcessEvent, ReviewRun, StoryInfo } from '../core/types.js';
 import { listVerdicts } from '../core/verdicts.js';
@@ -306,6 +307,11 @@ function fakeDoneStore(metadataRoot: string, gitRoot: string, headHash: string, 
     touchpoints: ['packages/main/src/index.ts'],
     timestamp: '2026-06-19T11:45:00.000Z',
   });
+  // B-a7c5 CHK-003: canFinishGuard now ALSO requires a dev_memory_finish_decision
+  // record. This write lands under metadataRoot (.lattice/dev-memory/), never
+  // gitRoot, so it cannot perturb the wrapper-root materialHash computed above.
+  createPlaybookRuntimeMemoryHandlers({ store, root: metadataRoot, scanRoot: gitRoot })
+    .dev_memory_finish_decision({ storyId: STORY_ID, decision: 'no-reusable-lesson', reason: 'review-assurance-floor-smoke fixture; no lesson to capture' });
 
   check('B-3f3d F-096/F-097: reviewer_forced replay mounts durably, ignores the auto-init writer, and tolerates a malformed reviewer', () => {
     // B-3f3d F-096/F-097: the persisted `reviewer_forced` replay must (a) mount a real
@@ -404,14 +410,29 @@ function staleRecoveryBlock(text: string): string {
   return text.slice(start);
 }
 
+/**
+ * Extract rendered CLI command fragments so each can be shell-linted.
+ *
+ * Recognizes the canonical `proof-or-stop` bin FIRST and the deprecated `lattice`
+ * spelling as a fallback (B-cdf6 CHK-006). Matching only `lattice ` silently found
+ * just 1 of the 5 fragments once the guidance text was rebranded, which turned a
+ * shell-safety check into a near-no-op instead of a failure.
+ */
 function renderedLatticeCommandFragments(text: string): string[] {
   const commands: string[] = [];
+  const prefixes = [
+    'node bin/proof-or-stop.js ',
+    'node bin/lattice.js ',
+    'proof-or-stop ',
+    'lattice ',
+  ];
   for (const line of text.split('\n')) {
     const uncommented = line.split(' # ')[0];
     for (const segment of uncommented.split(';')) {
-      const localStart = segment.indexOf('node bin/lattice.js ');
-      const globalStart = segment.indexOf('lattice ');
-      const commandStart = localStart >= 0 ? localStart : globalStart;
+      const commandStart = prefixes
+        .map((prefix) => segment.indexOf(prefix))
+        .filter((index) => index >= 0)
+        .reduce((earliest, index) => (earliest < 0 ? index : Math.min(earliest, index)), -1);
       if (commandStart >= 0) {
         commands.push(segment.slice(commandStart).trim().replace(/[.,]$/, ''));
       }
@@ -433,11 +454,11 @@ function assertShellSafeLatticeCommandFragments(text: string): string[] {
 function assertStaleRecoveryCommandsShellSafe(formatted: string): string[] {
   const commands = assertShellSafeLatticeCommandFragments(staleRecoveryBlock(formatted));
   assert.equal(commands.length, 5, 'stale recovery must expose every inline lattice command fragment');
-  assert.equal(commands.some((command) => command.startsWith('lattice validate ')), true);
-  assert.equal(commands.some((command) => command.startsWith('lattice verification_evidence_refresh_stale ')), true);
+  assert.equal(commands.some((command) => command.startsWith('proof-or-stop validate ')), true);
+  assert.equal(commands.some((command) => command.startsWith('proof-or-stop verification_evidence_refresh_stale ')), true);
   assert.equal(commands.some((command) => command.startsWith('node bin/lattice.js autopilot_review_submit ')), true);
-  assert.equal(commands.some((command) => command.startsWith('lattice autopilot_review_status ')), true);
-  assert.equal(commands.some((command) => command.startsWith('lattice review_escalation_status ')), true);
+  assert.equal(commands.some((command) => command.startsWith('proof-or-stop autopilot_review_status ')), true);
+  assert.equal(commands.some((command) => command.startsWith('proof-or-stop review_escalation_status ')), true);
   return commands;
 }
 
@@ -543,8 +564,8 @@ try {
     assert.equal(report.localRounds.ignoredVerdicts.some(v => v.reasons.some(reason => reason.includes('stale'))), true);
     const formatted = formatReviewAssuranceFloorFailure(report);
     assert.match(formatted, /stale host verdicts: round-1-codex-a@round-1 materialDigest=stale-material/);
-    assert.match(formatted, new RegExp(`lattice validate --story=${STORY_ID} --json`));
-    assert.match(formatted, new RegExp(`lattice verification_evidence_refresh_stale --storyId=${STORY_ID} --dryRun`));
+    assert.match(formatted, new RegExp(`proof-or-stop validate --story=${STORY_ID} --json`));
+    assert.match(formatted, new RegExp(`proof-or-stop verification_evidence_refresh_stale --storyId=${STORY_ID} --dryRun`));
     assert.match(formatted, new RegExp(`Legal reviewer/host only: re-submit local host verdicts over materialHash=${materialHash}`));
     assert.match(formatted, /node bin\/lattice\.js autopilot_review_submit/);
     assert.match(formatted, /--storyFilesHash=/);
@@ -567,7 +588,7 @@ try {
       materialHash: null,
       storyFilesHash: null,
     });
-    assert.match(formatted, /lattice validate --story=\{storyId\} --json/);
+    assert.match(formatted, /proof-or-stop validate --story=\{storyId\} --json/);
     assert.match(formatted, /Legal reviewer\/host only: re-submit local host verdicts over materialHash=\{current-materialHash\}/);
     assert.match(formatted, /--materialDigest=\{current-materialHash\}/);
     assert.doesNotMatch(staleRecoveryBlock(formatted), /<storyId>|<current-materialHash>/);
@@ -592,7 +613,7 @@ try {
     assert.match(formatted, /4 more ignored host verdict\(s\) omitted/);
     assert.equal((formatted.match(/ignored host verdict /g) ?? []).length, 8);
     assert.match(formatted, /Stale material recovery:/);
-    assert.match(formatted, /lattice autopilot_review_status --storyId=B-review-assurance-floor/);
+    assert.match(formatted, /proof-or-stop autopilot_review_status --storyId=B-review-assurance-floor/);
     assert.doesNotMatch(formatted, /skip stale|force DONE|override stale/i);
     assertStaleRecoveryCommandsShellSafe(formatted);
   });
@@ -784,7 +805,7 @@ try {
       const currentHead = currentGitHead(commandRoot)!;
       const coverage = { total: 0, required: 0, covered: 0, missingRequired: 0, entries: [] };
       store.writeTestEvidence(STORY_ID, {
-        command: `lattice validate --story=${STORY_ID} --json`,
+        command: `proof-or-stop validate --story=${STORY_ID} --json`,
         output: JSON.stringify({ allPass: true, verificationCoverage: coverage }),
         result: 'PASS',
         timestamp: '2026-06-19T11:50:00.000Z',

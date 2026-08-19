@@ -1,4 +1,4 @@
-# Proofbound Baseline Two-Host Multi-Agent Execution Plan
+# Proof-or-Stop Baseline Two-Host Multi-Agent Execution Plan
 
 Date: 2026-06-09
 
@@ -27,9 +27,9 @@ the same four review principles:
 Already proven by the remote evidence bundle:
 
 ```text
-Proofbound CLI non-authority PASS
-Proofbound CLI + remote Proofbound Authority authorityDone PASS
-Proofbound CLI + remote Proofbound Authority fullAuthorityDone PASS
+Proof-or-Stop CLI non-authority PASS
+Proof-or-Stop CLI + remote Proof-or-Stop Authority authorityDone PASS
+Proof-or-Stop CLI + remote Proof-or-Stop Authority fullAuthorityDone PASS
 ```
 
 Evidence anchors:
@@ -488,8 +488,8 @@ Baseline measured success rate is <computed value>.
 Forbidden final statements unless the measured evidence supports them:
 
 ```text
-Proofbound can complete any natural-language request to DONE.
-Proofbound can rewrite any old project into any target language with equivalent behavior.
+Proof-or-Stop can complete any natural-language request to DONE.
+Proof-or-Stop can rewrite any old project into any target language with equivalent behavior.
 All future Authority runs are guaranteed to pass.
 Local/non-authority results are Authority DONE.
 ```
@@ -500,7 +500,7 @@ Stop and report blocked instead of continuing when:
 
 - remote Authority cannot be reached or the server key pin does not match;
 - customer API key authorization fails;
-- required baseline fixture cannot be built for reasons outside Proofbound's
+- required baseline fixture cannot be built for reasons outside Proof-or-Stop's
   control and cannot be repaired in scope;
 - final host verdicts disagree on a real correctness issue;
 - success-rate denominator or exclusions cannot be justified;

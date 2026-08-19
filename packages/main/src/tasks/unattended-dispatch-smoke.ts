@@ -125,7 +125,7 @@ if (mode === 'timeout') {
   writeRelative('packages/main/src/generated/claude-env.txt', 'allowed env observed\\n');
   console.log('env ok');
 } else {
-  writeRelative('packages/main/src/generated/claude-success.txt', 'prompt=' + /Proofbound Dispatch/.test(prompt) + '\\n');
+  writeRelative('packages/main/src/generated/claude-success.txt', 'prompt=' + /Proof-or-Stop Dispatch/.test(prompt) + '\\n');
   console.log('success stdout');
   console.error('success stderr');
 }
@@ -157,7 +157,7 @@ function initRepo(root: string): void {
   writeConfig(root);
   git(root, ['init']);
   git(root, ['config', 'user.email', 'lattice@example.com']);
-  git(root, ['config', 'user.name', 'Proofbound Smoke']);
+  git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
   git(root, ['add', '.']);
   git(root, ['commit', '-m', 'fixture']);
 }

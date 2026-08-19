@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-a7c5",
+  "allowedCommands": [],
+  "allowedTools": [],
+  "allowedPaths": [
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/dev-memory.ts",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/core/playbook-runtime-memory.ts",
+    "packages/main/src/handlers/dev-memory.ts",
+    "packages/main/src/handlers/finding.ts",
+    "packages/main/src/handlers/init-preflight.ts",
+    "packages/main/src/tasks/**"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "New lifecycle gates around the existing dev-memory commands: an INIT_CHECK-phase preflight requirement, a non-blocking finding_resolve advisory, and a DONE-gate finish-decision requirement. Does not touch playbooks.json/signature-registry.json or global (~/.lattice) scope.",
+  "createdAt": "2026-08-14T10:12:56.230Z",
+  "updatedAt": "2026-08-14T10:12:56.230Z",
+  "_hash": "0ccb0c47303d9e04e584d74d366ac1c67cec4fe2ca113e007fc78b698cb9525d"
+}

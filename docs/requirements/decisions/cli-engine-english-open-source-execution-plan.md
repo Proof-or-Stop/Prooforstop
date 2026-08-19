@@ -33,7 +33,7 @@ characters.
 | Category | Lines | Migration priority |
 |---|---:|---|
 | Zod schema `.describe(...)` text | 498 | P0, public CLI help and API metadata |
-| Command `description` text | 113 | P0, `lattice help` surface |
+| Command `description` text | 113 | P0, `proof-or-stop help` surface |
 | Developer comments | 99 | P2, contributor readability |
 | Console/help/error output | 20 | P0, user-visible terminal text |
 | Next-step template hints | 7 | P0, user-visible terminal text |
@@ -60,7 +60,7 @@ Allowed exceptions:
 - Tests that intentionally verify backward compatibility with older Chinese
   output during the migration window.
 - Legacy runtime names that are not language text, such as `LATTICE_*`,
-  `lattice.config.json`, and `lattice` as a compatibility alias.
+  `lattice.config.json`, and `proof-or-stop` as a compatibility alias.
 
 ## English Glossary
 
@@ -76,7 +76,7 @@ left-hand term is preferred; the right-hand note explains what to avoid.
 | (avoid `forbidden`) | Replace `forbidden` with `blocked` when it is an execution deny rule, or with `excluded` when it is a scope rule. |
 | **source of truth** | The authoritative origin of requirements/decisions. Use `source of truth` / `sources of truth`; avoid `truth source` / `truth-source`. |
 | **iteration** | One pass of a review or reflection loop. Use `iteration` (`this iteration` / `next iteration` / `previous iteration`); avoid `round` as a synonym inside review/reflection loops. (`reviewRound` the code identifier and "REVIEW round" the phase concept stay as-is.) |
-| **Story** | The capitalized product object (a Proofbound work item). `story` lowercase is generic prose. |
+| **Story** | The capitalized product object (a Proof-or-Stop work item). `story` lowercase is generic prose. |
 | **Git** | The product / proper noun is `Git`; the command stays lowercase `git` (e.g. `git init`, `git commit`). |
 | **evidence** | Uncountable noun. Write "evidence", "a piece of evidence", or "evidence entries"; never "an evidence" or "evidences". |
 | **finding** | A reviewer-recorded issue. Use `finding`; avoid `finding item`. |
@@ -84,7 +84,7 @@ left-hand term is preferred; the right-hand note explains what to avoid.
 | **Command to run** / **Command result** | Schema wording for the executed-command input and its output. Use `Command to run` for the command input field and `Command result` for its result; avoid bare `execution result`. |
 | **Recorded by** (or **Actor**) | The party that wrote a record. Use `Recorded by; defaults to …` (or `Actor`); avoid bare `Recorder`. |
 | **entry point** (prose) vs **entrypoint** (code) | In prose write `entry point`; keep `entrypoint` only when it is a literal code identifier. Keep identifiers such as `runCli` as-is. |
-| **full prompt** / **detailed help** | Wording for the long help text. Use `Full prompt` or `Detailed help text shown in lattice <cmd> --help`; avoid the bare uppercase `PROMPT` in prose. |
+| **full prompt** / **detailed help** | Wording for the long help text. Use `Full prompt` or `Detailed help text shown in proof-or-stop <cmd> --help`; avoid the bare uppercase `PROMPT` in prose. |
 | **Emit JSON** | Flag wording for JSON output. Use `Emit JSON.`; avoid `Output JSON.`. |
 | **prevent self-approval / self-waiver** | Anti-self-exemption wording. Use `prevent self-approval` / `prevent self-waiver`; avoid `self-pardon`. |
 
@@ -107,7 +107,7 @@ identifier.
 5. **Preserve identifiers exactly**: command names, enum values, JSON keys, IDs,
    filenames, historical/process identifiers, and template tokens such as
    `${e.message}` are kept verbatim. Active executable command guidance uses
-   `lattice`.
+   `proof-or-stop`.
 6. **Apply the glossary**: use `blocked` vs `excluded` per the glossary, and use
    `source of truth` and `iteration` consistently.
 
@@ -214,13 +214,13 @@ Also run the new English-surface smoke once it exists.
 
 Reviewer checks:
 
-- `lattice help` no longer exposes Chinese text from active command metadata.
-- `lattice <command> --help` no longer exposes Chinese parameter descriptions.
+- `proof-or-stop help` no longer exposes Chinese text from active command metadata.
+- `proof-or-stop <command> --help` no longer exposes Chinese parameter descriptions.
 - Error messages for malformed JSON and schema validation are English.
 - Phase-aware next-step hints are English.
 - Tests no longer require Chinese output except in explicitly named legacy
   compatibility assertions.
-- Active user-facing command guidance documents `lattice` only; historical
+- Active user-facing command guidance documents `proof-or-stop` only; historical
   process names remain only as identifiers.
 
 ## Translation Review Table
@@ -232,12 +232,12 @@ this table is the authoritative review packet for every Chinese-bearing
 
 | ID | Surface | Chinese source | Proposed English | Notes |
 |---|---|---|---|---|
-| T001 | comment | Proofbound CLI 引擎 | Proofbound CLI engine | File header. |
+| T001 | comment | Proof-or-Stop CLI 引擎 | Proof-or-Stop CLI engine | File header. |
 | T002 | comment | 把 dispatch / parse / log / phase gate 这些通用逻辑包成可调用的 runCli 函数。 | Wrap shared dispatch, parse, log, and phase-gate logic in the callable `runCli` function. | Preserve `runCli`. |
 | T003 | comment | main 自己的 cli.ts 是 bin 入口，直接调 runCli()； | The main package `cli.ts` is the binary entrypoint and calls `runCli()` directly. | Header comment. |
 | T004 | comment | 第三方 bootstrap 脚本可以在 runCli({extraTools, extraRegister}) 时把 utils 的工具和 handler 一起合进来。 | Third-party bootstrap scripts can pass `extraTools` and `extraRegister` to `runCli(...)` to merge utility tools and handlers. | Join wrapped source lines. |
-| T005 | schema | 一行描述（出现在 lattice help 列表里） | Short description shown in the `lattice help` command list. | ToolDef field comment. |
-| T006 | schema | 完整 PROMPT（出现在 lattice <cmd> --help 里）。可选；缺省时只显示 description | Full prompt shown in `lattice <cmd> --help`. Optional; when omitted, only `description` is shown. | ToolDef field comment. |
+| T005 | schema | 一行描述（出现在 proof-or-stop help 列表里） | Short description shown in the `proof-or-stop help` command list. | ToolDef field comment. |
+| T006 | schema | 完整 PROMPT（出现在 proof-or-stop <cmd> --help 里）。可选；缺省时只显示 description | Full prompt shown in `proof-or-stop <cmd> --help`. Optional; when omitted, only `description` is shown. | ToolDef field comment. |
 | T007 | schema | 可选稳定 id；缺省时自动按 CHK-001:happy:0 推导 | Optional stable ID. Defaults to an inferred ID such as `CHK-001:happy:0`. | Verification intent field. |
 | T008 | schema | 验证意图描述 | Verification intent description | Short schema text. |
 | T009 | schema | 验证类型 | Verification type | Short schema text. |
@@ -372,20 +372,20 @@ this table is the authoritative review packet for every Chinese-bearing
 | T138 | help | 写代码 + 写验证（fixture / 项目原生测试 / validate.ts 可选） | Implement the code and its verification (fixtures, project-native tests, or optional `validate.ts`) | Main help workflow. |
 | T139 | help | 验证（按项目语言自动发现或读取配置） | Validate, using language-aware auto-discovery or project configuration | Main help workflow. |
 | T140 | help | 进入代码审查 | Enter code review | Main help workflow. |
-| T141 | help | Proofbound reviewer 审查代码，提 finding | Proofbound reviewers inspect the code and record findings | Main help workflow. |
+| T141 | help | Proof-or-Stop reviewer 审查代码，提 finding | Proof-or-Stop reviewers inspect the code and record findings | Main help workflow. |
 | T142 | help | 合并回本地 main 并清理 worktree | Merge back into local `main` and clean up the worktree | Main help workflow. |
 | T143 | help | 并行/分支纪律 | Parallel and branch discipline | Main help section. |
 | T144 | help | 初始化新项目 | Initialize a new project | Main help section. |
 | T145 | help | 提示 | Tip | Main help section. |
-| T146 | help | 出错? 用 lattice <command> --help 查看完整参数说明 | Error? Run `lattice <command> --help` to see the full argument reference. | Main help. |
+| T146 | help | 出错? 用 proof-or-stop <command> --help 查看完整参数说明 | Error? Run `proof-or-stop <command> --help` to see the full argument reference. | Main help. |
 | T147 | error | 未知命令 | Unknown command | Error output. |
 | T148 | error | 你是不是要找 | Did you mean: | Error output. |
 | T149 | error | 错误 | Error | Error output. |
 | T150 | error | JSON 解析失败 | JSON parse failed | Error output. |
 | T151 | hint | 验证全绿 | Validation passed | Existing tests may assert this string. |
 | T152 | hint | 验证未通过 | Validation failed | Existing tests may assert this string. |
-| T153 | hint | 标记为 in_progress。写代码，完成后 git commit + lattice checklist_update --status=done | Marked as in progress. Write the code, then commit and run `lattice checklist_update --status=done`. | Next-step hint. |
-| T154 | hint | 所有 item 已 done。下一步：git commit，然后 lattice story_advance --phase=REVIEW 进入代码审查 | All checklist items are complete. Next: commit, then run `lattice story_advance --phase=REVIEW` to enter code review. | Parameterize item count. |
+| T153 | hint | 标记为 in_progress。写代码，完成后 git commit + proof-or-stop checklist_update --status=done | Marked as in progress. Write the code, then commit and run `proof-or-stop checklist_update --status=done`. | Next-step hint. |
+| T154 | hint | 所有 item 已 done。下一步：git commit，然后 proof-or-stop story_advance --phase=REVIEW 进入代码审查 | All checklist items are complete. Next: commit, then run `proof-or-stop story_advance --phase=REVIEW` to enter code review. | Parameterize item count. |
 | T155 | hint | 还有 ... 个 in_progress item | ... checklist items are still in progress | Parameterized hint. |
 | T156 | hint | 完成 ... 下一项 | Completed ... Next item | Parameterized hint. |
 | T157 | hint | Story 停在 INIT 阶段。下一步 | Story is currently in INIT. Next steps: | Story creation hint. |
@@ -434,13 +434,13 @@ Known wrapped units in this manifest:
 
 ```tsv
 translationId	sourceLine	surface	chineseSource	proposedEnglish	reviewStatus
-M001	2	comment	Proofbound CLI 引擎	Proofbound CLI engine	review-draft
+M001	2	comment	Proof-or-Stop CLI 引擎	Proof-or-Stop CLI engine	review-draft
 M002	4	comment	把 dispatch / parse / log / phase gate 这些通用逻辑包成可调用的 runCli 函数。	Wrap the shared dispatch, parse, log, and phase-gate logic in the callable runCli function.	review-draft
 M003	5	comment	main 自己的 cli.ts 是 bin 入口，直接调 runCli()；	The main package cli.ts is the binary entrypoint and calls runCli() directly.	review-draft
 M004	6	comment	第三方 bootstrap 脚本可以在 runCli({extraTools, extraRegister}) 时把 utils	Third-party bootstrap scripts can pass extraTools and extraRegister to runCli to merge utility tools	review-draft
 M005	7	comment	的工具和 handler 一起合进来。	and handlers.	review-draft
-M006	63	comment	一行描述（出现在 lattice help 列表里） */	Short description shown in the lattice help command list.	review-draft
-M007	65	comment	完整 PROMPT（出现在 lattice <cmd> --help 里）。可选；缺省时只显示 description */	Full prompt shown in lattice <cmd> --help. Optional; defaults to showing description only.	review-draft
+M006	63	comment	一行描述（出现在 proof-or-stop help 列表里） */	Short description shown in the proof-or-stop help command list.	review-draft
+M007	65	comment	完整 PROMPT（出现在 proof-or-stop <cmd> --help 里）。可选；缺省时只显示 description */	Full prompt shown in proof-or-stop <cmd> --help. Optional; defaults to showing description only.	review-draft
 M008	91	schema	可选稳定 id；缺省时自动按 CHK-001:happy:0 推导	Optional stable ID; defaults to an inferred value such as CHK-001:happy:0.	review-draft
 M009	92	schema	验证意图描述	Verification intent description.	review-draft
 M010	93	schema	验证类型	Verification type.	review-draft
@@ -647,7 +647,7 @@ M210	507	schema	新增 dependency edges	Added dependency edges.	review-draft
 M211	508	schema	新增 required refs	Added required refs.	review-draft
 M212	509	schema	新 token budget	New token budget.	review-draft
 M213	510	schema	附加 metadata	Additional metadata.	review-draft
-M214	513	command-description	Single-shot recover：refresh stale evidence + revalidate（仅在 worktree 只剩 lattice metadata / runtime / declared artifact 时放行）	Refresh stale evidence and revalidate in a single shot	review-draft
+M214	513	command-description	Single-shot recover：refresh stale evidence + revalidate（仅在 worktree 只剩 proof-or-stop metadata / runtime / declared artifact 时放行）	Refresh stale evidence and revalidate in a single shot	review-draft
 M215	520	command-description	把一个生成物路径声明为本 story 的预期产出，使 dirty classifier 归为 declared_artifact_changes，并要求 DONE gate 有匹配的 verificationEvidence/promise 引用	Declare an expected generated artifact for this Story	review-draft
 M216	522	schema	相对仓库根的精确路径（无 glob/通配符；无 leading slash；无 .. 段）	Exact path relative to the repository root; no globs, wildcards, leading slash, or .. segments.	review-draft
 M217	523	schema	为什么把此文件声明为本 story 的预期产出	Why this file is declared as an expected output of this story.	review-draft
@@ -781,7 +781,7 @@ M344	712	schema	DONE gate 必填：expected vs actual 差异；没有差异也�
 M345	713	schema	DONE gate 必填：用户价值验收结论	DONE gate required: user-value acceptance verdict.	review-draft
 M346	715	schema	已知限制 / 设计偏离（没有就写 "none — fully covered"）	Known limitations or design deviations (write "none — fully covered" if none).	review-draft
 M347	716	schema	踩坑记录（卡在哪、绕了几次路、下个人应该知道什么，≥ 10 字符；禁止空话）	Pitfalls record: where it got stuck, how many retries, and what the next person should know (at least 10 characters; no empty platitudes).	review-draft
-M348	717	schema	{case name: reason} 对每条 sandbox:false 但没跑的 case 说明原因；未提供则 Proofbound 报错列出缺失项	{case name: reason}; explain each sandbox:false case that was not run, otherwise Proofbound reports missing entries.	review-draft
+M348	717	schema	{case name: reason} 对每条 sandbox:false 但没跑的 case 说明原因；未提供则 Proof-or-Stop 报错列出缺失项	{case name: reason}; explain each sandbox:false case that was not run, otherwise Proof-or-Stop reports missing entries.	review-draft
 M349	719	command-description	读取 story summary	Read story summary	review-draft
 M350	723	command-description	报告 bug	Report a bug	review-draft
 M351	725	schema	描述 / 关联 checklist ID	Description. / Related checklist ID.	review-draft
@@ -814,7 +814,7 @@ M377	762	schema	用于自动补全 intentRef story 前缀	Used to auto-fill the 
 M378	763	schema	只预览，不落盘	Preview only; do not persist changes.	review-draft
 M379	764	schema	追加前预执行 CLI case	Pre-run CLI case before appending.	review-draft
 M380	766	command-description	legacy 全量 fixture 回归（真实执行需 confirm；dryRun 预览）	Legacy full fixture regression (real run needs confirm; dryRun previews)	review-draft
-M381	767	schema	已废弃；当前 story 验证请用 lattice validate --story=<storyId> 并记录 verificationEvidence	Deprecated; for current story verification use lattice validate --story=<storyId> and record verificationEvidence.	review-draft
+M381	767	schema	已废弃；当前 story 验证请用 proof-or-stop validate --story=<storyId> 并记录 verificationEvidence	Deprecated; for current story verification use proof-or-stop validate --story=<storyId> and record verificationEvidence.	review-draft
 M382	768	schema	收集 trace	Collect trace.	review-draft
 M383	769	schema	启用 profiler	Enable profiler.	review-draft
 M384	770	schema	只输出执行计划	Output execution plan only.	review-draft
@@ -873,7 +873,7 @@ M436	851	schema	artifact 摘要	Artifact summary.	review-draft
 M437	853	command-description	列出项目文档（PLAN 阶段挑选 relatedDocs 用）	List project documents, used to choose relatedDocs during PLAN	review-draft
 M438	854	schema	输出格式（默认 text）	Output format (default: text).	review-draft
 M439	1462	comment	Doctor (health issue 巡检)	Doctor (health issue inspection).	review-draft
-M440	1463	command-description	查看 Proofbound 自身的 health issue（被 silent catch 接住的 PERSIST 失败）+ 扫 .worktrees/ 孤儿目录	View Proofbound health issues (silent-caught PERSIST fails); scan orphan worktrees	review-draft
+M440	1463	command-description	查看 Proof-or-Stop 自身的 health issue（被 silent catch 接住的 PERSIST 失败）+ 扫 .worktrees/ 孤儿目录	View Proof-or-Stop health issues (silent-caught PERSIST fails); scan orphan worktrees	review-draft
 M441	1464	schema	输出格式（默认 text）	Output format (default: text).	review-draft
 M442	1465	schema	最多读取条数（默认 1000）	Maximum number of entries to read (default: 1000).	review-draft
 M443	1466	schema	清理 DONE/DISCARDED terminal worktree 注册项、孤儿目录与 prunable 元数据	Clean DONE/DISCARDED terminal worktree registrations, orphan directories, and prunable metadata.	review-draft
@@ -882,12 +882,12 @@ M445	1469	schema	要恢复的 Story ID	Story ID to recover.	review-draft
 M446	1481	command-description	验证 Codex adapter 资产、入口 heartbeat 与硬证据	Verify Codex adapter assets, entrypoint heartbeat, and hard evidence	review-draft
 M447	1482	schema	结构化 JSON 输出	Structured JSON output.	review-draft
 M448	1483	schema	可选 Story ID；缺省从 story/* 分支推断并记录 process-event evidence	Optional Story ID; defaults to inferring from the story/* branch and recording process-event evidence.	review-draft
-M449	1485	command-description	Codex adapter 诊断：输出 Codex adapter 检查状态（不写 process-event evidence）。Alias: lattice codex doctor	Report Codex adapter diagnostics status	review-draft
+M449	1485	command-description	Codex adapter 诊断：输出 Codex adapter 检查状态（不写 process-event evidence）。Alias: proof-or-stop codex doctor	Report Codex adapter diagnostics status	review-draft
 M450	1486	schema	结构化 JSON 输出	Structured JSON output.	review-draft
-M451	1488	command-description	检查 Proofbound 管理资产/模板漂移；--apply/--upgrade 显式同步安全项	Check Proofbound asset/template drift; --apply/--upgrade sync safe items explicitly	review-draft
+M451	1488	command-description	检查 Proof-or-Stop 管理资产/模板漂移；--apply/--upgrade 显式同步安全项	Check Proof-or-Stop asset/template drift; --apply/--upgrade sync safe items explicitly	review-draft
 M452	1489	schema	结构化 JSON 输出	Structured JSON output.	review-draft
 M453	1490	schema	同步 MISSING/STALE_SAFE 管理资产；不会覆盖 CASE_MISMATCH/STALE_LOCAL_EDIT/INCOMPATIBLE	Sync MISSING/STALE_SAFE managed assets; does not overwrite CASE_MISMATCH/STALE_LOCAL_EDIT/INCOMPATIBLE.	review-draft
-M454	1491	schema	同步 MISSING/STALE_SAFE 管理资产到当前 Proofbound 模板；等价于 --apply	Sync MISSING/STALE_SAFE managed assets to current Proofbound templates; equivalent to --apply.	review-draft
+M454	1491	schema	同步 MISSING/STALE_SAFE 管理资产到当前 Proof-or-Stop 模板；等价于 --apply	Sync MISSING/STALE_SAFE managed assets to current Proof-or-Stop templates; equivalent to --apply.	review-draft
 M455	1492	schema	输出 STALE_LOCAL_EDIT 的结构化人工审查摘要	Output structured manual review summary for STALE_LOCAL_EDIT.	review-draft
 M456	1493	schema	覆盖自动检测的 init profile	Override auto-detected init profile.	review-draft
 M457	1494	schema	覆盖 Codex prompt asset 模式；full=生成 .lattice-codex/agents，thin=使用 prompt registry	Override Codex prompt asset mode; full=generate .lattice-codex/agents, thin=use prompt registry.	review-draft
@@ -911,7 +911,7 @@ M474	1516	schema	证据状态：默认 suspected；verified 仅当提供结构�
 M475	1517	schema	suspected 时的怀疑理由（可选，缺省自动兜底）	Suspicion reason for suspected state (optional; automatic fallback if omitted).	review-draft
 M476	1518	schema	关联文件路径	Related file paths.	review-draft
 M477	1519	schema	调用者身份（审计字段，默认从 LATTICE_AGENT 读）	Caller identity (audit field, defaults from LATTICE_AGENT).	review-draft
-M478	1522	comment	Verifier (Proofbound 内建代码验证)	Verifier (Proofbound built-in code verification).	review-draft
+M478	1522	comment	Verifier (Proof-or-Stop 内建代码验证)	Verifier (Proof-or-Stop built-in code verification).	review-draft
 M479	1523	command-description	运行项目验证（静态 + 逻辑 + 集成测试）	Run project verification (static, logic, and integration tests)	review-draft
 M480	1524	schema	含真机测试（--full 或 --full=PvE 按名称过滤）	Include real-machine tests (--full or --full=PvE to filter by name).	review-draft
 M481	1525	schema	只跑 story 改动涉及的 transition（TEST gate 用）	Run only transitions affected by the story changes (used by TEST gate).	review-draft
@@ -931,7 +931,7 @@ M494	1540	schema	Dev server 命令（如 "npm run dev"），启用浏览器代�
 M495	1541	schema	API 端口（默认 3456）	API port (default: 3456).	review-draft
 M496	1544	comment	Evaluate (browser 项目 AI 评估)	Evaluate (AI evaluation for browser projects).	review-draft
 M497	1545	command-description	调 evaluator agent 对 browser 应用打分（功能完整性 + 可用性）	Ask the evaluator agent to score a browser app (completeness and usability)	review-draft
-M498	1547	schema	lattice serve 端口（默认 3456）	lattice serve port (default: 3456).	review-draft
+M498	1547	schema	proof-or-stop serve 端口（默认 3456）	proof-or-stop serve port (default: 3456).	review-draft
 M499	1549	command-description	保存 evaluator 打分结果到 eval-evidence.json	Save evaluator scoring result to eval-evidence.json	review-draft
 M500	1551	schema	evaluator 输出的 JSON 字符串	JSON string output by evaluator.	review-draft
 M501	1554	comment	Finding (lattice-reviewer 发现项)	Finding (lattice-reviewer finding).	review-draft
@@ -1027,11 +1027,11 @@ M590	1718	command-description	生成标准 implementer prompt 字符串（主 ag
 M591	1720	schema	Checklist item ID（如 CHK-001）	Checklist item ID, for example CHK-001.	review-draft
 M592	1721	schema	subagent 类型（如 lattice-implementer / lattice-review-channel）；CHK-008 will expand matrix	subagent type, for example lattice-implementer / lattice-review-channel; CHK-008 will expand matrix.	review-draft
 M593	1724	comment	Finding dispatch (B-45ed CHK-010: reviewer-finding 修复 prompt generator，与 story_dispatch 同构)	Finding dispatch (B-45ed CHK-010: reviewer-finding repair prompt generator, isomorphic with story_dispatch).	review-draft
-M594	1725	comment	B-9d95 CHK-004: deprecated alias，首行 stdout 打印 deprecation warning，建议改用 `lattice dispatch`	B-9d95 CHK-004: deprecated alias; first stdout line prints a deprecation warning and recommends lattice dispatch.	review-draft
-M595	1726	command-description	[deprecated: 请改用 lattice dispatch] 生成标准 reviewer-finding 修复 prompt 字符串	[deprecated: use lattice dispatch] Generate reviewer-finding repair prompt	review-draft
+M594	1725	comment	B-9d95 CHK-004: deprecated alias，首行 stdout 打印 deprecation warning，建议改用 `proof-or-stop dispatch`	B-9d95 CHK-004: deprecated alias; first stdout line prints a deprecation warning and recommends proof-or-stop dispatch.	review-draft
+M595	1726	command-description	[deprecated: 请改用 proof-or-stop dispatch] 生成标准 reviewer-finding 修复 prompt 字符串	[deprecated: use proof-or-stop dispatch] Generate reviewer-finding repair prompt	review-draft
 M596	1728	schema	Finding ID（如 F-001 或 B-xxx:F-001 完整形式）	Finding ID, for example F-001 or the full B-xxx:F-xxx form.	review-draft
 M597	1729	schema	subagent 类型（如 lattice-implementer / lattice-review-channel）；复用 CHK-008 分级矩阵	subagent type, for example lattice-implementer / lattice-review-channel; reuses the CHK-008 grading matrix.	review-draft
-M598	1732	comment	Unified dispatch (B-9d95 CHK-004: story_dispatch / finding_dispatch 合并为 `lattice dispatch`，全阶段开放)	Unified dispatch (B-9d95 CHK-004: story_dispatch / finding_dispatch merged into lattice dispatch, available in all phases).	review-draft
+M598	1732	comment	Unified dispatch (B-9d95 CHK-004: story_dispatch / finding_dispatch 合并为 `proof-or-stop dispatch`，全阶段开放)	Unified dispatch (B-9d95 CHK-004: story_dispatch / finding_dispatch merged into proof-or-stop dispatch, available in all phases).	review-draft
 M599	1733	command-description	统一派发入口：按 itemId / findingId / clusterId 恰好一个生成 subagent prompt（全阶段可用）	Dispatch a subagent prompt for one item, finding, or cluster	review-draft
 M600	1735	schema	Checklist item ID（CHK-xxx）；与 findingId / clusterId 互斥，恰好提供一个	Checklist item ID (CHK-xxx); mutually exclusive with findingId/clusterId, provide exactly one.	review-draft
 M601	1736	schema	Finding ID（F-xxx 或 B-xxx:F-xxx）；与 itemId / clusterId 互斥	Finding ID (F-xxx or B-xxx:F-xxx); mutually exclusive with itemId/clusterId.	review-draft
@@ -1055,7 +1055,7 @@ M618	1770	command-description	设置项目 workflow profile（light/balanced/str
 M619	1771	schema	目标 profile：light / balanced / strict	Target profile: light / balanced / strict.	review-draft
 M620	1773	command-description	显示当前 workflow profile 和生效策略	Show current workflow profile and effective policy	review-draft
 M621	1774	command-description	解释某个 story 的实际生效 profile（project / required / effective）	Explain a story's actual effective profile (project / required / effective)	review-draft
-M622	2123	command-description	捕获一条非权威 dev-memory 经验条目到 file-backed JSONL 存储（不能满足 Proofbound gate evidence）	Capture a non-authoritative dev-memory lesson to JSONL (not gate evidence)	review-draft
+M622	2123	command-description	捕获一条非权威 dev-memory 经验条目到 file-backed JSONL 存储（不能满足 Proof-or-Stop gate evidence）	Capture a non-authoritative dev-memory lesson to JSONL (not gate evidence)	review-draft
 M623	2124	schema	经验类别	Lesson category.	review-draft
 M624	2125	schema	存储范围（默认 project）	Storage scope (default: project).	review-draft
 M625	2126	schema	一句话摘要（≥10 字符）	One-sentence summary (at least 10 characters).	review-draft
@@ -1084,7 +1084,7 @@ M647	2151	schema	最多包含条目数（默认 5）	Maximum number of entries t
 M648	2152	schema	行数预算（默认 60）	Line budget (default: 60).	review-draft
 M649	2153	schema	JSON 格式输出	JSON output format.	review-draft
 M650	2155	command-description	结束会话：active story 中默认写入 story 候选；无 story 时报告/晋升项目条目（不需 story 目录）	Finish the dev-memory session	review-draft
-M651	2156	schema	活动 story ID（如 B-xxx）；省略时 active story 分支会自动推断；Proofbound 外部会话可省略	Active story ID, for example B-xxx; omitted value is inferred automatically from the active story branch; optional outside Proofbound sessions.	review-draft
+M651	2156	schema	活动 story ID（如 B-xxx）；省略时 active story 分支会自动推断；Proof-or-Stop 外部会话可省略	Active story ID, for example B-xxx; omitted value is inferred automatically from the active story branch; optional outside Proof-or-Stop sessions.	review-draft
 M652	2157	schema	story 目录根路径（默认 <root>/.lattice/story/actives；legacy .lattice/story/actives 仍可读）	Story directory root path (default <root>/.lattice/story/actives; legacy .lattice/story/actives remains readable).	review-draft
 M653	2158	schema	可选：相关性过滤词	Optional relevance filter query.	review-draft
 M654	2159	schema	无 storyId 时：global=将项目经验晋升到全局 dev-memory；即使在 active story 中也不写 story 候选	When storyId is omitted: global=promote project lessons to global dev-memory; even inside an active story, do not write story candidates.	review-draft
@@ -1126,20 +1126,20 @@ M689	2469	comment	有 active story 时只列出当前阶段可用命令	When an 
 M690	2475	other	未知前缀：首字母大写	Unknown prefix: capitalize first letter.	review-draft
 M691	2491	other	开发流程:	Development flow:	review-draft
 M692	2493	other	{"name":"x","title":"..","description":"..","type":"feature","priority":"high","checklist":[{"title":"做什么","context":"上下文"}]}	{"name":"x","title":"..","description":"..","type":"feature","priority":"high","checklist":[{"title":"what to do","context":"context"}]}	review-draft
-M693	2494	other	2. lattice story_advance --storyId=B-xxx --phase=INIT_CHECK # 创建本地 worktree/local branch	2. lattice story_advance --storyId=B-xxx --phase=INIT_CHECK # Create local worktree/local branch	review-draft
-M694	2496	other	4. lattice story_review --storyId=B-xxx # 审查通过后进 DEV	4. lattice story_review --storyId=B-xxx                     # Review passes, then enter DEV	review-draft
+M693	2494	other	2. proof-or-stop story_advance --storyId=B-xxx --phase=INIT_CHECK # 创建本地 worktree/local branch	2. proof-or-stop story_advance --storyId=B-xxx --phase=INIT_CHECK # Create local worktree/local branch	review-draft
+M694	2496	other	4. proof-or-stop story_review --storyId=B-xxx # 审查通过后进 DEV	4. proof-or-stop story_review --storyId=B-xxx                     # Review passes, then enter DEV	review-draft
 M695	2500	other	6. 写代码 + 写验证（fixture / 项目原生测试 / validate.ts 可选）	6. Implement the code and its verification (fixtures, project-native tests, or optional validate.ts)	review-draft
-M696	2501	other	7. lattice validate # 验证（按项目语言自动发现或读取配置）	7. lattice validate                                         # Verification (auto-detect by project language or read config)	review-draft
-M697	2505	other	9. lattice story_advance --storyId=B-xxx --phase=REVIEW # 进入代码审查	9. lattice story_advance --storyId=B-xxx --phase=REVIEW    # Enter code review	review-draft
-M698	2506	other	10. Proofbound reviewer 审查代码，提 finding # critical/high 必须 resolve	10. Proofbound reviewer reviews code and raises findings       # critical/high must resolve	review-draft
-M699	2510	other	12. lattice story_advance --storyId=B-xxx --phase=DONE # 合并回本地 main 并清理 worktree	12. lattice story_advance --storyId=B-xxx --phase=DONE     # Merge back to local main and clean worktree	review-draft
+M696	2501	other	7. proof-or-stop validate # 验证（按项目语言自动发现或读取配置）	7. proof-or-stop validate                                         # Verification (auto-detect by project language or read config)	review-draft
+M697	2505	other	9. proof-or-stop story_advance --storyId=B-xxx --phase=REVIEW # 进入代码审查	9. proof-or-stop story_advance --storyId=B-xxx --phase=REVIEW    # Enter code review	review-draft
+M698	2506	other	10. Proof-or-Stop reviewer 审查代码，提 finding # critical/high 必须 resolve	10. Proof-or-Stop reviewer reviews code and raises findings       # critical/high must resolve	review-draft
+M699	2510	other	12. proof-or-stop story_advance --storyId=B-xxx --phase=DONE # 合并回本地 main 并清理 worktree	12. proof-or-stop story_advance --storyId=B-xxx --phase=DONE     # Merge back to local main and clean worktree	review-draft
 M700	2512	other	并行/分支纪律:	Parallelism and branch discipline:	review-draft
-M701	2513	other	Proofbound 并行开发只使用本地 git worktree + 本地分支；不要创建或 push GitHub/origin feature branch。	Proofbound parallel development uses only local git worktrees plus local branches; do not create or push GitHub/origin feature branches.	review-draft
-M702	2514	other	如需发布远端，先让 DONE 合回本地 main、确认 main 干净，再由人类显式运行 lattice release_approve_push --confirm，然后手动 git push origin main。	If remote publishing is needed, first let DONE merge back to local main, confirm main is clean, then a human explicitly runs lattice release_approve_push --confirm, and then manually runs git push origin main.	review-draft
+M701	2513	other	Proof-or-Stop 并行开发只使用本地 git worktree + 本地分支；不要创建或 push GitHub/origin feature branch。	Proof-or-Stop parallel development uses only local git worktrees plus local branches; do not create or push GitHub/origin feature branches.	review-draft
+M702	2514	other	如需发布远端，先让 DONE 合回本地 main、确认 main 干净，再由人类显式运行 proof-or-stop release_approve_push --confirm，然后手动 git push origin main。	If remote publishing is needed, first let DONE merge back to local main, confirm main is clean, then a human explicitly runs proof-or-stop release_approve_push --confirm, and then manually runs git push origin main.	review-draft
 M703	2516	other	初始化新项目:	Initialize a new project:	review-draft
-M704	2517	other	lattice init # 在当前目录初始化 Proofbound project state	lattice init                          # Initialize Proofbound project state in the current directory	review-draft
+M704	2517	other	proof-or-stop init # 在当前目录初始化 Proof-or-Stop project state	proof-or-stop init                          # Initialize Proof-or-Stop project state in the current directory	review-draft
 M705	2519	other	提示: 简单参数用 --key=value，复杂参数(array/object)用 JSON 格式	Tip: use --key=value for simple arguments; use JSON format for complex arguments (array/object).	review-draft
-M706	2520	help	出错? 用 lattice <command> --help 查看完整参数说明	Error? Use lattice <command> --help to view complete argument help.	review-draft
+M706	2520	help	出错? 用 proof-or-stop <command> --help 查看完整参数说明	Error? Use proof-or-stop <command> --help to view complete argument help.	review-draft
 M707	2526	comment	测试入口：接受 JSON 描述的 schema（"string"|"number"|"boolean"|"array"|"object"），内部转 Zod */	Test entrypoint: accepts a JSON-described schema (string/number/boolean/array/object) and converts it to Zod internally. */	review-draft
 M708	2567	comment	下一个参数不是 flag → 当作 value	Next argument is not a flag, so treat it as the value.	review-draft
 M709	2577	comment	key=value (无 -- 前缀，兼容旧格式)	key=value without -- prefix, compatible with legacy format.	review-draft
@@ -1147,7 +1147,7 @@ M710	2583	comment	忽略无法识别的 positional 参数	Ignore unrecognized po
 M711	2646	comment	向上查找项目配置（lattice.config.json 优先，lattice.config.json 兜底）确定项目根	Walk upward to find project config (prefer lattice.config.json, fall back to lattice.config.json) and determine project root.	review-draft
 M712	2867	comment	Runtime enum re-validation (CLAUDE.md「Handler 编码约定」): a missing policy	Runtime enum re-validation (CLAUDE.md Handler coding convention): a missing policy	review-draft
 M713	2943	comment	"Handler 编码约定"): the flag counts as set ONLY for a real boolean `true` or	Handler coding convention: the flag counts as set ONLY for a real boolean true or	review-draft
-M714	3354	comment	runCli — Proofbound CLI 运行时入口	runCli: Proofbound CLI runtime entry point.	review-draft
+M714	3354	comment	runCli — Proof-or-Stop CLI 运行时入口	runCli: Proof-or-Stop CLI runtime entry point.	review-draft
 M715	3356	comment	@param opts.extraTools 第三方包的 ToolDef 列表，会合进 help 和 dispatch	@param opts.extraTools ToolDef list from third-party packages, merged into help and dispatch.	review-draft
 M716	3357	comment	@param opts.extraRegister 第三方包的 register 函数，在 createMainRegistry 之后调用	@param opts.extraRegister register function from third-party packages, called after createMainRegistry.	review-draft
 M717	3358	comment	（收到 Registry 实例后用 registry.registerBatch(...) 注入 handler）	(after receiving the Registry instance, inject handlers with registry.registerBatch(...))	review-draft
@@ -1157,7 +1157,7 @@ M720	3397	comment	dashboard 走独立长驻模式	dashboard uses standalone long
 M721	3403	comment	如果没指定 roots，用 --root（或自动检测）作为默认	If roots are not specified, use --root (or auto-detection) as the default.	review-draft
 M722	3517	cli-output	未知命令: ${cmd}	Unknown command: ${cmd}	review-draft
 M723	3519	cli-output	你是不是要找:	Did you mean:	review-draft
-M724	3520	cli-output	用 lattice help 查看所有命令	Use lattice help to view all commands.	review-draft
+M724	3520	cli-output	用 proof-or-stop help 查看所有命令	Use proof-or-stop help to view all commands.	review-draft
 M725	3526	comment	Phase gate: 有 active story 时，拒绝不在白名单中的命令	Phase gate: When an active story exists, reject commands outside the allowlist.	review-draft
 M726	3539	comment	Parse arguments — 支持三种格式：	Parse arguments — supports three formats:	review-draft
 M727	3540	comment	1. --key=value --flag (标准 flag)	1. --key=value --flag (standard flag)	review-draft
@@ -1180,12 +1180,12 @@ M743	3805	comment	注入 next-step hint（hints.ts 注册的命令才有效；�
 M744	3810	comment	next-step hint (e.g. "→ 验证全绿").	next-step hint (e.g. "Next: Validation passed").	review-draft
 M745	3853	cli-output	错误: ${e.message}\n	Error: ${e.message}\n	review-draft
 M746	3859	comment	story_create: 停在 INIT 时追加下一步提示	story_create: append next-step hint when stopping in INIT.	review-draft
-M747	3871	cli-output	${result}\n⚠ 当前目录不是 git 仓库：story 已记录，但 from-draft worktree 不能自动创建。\n→ 先 git init + 首次 commit 后重试 lattice story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}'	${result}\n⚠ Current directory is not a Git repository: story was recorded, but the from-draft worktree cannot be created automatically.\nNext: Run git init and make the first commit, then retry lattice story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}'	review-draft
-M748	3876	cli-output	${result}\n\n${wtResult}\n\n${syncResult}\n\n→ 现在请 cd 到上述 worktree 路径，然后调 lattice story_advance phase=PLAN 进入 PLAN	${result}\n\n${wtResult}\n\n${syncResult}\n\nNext: Change to the worktree directory above, then run lattice story_advance phase=PLAN to enter PLAN	review-draft
-M749	3880	other	→ 排查后再次执行 lattice story_advance --phase=INIT_CHECK 自动重试，或手动 lattice dev_start '{"storyId":"${storyId}"}'	Next: After diagnosing, run lattice story_advance --phase=INIT_CHECK again to retry automatically, or manually run lattice dev_start '{"storyId":"${storyId}"}'	review-draft
+M747	3871	cli-output	${result}\n⚠ 当前目录不是 git 仓库：story 已记录，但 from-draft worktree 不能自动创建。\n→ 先 git init + 首次 commit 后重试 proof-or-stop story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}'	${result}\n⚠ Current directory is not a Git repository: story was recorded, but the from-draft worktree cannot be created automatically.\nNext: Run git init and make the first commit, then retry proof-or-stop story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}'	review-draft
+M748	3876	cli-output	${result}\n\n${wtResult}\n\n${syncResult}\n\n→ 现在请 cd 到上述 worktree 路径，然后调 proof-or-stop story_advance phase=PLAN 进入 PLAN	${result}\n\n${wtResult}\n\n${syncResult}\n\nNext: Change to the worktree directory above, then run proof-or-stop story_advance phase=PLAN to enter PLAN	review-draft
+M749	3880	other	→ 排查后再次执行 proof-or-stop story_advance --phase=INIT_CHECK 自动重试，或手动 proof-or-stop dev_start '{"storyId":"${storyId}"}'	Next: After diagnosing, run proof-or-stop story_advance --phase=INIT_CHECK again to retry automatically, or manually run proof-or-stop dev_start '{"storyId":"${storyId}"}'	review-draft
 M750	3887	other	当前目录不是 git 仓库	Current directory is not a Git repository	behavior-sensitive
-M751	3893	cli-output	${result}\n⚠ 当前目录不是 git 仓库：story 已记录，但 INIT_CHECK/worktree 流程还不能顺畅跑。\n→ 先在项目根执行 git init && git add . && git commit -m \"init\"，再 lattice story_advance '{\"storyId\":\"${storyId}\",\"phase\":\"INIT_CHECK\"}'	${result}\n⚠ Current directory is not a Git repository: story was recorded, but the INIT_CHECK/worktree flow cannot run smoothly yet.\nNext: First run git init && git add . && git commit -m "init" at the project root, then run lattice story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}'	review-draft
-M752	3896	cli-output	${result}${metadataLine}\n→ Story 停在 INIT 阶段。下一步:\n 1. lattice story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}' 创建 worktree\n 2. cd 到提示的 worktree 路径\n 3. lattice story_advance '{"storyId":"${storyId}","phase":"PLAN"}' 进入 PLAN（cwd 必须是 worktree）	${result}${metadataLine}\nStory is currently in INIT.\nNext steps:\n  1. lattice story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}' create worktree\n  2. cd to the prompted worktree path\n  3. lattice story_advance '{"storyId":"${storyId}","phase":"PLAN"}' enter PLAN (cwd must be the worktree)	review-draft
+M751	3893	cli-output	${result}\n⚠ 当前目录不是 git 仓库：story 已记录，但 INIT_CHECK/worktree 流程还不能顺畅跑。\n→ 先在项目根执行 git init && git add . && git commit -m \"init\"，再 proof-or-stop story_advance '{\"storyId\":\"${storyId}\",\"phase\":\"INIT_CHECK\"}'	${result}\n⚠ Current directory is not a Git repository: story was recorded, but the INIT_CHECK/worktree flow cannot run smoothly yet.\nNext: First run git init && git add . && git commit -m "init" at the project root, then run proof-or-stop story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}'	review-draft
+M752	3896	cli-output	${result}${metadataLine}\n→ Story 停在 INIT 阶段。下一步:\n 1. proof-or-stop story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}' 创建 worktree\n 2. cd 到提示的 worktree 路径\n 3. proof-or-stop story_advance '{"storyId":"${storyId}","phase":"PLAN"}' 进入 PLAN（cwd 必须是 worktree）	${result}${metadataLine}\nStory is currently in INIT.\nNext steps:\n  1. proof-or-stop story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}' create worktree\n  2. cd to the prompted worktree path\n  3. proof-or-stop story_advance '{"storyId":"${storyId}","phase":"PLAN"}' enter PLAN (cwd must be the worktree)	review-draft
 M753	3901	comment	story_advance phase=INIT_CHECK：成功后自动调 dev_start 创建 worktree	story_advance phase=INIT_CHECK: after success, automatically call dev_start to create the worktree.	review-draft
 M754	3902	comment	B-5246: phase 已经在 INIT_CHECK 时（重试场景）允许 dev_start 重跑而不抛	B-5246: when phase is already INIT_CHECK (retry scenario), allow dev_start to rerun without throwing	review-draft
 M755	3903	comment	"Cannot transition INIT_CHECK→INIT_CHECK"。这样 worktree 第一次创建失败时 agent	"Cannot transition INIT_CHECK->INIT_CHECK". This lets an agent retry after the first worktree creation failure.	review-draft
@@ -1194,8 +1194,8 @@ M757	3920	comment	探测当前 phase；若已在 INIT_CHECK 就跳过 advance �
 M758	3921	comment	story_get 默认返回 {checklist, review}；phase 需要 detail:true 才在 result.index.phase	story_get returns {checklist, review} by default; phase requires detail:true to appear at result.index.phase.	review-draft
 M759	3927	other	Story ${storyId} 已在 INIT_CHECK 阶段，重试 worktree 创建	Story ${storyId} is already in INIT_CHECK; retrying worktree creation	review-draft
 M760	3932	comment	story_get 失败时退回原行为	Fall back to original behavior when story_get fails.	review-draft
-M761	3947	cli-output	${advanceResult}\n\n${wtResult}${syncSegment}\n\n→ 现在请 cd 到上述 worktree 路径，然后调 lattice story_advance phase=PLAN 进入 PLAN	${advanceResult}\n\n${wtResult}${syncSegment}\n\nNext: Change to the worktree directory above, then run lattice story_advance phase=PLAN to enter PLAN	review-draft
-M762	3949	cli-output	${advanceResult}\n⚠ worktree 创建失败: ${e.message}\n→ 排查后再次执行 lattice story_advance --phase=INIT_CHECK 自动重试，或手动 lattice dev_start '{"storyId":"${storyId}"}'	${advanceResult}\n⚠ Failed to create worktree: ${e.message}\nNext: After diagnosing, run lattice story_advance --phase=INIT_CHECK again to retry automatically, or manually run lattice dev_start '{"storyId":"${storyId}"}'	review-draft
+M761	3947	cli-output	${advanceResult}\n\n${wtResult}${syncSegment}\n\n→ 现在请 cd 到上述 worktree 路径，然后调 proof-or-stop story_advance phase=PLAN 进入 PLAN	${advanceResult}\n\n${wtResult}${syncSegment}\n\nNext: Change to the worktree directory above, then run proof-or-stop story_advance phase=PLAN to enter PLAN	review-draft
+M762	3949	cli-output	${advanceResult}\n⚠ worktree 创建失败: ${e.message}\n→ 排查后再次执行 proof-or-stop story_advance --phase=INIT_CHECK 自动重试，或手动 proof-or-stop dev_start '{"storyId":"${storyId}"}'	${advanceResult}\n⚠ Failed to create worktree: ${e.message}\nNext: After diagnosing, run proof-or-stop story_advance --phase=INIT_CHECK again to retry automatically, or manually run proof-or-stop dev_start '{"storyId":"${storyId}"}'	review-draft
 ```
 
 ## Behavior-sensitive rows

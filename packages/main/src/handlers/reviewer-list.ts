@@ -1,5 +1,5 @@
 /**
- * B-fdcf CHK-001: lattice reviewer_list CLI
+ * B-fdcf CHK-001: proof-or-stop reviewer_list CLI
  *
  * Output the opt-in reviewer roster for the current story (computed in real time based on 5 conditions):
  *   - concept  / quality / test-coverage → baseline (always on)
@@ -43,6 +43,8 @@ import {
   verifyPostRemediationReviewSelection,
   type PostRemediationReviewSelection,
 } from '../core/review-incremental-context.js';
+import { readBrandEnv } from '../core/brand-env.js';
+
 
 export interface ActiveReviewer {
   /** reviewer short name: concept / quality / test-coverage / behavior / docs / channel */
@@ -151,7 +153,7 @@ export function computeActiveReviewers(
   }
 
   // channel LLM reviewer has been retired; normal-channel mechanical constraints are handled by the
-  // `lattice validate --channel --story=<id>` preflight in REVIEW→TEST.
+  // `proof-or-stop validate --channel --story=<id>` preflight in REVIEW→TEST.
 
   // forced override: command-line --forceReviewer=a,b,c explicitly mounts (input already constrained to lanes supported by review_run_start)
   // Auto reviewers with the same name will be overridden to reason='forced' + forced=true
@@ -286,7 +288,7 @@ export function createReviewerListHandlers(ctx: HandlerContext) {
       if (forced && forced.length > 0) {
         if (!story.events) story.events = [];
         const timestamp = new Date().toISOString();
-        const agent = process.env.LATTICE_AGENT || 'main';
+        const agent = readBrandEnv('AGENT') || 'main';
         // One event per forced name (compatible with StoryEvent.reviewer single-value field + convenient for querying by reviewer)
         for (const name of forced) {
           const event: StoryEvent = {

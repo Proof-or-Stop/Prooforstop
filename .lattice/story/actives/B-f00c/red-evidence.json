@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-f00c",
+  "records": [
+    {
+      "id": "RED-20260726031700",
+      "trigger": "A main-merge makes classifyTrustedValidationLineage / validationHeadLineage flag the story's own content-unchanged files as untrusted-lineage-path via the per-commit diff-tree -m union, refusing DONE validation reuse and hard-throwing autopilot_review_submit.",
+      "acceptanceTargetRef": "sha256:9fa61777cb6a600183fd313ae63c6a0bd601e36057ee3f6331348dfb4bc813e8",
+      "baselineHeadHash": "1848e37a4c58eae471967d9e78b4a037508f6f7d",
+      "baselineMaterialHash": "07cc4b864f806ebc1dbb64e5d48e56d252e83e7272dc4ab58581b13e35d8570f",
+      "observedFailure": "Throwaway spike against unfixed dist: base -> foo.ts(H1) -> main metadata commit -> merge(H2); foo.ts net-unchanged (git diff H1 H2 excludes foo.ts) yet classifyTrustedValidationLineage(H1,H2) returns {lineage:'rejected', reasons:['untrusted-lineage-path:foo.ts']}. RED_REPRODUCED true.",
+      "failureReceiptHash": "sha256:cd780a462d9b03de3157e8480c19494358ea48455710ffdf569bbb2d414a0dcf",
+      "expectedGreenCommand": "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js",
+      "greenRelation": {
+        "targetRef": "sha256:9fa61777cb6a600183fd313ae63c6a0bd601e36057ee3f6331348dfb4bc813e8",
+        "relation": "same_acceptance",
+        "command": "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js"
+      },
+      "note": "Spike is throwaway; the DEV-phase smoke formalizes it on both the reuse (classifyTrustedValidationLineage) and admissibility (assessStoredValidationPassAdmissibility) paths + negative + robustness cases.",
+      "createdAt": "2026-07-26T03:17:00.142Z"
+    }
+  ],
+  "createdAt": "2026-07-26T03:17:00.142Z",
+  "updatedAt": "2026-07-26T03:17:00.142Z"
+}

@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 /**
  * Claude Code UserPromptSubmit hook: softly remind the agent to recover state
- * with `lattice session_brief` when no recent heartbeat is visible.
+ * with `proof-or-stop session_brief` when no recent heartbeat is visible.
  */
 const fs = require('fs');
 const path = require('path');
 
 const DEFAULT_FRESH_MINUTES = 60;
-const REMINDER = 'Suggest running lattice session_brief first to restore context';
+const REMINDER = 'Suggest running proof-or-stop session_brief first to restore context';
 
 let input = '';
 process.stdin.setEncoding('utf8');
@@ -40,7 +40,9 @@ function parseHookInput(raw) {
 
 function freshnessThresholdMs() {
   const configured = Number(
-    process.env.LATTICE_SESSION_BRIEF_FRESH_MINUTES
+    process.env.PROOF_OR_STOP_SESSION_BRIEF_FRESH_MINUTES
+      || process.env.PROOF_OR_STOP_SESSION_BRIEF_REMINDER_MINUTES
+      || process.env.LATTICE_SESSION_BRIEF_FRESH_MINUTES
       || process.env.LATTICE_SESSION_BRIEF_REMINDER_MINUTES
       || DEFAULT_FRESH_MINUTES,
   );

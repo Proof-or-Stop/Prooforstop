@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-6f23",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Bounded parallel execution inside the agent-liveness child smoke orchestrator",
+    "Focused regression and cold-build full-suite timing proof",
+    "Observable preservation of child output, recursion prevention, failure and signal propagation, and cleanup"
+  ],
+  "excluded": [
+    "Changing root npm test membership or package build policy",
+    "Raising or disabling the 300-second full-suite performance budget",
+    "Raising the 120-second member timeout",
+    "Unrelated lifecycle or product behavior"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "User explicitly directed Codex to resolve the TEST blocker without further questions; the boundary preserves all existing gates and changes only the nested serial bottleneck.",
+  "createdAt": "2026-08-14T13:47:36.226Z",
+  "updatedAt": "2026-08-14T13:47:36.226Z",
+  "_hash": "c5c044f95160ad191a523cf03ca22e4f0adb2907e87e63510c5529377568171a"
+}

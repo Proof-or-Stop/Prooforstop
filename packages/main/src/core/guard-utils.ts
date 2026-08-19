@@ -16,10 +16,7 @@ import { createHash } from 'crypto';
 import type { StoryStore } from './store.js';
 import { loadConfig } from './config.js';
 import { resolveWorkflowPolicy } from './workflow-policy.js';
-import { verifyFinding } from './finding-verify.js';
-import type { Finding } from './types.js';
 import { evaluateReviewVerdict, storyMachine, type StoryMachineContext } from './machine.js';
-import { isFindingBlocking } from './advisory.js';
 import { isTerminalChecklistStatus } from './checklist-status.js';
 
 /**
@@ -175,7 +172,7 @@ export function getGuardFailureReason(
   if (targetPhase === 'DONE') {
     const evidence = store.readTestEvidence(storyId);
     if (!evidence) {
-      return 'Cannot enter DONE: no test evidence (run lattice validate first)';
+      return 'Cannot enter DONE: no test evidence (run proof-or-stop validate first)';
     }
     if (evidence.result !== 'PASS') {
       return `Cannot enter DONE: test ${evidence.result}: ${evidence.output}`;

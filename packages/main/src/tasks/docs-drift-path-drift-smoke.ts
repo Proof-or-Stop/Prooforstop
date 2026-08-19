@@ -365,8 +365,8 @@ const REGISTRY = new Set<string>(['story_create', 'validate']);
     'The framework generates `.codex/hooks/lattice-scope-pretool.cjs` automatically.',
     '',
     '```bash',
-    'lattice story_create',
-    'lattice validate',
+    'proof-or-stop story_create',
+    'proof-or-stop validate',
     '```',
   ].join('\n');
   const result = runDocsDriftGate([md], REGISTRY, {
@@ -400,7 +400,7 @@ const REGISTRY = new Set<string>(['story_create', 'validate']);
     'See `packages/main/src/handlers/validate-docs-drift.ts`.',
     '',
     '```bash',
-    'lattice story_create',
+    'proof-or-stop story_create',
     'lattice not_a_real_command',
     '```',
   ].join('\n');

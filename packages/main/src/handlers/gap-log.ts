@@ -30,6 +30,7 @@ import type { Finding, FindingEvidenceState } from '../core/types.js';
 import { ensureMetaStory, appendGapFinding, META_STORY_ID } from '../core/audit-meta-store.js';
 import { withReentrantMainWriteLock } from '../core/main-write-lock.js';
 import { resolveMainRepoRoot } from '../core/partial-done-recovery.js';
+import { readBrandEnv } from '../core/brand-env.js';
 
 const GAP_LOG_CATEGORIES = ['happy', 'edge', 'adversarial', 'missing'] as const;
 const GAP_LOG_SEVERITIES = ['critical', 'high', 'medium', 'low'] as const;
@@ -198,7 +199,7 @@ export function createGapLogHandlers(ctx: HandlerContext): Record<string, (...ar
           ...(ev.reproCommand ? { reproCommand: ev.reproCommand } : {}),
           ...(ev.observedOutput ? { observedOutput: ev.observedOutput } : {}),
           ...(ev.analysisNote ? { analysisNote: ev.analysisNote } : {}),
-          agent: args.agent || process.env.LATTICE_AGENT || 'lattice-gap-log',
+          agent: args.agent || readBrandEnv('AGENT') || 'lattice-gap-log',
         }, META_STORY_ID, { projectRoot: ctx.root });
         return { created: ensured.created, result: appended };
       }, {

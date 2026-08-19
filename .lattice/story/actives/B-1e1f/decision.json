@@ -1,0 +1,81 @@
+{
+  "principles": [
+    "PRE_CERT is admission, not another test: heavy suites stay exactly as they are, they just cannot start without a current window.",
+    "CertificationWindow is a separate owner from Review Inventory; inventory completeness must never become certification authority.",
+    "Keep current strict freshness: related story-owned drift fail-closes; never rewrite stored hashes or treat whole-tree drift as fresh.",
+    "Every process fact that changes a gate must be signed, registered, and consumed by a handler, not only by prompt text.",
+    "Refuse early with one blocker code and one Next command; do not start a 30-45 minute suite to discover the same fact later."
+  ],
+  "drivers": [
+    "B-9812-shaped stories rerun expensive matrices on unconverged candidates.",
+    "B-3f3d already froze REVIEW inventory but explicitly is not PRE_CERT.",
+    "done_required_validate and validate --full are already official entrypoints and must be the choke points."
+  ],
+  "options": [
+    {
+      "name": "A: Independent CertificationWindow owner plus heavy-entrypoint choke",
+      "pros": [
+        "Matches the U-01 split and B-3f3d's stated authority boundary.",
+        "Can consume inventory, merge-main, and clean-tree facts without mixing them into one receipt.",
+        "Invalidation of the window does not reopen or rewrite inventory receipts."
+      ],
+      "cons": [
+        "Adds a second signed artifact family and another operator command surface.",
+        "DEV must merge unfinished B-3f3d or fixture its public API."
+      ]
+    },
+    {
+      "name": "B: Extend review-inventory receipts to also authorize heavy certification",
+      "pros": [
+        "Fewer artifacts and one finalize command.",
+        "Operators already learn review_inventory_*."
+      ],
+      "cons": [
+        "Contradicts B-3f3d's inventory-completeness-only authority and authorizesTest=false.",
+        "A later inventory bug would silently weaken or over-grant certification.",
+        "Forces this story to reopen B-3f3d's signature domain."
+      ]
+    },
+    {
+      "name": "C: Prompt-only PRE_CERT plus done_prepare hints",
+      "pros": [
+        "No new gate code.",
+        "Fastest to write."
+      ],
+      "cons": [
+        "Violates the process-fact dual contract.",
+        "Hosts can still launch done_required_validate whenever they want.",
+        "Does not produce the required [pre_cert_window_required] refusal."
+      ]
+    }
+  ],
+  "chosen": "A: Independent CertificationWindow owner plus heavy-entrypoint choke",
+  "rationale": "U-01b exists because B-3f3d refused to become PRE_CERT. A separate window owner can consume a FINALIZED inventory plus done_prepare merge/clean facts, choke only official heavy entrypoints, and invalidate on source mutation without rewriting inventory or relaxing freshness.",
+  "preMortem": [
+    {
+      "scenario": "B-3f3d APIs are missing on this worktree and implementers stub PRE_CERT to always admit",
+      "trigger": "story/B-1e1f was branched from main; review-inventory-epoch.ts is only in .worktrees/B-3f3d",
+      "consequence": "done_required_validate runs on unconverged candidates and the story ships a no-op gate",
+      "mitigation": "DEV first merge or vendor the B-3f3d public functions; admit must fail closed when inventory APIs or a FINALIZED receipt are absent; smoke proves the refuse path without those fixtures"
+    },
+    {
+      "scenario": "Routine validate or REVIEW preflight is misclassified as heavy and every reviewer round is blocked",
+      "trigger": "The choke wraps createVerifierHandlers.validate without distinguishing --full from --channel/--lint",
+      "consequence": "REVIEW cannot produce evidence; U-01b becomes slower than the problem it solves",
+      "mitigation": "Explicit allowlist: only done_required_validate, validate --full, and doneRequiredCommands are heavy; add a negative smoke that routine validate still starts"
+    },
+    {
+      "scenario": "Window artifact is written outside story metadata and auto-committed, moving HEAD",
+      "trigger": "New certification-window.json is stored under .lattice/ but not registered as materialHash-exclude or story metadata",
+      "consequence": "Admitting the window invalidates the same inventory/delivery evidence it just consumed",
+      "mitigation": "Keep the signed window under the story active dir and let autoCommitStoryMetadata own it, or register a non-authoritative path in RUNTIME_ARTIFACT_REGISTRY with materialHash exclude and no extra HEAD-moving commit"
+    },
+    {
+      "scenario": "Source mutation is allowed and old DONE-required receipts are rebound to the new hash",
+      "trigger": "Implementer treats window identity as advisory and copies the B-914f reuse path",
+      "consequence": "post-cert source commits keep a PASS; fail-closed freshness is lost",
+      "mitigation": "Invalidate on storyFilesHash/material change; receipts keep original hashes; heavy reuse must require an ADMITTED window whose frozen identity still matches"
+    }
+  ],
+  "timestamp": "2026-08-18T06:44:14.915Z"
+}

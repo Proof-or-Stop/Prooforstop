@@ -1,0 +1,20 @@
+{
+  "storyId": "B-49ed",
+  "expected": "topology_critic_receipt_set from a session whose id came from LATTICE_SESSION_ID fails with: role eligibility failed: lattice-review-topology-critic must sign from a host-adapter session, received \"explicit-env\".",
+  "actual": {
+    "command": "node packages/main/dist/tasks/topology-signing-source-guard-smoke.js",
+    "exitCode": 0,
+    "stdout": "Topology signing source guard: PASS\n  refused (forgeable): explicit-env, derived-ppid\n  accepted (host-derived): host-adapter, generated-token\n  bound production call sites: 2/2\n  migrated fixture env resolves to: host-adapter\n  accepted sources complete provenance for: critic + exclusion approver\n"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-08-19T06:01:52.728Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "31d1bd991502074ac430d97e3c6f47e77c6726ab",
+  "materialHash": "489347b6a26190725695521bb871b4976d42b324416f52669b04c623cd78e444"
+}

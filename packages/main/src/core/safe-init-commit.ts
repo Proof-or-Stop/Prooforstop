@@ -137,7 +137,7 @@ export function createSafeInitCommitOnHead(args: SafeInitCommitArgs): SafeInitCo
     // Commit ONLY the story-dir pathspec (`--only`): coexisting staged changes
     // are left untouched, and the working index keeps tracking the path — so the
     // on-disk leaf is tracked-and-clean and immune to `git clean -fd`.
-    const subject = `lattice: story ${storyId} init`;
+    const subject = `proof-or-stop: story ${storyId} init`;
     git(repoRoot, ['-c', 'commit.gpgsign=false', 'commit', '--only', '-m', subject, '--', storyRel]);
 
     let sha = '';

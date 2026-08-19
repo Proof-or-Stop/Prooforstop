@@ -28,7 +28,7 @@ import { PRE_REVIEW_LIVE_PROOF_COMMAND, PRE_REVIEW_LIVE_PROOF_TIMEOUT_MS } from 
 const STORY_ID = 'B-livesmoke';
 const NOW = '2026-06-20T00:00:00.000Z';
 const MARKER = 'P5-MARKER-7f3a';
-const USER_SEES = 'lattice live_smoke_transcript --storyId=<story> prints the expected output and transcript status.';
+const USER_SEES = 'proof-or-stop live_smoke_transcript --storyId=<story> prints the expected output and transcript status.';
 const ARTIFACT_REL = 'evidence/live-smoke-transcript.json';
 const CLI_ENTRYPOINT = fileURLToPath(new URL('../cli.js', import.meta.url));
 
@@ -804,8 +804,8 @@ assert.equal(
     symlinkSync(activeCliEntrypoint, latticeSymlink);
     assert.equal(realpathSync(latticeSymlink), activeCliEntrypoint, 'fixture mirrors a global lattice symlink to the exact active CLI realpath');
     const budgetEnv = { ...process.env, PATH: `${globalBin}${delimiter}${process.env.PATH ?? ''}` };
-    const doneRequiredCommand = 'lattice done_required_validate --storyId=B-livesmoke --json';
-    const donePrepareCommand = 'lattice done_prepare --storyId=B-livesmoke --json';
+    const doneRequiredCommand = 'proof-or-stop done_required_validate --storyId=B-livesmoke --json';
+    const donePrepareCommand = 'proof-or-stop done_prepare --storyId=B-livesmoke --json';
     const preReviewProof = liveSmokeCaptureBudget(root, PRE_REVIEW_LIVE_PROOF_COMMAND, budgetEnv);
     assert.equal(preReviewProof.recognizedCommand, 'pre_review_live_proof');
     assert.equal(preReviewProof.nestedMaxTimeoutMs, PRE_REVIEW_LIVE_PROOF_TIMEOUT_MS);
@@ -877,7 +877,7 @@ assert.equal(
 
     const arbitrary = liveSmokeCaptureBudget(root, 'node long-arbitrary-script.js', budgetEnv);
     assert.equal(arbitrary.timeoutMs, 60_000, 'arbitrary captures retain the fixed safety ceiling');
-    const composed = liveSmokeCaptureBudget(root, 'lattice done_required_validate --storyId=B-livesmoke; node extra.js', budgetEnv);
+    const composed = liveSmokeCaptureBudget(root, 'proof-or-stop done_required_validate --storyId=B-livesmoke; node extra.js', budgetEnv);
     assert.equal(composed.timeoutMs, 60_000, 'shell-composed input cannot obtain the wider closeout budget');
     for (const injected of [
       `PATH=/tmp/attacker ${doneRequiredCommand}`,

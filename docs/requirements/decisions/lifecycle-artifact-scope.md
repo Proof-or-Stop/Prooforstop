@@ -1,19 +1,19 @@
 # Lifecycle Artifact Scope Policy
 
 **Status**: active (B-b9d0; B-997b wave 1)
-**Scope**: scope-contract enforcement when a Proofbound command writes a story-scoped
+**Scope**: scope-contract enforcement when a Proof-or-Stop command writes a story-scoped
 metadata artifact during DEV / REVIEW / TEST / DONE.
 
-Legacy Proofbound path note: the old hidden Proofbound story tree is intentionally not
+Legacy Proof-or-Stop path note: the old hidden Proof-or-Stop story tree is intentionally not
 named here as a runnable path. It is retired and rejected wherever this policy
 describes current lifecycle classification.
 
 ## Why this exists
 
-Proofbound lifecycle CLI commands (`delivery_check_set`, `summary_set`,
+Proof-or-Stop lifecycle CLI commands (`delivery_check_set`, `summary_set`,
 `scope_contract_set`, `finding_add`, `init_check_set`, …) write metadata files
 under `.lattice/story/actives/<storyId>/` or `docs/story/.../<storyId>/`.
-The retired hidden Proofbound story tree is no longer a recognized story-dir prefix. These
+The retired hidden Proof-or-Stop story tree is no longer a recognized story-dir prefix. These
 writes are not implementation work — they are command-generated provenance.
 Before B-b9d0 the scope gate either failed-closed against them (blocking DONE)
 or fell back to a blanket legacy Lattice-directory exemption that let arbitrary,
@@ -40,7 +40,7 @@ order:
    – returns a hit only when the path matches:
    – a recognized story-dir prefix (`docs/story/actives/`,
      `.lattice/story/actives/`, or a custom `storyDir`;
-     the retired hidden Proofbound story tree is not recognized),
+     the retired hidden Proof-or-Stop story tree is not recognized),
    – followed by a valid storyId segment,
    – followed by either a top-level terminal filename in
      `LATTICE_LIFECYCLE_ARTIFACT_FILENAMES` or a relative path in
@@ -60,7 +60,7 @@ order:
      `.lattice/locks/...`, `owner-lease.json`, `docs/story/activity.jsonl`,
      `.lattice-tmp-*`, `lattice-debug.log`,
      `browser-test.log`, etc.
-   – Used by scope to skip volatile runtime telemetry that Proofbound writes as a
+   – Used by scope to skip volatile runtime telemetry that Proof-or-Stop writes as a
      side-effect of read/write commands. **This is NOT a blanket `.lattice/`
      pass.** An arbitrary file like `.lattice/foo.json` does not match any registered runtime matcher and
      therefore falls through.
@@ -165,7 +165,7 @@ Mechanical evidence lives in:
 - `scripts/verify-process-fact-contract.mjs` — asserts the classifier accepts
   known lifecycle filenames plus `evidence/transcript-diff.md` and
   `evidence/live-smoke-transcript.json` under a story id, rejects arbitrary
-  files in the retired hidden Proofbound tree and nearby non-transcript evidence
+  files in the retired hidden Proof-or-Stop tree and nearby non-transcript evidence
   files, includes the INIT scope anti-expansion artifact filenames, and rejects
   ordinary product source files when scope is unacknowledged.
 - `packages/main/src/tasks/lifecycle-registry-contract.ts` — home of the
@@ -194,12 +194,12 @@ test-evidence.json is gate-consumed validation metadata, not material drift inpu
 
 ## Policy: registry-backed prompt assets
 
-Proofbound init supports two compatible prompt asset shapes:
+Proof-or-Stop init supports two compatible prompt asset shapes:
 
 | Layer | Examples | Ownership |
 | --- | --- | --- |
 | project-local required assets | Default fresh init primary (global-thin): `.lattice/Lattice.md`, `.lattice/lattice.json`, `AGENTS.md`. Full/local-shim explicit opt-in (`--asset-mode=full`/`--asset-mode=thin`): `LATTICE.md`, `.lattice-codex/lattice.json`, `bin/lattice.js`, `bin/lattice-codex.js`, `.claude/settings.json`, `.claude/hooks/*`. | Repository-local host entrypoints, adapter config, and command launchers. Global-thin init requires only `.lattice/` assets; local wrappers are generated only in full/thin modes. |
-| package registry prompt templates | `packages/main/templates/agents/*.md` exposed through `lattice.prompt-registry.v1` | Versioned Proofbound package assets. These are the canonical prompt bodies. |
+| package registry prompt templates | `packages/main/templates/agents/*.md` exposed through `lattice.prompt-registry.v1` | Versioned Proof-or-Stop package assets. These are the canonical prompt bodies. |
 | generated or materialized prompt caches | `.lattice-codex/agents/*.md`, `.claude/agents/*.md` when a profile asks for full materialization | Compatibility surfaces for hosts or old repositories that still expect local prompt files. |
 
 The phrase **registry-backed prompt assets** means project metadata points at the
@@ -212,9 +212,13 @@ requiring `.lattice-codex/` entries or local bin wrappers. In full/thin modes,
 Legacy `.lattice-codex/lattice.json` files may remain archived or user-owned, but they are
 not active adapter inputs.
 
-The Proofbound naming migration is a managed-asset naming contract only. It does
+The Proof-or-Stop naming migration is a managed-asset naming contract only. It does
 not promote ordinary CLI output to receipt-backed authority and does not change
-Story lifecycle gates. `lattice` is the only active runtime/product command.
+Story lifecycle gates. `proof-or-stop` is the primary active runtime/product
+command; `lattice` is retained as a deprecated alias resolving to the same
+binary, so existing scripts and in-flight stories keep working. Both names are
+active entrypoints — neither is the sole command — and no additional runtime
+command is introduced.
 Fresh init must not generate `LATTICE.md`, `.lattice-codex/lattice.json`, `bin/lattice.js`, or
 `bin/lattice-codex.js`; compatibility checks do not treat those paths as active
 adapter or runtime inputs. Cleanup may remove a legacy-named asset only
@@ -232,9 +236,9 @@ Safe migration follows the existing managed-asset states:
 - `OK` registry manifests and full-mode mirrors are both valid.
 - `MISSING` registry metadata can be created by explicit thin init/check flows.
 - `STALE_SAFE` generated prompt mirrors may be updated or removed only when
-  Proofbound can prove they are old unedited managed assets.
+  Proof-or-Stop can prove they are old unedited managed assets.
 - `STALE_LOCAL_EDIT`, `CASE_MISMATCH`, and `INCOMPATIBLE` prompt files are
-  report-only. Proofbound must not overwrite or delete local edits during thin
+  report-only. Proof-or-Stop must not overwrite or delete local edits during thin
   migration.
 
 Registry-backed prompt checks are adapter hygiene. They do not submit evidence,
@@ -245,8 +249,8 @@ receipt-backed authority remain separate gate inputs.
 
 The package prompt registry (`packages/main/templates/agents/*.md` via
 `promptRegistryManifest()`) is the single source for ordinary role bodies and
-for the six migrated reviewer definitions. The registry host resolver exposes
-those six reviewers as a body-free bootstrap; `review_run_start` selects and
+for the five migrated reviewer definitions. The registry host resolver exposes
+those five reviewers as a body-free bootstrap; `review_run_start` selects and
 returns exactly one legacy or modular role body. Each host keeps only a *thin
 adapter* or that canonical bootstrap. The adapter shape is dictated by the
 host's loader, but the selected-body source remains the package registry.
@@ -254,7 +258,7 @@ host's loader, but the selected-body source remains the package registry.
 | Host | Thin adapter (what lives in the project/global) | Prompt content source |
 | --- | --- | --- |
 | Codex | `.lattice-codex/lattice.json` manifest (`promptMode: 'registry'`) — B-4ee0 | package registry host render: reviewer bootstrap or ordinary role body |
-| Claude | `.claude/agents/*.md` **thin shim/bootstrap** (frontmatter `name`/`description`/`tools` + a CLI pointer) | migrated reviewers use `review_run_start`; ordinary roles use `lattice agent_prompt` |
+| Claude | `.claude/agents/*.md` **thin shim/bootstrap** (frontmatter `name`/`description`/`tools` + a CLI pointer) | migrated reviewers use `review_run_start`; ordinary roles use `proof-or-stop agent_prompt` |
 
 B-4ee0 already collapsed the **Codex** side: in global-thin/thin mode Codex does
 not materialize `.lattice-codex/agents`; it resolves prompts from the registry via its
@@ -274,8 +278,8 @@ keeps one file per role, but that file is a **content-free shim**.
    reviewer role body is copied or symlinked into a host directory.
 
 2. **The registry host render is the shared bootstrap/body endpoint.**
-   `lattice agent_prompt --role=<name>` returns the canonical registry host
-   render: a body-free `review_run_start` bootstrap for the six migrated
+   `proof-or-stop agent_prompt --role=<name>` returns the canonical registry host
+   render: a body-free `review_run_start` bootstrap for the five migrated
    reviewers, and the canonical role body for ordinary roles. Codex registry
    mode resolves the same host render. For migrated reviewers,
    `review_run_start` alone supplies exactly one selected role body.
@@ -291,7 +295,7 @@ keeps one file per role, but that file is a **content-free shim**.
 3. **Shims live in global `~/.claude/agents`; projects get zero agent files.** The
    16 shims are generated once into the user-global `~/.claude/agents` so Claude
    Code resolves `subagent_type: lattice-*` for all projects from one place.
-   `lattice init` writes **zero** `.claude/agents` files into a project (fresh
+   `proof-or-stop init` writes **zero** `.claude/agents` files into a project (fresh
    tree stays `.lattice/Lattice.md` + `AGENTS.md`, plus any pre-existing
    `CLAUDE.md`). Shim frontmatter (`tools`) is derived from each registry
    template's frontmatter so the reviewer read-only sandbox is preserved.
@@ -302,9 +306,9 @@ keeps one file per role, but that file is a **content-free shim**.
    sandbox.
 
 5. **Migration is explicit, never silent (execution-plan Phase 4).** A normal
-   `lattice init` MUST NOT delete project-local files. When it detects existing
+   `proof-or-stop init` MUST NOT delete project-local files. When it detects existing
    project-local managed agent files (full copies or symlinks from older
-   versions) it only WARNs and points at `lattice init --upgrade`. Removal happens
+   versions) it only WARNs and points at `proof-or-stop init --upgrade`. Removal happens
    only under the explicit `--upgrade` flow, deletes only the managed basenames
    (the set from `templates/agents`), preserves user-authored files, forbids
    wildcard clears, and logs each removal.
@@ -314,10 +318,10 @@ keeps one file per role, but that file is a **content-free shim**.
    collision). Stale project-local managed files must be removed under `--upgrade`
    for the global shims to take effect.
 
-7. **Observability.** `lattice doctor` reports `agentAssetMode: runtime-owned` so
+7. **Observability.** `proof-or-stop doctor` reports `agentAssetMode: runtime-owned` so
    the host-neutral state is diagnosable across projects.
 
 This realizes the runtime-owned principle in
 `lattice-runtime-owned-agent-assets-execution-plan.md` for both hosts: agent
-prompt **content** belongs to the local Proofbound CLI runtime/registry, not to any
+prompt **content** belongs to the local Proof-or-Stop CLI runtime/registry, not to any
 host directory or business project; hosts hold only thin, content-free adapters.

@@ -1,16 +1,16 @@
 # Orchestrate Legacy Evidence Index
 
-Proofbound starts from a clean source tree. The historical Orchestrate Proofbound
+Proof-or-Stop starts from a clean source tree. The historical Orchestrate Proof-or-Stop
 story records and evidence archives are intentionally not copied into this
 repository's `main` branch.
 
 ## Policy
 
-- New Proofbound development records new lifecycle evidence in this repository.
+- New Proof-or-Stop development records new lifecycle evidence in this repository.
 - Legacy Orchestrate evidence remains local-only in the original archive.
 - `/Users/jek/Documents/Work/proofbound` is the canonical active checkout.
 - `/Users/jek/Documents/Work/Orchestrate` is a retired read-only legacy evidence
-  root and should not receive new Proofbound writes.
+  root and should not receive new Proof-or-Stop writes.
 - Do not commit old `.lattice/story/**` or `.lattice/artifacts/**` into this
   repository's `main` branch.
 - Paper drafts may cite curated claims from this index, but raw review logs,
@@ -33,10 +33,10 @@ repository's `main` branch.
 
 ## Preserved Active Worktrees
 
-The old active Orchestrate story worktrees were preserved inside proofbound for
+The old active Orchestrate story worktrees were preserved inside Proof-or-Stop for
 local recovery:
 
-| Story | Proofbound path | Note |
+| Story | Proof-or-Stop path | Note |
 | --- | --- | --- |
 | B-3523 | `/Users/jek/Documents/Work/proofbound/.worktrees/B-3523` | exact old worktree preservation; not normalized or completed by the retirement story |
 | B-fbb6 | `/Users/jek/Documents/Work/proofbound/.worktrees/B-fbb6` | exact old worktree preservation; not normalized or completed by the retirement story |

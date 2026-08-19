@@ -1,0 +1,82 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-74b9",
+  "state": "confirmed",
+  "ledgerHash": "sha256:e338632e2a057a57599c847e9d67f52715f7643cb820d8c006013c355b3ac103",
+  "milestones": [
+    {
+      "id": "M1",
+      "sourceRequirementId": "REQ-001",
+      "claim": "proofstory-acceptance-basis-smoke.ts fixed (RED then GREEN)",
+      "doneMeans": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js exits 0",
+      "requiredEvidence": [
+        "cli"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "INT-CHK001-RED",
+        "INT-CHK001-GREEN"
+      ],
+      "status": "covered"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "REQ-001",
+      "claim": "field-regression-cli-smoke.ts fixed (RED then GREEN)",
+      "doneMeans": "node packages/main/dist/tasks/field-regression-cli-smoke.js exits 0",
+      "requiredEvidence": [
+        "cli"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "INT-CHK002-RED",
+        "INT-CHK002-GREEN"
+      ],
+      "status": "covered"
+    },
+    {
+      "id": "M3",
+      "sourceRequirementId": "REQ-001",
+      "claim": "worktree-authority-smoke.ts version-bump ENOENT fixed (RED then GREEN)",
+      "doneMeans": "the DONE post-merge version bump ENOENT signature no longer occurs (whole-file exit is separately gated by unrelated task_a8d49518)",
+      "requiredEvidence": [
+        "cli"
+      ],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "INT-CHK003-RED",
+        "INT-CHK003-GREEN"
+      ],
+      "status": "covered"
+    },
+    {
+      "id": "M4",
+      "sourceRequirementId": "REQ-001",
+      "claim": "validate.commands/test:serial-reference registration decision recorded",
+      "doneMeans": "plan.md or background.md records an explicit per-fixture registration decision with rationale",
+      "requiredEvidence": [
+        "docs"
+      ],
+      "checklistRefs": [
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "INT-CHK004-DECISION"
+      ],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-08-15T20:30:52.906Z",
+  "updatedAt": "2026-08-15T20:31:20.179Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260815201645",
+    "acceptedInterpretationHash": "sha256:8449129e1caed5ec399dc42e6b774fba3ed3801c8f082494c1333a1027986291",
+    "acceptedAt": "2026-08-15T20:31:20.179Z"
+  }
+}

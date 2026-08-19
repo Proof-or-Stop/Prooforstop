@@ -1322,7 +1322,7 @@ function main(): void {
       worktreePollution: { statusLines: [' M source.ts'], paths: ['source.ts'], blocking: true },
     }], 1).status, 'FAIL', 'blocking validation side effects are command-execution failure, not coverage-only failure');
     const evidence: TestEvidenceData = {
-      command: 'lattice validate --story=B-19ca --json',
+      command: 'proof-or-stop validate --story=B-19ca --json',
       output: '{}',
       result: 'FAIL', // coverage-only historical FAIL is intentionally reusable.
       timestamp: '2026-07-16T00:00:00.000Z',

@@ -2,7 +2,7 @@
 
 > Layer: 3
 > Capability: Loop Engineering / Unattended Development Model
-> Status: execution plan for real Proofbound lifecycle proof
+> Status: execution plan for real Proof-or-Stop lifecycle proof
 > Complements: `unlock-layer3-loop-engineering-suite.md`
 > Non-goal: this document does not unlock Production Safety, global Capability Claim, or production-grade unattended development
 
@@ -15,11 +15,11 @@ to prove real execution.
 This document defines the second-tier proof:
 
 ```text
-Real execution UDM baseline = actual Proofbound Story lifecycle runs that exercise
+Real execution UDM baseline = actual Proof-or-Stop Story lifecycle runs that exercise
 the loop behavior being claimed.
 ```
 
-The goal is to prove that Proofbound can move through real lifecycle states and
+The goal is to prove that Proof-or-Stop can move through real lifecycle states and
 produce the expected UDM behavior:
 
 ```text
@@ -31,7 +31,7 @@ or a correct blocked/escalated terminal state when DONE would be unsafe.
 This document exists because a formal final-report can prove that the claim gate
 works, but it cannot by itself prove that `UDM-REPAIR-LOOP-1`,
 `UDM-REVIEW-LOOP-1`, or `UDM-NO-FALSE-DONE-1` actually happened inside the
-Proofbound lifecycle.
+Proof-or-Stop lifecycle.
 
 ## 2. Claim Boundary
 
@@ -45,27 +45,27 @@ After the real execution UDM baseline also passes, the stronger allowed wording
 is:
 
 ```text
-Proofbound has validated real Proofbound lifecycle execution for the tested
+Proof-or-Stop has validated real Proof-or-Stop lifecycle execution for the tested
 correctness-protected Loop Engineering scenarios.
 ```
 
 Plain wording:
 
 ```text
-Proofbound has validated that, in the tested Loop Engineering scenarios, the real
-Proofbound Story lifecycle can execute, repair, review, block, hand off, and prevent
+Proof-or-Stop has validated that, in the tested Loop Engineering scenarios, the real
+Proof-or-Stop Story lifecycle can execute, repair, review, block, hand off, and prevent
 false DONE.
 ```
 
 Still forbidden:
 
-- Proofbound is production-grade.
-- Proofbound can handle arbitrary projects unattended.
-- Proofbound can run unlimited autonomous coding.
-- Proofbound never needs human escalation.
-- Proofbound can claim production DONE without Authority receipt verification.
-- Proofbound can replace Authority receipts with local Story evidence.
-- Proofbound can skip host-neutral review.
+- Proof-or-Stop is production-grade.
+- Proof-or-Stop can handle arbitrary projects unattended.
+- Proof-or-Stop can run unlimited autonomous coding.
+- Proof-or-Stop never needs human escalation.
+- Proof-or-Stop can claim production DONE without Authority receipt verification.
+- Proof-or-Stop can replace Authority receipts with local Story evidence.
+- Proof-or-Stop can skip host-neutral review.
 
 ## 3. Governing Principles
 
@@ -94,8 +94,8 @@ The formal suite and real execution suite answer different questions.
 
 | Proof | Question answered | Artifact shape |
 |---|---|---|
-| Formal Layer 3 suite | Can Proofbound gates consume fresh `UDM-*` proof artifacts and unlock only Loop Engineering? | `baseline_run --formal`, `baseline_suite_report`, `capability_claim_formal_evaluate` |
-| Real execution UDM baseline | Did the claimed loop behavior actually occur in real Proofbound Story lifecycle runs? | Real Story ids, phase transitions, review runs, validation evidence, findings, blocked gates, delivery summaries |
+| Formal Layer 3 suite | Can Proof-or-Stop gates consume fresh `UDM-*` proof artifacts and unlock only Loop Engineering? | `baseline_run --formal`, `baseline_suite_report`, `capability_claim_formal_evaluate` |
+| Real execution UDM baseline | Did the claimed loop behavior actually occur in real Proof-or-Stop Story lifecycle runs? | Real Story ids, phase transitions, review runs, validation evidence, findings, blocked gates, delivery summaries |
 
 Both are required before making a strong operational claim about Loop
 Engineering. The formal suite remains the claim gate. The real execution suite
@@ -232,7 +232,7 @@ each child story has an expected terminal state
 
 ### Phase 3. Run Lifecycle Scenarios
 
-Every child story must use the normal Proofbound lifecycle unless the scenario is
+Every child story must use the normal Proof-or-Stop lifecycle unless the scenario is
 specifically testing a blocked transition.
 
 Required evidence per child story:
@@ -244,7 +244,7 @@ Required evidence per child story:
 | Scope | Scope check or acknowledged scope extension exists. |
 | Commands | Verification commands or explicit blocked reason are recorded. |
 | Review | REVIEW pass/finding is recorded by a reviewer lane. |
-| Validation | `lattice validate` evidence exists for DONE scenarios. |
+| Validation | `proof-or-stop validate` evidence exists for DONE scenarios. |
 | Blocking | Expected-block scenarios include machine-readable blocker text. |
 | Material hash | Evidence binds to current material hash or is marked stale. |
 
@@ -261,7 +261,7 @@ Create a small task where the first validation must fail.
 Required sequence:
 
 ```text
-DEV implementation -> REVIEW -> TEST/lattice validate FAIL -> DEV repair attempt -> REVIEW -> TEST/lattice validate PASS -> DONE
+DEV implementation -> REVIEW -> TEST/proof-or-stop validate FAIL -> DEV repair attempt -> REVIEW -> TEST/proof-or-stop validate PASS -> DONE
 ```
 
 Pass criteria:
@@ -380,7 +380,7 @@ Create a human-only product/security/authority decision.
 Expected result:
 
 ```text
-Proofbound asks a bounded human question and does not self-decide.
+Proof-or-Stop asks a bounded human question and does not self-decide.
 ```
 
 Pass criteria:
@@ -670,7 +670,7 @@ fullAuthorityDone=true
 | Layer 1 Development proof missing or stale | `LOCKED` |
 | Layer 3 formal claim stale | `LOCKED` |
 | Any child story missing | `BLOCKED` |
-| Child story skips Proofbound lifecycle without reason | `BLOCKED` |
+| Child story skips Proof-or-Stop lifecycle without reason | `BLOCKED` |
 | `provisional=true` while final PASS is requested | `BLOCKED` |
 | Repair scenario has no first failure | `BLOCKED` |
 | Review loop scenario has no reviewer finding | `BLOCKED` |
@@ -725,7 +725,7 @@ Evidence:
 - Formal Layer 3 claim was fresh and unlocked for <targetHead>/<materialHash>.
 - Layer 1 Development proof and Layer 2 Engineering claim were fresh for the
   same target.
-- Real Proofbound Story lifecycle runs covered repair, review loop, evidence gate,
+- Real Proof-or-Stop Story lifecycle runs covered repair, review loop, evidence gate,
   block/escalate, budget stop, human handoff, multi-host review, and
   no-false-DONE scenarios.
 - Claude CLI and Codex CLI reviewed the same anchors.

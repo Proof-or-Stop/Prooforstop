@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-49ed",
+  "id": "IC-20260817155605",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Independent lattice-review-scope-plan judgement (session sess-3ac0d7ae104585a35380a319eae9bb0e): the checklist is a faithful expansion of option 1, not scope inflation. (1) Binding both proofstory.ts call sites is not an invented target: proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md Wave 2A names topology_critic_receipt_set and topology_exclusion_approval_set symmetrically as the two production writer commands whose signed artifacts must bind exact actor, session, dispatch and business-commit-author provenance, so both roles are in scope for a host-injects-provenance fix by the specs own construction. (2) Accepting generated-token alongside host-adapter is the one genuine judgement call rather than a mechanical spec restatement; owner-session-contract-execution-plan.md disqualifies only the ppid fallback from the review-independence anchor role and separately describes generated-token as adapter-validated across the same two identity dimensions as host-adapter, so this is a defensible textual inference transparently recorded via the OQ mechanism, and it is the one point worth re-checking if a more explicit spec ruling on generated-token surfaces later. (3) The 167-line 29-file test migration is a forced non-discretionary consequence of CHK-001 rather than invented scope, since existing tests establish identity via LATTICE_SESSION_ID which CHK-001 refuses by construction, so shipping CHK-001 without CHK-002 would leave the suite red. No agenda substitution found.",
+  "acceptedInterpretationHash": "sha256:90e687748962d6128bf0e0d913c5c2216719ee663fe1071a0ee002b57f90d745",
+  "notes": "Verdict produced by an independent lattice-review-scope-plan session, not by the story owner. That session declined to --forceTakeover the owner lease to record its own verdict, on the grounds that seizing the dispatching sessions active lease to self-record would undercut the identity-independence property this story exists to establish. Recorded verbatim by the owner session on its behalf; the interpretation text is the reviewers, not the owners. The reviewer explicitly flagged the generated-token acceptance (CHK-005) as the single point most worth revisiting.",
+  "createdAt": "2026-08-17T15:56:05.025Z",
+  "updatedAt": "2026-08-17T15:56:05.025Z"
+}

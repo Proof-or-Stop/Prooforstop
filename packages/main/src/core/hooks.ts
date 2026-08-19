@@ -1,9 +1,9 @@
 /**
- * Hook dispatcher — spawn shell commands at Proofbound lifecycle events.
+ * Hook dispatcher — spawn shell commands at Proof-or-Stop lifecycle events.
  *
  * 灵感来自 Claude Code 的 PreToolUse / PostToolUse / SessionStart / Stop hooks。
- * Proofbound 的事件点：
- *   - preCommand     : 在每条 Proofbound command handler 执行前
+ * Proof-or-Stop 的事件点：
+ *   - preCommand     : 在每条 Proof-or-Stop command handler 执行前
  *   - postCommand    : 每条 command 成功后
  *   - onError        : 每条 command 抛错时
  *   - onPhaseChange  : story_advance 成功后，按 "FROM->TO" 匹配
@@ -25,7 +25,8 @@
 
 import { spawn } from 'child_process';
 import { reportHealthIssue } from './health.js';
-import type { LatticeConfig } from './config.js';
+import type { ProofOrStopConfig } from './config.js';
+import { applyBrandEnv, isBrandEnvName, setBrandEnv } from './brand-env.js';
 
 export type HookStage = 'preCommand' | 'postCommand' | 'onError' | 'onPhaseChange';
 
@@ -68,20 +69,29 @@ export function buildHookEnv(opts: {
   phase?: string | null;
   extra?: Record<string, string>;
 }): Record<string, string> {
-  const env: Record<string, string> = {
-    LATTICE_STAGE: opts.stage,
-    LATTICE_COMMAND: opts.command,
-    LATTICE_CWD: opts.cwd,
-    LATTICE_ROOT: opts.root,
-  };
+  // Both spellings are exported to the hook process: a user's existing hook
+  // script reads `LATTICE_STAGE`, a new one reads `PROOF_OR_STOP_STAGE`, and
+  // neither may break. See core/brand-env.ts for the additive-rename contract.
+  const env: Record<string, string> = {};
+  applyBrandEnv(env, {
+    STAGE: opts.stage,
+    COMMAND: opts.command,
+    CWD: opts.cwd,
+    ROOT: opts.root,
+  });
   if (opts.argsJson !== undefined) {
-    env.LATTICE_ARGS_JSON = truncateForEnv(opts.argsJson);
+    setBrandEnv(env, 'ARGS_JSON', truncateForEnv(opts.argsJson));
   }
-  if (opts.storyId) env.LATTICE_STORY_ID = opts.storyId;
-  if (opts.phase) env.LATTICE_PHASE = opts.phase;
+  if (opts.storyId) setBrandEnv(env, 'STORY_ID', opts.storyId);
+  if (opts.phase) setBrandEnv(env, 'PHASE', opts.phase);
   if (opts.extra) {
     for (const [k, v] of Object.entries(opts.extra)) {
-      if (typeof v === 'string') env[k] = v;
+      if (typeof v !== 'string') continue;
+      // A brand-prefixed extra (LATTICE_RESULT_JSON / LATTICE_ERROR / ...) is
+      // dual-written for the same reason as the common fields above; anything
+      // else is a caller-owned key and passes through verbatim.
+      if (isBrandEnvName(k)) setBrandEnv(env, k, v);
+      else env[k] = v;
     }
   }
   return env;
@@ -93,7 +103,7 @@ interface ResolvedHookCmd {
   cmd: string;
 }
 
-function resolveHookCommands(stage: HookStage, key: string, cfg: LatticeConfig): ResolvedHookCmd[] {
+function resolveHookCommands(stage: HookStage, key: string, cfg: ProofOrStopConfig): ResolvedHookCmd[] {
   const hooks = (cfg as any)?.hooks as HookConfig | undefined;
   if (!hooks) return [];
   const stageMap = hooks[stage];
@@ -185,7 +195,7 @@ export async function runHooks(
   stage: HookStage,
   key: string,
   env: Record<string, string>,
-  cfg: LatticeConfig | null | undefined,
+  cfg: ProofOrStopConfig | null | undefined,
   cwd: string,
 ): Promise<void> {
   if (!cfg) return;

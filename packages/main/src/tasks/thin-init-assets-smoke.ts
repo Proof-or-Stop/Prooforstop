@@ -184,13 +184,13 @@ try {
   // AGENTS.md should reference global lattice, not node bin/lattice.js
   const agentsMd = readFileSync(join(globalThinRoot, 'AGENTS.md'), 'utf8');
   assert.match(agentsMd, /\.lattice\/Lattice\.md/, 'AGENTS.md should reference .lattice/Lattice.md');
-  assert.match(agentsMd, /lattice codex verify/, 'AGENTS.md should reference lattice codex verify');
+  assert.match(agentsMd, /lattice codex verify/, 'AGENTS.md should reference proof-or-stop codex verify');
   assert.doesNotMatch(agentsMd, /node bin\/lattice\.js/, 'AGENTS.md must not reference node bin/lattice.js in global-thin mode');
 
   // .lattice/Lattice.md should reference global lattice CLI
   const latticeMd = readFileSync(join(globalThinRoot, '.lattice/Lattice.md'), 'utf8');
-  assert.match(latticeMd, /lattice session_brief/, '.lattice/Lattice.md should reference lattice session_brief');
-  assert.match(latticeMd, /lattice codex verify/, '.lattice/Lattice.md should reference lattice codex verify');
+  assert.match(latticeMd, /lattice session_brief/, '.lattice/Lattice.md should reference proof-or-stop session_brief');
+  assert.match(latticeMd, /lattice codex verify/, '.lattice/Lattice.md should reference proof-or-stop codex verify');
 
   // .lattice/lattice.json should declare global-thin mode
   const latticeConfig = JSON.parse(readFileSync(join(globalThinRoot, '.lattice/lattice.json'), 'utf8'));
@@ -268,7 +268,7 @@ const preserveRoot = makeRoot('preserve-legacy');
 try {
   const legacyFiles = new Map([
     ['GUIDE.md', '# User legacy guide\n\nDo not delete.\n'],
-    ['LATTICE.md', '# User old Proofbound guide\n\nDo not delete.\n'],
+    ['LATTICE.md', '# User old Proof-or-Stop guide\n\nDo not delete.\n'],
     ['bin/legacy-bootstrap.js', '#!/usr/bin/env node\nconsole.log("user legacy bootstrap");\n'],
     ['bin/legacy-codex.js', '#!/usr/bin/env node\nconsole.log("user legacy codex wrapper");\n'],
     ['.lattice-codex/legacy.json', '{"userOwned":true}\n'],

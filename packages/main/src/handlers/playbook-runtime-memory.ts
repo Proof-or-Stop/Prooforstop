@@ -10,7 +10,9 @@ import {
 import {
   buildMemoryFreshnessPack,
   evaluateRuntimeMemoryConsumerPolicy,
+  finishDecisionPath,
   renderMemoryFreshnessPackSummary,
+  type FinishDecision,
 } from '../core/playbook-runtime-memory.js';
 import { surfaceRuntimeMemoryPack } from '../core/experience-pack-surface.js';
 import { redactMemoryPackForControlArm } from '../core/runtime-memory-arm-gate.js';
@@ -18,7 +20,6 @@ import { isCanonicalStoryId } from '../core/lifecycle-registry.js';
 import type { HandlerContext } from './context.js';
 
 type FormatArgs = { format?: 'text' | 'json'; json?: boolean };
-type FinishDecision = 'captured' | 'no-reusable-lesson' | 'defer-with-reason';
 
 function wantsJson(args?: FormatArgs): boolean {
   return args?.json === true || args?.format === 'json';
@@ -170,14 +171,10 @@ function finishDecisionStoryId(storyId?: string): { recordStoryId?: string; path
   if (!isCanonicalStoryId(trimmed)) {
     throw new Error(
       `dev_memory_finish_decision: invalid storyId ${JSON.stringify(storyId)}; ` +
-      'must be a canonical, path-safe Proofbound story id',
+      'must be a canonical, path-safe Proof-or-Stop story id',
     );
   }
   return { recordStoryId: trimmed, pathSegment: trimmed };
-}
-
-function finishDecisionPath(root: string, pathSegment: string): string {
-  return join(root, '.lattice', 'dev-memory', 'finish-decisions', `${pathSegment}.json`);
 }
 
 function normalizeDecision(value: unknown): FinishDecision {

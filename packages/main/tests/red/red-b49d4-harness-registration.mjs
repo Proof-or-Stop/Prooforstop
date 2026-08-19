@@ -131,6 +131,41 @@ const REGISTRATION_EXCLUSIONS = new Map([
     + 'nothing, which is the vacuous-coverage defect this story exists to remove; its own file header says it belongs '
     + 'on this side. It stays inside the population and is reached from this registered guard, so it is decided here '
     + 'rather than silently dropped.'],
+  [`${POPULATION_DIR_REL}/red-fb7b-pretest-builds-utils.mjs`,
+    'On-demand repro-first behavioral evidence for the B-fb7b pretest guard. It runs a full `npm run pretest` that '
+    + 'rebuilds the shared packages/main and packages/utils dist trees (~1 min), so it must not run as a validate command '
+    + 'alongside other commands that read those dist trees. It is pinned as verification evidence and exercised on demand; '
+    + 'the permanent fast structural guard test-suite-utils-autobuild-smoke is registered in validate.commands.'],
+  [`${POPULATION_DIR_REL}/red-fb7b-guard-bite.mjs`,
+    'On-demand guard-family verifier for the B-fb7b pretest guard. It proves the structural smoke bites on every broken '
+    + 'pretest variant via isolated temp-fixture bite tests plus a lifecycle `npm test`; it is pinned as verification '
+    + 'evidence, not a standing validate guard. The permanent fast structural guard test-suite-utils-autobuild-smoke is '
+    + 'registered in validate.commands.'],
+  [`${POPULATION_DIR_REL}/red-B-74b9-chk001-acceptance-basis.mjs`,
+    'PRE-FIX historical attestation for B-74b9 CHK-001, unlike the b2aa7/b49d4 receipts above it does not print '
+    + 'nothing and exit 0 on the finished tree -- it actively THROWS an AssertionError once the fix lands, because it '
+    + 'asserts the pre-fix snapshot_missing/partial signature is present. Registering it in validate.commands would '
+    + 'make every future validate run fail permanently on a fixed bug. It is pinned as verification_evidence_add '
+    + 'waiver evidence (INT-CHK001-RED) instead, documenting the historical repro before the fix.'],
+  [`${POPULATION_DIR_REL}/red-B-74b9-chk002-readmanifest.mjs`,
+    'PRE-FIX historical attestation for B-74b9 CHK-002, same shape as the CHK-001 entry above: it throws once the '
+    + 'fix lands (asserts the pre-fix readManifest argument-validation mismatch is present), so registering it would '
+    + 'make validate fail permanently. Pinned as verification_evidence_add waiver evidence (INT-CHK002-RED) instead.'],
+  [`${POPULATION_DIR_REL}/red-B-74b9-chk003-version-bump.mjs`,
+    'PRE-FIX historical attestation for B-74b9 CHK-003, same shape as the CHK-001/002 entries above: it throws once '
+    + 'the fix lands (asserts the pre-fix ENOENT package.json signature is present), so registering it would make '
+    + 'validate fail permanently. Pinned as verification_evidence_add waiver evidence (INT-CHK003-RED) instead.'],
+  [`${POPULATION_DIR_REL}/red-B-new-concurrent-done-race.mjs`,
+    'PRE-FIX historical attestation for B-3e5d CHK-001/CHK-002, same shape as the B-74b9 receipts above: it throws '
+    + 'once the fix lands (asserts the pre-fix raw StoryArtifactMissingError/"File not found: .../index.json" crash '
+    + 'signature is present in the losing concurrent-DONE racer\'s output), so registering it in validate.commands '
+    + 'would make validate fail permanently on a fixed bug. Pinned as verification_evidence_add evidence for CHK-001 '
+    + 'and CHK-002 instead, documenting the historical repro before the fix.'],
+  [`${POPULATION_DIR_REL}/red-B-new-retired-channel-lane.mjs`,
+    'PRE-FIX historical attestation for B-3e5d CHK-003/CHK-004, same shape as the entry above: it throws once the '
+    + 'fix lands (asserts the pre-fix stale-channel-lane-forceable signature is present), so registering it in '
+    + 'validate.commands would make validate fail permanently. Pinned as verification_evidence_add evidence for '
+    + 'CHK-003 and CHK-004 instead.'],
 ]);
 
 /** A reason must actually be a reason; an empty string is not a decision. */

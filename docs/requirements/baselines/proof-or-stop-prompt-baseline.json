@@ -7,7 +7,7 @@
     "model": "independent-hardcoded-role-and-mode-aware-whole-prompt-digest-manifest",
     "algorithm": "sha256",
     "roleCount": 17,
-    "primaryBoundary": "The independent code-reviewed approval manifest binds every exact role ID and selected complete prompt body by SHA-256. For the six modular reviewer roles it additionally binds the immutable legacy body, modular body, Role Contract, and Claude/Codex host-render digests before policy findings can be collected. Diagnostic occurrence scanners describe registered content inside those approved bodies; they do not authorize prompt changes.",
+    "primaryBoundary": "The independent code-reviewed approval manifest binds every exact role ID and selected complete prompt body by SHA-256. For the five modular reviewer roles it additionally binds the immutable legacy body, modular body, Role Contract, and Claude/Codex host-render digests before policy findings can be collected. Diagnostic occurrence scanners describe registered content inside those approved bodies; they do not authorize prompt changes.",
     "roles": [
       {
         "role": "implementation-reviewer",
@@ -15,67 +15,67 @@
       },
       {
         "role": "lattice-evaluator-cli",
-        "templateHash": "4c57b63c4aa43c852517cd964bbddb7ecced6e9e8f7446764389c1bc3ac2b08f"
+        "templateHash": "9ffa0541c787078ae112f3edabf152fffca64b630f32f83d4367b1b310c4595e"
       },
       {
         "role": "lattice-evaluator",
-        "templateHash": "c072e8cc5c84adac5f15c4d60b95a495896da1c0bf7a3c1482506862eed1b026"
+        "templateHash": "dd8cf73174e1ddf292b7b4cf9ebb70ff8c32584f44ccb78f2221b33da8407b97"
       },
       {
         "role": "lattice-implementer",
-        "templateHash": "c26ee6377b2075beb8c12173e5a635a55aff2518398f8a1949cc9826fa6e9163"
+        "templateHash": "0ef513cc1e77c69d7ca5751a98e998143bfab5ac3eb7bc64a4c0cf2346cabf41"
       },
       {
         "role": "lattice-review-behavior",
-        "templateHash": "d485faa700196506a07dc8704f534b215eba1fd1ac1c111acbbd1a830098e7e4"
+        "templateHash": "ff3926a26d0a5ea2c9f77682df750c47b3c9707c41a6eced0f67fbadfbe7c27d"
       },
       {
         "role": "lattice-review-channel",
-        "templateHash": "19db37079e222e6d68bc52535e814d544932a365f7df79df8995399bf41b1829"
+        "templateHash": "f49ae178d354b3cd940da3bd28d729fb6b602cbd6a2bf2d9b23dbf555460035d"
       },
       {
         "role": "lattice-review-concept",
-        "templateHash": "3bca56bbd0c5666bfa5553136140f0fc955e0a89f2378af28699bd8b38d0ed7a"
+        "templateHash": "a8b1ecd5020c6d0d091678d8c31f9c09bb12110e8da2658932570120fd86e0ca"
       },
       {
         "role": "lattice-review-delivery",
-        "templateHash": "e8e7db5d9ce0893105a3bfdab0b9774f22de0a61bfd0d0da37caa7dc8fe584c7"
+        "templateHash": "4b3b207a265c5b9a1ba9845761720c19cddcdee6eec9bfd5f672b55bbc1b50af"
       },
       {
         "role": "lattice-review-docs",
-        "templateHash": "835a0182ce5480c7d7cef9d350ae26a2a3aa11db4fcd3fea418f3c99e38b92a6"
+        "templateHash": "6808a26c1be23445dbb342d2e7110181c4e2d6b9ce581cfa41a2dfdea2a16d1e"
       },
       {
         "role": "lattice-review-quality",
-        "templateHash": "4bbf141d64e12ca6e16ec82d1cb397ca2011267100ec8596760349c1c0b17f15"
+        "templateHash": "bf99a4151d4406490259efb51a037d28be730115f07b18d5abd63ac21598f32d"
       },
       {
         "role": "lattice-review-scope-plan",
-        "templateHash": "13506f659f3f83f5aba146e1c46aafb253af346820f49acd41d711ae1eb58a86"
+        "templateHash": "9ac7cff64b53fc33555e4c5ef6f963a5c5bd09e7420d317a2312aafac9cfbd07"
       },
       {
         "role": "lattice-review-story-init",
-        "templateHash": "8fd4d65d1c0e4d956bcb527899ddcb4182dddb1cbc847b74ba19d0695642bf81"
+        "templateHash": "d63524b25475f370f642168881f680846424d7a80a69867219ccc9f969fd5ae6"
       },
       {
         "role": "lattice-review-test-coverage",
-        "templateHash": "99d5e95ee4d3075b1808c5f1f48ecd2ece3e785b7402c744627f2ffbd2dbc6c0"
+        "templateHash": "5d1f5bac9cb33991d591189f9b944b307e96600a1dd89e2d24fda6dd0f352f90"
       },
       {
         "role": "lattice-review-topology-critic",
-        "templateHash": "29668c073394f3d3feb7ab591a196dab78b18fbb5789d5586e553a3cadcc07d0"
+        "templateHash": "7db4368e21a0a2250ef7f8a7feee6b04fb85bfd518f72e8c188336ac90f80b35"
       },
       {
         "role": "product-reviewer",
-        "templateHash": "22301c95c459aba6d0df1941619823fde9d1d89a944121c846dced952483703e"
+        "templateHash": "e23eec314c5a5f3dff0d34768c15ff94546881999a223544456cfe695f995b2a"
       },
       {
         "role": "test-case-reviewer",
-        "templateHash": "473bb2400c735afc4b12aa02163fab9cab284bca5033ea6bef231f10eefcba98"
+        "templateHash": "3292b8c15a696f588c9fcda45218aefeabb56668d47fa0e74cd163cbaf9da0a5"
       },
       {
         "role": "test-intent",
-        "templateHash": "170e49b7abf5a4ff4b949315c5ff41f32d11696c1f84e0909a5935d03ab7816d"
+        "templateHash": "168d1a5b862f0949aaa44223f21f42e67ff4df938805ac6ebf0fd55677be3fc2"
       }
     ],
     "roleBodyRollout": [
@@ -133,17 +133,6 @@
         "legacyCodexRenderDigest": "683a981cb491c7efcdcf737d64e100e37e9667f18a2276392ddb0023e5dc3e3f",
         "modularClaudeRenderDigest": "f632600b708c6a05a24e94c4c9ec805567eaa1d5db81e51f17bf5f98f8a8f495",
         "modularCodexRenderDigest": "71895876e4451e4e7ff20887432daafccabe0a2e724b6dbf4d216901f543b5e2"
-      },
-      {
-        "role": "lattice-review-topology-critic",
-        "legacyBodySha256": "077d0e79c6884f5009d066faf1e640aaba8b4b1654283b7f5d0ecb730d3c3a24",
-        "modularBodySha256": "29668c073394f3d3feb7ab591a196dab78b18fbb5789d5586e553a3cadcc07d0",
-        "roleSemanticDigest": "38bfd5f5a08208a07cf9562fc295ab636e89b0ddff331f9b30f341fac4c1aa8e",
-        "roleRenderDigest": "2d4411f90d969398d14016d72a6f394c50467050ba0f3cdd3840a51410039260",
-        "legacyClaudeRenderDigest": "077d0e79c6884f5009d066faf1e640aaba8b4b1654283b7f5d0ecb730d3c3a24",
-        "legacyCodexRenderDigest": "077d0e79c6884f5009d066faf1e640aaba8b4b1654283b7f5d0ecb730d3c3a24",
-        "modularClaudeRenderDigest": "29668c073394f3d3feb7ab591a196dab78b18fbb5789d5586e553a3cadcc07d0",
-        "modularCodexRenderDigest": "29668c073394f3d3feb7ab591a196dab78b18fbb5789d5586e553a3cadcc07d0"
       }
     ]
   },
@@ -152,7 +141,7 @@
     "schemaVersion": "lattice.prompt-registry.v1",
     "source": "@lattice/core/templates/agents",
     "agentCount": 17,
-    "materialHash": "43403597e930640b2dc97274485c7a8bf5dcd8913d12a9b45354153dd7e73c28",
+    "materialHash": "285a003d81948a663c487ad6ca7ccc6bd1440afb5d6ce4f3ad0e13da84825ce2",
     "roles": [
       {
         "role": "implementation-reviewer",
@@ -166,128 +155,128 @@
         "role": "lattice-evaluator-cli",
         "file": "lattice-evaluator-cli.md",
         "relPath": "templates/agents/lattice-evaluator-cli.md",
-        "templateHash": "4c57b63c4aa43c852517cd964bbddb7ecced6e9e8f7446764389c1bc3ac2b08f",
-        "bytes": 4374,
+        "templateHash": "9ffa0541c787078ae112f3edabf152fffca64b630f32f83d4367b1b310c4595e",
+        "bytes": 4386,
         "lines": 119
       },
       {
         "role": "lattice-evaluator",
         "file": "lattice-evaluator.md",
         "relPath": "templates/agents/lattice-evaluator.md",
-        "templateHash": "c072e8cc5c84adac5f15c4d60b95a495896da1c0bf7a3c1482506862eed1b026",
-        "bytes": 8906,
+        "templateHash": "dd8cf73174e1ddf292b7b4cf9ebb70ff8c32584f44ccb78f2221b33da8407b97",
+        "bytes": 9008,
         "lines": 201
       },
       {
         "role": "lattice-implementer",
         "file": "lattice-implementer.md",
         "relPath": "templates/agents/lattice-implementer.md",
-        "templateHash": "c26ee6377b2075beb8c12173e5a635a55aff2518398f8a1949cc9826fa6e9163",
-        "bytes": 15877,
+        "templateHash": "0ef513cc1e77c69d7ca5751a98e998143bfab5ac3eb7bc64a4c0cf2346cabf41",
+        "bytes": 16129,
         "lines": 244
       },
       {
         "role": "lattice-review-behavior",
         "file": "lattice-review-behavior.md",
         "relPath": "templates/agents/lattice-review-behavior.md",
-        "templateHash": "d485faa700196506a07dc8704f534b215eba1fd1ac1c111acbbd1a830098e7e4",
-        "bytes": 9296,
+        "templateHash": "ff3926a26d0a5ea2c9f77682df750c47b3c9707c41a6eced0f67fbadfbe7c27d",
+        "bytes": 9392,
         "lines": 91
       },
       {
         "role": "lattice-review-channel",
         "file": "lattice-review-channel.md",
         "relPath": "templates/agents/lattice-review-channel.md",
-        "templateHash": "19db37079e222e6d68bc52535e814d544932a365f7df79df8995399bf41b1829",
-        "bytes": 12112,
+        "templateHash": "f49ae178d354b3cd940da3bd28d729fb6b602cbd6a2bf2d9b23dbf555460035d",
+        "bytes": 12292,
         "lines": 193
       },
       {
         "role": "lattice-review-concept",
         "file": "lattice-review-concept.md",
         "relPath": "templates/agents/lattice-review-concept.md",
-        "templateHash": "3bca56bbd0c5666bfa5553136140f0fc955e0a89f2378af28699bd8b38d0ed7a",
-        "bytes": 5130,
+        "templateHash": "a8b1ecd5020c6d0d091678d8c31f9c09bb12110e8da2658932570120fd86e0ca",
+        "bytes": 5184,
         "lines": 60
       },
       {
         "role": "lattice-review-delivery",
         "file": "lattice-review-delivery.md",
         "relPath": "templates/agents/lattice-review-delivery.md",
-        "templateHash": "e8e7db5d9ce0893105a3bfdab0b9774f22de0a61bfd0d0da37caa7dc8fe584c7",
-        "bytes": 13755,
+        "templateHash": "4b3b207a265c5b9a1ba9845761720c19cddcdee6eec9bfd5f672b55bbc1b50af",
+        "bytes": 13875,
         "lines": 290
       },
       {
         "role": "lattice-review-docs",
         "file": "lattice-review-docs.md",
         "relPath": "templates/agents/lattice-review-docs.md",
-        "templateHash": "835a0182ce5480c7d7cef9d350ae26a2a3aa11db4fcd3fea418f3c99e38b92a6",
-        "bytes": 7624,
+        "templateHash": "6808a26c1be23445dbb342d2e7110181c4e2d6b9ce581cfa41a2dfdea2a16d1e",
+        "bytes": 7660,
         "lines": 108
       },
       {
         "role": "lattice-review-quality",
         "file": "lattice-review-quality.md",
         "relPath": "templates/agents/lattice-review-quality.md",
-        "templateHash": "4bbf141d64e12ca6e16ec82d1cb397ca2011267100ec8596760349c1c0b17f15",
-        "bytes": 5593,
+        "templateHash": "bf99a4151d4406490259efb51a037d28be730115f07b18d5abd63ac21598f32d",
+        "bytes": 5641,
         "lines": 84
       },
       {
         "role": "lattice-review-scope-plan",
         "file": "lattice-review-scope-plan.md",
         "relPath": "templates/agents/lattice-review-scope-plan.md",
-        "templateHash": "13506f659f3f83f5aba146e1c46aafb253af346820f49acd41d711ae1eb58a86",
-        "bytes": 14895,
+        "templateHash": "9ac7cff64b53fc33555e4c5ef6f963a5c5bd09e7420d317a2312aafac9cfbd07",
+        "bytes": 15069,
         "lines": 206
       },
       {
         "role": "lattice-review-story-init",
         "file": "lattice-review-story-init.md",
         "relPath": "templates/agents/lattice-review-story-init.md",
-        "templateHash": "8fd4d65d1c0e4d956bcb527899ddcb4182dddb1cbc847b74ba19d0695642bf81",
-        "bytes": 18299,
+        "templateHash": "d63524b25475f370f642168881f680846424d7a80a69867219ccc9f969fd5ae6",
+        "bytes": 18449,
         "lines": 271
       },
       {
         "role": "lattice-review-test-coverage",
         "file": "lattice-review-test-coverage.md",
         "relPath": "templates/agents/lattice-review-test-coverage.md",
-        "templateHash": "99d5e95ee4d3075b1808c5f1f48ecd2ece3e785b7402c744627f2ffbd2dbc6c0",
-        "bytes": 2854,
+        "templateHash": "5d1f5bac9cb33991d591189f9b944b307e96600a1dd89e2d24fda6dd0f352f90",
+        "bytes": 2890,
         "lines": 44
       },
       {
         "role": "lattice-review-topology-critic",
         "file": "lattice-review-topology-critic.md",
         "relPath": "templates/agents/lattice-review-topology-critic.md",
-        "templateHash": "29668c073394f3d3feb7ab591a196dab78b18fbb5789d5586e553a3cadcc07d0",
-        "bytes": 1626,
-        "lines": 25
+        "templateHash": "7db4368e21a0a2250ef7f8a7feee6b04fb85bfd518f72e8c188336ac90f80b35",
+        "bytes": 1585,
+        "lines": 24
       },
       {
         "role": "product-reviewer",
         "file": "product-reviewer.md",
         "relPath": "templates/agents/product-reviewer.md",
-        "templateHash": "22301c95c459aba6d0df1941619823fde9d1d89a944121c846dced952483703e",
-        "bytes": 3261,
+        "templateHash": "e23eec314c5a5f3dff0d34768c15ff94546881999a223544456cfe695f995b2a",
+        "bytes": 3267,
         "lines": 91
       },
       {
         "role": "test-case-reviewer",
         "file": "test-case-reviewer.md",
         "relPath": "templates/agents/test-case-reviewer.md",
-        "templateHash": "473bb2400c735afc4b12aa02163fab9cab284bca5033ea6bef231f10eefcba98",
-        "bytes": 9320,
+        "templateHash": "3292b8c15a696f588c9fcda45218aefeabb56668d47fa0e74cd163cbaf9da0a5",
+        "bytes": 9368,
         "lines": 158
       },
       {
         "role": "test-intent",
         "file": "test-intent.md",
         "relPath": "templates/agents/test-intent.md",
-        "templateHash": "170e49b7abf5a4ff4b949315c5ff41f32d11696c1f84e0909a5935d03ab7816d",
-        "bytes": 7571,
+        "templateHash": "168d1a5b862f0949aaa44223f21f42e67ff4df938805ac6ebf0fd55677be3fc2",
+        "bytes": 7601,
         "lines": 167
       }
     ]
@@ -304,98 +293,98 @@
       },
       {
         "role": "lattice-evaluator-cli",
-        "sha256": "60356160fc818a8c9a9912b65c7e1f3d3db37b948fc3b920b910b4e12d96c143",
-        "bytes": 4375,
+        "sha256": "5e1c640dd773622d13b326a87bb42442ff8c62ebbb44512c849d126143a674d8",
+        "bytes": 4387,
         "lines": 120
       },
       {
         "role": "lattice-evaluator",
-        "sha256": "8ff48660e9f4a17e76c6a9a9f37970a9fcd3e3204d1a91c10b532501e4aa1194",
-        "bytes": 8907,
+        "sha256": "2427d7d553285dcf1398b2a6df8c0f9bdffdde55a57a472da93c1a93de87126e",
+        "bytes": 9009,
         "lines": 202
       },
       {
         "role": "lattice-implementer",
-        "sha256": "c005c756ed1d7ab3dc2e7a4df626de5cf7bf7e839af5f4df86932716cc25ea03",
-        "bytes": 15878,
+        "sha256": "78a8666b135ddf5681e79c0964d85b91df4a2024b4e4ff82bfc477feed87b35c",
+        "bytes": 16130,
         "lines": 245
       },
       {
         "role": "lattice-review-behavior",
-        "sha256": "7e3e921a3bc9c32eb6b500618203c03d305a3a4d3aa49717ba3c979709ff4280",
-        "bytes": 452,
+        "sha256": "905b017e4d4e1e616c43f72675f6bd728d332c513a589421a2d765d81a958df4",
+        "bytes": 461,
         "lines": 11
       },
       {
         "role": "lattice-review-channel",
-        "sha256": "f8c2daa5bf70cc4a72f4063938e4ece1d1c4742c1b29904beec7dc7b8b840080",
-        "bytes": 12113,
+        "sha256": "36bc3d90f14c9568b81736b74cbfdbcfd33ccc7467a863f99f8490f8f040707a",
+        "bytes": 12293,
         "lines": 194
       },
       {
         "role": "lattice-review-concept",
-        "sha256": "71fb67e6b80de316a16d828a4245083e9f6b1aecd0311d879ef053d4144c641a",
-        "bytes": 434,
+        "sha256": "db635a415075ff05c71a517be616e1def2ed62230faa5d6771332f96e2a1d0b9",
+        "bytes": 443,
         "lines": 11
       },
       {
         "role": "lattice-review-delivery",
-        "sha256": "3061624691a7bf31d07797798e21c36e483301e86380fb2e5746db0b71a964b9",
-        "bytes": 13756,
+        "sha256": "760a6aa59857db126bf53460304271fbc42855070cbc326b34cace4295734103",
+        "bytes": 13876,
         "lines": 291
       },
       {
         "role": "lattice-review-docs",
-        "sha256": "382037b6707076793e49168498620843331da2ecd8d9d575069480abe8a675fa",
-        "bytes": 504,
+        "sha256": "7aadda0f1d89beada10bbda326bcef545e8f8ef6692d3458c509cc72dcc4197c",
+        "bytes": 513,
         "lines": 11
       },
       {
         "role": "lattice-review-quality",
-        "sha256": "24ed955ba726e1fd5a6646e72d91550cabfc62861fc556053e8c25388160f3e0",
-        "bytes": 438,
+        "sha256": "6c625e83bb1fa1fa20eb1d3b4f9cc3d246c608c29d841971a0a62eb3109398a1",
+        "bytes": 447,
         "lines": 11
       },
       {
         "role": "lattice-review-scope-plan",
-        "sha256": "39b931d037c425a5bb99bf2cafc79168c81376391adc9bd5d80a92932e57fa86",
-        "bytes": 14896,
+        "sha256": "fe04afe31cb87639b99e253157f349fe45ea5e7130d5f238e0673285cbf19675",
+        "bytes": 15070,
         "lines": 207
       },
       {
         "role": "lattice-review-story-init",
-        "sha256": "aa6a2927df69a3231e055c4fa6be532960bf242da1573159e6e0a1a42bea4544",
-        "bytes": 18300,
+        "sha256": "df142ee3946a4d423b874b498e6858c3bdfaf878c87bd7c42fd384195d6560d1",
+        "bytes": 18450,
         "lines": 272
       },
       {
         "role": "lattice-review-test-coverage",
-        "sha256": "41b169fad63ae50937565df9f6323cc27964aeb05407e1f01e471131f6815dc5",
-        "bytes": 476,
+        "sha256": "fd6ac4e5c796dc817ab57c07b886f66c2dce1ba3835a4d4978332fc835941065",
+        "bytes": 485,
         "lines": 11
       },
       {
         "role": "lattice-review-topology-critic",
-        "sha256": "c6f75dbf86b03450677fe5f550335cbd27513db2d5f821f0a26114ffdc821c28",
-        "bytes": 435,
-        "lines": 11
+        "sha256": "a923f7942b377cef4a3020176c2f38953db0f5e998db3954badfac57d568783a",
+        "bytes": 1586,
+        "lines": 25
       },
       {
         "role": "product-reviewer",
-        "sha256": "a8ddfba1b2ad9595f79c26aa967cff32d42d0c7c64d3cd1fa3fa8813fe693e27",
-        "bytes": 3262,
+        "sha256": "98cd787c17496de44726565da22dc23809db0499fa47389bc8586099b0634ca5",
+        "bytes": 3268,
         "lines": 92
       },
       {
         "role": "test-case-reviewer",
-        "sha256": "37f2c1bdb1c842b62ab338ae02a9ffdaae3ecb4eeb60beb460653ec1b4beee2c",
-        "bytes": 9321,
+        "sha256": "a5746ce6bd5eb0661063752e270587fdf0924e487e1f484f55fe55c9e0505b7f",
+        "bytes": 9369,
         "lines": 159
       },
       {
         "role": "test-intent",
-        "sha256": "6e2adec6ceffe8ad96d35a61ba7190816709246d58f7b383a04ca68391e21138",
-        "bytes": 7572,
+        "sha256": "8e4ca13c7c12952833b13ebe80cec1849ab35c427dcc4b32538e4e479a6b25c1",
+        "bytes": 7602,
         "lines": 168
       }
     ]
@@ -627,7 +616,7 @@
     "machineChecks": [
       "Lock the exact 17 role snapshots and role IDs.",
       "Require each selected complete prompt body and registry template hash to match the independent code-reviewed approval manifest.",
-      "For six modular reviewer roles, bind immutable legacy/modular bodies, Role Contract, and Claude/Codex host renders.",
+      "For five modular reviewer roles, bind immutable legacy/modular bodies, Role Contract, and Claude/Codex host renders.",
       "Lock agent_prompt output hashes.",
       "Require every role-matrix field to be a non-empty string.",
       "Require JSON/Markdown parity and reject snapshot drift."
@@ -660,82 +649,82 @@
         {
           "role": "lattice-evaluator-cli",
           "relPath": "templates/agents/lattice-evaluator-cli.md",
-          "templateHash": "4c57b63c4aa43c852517cd964bbddb7ecced6e9e8f7446764389c1bc3ac2b08f"
+          "templateHash": "9ffa0541c787078ae112f3edabf152fffca64b630f32f83d4367b1b310c4595e"
         },
         {
           "role": "lattice-evaluator",
           "relPath": "templates/agents/lattice-evaluator.md",
-          "templateHash": "c072e8cc5c84adac5f15c4d60b95a495896da1c0bf7a3c1482506862eed1b026"
+          "templateHash": "dd8cf73174e1ddf292b7b4cf9ebb70ff8c32584f44ccb78f2221b33da8407b97"
         },
         {
           "role": "lattice-implementer",
           "relPath": "templates/agents/lattice-implementer.md",
-          "templateHash": "c26ee6377b2075beb8c12173e5a635a55aff2518398f8a1949cc9826fa6e9163"
+          "templateHash": "0ef513cc1e77c69d7ca5751a98e998143bfab5ac3eb7bc64a4c0cf2346cabf41"
         },
         {
           "role": "lattice-review-behavior",
           "relPath": "templates/agents/lattice-review-behavior.md",
-          "templateHash": "d485faa700196506a07dc8704f534b215eba1fd1ac1c111acbbd1a830098e7e4"
+          "templateHash": "ff3926a26d0a5ea2c9f77682df750c47b3c9707c41a6eced0f67fbadfbe7c27d"
         },
         {
           "role": "lattice-review-channel",
           "relPath": "templates/agents/lattice-review-channel.md",
-          "templateHash": "19db37079e222e6d68bc52535e814d544932a365f7df79df8995399bf41b1829"
+          "templateHash": "f49ae178d354b3cd940da3bd28d729fb6b602cbd6a2bf2d9b23dbf555460035d"
         },
         {
           "role": "lattice-review-concept",
           "relPath": "templates/agents/lattice-review-concept.md",
-          "templateHash": "3bca56bbd0c5666bfa5553136140f0fc955e0a89f2378af28699bd8b38d0ed7a"
+          "templateHash": "a8b1ecd5020c6d0d091678d8c31f9c09bb12110e8da2658932570120fd86e0ca"
         },
         {
           "role": "lattice-review-delivery",
           "relPath": "templates/agents/lattice-review-delivery.md",
-          "templateHash": "e8e7db5d9ce0893105a3bfdab0b9774f22de0a61bfd0d0da37caa7dc8fe584c7"
+          "templateHash": "4b3b207a265c5b9a1ba9845761720c19cddcdee6eec9bfd5f672b55bbc1b50af"
         },
         {
           "role": "lattice-review-docs",
           "relPath": "templates/agents/lattice-review-docs.md",
-          "templateHash": "835a0182ce5480c7d7cef9d350ae26a2a3aa11db4fcd3fea418f3c99e38b92a6"
+          "templateHash": "6808a26c1be23445dbb342d2e7110181c4e2d6b9ce581cfa41a2dfdea2a16d1e"
         },
         {
           "role": "lattice-review-quality",
           "relPath": "templates/agents/lattice-review-quality.md",
-          "templateHash": "4bbf141d64e12ca6e16ec82d1cb397ca2011267100ec8596760349c1c0b17f15"
+          "templateHash": "bf99a4151d4406490259efb51a037d28be730115f07b18d5abd63ac21598f32d"
         },
         {
           "role": "lattice-review-scope-plan",
           "relPath": "templates/agents/lattice-review-scope-plan.md",
-          "templateHash": "13506f659f3f83f5aba146e1c46aafb253af346820f49acd41d711ae1eb58a86"
+          "templateHash": "9ac7cff64b53fc33555e4c5ef6f963a5c5bd09e7420d317a2312aafac9cfbd07"
         },
         {
           "role": "lattice-review-story-init",
           "relPath": "templates/agents/lattice-review-story-init.md",
-          "templateHash": "8fd4d65d1c0e4d956bcb527899ddcb4182dddb1cbc847b74ba19d0695642bf81"
+          "templateHash": "d63524b25475f370f642168881f680846424d7a80a69867219ccc9f969fd5ae6"
         },
         {
           "role": "lattice-review-test-coverage",
           "relPath": "templates/agents/lattice-review-test-coverage.md",
-          "templateHash": "99d5e95ee4d3075b1808c5f1f48ecd2ece3e785b7402c744627f2ffbd2dbc6c0"
+          "templateHash": "5d1f5bac9cb33991d591189f9b944b307e96600a1dd89e2d24fda6dd0f352f90"
         },
         {
           "role": "lattice-review-topology-critic",
           "relPath": "templates/agents/lattice-review-topology-critic.md",
-          "templateHash": "29668c073394f3d3feb7ab591a196dab78b18fbb5789d5586e553a3cadcc07d0"
+          "templateHash": "7db4368e21a0a2250ef7f8a7feee6b04fb85bfd518f72e8c188336ac90f80b35"
         },
         {
           "role": "product-reviewer",
           "relPath": "templates/agents/product-reviewer.md",
-          "templateHash": "22301c95c459aba6d0df1941619823fde9d1d89a944121c846dced952483703e"
+          "templateHash": "e23eec314c5a5f3dff0d34768c15ff94546881999a223544456cfe695f995b2a"
         },
         {
           "role": "test-case-reviewer",
           "relPath": "templates/agents/test-case-reviewer.md",
-          "templateHash": "473bb2400c735afc4b12aa02163fab9cab284bca5033ea6bef231f10eefcba98"
+          "templateHash": "3292b8c15a696f588c9fcda45218aefeabb56668d47fa0e74cd163cbaf9da0a5"
         },
         {
           "role": "test-intent",
           "relPath": "templates/agents/test-intent.md",
-          "templateHash": "170e49b7abf5a4ff4b949315c5ff41f32d11696c1f84e0909a5935d03ab7816d"
+          "templateHash": "168d1a5b862f0949aaa44223f21f42e67ff4df938805ac6ebf0fd55677be3fc2"
         }
       ]
     }
@@ -1178,15 +1167,15 @@
         "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
-        "id": "f51d87a59fc95053",
+        "id": "16b1080a10f157ae",
         "role": "test-case-reviewer",
         "line": 92,
         "clauseIndex": 1,
         "occurrence": 1,
         "term": "TEST_CASE",
         "matchedText": "test-case",
-        "clause": "lattice testintent_record '{\"storyId\":\"<STORY_ID>\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"index\":0,\"pass\":true,\"note\":\"fixture/xxx.json:5 — case covers normal path | severity:info\",\"agent\":\"test-case-reviewer\"}'",
-        "excerpt": "lattice testintent_record '{\"storyId\":\"<STORY_ID>\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"index\":0,\"pass\":true,\"note\":\"fixture/xxx.json:5 — case covers normal path | severity:info\",\"agent\":\"test-case-reviewer\"}'",
+        "clause": "proof-or-stop testintent_record '{\"storyId\":\"<STORY_ID>\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"index\":0,\"pass\":true,\"note\":\"fixture/xxx.json:5 — case covers normal path | severity:info\",\"agent\":\"test-case-reviewer\"}'",
+        "excerpt": "proof-or-stop testintent_record '{\"storyId\":\"<STORY_ID>\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"index\":0,\"pass\":true,\"note\":\"fixture/xxx.json:5 — case covers normal path | severity:info\",\"agent\":\"test-case-reviewer\"}'",
         "classification": "legacy-prompt-body",
         "note": "Legacy compatibility prompt; visible until migration or retirement.",
         "roleStatus": "legacy",
@@ -1195,15 +1184,15 @@
         "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
-        "id": "c98adf962c7ebfd7",
+        "id": "e4c0a0124c53a7cd",
         "role": "test-case-reviewer",
         "line": 92,
         "clauseIndex": 1,
         "occurrence": 2,
         "term": "TEST_CASE_REVIEW",
         "matchedText": "test-case-reviewer",
-        "clause": "lattice testintent_record '{\"storyId\":\"<STORY_ID>\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"index\":0,\"pass\":true,\"note\":\"fixture/xxx.json:5 — case covers normal path | severity:info\",\"agent\":\"test-case-reviewer\"}'",
-        "excerpt": "lattice testintent_record '{\"storyId\":\"<STORY_ID>\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"index\":0,\"pass\":true,\"note\":\"fixture/xxx.json:5 — case covers normal path | severity:info\",\"agent\":\"test-case-reviewer\"}'",
+        "clause": "proof-or-stop testintent_record '{\"storyId\":\"<STORY_ID>\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"index\":0,\"pass\":true,\"note\":\"fixture/xxx.json:5 — case covers normal path | severity:info\",\"agent\":\"test-case-reviewer\"}'",
+        "excerpt": "proof-or-stop testintent_record '{\"storyId\":\"<STORY_ID>\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"index\":0,\"pass\":true,\"note\":\"fixture/xxx.json:5 — case covers normal path | severity:info\",\"agent\":\"test-case-reviewer\"}'",
         "classification": "legacy-prompt-body",
         "note": "Legacy compatibility prompt; visible until migration or retirement.",
         "roleStatus": "legacy",
@@ -1212,15 +1201,15 @@
         "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
-        "id": "9aa413869f9a3b0e",
+        "id": "7a0fbfe27d15b61f",
         "role": "test-case-reviewer",
         "line": 96,
         "clauseIndex": 1,
         "occurrence": 1,
         "term": "TEST_CASE",
         "matchedText": "test-case",
-        "clause": "lattice testintent_record '{\"storyId\":\"<STORY_ID>\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"index\":0,\"pass\":false,\"note\":\"no matching case found — missing edge case for empty input | severity:high\",\"agent\":\"test-case-reviewer\"}'",
-        "excerpt": "lattice testintent_record '{\"storyId\":\"<STORY_ID>\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"index\":0,\"pass\":false,\"note\":\"no matching case found — missing edge case for empty input | severity:high\",\"agent\":\"test-case-reviewer\"}'",
+        "clause": "proof-or-stop testintent_record '{\"storyId\":\"<STORY_ID>\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"index\":0,\"pass\":false,\"note\":\"no matching case found — missing edge case for empty input | severity:high\",\"agent\":\"test-case-reviewer\"}'",
+        "excerpt": "proof-or-stop testintent_record '{\"storyId\":\"<STORY_ID>\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"index\":0,\"pass\":false,\"note\":\"no matching case found — missing edge case for empty input | severity:high\",\"agent\":\"test-case-reviewer\"}'",
         "classification": "legacy-prompt-body",
         "note": "Legacy compatibility prompt; visible until migration or retirement.",
         "roleStatus": "legacy",
@@ -1229,15 +1218,15 @@
         "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
-        "id": "c8472dfb8fb5ebd2",
+        "id": "28b30f16a221e801",
         "role": "test-case-reviewer",
         "line": 96,
         "clauseIndex": 1,
         "occurrence": 2,
         "term": "TEST_CASE_REVIEW",
         "matchedText": "test-case-reviewer",
-        "clause": "lattice testintent_record '{\"storyId\":\"<STORY_ID>\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"index\":0,\"pass\":false,\"note\":\"no matching case found — missing edge case for empty input | severity:high\",\"agent\":\"test-case-reviewer\"}'",
-        "excerpt": "lattice testintent_record '{\"storyId\":\"<STORY_ID>\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"index\":0,\"pass\":false,\"note\":\"no matching case found — missing edge case for empty input | severity:high\",\"agent\":\"test-case-reviewer\"}'",
+        "clause": "proof-or-stop testintent_record '{\"storyId\":\"<STORY_ID>\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"index\":0,\"pass\":false,\"note\":\"no matching case found — missing edge case for empty input | severity:high\",\"agent\":\"test-case-reviewer\"}'",
+        "excerpt": "proof-or-stop testintent_record '{\"storyId\":\"<STORY_ID>\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"index\":0,\"pass\":false,\"note\":\"no matching case found — missing edge case for empty input | severity:high\",\"agent\":\"test-case-reviewer\"}'",
         "classification": "legacy-prompt-body",
         "note": "Legacy compatibility prompt; visible until migration or retirement.",
         "roleStatus": "legacy",
@@ -1484,15 +1473,15 @@
         "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
-        "id": "b4ad03f7aec14a1e",
+        "id": "7ed1c3fa88c0633f",
         "role": "test-intent",
         "line": 103,
         "clauseIndex": 1,
         "occurrence": 1,
         "term": "testIntent",
         "matchedText": "testIntent",
-        "clause": "lattice checklist_update '{\"storyId\":\"<ID>\",\"itemId\":\"<ITEM_ID>\",\"testIntent\":null,\"agent\":\"test-intent\"}'",
-        "excerpt": "lattice checklist_update '{\"storyId\":\"<ID>\",\"itemId\":\"<ITEM_ID>\",\"testIntent\":null,\"agent\":\"test-intent\"}'",
+        "clause": "proof-or-stop checklist_update '{\"storyId\":\"<ID>\",\"itemId\":\"<ITEM_ID>\",\"testIntent\":null,\"agent\":\"test-intent\"}'",
+        "excerpt": "proof-or-stop checklist_update '{\"storyId\":\"<ID>\",\"itemId\":\"<ITEM_ID>\",\"testIntent\":null,\"agent\":\"test-intent\"}'",
         "classification": "legacy-prompt-body",
         "note": "Legacy compatibility prompt; visible until migration or retirement.",
         "roleStatus": "legacy",
@@ -1501,15 +1490,15 @@
         "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
-        "id": "1aa4f4bb7cc8ca8d",
+        "id": "024b999e549a07cd",
         "role": "test-intent",
         "line": 103,
         "clauseIndex": 1,
         "occurrence": 2,
         "term": "testIntent",
         "matchedText": "test-intent",
-        "clause": "lattice checklist_update '{\"storyId\":\"<ID>\",\"itemId\":\"<ITEM_ID>\",\"testIntent\":null,\"agent\":\"test-intent\"}'",
-        "excerpt": "lattice checklist_update '{\"storyId\":\"<ID>\",\"itemId\":\"<ITEM_ID>\",\"testIntent\":null,\"agent\":\"test-intent\"}'",
+        "clause": "proof-or-stop checklist_update '{\"storyId\":\"<ID>\",\"itemId\":\"<ITEM_ID>\",\"testIntent\":null,\"agent\":\"test-intent\"}'",
+        "excerpt": "proof-or-stop checklist_update '{\"storyId\":\"<ID>\",\"itemId\":\"<ITEM_ID>\",\"testIntent\":null,\"agent\":\"test-intent\"}'",
         "classification": "legacy-prompt-body",
         "note": "Legacy compatibility prompt; visible until migration or retirement.",
         "roleStatus": "legacy",
@@ -1620,15 +1609,15 @@
         "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
-        "id": "1fa295fec849e9a5",
+        "id": "9c59cbe993dad514",
         "role": "test-intent",
         "line": 142,
         "clauseIndex": 1,
         "occurrence": 1,
         "term": "testIntent",
         "matchedText": "testIntent",
-        "clause": "lattice checklist_update '{\"storyId\":\"<STORY_ID>\",\"itemId\":\"<ITEM_ID>\",\"testIntent\":{\"happy\":[{\"desc\":\"...\",\"type\":\"cli_blackbox\"}],\"edge\":[{\"desc\":\"...\",\"type\":\"cli_blackbox\"}],\"adversarial\":[{\"desc\":\"...\",\"type\":\"cli_blackbox\"}]},\"agent\":\"test-intent\"}'",
-        "excerpt": "lattice checklist_update '{\"storyId\":\"<STORY_ID>\",\"itemId\":\"<ITEM_ID>\",\"testIntent\":{\"happy\":[{\"desc\":\"...\",\"type\":\"cli_blackbox\"}],\"edge\":[{\"desc\":\"...\",\"type\":\"cli_blackbox\"}],\"adversarial\":[{\"desc\":\"...\",\"type\":\"cli_blackbox\"}]},\"agent\":\"test-intent\"}'",
+        "clause": "proof-or-stop checklist_update '{\"storyId\":\"<STORY_ID>\",\"itemId\":\"<ITEM_ID>\",\"testIntent\":{\"happy\":[{\"desc\":\"...\",\"type\":\"cli_blackbox\"}],\"edge\":[{\"desc\":\"...\",\"type\":\"cli_blackbox\"}],\"adversarial\":[{\"desc\":\"...\",\"type\":\"cli_blackbox\"}]},\"agent\":\"test-intent\"}'",
+        "excerpt": "proof-or-stop checklist_update '{\"storyId\":\"<STORY_ID>\",\"itemId\":\"<ITEM_ID>\",\"testIntent\":{\"happy\":[{\"desc\":\"...\",\"type\":\"cli_blackbox\"}],\"edge\":[{\"desc\":\"...\",\"type\":\"cli_blackbox\"}],\"adversarial\":[{\"desc\":\"...\",\"type\":\"cli_blackbox\"}]},\"agent\":\"test-intent\"}'",
         "classification": "legacy-prompt-body",
         "note": "Legacy compatibility prompt; visible until migration or retirement.",
         "roleStatus": "legacy",
@@ -1637,15 +1626,15 @@
         "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
-        "id": "f4c9e7372849c9da",
+        "id": "0300ef8c211596d7",
         "role": "test-intent",
         "line": 142,
         "clauseIndex": 1,
         "occurrence": 2,
         "term": "testIntent",
         "matchedText": "test-intent",
-        "clause": "lattice checklist_update '{\"storyId\":\"<STORY_ID>\",\"itemId\":\"<ITEM_ID>\",\"testIntent\":{\"happy\":[{\"desc\":\"...\",\"type\":\"cli_blackbox\"}],\"edge\":[{\"desc\":\"...\",\"type\":\"cli_blackbox\"}],\"adversarial\":[{\"desc\":\"...\",\"type\":\"cli_blackbox\"}]},\"agent\":\"test-intent\"}'",
-        "excerpt": "lattice checklist_update '{\"storyId\":\"<STORY_ID>\",\"itemId\":\"<ITEM_ID>\",\"testIntent\":{\"happy\":[{\"desc\":\"...\",\"type\":\"cli_blackbox\"}],\"edge\":[{\"desc\":\"...\",\"type\":\"cli_blackbox\"}],\"adversarial\":[{\"desc\":\"...\",\"type\":\"cli_blackbox\"}]},\"agent\":\"test-intent\"}'",
+        "clause": "proof-or-stop checklist_update '{\"storyId\":\"<STORY_ID>\",\"itemId\":\"<ITEM_ID>\",\"testIntent\":{\"happy\":[{\"desc\":\"...\",\"type\":\"cli_blackbox\"}],\"edge\":[{\"desc\":\"...\",\"type\":\"cli_blackbox\"}],\"adversarial\":[{\"desc\":\"...\",\"type\":\"cli_blackbox\"}]},\"agent\":\"test-intent\"}'",
+        "excerpt": "proof-or-stop checklist_update '{\"storyId\":\"<STORY_ID>\",\"itemId\":\"<ITEM_ID>\",\"testIntent\":{\"happy\":[{\"desc\":\"...\",\"type\":\"cli_blackbox\"}],\"edge\":[{\"desc\":\"...\",\"type\":\"cli_blackbox\"}],\"adversarial\":[{\"desc\":\"...\",\"type\":\"cli_blackbox\"}]},\"agent\":\"test-intent\"}'",
         "classification": "legacy-prompt-body",
         "note": "Legacy compatibility prompt; visible until migration or retirement.",
         "roleStatus": "legacy",
@@ -1716,7 +1705,7 @@
         {
           "role": "lattice-review-channel",
           "classification": "process-event-evidence-reference",
-          "excerpt": "The truly reliable evidence source is the `dispatch` / `subagent_result` events in **`docs/story/actives/<storyId>/process-events.jsonl`**: every time the main agent uses `lattice dispatch` to assign work, it appends `{\"type\":\"dispatch\",\"checklistId\":\"CHK-xxx\",...}`; once the worker finishes, it may append `{\"type\":\"subagent_result\",\"checklistId\":\"CHK-xxx\",\"success\":true,...}`."
+          "excerpt": "The truly reliable evidence source is the `dispatch` / `subagent_result` events in **`docs/story/actives/<storyId>/process-events.jsonl`**: every time the main agent uses `proof-or-stop dispatch` to assign work, it appends `{\"type\":\"dispatch\",\"checklistId\":\"CHK-xxx\",...}`; once the worker finishes, it may append `{\"type\":\"subagent_result\",\"checklistId\":\"CHK-xxx\",\"success\":true,...}`."
         },
         {
           "role": "lattice-review-channel",
@@ -1794,61 +1783,61 @@
     ],
     "findings": [
       {
-        "id": "da5db3debb026996",
+        "id": "1e94cdfd0166e079",
         "role": "lattice-evaluator",
         "line": 21,
         "references": [
           "docs/story/"
         ],
-        "excerpt": "- Story operations must use Lattice CLI commands. Do not directly read or write story metadata under `docs/story/`, and do not write fixtures directly under `tests/fixtures/`.",
+        "excerpt": "- Story operations must use Proof-or-Stop CLI commands. Do not directly read or write story metadata under `docs/story/`, and do not write fixtures directly under `tests/fixtures/`.",
         "classification": "policy-reminder",
         "grandfathered": false,
         "note": "Prompt reminds agents not to bypass CLI-mediated story operations."
       },
       {
-        "id": "17de721d0674fa52",
+        "id": "e9d2b1ffa5630390",
         "role": "lattice-implementer",
         "line": 27,
         "references": [
           "docs/story/"
         ],
-        "excerpt": "- Story operations must use Lattice CLI commands. Do not directly read or write story metadata under `docs/story/`, and do not write fixtures directly under `tests/fixtures/`.",
+        "excerpt": "- Story operations must use Proof-or-Stop CLI commands. Do not directly read or write story metadata under `docs/story/`, and do not write fixtures directly under `tests/fixtures/`.",
         "classification": "policy-reminder",
         "grandfathered": false,
         "note": "Prompt reminds agents not to bypass CLI-mediated story operations."
       },
       {
-        "id": "c045072ad149c5f5",
+        "id": "d1545283f097bca3",
         "role": "lattice-implementer",
         "line": 145,
         "references": [
           "docs/story/"
         ],
-        "excerpt": "- ❌ Directly Read/Edit JSON files under `docs/story/`: all story changes go through the Lattice CLI",
+        "excerpt": "- ❌ Directly Read/Edit JSON files under `docs/story/`: all story changes go through the Proof-or-Stop CLI",
         "classification": "policy-reminder",
         "grandfathered": false,
         "note": "Prompt reminds agents not to bypass CLI-mediated story operations."
       },
       {
-        "id": "9443bd6e8ff439bd",
+        "id": "010b8a822b735e7a",
         "role": "lattice-review-channel",
         "line": 22,
         "references": [
           "docs/story/"
         ],
-        "excerpt": "- Story operations must use Lattice CLI commands. Do not directly read or write story metadata under `docs/story/`, and do not write fixtures directly under `tests/fixtures/`.",
+        "excerpt": "- Story operations must use Proof-or-Stop CLI commands. Do not directly read or write story metadata under `docs/story/`, and do not write fixtures directly under `tests/fixtures/`.",
         "classification": "policy-reminder",
         "grandfathered": false,
         "note": "Prompt reminds agents not to bypass CLI-mediated story operations."
       },
       {
-        "id": "15545113bf8543fa",
+        "id": "5ad0754e65cf4efa",
         "role": "lattice-review-channel",
         "line": 115,
         "references": [
           "docs/story/actives/"
         ],
-        "excerpt": "The truly reliable evidence source is the `dispatch` / `subagent_result` events in **`docs/story/actives/<storyId>/process-events.jsonl`**: every time the main agent uses `lattice dispatch` to assign work, it appends `{\"type\":\"dispatch\",\"checklistId\":\"CHK-xxx\",...}`; once the worker finishes, it may append `{\"type\":\"subagent_result\",\"checklistId\":\"CHK-xxx\",\"success\":true,...}`.",
+        "excerpt": "The truly reliable evidence source is the `dispatch` / `subagent_result` events in **`docs/story/actives/<storyId>/process-events.jsonl`**: every time the main agent uses `proof-or-stop dispatch` to assign work, it appends `{\"type\":\"dispatch\",\"checklistId\":\"CHK-xxx\",...}`; once the worker finishes, it may append `{\"type\":\"subagent_result\",\"checklistId\":\"CHK-xxx\",\"success\":true,...}`.",
         "classification": "process-event-evidence-reference",
         "grandfathered": true,
         "note": "Exact code-reviewed current story-file reference."
@@ -1878,37 +1867,37 @@
         "note": "Exact code-reviewed current story-file reference."
       },
       {
-        "id": "54e2faadec1a8ede",
+        "id": "49953ff0587a0c5f",
         "role": "lattice-review-delivery",
         "line": 22,
         "references": [
           "docs/story/"
         ],
-        "excerpt": "- Story operations must use Lattice CLI commands. Do not directly read or write story metadata under `docs/story/`, and do not write fixtures directly under `tests/fixtures/`.",
+        "excerpt": "- Story operations must use Proof-or-Stop CLI commands. Do not directly read or write story metadata under `docs/story/`, and do not write fixtures directly under `tests/fixtures/`.",
         "classification": "policy-reminder",
         "grandfathered": false,
         "note": "Prompt reminds agents not to bypass CLI-mediated story operations."
       },
       {
-        "id": "78a38f5ab5623d13",
+        "id": "a71f6e47cd6f96f5",
         "role": "lattice-review-scope-plan",
         "line": 22,
         "references": [
           "docs/story/"
         ],
-        "excerpt": "- Story operations must use Lattice CLI commands. Do not directly read or write story metadata under `docs/story/`, and do not write fixtures directly under `tests/fixtures/`.",
+        "excerpt": "- Story operations must use Proof-or-Stop CLI commands. Do not directly read or write story metadata under `docs/story/`, and do not write fixtures directly under `tests/fixtures/`.",
         "classification": "policy-reminder",
         "grandfathered": false,
         "note": "Prompt reminds agents not to bypass CLI-mediated story operations."
       },
       {
-        "id": "80c69bb904c981bf",
+        "id": "3057381127edf4e1",
         "role": "lattice-review-story-init",
         "line": 28,
         "references": [
           "docs/story/"
         ],
-        "excerpt": "- Story operations must use Lattice CLI commands. Do not directly read or write story metadata under `docs/story/`, and do not write fixtures directly under `tests/fixtures/`.",
+        "excerpt": "- Story operations must use Proof-or-Stop CLI commands. Do not directly read or write story metadata under `docs/story/`, and do not write fixtures directly under `tests/fixtures/`.",
         "classification": "policy-reminder",
         "grandfathered": false,
         "note": "Prompt reminds agents not to bypass CLI-mediated story operations."

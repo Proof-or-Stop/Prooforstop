@@ -25,7 +25,7 @@ import { join } from 'node:path';
 import {
   buildObservabilitySnapshot,
   OBSERVABILITY_SNAPSHOT_SCHEMA_VERSION,
-  type LatticeObservabilitySnapshot,
+  type ProofOrStopObservabilitySnapshot,
 } from '../core/observability-snapshot.js';
 import { resetConfigCache } from '../core/config.js';
 import { StoryStore } from '../core/store.js';
@@ -162,7 +162,7 @@ function makeProjectionResult(): LocalAssuranceStoryProjection {
   };
 }
 
-function assertReadOnlyLocalAssurance(snapshot: LatticeObservabilitySnapshot): void {
+function assertReadOnlyLocalAssurance(snapshot: ProofOrStopObservabilitySnapshot): void {
   assert.equal(snapshot.schemaVersion, OBSERVABILITY_SNAPSHOT_SCHEMA_VERSION);
   assert.equal(snapshot.schemaVersion, 'lattice.observability_snapshot.v1');
   assert.equal(snapshot.readOnly, true);
@@ -181,7 +181,7 @@ function assertReadOnlyLocalAssurance(snapshot: LatticeObservabilitySnapshot): v
   }
 }
 
-function assertSectionsShape(snapshot: LatticeObservabilitySnapshot): void {
+function assertSectionsShape(snapshot: ProofOrStopObservabilitySnapshot): void {
   const sections = snapshot.sections;
   assert.ok(sections.authorityLadder, 'authorityLadder section present');
   assert.ok(Array.isArray(sections.storyBoard), 'storyBoard section present');
@@ -271,7 +271,7 @@ try {
   assert.ok(activeRecovery, 'recovery entry for active story');
   assert.equal(activeRecovery.activeCwd, '/tmp/observability-smoke-worktree/B-active');
   assert.ok(/^cd \/tmp\/observability-smoke-worktree\/B-active/.test(activeRecovery.resumeCommand), 'resume command embeds authoritative cwd');
-  assert.ok(activeRecovery.resumeCommand.includes('lattice story_export --storyId=B-active --format=json'), 'resume command targets story_export JSON surface');
+  assert.ok(activeRecovery.resumeCommand.includes('proof-or-stop story_export --storyId=B-active --format=json'), 'resume command targets story_export JSON surface');
   assert.ok(activeRecovery.recoveryPoints.some(point => point.id === 'B-active:story-store'), 'recoveryPoints projected from canonical lineage');
 
   const activeParallel = snapshot.sections.parallel.find(row => row.storyId === 'B-active');
@@ -308,13 +308,13 @@ try {
   // section-shape contract as the direct buildObservabilitySnapshot call above.
   const ctx: HandlerContext = { store, root, scanRoot: join(root, 'packages', 'main') };
   const handlers = createObservabilitySnapshotHandlers(ctx);
-  const handlerResult = handlers.observability_snapshot({ format: 'json', activeOnly: false }) as LatticeObservabilitySnapshot;
+  const handlerResult = handlers.observability_snapshot({ format: 'json', activeOnly: false }) as ProofOrStopObservabilitySnapshot;
   assertReadOnlyLocalAssurance(handlerResult);
   assertSectionsShape(handlerResult);
   assert.equal(handlerResult.sections.storyBoard.length, 2, 'handler with activeOnly:false surfaces both seeded stories');
 
   const textResult = handlers.observability_snapshot({}) as string;
-  assert.match(textResult, /Proofbound observability snapshot \(lattice\.observability_snapshot\.v1\)/);
+  assert.match(textResult, /Proof-or-Stop observability snapshot \(lattice\.observability_snapshot\.v1\)/);
   assert.match(textResult, /admissibilityStatus: local-only/);
   assert.match(textResult, /assuranceLevel: local-observation/);
   assert.match(textResult, /evidenceScope: read-only-observability/);

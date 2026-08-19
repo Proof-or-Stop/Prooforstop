@@ -78,7 +78,7 @@ function makeFixture(version: string, over?: VersionOverrides): string {
       '': { name: '@lattice/core', version: over?.mainLockPackage ?? over?.mainLock ?? version },
     },
   }, null, 2) + '\n');
-  writeFileSync(join(dir, VERSION_SYNC_FILES.brand), `import { basename } from 'path';\n\nexport const LATTICE_CLI_VERSION = '${over?.brand ?? version}' as const;\nexport const LATTICE_PRODUCT_NAME = 'Proofbound CLI' as const;\nvoid basename;\n`);
+  writeFileSync(join(dir, VERSION_SYNC_FILES.brand), `import { basename } from 'path';\n\nexport const LATTICE_CLI_VERSION = '${over?.brand ?? version}' as const;\nexport const PROOF_OR_STOP_PRODUCT_NAME = 'Proof-or-Stop' as const;\nvoid basename;\n`);
   return dir;
 }
 
@@ -172,7 +172,7 @@ void (async () => {
     check('bump wrote the new version', readSyncedVersion(f6) === '0.9.10');
     check('git add was issued', gitCalls.some((c) => c.args[0] === 'add' && c.args.includes(VERSION_SYNC_FILES.brand)));
     check('git add includes package lockfiles', gitCalls.some((c) => c.args[0] === 'add' && c.args.includes(VERSION_SYNC_FILES.rootPackageLock) && c.args.includes(VERSION_SYNC_FILES.mainPackageLock)));
-    check('chore:bump commit was issued', gitCalls.some((c) => c.args.includes('commit') && c.args.some((a) => a === 'chore: bump lattice cli to 0.9.10')));
+    check('chore:bump commit was issued', gitCalls.some((c) => c.args.includes('commit') && c.args.some((a) => a === 'chore: bump proof-or-stop cli to 0.9.10')));
     check('git ran in the main merge root', gitCalls.every((c) => c.cwd === f6));
 
     const f6pre = fixture('0.9.10');

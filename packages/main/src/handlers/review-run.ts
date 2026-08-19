@@ -224,7 +224,7 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
             projectRoot: workspace.metadataRoot || ctx.root,
           });
           if (!dispatchBinding.ok) {
-            throw new Error(`review_run_start: ${dispatchBinding.reason}; rerun lattice dispatch for ${lane}`);
+            throw new Error(`review_run_start: ${dispatchBinding.reason}; rerun proof-or-stop dispatch for ${lane}`);
           }
           const findingProjection = store.readFindings(args.storyId).findings
             .filter(finding => (finding.createdAt ?? '') <= startedAt)

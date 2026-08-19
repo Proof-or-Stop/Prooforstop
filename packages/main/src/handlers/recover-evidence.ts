@@ -198,10 +198,10 @@ export function createRecoverEvidenceHandlers(ctx: HandlerContext): Record<strin
           }
         } else {
           validateOk = false;
-          validateTranscript = `lattice validate returned unexpected non-string output (typeof=${typeof validateOutput}); treating as failure.`;
+          validateTranscript = `proof-or-stop validate returned unexpected non-string output (typeof=${typeof validateOutput}); treating as failure.`;
         }
       } catch (e: any) {
-        validateTranscript = `lattice validate failed: ${e?.message || String(e)}`;
+        validateTranscript = `proof-or-stop validate failed: ${e?.message || String(e)}`;
         validateOk = false;
       }
 

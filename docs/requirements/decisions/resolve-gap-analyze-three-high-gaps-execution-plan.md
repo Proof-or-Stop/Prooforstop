@@ -2,7 +2,7 @@
 
 > Status: execution plan
 > Story: B-ebc5
-> Source command: `lattice gap_analyze`
+> Source command: `proof-or-stop gap_analyze`
 > Boundary: this document does not close the gaps, unlock Layer 2, unlock Layer
 > 4, set `productionDone`, set `receiptVerified`, or complete Authority work.
 
@@ -81,20 +81,20 @@ The signed-workspace story is complete only when all of these are true:
    `headHash`, `materialHash`, scope diff, and review scope binding.
 5. A regression test covers the non-git metadata root with no worktree or
    configured `gitRoot`.
-6. `lattice gap_analyze` no longer reports the two signed-workspace high gaps.
+6. `proof-or-stop gap_analyze` no longer reports the two signed-workspace high gaps.
 
 ### 4.4 Verification Commands
 
 The future implementation story should use commands shaped like:
 
 ```bash
-lattice session_brief
-lattice gap_analyze
+proof-or-stop session_brief
+proof-or-stop gap_analyze
 npm --prefix packages/main run build
 npm --prefix packages/main run test:field-regression
 node packages/main/dist/tasks/field-regression-cli-smoke.js
-lattice validate --story=<storyId>
-lattice gap_analyze
+proof-or-stop validate --story=<storyId>
+proof-or-stop gap_analyze
 ```
 
 If the package has no dedicated `test:field-regression` script at that time,
@@ -135,7 +135,7 @@ Actions:
    repository requirement.
 3. Preserve the rule that any future `customerKeyRef` must be redacted and
    non-secret.
-4. Run `lattice gap_analyze` and confirm the row is no longer reported as a
+4. Run `proof-or-stop gap_analyze` and confirm the row is no longer reported as a
    current uncovered requirement.
 
 Allowed result wording:
@@ -190,11 +190,11 @@ Use these rules while resolving the three high gaps.
 1. Finish or intentionally park unrelated active stories so the target is clear.
 2. Open one signed-workspace implementation story for GAP-SW-UNRESOLVED-1 and
    GAP-SW-NO-BINDING-1.
-3. Run the signed-workspace story to DONE through Proofbound lifecycle.
-4. Re-run `lattice gap_analyze`.
+3. Run the signed-workspace story to DONE through Proof-or-Stop lifecycle.
+4. Re-run `proof-or-stop gap_analyze`.
 5. If only GAP-L4-CUSTOMER-KEY-1 remains, choose Path B1 or Path B2.
 6. Run the chosen Layer 4 boundary or implementation story to DONE.
-7. Re-run `lattice gap_analyze` and `lattice convergence_check`.
+7. Re-run `proof-or-stop gap_analyze` and `proof-or-stop convergence_check`.
 
 Expected project state after both workstreams:
 
@@ -211,12 +211,12 @@ three-gap closure plan.
 
 Each follow-up story must include:
 
-- initial `lattice gap_analyze` output;
-- final `lattice gap_analyze` output;
+- initial `proof-or-stop gap_analyze` output;
+- final `proof-or-stop gap_analyze` output;
 - exact changed files;
 - source or document anchors for each cleared gap;
 - deterministic commands that can be replayed;
-- Proofbound validation evidence;
+- Proof-or-Stop validation evidence;
 - review pass evidence;
 - final statement of what remains locked.
 

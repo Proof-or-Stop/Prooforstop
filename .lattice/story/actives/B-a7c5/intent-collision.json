@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-a7c5",
+  "id": "IC-20260814110442",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "The user's two requirements (learn from memory during dev; capture new lessons during dev) are satisfied by a THREE-gate design, not a single mechanism -- this was reached only after two weaker candidate interpretations (CLAUDE.md-only nudge; DONE-gate-only enforcement) were explicitly considered and rejected by the user for failing to cover both the read-before-dev and write-during-dev requirements simultaneously. Alternate interpretation considered and rejected: a fully-automatic hook-based capture (e.g. PreToolUse) was considered and rejected in decision.json because it would only help Claude sessions, not Codex or other agents sharing this same repo's dev-memory store, defeating the point of a shared, git-tracked mechanism. No remaining ambiguity: scope is the three named checklist gates (CHK-001/002/003) plus the doc-reconciliation sub-tasks (CHK-004..007) that the PLAN scope reviewer required.",
+  "acceptedInterpretationHash": "sha256:0b447b889c0609045ead8baa0a25cb965f986f8d9c2d8be7c865ab857b079648",
+  "notes": "High-assurance gate/state-machine change; intent-collision is diagnostically required per the ProofStory classifier. Independence here means an explicit re-derivation from the story's own background.md Trigger Event section and decision.json's rejected-options list, not a rubber-stamp.",
+  "createdAt": "2026-08-14T11:04:42.279Z",
+  "updatedAt": "2026-08-14T11:04:42.279Z"
+}

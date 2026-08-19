@@ -169,21 +169,21 @@ assert.deepEqual(
   'exact producer command token derives structured non-evidentiary provenance',
 );
 for (const command of [
-  `lattice acceptance_matrix --storyId=${storyId}`,
+  `proof-or-stop acceptance_matrix --storyId=${storyId}`,
   `/usr/local/bin/lattice --root /tmp/proofbound acceptance_matrix --storyId=${storyId}`,
   `node bin/lattice.js acceptance_matrix --storyId=${storyId}`,
   `/usr/bin/node ./bin/lattice.js --root=/tmp/proofbound acceptance_matrix --json`,
   `node /Users/example/proofbound/bin/lattice.js --root /tmp/proofbound acceptance_matrix`,
   `./bin/lattice.js acceptance_matrix --storyId=${storyId}`,
 ]) {
-  assert.equal(isAcceptanceMatrixDerivedEvidence({ kind: 'logic_test', command, note: 'ordinary transcript' }), true, `supported Proofbound invocation is derived: ${command}`);
+  assert.equal(isAcceptanceMatrixDerivedEvidence({ kind: 'logic_test', command, note: 'ordinary transcript' }), true, `supported Proof-or-Stop invocation is derived: ${command}`);
 }
 for (const command of [
   'rg acceptance_matrix packages/main/src/core/command-policy.ts',
   'printf acceptance_matrix',
   'node cli-contract-test.mjs acceptance_matrix',
-  'echo lattice acceptance_matrix',
-  'lattice check acceptance_matrix',
+  'echo proof-or-stop acceptance_matrix',
+  'proof-or-stop check acceptance_matrix',
   'node bin/lattice.js help acceptance_matrix',
 ]) {
   assert.equal(isAcceptanceMatrixDerivedEvidence({ kind: 'logic_test', command, note: 'independent assertion passed' }), false, `data/argument token is not producer provenance: ${command}`);
@@ -382,7 +382,7 @@ try {
         itemId: 'CHK-001',
         intentRef: 'INT-001',
         kind: 'manual_transcript',
-        command: `lattice acceptance_matrix --storyId=${storyId}`,
+        command: `proof-or-stop acceptance_matrix --storyId=${storyId}`,
         result: 'pass',
         note: 'Result: inconclusive_basis_unverified',
       }],
@@ -612,7 +612,7 @@ const injectedProjectionChecklist = checklist(false);
 injectedProjectionChecklist.items[0].verificationEvidence = [{
   intentRef: 'INT-001',
   kind: 'manual_transcript',
-  command: `lattice acceptance_matrix --storyId=${storyId}`,
+  command: `proof-or-stop acceptance_matrix --storyId=${storyId}`,
   result: 'pass',
   note: 'Result: inconclusive_basis_unverified',
 }];
@@ -721,7 +721,7 @@ milestoneProjectionChecklist.items[0].status = 'done';
 milestoneProjectionChecklist.items[0].verificationEvidence = [{
   intentRef: 'INT-001',
   kind: 'logic_test',
-  command: `lattice acceptance_matrix --storyId=${storyId}`,
+  command: `proof-or-stop acceptance_matrix --storyId=${storyId}`,
   result: 'pass',
   note: 'Caller marked the replayed legacy row as passing.',
 }];

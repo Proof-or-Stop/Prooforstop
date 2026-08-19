@@ -8,7 +8,7 @@ Primary source file: `packages/main/src/cli-engine.ts`
 
 ## Purpose
 
-This document defines the execution plan for splitting the large Proofbound CLI
+This document defines the execution plan for splitting the large Proof-or-Stop CLI
 engine into smaller modules without changing command behavior, lifecycle gates,
 or test-facing exports accidentally.
 
@@ -219,7 +219,7 @@ Stop conditions:
 - Metadata sync can silently overwrite main or story worktree state.
 - `recover_evidence` no longer uses its single-shot special dispatch path.
 
-## Proofbound Authority Server Strong-Verification Flow
+## Proof-or-Stop Authority Server Strong-Verification Flow
 
 This local B-0717 run has Authority mode `off` and status `not-configured`.
 That is readiness information only. It is not production Authority completion.

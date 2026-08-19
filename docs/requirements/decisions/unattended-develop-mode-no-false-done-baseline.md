@@ -14,7 +14,7 @@ Related docs:
 
 This document defines a deterministic **10 groups x 15 milestones** baseline for
 Loop Engineering and Unattended Develop Mode (UDM). Its purpose is to prove that
-Proofbound cannot falsely report DONE for a large multi-milestone request when
+Proof-or-Stop cannot falsely report DONE for a large multi-milestone request when
 the milestone ledger is incomplete, stale, prose-only, migration-only, or
 overclaimed.
 
@@ -319,7 +319,7 @@ The baseline is complete only when all of these are true:
 
 ## Relationship To Unattended Develop Mode
 
-UDM can continue unattended only when every loop iteration respects proof-stop
+UDM can continue unattended only when every loop iteration respects proof-or-stop
 semantics:
 
 ```text
@@ -345,7 +345,7 @@ implemented the G02 missing-row negative-control smoke. Story B-727b implemented
 the G03 prose-only negative-control smoke. Story B-d278 completes the remaining
 local deterministic baseline by adding G04-G10 plus the aggregate 10x15 smoke.
 
-This baseline also does not require or claim 150 real Lattice stories, remote
+This baseline also does not require or claim 150 real Proof-or-Stop stories, remote
 hosts, elevated rollout status, Authority receipts, fullAuthority receipts,
 production execution, or independent two-host evidence. It should use synthetic
 local fixtures unless a future unlock story explicitly requires live execution.

@@ -1,0 +1,42 @@
+{
+  "storyId": "B-fb7b",
+  "checkedAt": "2026-08-14T23:35:34.780Z",
+  "headHash": "8194f286f8d2139f7cf4b65e08e470bc4a5bd036",
+  "materialHash": "729bda3dc0dca739dac83fbed6332c0d966437b1cd73379c1e361c2d98226be3",
+  "storyFilesHash": "7e05bfe6c3ba16f408730284982715bf030d85c971a10ffd2988dd4da63f63bf",
+  "reviewRound": "2026-08-14T16:26:45.915Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "CHANGELOG.md",
+      "promise": "Root pretest (scripts/ensure-dist.mjs) bootstraps packages/main then packages/utils dist before the full suite, existence-based (builds only when a dist is absent, never rm+rebuilds a present one)",
+      "status": "verified",
+      "verifiedBy": "git diff main...HEAD -- package.json scripts/ensure-dist.mjs; node packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js",
+      "evidence": "package.json pretest = node scripts/ensure-dist.mjs; the structural smoke asserts pretest->ensure-dist + existsSync guard + ensure(main) before ensure(utils) and exits 0"
+    },
+    {
+      "docPath": "CHANGELOG.md",
+      "promise": "Concurrent-build mutex + content-bound freshness hardening deferred to a dedicated follow-up story (not carried by this change)",
+      "status": "verified",
+      "verifiedBy": "grep -rn build-lock|withBuildLock|--ensure|build-utils-with-lock over the material diff",
+      "evidence": "no build-lock residuals remain; packages/utils build reverted to tsc, build-main-with-binding byte-identical to main; deferral documented in the CHANGELOG entry"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "$ node packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs\nPASS red-fb7b-pretest-builds-utils: pretest self-bootstraps packages/utils AND idempotently skips a current dist\nexit 0 -- re-run on current HEAD 8194f286f8"
+    },
+    {
+      "featureId": "CHK-001",
+      "transcript": "$ node packages/main/tests/red/red-fb7b-guard-bite.mjs\nGB-ALL-PASS red-fb7b-guard-bite: pretest guard family bites on every broken variant and the invariants hold\nexit 0 -- re-run on current HEAD 8194f286f8"
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Reverse-scanned git diff main...HEAD against the CHANGELOG/checklist claims: package.json pretest = scripts/ensure-dist.mjs (existence-based bootstrap), proven on the real machine by the structural smoke (wired into validate.commands), the repro-first RED (build-when-absent + skip-when-present), and the guard-bite (bites on every broken pretest incl. a non-existsSync ensure-dist). The concurrent-build mutex + content-bound freshness hardening is explicitly descoped to a follow-up story per maintainer decision; the Codex host-B freshness finding is that deferred work and is recorded in the cross-host review. No unresolved in-scope TODOs."
+  },
+  "_hash": "42bf73f6594ef1373a855202a02493472a52e59be400912697f47ae44b0eccf9"
+}

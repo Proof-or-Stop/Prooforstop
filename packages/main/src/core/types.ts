@@ -293,7 +293,7 @@ export interface VerificationIntentPin {
 }
 
 export interface VerificationIntentItem {
-  /** Optional stable id. If absent, Proofbound derives CHK-001:happy:0 from lane/index. */
+  /** Optional stable id. If absent, Proof-or-Stop derives CHK-001:happy:0 from lane/index. */
   id?: string;
   desc: string;
   type: VerificationIntentType;
@@ -455,7 +455,7 @@ export interface AcceptanceCoverageBasisV1 {
   status: 'complete' | 'partial' | 'unsupported';
   generatedBy: {
     verifier: 'acceptance-coverage-basis-verifier';
-    command: 'lattice acceptance_basis_generate' | 'lattice pre_review_check';
+    command: 'proof-or-stop acceptance_basis_generate' | 'proof-or-stop pre_review_check';
     algorithmVersion: 'v1';
   };
   discoveryProfileRef: string;
@@ -984,6 +984,27 @@ export interface VerificationExecutionReceipt {
   selectorMatched: boolean;
   /** ISO timestamp when the command was executed. */
   executedAt: string;
+  /**
+   * B-cdf6 (B-META F-012): the wall-clock ceiling the run was actually armed with, in ms.
+   * Always stamped so a reviewer can see the budget the receipt was earned under.
+   */
+  timeoutMs?: number;
+  /**
+   * B-cdf6 (B-META F-012): present ONLY when the caller RAISED the per-command ceiling
+   * above the {@link DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS} default via
+   * `commandTimeoutMs` + `commandTimeoutReason`. A raised budget is an exceptional act,
+   * so it must explain itself and stay gate-visible: this block lives inside the
+   * TOOL-OWNED receipt (which every caller-facing schema strips), so it can never be
+   * caller-injected onto a receipt that was actually earned under the default.
+   */
+  timeoutOverride?: {
+    /** The raised ceiling in ms, as effectively armed. */
+    timeoutMs: number;
+    /** The default ceiling this run was raised ABOVE, for a reviewer's reference. */
+    defaultTimeoutMs: number;
+    /** Attributable ≥ 30-char justification for raising the budget. */
+    reason: string;
+  };
 }
 
 export interface VerificationEvidence {
@@ -1829,7 +1850,7 @@ export interface TestEvidenceData {
   traceCoverage?: string[];
   /** git HEAD hash at test time (used by DONE gate evidence freshness check) */
   headHash?: string;
-  /** non-Proofbound metadata file tree hash at test time (metadata-only commits should not make evidence stale) */
+  /** non-Proof-or-Stop metadata file tree hash at test time (metadata-only commits should not make evidence stale) */
   materialHash?: string;
   /** Hash of story-owned material files vs merge-base main captured at test time. */
   storyFilesHash?: string;
@@ -2137,7 +2158,7 @@ export type ProcessEventType =
   | 'decision_doc_proposal'
   | 'decision_doc_save'
   | 'auxiliary_worktree_cleanup'
-  // B-6bfd CHK-004: Proofbound-managed guard session projection lifecycle events.
+  // B-6bfd CHK-004: Proof-or-Stop-managed guard session projection lifecycle events.
   | 'guard_session_start'
   | 'guard_session_check'
   | 'phase_transition'
@@ -2200,7 +2221,7 @@ export interface ScopeCheckData {
   };
   /**
    * B-ed3e CHK-003: 6th channel Open Questions. Reviewer writes here when scanning the full decisions/ directory and finding
-   * contradictions/questions that are "seen but not classified". Main agent must use `lattice scope_question_resolve`
+   * contradictions/questions that are "seen but not classified". Main agent must use `proof-or-stop scope_question_resolve`
    * to resolve them in writing (prevents self-absolution); the PLAN gate blocks unresolved OQs.
    * Signature domain excludes this field (resolution is a main agent action, not part of reviewer signature _hash).
    */
@@ -2905,7 +2926,7 @@ export interface SemanticScopeGateResult {
   summary: string;
 }
 
-// ── Guard Session (B-6bfd CHK-004: Proofbound-managed guarded session projection) ──
+// ── Guard Session (B-6bfd CHK-004: Proof-or-Stop-managed guarded session projection) ──
 //
 // A guard session is a *projection* of scope protection for a Lattice-dispatched
 // agent. It is NOT a competing session truth source and NOT a write-ownership
@@ -2919,9 +2940,9 @@ export interface SemanticScopeGateResult {
  * - native-pretool   — Claude Code with a verified native PreToolUse hook; forbidden
  *                      writes are intercepted before they land.
  * - wrapped-preapply — Codex, Antigravity/agy, or legacy Gemini invoked via
- *                      Proofbound dispatch/pre-apply flow; the flow's pre-apply step
+ *                      Proof-or-Stop dispatch/pre-apply flow; the flow's pre-apply step
  *                      checks scope before writing.
- * - watcher-fallback — provider has no pre-write interception; Proofbound can only detect
+ * - watcher-fallback — provider has no pre-write interception; Proof-or-Stop can only detect
  *                      forbidden writes after the fact, never pretend blocking exists.
  * - active           — legacy alias for native-pretool (kept for backwards compat).
  * - inactive         — no guard session is running (used by renderers only).
@@ -3554,6 +3575,31 @@ export interface ReviewLoopPolicy {
   requireHumanForProtectedFiles: boolean;
   stopOnTestRegression: boolean;
   stopOnScopeViolation: boolean;
+}
+
+// ── Dev-Memory Lifecycle Gates (B-a7c5) ──
+
+/**
+ * Per-story acknowledgement that `dev_memory_preflight`'s pack builder ran
+ * (or, if the build threw, that a reasoned downgrade was recorded) before
+ * this story entered DEV. This is a structurally SEPARATE artifact from a
+ * `DevMemoryEntry` JSONL row: it carries no `gateEvidence`/`authority`
+ * fields because it never claimed non-authoritative status over lesson
+ * CONTENT in the first place — it only records that the read-side ritual
+ * happened. See `evaluateDevMemoryPreflightGate` in core/machine.ts and
+ * docs/requirements/decisions/dev-memory.md's Non-Goals annotation.
+ */
+export interface DevMemoryPreflightAckData {
+  schemaVersion: 'lattice.dev_memory_preflight_ack.v1';
+  storyId: string;
+  /** Digest of the preflight pack actually seen, or null on a reasoned downgrade. */
+  packDigest: string | null;
+  /** Ids of the entries actually seen in the preflight pack (empty on a reasoned downgrade). */
+  topHitIds: string[];
+  acknowledgedAt: string;
+  acknowledgedBy: string;
+  /** Present only when the preflight pack build threw and a bypass reason was recorded instead. */
+  downgradeReason?: string;
 }
 
 export const WORKFLOW_PRESETS: Record<WorkflowProfile, WorkflowPolicy> = {

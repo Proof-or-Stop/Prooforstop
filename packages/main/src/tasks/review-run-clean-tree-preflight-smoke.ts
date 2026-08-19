@@ -73,7 +73,7 @@ function write(root: string, path: string, content: string): void {
 function commit(cwd: string, message: string): void {
   git(cwd, ['add', '.']);
   git(cwd, [
-    '-c', 'user.name=Proofbound Smoke',
+    '-c', 'user.name=Proof-or-Stop Smoke',
     '-c', 'user.email=smoke@example.test',
     '-c', 'commit.gpgsign=false',
     'commit',
@@ -81,7 +81,7 @@ function commit(cwd: string, message: string): void {
   ]);
 }
 
-function runLatticeRaw(
+function runProofOrStopRaw(
   cwd: string,
   command: string,
   args: Record<string, unknown> = {},
@@ -141,7 +141,7 @@ function initReviewRepo(prefix: string, storyId: string): string {
   git(root, ['init']);
   git(root, ['checkout', '-B', 'main']);
   git(root, ['config', 'user.email', 'smoke@example.test']);
-  git(root, ['config', 'user.name', 'Proofbound Smoke']);
+  git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
   write(root, 'lattice.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
@@ -178,9 +178,9 @@ function initEmptyHeadDirtyReviewRepo(prefix: string, storyId: string): string {
   git(root, ['init']);
   git(root, ['checkout', '-B', 'main']);
   git(root, ['config', 'user.email', 'smoke@example.test']);
-  git(root, ['config', 'user.name', 'Proofbound Smoke']);
+  git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
   git(root, [
-    '-c', 'user.name=Proofbound Smoke',
+    '-c', 'user.name=Proof-or-Stop Smoke',
     '-c', 'user.email=smoke@example.test',
     '-c', 'commit.gpgsign=false',
     'commit',
@@ -221,7 +221,7 @@ async function assertDirtyPreflightBeatsMissingMaterialSnapshot(): Promise<void>
   const storyId = 'B-ord';
   const root = initEmptyHeadDirtyReviewRepo('lattice-rrclean-ordering-', storyId);
   try {
-    const result = await runLatticeRaw(root, 'review_run_start', {
+    const result = await runProofOrStopRaw(root, 'review_run_start', {
       storyId,
       agent: 'lattice-review-quality',
       prompt: 'inspect diff',
@@ -249,7 +249,7 @@ async function assertMaterialSourceDirtyRefuses(): Promise<void> {
     // Uncommitted material-source change under the configured rootDir.
     write(root, 'packages/main/src/foo.ts', 'export const drift = true;\n');
 
-    const result = await runLatticeRaw(root, 'review_run_start', {
+    const result = await runProofOrStopRaw(root, 'review_run_start', {
       storyId,
       agent: 'lattice-review-quality',
       prompt: 'inspect diff',
@@ -277,7 +277,7 @@ async function assertFixtureDirtyRefuses(): Promise<void> {
     // Uncommitted change under the configured fixturesDir.
     write(root, 'tests/fixtures/sample.json', '{"drift":true}\n');
 
-    const result = await runLatticeRaw(root, 'review_run_start', {
+    const result = await runProofOrStopRaw(root, 'review_run_start', {
       storyId,
       agent: 'lattice-review-quality',
       prompt: 'inspect diff',
@@ -300,7 +300,7 @@ async function assertCleanTreeProceeds(): Promise<void> {
   const storyId = 'B-cln';
   const root = initReviewRepo('lattice-rrclean-clean-', storyId);
   try {
-    const result = await runLatticeRaw(root, 'review_run_start', {
+    const result = await runProofOrStopRaw(root, 'review_run_start', {
       storyId,
       agent: 'lattice-review-quality',
       prompt: 'inspect diff',
@@ -340,7 +340,7 @@ async function assertMetadataOnlyDirtyProceeds(): Promise<void> {
     assert.equal(classification.groups.lattice_metadata_changes.length > 0, true, 'pre-condition: metadata must be dirty');
     assert.equal(isBlockingDirty(classification).blocked, false, 'pre-condition: metadata-only dirt must be non-blocking');
 
-    const result = await runLatticeRaw(root, 'review_run_start', {
+    const result = await runProofOrStopRaw(root, 'review_run_start', {
       storyId,
       agent: 'lattice-review-quality',
       prompt: 'inspect diff',

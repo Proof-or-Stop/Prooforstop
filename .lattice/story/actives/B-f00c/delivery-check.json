@@ -1,0 +1,40 @@
+{
+  "storyId": "B-f00c",
+  "checkedAt": "2026-08-13T18:52:22.510Z",
+  "headHash": "124418e961053e72ddb501ca92361c79330589e2",
+  "materialHash": "491b88e8b54851c1b1176dd4b48326059c0fe8603b9a77aca2dde11ad1f28b19",
+  "storyFilesHash": "ea5b5e9629fc968e53919a5f5cea478b6b67a85f8dc74e1d3d6f9da37a3ff5a5",
+  "reviewRound": "2026-08-13T17:18:14.443Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": "docs/done-validation-reuse-merge-lineage-fix-proposal.md",
+      "promise": "One shared merge-lineage classifier (net endpoint diff, not per-commit -m union) used by BOTH validation-evidence-reuse.ts (classifyTrustedValidationLineage) and validation-evidence-admissibility.ts (validationHeadLineage)",
+      "verifiedBy": "diff/grep",
+      "evidence": "Pre-existing proposal doc already on main (predates this story diff, not modified by it). Implemented in packages/main/src/core/validation-lineage.ts (classifyMergeLineage/netDiffChangedPaths, new file, 75 lines). Both consumer files updated in this diff to import classifyMergeLineage and call it exclusively; the old per-commit git diff-tree -m union block was fully deleted from both validation-evidence-reuse.ts and validation-evidence-admissibility.ts (confirmed via git diff main...HEAD read directly)."
+    },
+    {
+      "docPath": "git diff main...HEAD --name-only",
+      "promise": "This story diff does not modify any CLAUDE.md or docs/*.md documentation files, so no new documentation promise is introduced by this diff beyond the pre-existing proposal doc above.",
+      "verifiedBy": "git diff --name-only",
+      "evidence": "git diff main...HEAD --name-only -- . returns only: lattice.config.json, packages/main/src/core/validation-evidence-admissibility.ts, packages/main/src/core/validation-evidence-reuse.ts, packages/main/src/core/validation-lineage.ts, packages/main/src/tasks/done-required-validation-smoke.ts, packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts, scripts/verify-process-fact-contract.mjs (plus .lattice story metadata). No .md files present."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts exercises: (1) merge re-introducing a content-unchanged story file -> classifyMergeLineage/reuse-copy/admissibility-copy all trusted, plus a mutation-resistance assertion that the OLD reverted per-commit -m union would wrongly flag the file (proves the fix changed behavior, not just a passthrough); (2) genuine non-metadata content change on main -> all three paths rejected; (3) exact-head fast path; (4) empty net diff between distinct commits (no-op merge) -> trusted; (5) not-ancestor fails closed; (6) diff-failed distinct from not-ancestor via injectable changedPathsFn. Independently rebuilt (npm run build) and ran node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js 6x in this session: all 6 runs printed the pass line with exit 0. Also independently ran node scripts/verify-process-fact-contract.mjs (exit 0, verifies the 4 merge-lineage git tokens now live only in validation-lineage.ts and were removed from the validation-evidence-reuse.ts token list) and node packages/main/dist/tasks/done-required-validation-smoke.js (exit 0; asserts a modify-then-revert-to-byte-identical README.md is now trusted for reuse under the net-diff classifier, replacing the old per-commit-history assertion)."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Same smoke file (validation-reuse-merge-lineage-smoke.ts) is the RED-first reproduction: block 1 proves the false-positive existed under the old per-commit union and is fixed under the new classifier for BOTH the reuse and admissibility copies; block 2 is the negative test (genuine change still rejected on both copies); blocks 5-6 are the robustness/edge tests -- block 5 fixture is about 8000 files (about 1.8MiB raw diff-tree output) and self-verifies discriminating power by first asserting the SAME raw git diff-tree call throws under the default 1MiB maxBuffer, then asserting classifyMergeLineage/netDiffChangedPaths (GIT_LINEAGE_MAXBUFFER=1GiB) succeed; block 6 is not-ancestor fail-closed. Verified findings F-004 (large-diff fixture provably exceeds the default maxBuffer, was previously only about 118KB) and F-005 (spawn count cut plus a narrow ENOBUFS-only retry helper withEnobufsRetry, ENOBUFS-only regex-gated) are both present in the current code by reading the diff directly. Independently re-ran the smoke 6x in immediate succession in this session with zero flakes (all exit 0), and separately confirmed the story done-required-evidence.json records a full DONE-required npm test PASS (1,135,402ms, about 19min) at the current materialHash 491b88e8b54851c1b1176dd4b48326059c0fe8603b9a77aca2dde11ad1f28b19 which matches current HEAD."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Independently verified from source (not from the prior stale delivery-check or story summary): validation-lineage.ts is a genuinely new shared classifier, both consumer files route through it exclusively with the old per-commit -m union fully deleted, and the RED-first smoke test (6 independent local re-runs, 0 flakes) plus the process-fact-contract script plus done-required-validation-smoke all pass against the current build. All 5 review findings (F-001..F-005) are resolved and their fixes are visibly present in the diff. No documentation files are touched by this story; the sole relevant doc promise (pre-existing proposal) matches delivered code. No unresolved TODO/FIXME/HACK in the diff. Re-signing at current materialHash 491b88e8b548 because the prior delivery-check (c1c43992c22b) predates routine post-quorum metadata commits; underlying code/tests are unchanged from what was already reviewed."
+  },
+  "_hash": "f305503c7755a9a74f983e5067e9e69d36ea21fdc757e6c74e53405f0e06602f"
+}

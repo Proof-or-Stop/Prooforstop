@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-1e1f",
+  "sourceText": "那我们开始实现U-01b",
+  "normalizedOutcome": "An operator on an unconverged story runs proof-or-stop done_required_validate and sees [pre_cert_window_required] before any root npm test starts. After inventory finalize, merge main, and a clean tree, certification_window_begin prints State: ADMITTED. A source commit inside that window makes status print State: INVALIDATED and Next: story_advance --phase=REVIEW.",
+  "acceptanceClaim": "Official heavy certification cannot start without a current ADMITTED CertificationWindow, and a source mutation cannot keep old receipts as PASS.",
+  "keyRequirementIds": [
+    "REQ-U01B-PRECERT"
+  ],
+  "requestHash": "sha256:96e85053e7fe15d7bb750bba9401cd2b1097de21a8f7ffe4f3e00dceed58c954",
+  "createdAt": "2026-08-18T07:13:36.952Z",
+  "updatedAt": "2026-08-18T07:13:36.952Z"
+}

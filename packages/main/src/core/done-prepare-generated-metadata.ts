@@ -295,7 +295,7 @@ function classifyEntry(args: {
     return unsafe('unsafe_deleted', 'deleted files are never safe auto-closeout metadata');
   }
   if (!paths.every((candidate) => isStoryMetadataPath(candidate, args.root))) {
-    return unsafe('unsafe_not_story_lifecycle_metadata', 'path is not classified as Proofbound story metadata');
+    return unsafe('unsafe_not_story_lifecycle_metadata', 'path is not classified as Proof-or-Stop story metadata');
   }
   if (!paths.every((candidate) => isSameStoryPath(args.storyMetadataDirRel, candidate))) {
     return unsafe('unsafe_wrong_story', `path is not under ${args.storyMetadataDirRel}`);
@@ -825,7 +825,7 @@ export function commitImmutableMetadataTree(args: {
 }
 
 function commitMessage(storyId: string): string {
-  return `lattice: auto-close ${storyId} generated DONE metadata`;
+  return `proof-or-stop: auto-close ${storyId} generated DONE metadata`;
 }
 
 export function commitDonePrepareGeneratedMetadata(args: {

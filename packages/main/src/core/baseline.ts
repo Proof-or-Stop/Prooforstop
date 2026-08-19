@@ -1012,7 +1012,7 @@ export function writeSuiteReport(outputDir: string, report: BaselineSuiteReport)
 
 function renderSuiteReport(report: BaselineSuiteReport): string {
   return [
-    '# Proofbound Baseline Suite Report',
+    '# Proof-or-Stop Baseline Suite Report',
     '',
     `Suite status: ${report.suiteStatus}`,
     `Valid runs: ${report.validRunCount}`,

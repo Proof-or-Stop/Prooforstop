@@ -241,7 +241,7 @@ export function renderDecisionDocMarkdown(storyId: string, proposal: DecisionDoc
     '',
     '## Supersession',
     '',
-    'If this decision changes, update this file through a Proofbound story. Because',
+    'If this decision changes, update this file through a Proof-or-Stop story. Because',
     'this file is under `docs/requirements/decisions/*.md`, DONE requires the local',
     'decision-doc 3x2 host verdict quorum.',
     '',

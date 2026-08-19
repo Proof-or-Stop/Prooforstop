@@ -53,7 +53,7 @@ import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-/** Marker line printed by the guard so `lattice validate` output is greppable. */
+/** Marker line printed by the guard so `proof-or-stop validate` output is greppable. */
 export const COVERAGE_MARKER = 'main-write-lock-coverage:';
 
 /** Lock-acquisition tokens that count as "this scope holds the main write lock". */
@@ -159,7 +159,7 @@ const EXCEPTIONS: readonly ExceptionEntry[] = [
   },
   {
     fileEndsWith: 'handlers/worktree.ts',
-    lineIncludes: 'commit -m "lattice: discard',
+    lineIncludes: 'commit -m "proof-or-stop: discard',
     crossFunctionLocked: true,
     reason: 'story_discard commitDiscardMetadata commit on main; lock acquired at the callsite (withReentrantMainWriteLock, label "story_discard metadata commit")',
   },
@@ -750,7 +750,7 @@ export function assertNegativeFixtureBites(): void {
   //     — no lock required, classified worktree-only (preMortem #1: by target).
   const bootstrapShape = [
     'function createScopedStoryBootstrapCommit(repoRoot: string, branch: string) {',
-    "  const commit = gitFile(['commit-tree', tree, '-p', head, '-m', 'lattice: init'], repoRoot);",
+    "  const commit = gitFile(['commit-tree', tree, '-p', head, '-m', 'proof-or-stop: init'], repoRoot);",
     "  gitFile(['update-ref', `refs/heads/${branch}`, commit], repoRoot);",
     '}',
   ].join('\n');

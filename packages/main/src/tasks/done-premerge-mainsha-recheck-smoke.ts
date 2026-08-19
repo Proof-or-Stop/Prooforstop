@@ -49,6 +49,7 @@ import { resetConfigCache } from '../core/config.js';
 import { StoryStore } from '../core/store.js';
 import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
 import { signDeliveryCheck } from '../core/delivery-check-hash.js';
+import { createPlaybookRuntimeMemoryHandlers } from '../handlers/playbook-runtime-memory.js';
 import type {
   ChecklistData,
   ClosingSelfCheck,
@@ -75,7 +76,7 @@ function check(name: string, condition: boolean, detail?: string): void {
 
 const COMMIT_ENV = [
   '-c', 'user.email=smoke@example.test',
-  '-c', 'user.name=Proofbound Smoke',
+  '-c', 'user.name=Proof-or-Stop Smoke',
 ];
 
 function git(cwd: string, args: string[]): string {
@@ -117,7 +118,7 @@ function runLatticeFromCwd(
 }
 
 /** Run the CLI expecting a non-zero exit; returns the combined stdout+stderr+message. */
-function runLatticeExpectFail(
+function runProofOrStopExpectFail(
   cwd: string,
   command: string,
   args: Record<string, unknown>,
@@ -174,6 +175,20 @@ function writeDoneGateEvidence(store: StoryStore, root: string, storyId: string)
     closingSelfCheck,
     _hash: signDeliveryCheck(storyId, docsPromises, realMachineTests, closingSelfCheck, '', materialHash),
   });
+
+  // B-a7c5 CHK-003 (F-009): canFinishGuard now ALSO requires a
+  // dev_memory_finish_decision record. This fixture drives a REAL
+  // `story_advance DONE` end-to-end and asserts on the specific pre-merge
+  // mainSha re-check behavior -- without a satisfying record here, DONE
+  // refuses before ever reaching the merge-tree pre-check logic this file
+  // exists to test (the fixture's own top-level assertion then surfaces the
+  // unrelated-looking "external-advance shim fired... marker never created"
+  // message instead of the real missing_dev_memory_finish_decision cause).
+  // No explicit git add/commit needed here -- the caller (below) already
+  // runs `git add . && git commit` immediately after this function returns,
+  // which picks up this write along with the rest of the DONE-gate evidence.
+  createPlaybookRuntimeMemoryHandlers({ store, root, scanRoot: join(root, 'packages/main') })
+    .dev_memory_finish_decision({ storyId, decision: 'no-reusable-lesson', reason: 'done-premerge-mainsha-recheck-smoke fixture; no lesson to capture' });
 }
 
 /**
@@ -309,7 +324,7 @@ function assertExternalAdvanceAbortsBeforePersist(): void {
     shimDir = shim.shimDir;
 
     // Prepend the shim so the CLL child resolves `git` to it first.
-    const output = runLatticeExpectFail(
+    const output = runProofOrStopExpectFail(
       worktreePath,
       'story_advance',
       { storyId, phase: 'DONE' },

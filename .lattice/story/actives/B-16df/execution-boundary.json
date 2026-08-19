@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-16df",
+  "allowedCommands": [
+    "git *",
+    "node bin/lattice.js*",
+    "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+    "npm run build*",
+    "npm test*"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "packages/main/src/core/validation-executor.ts",
+    "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/tasks/validate-command-timeout-smoke.ts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Scope is the timeoutMs-config-override fix and its regression coverage only; no changes to resolveCommandTimeoutMs or the lattice validate execution path.",
+  "createdAt": "2026-08-14T11:25:31.194Z",
+  "updatedAt": "2026-08-14T11:25:31.194Z",
+  "_hash": "dca4a459cffdf9de4bf41d7345d00311a13b5e94122088803c97c777c721a92b"
+}

@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-3e5d",
+  "mode": "custom",
+  "allowed": [
+    "packages/main/src/handlers/transition-orchestrator.ts (per-story transition lock root + clean error translation)",
+    "packages/main/src/tasks/field-regression-cli-smoke.ts (retired channel-lane assertions + DONE-ready fixture review-evidence binding)",
+    "packages/main/tests/red/red-B-new-concurrent-done-race.mjs (new RED script)",
+    "packages/main/tests/red/red-B-new-retired-channel-lane.mjs (new RED script)",
+    "packages/main/tests/red/red-b49d4-harness-registration.mjs (REGISTRATION_EXCLUSIONS entries for the two new RED scripts)"
+  ],
+  "excluded": [
+    "No broader refactor of the DONE lifecycle, review-run binding, or reviewer-lane registry beyond the two defects in scope",
+    "No changes to worktree-authority-smoke.ts test bodies beyond what already passes; no changes to prompt-role-contract-registry.ts or flow-fact-policy.ts (both already correct, referenced read-only)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User instruction: write RED and GREEN for both newly-discovered bugs, verify GREEN resolves each, then bundle into one story driven to DONE.",
+  "createdAt": "2026-08-16T11:40:26.523Z",
+  "updatedAt": "2026-08-16T11:40:26.523Z",
+  "_hash": "eb1a448062a2abf2e77d9dffd5650666f91aa96b40bb232d236e7bfbe01ac8cd"
+}

@@ -41,6 +41,32 @@ const PROBE_LEGACY_VOCABULARY_POLICY = process.argv.includes('--probe-legacy-voc
 const PROBE_PROMPT_POLICY_MANIFEST = process.argv.includes('--probe-prompt-policy-manifest');
 const PROBE_BASELINE_DRIFT = process.argv.includes('--probe-baseline-drift');
 const PROBE_ROLE_MATRIX_SNAPSHOT_DRIFT = process.argv.includes('--probe-role-matrix-snapshot-drift');
+/**
+ * Independent approval manifest binding every role ID to the exact hash of its approved prompt
+ * body. EXPECTED_ROLE_COUNT (17) is unchanged and still asserted.
+ *
+ * B-cdf6 CHK-005: 15 of the 17 templateHash values were RE-APPROVED after the
+ * `lattice` -> `proof-or-stop` bin rename rewrote command-invocation prose inside the registry
+ * templates. This is a repin to new correct content addresses, not a relaxation: the manifest
+ * still binds each role to one exact body hash, so any unapproved prompt edit still fails. Audit
+ * performed before repinning: `git diff main...HEAD -- packages/main/templates/agents/` contains
+ * no changed line that mentions neither brand token (i.e. every diff line is a brand-token swap),
+ * and the two roles whose hashes did NOT move (implementation-reviewer, lattice-review-topology-critic)
+ * are exactly the templates the rename did not touch.
+ *
+ * B-cdf6 CHK-003 follow-up: 5 more templateHash values were RE-APPROVED
+ * (lattice-evaluator, lattice-implementer, lattice-review-delivery,
+ * lattice-review-scope-plan, lattice-review-story-init). CHK-005 repinned only what the
+ * TEMPLATE rewrite moved; it could not move these, because these 5 roles resolve through
+ * `legacy-full-context` reconstruction, whose inputs are the INJECTED payloads in
+ * `core/prompt-registry.ts` (`LOAD_BEARING_LATTICE_PROMPT_SLICE` and
+ * `STORY_INIT_LEGACY_TAIL`). Those payloads still taught `lattice <cmd>` to every spawned
+ * agent and are rebranded here, so exactly the 5 reconstruction-backed roles move.
+ * EXPECTED_ROLE_COUNT stays 17 and every role stays bound to one exact hash — a repin to
+ * verified new content addresses, never a relaxation. Audited before repinning: normalizing
+ * brand tokens and line-wrapping makes the new injected slice byte-identical to the previous
+ * one, i.e. the drift is brand-only with no semantic edit.
+ */
 const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   {
     role: 'implementation-reviewer',
@@ -48,51 +74,51 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'lattice-evaluator-cli',
-    templateHash: '4c57b63c4aa43c852517cd964bbddb7ecced6e9e8f7446764389c1bc3ac2b08f',
+    templateHash: '9ffa0541c787078ae112f3edabf152fffca64b630f32f83d4367b1b310c4595e',
   },
   {
     role: 'lattice-evaluator',
-    templateHash: 'c072e8cc5c84adac5f15c4d60b95a495896da1c0bf7a3c1482506862eed1b026',
+    templateHash: 'dd8cf73174e1ddf292b7b4cf9ebb70ff8c32584f44ccb78f2221b33da8407b97',
   },
   {
     role: 'lattice-implementer',
-    templateHash: 'c26ee6377b2075beb8c12173e5a635a55aff2518398f8a1949cc9826fa6e9163',
+    templateHash: '0ef513cc1e77c69d7ca5751a98e998143bfab5ac3eb7bc64a4c0cf2346cabf41',
   },
   {
     role: 'lattice-review-behavior',
-    templateHash: 'd485faa700196506a07dc8704f534b215eba1fd1ac1c111acbbd1a830098e7e4',
+    templateHash: 'ff3926a26d0a5ea2c9f77682df750c47b3c9707c41a6eced0f67fbadfbe7c27d',
   },
   {
     role: 'lattice-review-channel',
-    templateHash: '19db37079e222e6d68bc52535e814d544932a365f7df79df8995399bf41b1829',
+    templateHash: 'f49ae178d354b3cd940da3bd28d729fb6b602cbd6a2bf2d9b23dbf555460035d',
   },
   {
     role: 'lattice-review-concept',
-    templateHash: '3bca56bbd0c5666bfa5553136140f0fc955e0a89f2378af28699bd8b38d0ed7a',
+    templateHash: 'a8b1ecd5020c6d0d091678d8c31f9c09bb12110e8da2658932570120fd86e0ca',
   },
   {
     role: 'lattice-review-delivery',
-    templateHash: 'e8e7db5d9ce0893105a3bfdab0b9774f22de0a61bfd0d0da37caa7dc8fe584c7',
+    templateHash: '4b3b207a265c5b9a1ba9845761720c19cddcdee6eec9bfd5f672b55bbc1b50af',
   },
   {
     role: 'lattice-review-docs',
-    templateHash: '835a0182ce5480c7d7cef9d350ae26a2a3aa11db4fcd3fea418f3c99e38b92a6',
+    templateHash: '6808a26c1be23445dbb342d2e7110181c4e2d6b9ce581cfa41a2dfdea2a16d1e',
   },
   {
     role: 'lattice-review-quality',
-    templateHash: '4bbf141d64e12ca6e16ec82d1cb397ca2011267100ec8596760349c1c0b17f15',
+    templateHash: 'bf99a4151d4406490259efb51a037d28be730115f07b18d5abd63ac21598f32d',
   },
   {
     role: 'lattice-review-scope-plan',
-    templateHash: '13506f659f3f83f5aba146e1c46aafb253af346820f49acd41d711ae1eb58a86',
+    templateHash: '9ac7cff64b53fc33555e4c5ef6f963a5c5bd09e7420d317a2312aafac9cfbd07',
   },
   {
     role: 'lattice-review-story-init',
-    templateHash: '8fd4d65d1c0e4d956bcb527899ddcb4182dddb1cbc847b74ba19d0695642bf81',
+    templateHash: 'd63524b25475f370f642168881f680846424d7a80a69867219ccc9f969fd5ae6',
   },
   {
     role: 'lattice-review-test-coverage',
-    templateHash: '99d5e95ee4d3075b1808c5f1f48ecd2ece3e785b7402c744627f2ffbd2dbc6c0',
+    templateHash: '5d1f5bac9cb33991d591189f9b944b307e96600a1dd89e2d24fda6dd0f352f90',
   },
   {
     role: 'lattice-review-topology-critic',
@@ -100,15 +126,15 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'product-reviewer',
-    templateHash: '22301c95c459aba6d0df1941619823fde9d1d89a944121c846dced952483703e',
+    templateHash: 'e23eec314c5a5f3dff0d34768c15ff94546881999a223544456cfe695f995b2a',
   },
   {
     role: 'test-case-reviewer',
-    templateHash: '473bb2400c735afc4b12aa02163fab9cab284bca5033ea6bef231f10eefcba98',
+    templateHash: '3292b8c15a696f588c9fcda45218aefeabb56668d47fa0e74cd163cbaf9da0a5',
   },
   {
     role: 'test-intent',
-    templateHash: '170e49b7abf5a4ff4b949315c5ff41f32d11696c1f84e0909a5935d03ab7816d',
+    templateHash: '168d1a5b862f0949aaa44223f21f42e67ff4df938805ac6ebf0fd55677be3fc2',
   },
 ].map(entry => Object.freeze(entry)));
 const APPROVED_ROLE_BODY_ROLLOUT_MANIFEST = Object.freeze([
@@ -174,7 +200,7 @@ const DIRECT_STORY_REFERENCE_ALLOWLIST = [
   {
     role: 'lattice-review-channel',
     classification: 'process-event-evidence-reference',
-    excerpt: 'The truly reliable evidence source is the `dispatch` / `subagent_result` events in **`docs/story/actives/<storyId>/process-events.jsonl`**: every time the main agent uses `lattice dispatch` to assign work, it appends `{"type":"dispatch","checklistId":"CHK-xxx",...}`; once the worker finishes, it may append `{"type":"subagent_result","checklistId":"CHK-xxx","success":true,...}`.',
+    excerpt: 'The truly reliable evidence source is the `dispatch` / `subagent_result` events in **`docs/story/actives/<storyId>/process-events.jsonl`**: every time the main agent uses `proof-or-stop dispatch` to assign work, it appends `{"type":"dispatch","checklistId":"CHK-xxx",...}`; once the worker finishes, it may append `{"type":"subagent_result","checklistId":"CHK-xxx","success":true,...}`.',
   },
   {
     role: 'lattice-review-channel',
@@ -531,6 +557,41 @@ const DIRECT_STORY_CLASSIFIER_PROBES = [
     role: 'lattice-review-quality',
     excerpt: 'Do not copy or move files into docs/story; use Lattice CLI commands instead.',
     classification: 'policy-reminder',
+    grandfathered: false,
+  },
+  // B-cdf6 CHK-005: renamed-brand counterparts of the three CLI-mediation reminders above. Added
+  // rather than substituted, so the classifier is pinned on BOTH brand spellings: it must keep
+  // recognizing a "route story ops through the CLI" reminder as a policy-reminder under the new
+  // name (the regression that misfired as a bogus direct-write) while still recognizing the old
+  // name for not-yet-migrated prompt text.
+  {
+    name: 'negative direct read/write policy reminder (renamed brand)',
+    role: 'lattice-review-quality',
+    excerpt: '- Story operations must use Proof-or-Stop CLI commands. Do not directly read or write story metadata under `docs/story/`.',
+    classification: 'policy-reminder',
+    grandfathered: false,
+  },
+  {
+    name: 'negative direct read/edit prohibited reminder (renamed brand)',
+    role: 'lattice-implementer',
+    excerpt: '- Directly Read/Edit JSON files under `docs/story/`: all story changes go through the Proof-or-Stop CLI',
+    classification: 'policy-reminder',
+    grandfathered: false,
+  },
+  {
+    name: 'negative copy policy reminder (renamed brand)',
+    role: 'lattice-review-quality',
+    excerpt: 'Do not copy or move files into docs/story; use Proof-or-Stop CLI commands instead.',
+    classification: 'policy-reminder',
+    grandfathered: false,
+  },
+  // B-cdf6 CHK-005 adversarial: widening the brand alternation must NOT let an unrelated product
+  // name bless a story-metadata instruction. This stays classified as an unregistered write.
+  {
+    name: 'unknown brand CLI prefix cannot bless a story write (renamed-brand widening guard)',
+    role: 'lattice-review-docs',
+    excerpt: 'Use the Bogus-Brand CLI for docs/story/actives/B-1234/index.json; then use Edit to update it.',
+    classification: 'direct-write',
     grandfathered: false,
   },
   {
@@ -1711,23 +1772,39 @@ function isStrictNegativeStorySegment(segment) {
   );
 }
 
+/**
+ * The product name a CLI-mediation reminder may use.
+ *
+ * B-cdf6 CHK-005: these classifier regexes used to hardcode `lattice cli`. After the rename, a
+ * prompt line reading "Story operations must use Proof-or-Stop CLI commands" stopped matching, so
+ * a PROHIBITION REMINDER was misclassified as an unregistered `direct-write` instruction — a false
+ * positive that blocked baseline collection while claiming a policy violation that did not exist.
+ * Accepting both brand names keeps the classifier semantics identical (the segment must still be a
+ * pure "route story ops through the CLI" clause and nothing else); it does not admit any new
+ * action verb, path, or instruction shape.
+ */
+const CLI_BRAND_NAME_SOURCE = String.raw`(?:lattice|proof-or-stop)\s+cli`;
+
 function isStrictCliMediatedStorySegment(segment) {
   const directive = normalizeStoryPolicySegment(segment);
   return (
-    /^(?:story\s+operations\s+must\s+use|use)\s+(?:the\s+)?lattice\s+cli(?:\s+commands?)?(?:\s+instead)?$/i.test(
-      directive,
-    ) ||
-    /^all\s+story\s+changes\s+go\s+through\s+(?:the\s+)?lattice\s+cli$/i.test(
-      directive,
-    )
+    new RegExp(
+      String.raw`^(?:story\s+operations\s+must\s+use|use)\s+(?:the\s+)?${CLI_BRAND_NAME_SOURCE}(?:\s+commands?)?(?:\s+instead)?$`,
+      'i',
+    ).test(directive) ||
+    new RegExp(
+      String.raw`^all\s+story\s+changes\s+go\s+through\s+(?:the\s+)?${CLI_BRAND_NAME_SOURCE}$`,
+      'i',
+    ).test(directive)
   );
 }
 
 function isStrictDirectEditCliReminder(segment) {
   const directive = normalizeStoryPolicySegment(segment);
-  return /^directly\s+read\s*\/\s*edit\s+json\s+files?\s+under\s+docs\/story\/?\s*:\s*all\s+story\s+changes\s+go\s+through\s+(?:the\s+)?lattice\s+cli$/i.test(
-    directive,
-  );
+  return new RegExp(
+    String.raw`^directly\s+read\s*\/\s*edit\s+json\s+files?\s+under\s+docs\/story\/?\s*:\s*all\s+story\s+changes\s+go\s+through\s+(?:the\s+)?${CLI_BRAND_NAME_SOURCE}$`,
+    'i',
+  ).test(directive);
 }
 
 function isKnownWrappedStoryPolicyFragment(segment) {

@@ -5,6 +5,7 @@ import type {
   AgentDispatchRegistryEntry,
   StoryPhase,
 } from './types.js';
+import { readBrandEnv } from './brand-env.js';
 
 const ITEM_REVIEW_MUTATIONS = ['review_run_start', 'finding_add', 'review_pass_set'] as const;
 const ITEM_REVIEW_EVIDENCE = ['review-run', 'finding', 'review-pass'] as const;
@@ -495,10 +496,10 @@ function sameAgentAuthority(left: string, right: string): boolean {
  * Resolve mutation authority without allowing audit payload fields to override
  * the identity assigned to a dispatched process.
  *
- * A nonblank LATTICE_AGENT is authoritative for actor classification. A
+ * A nonblank PROOF_OR_STOP_AGENT is authoritative for actor classification. A
  * registered role follows registry authority, an explicit trusted-host actor
  * retains host compatibility, and every other env actor fails closed before a
- * payload identity can replace it. When LATTICE_AGENT is blank or omitted, the
+ * payload identity can replace it. When PROOF_OR_STOP_AGENT is blank or omitted, the
  * legacy host/payload compatibility path remains available.
  */
 export function resolveAgentMutationAuthority(args: {
@@ -506,7 +507,7 @@ export function resolveAgentMutationAuthority(args: {
   payloadActors?: readonly (string | undefined | null)[];
   envActor?: string | undefined | null;
 }): ResolvedAgentMutationAuthority {
-  const envActor = (args.envActor === undefined ? process.env.LATTICE_AGENT : args.envActor)?.trim() || undefined;
+  const envActor = (args.envActor === undefined ? readBrandEnv('AGENT') : args.envActor)?.trim() || undefined;
   const payloadActors = (args.payloadActors || [])
     .map((actor) => actor?.trim())
     .filter((actor): actor is string => !!actor);
@@ -524,7 +525,7 @@ export function resolveAgentMutationAuthority(args: {
   if (envEntry) {
     if (payloadActor && !sameAgentAuthority(envActor!, payloadActor)) {
       throw new Error(
-        `${args.command} refused: payload identity "${payloadActor}" cannot override dispatched LATTICE_AGENT "${envActor}". [agent_dispatch_identity_conflict]`,
+        `${args.command} refused: payload identity "${payloadActor}" cannot override dispatched PROOF_OR_STOP_AGENT "${envActor}". [agent_dispatch_identity_conflict]`,
       );
     }
     const entry = assertRegisteredAgentMutationAllowed(envActor, args.command);

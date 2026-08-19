@@ -1,0 +1,80 @@
+{
+  "principles": [
+    "A signature must be evidence of an independent actor, not of a string the implementer chose.",
+    "Prefer consuming a distinction the codebase already computes over inventing new identity infrastructure.",
+    "A guard that blocks the legitimate case as well as the forged one is a regression, not a fix.",
+    "Reviewer refusal is a backstop, not a mechanism; anything currently resting on refusal alone should become mechanical."
+  ],
+  "drivers": [
+    "An implementer holding the owner lease can currently mint a session id, record a dispatch under it, and hand it to the critic; every mechanical check passes.",
+    "The only thing that stopped this during B-3f3d was a critic refusing and explaining why.",
+    "BUG-CRITIC-DISPATCH-PROVENANCE-UNSATISFIABLE means no correctly sandboxed critic can sign today, so the fix must open the legitimate path while closing the forged one.",
+    "167 lines across 29 test files establish identity via LATTICE_SESSION_ID and would be refused by any such guard."
+  ],
+  "options": [
+    {
+      "name": "A: accept host-derived sources",
+      "pros": [
+        "Accepts exactly the sources a host derives (host-adapter and generated-token), both gated on provider plus task plus agent identity and therefore unmintable by an implementer.",
+        "Consumes sessionSource, which resolveSessionIdentity already computes; no new infrastructure.",
+        "generated-token additionally carries a boundary token, so accepting it does not weaken the property.",
+        "Keeps legitimate host-dispatched critics working, which is the whole point of the story."
+      ],
+      "cons": [
+        "Requires migrating 167 lines across 29 test files off LATTICE_SESSION_ID.",
+        "Two accepted values instead of one is marginally more surface to reason about."
+      ]
+    },
+    {
+      "name": "B: host-adapter only",
+      "pros": [
+        "Accepts only host-adapter; the narrowest possible rule and the simplest to state.",
+        "This is what the B-3f3d prototype did, and it was observed to refuse explicit-env correctly."
+      ],
+      "cons": [
+        "Refuses generated-token, which is equally host-derived and additionally boundary-bound, so the strictness buys no security.",
+        "Would break any host that legitimately uses the generated-token path, for no gain."
+      ]
+    },
+    {
+      "name": "C: prose attestation, no guard",
+      "pros": [
+        "Leave signing alone and require the critic to attest independence in prose instead.",
+        "No test migration at all."
+      ],
+      "cons": [
+        "Prose attestation is exactly what the framework refuses to treat as process fact.",
+        "Leaves the bypass open and keeps the guarantee resting on reviewer refusal, which is what this story exists to end."
+      ]
+    }
+  ],
+  "chosen": "A: accept host-derived sources",
+  "rationale": "Accept host-adapter and generated-token, refuse explicit-env and derived-ppid. Both accepted sources pass the same provider plus task plus agent gate in owner-session-adapters.ts and are hash-derived, so an implementer cannot choose them; generated-token additionally requires a boundary token. Option B refuses generated-token for no security gain and would break legitimate hosts. Option C leaves the guarantee resting on a reviewer noticing, which is precisely the failure this story converts into a mechanism. The test migration in option A is a mandatory consequence rather than scope creep, which product-reviewer independently confirmed.",
+  "preMortem": [
+    {
+      "scenario": "The guard blocks every critic, including legitimate dispatched ones, and the deadlock gets worse instead of better.",
+      "trigger": "Host-adapter resolution needs provider plus task plus agent identity; if the real dispatch path does not set all three, resolveAdapterOwnerSession returns null and the session falls back to derived-ppid, which is refused.",
+      "consequence": "No critic can sign at all, so no story needing a critic receipt can reach DONE. Strictly worse than today.",
+      "mitigation": "CHK-004 drives the full positive path with a genuinely dispatched critic before the story can close, and it is the item that exists precisely to catch this. If the real host does not supply all three identity inputs, that finding must block the story rather than be worked around."
+    },
+    {
+      "scenario": "The test migration silently weakens coverage: tests are made to pass by removing the identity assertions rather than by supplying a real adapter session.",
+      "trigger": "167 mechanical edits under time pressure, where deleting a session assignment is faster than constructing an adapter env.",
+      "consequence": "The suite goes green while no longer exercising identity binding at all, so a future regression in signing provenance ships unnoticed.",
+      "mitigation": "CHK-003 asserts each forgeable source is refused and CHK-002's userSees requires the same pass count as before the change; any drop in count is treated as a defect, not as a passing migration."
+    },
+    {
+      "scenario": "PASS becomes reachable on a stale acceptance basis while attention is on session identity.",
+      "trigger": "Refactoring deriveRoleProvenance and its call sites touches the same handler that carries the 9f9f53a514 pass or request_changes asymmetry.",
+      "consequence": "A critic could sign PASS over a basis that is not verified, which is the exact assurance hole B-3f3d closed one story earlier.",
+      "mitigation": "CHK-004 asserts both directions explicitly: request_changes succeeds on a stale basis and pass is still refused. The existing guard at proofstory.ts must be left intact and its behaviour re-asserted rather than assumed."
+    },
+    {
+      "scenario": "The change is judged safe on my own reading and ships without an independent check, repeating B-3f3d finding F-115.",
+      "trigger": "The author of the guard is also the person deciding whether it is adequately covered.",
+      "consequence": "A security-relevant change ships with no mutation-level evidence that it bites, exactly as F-115 recorded.",
+      "mitigation": "CHK-003 requires the guard to be proven under mutation, and REVIEW mounts the full reviewer set. On this story I do not judge my own coverage sufficient."
+    }
+  ],
+  "timestamp": "2026-08-17T15:43:12.380Z"
+}

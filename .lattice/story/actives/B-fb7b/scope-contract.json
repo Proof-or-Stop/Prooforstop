@@ -1,0 +1,58 @@
+{
+  "storyId": "B-fb7b",
+  "mode": "enforce",
+  "allowedModify": [],
+  "allowedCreate": [],
+  "allowedTest": [],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Reviewers F-011/F-012 found the new pretest wires the pre-existing racy rmSync(dist) into every npm test; adding Node maxRetries backoff there is the only fix that resolves the ENOTEMPTY concurrency crash the pretest exposes.",
+      "timestamp": "2026-08-14T10:37:21.285Z",
+      "paths": [
+        "scripts/build-main-with-binding.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "scripts/build-main-with-binding.mjs"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "d4dc3663b223dff25fbfaaed10ef9b63ae277110",
+      "materialHash": "0f83a70ec3aea359d966e1f8746acc30f9c4f4650448d256f94185b40e99a2e5"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Resolving reviewer finding F-015 requires a shared build mutex across the main AND utils builds (utils tsc reads packages/main/dist); this needs a shared lock module, a locked utils build wrapper, and rewiring packages/utils build script - the minimal fix for the cross-package concurrency crash.",
+      "timestamp": "2026-08-14T11:28:26.356Z",
+      "paths": [
+        "scripts/build-lock.mjs",
+        "scripts/build-utils-with-lock.mjs",
+        "packages/utils/package.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "scripts/build-lock.mjs",
+        "scripts/build-utils-with-lock.mjs",
+        "packages/utils/package.json"
+      ],
+      "affectedPathCount": 3,
+      "phase": "REVIEW",
+      "headHash": "eab8a74651a5f28b7dd070d32e0d92aa382baef7",
+      "materialHash": "0e5c5961842322daf56cb5e4eac3a9800d6c8e3369a4eef2f78ab1112215c7b5"
+    }
+  ],
+  "createdAt": "2026-08-14T10:37:20.717Z",
+  "updatedAt": "2026-08-14T11:28:26.356Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "scripts/build-main-with-binding.mjs": "scripts/build-main-with-binding.mjs",
+    "scripts/build-lock.mjs": "scripts/build-lock.mjs",
+    "scripts/build-utils-with-lock.mjs": "scripts/build-utils-with-lock.mjs",
+    "packages/utils/package.json": "packages/utils/package.json"
+  }
+}

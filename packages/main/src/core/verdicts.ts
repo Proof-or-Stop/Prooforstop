@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { canonicalDigest } from './authority-signing.js';
-import { LATTICE_DIR } from './lattice-paths.js';
+import { PROOF_OR_STOP_DIR } from './lattice-paths.js';
 import {
   FINAL_HOST_REVIEW_PROMPT_PROFILE,
   buildFinalHostReviewPromptDigestInput,
@@ -143,7 +143,7 @@ export interface VerdictSubmitArgs {
 }
 
 function baseDir(root: string, mode: VerdictMode, id: string): string {
-  return join(root, LATTICE_DIR, mode === 'authority' ? 'authority-verdicts' : 'autopilot-verdicts', id);
+  return join(root, PROOF_OR_STOP_DIR, mode === 'authority' ? 'authority-verdicts' : 'autopilot-verdicts', id);
 }
 
 function readVerdictFile(root: string, file: string): Partial<HostVerdict> {
@@ -313,7 +313,7 @@ export function summarizeVerdicts(
   const staleVerdicts = forRun.length - all.length;
   // requiredHosts is a hard floor: final review certification is always multi-host.
   // A 0 / 1 / negative / NaN value can never silently downgrade the requirement
-  // below the Proofbound final-check floor.
+  // below the Proof-or-Stop final-check floor.
   const required = Math.max(MIN_FINAL_HOSTS_PER_REVIEW_WAVE, Math.floor(Number(requiredHosts)) || MIN_FINAL_HOSTS_PER_REVIEW_WAVE);
 
   // Group verdicts so any duplicate same-host or same-session origin collapses to one
@@ -497,7 +497,7 @@ export interface VerdictOrderingResult {
 }
 
 /**
- * Receipt-before-verdict ordering (§X9 "Authority ordering"): Proofbound Authority
+ * Receipt-before-verdict ordering (§X9 "Authority ordering"): Proof-or-Stop Authority
  * issues and stores the native gate_decision receipt BEFORE the multi-host gate is
  * evaluated, and verifier hosts inspect that verified receipt. So an Authority host
  * verdict is only well-formed when it names the gate_decision receipt + gate input
@@ -599,7 +599,7 @@ function intFloor(value: unknown, fallback = 0): number {
 
 function serverBackedVerdict(verdict: AuthorityVerdictReceipt): boolean {
   if (typeof verdict.signature === 'string' && /^[0-9a-fA-F]{128}$/.test(verdict.signature.trim())) return true;
-  // Python Proofbound Authority returns server-stored HostVerdictRecord objects from
+  // Python Proof-or-Stop Authority returns server-stored HostVerdictRecord objects from
   // GET /v1/jobs/{jobId}/verdicts with a `receiptId` binding instead of inlining the
   // host_verdict receipt signature. Treat that receipt-bound server record as
   // server-backed for final wave counting; independence and acceptance are still

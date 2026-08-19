@@ -13,7 +13,7 @@
  *   - mtime-based stale reclaim, sized to the DONE critical section (120s).
  *   - acquisition failure is BLOCKING — `failFastIfHeld` makes a live lock
  *     throw immediately instead of silently polling/optimistically proceeding
- *     (Rule 6: "Proofbound must not proceed optimistically").
+ *     (Rule 6: "Proof-or-Stop must not proceed optimistically").
  *
  * This generalizes the former DONE-only `done-effects.ts` `acquireDoneMainMergeLock`.
  * The old runtime lock path is retired; there is no back-compat alias — no
@@ -28,14 +28,14 @@ import {
   type AcquiredMkdirLock,
   type MkdirLockHolderInfo,
 } from './mkdir-lock.js';
-import { LATTICE_MAIN_WRITE_LOCK } from './lattice-paths.js';
+import { PROOF_OR_STOP_MAIN_WRITE_LOCK } from './lattice-paths.js';
 
 /**
  * Canonical main write lock directory, relative to the main repo root.
  * Registered in `core/runtime-artifact-registry.ts` under `runtime-locks` so
  * doctor / stray-file scans treat it as managed volatile runtime state.
  */
-export const MAIN_WRITE_LOCK_REL = LATTICE_MAIN_WRITE_LOCK;
+export const MAIN_WRITE_LOCK_REL = PROOF_OR_STOP_MAIN_WRITE_LOCK;
 
 /**
  * Age (ms) past which a held main write lock is treated as stale and reclaimed.
@@ -99,7 +99,7 @@ export function buildMainWriteLockContentionMessage(
   holderAgeMs: number,
 ): string {
   const heartbeat = `heartbeat ${formatLockAge(holderAgeMs)} ago`;
-  const retry = 'Retry after the active operation completes, or run `lattice doctor` if it appears stuck.';
+  const retry = 'Retry after the active operation completes, or run `proof-or-stop doctor` if it appears stuck.';
   if (holder) {
     // Holder metadata available — name pid / hostname / running command.
     return (
@@ -111,7 +111,7 @@ export function buildMainWriteLockContentionMessage(
   // No holder.json — a lock from older code or a stale leftover. Still emit a
   // clear blocking message; only the holder identity is unavailable.
   return (
-    `${label} is blocked: the main write lock is held by another Proofbound operation ` +
+    `${label} is blocked: the main write lock is held by another Proof-or-Stop operation ` +
     `(holder details unavailable), ${heartbeat}. ` +
     retry
   );
@@ -139,7 +139,7 @@ export interface MainWriteLockOptions {
   label?: string;
   /**
    * Operator-facing message shown when the lock is already held by a live
-   * holder. Defaults to a generic "held by another Proofbound operation" message.
+   * holder. Defaults to a generic "held by another Proof-or-Stop operation" message.
    */
   heldMessage?: string;
   /**

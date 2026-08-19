@@ -6,7 +6,7 @@ Status: execution plan; documentation only
 
 ## Purpose
 
-This plan defines the target owner-session identity contract for Proofbound's local
+This plan defines the target owner-session identity contract for Proof-or-Stop's local
 story owner leases across Codex, Claude Code, Antigravity/agy, and future hosts.
 It does not implement runtime code. Future implementation stories must use this
 document as the execution plan before changing owner-lease, lifecycle, host
@@ -36,7 +36,7 @@ host-specific exceptions in core behavior:
 - Codex, Antigravity/agy, and future hosts need the same contract without adding
   one more host-specific branch to core each time.
 
-The target is a host-neutral Proofbound contract: core code consumes one canonical
+The target is a host-neutral Proof-or-Stop contract: core code consumes one canonical
 session id, while host adapters bridge each runtime's native signals into that
 contract.
 
@@ -59,7 +59,7 @@ Contract:
 - The value is an opaque, trimmed, non-empty string.
 - It identifies one validated local task-and-agent/role boundary for accidental
   write-coordination only.
-- It must remain stable across multiple `lattice` invocations made by the same
+- It must remain stable across multiple `proof-or-stop` invocations made by the same
   task and agent/role, including across shell and parent-process changes.
 - It must differ when either the task identity or the agent/role identity
   differs, even when both invocations share a repository, worktree, thread, or
@@ -103,7 +103,7 @@ The target resolver order is:
 
 1. **Explicit canonical env**: a user, wrapper, runner, or host adapter sets
    `LATTICE_SESSION_ID`.
-2. **Host adapter bridge**: a Proofbound-owned adapter maps a host-native stable
+2. **Host adapter bridge**: a Proof-or-Stop-owned adapter maps a host-native stable
    task identity plus agent/role identity into `LATTICE_SESSION_ID` before core
    owner-lease code runs.
 3. **Generated-token fallback**: when a host exposes a durable task boundary and
@@ -237,7 +237,7 @@ those hosts, the adapter may generate a local token.
 Rules:
 
 - Generate an opaque token once for the validated task-and-agent/role pair, then
-  reuse it for all `lattice` invocations made by that pair.
+  reuse it for all `proof-or-stop` invocations made by that pair.
 - Persist the token only in approved runtime/session storage or keep it in the
   adapter process if the adapter process is durable enough.
 - Scope the lookup key and persisted value by project root, host provider,

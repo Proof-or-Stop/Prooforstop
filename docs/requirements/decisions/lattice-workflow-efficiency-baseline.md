@@ -1,4 +1,4 @@
-# Proofbound Workflow Efficiency Baseline
+# Proof-or-Stop Workflow Efficiency Baseline
 
 Date: 2026-06-23
 Baseline registration story: B-4bd7
@@ -26,7 +26,7 @@ The source incident is the B-e9cb Authority/provider-host development run from
 2026-06-23. The run completed, but the retrospective identified six repeatable
 workflow costs:
 
-1. Full `lattice validate` was expensive enough that a 240000 ms timeout could
+1. Full `proof-or-stop validate` was expensive enough that a 240000 ms timeout could
    create false failure pressure.
 2. Proof metadata spoofing checks found real correctness issues late because the
    reviewer checklist did not explicitly require checking both job metadata and
@@ -99,7 +99,7 @@ Measure:
 Target:
 
 - provider-only text does not trigger adapter evidence;
-- actual adapter surfaces still require `lattice codex verify`.
+- actual adapter surfaces still require `proof-or-stop codex verify`.
 
 ### Main Merge Readiness
 

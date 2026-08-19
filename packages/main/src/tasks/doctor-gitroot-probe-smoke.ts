@@ -4,7 +4,7 @@
  * B-1637 smoke: doctor's git probes resolve the gitRoot (no fatal noise on
  * wrapper-root projects; plain repos unchanged).
  *
- * BUG: `lattice doctor` ran every git probe with cwd=root (the metadataRoot).
+ * BUG: `proof-or-stop doctor` ran every git probe with cwd=root (the metadataRoot).
  * On a WRAPPER-ROOT project (metadataRoot != gitRoot — e.g. ClawCreek with a
  * non-git wrapper root and a configured gitRoot subdir) the metadataRoot is NOT
  * a git repo, so the probe discovery calls (`git rev-parse --show-toplevel` /

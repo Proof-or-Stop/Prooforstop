@@ -1,0 +1,443 @@
+{
+  "schemaVersion": "proofstory.acceptance_basis_artifact.v1",
+  "basis": {
+    "schemaVersion": "proofstory.acceptance_coverage_basis.v1",
+    "storyId": "B-1734",
+    "phaseBasis": "plan",
+    "status": "partial",
+    "generatedBy": {
+      "verifier": "acceptance-coverage-basis-verifier",
+      "command": "lattice acceptance_basis_generate",
+      "algorithmVersion": "v1"
+    },
+    "discoveryProfileRef": "profile:typescript-proof-gate:plan:v1",
+    "discoveryProfileDigest": "sha256:45ef323962cb942f0df4ca6d9947f3bd0b553d4a509e149d5fef27175dd9f18d",
+    "discoveryMethods": [
+      "scope_contract",
+      "process_fact_registry",
+      "handler_dispatch_inventory",
+      "static_call_graph",
+      "runtime_trace"
+    ],
+    "adapterResults": [
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "handler-dispatch-inventory:plan:v1",
+        "method": "handler_dispatch_inventory",
+        "pathRefs": [
+          "path:process-fact:acceptance_basis->consumer:<audit-only>",
+          "path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+          "path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate"
+        ],
+        "coverageClaim": "partial",
+        "blindSpots": [
+          "source file is unreadable or disappeared: packages/main/tests/red/**"
+        ],
+        "provenanceRefs": [
+          "source-file:lattice.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745",
+          "source-file:packages/main/src/cli/command-catalog.ts:sha256:f29ee68e7b4b7245bca86e96aa86e9281da920529b79d1ab4ee3b3ba67719ba7",
+          "source-file:packages/main/src/handlers/proofstory.ts:sha256:de0d4a41293d8c824b81d1e5eb364127e83f1ddef432ceffd64f0944a354d94e",
+          "source-file:packages/main/src/registry.ts:sha256:64ea207cf5a4f7dc91b715870b2a1e09775e59fbac0eb2a982d6e18c5e339fed"
+        ],
+        "asymmetryPolicy": {
+          "kind": "exhaustive",
+          "policyRef": "policy:handler_dispatch_inventory:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:checklist:CHK-002",
+            "scope:file:CHANGELOG.md",
+            "scope:file:lattice.config.json",
+            "scope:file:package-lock.json",
+            "scope:file:package.json",
+            "scope:file:packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+            "scope:file:packages/main/tests/red/**",
+            "scope:file:packages/main/tests/red/red-1734-content-binding.mjs",
+            "scope:file:packages/main/tests/red/red-1734-lock-liveness.mjs",
+            "scope:file:packages/main/tests/red/red-b49d4-harness-registration.mjs",
+            "scope:file:packages/main/tests/red/red-fb7b-guard-bite.mjs",
+            "scope:file:packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs",
+            "scope:file:packages/utils/package.json",
+            "scope:file:scripts/build-lock.mjs",
+            "scope:file:scripts/build-main-with-binding.mjs",
+            "scope:file:scripts/build-utils-with-binding.mjs",
+            "scope:file:scripts/ensure-dist.mjs",
+            "scope:file:scripts/full-suite-build-binding.mjs"
+          ]
+        },
+        "resultDigest": "sha256:b871c0ab7d343e3b0c2996f1dc353b605fc29ee4a96fdf7bdf0c0bc94e8a3ac4"
+      },
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "process-fact-registry:plan:v1",
+        "method": "process_fact_registry",
+        "pathRefs": [
+          "path:process-fact:acceptance_basis->consumer:<audit-only>",
+          "path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+          "path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
+          "path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
+        ],
+        "coverageClaim": "partial",
+        "blindSpots": [
+          "source file is unreadable or disappeared: packages/main/tests/red/**"
+        ],
+        "provenanceRefs": [
+          "process-fact:acceptance_basis:da66e0998516b4d2ca3f45bc57585700a1f0675eeb30267234df766ee32d288f",
+          "process-fact:acceptance_basis_generate:c705ec303891a791afa607f361da9b178764f8186b88c4336bdd4441d32fe0b9",
+          "process-fact:acceptance_topology_check:98a1a08190c79f0f548f297fa08b2d573493faec90f156fe9e07e66f9e3ff095",
+          "process-fact:artifact:acceptance-basis.json:8cab0c9d56e68c579428c321969642d3f94a3596133e9393c047c110b44dcd82",
+          "source-file:lattice.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745",
+          "source-file:packages/main/src/core/acceptance-topology.ts:sha256:84368d03a6a5ed3157ae5fae7d760f3711b68220e46eb21a65d1910253d276ac",
+          "source-file:packages/main/src/handlers/proofstory.ts:sha256:de0d4a41293d8c824b81d1e5eb364127e83f1ddef432ceffd64f0944a354d94e",
+          "source-file:packages/main/src/handlers/transition-orchestrator.ts:sha256:06ae759af6bf058f590f697d54d18a67751c71161686199bcb4bb007f1d43ad4",
+          "source-file:packages/main/src/registry.ts:sha256:64ea207cf5a4f7dc91b715870b2a1e09775e59fbac0eb2a982d6e18c5e339fed",
+          "source-file:scripts/verify-process-fact-contract.mjs:sha256:dd0292586206f955a8f1d9c0c56c861ddf138754d3bcf245fdc51533bafeeeab"
+        ],
+        "asymmetryPolicy": {
+          "kind": "exhaustive",
+          "policyRef": "policy:process_fact_registry:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:checklist:CHK-002",
+            "scope:file:CHANGELOG.md",
+            "scope:file:lattice.config.json",
+            "scope:file:package-lock.json",
+            "scope:file:package.json",
+            "scope:file:packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+            "scope:file:packages/main/tests/red/**",
+            "scope:file:packages/main/tests/red/red-1734-content-binding.mjs",
+            "scope:file:packages/main/tests/red/red-1734-lock-liveness.mjs",
+            "scope:file:packages/main/tests/red/red-b49d4-harness-registration.mjs",
+            "scope:file:packages/main/tests/red/red-fb7b-guard-bite.mjs",
+            "scope:file:packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs",
+            "scope:file:packages/utils/package.json",
+            "scope:file:scripts/build-lock.mjs",
+            "scope:file:scripts/build-main-with-binding.mjs",
+            "scope:file:scripts/build-utils-with-binding.mjs",
+            "scope:file:scripts/ensure-dist.mjs",
+            "scope:file:scripts/full-suite-build-binding.mjs"
+          ]
+        },
+        "resultDigest": "sha256:bd420902af491c0280b99920664f8205018f6918cf9a000382e7591301e453ea"
+      },
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "runtime-trace:plan:v1",
+        "method": "runtime_trace",
+        "pathRefs": [],
+        "coverageClaim": "complete_for_scope",
+        "blindSpots": [],
+        "provenanceRefs": [
+          "runtime-fact-registry:sha256:87ef03b700851edd8ffd68380361b4d635c8436f7bd3fac51a4b920a4056a6d6",
+          "runtime-trace:story:B-1734:bounded"
+        ],
+        "asymmetryPolicy": {
+          "kind": "bounded_non_exhaustive",
+          "policyRef": "policy:bounded-runtime:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:checklist:CHK-002",
+            "scope:file:CHANGELOG.md",
+            "scope:file:lattice.config.json",
+            "scope:file:package-lock.json",
+            "scope:file:package.json",
+            "scope:file:packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+            "scope:file:packages/main/tests/red/**",
+            "scope:file:packages/main/tests/red/red-1734-content-binding.mjs",
+            "scope:file:packages/main/tests/red/red-1734-lock-liveness.mjs",
+            "scope:file:packages/main/tests/red/red-b49d4-harness-registration.mjs",
+            "scope:file:packages/main/tests/red/red-fb7b-guard-bite.mjs",
+            "scope:file:packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs",
+            "scope:file:packages/utils/package.json",
+            "scope:file:scripts/build-lock.mjs",
+            "scope:file:scripts/build-main-with-binding.mjs",
+            "scope:file:scripts/build-utils-with-binding.mjs",
+            "scope:file:scripts/ensure-dist.mjs",
+            "scope:file:scripts/full-suite-build-binding.mjs"
+          ]
+        },
+        "resultDigest": "sha256:1dc4ad7690ebae7597d875f5eeedc3cbfb98e9a3a8473356ad75556d1f1296cc"
+      },
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "scope-contract:plan:v1",
+        "method": "scope_contract",
+        "pathRefs": [],
+        "coverageClaim": "complete_for_scope",
+        "blindSpots": [],
+        "provenanceRefs": [
+          "scope:checklist:CHK-001",
+          "scope:checklist:CHK-002",
+          "scope:file:CHANGELOG.md",
+          "scope:file:lattice.config.json",
+          "scope:file:package-lock.json",
+          "scope:file:package.json",
+          "scope:file:packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "scope:file:packages/main/tests/red/**",
+          "scope:file:packages/main/tests/red/red-1734-content-binding.mjs",
+          "scope:file:packages/main/tests/red/red-1734-lock-liveness.mjs",
+          "scope:file:packages/main/tests/red/red-b49d4-harness-registration.mjs",
+          "scope:file:packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "scope:file:packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs",
+          "scope:file:packages/utils/package.json",
+          "scope:file:scripts/build-lock.mjs",
+          "scope:file:scripts/build-main-with-binding.mjs",
+          "scope:file:scripts/build-utils-with-binding.mjs",
+          "scope:file:scripts/ensure-dist.mjs",
+          "scope:file:scripts/full-suite-build-binding.mjs",
+          "source-file:lattice.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745"
+        ],
+        "asymmetryPolicy": {
+          "kind": "exhaustive",
+          "policyRef": "policy:scope_contract:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:checklist:CHK-002",
+            "scope:file:CHANGELOG.md",
+            "scope:file:lattice.config.json",
+            "scope:file:package-lock.json",
+            "scope:file:package.json",
+            "scope:file:packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+            "scope:file:packages/main/tests/red/**",
+            "scope:file:packages/main/tests/red/red-1734-content-binding.mjs",
+            "scope:file:packages/main/tests/red/red-1734-lock-liveness.mjs",
+            "scope:file:packages/main/tests/red/red-b49d4-harness-registration.mjs",
+            "scope:file:packages/main/tests/red/red-fb7b-guard-bite.mjs",
+            "scope:file:packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs",
+            "scope:file:packages/utils/package.json",
+            "scope:file:scripts/build-lock.mjs",
+            "scope:file:scripts/build-main-with-binding.mjs",
+            "scope:file:scripts/build-utils-with-binding.mjs",
+            "scope:file:scripts/ensure-dist.mjs",
+            "scope:file:scripts/full-suite-build-binding.mjs"
+          ]
+        },
+        "resultDigest": "sha256:be005d6dcec99354234da3ba85e4c9ff626013323a2341f124f94104287b81f2"
+      },
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "static-call-graph:plan:v1",
+        "method": "static_call_graph",
+        "pathRefs": [
+          "path:process-fact:acceptance_basis->consumer:<audit-only>",
+          "path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+          "path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
+          "path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
+        ],
+        "coverageClaim": "partial",
+        "blindSpots": [
+          "source file is unreadable or disappeared: packages/main/tests/red/**"
+        ],
+        "provenanceRefs": [
+          "source-file:CHANGELOG.md:sha256:165092050947cd142d7857f8d1833548a12733bf813cef58312c51bba25eb727",
+          "source-file:lattice.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745",
+          "source-file:package-lock.json:sha256:759f07356bc27aaef9e657684c0f289e0f449b07dc96be311afcb1a4f0f8d2d7",
+          "source-file:package.json:sha256:ba1573dcc2d251136c9590d828fe30475306feb26406af025a8b6cd75434a2f6",
+          "source-file:packages/main/src/core/acceptance-topology.ts:sha256:84368d03a6a5ed3157ae5fae7d760f3711b68220e46eb21a65d1910253d276ac",
+          "source-file:packages/main/src/handlers/proofstory.ts:sha256:de0d4a41293d8c824b81d1e5eb364127e83f1ddef432ceffd64f0944a354d94e",
+          "source-file:packages/main/src/handlers/transition-orchestrator.ts:sha256:06ae759af6bf058f590f697d54d18a67751c71161686199bcb4bb007f1d43ad4",
+          "source-file:packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts:sha256:67c528e5ac9fe0523c18fb2c3b0fe1bda29a90befb10f93ce6e177a869425023",
+          "source-file:packages/main/tests/red/**:uninspectable",
+          "source-file:packages/main/tests/red/red-1734-content-binding.mjs:sha256:d1d167fff5fad7acc0a5d49536dfbe3630be3a45952344950455e402291389e2",
+          "source-file:packages/main/tests/red/red-1734-lock-liveness.mjs:sha256:59529571116d74edbdf2c439afd7e3132e1db2b65d261d049a9cfbdf829235f8",
+          "source-file:packages/main/tests/red/red-b49d4-harness-registration.mjs:sha256:5b00b28febdcc1f99090b9193a0e55ec45aa4e3df3a4e22ab4ce53e61a81a687",
+          "source-file:packages/main/tests/red/red-fb7b-guard-bite.mjs:sha256:0ec9752d5ee5f7ec9eccab81db18fc3aa59bddc1973290e3086237a41f1bbae4",
+          "source-file:packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs:sha256:eba72b66c06c6f0d1499fd65bd75f9f96d16f99036937388298769dd1952f045",
+          "source-file:packages/utils/package.json:sha256:bc777cfa27af66fa1206376ff8111074b2b3d4f8477a6d592eab671e67864a8a",
+          "source-file:scripts/build-lock.mjs:sha256:3e0841f5a2727c11409a98485fc296e8413d29ecbe31e80a6f01e828d35be6bf",
+          "source-file:scripts/build-main-with-binding.mjs:sha256:628431106f49556d3900abb67ca48cc41ed0cc166a9a4d5261b6815bed3f59f3",
+          "source-file:scripts/build-utils-with-binding.mjs:sha256:65f3d6dec655d32fab884bdc925a1e37386443385167b6c7cfa24924b69fc13e",
+          "source-file:scripts/ensure-dist.mjs:sha256:2d572946f190e6563f644d9e7acafaaa2493acf8c5a09911f136eeb942425cf0",
+          "source-file:scripts/full-suite-build-binding.mjs:sha256:7eb1122547108179feda6c4316baecc56792dba73c502248db711e05a1fb28d6",
+          "source-file:scripts/verify-process-fact-contract.mjs:sha256:dd0292586206f955a8f1d9c0c56c861ddf138754d3bcf245fdc51533bafeeeab"
+        ],
+        "asymmetryPolicy": {
+          "kind": "exhaustive",
+          "policyRef": "policy:static_call_graph:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:checklist:CHK-002",
+            "scope:file:CHANGELOG.md",
+            "scope:file:lattice.config.json",
+            "scope:file:package-lock.json",
+            "scope:file:package.json",
+            "scope:file:packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+            "scope:file:packages/main/tests/red/**",
+            "scope:file:packages/main/tests/red/red-1734-content-binding.mjs",
+            "scope:file:packages/main/tests/red/red-1734-lock-liveness.mjs",
+            "scope:file:packages/main/tests/red/red-b49d4-harness-registration.mjs",
+            "scope:file:packages/main/tests/red/red-fb7b-guard-bite.mjs",
+            "scope:file:packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs",
+            "scope:file:packages/utils/package.json",
+            "scope:file:scripts/build-lock.mjs",
+            "scope:file:scripts/build-main-with-binding.mjs",
+            "scope:file:scripts/build-utils-with-binding.mjs",
+            "scope:file:scripts/ensure-dist.mjs",
+            "scope:file:scripts/full-suite-build-binding.mjs"
+          ]
+        },
+        "resultDigest": "sha256:4a3fabe0abf38c85206c229b9d38ee2a8dc0ab9a51f19d235c1ab2cb35243e68"
+      }
+    ],
+    "scopeRefs": [
+      "scope:checklist:CHK-001",
+      "scope:checklist:CHK-002",
+      "scope:file:CHANGELOG.md",
+      "scope:file:lattice.config.json",
+      "scope:file:package-lock.json",
+      "scope:file:package.json",
+      "scope:file:packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+      "scope:file:packages/main/tests/red/**",
+      "scope:file:packages/main/tests/red/red-1734-content-binding.mjs",
+      "scope:file:packages/main/tests/red/red-1734-lock-liveness.mjs",
+      "scope:file:packages/main/tests/red/red-b49d4-harness-registration.mjs",
+      "scope:file:packages/main/tests/red/red-fb7b-guard-bite.mjs",
+      "scope:file:packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs",
+      "scope:file:packages/utils/package.json",
+      "scope:file:scripts/build-lock.mjs",
+      "scope:file:scripts/build-main-with-binding.mjs",
+      "scope:file:scripts/build-utils-with-binding.mjs",
+      "scope:file:scripts/ensure-dist.mjs",
+      "scope:file:scripts/full-suite-build-binding.mjs"
+    ],
+    "sourceInventoryRefs": [
+      "artifact:acceptance-basis.json",
+      "process-fact:acceptance_basis:da66e0998516b4d2ca3f45bc57585700a1f0675eeb30267234df766ee32d288f",
+      "process-fact:acceptance_basis_generate:c705ec303891a791afa607f361da9b178764f8186b88c4336bdd4441d32fe0b9",
+      "process-fact:acceptance_topology_check:98a1a08190c79f0f548f297fa08b2d573493faec90f156fe9e07e66f9e3ff095",
+      "process-fact:artifact:acceptance-basis.json:8cab0c9d56e68c579428c321969642d3f94a3596133e9393c047c110b44dcd82",
+      "source-file:closure:CHANGELOG.md",
+      "source-file:closure:lattice.config.json",
+      "source-file:closure:package-lock.json",
+      "source-file:closure:package.json",
+      "source-file:closure:packages/main/src/core/acceptance-topology.ts",
+      "source-file:closure:packages/main/src/handlers/proofstory.ts",
+      "source-file:closure:packages/main/src/handlers/transition-orchestrator.ts",
+      "source-file:closure:packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+      "source-file:closure:packages/main/tests/red/**",
+      "source-file:closure:packages/main/tests/red/red-1734-content-binding.mjs",
+      "source-file:closure:packages/main/tests/red/red-1734-lock-liveness.mjs",
+      "source-file:closure:packages/main/tests/red/red-b49d4-harness-registration.mjs",
+      "source-file:closure:packages/main/tests/red/red-fb7b-guard-bite.mjs",
+      "source-file:closure:packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs",
+      "source-file:closure:packages/utils/package.json",
+      "source-file:closure:scripts/build-lock.mjs",
+      "source-file:closure:scripts/build-main-with-binding.mjs",
+      "source-file:closure:scripts/build-utils-with-binding.mjs",
+      "source-file:closure:scripts/ensure-dist.mjs",
+      "source-file:closure:scripts/full-suite-build-binding.mjs",
+      "source-file:closure:scripts/verify-process-fact-contract.mjs",
+      "source-file:config:lattice.config.json",
+      "source-file:consumer:acceptance_basis:packages/main/src/core/acceptance-topology.ts",
+      "source-file:consumer:acceptance_basis:packages/main/src/handlers/transition-orchestrator.ts",
+      "source-file:consumer:acceptance_basis:scripts/verify-process-fact-contract.mjs",
+      "source-file:consumer:acceptance_basis_generate:packages/main/src/core/acceptance-topology.ts",
+      "source-file:consumer:acceptance_basis_generate:packages/main/src/handlers/transition-orchestrator.ts",
+      "source-file:consumer:acceptance_basis_generate:scripts/verify-process-fact-contract.mjs",
+      "source-file:consumer:acceptance_topology_check:packages/main/src/core/acceptance-topology.ts",
+      "source-file:consumer:acceptance_topology_check:packages/main/src/handlers/transition-orchestrator.ts",
+      "source-file:consumer:acceptance_topology_check:scripts/verify-process-fact-contract.mjs",
+      "source-file:consumer:artifact%3Aacceptance-basis.json:packages/main/src/core/acceptance-topology.ts",
+      "source-file:consumer:artifact%3Aacceptance-basis.json:packages/main/src/handlers/proofstory.ts",
+      "source-file:consumer:artifact%3Aacceptance-basis.json:packages/main/src/handlers/transition-orchestrator.ts",
+      "source-file:consumer:artifact%3Aacceptance-basis.json:scripts/verify-process-fact-contract.mjs",
+      "source-file:producer:acceptance_basis:packages/main/src/handlers/proofstory.ts",
+      "source-file:producer:acceptance_basis:packages/main/src/registry.ts",
+      "source-file:producer:acceptance_basis_generate:packages/main/src/handlers/proofstory.ts",
+      "source-file:producer:acceptance_basis_generate:packages/main/src/registry.ts",
+      "source-file:producer:acceptance_topology_check:packages/main/src/handlers/proofstory.ts",
+      "source-file:producer:acceptance_topology_check:packages/main/src/registry.ts",
+      "source-file:producer:artifact%3Aacceptance-basis.json:packages/main/src/handlers/proofstory.ts",
+      "source-file:producer:artifact%3Aacceptance-basis.json:packages/main/src/registry.ts"
+    ],
+    "plannedPathRecords": [],
+    "plannedActualReconciliations": [],
+    "enumeratedPathRefs": [
+      "path:process-fact:acceptance_basis->consumer:<audit-only>",
+      "path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+      "path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
+      "path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
+    ],
+    "excludedPathRefs": [],
+    "blindSpots": [
+      "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_basis->consumer:<audit-only>",
+      "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+      "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
+      "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+      "snapshot-seal:snapshot_missing:inventory:packages/main/tests/red/**",
+      "snapshot-seal:snapshot_missing:source_file:packages/main/tests/red/**",
+      "source file is unreadable or disappeared: packages/main/tests/red/**"
+    ],
+    "snapshotSeal": {
+      "schemaVersion": "proofstory.acceptance_snapshot_seal.v1",
+      "inventoryDirectoryDigest": "sha256:678ea1a2da392f1359d634696ac5b9e143956f2c5bde980839eaad71e8675d11",
+      "inventoryDirectoryCount": 21,
+      "sourceSnapshotDigest": "sha256:440189687d6c70dc2d0f010aed5f1b3e06a693583fbdd998b4142bed73a7bfb0",
+      "sourceSnapshotCount": 808,
+      "configSnapshotDigest": "sha256:0ee5353bc6952bfe94d1069b907334faddd661fb9ae33a7ae8c051c177c72090",
+      "status": "partial",
+      "issues": [
+        {
+          "code": "derivation_diagnostic",
+          "targetKind": "inventory",
+          "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_basis->consumer:<audit-only>"
+        },
+        {
+          "code": "derivation_diagnostic",
+          "targetKind": "inventory",
+          "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
+        },
+        {
+          "code": "derivation_diagnostic",
+          "targetKind": "inventory",
+          "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate"
+        },
+        {
+          "code": "derivation_diagnostic",
+          "targetKind": "inventory",
+          "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
+        },
+        {
+          "code": "snapshot_missing",
+          "targetKind": "inventory",
+          "canonicalRef": "packages/main/tests/red/**"
+        },
+        {
+          "code": "snapshot_missing",
+          "targetKind": "source_file",
+          "canonicalRef": "packages/main/tests/red/**"
+        }
+      ],
+      "sealDigest": "sha256:866fc1ba30b855f96c1fc800fedfc2650f38151f2b37ddc614709da8ba548563"
+    },
+    "binding": {
+      "headHash": "895d3fb1ca674edca062dffa641f73e950490131",
+      "materialHash": "dc7af3ff59ca2757c4c6f36535592380e15e9186c3672011621b4bd86e0133c9",
+      "storyFilesHash": "3476336428e8fe5b030e2bedf121b9aab36cd3d5ab7eb90cf1a4c9a32e233321",
+      "scopeCheckDigest": "sha256:2c5acf1dde04491100c4674d5d77a8e7a60993d8ff4e659ab6371e2b17eb07b5",
+      "scopeContractDigest": "sha256:0d35ec6ce8f299113ad088c388c8c43e1791cf776059b294811796fda5c6ece1",
+      "closureFilesHash": "sha256:a7c6adae6a87aa8bae7cf0df430139a5c310802e077bb9f3cf92f7e6202ed434"
+    },
+    "receiptRef": "receipt:coverage-basis:B-1734:plan:eaad9a31ead7ea0d",
+    "basisDigest": "sha256:05b9daaa6d46c123982187d64c626d5caca6877723098d60b28c6e02edb96004"
+  },
+  "receipt": {
+    "schemaVersion": "proofstory.acceptance_basis_receipt.v1",
+    "receiptRef": "receipt:coverage-basis:B-1734:plan:eaad9a31ead7ea0d",
+    "issuer": "acceptance-coverage-basis-verifier",
+    "issuerKeyId": "sha256:296cf7b2d23ab87226356b1e45ea3a1ec48eee6266df59e0aefea56e1de3c722",
+    "signerPublicKey": "xd1c+IbCBeVwFfhaDuRVFXxOCL3kqkMx7weu8ckyaAw=",
+    "storyId": "B-1734",
+    "phaseBasis": "plan",
+    "basisDigest": "sha256:05b9daaa6d46c123982187d64c626d5caca6877723098d60b28c6e02edb96004",
+    "topologyDigest": "sha256:bf8a77899dee1b2505b98c062a1b64e8b952f51d2f1651987a6c6ad31810f620",
+    "scopeCheckDigest": "sha256:2c5acf1dde04491100c4674d5d77a8e7a60993d8ff4e659ab6371e2b17eb07b5",
+    "scopeContractDigest": "sha256:0d35ec6ce8f299113ad088c388c8c43e1791cf776059b294811796fda5c6ece1",
+    "headHash": "895d3fb1ca674edca062dffa641f73e950490131",
+    "materialHash": "dc7af3ff59ca2757c4c6f36535592380e15e9186c3672011621b4bd86e0133c9",
+    "storyFilesHash": "3476336428e8fe5b030e2bedf121b9aab36cd3d5ab7eb90cf1a4c9a32e233321",
+    "closureFilesHash": "sha256:a7c6adae6a87aa8bae7cf0df430139a5c310802e077bb9f3cf92f7e6202ed434",
+    "sealDigest": "sha256:866fc1ba30b855f96c1fc800fedfc2650f38151f2b37ddc614709da8ba548563",
+    "workspaceIdentityDigest": "sha256:5980fac2e679e6a4a82e10cd0471eb0b2fea6e263907fea0e7fd03e6d1a338c9",
+    "signature": "kGYheJ+QcoeE8k282hS5KZRRY10lqoHPyW/LTLaCF+rmIf6HI/enjsjHIELAIqRIHEvmCpB+A6QQY5QnzkfzBQ=="
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-fb7b",
+  "mode": "correctness_fix",
+  "allowed": [
+    ".lattice/story/** — story lifecycle artifacts (plan, evidence, verdicts)",
+    "CHANGELOG.md — changelog entry for this fix",
+    "lattice.config.json — register a new regression smoke in validate.commands",
+    "package.json — add a root pretest script that builds packages/main then packages/utils before the full test suite",
+    "packages/main/src/tasks/*-smoke.ts — new regression smoke asserting the root pretest builds both packages/main and packages/utils",
+    "packages/main/tests/red/*.mjs — repro-first RED evidence for the missing-utils-build gap"
+  ],
+  "excluded": [
+    "Any product or CLI behavior beyond test-suite build bootstrapping",
+    "bin/bootstrap-runner.js — do NOT add auto-build magic here; keep the human recovery hint",
+    "packages/main/src/handlers/worktree.ts — no changes to worktree-creation bootstrapping (out of scope)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User asked to fix the recurring worktree-needs-utils-build pitfall; investigation narrowed the real gap to root npm test needing packages/utils/dist. Minimal pretest fix confirmed.",
+  "createdAt": "2026-08-14T02:59:14.234Z",
+  "updatedAt": "2026-08-14T02:59:14.234Z",
+  "_hash": "8397886215c8c639dc7feeefe717dd54e293356ecdf4fd8740acadb41b54c548"
+}

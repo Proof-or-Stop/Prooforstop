@@ -294,7 +294,7 @@ function readinessCodes(report: StoryReadinessReport): Set<string> {
 }
 
 function expectedDonePrepareCommand(storyId = STORY_ID): string {
-  return `lattice done_prepare '{"storyId":"${storyId}","mergeMain":true,"refreshStale":true,"validate":true}'`;
+  return `proof-or-stop done_prepare '{"storyId":"${storyId}","mergeMain":true,"refreshStale":true,"validate":true}'`;
 }
 
 function assertReportShape(report: StoryReadinessReport): void {
@@ -363,7 +363,7 @@ assert.equal(getCommandPolicy('lifecycle_check')?.ownershipClass, 'readOnly', 'l
       'missing DONE-required validation routes through done_prepare recovery',
     );
     assert.ok(
-      jsonReport.next.some((action) => action.command === `lattice review_run_start '{"storyId":"${STORY_ID}","agent":"lattice-review-quality"}'`),
+      jsonReport.next.some((action) => action.command === `proof-or-stop review_run_start '{"storyId":"${STORY_ID}","agent":"lattice-review-quality"}'`),
       'missing required reviewer lanes print exact review_run_start next command guidance',
     );
     assert.ok(

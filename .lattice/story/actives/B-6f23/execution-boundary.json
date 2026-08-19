@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-6f23",
+  "allowedCommands": [
+    "node bin/lattice.js *",
+    "node packages/main/dist/tasks/agent-liveness-suite-smoke.js",
+    "npm --prefix packages/main run build",
+    "npm --prefix packages/main run test:flow-stability-smoke",
+    "npm test"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "exec_command"
+  ],
+  "allowedPaths": [
+    "packages/main/src/tasks/agent-liveness-suite-smoke.ts",
+    "packages/main/src/tasks/flow-stability-smoke.ts",
+    "packages/main/src/tasks/init-check-required-agents-smoke.ts",
+    "packages/main/src/tasks/provider-codex-smoke.ts",
+    "packages/main/src/tasks/review-pass-discard-smoke.ts"
+  ],
+  "excludedCommands": [
+    "git clean *",
+    "git push *",
+    "git reset --hard *"
+  ],
+  "excludedTools": [
+    "network publish",
+    "remote git write"
+  ],
+  "excludedPaths": [
+    "lattice.config.json",
+    "package.json",
+    "packages/main/src/tasks/full-suite-runner.ts"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Keep global member and suite budgets unchanged; only bounded child orchestration and directly required await callsites are in scope.",
+  "createdAt": "2026-08-14T13:47:42.205Z",
+  "updatedAt": "2026-08-14T13:47:42.205Z",
+  "_hash": "e6b3cf6b64ba2e9e3115d02115d99058f663348cd82a018fbb48c533ee179efd"
+}

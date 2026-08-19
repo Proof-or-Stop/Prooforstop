@@ -40,8 +40,8 @@ const globalFixtureEntries: DevMemoryEntry[] = [
     scope: 'global',
     summary: 'Global host taxonomy stays available as advisory memory.',
     trigger: 'physical cleanup smoke fixture',
-    lesson: 'Keep current Proofbound host taxonomy memory without retired brand references.',
-    reusePrompt: 'Use current Proofbound host taxonomy memory as advisory context only.',
+    lesson: 'Keep current Proof-or-Stop host taxonomy memory without retired brand references.',
+    reusePrompt: 'Use current Proof-or-Stop host taxonomy memory as advisory context only.',
     tags: ['proofbound', 'lattice', 'host-policy'],
     gateEvidence: false,
     authority: 'non_authoritative',
@@ -127,8 +127,8 @@ function createGlobalMemoryFixture(): { dir: string; restore: () => void } {
 
 function assertCurrentProjectMemory(entry: DevMemoryEntry): void {
   const guidance = [entry.summary, entry.trigger, entry.lesson, entry.reusePrompt].join(' ');
-  assert.match(guidance, /Proofbound|Lattice/, `${entry.id} should use current product names`);
-  assert(entry.tags?.some(tag => tag === 'proofbound' || tag.includes('proofbound')), `${entry.id} should keep Proofbound tags`);
+  assert.match(guidance, /Proof-or-Stop|Lattice/, `${entry.id} should use current product names`);
+  assert(entry.tags?.some(tag => tag === 'proofbound' || tag.includes('proofbound')), `${entry.id} should keep Proof-or-Stop tags`);
   assert(entry.tags?.some(tag => tag === 'lattice' || tag.includes('lattice')), `${entry.id} should keep Lattice tags`);
   assert(entry.tags?.some(tag => tag.startsWith('supersedes-')), `${entry.id} should keep supersession id context`);
   assertNonAuthoritative('project', entry);
@@ -142,8 +142,8 @@ function assertHostPolicyMemory(entry: DevMemoryEntry): void {
 
 function assertCurrentGlobalMemory(entry: DevMemoryEntry): void {
   assert.equal(entry.scope, 'global', `${entry.id} should be a global memory row`);
-  assert.match(entryJson(entry), /Proofbound|Lattice/, `${entry.id} should use current product names`);
-  assert(entry.tags?.some(tag => tag === 'proofbound' || tag.includes('proofbound')), `${entry.id} should keep Proofbound tags`);
+  assert.match(entryJson(entry), /Proof-or-Stop|Lattice/, `${entry.id} should use current product names`);
+  assert(entry.tags?.some(tag => tag === 'proofbound' || tag.includes('proofbound')), `${entry.id} should keep Proof-or-Stop tags`);
   assert(entry.tags?.some(tag => tag === 'lattice' || tag.includes('lattice')), `${entry.id} should keep Lattice tags`);
   assertNonAuthoritative('global', entry);
 }
@@ -182,7 +182,7 @@ check('retired global rows are physically removed', () => {
   }
 });
 
-check('current Proofbound and Lattice project memories are preserved', () => {
+check('current Proof-or-Stop and Lattice project memories are preserved', () => {
   assertEntriesPresent('project memory', projectEntries, projectCurrentIds);
   const projectById = entriesById(projectEntries);
   for (const id of projectCurrentIds) {
@@ -213,9 +213,9 @@ check('current global fixture memories are preserved', () => {
 });
 
 check('current memory search still finds project guidance', () => {
-  assertSearchFinds(projectEntries, 'Proofbound reviewer', ['34e97f9', 'ee3aef3']);
+  assertSearchFinds(projectEntries, 'Proof-or-Stop reviewer', ['34e97f9', 'ee3aef3']);
   assertSearchFinds(projectEntries, 'Lattice delivery evidence', ['99aa6c7']);
-  assertSearchFinds(projectEntries, 'Proofbound self-hosting CLI', ['148297b']);
+  assertSearchFinds(projectEntries, 'Proof-or-Stop self-hosting CLI', ['148297b']);
   assertSearchFinds(projectEntries, 'dev-memory preflight Lattice', ['7ffe281']);
 });
 

@@ -32,8 +32,10 @@ import {
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { persistSyntheticAdmittedWindowForTest } from '../core/certification-window.js';
 import { StoryStore } from '../core/store.js';
 import type { ChecklistData, StoryInfo } from '../core/types.js';
+import { stripCanonicalBrandEnvTwins } from '../core/brand-env.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const cliPath = join(here, '..', 'cli.js');
@@ -201,20 +203,44 @@ function setupStoryAdvanceFixture(): { root: string; storyId: string; started: s
     }],
   } as ChecklistData);
   commitAll(root, 'seed heartbeat story metadata');
+  persistSyntheticAdmittedWindowForTest({ store, storyId, projectRoot: root });
   return { ...fixture, storyId };
+}
+
+function admitSyntheticWindow(root: string, storyId: string): void {
+  persistSyntheticAdmittedWindowForTest({
+    store: new StoryStore(root),
+    storyId,
+    projectRoot: root,
+  });
 }
 
 function runCli(root: string, args: string[], ceilingMs = NON_MAX_HARNESS_CEILING_MS, env: Record<string, string> = {}): Promise<CliResult> {
   const start = Date.now();
   const child = spawn(process.execPath, [cliPath, '--root', root, ...args], {
     cwd: root,
-    env: {
-      ...process.env,
-      LATTICE_IDLE_TIMEOUT_MS: String(IDLE_TIMEOUT_MS),
-      LATTICE_MAX_TIMEOUT_MS: String(NON_MAX_OUTER_TIMEOUT_MS),
-      LATTICE_VALIDATE_HEARTBEAT_MS: String(HEARTBEAT_MS),
-      ...env,
-    },
+    // B-cdf6: brand-env resolves the CANONICAL PROOF_OR_STOP_* name ahead of the
+    // deprecated LATTICE_* one, and this spreads process.env — so a canonical value
+    // exported by the CALLER silently outranks any LATTICE_*-only pin below, and the
+    // child runs on the caller's budget instead of the test's. That is exactly how
+    // this smoke failed inside `validate` when the invoking shell had
+    // PROOF_OR_STOP_MAX_TIMEOUT_MS set (budget line printed
+    // source=PROOF_OR_STOP_MAX_TIMEOUT_MS; assertion failed `0 !== 1`).
+    //
+    // Fix at the choke point rather than at each call site: strip every canonical
+    // twin of the knobs this smoke controls, so the LATTICE_* pins (whether from the
+    // defaults here or from a per-case `env` override) are authoritative again. Each
+    // call site keeps its existing single-spelling shape and stays correct.
+    env: stripCanonicalBrandEnvTwins(
+      {
+        ...process.env,
+        LATTICE_IDLE_TIMEOUT_MS: String(IDLE_TIMEOUT_MS),
+        LATTICE_MAX_TIMEOUT_MS: String(NON_MAX_OUTER_TIMEOUT_MS),
+        LATTICE_VALIDATE_HEARTBEAT_MS: String(HEARTBEAT_MS),
+        ...env,
+      },
+      ['IDLE_TIMEOUT_MS', 'MAX_TIMEOUT_MS', 'VALIDATE_HEARTBEAT_MS'],
+    ),
     stdio: ['ignore', 'pipe', 'pipe'],
   });
 
@@ -306,6 +332,7 @@ async function assertDirectDoneRequiredTimeoutMatrix(): Promise<void> {
     const fixture = setupStoryAdvanceFixture();
     try {
       configureDoneRequired(fixture.root, testCase.durationMs, testCase.commandTimeoutMs);
+      admitSyntheticWindow(fixture.root, fixture.storyId);
       const result = await runCli(fixture.root, ['done_required_validate', JSON.stringify({ storyId: fixture.storyId, json: true })], NON_MAX_HARNESS_CEILING_MS, {
         LATTICE_IDLE_TIMEOUT_MS: String(testCase.idleMs),
         LATTICE_MAX_TIMEOUT_MS: String(testCase.maxMs),
@@ -326,6 +353,7 @@ async function assertDirectDoneRequiredTimeoutMatrix(): Promise<void> {
 
       if (testCase.result === 'timed_out') {
         configureDoneRequired(fixture.root, 0, 2_000);
+        admitSyntheticWindow(fixture.root, fixture.storyId);
         const retry = await runCli(fixture.root, ['done_required_validate', JSON.stringify({ storyId: fixture.storyId, json: true })], NON_MAX_HARNESS_CEILING_MS, {
           LATTICE_IDLE_TIMEOUT_MS: '1000',
           LATTICE_MAX_TIMEOUT_MS: String(NON_MAX_OUTER_TIMEOUT_MS),
@@ -352,6 +380,7 @@ async function assertDirectDoneRequiredTimeoutMatrix(): Promise<void> {
     }];
     writeFileSync(configPath, JSON.stringify(config, null, 2) + '\n', 'utf8');
     commitAll(descendantFixture.root, 'configure descendant timeout');
+    admitSyntheticWindow(descendantFixture.root, descendantFixture.storyId);
     const timed = await runCli(descendantFixture.root, ['done_required_validate', JSON.stringify({ storyId: descendantFixture.storyId, json: true })], NON_MAX_HARNESS_CEILING_MS, {
       LATTICE_IDLE_TIMEOUT_MS: '1000', LATTICE_MAX_TIMEOUT_MS: String(NON_MAX_OUTER_TIMEOUT_MS), LATTICE_VALIDATE_HEARTBEAT_MS: '50',
     });
@@ -362,6 +391,7 @@ async function assertDirectDoneRequiredTimeoutMatrix(): Promise<void> {
     const descendantPid = Number(readFileSync(pidFile, 'utf8'));
     assert.throws(() => process.kill(descendantPid, 0), /ESRCH/, 'command timeout must kill descendant process group');
     configureDoneRequired(descendantFixture.root, 0, 2_000);
+    admitSyntheticWindow(descendantFixture.root, descendantFixture.storyId);
     const retry = await runCli(descendantFixture.root, ['done_required_validate', JSON.stringify({ storyId: descendantFixture.storyId, json: true })], NON_MAX_HARNESS_CEILING_MS, {
       LATTICE_IDLE_TIMEOUT_MS: '1000', LATTICE_MAX_TIMEOUT_MS: String(NON_MAX_OUTER_TIMEOUT_MS), LATTICE_VALIDATE_HEARTBEAT_MS: '50',
     });
@@ -439,6 +469,7 @@ async function assertOuterWatchdogsKillDescendants(): Promise<void> {
       writeFileSync(configPath, JSON.stringify(config, null, 2) + '\n', 'utf8');
       writeFileSync(join(fixture.root, '.gitignore'), `${readFileSync(join(fixture.root, '.gitignore'), 'utf8')}${testCase.name}-descendant.pid\n`, 'utf8');
       commitAll(fixture.root, `configure ${testCase.name} descendant timeout`);
+      admitSyntheticWindow(fixture.root, fixture.storyId);
       const result = await runCli(fixture.root, ['done_required_validate', JSON.stringify({ storyId: fixture.storyId, json: true })], NON_MAX_HARNESS_CEILING_MS, {
         LATTICE_IDLE_TIMEOUT_MS: testCase.idleMs,
         LATTICE_MAX_TIMEOUT_MS: testCase.maxMs,
@@ -688,7 +719,7 @@ async function assertFailedStoryAdvancePreservesValidationEvidence(): Promise<vo
       NON_MAX_HARNESS_CEILING_MS,
     );
     assert.notEqual(result.status, 0, 'failed internal validation must block TEST transition');
-    assert.match(`${result.stderr}\n${result.stdout}`, /Cannot enter TEST: lattice validate did not pass/);
+    assert.match(`${result.stderr}\n${result.stdout}`, /Cannot enter TEST: proof-or-stop validate did not pass/);
 
     const store = new StoryStore(root);
     assert.equal(store.readStory(storyId).phase, 'REVIEW',

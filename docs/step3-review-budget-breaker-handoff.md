@@ -77,8 +77,8 @@ real-shell-tool-name e2e test.
 ## 6. How to start
 1. Read `docs/evidence-integrity-program-spec.md` §3 Step 3, and memory
    `b-bbaf-convergence-breaker-done`.
-2. `cd /Users/jek/Documents/Work/proofbound`; `lattice session_brief`; dup-check.
-3. `lattice story_create` (type=feature/refactor). Background must cite F-058/F-059
+2. `cd /Users/jek/Documents/Work/proofbound`; `proof-or-stop session_brief`; dup-check.
+3. `proof-or-stop story_create` (type=feature/refactor). Background must cite F-058/F-059
    + a date, and name the existing `review-convergence.ts` / `convergence-breaker.ts`
    so the reviewer can confirm you are extending, not duplicating.
 4. RED test: reproduce a stall (≥ threshold non-improving rounds) and assert the

@@ -77,7 +77,7 @@ function createFixture(): { root: string; store: StoryStore; ctx: HandlerContext
     name: 'plan-skeleton-smoke',
     title: 'Implement plan_skeleton',
     description: [
-      'Implement lattice plan_skeleton from packages/main/src/handlers/plan-skeleton.ts.',
+      'Implement proof-or-stop plan_skeleton from packages/main/src/handlers/plan-skeleton.ts.',
       'Default output previews a PLAN skeleton.',
       '--write persists only through understanding_set and checklist_add.',
     ].join(' '),
