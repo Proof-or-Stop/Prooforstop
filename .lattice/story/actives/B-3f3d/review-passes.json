@@ -19293,6 +19293,51 @@
       },
       "readDiagnostics": [],
       "_hash": "37bb7b508dfe376951fa854d725d15352f4427c07867aef1dbdcd241c50a37bb"
+    },
+    {
+      "id": "B-3f3d:RP-349",
+      "agent": "lattice-review-docs",
+      "note": "Docs review of digest pin + handler-smoke updates. Step 1: pin commit added 0 new exported symbols; compared 8 existing symbols (persistFinalizedReviewInventory, persistFinalizedReviewInventoryUnlocked, renderFinalizedReviewInventory, createReviewInventoryHandlers, currentOpenReviewInventory, INVENTORY_COMPLETENESS_AUTHORITY, review_inventory_finalize, LEGACY_REVIEWER_TEMPLATE_SHA256). Step 2: compared 3 doc surfaces / 11 paragraphs (full review-inventory-epoch-and-saturation-gate.md 9 sections; prompt-overlap-matrix audit+topology-critic row; prompt-baseline.json topology-critic hash entries). No docs blocker: fail-closed reconstruction digest 077d0e79->2300cde0 is not documented as a frozen decision fact and does not require a new decision doc; modular template remains 29668c07 and is unchanged; handler-smoke still proves B-cdf6 commit-qualified provenance and still asserts authorizesTest=false / inventory-completeness-only, matching the decision doc This is not PRE_CERT; finalize-without-OPEN writes a separate FINALIZED completeness receipt without mutating the INVALIDATED saturation epoch. 54/54 evidence treated as current.",
+      "createdAt": "2026-08-19T09:55:55.402Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-561",
+      "envelopeId": "5d6282f60972031690fde7d97077403164a670f00dac7ecd4b61ba6ab3a46827",
+      "writerSessionId": "sess-4292375d1d751b41",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "B-3f3d-HANDOFF.md",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "336b6b8e9cfcf0764571e2da98436d6f4527c24066614582e4fa97666dede3f7"
     }
   ]
 }
