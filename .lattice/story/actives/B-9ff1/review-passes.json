@@ -2012,6 +2012,39 @@
         "scanEscalationReason": null
       },
       "_hash": "8d2e727bdece1af7e321d4b5bd173a8055a90952071722bb5f228005529a5584"
+    },
+    {
+      "id": "B-9ff1:RP-065",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-bind verification, no re-audit (per instruction, following established method from RP-062). checklist.json verificationEvidence (authoritative store, not stale test-evidence.json snapshot) has 108 records: 106 non-waiver all mechanical:true/receipt.selectorMatched:true/receipt.exitCode:0, plus 2 permanent waivers (CHK-012 edge:1, CHK-013 adversarial:0). All 108 share the single current materialHash 795dd856...524bd6c and storyFilesHash 40c5f0ee...963b0ef50. headHash spans 22 distinct commits in batch-of-five shape (21 groups of 5 + 1 group of 3 = 108). Per-command distribution matches spec exactly: red-w2d-rejection-matrix.mjs=66, red-w2d-specificity-conjunction.mjs=15, red-w2d-command-readonly.mjs=8, red-w2d-assertion-digest-scope.mjs=6, red-w2d-entropy-differential.mjs=6, dist/tasks/red-evidence-envelope-smoke.js=4, red-w2c-validate-registration.mjs=1, +2 waivers (no command) = 108. Registration: lattice.config.json JSON-parses cleanly; validate.commands (111 entries) contains each of the five red-w2d-*.mjs plus dist/tasks/red-evidence-envelope-smoke.js exactly once. Ran all six directly: red-w2d-rejection-matrix.mjs, red-w2d-specificity-conjunction.mjs, red-w2d-assertion-digest-scope.mjs, red-w2d-entropy-differential.mjs, red-w2d-command-readonly.mjs, dist/tasks/red-evidence-envelope-smoke.js — all exit 0. F-060 characterization fixture (inside red-w2d-specificity-conjunction.mjs) still prints its five pinned rows (SIGSEGV/ENOMEM/HTTP 404/Error 500/test failed REJECT/REJECT/REJECT/REJECT/ADMIT) and the file exits 0. git rev-list --count HEAD..main = 0 (in sync with main). git status --porcelain empty (clean tree at f7ebef5746). findings.json: 77 total, 0 open (76 resolved + 1 dismissed). Did not run full lattice validate or root npm test per instruction.",
+      "createdAt": "2026-08-19T01:18:23.284Z",
+      "reviewRound": "2026-08-19T01:12:32.621Z",
+      "reviewRunId": "B-9ff1:RR-104",
+      "envelopeId": "78d3438698c7bf2b449e51ebec407d44c5e5acbcb2c7d248ec671c1ec2d10c12",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-9ff1/checklist.json",
+          ".lattice/story/actives/B-9ff1/findings.json",
+          ".lattice/story/actives/B-9ff1/review-passes.json",
+          "lattice.config.json"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-9ff1/background.md",
+          ".lattice/story/actives/B-9ff1/plan.md",
+          "packages/main/dist/tasks/red-evidence-envelope-smoke.js (executed, exit 0, 4 evidence records)",
+          "packages/main/tests/red/red-w2c-validate-registration.mjs (1 evidence record)",
+          "packages/main/tests/red/red-w2d-assertion-digest-scope.mjs (executed, exit 0, 6 evidence records)",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs (executed, exit 0, 8 evidence records)",
+          "packages/main/tests/red/red-w2d-entropy-differential.mjs (executed, exit 0, 6 evidence records)",
+          "packages/main/tests/red/red-w2d-rejection-matrix.mjs (executed, exit 0, 66 evidence records)",
+          "packages/main/tests/red/red-w2d-specificity-conjunction.mjs (executed, exit 0, F-060 fixture confirmed, 15 evidence records)"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c11664f2b4ef4d2e6b82ef81770cd5ac08dd7b8116613aaaa957e1a672d5638b"
     }
   ]
 }
