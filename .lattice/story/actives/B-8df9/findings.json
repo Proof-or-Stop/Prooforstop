@@ -265,7 +265,7 @@
       "desc": "summary.json:6 actualTranscript overclaims evidence-strength: it says the behavior lane AND the delivery reviewer each built their own fixture and confirmed all three attacks (injection/erasure/rename). On record, only lattice-review-behavior RR-020 (RP-015) built a fixture testing all three attacks; the delivery reviewer transcript (delivery-check.json CHK-002 row) built its own fixture testing only ONE attack (hand-injected reviewer record / injection), not erasure or rename. Also unclear where four probes come from: only two out-of-suite fixtures are on record (behavior RR-020 covering all 3 attacks; delivery covering 1). The underlying three-attack conclusion IS true and IS backed by evidence (behavior RR-020 plus the shipped D1/D2/D3 rows), but the sentence misattributes which reviewer independently confirmed which attacks and inflates the probe count -- the exact overclaim-about-evidence-strength failure mode this story is about (cf. F-009/F-011/F-012).",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-19T18:37:59.586Z",
@@ -276,7 +276,10 @@
         ".lattice/story/actives/B-8df9/summary.json"
       ],
       "signatureTag": "missing|json|summary-json-actualtranscript",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Correct, and it is the third instance of this exact failure mode from me on this story. Verified the record rather than paraphrasing again: the behavior lane's fixture (RR-020/RP-015) covered three attacks - fabricated reviewer entry, erased critical issue, renamed agentId; the delivery reviewer's own fixture covered unsigned tampering plus the out-of-tool re-sign acceptance, not all three. My draft said \"four independent probes\" and implied both had confirmed all three. The conclusion was sound; the count and attribution were inflated. Fixed: actualTranscript now states precisely what each probe covered, names the re-sign case as the deliberate honest bound rather than a gap, and cites the shipped guard's H1 control row which asserts both halves mechanically (refusedBeforeReSigning=true, verifiesAfterReSigning=true). Also added pitfalls item (5) recording that this happened in the same round where I had explicitly warned your lane to watch for it - writing the warning is not protection against committing the error.",
+      "resolvedAt": "2026-08-19T18:39:01.331Z",
+      "resolutionType": "fixed"
     }
   ]
 }
