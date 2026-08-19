@@ -532,6 +532,41 @@
         "scanEscalationReason": null
       },
       "_hash": "b84f81ff907ab70d9a170f14fac319f78c7ca14bda4020fb3b2d29fbffc1e6d6"
+    },
+    {
+      "id": "B-cc10:RP-016",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage pass at HEAD 042854e: npm run test:serial-reference exited 0 on this frozen HEAD; F-077/F-078/F-079 fixture repairs executed the renamed identities. Checklist 8/8 done with must evidence already recorded. Stale materialHash with unchanged storyFilesHash is whole-tree/metadata drift, not missing coverage. No blocker.",
+      "createdAt": "2026-08-19T08:22:38.003Z",
+      "reviewRound": "2026-08-18T03:33:16.325Z",
+      "reviewRunId": "B-cc10:RR-118",
+      "envelopeId": "7e370ac7610915595dd6d144b2f013a0efeef43668781b70f056b750e0846d0f",
+      "writerSessionId": "sess-8afdfabda88da0d8",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md",
+          "packages/main/src/core/brand-paths.ts",
+          "packages/main/src/core/learning-store.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/tasks/experience-hint-worktree-cache-smoke.ts",
+          "packages/main/src/tasks/experience-layer-hint-injection-smoke.ts",
+          "packages/main/src/tasks/experience-layer-playbook-smoke.ts",
+          "packages/main/src/tasks/playbook-promotion-worker-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "scripts/verify-lattice-residue.mjs",
+          "scripts/verify-role-telemetry.mjs",
+          "scripts/verify-session-brief-command-center.mjs",
+          "scripts/verify-workflow-phase-consistency.mjs"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "dce12a68db531416a778ffbe393eb2e7a6d9267f41869227bc9f99ca80836060"
     }
   ]
 }
