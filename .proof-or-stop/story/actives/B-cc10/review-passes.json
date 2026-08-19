@@ -623,6 +623,29 @@
         "scanEscalationReason": null
       },
       "_hash": "4a7ecc17de14e6b87e7e53e5b75e293073effd37de9b61acd9e041d19de6cb02"
+    },
+    {
+      "id": "B-cc10:RP-019",
+      "agent": "lattice-review-concept",
+      "note": "HEAD 24e05a7 incremental concept re-review of HOME isolation in codex-heartbeat-timeout-smoke: no concept deletion/replacement this round. Smoke still writes canonical proof-or-stop plus deprecated lattice bins (read-both, matching resolveGlobalCliCommandPath). Production sh -lc left unchanged; empty isolated HOME only stops login PATH from picking ~/.local/bin/proof-or-stop. Identity-migration holds: canonical bin remains proof-or-stop; fixture .lattice activity file is pre-existing read-compat and was not reintroduced as a decision site. No blocker.",
+      "createdAt": "2026-08-19T09:11:17.515Z",
+      "reviewRound": "2026-08-19T08:57:52.581Z",
+      "reviewRunId": "B-cc10:RR-120",
+      "envelopeId": "519dad90cc64db71d338319e9fba7f7bdc00ab53b51164540714b328897cbe4f",
+      "writerSessionId": "sess-8afdfabda88da0d8",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/tasks/codex-heartbeat-timeout-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "bf676380e18b8d55e311661f8c40ef57a5e23948632ae41e787f313218fe0a4c"
     }
   ]
 }
