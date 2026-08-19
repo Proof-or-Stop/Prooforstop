@@ -18,9 +18,26 @@
   "protectedFiles": [],
   "explicitExcludes": [],
   "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "This is the story's own red-evidence artefact, not scope creep. red-evidence.json's failingCommand points at exactly this path: it is the pre-DEV probe that observed the defect at baseline HEAD e66bb0b2 (withdrawnChecklistItemIdsFrom resolves the withdrawn set while checkDispatchEvidence still reports the item as an offender, with a passing control). The DEV gate requires red evidence with a runnable failing command before DEV can be entered, so the file had to exist in PLAN, before plan.md's per-item Files lists - from which this contract is derived - could name it. It is story metadata under .lattice/story/actives/B-45a5/, which the execution boundary already allows; only the narrower plan-derived contract lacks it. No product code is involved.",
+      "timestamp": "2026-08-19T01:51:41.773Z",
+      "paths": [
+        ".lattice/story/actives/B-45a5/evidence/red-probe-channel-gate.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-45a5/evidence/red-probe-channel-gate.mjs"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "51768e231c1978110b4447484d72242e811f15d8",
+      "materialHash": "87f4096fa933aa59df41f406573aa3656c8595fde0ca2b9f6681a9e2919b1314"
+    }
+  ],
   "createdAt": "2026-08-18T22:14:46.790Z",
-  "updatedAt": "2026-08-18T22:14:46.790Z",
+  "updatedAt": "2026-08-19T01:51:41.773Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -29,6 +46,7 @@
     "packages/main/src/handlers/validate-channel.ts": "packages/main/src/handlers/validate-channel.ts",
     "packages/main/tests/red/red-b45a5-withdrawal-gates.mjs": "packages/main/tests/red/red-b45a5-withdrawal-gates.mjs",
     ".lattice/story/actives/B-45a5/plan.md": ".lattice/story/actives/B-45a5/plan.md",
-    "packages/main/src/tasks/scope-shrinkage-withdrawal-floor-smoke.ts": "packages/main/src/tasks/scope-shrinkage-withdrawal-floor-smoke.ts"
+    "packages/main/src/tasks/scope-shrinkage-withdrawal-floor-smoke.ts": "packages/main/src/tasks/scope-shrinkage-withdrawal-floor-smoke.ts",
+    ".lattice/story/actives/B-45a5/evidence/red-probe-channel-gate.mjs": ".lattice/story/actives/B-45a5/evidence/red-probe-channel-gate.mjs"
   }
 }
