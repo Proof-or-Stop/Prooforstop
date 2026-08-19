@@ -1425,7 +1425,7 @@
       "desc": "B-cc10 self-found (F-078): after F-077 unblocked review-assurance-floor-smoke, test:serial-reference died on review-incremental-context-smoke runConcurrentCliReadOnlyCase with AssertionError concurrent CLI calls preserve project filesystem status, actual '?? .proof-or-stop/'. The fixture gitignored only .lattice/activity.jsonl and .lattice/locks/, but CLI writes the CANONICAL state dir. Same pin remains in done-merge-experience-refresh-smoke (still ignores .lattice/learning/ while LEARNING_DIR is .proof-or-stop/learning) and done-premerge-mainsha-recheck-smoke, both later in the serial-reference list. Fix: ignore both state-dir spellings via stateDirCandidates.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main-agent",
       "createdAt": "2026-08-19T05:54:14.556Z",
@@ -1437,7 +1437,11 @@
         "packages/main/src/tasks/done-premerge-mainsha-recheck-smoke.ts"
       ],
       "signatureTag": "missing|ts|cc10-self-found",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "review-incremental-context-smoke now ignores both state-dir spellings and plants the ABA dead ticket via store.runtimeLockDirPath. npm run test:review-incremental-context-smoke PASS; test:done-merge-experience-refresh PASS (21 checks); test:done-premerge-mainsha-recheck PASS (14 checks).",
+      "resolvedAt": "2026-08-19T05:59:24.593Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
