@@ -506,6 +506,28 @@
         "scanEscalationReason": null
       },
       "_hash": "cfe13a5855b0817181da15194b137b9cce7db6809c26553e338618d2ce8e2d97"
+    },
+    {
+      "id": "B-49ed:RP-022",
+      "agent": "lattice-review-quality",
+      "note": "Re-verdict on new round after HEAD moved by one commit (8a76b03874): applied same maxRetries:10/retryDelay:50 rmSync guard to usage-sweep-smoke.ts and story-files-hash-batch-smoke.ts, resolving prior F-031. Diff is minimal, consistent with existing pattern in material-hash-large-tree-smoke.ts, no dead code/type-safety/IO-isolation issues. No blocking findings.",
+      "createdAt": "2026-08-19T05:03:54.845Z",
+      "reviewRound": "2026-08-19T05:01:43.915Z",
+      "reviewRunId": "B-49ed:RR-051",
+      "envelopeId": "d27dcd85821720a3c59497da143c67b58cfc713d7461e257054e333ce6a9655b",
+      "writerSessionId": "sess-4292375d1d751b41",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/material-hash-large-tree-smoke.ts",
+          "packages/main/src/tasks/story-files-hash-batch-smoke.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "560eeacbc9d2aa5a8fbbc7c2713dfc1669118f42c1600fc2253830e162e1b672"
     }
   ]
 }
