@@ -801,6 +801,45 @@
         "scanEscalationReason": "No material change since RP-023 (verified via git diff --stat against RP-023 bound headHash 8310c7f7); source files re-triaged by name against prior full-read pass, not re-read in full, since diff confirms byte-identical content."
       },
       "_hash": "265e384c8307147451a1cace96839c1a62d2a6c3b151a05c22d3d9993bfffb6c"
+    },
+    {
+      "id": "B-7dff:RP-026",
+      "agent": "lattice-review-quality",
+      "note": "Story-level quality re-pass on RR-040 following prior pass RP-022/RR-038. Verified via git diff between the two bound head hashes (8310c7f..d0e8f17) that materialHash is identical (6252802...b516dc39) -- zero product source changed since RP-022; all files touched this round are under .lattice/story/actives/B-7dff/*. Two legitimate changes since RP-022: (1) CHK-001:happy:0 permanent waiver rebound to current head/material/storyFilesHash for the DONE intent-equivalence gate (M1) -- waiver text unchanged plus an appended rebind explanation; (2) verification_evidence_refresh_stale reused 13 stale command-backed intents (covered 2->15, commandExecutions=0, trusted-story-metadata-descendant lineage), flipping validate --story=B-7dff --json from fail to pass. All findings F-001..F-015 are resolved. F-014's deferral to story B-9e3d re-verified independently: B-9e3d exists, phase=INIT, title matches exactly -- deferral judgement unchanged and remains defensible. No new code-quality findings this round.",
+      "createdAt": "2026-08-19T02:05:43.056Z",
+      "reviewRound": "2026-08-19T02:03:22.681Z",
+      "reviewRunId": "B-7dff:RR-040",
+      "envelopeId": "5e3d8b6229c46aee7bb0cfc62e2e7854c22197220d7ad5b8de658729c36f16e0",
+      "writerSessionId": "sess-c8142ac4cb69f1c755df4c1fc223e028",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7dff/checklist.json",
+          ".lattice/story/actives/B-7dff/findings.json",
+          ".lattice/story/actives/B-7dff/review-runs.json",
+          ".lattice/story/actives/B-7dff/test-evidence.json",
+          "packages/main/src/core/keyed-scheduler.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/validate-parallel-benchmark.ts",
+          "packages/main/src/tasks/validate-parallel-equivalence-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "package.json",
+          "packages/main/tests/red/red-B-7dff-sequential-validate-plan.mjs",
+          "packages/main/tests/validate-plan-scheduling.test.mjs",
+          "packages/main/tests/validate-pollution-attribution.test.mjs",
+          "packages/main/tests/validate-resource-claims.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9889c35142442b0bd0c2618cd0c1f38dfa698677a90b869ac0e71bf1fe4b5b3d"
     }
   ]
 }
