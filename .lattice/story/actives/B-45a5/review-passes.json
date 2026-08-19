@@ -352,6 +352,34 @@
         "scanEscalationReason": null
       },
       "_hash": "5f43d27fa3c4f4ef78a037ef06625a38455d5a2120404af8f983fe7e24383ffe"
+    },
+    {
+      "id": "B-45a5:RP-013",
+      "agent": "lattice-review-test-coverage",
+      "note": "Post-merge re-attestation, independently verified not taken on report alone. (1) lattice.config.json: read the actual merged entry (index 110/111) at line 1490-1496 -- no optional flag, label states all 3 mandatory clauses; confirmed main=110 + story=1 = 111, all 5 of mains new entries present via grep. (2) Re-ran node packages/main/tests/red/red-b45a5-withdrawal-gates.mjs --attest myself: exit 0, B45A5-VERDICT=GREEN, all 23 row markers byte-identical to the 11 stored receipts outputTail. Confirmed dist is rebuilt after src and contains withdrawnItemIntentRefs/withdrawnChecklistItemIdsFrom wiring. All 11 evidence rows share headHash=bf50716fc (merge commit) and materialHash=ad4f98d1 matching current story materialHash. (3) Coverage shape confirmed exactly: CHK-001=2 mechanical(edge/adversarial)+1 permanent waiver(happy:0, non-re-earnable by design); CHK-002/003/004=3 mechanical each zero waivers; CHK-005=withdrawn, zero verificationEvidence entries. (4) Ran proofstory_review_completeness_check myself -> Gaps:0; ran validate --channel --story=B-45a5 myself -> pass, CHK-005 in its own withdrawn (SD-ccafb44c): CHK-005 bucket, separate from Covered: CHK-001,002,003,004. (5) Checked mains new parallel/scheduling infra (B-7dff): the B-45a5 config entry declares no resources claim, and resolveValidationPlanEntries/resolveValidationCommandResourceClaims in validation-executor.ts make an undeclared command exclusiveByDefault, so it can never run concurrently and the parallel machinery cannot weaken it. --focus is an explicit opt-in mode (normalizeFocusArg); default/full validate (the DONE-required and REVIEW/TEST gate path) always runs the unfiltered command list. finding_list shows zero open findings. No blocker found this round.",
+      "createdAt": "2026-08-19T14:15:15.724Z",
+      "reviewRound": "2026-08-19T14:10:16.723Z",
+      "reviewRunId": "B-45a5:RR-021",
+      "envelopeId": "d672fa3159bdbad65061741a7629176c252f7b9241f9340243de7bd9b08b9486",
+      "writerSessionId": "sess-b45a5-main",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "lattice.config.json",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/tests/red/red-b45a5-withdrawal-gates.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-45a5/checklist.json",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/validate-channel.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "80bd2b7355e6409035ff4ed6726ad09f07f880c00bee415732b0b5b46949fe16"
     }
   ]
 }
