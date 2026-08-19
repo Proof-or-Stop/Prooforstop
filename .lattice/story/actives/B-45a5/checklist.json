@@ -364,8 +364,8 @@
       "id": "CHK-004",
       "title": "Prove an unbacked withdrawal skips nothing",
       "context": "This is the anti-bypass deliverable and is as important as the skip. Cover at least: status=withdrawn with NO decisionRef; a decisionRef naming a decision that does not exist; a decisionRef naming a real decision that does NOT list that item; and a decision whose userConfirmed is absent or false. Each must still be refused by both gates. Without these the fix converts a correct gate into a back door.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-08-19T00:37:02.697Z",
       "endTime": null,
       "userSees": "Editing status to withdrawn by hand, without a real confirmed decision listing that item, still fails both gates.",
       "files": {
