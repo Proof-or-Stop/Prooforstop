@@ -2156,6 +2156,45 @@
         "scanEscalationReason": "Narrow post-merge bookkeeping re-verification per explicit dispatch scope (registration-risk diff, evidence-rebind spot check, harness re-execution, git/findings state); not a from-scratch full checklist coverage audit -- prior full rounds already covered verificationIntent-to-evidence mapping for all 16 CHK items."
       },
       "_hash": "b8d00598eee9a58d3606a0a43ecf4b7a51b232988f8c09fa5c3c9dc77a091d3f"
+    },
+    {
+      "id": "B-9ff1:RP-070",
+      "agent": "lattice-review-concept",
+      "note": "Concept-deletion / residual-reference check for post-merge bookkeeping round. (1) v1 surface not retired: git diff main HEAD -- packages/main/src/core/proofstory.ts is empty; file's last touching commit (333322c68c) is a common ancestor of both HEAD and main. command-catalog.ts:2766 still registers red_evidence_create with no superseded/deprecated/retired marker; redEvidenceRecordSatisfied unchanged. Summary claim matches ground truth. (2) scope_shrinkage_decision=rejected verified clause-by-clause against original_intent_snapshot_get: normalizedOutcome and acceptanceClaim text contain no mention of the five deferred items (matcher-value-bounds contradiction, candidate-envelope schema, specificity-metric inversion, exit-class canonical form, activity-log append) - discovered during work, not walked back from the ask. checklist.json all 16 CHK items status=done, none withdrawn. scope-contract.json: 0 withdrawals, only 2 additive acknowledged-expansions. withdrawnChecklistItemRefs/withdrawnAcceptanceBindingRefs empty, matching removedMilestoneIds=[]. Ran red-evidence-envelope-smoke.js directly: 33 tagged rejection fixtures, exit 0, matching claim. Ran red-w2d-rejection-matrix.mjs directly: self-reports 142 fixtures, exit 0, matching the 142-fixture claim exactly. Spot-checked B-595c/B-3654/B-def6/B-1b2b/B-85a7 via story_get: all five exist with CHK-001 titles consistent with the deferred-item descriptions. approvedBy=jek, userConfirmed=true - a human made the call, satisfying the gate's purpose. Judgment: REJECTED is honest; nothing was withdrawn, so CONFIRMED would be the false disposition here. (3) findings.json: 76 resolved + 1 dismissed, 0 open. git rev-list --count HEAD..main == 0. git status --porcelain clean (the only diff between this run's original bound head and current HEAD is 4 .lattice ledger files from a sibling lane's own review_pass_set landing in the same round-generation; zero source files changed). node red-w2d-specificity-conjunction.mjs exit 0 confirmed directly, plus all four sibling red-w2d-*.mjs harnesses also exit 0. No concept deletion/replacement beyond what the story's own outcomeDiff already accounts for; no residual references to a retired v1 surface because the v1 surface was not retired.",
+      "createdAt": "2026-08-19T15:20:27.526Z",
+      "reviewRound": "2026-08-19T15:13:53.073Z",
+      "reviewRunId": "B-9ff1:RR-106",
+      "envelopeId": "0ced3c02954b1c2f02ba7f59d4871df763c2072287a38df05c92a9903fea3fd2",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-9ff1/background.md",
+          ".lattice/story/actives/B-9ff1/checklist.json",
+          ".lattice/story/actives/B-9ff1/findings.json",
+          ".lattice/story/actives/B-9ff1/plan.md",
+          ".lattice/story/actives/B-9ff1/scope-contract.json",
+          ".lattice/story/actives/B-9ff1/scope-shrinkage-decision.json",
+          ".lattice/story/actives/B-9ff1/summary.json",
+          "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+          "packages/main/tests/red/red-w2d-rejection-matrix.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/red-evidence/envelope.ts",
+          "packages/main/src/core/red-evidence/specificity.ts",
+          "packages/main/src/handlers/red-evidence.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/tests/red/red-w2d-assertion-digest-scope.mjs",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs",
+          "packages/main/tests/red/red-w2d-entropy-differential.mjs",
+          "packages/main/tests/red/red-w2d-specificity-conjunction.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "24e3a07def34cb43e61bdf6e5121267c6e39d5b195039fc98c7bf61282e20682"
     }
   ]
 }
