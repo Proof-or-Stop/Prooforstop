@@ -19857,6 +19857,56 @@
       },
       "readDiagnostics": [],
       "_hash": "46d54bf52fd95b59fe58005d6ae2a1d04b23fa165ef4cd453a67e0ce95a52c15"
+    },
+    {
+      "id": "B-3f3d:RP-359",
+      "agent": "lattice-review-topology-critic",
+      "note": "Current-round topology-critic pass on RR-568/envelope 1837a16 (HEAD f51bdef, storyFilesHash 5e79db5) supersedes stale critic Prompt Envelopes RP-322/RP-334/RP-335/RP-341/RP-342. Catalog/digest closeout has no new topology blocker: acceptance_basis excludedPathRefs=[] and blindSpots=[]; the six scope-check exclusions are signed understanding non-goals (PRE_CERT, atomic closeout, lane/host reduction, gate weakening, untracked analysis docs, retired Authority guide) already in scope-check.json. Planned-path consumer symbol runReplayAcceptance vs local replay() is already BUG-REPLAY-ACCEPTANCE-SYMBOL-MISSING. Wave 4 live reads: acceptance_topology_check observe/fail/non-blocking (AT_ADAPTER_RESULT_DIGEST_MISMATCH, AT_ADAPTER_RESULT_INVALID, AT_CLOSURE_FILES_STALE, AT_COVERAGE_BASIS_PARTIAL); pre_review_check_read observe/inconclusive/non-blocking (PR_ARTIFACT_TAMPERED-vs-stale plus PR_EVIDENCE_STALE/PR_CUTOFF_UNBOUND); acceptance_rollout_report_read and acceptance_rollout_check share AR_REPORT_STALE with enforce blocking=true while the frozen report still records genuine full-3x2 (codex-cli+claude-cli, 3 rounds, mislabeled3x1Count=0). Those Wave-4 verifier-owned stale/partial diagnostics are already filed (F-125 accepted_risk, BUG-PREREVIEW-STALE-REPORTED-AS-TAMPERED, BUG-TOPOLOGY-CRITIC-RECEIPT-UNREACHABLE, BUG-CRITIC-DISPATCH-PROVENANCE-UNSATISFIABLE). Inventory epoch RIE-049 is CANCELLED so completeness-critic binding is not in scope. Did not write topology_critic_receipt_set: sessionSource remains explicit-env without a host-adapter identity.",
+      "createdAt": "2026-08-19T10:48:47.678Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-568",
+      "envelopeId": "1837a1642c1875ff7c18fb30b637420d86a5e908a47343f4a170bf5ef30d1f4e",
+      "writerSessionId": "sess-4292375d1d751b41",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/templates/agents/lattice-review-topology-critic.md"
+        ],
+        "filesTriagedByName": [
+          "docs/evidence-integrity-program-spec.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "4e03de8c2af640ae56961e7f88e103749083630826b14571ac43378cd80cac9f"
+      },
+      "readDiagnostics": [],
+      "_hash": "4d240dc474d6b66eee5a4896d50def51e7563bf4ecca4bd2925b1ed58ba9ac1e"
     }
   ]
 }
