@@ -1,0 +1,33 @@
+{
+  "storyId": "B-85f5",
+  "name": "fix-acceptance-rollout-canonical-agent-overlay",
+  "title": "Restore acceptance rollout reviewer authority across the canonical agent environment boundary",
+  "description": "Fix the production acceptance_rollout_report writer regression introduced when the parent cohort process switched to PROOF_OR_STOP_AGENT while nested reviewer commands still overlaid only LATTICE_AGENT. Preserve canonical environment precedence and fail-closed unknown-actor rejection. Add a real production-writer regression that exercises the handler, registered cohort, review_run_start/review_pass_set, and signed rollout artifact path.",
+  "type": "bug",
+  "phase": "INIT",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "Validation Framework",
+      "matched": "verifier"
+    },
+    {
+      "category": "Production/Emergency",
+      "matched": "production"
+    }
+  ],
+  "createdAt": "2026-08-19T15:19:42.434Z",
+  "startedAt": "2026-08-19T15:19:42.434Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-08-19T15:19:43.163Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-f9774699e0d584ef3a49a80e2f749090",
+      "agent": "main"
+    }
+  ]
+}

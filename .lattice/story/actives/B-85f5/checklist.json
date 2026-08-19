@@ -1,0 +1,40 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Make the registered rollout cohort preserve each nested reviewer actor under a canonical parent actor",
+      "context": "The parent writer sets PROOF_OR_STOP_AGENT=acceptance-rollout-verifier while the nested CLI helper currently writes only LATTICE_AGENT=<lane>; canonical precedence hides the lane. Fix the child boundary without relaxing resolveAgentMutationAuthority or registering a verifier identity as a reviewer.",
+      "relatedDocs": [
+        "docs/requirements/decisions/brand-rename-mapping.md",
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Add a production-writer regression for canonical-parent and reviewer-child actor propagation",
+      "context": "The existing cohort smoke runs directly and misses the production handler overlay. Exercise acceptance_rollout_report through the handler/CLI with the registered real cohort, prove reviewer writes succeed with the intended lanes, and prove unknown canonical actors still fail closed without mutation.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+        "docs/requirements/decisions/brand-rename-mapping.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Verify rollout artifact generation and process-fact contracts remain fail-closed",
+      "context": "Run targeted build/smokes plus the process-fact contract guard. Confirm the writer emits a signed full-3x2 report, read/check accept it, and caller-supplied membership, verdict, quorum, or actor laundering remain forbidden.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+        "AGENTS.md#流程事实双层契约"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
