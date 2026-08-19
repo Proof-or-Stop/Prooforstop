@@ -616,6 +616,43 @@
       },
       "readDiagnostics": [],
       "_hash": "303b5000b30ac06cd94ca963010e33ca4b5337a83f0ca985765876dd21ba6186"
+    },
+    {
+      "id": "B-49ed:RP-026",
+      "agent": "lattice-review-concept",
+      "note": "Incremental re-review after 8a76b03874. Delta confined to two files: each adds maxRetries:10/retryDelay:50 to an existing rmSync teardown call, identical to the already-reviewed material-hash-large-tree-smoke.ts pattern. No function/export/const/class removed in these files across full story diff. Purely additive resilience fix, no concept deletion/replacement, zero residual references.",
+      "createdAt": "2026-08-19T05:09:41.269Z",
+      "reviewRound": "2026-08-19T05:01:43.915Z",
+      "reviewRunId": "B-49ed:RR-055",
+      "envelopeId": "da6e660da34285aa8b5166f5561dbd21f4da5ed6a30d82650f11978433767a8a",
+      "writerSessionId": "sess-4292375d1d751b41",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/material-hash-large-tree-smoke.ts",
+          "packages/main/src/tasks/story-files-hash-batch-smoke.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "package.json",
+          "packages/main/package-lock.json",
+          "packages/main/package.json",
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/adapter-session-env.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
+          "packages/main/src/tasks/signing-guard-mutation-proof-smoke.ts",
+          "packages/main/src/tasks/topology-signing-source-guard-smoke.ts",
+          "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts",
+          "packages/main/tests/red/red-1734-bootstrap-depfree.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9c1affe12e17176df0bc9f85ed2863ddfb48492122769f3117a2eeed8c3701c9"
     }
   ]
 }
