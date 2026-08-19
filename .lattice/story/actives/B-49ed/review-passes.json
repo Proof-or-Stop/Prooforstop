@@ -528,6 +528,26 @@
         "scanEscalationReason": null
       },
       "_hash": "560eeacbc9d2aa5a8fbbc7c2713dfc1669118f42c1600fc2253830e162e1b672"
+    },
+    {
+      "id": "B-49ed:RP-023",
+      "agent": "lattice-review-behavior",
+      "note": "Re-verified commit 8a76b03874 (F-031 fix applying the already-reviewed retry-on-teardown pattern from RP-020 to story-files-hash-batch-smoke.ts and usage-sweep-smoke.ts). Confirmed: (1) failure/exit-code paths unaffected by the retry addition in both files, (2) bounded ~500ms worst-case stall (maxRetries:10, retryDelay:50, same constants as RP-020), (3) mkdtempSync used in both files so no fixture reuse across runs, (4) retries exhausting still throws since force:true only suppresses ENOENT not persistent removal failure, (5) both smoke tests executed against the rebuilt dist and pass (story-files-hash-batch: 4/4 checks, usage-sweep: 19/19 checks). No behavior regression found; re-issuing prior RP-020 conclusion bound to current round.",
+      "createdAt": "2026-08-19T05:04:35.064Z",
+      "reviewRound": "2026-08-19T05:01:43.915Z",
+      "reviewRunId": "B-49ed:RR-052",
+      "envelopeId": "565fad3b90b6e0aa490da5849ca0cc334d3e63d9a4c727e3a5a81b663809e1b5",
+      "writerSessionId": "sess-4292375d1d751b41",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/session-ownership-and-write-leases.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "caad0ef96907d7a5227347d821f43f37ff227e94bfd004d500ce4c325ef1e7b6"
     }
   ]
 }
