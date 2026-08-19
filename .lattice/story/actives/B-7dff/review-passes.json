@@ -453,6 +453,46 @@
         "scanEscalationReason": null
       },
       "_hash": "f9b34df4702d765c1145b4a57e75d28fa14b11cac1dec2cc08ba533022662746"
+    },
+    {
+      "id": "B-7dff:RP-016",
+      "agent": "lattice-review-quality",
+      "note": "Final round on the merged tree (main is now an ancestor of HEAD, no code churn after evidence-refresh commit b35533e3c4). Checked git diff main...HEAD --name-only (13 code/test files): keyed-scheduler.ts, validation-executor.ts, validation-types.ts, validation-evidence-reuse.ts, verifier.ts, full-suite-runner.ts + -smoke.ts, validate-parallel-benchmark.ts, validate-parallel-equivalence-smoke.ts, red-B-7dff-sequential-validate-plan.mjs, validate-plan-scheduling/pollution-attribution/resource-claims test files. No dead code, no new as-any, no empty catches; npx tsc --noEmit -p packages/main/tsconfig.json exits 0; no leftover conflict markers in any touched file. Hand-resolved conflicts (fed447f784, 19ff5225fa) still hold: performanceBudgetMs is FULL_SUITE_BUDGET_MS at full-suite-runner.ts line 558, verified live, not the old 300000 literal - the F-013 fix arrived via an independent story, B-d15e, merged into main, confirmed via git log. withConcurrencyHeadroom is present only in full-suite-runner.ts (2 call sites), none in validation-executor.ts, matching the F-014 deferral text verbatim. There is a single runScheduled / ResourceClaim / RESOURCE_CLASSES definition, keyed-scheduler.ts only, no duplicate scheduler from anything main brought in. verifier.ts additive-spread fix (base spread first, externalResult spread second) and concurrentWorktreePollution wiring both intact post-merge. Nothing main brought in duplicates or contradicts this story's code. Spot-verified all 5 recent finding resolutions and both rewritten waivers against the live tree rather than trusting prose: F-011 and F-013 - full-suite-runner.ts prints 49/49 not 47/47, confirmed by source read; the CHK-001 happy-0 waiver account matches. F-012 - the CHK-005 happy-0 waiver claims 110 commands, 97 declared, 13 exclusive by default; the current test-evidence.json, headHash b35533e3c4, a real full validate run on the merged tree, result PASS, commandExecution commandCount 110, requiredFailureCount 0, prints the exact line validate scheduler: jobs=4 commands=110 declared=97 exclusiveByDefault=13, not asserted but measured. lattice.config.json independently checked: 110 commands, zero duplicate command signatures. F-014 - the divergence it describes is real and current on this tree, checked above, and B-9e3d, confirmed present in story_list, phase INIT, priority high, real background and description naming this exact defect, is a genuine tracked story, not a session artifact. F-015 - the underlying claim that B-9e3d is visible to story_list is verified true; F-013 needed no story because main's fix is real and already merged in, verified above. CHK-005 DoneWhen also checked: quorum-submit-smoke.ts has zero diff and zero commits touching it in main..HEAD, confirmed untouched as promised. On F-014 itself, my own deferred finding: I do not think it should block. The full validate run on this exact merged tree just completed with 0 required failures under the un-scaled flat ceiling, which is live evidence the current margins hold in practice, not just a spot-check; the fix requires deciding a single policy across roughly 110 configured timeoutMs values and its own measurement round, which is correctly sized as separate work, and B-9e3d already carries that scope with high priority and a pointer to this story's git history so numbers are not re-derived. No blocker.",
+      "createdAt": "2026-08-19T00:23:11.613Z",
+      "reviewRound": "2026-08-19T00:17:10.730Z",
+      "reviewRunId": "B-7dff:RR-031",
+      "envelopeId": "1d17022d27296a9ea37cf64c2ddbb53a147efcb3d46438372b5c3063c6722830",
+      "writerSessionId": "sess-c8142ac4cb69f1c755df4c1fc223e028",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7dff/background.md",
+          ".lattice/story/actives/B-7dff/checklist.json",
+          ".lattice/story/actives/B-7dff/plan.md",
+          ".lattice/story/actives/B-7dff/test-evidence.json",
+          ".lattice/story/actives/B-9e3d/background.md",
+          ".lattice/story/actives/B-9e3d/index.json",
+          "lattice.config.json",
+          "packages/main/src/core/keyed-scheduler.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/validate-parallel-benchmark.ts",
+          "packages/main/src/tasks/validate-parallel-equivalence-smoke.ts",
+          "packages/main/tests/red/red-B-7dff-sequential-validate-plan.mjs",
+          "packages/main/tests/validate-plan-scheduling.test.mjs",
+          "packages/main/tests/validate-pollution-attribution.test.mjs",
+          "packages/main/tests/validate-resource-claims.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "06304e39403852b6e521e6ed193a5ac475e39e03c9213c0c6aa045a45994e000"
     }
   ]
 }
