@@ -19943,6 +19943,68 @@
       },
       "readDiagnostics": [],
       "_hash": "a369bcff0180d802aee121e3e45089811170b0885cab0585f3bf904fdf09abfb"
+    },
+    {
+      "id": "B-3f3d:RP-361",
+      "agent": "lattice-review-behavior",
+      "note": "Scoped behavior review of dfa917a4eb only. Commit touches three markdown files (.claude and .lattice-codex topology-critic host shims + review-inventory-epoch-and-saturation-gate.md). git show --name-status confirms no handler, gate, machine, or command-catalog change. Rewritten invocations are proof-or-stop review_run_start / review_inventory_begin / status / critic_set / wave_advance / finalize / cancel; all six inventory commands plus review_run_start exist in command-catalog.ts and review_inventory_status --help runs. Host shims now match sibling reviewer FIRST-run prose. Remaining lattice tokens in the decision doc are .lattice/ path and lattice-review-topology-critic role id (FROZEN), not lattice <cmd>. CHK-001/003 userSees still match the unchanged runtime Next: lattice review_inventory_* strings; this commit did not alter that output. No promised-but-not-delivered command, no userSees mismatch introduced, no behavior blocker.",
+      "createdAt": "2026-08-19T11:35:38.933Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-571",
+      "envelopeId": "4095c0ae797b1c3abbec260ca976026b99f401543e94b619613301eaa171e23a",
+      "writerSessionId": "sess-4292375d1d751b41",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/language-neutral-gates-execution-plan.md",
+          "docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/language-neutral-gates-execution-plan.md",
+          "docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "3ce92adeab57cc8126a46073b325be8b4b4a65048a262d4437dc149fbc919400"
+      },
+      "readDiagnostics": [],
+      "_hash": "8b3a10ae259dd12a73e4748d4db6fab238e596842b8a7f23375f2d11a5ab3a65"
     }
   ]
 }
