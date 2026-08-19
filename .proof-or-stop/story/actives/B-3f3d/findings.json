@@ -8601,6 +8601,46 @@
       "resolvedAt": "2026-08-19T17:17:28.024Z",
       "resolutionType": "accepted_risk",
       "resolveEvidenceStrength": "medium"
+    },
+    {
+      "id": "B-3f3d:F-128",
+      "desc": "packages/main/src/handlers/prewrite-guard.ts:205-206 brand-decision sites `file.startsWith('.lattice/locks/')` and `file.startsWith('.lattice/runtime/')` hardcode only the deprecated state-dir spelling. After the rename, canonical `.proof-or-stop/locks/` and `.proof-or-stop/runtime/` fail this exemption, so OPEN_REVIEW_INVENTORY_MATERIAL_MUTATION treats them as material writes. B-cc10 CHK-007 requires `isStateDirPath` / `stateDirCandidates` from core/brand-paths.ts so both spellings are recognized. Same deny path emits `lattice review_inventory_cancel` at line 217 (`lattice <cmd>` invocation; should be `proof-or-stop review_inventory_cancel`).",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-19T17:31:05.481Z",
+      "reviewRound": "2026-08-19T16:56:02.376Z",
+      "reviewRunId": "B-3f3d:RR-599",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/brand-paths.ts",
+          "packages/main/src/handlers/prewrite-guard.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/artifact-release.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "8a3e972b6ded4cec97fdc3dc1ff67d0875b0d4272916f8ab8b8a090257c9d598",
+      "files": [
+        "packages/main/src/handlers/prewrite-guard.ts"
+      ],
+      "signatureTag": "edge|ts|packages-main-handlers",
+      "signatureTagSource": "auto"
     }
   ]
 }
