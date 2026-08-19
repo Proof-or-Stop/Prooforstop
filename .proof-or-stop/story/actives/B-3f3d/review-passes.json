@@ -22160,6 +22160,54 @@
       },
       "readDiagnostics": [],
       "_hash": "10d8e832b41f28ea6e30cad38d8e6898cfa3c7dbf35c5d3d03e670df2ba1696e"
+    },
+    {
+      "id": "B-3f3d:RP-388",
+      "agent": "lattice-review-topology-critic",
+      "note": "Wave 2/3 completeness critic on OPEN epoch B-3f3d:RI-050 reviewRun B-3f3d:RR-608. All five required lanes have wave-2 terminals that are passes: concept RP-387/RR-606, quality RP-384/RR-604, test-coverage RP-386/RR-603, behavior RP-385/RR-607, docs RP-383/RR-605. No lane finding was filed after F-133. Independent source read of packages/main/src/handlers/prewrite-guard.ts:203-217 and packages/main/src/core/brand-paths.ts confirms only the two wave-1 families: (1) deprecated-only .lattice/locks|runtime exemption prefixes versus STATE_DIR_NAMES/isStateDirPath/stateDirCandidates; (2) Recovery still emits lattice review_inventory_cancel while review-inventory-epoch-and-saturation-gate.md teaches proof-or-stop review_inventory_cancel. F-128 and F-132 remain duplicates of F-129. New verified families for this wave = 0. This pass certifies inventory-wave completeness only; it is not topology PASS, PRE_CERT, or TEST authority. Live Wave 4: acceptance_basis status=invalid receiptVerification.ok=false AT_SCOPE_BINDING_MISSING; acceptance_topology_check fail/observe/non-blocking/inconclusive_basis_unverified; pre_review_check_read inconclusive/inadmissible (PR_ARTIFACT_TAMPERED, PR_EVIDENCE_STALE, PR_CUTOFF_UNBOUND; generatedBy.command=lattice pre_review_check); acceptance_rollout_report_read and acceptance_rollout_check pass enforce current full-3x2 (codex-cli+claude-cli, mislabeled3x1Count=0) with frozen materialHash 18b25d80 and storyFilesHash 5498191. excludedPathRefs=[].",
+      "createdAt": "2026-08-19T18:08:49.279Z",
+      "reviewRound": "2026-08-19T16:56:02.376Z",
+      "reviewRunId": "B-3f3d:RR-608",
+      "envelopeId": "68dea5224e587eeb2ba41920fc6e2020ab86da927230ab703bc287bd542100f6",
+      "writerSessionId": "sess-4292375d1d751b41",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/brand-paths.ts",
+          "packages/main/src/handlers/prewrite-guard.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "3d51a2dc54fe1d242dd3626132d862543d5998feae41bcb34a085c0c77be2fbb",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "77bbcc6735e0f26444363441b88dae44b2f34eb94b42c7d520d60ca8dbd524de"
+      },
+      "readDiagnostics": [],
+      "_hash": "575dbc7ac541806d32c65f7e0098ee7b1b3fca319f23146906cb37934d39377f"
     }
   ]
 }
