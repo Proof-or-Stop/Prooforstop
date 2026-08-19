@@ -23,7 +23,7 @@
       "desc": "packages/main/src/handlers/validate-channel.ts:237-241 docstring above checkDispatchEvidence/DispatchEvidenceIssue still reads \"Each CHK-xxx must have evidence: dispatch event OR subagent_result event... CHKs declaring **Owner**: main-agent in plan.md are exempt\" -- an exhaustive-sounding two-way rule (evidence OR owner-exempt). This story added a third, structurally distinct exemption (decision-backed withdrawn items, its own withdrawnItems bucket, checked FIRST in the loop at line ~344) but did not update this pre-existing docstring to mention it. A future reader who only reads the function-level comment (the natural first stop before reading the body) will not learn that withdrawn items are excluded, and could mistake a withdrawn items absence-from-Covered as an unexplained gap. Not touched by CHK-002/003s scope note (which discloses core/verification.ts:212 as knowingly out of scope) -- this is the *in-scope* function whose own doc comment was left stale. Low severity since the code and rendering are correct; only the doc-comment enumeration is incomplete.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-19T01:56:58.323Z",
@@ -31,7 +31,10 @@
       "reviewRunId": "B-45a5:RR-003",
       "_hash": "c31e2006a3a74c5bbd9c8639483c3a82dd436ac56d1bca741eac3f976fec0692",
       "signatureTag": "missing|unknown|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "packages/main/src/handlers/validate-channel.ts docstring above checkDispatchEvidence/DispatchEvidenceIssue no longer enumerates an exhaustive-sounding two-way rule. It now lists THREE disjoint ways an item leaves the loop without becoming an issue, in the order the loop actually tests them: (1) WITHDRAWN, (2) OWNER-EXEMPT via plan.md, (3) EVIDENCED via dispatch/subagent_result. The withdrawn bullet states WHY it is safe in the terms the reviewer asked for: membership in withdrawnChecklistItemIdsFrom(scopeShrinkageDecision), which reads only the decision record (confirmed + userConfirmed) and never a checklist item, so an item hand-edited to a withdrawn-looking status is not in the set and is still refused - explicitly NOT an item.status string. It also records that the check is first so an authorized withdrawal is never laundered into exemptedItems or evidencedItems, matching the inline comment at the loop. Comment-only change; verified by npm --prefix packages/main run build succeeding.",
+      "resolvedAt": "2026-08-19T02:08:05.442Z",
+      "resolutionType": "fixed"
     },
     {
       "id": "B-45a5:F-003",
