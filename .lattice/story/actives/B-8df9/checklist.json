@@ -496,12 +496,12 @@
           "kind": "docs_check",
           "command": "node .lattice/story/actives/B-8df9/chk005-corpus-derivation.mjs",
           "result": "pass",
-          "note": "Post-merge re-execution after B-45a5 withdrawal-gate fix landed on main. Re-pinned with a stable selector so this row is now mechanically re-verifiable rather than a bare command record.",
+          "note": "RETRACTION of my own earlier note on this row. I previously wrote that it was \"re-pinned with a stable selector so this row is now mechanically re-verifiable\". That was FALSE and a reviewer proved it: docs-type intents are routed to the attestation-only branch of enforceAndStampEvidence BEFORE any caller-supplied selector is read, so no selector, verification pin or receipt was ever persisted and mechanical stayed false. The row's shape is identical to a bare command record - which is what the original author recorded, and their judgement was better than my attempted upgrade. What this row actually is: a point-in-time attestation. The command was executed by hand on the merged tree and its claim held at that moment. It is NOT durably re-verifiable, for a reason worth stating: the CHK-005 corpus markers depend on which story happens to be sitting in INIT (B-dcf9 today), and the CHK-006 grep targets are prose in command-policy.ts that the module's own comment invites future editors to reword. Treat this as an attestation, not as mechanical evidence.",
           "mechanical": false,
-          "headHash": "630c1c38b4ce95b25e858fdf8685713c034ebdd1",
+          "headHash": "b3eb5c3f489a550a7da77ef62fd956606532dddf",
           "materialHash": "b3ae30c9b0573ffc9b04f68dc044699bb59ff4db0c027b33fbfc773796f6e113",
           "storyFilesHash": "d83d13fa37a415bc9cd4f1eb416740f46003f489fa495e9d66ca63a2f7751f8c",
-          "timestamp": "2026-08-19T15:37:03.696Z"
+          "timestamp": "2026-08-19T15:50:06.833Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
