@@ -1,0 +1,136 @@
+{
+  "storyId": "B-cc10",
+  "checkedAt": "2026-08-19T10:47:07.849Z",
+  "headHash": "1e8d7c48f188bb51bb126cb8fe34496bad3dff82",
+  "materialHash": "814ac5a4a0f412190c9b0486eda7c4687a6431dabc33a4e80d4b5ea0332639b9",
+  "storyFilesHash": "87661c7dc43926ecc560ba7de109d95acf2df2297ccbe489620b7310d66ac371",
+  "reviewRound": "2026-08-19T08:57:52.581Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/proof-or-stop-identity-migration.md#per-identity-verdicts",
+      "promise": "Six structural identities move: bin/lattice.js and bin/lattice-codex.js are REMOVED; .lattice/ -> .proof-or-stop/ and .lattice-codex/ -> .proof-or-stop-codex/ are renamed with migration; lattice.config.json -> proof-or-stop.config.json and lattice.json -> proof-or-stop.json are renamed with read-both; @lattice/core -> @proof-or-stop/core is renamed.",
+      "verifiedBy": "diff/ls/package.json/git cat-file",
+      "evidence": "HEAD has no bin/lattice.js or bin/lattice-codex.js; canonical wrappers exist. On-disk: .proof-or-stop/ and .proof-or-stop-codex/ present, .lattice-codex absent, .lattice retains only 9 teammate-story files. proof-or-stop.config.json exists and lattice.config.json is absent. .proof-or-stop-codex/proof-or-stop.json exists. packages/main/package.json name is @proof-or-stop/core."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proof-or-stop-identity-migration.md#deliberately-frozen",
+      "promise": "Signature salts lattice-*-integrity-v1, 13 lattice-* agent role IDs, ROOT npm package name lattice, managed-block markers, lattice.remote-push-approval.v1, LATTICE_* stored env keys, and __LATTICE_WS_PORT/LATTICE_SHELL stay frozen and out of scope.",
+      "verifiedBy": "package.json + grep + verify-core-package-rename.mjs",
+      "evidence": "Root package.json name remains lattice (oq2BoundaryHeld=true from node scripts/verify-core-package-rename.mjs). Role IDs still spawn as lattice-* in CLAUDE.md/AGENTS.md. verify-core-package-rename.mjs exits 0 and fails closed if the root name is renamed."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proof-or-stop-identity-migration.md#storyFilesHash",
+      "promise": "PROOF_OR_STOP_DIR is the single resolver-owned source so isStoryMetadataPath follows the state-dir rename: post-rename isStoryMetadataPath('<newdir>/story/actives/...') returns true.",
+      "verifiedBy": "read brand-paths.ts/lattice-paths.ts + runtime probe + brand-path-resolver-smoke",
+      "evidence": "lattice-paths.ts imports PROOF_OR_STOP_STATE_DIR from brand-paths.ts and derives PROOF_OR_STOP_STORY_DIR_NAMES from STATE_DIR_NAMES. Independent probe: isStoryMetadataPath('.proof-or-stop/story/actives/B-cdf6/index.json')=true and deprecated spelling still true; source file=false. brand-path-resolver-smoke PASS: exclusion moved when the canonical constant was flipped to a sentinel."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proof-or-stop-identity-migration.md#chk-005-clean-break",
+      "promise": "Clean break: no @lattice/core alias package is published; siblings depend on @proof-or-stop/core; root name stays lattice; read-both remains for already-installed global @lattice/core.",
+      "verifiedBy": "package.json + verify-core-package-rename.mjs",
+      "evidence": "packages/main name=@proof-or-stop/core; packages/utils and packages/lab depend on @proof-or-stop/core and not @lattice/core; root name=lattice. verify-core-package-rename.mjs: core package rename verified; deprecatedCoreNameWithoutCanonical=0."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proof-or-stop-identity-migration.md#chk-008-revert",
+      "promise": "State-dir move is a two-commit sequence (ec7f315e pure rename + 8c0bd7b8 nested-mv fix); reverting requires both commits, not a single sha.",
+      "verifiedBy": "node scripts/verify-migration-contract.mjs",
+      "evidence": "Witness printed moveCommit=ec7f315e followupFixCommit=8c0bd7b8 moveCommitIsPureRename=true revertUnitIsCommitSequence=true and explicitly retracts the one-revert claim."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proof-or-stop-identity-migration.md#acceptance-criterion",
+      "promise": "Archived story directories remain readable after migration; CHK-003 demonstrates this on two named archives from different eras.",
+      "verifiedBy": "node scripts/verify-state-dir-migration.mjs",
+      "evidence": "canonicalStateDir=true; B-0168 phase=INIT (earliest-era) and B-META-framework-audit phase=META both readable at .proof-or-stop/story/actives; historyFollows=true; trackedArchiveFiles=7593 >= preMoveArchiveFiles=7583; archiveFloorHeld=true."
+    },
+    {
+      "docPath": "CLAUDE.md#cli-gate-lattice-residue",
+      "promise": "lattice-residue preflight has four independent checks; [brand-decision] (B-cc10 CHK-007) forbids deprecated brand-path literals (.lattice / .lattice-codex / lattice.config.json / lattice.json, tokens derived from brand-paths.ts) as path decision sites in product runtime source.",
+      "verifiedBy": "read scripts/verify-lattice-residue.mjs + independent run",
+      "evidence": "Check 4 implements makeBrandDecisionDetector from DEPRECATED_* constants in brand-paths.ts. Independent run: PASS lattice-residue [koala], [brand-prose], [brand-exec], [brand-decision]: 0 deprecated brand-path decision sites (tokens: lattice.config.json, .lattice-codex, lattice.json, .lattice)."
+    },
+    {
+      "docPath": "CLAUDE.md#debug-ts-example",
+      "promise": "Generated/example debug.ts imports devHost from @proof-or-stop/core/dev-host, not @lattice/core/dev-host.",
+      "verifiedBy": "git diff CLAUDE.md",
+      "evidence": "CLAUDE.md debug.ts example now reads import { devHost } from '@proof-or-stop/core/dev-host'."
+    },
+    {
+      "docPath": "CLAUDE.md#codex-adapter-verification",
+      "promise": "Codex adapter lives under .proof-or-stop-codex/ with proof-or-stop.json; verify_codex is invoked via node bin/proof-or-stop-codex.js verify_codex.",
+      "verifiedBy": "diff/ls",
+      "evidence": ".proof-or-stop-codex/proof-or-stop.json exists; .lattice-codex is absent. CLAUDE.md gate table and AGENTS.md both name node bin/proof-or-stop-codex.js verify_codex. bin/proof-or-stop-codex.js exists in HEAD."
+    },
+    {
+      "docPath": "AGENTS.md#project-config",
+      "promise": "Project config filename documented as proof-or-stop.config.json (including worktreeDir customization).",
+      "verifiedBy": "diff + ls",
+      "evidence": "AGENTS.md heading and worktreeDir sentence now say proof-or-stop.config.json. File exists at repo root; lattice.config.json is absent."
+    },
+    {
+      "docPath": "CHANGELOG.md#v0.3.261",
+      "promise": "BREAKING: bin/lattice.js and bin/lattice-codex.js are deleted and replaced by bin/proof-or-stop.js and bin/proof-or-stop-codex.js; invoking a removed path fails with Cannot find module. The lattice npm bin alias remains retained.",
+      "verifiedBy": "red-cc10-chk006 + package.json bin map",
+      "evidence": "CHANGELOG v0.3.261 names both removed aliases and both replacements. red-cc10-chk006: REMOVED_ALIAS_FAILS_LOUDLY for both (Cannot find module, exit=1); CANONICAL_REPLACEMENT_WORKS Proof-or-Stop 0.3.261. packages/main/package.json bin still maps lattice -> dist/cli.js."
+    },
+    {
+      "docPath": "docs/CLI.md#compatibility-note",
+      "promise": "bin/lattice.js and bin/lattice-codex.js wrapper files are gone; lattice npm bin alias is still retained; canonical project config is proof-or-stop.config.json with deprecated lattice.config.json still read; doctor runtime scan names @proof-or-stop/core.",
+      "verifiedBy": "diff + config-filename-migration-smoke + package.json",
+      "evidence": "docs/CLI.md compatibility note and config/doctor paragraphs match. config-filename-migration-smoke PASS: canonical-only silent; deprecated-only loads with one STDERR notice naming both filenames; validate --json stdout remains a single JSON payload. doctor scan text now names @proof-or-stop/core."
+    },
+    {
+      "docPath": "docs/requirements/decisions/brand-rename-mapping.md#bin-entries",
+      "promise": "Prior retention of bin/lattice.js files is SUPERSEDED by B-cc10 CHK-006 (files removed); package.json bin-map lattice alias stays retained.",
+      "verifiedBy": "diff + package.json + ls bin/",
+      "evidence": "Mapping table UPDATE records file deletion and retained npm bin alias. bin/ listing has proof-or-stop.js and proof-or-stop-codex.js only; package.json bin.lattice still present."
+    },
+    {
+      "docPath": "docs/CLI.md#config-filename",
+      "promise": "Canonical project config file is proof-or-stop.config.json; deprecated lattice.config.json is still READ for compatibility but never written.",
+      "verifiedBy": "read config.ts + brand-paths.ts + config-filename-migration-smoke",
+      "evidence": "PROOF_OR_STOP_CONFIG_FILENAME='proof-or-stop.config.json', DEPRECATED_CONFIG_FILENAME still readable. config.ts PROJECT_CONFIG_FILENAMES comes from CONFIG_FILENAMES (canonical first) and emits stderr deprecation notice. Smoke confirms write/read contract at CLI process level."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Independent run of node scripts/verify-migration-contract.mjs: storyFilesHashMentions=3; identitiesWithoutRow=0; supersessionsDocumented=true; archivesReadableAfterMove=true; noDuplicateStateDirSpelling=true; migration contract verified. Contract doc exists and records 6 migrated + frozen identities plus both FROZEN supersessions with citations."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Independent run of packages/main/dist/tasks/brand-path-resolver-smoke.js: PASS. Covers rename follow-through (isStoryMetadataPath exclusion moves with flipped PROOF_OR_STOP_STATE_DIR sentinel; deprecated still excluded; source still included), canonical-first candidate lists, decision helpers accepting both spellings, adapter-manifest 4-way cross product, and Codex touchpoint regex arming on both adapter-dir spellings. Live probe: isStoryMetadataPath('.proof-or-stop/story/actives/...')=true."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Independent run of node scripts/verify-state-dir-migration.mjs: .proof-or-stop/story/actives exists; B-0168 (earliest-era, phase INIT) and B-META-framework-audit (phase META) readable at canonical path; git log --follow traces 3 commits; trackedArchiveFiles=7593 >= preMove=7583; archiveFloorHeld=true; state dir migration verified."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Independent run of packages/main/dist/tasks/config-filename-migration-smoke.js: PASS. Happy: canonical-only project loads with zero deprecation notices. Edge: deprecated-only project still loads with exactly one STDERR notice naming both filenames and no stdout leak. Adversarial: validate --json stdout parses as exactly one JSON payload while the notice fires on stderr."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "Independent run of node scripts/verify-core-package-rename.mjs: corePackageName=@proof-or-stop/core; dist/cli-engine.js exists; utils and lab depend on @proof-or-stop/core and not @lattice/core; utilsDistExists=true; rootPackageName=lattice; oq2BoundaryHeld=true; deprecatedCoreNameWithoutCanonical=0; core package rename verified."
+    },
+    {
+      "featureId": "CHK-006",
+      "transcript": "Independent run of node packages/main/tests/red/red-cc10-chk006-removed-bin-aliases.mjs: REMOVED_ALIAS_FAILS_LOUDLY bin/lattice.js exit=1 Cannot find module; same for bin/lattice-codex.js; CANONICAL_REPLACEMENT_WORKS Proof-or-Stop 0.3.261; CHANGELOG_ANNOUNCES_REMOVAL both aliases and both replacements named; PASS."
+    },
+    {
+      "featureId": "CHK-007",
+      "transcript": "Independent run of node scripts/verify-lattice-residue.mjs: PASS [koala] 0 residue; PASS [brand-prose] 0 bare lattice <cmd> (3 live exemptions); PASS [brand-exec] 0 invocations on executable surface; PASS [brand-decision] 0 deprecated brand-path decision sites, tokens derived from brand-paths.ts (.lattice, .lattice-codex, lattice.config.json, lattice.json). Detector unit cases in the same file cover must-flag comparison shapes and must-allow declarations/notices/comments."
+    },
+    {
+      "featureId": "CHK-008",
+      "transcript": "Independent run of verify-migration-contract.mjs plus verify-state-dir-migration.mjs: archivesReadableAfterMove=true; move is sequence ec7f315e (pure rename) + 8c0bd7b8 (nested-mv fix); revertUnitIsCommitSequence=true (original single-sha revert claim retracted and mechanically pinned). Half-done/duplicate detector: noDuplicateStateDirSpelling=true, deprecatedDirDuplicatedAtCanonical=0, deprecatedDirLegacyOnly=9 (B-49ed left in place by design). git check-ignore covers both .proof-or-stop/locks and .lattice/locks."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "14 docsPromises extracted from the identity-migration contract, CLAUDE.md/AGENTS.md/CLI.md/CHANGELOG/brand-rename-mapping updates; all 14 independently verified in code and on-disk. All 8 checklist features have real machine tests with assertions covering happy plus edge/adversarial (deprecated-only config, removed-bin MODULE_NOT_FOUND, storyFilesHash follow-through, brand-decision sites, OQ-2 root-name freeze, two-era archives, two-commit revert). No unresolved TODO/FIXME/HACK added in the migration core. Honest residual, documented rather than hidden: 9 unmigrated .lattice files from teammate story B-49ed and ~52 task fixtures still constructing deprecated paths to keep read-both coverage."
+  },
+  "_hash": "53d4ab32fdba6614b6de231fa9a38b9c2b849ae714a4269e94770b4baa132c11"
+}
