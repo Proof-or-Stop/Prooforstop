@@ -9,7 +9,7 @@ import { basename } from 'path';
  * fail loudly — the bump silently stops finding the constant. It is kept
  * verbatim and aliased forward instead; see PROOF_OR_STOP_CLI_VERSION below.
  */
-export const LATTICE_CLI_VERSION = '0.3.263' as const;
+export const LATTICE_CLI_VERSION = '0.3.264' as const;
 
 /**
  * Brand-forward READ alias for {@link LATTICE_CLI_VERSION}. New code should read
@@ -23,8 +23,10 @@ export const PROOF_OR_STOP_PRIMARY_BIN = 'proof-or-stop' as const;
 
 /**
  * Deprecated bin alias, kept working so in-flight stories, git hooks and
- * operator muscle memory keep resolving. B-cdf6 makes the rename additive at
- * the CLI boundary: `proof-or-stop` is canonical, `lattice` still runs.
+ * operator muscle memory keep resolving. B-cdf6 made the rename additive at the
+ * CLI boundary; B-cc10 CHK-006 then DELETED bin/lattice.js, so `lattice` no longer
+ * runs as a bin — only `proof-or-stop` does. The identifiers this module owns
+ * (env keys, salts, role IDs) are still read-both; the BIN alias is gone.
  */
 export const PROOF_OR_STOP_DEPRECATED_BIN = 'lattice' as const;
 

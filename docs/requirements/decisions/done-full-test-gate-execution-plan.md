@@ -13,7 +13,7 @@ Important caveat: this proves a gate coverage gap, not that current main `npm te
 - `packages/main/src/handlers/verifier.ts` reads configured `validate.command` / `validate.commands` first. When configured commands exist, fallback discovery is skipped, so the fallback `npm test` path is not used for this repository.
 - `packages/main/src/handlers/phase-gates.ts` runs `proof-or-stop validate --story=<storyId> --json` when entering TEST and writes the result to `test-evidence.json`.
 - `packages/main/src/core/done-oracle.ts` builds the DONE row from `test-evidence.json`, including result and freshness, and does not independently require root full-suite evidence.
-- `.githooks/pre-push` does not run root `npm test`. Its build plus recursive `tsc --noEmit` path is scoped to the self-host package name `@lattice/core`; it is a type/build push guard, not the root full-suite gate.
+- `.githooks/pre-push` does not run root `npm test`. Its build plus recursive `tsc --noEmit` path is scoped to the self-host package name `@proof-or-stop/core`; it is a type/build push guard, not the root full-suite gate.
 
 Together these anchors explain why ordinary validation and DONE-required assurance remain separate surfaces. The implemented self-host DONE-required policy now builds the runtime and executes the complete 47-member canonical root suite through the resource-aware parallel runner; its receipt is independently freshness-bound and consumed by DONE. Pre-push remains a narrower surface and must not be described as equivalent full-suite assurance.
 
@@ -298,7 +298,7 @@ Exit criteria:
 
 - Decide whether `release_approve_push --confirm` requires fresh DONE-required evidence.
 - Decide whether `.githooks/pre-push` should merely check for the artifact, rerun the profile, fix/scope its self-host build+tsc boundary, or remain narrower.
-- If pre-push stays narrower, document that the remote push hook is not a root full-suite gate; it provides build+tsc assurance for the `@lattice/core` self-host package boundary.
+- If pre-push stays narrower, document that the remote push hook is not a root full-suite gate; it provides build+tsc assurance for the `@proof-or-stop/core` self-host package boundary.
 - B-ac25 does not implement release approval, pre-push, Authority production receipts, or emergency override behavior.
 
 Exit criteria:

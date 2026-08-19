@@ -9,6 +9,7 @@ import {
   verifyCanonical,
 } from './authority-signing.js';
 import { digestCanonicalJson } from './digest.js';
+import { STATE_DIR_NAMES } from './brand-paths.js';
 import {
   checkEvidenceFreshnessForGit,
   currentGitHead,
@@ -237,7 +238,8 @@ function replayProductionGateState(args: {
   });
   const run = (command: 'acceptance_topology_check' | 'pre_review_check_read'): Record<string, unknown> => {
     const output = execFileSync(process.execPath, [
-      join(args.cliRoot, 'bin/lattice.js'),
+      // B-cc10 CHK-006: was `bin/lattice.js`, deleted with the deprecated aliases.
+      join(args.cliRoot, 'bin/proof-or-stop.js'),
       '--root',
       args.evidenceGitCwd,
       command,
@@ -358,11 +360,26 @@ export function issueAcceptanceRolloutObservationFromProduction(args: {
   if (!productionGatePassed(restoredState)) {
     throw new Error('acceptance rollout observation: restored control did not rerun PASS');
   }
-  const storyPath = `.lattice/story/actives/${args.storyId}/process-events.jsonl`;
-  const committedEvents = execFileSync('git', hardenedGitArgs(['show', `${quorum.metadataCommitSha}:${storyPath}`]), {
-    cwd: args.evidenceGitCwd,
-    encoding: 'utf8',
-  }).trim().split(/\r?\n/).filter(Boolean).map(line => JSON.parse(line) as Record<string, unknown>);
+  // B-cc10 F-005: read BOTH state-dir spellings. A quorum commit made after the
+  // migration stores process-events.jsonl under the canonical dir, so a
+  // deprecated-only path made this git-show fail for every post-migration commit.
+  let rawCommittedEvents = '';
+  let lastShowError: unknown = null;
+  for (const dir of STATE_DIR_NAMES) {
+    const storyPath = `${dir}/story/actives/${args.storyId}/process-events.jsonl`;
+    try {
+      rawCommittedEvents = execFileSync('git', hardenedGitArgs(['show', `${quorum.metadataCommitSha}:${storyPath}`]), {
+        cwd: args.evidenceGitCwd,
+        encoding: 'utf8',
+      }).trim();
+      lastShowError = null;
+      break;
+    } catch (e) {
+      lastShowError = e;
+    }
+  }
+  if (lastShowError) throw lastShowError;
+  const committedEvents = rawCommittedEvents.split(/\r?\n/).filter(Boolean).map(line => JSON.parse(line) as Record<string, unknown>);
   const committedVerdicts = committedEvents.filter(event => event.type === 'host_verdict');
   const committedById = new Map(committedVerdicts.map(event => [String(event.verdictId), event]));
   if (evidence.hostVerdicts.length !== 6

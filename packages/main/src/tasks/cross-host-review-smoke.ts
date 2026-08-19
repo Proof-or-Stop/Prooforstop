@@ -71,6 +71,7 @@ import {
 } from '../handlers/cross-host-review.js';
 import { diffFindings, jointDecision } from '../core/cross-host-review.js';
 import { checkDispatchPolicy, createDispatchPolicy, getDispatchPolicy, type DispatchPolicy } from '../core/dispatch-policy.js';
+import { PROOF_OR_STOP_STATE_DIR, PROOF_OR_STOP_CONFIG_FILENAME } from '../core/brand-paths.js';
 
 const STORY_ID = 'B-xhr-smoke';
 const REVIEW_ROUND = '2026-07-03T10:00:00.000Z';
@@ -87,10 +88,10 @@ function write(root: string, path: string, content: string): void {
 }
 
 function writeConfig(root: string): void {
-  write(root, 'lattice.config.json', JSON.stringify({
+  write(root, PROOF_OR_STOP_CONFIG_FILENAME, JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.lattice/story/actives',
+    storyDir: `${PROOF_OR_STOP_STATE_DIR}/story/actives`,
     requirementsDir: 'docs/requirements',
     workflow: { profile: 'balanced' },
     proofAdmissibility: { mode: 'enforce', enforcedConsumers: ['REVIEW'] },
@@ -146,7 +147,11 @@ function makeFixture(): { root: string; store: StoryStore; ctx: HandlerContext; 
   const store = new StoryStore(root);
   store.writeStory(STORY_ID, story());
   store.writeChecklist(STORY_ID, checklist());
-  git(root, ['add', '.lattice/story', 'lattice.config.json']);
+  // B-cc10: add the CANONICAL paths. The fixture wrote its config under the deprecated
+  // filename while the runtime wrote activity under the canonical state dir, so the two
+  // disagreed and the resulting uncommitted file was classified as a MATERIAL source
+  // change — failing with cross_host_review_dirty_worktree.
+  git(root, ['add', `${PROOF_OR_STOP_STATE_DIR}/story`, PROOF_OR_STOP_CONFIG_FILENAME]);
   git(root, [...COMMIT_ENV, 'commit', '-m', 'story review metadata']);
 
   const ctx: HandlerContext = { root, store, scanRoot: join(root, 'packages/main') };
@@ -1316,8 +1321,8 @@ async function run(): Promise<void> {
 
       // (6) Control: dirty ONLY under .lattice/ metadata → the handler proceeds
       // (Codex reviews source, not story bookkeeping; .lattice churns during a story).
-      write(root, '.lattice/story/actives/some-churn.json', JSON.stringify({ churn: Date.now() }) + '\n');
-      write(root, '.lattice/activity.jsonl', 'ignored-metadata-churn\n');
+      write(root, `${PROOF_OR_STOP_STATE_DIR}/story/actives/some-churn.json`, JSON.stringify({ churn: Date.now() }) + '\n');
+      write(root, `${PROOF_OR_STOP_STATE_DIR}/activity.jsonl`, 'ignored-metadata-churn\n');
       const cleanRunId = `${STORY_ID}-xhr-lattice-only`;
       const cleanResult = await handlers.cross_host_review({
         storyId: STORY_ID,
@@ -1327,13 +1332,13 @@ async function run(): Promise<void> {
         json: true,
       }) as CrossHostReviewResult;
       assert.equal(seamInvoked, true, 'codex seam IS invoked when only .lattice/ metadata is dirty');
-      assert.equal(cleanResult.hostB.decision, 'pass', '.lattice-only dirty worktree proceeds normally (host-B verdict recorded)');
+      assert.equal(cleanResult.hostB.decision, 'pass', 'state-dir-only dirty worktree proceeds normally (host-B verdict recorded)');
       assert.equal(cleanResult.materialDigest, materialHash, 'material-clean control still binds the HEAD materialDigest');
       const recordedClean = listVerdicts(root, 'local', STORY_ID).filter(v => v.runId === cleanRunId && v.provider === 'codex');
       assert.equal(recordedClean.length, 1, 'the .lattice-only control records the codex verdict');
       // Clean up the (untracked) metadata churn so it does not leak into later checks.
-      rmSync(join(root, '.lattice/story/actives/some-churn.json'), { force: true });
-      rmSync(join(root, '.lattice/activity.jsonl'), { force: true });
+      rmSync(join(root, `${PROOF_OR_STOP_STATE_DIR}/story/actives/some-churn.json`), { force: true });
+      rmSync(join(root, `${PROOF_OR_STOP_STATE_DIR}/activity.jsonl`), { force: true });
     });
 
     // CHK-001:adversarial:7 — MALFORMED HOST-A FINDINGS FILE (sweep hardening). The

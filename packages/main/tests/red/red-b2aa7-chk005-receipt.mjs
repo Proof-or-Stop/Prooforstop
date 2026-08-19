@@ -22,7 +22,7 @@
  * Run from the repository root:
  *   node packages/main/tests/red/red-b2aa7-chk005-receipt.mjs
  */
-import { readFileSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
@@ -259,7 +259,11 @@ const rowResults = MALFORMED.map(([label, record]) => {
 
 // The injection genuinely bypassed the read boundary: the artifact on disk still
 // holds ZERO records and none of the injected ids ever reached it.
-const onDisk = readFileSync(join(root, '.lattice/story/actives', storyId, 'red-evidence.json'), 'utf8');
+// B-cc10: the runtime writes story artifacts under the CANONICAL state dir, so read back
+// from whichever spelling exists rather than pinning the deprecated one.
+const storyActivesRel = ['.proof-or-stop/story/actives', '.lattice/story/actives']
+  .find((rel) => existsSync(join(root, rel, storyId, 'red-evidence.json'))) ?? '.proof-or-stop/story/actives';
+const onDisk = readFileSync(join(root, storyActivesRel, storyId, 'red-evidence.json'), 'utf8');
 const bypassedReadBoundary =
   store.readRedEvidence(storyId).records.length === 0
   && !onDisk.includes('corrupt')

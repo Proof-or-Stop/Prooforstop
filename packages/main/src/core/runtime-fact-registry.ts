@@ -59,7 +59,7 @@ export const RUNTIME_FACT_REGISTRY = [
     outputKey: 'runtimeEntrypointAuthority',
     rationale: 'A self-host story worktree must execute the runtime that belongs to that worktree, not a stale global launcher linked to the main checkout.',
     driftMessage: 'The active CLI runtime is not authoritative for the current self-host worktree.',
-    repairHint: 'From the story worktree, retry the same command with `node bin/lattice.js`.',
+    repairHint: 'From the story worktree, retry the same command with `node bin/proof-or-stop.js`.',
   },
   {
     id: 'cli-entrypoint',
@@ -79,9 +79,9 @@ export const RUNTIME_FACT_REGISTRY = [
     externalSeverity: 'warn',
     checker: 'resolveGlobalCoreRealpath',
     outputKey: 'globalCoreRealpath',
-    rationale: 'Global @lattice/core drift makes bare `lattice` commands run stale handlers.',
-    driftMessage: 'The globally installed @lattice/core realpath does not match the expected Proof-or-Stop core package.',
-    repairHint: 'Relink or reinstall the global @lattice/core package, then rerun `proof-or-stop doctor --format=json`.',
+    rationale: 'Global @proof-or-stop/core drift makes bare `lattice` commands run stale handlers.',
+    driftMessage: 'The globally installed @proof-or-stop/core realpath does not match the expected Proof-or-Stop core package.',
+    repairHint: 'Relink or reinstall the global @proof-or-stop/core package, then rerun `proof-or-stop doctor --format=json`.',
   },
   {
     id: 'project-local-bin',

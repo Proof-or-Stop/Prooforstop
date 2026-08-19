@@ -1,0 +1,56 @@
+{
+  "storyId": "B-cc10",
+  "changes": "Canonical runtime identity is now proof-or-stop: state lives under .proof-or-stop, config is proof-or-stop.config.json with deprecated lattice.config.json still readable, packages/main publishes as @proof-or-stop/core, and bin/lattice.js plus bin/lattice-codex.js are gone. Global CLI discovery prefers the proof-or-stop bin on login PATH. The last source fix isolated the Codex heartbeat timeout smoke from a real global shim by pointing HOME at an empty temp dir so sh -lc cannot steal the fake CLI.",
+  "usage": "From a story worktree run node bin/proof-or-stop.js --version and node bin/proof-or-stop.js verify_codex --storyId=<id> --heartbeatTimeoutMs=180000 --heartbeatTimeoutReason=\"<why session_brief needs longer>\". New projects write proof-or-stop.config.json; old lattice.config.json still loads with a stderr deprecation notice. Do not invoke bin/lattice.js.",
+  "expectedOutcome": "proof-or-stop --version prints 0.3.261; verify_codex reports 8/8 pass including global-fallback heartbeat; validate --story=B-cc10 --json reports allPass true and 24/24 verification coverage; serial-reference exits 0; node bin/lattice.js is not a working entrypoint.",
+  "actualTranscript": "verify_codex: Codex adapter checks passed (8/8 pass) with heartbeatTimeoutMs=180000. validate reused PASS, Verification intent coverage 24/24 covered. npm run test:serial-reference ended with ProofStory acceptance rollout smoke PASS (58 assertions) at HEAD cebf0e195f. story_advance TEST succeeded with CLI gate preflight all pass. delivery_check_set: 14 docsPromises verified, 8 realMachineTests, no unverified. node packages/main/dist/tasks/codex-heartbeat-timeout-smoke.js printed the PASS_LINE after HOME isolation.",
+  "outcomeDiff": "No difference: expected CLI identity, heartbeat timeout pin, serial-reference, validate coverage, TEST advance, and delivery-check all matched the actual transcripts.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none — fully covered. Frozen identities were not renamed: integrity salts, lattice-* role IDs, and root package.json name lattice stay. Historical .lattice mentions in CHANGELOG and archived stories were not exhaustively rewritten. Review-assurance 3x2 host quorum is still a TEST-to-DONE floor for this high-risk story and is recorded separately from the product identity migration.",
+  "pitfalls": "REVIEW-to-TEST died twice: first the 15-minute CLI max watchdog killed validate at quorum-submit-smoke; raise PROOF_OR_STOP_MAX_TIMEOUT_MS. Second, validate commands all passed but persistence failed because process-events.jsonl was already dirty from verify_codex. Commit adapter evidence before validate persist, or persist cannot write test-evidence. The heartbeat smoke failed when ~/.local/bin/proof-or-stop existed because resolveGlobalCliCommandPath uses sh -lc (login PATH) and ignored PATH prepend; isolate HOME in the smoke, do not drop login-shell discovery. serial-reference failed under an exported LATTICE_SESSION_ID because delivery-context-pack-smoke expected a foreign-owner exception. english-artifacts rejected CJK in commit messages. Gate-repeat freeze required a PTY story_resume without --takeover.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 1246840
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 184482
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 2600791
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 60761036
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 111504153
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 620478
+    }
+  },
+  "totalDurationMs": 176918461,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-08-19T10:49:45.057Z",
+  "updatedAt": "2026-08-19T10:49:45.057Z"
+}

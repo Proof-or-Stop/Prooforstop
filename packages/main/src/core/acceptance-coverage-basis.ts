@@ -11,6 +11,7 @@ import type {
   VerificationPlannedPathDeclarationV1,
 } from './types.js';
 import { digestCanonicalJson } from './digest.js';
+import { isConfigFilenameMentioned } from './brand-paths.js';
 import { isAcceptanceBasisPathSourceRef } from './acceptance-topology.js';
 import {
   ACCEPTANCE_PLAN_DISCOVERY_PROFILE,
@@ -303,7 +304,11 @@ export function deriveAcceptanceCoverageBasis(input: AcceptanceBasisDerivationIn
     ...closureSnapshot.blindSpots.map(message => ({ code: 'snapshot_missing' as const, targetKind: 'inventory' as const, canonicalRef: message.split(': ').at(-1) ?? 'closure-source' })),
     ...sourceReadBlindSpots.map(message => ({
       code: (/no-follow/.test(message) ? 'safe_no_follow_unsupported' : /changed|symlink/.test(message) ? 'source_file_changed' : 'snapshot_missing') as AcceptanceSnapshotSealIssueV1['code'],
-      targetKind: message.includes('lattice.config.json') ? 'config' as const : 'source_file' as const,
+      // B-cc10 CHK-004: classify by EITHER config spelling. This is a decision,
+      // not output — pinning the deprecated literal here would misfile a blind
+      // spot about the CANONICAL config as a generic `source_file`, so the
+      // rename would silently degrade issue classification.
+      targetKind: isConfigFilenameMentioned(message) ? 'config' as const : 'source_file' as const,
       canonicalRef: message.match(/: (.+?)(?: -> .+)?$/)?.[1] ?? 'source-snapshot',
     })),
   ];

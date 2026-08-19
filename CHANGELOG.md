@@ -1,5 +1,43 @@
 # Changelog
 
+## Proof-or-Stop v0.3.261 - 2026-08-17
+
+**Removed**
+
+- **BREAKING: the deprecated `bin/lattice.js` and `bin/lattice-codex.js` wrapper files
+  are deleted (B-cc10).** Use the canonical entrypoints instead:
+
+  | Removed | Replacement |
+  |---|---|
+  | `bin/lattice.js` | `bin/proof-or-stop.js` |
+  | `bin/lattice-codex.js` | `bin/proof-or-stop-codex.js` |
+
+  Invoking a removed path no longer resolves — `node bin/lattice.js` now fails with
+  `Cannot find module` rather than silently delegating. If you have a branch authored
+  before this release that runs either old path, update the invocation to the
+  replacement above; the commands and their output are otherwise unchanged.
+
+  This **supersedes the compatibility guarantee** recorded in
+  `docs/requirements/decisions/brand-rename-mapping.md:72`, which stated that
+  `bin/lattice.js` "keeps working". Removal was an explicit operator instruction;
+  immediate removal (rather than a warn-then-remove deprecation cycle) was chosen with
+  this changelog entry as the announcement, because a mandatory deprecation phase was
+  judged disproportionate for a single-developer project with a tight release cadence.
+  Rationale: `docs/requirements/decisions/proof-or-stop-identity-migration.md`
+  ("Supersession 2").
+
+  **Also renamed in this release:** the workspace package `@lattice/core` is now
+  `@proof-or-stop/core`. Nothing in-repo imports it by name (both sibling packages reach
+  it through relative paths into `packages/main/dist`), and no alias package is published;
+  an external project pinning `@lattice/core` in its own `package.json` must update that
+  reference. Sibling names `@lattice/utils` / `@lattice/lab` are unchanged.
+
+  **Not affected:** the `lattice` npm bin alias (`lattice --version` still resolves) is a
+  separate identity and remains retained. Projects
+  initialized before the rename that carry their own local `bin/lattice.js` are also
+  unaffected: `init` and `check` still recognize the old wrapper name in downstream
+  projects, so no managed file is stranded.
+
 ## Proof-or-Stop v0.3.260 - 2026-08-16
 
 This release lands the cross-platform build-concurrency hardening deferred from

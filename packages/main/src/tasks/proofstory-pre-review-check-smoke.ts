@@ -31,10 +31,11 @@ import {
 import type { AcceptanceRolloutCohortInputV1 } from '../core/types.js';
 import type { AcceptanceVerificationTopologyV1, ChecklistData, PreReviewCaseRecordV1, ProofStoryContractData, ScopeCheckData, ScopeContractData, StoryInfo } from '../core/types.js';
 import type { HandlerContext } from '../handlers/context.js';
+import { STATE_DIR_NAMES } from '../core/brand-paths.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const repositoryRoot = resolve(packageRoot, '..', '..', '..');
-const latticeBin = join(repositoryRoot, 'bin/lattice.js');
+const latticeBin = join(repositoryRoot, 'bin/proof-or-stop.js');
 const cohortCaseMode = process.argv.includes('--rollout-cohort-case');
 const cohortArm = process.env.LATTICE_ROLLOUT_COHORT_ARM === 'candidate' ? 'candidate' : 'baseline';
 const cohortScenario = process.env.LATTICE_ROLLOUT_COHORT_SCENARIO ?? 'control';
@@ -521,7 +522,15 @@ const root = mkdtempSync(join(tmpdir(), 'proofstory-pre-review-'));
 const originalCwd = process.cwd();
 try {
   smoke: {
-  write(root, '.gitignore', '.lattice/runtime/\n.lattice/activity.jsonl\n.lattice/locks/\n');
+  // B-cc10: the CLI writes runtime/activity/locks under the CANONICAL state dir, so a
+  // fixture ignoring only the deprecated spelling let `git add .` track
+  // .proof-or-stop/activity.jsonl — which quorum_submit's assertCleanQuorumBaseline then
+  // reported as 'M .proof-or-stop/activity.jsonl' and refused on.
+  write(root, '.gitignore', STATE_DIR_NAMES.flatMap((dir) => [
+    `${dir}/runtime/`,
+    `${dir}/activity.jsonl`,
+    `${dir}/locks/`,
+  ]).join('\n') + '\n');
   write(root, 'lattice.config.json', JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src', storyDir: '.lattice/story/actives', requirementsDir: 'docs/requirements', proofStory: { acceptanceTopologyGateMode: 'observe' } }));
   write(root, 'tsconfig.json', '{}\n');
   writeRegistration(root);

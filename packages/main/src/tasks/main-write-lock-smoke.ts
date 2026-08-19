@@ -19,6 +19,7 @@
  */
 
 import assert from 'node:assert/strict';
+import { DEPRECATED_STATE_DIR, PROOF_OR_STOP_STATE_DIR } from '../core/brand-paths.js';
 import { existsSync, mkdirSync, rmSync, utimesSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -41,9 +42,19 @@ try {
   {
     const lockPath = mainWriteLockPath(root);
     assert.equal(lockPath, join(root, MAIN_WRITE_LOCK_REL),
-      'mainWriteLockPath resolves to <root>/.lattice/locks/main-write.lock');
-    assert.equal(MAIN_WRITE_LOCK_REL, '.lattice/locks/main-write.lock',
-      'canonical lock path is .lattice/locks/main-write.lock');
+      'mainWriteLockPath resolves to <root>/<MAIN_WRITE_LOCK_REL>');
+    // B-cc10 F-073: this asserted MAIN_WRITE_LOCK_REL equalled a hardcoded
+    // '.lattice/locks/main-write.lock'. Pinning a resolver-derived constant to a literal
+    // snapshot means the rename it is supposed to survive is exactly what breaks it — the
+    // assertion could only ever fail after the state dir moved. Assert the INVARIANTS the
+    // constant must satisfy instead: it lives under the canonical state dir, and it is the
+    // main-write lock. Those hold across any future rename; the literal did not.
+    assert.equal(MAIN_WRITE_LOCK_REL, `${PROOF_OR_STOP_STATE_DIR}/locks/main-write.lock`,
+      'canonical lock path is <canonical state dir>/locks/main-write.lock');
+    assert.ok(MAIN_WRITE_LOCK_REL.startsWith(`${PROOF_OR_STOP_STATE_DIR}/`),
+      'the main-write lock must live under the CANONICAL state dir, not the deprecated one');
+    assert.ok(!MAIN_WRITE_LOCK_REL.startsWith(`${DEPRECATED_STATE_DIR}/`),
+      'the main-write lock must not resolve to the deprecated state dir');
   }
 
   // ── 1. acquire / release ─────────────────────────────────────────────────

@@ -198,9 +198,12 @@ function buildConfigDoctor(ctx: HandlerContext) {
       detail: `packages/main version=${versions.main ?? 'unreadable'}`,
     },
     {
+      // B-cc10 CHK-006: probed `bin/lattice.js`, which that story deleted — the check
+      // would have failed for the very reason the removal intended. The canonical
+      // bootstrap wrapper is what a local invocation actually needs.
       id: 'lattice-local-wrapper',
-      ok: existsSync(join(ctx.root, 'bin', 'lattice.js')),
-      detail: 'bin/lattice.js exists as the primary local bootstrap wrapper',
+      ok: existsSync(join(ctx.root, 'bin', 'proof-or-stop.js')),
+      detail: 'bin/proof-or-stop.js exists as the primary local bootstrap wrapper',
     },
     {
       id: 'package-bin-aliases',

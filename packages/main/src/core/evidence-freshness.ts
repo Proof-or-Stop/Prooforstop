@@ -3,7 +3,11 @@ import { createHash } from 'crypto';
 import { resolve as resolvePath } from 'path';
 import { isMaterialExcludedRuntimeArtifactPath } from './runtime-artifact-registry.js';
 import { loadConfig } from './config.js';
-import { PROOF_OR_STOP_STORY_DIR, LEGACY_DOCS_STORY_DIR } from './lattice-paths.js';
+import {
+  PROOF_OR_STOP_STORY_DIR,
+  PROOF_OR_STOP_STORY_DIR_NAMES,
+  LEGACY_DOCS_STORY_DIR,
+} from './lattice-paths.js';
 
 export const GIT_TREE_OUTPUT_MAX_BUFFER = 32 * 1024 * 1024;
 
@@ -134,11 +138,23 @@ const GIT_EXEC_OPTS = {
   maxBuffer: 1024 * 1024 * 1024,
 };
 
+/**
+ * Prefixes whose paths are story METADATA and therefore EXCLUDED from
+ * `storyFilesHash`.
+ *
+ * B-cc10 CHK-002: derived from `PROOF_OR_STOP_STORY_DIR_NAMES` (every accepted
+ * state-dir spelling) rather than from the canonical name alone. The exclusion
+ * must hold on BOTH sides of the state-directory rename: under the canonical name
+ * so it follows the move, and under the deprecated name so archives that have not
+ * been moved yet do not silently start entering the digest. Hardcoding either
+ * spelling here would reintroduce the exact hazard this list guards — nothing
+ * would throw, the hashes would just change meaning.
+ */
 const DEFAULT_STORY_METADATA_PREFIXES = [
-  `${PROOF_OR_STOP_STORY_DIR.replace(/\/actives$/, '')}/`,
+  ...PROOF_OR_STOP_STORY_DIR_NAMES.map(dir => `${dir.replace(/\/actives$/, '')}/`),
   `${LEGACY_DOCS_STORY_DIR.replace(/\/actives$/, '')}/`,
   'docs/framework-audit/',
-];
+].filter((value, index, all) => all.indexOf(value) === index);
 
 export function isStoryMetadataPath(path: string, projectRoot?: string): boolean {
   const normalized = path.replace(/\\/g, '/').toLowerCase();

@@ -98,6 +98,7 @@ import { checkCommitAuthor } from '../handlers/validate-channel.js';
 import { repairGlobalLatticeLinkBeforeWorktreeDelete } from '../handlers/worktree.js';
 import { assertDonePreparePassConvergence, collectDonePrepareConvergenceFacts, deriveDonePreparePassConvergence, donePrepareJsonResult, validationCloseoutAdvancePaths } from '../handlers/done-prepare.js';
 import { buildPhaseTransitionProcessEvent } from '../handlers/transition-orchestrator.js';
+import { PROOF_OR_STOP_STATE_DIR } from '../core/brand-paths.js';
 
 function write(root: string, path: string, content: string): void {
   mkdirSync(dirname(join(root, path)), { recursive: true });
@@ -1133,7 +1134,7 @@ function assertManagedAssetExpandedDocsAndTrueDrift(): void {
   const repoRoot = resolve(packageRoot, '..', '..');
   const current = runManagedAssetCheck(repoRoot, { profile: 'all' });
   const currentById = new Map(current.items.map(item => [item.id, item]));
-  const expandedLocalGuideIds = ['doc:.lattice/Lattice.md', 'doc:LATTICE.md', 'doc:CLAUDE.md']
+  const expandedLocalGuideIds = [`doc:${PROOF_OR_STOP_STATE_DIR}/Lattice.md`, 'doc:LATTICE.md', 'doc:CLAUDE.md']
     .filter(id => currentById.has(id));
   assert.ok(
     expandedLocalGuideIds.length > 0,
@@ -1170,7 +1171,7 @@ function assertManagedAssetExpandedDocsAndTrueDrift(): void {
   };
 
   assertTrueLocalDrift('global-thin', [
-    { id: 'doc:.lattice/Lattice.md', relPath: '.lattice/Lattice.md' },
+    { id: `doc:${PROOF_OR_STOP_STATE_DIR}/Lattice.md`, relPath: `${PROOF_OR_STOP_STATE_DIR}/Lattice.md` },
     { id: 'doc:AGENTS.md', relPath: 'AGENTS.md' },
     { id: 'doc:CLAUDE.md', relPath: 'CLAUDE.md' },
   ]);

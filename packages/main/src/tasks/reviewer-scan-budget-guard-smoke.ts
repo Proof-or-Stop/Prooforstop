@@ -11,7 +11,7 @@
  */
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
@@ -38,9 +38,17 @@ import {
   verifyScopeCheckSignature,
 } from '../handlers/scope-check.js';
 import { createFindingHandlers } from '../handlers/finding.js';
+import { ADAPTER_DIR_NAMES, PROOF_OR_STOP_ADAPTER_DIR } from '../core/brand-paths.js';
+
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(here, '..', '..', '..', '..');
+// B-cc10: this smoke reads the REAL repo tree, so it must resolve whichever adapter-dir
+// spelling actually exists rather than hardcoding one. Hardcoding the deprecated name
+// made every read throw ENOENT after the rename.
+const CODEX_AGENTS_REL = ADAPTER_DIR_NAMES
+  .map((dir) => `${dir}/agents`)
+  .find((rel) => existsSync(join(repoRoot, rel))) ?? `${PROOF_OR_STOP_ADAPTER_DIR}/agents`;
 
 interface PatternRule {
   label: string;
@@ -59,8 +67,8 @@ const guardedPromptFiles = [
   'packages/main/templates/agents/lattice-review-behavior.md',
   '.claude/agents/lattice-review-scope-plan.md',
   '.claude/agents/lattice-review-behavior.md',
-  '.lattice-codex/agents/lattice-review-scope-plan.md',
-  '.lattice-codex/agents/lattice-review-behavior.md',
+  `${CODEX_AGENTS_REL}/lattice-review-scope-plan.md`,
+  `${CODEX_AGENTS_REL}/lattice-review-behavior.md`,
 ] as const;
 
 // Active modular reviewers keep their selected role body only in the package
@@ -69,7 +77,7 @@ const guardedPromptFiles = [
 // than falsely required in these two entrypoints.
 const bodyFreeReviewerBootstrapFiles = new Set<string>([
   '.claude/agents/lattice-review-behavior.md',
-  '.lattice-codex/agents/lattice-review-behavior.md',
+  `${CODEX_AGENTS_REL}/lattice-review-behavior.md`,
 ]);
 
 // Unconditional broad-scan instructions that must never return without

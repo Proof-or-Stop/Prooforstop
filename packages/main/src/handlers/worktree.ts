@@ -32,7 +32,12 @@ import {
   runStoryTransition,
 } from './transition-orchestrator.js';
 
-const CANONICAL_CORE_PACKAGE_NAME = '@lattice/core';
+// B-cc10 CHK-005: the npm package was renamed @lattice/core -> @proof-or-stop/core.
+// Canonical is the only name written; the deprecated name is still accepted for READS so
+// an already-installed global link keeps resolving. Never collapse this to a single literal
+// inside a comparison — that is exactly the B-cdf6 regression class.
+const CANONICAL_CORE_PACKAGE_NAME = '@proof-or-stop/core';
+const DEPRECATED_CORE_PACKAGE_NAME = '@lattice/core';
 
 export interface GlobalLatticeLinkRepairOptions {
   globalPackagePath?: string;
@@ -48,7 +53,7 @@ export interface GlobalLatticeLinkRepairResult {
 
 interface ResolvedGlobalCorePackagePath {
   path: string;
-  packageName: typeof CANONICAL_CORE_PACKAGE_NAME;
+  packageName: typeof CANONICAL_CORE_PACKAGE_NAME | typeof DEPRECATED_CORE_PACKAGE_NAME;
 }
 
 function isPathInside(child: string, parent: string): boolean {
@@ -91,6 +96,11 @@ function resolveGlobalCorePackagePaths(options: GlobalLatticeLinkRepairOptions =
     const canonicalPath = packagePathFromName(globalRoot, CANONICAL_CORE_PACKAGE_NAME);
     const candidates: ResolvedGlobalCorePackagePath[] = [
       { path: canonicalPath, packageName: CANONICAL_CORE_PACKAGE_NAME },
+      // Deprecated name kept as a READ fallback so an existing global install still relinks.
+      {
+        path: packagePathFromName(globalRoot, DEPRECATED_CORE_PACKAGE_NAME),
+        packageName: DEPRECATED_CORE_PACKAGE_NAME,
+      },
     ];
     const present = candidates.filter(candidate => entryExists(candidate.path));
     return present.length > 0 ? present : [candidates[0]];

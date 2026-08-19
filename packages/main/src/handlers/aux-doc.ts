@@ -18,13 +18,17 @@ import { existsSync, readdirSync, readFileSync, statSync } from 'fs';
 import { dirname, join, relative } from 'path';
 import { loadConfig } from '../core/config.js';
 import type { HandlerContext } from './context.js';
+import { STATE_DIR_NAMES } from '../core/brand-paths.js';
 
 const DEFAULT_DOC_DIRS = ['docs', 'requirements'];
 const ROOT_DOC_FILES = ['CLAUDE.md', 'README.md', 'AGENTS.md'];
+// B-cc10 CHK-002: state-dir spellings come from the resolver so the doc scan keeps
+// skipping the state directory after the rename. A hardcoded spelling would make
+// the scan start walking thousands of story-metadata files under the new name.
 const SKIP_DIRS = new Set([
   'node_modules', 'dist', 'build', 'coverage',
   '.git', '.worktrees', '.next', '.cache',
-  '.lattice',
+  ...STATE_DIR_NAMES,
 ]);
 
 interface DocEntry {

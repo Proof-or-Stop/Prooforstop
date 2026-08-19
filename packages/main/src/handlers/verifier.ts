@@ -33,6 +33,7 @@ import type { HandlerContext } from './context.js';
 import { assertCwdInWorktree } from './context.js';
 import { commitValidationReuseMetadataTransaction } from '../core/auto-commit-metadata.js';
 import { loadConfig } from '../core/config.js';
+import { CONFIG_FILENAMES } from '../core/brand-paths.js';
 import type { ValidationCommand, ValidationProgressReporter } from '../core/validation-types.js';
 import type { RoutineValidationIdentity, RoutineValidationSourceKind, ValidationCommandResult } from '../core/validation-types.js';
 import {
@@ -537,7 +538,12 @@ function routineVerificationSnapshot(ctx: HandlerContext, storyId: string) {
 
 function sourceInputSnapshot(projectRoot: string, sourceKind: RoutineValidationSourceKind): unknown {
   const names = sourceKind === 'configured'
-    ? ['lattice.config.json']
+    // B-cc10 CHK-004: snapshot BOTH config spellings. The absent one records a
+    // `null` entry, which is exactly the signal this identity snapshot wants —
+    // pinning the deprecated literal alone would make the identity blind to the
+    // canonical file's contents, so editing the canonical config would not
+    // invalidate the routine-validation identity it is supposed to bind.
+    ? [...CONFIG_FILENAMES]
     : sourceKind === 'fallback'
       ? ['package.json', 'go.mod', 'Cargo.toml', 'pom.xml', 'build.gradle', 'build.gradle.kts', 'settings.gradle', 'settings.gradle.kts', 'pyproject.toml', 'pytest.ini', 'setup.cfg', 'tox.ini']
       : [];

@@ -16,6 +16,7 @@ import { resetConfigCache } from '../core/config.js';
 import type { ChecklistData, StoryInfo, TestEvidenceData } from '../core/types.js';
 import type { HandlerContext } from '../handlers/context.js';
 import { createSessionHandlers } from '../handlers/session.js';
+import { PROOF_OR_STOP_STATE_DIR, STATE_DIR_NAMES } from '../core/brand-paths.js';
 
 const BEHIND_STORY = 'B-ms-behind';
 const SYNCED_STORY = 'B-ms-synced';
@@ -57,7 +58,7 @@ function writeConfig(root: string): void {
   write(root, 'lattice.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.lattice/story/actives',
+    storyDir: `${PROOF_OR_STOP_STATE_DIR}/story/actives`,
     requirementsDir: 'docs/requirements',
     workflow: { profile: 'light' },
   }, null, 2) + '\n');
@@ -158,7 +159,18 @@ function createRepo(): string {
   const root = mkdtempSync(join(tmpdir(), 'lattice-main-sync-readiness-'));
   mkdirSync(join(root, 'packages/main/src'), { recursive: true });
   writeConfig(root);
-  write(root, '.gitignore', '.lattice/learning/\n');
+  // B-cc10: gitignore the RUNTIME OUTPUT under every state-dir spelling. The runtime
+  // writes activity.jsonl under the CANONICAL dir, so a fixture ignoring only the
+  // deprecated spelling left '?? .proof-or-stop/' untracked and tripped this smoke's own
+  // "readiness checks must leave git status unchanged" assertion.
+  // Ignore the runtime FILES, not the whole dir: this fixture also git-commits its own
+  // story metadata under the state dir, and a blanket `${dir}/` ignore made that commit
+  // fail with "nothing to commit, working tree clean".
+  write(root, '.gitignore', STATE_DIR_NAMES.flatMap((dir) => [
+    `${dir}/learning/\n`,
+    `${dir}/activity.jsonl\n`,
+    `${dir}/dev-memory/\n`,
+  ]).join(''));
   write(root, 'README.md', '# main sync readiness smoke\n');
   write(root, 'packages/main/src/index.ts', 'export const value = 1;\n');
   git(root, ['init']);

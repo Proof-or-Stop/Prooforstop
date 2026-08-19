@@ -12,6 +12,10 @@ import {
   fullSuiteBudgetBreached, identityChanged, isUnderFullSuiteBudget, killProcessTree, parsePositiveInteger, parseRunnerArgs, shouldEnforceFullSuiteBudget,
   resetInterruptForTest, runEntry, runScheduled, validateInventory, writeResultArtifact,
   observedOutputSignatures, pathIsContained, validateJsonOutputPath,
+  stateDirKey,
+} from './full-suite-runner.js';
+import { DEPRECATED_STATE_DIR, PROOF_OR_STOP_STATE_DIR } from '../core/brand-paths.js';
+import {
   type FullSuiteEntry, type FullSuiteResult, type ResourceClaim,
 } from './full-suite-runner.js';
 
@@ -43,7 +47,7 @@ async function main(): Promise<void> {
     mutationBites: { removedFixedPortKey: false, inventoryOmission: false },
     lifecycle: { normalCleanup: false, normalCompletionGrandchild: false, timeoutGrandchild: false, externalInterrupt: false, outsideRootRefused: false },
   };
-  const collisionPath = join(process.cwd(), '.lattice', 'runtime', 'full-suite-fixed-sentinel');
+  const collisionPath = join(process.cwd(), ...stateDirKey('runtime', 'full-suite-fixed-sentinel').split('/'));
   mkdirSync(collisionPath, { recursive: true });
   const sentinelPath = resolve(dirname(fileURLToPath(import.meta.url)), 'full-suite-resource-sentinel.js');
   let collisionFailed = false;
@@ -78,6 +82,25 @@ async function main(): Promise<void> {
     assert((canonicalClassCounts.get(resourceClass) ?? 0) > 0, `canonical manifest exercises protected class ${resourceClass}`);
   }
   assert(FULL_SUITE_ENTRIES.some(item => item.resources.some(resource => resource.access === 'exclusive')), 'canonical manifest contains truthful exclusive protected claims');
+
+  // B-cc10 F-068: EVERY state-dir resource key in the SHIPPED policy must carry the
+  // canonical spelling. Without this, a policy key reverted to the deprecated literal
+  // regresses SILENTLY: claimsConflict() compares canonicalKey by string equality, so
+  // `.lattice/runtime` and `.proof-or-stop/runtime` read as two DIFFERENT resources and
+  // two entries that must be mutually exclusive get scheduled concurrently. Nothing
+  // throws; only serialization degrades. The other four F-064 sites were covered by the
+  // approvedRoots witness (which does throw); this one had no witness at all.
+  //
+  // Asserted over ALL entries rather than the one line F-068 named, so a NEW policy key
+  // with the deprecated spelling is caught too instead of aging into the same blind spot.
+  const deprecatedStateDirKeys = FULL_SUITE_ENTRIES.flatMap(item => item.resources
+    .filter(resource => resource.key.startsWith(`${DEPRECATED_STATE_DIR}/`) || resource.key === DEPRECATED_STATE_DIR)
+    .map(resource => `${item.name}:${resource.key}`));
+  assert(deprecatedStateDirKeys.length === 0, `RESOURCE_POLICY state-dir keys must use the canonical spelling, not ${DEPRECATED_STATE_DIR}: ${deprecatedStateDirKeys.join(', ')}`);
+  const stateDirPolicyKeys = FULL_SUITE_ENTRIES.flatMap(item => item.resources
+    .filter(resource => resource.key.startsWith(`${PROOF_OR_STOP_STATE_DIR}/`) || resource.key === PROOF_OR_STOP_STATE_DIR)
+    .map(resource => `${item.name}:${resource.key}`));
+  assert(stateDirPolicyKeys.length > 0, 'the state-dir policy-key witness must observe at least one real claim (guards against a vacuous pass if the policy stops declaring state-dir resources)');
   const runnerSmokeFixedPath = FULL_SUITE_ENTRIES.find(item => item.name === 'test:full-suite-runner-smoke')?.resources.find(resource => resource.class === 'fixed-path');
   const sentinelFixedPath = FULL_SUITE_ENTRIES.find(item => item.name === 'test:full-suite-resource-sentinel')?.resources.find(resource => resource.class === 'fixed-path');
   assert(runnerSmokeFixedPath?.access === 'exclusive' && runnerSmokeFixedPath.canonicalKey === sentinelFixedPath?.canonicalKey, 'canonical runner smoke declares the real fixed-path collision it creates');
@@ -361,14 +384,14 @@ async function main(): Promise<void> {
     writeFileSync(join(realSentinelRoot, 'package.json'), JSON.stringify({ scripts: { 'test:real-sentinel': `node ${JSON.stringify(realSentinelScript)}` } }));
     execFileSync('git', ['add', '.'], { cwd: realSentinelRoot }); execFileSync('git', ['commit', '-m', 'fixture'], { cwd: realSentinelRoot, stdio: 'ignore' });
     const realSentinelPaths = [
-      join(realSentinelRoot, '.lattice', 'runtime', 'full-suite-runtime-sentinel.lock'),
-      join(realSentinelRoot, '.lattice', 'locks', 'full-suite-main-write-sentinel.lock'),
-      join(realSentinelRoot, '.lattice', 'runtime', 'full-suite-fixed-sentinel'),
+      join(realSentinelRoot, ...stateDirKey('runtime', 'full-suite-runtime-sentinel.lock').split('/')),
+      join(realSentinelRoot, ...stateDirKey('locks', 'full-suite-main-write-sentinel.lock').split('/')),
+      join(realSentinelRoot, ...stateDirKey('runtime', 'full-suite-fixed-sentinel').split('/')),
     ];
     const realSentinelEntry = canonicalizeEntries([{ ...entry('test:real-sentinel'), resources: [
-      { class: 'runtime-lock', key: '.lattice/runtime/full-suite-runtime-sentinel.lock', access: 'exclusive', ownership: 'runner-cleanable' },
-      { class: 'main-write-lock', key: '.lattice/locks/full-suite-main-write-sentinel.lock', access: 'exclusive', ownership: 'runner-cleanable' },
-      { class: 'fixed-path', key: '.lattice/runtime/full-suite-fixed-sentinel', access: 'exclusive', ownership: 'runner-cleanable' },
+      { class: 'runtime-lock', key: stateDirKey('runtime', 'full-suite-runtime-sentinel.lock'), access: 'exclusive', ownership: 'runner-cleanable' },
+      { class: 'main-write-lock', key: stateDirKey('locks', 'full-suite-main-write-sentinel.lock'), access: 'exclusive', ownership: 'runner-cleanable' },
+      { class: 'fixed-path', key: stateDirKey('runtime', 'full-suite-fixed-sentinel'), access: 'exclusive', ownership: 'runner-cleanable' },
     ] }], realSentinelRoot)[0]!;
     const runRealSentinelInterrupted = async (mutation?: 'missing-runtime' | 'tampered-main'): Promise<FullSuiteResult> => {
       const readyFile = join(root, `real-sentinel-ready-${mutation ?? 'baseline'}`);
@@ -504,7 +527,7 @@ async function main(): Promise<void> {
     writeFileSync(join(hungBin, 'git'), '#!/bin/sh\nsleep 30\n'); chmodSync(join(hungBin, 'git'), 0o755);
     const authorityInput = {
       command: 'agent_prompt', commandArgs: ['--role=implementation-reviewer'], projectRoot: process.cwd(),
-      invokedEntrypoint: join(process.cwd(), 'bin/lattice.js'), loadedCorePackageRoot: join(process.cwd(), 'packages/main'),
+      invokedEntrypoint: join(process.cwd(), 'bin/proof-or-stop.js'), loadedCorePackageRoot: join(process.cwd(), 'packages/main'),
     };
     const slowDecision = classifyRuntimeEntrypointAuthority({ ...authorityInput, env: { ...process.env, PATH: `${slowBin}:${process.env.PATH ?? ''}` } });
     assert(slowDecision.status === 'pass', 'authoritative git identity probes retry a transient two-second timeout');

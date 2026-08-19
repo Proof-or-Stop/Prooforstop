@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import { isAbsolute, join } from 'node:path';
 import type { JobPlan, PlannedStep, PlannerStoreLike } from './planner.js';
+import { STATE_DIR_NAMES } from './brand-paths.js';
 
 /**
  * @task B-e3d9
@@ -63,7 +64,15 @@ export const DEFAULT_FAIL_CLOSED_WORKTREE_POLICY: WorktreePolicyView = {
   requiresAuthoritativeWorktree: true,
   allowWorktreeRepair: false,
   allowedPathRoots: [],
-  forbiddenPathGlobs: ['.lattice/story/**', 'docs/story/**', '**/tests/fixtures/**'],
+  // B-cc10 F-030: enumerate EVERY state-dir spelling. Glob-prefix matching cannot span
+  // the rename, so listing only the deprecated dir left the canonical path UNPROTECTED:
+  // an executor writing .proof-or-stop/story/actives/<id>/checklist.json directly would
+  // silently bypass the "never edit story/fixture JSON directly" guard.
+  forbiddenPathGlobs: [
+    ...STATE_DIR_NAMES.map((dir) => `${dir}/story/**`),
+    'docs/story/**',
+    '**/tests/fixtures/**',
+  ],
   requiresCleanWorktree: false,
   preserveUnrelatedDirtyChanges: true,
   requireGitStatusEvidence: true,

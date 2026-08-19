@@ -89,6 +89,7 @@ import { createStoryCreateHandlers } from '../handlers/story-create.js';
 import { createDevMemoryHandlers } from '../handlers/dev-memory.js';
 import { createDonePrepareHandlers } from '../handlers/done-prepare.js';
 import type { HandlerContext } from '../handlers/context.js';
+import { STATE_DIR_NAMES } from '../core/brand-paths.js';
 
 const NOW = '2026-07-01T00:00:00.000Z';
 const EXP_A = 'exp-b-ab8d-arm-switch-a';
@@ -307,7 +308,9 @@ function mkGitStoryRoot(storyId: string, phase: StoryInfo['phase']): { root: str
   // The advisory stores are materialHash-excluded by design; ignore them in
   // the fixture too so surfaced events / pack caches written DURING the smoke
   // never dirty the tree and block done_prepare's cleanTree preflight.
-  write(root, '.gitignore', '.lattice/activity.jsonl\n.lattice/learning/\n');
+  // B-cc10: the runtime writes activity/learning under the CANONICAL state dir, so a
+  // fixture ignoring only the deprecated spelling leaves '?? .proof-or-stop/' untracked.
+  write(root, '.gitignore', STATE_DIR_NAMES.flatMap((dir) => [`${dir}/activity.jsonl`, `${dir}/learning/`]).join('\n') + '\n');
   seedMemory(root);
   git(root, ['init', '-q']);
   git(root, ['config', 'user.email', 'smoke@example.test']);

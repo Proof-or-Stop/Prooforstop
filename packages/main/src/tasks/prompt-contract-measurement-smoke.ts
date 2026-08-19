@@ -620,7 +620,7 @@ try {
   const initialStatus = gitStatus();
   writeFileSync(beforeStatusPath, initialStatus, 'utf8');
   for (const format of ['text', 'json']) {
-    execFileSync(process.execPath, ['bin/lattice.js', 'prompt_measurement_report', `--format=${format}`], {
+    execFileSync(process.execPath, ['bin/proof-or-stop.js', 'prompt_measurement_report', `--format=${format}`], {
       cwd: process.cwd(),
       stdio: ['ignore', 'ignore', 'pipe'],
     });

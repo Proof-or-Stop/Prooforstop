@@ -82,15 +82,15 @@ function assertAllFinite(value: unknown, path = 'root'): void {
   }
 }
 
-/** Resolve the built CLI entrypoint (bin/lattice.js at the repo root). */
+/** Resolve the built CLI entrypoint (bin/proof-or-stop.js at the repo root). */
 function resolveCli(): { ROOT: string; CLI: string } {
   const ROOT = execFileSync('git', ['rev-parse', '--show-toplevel'], { encoding: 'utf-8' }).trim();
-  const CLI = join(ROOT, 'bin', 'lattice.js');
-  assert.ok(existsSync(CLI), `bin/lattice.js not found at ${CLI}`);
+  const CLI = join(ROOT, 'bin', 'proof-or-stop.js');
+  assert.ok(existsSync(CLI), `bin/proof-or-stop.js not found at ${CLI}`);
   return { ROOT, CLI };
 }
 
-/** Run `node bin/lattice.js learning_effectiveness <argsJson>` and return stdout. */
+/** Run `node bin/proof-or-stop.js learning_effectiveness <argsJson>` and return stdout. */
 function runCli(ROOT: string, CLI: string, argsJson?: string): string {
   const argv = argsJson === undefined
     ? [CLI, 'learning_effectiveness']

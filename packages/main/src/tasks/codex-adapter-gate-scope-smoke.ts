@@ -60,6 +60,8 @@ for (const text of providerOnlyCodexTexts) {
 }
 
 const adapterSurfaceTerms = [
+  // B-cc10 F-055: canonical first; a renamed root silently yields zero files.
+  '.proof-or-stop-codex',
   '.lattice-codex',
   'lattice-codex',
   'codex adapter',

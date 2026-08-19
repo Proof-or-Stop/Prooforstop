@@ -27,6 +27,9 @@
  */
 
 import assert from 'node:assert/strict';
+// B-cc10: derive the learning dir from the runtime constant; a hardcoded '.lattice/...'
+// asserted a path the runtime stopped writing (ENOENT).
+import { LEARNING_DIR } from '../core/learning-store.js';
 import { execFileSync } from 'node:child_process';
 import {
   existsSync,
@@ -346,13 +349,13 @@ function run(): void {
       assert.equal(withEnums.signals[0].signalScore, 0.5, 'single fixed => 1/(1+0+1) = 0.5');
     });
 
-    // ─── NO REGRESSION: registry cache file lives only under .lattice/learning/ ─
-    check('no-regression: signature-registry persisted under .lattice/learning/ only', () => {
+    // ─── NO REGRESSION: registry cache file lives only under <LEARNING_DIR> ────────
+    check('no-regression: signature-registry persisted under the canonical learning dir only', () => {
       const root = mkProject(); tmpRoots.push(root); process.chdir(root);
       const { ctx } = mkCtx(root);
       const sr = createSignatureRegistryHandlers(ctx);
       sr.signature_registry_set({ tag: 'probe', action: 'propose', by: 'tester' });
-      assert.ok(existsSync(join(root, '.lattice/learning/signature-registry.json')), 'written under .lattice/learning/');
+      assert.ok(existsSync(join(root, LEARNING_DIR, 'signature-registry.json')), `written under ${LEARNING_DIR}/`);
     });
 
     // ─── F-002 / CHK-002:adversarial:2 — explicit empty/whitespace enum rejected ─
@@ -449,7 +452,7 @@ function run(): void {
         assert.ok(data.tags.some(e => e.tag === t), `tag ${t} present`);
       }
       // Direct re-read of the file proves it is valid JSON (never a torn/half write).
-      const raw = readFileSync(join(root, '.lattice/learning/signature-registry.json'), 'utf-8');
+      const raw = readFileSync(join(root, LEARNING_DIR, 'signature-registry.json'), 'utf-8');
       assert.equal(JSON.parse(raw).tags.length, N, 'on-disk file parses and is complete');
     });
 

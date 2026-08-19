@@ -198,7 +198,9 @@ const SELF = basename(fileURLToPath(import.meta.url));
 const RED_DIR_REL = 'packages/main/tests/red';
 const DIST_TASKS_REL = 'packages/main/dist/tasks';
 const SRC_TASKS_REL = 'packages/main/src/tasks';
-const CONFIG_REL = 'lattice.config.json';
+// B-cc10: resolve whichever config filename exists. The canonical name is now
+// proof-or-stop.config.json, so a hardcoded deprecated name threw ENOENT here.
+const CONFIG_REL = (['proof-or-stop.config.json', 'lattice.config.json'].find((n) => existsSync(join(repoRoot, n))) ?? 'proof-or-stop.config.json');
 const CONFIG_PATH = join(repoRoot, CONFIG_REL);
 
 /** The guard this story names. It is spawned as a REAL child process, never imitated. */

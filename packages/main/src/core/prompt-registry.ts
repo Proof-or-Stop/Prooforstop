@@ -16,9 +16,10 @@ import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { gunzipSync } from 'node:zlib';
+import { PROOF_OR_STOP_ADAPTER_DIR } from './brand-paths.js';
 
 export const PROMPT_REGISTRY_VERSION = 'lattice.prompt-registry.v1';
-export const PROMPT_REGISTRY_SOURCE = '@lattice/core/templates/agents';
+export const PROMPT_REGISTRY_SOURCE = '@proof-or-stop/core/templates/agents';
 export const SUPPORTED_PROMPT_HOSTS = ['claude', 'codex'] as const;
 export const MODULAR_ROLE_BODY_MARKER = '<!-- proofbound:modular-role-body:v1 -->';
 export const MODULAR_REVIEWER_ROLE_IDS = [
@@ -306,7 +307,9 @@ export function resolvePromptTemplateBody(
 export function renderCodexPromptContent(content: string): string {
   return content
     .replace(/Claude Code/g, 'Codex')
-    .replace(/\.claude\/agents\//g, '.lattice-codex/agents/');
+    // B-cc10 F-015: derive from the resolver so a future template referencing
+    // .claude/agents/ cannot silently emit the pre-migration adapter dir.
+    .replace(/\.claude\/agents\//g, `${PROOF_OR_STOP_ADAPTER_DIR}/agents/`);
 }
 
 export function renderPromptForHost(content: string, host: PromptHost): string {

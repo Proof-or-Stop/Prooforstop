@@ -6,7 +6,7 @@
     {
       "name": "local-wrapper",
       "command": "node bin/proof-or-stop-codex.js",
-      "useWhen": "This repository includes the Proof-or-Stop bootstrap wrapper. The deprecated bin/lattice-codex.js alias is retained and still works."
+      "useWhen": "This repository includes the Proof-or-Stop bootstrap wrapper."
     },
     {
       "name": "global-fallback",
@@ -26,14 +26,14 @@
     ]
   },
   "excludedRuntimeAssets": [
-    ".lattice-codex/settings.json"
+    ".proof-or-stop-codex/settings.json"
   ],
   "notes": [
     "This file is read by Proof-or-Stop tooling, not by the Codex runtime.",
-    "Codex agent prompts live in .lattice-codex/agents and are generated from .claude/agents in full asset mode.",
-    "Codex native hooks are official lowercase .codex assets; case-insensitive file systems may project them through the same .lattice-codex directory entry.",
+    "Codex agent prompts live in .proof-or-stop-codex/agents and are generated from .claude/agents in full asset mode.",
+    "Codex native hooks are official lowercase .codex assets; case-insensitive file systems may project them through the same .proof-or-stop-codex directory entry.",
     "Claude Code hooks, settings, and skills remain under .claude only.",
     "Run node bin/proof-or-stop-codex.js verify_codex after changing Codex adapter assets; it records codex_adapter_verification evidence for gates.",
-    "Legacy project documents may remain archived, but active Codex adapter assets use .lattice-codex/lattice.json and bin/proof-or-stop-codex.js (the bin/lattice-codex.js alias is deprecated but retained)."
+    "Legacy project documents may remain archived, but active Codex adapter assets use .proof-or-stop-codex/proof-or-stop.json and bin/proof-or-stop-codex.js."
   ]
 }

@@ -25,10 +25,10 @@ import { fileURLToPath } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
 let repoRoot = here;
-while (!existsSync(join(repoRoot, 'lattice.config.json')) && repoRoot !== dirname(repoRoot)) {
+while (!existsSync(join(repoRoot, 'proof-or-stop.config.json')) && !existsSync(join(repoRoot, 'lattice.config.json')) && repoRoot !== dirname(repoRoot)) {
   repoRoot = dirname(repoRoot);
 }
-assert.ok(existsSync(join(repoRoot, 'lattice.config.json')), 'could not locate repo root (lattice.config.json)');
+assert.ok(existsSync(join(repoRoot, 'proof-or-stop.config.json')) || existsSync(join(repoRoot, 'lattice.config.json')), 'could not locate repo root (lattice.config.json)');
 
 const pkg = JSON.parse(readFileSync(join(repoRoot, 'package.json'), 'utf8'));
 const scripts = pkg.scripts || {};

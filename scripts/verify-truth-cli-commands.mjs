@@ -6,7 +6,7 @@ import { tmpdir } from 'os';
 import { join } from 'path';
 
 const root = process.cwd();
-const cli = join(root, 'bin', 'lattice-codex.js');
+const cli = join(root, 'bin', 'proof-or-stop-codex.js');
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);

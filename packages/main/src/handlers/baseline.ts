@@ -11,6 +11,7 @@ import {
   type BaselineExpectedOutcome,
   type BaselineId,
 } from '../core/baseline.js';
+import { PROOF_OR_STOP_DIR } from '../core/lattice-paths.js';
 import {
   buildBaselineSuiteReport as buildLegacyBaselineSuiteReport,
   renderBaselineRunText as renderLegacyBaselineRunText,
@@ -148,7 +149,7 @@ export function createBaselineHandlers(ctx: HandlerContext) {
       const reportFiles = splitFiles(args.reportFiles);
       const root = args.reportsRoot
         ? (args.reportsRoot.startsWith('/') ? args.reportsRoot : join(ctx.root, args.reportsRoot))
-        : join(ctx.root, '.lattice', 'artifacts', 'baseline');
+        : join(ctx.root, PROOF_OR_STOP_DIR, 'artifacts', 'baseline');
       const files = reportFiles.length > 0
         ? reportFiles.map(file => file.startsWith('/') ? file : join(ctx.root, file))
         : collectBaselineReports(root);
