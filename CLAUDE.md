@@ -445,6 +445,10 @@ Proof-or-Stop 支持多 worktree 并行，写权限的跨 session 协调按 roll
 2. **`checklist_update` 标 done 时**：列出该 item 的关联文档
 3. **DONE 推进时**：列出 `git diff main...HEAD` 没出现过的文档
 
+### English authoring and legacy relatedDocs recovery
+
+English-artifact gates scan all recursively scanned string leaves of story metadata. The listed examples (`excludes`, `files`, `reason`, `verificationEvidence`) are non-exhaustive. Recover leftover CJK in relatedDocs and other leaves before REVIEW→TEST.
+
 ## PLAN 阶段产物
 
 ### understanding_set（理解快照）

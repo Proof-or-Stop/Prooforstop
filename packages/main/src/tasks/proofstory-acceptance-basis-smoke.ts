@@ -173,6 +173,11 @@ function writeCanonicalAcceptanceRegistration(root: string): void {
   // relevant -- they must be stubbed here too, or they surface as snapshot_missing blind spots.
   write(root, 'packages/main/src/core/acceptance-rollout.ts', 'export const acceptanceRollout = "acceptance_basis acceptance_basis_generate";\n');
   write(root, 'scripts/run-proofstory-acceptance-rollout-cohort.mjs', 'export const acceptanceRolloutCohortRunner = true;\n');
+  // Inventory artifact registry lists these as producer/consumer source refs, so the
+  // bounded snapshot closure requires them once that entry is live.
+  write(root, 'packages/main/src/core/machine.ts', 'export const machine = "acceptance_basis";\n');
+  write(root, 'packages/main/src/core/review-inventory-epoch.ts', 'export const reviewInventoryEpoch = "acceptance_basis";\n');
+  write(root, 'packages/main/src/handlers/review-inventory.ts', 'export const reviewInventory = "acceptance_basis";\n');
 }
 
 function checklist(): ChecklistData {

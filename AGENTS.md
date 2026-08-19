@@ -319,6 +319,12 @@ proof-or-stop aux_sync --direction=extract    # 从源码注释提取到 task.js
 
 是否更新文档由 agent 自己判断，没有 ack 机制也没有门禁。
 
+### English authoring and legacy relatedDocs recovery
+
+English-artifact gates scan all recursively scanned string leaves of story metadata. The listed examples (`excludes`, `files`, `reason`, `verificationEvidence`) are non-exhaustive. Recover leftover CJK in relatedDocs and other leaves before REVIEW→TEST.
+
+Reviewer latest-run binding is kind-aware: a fresh PASS is accepted on any current-round material-fresh run; an open FINDING still requires the latest run on the lane.
+
 ### Pre-context Intake（understanding.json）
 
 PLAN 阶段开拆 checklist 之前，主 agent 应该先调 `understanding_set` 落一份理解快照：

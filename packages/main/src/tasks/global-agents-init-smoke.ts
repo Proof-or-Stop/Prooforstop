@@ -10,12 +10,12 @@
  * Covers:
  *   (a) fresh claude-marker project: project has 0 `.claude/agents/*.md`;
  *       global `$HOME/.claude/agents` has one regular file per managed role
- *       (currently 17; the smoke derives the count, never hardcodes it). Five migrated
+ *       (currently 17; the smoke derives the count, never hardcodes it). Six migrated
  *       reviewers contain only the canonical review_run_start bootstrap; the
  *       other roles retain the agent_prompt thin shim. No shim contains a
  *       migrated reviewer role body.
  *   (b) `proof-or-stop agent_prompt --role=<name>` returns the same actual Claude
- *       registry render: bootstrap for the five migrated reviewers, package
+ *       registry render: bootstrap for the six migrated reviewers, package
  *       body for ordinary roles.
  *   (c) `--upgrade` migration: all managed removed, user file kept, normal init
  *       only warns (no delete).
