@@ -252,6 +252,28 @@
         "scanEscalationReason": null
       },
       "_hash": "3da29b8453aa76f7218e46212aa678d6c50c0c705b4c1d00d7fd9b16460ea3c3"
+    },
+    {
+      "id": "B-45a5:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-attestation after metadata-only DEV round-trip (dev_memory_finish_decision + scope_contract_acknowledge). Delta since prior pass RP-007 (head 87462f3) touches only .lattice/story/actives/B-45a5/* and .lattice/dev-memory/* metadata, zero source/test/checklist content changed. All 9 pinned selectors (A1,A2,B1,B2,B3,C1,D1,D23,D45) re-run verbatim GREEN/CONTROL-OK/REFUSED, mechanical:true, none demoted. Coverage shape unchanged: CHK-001=2 mechanical+1 permanent waiver on happy:0 (B45A5-ROW-B3=RED, correctly inverted by this story own fix, cannot be re-earned), CHK-002/003/004=3 mechanical each zero waivers, CHK-005 withdrawn zero evidence zero waivers (decisionRef SD-ccafb44c). proofstory_review_completeness_check reports Gaps:0/Status:pass. validate --channel --story=B-45a5 shows CHK-005 in its own withdrawn (SD-ccafb44c) bucket, NOT under Covered (Covered: CHK-001,CHK-002,CHK-003,CHK-004). No blocker.",
+      "createdAt": "2026-08-19T13:03:58.496Z",
+      "reviewRound": "2026-08-19T12:59:26.603Z",
+      "reviewRunId": "B-45a5:RR-015",
+      "envelopeId": "2363da98bd1862f0b5cb8c0003bd2094e701a8848f3e07a2452a1dc79f6c4b62",
+      "writerSessionId": "sess-b45a5-main",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-45a5/background.md",
+          ".lattice/story/actives/B-45a5/checklist.json",
+          ".lattice/story/actives/B-45a5/plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "c876b8d17572bbf0b558a8608577e6984d2e8d91e38a58b95013f55df6eac140"
     }
   ]
 }
