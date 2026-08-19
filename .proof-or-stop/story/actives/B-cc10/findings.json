@@ -1448,7 +1448,7 @@
       "desc": "B-cc10 self-found (F-078): after F-077 unblocked review-incremental-context-smoke, test:serial-reference died on experience-hint-worktree-cache-smoke (3/6 FAIL). Assertions pinned main/.lattice/learning/finding-signals.json while LEARNING_DIR is the canonical .proof-or-stop/learning, so write-from-worktree and separate-git-dir/bare-backed prefix checks failed even though the runtime wrote the correct path. Sibling serial-reference test experience-coverage-gap-smoke had the same pin in its resolveFindingSignalsPath sanity check. Fix: assert via LEARNING_DIR/FINDING_SIGNALS_FILENAME and treat either state-dir spelling as a worktree leak.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main-agent",
       "createdAt": "2026-08-19T06:27:42.546Z",
@@ -1459,7 +1459,11 @@
         "packages/main/src/tasks/experience-coverage-gap-smoke.ts"
       ],
       "signatureTag": "missing|ts|cc10-self-found",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Both smokes now assert LEARNING_DIR/FINDING_SIGNALS_FILENAME. npm run test:experience-hint-worktree-cache PASS 6/6; npm run test:experience-coverage-gap PASS 15/15.",
+      "resolvedAt": "2026-08-19T06:30:40.894Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
