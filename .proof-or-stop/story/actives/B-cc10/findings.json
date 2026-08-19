@@ -1398,6 +1398,25 @@
       ],
       "signatureTag": "missing|md|promise-undelivered-claude",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-cc10:F-076",
+      "desc": "packages/main/src/tasks/done-merge-experience-refresh-smoke.ts:274-275 (assertForcedDeriveFailureNeverBlocksMerge) is a genuine regression caused by this story's learning-store.ts fix: it plants a poison file at join(root, '.lattice', 'learning') to force writeFindingSignals' mkdirSync to throw EEXIST, expecting the refresh to hit its catch branch and report \"experience cache refresh skipped: <reason>\". Since LEARNING_DIR now resolves via PROOF_OR_STOP_STATE_DIR (=.proof-or-stop) instead of the literal .lattice, the actual persist path is .proof-or-stop/learning, so the poison file at the old .lattice path no longer blocks the write. The refresh now silently SUCCEEDS instead of hitting the forced-failure branch, and the assertion 'control: report carries experience cache refresh skipped' fails. Confirmed by rebuilding (npm --prefix packages/main run build) and running node packages/main/dist/tasks/done-merge-experience-refresh-smoke.js at current HEAD: exit code 1, assertion failure with an empty report string where the skip message was expected. This script is registered in full-suite-runner.ts:132 and npm run test:serial-reference, so it is part of the DONE-required suite and would be caught by validate --full. Fix: update the fixture to plant the poison file at the resolved LEARNING_DIR path (or PROOF_OR_STOP_STATE_DIR) instead of the hardcoded .lattice literal.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-19T05:07:40.756Z",
+      "reviewRound": "2026-08-18T03:33:16.325Z",
+      "reviewRunId": "B-cc10:RR-107",
+      "_hash": "f9c8458e62e9cd847bc86fdb600e9f3ccf3198b1df689162147ffdf5c47215e5",
+      "files": [
+        "packages/main/src/tasks/done-merge-experience-refresh-smoke.ts",
+        "packages/main/src/core/learning-store.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
