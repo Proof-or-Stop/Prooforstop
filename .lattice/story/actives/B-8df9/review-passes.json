@@ -280,6 +280,37 @@
         "scanEscalationReason": null
       },
       "_hash": "caabee24f0c299f4cfcd2300cbe213a14592cecc79a3cd48ed8c210e106a5d87"
+    },
+    {
+      "id": "B-8df9:RP-011",
+      "agent": "lattice-review-quality",
+      "note": "Narrow re-attestation of the CHK-004:happy:0 restoration only. Diffed the quoted ORIGINAL WAIVER TEXT block against git show eac4a6605c:.lattice/story/actives/B-8df9/checklist.json programmatically: 633 chars, exact byte match. Confirmed CHK-004:edge:0 and CHK-004:adversarial:0 are byte-identical JSON objects to the eac4a6605c originals (untouched). Verified the correction paragraph is not overclaiming: withdrawnItemIntentRefs (proofstory.ts:1672-1684, consumed 2166) and withdrawnChecklistItemIdsFrom in checkDispatchEvidence (validate-channel.ts:305) both genuinely read scopeShrinkageDecision, confirmed by reading source. Verified the disclosed gap claim by reading source: core/verification.ts:212 isWithdrawnChecklistStatus(item.status) is literally status===\"withdrawn\" (checklist-status.ts:30), a bare status-string check, and buildVerificationCoverage is wired into done-prepare.ts:1165 (DONE-blocking stale-evidence classification) and phase-gates.ts:625 -- claim accurate, scope-limit sentence does not imply uniform decision-backing. git diff --name-only from RP-009 bound head (47a17845c) to current HEAD (b874629) shows only .lattice/ metadata files, no source/test/docs drift. Both red artifacts re-ran clean: red-b8df9-chk002-verdict-shapes.mjs 0 FAILED/0 BROKEN/17 rows exit 0; red-b8df9-init-check-verdict-signature.mjs 0 RED/0 BROKEN/24 rows exit 0. No finding warranted.",
+      "createdAt": "2026-08-19T16:11:31.341Z",
+      "reviewRound": "2026-08-03T04:27:32.508Z",
+      "reviewRunId": "B-8df9:RR-017",
+      "envelopeId": "d2eec889426656dd0a69a3b3a896a19a965672ff79fa28c9224b9297e9f4262a",
+      "writerSessionId": "sess-b8df9-main-agent",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-8df9/checklist.json",
+          "packages/main/src/core/checklist-status.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/validate-channel.ts",
+          "packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs",
+          "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-8df9/background.md",
+          ".lattice/story/actives/B-8df9/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "16f5867745000c7db63e063e428cd951f13f304fd12c0b707a76fab8930ca015"
     }
   ]
 }
