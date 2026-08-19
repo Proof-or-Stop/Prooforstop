@@ -8438,6 +8438,61 @@
       ],
       "signatureTag": "missing|ts|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3f3d:F-125",
+      "desc": "Wave-4 verifier-owned coverage is not current on HEAD 793dbaf. Live executable commands: acceptance_topology_check status=fail structuralPass=false AT_ADAPTER_RESULT_DIGEST_MISMATCH/AT_CLOSURE_FILES_STALE (observe, diagnostic_only); pre_review_check_read status=inconclusive ok=false authority=inadmissible codes include PR_ARTIFACT_TAMPERED, PR_EVIDENCE_STALE, PR_CUTOFF_UNBOUND; acceptance_rollout_report_read and acceptance_rollout_check both status=fail mode=enforce blocking=true receipt=stale AR_REPORT_STALE. Prompt prose is not evidence. Refresh the signed rollout report to current storyFilesHash/materialHash, repair topology/pre-review artifacts, and re-run the four verifier-owned commands until a current signed PASS exists (full 3x2, enforce-only blocking, no stale receipt).",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-19T08:51:58.181Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-556",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3f3d/background.md",
+          ".lattice/story/actives/B-3f3d/plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "packages/main/src/core/verification.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3f3d/acceptance-rollout-report.json",
+          ".lattice/story/actives/B-3f3d/pre-review-check.json",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/testing-completeness.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "c53c3b21267fe50b9a1d34ccc9905735fce1cd876d1494c9e121ba031a92d6a5"
+      },
+      "readDiagnostics": [],
+      "_hash": "3cf4fd4f81bbb93ae681ec1411457a145c6a54a18363cdcc4fd3adb0568e7cd3",
+      "files": [
+        ".lattice/story/actives/B-3f3d/acceptance-rollout-report.json",
+        ".lattice/story/actives/B-3f3d/pre-review-check.json",
+        ".lattice/story/actives/B-3f3d/acceptance-basis.json"
+      ],
+      "signatureTag": "missing|json|wave-verifier-owned",
+      "signatureTagSource": "auto"
     }
   ]
 }
