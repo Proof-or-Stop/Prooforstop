@@ -259,6 +259,24 @@
       "resolvedReason": "Correct, accepted in full, and the root cause is mine. Three lanes caught the same defect from three angles: quality saw the CHK-005 selectors pinned to which story happens to sit in INIT (B-dcf9 today); concept saw the CHK-006 selectors pinned to prose that command-policy.ts's own comment invites future editors to reword; test-coverage proved the decisive fact — docs-type intents route to the attestation-only branch of enforceAndStampEvidence BEFORE any caller-supplied selector is read, so NO selector, pin or receipt was ever persisted and mechanical stayed false. My note claiming the rows were \"re-pinned with a stable selector, now mechanically re-verifiable\" was therefore false from the moment it was written. It flipped no gate, but it put a false claim about evidence strength into a permanent audit trail — on the one story whose entire subject is that a signature must cover what its gate decides on, or the record will confidently mislead. Fix: appended a retraction to each of the four rows that withdraws the claim, states what they actually are (point-in-time attestations executed by hand on the merged tree), and records why they are not durably re-verifiable. Also recorded that the original author's decision to leave them unpinned was the better judgement. No selector remains claimed anywhere.",
       "resolvedAt": "2026-08-19T15:51:03.300Z",
       "resolutionType": "fixed"
+    },
+    {
+      "id": "B-8df9:F-013",
+      "desc": "summary.json:6 actualTranscript overclaims evidence-strength: it says the behavior lane AND the delivery reviewer each built their own fixture and confirmed all three attacks (injection/erasure/rename). On record, only lattice-review-behavior RR-020 (RP-015) built a fixture testing all three attacks; the delivery reviewer transcript (delivery-check.json CHK-002 row) built its own fixture testing only ONE attack (hand-injected reviewer record / injection), not erasure or rename. Also unclear where four probes come from: only two out-of-suite fixtures are on record (behavior RR-020 covering all 3 attacks; delivery covering 1). The underlying three-attack conclusion IS true and IS backed by evidence (behavior RR-020 plus the shipped D1/D2/D3 rows), but the sentence misattributes which reviewer independently confirmed which attacks and inflates the probe count -- the exact overclaim-about-evidence-strength failure mode this story is about (cf. F-009/F-011/F-012).",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-19T18:37:59.586Z",
+      "reviewRound": "2026-08-19T18:28:53.184Z",
+      "reviewRunId": "B-8df9:RR-025",
+      "_hash": "f0e8f16d8e00a45a3c5026f9c7bd03eaef2a482cfdd99d9bf8984c9ca523cf15",
+      "files": [
+        ".lattice/story/actives/B-8df9/summary.json"
+      ],
+      "signatureTag": "missing|json|summary-json-actualtranscript",
+      "signatureTagSource": "auto"
     }
   ]
 }
