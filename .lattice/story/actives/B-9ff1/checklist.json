@@ -2706,16 +2706,16 @@
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "14e6e7974ff82e694e1444791ba333f815a2e213f66a5ffd3b9c4b0d7f0568bc",
-            "outputTail": "red-w2d-command-readonly: PASS\n  registration: MAIN_TOOLS + command-policy(readOnly/none) + process-fact L0 + READ_ONLY_COMMANDS + registered handler\n  success output: assertionDigest sha256:60f9d33cddb2b692b9ba243ffa33038b0c089b0654afeb559f01ad1daa383515 / binding M1 npm-script@1 npm-script:test:x / policyDigest sha256:470db38278a59387f2105c8bcdcca59ee52c8706cb3c69f7e150d3cd1154d767\n  inadmissible: tagged R1-2 rejection, success output absent; .lattice manifest of file paths and content hashes NET identical across the batch of 8 DIRECT handler invocations (aggregate before/after, not per-invocation; no empty directories, file modes or symlink identity recorded; the CLI wrapper is not exercised here)\n  spawn set observed across those invocations: execFileSync git rev-parse + execFileSync git worktree + execSync git rev-parse + spawnSync git rev-parse + spawnSync git show (32 calls) — read-only git, no runner/harness/shell\n  validate pipeline: packages/main/dist/tasks/red-evidence-envelope-smoke.js resolved via configuredValidationCommands and run via runValidationCommand -> exit 0 in 4702ms\n",
+            "outputDigest": "98c5ab13fa4b9f5fccd250a260c2aa3e1acea9018b64ea3d0720a7d6178e8547",
+            "outputTail": "red-w2d-command-readonly: PASS\n  registration: MAIN_TOOLS + command-policy(readOnly/none) + process-fact L0 + READ_ONLY_COMMANDS + registered handler\n  success output: assertionDigest sha256:60f9d33cddb2b692b9ba243ffa33038b0c089b0654afeb559f01ad1daa383515 / binding M1 npm-script@1 npm-script:test:x / policyDigest sha256:470db38278a59387f2105c8bcdcca59ee52c8706cb3c69f7e150d3cd1154d767\n  inadmissible: tagged R1-2 rejection, success output absent; .lattice manifest of file paths and content hashes NET identical across the batch of 8 DIRECT handler invocations (aggregate before/after, not per-invocation; no empty directories, file modes or symlink identity recorded; the CLI wrapper is not exercised here)\n  spawn set observed across those invocations: execFileSync git rev-parse + execFileSync git worktree + execSync git rev-parse + spawnSync git rev-parse + spawnSync git show (32 calls) — read-only git, no runner/harness/shell\n  validate pipeline: packages/main/dist/tasks/red-evidence-envelope-smoke.js resolved via configuredValidationCommands and run via runValidationCommand -> exit 0 in 3961ms\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-18T21:42:13.676Z",
+            "executedAt": "2026-08-19T01:13:53.367Z",
             "timeoutMs": 180000
           },
-          "headHash": "aa59937693412b93184ccc3c08d190b2615cd7ae",
-          "materialHash": "486cab9cc209b4b9c06424124a17f26097a86ba67b890f18de9aaae311c85337",
+          "headHash": "9853b127e9d2424248ebf71ec16518c5f008cd93",
+          "materialHash": "795dd85675c8e91ced707cd1ebd8d31f72cb9ad65cb93d799e8ee1067524bd6c",
           "storyFilesHash": "40c5f0ee0942b1c38570a03945c816537cbab3662158ba68176ceae963b0ef50",
-          "timestamp": "2026-08-18T21:42:23.119Z"
+          "timestamp": "2026-08-19T01:14:01.833Z"
         },
         {
           "intentRef": "CHK-012:edge:1",
@@ -2724,10 +2724,10 @@
           "waiverType": "permanent",
           "file": "packages/main/tests/red/red-w2d-command-readonly.mjs",
           "note": "WAIVER — the behaviour IS proven; the immutable pin is not correctable. packages/main/tests/red/red-w2d-command-readonly.mjs asserts exactly this intent: an invalid-JSON envelope raises a parse error and the per-file SHA-256 snapshot of the whole .lattice tree is unchanged across every invocation; the test passes (exit 0). The pinned selector reads '.lattice tree byte-identical after 7 invocations', but the test body has ALWAYS performed EIGHT invocations - the pinned literal was factually wrong on the day it was authored, not made wrong by any later change. During REVIEW the test was corrected to print a derived count ('across 8 invocations'), so the stale pin can never match again. Per checklist.ts the pin is immutable by design (receipt_selector_mismatch), checklist_update rejects the verification key, and verification_intent_repair only backfills MISSING intents - so there is no sanctioned correction path. The two dishonest alternatives were rejected explicitly: printing a literal known to be false so the stale pin matches (the exact fabrication the pin mechanism exists to prevent), and wiping the pin to re-pin it (a fabrication surface anyone could use). Recorded as a visible, attributable waiver instead. The tooling gap is filed as its own task.",
-          "headHash": "aa59937693412b93184ccc3c08d190b2615cd7ae",
-          "materialHash": "486cab9cc209b4b9c06424124a17f26097a86ba67b890f18de9aaae311c85337",
+          "headHash": "9853b127e9d2424248ebf71ec16518c5f008cd93",
+          "materialHash": "795dd85675c8e91ced707cd1ebd8d31f72cb9ad65cb93d799e8ee1067524bd6c",
           "storyFilesHash": "40c5f0ee0942b1c38570a03945c816537cbab3662158ba68176ceae963b0ef50",
-          "timestamp": "2026-08-18T21:42:23.119Z"
+          "timestamp": "2026-08-19T01:14:01.833Z"
         },
         {
           "intentRef": "CHK-012:adversarial:0",
@@ -2742,13 +2742,13 @@
             "outputDigest": "baf3f621e674fa2a87bdc575b6829472fdc5bc2895d3229acdaffb2b25c7bd07",
             "outputTail": "red-evidence-envelope-smoke: OK — total-bits entropy (8 differential rows) + byte measurement, rule 2 AND-not-OR (both single-floor directions), rule 1 blocklist (8/8) + rule 3 all tagged R1-2, assertionDigest scope proven in BOTH directions, 33 tagged rejection fixtures covering R1-1/R1-2/R1-3/R1-5/R1-6 with R1-2 and R1-3 never collapsed, tag routing pinned BY CODE for the §1.3 rule-1 triple (empty + blocklisted R1-2 vs trimmed R1-3), matcher COUNT and §1.3 specificity independently reported, the count bound proven policy-resolved by a two-policy differential (8 vs 3), candidate policyDigest/assertionDigest optional-but-checked in all four cells, the ADMISSIBLE success transcript (assertionDigest + matched binding + policyDigest), a byte-identical .lattice tree with no gate verdict change — byte-identical here meaning NET across the batch of DIRECT handler invocations (one snapshot before the batch, one after, not per-invocation), over a manifest of file paths and content hashes only (empty directories, file modes and symlink identity are not recorded), and with the CLI entrypoint not exercised — and all three registry contracts pass.\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-18T21:42:18.203Z",
+            "executedAt": "2026-08-19T01:13:57.453Z",
             "timeoutMs": 180000
           },
-          "headHash": "aa59937693412b93184ccc3c08d190b2615cd7ae",
-          "materialHash": "486cab9cc209b4b9c06424124a17f26097a86ba67b890f18de9aaae311c85337",
+          "headHash": "9853b127e9d2424248ebf71ec16518c5f008cd93",
+          "materialHash": "795dd85675c8e91ced707cd1ebd8d31f72cb9ad65cb93d799e8ee1067524bd6c",
           "storyFilesHash": "40c5f0ee0942b1c38570a03945c816537cbab3662158ba68176ceae963b0ef50",
-          "timestamp": "2026-08-18T21:42:23.119Z"
+          "timestamp": "2026-08-19T01:14:01.833Z"
         }
       ]
     },
@@ -2813,13 +2813,13 @@
             "outputDigest": "bc07686698e67463cc084a24474aa748fee0736d74c7a491cac8885a30d5190c",
             "outputTail": "red-w2c-validate-registration: OK (all 4 packages/main/dist/tasks/red-evidence-* members found ON DISK are accounted for: 4 registered in lattice.config.json validate.commands — including the red-evidence-chain-smoke.js convergence anchor — and 0 excluded with a stated reason, with no stray family artifact outside the population. The expectation is DERIVED from the directory rather than hardcoded, so a member added without a registration decision FAILS this check; proven non-vacuous per registered entry, against a synthetic newcomer and against a synthetic stale/unreasoned exclusion. packages/main/tests/red/* is governed by packages/main/tests/red/red-b49d4-harness-registration.mjs, which exists and which governs this file too — no self-exception)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-18T21:42:18.369Z",
+            "executedAt": "2026-08-19T01:13:57.601Z",
             "timeoutMs": 180000
           },
-          "headHash": "aa59937693412b93184ccc3c08d190b2615cd7ae",
-          "materialHash": "486cab9cc209b4b9c06424124a17f26097a86ba67b890f18de9aaae311c85337",
+          "headHash": "9853b127e9d2424248ebf71ec16518c5f008cd93",
+          "materialHash": "795dd85675c8e91ced707cd1ebd8d31f72cb9ad65cb93d799e8ee1067524bd6c",
           "storyFilesHash": "40c5f0ee0942b1c38570a03945c816537cbab3662158ba68176ceae963b0ef50",
-          "timestamp": "2026-08-18T21:42:23.119Z"
+          "timestamp": "2026-08-19T01:14:01.833Z"
         },
         {
           "intentRef": "CHK-013:happy:1",
@@ -2834,13 +2834,13 @@
             "outputDigest": "baf3f621e674fa2a87bdc575b6829472fdc5bc2895d3229acdaffb2b25c7bd07",
             "outputTail": "red-evidence-envelope-smoke: OK — total-bits entropy (8 differential rows) + byte measurement, rule 2 AND-not-OR (both single-floor directions), rule 1 blocklist (8/8) + rule 3 all tagged R1-2, assertionDigest scope proven in BOTH directions, 33 tagged rejection fixtures covering R1-1/R1-2/R1-3/R1-5/R1-6 with R1-2 and R1-3 never collapsed, tag routing pinned BY CODE for the §1.3 rule-1 triple (empty + blocklisted R1-2 vs trimmed R1-3), matcher COUNT and §1.3 specificity independently reported, the count bound proven policy-resolved by a two-policy differential (8 vs 3), candidate policyDigest/assertionDigest optional-but-checked in all four cells, the ADMISSIBLE success transcript (assertionDigest + matched binding + policyDigest), a byte-identical .lattice tree with no gate verdict change — byte-identical here meaning NET across the batch of DIRECT handler invocations (one snapshot before the batch, one after, not per-invocation), over a manifest of file paths and content hashes only (empty directories, file modes and symlink identity are not recorded), and with the CLI entrypoint not exercised — and all three registry contracts pass.\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-18T21:42:22.984Z",
+            "executedAt": "2026-08-19T01:14:01.708Z",
             "timeoutMs": 180000
           },
-          "headHash": "aa59937693412b93184ccc3c08d190b2615cd7ae",
-          "materialHash": "486cab9cc209b4b9c06424124a17f26097a86ba67b890f18de9aaae311c85337",
+          "headHash": "9853b127e9d2424248ebf71ec16518c5f008cd93",
+          "materialHash": "795dd85675c8e91ced707cd1ebd8d31f72cb9ad65cb93d799e8ee1067524bd6c",
           "storyFilesHash": "40c5f0ee0942b1c38570a03945c816537cbab3662158ba68176ceae963b0ef50",
-          "timestamp": "2026-08-18T21:42:23.119Z"
+          "timestamp": "2026-08-19T01:14:01.833Z"
         },
         {
           "intentRef": "CHK-013:edge:0",
