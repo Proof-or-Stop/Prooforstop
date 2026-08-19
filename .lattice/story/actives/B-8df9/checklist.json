@@ -222,20 +222,20 @@
           "kind": "integration_test",
           "command": "node packages/main/dist/tasks/init-check-required-agents-smoke.js",
           "result": "pass",
-          "note": "Post-merge re-execution after B-45a5 withdrawal-gate fix landed on main; pinned command and selector unchanged.",
+          "note": "Re-executed after merging main (six sibling validate entries arrived); pinned command and selector unchanged.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "a45b133d12f33c5010a47d46b4f0d592c1f0153f93efd80852c5d43c1989fc25",
             "outputTail": "agent-dispatch-registry-smoke PASS (15 canonical roles, 2 aliases)\ntyped dispatch role/cardinality/mutation smoke PASS\n✓ review pass and discard smoke passed\n✓ flow stability smoke passed\n✓ init check required agents smoke passed\n✓ provider codex smoke passed: real codexCliAvailable preflight; bounded spawn capture (digest/bytes/exit/duration, no raw transcript leakage); stdin-closed no-hang; non-zero/missing/E2BIG/generic-spawn/timeout classification; end-to-end executor run with redacted env where provider success never equals validation or authority DONE; disabled/unavailable fail closed\n  ✓ CHK-001:happy:1 cross_host_review is registered\n  ✓ CHK-001:happy:0 fake FAIL verdict → recorded host-B decision fail, materialDigest bound\n  ✓ CHK-001:edge:0 garbage stdout → blocked, codex_review_no_parseable_verdict, no raw stdout\n  ✓ CHK-001:edge:1 valid JSON missing `decision` → blocked, no_parseable_verdict\n  ✓ CHK-001:edge:2 wrong materialHash → blocked (material mismatch)\n  ✓ CHK-001:edge:3 non-zero exit + timeout, no verdict → blocked, stdoutDigest present, no raw; truncated stdout → blocked (codex_review_stdout_truncated), honest digest\n  ✓ CHK-001:adversarial:0 verdict + injection noise BEFORE (only structured fields parsed); trailing JSON object / prose AFTER → fail-closed; harness noise AFTER → still parses\n  ✓ CHK-001:adversarial:1 dispatch policy refuses non-review codex impl + gemini/antigravity under review-only flag\n  ✓ CHK-001:adversarial:2 codex with BOTH allowRealHostSubprocess + allowReviewOnlyRealHostSubprocess → REFUSED\n  ✓ CHK-001:adversarial:3 missing policy → fail-closed (no spawn, no verdict recorded)\n  ✓ CHK-001:adversarial:4 unauthorized policy (no codex review grant) → fail-closed\n  ✓ CHK-001:adversarial:5 closed-allowlist env redaction (allowlist no longer injects) + envDenylist drops a base var + timeout ceiling threaded\n  ✓ CHK-001:adversarial:6 dirty SOURCE worktree → fail-closed dirty-worktree; Codex reviews clean captured-HEAD snapshot; pre-hash/post-spawn/post-write clean HEAD drift blocked; .lattice-only dirty → proceeds\n  ✓ CHK-001:adversarial:7 malformed host-A findings file (missing field / extra key / wrong type) → fail-closed (no spawn, no verdict); well-formed control passes\n  ✓ CHK-002:happy:0 host-B-only finding → jointDecision blocked, onlyHostB=1, disagreement\n  ✓ CHK-002:happy:1 identical findings both pass → jointDecision pass, no disagreement\n  ✓ CHK-002:edge:0 host-A-only finding → onlyHostA>=1, disagreement, blocked (symmetric)\n  ✓ CHK-002:edge:1 one pass / one fail, no overlap → blocked, blockedReason, decisions accurate\n  ✓ CHK-002:edge:2 same file:line, differently-cased titles → treated as SAME (agreed)\n  ✓ CHK-002:edge:3 both fail identical findings → blocked, no disagreement, agreed shared\n  ✓ CHK-002:edge:4 host-B verdict blocked → jointDecision blocked (propagation)\n  ✓ CHK-002:adversarial:0 divergent materialHash → jointDecision blocked (never pass on divergent code)\n  ✓ CHK-002:adversarial:1 host-B returns same finding twice → diffFindings dedups, counts correct\n  ✓ CHK-002:adversarial:2 same host identity for hostA/hostB → fail-closed before spawn/record\n\n✓ cross_host_review smoke passed (24 checks)\n✓ repair-retry-loop smoke passed: outer validation/repair/revalidate loop, configured repair provider step, provider timeout retry budget, cross-iteration no-progress via material/evidence hash, exact blocked stop reasons after limits, repair never bypasses validation/gate/multi-host, and defensive policy normalization verified\nagent-liveness-suite-smoke PASS\n✓ init check required agents smoke passed\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-19T15:32:58.869Z",
+            "executedAt": "2026-08-19T17:21:40.371Z",
             "timeoutMs": 270000
           },
-          "headHash": "990149c4b5dbd832741809379104861eba538ba1",
-          "materialHash": "b3ae30c9b0573ffc9b04f68dc044699bb59ff4db0c027b33fbfc773796f6e113",
-          "storyFilesHash": "d83d13fa37a415bc9cd4f1eb416740f46003f489fa495e9d66ca63a2f7751f8c",
-          "timestamp": "2026-08-19T15:32:59.002Z"
+          "headHash": "e27b2b8954000afe77d760ee130cbe1f8394af34",
+          "materialHash": "e4b2e340c75e441473af303dcc88831a3ea10ce855550e4d4e41aa8f2a9bed7a",
+          "storyFilesHash": "0d6dbaf3449487543b2406949abcd4c32dd4f269d173145d4b99b04b20809410",
+          "timestamp": "2026-08-19T17:21:40.545Z"
         }
       ]
     },
