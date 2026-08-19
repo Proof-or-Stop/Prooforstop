@@ -905,6 +905,37 @@
         "scanEscalationReason": null
       },
       "_hash": "d6e5f9ec5b9346aac910157d7508cf1340c23317ff50c5b6971043a0bf6c89a1"
+    },
+    {
+      "id": "B-7dff:RP-029",
+      "agent": "lattice-review-test-coverage",
+      "note": "Independently re-verified F-016/F-017 closure rather than trusting the refresh report they showed is blind to waivers. Coverage: 15/15 must-priority verificationIntent rows across CHK-001..CHK-005, each with exactly one matching verificationEvidence row (2 permanent waivers: CHK-001:happy:0, CHK-005:happy:0; 13 command-backed). Ran checkEvidenceFreshnessForGit (the same function evidence_refresh/done_prepare use) programmatically against every one of the 15 rows, including both waivers which refreshOnlyDrift/isWaiver structurally skip: 0 stale rows found. Both waivers materialHash 6252802133ce751d6a0a79951a96f81b0719231e4da88bbc6ae8bf588516dc39 and storyFilesHash 0bab1cc35f5b0e4ceae7c9ed0ac03e365bd8ccd26fd92afe53f1b65eb0f9e775 byte-match current computed values (confirmed via git ls-tree at current HEAD 3afe6bf5d9). Their literal headHash fields point at earlier commits (ee3ba2a242, a5b9ed0a98) but that is expected: checkEvidenceFreshnessForGit checks materialHash first, and only the two waiver rebind commits (3f40a4bf8c, ebb946f046) intervened between those hashes and current HEAD, touching only checklist.json which is story metadata excluded from materialHash. Git-diffed both rebind commits directly and confirmed each prior materialHash genuinely differed from current before the rebind, so this was real drift correctly repaired, not a cosmetic edit. The 13 command-backed rows were genuinely re-executed, not metadata-stamped: git-diffed the verification_evidence_refresh_stale commit 8310c7f78a and confirmed distinct outputDigest values and staggered executedAt timestamps (01:36:13 through 01:37:28 UTC) replacing stale receipts, matching a real re-run rather than a copy. Confirmed story B-0f97 waiver-bindings-invisible-to-refresh exists via git show main colon path to its index.json: phase INIT, description accurately names evidence-refresh.ts refreshOnlyDrift/isWaiver as the mechanism, matching F-016/F-017 root cause. It is not yet visible from proof-or-stop story_get or story_list inside this worktree because main advanced past this worktree merge-base after the story was filed (main HEAD e51c1a63fc vs this worktree merge-base 81c88bf448); that is normal worktree divergence, not a missing filing, and done_prepare mergeMain will pick it up. finding_list shows F-016 and F-017 status resolved evidenceState verified, and 0 open findings remain on the story. No blocker found.",
+      "createdAt": "2026-08-19T02:20:26.205Z",
+      "reviewRound": "2026-08-19T02:03:22.681Z",
+      "reviewRunId": "B-7dff:RR-045",
+      "envelopeId": "889b71c7281bc66570942c599cb2cc3fa92f07c85045deb17c0aeb35ea287282",
+      "writerSessionId": "sess-c8142ac4cb69f1c755df4c1fc223e028",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7dff/background.md",
+          ".lattice/story/actives/B-7dff/checklist.json",
+          ".lattice/story/actives/B-7dff/findings.json",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/handlers/evidence-refresh.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-0f97/index.json (read via git show main colon path)",
+          ".lattice/story/actives/B-7dff/process-events.jsonl",
+          "git show 3f40a4bf8c for checklist.json CHK-001 waiver rebind diff",
+          "git show 8310c7f78a for checklist.json 13-row refresh diff",
+          "git show ebb946f046 for checklist.json CHK-005 waiver rebind diff"
+        ],
+        "scanEscalationReason": "Ran the production checkEvidenceFreshnessForGit function programmatically against all 15 verificationEvidence rows in checklist.json, including both waivers, rather than relying on evidence_refresh or verification_evidence_refresh_stale reports which F-016 and F-017 established are structurally blind to waiver rows. Zero stale rows found; git-diffed the three relevant commits (both waiver rebinds plus the 13-row refresh) to confirm the prior bindings were genuinely stale before repair and the repair was a genuine rebind or re-run, not a cosmetic edit."
+      },
+      "_hash": "e0c82c4ec185208096ba19cc99519995908bcfac7e36bc19a3c82a171d05129a"
     }
   ]
 }
