@@ -679,10 +679,28 @@
       "phase": "REVIEW",
       "headHash": "1ce9e6212aef1187443e047a49d9981db0c0f706",
       "materialHash": "c6ad40d38ebf3a2a17bb49fc18985099db54c64450d1409b7e54a86280c95036"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "B-cc10 renamed lattice.config.json to proof-or-stop.config.json and .lattice-codex to .proof-or-stop-codex. After merging local main, the Wave-4 topology-critic plus acceptanceRolloutGateMode=enforce settings must live on the new canonical config path, and the critic agent shim lives under the renamed adapter directory. Both files are the same closeout artifacts previously acknowledged as lattice.config.json and .lattice-codex/agents/lattice-review-topology-critic.md.",
+      "timestamp": "2026-08-19T16:35:19.311Z",
+      "paths": [
+        "proof-or-stop.config.json",
+        ".proof-or-stop-codex/agents/lattice-review-topology-critic.md"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "proof-or-stop.config.json",
+        ".proof-or-stop-codex/agents/lattice-review-topology-critic.md"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "c9524958f24c196a1fad52ed6e2303b896ad157b",
+      "materialHash": "824787ed988c20aa171fe7824cd3f3d762f94342f95c9e6823d284f3cfc7839d"
     }
   ],
   "createdAt": "2026-08-14T14:01:52.360Z",
-  "updatedAt": "2026-08-19T14:06:23.352Z",
+  "updatedAt": "2026-08-19T16:35:19.311Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -809,6 +827,8 @@
     "packages/main/src/tasks/acceptance-basis-review-phase-smoke.ts": "packages/main/src/tasks/acceptance-basis-review-phase-smoke.ts",
     "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
     "packages/main/src/core/codex-adapter-checks.ts": "packages/main/src/core/codex-adapter-checks.ts",
-    "packages/main/src/tasks/dev-memory-lifecycle-gates-smoke.ts": "packages/main/src/tasks/dev-memory-lifecycle-gates-smoke.ts"
+    "packages/main/src/tasks/dev-memory-lifecycle-gates-smoke.ts": "packages/main/src/tasks/dev-memory-lifecycle-gates-smoke.ts",
+    "proof-or-stop.config.json": "proof-or-stop.config.json",
+    ".proof-or-stop-codex/agents/lattice-review-topology-critic.md": ".proof-or-stop-codex/agents/lattice-review-topology-critic.md"
   }
 }
