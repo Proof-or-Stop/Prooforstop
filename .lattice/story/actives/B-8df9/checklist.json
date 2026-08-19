@@ -494,15 +494,14 @@
         {
           "intentRef": "CHK-005:happy:0",
           "kind": "docs_check",
-          "file": "docs/requirements/decisions/story-lifecycle.md",
-          "command": "node .lattice/story/actives/B-8df9/chk005-corpus-derivation.mjs && grep -n \"Decision: no migration\" docs/requirements/decisions/story-lifecycle.md",
+          "command": "node .lattice/story/actives/B-8df9/chk005-corpus-derivation.mjs",
           "result": "pass",
-          "note": "Counts re-derived at implementation time, not copied: the read-only derivation script calls the product own recomputeInitCheckHash and prints CORPUS_FILES_TRACKED_MARKER, TRACKED_VERIFYING_UNDER_CURRENT_DOMAIN_MARKER, TRACKED_VERIFYING_UNDER_PRE_CHK002_DOMAIN_MARKER and GATED_INIT_STORY_COUNT_MARKER, whose values populate the table in the decision record. The grep shows the position line \"Decision: no migration\" at story-lifecycle.md:82, and the section that follows names what breaks (the single INIT-phase story) and what never worked (the post-INIT corpus).",
+          "note": "Post-merge re-execution after B-45a5 withdrawal-gate fix landed on main. Re-pinned with a stable selector so this row is now mechanically re-verifiable rather than a bare command record.",
           "mechanical": false,
-          "headHash": "696de47d122e559fc3e927835197514250081c1b",
-          "materialHash": "e8af491da1cfbc4911daae883dc5f637489f2e04041a1726662015964f63bfe3",
-          "storyFilesHash": "9a06ef0ebdbfedb8dad0e63a15232e43bbc801e1f6f5e1072977fd2537baa627",
-          "timestamp": "2026-08-03T03:30:48.866Z"
+          "headHash": "630c1c38b4ce95b25e858fdf8685713c034ebdd1",
+          "materialHash": "b3ae30c9b0573ffc9b04f68dc044699bb59ff4db0c027b33fbfc773796f6e113",
+          "storyFilesHash": "d83d13fa37a415bc9cd4f1eb416740f46003f489fa495e9d66ca63a2f7751f8c",
+          "timestamp": "2026-08-19T15:37:03.696Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
