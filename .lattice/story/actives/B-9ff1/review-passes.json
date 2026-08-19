@@ -2045,6 +2045,36 @@
         "scanEscalationReason": null
       },
       "_hash": "c11664f2b4ef4d2e6b82ef81770cd5ac08dd7b8116613aaaa957e1a672d5638b"
+    },
+    {
+      "id": "B-9ff1:RP-066",
+      "agent": "lattice-review-behavior",
+      "note": "Re-audit per no-source-change dispatch (round unchanged, RR-103->RR-105 rebind after concurrent lane bookkeeping commit moved HEAD, same scope c8d7c0c/2d84ef4): (1) red_evidence_envelope_check still fail-closed, names redEvidence block in lattice.config.json, emits red_evidence_policy_missing: pinnedPath. (2) red-w2d-specificity-conjunction.mjs exit 0, five pinned rows unchanged (SIGSEGV 15.65 REJECT / ENOMEM 11.51 REJECT / HTTP 404 20.00 REJECT / Error 500 21.77 REJECT / test failed 34.05 ADMIT). (3) diffed summary.json at commit f84639e09a (which recorded B-9ff1:RP-061) against current HEAD f7ebef5746 -- byte-identical (git diff exit 0, no output); limitations field still carries the specificity inversion, all four measured pairs, the ENOMEM non-tunable 12-bit hard-floor point, and the ships-unfixed framing (verified by direct read). (4) other four red harnesses (assertion-digest-scope, command-readonly, entropy-differential, rejection-matrix) and red-evidence-envelope-smoke.js all exit 0; findings.json = 77 total, 0 open (76 resolved, 1 dismissed); git rev-list HEAD..main = 0; git status --porcelain empty (working tree clean at time of this pass). Only intervening changes since RP-061 commit were concurrent review-lane bookkeeping (process-events.jsonl/prompt-envelopes.json/review-passes.json/review-runs.json from parallel lanes in this same round), no source/docs/summary.json drift. No blocker found.",
+      "createdAt": "2026-08-19T01:18:31.667Z",
+      "reviewRound": "2026-08-19T01:12:32.621Z",
+      "reviewRunId": "B-9ff1:RR-105",
+      "envelopeId": "f5aea4db696f3df03a64402b2aac881c45aae00fef390e4cbc3209b1fcec9cbe",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-9ff1/findings.json",
+          ".lattice/story/actives/B-9ff1/review-passes.json",
+          ".lattice/story/actives/B-9ff1/review-runs.json",
+          ".lattice/story/actives/B-9ff1/summary.json"
+        ],
+        "filesTriagedByName": [
+          "packages/main/dist/tasks/red-evidence-envelope-smoke.js",
+          "packages/main/tests/red/red-w2d-assertion-digest-scope.mjs",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs",
+          "packages/main/tests/red/red-w2d-entropy-differential.mjs",
+          "packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "packages/main/tests/red/red-w2d-specificity-conjunction.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "726f5fa5526860f4aa9b762b0b17788108ce878b69938593dccf5bfd1bf91b23"
     }
   ]
 }
