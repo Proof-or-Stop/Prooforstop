@@ -22208,6 +22208,34 @@
       },
       "readDiagnostics": [],
       "_hash": "575dbc7ac541806d32c65f7e0098ee7b1b3fca319f23146906cb37934d39377f"
+    },
+    {
+      "id": "B-3f3d:RP-389",
+      "agent": "lattice-review-docs",
+      "note": "Step1 symbols=4 (materialTargets, openInventory, result, storyMetadataPrefix; local to 6cbbbf73 prewrite-guard delta; exported createPrewriteGuardHandlers name unchanged). Step2 paragraphs=1 (docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md Operator workflow). Handler packages/main/src/handlers/prewrite-guard.ts has zero lattice tokens and zero lattice <cmd> operator strings; line 218 recovery is proof-or-stop review_inventory_cancel --storyId=... which matches the decision-doc operator example. F-130 closed for this handler; no remaining docs-code drift on the recovery command.",
+      "createdAt": "2026-08-19T18:33:56.656Z",
+      "reviewRound": "2026-08-19T18:29:09.429Z",
+      "reviewRunId": "B-3f3d:RR-612",
+      "envelopeId": "5baea8c8c11da2071cb962de3aca25d68067d3db1a1e70c5112813cf75534c62",
+      "writerSessionId": "sess-4292375d1d751b41",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/prewrite-guard.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/guide-scope-guard.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "_hash": "b9626bdbfe445ce28a48e45be95cec76cecf78c09afb8a979f65f87282ef7675"
     }
   ]
 }
