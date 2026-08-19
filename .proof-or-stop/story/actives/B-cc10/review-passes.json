@@ -394,6 +394,40 @@
         "scanEscalationReason": null
       },
       "_hash": "0517c9557f8b4fa4cdd4ae2dca78c58d33e65d19d80327b626fb599f1658aa6a"
+    },
+    {
+      "id": "B-cc10:RP-012",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage pass at HEAD 07e2360: npm run test:serial-reference exited 0 on this frozen HEAD; F-077/F-078/F-079 fixture repairs executed the renamed identities. Checklist 8/8 done with must evidence already recorded. Stale materialHash with unchanged storyFilesHash is whole-tree/metadata drift, not missing coverage. No blocker.",
+      "createdAt": "2026-08-19T07:54:12.639Z",
+      "reviewRound": "2026-08-18T03:33:16.325Z",
+      "reviewRunId": "B-cc10:RR-114",
+      "envelopeId": "a2856efe19a90519ca2d8343a192351f132fbfd989a895c6aab317d22449cb08",
+      "writerSessionId": "sess-fc29c538662b5d67",
+      "sessionSource": "derived-ppid",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md",
+          "packages/main/src/core/brand-paths.ts",
+          "packages/main/src/core/learning-store.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/tasks/experience-hint-worktree-cache-smoke.ts",
+          "packages/main/src/tasks/experience-layer-hint-injection-smoke.ts",
+          "packages/main/src/tasks/experience-layer-playbook-smoke.ts",
+          "packages/main/src/tasks/playbook-promotion-worker-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "scripts/verify-lattice-residue.mjs",
+          "scripts/verify-role-telemetry.mjs",
+          "scripts/verify-session-brief-command-center.mjs",
+          "scripts/verify-workflow-phase-consistency.mjs"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2418e569b7f9935df0f2ac93f391f7da6baa989a9c0457a13ad43eba4b80bde3"
     }
   ]
 }
