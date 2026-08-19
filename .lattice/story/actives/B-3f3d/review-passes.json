@@ -20005,6 +20005,62 @@
       },
       "readDiagnostics": [],
       "_hash": "8b3a10ae259dd12a73e4748d4db6fab238e596842b8a7f23375f2d11a5ab3a65"
+    },
+    {
+      "id": "B-3f3d:RP-362",
+      "agent": "lattice-review-docs",
+      "note": "Step 1 symbols from dfa917a4eb: 0 (pure docs/shim rewrite; Fallback 1). Step 2 compared 4 teaching surfaces: review-inventory operator-workflow and cancel blocks; brand-rename-mapping RENAMED row for lattice <cmd> -> proof-or-stop <cmd>; Claude and Codex topology-critic host shims; sibling host-shim FIRST-run lines. No leftover lattice <subcommand> in the commit files or any host shim. Residue gate PASS (3 subject-matter exemptions only). All six inventory commands remain registered in command-catalog. Role IDs like lattice-review-topology-critic are FROZEN identifiers, not old-bin teaching. No docs-code drift blocker.",
+      "createdAt": "2026-08-19T11:45:13.983Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-575",
+      "envelopeId": "eb40e1ca87924ad12898c67f438be926d56c0f507603c77058d6f24ae5335be0",
+      "writerSessionId": "sess-4292375d1d751b41",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/lattice-review-topology-critic.md",
+          ".lattice-codex/agents/lattice-review-topology-critic.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/templates/agents/lattice-review-docs.md",
+          "packages/main/templates/agents/lattice-review-topology-critic.md"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/lattice-review-behavior.md",
+          ".claude/agents/lattice-review-concept.md",
+          ".claude/agents/lattice-review-docs.md",
+          ".claude/agents/lattice-review-quality.md",
+          ".claude/agents/lattice-review-test-coverage.md",
+          ".lattice-codex/agents/lattice-review-behavior.md",
+          ".lattice-codex/agents/lattice-review-concept.md",
+          ".lattice-codex/agents/lattice-review-docs.md",
+          ".lattice-codex/agents/lattice-review-quality.md",
+          ".lattice-codex/agents/lattice-review-test-coverage.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/legacy-to-lattice-role-naming-execution-plan.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/legacy-to-lattice-role-naming-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": 2593
+        },
+        "digest": "e1650aaed70f806ae0733d2c1bee8d2520a841b4d3bc51f0cba46e0aa28aef41"
+      },
+      "readDiagnostics": [],
+      "_hash": "56718b65f69958e0e13071dca26c6d9cc73aa99f1f5161b2d05a633458601835"
     }
   ]
 }
