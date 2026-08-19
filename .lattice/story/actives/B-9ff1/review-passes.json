@@ -2262,6 +2262,33 @@
         "scanEscalationReason": null
       },
       "_hash": "07bac465bfe41c76226de86975304b271be65546fc2f9cc60e7610ac83d0c388"
+    },
+    {
+      "id": "B-9ff1:RP-073",
+      "agent": "lattice-review-concept",
+      "note": "Bookkeeping close, no concept deletion/replacement this round (only commit ab1a3f353c, pure resource-declaration restore in lattice.config.json, +939/-120, no code residue to grep). Verified 3 items: (1) F-079 resolvedReason block [1] is byte-identical (checked programmatically against 5d888d53fc^ pre-correction text, 2739/2739 bytes match) to the pre-correction text, block [2] states the corrected per-entry-bucketing rule; (2) F-080 resolvedReason credits the concept lane's git diff 81c88bf448 752988c315 -- lattice.config.json measurement (independently re-run: 6 added lines, 0 removed, zero shared-entry edits) as the actual reason the fix was safe, without overclaiming, and its B-4f25 follow-up claim (CHK-002 = field-level-loss detection) matches the real checklist; (3) findings.json has 80 findings/0 open, HEAD..main is 0, red-w2d-specificity-conjunction.mjs exits 0 with PASS. git status --porcelain is non-empty only for prompt-envelopes.json/review-runs.json, both purely additive artifacts of this run's own review_run_start call (RR-114), not pre-existing drift.",
+      "createdAt": "2026-08-19T15:41:44.472Z",
+      "reviewRound": "2026-08-19T15:13:53.073Z",
+      "reviewRunId": "B-9ff1:RR-114",
+      "envelopeId": "a4496b2e6e45a2d89e1a6059962bc8bf4449c5df66a18c305847844a35f91073",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4f25/checklist.json",
+          ".lattice/story/actives/B-9ff1/background.md",
+          ".lattice/story/actives/B-9ff1/checklist.json",
+          ".lattice/story/actives/B-9ff1/findings.json",
+          "lattice.config.json"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-9ff1/plan.md",
+          ".lattice/story/actives/B-9ff1/review-runs.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "68821a4997bc12d02521d9080cd3d63ee57e816b7331d66330fef15d10b5f694"
     }
   ]
 }
