@@ -577,6 +577,45 @@
         "scanEscalationReason": null
       },
       "_hash": "72bf636585e0c6f1e7ee619b836448b609c186fecb00cd46c8c620da18e5040a"
+    },
+    {
+      "id": "B-49ed:RP-025",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 10 test-coverage pass: 15/15 must intents still have result=pass evidence (12 mechanical receipts on the three pinned guard smokes; 3 CHK-004 manual transcripts). Incremental material is retry-only rmSync (maxRetries:10/retryDelay:50) on material-hash-large-tree, usage-sweep, and story-files-hash-batch teardowns — assertions and exit-1 failure paths unchanged. Those three files are not pinned to any of the 15 intents. F-031 is resolved/fixed at the two named sites; leftover usage-sweep:404 is a small mkdtemp outsideDir, not a coverage hole. intent_coverage_check --mode=enforce: pass, blocking=false. Hash-stale receipts are bookkeeping after cleanup, not a missing/weakened assertion.",
+      "createdAt": "2026-08-19T05:09:01.614Z",
+      "reviewRound": "2026-08-19T05:01:43.915Z",
+      "reviewRunId": "B-49ed:RR-053",
+      "envelopeId": "db6d9ff606eb4c20d175e86d1a7b9128a234f38c366e7b0dcf4468d1503b7366",
+      "writerSessionId": "sess-4292375d1d751b41",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-49ed/background.md",
+          ".lattice/story/actives/B-49ed/plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-49ed/checklist.json",
+          "packages/main/src/tasks/material-hash-large-tree-smoke.ts",
+          "packages/main/src/tasks/story-files-hash-batch-smoke.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/session-ownership-and-write-leases.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "cf97324ea5f8baac2ae236b659613ba907a04be1cfcc586a2b6529cfe73f1d20"
+      },
+      "readDiagnostics": [],
+      "_hash": "303b5000b30ac06cd94ca963010e33ca4b5337a83f0ca985765876dd21ba6186"
     }
   ]
 }
