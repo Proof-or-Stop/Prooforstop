@@ -653,6 +653,45 @@
         "scanEscalationReason": null
       },
       "_hash": "9c1affe12e17176df0bc9f85ed2863ddfb48492122769f3117a2eeed8c3701c9"
+    },
+    {
+      "id": "B-49ed:RP-027",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 2+ coverage pass after stale_closeout_review: 15/15 must intents still have result=pass (12 mechanical receipts on the pinned guard/pre-review/mutation smokes with selectorMatched=true; 3 CHK-004 manual_transcripts remain pass after refresh_stale demoted them to non-mechanical because they have no pinned command). F-031 and F-032 are resolved. rmSync maxRetries:10/retryDelay:50 on material-hash-large-tree, usage-sweep, and story-files-hash-batch is teardown-only; assertion and exit-1 paths are unchanged. Diff since last TEST is merge/metadata/review artifacts (main merge + delivery/validate/dev-memory), not new assertion changes. Old RP-021..RP-025 envelope digest drift is why this receipt is being re-bound, not a coverage gap.",
+      "createdAt": "2026-08-19T06:28:27.805Z",
+      "reviewRound": "2026-08-19T06:19:44.696Z",
+      "reviewRunId": "B-49ed:RR-058",
+      "envelopeId": "93cc0294198b5af5dee1e6d654be599300fdfb3d078b4d5b154a2ccc6adc196c",
+      "writerSessionId": "sess-4292375d1d751b41",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-49ed/background.md",
+          ".lattice/story/actives/B-49ed/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-49ed/checklist.json",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "packages/main/src/tasks/material-hash-large-tree-smoke.ts",
+          "packages/main/src/tasks/story-files-hash-batch-smoke.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/session-ownership-and-write-leases.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "bfaa3987ab581a83da4aee7ad4488f5a2446bc67c4e511f42e11557a907c28fe"
+      },
+      "readDiagnostics": [],
+      "_hash": "6bebff7b6cd507ad128c179a50a50d909f750b3011da0d63d8585c21c71523c0"
     }
   ]
 }
