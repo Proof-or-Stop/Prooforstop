@@ -1507,6 +1507,68 @@
       ],
       "signatureTag": "missing|mjs|concept-cleanup-deleted",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-cc10:F-081",
+      "desc": "doc-code-drift: CLAUDE.md:878 [brand-exec] scan-root list still names only `lattice.config.json`. After B-cc10 CHK-004 the executable-surface gate in scripts/verify-lattice-residue.mjs:323-336 lists BOTH `proof-or-stop.config.json` (canonical, first) and `lattice.config.json` (deprecated), with an explicit comment that naming only the deprecated file makes this root scan NOTHING on a migrated checkout. This worktree has `proof-or-stop.config.json` and no `lattice.config.json`. The same CLAUDE.md paragraph was already edited in this story (adapter dir → `.proof-or-stop-codex/agents`, [brand-decision] + STATE_DIR_NAMES/ADAPTER_DIR_NAMES added) but the brand-exec config root was left on the pre-rename filename. Operator-facing gate description now disagrees with the gate it documents.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-19T06:55:52.565Z",
+      "reviewRound": "2026-08-18T03:33:16.325Z",
+      "reviewRunId": "B-cc10:RR-111",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CHANGELOG.md",
+          "CLAUDE.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "packages/main/src/core/brand-paths.ts",
+          "packages/main/src/core/lattice-paths.ts",
+          "packages/main/src/core/learning-store.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/tasks/experience-coverage-gap-smoke.ts",
+          "packages/main/src/tasks/experience-hint-worktree-cache-smoke.ts",
+          "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "packages/main/src/tasks/session-brief-prompt-sync-smoke.ts",
+          "README.md",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "0750441dd2c83882902b094462c576a3382a4eb403767baad710992e0dae6b11"
+      },
+      "readDiagnostics": [
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/brand-rename-mapping.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/brand-rename-mapping.md"
+        }
+      ],
+      "_hash": "f296e8f602ec6774e94faad6cf31f97a37fb9a504496cf9671805c934332e15f",
+      "files": [
+        "CLAUDE.md",
+        "scripts/verify-lattice-residue.mjs"
+      ],
+      "signatureTag": "missing|md|code-drift-claude",
+      "signatureTagSource": "auto"
     }
   ]
 }
