@@ -548,6 +548,35 @@
         "scanEscalationReason": null
       },
       "_hash": "caad0ef96907d7a5227347d821f43f37ff227e94bfd004d500ce4c325ef1e7b6"
+    },
+    {
+      "id": "B-49ed:RP-024",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-review after headHash moved to ae4e2917d6 (originally dispatched at 15dee05d32). Verified via mutation testing that material-hash-large-tree-smoke.ts still genuinely fails when an assertion is forced false (exit 1, printed FAILED, correct AssertionError) after the maxRetries/retryDelay rmSync fix; retry only affects post-assertion tmpdir cleanup, never masks assertion failures. Sibling commit 8a76b03874 applies the identical single-line fix to story-files-hash-batch-smoke.ts and usage-sweep-smoke.ts via finally blocks, zero assertion/exit logic touched (verified via diff). All 15 verificationEvidence items are headHash-stale per verification_evidence_refresh_stale --dryRun, but this is bookkeeping-only: none of the 15 pinned commands touch the three smoke files that moved, storyFilesHash held constant at 03e3854017 across the window, and the actual guard-logic files (proofstory.ts, owner-session-adapters.ts, topology-critic-receipt.ts) have zero diff since prior pass. intent_coverage_check --mode=enforce reports pass/blocking:false. No coverage gap found.",
+      "createdAt": "2026-08-19T05:07:32.871Z",
+      "reviewRound": "2026-08-19T05:01:43.915Z",
+      "reviewRunId": "B-49ed:RR-054",
+      "envelopeId": "1cfc9e83db3765b5ea2da6305564af56ad92b3cdb23bed041a1d59704aae4119",
+      "writerSessionId": "sess-4292375d1d751b41",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-49ed/checklist.json",
+          "packages/main/src/tasks/material-hash-large-tree-smoke.ts",
+          "packages/main/src/tasks/story-files-hash-batch-smoke.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-49ed/background.md",
+          ".lattice/story/actives/B-49ed/findings.json",
+          ".lattice/story/actives/B-49ed/plan.md",
+          ".lattice/story/actives/B-49ed/review-runs.json",
+          ".lattice/story/actives/B-49ed/test-evidence.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "72bf636585e0c6f1e7ee619b836448b609c186fecb00cd46c8c620da18e5040a"
     }
   ]
 }
