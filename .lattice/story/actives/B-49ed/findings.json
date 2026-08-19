@@ -641,7 +641,7 @@
       "desc": "All 15 verificationEvidence receipts across CHK-001..CHK-005 are stale again, recurring the exact class already resolved once as F-023 and F-030. Every receipt carries storyFilesHash=2cffe4b43091b8b49068d4a1b3dbfb89615932dd08dd75455c0aaabedac51bda (or the CHK-004 non-mechanical attestations equivalent), but current story-owned storyFilesHash at HEAD is 03e3854017be37966d28a43cb46f12e0b9881056ea0fdcf799ac4def6fe216a5 -- a real mismatch, not benign whole-tree noise, because the drift is caused by commits 15dee05d32 and 8a76b03874 touching story-owned files under packages/main/src/tasks (material-hash-large-tree-smoke.ts, usage-sweep-smoke.ts, story-files-hash-batch-smoke.ts), confirmed present in git diff main...HEAD. I ran the actual buildVerificationCoverage + checkEvidenceFreshnessForGit functions the DONE/TEST gate consumes (not a hand-rolled check) against the live checklist.json and current HEAD: all 15/15 intent entries across CHK-001..CHK-005 classify as status=stale, none covered. Per CLAUDE.md this means the story cannot enter TEST until refreshed. Separately verified (by mutation, not inference) that the maxRetries/retryDelay change in those two commits only touches finally/catch-block rmSync cleanup calls and does not change what any of the three smokes proves: mutated one real assertion in each of material-hash-large-tree-smoke.ts, usage-sweep-smoke.ts, and story-files-hash-batch-smoke.ts to a deliberately wrong value, confirmed each still exits 1 with the mutant, then restored and confirmed each exits 0 clean -- so the underlying content risk this finding flags is coverage staleness only, not a weakened proof. Remedy: run verification_evidence_refresh_stale (or re-pin via verification_run) for all 15 intents against current HEAD/storyFilesHash before TEST.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-19T05:15:31.572Z",
@@ -655,7 +655,11 @@
         ".lattice/story/actives/B-49ed/checklist.json"
       ],
       "signatureTag": "missing|ts|verificationevidence-receipts-across",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Confirmed correct and fixed rather than argued down. F-032 said all 15 verificationIntent entries were stale, contradicting an earlier same-lane run that called the staleness bookkeeping-only. I did not pick a side by reasoning: I ran the framework's own classifier via verification_evidence_refresh_stale --dryRun, which reported '[DRY-RUN] Stale verification evidence for B-49ed: 15'. F-032 was right and the earlier run was wrong. Its mechanism also checks out: commits 15dee05d32 and 8a76b03874 touched three story-owned files present in git diff main...HEAD (material-hash-large-tree-smoke.ts, usage-sweep-smoke.ts, story-files-hash-batch-smoke.ts), moving storyFilesHash off the value pinned into all 15 receipts. Per CLAUDE.md that is the strong story-owned material drift signal requiring re-attestation, not the advisory whole-tree materialHash case. Remediation: ran verification_evidence_refresh_stale (not --dryRun), which re-executed all 15 pinned commands so each re-earned a mechanical receipt at current HEAD - the two signing smokes plus three live topology_critic_receipt_set / review_run_start invocations. Result: 'Refreshed 15/15 stale evidence item(s)', auto-committed as 810952f. Post-check with the same classifier now reports 'No stale verification evidence for B-49ed'. Note the mutation-masking half of the concern was independently disproven by two separate test-coverage runs, both of which mutated assertions in all three modified smokes and confirmed each still exits 1, so the added maxRetries/retryDelay on cleanup cannot hide a real failure.",
+      "resolvedAt": "2026-08-19T05:18:39.841Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
