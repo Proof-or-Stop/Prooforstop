@@ -14,6 +14,21 @@
       "_hash": "4a3f203534399c8ca3ded043df83a00999fc423b953629d5f6a1362cf9dc4854",
       "signatureTag": "missing|unknown|lattice-config-json",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a5:F-002",
+      "desc": "packages/main/src/handlers/validate-channel.ts:237-241 docstring above checkDispatchEvidence/DispatchEvidenceIssue still reads \"Each CHK-xxx must have evidence: dispatch event OR subagent_result event... CHKs declaring **Owner**: main-agent in plan.md are exempt\" -- an exhaustive-sounding two-way rule (evidence OR owner-exempt). This story added a third, structurally distinct exemption (decision-backed withdrawn items, its own withdrawnItems bucket, checked FIRST in the loop at line ~344) but did not update this pre-existing docstring to mention it. A future reader who only reads the function-level comment (the natural first stop before reading the body) will not learn that withdrawn items are excluded, and could mistake a withdrawn items absence-from-Covered as an unexplained gap. Not touched by CHK-002/003s scope note (which discloses core/verification.ts:212 as knowingly out of scope) -- this is the *in-scope* function whose own doc comment was left stale. Low severity since the code and rendering are correct; only the doc-comment enumeration is incomplete.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-19T01:56:58.323Z",
+      "reviewRound": "2026-08-19T01:51:47.991Z",
+      "reviewRunId": "B-45a5:RR-003",
+      "_hash": "c31e2006a3a74c5bbd9c8639483c3a82dd436ac56d1bca741eac3f976fec0692",
+      "signatureTag": "missing|unknown|packages-main-handlers",
+      "signatureTagSource": "auto"
     }
   ]
 }
