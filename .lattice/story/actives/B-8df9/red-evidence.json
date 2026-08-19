@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-8df9",
+  "records": [
+    {
+      "id": "RED-20260801125423",
+      "trigger": "The INIT_CHECK gate decides on agentResults and issues, but signInitCheck takes neither as input, so a hand-edited init-check.json stays signature-valid and the gate accepts it with zero init_check_set calls.",
+      "acceptanceTargetRef": "CHK-002:happy:0",
+      "baselineHeadHash": "ab38f80207c5caf5c49ab649a880a511c18a2610",
+      "baselineMaterialHash": "71a8d00da4184c50e0231fba64ee454ef1dca1f6cf4f74f98fa820ed0572a1ac",
+      "observedFailure": "5 RED / 0 BROKEN, exit 1. B1: recomputed signature UNCHANGED after injecting agentResults. B2: tampered file still signature-VALID. B3: gate ACCEPTS hand-injected reviewer coverage with zero init_check_set calls. C2: erasing a recorded critical issue leaves the file signature-VALID. C3: gate ADVANCES after that erasure. All three controls behaved (A gate control refuses a missing reviewer by name; D1/D2 signature control shows an in-domain title edit IS rejected as init_check_tampered; C1 shows a genuine critical issue does block), so the competing explanation 'the signature check is dead for every field' is ruled out and the defect is field-specific.",
+      "failingCommand": "node packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs",
+      "expectedGreenCommand": "node packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs",
+      "greenRelation": {
+        "targetRef": "CHK-002:happy:0",
+        "relation": "same_acceptance",
+        "command": "node packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs"
+      },
+      "note": "Artifact covers BOTH fields deliberately: a fix that covers only agentResults must leave C2/C3 RED. Scope of the claim is audit integrity, not access control - both outcomes are already reachable via legal CLI calls, so the artifact must never be read as proving reviewer coverage became trustworthy.",
+      "createdAt": "2026-08-01T12:54:23.577Z"
+    },
+    {
+      "id": "RED-B8DF9-001",
+      "trigger": "The INIT_CHECK gate decides on agentResults and issues, but signInitCheck takes neither as input, so a hand-edited init-check.json stays signature-valid and the gate accepts it with zero init_check_set calls.",
+      "acceptanceTargetRef": "CHK-002:happy:0",
+      "baselineHeadHash": "38d4638c5edada6b47dee8452aa3c6955c9a8bba",
+      "baselineMaterialHash": "5fdce0ade0f952828e19ecfd3f15005d752a101ee7d624dfbfd7da0f523c40d7",
+      "observedFailure": "5 RED / 0 BROKEN, exit 1. B1 recomputed signature UNCHANGED after injecting agentResults; B2 tampered file still signature-VALID; B3 gate ACCEPTS hand-injected coverage with zero init_check_set calls; C2 erasing a recorded critical issue leaves the file signature-VALID; C3 gate ADVANCES after that erasure. All three controls behaved: A refuses a missing reviewer by name, C1 shows a genuine critical issue does block, and D1/D2 show an in-domain title edit IS rejected as init_check_tampered - so 'the signature check is dead for every field' is ruled out and the defect is field-specific.",
+      "failingCommand": "node packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs",
+      "expectedGreenCommand": "node packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs",
+      "greenRelation": {
+        "targetRef": "CHK-002:happy:0",
+        "relation": "same_acceptance",
+        "command": "node packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs"
+      },
+      "note": "Rebound at HEAD 38d4638c5e after all metadata commits, because each commit moves HEAD and invalidates an earlier binding. Covers BOTH fields deliberately: a fix covering only agentResults must leave C2/C3 RED.",
+      "createdAt": "2026-08-01T12:55:52.005Z"
+    }
+  ],
+  "createdAt": "2026-08-01T12:54:23.577Z",
+  "updatedAt": "2026-08-01T12:55:52.005Z"
+}

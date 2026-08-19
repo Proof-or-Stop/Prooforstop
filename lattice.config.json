@@ -1537,6 +1537,28 @@
           "packages/main/tests/red/red-w2d-command-readonly.mjs"
         ],
         "timeoutMs": 180000
+      },
+      {
+        "label": "B-8df9 REGRESSION: the INIT_CHECK verdict fields (agentResults + issues) stay inside the signature domain (waiver withdrawn in CHK-002; a regression now fails validate)",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs"
+        ],
+        "focus": [
+          "b8df9-init-check-signature"
+        ],
+        "timeoutMs": 600000
+      },
+      {
+        "label": "B-8df9 CHK-002: the verdict hash is total, deterministic and discriminating over every on-disk agentResults shape",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs"
+        ],
+        "focus": [
+          "b8df9-init-check-signature"
+        ],
+        "timeoutMs": 300000
       }
     ]
   },

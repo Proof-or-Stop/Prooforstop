@@ -1,0 +1,56 @@
+{
+  "storyId": "B-8df9",
+  "changes": "core/init-check-gate.ts: the INIT-check signature domain now binds the reviewer VERDICT - agentResults and issues - alongside the story snapshot it already covered, via computeInitCheckVerdictHash, with the domain rendered from a single declared constant (describeInitCheckSignatureDomain) so gate text and docs cannot drift from what is signed. core/machine.ts: canEnterInitCheckGuard and getGuardFailureReason both route through one initCheckSignatureIsValid predicate against the same already-read snapshot, and the tamper message renders the declared domain. Two registered non-optional guards: red-b8df9-init-check-verdict-signature.mjs (24 rows) and red-b8df9-chk002-verdict-shapes.mjs (17 rows).",
+  "usage": "Automatic. Any INIT_CHECK transition now recomputes the hash over the reviewer verdict as well as the story snapshot. To see it: edit agentResults or issues in .lattice/story/actives/<id>/init-check.json without re-signing, then run story_advance INIT_CHECK - it is refused as tampered.",
+  "expectedOutcome": "Editing a recorded reviewer verdict without re-signing makes the INIT_CHECK gate refuse the transition, where before the signature validated while the gate decided on fields the signature never covered.",
+  "actualTranscript": "Verified by two probes written outside the shipped suite, plus the shipped guards. The behavior lane (RR-020/RP-015) built a fixture against the compiled core/init-check-gate.js covering three attacks - injecting a fabricated reviewer entry, erasing a recorded critical issue, and renaming an existing reviewer agentId in place - and all three move the recomputed hash away from the stored signature. The delivery reviewer built a separate fixture against the same module covering unsigned tampering and, deliberately, the re-sign case: an out-of-tool re-sign with the exported INIT_CHECK_SALT is accepted, which is the honest bound on this claim rather than a gap in it. The shipped guard asserts both halves mechanically in its control row H1 (refusedBeforeReSigning=true, verifiesAfterReSigning=true). Both guards run green on every validate: red-b8df9-init-check-verdict-signature.mjs 0 RED / 24 rows, red-b8df9-chk002-verdict-shapes.mjs 0 FAILED / 17 rows. validate 119 commands allPass.",
+  "outcomeDiff": "No difference. Observed behaviour matches the expected outcome on the twice-merged tree.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "HONEST BOUND ON THE CLAIM: the salt is a public source constant (INIT_CHECK_SALT is an export), so re-signing after an edit is accepted. What this delivers is tamper-EVIDENCE - an edit that does not re-sign is detected - not tamper-proofing. Two reviewers verified both halves of that statement, and the shipped docs describe it that way. CHK-004 was withdrawn during DEV by confirmed decision SD-7319de10. Its three waiver rows record, correctly for 2026-08-03, that a user-approved withdrawal had no mechanical completion path. Sibling story B-45a5 has since built that path, so those rows are now inert historical record; a dated correction sits on CHK-004:happy:0 alongside the original text preserved verbatim. That correction states its own bound: B-45a5 wired two REVIEW-path gates only, and core/verification.ts:212 still performs a bare status-string skip on a DONE-blocking path. Four docs_check rows on CHK-005 and CHK-006 are point-in-time attestations, not mechanical evidence: docs-type intents route to the attestation-only branch of enforceAndStampEvidence before any selector is read, so nothing is pinned.",
+  "pitfalls": "(1) A signature must cover what its gate decides on. This story exists because the INIT-check signature covered the story snapshot while the gate decided on agentResults and issues - a record that validated and still misled. (2) verification_evidence_add OVERWRITES the row for an intentRef; the immutability is git-level, not an in-file array. I wrote a correction onto CHK-004:happy:0 believing it appended, and destroyed the waiver row I was trying to preserve. Recovered from git and rewritten to carry the original text verbatim. Carry the old note forward inside the new one, or the live record loses it silently - three reviewer lanes passed the story while it was missing. (3) Claiming a docs-type row is selector-pinned is a false statement about evidence strength, because that branch never reads the selector. Three lanes filed it. (4) A pass from a lane outside the required set is a permanent liability on that story: two-week-old behavior and docs passes went stale as main advanced and blocked every advance, while quorum_submit named the wrong lanes. lifecycle_check --target=<phase> names the real blocker by id and is read-only; reach for it before bouncing off gates. (5) I then made the same class of error a THIRD time, in this very summary: an earlier draft of actualTranscript said \"four independent probes\" and implied both the behavior lane and the delivery reviewer had confirmed all three attacks. On the record only behavior tested all three; delivery's fixture covered injection and the re-sign case. The conclusion was sound but the count and attribution were inflated. Caught as F-013 by the test-coverage lane, in a round where I had explicitly warned that lane to watch for exactly this. Inflating a corroboration count is the same defect as inflating evidence strength, and writing a warning about it is not protection against committing it.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 556499
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 49642
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 401489563
+    },
+    "DEV": {
+      "count": 4,
+      "durationMs": 138900589
+    },
+    "REVIEW": {
+      "count": 4,
+      "durationMs": 1429282668
+    },
+    "TEST": {
+      "count": 2,
+      "durationMs": 4181196
+    }
+  },
+  "totalDurationMs": 1974461382,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-08-19T18:28:22.049Z",
+  "updatedAt": "2026-08-19T18:38:51.695Z"
+}

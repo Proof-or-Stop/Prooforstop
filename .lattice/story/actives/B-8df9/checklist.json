@@ -4,49 +4,637 @@
       "id": "CHK-001",
       "title": "Prove or refute by execution that a hand-edited init-check.json passes the gate unchanged",
       "context": "Repro-first, and note the corrected premise: signInitCheck never takes agentResults as input, so the test is NOT the discarded draft's two-step 'tamper then re-sign' sequence. Test the one-step claim: in an isolated fixture (never a real story), edit agentResults directly, make NO init_check_set call, then check whether _hash still validates and whether the INIT->INIT_CHECK guard accepts it. Record the observed outcome even if it refutes the premise; a refutation re-scopes items 2-6 rather than being a failure. Probe the fallback-block-drop separately, checking it is lost after the FIRST ordinary call rather than when the attestationMode label flips.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-08-01T14:22:09.267Z",
+      "userSees": "node packages/main/tests/red/<artifact>.mjs prints one line per claim with RED/CONTROL-OK, ends with a RED count, and exits non-zero while the defect stands.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The artifact reproduces the PLAN probe: injected agentResults advances the gate with zero init_check_set calls",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node bin/lattice.js validate --focus=b8df9-init-check-signature",
+              "selector": "the gate ACCEPTS hand-injected reviewer coverage"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The artifact also covers the issues field (erasing a recorded critical still advances), so a partial fix cannot turn it green",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node bin/lattice.js validate --focus=b8df9-init-check-signature",
+              "selector": "erasing a recorded blocking-severity issue leaves the file signature-VALID"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "It carries a SIGNATURE control (in-domain title edit must be rejected). If that control fails the run reports BROKEN and draws no conclusion, so a dead signature check cannot masquerade as this defect",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node bin/lattice.js validate --focus=b8df9-init-check-signature",
+              "selector": "SIGNATURE CONTROL: the gate REFUSES that in-domain edit as tampering"
+            }
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "lattice.config.json"
+        ],
+        "create": [
+          "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs"
+        ],
+        "test": [
+          "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs"
+        ]
+      },
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "77f95f968ec3263c8ba38d43a9b3ef8f65df531dcf8bc3d189c5edec949a0e01",
+        "storyFilesHash": "1106961e102141c8826920bce8bcdcf5888ab96e89ec9d175f4dea2bde22dec5",
+        "headHash": "bda45f159b6abe7a5be3396f09ec04587bf9f097",
+        "attestedAt": "2026-08-01T14:22:09.560Z",
+        "materialHash": "b366cd30c905416fe9de510e84b2305d224517d1349e7bb2cae3a87dce6a5e5d"
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "node bin/lattice.js validate --focus=b8df9-init-check-signature",
+          "result": "pass",
+          "note": "Re-executed after merging main (six sibling validate entries arrived); pinned command and selector unchanged.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "aff8de4fc35fc7cae303b8ec73b36b83746b3a5f0bcdf3cdba10bb651f5b6b49",
+            "outputTail": "ward (E0) and an unverifiable record still RENDERS (G1).\n  ✓ B-8df9 CHK-002: the verdict hash is total, deterministic and discriminating over every on-disk agentResults shape: node packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs\n    === B-8df9 CHK-002: the verdict hash over every on-disk agentResults shape ===\n      C0  [CONTROL-OK] CONTROL: two different verdicts produce two different digests (the hash is not a constant)\n          observed: distinct=true digestLength=64\n      S1  [PASS      ] shape hashes deterministically and does not throw: canonical pair\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S2  [PASS      ] shape hashes deterministically and does not throw: koala-* pair (pre-rename actor)\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S3  [PASS      ] shape hashes deterministically and does not throw: lattice-*@fallback pair\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S4  [PASS      ] shape hashes deterministically and does not throw: koala-*@fallback pair\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S5  [PASS      ] shape hashes deterministically and does not throw: three-entry historical actor\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S6  [PASS      ] shape hashes deterministically and does not throw: no agentResults field (synthesized from top-level fields)\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S7  [PASS      ] the documented shapes do not collide onto one digest\n          observed: distinctDigests=6 of shapes=6; collisions=none\n      X1  [PASS      ] an ABSENT agentResults is a DISTINCT value from its explicit synthesized encoding (absence is not equated with the synthesis)\n          observed: absentDigestDiffersFromExplicitEncoding=true\n      X2  [PASS      ] on a record with NO agentResults, editing the top-level agentId the gate synthesizes from MOVES the digest\n          observed: digestMoved=true\n      D1  [PASS      ] INJECTING a reviewer record moves the digest\n          observed: digestMoved=true\n      D2  [PASS      ] ERASING a recorded blocking issue moves the digest\n          observed: digestMoved=true\n      D3  [PASS      ] editing the top-level issues array moves the digest even where the gate reads agentResults instead\n          observed: digestMoved=true\n      M1  [PASS      ] the domain renderer emits every declared component, so widening the domain widens the message\n          observed: componentsDeclared=7 allRendered=true\n      M2  [PASS      ] the shipped guard RENDERS the domain in its tamper message instead of restating a field list\n          observed: rendersDomain=true stillCarriesTheOldHandWrittenList=false\n      L1  [PASS      ] every init-check.json in the live corpus hashes without throwing and without varying between reads\n          observed: filesMeasuredOnThisRun=300 threw=0 unstable=0 recordsWithNoAgentResultsField=0\n      L2  [MEASURED  ] documented shapes still present in the live corpus (measured, not asserted — a shape that has left the corpus is reported, not failed)\n          observed: present=[lattice-*@fallback pair | canonical pair | three-entry historical actor]; absentFromThisCorpus=[koala-* pair (pre-rename actor) | koala-*@fallback pair | no agentResults field (synthesized from top-level fields)] — those are still covered by the constructed rows above\n      0 FAILED / 0 BROKEN / 17 rows\n      signed components rendered from the domain declaration: storyId / background.md / title / description / checklist / reviewRound / reviewer verdict (agentResults + issues)\n      PASS: total and deterministic over every documented shape, and each gate-relevant edit moves the digest.\n  validate scheduler: jobs=4 commands=2 declared=0 exclusiveByDefault=2\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-19T17:20:31.675Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "0957a42a43173e98902630d24c36078ab0280823",
+          "materialHash": "e4b2e340c75e441473af303dcc88831a3ea10ce855550e4d4e41aa8f2a9bed7a",
+          "storyFilesHash": "0d6dbaf3449487543b2406949abcd4c32dd4f269d173145d4b99b04b20809410",
+          "timestamp": "2026-08-19T17:20:31.797Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node bin/lattice.js validate --focus=b8df9-init-check-signature",
+          "result": "pass",
+          "note": "Re-executed after merging main (six sibling validate entries arrived); pinned command and selector unchanged.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "f84411003b8169050d69c50bb4d6a7e742015848abf836f2282d580a1057a8f6",
+            "outputTail": "ward (E0) and an unverifiable record still RENDERS (G1).\n  ✓ B-8df9 CHK-002: the verdict hash is total, deterministic and discriminating over every on-disk agentResults shape: node packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs\n    === B-8df9 CHK-002: the verdict hash over every on-disk agentResults shape ===\n      C0  [CONTROL-OK] CONTROL: two different verdicts produce two different digests (the hash is not a constant)\n          observed: distinct=true digestLength=64\n      S1  [PASS      ] shape hashes deterministically and does not throw: canonical pair\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S2  [PASS      ] shape hashes deterministically and does not throw: koala-* pair (pre-rename actor)\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S3  [PASS      ] shape hashes deterministically and does not throw: lattice-*@fallback pair\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S4  [PASS      ] shape hashes deterministically and does not throw: koala-*@fallback pair\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S5  [PASS      ] shape hashes deterministically and does not throw: three-entry historical actor\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S6  [PASS      ] shape hashes deterministically and does not throw: no agentResults field (synthesized from top-level fields)\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S7  [PASS      ] the documented shapes do not collide onto one digest\n          observed: distinctDigests=6 of shapes=6; collisions=none\n      X1  [PASS      ] an ABSENT agentResults is a DISTINCT value from its explicit synthesized encoding (absence is not equated with the synthesis)\n          observed: absentDigestDiffersFromExplicitEncoding=true\n      X2  [PASS      ] on a record with NO agentResults, editing the top-level agentId the gate synthesizes from MOVES the digest\n          observed: digestMoved=true\n      D1  [PASS      ] INJECTING a reviewer record moves the digest\n          observed: digestMoved=true\n      D2  [PASS      ] ERASING a recorded blocking issue moves the digest\n          observed: digestMoved=true\n      D3  [PASS      ] editing the top-level issues array moves the digest even where the gate reads agentResults instead\n          observed: digestMoved=true\n      M1  [PASS      ] the domain renderer emits every declared component, so widening the domain widens the message\n          observed: componentsDeclared=7 allRendered=true\n      M2  [PASS      ] the shipped guard RENDERS the domain in its tamper message instead of restating a field list\n          observed: rendersDomain=true stillCarriesTheOldHandWrittenList=false\n      L1  [PASS      ] every init-check.json in the live corpus hashes without throwing and without varying between reads\n          observed: filesMeasuredOnThisRun=300 threw=0 unstable=0 recordsWithNoAgentResultsField=0\n      L2  [MEASURED  ] documented shapes still present in the live corpus (measured, not asserted — a shape that has left the corpus is reported, not failed)\n          observed: present=[lattice-*@fallback pair | canonical pair | three-entry historical actor]; absentFromThisCorpus=[koala-* pair (pre-rename actor) | koala-*@fallback pair | no agentResults field (synthesized from top-level fields)] — those are still covered by the constructed rows above\n      0 FAILED / 0 BROKEN / 17 rows\n      signed components rendered from the domain declaration: storyId / background.md / title / description / checklist / reviewRound / reviewer verdict (agentResults + issues)\n      PASS: total and deterministic over every documented shape, and each gate-relevant edit moves the digest.\n  validate scheduler: jobs=4 commands=2 declared=0 exclusiveByDefault=2\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-19T17:19:52.174Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "0ad1fd2681607cf3f41031fe99ac082fabc086a2",
+          "materialHash": "e4b2e340c75e441473af303dcc88831a3ea10ce855550e4d4e41aa8f2a9bed7a",
+          "storyFilesHash": "0d6dbaf3449487543b2406949abcd4c32dd4f269d173145d4b99b04b20809410",
+          "timestamp": "2026-08-19T17:19:52.297Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node bin/lattice.js validate --focus=b8df9-init-check-signature",
+          "result": "pass",
+          "note": "Re-executed after merging main (six sibling validate entries arrived); pinned command and selector unchanged.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "ab0fffe56689b7b8a66bed65c84313ccd90032acc781cd433ebe89a399c78d3b",
+            "outputTail": "ward (E0) and an unverifiable record still RENDERS (G1).\n  ✓ B-8df9 CHK-002: the verdict hash is total, deterministic and discriminating over every on-disk agentResults shape: node packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs\n    === B-8df9 CHK-002: the verdict hash over every on-disk agentResults shape ===\n      C0  [CONTROL-OK] CONTROL: two different verdicts produce two different digests (the hash is not a constant)\n          observed: distinct=true digestLength=64\n      S1  [PASS      ] shape hashes deterministically and does not throw: canonical pair\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S2  [PASS      ] shape hashes deterministically and does not throw: koala-* pair (pre-rename actor)\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S3  [PASS      ] shape hashes deterministically and does not throw: lattice-*@fallback pair\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S4  [PASS      ] shape hashes deterministically and does not throw: koala-*@fallback pair\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S5  [PASS      ] shape hashes deterministically and does not throw: three-entry historical actor\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S6  [PASS      ] shape hashes deterministically and does not throw: no agentResults field (synthesized from top-level fields)\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S7  [PASS      ] the documented shapes do not collide onto one digest\n          observed: distinctDigests=6 of shapes=6; collisions=none\n      X1  [PASS      ] an ABSENT agentResults is a DISTINCT value from its explicit synthesized encoding (absence is not equated with the synthesis)\n          observed: absentDigestDiffersFromExplicitEncoding=true\n      X2  [PASS      ] on a record with NO agentResults, editing the top-level agentId the gate synthesizes from MOVES the digest\n          observed: digestMoved=true\n      D1  [PASS      ] INJECTING a reviewer record moves the digest\n          observed: digestMoved=true\n      D2  [PASS      ] ERASING a recorded blocking issue moves the digest\n          observed: digestMoved=true\n      D3  [PASS      ] editing the top-level issues array moves the digest even where the gate reads agentResults instead\n          observed: digestMoved=true\n      M1  [PASS      ] the domain renderer emits every declared component, so widening the domain widens the message\n          observed: componentsDeclared=7 allRendered=true\n      M2  [PASS      ] the shipped guard RENDERS the domain in its tamper message instead of restating a field list\n          observed: rendersDomain=true stillCarriesTheOldHandWrittenList=false\n      L1  [PASS      ] every init-check.json in the live corpus hashes without throwing and without varying between reads\n          observed: filesMeasuredOnThisRun=300 threw=0 unstable=0 recordsWithNoAgentResultsField=0\n      L2  [MEASURED  ] documented shapes still present in the live corpus (measured, not asserted — a shape that has left the corpus is reported, not failed)\n          observed: present=[lattice-*@fallback pair | canonical pair | three-entry historical actor]; absentFromThisCorpus=[koala-* pair (pre-rename actor) | koala-*@fallback pair | no agentResults field (synthesized from top-level fields)] — those are still covered by the constructed rows above\n      0 FAILED / 0 BROKEN / 17 rows\n      signed components rendered from the domain declaration: storyId / background.md / title / description / checklist / reviewRound / reviewer verdict (agentResults + issues)\n      PASS: total and deterministic over every documented shape, and each gate-relevant edit moves the digest.\n  validate scheduler: jobs=4 commands=2 declared=0 exclusiveByDefault=2\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-19T17:19:11.960Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "dd9acdd8922e2e556f8e2e555d6db1f6c21cc0c2",
+          "materialHash": "e4b2e340c75e441473af303dcc88831a3ea10ce855550e4d4e41aa8f2a9bed7a",
+          "storyFilesHash": "0d6dbaf3449487543b2406949abcd4c32dd4f269d173145d4b99b04b20809410",
+          "timestamp": "2026-08-19T17:19:12.100Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Bind agentResults and issues into the signature domain",
       "context": "signInitCheck at core/init-check-gate.ts:133-143 and recomputeInitCheckHash at :133-172. Both fields must be covered; fixing agentResults alone leaves an equivalent hole because the same edit can erase a recorded critical issue. Handle all six on-disk shapes (canonical pair, koala pair, two distinct @fallback pairs, three-entry historical-actor files, and files with no agentResults where initCheckAgentResults synthesizes from top-level fields). Decide explicitly what an absent field hashes to. CONDITIONAL ON CHK-001: if CHK-001's execution refutes the premise, re-scope this item before doing any of it rather than executing it as written.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-08-01T14:27:54.315Z",
+      "endTime": "2026-08-01T15:17:55.579Z",
+      "userSees": "Advancing a story whose agentResults was hand-edited now prints:\n  Cannot enter INIT_CHECK: init-check.json _hash mismatch (agentResults/issues/background/title/description/checklist were modified); please re-run the lattice-review-story-init agent. [init_check_tampered]",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "After the domain change, a hand-edited agentResults produces init_check_tampered instead of advancing",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node bin/lattice.js validate --focus=b8df9-init-check-signature",
+              "selector": "GREEN: both verdict fields are inside the signature domain."
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "All six on-disk agentResults shapes hash deterministically, including the five files with no agentResults where the value is synthesized",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node bin/lattice.js validate --focus=b8df9-init-check-signature",
+              "selector": "PASS: total and deterministic over every documented shape"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The four smoke tests asserting single-caller dual-agentId accumulation still PASS unchanged. If they fail, the change is wrong, not the tests",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/init-check-required-agents-smoke.js",
+              "selector": "init check required agents smoke passed"
+            }
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/core/init-check-gate.ts",
+          "packages/main/src/core/machine.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/init-check-required-agents-smoke.ts",
+          "packages/main/src/tasks/init-preflight-smoke.ts"
+        ]
+      },
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "36867d114d626f12266c1014b52b832641eb9b09a8ff3dc90ae7369ebafb9b6d",
+        "storyFilesHash": "0ceee86365e60caa4f6581b01c92e264a8efe9ec0ccbf4e89c7201bcbcb7b4c0",
+        "headHash": "02df175c52363e4fdf7f151be43e0fba37f16fb8",
+        "attestedAt": "2026-08-01T15:17:56.125Z",
+        "materialHash": "43b1b37d2f0444a914746f971964fd96b01bef5a9b8436ad095c1cd46b8b6aee"
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "waiver",
+          "verdict": "waived",
+          "waiverType": "permanent",
+          "note": "Waiver for the PIN, not for the property. The property is still mechanically proven: red-b8df9-init-check-verdict-signature.mjs is registered NON-OPTIONAL in lattice.config.json, runs on every validate, and reports 0 RED across 24 rows - rows B1/B2/B3 are exactly this intent. What broke is the pinned selector string. CHK-003 legitimately extended that artifact final conclusion line, so the pinned text \"GREEN: both verdict fields are inside the signature domain.\" (ending in a period) no longer matches verbatim; live output now reads \"...signature domain, and the carry-forward...\". Verified by execution: grep -F of the pinned string against live output fails. The command+selector pin is immutable on first selector-bearing write, so this cannot be re-pinned and the evidence cannot be re-earned as recorded. LESSON, recorded because the rule I gave was insufficient: I instructed implementers to use MARKER NAMES rather than literal counts as selectors, and this selector obeyed that rule and still broke. The stronger rule is that a selector must be pinned to something no LATER work will legitimately reword - a stable row identifier such as B1 or a machine token, never a prose conclusion sentence, however marker-like it reads. Filed by the test-coverage lane as B-8df9:F-006.",
+          "headHash": "0d7d1ba5dac7105ba5681e0fd54a8d6ce14334dc",
+          "materialHash": "2e89468c875a6e7e20251b4516dc368fff0e68d188d924939ac82cfe7aed6265",
+          "storyFilesHash": "d776854aaff0a8101466c9db4cd1f469274887c85bc19ae0004972bb726ae667",
+          "timestamp": "2026-08-03T05:27:38.203Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node bin/lattice.js validate --focus=b8df9-init-check-signature",
+          "result": "pass",
+          "note": "Re-executed after merging main (six sibling validate entries arrived); pinned command and selector unchanged.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "c30cbe4cbeb54eb4036ba43c829754099bad6b54360222c08172eb596447ada2",
+            "outputTail": "ward (E0) and an unverifiable record still RENDERS (G1).\n  ✓ B-8df9 CHK-002: the verdict hash is total, deterministic and discriminating over every on-disk agentResults shape: node packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs\n    === B-8df9 CHK-002: the verdict hash over every on-disk agentResults shape ===\n      C0  [CONTROL-OK] CONTROL: two different verdicts produce two different digests (the hash is not a constant)\n          observed: distinct=true digestLength=64\n      S1  [PASS      ] shape hashes deterministically and does not throw: canonical pair\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S2  [PASS      ] shape hashes deterministically and does not throw: koala-* pair (pre-rename actor)\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S3  [PASS      ] shape hashes deterministically and does not throw: lattice-*@fallback pair\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S4  [PASS      ] shape hashes deterministically and does not throw: koala-*@fallback pair\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S5  [PASS      ] shape hashes deterministically and does not throw: three-entry historical actor\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S6  [PASS      ] shape hashes deterministically and does not throw: no agentResults field (synthesized from top-level fields)\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S7  [PASS      ] the documented shapes do not collide onto one digest\n          observed: distinctDigests=6 of shapes=6; collisions=none\n      X1  [PASS      ] an ABSENT agentResults is a DISTINCT value from its explicit synthesized encoding (absence is not equated with the synthesis)\n          observed: absentDigestDiffersFromExplicitEncoding=true\n      X2  [PASS      ] on a record with NO agentResults, editing the top-level agentId the gate synthesizes from MOVES the digest\n          observed: digestMoved=true\n      D1  [PASS      ] INJECTING a reviewer record moves the digest\n          observed: digestMoved=true\n      D2  [PASS      ] ERASING a recorded blocking issue moves the digest\n          observed: digestMoved=true\n      D3  [PASS      ] editing the top-level issues array moves the digest even where the gate reads agentResults instead\n          observed: digestMoved=true\n      M1  [PASS      ] the domain renderer emits every declared component, so widening the domain widens the message\n          observed: componentsDeclared=7 allRendered=true\n      M2  [PASS      ] the shipped guard RENDERS the domain in its tamper message instead of restating a field list\n          observed: rendersDomain=true stillCarriesTheOldHandWrittenList=false\n      L1  [PASS      ] every init-check.json in the live corpus hashes without throwing and without varying between reads\n          observed: filesMeasuredOnThisRun=300 threw=0 unstable=0 recordsWithNoAgentResultsField=0\n      L2  [MEASURED  ] documented shapes still present in the live corpus (measured, not asserted — a shape that has left the corpus is reported, not failed)\n          observed: present=[lattice-*@fallback pair | canonical pair | three-entry historical actor]; absentFromThisCorpus=[koala-* pair (pre-rename actor) | koala-*@fallback pair | no agentResults field (synthesized from top-level fields)] — those are still covered by the constructed rows above\n      0 FAILED / 0 BROKEN / 17 rows\n      signed components rendered from the domain declaration: storyId / background.md / title / description / checklist / reviewRound / reviewer verdict (agentResults + issues)\n      PASS: total and deterministic over every documented shape, and each gate-relevant edit moves the digest.\n  validate scheduler: jobs=4 commands=2 declared=0 exclusiveByDefault=2\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-19T17:22:20.211Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "872ee2ac5fa8f4a7f73ab36d9327b2457ca30c80",
+          "materialHash": "e4b2e340c75e441473af303dcc88831a3ea10ce855550e4d4e41aa8f2a9bed7a",
+          "storyFilesHash": "0d6dbaf3449487543b2406949abcd4c32dd4f269d173145d4b99b04b20809410",
+          "timestamp": "2026-08-19T17:22:20.338Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/init-check-required-agents-smoke.js",
+          "result": "pass",
+          "note": "Re-executed after merging main (six sibling validate entries arrived); pinned command and selector unchanged.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "a45b133d12f33c5010a47d46b4f0d592c1f0153f93efd80852c5d43c1989fc25",
+            "outputTail": "agent-dispatch-registry-smoke PASS (15 canonical roles, 2 aliases)\ntyped dispatch role/cardinality/mutation smoke PASS\n✓ review pass and discard smoke passed\n✓ flow stability smoke passed\n✓ init check required agents smoke passed\n✓ provider codex smoke passed: real codexCliAvailable preflight; bounded spawn capture (digest/bytes/exit/duration, no raw transcript leakage); stdin-closed no-hang; non-zero/missing/E2BIG/generic-spawn/timeout classification; end-to-end executor run with redacted env where provider success never equals validation or authority DONE; disabled/unavailable fail closed\n  ✓ CHK-001:happy:1 cross_host_review is registered\n  ✓ CHK-001:happy:0 fake FAIL verdict → recorded host-B decision fail, materialDigest bound\n  ✓ CHK-001:edge:0 garbage stdout → blocked, codex_review_no_parseable_verdict, no raw stdout\n  ✓ CHK-001:edge:1 valid JSON missing `decision` → blocked, no_parseable_verdict\n  ✓ CHK-001:edge:2 wrong materialHash → blocked (material mismatch)\n  ✓ CHK-001:edge:3 non-zero exit + timeout, no verdict → blocked, stdoutDigest present, no raw; truncated stdout → blocked (codex_review_stdout_truncated), honest digest\n  ✓ CHK-001:adversarial:0 verdict + injection noise BEFORE (only structured fields parsed); trailing JSON object / prose AFTER → fail-closed; harness noise AFTER → still parses\n  ✓ CHK-001:adversarial:1 dispatch policy refuses non-review codex impl + gemini/antigravity under review-only flag\n  ✓ CHK-001:adversarial:2 codex with BOTH allowRealHostSubprocess + allowReviewOnlyRealHostSubprocess → REFUSED\n  ✓ CHK-001:adversarial:3 missing policy → fail-closed (no spawn, no verdict recorded)\n  ✓ CHK-001:adversarial:4 unauthorized policy (no codex review grant) → fail-closed\n  ✓ CHK-001:adversarial:5 closed-allowlist env redaction (allowlist no longer injects) + envDenylist drops a base var + timeout ceiling threaded\n  ✓ CHK-001:adversarial:6 dirty SOURCE worktree → fail-closed dirty-worktree; Codex reviews clean captured-HEAD snapshot; pre-hash/post-spawn/post-write clean HEAD drift blocked; .lattice-only dirty → proceeds\n  ✓ CHK-001:adversarial:7 malformed host-A findings file (missing field / extra key / wrong type) → fail-closed (no spawn, no verdict); well-formed control passes\n  ✓ CHK-002:happy:0 host-B-only finding → jointDecision blocked, onlyHostB=1, disagreement\n  ✓ CHK-002:happy:1 identical findings both pass → jointDecision pass, no disagreement\n  ✓ CHK-002:edge:0 host-A-only finding → onlyHostA>=1, disagreement, blocked (symmetric)\n  ✓ CHK-002:edge:1 one pass / one fail, no overlap → blocked, blockedReason, decisions accurate\n  ✓ CHK-002:edge:2 same file:line, differently-cased titles → treated as SAME (agreed)\n  ✓ CHK-002:edge:3 both fail identical findings → blocked, no disagreement, agreed shared\n  ✓ CHK-002:edge:4 host-B verdict blocked → jointDecision blocked (propagation)\n  ✓ CHK-002:adversarial:0 divergent materialHash → jointDecision blocked (never pass on divergent code)\n  ✓ CHK-002:adversarial:1 host-B returns same finding twice → diffFindings dedups, counts correct\n  ✓ CHK-002:adversarial:2 same host identity for hostA/hostB → fail-closed before spawn/record\n\n✓ cross_host_review smoke passed (24 checks)\n✓ repair-retry-loop smoke passed: outer validation/repair/revalidate loop, configured repair provider step, provider timeout retry budget, cross-iteration no-progress via material/evidence hash, exact blocked stop reasons after limits, repair never bypasses validation/gate/multi-host, and defensive policy normalization verified\nagent-liveness-suite-smoke PASS\n✓ init check required agents smoke passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-19T17:21:40.371Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "e27b2b8954000afe77d760ee130cbe1f8394af34",
+          "materialHash": "e4b2e340c75e441473af303dcc88831a3ea10ce855550e4d4e41aa8f2a9bed7a",
+          "storyFilesHash": "0d6dbaf3449487543b2406949abcd4c32dd4f269d173145d4b99b04b20809410",
+          "timestamp": "2026-08-19T17:21:40.545Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
       "title": "Verify _hash before trusting previous.agentResults on read",
       "context": "store.readInitCheck (core/store.ts:566-572) is a bare readJson; the carry-forward at handlers/init-check.ts:138-142 trusts it. This does not cause the gate bypass but does admit data no caller wrote into a subsequently re-signed file. Decide what happens on mismatch: refusing to carry forward is not the same as refusing to read, and that difference decides whether the audit-only majority of the corpus becomes unreadable. CONDITIONAL ON CHK-001: if CHK-001's execution refutes the premise, re-scope this item before doing any of it rather than executing it as written.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-08-02T02:19:06.484Z",
+      "endTime": "2026-08-02T02:52:52.261Z",
+      "userSees": "A story whose init-check.json has a corrupted _hash reports the corruption by name rather than silently carrying the unverified records forward.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A _hash mismatch on read refuses to carry previous.agentResults forward",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node bin/lattice.js validate --focus=b8df9-init-check-signature",
+              "selector": "injectedRecordSurvivedByItsHandWrittenTimestampMarker=false"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Reading a historical file with a legacy hash still RENDERS (story_get / audit paths work); refusing to trust is not refusing to read",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node bin/lattice.js validate --focus=b8df9-init-check-signature",
+              "selector": "storyGetStillRendersIt=true rendersTheUnverifiedContentVerbatim=true"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A file whose _hash was recomputed by an attacker over tampered content is still refused, because the domain now covers the tampered fields",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node bin/lattice.js validate --focus=b8df9-init-check-signature",
+              "selector": "verifiesAfterReSigning=true gateAdvancesOnTheReSignedRecord=true"
+            }
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/init-check.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/init-preflight-smoke.ts"
+        ]
+      },
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "411ef57f8ba3793bcbb55bd55da8a21a59a47335ac5575c52342ef969b7923f0",
+        "storyFilesHash": "5e76b9b17b6c287b02332779b434d6a5d3fd395c5d079f4d41b33e078b2dee94",
+        "headHash": "2dd07f6789731e27a8a19312fcd15bd582c2665e",
+        "attestedAt": "2026-08-02T02:52:52.472Z",
+        "materialHash": "3d828ca8115dab15c9191763047531ce0616fa1d99da5666d3f59c0e45732409"
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "node bin/lattice.js validate --focus=b8df9-init-check-signature",
+          "result": "pass",
+          "note": "Re-executed after merging main (six sibling validate entries arrived); pinned command and selector unchanged.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "90f6616855f92c35c1c9cf65a2b4124c4996eb7f01f6baf13bf8d5282a8e1646",
+            "outputTail": "ward (E0) and an unverifiable record still RENDERS (G1).\n  ✓ B-8df9 CHK-002: the verdict hash is total, deterministic and discriminating over every on-disk agentResults shape: node packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs\n    === B-8df9 CHK-002: the verdict hash over every on-disk agentResults shape ===\n      C0  [CONTROL-OK] CONTROL: two different verdicts produce two different digests (the hash is not a constant)\n          observed: distinct=true digestLength=64\n      S1  [PASS      ] shape hashes deterministically and does not throw: canonical pair\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S2  [PASS      ] shape hashes deterministically and does not throw: koala-* pair (pre-rename actor)\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S3  [PASS      ] shape hashes deterministically and does not throw: lattice-*@fallback pair\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S4  [PASS      ] shape hashes deterministically and does not throw: koala-*@fallback pair\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S5  [PASS      ] shape hashes deterministically and does not throw: three-entry historical actor\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S6  [PASS      ] shape hashes deterministically and does not throw: no agentResults field (synthesized from top-level fields)\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S7  [PASS      ] the documented shapes do not collide onto one digest\n          observed: distinctDigests=6 of shapes=6; collisions=none\n      X1  [PASS      ] an ABSENT agentResults is a DISTINCT value from its explicit synthesized encoding (absence is not equated with the synthesis)\n          observed: absentDigestDiffersFromExplicitEncoding=true\n      X2  [PASS      ] on a record with NO agentResults, editing the top-level agentId the gate synthesizes from MOVES the digest\n          observed: digestMoved=true\n      D1  [PASS      ] INJECTING a reviewer record moves the digest\n          observed: digestMoved=true\n      D2  [PASS      ] ERASING a recorded blocking issue moves the digest\n          observed: digestMoved=true\n      D3  [PASS      ] editing the top-level issues array moves the digest even where the gate reads agentResults instead\n          observed: digestMoved=true\n      M1  [PASS      ] the domain renderer emits every declared component, so widening the domain widens the message\n          observed: componentsDeclared=7 allRendered=true\n      M2  [PASS      ] the shipped guard RENDERS the domain in its tamper message instead of restating a field list\n          observed: rendersDomain=true stillCarriesTheOldHandWrittenList=false\n      L1  [PASS      ] every init-check.json in the live corpus hashes without throwing and without varying between reads\n          observed: filesMeasuredOnThisRun=300 threw=0 unstable=0 recordsWithNoAgentResultsField=0\n      L2  [MEASURED  ] documented shapes still present in the live corpus (measured, not asserted — a shape that has left the corpus is reported, not failed)\n          observed: present=[lattice-*@fallback pair | canonical pair | three-entry historical actor]; absentFromThisCorpus=[koala-* pair (pre-rename actor) | koala-*@fallback pair | no agentResults field (synthesized from top-level fields)] — those are still covered by the constructed rows above\n      0 FAILED / 0 BROKEN / 17 rows\n      signed components rendered from the domain declaration: storyId / background.md / title / description / checklist / reviewRound / reviewer verdict (agentResults + issues)\n      PASS: total and deterministic over every documented shape, and each gate-relevant edit moves the digest.\n  validate scheduler: jobs=4 commands=2 declared=0 exclusiveByDefault=2\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-19T17:24:18.452Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "b3eb694e1072926a2578fc86d2b9a79e47f53baa",
+          "materialHash": "e4b2e340c75e441473af303dcc88831a3ea10ce855550e4d4e41aa8f2a9bed7a",
+          "storyFilesHash": "0d6dbaf3449487543b2406949abcd4c32dd4f269d173145d4b99b04b20809410",
+          "timestamp": "2026-08-19T17:24:18.629Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "integration_test",
+          "command": "node bin/lattice.js validate --focus=b8df9-init-check-signature",
+          "result": "pass",
+          "note": "Re-executed after merging main (six sibling validate entries arrived); pinned command and selector unchanged.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "3bde2737fe480bd3e81d85552156a53b3f35fd0bb214d890c479cdce4593c58e",
+            "outputTail": "ward (E0) and an unverifiable record still RENDERS (G1).\n  ✓ B-8df9 CHK-002: the verdict hash is total, deterministic and discriminating over every on-disk agentResults shape: node packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs\n    === B-8df9 CHK-002: the verdict hash over every on-disk agentResults shape ===\n      C0  [CONTROL-OK] CONTROL: two different verdicts produce two different digests (the hash is not a constant)\n          observed: distinct=true digestLength=64\n      S1  [PASS      ] shape hashes deterministically and does not throw: canonical pair\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S2  [PASS      ] shape hashes deterministically and does not throw: koala-* pair (pre-rename actor)\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S3  [PASS      ] shape hashes deterministically and does not throw: lattice-*@fallback pair\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S4  [PASS      ] shape hashes deterministically and does not throw: koala-*@fallback pair\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S5  [PASS      ] shape hashes deterministically and does not throw: three-entry historical actor\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S6  [PASS      ] shape hashes deterministically and does not throw: no agentResults field (synthesized from top-level fields)\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S7  [PASS      ] the documented shapes do not collide onto one digest\n          observed: distinctDigests=6 of shapes=6; collisions=none\n      X1  [PASS      ] an ABSENT agentResults is a DISTINCT value from its explicit synthesized encoding (absence is not equated with the synthesis)\n          observed: absentDigestDiffersFromExplicitEncoding=true\n      X2  [PASS      ] on a record with NO agentResults, editing the top-level agentId the gate synthesizes from MOVES the digest\n          observed: digestMoved=true\n      D1  [PASS      ] INJECTING a reviewer record moves the digest\n          observed: digestMoved=true\n      D2  [PASS      ] ERASING a recorded blocking issue moves the digest\n          observed: digestMoved=true\n      D3  [PASS      ] editing the top-level issues array moves the digest even where the gate reads agentResults instead\n          observed: digestMoved=true\n      M1  [PASS      ] the domain renderer emits every declared component, so widening the domain widens the message\n          observed: componentsDeclared=7 allRendered=true\n      M2  [PASS      ] the shipped guard RENDERS the domain in its tamper message instead of restating a field list\n          observed: rendersDomain=true stillCarriesTheOldHandWrittenList=false\n      L1  [PASS      ] every init-check.json in the live corpus hashes without throwing and without varying between reads\n          observed: filesMeasuredOnThisRun=300 threw=0 unstable=0 recordsWithNoAgentResultsField=0\n      L2  [MEASURED  ] documented shapes still present in the live corpus (measured, not asserted — a shape that has left the corpus is reported, not failed)\n          observed: present=[lattice-*@fallback pair | canonical pair | three-entry historical actor]; absentFromThisCorpus=[koala-* pair (pre-rename actor) | koala-*@fallback pair | no agentResults field (synthesized from top-level fields)] — those are still covered by the constructed rows above\n      0 FAILED / 0 BROKEN / 17 rows\n      signed components rendered from the domain declaration: storyId / background.md / title / description / checklist / reviewRound / reviewer verdict (agentResults + issues)\n      PASS: total and deterministic over every documented shape, and each gate-relevant edit moves the digest.\n  validate scheduler: jobs=4 commands=2 declared=0 exclusiveByDefault=2\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-19T17:23:38.988Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "45620cffe7650b30a91e01b54ae444536d8bae04",
+          "materialHash": "e4b2e340c75e441473af303dcc88831a3ea10ce855550e4d4e41aa8f2a9bed7a",
+          "storyFilesHash": "0d6dbaf3449487543b2406949abcd4c32dd4f269d173145d4b99b04b20809410",
+          "timestamp": "2026-08-19T17:23:39.141Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node bin/lattice.js validate --focus=b8df9-init-check-signature",
+          "result": "pass",
+          "note": "Re-executed after merging main (six sibling validate entries arrived); pinned command and selector unchanged.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "8e59ea5f214eb3c18bb7f229409cf9b21b44bb7c3297876f835fff6db472410e",
+            "outputTail": "ward (E0) and an unverifiable record still RENDERS (G1).\n  ✓ B-8df9 CHK-002: the verdict hash is total, deterministic and discriminating over every on-disk agentResults shape: node packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs\n    === B-8df9 CHK-002: the verdict hash over every on-disk agentResults shape ===\n      C0  [CONTROL-OK] CONTROL: two different verdicts produce two different digests (the hash is not a constant)\n          observed: distinct=true digestLength=64\n      S1  [PASS      ] shape hashes deterministically and does not throw: canonical pair\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S2  [PASS      ] shape hashes deterministically and does not throw: koala-* pair (pre-rename actor)\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S3  [PASS      ] shape hashes deterministically and does not throw: lattice-*@fallback pair\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S4  [PASS      ] shape hashes deterministically and does not throw: koala-*@fallback pair\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S5  [PASS      ] shape hashes deterministically and does not throw: three-entry historical actor\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S6  [PASS      ] shape hashes deterministically and does not throw: no agentResults field (synthesized from top-level fields)\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S7  [PASS      ] the documented shapes do not collide onto one digest\n          observed: distinctDigests=6 of shapes=6; collisions=none\n      X1  [PASS      ] an ABSENT agentResults is a DISTINCT value from its explicit synthesized encoding (absence is not equated with the synthesis)\n          observed: absentDigestDiffersFromExplicitEncoding=true\n      X2  [PASS      ] on a record with NO agentResults, editing the top-level agentId the gate synthesizes from MOVES the digest\n          observed: digestMoved=true\n      D1  [PASS      ] INJECTING a reviewer record moves the digest\n          observed: digestMoved=true\n      D2  [PASS      ] ERASING a recorded blocking issue moves the digest\n          observed: digestMoved=true\n      D3  [PASS      ] editing the top-level issues array moves the digest even where the gate reads agentResults instead\n          observed: digestMoved=true\n      M1  [PASS      ] the domain renderer emits every declared component, so widening the domain widens the message\n          observed: componentsDeclared=7 allRendered=true\n      M2  [PASS      ] the shipped guard RENDERS the domain in its tamper message instead of restating a field list\n          observed: rendersDomain=true stillCarriesTheOldHandWrittenList=false\n      L1  [PASS      ] every init-check.json in the live corpus hashes without throwing and without varying between reads\n          observed: filesMeasuredOnThisRun=300 threw=0 unstable=0 recordsWithNoAgentResultsField=0\n      L2  [MEASURED  ] documented shapes still present in the live corpus (measured, not asserted — a shape that has left the corpus is reported, not failed)\n          observed: present=[lattice-*@fallback pair | canonical pair | three-entry historical actor]; absentFromThisCorpus=[koala-* pair (pre-rename actor) | koala-*@fallback pair | no agentResults field (synthesized from top-level fields)] — those are still covered by the constructed rows above\n      0 FAILED / 0 BROKEN / 17 rows\n      signed components rendered from the domain declaration: storyId / background.md / title / description / checklist / reviewRound / reviewer verdict (agentResults + issues)\n      PASS: total and deterministic over every documented shape, and each gate-relevant edit moves the digest.\n  validate scheduler: jobs=4 commands=2 declared=0 exclusiveByDefault=2\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-19T17:22:59.624Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "5871dcafde94524fc594f5bb97ee73df7f07adf4",
+          "materialHash": "e4b2e340c75e441473af303dcc88831a3ea10ce855550e4d4e41aa8f2a9bed7a",
+          "storyFilesHash": "0d6dbaf3449487543b2406949abcd4c32dd4f269d173145d4b99b04b20809410",
+          "timestamp": "2026-08-19T17:22:59.750Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
       "title": "Preserve the fallback audit block across the merge",
       "context": "handlers/init-check.ts:144-152 constructs the output without the fallback block written by init_check_repair (reason/actor/session/headHash). It is lost after the first ordinary call, before the initCheckAttestationMode label flips, so the durable evidence of a human attestation disappears earlier than the label advertising it. Preserve it and cover the transition with a test. CONDITIONAL ON CHK-001: if CHK-001's execution refutes the premise, re-scope this item before doing any of it rather than executing it as written.",
-      "status": "pending",
+      "status": "withdrawn",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-08-03T02:59:24.328Z",
+      "userSees": "After a manual init_check_repair, an ordinary init_check_set no longer erases the fallback block; story_get still reports initCheckAttestation: fallback.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "An ordinary init_check_set following init_check_repair preserves the fallback block (reason/actor/session/headHash)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "initCheckAttestation stays 'fallback' across the first ordinary call, where today the block is dropped one call before the label flips",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The preserved block cannot be forged into existence by an ordinary call on a story that never ran init_check_repair",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/init-check.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/init-check-fallback-smoke.ts"
+        ]
+      },
+      "decisionRef": "SD-7319de10",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "docs_check",
+          "result": "pass",
+          "note": "ORIGINAL WAIVER TEXT, PRESERVED VERBATIM (this row previously held it; my first correction attempt overwrote it, which I did not intend and have now undone by restoring it here):\n\n\"CHK-004 withdrawn by user decision SD-7319de10 (scope-shrinkage-decision.json, userConfirmed=true). No work was done, so no evidence exists. THIS WAIVER IS A FRAMEWORK GAP, NOT A DISPOSITION. The withdrawal is a recorded fact, but the framework cannot read it: scope_shrinkage_decision_set left AB-002 still listing these three intents, whole-binding withdrawal would have dropped delivered CHK-003 coverage, and proofstory_contract_set is refused in REVIEW. A user-approved withdrawal has no mechanical completion path, so this waiver is prose standing where proof should be. Filed as a framework defect; do not read it as evidence.\"\n\nCORRECTION APPENDED 2026-08-19. The waiver above was accurate when written on 2026-08-03. Its central claim - \"A user-approved withdrawal has no mechanical completion path\" - IS NO LONGER TRUE. Story B-45a5, merged to main on 2026-08-19, wired decision-backed item-level withdrawal into both REVIEW-path gates: withdrawnItemIntentRefs (core/proofstory.ts:1672, consumed at :2166) subtracts a withdrawn item's intent refs before evaluateReviewCompleteness runs its coverage loop, and checkDispatchEvidence (handlers/validate-channel.ts:305) routes withdrawn items into a third bucket keyed on withdrawnChecklistItemIdsFrom(decision). Verified live on this story after merging main: validate --channel prints \"withdrawn (SD-7319de10): CHK-004\" on its own line, absent from the Covered list; proofstory_review_completeness_check reports Gaps 0 with CHK-004's intent refs removed from the required set entirely. Three reviewer lanes independently traced the code and confirmed the gates pass BECAUSE of the withdrawal, never by consulting these waiver rows.\n\nSCOPE OF THAT FIX, stated precisely so this correction does not overclaim: B-45a5 wired the two REVIEW-path gates only. It did NOT make the codebase uniformly decision-backed; core/verification.ts:212 still performs a bare status-string skip on a DONE-blocking path, disclosed and knowingly out of scope there.\n\nThe two sibling waiver rows on CHK-004:edge:0 and CHK-004:adversarial:0 carry the same now-superseded claim and this correction covers them too.",
+          "mechanical": false,
+          "nonMechanicalReason": "Superseding annotation that also restores the original waiver text this row previously held, after my earlier correction attempt overwrote it. Not a coverage claim: CHK-004 is withdrawn by confirmed decision SD-7319de10 and its intent refs are excluded from the required set, so nothing here grandfathers as covered.",
+          "headHash": "d339fc370818d8827c3c6e4f81d59359423d22b8",
+          "materialHash": "b3ae30c9b0573ffc9b04f68dc044699bb59ff4db0c027b33fbfc773796f6e113",
+          "storyFilesHash": "d83d13fa37a415bc9cd4f1eb416740f46003f489fa495e9d66ca63a2f7751f8c",
+          "timestamp": "2026-08-19T16:06:45.322Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "waiver",
+          "verdict": "waived",
+          "waiverType": "permanent",
+          "note": "CHK-004 withdrawn by user decision SD-7319de10 (scope-shrinkage-decision.json, userConfirmed=true). No work was done, so no evidence exists. THIS WAIVER IS A FRAMEWORK GAP, NOT A DISPOSITION. The withdrawal is a recorded fact, but the framework cannot read it: scope_shrinkage_decision_set left AB-002 still listing these three intents, whole-binding withdrawal would have dropped delivered CHK-003 coverage, and proofstory_contract_set is refused in REVIEW. A user-approved withdrawal has no mechanical completion path, so this waiver is prose standing where proof should be. Filed as a framework defect; do not read it as evidence.",
+          "headHash": "12291a8a926a7b942ac4920b250dc61d6e166a83",
+          "materialHash": "2e89468c875a6e7e20251b4516dc368fff0e68d188d924939ac82cfe7aed6265",
+          "storyFilesHash": "d776854aaff0a8101466c9db4cd1f469274887c85bc19ae0004972bb726ae667",
+          "timestamp": "2026-08-03T05:49:45.636Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "waiver",
+          "verdict": "waived",
+          "waiverType": "permanent",
+          "note": "CHK-004 withdrawn by user decision SD-7319de10 (scope-shrinkage-decision.json, userConfirmed=true). No work was done, so no evidence exists. THIS WAIVER IS A FRAMEWORK GAP, NOT A DISPOSITION. The withdrawal is a recorded fact, but the framework cannot read it: scope_shrinkage_decision_set left AB-002 still listing these three intents, whole-binding withdrawal would have dropped delivered CHK-003 coverage, and proofstory_contract_set is refused in REVIEW. A user-approved withdrawal has no mechanical completion path, so this waiver is prose standing where proof should be. Filed as a framework defect; do not read it as evidence.",
+          "headHash": "ce5f8a28b98804a34f45e44374c8dc4592b70bfa",
+          "materialHash": "2e89468c875a6e7e20251b4516dc368fff0e68d188d924939ac82cfe7aed6265",
+          "storyFilesHash": "d776854aaff0a8101466c9db4cd1f469274887c85bc19ae0004972bb726ae667",
+          "timestamp": "2026-08-03T05:49:47.182Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
       "title": "Choose and justify the migration position for the existing corpus",
       "context": "Re-derive the counts first; do not trust the background's figures. Structure of the argument: only files whose owning story is in INIT are operationally gated (canEnterInitCheckGuard early-returns otherwise, core/machine.ts:440) - at the measured commit that was 1 of 637 - so the real choice is one operational break versus roughly 636 audit-replay breaks. Critically, about 195 of 637 files carry a registry-invalid actor, overwhelmingly the pre-rename koala-review-story-init (zero occurrences in AGENT_DISPATCH_REGISTRY), so re-signing the corpus by routing through the handler is not implementable and any design assuming it is must be rejected. CONDITIONAL ON CHK-001: if CHK-001's execution refutes the premise, re-scope this item before doing any of it rather than executing it as written.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-08-03T03:05:21.473Z",
+      "endTime": "2026-08-03T03:30:34.774Z",
+      "userSees": "The chosen migration position and its audit-replay consequence are stated in the decision record, with counts re-derived rather than copied.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Counts are re-derived at implementation time rather than copied from the background, and the position names what breaks",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The single INIT-phase story is identified by id before landing, and its recorded actors are confirmed still registry-valid",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node .lattice/story/actives/B-8df9/chk005-corpus-derivation.mjs",
+              "selector": "GATED_INIT_STORY_ID=B-dcf9"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The position explicitly rejects any design that assumes the corpus can be re-signed through the handler, since ~195 files carry registry-invalid actors",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/core/init-check-gate.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs"
+        ]
+      },
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "17b1cb23ff4a8b6a62eb6b77e752ccc97c1250b2a99c5f5768d26449baf14f62",
+        "storyFilesHash": "9a06ef0ebdbfedb8dad0e63a15232e43bbc801e1f6f5e1072977fd2537baa627",
+        "headHash": "e28a39246a71882e06005f627da19e0cb64b0c4d",
+        "attestedAt": "2026-08-03T03:30:35.132Z",
+        "materialHash": "e8af491da1cfbc4911daae883dc5f637489f2e04041a1726662015964f63bfe3"
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "docs_check",
+          "command": "node .lattice/story/actives/B-8df9/chk005-corpus-derivation.mjs",
+          "result": "pass",
+          "note": "Point-in-time attestation, re-executed by hand after the second main merge (six sibling validate entries arrived; both packages rebuilt). NOT mechanical evidence and no selector is claimed: docs-type intents route to the attestation-only branch of enforceAndStampEvidence before any caller-supplied selector is read, so nothing is pinned and mechanical stays false. This restates the retraction already recorded on this row after findings F-009/F-011/F-012 caught an earlier note of mine falsely claiming these rows were mechanically re-verifiable. What was actually observed just now on the merged tree: chk005-corpus-derivation.mjs exits 0 (CORPUS_FILES_ON_DISK_MARKER=300); grep \"NOT exempt because of the signature\" in packages/main/src/core/command-policy.ts hits 3; grep \"CHK-006\" in the same file hits 2. These observations are not durably re-verifiable - the corpus markers move with which stories exist and their phases, and the grep targets are prose the module's own comment invites future editors to reword.",
+          "mechanical": false,
+          "headHash": "e549187e8db9db0167a0c3839b0effad15e2baf4",
+          "materialHash": "e4b2e340c75e441473af303dcc88831a3ea10ce855550e4d4e41aa8f2a9bed7a",
+          "storyFilesHash": "0d6dbaf3449487543b2406949abcd4c32dd4f269d173145d4b99b04b20809410",
+          "timestamp": "2026-08-19T17:24:53.109Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "integration_test",
+          "command": "node .lattice/story/actives/B-8df9/chk005-corpus-derivation.mjs",
+          "result": "pass",
+          "note": "Re-executed after merging main (six sibling validate entries arrived); pinned command and selector unchanged.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "b3455c3dc67065b394d0b852fc465e2896affff49764625d9e64cbfe384d3231",
+            "outputTail": "CORPUS_ROOT=/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9\nCORPUS_FILES_ON_DISK_MARKER=300\nCORPUS_FILES_TRACKED_MARKER=300\nCORPUS_FILES_UNTRACKED_LOCAL_ONLY_MARKER=0\nTRACKED_VERIFYING_UNDER_CURRENT_DOMAIN_MARKER=0\nTRACKED_VERIFYING_UNDER_PRE_CHK002_DOMAIN_MARKER=26\nON_DISK_VERIFYING_UNDER_CURRENT_DOMAIN_MARKER=0\nON_DISK_VERIFYING_UNDER_PRE_CHK002_DOMAIN_MARKER=26\nGATED_INIT_STORY_COUNT_MARKER=1\nTRACKED_WITH_UNREGISTERED_ACTOR_MARKER=2\nON_DISK_WITH_UNREGISTERED_ACTOR_MARKER=2\nGATED_INIT_STORY_ID=B-dcf9 ACTORS=lattice-review-story-init+product-reviewer ACTORS_REGISTRY_VALID_FOR_INIT_CHECK_SET=true SIGNATURE_VERIFIES_UNDER_CURRENT_DOMAIN=false SIGNATURE_VERIFIED_UNDER_PRE_CHK002_DOMAIN=true\nUNREGISTERED_ACTOR_MARKER name=codex-init-reviewer files=1\nUNREGISTERED_ACTOR_MARKER name=codex-host files=1\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-19T17:24:20.090Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "55279d0f2301f1374a544cbfe94ba132fa181cf1",
+          "materialHash": "e4b2e340c75e441473af303dcc88831a3ea10ce855550e4d4e41aa8f2a9bed7a",
+          "storyFilesHash": "0d6dbaf3449487543b2406949abcd4c32dd4f269d173145d4b99b04b20809410",
+          "timestamp": "2026-08-19T17:24:20.210Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "docs_check",
+          "command": "node .lattice/story/actives/B-8df9/chk005-corpus-derivation.mjs",
+          "result": "pass",
+          "note": "Point-in-time attestation, re-executed by hand after the second main merge (six sibling validate entries arrived; both packages rebuilt). NOT mechanical evidence and no selector is claimed: docs-type intents route to the attestation-only branch of enforceAndStampEvidence before any caller-supplied selector is read, so nothing is pinned and mechanical stays false. This restates the retraction already recorded on this row after findings F-009/F-011/F-012 caught an earlier note of mine falsely claiming these rows were mechanically re-verifiable. What was actually observed just now on the merged tree: chk005-corpus-derivation.mjs exits 0 (CORPUS_FILES_ON_DISK_MARKER=300); grep \"NOT exempt because of the signature\" in packages/main/src/core/command-policy.ts hits 3; grep \"CHK-006\" in the same file hits 2. These observations are not durably re-verifiable - the corpus markers move with which stories exist and their phases, and the grep targets are prose the module's own comment invites future editors to reword.",
+          "mechanical": false,
+          "headHash": "8c9c60554e7e44d33064f030401f9b0425fd812e",
+          "materialHash": "e4b2e340c75e441473af303dcc88831a3ea10ce855550e4d4e41aa8f2a9bed7a",
+          "storyFilesHash": "0d6dbaf3449487543b2406949abcd4c32dd4f269d173145d4b99b04b20809410",
+          "timestamp": "2026-08-19T17:24:53.915Z"
+        }
+      ]
     },
     {
       "id": "CHK-006",
       "title": "Re-examine the owner-lease exemption whose stated justification this falsifies",
       "context": "core/command-policy.ts:396 marks init_check_set ownershipClass reviewerWrite, exempt from the owner lease, justified as 'bound by its INIT signature gate'. If items 1-3 confirm that gate did not bind the verdict, the exemption rested on a false premise: either restate a justification that is now true, or record why the exemption holds independently of the signature. CONDITIONAL ON CHK-001: if CHK-001's execution refutes the premise, re-scope this item before doing any of it rather than executing it as written.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-08-03T03:33:18.248Z",
+      "endTime": "2026-08-03T04:18:13.518Z",
+      "userSees": "command-policy.ts no longer justifies the init_check_set lease exemption with a claim this story falsified.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The exemption's stated reason is either restated so it is true after the domain change, or replaced with a reason that holds independently of the signature",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The restated reason is checked against what the code actually does, not against what the old comment claimed",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node .lattice/story/actives/B-8df9/chk006-exemption-claims.mjs",
+              "selector": "EXEMPTION_REASON_MATCHES_CODE_MARKER=true"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "If no honest justification survives, the exemption itself is flagged rather than left standing on rewritten prose",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/core/command-policy.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/init-check-required-agents-smoke.ts"
+        ]
+      },
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "79236000bfaef7c50c799dae2d3a48f09e9136794d25f4a39cef6ed4dae75351",
+        "storyFilesHash": "13094962a60b6e3b3641e00d6f591ad8f40d9162c9a6696f788e9f11711b15fb",
+        "headHash": "f89ef721184abab4ee5cbbe51fee5ec8603992d1",
+        "attestedAt": "2026-08-03T04:18:13.856Z",
+        "materialHash": "40b76a554538eb2d74dc87ba2718e58d3fbe2cbca0a2e66b02a030e7a87beab0"
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "logic_test",
+          "command": "node .lattice/story/actives/B-8df9/chk006-exemption-claims.mjs",
+          "result": "pass",
+          "note": "Re-executed after merging main (six sibling validate entries arrived); pinned command and selector unchanged.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "6301033791e78f1726a2b725591cfb44e7dff0fc6de9f936bdf7edc54780f0dd",
+            "outputTail": "⚠ session identity degraded: derived-ppid; export LATTICE_SESSION_ID or use a supported host adapter with task + agent/role identity before repeated mutating commands.\n=== B-8df9 CHK-006: the restated init_check_set exemption, measured against the code ===\n  PASS  INIT_CHECK_SET_OWNERSHIP_CLASS_MARKER=reviewerWrite\n        the exemption being justified exists at all\n  PASS  STORY_ADVANCE_OWNERSHIP_CLASS_MARKER=storyScopedMutating\n        the gate consumer named in the reason really is owner-gated\n  PASS  LEASE_GATE_TOOK_LEASE_FOR_INIT_CHECK_SET_MARKER=false\n        exempt: the gate returns before any lease is read or written\n  PASS  LEASE_GATE_TOOK_LEASE_FOR_STORY_SCOPED_CONTROL_MARKER=true\n        CONTROL: an owner-gated command on the same story DOES take the lease, so the line above is an exemption and not a dead gate\n  PASS  OWNERSHIP_CLASS_OF_CONTROL_COMMAND_MARKER=storyScopedMutating\n        the control is owner-gated by classification, not by accident\n  PASS  INIT_CHECK_SET_CHANGED_PHASE_MARKER=INIT->INIT\n        deposits evidence only: the phase is unchanged by the write itself\n  PASS  INIT_CHECK_SET_NEW_FILES_OUTSIDE_STORY_DIR_MARKER=none\n        the write is confined to this story directory (runtime locks excluded)\n  PASS  SIGNATURE_REJECTS_EDIT_WITHOUT_RESIGN_MARKER=true\n        tamper-EVIDENCE holds: an edit that does not re-sign is refused\n  PASS  SIGNATURE_ACCEPTS_AN_OUT_OF_TOOL_RESIGN_MARKER=true\n        and its LIMIT, which the reason must state rather than hide: re-signing with the exported INIT_CHECK_SALT / signInitCheck IS accepted, so the signature binds CONTENT and never the WRITER, and cannot justify who may write\n  PASS  INIT_CHECK_SALT_IS_EXPORTED_SOURCE_MARKER=true\n        the salt is a public constant, not a secret key\n  0 FAILED / 10 claims\n  EXEMPTION_REASON_MATCHES_CODE_MARKER=true — deposit-only justification holds, and the stated signature limit is real\n  claims digest=d9f417ed1260\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-19T17:24:23.258Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "d3e754004c8325ce8b18d72c62a23e1bcac99f7a",
+          "materialHash": "e4b2e340c75e441473af303dcc88831a3ea10ce855550e4d4e41aa8f2a9bed7a",
+          "storyFilesHash": "0d6dbaf3449487543b2406949abcd4c32dd4f269d173145d4b99b04b20809410",
+          "timestamp": "2026-08-19T17:24:23.376Z"
+        },
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "docs_check",
+          "command": "grep -n \"NOT exempt because of the signature\" packages/main/src/core/command-policy.ts",
+          "result": "pass",
+          "note": "Point-in-time attestation, re-executed by hand after the second main merge (six sibling validate entries arrived; both packages rebuilt). NOT mechanical evidence and no selector is claimed: docs-type intents route to the attestation-only branch of enforceAndStampEvidence before any caller-supplied selector is read, so nothing is pinned and mechanical stays false. This restates the retraction already recorded on this row after findings F-009/F-011/F-012 caught an earlier note of mine falsely claiming these rows were mechanically re-verifiable. What was actually observed just now on the merged tree: chk005-corpus-derivation.mjs exits 0 (CORPUS_FILES_ON_DISK_MARKER=300); grep \"NOT exempt because of the signature\" in packages/main/src/core/command-policy.ts hits 3; grep \"CHK-006\" in the same file hits 2. These observations are not durably re-verifiable - the corpus markers move with which stories exist and their phases, and the grep targets are prose the module's own comment invites future editors to reword.",
+          "mechanical": false,
+          "headHash": "d6edbf4e0d110abf55bfdbaa2eb4a660ad1d5a41",
+          "materialHash": "e4b2e340c75e441473af303dcc88831a3ea10ce855550e4d4e41aa8f2a9bed7a",
+          "storyFilesHash": "0d6dbaf3449487543b2406949abcd4c32dd4f269d173145d4b99b04b20809410",
+          "timestamp": "2026-08-19T17:24:54.720Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "docs_check",
+          "command": "grep -n \"CHK-006\" packages/main/src/core/command-policy.ts",
+          "result": "pass",
+          "note": "Point-in-time attestation, re-executed by hand after the second main merge (six sibling validate entries arrived; both packages rebuilt). NOT mechanical evidence and no selector is claimed: docs-type intents route to the attestation-only branch of enforceAndStampEvidence before any caller-supplied selector is read, so nothing is pinned and mechanical stays false. This restates the retraction already recorded on this row after findings F-009/F-011/F-012 caught an earlier note of mine falsely claiming these rows were mechanically re-verifiable. What was actually observed just now on the merged tree: chk005-corpus-derivation.mjs exits 0 (CORPUS_FILES_ON_DISK_MARKER=300); grep \"NOT exempt because of the signature\" in packages/main/src/core/command-policy.ts hits 3; grep \"CHK-006\" in the same file hits 2. These observations are not durably re-verifiable - the corpus markers move with which stories exist and their phases, and the grep targets are prose the module's own comment invites future editors to reword.",
+          "mechanical": false,
+          "headHash": "b654ecaf5bb9e9dde9f9eb94946192d671b870fa",
+          "materialHash": "e4b2e340c75e441473af303dcc88831a3ea10ce855550e4d4e41aa8f2a9bed7a",
+          "storyFilesHash": "0d6dbaf3449487543b2406949abcd4c32dd4f269d173145d4b99b04b20809410",
+          "timestamp": "2026-08-19T17:24:55.514Z"
+        }
+      ]
     }
   ]
 }

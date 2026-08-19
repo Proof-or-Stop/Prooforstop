@@ -1,0 +1,552 @@
+{
+  "schemaVersion": "proofstory.acceptance_basis_artifact.v1",
+  "basis": {
+    "schemaVersion": "proofstory.acceptance_coverage_basis.v1",
+    "storyId": "B-8df9",
+    "phaseBasis": "plan",
+    "status": "partial",
+    "generatedBy": {
+      "verifier": "acceptance-coverage-basis-verifier",
+      "command": "lattice acceptance_basis_generate",
+      "algorithmVersion": "v1"
+    },
+    "discoveryProfileRef": "profile:typescript-proof-gate:plan:v1",
+    "discoveryProfileDigest": "sha256:45ef323962cb942f0df4ca6d9947f3bd0b553d4a509e149d5fef27175dd9f18d",
+    "discoveryMethods": [
+      "scope_contract",
+      "process_fact_registry",
+      "handler_dispatch_inventory",
+      "static_call_graph",
+      "runtime_trace"
+    ],
+    "adapterResults": [
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "handler-dispatch-inventory:plan:v1",
+        "method": "handler_dispatch_inventory",
+        "pathRefs": [
+          "path:process-fact:acceptance_basis->consumer:<audit-only>",
+          "path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+          "path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate"
+        ],
+        "coverageClaim": "partial",
+        "blindSpots": [
+          "source file is unreadable or disappeared: .lattice/story/actives/B-8df9/*",
+          "source file is unreadable or disappeared: docs/requirements/decisions/*.md",
+          "source file is unreadable or disappeared: packages/main/src/tasks/*.ts",
+          "source file is unreadable or disappeared: packages/main/tests/*.ts",
+          "source file is unreadable or disappeared: packages/main/tests/red/*.mjs",
+          "source file is unreadable or disappeared: packages/main/tests/red/red-b8df9-*.mjs"
+        ],
+        "provenanceRefs": [
+          "source-file:lattice.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745",
+          "source-file:packages/main/src/cli/command-catalog.ts:sha256:230d1d569853207e84454fc145f2263ded3f3b6e98bfb8a0e8dceead1b3e361d",
+          "source-file:packages/main/src/handlers/init-check.ts:sha256:ea7e36665ccbae5143cb4f80f0a825ca16840b452cb2c82c8db0a42c28247101",
+          "source-file:packages/main/src/handlers/proofstory.ts:sha256:ae291627c043ec4531363a1759bca50abfc4b108a63f22145cea8ba1fab7ad41",
+          "source-file:packages/main/src/registry.ts:sha256:64ea207cf5a4f7dc91b715870b2a1e09775e59fbac0eb2a982d6e18c5e339fed"
+        ],
+        "asymmetryPolicy": {
+          "kind": "exhaustive",
+          "policyRef": "policy:handler_dispatch_inventory:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:checklist:CHK-002",
+            "scope:checklist:CHK-003",
+            "scope:checklist:CHK-004",
+            "scope:checklist:CHK-005",
+            "scope:checklist:CHK-006",
+            "scope:file:.lattice/story/actives/B-8df9/*",
+            "scope:file:CLAUDE.md",
+            "scope:file:docs/requirements/decisions/*.md",
+            "scope:file:lattice.config.json",
+            "scope:file:package-lock.json",
+            "scope:file:package.json",
+            "scope:file:packages/main/package.json",
+            "scope:file:packages/main/src/core/command-policy.ts",
+            "scope:file:packages/main/src/core/init-check-gate.ts",
+            "scope:file:packages/main/src/core/machine.ts",
+            "scope:file:packages/main/src/core/store.ts",
+            "scope:file:packages/main/src/core/types.ts",
+            "scope:file:packages/main/src/handlers/init-check.ts",
+            "scope:file:packages/main/src/tasks/*.ts",
+            "scope:file:packages/main/tests/*.ts",
+            "scope:file:packages/main/tests/red/*.mjs",
+            "scope:file:packages/main/tests/red/red-b8df9-*.mjs"
+          ]
+        },
+        "resultDigest": "sha256:000b1293b968f8771810611f104a80f4973e52416e4eb16372c4631b2b432991"
+      },
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "process-fact-registry:plan:v1",
+        "method": "process_fact_registry",
+        "pathRefs": [
+          "path:process-fact:acceptance_basis->consumer:<audit-only>",
+          "path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+          "path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
+          "path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
+        ],
+        "coverageClaim": "partial",
+        "blindSpots": [
+          "source file is unreadable or disappeared: .lattice/story/actives/B-8df9/*",
+          "source file is unreadable or disappeared: docs/requirements/decisions/*.md",
+          "source file is unreadable or disappeared: packages/main/src/tasks/*.ts",
+          "source file is unreadable or disappeared: packages/main/tests/*.ts",
+          "source file is unreadable or disappeared: packages/main/tests/red/*.mjs",
+          "source file is unreadable or disappeared: packages/main/tests/red/red-b8df9-*.mjs"
+        ],
+        "provenanceRefs": [
+          "process-fact:acceptance_basis:da66e0998516b4d2ca3f45bc57585700a1f0675eeb30267234df766ee32d288f",
+          "process-fact:acceptance_basis_generate:c705ec303891a791afa607f361da9b178764f8186b88c4336bdd4441d32fe0b9",
+          "process-fact:acceptance_topology_check:98a1a08190c79f0f548f297fa08b2d573493faec90f156fe9e07e66f9e3ff095",
+          "process-fact:artifact:acceptance-basis.json:8cab0c9d56e68c579428c321969642d3f94a3596133e9393c047c110b44dcd82",
+          "source-file:lattice.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745",
+          "source-file:packages/main/src/core/acceptance-topology.ts:sha256:84368d03a6a5ed3157ae5fae7d760f3711b68220e46eb21a65d1910253d276ac",
+          "source-file:packages/main/src/handlers/proofstory.ts:sha256:ae291627c043ec4531363a1759bca50abfc4b108a63f22145cea8ba1fab7ad41",
+          "source-file:packages/main/src/handlers/transition-orchestrator.ts:sha256:514700115eb3bacbab40ff65095cf171e51df93318c70eac884e3d3ac86c8f73",
+          "source-file:packages/main/src/registry.ts:sha256:64ea207cf5a4f7dc91b715870b2a1e09775e59fbac0eb2a982d6e18c5e339fed",
+          "source-file:scripts/verify-process-fact-contract.mjs:sha256:b50a09fe359ae5ade796943e722ae28c322e0a6ba1a8d15350a1f9fcbaf3c341"
+        ],
+        "asymmetryPolicy": {
+          "kind": "exhaustive",
+          "policyRef": "policy:process_fact_registry:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:checklist:CHK-002",
+            "scope:checklist:CHK-003",
+            "scope:checklist:CHK-004",
+            "scope:checklist:CHK-005",
+            "scope:checklist:CHK-006",
+            "scope:file:.lattice/story/actives/B-8df9/*",
+            "scope:file:CLAUDE.md",
+            "scope:file:docs/requirements/decisions/*.md",
+            "scope:file:lattice.config.json",
+            "scope:file:package-lock.json",
+            "scope:file:package.json",
+            "scope:file:packages/main/package.json",
+            "scope:file:packages/main/src/core/command-policy.ts",
+            "scope:file:packages/main/src/core/init-check-gate.ts",
+            "scope:file:packages/main/src/core/machine.ts",
+            "scope:file:packages/main/src/core/store.ts",
+            "scope:file:packages/main/src/core/types.ts",
+            "scope:file:packages/main/src/handlers/init-check.ts",
+            "scope:file:packages/main/src/tasks/*.ts",
+            "scope:file:packages/main/tests/*.ts",
+            "scope:file:packages/main/tests/red/*.mjs",
+            "scope:file:packages/main/tests/red/red-b8df9-*.mjs"
+          ]
+        },
+        "resultDigest": "sha256:7766304e785669a258ae189aaf3c88860339b9df0a3e809a3e5f035bae12592f"
+      },
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "runtime-trace:plan:v1",
+        "method": "runtime_trace",
+        "pathRefs": [],
+        "coverageClaim": "complete_for_scope",
+        "blindSpots": [],
+        "provenanceRefs": [
+          "runtime-fact-registry:sha256:87ef03b700851edd8ffd68380361b4d635c8436f7bd3fac51a4b920a4056a6d6",
+          "runtime-trace:story:B-8df9:bounded"
+        ],
+        "asymmetryPolicy": {
+          "kind": "bounded_non_exhaustive",
+          "policyRef": "policy:bounded-runtime:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:checklist:CHK-002",
+            "scope:checklist:CHK-003",
+            "scope:checklist:CHK-004",
+            "scope:checklist:CHK-005",
+            "scope:checklist:CHK-006",
+            "scope:file:.lattice/story/actives/B-8df9/*",
+            "scope:file:CLAUDE.md",
+            "scope:file:docs/requirements/decisions/*.md",
+            "scope:file:lattice.config.json",
+            "scope:file:package-lock.json",
+            "scope:file:package.json",
+            "scope:file:packages/main/package.json",
+            "scope:file:packages/main/src/core/command-policy.ts",
+            "scope:file:packages/main/src/core/init-check-gate.ts",
+            "scope:file:packages/main/src/core/machine.ts",
+            "scope:file:packages/main/src/core/store.ts",
+            "scope:file:packages/main/src/core/types.ts",
+            "scope:file:packages/main/src/handlers/init-check.ts",
+            "scope:file:packages/main/src/tasks/*.ts",
+            "scope:file:packages/main/tests/*.ts",
+            "scope:file:packages/main/tests/red/*.mjs",
+            "scope:file:packages/main/tests/red/red-b8df9-*.mjs"
+          ]
+        },
+        "resultDigest": "sha256:175160e250a42ee08495806715971fd455c0824902a6e85a1e58ebe78aff3235"
+      },
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "scope-contract:plan:v1",
+        "method": "scope_contract",
+        "pathRefs": [],
+        "coverageClaim": "complete_for_scope",
+        "blindSpots": [],
+        "provenanceRefs": [
+          "scope:checklist:CHK-001",
+          "scope:checklist:CHK-002",
+          "scope:checklist:CHK-003",
+          "scope:checklist:CHK-004",
+          "scope:checklist:CHK-005",
+          "scope:checklist:CHK-006",
+          "scope:file:.lattice/story/actives/B-8df9/*",
+          "scope:file:CLAUDE.md",
+          "scope:file:docs/requirements/decisions/*.md",
+          "scope:file:lattice.config.json",
+          "scope:file:package-lock.json",
+          "scope:file:package.json",
+          "scope:file:packages/main/package.json",
+          "scope:file:packages/main/src/core/command-policy.ts",
+          "scope:file:packages/main/src/core/init-check-gate.ts",
+          "scope:file:packages/main/src/core/machine.ts",
+          "scope:file:packages/main/src/core/store.ts",
+          "scope:file:packages/main/src/core/types.ts",
+          "scope:file:packages/main/src/handlers/init-check.ts",
+          "scope:file:packages/main/src/tasks/*.ts",
+          "scope:file:packages/main/tests/*.ts",
+          "scope:file:packages/main/tests/red/*.mjs",
+          "scope:file:packages/main/tests/red/red-b8df9-*.mjs",
+          "source-file:lattice.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745"
+        ],
+        "asymmetryPolicy": {
+          "kind": "exhaustive",
+          "policyRef": "policy:scope_contract:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:checklist:CHK-002",
+            "scope:checklist:CHK-003",
+            "scope:checklist:CHK-004",
+            "scope:checklist:CHK-005",
+            "scope:checklist:CHK-006",
+            "scope:file:.lattice/story/actives/B-8df9/*",
+            "scope:file:CLAUDE.md",
+            "scope:file:docs/requirements/decisions/*.md",
+            "scope:file:lattice.config.json",
+            "scope:file:package-lock.json",
+            "scope:file:package.json",
+            "scope:file:packages/main/package.json",
+            "scope:file:packages/main/src/core/command-policy.ts",
+            "scope:file:packages/main/src/core/init-check-gate.ts",
+            "scope:file:packages/main/src/core/machine.ts",
+            "scope:file:packages/main/src/core/store.ts",
+            "scope:file:packages/main/src/core/types.ts",
+            "scope:file:packages/main/src/handlers/init-check.ts",
+            "scope:file:packages/main/src/tasks/*.ts",
+            "scope:file:packages/main/tests/*.ts",
+            "scope:file:packages/main/tests/red/*.mjs",
+            "scope:file:packages/main/tests/red/red-b8df9-*.mjs"
+          ]
+        },
+        "resultDigest": "sha256:e01f46894c67c0d775a8941ac15ac3e5a5d9499c3e23c46928d2f9d153742f8e"
+      },
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "static-call-graph:plan:v1",
+        "method": "static_call_graph",
+        "pathRefs": [
+          "path:process-fact:acceptance_basis->consumer:<audit-only>",
+          "path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+          "path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
+          "path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
+        ],
+        "coverageClaim": "partial",
+        "blindSpots": [
+          "source file is unreadable or disappeared: .lattice/story/actives/B-8df9/*",
+          "source file is unreadable or disappeared: docs/requirements/decisions/*.md",
+          "source file is unreadable or disappeared: packages/main/src/tasks/*.ts",
+          "source file is unreadable or disappeared: packages/main/tests/*.ts",
+          "source file is unreadable or disappeared: packages/main/tests/red/*.mjs",
+          "source file is unreadable or disappeared: packages/main/tests/red/red-b8df9-*.mjs"
+        ],
+        "provenanceRefs": [
+          "source-file:.lattice/story/actives/B-8df9/*:uninspectable",
+          "source-file:CLAUDE.md:sha256:61f17c520d72b98a8cc93c3c85c7f58747cff2510f7c6b9cc3a6fb19d1a19436",
+          "source-file:docs/requirements/decisions/*.md:uninspectable",
+          "source-file:lattice.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745",
+          "source-file:package-lock.json:sha256:dfa9628a4de020169c66bd3d6416226c41e14086439189f46dac42979e6d5dde",
+          "source-file:package.json:sha256:ffa2d4af8383496f795b4a51098dfce1f2208cf50c80a7a97fb90a6a7d1fa6fe",
+          "source-file:packages/main/package.json:sha256:92b5d7eb5b17b38bb3ad6dea1b10bcad86b2e96cec7e9f5928378435dac55110",
+          "source-file:packages/main/src/core/acceptance-topology.ts:sha256:84368d03a6a5ed3157ae5fae7d760f3711b68220e46eb21a65d1910253d276ac",
+          "source-file:packages/main/src/core/command-policy.ts:sha256:b79e61f2074fc89ce8930fc7b093c910a44753eb8f5448735212a6ef9724e011",
+          "source-file:packages/main/src/core/init-check-gate.ts:sha256:c3209cae79428bd61bc8b4223c096e59e6d4a133027ffc18032092efb76908fc",
+          "source-file:packages/main/src/core/machine.ts:sha256:1fa33c48c5d1727e2239c290c450fc80dc03d9309c2b6cd77238471c7ac12509",
+          "source-file:packages/main/src/core/store.ts:sha256:a2e36b27594af164055e60192f61646fd44f5c231a6ad5110690042c7af2fc7a",
+          "source-file:packages/main/src/core/types.ts:sha256:d9a30710dd1cac0462ef0d94487345f6f0ccdfe1791f46906699b2dee2164bbd",
+          "source-file:packages/main/src/handlers/init-check.ts:sha256:ea7e36665ccbae5143cb4f80f0a825ca16840b452cb2c82c8db0a42c28247101",
+          "source-file:packages/main/src/handlers/proofstory.ts:sha256:ae291627c043ec4531363a1759bca50abfc4b108a63f22145cea8ba1fab7ad41",
+          "source-file:packages/main/src/handlers/transition-orchestrator.ts:sha256:514700115eb3bacbab40ff65095cf171e51df93318c70eac884e3d3ac86c8f73",
+          "source-file:packages/main/src/tasks/*.ts:uninspectable",
+          "source-file:packages/main/tests/*.ts:uninspectable",
+          "source-file:packages/main/tests/red/*.mjs:uninspectable",
+          "source-file:packages/main/tests/red/red-b8df9-*.mjs:uninspectable",
+          "source-file:scripts/verify-process-fact-contract.mjs:sha256:b50a09fe359ae5ade796943e722ae28c322e0a6ba1a8d15350a1f9fcbaf3c341"
+        ],
+        "asymmetryPolicy": {
+          "kind": "exhaustive",
+          "policyRef": "policy:static_call_graph:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:checklist:CHK-002",
+            "scope:checklist:CHK-003",
+            "scope:checklist:CHK-004",
+            "scope:checklist:CHK-005",
+            "scope:checklist:CHK-006",
+            "scope:file:.lattice/story/actives/B-8df9/*",
+            "scope:file:CLAUDE.md",
+            "scope:file:docs/requirements/decisions/*.md",
+            "scope:file:lattice.config.json",
+            "scope:file:package-lock.json",
+            "scope:file:package.json",
+            "scope:file:packages/main/package.json",
+            "scope:file:packages/main/src/core/command-policy.ts",
+            "scope:file:packages/main/src/core/init-check-gate.ts",
+            "scope:file:packages/main/src/core/machine.ts",
+            "scope:file:packages/main/src/core/store.ts",
+            "scope:file:packages/main/src/core/types.ts",
+            "scope:file:packages/main/src/handlers/init-check.ts",
+            "scope:file:packages/main/src/tasks/*.ts",
+            "scope:file:packages/main/tests/*.ts",
+            "scope:file:packages/main/tests/red/*.mjs",
+            "scope:file:packages/main/tests/red/red-b8df9-*.mjs"
+          ]
+        },
+        "resultDigest": "sha256:0d05fe3a2cf2877ee4ce0152e242f4308915a8f9c52c264a4b17c80d9159e684"
+      }
+    ],
+    "scopeRefs": [
+      "scope:checklist:CHK-001",
+      "scope:checklist:CHK-002",
+      "scope:checklist:CHK-003",
+      "scope:checklist:CHK-004",
+      "scope:checklist:CHK-005",
+      "scope:checklist:CHK-006",
+      "scope:file:.lattice/story/actives/B-8df9/*",
+      "scope:file:CLAUDE.md",
+      "scope:file:docs/requirements/decisions/*.md",
+      "scope:file:lattice.config.json",
+      "scope:file:package-lock.json",
+      "scope:file:package.json",
+      "scope:file:packages/main/package.json",
+      "scope:file:packages/main/src/core/command-policy.ts",
+      "scope:file:packages/main/src/core/init-check-gate.ts",
+      "scope:file:packages/main/src/core/machine.ts",
+      "scope:file:packages/main/src/core/store.ts",
+      "scope:file:packages/main/src/core/types.ts",
+      "scope:file:packages/main/src/handlers/init-check.ts",
+      "scope:file:packages/main/src/tasks/*.ts",
+      "scope:file:packages/main/tests/*.ts",
+      "scope:file:packages/main/tests/red/*.mjs",
+      "scope:file:packages/main/tests/red/red-b8df9-*.mjs"
+    ],
+    "sourceInventoryRefs": [
+      "artifact:acceptance-basis.json",
+      "process-fact:acceptance_basis:da66e0998516b4d2ca3f45bc57585700a1f0675eeb30267234df766ee32d288f",
+      "process-fact:acceptance_basis_generate:c705ec303891a791afa607f361da9b178764f8186b88c4336bdd4441d32fe0b9",
+      "process-fact:acceptance_topology_check:98a1a08190c79f0f548f297fa08b2d573493faec90f156fe9e07e66f9e3ff095",
+      "process-fact:artifact:acceptance-basis.json:8cab0c9d56e68c579428c321969642d3f94a3596133e9393c047c110b44dcd82",
+      "source-file:closure:.lattice/story/actives/B-8df9/*",
+      "source-file:closure:CLAUDE.md",
+      "source-file:closure:docs/requirements/decisions/*.md",
+      "source-file:closure:lattice.config.json",
+      "source-file:closure:package-lock.json",
+      "source-file:closure:package.json",
+      "source-file:closure:packages/main/package.json",
+      "source-file:closure:packages/main/src/core/acceptance-topology.ts",
+      "source-file:closure:packages/main/src/core/command-policy.ts",
+      "source-file:closure:packages/main/src/core/init-check-gate.ts",
+      "source-file:closure:packages/main/src/core/machine.ts",
+      "source-file:closure:packages/main/src/core/store.ts",
+      "source-file:closure:packages/main/src/core/types.ts",
+      "source-file:closure:packages/main/src/handlers/init-check.ts",
+      "source-file:closure:packages/main/src/handlers/proofstory.ts",
+      "source-file:closure:packages/main/src/handlers/transition-orchestrator.ts",
+      "source-file:closure:packages/main/src/tasks/*.ts",
+      "source-file:closure:packages/main/tests/*.ts",
+      "source-file:closure:packages/main/tests/red/*.mjs",
+      "source-file:closure:packages/main/tests/red/red-b8df9-*.mjs",
+      "source-file:closure:scripts/verify-process-fact-contract.mjs",
+      "source-file:config:lattice.config.json",
+      "source-file:consumer:acceptance_basis:packages/main/src/core/acceptance-topology.ts",
+      "source-file:consumer:acceptance_basis:packages/main/src/handlers/transition-orchestrator.ts",
+      "source-file:consumer:acceptance_basis:scripts/verify-process-fact-contract.mjs",
+      "source-file:consumer:acceptance_basis_generate:packages/main/src/core/acceptance-topology.ts",
+      "source-file:consumer:acceptance_basis_generate:packages/main/src/handlers/transition-orchestrator.ts",
+      "source-file:consumer:acceptance_basis_generate:scripts/verify-process-fact-contract.mjs",
+      "source-file:consumer:acceptance_topology_check:packages/main/src/core/acceptance-topology.ts",
+      "source-file:consumer:acceptance_topology_check:packages/main/src/handlers/transition-orchestrator.ts",
+      "source-file:consumer:acceptance_topology_check:scripts/verify-process-fact-contract.mjs",
+      "source-file:consumer:artifact%3Aacceptance-basis.json:packages/main/src/core/acceptance-topology.ts",
+      "source-file:consumer:artifact%3Aacceptance-basis.json:packages/main/src/handlers/proofstory.ts",
+      "source-file:consumer:artifact%3Aacceptance-basis.json:packages/main/src/handlers/transition-orchestrator.ts",
+      "source-file:consumer:artifact%3Aacceptance-basis.json:scripts/verify-process-fact-contract.mjs",
+      "source-file:producer:acceptance_basis:packages/main/src/handlers/proofstory.ts",
+      "source-file:producer:acceptance_basis:packages/main/src/registry.ts",
+      "source-file:producer:acceptance_basis_generate:packages/main/src/handlers/proofstory.ts",
+      "source-file:producer:acceptance_basis_generate:packages/main/src/registry.ts",
+      "source-file:producer:acceptance_topology_check:packages/main/src/handlers/proofstory.ts",
+      "source-file:producer:acceptance_topology_check:packages/main/src/registry.ts",
+      "source-file:producer:artifact%3Aacceptance-basis.json:packages/main/src/handlers/proofstory.ts",
+      "source-file:producer:artifact%3Aacceptance-basis.json:packages/main/src/registry.ts"
+    ],
+    "plannedPathRecords": [],
+    "plannedActualReconciliations": [],
+    "enumeratedPathRefs": [
+      "path:process-fact:acceptance_basis->consumer:<audit-only>",
+      "path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+      "path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
+      "path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
+    ],
+    "excludedPathRefs": [],
+    "blindSpots": [
+      "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_basis->consumer:<audit-only>",
+      "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+      "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
+      "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+      "snapshot-seal:snapshot_missing:inventory:.lattice/story/actives/B-8df9/*",
+      "snapshot-seal:snapshot_missing:inventory:docs/requirements/decisions/*.md",
+      "snapshot-seal:snapshot_missing:inventory:packages/main/src/tasks/*.ts",
+      "snapshot-seal:snapshot_missing:inventory:packages/main/tests/*.ts",
+      "snapshot-seal:snapshot_missing:inventory:packages/main/tests/red/*.mjs",
+      "snapshot-seal:snapshot_missing:inventory:packages/main/tests/red/red-b8df9-*.mjs",
+      "snapshot-seal:snapshot_missing:source_file:.lattice/story/actives/B-8df9/*",
+      "snapshot-seal:snapshot_missing:source_file:docs/requirements/decisions/*.md",
+      "snapshot-seal:snapshot_missing:source_file:packages/main/src/tasks/*.ts",
+      "snapshot-seal:snapshot_missing:source_file:packages/main/tests/*.ts",
+      "snapshot-seal:snapshot_missing:source_file:packages/main/tests/red/*.mjs",
+      "snapshot-seal:snapshot_missing:source_file:packages/main/tests/red/red-b8df9-*.mjs",
+      "source file is unreadable or disappeared: .lattice/story/actives/B-8df9/*",
+      "source file is unreadable or disappeared: docs/requirements/decisions/*.md",
+      "source file is unreadable or disappeared: packages/main/src/tasks/*.ts",
+      "source file is unreadable or disappeared: packages/main/tests/*.ts",
+      "source file is unreadable or disappeared: packages/main/tests/red/*.mjs",
+      "source file is unreadable or disappeared: packages/main/tests/red/red-b8df9-*.mjs"
+    ],
+    "snapshotSeal": {
+      "schemaVersion": "proofstory.acceptance_snapshot_seal.v1",
+      "inventoryDirectoryDigest": "sha256:cb365f914a1bfd5b8f96d99db6cf167e57c35385c94ca68d415f9a4b60461e75",
+      "inventoryDirectoryCount": 21,
+      "sourceSnapshotDigest": "sha256:2d9ea6484fef581a53ac1f4fb9ff6ecff2e758cbf97cd26c11c6e6e2c6cbcddc",
+      "sourceSnapshotCount": 785,
+      "configSnapshotDigest": "sha256:0ee5353bc6952bfe94d1069b907334faddd661fb9ae33a7ae8c051c177c72090",
+      "status": "partial",
+      "issues": [
+        {
+          "code": "derivation_diagnostic",
+          "targetKind": "inventory",
+          "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_basis->consumer:<audit-only>"
+        },
+        {
+          "code": "derivation_diagnostic",
+          "targetKind": "inventory",
+          "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
+        },
+        {
+          "code": "derivation_diagnostic",
+          "targetKind": "inventory",
+          "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate"
+        },
+        {
+          "code": "derivation_diagnostic",
+          "targetKind": "inventory",
+          "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
+        },
+        {
+          "code": "snapshot_missing",
+          "targetKind": "inventory",
+          "canonicalRef": ".lattice/story/actives/B-8df9/*"
+        },
+        {
+          "code": "snapshot_missing",
+          "targetKind": "inventory",
+          "canonicalRef": "docs/requirements/decisions/*.md"
+        },
+        {
+          "code": "snapshot_missing",
+          "targetKind": "inventory",
+          "canonicalRef": "packages/main/src/tasks/*.ts"
+        },
+        {
+          "code": "snapshot_missing",
+          "targetKind": "inventory",
+          "canonicalRef": "packages/main/tests/*.ts"
+        },
+        {
+          "code": "snapshot_missing",
+          "targetKind": "inventory",
+          "canonicalRef": "packages/main/tests/red/*.mjs"
+        },
+        {
+          "code": "snapshot_missing",
+          "targetKind": "inventory",
+          "canonicalRef": "packages/main/tests/red/red-b8df9-*.mjs"
+        },
+        {
+          "code": "snapshot_missing",
+          "targetKind": "source_file",
+          "canonicalRef": ".lattice/story/actives/B-8df9/*"
+        },
+        {
+          "code": "snapshot_missing",
+          "targetKind": "source_file",
+          "canonicalRef": "docs/requirements/decisions/*.md"
+        },
+        {
+          "code": "snapshot_missing",
+          "targetKind": "source_file",
+          "canonicalRef": "packages/main/src/tasks/*.ts"
+        },
+        {
+          "code": "snapshot_missing",
+          "targetKind": "source_file",
+          "canonicalRef": "packages/main/tests/*.ts"
+        },
+        {
+          "code": "snapshot_missing",
+          "targetKind": "source_file",
+          "canonicalRef": "packages/main/tests/red/*.mjs"
+        },
+        {
+          "code": "snapshot_missing",
+          "targetKind": "source_file",
+          "canonicalRef": "packages/main/tests/red/red-b8df9-*.mjs"
+        }
+      ],
+      "sealDigest": "sha256:d2f0db67351e1dfd9113b12c922755b852b8eec35dba2a8330b0eee153b34f6c"
+    },
+    "binding": {
+      "headHash": "bb362c8bdfcef68e5fabe024e7c8af277703a7fc",
+      "materialHash": "40b76a554538eb2d74dc87ba2718e58d3fbe2cbca0a2e66b02a030e7a87beab0",
+      "storyFilesHash": "13094962a60b6e3b3641e00d6f591ad8f40d9162c9a6696f788e9f11711b15fb",
+      "scopeCheckDigest": "sha256:82c29564aba41fd29c9a4205846837341b50d81bf0a06bd35fa7fcebaa740e30",
+      "scopeContractDigest": "sha256:789d187a19bbb0d90fa983533e6b567144d340a13a3188ff3199e15c40536229",
+      "closureFilesHash": "sha256:ddc7c377dfedfcbd053878beafe04d6d56b69e62790307a09dfc297439c19026"
+    },
+    "receiptRef": "receipt:coverage-basis:B-8df9:plan:90ad9b90033dae95",
+    "basisDigest": "sha256:3152d46281e1264e74c3e21fc1e20e17a7f77d7d830217311ed492a3bd7aea20"
+  },
+  "receipt": {
+    "schemaVersion": "proofstory.acceptance_basis_receipt.v1",
+    "receiptRef": "receipt:coverage-basis:B-8df9:plan:90ad9b90033dae95",
+    "issuer": "acceptance-coverage-basis-verifier",
+    "issuerKeyId": "sha256:296cf7b2d23ab87226356b1e45ea3a1ec48eee6266df59e0aefea56e1de3c722",
+    "signerPublicKey": "xd1c+IbCBeVwFfhaDuRVFXxOCL3kqkMx7weu8ckyaAw=",
+    "storyId": "B-8df9",
+    "phaseBasis": "plan",
+    "basisDigest": "sha256:3152d46281e1264e74c3e21fc1e20e17a7f77d7d830217311ed492a3bd7aea20",
+    "topologyDigest": "sha256:34dbcd00c58b43ab7a953a8588463e55490eaa56051cd2b872bb480a0bac4fa3",
+    "scopeCheckDigest": "sha256:82c29564aba41fd29c9a4205846837341b50d81bf0a06bd35fa7fcebaa740e30",
+    "scopeContractDigest": "sha256:789d187a19bbb0d90fa983533e6b567144d340a13a3188ff3199e15c40536229",
+    "headHash": "bb362c8bdfcef68e5fabe024e7c8af277703a7fc",
+    "materialHash": "40b76a554538eb2d74dc87ba2718e58d3fbe2cbca0a2e66b02a030e7a87beab0",
+    "storyFilesHash": "13094962a60b6e3b3641e00d6f591ad8f40d9162c9a6696f788e9f11711b15fb",
+    "closureFilesHash": "sha256:ddc7c377dfedfcbd053878beafe04d6d56b69e62790307a09dfc297439c19026",
+    "sealDigest": "sha256:d2f0db67351e1dfd9113b12c922755b852b8eec35dba2a8330b0eee153b34f6c",
+    "workspaceIdentityDigest": "sha256:39a311c487421e423c2a5601a8866a9a9e4fa17a6f5129d750bf5b3322bc2f19",
+    "signature": "gA1nkSqTymljBc1cwDegIkI1p+r4I7fLxGKr+5Rqe+aVSlFA/t6zxus86K9sMQbWekIgV5Wprq1CoZ4C6P4hCQ=="
+  }
+}

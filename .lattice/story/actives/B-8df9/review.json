@@ -1,0 +1,537 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-08-01T12:48:20.428Z",
+      "issueCount": 14,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-004",
+          "message": "CHK-004 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-005",
+          "message": "CHK-005 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-006",
+          "message": "CHK-006 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "6 checklist items; please check for missing combined scenarios (e.g., what happens when Prove or refute by execution that a hand-edited init-check.json passes the gate unchanged + Bind agentResults and issues into the signature domain are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 2 high-risk signal(s): Data Migration/Destructive, State Machine/Gate. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run lattice story_review_dismiss '{\"storyId\":\"B-8df9\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_original_intent_snapshot: Intent MVP requires original_intent_snapshot_set with sourceText, normalizedOutcome, and acceptanceClaim. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_intent_collision: Intent collision is triggered but no pass decision with acceptedInterpretation is present. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_red_evidence: Red evidence is triggered but no current red evidence record binds baseline head/material to the correct acceptance target and green relation. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "scope_ambiguity: Scope ambiguity is triggered but no scope contract or explicit shrinkage decision is configured. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 2 undigested unknowns: What an absent agentResults field should hash to for the five legacy files where initCheckAgentResults synthesizes a single-element array from top-level agentId/issues; Whether a _hash mismatch on read should refuse the carry-forward only, or refuse the read entirely; the choice decides whether the audit-only majority of the corpus becomes unreadable"
+        },
+        {
+          "type": "touchpoint_mapping_missing",
+          "severity": "advisory",
+          "message": "None of the checklist items have the files field filled in (legacy story compatibility mode); cannot perform coverage validation on understanding.touchpoints. Please list the changed files in files.modify/create/test for at least one item to enable strict touchpoint-to-files validation"
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-8df9 is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "36ebc7388c1625a536b503c2a57f41031ffd920c39b3da4ce4097777e0e75080"
+    },
+    {
+      "timestamp": "2026-08-01T12:48:44.914Z",
+      "issueCount": 14,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-004",
+          "message": "CHK-004 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-005",
+          "message": "CHK-005 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-006",
+          "message": "CHK-006 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "6 checklist items; please check for missing combined scenarios (e.g., what happens when Prove or refute by execution that a hand-edited init-check.json passes the gate unchanged + Bind agentResults and issues into the signature domain are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 2 high-risk signal(s): Data Migration/Destructive, State Machine/Gate. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run lattice story_review_dismiss '{\"storyId\":\"B-8df9\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_original_intent_snapshot: Intent MVP requires original_intent_snapshot_set with sourceText, normalizedOutcome, and acceptanceClaim. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_intent_collision: Intent collision is triggered but no pass decision with acceptedInterpretation is present. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_red_evidence: Red evidence is triggered but no current red evidence record binds baseline head/material to the correct acceptance target and green relation. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "scope_ambiguity: Scope ambiguity is triggered but no scope contract or explicit shrinkage decision is configured. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 2 undigested unknowns: What an absent agentResults field should hash to for the five legacy files where initCheckAgentResults synthesizes a single-element array from top-level agentId/issues; Whether a _hash mismatch on read should refuse the carry-forward only, or refuse the read entirely; the choice decides whether the audit-only majority of the corpus becomes unreadable"
+        },
+        {
+          "type": "touchpoint_mapping_missing",
+          "severity": "advisory",
+          "message": "None of the checklist items have the files field filled in (legacy story compatibility mode); cannot perform coverage validation on understanding.touchpoints. Please list the changed files in files.modify/create/test for at least one item to enable strict touchpoint-to-files validation"
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-8df9 is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "0ce964c7cfe77cf5f33c857ac8c8205af9aedf0e29c05486d2753e8385a2198a"
+    },
+    {
+      "timestamp": "2026-08-01T12:49:11.945Z",
+      "issueCount": 22,
+      "blockerCount": 9,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-004",
+          "message": "CHK-004 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-005",
+          "message": "CHK-005 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-006",
+          "message": "CHK-006 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "6 checklist items; please check for missing combined scenarios (e.g., what happens when Prove or refute by execution that a hand-edited init-check.json passes the gate unchanged + Bind agentResults and issues into the signature domain are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 2 high-risk signal(s): Data Migration/Destructive, State Machine/Gate. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run lattice story_review_dismiss '{\"storyId\":\"B-8df9\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_original_intent_snapshot: Intent MVP requires original_intent_snapshot_set with sourceText, normalizedOutcome, and acceptanceClaim. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_intent_collision: Intent collision is triggered but no pass decision with acceptedInterpretation is present. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_red_evidence: Red evidence is triggered but no current red evidence record binds baseline head/material to the correct acceptance target and green relation. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "scope_ambiguity: Scope ambiguity is triggered but no scope contract or explicit shrinkage decision is configured. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 2 undigested unknowns: What an absent agentResults field should hash to for the five legacy files where initCheckAgentResults synthesizes a single-element array from top-level agentId/issues; Whether a _hash mismatch on read should refuse the carry-forward only, or refuse the read entirely; the choice decides whether the audit-only majority of the corpus becomes unreadable"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: packages/main/src/core/init-check-gate.ts is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: packages/main/src/handlers/init-check.ts is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: packages/main/src/core/store.ts is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: packages/main/src/core/machine.ts is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: packages/main/src/core/command-policy.ts is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: packages/main/src/tasks/init-check-required-agents-smoke.ts is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: packages/main/src/tasks/init-check-fallback-smoke.ts is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: packages/main/src/tasks/init-preflight-smoke.ts is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: packages/main/tests/red/ is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-8df9 is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "0ecaf9894ed7ff9e1f73a1625feb76ac0dd464228cfd45e416c01fcaf5185d32"
+    },
+    {
+      "timestamp": "2026-08-01T12:49:33.623Z",
+      "issueCount": 14,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-004",
+          "message": "CHK-004 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-005",
+          "message": "CHK-005 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-006",
+          "message": "CHK-006 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "6 checklist items; please check for missing combined scenarios (e.g., what happens when Prove or refute by execution that a hand-edited init-check.json passes the gate unchanged + Bind agentResults and issues into the signature domain are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 2 high-risk signal(s): Data Migration/Destructive, State Machine/Gate. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run lattice story_review_dismiss '{\"storyId\":\"B-8df9\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_original_intent_snapshot: Intent MVP requires original_intent_snapshot_set with sourceText, normalizedOutcome, and acceptanceClaim. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_intent_collision: Intent collision is triggered but no pass decision with acceptedInterpretation is present. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_red_evidence: Red evidence is triggered but no current red evidence record binds baseline head/material to the correct acceptance target and green relation. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "scope_ambiguity: Scope ambiguity is triggered but no scope contract or explicit shrinkage decision is configured. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 2 undigested unknowns: What an absent agentResults field should hash to for the five legacy files where initCheckAgentResults synthesizes a single-element array from top-level agentId/issues; Whether a _hash mismatch on read should refuse the carry-forward only, or refuse the read entirely; the choice decides whether the audit-only majority of the corpus becomes unreadable"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: packages/main/tests/red/ is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-8df9 is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "287a35948a82c5866da858c4e6e5c5c25850b247661561b13ba8f4bbbf3c434c"
+    },
+    {
+      "timestamp": "2026-08-01T12:49:51.277Z",
+      "issueCount": 14,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-004",
+          "message": "CHK-004 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-005",
+          "message": "CHK-005 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-006",
+          "message": "CHK-006 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "6 checklist items; please check for missing combined scenarios (e.g., what happens when Prove or refute by execution that a hand-edited init-check.json passes the gate unchanged + Bind agentResults and issues into the signature domain are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 2 high-risk signal(s): Data Migration/Destructive, State Machine/Gate. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run lattice story_review_dismiss '{\"storyId\":\"B-8df9\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_original_intent_snapshot: Intent MVP requires original_intent_snapshot_set with sourceText, normalizedOutcome, and acceptanceClaim. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_intent_collision: Intent collision is triggered but no pass decision with acceptedInterpretation is present. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_red_evidence: Red evidence is triggered but no current red evidence record binds baseline head/material to the correct acceptance target and green relation. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "scope_ambiguity: Scope ambiguity is triggered but no scope contract or explicit shrinkage decision is configured. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 2 undigested unknowns: What an absent agentResults field should hash to for the five legacy files where initCheckAgentResults synthesizes a single-element array from top-level agentId/issues; Whether a _hash mismatch on read should refuse the carry-forward only, or refuse the read entirely; the choice decides whether the audit-only majority of the corpus becomes unreadable"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: packages/main/tests/red/ is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-8df9 is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "36b3184d03ba198fc2c61654d8247d5329f053f451eb97597711a396bc8898e6"
+    },
+    {
+      "timestamp": "2026-08-01T12:50:00.363Z",
+      "issueCount": 13,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-004",
+          "message": "CHK-004 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-005",
+          "message": "CHK-005 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-006",
+          "message": "CHK-006 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "6 checklist items; please check for missing combined scenarios (e.g., what happens when Prove or refute by execution that a hand-edited init-check.json passes the gate unchanged + Bind agentResults and issues into the signature domain are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 2 high-risk signal(s): Data Migration/Destructive, State Machine/Gate. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run lattice story_review_dismiss '{\"storyId\":\"B-8df9\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_original_intent_snapshot: Intent MVP requires original_intent_snapshot_set with sourceText, normalizedOutcome, and acceptanceClaim. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_intent_collision: Intent collision is triggered but no pass decision with acceptedInterpretation is present. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_red_evidence: Red evidence is triggered but no current red evidence record binds baseline head/material to the correct acceptance target and green relation. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "scope_ambiguity: Scope ambiguity is triggered but no scope contract or explicit shrinkage decision is configured. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 2 undigested unknowns: What an absent agentResults field should hash to for the five legacy files where initCheckAgentResults synthesizes a single-element array from top-level agentId/issues; Whether a _hash mismatch on read should refuse the carry-forward only, or refuse the read entirely; the choice decides whether the audit-only majority of the corpus becomes unreadable"
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-8df9 is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "723eecc9a0dc2b77f8d356b735894f6e930a1df28f94f4b1f3b649865be780fe"
+    }
+  ]
+}

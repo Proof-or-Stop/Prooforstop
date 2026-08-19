@@ -203,7 +203,10 @@ function writeGoodInitCheck(root: string, store: StoryStore): void {
     ],
     _hash: '',
   } as InitCheckData;
-  data._hash = recomputeInitCheckHash(STORY_ID, store, root);
+  // B-8df9 CHK-002: the reviewer verdict is part of the signature domain, so the record
+  // must be signed as a PRODUCER (over `data`) — recomputing against the file on disk
+  // would sign whatever verdict was persisted before this one.
+  data._hash = recomputeInitCheckHash(STORY_ID, store, root, data);
   store.writeInitCheck(STORY_ID, data);
 }
 
@@ -230,7 +233,7 @@ function writeTamperedInitCheck(root: string, store: StoryStore): void {
   // Confirm the tamper truly diverges from the recomputed digest the gate uses.
   assert.notEqual(
     data._hash,
-    recomputeInitCheckHash(STORY_ID, store, root),
+    recomputeInitCheckHash(STORY_ID, store, root, data),
     'tampered init-check _hash must not match its recomputed digest',
   );
   store.writeInitCheck(STORY_ID, data);

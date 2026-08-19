@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "proofstory.scope_shrinkage_decision.v1",
+  "storyId": "B-8df9",
+  "decision": "confirmed",
+  "userConfirmed": true,
+  "removedMilestoneIds": [],
+  "reason": "User withdrew CHK-004 (preserve the init_check_repair fallback audit block). Stated reason: the human fallback attestation is not real evidence, because in practice the agent authors the fallbackReason text and the human pastes and runs it - so it is still AI content with a human keystroke on top. The fallback-vs-independent label therefore records WHICH CODE PATH wrote the record, not whether a person verified anything, and preserving it would preserve a name-only distinction. This is the same pattern this story kept uncovering by execution: a mechanism that claims to prove something stronger than it does. Withdrawn deliberately, not dropped for cost.",
+  "approvedBy": "user (explicit instruction, 2026-08-01)",
+  "decisionId": "SD-7319de10",
+  "withdrawnChecklistItemRefs": [
+    "CHK-004"
+  ],
+  "withdrawnAcceptanceBindingRefs": [],
+  "evidenceRefs": [],
+  "createdAt": "2026-08-03T02:59:24.326Z",
+  "updatedAt": "2026-08-03T02:59:24.326Z"
+}
