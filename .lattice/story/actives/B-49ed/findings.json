@@ -611,6 +611,26 @@
       "resolvedAt": "2026-08-18T11:22:42.345Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-49ed:F-031",
+      "desc": "same-pattern-risk: packages/main/src/tasks/usage-sweep-smoke.ts:605 and packages/main/src/tasks/story-files-hash-batch-smoke.ts:81 tear down git-repo-backed tmpdirs via unguarded rmSync(..., { recursive: true, force: true }) with no maxRetries and no surrounding try/catch (finally-only), the same risk class 15dee05d32 just fixed for material-hash-large-tree-smoke.ts (ENOTEMPTY on recursive unlink of a git repo under concurrent I/O). Scale is smaller (5000 JSONL lines in one file / 700 files vs the fixed case 6000 files), so probability is lower and I have no evidence either has actually flaked, but the mechanism (unguarded rmSync tearing down a git-repo tmpdir) is identical and could surface as another load-dependent flake in a full serial validate run.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "suspected",
+      "uncertaintyReason": "Same unguarded rmSync pattern confirmed present, but no confirmed occurrence of this race in these two files; risk is by analogy to the just-fixed sibling bug, not a reproduced failure here.",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-19T05:00:37.615Z",
+      "reviewRound": "2026-08-18T12:55:09.009Z",
+      "reviewRunId": "B-49ed:RR-047",
+      "_hash": "bccb1b4fbe97dfb6fe58bc1ee5a3e2ef6fd89eec24bc7786b41a4adc83036b32",
+      "files": [
+        "packages/main/src/tasks/usage-sweep-smoke.ts",
+        "packages/main/src/tasks/story-files-hash-batch-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|same-pattern-risk",
+      "signatureTagSource": "auto"
     }
   ]
 }
