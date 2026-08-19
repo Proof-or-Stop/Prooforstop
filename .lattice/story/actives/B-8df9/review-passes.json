@@ -196,6 +196,35 @@
         "scanEscalationReason": null
       },
       "_hash": "0552b028e2ad9a68a0a2041335d5d469b9a83f2c7bba83c71b87c3dbe1c61976"
+    },
+    {
+      "id": "B-8df9:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "Re-review of F-010/F-011 corrections. F-010: verified both citations (withdrawnItemIntentRefs in core/proofstory.ts:1672-1682/2165-2167; withdrawn bucket in handlers/validate-channel.ts:305,348-349) against source, exact match. Annotation is precisely scoped to both REVIEW-path gates and does not claim more; confirmed core/verification.ts:212 still does a bare item.status==withdrawn skip on the DONE-blocking coverage path (pre-dates B-45a5, tagged B-1909 CHK-002), and the annotation makes no claim covering it - no overclaim. Annotation sits as CHK-004:happy:0, first in the items verificationEvidence array ahead of the two stale waiver rows, and is returned in full by checklist_get/story_get - reaches a reader of CHK-004 before the stale text. buildVerificationCoverage skips withdrawn items entirely so no separate waived-summary view surfaces the stale text unaccompanied. F-011: all four retraction rows (CHK-005:happy:0/adversarial:0, CHK-006:happy:0/adversarial:0) plainly state no selector/pin/receipt was ever persisted and mechanical stayed false - genuine withdrawal, not softened. Re-ran original concept-residue hunts: no competing INIT-check signing path, no live doc restates the old signature domain or the withdrawal-gap-open claim. Rebuilt tree (npm run build exit 0) and re-ran both red artifacts: red-b8df9-init-check-verdict-signature.mjs 0 RED/0 BROKEN/24 rows; red-b8df9-chk002-verdict-shapes.mjs 0 FAILED/0 BROKEN/17 rows. No new findings.",
+      "createdAt": "2026-08-19T15:57:25.284Z",
+      "reviewRound": "2026-08-03T04:27:32.508Z",
+      "reviewRunId": "B-8df9:RR-015",
+      "envelopeId": "d5ff6e619da0f942720c85f6fca40bf7c105f53fbf0bc6fb83c6c88fced0d20f",
+      "writerSessionId": "sess-b8df9-main-agent",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-8df9/checklist.json",
+          ".lattice/story/actives/B-8df9/findings.json",
+          "packages/main/src/core/checklist-status.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/validate-channel.ts",
+          "packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs",
+          "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9e370dcd318b73e18b03c44b35a6c8d04c0b6937fa0f49a6d8e50030909f95e7"
     }
   ]
 }
