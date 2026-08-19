@@ -54,19 +54,19 @@
           "command": "node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js",
           "result": "pass",
           "note": "Smoke drives topology_critic_receipt_set through the real production CLI using an adapter-derived critic session; it reaches deriveRoleProvenance, clears the new host-adapter source gate, and completes signing to the verdict.",
-          "headHash": "bb0de5f67f859bfa4f41036a86425c5dd329f08a",
-          "materialHash": "a498e2d1a241f892192a4ff86be65b23bb608581a843c46367a388725e2269a1",
-          "storyFilesHash": "0d4cdbba35ff24d8c696b637819ddfb047b6442d3afb71f7ecb0d76b398df27a",
+          "headHash": "51c31afd1ab1186c03128110d1131249986ebcc0",
+          "materialHash": "75f7af8a81e1231811fbf32155848ff78492b4eedce1f93899a673f4ec4aaaf0",
+          "storyFilesHash": "2cffe4b43091b8b49068d4a1b3dbfb89615932dd08dd75455c0aaabedac51bda",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "1a6c58d099c5629ad2533f9a36f02cc231a590cc83ee700fd608048e073a32e3",
             "outputTail": "ProofStory pre-review check smoke: PASS\n  producer/read/lifecycle verifier parity: PASS\n  planned→actual + executable/mutation/transcript/authority: PASS\n  tamper + equal-cutoff mutations: BITING\n  topology omission + observe/enforce/warn rollback: PASS\n  Wave 3A/Wave 4 leakage: absent\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-18T11:22:36.566Z",
+            "executedAt": "2026-08-19T04:36:29.449Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-18T11:22:39.944Z"
+          "timestamp": "2026-08-19T04:36:32.439Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -74,19 +74,19 @@
           "command": "node packages/main/dist/tasks/topology-signing-source-guard-smoke.js",
           "result": "pass",
           "note": "verification_run executed the pinned verifier for CHK-001:edge:0",
-          "headHash": "bb0de5f67f859bfa4f41036a86425c5dd329f08a",
-          "materialHash": "a498e2d1a241f892192a4ff86be65b23bb608581a843c46367a388725e2269a1",
-          "storyFilesHash": "0d4cdbba35ff24d8c696b637819ddfb047b6442d3afb71f7ecb0d76b398df27a",
+          "headHash": "51c31afd1ab1186c03128110d1131249986ebcc0",
+          "materialHash": "75f7af8a81e1231811fbf32155848ff78492b4eedce1f93899a673f4ec4aaaf0",
+          "storyFilesHash": "2cffe4b43091b8b49068d4a1b3dbfb89615932dd08dd75455c0aaabedac51bda",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "88b4f50d8fb285081317d0a79b2e6d8ec7b4bfe58d5d666d0a62e3e530c26a2f",
             "outputTail": "Topology signing source guard: PASS\n  refused (forgeable): explicit-env, derived-ppid\n  accepted (host-derived): host-adapter, generated-token\n  bound production call sites: 2/2\n  migrated fixture env resolves to: host-adapter\n  accepted sources complete provenance for: critic + exclusion approver\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-18T11:22:36.859Z",
+            "executedAt": "2026-08-19T04:36:29.705Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-18T11:22:39.944Z"
+          "timestamp": "2026-08-19T04:36:32.439Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -94,19 +94,19 @@
           "command": "node packages/main/dist/tasks/topology-signing-source-guard-smoke.js",
           "result": "pass",
           "note": "verification_run executed the pinned verifier for CHK-001:adversarial:0",
-          "headHash": "bb0de5f67f859bfa4f41036a86425c5dd329f08a",
-          "materialHash": "a498e2d1a241f892192a4ff86be65b23bb608581a843c46367a388725e2269a1",
-          "storyFilesHash": "0d4cdbba35ff24d8c696b637819ddfb047b6442d3afb71f7ecb0d76b398df27a",
+          "headHash": "51c31afd1ab1186c03128110d1131249986ebcc0",
+          "materialHash": "75f7af8a81e1231811fbf32155848ff78492b4eedce1f93899a673f4ec4aaaf0",
+          "storyFilesHash": "2cffe4b43091b8b49068d4a1b3dbfb89615932dd08dd75455c0aaabedac51bda",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "88b4f50d8fb285081317d0a79b2e6d8ec7b4bfe58d5d666d0a62e3e530c26a2f",
             "outputTail": "Topology signing source guard: PASS\n  refused (forgeable): explicit-env, derived-ppid\n  accepted (host-derived): host-adapter, generated-token\n  bound production call sites: 2/2\n  migrated fixture env resolves to: host-adapter\n  accepted sources complete provenance for: critic + exclusion approver\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-18T11:22:37.126Z",
+            "executedAt": "2026-08-19T04:36:29.954Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-18T11:22:39.945Z"
+          "timestamp": "2026-08-19T04:36:32.439Z"
         }
       ],
       "userSeesSnapshot": {
@@ -170,19 +170,19 @@
           "command": "node packages/main/dist/tasks/topology-signing-source-guard-smoke.js",
           "result": "pass",
           "note": "verification_run executed the pinned verifier for CHK-002:edge:0",
-          "headHash": "bb0de5f67f859bfa4f41036a86425c5dd329f08a",
-          "materialHash": "a498e2d1a241f892192a4ff86be65b23bb608581a843c46367a388725e2269a1",
-          "storyFilesHash": "0d4cdbba35ff24d8c696b637819ddfb047b6442d3afb71f7ecb0d76b398df27a",
+          "headHash": "51c31afd1ab1186c03128110d1131249986ebcc0",
+          "materialHash": "75f7af8a81e1231811fbf32155848ff78492b4eedce1f93899a673f4ec4aaaf0",
+          "storyFilesHash": "2cffe4b43091b8b49068d4a1b3dbfb89615932dd08dd75455c0aaabedac51bda",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "88b4f50d8fb285081317d0a79b2e6d8ec7b4bfe58d5d666d0a62e3e530c26a2f",
             "outputTail": "Topology signing source guard: PASS\n  refused (forgeable): explicit-env, derived-ppid\n  accepted (host-derived): host-adapter, generated-token\n  bound production call sites: 2/2\n  migrated fixture env resolves to: host-adapter\n  accepted sources complete provenance for: critic + exclusion approver\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-18T11:22:37.692Z",
+            "executedAt": "2026-08-19T04:36:30.467Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-18T11:22:39.945Z"
+          "timestamp": "2026-08-19T04:36:32.439Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -190,19 +190,19 @@
           "command": "node packages/main/dist/tasks/topology-signing-source-guard-smoke.js",
           "result": "pass",
           "note": "verification_run executed the pinned verifier for CHK-002:adversarial:0",
-          "headHash": "bb0de5f67f859bfa4f41036a86425c5dd329f08a",
-          "materialHash": "a498e2d1a241f892192a4ff86be65b23bb608581a843c46367a388725e2269a1",
-          "storyFilesHash": "0d4cdbba35ff24d8c696b637819ddfb047b6442d3afb71f7ecb0d76b398df27a",
+          "headHash": "51c31afd1ab1186c03128110d1131249986ebcc0",
+          "materialHash": "75f7af8a81e1231811fbf32155848ff78492b4eedce1f93899a673f4ec4aaaf0",
+          "storyFilesHash": "2cffe4b43091b8b49068d4a1b3dbfb89615932dd08dd75455c0aaabedac51bda",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "88b4f50d8fb285081317d0a79b2e6d8ec7b4bfe58d5d666d0a62e3e530c26a2f",
             "outputTail": "Topology signing source guard: PASS\n  refused (forgeable): explicit-env, derived-ppid\n  accepted (host-derived): host-adapter, generated-token\n  bound production call sites: 2/2\n  migrated fixture env resolves to: host-adapter\n  accepted sources complete provenance for: critic + exclusion approver\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-18T11:22:37.977Z",
+            "executedAt": "2026-08-19T04:36:30.721Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-18T11:22:39.945Z"
+          "timestamp": "2026-08-19T04:36:32.439Z"
         },
         {
           "intentRef": "CHK-002:happy:0",
@@ -210,19 +210,19 @@
           "command": "node packages/main/dist/tasks/topology-signing-source-guard-smoke.js",
           "result": "pass",
           "note": "verification_run executed the pinned verifier for CHK-002:happy:0",
-          "headHash": "bb0de5f67f859bfa4f41036a86425c5dd329f08a",
-          "materialHash": "a498e2d1a241f892192a4ff86be65b23bb608581a843c46367a388725e2269a1",
-          "storyFilesHash": "0d4cdbba35ff24d8c696b637819ddfb047b6442d3afb71f7ecb0d76b398df27a",
+          "headHash": "51c31afd1ab1186c03128110d1131249986ebcc0",
+          "materialHash": "75f7af8a81e1231811fbf32155848ff78492b4eedce1f93899a673f4ec4aaaf0",
+          "storyFilesHash": "2cffe4b43091b8b49068d4a1b3dbfb89615932dd08dd75455c0aaabedac51bda",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "88b4f50d8fb285081317d0a79b2e6d8ec7b4bfe58d5d666d0a62e3e530c26a2f",
             "outputTail": "Topology signing source guard: PASS\n  refused (forgeable): explicit-env, derived-ppid\n  accepted (host-derived): host-adapter, generated-token\n  bound production call sites: 2/2\n  migrated fixture env resolves to: host-adapter\n  accepted sources complete provenance for: critic + exclusion approver\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-18T11:22:37.412Z",
+            "executedAt": "2026-08-19T04:36:30.213Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-18T11:22:39.945Z"
+          "timestamp": "2026-08-19T04:36:32.439Z"
         }
       ],
       "userSeesSnapshot": {
@@ -287,19 +287,19 @@
           "command": "node packages/main/dist/tasks/topology-signing-source-guard-smoke.js",
           "result": "pass",
           "note": "The guard smoke passes with the guard in place; the selector pins the PASS banner so the framework executes and matches it rather than trusting a caller-authored result.",
-          "headHash": "bb0de5f67f859bfa4f41036a86425c5dd329f08a",
-          "materialHash": "a498e2d1a241f892192a4ff86be65b23bb608581a843c46367a388725e2269a1",
-          "storyFilesHash": "0d4cdbba35ff24d8c696b637819ddfb047b6442d3afb71f7ecb0d76b398df27a",
+          "headHash": "51c31afd1ab1186c03128110d1131249986ebcc0",
+          "materialHash": "75f7af8a81e1231811fbf32155848ff78492b4eedce1f93899a673f4ec4aaaf0",
+          "storyFilesHash": "2cffe4b43091b8b49068d4a1b3dbfb89615932dd08dd75455c0aaabedac51bda",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "88b4f50d8fb285081317d0a79b2e6d8ec7b4bfe58d5d666d0a62e3e530c26a2f",
             "outputTail": "Topology signing source guard: PASS\n  refused (forgeable): explicit-env, derived-ppid\n  accepted (host-derived): host-adapter, generated-token\n  bound production call sites: 2/2\n  migrated fixture env resolves to: host-adapter\n  accepted sources complete provenance for: critic + exclusion approver\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-18T11:22:38.254Z",
+            "executedAt": "2026-08-19T04:36:30.972Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-18T11:22:39.945Z"
+          "timestamp": "2026-08-19T04:36:32.439Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -308,19 +308,19 @@
           "command": "node packages/main/dist/tasks/topology-signing-source-guard-smoke.js",
           "result": "pass",
           "note": "Each refused source is enumerated individually rather than as one combined case, so a partial regression in either cannot hide behind the other.",
-          "headHash": "bb0de5f67f859bfa4f41036a86425c5dd329f08a",
-          "materialHash": "a498e2d1a241f892192a4ff86be65b23bb608581a843c46367a388725e2269a1",
-          "storyFilesHash": "0d4cdbba35ff24d8c696b637819ddfb047b6442d3afb71f7ecb0d76b398df27a",
+          "headHash": "51c31afd1ab1186c03128110d1131249986ebcc0",
+          "materialHash": "75f7af8a81e1231811fbf32155848ff78492b4eedce1f93899a673f4ec4aaaf0",
+          "storyFilesHash": "2cffe4b43091b8b49068d4a1b3dbfb89615932dd08dd75455c0aaabedac51bda",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "88b4f50d8fb285081317d0a79b2e6d8ec7b4bfe58d5d666d0a62e3e530c26a2f",
             "outputTail": "Topology signing source guard: PASS\n  refused (forgeable): explicit-env, derived-ppid\n  accepted (host-derived): host-adapter, generated-token\n  bound production call sites: 2/2\n  migrated fixture env resolves to: host-adapter\n  accepted sources complete provenance for: critic + exclusion approver\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-18T11:22:38.535Z",
+            "executedAt": "2026-08-19T04:36:31.224Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-18T11:22:39.945Z"
+          "timestamp": "2026-08-19T04:36:32.439Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -328,19 +328,19 @@
           "command": "node packages/main/dist/tasks/signing-guard-mutation-proof-smoke.js",
           "result": "pass",
           "note": "verification_run executed the pinned verifier for CHK-003:adversarial:0",
-          "headHash": "bb0de5f67f859bfa4f41036a86425c5dd329f08a",
-          "materialHash": "a498e2d1a241f892192a4ff86be65b23bb608581a843c46367a388725e2269a1",
-          "storyFilesHash": "0d4cdbba35ff24d8c696b637819ddfb047b6442d3afb71f7ecb0d76b398df27a",
+          "headHash": "51c31afd1ab1186c03128110d1131249986ebcc0",
+          "materialHash": "75f7af8a81e1231811fbf32155848ff78492b4eedce1f93899a673f4ec4aaaf0",
+          "storyFilesHash": "2cffe4b43091b8b49068d4a1b3dbfb89615932dd08dd75455c0aaabedac51bda",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "e7161fdeae8a1aa093adefbf97e82a34c09b98f5bc635c727d52691f3c919ffe",
             "outputTail": "Signing guard mutation proof: PASS\n  guard removal admits: explicit-env, derived-ppid\n  guard intact refuses: explicit-env, derived-ppid\n  real artifact unchanged: true\n  generated-token requires: provider + task + agent + boundary\n  host-adapter requires: provider + task + agent\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-18T11:22:38.907Z",
+            "executedAt": "2026-08-19T04:36:31.572Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-18T11:22:39.945Z"
+          "timestamp": "2026-08-19T04:36:32.439Z"
         }
       ],
       "userSeesSnapshot": {
@@ -392,12 +392,12 @@
           "command": "env LATTICE_OWNER_SESSION_ADAPTER_PROVIDER=claude-code LATTICE_OWNER_SESSION_ADAPTER_AGENT=lattice-review-topology-critic node packages/main/dist/cli.js topology_critic_receipt_set --verdict=request_changes",
           "result": "pass",
           "note": "An independently dispatched topology critic whose session the host adapter derived (sess-966420819fb1e7eb71ae8e7557fc2a0e, host-adapter, provider=claude-code) signed a request_changes receipt successfully. Its session was distinct from the implementer owner session sess-bb4571e896a18423ba2230f65e1f00a8 and from a prior critic session sess-90160e11, and it chose its own task label rather than receiving one from the implementer. The signed receipt records independence as agent true, session true, dispatch true, businessCommitAuthor true. This rules out decision_set preMortem 1, that the guard would block every critic including legitimate ones.",
-          "headHash": "bb0de5f67f859bfa4f41036a86425c5dd329f08a",
-          "materialHash": "a498e2d1a241f892192a4ff86be65b23bb608581a843c46367a388725e2269a1",
-          "storyFilesHash": "0d4cdbba35ff24d8c696b637819ddfb047b6442d3afb71f7ecb0d76b398df27a",
+          "headHash": "51c31afd1ab1186c03128110d1131249986ebcc0",
+          "materialHash": "75f7af8a81e1231811fbf32155848ff78492b4eedce1f93899a673f4ec4aaaf0",
+          "storyFilesHash": "2cffe4b43091b8b49068d4a1b3dbfb89615932dd08dd75455c0aaabedac51bda",
           "mechanical": false,
           "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-18T11:22:39.945Z"
+          "timestamp": "2026-08-19T04:36:32.439Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -405,12 +405,12 @@
           "command": "env LATTICE_OWNER_SESSION_ADAPTER_PROVIDER=claude-code LATTICE_OWNER_SESSION_ADAPTER_AGENT=lattice-review-topology-critic node packages/main/dist/cli.js topology_critic_receipt_set --verdict=pass",
           "result": "pass",
           "note": "pass was REFUSED with: critic cannot override partial discovery. The refusing condition was basisStatus partial, and the critic verified the basis is fresh (receipt headHash and storyFilesHash match current HEAD), so this is a completeness refusal rather than a staleness refusal. That is a distinct but analogous asymmetry to the one commit 9f9f53a514 introduced: request_changes tolerates an incomplete or stale basis while pass requires a complete and current one. The asymmetry is intact and still biting after the CHK-001 session-source guard landed. Note the stale-basis variant specifically was NOT exercised in this run; only the partial-basis variant was.",
-          "headHash": "bb0de5f67f859bfa4f41036a86425c5dd329f08a",
-          "materialHash": "a498e2d1a241f892192a4ff86be65b23bb608581a843c46367a388725e2269a1",
-          "storyFilesHash": "0d4cdbba35ff24d8c696b637819ddfb047b6442d3afb71f7ecb0d76b398df27a",
+          "headHash": "51c31afd1ab1186c03128110d1131249986ebcc0",
+          "materialHash": "75f7af8a81e1231811fbf32155848ff78492b4eedce1f93899a673f4ec4aaaf0",
+          "storyFilesHash": "2cffe4b43091b8b49068d4a1b3dbfb89615932dd08dd75455c0aaabedac51bda",
           "mechanical": false,
           "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-18T11:22:39.945Z"
+          "timestamp": "2026-08-19T04:36:32.439Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -418,12 +418,12 @@
           "command": "env LATTICE_OWNER_SESSION_ADAPTER_PROVIDER=claude-code LATTICE_OWNER_SESSION_ADAPTER_AGENT=lattice-review-topology-critic node packages/main/dist/cli.js review_run_start",
           "result": "pass",
           "note": "The host adapter did supply provider plus task plus agent, and the derived session resolved to host-adapter rather than falling back to derived-ppid, so the failure mode this intent guards against did not occur. review_run_start itself refused only because it is REVIEW-phase-only while the story is in DEV, which is a phase gate rather than an identity failure; the critic independently corroborated this by noting that lattice-review-topology-critic is not even an enumerated --lane value for that command.",
-          "headHash": "bb0de5f67f859bfa4f41036a86425c5dd329f08a",
-          "materialHash": "a498e2d1a241f892192a4ff86be65b23bb608581a843c46367a388725e2269a1",
-          "storyFilesHash": "0d4cdbba35ff24d8c696b637819ddfb047b6442d3afb71f7ecb0d76b398df27a",
+          "headHash": "51c31afd1ab1186c03128110d1131249986ebcc0",
+          "materialHash": "75f7af8a81e1231811fbf32155848ff78492b4eedce1f93899a673f4ec4aaaf0",
+          "storyFilesHash": "2cffe4b43091b8b49068d4a1b3dbfb89615932dd08dd75455c0aaabedac51bda",
           "mechanical": false,
           "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-18T11:22:39.945Z"
+          "timestamp": "2026-08-19T04:36:32.439Z"
         }
       ],
       "userSeesSnapshot": {
@@ -488,19 +488,19 @@
           "command": "node packages/main/dist/tasks/topology-signing-source-guard-smoke.js",
           "result": "pass",
           "note": "A generated-token session is accepted for signing alongside host-adapter, per decision_set option A.",
-          "headHash": "bb0de5f67f859bfa4f41036a86425c5dd329f08a",
-          "materialHash": "a498e2d1a241f892192a4ff86be65b23bb608581a843c46367a388725e2269a1",
-          "storyFilesHash": "0d4cdbba35ff24d8c696b637819ddfb047b6442d3afb71f7ecb0d76b398df27a",
+          "headHash": "51c31afd1ab1186c03128110d1131249986ebcc0",
+          "materialHash": "75f7af8a81e1231811fbf32155848ff78492b4eedce1f93899a673f4ec4aaaf0",
+          "storyFilesHash": "2cffe4b43091b8b49068d4a1b3dbfb89615932dd08dd75455c0aaabedac51bda",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "88b4f50d8fb285081317d0a79b2e6d8ec7b4bfe58d5d666d0a62e3e530c26a2f",
             "outputTail": "Topology signing source guard: PASS\n  refused (forgeable): explicit-env, derived-ppid\n  accepted (host-derived): host-adapter, generated-token\n  bound production call sites: 2/2\n  migrated fixture env resolves to: host-adapter\n  accepted sources complete provenance for: critic + exclusion approver\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-18T11:22:39.237Z",
+            "executedAt": "2026-08-19T04:36:31.821Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-18T11:22:39.945Z"
+          "timestamp": "2026-08-19T04:36:32.439Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -509,19 +509,19 @@
           "command": "node packages/main/dist/tasks/topology-signing-source-guard-smoke.js",
           "result": "pass",
           "note": "Accepting generated-token did not also admit explicit-env or derived-ppid; the same run that lists generated-token accepted lists both of those refused.",
-          "headHash": "bb0de5f67f859bfa4f41036a86425c5dd329f08a",
-          "materialHash": "a498e2d1a241f892192a4ff86be65b23bb608581a843c46367a388725e2269a1",
-          "storyFilesHash": "0d4cdbba35ff24d8c696b637819ddfb047b6442d3afb71f7ecb0d76b398df27a",
+          "headHash": "51c31afd1ab1186c03128110d1131249986ebcc0",
+          "materialHash": "75f7af8a81e1231811fbf32155848ff78492b4eedce1f93899a673f4ec4aaaf0",
+          "storyFilesHash": "2cffe4b43091b8b49068d4a1b3dbfb89615932dd08dd75455c0aaabedac51bda",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "88b4f50d8fb285081317d0a79b2e6d8ec7b4bfe58d5d666d0a62e3e530c26a2f",
             "outputTail": "Topology signing source guard: PASS\n  refused (forgeable): explicit-env, derived-ppid\n  accepted (host-derived): host-adapter, generated-token\n  bound production call sites: 2/2\n  migrated fixture env resolves to: host-adapter\n  accepted sources complete provenance for: critic + exclusion approver\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-18T11:22:39.931Z",
+            "executedAt": "2026-08-19T04:36:32.425Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-18T11:22:39.945Z"
+          "timestamp": "2026-08-19T04:36:32.439Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -530,19 +530,19 @@
           "command": "node packages/main/dist/tasks/signing-guard-mutation-proof-smoke.js",
           "result": "pass",
           "note": "Replaces an earlier non-mechanical attestation that merely described owner-session-adapters.ts. This drives the real resolveSessionIdentity: provider+task+agent yields host-adapter; requesting generation without a boundary does NOT yield generated-token; adding the boundary does; and dropping the agent dimension breaks it again. So generated-token is strictly MORE constrained than host-adapter, which is why accepting it cannot weaken the guard.",
-          "headHash": "bb0de5f67f859bfa4f41036a86425c5dd329f08a",
-          "materialHash": "a498e2d1a241f892192a4ff86be65b23bb608581a843c46367a388725e2269a1",
-          "storyFilesHash": "0d4cdbba35ff24d8c696b637819ddfb047b6442d3afb71f7ecb0d76b398df27a",
+          "headHash": "51c31afd1ab1186c03128110d1131249986ebcc0",
+          "materialHash": "75f7af8a81e1231811fbf32155848ff78492b4eedce1f93899a673f4ec4aaaf0",
+          "storyFilesHash": "2cffe4b43091b8b49068d4a1b3dbfb89615932dd08dd75455c0aaabedac51bda",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "e7161fdeae8a1aa093adefbf97e82a34c09b98f5bc635c727d52691f3c919ffe",
             "outputTail": "Signing guard mutation proof: PASS\n  guard removal admits: explicit-env, derived-ppid\n  guard intact refuses: explicit-env, derived-ppid\n  real artifact unchanged: true\n  generated-token requires: provider + task + agent + boundary\n  host-adapter requires: provider + task + agent\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-18T11:22:39.624Z",
+            "executedAt": "2026-08-19T04:36:32.180Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-18T11:22:39.945Z"
+          "timestamp": "2026-08-19T04:36:32.439Z"
         }
       ],
       "userSeesSnapshot": {
