@@ -8782,6 +8782,87 @@
       ],
       "signatureTag": "missing|ts|wave-topology-critic",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3f3d:F-132",
+      "desc": "packages/main/src/handlers/prewrite-guard.ts:203-206 OPEN-inventory material filter uses deprecated `.lattice/locks/` and `.lattice/runtime/` prefixes only. Canonical writes go to `.proof-or-stop/locks/` (storyRuntimeLockPath joins PROOF_OR_STOP_DIR/locks; PROOF_OR_STOP_MAIN_WRITE_LOCK) and `.proof-or-stop/runtime/` (OWNER_SESSION_TOKEN_DIR). brand-paths.ts:72-78: PROOF_OR_STOP_STATE_DIR='.proof-or-stop' is written; DEPRECATED_STATE_DIR='.lattice' is never written. CHK-002 / review-inventory-epoch-and-saturation-gate.md:170-171 require the preventative prewrite projection to reject material targets while allowing metadata-only runtime records per canonical materialHash exclusions (runtime-artifact-registry already expands both spellings after B-cc10 CHK-007). Consequence: a Write/Edit of `.proof-or-stop/locks/...` or `.proof-or-stop/runtime/...` during OPEN inventory is classified as material and denied with OPEN_REVIEW_INVENTORY_MATERIAL_MUTATION (false block). Inverse: only the deprecated prefixes are allow-listed, so the exclusion is dead on the current layout. Severity: high. Fix: derive both prefixes from STATE_DIR_NAMES / stateDirCandidates('locks/') and stateDirCandidates('runtime/') (or findRuntimeArtifactEntry materialHash=exclude); never hardcode `.lattice/`.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-08-19T17:36:47.813Z",
+      "reviewRound": "2026-08-19T16:56:02.376Z",
+      "reviewRunId": "B-3f3d:RR-600",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-3f3d/background.md",
+          ".proof-or-stop/story/actives/B-3f3d/plan.md",
+          "packages/main/src/core/lattice-paths.ts",
+          "packages/main/src/core/prewrite-guard-check.ts",
+          "packages/main/src/handlers/prewrite-guard.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "7a5a677336337acad2fcb48cd10ea9dc99e078f194c70f1b5791fbf7a64ad5db"
+      },
+      "readDiagnostics": [],
+      "_hash": "b64a536e88c2b2010daf7d4c05fad88a29ef42edb3745380a5e090da9e491c39",
+      "files": [
+        "packages/main/src/handlers/prewrite-guard.ts",
+        "packages/main/src/core/brand-paths.ts",
+        "packages/main/src/core/lattice-paths.ts",
+        "packages/main/src/core/validation-execution-lock.ts",
+        "packages/main/src/core/runtime-artifact-registry.ts"
+      ],
+      "signatureTag": "edge|ts|packages-main-handlers",
+      "signatureTagSource": "auto"
     }
   ]
 }
