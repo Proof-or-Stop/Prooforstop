@@ -745,6 +745,33 @@
         "scanEscalationReason": null
       },
       "_hash": "21193457aa0bf948b6d9737b298bec37a2c6d2d79eecf9091f4cfa5d2beb8c4a"
+    },
+    {
+      "id": "B-7dff:RP-024",
+      "agent": "lattice-review-test-coverage",
+      "note": "Second-opinion re-verification requested after the RP-021 -> refresh -> RP-022 sequence. Confirmed directly rather than trusting the claim: all 13 mechanical verificationEvidence rows (CHK-001 edge/adversarial; CHK-002 happy/edge/adversarial; CHK-003 happy/edge/adversarial; CHK-004 happy/edge/adversarial; CHK-005 edge/adversarial) now share one consistent binding -- headHash bc7dfaa9ae, materialHash 6252802133ce751d..., storyFilesHash 0bab1cc35f5b0e4c... -- which matches the current story exactly (review_run_start printed story 0bab1cc, an exact prefix match). headHash trails current HEAD (8310c7f78a) by exactly one commit; git diff bc7dfaa9ae..8310c7f78a touches only checklist.json, i.e. that one commit is solely the act of persisting the refreshed evidence -- the same structurally-unavoidable N-1 headHash lag this story has repeatedly and correctly treated as non-blocking metadata drift (RP-013, RP-017, RP-019 precedent), never a materialHash/storyFilesHash mismatch. Genuine re-execution, not restamping: each of the 13 rows carries its own distinct executedAt (spread 01:36:13-01:37:28Z, roughly 1-8s apart, consistent with 13 separate process spawns) and, where the underlying command output is timing-sensitive, a distinct outputDigest (CHK-001 edge vs adversarial differ; CHK-004 adversarial differs from its happy/edge siblings by a 2.29s vs 2.30s parallel timing) rather than one receipt copy-pasted across rows; deterministic logic-test rows sharing the same command (CHK-002 x3 plus CHK-005 x2, all validate-resource-claims.test.mjs) legitimately share one digest because that suite is pure and side-effect-free -- separately corroborated by RP-022 (quality lane), which independently read the same commit diff and confirmed exactly 13 rebinding tuples with unchanged desc/command/selector/kind and equivalent (not byte-frozen-suspicious) output. Two permanent waivers (CHK-001:happy:0, CHK-005:happy:0) read honestly: their text is unchanged since RP-013/RP-018 last verified their cited facts, and I independently confirmed the tree they describe has not drifted since -- git diff --name-status 19ff5225fa..HEAD excluding .lattice/ paths is EMPTY (zero source/config changes since the merge baseline both waivers were last checked against), and direct inspection today reconfirms lattice.config.json still declares 110 validate.commands entries (matching the waiver 110/97/13 claim) and full-suite-runner.ts still derives FULL_SUITE_ENTRIES from the same RESOURCE_POLICY table the waiver cites for 49/49. Their storyFilesHash (1e183269ed6f) intentionally trails current (0bab1cc35f5b) because they are structurally permanent, content-independent claims about an immutable pin, not evidence that decays when unrelated checklist rows get refreshed -- exactly the mechanism I root-caused in RP-021, which milestone_status still flags as a risk because its staleness check does not distinguish that case. Milestone M1 remains Blocked in milestone_status for the same two reasons already diagnosed and disclosed across many rounds, not a new gap: (a) the CHK-001:happy:0 storyFilesHash lag just reconfirmed above as benign, and (b) the pre-existing, honestly-disclosed absence of a literal integration_test-kind row for the scheduler (real integration coverage is npm test, whose receipt cannot be minted under the pinned-command timeout, per F-009/RP-013, a permanent non-gating limitation, not something this round changed). No new coverage gap, no restamped evidence, no dishonest waiver found. No blocker.",
+      "createdAt": "2026-08-19T01:43:54.125Z",
+      "reviewRound": "2026-08-19T01:00:24.757Z",
+      "reviewRunId": "B-7dff:RR-037",
+      "envelopeId": "132a1e07fd517f77c804d1956d93396bc9ec154b402a694f5bdd017150132513",
+      "writerSessionId": "sess-c8142ac4cb69f1c755df4c1fc223e028",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7dff/background.md",
+          ".lattice/story/actives/B-7dff/checklist.json",
+          ".lattice/story/actives/B-7dff/plan.md",
+          ".lattice/story/actives/B-7dff/review-passes.json"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-7dff/findings.json",
+          "lattice.config.json",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3f9344f735acedb39053aae473e3922cc674cac43749d7915daed006d627c586"
     }
   ]
 }
