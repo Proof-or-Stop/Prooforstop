@@ -19172,6 +19172,59 @@
         "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
       },
       "_hash": "f67403d7006045ad6862f1dcc215fd3a3cc35317becf7e6f12dc1386a1649819"
+    },
+    {
+      "id": "B-3f3d:RP-347",
+      "agent": "lattice-review-docs",
+      "note": "Step 1 extracted 822 symbols from git diff main...HEAD. Step 2 compared 2 documentation loci that reference the changed inventory/incremental surface: (1) docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md in full — operator lattice review_inventory_* commands, OPEN/FINALIZED/INVALIDATED/CANCELLED, inventory-completeness-only and authorizesTest=false, saturation/critic/baseline, candidate-routing narrowing, Final-review lanes/Selection lines, and B-cdf6 RR-043/044/045/046 + F-036 + commits 8e9f72fc/57bbc87d/26a30e6c/155e787d0c all still resolve in git and match current handlers; (2) docs/evidence-integrity-program-spec.md section 7 frozen review inventory boundary. New increment symbols persistFinalizedReviewInventoryUnlocked and exceedsIncrementalCap have 0 doc hits (fallback 2). Closing self-check: no promised-but-undelivered inventory commands; decision doc still exists. No blockers.",
+      "createdAt": "2026-08-19T08:54:34.395Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-555",
+      "envelopeId": "be20da5acf78510792b06f9fdf48687421bd3d558fab24db863868b675ba6f87",
+      "writerSessionId": "sess-4292375d1d751b41",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/CLI.md",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/guide-scope-guard.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "117efcdcd84bdcf7390fa02e3f3938c7c7f151b91ee6121383eb9e53c0838ede"
+      },
+      "readDiagnostics": [],
+      "_hash": "da8c3da5d7b949c0caad5336a07105c6ffa25791e14bf2efd6facfdcd716f41a"
     }
   ]
 }
