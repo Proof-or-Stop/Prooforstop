@@ -4,7 +4,7 @@
   "title": "Require a host-adapter session to sign a topology-critic receipt",
   "description": "An implementer who also dispatches can currently mint a session id, record a dispatch event under it, hand that id to the critic subagent via LATTICE_SESSION_ID, and have independenceMatrix report session independence as true. Bind critic receipt signing to sessionSource host-adapter, which is derived from provider plus task plus agent identity and therefore cannot be chosen by the implementer.",
   "type": "bug",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "riskSignals": [
     {
@@ -18,7 +18,7 @@
   ],
   "createdAt": "2026-08-17T15:23:01.407Z",
   "startedAt": "2026-08-17T15:23:01.407Z",
-  "endedAt": null,
+  "endedAt": "2026-08-19T07:14:45.259Z",
   "events": [
     {
       "phase": "INIT",
@@ -270,6 +270,15 @@
       "user": "Pan Qi",
       "sessionId": "sess-4292375d1d751b41",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-08-19T07:14:45.259Z",
+      "branch": "story/B-49ed",
+      "user": "Pan Qi",
+      "sessionId": "sess-4292375d1d751b41",
+      "agent": "main"
     }
   ],
   "riskSignalsDismissed": [
@@ -279,10 +288,5 @@
       "at": "2026-08-17T15:32:42.553Z"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-49ed",
-    "branch": "story/B-49ed",
-    "createdAt": "2026-08-17T15:38:52.747Z"
-  },
   "currentReviewRound": "2026-08-19T06:19:44.696Z"
 }
