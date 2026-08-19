@@ -310,7 +310,7 @@
       "desc": "CHK-005:happy:0 (the second permanent waiver, self-referenced by CHK-001:happy:0's own rebind note as \"same defect class as CHK-005:happy:0\") is still bound to a STALE binding from 2026-08-18T16:47:42.094Z: headHash=33fbec3658b51f95cc80d000cf2ffb9beaa1bee4, materialHash=aa8059fb4c3079bff6b5b8292ef41dc06848d0cb908259fdff1e7f11672d4277, storyFilesHash=1e183269ed6ff35ab2839e0657b09b4c63e5e631fd9d8cbe3a8be118f8dd50b2. None of these match the current binding shared by all 13 refreshed command-backed rows and the freshly-rebound CHK-001:happy:0 waiver (materialHash=6252802133ce751d6a0a79951a96f81b0719231e4da88bbc6ae8bf588516dc39, storyFilesHash=0bab1cc35f5b0e4ceae7c9ed0ac03e365bd8ccd26fd92afe53f1b65eb0f9e775, headHash lineage bc7dfaa9ae100f5a1eaf93c7460447a982dc9d3b / ee3ba2a2424fbc640624b57977bc6fe05b7969a1). This round's fix rebound only CHK-001:happy:0 via a fresh verification_evidence_add call; CHK-005:happy:0 was left untouched, confirmed by its unchanged timestamp since F-012. Root cause is the same mechanism that caused the M1 failure this round exists to fix: verification_evidence_refresh_stale only re-executes command-backed rows and silently skips waivers (per its own --help text: \"a pinned verifier is RE-EXECUTED\"). It does NOT currently block done_intent_equivalence_check, because CHK-005 falls outside the milestone_ledger's required-evidence scope (milestone_ledger_get lists only M1=CHK-001/M2=CHK-002/M3=CHK-003/M4=CHK-004; acceptance_matrix's single acceptance-binding row also covers only CHK-001..CHK-004) -- verified via both commands moments before filing this finding. But that non-blocking status is exactly the same characterization (\"benign because not currently gate-consumed\") that this review round exists to correct for M1, so leaving it stale directly falsifies the round's premise that every intent including both permanent waivers is now bound to current hashes. Recommend rebinding CHK-005:happy:0 via verification_evidence_add the same way CHK-001:happy:0 was rebound, so no non-command-backed row is left silently stale.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-19T02:08:50.189Z",
@@ -321,7 +321,11 @@
         ".lattice/story/actives/B-7dff/checklist.json"
       ],
       "signatureTag": "missing|json|happy-second-permanent",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Correct, and both lanes found it independently. The CHK-001:happy:0 rebind fixed one instance of the defect class while leaving the twin that CHK-001 own waiver note explicitly names, and the reason I left it - CHK-005 is outside the M1-M4 required set so no blocking gate consumes it today - is precisely the reasoning that let M1 slip past two reviewers until done_intent_equivalence_check refused. CHK-005:happy:0 has now been rebound at the current head/material/story-files binding with its text and reasoning unchanged, so both permanent waivers are current and the story contains only these two. F-017 traced the mechanism to source: evidence-refresh.ts filters waivers in refreshOnlyDrift and isWaiver BEFORE checkEvidenceFreshnessForGit runs, so a waiver binding can drift indefinitely while verification_evidence_refresh_stale --dryRun reports no stale evidence - the detection tool is structurally blind to this row type. That framework gap is filed as story B-0f97, Waiver evidence bindings drift silently because the refresh scan excludes them before the freshness check, created at INIT and confirmed visible in story_list.",
+      "resolvedAt": "2026-08-19T02:10:48.385Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-7dff:F-017",
