@@ -8547,6 +8547,52 @@
       ],
       "signatureTag": "missing|md|wave-closeout-review",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3f3d:F-127",
+      "desc": "packages/main/src/tasks/review-inventory-handler-smoke.ts:42 WHY bounce 03a996898c retargeted cliPath to bin/proof-or-stop.js so the real CLI now starts, but cli() still spreads process.env and only overrides LATTICE_AGENT (line 144). After B-cc10, PROOF_OR_STOP_AGENT wins (brand-env.ts:18). Running the exact CHK-006 pin `node packages/main/dist/tasks/review-inventory-handler-smoke.js` on this machine failed at the first review_run_start: payload identity lattice-review-topology-critic cannot override dispatched PROOF_OR_STOP_AGENT lattice-review-quality [agent_dispatch_identity_conflict]. Any agent/validate parent that exports PROOF_OR_STOP_AGENT (REVIEW, evidence refresh, this session) still fails. severity=high",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-19T17:06:44.159Z",
+      "reviewRound": "2026-08-19T16:56:02.376Z",
+      "reviewRunId": "B-3f3d:RR-591",
+      "readManifest": {
+        "filesReadFully": [
+          "bin/proof-or-stop.js",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/brand-env.ts",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+          "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
+          "packages/main/src/tasks/verification-run-and-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "_hash": "27f9ba24a10b89b91522b2d114da647836671ac6b353e2b0ba319c28c68c903a",
+      "files": [
+        "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+        "packages/main/src/core/brand-env.ts"
+      ],
+      "signatureTag": "edge|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
