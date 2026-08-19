@@ -1442,6 +1442,24 @@
       "resolvedAt": "2026-08-19T05:59:24.593Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-cc10:F-078",
+      "desc": "B-cc10 self-found (F-078): after F-077 unblocked review-incremental-context-smoke, test:serial-reference died on experience-hint-worktree-cache-smoke (3/6 FAIL). Assertions pinned main/.lattice/learning/finding-signals.json while LEARNING_DIR is the canonical .proof-or-stop/learning, so write-from-worktree and separate-git-dir/bare-backed prefix checks failed even though the runtime wrote the correct path. Sibling serial-reference test experience-coverage-gap-smoke had the same pin in its resolveFindingSignalsPath sanity check. Fix: assert via LEARNING_DIR/FINDING_SIGNALS_FILENAME and treat either state-dir spelling as a worktree leak.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-08-19T06:27:42.546Z",
+      "reviewRound": "2026-08-18T03:33:16.325Z",
+      "_hash": "14e64138233231f171f9900a68b09d1d85f253070d11685bb520070f7fe0a9c5",
+      "files": [
+        "packages/main/src/tasks/experience-hint-worktree-cache-smoke.ts",
+        "packages/main/src/tasks/experience-coverage-gap-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|cc10-self-found",
+      "signatureTagSource": "auto"
     }
   ]
 }
