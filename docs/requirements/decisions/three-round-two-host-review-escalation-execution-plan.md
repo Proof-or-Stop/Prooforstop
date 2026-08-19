@@ -6,7 +6,7 @@ Status: Execution plan
 
 ## Purpose
 
-This document defines the execution plan for making Proofbound review escalation
+This document defines the execution plan for making Proof-or-Stop review escalation
 mechanical:
 
 ```text
@@ -40,7 +40,7 @@ receipt completion.
 
 ## Current State
 
-Proofbound currently has these pieces:
+Proof-or-Stop currently has these pieces:
 
 | Area | Current behavior |
 | --- | --- |
@@ -56,7 +56,7 @@ Proofbound currently has these pieces:
 
 ### Default Rule
 
-All stories start with the normal Proofbound REVIEW flow.
+All stories start with the normal Proof-or-Stop REVIEW flow.
 
 The first version must not force every story through 3x2. Clean stories that
 pass normal REVIEW without the escalation trigger should remain eligible for
@@ -251,14 +251,14 @@ material.
 ### TEST Gate
 
 TEST should expose escalation status and refresh validation evidence. When a
-story is escalated, `lattice validate` should make it clear that validation pass
+story is escalated, `proof-or-stop validate` should make it clear that validation pass
 is necessary but not sufficient for DONE.
 
 ### DONE Gate
 
 DONE is the hard enforcement point.
 
-Before DONE, Proofbound must evaluate:
+Before DONE, Proof-or-Stop must evaluate:
 
 ```text
 requires3x2 = firstReviewRoundCountableProblems >= 2
@@ -615,7 +615,7 @@ separate mutating command.
 Example:
 
 ```bash
-lattice review_escalation_status '{"storyId":"B-xxxx"}'
+proof-or-stop review_escalation_status '{"storyId":"B-xxxx"}'
 ```
 
 Expected text:
@@ -682,8 +682,8 @@ proof, Authority receipt evidence, or a new completion capability.
   imply missing required work and must not change `ok`, `required`, or
   `assuranceLevel`.
 - A stale-material DONE block should point to the local recovery sequence:
-  `lattice validate --story=<storyId> --json`,
-  `lattice verification_evidence_refresh_stale --storyId=<storyId> --dryRun`
+  `proof-or-stop validate --story=<storyId> --json`,
+  `proof-or-stop verification_evidence_refresh_stale --storyId=<storyId> --dryRun`
   followed by rerunning listed evidence commands, and fresh
   `autopilot_review_submit` calls over the current material hash.
 - A stale or ignored local host verdict remains non-counting until resubmitted

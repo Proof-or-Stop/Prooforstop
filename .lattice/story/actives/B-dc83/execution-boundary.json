@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-dc83",
+  "allowedCommands": [
+    "git diff",
+    "git log",
+    "git show",
+    "grep",
+    "node scripts/verify-done-merge-preflight.mjs",
+    "node scripts/verify-worktree-baseline-risk.mjs",
+    "npm --prefix packages/main run build",
+    "npx tsc --noEmit -p packages/main",
+    "proof-or-stop validate",
+    "proof-or-stop validate --lint",
+    "rg"
+  ],
+  "allowedTools": [
+    "Bash",
+    "Edit",
+    "Glob",
+    "Grep",
+    "Read",
+    "Write"
+  ],
+  "allowedPaths": [
+    ".lattice/story/actives/B-dc83",
+    "lattice.config.json",
+    "package.json",
+    "packages/main/package.json",
+    "scripts",
+    "scripts/verify-done-merge-preflight.mjs",
+    "scripts/verify-worktree-baseline-risk.mjs"
+  ],
+  "excludedCommands": [
+    "git push",
+    "git reset --hard",
+    "git restore",
+    "npm publish",
+    "proof-or-stop release_approve_push"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    "packages/main/src/core/baseline-risk.ts",
+    "packages/main/src/core/main-write-lock.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/tasks/done-merge-scope-smoke.ts"
+  ],
+  "confirmedBy": "qipan",
+  "confirmationNote": "Production behaviour under test is read-only for this story: baseline-risk.ts, main-write-lock.ts, transition-orchestrator.ts and done-merge-scope-smoke.ts are blocked so a failing script cannot be made green by weakening the mechanism it is supposed to verify. If a genuine product bug is found in those files, raise it rather than editing them under this boundary. A new detection script/file under scripts/ is permitted by the scripts path entry.",
+  "createdAt": "2026-08-17T09:38:11.025Z",
+  "updatedAt": "2026-08-17T09:38:11.025Z",
+  "_hash": "66b35093881d29f7344bd63ee07aec98770258faf8645f0efb950b11f9a64704"
+}

@@ -1,5 +1,5 @@
 import { existsSync, readFileSync } from 'node:fs';
-import { extname } from 'node:path';
+import { extname, join } from 'node:path';
 
 import { digestCanonicalJson, digestText } from './digest.js';
 import {
@@ -49,7 +49,12 @@ export type RuntimeConsumer =
   | 'story_advance'
   | 'done_prepare'
   | 'done_closure'
-  | 'final_response_check';
+  | 'final_response_check'
+  // B-a7c5 CHK-002: 9th member — a fully advisory, non-escalatable nudge
+  // appended to finding_resolve output. Deliberately absent from both
+  // REGISTERED_CRITICAL_RUNTIME_CONSUMERS and ADVISORY_ONLY_RUNTIME_CONSUMERS
+  // below; it can never become blocking regardless of rollout mode.
+  | 'finding_resolve';
 
 export type MemoryFreshnessClass = 'fresh' | 'stale-relevant' | 'stale-irrelevant';
 export type RuntimeHostCanonicalLabel = 'codex-cli' | 'claude-cli' | 'antigravity';
@@ -875,4 +880,61 @@ export function renderMemoryFreshnessPack(pack: MemoryFreshnessPack): string {
     ...lines.slice(0, maxLines - 1),
     `  ... ${omitted} line(s) omitted by MemoryFreshnessPack render cap`,
   ].join('\n');
+}
+
+// ── Dev-Memory Finish Decision (B-a7c5 CHK-003) ──
+//
+// Moved here from handlers/playbook-runtime-memory.ts so core/machine.ts (a
+// pure core module) can read the record without a core→handlers import.
+// `finishDecisionPath` is unchanged logic, just relocated + exported; the
+// write-handler now imports it from here instead of defining it locally.
+
+export type FinishDecision = 'captured' | 'no-reusable-lesson' | 'defer-with-reason';
+
+export interface FinishDecisionRecord {
+  schemaVersion: 'proofbound.dev-memory-finish-decision.v1';
+  storyId?: string;
+  decision: FinishDecision;
+  reason: string;
+  capturedEntryIds: string[];
+  automaticPromotion: false;
+  authority: 'non_authoritative';
+  gateEvidence: false;
+  recordedAt: string;
+}
+
+/**
+ * Path for a dev_memory_finish_decision record. `pathSegment` is either a
+ * canonical storyId or the literal `'no-story'` sentinel the write-handler
+ * uses when no storyId was supplied — unchanged from the pre-move
+ * implementation, only relocated + exported.
+ */
+export function finishDecisionPath(root: string, pathSegment: string): string {
+  return join(root, '.lattice', 'dev-memory', 'finish-decisions', `${pathSegment}.json`);
+}
+
+const FINISH_DECISION_VALUES: readonly FinishDecision[] = ['captured', 'no-reusable-lesson', 'defer-with-reason'];
+
+/**
+ * Reads the finish-decision record for `storyId`, or `null` on missing/
+ * corrupt/malformed input (fail-closed for the DONE gate's purposes — a
+ * corrupt record is treated exactly the same as no record at all). Never
+ * throws.
+ */
+export function readDevMemoryFinishDecision(root: string, storyId: string): FinishDecisionRecord | null {
+  try {
+    const path = finishDecisionPath(root, storyId);
+    if (!existsSync(path)) return null;
+    const raw: unknown = JSON.parse(readFileSync(path, 'utf-8'));
+    if (!raw || typeof raw !== 'object') return null;
+    const record = raw as Partial<FinishDecisionRecord>;
+    if (!FINISH_DECISION_VALUES.includes(record.decision as FinishDecision)) return null;
+    // Cross-story artifact reuse defense: the path is already namespaced by
+    // storyId, but if the record itself names a DIFFERENT storyId, reject it
+    // rather than trust a hand-crafted/copied file.
+    if (typeof record.storyId === 'string' && record.storyId !== storyId) return null;
+    return record as FinishDecisionRecord;
+  } catch {
+    return null;
+  }
 }

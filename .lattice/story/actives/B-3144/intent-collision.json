@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-3144",
+  "id": "IC-20260724202024",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "The request is a producer-side guard correction plus an operator recovery command, and nothing else. The guard extends its collision predicate to exactly the set of committed verdicts the escalation floor would drift-accept at evaluation time (same materialDigest, or stale materialDigest with storyFilesHash equal to current). It is NOT a request to block all resubmission (genuinely new material with a changed storyFilesHash must still be allowed), NOT a change to the floor drift-accept semantics (eventsWithStoryFilesHashDowngrade stays as-is), and NOT a runId-scheme migration. quorum_prune default keep=newest-material matches the actual B-bf52 recovery precedent (commit 255eefd289 kept the six current-material verdicts and removed the six stale-material ones).",
+  "acceptedInterpretationHash": "sha256:0a337af3f4432da9ac0eacde1a3ac4b66d3c86c58b3953edc804aa586c53033f",
+  "notes": "High-assurance work requires an independent collision result. A dispatched lattice-review-topology-critic run (2026-07-24) stress-tested the two competing interpretations and found no collision: (a) block-all-resubmission was rejected because the fresh-quorum-after-real-material-change path must stay allowed (CHK-001.3); (b) prune default keep=newest-material was verified against recovery commit 255eefd28959c7cda802a44802987fba2354899b which kept the newest-material set. That run declined to persist a topology-critic RECEIPT for mechanical authority and session-independence reasons (shared owner session, no registered LATTICE_AGENT); its substantive stress-test is recorded here. Rejected broader reading: any change to floor acceptance semantics, excluded by the INIT scope boundary.",
+  "createdAt": "2026-07-24T20:20:24.361Z",
+  "updatedAt": "2026-07-24T20:20:24.361Z"
+}

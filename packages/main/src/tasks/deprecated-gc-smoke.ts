@@ -63,7 +63,7 @@ function test3ScanDeprecatedRealRepo(): void {
 // ---------------------------------------------------------------------------
 function buildAdvisoryHint(count: number, files: string[], threshold: number): string {
   // Mirrors the logic in audit-trigger.ts semi-auto branch
-  let hint = `\n⚠ 5 story window + CLAUDE.md has changed, suggested run: lattice audit --framework\n`;
+  let hint = `\n⚠ 5 story window + CLAUDE.md has changed, suggested run: proof-or-stop audit --framework\n`;
   if (count > threshold) {
     const fileList = files.slice(0, 3).join(', ') + (files.length > 3 ? '...' : '');
     hint += `\n⚠ @deprecated GC: ${count} annotation(s) in ${files.length} file(s) (${fileList}); consider a cleanup story (threshold: ${threshold})`;

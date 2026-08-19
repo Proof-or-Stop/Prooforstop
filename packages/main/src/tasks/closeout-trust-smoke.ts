@@ -23,7 +23,7 @@ import {
   verifyCloseoutWriteReceipt,
 } from '../core/closeout-trust.js';
 import { COMMAND_POLICIES } from '../core/command-policy.js';
-import { isLatticeLifecycleArtifactPath } from '../core/lifecycle-registry.js';
+import { isProofOrStopLifecycleArtifactPath } from '../core/lifecycle-registry.js';
 import {
   buildMilestoneLedger,
   buildParentLedgerRollup,
@@ -53,11 +53,13 @@ import { createSummaryHandlers } from '../handlers/summary.js';
 import { createDeliveryContextPackHandlers } from '../handlers/delivery-context-pack.js';
 import { createLiveSmokeTranscriptHandlers } from '../handlers/live-smoke-transcript.js';
 import { createDoneRequiredValidationHandlers } from '../handlers/done-required-validation.js';
+import { createPlaybookRuntimeMemoryHandlers } from '../handlers/playbook-runtime-memory.js';
 import { createVerifierHandlers } from '../handlers/verifier.js';
 import type { HandlerContext } from '../handlers/context.js';
 import { computeActiveReviewers } from '../handlers/reviewer-list.js';
 import { createLegacyLocalOnlyDeliveryClaims } from '../core/legacy-delivery-claims-compat.js';
 import { evaluateOptionalLiveSmokeTranscript } from '../core/live-smoke-transcript-evidence.js';
+import { persistSyntheticAdmittedWindowForTest } from '../core/certification-window.js';
 
 const legacyPromptHash = (roleId: string): string => hashReviewPrompt(resolvePromptRoleBody(roleId, {
   version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
@@ -126,7 +128,7 @@ assert.deepEqual(
 );
 assert(!(CLOSEOUT_ARTIFACT_POLICIES as readonly { path: string }[]).some((policy) => policy.path === 'milestone-closeout.json'));
 for (const policy of CLOSEOUT_ARTIFACT_POLICIES) {
-  assert(isLatticeLifecycleArtifactPath(`.lattice/story/actives/${storyId}/${policy.path}`), `${policy.path} must be in the closed lifecycle classifier`);
+  assert(isProofOrStopLifecycleArtifactPath(`.lattice/story/actives/${storyId}/${policy.path}`), `${policy.path} must be in the closed lifecycle classifier`);
   for (const writer of policy.canonicalWriters) assert(writer in COMMAND_POLICIES, `${policy.path} writer ${writer} must be a registered CLI command`);
 }
 assert.equal(assertCanonicalCloseoutWrite('scope-contract.json', 'scope_contract_acknowledge').artifactClass, 'scope-defining');
@@ -429,6 +431,15 @@ try {
   store.writeMilestoneLedger(runtimeStoryId, runtimeLedger);
   store.writeProofStorySlicePlan(runtimeStoryId, runtimePlan);
   store.writeChecklist(runtimeStoryId, { items: [] });
+  // B-a7c5 CHK-003: canFinishGuard now ALSO requires a dev_memory_finish_decision
+  // record. This fixture deliberately configures an INCOMPLETE review-lane set
+  // to exercise the review_lane_missing DONE-gate diagnostic further below --
+  // without a satisfying record here, that assertion would instead observe
+  // missing_dev_memory_finish_decision (checked earlier in getGuardFailureReason's
+  // DONE branch), masking the review_lane_missing diagnostic this fixture exists
+  // to test.
+  createPlaybookRuntimeMemoryHandlers({ store, root: repo, scanRoot: join(repo, 'src') })
+    .dev_memory_finish_decision({ storyId: runtimeStoryId, decision: 'no-reusable-lesson', reason: 'closeout-trust-smoke fixture; no lesson to capture' });
   mkdirSync(join(repo, 'tests/fixtures'), { recursive: true });
   git(repo, ['add', '.']);
   git(repo, ['commit', '-m', 'baseline']);
@@ -529,6 +540,7 @@ try {
   assert.equal(evaluateOptionalLiveSmokeTranscript(store, runtimeStoryId).status, 'valid', 'a passing capture restores valid executed evidence');
   createDeliveryContextPackHandlers(handlerCtx).delivery_context_pack({ storyId: runtimeStoryId, write: true });
   assertWriterReceipt('evidence/delivery-context-pack.json', 'delivery_context_pack');
+  persistSyntheticAdmittedWindowForTest({ store, storyId: runtimeStoryId, projectRoot: repo });
   await createDoneRequiredValidationHandlers(handlerCtx).done_required_validate({ storyId: runtimeStoryId });
   assertWriterReceipt('done-required-evidence.json', 'done_required_validate');
   console.log('PASS canonical DONE-required lineage recorded');

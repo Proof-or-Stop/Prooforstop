@@ -128,6 +128,12 @@ function writeAssetManifest() {
   const files = [
     'package.json',
     'bin/bootstrap-runner.js',
+    // bin/bootstrap-runner.js statically imports this at module-init (a dependency-free node:-only
+    // helper). It lives under scripts/ (not packages/*/dist), so no listFiles() spread below ships it —
+    // it MUST be listed explicitly or the packaged desktop runtime crashes with ERR_MODULE_NOT_FOUND at
+    // bootstrap (B-1734 D1). red-1734-desktop-asset-manifest.mjs asserts every scripts/ module in
+    // bootstrap's static import graph is present here.
+    'scripts/build-lock-target.mjs',
     'packages/main/package.json',
     ...listFiles('packages/main/dist'),
     'packages/utils/package.json',
@@ -158,6 +164,13 @@ function writePkgConfig() {
   writeFileSync(configPath, JSON.stringify(config, null, 2) + '\n', 'utf8');
 }
 
+// KNOWN LIMITATION / FOLLOW-UP (B-1734 #4, deferred to a build-concurrency infra story): this desktop
+// packaging build is a 4TH build call-site that BYPASSES the build mutex. It runs tsc DIRECTLY against
+// the shared packages/*/dist, outside withBuildLock and outside the atomic staging-swap that the two
+// build-*-with-binding.mjs scripts use. If a concurrent build-*-with-binding.mjs (or a reader) runs while
+// this is packaging, they are not mutually excluded and can observe a torn dist. Packaging is normally a
+// dedicated release step run in isolation, so this is not yet routed through the lock; folding it into the
+// same withBuildLock + staging discipline is tracked for the same follow-up.
 function buildPackages() {
   const tsc = bin('tsc');
   assertExists(tsc, 'Run npm install from the repository root.');

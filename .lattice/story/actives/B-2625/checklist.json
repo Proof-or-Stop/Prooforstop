@@ -1,0 +1,109 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Define a fail-closed cross-process capacity delegation contract",
+      "context": "Reuse the B-6693 workspace capacity holder identity. Delegation must bind workspace, live holder/acquisition token, and parent process lineage; malformed, stale, foreign-workspace, or replayed delegation must not bypass capacity.",
+      "relatedDocs": [
+        "docs/requirements/decisions/testing-infra.md",
+        "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+        "docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md"
+      ],
+      "userSees": "Official DONE validation can launch the root suite without self-deadlocking, while unrelated root suites still serialize.",
+      "excludes": [
+        "Changing configured validation timeout budgets",
+        "Reducing or deleting full-suite inventory",
+        "Coordinating arbitrary individual test scripts that do not enter the root runner"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/handlers/done-required-validation.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Make the root full-suite entry acquire capacity or consume only a valid delegation",
+      "context": "The root runner is the single common hook for npm test. A bare invocation must wait for capacity with existing structured diagnostics; an official descendant consumes a verified delegation and never acquires or releases the parent ticket.",
+      "relatedDocs": [
+        "docs/requirements/decisions/testing-infra.md",
+        "docs/requirements/decisions/done-full-test-gate-execution-plan.md"
+      ],
+      "userSees": "Running npm test directly no longer races an official validation in the same workspace.",
+      "excludes": [
+        "Changing individual member timeout values",
+        "Changing the canonical full-suite member list"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/core/validation-execution-lock.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Prove serialization, delegation cleanup, and no semantic drift",
+      "context": "Add real child-process regressions for bare-versus-official serialization, valid delegated child completion, invalid and stale token rejection, parent failure cleanup, maxConcurrency=1, and unchanged terminal summary/exit classification.",
+      "relatedDocs": [
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "userSees": "The mechanism fails closed and remains recoverable after crashes, timeout, or malformed delegation.",
+      "excludes": [
+        "Evidence based only on mocks or a single event loop"
+      ],
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Document the exact coordinated and excluded entrypoints",
+      "context": "State that official validate/done-required and root npm test share capacity; arbitrary individual npm run test:* commands remain outside scope. Document cross-process delegation and operational diagnostics without promising global machine-wide scheduling.",
+      "relatedDocs": [
+        "docs/requirements/decisions/testing-infra.md",
+        "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+        "docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md"
+      ],
+      "userSees": "Operators can tell which commands are serialized and why a run is waiting.",
+      "excludes": [
+        "Claiming arbitrary commands are coordinated"
+      ],
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

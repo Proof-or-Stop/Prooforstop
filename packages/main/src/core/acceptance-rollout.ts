@@ -248,8 +248,8 @@ function replayProductionGateState(args: {
       encoding: 'utf8',
       env: {
         ...process.env,
-        LATTICE_SESSION_ID: `rollout-replay-${args.storyId}-${command}`,
-        LATTICE_AGENT: 'acceptance-rollout-verifier',
+        PROOF_OR_STOP_SESSION_ID: `rollout-replay-${args.storyId}-${command}`,
+        PROOF_OR_STOP_AGENT: 'acceptance-rollout-verifier',
       },
       maxBuffer: 16 * 1024 * 1024,
     });

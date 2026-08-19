@@ -1,0 +1,26 @@
+{
+  "storyId": "B-3434",
+  "checkedAt": "2026-08-15T10:23:31.756Z",
+  "reviewRound": "",
+  "agentId": "product-reviewer",
+  "issues": [],
+  "agentResults": [
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-08-15T10:22:29.892Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "medium",
+          "desc": "index.json description field is stale relative to the rewritten background.md / checklist.json. It reads: \"...adds a regression above the limit, and evaluates bounding the artifact itself.\" That is the exact soft-evaluation framing the rewrite explicitly rejected: background.md ## Solution Tradeoffs now says the growth item \"must end in a BINDING outcome rather than a written opinion: either the artifact is bounded in this story, or a committed rationale records why unbounded growth is acceptable and names the change that will address it,\" and checklist.json CHK-004 title is \"Bound the aggregate evidence artifact or commit a rationale naming the change that will, and ship whichever the decision is\" (context explicitly warns \"Closing this item with a written opinion and no shipped consequence is exactly the unexamined growth cliff this story exists to end\"). A reader who consults only index.json description (the field this INIT dimension checks for standalone consistency) would conclude CHK-004 is a paper evaluation -- precisely the defect class the prior review round already flagged against the old CHK-004 title before it was retitled. index.json.description was not updated in the rewrite. Separately, index.json.description also does not mention the CHK-005 deliverable (the near-limit advisory) at all, so it undersells scope on two of the five checklist items."
+        }
+      ]
+    },
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-08-15T10:23:31.756Z",
+      "issues": []
+    }
+  ],
+  "_hash": "dce104dd4469792241670fed9fe62862506f2cf8a238bffddc2cfc3198089a73"
+}

@@ -1,0 +1,1119 @@
+{
+  "passes": [
+    {
+      "id": "B-6693:RP-001",
+      "agent": "lattice-review-docs",
+      "note": "Extracted 85 changed declaration symbols; Step 2 found 0 direct symbol-reference documentation paragraphs, so the narrow fallback/reverse check compared 5 changed behavior paragraphs and 2 CLI help descriptions against both official handlers and the shared capacity implementation. No doc-code blocker: validate and done_required_validate serialize, bare npm test remains outside the lease, wait diagnostics are stderr/progress, protected inventory/budget sources have zero diff, workspace-capacity smoke passed twice, and the exact 58-assertion terminal contract passed.",
+      "createdAt": "2026-08-15T00:38:00.176Z",
+      "reviewRound": "2026-08-15T00:32:05.278Z",
+      "reviewRunId": "B-6693:RR-003",
+      "envelopeId": "5c8d9ae4f9562d24d10e44963be9aca9743466285ae374e3e5560cda762fed3c",
+      "writerSessionId": "sess-9985c2d45049458f4645f75fc2d14ab9",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md"
+        ],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "227082aae52f0b9bb1df842fd2524052727dd0d3b5480faa04bd68295562171a"
+      },
+      "readDiagnostics": [],
+      "_hash": "17f5dc1052e9e8e6f68f606a6cd009adbaa729a2461821147340d8f427cdab5a"
+    },
+    {
+      "id": "B-6693:RP-002",
+      "agent": "lattice-review-docs",
+      "note": "Round-2 docs review on HEAD 0183aa329e extracted 141 changed declaration symbols; Step 2 found 0 direct symbol-reference documentation paragraphs, so the bounded reverse check compared 5 changed behavior paragraphs and 3 CLI help surfaces against the final implementation. No blocker: bakery-style UUID ticket publication prepares holder plus heartbeat privately before atomic queue visibility; stale recovery renames only the exact ticket to a unique quarantine and never deletes the shared root or a successor; expected Git identity failure is fail-closed while genuine non-Git roots fall back; validate, done_required_validate, and derived verdict binding share the official outer capacity; bare npm test remains excluded; protected inventory and 120/180/300 timeout sources have zero diff. Build passed, the focused capacity smoke passed 11 groups, the full smoke independently passed 22 groups, and the exact 58-assertion terminal contract passed.",
+      "createdAt": "2026-08-15T11:27:53.158Z",
+      "reviewRound": "2026-08-15T11:20:16.320Z",
+      "reviewRunId": "B-6693:RR-006",
+      "envelopeId": "1f7c4362666dbc0f3467a2281983144f4768f4fcdc374d538413859b6d843336",
+      "writerSessionId": "sess-9985c2d45049458f4645f75fc2d14ab9",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md"
+        ],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "227082aae52f0b9bb1df842fd2524052727dd0d3b5480faa04bd68295562171a"
+      },
+      "readDiagnostics": [],
+      "_hash": "39f84054fd5ae78e40bf91908dbc66135fdbe391f18fa27ce7d971bc1bde2ef4"
+    },
+    {
+      "id": "B-6693:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Final quality re-review passed at f6b8ba8b87. F-006 is closed: exact-ticket release retries are bounded, a successful callback cannot silently hide persistent isolation failure, the original callback error object remains authoritative, the owned ticket is mechanically marked and reclaimed after permission repair, and successors enter without queue residue. Focused 13-group and full 24-group smokes passed; an independent live-successor fault test preserved both tickets and converged; current-HEAD dead-ticket stress completed 50 rounds x 12 Workers (600 entries) with zero overlaps/errors. No additional quality blocker found; separate docs/coverage findings remain owned by their lanes.",
+      "createdAt": "2026-08-15T11:42:32.507Z",
+      "reviewRound": "2026-08-15T11:36:01.591Z",
+      "reviewRunId": "B-6693:RR-013",
+      "envelopeId": "86ad5ca8898ba5b42159776c6e4f18e00db49d5cc223af0fa03c6263b5e62c49",
+      "writerSessionId": "sess-9985c2d45049458f4645f75fc2d14ab9",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-6693/background.md",
+          ".lattice/story/actives/B-6693/plan.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/core/validation-execution-lock.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-6693/checklist.json",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/done-required-validation.ts",
+          "packages/main/src/handlers/verdict.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "79fc1b4777c7a1d459d062cd717d483f750657733863f103587245d5363a4797"
+      },
+      "readDiagnostics": [],
+      "_hash": "33c5218ed3582020568e258dd6e44298022b4be1ed7547ca3d4f04377ecdd687"
+    },
+    {
+      "id": "B-6693:RP-004",
+      "agent": "lattice-review-docs",
+      "note": "Reviewed 158 extracted changed symbols and 10 directly relevant documentation/operations paragraphs plus the validate, done_required_validate, and derived-verdict help surfaces. No blocker: F-007 is accurately closed across all three docs with marker-success mechanical successor recovery after the underlying isolation fault is repaired, marker-failure fail-closed repair semantics, successful-callback release failure reporting, and original callback/abort/deadline error precedence over secondary cleanup failure. Docs also match canonical git-common-dir capacity, configured gitRoot fail-closed behavior, official validate/done-required/--deriveBindings coverage, wait diagnostics, bare npm exclusion, and unchanged inventory and 120/180/300-second budgets without overstating Proof-or-Stop recovery authority.",
+      "createdAt": "2026-08-15T12:44:03.722Z",
+      "reviewRound": "2026-08-15T12:35:26.980Z",
+      "reviewRunId": "B-6693:RR-019",
+      "envelopeId": "7eaa87e0b571323d77341606dc32229750d77fcf7b746e6d169f46f2e74bfda0",
+      "writerSessionId": "sess-9985c2d45049458f4645f75fc2d14ab9",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "README.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md"
+        ],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "227082aae52f0b9bb1df842fd2524052727dd0d3b5480faa04bd68295562171a"
+      },
+      "readDiagnostics": [],
+      "_hash": "7b51f90742863d240144f1c7af2ce063471efb2b6bf678f50018cd1c873cbc5a"
+    },
+    {
+      "id": "B-6693:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: 29/29 must intents covered, 0 gaps, 0 waivers. Exact selector inventory is 14 focused + 10 full plus current build/docs/3 live-proof receipts; every evidence row is bound to current materialHash 440f1e47 and storyFilesHash c5c33a5, and stale dry-run reports none. Independently passed build, focused 14 groups, full 25 groups, protected inventory/timeouts, registered 12-record frozen cohort, and canonical exact-58 live proof. Source assertions discriminate linked-worktree serialization, reverse validate/done ordering and both artifacts, killed owner/prepublication, 12 waiters/maxConcurrency=1, reentrancy/sibling exclusion, abort/deadline no-inner, bare npm/read-only bypass, configured wrapper Git-root fail-closed, owner and queued-waiter permission-fault release recovery, JSON stderr, and derived verdict capacity.",
+      "createdAt": "2026-08-15T12:48:11.487Z",
+      "reviewRound": "2026-08-15T12:35:26.980Z",
+      "reviewRunId": "B-6693:RR-015",
+      "envelopeId": "f2cfdf2a9b8cb198bb5ff1f9733ac0f12557323cdaff6ddea3dc3e642720ac4e",
+      "writerSessionId": "sess-9985c2d45049458f4645f75fc2d14ab9",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-6693/background.md",
+          ".lattice/story/actives/B-6693/checklist.json",
+          ".lattice/story/actives/B-6693/plan.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/command-schemas.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/done-required-validation.ts",
+          "packages/main/src/handlers/verdict.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "scripts/run-proofstory-acceptance-rollout-cohort.mjs",
+          "scripts/run-proofstory-pre-review-live-proof.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c761f1a54e9ab051e1f26597c300347966a1e395678aee4158d7cf9ee96ffddf"
+    },
+    {
+      "id": "B-6693:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Final concept review at HEAD 559e8d41871de23ae7b24349fa10f2d58ddae96d independently verified F-001/F-002/F-005/F-009 closure: canonical git-common workspace identity, configured gitRoot fail-closed before capacity/callback, fixed workspace-to-story acquisition order, AsyncLocal context-only reentrancy, UUID exact-ticket quarantine, abort/deadline cleanup recovery, original error precedence, and genuine non-Git project-root fallback. Managed verification pin schema round-trips only strict command/selector data while preserving alias normalization and planned-path declarations. Build, focused 14-group contract, exact-58 terminal contract, and targeted cleanup/non-Git probes passed; no residual or promised-but-undelivered blocker found.",
+      "createdAt": "2026-08-15T12:49:21.230Z",
+      "reviewRound": "2026-08-15T12:35:26.980Z",
+      "reviewRunId": "B-6693:RR-014",
+      "envelopeId": "2f08996edf4dc18304547b827e34e765ff621ebe44d488cb84e153e9955269cf",
+      "writerSessionId": "sess-9985c2d45049458f4645f75fc2d14ab9",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-6693/background.md",
+          ".lattice/story/actives/B-6693/plan.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/cli/command-schemas.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/handlers/done-required-validation.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-6693/checklist.json",
+          "docs/CLI.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/story-signed-workspace-resolution.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verdict.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9d41c43f09a37befe490c373edae1adc9196d8b09debcd4cb33b85091b3752f0"
+    },
+    {
+      "id": "B-6693:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Concept pass at edf38591f2: workspace and story ownership are generation-token bound; direct story-lock detached-ALS probe preserved maxConcurrency=1, same-token nesting, exact-owner release, and successor entry. Fixed global-to-story ordering and UUID ticket quarantine remain fail-closed. Direct validate receives only watchdog abort/deadline propagation while DONE result classification remains separate; derived verdict exposes no public cancellation fields. Build and focused 15-group smoke passed.",
+      "createdAt": "2026-08-15T13:59:15.596Z",
+      "reviewRound": "2026-08-15T13:52:04.519Z",
+      "reviewRunId": "B-6693:RR-022",
+      "envelopeId": "3e8693d9dbf6d434cf3b7cedcb35ba8c0bc28bf39d69e1a27b861b9ceaf268c2",
+      "writerSessionId": "sess-9985c2d45049458f4645f75fc2d14ab9",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/mkdir-lock.ts",
+          "packages/main/src/core/validation-execution-lock.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/command-schemas.ts",
+          "packages/main/src/handlers/done-required-validation.ts",
+          "packages/main/src/handlers/verdict.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "d94a0da42c763cf7ab6553e2f495b33c4b336042271ea2db062282ad0c8b6574"
+      },
+      "readDiagnostics": [],
+      "_hash": "7b8af18b28526306f0fb250807bf40ef2fbe4425a1f17961f10f400c8fcc847f"
+    },
+    {
+      "id": "B-6693:RP-008",
+      "agent": "lattice-review-docs",
+      "note": "Docs review PASS: extracted 186 changed declaration symbols and compared 9 changed documentation paragraphs across the three scoped docs against CLI watchdog/result classification, official-capacity wiring, derived verdict, exact-12 cohorts, exact 15/26 terminal pins, bare-npm exclusion, and protected inventory/budget proof. No doc-code drift or promised-but-undelivered behavior found.",
+      "createdAt": "2026-08-15T20:13:32.083Z",
+      "reviewRound": "2026-08-15T20:10:20.018Z",
+      "reviewRunId": "B-6693:RR-028",
+      "envelopeId": "5f48fdb8250670da11a21fbf6e538cd0eaa93372cb8d22637aef1bc6f67cc433",
+      "writerSessionId": "sess-9985c2d45049458f4645f75fc2d14ab9",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/handlers/done-required-validation.ts",
+          "packages/main/src/handlers/verdict.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "d94a0da42c763cf7ab6553e2f495b33c4b336042271ea2db062282ad0c8b6574"
+      },
+      "readDiagnostics": [],
+      "_hash": "308c9d1b27a12ac9a73ceb7f3822956dc438b7e093878ac84e43265ae33e39b5"
+    },
+    {
+      "id": "B-6693:RP-009",
+      "agent": "lattice-review-concept",
+      "note": "Concept review found no blocker: official validation writers converge on canonical git-common-dir capacity before the retained per-story lock; configured gitRoot resolution fails closed; reentrancy is generation-token bound; abort/release recovery is exact-ticket safe; direct validate watchdog propagation stays separate from DONE-result classification; derived verdict binding is inside the same capacity boundary. Commit 61532dba5d changes only the exact-12 cross-process regression and aligned 15/26 documentation. Build, focused 15-group smoke, exact-58 terminal consumer, help boundary, and protected inventory checks passed.",
+      "createdAt": "2026-08-15T20:13:46.042Z",
+      "reviewRound": "2026-08-15T20:10:20.018Z",
+      "reviewRunId": "B-6693:RR-025",
+      "envelopeId": "61563b9f841cda1deb15e95b34a4ce4bb7eac0dec0aa6d1ebe3caaa9745ea7a1",
+      "writerSessionId": "sess-9985c2d45049458f4645f75fc2d14ab9",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/validation-execution-lock.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/command-schemas.ts",
+          "packages/main/src/handlers/done-required-validation.ts",
+          "packages/main/src/handlers/verdict.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "eb39adb57afcf414b0a80774007fcb993ae8574341b7fb3bec71a141a197ebfd"
+      },
+      "readDiagnostics": [],
+      "_hash": "8ec1551488c4c6b49cf6eef6a909d56fced508b237ae828ee76b5d34e10a480b"
+    },
+    {
+      "id": "B-6693:RP-010",
+      "agent": "lattice-review-quality",
+      "note": "Quality PASS on the current material: randomUUID acquisition identities plus active-token/ALS equality prevent detached old-context generation borrowing; official capacity stays outer to the story lock; direct validate watchdog abort/deadline removes its exact queued ticket before callback/inner-lock entry; release isolation retries and either reports success-path release failure or preserves the original callback/wait error while marking only the exact ticket for successor recovery. The exact-12 child cohort uses 12 independently spawned Node processes for three rounds (separate from the Promise cohort) and proved maxConcurrency=1, zero critical overlap, zero child errors, and zero ticket/choosing/quarantine leaks. Build, focused 15, full 26, exact terminal 58, help boundary, and protected inventory/budget diff all passed. No blocking quality or promised-but-undelivered issue found.",
+      "createdAt": "2026-08-15T20:15:08.362Z",
+      "reviewRound": "2026-08-15T20:10:20.018Z",
+      "reviewRunId": "B-6693:RR-026",
+      "envelopeId": "4f099859d8786ae0ad71e0f84d5fdf4e9d5841a78650a5c30e22808308997ca1",
+      "writerSessionId": "sess-9985c2d45049458f4645f75fc2d14ab9",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-6693/background.md",
+          ".lattice/story/actives/B-6693/plan.md",
+          "packages/main/src/core/validation-execution-lock.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-6693/checklist.json",
+          "docs/CLI.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/command-schemas.ts",
+          "packages/main/src/handlers/done-required-validation.ts",
+          "packages/main/src/handlers/verdict.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5c7832971fe47dd8f46dbbf5239b18ed79b7c716b2a667fb356b04dccfd23a26"
+    },
+    {
+      "id": "B-6693:RP-011",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: 29/29 must intents have unique current evidence, 0 waivers/gaps; exact focused 15, full 26, rollout 58, direct CLI watchdog, exact-12 child-process stress, detached-generation isolation, build and protected-file diff all pass.",
+      "createdAt": "2026-08-15T20:17:11.012Z",
+      "reviewRound": "2026-08-15T20:10:20.018Z",
+      "reviewRunId": "B-6693:RR-027",
+      "envelopeId": "5092177dec2cadf4b1af4488a339c169ca3df840d3592f540f122e97719481ce",
+      "writerSessionId": "sess-9985c2d45049458f4645f75fc2d14ab9",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-6693/background.md",
+          ".lattice/story/actives/B-6693/plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/command-schemas.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/handlers/done-required-validation.ts",
+          "packages/main/src/handlers/verdict.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "eb39adb57afcf414b0a80774007fcb993ae8574341b7fb3bec71a141a197ebfd"
+      },
+      "readDiagnostics": [],
+      "_hash": "789652bb3dc55c56d1929b694ac2b76569762163a2c3447bbbd80a7e2a91a725"
+    },
+    {
+      "id": "B-6693:RP-012",
+      "agent": "lattice-review-docs",
+      "note": "Round 7 docs review PASS: extracted 186 full-story changed declaration symbols and compared 13 load-bearing documentation paragraphs/sections, including the three workspace-capacity docs and the pre-story Mechanism Placement Proof proposal. Delta d6529bdfc8 changes only two smoke tests: it seeds Git identity so the existing configured-exit-5 gate assertion still reaches its intended classifier, and repins the cli-engine structural fingerprint while preserving its loader controls. No documentation changed, no runtime promise was added, Proof-or-Stop remains accurately labelled an audited documentation-only proposal, and scope_contract_show/check proves the two delta paths were added only to allowedTest with production/protected boundaries unchanged.",
+      "createdAt": "2026-08-15T21:45:00.364Z",
+      "reviewRound": "2026-08-15T21:03:08.116Z",
+      "reviewRunId": "B-6693:RR-033",
+      "envelopeId": "b00b31d9d7203a23b39557540dfba5eb200dbe552ecb3250e0e61f3da2e83479",
+      "writerSessionId": "sess-9985c2d45049458f4645f75fc2d14ab9",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "7c3b4e38ffe3cf775d08b707721013d7744e0c6e49f114036ccf504f10798704"
+      },
+      "readDiagnostics": [],
+      "_hash": "52119460995d222f7afbe79f3dd07d463ba5fef8a15d8e454aff07eb3376555a"
+    },
+    {
+      "id": "B-6693:RP-013",
+      "agent": "lattice-review-quality",
+      "note": "Round 7 quality PASS for d6529bdfc8. F-017 is fixed by re-auditing and repinning cli-engine.ts to the current canonical AST digest while preserving the exact runCli/initPath/import call-shape allowlist and all relocation, producer-mutation, nested-anchor, loader-replacement, and unrelated non-literal fail-closed controls; the original retired-authority-vocabulary-guard command exits 0. F-018 is fixed by making only the semantic-failure fixture Git-backed, so the configured exit-5 validator is reached and still yields the exact Cannot enter TEST: lattice validate did not pass contract, FAIL evidence, and actor-stop ownership; the original review-pass-discard command exits 0 including flow stability. Build and focused capacity 15-group proof pass. Managed checklist reports 29/29 passing evidence rows (9+8+9+3), and verification_evidence_refresh_stale dry-run reports no stale evidence. No blocker found.",
+      "createdAt": "2026-08-15T21:48:18.565Z",
+      "reviewRound": "2026-08-15T21:03:08.116Z",
+      "reviewRunId": "B-6693:RR-032",
+      "envelopeId": "7330d7e3a4034dd72a38e2cdc7305751eb9c9c30d152b3b63ca209045d3c7b37",
+      "writerSessionId": "sess-9985c2d45049458f4645f75fc2d14ab9",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-6693/background.md",
+          ".lattice/story/actives/B-6693/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-6693/checklist.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a8ad63d69ca7bb15da2c22688208ef68e5dfe3e7abfd941877570a384d7475fd"
+    },
+    {
+      "id": "B-6693:RP-014",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 7 test coverage passed: 29/29 must intents current, 0 waivers/gaps, dry-run reports no stale; focused15/full26 mechanical receipts remain exact. Independently reran exact58 after F-017/F-018, plus retired-authority guard and full flow-stability smoke. F-017 relocation/producer/nested-anchor/loader-replacement controls bite; F-018 Git-backed fixture reaches configured exit 5 and preserves did-not-pass, FAIL evidence, and actor lifecycle assertions.",
+      "createdAt": "2026-08-15T21:50:29.021Z",
+      "reviewRound": "2026-08-15T21:03:08.116Z",
+      "reviewRunId": "B-6693:RR-031",
+      "envelopeId": "2b9cd2a2244e0b38b454a381d198259db03fbe692089cfab8ee9af0713827189",
+      "writerSessionId": "sess-9985c2d45049458f4645f75fc2d14ab9",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-6693/background.md",
+          ".lattice/story/actives/B-6693/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-6693/checklist.json",
+          "docs/CLI.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "eb39adb57afcf414b0a80774007fcb993ae8574341b7fb3bec71a141a197ebfd"
+      },
+      "readDiagnostics": [],
+      "_hash": "1365935adce3716e252059383dddb32f3fcfbbf00bef0caaedb187935f32c25a"
+    },
+    {
+      "id": "B-6693:RP-015",
+      "agent": "lattice-review-docs",
+      "note": "Round 8 docs review PASS: extracted 186 full-story changed declaration symbols and compared 13 load-bearing documentation paragraphs/sections across the workspace-capacity and pre-story Mechanism Placement Proof documents. F-019 commit 19422b0ccb changes only scripts/verify-process-fact-contract.mjs, replacing the obsolete cli-engine canonical AST fingerprint with the same c38c8402 value already pinned by retired-authority-vocabulary-guard-smoke and documenting that watchdog cancellation/result classification split; no docs, production source, registry semantics, config, or protected file changed. Scope show/check places this single path only in allowedTest and reports zero violations, while the Proof-or-Stop document remains accurately marked audited proposal/documentation-only with no runtime enforcement claim.",
+      "createdAt": "2026-08-15T22:25:31.589Z",
+      "reviewRound": "2026-08-15T22:23:11.894Z",
+      "reviewRunId": "B-6693:RR-037",
+      "envelopeId": "ace03401905e7f0224f1d909afbcdabc23dcad4aeebdbd59626893e7a72085ca",
+      "writerSessionId": "sess-9985c2d45049458f4645f75fc2d14ab9",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "7c3b4e38ffe3cf775d08b707721013d7744e0c6e49f114036ccf504f10798704"
+      },
+      "readDiagnostics": [],
+      "_hash": "10ace3e4810618af67c02529d0c312f6dbdaace01a5e73d3d443e4270765af99"
+    },
+    {
+      "id": "B-6693:RP-016",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 8 test coverage passed: 29/29 must intents current, 0 waivers/gaps, dry-run no stale; 28 mechanical receipts plus one docs check. Exact focused15/full26 pins remain 14/10. All three CHK-004 live-proof receipts are mechanical exit-0 selector matches at current material/storyFiles under the frozen 12-record, 6-pair baseline/candidate cohort with codex-cli+claude-cli full-3x2. Canonical process-fact verifier passes and registers the acceptance topology/pre-review/rollout commands, artifacts, and current CLI fingerprint contract.",
+      "createdAt": "2026-08-15T22:25:55.875Z",
+      "reviewRound": "2026-08-15T22:23:11.894Z",
+      "reviewRunId": "B-6693:RR-035",
+      "envelopeId": "9b758e9feb9352dd0c1a182b5333f700b569dece88199d24b22db8c9153dae39",
+      "writerSessionId": "sess-9985c2d45049458f4645f75fc2d14ab9",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-6693/background.md",
+          ".lattice/story/actives/B-6693/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-6693/checklist.json",
+          "docs/CLI.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts",
+          "scripts/run-proofstory-acceptance-rollout-cohort.mjs",
+          "scripts/run-proofstory-pre-review-live-proof.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "eb39adb57afcf414b0a80774007fcb993ae8574341b7fb3bec71a141a197ebfd"
+      },
+      "readDiagnostics": [],
+      "_hash": "88b8ae5bb23ca4acad1cc9e90586790af159ed144615151a900506887701bb31"
+    },
+    {
+      "id": "B-6693:RP-017",
+      "agent": "lattice-review-concept",
+      "note": "Round 8 concept re-review found no blocker. Commit 19422b0 changes only scripts/verify-process-fact-contract.mjs, replacing the stale ef1c4e fingerprint with the already-audited c38c840 fingerprint; production capacity, loader, CLI, handler, and documentation semantics are byte-unchanged from the prior reviewed state. The process-fact verifier and retired-authority guard both pass, repository residue scan finds only the two matching c38c840 contract sites and no old fingerprint, scope includes the verifier only as allowedTest, and Lattice reports no stale evidence across 29/29 intent receipts including three mechanical canonical cohort receipts.",
+      "createdAt": "2026-08-15T22:26:41.595Z",
+      "reviewRound": "2026-08-15T22:23:11.894Z",
+      "reviewRunId": "B-6693:RR-034",
+      "envelopeId": "1f527156e2c7a666debfe3fa11348810ef87edabe53e76dd9470cf2ee3572118",
+      "writerSessionId": "sess-9985c2d45049458f4645f75fc2d14ab9",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/handlers/done-required-validation.ts",
+          "packages/main/src/handlers/verdict.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "91af51fcd9d47c34e8240a88e13eae4ccd0aa0e170e2dd3d79e6ff019a96aa0a"
+    },
+    {
+      "id": "B-6693:RP-018",
+      "agent": "lattice-review-quality",
+      "note": "Round 8 quality PASS. F-019 is closed by synchronizing the exact c38c840... cli-engine canonical AST fingerprint into verify-process-fact-contract while retaining the full required token/control inventory; node scripts/verify-process-fact-contract.mjs exits 0 and verifies 446 registry entries. The two original failures both exit 0: retired-authority-vocabulary-guard preserves relocation, path-producer, nested-anchor, loader-replacement, and unrelated dynamic-import fail-closed controls; review-pass-discard includes flow-stability and proves the Git-backed exit-5 fixture reaches the intended Cannot enter TEST: lattice validate did not pass path. Build, focused capacity 15, full lock 26, and protected inventory diff pass. Managed checklist remains 29/29 passing evidence (9+8+9+3), and stale-evidence dry-run reports none. No blocking quality issue found.",
+      "createdAt": "2026-08-15T22:29:07.783Z",
+      "reviewRound": "2026-08-15T22:23:11.894Z",
+      "reviewRunId": "B-6693:RR-036",
+      "envelopeId": "5029ff5bd29858e1be155b91769952ae3ece0547361def9c4db3fde6873f133e",
+      "writerSessionId": "sess-9985c2d45049458f4645f75fc2d14ab9",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-6693/background.md",
+          ".lattice/story/actives/B-6693/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-6693/checklist.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e928a34273b67b08c4731ae88957e07f3ac4fe1234cd698b748f5df172e11c5e"
+    },
+    {
+      "id": "B-6693:RP-019",
+      "agent": "lattice-review-concept",
+      "note": "Post-main-merge concept review found no blocker. Merge 590aad96d7 had one combined conflict in scripts/verify-process-fact-contract.mjs and correctly retained both main's updated closeout-trust fingerprint and B-6693's audited c38c840 cli-engine fingerprint. All B-6693 runtime, handler, schema, smoke, and documentation files are byte-unchanged from merge parent a339b55682. Production call sites still converge validate, done_required_validate, and derived verdict binding through withOfficialValidationExecution with the inner story lock retained. Process-fact contract and retired-authority guard pass; old fingerprint residue is absent. Lattice reports 29/29 passing evidence with stale=0, including three mechanical canonical cohort receipts bound to current storyFilesHash.",
+      "createdAt": "2026-08-16T00:06:43.335Z",
+      "reviewRound": "2026-08-16T00:04:30.414Z",
+      "reviewRunId": "B-6693:RR-038",
+      "envelopeId": "241e34a927684e1c806a23027dae370fd742309fd2c0115397d958c5d39b61f0",
+      "writerSessionId": "sess-9985c2d45049458f4645f75fc2d14ab9",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-schemas.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/handlers/done-required-validation.ts",
+          "packages/main/src/handlers/verdict.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "45a49d09585f3c1d15923fc6784bf0ef82c9514d4e7982ad19f2de9bd07e7236"
+    },
+    {
+      "id": "B-6693:RP-020",
+      "agent": "lattice-review-test-coverage",
+      "note": "Final coverage review passed after merge 590aad96d7: 29/29 must intents have current evidence, 0 waivers and 0 stale; 14 focused15, 10 full26, 3 exact58 live-proof, and build receipts are selector-matched/exit 0. Static review confirms the genuine child-process cohort spawns and asserts exact 12 with maxConcurrency=1/zero overlap/leaks, direct validate uses the structured watchdog and cleans its waiter before the story lock, detached ALS generations queue behind the later acquisition token, F-017 fingerprint mutation controls remain registered, and the F-018 Git-backed fixture still reaches configured exit 5 and persists FAIL. Main merge touched only catalog/dev-memory registration and coordinated test fingerprints among story-relevant files; process-fact contract remains PASS. No coverage blocker.",
+      "createdAt": "2026-08-16T00:07:58.505Z",
+      "reviewRound": "2026-08-16T00:04:30.414Z",
+      "reviewRunId": "B-6693:RR-039",
+      "envelopeId": "78d6fb40307460377096ea9654f7ef6ab7aba528ad744645b213dea1d6d19963",
+      "writerSessionId": "sess-9985c2d45049458f4645f75fc2d14ab9",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-6693/background.md",
+          ".lattice/story/actives/B-6693/checklist.json",
+          ".lattice/story/actives/B-6693/plan.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/command-schemas.ts",
+          "packages/main/src/handlers/done-required-validation.ts",
+          "packages/main/src/handlers/verdict.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/run-proofstory-pre-review-live-proof.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": null
+        },
+        "digest": "ba2827785c7ba1362de7e40cbe9824846003e636bc5e9f9c5acf4d84a42a1316"
+      },
+      "readDiagnostics": [],
+      "_hash": "1fd0be3d7ffee5f333c03ac50f09d80fa9d8ef1269f28b06d8bfe23e43acbfe0"
+    },
+    {
+      "id": "B-6693:RP-021",
+      "agent": "lattice-review-quality",
+      "note": "Final merged-head quality PASS. Merge commit 590aad96d7 has two expected parents and its combined manual resolution is metadata-only (dev-memory-preflight acknowledgement); every later change through the signed run head is also Story metadata only, with zero docs/source/config/script drift from 590aad96d7. Independent build at merged material passed. Process-fact contract and retired-authority vocabulary guard both pass. Capacity focused 15 and full 26 both pass, including exact-ticket release failure/recovery, acquisition-token detached-context reentrancy isolation for capacity and official wrappers, and direct validate structured watchdog deadline cleanup before callback/inner-lock entry. Managed evidence is 29/29 passing (9+8+9+3) and dry-run reports no stale evidence. No blocker found.",
+      "createdAt": "2026-08-16T00:08:04.940Z",
+      "reviewRound": "2026-08-16T00:04:30.414Z",
+      "reviewRunId": "B-6693:RR-040",
+      "envelopeId": "f8f24c90ab5d990dbb943d75ae962e23e637f752aacd1a1d6dc46bbf8a231579",
+      "writerSessionId": "sess-9985c2d45049458f4645f75fc2d14ab9",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-6693/background.md",
+          ".lattice/story/actives/B-6693/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-6693/checklist.json",
+          "docs/CLI.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/handlers/done-required-validation.ts",
+          "packages/main/src/handlers/verdict.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0e87a042311915852fce447caf853372571fd22bd294900580c1ac1d79e1d629"
+    },
+    {
+      "id": "B-6693:RP-022",
+      "agent": "lattice-review-docs",
+      "note": "Round 9 final post-merge docs review PASS: extracted 186 changed declaration symbols and compared 14 load-bearing documentation paragraphs/sections across docs/CLI.md, testing-infra, DONE full-test gate, and the pre-story Mechanism Placement Proof plan. Merge 590aad96d7 preserves every B-6693 capacity implementation/doc byte and resolves only the two expected mechanical fingerprint combinations: main branch closeout-trust f41c1035 pin plus B-6693 cli-engine c38c8402 pin in both retired-authority-vocabulary-guard-smoke and verify-process-fact-contract. The structuredWatchdog/structuredDoneResult split and exact 15/26 terminal contracts still match source. The pre-story document remains explicit that its six-proof/placement mechanism is an audited proposal with no current runtime enforcement; its dated B-fb7b example still selects root pretest as the authoritative hook, while main ensure-dist implementation is a narrower implementation detail rather than a contradictory promise. No doc-code drift or promised-but-undelivered behavior found.",
+      "createdAt": "2026-08-16T00:10:46.667Z",
+      "reviewRound": "2026-08-16T00:04:30.414Z",
+      "reviewRunId": "B-6693:RR-041",
+      "envelopeId": "a39139f7631f33ef82104b1f4be0292471f5d5cb1cade3e88b0f5f6b53ad6fbb",
+      "writerSessionId": "sess-9985c2d45049458f4645f75fc2d14ab9",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "package.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/handlers/done-required-validation.ts",
+          "packages/main/src/handlers/verdict.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts",
+          "scripts/ensure-dist.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "7c3b4e38ffe3cf775d08b707721013d7744e0c6e49f114036ccf504f10798704"
+      },
+      "readDiagnostics": [],
+      "_hash": "dc85221d53c2eb4413e269585aba66d24dfc7446674800b140cb715d04adb7ff"
+    },
+    {
+      "id": "B-6693:RP-023",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 10 final-HEAD coverage review passed at 8b6a50b68c. All 29 must intents have evidence, with 0 gaps, 0 waivers, 0 failures, and evidence_inspect reports every ref fresh. The 28 mechanical receipts remain 14 focused exact-15, 10 full exact-26, 3 canonical exact-58 live-proof, and 1 build receipt, all exit 0 and selector matched; one docs check completes the matrix. Checklist receipts retain the prior execution hash but current storyFilesHash is unchanged, so the freshness reader classifies the whole-tree material drift as re-attestation advisory, while current test-evidence directly matches material c89ea9ce. Diff from the prior reviewed material changes no B-6693 scoped implementation or test file; it contains unrelated main/version work and the final dev-memory decision. Existing exact-12 child-process, direct CLI watchdog, detached-generation, F-017, F-018, and process-fact coverage therefore remain discriminating. No coverage blocker.",
+      "createdAt": "2026-08-16T01:35:02.585Z",
+      "reviewRound": "2026-08-16T01:33:20.935Z",
+      "reviewRunId": "B-6693:RR-044",
+      "envelopeId": "f48a83fe1db12c6c1295147614c87a2e858d1ef27e6c685edbf8e0d7b6a5f943",
+      "writerSessionId": "sess-9985c2d45049458f4645f75fc2d14ab9",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-6693/background.md",
+          ".lattice/story/actives/B-6693/checklist.json",
+          ".lattice/story/actives/B-6693/plan.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/command-schemas.ts",
+          "packages/main/src/handlers/done-required-validation.ts",
+          "packages/main/src/handlers/verdict.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/run-proofstory-pre-review-live-proof.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": null
+        },
+        "digest": "ba2827785c7ba1362de7e40cbe9824846003e636bc5e9f9c5acf4d84a42a1316"
+      },
+      "readDiagnostics": [],
+      "_hash": "8db1473d7308485fb087a0280b9c2fec3fc4097d620455db0ebe061e257ae3f8"
+    },
+    {
+      "id": "B-6693:RP-024",
+      "agent": "lattice-review-concept",
+      "note": "Round 10 concept review: no blocker and no incomplete concept deletion/replacement. The current candidate at 74a0142018 has no B-6693 source or decision-doc delta since prior signed review commit 4a3f5f8; intervening changes are lifecycle/reviewer metadata plus non-authoritative dev-memory finish-decision (capturedEntryIds empty, gateEvidence false). Canonical git-common capacity, configured gitRoot fail-closed behavior, AsyncLocal token reentrancy, fixed global-to-story lock order, independent direct-validate deadline classification, and finally-based release/abort cleanup remain unchanged. Process-fact contract verifier passed. Managed freshness check reports zero stale evidence; 29/29 intents have PASS evidence on current storyFilesHash, including the exact-15/exact-12 capacity cohort and exact-58 canonical proof receipts.",
+      "createdAt": "2026-08-16T01:36:16.648Z",
+      "reviewRound": "2026-08-16T01:33:20.935Z",
+      "reviewRunId": "B-6693:RR-046",
+      "envelopeId": "ac48e814ca5d4bd0e900dc6007502c1e13b674d446a946af42e026f6c0e99cfb",
+      "writerSessionId": "sess-9985c2d45049458f4645f75fc2d14ab9",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/command-schemas.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/handlers/done-required-validation.ts",
+          "packages/main/src/handlers/verdict.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7568fe61a9423b071ebaf9ae2fe12571d8e7c4509de00c534f3824b13edda531"
+    },
+    {
+      "id": "B-6693:RP-025",
+      "agent": "lattice-review-docs",
+      "note": "Current HEAD c3a1c66 Round 10 docs review: Step 1 exact prescribed regex extracted 186 symbols, including 7 exported declarations; exact symbol-name docs search had no hits, so behavior and module anchors were used under fallback 2. Compared 14 load-bearing paragraphs or sections across the three capacity docs and related Proof-or-Stop, ownership, and pre-review plans against the current implementation. Direct validate structured watchdog only propagates abort/deadline and cleans waiters while preserving its prior classifier and exit contract; structuredDoneResult and DONE classification remain limited to done_prepare and done_required_validate. Exact-12 child-process and exact-12 Promise cohorts, test-evidence-only guarantee, exact focused 15 and full 26 pins, derived-verdict cancellation boundary, bare npm exclusion, and unchanged protected inventory plus 120/180/300-second sources all match. Final finish-decision commit 55f21b57c3 and intervening review-pass commits are metadata-only. No blocker or promised-but-undelivered documentation.",
+      "createdAt": "2026-08-16T01:37:09.419Z",
+      "reviewRound": "2026-08-16T01:33:20.935Z",
+      "reviewRunId": "B-6693:RR-047",
+      "envelopeId": "e071cd00217c2798142dadcbc29734f0f15ccb90b59109643e4c8755dac28ab3",
+      "writerSessionId": "sess-9985c2d45049458f4645f75fc2d14ab9",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "package.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/command-schemas.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/handlers/done-required-validation.ts",
+          "packages/main/src/handlers/verdict.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts",
+          "scripts/ensure-dist.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "40920176f95584812b66aba69d602566b22b81ce5808073e841982cf59780be6"
+      },
+      "readDiagnostics": [],
+      "_hash": "c2ace023b9f037561771e3ba4413af4c22e59ac2ded4cf8bbce802f08f42cf45"
+    },
+    {
+      "id": "B-6693:RP-026",
+      "agent": "lattice-review-quality",
+      "note": "Round 10 final current-material quality review PASS. The fresh signed run binds the same storyFilesHash, diff pack, and scope binding as the previously reviewed merged implementation; intervening HEAD and material movement is lifecycle metadata plus unrelated merged-main work, with no B-6693 story-owned delta. Rebuilt current CLI, independently reran the workspace capacity focused smoke (15 assertion groups), full lock smoke (26 assertion groups), process-fact contract, and retired-authority guard (exit 0; builds=790). Protected Story diff is empty, checklist is 4/4 with 29/29 passing evidence, and read-only lifecycle_check reports the latest routine validation PASS with no blocking finding. Release, reentrancy, child-process cohort, and direct validate watchdog proofs remain material-identical. No quality blocker.",
+      "createdAt": "2026-08-16T01:39:38.162Z",
+      "reviewRound": "2026-08-16T01:33:20.935Z",
+      "reviewRunId": "B-6693:RR-043",
+      "envelopeId": "6259805da0ccf7364579568fbd8e0242cd3e546c552fa20de78cf2ebae4c852b",
+      "writerSessionId": "sess-351a52a4e3bbc82331e35c6626fede5d",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-6693/background.md",
+          ".lattice/story/actives/B-6693/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-6693/checklist.json",
+          "docs/CLI.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/command-schemas.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/handlers/done-required-validation.ts",
+          "packages/main/src/handlers/verdict.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9f38773929d8c9426140565d48665b492b0884104f808a4cdad48ece5f26703f"
+    }
+  ]
+}

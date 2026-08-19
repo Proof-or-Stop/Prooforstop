@@ -20,7 +20,7 @@ import { evaluateLiveSmokeTranscriptValue } from '../core/live-smoke-transcript-
  * P5 (B-9b5e) — `live_smoke_transcript`: the explicit live-smoke transcript
  * producer for the Lifecycle Readiness plan.
  *
- *   lattice live_smoke_transcript --storyId=B-xxxx [--capture="<command>"] [--write] [--format=text|json]
+ *   proof-or-stop live_smoke_transcript --storyId=B-xxxx [--capture="<command>"] [--write] [--format=text|json]
  *
  * Two INDEPENDENT opt-ins (plan lines 113-116):
  *   - --capture="<command>" (runCommands): run ONLY that one explicitly-provided

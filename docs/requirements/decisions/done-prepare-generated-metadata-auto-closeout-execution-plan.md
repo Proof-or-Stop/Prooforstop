@@ -7,7 +7,7 @@ Source incident: B-6914 closeout rerun loop after B-90d6 version-boundary repair
 ## Purpose
 
 Add an opt-in, fail-closed `done_prepare` auto-closeout path for one narrow
-case: `done_prepare` generated only Proofbound-owned lifecycle metadata, the
+case: `done_prepare` generated only Proof-or-Stop-owned lifecycle metadata, the
 story material and story-owned file hashes did not change, and existing
 validation evidence is still admissible for the same command and policy inputs.
 
@@ -100,7 +100,7 @@ This plan adds an explicit safe path for that mechanical case.
 Introduce an explicit opt-in mode:
 
 ```text
-lattice done_prepare --storyId=B-xxxx --autoCloseGeneratedMetadata --reuseFreshValidation
+proof-or-stop done_prepare --storyId=B-xxxx --autoCloseGeneratedMetadata --reuseFreshValidation
 ```
 
 Preconditions:
@@ -122,7 +122,7 @@ DONE prepare auto-closeout:
   doneClosure: PASS
   runtimeChange: PASS
   cleanTree: PASS
-next: lattice story_advance --storyId=B-xxxx --phase=DONE
+next: proof-or-stop story_advance --storyId=B-xxxx --phase=DONE
 ```
 
 Expected refusal shape:
@@ -178,7 +178,7 @@ Subitems:
   the file is safe to auto-stage.
 - Reuse the existing lifecycle artifact classifier and registry rather than
   hard-coding `.lattice/story/actives/<storyId>/`.
-- Allow only Proofbound story lifecycle metadata under the current story id,
+- Allow only Proof-or-Stop story lifecycle metadata under the current story id,
   including configured `storyDir` shapes already accepted by the classifier.
 - Mark command-backed evidence separately from ordinary lifecycle projection
   files.
@@ -229,7 +229,7 @@ Subitems:
 - Recompute concrete policy/config inputs:
   scope contract hash, lifecycle classifier/registry version, validation command
   configuration hash, DONE-required command configuration hash, and relevant
-  Lattice gate policy/config hash.
+  Proof-or-Stop gate policy/config hash.
 - Permit validation reuse only when all hashes match the prior PASS evidence.
 - Preserve the prior command transcript and add a metadata-only reuse record to
   `done-required-evidence.json` rather than pretending commands were rerun.

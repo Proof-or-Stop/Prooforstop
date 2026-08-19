@@ -8,8 +8,8 @@
  * Covers (B-097f CHK-002, thin-shim pivot):
  *   - happy: sync writes a thin-shim regular file for every *.md template —
  *     verbatim frontmatter (tools sandbox preserved) + a CLI-fetch body that
- *     references `lattice agent_prompt --role=<name>` for ordinary roles or
- *     `review_run_start` for the six modular reviewers, and contains NO role body
+ *     references `proof-or-stop agent_prompt --role=<name>` for ordinary roles or
+ *     `review_run_start` for the five modular reviewers, and contains NO role body
  *   - edge: idempotent re-run reports "shim ok"; broken link / stale full copy /
  *     old symlink / drifted shim → unlink + rewrite ("replaced")
  *   - adversarial: non-writable global dir (mkdir throws) → clear actionable
@@ -156,7 +156,12 @@ assert.match(resolveAgentTemplateDir(), /templates[\\/]agents$/, 'template dir m
 // --- buildShimBody: references the CLI fetch command + no role body ---
 {
   const body = buildShimBody('lattice-implementer');
-  assert.match(body, /lattice agent_prompt --role=lattice-implementer/);
+  // B-cdf6:F-041/F-044 — pinned the PRE-rename bin name while production
+  // (core/global-agents.ts:164) emits `proof-or-stop agent_prompt --role=...`, so this
+  // failed BECAUSE the rename succeeded. Paired doesNotMatch keeps the shim body from
+  // regressing to the deprecated bin.
+  assert.match(body, /proof-or-stop agent_prompt --role=lattice-implementer/);
+  assert.doesNotMatch(body, /lattice agent_prompt --role=/);
   assert.match(body, /thin pointer/);
   assert.doesNotMatch(body, /FULL ROLE BODY/);
 }
@@ -180,7 +185,7 @@ assert.match(resolveAgentTemplateDir(), /templates[\\/]agents$/, 'template dir m
       assert.match(content, /review_run_start/, 'migrated reviewer shim selects one runtime review prompt');
       assert.doesNotMatch(content, /agent_prompt --role/, 'migrated reviewer shim never preloads a role body');
     } else {
-      assert.match(content, new RegExp(`lattice agent_prompt --role=${role}`), 'ordinary shim body references CLI fetch');
+      assert.match(content, new RegExp(`proof-or-stop agent_prompt --role=${role}`), 'ordinary shim body references CLI fetch');
     }
     assert.doesNotMatch(content, /that must never leak into the shim/, 'role body must NOT appear in shim');
   }

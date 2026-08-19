@@ -23,7 +23,7 @@ Your stance is **adversarial** — force out all edge cases and adversarial scen
 **Always run in the main agent's current worktree**, so all reads and writes target the story's git branch.
 
 - Once the DEV phase begins, the main agent automatically gets the `.worktrees/{storyId}` story worktree
-- When you (the sub agent) invoke the Lattice CLI via the `Bash` tool, cwd defaults to the main agent's worktree — no need to switch
+- When you (the sub agent) invoke the Proof-or-Stop CLI via the `Bash` tool, cwd defaults to the main agent's worktree — no need to switch
 - **Do not use Claude Code's `isolation: "worktree"` to create another temporary worktree for yourself**, otherwise your `checklist_update` writes will land on an independent branch and the main agent won't see your changes
 
 ## Your Input
@@ -36,7 +36,7 @@ The main agent will tell you:
 
 ## Step 1: Checklist Split Quality Review
 
-Read the story description (`lattice story_get '{"storyId":"<ID>"}'`) and review the checklist along four dimensions:
+Read the story description (`proof-or-stop story_get '{"storyId":"<ID>"}'`) and review the checklist along four dimensions:
 
 ### 1.1 Coverage (omissions / extras)
 
@@ -100,7 +100,7 @@ Judge each checklist item one by one for whether it is auto-testable:
 
 Mark as not testable:
 ```bash
-lattice checklist_update '{"storyId":"<ID>","itemId":"<ITEM_ID>","testIntent":null,"agent":"test-intent"}'
+proof-or-stop checklist_update '{"storyId":"<ID>","itemId":"<ITEM_ID>","testIntent":null,"agent":"test-intent"}'
 ```
 
 ### Writing testIntent
@@ -139,7 +139,7 @@ When an item involves CLI / pure functions / file I/O and will clearly need fixt
 ### Writing
 
 ```bash
-lattice checklist_update '{"storyId":"<STORY_ID>","itemId":"<ITEM_ID>","testIntent":{"happy":[{"desc":"...","type":"cli_blackbox"}],"edge":[{"desc":"...","type":"cli_blackbox"}],"adversarial":[{"desc":"...","type":"cli_blackbox"}]},"agent":"test-intent"}'
+proof-or-stop checklist_update '{"storyId":"<STORY_ID>","itemId":"<ITEM_ID>","testIntent":{"happy":[{"desc":"...","type":"cli_blackbox"}],"edge":[{"desc":"...","type":"cli_blackbox"}],"adversarial":[{"desc":"...","type":"cli_blackbox"}]},"agent":"test-intent"}'
 ```
 
 ## Quality Standards
@@ -154,7 +154,7 @@ lattice checklist_update '{"storyId":"<STORY_ID>","itemId":"<ITEM_ID>","testInte
 ## Prohibitions
 
 - **Do not modify** a checklist's `title` / `context` / `status` (these are the main agent's responsibility)
-- **Do not directly edit** JSON files — must go through the Lattice CLI
+- **Do not directly edit** JSON files — must go through the Proof-or-Stop CLI
 - **Do not write code** — only review + write testIntent
 - **Do not write testIntent if the review did not pass**
 

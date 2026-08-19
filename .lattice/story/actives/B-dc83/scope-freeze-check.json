@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-dc83",
+  "checkedAt": "2026-08-17T09:38:18.148Z",
+  "mode": "maintenance",
+  "status": "pass",
+  "scopeBoundaryHash": "00cdfe808248075803fba8986197a7f43684ca855f733522c3f6d3e791cf5893",
+  "executionBoundaryHash": "66b35093881d29f7344bd63ee07aec98770258faf8645f0efb950b11f9a64704",
+  "freshnessHash": "e8db66bec1d99fba0ecd6228cae8b37d2c75569f46d26a652f8c6027bd0066cb",
+  "effectiveExcludedKeywords": [
+    "Changing core/baseline-risk.ts, core/main-write-lock.ts or any production behaviour under test",
+    "Cleaning up the 8 untracked loose files in the repo root (unrelated pre-existing artifacts)",
+    "Detection coverage for packages/main/src/tasks/*-smoke.ts (user explicitly scoped this OUT, even though done-merge-scope-smoke.ts is itself unwired; different directory and naming convention)",
+    "Re-litigating the merge commit 1f1738da9a conflict resolutions",
+    "Retroactively fixing the pre-existing backlog of other unwired verify scripts (detection must fail on NEWLY-added unwired scripts, not the existing backlog)",
+    "Wiring all 60 scripts/verify-*.mjs into validate.commands (would slow the suite for little gain)"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Changing core/baseline-risk.ts, core/main-write-lock.ts or any production behaviour under test",
+      "source": "scopeBoundary.excluded",
+      "text": "Changing core/baseline-risk.ts, core/main-write-lock.ts or any production behaviour under test",
+      "excluded": true
+    },
+    {
+      "keyword": "Cleaning up the 8 untracked loose files in the repo root (unrelated pre-existing artifacts)",
+      "source": "scopeBoundary.excluded",
+      "text": "Cleaning up the 8 untracked loose files in the repo root (unrelated pre-existing artifacts)",
+      "excluded": true
+    },
+    {
+      "keyword": "Detection coverage for packages/main/src/tasks/*-smoke.ts (user explicitly scoped this OUT, even though done-merge-scope-smoke.ts is itself unwired; different directory and naming convention)",
+      "source": "scopeBoundary.excluded",
+      "text": "Detection coverage for packages/main/src/tasks/*-smoke.ts (user explicitly scoped this OUT, even though done-merge-scope-smoke.ts is itself unwired; different directory and naming convention)",
+      "excluded": true
+    },
+    {
+      "keyword": "Re-litigating the merge commit 1f1738da9a conflict resolutions",
+      "source": "scopeBoundary.excluded",
+      "text": "Re-litigating the merge commit 1f1738da9a conflict resolutions",
+      "excluded": true
+    },
+    {
+      "keyword": "Retroactively fixing the pre-existing backlog of other unwired verify scripts (detection must fail on NEWLY-added unwired scripts, not the existing backlog)",
+      "source": "scopeBoundary.excluded",
+      "text": "Retroactively fixing the pre-existing backlog of other unwired verify scripts (detection must fail on NEWLY-added unwired scripts, not the existing backlog)",
+      "excluded": true
+    },
+    {
+      "keyword": "Wiring all 60 scripts/verify-*.mjs into validate.commands (would slow the suite for little gain)",
+      "source": "scopeBoundary.excluded",
+      "text": "Wiring all 60 scripts/verify-*.mjs into validate.commands (would slow the suite for little gain)",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "9542e73a4c372d9797fcd49b3dd4ef4b7c722b97958cfe9550fadbdb06da43cb"
+}

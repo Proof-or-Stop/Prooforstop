@@ -5,6 +5,7 @@ import type {
   Finding,
   ReviewInventoryEpoch,
   ReviewInventoryCriticReceipt,
+  ReviewInventoryEpochData,
   ReviewInventoryFindingDisposition,
   ReviewInventoryLaneTerminal,
   ReviewInventoryReceipt,
@@ -15,6 +16,13 @@ import type {
 import { verifyReviewRun } from './review-run.js';
 import { verifyFinding, verifyReviewPass } from './finding-verify.js';
 import { withMkdirLock } from './mkdir-lock.js';
+
+export const REVIEW_INVENTORY_EPOCHS_FILE = 'review-inventory-epochs.json';
+export const REVIEW_INVENTORY_EPOCHS_SCHEMA = 'proofbound.review_inventory_epochs.v1';
+export const REVIEW_INVENTORY_EPOCH_SCHEMA = 'proofbound.review_inventory_epoch.v1';
+export const REVIEW_INVENTORY_RECEIPT_SCHEMA = 'proofbound.review_inventory_receipt.v1';
+export const INVENTORY_COMPLETENESS_AUTHORITY = 'inventory-completeness-only' as const;
+export type { ReviewInventoryEpochData } from './types.js';
 
 const EPOCH_DOMAIN = 'proofbound.review-inventory-epoch.v1';
 const RECEIPT_DOMAIN = 'proofbound.review-inventory-receipt.v1';
@@ -45,6 +53,10 @@ function canonical(value: unknown): string {
 
 export function reviewInventoryDigest(value: unknown): string {
   return createHash('sha256').update(canonical(value)).digest('hex');
+}
+
+export function emptyReviewInventoryEpochData(): ReviewInventoryEpochData {
+  return { schemaVersion: REVIEW_INVENTORY_EPOCHS_SCHEMA, epochs: [], receipts: [], criticReceipts: [] };
 }
 
 /** Canonical acceptance/review subject shared by epoch writers and consumers. */
@@ -684,4 +696,99 @@ export function buildWave(epoch: ReviewInventoryEpoch, evaluation: ReviewInvento
     saturated: evaluation.newFamilies.length === 0,
     ...(nextRunSequenceBoundary !== undefined ? { nextRunSequenceBoundary } : {}),
   };
+}
+
+function sameCutoff(
+  left: { headHash: string; materialHash: string; storyFilesHash?: string },
+  right: { headHash: string; materialHash: string; storyFilesHash?: string },
+): boolean {
+  return left.headHash === right.headHash
+    && left.materialHash === right.materialHash
+    && (left.storyFilesHash ?? '') === (right.storyFilesHash ?? '');
+}
+
+/** CertificationWindow PRE_CERT completeness receipt. Does not authorize TEST. */
+export function persistFinalizedReviewInventory(args: {
+  store: StoryStore;
+  storyId: string;
+  reviewRound: string;
+  cutoff: { headHash: string; materialHash: string; storyFilesHash?: string };
+}): { epoch: ReviewInventoryEpoch; receipt: ReviewInventoryReceipt; reused: boolean } {
+  return withReviewInventoryMutationLock(args.store, args.storyId, () => {
+    const data = args.store.readReviewInventoryEpochs(args.storyId);
+    const latest = data.epochs.at(-1);
+    if (latest && latest.state === 'FINALIZED' && !latest.consumedAt && latest.receiptId) {
+      const existing = data.receipts.find(row => row.receiptId === latest.receiptId);
+      if (
+        existing
+        && verifyReviewInventoryEpoch(latest)
+        && verifyReviewInventoryReceipt(existing)
+        && !existing.consumedAt
+        && !existing.invalidatedAt
+        && sameCutoff(latest.cutoff, args.cutoff)
+        && sameCutoff(existing.cutoff, args.cutoff)
+        && latest.storyId === args.storyId
+        && existing.storyId === args.storyId
+      ) {
+        return { epoch: latest, receipt: existing, reused: true };
+      }
+    }
+    const now = new Date().toISOString();
+    const seq = String(data.epochs.length + 1).padStart(3, '0');
+    const epochId = `${args.storyId}:RIE-${seq}`;
+    const receiptId = `${epochId}:RCP-001`;
+    const scopeDigest = reviewInventoryDigest(args.cutoff);
+    const emptyDigest = reviewInventoryDigest([]);
+    const unsignedEpoch: Omit<ReviewInventoryEpoch, '_hash'> = {
+      schemaVersion: REVIEW_INVENTORY_EPOCH_SCHEMA,
+      epochId,
+      storyId: args.storyId,
+      reviewRound: args.reviewRound,
+      state: 'FINALIZED',
+      begunAt: now,
+      updatedAt: now,
+      cutoff: args.cutoff,
+      scopeDigest,
+      requiredLanes: [],
+      maxWaves: 1,
+      waves: [],
+      receiptId,
+    };
+    const epoch: ReviewInventoryEpoch = { ...unsignedEpoch, _hash: signReviewInventoryEpoch(unsignedEpoch) };
+    const unsignedReceipt: Omit<ReviewInventoryReceipt, '_hash'> = {
+      schemaVersion: REVIEW_INVENTORY_RECEIPT_SCHEMA,
+      receiptId,
+      epochId,
+      storyId: args.storyId,
+      reviewRound: args.reviewRound,
+      cutoff: args.cutoff,
+      scopeDigest,
+      requiredLanes: [],
+      waveCount: 0,
+      findingSetDigest: emptyDigest,
+      coverageDigest: emptyDigest,
+      saturationResult: 'ZERO_NEW_VERIFIED_FINDINGS',
+      authority: INVENTORY_COMPLETENESS_AUTHORITY,
+      authorizesTest: false,
+      issuedAt: now,
+    };
+    const receipt: ReviewInventoryReceipt = { ...unsignedReceipt, _hash: signReviewInventoryReceipt(unsignedReceipt) };
+    data.epochs.push(epoch);
+    data.receipts.push(receipt);
+    args.store.writeReviewInventoryEpochs(args.storyId, data);
+    return { epoch, receipt, reused: false };
+  });
+}
+
+export function renderFinalizedReviewInventory(epoch: ReviewInventoryEpoch, receipt: ReviewInventoryReceipt): string {
+  return [
+    `State: ${epoch.state}`,
+    `Epoch: ${epoch.epochId}`,
+    `Receipt: ${receipt.receiptId}`,
+    `headHash: ${epoch.cutoff.headHash}`,
+    `materialHash: ${epoch.cutoff.materialHash}`,
+    `storyFilesHash: ${epoch.cutoff.storyFilesHash ?? ''}`,
+    `Authority: ${receipt.authority}`,
+    `authorizesTest: ${receipt.authorizesTest}`,
+  ].join('\n');
 }

@@ -1,0 +1,86 @@
+{
+  "principles": [
+    "Fix the layer where the defect actually originates, not just the first symptom observed",
+    "Prefer narrow, targeted catches over broad architectural changes when the blast radius of a wider fix is uncertain",
+    "Keep the existing established patterns (duck-typed error matching, real CLI calls over hand-signed evidence) rather than introducing new mechanisms",
+    "Every fix must be proven with a RED script before the fix and a GREEN re-run after"
+  ],
+  "drivers": [
+    "The concurrent-DONE-race loser must never crash with a raw internal error; it must explain itself clearly",
+    "The retired lattice-review-channel lane must be structurally rejected everywhere, including in the CLI smoke test that still exercised it as if forceable",
+    "Minimize risk to unrelated code paths given both fixes touch shared DONE/REVIEW lifecycle machinery used by every story"
+  ],
+  "options": [
+    {
+      "name": "resolve-store-root-broadly",
+      "pros": [
+        "Would fix the class of bug for every future read through ctx.store during a DONE race, not just this one call site"
+      ],
+      "cons": [
+        "ctx.store is used pervasively across the whole handler layer; changing its root resolution risks unknown ripple effects across every other command",
+        "Far larger blast radius than the two confirmed defects in scope"
+      ]
+    },
+    {
+      "name": "narrow-catch-and-translate",
+      "pros": [
+        "Matches the existing duck-typed StoryArtifactMissingError catch pattern already used elsewhere in transition-orchestrator.ts",
+        "Minimal blast radius: only affects the exact race window this story is fixing",
+        "Already implemented, RED-then-GREEN verified"
+      ],
+      "cons": [
+        "Does not fix a hypothetical similar crash at some other read site if one exists; only this specific one"
+      ]
+    },
+    {
+      "name": "leave-channel-lane-forceable-in-tests",
+      "pros": [
+        "No test changes needed"
+      ],
+      "cons": [
+        "Directly contradicts prompt-role-contract-registry.ts's structural retirement of the lane",
+        "Smoke test would keep asserting behavior the product code forbids, silently drifting from reality"
+      ]
+    },
+    {
+      "name": "reject-channel-lane-and-reroute-through-active-lane",
+      "pros": [
+        "Matches actual product behavior (registry retirement)",
+        "Reuses an existing active lane (test-coverage) instead of inventing a new one",
+        "Already implemented, RED-then-GREEN verified"
+      ],
+      "cons": [
+        "Required fixing a cascade of five dependent issues in the same test file to get back to green"
+      ]
+    }
+  ],
+  "chosen": "narrow-catch-and-translate",
+  "rationale": "Both narrow options (narrow-catch-and-translate, reject-channel-lane-and-reroute-through-active-lane) were chosen together: they fix exactly the two confirmed defects with minimal blast radius, reuse existing established patterns, and were already implemented and RED-then-GREEN verified standalone before this story existed, per the user's explicit instruction to prove RED and GREEN for both before bundling into a story.",
+  "preMortem": [
+    {
+      "scenario": "The clean error-translation catch in transition-orchestrator.ts accidentally swallows a genuinely different StoryArtifactMissingError (e.g. a real typo'd story id), masking it as a false 'concurrent DONE' explanation",
+      "trigger": "A caller passes an invalid or non-existent storyId while the invocation's own ctx.root also happens to not exist for an unrelated reason",
+      "consequence": "A user gets a misleading 'concurrent DONE already completed' message for what is actually a simple invalid-story-id error",
+      "mitigation": "The catch checks BOTH conditions together (StoryArtifactMissingError AND !existsSync(ctx.root)) -- ctx.root not existing on disk is specific to the worktree-deleted-by-DONE scenario; an invalid story id with a normally-existing root would not match and would rethrow the original error unchanged"
+    },
+    {
+      "scenario": "The stable-root transition lock introduces a new deadlock or starvation pattern not present before",
+      "trigger": "Many concurrent story_advance calls for the same story pile up waiting on the main-repo-rooted lock instead of the worktree-rooted one",
+      "consequence": "Legitimate non-racing callers experience longer waits or timeouts they did not before",
+      "mitigation": "acquireStoryTransitionLock is a bounded-wait mkdir-based lock already used elsewhere in the same ordering (transitionLock before doneMainMergeLock); only the ROOT changed, not the lock semantics, and the worktree-authority-smoke.js test explicitly exercises and passes the concurrent-DONE scenario end-to-end after the change"
+    },
+    {
+      "scenario": "The channel-lane rejection assertion or the RP-004 lane swap accidentally breaks a different, still-passing part of field-regression-cli-smoke.ts",
+      "trigger": "The cascade of five dependent fixes (readManifest, wording match, dev_memory_finish_decision, reviewRunId binding, 3-lane quorum) interacts badly with an untouched part of the same large test file",
+      "consequence": "The smoke test file regresses somewhere else even though the specific channel-lane assertions now pass",
+      "mitigation": "The full file was re-run end-to-end after all cascade fixes landed and confirmed '✓ field regression CLI smoke passed' with zero errors, not just the specific modified assertions in isolation"
+    },
+    {
+      "scenario": "The two new RED scripts silently stop proving anything after a future unrelated change, giving false confidence",
+      "trigger": "A later refactor changes the error message wording or the lane-rejection message text that the RED scripts pattern-match against",
+      "consequence": "The RED scripts would report GREEN (defect gone) even if a regression reintroduced the original bug in a differently-worded form",
+      "mitigation": "Both RED scripts are registered in red-b49d4-harness-registration.mjs's REGISTRATION_EXCLUSIONS with an explicit reason, keeping them visible to the meta-guard rather than silently orphaned; they were also manually confirmed to correctly flip from failing (RED, pre-fix) to failing-their-own-assertion (GREEN, post-fix) during this story's own investigation"
+    }
+  ],
+  "timestamp": "2026-08-16T11:45:57.503Z"
+}

@@ -136,7 +136,7 @@ export interface ParallelWaveAuthorityBoundary {
   notes: string[];
 }
 
-export interface LatticeParallelWave {
+export interface ProofOrStopParallelWave {
   schemaVersion: typeof PARALLEL_WAVE_SCHEMA_VERSION;
   waveId: string;
   generatedAt: string;
@@ -147,7 +147,7 @@ export interface LatticeParallelWave {
   authority: ParallelWaveAuthorityBoundary;
 }
 
-export interface LatticeParallelWaveInspection extends Omit<LatticeParallelWave, 'schemaVersion' | 'generatedAt'> {
+export interface LatticeParallelWaveInspection extends Omit<ProofOrStopParallelWave, 'schemaVersion' | 'generatedAt'> {
   schemaVersion: typeof PARALLEL_WAVE_INSPECT_SCHEMA_VERSION;
   waveSchemaVersion: typeof PARALLEL_WAVE_SCHEMA_VERSION;
   inspectedAt: string;
@@ -161,7 +161,7 @@ export interface LatticeParallelWaveInspection extends Omit<LatticeParallelWave,
   };
 }
 
-export interface LatticeParallelPlan extends Omit<LatticeParallelWave, 'schemaVersion' | 'generatedAt'> {
+export interface LatticeParallelPlan extends Omit<ProofOrStopParallelWave, 'schemaVersion' | 'generatedAt'> {
   schemaVersion: typeof PARALLEL_PLAN_SCHEMA_VERSION;
   waveSchemaVersion: typeof PARALLEL_WAVE_SCHEMA_VERSION;
   plannedAt: string;
@@ -578,7 +578,7 @@ function experienceRefs(options: ParallelWaveProjectionOptions = {}): ParallelWa
   }).map(experienceRef);
 }
 
-function waveCounts(wave: Pick<LatticeParallelWave, 'storyRefs'>): ParallelWaveCounts {
+function waveCounts(wave: Pick<ProofOrStopParallelWave, 'storyRefs'>): ParallelWaveCounts {
   return {
     storyCount: wave.storyRefs.length,
     candidateCount: wave.storyRefs.filter(ref => ref.recommendation === 'parallel_dev').length,
@@ -627,12 +627,12 @@ function dispatchAgentRole(recommendation: ParallelWaveRecommendation): Parallel
 
 function dispatchNextCommand(ref: ParallelWaveStoryRef): string {
   if (ref.recommendation === 'parallel_dev') {
-    return `lattice dispatch --storyId=${ref.storyId} --itemId=<CHK-id> --agentType=lattice-implementer`;
+    return `proof-or-stop dispatch --storyId=${ref.storyId} --itemId=<CHK-id> --agentType=lattice-implementer`;
   }
   if (ref.recommendation === 'plan_only') {
-    return `lattice parallel_plan --storyIds='["${ref.storyId}"]'`;
+    return `proof-or-stop parallel_plan --storyIds='["${ref.storyId}"]'`;
   }
-  return `lattice parallel_status --storyIds='["${ref.storyId}"]'`;
+  return `proof-or-stop parallel_status --storyIds='["${ref.storyId}"]'`;
 }
 
 function dispatchEntry(ref: ParallelWaveStoryRef, refs: ParallelWaveExperienceRef[]): ParallelDispatchEntry {
@@ -655,7 +655,7 @@ function dispatchEntry(ref: ParallelWaveStoryRef, refs: ParallelWaveExperienceRe
   };
 }
 
-function mergeGuidance(wave: LatticeParallelWave): ParallelWaveMergeGuidance {
+function mergeGuidance(wave: ProofOrStopParallelWave): ParallelWaveMergeGuidance {
   const refsById = new Map(wave.storyRefs.map(ref => [ref.storyId, ref]));
   const ready: ParallelMergeGuidanceReady[] = [];
   const blocked: ParallelMergeGuidanceBlocked[] = [];
@@ -678,7 +678,7 @@ function mergeGuidance(wave: LatticeParallelWave): ParallelWaveMergeGuidance {
       storyId: ref.storyId,
       title: ref.title,
       guidance: ref.recommendation === 'parallel_dev'
-        ? 'Ready for operator-confirmed implementer dispatch; normal Proofbound review, test, merge, and receipt gates still apply.'
+        ? 'Ready for operator-confirmed implementer dispatch; normal Proof-or-Stop review, test, merge, and receipt gates still apply.'
         : blockers.length > 0
           ? `Ready for planning-only handoff; resolve scheduling risks before simultaneous DEV or merge: ${blockers.join('; ')}.`
           : 'Ready for planning-only handoff; avoid simultaneous DEV until hotspot or capability degradations clear.',
@@ -1140,7 +1140,7 @@ export function createParallelWave(
   store: StoryStore,
   root: string,
   args: { storyIds?: string[]; hosts?: string[]; waveId?: string } = {},
-): LatticeParallelWave {
+): ProofOrStopParallelWave {
   const selectedStories = selectStories(store, args.storyIds);
   const allStories = allKnownStories(store);
   const waveIds = new Set(selectedStories.map(story => story.storyId));
@@ -1190,8 +1190,8 @@ function nonAuthorityBoundary(authority?: Partial<ParallelWaveAuthorityBoundary>
   };
 }
 
-export function readParallelWave(file: string): LatticeParallelWave {
-  const parsed = JSON.parse(readFileSync(file, 'utf8')) as LatticeParallelWave;
+export function readParallelWave(file: string): ProofOrStopParallelWave {
+  const parsed = JSON.parse(readFileSync(file, 'utf8')) as ProofOrStopParallelWave;
   if (parsed.schemaVersion !== PARALLEL_WAVE_SCHEMA_VERSION) {
     throw new Error(`parallel_wave_inspect expected schemaVersion ${PARALLEL_WAVE_SCHEMA_VERSION}, got ${String((parsed as { schemaVersion?: unknown }).schemaVersion)}`);
   }
@@ -1205,7 +1205,7 @@ export function readParallelWave(file: string): LatticeParallelWave {
   };
 }
 
-export function inspectParallelWave(wave: LatticeParallelWave): LatticeParallelWaveInspection {
+export function inspectParallelWave(wave: ProofOrStopParallelWave): LatticeParallelWaveInspection {
   const blockedCount = wave.storyRefs.filter(ref => ref.safety === 'no').length;
   const planOnlyCount = wave.storyRefs.filter(ref => ref.safety === 'plan_only' || ref.recommendation === 'plan_only').length;
   return {
@@ -1232,7 +1232,7 @@ export function inspectParallelWave(wave: LatticeParallelWave): LatticeParallelW
   };
 }
 
-export function buildParallelPlan(wave: LatticeParallelWave): LatticeParallelPlan {
+export function buildParallelPlan(wave: ProofOrStopParallelWave): LatticeParallelPlan {
   const parallelDevCandidates = wave.storyRefs
     .filter(ref => ref.parallelDevRecommended)
     .map(ref => ref.storyId)
@@ -1269,13 +1269,13 @@ export function buildParallelPlan(wave: LatticeParallelWave): LatticeParallelPla
       blockedStories.length > 0
         ? `Resolve active dependencies or explicit blockers before DEV: ${blockedStories.join(', ')}.`
         : 'No dependency-blocked stories in this wave.',
-      'Rerun normal Proofbound validation and require verified receipts before claiming release readiness.',
+      'Rerun normal Proof-or-Stop validation and require verified receipts before claiming release readiness.',
     ],
   };
 }
 
 export function buildParallelDispatch(
-  wave: LatticeParallelWave,
+  wave: ProofOrStopParallelWave,
   options: ParallelWaveProjectionOptions = {},
 ): LatticeParallelDispatch {
   const refs = experienceRefs(options);
@@ -1295,7 +1295,7 @@ export function buildParallelDispatch(
   };
 }
 
-export function buildParallelStatus(wave: LatticeParallelWave): LatticeParallelStatus {
+export function buildParallelStatus(wave: ProofOrStopParallelWave): LatticeParallelStatus {
   return {
     schemaVersion: PARALLEL_STATUS_SCHEMA_VERSION,
     waveSchemaVersion: PARALLEL_WAVE_SCHEMA_VERSION,
@@ -1323,7 +1323,7 @@ export function buildParallelStatus(wave: LatticeParallelWave): LatticeParallelS
   };
 }
 
-export function buildParallelMergeQueue(wave: LatticeParallelWave): LatticeParallelMergeQueue {
+export function buildParallelMergeQueue(wave: ProofOrStopParallelWave): LatticeParallelMergeQueue {
   const refsById = new Map(wave.storyRefs.map(ref => [ref.storyId, ref]));
   const entries = wave.mergeOrder.flatMap(entry => {
     const ref = refsById.get(entry.storyId);
@@ -1343,7 +1343,7 @@ export function buildParallelMergeQueue(wave: LatticeParallelWave): LatticeParal
 }
 
 export function buildParallelReport(
-  wave: LatticeParallelWave,
+  wave: ProofOrStopParallelWave,
   options: ParallelWaveProjectionOptions = {},
 ): LatticeParallelReport {
   const refs = experienceRefs(options);
@@ -1386,3 +1386,12 @@ export function buildParallelReport(
     authority: nonAuthorityBoundary(wave.authority),
   };
 }
+
+/*
+ * Deprecated brand aliases (B-cdf6 CHK-006).
+ *
+ * Durable, not transitional: this repository is multi-developer, so a teammate
+ * branch importing the old symbol must keep compiling when it merges. Never remove.
+ */
+/** @deprecated Use `ProofOrStopParallelWave`. */
+export type LatticeParallelWave = ProofOrStopParallelWave;

@@ -1,0 +1,82 @@
+{
+  "principles": [
+    "只自动化 lifecycle 与 command policy 能共同证明安全的窄分支。",
+    "所有权、持久化授权与 operational counter 必须可恢复且单赢家。",
+    "歧义状态和代码写入阶段宁可要求显式 takeover。"
+  ],
+  "drivers": [
+    "解决用户在 TEST 的同 worktree stale context switch。",
+    "防止 DEV 旧 agent 直接写代码与新 owner 并行。",
+    "防止 dangerousMutating 和 agent_prompt 静默取得 ownership。",
+    "保持 convergence-breaker 只有一个 takeover counter 真相源。"
+  ],
+  "options": [
+    {
+      "name": "A: Phase-and-class bounded transactional handoff",
+      "pros": [
+        "精确覆盖用户的 TEST blocker",
+        "利用 lifecycle 禁止 source write 的阶段边界",
+        "可让 process-event audit 与 counter crash-recover"
+      ],
+      "cons": [
+        "DEV 与 dangerous 命令仍需显式 takeover",
+        "需扩展 convergence counter 为 transferId 幂等"
+      ]
+    },
+    {
+      "name": "B: All-phase automatic handoff with a worktree write fence",
+      "pros": [
+        "可覆盖 DEV"
+      ],
+      "cons": [
+        "需要拦截直接文件和 git 写入",
+        "超出当前 owner-lease CLI 架构且跨 host tooling"
+      ]
+    },
+    {
+      "name": "C: Stable host-session liveness adapter",
+      "pros": [
+        "可检测长期 session"
+      ],
+      "cons": [
+        "需要 Codex Claude agy adapter 协议",
+        "仍不能阻止 host session 绕过 Lattice 直接写文件"
+      ]
+    }
+  ],
+  "chosen": "A: Phase-and-class bounded transactional handoff",
+  "rationale": "A 直接解决 B-d0b8 在 TEST 的 stale owner 阻塞，并用 PLAN/REVIEW/TEST 不允许写源码这一现有硬边界排除旧 agent 直接代码写冲突。storyScopedMutating 限制排除 dangerous 命令；agent_prompt 保持 manual-only。required process-event authorization、pending transferId 和唯一 takeover counter 组成可恢复事务，不需要虚构 host-session death oracle。",
+  "preMortem": [
+    {
+      "scenario": "DEV 旧 agent 与新 owner 同时写源码",
+      "trigger": "自动条件遗漏 phase 检查",
+      "consequence": "worktree 源码和 git index 冲突",
+      "mitigation": "auto allowlist 仅 PLAN REVIEW TEST；真实 DEV 子进程必须拒绝，mutation control 删除 phase check 后测试失败"
+    },
+    {
+      "scenario": "dangerous command 静默取得 owner",
+      "trigger": "统一 gate 对 dangerousMutating 复用 auto 分支",
+      "consequence": "discard recover 或 destructive test 无人工意图执行",
+      "mitigation": "auto 条件精确 ownershipClass=storyScopedMutating；dangerous 只保留显式 takeover"
+    },
+    {
+      "scenario": "lease 已转移但 counter 未记账",
+      "trigger": "进程在 atomic lease rename 后崩溃",
+      "consequence": "convergence breaker 少计或命令在半完成事务上继续",
+      "mitigation": "lease pending transferId；下一 acquire refresh release 先幂等 reconcile takeover-count，失败则不继续"
+    },
+    {
+      "scenario": "audit 写失败仍发生转移",
+      "trigger": "process-event append 被当 best-effort",
+      "consequence": "自动 handoff 无 durable 解释",
+      "mitigation": "unified gate 先 required append authorization event，失败不写 lease"
+    },
+    {
+      "scenario": "agent_prompt 绕过统一 auto eligibility",
+      "trigger": "public direct acquire path 获得自动逻辑",
+      "consequence": "dispatch 在 DEV 或外部路径静默接管",
+      "mitigation": "auto 只存在 ownership-gate；agent_prompt 仅调用 transactional acquireOrRefresh，foreign 继续 formatNonOwnerError"
+    }
+  ],
+  "timestamp": "2026-08-16T12:07:03.200Z"
+}

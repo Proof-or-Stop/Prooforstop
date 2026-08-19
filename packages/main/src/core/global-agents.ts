@@ -1,5 +1,5 @@
 /**
- * global-agents.ts — host-neutral thin-shim materialization of Proofbound agent
+ * global-agents.ts — host-neutral thin-shim materialization of Proof-or-Stop agent
  * adapters into the user-global `~/.claude/agents` directory (B-097f).
  *
  * Contract source of truth:
@@ -13,8 +13,8 @@
  *   (`promptRegistryManifest()` / templates/agents). Each Claude role keeps only a
  *   *thin shim* file: the registry template's frontmatter (name/description/tools,
  *   plus model if present) followed by a standard imperative body that tells the
- *   agent to fetch its authoritative instructions from the Proofbound CLI via
- *   `lattice agent_prompt --role=<name>`. The six modular REVIEW roles instead
+ *   agent to fetch its authoritative instructions from the Proof-or-Stop via
+ *   `proof-or-stop agent_prompt --role=<name>`. The five modular REVIEW roles instead
  *   use the canonical `review_run_start` bootstrap so the host receives exactly
  *   one mode-selected role body. Every shim contains NO role body.
  *
@@ -155,13 +155,13 @@ export function listManagedAgentBasenames(
  */
 /**
  * Build the standard imperative shim body. The body intentionally contains NO
- * role prompt content — it points the agent at the Proofbound CLI single source of
+ * role prompt content — it points the agent at the Proof-or-Stop single source of
  * truth. The role name is interpolated so the agent can copy/paste the command.
  */
 export function buildShimBody(role: string): string {
   return [
-    'Your authoritative instructions are served by the Proofbound CLI (single source of truth).',
-    `FIRST run: \`lattice agent_prompt --role=${role}\` and follow the returned prompt exactly.`,
+    'Your authoritative instructions are served by the Proof-or-Stop (single source of truth).',
+    `FIRST run: \`proof-or-stop agent_prompt --role=${role}\` and follow the returned prompt exactly.`,
     'This file is a thin pointer and intentionally contains no role body.',
   ].join('\n');
 }
@@ -205,8 +205,8 @@ export function syncGlobalAgents(opts: SyncGlobalAgentsOptions = {}): SyncGlobal
 
   if (!deps.existsSync(templateDir)) {
     throw new Error(
-      `Proofbound agent template dir not found: ${templateDir}. ` +
-        `The running CLI package is missing templates/agents; reinstall or rebuild the Proofbound CLI.`,
+      `Proof-or-Stop agent template dir not found: ${templateDir}. ` +
+        `The running CLI package is missing templates/agents; reinstall or rebuild the Proof-or-Stop.`,
     );
   }
 
@@ -217,7 +217,7 @@ export function syncGlobalAgents(opts: SyncGlobalAgentsOptions = {}): SyncGlobal
     const reason = err instanceof Error ? err.message : String(err);
     throw new Error(
       `Cannot create global agents dir ${globalDir}: ${reason}. ` +
-        `Proofbound resolves all agent prompts from this user-global directory and will not fall back ` +
+        `Proof-or-Stop resolves all agent prompts from this user-global directory and will not fall back ` +
         `to per-project copies. Fix permissions (e.g. ensure $HOME/.claude is writable) and re-run.`,
     );
   }
@@ -235,7 +235,7 @@ export function syncGlobalAgents(opts: SyncGlobalAgentsOptions = {}): SyncGlobal
       raw = deps.readFileSync(templatePath, 'utf8');
     } catch (err) {
       const reason = err instanceof Error ? err.message : String(err);
-      throw new Error(`Cannot read Proofbound agent template ${templatePath}: ${reason}.`);
+      throw new Error(`Cannot read Proof-or-Stop agent template ${templatePath}: ${reason}.`);
     }
     const { frontmatter, name } = extractTemplateFrontmatter(raw, file);
     // Shim filename follows the role name so Claude resolves subagent_type:<name>.
@@ -281,7 +281,7 @@ export function syncGlobalAgents(opts: SyncGlobalAgentsOptions = {}): SyncGlobal
         const reason = err instanceof Error ? err.message : String(err);
         throw new Error(
           `Cannot replace stale global agent file ${shimPath}: ${reason}. ` +
-            `Remove it manually so Proofbound can regenerate the managed thin-shim.`,
+            `Remove it manually so Proof-or-Stop can regenerate the managed thin-shim.`,
         );
       }
       try {
@@ -301,7 +301,7 @@ export function syncGlobalAgents(opts: SyncGlobalAgentsOptions = {}): SyncGlobal
       const reason = err instanceof Error ? err.message : String(err);
       throw new Error(
         `Cannot write global agent thin-shim ${shimPath}: ${reason}. ` +
-          `Proofbound resolves agent prompts from the user-global ${globalDir}; fix permissions and re-run.`,
+          `Proof-or-Stop resolves agent prompts from the user-global ${globalDir}; fix permissions and re-run.`,
       );
     }
     synced += 1;

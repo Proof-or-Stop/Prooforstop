@@ -20,17 +20,17 @@ export function listAgentPromptFiles(agentDir: string): string[] {
 export const AGENTS_MD_TEMPLATE = `# AGENTS.md
 
 <!-- lattice:start -->
-## Proofbound
+## Proof-or-Stop
 
-- \`LATTICE.md\` is the host-neutral Proofbound guide; this file keeps only Codex / AGENTS additions.
-- At the start of a new session, or when resuming interrupted work, run \`node bin/lattice.js session_brief\`.
-- Before acting, run \`node bin/lattice.js aux_doc_list\` to inspect relevant docs; if the current global core-only environment lacks aux commands, fall back to the local bootstrap or shell search.
-- Prefer \`node bin/lattice.js\` (or global \`lattice\`) for Story / checklist / fixture / bug operations. Do not edit story/fixture JSON directly.
-- Parallel Proofbound work is local-only: use local git worktrees/local branches, finish by merging to local \`main\` and cleaning the worktree. Remote publish is default-denied; a human must run \`lattice release_approve_push --confirm\` for a short-lived one-shot approval before any \`git push origin main\`.
-- Codex subagent prompts use the Proofbound adapter: full asset mode materializes \`.lattice-codex/agents\`, while thin asset mode resolves prompts from the package registry. Claude Code-only assets are generated only when the Claude profile is enabled.
-- After changing the Codex adapter, \`.lattice-codex\`, or \`bin/lattice-codex.js\`, run \`node bin/lattice-codex.js verify_codex\` so REVIEW/DONE gates can consume hard evidence.
-- For Codex adapter diagnostics, run \`node bin/lattice-codex.js doctor\`.
-- Run \`node bin/lattice.js check\` to check Proofbound managed asset/template drift; after review, use \`node bin/lattice.js check --apply\` or \`node bin/lattice.js check --upgrade\` to sync safe items.
+- \`LATTICE.md\` is the host-neutral Proof-or-Stop guide; this file keeps only Codex / AGENTS additions.
+- At the start of a new session, or when resuming interrupted work, run \`node bin/proof-or-stop.js session_brief\`.
+- Before acting, run \`node bin/proof-or-stop.js aux_doc_list\` to inspect relevant docs; if the current global core-only environment lacks aux commands, fall back to the local bootstrap or shell search.
+- Prefer \`node bin/proof-or-stop.js\` (or global \`proof-or-stop\`) for Story / checklist / fixture / bug operations. Do not edit story/fixture JSON directly.
+- Parallel Proof-or-Stop work is local-only: use local git worktrees/local branches, finish by merging to local \`main\` and cleaning the worktree. Remote publish is default-denied; a human must run \`proof-or-stop release_approve_push --confirm\` for a short-lived one-shot approval before any \`git push origin main\`.
+- Codex subagent prompts use the Proof-or-Stop adapter: full asset mode materializes \`.lattice-codex/agents\`, while thin asset mode resolves prompts from the package registry. Claude Code-only assets are generated only when the Claude profile is enabled.
+- After changing the Codex adapter, \`.lattice-codex\`, or \`bin/proof-or-stop-codex.js\`, run \`node bin/proof-or-stop-codex.js verify_codex\` so REVIEW/DONE gates can consume hard evidence.
+- For Codex adapter diagnostics, run \`node bin/proof-or-stop-codex.js doctor\`.
+- Run \`node bin/proof-or-stop.js check\` to check Proof-or-Stop managed asset/template drift; after review, use \`node bin/proof-or-stop.js check --apply\` or \`node bin/proof-or-stop.js check --upgrade\` to sync safe items.
 
 <!-- lattice:end -->
 `;
@@ -38,19 +38,19 @@ export const AGENTS_MD_TEMPLATE = `# AGENTS.md
 export const LATTICE_MD_TEMPLATE = `# LATTICE.md
 
 <!-- lattice:start -->
-## Proofbound
+## Proof-or-Stop
 
-\`LATTICE.md\` is the canonical, host-neutral Proofbound guide. New init profiles create or sync this file.
+\`LATTICE.md\` is the canonical, host-neutral Proof-or-Stop guide. New init profiles create or sync this file.
 
-- At the start of a new session, or when resuming interrupted work, run \`node bin/lattice.js session_brief\`.
-- Before acting, run \`node bin/lattice.js aux_doc_list\` to inspect relevant docs; if the current global core-only environment lacks aux commands, fall back to the local bootstrap or shell search.
-- Prefer \`node bin/lattice.js\` (or global \`lattice\`) for Story / checklist / fixture / bug operations. Do not edit story/fixture JSON directly.
-- Parallel Proofbound work is local-only: use local git worktrees/local branches, finish by merging to local \`main\` and cleaning the worktree. Remote publish is default-denied; a human must run \`lattice release_approve_push --confirm\` for a short-lived one-shot approval before any \`git push origin main\`.
-- The default local entrypoint is \`node bin/lattice.js\`; if the profile generated a Codex adapter, also use \`node bin/lattice-codex.js\`.
+- At the start of a new session, or when resuming interrupted work, run \`node bin/proof-or-stop.js session_brief\`.
+- Before acting, run \`node bin/proof-or-stop.js aux_doc_list\` to inspect relevant docs; if the current global core-only environment lacks aux commands, fall back to the local bootstrap or shell search.
+- Prefer \`node bin/proof-or-stop.js\` (or global \`proof-or-stop\`) for Story / checklist / fixture / bug operations. Do not edit story/fixture JSON directly.
+- Parallel Proof-or-Stop work is local-only: use local git worktrees/local branches, finish by merging to local \`main\` and cleaning the worktree. Remote publish is default-denied; a human must run \`proof-or-stop release_approve_push --confirm\` for a short-lived one-shot approval before any \`git push origin main\`.
+- The default local entrypoint is \`node bin/proof-or-stop.js\`; if the profile generated a Codex adapter, also use \`node bin/proof-or-stop-codex.js\`.
 - Codex-specific notes live in \`AGENTS.md\` and \`.lattice-codex/README.md\`; Claude-specific notes live in \`CLAUDE.md\` and \`.claude/\`.
-- After changing Proofbound adapter assets, run the corresponding verification: project validation uses \`node bin/lattice.js validate\`, and the Codex adapter additionally uses \`node bin/lattice-codex.js verify_codex\`.
-- \`node bin/lattice.js check\` checks Proofbound managed assets against the hardcoded registry. \`node bin/lattice.js check --apply\` / \`node bin/lattice.js check --upgrade\` sync only MISSING/STALE_SAFE items and do not overwrite CASE_MISMATCH, local edits, or incompatible files.
-- Legacy project documents may still mention old project names, but active runtime assets generated by init use Proofbound entrypoints only.
+- After changing Proof-or-Stop adapter assets, run the corresponding verification: project validation uses \`node bin/proof-or-stop.js validate\`, and the Codex adapter additionally uses \`node bin/proof-or-stop-codex.js verify_codex\`.
+- \`node bin/proof-or-stop.js check\` checks Proof-or-Stop managed assets against the hardcoded registry. \`node bin/proof-or-stop.js check --apply\` / \`node bin/proof-or-stop.js check --upgrade\` sync only MISSING/STALE_SAFE items and do not overwrite CASE_MISMATCH, local edits, or incompatible files.
+- Legacy project documents may still mention old project names, but active runtime assets generated by init use Proof-or-Stop entrypoints only.
 
 <!-- lattice:end -->
 `;
@@ -58,15 +58,15 @@ export const LATTICE_MD_TEMPLATE = `# LATTICE.md
 export const CLAUDE_MD_TEMPLATE = `# CLAUDE.md
 
 <!-- lattice:start -->
-## Proofbound For Claude Code
+## Proof-or-Stop For Claude Code
 
-- \`LATTICE.md\` is the canonical, host-neutral Proofbound guide; Story lifecycle facts and shared rules derive from it.
-- Claude Code entrypoints should first run \`node bin/lattice.js session_brief\`; daily operations should use \`node bin/lattice.js\` or global \`lattice\`.
-- Parallel Proofbound work is local-only: use local git worktrees/local branches, finish by merging to local \`main\` and cleaning the worktree. Remote publish is default-denied; a human must run \`lattice release_approve_push --confirm\` for a short-lived one-shot approval before any \`git push origin main\`.
+- \`LATTICE.md\` is the canonical, host-neutral Proof-or-Stop guide; Story lifecycle facts and shared rules derive from it.
+- Claude Code entrypoints should first run \`node bin/proof-or-stop.js session_brief\`; daily operations should use \`node bin/proof-or-stop.js\` or global \`proof-or-stop\`.
+- Parallel Proof-or-Stop work is local-only: use local git worktrees/local branches, finish by merging to local \`main\` and cleaning the worktree. Remote publish is default-denied; a human must run \`proof-or-stop release_approve_push --confirm\` for a short-lived one-shot approval before any \`git push origin main\`.
 - Claude Code subagents live in \`.claude/agents\`.
 - Claude Code hooks live in \`.claude/hooks\`, and Claude settings live in \`.claude/settings.json\`.
 - When the repository also enables the Codex profile, Codex assets live separately under \`.lattice-codex/\`; do not treat this file as a shared truth source for both hosts.
-- Run \`node bin/lattice.js check\` to check Proofbound managed asset/template drift; after review, use \`node bin/lattice.js check --apply\` or \`node bin/lattice.js check --upgrade\` to sync safe items.
+- Run \`node bin/proof-or-stop.js check\` to check Proof-or-Stop managed asset/template drift; after review, use \`node bin/proof-or-stop.js check --apply\` or \`node bin/proof-or-stop.js check --upgrade\` to sync safe items.
 
 <!-- lattice:end -->
 `;
@@ -79,17 +79,17 @@ export const CLAUDE_MD_TEMPLATE = `# CLAUDE.md
 export const LATTICE_DOT_DIR_MD_TEMPLATE = `# Lattice.md
 
 <!-- lattice:start -->
-## Proofbound
+## Proof-or-Stop
 
-\`.lattice/Lattice.md\` is the canonical, host-neutral Proofbound project guide. This directory holds project-local Proofbound context and configuration.
+\`.lattice/Lattice.md\` is the canonical, host-neutral Proof-or-Stop project guide. This directory holds project-local Proof-or-Stop context and configuration.
 
-- At the start of a new session, or when resuming interrupted work, run \`lattice session_brief\`.
-- Before acting, run \`lattice aux_doc_list\` to inspect relevant docs.
-- Use the global \`lattice\` CLI for Story / checklist / fixture / bug operations. Do not edit story/fixture JSON directly.
-- Parallel Proofbound work is local-only: use local git worktrees/local branches, finish by merging to local \`main\` and cleaning the worktree. Remote publish is default-denied; a human must run \`lattice release_approve_push --confirm\` for a short-lived one-shot approval before any \`git push origin main\`.
-- Codex adapter verification and diagnostics use the global CLI: \`lattice codex verify\` and \`lattice codex doctor\`.
-- Run \`lattice check\` to check Proofbound managed asset/template drift; after review, use \`lattice check --apply\` to sync safe items.
-- Legacy project documents may still mention old project names, but active runtime assets generated by global-thin init use Proofbound entrypoints only.
+- At the start of a new session, or when resuming interrupted work, run \`proof-or-stop session_brief\`.
+- Before acting, run \`proof-or-stop aux_doc_list\` to inspect relevant docs.
+- Use the global \`proof-or-stop\` CLI for Story / checklist / fixture / bug operations. Do not edit story/fixture JSON directly.
+- Parallel Proof-or-Stop work is local-only: use local git worktrees/local branches, finish by merging to local \`main\` and cleaning the worktree. Remote publish is default-denied; a human must run \`proof-or-stop release_approve_push --confirm\` for a short-lived one-shot approval before any \`git push origin main\`.
+- Codex adapter verification and diagnostics use the global CLI: \`proof-or-stop codex verify\` and \`proof-or-stop codex doctor\`.
+- Run \`proof-or-stop check\` to check Proof-or-Stop managed asset/template drift; after review, use \`proof-or-stop check --apply\` to sync safe items.
+- Legacy project documents may still mention old project names, but active runtime assets generated by global-thin init use Proof-or-Stop entrypoints only.
 
 <!-- lattice:end -->
 `;
@@ -97,20 +97,20 @@ export const LATTICE_DOT_DIR_MD_TEMPLATE = `# Lattice.md
 export const AGENTS_MD_GLOBAL_THIN_TEMPLATE = `# AGENTS.md
 
 <!-- lattice:start -->
-## Proofbound
+## Proof-or-Stop
 
-- \`.lattice/Lattice.md\` is the host-neutral Proofbound guide; this file keeps only Codex / AGENTS additions.
-- At the start of a new session, or when resuming interrupted work, run \`lattice session_brief\`.
-- Before acting, run \`lattice aux_doc_list\` to inspect relevant docs.
-- Use the global \`lattice\` CLI for Story / checklist / fixture / bug operations. Do not edit story/fixture JSON directly.
-- Parallel Proofbound work is local-only: use local git worktrees/local branches, finish by merging to local \`main\` and cleaning the worktree. Remote publish is default-denied; a human must run \`lattice release_approve_push --confirm\` for a short-lived one-shot approval before any \`git push origin main\`.
-- Codex adapter verification uses the global CLI: \`lattice codex verify\`. For diagnostics, run \`lattice codex doctor\`.
-- Run \`lattice check\` to check Proofbound managed asset/template drift; after review, use \`lattice check --apply\` to sync safe items.
+- \`.lattice/Lattice.md\` is the host-neutral Proof-or-Stop guide; this file keeps only Codex / AGENTS additions.
+- At the start of a new session, or when resuming interrupted work, run \`proof-or-stop session_brief\`.
+- Before acting, run \`proof-or-stop aux_doc_list\` to inspect relevant docs.
+- Use the global \`proof-or-stop\` CLI for Story / checklist / fixture / bug operations. Do not edit story/fixture JSON directly.
+- Parallel Proof-or-Stop work is local-only: use local git worktrees/local branches, finish by merging to local \`main\` and cleaning the worktree. Remote publish is default-denied; a human must run \`proof-or-stop release_approve_push --confirm\` for a short-lived one-shot approval before any \`git push origin main\`.
+- Codex adapter verification uses the global CLI: \`proof-or-stop codex verify\`. For diagnostics, run \`proof-or-stop codex doctor\`.
+- Run \`proof-or-stop check\` to check Proof-or-Stop managed asset/template drift; after review, use \`proof-or-stop check --apply\` to sync safe items.
 
 <!-- lattice:end -->
 `;
 
-export interface LatticeProjectConfig {
+export interface ProofOrStopProjectConfig {
   latticeVersion: 1;
   assetMode: 'global-thin';
   description: string;
@@ -121,9 +121,9 @@ export function renderLatticeProjectConfig(): string {
   return JSON.stringify({
     latticeVersion: 1,
     assetMode: 'global-thin',
-    description: 'Global-thin Proofbound project: executable Codex adapter behavior lives in the global lattice CLI; no local bin shims required.',
+    description: 'Global-thin Proof-or-Stop project: executable Codex adapter behavior lives in the global lattice CLI; no local bin shims required.',
     generatedAt: new Date().toISOString(),
-  } satisfies LatticeProjectConfig, null, 2) + '\n';
+  } satisfies ProofOrStopProjectConfig, null, 2) + '\n';
 }
 
 export interface CodexAdapterManifest {
@@ -152,12 +152,12 @@ export const LATTICE_CODEX_ADAPTER_MANIFEST: CodexAdapterManifest = {
   recommendedEntrypoints: [
     {
       name: 'local-wrapper',
-      command: 'node bin/lattice-codex.js',
-      useWhen: 'This repository includes the Proofbound bootstrap wrapper.',
+      command: 'node bin/proof-or-stop-codex.js',
+      useWhen: 'This repository includes the Proof-or-Stop bootstrap wrapper. The deprecated bin/lattice-codex.js alias is retained and still works.',
     },
     {
       name: 'global-fallback',
-      command: 'LATTICE_ACTIVITY_SOURCE=codex LATTICE_ACTIVITY_RECORD_READONLY=1 LATTICE_CODEX_ENTRYPOINT=global-fallback lattice',
+      command: 'LATTICE_ACTIVITY_SOURCE=codex LATTICE_ACTIVITY_RECORD_READONLY=1 LATTICE_CODEX_ENTRYPOINT=global-fallback proof-or-stop',
       useWhen: 'Only the global lattice CLI is available for read-only heartbeats; do not use it as current-worktree gate/status evidence when a local wrapper or core CLI exists.',
     },
   ],
@@ -176,12 +176,12 @@ export const LATTICE_CODEX_ADAPTER_MANIFEST: CodexAdapterManifest = {
     '.lattice-codex/settings.json',
   ],
   notes: [
-    'This file is read by Proofbound tooling, not by the Codex runtime.',
+    'This file is read by Proof-or-Stop tooling, not by the Codex runtime.',
     'Codex agent prompts live in .lattice-codex/agents and are generated from .claude/agents in full asset mode.',
     'Codex native hooks are official lowercase .codex assets; case-insensitive file systems may project them through the same .lattice-codex directory entry.',
     'Claude Code hooks, settings, and skills remain under .claude only.',
-    'Run node bin/lattice-codex.js verify_codex after changing Codex adapter assets; it records codex_adapter_verification evidence for gates.',
-    'Legacy project documents may remain archived, but active Codex adapter assets use .lattice-codex/lattice.json and bin/lattice-codex.js.',
+    'Run node bin/proof-or-stop-codex.js verify_codex after changing Codex adapter assets; it records codex_adapter_verification evidence for gates.',
+    'Legacy project documents may remain archived, but active Codex adapter assets use .lattice-codex/lattice.json and bin/proof-or-stop-codex.js (the bin/lattice-codex.js alias is deprecated but retained).',
   ],
 } as const;
 
@@ -191,10 +191,10 @@ export interface RenderCodexAdapterManifestOptions {
 }
 
 export function renderCodexAdapterManifest(options: RenderCodexAdapterManifestOptions = {}): string {
-  return renderLatticeCodexAdapterManifest(options);
+  return renderProofOrStopCodexAdapterManifest(options);
 }
 
-export function renderLatticeCodexAdapterManifest(options: RenderCodexAdapterManifestOptions = {}): string {
+export function renderProofOrStopCodexAdapterManifest(options: RenderCodexAdapterManifestOptions = {}): string {
   if (options.promptMode !== 'registry') {
     return `${JSON.stringify(LATTICE_CODEX_ADAPTER_MANIFEST, null, 2)}\n`;
   }
@@ -210,25 +210,25 @@ export function renderLatticeCodexAdapterManifest(options: RenderCodexAdapterMan
   }, null, 2)}\n`;
 }
 
-const CODEX_README_LATTICE_TEMPLATE = `# Codex + Proofbound
+const CODEX_README_LATTICE_TEMPLATE = `# Codex + Proof-or-Stop
 
 优先做法：
 
 \`\`\`bash
-node bin/lattice-codex.js session_brief
-node bin/lattice-codex.js aux_doc_list --format=json
+node bin/proof-or-stop-codex.js session_brief
+node bin/proof-or-stop-codex.js aux_doc_list --format=json
 \`\`\`
 
 原因：
 
-- \`node bin/lattice-codex.js\` 是仓库内 Codex 首选入口，会加载本地 bootstrap（main + utils）
+- \`node bin/proof-or-stop-codex.js\` 是仓库内 Codex 首选入口，会加载本地 bootstrap（main + utils）
 - wrapper 会写入 \`.lattice/activity.jsonl\`，并标记 \`source=codex\`
 - wrapper 会为 \`session_brief\` 这类只读恢复命令启用 activity heartbeat
 
 只有当前项目没有本地 wrapper 时，才使用全局 fallback：
 
 \`\`\`bash
-LATTICE_ACTIVITY_SOURCE=codex LATTICE_ACTIVITY_RECORD_READONLY=1 LATTICE_CODEX_ENTRYPOINT=global-fallback lattice session_brief
+LATTICE_ACTIVITY_SOURCE=codex LATTICE_ACTIVITY_RECORD_READONLY=1 LATTICE_CODEX_ENTRYPOINT=global-fallback proof-or-stop session_brief
 \`\`\`
 
 fallback 说明：
@@ -239,23 +239,23 @@ fallback 说明：
 - 全局 \`lattice\` 可能是 core-only，\`aux_*\` 命令不一定可用
 - 全局 \`lattice\` 也可能滞后于当前 worktree；有本地 wrapper 或 \`node packages/main/dist/cli.js\` 时，不要把 fallback 的 \`status\` / \`next\` / \`validate\` 输出当作 gate 证据
 - \`.lattice-codex/agents\` 由 \`.claude/agents\` 的完整 prompt 集合受控生成；Claude hooks/settings/skills 仍只属于 \`.claude\`
-- \`.lattice-codex/lattice.json\` 是 Proofbound 自己读取的 Codex adapter manifest，用来说明推荐入口、session 环境变量和不生成的 runtime 资产
+- \`.lattice-codex/lattice.json\` 是 Proof-or-Stop 自己读取的 Codex adapter manifest，用来说明推荐入口、session 环境变量和不生成的 runtime 资产
 
 建议：
 
-- 新 session 第一条命令跑 \`node bin/lattice-codex.js session_brief\`
+- 新 session 第一条命令跑 \`node bin/proof-or-stop-codex.js session_brief\`
 - 日常所有 story/checklist/fixture/bug 操作尽量保持同一入口
-- 在 Proofbound 仓库自身开发时，若完整 wrapper 暂不可用，用 \`node packages/main/dist/cli.js <command>\` 做当前 worktree 的 status/gate/validate 判断
-- 改动 Codex adapter 资产后运行 \`node bin/lattice-codex.js verify_codex\`（或 \`node bin/lattice.js verify_codex\`）；它会验证 manifest、agent mirror、native hook、wrapper heartbeat、global fallback heartbeat 和 runtime 排除项，并写入 gate 可消费的 process-event evidence
-- 运行 \`lattice check\` 检查 Proofbound 管理资产/模板漂移；确认后用 \`lattice check --apply\` 或 \`lattice check --upgrade\` 同步安全项
-- 初始化脚本可用 \`lattice init --verify-codex\` 做同源资产校验
-- 诊断 Codex adapter 时运行 \`node bin/lattice-codex.js doctor\`，可同时查看共享检查、health 和 worktree 状态
+- 在 Proof-or-Stop 仓库自身开发时，若完整 wrapper 暂不可用，用 \`node packages/main/dist/cli.js <command>\` 做当前 worktree 的 status/gate/validate 判断
+- 改动 Codex adapter 资产后运行 \`node bin/proof-or-stop-codex.js verify_codex\`（或 \`node bin/proof-or-stop.js verify_codex\`）；它会验证 manifest、agent mirror、native hook、wrapper heartbeat、global fallback heartbeat 和 runtime 排除项，并写入 gate 可消费的 process-event evidence
+- 运行 \`proof-or-stop check\` 检查 Proof-or-Stop 管理资产/模板漂移；确认后用 \`proof-or-stop check --apply\` 或 \`proof-or-stop check --upgrade\` 同步安全项
+- 初始化脚本可用 \`proof-or-stop init --verify-codex\` 做同源资产校验
+- 诊断 Codex adapter 时运行 \`node bin/proof-or-stop-codex.js doctor\`，可同时查看共享检查、health 和 worktree 状态
 - 如果 \`aux_*\` 不可用，说明当前是 core-only lattice：优先找本地 bootstrap 入口；没有的话，用 AGENTS.md 规定的 shell 搜索兜底
 
 边界：
 
 - 不创建 \`.lattice-codex/settings.json\`，因为 Codex runtime 不会读取 Claude Code settings
-- Codex 官方 PreToolUse hook 使用小写 \`.codex/hooks.json\` 和 \`.codex/hooks/lattice-scope-pretool.cjs\`，由 Proofbound init/check 管理；大小写不敏感文件系统上可能显示为 \`.lattice-codex/hooks\` alias
+- Codex 官方 PreToolUse hook 使用小写 \`.codex/hooks.json\` 和 \`.codex/hooks/lattice-scope-pretool.cjs\`，由 Proof-or-Stop init/check 管理；大小写不敏感文件系统上可能显示为 \`.lattice-codex/hooks\` alias
 - 需要观测 Codex 活动时，使用 \`.lattice-codex/lattice.json\` 记录的 wrapper 或带 \`LATTICE_ACTIVITY_RECORD_READONLY=1\` 的 fallback
 `;
 
@@ -264,8 +264,8 @@ const CODEX_README_THIN_APPENDIX = `
 
 This repository uses registry-backed Codex prompts:
 
-- \`.lattice-codex/lattice.json\` records \`promptMode=registry\` and the package prompt registry hash. The six migrated reviewers resolve to a body-free \`review_run_start\` bootstrap; the command returns the single selected role body.
-- \`.lattice-codex/agents\` prompt copies are not required for Proofbound adapter verification in this mode.
+- \`.lattice-codex/lattice.json\` records \`promptMode=registry\` and the package prompt registry hash. The five migrated reviewers resolve to a body-free \`review_run_start\` bootstrap; the command returns the single selected role body.
+- \`.lattice-codex/agents\` prompt copies are not required for Proof-or-Stop adapter verification in this mode.
 - Legacy full-mode repositories may still materialize \`.lattice-codex/agents\`; both modes remain supported.
 - This is adapter hygiene only. It does not replace validation evidence, receipts, or release-readiness assurance.
 `;
@@ -289,7 +289,7 @@ function jsString(value: string): string {
   return JSON.stringify(value);
 }
 
-export function renderLatticeBootstrapScript(packageRootAbs: string): string {
+export function renderProofOrStopBootstrapScript(packageRootAbs: string): string {
   return `#!/usr/bin/env node
 const { existsSync } = require('node:fs');
 const { dirname, join } = require('node:path');
@@ -309,32 +309,56 @@ async function main() {
     if (!existsSync(candidate)) continue;
     const mod = await import(pathToFileURL(candidate).href);
     if (typeof mod.runCli !== 'function') {
-      console.error(\`lattice local bootstrap candidate has no runCli export: \${candidate}\`);
+      console.error(\`proof-or-stop local bootstrap candidate has no runCli export: \${candidate}\`);
       process.exit(1);
     }
     await mod.runCli();
     process.exit(0);
   }
 
-  const probe = spawnSync('lattice', ['help'], {
-    encoding: 'utf8',
-    stdio: ['pipe', 'pipe', 'pipe'],
-    env: process.env,
-  });
-  const help = String(probe.stdout || '') + String(probe.stderr || '');
-  if (probe.status !== 0 || !help.includes('aux_doc_list') || !help.includes('verify_codex')) {
-    console.error('bin/lattice.js could not find a local @lattice/core CLI engine or a capable global lattice.');
+  // Global bin names, canonical first. Read-both on purpose: a globally installed
+  // package built before the proof-or-stop rename exposes only \`lattice\`, so probing
+  // the canonical name alone would report "no global CLI" on a working machine.
+  //
+  // Selection is by CAPABILITY, not merely by exit status: a core-only install exits 0
+  // from \`help\` but lacks aux_doc_list/verify_codex. Picking the first bin that merely
+  // ran would let a core-only \`proof-or-stop\` shadow a fully capable \`lattice\`, so the
+  // loop keeps looking and only falls back to the first probe for the error message.
+  const globalBinNames = ['proof-or-stop', 'lattice'];
+  const isCapable = (out) => out.includes('aux_doc_list') && out.includes('verify_codex');
+  let globalBin = globalBinNames[0];
+  let probeOk = false;
+  let firstProbe = null;
+  for (const candidate of globalBinNames) {
+    const attempt = spawnSync(candidate, ['help'], {
+      encoding: 'utf8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+      env: process.env,
+    });
+    const out = String(attempt.stdout || '') + String(attempt.stderr || '');
+    if (firstProbe === null) firstProbe = { bin: candidate, out };
+    if (attempt.status === 0 && isCapable(out)) {
+      globalBin = candidate;
+      probeOk = true;
+      break;
+    }
+  }
+  if (!probeOk && firstProbe) {
+    globalBin = firstProbe.bin;
+  }
+  if (!probeOk) {
+    console.error('bin/proof-or-stop.js could not find a local @lattice/core CLI engine or a capable global proof-or-stop.');
     console.error('');
     console.error('Checked local candidates:');
     for (const candidate of coreCliEngineCandidates) console.error(\`  - \${candidate}\`);
     console.error('');
     console.error('Recovery:');
-    console.error('  - Install or update @lattice/core, then rerun: lattice init --verify-codex');
-    console.error('  - In the Proofbound repository, run: npm run build');
+    console.error('  - Install or update @lattice/core, then rerun: proof-or-stop init --verify-codex');
+    console.error('  - In the Proof-or-Stop repository, run: npm run build');
     process.exit(1);
   }
 
-  const result = spawnSync('lattice', process.argv.slice(2), {
+  const result = spawnSync(globalBin, process.argv.slice(2), {
     stdio: 'inherit',
     env: process.env,
   });
@@ -354,24 +378,46 @@ if (require.main === module) {
 
 export function renderCodexWrapperScript(): string {
   return `#!/usr/bin/env node
-process.env.LATTICE_ACTIVITY_SOURCE = 'codex';
-process.env.LATTICE_ACTIVITY_RECORD_READONLY = '1';
-process.env.LATTICE_CODEX_ENTRYPOINT = 'local-wrapper';
-
-if (!process.env.LATTICE_OWNER_SESSION_ADAPTER_TASK) {
-  process.env.LATTICE_OWNER_SESSION_ADAPTER_TASK =
-    process.env.CODEX_THREAD_ID ||
-    process.env.CODEX_SESSION_ID ||
-    process.env.OPENAI_SESSION_ID ||
-    process.env.TERM_SESSION_ID ||
-    '';
+// This is a STANDALONE generated wrapper: it is emitted into a user project and run
+// directly by node, so it cannot import core/brand-env.ts. The read-both / write-both
+// contract is therefore inlined by hand here. \`setEnv\` writes BOTH brand spellings so
+// the value survives a hop into a pre-rename reader; \`readEnv\` prefers the canonical
+// name and falls back to the deprecated one, by PRESENCE (not truthiness) so an
+// explicitly-empty canonical value still wins.
+function setEnv(suffix, value) {
+  process.env['PROOF_OR_STOP_' + suffix] = value;
+  process.env['LATTICE_' + suffix] = value;
 }
-process.env.LATTICE_OWNER_SESSION_ADAPTER_PROVIDER = 'codex';
-process.env.LATTICE_OWNER_SESSION_ADAPTER_AGENT =
-  process.env.LATTICE_OWNER_SESSION_ADAPTER_AGENT ||
-  process.env.LATTICE_AGENT ||
-  'main';
-delete process.env.LATTICE_ACTIVITY_SESSION;
+function readEnv(suffix) {
+  const canonical = process.env['PROOF_OR_STOP_' + suffix];
+  if (canonical !== undefined) return canonical;
+  return process.env['LATTICE_' + suffix];
+}
+function deleteEnv(suffix) {
+  delete process.env['PROOF_OR_STOP_' + suffix];
+  delete process.env['LATTICE_' + suffix];
+}
+
+setEnv('ACTIVITY_SOURCE', 'codex');
+setEnv('ACTIVITY_RECORD_READONLY', '1');
+setEnv('CODEX_ENTRYPOINT', 'local-wrapper');
+
+if (!readEnv('OWNER_SESSION_ADAPTER_TASK')) {
+  setEnv(
+    'OWNER_SESSION_ADAPTER_TASK',
+    process.env.CODEX_THREAD_ID ||
+      process.env.CODEX_SESSION_ID ||
+      process.env.OPENAI_SESSION_ID ||
+      process.env.TERM_SESSION_ID ||
+      '',
+  );
+}
+setEnv('OWNER_SESSION_ADAPTER_PROVIDER', 'codex');
+setEnv(
+  'OWNER_SESSION_ADAPTER_AGENT',
+  readEnv('OWNER_SESSION_ADAPTER_AGENT') || readEnv('AGENT') || 'main',
+);
+deleteEnv('ACTIVITY_SESSION');
 
 async function main() {
   const [{ existsSync }, { dirname, join }, { pathToFileURL }] = await Promise.all([
@@ -380,19 +426,24 @@ async function main() {
     import('node:url'),
   ]);
   const binDir = dirname(process.argv[1] || '.');
-  const localLattice = join(binDir, 'lattice.js');
-  if (existsSync(localLattice)) {
-    const lattice = await import(pathToFileURL(localLattice).href);
-    const localMain = lattice.main || lattice.default?.main;
+  // Sibling bootstrap names, canonical first. The deprecated \`lattice.js\` name is kept
+  // as a fallback so this wrapper also works in a project generated before the rename.
+  const bootstrapNames = ['proof-or-stop.js', 'lattice.js'];
+  const localBootstrap = bootstrapNames
+    .map(name => join(binDir, name))
+    .find(candidate => existsSync(candidate));
+  if (localBootstrap) {
+    const bootstrap = await import(pathToFileURL(localBootstrap).href);
+    const localMain = bootstrap.main || bootstrap.default?.main;
     if (typeof localMain === 'function') {
       await localMain();
     }
   } else {
-    console.error('bin/lattice-codex.js did not find a sibling bin/lattice.js local bootstrap.');
+    console.error('bin/proof-or-stop-codex.js did not find a sibling local bootstrap (' + bootstrapNames.join(', ') + ').');
     console.error('');
     console.error('Recovery:');
-    console.error('  - Rerun: lattice init --verify-codex');
-    console.error('  - If this is the Proofbound repository, run: npm run build');
+    console.error('  - Rerun: proof-or-stop init --verify-codex');
+    console.error('  - If this is the Proof-or-Stop repository, run: npm run build');
     process.exit(1);
   }
 }
@@ -404,7 +455,7 @@ main().catch(error => {
 `;
 }
 
-export function renderLatticeCodexWrapperScript(): string {
+export function renderProofOrStopCodexWrapperScript(): string {
   return renderCodexWrapperScript();
 }
 
@@ -481,7 +532,7 @@ export function getCodexHooks() {
           type: 'command',
           command: codexHookCommand(LATTICE_SCOPE_PRETOOL_HOOK_FILE),
           timeout: 30,
-          statusMessage: 'Checking Proofbound scope',
+          statusMessage: 'Checking Proof-or-Stop scope',
         }],
       },
       {
@@ -491,7 +542,7 @@ export function getCodexHooks() {
           type: 'command',
           command: codexHookCommand(EVIDENCE_PRETOOL_HOOK_FILE),
           timeout: 10,
-          statusMessage: 'Checking Proofbound evidence pin',
+          statusMessage: 'Checking Proof-or-Stop evidence pin',
         }],
       },
     ],
@@ -509,12 +560,12 @@ export function renderCodexPretoolScopeHookScript(): string {
  *
  * Intercepts Codex file edits surfaced as apply_patch before they execute.
  * Codex hook input reports tool_name="apply_patch" and stores the patch command
- * in tool_input.command. The hook delegates policy to lattice prewrite_guard_check.
+ * in tool_input.command. The hook delegates policy to proof-or-stop prewrite_guard_check.
  *
  * Exit 0  -> pass (tool proceeds)
  * Exit 2  -> block (Codex rejects the supported tool call; reason on stderr)
  *
- * Graceful degradation: if this hook cannot find or run the Proofbound CLI, it
+ * Graceful degradation: if this hook cannot find or run the Proof-or-Stop CLI, it
  * passes through rather than trapping the host in a broken local hook.
  */
 'use strict';
@@ -607,23 +658,30 @@ function findRepoRoot(start) {
 }
 
 function resolveCli(root) {
+  // Canonical entrypoints first, deprecated aliases as fallback (B-cdf6): a project
+  // generated before the rename only has bin/lattice.js, and a globally installed
+  // package built before the rename only exposes the \`lattice\` bin.
   const jsCandidates = [
     path.join(root, 'packages', 'main', 'dist', 'cli.js'),
     path.join(root, 'node_modules', '@lattice', 'core', 'dist', 'cli.js'),
+    path.join(root, 'bin', 'proof-or-stop.js'),
     path.join(root, 'bin', 'lattice.js'),
   ];
   for (const candidate of jsCandidates) {
     if (fs.existsSync(candidate)) return { command: process.execPath, args: [candidate] };
   }
 
-  const found = spawnSync('sh', ['-lc', 'command -v lattice'], {
-    cwd: root,
-    encoding: 'utf8',
-    timeout: 2000,
-    stdio: ['pipe', 'pipe', 'pipe'],
-  });
-  const command = String(found.stdout || '').split(/\\r?\\n/).find(Boolean);
-  return command ? { command, args: [] } : null;
+  for (const bin of ['proof-or-stop', 'lattice']) {
+    const found = spawnSync('sh', ['-lc', 'command -v ' + bin], {
+      cwd: root,
+      encoding: 'utf8',
+      timeout: 2000,
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+    const command = String(found.stdout || '').split(/\\r?\\n/).find(Boolean);
+    if (command) return { command, args: [] };
+  }
+  return null;
 }
 `;
 }
@@ -634,7 +692,7 @@ export function renderCodexEvidencePretoolHookScript(): string {
  * Codex PreToolUse hook: evidence-pin seatbelt (B-1507 CHK-003)
  *
  * Intercepts Codex shell-tool invocations before they run. When the command is a
- * lattice verification_evidence_add / verification_run whose caller command or
+ * proof-or-stop verification_evidence_add / verification_run whose caller command or
  * selector would NOT match the intent's immutable pinned verification (B-ec67),
  * it blocks the write early with a teaching message.
  *
@@ -643,7 +701,7 @@ export function renderCodexEvidencePretoolHookScript(): string {
  *
  * FAIL-OPEN SEATBELT: unlike the scope guard, ANY error / timeout / missing CLI /
  * non-shell tool passes through (exit 0). The seatbelt must never block legitimate
- * work; the real floor is enforceAndStampEvidence in the Proofbound CLI handler.
+ * work; the real floor is enforceAndStampEvidence in the Proof-or-Stop CLI handler.
  *
  * PENDING-REAL-TOKEN: Codex's real emitted shell tool_name is not confirmable in
  * the authoring environment. This matcher uses the best-documented candidates
@@ -751,23 +809,45 @@ function findRepoRoot(start) {
 }
 
 function resolveCli(root) {
+  // Canonical entrypoints first, deprecated aliases as fallback (B-cdf6): a project
+  // generated before the rename only has bin/lattice.js, and a globally installed
+  // package built before the rename only exposes the \`lattice\` bin.
   const jsCandidates = [
     path.join(root, 'packages', 'main', 'dist', 'cli.js'),
     path.join(root, 'node_modules', '@lattice', 'core', 'dist', 'cli.js'),
+    path.join(root, 'bin', 'proof-or-stop.js'),
     path.join(root, 'bin', 'lattice.js'),
   ];
   for (const candidate of jsCandidates) {
     if (fs.existsSync(candidate)) return { command: process.execPath, args: [candidate] };
   }
 
-  const found = spawnSync('sh', ['-lc', 'command -v lattice'], {
-    cwd: root,
-    encoding: 'utf8',
-    timeout: 2000,
-    stdio: ['pipe', 'pipe', 'pipe'],
-  });
-  const command = String(found.stdout || '').split(/\\r?\\n/).find(Boolean);
-  return command ? { command, args: [] } : null;
+  for (const bin of ['proof-or-stop', 'lattice']) {
+    const found = spawnSync('sh', ['-lc', 'command -v ' + bin], {
+      cwd: root,
+      encoding: 'utf8',
+      timeout: 2000,
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+    const command = String(found.stdout || '').split(/\\r?\\n/).find(Boolean);
+    if (command) return { command, args: [] };
+  }
+  return null;
 }
 `;
 }
+
+/*
+ * Deprecated brand aliases (B-cdf6 CHK-006).
+ *
+ * Durable, not transitional: this repository is multi-developer, so a teammate
+ * branch importing the old symbol must keep compiling when it merges. Never remove.
+ */
+/** @deprecated Use `ProofOrStopProjectConfig`. */
+export type LatticeProjectConfig = ProofOrStopProjectConfig;
+/** @deprecated Use `renderProofOrStopBootstrapScript`. */
+export const renderLatticeBootstrapScript = renderProofOrStopBootstrapScript;
+/** @deprecated Use `renderProofOrStopCodexAdapterManifest`. */
+export const renderLatticeCodexAdapterManifest = renderProofOrStopCodexAdapterManifest;
+/** @deprecated Use `renderProofOrStopCodexWrapperScript`. */
+export const renderLatticeCodexWrapperScript = renderProofOrStopCodexWrapperScript;

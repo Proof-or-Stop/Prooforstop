@@ -4,15 +4,15 @@ Date: 2026-06-14
 
 ## Purpose
 
-This document defines an execution plan for a future Proofbound capability:
+This document defines an execution plan for a future Proof-or-Stop capability:
 promote long-lived story decisions into project-level decision documents under
-the canonical Proofbound path:
+the canonical Proof-or-Stop path:
 
 ```text
 docs/requirements/decisions/*.md
 ```
 
-The capability is intentionally explicit and controlled. Proofbound should not
+The capability is intentionally explicit and controlled. Proof-or-Stop should not
 write every `decision_set` result into project docs. It should provide a
 mechanical path for an operator, reviewer, or agent to say: this story decision
 is no longer just local story evidence; it is now a durable project rule.
@@ -29,7 +29,7 @@ declared material scope.
 
 ## Problem Statement
 
-Proofbound currently has two decision layers:
+Proof-or-Stop currently has two decision layers:
 
 | Layer | Current artifact | Lifetime |
 | --- | --- | --- |
@@ -42,7 +42,7 @@ Today, a story can record a good `decision.json`, but that decision may remain
 buried in story metadata. Future developers then have to reconstruct durable
 project rules from old story history. Conversely, manually creating a decision
 doc creates governance and diagnostic material, but it does not by itself
-trigger DONE 3x2 review escalation. Proofbound also does not help operators decide
+trigger DONE 3x2 review escalation. Proof-or-Stop also does not help operators decide
 when and how a story decision should become such a document.
 
 The missing capability is not another free-form doc writer. The missing
@@ -140,14 +140,14 @@ Purpose: create or update a story-local proposal for a durable decision doc.
 Example:
 
 ```bash
-lattice decision_doc_proposal '{
+proof-or-stop decision_doc_proposal '{
   "storyId": "B-xxxx",
   "slug": "decision-doc-promotion",
   "title": "Promote long-lived story decisions into decision docs",
   "sourceDecision": "decision.json",
   "decision": "Long-lived project decisions must be promoted through a proposal/save flow before becoming decision docs.",
   "context": "Story-local decision.json is not discoverable enough for durable project policy.",
-  "scope": "Applies to decisions that affect future Proofbound behavior, workflow gates, developer obligations, or project architecture.",
+  "scope": "Applies to decisions that affect future Proof-or-Stop behavior, workflow gates, developer obligations, or project architecture.",
   "nonGoals": [
     "Do not auto-save every story decision",
     "Do not write outside docs/requirements/decisions/*.md",
@@ -213,7 +213,7 @@ It should be read-only.
 Example:
 
 ```bash
-lattice decision_doc_preview '{
+proof-or-stop decision_doc_preview '{
   "storyId": "B-xxxx",
   "proposalId": "DDP-001"
 }'
@@ -236,7 +236,7 @@ Purpose: materialize an accepted proposal into
 Example:
 
 ```bash
-lattice decision_doc_save '{
+proof-or-stop decision_doc_save '{
   "storyId": "B-xxxx",
   "proposalId": "DDP-001",
   "mode": "create",
@@ -385,7 +385,7 @@ Cons:
 
 ## Supersession
 
-If this decision changes, update this file through a Proofbound story. Because
+If this decision changes, update this file through a Proof-or-Stop story. Because
 this file is under `docs/requirements/decisions/*.md`, the edit is governance
 and diagnostic material. DONE requires local review-escalation quorum only if
 the first lifecycle REVIEW round records at least two countable reviewer
@@ -433,7 +433,7 @@ problems.
 
 ## Lifecycle And Gate Interaction
 
-The promotion flow must reuse the existing Proofbound lifecycle.
+The promotion flow must reuse the existing Proof-or-Stop lifecycle.
 
 Expected lifecycle:
 
@@ -456,7 +456,7 @@ REVIEW:
   - reviewers check whether promotion is justified
 
 TEST:
-  - lattice validate checks verification coverage and evidence freshness
+  - proof-or-stop validate checks verification coverage and evidence freshness
 
 DONE:
   - decision-doc changes remain visible as governance/diagnostic material
@@ -596,8 +596,8 @@ Update:
 
 Tests:
 
-- `lattice decision_doc_proposal --help`;
-- `lattice decision_doc_save --help`;
+- `proof-or-stop decision_doc_proposal --help`;
+- `proof-or-stop decision_doc_save --help`;
 - command ownership smoke;
 - process fact contract verifier.
 

@@ -63,7 +63,7 @@ This plan was drafted from two host inputs and then audited by the main auditor.
 | Host | Result | How it is used |
 |---|---|---|
 | Claude CLI | Produced a text-only execution plan. It could not write files in that host context. | Used for the A/B/C verdict model: confirmed gap, disproven gap, or diagnostic-only gap. |
-| Codex CLI | Produced a read-only execution plan after running `lattice session_brief` and inspecting current source/docs. | Used for the concrete phase order, fail-closed matrix, and current-code nuance that formal proof mechanics may exist but must remain non-authority. |
+| Codex CLI | Produced a read-only execution plan after running `proof-or-stop session_brief` and inspecting current source/docs. | Used for the concrete phase order, fail-closed matrix, and current-code nuance that formal proof mechanics may exist but must remain non-authority. |
 
 Host output is review/drafting input only. Neither Claude CLI nor Codex CLI is
 an Authority Server, and neither host transcript can replace signed receipt or
@@ -172,7 +172,7 @@ future proof verdict.
 
 | Fact | Current anchor |
 |---|---|
-| F-009 is open, high severity, and `evidenceState=suspected`. | `lattice finding_list --storyId=B-META-framework-audit` |
+| F-009 is open, high severity, and `evidenceState=suspected`. | `proof-or-stop finding_list --storyId=B-META-framework-audit` |
 | Layer 2 is not formally unlocked by the existing plan document. | `docs/requirements/decisions/unlock-layer2-ENG-suite.md` |
 | Local diagnostic artifacts cannot be formal Layer 2 proof. | `docs/requirements/decisions/unlock-layer2-ENG-suite.md` |
 | Formal root invariants require `localOnly=false`, `capabilityProof=true`, `formalProof=true`, clean claim target, fresh material hash, and no Authority overclaim. | `docs/requirements/decisions/formal-unlock-artifact-isolation-execution-plan.md` |
@@ -222,7 +222,7 @@ BLOCKED: dirty or mixed proof root
 
 Actions:
 
-1. Run `lattice finding_list --storyId=B-META-framework-audit`.
+1. Run `proof-or-stop finding_list --storyId=B-META-framework-audit`.
 2. Record F-009 text, files, severity, status, and evidenceState.
 3. Run source searches for all writers of:
    - `localOnly: false`

@@ -4,7 +4,7 @@
 
 Proof-or-Stop keeps an idle watchdog to prevent lifecycle commands from hanging forever. This is correct.
 
-The current failure mode is different: `story_advance --phase=TEST` invokes `lattice validate --json`, and `validate` may run many configured commands for several minutes without emitting progress. The CLI idle watchdog interprets silence as stuck work and kills the process, even though validation may still be running normally.
+The current failure mode is different: `story_advance --phase=TEST` invokes `proof-or-stop validate --json`, and `validate` may run many configured commands for several minutes without emitting progress. The CLI idle watchdog interprets silence as stuck work and kills the process, even though validation may still be running normally.
 
 This story fixes the mismatch between validate progress and CLI idle detection.
 
@@ -14,7 +14,7 @@ Current behavior:
 
 ```text
 story_advance --phase=TEST
-  -> lattice validate --json
+  -> proof-or-stop validate --json
   -> running 42 configured validate.command(s)
   -> no output for about 5 minutes
   -> story_advance stuck: 300 seconds without output; forcing exit
@@ -48,7 +48,7 @@ The watchdog should kill only true silence, not valid long-running work.
 
 ## Output Stream Contract
 
-`lattice validate --json` must keep stdout machine-readable.
+`proof-or-stop validate --json` must keep stdout machine-readable.
 
 Progress and heartbeat events must not corrupt the final JSON payload. In JSON mode, they should be emitted through stderr or another structured side channel consumed by the parent lifecycle command. Human-readable mode may print progress to stdout.
 
@@ -103,7 +103,7 @@ Heartbeat extends idle liveness, not total execution permission.
 
 ## Acceptance Criteria
 
-- `lattice validate --story=<id> --json` emits progress for configured commands.
+- `proof-or-stop validate --story=<id> --json` emits progress for configured commands.
 - `--json` stdout remains valid JSON; heartbeat/progress events do not pollute the machine-readable result.
 - Heartbeat/progress events are flushed immediately and are visible to the parent process before the idle deadline.
 - Long-running validate commands emit heartbeat at a bounded interval, preferably 30 seconds.
@@ -120,7 +120,7 @@ Heartbeat extends idle liveness, not total execution permission.
 
 - Do not remove the idle watchdog.
 - Do not make validate pass when tests fail.
-- Do not skip `lattice validate`.
+- Do not skip `proof-or-stop validate`.
 - Do not reduce configured validate commands.
 - Do not use unlimited timeout.
 - Do not rely on POSIX-only process checks without a host-neutral wrapper.

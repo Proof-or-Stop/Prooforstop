@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-3144",
+  "records": [
+    {
+      "id": "RED-20260724202208",
+      "trigger": "Bug fix requires pre-fix red evidence: quorum_submit accepts a redundant cross-material re-submit and poisons the standing drift-accepted quorum (B-bf52 incident class).",
+      "acceptanceTargetRef": "sha256:50f24ae275eea390d14c53cb58333f45fe219a47248c89a60dd2e91b7d437c25",
+      "baselineHeadHash": "c9090580149ac955f12f2a82c8230a934832816d",
+      "baselineMaterialHash": "ca5cdd778eae450c4299f3ee5ce72131d6f7a27c8045b4c1172f063bf2f8af45",
+      "observedFailure": "On pre-fix code the smoke check refuses a redundant re-submit when the standing quorum drift-accepts fails: the second quorum_submit after a materialHash-only main drift is ACCEPTED, and the floor then reports validRounds=0 invalidRounds=3 with every round invalid as duplicate host/session/key identity (two verdicts per host per runId) - the exact B-bf52 poisoning.",
+      "failingCommand": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+      "expectedGreenCommand": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+      "greenRelation": {
+        "targetRef": "sha256:50f24ae275eea390d14c53cb58333f45fe219a47248c89a60dd2e91b7d437c25",
+        "relation": "same_acceptance",
+        "command": "node packages/main/dist/tasks/quorum-submit-smoke.js"
+      },
+      "note": "RED commit c9090580149ac955f12f2a82c8230a934832816d adds commitMainDrift (merge-from-main shape: materialHash moves, storyFilesHash constant, asserted in-check) and the un-gameable check that prints the poisoning forensics when the guard accepts the re-submit.",
+      "createdAt": "2026-07-24T20:22:08.811Z"
+    }
+  ],
+  "createdAt": "2026-07-24T20:22:08.811Z",
+  "updatedAt": "2026-07-24T20:22:08.811Z"
+}

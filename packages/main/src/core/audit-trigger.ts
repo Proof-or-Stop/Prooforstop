@@ -26,7 +26,7 @@ import { dirname, join } from 'node:path';
 import { resolveAuditConfig, type AuditMode } from './audit-config.js';
 import { scanDeprecated } from './audit-scan.js';
 import { loadConfig } from './config.js';
-import { LATTICE_DIR } from './lattice-paths.js';
+import { PROOF_OR_STOP_DIR } from './lattice-paths.js';
 import type { WorkflowProfile } from './types.js';
 
 /**
@@ -70,7 +70,7 @@ const INITIAL_STATE: AuditState = {
  * Single source of truth: touchAuditState in audit.ts also imports this function to avoid double-hardcoding the path.
  */
 export function stateFilePath(projectRoot: string): string {
-  return join(projectRoot, LATTICE_DIR, 'runtime', 'framework-audit', 'state.json');
+  return join(projectRoot, PROOF_OR_STOP_DIR, 'runtime', 'framework-audit', 'state.json');
 }
 
 /**
@@ -162,7 +162,7 @@ function thirtyDaysAgoIso(): string {
 
 /** Unified generation of prompt text (with a blank line before and after, as its own paragraph). */
 function buildSemiAutoHint(window: number): string {
-  return `\n⚠ ${window} story window + CLAUDE.md has changed, suggested run: lattice audit --framework\n`;
+  return `\n⚠ ${window} story window + CLAUDE.md has changed, suggested run: proof-or-stop audit --framework\n`;
 }
 
 /**

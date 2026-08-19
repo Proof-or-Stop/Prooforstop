@@ -1,7 +1,8 @@
+import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, readFileSync } from 'node:fs';
+import { accessSync, constants, existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { loadConfig, type LatticeConfig } from './config.js';
+import { loadConfig, type ProofOrStopConfig } from './config.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from './evidence-freshness.js';
 import { evaluateDoneRequiredEvidence, resolveDoneRequiredPolicy } from './done-required-validation.js';
 import { digestScopeContract } from './guard-session.js';
@@ -10,6 +11,13 @@ import type { StoryStore } from './store.js';
 import type { DoneRequiredEvidenceData, TestEvidenceData } from './types.js';
 import { computeCompositeScopeDigest } from './closeout-trust.js';
 import { classifyTrustedValidationLineage } from './validation-evidence-reuse.js';
+import {
+  classifyGitStatusRows,
+  dirtyWorktreeClassifierOptionsForStory,
+  type DirtyWorktreeClassification,
+  type DirtyWorktreeEntry,
+} from './dirty-worktree.js';
+import { gitStatusRowsForDonePrepareGeneratedMetadata } from './done-prepare-generated-metadata.js';
 
 export const DONE_PREPARE_VALIDATION_REUSE_SCHEMA = 'lattice.done-prepare-validation-reuse.v1' as const;
 export const DONE_PREPARE_VALIDATION_REUSE_CLASSIFIER_VERSION = 'done-prepare-generated-metadata-safe-set.v1' as const;
@@ -159,8 +167,8 @@ function sha256(value: string | Buffer): string {
   return createHash('sha256').update(value).digest('hex');
 }
 
-function configuredValidateSource(config: LatticeConfig): unknown {
-  const raw = config as LatticeConfig & { validation?: unknown };
+function configuredValidateSource(config: ProofOrStopConfig): unknown {
+  const raw = config as ProofOrStopConfig & { validation?: unknown };
   return {
     validate: raw.validate ?? null,
     validation: raw.validation ?? null,
@@ -176,7 +184,7 @@ function validateEntrypointDigests(root: string): Record<string, string | null> 
   return out;
 }
 
-function configHash(root: string, config: LatticeConfig): string {
+function configHash(root: string, config: ProofOrStopConfig): string {
   return sha256(stableStringify({
     scanRoot: config.scanRoot,
     rootDir: config.rootDir ?? null,
@@ -184,7 +192,7 @@ function configHash(root: string, config: LatticeConfig): string {
     requirementsDir: config.requirementsDir,
     gitRoot: config.gitRoot ?? null,
     validate: configuredValidateSource(config),
-    doneRequiredCommands: (config as LatticeConfig & Record<string, unknown>).doneRequiredCommands ?? null,
+    doneRequiredCommands: (config as ProofOrStopConfig & Record<string, unknown>).doneRequiredCommands ?? null,
     validationProfiles: config.validationProfiles ?? null,
     proofAdmissibility: config.proofAdmissibility ?? null,
     proofStory: config.proofStory ?? null,
@@ -192,7 +200,7 @@ function configHash(root: string, config: LatticeConfig): string {
   }));
 }
 
-function validateCommandSetHash(root: string, config: LatticeConfig): string {
+function validateCommandSetHash(root: string, config: ProofOrStopConfig): string {
   return sha256(stableStringify({
     configured: configuredValidateSource(config),
     entrypoints: validateEntrypointDigests(root),
@@ -401,4 +409,72 @@ export function writeDonePrepareValidationReuseRecord(args: {
   } as DoneRequiredEvidenceData & { donePrepareValidationReuse: DonePrepareValidationReuseRecord });
 
   return { ok: true, record, reasons: [] };
+}
+
+const GIT_EXEC = { encoding: 'utf-8' as const, stdio: ['pipe', 'pipe', 'pipe'] as ['pipe', 'pipe', 'pipe'] };
+
+/** Same merge-base check done_prepare uses: local main must be an ancestor of HEAD. */
+export function isDonePrepareMainAncestor(gitCwd: string): boolean {
+  try {
+    execFileSync('git', ['merge-base', '--is-ancestor', 'main', 'HEAD'], { cwd: gitCwd, ...GIT_EXEC });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/** SHA of local `main^{commit}`; null when the ref is missing. */
+export function donePrepareExpectedMainSha(gitCwd: string): string | null {
+  try {
+    return execFileSync('git', ['rev-parse', '--verify', 'main^{commit}'], { cwd: gitCwd, ...GIT_EXEC }).trim();
+  } catch {
+    return null;
+  }
+}
+
+/** Cheap preflight: Git can resolve and read the index. */
+export function isDonePrepareGitIndexReadable(gitCwd: string): boolean {
+  try {
+    execFileSync('git', ['rev-parse', '--git-path', 'index'], { cwd: gitCwd, ...GIT_EXEC });
+    execFileSync('git', ['status', '--porcelain=v1', '--untracked-files=no'], { cwd: gitCwd, ...GIT_EXEC });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export function isEvidenceTargetWritable(targetDir: string): boolean {
+  try {
+    if (!existsSync(targetDir)) return false;
+    accessSync(targetDir, constants.W_OK);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/** Reuses done_prepare's porcelain + dirty-worktree classifier. */
+export function classifyDonePrepareWorktree(args: {
+  root: string;
+  gitCwd: string;
+  storyId: string;
+  store: StoryStore;
+}): DirtyWorktreeClassification {
+  const config = loadConfig(args.root);
+  return classifyGitStatusRows(
+    gitStatusRowsForDonePrepareGeneratedMetadata(args.gitCwd),
+    dirtyWorktreeClassifierOptionsForStory(config, args.storyId, args.store, args.root),
+  );
+}
+
+const NON_RUNTIME_DIRTY_CATEGORIES = new Set([
+  'material_source_changes',
+  'fixture_changes',
+  'unexpected_dirty_files',
+  'declared_artifact_changes',
+]);
+
+/** Non-runtime dirty rows: source/fixture/unexpected/declared. Runtime artifacts and story metadata are allowed. */
+export function nonRuntimeDirtyEntries(classification: DirtyWorktreeClassification): DirtyWorktreeEntry[] {
+  return classification.entries.filter(entry => NON_RUNTIME_DIRTY_CATEGORIES.has(entry.category));
 }

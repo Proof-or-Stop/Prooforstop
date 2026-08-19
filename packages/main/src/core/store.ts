@@ -8,6 +8,7 @@ import type {
   DeliveryCheckData, ImplementationReviewResultData, ReviewRunData, GrillData,
   DeclaredArtifactsData, ScopeContractData, GuardSessionData, ReviewLoopRecord,
   ScopeBoundaryData, ExecutionBoundaryData, ScopeFreezeCheckData, DoneRequiredEvidenceData,
+  DevMemoryPreflightAckData,
   ScopeExtensionProposalData, ScopeExtensionDecisionData, ScopeDiscardDigestData,
   DecisionDocProposalFile, OriginalIntentSnapshotData, MilestoneLedgerData,
   ProofStoryContractData, IntentCollisionData, ScopeShrinkageDecisionData,
@@ -35,6 +36,16 @@ import { loadConfig } from './config.js';
 import { LEGACY_DOCS_STORY_DIR, uniqueRelPaths } from './lattice-paths.js';
 import { normalizeLegacyPhase, phaseRank } from './phase-flow.js';
 import type { PromptEnvelopeData } from './prompt-contracts.js';
+import {
+  CERTIFICATION_WINDOW_FILE,
+  emptyCertificationWindowData,
+  type CertificationWindowData,
+} from './certification-window.js';
+import {
+  REVIEW_INVENTORY_EPOCHS_FILE,
+  emptyReviewInventoryEpochData,
+  type ReviewInventoryEpochData,
+} from './review-inventory-epoch.js';
 
 type JsonCandidate<T> = {
   filePath: string;
@@ -435,7 +446,7 @@ export class StoryStore {
     this.writeJson(storyId, 'summary.json', data);
   }
 
-  // ── Findings (Proofbound reviewer findings) ──
+  // ── Findings (Proof-or-Stop reviewer findings) ──
   // B-9bd9 CHK-002: Finding type extended with driftHash / lastSeenAt / firstSeenRound / resolvedReason / resolvedAt
   // The three new fields are only used by the audit meta-store (B-META-framework-audit); legacy findings without these fields are treated as legacy,
   // JSON passthrough does not affect serialization.
@@ -631,6 +642,21 @@ export class StoryStore {
 
   writeExecutionBoundary(storyId: string, data: ExecutionBoundaryData): void {
     this.writeJson(storyId, 'execution-boundary.json', data);
+  }
+
+  // B-a7c5 CHK-001: per-story dev-memory preflight acknowledgement, consumed
+  // by evaluateDevMemoryPreflightGate at every DEV-entry door.
+  readDevMemoryPreflightAck(storyId: string): DevMemoryPreflightAckData | null {
+    try {
+      return this.readJson<DevMemoryPreflightAckData>(storyId, 'dev-memory-preflight-ack.json');
+    } catch (e) {
+      if (e instanceof StoryArtifactMissingError) return null;
+      throw e;
+    }
+  }
+
+  writeDevMemoryPreflightAck(storyId: string, data: DevMemoryPreflightAckData): void {
+    this.writeJson(storyId, 'dev-memory-preflight-ack.json', data);
   }
 
   readScopeFreezeCheck(storyId: string): ScopeFreezeCheckData | null {
@@ -849,6 +875,43 @@ export class StoryStore {
 
   writeAcceptanceBasis(storyId: string, data: AcceptanceBasisArtifactV1): void {
     this.writeJson(storyId, 'acceptance-basis.json', data);
+  }
+
+  readCertificationWindows(storyId: string): CertificationWindowData {
+    try {
+      const data = this.readJson<CertificationWindowData>(storyId, CERTIFICATION_WINDOW_FILE);
+      return {
+        schemaVersion: data.schemaVersion ?? emptyCertificationWindowData().schemaVersion,
+        windows: Array.isArray(data.windows) ? data.windows : [],
+        receipts: Array.isArray(data.receipts) ? data.receipts : [],
+      };
+    } catch (e) {
+      if (e instanceof StoryArtifactMissingError) return emptyCertificationWindowData();
+      throw e;
+    }
+  }
+
+  writeCertificationWindows(storyId: string, data: CertificationWindowData): void {
+    this.writeJson(storyId, CERTIFICATION_WINDOW_FILE, data);
+  }
+
+  readReviewInventoryEpochs(storyId: string): ReviewInventoryEpochData {
+    try {
+      const data = this.readJson<ReviewInventoryEpochData>(storyId, REVIEW_INVENTORY_EPOCHS_FILE);
+      return {
+        schemaVersion: data.schemaVersion ?? emptyReviewInventoryEpochData().schemaVersion,
+        epochs: Array.isArray(data.epochs) ? data.epochs : [],
+        receipts: Array.isArray(data.receipts) ? data.receipts : [],
+        criticReceipts: Array.isArray(data.criticReceipts) ? data.criticReceipts : [],
+      };
+    } catch (e) {
+      if (e instanceof StoryArtifactMissingError) return emptyReviewInventoryEpochData();
+      throw e;
+    }
+  }
+
+  writeReviewInventoryEpochs(storyId: string, data: ReviewInventoryEpochData): void {
+    this.writeJson(storyId, REVIEW_INVENTORY_EPOCHS_FILE, data);
   }
 
   readPreReviewCheck(storyId: string): PreReviewCheckArtifactV1 | null {

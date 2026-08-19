@@ -299,7 +299,11 @@ try {
   // ─────────────────────────────────────────────────────────────────────────
   const helpBrief = runCli(temp, ['help']);
   const helpFull = runCli(temp, ['help', '--full']);
-  assert.match(helpBrief, /Proofbound CLI/, 'brief help keeps branding');
+  // B-cdf6 CHK-005: LATTICE_PRODUCT_NAME is now 'Proof-or-Stop' (approved RENAMED row in
+  // docs/requirements/decisions/brand-rename-mapping.md; `Proof-or-Stop` is a legacy spelling on the
+  // normalize list). Same repin CHK-002 applied to command-catalog-smoke. The banner is still
+  // asserted, so help losing its product name still fails.
+  assert.match(helpBrief, /Proof-or-Stop/, 'brief help keeps branding');
   assert.match(helpBrief, /help --full/, 'brief help points at the full catalog');
   assert.doesNotMatch(helpBrief, /Development flow/, 'brief help drops the verbose development-flow block');
   assert.ok(bytes(helpBrief) < 16000, `brief help under 16000 bytes, got ${bytes(helpBrief)}`);
@@ -430,7 +434,7 @@ try {
   const docEnv = { LATTICE_BURN_ALERT_RECENT_HOURS: '0' };
   const docBrief = runCli(temp, ['doctor'], docEnv);
   const docFull = runCli(temp, ['doctor', '--full'], docEnv);
-  assert.match(docBrief, /→ Brief view\. Full diagnostics: lattice doctor --full/, 'doctor brief carries the --full hint');
+  assert.match(docBrief, /→ Brief view\. Full diagnostics: proof-or-stop doctor --full/, 'doctor brief carries the --full hint');
   for (const section of ['Runtime artifacts:', 'Worktree scan:', 'Partial-DONE scan:', 'Validation scan:', 'Codex adapter scan:']) {
     assert.ok(docBrief.includes(section), `doctor brief keeps the ${section} section`);
   }
@@ -441,7 +445,7 @@ try {
   assert.ok(bytes(docBrief) < bytes(docFull), 'doctor brief is smaller than full');
   assert.doesNotMatch(docBrief, /Long-lived interactive thread re-paying its full context every turn/, 'doctor brief omits verbose per-session burn remediation blocks');
   if (docFull.includes('Long-lived interactive thread re-paying its full context every turn')) {
-    assert.match(docBrief, /use lattice doctor --full for every session detail/, 'doctor brief reports omitted burn sessions and points to --full');
+    assert.match(docBrief, /use proof-or-stop doctor --full for every session detail/, 'doctor brief reports omitted burn sessions and points to --full');
   }
   assert.ok(bytes(docBrief) < 20000, `doctor brief under budget, got ${bytes(docBrief)}`);
 

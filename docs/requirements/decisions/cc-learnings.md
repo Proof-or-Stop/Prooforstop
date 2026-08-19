@@ -1,41 +1,41 @@
-# Proofbound's Refactor Plan for Learning from Claude Code
+# Proof-or-Stop's Refactor Plan for Learning from Claude Code
 
-> 2026.04 · Summarized after a full audit of lattice's current state
+> 2026.04 · Summarized after a full audit of proof-or-stop's current state
 
 ## Background
 
-lattice has already gotten most of the grounding mechanisms right: phase gate / DONE Final Checklist / signed review / physical-fact verification / watchdog / activity.jsonl / silent test rejection, etc. After auditing the CC source, it is confirmed that lattice is still missing **a few mechanisms that CC has validated and that have real value for lattice's actual scenarios**.
+proof-or-stop has already gotten most of the grounding mechanisms right: phase gate / DONE Final Checklist / signed review / physical-fact verification / watchdog / activity.jsonl / silent test rejection, etc. After auditing the CC source, it is confirmed that proof-or-stop is still missing **a few mechanisms that CC has validated and that have real value for proof-or-stop's actual scenarios**.
 
 This document is organized into a form that can be split into stories; each story is independently complete, containing description / checklist / test directions / acceptance.
 
 ## Core Insight
 
-Looking back at all the lattice pain points the user listed (the worktree was not created, reporting completion when only half done, losing context across sessions, the written story not matching the done story, a feature not running without noticing), **none of them is lattice missing a feature**; rather:
+Looking back at all the proof-or-stop pain points the user listed (the worktree was not created, reporting completion when only half done, losing context across sessions, the written story not matching the done story, a feature not running without noticing), **none of them is proof-or-stop missing a feature**; rather:
 
-1. **the agent does not know when to use which lattice command** → the tool descriptions are too thin
-2. **after a lattice command succeeds it does not tell the agent the next step** → only story_advance has a nextStepHint
+1. **the agent does not know when to use which proof-or-stop command** → the tool descriptions are too thin
+2. **after a proof-or-stop command succeeds it does not tell the agent the next step** → only story_advance has a nextStepHint
 3. **the agent loses context after leaving the session** → there is no brief entry point
 4. **silent catch lets failures get swallowed** → fail-fast is not thorough
 
-Fixing the 5 stories corresponding to these 4 categories of problems is expected to reduce lattice pain points by 70-80%.
+Fixing the 5 stories corresponding to these 4 categories of problems is expected to reduce proof-or-stop pain points by 70-80%.
 
 ## The Parts Not Learned
 
-The following mechanisms of CC are **not suitable** for lattice, and this document explicitly does not introduce them:
+The following mechanisms of CC are **not suitable** for proof-or-stop, and this document explicitly does not introduce them:
 
-| CC mechanism | Why lattice does not need it |
+| CC mechanism | Why proof-or-stop does not need it |
 |---|---|
-| `shouldDefer` / lazy tool loading | lattice is a CLI tool; the tool descriptions do not enter the LLM context, so there is no token cost |
-| `<system-reminder>` attachment injection | lattice has no LLM conversation stream, not applicable (the reminder goes through stderr) |
-| `autoCompact` / layered compaction | lattice has no context-window concept |
-| `cache-safe params` for forked agents | lattice commands are independent processes, there is no "parent cache" |
-| `tokenCountWithEstimation` | lattice does not call the LLM |
-| `yoloClassifier` Haiku auto-verdict | lattice is a pure CLI with no LLM; let the upper-layer observer do the LLM judgment |
-| `feature flags` + Growthbook | lattice has a small user base; the stability field is enough |
-| `BQ telemetry` | lattice already has activity.jsonl |
+| `shouldDefer` / lazy tool loading | proof-or-stop is a CLI tool; the tool descriptions do not enter the LLM context, so there is no token cost |
+| `<system-reminder>` attachment injection | proof-or-stop has no LLM conversation stream, not applicable (the reminder goes through stderr) |
+| `autoCompact` / layered compaction | proof-or-stop has no context-window concept |
+| `cache-safe params` for forked agents | proof-or-stop commands are independent processes, there is no "parent cache" |
+| `tokenCountWithEstimation` | proof-or-stop does not call the LLM |
+| `yoloClassifier` Haiku auto-verdict | proof-or-stop is a pure CLI with no LLM; let the upper-layer observer do the LLM judgment |
+| `feature flags` + Growthbook | proof-or-stop has a small user base; the stability field is enough |
+| `BQ telemetry` | proof-or-stop already has activity.jsonl |
 | `prompt cache break detection` | no prompt cache |
 | `1M context beta` | no context |
-| `subagent` nesting | lattice commands are independent processes, no nesting |
+| `subagent` nesting | proof-or-stop commands are independent processes, no nesting |
 
 ---
 
@@ -56,7 +56,7 @@ Ordered by ROI:
 | 9 | schemaVersion + empty migration | 0.5 day | hedge against future debt | P3 |
 | 10 | search command + call-stack recursion guard | 2 days | discoverability | P3 |
 
-**P0 + P1 are 12 days of effort in total**; finishing them is the ceiling of lattice's single-point improvement. P2/P3 are the icing on the cake.
+**P0 + P1 are 12 days of effort in total**; finishing them is the ceiling of proof-or-stop's single-point improvement. P2/P3 are the icing on the cake.
 
 ---
 
@@ -64,9 +64,9 @@ Ordered by ROI:
 
 ### Description
 
-CC's TodoWrite reinforces "Continue to use the todo list..." on every return; this is the key to the model continuing to use it after one use. lattice currently only has `story_advance` adding a nextStepHint to its return ([story-advance.ts:432-439](packages/main/src/handlers/story-advance.ts#L432-L439)); the other state-mutating commands (checklist_update, fixture_batch_add, bug_report, testintent_record, story_create) do not.
+CC's TodoWrite reinforces "Continue to use the todo list..." on every return; this is the key to the model continuing to use it after one use. proof-or-stop currently only has `story_advance` adding a nextStepHint to its return ([story-advance.ts:432-439](packages/main/src/handlers/story-advance.ts#L432-L439)); the other state-mutating commands (checklist_update, fixture_batch_add, bug_report, testintent_record, story_create) do not.
 
-When the agent sees a successful lattice return, if it is not told "do X next", it will **guess on its own**. When it guesses right the command chain flows smoothly; when it guesses wrong it skips the flow.
+When the agent sees a successful proof-or-stop return, if it is not told "do X next", it will **guess on its own**. When it guesses right the command chain flows smoothly; when it guesses wrong it skips the flow.
 
 Fix goal: the success path of every state-mutating command returns a next step hint, and the hint includes a **conditional judgment** ("if X is already done then Y, otherwise Z"), which is equivalent to doing one state inference for the agent at each command's exit.
 
@@ -135,7 +135,7 @@ Fix goal: the success path of every state-mutating command returns a next step h
 
 ### Description
 
-The lattice code has dozens of `try { ... } catch { /* ignore */ }`. CC has a clear principle: "**security-related errors must sound**". lattice's silent catch is dangerous in several places:
+The proof-or-stop code has dozens of `try { ... } catch { /* ignore */ }`. CC has a clear principle: "**security-related errors must sound**". proof-or-stop's silent catch is dangerous in several places:
 
 - `writeLog` fails → the audit is incomplete and cannot be traced back afterwards
 - `_persistPending` fails → cross-process recovery becomes ineffective
@@ -170,14 +170,14 @@ These silent catches **cannot all be deleted** (some are reasonable ignores of t
 5. **title**: Change the MUTATION class silent catches to throw LatticeError
    **context**: For example, the worktree-creation call, the git-merge call, the fs.writeFileSync call. A failure must be perceivable by the upper layer.
 
-6. **title**: Add a new lattice doctor command
-   **context**: Scan `~/.lattice/health.jsonl`, output the health issues from the last 24 hours, grouped by category. Let the user periodically run doctor to see whether lattice itself has hidden problems.
+6. **title**: Add a new proof-or-stop doctor command
+   **context**: Scan `~/.lattice/health.jsonl`, output the health issues from the last 24 hours, grouped by category. Let the user periodically run doctor to see whether proof-or-stop itself has hidden problems.
 
 7. **title**: fixture verifies the health issue is actually written
-   **context**: Construct a scenario that triggers a PERSIST class failure (e.g. make the directory containing health.jsonl unwritable), call a lattice command, and assert that a subsequent doctor can see this issue.
+   **context**: Construct a scenario that triggers a PERSIST class failure (e.g. make the directory containing health.jsonl unwritable), call a proof-or-stop command, and assert that a subsequent doctor can see this issue.
 
 8. **title**: write a doc section in CLAUDE.md about fail-fast policy
-   **context**: Make clear "new code is not allowed to silent catch" as a convention, so future agents follow it when changing lattice code
+   **context**: Make clear "new code is not allowed to silent catch" as a convention, so future agents follow it when changing proof-or-stop code
 
 ### Test directions
 
@@ -189,7 +189,7 @@ These silent catches **cannot all be deleted** (some are reasonable ignores of t
 
 - the grep count of `catch.*{.*ignore` is reduced from the baseline by at least half
 - deliberately trigger a worktree-creation failure and observe whether it throws rather than swallows
-- run `lattice doctor` and the output format is correct
+- run `proof-or-stop doctor` and the output format is correct
 
 ### Touchpoints
 
@@ -204,9 +204,9 @@ These silent catches **cannot all be deleted** (some are reasonable ignores of t
 
 ### Description
 
-CC has conversation memory + system_reminder that let the agent remember earlier things across sessions. lattice does something similar through story files, but **has no "opening statement" interface** — when a new session's agent launches, it is not told "where you stopped last time, and what just happened".
+CC has conversation memory + system_reminder that let the agent remember earlier things across sessions. proof-or-stop does something similar through story files, but **has no "opening statement" interface** — when a new session's agent launches, it is not told "where you stopped last time, and what just happened".
 
-A new agent coming in either queries with `lattice story_list` + `lattice story_get` (multiple round-trips), or starts working directly (with a high probability of being wrong).
+A new agent coming in either queries with `proof-or-stop story_list` + `proof-or-stop story_get` (multiple round-trips), or starts working directly (with a high probability of being wrong).
 
 Fix goal: give the agent a single-shot command that outputs a complete brief of "what you should be doing right now". CLAUDE.md requires that the first thing a new session does is run this command.
 
@@ -216,7 +216,7 @@ Fix goal: give the agent a single-shot command that outputs a complete brief of 
    **context**: Add `{ name: 'session_brief', description: 'Generate this session's opening brief: current active story + recent activity + what to do', schema: {} }` to the MAIN_TOOLS array in cli-engine.ts. No parameters.
 
 2. **title**: Implement the session_brief handler skeleton
-   **context**: Create `packages/main/src/handlers/session.ts`, exporting `createSessionHandlers(ctx)` containing `session_brief()`. Get the active story via detectActiveStory; when there is no active story, return "No active story. To start: lattice story_create ..."
+   **context**: Create `packages/main/src/handlers/session.ts`, exporting `createSessionHandlers(ctx)` containing `session_brief()`. Get the active story via detectActiveStory; when there is no active story, return "No active story. To start: proof-or-stop story_create ..."
 
 3. **title**: Assemble the brief content
    **context**: When an active story exists, assemble markdown output containing:
@@ -240,7 +240,7 @@ Fix goal: give the agent a single-shot command that outputs a complete brief of 
    **context**: Run `git status --short`, `git log -3 --oneline`, and put the results into the brief together
 
 7. **title**: Write a CLAUDE.md section that forces running session_brief at the start of a session
-   **context**: Add to the lattice project's CLAUDE.md: "Every time a session starts or resumes interrupted work, the first command must be `lattice session_brief`; understand the state before continuing to work"
+   **context**: Add to the proof-or-stop project's CLAUDE.md: "Every time a session starts or resumes interrupted work, the first command must be `proof-or-stop session_brief`; understand the state before continuing to work"
 
 8. **title**: fixture verifies the brief output for different states
    **context**: Construct mock stories for 5 states (IDEA / PLAN / DEV / TEST / DONE) and assert that the brief output for each state contains the correct nextStep hint
@@ -253,7 +253,7 @@ Fix goal: give the agent a single-shot command that outputs a complete brief of 
 
 ### Acceptance
 
-- Run manually: `lattice session_brief` can output a meaningful brief in your current project
+- Run manually: `proof-or-stop session_brief` can output a meaningful brief in your current project
 - Have a new Claude session run this command to open, and observe whether it can go directly to the correct next step
 
 ### Touchpoints
@@ -269,7 +269,7 @@ Fix goal: give the agent a single-shot command that outputs a complete brief of 
 
 ### Description
 
-CC's TodoWrite description is a 184-line full PROMPT containing 7 when-to-use/when-not examples. lattice's tool descriptions are all one sentence:
+CC's TodoWrite description is a 184-line full PROMPT containing 7 when-to-use/when-not examples. proof-or-stop's tool descriptions are all one sentence:
 
 ```ts
 { name: 'story_create', description: 'Create a Story entry', schema: {...} },
@@ -284,18 +284,18 @@ Seeing one sentence, the agent only knows "what it can do", not "when it should 
 - directly Editing the fixture json file instead of using `fixture_batch_add` (bypassing schema validation)
 - entering DEV directly instead of using `story_review` for adversarial review (blocked by the signed guard, but retried repeatedly)
 
-Note: lattice's tool descriptions appear in the `lattice help` and `lattice <cmd> --help` output, and **do not enter the agent's LLM context** (because lattice is a CLI). So the goal of "PROMPT-ification" is not to save tokens, but to make **the output of `lattice <cmd> --help` able to teach the agent how to use it**. The agent runs `--help` before calling, and that is when we educate it.
+Note: proof-or-stop's tool descriptions appear in the `proof-or-stop help` and `proof-or-stop <cmd> --help` output, and **do not enter the agent's LLM context** (because proof-or-stop is a CLI). So the goal of "PROMPT-ification" is not to save tokens, but to make **the output of `proof-or-stop <cmd> --help` able to teach the agent how to use it**. The agent runs `--help` before calling, and that is when we educate it.
 
 ### Checklist
 
 1. **title**: Change the ToolDef.description field from string to string | { short: string, long: string }
-   **context**: short is used for the one-line display in `lattice help`; long is used for the detailed display in `lattice <cmd> --help`. The printToolHelp function prints long when it detects one, otherwise prints short. Maintain backward compatibility.
+   **context**: short is used for the one-line display in `proof-or-stop help`; long is used for the detailed display in `proof-or-stop <cmd> --help`. The printToolHelp function prints long when it detects one, otherwise prints short. Maintain backward compatibility.
 
 2. **title**: Write a full PROMPT for story_create
    **context**: The long field contains:
    - When to use (the user explicitly says "develop X"; the user gave a chunk of requirements to break down)
    - When NOT to use (the user is discussing / the user is asking a question / the user is describing an idea but still iterating)
-   - 4-6 real lattice scenario examples (using real story names)
+   - 4-6 real proof-or-stop scenario examples (using real story names)
    - required-field descriptions + common errors (e.g. forgetting to add keywords causing duplicate creation)
    - a counterexample: show how *not* to use (e.g. treating "let's discuss the plan" as a story_create trigger)
 
@@ -325,7 +325,7 @@ Note: lattice's tool descriptions appear in the `lattice help` and `lattice <cmd
 6. **title**: Include scenario-based step-by-step guidance in the PROMPT
    **context**: Add a passage at the end of each PROMPT: "If you are not sure how to use this, follow these steps:". Give the agent a fallback when it is uncertain.
 
-7. **title**: printToolHelp appends "→ use lattice session_brief to see what to do now" at the end of the output
+7. **title**: printToolHelp appends "→ use proof-or-stop session_brief to see what to do now" at the end of the output
    **context**: Every --help output guides the agent back to session_brief at the end (in case it looked up --help precisely because it did not know what to do)
 
 8. **title**: fixture verifies the long PROMPT contains the necessary keywords
@@ -335,12 +335,12 @@ Note: lattice's tool descriptions appear in the `lattice help` and `lattice <cmd
 
 - happy: all 4 PROMPTs contain the 5-part structure (when-to-use / when-not / examples / step-by-step / counterexample)
 - edge: each PROMPT is a reasonable length (200-500 lines), neither too short nor too long
-- adversarial: take a new Claude session and run `lattice story_create --help`, observe whether it actually learned the usage
+- adversarial: take a new Claude session and run `proof-or-stop story_create --help`, observe whether it actually learned the usage
 
 ### Acceptance
 
 - the 4 long PROMPTs are written
-- take a clean session, run lattice help → lattice story_create --help → have Claude create a story, and observe whether it uses it correctly on the first try
+- take a clean session, run proof-or-stop help → proof-or-stop story_create --help → have Claude create a story, and observe whether it uses it correctly on the first try
 
 ### Touchpoints
 
@@ -354,11 +354,11 @@ Note: lattice's tool descriptions appear in the `lattice help` and `lattice <cmd
 
 ### Description
 
-CC's todo_reminder injects a system-reminder every 10 turns of not using TodoWrite. lattice does not have this — once the agent forgets to advance, the story hangs forever and no one reminds it.
+CC's todo_reminder injects a system-reminder every 10 turns of not using TodoWrite. proof-or-stop does not have this — once the agent forgets to advance, the story hangs forever and no one reminds it.
 
-lattice's activity.jsonl already records the timestamps of all commands. **Consuming it is enough to do stale state detection**.
+proof-or-stop's activity.jsonl already records the timestamps of all commands. **Consuming it is enough to do stale state detection**.
 
-Fix goal: before each lattice command runs, first print a warning to stderr (non-blocking); if a stale state is detected (timeout without advancing, an in_progress item stuck, a long time with no lattice call), let the agent see it.
+Fix goal: before each proof-or-stop command runs, first print a warning to stderr (non-blocking); if a stale state is detected (timeout without advancing, an in_progress item stuck, a long time with no proof-or-stop call), let the agent see it.
 
 ### Checklist
 
@@ -371,14 +371,14 @@ Fix goal: before each lattice command runs, first print a warning to stderr (non
 3. **title**: Implement rule 2 — a checklist item has been in_progress for over 30 minutes
    **context**: Scan checklist.items for status === 'in_progress' && (Date.now() - new Date(item.startTime).getTime()) > 30min, warn `CHK-xxx has been in_progress for N minutes; have you already finished it and forgotten to mark done?`
 
-4. **title**: Implement rule 3 — more than 60 minutes since the last lattice command of any kind
-   **context**: Read the last record of activity.jsonl; if it is more than 60 minutes ago, warn `It has been N minutes since the last lattice command; remember to keep following the flow`
+4. **title**: Implement rule 3 — more than 60 minutes since the last proof-or-stop command of any kind
+   **context**: Read the last record of activity.jsonl; if it is more than 60 minutes ago, warn `It has been N minutes since the last proof-or-stop command; remember to keep following the flow`
 
 5. **title**: Implement rule 4 — an open bug unfixed for over 24 hours
    **context**: Scan bug.json for status === 'open' and createdAt more than 24h ago, warn `Bug BUG-xxx has been open for over 24h; consider fixing it first`
 
 6. **title**: runCli calls detectStaleState before dispatching the command
-   **context**: Output each warning to stderr. Note: only detect when there is an active story, to avoid commands like lattice help being bothered.
+   **context**: Output each warning to stderr. Note: only detect when there is an active story, to avoid commands like proof-or-stop help being bothered.
 
 7. **title**: thresholds are configurable via lattice.config.json
    **context**: config adds `staleThresholds: { phaseStale: 30, itemStale: 30, idleLattice: 60, bugStale: 1440 }` (unit: minutes)
@@ -394,7 +394,7 @@ Fix goal: before each lattice command runs, first print a warning to stderr (non
 
 ### Acceptance
 
-- Manually create an item that has been in_progress for over 30 minutes, run any lattice command and observe whether it prints a warning
+- Manually create an item that has been in_progress for over 30 minutes, run any proof-or-stop command and observe whether it prints a warning
 - After running once, do checklist_update done, then run a command again and it should no longer warn
 
 ### Touchpoints
@@ -409,15 +409,15 @@ Fix goal: before each lattice command runs, first print a warning to stderr (non
 
 ### Description
 
-CC has PreToolUse / PostToolUse / SessionStart / Stop hooks, with users hanging their own shell scripts in settings.json. lattice has none at all.
+CC has PreToolUse / PostToolUse / SessionStart / Stop hooks, with users hanging their own shell scripts in settings.json. proof-or-stop has none at all.
 
-Why lattice needs them:
+Why proof-or-stop needs them:
 
 - after the agent runs `story_advance phase=DEV` it wants to automatically `git fetch origin main && git merge`, and there is currently no mechanism
-- the user wants to automatically push the error log when a lattice command errors
-- **the observer wants to be notified when lattice state changes** (more elegant than polling activity.jsonl)
+- the user wants to automatically push the error log when a proof-or-stop command errors
+- **the observer wants to be notified when proof-or-stop state changes** (more elegant than polling activity.jsonl)
 
-This is also the key infrastructure for connecting the observer to lattice — the observer does not need to poll; hanging a PostCommand hook lets it receive events in real time.
+This is also the key infrastructure for connecting the observer to proof-or-stop — the observer does not need to poll; hanging a PostCommand hook lets it receive events in real time.
 
 ### Checklist
 
@@ -448,13 +448,13 @@ This is also the key infrastructure for connecting the observer to lattice — t
    **context**: After a phase transition succeeds, look up the hook by the "FROM->TO" format and call runHooks('onPhaseChange', `${oldPhase}->${newPhase}`, env)
 
 7. **title**: Implement hook timeout protection
-   **context**: Each hook command has a default 30-second timeout; on timeout, kill the process and output a warning. Prevent a problematic hook from dragging down lattice
+   **context**: Each hook command has a default 30-second timeout; on timeout, kill the process and output a warning. Prevent a problematic hook from dragging down proof-or-stop
 
 8. **title**: Write hook docs + examples
    **context**: Add a section "Hooks" to docs/guide.md, containing a full configuration example and several common use cases (auto sync, telegram notify, auto backup)
 
 9. **title**: fixture verifies hook dispatch
-   **context**: Construct a temporary lattice.config.json containing an echo hook, run a lattice command, and assert the hook was executed (by checking the echo output)
+   **context**: Construct a temporary lattice.config.json containing an echo hook, run a proof-or-stop command, and assert the hook was executed (by checking the echo output)
 
 ### Test directions
 
@@ -481,7 +481,7 @@ This is also the key infrastructure for connecting the observer to lattice — t
 
 ### Description
 
-CC has no explicit metadata, but lattice is a CLI tool and the agent needs to know:
+CC has no explicit metadata, but proof-or-stop is a CLI tool and the agent needs to know:
 
 - does `test_auto` take 30 seconds or 5 minutes to run once? (decides whether to wait)
 - is `story_discard` irreversible? (decides whether confirm is needed)
@@ -539,9 +539,9 @@ Dangerous commands (story_discard, dev_merge, fixture_migrate, fixture_batch_add
 
 ### Acceptance
 
-- `lattice help` output is grouped by stability
-- `lattice story_discard B-xxx` refuses to execute by default, prompting to add --confirm
-- `lattice story_discard B-xxx --dry-run` outputs the plan and does not change the store
+- `proof-or-stop help` output is grouped by stability
+- `proof-or-stop story_discard B-xxx` refuses to execute by default, prompting to add --confirm
+- `proof-or-stop story_discard B-xxx --dry-run` outputs the plan and does not change the store
 
 ### Touchpoints
 
@@ -554,7 +554,7 @@ Dangerous commands (story_discard, dev_merge, fixture_migrate, fixture_batch_add
 
 ### Description
 
-`test_auto` runs from 30 seconds to several minutes, during which the agent cannot see intermediate progress. CC's streaming gives the agent a real-time signal that it is still running and not stuck. lattice has `ctx.log` but does not use it in many places.
+`test_auto` runs from 30 seconds to several minutes, during which the agent cannot see intermediate progress. CC's streaming gives the agent a real-time signal that it is still running and not stuck. proof-or-stop has `ctx.log` but does not use it in many places.
 
 The watchdog mechanism (kill after 2 minutes of no activity) also needs these log calls to reset lastActivity. **Missing progress logs = the watchdog kills slow commands by mistake**.
 
@@ -586,7 +586,7 @@ The watchdog mechanism (kill after 2 minutes of no activity) also needs these lo
 
 ### Acceptance
 
-- Run `lattice test_auto` and observe stderr continuously having timestamped output
+- Run `proof-or-stop test_auto` and observe stderr continuously having timestamped output
 - Deliberately construct a fixture that takes 5 minutes to finish, and observe whether it is killed by the watchdog by mistake
 
 ### Touchpoints
@@ -602,7 +602,7 @@ The watchdog mechanism (kill after 2 minutes of no activity) also needs these lo
 
 ### Description
 
-The JSON files written by lattice's store have no schemaVersion field. **When we want to change the field structure of story.json / checklist.json in the future, old story files will blow up**.
+The JSON files written by proof-or-stop's store have no schemaVersion field. **When we want to change the field structure of story.json / checklist.json in the future, old story files will blow up**.
 
 CC has [src/migrations/](src/migrations/) to handle schema upgrades. Doing this now costs 0 (schemaVersion=1 + one empty migration); when we really need to change the schema in the future, just add a v1→v2 migration directly.
 
@@ -653,19 +653,19 @@ CC has [src/migrations/](src/migrations/) to handle schema upgrades. Doing this 
 
 Two independent but both-P3 small improvements, merged into one story.
 
-**search command**: CC has ToolSearchTool that uses select/keyword to find tools. lattice has 40+ commands, and when the agent is unsure what a certain feature is called it has to grep through the help output.
+**search command**: CC has ToolSearchTool that uses select/keyword to find tools. proof-or-stop has 40+ commands, and when the agent is unsure what a certain feature is called it has to grep through the help output.
 
-**call-stack recursion guard**: lattice already has the `__latticeTestAutoRunning` global flag to prevent test_auto recursion, but it only targets one command. It needs to be generalized into a call stack.
+**call-stack recursion guard**: proof-or-stop already has the `__latticeTestAutoRunning` global flag to prevent test_auto recursion, but it only targets one command. It needs to be generalized into a call stack.
 
 ### Checklist
 
-1. **title**: Implement lattice search
-   **context**: Add ToolDef `{ name: 'search', description: 'Search lattice commands by keyword', schema: { keyword: z.string() } }`. The handler uses a simple BM25 to match over the descriptions of all MAIN_TOOLS and outputs a list sorted by relevance
+1. **title**: Implement proof-or-stop search
+   **context**: Add ToolDef `{ name: 'search', description: 'Search proof-or-stop commands by keyword', schema: { keyword: z.string() } }`. The handler uses a simple BM25 to match over the descriptions of all MAIN_TOOLS and outputs a list sorted by relevance
 
 2. **title**: search output format
    **context**:
    ```
-   lattice search decision
+   proof-or-stop search decision
      - testintent_record (0.85): append the testIntent review result
      - story_review     (0.70): adversarial review of testIntent completeness
      - checklist_update (0.55): update a checklist item
@@ -695,7 +695,7 @@ Two independent but both-P3 small improvements, merged into one story.
 
 ### Acceptance
 
-- `lattice search decision` outputs at least 3 relevant commands
+- `proof-or-stop search decision` outputs at least 3 relevant commands
 - Deliberately construct a recursive fixture and run test_auto to see whether it is detected
 
 ### Touchpoints
@@ -728,13 +728,13 @@ After Week 3 (optional):
   Story 7-10 done as actual needs dictate
 ```
 
-P0 + P1 are 12 days of effort in total; after finishing them, lattice's "the agent uses it wrong" problem will be significantly reduced.
+P0 + P1 are 12 days of effort in total; after finishing them, proof-or-stop's "the agent uses it wrong" problem will be significantly reduced.
 
 ### Do not do it all at once
 
 After each story lands, **run it for at least a week** and observe the activity.jsonl data:
 
-- whether the frequency of the agent calling lattice rises (the hint is working)
+- whether the frequency of the agent calling proof-or-stop rises (the hint is working)
 - whether silent failures decrease (health.jsonl is not empty)
 - whether new sessions actually run session_brief on startup (the CLAUDE.md guidance takes effect)
 - if the data does not move → the refactor did not take effect → investigate why the agent did not adopt it
@@ -762,7 +762,7 @@ The 4 P0 stories are completely dependency-free and can run in parallel.
 After each story lands, run this analysis:
 
 ```bash
-# Story 1 verification: lattice command call frequency
+# Story 1 verification: proof-or-stop command call frequency
 cat docs/story/activity.jsonl | jq -r '.tool' | sort | uniq -c | sort -rn
 
 # Story 2 verification: whether health.jsonl is being written reasonably
@@ -772,21 +772,21 @@ wc -l ~/.lattice/health.jsonl
 # Story 3 verification: how many session_brief calls per day
 cat docs/story/activity.jsonl | grep session_brief | wc -l
 
-# Story 4 verification: observe whether new sessions reduce lattice call errors
+# Story 4 verification: observe whether new sessions reduce proof-or-stop call errors
 # look at the ratio of status=fail in activity.jsonl
 ```
 
 ## One-sentence Summary
 
-**lattice's current problem is not "the mechanisms are not enough", it is "the communication with the agent is not enough"**. It has the phase gate, the Final Checklist, the signed review, physical verification — these are all correct, but **these signals are not clearly conveyed to the agent**.
+**proof-or-stop's current problem is not "the mechanisms are not enough", it is "the communication with the agent is not enough"**. It has the phase gate, the Final Checklist, the signed review, physical verification — these are all correct, but **these signals are not clearly conveyed to the agent**.
 
 CC's TodoWrite is powerful not because its data structure is complex (it is actually extremely minimal), but because its PROMPT + reminder + result reinforce, three-in-one, makes the model internalize the usage habit.
 
-Porting this "communication three-in-one" to lattice is the most valuable thing learned from CC. The other mechanisms (cache, deferred, autoCompact) are all CC's specializations for the LLM-context scenario, and do not apply directly to a CLI tool.
+Porting this "communication three-in-one" to proof-or-stop is the most valuable thing learned from CC. The other mechanisms (cache, deferred, autoCompact) are all CC's specializations for the LLM-context scenario, and do not apply directly to a CLI tool.
 
 ## B-5ea4 Retrospective (2026-04-08): Engineering Done ≠ Task Done
 
-A real-world lesson from the lattice-agent project's B-5ea4 (avatar-escalation-resume-loop). This story's engineering completeness was 9/9 but its user-value completeness was 0/5 — an instance of the lattice flow's **most severe blind spot**.
+A real-world lesson from the lattice-agent project's B-5ea4 (avatar-escalation-resume-loop). This story's engineering completeness was 9/9 but its user-value completeness was 0/5 — an instance of the proof-or-stop flow's **most severe blind spot**.
 
 ### What the engineering view saw (all green)
 - EscalationQueue added an answered event + answerPromise API → ✓
@@ -816,21 +816,21 @@ After reading this, the user would ask: "**Did it actually finish or not? What d
 3. **The three-way checks-and-balances only cover engineering, not product** — the testIntent written by the test-intent agent is all engineering behavior; the test-case-reviewer reviews testIntent coverage; the reviewer has no "pretend I am the user" step. With all 9/9 engineering metrics passing, the reviewer still passed.
 4. **The smoke fixture culture is "prove the event flow is connected"** — emphasizing "the LLM really reacts as expected" and "the tool call really happened", without emphasizing "after the user reads this output, do they feel the task is over?"
 
-### What the lattice framework changed as a result
+### What the proof-or-stop framework changed as a result
 
 1. **packages/lattice/CLAUDE.md** added a new chapter "User-Value Acceptance (takes precedence over technical-chain verification)", clearly writing "engineering done ≠ task done", the PLAN phase must produce a user-facing transcript, real-machine testing must switch perspective, and a 5-question DONE self-check checklist. The full B-5ea4 retrospective is also written there.
 2. **story-advance.ts**'s PLAN/DEV/TEST/DONE phase hints all added a "⚠ user-value acceptance" reminder section, so every time the phase advances, the main agent is re-prompted once "do not only stare at the event log".
-3. **this cc-learnings.md** added this section as a permanent learning record of the lattice framework.
+3. **this cc-learnings.md** added this section as a permanent learning record of the proof-or-stop framework.
 
 ### Not done yet but should be done
 
 - **product-reviewer agent**: a 4th category of role parallel to test-case-reviewer, specifically reviewing "whether the outcome is achieved from the user's perspective". The current review phase only has engineering-perspective reviewers; adding this is what completes the three-way checks-and-balances. Belongs to a future story.
 - **A soft quality check on understanding_set's outcome field during the review phase**: if the outcome length < 100 or it contains too many abstract words ("chain, event, mechanism, closed loop", etc.), the reviewer prompt adds a line "question whether the outcome is a user-facing transcript". Belongs to a future story.
-- **The DONE gate mandatorily requires evidence/live-smoke-transcript.json**: take the PLAN outcome as expected, the real-machine actual transcript as actual, and the diffed product as a required DONE deliverable. Belongs to a future story (be careful: a hard gate would penalize stories that do not need a user-facing transcript, such as pure refactors / lattice framework fixes, and may need a type-aware waiver).
+- **The DONE gate mandatorily requires evidence/live-smoke-transcript.json**: take the PLAN outcome as expected, the real-machine actual transcript as actual, and the diffed product as a required DONE deliverable. Belongs to a future story (be careful: a hard gate would penalize stories that do not need a user-facing transcript, such as pure refactors / proof-or-stop framework fixes, and may need a type-aware waiver).
 
 ### One-sentence summary
 
-**All of lattice's previous mechanisms are extensions of a programmer's mindset** (fixture, reviewer, phase gate, smoke). What B-5ea4 exposed is that lattice **has no extension of a product mindset** — a mechanism that forces the main agent, at every advancement, to be asked "from the user's perspective, do you say it is done?" The change this time adds the minimum viable version of that product-mindset channel: write the rule in CLAUDE.md + a repeated reminder in the phase hint. The next time someone makes the same mistake under the lattice flow, they will at least be prompted once at any of the PLAN/DEV/TEST/DONE advancements.
+**All of proof-or-stop's previous mechanisms are extensions of a programmer's mindset** (fixture, reviewer, phase gate, smoke). What B-5ea4 exposed is that proof-or-stop **has no extension of a product mindset** — a mechanism that forces the main agent, at every advancement, to be asked "from the user's perspective, do you say it is done?" The change this time adds the minimum viable version of that product-mindset channel: write the rule in CLAUDE.md + a repeated reminder in the phase hint. The next time someone makes the same mistake under the proof-or-stop flow, they will at least be prompted once at any of the PLAN/DEV/TEST/DONE advancements.
 
 ## References
 

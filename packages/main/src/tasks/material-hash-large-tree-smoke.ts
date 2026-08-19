@@ -134,8 +134,8 @@ try {
 } catch (err) {
   console.error('material-hash-large-tree smoke FAILED');
   console.error(err instanceof Error ? (err.stack ?? err.message) : String(err));
-  rmSync(base, { recursive: true, force: true });
+  rmSync(base, { recursive: true, force: true, maxRetries: 10, retryDelay: 50 });
   process.exit(1);
 }
 
-rmSync(base, { recursive: true, force: true });
+rmSync(base, { recursive: true, force: true, maxRetries: 10, retryDelay: 50 });

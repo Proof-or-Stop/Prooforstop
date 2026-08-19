@@ -1,0 +1,157 @@
+{
+  "storyId": "B-cdf6",
+  "checkedAt": "2026-08-17T06:43:07.521Z",
+  "headHash": "393fecae1266a5b7bc06caa9c5c822b0518567ee",
+  "materialHash": "f89449c96bca40b62eeccf4807ee9ad93b101d9bd56f2569950ae14138f3d857",
+  "storyFilesHash": "98cd799cd02a55931cdeba199d5e87acb26ac61879c0cf6c93fdcaf3ccda0fba",
+  "reviewRound": "2026-08-17T02:24:56.778Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": "packages/main/package.json#bin",
+      "promise": "bin map exposes both proof-or-stop (canonical) and lattice (deprecated alias), both pointing at dist/cli.js",
+      "verifiedBy": "diff/grep + manual run",
+      "evidence": "packages/main/package.json bin: {\"proof-or-stop\":\"dist/cli.js\",\"lattice\":\"dist/cli.js\"}; node bin/proof-or-stop.js --version and node bin/lattice.js --version both print identical 'Proof-or-Stop 0.3.254'"
+    },
+    {
+      "docPath": "docs/requirements/decisions/brand-rename-mapping.md#LATTICE_PRODUCT_NAME",
+      "promise": "--version and help output print 'Proof-or-Stop <version>' instead of 'Proofbound CLI <version>'",
+      "verifiedBy": "manual run",
+      "evidence": "PROOF_OR_STOP_PRODUCT_NAME='Proof-or-Stop' in packages/main/src/core/lattice-brand.ts:19; live run confirms both bin wrappers print 'Proof-or-Stop 0.3.254'"
+    },
+    {
+      "docPath": "docs/requirements/decisions/brand-rename-mapping.md#LATTICE_* env vars",
+      "promise": "LATTICE_* env vars are RENAMED (additive): canonical PROOF_OR_STOP_* wins when both set, old name still read as fallback forever, never required",
+      "verifiedBy": "diff/grep + code read",
+      "evidence": "packages/main/src/core/brand-env.ts implements readBrandEnv() with documented precedence-by-presence semantics; used across cli-engine.ts, activity-policy.ts, done-required-timeout-budget.ts etc. Read-both is real."
+    },
+    {
+      "docPath": "docs/requirements/decisions/brand-rename-mapping.md / CLAUDE.md",
+      "promise": "New writes/output should use the canonical PROOF_OR_STOP_* env var name, old name kept only for backward-compat reads",
+      "verifiedBy": "diff/grep + manual run (fifth pass, re-verified against a full commit-range audit, not just the commits the coordinator cited)",
+      "evidence": "RESOLVED for its originally-flagged scope, AND substantially strengthened by five additional commits I found by independently auditing the full commit range since my last signature rather than trusting the coordinator's four-commit summary (65f358b5970..HEAD contained 53 commits; the coordinator named 4, I found 5 more real fix commits plus 1 story-init commit already accounted for in the merge).\n\nThe five additional commits (40d71871ed, 9526d2125b, c09259d868, a0116f75f3, 7e5b37eb77) are a Round-5 reviewer's progressively deeper sweep of the SAME env-var-naming class this promise covers. Critically, TWO of these are not cosmetic doc/diagnostic-string misses like the ones I certified in rounds 2-4 -- they are genuine FUNCTIONAL regressions this story's own earlier rename commits introduced: F-061 (lattice-dispatch.ts:1685, buildCanonicalHostRuntimeEnv) and F-065 (lattice-dispatch.ts:1659, buildRequiredCommandEnv) both hardcoded ONLY the deprecated 'LATTICE_SESSION_ID' literal in an allow/deny-list membership check, so an operator whose dispatch policy allowlisted or denylisted the CANONICAL 'PROOF_OR_STOP_SESSION_ID' had that policy silently ignored -- the rename broke the NEW name while the OLD one kept working, exactly backwards from the intended migration direction. I independently reproduced all four claimed behaviors of the buildCanonicalHostRuntimeEnv fix by calling the actual compiled function: allowlist-canonical, allowlist-deprecated, no-allowlist (correctly dropped), and allow-deprecated-plus-deny-canonical (correctly denied) -- all four matched the commit's claims exactly. I also confirmed F-062 (done-required-timeout-budget.ts, a regex that previously matched only the deprecated LATTICE_SESSION_ID= inline prefix) and F-066 (managed-assets.ts, a dead ownership predicate for the generated Codex wrapper: I directly rendered the real wrapper and proved the OLD predicate genuinely evaluates false against it -- a real dead check, not a hypothetical one -- while the NEW predicate evaluates true, with no over-match on unrelated text) and F-068 (activity-policy.ts, inferCodexEntrypoint recognizing only the deprecated wrapper filename) by direct execution against compiled dist, reproducing all behavioral claims exactly. F-064 and F-071 (the coordinator's cited commits) were already covered by my prior verification.\n\nI also confirmed the honest self-scoping in these commits: F-067 (a sibling dead predicate in managed-assets.ts for .claude/hooks/log-tools.cjs) was explicitly NOT fixed and instead logged to B-META-framework-audit as pre-existing -- I independently verified this by confirming `git diff main...HEAD -- .claude/hooks/log-tools.cjs` is empty and `grep -ic lattice` on that file returns 0 on both branches, so the predicate really was dead before this story touched anything nearby, and folding it into a rename-scoped fix would have been scope creep. The 'deliberately NOT swept' tasks/*-smoke.ts LATTICE_AGENT/LATTICE_SESSION_ID assignments (which intentionally test read-both coverage) remain correctly untouched -- confirmed these still exist across many smoke files.\n\nTwo commits I read but judge NOT to bear on this docs-promise at all: 6fbb55a03b and 558d1092ba (shared stripCanonicalBrandEnvTwins helper in core/brand-env.ts, wired into two *-heartbeat-smoke.ts files) fix a test-HARNESS-only bug -- these smokes spawn CHILD test processes and pin timeout knobs via the deprecated spelling ALONE, so a canonical value merely exported by whoever runs the suite silently outranked the test's own pin, corrupting the smoke's OWN internal budget assertions. This does not touch any CLI-user-visible doc, help text, or diagnostic string; it only affects whether these two smokes pass reliably regardless of the invoking shell's env. I verified `stripCanonicalBrandEnvTwins` is a new, additive export (confirmed via reading brand-env.ts) that strips only named suffixes, not the whole canonical namespace -- correctly narrow, does not weaken readBrandEnv's real precedence rule anywhere in production code. This does not change my assessment of the docs-vs-runtime drift promise either way, because it was never a doc or CLI-output claim -- it is purely a test-infrastructure robustness fix I am noting for completeness, not counting toward or against this specific promise.\n\nEverything previously verified in rounds 2-4 (cli-engine.ts:1068, checklist.ts:774, lattice-dispatch.ts:2296's HARD_BUDGET_TOKENS literal, docs/guide-hooks.md's full rewrite, finding.ts:649) remains verified and unaffected."
+    },
+    {
+      "docPath": "docs/requirements/decisions/brand-rename-mapping.md#.lattice state dir",
+      "promise": ".lattice/ state dir, .lattice-serve.json, lattice.config.json path/filenames renamed additively with read-both; string VALUES of paths stay frozen",
+      "verifiedBy": "diff/grep + manual init run",
+      "evidence": "Fresh `proof-or-stop init` in a scratch git repo writes .lattice/Lattice.md, .lattice/lattice.json, AGENTS.md with zero stray 'lattice <cmd>' invocation prose and zero generated bin/ wrapper; only frozen markers (<!-- lattice:start/end -->, .lattice/ path) remain, matching CHK-006's userSees claim exactly."
+    },
+    {
+      "docPath": "docs/requirements/decisions/brand-rename-mapping.md#salt literals",
+      "promise": "The 13 signature salt string literals stay FROZEN verbatim (hashed into persisted _hash fields)",
+      "verifiedBy": "diff/grep",
+      "evidence": "grep -rhoE \"'lattice-[a-z0-9-]*-v[0-9]+'\" packages/*/src still returns the 13 listed salts unchanged; init-check.ts / delivery-check.ts signature domains unchanged."
+    },
+    {
+      "docPath": "docs/requirements/decisions/brand-rename-mapping.md#role IDs",
+      "promise": "13 lattice-prefixed agent role IDs (of 17 registry templates) stay FROZEN-THIS-STORY; subagent_type values unchanged",
+      "verifiedBy": "diff/grep",
+      "evidence": "packages/main/templates/agents/*.md filenames unchanged (lattice-review-concept.md etc still present); .claude/agents/*.md thin-shims still reference lattice-* subagent_type names; verify-proof-or-stop-prompt-baseline.mjs confirms roleCount=17 with 13 lattice-prefixed, matching the mapping doc's enumeration."
+    },
+    {
+      "docPath": "docs/requirements/decisions/brand-rename-mapping.md#CHANGELOG / story archives",
+      "promise": "CHANGELOG.md stays byte-frozen; the 390 pre-existing frozen story archives under .lattice/story/ are never rewritten",
+      "verifiedBy": "diff/grep",
+      "evidence": "`git diff --stat main...HEAD -- CHANGELOG.md` is empty. `git diff --name-only main...HEAD -- '.lattice/story/**'` touches only this story's own B-cdf6 artifacts and B-META-framework-audit's live append-only findings/gap-log ledger -- zero rewrites of other pre-existing story archives."
+    },
+    {
+      "docPath": "docs/requirements/decisions/brand-rename-mapping.md#GitHub slug / BibTeX",
+      "promise": "GitHub repo slug Proof-or-Stop/Prooforstop and BibTeX citation key huang2026proofstop stay FROZEN as external identifiers",
+      "verifiedBy": "diff/grep + live remote check",
+      "evidence": "`git remote -v` confirms origin is exactly git@github-pagepeek:Proof-or-Stop/Prooforstop.git; README.md:5,106,140 use the identical slug; README.md:125 keeps @misc{huang2026proofstop,...} unchanged."
+    },
+    {
+      "docPath": "CLAUDE.md / docs/CLI.md#pre-push hook",
+      "promise": ".githooks/pre-push arms its recursive tsc gate on @lattice/core package name and must not silently self-disarm if the package name changes",
+      "verifiedBy": "diff/grep",
+      "evidence": ".githooks/pre-push:155-157 widens the check to a name SET (case '@lattice/core'|'@proof-or-stop/core') specifically to survive a future rename without silent disarm, per an explicit inline comment referencing B-cdf6; exceeds the mapping doc's minimum bar."
+    },
+    {
+      "docPath": "CLAUDE.md#lattice-residue gate table",
+      "promise": "verify-lattice-residue.mjs runs three independent checks: [koala] zero-tolerance on packages/*/src, [brand-prose] active-docs scan incl. .claude/agents + .lattice-codex/agents, [brand-exec] executable-surface scan (bin, .codex, package.json, lattice.config.json, CITATION.cff, packages/utils/src) with no exemption",
+      "verifiedBy": "diff/grep + manual run (re-verified a third time at HEAD 7a719ffb30, after both follow-up commits)",
+      "evidence": "`node scripts/verify-lattice-residue.mjs` re-run at current HEAD still prints 'PASS lattice-residue [koala]', '[brand-prose]' (3 documented exemptions), '[brand-exec]' (0 hits) exactly as documented; `npx tsc --noEmit -p packages/main/tsconfig.json` is clean; `node scripts/verify-process-fact-contract.mjs` exit 0; `node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js` exit 0 (PASS builds=786 cacheHits=2 fullAnalysis=1257)."
+    },
+    {
+      "docPath": "CLAUDE.md#docs/CLI.md bin alias section",
+      "promise": "docs/CLI.md's bin alias section is reduced to a one-line pointer rather than teaching the deprecated names as a reference",
+      "verifiedBy": "diff/grep",
+      "evidence": "docs/CLI.md:16-19 is exactly the one-line pointer described, citing brand-rename-mapping.md for rationale."
+    },
+    {
+      "docPath": "CLAUDE.md#version bump discipline",
+      "promise": "CLI version bumped by 1 patch after this rename story merges, package.json/lockfile/LATTICE_CLI_VERSION in sync, `proof-or-stop --version` reflects it",
+      "verifiedBy": "diff/grep + manual run",
+      "evidence": "packages/main/package.json and root package.json both read 0.3.254; node bin/proof-or-stop.js --version prints 'Proof-or-Stop 0.3.254' matching LATTICE_CLI_VERSION in lattice-brand.ts."
+    },
+    {
+      "docPath": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts:384 + scripts/verify-process-fact-contract.mjs:1897 (canonical AST fingerprint pin)",
+      "promise": "The pinned canonical-AST-fingerprint for cli-engine.ts is a human re-approval of its dynamic-import call site, not a rubber-stamped checksum bump, and both coupled copies must move together in one commit",
+      "verifiedBy": "independent recomputation + diff read (commit 83eefb9a10)",
+      "evidence": "Independently recomputed the fingerprint from scratch with a standalone script (ts.createSourceFile + ts.createPrinter({removeComments:true}) + sha256, not copy-pasted from either pinned file): got a4330bff3e0e420b56c4352ca5b449ae3438f2dae883e1fc59db2201bcade37d, matching BOTH the new pin in retired-authority-vocabulary-guard-smoke.ts:384 AND verify-process-fact-contract.mjs:1897 -- verified against live ground-truth source, not merely internal cross-consistency. Independently confirmed the re-approval basis rather than trusting the commit message: `git diff main...HEAD -- packages/main/src/cli-engine.ts | grep 'import(\\|require('` returns zero hits; the full diff of this file (~20 changed lines) is entirely brand strings / readBrandEnv conversions / a bin-name check, with no touches to loader, import, or path-producer logic; and the actual loader call site (initPath construction + `await import(\\`file://${initPath}\\`)`) is byte-for-byte identical between main and HEAD via direct diff (exit 0), with only its line number shifting (808/809 on main -> 813/814 on HEAD). Both coupled copies did move together in the single commit 83eefb9a10 as required.\n\nJudgment on whether this warranted human re-approval rather than the implementer's own judgement: I consider the implementer's self-approval ADEQUATE here, not insufficient. The fingerprint algorithm fingerprints the WHOLE enclosing file by construction (a documented, known property of this specific guard, already the subject of the F-057 lesson), so ANY edit to cli-engine.ts -- however narrow -- moves the digest; the guard's own purpose is to force a human-equivalent look at the diff before accepting a new digest, not to freeze the file. The implementer did exactly that: checked the diff for import/require/path-producer changes BEFORE repinning (not after), found none, and I independently reproduced the same finding via direct diff inspection. This is a mechanically narrow, low-risk class of change (diagnostic-string / env-name only) verified by an independent reviewer (me) after the fact using the same evidence trail the implementer used. I do not think this rises to needing a human in the loop beyond what the story's existing reviewer-verification chain (this delivery review) already provides."
+    },
+    {
+      "docPath": "packages/main/src/core/acceptance-coverage-basis.ts:395-423 (verifyAcceptanceCoverageBasis)",
+      "promise": "The acceptance-coverage-basis verifier's generatedBy.command exact-match against the canonical bin name is a deliberate design choice (not an oversight), because the command string is a digested input and a read-both shim would not actually fix downstream continuity",
+      "verifiedBy": "independent code trace + live reproduction (commit b868de7e10)",
+      "evidence": "Verified the coordinator's central claim from first principles rather than trusting the comment. Confirmed pre-rename main genuinely writes the literal 'lattice acceptance_basis_generate' at acceptance-coverage-basis.ts:347 (git show main:...). Confirmed this branch's writer and verifier are mutually consistent, both using the canonical 'proof-or-stop ...' form. Traced the actual failure mechanism precisely: `generatedBy.command` feeds TWO independent checks -- (a) an exact-match shape check (AT_ADAPTER_RESULT_INVALID) that COULD in principle be widened to accept both spellings without any digest inconsistency, since it is decoupled from the self-consistency digest check; but (b) `acceptanceCoverageBasisSemanticDigest()`, used for continuity comparisons across a basis's own regeneration lifecycle (`expectedBasisSemanticDigest` in 5 call sites in handlers/proofstory.ts, all comparing a freshly-derived semantic digest against a previously-read one), digests the WHOLE basis object including generatedBy.command. I live-reproduced this with the actual compiled acceptanceCoverageBasisSemanticDigest(): two otherwise byte-identical basis objects differing ONLY in generatedBy.command ('lattice ...' vs 'proof-or-stop ...') produce genuinely different semantic digests (sha256:fa992b4f... vs sha256:547d358f...). This proves that widening only the exact-match check would NOT fix the underlying problem -- the semantic-digest continuity check would still diverge independently. CONCLUSION: I agree with the coordinator's judgement. This is a case where the digest-safety argument holds up under adversarial scrutiny, not just plausible-sounding prose; regenerating the artifact (not widening the check) is the correct migration path, and documenting this as an intentional non-read-both exception is the right call, not a deferred fix."
+    },
+    {
+      "docPath": "packages/main/src/handlers/finding.ts:649",
+      "promise": "The finding_add missing-attribution warning teaches the canonical PROOF_OR_STOP_AGENT env var name, while the co-located lattice-review-* role-ID reference stays untouched as a FROZEN subagent_type value",
+      "verifiedBy": "manual run (rendered the exact compiled template; direct finding_add invocation was correctly blocked by TEST-phase command policy, so I rendered the template output instead of exercising the live handler)",
+      "evidence": "Read the fix (commit b868de7e10): the warning string now interpolates BRAND_ENV_PREFIX rather than a literal LATTICE_AGENT. Rendered the exact compiled expression using the actual compiled brand-env.js constant: 'finding_add is missing agent/PROOF_OR_STOP_AGENT ... reviewer must pass agent=\"lattice-review-*\" ...' -- confirms the env var teaches the canonical form while the frozen role-ID reference (lattice-review-*, a subagent_type value per the mapping doc's FROZEN-THIS-STORY row) is correctly left untouched, matching the inline comment's stated intent not to sweep the two together. I did not attempt to trigger this warning via a live finding_add call, since finding_add is correctly gated out of TEST phase by command-lifecycle policy (verified: attempting it returns 'Command finding_add is not available in TEST phase') and forcing it would itself be a misuse of a gated command. Confirmed neither edited file (acceptance-coverage-basis.ts, finding.ts) appears in the pinned AST-fingerprint map, consistent with the commit's claim that neither needed a repin."
+    },
+    {
+      "docPath": "packages/main/src/core/lattice-dispatch.ts:1685,1659 (buildCanonicalHostRuntimeEnv, buildRequiredCommandEnv)",
+      "promise": "Env-name allow/deny-list membership checks must recognize BOTH the canonical and deprecated spelling of a brand-prefixed env var name, so a rename does not silently break policy enforcement keyed on the new (canonical) name while leaving the old name working",
+      "verifiedBy": "independent execution against compiled dist (commits 9526d2125b, a0116f75f3)",
+      "evidence": "This is the inverse failure mode from the rest of this promise's evidence: not a cosmetic diagnostic teaching the old name, but a FUNCTIONAL asymmetry where the new canonical name was the one that silently failed. Independently reproduced all four claimed cases of buildCanonicalHostRuntimeEnv by calling the actual compiled function with representative policies: allowlist=[PROOF_OR_STOP_SESSION_ID] -> value passed through; allowlist=[LATTICE_SESSION_ID] -> value passed through; allowlist=[] -> correctly DROPPED; allow-deprecated+deny-canonical -> correctly DENIED. Confirmed the shared SESSION_ID_ENV_NAMES constant (extracted after the SECOND occurrence of this exact bug pattern was found two lines from the first fix) is used at both call sites. Confirmed via direct code read that buildRequiredCommandEnv's parallel denylist check (F-065) now iterates the same shared constant."
+    },
+    {
+      "docPath": "packages/main/src/core/managed-assets.ts:818,829 (Codex wrapper ownership predicate) + packages/main/src/cli/activity-policy.ts:136 (inferCodexEntrypoint)",
+      "promise": "Managed-asset ownership/recognition predicates and entrypoint-classification logic must match what the CANONICAL (post-rename) generator actually emits, not a literal that only the deprecated generator used to produce",
+      "verifiedBy": "independent execution against compiled dist and the real generator (commits a0116f75f3, 7e5b37eb77)",
+      "evidence": "Directly rendered the real generated Codex wrapper via renderProofOrStopCodexWrapperScript() and tested both predicates against it: the OLD predicate (checking for the literal substring 'LATTICE_ACTIVITY_SOURCE') genuinely evaluates to FALSE against the actual generated content (confirmed: the generator builds env names by string concatenation, so the literal token never appears verbatim) -- a real dead check, not a hypothetical one. The NEW predicate (checking for the fragment the generator actually emits) evaluates to TRUE, with no over-match confirmed against two unrelated test strings. Separately, independently reproduced inferCodexEntrypoint's four claimed classification outcomes by calling the actual compiled function with different process.argv[1] values: bin/proof-or-stop-codex.js -> local-wrapper (was misclassified as global-fallback before the fix); bin/lattice-codex.js -> local-wrapper (unchanged); bin/proof-or-stop.js -> cli (unchanged); plain bin + ACTIVITY_SOURCE=codex -> global-fallback (genuine fallback case preserved). All four matched exactly."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Reviewed brand-rename-mapping.md's canonical mapping table (26 rows) plus verdict-reconciliation addendum (F-004); cross-checked against live repo state (git remote, CHANGELOG.md diff, salt grep, role registry count) -- all verified consistent with the table's claims."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Live-ran node bin/proof-or-stop.js --version and node bin/lattice.js --version: both print identical 'Proof-or-Stop 0.3.254'. Live-ran node scripts/verify-entrypoints.mjs after a clean packages/main rebuild (earlier round): exits 0, 28/28, 'entrypoints verified'."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Grepped README.md/CLAUDE.md/AGENTS.md for stray 'lattice <cmd>' invocation prose outside frozen contexts: zero hits. Live-ran the lattice-residue [brand-prose] check across three rounds: 0 hits with 3 documented exemptions each time. Directly executed buildHookEnv() against the compiled dist to confirm docs/guide-hooks.md's rewritten env-var table is not merely canonical-looking prose but backed by genuine dual-write behavior for all 11 documented variables."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Live-ran node scripts/verify-lattice-residue.mjs across three review rounds (before fix, after first fix, after second fix): all three [koala]/[brand-prose]/[brand-exec] checks PASS with 0 hits every time."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "Live-ran node packages/main/dist/tasks/audit-scan-bin-token-smoke.js: all 8 sub-tests pass. Live-ran node scripts/verify-process-fact-contract.mjs: exit 0 across all three review rounds, including after the fingerprint repin. Independently recomputed the pinned canonical AST fingerprint for cli-engine.ts from scratch and confirmed it matches both coupled pin locations and live source."
+    },
+    {
+      "featureId": "CHK-006",
+      "transcript": "No verificationIntent/evidence entries exist directly on CHK-006 (0 must-intents) -- its substance is verified transitively through the extensive finding/fix cycle plus three rounds of this reviewer's own live init/rebuild/residue/fingerprint reproductions.",
+      "waiverReason": "CHK-006 restates and supersedes CHK-001's mapping under a corrected freeze criterion rather than adding a new isolated feature surface; its actual verification is distributed across every other checklist item's evidence and the extensive review-round history, so a standalone per-item transcript would be redundant with evidence already captured elsewhere."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "Fifth-pass audit of the full 53-commit range since my last signature (not just the 4 commits the coordinator cited) surfaced 5 additional real fix commits addressing the same env-var-naming class, two of which (F-061, F-065) are functional regressions this story's own earlier commits introduced. Independently reproduced all behavioral claims across 4 commits (F-061/F-062/F-063 in 9526d2125b, F-065/F-066 in a0116f75f3, F-068 in 7e5b37eb77) by calling the actual compiled functions with representative inputs, matching every claimed before/after outcome exactly. Confirmed F-067 was correctly left out of scope as pre-existing (verified via empty git diff + grep on the same file on both branches)."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Fifth-pass re-review. I independently audited the full commit range since my last signature (53 commits) rather than relying on the coordinator's 4-commit summary, and found 5 additional real fix commits the summary omitted. Two of them (F-061, F-065 in lattice-dispatch.ts) are genuine functional regressions -- the rename had silently broken the canonical env-var name in two allow/deny-list checks while the deprecated name kept working, exactly backwards from the intended migration direction -- now fixed and independently reproduced by direct execution against compiled dist for all claimed before/after cases. The env-var drift promise remains RESOLVED for its originally-flagged scope and is now substantially better-evidenced by this broader sweep, though I want to be precise: this is not the SAME class of issue I originally flagged (doc/diagnostic strings teaching the old name) -- F-061/F-062/F-065/F-066/F-068 are a materially worse class (functional breakage of the canonical name), caught and fixed here, not something I am newly flagging as outstanding. The two harness-only commits (6fbb55a03b, 558d1092ba) fix test-infrastructure robustness (a shared stripCanonicalBrandEnvTwins helper preventing a caller's exported canonical env var from silently overriding a smoke's own deprecated-spelling pin) and do not bear on any docs promise or CLI-visible output -- I verified this and recorded it as unrelated-but-legitimate rather than folding it into either direction of any promise's verdict. The merge commit (4b8affa92a) is confirmed genuinely trivial: 3 files / 66 insertions, all unrelated B-8af0 story metadata, zero story-owned source changes. All mechanical gates (residue x3, process-fact contract, retired-authority-vocabulary-guard, tsc) re-verified green on current material without rebuilding dist/, per instruction. Everything previously certified in rounds 1-4 remains verified and unaffected."
+  },
+  "_hash": "342031ebbbbdc21b55a8767a20155be1fd2feafeedada3e5df94d139c3a22b3b"
+}

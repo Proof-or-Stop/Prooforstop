@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-cc10",
+  "checkedAt": "2026-08-17T10:01:41.570Z",
+  "mode": "maintenance",
+  "status": "pass",
+  "scopeBoundaryHash": "b03e7bbcccca7576485ed72f47341f30f687f0130f9956693e76efbadc39ecaa",
+  "executionBoundaryHash": "556b28c3495301b3e6b9ec5102f8a61be14d5c2a07c0646c6f297a30feb079f2",
+  "freshnessHash": "849139df95d868bbf82e1f00f41e98c8d41f71db4d40e828fcfd50e14b3322a0",
+  "effectiveExcludedKeywords": [
+    "__LATTICE_WS_PORT and LATTICE_SHELL protocol identifiers — disclosed B-cdf6 follow-up, separate protocol change",
+    "LATTICE_* env var names as STORED keys — already read-both via core/brand-env.ts in B-cdf6; not re-litigated here",
+    "Rewriting or renaming content inside frozen story archives under the state directory — history must move, never be rewritten",
+    "The 13 lattice-* agent role IDs (subagent_type values) — FROZEN by proof-or-stop-agent-prompt-consolidation-execution-plan.md; renaming breaks spawning",
+    "The 5 open B-META framework gaps F-031..F-035 — other subsystems, escalated not fixed",
+    "The 8 lattice-*-integrity-v1 signature salts — FROZEN; renaming would invalidate all historical signatures"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "__LATTICE_WS_PORT and LATTICE_SHELL protocol identifiers — disclosed B-cdf6 follow-up, separate protocol change",
+      "source": "scopeBoundary.excluded",
+      "text": "__LATTICE_WS_PORT and LATTICE_SHELL protocol identifiers — disclosed B-cdf6 follow-up, separate protocol change",
+      "excluded": true
+    },
+    {
+      "keyword": "LATTICE_* env var names as STORED keys — already read-both via core/brand-env.ts in B-cdf6; not re-litigated here",
+      "source": "scopeBoundary.excluded",
+      "text": "LATTICE_* env var names as STORED keys — already read-both via core/brand-env.ts in B-cdf6; not re-litigated here",
+      "excluded": true
+    },
+    {
+      "keyword": "Rewriting or renaming content inside frozen story archives under the state directory — history must move, never be rewritten",
+      "source": "scopeBoundary.excluded",
+      "text": "Rewriting or renaming content inside frozen story archives under the state directory — history must move, never be rewritten",
+      "excluded": true
+    },
+    {
+      "keyword": "The 13 lattice-* agent role IDs (subagent_type values) — FROZEN by proof-or-stop-agent-prompt-consolidation-execution-plan.md; renaming breaks spawning",
+      "source": "scopeBoundary.excluded",
+      "text": "The 13 lattice-* agent role IDs (subagent_type values) — FROZEN by proof-or-stop-agent-prompt-consolidation-execution-plan.md; renaming breaks spawning",
+      "excluded": true
+    },
+    {
+      "keyword": "The 5 open B-META framework gaps F-031..F-035 — other subsystems, escalated not fixed",
+      "source": "scopeBoundary.excluded",
+      "text": "The 5 open B-META framework gaps F-031..F-035 — other subsystems, escalated not fixed",
+      "excluded": true
+    },
+    {
+      "keyword": "The 8 lattice-*-integrity-v1 signature salts — FROZEN; renaming would invalidate all historical signatures",
+      "source": "scopeBoundary.excluded",
+      "text": "The 8 lattice-*-integrity-v1 signature salts — FROZEN; renaming would invalidate all historical signatures",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "daaa7048050e3e1a8593e88a18d51779eeb1a24adbe46eae876d35ff37d19127"
+}

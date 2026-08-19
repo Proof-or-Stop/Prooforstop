@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Reproduce and close the remaining candidate-routing freshness leak",
+      "context": "Pop the B-3f3d stash@{0} fixture, confirm it still fails, then determine whether candidate SELECTION or only ORDER moves under changedPaths churn. Bind a sorted set of path+contentHash if order is the cause. Evidence: corpusDigest identical while candidateSpecSetDigest moved.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Guard malformed candidate input at the gate boundary",
+      "context": "captureReviewInventoryScope must not throw on a non-array candidates value, since persistInvalidationIfDrifted has no try/catch at six gate lifecycle call sites and verifyCandidateSpecSet does not validate Array.isArray. Fail closed with a blocker rather than an uncaught TypeError.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Add the end-to-end routing-neutral regression fixture",
+      "context": "B-3f3d:F-108. review-inventory-handler-smoke.ts must branch to story/<id> first so git diff main...HEAD is non-empty, otherwise changedPaths never populates and the fixture proves nothing. Assert the epoch stays OPEN after an unrelated commit plus a re-route.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

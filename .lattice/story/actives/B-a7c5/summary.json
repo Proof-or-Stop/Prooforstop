@@ -1,0 +1,55 @@
+{
+  "storyId": "B-a7c5",
+  "changes": "Added three lifecycle gates around Proofbound's previously 100%-voluntary shared dev-memory system: (1) a mandatory dev-memory preflight acknowledgement required at all four DEV-entry doors; (2) a non-blocking advisory reminder appended to finding_resolve output; (3) a mandatory dev_memory_finish_decision record required before the DONE gate. Includes a core module refactor, two pre-existing spec-doc reconciliations, a new 79-assertion smoke test, and a comprehensive sweep fixing 12 collateral fixtures across the codebase whose stories/repos now also need a satisfying dev-memory artifact -- discovered and fixed iteratively across 7 REVIEW rounds via reviewer diligence (including debug-instrumented root-cause tracing that overturned two of the orchestrator's own initial mis-triages) plus a full root npm test sweep beyond lattice validate's own coverage.",
+  "usage": "Run `lattice dev_memory_preflight_ack --storyId=<id>` before a story's first DEV entry (or --reason=\"<why>\" if the preflight pack build itself fails); run `lattice dev_memory_finish_decision --storyId=<id> --decision=captured|no-reusable-lesson|defer-with-reason` before DONE. finding_resolve's output now includes an unconditional dev_memory_capture reminder automatically.",
+  "expectedOutcome": "A story cannot enter DEV via any door without a recorded preflight ack, cannot reach DONE without a recorded finish-decision, and every resolved finding carries a visible dev-memory capture nudge -- closing the read-before-dev and write-during-dev gaps the user explicitly asked for.",
+  "actualTranscript": "Both lattice validate (96/96) and the project's root npm test (47/47) pass completely clean on the final commit. New smoke test: 79/79 assertions. Seven REVIEW rounds: round 1-3 covered the core implementation and a genuine fail-open regression found and fixed mid-review; rounds 4-7 covered a cascading series of collateral-fixture and infrastructure fixes (F-005 through F-010) surfaced by reviewer diligence that went beyond lattice validate's own coverage, including two instances where a reviewer's debug instrumentation correctly overturned the orchestrator's own premature 'unrelated pre-existing' triage. Full-3x2 cross-host quorum recorded.",
+  "outcomeDiff": "No gaps between expected and actual. Two genuinely unrelated pre-existing test failures (proofstory-acceptance-basis-smoke.ts, field-regression-cli-smoke.ts, worktree-authority-smoke.ts's version-bump ENOENT) were confirmed via reproduction on a clean untouched main checkout and flagged as separate follow-up tasks, not folded into this story.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Every OTHER currently-active story in this repo will hit CHK-001's new preflight-ack gate the first time it next tries to enter/re-enter DEV, and CHK-003's finish-decision gate the first time it tries to reach DONE -- each is a one-line unblock named directly in the refusal message, anticipated in decision.json's preMortem before implementation began. The immutable per-intentRef evidence-command pin (a pre-existing Lattice mechanism) has no supported way to strengthen or replace an already-pinned weak check discovered during REVIEW.",
+  "pitfalls": "A new gate check running before pre-existing code in a shared call path (getGuardFailureReason's DEV/DONE branches) can mask that pre-existing code's own diagnostic behind a generic, misleading top-level error from whatever fixture reaches it first -- this happened four separate times across this story (F-008, F-009, F-010's two instances) and is the single most important lesson: a file being untouched by your diff does NOT mean your diff cannot break it if a shared gate now runs earlier in its call path. Verify by tracing actual execution, not by checking whether a file appears in your own diff. Repinning a structural/AST fingerprint requires grepping the whole repo for the old value, not just the file where it was first found. A materialHash-invariance regression test that only writes a file (never commits it) is non-discriminating, since materialHash reads committed git state.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 307182
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 56018
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 2874881
+    },
+    "DEV": {
+      "count": 7,
+      "durationMs": 9542427
+    },
+    "REVIEW": {
+      "count": 7,
+      "durationMs": 91796062
+    },
+    "TEST": {
+      "count": 2,
+      "durationMs": 602561
+    }
+  },
+  "totalDurationMs": 105179848,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-08-15T11:08:42.056Z",
+  "updatedAt": "2026-08-15T15:25:42.988Z"
+}

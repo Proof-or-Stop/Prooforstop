@@ -1,5 +1,5 @@
 /**
- * evidence-pin-guard handler — Proofbound verification_pin_guard_check
+ * evidence-pin-guard handler — Proof-or-Stop verification_pin_guard_check
  *
  * B-1507 CHK-003. Read-only PreToolUse seatbelt command for the shell-tool hooks
  * on both hosts (Claude `Bash`, Codex shell tool). Mirrors prewrite-guard.ts:

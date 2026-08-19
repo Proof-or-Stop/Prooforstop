@@ -21,6 +21,7 @@ import type {
   ValidationResult,
 } from './validation-types.js';
 import { effectiveValidationCommandEnvironment } from './validation-command-environment.js';
+import { readBrandEnv } from './brand-env.js';
 
 const MAX_OUTPUT_CHARS = 12000;
 
@@ -40,6 +41,24 @@ const MAX_OUTPUT_CHARS = 12000;
  * non-default override the operator owns.
  */
 export const DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS = 270_000;
+
+/**
+ * B-cdf6 (B-META F-012): hard cap for a per-evidence pinned-command timeout override.
+ *
+ * A verification intent whose proof IS "the root DONE-blocking suite passes" could not be
+ * witnessed by a tool-executed receipt: the evidence path always ran the pinned command
+ * under {@link DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS} (270s) while that suite takes 21-24
+ * min, so the run was KILLED and no verdict was ever printed. The framework already knew
+ * this command legitimately needs longer — lattice.config.json gives the same `npm test`
+ * a 7200000ms budget as a DONE-required command — so the cap is set to exactly that
+ * value: the longest budget the framework itself sanctions. A request ABOVE the cap is
+ * REFUSED, never silently clamped.
+ *
+ * Canonical single source of truth: the CLI schema (`command-catalog.ts`) and the handler
+ * enforcement boundary (`handlers/checklist.ts`) both import THIS constant, so the Zod
+ * bound and the runtime re-validation can never drift apart.
+ */
+export const EVIDENCE_COMMAND_TIMEOUT_CAP_MS = 7_200_000;
 export const DEFAULT_VALIDATE_HEARTBEAT_MS = 30_000;
 /** Node clamps larger setTimeout delays to ~1ms and emits TimeoutOverflowWarning. */
 export const MAX_NODE_TIMER_DELAY_MS = 2_147_483_647;
@@ -80,7 +99,7 @@ export function resolveCommandTimeoutMs(
 }
 
 export function resolveValidateHeartbeatMs(env: NodeJS.ProcessEnv = process.env): number {
-  const raw = Number(env.LATTICE_VALIDATE_HEARTBEAT_MS);
+  const raw = Number(readBrandEnv('VALIDATE_HEARTBEAT_MS', env));
   return Number.isFinite(raw) && raw > 0 ? Math.floor(raw) : DEFAULT_VALIDATE_HEARTBEAT_MS;
 }
 
@@ -574,12 +593,28 @@ export interface SingleCommandExecutionResult {
   output: string;
   timedOut: boolean;
   durationMs: number;
+  /**
+   * B-cdf6 (B-META F-012): the wall-clock ceiling this run was ACTUALLY armed with —
+   * the caller's `options.timeoutMs` when supplied, else
+   * {@link DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS}, after
+   * {@link resolveCommandTimeoutMs} clamping. Reported back so a caller that must
+   * refuse a killed run can NAME the budget it was killed at instead of forcing the
+   * operator to guess (the F-012 misdiagnosis: three attempts read only the absent
+   * selector and never learned a 270s ceiling existed).
+   */
+  timeoutMs: number;
 }
 
 /**
  * B-ec67: run ONE allowlisted pinned command via the shared {@link runValidationCommand}
  * spawn path (per-command timeout, output capture, no shell on POSIX). Used by the
  * evidence-write handler to derive a tool-owned receipt from the actual exit + output.
+ *
+ * B-cdf6 (B-META F-012): `options.timeoutMs` was always accepted here but no production
+ * caller passed it, so every pinned evidence command ran under the 270s default and a
+ * longer witness (the root DONE-blocking suite takes 21-24 min) could never earn a
+ * receipt. The returned `timeoutMs` is the effective armed ceiling, so `timedOut` can be
+ * reported as a DISTINCT timeout refusal naming the budget.
  */
 export async function runSingleAllowlistedCommand(
   command: string,
@@ -602,6 +637,11 @@ export async function runSingleAllowlistedCommand(
     output: result.output,
     timedOut: Boolean(result.timedOut),
     durationMs: result.durationMs,
+    // runValidationCommand always stamps the effective (clamped, deadline-capped) ceiling,
+    // but ValidationCommandResult.timeoutMs is optional for legacy/stub producers — fall
+    // back to the same resolver so the reported budget is never undefined. A refusal that
+    // has to NAME the budget must always have one.
+    timeoutMs: result.timeoutMs ?? resolveCommandTimeoutMs(validationCommand),
   };
 }
 

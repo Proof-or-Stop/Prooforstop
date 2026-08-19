@@ -1,0 +1,69 @@
+{
+  "storyId": "B-6693",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/validation-execution-lock.ts",
+    "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/handlers/done-required-validation.ts",
+    "packages/main/src/handlers/verdict.ts",
+    "packages/main/src/tasks/validate-execution-lock-smoke.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/cli/command-schemas.ts",
+    "packages/main/src/cli-engine.ts",
+    "docs/CLI.md",
+    "docs/requirements/decisions/testing-infra.md",
+    "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+    "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/validate-execution-lock-smoke.ts",
+    "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+    "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+    "packages/main/src/tasks/flow-stability-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "protectedFiles": [
+    "lattice.config.json",
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src/tasks/full-suite-runner.ts",
+    "packages/main/src/tasks/full-suite-runner-smoke.ts"
+  ],
+  "explicitExcludes": [
+    "packages/main/src/Direct bare npm test interception or wrapping",
+    "packages/main/src/Runtime artifact registry, doctor, runtime-fact registry, and process-fact registry changes"
+  ],
+  "scopeChangeReason": "F-019 proves the process-fact contract script retains the old audited cli-engine AST fingerprint. Extend allowedTest by exactly scripts/verify-process-fact-contract.mjs to synchronize the mechanical truth source; no production or registry semantics change.",
+  "acknowledgements": [],
+  "createdAt": "2026-08-14T15:29:58.959Z",
+  "updatedAt": "2026-08-15T21:50:55.476Z",
+  "fileRules": [],
+  "protectedAnchors": [],
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/core/validation-execution-lock.ts": "packages/main/src/core/validation-execution-lock.ts",
+    "packages/main/src/handlers/verifier.ts": "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/handlers/done-required-validation.ts": "packages/main/src/handlers/done-required-validation.ts",
+    "packages/main/src/tasks/validate-execution-lock-smoke.ts": "packages/main/src/tasks/validate-execution-lock-smoke.ts",
+    "packages/main/src/cli/command-catalog.ts": "packages/main/src/cli/command-catalog.ts",
+    "docs/CLI.md": "docs/CLI.md",
+    "docs/requirements/decisions/testing-infra.md": "docs/requirements/decisions/testing-infra.md",
+    "docs/requirements/decisions/done-full-test-gate-execution-plan.md": "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+    "lattice.config.json": "lattice.config.json",
+    "package.json": "package.json",
+    "packages/main/package.json": "packages/main/package.json",
+    "packages/main/src/tasks/full-suite-runner.ts": "packages/main/src/tasks/full-suite-runner.ts",
+    "packages/main/src/tasks/full-suite-runner-smoke.ts": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+    "packages/main/src/Direct bare npm test interception or wrapping": "packages/main/src/Direct bare npm test interception or wrapping",
+    "packages/main/src/Runtime artifact registry, doctor, runtime-fact registry, and process-fact registry changes": "packages/main/src/Runtime artifact registry, doctor, runtime-fact registry, and process-fact registry changes",
+    "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+    "packages/main/src/handlers/verdict.ts": "packages/main/src/handlers/verdict.ts",
+    "packages/main/src/cli/command-schemas.ts": "packages/main/src/cli/command-schemas.ts",
+    "packages/main/src/cli-engine.ts": "packages/main/src/cli-engine.ts",
+    "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+    "packages/main/src/tasks/flow-stability-smoke.ts": "packages/main/src/tasks/flow-stability-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs": "scripts/verify-process-fact-contract.mjs"
+  }
+}

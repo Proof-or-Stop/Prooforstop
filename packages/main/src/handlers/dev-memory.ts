@@ -1,8 +1,8 @@
 /**
  * dev-memory handlers — thin CLI wrappers around core/dev-memory.ts
  *
- * B-ad2c: lightweight experience capture outside Proofbound story gates.
- * All commands are non-authoritative and do NOT satisfy Proofbound gate evidence.
+ * B-ad2c: lightweight experience capture outside Proof-or-Stop story gates.
+ * All commands are non-authoritative and do NOT satisfy Proof-or-Stop gate evidence.
  */
 
 import type { HandlerContext } from './context.js';
@@ -33,6 +33,15 @@ import { existsSync, mkdirSync } from 'fs';
 import { loadConfig } from '../core/config.js';
 import { buildMemoryFreshnessPack, renderMemoryFreshnessPack } from '../core/playbook-runtime-memory.js';
 import { surfaceRuntimeMemoryPack } from '../core/experience-pack-surface.js';
+import { digestCanonicalJson } from '../core/digest.js';
+import { isCanonicalStoryId } from '../core/lifecycle-registry.js';
+import type { DevMemoryPreflightAckData } from '../core/types.js';
+
+function actorFrom(value: string | undefined): string {
+  const explicit = value?.trim();
+  if (explicit) return explicit;
+  return process.env.LATTICE_AGENT || process.env.USER || 'main-agent';
+}
 
 // ---------------------------------------------------------------------------
 // dev_memory_capture
@@ -59,7 +68,7 @@ function parseTagsArg(tags: string[] | string | undefined): string[] | undefined
 }
 
 export function createDevMemoryHandlers(ctx: HandlerContext) {
-  const { root } = ctx;
+  const { root, store } = ctx;
 
   // -------------------------------------------------------------------------
   // dev_memory_capture
@@ -197,6 +206,88 @@ export function createDevMemoryHandlers(ctx: HandlerContext) {
   }
 
   // -------------------------------------------------------------------------
+  // dev_memory_preflight_ack — B-a7c5 CHK-001
+  //
+  // Runs the SAME preflight-pack builder dev_memory_preflight uses, then
+  // writes a per-story acknowledgement consumed by the DEV-entry gate
+  // (canStartDevGuard / canSkipPlanGuard / canReenterDevGuard in
+  // core/machine.ts). Normal path: the build succeeds and the ack records
+  // the ids actually seen. Reasoned-downgrade path (section 4.3 bypass
+  // compliance): if the build itself throws AND --reason (>=5 chars) is
+  // supplied, the ack is still written with packDigest:null/topHitIds:[] and
+  // the reason recorded — an explicit, honest downgrade, never a silent skip.
+  // Without a reason, a failing build leaves the command failing (no ack
+  // written, gate stays blocked).
+  // -------------------------------------------------------------------------
+  function dev_memory_preflight_ack(args: {
+    storyId: string;
+    query?: string;
+    maxEntries?: number;
+    maxLines?: number;
+    reason?: string;
+    actor?: string;
+  }): string {
+    const storyId = args.storyId?.trim();
+    if (!storyId) {
+      throw new Error('dev_memory_preflight_ack requires storyId');
+    }
+    if (!isCanonicalStoryId(storyId)) {
+      throw new Error(
+        `dev_memory_preflight_ack: invalid storyId ${JSON.stringify(args.storyId)}; ` +
+        'must be a canonical, path-safe Proofbound story id',
+      );
+    }
+    const reason = args.reason?.trim();
+    const acknowledgedBy = actorFrom(args.actor);
+
+    let packDigest: string | null;
+    let topHitIds: string[];
+    let downgradeReason: string | undefined;
+    try {
+      const result = buildPreflightPack({
+        query: args.query,
+        projectRoot: root,
+        maxEntries: args.maxEntries,
+        maxLines: args.maxLines,
+      });
+      topHitIds = result.entries.map(e => e.id);
+      packDigest = digestCanonicalJson({ topHitIds, lineCount: result.lineCount, truncated: result.truncated });
+    } catch (e) {
+      if (!reason || reason.length < 5) {
+        const detail = e instanceof Error ? e.message : String(e);
+        throw new Error(
+          `dev_memory_preflight_ack: preflight pack build failed (${detail}); ` +
+          'provide --reason (>=5 chars) to record a reasoned downgrade',
+        );
+      }
+      packDigest = null;
+      topHitIds = [];
+      downgradeReason = reason;
+    }
+
+    const data: DevMemoryPreflightAckData = {
+      schemaVersion: 'lattice.dev_memory_preflight_ack.v1',
+      storyId,
+      packDigest,
+      topHitIds,
+      acknowledgedAt: new Date().toISOString(),
+      acknowledgedBy,
+      ...(downgradeReason ? { downgradeReason } : {}),
+    };
+    store.writeDevMemoryPreflightAck(storyId, data);
+
+    const lines = [
+      `Dev-memory preflight acknowledged for ${storyId}`,
+      downgradeReason
+        ? `  packDigest: null (reasoned downgrade: ${downgradeReason})`
+        : `  packDigest: ${packDigest}`,
+      `  topHitIds: ${topHitIds.join(', ') || 'none'}`,
+      `  acknowledgedBy: ${acknowledgedBy}`,
+    ];
+    return lines.join('\n');
+  }
+
+  // -------------------------------------------------------------------------
   // dev_memory_finish
   // -------------------------------------------------------------------------
   function dev_memory_finish(args: {
@@ -216,7 +307,7 @@ export function createDevMemoryHandlers(ctx: HandlerContext) {
       if (relevant.length === 0) {
         return [
           `dev_memory_finish: no experience entries found in project memory (${projectPath}).`,
-          `  No story directory required for outside-Proofbound sessions.`,
+          `  No story directory required for outside-Proof-or-Stop sessions.`,
         ].join('\n');
       }
 
@@ -325,10 +416,10 @@ export function createDevMemoryHandlers(ctx: HandlerContext) {
       `Dev session starting (agent: ${agentName})`,
       ``,
       `When the session ends, run one of:`,
-      `  lattice dev_memory_finish                    # report project entries (no story required)`,
-      `  lattice dev_memory_finish --scope=global     # promote to global dev-memory`,
-      `  lattice dev_memory_finish --storyId=<id>     # write story-scoped candidates`,
-      `  lattice dev_memory_finish_decision --decision=captured|no-reusable-lesson|defer-with-reason`,
+      `  proof-or-stop dev_memory_finish                    # report project entries (no story required)`,
+      `  proof-or-stop dev_memory_finish --scope=global     # promote to global dev-memory`,
+      `  proof-or-stop dev_memory_finish --storyId=<id>     # write story-scoped candidates`,
+      `  proof-or-stop dev_memory_finish_decision --decision=captured|no-reusable-lesson|defer-with-reason`,
       ``,
       `Project entries are retained automatically. No decision automatically promotes project/global memory.`,
     ].join('\n');
@@ -340,6 +431,7 @@ export function createDevMemoryHandlers(ctx: HandlerContext) {
     dev_memory_list,
     dev_memory_search,
     dev_memory_preflight,
+    dev_memory_preflight_ack,
     dev_memory_finish,
     dev_memory_start,
   };

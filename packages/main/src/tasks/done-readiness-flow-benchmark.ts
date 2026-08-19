@@ -34,7 +34,7 @@ import type { ChecklistData, ClosingSelfCheck, DocsPromise, RealMachineTest, Sto
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const cliPath = join(packageRoot, 'cli.js');
-const COMMIT_ENV = ['-c', 'user.email=benchmark@example.test', '-c', 'user.name=Proofbound Benchmark'];
+const COMMIT_ENV = ['-c', 'user.email=benchmark@example.test', '-c', 'user.name=Proof-or-Stop Benchmark'];
 const DEFAULT_ROUNDS = 3;
 const DEFAULT_SLOW_COMMAND_MS = 800;
 const METADATA_STORY_ID = 'B-readiness-bench';
@@ -359,7 +359,7 @@ async function runMetadataRound(round: number, slowMs: number, keepTemp: boolean
   }
 }
 
-function runLattice(
+function runProofOrStop(
   cwd: string,
   command: string,
   args: Record<string, unknown>,
@@ -380,7 +380,7 @@ function runLattice(
 
 function probeDoneClosure(worktreePath: string): DonePrepareClosureSnapshot {
   try {
-    const closure = JSON.parse(runLattice(worktreePath, 'done_closure', { storyId: PREPARE_STORY_ID, json: true })) as {
+    const closure = JSON.parse(runProofOrStop(worktreePath, 'done_closure', { storyId: PREPARE_STORY_ID, json: true })) as {
       canAttemptDone?: unknown;
       blockers?: unknown;
     };
@@ -541,7 +541,7 @@ async function runDonePrepareDirtyMetadataScenario(slowMs: number, keepTemp: boo
       'dirty metadata scenario must have no closure blockers after done-required evidence exists',
     );
 
-    const prepared = await timed(() => runLattice(worktreePath, 'done_prepare', {
+    const prepared = await timed(() => runProofOrStop(worktreePath, 'done_prepare', {
       storyId: PREPARE_STORY_ID,
       validate: false,
       mergeMain: false,

@@ -92,7 +92,16 @@ async function main() {
   check(doctorSource.includes('renderRuntimeEnvironmentReport'), 'doctor text should render runtime scan');
   check(checksSource.includes('stale_global_runtime_in_worktree'), 'runtime authority checker must expose the stable stale-global reason code');
   check(checksSource.includes('renderLocalEntrypointRecoveryCommand'), 'runtime authority checker must expose one canonical local recovery renderer');
-  check(checksSource.includes("LATTICE_CODEX_ENTRYPOINT === 'global-fallback'"), 'runtime authority checker must narrowly bind the explicit global fallback');
+  // B-cdf6:F-020 — the checker now reads BOTH brand spellings via readBrandEnv instead of a
+  // raw `input.env?.LATTICE_CODEX_ENTRYPOINT` property access, so pinning the old literal
+  // would fail on a correct implementation. The invariant this check exists to protect is
+  // NARROWNESS: the exemption must still be bound to the exact 'global-fallback' value, not
+  // widened to any truthy entrypoint. Assert that instead of a brand-specific spelling, so a
+  // future brand change cannot break it again (same anti-pattern as F-015's three-way mirror).
+  check(
+    checksSource.includes("readBrandEnv('CODEX_ENTRYPOINT', input.env) === 'global-fallback'"),
+    'runtime authority checker must narrowly bind the explicit global fallback',
+  );
   check(checksSource.includes("input.command === 'session_brief'"), 'global fallback exemption must be session_brief-only');
   const authorityPreflight = cliEngineSource.indexOf('raw-argv-safe runtime authority preflight');
   check(authorityPreflight >= 0, 'CLI engine must declare the raw-argv-safe runtime authority preflight');

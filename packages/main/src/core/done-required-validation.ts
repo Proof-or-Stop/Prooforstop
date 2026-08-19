@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import { realpathSync } from 'node:fs';
 import { basename, dirname, isAbsolute, join, relative, resolve } from 'node:path';
-import { loadConfig, type LatticeConfig } from './config.js';
+import { loadConfig, type ProofOrStopConfig } from './config.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from './evidence-freshness.js';
 import type { StoryStore } from './store.js';
 import { DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS, formatValidationCommand, resolveCommandTimeoutMs, runValidationCommand } from './validation-executor.js';
@@ -360,8 +360,8 @@ function normalizeCommandEntry(entry: unknown, index: number, errors: string[]):
   };
 }
 
-function rawDonePolicy(config: LatticeConfig): { source: DoneRequiredPolicy['source']; value: unknown } {
-  const cfg = config as LatticeConfig & Record<string, unknown>;
+function rawDonePolicy(config: ProofOrStopConfig): { source: DoneRequiredPolicy['source']; value: unknown } {
+  const cfg = config as ProofOrStopConfig & Record<string, unknown>;
   if (Object.prototype.hasOwnProperty.call(cfg, 'doneRequiredCommands')) {
     return { source: 'doneRequiredCommands', value: cfg.doneRequiredCommands };
   }
@@ -1031,7 +1031,7 @@ export function evaluateDoneRequiredEvidence(args: {
       ok: false,
       status: 'fail',
       detail: 'missing done-required-evidence.json',
-      hint: `lattice done_required_validate --storyId=${args.storyId}`,
+      hint: `proof-or-stop done_required_validate --storyId=${args.storyId}`,
       reasons: ['missing-artifact'],
       policy,
       evidence: null,
@@ -1090,7 +1090,7 @@ export function evaluateDoneRequiredEvidence(args: {
       detail: uniqueReasons.slice(0, 3).join(', '),
       hint: [
         ...uniqueReasons,
-        `rerun: lattice done_required_validate --storyId=${args.storyId}`,
+        `rerun: proof-or-stop done_required_validate --storyId=${args.storyId}`,
       ].join('\n'),
       reasons: uniqueReasons,
       policy,
@@ -1108,7 +1108,7 @@ export function evaluateDoneRequiredEvidence(args: {
       detail: environmentProjectionReasons.slice(0, 3).join(', '),
       hint: [
         ...environmentProjectionReasons,
-        `rerun: lattice done_required_validate --storyId=${args.storyId}`,
+        `rerun: proof-or-stop done_required_validate --storyId=${args.storyId}`,
       ].join('\n'),
       reasons: environmentProjectionReasons,
       policy,

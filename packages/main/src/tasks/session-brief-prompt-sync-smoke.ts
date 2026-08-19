@@ -43,12 +43,12 @@ const targetDocs = [
 ];
 
 const staleFirstSessionPhrases = [
-  'Run `lattice status` at the start of every new session',
-  'Run `lattice status` before taking action',
-  'lattice status — check for existing active story',
-  'lattice status — see current phase',
-  'Not sure what to do now? Run lattice status',
-  'lattice status                # one-screen view of project status',
+  'Run `proof-or-stop status` at the start of every new session',
+  'Run `proof-or-stop status` before taking action',
+  'proof-or-stop status — check for existing active story',
+  'proof-or-stop status — see current phase',
+  'Not sure what to do now? Run proof-or-stop status',
+  'proof-or-stop status                # one-screen view of project status',
 ];
 
 for (const file of targetDocs) {
@@ -58,7 +58,11 @@ for (const file of targetDocs) {
   }
 }
 
-assert.match(read('packages/main/src/cli-prompts.ts'), /SESSION_BRIEF_FOOTER[\s\S]*lattice session_brief/);
+// B-cdf6 CHK-002: the footer is now rendered from the invoked bin token rather
+// than a hardcoded name, so pin the builder + its next-step command instead of
+// the old `proof-or-stop session_brief` literal.
+assert.match(read('packages/main/src/cli-prompts.ts'), /sessionBriefFooter[\s\S]*\$\{bin\} session_brief/);
+assert.match(read('packages/main/src/cli-prompts.ts'), /SESSION_BRIEF_FOOTER = sessionBriefFooter\(\)/);
 
 const readme = read('README.md');
 const guide = read('docs/guide.md');
@@ -68,8 +72,8 @@ for (const [label, content] of [['README.md', readme], ['docs/guide.md', guide]]
   assert.match(content, /npm --prefix packages\/main run build/, `${label} documents local package build before refresh`);
   assert.match(content, /npm install -g \.\/packages\/main/, `${label} documents global package refresh`);
   assert.match(content, /\blattice --version\b/, `${label} verifies lattice binary version`);
-  assert.match(content, /\blattice check\b/, `${label} documents lattice check`);
-  assert.match(content, /\blattice doctor --format=json\b/, `${label} documents lattice doctor json`);
+  assert.match(content, /\blattice check\b/, `${label} documents proof-or-stop check`);
+  assert.match(content, /\blattice doctor --format=json\b/, `${label} documents proof-or-stop doctor json`);
   assert.match(content, /\blattice rollout_check --projects "\$\(pwd\)" --json\b/, `${label} documents rollout_check refresh proof`);
 }
 
@@ -79,7 +83,7 @@ assert.match(readme, /node bin\/lattice\.js verify_codex/, 'README uses lattice 
 assert.match(readme, /node bin\/lattice\.js aux_doc_list/, 'README uses lattice local wrapper for generic aux_doc_list');
 assert.match(guide, /`lattice` is the current command entry/i, 'guide states lattice as current command entry');
 assert.match(projectVision, /`lattice` is the 0\.3\.5 active product entry/, 'project vision states lattice as active product entry');
-assert.match(projectVision, /`lattice rollout_check`[\s\S]{0,80}read-only scan/, 'project vision keeps rollout_check read-only constraint');
+assert.match(projectVision, /`proof-or-stop rollout_check`[\s\S]{0,80}read-only scan/, 'project vision keeps rollout_check read-only constraint');
 
 for (const file of targetDocs) {
   const content = read(file);
@@ -93,7 +97,7 @@ for (const file of targetDocs) {
 }
 
 const hookPath = join(repoRoot, '.claude', 'hooks', 'session-brief-reminder.cjs');
-const reminder = 'Suggest running lattice session_brief first to restore context';
+const reminder = 'Suggest running proof-or-stop session_brief first to restore context';
 
 function runHook(root: string, input: string): { status: number | null; output: string } {
   const result = spawnSync(process.execPath, [hookPath], {
@@ -150,8 +154,8 @@ function tmpRoot(prefix: string): string {
     mkdirSync(join(root, 'docs', 'story'), { recursive: true });
     writeFileSync(join(root, 'docs', 'story', 'activity.jsonl'), JSON.stringify({
       tool: 'Bash',
-      detail: 'lattice session_brief',
-      args: { command: 'lattice session_brief' },
+      detail: 'proof-or-stop session_brief',
+      args: { command: 'proof-or-stop session_brief' },
       endTime: new Date().toISOString(),
     }) + '\n');
     const result = runHook(root, JSON.stringify({ cwd: root }));
@@ -168,8 +172,8 @@ function tmpRoot(prefix: string): string {
     mkdirSync(join(root, 'docs', 'story'), { recursive: true });
     writeFileSync(join(root, 'docs', 'story', 'activity.jsonl'), JSON.stringify({
       tool: 'Bash',
-      detail: 'lattice session_brief',
-      args: { command: 'lattice session_brief' },
+      detail: 'proof-or-stop session_brief',
+      args: { command: 'proof-or-stop session_brief' },
       endTime: new Date().toISOString(),
     }) + '\n');
     const result = runHook(root, JSON.stringify({ cwd: root }));
@@ -186,8 +190,8 @@ function tmpRoot(prefix: string): string {
     mkdirSync(join(root, 'docs', 'story', 'actives', 'B-demo'), { recursive: true });
     writeFileSync(join(root, 'docs', 'story', 'actives', 'B-demo', 'activity.jsonl'), JSON.stringify({
       tool: 'Bash',
-      detail: 'lattice session_brief',
-      args: { command: 'lattice session_brief' },
+      detail: 'proof-or-stop session_brief',
+      args: { command: 'proof-or-stop session_brief' },
       endTime: new Date().toISOString(),
     }) + '\n');
     const result = runHook(root, JSON.stringify({ cwd: root }));

@@ -1,7 +1,7 @@
 /**
  * @task B-6bfd
  * @checklist CHK-004
- * @title Proofbound-managed guarded session projection
+ * @title Proof-or-Stop-managed guarded session projection
  * @type feature
  * @priority high
  * @description
@@ -55,7 +55,7 @@ export const GUARD_NATIVE_PRETOOL_PROVIDERS: ReadonlySet<string> = new Set([
 ]);
 
 /**
- * Providers that support wrapped-preapply mode when invoked through Proofbound
+ * Providers that support wrapped-preapply mode when invoked through Proof-or-Stop
  * dispatch/pre-apply flow. Without dispatch context they fall back to
  * watcher-fallback — never pretend pre-write interception exists without it.
  */
@@ -88,7 +88,7 @@ export function providerSupportsPreToolBlocking(provider: string): boolean {
  *   Codex .codex/hooks.json wires prewrite_guard_check). Without this, native
  *   hook-capable hosts fall back to watcher-fallback unless another guarded
  *   context such as wrapped-preapply applies.
- * - viaDispatch: true when Codex or Gemini is running through Proofbound
+ * - viaDispatch: true when Codex or Gemini is running through Proof-or-Stop
  *   dispatch/pre-apply flow, enabling wrapped-preapply mode.
  *   Without this, those providers fall back to watcher-fallback.
  */
@@ -329,7 +329,7 @@ export function renderGuardSession(session: GuardSessionData | null | undefined)
     );
   } else if (session.guardMode === 'wrapped-preapply') {
     lines.push(
-      'Note: wrapped-preapply mode — pre-write checks run through the Proofbound dispatch/pre-apply flow.',
+      'Note: wrapped-preapply mode — pre-write checks run through the Proof-or-Stop dispatch/pre-apply flow.',
     );
   } else if (session.guardMode === 'native-pretool' || session.guardMode === 'active') {
     lines.push(
@@ -348,7 +348,7 @@ export function renderGuardModeDiagnostic(mode: GuardSessionMode): string {
     return 'native-pretool: Claude Code PreToolUse hook verified; writes intercepted before landing.';
   }
   if (mode === 'wrapped-preapply') {
-    return 'wrapped-preapply: running via Proofbound dispatch/pre-apply; scope checked before each write.';
+    return 'wrapped-preapply: running via Proof-or-Stop dispatch/pre-apply; scope checked before each write.';
   }
   return 'watcher-fallback: no pre-write interception; violations detected after the fact only.';
 }

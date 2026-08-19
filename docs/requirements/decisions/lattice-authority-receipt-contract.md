@@ -1,14 +1,14 @@
-# Proofbound Authority Receipt Contract
+# Proof-or-Stop Authority Receipt Contract
 
-> **Retired legacy note:** Authority Server and server-backed receipt semantics in this document are retired/out-of-core for the active Proofbound CLI. Current implementation baselines are local proof admissibility (`admissibilityStatus`, `assuranceLevel`, `evidenceScope`), gate-consumed local evidence, signed/offline receipt bundles, and local review quorum assurance. Do not use this document as active Authority Server implementation guidance.
+> **Retired legacy note:** Authority Server and server-backed receipt semantics in this document are retired/out-of-core for the active Proof-or-Stop CLI. Current implementation baselines are local proof admissibility (`admissibilityStatus`, `assuranceLevel`, `evidenceScope`), gate-consumed local evidence, signed/offline receipt bundles, and local review quorum assurance. Do not use this document as active Authority Server implementation guidance.
 
 > Status: execution subdocument for
 > [Authority Receipt Gate End-to-End Plan](authority-session-receipt-gate-execution.md).
-> Owner: Proofbound Authority Python server.
+> Owner: Proof-or-Stop Authority Python server.
 
 ## Purpose
 
-This document defines the server-side contract Proofbound CLI uses to verify server
+This document defines the server-side contract Proof-or-Stop CLI uses to verify server
 receipts and that lifecycle gates need before they can consume them.
 
 The server work is contract alignment, not a rewrite. The Python Authority

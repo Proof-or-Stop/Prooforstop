@@ -10,14 +10,15 @@ decision, digest, lineage, outcome, and rollback checks. B-a4f7 implements
 story-scoped `playbook_candidate_ingest` for automatic DONE experience seed ->
 proposal -> inert candidate ingestion.
 
-Naming note: public project naming is Proof-or-Stop. Current internal documents
-may still use Proofbound, and the current CLI binary and storage paths may still
-use legacy `lattice` / `.lattice` names until the runtime rename migration is
-completed.
+Naming note: public project naming is Proof-or-Stop, and `proof-or-stop` is the
+primary CLI command. The legacy `lattice` command name is retained as a
+deprecated alias, and storage paths plus internal identifiers (`.lattice/`,
+`LATTICE_*`, signature salts, agent role IDs) intentionally keep the legacy name
+so already-persisted state and signatures stay valid.
 
 ## 1. Why This Exists
 
-Proofbound has useful historical experience, but that experience is not yet
+Proof-or-Stop has useful historical experience, but that experience is not yet
 connected to the playbook promotion loop in a complete and auditable way.
 
 Current state:
@@ -64,7 +65,7 @@ Authority Server / production receipt / Layer4 customerKeyRef are live.
 Correct bounded claim:
 
 ```text
-The completed work is local Proofbound CLI / roadmap closure scope. Retired
+The completed work is local Proof-or-Stop CLI / roadmap closure scope. Retired
 Authority Server, external production receipt, and Layer4 customerKeyRef
 capabilities require current receipt-backed evidence before they can be claimed
 as live.
@@ -139,7 +140,7 @@ does not yet become the preferred source for playbook seeds.
 
 ## 6. Source Priority
 
-When multiple artifacts point to the same underlying issue, Proofbound should
+When multiple artifacts point to the same underlying issue, Proof-or-Stop should
 choose one primary proposal source.
 
 Recommended priority:
@@ -169,7 +170,7 @@ Rules:
 ## 7. Generic Source Lineage Model
 
 The lineage model should be generic enough for other projects using
-Proofbound / Lattice CLI, not just this repository.
+Proof-or-Stop / Proof-or-Stop CLI, not just this repository.
 
 Every derived learning artifact should project a normalized source record:
 
@@ -191,7 +192,7 @@ interface SourceLineageRecord {
 }
 ```
 
-For Proofbound learning, `canonicalSourceKey` is derived from:
+For Proof-or-Stop learning, `canonicalSourceKey` is derived from:
 
 ```text
 sourceStoryId + sourceFindingId + optional normalized signature
@@ -219,7 +220,7 @@ Other projects can define their own source identity:
 Generic read-only audit.
 
 ```bash
-lattice source_lineage_audit --domain=learning --json
+proof-or-stop source_lineage_audit --domain=learning --json
 ```
 
 Reports:
@@ -241,14 +242,14 @@ must fail clearly.
 
 ### 8.2 `playbook_seed_observe`
 
-Proofbound learning-specific read-only view built on top of
+Proof-or-Stop learning-specific read-only view built on top of
 `source_lineage_audit` (implemented by B-9958).
 
 ```bash
-lattice playbook_seed_observe --json
-lattice playbook_seed_observe --source=dev-memory --json
-lattice playbook_seed_observe --source=finding-signals --json
-lattice playbook_seed_observe --source=done-experience --json
+proof-or-stop playbook_seed_observe --json
+proof-or-stop playbook_seed_observe --source=dev-memory --json
+proof-or-stop playbook_seed_observe --source=finding-signals --json
+proof-or-stop playbook_seed_observe --source=done-experience --json
 ```
 
 Reports:
@@ -292,9 +293,9 @@ Command for creating proposals from deduped historical seeds. Default is
 dry-run (implemented by B-9958).
 
 ```bash
-lattice playbook_seed_propose_batch --dryRun --limit=20
-lattice playbook_seed_propose_batch --apply --source=dev-memory --limit=20 --observeDigest=<digest>
-lattice playbook_seed_propose_batch --apply --source=done-experience --limit=20 --observeDigest=<digest>
+proof-or-stop playbook_seed_propose_batch --dryRun --limit=20
+proof-or-stop playbook_seed_propose_batch --apply --source=dev-memory --limit=20 --observeDigest=<digest>
+proof-or-stop playbook_seed_propose_batch --apply --source=done-experience --limit=20 --observeDigest=<digest>
 ```
 
 Rules:
@@ -320,8 +321,8 @@ Command for converting staged seed proposals into candidate playbooks. Default
 is dry-run (implemented by B-9958).
 
 ```bash
-lattice playbook_candidate_batch_approve --dryRun --limit=50
-lattice playbook_candidate_batch_approve --apply --manifestDigest=<digest>
+proof-or-stop playbook_candidate_batch_approve --dryRun --limit=50
+proof-or-stop playbook_candidate_batch_approve --apply --manifestDigest=<digest>
 ```
 
 Rules:
@@ -341,9 +342,9 @@ Host-neutral wrapper that composes seed observe, proposal staging, and candidate
 approval. Default is dry-run/read preview (implemented by B-a4f7).
 
 ```bash
-lattice playbook_candidate_ingest --json
-lattice playbook_candidate_ingest --storyId=B-example --json
-lattice playbook_candidate_ingest --apply --storyId=B-example --limit=5 --json
+proof-or-stop playbook_candidate_ingest --json
+proof-or-stop playbook_candidate_ingest --storyId=B-example --json
+proof-or-stop playbook_candidate_ingest --apply --storyId=B-example --limit=5 --json
 ```
 
 Defaults and filters:
@@ -384,11 +385,11 @@ backfill.
 Existing promotion commands remain part of the loop:
 
 ```bash
-lattice playbook_outcome_record ...
-lattice playbook_promotion_sweep --dryRun
-lattice playbook_promotion_sweep --apply
-lattice playbook_promotion_observe --since=14d --json
-lattice playbook_promotion_status --json
+proof-or-stop playbook_outcome_record ...
+proof-or-stop playbook_promotion_sweep --dryRun
+proof-or-stop playbook_promotion_sweep --apply
+proof-or-stop playbook_promotion_observe --since=14d --json
+proof-or-stop playbook_promotion_status --json
 ```
 
 V1 behavior:
@@ -403,8 +404,8 @@ apply surface, not as a default-off placeholder guard. B-6703 makes the single
 apply command self-contained for already-qualified candidates:
 
 ```bash
-lattice playbook_auto_promotion_apply --dryRun
-lattice playbook_auto_promotion_apply --apply
+proof-or-stop playbook_auto_promotion_apply --dryRun
+proof-or-stop playbook_auto_promotion_apply --apply
 ```
 
 Allowed only when:
@@ -453,7 +454,7 @@ final_response_check
 Minimum closure command (implemented by B-9958):
 
 ```bash
-lattice playbook_runtime_consumption_verify --json
+proof-or-stop playbook_runtime_consumption_verify --json
 ```
 
 It must prove:
@@ -518,7 +519,7 @@ Provide project-neutral read-only source lineage inspection.
 Deliverables:
 
 - source lineage record types;
-- source collectors for Proofbound learning artifacts;
+- source collectors for Proof-or-Stop learning artifacts;
 - `source_lineage_audit --domain=learning --json`;
 - duplicate canonical source grouping;
 - missing lineage diagnostics;
@@ -585,7 +586,7 @@ historical seed presence, DONE success, neutral/unknown outcomes, or
 - Active playbooks are verified as consumed by `session_brief`, DONE closure,
   and `final_response_check`.
 - No learning artifact can satisfy lifecycle gate evidence.
-- The generic lineage audit can be used by other projects with non-Proofbound
+- The generic lineage audit can be used by other projects with non-Proof-or-Stop
   source kinds.
 
 ## 13. Why Existing CLI Did Not Catch This

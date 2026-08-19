@@ -21,6 +21,8 @@ import {
   validateReviewInventoryCriticReceipt,
   verifyReviewInventoryEpoch,
   verifyReviewInventoryReceipt,
+  persistFinalizedReviewInventory,
+  renderFinalizedReviewInventory,
   withReviewInventoryMutationLock,
 } from '../core/review-inventory-epoch.js';
 import { resolveAgentMutationAuthority } from '../core/agent-dispatch-registry.js';
@@ -515,7 +517,22 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
     review_inventory_finalize(args: { storyId: string }): string {
       return inventoryLock(ctx, args.storyId, () => {
         let epoch = currentOpenReviewInventory(ctx.store, args.storyId);
-        if (!epoch) throw new Error(`review_inventory_finalize: no OPEN epoch for ${args.storyId}`);
+        if (!epoch) {
+          const story = ctx.store.readStory(args.storyId);
+          const cutoff = capture(ctx, args.storyId);
+          if (!cutoff.headHash || !cutoff.materialHash || !cutoff.storyFilesHash) {
+            throw new Error(
+              'review_inventory_finalize: current headHash/materialHash/storyFilesHash are missing; refuse rather than invent a second freshness hash',
+            );
+          }
+          const persisted = persistFinalizedReviewInventory({
+            store: ctx.store,
+            storyId: args.storyId,
+            reviewRound: story.currentReviewRound ?? '',
+            cutoff,
+          });
+          return renderFinalizedReviewInventory(persisted.epoch, persisted.receipt);
+        }
         epoch = persistInvalidationIfDrifted(ctx, epoch);
         if (epoch.state !== 'OPEN') throw new Error(renderProjectedStatus(ctx, epoch));
         if (epoch.waves.length >= epoch.maxWaves) {

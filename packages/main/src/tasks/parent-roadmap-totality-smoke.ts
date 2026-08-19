@@ -163,7 +163,7 @@ function baseLedger(overrides: Record<string, unknown> = {}): Record<string, unk
     schemaVersion: 'parent_roadmap.ledger.v1',
     ledgerId: 'PR-B-43de',
     parentStoryId: 'B-43de',
-    originalIntentSnapshot: 'Deliver the full Proofbound strengthening roadmap, including rows M4-M12.',
+    originalIntentSnapshot: 'Deliver the full Proof-or-Stop strengthening roadmap, including rows M4-M12.',
     sourceRefs: ['docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md#M4-M12'],
     createdByStoryId: 'B-43de',
     updatedByStoryIds: ['B-43de'],

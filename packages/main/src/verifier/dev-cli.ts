@@ -3,7 +3,7 @@
  * dev-cli.ts — unified development launcher provided by the framework
  *
  * Usage (run from the project directory):
- *   lattice serve              → core + Dashboard
+ *   proof-or-stop serve              → core + Dashboard
  */
 
 import { spawn, ChildProcess } from 'child_process';

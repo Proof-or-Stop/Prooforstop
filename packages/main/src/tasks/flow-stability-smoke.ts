@@ -31,11 +31,18 @@ import { createArtifactDeclareHandlers } from '../handlers/artifact-declare.js';
 import { EMPTY_STORY_FILES_HASH, checkEvidenceFreshnessForGit, currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { signDeliveryCheck } from '../core/delivery-check-hash.js';
 import { signFinding, signReviewPass, verifyFinding, verifyReviewPass } from '../core/finding-verify.js';
-import { autoCommitStoryMetadata, AUTO_COMMIT_METADATA_PREFIX } from '../core/auto-commit-metadata.js';
+import {
+  autoCommitStoryMetadata,
+  AUTO_COMMIT_METADATA_PREFIX,
+  COMMIT_SUBJECT_PREFIX,
+  DEPRECATED_COMMIT_SUBJECT_PREFIX,
+  matchesRuntimeCommitSubject,
+} from '../core/auto-commit-metadata.js';
 import { readHealthIssues } from '../core/health.js';
 import { getArtifactContractStatus } from '../core/artifact-contract.js';
 import { FLOW_FACT_POLICIES, isPassOnlyReviewFindingRecord } from '../core/flow-fact-policy.js';
 import { runManagedAssetCheck } from '../core/managed-assets.js';
+import { runAgentLivenessSuiteForPinnedEvidence } from './agent-liveness-suite-smoke.js';
 import {
   ACTIVE_LIFECYCLE_PHASES,
   COMMAND_LIFECYCLE_PHASES,
@@ -66,7 +73,7 @@ import {
   lifecycleCommandsByPhase,
   lifecycleResolvedCommandsForPhase,
 } from '../core/lifecycle-registry.js';
-import { assertCurrentReviewRunForEvidence, buildReviewRunWorkspaceBinding, collectReviewerEvidenceState, hashReviewPrompt, signReviewRun, verifyReviewRun } from '../core/review-run.js';
+import { assertCurrentReviewRunForEvidence, buildReviewRunWorkspaceBinding, collectReviewerEvidenceState, hashReviewPrompt, isTerminalReviewerFindingStatus, signReviewRun, verifyReviewRun } from '../core/review-run.js';
 import { PROMPT_ENVELOPE_ROLLOUT_VERSION, resolvePromptRoleBody } from '../core/prompt-role-contract-registry.js';
 import { summarizeReviewerStatus } from '../core/reviewer-status.js';
 import { StoryStore } from '../core/store.js';
@@ -824,7 +831,7 @@ function createActiveStoryRoot(phase: StoryInfo['phase'], configPatch: Record<st
   write(root, 'lattice.config.json', JSON.stringify(config));
   git(root, ['init']);
   git(root, ['config', 'user.email', 'lattice@example.test']);
-  git(root, ['config', 'user.name', 'Proofbound Smoke']);
+  git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
   git(root, ['checkout', '-B', 'main']);
   git(root, ['add', '.']);
   git(root, ['commit', '-m', 'base']);
@@ -869,7 +876,7 @@ function assertPhaseGatePolicyHints(): void {
     assert.match(output, /Lifecycle: legacy/);
     assert.match(output, /Requested phase: DEV/);
     assert.match(output, /Allowed phases: root-only/);
-    assert.match(output, /Replacement: .*lattice validate --story=<storyId>/);
+    assert.match(output, /Replacement: .*proof-or-stop validate --story=<storyId>/);
     assert.match(output, /verificationEvidence/);
     assert.match(output, /Destructive risk: workspace-destructive/);
     assert.match(output, /confirm/);
@@ -1109,7 +1116,7 @@ function assertStoryAdvanceTestGateFailClosedContracts(): void {
   );
   assert.match(
     phaseGatesSource,
-    /Cannot enter TEST: lattice validate execution error/,
+    /Cannot enter TEST: proof-or-stop validate execution error/,
     'validate execution errors must be fail-closed before entering TEST',
   );
   for (const src of [source, phaseGatesSource]) {
@@ -1146,7 +1153,7 @@ function assertManagedAssetExpandedDocsAndTrueDrift(): void {
   ): void => {
     const badRoot = mkdtempSync(join(tmpdir(), 'lattice-managed-drift-'));
     try {
-      const badSection = '<!-- lattice:start -->\n# Locally edited guide\nThis is not a Proofbound-owned alternate contract.\n<!-- lattice:end -->\n';
+      const badSection = '<!-- lattice:start -->\n# Locally edited guide\nThis is not a Proof-or-Stop-owned alternate contract.\n<!-- lattice:end -->\n';
       for (const doc of docs) write(badRoot, doc.relPath, badSection);
       const drift = runManagedAssetCheck(badRoot, { profile: 'all', assetMode });
       const driftById = new Map(drift.items.map(item => [item.id, item]));
@@ -1418,6 +1425,177 @@ function assertSupersededReviewPassDoesNotBlockLatestReviewerRun(): void {
     assert.equal(getGuardFailureReason(storyId, store, 'TEST', root), null);
   } finally {
     rmSync(root, { recursive: true, force: true });
+  }
+}
+
+// B-cdf6 / B-META F-019 regression — the resolved-finding forgiveness
+// circularity. The supersede filter in collectReviewerEvidenceState used to
+// forgive a stale-bound TERMINAL finding only when its lane ALSO held
+// currently-valid evidence. Every remedy for staleness writes its own
+// `proof-or-stop: record ... metadata` commit, which advances HEAD and re-stales the
+// bindings it just established; when a whole lane goes stale in one sweep its
+// passes never enter `valid`, so the lane is missing from
+// agentsWithCurrentValidEvidence and the forgiveness for its already-resolved
+// findings could never fire. This pins the fix AND the three things that must
+// keep blocking.
+function assertResolvedFindingStaleBindingIsForgivenWithoutValidLaneEvidence(): void {
+  const root = mkdtempSync(join(tmpdir(), 'lattice-flow-f019-terminal-forgive-'));
+  try {
+    const { store, storyId, reviewRound } = createReviewStore(root);
+    const agents = [
+      'lattice-review-concept',
+      'lattice-review-quality',
+      'lattice-review-test-coverage',
+    ];
+    const runIds = seedReviewRuns(root, store, storyId, reviewRound, agents);
+
+    // Stale the ENTIRE test-coverage lane with a SUPERSEDED_PASS_ISSUE_CODES-class
+    // binding issue, using the same mechanism as the adjacent supersede test: mint
+    // a NEWER signed run on the lane so every record still bound to the older run
+    // is non-latest (`stale_run`). Signatures stay valid throughout — this is a
+    // binding-freshness issue, exactly like the real B-cdf6 envelope-recomputation
+    // drift, not a forgery. (A materialHash mutation cannot be used here: the
+    // fixture root is not a git repo, so checkEvidenceFreshnessForGit
+    // short-circuits to fresh when git HEAD is unavailable.)
+    //
+    // Both the resolved finding AND the lane's pass stay bound to the OLD run, so
+    // the lane ends up with NO valid evidence — the precondition that used to
+    // withhold forgiveness.
+    const laneAgent = 'lattice-review-test-coverage';
+    const runsData = store.readReviewRuns(storyId);
+    const previousLaneRun = runsData.runs.find(run => run.lane === laneAgent);
+    assert.ok(previousLaneRun, 'test-coverage run fixture should exist');
+    const newerLaneRunId = `${storyId}:RR-090`;
+    const newerStartedAt = '2026-04-27T11:59:00.000Z';
+    runsData.runs.push({
+      ...previousLaneRun,
+      reviewRunId: newerLaneRunId,
+      startedAt: newerStartedAt,
+      _hash: signReviewRun(
+        storyId,
+        newerLaneRunId,
+        previousLaneRun.agent,
+        previousLaneRun.lane,
+        reviewRound,
+        newerStartedAt,
+        previousLaneRun.headHash,
+        previousLaneRun.materialHash,
+        previousLaneRun.promptHash,
+      ),
+    });
+    store.writeReviewRuns(storyId, runsData);
+
+    const laneRunId = runIds.get(laneAgent)!;
+    const resolvedFinding: Finding = {
+      ...makeFinding(storyId, laneAgent, reviewRound, '120', laneRunId),
+      status: 'resolved',
+      resolvedReason: 'defect fixed; the recorded defect no longer exists',
+      resolvedAt: '2026-04-27T12:30:00.000Z',
+    };
+    const openFinding: Finding = {
+      ...makeFinding(storyId, laneAgent, reviewRound, '121', laneRunId),
+      status: 'open',
+    };
+    // The lane's pass carries a SUPERSEDED_PASS_ISSUE_CODES-class defect too
+    // (`prompt_envelope_mismatch`: an envelopeId that is not its run's signed
+    // binding) — the same code class as the real B-cdf6 failure. A non-latest-run
+    // pass alone would NOT do: that rejection is deliberately relaxed for passes
+    // (review-run-binding-race friction #2), so this uses a cause that genuinely
+    // invalidates a pass, proving forgiveness is not extended to passes.
+    const lanePass = {
+      ...makeReviewPass(storyId, laneAgent, reviewRound, '122', laneRunId),
+      envelopeId: 'envelope-that-is-not-the-signed-run-binding',
+    };
+
+    // 1. RESOLVED finding on a fully stale lane (NO valid evidence for that lane).
+    store.writeFindings(storyId, {
+      findings: [
+        makeFinding(storyId, 'lattice-review-concept', reviewRound, '123', runIds.get('lattice-review-concept')!),
+        makeFinding(storyId, 'lattice-review-quality', reviewRound, '124', runIds.get('lattice-review-quality')!),
+        resolvedFinding,
+      ],
+    });
+    store.writeReviewPasses(storyId, { passes: [lanePass] });
+
+    const forgivenState = collectReviewerEvidenceState(store, storyId, root);
+    assert.equal(
+      forgivenState.valid.some(record => record.agent === laneAgent),
+      false,
+      'F-019 precondition: the whole test-coverage lane must have NO valid evidence (this is what used to withhold forgiveness)',
+    );
+    assert.equal(
+      forgivenState.invalid.some(issue => issue.kind === 'finding' && issue.evidenceId === resolvedFinding.id),
+      false,
+      'F-019: a RESOLVED finding with a stale binding must be forgiven even when its lane holds no currently-valid evidence',
+    );
+
+    // 2. A PASS with the same stale binding must STILL block — a pass is an
+    // affirmative claim about current material, so it must be re-earned.
+    assert.equal(
+      forgivenState.invalid.some(issue => issue.kind === 'pass' && issue.evidenceId === lanePass.id),
+      true,
+      'F-019 must NOT extend forgiveness to a stale-bound review pass',
+    );
+
+    // 3. An OPEN finding with the same stale binding must STILL block — that is
+    // the case where staleness could genuinely mislead.
+    store.writeFindings(storyId, {
+      findings: [
+        makeFinding(storyId, 'lattice-review-concept', reviewRound, '125', runIds.get('lattice-review-concept')!),
+        makeFinding(storyId, 'lattice-review-quality', reviewRound, '126', runIds.get('lattice-review-quality')!),
+        resolvedFinding,
+        openFinding,
+      ],
+    });
+    const openState = collectReviewerEvidenceState(store, storyId, root);
+    assert.equal(
+      openState.invalid.some(issue => issue.kind === 'finding' && issue.evidenceId === openFinding.id),
+      true,
+      'F-019 must NOT forgive an OPEN finding with a stale binding',
+    );
+    assert.equal(
+      openState.invalid.some(issue => issue.kind === 'finding' && issue.evidenceId === resolvedFinding.id),
+      false,
+      'F-019: the resolved finding stays forgiven alongside a blocking open finding',
+    );
+    assert.ok(
+      getGuardFailureReason(storyId, store, 'TEST', root),
+      'F-019: the REVIEW gate must still fail closed while the stale open finding / pass are unresolved',
+    );
+
+    // 4. Handler 编码约定 — a payload that bypasses Zod must still be rejected.
+    // A finding carrying a non-canonical / injected "terminal-looking" status
+    // must NOT earn forgiveness; only the explicit allowlist counts.
+    for (const bypassStatus of ['RESOLVED', 'resolved ', 'closed', 'fixed', 'suspected', 'disproven', '', undefined]) {
+      assert.equal(
+        isTerminalReviewerFindingStatus(bypassStatus),
+        false,
+        `F-019 allowlist must reject non-canonical status ${JSON.stringify(bypassStatus)}`,
+      );
+    }
+    assert.equal(isTerminalReviewerFindingStatus('resolved'), true, 'resolved must be terminal');
+    assert.equal(isTerminalReviewerFindingStatus('dismissed'), true, 'dismissed must be terminal');
+
+    const injectedFinding = {
+      ...makeFinding(storyId, laneAgent, reviewRound, '127', laneRunId),
+      status: 'closed' as unknown as Finding['status'],
+    } as Finding;
+    store.writeFindings(storyId, {
+      findings: [
+        makeFinding(storyId, 'lattice-review-concept', reviewRound, '128', runIds.get('lattice-review-concept')!),
+        makeFinding(storyId, 'lattice-review-quality', reviewRound, '129', runIds.get('lattice-review-quality')!),
+        injectedFinding,
+      ],
+    });
+    const injectedState = collectReviewerEvidenceState(store, storyId, root);
+    assert.equal(
+      injectedState.invalid.some(issue => issue.kind === 'finding' && issue.evidenceId === injectedFinding.id),
+      true,
+      'F-019: a bypassing finding with an injected non-allowlisted status must still be rejected',
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+    resetConfigCache();
   }
 }
 
@@ -1829,7 +2007,7 @@ function assertTestEvidenceStoryFilesHashDowngradesActiveDoneFreshness(): void {
     store.writeChecklist(storyId, { items: [] });
 
     const baseEvidence: TestEvidenceData = {
-      command: 'lattice validate --json',
+      command: 'proof-or-stop validate --json',
       output: JSON.stringify({ allPass: true }),
       result: 'PASS',
       timestamp: now,
@@ -2107,8 +2285,8 @@ function assertStoryAdvanceGuardIgnoresMainAgentDevFindings(): void {
       reviewRound: '',
       _hash: signFinding(storyId, devFindingId, devDesc, 'high', devCreatedAt, ''),
     };
-    // One bound reviewer finding per opt-in lane. guard-utils delegates to the
-    // canonical machine verdict, so no round-number mirror exists here.
+    // One bound reviewer finding per opt-in lane — covers the legacy
+    // guard-utils.ts gate (which reads findings only, not review passes).
     const reviewerFindings: Finding[] = [
       makeFinding(storyId, 'lattice-review-concept', reviewRound, '821', runIds.get('lattice-review-concept')!),
       makeFinding(storyId, 'lattice-review-quality', reviewRound, '822', runIds.get('lattice-review-quality')!),
@@ -2125,18 +2303,23 @@ function assertStoryAdvanceGuardIgnoresMainAgentDevFindings(): void {
       ],
     });
 
-    // Live story_advance guard path (machine.ts) — what `lattice story_advance
+    // Live story_advance guard path (machine.ts) — what `proof-or-stop story_advance
     // --phase=TEST` actually calls — must let the transition through.
     assert.equal(
       getGuardFailureReason(storyId, store, 'TEST', root),
       null,
       'machine.ts guard must ignore a main-agent DEV finding with empty reviewRound when reviewer lanes are covered',
     );
-    // Compatibility entrypoint delegates to the same machine verdict.
+    // Legacy guard-utils.ts mirror — no source import today, but it exports
+    // the same `getGuardFailureReason` shape and must stay in sync so future
+    // code that wires it back in inherits the same isReviewerAgent
+    // classification. Without the F-005 fix this returned a "Cannot enter
+    // TEST" reason because main-agent F-001 was misclassified as a reviewer
+    // finding that lacked a current-round reviewRound.
     assert.equal(
       legacyGetGuardFailureReason(storyId, store, 'TEST', root),
       null,
-      'guard-utils.ts compatibility entrypoint must use the canonical current selected-lane verdict',
+      'guard-utils.ts mirror must ignore a main-agent DEV finding with empty reviewRound when reviewer lanes are covered',
     );
 
     // Negative arm: a real lattice-review-* finding in the current round with
@@ -2217,7 +2400,7 @@ async function assertStoryAdvanceReviewEchoOmitsRetiredChannel(): Promise<void> 
     });
     git(root, ['init']);
     git(root, ['config', 'user.email', 'lattice@example.test']);
-    git(root, ['config', 'user.name', 'Proofbound Smoke']);
+    git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
     git(root, ['commit', '-m', 'base']);
@@ -2229,21 +2412,10 @@ async function assertStoryAdvanceReviewEchoOmitsRetiredChannel(): Promise<void> 
       root,
       scanRoot: join(root, 'packages/main'),
     }).acceptance_basis_generate({ storyId });
-    assert.match(basisOutput, /Acceptance coverage basis: partial/, 'an incomplete registry-closure fixture is reported honestly');
-    write(root, 'packages/main/src/core/machine.ts', 'export const machine = "acceptance basis lifecycle consumer";\n');
-    write(root, 'packages/main/src/core/review-inventory-epoch.ts', 'export const reviewInventoryEpoch = "acceptance basis review inventory binding";\n');
-    write(root, 'packages/main/src/handlers/review-inventory.ts', 'export const reviewInventory = "acceptance basis review inventory handler";\n');
-    git(root, ['add', '.']);
-    git(root, ['commit', '-m', 'complete registry closure fixture']);
-    const completeBasisOutput = createProofStoryHandlers({
-      store,
-      root,
-      scanRoot: join(root, 'packages/main'),
-    }).acceptance_basis_generate({ storyId });
-    assert.match(completeBasisOutput, /Acceptance coverage basis: complete/, 'the repaired closure remains a true complete control');
+    assert.match(basisOutput, /Acceptance coverage basis: complete/);
     const planArtifact = store.readAcceptanceBasis(storyId);
     assert.equal(planArtifact?.basis.generatedBy.verifier, 'acceptance-coverage-basis-verifier');
-    assert.equal(planArtifact?.basis.generatedBy.command, 'lattice acceptance_basis_generate');
+    assert.equal(planArtifact?.basis.generatedBy.command, 'proof-or-stop acceptance_basis_generate');
     const output = await createStoryAdvanceHandlers({
       store,
       root,
@@ -2273,7 +2445,7 @@ function assertReviewerStatusUsesMdFallback(): void {
     } as any);
     git(root, ['init']);
     git(root, ['config', 'user.email', 'lattice@example.test']);
-    git(root, ['config', 'user.name', 'Proofbound Smoke']);
+    git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
     git(root, ['commit', '-m', 'base']);
@@ -2312,7 +2484,7 @@ function assertReviewerStatusUsesMdFallback(): void {
     assert.match(reviewBrief, /review_run_start/, 'REVIEW anti-stall should tell reviewers to start a signed review run');
     assert.match(reviewBrief, /reviewRunId/, 'REVIEW anti-stall should mention the returned reviewRunId');
     assert.match(reviewBrief, /review_pass_set/, 'REVIEW anti-stall should still explain no-blocker pass evidence');
-    assert.match(reviewBrief, /<reviewRunId from lattice review_run_start>/, 'REVIEW anti-stall should not imply a hard-coded reviewRunId');
+    assert.match(reviewBrief, /<reviewRunId from proof-or-stop review_run_start>/, 'REVIEW anti-stall should not imply a hard-coded reviewRunId');
     assert.doesNotMatch(reviewBrief, /:RR-001/, 'REVIEW anti-stall must not hard-code a synthetic reviewRunId');
 
     const contract = getArtifactContractStatus(store, storyId, 'TEST', { projectRoot: root });
@@ -2329,7 +2501,7 @@ function assertSessionBriefStatusHintsMatchGates(): void {
     const { store, storyId, reviewRound } = createReviewStore(reviewRoot);
     git(reviewRoot, ['init']);
     git(reviewRoot, ['config', 'user.email', 'lattice@example.test']);
-    git(reviewRoot, ['config', 'user.name', 'Proofbound Smoke']);
+    git(reviewRoot, ['config', 'user.name', 'Proof-or-Stop Smoke']);
     git(reviewRoot, ['checkout', '-B', 'main']);
     git(reviewRoot, ['add', '.']);
     git(reviewRoot, ['commit', '-m', 'base']);
@@ -2372,7 +2544,7 @@ function assertSessionBriefStatusHintsMatchGates(): void {
     testStory.phase = 'TEST';
     store.writeStory(storyId, testStory);
     const evidence: TestEvidenceData = {
-      command: 'lattice validate --json',
+      command: 'proof-or-stop validate --json',
       output: JSON.stringify({ allPass: true }),
       result: 'PASS',
       timestamp: '2026-04-27T12:20:00.000Z',
@@ -2407,8 +2579,8 @@ function assertSessionBriefStatusHintsMatchGates(): void {
     // B-4b22: lattice_metadata-only pollution passes via dirty-gate-policy, so
     // git-working-tree no longer appears in the blocked-row list.
     assert.match(nextStep, /delivery-check, story-summary/);
-    assert.match(nextStep, /After all pass, run lattice story_advance --phase=DONE/);
-    assert.match(testBrief, /After all pass, run lattice story_advance --phase=DONE/);
+    assert.match(nextStep, /After all pass, run proof-or-stop story_advance --phase=DONE/);
+    assert.match(testBrief, /After all pass, run proof-or-stop story_advance --phase=DONE/);
     assert.doesNotMatch(testBrief, /Next step: story_advance --storyId=B-smoke --phase=DONE/);
     assert.doesNotMatch(testBrief, /Next step: first git add \+ git commit to commit all changes, then advance DONE/);
   } finally {
@@ -2422,7 +2594,7 @@ function assertReviewNextUsesReviewerGateState(): void {
     const { store, storyId, reviewRound } = createReviewStore(root);
     git(root, ['init']);
     git(root, ['config', 'user.email', 'lattice@example.test']);
-    git(root, ['config', 'user.name', 'Proofbound Smoke']);
+    git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
     git(root, ['commit', '-m', 'base']);
@@ -2493,7 +2665,7 @@ function assertDevGuidanceUsesReviewPhase(): void {
     const { store, storyId } = createReviewStore(root);
     git(root, ['init']);
     git(root, ['config', 'user.email', 'lattice@example.test']);
-    git(root, ['config', 'user.name', 'Proofbound Smoke']);
+    git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
     git(root, ['commit', '-m', 'base']);
@@ -2566,7 +2738,7 @@ function assertRealCliValidateHintFollowsActiveStoryPhase(): void {
     resetConfigCache();
     git(root, ['init']);
     git(root, ['config', 'user.email', 'lattice@example.test']);
-    git(root, ['config', 'user.name', 'Proofbound Smoke']);
+    git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
     git(root, ['commit', '-m', 'base']);
@@ -2630,7 +2802,7 @@ function assertChannelGateRejectsLatticeSubjectForRealFiles(): void {
     const { store, storyId } = createReviewStore(root);
     git(root, ['init']);
     git(root, ['config', 'user.email', 'lattice@example.test']);
-    git(root, ['config', 'user.name', 'Proofbound Smoke']);
+    git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
     git(root, ['commit', '-m', 'base']);
@@ -2641,14 +2813,14 @@ function assertChannelGateRejectsLatticeSubjectForRealFiles(): void {
       '-c', 'user.name=main-agent',
       '-c', 'user.email=main@example.test',
       'commit',
-      '-m', 'lattice: implement real code',
+      '-m', 'proof-or-stop: implement real code',
     ]);
 
     const result = checkCommitAuthor(storyId, { store, projectRoot: root });
     assert.equal(result.status, 'fail');
     assert.match(result.summary, /missing dispatch\/subagent_result evidence/);
     assert.match(result.summary, /cannot be used as author fallback/);
-    assert.match(result.details.join('\n'), /lattice: implement real code/);
+    assert.match(result.details.join('\n'), /proof-or-stop: implement real code/);
     assert.match(result.details.join('\n'), /normal channel primary evidence must be dispatch\/subagent_result/);
   } finally {
     rmSync(root, { recursive: true, force: true });
@@ -2661,7 +2833,7 @@ function assertChannelGateAcceptsStructuredEvidenceWithSharedGitAuthor(): void {
     const { store, storyId } = createReviewStore(root);
     git(root, ['init']);
     git(root, ['config', 'user.email', 'lattice@example.test']);
-    git(root, ['config', 'user.name', 'Proofbound Smoke']);
+    git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
     git(root, ['commit', '-m', 'base']);
@@ -2698,7 +2870,7 @@ function assertChannelGateAcceptsImplementerAuthorWithoutDispatch(): void {
     const { store, storyId } = createReviewStore(root);
     git(root, ['init']);
     git(root, ['config', 'user.email', 'lattice@example.test']);
-    git(root, ['config', 'user.name', 'Proofbound Smoke']);
+    git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
     git(root, ['commit', '-m', 'base']);
@@ -2727,7 +2899,7 @@ function assertChannelGateAcceptsSuccessfulSubagentResultEvidence(): void {
     const { store, storyId } = createReviewStore(root);
     git(root, ['init']);
     git(root, ['config', 'user.email', 'lattice@example.test']);
-    git(root, ['config', 'user.name', 'Proofbound Smoke']);
+    git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
     git(root, ['commit', '-m', 'base']);
@@ -2763,7 +2935,7 @@ function assertChannelGateAcceptsDispatchEvidence(): void {
     const { store, storyId } = createReviewStore(root);
     git(root, ['init']);
     git(root, ['config', 'user.email', 'lattice@example.test']);
-    git(root, ['config', 'user.name', 'Proofbound Smoke']);
+    git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
     git(root, ['commit', '-m', 'base']);
@@ -2802,7 +2974,7 @@ function assertDoneChecklistUsesStableOracleRows(): void {
     const { store, storyId, reviewRound } = createReviewStore(root);
     git(root, ['init']);
     git(root, ['config', 'user.email', 'lattice@example.test']);
-    git(root, ['config', 'user.name', 'Proofbound Smoke']);
+    git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
     git(root, ['commit', '-m', 'base']);
@@ -2832,7 +3004,7 @@ function assertDoneChecklistUsesStableOracleRows(): void {
       ],
     });
     const evidence: TestEvidenceData = {
-      command: 'lattice validate --json',
+      command: 'proof-or-stop validate --json',
       output: JSON.stringify({ allPass: true }),
       result: 'PASS',
       timestamp: '2026-04-27T12:25:00.000Z',
@@ -2888,7 +3060,7 @@ function assertDoneClosureProjectionSeparatesAuthority(): void {
     const { store, storyId } = createReviewStore(root);
     git(root, ['init']);
     git(root, ['config', 'user.email', 'lattice@example.test']);
-    git(root, ['config', 'user.name', 'Proofbound Smoke']);
+    git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
     git(root, ['commit', '-m', 'base']);
@@ -2898,7 +3070,7 @@ function assertDoneClosureProjectionSeparatesAuthority(): void {
     testStory.phase = 'TEST';
     store.writeStory(storyId, testStory);
     store.writeTestEvidence(storyId, {
-      command: 'lattice validate --json',
+      command: 'proof-or-stop validate --json',
       output: JSON.stringify({ allPass: true }),
       result: 'PASS',
       timestamp: '2026-05-15T12:25:00.000Z',
@@ -3076,10 +3248,10 @@ function assertAutoCommitMetadataAcrossHandlers(): void {
       const commitsBefore = gitCommitCount(root);
       const out = autoCommitStoryMetadata(root, storyId, 'finding_add');
       assert.ok(out.startsWith(AUTO_COMMIT_METADATA_PREFIX), `auto-commit hint must start with the canonical prefix; got: ${JSON.stringify(out)}`);
-      assert.match(out, /lattice: record B-test1 finding_add metadata/);
+      assert.match(out, /proof-or-stop: record B-test1 finding_add metadata/);
       assert.match(out, /\([0-9a-f]{7}\)/, 'auto-commit hint must include short sha (7 hex chars)');
       assert.equal(gitCommitCount(root), commitsBefore + 1);
-      assert.match(gitLastSubject(root), /^lattice: record B-test1 finding_add metadata$/);
+      assert.match(gitLastSubject(root), /^proof-or-stop: record B-test1 finding_add metadata$/);
       assert.ok(!out.includes('untouched'), `no coexisting non-metadata dirt → tail-note must be omitted; got: ${JSON.stringify(out)}`);
     } finally {
       rmSync(root, { recursive: true, force: true });
@@ -3098,7 +3270,7 @@ function assertAutoCommitMetadataAcrossHandlers(): void {
       const commitsBefore = gitCommitCount(root);
       const out = autoCommitStoryMetadata(root, storyId, 'review_pass_set');
       assert.ok(out.startsWith(AUTO_COMMIT_METADATA_PREFIX), 'prefix must match');
-      assert.match(out, /lattice: record B-test1 review_pass_set metadata/);
+      assert.match(out, /proof-or-stop: record B-test1 review_pass_set metadata/);
       assert.match(out, /\(coexisting non-metadata dirt left untouched: [^)]*material_source_changes=1[^)]*\)/);
       assert.equal(gitCommitCount(root), commitsBefore + 1);
       // material file still dirty
@@ -3201,7 +3373,8 @@ function assertAutoCommitMetadataAcrossHandlers(): void {
       writeFakeMetadata(root, storyId);
       writeFileSync(join(root, '.git', 'index.lock'), 'locked');
       const out = autoCommitStoryMetadata(root, storyId, 'finding_add');
-      assert.match(out, /lattice metadata auto-commit failed/, 'real git failures still return the user-visible warning');
+      assert.match(out, /proof-or-stop metadata auto-commit failed/, 'real git failures still return the user-visible warning');
+      assert.doesNotMatch(out, /\blattice metadata auto-commit failed/, 'failure warning must not teach the deprecated brand');
       const issues = readHealthIssues().filter(issue => issue.category === 'mutation:storyMetadataCommit');
       assert.equal(issues.length, 1, 'real git checkout failures still produce one metadata health issue');
       assert.equal(issues[0].context.storyId, storyId);
@@ -3240,7 +3413,7 @@ function assertAutoCommitMetadataAcrossHandlers(): void {
   }
 
   // Test 9 (prefix vocabulary parity with story-advance precedent — CHK-003
-  // adversarial: byte-equal prefix `\n✓ lattice metadata auto-committed:`).
+  // adversarial: byte-equal prefix `\n✓ proof-or-stop metadata auto-committed:`).
   {
     const { root, storyId } = setupAutoCommitFixture();
     try {
@@ -3251,7 +3424,7 @@ function assertAutoCommitMetadataAcrossHandlers(): void {
       assert.equal(
         out.slice(0, AUTO_COMMIT_METADATA_PREFIX.length),
         AUTO_COMMIT_METADATA_PREFIX,
-        'user-visible prefix must be byte-equal `\\n✓ lattice metadata auto-committed:`',
+        'user-visible prefix must be byte-equal `\\n✓ proof-or-stop metadata auto-committed:`',
       );
     } finally {
       rmSync(root, { recursive: true, force: true });
@@ -3271,8 +3444,8 @@ function assertAutoCommitMetadataAcrossHandlers(): void {
         writeFakeMetadata(root, storyId, `{"reason":"${reason}"}`);
         const out = autoCommitStoryMetadata(root, storyId, reason);
         assert.ok(out.startsWith(AUTO_COMMIT_METADATA_PREFIX), `reason=${reason} prefix mismatch`);
-        assert.match(out, new RegExp(`lattice: record B-test1 ${reason} metadata`));
-        assert.match(gitLastSubject(root), new RegExp(`^lattice: record B-test1 ${reason} metadata$`));
+        assert.match(out, new RegExp(`proof-or-stop: record B-test1 ${reason} metadata`));
+        assert.match(gitLastSubject(root), new RegExp(`^proof-or-stop: record B-test1 ${reason} metadata$`));
       } finally {
         rmSync(root, { recursive: true, force: true });
       }
@@ -3749,7 +3922,7 @@ function assertDeclaredArtifactDoneCommittedRow(): void {
   const root = mkdtempSync(join(tmpdir(), 'lattice-declared-committed-row-'));
   try {
     git(root, ['init']);
-    git(root, ['config', 'user.name', 'Proofbound Smoke']);
+    git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
     git(root, ['config', 'user.email', 'smoke@example.test']);
     write(root, 'lattice.config.json', JSON.stringify({
       scanRoot: 'packages/main',
@@ -3855,7 +4028,7 @@ function assertDeclaredArtifactDoneCommittedRow(): void {
  *     (no circular import); story-advance.ts is only the public command shell,
  *     and transition-orchestrator.ts owns the transition sequence.
  *  2. Fail-closed gate behavior (preMortem #1): runValidateGate still blocks
- *     TEST when lattice validate fails (allPass=false) AND when validate output
+ *     TEST when proof-or-stop validate fails (allPass=false) AND when validate output
  *     is non-JSON (JSON-parse failure); runReviewToTestPreflightGate still
  *     blocks TEST when a CLI gate fails.
  *  3. Effect snapshot byte-identical (preMortem #3): buildNextSteps and
@@ -3921,7 +4094,7 @@ async function assertPhaseGatesAndEffectsExtraction(): Promise<void> {
   assert.doesNotMatch(
     storyAdvanceSrc,
     /const verifierHandlers = createVerifierHandlers\(ctx\)/,
-    'the lattice validate gate body must live in phase-gates.ts, not inline in story-advance.ts',
+    'the proof-or-stop validate gate body must live in phase-gates.ts, not inline in story-advance.ts',
   );
   // Fail-closed wording for the validate-throw / JSON-parse-failure catch must
   // live in phase-gates.ts and be the fail-closed branch (preMortem #1). The
@@ -3955,6 +4128,14 @@ async function assertPhaseGatesAndEffectsExtraction(): Promise<void> {
   //     validate failure (allPass=false) → first throw "did not pass".
   const failRoot = mkdtempSync(join(tmpdir(), 'lattice-phase-gates-validate-fail-'));
   try {
+    // Official validation now requires the configured workspace to resolve one
+    // Git identity before it enters the capacity queue. Seed only that identity
+    // so this fixture still reaches, and is classified by, configured exit 5.
+    git(failRoot, ['init']);
+    git(failRoot, ['config', 'user.email', 'lattice@example.test']);
+    git(failRoot, ['config', 'user.name', 'Proofbound Smoke']);
+    git(failRoot, ['checkout', '-B', 'main']);
+    git(failRoot, ['commit', '--allow-empty', '-m', 'base']);
     const store = new StoryStore(failRoot);
     write(failRoot, 'lattice.config.json', JSON.stringify({
       scanRoot: 'packages/main',
@@ -3977,8 +4158,8 @@ async function assertPhaseGatesAndEffectsExtraction(): Promise<void> {
     const actor = { stop() { stopped = true; } };
     await assert.rejects(
       () => runValidateGate({ store, root: failRoot, scanRoot: join(failRoot, 'packages/main') }, storyId, actor),
-      /Cannot enter TEST: lattice validate did not pass/,
-      'runValidateGate must block TEST when lattice validate fails',
+      /Cannot enter TEST: proof-or-stop validate did not pass/,
+      'runValidateGate must block TEST when proof-or-stop validate fails',
     );
     assert.equal(stopped, false, 'runValidateGate must leave actor stop to transition-orchestrator');
     // The fail-closed path still persists a FAIL test-evidence record (the
@@ -4003,7 +4184,7 @@ async function assertPhaseGatesAndEffectsExtraction(): Promise<void> {
     store.writeStory(storyId, normalStory);
     git(preflightRoot, ['init']);
     git(preflightRoot, ['config', 'user.email', 'lattice@example.test']);
-    git(preflightRoot, ['config', 'user.name', 'Proofbound Smoke']);
+    git(preflightRoot, ['config', 'user.name', 'Proof-or-Stop Smoke']);
     git(preflightRoot, ['checkout', '-B', 'main']);
     git(preflightRoot, ['add', '.']);
     git(preflightRoot, ['commit', '-m', 'base']);
@@ -4168,7 +4349,7 @@ function assertDoneOracleSameSource(): void {
     const { store, storyId, reviewRound } = createReviewStore(root);
     git(root, ['init']);
     git(root, ['config', 'user.email', 'lattice@example.test']);
-    git(root, ['config', 'user.name', 'Proofbound Smoke']);
+    git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
     git(root, ['commit', '-m', 'base']);
@@ -4183,7 +4364,7 @@ function assertDoneOracleSameSource(): void {
     testStory.phase = 'TEST';
     store.writeStory(storyId, testStory);
     const evidence: TestEvidenceData = {
-      command: 'lattice validate --json',
+      command: 'proof-or-stop validate --json',
       output: JSON.stringify({ allPass: true }),
       result: 'PASS',
       timestamp: '2026-05-15T12:25:00.000Z',
@@ -4954,6 +5135,7 @@ assertVerificationEvidenceStoryFilesHashDowngradesUnrelatedDrift();
 assertTestEvidenceStoryFilesHashDowngradesActiveDoneFreshness();
 assertReviewPreflightSurfacesStoryFilesHashAdvisories();
 assertSupersededReviewPassDoesNotBlockLatestReviewerRun();
+assertResolvedFindingStaleBindingIsForgivenWithoutValidLaneEvidence();
 assertReviewRunBindingRaceAcceptsNonLatestFreshPass();
 assertLegacyReviewEvidenceWithoutCurrentRoundStaysReadable();
 assertNonReviewerFindingsDoNotCountAsReviewerEvidence();
@@ -4978,4 +5160,36 @@ await assertPhaseGatesAndEffectsExtraction();
 assertGlobalLinkRepair();
 assertAutoCommitMetadataAcrossHandlers();
 
+runAgentLivenessSuiteForPinnedEvidence();
+// ── B-cdf6:F-052 — the read-both branch must be PROVEN, not just present ────────
+// The quality lane observed that every smoke exercising purgeSafeInitCommit only ever
+// hand-writes the CANONICAL subject, so the tests proved the writer emits the new form
+// while nothing proved the reader still accepts the OLD one. That is the compatibility
+// guarantee the whole read-both design exists for: a repository holding pre-rename
+// commits must keep classifying them correctly. Asserted directly against the matcher.
+{
+  const body = 'story B-readboth init';
+  assert.equal(
+    matchesRuntimeCommitSubject(`${COMMIT_SUBJECT_PREFIX} ${body}`, body),
+    true,
+    'read-both must accept the canonical proof-or-stop: subject',
+  );
+  assert.equal(
+    matchesRuntimeCommitSubject(`${DEPRECATED_COMMIT_SUBJECT_PREFIX} ${body}`, body),
+    true,
+    'read-both must STILL accept the deprecated lattice: subject — pre-rename history depends on it',
+  );
+  assert.equal(
+    matchesRuntimeCommitSubject(`chore: ${body}`, body),
+    false,
+    'read-both must reject an unrelated prefix rather than matching on the body alone',
+  );
+  assert.equal(
+    matchesRuntimeCommitSubject(`${COMMIT_SUBJECT_PREFIX} something else`, body),
+    false,
+    'read-both must not match a canonical-prefixed subject with a different body',
+  );
+  assert.equal(COMMIT_SUBJECT_PREFIX, 'proof-or-stop:', 'writer prefix is the canonical bin name');
+  assert.equal(DEPRECATED_COMMIT_SUBJECT_PREFIX, 'lattice:', 'deprecated prefix is retained verbatim for compatibility');
+}
 console.log('✓ flow stability smoke passed');

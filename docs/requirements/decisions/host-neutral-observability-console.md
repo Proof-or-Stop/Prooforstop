@@ -1,11 +1,11 @@
-# Proofbound Host-Neutral Observability Console (CLI-backed read-only)
+# Proof-or-Stop Host-Neutral Observability Console (CLI-backed read-only)
 
 > Status: **adopted source-of-truth reference** · v0 · 2026-06-02 · located in `docs/requirements/decisions/`, indexed in `docs/requirements/NAV.md`
-> Positioning: this is a **read-only consumption layer over the Proofbound CLI JSON surface** — not a Mac Native App, nor a new authority; it refactors the reference picture's "Claude Code Agent Monitor" from a **single-host transcript monitor** into a **host-neutral orchestration observatory**.
-> Data source: it may **only** be consumed via `lattice ... --format=json` (L0 commands); the underlying backing store (worktree / Story store / activity.jsonl) is a backing store and is **not read as JSON directly**.
+> Positioning: this is a **read-only consumption layer over the Proof-or-Stop CLI JSON surface** — not a Mac Native App, nor a new authority; it refactors the reference picture's "Claude Code Agent Monitor" from a **single-host transcript monitor** into a **host-neutral orchestration observatory**.
+> Data source: it may **only** be consumed via `proof-or-stop ... --format=json` (L0 commands); the underlying backing store (worktree / Story store / activity.jsonl) is a backing store and is **not read as JSON directly**.
 > Red line: it is entirely an **L0 read-only projection**, never claims production DONE, and the authority recognizes only receipt-backed evidence.
 > Maturity: the M1-M3 data capabilities are ready (the CLI is fully there); the M4 projection is feasible but the Thread/Trajectory schema is not first-classed; **M5 depends on B-2522's receipt-backed verifier (the README makes clear the enforce path is not yet end-to-end)**; the M6 parallel/wave/dispatch data plane already exists.
-> Naming note: the repository's existing `lattice dashboard` is a **terminal-resident real-time story-progress board**, which is not the same thing as this document's multi-page read-only console; existing commands still have `lattice` naming residue, which is a follow-up outside this proposal.
+> Naming note: the repository's existing `proof-or-stop dashboard` is a **terminal-resident real-time story-progress board**, which is not the same thing as this document's multi-page read-only console; existing commands still have `proof-or-stop` naming residue, which is a follow-up outside this proposal.
 
 ---
 
@@ -13,7 +13,7 @@
 
 The reference picture (Claude Code Agent Monitor) is essentially a **transcript inversion**: it reads the hook events of `~/.claude/projects/*.jsonl` and reverse-engineers the token / tool / session of a single host (Claude Code) runtime into a board. Its "Completed / Error" is **host runtime state**, not delivery authority.
 
-The core of the next-generation Proofbound is **Host-Neutral**: it fully decouples "complete" from the host runtime. Any host (Codex, Claude Code, a future headless runner) is just an **adapter**, which can only execute the authorized task package and submit an **auditable receipt**. The authority layer recognizes only Canonical Story + receipt-backed evidence, and the host-local "it's green" is always only `local-evidence`.
+The core of the next-generation Proof-or-Stop is **Host-Neutral**: it fully decouples "complete" from the host runtime. Any host (Codex, Claude Code, a future headless runner) is just an **adapter**, which can only execute the authorized task package and submit an **auditable receipt**. The authority layer recognizes only Canonical Story + receipt-backed evidence, and the host-local "it's green" is always only `local-evidence`.
 
 > Source truth: `docs/requirements/decisions/project-vision.md` (host-neutral general orchestration CLI), `docs/requirements/decisions/lattice-parallel-wave.md` (Authority Boundary), `packages/main/src/core/canonical-story.ts` (the actual data structure).
 
@@ -29,7 +29,7 @@ Each row of the table below anchors to **code or a CLI that already exists** in 
 |---|---|---|---|
 | **Host-neutral State** | `CanonicalStory.authority.tier ∈ {local-evidence, server-record, server-receipt}`; the dual values `lifecycle.localDone` vs `lifecycle.productionDone` | `story_export --format=json` | The three-tier distribution of the "Authority Ladder" at the top of Overview + the localDone↔productionDone gap |
 | **Canonical Story** | `schemaVersion:'canonical-story-v0'` + `canonicalStoryDigest` / `gateInputDigest` (sha256 tamper-proof) | `story_export` | Canonical Story Board (replaces Kanban, columned by tier rather than by host state) |
-| **Capability Contract** | `hostCandidates[].capability status` + the Proofbound capability registry | `host_list` / `host_probe` / `host_install`(dry-run) / `parallel_wave_create.hostCandidates` | Capability Matrix (a host × capability grid) |
+| **Capability Contract** | `hostCandidates[].capability status` + the Proof-or-Stop capability registry | `host_list` / `host_probe` / `host_install`(dry-run) / `parallel_wave_create.hostCandidates` | Capability Matrix (a host × capability grid) |
 | **Visible Degradation** | `degradations[]`: `{host, capability, reason, fallback, authorityImpact, recovery}`, `authorityImpact ∈ {none, evidence-local-only, verification-evidence-limited, blocks-production-done}` | Embedded in `story_export` / `parallel_*` / `conduit_explain` | Degradation Heat (colored by authorityImpact, with blocks-production-done in red) |
 | **Lineage** | `lineage:{source, storyDir, worktree, processEvents[], artifacts{checklist,processEvents,deliveryCheck}}` + `evidenceRefs` (lineage reference only) | `story_export`, `parallel_report.evidenceSummary` | Lineage Graph (the story↔worktree↔evidence↔receipt traceability chain) |
 | **Thread** | A single host's bounded execution of **one task package**: `handoff → story_export.lineage.processEvents fragment → receipt` (a per-agent thread) | `parallel_dispatch.dispatchEntries`, `story_export.lineage.processEvents` | Thread Inspector (replaces the reference picture's Conversation, threading by host/agent) |
@@ -40,7 +40,7 @@ Each row of the table below anchors to **code or a CLI that already exists** in 
 
 ---
 
-## 2. Data Source: Read-Only Consumption of the Proofbound CLI JSON (does not touch the transcript, nor read the backing store directly)
+## 2. Data Source: Read-Only Consumption of the Proof-or-Stop CLI JSON (does not touch the transcript, nor read the backing store directly)
 
 ```
 backing store (for understanding only, the adapter is forbidden to read it directly)
@@ -67,15 +67,15 @@ The only authoritative way to read ── CLI L0 projection (the adapter consume
 The adapter / dashboard / smoke can treat the following assumptions as a hard contract:
 
 - **stdout in machine JSON mode is JSON.parse-able as a single document.** When the caller passes `--json` or `--format=json`, the corresponding command's stdout must be "**a single JSON document + an optional trailing newline**," with no next-step hint, decorative text, ANSI control characters, or a second JSON document concatenated after it. The caller **does not need** to do substring extraction (`extractFirstJsonObject` / regex matching `\{...\}`, etc.); a direct `JSON.parse(stdout)` must succeed.
-- **Human-readable guidance goes only through text mode or stderr.** The `→ Validation passed`, `→ Next step…`, and other next-step hints of commands such as `lattice validate` are appended only in **non-JSON mode**. `stderr` is used for logs / progress / config notices and does not pollute the stdout contract.
+- **Human-readable guidance goes only through text mode or stderr.** The `→ Validation passed`, `→ Next step…`, and other next-step hints of commands such as `proof-or-stop validate` are appended only in **non-JSON mode**. `stderr` is used for logs / progress / config notices and does not pollute the stdout contract.
 - **Implementation-choice note**: the contract is enforced by the unified choke point of the CLI output pipeline (`cli-engine.ts`) — a hit on `wantsMachineJson(args)` skips `decorateResult`, and all hint-registered commands (including `validate`) automatically comply. If a `--json` / `--format=json` command is added later, a hit on the same detector automatically gains contract protection, with no need to patch each one separately.
 - **Regression protection**: `tests/cli-json-stdout-contract-smoke.ts` (`packages/main/src/tasks/cli-json-stdout-contract-smoke.ts`) spawns a real CLI subprocess and directly `JSON.parse(stdout)` — any regression that concatenates a hint back into JSON mode will immediately turn the smoke red. Text mode is checked at the same time to ensure it keeps `→ Validation passed`, preventing "deleting the human hint along with the fix to JSON mode."
 
-> Actual effect: the dashboard / host adapter treats the Proofbound CLI's `--format=json` / `--json` stdout as a stable contract, with no need to handle the past anti-pattern where `validate --json` concatenated `→ Validation passed. Next: …` at the end, causing `JSON.parse` to fail.
+> Actual effect: the dashboard / host adapter treats the Proof-or-Stop CLI's `--format=json` / `--json` stdout as a stable contract, with no need to handle the past anti-pattern where `validate --json` concatenated `→ Validation passed. Next: …` at the end, causing `JSON.parse` to fail.
 
 ### 2.1 Three schema/authority Pitfalls the Adapter Must Solve First
 
-0. **The resolver JSON surface is currently missing (the real first task of M1)**: in practice, `lattice status --format=json` / `--json` and `session_brief` **both ignore the flag and only return Markdown**, and `--help` has no `--format` parameter either. So M1 is **not "writing an adapter to consume ready-made JSON"**, but first **adding/extending a machine-readable resolver surface** that returns `{storyId, authority, mirrorPhase, authoritativePhase, authoritativeCwd, worktreePath}` for each active story. Before it lands, having the UI adapter parse Markdown is a fragile anti-pattern and is forbidden.
+0. **The resolver JSON surface is currently missing (the real first task of M1)**: in practice, `proof-or-stop status --format=json` / `--json` and `session_brief` **both ignore the flag and only return Markdown**, and `--help` has no `--format` parameter either. So M1 is **not "writing an adapter to consume ready-made JSON"**, but first **adding/extending a machine-readable resolver surface** that returns `{storyId, authority, mirrorPhase, authoritativePhase, authoritativeCwd, worktreePath}` for each active story. Before it lands, having the UI adapter parse Markdown is a fragile anti-pattern and is forbidden.
 1. **worktree authority vs main mirror (the most critical)**: running `story_export B-xxx` at the repo root reads the **main mirror** (often stuck at INIT_CHECK, stale); only running it inside `.worktrees/B-xxx` gives the **authoritative** phase. The adapter **must first use the (0) resolver to get `authoritativeCwd`, then export in the correct cwd** — it cannot just aggregate the root's export.
 2. **The parallel projection does not share the same envelope**: `parallel_wave_create` has the full `storyRefs/hostCandidates/mergeOrder`; but `parallel_status` / `parallel_merge_queue` / `parallel_report` **do not repeat the full envelope** (the source of truth `lattice-parallel-wave.md` §Projection JSON Contracts states this explicitly). The adapter must write a mapping per **each command's real schema**, and cannot assume all fields are present.
 
@@ -98,7 +98,7 @@ The adapter / dashboard / smoke can treat the following assumptions as a hard co
 
 ## 3. Information Architecture (reuses the reference picture's left navigation + dark-card style, refactoring the semantics)
 
-| Reference picture page | Proofbound replacement page | Semantic axis from → to | Main data source |
+| Reference picture page | Proof-or-Stop replacement page | Semantic axis from → to | Main data source |
 |---|---|---|---|
 | Dashboard | **Host-Neutral Overview** | host runtime health → Authority Ladder + degradation gap | `story_export` aggregation + `authority_status` |
 | Kanban (Working/Waiting/Completed/Error) | **Canonical Story Board** | the four host-state columns → **three tier columns** (local-evidence / server-record / server-receipt) | `story_export` |
@@ -134,7 +134,7 @@ The adapter / dashboard / smoke can treat the following assumptions as a hard co
 └──────────────────────────────────────────────────────────────────────┘
 ```
 
-> This cell is the whole console's thesis: the reference picture would mark `<localEvidenceCount>` of them green as "Completed," while Proofbound marks them as "local-evidence" — **the server receipt has not been obtained yet, so it does not count as production done**.
+> This cell is the whole console's thesis: the reference picture would mark `<localEvidenceCount>` of them green as "Completed," while Proof-or-Stop marks them as "local-evidence" — **the server receipt has not been obtained yet, so it does not count as production done**.
 
 ### 4.2 Canonical Story Board (replaces Kanban, columned by tier)
 
@@ -178,14 +178,14 @@ The data comes from `host_probe` + `parallel_wave_create.hostCandidates`. Hoveri
                                          │
  RECOVERY POINTS ──────────────────────┤
    • <storyId>:story-store  kind=story-store  <lineage.recoveryPoints[].path>
-   • resume: cd <authoritativeCwd> && lattice story_export --storyId=<storyId> --format=json
+   • resume: cd <authoritativeCwd> && proof-or-stop story_export --storyId=<storyId> --format=json
 ```
 
 ---
 
 ## 5. The Essential Difference Between Host-Neutral and the Reference Picture (a thesis that can be stated in one sentence)
 
-| Dimension | Reference picture (transcript monitor) | Proofbound Host-Neutral Dashboard |
+| Dimension | Reference picture (transcript monitor) | Proof-or-Stop Host-Neutral Dashboard |
 |---|---|---|
 | Data source | `~/.claude/projects/*.jsonl` hook events | worktree + Story store + L0 CLI projection |
 | Definition of "complete" | the host runtime marks Completed | **receipt-backed `server-receipt` tier** |
@@ -229,7 +229,7 @@ The data comes from `host_probe` + `parallel_wave_create.hostCandidates`. Hoveri
 
 ## 8. Adoption Status and Next Steps
 
-**This document has been adopted as a design source of truth**: it is located at `docs/requirements/decisions/host-neutral-observability-console.md`, registered in the decisions list of `docs/requirements/NAV.md`, and can be referenced by other stories / decisions as an implementation contract. It has completed de-hardcoding (no specific active-story on-site) and de-legacy-command examples (unified `lattice ... --format=json`).
+**This document has been adopted as a design source of truth**: it is located at `docs/requirements/decisions/host-neutral-observability-console.md`, registered in the decisions list of `docs/requirements/NAV.md`, and can be referenced by other stories / decisions as an implementation contract. It has completed de-hardcoding (no specific active-story on-site) and de-legacy-command examples (unified `proof-or-stop ... --format=json`).
 
 **Next step = the M1 implementation story** (see the §6 milestone table): `Read-only adapter skeleton + worktree-authority resolver`.
 

@@ -221,16 +221,18 @@ function commandForStep(root: string, step: AutopilotStep, plan: AutopilotRunRes
 
 function displayCommand(request: AutopilotCommandRequest): string {
   if (request.executable === process.execPath && request.args[0]?.endsWith('/cli.js')) {
-    return `lattice ${request.args.slice(3).join(' ')}`;
+    // B-cdf6:F-041 — the 'Failing command:' line shown in repair prompts; sibling lines
+    // just below were rebranded while this one was missed.
+    return `proof-or-stop ${request.args.slice(3).join(' ')}`;
   }
   return [request.executable, ...request.args].join(' ');
 }
 
 function claudeRepairPrompt(step: AutopilotStep, request: AutopilotCommandRequest, result: AutopilotCommandResult, plan: AutopilotRunResult): string {
   return [
-    'You are Claude Code CLI running as an explicit Proofbound autopilot repair step.',
+    'You are Claude Code CLI running as an explicit Proof-or-Stop autopilot repair step.',
     'Make the smallest safe code or documentation change needed for the failing command to pass.',
-    'Do not edit Story, checklist, fixture, or process-event JSON directly; use the Proofbound CLI for Proofbound state changes.',
+    'Do not edit Story, checklist, fixture, or process-event JSON directly; use the Proof-or-Stop for Proof-or-Stop state changes.',
     'Do not create or push GitHub/origin branches.',
     '',
     `Story: ${plan.story.storyId ?? 'unbound'}`,
@@ -246,7 +248,7 @@ function claudeRepairPrompt(step: AutopilotStep, request: AutopilotCommandReques
     'stderr excerpt:',
     excerpt(result.stderr) || '(empty)',
     '',
-    'After the repair, stop. The Proofbound autopilot executor will retry the failing command.',
+    'After the repair, stop. The Proof-or-Stop autopilot executor will retry the failing command.',
   ].join('\n');
 }
 
@@ -528,26 +530,26 @@ export function executeAutopilot(options: ExecuteAutopilotOptions): AutopilotExe
   let completion: null = null;
   let receipt = plan.receipt;
   if (dryRun) {
-    nextActions.add('Remove --dryRun to execute the planned local Proofbound commands.');
+    nextActions.add('Remove --dryRun to execute the planned local Proof-or-Stop commands.');
     if (multiHostRequired) {
-      nextActions.add(`This run targets DONE with multi-host certification: real execution stays blocked until ${requiredHostVerdictCount} independent host verdicts certify the run (lattice autopilot review submit / lattice quorum_submit).`);
+      nextActions.add(`This run targets DONE with multi-host certification: real execution stays blocked until ${requiredHostVerdictCount} independent host verdicts certify the run (proof-or-stop autopilot review submit / proof-or-stop quorum_submit).`);
     }
   } else if (!plan.story.storyId) {
     status = 'fail';
     stopReason = 'story-required';
-    nextActions.add('Pass --storyId=B-xxx before running lattice autopilot execute; true execution must be owner-gated to a concrete Story.');
+    nextActions.add('Pass --storyId=B-xxx before running proof-or-stop autopilot execute; true execution must be owner-gated to a concrete Story.');
   } else if (!plan.story.exists) {
     status = 'fail';
     stopReason = 'story-not-found';
-    nextActions.add(`Create or restore Story ${plan.story.storyId} before running lattice autopilot execute.`);
+    nextActions.add(`Create or restore Story ${plan.story.storyId} before running proof-or-stop autopilot execute.`);
   } else if (plan.mode === 'authority' && plan.status === 'fail') {
     status = 'fail';
     stopReason = 'remote-runner-retired';
-    nextActions.add('Use --mode=local; remote runner execution is retired from the active Proofbound runtime.');
+    nextActions.add('Use --mode=local; remote runner execution is retired from the active Proof-or-Stop runtime.');
   } else if (multiHostRequired && !multiHostSatisfied) {
     status = 'fail';
     stopReason = 'multi-host-verdicts-required';
-    nextActions.add(`Autopilot execute cannot self-certify multi-host DONE. Collect ${requiredHostVerdictCount} independent host verdicts via lattice autopilot review submit and lattice quorum_submit, then advance DONE once local quorum evidence is present.`);
+    nextActions.add(`Autopilot execute cannot self-certify multi-host DONE. Collect ${requiredHostVerdictCount} independent host verdicts via proof-or-stop autopilot review submit and proof-or-stop quorum_submit, then advance DONE once local quorum evidence is present.`);
   } else {
     const steps = plan.plannedSteps.slice(0, maxSteps);
     if (plan.plannedSteps.length > maxSteps) {
@@ -595,7 +597,7 @@ export function executeAutopilot(options: ExecuteAutopilotOptions): AutopilotExe
       if (!passed) {
         status = 'fail';
         stopReason = 'step-failed';
-        nextActions.add(`Fix failing autopilot step "${step.id}" and rerun lattice autopilot execute.`);
+        nextActions.add(`Fix failing autopilot step "${step.id}" and rerun proof-or-stop autopilot execute.`);
         break;
       }
     }
@@ -639,6 +641,6 @@ export function executeAutopilot(options: ExecuteAutopilotOptions): AutopilotExe
     },
     stopReason,
     nextActions: [...nextActions],
-    note: 'Local execute runs only local Proofbound commands and does not contact or require a remote receipt server.',
+    note: 'Local execute runs only local Proof-or-Stop commands and does not contact or require a remote receipt server.',
   };
 }

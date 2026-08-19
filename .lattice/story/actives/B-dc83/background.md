@@ -1,0 +1,11 @@
+## Trigger Event
+On 2026-08-17, while resolving the merge of remote main into the B-cdf6 brand rename (merge commit 1f1738da9a), a sweep for pre-rename symbol references in files that TypeScript never typechecks (.mjs/.cjs/.js) surfaced three scripts using a local runLattice helper. Two of them fail outright when executed: scripts/verify-worktree-baseline-risk.mjs and scripts/verify-done-merge-preflight.mjs.
+
+## Key Insights
+The merge did not cause these failures. Both scripts are byte-identical on both merge parents (cf742b52e1 and 083736186b) and in the merge result, and both were already red on each side. The reason nobody noticed is that neither script is referenced by lattice.config.json validate.commands, by package.json, or by any REVIEW preflight, so no gate ever runs them. Investigation showed the two need different dispositions: baseline-risk tests a live mechanism (core/baseline-risk.ts) and only its inline Chinese story background is stale, while done-merge-preflight asserts on .git/koala/done-auto-git.lock, a mechanism with zero references in current source that was superseded by core/main-write-lock.ts.
+
+## Solution Tradeoffs
+Repairing both scripts identically would be wrong: one is a stale fixture and the other partly encodes retired behaviour already covered in-suite by done-merge-scope-smoke.ts, so blindly rewriting its assertions would resurrect a check the codebase deliberately replaced with scope-aware logic. Deleting both would be equally wrong, since baseline-risk still guards live behaviour. The chosen shape is therefore per-script disposition decided on evidence, plus one structural change so unwired scripts cannot rot unnoticed again. The alternative of wiring all 60 verify scripts into validate was rejected as out of scope and likely to slow the suite for little gain.
+
+## Conversational Texture
+The user asked whether everything individually worth mentioning had been fixed. Re-verifying the five merge-surfaced fixes in the committed tree confirmed they were, but broadening the sweep to files outside TypeScript's reach turned up these two orphan scripts. They were deliberately left out of the merge commit to avoid mixing unrelated test-expectation changes into a conflict resolution, and flagged to the user instead, who asked for a story to fix them properly.

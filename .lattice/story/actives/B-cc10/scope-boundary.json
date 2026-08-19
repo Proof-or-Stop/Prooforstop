@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-cc10",
+  "mode": "maintenance",
+  "allowed": [
+    "Remove bin/lattice.js and bin/lattice-codex.js",
+    "Rename lattice.config.json to proof-or-stop.config.json",
+    "Rename lattice.json to proof-or-stop.json",
+    "Rename the npm package @lattice/core to @proof-or-stop/core",
+    "Stop using .lattice-codex; migrate to .proof-or-stop-codex",
+    "Stop using the .lattice directory; migrate to .proof-or-stop"
+  ],
+  "excluded": [
+    "__LATTICE_WS_PORT and LATTICE_SHELL protocol identifiers — disclosed B-cdf6 follow-up, separate protocol change",
+    "LATTICE_* env var names as STORED keys — already read-both via core/brand-env.ts in B-cdf6; not re-litigated here",
+    "Rewriting or renaming content inside frozen story archives under the state directory — history must move, never be rewritten",
+    "The 13 lattice-* agent role IDs (subagent_type values) — FROZEN by proof-or-stop-agent-prompt-consolidation-execution-plan.md; renaming breaks spawning",
+    "The 5 open B-META framework gaps F-031..F-035 — other subsystems, escalated not fixed",
+    "The 8 lattice-*-integrity-v1 signature salts — FROZEN; renaming would invalidate all historical signatures"
+  ],
+  "confirmedBy": "main-agent-owner-session",
+  "confirmationNote": "Operator message verbatim: 在一个新的story中，制定合理的迁移计划，把以下 lattice 改掉，不考虑其他正在跑的story的影响 — followed by the six numbered items recorded above as allowedScope. The operator also explicitly said not to consider impact on other in-flight stories; that waives coordination, not evidence preservation. Exclusions are derived from B-cdf6's verified freeze reasons plus both INIT reviewers' findings.",
+  "createdAt": "2026-08-17T09:49:02.581Z",
+  "updatedAt": "2026-08-17T09:49:02.581Z",
+  "_hash": "b03e7bbcccca7576485ed72f47341f30f687f0130f9956693e76efbadc39ecaa"
+}

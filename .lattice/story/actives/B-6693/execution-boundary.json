@@ -1,0 +1,49 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-6693",
+  "allowedCommands": [
+    "node bin/lattice.js *",
+    "node packages/main/dist/tasks/*smoke.js",
+    "npm --prefix packages/main run build",
+    "npm test"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "Bash",
+    "Glob",
+    "Grep",
+    "Read"
+  ],
+  "allowedPaths": [
+    "docs/requirements/decisions",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/runtime-artifact-registry.ts",
+    "packages/main/src/core/validation-execution-lock.ts",
+    "packages/main/src/handlers/doctor.ts",
+    "packages/main/src/handlers/done-required-validation.ts",
+    "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/tasks/done-required-validation-smoke.ts",
+    "packages/main/src/tasks/validate-execution-lock-smoke.ts",
+    "packages/main/src/tasks/validation-protocol-smoke.ts"
+  ],
+  "excludedCommands": [
+    "git clean *",
+    "git push *",
+    "git reset --hard *",
+    "npm publish *"
+  ],
+  "excludedTools": [
+    "remote publish"
+  ],
+  "excludedPaths": [
+    "package.json",
+    "packages/main/package.json",
+    "packages/utils",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Use apply_patch for edits. Preserve command inventories and all timeout/budget constants. Global capacity lease precedes existing per-story evidence lock.",
+  "createdAt": "2026-08-14T15:11:30.549Z",
+  "updatedAt": "2026-08-14T15:11:30.549Z",
+  "_hash": "a018855197764eda2d47efb04e6e1225d99b6f4c4db048943d7349a282a2dbaa"
+}

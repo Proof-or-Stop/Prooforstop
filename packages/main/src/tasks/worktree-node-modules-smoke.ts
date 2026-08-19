@@ -3,7 +3,7 @@
 /**
  * B-9e4a CHK-001 smoke (F-003): worktree creation must warn when the fresh
  * worktree lacks node_modules, since git worktree does not inherit the main
- * repo's (gitignored) dependencies and tsc / lattice validate would then fail.
+ * repo's (gitignored) dependencies and tsc / proof-or-stop validate would then fail.
  *
  * Covers the verificationIntent for CHK-001:
  *  - happy: missing node_modules → warning text with remediation (npm install)

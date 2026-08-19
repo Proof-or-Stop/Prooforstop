@@ -1,4 +1,4 @@
-# Proofbound Experience Layer Execution Plan
+# Proof-or-Stop Experience Layer Execution Plan
 
 > Story: B-1480
 > Scope: future execution plan only. This document does not implement source
@@ -8,20 +8,20 @@
 > implemented artifact.
 >
 > Source: faithful English translation of the corrected v1.1 specification
-> (`Lattice Experience Layer: an auditable experience-reuse mechanism keyed on
+> (`Proof-or-Stop Experience Layer: an auditable experience-reuse mechanism keyed on
 > story outcomes`, v1.1 Implementation Draft, code-verified revision). The v1.1
 > revision is itself a correction of v1.0 after mapping the draft against the
-> real Proofbound codebase, adversarial review, and a ClawCreek reference
+> real Proof-or-Stop codebase, adversarial review, and a ClawCreek reference
 > cross-check. The design has not yet been implementation-verified.
 
 ## Problem Statement
 
-Proofbound already accumulates a large volume of structured data with outcomes:
+Proof-or-Stop already accumulates a large volume of structured data with outcomes:
 findings and their final state, `checklist.json`, `decision.json`, story
 background, and `activity.jsonl`. Today this data only
 serves the current story; it is never reused across stories.
 
-What makes Proofbound different from ordinary agent memory is that it knows, for
+What makes Proof-or-Stop different from ordinary agent memory is that it knows, for
 any given problem, which story it appeared in, how the reviewer judged it at the
 time, whether it was finally resolved / dismissed / accepted-as-risk, whether it
 passed the gate, and whether it caused rework or a rollback. That is verified,
@@ -34,8 +34,8 @@ appear on time and auditably at the next review. The one-line positioning is:
 
 > **Learning suggests. Human and gate decide.**
 
-The core principle is unchanged from v1.0: Proofbound does not let an agent be
-clever on its own; Proofbound lets evidence that has actually happened and has been
+The core principle is unchanged from v1.0: Proof-or-Stop does not let an agent be
+clever on its own; Proof-or-Stop lets evidence that has actually happened and has been
 verified appear, on time and auditably, at the next review.
 
 ## Principles
@@ -147,7 +147,7 @@ Semantic rule:
 
 ### Cut full-text search (FTS) for v1
 
-The v1.0 draft claimed Proofbound already had reusable FTS infrastructure. That was
+The v1.0 draft claimed Proof-or-Stop already had reusable FTS infrastructure. That was
 verified false: there is no SQLite, BM25, or inverted index anywhere in the
 repository, and `story_list` is only a filesystem scan plus enum filtering.
 
@@ -208,7 +208,7 @@ There are exactly THREE determinism guardrails.
 
 ## Roadmap
 
-Everything runs through the Proofbound story workflow (one story per coherent
+Everything runs through the Proof-or-Stop story workflow (one story per coherent
 slice).
 
 - **Phase 1a (FIRST STORY) — finding-signals vertical slice (minimal but truly
@@ -267,7 +267,7 @@ document.
   carry `support`.
 - Do not treat `dismissed` as a false positive, `resolved` as a true problem, or
   `unclear` as negative feedback.
-- Do not say "Proofbound becomes smarter on its own." Say: reuses evidence from
+- Do not say "Proof-or-Stop becomes smarter on its own." Say: reuses evidence from
   completed stories / turns verified experience into review-time hints / makes
   workflow memory auditable.
 

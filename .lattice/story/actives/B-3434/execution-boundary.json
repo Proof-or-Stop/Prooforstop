@@ -1,0 +1,28 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-3434",
+  "allowedCommands": [
+    "git *",
+    "node packages/main/dist/tasks/*",
+    "node packages/main/tests/red/*",
+    "npm --prefix packages/main run build",
+    "npx tsc --noEmit -p packages/main"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "lattice.config.json",
+    "packages/main/src/core/done-prepare-generated-metadata.ts",
+    "packages/main/src/core/validation-executor.ts",
+    "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+    "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "The defect and both repairs live in done-prepare-generated-metadata.ts; verifier.ts owns the artifact whose growth needs a binding disposition and would emit the threshold advisory; validation-executor.ts holds the existing per-command truncation constant the threshold must be reasoned against; lattice.config.json registers the new smoke.",
+  "createdAt": "2026-08-15T10:19:47.272Z",
+  "updatedAt": "2026-08-15T10:19:47.272Z",
+  "_hash": "8651ccf400f3f68d8998bfa888e65a763c02f562c2c8c4ed404809144dfa69c8"
+}

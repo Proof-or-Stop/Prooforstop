@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-5e2c",
+  "checkedAt": "2026-08-16T12:07:27.241Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "73725c87c6bdaf847baa45f3c926ba246f6ad089d5db08dc2ba60c93acd2305b",
+  "executionBoundaryHash": "f1b0a7e91da8ffd3f26d0a7d9fc8aa687fec04914b0e2f0d49d551f30a2be0b6",
+  "freshnessHash": "4c4a5de14b072316530b23b95e29a8000b1d37c288a3a172efac30a659bef0a0",
+  "effectiveExcludedKeywords": [
+    "A direct file-system or git worktree write fence",
+    "A second takeover counter or lease-only durable audit",
+    "Authority",
+    "Automatic agent_prompt foreign takeover",
+    "Automatic ownership handoff in DEV or for dangerousMutating",
+    "Changes to main-write-lock, validation capacity, pre-story intake, release push, or full-suite behavior",
+    "customerKeyRef",
+    "Host-session death detection or new host liveness adapter protocol",
+    "Layer4",
+    "Remote branch publication",
+    "repair UX"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "A direct file-system or git worktree write fence",
+      "source": "scopeBoundary.excluded",
+      "text": "A direct file-system or git worktree write fence",
+      "excluded": true
+    },
+    {
+      "keyword": "A second takeover counter or lease-only durable audit",
+      "source": "scopeBoundary.excluded",
+      "text": "A second takeover counter or lease-only durable audit",
+      "excluded": true
+    },
+    {
+      "keyword": "Automatic agent_prompt foreign takeover",
+      "source": "scopeBoundary.excluded",
+      "text": "Automatic agent_prompt foreign takeover",
+      "excluded": true
+    },
+    {
+      "keyword": "Automatic ownership handoff in DEV or for dangerousMutating",
+      "source": "scopeBoundary.excluded",
+      "text": "Automatic ownership handoff in DEV or for dangerousMutating",
+      "excluded": true
+    },
+    {
+      "keyword": "Changes to main-write-lock, validation capacity, pre-story intake, release push, or full-suite behavior",
+      "source": "scopeBoundary.excluded",
+      "text": "Changes to main-write-lock, validation capacity, pre-story intake, release push, or full-suite behavior",
+      "excluded": true
+    },
+    {
+      "keyword": "Host-session death detection or new host liveness adapter protocol",
+      "source": "scopeBoundary.excluded",
+      "text": "Host-session death detection or new host liveness adapter protocol",
+      "excluded": true
+    },
+    {
+      "keyword": "Remote branch publication",
+      "source": "scopeBoundary.excluded",
+      "text": "Remote branch publication",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "57dcf206053f7f5c009c0c8a9687d63de0e88665f8547fa67deb00dab5ca6576"
+}

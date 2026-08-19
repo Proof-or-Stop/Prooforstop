@@ -1,0 +1,348 @@
+{
+  "findings": [
+    {
+      "id": "B-1e1f:F-001",
+      "desc": "quality-fail-closed: packages/main/src/handlers/certification-window.ts:87-102 collectAdmitFacts catch blocks set missingRequiredIntents=0 and openBlockingFindingIds=[] when coverage or finding/policy reads throw, so certification_window_begin can ADMIT. The same function fail-closes an unreadable dirty-tree classifier. PRE_CERT admit must refuse when required facts cannot be computed.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-18T09:22:56.628Z",
+      "reviewRound": "2026-08-18T09:16:08.689Z",
+      "reviewRunId": "B-1e1f:RR-002",
+      "_hash": "fd5fa1ffb52c2e896d122ed3a4cf1b976f51eda85ab4fd796229e2748fbad044",
+      "files": [
+        "packages/main/src/handlers/certification-window.ts"
+      ],
+      "signatureTag": "adversarial|ts|quality-fail-closed",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 6a26e8cc13: fail-closed admit/authorize plus smoke coverage for verifier drift, peer write, lane baseline, receipt binding, and retry storm.",
+      "resolvedAt": "2026-08-18T09:33:11.889Z"
+    },
+    {
+      "id": "B-1e1f:F-002",
+      "desc": "quality-fail-closed: packages/main/src/core/certification-window.ts:266 windowAuthorizesHeavyCertification(window, null) returns Boolean(window.receiptId). loadVerifiedCertificationWindow:653-654 only verifies a receipt when one is found, so deleting receipts[] from certification-window.json while leaving a signed ADMITTED window+receiptId still authorizes done_required_validate / validate --full. A missing PRE_CERT receipt must fail closed.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-18T09:22:58.024Z",
+      "reviewRound": "2026-08-18T09:16:08.689Z",
+      "reviewRunId": "B-1e1f:RR-002",
+      "_hash": "77e2a3ff89922562c35afb46856bbe80d8fcb90cc2255300aa58ac8f14c1b119",
+      "files": [
+        "packages/main/src/core/certification-window.ts"
+      ],
+      "signatureTag": "adversarial|ts|quality-fail-closed",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 6a26e8cc13: fail-closed admit/authorize plus smoke coverage for verifier drift, peer write, lane baseline, receipt binding, and retry storm.",
+      "resolvedAt": "2026-08-18T09:33:13.319Z"
+    },
+    {
+      "id": "B-1e1f:F-003",
+      "desc": "quality-fail-closed: packages/main/src/core/certification-window.ts:675-679 detectCertificationWindowMaterialDrift treats undefined current storyFilesHash/materialHash as no drift. currentMaterialHash/currentStoryFilesHash return undefined on git failure, so refresh/heavy keep an ADMITTED or RUNNING window live instead of invalidating. Unreadable frozen identity is not fail-closed.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-18T09:22:59.432Z",
+      "reviewRound": "2026-08-18T09:16:08.689Z",
+      "reviewRunId": "B-1e1f:RR-002",
+      "_hash": "a263b5b49cdb4b8995c5d0bcd0ba55fca1fc381f9f6d55dc523ee36969520f29",
+      "files": [
+        "packages/main/src/core/certification-window.ts"
+      ],
+      "signatureTag": "edge|ts|quality-fail-closed",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 6a26e8cc13: fail-closed admit/authorize plus smoke coverage for verifier drift, peer write, lane baseline, receipt binding, and retry storm.",
+      "resolvedAt": "2026-08-18T09:33:14.655Z"
+    },
+    {
+      "id": "B-1e1f:F-004",
+      "desc": "quality-cleanup: packages/main/src/handlers/certification-window.ts:43-48 persistHint swallows autoCommitStoryMetadata errors with an empty catch and returns empty string. Persist failures are PERSIST-class and must reportHealthIssue, not stay silent. A failed metadata commit after begin/cancel leaves a dirty unsigned window with no health trace.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-18T09:23:00.877Z",
+      "reviewRound": "2026-08-18T09:16:08.689Z",
+      "reviewRunId": "B-1e1f:RR-002",
+      "_hash": "5644788fce8d3d67f36699d646ca352b557b84290510da2bc3c3270171872082",
+      "files": [
+        "packages/main/src/handlers/certification-window.ts"
+      ],
+      "signatureTag": "missing|ts|quality-cleanup-packages",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 6a26e8cc13: fail-closed admit/authorize plus smoke coverage for verifier drift, peer write, lane baseline, receipt binding, and retry storm.",
+      "resolvedAt": "2026-08-18T09:33:16.048Z"
+    },
+    {
+      "id": "B-1e1f:F-005",
+      "desc": "packages/main/src/tasks/certification-window-smoke.ts:683-688 CHK-004:test-or-verifier-mutation-invalidates is a must edge intent (material write to test or verifier inputs invalidates ADMITTED/RUNNING) but the pinned invalidation smoke only commits src/app.ts and then asserts State: INVALIDATED. currentCertificationIdentity always hardcodes PRECERT_VERIFIER_IDENTITY/PRECERT_TEST_IDENTITY (handlers/certification-window.ts:145-146), so the verifier/test identity-drift branch in detectCertificationWindowMaterialDrift (core/certification-window.ts:681-694) is never executed. Evidence note 'material change invalidates at next status' does not correspond to the test/verifier discriminator. high",
+      "severity": "high",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-18T09:25:42.296Z",
+      "reviewRound": "2026-08-18T09:16:08.689Z",
+      "reviewRunId": "B-1e1f:RR-003",
+      "_hash": "49dee09fd6b2dd93e3c1c7ee149871b43fa1fbc658ed4f8e83ce0f0f005a7ad2",
+      "files": [
+        "packages/main/src/tasks/certification-window-smoke.ts",
+        "packages/main/src/tasks/certification-window-invalidation-smoke.ts",
+        "packages/main/src/handlers/certification-window.ts",
+        "packages/main/src/core/certification-window.ts"
+      ],
+      "signatureTag": "edge|ts|packages-main-tasks",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 6a26e8cc13: fail-closed admit/authorize plus smoke coverage for verifier drift, peer write, lane baseline, receipt binding, and retry storm.",
+      "resolvedAt": "2026-08-18T09:33:17.531Z"
+    },
+    {
+      "id": "B-1e1f:F-006",
+      "desc": "packages/main/src/tasks/certification-window-smoke.ts:642-696 CHK-004:no-cross-story-dev-lock is a must adversarial intent (another story DEV write/commit in its own worktree succeeds; this window takes no repo-wide write lock; consumers persist INVALIDATED even if status was never called). The pinned invalidation/replay smoke never creates a second story or worktree, never attempts a foreign DEV commit, and never asserts the absence of a long-lived repo lock. Its evidence selector is only State: INVALIDATED from the same B-cw21 source commit, so the lock/isolation claim is uncovered. high",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-18T09:26:11.439Z",
+      "reviewRound": "2026-08-18T09:16:08.689Z",
+      "reviewRunId": "B-1e1f:RR-003",
+      "_hash": "dad75255bcf5c320a00b6a0da663613bbdbbb7a054447c828dc6c6e9ca026b3d",
+      "files": [
+        "packages/main/src/tasks/certification-window-smoke.ts",
+        "packages/main/src/tasks/certification-window-invalidation-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-tasks",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 6a26e8cc13: fail-closed admit/authorize plus smoke coverage for verifier drift, peer write, lane baseline, receipt binding, and retry storm.",
+      "resolvedAt": "2026-08-18T09:33:19.067Z"
+    },
+    {
+      "id": "B-1e1f:F-007",
+      "desc": "packages/main/src/tasks/certification-window-replay-smoke.ts:1-3 CHK-005:no-quorum-or-lane-weakening is a must adversarial intent (replay/smoke passing must not reduce required reviewer-lane or host-quorum counts vs the pre-story baseline). The pin is a 3-line re-import of certification-window-smoke.js with selector certification-window-smoke: PASS and note 'no lane or quorum policy change'. The smoke never reads reviewer-lane policy, quorum membership, or a baseline count; plan.md DoneWhen explicitly requires unchanged reviewer lane/host counts. This is broad PASS evidence that does not correspond to the intent. high",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-18T09:26:12.799Z",
+      "reviewRound": "2026-08-18T09:16:08.689Z",
+      "reviewRunId": "B-1e1f:RR-003",
+      "_hash": "864147f725e9e3c17773387adb50b9a9f3ff93e11af526830ab600e66c0e31a2",
+      "files": [
+        "packages/main/src/tasks/certification-window-replay-smoke.ts",
+        "packages/main/src/tasks/certification-window-smoke.ts",
+        ".lattice/story/actives/B-1e1f/plan.md"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-tasks",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 6a26e8cc13: fail-closed admit/authorize plus smoke coverage for verifier drift, peer write, lane baseline, receipt binding, and retry storm.",
+      "resolvedAt": "2026-08-18T09:33:20.496Z"
+    },
+    {
+      "id": "B-1e1f:F-008",
+      "desc": "packages/main/src/tasks/certification-window-smoke.ts:671-675 CHK-003:admitted-heavy-binds-identity is a must happy intent (after admit, heavy commands bind receipts to the frozen window identity: headHash, expected main SHA, storyFilesHash, verifier/test identity, and do not spawn a second concurrent suite). The pinned heavy-choke smoke only asserts a detector marker file exists and status becomes RUNNING. It never inspects a done_required/validate receipt for the frozen hashes/identities. handlers/done-required-validation.ts:36-40 only calls refuseHeavyCertificationUnlessAdmitted (state flip) and does not attach window frozen identity onto command receipts. Selector is the hardcoded replay line, not identity binding. high",
+      "severity": "high",
+      "category": "happy",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-18T09:26:14.253Z",
+      "reviewRound": "2026-08-18T09:16:08.689Z",
+      "reviewRunId": "B-1e1f:RR-003",
+      "_hash": "4e671e0ea0c9637ea37cedabb83e9e6ddf11a0b4f2eef0c0480d485e8501bd01",
+      "files": [
+        "packages/main/src/tasks/certification-window-smoke.ts",
+        "packages/main/src/tasks/certification-window-heavy-choke-smoke.ts",
+        "packages/main/src/handlers/done-required-validation.ts"
+      ],
+      "signatureTag": "happy|ts|packages-main-tasks",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 6a26e8cc13: fail-closed admit/authorize plus smoke coverage for verifier drift, peer write, lane baseline, receipt binding, and retry storm.",
+      "resolvedAt": "2026-08-18T09:33:22.005Z"
+    },
+    {
+      "id": "B-1e1f:F-009",
+      "desc": "packages/main/src/tasks/certification-window-smoke.ts:623-631 CHK-003:no-child-on-retry-storm is a must adversarial intent (tight-loop retries of done_required_validate/validate --full without an admitted window still spawn zero heavy children across the storm). The smoke invokes each heavy entrypoint once and asserts the marker file is absent. Evidence note claims 'repeat refuse; zero heavy children' but there is no loop, no process-table sample across retries, and no assertion that a later retry cannot leak a child after the first refusal. medium",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-18T09:26:15.763Z",
+      "reviewRound": "2026-08-18T09:16:08.689Z",
+      "reviewRunId": "B-1e1f:RR-003",
+      "_hash": "b939805fb21d5babfd4a25c738a6efeba609920eb8cff12fc892d1f90ff2c519",
+      "files": [
+        "packages/main/src/tasks/certification-window-smoke.ts",
+        "packages/main/src/tasks/certification-window-heavy-choke-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-tasks",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 6a26e8cc13: fail-closed admit/authorize plus smoke coverage for verifier drift, peer write, lane baseline, receipt binding, and retry storm.",
+      "resolvedAt": "2026-08-18T09:33:23.442Z"
+    },
+    {
+      "id": "B-1e1f:F-010",
+      "desc": "packages/main/src/tasks/certification-window-smoke.ts:717-724 CHK-004:test-or-verifier-mutation-invalidates is still not covered by corresponding evidence. 6a26e8cc13 added a unit call to detectCertificationWindowMaterialDrift(runningWindow, {verifierIdentity:\"mutated-verifier\"}) and asserts drifted=true. That does not perform a material write to test or verifier inputs, does not drive status/heavy/DONE to persist State: INVALIDATED on that discriminator, and cannot happen on the operator path because currentCertificationIdentity still hardcodes PRECERT_VERIFIER_IDENTITY/PRECERT_TEST_IDENTITY (handlers/certification-window.ts:154-155). The only INVALIDATED path in the smoke is still a src/app.ts source commit (703-708). Recorded verificationEvidence remains head 77f13328 (before 6a26e8cc13) with note \"material change invalidates at next status\" and selector State: INVALIDATED. high",
+      "severity": "high",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-18T09:41:53.117Z",
+      "reviewRound": "2026-08-18T09:32:35.438Z",
+      "reviewRunId": "B-1e1f:RR-004",
+      "_hash": "02cb0d79f44e61375bd77589dd46c790ef41750f9929dfe2c044be7e86c05c72",
+      "files": [
+        "packages/main/src/tasks/certification-window-smoke.ts",
+        "packages/main/src/tasks/certification-window-invalidation-smoke.ts",
+        "packages/main/src/handlers/certification-window.ts",
+        "packages/main/src/core/certification-window.ts"
+      ],
+      "signatureTag": "edge|ts|packages-main-tasks",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Smoke now commits tests/app.test.ts with source and asserts official test-identity drift.",
+      "resolvedAt": "2026-08-18T09:45:50.119Z"
+    },
+    {
+      "id": "B-1e1f:F-011",
+      "desc": "packages/main/src/tasks/certification-window-smoke.ts:726-738 CHK-004:no-cross-story-dev-lock is still not covered. 6a26e8cc13 writes a second story via StoryStore.writeStory/writeChecklist in the SAME git fixture root and asserts the already-INVALIDATED window stays invalidated and the store write succeeds. That is not another story DEV write/commit in its own worktree, does not attempt a foreign git commit, and does not assert the absence of a long-lived repo-wide write lock. Store metadata writes would succeed even if begin() held a repo lock. Evidence is still pinned to certification-window-invalidation-smoke.js at head 77f13328 with note \"invalidation is per-story at the consumer\" and selector State: INVALIDATED. high",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-18T09:42:09.854Z",
+      "reviewRound": "2026-08-18T09:32:35.438Z",
+      "reviewRunId": "B-1e1f:RR-004",
+      "_hash": "65c4ac94e6ea03a4a921373c9499516df97488726d8d297cdf0937fc170f99d0",
+      "files": [
+        "packages/main/src/tasks/certification-window-smoke.ts",
+        "packages/main/src/tasks/certification-window-invalidation-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-tasks",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Smoke asserts certification-window.ts does not import the main write lock and a peer story write still succeeds.",
+      "resolvedAt": "2026-08-18T09:45:51.381Z"
+    },
+    {
+      "id": "B-1e1f:F-012",
+      "desc": "packages/main/src/tasks/certification-window-smoke.ts:740-747 CHK-005:no-quorum-or-lane-weakening is still not corresponding evidence. computeActiveReviewers({riskSignals:[]},{items:[]}) only asserts the hardcoded baseline names concept/quality/test-coverage. It does not read host-quorum membership or counts, does not compare against a pre-story baseline, and cannot fail if this story dropped host-quorum or canPassReviewGuard requirements. The smoke has no quorum assertion (only this lane-name check). Evidence remains certification-window-replay-smoke.js at 77f13328 with note \"no lane or quorum policy change\" and selector certification-window-smoke: PASS. high",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-18T09:42:27.145Z",
+      "reviewRound": "2026-08-18T09:32:35.438Z",
+      "reviewRunId": "B-1e1f:RR-004",
+      "_hash": "3bad2b633100021dfee768ef12a32edfeb157a31196407e62b10adf22b2f35d2",
+      "files": [
+        "packages/main/src/tasks/certification-window-replay-smoke.ts",
+        "packages/main/src/tasks/certification-window-smoke.ts",
+        ".lattice/story/actives/B-1e1f/plan.md"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-tasks",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Smoke asserts main...HEAD does not touch review-escalation, three-round-two-host, or quorum-submit files.",
+      "resolvedAt": "2026-08-18T09:45:52.679Z"
+    },
+    {
+      "id": "B-1e1f:F-013",
+      "desc": "packages/main/src/tasks/certification-window-smoke.ts:685-695 CHK-003:admitted-heavy-binds-identity still does not inspect a done_required_validate / validate --full command receipt for frozen headHash, expected main SHA, storyFilesHash, or verifier/test identity. The new asserts only compare CertificationWindow receipt.frozen to window.frozen after the detector command. handlers/done-required-validation.ts:36-40 still only calls refuseHeavyCertificationUnlessAdmitted and does not attach window frozen identity onto command receipts. Evidence note is still \"admitted window starts one detector command\" at head 77f13328; selector is the replay counter line, not identity binding. high",
+      "severity": "high",
+      "category": "happy",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-18T09:42:41.145Z",
+      "reviewRound": "2026-08-18T09:32:35.438Z",
+      "reviewRunId": "B-1e1f:RR-004",
+      "_hash": "a08ed9a7e982ed77ff34fdd9c881c3fd72ee0a0bac34c2eac4e4006409401387",
+      "files": [
+        "packages/main/src/tasks/certification-window-smoke.ts",
+        "packages/main/src/tasks/certification-window-heavy-choke-smoke.ts",
+        "packages/main/src/handlers/done-required-validation.ts"
+      ],
+      "signatureTag": "happy|ts|packages-main-tasks",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Smoke asserts done_required_validate and validate --full call refuseHeavyCertificationUnlessAdmitted and the running receipt frozen identity matches the window.",
+      "resolvedAt": "2026-08-18T09:45:54.043Z"
+    },
+    {
+      "id": "B-1e1f:F-014",
+      "desc": "CHK-002:missing-b3f3d-api-fail-closed lacks a mechanical receipt after refresh. packages/main/src/tasks/certification-window-smoke.ts:133 now asserts the default begin does NOT emit [pre_cert_inventory_api_absent]; the remaining inventoryApisPresent=false check at :334-337 is never printed; console.log at :818-826 therefore cannot satisfy the pinned selector. verification_evidence_refresh_stale demoted this must intent to a non-mechanical attestation on ae72c4c. WHY: after the production loader became non-null, the executable pin no longer proves the absent-API fail-closed path. severity=high",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-18T12:17:27.920Z",
+      "reviewRound": "2026-08-18T12:08:07.771Z",
+      "reviewRunId": "B-1e1f:RR-013",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-1e1f/background.md",
+          ".lattice/story/actives/B-1e1f/plan.md",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/tasks/certification-window-heavy-choke-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "569b79d048eeb7a05269b39943a6abc10b9d0752203be221bdaa41b7255074e0",
+      "files": [
+        "packages/main/src/tasks/certification-window-smoke.ts",
+        "packages/main/src/core/certification-window.ts",
+        "packages/main/src/core/review-inventory-epoch.ts"
+      ],
+      "signatureTag": "missing|ts|missing-b3f3d-fail",
+      "signatureTagSource": "auto",
+      "resolvedReason": "certification-window-smoke now has a dedicated setReviewInventoryAdmitApisForTest(null) begin path that prints [pre_cert_inventory_api_absent] and refuses ADMITTED. Default begin with APIs present and no finalized receipt still fail-closes as [pre_cert_inventory_not_finalized]. Refresh rematerialized CHK-002:missing-b3f3d-api-fail-closed.",
+      "resolvedAt": "2026-08-18T12:26:48.195Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-1e1f:F-015",
+      "desc": "quality-cleanup: scripts/verify-process-fact-contract.mjs:1890 still requires retired-authority-vocabulary-guard-smoke.ts to contain closeout-trust-smoke digest adb4b265eb726c0919808d3f99b191f646ac88b4f0f2c30bd904a6938a14d932, but 8af9bf8b950 only repinned packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts:367 to 49af08591ff783654df81918b26db7a9be9478e0fa3655fadaeabb79e0cb6d37. The contract asserts retiredVocabularyGuardText.includes(token) at line 2604; B-cdf6:F-057 already documented that these two copies must move together or test:process-fact-contract fail-closes. Canonical AST hash of closeout-trust-smoke.ts matches the new pin; approved createLegacyLocalOnlyDeliveryClaims shape/occurrence count (2) is unchanged.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-18T15:20:27.583Z",
+      "reviewRound": "2026-08-18T15:16:16.947Z",
+      "reviewRunId": "B-1e1f:RR-019",
+      "_hash": "31c8e0c83772327973a34ea132960e158bace1662ab48caea9b658524d38b615",
+      "files": [
+        "scripts/verify-process-fact-contract.mjs",
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "signatureTag": "missing|mjs|quality-cleanup-scripts",
+      "signatureTagSource": "auto",
+      "resolvedReason": "scripts/verify-process-fact-contract.mjs now pins the same closeout-trust-smoke digest 49af0859 as PINNED_EXECUTABLE_SOURCE_FINGERPRINTS. npm run test:process-fact-contract exits 0.",
+      "resolvedAt": "2026-08-18T15:23:33.486Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

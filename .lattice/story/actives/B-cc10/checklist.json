@@ -1,0 +1,103 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Establish the migration contract and what stays frozen",
+      "context": "Before touching anything, write the decision doc that answers: which identities move, which stay frozen and why, and how each moved identity handles pre-existing on-disk state. Must explicitly confirm and cite that lattice-*-integrity-v1 salts, and the 13 lattice-* agent role IDs, are NOT in scope. Must decide the read-both policy per item: a resolver that accepts the old path/name for reading while writing only the new one, versus a hard cutover with a one-time migration. Establishes the acceptance criterion that 326 story archives under .lattice/story/actives remain readable and their signatures still verify after migration.",
+      "relatedDocs": [
+        "docs/requirements/decisions/brand-rename-mapping.md",
+        "CLAUDE.md"
+      ],
+      "userSees": "docs/requirements/decisions/proof-or-stop-identity-migration.md exists and states, per identity, RENAMED-with-migration or FROZEN plus the reason",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Add a read-both path resolver for the state directory before moving any file",
+      "context": "193+ code sites reference the literal '.lattice'. Introduce a single resolver (extending the core/brand-env.ts additive pattern from B-cdf6) that resolves the state dir, adapter dir, and config filenames, accepting the deprecated name for READS and writing only the canonical name. Land this FIRST so the codebase can operate on either layout; that makes the actual move reversible instead of a flag day. Route every literal through the resolver.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+      ],
+      "userSees": "a repo with .lattice present still works end to end, and grep for bare '.lattice' literals in packages/*/src returns only the resolver definition",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Migrate the on-disk state directories with history preserved",
+      "context": "git mv .lattice -> .proof-or-stop and .lattice-codex -> .proof-or-stop-codex, using git mv so history follows the files. 7571 tracked files. Verify afterward that story archives still parse, that signatures on historical findings/review-passes still verify (they must, since salts are path-independent), and that gitignore entries, lock paths and discovery files (.lattice-serve.json) were updated. This item is where the story either preserves 326 stories of evidence or destroys it.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+      ],
+      "userSees": "proof-or-stop session_brief and story_get both succeed against .proof-or-stop, and signature verification passes on at least TWO archived stories drawn from different eras of the 326-story corpus (one earliest-era, one immediately pre-migration), named explicitly in the evidence",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Rename the config and manifest filenames with a read-both fallback",
+      "context": "lattice.config.json -> proof-or-stop.config.json (236+ source sites) and lattice.json -> proof-or-stop.json. Config discovery must accept the deprecated filename for reading so a teammate branch or an unmigrated project still loads, while init and writes emit only the canonical name. Include the .lattice-codex/lattice.json adapter manifest, which the adapter resolves by exact name.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+      ],
+      "userSees": "a project containing only proof-or-stop.config.json loads correctly with no notice; a project containing only lattice.config.json still loads AND emits a single-line deprecation notice on STDERR naming both the deprecated filename and its canonical replacement (stderr so it never contaminates --json stdout, which B-cdf6 established as a hard constraint for piped consumers)",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Rename the npm package to @proof-or-stop/core",
+      "context": "4 package.json manifests plus package-lock.json entries and 19 source import sites. This is a published-identity change, distinct in risk from the path renames: any external consumer resolving @lattice/core breaks. Update workspace references, rebuild, and confirm packages/utils (which imports packages/main build output) still resolves. Decide and record whether a deprecated alias package is warranted or whether this is a clean break.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+      ],
+      "userSees": "npm --prefix packages/main run build succeeds and proof-or-stop --version prints the expected version with zero @lattice/core references outside frozen archives",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-006",
+      "title": "Remove the deprecated bin aliases and prove nothing depends on them",
+      "context": "Delete bin/lattice.js and bin/lattice-codex.js. Do this LAST, after the rest is green, because it is the one irreversible break of the multi-developer compatibility guarantee B-cdf6 established. bin/proof-or-stop-codex.js references the codex alias and verify_codex has a check for it; both need updating. Also update the package.json bin map, the pre-push hook's self-repo detection, and CLAUDE.md.\n\nINIT product-reviewer issue (medium): the original form of this item hard-cut the guarantee with NO transition signal, so a teammate would discover the break only when their 'lattice' invocation failed — a silent UX cliff. Amended acceptance: the removal must be ANNOUNCED, not merely performed. Required: a CHANGELOG entry naming both removed aliases and their replacements. PLAN must additionally decide between (a) a deprecation-warning phase where bin/lattice.js prints a visible notice before delegating, held one release cycle before removal, versus (b) immediate removal with the changelog as the only signal — and RECORD which was chosen and why. Option (a) is the reviewer's preference; the operator asked for removal, so the tradeoff is explicit rather than assumed.",
+      "relatedDocs": [
+        "CLAUDE.md",
+        "docs/CLI.md"
+      ],
+      "userSees": "node bin/lattice.js fails with command-not-found while proof-or-stop --version and proof-or-stop codex verify both succeed; AND the removal is announced rather than discovered: a CHANGELOG entry names both removed aliases and the replacement commands",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-007",
+      "title": "Extend the residue gate to enforce the new identities and re-pin affected fingerprints",
+      "context": "The lattice-residue gate currently permits .lattice, lattice.config.json and @lattice/core as FROZEN rows. Flip those rows from exempt to forbidden in product runtime source so the migration cannot silently regress, keeping frozen-by-design tokens (salts, role IDs) exempt with recorded reasons. Also re-pin any canonical AST fingerprints the migration moves; note from B-cdf6 that one fingerprint had TWO coupled copies, so grep the old digest repo-wide before editing either.",
+      "relatedDocs": [
+        "scripts/verify-lattice-residue.mjs",
+        "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+      ],
+      "userSees": "node scripts/verify-lattice-residue.mjs passes and fails loudly if a bare .lattice or @lattice/core is reintroduced into packages/*/src",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-008",
+      "title": "Prove the state-directory move is reversible before performing it",
+      "context": "INIT-002, raised by the INIT reviewer and matching my own stated uncertainty: CHK-002's read-both resolver gives CODE-level reversibility but not DATA-move reversibility, and nothing covered aborting a partially-completed git mv of ~7574 tracked files. This item supplies the missing half. Establish and rehearse the abort procedure: confirm the move is a single atomic commit that 'git revert' undoes cleanly (git mv preserves content, so a revert restores paths without content loss), verify on a scratch clone that reverting restores story archives to a readable state, and record the exact abort command plus how to detect a half-done state.\n\nSEQUENCING, corrected per INIT-005: this item's ID is CHK-008 because checklist_add appends, so its array POSITION is last — but it is an EXECUTION PREREQUISITE of CHK-003 (the git mv), not a follow-up. An earlier draft of this context claimed it was 'sequenced before CHK-003', which contradicted its own array position and was standalone-visible in checklist.json; that claim is withdrawn. The real ordering is enforced two ways: (1) PLAN must record CHK-003 DependsOn CHK-008 in plan.md, and (2) CHK-003 must not be started until this rehearsal is done and its evidence recorded. ID order is not execution order in this story.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+      ],
+      "userSees": "a rehearsal transcript showing the state-dir move applied then reverted on a scratch clone, with story_get on an archived story succeeding both before and after the revert",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

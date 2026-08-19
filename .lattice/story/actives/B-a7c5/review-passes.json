@@ -1,0 +1,647 @@
+{
+  "passes": [
+    {
+      "id": "B-a7c5:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "Round 2: verified 1c150d07f3 correctly fixes the round-1 EISDIR fail-open finding; all 74 smoke assertions + tsc clean; no new dead-code/type-safety/IO regressions in collateral files.",
+      "createdAt": "2026-08-15T10:49:37.822Z",
+      "reviewRound": "2026-08-15T10:45:44.244Z",
+      "reviewRunId": "B-a7c5:RR-005",
+      "envelopeId": "b31cd99590fff3d83c8a5c776f0fcb2605b41c5ef09ec011ff50c7c57dafe5a8",
+      "writerSessionId": "sess-811d105c99cb7771c59a07e52f523909",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-a7c5/background.md",
+          ".lattice/story/actives/B-a7c5/checklist.json",
+          ".lattice/story/actives/B-a7c5/findings.json",
+          ".lattice/story/actives/B-a7c5/plan.md",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/playbook-runtime-memory.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/playbook-runtime-memory.ts",
+          "packages/main/src/tasks/dev-memory-lifecycle-gates-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/dev-memory.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/tasks/delivery-check-freshness-smoke.ts",
+          "packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts",
+          "packages/main/src/tasks/playbook-runtime-memory-mvp2-smoke.ts",
+          "packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts",
+          "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+          "packages/main/src/tasks/review-escalation-freshness-root-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0266d832ad80117ab7313e8f0e8a860b21c8f7f75d47161809f67e20e2776fdd"
+    },
+    {
+      "id": "B-a7c5:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-2 audit of all 67 verificationIntent/verificationEvidence pairs across CHK-001..007: 1:1 coverage confirmed (67/67, no orphaned intents or evidence). Re-verified the 3 previously-resolved weak-binding findings (F-002/F-003/F-004): confirmed checklist.ts selectorMatched (line 645) is a raw includes() substring check, confirmed verification_evidence_add immutably pins command+selector on first write (receipt-command-mismatch/receipt-selector-mismatch refusals) with no tool-level path to strengthen an already-pinned weak selector for an existing intentRef, and independently re-confirmed each underlying claim by hand (grep for original M8/dev-memory.md text, code inspection of finding.ts memoryHint). All three resolutions are sound: honest documentation of a genuine tooling gap, not evidence laundering. Audited the new CHK-004:happy:0 waiver: traced its git history (commit 9461aa8c35) confirming it replaced a stale nonMechanical entry (invalidated by verification_evidence_refresh_stale after commit 1c150d07f3 added exactly 2 new regression assertions, raising the smoke test from 72->74 and breaking the immutably-pinned count-bearing selector). Ran the compiled smoke test myself: exits 0, 74 assertions pass, matching the waiver note. Also confirmed the underlying claim is independently, redundantly re-proven by 5 sibling CHK-004 evidence entries in the same item (happy:1/2/3, edge:1, adversarial:3) that execute the identical command and get exitCode:0, which given the fail-fast check()-throws design with no top-level try/catch is only reachable if all assertions passed -- so the waiver is a reasonable, honest use of the mechanism, not a coverage gap. Spot-checked CHK-007 git-diff-based evidence (structurally similar to the flagged CHK-005/006 pattern) and confirmed its selector correctly includes a leading + prefix, properly discriminating an added line -- does not repeat the F-002/F-003 flaw. Verified new since-round-1 code (commit 1c150d07f3, EISDIR fail-open fix in evaluateDevMemoryPreflightGate) against machine.ts and the 2 new smoke-test assertions exercising it. Verified CHK-001 DEV-door wiring and CHK-003 DONE-gate wiring match plan.md exactly. No blocking issues found.",
+      "createdAt": "2026-08-15T10:52:44.090Z",
+      "reviewRound": "2026-08-15T10:45:44.244Z",
+      "reviewRunId": "B-a7c5:RR-006",
+      "envelopeId": "342985e03d8e21087e9d14039e852b482c5b30582facaa568103956b900424c3",
+      "writerSessionId": "sess-811d105c99cb7771c59a07e52f523909",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-a7c5/background.md",
+          ".lattice/story/actives/B-a7c5/checklist.json",
+          ".lattice/story/actives/B-a7c5/findings.json",
+          ".lattice/story/actives/B-a7c5/plan.md",
+          "docs/requirements/decisions/dev-memory.md",
+          "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/playbook-runtime-memory.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/playbook-runtime-memory.ts",
+          "packages/main/src/tasks/dev-memory-lifecycle-gates-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "ef7c3345b80e2cf3d79bf3339326730c5eeca5d60f412cbe516b7f6601fc9cf4"
+    },
+    {
+      "id": "B-a7c5:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Round-2 full-diff concept-deletion residue scan (main...HEAD, 45 files). Confirmed the prior concept relocation (FinishDecision type + finishDecisionPath, handlers->core/playbook-runtime-memory.ts, F-001) has zero residue: only correct import remains. Verified dev_memory_finish_decision status reclassification (supported->gateEvidence) has all consuming fixtures updated consistently. Verified RuntimeConsumer union 9th member finding_resolve byte-matches code<->doc and is correctly excluded from both severity sets. Verified both Delivered-differently doc annotations preserve original text verbatim. No dead code: all 8 assert-functions in new smoke test invoked; rebuilt+ran live = 74/74 assertions pass including the new fail-open EISDIR regression test from commit 1c150d07f3. New artifact filename/command consistently registered exactly once each across command-catalog.ts/command-policy.ts/process-fact-levels.ts/lifecycle-registry.ts. No concept deletion/replacement issues found this round. Noted out of scope: proofstory-acceptance-basis-smoke.ts fails deterministically but is untouched by this diff, self-contained synthetic fixture, unrelated to dev-memory, and not in validate.commands -- pre-existing/unrelated, not a concept-residue finding.",
+      "createdAt": "2026-08-15T10:53:12.373Z",
+      "reviewRound": "2026-08-15T10:45:44.244Z",
+      "reviewRunId": "B-a7c5:RR-004",
+      "envelopeId": "c962d8cdf4c004a91fcffa18c78653b0c7a960dfbc8354af0f5fbe4d6e216faf",
+      "writerSessionId": "sess-811d105c99cb7771c59a07e52f523909",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-a7c5/background.md",
+          ".lattice/story/actives/B-a7c5/checklist.json",
+          ".lattice/story/actives/B-a7c5/findings.json",
+          ".lattice/story/actives/B-a7c5/plan.md",
+          "docs/requirements/decisions/dev-memory.md",
+          "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+          "lattice.config.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/playbook-runtime-memory.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/dev-memory.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/playbook-runtime-memory.ts",
+          "packages/main/src/tasks/delivery-check-freshness-smoke.ts",
+          "packages/main/src/tasks/dev-memory-lifecycle-gates-smoke.ts",
+          "packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts",
+          "packages/main/src/tasks/playbook-runtime-memory-mvp2-smoke.ts",
+          "packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts",
+          "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+          "packages/main/src/tasks/review-escalation-freshness-root-smoke.ts",
+          "packages/main/tests/milestone-status.test.mjs",
+          "packages/main/tests/red/red-b2aa7-chk006-receipt.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-a7c5/candidate-spec-set.json",
+          ".lattice/story/actives/B-a7c5/proofstory.json",
+          ".lattice/story/actives/B-a7c5/scope-check.json",
+          ".lattice/story/actives/B-a7c5/understanding.json",
+          "bin/lattice.js",
+          "packages/main/src/tasks/playbook-runtime-memory-health-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "0652e740594750b5e270f3b10159e861e9562a574d31adc2f7239c3adb7faaf4",
+        "corpusDigest": "bffc48bcca12bbb4f5269fab26913e574d5b327b58ae94c095dee911fbf85b69"
+      },
+      "_hash": "1c5c7e5f203b9eb49b59745e3af38b9ee5e94277a5dbb7023e6ffd994761273a"
+    },
+    {
+      "id": "B-a7c5:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Round 3: fresh-binding re-review after story_advance auto-synced 209 unrelated main commits, invalidating round-2 bindings; story diff itself unchanged from round 2 (which found zero concept-residue issues, RP-003). Re-confirmed via git log/diff --stat that only main-merge commits are new. Re-ran the full concept-deletion grep sweep on git diff main...HEAD (24 non-.lattice files, 1061 insertions/14 deletions, additive dev-memory-lifecycle-gates feature): the one internal relocation (FinishDecision type + finishDecisionPath moved handlers/playbook-runtime-memory.ts -> core/playbook-runtime-memory.ts) has a single canonical definition, clean re-export/import chain (core/machine.ts, handlers/playbook-runtime-memory.ts), zero duplicate/orphaned residue. Confirmed all 14 diff deletion lines are either this relocation, pure import-list additions (extname->extname+join), a destructure widening (const{root}->const{root,store}), the RuntimeConsumer union gaining its documented 9th finding_resolve member, or lattice.config.json gaining a new validate.commands entry -- none are concept deletions/replacements needing residue cleanup. Wave-4 acceptance-rollout concept chain (acceptance_topology_check/pre_review_check_read/acceptance_rollout_report_read/acceptanceRolloutGateMode) grepped: zero hits in this diff, not touched. All 7 checklist items (CHK-001..007) confirmed status=done, matching plan.md sections. No blocker.",
+      "createdAt": "2026-08-15T11:20:56.902Z",
+      "reviewRound": "2026-08-15T11:17:03.901Z",
+      "reviewRunId": "B-a7c5:RR-007",
+      "envelopeId": "1631c8a77934266760a2b108b14e43bc6e30139f48ed91017daad4e8e2e7fbab",
+      "writerSessionId": "sess-811d105c99cb7771c59a07e52f523909",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-a7c5/background.md",
+          ".lattice/story/actives/B-a7c5/checklist.json",
+          ".lattice/story/actives/B-a7c5/plan.md",
+          "lattice.config.json",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/playbook-runtime-memory.ts",
+          "packages/main/src/handlers/dev-memory.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/playbook-runtime-memory.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dev-memory.md",
+          "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/tasks/delivery-check-freshness-smoke.ts",
+          "packages/main/src/tasks/dev-memory-lifecycle-gates-smoke.ts",
+          "packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts",
+          "packages/main/src/tasks/playbook-runtime-memory-mvp2-smoke.ts",
+          "packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts",
+          "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+          "packages/main/src/tasks/review-escalation-freshness-root-smoke.ts",
+          "packages/main/tests/milestone-status.test.mjs",
+          "packages/main/tests/red/red-b2aa7-chk006-receipt.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "0652e740594750b5e270f3b10159e861e9562a574d31adc2f7239c3adb7faaf4",
+        "corpusDigest": "bffc48bcca12bbb4f5269fab26913e574d5b327b58ae94c095dee911fbf85b69"
+      },
+      "_hash": "2fea5d89172600f1c20eca7915223b968f3c0516fcd43a86391cd4ba4a02ece8"
+    },
+    {
+      "id": "B-a7c5:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Round 3 re-binding pass only: story_advance auto-synced 209 unrelated main commits (merge 288fd2596b) invalidating round-2 review-pass bindings. Confirmed git log 288fd2596b..HEAD touches only .lattice/ bookkeeping (dev-memory finish-decision, dispatch telemetry, review/delivery-check metadata) -- zero commits touch packages/, docs/, bin/, or lattice.config.json. git diff main...HEAD --name-only confirms the same 23 code files round 2 already fully reviewed (evaluateDevMemoryPreflightGate fail-open fix confirmed correct, 0 findings on dead code / type safety / I-O isolation / proof-metadata checks). No new findings this round; re-affirming round-2 pass against current post-merge HEAD.",
+      "createdAt": "2026-08-15T11:21:00.265Z",
+      "reviewRound": "2026-08-15T11:17:03.901Z",
+      "reviewRunId": "B-a7c5:RR-008",
+      "envelopeId": "47d73ca316d45f6826a9fee3f73e7177f4ca1d339594bb7779b7a4ef66a46743",
+      "writerSessionId": "sess-811d105c99cb7771c59a07e52f523909",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-a7c5/background.md",
+          ".lattice/story/actives/B-a7c5/checklist.json",
+          ".lattice/story/actives/B-a7c5/plan.md"
+        ],
+        "filesTriagedByName": [
+          "bin/lattice.js",
+          "docs/requirements/decisions/dev-memory.md",
+          "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+          "lattice.config.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/playbook-runtime-memory.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/dev-memory.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/playbook-runtime-memory.ts",
+          "packages/main/src/tasks/delivery-check-freshness-smoke.ts",
+          "packages/main/src/tasks/dev-memory-lifecycle-gates-smoke.ts",
+          "packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts",
+          "packages/main/src/tasks/playbook-runtime-memory-mvp2-smoke.ts",
+          "packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts",
+          "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+          "packages/main/src/tasks/review-escalation-freshness-root-smoke.ts",
+          "packages/main/tests/milestone-status.test.mjs",
+          "packages/main/tests/red/red-b2aa7-chk006-receipt.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "0652e740594750b5e270f3b10159e861e9562a574d31adc2f7239c3adb7faaf4",
+        "corpusDigest": "bffc48bcca12bbb4f5269fab26913e574d5b327b58ae94c095dee911fbf85b69"
+      },
+      "_hash": "0c9dfc383fbca30baf46f970067ea8f95b5ebd0bfbdb1fd29df9b8ea2231d9d8"
+    },
+    {
+      "id": "B-a7c5:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Round 4 targeted verification of F-005 fix (commit 4a7f2aa540): confirmed dev-memory-finish-decision RUNTIME_ARTIFACT_REGISTRY entry is scoped correctly (prefix .lattice/dev-memory/finish-decisions/, materialHash exclude), has no overlap with any of the 16 adjacent registry entries, classifyParsedRow routes it to runtime_artifact_changes before the unexpected_dirty_files fallback, .gitignore un-ignore lines match its deliberate empty ignorePatterns, dist is rebuilt in sync with src, live smoke run is 78/78 green including the 4 new F-005 assertions, and zero residue remains of the earlier reverted auto-commit approach (no autoCommitDevMemoryFinishDecision export, handler is a plain writeFileSync). No blocking findings.",
+      "createdAt": "2026-08-15T11:56:48.295Z",
+      "reviewRound": "2026-08-15T11:51:21.761Z",
+      "reviewRunId": "B-a7c5:RR-010",
+      "envelopeId": "cbf42a7e86161921865c7feb0d739773183084d0cb990d6f8f30e204d4b7d554",
+      "writerSessionId": "sess-811d105c99cb7771c59a07e52f523909",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-a7c5/background.md",
+          ".lattice/story/actives/B-a7c5/plan.md",
+          "packages/main/src/core/runtime-artifact-registry.ts"
+        ],
+        "filesTriagedByName": [
+          ".gitignore",
+          ".lattice/story/actives/B-a7c5/checklist.json",
+          "packages/main/dist/core/runtime-artifact-registry.js",
+          "packages/main/dist/tasks/dev-memory-lifecycle-gates-smoke.js",
+          "packages/main/src/core/dirty-worktree.ts",
+          "packages/main/src/core/playbook-runtime-memory.ts",
+          "packages/main/src/handlers/playbook-runtime-memory.ts",
+          "packages/main/src/tasks/dev-memory-lifecycle-gates-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "0652e740594750b5e270f3b10159e861e9562a574d31adc2f7239c3adb7faaf4",
+        "corpusDigest": "bffc48bcca12bbb4f5269fab26913e574d5b327b58ae94c095dee911fbf85b69"
+      },
+      "_hash": "bf80ae9638eda2d27b2ccc7e7b7288e32430ad61812a5e7085b6d5bb9325d80e"
+    },
+    {
+      "id": "B-a7c5:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 4: verified my own F-005 fix (commit 4a7f2aa540). Fresh standalone repro (temp git fixture, not reusing the smoke test) calling dev_memory_finish_decision then classifyGitStatusRows+isBlockingDirty (the exact machinery review_run_start's clean-tree preflight uses) confirms the finish-decision artifact now classifies as runtime_artifact_changes (non-blocking), not unexpected_dirty_files. Ran the compiled smoke test directly: 78/78 assertions pass including the 4 new F-005 regression assertions. Independently stress-tested the materialHash-invariance assertion's discriminating power via a 3-scenario experiment (current fix / rejected naive auto-commit against the actual pre-fix registry reconstructed from git history / hypothetical commit-with-exclusion-present): confirmed the naive auto-commit approach (as it would have run pre-fix) DOES perturb materialHash while the shipped fix does not, so the assertion is genuinely discriminating, not vacuous. No new checklist-item binding needed: this is a REVIEW-round finding fix under CHK-004's existing scope, and CHK-004's stale 74-assertion-count evidence pin is already covered by a pre-existing permanent waiver anticipating exactly this count-growth fragility. No code/test/checklist changes made by me.",
+      "createdAt": "2026-08-15T12:00:34.528Z",
+      "reviewRound": "2026-08-15T11:51:21.761Z",
+      "reviewRunId": "B-a7c5:RR-012",
+      "envelopeId": "040422efb7de48e72cce1ac2ba0832a825ba56c970c16bba1031260f214099cc",
+      "writerSessionId": "sess-811d105c99cb7771c59a07e52f523909",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-a7c5/background.md",
+          ".lattice/story/actives/B-a7c5/plan.md",
+          "packages/main/src/core/dirty-worktree-gate.ts",
+          "packages/main/src/core/dirty-worktree.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/handlers/playbook-runtime-memory.ts",
+          "packages/main/src/tasks/dev-memory-lifecycle-gates-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-a7c5/checklist.json",
+          ".lattice/story/actives/B-a7c5/findings.json",
+          "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+          "lattice.config.json",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/playbook-runtime-memory.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "0652e740594750b5e270f3b10159e861e9562a574d31adc2f7239c3adb7faaf4",
+        "corpusDigest": "bffc48bcca12bbb4f5269fab26913e574d5b327b58ae94c095dee911fbf85b69"
+      },
+      "_hash": "1ebfb5c5ad910ddab566290af0a7e74a09269940273a3402b022a5202bf62ea5"
+    },
+    {
+      "id": "B-a7c5:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "Round 5 concept-residue re-scan of git diff main...HEAD (25 non-.lattice files) plus targeted read of commit 0b8aa7319b (the F-006/F-007 fix). F-006/F-007 changed test-assertion strength and a comment in dev-memory-lifecycle-gates-smoke.ts/delivery-check-freshness-smoke.ts only -- no concept word deleted/replaced; grepped repo-wide for the old stale claim (DOES count toward materialHash), only hit is the historical finding text describing the pre-fix state, not live code. Re-confirmed the one true relocation from earlier rounds (FinishDecision type + finishDecisionPath, handlers->core/playbook-runtime-memory.ts, F-001) still has a single canonical definition with clean import, zero duplicate residue. Re-verified new command/artifact registration consistency: dev_memory_preflight_ack present in command-catalog.ts, command-policy.ts, process-fact-levels.ts, and its artifact filename in lifecycle-registry.ts; dev-memory-finish-decision RUNTIME_ARTIFACT_REGISTRY entry (materialHash exclude, correct prefix) matches committed HEAD. No autoCommitDevMemoryFinishDecision or reverted-approach residue found in any tracked file. Closing self-check: no new lattice command/ENV/handler-schema field is doc-promised without a matching implementation. Note: while reading source directly (not via git diff/show) I observed transient, uncommitted, self-resolving edits to core/runtime-artifact-registry.ts and core/evidence-freshness.ts in this shared worktree, almost certainly a sibling reviewer lane exercising the same break/restore discriminating-power check F-006 documents; git diff main...HEAD stat/line-counts and a SHA-256 of the code-only diff were re-verified identical before and after, confirming the actual committed/reviewable diff was never altered. No concept deletion/replacement this round; concept residue check completed, no blocker.",
+      "createdAt": "2026-08-15T12:37:18.956Z",
+      "reviewRound": "2026-08-15T12:29:13.708Z",
+      "reviewRunId": "B-a7c5:RR-013",
+      "envelopeId": "b6e90575ddc36662c63107543a8552ababfbbf48ce4623698c68e49e61ac5888",
+      "writerSessionId": "sess-811d105c99cb7771c59a07e52f523909",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-a7c5/background.md",
+          ".lattice/story/actives/B-a7c5/checklist.json",
+          ".lattice/story/actives/B-a7c5/plan.md",
+          "docs/requirements/decisions/dev-memory.md",
+          "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+          "lattice.config.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/playbook-runtime-memory.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/dev-memory.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/playbook-runtime-memory.ts",
+          "packages/main/src/tasks/delivery-check-freshness-smoke.ts",
+          "packages/main/src/tasks/dev-memory-lifecycle-gates-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/bounded-document-context-scaling-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "0652e740594750b5e270f3b10159e861e9562a574d31adc2f7239c3adb7faaf4",
+        "corpusDigest": "bffc48bcca12bbb4f5269fab26913e574d5b327b58ae94c095dee911fbf85b69"
+      },
+      "_hash": "2311ae86dba0bf8e1e2353f01bd7440b3e23b9c5687e93b41cda25a5265e47d6"
+    },
+    {
+      "id": "B-a7c5:RP-009",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 5: verified F-006 and F-007 fixes (commit 0b8aa7319b) introduce no new coverage gaps and require no new checklist-item binding. F-006: dev-memory-lifecycle-gates-smoke.ts now git-commits the finish-decision file before re-checking currentMaterialHash (2 new assertions: CHK-003 F-006 x2), making the regression check genuinely discriminating -- independently reran the compiled smoke test fresh after a clean rebuild, confirmed 79/79 assertions pass (up from 74, exactly the delta the commit message and CHK-004:happy:0 permanent waiver anticipate). F-007: delivery-check-freshness-smoke.ts comment corrected to no longer claim the dev-memory write counts toward materialHash (it is materialHash-excluded since F-005); comment-only change, no assertions added/removed, verified delivery-check-freshness-smoke.js still passes clean. Both fixes stay entirely within CHK-003/CHK-004 existing scope (elaborating the pre-existing F-005 regression check and its adjoining fixture comment, not introducing new testable behavior), so no new checklist item is warranted -- reaffirms my own round-4 judgment (RP-007) that REVIEW-round finding-fix work of this kind falls under CHK-004s existing scope and its permanent waiver on the fragile assertion-count-pinned selector. Checked: all 7 checklist items status=done, all 7 findings (F-001..F-007) status=resolved, working tree clean, fresh npm build clean, both affected smoke tests pass from a clean rebuild.",
+      "createdAt": "2026-08-15T12:37:55.352Z",
+      "reviewRound": "2026-08-15T12:29:13.708Z",
+      "reviewRunId": "B-a7c5:RR-014",
+      "envelopeId": "a16d1bf2e050a2413608c9404902c1ed0d9279008e730ec04aa090078e835d5e",
+      "writerSessionId": "sess-811d105c99cb7771c59a07e52f523909",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/dev-memory/experience.jsonl",
+          ".lattice/story/actives/B-a7c5/background.md",
+          ".lattice/story/actives/B-a7c5/checklist.json",
+          ".lattice/story/actives/B-a7c5/findings.json",
+          ".lattice/story/actives/B-a7c5/plan.md",
+          ".lattice/story/actives/B-a7c5/review-passes.json",
+          ".lattice/story/actives/B-a7c5/review-runs.json"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "packages/main/src/tasks/delivery-check-freshness-smoke.ts",
+          "packages/main/src/tasks/dev-memory-lifecycle-gates-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "0652e740594750b5e270f3b10159e861e9562a574d31adc2f7239c3adb7faaf4",
+        "corpusDigest": "bffc48bcca12bbb4f5269fab26913e574d5b327b58ae94c095dee911fbf85b69"
+      },
+      "_hash": "b32638303a3f2e0bc0c44b33b75954bca73b3d2c1ce24aaa208b9d59d0d28d37"
+    },
+    {
+      "id": "B-a7c5:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-6 test-coverage re-confirmation focused on F-008 fix (bd37ddd3d6). F-008 fixed a collateral regression in the pre-existing fixture proofstory-intent-hardening-smoke.ts (CHK-001s new dev-memory preflight gate check ran before proofStoryDevGateFailure in getGuardFailureReason, masking the ProofStory-specific message this fixture asserts on). The fix only adds ackDevMemoryPreflightForProofstory() calls to that files two fixture-builders; it touches no CHK-001..CHK-007 verificationIntent/verificationEvidence-bound file. Confirmed: none of the 24 pinned verificationEvidence commands/selectors across CHK-001..CHK-007 reference proofstory-intent-hardening-smoke.{ts,js}; no checklist items files field names it; it remains unregistered in lattice.config.json validate.commands (consistent with F-008s own documented root cause, not a request to register it -- that would be new scope). Re-ran after a clean standalone rebuild: proofstory-intent-hardening-smoke.js exits 0; the CHK-004-registered dev-memory-lifecycle-gates-smoke.js still passes all 79/79 assertions, unaffected by the fix. All checklist bindings remain sound; no new coverage gap introduced. Matches consistent judgment from rounds 4-5 that a fixture-only fix to a pre-existing, non-checklist-scoped test file needs no new checklist binding. Note: a full lattice validate --story=B-a7c5 run in this shared worktree hit a transient concurrent-build race from a sibling reviewer lanes simultaneous rebuild in the same worktree (dist/cli.js briefly missing, MODULE_NOT_FOUND cascading through ~90 unrelated commands); this is an environment artifact confirmed via a clean rebuild + targeted smoke reruns, not a story regression.",
+      "createdAt": "2026-08-15T13:20:34.190Z",
+      "reviewRound": "2026-08-15T13:11:28.330Z",
+      "reviewRunId": "B-a7c5:RR-016",
+      "envelopeId": "31afd5306ab4ee913a1dd4b13353ffab44f34fc71b1f37061d93c838960782ad",
+      "writerSessionId": "sess-811d105c99cb7771c59a07e52f523909",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-a7c5/background.md",
+          ".lattice/story/actives/B-a7c5/checklist.json",
+          ".lattice/story/actives/B-a7c5/findings.json",
+          ".lattice/story/actives/B-a7c5/plan.md",
+          ".lattice/story/actives/B-a7c5/scope-contract.json",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/bounded-document-context-scaling-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+          "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "0652e740594750b5e270f3b10159e861e9562a574d31adc2f7239c3adb7faaf4",
+        "corpusDigest": "bffc48bcca12bbb4f5269fab26913e574d5b327b58ae94c095dee911fbf85b69"
+      },
+      "_hash": "8e6ccce94b3bd64c45fb32323742cb2ec93d35f4e4cab1d13ab5754b2c2704f2"
+    },
+    {
+      "id": "B-a7c5:RP-011",
+      "agent": "lattice-review-concept",
+      "note": "Round 6 concept review: verified F-008 fix (bd37ddd3d6) that satisfies the CHK-001 dev-memory preflight ack in both proofstory-intent-hardening-smoke.ts fixture builders before the DEV-transition assertion, restoring the ProofStory-specific gate message the fixture exists to test. Confirmed via git diff that only this 19-line addition landed since round 5 (no other source drift), confirmed the fix's call-site coverage is complete (the only story_advance->DEV call site in the file is inside assertDevAdmissionBlocked, reached only via the two ack'd builders; other writeStory calls in the file test unrelated gates that never transition to DEV), confirmed DevMemoryPreflightAckData/store method shape match exactly, and confirmed evaluateDevMemoryPreflightGate really does run before proofStoryDevGateFailure at all relevant call sites in core/machine.ts. Independently re-ran proofstory-intent-hardening-smoke.js and dev-memory-lifecycle-gates-smoke.js (79/79) in an isolated hardlink snapshot (race-free, immune to the shared worktree's concurrent sibling-reviewer rebuild races observed live during this round) after a clean build -- both pass. All 7 checklist items are done and all 8 prior findings (F-001..F-008) are resolved. Read the CHK-005/CHK-006/CHK-007 doc reconciliations (playbook-runtime-memory-consumption-execution-plan.md S4.3 + M8, dev-memory.md Non-Goals annotation) and they are precise and consistent with the shipped code. No concept residue, dead code, or duplicate logic found in the fix commit or its surrounding area. No blocker.",
+      "createdAt": "2026-08-15T13:28:16.952Z",
+      "reviewRound": "2026-08-15T13:11:28.330Z",
+      "reviewRunId": "B-a7c5:RR-018",
+      "envelopeId": "06e42697ee75e15c69082cfdb512726b14eec8079a2858840a00c49a2b95563e",
+      "writerSessionId": "sess-811d105c99cb7771c59a07e52f523909",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-a7c5/background.md",
+          ".lattice/story/actives/B-a7c5/checklist.json",
+          ".lattice/story/actives/B-a7c5/findings.json",
+          ".lattice/story/actives/B-a7c5/plan.md",
+          "docs/requirements/decisions/dev-memory.md",
+          "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+          "lattice.config.json",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/dev-memory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/bounded-document-context-scaling-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/playbook-runtime-memory.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/playbook-runtime-memory.ts",
+          "packages/main/src/tasks/dev-memory-lifecycle-gates-smoke.ts",
+          "packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts",
+          "packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "0652e740594750b5e270f3b10159e861e9562a574d31adc2f7239c3adb7faaf4",
+        "corpusDigest": "bffc48bcca12bbb4f5269fab26913e574d5b327b58ae94c095dee911fbf85b69"
+      },
+      "_hash": "a36e0f4fc0ec1e27c9697ab317f504f83d5e392c387f6c3dcec1c7d6722e824b"
+    },
+    {
+      "id": "B-a7c5:RP-012",
+      "agent": "lattice-review-quality",
+      "note": "Round 7: independently re-verified round-6 F-009 fix (done-premerge-mainsha-recheck-smoke.ts) and the follow-up F-010 sweep (closeout-trust-smoke.ts + worktree-authority-smoke.ts dev_memory_finish_decision writes, plus fingerprint repin in retired-authority-vocabulary-guard-smoke.ts and scripts/verify-process-fact-contract.mjs). Ran all 5 affected checks directly (dev-memory-lifecycle-gates-smoke 79/79, done-premerge-mainsha-recheck-smoke 14/14, closeout-trust-smoke, retired-authority-vocabulary-guard-smoke PASS, verify-process-fact-contract.mjs PASS) -- all green. Independently reproduced both flagged-separately unrelated pre-existing issues on a clean untouched main checkout (commit 8dbfac8809, freshly rebuilt dist): field-regression-cli-smoke.ts missing --readManifest arg, and worktree-authority-smoke.ts assertDoneRecoverRunsPostMergeBuildForRuntimeChanges ENOENT version-bump -- both reproduce identically on main, confirming genuinely unrelated. No dead code, no unnecessary as-any, no empty catches, no I/O-isolation violations in the 3 follow-up commits; new import/handler calls match createPlaybookRuntimeMemoryHandlers.dev_memory_finish_decision real signature. Both fingerprint-pin sites for closeout-trust-smoke.ts confirmed updated in lockstep (grepped whole repo for old value: zero remaining references). Worktree clean apart from own review-run bookkeeping. No blockers.",
+      "createdAt": "2026-08-15T15:01:20.994Z",
+      "reviewRound": "2026-08-15T14:53:25.129Z",
+      "reviewRunId": "B-a7c5:RR-020",
+      "envelopeId": "80eb6c89ae8d904f777ee8502e2d08933262ed1efa5063c66bd2fe13f999658e",
+      "writerSessionId": "sess-811d105c99cb7771c59a07e52f523909",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/dev-memory/experience.jsonl (commit e162c5c270 diff)",
+          ".lattice/story/actives/B-a7c5/background.md",
+          ".lattice/story/actives/B-a7c5/checklist.json",
+          ".lattice/story/actives/B-a7c5/findings.json (F-008, F-009 records)",
+          ".lattice/story/actives/B-a7c5/plan.md",
+          "packages/main/src/handlers/playbook-runtime-memory.ts (dev_memory_finish_decision handler signature, lines 168-260)",
+          "packages/main/src/tasks/closeout-trust-smoke.ts (F-010 fix diff, commit e162c5c270)",
+          "packages/main/src/tasks/done-premerge-mainsha-recheck-smoke.ts (F-009 fix diff, commit 860e94cbe0)",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts (fingerprint repin diff, commit cc8fd5f27e)",
+          "packages/main/src/tasks/worktree-authority-smoke.ts (F-010 fix diff, commit e162c5c270)",
+          "scripts/verify-process-fact-contract.mjs (fingerprint repin diff, commit cc8fd5f27e)"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "package.json (test:serial-reference / full-suite-runner.js task list, 47-entry cross-check)",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "0652e740594750b5e270f3b10159e861e9562a574d31adc2f7239c3adb7faaf4",
+        "corpusDigest": "bffc48bcca12bbb4f5269fab26913e574d5b327b58ae94c095dee911fbf85b69"
+      },
+      "_hash": "7e9be05d208b2330dde3e043708b1211f98afe345f20b72d437ba0958e4976d6"
+    },
+    {
+      "id": "B-a7c5:RP-013",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 7 test-coverage review: confirmed F-009 fix (done-premerge-mainsha-recheck-smoke.ts, commit 860e94cbe0) and the 3 follow-up collateral fixes (closeout-trust-smoke.ts + worktree-authority-smoke.ts finish-decision writes in e162c5c270; retired-authority-vocabulary-guard-smoke.ts + verify-process-fact-contract.mjs fingerprint repin in cc8fd5f27e) leave all 67 checklist verificationIntent entries bound 1:1 to passing verificationEvidence (0 fail, 0 missing-evidence intents, 0 orphan evidence) -- re-verified via checklist.json + a fresh dev-memory-lifecycle-gates-smoke.js run (79/79 assertions). None of the 5 fixed collateral files (closeout-trust-smoke.ts, worktree-authority-smoke.ts, done-premerge-mainsha-recheck-smoke.ts, retired-authority-vocabulary-guard-smoke.ts, verify-process-fact-contract.mjs) appear as a verificationEvidence command anywhere in checklist.json -- consistent with rounds 4-6 judgment, fixture-only fixes to these pre-existing, non-checklist-scoped test files need no new checklist binding. Independently confirmed the sweep's two 'genuinely unrelated pre-existing' claims by reproducing both failures byte-identical at the merge-base commit (a15ae19707, before any B-a7c5 diff): worktree-authority-smoke.ts's assertDoneRecoverRunsPostMergeBuildForRuntimeChanges ENOENT (version-bump.ts reading a nonexistent package.json in the fixture's mkdtemp root -- version-bump.ts/done-recover.ts are not in this story's scope contract) and field-regression-cli-smoke.ts's missing --readManifest arg. `lattice validate` ran all 96 mechanical commands with 0 failures; the 'fail'/missingRequired=66 status it reported is checklist verificationEvidence headHash staleness (pinned to 1c150d07f3, current HEAD e91ac90ecd after the 4 round-7 commits) -- the well-established EVIDENCE STALE = main-drift-not-failure pattern, not a coverage gap, and outside this review lane's remit to remediate (role boundary: review only, no evidence/checklist mutation).",
+      "createdAt": "2026-08-15T15:06:02.563Z",
+      "reviewRound": "2026-08-15T14:53:25.129Z",
+      "reviewRunId": "B-a7c5:RR-021",
+      "envelopeId": "4fb63557d4128e40efe3f9cd7c1e9f3f9a10e7a0cd068836fe82f67de4b840be",
+      "writerSessionId": "sess-811d105c99cb7771c59a07e52f523909",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/dev-memory/experience.jsonl",
+          ".lattice/story/actives/B-a7c5/background.md",
+          ".lattice/story/actives/B-a7c5/checklist.json",
+          ".lattice/story/actives/B-a7c5/plan.md",
+          "packages/main/src/core/version-bump.ts",
+          "packages/main/src/handlers/done-recover.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "packages/main/src/tasks/dev-memory-lifecycle-gates-smoke.ts",
+          "packages/main/src/tasks/done-premerge-mainsha-recheck-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dev-memory.md",
+          "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/playbook-runtime-memory.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/playbook-runtime-memory.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "0652e740594750b5e270f3b10159e861e9562a574d31adc2f7239c3adb7faaf4",
+        "corpusDigest": "bffc48bcca12bbb4f5269fab26913e574d5b327b58ae94c095dee911fbf85b69"
+      },
+      "_hash": "5cdbbe8e36898682336f7d98c920a882ce36693ef5640ccb5e2053523bdddc02"
+    },
+    {
+      "id": "B-a7c5:RP-014",
+      "agent": "lattice-review-concept",
+      "note": "Round 7 concept-lane: reviewed the 3 post-round-6 fix commits in full for concept residue/dead code. 860e94cbe0 (F-009 fix, done-premerge-mainsha-recheck-smoke.ts) and e162c5c270 (F-010, closeout-trust-smoke.ts + worktree-authority-smoke.ts, 4 call sites) each cleanly add a satisfying dev_memory_finish_decision write with an accurate, non-stale comment; no leftover debug instrumentation, no dead/duplicate code. cc8fd5f27e correctly repins closeout-trust-smoke.ts's structural fingerprint in BOTH required locations (retired-authority-vocabulary-guard-smoke.ts and scripts/verify-process-fact-contract.mjs) -- grepped whole repo for the old hash (235d6921...): zero remaining references anywhere; grepped repo for all PINNED_EXECUTABLE_SOURCE_FINGERPRINTS-maintaining files: confirmed exactly these 2, no third location missed; confirmed the 2 other touched files (done-premerge-mainsha-recheck-smoke.ts, worktree-authority-smoke.ts) are correctly NOT in either pinned-fingerprint list so did not need repinning. Ran directly, from a fresh build: retired-authority-vocabulary-guard-smoke.js PASS, verify-process-fact-contract.mjs PASS, done-premerge-mainsha-recheck-smoke.js PASS (14/14), closeout-trust-smoke.js PASS, dev-memory-lifecycle-gates-smoke.js PASS (79/79). worktree-authority-smoke.js fails only on the pre-existing unrelated version-bump ENOENT (assertDoneRecoverRunsPostMergeBuildForRuntimeChanges) -- independently reproduced this identical failure, plus field-regression-cli-smoke.ts's missing --readManifest failure, on a clean untouched main checkout (commit 8dbfac8809, fresh rebuild in the separate /Users/jek/Documents/Work/proofbound worktree), confirming both are genuinely pre-existing and unrelated to this story. Ran full root npm test myself: 47/47 passed, exit 0 (the 'full-suite identity drift' line was informational only, caused by my own concurrent lattice validate background process committing metadata, not a test failure). Cross-checked canFinishGuard's dev-memory-finish-decision check placement (core/machine.ts ~945, message ~1419-1422) against plan.md's CHK-003 spec: matches. Cross-referenced the independent lattice-review-quality round-7 pass (RR-020/RP-012, same review round 2026-08-15T14:53:25.129Z): identical methodology, identical 5-checks-green result, identical two-unrelated-issues-reproduced-on-same-main-commit result -- fully corroborating. No blockers.",
+      "createdAt": "2026-08-15T15:09:13.014Z",
+      "reviewRound": "2026-08-15T14:53:25.129Z",
+      "reviewRunId": "B-a7c5:RR-019",
+      "envelopeId": "432c08218faa3e01851a948d3ce88b775b791a16435581cf97afeede50d6f3e2",
+      "writerSessionId": "sess-811d105c99cb7771c59a07e52f523909",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/dev-memory/experience.jsonl (added entry, e162c5c270)",
+          ".lattice/story/actives/B-a7c5/background.md",
+          ".lattice/story/actives/B-a7c5/checklist.json",
+          ".lattice/story/actives/B-a7c5/findings.json (F-001..F-009 records)",
+          ".lattice/story/actives/B-a7c5/plan.md",
+          ".lattice/story/actives/B-a7c5/review-passes.json (prior rounds + RR-020 quality pass)",
+          "packages/main/src/core/machine.ts (canFinishGuard / getGuardFailureReason dev-memory-finish-decision check sites)",
+          "packages/main/src/tasks/bd37ddd3d6 diff (proofstory-intent-hardening-smoke.ts, F-008 precedent fix, for pattern comparison)",
+          "packages/main/src/tasks/closeout-trust-smoke.ts (full commit diff, e162c5c270)",
+          "packages/main/src/tasks/done-premerge-mainsha-recheck-smoke.ts (full commit diff, 860e94cbe0)",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts (fingerprint repin diff, cc8fd5f27e)",
+          "packages/main/src/tasks/worktree-authority-smoke.ts (full commit diff, e162c5c270)",
+          "scripts/verify-process-fact-contract.mjs (fingerprint repin diff, cc8fd5f27e)"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json (validate.commands registration check)",
+          "package.json (test:process-fact-contract script)"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "94552a9a36f4014f84f0cccb816b5d27a4a2ac2c8bfbae4a10136a59810938a3"
+    },
+    {
+      "id": "B-a7c5:RP-015",
+      "agent": "lattice-review-quality",
+      "note": "Round 8 rebinding-only review. Confirmed via git show d3baf12167 that the only change since round 7 (passed cleanly on all 3 lanes) is a single-line --help description fix in command-catalog.ts. No functional/logic code changed. No blockers.",
+      "createdAt": "2026-08-15T15:49:50.902Z",
+      "reviewRound": "2026-08-15T15:48:49.148Z",
+      "reviewRunId": "B-a7c5:RR-023",
+      "envelopeId": "30089d55998a9b4076267ca6b9f53f87bca9d1b4da1376c4f3835164ed3eacca",
+      "writerSessionId": "sess-811d105c99cb7771c59a07e52f523909",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-a7c5/background.md",
+          ".lattice/story/actives/B-a7c5/checklist.json",
+          ".lattice/story/actives/B-a7c5/plan.md",
+          "packages/main/src/cli/command-catalog.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "8a89d80763acc2c0dc3b72e2bad73ee1fe8203ca1eb32c94e57c70164959bc02"
+    },
+    {
+      "id": "B-a7c5:RP-016",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 8 rebinding-only review. Since round 7 (clean pass, all 3 lanes) exactly one commit landed: d3baf12167, a single-line docs/help-text fix in packages/main/src/cli/command-catalog.ts correcting the dev_memory_finish_decision --help description string to reflect the already-shipped CHK-003 DONE-gate behavior. Verified via git show: 1 file changed, 1 insertion(+), 1 deletion(-); no functional/logic code touched, no gate functions touched, no test files touched, no checklist file targets reference command-catalog.ts as a functional target. Confirmed dev-memory-lifecycle-gates-smoke.ts CHK-003 assertions test the guard programmatically via missing_dev_memory_finish_decision tag/reason, not the --help string, so coverage is unaffected. Read background.md, plan.md, checklist.json (all 7 items status=done with full happy/edge/adversarial verificationIntent). Round 7 verificationIntent-to-verificationEvidence coverage conclusion stands unchanged. No blocker.",
+      "createdAt": "2026-08-15T15:50:05.097Z",
+      "reviewRound": "2026-08-15T15:48:49.148Z",
+      "reviewRunId": "B-a7c5:RR-024",
+      "envelopeId": "a90c84a30e0ee76700833c6259971ec6710fd983a144524ade9981b3d553633c",
+      "writerSessionId": "sess-811d105c99cb7771c59a07e52f523909",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-a7c5/background.md",
+          ".lattice/story/actives/B-a7c5/checklist.json",
+          ".lattice/story/actives/B-a7c5/plan.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/tasks/dev-memory-lifecycle-gates-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "0652e740594750b5e270f3b10159e861e9562a574d31adc2f7239c3adb7faaf4",
+        "corpusDigest": "bffc48bcca12bbb4f5269fab26913e574d5b327b58ae94c095dee911fbf85b69"
+      },
+      "_hash": "5dbe5dab18d21624e61d570a0c5ce6adaac4dd8a5f0952afc9071997e4f3bd95"
+    },
+    {
+      "id": "B-a7c5:RP-017",
+      "agent": "lattice-review-concept",
+      "note": "Round 8 rebinding pass. Confirmed the only change since round 7 (clean 3-lane zero-finding pass) is commit d3baf12167, a 1-line --help description fix in command-catalog.ts for dev_memory_finish_decision, correcting stale text (was: not gate evidence) to reflect CHK-003s existence-only DONE-gate requirement while lesson content stays non-gating. Verified diff 78961ee33c..HEAD touches only that one non-.lattice file/line. Verified the corrected wording against the actual gate implementation in machine.ts:938 and :1417-1423 (existence-only check, matches doc). No concept-scope regression: no functional/logic code changed, no residual references to the old wording remain, checklist CHK-001..CHK-007 all done.",
+      "createdAt": "2026-08-15T15:50:28.255Z",
+      "reviewRound": "2026-08-15T15:48:49.148Z",
+      "reviewRunId": "B-a7c5:RR-022",
+      "envelopeId": "09107c6a6422a9fb79c2b4eda633aa62360ae22c8284cc985392dc0adc3eaea1",
+      "writerSessionId": "sess-811d105c99cb7771c59a07e52f523909",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-a7c5/background.md",
+          ".lattice/story/actives/B-a7c5/checklist.json",
+          ".lattice/story/actives/B-a7c5/plan.md",
+          "packages/main/src/cli/command-catalog.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-a7c5/findings.json",
+          ".lattice/story/actives/B-a7c5/review-runs.json",
+          "packages/main/src/core/machine.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "231451df30471287829067bfd17fb104d626f63ad5a9b2817033bbdb79a59364"
+    }
+  ]
+}

@@ -1,0 +1,296 @@
+{
+  "passes": [
+    {
+      "id": "B-74b9:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Reviewed git diff main...HEAD --stat and full diff for packages/main/src/tasks/{field-regression-cli-smoke,proofstory-acceptance-basis-smoke,worktree-authority-smoke}.ts, lattice.config.json, and the three new RED scripts under packages/main/tests/red/. No concept deletion or mass replacement occurred this round: all edits are additive fixture repairs (stub two new synthetic files for the acceptance-rollout-report.json process-fact source-ref closure; pass a required readManifest object on 5 pre-existing review_pass_set calls now that command-catalog.ts marks it required; add a writeVersionSyncFiles helper that scaffolds the pre-existing VERSION_SYNC_FILES sync points into 2 synthetic mkdtemp git roots; register proofstory-acceptance-basis-smoke.js in validate.commands) plus 3 new RED reproduction scripts and story metadata artifacts. Confirmed no production/concept files were touched (empty diff for acceptance-topology.ts, transition-orchestrator.ts, handlers/proofstory.ts, registry.ts, process-fact-registry.ts, acceptance-discovery-adapters.ts, version-bump.ts, done-recover.ts -- all referenced in checklist context/scope but none actually modified). Wave-4 acceptance-rollout-gate concept-boundary check confirmed not applicable: the diff introduces no changes to the acceptance_topology_check / pre_review_check_read / acceptance_rollout_report_read / acceptance_rollout_check chain or proofStory.acceptanceRolloutGateMode; the acceptance-rollout-report.json / acceptance_topology_check strings appearing in the diff are all within .lattice/story/actives/B-74b9/*.json story-metadata artifacts (this story's own generated acceptance-basis snapshot), not code. No blocker.",
+      "createdAt": "2026-08-15T21:25:21.997Z",
+      "reviewRound": "2026-08-15T21:24:07.391Z",
+      "reviewRunId": "B-74b9:RR-003",
+      "envelopeId": "4ba6eaca8a17ead6c3327443d7583729d5ef0dcb0e1dbb0ed3a9b340584a8f0b",
+      "writerSessionId": "sess-6cfcf32edab02b39e231baf886c2be15",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "lattice.config.json",
+          "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "packages/main/tests/red/red-B-74b9-chk001-acceptance-basis.mjs",
+          "packages/main/tests/red/red-B-74b9-chk002-readmanifest.mjs",
+          "packages/main/tests/red/red-B-74b9-chk003-version-bump.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/version-bump.ts",
+          "packages/main/src/handlers/done-recover.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5f4cdd0c7f934b66bfcc60fdcbb3eba416e45037f586c4cfea4fae96fa9b7c8b"
+    },
+    {
+      "id": "B-74b9:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Code-quality review of git diff main...HEAD: 3 fixture files (proofstory-acceptance-basis-smoke.ts, field-regression-cli-smoke.ts, worktree-authority-smoke.ts), 3 new standalone RED scripts under packages/main/tests/red/, lattice.config.json validate.commands addition. No dead code, no unsafe as-any casts, no empty catch blocks (grep confirmed). No shells/ui.ts-to-fn.ts I/O isolation concern (not applicable to these files). Proof-metadata job/run-metadata dual-surface rule not applicable (no job.metadata/run.metadata touched). Wave-4 acceptance-rollout-gate boundary (acceptance_topology_check/pre_review_check_read/acceptance_rollout_report_read/acceptance_rollout_check/acceptanceRolloutGateMode/codex-cli/claude-cli) not touched anywhere in the diff -- confirmed via grep, not applicable. No doc-promise-undelivered risk: no CLAUDE.md/README changes in this diff. Independently ran all 3 fixed fixtures against a fresh build: proofstory-acceptance-basis-smoke.js exits 0 (~56s, matches plan.md claim); field-regression-cli-smoke.js fails only at the separately-tracked assertReviewerListForceReviewerLaneContract channel-lane bug (task_9f6b2322), confirming the readManifest fix itself (6/6 review_pass_set call sites) is correct and reaches past it; worktree-authority-smoke.js fails only at the separately-tracked assertConcurrentDoneSerializesWithoutPartialDone race (task_a8d49518), confirming the version-sync-files fixture fix is correct and reaches past it. Verified the third done_recover-calling function (assertDoneRecoverSkipsPostMergeBuildForUnwatchedChanges) was correctly left unpatched: read core/version-bump.ts bumpVersionOnDoneMerge and confirmed it short-circuits (returns early) before touching the filesystem when shouldBump is false, so that fixture never needed the version-sync-file scaffold -- not an omission. Verified lattice.config.json only registers proofstory-acceptance-basis-smoke.js (the one that is fully clean end-to-end); the other two are correctly deferred per plan.md CHK-004 with named follow-up tasks, and grepped package.json/packages/main/package.json to confirm neither is in test:serial-reference (consistent with the story's stated rationale). Checked CHK-002's adversarial concern about the readManifest stub shape (empty filesReadFully/filesTriagedByName arrays, null scanEscalationReason, used at all 6 call sites): read core/reviewer-read-evidence.ts normalizeReviewerReadManifest and confirmed empty arrays are schema-valid with no minimum-content enforcement, and the tests' own assertions (exit code + stderr message match) are orthogonal to readManifest content, so the empty shape cannot mask a broken staleness/binding check in these specific tests -- defensible, not a correctness gap. No code-quality blockers found.",
+      "createdAt": "2026-08-15T21:33:04.487Z",
+      "reviewRound": "2026-08-15T21:24:07.391Z",
+      "reviewRunId": "B-74b9:RR-001",
+      "envelopeId": "cd6c6a456be8a33936d8f378aeab81addc0f146210e592581c8f667874c0744c",
+      "writerSessionId": "sess-6cfcf32edab02b39e231baf886c2be15",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-74b9/background.md",
+          ".lattice/story/actives/B-74b9/checklist.json",
+          ".lattice/story/actives/B-74b9/plan.md",
+          ".lattice/story/actives/B-74b9/red-evidence.json",
+          "lattice.config.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/reviewer-read-evidence.ts",
+          "packages/main/src/core/version-bump.ts",
+          "packages/main/src/handlers/done-recover.ts",
+          "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+          "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "packages/main/tests/red/red-B-74b9-chk001-acceptance-basis.mjs",
+          "packages/main/tests/red/red-B-74b9-chk002-readmanifest.mjs",
+          "packages/main/tests/red/red-B-74b9-chk003-version-bump.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-74b9/review-passes.json",
+          ".lattice/story/actives/B-74b9/review-runs.json",
+          ".lattice/story/actives/B-74b9/review.json",
+          ".lattice/story/actives/B-74b9/test-evidence.json",
+          "package.json",
+          "packages/main/package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7c73f51de001ac7477e9d59c5e0e95a261f1f6eebebc748a7defb3fffc4a7759"
+    },
+    {
+      "id": "B-74b9:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage review passed. All 4 checklist items (CHK-001..004) have happy/edge/adversarial verificationIntent columns populated; every must-priority intent has non-fail verificationEvidence. Independently re-verified beyond self-report: built the pre-fix commit (b4d8e324, direct parent of fix commit f5849c09ca) in an isolated detached worktree and reproduced all three RED signatures byte-for-byte (CHK-001 partial-vs-complete blindSpots; CHK-002 readManifest argument-validation mismatch; CHK-003 ENOENT package.json) exactly matching red-evidence.json baselineHeadHash/observedFailure. Also independently re-ran the pinned GREEN commands against the current (post-fix) tree and got outputs byte-identical to the recorded receipts (ProofStory acceptance coverage basis Wave 1A smoke passed / READMANIFEST_FIX_CONFIRMED / VERSION_BUMP_FIX_CONFIRMED), and confirmed the two deferred fixtures now fail only on their separately-described unrelated downstream defects (retired channel lane; concurrent-DONE index.json race), not on the fixed defect class. The permanent-waiver evidence for INT-CHK001-RED/002-RED/003-RED is sound, not scope-gaming: waiverType=permanent is a first-class, pre-existing evidence-coverage mechanism (core/milestone-status.ts evidenceCanCover), the RED scripts structurally cannot be mechanically re-verified post-fix without reverting a landed fix, and this matches established precedent (B-a7c5 dev-memory lesson c77064d). lattice.config.json registration matches CHK-004's decision exactly (only proofstory-acceptance-basis-smoke.js registered; the other two deliberately absent). No coverage gaps found.",
+      "createdAt": "2026-08-15T21:41:15.188Z",
+      "reviewRound": "2026-08-15T21:24:07.391Z",
+      "reviewRunId": "B-74b9:RR-002",
+      "envelopeId": "e7e2183a1fc86945a6aec802d55b77620e7a895eb616714fb1cb48169bdc0d26",
+      "writerSessionId": "sess-6cfcf32edab02b39e231baf886c2be15",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-74b9/background.md",
+          ".lattice/story/actives/B-74b9/checklist.json",
+          ".lattice/story/actives/B-74b9/plan.md",
+          ".lattice/story/actives/B-74b9/red-evidence.json",
+          "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "packages/main/tests/red/red-B-74b9-chk001-acceptance-basis.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/dev-memory/experience.jsonl",
+          ".lattice/story/actives/B-74b9/review-runs.json",
+          "lattice.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5e61a742f0e29cae49d308b98b6e2b17ef29c941e4f2a1a7c1f3af1a08577c97"
+    },
+    {
+      "id": "B-74b9:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Focused confirmation pass on the single new commit a93476fd6f (register 3 new RED scripts red-B-74b9-chk001/002/003 in REGISTRATION_EXCLUSIONS map). Verified via git show a93476fd6f: change is purely additive (3 new Map entries + supporting scope-contract.json widen), 0 code-concept deletions. Checked for duplicate/colliding Map keys across the full REGISTRATION_EXCLUSIONS list (none found), confirmed all 3 referenced .mjs files exist on disk and paths match exactly, and confirmed no concept word was deleted or replaced en masse anywhere in the story diff (git diff main...HEAD --stat). No concept deletion/replacement this round; no blocker.",
+      "createdAt": "2026-08-15T22:10:20.540Z",
+      "reviewRound": "2026-08-15T22:05:49.841Z",
+      "reviewRunId": "B-74b9:RR-005",
+      "envelopeId": "189cafd2bc47d3a573307137c8f11c80b3e99f72a347b7ccbb067d8fbfb8adb2",
+      "writerSessionId": "sess-6cfcf32edab02b39e231baf886c2be15",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-74b9/background.md",
+          ".lattice/story/actives/B-74b9/checklist.json",
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-74b9/plan.md",
+          ".lattice/story/actives/B-74b9/scope-contract.json",
+          "packages/main/tests/red/red-B-74b9-chk001-acceptance-basis.mjs",
+          "packages/main/tests/red/red-B-74b9-chk002-readmanifest.mjs",
+          "packages/main/tests/red/red-B-74b9-chk003-version-bump.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "83750d9c5a877b7420067ad460f35dc08f12754cefa5dac91b833ee34ea4b3a8"
+    },
+    {
+      "id": "B-74b9:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "Focused confirmation on the single new commit a93476fd6f since the prior thorough round: adds 3 REGISTRATION_EXCLUSIONS entries to red-b49d4-harness-registration.mjs plus refreshed verificationEvidence hashes/notes for the 3 permanent RED waivers. Verified: (1) git diff a93476fd6f^..HEAD restricted to src/tasks + tests/red shows only the 14-line harness-registration.mjs addition; all 3 fixture files and all 3 CHK-00x RED scripts are byte-identical to the already-reviewed prior round. (2) Temporarily checked out the pre-commit harness-registration.mjs in place, reproduced the exact FAIL it caught (undecided: the 3 new RED scripts), restored via git checkout, confirmed git status clean. (3) Ran the post-fix guard directly: OK, 42/42 accounted for. (4) The prior full validate run had exactly two failing commands, [72] this guard and [73] red-b49d4-registration-derivation.mjs (which cascades from the same root cause via its BLOCK 0 dependency on this guard passing on the untouched tree); ran the derivation guard directly post-fix: 0 RED / 26 GREEN, exit 0, confirming both are now green and nothing else was failing. (5) verification_evidence_refresh_stale --dryRun=true: no stale evidence. (6) scope_contract_check: pass, 0 unacknowledged violations (contract correctly widened via a documented DEV reopen). (7) intent_coverage_check: pass. (8) Diffed the 3 evidence-refresh commits: only checklist.json hash/timestamp fields plus an appended refresh note on the 3 waiver entries changed, no intent/evidence-mapping content changed. Re-confirmed per-item coverage: all 15 verificationIntent entries (happy/edge/adversarial present on all 4 items) map 1:1 to verificationEvidence; all 8 must-priority intents have valid non-fail evidence, 3 of which are permanent waivers with clear specific notes; should-priority evidence is concrete, not vacuous. No coverage gap introduced by this commit. No blocking findings.",
+      "createdAt": "2026-08-15T22:14:01.924Z",
+      "reviewRound": "2026-08-15T22:05:49.841Z",
+      "reviewRunId": "B-74b9:RR-006",
+      "envelopeId": "ad94d27f62802a81e231bca72557c45733b6412de9f082f959bce19aa769cd95",
+      "writerSessionId": "sess-6cfcf32edab02b39e231baf886c2be15",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-74b9/background.md",
+          ".lattice/story/actives/B-74b9/checklist.json",
+          ".lattice/story/actives/B-74b9/plan.md",
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-74b9/index.json",
+          ".lattice/story/actives/B-74b9/process-events.jsonl",
+          ".lattice/story/actives/B-74b9/scope-contract.json",
+          ".lattice/story/actives/B-74b9/test-evidence.json",
+          "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "packages/main/tests/red/red-b49d4-registration-derivation.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b5d03aa90a18b575715d4cb654af1145ec090dc0bc51f93186379907df4cce6f"
+    },
+    {
+      "id": "B-74b9:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Focused re-review of the single new commit (a93476fd6f) since the prior 0-finding pass (head 7603fdb0d). Confirmed via git diff 7603fdb0d..fc0e8f4bf -- . \":!.lattice\" that the ONLY non-metadata change is a 14-line, additive addition to packages/main/tests/red/red-b49d4-harness-registration.mjs REGISTRATION_EXCLUSIONS, adding entries for red-B-74b9-chk001-acceptance-basis.mjs, chk002-readmanifest.mjs, chk003-version-bump.mjs. Verified: (1) the 3 new keys are exact-case matches for the actual files on disk (ls confirmed); (2) each reason string exceeds MIN_EXCLUSION_REASON_CHARS(40); (3) ran the guard itself -- node packages/main/tests/red/red-b49d4-harness-registration.mjs exits 0, all 42 population entries accounted for (34 registered + 8 excluded), including the self-inclusion/non-vacuity/sibling-population checks; (4) independently reproduced the exclusion rationale by running all 3 new RED scripts against the current post-fix dist: chk001 and chk002 both throw AssertionError (exit 1) as claimed; chk003 also throws AssertionError (exit 1, ~44s runtime, not a hang) -- it fails on its own stderr-match assertion because the underlying worktree-authority-smoke.js run now hits the separately-tracked unrelated assertConcurrentDoneSerializesWithoutPartialDone race (task_a8d49518, already documented in plan.md CHK-004) rather than the pre-fix ENOENT signature, confirming these scripts genuinely cannot be registered in validate.commands without making validate fail permanently, exactly as the exclusion reasons state. (5) lattice.config.json has zero diff between the two heads -- CHK-004s registration decision (only proofstory-acceptance-basis-smoke.js registered) is unchanged. (6) grepped for other references to the 3 new filenames repo-wide -- only used inside the harness-registration exclusion map and within their own file headers/self-referential comments, no other registration surface needs updating. No dead code, no unsafe any, no empty catch, no I/O-isolation or proof-metadata dual-surface concerns in the new lines. No doc-promise-undelivered risk (no CLAUDE.md/README touched). Working tree clean (git status --short empty) after all repro runs. No blocker.",
+      "createdAt": "2026-08-15T22:15:22.789Z",
+      "reviewRound": "2026-08-15T22:05:49.841Z",
+      "reviewRunId": "B-74b9:RR-004",
+      "envelopeId": "c1e15771848f18222c40a785d06f8d8e3462f487ce844b572a6f68bd5d2012b0",
+      "writerSessionId": "sess-6cfcf32edab02b39e231baf886c2be15",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-74b9/plan.md",
+          "packages/main/tests/red/red-B-74b9-chk003-version-bump.mjs",
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-74b9/background.md",
+          ".lattice/story/actives/B-74b9/checklist.json",
+          ".lattice/story/actives/B-74b9/review-passes.json",
+          ".lattice/story/actives/B-74b9/review-runs.json",
+          "lattice.config.json",
+          "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "packages/main/tests/red/red-B-74b9-chk001-acceptance-basis.mjs",
+          "packages/main/tests/red/red-B-74b9-chk002-readmanifest.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7b97edaf018f5cd64e2a9162af64e86dc378db353c6256e2b8a1c8856118d942"
+    },
+    {
+      "id": "B-74b9:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "Re-confirmation pass: verified via git diff fc0e8f4bf5..2dd17eba89 -- . \":!.lattice\" that ZERO bytes changed in packages/main/src, packages/main/tests, or lattice.config.json since the prior clean lattice-review-quality pass (RR-004/RP-006, materialHash 66f5b46ae5). Only .lattice/ story-metadata and dev-memory files changed (dev_memory_finish_decision + dev_memory_capture lesson entry, delivery-check, done-required-evidence, summary, prompt-envelopes, review-runs/passes bookkeeping) between fc0e8f4bf5 and 2dd17eba89 -- confirmed via git diff --stat over that range. The reviewed code diff (git diff main...HEAD -- packages/main/src packages/main/tests lattice.config.json) is: lattice.config.json (proofstory-acceptance-basis-smoke.js registration, CHK-004), 3 fixture fixes (field-regression-cli-smoke.ts, proofstory-acceptance-basis-smoke.ts, worktree-authority-smoke.ts), 3 CHK-00x RED scripts, and the red-b49d4-harness-registration.mjs exclusion-map update for the 3 new RED scripts -- identical to what RR-004 already reviewed clean (no dead code, no unsafe any, no empty catch, no I/O-isolation issues, no proof-metadata dual-surface concerns, no doc-promise-undelivered). No new findings; re-affirming the prior 0-finding conclusion on unchanged code.",
+      "createdAt": "2026-08-15T23:40:40.311Z",
+      "reviewRound": "2026-08-15T23:39:41.435Z",
+      "reviewRunId": "B-74b9:RR-007",
+      "envelopeId": "3cf8dd09793cc6afd1cb9b0dcd3830c692fd95c11f018c6dcd91af6d8525b031",
+      "writerSessionId": "sess-6cfcf32edab02b39e231baf886c2be15",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-74b9/checklist.json",
+          ".lattice/story/actives/B-74b9/review-passes.json",
+          ".lattice/story/actives/B-74b9/review-runs.json"
+        ],
+        "filesTriagedByName": [
+          ".lattice/dev-memory/experience.jsonl",
+          ".lattice/dev-memory/finish-decisions/B-74b9.json",
+          ".lattice/story/actives/B-74b9/background.md",
+          ".lattice/story/actives/B-74b9/plan.md",
+          ".lattice/story/actives/B-74b9/summary.json",
+          "lattice.config.json",
+          "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "packages/main/tests/red/red-B-74b9-chk001-acceptance-basis.mjs",
+          "packages/main/tests/red/red-B-74b9-chk002-readmanifest.mjs",
+          "packages/main/tests/red/red-B-74b9-chk003-version-bump.mjs",
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "68fe8f13c1a0f050e935871b20bfa4fae7f7ff18c784771fd3ed6f2b4601fc6b"
+    },
+    {
+      "id": "B-74b9:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "Focused re-confirmation pass: verified via git diff main...HEAD --stat and git diff a93476fd6f..HEAD --stat -- packages/main/src packages/main/tests lattice.config.json that zero code/test/config lines have changed since commit a93476fd6f, which this same lane already reviewed clean (RP-004, RR-005). Independently re-read the full git diff main...HEAD -- packages/main/src packages/main/tests lattice.config.json: all changes are additive (2 new stub write() calls in proofstory-acceptance-basis-smoke.ts, a readManifest object added to 6 pre-existing review_pass_set calls in field-regression-cli-smoke.ts, a new writeVersionSyncFiles helper + its invocation in worktree-authority-smoke.ts, 1 new validate.commands array entry, 3 new RED scripts under tests/red/, 14 new REGISTRATION_EXCLUSIONS lines in red-b49d4-harness-registration.mjs). The only removed lines (4, all in worktree-authority-smoke.ts) are 2-argument extensions to pre-existing git add/git commit calls, not concept deletion. No concept word was deleted or mass-replaced anywhere in this diff; no residue grep required. Only .lattice/ story metadata and dev-memory changed since the prior pass at this lane.",
+      "createdAt": "2026-08-15T23:41:27.581Z",
+      "reviewRound": "2026-08-15T23:39:41.435Z",
+      "reviewRunId": "B-74b9:RR-009",
+      "envelopeId": "9702fd542194745947ecd89eaab7c03d258db1db399121c05922b91ba4876124",
+      "writerSessionId": "sess-6cfcf32edab02b39e231baf886c2be15",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-74b9/background.md",
+          ".lattice/story/actives/B-74b9/checklist.json",
+          ".lattice/story/actives/B-74b9/plan.md",
+          "lattice.config.json",
+          "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "packages/main/tests/red/red-B-74b9-chk001-acceptance-basis.mjs",
+          "packages/main/tests/red/red-B-74b9-chk002-readmanifest.mjs",
+          "packages/main/tests/red/red-B-74b9-chk003-version-bump.mjs",
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/dev-memory/experience.jsonl",
+          ".lattice/dev-memory/finish-decisions/B-74b9.json",
+          ".lattice/story/actives/B-74b9/review-passes.json",
+          ".lattice/story/actives/B-74b9/review-runs.json",
+          ".lattice/story/actives/B-74b9/scope-contract.json",
+          ".lattice/story/actives/B-74b9/summary.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "d2d77621a201d8cace7d359f0c9068c6e6eac955769ba35a2b2d251c6f743efa"
+    },
+    {
+      "id": "B-74b9:RP-009",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-confirmation pass: verificationIntent content unchanged since last checklist_update (verified via git diff against commit 19a640a108 -- only pinned verification.command/selector metadata was added, matching each evidence entrys own command; no desc/priority/type changed). Coverage: 4 checklist items, 15 verificationIntent entries (8 must + 7 should), 0 gaps. All 8 must-priority intents have valid non-fail evidence: 3 permanent waivers (INT-CHK001-RED/INT-CHK002-RED/INT-CHK003-RED, pre-fix RED-state reproductions that legitimately cannot be mechanically re-verified post-fix, each with a clear explanatory note) plus 5 mechanical/manual pass evidences with receipts (exitCode 0, selectorMatched true) or specific source-grounded manual_transcript notes. All 7 should-priority intents have concrete pass evidence. All verificationEvidence entries carry the current materialHash (64950acbdac980850ef556102116d31fe0cab7912c6a31f50b00e749c07d79e1) and storyFilesHash (54351799707502cb96ac67a9b11a24167c86cd876ff2316a4532ffc83bc53ee5) matching this review runs head -- evidence is fresh, not stale. No blocker.",
+      "createdAt": "2026-08-15T23:41:37.563Z",
+      "reviewRound": "2026-08-15T23:39:41.435Z",
+      "reviewRunId": "B-74b9:RR-008",
+      "envelopeId": "a233cb89142c64d81c191142274eac78821f04d14d5596c8b27ea4c6f53c44d7",
+      "writerSessionId": "sess-6cfcf32edab02b39e231baf886c2be15",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-74b9/background.md",
+          ".lattice/story/actives/B-74b9/checklist.json",
+          ".lattice/story/actives/B-74b9/plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "2ebee788b11e76aca00ee0025b80787199e6659b4c3e63342ee79c7c401b0280"
+    }
+  ]
+}

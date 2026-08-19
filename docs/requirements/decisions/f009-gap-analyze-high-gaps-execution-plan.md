@@ -8,7 +8,7 @@ Gaps: 3 high / 0 medium
 
 > Status: execution plan
 > Story: B-3a80
-> Source command: `lattice gap_analyze`
+> Source command: `proof-or-stop gap_analyze`
 > Claim boundary: this document does not resolve F-009, unlock Layer 2,
 > unlock Layer 4, set `productionDone`, set `receiptVerified`, or complete
 > Authority work.
@@ -80,24 +80,24 @@ B-3a80 has only three documentation actions:
 The two signed-workspace high gaps remain candidates for a future implementation
 or verification story. They are not closed by this document.
 
-## 5. Proofbound CLI Flow
+## 5. Proof-or-Stop CLI Flow
 
-The implementation story must keep all story metadata behind Proofbound CLI
+The implementation story must keep all story metadata behind Proof-or-Stop CLI
 commands and avoid direct story-file edits.
 
 Required local flow:
 
 ```bash
-lattice session_brief
-lattice aux_doc_list
-lattice checklist_get '{"storyId":"B-3a80"}'
-lattice gap_analyze
+proof-or-stop session_brief
+proof-or-stop aux_doc_list
+proof-or-stop checklist_get '{"storyId":"B-3a80"}'
+proof-or-stop gap_analyze
 ```
 
 After scoped docs are updated, verify the result with repository-safe commands:
 
 ```bash
-lattice gap_analyze
+proof-or-stop gap_analyze
 git add -N docs/requirements/decisions/f009-gap-analyze-high-gaps-execution-plan.md
 git diff -- docs/requirements/decisions/f009-gap-analyze-high-gaps-execution-plan.md docs/requirements/decisions/unlock-layer4-production-safety-suite.md docs/requirements/NAV.md
 git status --short
@@ -174,7 +174,7 @@ BLOCKED: requested change requires signed-workspace or Layer 4 implementation
 
 Actions:
 
-1. Run `lattice gap_analyze`.
+1. Run `proof-or-stop gap_analyze`.
 2. Record the count and high-gap source anchors.
 3. Classify each high gap as signed-workspace candidate or future/blocked
    Layer 4 scope.
@@ -257,10 +257,10 @@ NAV count matches the new document set
 
 B-3a80 must produce or reference:
 
-- `lattice session_brief` output for the active story/worktree;
-- `lattice aux_doc_list` output for requirements context;
-- `lattice checklist_get '{"storyId":"B-3a80"}'` output for scoped checklist;
-- `lattice gap_analyze` output showing the three high gaps;
+- `proof-or-stop session_brief` output for the active story/worktree;
+- `proof-or-stop aux_doc_list` output for requirements context;
+- `proof-or-stop checklist_get '{"storyId":"B-3a80"}'` output for scoped checklist;
+- `proof-or-stop gap_analyze` output showing the three high gaps;
 - diff of the three scoped docs files, using `git add -N` before commit or
   `git diff main...HEAD` / `git show --name-only HEAD` after commit so newly
   created docs are included;

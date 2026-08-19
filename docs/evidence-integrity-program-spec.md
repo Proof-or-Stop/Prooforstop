@@ -102,12 +102,22 @@ confirms each host's real shell tool name.
   the real loss in the burn was 12 rounds to discover CHK-003 was unreachable
   (F-058), not the round count itself.
 
-### Step 4 — idempotent duplicate handling across all host-verdict writers
+### Step 4 — duplicate handling across host-verdict writers
 *(class 2; M2 — subsumes retracted rev 3, more completely)*
-- Repeat submission of the same logical verdict becomes an idempotent no-op
-  ("already recorded, no action") rather than a throw-or-append. Downgrade-aware
-  (`eventsWithStoryFilesHashDowngrade`). Covers BOTH `quorum_submit` and
-  `autopilot_review_submit` (today unguarded, verdict.ts:187-251).
+- **Delivered (B-3144, `handlers/quorum-submit.ts` `assertNoStandingQuorum`)**:
+  a redundant re-submit (same material, or stale material with matching
+  storyFilesHash — the drift-accept case) is refused with an informative
+  `Error`, not silently absorbed as an idempotent no-op. Downgrade-aware, but
+  the predicate is a hand-synced LOCKSTEP mirror of
+  `eventsWithStoryFilesHashDowngrade` rather than a direct call-through (the
+  guard runs pre-commit on a boolean "would this collide" check, not on the
+  post-commit event-rewrite the floor helper performs) — the guard's own
+  comment flags that a future change to the floor's drift-accept predicate
+  must update this mirror in the same story, or producer/consumer parity
+  breaks silently.
+  - **Known gap, not yet done**: `autopilot_review_submit` (`verdict.ts:187-251`)
+    remains unguarded — B-3144 scoped only `quorum_submit`. A fast-follow
+    would extend the same guard there.
 
 ## 4. Success metrics (against the observed incidents)
 
@@ -133,7 +143,7 @@ confirms each host's real shell tool name.
 
 ## 6. Implementation path
 
-Each step is its own Lattice story (audit trail), cheapest first. Step 1 opens
+Each step is its own Proof-or-Stop story (audit trail), cheapest first. Step 1 opens
 now. Steps touch evidence integrity, so they are high-assurance and go through full
 cross-host quorum review themselves — dogfooding.
 

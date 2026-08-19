@@ -1,4 +1,4 @@
-# Proofbound Lifecycle Proof-Or-Stop Readiness Check
+# Proof-or-Stop Lifecycle Proof-or-Stop Readiness Check
 
 Status: execution plan; V1 P1 landed in `B-bd45`
 Created: 2026-06-20
@@ -7,7 +7,7 @@ V1 report model: `StoryReadinessReport`
 
 ## Purpose
 
-The Lifecycle Readiness Check is a read-only control tower for a Proofbound story.
+The Lifecycle Readiness Check is a read-only control tower for a Proof-or-Stop story.
 It answers one question:
 
 > What proof is already present for the requested lifecycle target, and what is
@@ -26,7 +26,7 @@ state.
 
 Story `B-bd45` shipped the first read-only slice:
 
-- command: `lattice lifecycle_check --storyId=B-xxxx --target=REVIEW|TEST|DONE`;
+- command: `proof-or-stop lifecycle_check --storyId=B-xxxx --target=REVIEW|TEST|DONE`;
 - report: `StoryReadinessReport` with phase, hashes, artifacts, readiness rows,
   next actions, and local/Authority/production claims;
 - invariant: `claims.localReady` is true iff no readiness row has
@@ -40,13 +40,13 @@ Use it before REVIEW, TEST, or DONE when the host needs to know why a story is
 not ready:
 
 ```bash
-lattice lifecycle_check --storyId=B-xxxx --target=DONE
+proof-or-stop lifecycle_check --storyId=B-xxxx --target=DONE
 ```
 
 Use JSON output when another tool needs to consume the same readiness facts:
 
 ```bash
-lattice lifecycle_check --storyId=B-xxxx --target=DONE --format=json
+proof-or-stop lifecycle_check --storyId=B-xxxx --target=DONE --format=json
 ```
 
 The expected time saving is host-cycle reduction, not code generation speed.
@@ -87,13 +87,13 @@ V1 must not:
 The primary V1 command is read-only:
 
 ```bash
-lattice lifecycle_check --storyId=B-xxxx --target=DONE
+proof-or-stop lifecycle_check --storyId=B-xxxx --target=DONE
 ```
 
 An alias may be exposed for discoverability:
 
 ```bash
-lattice story_readiness --storyId=B-xxxx --target=TEST
+proof-or-stop story_readiness --storyId=B-xxxx --target=TEST
 ```
 
 V1 options are explicit. There is no single overloaded `dryRun` flag:
@@ -146,7 +146,7 @@ decide whether that report is current enough to be referenced.
 When no current `done_prepare` report exists, V1 prints the exact next command:
 
 ```bash
-lattice done_prepare '{"storyId":"B-xxxx","mergeMain":true,"refreshStale":true,"validate":true}'
+proof-or-stop done_prepare '{"storyId":"B-xxxx","mergeMain":true,"refreshStale":true,"validate":true}'
 ```
 
 V1 must preserve `done_prepare` blocker names, `blockedAt`, and `next` values.
@@ -267,7 +267,7 @@ normal readiness result, not an exception.
 | State intake | `session_brief`-equivalent readers, story phase, cwd, worktree, git status | target is valid for current phase and cwd is story worktree | stop before any mutation | print `cd <worktree>` or clean-tree guidance |
 | PLAN skeleton | checklist, understanding, decision, `verificationIntent`, `story_review` result | PLAN facts are accepted by story review | stay before DEV readiness | print missing `understanding_set`, `decision_set`, or `story_review` command |
 | Verification evidence | checklist evidence refs and freshness facts | required refs exist and match current HEAD/material/storyFilesHash | block target readiness | print rerun or refresh command, but do not run it |
-| Validation | latest validation artifact | validation pass is current for target | block TEST/DONE readiness | `lattice validate --story=B-xxxx` |
+| Validation | latest validation artifact | validation pass is current for target | block TEST/DONE readiness | `proof-or-stop validate --story=B-xxxx` |
 | Review | review round, `review_run_start`, pass/finding state | required lanes have current pass and no blocking verified finding | block REVIEW/TEST/DONE readiness | print reviewer command or rollback command |
 | Delivery | delivery context/check facts | delivery artifact is present, fresh, and non-blocking where target requires it | block DONE readiness | print delivery reviewer command |
 | Live smoke transcript | transcript artifact or accepted metadata-only waiver | transcript is current, or metadata-only waiver is accepted | block live-smoke transcript proof only | print smoke command or waiver path |
@@ -276,18 +276,15 @@ normal readiness result, not an exception.
 
 ## Exact Rollback Commands
 
-V1 does not execute rollback itself, but it must print the exact first legal
-command when a later phase has to return to implementation work.
+V1 does not execute rollback itself, but it must print the exact command as a
+likely next action when a later phase has to return to implementation work.
 
 From REVIEW to DEV, use this when a verified blocking finding, stale reviewer
 pass, missing required lane, or stale material-bound evidence requires code or
 evidence changes before review can pass:
 
 ```bash
-lattice review_inventory_begin --storyId=B-xxxx
-# follow review_inventory_status through required lanes, topology critic with
-# findingDispositions, wave_advance for every nonzero-new wave, and finalize
-# only after a zero-new wave; only then story_advance DEV
+proof-or-stop story_advance '{"storyId":"B-xxxx","phase":"DEV"}'
 ```
 
 From TEST to DEV, use the same command when validation, bug, evidence,
@@ -295,7 +292,7 @@ delivery, stale `done_prepare`, or material drift requires implementation
 changes before TEST/DONE can proceed:
 
 ```bash
-lattice story_advance '{"storyId":"B-xxxx","phase":"DEV"}'
+proof-or-stop story_advance '{"storyId":"B-xxxx","phase":"DEV"}'
 ```
 
 After rollback, the host fixes the issue, records evidence through the normal
@@ -399,28 +396,26 @@ START
 Examples:
 
 ```bash
-lattice lifecycle_check --storyId=B-xxxx --target=REVIEW
-lattice lifecycle_check --storyId=B-xxxx --target=TEST
-lattice lifecycle_check --storyId=B-xxxx --target=DONE
+proof-or-stop lifecycle_check --storyId=B-xxxx --target=REVIEW
+proof-or-stop lifecycle_check --storyId=B-xxxx --target=TEST
+proof-or-stop lifecycle_check --storyId=B-xxxx --target=DONE
 ```
 
-For a TEST target while the Story is still in REVIEW with a blocking finding,
-the report prints the first inventory action rather than an unauthorized direct
-rollback:
+For a TEST target with a blocking REVIEW finding, the report prints:
 
 ```bash
-lattice review_inventory_begin --storyId=B-xxxx
+proof-or-stop story_advance '{"storyId":"B-xxxx","phase":"DEV"}'
 ```
 
 For a DONE target with no current `done_prepare` report, the report prints:
 
 ```bash
-lattice done_prepare '{"storyId":"B-xxxx","mergeMain":true,"refreshStale":true,"validate":true}'
+proof-or-stop done_prepare '{"storyId":"B-xxxx","mergeMain":true,"refreshStale":true,"validate":true}'
 ```
 
 ## Image Flowchart
 
-![Proofbound Lifecycle Readiness Check flow](assets/lattice-lifecycle-readiness-check-flow.svg)
+![Proof-or-Stop Lifecycle Readiness Check flow](assets/lattice-lifecycle-readiness-check-flow.svg)
 
 Mermaid source for environments that render diagrams directly:
 
@@ -505,7 +500,7 @@ The implementation story for V1 must prove:
 - passing `runCommands:true` or `writeEvidence:true` fails closed in V1;
 - stale `done_prepare` pre-merge reports are not treated as DONE-ready;
 - post-merge `done_prepare` binding is required when main sync changes HEAD;
-- REVIEW blockers print the exact inventory entry/status command that leads to a signed receipt; TEST-phase blockers may print the direct rollback command to DEV;
+- REVIEW and TEST blockers print the exact rollback command to DEV;
 - delivery blocker categories render distinctly;
 - metadata-only waiver satisfies only the live-smoke transcript row;
 - remote/Authority/production claims remain false without verified receipts;
@@ -517,9 +512,8 @@ Minimum smoke matrix:
 | Scenario | Expected result |
 |---|---|
 | clean REVIEW target | report passes from existing proof and prints REVIEW next command only |
-| open verified finding while phase is REVIEW | blocked row plus `review_inventory_begin`/`review_inventory_status` until a finalized receipt authorizes DEV |
-| open verified finding while phase is TEST | blocked row plus the same `reviewRemediationCommand` inventory path as REVIEW; there is no direct TEST-to-DEV rollback branch (B-3f3d F-116) |
-| stale validation | blocked row with `lattice validate --story=B-xxxx` next command |
+| open verified finding | blocked row plus REVIEW/TEST to DEV rollback command |
+| stale validation | blocked row with `proof-or-stop validate --story=B-xxxx` next command |
 | missing delivery check | `missing_delivery_check` row, no delivery signature written |
 | stale pre-merge `done_prepare` | blocked DONE row with `done_prepare` rerun command |
 | metadata-only story | live-smoke transcript row waived, validation/review/delivery/DONE still checked |
@@ -540,10 +534,10 @@ Success means fewer blind lifecycle attempts, not fewer gates.
 
 ## Decision
 
-Adopt the Proofbound Lifecycle Proof-Or-Stop Readiness Check as the V1 direction.
+Adopt the Proof-or-Stop Lifecycle Proof-or-Stop Readiness Check as the V1 direction.
 
 The first valuable slice is a read-only `StoryReadinessReport` surfaced through
-`lattice lifecycle_check` / `lattice story_readiness`. Full-flow orchestration is
+`proof-or-stop lifecycle_check` / `proof-or-stop story_readiness`. Full-flow orchestration is
 deferred until V1 proves stable and every later layer keeps command execution,
 evidence writing, reviewer authority, delivery signatures, phase movement, and
 Authority claims explicitly separated.

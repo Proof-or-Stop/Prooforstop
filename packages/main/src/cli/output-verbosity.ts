@@ -5,7 +5,7 @@
  * the milestone ledger table appended after every mutating command) are re-paid
  * by an agent loop on every subsequent model call in the same turn. This helper
  * makes those commands BRIEF by default while keeping a per-call `--full` escape
- * hatch, a global `LATTICE_BRIEF_OUTPUT` env hatch, and a frozen explicit
+ * hatch, a global `PROOF_OR_STOP_BRIEF_OUTPUT` env hatch, and a frozen explicit
  * machine-JSON shape. It mirrors the existing per-handler `wantsJson()`
  * convention so handlers opt in the same way.
  *
@@ -13,15 +13,16 @@
  *   1. explicit machine-JSON opt-in (`--json` / `--format=json`) → FULL frozen shape
  *   2. per-call `--full` → full
  *   3. per-call `--brief` → brief
- *   4. `LATTICE_BRIEF_OUTPUT` === literal string "0" → full
+ *   4. `PROOF_OR_STOP_BRIEF_OUTPUT` === literal string "0" → full
  *   5. brief default
  *
  * Rendering-only: this changes no gate/state-machine logic and no storage.
  */
 
 import { oneLineCell } from '../core/milestone-status.js';
+import { readBrandEnv } from '../core/brand-env.js';
 
-export const BRIEF_OUTPUT_ENV_VAR = 'LATTICE_BRIEF_OUTPUT';
+export const BRIEF_OUTPUT_ENV_VAR = 'PROOF_OR_STOP_BRIEF_OUTPUT';
 
 export interface OutputVerbosityArgs {
   full?: unknown;
@@ -46,7 +47,7 @@ export function wantsExplicitJson(args?: OutputVerbosityArgs | null): boolean {
  * story requested). Any other value — including "false", "1", "" — keeps brief.
  */
 export function envDisablesBrief(env: NodeJS.ProcessEnv = process.env): boolean {
-  return env[BRIEF_OUTPUT_ENV_VAR] === '0';
+  return readBrandEnv(BRIEF_OUTPUT_ENV_VAR, env) === '0';
 }
 
 /**

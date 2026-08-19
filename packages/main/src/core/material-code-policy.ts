@@ -30,7 +30,7 @@ import { execFileSync } from 'child_process';
 import { createHash } from 'crypto';
 import { closeSync, existsSync, openSync, readFileSync, readSync, realpathSync, statSync } from 'fs';
 import { isAbsolute, join, relative, resolve } from 'path';
-import { loadConfig, LATTICE_CONFIG_FILENAME, type LatticeConfig } from './config.js';
+import { loadConfig, PROOF_OR_STOP_CONFIG_FILENAME, type ProofOrStopConfig } from './config.js';
 import { resolveProjectGitCwd } from './story-signed-workspace-resolution.js';
 import {
   currentGitHead,
@@ -440,7 +440,7 @@ function computePolicyDigest(policy: Omit<MaterialCodePolicy, 'policyDigest'>): 
  * degrade to defaults).
  */
 function readMaterialCodeConfig(projectRoot: string): { signature: string; raw: RawMaterialCodeConfig } {
-  const configPath = join(projectRoot, LATTICE_CONFIG_FILENAME);
+  const configPath = join(projectRoot, PROOF_OR_STOP_CONFIG_FILENAME);
   let content: string;
   try {
     content = readFileSync(configPath, 'utf8');
@@ -453,7 +453,7 @@ function readMaterialCodeConfig(projectRoot: string): { signature: string; raw: 
       return { signature: 'absent', raw: {} }; // no config file → defaults
     }
     throw new MaterialCodePolicyError(
-      LATTICE_CONFIG_FILENAME,
+      PROOF_OR_STOP_CONFIG_FILENAME,
       `config file exists but could not be read (${err instanceof Error ? err.message : String(err)}); material-code policy fails closed instead of degrading to defaults`,
     );
   }
@@ -462,7 +462,7 @@ function readMaterialCodeConfig(projectRoot: string): { signature: string; raw: 
     parsed = JSON.parse(content);
   } catch (err) {
     throw new MaterialCodePolicyError(
-      LATTICE_CONFIG_FILENAME,
+      PROOF_OR_STOP_CONFIG_FILENAME,
       `config file is not valid JSON (${err instanceof Error ? err.message : String(err)}); material-code policy fails closed instead of degrading to defaults`,
     );
   }
@@ -1076,7 +1076,7 @@ const MAX_SNAPSHOT_HEAD_STABILITY_RETRIES = 2;
 function resolveDefaultSnapshotGitCwd(projectRoot: string | undefined): string {
   if (!projectRoot) return process.cwd();
   try {
-    let config: LatticeConfig | undefined;
+    let config: ProofOrStopConfig | undefined;
     try {
       config = loadConfig(projectRoot);
     } catch {

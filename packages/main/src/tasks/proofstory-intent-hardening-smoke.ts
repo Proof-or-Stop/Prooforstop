@@ -83,6 +83,23 @@ function jsonRun<T = any>(root: string, command: string, args: Record<string, un
   return JSON.parse(run(root, command, { ...args, json: true })) as T;
 }
 
+// B-a7c5 CHK-001: canStartDevGuard/canSkipPlanGuard/canReenterDevGuard now ALSO
+// require a dev-memory preflight acknowledgement, checked BEFORE the
+// ProofStory DEV gate this file exists to test. Every fixture writes a
+// satisfying ack up front -- otherwise assertDevAdmissionBlocked would
+// observe missing_dev_memory_preflight_ack instead of the ProofStory-specific
+// block/message this file exists to test.
+function ackDevMemoryPreflightForProofstory(store: StoryStore, storyId: string): void {
+  store.writeDevMemoryPreflightAck(storyId, {
+    schemaVersion: 'lattice.dev_memory_preflight_ack.v1',
+    storyId,
+    packDigest: 'proofstory-intent-hardening-smoke-synthetic-digest',
+    topHitIds: [],
+    acknowledgedAt: new Date().toISOString(),
+    acknowledgedBy: 'proofstory-intent-hardening-smoke',
+  });
+}
+
 function writeLifecycleGateBlockedStory(store: StoryStore, storyId: string, phase: Extract<StoryPhase, 'REVIEW' | 'TEST'>): void {
   const now = new Date().toISOString();
   const reviewRound = `${storyId}:review-round-1`;
@@ -115,6 +132,7 @@ function writeLifecycleGateBlockedStory(store: StoryStore, storyId: string, phas
       },
     }],
   });
+  ackDevMemoryPreflightForProofstory(store, storyId);
 }
 
 function seedFinalizedReviewInventoryPrecondition(root: string, store: StoryStore, storyId: string): void {
@@ -261,6 +279,7 @@ try {
   const checklist: ChecklistData = { items: checklistItems };
   store.writeStory(storyId, story);
   store.writeChecklist(storyId, checklist);
+  ackDevMemoryPreflightForProofstory(store, storyId);
   git(root, ['add', '.lattice']);
   git(root, ['commit', '-m', 'story metadata']);
 

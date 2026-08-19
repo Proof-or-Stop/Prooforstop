@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-a7c5",
+  "sourceText": "用户要求:开发时能学习 memory 里已踩过的坑(读),并且开发过程中踩到的坑能被强制更新回 memory(写)。设计目标:1) INIT_CHECK 阶段强制记录 dev-memory preflight acknowledgement,story 才能进 DEV;2) finding_resolve 输出非阻塞地附带 dev-memory capture 提醒;3) DONE 门要求记录 dev_memory_finish_decision。",
+  "normalizedOutcome": "A story cannot enter DEV (via any of the three DEV-entry doors) without a recorded dev-memory preflight acknowledgement, cannot reach DONE without a recorded finish-decision, and receives an in-the-moment non-blocking capture reminder when resolving findings during DEV -- closing the gap where Proofbound's own shared dev-memory system was write-voluntary and never gate-consulted.",
+  "acceptanceClaim": "After this story ships, running story_advance --phase=DEV (any of the three doors) or story_advance --phase=DONE against a story lacking the corresponding dev-memory artifact is refused with an actionable error naming the exact one-line fix command, and finding_resolve's output includes a dev-memory capture reminder appended after the resolution text.",
+  "keyRequirementIds": [
+    "REQ-001"
+  ],
+  "requestHash": "sha256:24db8de4e217880356287393a1a5b2806abae1224cef8806d1e30ae285b04a48",
+  "createdAt": "2026-08-14T11:04:33.951Z",
+  "updatedAt": "2026-08-14T11:04:33.951Z"
+}
