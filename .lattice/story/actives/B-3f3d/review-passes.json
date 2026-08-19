@@ -20601,6 +20601,73 @@
       },
       "readDiagnostics": [],
       "_hash": "de11b1fcce2ab97d813a2b3a579fc5d58c6a2071080987ffda5d48de9f5d6df3"
+    },
+    {
+      "id": "B-3f3d:RP-370",
+      "agent": "lattice-review-behavior",
+      "note": "Checked dc4e5464ad behavior vs CHK-004/ack/heartbeat claims: sh -c inherits PATH so PATH-injected fake global CLI is resolved and heartbeatTimeoutMs is actually armed; canReenterDevGuard still fail-closes REVIEW->DEV without a finalized unconsumed inventory receipt then still requires evaluateDevMemoryPreflightGate; the smoke stubs inventory only to isolate the ack door. No blocker.",
+      "createdAt": "2026-08-19T13:42:39.839Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-583",
+      "envelopeId": "cfbe5def1b0006434d5ed48b34641fe6461a08880e6c41bc40f79db2d17c1103",
+      "writerSessionId": "sess-4292375d1d751b41",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dev-memory.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/codex-heartbeat-timeout-smoke.ts",
+          "packages/main/src/tasks/dev-memory-lifecycle-gates-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dev-memory.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/review-run-binding-race.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": 8700
+        },
+        "digest": "f5398c5d0d4d11522f1992939a3419a62baf7cf447a0b477faa274f973795ff2"
+      },
+      "readDiagnostics": [],
+      "_hash": "2fb811ae9f9ccee2e609136e08290d768d0f08e72cd3f1d17cfb185076647db0"
     }
   ]
 }
