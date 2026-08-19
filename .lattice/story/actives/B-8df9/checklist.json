@@ -406,14 +406,15 @@
       "verificationEvidence": [
         {
           "intentRef": "CHK-004:happy:0",
-          "kind": "waiver",
-          "verdict": "waived",
-          "waiverType": "permanent",
-          "note": "CHK-004 withdrawn by user decision SD-7319de10 (scope-shrinkage-decision.json, userConfirmed=true). No work was done, so no evidence exists. THIS WAIVER IS A FRAMEWORK GAP, NOT A DISPOSITION. The withdrawal is a recorded fact, but the framework cannot read it: scope_shrinkage_decision_set left AB-002 still listing these three intents, whole-binding withdrawal would have dropped delivered CHK-003 coverage, and proofstory_contract_set is refused in REVIEW. A user-approved withdrawal has no mechanical completion path, so this waiver is prose standing where proof should be. Filed as a framework defect; do not read it as evidence.",
-          "headHash": "b1ad7a0dc29028a9c5043b959e0d681540d01679",
-          "materialHash": "2e89468c875a6e7e20251b4516dc368fff0e68d188d924939ac82cfe7aed6265",
-          "storyFilesHash": "d776854aaff0a8101466c9db4cd1f469274887c85bc19ae0004972bb726ae667",
-          "timestamp": "2026-08-03T05:49:44.107Z"
+          "kind": "docs_check",
+          "result": "pass",
+          "note": "SUPERSEDING RECORD for CHK-004's three waiver rows, added because evidence is append-only and their text can no longer be edited. Those rows assert \"A user-approved withdrawal has no mechanical completion path\" and \"THIS WAIVER IS A FRAMEWORK GAP, NOT A DISPOSITION\". That was true when written on 2026-08-03. IT IS NO LONGER TRUE. Story B-45a5 (merged to main 2026-08-19) wired decision-backed item-level withdrawal into both REVIEW-path gates: withdrawnItemIntentRefs in core/proofstory.ts subtracts a withdrawn item's intent refs before evaluateReviewCompleteness runs its coverage loop, and checkDispatchEvidence in handlers/validate-channel.ts routes withdrawn items into a third bucket keyed on withdrawnChecklistItemIdsFrom(decision). Verified live on this story after merging main: validate --channel prints \"withdrawn (SD-7319de10): CHK-004\" on its own line, absent from the Covered list; proofstory_review_completeness_check reports Gaps 0 with CHK-004's intent refs removed from the required set entirely. Three reviewer lanes independently traced the code paths and confirmed the gates pass BECAUSE of the withdrawal, never by consulting those waiver rows. The waivers are therefore inert historical record, not live dispositions. The framework gap they named is closed.",
+          "mechanical": false,
+          "nonMechanicalReason": "This row is a superseding annotation, not a coverage claim. CHK-004 is withdrawn by confirmed decision SD-7319de10 and its intent refs are excluded from the required set, so nothing here grandfathers as covered. It exists only to correct three append-only waiver notes whose text asserts a framework gap that story B-45a5 has since closed, verified live by three reviewer lanes tracing the gate code paths.",
+          "headHash": "eac4a6605ca6d406a4e59ae67209f782433d3125",
+          "materialHash": "b3ae30c9b0573ffc9b04f68dc044699bb59ff4db0c027b33fbfc773796f6e113",
+          "storyFilesHash": "d83d13fa37a415bc9cd4f1eb416740f46003f489fa495e9d66ca63a2f7751f8c",
+          "timestamp": "2026-08-19T15:50:41.740Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
