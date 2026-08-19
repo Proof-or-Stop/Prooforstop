@@ -417,6 +417,30 @@
         "scanEscalationReason": null
       },
       "_hash": "9dfff0b04b8955667c044e5eac36d29fd986c2b59270a7e4a3bffcd70338e72c"
+    },
+    {
+      "id": "B-8df9:RP-016",
+      "agent": "lattice-review-quality",
+      "note": "New-round re-attestation, incremental basis confirmed metadata-only (isFirstPass=false, scopeChanged=false, changedFiles=none). Re-verified: both red artifacts pass, CHK-004 waiver restoration byte-identical 633 chars, five docs_check rows mechanical:false with no selector, validate evidence allPass:true/113 commands bound to a head with zero code diff to current HEAD. No code quality concerns.",
+      "createdAt": "2026-08-19T16:56:37.715Z",
+      "reviewRound": "2026-08-19T16:53:53.247Z",
+      "reviewRunId": "B-8df9:RR-022",
+      "envelopeId": "2a8db831d4fe67117d4f92883b97738a0866ebda5d4567a3f2e9c3ca81eff5b0",
+      "writerSessionId": "sess-b8df9-main-agent",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-8df9/checklist.json",
+          ".lattice/story/actives/B-8df9/test-evidence.json"
+        ],
+        "filesTriagedByName": [
+          "packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs",
+          "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c5d750d8a7908635a0e3234e807ac45a7e148a687a8b842cb62d6585b43aa366"
     }
   ]
 }
