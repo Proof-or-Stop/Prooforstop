@@ -34,10 +34,26 @@
       "phase": "DEV",
       "headHash": "51768e231c1978110b4447484d72242e811f15d8",
       "materialHash": "87f4096fa933aa59df41f406573aa3656c8595fde0ca2b9f6681a9e2919b1314"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Framework-generated closeout artefact, not scope creep. The DONE gate requires a dev_memory_finish_decision; running dev_memory_finish to make that decision meaningfully emits this file itself. It is story metadata under .lattice/story/actives/B-45a5/, which the execution boundary already permits, and it cannot appear in plan.md per-item Files lists because it does not exist until the closeout command the DONE gate itself demands has been run. Its sibling artefact from the same command, .lattice/dev-memory/finish-decisions/B-45a5.json, IS registered in RUNTIME_ARTIFACT_REGISTRY and correctly does not trip this gate; the registry simply omits this second path. Framework gap filed separately. No product code involved; contents are this story's 20 experience candidates.",
+      "timestamp": "2026-08-19T12:59:10.481Z",
+      "paths": [
+        ".lattice/story/actives/B-45a5/dev-memory-candidates.jsonl"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-45a5/dev-memory-candidates.jsonl"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "f48d6283e18e7490b369e22fc529137deaad193d",
+      "materialHash": "98ec5127fb20b8c868deb48c190d4b2e2091a5ab9fc0f3da9dbeb74535c148df"
     }
   ],
   "createdAt": "2026-08-18T22:14:46.790Z",
-  "updatedAt": "2026-08-19T01:51:41.773Z",
+  "updatedAt": "2026-08-19T12:59:10.481Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -47,6 +63,7 @@
     "packages/main/tests/red/red-b45a5-withdrawal-gates.mjs": "packages/main/tests/red/red-b45a5-withdrawal-gates.mjs",
     ".lattice/story/actives/B-45a5/plan.md": ".lattice/story/actives/B-45a5/plan.md",
     "packages/main/src/tasks/scope-shrinkage-withdrawal-floor-smoke.ts": "packages/main/src/tasks/scope-shrinkage-withdrawal-floor-smoke.ts",
-    ".lattice/story/actives/B-45a5/evidence/red-probe-channel-gate.mjs": ".lattice/story/actives/B-45a5/evidence/red-probe-channel-gate.mjs"
+    ".lattice/story/actives/B-45a5/evidence/red-probe-channel-gate.mjs": ".lattice/story/actives/B-45a5/evidence/red-probe-channel-gate.mjs",
+    ".lattice/story/actives/B-45a5/dev-memory-candidates.jsonl": ".lattice/story/actives/B-45a5/dev-memory-candidates.jsonl"
   }
 }
