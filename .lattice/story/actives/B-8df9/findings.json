@@ -195,7 +195,7 @@
       "desc": "concept-drift: .lattice/story/actives/B-8df9/checklist.json CHK-004's three verificationEvidence waiver rows (happy/edge/adversarial) assert 'THIS WAIVER IS A FRAMEWORK GAP, NOT A DISPOSITION ... A user-approved withdrawal has no mechanical completion path, so this waiver is prose standing where proof should be. Filed as a framework defect; do not read it as evidence.' That specific claim was falsified by this same merge: B-45a5 ('Wire the existing item-level withdrawal helper into the two REVIEW-path gates', pulled in at merge commit ab5f930d9e) wires withdrawnChecklistItemIdsFrom(decision) into checkDispatchEvidence (packages/main/src/handlers/validate-channel.ts:305) AND into evaluateReviewCompleteness via withdrawnItemIntentRefs (packages/main/src/core/proofstory.ts:1672-1682, consumed at :2165-2167) -- exactly the mechanical completion path the waiver says does not exist, and it addresses precisely the concern the waiver raised ('whole-binding withdrawal would have dropped delivered CHK-003 coverage' -- the new mechanism withdraws by item id, not by whole acceptance binding). Evidence is append-only so the waiver text itself cannot be edited, and no other LIVE doc in this story (background.md, plan.md, understanding.json, decision.json, scope-shrinkage-decision.json) repeats the stale claim -- but nothing in the current record corrects it either, so a future reader who takes 'Filed as a framework defect; do not read it as evidence' at face value would wrongly conclude the item-level-withdrawal-readability gap is still open post-merge. Recommend a corrective annotation (e.g. a review-pass note or a superseding evidence/audit entry pointing at B-45a5's fix) rather than leaving the claim unqualified in the durable record.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-19T15:47:08.335Z",
@@ -208,7 +208,10 @@
         "packages/main/src/handlers/validate-channel.ts"
       ],
       "signatureTag": "missing|json|concept-drift-lattice",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Correct. The three CHK-004 waiver notes assert a framework gap that story B-45a5 closed on 2026-08-19, and evidence being append-only meant nothing in the record said so. Appended a superseding annotation on CHK-004 recording that the gap is closed, naming the two wirings that closed it (withdrawnItemIntentRefs in core/proofstory.ts and the withdrawn bucket in checkDispatchEvidence), and citing the live verification: validate --channel prints withdrawn (SD-7319de10) on its own line outside the Covered list, and proofstory_review_completeness_check reports Gaps 0 with CHK-004's refs excluded from the required set. Three lanes independently traced the code and confirmed the gates pass because of the withdrawal, never by reading those waivers, so they are inert historical record.",
+      "resolvedAt": "2026-08-19T15:51:05.165Z",
+      "resolutionType": "fixed"
     },
     {
       "id": "B-8df9:F-011",
