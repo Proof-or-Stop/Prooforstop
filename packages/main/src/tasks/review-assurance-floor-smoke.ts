@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import assert from 'node:assert/strict';
+import { DEPRECATED_STATE_DIR, PROOF_OR_STOP_STATE_DIR } from '../core/brand-paths.js';
 import { execFileSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -414,7 +415,10 @@ function assertStaleRecoveryCommandsShellSafe(formatted: string): string[] {
   assert.equal(commands.length, 5, 'stale recovery must expose every inline lattice command fragment');
   assert.equal(commands.some((command) => command.startsWith('proof-or-stop validate ')), true);
   assert.equal(commands.some((command) => command.startsWith('proof-or-stop verification_evidence_refresh_stale ')), true);
-  assert.equal(commands.some((command) => command.startsWith('node bin/lattice.js autopilot_review_submit ')), true);
+  // B-cc10 F-077: the runtime emits the CANONICAL wrapper name; `bin/lattice.js` was deleted
+  // by this story, so pinning it made this assertion unsatisfiable. Accepts either spelling so
+  // a teammate branch still emitting the deprecated wrapper keeps passing.
+  assert.equal(commands.some((command) => command.startsWith('node bin/proof-or-stop.js autopilot_review_submit ') || command.startsWith('node bin/lattice.js autopilot_review_submit ')), true);
   assert.equal(commands.some((command) => command.startsWith('proof-or-stop autopilot_review_status ')), true);
   assert.equal(commands.some((command) => command.startsWith('proof-or-stop review_escalation_status ')), true);
   return commands;
@@ -525,7 +529,7 @@ try {
     assert.match(formatted, new RegExp(`proof-or-stop validate --story=${STORY_ID} --json`));
     assert.match(formatted, new RegExp(`proof-or-stop verification_evidence_refresh_stale --storyId=${STORY_ID} --dryRun`));
     assert.match(formatted, new RegExp(`Legal reviewer/host only: re-submit local host verdicts over materialHash=${materialHash}`));
-    assert.match(formatted, /node bin\/lattice\.js autopilot_review_submit/);
+    assert.match(formatted, /node bin\/(?:proof-or-stop|lattice)\.js autopilot_review_submit/); // B-cc10 F-077: canonical wrapper; bin/lattice.js was deleted
     assert.match(formatted, /--storyFilesHash=/);
     assert.match(formatted, /Do not bypass stale material checks/);
     assert.doesNotMatch(formatted, /remote receipt server|remote proof|productionDone/);
@@ -740,15 +744,24 @@ try {
   check('literal worktree-local guidance executes three complete degraded-only rounds', () => {
     const commandRoot = makeRepo();
     try {
-      write(commandRoot, 'bin/lattice.js', `#!/usr/bin/env node\nimport ${JSON.stringify(DIST_CLI_PATH)};\n`);
-      write(commandRoot, '.gitignore', '.lattice/autopilot-verdicts/\n');
+      // B-cc10 F-077: the guidance recipe now names `bin/proof-or-stop.js`, so the fixture
+      // must materialize the wrapper under THAT name or the recipe invokes a file that does
+      // not exist (MODULE_NOT_FOUND). Both names are written: the canonical one is what the
+      // recipe executes, and the deprecated one keeps a teammate branch's recipe runnable.
+      const fixtureWrapper = `#!/usr/bin/env node\nimport ${JSON.stringify(DIST_CLI_PATH)};\n`;
+      write(commandRoot, 'bin/proof-or-stop.js', fixtureWrapper);
+      write(commandRoot, 'bin/lattice.js', fixtureWrapper);
+      // B-cc10 F-077: the runtime writes autopilot verdicts under the CANONICAL state dir, so
+      // ignoring only the deprecated spelling left them as blocking dirty paths and
+      // autopilot_review_submit --deriveBindings refused. Both spellings are ignored.
+      write(commandRoot, '.gitignore', `${DEPRECATED_STATE_DIR}/autopilot-verdicts/\n${PROOF_OR_STOP_STATE_DIR}/autopilot-verdicts/\n`);
       write(commandRoot, 'lattice.config.json', JSON.stringify({
         scanRoot: 'packages/main',
         rootDir: 'src',
         storyDir: '.lattice/story/actives',
         proofAdmissibility: { mode: 'enforce', enforcedConsumers: ['REVIEW'] },
       }, null, 2) + '\n');
-      git(commandRoot, ['add', '.gitignore', 'bin/lattice.js', 'lattice.config.json']);
+      git(commandRoot, ['add', '.gitignore', 'bin/proof-or-stop.js', 'bin/lattice.js', 'lattice.config.json']);
       git(commandRoot, ['commit', '-m', 'self-host command fixture']);
       resetConfigCache();
       const store = new StoryStore(commandRoot);
@@ -785,7 +798,7 @@ try {
         .filter(recipe => recipe.command.includes('autopilot_review_submit'));
       assert.equal(recipes.length, 3);
       for (const recipe of recipes) {
-        assert.match(recipe.command, /^node bin\/lattice\.js autopilot_review_submit /);
+        assert.match(recipe.command, /^node bin\/(?:proof-or-stop|lattice)\.js autopilot_review_submit /); // B-cc10 F-077: accept either wrapper name
         execFileSync('zsh', ['-c', recipe.command], {
           cwd: commandRoot,
           encoding: 'utf8',

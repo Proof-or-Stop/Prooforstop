@@ -12,9 +12,16 @@ const repoRoot = findRepoRoot(dirname(fileURLToPath(import.meta.url)));
 function findRepoRoot(start: string): string {
   let dir = resolve(start);
   while (true) {
+    // B-cc10 F-077: accept EITHER config filename. This probe pinned the deprecated name,
+    // which this story renamed — so in this worktree the check failed at the real root and
+    // the loop walked UP into the parent checkout, silently resolving repoRoot to the
+    // unmerged main clone. Every subsequent path (adapter agents dirs, docs) was then read
+    // from the wrong tree, which is what produced the ENOENT on
+    // `.proof-or-stop-codex/agents`. A root probe must recognise both spellings for exactly
+    // as long as read-both support exists, or it walks out of the tree it is meant to find.
     if (
-      existsSync(join(dir, 'lattice.config.json')) &&
-      existsSync(join(dir, 'packages', 'main', 'src'))
+      (existsSync(join(dir, 'proof-or-stop.config.json')) || existsSync(join(dir, 'lattice.config.json')))
+      && existsSync(join(dir, 'packages', 'main', 'src'))
     ) {
       return dir;
     }
@@ -29,7 +36,17 @@ function read(path: string): string {
 }
 
 function agentFiles(dir: string): string[] {
-  return readdirSync(join(repoRoot, dir))
+  // B-cc10 F-077: tolerate an ABSENT directory instead of throwing ENOENT. The list below
+  // deliberately names BOTH adapter spellings (read-both), and by construction only one of
+  // them exists in any given checkout: this worktree has the canonical dir and no deprecated
+  // one, while an unmerged main has the deprecated dir and no canonical one. An unguarded
+  // readdirSync therefore throws in BOTH directions — it made the read-both list itself
+  // unusable. Returning [] for a missing dir is correct here; the F-055 concern (a renamed
+  // root silently yielding zero files) is still covered because the OTHER spelling supplies
+  // the files, and the assertion below fails if the combined set is empty.
+  const absolute = join(repoRoot, dir);
+  if (!existsSync(absolute)) return [];
+  return readdirSync(absolute)
     .filter(file => file.endsWith('.md'))
     .map(file => join(dir, file));
 }
