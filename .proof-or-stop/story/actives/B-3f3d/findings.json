@@ -8800,7 +8800,7 @@
       "desc": "packages/main/src/handlers/prewrite-guard.ts:203-206 OPEN-inventory material filter uses deprecated `.lattice/locks/` and `.lattice/runtime/` prefixes only. Canonical writes go to `.proof-or-stop/locks/` (storyRuntimeLockPath joins PROOF_OR_STOP_DIR/locks; PROOF_OR_STOP_MAIN_WRITE_LOCK) and `.proof-or-stop/runtime/` (OWNER_SESSION_TOKEN_DIR). brand-paths.ts:72-78: PROOF_OR_STOP_STATE_DIR='.proof-or-stop' is written; DEPRECATED_STATE_DIR='.lattice' is never written. CHK-002 / review-inventory-epoch-and-saturation-gate.md:170-171 require the preventative prewrite projection to reject material targets while allowing metadata-only runtime records per canonical materialHash exclusions (runtime-artifact-registry already expands both spellings after B-cc10 CHK-007). Consequence: a Write/Edit of `.proof-or-stop/locks/...` or `.proof-or-stop/runtime/...` during OPEN inventory is classified as material and denied with OPEN_REVIEW_INVENTORY_MATERIAL_MUTATION (false block). Inverse: only the deprecated prefixes are allow-listed, so the exclusion is dead on the current layout. Severity: high. Fix: derive both prefixes from STATE_DIR_NAMES / stateDirCandidates('locks/') and stateDirCandidates('runtime/') (or findRuntimeArtifactEntry materialHash=exclude); never hardcode `.lattice/`.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-behavior",
       "createdAt": "2026-08-19T17:36:47.813Z",
@@ -8874,7 +8874,11 @@
         "packages/main/src/core/runtime-artifact-registry.ts"
       ],
       "signatureTag": "edge|ts|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 6cbbbf73 by lattice-implementer: OPEN-inventory lock/runtime exemption now iterates STATE_DIR_NAMES so both .proof-or-stop and .lattice prefixes are excluded; recovery string is proof-or-stop review_inventory_cancel. npm run test:lattice-residue PASS (brand-decision 0).",
+      "resolvedAt": "2026-08-19T18:29:45.485Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3f3d:F-133",
