@@ -95,7 +95,7 @@
       "desc": ".lattice/story/actives/B-45a5/scope-contract.json:72 the THIRD-attempt acknowledgement (b) claims \"finishDecisionPath is called at exactly one site, handlers/playbook-runtime-memory.ts:250, inside dev_memory_finish_decision\". This is checkably false: `grep -rn \"finishDecisionPath\" packages/main/src/` shows a SECOND call site at packages/main/src/core/playbook-runtime-memory.ts:926, inside `readDevMemoryFinishDecision` (the function machine.ts:60/945/1419 imports and calls for the DONE gate itself). The reason given for verifying (\"I verified the call sites myself this time... grep -n finishDecisionPath shows exactly one call site\") only holds if the grep was scoped to handlers/playbook-runtime-memory.ts rather than run repo-wide; a repo-wide grep — the same standard F-004/F-005 were held to — finds two. The 250 write-site citation is correct and the downstream conclusion (the finish-decisions registry entry belongs to dev_memory_finish_decision; dev_memory_finish has no registered counterpart output) still holds independently, because the second site is a READ not a WRITE. But \"exactly one site\" is an unverified exclusivity overclaim, the same error class (unverified singularity/causal-chain claim) F-004 and F-005 were filed over in this same paragraph. Same sentence, clause (d), has a related precision gap: \"this candidates path has no RUNTIME_ARTIFACT_REGISTRY entry, which is why it classifies as unknown\" names only one of two independent registry checks the classifier runs (core/scope-path-classifier.ts:373-395) — classifyLifecycleArtifact (lifecycle-registry.ts LATTICE_LIFECYCLE_ARTIFACT_FILENAMES, checked FIRST; dev-memory-candidates.jsonl is not in that set, unlike the sibling dev-memory-preflight-ack.json which IS) runs before findRuntimeArtifactEntry and independently fails to admit the path. RUNTIME_ARTIFACT_REGISTRY absence is real but is not on its own \"why\" it classifies as unknown. Fix: correct (b) to state finishDecisionPath has one WRITE call site (250) and one READ call site (926, readDevMemoryFinishDecision used by the DONE gate), not \"exactly one site\"; and correct (d) to name both registry misses (lifecycle-registry LATTICE_LIFECYCLE_ARTIFACT_FILENAMES and RUNTIME_ARTIFACT_REGISTRY), not RUNTIME_ARTIFACT_REGISTRY alone.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-19T13:14:19.737Z",
@@ -103,7 +103,10 @@
       "reviewRunId": "B-45a5:RR-017",
       "_hash": "44e696a43088935ded73f0387fe56dfb9b575304439d64ac3b2595c948821d0a",
       "signatureTag": "missing|unknown|lattice-story-actives",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Correct, and the diagnosis of the cause is the valuable part: I asserted an exclusivity fact after grepping only packages/main/src/handlers, which cannot see core/. A verification instrument scoped narrower than the claim it supports is the same failure this story is about, one level up. Re-ran repo-wide: finishDecisionPath appears in core/playbook-runtime-memory.ts (definition and the read used by the DONE gate), in a runtime-artifact-registry comment, and in a smoke test — so exactly-one-site was wrong, though the write-site citation and the downstream conclusion were not. Also confirmed your point on claim (d): grep finds dev-memory-candidates 0 times in core/lifecycle-registry.ts, so LATTICE_LIFECYCLE_ARTIFACT_FILENAMES absence is a second, independent reason the classifier sees it as unknown, and RUNTIME_ARTIFACT_REGISTRY absence is not solely why. The fourth text makes no exclusivity claim at all, names both registries, and keeps only statements a repo-wide check supports. The external framework task carried the same exactly-one-site error and is being corrected.",
+      "resolvedAt": "2026-08-19T13:15:22.258Z",
+      "resolutionType": "fixed"
     }
   ]
 }

@@ -82,10 +82,26 @@
       "phase": "REVIEW",
       "headHash": "41fa534a4c213af769ba6157f45be7ef714892a3",
       "materialHash": "98ec5127fb20b8c868deb48c190d4b2e2091a5ab9fc0f3da9dbeb74535c148df"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "FOURTH attempt; F-004, F-005 and F-006 each caught a false claim here. F-006 also diagnosed WHY: I asserted an exclusivity fact after grepping only packages/main/src/handlers, a scope that cannot see core/. This version makes no exclusivity claim at all and states only what a repo-wide check supports. WHAT THIS FILE IS: dev_memory_finish writes .lattice/story/actives/B-45a5/dev-memory-candidates.jsonl via resolveStoryCandidatePath (handlers/dev-memory.ts:351). It holds this story's 20 experience candidates. WHY IT EXISTS: I chose to run dev_memory_finish so that recording decision=captured would refer to real candidates instead of being hollow. The DONE gate itself requires only dev_memory_finish_decision (core/machine.ts calls readDevMemoryFinishDecision); DONE was reachable via decision=no-reusable-lesson without creating this file, so the extra step was mine. WHY IT TRIPS THE SCOPE GATE: the path is absent from BOTH registries the classifier consults - it has no RUNTIME_ARTIFACT_REGISTRY entry, and grep finds it 0 times in core/lifecycle-registry.ts LATTICE_LIFECYCLE_ARTIFACT_FILENAMES, which scope-path-classifier.ts checks first. WHAT JUSTIFIES ACKNOWLEDGING IT: framework-generated story metadata under .lattice/story/actives/B-45a5/, which the execution boundary already permits; no product code; could not have been named in plan.md Files lists because it did not exist at PLAN time.",
+      "timestamp": "2026-08-19T13:15:13.547Z",
+      "paths": [
+        ".lattice/story/actives/B-45a5/dev-memory-candidates.jsonl"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-45a5/dev-memory-candidates.jsonl"
+      ],
+      "affectedPathCount": 1,
+      "phase": "REVIEW",
+      "headHash": "a934c8d659e1d3883c15712b87ba4e9da91a104a",
+      "materialHash": "98ec5127fb20b8c868deb48c190d4b2e2091a5ab9fc0f3da9dbeb74535c148df"
     }
   ],
   "createdAt": "2026-08-18T22:14:46.790Z",
-  "updatedAt": "2026-08-19T13:08:57.189Z",
+  "updatedAt": "2026-08-19T13:15:13.547Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
