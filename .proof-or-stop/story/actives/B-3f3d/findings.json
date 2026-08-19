@@ -8863,6 +8863,62 @@
       ],
       "signatureTag": "edge|ts|packages-main-handlers",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3f3d:F-133",
+      "desc": "Post-lane completeness critic on B-3f3d:RI-050 reviewRun B-3f3d:RR-602 after required lanes reached terminal evidence (concept/quality/behavior/docs=finding, test-coverage=pass). Topology pass remains forbidden: acceptance_basis status=invalid receiptVerification.ok=false code=AT_SCOPE_BINDING_MISSING; live classifier partial (AT_COVERAGE_BASIS_PARTIAL, AT_ADAPTER_RESULT_INVALID, scope-contract/closure/seal/freshness mismatches). Wave 4 independent checks: acceptance_topology_check fail/observe/non-blocking/inconclusive_basis_unverified; pre_review_check_read inconclusive/inadmissible (PR_ARTIFACT_TAMPERED, PR_EVIDENCE_STALE, PR_CUTOFF_UNBOUND; legacy command lattice pre_review_check; observe so diagnostic-only). acceptance_rollout_report_read and acceptance_rollout_check pass enforce current full-3x2 (codex-cli+claude-cli, 3 rounds, mislabeled3x1Count=0) with frozen materialHash 18b25d80 and storyFilesHash 5498191. excludedPathRefs=[]. topology_critic_receipt_set failed: role eligibility failed lattice-review-topology-critic must sign from a host-adapter session, received explicit-env. Independent source read of prewrite-guard.ts:203-217 and brand-paths.ts confirms two lane families: (1) deprecated-only .lattice/locks|runtime exemption prefixes versus STATE_DIR_NAMES/isStateDirPath/stateDirCandidates; (2) Recovery still emits lattice review_inventory_cancel. Dispositions: F-129 verified_family prewrite-guard-deprecated-state-dir-exemption; F-128 and F-132 duplicate of F-129; F-130 verified_family prewrite-guard-legacy-bin-recovery. Completeness critic_set binds this RR-602 terminal. Do not treat this as saturation PASS or TEST authority.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-19T17:42:21.411Z",
+      "reviewRound": "2026-08-19T16:56:02.376Z",
+      "reviewRunId": "B-3f3d:RR-602",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/brand-paths.ts",
+          "packages/main/src/handlers/prewrite-guard.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "77bbcc6735e0f26444363441b88dae44b2f34eb94b42c7d520d60ca8dbd524de"
+      },
+      "readDiagnostics": [],
+      "_hash": "a35ae035f3abe8b5ff46bf67ff72ff01125b74aeccb096bd5c1a2e7e38258b57",
+      "files": [
+        "packages/main/src/handlers/prewrite-guard.ts",
+        "packages/main/src/core/brand-paths.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+      ],
+      "signatureTag": "missing|ts|post-lane-completeness",
+      "signatureTagSource": "auto"
     }
   ]
 }
