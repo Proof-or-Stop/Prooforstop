@@ -57,6 +57,32 @@
         "scanEscalationReason": null
       },
       "_hash": "b926f089d42a9e477c0f5f37c3aa2020950a8f328c237667012a883d24ce6b09"
+    },
+    {
+      "id": "B-45a5:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 narrow re-attestation of F-001/F-002/F-003 fix commits (e73e71c, 42e0fc0, 75089971). (A) Verified the ablation claim independently: copied dist+templates to an isolated scratch dir, removed the survivingRefs subtraction from withdrawnItemIntentRefs in the copy only (never touched the real packages/main/dist), reran the copied artifact against the copy -> E1 REFUSED->PARTIAL, exit 0->1, B45A5-VERDICT GREEN->BYPASS, and ONLY E1+VERDICT moved (all 10 controls CONTROL-OK, B1-B3 GREEN, D1-D5+D23+D45 REFUSED unchanged). Confirmed checkDispatchEvidence (validate-channel.ts:280-374) loops checklist items keyed by item.id only and never reads a verificationIntent ref, so an alias collision is structurally unreachable from the channel gate -- PARTIAL not BYPASSED on ablation is the mechanically correct result, and the kept channel conjunct is legitimate forward cover (if the channel gate ever becomes ref-aware) not a tautological row; on the real (unablated) tree E1=REFUSED with completenessRefuses=true AND channelRefuses=true, so the row genuinely bites today. Real, unmodified tree reran clean: exit 0, all controls CONTROL-OK, B1/B2/B3 GREEN, D1-D5/D23/D45 REFUSED, E1 REFUSED, B45A5-VERDICT=GREEN, matching every pinned selector value in the existing verificationEvidence receipts (outputDigest differs run-to-run only because fixture decision ids (SD-xxxxxxxx) are randomized per run -- selectorMatched, not digest-equality, is the receipt mechanism). (B) Confirmed the B45A5-VERDICT duplication cannot diverge: both emissions read the same single const verdict binding (row-index push and report-footer push), no reassignment between them. On headroom: raw total is 11427/12000 chars (~95%) which looks tight, but that ratio is not what protects the pinned selectors post-fix -- the entire row-index block (all B45A5-ROW-* + B45A5-VERDICT) ends at character offset ~905, so it would take on the order of hundreds more ROWS (not more prose in the per-row detail section, which is the truncatable-by-design part) before the index block itself approaches the cap. Not one row away from losing a pinned selector; the fix decoupled selector survival from total report length, which is the point of front-loading. dist rebuilt once via npm run build at the start of this pass to sync with current HEAD (matches committed source, no ablation); all ablation testing was done in a scratch copy under packages/main/.review-ablation-tmp/, fully deleted afterward and confirmed via git status -- packages/main/dist was never mutated. No new findings; F-001/F-002/F-003 fixes verified sound.",
+      "createdAt": "2026-08-19T02:35:21.576Z",
+      "reviewRound": "2026-08-19T01:51:47.991Z",
+      "reviewRunId": "B-45a5:RR-004",
+      "envelopeId": "369720690a535b96f2a5c455646cf25c6d084bac16dd8ae1363329c3a8c2cf21",
+      "writerSessionId": "sess-b45a5-main",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "lattice.config.json",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/validate-channel.ts",
+          "packages/main/tests/red/red-b45a5-withdrawal-gates.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-45a5/checklist.json",
+          ".lattice/story/actives/B-45a5/red-evidence.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "62162398edbdcabfb9d76eb073ce925037065465bd2c28d28f311d06a5e2f450"
     }
   ]
 }
