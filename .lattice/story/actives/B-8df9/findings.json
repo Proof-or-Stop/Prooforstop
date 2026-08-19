@@ -224,6 +224,26 @@
       ],
       "signatureTag": "adversarial|json|concept-fragility-lattice",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-8df9:F-012",
+      "desc": "CHK-005:happy:0, CHK-005:adversarial:0, CHK-006:happy:0, CHK-006:adversarial:0 verificationEvidence notes claim a mechanical upgrade that did not occur: each note says (e.g.) \"Re-pinned with a stable selector so this row is now mechanically re-verifiable rather than a bare command record.\" But these four intents are type=docs. enforceAndStampEvidence (packages/main/src/handlers/checklist.ts:680-688) checks isExecutableIntentType (packages/main/src/core/verification.ts:98-102, EXECUTABLE_INTENT_TYPES={logic,cli,browser}) BEFORE consulting any caller selector; for a docs/manual intent it returns evidencePatch={mechanical:false, command, result} and never reads input.selector, never writes intent.verification={command,selector}. Confirmed on-disk in .lattice/story/actives/B-8df9/checklist.json: none of the four evidence rows carry a selector, a verification pin on the intent, or a receipt; mechanical stays false on all four -- byte-identical in shape to an ordinary unpinned bare-command attestation. No selector was actually persisted despite the note text. This does not currently flip any gate (coverageStatusForCoveredEvidence treats non-executable intent types as unconditionally covered regardless of mechanical, so these rows were covered before and after identically), but it is a false claim of stronger evidence written permanently into the append-only audit trail of a story whose entire subject is exactly this failure mode (see SD-7319de10: a mechanism that claims to prove something stronger than it does). Recommend appending a corrective docs_check row (evidence is append-only) on each of the four intentRefs whose note accurately says these are re-attested non-mechanical docs_check narrative judgments (type=docs intents cannot be selector-pinned by design), not selector-pinned mechanical rows.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-19T15:48:01.816Z",
+      "reviewRound": "2026-08-03T04:27:32.508Z",
+      "reviewRunId": "B-8df9:RR-013",
+      "_hash": "b015a69e3ddbfd52684ae778ba2ca8289bab20556e1d1d49e2a428ecb3be1f4d",
+      "files": [
+        ".lattice/story/actives/B-8df9/checklist.json",
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/core/verification.ts"
+      ],
+      "signatureTag": "missing|json|happy-adversarial-happy",
+      "signatureTagSource": "auto"
     }
   ]
 }
