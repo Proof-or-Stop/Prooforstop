@@ -635,6 +635,27 @@
       "resolvedAt": "2026-08-19T05:02:50.164Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-49ed:F-032",
+      "desc": "All 15 verificationEvidence receipts across CHK-001..CHK-005 are stale again, recurring the exact class already resolved once as F-023 and F-030. Every receipt carries storyFilesHash=2cffe4b43091b8b49068d4a1b3dbfb89615932dd08dd75455c0aaabedac51bda (or the CHK-004 non-mechanical attestations equivalent), but current story-owned storyFilesHash at HEAD is 03e3854017be37966d28a43cb46f12e0b9881056ea0fdcf799ac4def6fe216a5 -- a real mismatch, not benign whole-tree noise, because the drift is caused by commits 15dee05d32 and 8a76b03874 touching story-owned files under packages/main/src/tasks (material-hash-large-tree-smoke.ts, usage-sweep-smoke.ts, story-files-hash-batch-smoke.ts), confirmed present in git diff main...HEAD. I ran the actual buildVerificationCoverage + checkEvidenceFreshnessForGit functions the DONE/TEST gate consumes (not a hand-rolled check) against the live checklist.json and current HEAD: all 15/15 intent entries across CHK-001..CHK-005 classify as status=stale, none covered. Per CLAUDE.md this means the story cannot enter TEST until refreshed. Separately verified (by mutation, not inference) that the maxRetries/retryDelay change in those two commits only touches finally/catch-block rmSync cleanup calls and does not change what any of the three smokes proves: mutated one real assertion in each of material-hash-large-tree-smoke.ts, usage-sweep-smoke.ts, and story-files-hash-batch-smoke.ts to a deliberately wrong value, confirmed each still exits 1 with the mutant, then restored and confirmed each exits 0 clean -- so the underlying content risk this finding flags is coverage staleness only, not a weakened proof. Remedy: run verification_evidence_refresh_stale (or re-pin via verification_run) for all 15 intents against current HEAD/storyFilesHash before TEST.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-19T05:15:31.572Z",
+      "reviewRound": "2026-08-19T05:01:43.915Z",
+      "reviewRunId": "B-49ed:RR-057",
+      "_hash": "f7e5616d4a6cb06db19eb7d7bd1d4b54f9bdd7b159e4d503a23b9d5dfdbda8e1",
+      "files": [
+        "packages/main/src/tasks/material-hash-large-tree-smoke.ts",
+        "packages/main/src/tasks/usage-sweep-smoke.ts",
+        "packages/main/src/tasks/story-files-hash-batch-smoke.ts",
+        ".lattice/story/actives/B-49ed/checklist.json"
+      ],
+      "signatureTag": "missing|ts|verificationevidence-receipts-across",
+      "signatureTagSource": "auto"
     }
   ]
 }
