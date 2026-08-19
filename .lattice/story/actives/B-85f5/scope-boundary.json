@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-85f5",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Add a real acceptance_rollout_report production-writer regression covering reviewer writes and signed full-3x2 artifact verification",
+    "Correct nested rollout cohort child-process actor propagation under a canonical PROOF_OR_STOP_AGENT parent",
+    "Update only directly relevant tests and process-fact contract guards when mechanically required"
+  ],
+  "excluded": [
+    "Allow payload actor fields to override a dispatched environment identity",
+    "Modify B-38b7 product documentation or fabricate rollout/quorum evidence",
+    "Refactor unrelated dispatch, lifecycle, provider, or reviewer systems",
+    "Register acceptance-rollout-verifier as a reviewer lane",
+    "Relax canonical PROOF_OR_STOP_AGENT precedence or unknown-actor fail-closed behavior"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "User explicitly agreed to the separate runtime-fix Story after reviewing the canonical-versus-legacy agent overlay evidence.",
+  "createdAt": "2026-08-19T15:23:05.808Z",
+  "updatedAt": "2026-08-19T15:23:05.808Z",
+  "_hash": "85d7fb4088f03ed8484c74ad2d78644684cd1b3eb708691a34195aa6d80492c7"
+}
