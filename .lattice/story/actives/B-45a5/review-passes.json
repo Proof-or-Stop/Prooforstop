@@ -83,6 +83,35 @@
         "scanEscalationReason": null
       },
       "_hash": "62162398edbdcabfb9d76eb073ce925037065465bd2c28d28f311d06a5e2f450"
+    },
+    {
+      "id": "B-45a5:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 2 narrow re-attestation, scope = changed files since RP-001 (lattice.config.json, handlers/validate-channel.ts, tests/red/red-b45a5-withdrawal-gates.mjs) plus the post-fix evidence refresh. (1) New coverage bites: independently re-derived the E1/C9 ablation in an isolated dist copy outside packages/main/dist (never touched the shared dist) by patching a scratch copy of withdrawnItemIntentRefs to drop the survivingRefs subtraction; a sorted marker diff between stock and ablated runs showed ONLY B45A5-ROW-E1 (REFUSED->PARTIAL) and B45A5-VERDICT (GREEN->BYPASS) move, confirming no pre-existing row covered this and matching F-003's own resolvedReason verbatim. PARTIAL (not BYPASSED) is structurally correct, not a weak test: checkDispatchEvidence (validate-channel.ts:334-374) iterates checklist items by item.id only and never reads an intentRef/alias, and the alias fixture's survivingId item carries no dispatch/subagent_result event, so the channel half of E1 refuses unconditionally regardless of the completeness-side ablation - the row cannot reach BYPASSED by construction, and the overall unauthorizedSkip check still correctly promotes any non-REFUSED D/E row to VERDICT=BYPASS. (2) Re-ran the live command fresh against the real (unmutated) dist and grepped for every pinned selector from checklist verificationIntent (CHK-001..CHK-004, 9 total): B45A5-ROW-{A1,A2,B1,B2,C1,D1,D23,D45}= all matched verbatim x2 (row index + detail body); B45A5-ROW-B3=RED correctly matched 0 times (B3 is now GREEN post-fix, which is exactly why CHK-001:happy:0 stays a permanent waiver) - no evidence silently demoted to non-mechanical; CHK-002/003/004 all retain mechanical:true + selectorMatched:true + result:pass across all 9 receipts, 0 waivers. (3) Verified MAX_OUTPUT_CHARS=12000 in validation-executor.ts trimOutput keeps only leading chars; live report is 11405 chars (dispatch cited 11423, small run-to-run variance from randomized SD-xxxxxxxx decision ids, all fixed-length so not a growth risk). B45A5-VERDICT is emitted twice from the SAME verdict variable (row-index copy near the top, tail copy at the end of a fresh run) so the two emissions cannot diverge by construction. The full row index (all 24 pinned row ids + VERDICT) sits within the first ~1000 chars of the report, so even under future growth the pinned selectors stay reachable with a much larger margin than the raw 580-600 char total-length headroom suggests; judged not a latent defect of the flush-bug class. (4) Confirmed CHK-005's withdrawal is genuinely mechanical on THIS story, not just the fixture: lattice validate --channel --story=B-45a5 passes (status=pass) with CHK-005 listed under a distinct withdrawn(SD-ccafb44c) bucket separate from the Covered list, and proofstory_review_completeness_check reports Status=pass Gaps=0 - CHK-005 is excluded from the required set, not counted as satisfied. (5) Re-confirmed the CHK-001:happy:0 permanent waiver judgement is unchanged: its evidence commit (33e73d8) predates round 1's own review dispatch commit (78997f5) and was never touched by verification_evidence_refresh_stale (evidence-refresh.ts:161 explicitly skips kind=waiver rows - by design, waivers have no re-runnable receipt). Noted but not filing as a finding: findStaleEvidence currently flags this one waiver as storyFilesHash-stale, but this predates round 1 (not introduced by round 2's fixes), is purely an advisory UX-hint surface, and does not block either gate directly executed above (both pass), since evaluateReviewCompleteness/rowCoversIntent is freshness-agnostic and evaluateDoneIntentEquivalence only applies staleness demotion inside its hasMilestonePath branch, which this story never enters (no milestone-ledger.json). No blocker found this round.",
+      "createdAt": "2026-08-19T02:43:32.498Z",
+      "reviewRound": "2026-08-19T01:51:47.991Z",
+      "reviewRunId": "B-45a5:RR-006",
+      "envelopeId": "c4c7f84dc237c65863c2a70164991bf9842135ed2495e4a95c8c6869fda1ab66",
+      "writerSessionId": "sess-b45a5-main",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-45a5/checklist.json",
+          ".lattice/story/actives/B-45a5/scope-shrinkage-decision.json",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/evidence-refresh.ts",
+          "packages/main/src/core/evidence-stale-hint.ts",
+          "packages/main/src/core/milestone-status.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/validate-channel.ts",
+          "packages/main/tests/red/red-b45a5-withdrawal-gates.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "65cceeb37d84f2735c97efa80a76b1851ad19bb448becce05a0dea616cfc095c"
     }
   ]
 }
