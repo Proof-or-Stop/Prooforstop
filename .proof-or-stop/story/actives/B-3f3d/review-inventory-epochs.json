@@ -5024,6 +5024,29 @@
       "waves": [],
       "receiptId": "B-3f3d:RIE-052:RCP-001",
       "_hash": "a2547bb4797581ff9509e135368ea0f6e0e4496d5efef9ee041ec91b274d7da5"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-3f3d:RIE-053",
+      "storyId": "B-3f3d",
+      "reviewRound": "2026-08-19T19:22:30.921Z",
+      "state": "CANCELLED",
+      "begunAt": "2026-08-19T19:23:26.006Z",
+      "updatedAt": "2026-08-19T19:33:52.443Z",
+      "cutoff": {
+        "headHash": "210d458b3628b92e801f68873240efed9b879895",
+        "materialHash": "c1c84440192c04a3f4b1c9d646316164219aec7c0625fa04be17cb2a154333fd",
+        "storyFilesHash": "7b357339c3e54faf0501313f345933a239deadce31ea94dacd1b0d95c9c8d4d1"
+      },
+      "scopeDigest": "9eab343af8c58ae2bb16c11ce2a4f5c75d9c6fd0479419c5e78b19e826431f63",
+      "requiredLanes": [],
+      "maxWaves": 1,
+      "waves": [],
+      "receiptId": "B-3f3d:RIE-053:RCP-001",
+      "cancelledAt": "2026-08-19T19:33:52.443Z",
+      "cancelReason": "late evidence: RIE-053 completeness receipt was minted before round-28 reviewer terminals; cancel so current-round review_pass_set can write, then finalize a fresh unconsumed completeness receipt for CertificationWindow",
+      "terminalRunSequenceBoundary": 618,
+      "_hash": "b3bade31ae4dd22e3bd62e40c39b0b7ef79b9ba1510e2e3cb310762a08f2d5d7"
     }
   ],
   "receipts": [
@@ -5605,6 +5628,30 @@
       "authorizesTest": false,
       "issuedAt": "2026-08-19T19:16:46.224Z",
       "_hash": "f5d1d6b076f39339ea1b581a4e83f104debf143a1455483c6f976f91faaee243"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_receipt.v1",
+      "receiptId": "B-3f3d:RIE-053:RCP-001",
+      "epochId": "B-3f3d:RIE-053",
+      "storyId": "B-3f3d",
+      "reviewRound": "2026-08-19T19:22:30.921Z",
+      "cutoff": {
+        "headHash": "210d458b3628b92e801f68873240efed9b879895",
+        "materialHash": "c1c84440192c04a3f4b1c9d646316164219aec7c0625fa04be17cb2a154333fd",
+        "storyFilesHash": "7b357339c3e54faf0501313f345933a239deadce31ea94dacd1b0d95c9c8d4d1"
+      },
+      "scopeDigest": "9eab343af8c58ae2bb16c11ce2a4f5c75d9c6fd0479419c5e78b19e826431f63",
+      "requiredLanes": [],
+      "waveCount": 0,
+      "findingSetDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "coverageDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "saturationResult": "ZERO_NEW_VERIFIED_FINDINGS",
+      "authority": "inventory-completeness-only",
+      "authorizesTest": false,
+      "issuedAt": "2026-08-19T19:23:26.006Z",
+      "invalidatedAt": "2026-08-19T19:33:52.443Z",
+      "invalidationReason": "late evidence: RIE-053 completeness receipt was minted before round-28 reviewer terminals; cancel so current-round review_pass_set can write, then finalize a fresh unconsumed completeness receipt for CertificationWindow",
+      "_hash": "1e2fd0a2e24728417ce35da16043be4dd2710beb74f7564b2ec03f9878ee790c"
     }
   ],
   "criticReceipts": [
