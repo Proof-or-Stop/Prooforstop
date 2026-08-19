@@ -205,6 +205,25 @@
       ],
       "signatureTag": "missing|json|concept-drift-lattice",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-8df9:F-011",
+      "desc": "concept-fragility: .lattice/story/actives/B-8df9/checklist.json CHK-006:happy:0 (command: grep -n \"NOT exempt because of the signature\" packages/main/src/core/command-policy.ts) and CHK-006:adversarial:0 (command: grep -n \"CHK-006\" packages/main/src/core/command-policy.ts) pin free-form prose / a breadcrumb string inside a reason: field as their re-verification selector, unlike CHK-006:edge:0 in the same checklist item, which correctly pins a script-emitted structural marker (EXEMPTION_REASON_MATCHES_CODE_MARKER=true from .lattice/story/actives/B-8df9/chk006-exemption-claims.mjs). packages/main/src/core/command-policy.ts:396-403's own module comment explicitly anticipates future edits to this exact reason sentence ('if you edit this sentence, re-run the script') but only requires chk006-exemption-claims.mjs to stay green -- that script verifies BEHAVIOR (ownership class, whether the lease-gate takes a lease, whether phase changes, the signature's re-sign limit), never the literal wording 'NOT exempt because of the signature' or the bare breadcrumb substring 'CHK-006'. A future edit that preserves the underlying claim -- e.g. rewording to 'signature does not justify the exemption', or (very plausible in this codebase, which converted the init-check signature domain from hand-written prose into INIT_CHECK_SIGNATURE_DOMAIN as declared data in this very story) converting this exemption reasoning from a prose sentence into structured data -- would pass the script, read as a legitimate/invited maintenance change per the module's own comment, and silently break both grep selectors with no warning at the point of edit. This is the same durability failure class already filed as B-8df9:F-009 (a selector must be pinned to something no later legitimate work will alter, not a value/string an editor is invited to change) applied to a different pair of rows in the same item that F-009 does not cover. Recommend re-pinning both rows to a stable structural marker (e.g. extend chk006-exemption-claims.mjs to also assert a dedicated marker for 'the exemption reason states the signature limit' / 'the exemption is flagged by story id', or add a named constant in command-policy.ts that the grep can target instead of free prose) rather than grepping command-policy.ts's reason prose directly.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-19T15:47:24.271Z",
+      "reviewRound": "2026-08-03T04:27:32.508Z",
+      "reviewRunId": "B-8df9:RR-012",
+      "_hash": "a7ece679f39d75e753fb11c7eef6c21a24e367b8535a7092164b2c235fb4caa8",
+      "files": [
+        ".lattice/story/actives/B-8df9/checklist.json",
+        "packages/main/src/core/command-policy.ts"
+      ],
+      "signatureTag": "adversarial|json|concept-fragility-lattice",
+      "signatureTagSource": "auto"
     }
   ]
 }
