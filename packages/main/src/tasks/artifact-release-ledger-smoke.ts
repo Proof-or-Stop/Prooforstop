@@ -20,6 +20,10 @@ import { StoryStore } from '../core/store.js';
 import { readSyncedVersion } from '../core/version-bump.js';
 import { createArtifactReleaseHandlers } from '../handlers/artifact-release.js';
 import { createDoneRecoverHandlers } from '../handlers/done-recover.js';
+// B-cc10: the runtime writes locks under the CANONICAL state dir, so a fixture
+// gitignoring only the deprecated spelling left '?? .proof-or-stop/' untracked and
+// tripped its own done_recover clean-tree requirement.
+import { STATE_DIR_NAMES, PROOF_OR_STOP_STATE_DIR } from '../core/brand-paths.js';
 import {
   commitArtifactReleaseLedgerIfNeeded,
   isDoneMainRuntimeBuildInput,
@@ -53,7 +57,7 @@ function makeGitFixture(): string {
   write(root, 'docs/release.md', '# Release\n');
   write(root, 'experiments/proof/run.mjs', 'export const ok = true;\n');
   write(root, 'packages/main/src/runtime.ts', 'export const runtime = true;\n');
-  write(root, '.lattice/story/actives/B-demo/index.json', '{"phase":"DONE"}\n');
+  write(root, `${PROOF_OR_STOP_STATE_DIR}/story/actives/B-demo/index.json`, '{"phase":"DONE"}\n');
   git(root, ['add', '.']);
   git(root, ['commit', '-m', 'fixture']);
   return root;
@@ -82,7 +86,7 @@ function makePartialDoneRecoveryFixture(): { root: string; storyId: string } {
   git(root, ['init', '-b', 'main']);
   git(root, ['config', 'user.email', 'smoke@example.test']);
   git(root, ['config', 'user.name', 'Artifact Release Recovery Smoke']);
-  write(root, '.gitignore', '.lattice/locks/\n');
+  write(root, '.gitignore', STATE_DIR_NAMES.map((dir) => `${dir}/locks/\n`).join(''));
   write(root, 'README.md', '# fixture\n');
   git(root, ['add', '.']);
   git(root, ['commit', '-m', 'initial']);
@@ -90,7 +94,7 @@ function makePartialDoneRecoveryFixture(): { root: string; storyId: string } {
   git(root, ['checkout', '-b', `story/${storyId}`]);
   write(root, 'docs/recovered.md', '# Recovered doc\n');
   write(root, 'experiments/recovery/result.txt', 'observed\n');
-  write(root, `.lattice/story/actives/${storyId}/index.json`, JSON.stringify({
+  write(root, `${PROOF_OR_STOP_STATE_DIR}/story/actives/${storyId}/index.json`, JSON.stringify({
     storyId,
     name: 'recover-artifact-release',
     title: 'Recover artifact release',
@@ -120,16 +124,16 @@ function writeVersionSyncFiles(root: string, version: string): void {
     },
   }, null, 2) + '\n');
   write(root, 'packages/main/package.json', JSON.stringify({
-    name: '@lattice/core',
+    name: '@proof-or-stop/core',
     version,
     type: 'module',
   }, null, 2) + '\n');
   write(root, 'packages/main/package-lock.json', JSON.stringify({
-    name: '@lattice/core',
+    name: '@proof-or-stop/core',
     version,
     lockfileVersion: 3,
     packages: {
-      '': { name: '@lattice/core', version },
+      '': { name: '@proof-or-stop/core', version },
     },
   }, null, 2) + '\n');
   write(root, 'packages/main/src/core/lattice-brand.ts', [
@@ -150,7 +154,7 @@ function makeRuntimePartialDoneRecoveryFixture(): { root: string; storyId: strin
   git(root, ['init', '-b', 'main']);
   git(root, ['config', 'user.email', 'smoke@example.test']);
   git(root, ['config', 'user.name', 'Runtime Recovery Smoke']);
-  write(root, '.gitignore', '.lattice/locks/\n');
+  write(root, '.gitignore', STATE_DIR_NAMES.map((dir) => `${dir}/locks/\n`).join(''));
   write(root, 'README.md', '# fixture\n');
   writeVersionSyncFiles(root, '0.9.9');
   write(root, 'packages/main/src/runtime.ts', 'export const runtime = false;\n');
@@ -159,7 +163,7 @@ function makeRuntimePartialDoneRecoveryFixture(): { root: string; storyId: strin
 
   git(root, ['checkout', '-b', `story/${storyId}`]);
   write(root, 'packages/main/src/runtime.ts', 'export const runtime = true;\n');
-  write(root, `.lattice/story/actives/${storyId}/index.json`, JSON.stringify({
+  write(root, `${PROOF_OR_STOP_STATE_DIR}/story/actives/${storyId}/index.json`, JSON.stringify({
     storyId,
     name: 'recover-runtime-version-bump',
     title: 'Recover runtime version bump',
@@ -201,7 +205,7 @@ try {
   const changedPaths = [
     'docs/release.md',
     'experiments/proof/run.mjs',
-    '.lattice/story/actives/B-demo/index.json',
+    `${PROOF_OR_STOP_STATE_DIR}/story/actives/B-demo/index.json`,
     'packages/main/src/runtime.ts',
     'package.json',
     'docs/story/legacy.json',
@@ -210,7 +214,7 @@ try {
   check('V1 path classifier includes docs and experiments only after runtime/lifecycle exclusions', () => {
     assert.equal(isArtifactReleasePathV1('docs/release.md', { isRuntimeBuildInput: isDoneMainRuntimeBuildInput }), true);
     assert.equal(isArtifactReleasePathV1('experiments/proof/run.mjs', { isRuntimeBuildInput: isDoneMainRuntimeBuildInput }), true);
-    assert.equal(isArtifactReleasePathV1('.lattice/story/actives/B-demo/index.json', { isRuntimeBuildInput: isDoneMainRuntimeBuildInput }), false);
+    assert.equal(isArtifactReleasePathV1(`${PROOF_OR_STOP_STATE_DIR}/story/actives/B-demo/index.json`, { isRuntimeBuildInput: isDoneMainRuntimeBuildInput }), false);
     assert.equal(isArtifactReleasePathV1('packages/main/src/runtime.ts', { isRuntimeBuildInput: isDoneMainRuntimeBuildInput }), false);
     assert.equal(isArtifactReleasePathV1('package.json', { isRuntimeBuildInput: isDoneMainRuntimeBuildInput }), false);
     assert.deepEqual(
@@ -428,7 +432,7 @@ try {
       root: emptyRoot,
       storyId: 'B-empty',
       mainCommit: 'abc123',
-      changedPaths: ['.lattice/story/actives/B-empty/index.json', 'packages/main/src/x.ts'],
+      changedPaths: [`${PROOF_OR_STOP_STATE_DIR}/story/actives/B-empty/index.json`, 'packages/main/src/x.ts'],
       runtimeSemverChanged: true,
       isRuntimeBuildInput: isDoneMainRuntimeBuildInput,
     });

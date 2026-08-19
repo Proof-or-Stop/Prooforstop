@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-45a5",
+  "id": "IC-20260818222225",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "An item is withdrawn FOR GATE PURPOSES iff its id is a member of withdrawnChecklistItemIdsFrom(scopeShrinkageDecision). Set membership by item id is the SOLE key; item.status may appear only as an additional conjunct that makes the gate stricter, never as the sufficient condition, and the helper's return must not be reduced to a .size>0 guard. Such an item is EXCLUDED FROM THE REQUIRED SET, never marked satisfied: in evaluateReviewCompleteness its intent refs are subtracted before the coverage loop so no gap is emitted and no synthetic evidence is written; in checkDispatchEvidence it goes into a NEW THIRD BUCKET rendered with the authorizing decisionId, never into evidencedItems (which prints under 'Covered:' and would record work never done as covered) and never into exemptedItems (which prints 'plan.md Owner=main-agent exempted:', a false attribution). The withdrawn item's ref set means BOTH the positional itemId:lane:index form AND any authored intent.id alias; a startsWith(itemId+':') prefix match is not acceptable. Every non-withdrawn item keeps its current strictness unchanged. Scope is exactly these two functions. The pre-existing bare-status skip at core/verification.ts:212 on a DONE-blocking path is knowingly OUT of scope and is what the deferred consumer-derivation follow-up tracks.",
+  "acceptedInterpretationHash": "sha256:23a796976a52a0d359bca57a9f8f6218927ee92a01d97da9dbe8b924a33757b7",
+  "notes": "Independent analysis; verdict pass with five pre-execution tightenings applied to checklist contexts. Genuine ambiguities found and closed: (1) skip-vs-treat-as-covered, where pushing a withdrawn item into evidencedItems would print it under 'Covered:'; (2) a letter-satisfying bypass 'if (withdrawnIds.size>0 && item.status===...)' that calls the helper then keys on the string, which CHK-004 only catches if its fixture decision withdraws a DIFFERENT real item; (3) B-8df9 carries FOUR waiver rows, not three - the fourth, CHK-002:happy:0, is a legitimate selector-pin waiver that must SURVIVE, and my original 'zero waivers present' wording was self-defeating because deleting it would newly fail the completeness gate it was meant to prove passes.",
+  "createdAt": "2026-08-18T22:22:25.765Z",
+  "updatedAt": "2026-08-18T22:22:25.765Z"
+}

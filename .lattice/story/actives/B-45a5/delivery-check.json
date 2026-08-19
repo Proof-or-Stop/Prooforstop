@@ -1,0 +1,35 @@
+{
+  "storyId": "B-45a5",
+  "checkedAt": "2026-08-19T14:34:58.446Z",
+  "headHash": "9b5f16061f8cc6a5b03bd4c9389b440f92a0e364",
+  "materialHash": "ad4f98d1b71faf6fe4be0f35f11a8d17d37cf8a857bf715e8793dede77a9169c",
+  "storyFilesHash": "1e28778f478e331f1e3e1844844b2e61d62077a0a45218ad5bb2a091b96b9722",
+  "reviewRound": "2026-08-19T14:10:16.723Z",
+  "agentId": "",
+  "docsPromises": [],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Registered standing guard (packages/main/tests/red/red-b45a5-withdrawal-gates.mjs) independently re-run twice by me: once standalone after `npm --prefix packages/main run build` (exit 0, all rows A1/A2/C1-C9=CONTROL-OK, B1/B2/B3=GREEN, D1-D5/D23/D45/E1=REFUSED, B45A5-VERDICT=GREEN), and confirmed present (as the labelled entry, not the numeric commands[N] form) and passing inside the current test-evidence.json (headHash 092eb1d8cb, no code diff since to HEAD). CHK-001:happy:0's own pin (B45A5-ROW-B3=RED) is permanently waived because it is self-invalidating (the fix inverts it by design); I independently read the waiver note, red-evidence.json (baseline HEAD e66bb0b2999c9c4200570a884516d370490f4339, matches prompt claim), and the frozen probe .lattice/story/actives/B-45a5/evidence/red-probe-channel-gate.mjs (which deliberately never passes scopeShrinkageDecision to checkDispatchEvidence, so it is a frozen baseline artifact, not a live regression indicator) and confirm the waiver is honest, not a laundered coverage loss."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Ran `proof-or-stop proofstory_review_completeness_check --storyId=B-45a5` myself against the real, current story record: Status: pass, Blocking: no, Gaps: 0 -- confirms evaluateReviewCompleteness no longer demands evidence for CHK-005's intents. Also independently constructed and executed 4 of my own adversarial calls directly against the compiled withdrawnChecklistItemIdsFrom (shared by both gates): whitespace-padded id, withdrawnChecklistItemRefs as a bare string instead of an array, decision-record-as-array type confusion, and proto-pollution-style extra keys mixed into the refs array -- all four failed closed (target item stayed refused/demanded in every case)."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Ran `proof-or-stop validate --channel --story=B-45a5` myself against the real, current story: output explicitly shows `withdrawn (SD-ccafb44c): CHK-005` on its own line, disjoint from `Covered: CHK-001, CHK-002, CHK-003, CHK-004` -- CHK-005 is excluded via the new third bucket, never laundered into Covered or into the owner-exempt bucket, exactly as CHK-003 promised. Live real-story proof, not a fixture."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Re-ran the registered guard's D1-D5 (unbacked-withdrawal forgeries: no decisionRef, dangling decisionRef, real-decision-that-does-not-list-it, decision overwritten to rejected via raw file write, same un-authorization via a second CLI scope_shrinkage_decision_set) and E1 (alias-collision on a surviving item) -- all REFUSED by both gates on the current tree. Supplemented with my own 4 hand-built attacks (see CHK-002) against the shared resolver, all fail-closed. No bypass found in either the story's own artifact or my independent adversarial probing."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Fresh-context, post-second-merge re-verification independently confirms all five of the main agent's flagged claims and the merge-resolution risk. The lattice.config.json union resolution is byte-exact: main's 110 entries in original order plus exactly 1 new non-optional B-45a5 guard entry (verified positionally, not just by count) -- the dangerous silent-optional-flag failure mode did not occur. CHK-005's withdrawal is mechanically clean on the live story (validate --channel and proofstory_review_completeness_check both rerun by me directly, CHK-005 lands in a distinct withdrawn(...) bucket, zero waivers), and B-8df9's branch independently confirmed to not contain this fix, corroborating the stated circular-dependency rationale. CHK-001:happy:0's permanent waiver is honest: the pin is provably self-invalidating by design, and the property is covered by red-evidence.json plus the now-registered mandatory guard, which I reran and confirmed GREEN both standalone and inside the current recorded validate evidence. I constructed 4 of my own forgery attempts against the shared withdrawal resolver (type confusion, whitespace, non-array, extra/pollution-style keys) beyond the story's own D1-D5/E1 rows; none bypassed either gate. core/checklist-status.ts is confirmed untouched (absent from git diff main...HEAD), and core/verification.ts:212's pre-existing bare-status skip is disclosed accurately as knowingly out of scope in plan.md/intent-collision.json/summary.json at the correct line number -- this is a real, narrower residual gap (a hand-edited status='withdrawn' with no decisionRef would still be skipped by buildVerificationCoverage, a third, unfixed consumer) but it is honestly flagged as pre-existing and not something this story's docsPromises or realMachineTests claim to cover. Zero docsPromises is correct: the only .md file in git diff main...HEAD is the story's own plan.md, not a project/package doc. No TODO/FIXME/HACK introduced in the product-code diff. No upstream tracking ref for story/B-45a5 exists, confirming nothing was pushed to any remote. All 6 findings (F-001..F-006) are resolved with zero open findings, and quorum was re-minted post-merge (RP-012/013/014, reviewRound 2026-08-19T14:10:16.723Z). validate is green: the current test-evidence.json (headHash 092eb1d8cb, zero code diff to current HEAD) shows allPass=true with all 110 pre-existing commands plus the new guard passing; I independently reran the guard artifact myself rather than relying solely on that record. Recommend PASS."
+  },
+  "_hash": "1a6e7920cd4d2e172c46c34fdd786db5b6f0efc57acf0855833ddbb20ef4f36b"
+}

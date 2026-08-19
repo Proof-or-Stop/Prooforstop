@@ -98,7 +98,9 @@ const DIST = join(pkgRoot, 'dist');
 const HARNESS_REL = 'packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs';
 const HARNESS_ABS = join(repoRoot, HARNESS_REL);
 const BASELINE_RECEIPT = join(here, 'red-b2aa7-baseline-receipt.mjs');
-const CONFIG_PATH = join(repoRoot, 'lattice.config.json');
+// B-cc10: resolve whichever config filename exists. The canonical name is now
+// proof-or-stop.config.json, so a hardcoded deprecated name threw ENOENT here.
+const CONFIG_PATH = join(repoRoot, ['proof-or-stop.config.json', 'lattice.config.json'].find((n) => existsSync(join(repoRoot, n))) ?? 'proof-or-stop.config.json');
 
 const failures = [];
 const fail = (check, why) => failures.push(`${check}: ${why}`);

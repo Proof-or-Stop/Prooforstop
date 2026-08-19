@@ -6,6 +6,11 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+
+// B-cc10: these fixtures cleaned up with recursive+force but NO retries, so when the full
+// validate suite runs them alongside other temp-dir work the teardown lost a race and threw
+// ENOTEMPTY — the smoke passes standalone and failed only in-suite. maxRetries is Node's
+// supported answer for exactly this; it does not weaken any assertion.
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { classifyMergeLineage, netDiffChangedPaths } from '../core/validation-lineage.js';

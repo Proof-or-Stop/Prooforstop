@@ -1,0 +1,33 @@
+{
+  "task": "Routine lattice validate runs its 102 configured commands in a strict sequential loop, so it now accounts for 84-89% of done_prepare wall time.",
+  "outcome": "The routine validate plan runs through the same keyed parallel scheduler npm test already uses; the measured 858s serial run drops toward the 271s critical-path floor while every per-command result stays identical.",
+  "facts": [
+    "executeValidationPlan (packages/main/src/core/validation-executor.ts:623) awaits each command inside a for-loop; there is no concurrency knob anywhere on the routine validate path.",
+    "runScheduled (packages/main/src/tasks/full-suite-runner.ts:454) already implements keyed admission control over 5 resource classes (git-common-dir, fixed-path, fixed-port, runtime-lock, main-write-lock) with a default of 4 workers.",
+    "Measured serial total is 858s across 99-102 commands, independently in B-3434 test-evidence 2026-08-16T22:58 and B-d0b8 test-evidence 2026-08-17T00:09.",
+    "quorum-submit-smoke.js measures 267-271s, 31% of the serial total, with exitCode 0 and timeoutMs 830548, so it is real work rather than a timeout.",
+    "A Longest Processing Time list-scheduling simulation over those real durations predicts 271s at jobs>=4, i.e. 3.17x, with no further gain above 4 workers.",
+    "npm test received this exact treatment on 2026-08-12 in commit c3b8da2c76 and fell from 1368-1533s to a stable 215-296s from 2026-08-13 onward.",
+    "78 of 99 commands finish under 5s and sum to only 105s, so the plan is a light tail plus a few heavy commands.",
+    "done-required-timeout-budget.ts was evaluated during DEV and needs no change: sequentialValidationBudget sums every command timeout, which remains a valid upper bound once the plan runs concurrently, so the done_prepare phase budget stays conservative rather than being tightened as a side effect."
+  ],
+  "constraints": [
+    "runScheduled is fail-fast: the first FAIL or TIMEOUT sets terminalFailureName, kills every active child and marks the remainder INTERRUPTED. executeValidationPlan must instead run every command and report each result, because gates read the complete commands[] array.",
+    "activeChildren, interruptSignal and schedulerCancellationReason are module-level mutable state in full-suite-runner; two concurrent callers would corrupt each other.",
+    "commands[] must stay in plan order. runScheduled already restores input order at the end, but details[] is pushed inline inside the loop and would interleave under concurrency.",
+    "An undeclared resource claim must fail closed to exclusive scheduling; defaulting to shared would corrupt .lattice evidence the first time two commands collided.",
+    "durationMs, commandExecution counts, routineValidationIdentity/identityDigest, progress and heartbeat reporting, and abortSignal/deadlineAt propagation are all gate-visible and must keep their shape.",
+    "Splitting quorum-submit-smoke.js is out of scope, so 271s is the floor this story can reach and must not be presented as anything better."
+  ],
+  "unknowns": [
+    "How many of the 102 commands genuinely conflict on a resource. The achievable speedup is bounded by that count and is not known until the claims are declared.",
+    "Whether any validate command silently depends on running after an earlier one, an ordering coupling the sequential loop has been hiding."
+  ],
+  "touchpoints": [
+    "packages/main/src/tasks/full-suite-runner.ts",
+    "packages/main/src/core/validation-executor.ts",
+    "packages/main/src/core/validation-types.ts",
+    "lattice.config.json"
+  ],
+  "timestamp": "2026-08-17T13:43:10.702Z"
+}

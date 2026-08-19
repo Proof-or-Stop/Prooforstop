@@ -1,0 +1,172 @@
+{
+  "storyId": "B-45a5",
+  "name": "withdrawal-aware-review-gates",
+  "title": "Wire the existing item-level withdrawal helper into the two REVIEW-path gates",
+  "description": "withdrawnChecklistItemIdsFrom exists at core/proofstory.ts:1622 and is called only by a smoke test, so evaluateReviewCompleteness (core/proofstory.ts:2084) reads withdrawal at binding and milestone granularity but never at item granularity, and validate-channel.ts has no withdrawal awareness at all. A user-approved withdrawal therefore has no mechanical completion path and the operator must write waivers - prose where proof belongs. Wire both gates through the decision-backed helper, prove an unbacked decisionRef skips nothing, and delete the three B-8df9 waivers this unblocks.",
+  "type": "bug",
+  "phase": "DONE",
+  "priority": "high",
+  "keywords": [
+    "withdrawn",
+    "gate",
+    "review-completeness",
+    "channel",
+    "granularity"
+  ],
+  "riskSignals": [
+    {
+      "category": "State Machine/Gate",
+      "matched": "story_advance"
+    }
+  ],
+  "createdAt": "2026-08-16T22:45:19.985Z",
+  "startedAt": "2026-08-16T22:45:19.985Z",
+  "endedAt": "2026-08-19T15:08:58.142Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-08-16T22:45:20.586Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-06dd4489fd479d1db793de165bd2b865",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-08-16T22:58:23.561Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-06dd4489fd479d1db793de165bd2b865",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-08-16T22:59:01.863Z",
+      "branch": "story/B-45a5",
+      "user": "Harmonygo",
+      "sessionId": "sess-b45a5-main",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-18T22:24:20.552Z",
+      "branch": "story/B-45a5",
+      "user": "Harmonygo",
+      "sessionId": "sess-b45a5-main",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-19T01:51:47.991Z",
+      "branch": "story/B-45a5",
+      "user": "Harmonygo",
+      "sessionId": "sess-b45a5-main",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-08-19T02:58:52.042Z",
+      "branch": "story/B-45a5",
+      "user": "Harmonygo",
+      "sessionId": "sess-b45a5-main",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-19T03:51:01.786Z",
+      "branch": "story/B-45a5",
+      "user": "Harmonygo",
+      "sessionId": "sess-b45a5-main",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-19T03:51:10.195Z",
+      "branch": "story/B-45a5",
+      "user": "Harmonygo",
+      "sessionId": "sess-b45a5-main",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-08-19T04:04:19.784Z",
+      "branch": "story/B-45a5",
+      "user": "Harmonygo",
+      "sessionId": "sess-b45a5-main",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-19T12:58:59.553Z",
+      "branch": "story/B-45a5",
+      "user": "Harmonygo",
+      "sessionId": "sess-b45a5-main",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-19T12:59:26.603Z",
+      "branch": "story/B-45a5",
+      "user": "Harmonygo",
+      "sessionId": "sess-b45a5-main",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-08-19T13:36:37.365Z",
+      "branch": "story/B-45a5",
+      "user": "Harmonygo",
+      "sessionId": "sess-b45a5-main",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-19T14:10:11.402Z",
+      "branch": "story/B-45a5",
+      "user": "Harmonygo",
+      "sessionId": "sess-b45a5-main",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-19T14:10:16.723Z",
+      "branch": "story/B-45a5",
+      "user": "Harmonygo",
+      "sessionId": "sess-b45a5-main",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-08-19T14:27:15.949Z",
+      "branch": "story/B-45a5",
+      "user": "Harmonygo",
+      "sessionId": "sess-b45a5-main",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-08-19T15:08:58.142Z",
+      "branch": "story/B-45a5",
+      "user": "Harmonygo",
+      "sessionId": "sess-b45a5-main",
+      "agent": "main"
+    }
+  ],
+  "currentReviewRound": "2026-08-19T14:10:16.723Z"
+}

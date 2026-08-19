@@ -47,7 +47,7 @@ assert(
   'session_brief missing role-aware next step',
 );
 
-const mainBrief = run(worktreeRoot, [join(worktreeRoot, 'bin/lattice-codex.js'), 'session_brief']);
+const mainBrief = run(worktreeRoot, [join(worktreeRoot, 'bin/proof-or-stop-codex.js'), 'session_brief']);
 assert(
   mainBrief.includes('## Active stories') || mainBrief.includes('**Dashboard**') || mainBrief.includes('**Story**:'),
   'session_brief missing dashboard, active stories, or active story section',

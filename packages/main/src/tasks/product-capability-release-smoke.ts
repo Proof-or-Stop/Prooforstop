@@ -32,6 +32,10 @@ import { StoryStore } from '../core/store.js';
 import { createDoneRecoverHandlers } from '../handlers/done-recover.js';
 import { createCapabilityReleaseHandlers } from '../handlers/capability-release.js';
 import { isDoneMainRuntimeBuildInput } from '../handlers/done-effects.js';
+// B-cc10: the runtime writes locks under the CANONICAL state dir, so a fixture
+// gitignoring only the deprecated spelling left '?? .proof-or-stop/' untracked and
+// tripped its own done_recover clean-tree requirement.
+import { STATE_DIR_NAMES, PROOF_OR_STOP_STATE_DIR } from '../core/brand-paths.js';
 
 function mkdtemp(prefix: string): string {
   return execFileSync('mktemp', ['-d', join(tmpdir(), `${prefix}XXXXXX`)], {
@@ -72,7 +76,7 @@ function makePartialDoneRecoveryFixture(capabilityFiles: Record<string, string>)
   git(root, ['init', '-b', 'main']);
   git(root, ['config', 'user.email', 'smoke@example.test']);
   git(root, ['config', 'user.name', 'Capability Release Recovery Smoke']);
-  write(root, '.gitignore', '.lattice/locks/\n');
+  write(root, '.gitignore', STATE_DIR_NAMES.map((dir) => `${dir}/locks/\n`).join(''));
   write(root, 'README.md', '# fixture\n');
   git(root, ['add', '.']);
   git(root, ['commit', '-m', 'initial']);
@@ -81,7 +85,7 @@ function makePartialDoneRecoveryFixture(capabilityFiles: Record<string, string>)
   for (const [path, content] of Object.entries(capabilityFiles)) {
     write(root, path, content);
   }
-  write(root, `.lattice/story/actives/${storyId}/index.json`, JSON.stringify({
+  write(root, `${PROOF_OR_STOP_STATE_DIR}/story/actives/${storyId}/index.json`, JSON.stringify({
     storyId,
     name: 'recover-capability-release',
     title: 'Recover capability release',
@@ -271,7 +275,7 @@ check('M2 classifier: experiment+doc changed paths => experiment-launch-control,
     'experiments/multi-model-ablation/m2-provider-execution-check.mjs',
     'experiments/multi-model-ablation/launch-artifact.json',
     'docs/requirements/decisions/multi-model-ablation-execution-plan.md',
-    '.lattice/story/actives/B-recover/index.json',
+    `${PROOF_OR_STOP_STATE_DIR}/story/actives/B-recover/index.json`,
     'packages/main/src/runtime.ts',
     'package.json',
     'docs/story/legacy.json',
@@ -312,7 +316,7 @@ check('M2 classifier (edge): packages/main/src runtime-only => NO capability rel
 
 check('M2 classifier (edge): .lattice / docs/story / root-manifest-only => NO capability release', () => {
   const classified = classifyCapabilityRelease(
-    ['.lattice/story/actives/B-x/index.json', 'docs/story/legacy.json', 'package.json', 'package-lock.json'],
+    [`${PROOF_OR_STOP_STATE_DIR}/story/actives/B-x/index.json`, 'docs/story/legacy.json', 'package.json', 'package-lock.json'],
     { isRuntimeBuildInput: isDoneMainRuntimeBuildInput },
   );
   assert.equal(classified, null);
@@ -327,7 +331,7 @@ check('recordCapabilityReleaseForDoneMerge skips empty (no capability-declaring 
     root,
     storyId: 'B-empty',
     mainCommit: 'a'.repeat(40),
-    changedPaths: ['.lattice/story/actives/B-empty/index.json', 'packages/main/src/x.ts'],
+    changedPaths: [`${PROOF_OR_STOP_STATE_DIR}/story/actives/B-empty/index.json`, 'packages/main/src/x.ts'],
     runtimeSemverChanged: true,
     isRuntimeBuildInput: isDoneMainRuntimeBuildInput,
   });

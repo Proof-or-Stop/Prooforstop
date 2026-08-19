@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-d15e",
+  "records": [
+    {
+      "id": "RED-20260818172445",
+      "trigger": "Current artifact writer contains a numeric performanceBudgetMs shadow copy that contradicts runtime enforcement.",
+      "acceptanceTargetRef": "CHK-001:happy:0",
+      "baselineHeadHash": "586b39e3197d56f1af1104ed85216012d7c1c3f1",
+      "baselineMaterialHash": "c275cd55ed3f20f47121b13193c560105c3c6baedb072366e4639edaa4307aeb",
+      "observedFailure": "At the pre-fix baseline, packages/main/src/tasks/full-suite-runner.ts contains `performanceBudgetMs: 300_000` while FULL_SUITE_BUDGET_MS is 1_200_000.",
+      "failingCommand": "if rg -q \"performanceBudgetMs: 300_000\" packages/main/src/tasks/full-suite-runner.ts; then false; else true; fi",
+      "expectedGreenCommand": "npm --prefix packages/main run test:full-suite-runner-smoke",
+      "greenRelation": {
+        "targetRef": "CHK-001:happy:0",
+        "relation": "regression_to_green",
+        "command": "npm --prefix packages/main run test:full-suite-runner-smoke"
+      },
+      "note": "Baseline source inspection mechanically located the contradictory numeric initializer; the green smoke will require the canonical constant and reject restoration.",
+      "createdAt": "2026-08-18T17:24:45.609Z"
+    }
+  ],
+  "createdAt": "2026-08-18T17:24:45.609Z",
+  "updatedAt": "2026-08-18T17:24:45.609Z"
+}

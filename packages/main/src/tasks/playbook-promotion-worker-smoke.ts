@@ -40,6 +40,7 @@ import {
   validatePlaybookOutcomeEvent,
   validatePlaybookPromotionDecisionRow,
   writePlaybooks,
+  LEARNING_DIR,
 } from '../core/learning-store.js';
 import { PROCESS_FACT_LEVELS } from '../core/process-fact-levels.js';
 import { RUNTIME_ARTIFACT_REGISTRY } from '../core/runtime-artifact-registry.js';
@@ -363,7 +364,7 @@ try {
     const unmarkedOut = h.playbook_propose({ finding: unmarked.id });
     assert.match(unmarkedOut, /proposal/);
     assert.match(unmarkedOut, /sourceKey: PBSRC-/);
-    const proposalCountBefore = readdirSync(join(root, '.lattice', 'learning', 'proposals')).length;
+    const proposalCountBefore = readdirSync(join(root, LEARNING_DIR, 'proposals')).length;
     const lineage = { sourceStoryId: storyId, sourceFindingId: f.id, sourceSignature: f.signatureTag };
     const source = aggregatePlaybookPromotion(approve(root, h, f), [], []).source;
     markNonDeducibleSource(root, {
@@ -378,7 +379,7 @@ try {
     assert.equal(source.sourceSignature, lineage.sourceSignature);
 
     assert.throws(() => h.playbook_propose({ finding: f.id }), /source is marked non_deducible/);
-    assert.equal(readdirSync(join(root, '.lattice', 'learning', 'proposals')).length, proposalCountBefore);
+    assert.equal(readdirSync(join(root, LEARNING_DIR, 'proposals')).length, proposalCountBefore);
     assert.throws(
       () => h.playbook_propose({ finding: f.id, overrideNonDeducible: true, nonDeducibleOverrideReason: 'short' }),
       /override requires a useful reason/,
@@ -417,7 +418,7 @@ try {
       const disabledRoot = mkProject(); roots.push(disabledRoot);
       const disabled = withEnv({ PLAYBOOK_DONE_SETTLEMENT_ENABLED: raw }, () => runPostDoneLearningSettlement(disabledRoot, `${storyId}-${raw}`));
       assert.equal(disabled.settlementStatus, 'disabled', `${raw} explicitly opts out of DONE settlement`);
-      assert.equal(existsSync(join(disabledRoot, '.lattice', 'learning', 'playbook-promotion-health.jsonl')), false);
+      assert.equal(existsSync(join(disabledRoot, LEARNING_DIR, 'playbook-promotion-health.jsonl')), false);
     }
   });
 
@@ -486,11 +487,11 @@ try {
     };
     assert.equal(validatePlaybookOutcomeEvent(Object.create(validOutcome)).ok, false);
 
-    assert.ok(resolvePlaybooksPath(root).includes(join('.lattice', 'learning')));
+    assert.ok(resolvePlaybooksPath(root).includes(LEARNING_DIR));
     const learningEntry = RUNTIME_ARTIFACT_REGISTRY.find((entry) => entry.id === 'experience-layer-learning-cache');
     assert.ok(learningEntry);
     assert.equal(learningEntry!.materialHash, 'exclude');
-    assert.ok(learningEntry!.matchers.some((matcher) => matcher.kind === 'prefix' && matcher.value === '.lattice/learning/'));
+    assert.ok(learningEntry!.matchers.some((matcher) => matcher.kind === 'prefix' && matcher.value === `${LEARNING_DIR}/`));
     assert.ok(MAIN_TOOLS.some((tool) => tool.name === 'playbook_promotion_sweep'));
     assert.ok(MAIN_TOOLS.some((tool) => tool.name === 'playbook_promotion_status'));
     assert.equal(COMMAND_POLICIES.playbook_promotion_status.ownershipClass, 'readOnly');

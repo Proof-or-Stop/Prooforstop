@@ -1,0 +1,129 @@
+{
+  "storyId": "B-cc10",
+  "name": "proof-or-stop-path-and-package-identity-migration",
+  "title": "Migrate the remaining lattice identities: bin aliases, state dirs, config filenames, and npm package name",
+  "description": "B-cdf6 renamed the user-facing CLI to proof-or-stop but deliberately FROZE six identities because renaming them orphans live state or breaks resolution by exact name. This story retires all six. (1) Remove bin/lattice.js and bin/lattice-codex.js, ending the deprecated-bin compatibility window. (2) .lattice -> .proof-or-stop state directory (7571 git-tracked files). (3) .lattice-codex -> .proof-or-stop-codex adapter directory. (4) lattice.config.json -> proof-or-stop.config.json. (5) lattice.json -> proof-or-stop.json manifest. (6) @lattice/core -> @proof-or-stop/core npm package name across 4 package.json manifests plus lockfiles. Verified precondition: the signature salts (lattice-*-integrity-v1) are standalone string constants independent of any path or filename, so renaming paths does NOT invalidate historical signatures; the salts stay frozen as separate literals. The hard problem is not find-and-replace, it is migrating live on-disk state and preserving 326 story archives without rewriting frozen history.",
+  "type": "chore",
+  "phase": "DONE",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "Data Migration/Destructive",
+      "matched": "migration"
+    }
+  ],
+  "createdAt": "2026-08-17T09:41:06.596Z",
+  "startedAt": "2026-08-17T09:41:06.596Z",
+  "endedAt": "2026-08-19T13:14:30.897Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-08-17T09:41:07.277Z",
+      "branch": "main",
+      "user": "Pan Qi",
+      "sessionId": "sess-c6bba4b3dfe060d4",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-08-17T10:01:54.117Z",
+      "branch": "main",
+      "user": "Pan Qi",
+      "sessionId": "sess-c6bba4b3dfe060d4",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-08-17T10:04:58.599Z",
+      "branch": "story/B-cc10",
+      "user": "Pan Qi",
+      "sessionId": "sess-c6bba4b3dfe060d4",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-17T10:48:19.390Z",
+      "branch": "story/B-cc10",
+      "user": "Pan Qi",
+      "sessionId": "sess-c6bba4b3dfe060d4",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-18T03:33:16.325Z",
+      "branch": "story/B-cc10",
+      "user": "Pan Qi",
+      "sessionId": "sess-eed55994d1ba42fe85d07fd953696373",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-19T08:50:08.480Z",
+      "branch": "story/B-cc10",
+      "user": "Pan Qi",
+      "sessionId": "sess-8afdfabda88da0d8",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-19T08:57:52.581Z",
+      "branch": "story/B-cc10",
+      "user": "Pan Qi",
+      "sessionId": "sess-8afdfabda88da0d8",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-08-19T10:39:24.579Z",
+      "branch": "story/B-cc10",
+      "user": "Pan Qi",
+      "sessionId": "sess-8afdfabda88da0d8",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-19T12:16:42.536Z",
+      "branch": "story/B-cc10",
+      "user": "Pan Qi",
+      "sessionId": "sess-8afdfabda88da0d8",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-19T12:17:08.465Z",
+      "branch": "story/B-cc10",
+      "user": "Pan Qi",
+      "sessionId": "sess-8afdfabda88da0d8",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-08-19T12:30:32.799Z",
+      "branch": "story/B-cc10",
+      "user": "Pan Qi",
+      "sessionId": "sess-8afdfabda88da0d8",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-08-19T13:14:30.897Z",
+      "branch": "story/B-cc10",
+      "user": "Pan Qi",
+      "sessionId": "sess-7de7f5d7530405b4a63b84da4e683b63",
+      "agent": "main"
+    }
+  ],
+  "currentReviewRound": "2026-08-19T12:17:08.465Z"
+}

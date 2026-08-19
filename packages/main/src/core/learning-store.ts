@@ -16,6 +16,12 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync, s
 import { dirname, join, resolve } from 'node:path';
 
 import { digestCanonicalJson } from './digest.js';
+// B-cc10 F-073 follow-up: import the state dir from the LEAF (./brand-paths.js), not from
+// ./lattice-paths.js. This module is held to a deliberate isolation bar — it may import only
+// leaf siblings, asserted by experience-layer-finding-signals-smoke.ts — and lattice-paths.ts
+// is NOT a leaf (it imports ./brand-paths.js itself). PROOF_OR_STOP_DIR is just an alias of
+// PROOF_OR_STOP_STATE_DIR, so this is the same value with the bar preserved.
+import { PROOF_OR_STOP_STATE_DIR } from './brand-paths.js';
 import type {
   FindingSignalsCache,
   NonDeducibleOverrideEvent,
@@ -40,7 +46,7 @@ import type {
 } from './experience-layer-types.js';
 
 /** Relative learning directory from the project root. */
-export const LEARNING_DIR = join('.lattice', 'learning');
+export const LEARNING_DIR = join(PROOF_OR_STOP_STATE_DIR, 'learning');
 /** Derived finding-signals cache filename. */
 export const FINDING_SIGNALS_FILENAME = 'finding-signals.json';
 /** Append-only learning log filename (reserved; written by future phases). */

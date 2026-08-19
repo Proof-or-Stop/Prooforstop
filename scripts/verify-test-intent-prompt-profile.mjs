@@ -6,7 +6,7 @@ import { tmpdir } from 'os';
 import { join } from 'path';
 
 const root = process.cwd();
-const cli = join(root, 'bin', 'lattice.js');
+const cli = join(root, 'bin', 'proof-or-stop.js');
 const mode = process.argv[2] || 'all';
 
 function assert(condition, message) {

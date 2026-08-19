@@ -1,0 +1,941 @@
+{
+  "passes": [
+    {
+      "id": "B-7dff:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "No wholesale concept deletion/rename beyond an internal extraction: full-suite-runner.ts globals (activeChildren/interruptSignal/interruptError/schedulerCancellationReason, RESOURCE_CLASSES, MAX_JOBS, RunScheduledOptions, canonicalFilesystemPath/pathIsContained/canonicalizeEntries/validateResourceClaims/claimsConflict/parsePositiveInteger/runScheduled) moved into new core/keyed-scheduler.ts and re-exported for compatibility. Repo-wide grep for RunScheduledOptions/schedulerCancellationReason/activeChildren/interruptSignal/interruptError/RESOURCE_CLASSES/MAX_JOBS found zero stale references. All runScheduled(...) call sites now pass the required options/cancellation-policy arg. The B-16df byte-for-byte diff-vs-main pin in validate-command-timeout-smoke.ts was rewritten (not left stale) to assert the real invariant now that this story legitimately edits validation-executor.ts/verifier.ts. Built and ran validate-resource-claims.test.mjs (34/34), validate-plan-scheduling.test.mjs (43/43), full-suite-runner-smoke.js (148/148), red-B-7dff-sequential-validate-plan.mjs (3/3), validate-parallel-equivalence-smoke.js (18/18) directly; all pass with no broken imports/dangling symbols. Promised CLI output lines (serial=/parallel=/speedup=, validate scheduler: jobs=N commands=N declared=N exclusiveByDefault=N) verified byte-matching against actual smoke output and recorded verificationEvidence. No blocker.",
+      "createdAt": "2026-08-17T15:17:34.617Z",
+      "reviewRound": "2026-08-17T15:11:33.078Z",
+      "reviewRunId": "B-7dff:RR-001",
+      "envelopeId": "0cd2af479409186d176b593122ace43af7f3a718165c6b1576e5d05271a07db8",
+      "writerSessionId": "sess-c8142ac4cb69f1c755df4c1fc223e028",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7dff/background.md",
+          ".lattice/story/actives/B-7dff/checklist.json",
+          ".lattice/story/actives/B-7dff/plan.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/core/keyed-scheduler.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+          "packages/main/src/tasks/validate-parallel-equivalence-smoke.ts",
+          "packages/main/tests/red/red-B-7dff-sequential-validate-plan.mjs",
+          "packages/main/tests/validate-resource-claims.test.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/tests/validate-plan-scheduling.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e0d897ff42701e04e00551d400ac5d679b40a54d8bd355d0c50627dab3d8e9d3"
+    },
+    {
+      "id": "B-7dff:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 re-review of the delta since RR-001 (headHash ece42783->04a7ebd0): F-003 concurrency fix (attributeWorktreePollution + ConcurrentWorktreePollution/concurrentWorktreePollution + concurrentPollutionBlocking threaded through validation-executor.ts -> validation-evidence-reuse.ts -> verifier.ts), the new validate-pollution-attribution.test.mjs regression (registered in lattice.config.json, ran green: 46 assertions), the F-005 refactor collapsing the fail-closed default into resolveValidationCommandResourceClaims (old resolveValidationCommandResources kept as an intentional thin claims-only wrapper, still actively used/exported, not dead), the new on-demand validate-parallel-benchmark.ts + npm run bench:validate-parallel (deliberately NOT registered in validate.commands, consistent with its own docstring), and the per-command/per-member timeout raises in lattice.config.json/full-suite-runner.ts. No concept word or mechanism was deleted or replaced en masse this round: every changed symbol checked is either newly additive or an intentionally-kept back-compat wrapper with zero stale references. The F-004 fix removed the old byte-for-byte-unmodified claim from validate-command-timeout-smoke.ts docstring; only remaining repo-wide hits are historical B-3144/B-70a6/B-16df story artifact records, not live code. npm --prefix packages/main run build is clean. No blocker for this reviewer lane.",
+      "createdAt": "2026-08-17T20:03:56.053Z",
+      "reviewRound": "2026-08-17T20:00:14.533Z",
+      "reviewRunId": "B-7dff:RR-006",
+      "envelopeId": "3b5bcb25652ce567bd402b6c4cbadb59dbd61ef0985996106a826d5d785a2bf3",
+      "writerSessionId": "sess-c8142ac4cb69f1c755df4c1fc223e028",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7dff/background.md",
+          ".lattice/story/actives/B-7dff/checklist.json",
+          ".lattice/story/actives/B-7dff/plan.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+          "packages/main/src/tasks/validate-parallel-benchmark.ts",
+          "packages/main/tests/validate-pollution-attribution.test.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/keyed-scheduler.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/validate-parallel-equivalence-smoke.ts",
+          "packages/main/tests/red/red-B-7dff-sequential-validate-plan.mjs",
+          "packages/main/tests/validate-plan-scheduling.test.mjs",
+          "packages/main/tests/validate-resource-claims.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e1941f70116d5f592fd2b4525f987c36173fe7ae7c710ea3383699e3033dc492"
+    },
+    {
+      "id": "B-7dff:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 re-review. Verified round-1 F-004 and F-005 are REAL fixes, not cosmetic: F-004 replaced the soft-skip git-diff-vs-main check with a direct source-text read that matches the updated docstring exactly and passes (46/46 assertions); F-005 collapsed the duplicated exclusiveByDefault derivation into one resolver, consumed correctly, old wrapper kept as a genuinely still-used back-compat shim. Reviewed new-since-round-1 material end to end: F-003 concurrency fix is fully wired (verifier.ts -> validation-evidence-reuse.ts -> validation-executor.ts) with no dead exports; validate-pollution-attribution.test.mjs (46/46 assertions, real git fixtures, 3 negative controls) verified by direct run; validate-parallel-benchmark.ts is honestly on-demand/not gate-enforced as documented; lattice.config.json/full-suite-runner.ts timeout raises match measured-duration rationale and the printed classification (107/97/10) matches an independent node count. No dead code, no as any, no empty catch blocks in the diff. I/O-shell-isolation and proof/receipt-metadata checks are N/A (no shells/ui.ts or job/run.metadata touched). No blocking or non-blocking finding this round.",
+      "createdAt": "2026-08-17T20:07:05.215Z",
+      "reviewRound": "2026-08-17T20:00:14.533Z",
+      "reviewRunId": "B-7dff:RR-007",
+      "envelopeId": "e016b0cb25b21ab0041976294e70372d6fb61336a3986725cfc51c1c29929edf",
+      "writerSessionId": "sess-c8142ac4cb69f1c755df4c1fc223e028",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/keyed-scheduler.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+          "packages/main/src/tasks/validate-parallel-benchmark.ts",
+          "packages/main/tests/validate-pollution-attribution.test.mjs"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/validate-parallel-equivalence-smoke.ts",
+          "packages/main/tests/red/red-B-7dff-sequential-validate-plan.mjs",
+          "packages/main/tests/validate-plan-scheduling.test.mjs",
+          "packages/main/tests/validate-resource-claims.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9172546417f71fb28c6133c47d4f6f953c79db03a61cf42153d50977b872dd1b"
+    },
+    {
+      "id": "B-7dff:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Round 3 (final): re-reviewed the delta since RP-002 (confirmed by review_incremental_context: changedFiles = packages/main/src/handlers/verifier.ts, packages/main/tests/validate-pollution-attribution.test.mjs; F-006/F-007/F-008 all resolved). No concept deletion/rename in this delta: externalResult() itself is untouched and keeps its enumerating-whitelist contract for the other 8 call sites (verified by grep of every externalResult( call site in verifier.ts: lines 678/708/736/775/860/1234/1262/1460 all mint fresh from loose parts, none wrap a pre-existing ValidationResult). Only the configured-commands runPlanAndPersist path changed from `externalResult({...})` (subtractive) to `{ ...base, ...externalResult({...}) }` (additive), fixing the F-006 defect where concurrentWorktreePollution (added by F-003, a ValidationResult field per validation-types.ts) was silently dropped on the way to persistStoryValidationEvidence, which reads it at verifier.ts:891 to set concurrentPollutionBlocking. Traced ValidationResult shape from executeValidationPlan (validation-executor.ts:1129-1141): it emits only provider/status/allPass/failureKind/summary/details/warnings/timestamp/headSha/commands/concurrentWorktreePollution/focus, none of which collide with disposition/commandExecutions/reuse (those are added later by decorate/reuse code, never present on base), so the additive spread cannot leak an unwanted field. Ran packages/main/tests/validate-pollution-attribution.test.mjs directly: 59/59 assertions pass including the two new section-8 checks (F006-EVIDENCE-CARRIES-CONCURRENT-POLLUTION, F006-NO-PLAN-FIELD-DROPPED) plus its clean-run negative control. Independently confirmed the regression is load-bearing by hand-patching the built dist/handlers/verifier.js back to the pre-fix subtractive wrap and re-running: sections 1-7 still passed, section 8 failed immediately on the first assertion (plan-level record survives the handler wrap) with the exact AssertionError the commit message predicts; restored the dist artifact from backup afterward and confirmed git status shows no source drift (dist/ is gitignored). Also ran npx tsc --noEmit -p packages/main/tsconfig.json: exit 0. No blocker.",
+      "createdAt": "2026-08-17T20:45:44.566Z",
+      "reviewRound": "2026-08-17T20:41:03.751Z",
+      "reviewRunId": "B-7dff:RR-010",
+      "envelopeId": "d2ab07b5c962caaff74f909b8251a25e81796f203d60978b346bc03899788b06",
+      "writerSessionId": "sess-c8142ac4cb69f1c755df4c1fc223e028",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/tests/validate-pollution-attribution.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-7dff/background.md",
+          ".lattice/story/actives/B-7dff/checklist.json",
+          ".lattice/story/actives/B-7dff/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "44e58e4b0703ff54c957aaa0f5235e2397e2b98bdb863725a42c88981a26fe27"
+    },
+    {
+      "id": "B-7dff:RP-005",
+      "agent": "lattice-review-behavior",
+      "note": "Round 3, focused verification of F-006 fix (commit 0d4231e1d1) per operator directive, plus a scan for regressions elsewhere. (1) Additive-spread claim verified by reading verifier.ts:1343-1353: base (executeValidationPlan output, whose literal return only ever contains provider/status/allPass/failureKind/summary/details/warnings/timestamp/headSha/commands/concurrentWorktreePollution/focus) is spread first, externalResult(...) second; externalResult always recomputes provider/status/allPass/failureKind/summary/details/warnings/timestamp/headSha/commands/focus from explicit args, so those never depend on drop-by-omission, and any base field NOT in that fixed key list (in practice only concurrentWorktreePollution at this call site) survives unconditionally. Independently reproduced the commits stated verification: reverted the fix in the built dist artifact and reran packages/main/tests/validate-pollution-attribution.test.mjs -- sections 1-7 (59 assertions of F-003 attribution behavior) still passed, section 8 (HANDLER WIRING) failed exactly as claimed (plan-level record does not survive the handler wrap); rebuilt clean afterward and reran full green (59 assertions, 9 sections). (2) No deliberately-hidden field now leaks: audited all 9 externalResult() call sites in verifier.ts -- only this one call site wraps a pre-existing full ValidationResult (all others mint a result from scratch for reuse/no-validator/persistence-failure paths, so they carry no risk of this defect); the only field that newly reaches the external consumer is concurrentWorktreePollution (repo-relative paths + git status lines, same sensitivity class as the already-exposed per-command worktreePollution on commands[]), which is exactly the fields intended fix target, not an accidental privacy leak. Cross-checked verifier/serve.ts (the lattice serve dashboard path), which JSON.stringifies the executeValidationPlan result directly without going through externalResult at all, confirming the F-006 defect pattern was isolated to the one fixed call site. Checked evidence.output consumers (done-oracle.ts, validation-evidence-admissibility.ts) -- both only read parsed.allPass/allPassed and are unaffected by the additional key. (3) The three F-003 round-2 properties (never falsely attribute, never silently lose detection, exact attribution for solo-scheduled barriers) are untouched by this commit -- diff is limited to handlers/verifier.ts and the test file, validation-executor.ts attributeWorktreePollution logic unchanged -- and remain proven by passing sections 1/2/3/4/5/7. finding_list shows all 8 findings across rounds 1-3 resolved, none open. No new issues found.",
+      "createdAt": "2026-08-17T20:48:10.983Z",
+      "reviewRound": "2026-08-17T20:41:03.751Z",
+      "reviewRunId": "B-7dff:RR-011",
+      "envelopeId": "3e8ba1ccad40925d4bcce28cc3caa3181f03eb66f4b118b8011a4ea44c7fe183",
+      "writerSessionId": "sess-c8142ac4cb69f1c755df4c1fc223e028",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/verifier/serve.ts",
+          "packages/main/tests/validate-pollution-attribution.test.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "6e66118597170a738282a24bacb2b6de729ac66a76fad643ea04e3b10ac233c1"
+    },
+    {
+      "id": "B-7dff:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Round 4, single commit 5b9431b04a (test-file only, resolves F-010). Old handshake shape (writes/awaitWrite param, wrote marker, Date.now()+30000 deadline, waitFor helper) fully replaced by writes/observes/awaitObservedBy params, per-self .observed marker, hrtime.bigint()-based budget. Grepped this file and whole repo for awaitWrite/waitFor/deadline/wrote-marker: zero residue; unrelated wrote hits elsewhere (doctor.ts, red-b2aa7, recovery-runner) are a pre-existing unrelated property name. No file imports/requires this test file, so no sibling depended on old shape. All 4 handshakeCommand call sites use new signature consistently. Ran file standalone 4x, 61 assertions PASS each time including new precondition assertions. No blocker.",
+      "createdAt": "2026-08-17T21:38:16.261Z",
+      "reviewRound": "2026-08-17T21:34:54.142Z",
+      "reviewRunId": "B-7dff:RR-014",
+      "envelopeId": "f94390b73e484f67b75e28c987584a3d9bc5a2b7f8b96d3a09bd73a74cfadf4c",
+      "writerSessionId": "sess-c8142ac4cb69f1c755df4c1fc223e028",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7dff/checklist.json",
+          "packages/main/tests/validate-pollution-attribution.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-7dff/background.md",
+          ".lattice/story/actives/B-7dff/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f92659bd025405acda611220a5e6e3bf3b4b71da55be63a05e02e77baf1367dd"
+    },
+    {
+      "id": "B-7dff:RP-007",
+      "agent": "lattice-review-behavior",
+      "note": "Round-4 delta review: only packages/main/tests/validate-pollution-attribution.test.mjs changed (commit 5b9431b04a, F-010 fix), no production code touched. Verified the handshake rewrite (writes/observes/awaitObservedBy) sound: the write only fires after both processes announced start (so both readGitStatus before-samples in validation-executor.ts precede it by construction), and both after-samples are gated on the bystander actually stat-ing the writers real file plus publishing a receipt the writer waits on, so no timing/clock-jump path can shrink either window. Sections 1-7 (F-003 never-falsely-attribute / never-lose-detection / exact-solo-attribution / vacuity-guard) use probe(), not handshakeCommand(), and are byte-for-byte untouched by this commit -- confirmed via git show --stat (1 file, +83/-19) and full diff read. The two new section-8 fixture preconditions (bystander.observed exists; both commands exited 0 with no timeout) are plain assert.ok() calls executed BEFORE the substantive assertion, so a failing precondition still fails the run loudly with a distinguishing message -- they cannot swallow a genuine regression, they can only relabel a fixture-side failure so it is not confused with one. Empirically confirmed both directions on the live tree: (1) ran validate-pollution-attribution.test.mjs on HEAD -- PASS, 61 assertions, all VI-OK lines including F006-EVIDENCE-CARRIES-CONCURRENT-POLLUTION and F006-NO-PLAN-FIELD-DROPPED. (2) negative control -- hand-patched packages/main/dist/handlers/verifier.js to restore the pre-fix subtractive wrap (const result = { ...externalResult({...}) } instead of { ...base, ...externalResult({...}) }), reran the same test file: sections 1-7 still print VI-OK, the two new preconditions PASS (fixture overlap achieved correctly), and the run then fails with AssertionError exactly at the intended assertion (\"the plan-level record survives the handler wrap and reaches the caller\", line 518) -- i.e. the same assertion this regression has always failed at, not a new/different one and not swallowed. Rebuilt packages/main from the untouched source afterward and reran to confirm the tree is back to a clean PASS (61 assertions) with git status clean (dist/ is gitignored). review_incremental_context confirms the only changed/impacted file since my prior pass (RP-005) is this test file, matching the assigned scope. No behavioral regression found in this lane.",
+      "createdAt": "2026-08-17T21:40:27.221Z",
+      "reviewRound": "2026-08-17T21:34:54.142Z",
+      "reviewRunId": "B-7dff:RR-015",
+      "envelopeId": "59945944d494397cb6284da684818d2ef52a2b3bf65275ee0e8c2620931154a5",
+      "writerSessionId": "sess-c8142ac4cb69f1c755df4c1fc223e028",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/tests/validate-pollution-attribution.test.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "2799f56d147af013a3a3c2b6a482b3c8f491ef719eb6b535b64c7191384b7e53"
+    },
+    {
+      "id": "B-7dff:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "Round 4, independent verification of F-010 fix (commit 5b9431b04a, test-file only: packages/main/tests/validate-pollution-attribution.test.mjs, +83/-19). Judged the four sampling boundaries (parent readGitStatus before/after around each handshake child) directly against core/validation-executor.ts: runValidationCommand (517-608) computes statusBefore=readGitStatus(...) BEFORE constructing the Promise whose executor calls spawn(...) at line 608, with no await between them and readGitStatus itself synchronous (execSync) -- so within one command that before-sample unconditionally precedes its own child even existing, and JS single-threadedness means no other command can interleave between them. Confirmed the implementer's claim that 3 of 4 boundaries were already structurally ordered: before_writer<write and before_bystander<write follow from that synchronicity plus the pre-existing peer-start handshake (writer will not write until it observes bystander.start, which only a spawned bystander child can publish); write<after_writer follows trivially because the writer script performs the write itself before its own process.exit(0). The one boundary that needed a real fix, write<after_bystander, previously depended on a proxy marker plus Date.now()-based 30s deadline (bystander could give up and exit before the write actually landed). The fix (lines 177-207) has the bystander stat the writer's REAL file via fs.existsSync in a loop before publishing a per-self .observed marker, and the writer now waits on that marker (awaitObservedBy) before its own exit -- so both after-samples are gated on one confirmed on-disk observation, not a wall clock. Budget is now hrtime.bigint()-based (monotonic, immune to NTP/clock-jump) and set to 90s, strictly above the 60s per-command framework ceiling, so an unschedulable host hits the framework's own SIGTERM/SIGKILL+timedOut:true first rather than the script's internal exit(3). Verified section 8's new preconditions (existsSync(bystander.observed) and both commands code===0 && !timedOut, asserted BEFORE the shape assertion at line 518) are fixture-side-only and structurally independent of the mechanism under test: they only depend on the two child scripts and validation-executor.ts's spawn/close plumbing, never on what handlers/verifier.ts does with the resulting ValidationResult, so a real regression in the F-006 field-carry fix cannot be masked by these preconditions -- confirmed by rebuilding clean (npm --prefix packages/main run build) and running the file: PASS, 61 assertions, matching the claimed count exactly, no assertion removed (grep for awaitWrite/'wrote' marker/waitFor across the file and repo: zero residue, consistent with RP-006's finding). Independently ran the unmodified test file 20 times back to back under artificial CPU load (8 concurrent `yes>/dev/null` processes pinning a 10-core host) plus 16 further times at idle after removing the load: 0 failures across all 36 runs, no sign of the ~5% failure rate the pre-fix version showed per F-010's original finding text. This corroborates, via an independent method, the same conclusion RP-007 (lattice-review-behavior) reached via a dist-patch negative control: the fix removes the timing dependency rather than merely narrowing it, and the new preconditions relabel fixture-side failures without weakening the substantive assertion. Also reviewed the verifier.ts hunk in my incremental scope (spread base before externalResult(...), the F-006 fix already resolved and independently verified by RP-005/RP-007): additive-only change, no new any-casts, no swallowed catch, no dead code. No quality findings.",
+      "createdAt": "2026-08-17T21:48:50.803Z",
+      "reviewRound": "2026-08-17T21:34:54.142Z",
+      "reviewRunId": "B-7dff:RR-016",
+      "envelopeId": "86ce9fb3399a9584955966a761608fd053376ec6cad7293e11a55670c831e144",
+      "writerSessionId": "sess-c8142ac4cb69f1c755df4c1fc223e028",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7dff/checklist.json",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/tests/validate-pollution-attribution.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-7dff/background.md",
+          ".lattice/story/actives/B-7dff/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "13c0c4c24c999aa72a53b2bb9151a3c3c8c071e0449d3466bc026b5de508d809"
+    },
+    {
+      "id": "B-7dff:RP-009",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 4 test-coverage pass. (1) F-009 correction verified first-hand against current tree, not taken on trust: full-suite-runner-smoke.ts:37 is exactly const pass = (name) => ({name, status: PASS, durationMs: 1, output: }), and the schedulerIsolation block at 210-226 drives runScheduled purely with in-process async closures plus setTimeout(done,40) -- no spawn/execFileSync anywhere in that block. The CHK-001:edge:0 kind=logic_test correction is factually accurate. (2) Audited kind vs mechanics for all 15 verificationEvidence rows across CHK-001..CHK-005: CHK-002 and CHK-005 edge/adversarial rows (validate-resource-claims.test.mjs) are logic_test and the file greps clean for spawn/execFileSync/child_process -- no process ever spawned, label accurate. CHK-003:happy:0 and CHK-004:happy:0 are integration_test and both source files confirmed to dynamic-import the BUILT dist module (packages/main/dist/core/validation-executor.js) and spawn real node children via process.execPath -- label accurate, not overstated. CHK-003/CHK-004 edge+adversarial rows share the identical command/receipt with their happy sibling but are labeled logic_test -- a conservative, not an overstating, choice; no finding. No row overstates what its pinned command mechanically does. (3) Staleness: verification_evidence_refresh_stale --dryRun reports 13/15 mechanical rows headHash-stale against current HEAD, but targeted git diff from EACH row own pinned headHash (b149b2f4d2 for 11 rows, c6488fa3f5 for the F-009 correction) to current HEAD shows the ONLY file that changed in that window anywhere in the repo is packages/main/tests/validate-pollution-attribution.test.mjs (F-010, resolved 5b9431b04a) -- a file none of these 13 rows cite or depend on (their subjects are keyed-scheduler.ts, full-suite-runner.ts, full-suite-runner-smoke.ts, validation-executor.ts, validation-types.ts, lattice.config.json and their own dedicated test files, all untouched in that window). Drift is headHash/whole-tree only, not material to any of these 13 claims. (4) CHK-005:happy:0 waiver (F-008 correction, headHash b9322b15ec): diff from its pin to HEAD again shows only the unrelated validate-pollution-attribution.test.mjs changed, not lattice.config.json -- the 107 commands / 97 declared / 10 exclusive counts and the audited-barrier list it states remain exact. Reads honestly. (5) CHK-001:happy:0 deferred waiver (headHash 9cf3b5b213, the oldest live pin in the story, predating BOTH F-006 and F-010): diff to HEAD shows handlers/verifier.ts (F-006) and validate-pollution-attribution.test.mjs (F-010) both changed since this waiver was written, and it was excluded from F-007 mass refresh (refresh_stale --dryRun does not list either waiver row). test:closeout-trust, one of the 47 full-suite members, imports handlers/verifier.ts, so the 47/47 claim was not mechanically reconfirmed after a same-story change to code a member depends on. Read the actual F-006 diff: the fix is purely additive (spread base first, then apply the whitelisted externalResult on top -- every previously-whitelisted key computed identically, only a previously-dropped field now survives), and RP-008 (quality, round 4) independently reviewed the same hunk and found it additive-only with no new risk. Rather than rely on that inference, rebuilt clean (npm --prefix packages/main run build) and ran npm test twice on the current tree at HEAD: first attempt was interrupted by an unrelated TIMEOUT in test:review-incremental-context-smoke (confirmed via git diff main...HEAD that this story touches zero files under that name), cascading INTERRUPTED per cancel-on-first-failure; second attempt completed cleanly: full-suite: 47/47 passed in 357.5s; retries=0; jobs=4, exit 1 solely from the pre-existing 300000ms whole-suite performance budget (full-suite performance budget exceeded: 357519.9ms greater than or equal to 300000ms) -- exactly the same pre-existing, not-a-member-failure condition the waiver text already discloses, now directly reconfirmed on the current tree rather than left as an unverified two-hour-old claim. No blocker found; the deferred waiver still reads honestly and its substance now has a fresher, direct confirmation than the one it originally cited.",
+      "createdAt": "2026-08-17T21:59:12.897Z",
+      "reviewRound": "2026-08-17T21:34:54.142Z",
+      "reviewRunId": "B-7dff:RR-017",
+      "envelopeId": "18f1097b6ddd0ccea3efd929ec65f399117d237c139393c31f5e64288ca325d3",
+      "writerSessionId": "sess-c8142ac4cb69f1c755df4c1fc223e028",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7dff/background.md",
+          ".lattice/story/actives/B-7dff/checklist.json",
+          ".lattice/story/actives/B-7dff/findings.json",
+          ".lattice/story/actives/B-7dff/plan.md",
+          ".lattice/story/actives/B-7dff/review-passes.json",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/tests/validate-plan-scheduling.test.mjs",
+          "packages/main/tests/validate-pollution-attribution.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-7dff/process-events.jsonl",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/validate-parallel-equivalence-smoke.ts",
+          "packages/main/tests/validate-resource-claims.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f2bd7707f384914f2f041c4e02c7b645560e4415b4204e24dcfd6b35b4703618"
+    },
+    {
+      "id": "B-7dff:RP-010",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check after 787-commit merge from main (fed447f784). Verified no residue of dropped member budgets, no orphaned byte-identity-pin helpers, no dangling lattice.config.json claims, no orphaned symbols this story introduced, and parsed command identity preserved across the string-to-object conversion (110/97/13, 0 mismatches on 105 shared entries). tsc clean, live test run confirms exact figures. No blocker.",
+      "createdAt": "2026-08-18T16:32:02.174Z",
+      "reviewRound": "2026-08-18T16:19:02.994Z",
+      "reviewRunId": "B-7dff:RR-023",
+      "envelopeId": "2042cad0d4209b84b659b8acf5fe3cb8b76e5783ecc58d174eb6a500e285a110",
+      "writerSessionId": "sess-c8142ac4cb69f1c755df4c1fc223e028",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7dff/checklist.json",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/core/keyed-scheduler.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+          "packages/main/tests/validate-resource-claims.test.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/validate-parallel-benchmark.ts",
+          "packages/main/src/tasks/validate-parallel-equivalence-smoke.ts",
+          "packages/main/tests/red/red-B-7dff-sequential-validate-plan.mjs",
+          "packages/main/tests/validate-plan-scheduling.test.mjs",
+          "packages/main/tests/validate-pollution-attribution.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "58dac97e1e0fae71a48170ff19ed58dd0c87018e09edf288d57210e059140170"
+    },
+    {
+      "id": "B-7dff:RP-011",
+      "agent": "lattice-review-concept",
+      "note": "Incremental round since RP-010 (RR-023): confirmed via git diff dae7446..HEAD --stat that only .lattice/story/actives/B-7dff/* metadata files changed -- zero source files, so no new concept residue is possible since RP-010 already cleared the full main...HEAD source diff. Verified the two rewritten waivers (CHK-001:happy:0, CHK-005:happy:0) reference only symbols/commands/counts present in the current tree: FULL_SUITE_BUDGET_MS=1_200_000 confirmed at full-suite-runner.ts:261; full-suite output line is a dynamic template not a hardcoded 47/47; RESOURCE_POLICY array counted at exactly 49 entries matching 49/49; grep for pin_repair/repairPin/pin-repair returns zero hits. Rebuilt packages/main fresh and ran configuredValidationCommands() live: 110 total / 97 declared / 13 exclusive-by-default, matching CHK-005's restated counts; all 10 audited barrier command names and all 3 newly-named merged-in commands resolve to real files. No concept residue, no stale references found.",
+      "createdAt": "2026-08-18T21:50:27.530Z",
+      "reviewRound": "2026-08-18T21:47:17.192Z",
+      "reviewRunId": "B-7dff:RR-024",
+      "envelopeId": "74d3bd66a901ab2b562e0306837c47ff5ceb20f5defd91eeadf4e4e6fa5109d3",
+      "writerSessionId": "sess-c8142ac4cb69f1c755df4c1fc223e028",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7dff/checklist.json",
+          ".lattice/story/actives/B-7dff/findings.json",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-7dff/background.md",
+          ".lattice/story/actives/B-7dff/index.json",
+          ".lattice/story/actives/B-7dff/plan.md",
+          ".lattice/story/actives/B-7dff/process-events.jsonl",
+          ".lattice/story/actives/B-7dff/process-metrics.json",
+          ".lattice/story/actives/B-7dff/prompt-envelopes.json",
+          ".lattice/story/actives/B-7dff/review-passes.json",
+          ".lattice/story/actives/B-7dff/review-runs.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a61bfda76175ec0619f618e2608fc993f80f407a852835d08bd88a7847159f80"
+    },
+    {
+      "id": "B-7dff:RP-012",
+      "agent": "lattice-review-behavior",
+      "note": "Final round re-verification on the frozen tree since my last finding round (RR-019, headHash dae74467, materialHash aa8059fb). Confirmed source-frozen: git diff dae74467..5808e8f8 and again dae74467..current-HEAD (b2814ae, after a parallel concept-reviewer metadata commit landed) both show zero changes outside .lattice/story/actives/B-7dff/*; materialHash is identical across all three points. Re-verified every load-bearing behavioral property named in this round, independently rather than by trusting stored evidence text: (1) run-all vs cancel-on-first-failure split -- grep confirms full-suite-runner.ts:497 passes cancellation:cancel-on-first-failure and validation-executor.ts:1775 passes cancellation:run-all into the same runScheduled; full-suite-runner-smoke assertions cancelOnFirstFailure=true and runAll=true both pass. (2) Per-run scheduler state isolation -- keyed-scheduler.ts:155-161 declares pending/running/resourceBlockedAt/results/terminalFailureName/cancellationReason as local closures inside runScheduled, nothing module-scoped; smoke assertion a concurrent scheduler run never observes another run cancellation passes (schedulerIsolation:true in the receipt). (3) Fail-closed barrier default -- resolveValidationCommandResourceClaims (validation-executor.ts:1636-1664) gives an undeclared command a single exclusive claim on the synthetic barrier key; independently re-ran validate-resource-claims.test.mjs (34/34 pass) and got the identical count the rewritten CHK-005:happy:0 waiver states -- 110 commands, 97 declared, 13 exclusive-by-default, and the same 10 audited-barrier names held. Also independently confirmed the three commands the waiver names as merged in and still undeclared (validation-evidence-buffer-smoke.js, codex-heartbeat-timeout-smoke.js, red-b3434-blob-buffer-ceiling.mjs) all carry resources:null in lattice.config.json, i.e. still fall to the exclusive default as claimed. (4) Pollution attribution properties (F-006/F-010) -- independently re-ran validate-pollution-attribution.test.mjs, 61 of 61 pass, including the concurrent-not-misattributed, serial-still-exact, barrier-exact-under-jobs-4, no-detection-lost, gate-consumes-set-record and the F-006 no-field-dropped assertions. (5) Main headroom scaling (CONCURRENCY_HEADROOM_FACTOR) reaches the entry the scheduler actually runs -- traced withConcurrencyHeadroom applied at full-suite-runner.ts:540 into runEntry, which arms its setTimeout from that same scaled entry timeoutMs at line 443, not a stale unscaled copy; smoke assertions the scheduler-facing entry carries the scaled cap and nothing else changes and parallel execution scales the declared budget by the concurrency headroom factor both pass. Independently confirmed validation-executor.ts does NOT apply this factor, a flat lattice.config.json ceiling regardless of jobs -- this is F-014 deferred gap, correctly still open and superseded to a follow-on task, not a regression. (6) Budget satisfiability invariant -- computed directly from source via tsx, not dist: fullSuiteBudgetIsSatisfiable() returns true, FULL_SUITE_BUDGET_MS=1200000 greater than longestEntryTimeoutMs at jobs=4 which is 450000, 49 entries, defaultJobs() is 2; smoke assertion whole-suite budget 1200000ms must exceed the longest entry allowance 450000ms passes. Also spot-checked the two rewritten waiver rows (CHK-001:happy:0, CHK-005:happy:0): both are internally consistent with the numbers I independently reproduced (49/49 members, 110/97/13 counts, FULL_SUITE_BUDGET_MS=1_200_000, three named merged-in barriers). No behavioral defect found. No blocker for this reviewer lane.",
+      "createdAt": "2026-08-18T21:54:30.994Z",
+      "reviewRound": "2026-08-18T21:47:17.192Z",
+      "reviewRunId": "B-7dff:RR-027",
+      "envelopeId": "ef9db36cf3ec27e668b9f1f334ec8998cd8b1be0692a866e9ed48b26154176bd",
+      "writerSessionId": "sess-c8142ac4cb69f1c755df4c1fc223e028",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7dff/checklist.json",
+          "lattice.config.json",
+          "packages/main/src/core/keyed-scheduler.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/tests/validate-pollution-attribution.test.mjs",
+          "packages/main/tests/validate-resource-claims.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-7dff/background.md",
+          ".lattice/story/actives/B-7dff/plan.md",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/tests/red/red-B-7dff-sequential-validate-plan.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b50d959d329459245f6d508b180fa16beeca637d0a7c61d30f9e13ca0c31b393"
+    },
+    {
+      "id": "B-7dff:RP-013",
+      "agent": "lattice-review-test-coverage",
+      "note": "Adversarial re-verification of F-011 and F-012 resolutions, plus a full staleness/overstatement sweep of all 15 verificationEvidence rows. No findings.\n\nF-012 (CHK-005:happy:0 waiver numbers): independently re-derived, not trusted from the note. Ran node packages/main/tests/validate-resource-claims.test.mjs directly -> reproduced \"configured plan: 110 commands, 97 declared, 13 exclusive by fail-closed default\" verbatim. Separately computed resolveValidationCommandResourceClaims(cmd) over all 110 lattice.config.json entries by hand (not via the test file) -> got the identical 13-command exclusive set. Cross-referenced that 13-set against CHK-005:edge:0's audited-10 list (dist rebuild, 2 real-CLI commands, quorum-submit-smoke, 2 red-b49d4 guards, 3 red-1734 guards, proofstory-acceptance-rollout --issuer-mutations = 10) and the remainder is EXACTLY the 3 the waiver names as unaudited-but-safe-default: validation-evidence-buffer-smoke.js, codex-heartbeat-timeout-smoke.js, red-b3434-blob-buffer-ceiling.mjs. No 4th unaccounted command exists. git log confirms all three landed via merge fed447f7847 (main into story/B-7dff, 2026-08-18 16:52 BST), which is AFTER CHK-005's own audit finished (endTime 2026-08-17T14:28:24Z) -- so \"never examined by this audit\" is literally true, not rhetorical. Verdict: F-012 resolution is exact and complete.\n\nF-011 (CHK-001:happy:0 waiver reclassification deferred_gate_evidence -> permanent): checked both the facts and whether the category choice is honest rather than convenient.\n  - Facts: built dist and ran the REAL full-suite-runner.js myself (no story-CLI evidence-writing commands used, review-only). Independently got FULL_SUITE_ENTRIES.length === 49 (not 47) straight from the built module, and defaultJobs()=2 on this host (10 cpus, floor(10/4)=2) -- both match the waiver's claims. My own run finished \"full-suite: 49/49 passed in 509.2s; retries=0; jobs=2\" -- same template, same member count, same jobs value as the waiver's \"49/49 passed in 341.1s; retries=0; jobs=2\"; the pin string \"47/47\" cannot appear against this tree, confirmed directly rather than inferred. My run also independently ran past the 270000ms default cap (509.2s) without commandTimeoutMs, and separately hit the exact same \"full-suite identity drift: HEAD/material changed during execution\" failure mode the note describes for its own middle attempt -- caused by this framework's own auto-commit-on-CLI-call behavior touching story metadata mid-run, which is a real, reproducible hazard here, not an invented excuse. [receipt_selector_absent] vs the newer [receipt_command_timeout] is a real, distinct, documented pair of refusals in handlers/checklist.ts (CLAUDE.md B-cdf6/B-META F-012), not a fabricated error code.\n  - Category choice: read packages/main/src/tasks/deferred-gate-evidence-smoke.ts, the contract test that DEFINES the two waiverTypes. deferred_gate_evidence's own fixture is narrowly \"The gate can only be verified after entering REVIEW\" (a self-referential bootstrapping case) and is explicitly required to be replaced by the time validate/TEST gate runs (missingRequired=1 if still deferred then). CHK-001:happy:0's blocker was never that narrow case; it's a structurally immutable pin (evidence-pin-guard.ts, B-ec67 design: no repair command exists BY DESIGN, to stop authors loosening pins mid-flight) whose text encodes a count the codebase has already outgrown. That is definitionally closer to \"permanent non-automatable\" than to a temporary self-test placeholder. CHK-005:happy:0 already carries \"permanent\" for the identical defect class across two earlier rounds (F-008, F-012) without the classification itself ever being challenged -- internal precedent, not a one-off.\n  - Stakes acknowledged, not hidden: confirmed lattice.config.json sets proofStory.doneGateMode=\"enforce\", and rowCoversIntent() in core/proofstory.ts really does treat waiverType=permanent as covering (result!=='fail') while deferred_gate_evidence never covers. milestone_status confirms CHK-001:happy:0 is one of M1's mapped verificationIntentRefs and its waiver is what currently satisfies M1's base evidence=covered (M1 is separately still Blocked on a stricter, non-gating \"requires literal integration_test kind\" diagnostic -- an honestly-disclosed, unresolved gap, not hidden). So the reclassification is genuinely load-bearing for the enforce-mode DONE gate, exactly as suspected -- but that is because it is now an accurate category for a real, independently-verified structural fact, not because the label was picked to make the gate pass.\n  Verdict: reclassification is justified by the new facts, not convenience.\n\nStaleness sweep: programmatically compared materialHash/storyFilesHash on all 15 verificationEvidence rows (CHK-001..CHK-005, happy/edge/adversarial) against the current story context (materialHash aa8059f..., storyFilesHash 1e18326...). All 15 match; zero stale rows. headHash differs across rows (expected metadata-only drift from intervening finding-resolution commits), never materialHash/storyFilesHash.\n\nKind-overstatement sweep: verified every mechanical (non-waiver) row's receipt has exitCode=0 and selectorMatched=true consistent with its own result=pass (12/12 consistent, 0 contradictions). Spot-checked the two integration_test claims against their source: CHK-003:happy:0 (validate-plan-scheduling.test.mjs) does import packages/main/dist/core/validation-executor.js and drive real child processes via process.execPath; CHK-004:happy:0 (validate-parallel-equivalence-smoke.ts) does import and call the real executeValidationPlan with process.execPath-spawned probes. Spot-checked logic_test claims for CHK-001/002/003/005 edge+adversarial rows against their source: in-process function calls (runScheduled, resolveValidationCommandResourceClaims) with no subprocess spawn on the asserted paths. No row claims a stronger evidence kind than what its command actually does; the two waiver rows (CHK-001:happy:0, CHK-005:happy:0) carry no result field and do not misrepresent themselves as receipts.\n\nNo new findings. Story-level review pass for this round.",
+      "createdAt": "2026-08-18T22:04:50.399Z",
+      "reviewRound": "2026-08-18T21:47:17.192Z",
+      "reviewRunId": "B-7dff:RR-025",
+      "envelopeId": "63ca94b7fad527a30bf3671d04ca24bf53b4ef698937e6ab1ab2ab779edca0d2",
+      "writerSessionId": "sess-c8142ac4cb69f1c755df4c1fc223e028",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7dff/background.md",
+          ".lattice/story/actives/B-7dff/checklist.json",
+          "lattice.config.json",
+          "packages/main/src/core/evidence-pin-guard.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/deferred-gate-evidence-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/validate-parallel-equivalence-smoke.ts",
+          "packages/main/tests/validate-plan-scheduling.test.mjs",
+          "packages/main/tests/validate-resource-claims.test.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/command-schemas.ts",
+          "packages/main/src/core/validation-executor.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "51e0ba98fcf03ce6de7507ceeebd7ec764ae8f754f4894eadec0e6d337fca1c9"
+    },
+    {
+      "id": "B-7dff:RP-014",
+      "agent": "lattice-review-concept",
+      "note": "Round 7 re-review after RP-011 was discarded for envelope invalidation (my own metadata commits landed post-verdict), not for code change. Confirmed source freeze independently via git diff priorHeadHash..HEAD on source paths = empty, and review_incremental_context reports changedFiles: (none). keyed-scheduler.ts extraction is a clean move, no orphaned scheduler residue. Targeted lane task: verified every symbol/command/count/story-id cited in the F-011-F-015 resolutions and the two rewritten waiver rows against the live tree, none fabricated. No concept-deletion residue, no fabricated symbol/command/count/story-id found. No blocker.",
+      "createdAt": "2026-08-18T23:00:16.706Z",
+      "reviewRound": "2026-08-18T22:56:37.139Z",
+      "reviewRunId": "B-7dff:RR-028",
+      "envelopeId": "a2a04f95894dfc415f543ae8c388824885ccf17ac260138e3a3239271a53b61f",
+      "writerSessionId": "sess-c8142ac4cb69f1c755df4c1fc223e028",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7dff/checklist.json",
+          ".lattice/story/actives/B-7dff/findings.json"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/core/keyed-scheduler.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "98639e4591c07a56f2898841ae25c2587b8d35954add70bc2432964004fa0e70"
+    },
+    {
+      "id": "B-7dff:RP-015",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 7 re-review after metadata-only changes since RP-013: all 5 checklist items done with happy/edge/adversarial verificationIntent covered by valid verificationEvidence (12 mechanical logic_test/integration_test rows, all selectorMatched, plus 2 disclosed permanent waivers on CHK-001:happy:0 and CHK-005:happy:0). verification_evidence_refresh_stale --dryRun reports zero stale rows. F-013/F-014 resolution rewrites verified as claims a reader can mechanically check: B-9e3d exists on main at phase INIT (git show main:.lattice/story/actives/B-9e3d/index.json), and main:packages/main/src/tasks/full-suite-runner.ts:634 genuinely reads performanceBudgetMs: FULL_SUITE_BUDGET_MS (commit 92534bc237, confirmed a descendant of this branchs merge-base with main, whereas this worktrees HEAD still carries the old 300_000 literal at line 558, consistent with the fix arriving on the next mergeMain). Both waivers still read honestly and are internally consistent with prior rounds. No blocker from this lane.",
+      "createdAt": "2026-08-18T23:02:35.988Z",
+      "reviewRound": "2026-08-18T22:56:37.139Z",
+      "reviewRunId": "B-7dff:RR-029",
+      "envelopeId": "7a7fb546877b74b3a99d2f1951596b0c49a6a4825afd9aa94ff8548f94032bbe",
+      "writerSessionId": "sess-c8142ac4cb69f1c755df4c1fc223e028",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7dff/background.md",
+          ".lattice/story/actives/B-7dff/checklist.json",
+          ".lattice/story/actives/B-7dff/findings.json",
+          ".lattice/story/actives/B-7dff/plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f9b34df4702d765c1145b4a57e75d28fa14b11cac1dec2cc08ba533022662746"
+    },
+    {
+      "id": "B-7dff:RP-016",
+      "agent": "lattice-review-quality",
+      "note": "Final round on the merged tree (main is now an ancestor of HEAD, no code churn after evidence-refresh commit b35533e3c4). Checked git diff main...HEAD --name-only (13 code/test files): keyed-scheduler.ts, validation-executor.ts, validation-types.ts, validation-evidence-reuse.ts, verifier.ts, full-suite-runner.ts + -smoke.ts, validate-parallel-benchmark.ts, validate-parallel-equivalence-smoke.ts, red-B-7dff-sequential-validate-plan.mjs, validate-plan-scheduling/pollution-attribution/resource-claims test files. No dead code, no new as-any, no empty catches; npx tsc --noEmit -p packages/main/tsconfig.json exits 0; no leftover conflict markers in any touched file. Hand-resolved conflicts (fed447f784, 19ff5225fa) still hold: performanceBudgetMs is FULL_SUITE_BUDGET_MS at full-suite-runner.ts line 558, verified live, not the old 300000 literal - the F-013 fix arrived via an independent story, B-d15e, merged into main, confirmed via git log. withConcurrencyHeadroom is present only in full-suite-runner.ts (2 call sites), none in validation-executor.ts, matching the F-014 deferral text verbatim. There is a single runScheduled / ResourceClaim / RESOURCE_CLASSES definition, keyed-scheduler.ts only, no duplicate scheduler from anything main brought in. verifier.ts additive-spread fix (base spread first, externalResult spread second) and concurrentWorktreePollution wiring both intact post-merge. Nothing main brought in duplicates or contradicts this story's code. Spot-verified all 5 recent finding resolutions and both rewritten waivers against the live tree rather than trusting prose: F-011 and F-013 - full-suite-runner.ts prints 49/49 not 47/47, confirmed by source read; the CHK-001 happy-0 waiver account matches. F-012 - the CHK-005 happy-0 waiver claims 110 commands, 97 declared, 13 exclusive by default; the current test-evidence.json, headHash b35533e3c4, a real full validate run on the merged tree, result PASS, commandExecution commandCount 110, requiredFailureCount 0, prints the exact line validate scheduler: jobs=4 commands=110 declared=97 exclusiveByDefault=13, not asserted but measured. lattice.config.json independently checked: 110 commands, zero duplicate command signatures. F-014 - the divergence it describes is real and current on this tree, checked above, and B-9e3d, confirmed present in story_list, phase INIT, priority high, real background and description naming this exact defect, is a genuine tracked story, not a session artifact. F-015 - the underlying claim that B-9e3d is visible to story_list is verified true; F-013 needed no story because main's fix is real and already merged in, verified above. CHK-005 DoneWhen also checked: quorum-submit-smoke.ts has zero diff and zero commits touching it in main..HEAD, confirmed untouched as promised. On F-014 itself, my own deferred finding: I do not think it should block. The full validate run on this exact merged tree just completed with 0 required failures under the un-scaled flat ceiling, which is live evidence the current margins hold in practice, not just a spot-check; the fix requires deciding a single policy across roughly 110 configured timeoutMs values and its own measurement round, which is correctly sized as separate work, and B-9e3d already carries that scope with high priority and a pointer to this story's git history so numbers are not re-derived. No blocker.",
+      "createdAt": "2026-08-19T00:23:11.613Z",
+      "reviewRound": "2026-08-19T00:17:10.730Z",
+      "reviewRunId": "B-7dff:RR-031",
+      "envelopeId": "1d17022d27296a9ea37cf64c2ddbb53a147efcb3d46438372b5c3063c6722830",
+      "writerSessionId": "sess-c8142ac4cb69f1c755df4c1fc223e028",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7dff/background.md",
+          ".lattice/story/actives/B-7dff/checklist.json",
+          ".lattice/story/actives/B-7dff/plan.md",
+          ".lattice/story/actives/B-7dff/test-evidence.json",
+          ".lattice/story/actives/B-9e3d/background.md",
+          ".lattice/story/actives/B-9e3d/index.json",
+          "lattice.config.json",
+          "packages/main/src/core/keyed-scheduler.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/validate-parallel-benchmark.ts",
+          "packages/main/src/tasks/validate-parallel-equivalence-smoke.ts",
+          "packages/main/tests/red/red-B-7dff-sequential-validate-plan.mjs",
+          "packages/main/tests/validate-plan-scheduling.test.mjs",
+          "packages/main/tests/validate-pollution-attribution.test.mjs",
+          "packages/main/tests/validate-resource-claims.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "06304e39403852b6e521e6ed193a5ac475e39e03c9213c0c6aa045a45994e000"
+    },
+    {
+      "id": "B-7dff:RP-017",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-8 re-verification on the post-merge tree (merge commit 19ff5225fa, current HEAD af4641ba71). Verified directly against files/commits, not by trusting prose: (1) Freshness - all 13 command-backed verificationEvidence rows carry headHash=19ff5225fa/materialHash=27c0322a.../storyFilesHash=7446a31f...; git diff 19ff5225fa..af4641ba71 touches only .lattice/story/actives/B-7dff/* metadata files, zero code/config paths, so no drift exists between the evidence binding and current HEAD. (2) Genuine re-execution - git show b35533e3c4 (the refresh commit) changes exactly 13 headHash lines in checklist.json, each with a new distinct executedAt (spread 23:05:08-23:06:24Z) and, where content actually changed, a new outputDigest (e.g. the CHK-002/005 shared receipt now reads 110 commands, 97 declared, 13 exclusive, not the old 107/97/10) - real command output, not a restamp. (3) Kind accuracy - the only two integration_test rows (CHK-003:happy:0, CHK-004:happy:0) are pinned to validate-plan-scheduling.test.mjs and validate-parallel-equivalence-smoke.ts, both confirmed by grep to spawn real child processes via process.execPath; no row overstates its kind. (4) Waiver honesty - CHK-001:happy:0 and CHK-005:happy:0 (both permanent, unsatisfiable-pin-text waivers) restate post-merge counts; independently reproduced by reading lattice.config.json directly: 110 total commands, 97 declared, 13 undeclared/exclusive-by-default, and those 13 are exactly the prior 10 audited barriers plus 3 newly-merged-from-main commands the waiver names by exact filename (validation-evidence-buffer-smoke.js, codex-heartbeat-timeout-smoke.js, red-b3434-blob-buffer-ceiling.mjs). The full-suite claim (49/49 passed, no 47/47 anywhere) is independently confirmed from the actual done-required-evidence.json receipt (root full test suite PASS, full-suite: 49/49 passed in 443.2s). No coverage gap, no stale binding, no mislabeled kind, no dishonest waiver found this round.",
+      "createdAt": "2026-08-19T00:24:07.220Z",
+      "reviewRound": "2026-08-19T00:17:10.730Z",
+      "reviewRunId": "B-7dff:RR-030",
+      "envelopeId": "51e91dc7a65af4498973e074fd0d44fa5fd602b140d1c19ff7b29108e430dc43",
+      "writerSessionId": "sess-c8142ac4cb69f1c755df4c1fc223e028",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7dff/background.md",
+          ".lattice/story/actives/B-7dff/checklist.json",
+          ".lattice/story/actives/B-7dff/closeout-write-receipts.jsonl",
+          ".lattice/story/actives/B-7dff/done-required-evidence.json",
+          ".lattice/story/actives/B-7dff/findings.json",
+          ".lattice/story/actives/B-7dff/plan.md",
+          ".lattice/story/actives/B-7dff/review-runs.json",
+          ".lattice/story/actives/B-7dff/test-evidence.json",
+          "lattice.config.json"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-7dff/process-events.jsonl",
+          "packages/main/src/tasks/validate-parallel-equivalence-smoke.ts",
+          "packages/main/tests/validate-plan-scheduling.test.mjs",
+          "packages/main/tests/validate-resource-claims.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "888cb05a7e04b87c86db8d6c4ea408d6675717948a42fdaf1a812c305c3140a9"
+    },
+    {
+      "id": "B-7dff:RP-018",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check on the merged tree (post 19ff5225fa, story level with main, 787 commits). Verified: (1) keyed-scheduler.ts extraction is the sole source of runScheduled/ResourceClaim/ResourceClass/claimsConflict/validateResourceClaims/canonicalizeEntries in packages/main/src, zero duplicate definitions; (2) validation-executor.ts, validation-types.ts, lattice.config.json, keyed-scheduler.ts are byte-identical to the pre-merge story tip, so the merge introduced no residue there; (3) the merge conflict in full-suite-runner.ts + full-suite-runner-smoke.ts resolved cleanly, keeping the storys extraction/tests intact and adopting only two small legitimate additions from main; (4) build (tsc) and all four relevant logic/smoke tests pass on the merged tree: full-suite-runner-smoke 159/159, validate-resource-claims 34/34, validate-plan-scheduling 43/43, validate-pollution-attribution 61/61, validate-parallel-equivalence 18/18; (5) independently re-verified post-merge-specific resolution claims in findings F-012/F-013/F-014/F-015 against the live tree: F-012s 110/97/13 counts and 3 newly-merged undeclared commands match direct config inspection and the VI-OK test receipts; F-013s claim that main already fixed the performanceBudgetMs hardcoded-300000 drift is confirmed present in the merged full-suite-runner.ts; F-014/F-015s claim of a tracked follow-up story B-9e3d is confirmed via story_get (phase INIT, exists). No waiver or resolution text references anything the merge removed or renamed. No orphaned or duplicated symbol from this storys extraction found.",
+      "createdAt": "2026-08-19T00:24:17.899Z",
+      "reviewRound": "2026-08-19T00:17:10.730Z",
+      "reviewRunId": "B-7dff:RR-032",
+      "envelopeId": "7f7fd30bb1c8fa27f4cd281efdfec5ca7ad5912224cb18139efe56c8676d2941",
+      "writerSessionId": "sess-c8142ac4cb69f1c755df4c1fc223e028",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7dff/background.md",
+          ".lattice/story/actives/B-7dff/checklist.json",
+          ".lattice/story/actives/B-7dff/findings.json",
+          ".lattice/story/actives/B-7dff/index.json",
+          ".lattice/story/actives/B-7dff/plan.md",
+          "lattice.config.json",
+          "packages/main/src/core/keyed-scheduler.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/tests/validate-resource-claims.test.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/tasks/validate-parallel-equivalence-smoke.ts",
+          "packages/main/tests/validate-plan-scheduling.test.mjs",
+          "packages/main/tests/validate-pollution-attribution.test.mjs",
+          "scripts/verify-full-suite-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9591961419a385eca27fc0041f9412624301e9150514bed50450922c9f4abf55"
+    },
+    {
+      "id": "B-7dff:RP-019",
+      "agent": "lattice-review-concept",
+      "note": "Re-review after TEST-phase closeout writes (summary_set, 2x delivery_check_set, dev_memory_finish_decision). Verified source freeze via git diff 4a03276..HEAD (prior RP-018 head to current HEAD): only story-metadata/process artifacts and .lattice/dev-memory changed, zero source files touched; review_incremental_context confirms the same single-file delta. Re-ran concept-residue grep for the scheduler extraction (full-suite-runner.ts -> core/keyed-scheduler.ts): RunScheduledOptions, module-level RESOURCE_CLASSES/MAX_JOBS/activeChildren/interruptSignal/interruptError/schedulerCancellationReason/terminalFailureName all show zero residual references outside .lattice/ prose notes; every runScheduled(...) call site passes the new options/cancellation-policy arg; full-suite-runner.ts re-export chain keeps existing importers (full-suite-runner-smoke.ts, full-suite-resource-sentinel.ts) resolving. No promised-but-undelivered drift found in verifier.ts/validation-executor.ts diffs. No concept deletion/replacement residue. No blocker.",
+      "createdAt": "2026-08-19T01:03:58.642Z",
+      "reviewRound": "2026-08-19T01:00:24.757Z",
+      "reviewRunId": "B-7dff:RR-034",
+      "envelopeId": "48baf9ba708f562fe6d0e16be2f390d838b25599bcc16003981a1420b402dc82",
+      "writerSessionId": "sess-c8142ac4cb69f1c755df4c1fc223e028",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7dff/background.md",
+          ".lattice/story/actives/B-7dff/checklist.json",
+          ".lattice/story/actives/B-7dff/plan.md",
+          "package.json",
+          "packages/main/src/core/keyed-scheduler.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/validate-parallel-benchmark.ts",
+          "packages/main/src/tasks/validate-parallel-equivalence-smoke.ts",
+          "packages/main/tests/red/red-B-7dff-sequential-validate-plan.mjs",
+          "packages/main/tests/validate-plan-scheduling.test.mjs",
+          "packages/main/tests/validate-pollution-attribution.test.mjs",
+          "packages/main/tests/validate-resource-claims.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6bbf2bfc07ac036b64a9a22298af02c3c04a2da0b169f51f7d3632a61de6e950"
+    },
+    {
+      "id": "B-7dff:RP-020",
+      "agent": "lattice-review-quality",
+      "note": "Closeout round, minting reviewer evidence immediately before quorum/advance. Verified source freeze directly rather than trusting the claim: git diff between my prior pass (RP-016, baseline commit b35533e3c4) and current HEAD (5a0dd29) touches ONLY 13 .lattice/ story-lifecycle bookkeeping files (summary.json, delivery-check.json, done-required-evidence.json, index.json, process-events.jsonl, process-metrics.json, prompt-envelopes.json, review-passes.json, review-runs.json, test-evidence.json, closeout-write-receipts.jsonl, dev-memory/experience.jsonl, dev-memory/finish-decisions/B-7dff.json) -- zero touches to packages/main/src, packages/main/tests, lattice.config.json, or package.json. This matches exactly the TEST-phase closeout writes named in the dispatch (summary_set, two delivery_check_set runs, dev_memory_finish_decision). Rather than rubber-stamp on that freeze, did a full fresh read of the entire code diff this round: captured git diff main...HEAD for packages/main/src + packages/main/tests (3562 lines across all 13 touched/new files: keyed-scheduler.ts, validation-evidence-reuse.ts, validation-executor.ts, validation-types.ts, verifier.ts, full-suite-runner.ts, full-suite-runner-smoke.ts, validate-parallel-benchmark.ts, validate-parallel-equivalence-smoke.ts, red-B-7dff-sequential-validate-plan.mjs, validate-plan-scheduling.test.mjs, validate-pollution-attribution.test.mjs, validate-resource-claims.test.mjs) and read it top to bottom, plus the lattice.config.json resource-claim reformat. Checked all four role rubric items fresh: (1) dead code -- none; the five keyed-scheduler.ts constants that show zero external call sites (RESOURCE_CLASSES/RESOURCE_ACCESSES/OWNED_RESOURCE_CLASSES/SCHEDULED_STATUSES/CANCELLATION_POLICIES) are consumed internally by validateResourceClaims and the cancellation-policy guard in the same file for runtime self-validation, confirmed live, not dead exports. (2) type safety -- grepped the full diff for as-any casts and loose any-type annotations: zero hits; grepped for both parenthesized and bare empty catch blocks: zero hits. npx tsc --noEmit -p packages/main/tsconfig.json exits 0 on this exact tree. No leftover merge-conflict markers, no new TODO/FIXME in the diff. console.log usages in the diff are confined to validate-parallel-benchmark.ts (explicitly on-demand, non-gate-enforced measurement CLI, documented as such in its own header) and validate-parallel-equivalence-smoke.ts (a smoke test printing its own VI-OK selector lines) -- both are the scripts stated purpose. (3) I/O shell isolation -- N/A, no shells/ or ui.ts touched. (4) proof/receipt metadata review coverage -- N/A, the only job/run-adjacent hunk is the already-covered verifier.ts F-006 additive-spread fix (base spread before externalResult spread, wrapping ValidationResult), which does not touch job.metadata or run.metadata. Substantively the diff is a well-documented, heavily self-tested refactor: keyed-scheduler.ts factors runScheduled/canonicalizeEntries/claimsConflict out of full-suite-runner.ts into a shared core module with per-call closure state (proven isolated between concurrent scheduler runs by a dedicated smoke assertion); validation-executor.ts adds resource-claim-based admission control to executeValidationPlan (fail-closed exclusive-by-default barrier for undeclared commands, run-all cancellation policy so a mid-plan failure never shortens commands[], plan-order restoration despite out-of-order completion, and F-003 concurrent-worktree-pollution attribution which reports ambiguous dirty-tree rows against the candidate SET rather than misattributing to one innocent command, still gated as a required failure); verifier.ts F-006 fix makes externalResult wrapping additive so a future ValidationResult field cannot be silently dropped again, with a structural guard test (section 8 of validate-pollution-attribution.test.mjs) that fails for ANY future dropped key, not just this one. Every new test file carries negative controls and vacuity guards (e.g. validate-parallel-equivalence-smoke.ts section 5 proves the collision probe actually bites when claims are disjoint; validate-pollution-attribution.test.mjs sections 2 and 3 prove serial execution and fail-closed barriers still attribute exactly; section 8 clean-fixture control proves the handshake fixture is not just failing for any reason). Findings ledger confirmed via finding_list: all 15 findings (F-001..F-015) resolved, including my own F-014 (medium, superseded/deferred to story B-9e3d, independently re-confirmed live via story_get: phase INIT, priority high, real background naming this exact defect). My own prior judgement on F-014 is unchanged: the full validate run on this exact merged tree completed with 0 required failures under the flat, un-scaled timeout ceiling, which is live evidence the current per-command timeoutMs margins hold in practice, and reconciling the two timeout-margin policies now that they share one scheduler needs its own measurement and review round, correctly sized as separate tracked work in B-9e3d with a pointer back to this story git history. Nothing since has touched that code path. No blocker.",
+      "createdAt": "2026-08-19T01:06:17.710Z",
+      "reviewRound": "2026-08-19T01:00:24.757Z",
+      "reviewRunId": "B-7dff:RR-033",
+      "envelopeId": "c8ea0882b7ba757e55825eb22d8eb7afef110dc59cb1b4748a80a1ad6d07941f",
+      "writerSessionId": "sess-c8142ac4cb69f1c755df4c1fc223e028",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7dff/checklist.json",
+          ".lattice/story/actives/B-7dff/review-passes.json",
+          "packages/main/src/core/keyed-scheduler.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/validate-parallel-benchmark.ts",
+          "packages/main/src/tasks/validate-parallel-equivalence-smoke.ts",
+          "packages/main/tests/red/red-B-7dff-sequential-validate-plan.mjs",
+          "packages/main/tests/validate-plan-scheduling.test.mjs",
+          "packages/main/tests/validate-pollution-attribution.test.mjs",
+          "packages/main/tests/validate-resource-claims.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-7dff/background.md",
+          ".lattice/story/actives/B-7dff/plan.md",
+          ".lattice/story/actives/B-9e3d/background.md",
+          ".lattice/story/actives/B-9e3d/index.json",
+          "lattice.config.json",
+          "package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "59b24aaefd56bee68eaafe55a6542ccbdffcf9e9a4833cd1001138ccd967c068"
+    },
+    {
+      "id": "B-7dff:RP-021",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage complete: all 15 must-priority verificationIntents across CHK-001..CHK-005 have valid evidence (13 logic_test/integration_test rows, all mechanical:true with real receipts exitCode/outputDigest/selectorMatched/executedAt, result=pass; plus 2 permanent, well-justified waivers on CHK-001:happy:0 and CHK-005:happy:0 for a pin selector citing full-suite member counts that change run to run). No missing/failing intent. No evidence kind overstates its command: logic_test rows are honestly self-audited as in-process/no-spawn including a documented self-correction (F-009); integration_test rows on CHK-003:happy:0/CHK-004:happy:0 are justified with explicit real-child-process-spawn evidence (dist import + process.execPath). Investigated the delivery reviewer's milestone_status M1-M4 Blocked flag per the requested second opinion: I agree it is mechanical rebinding lag, not a coverage defect. Root-caused directly: milestone_status flags evidence=stale uniformly on ALL CHK-001..CHK-004 rows (not just CHK-001:happy:0) because current storyFilesHash 0bab1cc35f5b differs from the storyFilesHash most evidence was stamped with (7446a31ff3c1, captured at merge commit 19ff5225fa). Verified via git diff --name-status -M 19ff5225fa..HEAD that the only files touched since that stamp are .lattice/story/actives/B-7dff/* (excluded story metadata: checklist.json, delivery-check.json, summary.json, review-passes.json, review-runs.json, test-evidence.json, process-events/metrics, prompt-envelopes, closeout-write-receipts, done-required-evidence) plus .lattice/dev-memory/finish-decisions/B-7dff.json (new, deliberately materialHash-excluded per B-a7c5 F-005) and .lattice/dev-memory/experience.jsonl (+3 lines, confirmed via git diff --stat). Zero source or test files changed. experience.jsonl sits outside the runtime-artifact-registry exclusion (only .lattice/dev-memory/finish-decisions/ is excluded, not the sibling experience.jsonl), so the mandatory closeout dev-memory step still perturbs storyFilesHash even though it touches no story-owned code; this is an infra registry gap outside my review-only charter to fix, not a verificationIntent/Evidence coverage gap in this story. Separately, CHK-001:happy:0's own earlier storyFilesHash move (pre-merge 1e183269 stamped at 16:57, never re-stamped after the merge) IS a real content-touching drift: git diff 921230f1..19ff5225fa shows the main merge brought in changes to packages/main/src/tasks/full-suite-runner.ts and full-suite-runner-smoke.ts (B-d15e budget-telemetry changes to the same files CHK-001 owns), which is why the executable CHK-001 edge/adversarial evidence was correctly re-captured post-merge at 7446a31f with fresh receipts. The waiver's substance (a fixed prose selector can never match a member count/jobs value that varies run to run) is a permanent structural claim unaffected by that merge's content, so re-verifying it was unnecessary in substance even though its citation numbers predate the merge. No blocker. No coverage defect.",
+      "createdAt": "2026-08-19T01:12:04.795Z",
+      "reviewRound": "2026-08-19T01:00:24.757Z",
+      "reviewRunId": "B-7dff:RR-035",
+      "envelopeId": "225c8ab5805b83340dc99ec4534002f75a5d4bdd43fa2dbcbc4f96ad2ca6396c",
+      "writerSessionId": "sess-c8142ac4cb69f1c755df4c1fc223e028",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7dff/background.md",
+          ".lattice/story/actives/B-7dff/checklist.json",
+          ".lattice/story/actives/B-7dff/plan.md"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "packages/main/src/core/keyed-scheduler.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/validate-parallel-equivalence-smoke.ts",
+          "packages/main/tests/validate-plan-scheduling.test.mjs",
+          "packages/main/tests/validate-resource-claims.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ca2825beb8c84c0806afaada39ff96ead9a54cea2c11a62353ce97406373939d"
+    },
+    {
+      "id": "B-7dff:RP-022",
+      "agent": "lattice-review-quality",
+      "note": "Second consecutive closeout round for this lane, immediately re-dispatched after RP-020 with no intervening code change. Verified the freeze claim myself rather than trusting it: git diff between my prior pass baseline (RP-020, headHash 5a0dd29bbf) and current HEAD (8310c7f78a) touches ONLY 7 .lattice/story/actives/B-7dff/ bookkeeping files (checklist.json, closeout-write-receipts.jsonl, process-events.jsonl, prompt-envelopes.json, review-passes.json, review-runs.json, test-evidence.json) -- git diff --stat confirms zero lines changed under packages/main/src, packages/main/tests, lattice.config.json, or package.json. Inspected the checklist.json diff directly (not just trusted the stat): every changed line is a headHash/materialHash/storyFilesHash/executedAt/outputDigest/outputTail rebinding tuple -- exactly 13 verificationEvidence rows carry a new headHash (26 diff lines, 2 per row), matching the claimed 13/13 re-execution count -- with unchanged desc/command/selector/kind/priority text and unchanged outputTail content (e.g. the validate-parallel-equivalence rows still print the same VI-OK selector lines and near-identical speedup numbers, 1.98x vs 1.98x/1.96x), i.e. real re-runs producing equivalent results, not restamped hashes on stale output. checklist_get confirms still exactly 5 items, all done -- no scope creep, no item added or removed since my last pass. finding_list confirms all 15 findings F-001 through F-015 resolved, 0 open, 0 blocking. Re-confirmed F-014 deferral is a live, real story and not a fabricated claim: story_get on B-9e3d shows phase INIT, priority high elevated, title Reconcile the two timeout-margin policies that now share one keyed scheduler, visible via the normal story_get path -- the same check I ran last pass, repeated fresh rather than assumed carried-forward. My substantive judgement on F-014 is unchanged from RP-020: it is correctly filed as separate tracked work rather than blocking this story, medium severity, non-live-regression, and this story own full validate run completed with 0 required failures under the current per-command timeout margins. Since RP-020 already performed a full top-to-bottom read of the entire packages/main/src plus packages/main/tests diff for this lane four rubric items (dead code, type safety, as-any casts, empty-catch, I/O shell isolation, proof/receipt metadata dual-surface authoring) and found nothing, and zero bytes of that diff have changed since, there is nothing new to review under this lane mandate. No blocker.",
+      "createdAt": "2026-08-19T01:40:45.680Z",
+      "reviewRound": "2026-08-19T01:00:24.757Z",
+      "reviewRunId": "B-7dff:RR-038",
+      "envelopeId": "ef854bdee6345c5de899f6f09168b71e52822e1bc373515c256770d72fd3140d",
+      "writerSessionId": "sess-c8142ac4cb69f1c755df4c1fc223e028",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7dff/checklist.json",
+          ".lattice/story/actives/B-7dff/review-passes.json"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-7dff/background.md",
+          ".lattice/story/actives/B-7dff/plan.md",
+          ".lattice/story/actives/B-9e3d/background.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/core/keyed-scheduler.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/validate-parallel-benchmark.ts",
+          "packages/main/src/tasks/validate-parallel-equivalence-smoke.ts",
+          "packages/main/tests/validate-pollution-attribution.test.mjs",
+          "packages/main/tests/validate-resource-claims.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5bf677d25bfc129e2949e40707ceed2c201798e1150795191324d464f1b2f73e"
+    },
+    {
+      "id": "B-7dff:RP-023",
+      "agent": "lattice-review-concept",
+      "note": "Re-review (round after RP-019, story-level). Independently verified source freeze before checking scope: RP-019 was bound to headHash 5a0dd29b (materialHash/storyFilesHash identical to current RR-036 binding, 6252802...9e775/0bab1cc...9e775); git diff 5a0dd29b..8310c7f shows only .lattice/story/actives/B-7dff/{checklist,closeout-write-receipts,process-events,prompt-envelopes,review-passes,review-runs,test-evidence} changed across 6 metadata-recording commits, zero packages/main/src files touched, so no new concept-relevant drift exists since the prior concept pass. Concept scope this story: extraction of the full-suite scheduler internals (module globals activeChildren/interruptSignal/interruptError/schedulerCancellationReason, RESOURCE_CLASSES, MAX_JOBS, RunScheduledOptions, canonicalFilesystemPath/pathIsContained/canonicalizeEntries/validateResourceClaims/claimsConflict/parsePositiveInteger/runScheduled) out of tasks/full-suite-runner.ts into new core/keyed-scheduler.ts (read in full, 197 lines) with generic SchedulableEntry/SchedulableResult/KeyedSchedulerOptions and a new run-all cancellation policy for the validate-plan caller, re-exported from full-suite-runner.ts for compatibility; and extraction of formatWorktreePollutionDetails into a shared evaluateWorktreePollution consumed by both the existing per-command formatter and the new set-attributed (concurrentWorktreePollution/attributeWorktreePollution) formatter in validation-executor.ts. Read the full diffs of keyed-scheduler.ts, full-suite-runner.ts, validation-executor.ts, verifier.ts, validation-evidence-reuse.ts, validation-types.ts, package.json, and background.md; reviewed checklist.json via checklist_get. Re-ran repo-wide grep for RunScheduledOptions/schedulerCancellationReason/activeChildren/interruptSignal/interruptError/RESOURCE_CLASSES/MAX_JOBS: zero residual references outside interface field names (state.activeChildren, etc.), the still-exported RESOURCE_CLASSES/MAX_JOBS constants now living in keyed-scheduler.ts, and .lattice/ prose notes documenting the old names. Confirmed every runScheduled(...) call site (full-suite-runner.ts:538, full-suite-runner-smoke.ts x15, executeValidationPlan) passes the required options/cancellation-policy 4th argument; no call site left on the old 3-arg signature. Confirmed the new npm scripts (test:validate-parallel-equivalence, bench:validate-parallel, test:validate-resource-claims, test:validate-pollution-attribution) point at files present in this diff -- no promised-but-undelivered script targets. Confirmed lattice.config.json resources[] additions (grep-sampled: git-common-dir class entries) align with CHK-002's per-command resource-claim declarations. Checked the Wave 4 acceptance-rollout boundary note against this diff: the only matches for acceptance_topology_check/pre_review_check_read/acceptance_rollout_report_read/acceptance_rollout_check/acceptanceRolloutGateMode are inside the generated .lattice/story/actives/B-7dff/acceptance-basis.json process-fact artifact; this story does not modify acceptance-topology.ts, transition-orchestrator.ts, proofstory.ts, registry.ts, or proofStory.acceptanceRolloutGateMode, so that boundary is out of scope this round and not a finding. No concept deletion/replacement residue found. No blocker.",
+      "createdAt": "2026-08-19T01:42:07.998Z",
+      "reviewRound": "2026-08-19T01:00:24.757Z",
+      "reviewRunId": "B-7dff:RR-036",
+      "envelopeId": "27524cee46ce367f93594458ae30bbde782091468d578fff51fa0846345e78f3",
+      "writerSessionId": "sess-c8142ac4cb69f1c755df4c1fc223e028",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7dff/background.md",
+          "package.json",
+          "packages/main/src/core/keyed-scheduler.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/story/actives/B-7dff/plan.md",
+          "lattice.config.json",
+          "packages/main/src/red/red-B-7dff-sequential-validate-plan.mjs",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/validate-parallel-benchmark.ts",
+          "packages/main/src/tasks/validate-parallel-equivalence-smoke.ts",
+          "packages/main/tests/validate-plan-scheduling.test.mjs",
+          "packages/main/tests/validate-pollution-attribution.test.mjs",
+          "packages/main/tests/validate-resource-claims.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "21193457aa0bf948b6d9737b298bec37a2c6d2d79eecf9091f4cfa5d2beb8c4a"
+    },
+    {
+      "id": "B-7dff:RP-024",
+      "agent": "lattice-review-test-coverage",
+      "note": "Second-opinion re-verification requested after the RP-021 -> refresh -> RP-022 sequence. Confirmed directly rather than trusting the claim: all 13 mechanical verificationEvidence rows (CHK-001 edge/adversarial; CHK-002 happy/edge/adversarial; CHK-003 happy/edge/adversarial; CHK-004 happy/edge/adversarial; CHK-005 edge/adversarial) now share one consistent binding -- headHash bc7dfaa9ae, materialHash 6252802133ce751d..., storyFilesHash 0bab1cc35f5b0e4c... -- which matches the current story exactly (review_run_start printed story 0bab1cc, an exact prefix match). headHash trails current HEAD (8310c7f78a) by exactly one commit; git diff bc7dfaa9ae..8310c7f78a touches only checklist.json, i.e. that one commit is solely the act of persisting the refreshed evidence -- the same structurally-unavoidable N-1 headHash lag this story has repeatedly and correctly treated as non-blocking metadata drift (RP-013, RP-017, RP-019 precedent), never a materialHash/storyFilesHash mismatch. Genuine re-execution, not restamping: each of the 13 rows carries its own distinct executedAt (spread 01:36:13-01:37:28Z, roughly 1-8s apart, consistent with 13 separate process spawns) and, where the underlying command output is timing-sensitive, a distinct outputDigest (CHK-001 edge vs adversarial differ; CHK-004 adversarial differs from its happy/edge siblings by a 2.29s vs 2.30s parallel timing) rather than one receipt copy-pasted across rows; deterministic logic-test rows sharing the same command (CHK-002 x3 plus CHK-005 x2, all validate-resource-claims.test.mjs) legitimately share one digest because that suite is pure and side-effect-free -- separately corroborated by RP-022 (quality lane), which independently read the same commit diff and confirmed exactly 13 rebinding tuples with unchanged desc/command/selector/kind and equivalent (not byte-frozen-suspicious) output. Two permanent waivers (CHK-001:happy:0, CHK-005:happy:0) read honestly: their text is unchanged since RP-013/RP-018 last verified their cited facts, and I independently confirmed the tree they describe has not drifted since -- git diff --name-status 19ff5225fa..HEAD excluding .lattice/ paths is EMPTY (zero source/config changes since the merge baseline both waivers were last checked against), and direct inspection today reconfirms lattice.config.json still declares 110 validate.commands entries (matching the waiver 110/97/13 claim) and full-suite-runner.ts still derives FULL_SUITE_ENTRIES from the same RESOURCE_POLICY table the waiver cites for 49/49. Their storyFilesHash (1e183269ed6f) intentionally trails current (0bab1cc35f5b) because they are structurally permanent, content-independent claims about an immutable pin, not evidence that decays when unrelated checklist rows get refreshed -- exactly the mechanism I root-caused in RP-021, which milestone_status still flags as a risk because its staleness check does not distinguish that case. Milestone M1 remains Blocked in milestone_status for the same two reasons already diagnosed and disclosed across many rounds, not a new gap: (a) the CHK-001:happy:0 storyFilesHash lag just reconfirmed above as benign, and (b) the pre-existing, honestly-disclosed absence of a literal integration_test-kind row for the scheduler (real integration coverage is npm test, whose receipt cannot be minted under the pinned-command timeout, per F-009/RP-013, a permanent non-gating limitation, not something this round changed). No new coverage gap, no restamped evidence, no dishonest waiver found. No blocker.",
+      "createdAt": "2026-08-19T01:43:54.125Z",
+      "reviewRound": "2026-08-19T01:00:24.757Z",
+      "reviewRunId": "B-7dff:RR-037",
+      "envelopeId": "132a1e07fd517f77c804d1956d93396bc9ec154b402a694f5bdd017150132513",
+      "writerSessionId": "sess-c8142ac4cb69f1c755df4c1fc223e028",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7dff/background.md",
+          ".lattice/story/actives/B-7dff/checklist.json",
+          ".lattice/story/actives/B-7dff/plan.md",
+          ".lattice/story/actives/B-7dff/review-passes.json"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-7dff/findings.json",
+          "lattice.config.json",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3f9344f735acedb39053aae473e3922cc674cac43749d7915daed006d627c586"
+    },
+    {
+      "id": "B-7dff:RP-025",
+      "agent": "lattice-review-concept",
+      "note": "Re-review (round after RP-023, story-level). Independently verified source freeze via git diff 8310c7f78a6f97de76dc4afd8623ac31abc908b3..d0e8f1766c4b4bbbcc33f35d7083ab3d693ed615 --stat: only .lattice/story/actives/B-7dff/{checklist,done-required-evidence,index,process-events,process-metrics,prompt-envelopes,review-passes,review-runs,test-evidence,closeout-write-receipts} changed (10 story-bookkeeping files), zero packages/main/src files touched, zero lattice.config.json/package.json changes. Consistent with dispatch context stating changes since RP-023 were CHK-001:happy:0 waiver rebind, refresh of 13 command-backed evidence rows, and REVIEW-phase transitions -- none of which touch concept scope. Concept scope this story (keyed-scheduler.ts extraction from full-suite-runner.ts, worktree-pollution formatter unification in validation-executor.ts, RunScheduledOptions 4-arg signature migration) was already fully reviewed with zero residue in RP-019/RP-023; no new drift exists to re-review since RP-023. No concept deletion/replacement occurred in this round; concept residue check remains satisfied, no blocker.",
+      "createdAt": "2026-08-19T02:04:31.999Z",
+      "reviewRound": "2026-08-19T02:03:22.681Z",
+      "reviewRunId": "B-7dff:RR-039",
+      "envelopeId": "ae46c81a63e0d1750aa16fc4939179a74ece0fcda7ec5d246b8d1ab80230a255",
+      "writerSessionId": "sess-c8142ac4cb69f1c755df4c1fc223e028",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7dff/checklist.json"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/core/keyed-scheduler.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "scanEscalationReason": "No material change since RP-023 (verified via git diff --stat against RP-023 bound headHash 8310c7f7); source files re-triaged by name against prior full-read pass, not re-read in full, since diff confirms byte-identical content."
+      },
+      "_hash": "265e384c8307147451a1cace96839c1a62d2a6c3b151a05c22d3d9993bfffb6c"
+    },
+    {
+      "id": "B-7dff:RP-026",
+      "agent": "lattice-review-quality",
+      "note": "Story-level quality re-pass on RR-040 following prior pass RP-022/RR-038. Verified via git diff between the two bound head hashes (8310c7f..d0e8f17) that materialHash is identical (6252802...b516dc39) -- zero product source changed since RP-022; all files touched this round are under .lattice/story/actives/B-7dff/*. Two legitimate changes since RP-022: (1) CHK-001:happy:0 permanent waiver rebound to current head/material/storyFilesHash for the DONE intent-equivalence gate (M1) -- waiver text unchanged plus an appended rebind explanation; (2) verification_evidence_refresh_stale reused 13 stale command-backed intents (covered 2->15, commandExecutions=0, trusted-story-metadata-descendant lineage), flipping validate --story=B-7dff --json from fail to pass. All findings F-001..F-015 are resolved. F-014's deferral to story B-9e3d re-verified independently: B-9e3d exists, phase=INIT, title matches exactly -- deferral judgement unchanged and remains defensible. No new code-quality findings this round.",
+      "createdAt": "2026-08-19T02:05:43.056Z",
+      "reviewRound": "2026-08-19T02:03:22.681Z",
+      "reviewRunId": "B-7dff:RR-040",
+      "envelopeId": "5e3d8b6229c46aee7bb0cfc62e2e7854c22197220d7ad5b8de658729c36f16e0",
+      "writerSessionId": "sess-c8142ac4cb69f1c755df4c1fc223e028",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7dff/checklist.json",
+          ".lattice/story/actives/B-7dff/findings.json",
+          ".lattice/story/actives/B-7dff/review-runs.json",
+          ".lattice/story/actives/B-7dff/test-evidence.json",
+          "packages/main/src/core/keyed-scheduler.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/validate-parallel-benchmark.ts",
+          "packages/main/src/tasks/validate-parallel-equivalence-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "package.json",
+          "packages/main/tests/red/red-B-7dff-sequential-validate-plan.mjs",
+          "packages/main/tests/validate-plan-scheduling.test.mjs",
+          "packages/main/tests/validate-pollution-attribution.test.mjs",
+          "packages/main/tests/validate-resource-claims.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9889c35142442b0bd0c2618cd0c1f38dfa698677a90b869ac0e71bf1fe4b5b3d"
+    },
+    {
+      "id": "B-7dff:RP-027",
+      "agent": "lattice-review-concept",
+      "note": "Re-review (round after RP-025, story-level). Independently verified source freeze via git diff d0e8f1766c4b4bbbcc33f35d7083ab3d693ed615..f5cf0b986190e702d51da11ab946ea5823fe5a23 --stat: only 7 story-bookkeeping files changed (checklist.json, findings.json, process-events.jsonl, process-metrics.json, prompt-envelopes.json, review-passes.json, review-runs.json); zero packages/main/src files, zero lattice.config.json/package.json changes. Confirmed the diff content directly: checklist.json change is the CHK-005:happy:0 permanent waiver being rebound at the current head/material/story-files binding (text and reasoning unchanged, only the binding moved), consistent with dispatch context; findings.json change is F-016 and F-017 (both filed by lattice-review-test-coverage, same defect-class as F-012, CHK-005 twin left stale after CHK-001 was rebound) marked resolved with matching resolvedReason, and a follow-up story B-0f97 was filed for the underlying framework gap (verification_evidence_refresh_stale structurally skipping waiver rows). Concept scope for this story (keyed-scheduler.ts extraction from full-suite-runner.ts, worktree-pollution formatter unification in validation-executor.ts, RunScheduledOptions 4-arg signature migration) was already fully reviewed with zero residue across RP-019/RP-023/RP-025; no new drift since RP-025 to re-review. As a standing check (Wave 4 concept boundary) independent of this story diff, verified via --help that acceptance_topology_check, pre_review_check_read, acceptance_rollout_report_read, and acceptance_rollout_check all remain present in the CLI command set and are untouched by this story diff, so no concept residue there either. No concept deletion/replacement occurred in this round; concept residue check remains satisfied, no blocker.",
+      "createdAt": "2026-08-19T02:13:10.235Z",
+      "reviewRound": "2026-08-19T02:03:22.681Z",
+      "reviewRunId": "B-7dff:RR-043",
+      "envelopeId": "e31096fb245d0ea0ca6e265ac425ba9fa08d164bb86ddb3e0b622fb39ef62c5d",
+      "writerSessionId": "sess-c8142ac4cb69f1c755df4c1fc223e028",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7dff/checklist.json",
+          ".lattice/story/actives/B-7dff/findings.json"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/core/keyed-scheduler.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "scanEscalationReason": "No material (packages/main/src or config) change since RP-025 (verified via git diff --stat between RP-025 bound headHash d0e8f1766c and current head f5cf0b9861); source files re-triaged by name against prior full-read passes (RP-019/RP-023/RP-025), not re-read in full, since diff confirms byte-identical content."
+      },
+      "_hash": "029d35c341397eb31a1360394a3c2d1104ee9730e9b80928dc16769daa68a425"
+    },
+    {
+      "id": "B-7dff:RP-028",
+      "agent": "lattice-review-quality",
+      "note": "Story-level quality re-pass on RR-044. Verified via git diff between prior bound head (d0e8f1766c, RP-026/RR-040) and current HEAD (f5cf0b9861): zero product source changed -- only story-metadata files touched (checklist.json: CHK-005:happy:0 permanent waiver text-unchanged rebind to current head/material/storyFilesHash per resolved F-016/F-017; findings.json: F-016+F-017 resolved with resolveEvidenceStrength=strong; process-events.jsonl/process-metrics.json/prompt-envelopes.json/review-passes.json/review-runs.json: bookkeeping). Independently confirmed both permanent waivers (CHK-001:happy:0 and CHK-005:happy:0) now share the current binding materialHash=6252802...b516dc39/storyFilesHash=0bab1cc...0f9e775. Independently re-verified the follow-up story B-0f97 (Waiver evidence bindings drift silently because the refresh scan excludes them before the freshness check) exists on main, phase=INIT, title matches exactly the F-016/F-017 resolvedReason claim -- not visible from this worktrees checked-out files only because main has advanced past this branchs merge-base (81c88bf448), which is expected pre-merge state, not a defect. Re-verified my own F-014 deferral to story B-9e3d: exists, phase=INIT, title Reconcile the two timeout-margin policies that now share one keyed scheduler matches exactly -- deferral judgement unchanged and remains defensible (medium severity, non-live-regression, margins spot-checked, reconciling changes what ~110 configured timeoutMs values mean and needs its own measurement/review round). All findings F-001..F-017 resolved. No new code-quality findings this round.",
+      "createdAt": "2026-08-19T02:13:56.565Z",
+      "reviewRound": "2026-08-19T02:03:22.681Z",
+      "reviewRunId": "B-7dff:RR-044",
+      "envelopeId": "70f6f2a05ed761dc1b5aa5c2f0328cef4ec1d3d4b992a989b61b3e2cb8f24eb6",
+      "writerSessionId": "sess-c8142ac4cb69f1c755df4c1fc223e028",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7dff/background.md",
+          ".lattice/story/actives/B-7dff/checklist.json",
+          ".lattice/story/actives/B-7dff/findings.json",
+          ".lattice/story/actives/B-7dff/plan.md",
+          ".lattice/story/actives/B-7dff/review-passes.json",
+          ".lattice/story/actives/B-7dff/review-runs.json"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/keyed-scheduler.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/validate-parallel-benchmark.ts",
+          "packages/main/src/tasks/validate-parallel-equivalence-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "d6e5f9ec5b9346aac910157d7508cf1340c23317ff50c5b6971043a0bf6c89a1"
+    },
+    {
+      "id": "B-7dff:RP-029",
+      "agent": "lattice-review-test-coverage",
+      "note": "Independently re-verified F-016/F-017 closure rather than trusting the refresh report they showed is blind to waivers. Coverage: 15/15 must-priority verificationIntent rows across CHK-001..CHK-005, each with exactly one matching verificationEvidence row (2 permanent waivers: CHK-001:happy:0, CHK-005:happy:0; 13 command-backed). Ran checkEvidenceFreshnessForGit (the same function evidence_refresh/done_prepare use) programmatically against every one of the 15 rows, including both waivers which refreshOnlyDrift/isWaiver structurally skip: 0 stale rows found. Both waivers materialHash 6252802133ce751d6a0a79951a96f81b0719231e4da88bbc6ae8bf588516dc39 and storyFilesHash 0bab1cc35f5b0e4ceae7c9ed0ac03e365bd8ccd26fd92afe53f1b65eb0f9e775 byte-match current computed values (confirmed via git ls-tree at current HEAD 3afe6bf5d9). Their literal headHash fields point at earlier commits (ee3ba2a242, a5b9ed0a98) but that is expected: checkEvidenceFreshnessForGit checks materialHash first, and only the two waiver rebind commits (3f40a4bf8c, ebb946f046) intervened between those hashes and current HEAD, touching only checklist.json which is story metadata excluded from materialHash. Git-diffed both rebind commits directly and confirmed each prior materialHash genuinely differed from current before the rebind, so this was real drift correctly repaired, not a cosmetic edit. The 13 command-backed rows were genuinely re-executed, not metadata-stamped: git-diffed the verification_evidence_refresh_stale commit 8310c7f78a and confirmed distinct outputDigest values and staggered executedAt timestamps (01:36:13 through 01:37:28 UTC) replacing stale receipts, matching a real re-run rather than a copy. Confirmed story B-0f97 waiver-bindings-invisible-to-refresh exists via git show main colon path to its index.json: phase INIT, description accurately names evidence-refresh.ts refreshOnlyDrift/isWaiver as the mechanism, matching F-016/F-017 root cause. It is not yet visible from proof-or-stop story_get or story_list inside this worktree because main advanced past this worktree merge-base after the story was filed (main HEAD e51c1a63fc vs this worktree merge-base 81c88bf448); that is normal worktree divergence, not a missing filing, and done_prepare mergeMain will pick it up. finding_list shows F-016 and F-017 status resolved evidenceState verified, and 0 open findings remain on the story. No blocker found.",
+      "createdAt": "2026-08-19T02:20:26.205Z",
+      "reviewRound": "2026-08-19T02:03:22.681Z",
+      "reviewRunId": "B-7dff:RR-045",
+      "envelopeId": "889b71c7281bc66570942c599cb2cc3fa92f07c85045deb17c0aeb35ea287282",
+      "writerSessionId": "sess-c8142ac4cb69f1c755df4c1fc223e028",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7dff/background.md",
+          ".lattice/story/actives/B-7dff/checklist.json",
+          ".lattice/story/actives/B-7dff/findings.json",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/handlers/evidence-refresh.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-0f97/index.json (read via git show main colon path)",
+          ".lattice/story/actives/B-7dff/process-events.jsonl",
+          "git show 3f40a4bf8c for checklist.json CHK-001 waiver rebind diff",
+          "git show 8310c7f78a for checklist.json 13-row refresh diff",
+          "git show ebb946f046 for checklist.json CHK-005 waiver rebind diff"
+        ],
+        "scanEscalationReason": "Ran the production checkEvidenceFreshnessForGit function programmatically against all 15 verificationEvidence rows in checklist.json, including both waivers, rather than relying on evidence_refresh or verification_evidence_refresh_stale reports which F-016 and F-017 established are structurally blind to waiver rows. Zero stale rows found; git-diffed the three relevant commits (both waiver rebinds plus the 13-row refresh) to confirm the prior bindings were genuinely stale before repair and the repair was a genuine rebind or re-run, not a cosmetic edit."
+      },
+      "_hash": "e0c82c4ec185208096ba19cc99519995908bcfac7e36bc19a3c82a171d05129a"
+    }
+  ]
+}

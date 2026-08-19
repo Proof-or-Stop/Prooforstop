@@ -1,6 +1,12 @@
 #!/usr/bin/env node
 
 import { strict as assert } from 'node:assert';
+// B-cc10 F-070: the lock the runtime actually READS. Creating it at the deprecated
+// path made the 'lock is held' assertions unfireable — the dangerous sub-kind of this
+// migration's dominant defect class (a fixture staging state at an unread path, where
+// the test passes vacuously instead of failing loudly).
+import { PROOF_OR_STOP_MAIN_WRITE_LOCK } from '../core/lattice-paths.js';
+import { DEPRECATED_STATE_DIR, PROOF_OR_STOP_STATE_DIR } from '../core/brand-paths.js';
 import { execFileSync, spawn } from 'node:child_process';
 import { existsSync, lstatSync, mkdirSync, mkdtempSync, readlinkSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -39,11 +45,19 @@ function initRepo(prefix: string): string {
     requirementsDir: 'docs/requirements',
     worktreeDir: '.worktrees',
   }, null, 2));
+  // B-cc10 F-070: this fixture keeps a DEPRECATED storyDir on purpose (it exercises
+  // read-both compatibility), but the runtime writes its main-write lock to the CANONICAL
+  // state dir regardless. Ignoring only the deprecated spelling left that lock dir
+  // untracked, so `assertMainWorktreeClean` failed with "main worktree is not clean" —
+  // a fixture setting up state at a path the runtime no longer writes, which is this
+  // migration's dominant defect class. Both spellings are ignored, story dirs re-included.
   write(root, '.gitignore', [
     '.worktrees/',
-    '.lattice/*',
-    '!.lattice/story/',
-    '!.lattice/story/**',
+    ...[DEPRECATED_STATE_DIR, PROOF_OR_STOP_STATE_DIR].flatMap((dir) => [
+      `${dir}/*`,
+      `!${dir}/story/`,
+      `!${dir}/story/**`,
+    ]),
     '',
   ].join('\n'));
   write(root, 'README.md', 'worktree repair smoke\n');
@@ -171,7 +185,7 @@ async function assertDoctorRepairCleansAndProtects(): Promise<void> {
 }
 
 // B-097f made agent prompt assets host-neutral single-source: the global
-// link-repair now manages ONLY the canonical @lattice/core package and no
+// link-repair now manages ONLY the canonical @proof-or-stop/core package and no
 // longer resolves or rewrites a legacy @legacy-agent/core symlink. So when the
 // canonical install is a real directory (not a stale worktree symlink) and the
 // only worktree-pointing symlink is the legacy package, repair correctly returns
@@ -305,7 +319,7 @@ async function assertDoneRecoverUsesDoneMainMergeLock(): Promise<void> {
   try {
     const storyId = 'B-partial-lock';
     buildPartialDone(root, storyId);
-    mkdirSync(join(root, '.lattice', 'locks', 'main-write.lock'), { recursive: true });
+    mkdirSync(join(root, ...PROOF_OR_STOP_MAIN_WRITE_LOCK.split('/')), { recursive: true });
 
     const output = await runProofOrStopExpectFail(root, 'done_recover', { storyId });
     assert.match(output, /DONE main merge lock is held/, 'done_recover must use the same DONE main merge lock');

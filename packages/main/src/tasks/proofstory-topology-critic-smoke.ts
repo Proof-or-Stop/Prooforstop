@@ -29,6 +29,7 @@ import {
   listRuntimeArtifactIgnorePatterns,
 } from '../core/runtime-artifact-registry.js';
 import type { AcceptanceVerificationTopologyV1, ChecklistData, ProofStoryContractData, ScopeCheckData, ScopeContractData, StoryInfo, TopologyCriticReceiptV1 } from '../core/types.js';
+import { ADAPTER_DIR_NAMES } from '../core/brand-paths.js';
 import {
   canonicalTopologyReceiptContext,
   deriveImplementationProvenance,
@@ -45,7 +46,7 @@ import {
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const sourceRoot = resolve(packageRoot, '..');
 const repositoryRoot = resolve(sourceRoot, '..', '..');
-const latticeBin = join(repositoryRoot, 'bin/lattice.js');
+const latticeBin = join(repositoryRoot, 'bin/proof-or-stop.js');
 const storyId = 'B-topology-critic-smoke';
 const now = '2026-07-22T00:00:00.000Z';
 const smokeArgs = process.argv.slice(2);
@@ -313,8 +314,12 @@ smokeSuite: try {
   assert.equal(canonicalPrompt.includes(MODULAR_ROLE_BODY_MARKER), true, 'package canonical prompt retains the independently selected modular role body');
 
   const claudePromptPath = join(repositoryRoot, '.claude/agents/lattice-review-topology-critic.md');
-  const codexPromptPath = join(repositoryRoot, '.lattice-codex/agents/lattice-review-topology-critic.md');
   const claudeBootstrap = readFileSync(claudePromptPath, 'utf8');
+  // B-cc10 F-029: assert against whichever adapter-dir spelling actually exists on disk.
+  const codexPromptPath = ADAPTER_DIR_NAMES
+    .map((dir) => join(repositoryRoot, `${dir}/agents/lattice-review-topology-critic.md`))
+    .find((candidate) => existsSync(candidate));
+  assert.ok(codexPromptPath, `no Codex prompt mirror found under any of: ${ADAPTER_DIR_NAMES.join(', ')}`);
   const codexBootstrap = readFileSync(codexPromptPath, 'utf8');
   const expectedClaudeBootstrap = renderPromptEntryForHost(promptEntry!, 'claude');
   const expectedCodexBootstrap = renderPromptEntryForHost(promptEntry!, 'codex');

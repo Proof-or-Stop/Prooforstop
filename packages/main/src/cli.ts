@@ -3,7 +3,8 @@
  * Proof-or-Stop bin entry (main standalone mode)
  *
  * This script only loads tools bundled with main (process category). If you also want to enable @lattice/utils
- * helper tools, use the generated bin/lattice.js bootstrap script.
+ * helper tools, use the generated bin/proof-or-stop.js bootstrap script.
+ * (B-cc10 F-010: bin/lattice.js was deleted by CHK-006; the generated entrypoint is bin/proof-or-stop.js.)
  *
  * When a dynamic import carries a ?t= cache buster, import.meta.url contains a query string, so skip runCli.
  */

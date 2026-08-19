@@ -1,0 +1,84 @@
+{
+  "storyId": "B-16df",
+  "checkedAt": "2026-08-17T00:19:20.250Z",
+  "headHash": "fbbae8ebb34bbc7c3852d290d1e83c4b32b9ff0a",
+  "materialHash": "3acc328ff03ae41caa73ac2a858949f2943cb0279293c31835819e36d41dcdc6",
+  "storyFilesHash": "2dc7b6bb3d34fde536b462b4153590072abf3871ed327c9d96be055e6089df51",
+  "reviewRound": "2026-08-16T21:45:28.540Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-16df/plan.md#chosen-option",
+      "promise": "resolvePinnedCommandTimeoutMs is implemented in packages/main/src/handlers/checklist.ts, exported (non-default), and matches {command,args} against configuredValidationCommands(root) to find a configured validate.commands[].timeoutMs override.",
+      "verifiedBy": "re-attestation: source read at current HEAD fbbae8eb",
+      "evidence": "grep -n 'export function resolvePinnedCommandTimeoutMs' packages/main/src/handlers/checklist.ts -> checklist.ts:46, signature and body match the plan's chosen-option snippet verbatim (parseAllowlistedCommand + configuredValidationCommands + strict {command,args} equality find)."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-16df/plan.md#chk-002",
+      "promise": "All 4 existing runSingleAllowlistedCommand call sites in checklist.ts are rewired to pass timeoutMs: resolvePinnedCommandTimeoutMs(root, command); no duplicated matching logic outside the one shared helper.",
+      "verifiedBy": "re-attestation: grep at current HEAD",
+      "evidence": "grep -n 'resolvePinnedCommandTimeoutMs(root, command)' packages/main/src/handlers/checklist.ts -> 4 occurrences, at lines 1576, 1667, 1798, 1877 (verification_evidence_add, _batch_add, verification_run, refresh_stale re-exec path); exactly one function declaration (line 46). Unchanged across multiple subsequent main merges."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-16df/plan.md#chosen-option",
+      "promise": "resolveCommandTimeoutMs and the lattice validate execution path (executeValidationPlan/runValidationCommand) are not touched; core/validation-executor.ts and handlers/verifier.ts are reused as-is, not modified by this story.",
+      "verifiedBy": "re-attestation: git diff main -- <files> at current HEAD",
+      "evidence": "`git diff main -- packages/main/src/core/validation-executor.ts packages/main/src/handlers/verifier.ts` at current HEAD (fbbae8eb, post multiple additional main merges) produces empty output - still byte-for-byte unmodified from main."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-16df/plan.md#chk-001",
+      "promise": "A new RED-then-GREEN case is added to validate-command-timeout-smoke.ts that fails on current main (runSingleAllowlistedCommand ignores validate.commands[].timeoutMs) and passes once the fix lands, using a real subprocess spawn (not mocked) against a temp lattice.config.json.",
+      "verifiedBy": "re-attestation: full DONE-required validate run at current HEAD",
+      "evidence": "The just-completed done_prepare validate step (fbbae8eb) ran 'node packages/main/dist/tasks/validate-command-timeout-smoke.js' as configured validate.commands[10] and 'npm test' (full-suite-runner, code=0) both PASS, confirming the fix's mechanical proof still holds after the additional main merges."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-16df/plan.md#chk-003",
+      "promise": "Regression coverage added: an unmatched pinned command falls through to the 270s default (undefined from the resolver), and two configured commands sharing the same executable but different args do not cross-match each other's timeoutMs (args-based disambiguation).",
+      "verifiedBy": "re-attestation: fresh real run at current HEAD",
+      "evidence": "validate-command-timeout-smoke.ts sections 7 and 8 (unmatched-default, args-disambiguation) are present unchanged and pass as part of the just-completed 45/45-assertion smoke run at current HEAD (fbbae8eb), included in the DONE-required validate PASS."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-16df/plan.md#chk-001-doc-registration",
+      "promise": "The smoke is already registered in lattice.config.json validate.commands for ongoing regression protection; no new config-file registration is needed for this story.",
+      "verifiedBy": "re-attestation: grep at current HEAD",
+      "evidence": "lattice.config.json contains { \"command\": \"node\", \"args\": [\"packages/main/dist/tasks/validate-command-timeout-smoke.js\"] } - present and unchanged, confirmed executing as configured validate.commands entry in the just-completed validate run."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-16df/findings.json",
+      "promise": "All 9 findings raised across REVIEW rounds 1-4 (F-001..F-009: tmpdir leak, RED-state receipt mismatch, missing edge assertions, coarse command-binding, stale intent text, soft-skip diff check, brittle call-site count check, waiver-note coverage-attribution errors, truncated waiver notes) are resolved with strong, independently-reproduced evidence.",
+      "verifiedBy": "re-attestation: findings.json read at current HEAD",
+      "evidence": "All 9 findings in findings.json carry status=resolved at current HEAD fbbae8eb (total:9, unresolved:0, checked programmatically). No open/unresolved findings exist for this story."
+    },
+    {
+      "docPath": "context:hot-main-chase-final-sync",
+      "promise": "Across many subsequent main merges culminating in headHash fbbae8eb, the story's two source files (checklist.ts, validate-command-timeout-smoke.ts) remain byte-identical to the prior fully-delivery-reviewed state, and REVIEW/TEST/DONE evidence has been freshly re-derived at the final synced material rather than carried forward stale.",
+      "verifiedBy": "re-attestation: git diff between prior delivery-check headHash and current HEAD, scoped to the two source files",
+      "evidence": "`git diff aaee730cb7376286e3a290c75b2f003a81eec6dc HEAD -- packages/main/src/handlers/checklist.ts packages/main/src/tasks/validate-command-timeout-smoke.ts` produces empty output (0 lines) - the two story source files are byte-identical to the earlier delivery-reviewed state, despite many unrelated main-merge commits landing since. All verification evidence (34 items), REVIEW passes, and the full validate run (build + 97 commands + root npm test, code=0) were freshly re-executed at fbbae8eb, not stale-copied."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Re-attestation at current merged HEAD (fbbae8eb): the just-completed done_prepare validate step ran the compiled smoke (node packages/main/dist/tasks/validate-command-timeout-smoke.js) as configured validate.commands entry, exit code 0, plus the full root npm test (full-suite-runner.js) also exit code 0. Confirms the fix's mechanical proof still holds after many additional main merges landed on top of the story's own two files."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Re-verified at current HEAD fbbae8eb: exactly 4 occurrences of resolvePinnedCommandTimeoutMs(root, command) in checklist.ts (lines 1576, 1667, 1798, 1877) and exactly 1 declaration (line 46). git diff main -- packages/main/src/core/validation-executor.ts packages/main/src/handlers/verifier.ts is still empty at current HEAD, confirming no drift into the excluded/reused files across the intervening main merges."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Fresh execution of node packages/main/dist/tasks/validate-command-timeout-smoke.js at current HEAD fbbae8eb (via the just-completed done_prepare validate chain): passed, includes the unmatched-default (section 7) and args-disambiguation (section 8) regression cases unchanged from the prior review."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "The just-completed done_prepare validate step at headHash fbbae8eb ran the full configured validate.commands set (build + 97 commands including the smoke) plus the root npm test full-suite-runner, both exit code 0 - a fresh, independent DONE-required validation PASS at the final synced material, confirming no regression from any of the intervening main merges."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Re-derived delivery review at the final hot-main-synced HEAD (fbbae8eb) after many main merges. Re-verified the story two source files remain byte-identical to the prior delivery-reviewed state (empty diff vs prior delivery-check headHash), confirmed validation-executor.ts/verifier.ts remain unmodified from main, and the full done_prepare validate chain (build + 97 configured commands + root npm test) freshly PASSED at this exact HEAD. All 9 REVIEW-round findings remain resolved with strong evidence. No unresolved TODOs; docs promises re-verified against current HEAD, not merely re-copied from an earlier round."
+  },
+  "_hash": "60c6e3a3387e7b6226a2d93bfa5bcb53c032cfde2610231be0e586120c55668d"
+}

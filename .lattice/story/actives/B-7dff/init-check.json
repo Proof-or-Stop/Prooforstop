@@ -1,0 +1,37 @@
+{
+  "storyId": "B-7dff",
+  "checkedAt": "2026-08-17T11:32:32.596Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "low",
+      "desc": "background.md ## Key Insights uses the abbreviation \"LPT\" (\"LPT simulation over the real durations gives 271s at jobs>=4\") without expanding it (Longest Processing Time scheduling). A newly-onboarded reader with no scheduling-theory background gets the numeric result but not what technique produced it."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-08-17T11:31:27.889Z",
+      "issues": [
+        {
+          "severity": "low",
+          "desc": "CHK-001 userSees mixes user-observable output (npm test banner) with an engineering-internal claim (full-suite-runner imports from core). The import structure is not visible to any user in terminal output. Consider moving the import clause to context and keeping userSees strictly to observable terminal text."
+        }
+      ]
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-08-17T11:32:32.596Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "low",
+          "desc": "background.md ## Key Insights uses the abbreviation \"LPT\" (\"LPT simulation over the real durations gives 271s at jobs>=4\") without expanding it (Longest Processing Time scheduling). A newly-onboarded reader with no scheduling-theory background gets the numeric result but not what technique produced it."
+        }
+      ]
+    }
+  ],
+  "_hash": "de24b7d1b275c0a21975d4619e3f94efe95a3dde022244491be917ffe7d473fc"
+}

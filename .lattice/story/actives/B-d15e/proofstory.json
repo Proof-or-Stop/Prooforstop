@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "proofstory.contract.v1",
+  "storyId": "B-d15e",
+  "diagnosticOnly": false,
+  "hardeningLevel": "standard",
+  "triggerReasons": [
+    {
+      "code": "collision_required_standard",
+      "message": "Ambiguity, user impact, behavior change, or multi-deliverable intent makes intent collision diagnostically required.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "red_evidence_required",
+      "message": "Bug, regression, security/auth/session, benchmark, or explicit behavior-change work should have red evidence.",
+      "requires": "red-evidence"
+    }
+  ],
+  "originalIntentRequestHash": "sha256:644c80fb3a04e611026dd713d3ecbf4c97b3b044143bfcf8e501c67a97f2d2a6",
+  "acceptanceBindings": [
+    {
+      "id": "ACC-BUDGET-RECEIPT-CONSISTENCY",
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-002:happy:0",
+        "CHK-002:adversarial:0"
+      ],
+      "milestoneIds": [],
+      "acceptanceClaim": "The artifact writer uses FULL_SUITE_BUDGET_MS for performanceBudgetMs and the smoke rejects a restored numeric initializer.",
+      "note": "The production mapping and focused mutation smoke jointly prove current receipt consistency."
+    }
+  ],
+  "diagnosticGaps": [],
+  "note": "Current telemetry only; runtime policy and frozen historical receipts are excluded.",
+  "createdAt": "2026-08-18T17:25:13.749Z",
+  "updatedAt": "2026-08-18T17:25:13.749Z"
+}

@@ -1,0 +1,36 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Register .lattice/dev-memory/experience.jsonl so a lifecycle-required capture is not an out-of-scope diff",
+      "context": "packages/main/src/core/runtime-artifact-registry.ts has a `dev-memory-finish-decision` entry (prefix .lattice/dev-memory/finish-decisions/, materialHash 'exclude') but no sibling entry for .lattice/dev-memory/experience.jsonl, so the unknown path fails closed as OUT_OF_SCOPE. Decide between a sibling child entry and registering the .lattice/dev-memory/ PREFIX, and state why - a third dev-memory artifact would reproduce this bug exactly under the child-entry option.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Prove the fix on a real story shape, not only a unit fixture",
+      "context": "Reproduce first: with the current code, a story in TEST that runs dev_memory_capture then dev_memory_finish_decision must show the scope gate reporting blocking 'path gate fail (out-of-scope diff)'. After the fix the same sequence must leave the scope gate clean. B-9ff1's history is the reference case and its delivery-check records the diagnosis.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Decide what to do about scope_contract_acknowledge being unavailable in the phase its own remediation text names",
+      "context": "The scope gate in TEST prints \"Run scope_contract_acknowledge with a reviewer-visible reason, add the path to the contract, or revert it\" (packages/main/src/core/scope-contract.ts nextActionForViolation), but that command allowedPhases is exactly [\"DEV\",\"REVIEW\"] - verified against COMMAND_POLICIES and frozen by two tests: command-ownership-contract.ts asserts deepEqual([\"DEV\",\"REVIEW\"]) citing B-4622 CHK-002, and closeout-trust-smoke.ts:958 asserts it does not include TEST. So the advice cannot be followed from where the failure occurs, and the only route is a TEST->DEV->REVIEW->TEST re-anchor that invalidates all reviewer passes and verification evidence. Widening the phase list would require breaking a deliberately frozen contract. Decide whether to widen anyway or to correct the remediation text to name a route that exists. State the decision and record the rejected option; do not do both.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Make sure the dishonest path stops being the cheapest one",
+      "context": "Today the fastest way past this gate is dev_memory_finish_decision --decision=no-reusable-lesson, which clears it by declining to record what the story learned. Whatever the fix, confirm by walking the sequence that capturing lessons is no longer the more expensive option than skipping them.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

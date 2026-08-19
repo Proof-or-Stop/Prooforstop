@@ -23,7 +23,7 @@
 // hostile local agent with filesystem control — that is the Tier-C program.
 
 import { strict as assert } from 'node:assert';
-import { readFileSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
 
 import { canon, canonDigest, canonDigestOmitting, first12hex, omitUndefinedDeep } from '../core/red-evidence/canon.js';
 import {
@@ -33,6 +33,7 @@ import {
 } from '../core/red-evidence/policy.js';
 import { digestCanonicalJson } from '../core/digest.js';
 import { canonicalJsonForSigning } from '../core/authority-signing.js';
+import { PROOF_OR_STOP_CONFIG_FILENAME, DEPRECATED_CONFIG_FILENAME } from '../core/brand-paths.js';
 
 const FROZEN_DEFAULT_DIGEST =
   'sha256:470db38278a59387f2105c8bcdcca59ee52c8706cb3c69f7e150d3cd1154d767';
@@ -340,11 +341,16 @@ try {
   assert.ok(!/throw|undefined/.test(resolveRedEvidenceDoctorLine('not-an-object' as unknown)), 'doctor line never throws on a bad block');
 
   // === 8. config self-pinning (CHK-007 absence + CHK-010 uncommitted rule) ===
-  const configUrl = new URL('../../../../lattice.config.json', import.meta.url);
+  // B-cc10: resolve whichever config filename exists. The canonical name is now
+  // proof-or-stop.config.json, so the hardcoded deprecated name threw ENOENT here.
+  const configUrl = [PROOF_OR_STOP_CONFIG_FILENAME, DEPRECATED_CONFIG_FILENAME]
+    .map((name) => new URL(`../../../../${name}`, import.meta.url))
+    .find((candidate) => existsSync(candidate))
+    ?? new URL(`../../../../${PROOF_OR_STOP_CONFIG_FILENAME}`, import.meta.url);
   const rawConfig = readFileSync(configUrl, 'utf8');
   const parsedConfig = JSON.parse(rawConfig) as { redEvidence?: unknown; validate?: { commands?: unknown[] } };
   assert.equal(parsedConfig.redEvidence, undefined,
-    'lattice.config.json MUST contain no redEvidence block (pinnedPath is host-specific; committing one is out of scope)');
+    `${PROOF_OR_STOP_CONFIG_FILENAME} MUST contain no redEvidence block (pinnedPath is host-specific; committing one is out of scope)`);
   const commands = parsedConfig.validate?.commands ?? [];
   const smokeEntry = commands.find((c) => typeof c === 'object' && c !== null
     && (c as { args?: string[] }).args?.some((a) => typeof a === 'string' && a.includes('red-evidence-policy-canon-smoke'))) as

@@ -1,6 +1,8 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
+import { MANIFEST_FILENAMES, adapterManifestCandidates, stateDirCandidates, PROOF_OR_STOP_ADAPTER_DIR } from './brand-paths.js';
+
 import {
   canonicalJsonStringify,
   domainSeparatedDigest,
@@ -78,7 +80,14 @@ function normalizeHostRenderSource(value: unknown): ReviewerHostRenderSource | n
 }
 
 function globalHostRenderSource(projectRoot: string): ReviewerHostRenderSource | null {
-  for (const relPath of ['.lattice/lattice.json', '.Lattice/lattice.json']) {
+  // B-cc10 CHK-004: probe every accepted state-dir x manifest-filename spelling
+  // (canonical first) instead of two pinned literals, so this host-render-source
+  // probe follows the rename. `.Lattice` stays an explicit case variant.
+  const probes = [
+    ...MANIFEST_FILENAMES.flatMap(file => stateDirCandidates(file)),
+    ...MANIFEST_FILENAMES.map(file => join('.Lattice', file)),
+  ].filter((value, index, all) => all.indexOf(value) === index);
+  for (const relPath of probes) {
     const manifest = readJsonRecord(join(projectRoot, relPath));
     if (!manifest) continue;
     const source = normalizeHostRenderSource(
@@ -96,7 +105,11 @@ function reviewerHostRenderSource(
 ): ReviewerHostRenderSource {
   const globalSource = globalHostRenderSource(projectRoot);
   if (host === 'codex') {
-    const codexManifest = readJsonRecord(join(projectRoot, '.lattice-codex', 'lattice.json'));
+    // B-cc10 CHK-004: read-both across the adapter dir x manifest filename cross
+    // product, canonical first, so a half-migrated checkout still resolves.
+    const codexManifest = adapterManifestCandidates()
+      .map(rel => readJsonRecord(join(projectRoot, rel)))
+      .find(Boolean) ?? null;
     const codexSource = normalizeHostRenderSource(
       codexManifest?.agentAssetMode ?? codexManifest?.assetMode ?? codexManifest?.promptMode,
     );
@@ -114,7 +127,10 @@ function reviewerHostRenderSource(
     return globalSource;
   }
   if (globalSource) return globalSource;
-  const relDir = host === 'claude' ? '.claude/agents' : '.lattice-codex/agents';
+  // B-cc10 F-018: derive the adapter dir; this file already uses read-both
+  // adapterManifestCandidates()/stateDirCandidates() above, so a hardcoded
+  // deprecated spelling here made the fallback branch miss canonical-only projects.
+  const relDir = host === 'claude' ? '.claude/agents' : `${PROOF_OR_STOP_ADAPTER_DIR}/agents`;
   return existsSync(join(projectRoot, relDir, file)) ? 'full-asset' : 'package-registry';
 }
 
@@ -149,7 +165,10 @@ export function reviewerHostRenderIdentity(
   }
   const packageTemplate = resolvePromptTemplateBody(entry, rolloutMode);
   const source = reviewerHostRenderSource(projectRoot, host, entry.file);
-  const relDir = host === 'claude' ? '.claude/agents' : '.lattice-codex/agents';
+  // B-cc10 F-018: derive the adapter dir; this file already uses read-both
+  // adapterManifestCandidates()/stateDirCandidates() above, so a hardcoded
+  // deprecated spelling here made the fallback branch miss canonical-only projects.
+  const relDir = host === 'claude' ? '.claude/agents' : `${PROOF_OR_STOP_ADAPTER_DIR}/agents`;
   const bootstrap = renderPromptEntryForHost(entry, host);
   const bootstrapDigest = domainSeparatedDigest(`reviewer-${host}-bootstrap.raw-utf8.v1`, bootstrap);
   if (source === 'full-asset') {

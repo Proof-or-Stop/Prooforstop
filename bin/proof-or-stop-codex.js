@@ -2,9 +2,10 @@
 /**
  * Canonical local Codex entrypoint (B-cdf6).
  *
- * `bin/lattice-codex.js` is retained as a deprecated alias that delegates here,
- * so a teammate branch (or an in-flight story) invoking the old name keeps
- * working. All behaviour lives in this file; the alias adds nothing.
+ * B-cc10 CHK-006 REMOVED the deprecated `bin/lattice-codex.js` alias that used to
+ * delegate here. This is the sole local Codex entrypoint; there is no old name to
+ * fall back to, so an invocation of the removed alias now fails loudly rather than
+ * silently resolving. See CHANGELOG.md for the announcement and replacements.
  */
 // B-cdf6 (concept round-2 sweep): this committed wrapper previously wrote ONLY the
 // deprecated LATTICE_* spellings, while the wrapper `init` GENERATES into new projects
@@ -44,11 +45,11 @@ setEnv('OWNER_SESSION_ADAPTER_AGENT',
 deleteEnv('ACTIVITY_SESSION');
 
 /**
- * Sibling bootstrap wrappers, canonical first. The deprecated `lattice.js` name
- * is kept as a fallback so this file also works in a checkout that predates the
- * rename (or in one where only the old wrapper was generated).
+ * Sibling bootstrap wrapper. B-cc10 CHK-006 removed the deprecated `lattice.js`
+ * fallback: it named a file this repository no longer ships, so keeping it in the
+ * search list could only mask a genuinely broken checkout behind a stale name.
  */
-const BOOTSTRAP_WRAPPERS = ['proof-or-stop.js', 'lattice.js'];
+const BOOTSTRAP_WRAPPERS = ['proof-or-stop.js'];
 
 export async function main() {
   const [{ existsSync }, { dirname, join }, { pathToFileURL }] = await Promise.all([

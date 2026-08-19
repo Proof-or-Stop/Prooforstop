@@ -1,0 +1,63 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-def6",
+  "checkedAt": "2026-08-19T13:45:53.042Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "342831d226402a65810a14eeb848899db041a4ab606bce7f763a1107d02fbe15",
+  "executionBoundaryHash": "813b6dd1901d7d20b210265a9ba2d4d6e33e94598c754596e8fcba1218adb4dc",
+  "freshnessHash": "c64f3c0abc0fff37811a51ea64a06171012edbdb342bd8d5810f7879aca3f728",
+  "effectiveExcludedKeywords": [
+    "Authority",
+    "Changing what dev_memory_capture or dev_memory_finish_decision write, their schemas, or whether the finish decision remains a DONE prerequisite.",
+    "customerKeyRef",
+    "Doing both remedies for the scope_contract_acknowledge mismatch in checklist item CHK-003; exactly one must be chosen and the rejected one recorded.",
+    "Fixing the separate defect where verification_evidence_refresh_stale never rebinds waivers, which is tracked as story B-0f97.",
+    "Generalising runtime-artifact-registry semantics beyond dev-memory paths, or introducing a new registry mechanism.",
+    "Layer4",
+    "repair UX",
+    "Retuning full-suite or pinned-command timeout budgets, which is tracked as story B-9e3d.",
+    "Retuning the convergence breaker advance-count threshold or the owner-lease and interactive-ack rules that made recovery expensive."
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Changing what dev_memory_capture or dev_memory_finish_decision write, their schemas, or whether the finish decision remains a DONE prerequisite.",
+      "source": "scopeBoundary.excluded",
+      "text": "Changing what dev_memory_capture or dev_memory_finish_decision write, their schemas, or whether the finish decision remains a DONE prerequisite.",
+      "excluded": true
+    },
+    {
+      "keyword": "Doing both remedies for the scope_contract_acknowledge mismatch in checklist item CHK-003; exactly one must be chosen and the rejected one recorded.",
+      "source": "scopeBoundary.excluded",
+      "text": "Doing both remedies for the scope_contract_acknowledge mismatch in checklist item CHK-003; exactly one must be chosen and the rejected one recorded.",
+      "excluded": true
+    },
+    {
+      "keyword": "Fixing the separate defect where verification_evidence_refresh_stale never rebinds waivers, which is tracked as story B-0f97.",
+      "source": "scopeBoundary.excluded",
+      "text": "Fixing the separate defect where verification_evidence_refresh_stale never rebinds waivers, which is tracked as story B-0f97.",
+      "excluded": true
+    },
+    {
+      "keyword": "Generalising runtime-artifact-registry semantics beyond dev-memory paths, or introducing a new registry mechanism.",
+      "source": "scopeBoundary.excluded",
+      "text": "Generalising runtime-artifact-registry semantics beyond dev-memory paths, or introducing a new registry mechanism.",
+      "excluded": true
+    },
+    {
+      "keyword": "Retuning full-suite or pinned-command timeout budgets, which is tracked as story B-9e3d.",
+      "source": "scopeBoundary.excluded",
+      "text": "Retuning full-suite or pinned-command timeout budgets, which is tracked as story B-9e3d.",
+      "excluded": true
+    },
+    {
+      "keyword": "Retuning the convergence breaker advance-count threshold or the owner-lease and interactive-ack rules that made recovery expensive.",
+      "source": "scopeBoundary.excluded",
+      "text": "Retuning the convergence breaker advance-count threshold or the owner-lease and interactive-ack rules that made recovery expensive.",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "532317a83d5c1905ddb90114af68a64d80b667f5543af7f146afc446020c6159"
+}

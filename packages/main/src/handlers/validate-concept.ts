@@ -24,6 +24,7 @@
 import { execSync } from 'node:child_process';
 import ts from 'typescript';
 import { DEFAULT_BASE } from './validate-shared.js';
+import { STATE_DIR_NAMES } from '../core/brand-paths.js';
 import {
   classifyMaterialCodePath,
   materialPathExtension,
@@ -64,18 +65,24 @@ export type GrepReader = (args: {
   projectRoot: string;
 }) => string;
 
-/** Directories we never want to scan (would create false positives / self-reference) */
+/**
+ * Directories we never want to scan (would create false positives / self-reference).
+ *
+ * B-cc10 CHK-002: state-dir spellings come from the resolver. A hardcoded spelling
+ * would silently stop excluding the state directory after the rename, flooding the
+ * concept gate with residual "hits" from archived story metadata.
+ */
 export const IGNORED_DIRS = [
   'node_modules',
   'dist',
   '.git',
-  '.lattice',
+  ...STATE_DIR_NAMES,
   'tmp',
   '.worktrees',
 ];
 
 const IGNORED_PATH_PREFIXES = [
-  '.lattice/',
+  ...STATE_DIR_NAMES.map(dir => `${dir}/`),
   'docs/story/',
   'tests/fixtures/',
   'packages/main/tests/fixtures/',

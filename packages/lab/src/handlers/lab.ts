@@ -15,7 +15,7 @@ function formatCreateResult(configPath: string, config: LabExperimentConfig): st
   return [
     `Created experiment ${config.id}`,
     `Config: ${configPath}`,
-    `Next: lattice lab run --config ${configPath} --dry-run`,
+    `Next: proof-or-stop lab run --config ${configPath} --dry-run`,
   ].join('\n');
 }
 

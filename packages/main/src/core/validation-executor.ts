@@ -11,7 +11,20 @@ import {
 import { StoryStore } from './store.js';
 import { resolveProjectGitCwd } from './story-signed-workspace-resolution.js';
 import { defaultAuditWriter, evaluateDirtyGate, type EvaluateDirtyGateResult } from './dirty-gate-policy.js';
+import {
+  canonicalizeEntries,
+  MAX_JOBS,
+  parsePositiveInteger,
+  runScheduled,
+  validateResourceClaims,
+  type ResourceClaim,
+  type SchedulableEntry,
+  type SchedulableResult,
+  type ScheduledStatus,
+} from './keyed-scheduler.js';
 import type {
+  ConcurrentWorktreePollution,
+  ConcurrentWorktreePollutionAttribution,
   ValidationCommand,
   ValidationCommandResult,
   ValidationFailureKind,
@@ -21,6 +34,7 @@ import type {
   ValidationResult,
 } from './validation-types.js';
 import { effectiveValidationCommandEnvironment } from './validation-command-environment.js';
+import { METADATA_BLOB_READ_MAX_BUFFER_BYTES } from './done-prepare-generated-metadata.js';
 import { readBrandEnv } from './brand-env.js';
 
 const MAX_OUTPUT_CHARS = 12000;
@@ -79,6 +93,54 @@ export interface ExecuteValidationPlanOptions {
   abortSignal?: AbortSignal;
   deadlineAt?: number;
   deadlineError?: () => Error;
+  /** Scheduler worker count; overrides LATTICE_VALIDATE_JOBS. See {@link resolveValidatePlanJobs}. */
+  jobs?: number;
+}
+
+/**
+ * Worker count for the routine-validate plan scheduler.
+ *
+ * 4 is the same default the full test-suite runner (tasks/full-suite-runner.ts)
+ * has been running on since it moved onto this scheduler, so the two callers of
+ * `runScheduled` behave alike and one number is tuned instead of two. It is also
+ * the right order of magnitude here for reasons specific to this plan:
+ *
+ *  - Admission control, not this number, is what keeps the run correct: an
+ *    undeclared command holds the plan-wide barrier exclusively, so raising the
+ *    worker count can never make an unclassified command overlap anything.
+ *    Today most configured commands are undeclared, which caps the achievable
+ *    concurrency well below 4 for long stretches of the plan; workers past that
+ *    point sit idle rather than helping.
+ *  - Each validate command is itself a process tree (npm / tsc / node spawning
+ *    children), so the effective load is a multiple of the worker count. Four
+ *    concurrent trees is already a heavy machine on a typical 8-10 core host,
+ *    and oversubscribing inflates every command's wall time — which is the same
+ *    number the per-command `timeoutMs` ceilings are calibrated against.
+ */
+export const DEFAULT_VALIDATE_PLAN_JOBS = 4;
+
+/**
+ * Resolve the scheduler worker count: explicit `jobs` option, else the
+ * `LATTICE_VALIDATE_JOBS` env var, else {@link DEFAULT_VALIDATE_PLAN_JOBS}.
+ *
+ * A PRESENT but unparseable / out-of-range value is REFUSED rather than
+ * silently replaced by the default: an operator who sets this has a reason, and
+ * quietly ignoring the setting turns "why is validate still slow / still
+ * parallel" into an unanswerable question. Absent or empty is not a setting, so
+ * it takes the default. `jobs=1` is a legitimate setting — it degrades to
+ * strict plan-order sequential execution, which is exactly the pre-scheduler
+ * behaviour.
+ */
+export function resolveValidatePlanJobs(env: NodeJS.ProcessEnv = process.env, override?: number): number {
+  if (override !== undefined) {
+    if (!Number.isInteger(override) || override < 1 || override > MAX_JOBS) {
+      throw new Error(`validate plan jobs must be an integer between 1 and ${MAX_JOBS}`);
+    }
+    return override;
+  }
+  const raw = env.LATTICE_VALIDATE_JOBS?.trim();
+  if (!raw) return DEFAULT_VALIDATE_PLAN_JOBS;
+  return parsePositiveInteger(raw, 'LATTICE_VALIDATE_JOBS');
 }
 
 /**
@@ -138,6 +200,718 @@ function trimOutput(output: string): string {
   if (output.length <= MAX_OUTPUT_CHARS) return output;
   const omitted = output.length - MAX_OUTPUT_CHARS;
   return output.slice(0, MAX_OUTPUT_CHARS) + `\n...[truncated ${omitted} chars]`;
+}
+
+/**
+ * Aggregate sizing for the serialised validation evidence artifact (B-3434).
+ *
+ * trimOutput above bounds each command SEPARATELY at MAX_OUTPUT_CHARS. What was never bounded is
+ * the AGGREGATE: handlers/verifier.ts serialises every command result into test-evidence.json, so
+ * the artifact grows with the NUMBER of configured commands. It measured 1,369,692 bytes on story
+ * B-9ff1 after validate.commands grew from 56 to 100 entries in a single day, which put it past the
+ * 1,048,576-byte read ceiling that then blocked every REVIEW to TEST transition in the repository.
+ *
+ * Raising that read ceiling alone only moves the cliff, so the ceiling is the ANCHOR here rather
+ * than an independent number: both thresholds below are fractions of
+ * METADATA_BLOB_READ_MAX_BUFFER_BYTES, the ceiling core/done-prepare-generated-metadata.ts applies
+ * to the very read that consumes this artifact.
+ *
+ * This constant is a THRESHOLD, not a promise. Deliberately, no guarantee about bounding behaviour
+ * is restated here.
+ *
+ * The paragraph that used to sit at this spot described what boundValidationEvidenceOutput
+ * guaranteed, and it was wrong three separate times - not because anyone wrote it carelessly, but
+ * because it restated behaviour owned three hundred lines away, and each time that behaviour moved
+ * the sentence stayed. Its own text advised re-reading a sentence whenever the behaviour changes,
+ * and it then became the third counterexample to that advice.
+ *
+ * So the durable fix is not a more careful sentence. It is to stop duplicating the claim: what the
+ * bounding does, and what it leaves open, is described where it is performed - on
+ * boundPersistedValidationEvidence, measurePersistedEvidenceBytes and snapshotPersistedRecord.
+ */
+export const VALIDATION_EVIDENCE_READ_CEILING_BYTES = METADATA_BLOB_READ_MAX_BUFFER_BYTES;
+/**
+ * Advisory at a quarter of the ceiling (8 MiB against a 32 MiB ceiling). Chosen against the
+ * measured growth curve, not by taste: 8 MiB is roughly 6x the 1,369,692-byte artifact that caused
+ * the incident, which is far enough ahead that an operator meets the advisory with room to act, and
+ * far enough behind the bound that the advisory is not a synonym for it.
+ */
+export const VALIDATION_EVIDENCE_ADVISORY_FRACTION = 0.25;
+/** Hard bound at three quarters of the ceiling, leaving 25 percent headroom for the read itself. */
+export const VALIDATION_EVIDENCE_BOUND_FRACTION = 0.75;
+export const VALIDATION_EVIDENCE_ADVISORY_BYTES = Math.floor(
+  VALIDATION_EVIDENCE_READ_CEILING_BYTES * VALIDATION_EVIDENCE_ADVISORY_FRACTION,
+);
+export const VALIDATION_EVIDENCE_BOUND_BYTES = Math.floor(
+  VALIDATION_EVIDENCE_READ_CEILING_BYTES * VALIDATION_EVIDENCE_BOUND_FRACTION,
+);
+
+/** Three tiers, mirroring the buildLedgerSizing shape in core/proofstory.ts. */
+export type ValidationEvidenceSizingState = 'within_budget' | 'advisory' | 'bounded';
+
+export interface ValidationEvidenceSizing {
+  /** Byte length of the artifact as it would have serialised with no bounding applied. */
+  measuredBytes: number;
+  /** Byte length of the artifact actually written. Equals measuredBytes when nothing was bounded. */
+  serializedBytes: number;
+  ceilingBytes: number;
+  advisoryBytes: number;
+  boundBytes: number;
+  state: ValidationEvidenceSizingState;
+  /** True when a reduction was applied. Says work happened; says NOTHING about the result size. */
+  reduced: boolean;
+  /**
+   * Whether the REDUCED INNER STRING is under the bound. This is not the guarantee: the artifact
+   * that has to fit is the serialised TestEvidenceData file, whose second stringify escapes this
+   * string again and can double it. boundPersistedValidationEvidence owns that measurement. Kept
+   * because the reducer reports what it achieved; read `withinBound` on the persisted result for
+   * the file-level measurement.
+   */
+  outputWithinBound: boolean;
+  /** Command entries kept, but with their captured output replaced by a visible marker. */
+  elidedCommandOutputs: number;
+  /** Command entries dropped from the array, reported as a count. */
+  elidedCommandEntries: number;
+  /**
+   * Detail lines replaced by a marker. executeValidationPlan copies every captured output line
+   * into `details`, so this is the SECOND copy of the same bytes and is usually the larger one.
+   */
+  elidedDetailLines: number;
+  /** Warning entries dropped from the array, reported as a count. */
+  elidedWarnings: number;
+}
+
+export interface BoundedValidationEvidenceOutput extends ValidationEvidenceSizing {
+  /** The serialised artifact: JSON, with the pass/fail fields carried through the reduction. */
+  output: string;
+}
+
+/**
+ * Boundary rule, stated once so it is not re-litigated: each threshold is INCLUSIVE of the higher
+ * tier. An artifact of exactly VALIDATION_EVIDENCE_ADVISORY_BYTES is `advisory`, and one of exactly
+ * VALIDATION_EVIDENCE_BOUND_BYTES is `bounded`.
+ */
+export function classifyValidationEvidenceSize(measuredBytes: number): ValidationEvidenceSizingState {
+  if (measuredBytes >= VALIDATION_EVIDENCE_BOUND_BYTES) return 'bounded';
+  if (measuredBytes >= VALIDATION_EVIDENCE_ADVISORY_BYTES) return 'advisory';
+  return 'within_budget';
+}
+
+function formatBytes(bytes: number): string {
+  const mib = bytes / (1024 * 1024);
+  return `${bytes} bytes (${mib.toFixed(2)} MiB)`;
+}
+
+/**
+ * The operator-facing size text.
+ *
+ * On the advisory paths it is deliberately worded as information - no failure vocabulary, no cross
+ * or warning glyph - so a reader scanning output cannot mistake it for a failing check. The refusal
+ * path is NOT one of those: there the evidence write does not happen, and the text says so plainly
+ * rather than reassuring. Which wording applies is decided by `disposition` below; this comment
+ * does not enumerate the cases, because the last three defects in this file were sentences that
+ * enumerated something the code then changed.
+ */
+export function formatValidationEvidenceAdvisory(persisted: PersistedValidationEvidenceBound): string | null {
+  if (persisted.state === 'within_budget') return null;
+  // The wording deliberately avoids every failure token, so a reader scanning validate output
+  // cannot mistake this line for a check that did not pass - EXCEPT on the refusal path, where the
+  // write genuinely does not happen and saying otherwise would be the inaccuracy.
+  const head = `evidence size advisory (informational; the validate verdict is unchanged): `
+    + `the serialised test-evidence.json file is ${formatBytes(persisted.fileBytes)}, `
+    + `past the ${formatBytes(VALIDATION_EVIDENCE_ADVISORY_BYTES)} advisory threshold, which is `
+    + `${Math.round(VALIDATION_EVIDENCE_ADVISORY_FRACTION * 100)}% of the `
+    + `${formatBytes(VALIDATION_EVIDENCE_READ_CEILING_BYTES)} metadata read ceiling.`;
+  if (persisted.state === 'advisory') {
+    return `${head} The file grows with the number of lattice.config.json validate.commands entries; `
+      + `it is bounded at ${formatBytes(VALIDATION_EVIDENCE_BOUND_BYTES)}.`;
+  }
+  const sizing = persisted.sizing;
+  const reductions = sizing
+    ? ` ${sizing.elidedCommandOutputs} command output(s) and ${sizing.elidedDetailLines} detail line(s) `
+      + `were replaced by markers, and ${sizing.elidedWarnings} warning(s) and `
+      + `${sizing.elidedCommandEntries} command entry(ies) summarised by count.`
+    : '';
+  if (persisted.disposition === 'refused') {
+    // Not an advisory any more: this states a refusal, so it must read as one.
+    return `evidence size limit reached: the serialised test-evidence.json file measures `
+      + `${formatBytes(persisted.fileBytes)}, above the ${formatBytes(VALIDATION_EVIDENCE_BOUND_BYTES)} bound, `
+      + `and could not be reduced.${reductions} The evidence write is refused rather than storing a file `
+      + `the metadata read cannot consume; validate itself reported its own verdict separately.`;
+  }
+  const replaced = persisted.disposition === 'verdict_only'
+    ? ` The reduced result was still too large inside the record, so the output field was replaced by a `
+      + `verdict-only summary that names itself as a replacement.`
+    : '';
+  return `${head} It reached the ${formatBytes(VALIDATION_EVIDENCE_BOUND_BYTES)} bound, so the file was `
+    + `written at ${formatBytes(persisted.fileBytes)}.${reductions}${replaced} `
+    + `Per-command output remains available in the validate console output.`;
+}
+
+/**
+ * The cap safeScalarRead applies to every string it returns, in UTF-16 units. B-3434:F-034: this
+ * used to be a figure written into a comment 250 lines from the `slice` that enforced it, so the
+ * two could disagree without anything noticing. One constant, both sites.
+ */
+const VALIDATION_EVIDENCE_SCALAR_CHAR_CAP = 200;
+
+/**
+ * The fields the last-resort record carries. Every one is coerced to a short scalar by
+ * safeScalarRead, so the record's size is a function of THIS LIST and that cap rather than of the
+ * input.
+ *
+ * No byte figure is stated here. The figure that used to be - "low hundreds of bytes" - was picked
+ * by hand and was wrong by an order of magnitude: four of these keys are string-capable, each capped
+ * at VALIDATION_EVIDENCE_SCALAR_CHAR_CAP UTF-16 units, and a 4-byte character costs 4 bytes each,
+ * which puts the packed worst case in the low thousands. The verdict_only section of
+ * tasks/validation-evidence-buffer-smoke.ts measures the realised size on every run and asserts the
+ * ceiling it actually meets, so the number lives where it is checked rather than where it is only
+ * read.
+ */
+const VALIDATION_EVIDENCE_VERDICT_ONLY_RECORD_KEYS = [
+  'provider',
+  'status',
+  'allPass',
+  'allPassed',
+  'failureKind',
+  'summary',
+] as const;
+
+/**
+ * How much of an array to keep, from the measured overshoot. Clamped well below 1 so every step is
+ * a real reduction, and floored so a wild overshoot does not collapse the array in one go when two
+ * cheap steps would have kept more evidence.
+ */
+function targetRatio(bytes: number, budget: number): number {
+  return Math.max(0.1, Math.min(0.9, (budget * 0.85) / Math.max(1, bytes)));
+}
+
+function elisionMarker(originalChars: number): string {
+  return `[evidence bound: ${originalChars} chars of captured output omitted so the aggregate artifact `
+    + `stays under ${VALIDATION_EVIDENCE_BOUND_BYTES} bytes; see the validate console output]`;
+}
+
+function detailElisionMarker(lines: number, chars: number): string {
+  return `  [evidence bound: ${lines} detail line(s), ${chars} chars, omitted so the aggregate artifact `
+    + `stays under ${VALIDATION_EVIDENCE_BOUND_BYTES} bytes; see the validate console output]`;
+}
+
+function countElisionMarker(kind: string, omitted: number): string {
+  return `[evidence bound: ${omitted} further ${kind} omitted so the aggregate artifact stays under `
+    + `${VALIDATION_EVIDENCE_BOUND_BYTES} bytes; see the validate console output]`;
+}
+
+/**
+ * Collapse the duplicated command output out of `details` while keeping the index a reader scans.
+ *
+ * executeValidationPlan pushes one status line per command (`✓ label: command`) and then pushes
+ * every line of that command captured output indented by two spaces. The indented run is the
+ * duplicate; the status lines are the navigable index. So each contiguous run of continuation
+ * lines collapses to a single marker naming how many lines and characters went, and every status
+ * line survives.
+ */
+function collapseDetailContinuationRuns(details: string[]): { details: string[]; elidedLines: number } {
+  const collapsed: string[] = [];
+  let runLines = 0;
+  let runChars = 0;
+  let elidedLines = 0;
+  const flush = (): void => {
+    if (runLines === 0) return;
+    collapsed.push(detailElisionMarker(runLines, runChars));
+    elidedLines += runLines;
+    runLines = 0;
+    runChars = 0;
+  };
+  for (const line of details) {
+    if (typeof line === 'string' && line.startsWith('  ')) {
+      runLines += 1;
+      runChars += line.length;
+      continue;
+    }
+    flush();
+    collapsed.push(line);
+  }
+  flush();
+  return { details: collapsed, elidedLines };
+}
+
+/**
+ * Reduce a validation result for the evidence artifact until a caller-supplied predicate is
+ * satisfied.
+ *
+ * Bounding is structural, never a string truncation: consumers parse this field (an unparseable
+ * artifact is rejected as output_invalid_json and blocks the phase gate), so the result stays valid
+ * JSON and keeps allPass / allPassed / status exactly as given. Nothing is discarded silently.
+ *
+ * The `fits` predicate is the whole design. This function does NOT know what the caller is trying
+ * to fit into: boundPersistedValidationEvidence passes a predicate that builds the full
+ * TestEvidenceData and measures the FILE, so the reduction is driven by the bytes that reach disk
+ * rather than by this string, which the outer serialisation escapes again. An earlier revision
+ * estimated that expansion factor and made one corrective attempt; a heterogeneous artifact whose
+ * realised expansion differed from the estimate then had a perfectly good reduced artifact thrown
+ * away for a stub. Estimation is gone. Each stage is applied whole and then MEASURED.
+ *
+ *   stage 1 - replace every captured per-command output with a marker naming the omitted length.
+ *   stage 2 - collapse the DUPLICATE of that output that executeValidationPlan copies into
+ *             `details`, keeping the per-command status lines that make details navigable.
+ *   stage 3 - replace `warnings` with a counted marker.
+ *   stage 4 - halve the `details` tail until it fits, then stage 5 halves `commands` the same way.
+ *
+ * Halving rather than measuring per entry is a deliberate cost trade: it converges in O(log n)
+ * measurements instead of O(n), at the price of removing up to twice as much as strictly needed on
+ * the final step. It never removes anything without counting it.
+ *
+ * The input object is never mutated. `outputWithinBound` reports this string against the module
+ * bound and is not the guarantee; boundPersistedValidationEvidence owns that.
+ */
+export function boundValidationEvidenceOutput(
+  result: unknown,
+  options: { measure?: (output: string) => number | null; budgetBytes?: number } = {},
+): BoundedValidationEvidenceOutput {
+  const budget = options.budgetBytes ?? VALIDATION_EVIDENCE_BOUND_BYTES;
+  // The predicate returns a SIZE, not a boolean, so the array stages can size their next step from
+  // the measurement instead of stepping blindly. Every step is still decided by a real measurement
+  // and every step makes progress, so a step that lands short costs one more iteration - it never
+  // discards what has already been reduced, which is the failure this replaced.
+  const measure = options.measure ?? ((output: string) => Buffer.byteLength(output, 'utf8'));
+  const sizeOf = (output: string): number => {
+    const measured = measure(output);
+    return measured === null ? Number.MAX_SAFE_INTEGER : measured;
+  };
+  const fits = (output: string): boolean => sizeOf(output) < budget;
+  const serialized = safeJsonStringify(result);
+  const measuredBytes = Buffer.byteLength(serialized ?? 'null', 'utf8');
+  const base = {
+    measuredBytes,
+    ceilingBytes: VALIDATION_EVIDENCE_READ_CEILING_BYTES,
+    advisoryBytes: VALIDATION_EVIDENCE_ADVISORY_BYTES,
+    boundBytes: VALIDATION_EVIDENCE_BOUND_BYTES,
+    state: classifyValidationEvidenceSize(measuredBytes),
+  };
+  const unreduced = serialized ?? 'null';
+  if (!result || typeof result !== 'object' || fits(unreduced)) {
+    return {
+      ...base,
+      serializedBytes: Buffer.byteLength(unreduced, 'utf8'),
+      reduced: false,
+      outputWithinBound: Buffer.byteLength(unreduced, 'utf8') < VALIDATION_EVIDENCE_BOUND_BYTES,
+      elidedCommandOutputs: 0,
+      elidedCommandEntries: 0,
+      elidedDetailLines: 0,
+      elidedWarnings: 0,
+      output: unreduced,
+    };
+  }
+
+  const source = result as Record<string, unknown>;
+  let commands = Array.isArray(source.commands) ? [...(source.commands as any[])] : [];
+  let details = Array.isArray(source.details) ? [...(source.details as any[])] : [];
+  let warnings = Array.isArray(source.warnings) ? [...(source.warnings as any[])] : [];
+  let elidedCommandOutputs = 0;
+  let elidedCommandEntries = 0;
+  let elidedDetailLines = 0;
+  let elidedWarnings = 0;
+
+  const render = (): string => safeJsonStringify({
+    ...source,
+    ...(Array.isArray(source.commands) ? { commands } : {}),
+    ...(Array.isArray(source.details) ? { details } : {}),
+    ...(Array.isArray(source.warnings) ? { warnings } : {}),
+    evidenceBound: {
+      measuredBytes,
+      boundBytes: VALIDATION_EVIDENCE_BOUND_BYTES,
+      ceilingBytes: VALIDATION_EVIDENCE_READ_CEILING_BYTES,
+      elidedCommandOutputs,
+      elidedCommandEntries,
+      elidedDetailLines,
+      elidedWarnings,
+    },
+  }) ?? unreduced;
+
+  let output = render();
+
+  // Stage 1.
+  if (!fits(output)) {
+    for (let index = 0; index < commands.length; index += 1) {
+      const captured = commands[index]?.output;
+      if (typeof captured !== 'string' || captured.length === 0) continue;
+      commands[index] = { ...commands[index], output: elisionMarker(captured.length) };
+      elidedCommandOutputs += 1;
+    }
+    output = render();
+  }
+
+  // Stage 2.
+  if (!fits(output) && details.length > 0) {
+    const collapsed = collapseDetailContinuationRuns(details as string[]);
+    details = collapsed.details;
+    elidedDetailLines += collapsed.elidedLines;
+    output = render();
+  }
+
+  // Stage 3.
+  if (!fits(output) && warnings.length > 0) {
+    elidedWarnings += warnings.length;
+    warnings = [countElisionMarker('warning(s)', elidedWarnings)];
+    output = render();
+  }
+
+  // Stage 4. Size the step from the measurement, then re-measure. `keep` is always at least one
+  // element smaller than the current length, so the loop cannot stall.
+  let bytes = sizeOf(output);
+  // The marker is appended ONCE, after the loop. Appending it per iteration made the array length
+  // unchanged whenever the step was a single element - slice off one, push one - so the loop spun
+  // forever on any artifact whose remaining bulk was not in `details`. Progress is now structural:
+  // `keep` is strictly less than the current length and nothing is added back inside the loop.
+  while (bytes >= budget && details.length > 0) {
+    const keep = Math.max(0, Math.min(details.length - 1, Math.floor(details.length * targetRatio(bytes, budget))));
+    elidedDetailLines += details.length - keep;
+    details = details.slice(0, keep);
+    output = render();
+    bytes = sizeOf(output);
+  }
+  if (elidedDetailLines > 0) {
+    details.push(countElisionMarker('detail line(s)', elidedDetailLines));
+    output = render();
+    bytes = sizeOf(output);
+  }
+
+  // Stage 5.
+  while (bytes >= budget && commands.length > 0) {
+    const keep = Math.max(0, Math.min(commands.length - 1, Math.floor(commands.length * targetRatio(bytes, budget))));
+    elidedCommandEntries += commands.length - keep;
+    commands = commands.slice(0, keep);
+    output = render();
+    bytes = sizeOf(output);
+  }
+
+  const serializedBytes = Buffer.byteLength(output, 'utf8');
+  return {
+    ...base,
+    serializedBytes,
+    reduced: true,
+    outputWithinBound: serializedBytes < VALIDATION_EVIDENCE_BOUND_BYTES,
+    elidedCommandOutputs,
+    elidedCommandEntries,
+    elidedDetailLines,
+    elidedWarnings,
+    output,
+  };
+}
+
+/**
+ * Read one property without trusting the object it comes from.
+ *
+ * A getter or a proxy trap can throw on property access, so every read of caller data inside the
+ * fallback goes through here. This is the repair for a fallback whose own comment claimed it "reads
+ * only scalars and cannot depend on the reduction having worked" while reading properties off the
+ * original object outside any try.
+ */
+function safeScalarRead(source: Record<string, unknown>, key: string): unknown {
+  let value: unknown;
+  try {
+    value = source[key];
+  } catch {
+    return undefined;
+  }
+  if (typeof value === 'string') return value.slice(0, VALIDATION_EVIDENCE_SCALAR_CHAR_CAP);
+  return typeof value === 'boolean' || typeof value === 'number' ? value : undefined;
+}
+
+/**
+ * The last-resort output field, sized by construction rather than by the input.
+ *
+ * Every value passes a cap and every read goes through safeScalarRead, so its serialised length is a
+ * function of the key list above and that cap rather than of the input. The size itself is measured
+ * by the smoke rather than restated here. It satisfies the consumer contract that matters at the
+ * phase gate: valid JSON carrying allPass / allPassed / status, which is what outputPassState in
+ * core/validation-evidence-admissibility.ts parses. And it names itself a replacement, so a reader
+ * is not left thinking it is the whole evidence.
+ */
+function verdictOnlyRecord(source: unknown, measuredBytes: number): string {
+  const record = source && typeof source === 'object' ? source as Record<string, unknown> : {};
+  const carried: Record<string, unknown> = {};
+  for (const key of VALIDATION_EVIDENCE_VERDICT_ONLY_RECORD_KEYS) {
+    const value = safeScalarRead(record, key);
+    if (value !== undefined) carried[key] = value;
+  }
+  const rendered = safeJsonStringify({
+    ...carried,
+    evidenceBound: {
+      measuredBytes,
+      boundBytes: VALIDATION_EVIDENCE_BOUND_BYTES,
+      ceilingBytes: VALIDATION_EVIDENCE_READ_CEILING_BYTES,
+      replacedWithVerdictOnlyRecord: true,
+      reason: 'the reduced result did not fit inside the persisted record; the full result is available in the validate console output',
+      carriedFields: [...VALIDATION_EVIDENCE_VERDICT_ONLY_RECORD_KEYS],
+    },
+  });
+  // The constant floor: no input-derived value at all. Reached only if the capped scalars above are
+  // themselves unserialisable, which nothing in JSON can be - but the floor costs one line and
+  // removes the last "cannot happen" from this path.
+  return rendered ?? JSON.stringify({
+    evidenceBound: {
+      measuredBytes,
+      boundBytes: VALIDATION_EVIDENCE_BOUND_BYTES,
+      replacedWithVerdictOnlyRecord: true,
+      reason: 'the result could not be serialised at all; the full result is available in the validate console output',
+    },
+  });
+}
+
+/**
+ * JSON.stringify that cannot throw.
+ *
+ * It can throw on a cycle, on a BigInt, and on any getter or proxy trap that raises during
+ * serialisation. An earlier revision of this module claimed a fallback that "cannot fail" while
+ * sitting on top of a call that can, so this returns null instead and lets the caller treat an
+ * unserialisable input as the bounded case it is.
+ */
+function safeJsonStringify(value: unknown, indent?: number): string | null {
+  try {
+    const text = indent === undefined ? JSON.stringify(value) : JSON.stringify(value, null, indent);
+    return typeof text === 'string' ? text : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * JSON.parse that cannot throw, guarded the same way safeJsonStringify is.
+ *
+ * The result is wrapped rather than returned bare because `null` is a legitimate parse of the text
+ * "null", and a bare null would make a successful parse indistinguishable from a failed one - the
+ * same conflation that would let a failure be treated as a value.
+ */
+function safeJsonParse(text: string): { value: unknown } | null {
+  try {
+    return { value: JSON.parse(text) };
+  } catch {
+    return null;
+  }
+}
+
+/** How the persisted record was brought under the bound, if it had to be. */
+export type PersistedValidationEvidenceDisposition =
+  | 'unmodified'
+  | 'reduced'
+  | 'verdict_only'
+  | 'refused';
+
+export interface PersistedValidationEvidenceBound<T = unknown> {
+  /**
+   * The record to persist, as plain JSON data: JSON.parse of the very serialisation fileBytes
+   * counts, not the object buildRecord returned. Its `output` field carries the caller value unless
+   * it had to be replaced.
+   *
+   * Null when no record could be built or measured. Every null record is reported with
+   * withinBound false and disposition 'refused', so a caller that checks withinBound before writing
+   * is checking this too - and the type says so, rather than a comment saying so.
+   */
+  record: T | null;
+  /**
+   * Byte length reported for `record`, measured in the format core/store.ts writes with. On every
+   * path that produces a record today it comes from snapshotPersistedRecord, which counts one text
+   * and parses that same text back. It reaches the single exit as a parameter beside `record`
+   * rather than being re-derived there (B-3434:F-035).
+   */
+  fileBytes: number;
+  /** Derived from fileBytes. False means: do not write this. */
+  withinBound: boolean;
+  disposition: PersistedValidationEvidenceDisposition;
+  state: ValidationEvidenceSizingState;
+  /** Reducer detail when the staged reduction ran; null when the input could not be serialised. */
+  sizing: ValidationEvidenceSizing | null;
+}
+
+/**
+ * Applies the format core/store.ts writes with - `JSON.stringify(data, null, 2) + '\n'` - to
+ * whatever it is handed, and returns null instead of throwing when the value cannot be serialised.
+ *
+ * It measures the value AS GIVEN, at the moment it is given. It does not follow that value to disk,
+ * and it describes that one reading: a `toJSON` that answers small now and large later defeats any
+ * single reading of it. snapshotPersistedRecord narrows that route and records what it leaves open.
+ *
+ * The format is DUPLICATED from core/store.ts rather than shared with it, and it is NOT pinned. The
+ * smoke does not import StoryStore; it re-types the same formula and compares two hand-written
+ * copies, so a format change in store.ts moves both copies together, this measurement reads low,
+ * and the assertions keep passing. Measured on a two-space to four-space change: the smoke compares
+ * 158 to 158 while the writer emits 168. core/store.ts is outside this story's scope; the
+ * divergence, its transcripts and the named repair are recorded in
+ * docs/requirements/decisions/validation-evidence-artifact-growth.md.
+ */
+export function measurePersistedEvidenceBytes(record: unknown): number | null {
+  const serialized = safeJsonStringify(record, 2);
+  return serialized === null ? null : Buffer.byteLength(`${serialized}\n`, 'utf8');
+}
+
+/**
+ * Serialise once, count those bytes, and hand back a parse of the same text. Best-effort narrowing,
+ * not a settlement.
+ *
+ * The reason it is done in this order: a record is built by a caller-supplied closure over
+ * caller-supplied data, so any node of it may be a getter, a Proxy or a `toJSON` - values that are
+ * free to answer differently on each call. Measuring such an object and then returning IT means the
+ * number describes one reading and the writer performs another. Parsing the measured text removes
+ * the OWN properties that do that: what comes back holds strings, numbers, booleans, null, arrays
+ * and plain objects, with no own toJSON, getter or Proxy trap, and `bytes` is the length of the text
+ * it was parsed from.
+ *
+ * It does NOT survive an inherited toJSON. JSON.parse returns objects whose prototype is the live
+ * Object.prototype, so a toJSON installed there is consulted again when the writer serialises.
+ * Measured through the real StoryStore, on a record the builder produced as a fresh plain object
+ * literal: 67 bytes reported and within bound, 31,457,342 bytes on disk against a 25,165,824-byte
+ * bound. Closing that route means one serialisation owned by the writer, in core/store.ts, which is
+ * out of this story's scope.
+ *
+ * Returns null if either step fails, which the caller treats as "no record" rather than a small one.
+ */
+function snapshotPersistedRecord<T>(record: T): { record: T; bytes: number } | null {
+  const measured = safeJsonStringify(record, 2);
+  if (measured === null) return null;
+  const parsed = safeJsonParse(measured);
+  if (parsed === null) return null;
+  // Re-serialised from the parsed copy rather than reusing `measured`: the returned value is what a
+  // writer will stringify, so the count comes from stringifying that same value. For plain data the
+  // two texts are identical; where they could differ, this is the one that describes the record
+  // being handed back.
+  const settled = safeJsonStringify(parsed.value, 2);
+  if (settled === null) return null;
+  return { record: parsed.value as T, bytes: Buffer.byteLength(`${settled}\n`, 'utf8') };
+}
+
+/**
+ * The size decision, made over the record that is about to be written.
+ *
+ * The reducer produces an inner `output` string. That is not what has to fit: StoryStore
+ * stringifies the whole TestEvidenceData a SECOND time, escaping every character of that string
+ * again, so quote-heavy captured output roughly doubles on the way to disk - measured at x1.99 with
+ * 400 commands. Bounding the inner string alone left a reachable wedge where an in-bound string
+ * produced an out-of-bound file, the metadata commit failed on the blob ceiling, and no story could
+ * persist evidence.
+ *
+ * So the reduction is DRIVEN by a predicate that measures the file, and the result is measured
+ * again before it is returned. Three outcomes, all measured:
+ *
+ *   reduced / unmodified - the record fits; write it.
+ *   verdict_only         - reduction could not fit an OBJECT result, so the output field is
+ *                          replaced by a record sized by construction.
+ *   refused              - it still does not fit, the input had no structure to reduce, or no
+ *                          record could be built or measured at all. The caller must not write
+ *                          this; withinBound is false, `record` may be null, and both say so.
+ *
+ * Degenerate inputs are routed rather than propagated: serialisation goes through
+ * safeJsonStringify, parses through safeJsonParse, and reads of caller data through safeScalarRead,
+ * so a cyclic, BigInt or throwing-accessor input arrives at one of the outcomes above instead of at
+ * an exception. The smoke exercises cyclic, BigInt, always-throwing-getter and throwing-proxy inputs
+ * against this.
+ *
+ * What this does NOT establish is that `fileBytes` equals the bytes StoryStore writes. Routes by
+ * which they diverge are open and measured: a serialisation format duplicated from core/store.ts
+ * rather than shared with it (measurePersistedEvidenceBytes), an inherited toJSON on the shared
+ * prototype (snapshotPersistedRecord), and a caller that mutates the returned record between the
+ * gate and the write (B-3434:F-037).
+ *
+ * Every disposition, the refusal included, runs its record through snapshotPersistedRecord. The
+ * plain-data shape of the RETURNED record comes from the terminal call alone: the reduction loop
+ * consumes only `.bytes` from the snapshots it takes and discards their records (B-3434:F-036).
+ */
+export function boundPersistedValidationEvidence<T>(args: {
+  result: unknown;
+  buildRecord: (output: string) => T;
+}): PersistedValidationEvidenceBound<T> {
+  const serializedResult = safeJsonStringify(args.result);
+  const measuredBytes = Buffer.byteLength(serializedResult ?? 'null', 'utf8');
+  const finish = (
+    record: T | null,
+    fileBytes: number,
+    disposition: PersistedValidationEvidenceDisposition,
+    sizing: ValidationEvidenceSizing | null,
+  ): PersistedValidationEvidenceBound<T> => (record === null
+    // No record is not a small record. Forcing the refusal here, at the single exit, is what makes
+    // `record: T | null` readable as "a null record is not writable": no caller has to know which of
+    // the branches below produced the null. The other half - that `fileBytes` describes THIS record
+    // - is convention rather than structure at this exit: both arrive as separate parameters and
+    // neither is re-derived from the other (B-3434:F-035).
+    ? {
+      record: null,
+      fileBytes: Number.MAX_SAFE_INTEGER,
+      withinBound: false,
+      disposition: 'refused',
+      state: classifyValidationEvidenceSize(Number.MAX_SAFE_INTEGER),
+      sizing,
+    }
+    : {
+      record,
+      fileBytes,
+      withinBound: fileBytes < VALIDATION_EVIDENCE_BOUND_BYTES,
+      disposition,
+      state: classifyValidationEvidenceSize(fileBytes),
+      sizing,
+    });
+  const measureWith = (output: string): { record: T | null; bytes: number | null } => {
+    try {
+      const snapshot = snapshotPersistedRecord(args.buildRecord(output));
+      return snapshot === null ? { record: null, bytes: null } : snapshot;
+    } catch {
+      // A builder that throws produces no record at all. The previous revision manufactured one by
+      // calling the same builder again with a different argument - an unguarded call, in the one
+      // place reached only because that builder had just thrown, and two of the four call sites of
+      // this helper have no outer try to catch it. There is nothing to build from: say so.
+      return { record: null, bytes: null };
+    }
+  };
+
+  // A non-object result has no structure to reduce, and substituting a verdict-only record for it
+  // would be an invention rather than a reduction: there are no verdict fields on a string to
+  // carry, so the artifact would claim neither allPass nor status. Report it honestly instead - an
+  // unreducible oversized input is refused, which is the contract the smoke has always asserted.
+  //
+  // Arrays are named explicitly because `typeof [] === 'object'` puts them on the wrong side of that
+  // test. An array has no `commands`, `details` or `warnings` for the reducer to work on and no
+  // verdict fields for the fallback to carry, so it used to arrive at a verdict-only record that
+  // asserted neither allPass nor status while reporting success - the exact invention this branch
+  // refuses to perform for a string.
+  if (!args.result || typeof args.result !== 'object' || Array.isArray(args.result)) {
+    const plain = measureWith(serializedResult ?? 'null');
+    if (plain.bytes === null) return finish(plain.record, Number.MAX_SAFE_INTEGER, 'refused', null);
+    return finish(
+      plain.record,
+      plain.bytes,
+      plain.bytes < VALIDATION_EVIDENCE_BOUND_BYTES ? 'unmodified' : 'refused',
+      null,
+    );
+  }
+
+  let sizing: ValidationEvidenceSizing | null = null;
+  // An object that cannot be serialised at all - a cycle, a BigInt, a throwing accessor - has no
+  // reduction to attempt. Routing it straight to the fallback matters beyond tidiness: the reducer
+  // would otherwise emit the literal `null`, which a consumer parses as valid JSON that simply is
+  // not allPass. That is a silent not-a-pass where a stated replacement belongs.
+  try {
+    if (serializedResult === null) throw new Error('result is not serialisable');
+    // The predicate is what makes the reduction converge on the FILE rather than on an estimate of
+    // it: every stage boundary inside the reducer measures the record this callback builds.
+    const bounded = boundValidationEvidenceOutput(args.result, {
+      measure: (output) => measureWith(output).bytes,
+      budgetBytes: VALIDATION_EVIDENCE_BOUND_BYTES,
+    });
+    sizing = bounded;
+    const reduced = measureWith(bounded.output);
+    if (reduced.bytes !== null && reduced.bytes < VALIDATION_EVIDENCE_BOUND_BYTES) {
+      return finish(reduced.record, reduced.bytes, bounded.reduced ? 'reduced' : 'unmodified', sizing);
+    }
+  } catch {
+    // A throwing accessor can raise anywhere in the reduction or in buildRecord. Fall through to
+    // the fallback, which reads nothing without a guard.
+  }
+
+  const fallback = measureWith(verdictOnlyRecord(args.result, measuredBytes));
+  if (fallback.bytes === null) return finish(fallback.record, Number.MAX_SAFE_INTEGER, 'refused', sizing);
+  if (fallback.bytes < VALIDATION_EVIDENCE_BOUND_BYTES) {
+    return finish(fallback.record, fallback.bytes, 'verdict_only', sizing);
+  }
+  return finish(fallback.record, fallback.bytes, 'refused', sizing);
 }
 
 function emitValidationProgress(progress: ValidationProgressReporter | undefined, event: ValidationProgressEvent): void {
@@ -216,9 +990,23 @@ export function formatValidationProgressEvent(event: ValidationProgressEvent): s
 // (or when no gitRoot resolves) it is the passed projectRoot verbatim. The `null`
 // fallback on any git failure is preserved (the side-effect guard is only
 // available inside git worktrees; outside one it degrades to null, never crash).
+// B-7dff CHK-003: `--no-optional-locks` because this probe now runs from several
+// concurrently scheduled commands. A plain `git status` opportunistically refreshes
+// (and therefore WRITES) the index, taking `.git/index.lock`; two probes racing for
+// that lock make one of them fail, and a failed probe returns null, which
+// detectNewDirtyStatus turns into "no pollution" — silently disabling the
+// side-effect guard for that command. The flag suppresses only that optional index
+// write; the porcelain output is unchanged.
+//
+// B-7dff F-003: this snapshot pair is REPO-WIDE, so what a command observes is
+// "what appeared during my window", NOT "what I wrote". Under the concurrent
+// scheduler those differ. The raw observation is therefore no longer an
+// accusation on its own: executeValidationPlan cross-checks every command's
+// observation against every other's (attributeWorktreePollution) before any of
+// it is reported or gate-consumed.
 function readGitStatus(gitCwd: string): string[] | null {
   try {
-    const raw = execSync('git status --porcelain=v1 --untracked-files=all', {
+    const raw = execSync('git --no-optional-locks status --porcelain=v1 --untracked-files=all', {
       cwd: gitCwd,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
@@ -240,15 +1028,15 @@ function detectNewDirtyStatus(before: string[] | null, after: string[] | null): 
   return after.filter(line => !beforePaths.has(statusPath(line)));
 }
 
-// Task B-6326 + B-4b22: validation side-effect details share DONE gate
-// dirty ownership vocabulary AND route through dirty-gate-policy. When every
-// polluted path classifies as a passing category (lattice_metadata /
-// runtime_artifact / declared_artifact), the call:
-//   1. flips `result.worktreePollution.blocking` to false (executeValidationPlan
-//      then reads this to keep allPass = true),
-//   2. swaps the leading "✗ validation command dirtied worktree" line for a
-//      "✓ … (passed by dirty-gate-policy)" wording so downstream readers see
-//      that the loosening was intentional,
+// Task B-6326 + B-4b22: validation side-effect details share DONE gate dirty
+// ownership vocabulary AND route through dirty-gate-policy. When every polluted
+// path classifies as a passing category (lattice_metadata / runtime_artifact /
+// declared_artifact), this:
+//   1. reports blocking=false (the caller writes it onto the pollution record,
+//      and executeValidationPlan reads that to keep allPass = true),
+//   2. swaps the leading "✗ … dirtied worktree" line for a "✓ … (passed by
+//      dirty-gate-policy)" wording so downstream readers see that the loosening
+//      was intentional,
 //   3. emits audit lines into <projectRoot>/<storyDir>/<storyId>/process-events.jsonl
 //      when a storyId is supplied. Storyless callers pass null writer (no
 //      audit; gate degrades to blocking on failure path).
@@ -256,13 +1044,17 @@ function detectNewDirtyStatus(before: string[] | null, after: string[] | null): 
 // Anti-divergence (preMortem #3): both core/done-oracle.ts (the DONE gate
 // checklist) and this function import evaluateDirtyGate from the same module.
 // No inline category check.
-export function formatWorktreePollutionDetails(
-  result: ValidationCommandResult,
+//
+// B-7dff F-003: shared by BOTH pollution reports — the per-command one and the
+// set-attributed one — so an unattributable dirty tree is classified, audited
+// and gated by exactly the same policy as an attributable one. Only the header
+// wording differs, which is why it is the caller's to supply.
+function evaluateWorktreePollution(
+  statusLines: string[],
+  headers: { blocked: string; allowed: string },
   projectRoot?: string,
   storyId?: string,
-): string[] {
-  const pollution = result.worktreePollution;
-  if (!pollution || pollution.statusLines.length === 0) return [];
+): { lines: string[]; blocking: boolean } {
   const config = projectRoot ? loadConfig(projectRoot) : undefined;
   let classifierOptions = config ? dirtyWorktreeClassifierOptionsFromConfig(config, projectRoot) : {};
   if (config && projectRoot && storyId) {
@@ -274,7 +1066,7 @@ export function formatWorktreePollutionDetails(
     }
   }
   const classification = classifyGitStatusRows(
-    pollution.statusLines,
+    statusLines,
     classifierOptions,
   );
   const writer = projectRoot && storyId && config
@@ -285,15 +1077,8 @@ export function formatWorktreePollutionDetails(
     gate: 'validate-side-effect',
     writer,
   });
-  // Propagate blocking decision back to executeValidationPlan via a typed flag.
-  pollution.blocking = !evaluation.allPass;
-
-  const mark = evaluation.allPass ? '✓' : '✗';
-  const header = evaluation.allPass
-    ? `${mark} validation command produced policy-allowed dirty paths: ${result.label}: ${formatValidationCommand(result)}`
-    : `${mark} validation command dirtied worktree: ${result.label}: ${formatValidationCommand(result)}`;
   const lines = [
-    header,
+    evaluation.allPass ? headers.allowed : headers.blocked,
     `  ${evaluation.allPass ? 'pass' : 'fail'}: ${evaluation.summary}`,
     ...renderDirtyWorktreeGroups(classification, { sampleLimit: 6, indent: '  ' }),
   ];
@@ -305,7 +1090,149 @@ export function formatWorktreePollutionDetails(
   } else {
     lines.push('  audit lines appended to process-events.jsonl by dirty-gate-policy (B-4b22)');
   }
+  return { lines, blocking: !evaluation.allPass };
+}
+
+/**
+ * Render (and gate) ONE command's pollution record.
+ *
+ * B-7dff F-003: by the time a plan run reaches here, the record has already
+ * been narrowed to rows no other command could have caused, so the
+ * "<label> dirtied worktree" wording below is always a sound accusation.
+ * Single-command callers (verifier's validate-file path,
+ * runSingleAllowlistedCommand) are sound for the same reason from the other
+ * direction: nothing ran beside them.
+ */
+export function formatWorktreePollutionDetails(
+  result: ValidationCommandResult,
+  projectRoot?: string,
+  storyId?: string,
+): string[] {
+  const pollution = result.worktreePollution;
+  if (!pollution || pollution.statusLines.length === 0) return [];
+  const { lines, blocking } = evaluateWorktreePollution(pollution.statusLines, {
+    allowed: `✓ validation command produced policy-allowed dirty paths: ${result.label}: ${formatValidationCommand(result)}`,
+    blocked: `✗ validation command dirtied worktree: ${result.label}: ${formatValidationCommand(result)}`,
+  }, projectRoot, storyId);
+  // Propagate blocking decision back to executeValidationPlan via a typed flag.
+  pollution.blocking = blocking;
   return lines;
+}
+
+/**
+ * B-7dff F-003: render the SET-attributed pollution record, and set its
+ * `blocking` flag from the same dirty-gate-policy evaluation a per-command
+ * record goes through.
+ *
+ * The header deliberately says "validation commands" (plural) and names every
+ * candidate instead of one label: the plan genuinely cannot tell which of the
+ * concurrently running commands wrote the path, and printing one of them would
+ * be the false accusation this whole path exists to avoid. The blocking
+ * decision is NOT weakened to compensate — an unattributable dirty tree fails
+ * exactly as an attributable one does.
+ */
+export function formatConcurrentWorktreePollutionDetails(
+  pollution: ConcurrentWorktreePollution,
+  projectRoot?: string,
+  storyId?: string,
+): string[] {
+  if (pollution.statusLines.length === 0) return [];
+  const candidates = pollution.candidates.join(', ');
+  const { lines, blocking } = evaluateWorktreePollution(pollution.statusLines, {
+    allowed: `✓ validation commands produced policy-allowed dirty paths during overlapping windows (not attributable to one command): ${candidates}`,
+    blocked: `✗ validation commands dirtied worktree during overlapping windows (not attributable to one command): ${candidates}`,
+  }, projectRoot, storyId);
+  pollution.blocking = blocking;
+  return [
+    ...lines,
+    ...pollution.attributions.map(
+      (attribution) => `  ${attribution.path}: appeared during the windows of ${attribution.candidates.join(', ')}`,
+    ),
+    '  attribution is the SET above, not any one of them: these commands ran concurrently, so the repo-wide before/after status probe cannot tell which one wrote the path. Re-run with LATTICE_VALIDATE_JOBS=1 to attribute it exactly.',
+  ];
+}
+
+/** One command's raw before/after observation, as `executeValidationPlan` collected it. */
+export interface WorktreePollutionObservation {
+  /** Stable command identity used in reports: `<1-based plan index>:<label>`. */
+  candidate: string;
+  /** The rows this command's OWN before/after snapshot pair saw appear. */
+  statusLines: readonly string[];
+}
+
+export interface WorktreePollutionAttributionResult {
+  /** Per observation (same index and order as the input): rows ONLY that observation saw. */
+  exclusive: string[][];
+  /** Rows more than one observation saw, or null when every row was exclusive. */
+  concurrent: ConcurrentWorktreePollution | null;
+}
+
+/**
+ * B-7dff F-003: split raw per-command pollution observations into the part that
+ * is soundly attributable and the part that is not.
+ *
+ * A path's appearance is inside a command's observation window iff that command
+ * saw it as NEW (present in its after-snapshot, absent from its before-snapshot).
+ * So:
+ *
+ *  - Exactly ONE window contains it → only that command can have written it
+ *    (any other command either finished before it appeared, or started after
+ *    and therefore already had it in its own before-snapshot). Exact
+ *    attribution, which is what every solo-scheduled command still gets — and
+ *    every fail-closed barrier is solo-scheduled by construction.
+ *  - SEVERAL windows contain it → any of them could have written it and the
+ *    repo-wide probe carries no evidence choosing between them. Reported
+ *    against the whole set; never pinned on one member, never dropped.
+ *
+ * Pure and order-deterministic (candidates come out in plan order), so the
+ * scheduler's nondeterministic completion order cannot change the report.
+ */
+export function attributeWorktreePollution(
+  observations: readonly WorktreePollutionObservation[],
+): WorktreePollutionAttributionResult {
+  const observed = new Map<string, { statusLine: string; observers: number[] }>();
+  observations.forEach((observation, index) => {
+    for (const statusLine of observation.statusLines) {
+      const path = statusPath(statusLine);
+      const entry = observed.get(path);
+      if (!entry) {
+        observed.set(path, { statusLine, observers: [index] });
+      } else if (!entry.observers.includes(index)) {
+        entry.observers.push(index);
+      }
+    }
+  });
+
+  const exclusive: string[][] = observations.map(() => []);
+  const attributions: ConcurrentWorktreePollutionAttribution[] = [];
+  for (const [path, entry] of observed) {
+    if (entry.observers.length === 1) {
+      exclusive[entry.observers[0]!]!.push(entry.statusLine);
+      continue;
+    }
+    attributions.push({
+      path,
+      statusLine: entry.statusLine,
+      candidates: entry.observers.map((observer) => observations[observer]!.candidate),
+    });
+  }
+  if (attributions.length === 0) return { exclusive, concurrent: null };
+
+  const candidates: string[] = [];
+  for (const attribution of attributions) {
+    for (const candidate of attribution.candidates) {
+      if (!candidates.includes(candidate)) candidates.push(candidate);
+    }
+  }
+  return {
+    exclusive,
+    concurrent: {
+      statusLines: attributions.map((attribution) => attribution.statusLine),
+      paths: attributions.map((attribution) => attribution.path),
+      candidates,
+      attributions,
+    },
+  };
 }
 
 /**
@@ -645,6 +1572,143 @@ export async function runSingleAllowlistedCommand(
   };
 }
 
+/**
+ * The one synthetic resource every routine-validate plan entry claims.
+ *
+ * A command that DECLARED resources holds this key `shared`, so two declared
+ * commands may overlap whenever their declared claims are disjoint. A command
+ * that declared NOTHING holds it `exclusive`, so it conflicts with every other
+ * entry in the plan — declared or not — and is therefore scheduled alone.
+ *
+ * The default is exclusive on purpose. Routine validate commands write under
+ * `.lattice/`, rebuild `packages/main/dist`, take repository build/runtime
+ * locks and drive git; an unclassified command that silently ran concurrently
+ * would corrupt exactly the evidence validate exists to produce. Defaulting to
+ * shared would assume the disjointness nobody has proven yet, and a declaration
+ * is precisely the record of that proof. Under-declaring only costs latency.
+ */
+export const VALIDATE_PLAN_BARRIER_CLAIM_CLASS = 'fixed-path' as const;
+export const VALIDATE_PLAN_BARRIER_CLAIM_KEY = '.lattice/runtime/validate-plan-barrier';
+
+/** One plan command as the keyed scheduler sees it. */
+export interface ValidationScheduleEntry extends SchedulableEntry {
+  /** Unique per plan (the plan index is part of it: labels may repeat). */
+  name: string;
+  resources: ResourceClaim[];
+  command: ValidationCommand;
+  /** 1-based position in the plan, so results can be restored to plan order. */
+  commandIndex: number;
+  /** True when the command declared nothing and got the fail-closed exclusive default. */
+  exclusiveByDefault: boolean;
+}
+
+/** One command's resolved claims plus whether the fail-closed default produced them. */
+export interface ResolvedValidationCommandResources {
+  claims: ResourceClaim[];
+  /**
+   * True when the command declared nothing and therefore holds the barrier
+   * EXCLUSIVELY. This is the resolver's own verdict, returned rather than left
+   * to be re-derived from the raw `resources` field: B-7dff F-005 — the rule is
+   * this story's load-bearing safety invariant, and two independent copies of
+   * it (`exclusiveByDefault` said one thing, the scheduler enforced another)
+   * would diverge silently the first time the rule changes.
+   */
+  exclusiveByDefault: boolean;
+}
+
+/**
+ * Resolve one command's effective claims, and report whether the fail-closed
+ * default was applied. THE one place that decides "this command declared
+ * nothing" — every other reader takes the answer from here.
+ *
+ * - Declared: `[barrier(shared), ...declared]`, `exclusiveByDefault: false`.
+ * - Undeclared or empty: `[barrier(exclusive)]`, `exclusiveByDefault: true` — a
+ *   single exclusive claim on the synthetic key, which is what makes an
+ *   unclassified command run alone.
+ *
+ * An unrecognised class / access / ownership is REFUSED here, at declaration
+ * time, rather than being dropped (which would silently leave the command in
+ * some other key's admission set). Any `canonicalKey` arriving from a caller or
+ * from config is discarded: canonicalization is the scheduler's job
+ * (`canonicalizeEntries`), and accepting a pre-set one would let untrusted
+ * input choose which entries it conflicts with.
+ */
+export function resolveValidationCommandResourceClaims(
+  command: ValidationCommand,
+  owner: string,
+): ResolvedValidationCommandResources {
+  const declared = command.resources;
+  if (declared !== undefined && !Array.isArray(declared)) {
+    throw new Error(`validate command ${owner} declared a non-array resources field`);
+  }
+  const claims: ResourceClaim[] = (declared ?? []).map((claim) => {
+    if (!claim || typeof claim !== 'object') throw new Error(`validate command ${owner} declared a non-object resource claim`);
+    return {
+      class: claim.class,
+      key: claim.key,
+      access: claim.access,
+      ...(claim.ownership ? { ownership: claim.ownership } : {}),
+    };
+  });
+  validateResourceClaims(claims, owner);
+  if (claims.length === 0) {
+    return {
+      claims: [{ class: VALIDATE_PLAN_BARRIER_CLAIM_CLASS, key: VALIDATE_PLAN_BARRIER_CLAIM_KEY, access: 'exclusive' }],
+      exclusiveByDefault: true,
+    };
+  }
+  return {
+    claims: [{ class: VALIDATE_PLAN_BARRIER_CLAIM_CLASS, key: VALIDATE_PLAN_BARRIER_CLAIM_KEY, access: 'shared' }, ...claims],
+    exclusiveByDefault: false,
+  };
+}
+
+/**
+ * The claims alone, for callers that only need the admission set.
+ * {@link resolveValidationCommandResourceClaims} stays the single decision point.
+ */
+export function resolveValidationCommandResources(command: ValidationCommand, owner: string): ResourceClaim[] {
+  return resolveValidationCommandResourceClaims(command, owner).claims;
+}
+
+/**
+ * Resolve a whole plan into scheduler entries, in plan order. The claims are
+ * NOT canonicalized here (that needs a project root and touches the filesystem
+ * and git); the scheduler's `canonicalizeEntries` does it and refuses to run
+ * any entry whose claims were never canonicalized.
+ */
+export function resolveValidationPlanEntries(plan: ValidationPlan): ValidationScheduleEntry[] {
+  return plan.commands.map((command, index) => {
+    // The index keeps names unique: two plan commands may share a label.
+    const name = `${index}:${command.label}`;
+    // B-7dff F-005: exclusiveByDefault comes from the resolver that actually
+    // applied the default, never re-derived from command.resources here.
+    const { claims, exclusiveByDefault } = resolveValidationCommandResourceClaims(command, name);
+    return {
+      name,
+      resources: claims,
+      command,
+      commandIndex: index + 1,
+      exclusiveByDefault,
+    };
+  });
+}
+
+/** One plan command's terminal record as the keyed scheduler sees it. */
+interface ValidationScheduleResult extends SchedulableResult {
+  name: string;
+  status: ScheduledStatus;
+  /** 1-based plan position, so the caller can restore plan order. */
+  commandIndex: number;
+}
+
+/** The scheduler's coarse verdict for one command. Reported, never acted on: the routine
+ * plan runs under `run-all`, so no status here can cancel another command. */
+function scheduledStatusForCommand(result: ValidationCommandResult): ScheduledStatus {
+  if (result.timedOut) return 'TIMEOUT';
+  return result.code === 0 ? 'PASS' : 'FAIL';
+}
+
 export async function executeValidationPlan(
   plan: ValidationPlan,
   projectRoot: string,
@@ -660,13 +1724,35 @@ export async function executeValidationPlan(
     details.push(`FOCUSED VALIDATE MODE focus=${focus}: not final full validation and not DONE-required proof.`);
   }
 
-  for (let i = 0; i < plan.commands.length; i++) {
-    const command = plan.commands[i];
-    const result = await runValidationCommand(command, projectRoot, DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS, {
+  const totalCommands = plan.commands.length;
+  const jobs = resolveValidatePlanJobs(process.env, options.jobs);
+  // Canonicalization is what makes the claims comparable (and it REFUSES an
+  // undeclarable one), so it happens before anything is launched. Every entry
+  // keeps its plan position in `commandIndex`.
+  const entries = canonicalizeEntries(resolveValidationPlanEntries(plan), projectRoot);
+  const exclusiveCount = entries.filter((entry) => entry.exclusiveByDefault).length;
+
+  // Completion order is not plan order, so results are parked by plan index and
+  // read back in plan order below. `details` is assembled there too: pushing it
+  // from inside a concurrent command would interleave one command's output into
+  // another's, and formatWorktreePollutionDetails also appends dirty-gate audit
+  // lines to process-events.jsonl, which stays single-writer this way.
+  const executed: (ValidationCommandResult | null)[] = new Array(totalCommands).fill(null);
+  // Latched by whichever command first observes the plan deadline blown. The
+  // sequential implementation threw at exactly that point and never started a
+  // later command; entries still pending here are skipped for the same reason
+  // (their timeout would already be clamped to ~0 by the passed deadline, so
+  // launching them only spawns processes whose results this function is about
+  // to discard by throwing).
+  let deadlineExceeded = false;
+
+  await runScheduled<ValidationScheduleEntry, ValidationScheduleResult>(entries, jobs, async (entry) => {
+    if (deadlineExceeded) return { name: entry.name, status: 'INTERRUPTED', commandIndex: entry.commandIndex };
+    const result = await runValidationCommand(entry.command, projectRoot, DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS, {
       progress: options.progress,
       heartbeatMs: options.heartbeatMs,
-      commandIndex: i + 1,
-      totalCommands: plan.commands.length,
+      commandIndex: entry.commandIndex,
+      totalCommands,
       abortSignal: options.abortSignal,
       deadlineAt: options.deadlineAt,
       deadlineError: options.deadlineError,
@@ -676,7 +1762,61 @@ export async function executeValidationPlan(
       && typeof options.deadlineAt === 'number'
       && Date.now() >= options.deadlineAt
     ) {
-      throw options.deadlineError?.() ?? new Error(`validation plan deadline exceeded at ${options.deadlineAt}`);
+      deadlineExceeded = true;
+    }
+    executed[entry.commandIndex - 1] = result;
+    return { name: entry.name, status: scheduledStatusForCommand(result), commandIndex: entry.commandIndex };
+  }, {
+    // run-all: a failing command must never cancel the others. Every gate and
+    // receipt downstream reads commands[] as a COMPLETE record of the plan
+    // (commandExecution.complete compares its length against the plan length),
+    // so a short array would read as an infrastructure failure, not as the one
+    // real command failure it is.
+    cancellation: 'run-all',
+  });
+
+  if (deadlineExceeded) {
+    throw options.deadlineError?.() ?? new Error(`validation plan deadline exceeded at ${options.deadlineAt}`);
+  }
+
+  // B-7dff F-003: each command's dirty-status observation is repo-wide, so
+  // under concurrency it reports "what appeared during my window", not "what I
+  // wrote". Cross-check the whole set of observations BEFORE any of it is
+  // reported or gate-consumed: a row only one window saw stays that command's
+  // (exact attribution — which every solo-scheduled command, including every
+  // fail-closed barrier, still gets), and a row several windows saw is moved to
+  // a set-attributed plan-level record instead of being pinned on whichever
+  // innocent command happened to straddle the write. Nothing is discarded: the
+  // set-level record goes through the same dirty-gate-policy evaluation and
+  // blocks exactly as a per-command one would.
+  const attribution = attributeWorktreePollution(plan.commands.map((command, index) => ({
+    candidate: `${index + 1}:${command.label}`,
+    statusLines: executed[index]?.worktreePollution?.statusLines ?? [],
+  })));
+  executed.forEach((result, index) => {
+    if (!result) return;
+    const exclusiveLines = attribution.exclusive[index] ?? [];
+    if (exclusiveLines.length === 0) {
+      delete result.worktreePollution;
+      return;
+    }
+    result.worktreePollution = {
+      statusLines: exclusiveLines,
+      paths: exclusiveLines.map(statusPath),
+      attribution: 'exclusive',
+    };
+  });
+  const concurrentPollution = attribution.concurrent;
+
+  for (let i = 0; i < totalCommands; i++) {
+    const command = plan.commands[i];
+    const result = executed[i];
+    // Unreachable under run-all (every entry produces a terminal result and the
+    // deadline path threw above). Fail closed rather than emit a commands[]
+    // shorter than the plan, which downstream would read as a passing run of a
+    // smaller plan.
+    if (!result) {
+      throw new Error(`validation plan produced no result for command ${i + 1}/${totalCommands} (${command.label})`);
     }
     commands.push(result);
 
@@ -685,7 +1825,7 @@ export async function executeValidationPlan(
     const suffix = result.timedOut ? ' (timed out)' : '';
     details.push(`${mark} ${result.label}: ${formatValidationCommand(command)}${suffix}`.trim());
     if (result.timedOut) {
-      details.push(...formatTimeoutDiagnostics(command, result, i + 1, plan.commands.length));
+      details.push(...formatTimeoutDiagnostics(command, result, i + 1, totalCommands));
     }
     if (result.output.trim()) {
       details.push(...result.output.trim().split('\n').filter(Boolean).map((line) => `  ${line}`));
@@ -695,6 +1835,16 @@ export async function executeValidationPlan(
       warnings.push(`optional validation failed: ${result.label}`);
     }
   }
+  // Before the scheduler line, which callers read as the last line of details.
+  if (concurrentPollution) {
+    details.push(...formatConcurrentWorktreePollutionDetails(concurrentPollution, projectRoot, storyId));
+  }
+  // Appended, never prepended: details[0] is the first command line (or the
+  // focus banner) and callers read it as the headline.
+  details.push(
+    `validate scheduler: jobs=${jobs} commands=${totalCommands} `
+    + `declared=${totalCommands - exclusiveCount} exclusiveByDefault=${exclusiveCount}`,
+  );
 
   const requiredFailures = commands.filter((r) => !r.optional && (r.code !== 0 || r.timedOut));
   const optionalFailures = commands.filter((r) => r.optional && (r.code !== 0 || r.timedOut));
@@ -707,7 +1857,14 @@ export async function executeValidationPlan(
     // blocking undefined → legacy back-compat: treat as blocking.
     return r.worktreePollution.blocking !== false;
   });
-  const allPass = requiredFailures.length === 0 && pollutionFailures.length === 0;
+  // B-7dff F-003: pollution nobody can be blamed for individually still blocks.
+  // Losing the detection would be a strictly worse bug than mis-attributing it,
+  // so the ambiguity is reported honestly and gated identically.
+  const concurrentPollutionBlocking = Boolean(concurrentPollution)
+    && concurrentPollution!.statusLines.length > 0
+    && concurrentPollution!.blocking !== false;
+  const anyPollutionFailure = pollutionFailures.length > 0 || concurrentPollutionBlocking;
+  const allPass = requiredFailures.length === 0 && !anyPollutionFailure;
   const status = allPass ? (optionalFailures.length > 0 || warnings.length > 0 ? 'warn' : 'pass') : 'fail';
   const failureKind: ValidationFailureKind | undefined = allPass
     ? undefined
@@ -718,7 +1875,7 @@ export async function executeValidationPlan(
     ? optionalFailures.length > 0
       ? 'Required validation commands passed with optional failures'
       : 'Project validation commands passed'
-    : pollutionFailures.length > 0 && requiredFailures.length === 0
+    : anyPollutionFailure && requiredFailures.length === 0
       ? 'Project validation commands dirtied the worktree'
     : 'Project validation commands failed';
 
@@ -735,6 +1892,7 @@ export async function executeValidationPlan(
     timestamp: new Date().toISOString(),
     ...(headSha ? { headSha } : {}),
     commands,
+    ...(concurrentPollution ? { concurrentWorktreePollution: concurrentPollution } : {}),
     ...(focus ? { focus: { name: focus, mode: 'focused' as const, finalFullValidation: false as const, doneRequiredProof: false as const } } : {}),
   };
 }

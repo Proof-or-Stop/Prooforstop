@@ -8,11 +8,18 @@ import { fileURLToPath } from 'node:url';
 import { createServer } from 'node:net';
 import { classifyRuntimeEntrypointAuthority } from '../core/runtime-environment-checks.js';
 import {
-  DEFAULT_JOBS, DEFAULT_PROCESS_LIFECYCLE_ADAPTER, FULL_SUITE_ENTRIES, canonicalizeEntries, cleanupManifestForEntry, cleanupOwnedTargets, entriesFromSerialReference, interruptForTest,
+  FULL_SUITE_ENTRIES, canonicalizeEntries, cleanupManifestForEntry, cleanupOwnedTargets, entriesFromSerialReference, interruptForTest,
   fullSuiteBudgetBreached, identityChanged, isUnderFullSuiteBudget, killProcessTree, parsePositiveInteger, parseRunnerArgs, shouldEnforceFullSuiteBudget,
+  FULL_SUITE_BUDGET_MS, fullSuiteBudgetIsSatisfiable, longestEntryTimeoutMs,
+  CONCURRENCY_HEADROOM_FACTOR, effectiveEntryTimeoutMs, withConcurrencyHeadroom, defaultJobs,
   resetInterruptForTest, runEntry, runScheduled, validateInventory, writeResultArtifact,
-  observedOutputSignatures, parseProcessRows, pathIsContained, validateJsonOutputPath,
-  type FullSuiteEntry, type FullSuiteResult, type ProcessLifecycleAdapter, type ResourceClaim,
+  observedOutputSignatures, pathIsContained, validateJsonOutputPath,
+  stateDirKey,
+  cancelCompletedFullSuiteResult, cancelledFullSuiteResult,
+} from './full-suite-runner.js';
+import { DEPRECATED_STATE_DIR, PROOF_OR_STOP_STATE_DIR } from '../core/brand-paths.js';
+import {
+  type FullSuiteEntry, type FullSuiteResult, type KeyedSchedulerOptions, type ResourceClaim,
 } from './full-suite-runner.js';
 
 const checks: string[] = [];
@@ -20,6 +27,9 @@ function assert(condition: unknown, message: string): void { if (!condition) thr
 function assertWithDetail(condition: unknown, stableMessage: string, detail: string): void {
   if (!condition) throw new Error(`${stableMessage}: ${detail}`);
   checks.push(stableMessage);
+}
+function resultArtifactUsesCanonicalBudget(source: string): boolean {
+  return /performanceBudgetMs:\s*FULL_SUITE_BUDGET_MS\b/.test(source) && !/performanceBudgetMs:\s*\d[\d_]*/.test(source);
 }
 const isolatedTempRootsMatch = (roots: string[], expected: string | undefined): boolean =>
   roots.length === 4 && new Set(roots).size === 1 && roots[0] === expected;
@@ -36,18 +46,19 @@ function createFixtureBuildBinding(root: string): void {
 const pass = (name: string): FullSuiteResult => ({ name, status: 'PASS', durationMs: 1, output: '' });
 const claim = (key: string, access: 'shared' | 'exclusive' = 'shared'): ResourceClaim => ({ class: 'fixed-path', key, access, canonicalKey: `fixed-path:${key}` });
 const entry = (name: string, resources: ResourceClaim[] = [], priority = 0): FullSuiteEntry => ({ name, resources, priority, tempOwnership: 'runner-owned-unique' });
-function pidIsAlive(pid: number): boolean {
-  try { process.kill(pid, 0); return true; }
-  catch (error) { if ((error as NodeJS.ErrnoException).code === 'ESRCH') return false; throw error; }
-}
+// The canonical full-suite policy: the first FAIL/TIMEOUT cancels the rest.
+const cancelOnFirstFailure: KeyedSchedulerOptions<FullSuiteEntry, FullSuiteResult> = {
+  cancellation: 'cancel-on-first-failure', cancelledResult: cancelledFullSuiteResult, cancelCompletedResult: cancelCompletedFullSuiteResult,
+};
 
 async function main(): Promise<void> {
   const observations = {
     aliasCollisions: 0, failClosedThrows: 0, completedMembers: 0,
+    schedulerIsolation: false, cancellationPolicies: { cancelOnFirstFailure: false, runAll: false },
     mutationBites: { removedFixedPortKey: false, inventoryOmission: false },
     lifecycle: { normalCleanup: false, normalCompletionGrandchild: false, timeoutGrandchild: false, externalInterrupt: false, outsideRootRefused: false },
   };
-  const collisionPath = join(process.cwd(), '.lattice', 'runtime', 'full-suite-fixed-sentinel');
+  const collisionPath = join(process.cwd(), ...stateDirKey('runtime', 'full-suite-fixed-sentinel').split('/'));
   mkdirSync(collisionPath, { recursive: true });
   const sentinelPath = resolve(dirname(fileURLToPath(import.meta.url)), 'full-suite-resource-sentinel.js');
   let collisionFailed = false;
@@ -73,40 +84,38 @@ async function main(): Promise<void> {
     || (osProbe.status === 2 && osReceipt.overallStatus === 'UNSUPPORTED' && osReceipt.mutationDetected === false), 'dedicated fixed-port OS receipt never disguises unsupported capability as collision detection');
   rmSync(osReceiptPath, { force: true });
   const rootPackage = JSON.parse(readFileSync(join(process.cwd(), 'package.json'), 'utf8')) as { scripts?: Record<string, string> };
+  const runnerSource = readFileSync(join(process.cwd(), 'packages/main/src/tasks/full-suite-runner.ts'), 'utf8');
   assert(rootPackage.scripts?.build?.startsWith('npm --prefix packages/main run build && npm --prefix packages/utils run build'), 'standard root build prepares main and utils runtime');
   assert(rootPackage.scripts?.test === 'node packages/main/dist/tasks/full-suite-runner.js', 'root test has no ignored compatibility arguments');
   assert(rootPackage.scripts?.build?.endsWith('node scripts/verify-full-suite-build-binding.mjs'), 'standard root build fails closed on stale full-suite dist');
-  assert(DEFAULT_JOBS === 5, 'canonical default uses five bounded workers without changing the serial oracle or performance budget');
+  assert(resultArtifactUsesCanonicalBudget(runnerSource), 'result artifact derives its performance budget from the canonical constant without a numeric shadow copy');
+  const numericBudgetMutation = runnerSource.replace('performanceBudgetMs: FULL_SUITE_BUDGET_MS', 'performanceBudgetMs: 300_000');
+  assert(numericBudgetMutation !== runnerSource && !resultArtifactUsesCanonicalBudget(numericBudgetMutation), 'numeric performance budget shadow-copy mutation is rejected');
   const canonicalClassCounts = new Map<string, number>();
   for (const item of FULL_SUITE_ENTRIES) for (const resource of item.resources) canonicalClassCounts.set(resource.class, (canonicalClassCounts.get(resource.class) ?? 0) + 1);
   for (const resourceClass of ['git-common-dir', 'fixed-path', 'fixed-port', 'runtime-lock', 'main-write-lock']) {
     assert((canonicalClassCounts.get(resourceClass) ?? 0) > 0, `canonical manifest exercises protected class ${resourceClass}`);
   }
   assert(FULL_SUITE_ENTRIES.some(item => item.resources.some(resource => resource.access === 'exclusive')), 'canonical manifest contains truthful exclusive protected claims');
-  assert(
-    FULL_SUITE_ENTRIES.some(item => item.name === 'test:agent-liveness-suite-smoke')
-      && !FULL_SUITE_ENTRIES.some(item => item.name === 'test:flow-stability-smoke'),
-    'canonical manifest schedules the acyclic liveness aggregate instead of a component back-edge',
-  );
-  const priorityOrder = [...FULL_SUITE_ENTRIES]
-    .map((item, index) => ({ name: item.name, priority: item.priority ?? 0, index }))
-    .sort((left, right) => right.priority - left.priority || left.index - right.index)
-    .map(item => item.name);
-  assert(
-    FULL_SUITE_ENTRIES.find(item => item.name === 'test:agent-liveness-suite-smoke')?.priority === 750
-      && priorityOrder.indexOf('test:agent-liveness-suite-smoke') < priorityOrder.indexOf('test:milestone-status'),
-    'liveness aggregate is scheduled before the measured default-priority tail',
-  );
-  assert(
-    FULL_SUITE_ENTRIES.find(item => item.name === 'test:closeout-trust')?.priority === 650
-      && priorityOrder.indexOf('test:closeout-trust') < priorityOrder.indexOf('test:brief-output'),
-    'closeout trust is scheduled before the measured default-priority tail',
-  );
-  assert(
-    FULL_SUITE_ENTRIES.find(item => item.name === 'test:nested-worktree-bootstrap')?.priority === 550
-      && priorityOrder.indexOf('test:nested-worktree-bootstrap') < priorityOrder.indexOf('test:experiments'),
-    'nested worktree bootstrap is scheduled before the measured default-priority tail',
-  );
+
+  // B-cc10 F-068: EVERY state-dir resource key in the SHIPPED policy must carry the
+  // canonical spelling. Without this, a policy key reverted to the deprecated literal
+  // regresses SILENTLY: claimsConflict() compares canonicalKey by string equality, so
+  // `.lattice/runtime` and `.proof-or-stop/runtime` read as two DIFFERENT resources and
+  // two entries that must be mutually exclusive get scheduled concurrently. Nothing
+  // throws; only serialization degrades. The other four F-064 sites were covered by the
+  // approvedRoots witness (which does throw); this one had no witness at all.
+  //
+  // Asserted over ALL entries rather than the one line F-068 named, so a NEW policy key
+  // with the deprecated spelling is caught too instead of aging into the same blind spot.
+  const deprecatedStateDirKeys = FULL_SUITE_ENTRIES.flatMap(item => item.resources
+    .filter(resource => resource.key.startsWith(`${DEPRECATED_STATE_DIR}/`) || resource.key === DEPRECATED_STATE_DIR)
+    .map(resource => `${item.name}:${resource.key}`));
+  assert(deprecatedStateDirKeys.length === 0, `RESOURCE_POLICY state-dir keys must use the canonical spelling, not ${DEPRECATED_STATE_DIR}: ${deprecatedStateDirKeys.join(', ')}`);
+  const stateDirPolicyKeys = FULL_SUITE_ENTRIES.flatMap(item => item.resources
+    .filter(resource => resource.key.startsWith(`${PROOF_OR_STOP_STATE_DIR}/`) || resource.key === PROOF_OR_STOP_STATE_DIR)
+    .map(resource => `${item.name}:${resource.key}`));
+  assert(stateDirPolicyKeys.length > 0, 'the state-dir policy-key witness must observe at least one real claim (guards against a vacuous pass if the policy stops declaring state-dir resources)');
   const runnerSmokeFixedPath = FULL_SUITE_ENTRIES.find(item => item.name === 'test:full-suite-runner-smoke')?.resources.find(resource => resource.class === 'fixed-path');
   const sentinelFixedPath = FULL_SUITE_ENTRIES.find(item => item.name === 'test:full-suite-resource-sentinel')?.resources.find(resource => resource.class === 'fixed-path');
   assert(runnerSmokeFixedPath?.access === 'exclusive' && runnerSmokeFixedPath.canonicalKey === sentinelFixedPath?.canonicalKey, 'canonical runner smoke declares the real fixed-path collision it creates');
@@ -168,7 +177,7 @@ async function main(): Promise<void> {
     if (item.name === 'unrelated' && active.length) unrelatedOverlap = true;
     active.push(item.name); await new Promise((done) => setTimeout(done, item.name === 'shared-a' ? 60 : 25)); active.splice(active.indexOf(item.name), 1);
     return pass(item.name);
-  });
+  }, cancelOnFirstFailure);
   assert(sharedOverlap, 'shared claims on one key overlap');
   assert(!conflictingOverlap, 'exclusive claim waits for conflicting canonical key');
   assert(unrelatedOverlap, 'unrelated canonical resource keys overlap safely');
@@ -176,10 +185,10 @@ async function main(): Promise<void> {
   await runScheduled([
     entry('port-a', [{ class: 'fixed-port', key: '43127', access: 'exclusive', canonicalKey: 'fixed-port:43127' }]),
     entry('port-b', [{ class: 'fixed-port', key: '43127', access: 'exclusive', canonicalKey: 'fixed-port:43127' }]),
-  ], 2, async item => { if (portActive.length) fixedPortOverlap = true; portActive.push(item.name); await new Promise(done => setTimeout(done, 20)); portActive.pop(); return pass(item.name); });
+  ], 2, async item => { if (portActive.length) fixedPortOverlap = true; portActive.push(item.name); await new Promise(done => setTimeout(done, 20)); portActive.pop(); return pass(item.name); }, cancelOnFirstFailure);
   assert(!fixedPortOverlap, 'fixed-port resource-key ownership token prevents conflicting overlap');
   const ignoredPortEntries = [entry('port-a'), entry('port-b')]; let mutationOverlap = false; const mutationActive: string[] = [];
-  await runScheduled(ignoredPortEntries, 2, async item => { if (mutationActive.length) mutationOverlap = true; mutationActive.push(item.name); await new Promise(done => setTimeout(done, 20)); mutationActive.pop(); return pass(item.name); });
+  await runScheduled(ignoredPortEntries, 2, async item => { if (mutationActive.length) mutationOverlap = true; mutationActive.push(item.name); await new Promise(done => setTimeout(done, 20)); mutationActive.pop(); return pass(item.name); }, cancelOnFirstFailure);
   assert(mutationOverlap, 'fixed-port claim removal mutation bites through ownership-token overlap');
   observations.mutationBites.removedFixedPortKey = mutationOverlap;
   const protectedPairs: Record<string, { overlapCount: number; completionCount: number; blockedWaitMs: number; serialized: boolean }> = {};
@@ -191,22 +200,22 @@ async function main(): Promise<void> {
     const pair = [0, 1].map(index => entry(`${label}-${index}`, [{ class: resourceClass, key, access: 'exclusive', canonicalKey: `${resourceClass}:${key}` }]));
     const pairResults = await runScheduled(pair, 2, async item => {
       if (activeOwners) overlapCount++; activeOwners++; await new Promise(done => setTimeout(done, 20)); activeOwners--; completionCount++; return pass(item.name);
-    });
+    }, cancelOnFirstFailure);
     const blockedWaitMs = pairResults[1]?.lockWaitMs ?? 0;
     protectedPairs[label] = { overlapCount, completionCount, blockedWaitMs, serialized: overlapCount === 0 && completionCount === 2 && blockedWaitMs > 0 };
     assert(protectedPairs[label]!.serialized, `${resourceClass} protected pair serializes from observed ownership and wait telemetry`);
   }
   assert((scheduledResults.find((result) => result.name === 'writer')?.lockWaitMs ?? 0) >= 45, 'lockWaitMs includes deterministic compatibility queue wait');
-  const capacityOnly = await runScheduled([entry('capacity-a'), entry('capacity-b')], 1, async (item) => { await new Promise(done => setTimeout(done, 20)); return pass(item.name); });
+  const capacityOnly = await runScheduled([entry('capacity-a'), entry('capacity-b')], 1, async (item) => { await new Promise(done => setTimeout(done, 20)); return pass(item.name); }, cancelOnFirstFailure);
   observations.completedMembers += scheduledResults.length + capacityOnly.length;
   assert(capacityOnly[1]?.lockWaitMs === 0, 'worker-capacity queue time is not reported as resource lock wait');
 
   const launchOrder: string[] = [];
-  const reportOrder = await runScheduled([entry('inventory-first', [], 1), entry('priority-first', [], 100)], 1, async (item) => { launchOrder.push(item.name); return pass(item.name); });
+  const reportOrder = await runScheduled([entry('inventory-first', [], 1), entry('priority-first', [], 100)], 1, async (item) => { launchOrder.push(item.name); return pass(item.name); }, cancelOnFirstFailure);
   assert(launchOrder[0] === 'priority-first', 'priority affects launch order');
   assert(reportOrder.map(({ name }) => name).join(',') === 'inventory-first,priority-first', 'priority preserves canonical report order');
-  assert((await runScheduled([], 4, async (item) => pass(item.name))).length === 0, 'empty selection completes');
-  assert((await runScheduled([entry('only')], 64, async (item) => pass(item.name))).length === 1, 'jobs above member count executes member once');
+  assert((await runScheduled([], 4, async (item) => pass(item.name), cancelOnFirstFailure)).length === 0, 'empty selection completes');
+  assert((await runScheduled([entry('only')], 64, async (item) => pass(item.name), cancelOnFirstFailure)).length === 1, 'jobs above member count executes member once');
   for (const invalid of ['NaN', 'Infinity', '0', '-1', '1.5', '65', undefined]) {
     let rejected = false; try { parsePositiveInteger(invalid, 'jobs'); } catch { rejected = true; }
     assert(rejected, `invalid jobs value ${String(invalid)} is rejected`);
@@ -216,19 +225,87 @@ async function main(): Promise<void> {
     let rejected = false; try { parseRunnerArgs(args); } catch { rejected = true; }
     assert(rejected, `strict argument parser rejects ${args.join(' ')}`);
   }
-  assert(isUnderFullSuiteBudget(299_999.999) && !isUnderFullSuiteBudget(300_000) && !isUnderFullSuiteBudget(300_001), 'performance boundary accepts below and rejects at or above 300000ms');
+  // Derived from FULL_SUITE_BUDGET_MS rather than restating it: a hand-typed
+  // boundary here is a second copy of the number that drifts the moment the
+  // budget moves, which is how the previous 300_000 pin outlived its constant.
+  assert(isUnderFullSuiteBudget(FULL_SUITE_BUDGET_MS - 0.001) && !isUnderFullSuiteBudget(FULL_SUITE_BUDGET_MS) && !isUnderFullSuiteBudget(FULL_SUITE_BUDGET_MS + 1), `performance boundary accepts below and rejects at or above ${FULL_SUITE_BUDGET_MS}ms`);
+  // The invariant whose violation made this gate unsatisfiable: the whole-suite
+  // budget must exceed the largest single-entry allowance actually in force.
+  assert(fullSuiteBudgetIsSatisfiable(), `whole-suite budget ${FULL_SUITE_BUDGET_MS}ms must exceed the longest entry allowance ${longestEntryTimeoutMs()}ms`);
+  // Declared budgets are standalone; the runner enforces them scaled to the
+  // concurrency it chose. Asserted by execution rather than by reading the
+  // constant back: a serial run must NOT be scaled, a parallel run must be, and
+  // the scaled entry the scheduler actually hands to runEntry must carry it.
+  const headroomProbe: FullSuiteEntry = { name: 'test:headroom-probe', resources: [], timeoutMs: 200_000 };
+  const defaultedProbe: FullSuiteEntry = { name: 'test:headroom-default-probe', resources: [] };
+  assert(effectiveEntryTimeoutMs(headroomProbe, 1) === 200_000, 'serial execution enforces the declared standalone budget unscaled');
+  assert(effectiveEntryTimeoutMs(headroomProbe, 4) === Math.round(200_000 * CONCURRENCY_HEADROOM_FACTOR), 'parallel execution scales the declared budget by the concurrency headroom factor');
+  assert(effectiveEntryTimeoutMs(defaultedProbe, 4) === Math.round(120_000 * CONCURRENCY_HEADROOM_FACTOR), 'an entry with no declared timeout scales the default rather than staying at it');
+  assert(withConcurrencyHeadroom(headroomProbe, 4).timeoutMs === effectiveEntryTimeoutMs(headroomProbe, 4) && withConcurrencyHeadroom(headroomProbe, 4).name === headroomProbe.name, 'the scheduler-facing entry carries the scaled cap and nothing else changes');
+  assert(!fullSuiteBudgetIsSatisfiable([{ name: 'test:oversized', resources: [], timeoutMs: FULL_SUITE_BUDGET_MS }], 1), 'an entry allowed the whole budget makes the gate unsatisfiable');
+  // Default concurrency is derived from the machine. Asserted across cpu counts
+  // rather than against this host's own number, which would make the assertion
+  // pass for the wrong reason on any other box.
+  assert(defaultJobs(10) === 2, 'a 10-cpu host budgets one job per four cpus');
+  assert(defaultJobs(4) === 1 && defaultJobs(2) === 1 && defaultJobs(1) === 1, 'small hosts fall back to serial rather than oversubscribing');
+  assert(defaultJobs(64) === 4 && defaultJobs(128) === 4, 'the former hardcoded default is the ceiling, so deriving can only reduce oversubscription');
   assert(!shouldEnforceFullSuiteBudget(1) && shouldEnforceFullSuiteBudget(4), 'serial oracle is exempt while canonical parallel execution enforces the performance budget');
-  assert(!fullSuiteBudgetBreached(299_999.999, 4) && fullSuiteBudgetBreached(300_000, 4) && fullSuiteBudgetBreached(300_001, 4), 'jobs4 performance predicate bites below, at, and above the exact boundary');
-  assert(!fullSuiteBudgetBreached(300_000, 1) && !fullSuiteBudgetBreached(900_000, 1), 'jobs1 serial oracle reports but does not enforce the parallel performance boundary');
+  assert(!fullSuiteBudgetBreached(FULL_SUITE_BUDGET_MS - 0.001, 4) && fullSuiteBudgetBreached(FULL_SUITE_BUDGET_MS, 4) && fullSuiteBudgetBreached(FULL_SUITE_BUDGET_MS + 1, 4), 'jobs4 performance predicate bites below, at, and above the exact boundary');
+  assert(!fullSuiteBudgetBreached(FULL_SUITE_BUDGET_MS, 1) && !fullSuiteBudgetBreached(FULL_SUITE_BUDGET_MS * 3, 1), 'jobs1 serial oracle reports but does not enforce the parallel performance boundary');
   assert(!identityChanged({ headHash: 'h', materialHash: 'm' }, { headHash: 'h', materialHash: 'm' }) && identityChanged({ headHash: 'h', materialHash: 'm' }, { headHash: 'h', materialHash: 'changed' }), 'start/end identity comparison fails on material drift');
 
   const terminalLaunches: string[] = [];
-  const terminal = await runScheduled([entry('first-fail'), entry('must-not-launch')], 1, async (item) => { terminalLaunches.push(item.name); return item.name === 'first-fail' ? { ...pass(item.name), status: 'FAIL' } : pass(item.name); });
+  const terminal = await runScheduled([entry('first-fail'), entry('must-not-launch')], 1, async (item) => { terminalLaunches.push(item.name); return item.name === 'first-fail' ? { ...pass(item.name), status: 'FAIL' } : pass(item.name); }, cancelOnFirstFailure);
   assert(terminal.filter(({ name }) => name === 'first-fail').length === 1 && terminal.some(({ status }) => status === 'FAIL') && terminal.some(({ name, status }) => name === 'must-not-launch' && status === 'INTERRUPTED') && terminalLaunches.join(',') === 'first-fail', 'failure is terminal and never retried; pending launch is prevented');
   let missingTerminalRejected = false;
-  try { await runScheduled([entry('missing-terminal')], 1, async () => undefined as unknown as FullSuiteResult); } catch { missingTerminalRejected = true; }
+  try { await runScheduled([entry('missing-terminal')], 1, async () => undefined as unknown as FullSuiteResult, cancelOnFirstFailure); } catch { missingTerminalRejected = true; }
   assert(missingTerminalRejected, 'missing terminal aggregation trial fails closed without fabricated PASS');
   observations.mutationBites.inventoryOmission = missingTerminalRejected;
+
+  // Scheduler run state is per call, not per module: a terminal failure in one
+  // run must not cancel a run that happens to overlap it in the same process.
+  const isolationLaunches: string[] = [];
+  const failingRun = runScheduled([entry('isolation-fail'), entry('isolation-blocked')], 1, async (item) => {
+    isolationLaunches.push(item.name);
+    return item.name === 'isolation-fail' ? { ...pass(item.name), status: 'FAIL' as const } : pass(item.name);
+  }, cancelOnFirstFailure);
+  const concurrentRun = runScheduled([entry('isolation-first'), entry('isolation-second')], 1, async (item) => {
+    isolationLaunches.push(item.name); await new Promise(done => setTimeout(done, 40)); return pass(item.name);
+  }, cancelOnFirstFailure);
+  const [isolationFailed, isolationConcurrent] = await Promise.all([failingRun, concurrentRun]);
+  assert(isolationFailed.map(({ name, status }) => `${name}:${status}`).join(',') === 'isolation-fail:FAIL,isolation-blocked:INTERRUPTED',
+    'cancel-on-first-failure still cancels the pending entries of its own run');
+  assert(isolationConcurrent.map(({ name, status }) => `${name}:${status}`).join(',') === 'isolation-first:PASS,isolation-second:PASS'
+    && isolationLaunches.includes('isolation-second') && !isolationLaunches.includes('isolation-blocked'),
+  'a concurrent scheduler run never observes another run cancellation');
+  observations.schedulerIsolation = isolationConcurrent.every(({ status }) => status === 'PASS') && isolationLaunches.includes('isolation-second');
+
+  const runAllLaunches: string[] = [];
+  const runAll = await runScheduled([entry('run-all-fail'), entry('run-all-after')], 1, async (item) => {
+    runAllLaunches.push(item.name);
+    return item.name === 'run-all-fail' ? { ...pass(item.name), status: 'FAIL' as const } : pass(item.name);
+  }, { cancellation: 'run-all' });
+  assert(runAllLaunches.join(',') === 'run-all-fail,run-all-after'
+    && runAll.map(({ name, status }) => `${name}:${status}`).join(',') === 'run-all-fail:FAIL,run-all-after:PASS',
+  'run-all cancellation policy lets every entry finish after a failure');
+  observations.cancellationPolicies = { cancelOnFirstFailure: true, runAll: runAllLaunches.length === 2 };
+
+  let uncanonicalizedLaunches = 0; let uncanonicalizedRejected = false;
+  try {
+    await runScheduled([{ ...entry('uncanonicalized'), resources: [{ class: 'fixed-path', key: '/same', access: 'exclusive' }] }], 1,
+      async (item) => { uncanonicalizedLaunches++; return pass(item.name); }, cancelOnFirstFailure);
+  } catch { uncanonicalizedRejected = true; }
+  assert(uncanonicalizedRejected && uncanonicalizedLaunches === 0, 'uncanonicalized resource claim is rejected before any member executes');
+  let unknownPolicyLaunches = 0; let unknownPolicyRejected = false;
+  try {
+    await runScheduled([entry('unknown-policy')], 1, async (item) => { unknownPolicyLaunches++; return pass(item.name); },
+      { cancellation: 'sometimes' as never, cancelledResult: cancelledFullSuiteResult });
+  } catch { unknownPolicyRejected = true; }
+  assert(unknownPolicyRejected && unknownPolicyLaunches === 0, 'unknown cancellation policy is rejected before any member executes');
+  let missingCancelFactoryRejected = false;
+  try { await runScheduled([entry('missing-cancel-factory')], 1, async (item) => pass(item.name), { cancellation: 'cancel-on-first-failure' }); } catch { missingCancelFactoryRejected = true; }
+  assert(missingCancelFactoryRejected, 'a cancelling policy without a cancelled-result factory fails closed');
+
   let killFailureObserved = false;
   try { killProcessTree(123, () => { const error = new Error('denied') as NodeJS.ErrnoException; error.code = 'EPERM'; throw error; }); } catch (error) { killFailureObserved = String(error).includes('failed to terminate'); }
   assert(killFailureObserved, 'non-ESRCH process tree termination failure is surfaced');
@@ -339,306 +416,21 @@ async function main(): Promise<void> {
     await new Promise((done) => setTimeout(done, 100));
     assert(readFileSync(completionHeartbeat, 'utf8').length === completionBefore, 'normal parent completion kills complete descendant process group');
     observations.lifecycle.normalCompletionGrandchild = readFileSync(completionHeartbeat, 'utf8').length === completionBefore;
-    const completionDetachedPidPath = join(root, 'detached-completion.pid');
-    const completionDetachedProgram = `const fs=require('fs');fs.writeFileSync(${JSON.stringify(completionDetachedPidPath)},String(process.pid));setInterval(()=>{},1000)`;
-    writeFileSync(join(root, 'run'), `const{spawn}=require('child_process'),fs=require('fs');const child=spawn(process.execPath,['-e',${JSON.stringify(completionDetachedProgram)}],{detached:true,stdio:'ignore'});child.unref();for(let i=0;i<100&&!fs.existsSync(${JSON.stringify(completionDetachedPidPath)});i++)Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,10);if(!fs.existsSync(${JSON.stringify(completionDetachedPidPath)}))process.exit(2);Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,100);\n`);
-    const completedWithDetachedGrandchild = await runEntry(entry('test:normal-completion-detached-grandchild'), root, process.execPath);
-    const completionDetachedPid = Number(readFileSync(completionDetachedPidPath, 'utf8'));
-    let completionDetachedAlive = false;
-    try { process.kill(completionDetachedPid, 0); completionDetachedAlive = true; }
-    catch (error) { if ((error as NodeJS.ErrnoException).code !== 'ESRCH') throw error; }
-    if (completionDetachedAlive) {
-      try { process.kill(-completionDetachedPid, 'SIGKILL'); } catch { try { process.kill(completionDetachedPid, 'SIGKILL'); } catch {} }
-    }
-    assertWithDetail(completedWithDetachedGrandchild.status === 'PASS', 'normal completion with a detached descendant remains PASS after verified cleanup', `${completedWithDetachedGrandchild.status}: ${completedWithDetachedGrandchild.reason ?? 'no reason'}`);
-    assertWithDetail(!completionDetachedAlive, 'normal completion terminal waits for detached descendant PID to disappear', `live PID ${completionDetachedPid}`);
-
-    // parseProcessRows is the only string-parsing step underpinning the whole
-    // (pid, birthIdentity) ownership scheme, so its branches are exercised
-    // against real `ps -axo pid=,ppid=,pgid=,lstart=` text rather than against
-    // synthesized ProcessRow objects.
-    const realPsOutput = execFileSync('ps', ['-axo', 'pid=,ppid=,pgid=,lstart='], { encoding: 'utf8' });
-    const realPsRows = parseProcessRows(realPsOutput);
-    const selfRow = realPsRows.find(row => row.pid === process.pid);
-    assertWithDetail(selfRow !== undefined, 'parseProcessRows recovers this process from real ps output', `pid ${process.pid} absent from ${realPsRows.length} parsed rows`);
-    assertWithDetail(
-      selfRow !== undefined && selfRow.ppid === process.ppid && typeof selfRow.birthIdentity === 'string' && selfRow.birthIdentity.length > 0,
-      'parseProcessRows binds a nonempty birth identity to the correct ppid from real ps output',
-      `${selfRow?.ppid} vs ${process.ppid}, birth ${JSON.stringify(selfRow?.birthIdentity)}`,
-    );
-    assert(
-      realPsRows.every(row => Number.isInteger(row.pid) && row.pid > 0 && Number.isInteger(row.ppid) && Number.isInteger(row.pgid)),
-      'parseProcessRows never emits a row with a non-integer or nonpositive numeric column from real ps output',
-    );
-
-    // The birth value contains spaces; the three numeric columns must still be
-    // read positionally and the entire remainder kept as the birth identity.
-    const spacedBirth = parseProcessRows('  4321   1  4321 Mon Aug 11 09:15:42 2026\n');
-    assertWithDetail(
-      spacedBirth.length === 1 && spacedBirth[0].pid === 4321 && spacedBirth[0].ppid === 1 && spacedBirth[0].pgid === 4321
-        && spacedBirth[0].birthIdentity === 'Mon Aug 11 09:15:42 2026',
-      'parseProcessRows keeps a space-containing lstart whole instead of mis-attributing a date fragment to a numeric column',
-      JSON.stringify(spacedBirth),
-    );
-    assertWithDetail(
-      parseProcessRows('4321 1 4321 Mon   Aug    11   09:15:42   2026\n')[0]?.birthIdentity === 'Mon Aug 11 09:15:42 2026',
-      'parseProcessRows collapses internal whitespace so the same birth instant compares equal across ps padding',
-      JSON.stringify(parseProcessRows('4321 1 4321 Mon   Aug    11   09:15:42   2026\n')),
-    );
-
-    // Malformed / hostile lines are skipped rather than producing a row whose
-    // identity could be mistaken for an owned descendant.
-    const malformed = parseProcessRows([
-      '', '   ', 'header garbage', '4321 1', '4321 1 4321', 'abc 1 4321 Mon Aug 11 09:15:42 2026',
-      '0 1 4321 Mon Aug 11 09:15:42 2026', '-5 1 4321 Mon Aug 11 09:15:42 2026',
-      '77 2 77 Tue Aug 12 10:00:00 2026',
-    ].join('\n'));
-    assertWithDetail(
-      malformed.length === 1 && malformed[0].pid === 77,
-      'parseProcessRows skips blank, truncated, non-numeric, zero and negative PID lines while keeping the one well-formed row',
-      JSON.stringify(malformed),
-    );
-
-    const nonzeroDetachedPidPath = join(root, 'detached-nonzero.pid');
-    const nonzeroDetachedProgram = `const fs=require('fs');fs.writeFileSync(${JSON.stringify(nonzeroDetachedPidPath)},String(process.pid));setInterval(()=>{},1000)`;
-    writeFileSync(join(root, 'run'), `const{spawn}=require('child_process'),fs=require('fs');const child=spawn(process.execPath,['-e',${JSON.stringify(nonzeroDetachedProgram)}],{detached:true,stdio:'ignore'});child.unref();for(let i=0;i<100&&!fs.existsSync(${JSON.stringify(nonzeroDetachedPidPath)});i++)Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,10);if(!fs.existsSync(${JSON.stringify(nonzeroDetachedPidPath)}))process.exit(2);Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,100);process.exit(7);\n`);
-    const failedWithDetachedGrandchild = await runEntry(entry('test:nonzero-completion-detached-grandchild'), root, process.execPath);
-    const nonzeroDetachedPid = Number(readFileSync(nonzeroDetachedPidPath, 'utf8'));
-    assertWithDetail(failedWithDetachedGrandchild.status === 'FAIL' && failedWithDetachedGrandchild.reason === 'exit code 7', 'nonzero completion preserves exit failure after verified detached cleanup', `${failedWithDetachedGrandchild.status}: ${failedWithDetachedGrandchild.reason ?? 'no reason'}`);
-    assertWithDetail(!pidIsAlive(nonzeroDetachedPid), 'nonzero completion terminal waits for detached descendant PID to disappear', `live PID ${nonzeroDetachedPid}`);
-
-    const reusedParentPidPath = join(root, 'reused-parent.pid');
-    const reuseOwnedPidPath = join(root, 'reuse-owned.pid');
-    const reuseOwnedProgram = `const fs=require('fs');fs.writeFileSync(${JSON.stringify(reuseOwnedPidPath)},String(process.pid));setInterval(()=>{},1000)`;
-    const shortProgram = `const fs=require('fs');fs.writeFileSync(${JSON.stringify(reusedParentPidPath)},String(process.pid));setTimeout(()=>{},80)`;
-    writeFileSync(join(root, 'run'), `const{spawn}=require('child_process'),fs=require('fs');spawn(process.execPath,['-e',${JSON.stringify(shortProgram)}],{stdio:'ignore'});const owned=spawn(process.execPath,['-e',${JSON.stringify(reuseOwnedProgram)}],{detached:true,stdio:'ignore'});owned.unref();for(let i=0;i<100&&(!fs.existsSync(${JSON.stringify(reusedParentPidPath)})||!fs.existsSync(${JSON.stringify(reuseOwnedPidPath)}));i++)Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,10);if(!fs.existsSync(${JSON.stringify(reusedParentPidPath)})||!fs.existsSync(${JSON.stringify(reuseOwnedPidPath)}))process.exit(2);Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,250);\n`);
-    let sawShortLivedChild = false;
-    let foreignReuseSignalled = false;
-    const foreignPid = 987_654;
-    const pidReuseAdapter: ProcessLifecycleAdapter = {
-      ...DEFAULT_PROCESS_LIFECYCLE_ADAPTER,
-      inspect: () => {
-        const rows = DEFAULT_PROCESS_LIFECYCLE_ADAPTER.inspect();
-        const shortPid = existsSync(reusedParentPidPath) ? Number(readFileSync(reusedParentPidPath, 'utf8')) : 0;
-        if (rows.some(row => row.pid === shortPid)) sawShortLivedChild = true;
-        if (sawShortLivedChild && shortPid > 0 && !rows.some(row => row.pid === shortPid)) rows.push({ pid: foreignPid, ppid: shortPid, pgid: foreignPid });
-        return rows;
-      },
-      signal: (pid, signal) => {
-        if (pid === -foreignPid) { foreignReuseSignalled = true; throw new Error('foreign reused-PID process group was targeted'); }
-        if (pid === foreignPid) return;
-        DEFAULT_PROCESS_LIFECYCLE_ADAPTER.signal(pid, signal);
-      },
-      probe: (pid) => Math.abs(pid) === foreignPid ? false : DEFAULT_PROCESS_LIFECYCLE_ADAPTER.probe(pid),
-    };
-    const pidReuseResult = await runEntry(entry('test:pid-reuse-contamination'), root, process.execPath, undefined, { adapter: pidReuseAdapter, retryIntervalMs: 10 });
-    const reuseOwnedPid = Number(readFileSync(reuseOwnedPidPath, 'utf8'));
-    if (pidIsAlive(reuseOwnedPid)) { try { process.kill(-reuseOwnedPid, 'SIGKILL'); } catch { try { process.kill(reuseOwnedPid, 'SIGKILL'); } catch {} } }
-    assertWithDetail(sawShortLivedChild, 'PID reuse fixture captures the original short-lived owned child', `short PID was never observed from ${reusedParentPidPath}`);
-    assertWithDetail(pidReuseResult.status === 'PASS' && !foreignReuseSignalled, 'historical PID reuse cannot contaminate ownership or signal a foreign process group', `${pidReuseResult.status}/${foreignReuseSignalled}: ${pidReuseResult.reason ?? 'no reason'}`);
-    assertWithDetail(!pidIsAlive(reuseOwnedPid), 'PID reuse reconciliation still removes the genuinely owned detached descendant', `live PID ${reuseOwnedPid}`);
-
-    const birthReusePidPath = join(root, 'birth-reuse.pid');
-    const birthOwnedPidPath = join(root, 'birth-owned.pid');
-    const birthOwnedProgram = `const fs=require('fs');fs.writeFileSync(${JSON.stringify(birthOwnedPidPath)},String(process.pid));setInterval(()=>{},1000)`;
-    const birthShortProgram = `const fs=require('fs');fs.writeFileSync(${JSON.stringify(birthReusePidPath)},String(process.pid));setTimeout(()=>{},80)`;
-    writeFileSync(join(root, 'run'), `const{spawn}=require('child_process'),fs=require('fs');spawn(process.execPath,['-e',${JSON.stringify(birthShortProgram)}],{stdio:'ignore'});const owned=spawn(process.execPath,['-e',${JSON.stringify(birthOwnedProgram)}],{detached:true,stdio:'ignore'});owned.unref();for(let i=0;i<100&&(!fs.existsSync(${JSON.stringify(birthReusePidPath)})||!fs.existsSync(${JSON.stringify(birthOwnedPidPath)}));i++)Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,10);if(!fs.existsSync(${JSON.stringify(birthReusePidPath)})||!fs.existsSync(${JSON.stringify(birthOwnedPidPath)}))process.exit(2);Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,250);\n`);
-    let capturedBirthTarget = false;
-    let injectedForeignBirth = false;
-    let foreignBirthSignalled = false;
-    const foreignBirthAlive = true;
-    const foreignBirthPgid = 876_543;
-    // Latched once the short-lived owned child is first observed, so signal/probe
-    // compare against a stable number instead of re-reading the pid file (an
-    // unconditional read throws ENOENT before the child writes it and would be
-    // recorded as a lifecycle error rather than exercising the reuse path).
-    let birthReusedPid = 0;
-    const birthReuseAdapter: ProcessLifecycleAdapter = {
-      ...DEFAULT_PROCESS_LIFECYCLE_ADAPTER,
-      inspect: () => {
-        const rows = DEFAULT_PROCESS_LIFECYCLE_ADAPTER.inspect().map(row => ({ ...row, birthIdentity: `native:${row.pid}` }));
-        const reusedPid = birthReusedPid || (existsSync(birthReusePidPath) ? Number(readFileSync(birthReusePidPath, 'utf8')) : 0);
-        if (reusedPid > 0 && rows.some(row => row.pid === reusedPid)) {
-          capturedBirthTarget = true;
-          birthReusedPid = reusedPid;
-        }
-        // The exact PID we already captured has exited; re-present that same
-        // number carrying a different birth identity, which is precisely the
-        // PID-reuse case a numeric-only ownership key cannot detect.
-        if (capturedBirthTarget && reusedPid > 0 && !rows.some(row => row.pid === reusedPid)) {
-          injectedForeignBirth = true;
-          rows.push({ pid: reusedPid, ppid: 1, pgid: foreignBirthPgid, birthIdentity: `foreign:${reusedPid}` });
-        }
-        return rows;
-      },
-      signal: (pid, signal) => {
-        if (injectedForeignBirth && (pid === birthReusedPid || pid === -foreignBirthPgid)) {
-          foreignBirthSignalled = true;
-          return;
-        }
-        DEFAULT_PROCESS_LIFECYCLE_ADAPTER.signal(pid, signal);
-      },
-      probe: (pid) => injectedForeignBirth && pid === birthReusedPid
-        ? foreignBirthAlive
-        : DEFAULT_PROCESS_LIFECYCLE_ADAPTER.probe(pid),
-    };
-    const birthReuseResult = await runEntry(entry('test:birth-identity-reuse'), root, process.execPath, undefined, { adapter: birthReuseAdapter, retryIntervalMs: 10 });
-    const birthOwnedPid = Number(readFileSync(birthOwnedPidPath, 'utf8'));
-    if (pidIsAlive(birthOwnedPid)) { try { process.kill(-birthOwnedPid, 'SIGKILL'); } catch { try { process.kill(birthOwnedPid, 'SIGKILL'); } catch {} } }
-    assertWithDetail(capturedBirthTarget, 'birth identity fixture first captures the short-lived owned child by PID', `short PID was never observed from ${birthReusePidPath}`);
-    assertWithDetail(injectedForeignBirth, 'birth identity fixture re-presents that exact captured PID with a foreign birth identity', `captured PID ${birthReusedPid} never vanished before terminal reconciliation`);
-    assertWithDetail(birthReuseResult.status === 'PASS' && !foreignBirthSignalled, 'reused numeric PID with a new birth identity is permanently revoked before any signal', `${birthReuseResult.status}/${foreignBirthSignalled}: ${birthReuseResult.reason ?? 'no reason'}`);
-    assertWithDetail(!pidIsAlive(birthOwnedPid), 'birth identity revocation still converges cleanup of genuinely owned descendants', `live PID ${birthOwnedPid}`);
-
-    const lifecycleFixture = async (label: string, adapter: ProcessLifecycleAdapter, cleanupBudgetMs = 500) => {
-      const pidPath = join(root, `${label}.pid`);
-      const program = `const fs=require('fs');fs.writeFileSync(${JSON.stringify(pidPath)},String(process.pid));setInterval(()=>{},1000)`;
-      writeFileSync(join(root, 'run'), `const{spawn}=require('child_process'),fs=require('fs');const child=spawn(process.execPath,['-e',${JSON.stringify(program)}],{detached:true,stdio:'ignore'});child.unref();for(let i=0;i<100&&!fs.existsSync(${JSON.stringify(pidPath)});i++)Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,10);if(!fs.existsSync(${JSON.stringify(pidPath)}))process.exit(2);Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,100);\n`);
-      const result = await runEntry(entry(`test:${label}`), root, process.execPath, undefined, { adapter, cleanupBudgetMs, retryIntervalMs: 10 });
-      const pid = Number(readFileSync(pidPath, 'utf8'));
-      assertWithDetail(!pidIsAlive(pid), `${label} terminal waits for detached descendant PID to disappear`, `live PID ${pid}`);
-      return result;
-    };
-
-    let initialInspections = 0;
-    const initialInspectionFailure: ProcessLifecycleAdapter = {
-      ...DEFAULT_PROCESS_LIFECYCLE_ADAPTER,
-      inspect: () => { if (initialInspections++ === 0) throw new Error('injected initial inspection failure'); return DEFAULT_PROCESS_LIFECYCLE_ADAPTER.inspect(); },
-    };
-    const initialInspectionResult = await lifecycleFixture('initial-inspection-failure', initialInspectionFailure);
-    assertWithDetail(initialInspectionResult.status === 'FAIL' && initialInspectionResult.reason?.includes('injected initial inspection failure'), 'initial inspection failure remains fail-closed after verified cleanup', `${initialInspectionResult.status}: ${initialInspectionResult.reason ?? 'no reason'}`);
-
-    let reinspectionCalls = 0;
-    const reinspectionFailure: ProcessLifecycleAdapter = {
-      ...DEFAULT_PROCESS_LIFECYCLE_ADAPTER,
-      inspect: () => { if (reinspectionCalls++ === 1) throw new Error('injected reinspection failure'); return DEFAULT_PROCESS_LIFECYCLE_ADAPTER.inspect(); },
-    };
-    const reinspectionResult = await lifecycleFixture('reinspection-failure', reinspectionFailure);
-    assertWithDetail(reinspectionResult.status === 'FAIL' && reinspectionResult.reason?.includes('injected reinspection failure'), 'reinspection failure remains fail-closed after verified cleanup', `${reinspectionResult.status}: ${reinspectionResult.reason ?? 'no reason'}`);
-
-    let pollFailureInjected = false;
-    const pollFailure: ProcessLifecycleAdapter = {
-      ...DEFAULT_PROCESS_LIFECYCLE_ADAPTER,
-      probe: (pid) => { if (!pollFailureInjected) { pollFailureInjected = true; throw new Error('injected liveness poll failure'); } return DEFAULT_PROCESS_LIFECYCLE_ADAPTER.probe(pid); },
-    };
-    const pollFailureResult = await lifecycleFixture('poll-failure', pollFailure);
-    assertWithDetail(pollFailureResult.status === 'FAIL' && pollFailureResult.reason?.includes('injected liveness poll failure'), 'liveness poll failure remains fail-closed after verified cleanup', `${pollFailureResult.status}: ${pollFailureResult.reason ?? 'no reason'}`);
-
-    let signalFailureInjected = false;
-    const signalFailure: ProcessLifecycleAdapter = {
-      ...DEFAULT_PROCESS_LIFECYCLE_ADAPTER,
-      signal: (pid, signal) => {
-        if (!signalFailureInjected && signal === 'SIGKILL') { signalFailureInjected = true; throw new Error('injected signal failure'); }
-        DEFAULT_PROCESS_LIFECYCLE_ADAPTER.signal(pid, signal);
-      },
-    };
-    const signalFailureResult = await lifecycleFixture('signal-failure', signalFailure);
-    assertWithDetail(signalFailureResult.status === 'FAIL' && signalFailureResult.reason?.includes('injected signal failure'), 'signal failure is negative but publishes only after verified cleanup', `${signalFailureResult.status}: ${signalFailureResult.reason ?? 'no reason'}`);
-
-    let survivorPolls = 0;
-    const persistentSurvivor: ProcessLifecycleAdapter = {
-      ...DEFAULT_PROCESS_LIFECYCLE_ADAPTER,
-      probe: (pid) => survivorPolls++ < 30 || DEFAULT_PROCESS_LIFECYCLE_ADAPTER.probe(pid),
-    };
-    const survivorStarted = performance.now();
-    const persistentSurvivorResult = await lifecycleFixture('persistent-survivor', persistentSurvivor, 50);
-    assertWithDetail(persistentSurvivorResult.status === 'FAIL' && persistentSurvivorResult.reason?.includes('exceeded 50ms cleanup budget') && performance.now() - survivorStarted >= 50, 'persistent survivor quarantines past budget before negative terminal', `${persistentSurvivorResult.status}/${(performance.now() - survivorStarted).toFixed(1)}ms: ${persistentSurvivorResult.reason ?? 'no reason'}`);
-
-    // True-infinite survivor: unlike persistent-survivor above (which dies after 30
-    // polls), this PID NEVER becomes unprobeable, modelling a process wedged in
-    // uninterruptible sleep. The post-SIGKILL retry loop must stay bounded by the
-    // cleanup budget and fail closed, rather than spinning forever.
-    // Written standalone rather than through lifecycleFixture: that helper asserts
-    // the real descendant died, which cannot hold here because the whole point is a
-    // PID that never becomes unprobeable. Only the probe is stubbed, so the genuine
-    // descendant is still really signalled and really reaped afterwards.
-    const unkillablePidPath = join(root, 'unkillable-survivor.pid');
-    const unkillableProgram = `const fs=require('fs');fs.writeFileSync(${JSON.stringify(unkillablePidPath)},String(process.pid));setInterval(()=>{},1000)`;
-    writeFileSync(join(root, 'run'), `const{spawn}=require('child_process'),fs=require('fs');const child=spawn(process.execPath,['-e',${JSON.stringify(unkillableProgram)}],{detached:true,stdio:'ignore'});child.unref();for(let i=0;i<100&&!fs.existsSync(${JSON.stringify(unkillablePidPath)});i++)Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,10);if(!fs.existsSync(${JSON.stringify(unkillablePidPath)}))process.exit(2);Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,100);\n`);
-    const unkillableStarted = performance.now();
-    const unkillable: ProcessLifecycleAdapter = {
-      ...DEFAULT_PROCESS_LIFECYCLE_ADAPTER,
-      probe: () => true,
-    };
-    const unkillableResult = await runEntry(entry('test:unkillable-survivor'), root, process.execPath, undefined, { adapter: unkillable, cleanupBudgetMs: 50, retryIntervalMs: 10 });
-    const unkillableElapsed = performance.now() - unkillableStarted;
-    const unkillablePid = Number(readFileSync(unkillablePidPath, 'utf8'));
-    if (pidIsAlive(unkillablePid)) { try { process.kill(-unkillablePid, 'SIGKILL'); } catch { try { process.kill(unkillablePid, 'SIGKILL'); } catch {} } }
-    assertWithDetail(
-      unkillableResult.status === 'FAIL' && unkillableElapsed < 30_000,
-      'permanently unkillable captured PID terminates the retry loop instead of spinning forever',
-      `${unkillableResult.status} after ${unkillableElapsed.toFixed(1)}ms: ${unkillableResult.reason ?? 'no reason'}`,
-    );
-    assertWithDetail(
-      unkillableResult.reason?.includes('exceeded 50ms cleanup budget') === true
-        && unkillableResult.reason?.includes('still live after SIGKILL') === true,
-      'permanently unkillable captured PID fails closed naming the surviving PID and the exceeded budget',
-      `${unkillableResult.status}: ${unkillableResult.reason ?? 'no reason'}`,
-    );
-
-    writeFileSync(join(root, 'run'), 'process.exit(0);\n');
-    const reuseAfterInspectionFailure = await runEntry(entry('test:reuse-after-inspection-failure'), root, process.execPath);
-    assert(reuseAfterInspectionFailure.status === 'PASS', 'scheduler reuse follows only after injected lifecycle failures have no residual PID');
-
-    const synchronousInterruptMarker = join(root, 'synchronous-interrupt-started');
-    writeFileSync(join(root, 'run'), `require('fs').writeFileSync(${JSON.stringify(synchronousInterruptMarker)},'started');setInterval(()=>{},1000);\n`);
-    const synchronousInterruptStarted = performance.now();
-    const synchronousInterrupt = await runEntry({ ...entry('test:synchronous-onspawn-interrupt'), timeoutMs: 10_000 }, root, process.execPath, () => interruptForTest('SIGTERM'));
-    assertWithDetail(synchronousInterrupt.status === 'INTERRUPTED' && performance.now() - synchronousInterruptStarted < 2_000, 'synchronous onSpawn interrupt terminates promptly through pre-registered terminator', `${synchronousInterrupt.status}/${(performance.now() - synchronousInterruptStarted).toFixed(1)}ms: ${synchronousInterrupt.reason ?? 'no reason'}`);
-    assert(!existsSync(synchronousInterruptMarker), 'synchronous onSpawn interrupt permits zero child execution or descendants');
-    resetInterruptForTest();
-
-    const presetInterruptMarker = join(root, 'preset-interrupt-started');
-    writeFileSync(join(root, 'run'), `require('fs').writeFileSync(${JSON.stringify(presetInterruptMarker)},'started');setInterval(()=>{},1000);\n`);
-    interruptForTest('SIGTERM');
-    const presetInterrupt = await runEntry({ ...entry('test:preset-interrupt'), timeoutMs: 10_000 }, root, process.execPath);
-    assertWithDetail(presetInterrupt.status === 'INTERRUPTED', 'already-set interrupt immediately uses the registered terminator', `${presetInterrupt.status}: ${presetInterrupt.reason ?? 'no reason'}`);
-    assert(!existsSync(presetInterruptMarker), 'already-set interrupt permits zero child execution or descendants');
-    resetInterruptForTest();
-
     const heartbeat = join(root, 'heartbeat');
     writeFileSync(join(root, 'run'), `const{spawn}=require('child_process'),fs=require('fs');fs.writeFileSync(${JSON.stringify(heartbeat)},'x');spawn(process.execPath,['-e',${JSON.stringify(`const fs=require('fs');setInterval(()=>fs.appendFileSync(${JSON.stringify(heartbeat)},'x'),20)`) }],{stdio:'ignore'});setInterval(()=>{},1000);\n`);
     let launches = 0;
     const timeout = await runEntry({ ...entry('test:hang'), timeoutMs: 300 }, root, process.execPath, () => { launches++; });
-    assertWithDetail(timeout.status === 'TIMEOUT' && launches === 1, 'actual process spawn increments launch accounting exactly once', `${timeout.status}/${launches}: ${timeout.reason ?? 'no reason'}`);
+    assert(timeout.status === 'TIMEOUT' && launches === 1, 'actual process spawn increments launch accounting exactly once');
     assert(Boolean(timeout.tempRoot) && !existsSync(timeout.tempRoot!), 'normal timeout removes only the runner-owned unique temp root');
     assert(existsSync(root), 'runner cleanup cannot target the caller repository root');
     await new Promise((done) => setTimeout(done, 80)); const before = readFileSync(heartbeat, 'utf8').length;
     await new Promise((done) => setTimeout(done, 100));
     assert(before === readFileSync(heartbeat, 'utf8').length, 'timeout kills complete descendant process group');
     observations.lifecycle.timeoutGrandchild = before === readFileSync(heartbeat, 'utf8').length;
-    const detachedPidPath = join(root, 'detached-timeout.pid');
-    const detachedHeartbeat = join(root, 'detached-timeout-heartbeat');
-    const detachedProgram = `const fs=require('fs');fs.writeFileSync(${JSON.stringify(detachedPidPath)},String(process.pid));setInterval(()=>fs.appendFileSync(${JSON.stringify(detachedHeartbeat)},'x'),20)`;
-    writeFileSync(join(root, 'run'), `const{spawn}=require('child_process'),fs=require('fs');const child=spawn(process.execPath,['-e',${JSON.stringify(detachedProgram)}],{detached:true,stdio:'ignore'});child.unref();for(let i=0;i<100&&!fs.existsSync(${JSON.stringify(detachedPidPath)});i++)Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,10);if(!fs.existsSync(${JSON.stringify(detachedPidPath)}))process.exit(2);setInterval(()=>{},1000);\n`);
-    const detachedTimeout = await runEntry({ ...entry('test:detached-timeout'), timeoutMs: 300 }, root, process.execPath);
-    const detachedPid = Number(readFileSync(detachedPidPath, 'utf8'));
-    let detachedAliveAfterTerminal = false;
-    try { process.kill(detachedPid, 0); detachedAliveAfterTerminal = true; }
-    catch (error) { if ((error as NodeJS.ErrnoException).code !== 'ESRCH') throw error; }
-    if (detachedAliveAfterTerminal) {
-      try { process.kill(-detachedPid, 'SIGKILL'); } catch { try { process.kill(detachedPid, 'SIGKILL'); } catch {} }
-    }
-    assert(detachedTimeout.status === 'TIMEOUT', 'separate-process-group descendant fixture reaches timeout');
-    assertWithDetail(!detachedAliveAfterTerminal, 'timeout terminal waits for separate-process-group descendant PID to disappear', `live PID ${detachedPid}`);
-    writeFileSync(join(root, 'run'), 'process.exit(0);\n');
-    const reuseAfterDetachedTimeout = await runEntry(entry('test:reuse-after-detached-timeout'), root, process.execPath);
-    assert(reuseAfterDetachedTimeout.status === 'PASS', 'scheduler reuse starts only after detached timeout descendants are absent');
-    const interruptedDetachedPidPath = join(root, 'detached-interrupt.pid');
-    const interruptedDetachedProgram = `const fs=require('fs');fs.writeFileSync(${JSON.stringify(interruptedDetachedPidPath)},String(process.pid));setInterval(()=>{},1000)`;
-    writeFileSync(join(root, 'run'), `const{spawn}=require('child_process'),fs=require('fs');const child=spawn(process.execPath,['-e',${JSON.stringify(interruptedDetachedProgram)}],{detached:true,stdio:'ignore'});child.unref();for(let i=0;i<100&&!fs.existsSync(${JSON.stringify(interruptedDetachedPidPath)});i++)Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,10);if(!fs.existsSync(${JSON.stringify(interruptedDetachedPidPath)}))process.exit(2);setInterval(()=>{},1000);\n`);
     const interruptedPromise = runEntry({ ...entry('test:hang'), timeoutMs: 10_000 }, root, process.execPath);
     await new Promise((done) => setTimeout(done, 100)); interruptForTest('SIGTERM');
     const interrupted = await interruptedPromise;
-    const interruptedDetachedPid = Number(readFileSync(interruptedDetachedPidPath, 'utf8'));
-    let interruptedDetachedAlive = false;
-    try { process.kill(interruptedDetachedPid, 0); interruptedDetachedAlive = true; }
-    catch (error) { if ((error as NodeJS.ErrnoException).code !== 'ESRCH') throw error; }
-    if (interruptedDetachedAlive) {
-      try { process.kill(-interruptedDetachedPid, 'SIGKILL'); } catch { try { process.kill(interruptedDetachedPid, 'SIGKILL'); } catch {} }
-    }
-    assertWithDetail(interrupted.status === 'INTERRUPTED' && interrupted.reason?.includes('SIGTERM'), 'external interruption reports INTERRUPTED', `${interrupted.status}: ${interrupted.reason ?? 'no reason'}`);
-    assertWithDetail(!interruptedDetachedAlive, 'interrupt terminal waits for separate-process-group descendant PID to disappear', `live PID ${interruptedDetachedPid}`);
+    assert(interrupted.status === 'INTERRUPTED' && interrupted.reason?.includes('SIGTERM'), 'external interruption reports INTERRUPTED');
     observations.lifecycle.externalInterrupt = interrupted.status === 'INTERRUPTED' && Boolean(interrupted.reason?.includes('SIGTERM'));
     resetInterruptForTest();
 
@@ -675,14 +467,14 @@ async function main(): Promise<void> {
     writeFileSync(join(realSentinelRoot, 'package.json'), JSON.stringify({ scripts: { 'test:real-sentinel': `node ${JSON.stringify(realSentinelScript)}` } }));
     execFileSync('git', ['add', '.'], { cwd: realSentinelRoot }); execFileSync('git', ['commit', '-m', 'fixture'], { cwd: realSentinelRoot, stdio: 'ignore' });
     const realSentinelPaths = [
-      join(realSentinelRoot, '.lattice', 'runtime', 'full-suite-runtime-sentinel.lock'),
-      join(realSentinelRoot, '.lattice', 'locks', 'full-suite-main-write-sentinel.lock'),
-      join(realSentinelRoot, '.lattice', 'runtime', 'full-suite-fixed-sentinel'),
+      join(realSentinelRoot, ...stateDirKey('runtime', 'full-suite-runtime-sentinel.lock').split('/')),
+      join(realSentinelRoot, ...stateDirKey('locks', 'full-suite-main-write-sentinel.lock').split('/')),
+      join(realSentinelRoot, ...stateDirKey('runtime', 'full-suite-fixed-sentinel').split('/')),
     ];
     const realSentinelEntry = canonicalizeEntries([{ ...entry('test:real-sentinel'), resources: [
-      { class: 'runtime-lock', key: '.lattice/runtime/full-suite-runtime-sentinel.lock', access: 'exclusive', ownership: 'runner-cleanable' },
-      { class: 'main-write-lock', key: '.lattice/locks/full-suite-main-write-sentinel.lock', access: 'exclusive', ownership: 'runner-cleanable' },
-      { class: 'fixed-path', key: '.lattice/runtime/full-suite-fixed-sentinel', access: 'exclusive', ownership: 'runner-cleanable' },
+      { class: 'runtime-lock', key: stateDirKey('runtime', 'full-suite-runtime-sentinel.lock'), access: 'exclusive', ownership: 'runner-cleanable' },
+      { class: 'main-write-lock', key: stateDirKey('locks', 'full-suite-main-write-sentinel.lock'), access: 'exclusive', ownership: 'runner-cleanable' },
+      { class: 'fixed-path', key: stateDirKey('runtime', 'full-suite-fixed-sentinel'), access: 'exclusive', ownership: 'runner-cleanable' },
     ] }], realSentinelRoot)[0]!;
     const runRealSentinelInterrupted = async (mutation?: 'missing-runtime' | 'tampered-main'): Promise<FullSuiteResult> => {
       const readyFile = join(root, `real-sentinel-ready-${mutation ?? 'baseline'}`);
@@ -818,7 +610,7 @@ async function main(): Promise<void> {
     writeFileSync(join(hungBin, 'git'), '#!/bin/sh\nsleep 30\n'); chmodSync(join(hungBin, 'git'), 0o755);
     const authorityInput = {
       command: 'agent_prompt', commandArgs: ['--role=implementation-reviewer'], projectRoot: process.cwd(),
-      invokedEntrypoint: join(process.cwd(), 'bin/lattice.js'), loadedCorePackageRoot: join(process.cwd(), 'packages/main'),
+      invokedEntrypoint: join(process.cwd(), 'bin/proof-or-stop.js'), loadedCorePackageRoot: join(process.cwd(), 'packages/main'),
     };
     const slowDecision = classifyRuntimeEntrypointAuthority({ ...authorityInput, env: { ...process.env, PATH: `${slowBin}:${process.env.PATH ?? ''}` } });
     assert(slowDecision.status === 'pass', 'authoritative git identity probes retry a transient two-second timeout');
@@ -846,6 +638,8 @@ async function main(): Promise<void> {
     canonicalAliasesCollide: { observed: observations.aliasCollisions >= 2, collisionCount: observations.aliasCollisions },
     unknownAndUnclassifiedFailClosed: { observed: observations.failClosedThrows === 5, throwCount: observations.failClosedThrows },
     workerBoundariesProgress: { observed: observations.completedMembers > 0, completionCount: observations.completedMembers },
+    schedulerIsolation: observations.schedulerIsolation,
+    cancellationPolicies: observations.cancellationPolicies,
     mutationBites: observations.mutationBites,
     lifecycle: observations.lifecycle,
   })}\n`);

@@ -1,0 +1,35 @@
+{
+  "storyId": "B-e5bf",
+  "name": "selector-pin-repair",
+  "title": "Repair stale counted evidence selector pins without discarding proven receipts",
+  "description": "A waiver is currently justifying itself by pointing at a follow-up that did not exist. Both B-9ff1 waivers assert the tooling gap 'is filed as its own task'; the test-coverage reviewer searched story_list and bug_list during B-9ff1's closing review and found no such story or bug. This story makes that claim true and fixes the gap it names.\n\nThe gap: a pinned (command, selector) evidence pin is immutable by design, which is what makes the receipt trustworthy - a caller cannot retroactively rewrite what was proven. But when the pinned selector literal contains a COUNT ('7 invocations', '25 fixtures') the next fixture addition strands it: the command still passes, the behaviour is still proven, and the only available disposition is a waiver that throws away the coverage claim. Two B-9ff1 intents are in exactly that state, both independently confirmed by re-running the harnesses (7 -> 8 invocations, 25 -> 33 fixtures).\n\nThis is deliberately scoped as a real story rather than a chore because any repair path is a hole in the immutability the subsystem depends on, and it must be shown NOT to launder a failing intent into a passing one.",
+  "type": "feature",
+  "phase": "INIT",
+  "priority": "medium",
+  "source": "B-9ff1 closing review (test-coverage lane, RP-034): both waivers claim a filed follow-up task that did not exist",
+  "depends": [
+    "B-9ff1"
+  ],
+  "keywords": [
+    "verification-evidence",
+    "selector-pin",
+    "waiver",
+    "checklist",
+    "immutability",
+    "receipt"
+  ],
+  "createdAt": "2026-08-18T17:09:49.571Z",
+  "startedAt": "2026-08-18T17:09:49.571Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-08-18T17:09:50.133Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "agent": "main"
+    }
+  ]
+}

@@ -2,6 +2,12 @@
 
 import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
+// B-cc10 F-055: resolve whichever adapter dir exists. Hardcoding the renamed one made this
+// read a path that no longer exists (ENOENT) or scan zero files.
+function adapterDirName(base) {
+  return existsSync(join(base, '.proof-or-stop-codex')) ? '.proof-or-stop-codex' : '.lattice-codex';
+}
+
 
 const root = process.cwd();
 
@@ -15,7 +21,7 @@ function read(path) {
 
 const agentPaths = [
   join(root, '.claude', 'agents', 'implementation-reviewer.md'),
-  join(root, '.lattice-codex', 'agents', 'implementation-reviewer.md'),
+  join(root, adapterDirName(root), 'agents', 'implementation-reviewer.md'),
 ];
 
 for (const path of agentPaths) {

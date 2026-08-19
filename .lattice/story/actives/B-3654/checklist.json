@@ -1,0 +1,36 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Reproduce the divergence and name the exact predicate that disagrees with the policy",
+      "context": "Run a command activity-policy.ts classifies as append-nothing (red_evidence_envelope_check is the confirmed instance) against a story and observe the .lattice/activity.jsonl row. Then trace cli-engine.ts's writeLog gate (shouldWriteActivityLog) and state precisely which input it consults and why it disagrees with the classification at activity-policy.ts:23-25. A fix that does not name the divergence cannot be shown to close it.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Enumerate every command affected, not just the one that surfaced it",
+      "context": "B-9ff1 characterised this as systemic rather than one-command. Produce the list of commands the policy classifies as append-nothing and test each for actual writes (activity log, hooks, process events). The finding's own scope claim must be verified rather than inherited: it may be narrower or wider than one command.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Decide which side is correct - the documented guarantee or the observed writes - and record it",
+      "context": "Either the runtime obeys the classification (preferred: a single predicate consulted by both the policy and writeLog, so classification cannot drift from behaviour), or the comment is corrected to describe deliberate telemetry. Do NOT close this by editing the comment to match current behaviour without a stated decision: read-only commands are relied on as safe to run during REVIEW and TEST, where a metadata write moves storyFilesHash and stales reviewer passes and verification evidence.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Commit a regression that fails against the current code",
+      "context": "The guarantee is currently asserted only in a comment, which is why it could drift unnoticed. Whatever the decision, ship a test that would have caught this: invoke each append-nothing command and assert the byte-level state of .lattice/ is unchanged (B-9ff1's red-w2d-command-readonly.mjs uses a content-hash manifest and is a working model). Demonstrate it fails against the pre-fix tree.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

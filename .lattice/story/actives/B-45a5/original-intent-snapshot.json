@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-45a5",
+  "sourceText": "User, on discovering that a user-approved withdrawal forced waiver prose in B-8df9: '我们Lattice 就是要证明我们要证明的东西，如果证明不了，就是我们的框架有问题，就直接了当的说，不要模糊，甚至我们的框架就是要在解决AI的这些容易犯的错误' — Lattice exists to PROVE what it claims to prove; where it cannot, that is a framework defect and must be said plainly rather than blurred. Then, on the proposed ordering (fix the framework first, then finish B-8df9): '同意按照这个顺序直到done为止'.",
+  "normalizedOutcome": "A checklist item withdrawn by a confirmed, user-confirmed scope_shrinkage_decision_set no longer causes either REVIEW-path gate to demand verification evidence or dispatch records for it, so the withdrawal completes mechanically with no waiver prose anywhere in the gate path.",
+  "acceptanceClaim": "evaluateReviewCompleteness and checkDispatchEvidence both skip a withdrawn item ONLY via withdrawnChecklistItemIdsFrom(decision), which requires decision==='confirmed' && userConfirmed===true; an unbacked or unconfirmed withdrawal is still refused by both; and B-8df9's three obsolete waiver rows are removed with its gates passing without them.",
+  "keyRequirementIds": [
+    "REQ-001"
+  ],
+  "requestHash": "sha256:17e79732fed533161a4b2be8600680449340737fde84b58e3ffc9f23a98b81a9",
+  "createdAt": "2026-08-18T22:14:41.886Z",
+  "updatedAt": "2026-08-18T22:14:41.886Z"
+}

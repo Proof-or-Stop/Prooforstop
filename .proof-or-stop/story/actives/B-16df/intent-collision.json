@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-16df",
+  "id": "IC-20260814114544",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "The story is scoped exactly to threading lattice.config.json validate.commands[].timeoutMs through runSingleAllowlistedCommand's call sites (via handlers/checklist.ts, matching configuredValidationCommands entries by {command,args}), matching background.md/scope-boundary.json/plan.md. No ambiguity: resolveCommandTimeoutMs and the lattice validate execution path are explicitly untouched, DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS is not raised globally, and no lattice.config.json timeoutMs value is changed. This matches the original bug report's suggested fix direction and the user's explicit authorization (\"那就解决吧\").",
+  "acceptedInterpretationHash": "sha256:cecbf64d787f57e7a157dcb51a38e45b22a783d61d491dc729a97e059ce12ab0",
+  "notes": "Single interpretation throughout PLAN (background.md, understanding_set, decision_set, plan.md, 3 checklist items) with no revisions or alternate readings surfaced by either INIT reviewer or the PLAN scope reviewer.",
+  "createdAt": "2026-08-14T11:45:44.815Z",
+  "updatedAt": "2026-08-14T11:45:44.815Z"
+}

@@ -77,10 +77,10 @@ async function main() {
   check(registrySource.includes('checker:'), 'runtime registry entries should declare checker');
   check(registrySource.includes('driftMessage'), 'runtime registry entries should declare driftMessage');
   check(registrySource.includes('repairHint'), 'runtime registry should include repair hints where applicable');
-  check(registrySource.includes('@lattice/core'), 'runtime registry should name @lattice/core as canonical');
+  check(registrySource.includes('@proof-or-stop/core'), 'runtime registry should name @proof-or-stop/core as canonical');
   check(!registrySource.includes('@lattice-agent/core'), 'runtime registry must not advertise retired @lattice-agent/core');
   check(!registrySource.includes('@koala-agent/core'), 'runtime registry must not advertise @koala-agent/core fallback');
-  check(checksSource.includes("const CANONICAL_CORE_PACKAGE_NAME = '@lattice/core'"), 'runtime checks should resolve @lattice/core as canonical');
+  check(checksSource.includes("const CANONICAL_CORE_PACKAGE_NAME = '@proof-or-stop/core'"), 'runtime checks should resolve @proof-or-stop/core as canonical');
   check(!checksSource.includes('@lattice-agent/core'), 'runtime checks must not resolve retired @lattice-agent/core');
   check(!checksSource.includes('@koala-agent/core'), 'runtime checks must not resolve @koala-agent/core fallback');
   check(registrySource.includes('command -v lattice'), 'cli-entrypoint repair hint should use lattice');

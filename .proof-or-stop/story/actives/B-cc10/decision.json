@@ -1,0 +1,92 @@
+{
+  "principles": [
+    "Never rewrite history: archived evidence MOVES with git mv, it is never edited.",
+    "Every intermediate commit must leave a working repo — no flag day.",
+    "Read-both before rename: the deprecated identity stays readable while only the canonical one is written.",
+    "Prove reversibility before performing an irreversible-feeling step, not after.",
+    "Put the one truly irreversible break last, and announce it rather than let it be discovered by failure."
+  ],
+  "drivers": [
+    "7580 git-tracked files and 344 story archives under the state directory — a partial migration orphans audit history other work depends on.",
+    "The signature salts are path-independent (verified), so renaming paths is safe for historical signatures; this is what makes the story attemptable at all.",
+    "B-cdf6 proved the additive read-both pattern works (core/brand-env.ts), so the mechanism is known rather than invented here.",
+    "Operator asked for the full six-item set and said to ignore other in-flight stories; that waives coordination but not evidence preservation.",
+    "B-cdf6 lesson: four regressions came from hardcoded DEPRECATED literals inside comparisons, where the CANONICAL name silently failed."
+  ],
+  "options": [
+    {
+      "name": "flag-day-sweep",
+      "pros": [
+        "Fastest: one sweep of find-and-replace plus a single git mv.",
+        "Least total commits, easiest to describe."
+      ],
+      "cons": [
+        "A half-completed run orphans 344 story archives with no reverse path.",
+        "Every intermediate state is a broken repo, so an interruption is unrecoverable without manual surgery.",
+        "Provides no place to catch the B-cdf6 comparison-literal class before it ships."
+      ]
+    },
+    {
+      "name": "resolver-first-then-migrate",
+      "pros": [
+        "Read-both resolver lands FIRST, so the codebase operates on either layout and the move becomes reversible.",
+        "Rollback is rehearsed on a scratch clone BEFORE the 7580-file move, so the escape hatch provably exists.",
+        "Config/manifest renames keep a deprecated-name read path, so teammates and unmigrated projects still load.",
+        "The irreversible bin removal is last and gated on a CHANGELOG announcement.",
+        "Residue gate is flipped to forbid at the end, so the migration cannot silently regress."
+      ],
+      "cons": [
+        "8 checklist items and many more commits than a flag-day sweep.",
+        "The resolver is temporary scaffolding that a later story must eventually remove.",
+        "Slower to reach the visible end state."
+      ]
+    },
+    {
+      "name": "subset-skip-state-dir",
+      "pros": [
+        "Lowest risk: do only the config filenames, manifest and package name; skip the state-directory move entirely.",
+        "Avoids touching 7580 tracked files."
+      ],
+      "cons": [
+        "Leaves the single largest and most user-visible inconsistency (.lattice) in place, so the story does not deliver what was asked.",
+        "The product reviewer judged that subsetting saves little total risk because the resolver work is the heavy lift either way.",
+        "Guarantees a follow-up story to finish the same job, paying the setup cost twice."
+      ]
+    }
+  ],
+  "chosen": "resolver-first-then-migrate",
+  "rationale": "resolver-first-then-migrate is the only option where every intermediate state is a working repo and the heaviest step is reversible before it runs. flag-day-sweep is rejected outright: with 7580 tracked files and 344 archives, an interrupted find-and-replace has no reverse path and would orphan audit history other stories depend on — the one outcome this story must not produce. subset-skip-state-dir was genuinely considered and the product reviewer independently reached the same conclusion I did: it dodges the largest inconsistency while still paying most of the engineering cost, because the read-both resolver is the heavy lift whether or not the directory actually moves. The chosen option costs more commits and leaves temporary scaffolding, which is a real price, but it buys a rehearsed abort path, a working repo at every step, and a natural place to sweep for the B-cdf6 comparison-literal regression class.",
+  "preMortem": [
+    {
+      "scenario": "The state-dir git mv completes but story archives become unreadable because a hardcoded path was missed.",
+      "trigger": "A .lattice literal outside the resolver, or a path assembled by string concatenation the resolver cannot intercept.",
+      "consequence": "344 story archives inaccessible; audit history effectively destroyed even though the files are still on disk.",
+      "mitigation": "CHK-002 routes every literal through one resolver, acceptance being that grep finds no bare literal outside the resolver definition. CHK-008 rehearses apply-then-revert on a scratch clone first. CHK-003 acceptance requires story_get to succeed on two archives from different eras, named in evidence."
+    },
+    {
+      "scenario": "storyFilesHash turns out to include file PATHS, so the rename shifts it for every story and invalidates freshness bindings wholesale.",
+      "trigger": "The hash is computed over relative paths rather than content only — recorded as an explicit UNKNOWN in understanding, not yet resolved.",
+      "consequence": "Every story with recorded evidence needs rebinding; DONE gates across the repo start failing for reasons unrelated to their own work.",
+      "mitigation": "CHK-001 must resolve this BEFORE CHK-003 runs and record the answer plus chosen handling (accept drift versus add a rebind step). CHK-003 is gated on CHK-001 and CHK-008."
+    },
+    {
+      "scenario": "The rename breaks the CANONICAL name while the deprecated one keeps working — the exact inversion B-cdf6 hit four times.",
+      "trigger": "A comparison, regex, allow/deny membership check or ownership predicate that hardcodes the deprecated literal instead of consulting the resolver.",
+      "consequence": "Silent misbehaviour rather than loud failure: config appears to load and policy appears to apply, but the new identity is ignored.",
+      "mitigation": "Sweep specifically for brand literals inside DECISIONS, not just inside output, since that is where all four B-cdf6 regressions lived. CHK-007 flips the residue gate to forbidden so a regression fails loudly. Reviewers get an explicit instruction to hunt this class."
+    },
+    {
+      "scenario": "Removing bin/lattice.js breaks a teammate with no warning.",
+      "trigger": "CHK-006 executes without the announcement half, or before the rest is green.",
+      "consequence": "A teammate merging their branch hits command-not-found with no explanation available at the point of failure.",
+      "mitigation": "CHK-006 is sequenced last, acceptance requires a CHANGELOG entry naming both removed aliases and their replacements, and PLAN must explicitly choose and record warn-then-remove versus immediate cut. Per the product reviewer the changelog is the floor, not optional."
+    },
+    {
+      "scenario": "The npm package rename silently disarms an external gate keyed on the old package name.",
+      "trigger": "Something outside packages/*/src resolves @lattice/core by exact string — for example pre-push self-repo detection.",
+      "consequence": "A safety gate becomes a no-op without failing, so a later push bypasses a check nobody notices is gone.",
+      "mitigation": "The INIT reviewer verified .githooks/pre-push:155 was preemptively widened by B-cdf6 to accept BOTH names, so that path is safe. CHK-005 must still grep for other exact-name consumers before renaming and re-run verify-entrypoints afterward."
+    }
+  ],
+  "timestamp": "2026-08-17T10:07:13.264Z"
+}

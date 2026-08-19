@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 
 import {
@@ -16,6 +16,12 @@ import { isBudgetedComplexRole, observeComplexRolePromptBudget } from '../core/p
 import { resolvePromptEnvelopeRolloutMode } from '../core/prompt-role-contract-registry.js';
 import { StoryStore } from '../core/store.js';
 import { createAgentPromptHandlers } from '../handlers/agent-prompt.js';
+// B-cc10 F-055: resolve whichever adapter dir exists. Hardcoding the renamed one made this
+// read a path that no longer exists (ENOENT) or scan zero files.
+function adapterDirName(base: string): string {
+  return existsSync(join(base, '.proof-or-stop-codex')) ? '.proof-or-stop-codex' : '.lattice-codex';
+}
+
 import {
   readPromptRegistry,
   renderPromptEntryForHost,
@@ -95,7 +101,7 @@ for (const roleId of ACTIVE_MODULAR_COMPLEX_ROLE_IDS) {
   assert.ok(Buffer.byteLength(body, 'utf8') <= roleLimit, `${roleId} modular role body meets ${roleLimit} byte target`);
   assert.ok(Buffer.byteLength(body, 'utf8') < Buffer.byteLength(legacy.body, 'utf8'));
   assert.equal(readFileSync(join(process.cwd(), '.claude/agents', entry.file), 'utf8'), renderPromptEntryForHost(entry, 'claude'));
-  assert.equal(readFileSync(join(process.cwd(), '.lattice-codex/agents', entry.file), 'utf8'), renderPromptEntryForHost(entry, 'codex'));
+  assert.equal(readFileSync(join(process.cwd(), `${adapterDirName(process.cwd())}/agents`, entry.file), 'utf8'), renderPromptEntryForHost(entry, 'codex'));
   const assembly = assembleFullPromptEnvelope({
     roleContract: role,
     runtimeContract: BASELINE_RUNTIME_CONTRACT,

@@ -143,6 +143,12 @@ function basename(token: string): string {
 // the new name is canonical and must be recognized, the old one is kept for
 // compatibility. Both are accepted now, and the deprecated spellings are retained
 // deliberately so evidence recorded before the rename still resolves.
+//
+// B-cc10 CHK-006 deleted `bin/lattice.js` from the repository but INTENTIONALLY keeps
+// the token here: this function parses PREVIOUSLY RECORDED provenance strings, so the
+// old spelling must stay recognizable or historical acceptance evidence would silently
+// stop resolving. Recognizing a name we no longer ship is the whole point of a
+// read-both parser.
 const ACCEPTANCE_WRAPPER_BASENAMES = ['proof-or-stop', 'lattice'] as const;
 const ACCEPTANCE_WRAPPER_SCRIPTS = ['bin/proof-or-stop.js', 'bin/lattice.js'] as const;
 

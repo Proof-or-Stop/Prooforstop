@@ -6,7 +6,7 @@ import { tmpdir } from 'os';
 import { join } from 'path';
 
 const root = process.cwd();
-const cli = join(root, 'bin', 'lattice.js');
+const cli = join(root, 'bin', 'proof-or-stop.js');
 const candidateDir = join(root, 'experiments', 'candidates', 'test-intent');
 const reportDir = join(root, 'experiments', 'reports');
 const resultPath = join(reportDir, 'test-intent-structured-v1.json');

@@ -590,7 +590,10 @@ export function renderMetaAuditBlock(storyId: string): string[] {
 
 function normalizeSessionCommandHints(text: string): string {
   return text
-    .replace(/(\]\s+)(finding_list|reviewer_list|review_run_start|review_pass_set|story_advance|checklist_get)\b/g, '$1lattice $2');
+    // B-cc10 F-041: emit the CANONICAL bin name. CHK-006 deleted bin/lattice.js, so this
+    // rewriter was injecting a command that now fails with MODULE_NOT_FOUND. The residue
+    // gates cannot catch this: the text is GENERATED at runtime, not a static literal.
+    .replace(/(\]\s+)(finding_list|reviewer_list|review_run_start|review_pass_set|story_advance|checklist_get)\b/g, '$1proof-or-stop $2');
 }
 
 function renderMemoryRuntimePreflight(

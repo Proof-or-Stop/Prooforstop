@@ -12,9 +12,16 @@ const repoRoot = findRepoRoot(dirname(fileURLToPath(import.meta.url)));
 function findRepoRoot(start: string): string {
   let dir = resolve(start);
   while (true) {
+    // B-cc10 F-077: accept EITHER config filename. This probe pinned the deprecated name,
+    // which this story renamed — so in this worktree the check failed at the real root and
+    // the loop walked UP into the parent checkout, silently resolving repoRoot to the
+    // unmerged main clone. Every subsequent path (adapter agents dirs, docs) was then read
+    // from the wrong tree, which is what produced the ENOENT on
+    // `.proof-or-stop-codex/agents`. A root probe must recognise both spellings for exactly
+    // as long as read-both support exists, or it walks out of the tree it is meant to find.
     if (
-      existsSync(join(dir, 'lattice.config.json')) &&
-      existsSync(join(dir, 'packages', 'main', 'src'))
+      (existsSync(join(dir, 'proof-or-stop.config.json')) || existsSync(join(dir, 'lattice.config.json')))
+      && existsSync(join(dir, 'packages', 'main', 'src'))
     ) {
       return dir;
     }
@@ -29,7 +36,17 @@ function read(path: string): string {
 }
 
 function agentFiles(dir: string): string[] {
-  return readdirSync(join(repoRoot, dir))
+  // B-cc10 F-077: tolerate an ABSENT directory instead of throwing ENOENT. The list below
+  // deliberately names BOTH adapter spellings (read-both), and by construction only one of
+  // them exists in any given checkout: this worktree has the canonical dir and no deprecated
+  // one, while an unmerged main has the deprecated dir and no canonical one. An unguarded
+  // readdirSync therefore throws in BOTH directions — it made the read-both list itself
+  // unusable. Returning [] for a missing dir is correct here; the F-055 concern (a renamed
+  // root silently yielding zero files) is still covered because the OTHER spelling supplies
+  // the files, and the assertion below fails if the combined set is empty.
+  const absolute = join(repoRoot, dir);
+  if (!existsSync(absolute)) return [];
+  return readdirSync(absolute)
     .filter(file => file.endsWith('.md'))
     .map(file => join(dir, file));
 }
@@ -39,6 +56,8 @@ const targetDocs = [
   'packages/main/src/cli-prompts.ts',
   ...agentFiles('packages/main/templates/agents'),
   ...agentFiles('.claude/agents'),
+  // B-cc10 F-055: canonical first; a renamed root silently yields zero files.
+  ...agentFiles('.proof-or-stop-codex/agents'),
   ...agentFiles('.lattice-codex/agents'),
 ];
 
@@ -78,9 +97,12 @@ for (const [label, content] of [['README.md', readme], ['docs/guide.md', guide]]
 }
 
 assert.match(readme, /`lattice`\s+[\s\S]{0,120}(?:only active|sole active|active product) command/i, 'README states lattice is the only active command');
-assert.match(readme, /node bin\/lattice\.js tool_status/, 'README uses lattice local wrapper for generic tool_status');
-assert.match(readme, /node bin\/lattice\.js verify_codex/, 'README uses lattice local wrapper for generic verify_codex fallback');
-assert.match(readme, /node bin\/lattice\.js aux_doc_list/, 'README uses lattice local wrapper for generic aux_doc_list');
+// B-cc10 CHK-006: these pinned `node bin/lattice.js`, the wrapper this story DELETED.
+// A doc assertion must not instruct a reader to run a file that no longer exists, so
+// they now pin the canonical `bin/proof-or-stop.js` invocations.
+assert.match(readme, /node bin\/proof-or-stop\.js tool_status/, 'README uses the canonical local wrapper for generic tool_status');
+assert.match(readme, /node bin\/proof-or-stop\.js verify_codex/, 'README uses the canonical local wrapper for generic verify_codex fallback');
+assert.match(readme, /node bin\/proof-or-stop\.js aux_doc_list/, 'README uses the canonical local wrapper for generic aux_doc_list');
 assert.match(guide, /`lattice` is the current command entry/i, 'guide states lattice as current command entry');
 assert.match(projectVision, /`lattice` is the 0\.3\.5 active product entry/, 'project vision states lattice as active product entry');
 assert.match(projectVision, /`proof-or-stop rollout_check`[\s\S]{0,80}read-only scan/, 'project vision keeps rollout_check read-only constraint');

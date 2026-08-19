@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-def6",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Decide and implement exactly one remedy for the scope_contract_acknowledge mismatch, where the TEST-phase remediation text names a command whose allowed phases are INIT, PLAN and DEV: either widen the phase availability or correct the remediation text to name a route that exists.",
+    "Register the dev-memory experience ledger path (.lattice/dev-memory/experience.jsonl, or the .lattice/dev-memory/ prefix) in packages/main/src/core/runtime-artifact-registry.ts with materialHash exclude, matching the existing dev-memory-finish-decision entry, and state in the code why the chosen matcher shape was picked over the alternative.",
+    "Update CLAUDE.md or the relevant decisions document only where this change makes an existing statement inaccurate.",
+    "Verify by walking the real sequence that capturing a lesson (dev_memory_capture then dev_memory_finish_decision) is no longer more expensive than declining with no-reusable-lesson.",
+    "Write the failing (red) reproduction first and the passing (green) test after, covering both the scope-gate out-of-scope classification and the materialHash perturbation caused by a lifecycle-required dev_memory_capture write."
+  ],
+  "excluded": [
+    "Changing what dev_memory_capture or dev_memory_finish_decision write, their schemas, or whether the finish decision remains a DONE prerequisite.",
+    "Doing both remedies for the scope_contract_acknowledge mismatch in checklist item CHK-003; exactly one must be chosen and the rejected one recorded.",
+    "Fixing the separate defect where verification_evidence_refresh_stale never rebinds waivers, which is tracked as story B-0f97.",
+    "Generalising runtime-artifact-registry semantics beyond dev-memory paths, or introducing a new registry mechanism.",
+    "Retuning full-suite or pinned-command timeout budgets, which is tracked as story B-9e3d.",
+    "Retuning the convergence breaker advance-count threshold or the owner-lease and interactive-ack rules that made recovery expensive."
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User instruction 2026-08-19: after reviewing the benefit/cost analysis of the missing .lattice/dev-memory/experience.jsonl registry entry, the user said to fix it immediately and drive it to DONE.",
+  "createdAt": "2026-08-19T13:41:31.591Z",
+  "updatedAt": "2026-08-19T13:41:31.591Z",
+  "_hash": "342831d226402a65810a14eeb848899db041a4ab606bce7f763a1107d02fbe15"
+}

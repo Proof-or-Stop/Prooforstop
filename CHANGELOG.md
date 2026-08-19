@@ -1,5 +1,231 @@
 # Changelog
 
+## Proof-or-Stop v0.3.266 - 2026-08-19
+
+**Removed**
+
+- **BREAKING: the deprecated `bin/lattice.js` and `bin/lattice-codex.js` wrapper files
+  are deleted (B-cc10).** Use the canonical entrypoints instead:
+
+  | Removed | Replacement |
+  |---|---|
+  | `bin/lattice.js` | `bin/proof-or-stop.js` |
+  | `bin/lattice-codex.js` | `bin/proof-or-stop-codex.js` |
+
+  Invoking a removed path no longer resolves — `node bin/lattice.js` now fails with
+  `Cannot find module` rather than silently delegating. If you have a branch authored
+  before this release that runs either old path, update the invocation to the
+  replacement above; the commands and their output are otherwise unchanged.
+
+  This **supersedes the compatibility guarantee** recorded in
+  `docs/requirements/decisions/brand-rename-mapping.md:72`, which stated that
+  `bin/lattice.js` "keeps working". Removal was an explicit operator instruction;
+  immediate removal (rather than a warn-then-remove deprecation cycle) was chosen with
+  this changelog entry as the announcement, because a mandatory deprecation phase was
+  judged disproportionate for a single-developer project with a tight release cadence.
+  Rationale: `docs/requirements/decisions/proof-or-stop-identity-migration.md`
+  ("Supersession 2").
+
+  **Also renamed in this release:** the workspace package `@lattice/core` is now
+  `@proof-or-stop/core`. Nothing in-repo imports it by name (both sibling packages reach
+  it through relative paths into `packages/main/dist`), and no alias package is published;
+  an external project pinning `@lattice/core` in its own `package.json` must update that
+  reference. Sibling names `@lattice/utils` / `@lattice/lab` are unchanged.
+
+  **Not affected:** the `lattice` npm bin alias (`lattice --version` still resolves) is a
+  separate identity and remains retained. Projects
+  initialized before the rename that carry their own local `bin/lattice.js` are also
+  unaffected: `init` and `check` still recognize the old wrapper name in downstream
+  projects, so no managed file is stranded.
+
+## Proof-or-Stop v0.3.265 - 2026-08-19
+
+This release makes routine validation safely parallel and makes both REVIEW-path
+gates consistently honor decision-backed item withdrawals.
+
+**Parallel routine validation (B-7dff, v0.3.264)**
+
+- **Shared keyed scheduler.** Extracted the full-suite keyed scheduler into
+  `core/keyed-scheduler.ts` and routed the routine validation plan through the same
+  scheduling model. Results remain in configured command order even when execution
+  completes out of order.
+- **Explicit resource claims.** Validation commands declare the resources they may
+  contend for. Commands without a declaration fail closed into exclusive execution
+  instead of being assumed safe to run concurrently.
+- **Bounded worker selection.** Routine validation reports the worker count and plan
+  classification it used. Concurrency remains bounded by the configured policy and
+  host capacity rather than creating an unbounded process fan-out.
+- **Evidence compatibility.** Per-command exit code, duration, captured output,
+  timeout handling, progress reporting, and persisted result ordering retain their
+  serial semantics.
+- **Pollution attribution.** Worktree changes are attributed to the command that
+  produced them under concurrent execution, with ambiguous overlap handled
+  conservatively rather than assigned to the wrong command.
+- **Measured equivalence.** A real-plan benchmark compares serial and parallel runs,
+  requires identical per-command outcomes, and records makespan and speedup.
+
+**Withdrawal-aware REVIEW gates (B-45a5, v0.3.265)**
+
+- **Decision-backed completeness skip.** `evaluateReviewCompleteness` now uses the
+  existing item-level withdrawal resolver, so a checklist item listed in a confirmed
+  withdrawal decision no longer blocks REVIEW for missing evidence.
+- **Matching channel behavior.** The normal-channel evidence gate uses the same
+  resolver and reports the skipped item together with its withdrawal decision instead
+  of claiming that dispatch evidence is missing.
+- **Fail-closed manual status edits.** Setting an item to `withdrawn` without a real
+  confirmed decision skips nothing; both gates continue to reject the unsupported
+  withdrawal.
+- **Scope remains item-specific.** A withdrawal decision affects only the listed item;
+  evidence requirements for all other checklist items are unchanged.
+
+**Verification**
+
+- Added scheduling, resource-claim, pollution-attribution, and serial/parallel
+  equivalence suites for the routine validation plan.
+- Added a dedicated withdrawal-gate regression suite covering both gates, confirmed
+  decisions, unsupported status edits, and item isolation.
+- Both Stories completed routine validation and DONE-required validation before DONE.
+- The CLI version was advanced through `0.3.264` to `0.3.265`.
+
+## Proof-or-Stop v0.3.263 - 2026-08-18
+
+This release removes a telemetry drift in the full-suite result artifact: the
+reported performance budget now comes from the same canonical policy constant
+that governs the suite, rather than from an independent numeric copy.
+
+**Full-suite budget integrity**
+
+- **Canonical result telemetry (B-d15e).** The full-suite result writer now sets
+  `performanceBudgetMs` from `FULL_SUITE_BUDGET_MS`. Operators and downstream
+  consumers therefore see the actual 1,200,000 ms policy budget in the emitted JSON
+  instead of the obsolete 300,000 ms shadow value.
+- **Single source of truth.** Runtime enforcement and reported telemetry now move
+  together when the canonical budget changes, eliminating the possibility that a
+  successful run is described against a different threshold than the one it used.
+- **No scheduler behavior change.** This is a reporting-integrity correction only;
+  it does not alter suite concurrency, member timeouts, process cleanup, or the
+  canonical runtime budget itself.
+
+**Regression protection**
+
+- Extended `full-suite-runner-smoke` to require exactly one
+  `performanceBudgetMs` initializer and require that initializer to reference
+  `FULL_SUITE_BUDGET_MS`.
+- Added a mutation check that replaces the canonical reference with the former
+  numeric value and proves the smoke test rejects the shadow copy.
+- The full runner smoke inventory passes with 153 assertions and emits
+  `full-suite-runner-smoke: PASS`.
+
+**Verification**
+
+- `packages/main` builds successfully from the released source.
+- Routine validation, DONE-required validation, and live-smoke evidence completed
+  before the Story reached DONE.
+- The CLI version was advanced to `0.3.263`.
+
+## Proof-or-Stop v0.3.262 - 2026-08-18
+
+This release removes the one-mebibyte process-buffer cliff that could prevent
+large validation evidence from being committed, and adds bounded artifact sizing
+so growth remains visible and controlled before it reaches the new ceiling.
+
+**Evidence persistence**
+
+- **Explicit metadata read ceiling (B-3434).** Every synchronous Git blob and tree
+  read in the generated-metadata commit path now uses a 32 MiB `maxBuffer`, replacing
+  Node's implicit 1 MiB default. The fix covers `isolatedBlobHash`, `isolatedGit`,
+  `treeBlobHash`, and their sibling reads rather than patching only the originally
+  observed failure site.
+- **Large artifacts commit successfully.** Regression coverage proves that staged
+  blobs of 1,400,000 bytes and exactly 1,048,577 bytes—one byte above the former
+  limit—survive index verification, tree verification, and immutable metadata commit.
+- **Read failures remain fail-closed.** Missing blobs, unreadable blobs, and genuine
+  digest changes are represented as distinct outcomes. An unreadable blob can no
+  longer collapse to a null digest and be misreported as metadata changing after
+  verification.
+
+**Bounded diagnostics and artifact growth**
+
+- **Actionable overflow errors.** Buffer exhaustion reports the 32 MiB ceiling and
+  captured byte count while discarding partial blob content. Silent hook failures
+  preserve their exit status, and hook-provided diagnostic text remains visible.
+- **Persisted-record-aware sizing.** Validation evidence is measured as the complete
+  record that will actually be serialized to disk, including JSON escaping, rather
+  than estimating only the inner output string.
+- **Progressive evidence reduction.** When a record approaches its budget, duplicated
+  command output, detail lines, and warnings are replaced with explicit omission
+  markers while pass/fail state and command identity remain intact. A minimal valid
+  verdict record is retained as the final bounded fallback.
+- **Early growth warnings.** Advisory and hard thresholds are derived from the same
+  metadata read ceiling, providing headroom before an artifact can block lifecycle
+  progress.
+
+**Execution and suite reliability**
+
+- Full-suite concurrency now derives from the host instead of using a fixed value,
+  and declared time budgets scale with the selected concurrency.
+- Flow-stability receives a measured cap so the complete suite remains satisfiable
+  under the runner's own scheduling policy.
+
+**Verification**
+
+- Added `validation-evidence-buffer-smoke` covering large blobs, exact-boundary
+  behavior, failure taxonomy, bounded diagnostics, record sizing, reduction stages,
+  and verdict preservation.
+- Added `red-b3434-blob-buffer-ceiling.mjs` as the reproducer and regression guard.
+- Routine validation and DONE-required validation completed before the Story reached
+  DONE; the CLI version was advanced to `0.3.262`.
+
+## Proof-or-Stop v0.3.261 - 2026-08-17
+
+This release completes the public CLI brand migration and makes mechanical
+verification receipts honor realistic command budgets without weakening timeout
+controls.
+
+**CLI and product identity**
+
+- **Canonical `proof-or-stop` entrypoint (B-cdf6).** Added `bin/proof-or-stop.js`
+  as the primary CLI entrypoint and retained `lattice` as a deprecated compatibility
+  alias, so existing automation continues to work while new help text and examples
+  point to the canonical command.
+- **Centralized brand resolution.** Expanded the brand registry with canonical and
+  compatibility bin names, normalized usage rendering for direct script execution,
+  and a forward-readable version alias while preserving the stable version-bump
+  symbol consumed by release automation.
+- **Repository-wide surface alignment.** Updated active documentation, generated
+  agent assets, hooks, command help, templates, diagnostics, task output, and
+  brand-pinned gates. Added a migration mapping and negative verification script so
+  retired public-facing terms cannot silently return.
+- **Environment compatibility.** Added centralized branded environment lookup so
+  canonical variables are preferred while supported legacy variables remain readable
+  during migration.
+
+**Verification command reliability**
+
+- **Configured timeout inheritance (B-16df).** Pinned verification commands now
+  resolve an exact executable-and-arguments match against
+  `validate.commands[].timeoutMs`. Commands with an approved project-level budget no
+  longer fall back to the fixed 270-second evidence default.
+- **Bounded explicit overrides.** Evidence writes may provide an attributable timeout
+  override with a required reason. Runtime validation rejects invalid or excessive
+  values, caps the budget at 7,200,000 ms, and records the effective override on the
+  execution receipt.
+- **Clear timeout diagnosis.** A command killed by its wall-clock ceiling now reports
+  a dedicated timeout refusal with elapsed time and active budget instead of being
+  misreported as a missing output selector.
+- **All evidence paths covered.** Single-add, batch-add, rerun, and stale-evidence
+  refresh paths share the same resolution rule. An explicit audited override takes
+  precedence; otherwise the project configuration is inherited; unmatched commands
+  retain the safe default.
+
+**Merge integrity and verification**
+
+- Reconciled the brand migration and timeout work without dropping either side's
+  enforcement semantics.
+- `packages/main` build completed successfully.
+- The validation-timeout smoke suite passed all 45 assertions.
+- The brand negative gate detected an injected regression and accepted the clean tree.
+
 ## Proof-or-Stop v0.3.260 - 2026-08-16
 
 This release lands the cross-platform build-concurrency hardening deferred from
