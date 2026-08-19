@@ -241,7 +241,6 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
 
   // B-1e1f CHK-001: PRE_CERT CertificationWindow begin/status/cancel
   registry.registerBatch(createCertificationWindowHandlers(ctx));
-  registry.registerBatch(createReviewInventoryHandlers(ctx));
 
   // B-3749 CHK-002: PLAN handoff package for test-intent agents.
   registry.registerBatch(createTestIntentHandoffHandlers(ctx));
