@@ -28,5 +28,11 @@
     "command": "story_advance",
     "lastReason": "Cannot enter TEST: CLI gate preflight did not pass (lattice-residue)\n\nREVIEW→TEST CLI gate preflight:\n  [✓] validate --channel: pass — Normal channel: dispatch/subagent_result structured evidence coverage complete; commit author only as auxiliary signal\n  [!] validate --concept: warn — git diff failed (main...HEAD): spawnSync /bin/sh ENOBUFS\n        recommendation: skip concept LLM reviewer\n  [✓] validate --lint: pass — lint pass: tsc (skipped: ruff, importGraph)\n  [✓] validate --docs-drift: pas",
     "lastAt": "2026-08-19T11:13:30.874Z"
+  },
+  "story_advance/96c849a39fea": {
+    "count": 1,
+    "command": "story_advance",
+    "lastReason": "Cannot enter TEST: proof-or-stop validate did not pass（6 项命令失败）\n✗ configured validate.commands[16]: node packages/main/dist/tasks/codex-heartbeat-timeout-smoke.js\n✗ configured validate.commands[37]: node packages/main/dist/tasks/english-early-check-smoke.js\n✗ configured validate.commands[56]: node packages/main/dist/tasks/red-evidence-target-binding-smoke.js\n✗ configured validate.commands[86]: node packages/main/tests/red/red-w2b-wiring-contract.mjs\n✗ configured validate.commands[99]: node packa",
+    "lastAt": "2026-08-19T12:35:09.752Z"
   }
 }
