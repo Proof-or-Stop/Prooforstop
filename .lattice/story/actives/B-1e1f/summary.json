@@ -1,0 +1,56 @@
+{
+  "storyId": "B-1e1f",
+  "changes": "Added CertificationWindow as the PRE_CERT owner: signed begin/status/cancel commands, refuseHeavyCertificationUnlessAdmitted on done_required_validate and validate --full, invalidation on source/test/verifier mutation, and focused smokes that print PRE_CERT replay counters.",
+  "usage": "proof-or-stop certification_window_status --storyId=B-xxxx then, only after State: ADMITTED, proof-or-stop done_required_validate --storyId=B-xxxx. Premature heavy prints [pre_cert_window_required] and Next: certification_window_status.",
+  "expectedOutcome": "Without an admitted window, done_required_validate exits non-zero with [pre_cert_window_required] before root npm test starts. After admit, status prints State: ADMITTED plus frozen hashes and one Next: line. A source commit then prints State: INVALIDATED. The focused smoke prints PRE_CERT replay: premature_heavy_runs=0 admitted_heavy_runs=1 post_cert_source_commits=0 and exits 0.",
+  "actualTranscript": "certification_window_status on this branch prints State: BLOCKED (B-3f3d inventory APIs absent) and one Next: line. Handler-driven smokes fixture-admit, refuse premature done_required_validate/validate --full with [pre_cert_window_required], bind one admitted heavy run, invalidate on source+test commits, and print PRE_CERT replay: premature_heavy_runs=0 admitted_heavy_runs=1 post_cert_source_commits=0. REVIEW to TEST validate (103 commands) passed.",
+  "outcomeDiff": "No difference versus the expected operator surface. Live B-1e1f window stays BLOCKED until B-3f3d inventory APIs exist; that fail-closed path is intended, not a miss.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "B-3f3d Review Inventory APIs are not on this branch; admit fail-closes instead of stub-always-admitting. Heavy certification still requires an admitted window after inventory lands.",
+  "pitfalls": "REVIEW to TEST failed first on CJK relatedDocs then on six validate.commands (handler smokes needed a synthetic admitted window; vocab guard rejected non-literal require; process-fact mutation still searched lattice acceptance_basis_generate). story_advance TEST needs PROOF_OR_STOP_MAX_TIMEOUT_MS above 900s or the 103-command suite is killed mid-run and increments gate-repeat.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 359232
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 9168
+    },
+    "PLAN": {
+      "count": 2,
+      "durationMs": 2178213
+    },
+    "DEV": {
+      "count": 7,
+      "durationMs": 8874422
+    },
+    "REVIEW": {
+      "count": 6,
+      "durationMs": 7075454
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 79422
+    }
+  },
+  "totalDurationMs": 18576513,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-08-18T11:46:22.502Z",
+  "updatedAt": "2026-08-18T11:46:22.502Z"
+}

@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-1e1f",
+  "id": "IC-20260818071337",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "U-01b means an independent PRE_CERT CertificationWindow that chokes done_required_validate, validate --full, and doneRequiredCommands. It consumes B-3f3d FINALIZED inventory plus merge/clean/coverage facts. It does not implement U-01a, U-02, U-03, U-04, U-05, or freshness relaxation.",
+  "acceptedInterpretationHash": "sha256:1f14e26f4a53ced26d455e1b6ee0037c9cf0aa0d184275fda6bdc0e4d13e2cd6",
+  "notes": "Collision considered: (1) fold PRE_CERT into B-3f3d inventory receipts, rejected because inventory authority is completeness-only; (2) prompt-only PRE_CERT, rejected by the process-fact contract; (3) wait for B-3f3d DONE before starting, rejected by the operator request to start now with fail-closed if inventory APIs are absent.",
+  "createdAt": "2026-08-18T07:13:37.424Z",
+  "updatedAt": "2026-08-18T07:13:37.424Z"
+}
