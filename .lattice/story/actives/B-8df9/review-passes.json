@@ -311,6 +311,36 @@
         "scanEscalationReason": null
       },
       "_hash": "16f5867745000c7db63e063e428cd951f13f304fd12c0b707a76fab8930ca015"
+    },
+    {
+      "id": "B-8df9:RP-012",
+      "agent": "lattice-review-concept",
+      "note": "Narrow re-attestation, RP-008 correction of a silent overwrite. Verified against live artifact, not the reporting text: (1) CHK-004:edge:0 and CHK-004:adversarial:0 waiver rows byte-identical to eac4a6605c (untouched). CHK-004:happy:0 note now contains the ORIGINAL waiver text quoted verbatim -- programmatically diffed against git show eac4a6605c:.lattice/story/actives/B-8df9/checklist.json, 633/633 chars exact match -- followed by a dated correction and explicit scope-limit paragraph; all three original waiver texts now present on live record, RP-008 destroy-while-claiming-preserve defect fixed. (2) Scope-limit claim checked against code: withdrawnItemIntentRefs (core/proofstory.ts:1672) consumed in pre-coverage-loop subtraction at proofstory.ts:2166; checkDispatchEvidence reads withdrawnChecklistItemIdsFrom at handlers/validate-channel.ts:305 -- both REVIEW-path gates, matches two-gates claim exactly. core/verification.ts:212 (isWithdrawnChecklistStatus bare status-string skip) confirmed still present with no decision-record consultation, wired into DONE-blocking handlers/phase-gates.ts and handlers/done-prepare.ts via buildVerificationCoverage; correction does not overclaim uniform decision-backed treatment. (3) Self-consistency: note correctly says correction covers CHK-004 edge/adversarial rows and all three exist live -- no contradiction. (4) No competing INIT-check signing path (signInitCheckDomain/signInitCheck in core/init-check-gate.ts is sole signer); grepped repo for superseded framing (no mechanical completion path / framework gap not a disposition) -- zero hits outside this story artifact. (5) Both red artifacts GREEN on rebuilt tree: red-b8df9-init-check-verdict-signature.mjs exit 0 (0 RED/0 BROKEN/24 rows); red-b8df9-chk002-verdict-shapes.mjs exit 0 (0 FAILED/0 BROKEN/17 rows). proofstory_review_completeness_check --storyId=B-8df9 reports gaps=[]. review_incremental_context confirms isFirstPass=false, scopeChanged=false, changedFiles=[] vs prior RP-008/RR-015. No concept-lane residue found. No blocker.",
+      "createdAt": "2026-08-19T16:16:01.324Z",
+      "reviewRound": "2026-08-03T04:27:32.508Z",
+      "reviewRunId": "B-8df9:RR-018",
+      "envelopeId": "1e37c23f2ed39260df9dfb0422947b23b86557ef3760b81dc4c2524fffe3f2de",
+      "writerSessionId": "sess-b8df9-main-agent",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-8df9/checklist.json",
+          ".lattice/story/actives/B-8df9/red-evidence.json",
+          "packages/main/src/core/checklist-status.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs",
+          "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/init-check-gate.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/handlers/init-check.ts",
+          "packages/main/src/handlers/validate-channel.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "38e7c880b6ecb79e7a0ad031f52311bf9103edc9188360ad6109336d78935fd0"
     }
   ]
 }
