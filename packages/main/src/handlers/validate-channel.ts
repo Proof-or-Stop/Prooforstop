@@ -239,7 +239,19 @@ export function parseMainAgentOwnedItems(planContent: string | null): Set<string
  *
  * Each CHK-xxx must have evidence: `dispatch` event OR `subagent_result` event, deduplicated by checklistId / itemId.
  * If only subagent_result exists and success=false → report `dispatch exists but subagent failed`.
- * CHKs declaring `**Owner**: main-agent` in plan.md are exempt.
+ *
+ * THREE ways an item can leave the loop without being an issue, and the buckets
+ * are disjoint (the loop below tests them in this order):
+ *   1. B-45a5 CHK-003 — WITHDRAWN: the item is a member of
+ *      `withdrawnChecklistItemIdsFrom(scopeShrinkageDecision)`. That helper reads
+ *      ONLY the decision record (confirmed + userConfirmed), never a checklist
+ *      item, so what makes this safe is decision membership — NOT an
+ *      `item.status` string. An item hand-edited to a withdrawn-looking status is
+ *      not in the set and is still refused. Checked FIRST so an authorized
+ *      withdrawal is never laundered into either bucket below. → `withdrawnItems`.
+ *   2. OWNER-EXEMPT: CHKs declaring `**Owner**: main-agent` in plan.md.
+ *      → `exemptedItems`.
+ *   3. EVIDENCED: the dispatch / subagent_result evidence above. → `evidencedItems`.
  */
 export interface DispatchEvidenceIssue {
   itemId: string;
