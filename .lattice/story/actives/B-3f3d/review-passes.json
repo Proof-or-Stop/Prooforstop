@@ -20222,6 +20222,59 @@
       },
       "readDiagnostics": [],
       "_hash": "5d484dcd3d421805b6d72c25ab80402baa7329fcf38d97aab4266057103d9a7b"
+    },
+    {
+      "id": "B-3f3d:RP-365",
+      "agent": "lattice-review-topology-critic",
+      "note": "Brand-prose-only re-review of dfa917a4eb plus later metadata: incremental context RELATED_STORY_MATERIAL_DRIFT on three docs/shim files rewriting leftover lattice <cmd> to proof-or-stop <cmd>. No leftover lattice <subcommand> in those files; sibling host-shim FIRST-run lines already use proof-or-stop; six review_inventory_* commands remain registered. Wave 4: acceptance_topology_check observe fail/non-blocking; pre_review_check_read observe inconclusive/non-blocking/criticReattestation=not_required; acceptance_rollout_report_read and acceptance_rollout_check enforce AR_REPORT_STALE with full-3x2 quorum label are pre-existing (F-087/F-089/F-113/F-117/F-121) not a new topology gap from this delta. Session source is not host-adapter; topology_critic_receipt_set skipped as already filed. findingDeltas empty; no new producer/consumer/exclusion blocker. Pass for current-round critic envelope only.",
+      "createdAt": "2026-08-19T12:03:30.319Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-577",
+      "envelopeId": "90b38162c4fc13b246267cb72073657743c0dff919795315d7fe4cc202f41f0b",
+      "writerSessionId": "sess-4292375d1d751b41",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/lattice-review-topology-critic.md",
+          ".lattice-codex/agents/lattice-review-topology-critic.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/templates/agents/lattice-review-topology-critic.md"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/lattice-review-behavior.md",
+          ".claude/agents/lattice-review-concept.md",
+          ".claude/agents/lattice-review-docs.md",
+          ".claude/agents/lattice-review-quality.md",
+          ".claude/agents/lattice-review-test-coverage.md",
+          ".lattice-codex/agents/lattice-review-behavior.md",
+          ".lattice-codex/agents/lattice-review-concept.md",
+          ".lattice-codex/agents/lattice-review-docs.md",
+          ".lattice-codex/agents/lattice-review-quality.md",
+          ".lattice-codex/agents/lattice-review-test-coverage.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "lattice.config.json",
+          "packages/main/src/cli/command-catalog.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": 2593
+        },
+        "digest": "2c76d73c5a2e2de2276ce73d0284f186ed5a4894272fbd3b3d747b1bdf3a39cd"
+      },
+      "readDiagnostics": [],
+      "_hash": "48e97fc13420bc4922fc8e14151c66efad2e1f3ed9aac91b703a27e92e3141d3"
     }
   ]
 }
