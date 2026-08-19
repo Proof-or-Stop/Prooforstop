@@ -1,0 +1,79 @@
+{
+  "principles": [
+    "Reuse the proven scheduler instead of creating a second notion of what may run concurrently.",
+    "Fail closed on unclassified resources: latency is recoverable, corrupted evidence is not.",
+    "Evidence shape is a contract; parallelism must be invisible to every gate that reads commands[], durationMs or identity digests.",
+    "Bound the claim to what was measured (858s serial, 271s floor), never to an open-ended performance promise."
+  ],
+  "drivers": [
+    "Routine validate is 84-89% of done_prepare wall time and every story pays it at least once.",
+    "The same change already worked on npm test and its effect is visible in the receipt time series.",
+    "Per-command duration evidence already exists in test-evidence.json, so the result is checkable without new instrumentation."
+  ],
+  "options": [
+    {
+      "name": "A: extract the full-suite scheduler into core and reuse it",
+      "pros": [
+        "One admission-control implementation and one set of resource-class semantics.",
+        "The existing full-suite-resource-sentinel collision probes keep covering both callers.",
+        "Scheduling behaviour is already proven on 47 real members in production use."
+      ],
+      "cons": [
+        "Requires an extraction refactor of task-local code plus a cancellation-policy parameter.",
+        "Risks perturbing a suite that was only stabilised on 2026-08-13."
+      ]
+    },
+    {
+      "name": "B: write a second scheduler local to validation-executor",
+      "pros": [
+        "Zero risk to npm test.",
+        "No extraction refactor."
+      ],
+      "cons": [
+        "Two divergent notions of what may run concurrently on the same repository.",
+        "Resource-collision guarantees would have to be re-proven separately.",
+        "The invariant would drift the first time only one side is updated."
+      ]
+    },
+    {
+      "name": "C: leave validate sequential and only reorder done_prepare so cheap gates run first",
+      "pros": [
+        "Much smaller change.",
+        "Genuinely removes wasted validation on runs that block structurally."
+      ],
+      "cons": [
+        "Does not reduce the cost of a validate run that actually has to happen.",
+        "Every REVIEW to TEST gate still pays the full 858s."
+      ]
+    }
+  ],
+  "chosen": "A: extract the full-suite scheduler into core and reuse it",
+  "rationale": "Option A is the only one that reduces the cost of a validate run that genuinely must happen, and it does so by reusing a scheduler whose effect on this exact repository is already measured (npm test 1533s to 240s). Option B buys the same latency at the price of duplicating a safety invariant on the evidence path, which is the one place this repo cannot afford drift. Option C is complementary rather than competing and remains available as a follow-on. The load-bearing sub-decision is the default for an undeclared resource claim: defaulting to shared would silently corrupt .lattice evidence the first time two commands touched the same path, while defaulting to exclusive costs only the latency of commands nobody has classified yet, so the default is exclusive.",
+  "preMortem": [
+    {
+      "scenario": "The extraction shares module-level mutable state between the two callers and a routine validate run kills the full-suite run children.",
+      "trigger": "activeChildren / interruptSignal / schedulerCancellationReason stay module-scoped after the move to core.",
+      "consequence": "npm test reports spurious INTERRUPTED members and closeout blocks on a failure that never happened.",
+      "mitigation": "Make scheduler state per-run and add a regression that runs two schedulers concurrently and asserts neither cancels the other."
+    },
+    {
+      "scenario": "Routine validate inherits fail-fast semantics and stops at the first failing command.",
+      "trigger": "The extracted scheduler keeps terminalFailureName cancellation with no cancellation-policy parameter.",
+      "consequence": "commands[] becomes partial, gates read an incomplete result set, and a story can pass or block on evidence that never ran.",
+      "mitigation": "Introduce an explicit cancellation policy, default routine validate to run-all, and assert command count equals plan length even when a command fails."
+    },
+    {
+      "scenario": "Two commands with undeclared claims run concurrently and both write the same .lattice path.",
+      "trigger": "The declaration default is shared rather than exclusive, or canonicalization silently drops an unrecognised class.",
+      "consequence": "Corrupted evidence that surfaces later as an unexplained hash mismatch, exactly the failure class B-3434 spent five wrong attributions on.",
+      "mitigation": "Fail closed to exclusive for any command without a declared claim, and add a test that an unclassified command is scheduled alone."
+    },
+    {
+      "scenario": "The speedup is reported as better than it is because the measurement runs on a quiet host.",
+      "trigger": "The makespan regression records a single run with no baseline comparison.",
+      "consequence": "The 3.17x claim is asserted rather than proven and the real closeout cost does not move.",
+      "mitigation": "Have the regression measure serial and parallel in the same run on the same host and print both numbers."
+    }
+  ],
+  "timestamp": "2026-08-17T11:36:10.107Z"
+}

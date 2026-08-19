@@ -34,6 +34,7 @@ import { assertCwdInWorktree } from './context.js';
 import { commitValidationReuseMetadataTransaction } from '../core/auto-commit-metadata.js';
 import { loadConfig } from '../core/config.js';
 import type { ValidationCommand, ValidationProgressReporter } from '../core/validation-types.js';
+import { validateResourceClaims, type ResourceClaim } from '../core/keyed-scheduler.js';
 import type { RoutineValidationIdentity, RoutineValidationSourceKind, ValidationCommandResult } from '../core/validation-types.js';
 import {
   VALIDATION_EVIDENCE_BOUND_BYTES,
@@ -163,6 +164,39 @@ function commandFromString(label: string, value: string): ValidationCommand | nu
   return { label, command: parts[0], args: parts.slice(1) };
 }
 
+/**
+ * Parse `validate.commands[].resources` from config into resource claims.
+ *
+ * Malformed or unrecognised claims THROW here, at declaration time, so a typo'd
+ * class fails the whole validate run loudly instead of being dropped and
+ * quietly turning into a command with no declared claim. (The fail-closed
+ * default in resolveValidationCommandResources would still schedule such a
+ * command alone, but a silently ignored declaration is a lie the operator
+ * cannot see.)
+ */
+function parseConfiguredResourceClaims(value: unknown, owner: string): ResourceClaim[] {
+  if (!Array.isArray(value)) {
+    throw new Error(`${owner}: resources must be an array of resource claims`);
+  }
+  const claims = value.map((raw) => {
+    if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+      throw new Error(`${owner}: every resource claim must be an object with class, key and access`);
+    }
+    const entry = raw as Record<string, unknown>;
+    if (typeof entry.class !== 'string' || typeof entry.key !== 'string' || typeof entry.access !== 'string') {
+      throw new Error(`${owner}: every resource claim must be an object with class, key and access`);
+    }
+    return {
+      class: entry.class as ResourceClaim['class'],
+      key: entry.key,
+      access: entry.access as ResourceClaim['access'],
+      ...(entry.ownership !== undefined ? { ownership: entry.ownership as ResourceClaim['ownership'] } : {}),
+    };
+  });
+  validateResourceClaims(claims, owner);
+  return claims;
+}
+
 function normalizeValidateFocus(value: unknown): string[] | undefined {
   const raw = Array.isArray(value) ? value : typeof value === 'string' ? [value] : [];
   const focus = [...new Set(raw.map((v) => String(v).trim()).filter(Boolean))];
@@ -254,6 +288,9 @@ export function configuredValidationCommands(projectRoot: string): ValidationCom
           ...(typeof entry.timeoutMs === 'number' ? { timeoutMs: entry.timeoutMs } : {}),
           ...(typeof entry.optional === 'boolean' ? { optional: entry.optional } : {}),
           ...(focus ? { focus } : {}),
+          ...(entry.resources !== undefined
+            ? { resources: parseConfiguredResourceClaims(entry.resources, `configured validate.commands[${i}]`) }
+            : {}),
         });
       }
     }
@@ -895,6 +932,12 @@ function persistStoryValidationEvidence(
     ...(result.verificationCoverage ? { verificationCoverage: result.verificationCoverage } : {}),
     commandExecution: summarizeRoutineCommandExecution(commandResults, expectedCommandCount, {
       ...(semanticCommandPass !== undefined ? { semanticPass: semanticCommandPass } : {}),
+      // B-7dff F-003: a dirty tree no single command can be blamed for is still
+      // a required failure here, or this receipt would read PASS on a run the
+      // executor already failed.
+      ...(result?.concurrentWorktreePollution && result.concurrentWorktreePollution.blocking !== false
+        ? { concurrentPollutionBlocking: true }
+        : {}),
     }),
     disposition: 'executed',
     ...(identity ? { routineValidationIdentity: identity } : {}),
@@ -1015,6 +1058,19 @@ function persistStoryValidationEvidence(
   return null;
 }
 
+/**
+ * Mint a verifier result from scratch.
+ *
+ * B-7dff F-006: this is an ENUMERATING whitelist — it returns exactly the keys
+ * listed below and nothing else. Callers that build a result from loose parts
+ * (no validator configured, persistence failure, reuse refusal) lose nothing.
+ * A caller holding an existing ValidationResult must NOT hand it to this
+ * function alone: everything it does not enumerate (today
+ * `concurrentWorktreePollution`; tomorrow whatever ValidationResult grows next)
+ * is dropped silently, and downstream gates read those fields. Spread the source
+ * result first — `{ ...base, ...externalResult({ ... }) }` — so the wrap is
+ * additive.
+ */
 function externalResult(args: {
   provider?: string;
   status: 'pass' | 'fail' | 'warn';
@@ -1356,7 +1412,19 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           const details = usingConfigured
             ? base.details
             : [fallbackDiscoveryDetail, ...base.details];
-          const result = externalResult({
+          // B-7dff F-006: `externalResult` is an ENUMERATING whitelist. That is
+          // right for the call sites that mint a result from nothing, and wrong
+          // here, where `base` is a complete ValidationResult: every field the
+          // wrapper does not list is silently dropped. It dropped F-003's
+          // plan-level `concurrentWorktreePollution`, so the evidence writer at
+          // persistStoryValidationEvidence never saw it and stamped
+          // commandExecution=PASS onto a run the executor had already failed.
+          // Spreading `base` FIRST inverts the default: the wrap is additive, so
+          // a field of ValidationResult survives unless the wrapper explicitly
+          // overrides it, and a future plan-level field cannot be lost by
+          // forgetting to add it to the list below. Every whitelisted key is
+          // still computed exactly as before — the whitelist output wins.
+          const result = { ...base, ...externalResult({
             provider: base.provider,
             status: base.status,
             summary,
@@ -1366,7 +1434,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             commands: base.commands,
             failureKind: base.failureKind,
             ...(base.focus ? { focus: base.focus } : {}),
-          });
+          }) };
           const decorated = decorateAndMaybePersistStoryValidation(
             ctx,
             args.story,

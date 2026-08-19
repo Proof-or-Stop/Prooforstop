@@ -1,0 +1,37 @@
+{
+  "storyId": "B-0f97",
+  "name": "waiver-bindings-invisible-to-refresh",
+  "title": "Waiver evidence bindings drift silently because the refresh scan excludes them before the freshness check",
+  "description": "verification_evidence_refresh_stale never reports or rebinds a waiver row. packages/main/src/handlers/evidence-refresh.ts filters waivers out in refreshOnlyDrift()/isWaiver() BEFORE checkEvidenceFreshnessForGit is called, so a waiver binding can drift arbitrarily far from the current head/material/storyFilesHash while --dryRun keeps reporting \"No stale verification evidence\".\n\nConsequence observed on B-7dff (2026-08-19): its CHK-001:happy:0 permanent waiver silently held a pre-merge binding through an entire closeout. done_intent_equivalence_check, which unlike milestone_status does block DONE, refused with stale_milestone_evidence on M1. The story had to be bounced TEST to REVIEW and rebound by hand. The twin waiver on CHK-005:happy:0 was then found still stale by two independent reviewers (findings F-016 and F-017), 106 commits behind HEAD, and had to be rebound the same way. Neither ever appeared in a refresh report.\n\nThis is a detection gap, not a correctness gap in the waivers themselves. A waiver is a durable claim about why mechanical evidence is unobtainable; that claim usually stays true as the tree moves, which is exactly why silent drift is easy to miss and why the gate that does consume it fails late and confusingly.\n\nWanted: make waiver bindings visible to the same freshness machinery that covers command-backed rows, so that a stale waiver is reported rather than discovered by a DONE-gate refusal. Rebinding a waiver need not re-execute anything, so the fix is likely a report-and-restamp path rather than a re-run path. Decide explicitly whether rebinding should be automatic or should require an operator action, and say why: a waiver that silently follows the tree could hide a case where the reason for the waiver stopped being true.",
+  "type": "bug",
+  "phase": "INIT",
+  "priority": "high",
+  "keywords": [
+    "waiver",
+    "evidence-freshness",
+    "refresh-stale",
+    "done-gate",
+    "intent-equivalence"
+  ],
+  "riskSignals": [
+    {
+      "category": "State Machine/Gate",
+      "matched": "DONE gate"
+    }
+  ],
+  "priorityElevatedFrom": "medium",
+  "createdAt": "2026-08-19T02:10:29.446Z",
+  "startedAt": "2026-08-19T02:10:29.446Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-08-19T02:10:29.938Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-cdd1d3d4d77b1f9e5bb25398e6586975",
+      "agent": "main"
+    }
+  ]
+}
