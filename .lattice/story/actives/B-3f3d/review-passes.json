@@ -19907,6 +19907,42 @@
       },
       "readDiagnostics": [],
       "_hash": "4d240dc474d6b66eee5a4896d50def51e7563bf4ecca4bd2925b1ed58ba9ac1e"
+    },
+    {
+      "id": "B-3f3d:RP-360",
+      "agent": "lattice-review-quality",
+      "note": "Quality review of dfa917a4eb only (brand-prose rewrite lattice-bin -> proof-or-stop). Diff is three files, nine command-invocation replacements, no logic/type/IO change. Host shims .claude/agents/lattice-review-topology-critic.md and .lattice-codex/agents/lattice-review-topology-critic.md remain body-free bootstraps and now teach proof-or-stop review_run_start; frozen role id lattice-review-topology-critic is unchanged. Decision doc operator workflow now cites proof-or-stop review_inventory_begin/status/critic_set/wave_advance/finalize/cancel plus review_run_start; each command exists in command-catalog and --help. Remaining lattice tokens in those files are .lattice/ path and role ids, not lattice <cmd>. No leftover lattice-subcommand prose in the three files. No dead code, unused import, as-any, empty catch, shell-fn import, or promised-but-undelivered command. Wave 4 section still states signed acceptance-rollout-report plus enforce consumers are authority and prose is not. Lint assumed green. No quality blocker.",
+      "createdAt": "2026-08-19T11:35:17.611Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-573",
+      "envelopeId": "eaed7afdaebeca7a86081efc0a1ae9a9948750312e2f4aef2aaa11814d49c1f0",
+      "writerSessionId": "sess-4292375d1d751b41",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/lattice-review-topology-critic.md",
+          ".lattice-codex/agents/lattice-review-topology-critic.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "a369bcff0180d802aee121e3e45089811170b0885cab0585f3bf904fdf09abfb"
     }
   ]
 }
