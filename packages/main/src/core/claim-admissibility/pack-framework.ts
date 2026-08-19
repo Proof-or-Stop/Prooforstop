@@ -346,7 +346,7 @@ const CODE_RUNTIME_CLAIM_SCHEMAS = freezeItems<DomainClaimSchema>([
     id: CODE_RUNTIME_CLAIM_SCHEMA_ID,
     version: PROOF_ADMISSIBILITY_CONTRACT_VERSION,
     displayName: 'Code runtime lifecycle claims',
-    description: 'Existing Proofbound lifecycle claim ids that are checked by proof-admissibility policy.',
+    description: 'Existing Proof-or-Stop lifecycle claim ids that are checked by proof-admissibility policy.',
     claimIds: CODE_RUNTIME_CLAIM_KINDS,
     proofAdmissibilityClaimKinds: CODE_RUNTIME_CLAIM_KINDS,
     boundary: Object.freeze({
@@ -438,7 +438,7 @@ export const CODE_RUNTIME_CLAIM_ADMISSIBILITY_PACK: ClaimAdmissibilityPack = def
     version: '1.0.0',
     contractVersion: CLAIM_ADMISSIBILITY_PACK_CONTRACT_VERSION,
     domain: 'proofbound-code-runtime',
-    displayName: 'Proofbound code runtime pack',
+    displayName: 'Proof-or-Stop code runtime pack',
     description: 'Read-only descriptor for the existing local proof-admissibility code/runtime lifecycle path.',
     boundary: CODE_RUNTIME_BOUNDARY,
     claimSchemas: CODE_RUNTIME_CLAIM_SCHEMAS,

@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-7dff",
+  "allowedCommands": [
+    "git *",
+    "node bin/lattice.js *",
+    "npm --prefix packages/main run build",
+    "npm run test:*",
+    "npm test",
+    "npx tsc --noEmit -p *"
+  ],
+  "allowedTools": [
+    "lattice-implementer",
+    "lattice-review-*",
+    "product-reviewer"
+  ],
+  "allowedPaths": [
+    "lattice.config.json",
+    "package.json",
+    "packages/main/src/core",
+    "packages/main/src/tasks",
+    "packages/main/tests",
+    "scripts"
+  ],
+  "excludedCommands": [
+    "gh *",
+    "git push *",
+    "npm publish *"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".githooks",
+    "docs/requirements/decisions"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Local worktree work only. No remote publish: this repo requires release_approve_push plus a human on clean local main, which is out of scope for this story.",
+  "createdAt": "2026-08-17T11:33:40.025Z",
+  "updatedAt": "2026-08-17T11:33:40.025Z",
+  "_hash": "bf76ef1fe204f5d14a9a586451613e6a61ca6729d8f53c1d7188a1b199d524ed"
+}

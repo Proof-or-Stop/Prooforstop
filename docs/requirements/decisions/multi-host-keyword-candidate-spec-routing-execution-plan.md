@@ -8,7 +8,7 @@ Implementation record (2026-07-12): B-8038 implemented M6A-M6F and the M6G confi
 
 ## 1. Decision
 
-Proofbound will replace default broad specification reads with a hybrid retrieval pipeline:
+Proof-or-Stop will replace default broad specification reads with a hybrid retrieval pipeline:
 
 1. the CLI derives deterministic search terms from structured Story facts;
 2. Codex CLI and Claude Code CLI independently propose semantic expansions;

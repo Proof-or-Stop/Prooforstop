@@ -350,7 +350,7 @@ producer):
 
 **5 core milestones + 1 optional.** Sized deliberately small: this is a
 deterministic-CLI campaign — no live LLM runs, no sample-size machinery, no
-multi-day schedule. Each milestone is one Lattice story.
+multi-day schedule. Each milestone is one Proof-or-Stop story.
 
 | # | Milestone | Delivers | Exit criterion |
 |---|---|---|---|
@@ -385,7 +385,7 @@ Dependency order: M0 → M1 → M2 → M3 → M4 (strict); M5 any time after M2.
 Allowed if all four hypotheses are SUPPORTED: the section 3 "May claim"
 text, verbatim, environment scope included.
 
-Disallowed: "the evidence chain is tamper-proof"; "Proofbound evidence
+Disallowed: "the evidence chain is tamper-proof"; "Proof-or-Stop evidence
 cannot be forged"; "the ledger is tamper-evident against adversaries";
 "this validates the memory system"; any sentence attributing
 agent-behavioral meaning to a deterministic-instrument result; any M5

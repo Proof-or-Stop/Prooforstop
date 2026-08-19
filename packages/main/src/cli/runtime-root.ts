@@ -2,10 +2,12 @@ import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 import { hasProjectConfigFile } from '../core/config.js';
 import { gitProbe } from '../core/git-probe.js';
+import { readBrandEnv } from '../core/brand-env.js';
 
 export function resolveRoot(explicit?: string): string {
   if (explicit) return explicit;
-  if (process.env.LATTICE_PROJECT_ROOT) return process.env.LATTICE_PROJECT_ROOT;
+  const envRoot = readBrandEnv('PROJECT_ROOT');
+  if (envRoot) return envRoot;
   let dir = process.cwd();
   for (let i = 0; i < 10; i++) {
     if (hasProjectConfigFile(dir)) return dir;

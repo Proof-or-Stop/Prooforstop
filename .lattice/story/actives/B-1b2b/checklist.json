@@ -1,0 +1,36 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add a recorded supersede/withdraw event to the dev-memory ledger without breaking append-only auditability",
+      "context": "dev_memory_capture is the only writer and there is no update/supersede/withdraw command in the dev_memory surface. Add one that appends a RECORDED event rather than mutating or deleting the superseded entry - the history of a mistaken lesson and its correction is itself auditable content. Decide and state whether withdrawal covers only wrong entries or also merely-low-value ones.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Honor supersession at the RETRIEVAL path, not just at write time",
+      "context": "The current stopgap relies on the reader arriving via a supersedes tag or reusePrompt, so a relevance-ranked retrieval can surface a superseded entry ALONE with its false content and no successor. A superseded entry must either not be returned as a standalone hit or must be returned with its successor attached. A field only the writer sets and nothing enforces at read time reproduces today's situation with extra ceremony - the acceptance test is a retrieval, not a schema.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Prove it on the B-9ff1 chain, which is the motivating case",
+      "context": "a67bb17 (claimed none of B-9ff1's findings were against the code) was superseded by 8d1d2bb (claimed the nine closing-round findings were all prose, itself falsified by B-9ff1:F-067/F-068/F-069) and then by e367ec1 (makes no count claim and ships the query instead). A retrieval on the trigger that matches a67bb17 must not return it alone. Demonstrate the failure against the current code first.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Keep superseded entries reachable by explicit id and keep the correction chain visible",
+      "context": "Do not solve retrieval pollution by making history unreachable. An auditor asking for a67bb17 by id should still get it, marked superseded, with a pointer to its successor - the three-iteration chain in B-9ff1 is evidence about how corrections fail and is worth preserving.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

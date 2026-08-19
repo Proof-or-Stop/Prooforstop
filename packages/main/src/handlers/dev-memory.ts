@@ -1,8 +1,8 @@
 /**
  * dev-memory handlers — thin CLI wrappers around core/dev-memory.ts
  *
- * B-ad2c: lightweight experience capture outside Proofbound story gates.
- * All commands are non-authoritative and do NOT satisfy Proofbound gate evidence.
+ * B-ad2c: lightweight experience capture outside Proof-or-Stop story gates.
+ * All commands are non-authoritative and do NOT satisfy Proof-or-Stop gate evidence.
  */
 
 import type { HandlerContext } from './context.js';
@@ -307,7 +307,7 @@ export function createDevMemoryHandlers(ctx: HandlerContext) {
       if (relevant.length === 0) {
         return [
           `dev_memory_finish: no experience entries found in project memory (${projectPath}).`,
-          `  No story directory required for outside-Proofbound sessions.`,
+          `  No story directory required for outside-Proof-or-Stop sessions.`,
         ].join('\n');
       }
 
@@ -416,10 +416,10 @@ export function createDevMemoryHandlers(ctx: HandlerContext) {
       `Dev session starting (agent: ${agentName})`,
       ``,
       `When the session ends, run one of:`,
-      `  lattice dev_memory_finish                    # report project entries (no story required)`,
-      `  lattice dev_memory_finish --scope=global     # promote to global dev-memory`,
-      `  lattice dev_memory_finish --storyId=<id>     # write story-scoped candidates`,
-      `  lattice dev_memory_finish_decision --decision=captured|no-reusable-lesson|defer-with-reason`,
+      `  proof-or-stop dev_memory_finish                    # report project entries (no story required)`,
+      `  proof-or-stop dev_memory_finish --scope=global     # promote to global dev-memory`,
+      `  proof-or-stop dev_memory_finish --storyId=<id>     # write story-scoped candidates`,
+      `  proof-or-stop dev_memory_finish_decision --decision=captured|no-reusable-lesson|defer-with-reason`,
       ``,
       `Project entries are retained automatically. No decision automatically promotes project/global memory.`,
     ].join('\n');

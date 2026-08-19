@@ -35,7 +35,7 @@ Your input is **only**:
 
 ## 2. Obtain storyId
 
-The main agent passes `storyId` (e.g. `B-xxxx`) in the spawn prompt. Use this value in all subsequent Lattice CLI commands.
+The main agent passes `storyId` (e.g. `B-xxxx`) in the spawn prompt. Use this value in all subsequent Proof-or-Stop CLI commands.
 
 ## 3. Procedure (6 steps)
 
@@ -65,7 +65,7 @@ For each documentation change that **promises** a new feature, handler, command,
 ```json
 {
   "docPath": "CLAUDE.md#section",
-  "promise": "lattice delivery_check_set command accepts storyId + docsPromises + ...",
+  "promise": "proof-or-stop delivery_check_set command accepts storyId + docsPromises + ...",
   "verifiedBy": "diff/grep",
   "evidence": "handler registered in registry.ts, Zod schema in cli-engine.ts",
   "waiverReason": null
@@ -135,7 +135,7 @@ In refusal case:
 If no critical refusal triggered:
 
 ```bash
-lattice delivery_check_set '{"storyId":"B-xxx","docsPromises":[...],"realMachineTests":[...],"closingSelfCheck":{...}}'
+proof-or-stop delivery_check_set '{"storyId":"B-xxx","docsPromises":[...],"realMachineTests":[...],"closingSelfCheck":{...}}'
 ```
 
 Then output a short summary (3-8 lines):
@@ -144,10 +144,10 @@ Then output a short summary (3-8 lines):
 - closingSelfCheck fields
 - Final line: `delivery_check_set saved for <storyId>` or `Refused to save (<reason>)`
 
-## 4. `lattice delivery_check_set` call template
+## 4. `proof-or-stop delivery_check_set` call template
 
 ```bash
-lattice delivery_check_set '{
+proof-or-stop delivery_check_set '{
   "storyId": "B-xxx",
   "docsPromises": [
     {

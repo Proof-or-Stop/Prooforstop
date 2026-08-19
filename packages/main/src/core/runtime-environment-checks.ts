@@ -11,6 +11,7 @@ import {
   type RuntimeFactScope,
   type RuntimeFactSeverity,
 } from './runtime-fact-registry.js';
+import { readBrandEnv } from './brand-env.js';
 
 export type RuntimeFactStatus = 'pass' | 'warn' | 'fail';
 export type RuntimeMode = 'global-cli' | 'project-local-package' | 'packaged-runtime' | 'compatibility-launcher' | 'diagnostic-only';
@@ -335,8 +336,15 @@ export function classifyRuntimeEntrypointAuthority(
   }
 
   const recoveryCommand = renderLocalEntrypointRecoveryCommand(worktreeRoot!, input.command, input.commandArgs);
+  // B-cdf6:F-020 — read BOTH brand spellings, same as line ~1129 does for this exact
+  // semantic check. A raw `input.env?.LATTICE_CODEX_ENTRYPOINT` access here would miss the
+  // canonical PROOF_OR_STOP_CODEX_ENTRYPOINT spelling, which is equally valid under the
+  // additive compat contract. Since classifyRuntimeEntrypointAuthority runs on EVERY command
+  // in a self-host worktree (cli-engine.ts passes env: process.env), missing it would
+  // misclassify a legitimate global-fallback session_brief heartbeat as a runtime-authority
+  // violation. Same bug class as F-016 (idleLattice), which is why this was swept for.
   const isExplicitSessionBriefFallback = input.command === 'session_brief'
-    && input.env?.LATTICE_CODEX_ENTRYPOINT === 'global-fallback';
+    && readBrandEnv('CODEX_ENTRYPOINT', input.env) === 'global-fallback';
   if (isExplicitSessionBriefFallback) {
     return {
       status: 'exempt',
@@ -547,7 +555,7 @@ function classifyRuntimeMode(context: RuntimeCheckContext): RuntimeModeContract 
       return runtimeModeContract(
         'diagnostic-only',
         'unknown',
-          'project-local CLI bin exists, but the active Proofbound CLI entrypoint could not be resolved',
+          'project-local CLI bin exists, but the active Proof-or-Stop entrypoint could not be resolved',
       );
     }
     if (!localBinRealpath) {
@@ -562,13 +570,13 @@ function classifyRuntimeMode(context: RuntimeCheckContext): RuntimeModeContract 
         return runtimeModeContract(
           'packaged-runtime',
           'packaged-runtime',
-          'packaged runtime detected; project package.json/node_modules are not required for Proofbound diagnostics',
+          'packaged runtime detected; project package.json/node_modules are not required for Proof-or-Stop diagnostics',
         );
       }
       return runtimeModeContract(
         'project-local-package',
         'project-node-modules',
-        `active Proofbound CLI is the project-local ${relative(context.projectRoot, localBin)} package`,
+        `active Proof-or-Stop is the project-local ${relative(context.projectRoot, localBin)} package`,
         true,
       );
     }
@@ -583,7 +591,7 @@ function classifyRuntimeMode(context: RuntimeCheckContext): RuntimeModeContract 
     return runtimeModeContract(
       'packaged-runtime',
       'packaged-runtime',
-      'packaged runtime detected; project package.json/node_modules are not required for Proofbound diagnostics',
+      'packaged runtime detected; project package.json/node_modules are not required for Proof-or-Stop diagnostics',
     );
   }
 
@@ -591,7 +599,7 @@ function classifyRuntimeMode(context: RuntimeCheckContext): RuntimeModeContract 
     return runtimeModeContract(
       'diagnostic-only',
       'unknown',
-      'active Proofbound CLI entrypoint could not be resolved; runtime classification is diagnostic-only',
+      'active Proof-or-Stop entrypoint could not be resolved; runtime classification is diagnostic-only',
     );
   }
 
@@ -600,7 +608,7 @@ function classifyRuntimeMode(context: RuntimeCheckContext): RuntimeModeContract 
     return runtimeModeContract(
       'diagnostic-only',
       'unknown',
-      `active Proofbound CLI ${active.realpath} does not match a known runtime source`,
+      `active Proof-or-Stop ${active.realpath} does not match a known runtime source`,
     );
   }
 
@@ -608,7 +616,7 @@ function classifyRuntimeMode(context: RuntimeCheckContext): RuntimeModeContract 
     return runtimeModeContract(
       'global-cli',
       'global-cli',
-      'active Proofbound CLI resolves to the global installation; project package.json/node_modules are not required',
+      'active Proof-or-Stop resolves to the global installation; project package.json/node_modules are not required',
     );
   }
 
@@ -665,15 +673,15 @@ function runtimeModeSource(context: RuntimeCheckContext, activeRealpath: string)
 function compatibilityRuntimeMessage(source: RuntimeModeSource): string {
   switch (source) {
     case 'repo-local-dist':
-      return 'compatibility launcher is using the repository-local Proofbound dist runtime; run npm --prefix packages/main run build after core edits';
+      return 'compatibility launcher is using the repository-local Proof-or-Stop dist runtime; run npm --prefix packages/main run build after core edits';
     case 'project-node-modules':
-      return 'compatibility launcher is using the project node_modules Proofbound package without requiring node_modules/.bin/lattice as the active CLI';
+      return 'compatibility launcher is using the project node_modules Proof-or-Stop package without requiring node_modules/.bin/lattice as the active CLI';
     case 'packaged-runtime':
-      return 'compatibility launcher is using a packaged Proofbound runtime; project package.json/node_modules are not required';
+      return 'compatibility launcher is using a packaged Proof-or-Stop runtime; project package.json/node_modules are not required';
     case 'external-development-engine':
-      return 'compatibility launcher is using an external Proofbound development engine; project package.json/node_modules are not required';
+      return 'compatibility launcher is using an external Proof-or-Stop development engine; project package.json/node_modules are not required';
     case 'global-cli':
-      return 'compatibility launcher is using the global Proofbound CLI; project package.json/node_modules are not required';
+      return 'compatibility launcher is using the global Proof-or-Stop; project package.json/node_modules are not required';
     case 'unknown':
       return 'runtime source is unknown; classification is diagnostic-only';
   }
@@ -714,7 +722,7 @@ function checkPackageVersion(context: RuntimeCheckContext, severity: RuntimeFact
       globalCore: globalPackagePath ? packageSummary(globalPackage, globalPackagePath) : null,
     },
     expected: context.isSelfProject ? 'root, packages/main, runtime, and global core versions match' : 'runtime package version readable',
-    ...(ok ? {} : { warnings: ['Proofbound package versions are missing or inconsistent'] }),
+    ...(ok ? {} : { warnings: ['Proof-or-Stop package versions are missing or inconsistent'] }),
   };
 }
 
@@ -1156,20 +1164,20 @@ function projectLocalBinCandidates(projectRoot: string): string[] {
 }
 
 function isPackagedRuntime(): boolean {
-  return process.env.LATTICE_DESKTOP_PACKAGED_RUNTIME === '1'
+  return readBrandEnv('DESKTOP_PACKAGED_RUNTIME') === '1'
     || Boolean((process as typeof process & { pkg?: unknown }).pkg);
 }
 
 function compatibilityLauncherSignal(activePath: string | null): boolean {
-  if (process.env.LATTICE_ACTIVITY_SOURCE === 'codex') return true;
-  if (process.env.LATTICE_CODEX_ENTRYPOINT === 'global-fallback' || process.env.LATTICE_CODEX_ENTRYPOINT === 'local-wrapper') return true;
+  if (readBrandEnv('ACTIVITY_SOURCE') === 'codex') return true;
+  if (readBrandEnv('CODEX_ENTRYPOINT') === 'global-fallback' || readBrandEnv('CODEX_ENTRYPOINT') === 'local-wrapper') return true;
   const name = activePath ? basename(activePath) : '';
   return name === 'lattice.js' || name === 'lattice-codex.js';
 }
 
 function localBinWarning(localBin: string, localRealpath: string | null, cliRealpath: string | null, cliEntrypoint: string | null): string {
   if (!localRealpath) return `${localBin} exists but its realpath could not be resolved`;
-  if (!cliRealpath) return `${localBin} exists but active Proofbound CLI could not be resolved for comparison`;
+  if (!cliRealpath) return `${localBin} exists but active Proof-or-Stop could not be resolved for comparison`;
   return `${localBin} resolves to ${localRealpath}, active CLI ${cliEntrypoint ?? 'lattice'} resolves to ${cliRealpath}`;
 }
 

@@ -18,7 +18,7 @@ import {
   resolveWorktreePath,
 } from '../core/worktree-runtime.js';
 import { getLegacyActivityLogPath, getRuntimeActivityLogPath } from '../core/activity-log.js';
-import { LATTICE_DIR, LATTICE_ACTIVITY_LOG, LATTICE_REPAIR_IGNORE } from '../core/lattice-paths.js';
+import { PROOF_OR_STOP_DIR, PROOF_OR_STOP_ACTIVITY_LOG, PROOF_OR_STOP_REPAIR_IGNORE } from '../core/lattice-paths.js';
 import { initCheckAttestationMode } from '../core/init-check-gate.js';
 import { withMainWriteLock } from '../core/main-write-lock.js';
 import {
@@ -36,6 +36,7 @@ import {
 import { summarizeChecklist } from './checklist.js';
 import { isDeliveredChecklistStatus, isWithdrawnChecklistStatus } from '../core/checklist-status.js';
 import { wantsFullOutput, truncateOneLine } from '../cli/output-verbosity.js';
+import { readBrandEnv } from '../core/brand-env.js';
 
 // B-7c05 CHK-004: phases treated as terminal for the brief story_list default.
 // Brief lists only NON-terminal (actionable) stories one-line each; the omitted
@@ -205,7 +206,7 @@ function removeEmptyDir(path: string): boolean {
 function storyUpdateActorFrom(args: { agent?: string; actor?: string }): string {
   const explicit = args.agent?.trim() || args.actor?.trim();
   if (explicit) return explicit;
-  return process.env.LATTICE_AGENT?.trim() || process.env.USER?.trim() || 'main-agent';
+  return readBrandEnv('AGENT')?.trim() || process.env.USER?.trim() || 'main-agent';
 }
 
 function isInitReviewerStoryUpdateActor(actor: string): boolean {
@@ -381,7 +382,7 @@ export function detectStoryResidue(
       const dirName = entry.name;
       if (!dirName.startsWith('B-')) continue;
       if (
-        existsSync(join(worktreesDir, dirName, LATTICE_REPAIR_IGNORE))
+        existsSync(join(worktreesDir, dirName, PROOF_OR_STOP_REPAIR_IGNORE))
       ) continue;
 
       let story;
@@ -884,7 +885,7 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
         if (!repair) {
           lines.push('');
           lines.push('Above is dry run result, no modifications made.');
-          lines.push('Apply fixes: lattice story_reconcile \'{"dryRun":false}\'');
+          lines.push('Apply fixes: proof-or-stop story_reconcile \'{"dryRun":false}\'');
         }
 
         return lines.join('\n');
@@ -901,7 +902,7 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
      * @type feature
      * @priority high
      * @description
-     *   Story artifacts and activity logs are Proofbound machine state, not human
+     *   Story artifacts and activity logs are Proof-or-Stop machine state, not human
      *   documentation. This command migrates legacy docs/story/actives data
      *   into the configured storyDir and legacy docs/story/activity.jsonl into
      *   .lattice/activity.jsonl, backing up removed legacy files under .lattice.
@@ -920,7 +921,7 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
       const legacyRoot = join(ctx.root, legacyRel);
       const targetRoot = join(ctx.root, targetRel);
       const legacyActivityRel = 'docs/story/activity.jsonl';
-      const targetActivityRel = LATTICE_ACTIVITY_LOG;
+      const targetActivityRel = PROOF_OR_STOP_ACTIVITY_LOG;
       const legacyActivityPath = getLegacyActivityLogPath(ctx.root);
       const targetActivityPath = getRuntimeActivityLogPath(ctx.root);
       const docsStoryRoot = join(ctx.root, 'docs', 'story');
@@ -959,11 +960,11 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
           lines.push('  will backup legacy activity to .lattice/legacy-backup/docs-story-activity-<timestamp>.jsonl');
         }
         lines.push('  will remove docs/story only if it is empty after migration');
-        lines.push('→ Confirm migration: lattice story_migrate_storage \'{"dryRun":false,"confirm":true}\'');
+        lines.push('→ Confirm migration: proof-or-stop story_migrate_storage \'{"dryRun":false,"confirm":true}\'');
         return lines.join('\n');
       }
 
-      const backupRoot = join(ctx.root, LATTICE_DIR, 'legacy-backup');
+      const backupRoot = join(ctx.root, PROOF_OR_STOP_DIR, 'legacy-backup');
       mkdirSync(backupRoot, { recursive: true });
       let copied = 0;
       let activesBackup: string | null = null;
@@ -983,7 +984,7 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
       if (hasLegacyActivity) {
         const legacyActivity = readFileSync(legacyActivityPath, 'utf-8');
         const targetActivity = hasTargetActivity ? readFileSync(targetActivityPath, 'utf-8') : '';
-        mkdirSync(join(ctx.root, LATTICE_DIR), { recursive: true });
+        mkdirSync(join(ctx.root, PROOF_OR_STOP_DIR), { recursive: true });
         writeFileSync(targetActivityPath, appendJsonlContent(targetActivity, legacyActivity));
         activityBackup = join(backupRoot, `docs-story-activity-${Date.now()}.jsonl`);
         renameSync(legacyActivityPath, activityBackup);
@@ -1060,7 +1061,7 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
           : '  status     : confirm will run git merge main');
         lines.push('  metadata conflicts under the protected path will be resolved with --ours');
         lines.push('  source/other conflicts will remain unresolved and stop the command');
-        lines.push(`→ Confirm sync: lattice story_sync_main '{"storyId":"${args.storyId}","confirm":true}'`);
+        lines.push(`→ Confirm sync: proof-or-stop story_sync_main '{"storyId":"${args.storyId}","confirm":true}'`);
         return lines.join('\n');
       }
 
@@ -1073,7 +1074,7 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
         const out = gitOutput(cwd, `-c commit.gpgsign=false merge ${shellQuote(mainRef)} --no-ff -m ${shellQuote(`sync main into ${args.storyId}`)}`);
         lines.push(out || '✓ main already merged');
         lines.push(`✓ Story ${args.storyId} is synced with main`);
-        lines.push(`→ Please rerun: lattice test_story '{"storyId":"${args.storyId}"}'`);
+        lines.push(`→ Please rerun: proof-or-stop test_story '{"storyId":"${args.storyId}"}'`);
         return lines.join('\n');
       } catch {
         const unmerged = gitUnmergedPaths(cwd);
@@ -1092,7 +1093,7 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
               ? `Story metadata conflicts auto-resolved with --ours:\n${protectedConflicts.map(path => `  - ${path}`).join('\n')}\n`
               : '') +
             `Unresolved conflicts:\n${unresolved.map(path => `  - ${path}`).join('\n')}\n\n` +
-            `Please manually resolve the above real conflicts then git add + git commit, then rerun lattice test_story '{"storyId":"${args.storyId}"}'.`,
+            `Please manually resolve the above real conflicts then git add + git commit, then rerun proof-or-stop test_story '{"storyId":"${args.storyId}"}'.`,
           );
         }
 
@@ -1103,7 +1104,7 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
         lines.push('Story metadata conflicts auto-resolved with --ours:');
         for (const path of protectedConflicts) lines.push(`  - ${path}`);
         lines.push(`✓ Story ${args.storyId} is synced with main`);
-        lines.push(`→ Please rerun: lattice test_story '{"storyId":"${args.storyId}"}'`);
+        lines.push(`→ Please rerun: proof-or-stop test_story '{"storyId":"${args.storyId}"}'`);
         return lines.join('\n');
       }
     },

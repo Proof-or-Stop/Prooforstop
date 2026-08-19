@@ -1,5 +1,5 @@
 // ============================================================
-// lattice serve — HTTP API service + Bridge debug API + browser proxy + file watch
+// proof-or-stop serve — HTTP API service + Bridge debug API + browser proxy + file watch
 //
 // Real-time debug interface for AI agents and humans:
 //   GET  /status           project status
@@ -342,7 +342,7 @@ async function bridgeApi(httpPort: number, path: string, body?: unknown): Promis
 
 function generateDashboardHtml(machineName: string, transitionsJson: string, hasBrowser: boolean, proxyUrl: string, bridgeWsPort: number): string {
   return `<!DOCTYPE html>
-<html><head><meta charset="utf-8"><title>${machineName} — Proofbound Debug</title>
+<html><head><meta charset="utf-8"><title>${machineName} — Proof-or-Stop Debug</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,system-ui,sans-serif;background:#1a1a2e;color:#e0e0e0;padding:16px;max-width:100%;margin:0 auto}
@@ -399,7 +399,7 @@ h1{color:#e94560;font-size:20px;display:inline}
 .state-tab:hover{color:#e0e0e0}
 .state-tab.active{background:#0f3460;color:#53d8fb}
 </style></head><body>
-<div class="header"><h1>${machineName}</h1><span class="subtitle">Proofbound debug console</span></div>
+<div class="header"><h1>${machineName}</h1><span class="subtitle">Proof-or-Stop debug console</span></div>
 <div class="tabs" id="tabs">
   <div class="tab active" data-tab="bridge">Bridge</div>
   ${hasBrowser ? '<div class="tab" data-tab="browser">Browser</div>' : ''}
@@ -823,7 +823,7 @@ export async function startServe(options: ServeOptions) {
   const port = options.port ?? stablePort(projectRoot, 3);
   const watchPaths = options.watchPaths ?? ['data.ts', 'fn.ts', 'machine.ts', 'validate.ts'];
 
-  console.log(`\n🐨 lattice serve`);
+  console.log(`\n🐨 proof-or-stop serve`);
   console.log(`  Project: ${projectRoot}`);
   console.log(`  API:  http://localhost:${port}`);
 
@@ -841,7 +841,7 @@ export async function startServe(options: ServeOptions) {
   if (!bridgeWsPort) {
     console.log(`  ⚠ Project core not found. Please start the project first:`);
     console.log(`    LATTICE_SERVE_PORT=<port> npx tsx src/main.ts`);
-    console.log(`    or lattice serve (will automatically start the core)`);
+    console.log(`    or proof-or-stop serve (will automatically start the core)`);
     return;
   }
   console.log(`  Core WS: ws://localhost:${bridgeWsPort}`);
@@ -987,7 +987,7 @@ export async function startServe(options: ServeOptions) {
         proxy.listen(proxyPort, () => {
           proxyUrl = `http://localhost:${proxyPort}`;
           console.log(`  Proxy: ${proxyUrl} → ${devUrl}`);
-          console.log(`  Open the proxy address in the browser; Proofbound will automatically inject the control script`);
+          console.log(`  Open the proxy address in the browser; Proof-or-Stop will automatically inject the control script`);
         });
       }
     }
@@ -1268,7 +1268,7 @@ function generateCircuitDashboardHtml(endpointNames: string[], machineConfigs: R
 <html lang="zh">
 <head>
 <meta charset="utf-8">
-<title>lattice serve --circuit</title>
+<title>proof-or-stop serve --circuit</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0d1117; color: #c9d1d9; min-height: 100vh; }
@@ -1312,7 +1312,7 @@ header .ep-badges { display: flex; gap: 8px; flex-wrap: wrap; }
 </head>
 <body>
 <header>
-  <h1>lattice serve --circuit</h1>
+  <h1>proof-or-stop serve --circuit</h1>
   <div class="ep-badges" id="epBadges"></div>
 </header>
 <div class="toolbar">
@@ -1513,7 +1513,7 @@ export async function startCircuitServe(options: ServeOptions) {
   const projectRoot = resolve(options.projectRoot ?? process.cwd());
   const port = options.port ?? stablePort(projectRoot, 3);
 
-  console.log(`\n🐨 lattice serve --circuit`);
+  console.log(`\n🐨 proof-or-stop serve --circuit`);
   console.log(`  Project: ${projectRoot}`);
   console.log(`  API:  http://localhost:${port}`);
 

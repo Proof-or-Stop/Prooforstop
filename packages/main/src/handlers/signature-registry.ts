@@ -21,6 +21,7 @@ import {
   resolveTag,
   type SignatureTagEntry,
 } from '../core/learning-store.js';
+import { readBrandEnv } from '../core/brand-env.js';
 
 const SIGNATURE_REGISTRY_ACTIONS = ['propose', 'approve', 'alias', 'deprecate'] as const;
 type SignatureRegistryAction = typeof SIGNATURE_REGISTRY_ACTIONS[number];
@@ -62,7 +63,7 @@ export function createSignatureRegistryHandlers(ctx: HandlerContext) {
       if (!(SIGNATURE_REGISTRY_ACTIONS as readonly string[]).includes(action)) {
         throw new Error(`signature_registry_set: action must be one of ${SIGNATURE_REGISTRY_ACTIONS.join('|')}`);
       }
-      const by = (args.by || process.env.LATTICE_AGENT || 'main').trim() || 'main';
+      const by = (args.by || readBrandEnv('AGENT') || 'main').trim() || 'main';
 
       let entry: SignatureTagEntry;
       switch (action) {

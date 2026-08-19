@@ -1,5 +1,5 @@
 /**
- * Evaluate handler — lattice evaluate
+ * Evaluate handler — proof-or-stop evaluate
  *
  * 调用 evaluator agent 通过 browser API 像用户一样操作应用，
  * 按功能完整性和可用性两个维度打分。
@@ -7,7 +7,7 @@
  * 前置条件：
  * - 项目 lattice.config.json
  *   配了 browser.devCommand（否则跳过）
- * - lattice serve --dev 已经在运行（或由本命令启动）
+ * - proof-or-stop serve --dev 已经在运行（或由本命令启动）
  *
  * 结果写入 story 的 eval-evidence.json，DONE gate 消费。
  */
@@ -26,7 +26,7 @@ import { withReviewMetadataTicketLock } from '../core/mkdir-lock.js';
 export function createEvaluateHandlers(ctx: HandlerContext): Record<string, (...args: any[]) => any> {
   return {
     /**
-     * lattice evaluate --story=B-xxx [--port=3456]
+     * proof-or-stop evaluate --story=B-xxx [--port=3456]
      *
      * 检查项目 shells 配置，按声明决定 spawn 哪个 evaluator：
      * - 有 browser.devCommand → spawn lattice-evaluator（browser）
@@ -34,7 +34,7 @@ export function createEvaluateHandlers(ctx: HandlerContext): Record<string, (...
      * - 都有 → 都跑
      * - 都没有 → 尝试读 .lattice-serve.json 判断是否有活跃 serve 进程，有则跑 CLI evaluator
      *
-     * evaluator agent 的输出（JSON）由主 agent 解析后调 lattice evaluate_save 写入 evidence。
+     * evaluator agent 的输出（JSON）由主 agent 解析后调 proof-or-stop evaluate_save 写入 evidence。
      */
     evaluate(args: { storyId: string; port?: number }): string {
       const config = loadConfig(ctx.root);
@@ -70,17 +70,17 @@ export function createEvaluateHandlers(ctx: HandlerContext): Record<string, (...
 
       const instructions: string[] = [];
       if (hasBrowser) {
-        instructions.push(`1. 确保 lattice serve --dev="${config.browser!.devCommand}" 正在运行（端口 ${port}）`);
+        instructions.push(`1. 确保 proof-or-stop serve --dev="${config.browser!.devCommand}" 正在运行（端口 ${port}）`);
         instructions.push(`2. 用 Agent tool 调 lattice-evaluator agent，传入 serveUrl="${serveUrl}" 和 checklist`);
       }
       if (hasCli) {
         const step = hasBrowser ? 3 : 1;
-        instructions.push(`${step}. 确保 lattice serve 正在运行（端口 ${port}）`);
+        instructions.push(`${step}. 确保 proof-or-stop serve 正在运行（端口 ${port}）`);
         instructions.push(`${step + 1}. 用 Agent tool 调 lattice-evaluator-cli agent，传入 serveUrl="${serveUrl}", checklist, hasCliShell=true`);
       }
       const lastStep = instructions.length + 1;
       instructions.push(`${lastStep}. 解析 evaluator 返回的 JSON`);
-      instructions.push(`${lastStep + 1}. 调 lattice evaluate_save 写入结果`);
+      instructions.push(`${lastStep + 1}. 调 proof-or-stop evaluate_save 写入结果`);
 
       let promptEnvelope: Record<string, unknown> | undefined;
       if (resolvePromptEnvelopeRolloutMode('lattice-evaluator', config.promptEnvelope) === 'full-envelope') {
@@ -144,7 +144,7 @@ export function createEvaluateHandlers(ctx: HandlerContext): Record<string, (...
     },
 
     /**
-     * lattice evaluate_save --story=B-xxx --result='{ ... }'
+     * proof-or-stop evaluate_save --story=B-xxx --result='{ ... }'
      *
      * 主 agent 拿到 evaluator 输出后调此命令写入 eval-evidence.json。
      */

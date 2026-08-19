@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-38b7",
+  "allowedCommands": [
+    "git diff*",
+    "git log*",
+    "git status*",
+    "node bin/lattice.js *",
+    "node scripts/verify-lattice-residue.mjs",
+    "rg *"
+  ],
+  "allowedTools": [
+    "Agy CLI plan-mode audit",
+    "apply_patch",
+    "Claude CLI read-only audit",
+    "exec_command"
+  ],
+  "allowedPaths": [
+    "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+  ],
+  "excludedCommands": [
+    "git clean*",
+    "git push*",
+    "git reset*",
+    "npm test*"
+  ],
+  "excludedTools": [
+    "remote publish"
+  ],
+  "excludedPaths": [
+    "lattice.config.json",
+    "package-lock.json",
+    "package.json",
+    "packages/main/src",
+    "packages/utils/src"
+  ],
+  "confirmedBy": "codex-side-conversation",
+  "confirmationNote": "Documentation-only import and verification boundary approved by the user.",
+  "createdAt": "2026-08-18T18:28:56.193Z",
+  "updatedAt": "2026-08-18T18:28:56.193Z",
+  "_hash": "79e8a7c361ffa690a0aa26cf1b5a54c5560b2eabe185a8a43fcf6ab96818d20d"
+}

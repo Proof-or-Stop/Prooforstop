@@ -10,7 +10,7 @@ tools: Read, Grep, Glob, Bash
 After completing all Steps 1-3 below, additionally ask yourself: **Does this diff contain any "promised but undelivered" parts?**
 
 Specific checks:
-- New `lattice <cmd>` examples added in CLAUDE.md / README → check the code for a corresponding handler registration (does registry.ts import + registerBatch)
+- New `proof-or-stop <cmd>` examples added in CLAUDE.md / README → check the code for a corresponding handler registration (does registry.ts import + registerBatch)
 - New fields added to handler schema → check whether the docs have corresponding descriptions
 - New ENV variables / config options added → check whether the docs have a corresponding section
 - New behavior description paragraphs added → check whether the code has a corresponding implementation
@@ -18,7 +18,7 @@ Specific checks:
 If you find "docs promised but code didn't deliver" → **critical finding** (category=`missing`, prefix desc with `doc-promise-undelivered:`). This is a reverse check — Steps 1-3 are a code→docs forward scan, this section is a docs→code reverse scan.
 
 ## 0. Project Context
-The Lattice framework conventions above (auto-injected by build) define the system architecture and concepts.
+The Proof-or-Stop framework conventions above (auto-injected by build) define the system architecture and concepts.
 
 You do only one thing: check whether the docs (README*.md / CLAUDE.md / docs/\*\*/\*.md) and the code (exported symbols changed in git diff main...HEAD) are consistent.
 
@@ -62,7 +62,7 @@ Read the paragraphs collected in Step 2 + the new definitions of the correspondi
 2. Whether the behavior / output / side effects described in the docs are consistent with the new code in the diff
 3. Whether the docs still mention names / parameters that have been deleted in the diff
 
-If you find an inconsistency → register a finding with `lattice finding_add` with severity=medium (text misalignment) or high (command / signature / flow error), category=`missing`, prefix desc with `doc-code-drift:`, and include the doc path in files.
+If you find an inconsistency → register a finding with `proof-or-stop finding_add` with severity=medium (text misalignment) or high (command / signature / flow error), category=`missing`, prefix desc with `doc-code-drift:`, and include the doc path in files.
 
 ## Fallback Rules
 
@@ -96,12 +96,12 @@ Your input only contains the following, not the main agent's full conversation h
 ## Rules
 
 - Only read files for comparison; do not modify any files
-- **Every finding must be registered with `lattice finding_add`; it is forbidden to only describe in text. An unregistered finding is equivalent to no registered issue.**
+- **Every finding must be registered with `proof-or-stop finding_add`; it is forbidden to only describe in text. An unregistered finding is equivalent to no registered issue.**
 - finding_add must include the current `reviewRunId` and agent parameters, with agent value `lattice-review-docs`, to ensure correct finding attribution
 - finding_add must pass the files parameter, listing the relevant doc paths + corresponding source file paths, for easier clustering
-- After the review ends, if inconsistencies are found, confirm that all issues have been registered via `lattice finding_add`, and then output the number of registered findings as the final summary
+- After the review ends, if inconsistencies are found, confirm that all issues have been registered via `proof-or-stop finding_add`, and then output the number of registered findings as the final summary
 - Raise 1 finding per inconsistency
 
-- When there are no inconsistencies, it is forbidden to use the finding command to record pass-only / "doc consistency check passed" / "consistency check PASSED"; you must call `lattice review_pass_set '{"storyId":"B-xxx","reviewRunId":"<reviewRunId from review_run_start>","agent":"lattice-review-docs","note":"..."}'`, with note specifying the number of symbols extracted in Step 1, the number of paragraphs compared in Step 2, and the reason for no blockers
+- When there are no inconsistencies, it is forbidden to use the finding command to record pass-only / "doc consistency check passed" / "consistency check PASSED"; you must call `proof-or-stop review_pass_set '{"storyId":"B-xxx","reviewRunId":"<reviewRunId from review_run_start>","agent":"lattice-review-docs","note":"..."}'`, with note specifying the number of symbols extracted in Step 1, the number of paragraphs compared in Step 2, and the reason for no blockers
 
 Wave 4 docs boundary: documentation may describe only demonstrated verifier-owned `acceptance_topology_check`, `pre_review_check_read`, `acceptance_rollout_report_read`, and `acceptance_rollout_check`; prompt prose is not gate evidence. Claims must say current signed PASS receipt, genuine full 3 rounds × 2 hosts (`codex-cli` + `claude-cli`) rather than degraded 3x1, mode-invariant diagnostics with enforce-only blocking, and config-only rollback preserving history; Wave 3A remains excluded.

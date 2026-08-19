@@ -6,7 +6,7 @@
  * @type chore
  * @priority high
  * @description
- *   B-7fc2 — keep Proofbound CLI `--json` / `--format=json` stdout machine-parseable.
+ *   B-7fc2 — keep Proof-or-Stop `--json` / `--format=json` stdout machine-parseable.
  *
  *   Background:
  *     Before this contract, `node packages/main/dist/cli.js validate --json`
@@ -150,7 +150,7 @@ function assertNoHumanHint(stdout: string, label: string): void {
   assertNoHumanHint(stdout, 'conduit_status --json');
 }
 
-// ── A broader Proofbound host JSON surface command remains direct-parseable ───
+// ── A broader Proof-or-Stop host JSON surface command remains direct-parseable ───
 // host_list is one of the canonical host-neutral observability inputs; if a
 // future hint registration accidentally fires for it, this guard catches it.
 {

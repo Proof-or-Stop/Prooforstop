@@ -70,7 +70,7 @@ export const verificationIntentItemSchema = z.object({
  * @type feature
  * @priority high
  * @description
- *   Proofbound exposes code/story operations through a managed automated interface:
+ *   Proof-or-Stop exposes code/story operations through a managed automated interface:
  *   people and AI both go through CLI schemas, command gates, handlers, and logs.
  *   Superpowers can trigger workflow by registering extra tools and handlers, but
  *   main command definitions win because MAIN_TOOLS are searched before extras.

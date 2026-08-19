@@ -100,7 +100,7 @@ const checks = {
     try {
       renameSync(dist, backup);
       const out = run(['--root', temp, 'session_brief']);
-      assert(out.includes('# lattice session brief'), 'core command should still work when lab dist is absent');
+      assert(out.includes('# proof-or-stop session brief'), 'core command should still work when lab dist is absent');
       const failed = runAllowFailure(['--root', temp, 'lab_create', '--help']);
       assert(!failed.ok, 'lab command should fail when lab extension is unavailable');
       assert(

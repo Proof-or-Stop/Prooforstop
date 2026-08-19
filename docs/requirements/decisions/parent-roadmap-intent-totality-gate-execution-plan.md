@@ -7,7 +7,7 @@ ProofStory-binding diagnostics, process-fact registration, and focused smoke
 coverage. B-e781 also closes the B-43de M4-M12 parent roadmap rows with local
 machine evidence and row-level claim boundaries: `parent_roadmap_status
 --storyId=B-43de --json` reports `allRowsClosed=true` and
-`summaryClass=full_roadmap_complete`. This remains a local Proofbound CLI
+`summaryClass=full_roadmap_complete`. This remains a local Proof-or-Stop CLI
 closure claim only. It does not make parent-roadmap status a global lifecycle
 hard gate, does not mint server-backed or production completion proof, and does
 not revive retired Authority completion semantics.
@@ -30,7 +30,7 @@ diagnostic surface and are not required for B-43de M4-M12 parent-row closure.
 | Read-only CLI commands | Implemented ✅ | `parent_roadmap_status` and `parent_roadmap_evaluate` are registered read-only commands in `command-policy.ts`, `command-catalog.ts`, `config.ts`, and `handlers/parent-roadmap.ts`. | Commands do not write story metadata, evidence, lifecycle phase, queue state, or production receipts. |
 | Process-fact / registry drift checks | Implemented ✅ | `process-fact-levels.ts`, `process-fact-registry.ts`, and `scripts/verify-process-fact-contract.mjs` register command and claim-consumer semantics. | Registry coverage is a contract check, not proof that unrelated roadmap children are done. |
 | Migration / rollout / repair automation | Partial / future | Built-in `migration` samples expose migration-needed or incomplete parent governance rows; the `B-43de` sample/evidence now represents bounded local M4-M12 closure. | Optional follow-up only. No bulk migration, repair command, or global enforce rollout is required for the B-e781 M4-M12 parent-row closure claim. |
-| Cross-track certification for the original roadmap | Implemented / closed ✅ | B-e781 closes B-43de M4-M12 parent rows with local machine evidence; `parent_roadmap_status --storyId=B-43de --json` reports `allRowsClosed=true` and `summaryClass=full_roadmap_complete`. | Closure is bounded to local Proofbound CLI evidence and per-row claim boundaries; it is not a global lifecycle hard gate, production claim, retired Authority completion claim, or external runtime conformance claim. |
+| Cross-track certification for the original roadmap | Implemented / closed ✅ | B-e781 closes B-43de M4-M12 parent rows with local machine evidence; `parent_roadmap_status --storyId=B-43de --json` reports `allRowsClosed=true` and `summaryClass=full_roadmap_complete`. | Closure is bounded to local Proof-or-Stop CLI evidence and per-row claim boundaries; it is not a global lifecycle hard gate, production claim, retired Authority completion claim, or external runtime conformance claim. |
 
 ## Problem Statement
 

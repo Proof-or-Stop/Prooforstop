@@ -2,7 +2,7 @@
 
 > Status: execution plan.
 > Date: 2026-06-29.
-> Scope: Proofbound story intake, PLAN, pre-DEV proof contract, red evidence,
+> Scope: Proof-or-Stop story intake, PLAN, pre-DEV proof contract, red evidence,
 > disposable spike evidence, verificationIntent, REVIEW critic, and DONE
 > evidence boundaries.
 
@@ -38,7 +38,7 @@ ProofStory contract are mechanically sufficient.
 
 ## Proof-Stop Loop Principle
 
-Proofbound should be proof-stop by default. Every lifecycle transition either
+Proof-or-Stop should be proof-or-stop by default. Every lifecycle transition either
 produces admissible proof for the next phase or stops and loops back to the
 earliest layer that owns the missing proof.
 
@@ -434,7 +434,7 @@ parent_ledger_rollup_set
 ```
 
 Those durable slice artifacts are bounded proof records, not an automatic
-scheduler. A too-broad ledger remains a proof-stop signal until a complete slice
+scheduler. A too-broad ledger remains a proof-or-stop signal until a complete slice
 plan and, when child stories are used, a parent roll-up prove coverage. Automatic
 child-story creation and parent DONE orchestration remain future Scheduler,
 Unattended, or Autopilot work.
@@ -1380,7 +1380,7 @@ Progressive hardening should roll out in the same order:
 
 ## Final Target
 
-Proofbound should present the lifecycle as:
+Proof-or-Stop should present the lifecycle as:
 
 ```text
 one-line request

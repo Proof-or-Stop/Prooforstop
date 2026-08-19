@@ -4,12 +4,12 @@
  *
  * Intercepts Codex file edits surfaced as apply_patch before they execute.
  * Codex hook input reports tool_name="apply_patch" and stores the patch command
- * in tool_input.command. The hook delegates policy to lattice prewrite_guard_check.
+ * in tool_input.command. The hook delegates policy to proof-or-stop prewrite_guard_check.
  *
  * Exit 0  -> pass (tool proceeds)
  * Exit 2  -> block (Codex rejects the supported tool call; reason on stderr)
  *
- * Graceful degradation: if this hook cannot find or run the Lattice CLI, it
+ * Graceful degradation: if this hook cannot find or run the Proof-or-Stop CLI, it
  * passes through rather than trapping the host in a broken local hook.
  */
 'use strict';
@@ -88,8 +88,7 @@ function findRepoRoot(start) {
   let dir = path.resolve(String(start || process.cwd()));
   for (let i = 0; i < 20; i++) {
     if (
-      fs.existsSync(path.join(dir, '.koala')) ||
-      fs.existsSync(path.join(dir, '.Lattice')) ||
+      fs.existsSync(path.join(dir, '.lattice')) ||
       fs.existsSync(path.join(dir, '.lattice-codex')) ||
       fs.existsSync(path.join(dir, '.codex')) ||
       fs.existsSync(path.join(dir, 'lattice.config.json')) ||
@@ -103,21 +102,28 @@ function findRepoRoot(start) {
 }
 
 function resolveCli(root) {
+  // Canonical entrypoints first, deprecated aliases as fallback (B-cdf6): a project
+  // generated before the rename only has bin/lattice.js, and a globally installed
+  // package built before the rename only exposes the `lattice` bin.
   const jsCandidates = [
     path.join(root, 'packages', 'main', 'dist', 'cli.js'),
     path.join(root, 'node_modules', '@lattice', 'core', 'dist', 'cli.js'),
+    path.join(root, 'bin', 'proof-or-stop.js'),
     path.join(root, 'bin', 'lattice.js'),
   ];
   for (const candidate of jsCandidates) {
     if (fs.existsSync(candidate)) return { command: process.execPath, args: [candidate] };
   }
 
-  const found = spawnSync('sh', ['-lc', 'command -v lattice'], {
-    cwd: root,
-    encoding: 'utf8',
-    timeout: 2000,
-    stdio: ['pipe', 'pipe', 'pipe'],
-  });
-  const command = String(found.stdout || '').split(/\r?\n/).find(Boolean);
-  return command ? { command, args: [] } : null;
+  for (const bin of ['proof-or-stop', 'lattice']) {
+    const found = spawnSync('sh', ['-lc', 'command -v ' + bin], {
+      cwd: root,
+      encoding: 'utf8',
+      timeout: 2000,
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+    const command = String(found.stdout || '').split(/\r?\n/).find(Boolean);
+    if (command) return { command, args: [] };
+  }
+  return null;
 }

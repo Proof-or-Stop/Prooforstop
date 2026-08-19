@@ -48,6 +48,7 @@ import {
 } from './record.js';
 import { appendUsageRecord, isUsageLedgerEnabled } from './writer.js';
 import { ownProp, toOwnPropsNullProto } from './sanitize.js';
+import { readBrandEnv } from '../brand-env.js';
 
 /**
  * B-6878 (F-006 fix): the Anthropic token keys extractAnthropicUsage reads off a
@@ -1062,7 +1063,7 @@ function parsePositiveIntegerBudget(raw: string | undefined): number | null {
  */
 export function resolveHardBudget(env: NodeJS.ProcessEnv | undefined): ResolvedHardBudget | null {
   const source = env ?? process.env;
-  const hardBudgetTokens = parsePositiveIntegerBudget(source.LATTICE_HARD_BUDGET_TOKENS);
+  const hardBudgetTokens = parsePositiveIntegerBudget(readBrandEnv('HARD_BUDGET_TOKENS', source));
   if (hardBudgetTokens === null) return null;
   return {
     hardBudgetTokens,

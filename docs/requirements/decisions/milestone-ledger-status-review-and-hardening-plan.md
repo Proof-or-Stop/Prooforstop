@@ -7,10 +7,10 @@ Primary review target: ProofStory milestone ledger and read-only milestone statu
 
 ## Purpose
 
-Review and harden the existing Proofbound milestone-ledger flow before opening
+Review and harden the existing Proof-or-Stop milestone-ledger flow before opening
 any broader implementation work.
 
-The canonical Proofbound root already contains milestone-ledger and milestone
+The canonical Proof-or-Stop root already contains milestone-ledger and milestone
 status surfaces:
 
 - `milestone_ledger_set`
@@ -96,7 +96,7 @@ Sub-objectives:
 
 | ID | Sub-objective | Status | Evidence needed |
 |---|---|---|---|
-| M0.a | Confirm this review uses the canonical Proofbound root, not the retired Orchestrate root. | reviewed-pass | `lattice session_brief` output |
+| M0.a | Confirm this review uses the canonical Proof-or-Stop root, not the retired Orchestrate root. | reviewed-pass | `proof-or-stop session_brief` output |
 | M0.b | Inventory command surfaces for milestone ledger and status. | reviewed-pass | `rg` transcript |
 | M0.c | Inventory source docs that define ProofStory milestone behavior. | reviewed-pass | doc refs |
 | M0.d | Inventory existing tests or smokes covering milestone ledger/status. | reviewed-pass | test refs |

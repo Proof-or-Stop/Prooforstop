@@ -355,24 +355,64 @@ const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   // B-f458: repinned after an internal transcript-path constant rename; the
   // legacy compatibility symbols, approved call shapes, and occurrence counts above are unchanged.
   ['packages/main/src/handlers/delivery-context-pack.ts', '51af0fd5730add5aeff160f50c83b7dd70d2e5cdcfa0430e58acf4058acfb844'],
-  // B-a7c5 F-010: repinned after adding a satisfying dev_memory_finish_decision
+  // B-235e: repinned after closeout fixtures began hashing the frozen legacy
+  // role body instead of an empty prompt. Approved compatibility calls and
+  // occurrence counts remain mechanically checked by the manifest above.
+  // B-a7c5 F-010: repinned again after adding a satisfying dev_memory_finish_decision
   // write to the 'B-receipt' fixture (CHK-003's new DONE-gate check runs before
   // the review_lane_missing diagnostic this file exists to test). No approved
   // call shape or occurrence count changed; the whole-file structural
   // fingerprint just moves with any source edit to this file.
-  ['packages/main/src/tasks/closeout-trust-smoke.ts', 'f41c10356d737d3ea83dcdf1fb05589aa6c08de546380902ff1205ee308af2bc'],
-  // B-6693: repinned after direct validate joined the structured watchdog while
-  // DONE-result classification remained separate. The approved non-literal
-  // loader still has the same runCli anchor, cli-init initPath producer, and
-  // import(`file://${initPath}`) call site. The relocation, producer mutation,
+  ['packages/main/src/tasks/closeout-trust-smoke.ts', 'adb4b265eb726c0919808d3f99b191f646ac88b4f0f2c30bd904a6938a14d932'],
+  // B-1507 CHK-001: repinned after verification_run was added to
+  // MILESTONE_STATUS_APPEND_COMMANDS in cli-engine.ts. The approved non-literal
+  // loader call site (runCli → import(`file://${initPath}`)) is unchanged; this
+  // whole-file structural fingerprint gates both that call-site approval and the
+  // pinned-source drift check, so it moves with any cli-engine.ts edit.
+  // B-cdf6 CHK-002: repinned after the user-facing bin rename made the CLI's own
+  // hint/error strings derive from the invoked bin token (proof-or-stop, with
+  // lattice kept as a deprecated alias). Only string interpolation and the
+  // redundant-bin-token tolerance changed; the approved non-literal loader call
+  // site above is untouched, and no new dynamic load was introduced.
+  // B-cdf6:F-057 — REPINNED, and the guard was right to fail. This fingerprint covers
+  // the WHOLE file by design, so any edit invalidates the approved non-literal loader
+  // call site until a human re-approves it. Commit 8f42f1113e (F-047) changed one
+  // string in this file (`lattice: from-draft metadata` -> canonical) and the pin was
+  // not refreshed, so the smoke went red on this branch while passing on main.
+  //
+  // Re-approval basis, checked before repinning rather than after: `git diff main...HEAD`
+  // on cli-engine.ts touches ZERO import()/require() calls, arguments, or path
+  // producers — every change is a brand string, an env read routed through
+  // readBrandEnv, or the bin-name check. The approved call site itself
+  // (anchor runCli, argument `file://${initPath}`) is byte-identical to main, so the
+  // loader behaviour being approved is unchanged.
+  // Repinned again by commit 32a083b987 (delivery-review follow-up), which added a
+  // BRAND_ENV_PREFIX import and rewrote ONE diagnostic string so the timeout-budget
+  // line stops teaching the deprecated env-var name. Re-approval basis, checked
+  // before repinning rather than after: `git diff main...HEAD` on cli-engine.ts still
+  // touches ZERO import()/require() calls, arguments, or path producers, and the
+  // approved call site itself (anchor runCli, `await import(\`file://${initPath}\`)`,
+  // with its initPath producer) is byte-identical to main — only its line number moved
+  // (807 -> 812). The loader behaviour being approved is therefore unchanged; the digest
+  // moved solely because this algorithm fingerprints the whole enclosing file.
+  // B-6693 (merged in): repinned again after direct validate joined the structured
+  // watchdog while DONE-result classification remained separate. The approved
+  // non-literal loader still has the same runCli anchor, cli-init initPath producer,
+  // and import(`file://${initPath}`) call site. The relocation, producer mutation,
   // nested-anchor, and loader-replacement controls below still make this pin bite.
-  // The approved non-literal loader call site (runCli → import(`file://${initPath}`))
-  // is unchanged; this whole-file structural fingerprint gates both that call-site
-  // approval and the pinned-source drift check, so it moves with any cli-engine.ts
-  // edit (same precedent as the B-1507 repin above).
-  ['packages/main/src/cli-engine.ts', 'c38c8402e4ae4a4ab38fe3dfeb69a99461c4a528ffbf76a1313c53b1912c8754'],
-  ['packages/main/src/verifier/serve.ts', '20149fa438b1ec78fc9c9713eb3cc4a890bc58a1d82e7a5fa0d588e9c4e7ee91'],
-  ['packages/main/src/tasks/parent-roadmap-totality-smoke.ts', '518890b58fd8e369488721d66d954f9589a049a42066635f42c057227788ae45'],
+  //
+  // Repinned once more when main was merged into the B-cdf6 rename branch: the merged
+  // file carries both sides, so its digest matched neither parent's pin. Re-approval
+  // basis, checked before repinning rather than after: the complete dynamic-load surface
+  // is byte-identical across ours, theirs, and the merge — exactly two calls,
+  // `await import('./dashboard.js')` and `await import(`file://${initPath}`)`, with the
+  // same initPath producer and the same runCli anchor. No import()/require() call,
+  // argument, or path producer was added, removed, or rewritten; only the approved call
+  // site's line number moved (809/814 -> 814). As always, BOTH coupled copies of this
+  // digest (here and in scripts/verify-process-fact-contract.mjs) were updated together.
+  ['packages/main/src/cli-engine.ts', 'dd11e51a1c4a87b78a9bd5fed12d46fb9eb32c900ca311b9b809d843b553fa79'],
+  ['packages/main/src/verifier/serve.ts', '03a8ffa356ad17e46e04ad5622fa7a49d4f08528fdd8d9525b6cc2add5bba527'],
+  ['packages/main/src/tasks/parent-roadmap-totality-smoke.ts', '5a263419aa715dfec4d45e35a81b887c8aafb2c57344f5b4b9d8de284ce1503e'],
   ['packages/main/src/tasks/experience-layer-digest-extract-smoke.ts', 'f215f9c4e894a84ba7e2e844324902fcd2dec1e208e4259d64e2c447f1c85a83'],
 ]);
 
@@ -389,7 +429,11 @@ const DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS = new Map<string, string>([
   // dynamically-imported dist entry points bootstrap-runner has always invoked; the
   // refactor added NO eval/Function/new dynamic import(). Whole-source exemption pinned to
   // the exact post-refactor fingerprint — any drift re-triggers the full dynamic-code scan.
-  ['bin/bootstrap-runner.js', 'c39177affce4001d9790296d2a4e15a4c2cd6669ed625e9a6a6dbff3f934c3cf'],
+  // Repinned when main was merged into the B-cdf6 rename branch: the merged file is that
+  // same post-refactor source plus exactly three brand-text lines (two console.error
+  // strings and one comment), verified by diffing against the MERGE_HEAD copy. No
+  // eval/Function/require/import() was added, so this exemption's basis is unchanged.
+  ['bin/bootstrap-runner.js', '34f3b6ba8d8e2f8150e0b2fce0c8d2813f7638998a1697a429a13a934a8f7659'],
 ]);
 const DYNAMIC_CODE_ANALYSIS_PREFILTER = /(?:\beval\w*|\bFunction\b|\bconstructor\b|\brunIn(?:Context|NewContext|ThisContext)\b|\bcompileFunction\b|\bSourceTextModule\b|\bSyntheticModule\b|\brequire\s*(?:\(|\.|\b)|\bimport\s*\()/;
 const DYNAMIC_PROVENANCE_REACHABILITY_LABELS = new Set([
@@ -1434,19 +1478,43 @@ const knownBenignNonLiteralLoaderCalls = new Map<string, {
       { anchor: 'runLocalBootstrap', argument: "pathToFileURL(join(repoRoot, 'packages', 'main', 'dist', 'core', 'zod.js')).href" },
     ],
   }],
-  ['bin/lattice-codex.js', {
-    calls: [{ anchor: 'main', argument: 'pathToFileURL(localLattice).href' }],
+  // B-cdf6: the canonical Codex entrypoint moved to bin/proof-or-stop-codex.js, and it now
+  // probes a LIST of sibling bootstrap wrappers (canonical first, deprecated alias as
+  // fallback) instead of a single hardcoded one — so the loader argument changed from
+  // `localLattice` to the loop variable `candidate`. Same benign class: resolving a sibling
+  // dist path at runtime is inherent to a bootstrap wrapper. bin/lattice-codex.js is now a
+  // thin delegating alias with no loader of its own, so only the canonical file is listed.
+  ['bin/proof-or-stop-codex.js', {
+    calls: [{ anchor: 'main', argument: 'pathToFileURL(candidate).href' }],
   }],
 ]);
 
 const BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS = new Map<string, string>([
-  // B-1734: repinned after the build-aware importDistModules() wait loop was added to
-  // bin/bootstrap-runner.js (F-003/C4). The four approved non-literal dist loader call
-  // sites are unchanged in shape (MAIN_DIST/UTILS_DIST relocated into importDistModules,
-  // LAB_DIST/zod still in runLocalBootstrap); this whole-file structural fingerprint gates
-  // that call-site allowlist, so it moves with any edit to this security-sensitive entry.
-  ['bin/bootstrap-runner.js', 'c39177affce4001d9790296d2a4e15a4c2cd6669ed625e9a6a6dbff3f934c3cf'],
-  ['bin/lattice-codex.js', '4df693798fca7584fd2666249134120b891d6336ff433768891b5ed6483da1b8'],
+  // B-cdf6: both local bin wrappers must resolve a sibling dist path at runtime, so the
+  // import specifier cannot be a literal — that is inherent to a bootstrap wrapper, not a
+  // new risk class. Re-pinned this story because bootstrap-runner learned to resolve BOTH
+  // bin names (canonical proof-or-stop + the retained lattice alias), and because the
+  // canonical Codex entrypoint moved to bin/proof-or-stop-codex.js. The deprecated
+  // bin/lattice-codex.js delegates to it and holds no loader of its own, so the canonical
+  // file is what must be pinned here.
+  // B-1734 (merged in): repinned again after the build-aware importDistModules() wait loop
+  // was added to bin/bootstrap-runner.js (F-003/C4). The four approved non-literal dist
+  // loader call sites are unchanged in shape (MAIN_DIST/UTILS_DIST relocated into
+  // importDistModules, LAB_DIST/zod still in runLocalBootstrap); this whole-file structural
+  // fingerprint gates that call-site allowlist, so it moves with any edit to this
+  // security-sensitive entry.
+  //
+  // Repinned when main was merged into the B-cdf6 rename branch: the merged file carries
+  // BOTH sides (theirs' importDistModules() wait loop + our three brand strings), so its
+  // digest matched neither parent's pin. Re-approval basis, checked before repinning:
+  // `diff` of the merged file against the MERGE_HEAD copy is exactly three lines, all of
+  // them console.error/comment brand text (Lattice -> Proof-or-Stop, `lattice
+  // session_brief` -> `proof-or-stop session_brief`). The four approved non-literal dist
+  // loader call sites (MAIN_DIST/UTILS_DIST inside importDistModules, LAB_DIST/zod in
+  // runLocalBootstrap) are byte-identical to that copy, including their path producers —
+  // no import()/require() call, argument, or producer was added, moved, or rewritten.
+  ['bin/bootstrap-runner.js', '34f3b6ba8d8e2f8150e0b2fce0c8d2813f7638998a1697a429a13a934a8f7659'],
+  ['bin/proof-or-stop-codex.js', 'd03acdc43d743f67f80bb5194205c48dbeb44676580a6b3cbcc1d3e411ed65ec'],
 ]);
 
 function enclosingFunctionName(node: ts.Node): string | undefined {

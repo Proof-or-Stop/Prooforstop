@@ -35,6 +35,7 @@ import { createHash } from 'node:crypto';
 import { join } from 'node:path';
 import type { StoryStore } from './store.js';
 import { isCanonicalStoryId } from './lifecycle-registry.js';
+import { readBrandEnv } from './brand-env.js';
 
 // ── Thresholds + env resolver ────────────────────────────────────────────────
 
@@ -70,11 +71,11 @@ export const DEFAULT_CONVERGENCE_THRESHOLDS: ConvergenceThresholds = {
 };
 
 export const CONVERGENCE_ENV = {
-  maxAdvance: 'LATTICE_CONVERGENCE_MAX_ADVANCE',
-  maxTakeover: 'LATTICE_CONVERGENCE_MAX_TAKEOVER',
-  minPassRate: 'LATTICE_CONVERGENCE_MIN_PASS_RATE',
-  minSample: 'LATTICE_CONVERGENCE_MIN_SAMPLE',
-  maxGateRepeat: 'LATTICE_CONVERGENCE_MAX_GATE_REPEAT',
+  maxAdvance: 'PROOF_OR_STOP_CONVERGENCE_MAX_ADVANCE',
+  maxTakeover: 'PROOF_OR_STOP_CONVERGENCE_MAX_TAKEOVER',
+  minPassRate: 'PROOF_OR_STOP_CONVERGENCE_MIN_PASS_RATE',
+  minSample: 'PROOF_OR_STOP_CONVERGENCE_MIN_SAMPLE',
+  maxGateRepeat: 'PROOF_OR_STOP_CONVERGENCE_MAX_GATE_REPEAT',
 } as const;
 
 /** Per-variable sanity ceilings (values above these are typos, not thresholds). */
@@ -99,7 +100,7 @@ function envNumber(
   fallback: number,
   opts: { allowZero?: boolean; max: number },
 ): number {
-  const raw = env[key];
+  const raw = readBrandEnv(key, env);
   if (raw === undefined) return fallback;
   const trimmed = raw.trim();
   if (trimmed.length === 0) return fallback;
@@ -371,9 +372,9 @@ export function isInteractiveAckAllowed(
   env: Record<string, string | undefined>,
   isTTY: boolean | undefined,
 ): boolean {
-  if (truthyEnv(env.LATTICE_AUTOPILOT)) return false;
+  if (truthyEnv(readBrandEnv('AUTOPILOT', env))) return false;
   if (truthyEnv(env.CI)) return false;
-  if (truthyEnv(env.LATTICE_NON_INTERACTIVE)) return false;
+  if (truthyEnv(readBrandEnv('NON_INTERACTIVE', env))) return false;
   return isTTY === true;
 }
 
@@ -393,8 +394,8 @@ export function renderBreakerFreeze(storyId: string, reasons: string[]): string 
     `one automatic recovery, so story_advance is hard-blocked until a human reviews it. ` +
     `Tripped counters: ${list}. ` +
     `This is the hard brake that the B-f458 14-hour burn lacked. ` +
-    `Next action (a human, not an autopilot session): run \`lattice done_prepare --dryRun --storyId=${storyId}\` to see the real blocker, ` +
-    `then \`lattice story_resume --storyId=${storyId} --ack --reason="<why it is safe to continue>"\` to clear the freeze. ` +
+    `Next action (a human, not an autopilot session): run \`proof-or-stop done_prepare --dryRun --storyId=${storyId}\` to see the real blocker, ` +
+    `then \`proof-or-stop story_resume --storyId=${storyId} --ack --reason="<why it is safe to continue>"\` to clear the freeze. ` +
     `The ack is refused under autopilot / non-interactive sessions.`
   );
 }

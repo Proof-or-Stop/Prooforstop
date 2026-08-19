@@ -49,7 +49,7 @@ export interface ChannelCheckResult {
    * F-003 (B-fdcf Round 1): evidence source label, used by renderChannelResult to output
    * the `all CHK covered (via <source>)` phrase promised by userSees.
    * - 'subagent_result' — all via Agent() direct dispatch path (subagent_result events)
-   * - 'dispatch'        — all via lattice dispatch (dispatch events)
+   * - 'dispatch'        — all via proof-or-stop dispatch (dispatch events)
    * - 'dispatch + subagent_result' — mixed
    * - 'commit_author' — commit author=lattice-implementer as a signal of direct Agent execution
    * Set only when status=pass and evidencedItems exists; undefined for pure waiver / no-commit scenarios.
@@ -175,8 +175,16 @@ export function isStoryMetadataPath(file: string): boolean {
   return isSharedStoryMetadataPath(file);
 }
 
+// B-cdf6:F-053 — READ-BOTH, and this one gates a transition. This matched only the
+// DEPRECATED subject prefix, so once F-047/F-049 renamed the writers, a legitimate
+// metadata-only auto-commit written under the canonical prefix was misclassified as a
+// channel offender by the validate --channel REVIEW->TEST gate (via isAcceptableCommit
+// -> the offenders filter). Demonstrated on this repo's own log: the subject
+// "proof-or-stop: record B-cdf6 validate metadata" returned false while the old form
+// returned true. Both prefixes are accepted now — the deprecated one deliberately, so
+// pre-rename history keeps classifying correctly.
 export function isMetadataOnlyLatticeCommit(c: Pick<ChannelOffender, 'subject' | 'files'>): boolean {
-  return /^\s*lattice:/.test(c.subject)
+  return /^\s*(?:proof-or-stop|lattice):/.test(c.subject)
     && Array.isArray(c.files)
     && c.files.length > 0
     && c.files.every(isStoryMetadataPath);
@@ -645,7 +653,7 @@ export function checkCommitAuthor(
 }
 
 /**
- * B-9d95 CHK-006: CLI entry for `lattice validate --channel`.
+ * B-9d95 CHK-006: CLI entry for `proof-or-stop validate --channel`.
  *
  * Does not spawn pytest / does not run full validate.ts—directly calls checkCommitAuthor, emitting
  * structured result + human-readable render. Used as an independent branch in REVIEW→TEST preflight.

@@ -180,7 +180,7 @@ async function main() {
         `fresh-checkout bootstrap must NOT crash on proper-lockfile at module-init:\n${res.out.slice(0, 600)}`,
       );
       assert.ok(
-        /lattice local bootstrap is not ready/i.test(res.out) && /Recovery:/i.test(res.out),
+        /(?:lattice|proof-or-stop) local bootstrap is not ready/i.test(res.out) && /Recovery:/i.test(res.out),
         `fresh-checkout bootstrap must print the recovery hint:\n${res.out.slice(0, 600)}`,
       );
       console.log('VI-OK C3:depfree:2');

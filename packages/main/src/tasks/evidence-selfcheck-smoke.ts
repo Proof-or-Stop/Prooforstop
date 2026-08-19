@@ -110,7 +110,7 @@ await expectAccepted({ command: 'node packages/main/dist/tasks/convergence-break
 // happy:2 — no-stem command + any file accepted.
 await expectAccepted({ command: 'npm test', file: 'packages/main/src/tasks/foo.ts' }, 'happy:2 npm test no-stem');
 // edge:0 — command with no file-like argument at all accepted.
-await expectAccepted({ command: 'lattice validate', file: 'some-file.ts' }, 'edge:0 lattice validate no file-arg');
+await expectAccepted({ command: 'proof-or-stop validate', file: 'some-file.ts' }, 'edge:0 proof-or-stop validate no file-arg');
 // edge:1 — command present, file absent accepted.
 await expectAccepted({ command: 'node packages/main/dist/tasks/foo.js', file: undefined }, 'edge:1 command only');
 // edge:2 — file present, command absent accepted.

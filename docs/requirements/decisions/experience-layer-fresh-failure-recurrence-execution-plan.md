@@ -202,9 +202,9 @@ before the split is drawn.
 
 Only failure classes that reproduce deterministically survive. The filter
 uses the existing repro-first machinery (all commands verified against
-`lattice --help` / `lattice repro_probe --help`, CLI 0.3.153):
+`proof-or-stop --help` / `proof-or-stop repro_probe --help`, CLI 0.3.153):
 
-- `lattice repro_probe` — record the candidate reproducer: `commandSpec`
+- `proof-or-stop repro_probe` — record the candidate reproducer: `commandSpec`
   (command, args, env, cwd), `expectedFailure`, `expectedFailurePattern`
   (substring/regex matched against observed output), `executionStatus`
   (`not_run|run_attempted|confirmed_failing`), `producerObservedClass`
@@ -212,11 +212,11 @@ uses the existing repro-first machinery (all commands verified against
   `observedFailureSummary`, `boundedOutputExcerpt`, plus optional
   `baselineHeadHash` / `materialHash`. Repro probes are evidence-candidate
   scope, NOT production/DONE evidence — consistent with the claim boundary.
-- `lattice repro_probe_get` — retrieve a probe by id for audit.
-- `lattice repro_review_set` — record an independent review verdict on the
+- `proof-or-stop repro_probe_get` — retrieve a probe by id for audit.
+- `proof-or-stop repro_review_set` — record an independent review verdict on the
   probe (the probe author does not self-accept).
-- `lattice spike_record` — attach investigation notes linked to a probe.
-- `lattice story_create_from_repro` — available for follow-up fix stories;
+- `proof-or-stop spike_record` — attach investigation notes linked to a probe.
+- `proof-or-stop story_create_from_repro` — available for follow-up fix stories;
   NOT used inside the study (fixing a harvested mode mid-study would destroy
   its recurrence signal — see stopping rules).
 
@@ -829,7 +829,7 @@ chain; only genuinely new pieces are built.
 
 | Milestone | Goal | Reuses (rev 2 instruments) | Exit criteria |
 |---|---|---|---|
-| R1 Harvester + repro filter | Harvest ledger of fresh failure classes from findings-corpus mining + harvest campaign (isolated roots); repro-first filter applied. | `lattice repro_probe` / `repro_probe_get` / `repro_review_set` / `spike_record` intake chain; `finding-signals.json` / `signature-registry.json` corpora; recovery-runner task families as campaign substrate; section 6.6 isolation contract for campaign runs. | >= K_min = 40 classes with 3-of-3 pinned-model confirmed reproducers, each carrying a reviewed repro_probe artifact, within the pre-registered harvest budget (500 harvest-phase host runs / 21 days); harvest ledger frozen (hashed) with discard reasons and budget accounting recorded; harvest target 60 (stretch 66-70 for the bottom of the MDE band) pursued while the harvest budget allows. |
+| R1 Harvester + repro filter | Harvest ledger of fresh failure classes from findings-corpus mining + harvest campaign (isolated roots); repro-first filter applied. | `proof-or-stop repro_probe` / `repro_probe_get` / `repro_review_set` / `spike_record` intake chain; `finding-signals.json` / `signature-registry.json` corpora; recovery-runner task families as campaign substrate; section 6.6 isolation contract for campaign runs. | >= K_min = 40 classes with 3-of-3 pinned-model confirmed reproducers, each carrying a reviewed repro_probe artifact, within the pre-registered harvest budget (500 harvest-phase host runs / 21 days); harvest ledger frozen (hashed) with discard reasons and budget accounting recorded; harvest target 60 (stretch 66-70 for the bottom of the MDE band) pursued while the harvest budget allows. |
 | R2 Lessonizer + protocol freeze (lessons, allowlist, pin, seeds) | All classes lessonized to the study-local root; lesson set, similarity allowlist, model/host-stack pin, and seeds frozen BEFORE any variant exists. | dev-memory `validateEntry` / playbook schema contracts; `protocol.mjs` freeze + `hashDirectorySnapshot`. | All lessons pass validateEntry and live in the study-local root; lesson-set hash frozen BEFORE variant generation; similarity allowlist frozen under its mechanical admission rule (section 6.5 item 7); hostModelId (fully-qualified dated snapshot id — aliases refused) + hostCliVersion + hostCmdHash frozen; calibration, coverage, and analysis bootstrap seeds committed; host auto-update disabled and recorded. |
 | R3 Variant generator + audits + sealed split + snapshot | Perturbed-surface variants (indices 0-13) with ported hidden oracles; extended audit passing; THEN stratified split sealed and in-store-only snapshot built. | `fixture-generator.mjs` corpus layout, seeded determinism, reference-good/bad overlays; `leakage-audit.mjs` + LEAKAGE_STRIP_LIST semantics (per-class content derived per section 6.5 item 6); `pair-ledger.mjs` seeded-PRNG pattern for the split draw; `snapshot-builder.mjs` (lesson table adapted; disjointness generalized). | Byte-identical corpus on same seed; generator-manifest.json records input hashes with no lesson file among them; every oracle fires on reference-bad and passes reference-good; acceptance.mjs exits 0 on BOTH overlays (format-only proof); strip-list (per-class derivation + non-empty selfcheck) + all similarity checks (section 6.5) pass over ALL (lesson, variant) pairs; allowlist ∩ answer-denylist empty; THEN the source/family-stratified split drawn and sealed and the snapshot built — all three section 6.3 disjointness assertions pass; memorySnapshotHash + quarantined held-out lesson hash frozen. |
 | R4 Calibration mini-pilot + N freeze | Per-class band gate at n_cal = 8; nuisance-parameter estimation; coverage simulation; m/MDE freeze or refusal. | `run-pilot.mjs` campaign runner (isolation, snapshot materialization, prelude, resume) with the two section 6.6 deltas; `score.mjs` scorer with the model/CLI-version void delta; `sample-size.mjs` wilson95 + pilotFreezeCheck discipline (adapted per section 7.5). | Calibration report with per-class p-hat_c baselines, band decisions, attrition compared against the section 6.2 model; coverage-check.json with the frozen CI method (>= 93% realized coverage or refusal); n-freeze.json frozen (or refused -> honest stop) including the freeze_mde_exceeds_achievable_did check; >= 13 surviving classes per split; budget check against the 2,000 arm-run cap recorded (accounting includes dropped classes and retries). |

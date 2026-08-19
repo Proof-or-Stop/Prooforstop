@@ -1,0 +1,70 @@
+{
+  "storyId": "B-3434",
+  "checkedAt": "2026-08-18T12:48:29.697Z",
+  "headHash": "7936cd033e511702a946e84ce91a52e2320db35a",
+  "materialHash": "188e365b7d8448ab880341cef366b4c1ffbee6bbfd1e7fc67be055056ba3ea58",
+  "storyFilesHash": "33e83546c3e0678311af8c328be9dff1f7e3ba2a92e7cf09edd52da7e1ec39b5",
+  "reviewRound": "2026-08-18T12:34:40.850Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+      "promise": "CHK-004 shipped as outcome B: a committed rationale naming a concrete successor change (writer-owned canonical boundary in core/store.ts), not a plan paragraph or commit message, with a deferred-findings table naming real finding IDs.",
+      "verifiedBy": "read/diff",
+      "evidence": "File is committed (git ls-files shows it tracked; added by commit a586100e89 CHK-004 and extended by 2717839123, cd7372f15c). Contains sections 'What ships' / 'What does not ship' / 'The named change that will address it' naming a concrete component (measureCanonicalBytes(data): number in core/store.ts). Deferred findings table names B-3434:F-033, F-035, F-036, F-037, all of which exist verbatim in .lattice/story/actives/B-3434/findings.json (56 findings total, F-001..F-056)."
+    },
+    {
+      "docPath": "packages/main/src/core/done-prepare-generated-metadata.ts",
+      "promise": "Every execFileSync blob/tree read site passes METADATA_BLOB_READ_MAX_BUFFER_BYTES (33554432 = 32*1024*1024) as maxBuffer, and bare catches that swallowed ENOBUFS are replaced by typed results distinguishing absent from unreadable.",
+      "verifiedBy": "grep + read",
+      "evidence": "grep -n execFileSync found exactly 10 real call sites (line 15 is a doc comment, not a call); all 10 (git/gitRaw/restoreIndexEntries x2/isolatedGit/isolatedBlobHash/treeBlobHash/runCommitHook/optionalGitConfig/updateRealIndexFromTree) carry maxBuffer: METADATA_BLOB_READ_MAX_BUFFER_BYTES, matching the story summary's 'all ten git read sites' claim exactly. isolatedBlobHash/treeBlobHash return MetadataBlobRead ({ok:true,hash} | {ok:false,kind:'absent'|'unreadable',error}) via classifyMetadataBlobReadFailure, which distinguishes a genuine git 'path does not exist' fatal from any other (ENOBUFS/EPERM/etc.) failure code."
+    },
+    {
+      "docPath": "packages/main/src/core/validation-executor.ts",
+      "promise": "boundPersistedValidationEvidence exists and bounds the persisted validation-evidence artifact by measuring the actual serialised record (not an estimate), returning {record, fileBytes, withinBound, disposition, state}.",
+      "verifiedBy": "grep + read",
+      "evidence": "boundPersistedValidationEvidence<T>(args) implemented at core/validation-executor.ts:758+, single exit finish() forces record:null to withinBound:false/disposition:'refused'; drives staged reduction (unmodified/reduced/verdict_only/refused) against measureWith(), which serialises via buildRecord and snapshots via snapshotPersistedRecord."
+    },
+    {
+      "docPath": "packages/main/src/handlers/verifier.ts",
+      "promise": "All three evidence write sites (reuse path, non-git FAIL fallback, executed git path) call writeTestEvidence only when withinBound is true and record is non-null; each refuses to write and returns a structured failure otherwise.",
+      "verifiedBy": "grep + read",
+      "evidence": "Exactly 3 writeTestEvidence call sites (lines 764, 965, 990), each immediately preceded by `if (!xBound.withinBound || xBound.record === null) { return persistenceFailure/externalResult(...) }` (reusedBound at 747/764, fallbackBound at 959/965, persistedBound at 981/990). No unguarded write site exists."
+    },
+    {
+      "docPath": "lattice.config.json",
+      "promise": "Both regression harnesses (red-b3434-blob-buffer-ceiling.mjs and validation-evidence-buffer-smoke) are registered in validate.commands, not merely present as files, so 'the regression passes' and 'the regression is wired into the suite' are the same claim.",
+      "verifiedBy": "grep + direct execution",
+      "evidence": "Both commands present in validate.commands array (index 13 and 82 of 105 total commands, confirmed programmatically via json.load). Ran both directly: `node packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs` exit 0, PASS; `node packages/main/dist/tasks/validation-evidence-buffer-smoke.js` exit 0, PASS (dist mtime Aug18 13:15 postdates src mtime Aug17 15:53, so dist is not stale)."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "node packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs -> exit 0. Asserts: 1,400,000-byte and 1,048,577-byte staged blobs commit successfully; isolatedBlobHash/isolatedGit/treeBlobHash each pass maxBuffer; over-ceiling read (34,554,432 bytes) reports ceiling+captured-size diagnostic, never blob content; pre-fix helper (embedded verbatim) returns null on the same fixture the shipped helper reads, proving this is a genuine regression harness against the old defect."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Same red harness: 'an unreadable blob during the commit path never reports \"verified metadata changed\"' and 'an absent blob and an unreadable blob are distinct, diagnostic, and never compare equal' both pass, confirming the typed-result classification (classifyMetadataBlobReadFailure) replaced the bare-catch-returns-null defect."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Registration verified directly in lattice.config.json validate.commands (not just file presence); executed and PASS as above."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "node packages/main/dist/tasks/validation-evidence-buffer-smoke.js -> exit 0, includes explicit self-check line: 'CHK-004 disposition observed: outcome B shipped - the reduction is wired into both evidence write paths, and the deferred guarantee is recorded in a committed rationale; rationale=docs/requirements/decisions/validation-evidence-artifact-growth.md bytes=18205 findingIdsNamed=B-3434:F-001,B-3434:F-033,B-3434:F-034,B-3434:F-035,B-3434:F-036,B-3434:F-037'. Cross-checked the file directly: committed, tracked, deferred table names real finding IDs present in findings.json."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "Same smoke run: 'advisory names measured size and limit and cannot be read as a failure' (fileBytes=22676844 state=advisory) and 'advisory is log-only and bounding never mutates the caller result or its verdict' both pass."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 5 reverse-scanned claims verified directly against code at HEAD (not against the summary's prose): 10/10 execFileSync sites carry the 33554432-byte maxBuffer with typed absent/unreadable results; boundPersistedValidationEvidence exists and all 3 verifier.ts write sites are refusal-gated; the CHK-004 rationale doc is committed with real finding IDs and a concrete named successor; both regression harnesses are registered in validate.commands (not just present) and both exit 0 when run directly; the story's own limitations section honestly discloses that the measured byte count is not proven equal to StoryStore's written bytes, without softening the claim."
+  },
+  "_hash": "83b8155669f3d93cb4e18e5feb4eea618d4cecd18619a4236f6ee5f5f4734962"
+}

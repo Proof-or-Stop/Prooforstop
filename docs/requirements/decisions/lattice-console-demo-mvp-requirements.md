@@ -1,4 +1,4 @@
-# Proofbound Console Demo MVP Requirements Recommendation
+# Proof-or-Stop Console Demo MVP Requirements Recommendation
 
 > Status: proposal for Story B-0414
 > Date: 2026-06-16
@@ -8,11 +8,11 @@
 
 ## 1. Purpose
 
-The static prototype already shows the right product shape: a Proofbound monitor with Overview, Active Stories, DONE Pre-check, Bugs and Findings, Hosts and Runtimes, Trajectory / Truth, and Authority Status.
+The static prototype already shows the right product shape: a Proof-or-Stop monitor with Overview, Active Stories, DONE Pre-check, Bugs and Findings, Hosts and Runtimes, Trajectory / Truth, and Authority Status.
 
-The missing piece is not visual polish. The missing piece is the bridge from a static mock to a trustworthy Proofbound console that:
+The missing piece is not visual polish. The missing piece is the bridge from a static mock to a trustworthy Proof-or-Stop console that:
 
-- reads only supported Proofbound CLI JSON surfaces;
+- reads only supported Proof-or-Stop CLI JSON surfaces;
 - explains the current workflow state without parsing Markdown or private backing stores;
 - turns every failed or warning state into a concrete recovery command;
 - keeps local workflow evidence, local host verdicts, Authority receipts, and production DONE clearly separated;
@@ -37,19 +37,19 @@ The prototype has useful interaction ideas:
 The prototype also exposes real productization gaps:
 
 - The data is hard-coded. For example, the prototype shows `346 / 375 DONE`, while the current `session_brief` on 2026-06-16 reports `349 / 381 DONE`.
-- It implies `source: lattice ... --format=json`, but several required surfaces need explicit stable JSON contracts before the UI should depend on them.
-- It shows failed gates, but does not consistently provide the recovery command that Proofbound already knows.
+- It implies `source: proof-or-stop ... --format=json`, but several required surfaces need explicit stable JSON contracts before the UI should depend on them.
+- It shows failed gates, but does not consistently provide the recovery command that Proof-or-Stop already knows.
 - It mixes local green status and production authority status in the same visual language unless the user opens the Authority page.
 - It treats story and host state as dashboard facts, but does not yet show authority root, worktree root, mirror phase, or stale evidence recovery.
 
 The MVP should fix these correctness issues first. It should not optimize layout, animation, chart density, or background style until the state model is honest.
 
-## 3. Proofbound Core Design Philosophy
+## 3. Proof-or-Stop Core Design Philosophy
 
-The console should expose Proofbound's core product philosophy: host-neutral workflow, CLI-owned truth, evidence-backed gates, recovery before analytics, and explicit authority boundaries. The demo can be visually polished only when those semantics remain visible and consistent.
+The console should expose Proof-or-Stop's core product philosophy: host-neutral workflow, CLI-owned truth, evidence-backed gates, recovery before analytics, and explicit authority boundaries. The demo can be visually polished only when those semantics remain visible and consistent.
 
 1. **Host-neutral workflow first**
-   Proofbound workflow commands and state are not Codex-specific, Claude-specific, or Mac-app-specific. The console must describe Proofbound state, not a single host runtime transcript.
+   Proof-or-Stop workflow commands and state are not Codex-specific, Claude-specific, or Mac-app-specific. The console must describe Proof-or-Stop state, not a single host runtime transcript.
 
 2. **No arbitrary optimization**
    Do not add analytics, daemons, storage layers, or extra indexing only because the dashboard could look richer. Add a field only when it answers a real workflow recovery or correctness question.
@@ -73,7 +73,7 @@ The console should expose Proofbound's core product philosophy: host-neutral wor
 
 The MVP should let a user answer five questions without asking an agent:
 
-1. What is the current Proofbound project state?
+1. What is the current Proof-or-Stop project state?
 2. Which stories are active, and where is each authoritative worktree?
 3. Why can or cannot a selected story reach DONE?
 4. What exact command should recover a warning or failure?
@@ -95,7 +95,7 @@ The MVP must not:
 
 ## 6. Data Source Contract
 
-The console adapter must consume Proofbound through supported CLI JSON surfaces only.
+The console adapter must consume Proof-or-Stop through supported CLI JSON surfaces only.
 
 Required read-only command surfaces:
 
@@ -187,7 +187,7 @@ Examples:
 
 | Gate state | Required recovery display |
 |---|---|
-| stale verification evidence | `lattice verification_evidence_refresh_stale --storyId=<id>` then `lattice validate --story=<id> --json` |
+| stale verification evidence | `proof-or-stop verification_evidence_refresh_stale --storyId=<id>` then `proof-or-stop validate --story=<id> --json` |
 | branch behind main | explain whether `story_advance DONE` can auto-merge or requires manual conflict handling |
 | missing delivery-check | spawn or run the required delivery reviewer path; do not suggest main-agent self-signing |
 | decision-doc quorum missing | show required rounds, hosts per round, material digest, and valid/invalid rounds |
@@ -303,11 +303,11 @@ If an element cannot yet resolve to real data, it must show a disabled or "not i
 ### 8.4 Product Logic Requirements for Clicks
 
 - A click must never imply a mutation unless the UI explicitly labels it as a copyable command or future confirmed action.
-- A failed gate click must explain why Proofbound would block the phase transition.
+- A failed gate click must explain why Proof-or-Stop would block the phase transition.
 - A warning click must distinguish advisory state from blocking state.
 - A host click must distinguish runtime availability from Authority readiness.
 - A convergence click must distinguish whole-project convergence from the selected story's DONE eligibility.
-- A command shown in a drawer must use host-neutral Proofbound command names unless the command is explicitly adapter-specific.
+- A command shown in a drawer must use host-neutral Proof-or-Stop command names unless the command is explicitly adapter-specific.
 
 ## 9. Core User Flows
 
@@ -315,7 +315,7 @@ If an element cannot yet resolve to real data, it must show a disabled or "not i
 
 1. User opens console.
 2. Console reads project overview and active stories.
-3. Console highlights the most reliable next action from Proofbound.
+3. Console highlights the most reliable next action from Proof-or-Stop.
 4. User can copy the next command.
 
 Acceptance:
@@ -345,7 +345,7 @@ Acceptance:
 
 Acceptance:
 
-- Recovery command matches Proofbound CLI behavior.
+- Recovery command matches Proof-or-Stop CLI behavior.
 - Mutating commands are labeled.
 - Local evidence and Authority evidence remain distinct.
 
@@ -423,7 +423,7 @@ Exit criteria:
 
 The first implementation story should be accepted only when:
 
-1. The console reads live Proofbound data instead of static demo arrays.
+1. The console reads live Proof-or-Stop data instead of static demo arrays.
 2. The displayed active story count matches `story_list`.
 3. The displayed lifecycle totals match `story_list` or an explicitly documented aggregate.
 4. The displayed DONE pre-check state matches the CLI's machine-readable gate state.
@@ -435,7 +435,7 @@ The first implementation story should be accepted only when:
 10. The console can explain non-convergence without treating every project-level gap as a current-story blocker.
 11. The console satisfies the visual rules for spacing, symmetry, restrained hierarchy, and semantic color use.
 12. Every visible clickable target opens a meaningful detail, route, disabled-state explanation, or close action.
-13. Click behavior preserves Proofbound product logic: read-only by default, host-neutral commands, and no local evidence upgraded into production authority.
+13. Click behavior preserves Proof-or-Stop product logic: read-only by default, host-neutral commands, and no local evidence upgraded into production authority.
 
 ## 12. Verification Plan
 
@@ -470,7 +470,7 @@ Minimum verification for the implementation story:
 ## 14. Open Questions
 
 1. Should the MVP live as a generated static HTML snapshot, a local dev server, or a CLI-served dashboard page?
-2. Should the first implementation target the existing `lattice dashboard` terminal command, or a separate browser console command?
+2. Should the first implementation target the existing `proof-or-stop dashboard` terminal command, or a separate browser console command?
 3. Which command should become the canonical machine-readable resolver for active stories: `session_brief --json`, `story_authority_resolve --json`, or a new purpose-built command?
 4. Should recovery commands be copy-only in MVP, or should a later version allow explicit confirmed execution?
 5. Should the external prototype be imported into the repository after MVP scope is accepted, or remain a reference artifact outside the repo?
@@ -480,15 +480,15 @@ Minimum verification for the implementation story:
 
 Recommended implementation story:
 
-`Build read-only Proofbound Console live data adapter`
+`Build read-only Proof-or-Stop Console live data adapter`
 
 Initial checklist:
 
 1. Add or confirm a machine-readable active-story resolver surface.
-2. Build a read-only adapter that executes supported Proofbound JSON commands.
+2. Build a read-only adapter that executes supported Proof-or-Stop JSON commands.
 3. Replace prototype hard-coded metrics with adapter snapshots.
 4. Render DONE pre-check gates with recovery commands.
 5. Add a click-target inventory and browser test proving every clickable demo element opens a valid detail/page/disabled explanation.
 6. Add tests proving no direct `.lattice/story/**` reads and no mutating commands.
 
-This sequence follows the Proofbound host-neutral direction and avoids optimization for its own sake: it fixes live-state correctness, recovery clarity, and authority-boundary clarity first.
+This sequence follows the Proof-or-Stop host-neutral direction and avoids optimization for its own sake: it fixes live-state correctness, recovery clarity, and authority-boundary clarity first.

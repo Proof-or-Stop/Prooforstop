@@ -7,11 +7,12 @@
     "type": "git",
     "directory": "packages/main"
   },
-  "version": "0.3.260",
+  "version": "0.3.263",
   "description": "通用项目开发框架 — AI-driven Story 工作流 CLI",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
+    "proof-or-stop": "dist/cli.js",
     "lattice": "dist/cli.js"
   },
   "exports": {

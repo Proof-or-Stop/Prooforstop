@@ -45,7 +45,7 @@ function canonicalPath(path: string): string {
   }
 }
 
-function commit(cwd: string, message: string, author = 'Proofbound Smoke'): string {
+function commit(cwd: string, message: string, author = 'Proof-or-Stop Smoke'): string {
   git(cwd, ['add', '.']);
   git(cwd, [
     '-c', `user.name=${author}`,
@@ -84,7 +84,7 @@ function initRepo(prefix: string, storyDir = '.lattice/story/actives'): string {
   git(root, ['init']);
   git(root, ['checkout', '-B', 'main']);
   git(root, ['config', 'user.email', 'smoke@example.test']);
-  git(root, ['config', 'user.name', 'Proofbound Smoke']);
+  git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
   write(root, 'lattice.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
@@ -129,7 +129,7 @@ function addImmediateChildGitRepo(root: string, name: string): string {
   git(gitRoot, ['init']);
   git(gitRoot, ['checkout', '-B', 'main']);
   git(gitRoot, ['config', 'user.email', 'smoke@example.test']);
-  git(gitRoot, ['config', 'user.name', 'Proofbound Smoke']);
+  git(gitRoot, ['config', 'user.name', 'Proof-or-Stop Smoke']);
   write(gitRoot, 'README.md', `${name} nested git material root\n`);
   write(gitRoot, 'packages/main/src/base.ts', `export const ${name.replace(/[^a-zA-Z0-9_$]/g, '_')} = true;\n`);
   commit(gitRoot, `${name} nested git material base`);
@@ -163,7 +163,7 @@ function initRepoWithoutCommit(prefix: string): string {
   git(root, ['init']);
   git(root, ['checkout', '-B', 'main']);
   git(root, ['config', 'user.email', 'smoke@example.test']);
-  git(root, ['config', 'user.name', 'Proofbound Smoke']);
+  git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
   resetConfigCache();
   return root;
 }
@@ -173,9 +173,9 @@ function initRepoWithMetadataOnlyHead(prefix: string): string {
   git(root, ['init']);
   git(root, ['checkout', '-B', 'main']);
   git(root, ['config', 'user.email', 'smoke@example.test']);
-  git(root, ['config', 'user.name', 'Proofbound Smoke']);
+  git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
   git(root, [
-    '-c', 'user.name=Proofbound Smoke',
+    '-c', 'user.name=Proof-or-Stop Smoke',
     '-c', 'user.email=smoke@example.test',
     '-c', 'commit.gpgsign=false',
     'commit',
@@ -186,7 +186,7 @@ function initRepoWithMetadataOnlyHead(prefix: string): string {
   return root;
 }
 
-function runLatticeRaw(
+function runProofOrStopRaw(
   cwd: string,
   command: string,
   args: Record<string, unknown> = {},
@@ -227,8 +227,8 @@ function runLatticeArgsRaw(
   });
 }
 
-async function runLattice(cwd: string, command: string, args: Record<string, unknown> = {}): Promise<string> {
-  const result = await runLatticeRaw(cwd, command, args);
+async function runProofOrStop(cwd: string, command: string, args: Record<string, unknown> = {}): Promise<string> {
+  const result = await runProofOrStopRaw(cwd, command, args);
   if (result.code !== 0) {
     throw new Error(`${command} exited ${result.code}\nSTDOUT:\n${result.stdout}\nSTDERR:\n${result.stderr}`);
   }
@@ -236,7 +236,7 @@ async function runLattice(cwd: string, command: string, args: Record<string, unk
 }
 
 async function runLatticeJson<T>(cwd: string, command: string, args: Record<string, unknown> = {}): Promise<T> {
-  return JSON.parse(await runLattice(cwd, command, { ...args, json: true })) as T;
+  return JSON.parse(await runProofOrStop(cwd, command, { ...args, json: true })) as T;
 }
 
 function extractReviewRunId(output: string): string {
@@ -251,7 +251,7 @@ async function startReviewRunWithOutput(
   agent: string,
   extra: Record<string, unknown> = {},
 ): Promise<{ reviewRunId: string; output: string }> {
-  const output = await runLattice(cwd, 'review_run_start', {
+  const output = await runProofOrStop(cwd, 'review_run_start', {
     storyId,
     agent,
     ...extra,
@@ -372,7 +372,7 @@ async function assertPlanRemoveIsHardBlocked(): Promise<void> {
       }],
     });
 
-    const failed = await runLatticeRaw(root, 'checklist_remove', {
+    const failed = await runProofOrStopRaw(root, 'checklist_remove', {
       storyId,
       itemId: 'CHK-001',
       disposition: 'accept',
@@ -435,7 +435,7 @@ async function assertClusterAutoResolveCliSurface(): Promise<void> {
       }],
     });
 
-    const output = await runLattice(root, 'finding_list', { storyId });
+    const output = await runProofOrStop(root, 'finding_list', { storyId });
     assert.match(output, /"id":\s*"B-clsync:F-001"[\s\S]*"status":\s*"resolved"/);
     assert.match(output, /"resolvedBy":\s*"CL-001@/);
     assert.match(output, /"id":\s*"B-clsync:F-002"[\s\S]*"status":\s*"resolved"/);
@@ -454,7 +454,7 @@ async function assertDirectFindingAutoResolveCliSurface(): Promise<void> {
     writeReviewStory(store, storyId);
 
     const qualityRunId = await startReviewRun(root, storyId, 'lattice-review-quality');
-    await runLattice(root, 'finding_add', {
+    await runProofOrStop(root, 'finding_add', {
       storyId,
       desc: 'direct finding should resolve from commit tag',
       severity: 'high',
@@ -464,12 +464,12 @@ async function assertDirectFindingAutoResolveCliSurface(): Promise<void> {
     });
     allowEmptyCommit(root, `resolve direct finding\n\nResolves: ${storyId}:F-001`);
 
-    const output = await runLattice(root, 'finding_list', { storyId });
+    const output = await runProofOrStop(root, 'finding_list', { storyId });
     assert.match(output, /"status":\s*"resolved"/);
     assert.match(output, /"resolvedBy":\s*"B-fsync:F-001@/);
 
     const conceptRunId = await startReviewRun(root, storyId, 'lattice-review-concept');
-    await runLattice(root, 'finding_add', {
+    await runProofOrStop(root, 'finding_add', {
       storyId,
       desc: 'validate entry should also resolve direct finding',
       severity: 'medium',
@@ -478,7 +478,7 @@ async function assertDirectFindingAutoResolveCliSurface(): Promise<void> {
       reviewRunId: conceptRunId,
     });
     allowEmptyCommit(root, 'resolve short direct finding\n\nResolves: F-002');
-    const validateOutput = await runLattice(root, 'validate', { story: storyId, json: true });
+    const validateOutput = await runProofOrStop(root, 'validate', { story: storyId, json: true });
     assert.match(validateOutput, /"allPass":\s*true/);
     const findings = new StoryStore(root).readFindings(storyId).findings;
     const directFinding = findings.find(f => f.id === `${storyId}:F-002`);
@@ -494,7 +494,7 @@ async function assertDirectReviewStoryCreateInitializesReviewMetadata(): Promise
   const root = initRepo('lattice-field-direct-review-create-');
   try {
     const store = new StoryStore(root);
-    const directCreated = await runLattice(root, 'story_create', {
+    const directCreated = await runProofOrStop(root, 'story_create', {
       name: 'direct-review-round',
       title: 'Direct review round',
       description: 'Synthetic direct REVIEW creation should initialize review metadata.',
@@ -522,21 +522,21 @@ async function assertDirectReviewStoryCreateInitializesReviewMetadata(): Promise
     assert.equal(directStory.phase, 'REVIEW');
     assertIsoReviewRound(directStory.currentReviewRound, directStory.createdAt, 'direct REVIEW story_create currentReviewRound');
 
-    const directRun = await runLattice(root, 'review_run_start', {
+    const directRun = await runProofOrStop(root, 'review_run_start', {
       storyId: directStoryId,
       agent: 'lattice-review-quality',
       prompt: 'direct REVIEW creation smoke',
     });
     assert.match(directRun, /Review run .* started/);
 
-    const directLoop = await runLattice(root, 'review_loop_start', {
+    const directLoop = await runProofOrStop(root, 'review_loop_start', {
       storyId: directStoryId,
       trigger: { findingIds: [`${directStoryId}:F-001`] },
       rollbackRef: reviewLoopRollbackRef(root),
     });
     assert.match(directLoop, /Review loop .* started/);
 
-    const emptyTriggerLoop = await runLatticeRaw(root, 'review_loop_start', {
+    const emptyTriggerLoop = await runProofOrStopRaw(root, 'review_loop_start', {
       storyId: directStoryId,
       trigger: { findingIds: [] },
       rollbackRef: reviewLoopRollbackRef(root),
@@ -548,7 +548,7 @@ async function assertDirectReviewStoryCreateInitializesReviewMetadata(): Promise
       'review_loop_start must reject empty trigger refs at parameter validation',
     );
 
-    const placeholderLoop = await runLatticeRaw(root, 'review_loop_start', {
+    const placeholderLoop = await runProofOrStopRaw(root, 'review_loop_start', {
       storyId: directStoryId,
       trigger: { findingIds: [`${directStoryId}:F-002`] },
       rollbackRef: placeholderRollbackRef,
@@ -572,7 +572,7 @@ async function assertReviewRunStartCliSurface(): Promise<void> {
     const store = new StoryStore(root);
     writeReviewStory(store, storyId);
 
-    const output = await runLattice(root, 'review_run_start', {
+    const output = await runProofOrStop(root, 'review_run_start', {
       storyId,
       agent: 'lattice-review-quality',
       prompt: 'Inspect current diff for REVIEW blockers.',
@@ -592,7 +592,7 @@ async function assertReviewRunStartCliSurface(): Promise<void> {
 
     write(root, 'packages/main/src/review-run-fresh.ts', 'export const reviewRunFresh = true;\n');
     commit(root, 'change after review run', 'lattice-implementer');
-    const stalePass = await runLatticeRaw(root, 'review_pass_set', {
+    const stalePass = await runProofOrStopRaw(root, 'review_pass_set', {
       storyId,
       agent: 'lattice-review-quality',
       reviewRunId: runs[0].reviewRunId,
@@ -604,9 +604,9 @@ async function assertReviewRunStartCliSurface(): Promise<void> {
     assert.notEqual(stalePass.code, 0);
     assert.match(stalePass.stderr, /already stale|stale/i);
     assert.match(stalePass.stderr, /DEV.*REVIEW|DEV → REVIEW/);
-    assert.doesNotMatch(stalePass.stderr, /re-run lattice review_run_start/);
+    assert.doesNotMatch(stalePass.stderr, /re-run proof-or-stop review_run_start/);
 
-    const unsupported = await runLatticeRaw(root, 'review_run_start', {
+    const unsupported = await runProofOrStopRaw(root, 'review_run_start', {
       storyId,
       lane: 'lattice-review-delivery',
     });
@@ -616,7 +616,7 @@ async function assertReviewRunStartCliSurface(): Promise<void> {
     const mainStoryId = 'B-main';
     writeLegacyReviewStoryWithoutRound(store, mainStoryId);
     git(root, ['checkout', '-b', `story/${mainStoryId}`]);
-    const missingRound = await runLatticeRaw(root, 'review_run_start', {
+    const missingRound = await runProofOrStopRaw(root, 'review_run_start', {
       storyId: mainStoryId,
       agent: 'lattice-review-quality',
     });
@@ -625,7 +625,7 @@ async function assertReviewRunStartCliSurface(): Promise<void> {
     const repairedStory = store.readStory(mainStoryId);
     assert.equal(repairedStory.currentReviewRound, now(), 'legacy REVIEW story missing currentReviewRound should be repaired to createdAt for compatibility');
 
-    const repairedLoop = await runLatticeRaw(root, 'review_loop_start', {
+    const repairedLoop = await runProofOrStopRaw(root, 'review_loop_start', {
       storyId: mainStoryId,
       trigger: { findingIds: [`${mainStoryId}:F-001`] },
       rollbackRef: reviewLoopRollbackRef(root),
@@ -665,7 +665,7 @@ async function assertReviewRunStoryFilesHashAcceptsUnrelatedMainDrift(): Promise
     assert.equal(currentStoryFilesHash(root), originalStoryFilesHash);
     assert.notEqual(currentMaterialHash(root), runs[0].materialHash, 'main merge should still change whole-tree materialHash');
 
-    const pass = await runLatticeRaw(root, 'review_pass_set', {
+    const pass = await runProofOrStopRaw(root, 'review_pass_set', {
       storyId,
       agent: 'lattice-review-quality',
       reviewRunId,
@@ -686,7 +686,7 @@ async function assertReviewRunStartWorkspaceDiagnostics(): Promise<void> {
     const storyId = 'B-nongit';
     const store = new StoryStore(nonGitRoot);
     writeLegacyReviewStoryWithoutRound(store, storyId);
-    const failed = await runLatticeRaw(nonGitRoot, 'review_run_start', {
+    const failed = await runProofOrStopRaw(nonGitRoot, 'review_run_start', {
       storyId,
       agent: 'lattice-review-quality',
     });
@@ -705,7 +705,7 @@ async function assertReviewRunStartWorkspaceDiagnostics(): Promise<void> {
     const storyId = 'B-unborn';
     const store = new StoryStore(unbornRoot);
     writeLegacyReviewStoryWithoutRound(store, storyId);
-    const failed = await runLatticeRaw(unbornRoot, 'review_run_start', {
+    const failed = await runProofOrStopRaw(unbornRoot, 'review_run_start', {
       storyId,
       agent: 'lattice-review-quality',
     });
@@ -724,7 +724,7 @@ async function assertReviewRunStartWorkspaceDiagnostics(): Promise<void> {
     const storyId = 'B-nomat';
     const store = new StoryStore(missingMaterialRoot);
     writeLegacyReviewStoryWithoutRound(store, storyId);
-    const failed = await runLatticeRaw(missingMaterialRoot, 'review_run_start', {
+    const failed = await runProofOrStopRaw(missingMaterialRoot, 'review_run_start', {
       storyId,
       agent: 'lattice-review-quality',
     });
@@ -764,7 +764,7 @@ async function assertReviewRunStartWorkspaceDiagnostics(): Promise<void> {
     });
     store.writeChecklist(storyId, { items: [] });
 
-    const wrongCwd = await runLatticeRaw(worktreeRoot, 'review_run_start', {
+    const wrongCwd = await runProofOrStopRaw(worktreeRoot, 'review_run_start', {
       storyId,
       agent: 'lattice-review-quality',
     });
@@ -790,7 +790,7 @@ async function assertReviewRunStartWorkspaceDiagnostics(): Promise<void> {
     restoredStory.worktree!.path = `.worktrees/${storyId}`;
     store.writeStory(storyId, restoredStory);
 
-    const splitRootRun = await runLatticeRaw(worktree, 'review_run_start', {
+    const splitRootRun = await runProofOrStopRaw(worktree, 'review_run_start', {
       storyId,
       agent: 'lattice-review-quality',
     }, { LATTICE_PROJECT_ROOT: worktreeRoot });
@@ -826,7 +826,7 @@ async function assertReviewRunStartSplitRootGitRootBinding(): Promise<void> {
     assert.equal(resolved.resolutionSource, 'unresolved');
     assert.match(resolved.unresolvedReason || '', /no_worktree_or_gitRoot|requires_git_signed_workspace/);
 
-    const failed = await runLatticeRaw(unbound.root, 'review_run_start', {
+    const failed = await runProofOrStopRaw(unbound.root, 'review_run_start', {
       storyId,
       agent: 'lattice-review-quality',
     });
@@ -869,7 +869,7 @@ async function assertReviewRunStartSplitRootGitRootBinding(): Promise<void> {
     assert.equal(runs[0].headHash, git(bound.gitRoot, ['rev-parse', 'HEAD']));
     assert.equal(runs[0].materialHash, currentMaterialHash(bound.gitRoot));
 
-    const pass = await runLatticeRaw(bound.root, 'review_pass_set', {
+    const pass = await runProofOrStopRaw(bound.root, 'review_pass_set', {
       storyId,
       agent: 'lattice-review-quality',
       reviewRunId,
@@ -884,7 +884,7 @@ async function assertReviewRunStartSplitRootGitRootBinding(): Promise<void> {
     git(otherGitRoot, ['init']);
     git(otherGitRoot, ['checkout', '-B', 'main']);
     git(otherGitRoot, ['config', 'user.email', 'smoke@example.test']);
-    git(otherGitRoot, ['config', 'user.name', 'Proofbound Smoke']);
+    git(otherGitRoot, ['config', 'user.name', 'Proof-or-Stop Smoke']);
     write(otherGitRoot, 'README.md', 'alternate git material root\n');
     write(otherGitRoot, 'packages/main/src/base.ts', 'export const alternate = true;\n');
     commit(otherGitRoot, 'alternate git material base');
@@ -897,7 +897,7 @@ async function assertReviewRunStartSplitRootGitRootBinding(): Promise<void> {
       workflow: { profile: 'balanced' },
       gitRoot: 'othercreek',
     }, null, 2));
-    const driftRejected = await runLatticeRaw(bound.root, 'review_pass_set', {
+    const driftRejected = await runProofOrStopRaw(bound.root, 'review_pass_set', {
       storyId,
       agent: 'lattice-review-quality',
       reviewRunId,
@@ -922,7 +922,7 @@ async function assertReviewRunStartSplitRootGitRootBinding(): Promise<void> {
     const tampered = store.readReviewRuns(storyId);
     tampered.runs[0].workspaceBinding!.signedWorkspaceRoot = bound.root;
     store.writeReviewRuns(storyId, tampered);
-    const rejected = await runLatticeRaw(bound.root, 'review_pass_set', {
+    const rejected = await runProofOrStopRaw(bound.root, 'review_pass_set', {
       storyId,
       agent: 'lattice-review-quality',
       reviewRunId,
@@ -943,7 +943,7 @@ async function assertSessionBriefConfiguredGitRootWorkspaceStatus(): Promise<voi
   try {
     const configPath = join(configured.root, 'lattice.config.json');
     const beforeConfig = readFileSync(configPath, 'utf-8');
-    const result = await runLatticeRaw(configured.root, 'session_brief');
+    const result = await runProofOrStopRaw(configured.root, 'session_brief');
     assert.equal(result.code, 0, result.stderr);
     assert.match(result.stdout, /Signed workspace: OK/);
     assert.match(result.stdout, /configured gitRoot: clawcreek/);
@@ -961,7 +961,7 @@ async function assertSessionBriefConfiguredGitRootWorkspaceStatus(): Promise<voi
   try {
     const configPath = join(unconfigured.root, 'lattice.config.json');
     const beforeConfig = readFileSync(configPath, 'utf-8');
-    const result = await runLatticeRaw(unconfigured.root, 'session_brief');
+    const result = await runProofOrStopRaw(unconfigured.root, 'session_brief');
     assert.equal(result.code, 0, result.stderr);
     assert.match(result.stdout, /Non-git project/);
     assert.doesNotMatch(result.stdout, /Signed workspace: OK/);
@@ -979,7 +979,7 @@ async function assertSessionBriefConfiguredGitRootWorkspaceStatus(): Promise<voi
   try {
     const configPath = join(missingGitRoot.root, 'lattice.config.json');
     const beforeConfig = readFileSync(configPath, 'utf-8');
-    const result = await runLatticeRaw(missingGitRoot.root, 'session_brief');
+    const result = await runProofOrStopRaw(missingGitRoot.root, 'session_brief');
     assert.equal(result.code, 0, result.stderr);
     assert.match(result.stdout, /Signed workspace: unresolved/);
     assert.match(result.stdout, /configured gitRoot: missing-creek/);
@@ -992,7 +992,7 @@ async function assertSessionBriefConfiguredGitRootWorkspaceStatus(): Promise<voi
 
   const gitBacked = initRepo('lattice-field-session-brief-git-backed-');
   try {
-    const result = await runLatticeRaw(gitBacked, 'session_brief');
+    const result = await runProofOrStopRaw(gitBacked, 'session_brief');
     assert.equal(result.code, 0, result.stderr);
     assert.doesNotMatch(result.stdout, /## Signed workspace/);
     assert.doesNotMatch(result.stdout, /configured gitRoot:/);
@@ -1060,7 +1060,7 @@ async function assertWrapperGitRootDoctorAndRepairCliSurface(): Promise<void> {
     assert.equal(resolved.resolutionSource, 'unresolved');
     assert.equal(resolved.signedWorkspaceRoot, null);
     assert.match(resolved.unresolvedReason || '', /no_worktree_or_gitRoot|requires_git_signed_workspace/);
-    const failed = await runLatticeRaw(ambiguous.root, 'review_run_start', {
+    const failed = await runProofOrStopRaw(ambiguous.root, 'review_run_start', {
       storyId,
       agent: 'lattice-review-quality',
     });
@@ -1093,7 +1093,7 @@ async function assertWrapperGitRootDoctorAndRepairCliSurface(): Promise<void> {
     );
     assert.match(doctor.wrapperGitRoot.note, /Operator suggestion only/i);
 
-    const doctorText = await runLattice(repairable.root, 'lattice_config_doctor');
+    const doctorText = await runProofOrStop(repairable.root, 'lattice_config_doctor');
     assert.match(doctorText, /wrapperGitRoot:/);
     assert.match(doctorText, /status: single-candidate/);
     assert.match(doctorText, /suggestedGitRoot: clawcreek/);
@@ -1107,7 +1107,7 @@ async function assertWrapperGitRootDoctorAndRepairCliSurface(): Promise<void> {
     assert.equal(before.resolved, false);
     assert.equal(before.resolutionSource, 'unresolved');
     assert.equal(before.signedWorkspaceRoot, null);
-    const beforeRun = await runLatticeRaw(repairable.root, 'review_run_start', {
+    const beforeRun = await runProofOrStopRaw(repairable.root, 'review_run_start', {
       storyId,
       agent: 'lattice-review-quality',
     });
@@ -1125,7 +1125,7 @@ async function assertWrapperGitRootDoctorAndRepairCliSurface(): Promise<void> {
     assert.equal(preview.confirmCommand, 'lattice config repair --set-git-root=clawcreek --confirm');
     assert.equal(JSON.parse(readFileSync(join(repairable.root, 'lattice.config.json'), 'utf-8')).gitRoot, undefined);
 
-    const unsafeOutside = await runLatticeRaw(repairable.root, 'lattice_config_repair', {
+    const unsafeOutside = await runProofOrStopRaw(repairable.root, 'lattice_config_repair', {
       setGitRoot: '../outside',
       confirm: true,
     });
@@ -1133,7 +1133,7 @@ async function assertWrapperGitRootDoctorAndRepairCliSurface(): Promise<void> {
     assert.match(unsafeOutside.stderr, /must stay strictly under the metadata root|unsafe path/);
     assert.equal(JSON.parse(readFileSync(join(repairable.root, 'lattice.config.json'), 'utf-8')).gitRoot, undefined);
 
-    const missingTarget = await runLatticeRaw(repairable.root, 'lattice_config_repair', {
+    const missingTarget = await runProofOrStopRaw(repairable.root, 'lattice_config_repair', {
       setGitRoot: 'missing-creek',
       confirm: true,
     });
@@ -1141,7 +1141,7 @@ async function assertWrapperGitRootDoctorAndRepairCliSurface(): Promise<void> {
     assert.match(missingTarget.stderr, /target does not exist/);
     assert.equal(JSON.parse(readFileSync(join(repairable.root, 'lattice.config.json'), 'utf-8')).gitRoot, undefined);
 
-    const nestedNonRoot = await runLatticeRaw(repairable.root, 'lattice_config_repair', {
+    const nestedNonRoot = await runProofOrStopRaw(repairable.root, 'lattice_config_repair', {
       setGitRoot: 'clawcreek/packages',
       confirm: true,
     });
@@ -1203,7 +1203,7 @@ async function assertReviewerListForceReviewerLaneContract(): Promise<void> {
     const store = new StoryStore(root);
     writeReviewStory(store, storyId);
 
-    const output = await runLattice(root, 'reviewer_list', {
+    const output = await runProofOrStop(root, 'reviewer_list', {
       storyId,
       json: true,
       forceReviewer: 'lattice-review-docs, behavior',
@@ -1215,7 +1215,7 @@ async function assertReviewerListForceReviewerLaneContract(): Promise<void> {
     assert.equal(reviewers.get('behavior')?.forced, true, 'built-in short reviewer name should remain supported');
     assert.equal(reviewers.has('lattice-review-docs'), false, 'forced reviewer output should not mix full lane names into opt-in names');
 
-    const invalid = await runLatticeRaw(root, 'reviewer_list', {
+    const invalid = await runProofOrStopRaw(root, 'reviewer_list', {
       storyId,
       json: true,
       forceReviewer: 'lattice-review-delivery',
@@ -1229,7 +1229,7 @@ async function assertReviewerListForceReviewerLaneContract(): Promise<void> {
     // false) -- review_run_start no longer supports it in any capacity, and
     // reviewer_list must reject it the same way it rejects any other retired /
     // unsupported lane, not treat it as a still-forceable compatibility name.
-    const invalidChannel = await runLatticeRaw(root, 'reviewer_list', {
+    const invalidChannel = await runProofOrStopRaw(root, 'reviewer_list', {
       storyId,
       json: true,
       forceReviewer: 'channel',
@@ -1250,7 +1250,7 @@ async function assertReviewPassConcurrentCliSurface(): Promise<void> {
     const agents = ['concept', 'quality', 'test-coverage', 'docs', 'behavior']
       .map(name => `lattice-review-${name}`);
     const starts = new Map(await Promise.all(agents.map(async (agent) => [agent, await startReviewRunWithOutput(root, storyId, agent)] as const)));
-    const outputs = await Promise.all(agents.map(agent => runLattice(root, 'review_pass_set', {
+    const outputs = await Promise.all(agents.map(agent => runProofOrStop(root, 'review_pass_set', {
       storyId,
       agent,
       reviewRunId: starts.get(agent)?.reviewRunId,
@@ -1291,7 +1291,7 @@ async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<vo
     const qualityRunId = await startReviewRun(root, storyId, 'lattice-review-quality');
     const behaviorRunId = await startReviewRun(root, storyId, 'lattice-review-behavior');
 
-    const passOutput = await runLattice(root, 'finding_add', {
+    const passOutput = await runProofOrStop(root, 'finding_add', {
       storyId,
       desc: 'Docs consistency check passed: Step 1 extracted 2 symbols, Step 2 compared 3 sections; consistency check PASSED.',
       severity: 'low',
@@ -1307,10 +1307,10 @@ async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<vo
     assert.equal(passes[0].agent, 'lattice-review-docs');
     assert.match(passes[0].note, /Docs consistency check passed/);
     assertIsoReviewRound(passes[0].reviewRound, now(), 'pass-only converted review pass reviewRound');
-    const emptyFindingList = await runLattice(root, 'finding_list', { storyId });
+    const emptyFindingList = await runProofOrStop(root, 'finding_list', { storyId });
     assert.match(emptyFindingList, /"findings":\s*\[\]/, 'pass-only finding_add should not appear in finding_list');
 
-    const noDriftOutput = await runLattice(root, 'finding_add', {
+    const noDriftOutput = await runProofOrStop(root, 'finding_add', {
       storyId,
       desc: 'Docs consistency check passed: no inconsistencies found.',
       severity: 'low',
@@ -1322,7 +1322,7 @@ async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<vo
     assert.match(noDriftOutput, /Review pass B-passonly:RP-002 recorded by lattice-review-docs/);
     assert.equal(store.readFindings(storyId).findings.length, 0, 'negated no-drift wording should remain a review pass');
 
-    const conceptPassOutput = await runLattice(root, 'finding_add', {
+    const conceptPassOutput = await runProofOrStop(root, 'finding_add', {
       storyId,
       desc: 'No concept changes this round',
       severity: 'low',
@@ -1334,7 +1334,7 @@ async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<vo
     assert.match(conceptPassOutput, /Review pass B-passonly:RP-003 recorded by lattice-review-concept/);
     assert.equal(store.readFindings(storyId).findings.length, 0, 'concept pass-only finding_add should not write findings.json');
 
-    const testCoveragePassOutput = await runLattice(root, 'finding_add', {
+    const testCoveragePassOutput = await runProofOrStop(root, 'finding_add', {
       storyId,
       desc: 'Test coverage review passed: no findings.',
       severity: 'low',
@@ -1346,7 +1346,7 @@ async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<vo
     assert.match(testCoveragePassOutput, /Review pass B-passonly:RP-004 recorded by lattice-review-test-coverage/);
     assert.equal(store.readFindings(storyId).findings.length, 0, 'test-coverage pass-only finding_add should not write findings.json');
 
-    const noFindingsOutput = await runLattice(root, 'finding_add', {
+    const noFindingsOutput = await runProofOrStop(root, 'finding_add', {
       storyId,
       desc: 'No findings after checking process facts.',
       severity: 'low',
@@ -1358,7 +1358,7 @@ async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<vo
     assert.match(noFindingsOutput, /Review pass B-passonly:RP-005 recorded by lattice-review-quality/);
     assert.equal(store.readFindings(storyId).findings.length, 0, 'no findings wording should convert to review pass');
 
-    const genericPassOutput = await runLattice(root, 'finding_add', {
+    const genericPassOutput = await runProofOrStop(root, 'finding_add', {
       storyId,
       desc: 'Check passed: all flow fact entry points have hardcoded fallback.',
       severity: 'low',
@@ -1370,7 +1370,7 @@ async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<vo
     assert.match(genericPassOutput, /Review pass B-passonly:RP-006 recorded by lattice-review-behavior/);
     assert.equal(store.readFindings(storyId).findings.length, 0, 'generic check-pass wording should convert to review pass');
 
-    const explicitPassOutput = await runLattice(root, 'finding_add', {
+    const explicitPassOutput = await runProofOrStop(root, 'finding_add', {
       storyId,
       desc: 'PASS: schema and handler fallback are aligned.',
       severity: 'low',
@@ -1382,7 +1382,7 @@ async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<vo
     assert.match(explicitPassOutput, /Review pass B-passonly:RP-007 recorded by lattice-review-docs/);
     assert.equal(store.readFindings(storyId).findings.length, 0, 'explicit PASS wording should convert to review pass');
 
-    const localizedPassOutput = await runLattice(root, 'finding_add', {
+    const localizedPassOutput = await runProofOrStop(root, 'finding_add', {
       storyId,
       desc: '\u5ba1\u67e5\u901a\u8fc7\uff1a\u5df2\u68c0\u67e5\u8303\u56f4\uff0c\u65e0\u963b\u585e\u95ee\u9898\u3002',
       severity: 'low',
@@ -1394,7 +1394,7 @@ async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<vo
     assert.match(localizedPassOutput, /Review pass B-passonly:RP-008 recorded by lattice-review-docs/);
     assert.equal(store.readFindings(storyId).findings.length, 0, 'localized pass-only finding_add should convert to review pass');
 
-    const findingOutput = await runLattice(root, 'finding_add', {
+    const findingOutput = await runProofOrStop(root, 'finding_add', {
       storyId,
       desc: 'Docs consistency check passed but README example command failed; docs need fixing.',
       severity: 'low',
@@ -1407,7 +1407,7 @@ async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<vo
     assert.equal(findings.length, 1);
     assert.equal(findings[0].status, 'open');
 
-    const cleanupOutput = await runLattice(root, 'finding_add', {
+    const cleanupOutput = await runProofOrStop(root, 'finding_add', {
       storyId,
       desc: 'concept-cleanup: concept X deletion incomplete, Y file still has 2 references.',
       severity: 'critical',
@@ -1420,7 +1420,7 @@ async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<vo
     assert.equal(cleanupFindings.length, 2);
     assert.equal(cleanupFindings[1].category, 'missing');
 
-    const docPromiseOutput = await runLattice(root, 'finding_add', {
+    const docPromiseOutput = await runProofOrStop(root, 'finding_add', {
       storyId,
       desc: 'doc-promise-undelivered: README promised lattice foo command but it does not exist in registry.',
       severity: 'critical',
@@ -1433,7 +1433,7 @@ async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<vo
     assert.equal(docPromiseFindings.length, 3);
     assert.equal(docPromiseFindings[2].category, 'missing');
 
-    const nonLowPassOutput = await runLattice(root, 'finding_add', {
+    const nonLowPassOutput = await runProofOrStop(root, 'finding_add', {
       storyId,
       desc: 'PASS: docs consistency check PASSED with reviewer approval.',
       severity: 'medium',
@@ -1444,7 +1444,7 @@ async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<vo
     assert.match(nonLowPassOutput, /Finding B-passonly:F-004 created by lattice-review-docs/);
     assert.equal(store.readFindings(storyId).findings.length, 4, 'non-low pass-like finding_add should remain a finding');
 
-    const nonReviewerPassOutput = await runLattice(root, 'finding_add', {
+    const nonReviewerPassOutput = await runProofOrStop(root, 'finding_add', {
       storyId,
       desc: 'No findings after checking process facts.',
       severity: 'low',
@@ -1510,7 +1510,7 @@ async function assertDecisionSetAcceptsLocalizedExclusionRationale(): Promise<vo
       '\u6240\u4ee5\u4fdd\u7559\u5355\u4e00\u65b9\u6848\u5e76\u8bb0\u5f55\u539f\u56e0\u3002',
     ].join('');
 
-    const output = await runLattice(root, 'decision_set', {
+    const output = await runProofOrStop(root, 'decision_set', {
       storyId,
       principles: ['Preserve behavior', 'Keep scope narrow', 'Prefer reversible changes'],
       drivers: ['Localized rationale must not be rejected by an English keyword check'],
@@ -1547,7 +1547,7 @@ async function assertChannelGateAcceptsSubagentResultCliSurface(): Promise<void>
       });
     }
 
-    const output = await runLattice(root, 'validate', { story: storyId, channel: true, json: true });
+    const output = await runProofOrStop(root, 'validate', { story: storyId, channel: true, json: true });
     assert.match(output, /"status":\s*"pass"/);
     assert.match(output, /subagent_result/);
   } finally {
@@ -1591,7 +1591,7 @@ async function assertEvidenceFreshAfterMetadataOnlyCliSurface(): Promise<void> {
     });
     commit(root, 'metadata only story evidence');
 
-    const output = await runLattice(root, 'validate', { story: storyId, json: true });
+    const output = await runProofOrStop(root, 'validate', { story: storyId, json: true });
     assert.match(output, /"allPass":\s*true/);
     assert.match(output, /"covered":\s*1/);
     assert.doesNotMatch(output, /"status":\s*"stale"/);
@@ -1639,7 +1639,7 @@ async function assertVerificationEvidenceKindAliasesCliSurface(): Promise<void> 
     // asserts the kind-alias normalization, so it uses the audited escape (which preserves
     // the normalized kind) rather than pinning + executing a command.
     const aliasEscape = 'kind-alias regression fixture; execution not applicable, recorded as audited attestation';
-    const cliOutput = await runLattice(root, 'verification_evidence_add', {
+    const cliOutput = await runProofOrStop(root, 'verification_evidence_add', {
       storyId,
       itemId: 'CHK-001',
       intentRef: 'CHK-001:happy:0',
@@ -1650,7 +1650,7 @@ async function assertVerificationEvidenceKindAliasesCliSurface(): Promise<void> 
     });
     assert.match(cliOutput, /manual_transcript, alias cli/);
 
-    const batchOutput = await runLattice(root, 'verification_evidence_batch_add', {
+    const batchOutput = await runProofOrStop(root, 'verification_evidence_batch_add', {
       storyId,
       evidences: [{
         itemId: 'CHK-001',
@@ -1687,7 +1687,7 @@ async function assertHotfixPriorityElevationCliSurface(): Promise<void> {
       '## Conversational Texture',
       'The user previously observed that low priority hotfixes also require preMortem; this behavior is acceptable, but the documentation and command output must state it clearly.',
     ].join('\n');
-    const result = await runLatticeRaw(root, 'story_create', {
+    const result = await runProofOrStopRaw(root, 'story_create', {
       name: 'hotfix-priority-surface',
       title: 'Hotfix priority surface',
       description: 'low priority hotfix should still use effective high-risk gate',
@@ -1706,7 +1706,7 @@ async function assertHotfixPriorityElevationCliSurface(): Promise<void> {
     assert.equal(story.priority, 'high');
     assert.ok((story.riskSignals || []).some(sig => sig.matched.toLowerCase() === 'hotfix'));
 
-    const localizedResult = await runLatticeRaw(root, 'story_create', {
+    const localizedResult = await runProofOrStopRaw(root, 'story_create', {
       name: 'localized-risk-surface',
       title: '\u751f\u4ea7\u4e8b\u6545\u7d27\u6025\u4fee\u590d',
       description: '\u751f\u4ea7\u4e8b\u6545\u9700\u8981\u7d27\u6025\u4fee\u590d\uff0c\u6d89\u53ca\u5bc6\u7801\u548c\u9274\u6743\u98ce\u9669',
@@ -1875,7 +1875,7 @@ async function assertDoneMergeCleansMainUntrackedReviewPasses(): Promise<void> {
     // not just one lane (review_lane_missing).
     for (const laneAgent of ['lattice-review-quality', 'lattice-review-concept', 'lattice-review-test-coverage']) {
       const doneReviewRunId = await startReviewRun(worktree, storyId, laneAgent);
-      await runLattice(worktree, 'review_pass_set', {
+      await runProofOrStop(worktree, 'review_pass_set', {
         storyId,
         agent: laneAgent,
         reviewRunId: doneReviewRunId,
@@ -1888,8 +1888,8 @@ async function assertDoneMergeCleansMainUntrackedReviewPasses(): Promise<void> {
 
     write(root, `.lattice/story/actives/${storyId}/review-passes.json`, '{"passes":[]}\n');
     // B-a7c5 CHK-003: the DONE gate now requires a recorded dev_memory_finish_decision.
-    await runLattice(worktree, 'dev_memory_finish_decision', { storyId, decision: 'captured' });
-    const output = await runLattice(worktree, 'story_advance', { storyId, phase: 'DONE' });
+    await runProofOrStop(worktree, 'dev_memory_finish_decision', { storyId, decision: 'captured' });
+    const output = await runProofOrStop(worktree, 'story_advance', { storyId, phase: 'DONE' });
 
     assert.match(output, /Cleaned untracked copy in main repo: .*review-passes\.json/);
     assert.match(output, /advanced to DONE/);
@@ -1923,9 +1923,9 @@ async function assertStaleWarningCooldownCliSurface(): Promise<void> {
     });
     store.writeChecklist(storyId, { items: [] });
 
-    const first = await runLatticeRaw(root, 'session_brief');
+    const first = await runProofOrStopRaw(root, 'session_brief');
     assert.equal(first.code, 0);
-    assert.match(first.stderr, /Proofbound stale state warnings/);
+    assert.match(first.stderr, /Proof-or-Stop stale state warnings/);
     const logPath = getRuntimeActivityLogPath(root);
     const lines = readFileSync(logPath, 'utf-8').trim().split('\n');
     const last = JSON.parse(lines[lines.length - 1]);
@@ -1935,9 +1935,9 @@ async function assertStaleWarningCooldownCliSurface(): Promise<void> {
     );
     lines[lines.length - 1] = JSON.stringify(last);
     writeFileSync(logPath, `${lines.join('\n')}\n`);
-    const second = await runLatticeRaw(root, 'session_brief');
+    const second = await runProofOrStopRaw(root, 'session_brief');
     assert.equal(second.code, 0);
-    assert.doesNotMatch(second.stderr, /Proofbound stale state warnings/);
+    assert.doesNotMatch(second.stderr, /Proof-or-Stop stale state warnings/);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

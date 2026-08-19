@@ -14,9 +14,9 @@ import {
   listAgentPromptFiles,
   renderCodexAgentContent,
   renderCodexReadmeTemplate,
-  renderLatticeBootstrapScript,
-  renderLatticeCodexAdapterManifest,
-  renderLatticeCodexWrapperScript,
+  renderProofOrStopBootstrapScript,
+  renderProofOrStopCodexAdapterManifest,
+  renderProofOrStopCodexWrapperScript,
   renderLatticeProjectConfig,
   renderCodexHooksJson,
   renderCodexPretoolScopeHookScript,
@@ -40,17 +40,19 @@ import {
   scanProjectLocalManagedAgents,
 } from './core/managed-assets.js';
 import {
-  renderReviewerRunBootstrapForTemplate,
   resolveAgentTemplateDir,
   syncGlobalAgents,
 } from './core/global-agents.js';
-import { isModularReviewerRoleId } from './core/prompt-registry.js';
+import {
+  readPromptRegistry,
+  renderPromptEntryForHost,
+} from './core/prompt-registry.js';
 import {
   LATTICE_RUNTIME_IGNORE_BLOCK_END,
   LATTICE_RUNTIME_IGNORE_BLOCK_START,
   listRuntimeArtifactIgnorePatterns,
 } from './core/runtime-artifact-registry.js';
-import { LATTICE_STORY_DIR } from './core/lattice-paths.js';
+import { PROOF_OR_STOP_STORY_DIR } from './core/lattice-paths.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -63,7 +65,7 @@ const agentTemplateDir = [
 const hookSrcDir = join(packageRoot, '..', '..', '.claude', 'hooks');
 const HOOK_FILES = ['log-tools.cjs', LATTICE_SCOPE_PRETOOL_HOOK_FILE, ENGLISH_ONLY_GUARD_HOOK_FILE, EVIDENCE_PRETOOL_HOOK_FILE, 'session-brief-reminder.cjs'] as const;
 
-// 通过 lattice init 调用时 argv[2]='init'，跳过；直接运行 init entrypoint 时 argv[2] 是目标目录
+// 通过 proof-or-stop init 调用时 argv[2]='init'，跳过；直接运行 init entrypoint 时 argv[2] 是目标目录
 const initArgs = process.argv[2] === 'init' ? process.argv.slice(3) : process.argv.slice(2);
 const INIT_DOC_SECTION_RE = /<!--\s*lattice:start\s*-->[\s\S]*?<!--\s*lattice:end\s*-->/;
 const GITIGNORE_RUNTIME_BLOCK_RE = new RegExp(
@@ -236,31 +238,31 @@ const arg = parseTargetDir(initArgs);
 
 if (initArgs.includes('--help') || initArgs.includes('-h') || initArgs.includes('help')) {
   console.log(`
-lattice init — 初始化 Proofbound 开发框架
+proof-or-stop init — 初始化 Proof-or-Stop 开发框架
 
 用法:
-  lattice init [目标目录]                    在指定目录初始化（默认当前目录）
-  lattice init --profile <profile> [目标目录]
+  proof-or-stop init [目标目录]                    在指定目录初始化（默认当前目录）
+  proof-or-stop init --profile <profile> [目标目录]
                                         选择 init profile: codex | claude | all | core
-  lattice init --asset-mode <mode> [目标目录]
+  proof-or-stop init --asset-mode <mode> [目标目录]
                                         选择资产模式: global-thin（默认）| full | thin
-  lattice init --starter [目标目录]          额外生成旧版 starter 业务模板
-  lattice init --with-template [目标目录]    --starter 的同义 alias
-  lattice init --upgrade [目标目录]          同步 Proofbound 管理资产到当前版本
-  lattice init --verify-codex [目标目录]     初始化后校验 Codex adapter 资产
-  lattice init --help                        显示帮助
+  proof-or-stop init --starter [目标目录]          额外生成旧版 starter 业务模板
+  proof-or-stop init --with-template [目标目录]    --starter 的同义 alias
+  proof-or-stop init --upgrade [目标目录]          同步 Proof-or-Stop 管理资产到当前版本
+  proof-or-stop init --verify-codex [目标目录]     初始化后校验 Codex adapter 资产
+  proof-or-stop init --help                        显示帮助
 
 默认初始化（global-thin mode）:
-  .lattice/Lattice.md           canonical host-neutral Proofbound 指南（新目录）
-  .lattice/lattice.json         项目 Proofbound 配置（global-thin）
+  .lattice/Lattice.md           canonical host-neutral Proof-or-Stop 指南（新目录）
+  .lattice/lattice.json         项目 Proof-or-Stop 配置（global-thin）
   AGENTS.md                     薄 Codex/AGENTS 指南（引用全局 lattice CLI）
   lattice.config.json           项目配置（canonical）
   .lattice/story/actives/       Story 数据目录
   docs/requirements/            真相源目录
 
 full/thin asset mode（显式 --asset-mode=full 或 --asset-mode=thin）:
-  LATTICE.md                    canonical host-neutral Proofbound 指南（旧位置）
-  bin/lattice.js                本地 Proofbound bootstrap（仅 full/thin）
+  LATTICE.md                    canonical host-neutral Proof-or-Stop 指南（旧位置）
+  bin/proof-or-stop.js          本地 Proof-or-Stop bootstrap（仅 full/thin）
   .lattice-codex/lattice.json           Codex adapter manifest（仅 full/thin + codex profile）
   .lattice-codex/agents                 agent prompt copies（仅 full mode + codex profile）
 
@@ -274,9 +276,9 @@ full/thin asset mode（显式 --asset-mode=full 或 --asset-mode=thin）:
 
 初始化后（global-thin）:
   1. 阅读 .lattice/Lattice.md
-  2. 使用全局 lattice CLI：lattice session_brief、lattice codex verify、lattice codex doctor
+  2. 使用全局 lattice CLI：proof-or-stop session_brief、proof-or-stop codex verify、proof-or-stop codex doctor
   3. 可选: 编辑 lattice.config.json 调整 scanRoot 等路径
-  4. 可选: lattice validate 跑项目验证
+  4. 可选: proof-or-stop validate 跑项目验证
 `);
   process.exit(0);
 }
@@ -295,7 +297,7 @@ const isPython = existsSync(join(targetDir, 'requirements.txt'))
   || existsSync(join(targetDir, 'pyproject.toml'))
   || existsSync(join(targetDir, 'setup.py'));
 
-console.log(`\nInitializing Proofbound in ${targetDir}\n`);
+console.log(`\nInitializing Proof-or-Stop in ${targetDir}\n`);
 console.log(`Selected init profile: ${selectedProfile}`);
 console.log(`Profile reason: ${selectedProfileInfo.reason}`);
 console.log(`Codex asset mode: ${selectedAssetMode}`);
@@ -348,16 +350,16 @@ function writeManagedMarkdown(relPath: string, desiredContent: string, label: st
 
   const existing = readFileSync(full, 'utf-8');
   if (!INIT_DOC_SECTION_RE.test(existing)) {
-    console.log(`  - ${label} (exists, no Proofbound managed markers, skip)`);
+    console.log(`  - ${label} (exists, no Proof-or-Stop managed markers, skip)`);
     return;
   }
 
   const updated = existing.replace(INIT_DOC_SECTION_RE, extractManagedSection(desiredContent));
   if (updated !== existing) {
     writeFileSync(full, updated);
-    console.log(`  ✓ ${label} (Proofbound section synced)`);
+    console.log(`  ✓ ${label} (Proof-or-Stop section synced)`);
   } else {
-    console.log(`  - ${label} (Proofbound section up to date)`);
+    console.log(`  - ${label} (Proof-or-Stop section up to date)`);
   }
 }
 
@@ -473,13 +475,18 @@ function removeClaudeSettingsIfManaged() {
 }
 
 function removeCodexWrapperIfManaged() {
-  removeWholeFileIfGenerated('bin/lattice-codex.js', 'bin/lattice-codex.js', [renderLatticeCodexWrapperScript()]);
+  // Both the canonical wrapper and the retained deprecated alias are managed-generated
+  // shapes, so profile cleanup must consider both names (B-cdf6). A file whose content
+  // is not the generated template is still left alone by removeWholeFileIfGenerated.
+  for (const rel of ['bin/proof-or-stop-codex.js', 'bin/lattice-codex.js']) {
+    removeWholeFileIfGenerated(rel, rel, [renderProofOrStopCodexWrapperScript()]);
+  }
 }
 
 function removeCodexManifestIfManaged() {
   removeWholeFileIfGenerated('.lattice-codex/lattice.json', '.lattice-codex/lattice.json', [
-    renderLatticeCodexAdapterManifest(),
-    renderLatticeCodexAdapterManifest({ promptMode: 'registry' }),
+    renderProofOrStopCodexAdapterManifest(),
+    renderProofOrStopCodexAdapterManifest({ promptMode: 'registry' }),
   ]);
 }
 
@@ -545,7 +552,7 @@ for (const d of dirs) {
   }
 }
 
-// 1.5 .gitignore（同步 Proofbound runtime ignore 模板）
+// 1.5 .gitignore（同步 Proof-or-Stop runtime ignore 模板）
 const giPath = join(targetDir, '.gitignore');
 const giSrc = join(packageRoot, '..', '..', '.gitignore');
 if (!existsSync(giPath)) {
@@ -558,9 +565,9 @@ if (!existsSync(giPath)) {
     const merged = mergeLatticeRuntimeIgnores(readFileSync(giPath, 'utf8'));
     if (merged.changed) {
       writeFileSync(giPath, merged.content);
-      console.log('  ✓ .gitignore (copied from Proofbound template, runtime ignores synced)');
+      console.log('  ✓ .gitignore (copied from Proof-or-Stop template, runtime ignores synced)');
     } else {
-      console.log('  ✓ .gitignore (copied from Proofbound template)');
+      console.log('  ✓ .gitignore (copied from Proof-or-Stop template)');
     }
   } else {
     const minimalGitignore = [
@@ -583,7 +590,7 @@ if (!existsSync(giPath)) {
   const mergeResult = mergeLatticeRuntimeIgnores(readFileSync(giPath, 'utf8'));
   if (mergeResult.changed) {
     writeFileSync(giPath, mergeResult.content);
-    console.log('  ✓ .gitignore (merged Proofbound runtime ignores)');
+    console.log('  ✓ .gitignore (merged Proof-or-Stop runtime ignores)');
   } else {
     console.log('  - .gitignore (runtime ignores already present)');
   }
@@ -607,22 +614,36 @@ if (withStarter) {
   }
 }
 
-const codexWrapperPath = join(targetDir, 'bin', 'lattice-codex.js');
+// B-cdf6: init writes the CANONICAL wrapper names. The deprecated `bin/lattice.js` /
+// `bin/lattice-codex.js` names are still ACCEPTED (a project that already has them is
+// left alone rather than gaining a duplicate), but they are never newly generated —
+// otherwise fresh projects would keep inheriting the retired brand.
+const CANONICAL_BOOTSTRAP_REL = 'bin/proof-or-stop.js';
+const CANONICAL_CODEX_WRAPPER_REL = 'bin/proof-or-stop-codex.js';
+const DEPRECATED_BOOTSTRAP_REL = 'bin/lattice.js';
+const DEPRECATED_CODEX_WRAPPER_REL = 'bin/lattice-codex.js';
+
+const existingCodexWrapperRel = [CANONICAL_CODEX_WRAPPER_REL, DEPRECATED_CODEX_WRAPPER_REL]
+  .find(rel => existsSync(join(targetDir, rel)));
+
 if (!isGlobalThin) {
-  writeExecutable('bin/lattice.js', renderLatticeBootstrapScript(packageRoot));
+  writeExecutable(CANONICAL_BOOTSTRAP_REL, renderProofOrStopBootstrapScript(packageRoot));
+  if (existsSync(join(targetDir, DEPRECATED_BOOTSTRAP_REL))) {
+    console.log(`  - ${DEPRECATED_BOOTSTRAP_REL} (deprecated alias retained, still works)`);
+  }
 } else {
-  console.log('  - bin/lattice.js (global-thin mode; use global lattice CLI)');
+  console.log(`  - ${CANONICAL_BOOTSTRAP_REL} (global-thin mode; use global proof-or-stop CLI)`);
 }
 
-if (!isGlobalThin && wantsCodex && !existsSync(codexWrapperPath)) {
-  writeExecutable('bin/lattice-codex.js', renderLatticeCodexWrapperScript());
-  console.log('  ✓ bin/lattice-codex.js (Codex wrapper)');
+if (!isGlobalThin && wantsCodex && !existingCodexWrapperRel) {
+  writeExecutable(CANONICAL_CODEX_WRAPPER_REL, renderProofOrStopCodexWrapperScript());
+  console.log(`  ✓ ${CANONICAL_CODEX_WRAPPER_REL} (Codex wrapper)`);
 } else if (!isGlobalThin && wantsCodex) {
-  console.log('  - bin/lattice-codex.js (exists, skip)');
+  console.log(`  - ${existingCodexWrapperRel} (exists, skip)`);
 } else if (isGlobalThin) {
-  console.log('  - bin/lattice-codex.js (global-thin mode; use lattice codex verify)');
+  console.log(`  - ${CANONICAL_CODEX_WRAPPER_REL} (global-thin mode; use proof-or-stop codex verify)`);
 } else {
-  console.log('  - bin/lattice-codex.js (profile skip)');
+  console.log(`  - ${CANONICAL_CODEX_WRAPPER_REL} (profile skip)`);
 }
 
 // 生成 CLI shell 模板
@@ -787,11 +808,12 @@ if (withStarter && !existsSync(debugPath)) {
 
 import { devHost } from '@lattice/core/dev-host';
 import { createApp } from './app.js';
+import { readBrandEnv } from './core/brand-env.js';
 // import { GameMachine } from './machines/game/machine.js';
 
 // const app = await devHost(createApp, GameMachine);
 
-// if (process.env.LATTICE_SHELL === 'cli') {
+// if (readBrandEnv('SHELL') === 'cli') {
 //   const { startCliShell } = await import('../shells/cli/main.js');
 //   startCliShell(app.bridge);
 // }
@@ -804,7 +826,7 @@ console.log('\n[2/5] 生成 lattice.config.json...');
 const latticeConfig: Record<string, unknown> = {
   scanRoot: withStarter || hadSrcBeforeInit ? 'src' : '.',
   testsDir: 'tests',
-  storyDir: LATTICE_STORY_DIR,
+  storyDir: PROOF_OR_STOP_STORY_DIR,
   requirementsDir: 'docs/requirements',
   storyPrefix: 'S',
 };
@@ -835,7 +857,7 @@ if (existsSync(join(targetDir, 'lattice.config.json'))) {
 }
 
 // 3. 文档入口
-console.log('\n[3/5] 配置 Proofbound / host 文档...');
+console.log('\n[3/5] 配置 Proof-or-Stop / host 文档...');
 if (isGlobalThin) {
   writeManagedMarkdown('.lattice/Lattice.md', LATTICE_DOT_DIR_MD_TEMPLATE, '.lattice/Lattice.md');
   const latticeConfigPath = join(targetDir, '.lattice', 'lattice.json');
@@ -869,7 +891,7 @@ if (isGlobalThin) {
 // ~/.claude/agents 对所有项目生效，project-level 会 shadow user-level。
 // prompt 正文绝不物化进宿主目录（symlink 也算暴露）；每个角色只放一个
 // thin-shim（frontmatter + tools + "从 CLI 取指令" body），正文由
-// `lattice agent_prompt --role=<name>` 从包内 registry 现取。
+// `proof-or-stop agent_prompt --role=<name>` 从包内 registry 现取。
 console.log('\n[4/5] 同步 agent 适配器（全局 thin-shim 单一源）...');
 const agentDstDir = join(targetDir, '.claude', 'agents');
 if (wantsClaude && agentTemplateDir) {
@@ -901,7 +923,7 @@ if (wantsClaude && agentTemplateDir) {
     } else {
       console.log(
         `  ⚠ ${projectScan.managedFiles.length} managed agent files found in .claude/agents; ` +
-          `run lattice init --upgrade to migrate to global`,
+          `run proof-or-stop init --upgrade to migrate to global`,
       );
     }
   }
@@ -918,11 +940,11 @@ if (!isGlobalThin && wantsCodex) {
   console.log('  ✓ .lattice-codex/README.md');
 
   const codexManifestPath = join(targetDir, '.lattice-codex', 'lattice.json');
-  writeFileSync(codexManifestPath, renderLatticeCodexAdapterManifest(selectedAssetMode === 'thin' ? { promptMode: 'registry' } : {}));
+  writeFileSync(codexManifestPath, renderProofOrStopCodexAdapterManifest(selectedAssetMode === 'thin' ? { promptMode: 'registry' } : {}));
   console.log('  ✓ .lattice-codex/lattice.json');
 } else if (isGlobalThin) {
   console.log('  - .lattice-codex/README.md (global-thin mode; Codex adapter runs from global lattice CLI)');
-  console.log('  - .lattice-codex/lattice.json (global-thin mode; use lattice codex verify)');
+  console.log('  - .lattice-codex/lattice.json (global-thin mode; use proof-or-stop codex verify)');
 } else {
   console.log('  - .lattice-codex/README.md (profile skip)');
   console.log('  - .lattice-codex/lattice.json (profile skip)');
@@ -943,11 +965,30 @@ if (!isGlobalThin && wantsCodex && selectedAssetMode === 'thin') {
   for (const file of agentPromptFiles) {
     const src = join(agentTemplateDir, file);
     const dst = join(codexAgentDir, file);
-    const packageContent = renderCodexAgentContent(readFileSync(src, 'utf-8'));
     const roleId = file.replace(/\.md$/, '');
-    const content = isModularReviewerRoleId(roleId)
-      ? renderReviewerRunBootstrapForTemplate(packageContent, file)
-      : packageContent;
+    // B-META-framework-audit:F-005 — a MODULAR COMPLEX role must be materialized as
+    // its digest-pinned legacy-full-context reconstruction, not as the raw modular
+    // template. `verify_codex`'s agents-mirror check compares each file against
+    // `renderPromptEntryForHost(entry, 'codex')`, which defaults complex roles to
+    // 'legacy-full-context' (prompt-registry.ts:415-417). Reading the template
+    // straight off disk emitted the modular body instead (marker
+    // proofbound:modular-role-body:v1 — for lattice-evaluator the modular template is
+    // 3945 bytes / 3939 UTF-16 units against the expected 9008 bytes / 8998 UTF-16
+    // units; both units are given because the template contains 3 non-ASCII
+    // characters, so byte and string lengths differ and quoting one as the other
+    // silently compares different measures), so a freshly `init`-ed project failed its
+    // own verify_codex for exactly the 5 MODULAR_COMPLEX_ROLE_IDS. Reproduced on the
+    // pristine main checkout, so this predates the proof-or-stop rename.
+    //
+    // restoreLegacyPromptTemplate validates its output against the pinned
+    // LEGACY_COMPLEX_TEMPLATE_SHA256 digest, so this cannot silently drift: a
+    // template edit that changes the reconstruction throws instead of writing a
+    // mismatched mirror.
+    const registryEntry = readPromptRegistry(agentTemplateDir).agents
+      .find(entry => entry.agentId === roleId);
+    const content = registryEntry
+      ? renderPromptEntryForHost(registryEntry, 'codex')
+      : renderCodexAgentContent(readFileSync(src, 'utf-8'));
     if (existsSync(dst)) {
       try {
         const stat = lstatSync(dst);
@@ -996,7 +1037,7 @@ if (wantsClaude) {
     try {
       const existing = JSON.parse(readFileSync(settingsPath, 'utf-8'));
       if (!existing.hooks) existing.hooks = {};
-      // 只添加缺失的 Proofbound hook，不覆盖用户已有配置。
+      // 只添加缺失的 Proof-or-Stop hook，不覆盖用户已有配置。
       for (const [event, hooks] of Object.entries(claudeHooks)) {
         if (!existing.hooks[event]) {
           existing.hooks[event] = hooks;
@@ -1020,7 +1061,7 @@ if (wantsClaude) {
         );
         if (migrated.changed) {
           existing.hooks[event] = migrated.entries;
-          console.log(`  ✓ settings.json: 迁移 ${event} Proofbound hook 名称`);
+          console.log(`  ✓ settings.json: 迁移 ${event} Proof-or-Stop hook 名称`);
         }
         let mergedAny = false;
         for (const entry of hooks) {
@@ -1031,7 +1072,7 @@ if (wantsClaude) {
           }
         }
         if (mergedAny) {
-          console.log(`  ✓ settings.json: 合并 ${event} Proofbound hook`);
+          console.log(`  ✓ settings.json: 合并 ${event} Proof-or-Stop hook`);
         } else {
           console.log(`  - settings.json: ${event} hook 已存在, skip`);
         }
@@ -1068,7 +1109,7 @@ if (wantsCodex || isGlobalThin) {
         console.log(`  - .codex/hooks.json: ${merged.incompatible.join(', ')} hook shape incompatible, skip`);
       } else if (merged.changed) {
         writeFileSync(codexHooksPath, JSON.stringify(merged.updated, null, 2) + '\n');
-        console.log('  ✓ .codex/hooks.json: merged Proofbound PreToolUse hook');
+        console.log('  ✓ .codex/hooks.json: merged Proof-or-Stop PreToolUse hook');
       } else {
         console.log('  - .codex/hooks.json: PreToolUse hook exists, skip');
       }
@@ -1085,7 +1126,7 @@ if (wantsCodex || isGlobalThin) {
 }
 
 if (upgradeManagedAssets) {
-  console.log('\n[upgrade] 同步 Proofbound 管理资产...');
+  console.log('\n[upgrade] 同步 Proof-or-Stop 管理资产...');
   const result = runManagedAssetCheck(targetDir, { apply: true, profile: selectedProfile, assetMode: selectedAssetMode });
   console.log(renderManagedAssetCheck(result));
   if (!result.ok) process.exit(1);
@@ -1096,11 +1137,11 @@ console.log(`
 
 Next steps:
 ${isGlobalThin ? `  1. Read .lattice/Lattice.md
-  2. Use the global lattice CLI: lattice session_brief
-  3. For Codex adapter: lattice codex verify / lattice codex doctor
-  4. Optional: lattice validate to verify project` : `  1. Read LATTICE.md, then use the entrypoints generated for profile ${selectedProfile}
+  2. Use the global lattice CLI: proof-or-stop session_brief
+  3. For Codex adapter: proof-or-stop codex verify / proof-or-stop codex doctor
+  4. Optional: proof-or-stop validate to verify project` : `  1. Read LATTICE.md, then use the entrypoints generated for profile ${selectedProfile}
   2. Optional: edit lattice.config.json to adjust scanRoot
-  3. Optional: lattice validate to verify project`}
+  3. Optional: proof-or-stop validate to verify project`}
 `);
 
 if (verifyCodex) {

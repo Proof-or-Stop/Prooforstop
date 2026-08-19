@@ -1,0 +1,144 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-08-18T17:16:57.755Z",
+      "issueCount": 8,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_original_intent_snapshot: Intent MVP requires original_intent_snapshot_set with sourceText, normalizedOutcome, and acceptanceClaim. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_intent_collision: Intent collision is triggered but no pass decision with acceptedInterpretation is present. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_red_evidence: Red evidence is triggered but no current red evidence record binds baseline head/material to the correct acceptance target and green relation. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "verification_intent_advisory",
+          "severity": "advisory",
+          "message": "express channel allows fast path, but recommend adding at least one verificationIntent.happy for CHK-001 to help REVIEW/test-coverage reviewer align."
+        },
+        {
+          "type": "touchpoint_mapping_missing",
+          "severity": "advisory",
+          "message": "None of the checklist items have the files field filled in (legacy story compatibility mode); cannot perform coverage validation on understanding.touchpoints. Please list the changed files in files.modify/create/test for at least one item to enable strict touchpoint-to-files validation"
+        },
+        {
+          "type": "missing_scope_check",
+          "severity": "blocker",
+          "message": "missing_scope_check: scope-check.json is missing PLAN gate evidence. Start a story-level PLAN scope reviewer with `proof-or-stop dispatch --storyId=B-d15e --agentType=lattice-review-scope-plan`; dispatch output is not gate evidence, and the lattice-review-scope-plan / scope-plan reviewer must finish by calling `proof-or-stop scope_check_save`. The implementation/main agent must not self-sign this evidence or manually edit story metadata. Local CLI guidance is not remote completion and must not be presented as receipt verification or production/full completion."
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-d15e is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "3ea7ed45fc781c7b424c71ab8521bdb0a9d3159b80e7ef5ddc0c6abffcfa92e9"
+    },
+    {
+      "timestamp": "2026-08-18T17:21:37.522Z",
+      "issueCount": 5,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_original_intent_snapshot: Intent MVP requires original_intent_snapshot_set with sourceText, normalizedOutcome, and acceptanceClaim. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_intent_collision: Intent collision is triggered but no pass decision with acceptedInterpretation is present. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_red_evidence: Red evidence is triggered but no current red evidence record binds baseline head/material to the correct acceptance target and green relation. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"Add regression coverage proving receipt consumers observe the runtime-enforced canonical budget.\" but there is no corresponding checklist item and it is not excluded"
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-d15e is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "5b52e845f2c1171f7f5e1bc1538ac246a61d2da9a072b6b8b4f4befeb947d794"
+    },
+    {
+      "timestamp": "2026-08-18T17:24:51.266Z",
+      "issueCount": 5,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 (\"Add regression coverage for canonical full-suite budget telemetry\") was added in PLAN phase: PLAN scope reviewer found the regression-coverage deliverable was present in the description but not represented by its own checklist title."
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "2 checklist items; please check for missing combined scenarios (e.g., what happens when Use the canonical full-suite budget in the result artifact + Add regression coverage for canonical full-suite budget telemetry are performed simultaneously?)"
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_acceptance_binding: No ProofStory acceptance binding maps the snapshot acceptanceClaim to checklist/verificationIntent refs. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_red_evidence: Red evidence is triggered but no current red evidence record binds baseline head/material to the correct acceptance target and green relation. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-d15e is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "9103ca4c6fdb4a4de81a0616948a33dc4bf3cb4a2cfadaf40f21f4ccc2d89fa2"
+    },
+    {
+      "timestamp": "2026-08-18T17:30:15.380Z",
+      "issueCount": 3,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 (\"Add regression coverage for canonical full-suite budget telemetry\") was added in PLAN phase: PLAN scope reviewer found the regression-coverage deliverable was present in the description but not represented by its own checklist title."
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "2 checklist items; please check for missing combined scenarios (e.g., what happens when Use the canonical full-suite budget in the result artifact + Add regression coverage for canonical full-suite budget telemetry are performed simultaneously?)"
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-d15e is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "a9dda72162d4ca808b042a9be5e9f0a1a4eef01dd7f158e1bab342792311750d"
+    }
+  ]
+}

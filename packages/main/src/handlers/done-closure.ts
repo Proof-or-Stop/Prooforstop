@@ -67,7 +67,7 @@ function rowAssuranceImpact(row: DoneCheckRow): AssuranceImpact {
 }
 
 function donePrepareCommand(storyId: string): string {
-  return `lattice done_prepare '{"storyId":"${storyId}","mergeMain":true,"refreshStale":true,"validate":true}'`;
+  return `proof-or-stop done_prepare '{"storyId":"${storyId}","mergeMain":true,"refreshStale":true,"validate":true}'`;
 }
 
 function isDonePrepareRecoveryBlocker(row: DoneCheckRow): boolean {
@@ -79,26 +79,26 @@ function nextCommandForRow(storyId: string, row: DoneCheckRow): string | undefin
   switch (row.id) {
     case 'test-evidence':
     case 'verification-intent-coverage':
-      return `lattice validate --story=${storyId} --json`;
+      return `proof-or-stop validate --story=${storyId} --json`;
     case 'evidence-freshness':
     case 'done-required-validation':
     case 'branch-synced-main':
       return row.blocking ? row.hint : undefined;
     case 'bugs-fixed':
-      return `lattice bug_list '{"storyId":"${storyId}"}'`;
+      return `proof-or-stop bug_list '{"storyId":"${storyId}"}'`;
     case 'git-working-tree':
       return 'git status --short';
     case 'delivery-check':
-      return 'lattice delivery_check_set ...';
+      return 'proof-or-stop delivery_check_set ...';
     case 'story-summary':
-      return `lattice summary_set '{"storyId":"${storyId}",...}'`;
+      return `proof-or-stop summary_set '{"storyId":"${storyId}",...}'`;
     case 'declared-artifacts-referenced':
     case 'declared-artifacts-committed':
-      return 'lattice artifact_declare ...';
+      return 'proof-or-stop artifact_declare ...';
     case 'eval-evidence':
-      return `lattice evaluate '{"storyId":"${storyId}"}'`;
+      return `proof-or-stop evaluate '{"storyId":"${storyId}"}'`;
     case 'codex-adapter-evidence':
-      return `lattice verify_codex '{"storyId":"${storyId}"}'`;
+      return `proof-or-stop verify_codex '{"storyId":"${storyId}"}'`;
     default:
       return row.hint;
   }

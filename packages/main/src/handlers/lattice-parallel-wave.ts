@@ -14,7 +14,7 @@ import {
   type LatticeParallelPlan,
   type LatticeParallelReport,
   type LatticeParallelStatus,
-  type LatticeParallelWave,
+  type ProofOrStopParallelWave,
   type LatticeParallelWaveInspection,
   type ParallelWaveProjectionOptions,
 } from '../core/lattice-parallel-wave.js';
@@ -26,7 +26,7 @@ function writeJsonNoOverwrite(file: string, value: unknown): void {
   writeFileSync(file, JSON.stringify(value, null, 2) + '\n', 'utf8');
 }
 
-function storySummary(wave: Pick<LatticeParallelWave, 'storyRefs'>): string {
+function storySummary(wave: Pick<ProofOrStopParallelWave, 'storyRefs'>): string {
   const candidateCount = wave.storyRefs.filter(ref => ref.parallelDevRecommended).length;
   const planOnlyCount = wave.storyRefs.filter(ref => ref.recommendation === 'plan_only').length;
   const blockedCount = wave.storyRefs.filter(ref => ref.recommendation === 'blocked').length;
@@ -51,7 +51,7 @@ function waveFromArgs(ctx: HandlerContext, args: {
   storyIds?: string[];
   hosts?: string[];
   waveId?: string;
-}): LatticeParallelWave {
+}): ProofOrStopParallelWave {
   return args.file
     ? readParallelWave(resolve(process.cwd(), args.file))
     : createParallelWave(ctx.store, ctx.root, {
@@ -74,7 +74,7 @@ function projectionOptions(ctx: HandlerContext, args: {
   };
 }
 
-function renderParallelWaveText(wave: LatticeParallelWave): string {
+function renderParallelWaveText(wave: ProofOrStopParallelWave): string {
   return [
     `Parallel wave (${wave.schemaVersion})`,
     `waveId: ${wave.waveId}`,

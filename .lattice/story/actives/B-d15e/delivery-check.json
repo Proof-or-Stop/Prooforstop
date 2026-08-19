@@ -1,0 +1,42 @@
+{
+  "storyId": "B-d15e",
+  "checkedAt": "2026-08-18T18:22:29.569Z",
+  "headHash": "1d0a2bfcfc1d0a0a5d7a5a35e80f2ec0fae35d88",
+  "materialHash": "f001d7115e3f0966cc1dc27ce7eb6cfb43ddb821cc8148b55fb85b612347ed80",
+  "storyFilesHash": "7a459d75a61d67fee24be9bc690d28d0aea53e97f8f67437da20a4d9d8f401d3",
+  "reviewRound": "2026-08-18T17:36:43.661Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "checklist.json#CHK-001.userSees",
+      "promise": "The full-suite JSON result contains \"performanceBudgetMs\": 1200000, and npm run test:full-suite-runner-smoke prints full-suite-runner-smoke: PASS.",
+      "status": "verified",
+      "verifiedBy": "Two-file diff plus fresh mechanical receipts and live-smoke transcript",
+      "evidence": "full-suite-runner.ts defines FULL_SUITE_BUDGET_MS=1_200_000 and writes performanceBudgetMs: FULL_SUITE_BUDGET_MS; CHK-001 build receipt exits 0; CHK-002 root smoke receipt exits 0 and ends full-suite-runner-smoke: PASS (153 assertions); evidence/live-smoke-transcript.json is present-fresh with successful command exit."
+    },
+    {
+      "docPath": "checklist.json#CHK-002.userSees",
+      "promise": "npm run test:full-suite-runner-smoke prints full-suite-runner-smoke: PASS; changing the initializer back to 300_000 makes that smoke fail.",
+      "status": "verified",
+      "verifiedBy": "Focused smoke source assertion, numeric mutation assertion, and fresh mechanical receipts",
+      "evidence": "full-suite-runner-smoke.ts requires the canonical constant, rejects numeric performanceBudgetMs initializers, mutates the real initializer in memory to 300_000, and asserts rejection; CHK-002 happy and adversarial receipts both exit 0 with selectorMatched=true and PASS (153 assertions)."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Fresh evidence/live-smoke-transcript.json is classified present-fresh and successful-exit for npm run test:full-suite-runner-smoke; the signed receipt exits 0 and prints full-suite-runner-smoke: PASS (153 assertions). Routine proof-or-stop validate PASS recorded 105 commands, requiredFailureCount=0, optionalFailureCount=0."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Fresh root smoke exit 0 covers result artifact canonical-budget assertion and numeric performance budget shadow-copy mutation rejection; both happy and adversarial mechanical receipts are selectorMatched=true and bound to current materialHash/storyFilesHash."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivered: the JSON telemetry derives from the 1,200,000 ms canonical budget, the focused smoke rejects regression to numeric 300_000, all three signed verification receipts are fresh, routine validation is 105/105 PASS, and the live root-smoke transcript is fresh with exit 0."
+  },
+  "_hash": "2e74b74d4db5ca9770faf4f445ec88912f4dca60a2125e2374c07b57f4e5a52b"
+}

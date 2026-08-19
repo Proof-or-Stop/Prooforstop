@@ -1,5 +1,5 @@
 import { listArtifacts, readArtifact, verifyArtifactDigest } from './evidence/artifact-store.js';
-import { loadConfig, LATTICE_CONFIG_FILENAME } from './config.js';
+import { loadConfig, PROOF_OR_STOP_CONFIG_FILENAME } from './config.js';
 import { buildProofAdmissibilityDiagnostic } from './proof-admissibility-gates.js';
 import {
   buildMaterialClassificationSnapshot,
@@ -172,8 +172,8 @@ function materialPolicyErrorResult(
 ): StoryEvidenceBindingGateResult {
   const isFreshness = err.offendingKey === 'materialClassification.freshness';
   const remediation = isFreshness
-    ? `→ Ensure the story workspace/git tree is present and readable (this is a workspace/git error, not a ${LATTICE_CONFIG_FILENAME} problem), then re-run the transition.`
-    : `→ Fix ${LATTICE_CONFIG_FILENAME} (the material-code policy fails closed rather than degrading to a TS-only whitelist), then re-run the transition.`;
+    ? `→ Ensure the story workspace/git tree is present and readable (this is a workspace/git error, not a ${PROOF_OR_STOP_CONFIG_FILENAME} problem), then re-run the transition.`
+    : `→ Fix ${PROOF_OR_STOP_CONFIG_FILENAME} (the material-code policy fails closed rather than degrading to a TS-only whitelist), then re-run the transition.`;
   return resultFor({
     ok: false,
     required: true,

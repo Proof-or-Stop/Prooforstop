@@ -2033,7 +2033,7 @@ export function evaluateDoneIntentEquivalence(
     // Primary remedy: recording passing evidence for the uncovered refs is the
     // mechanism that clears this gap, and the command is legal in every phase.
     const primaryRemedy = allMissingRefs.length > 0
-      ? ` → Fix (primary, allowed in every phase): record passing verification evidence for uncovered intent ref(s) ${allMissingRefs.join(', ')} on story ${input.story.storyId} — lattice verification_evidence_add (or lattice verification_evidence_batch_add for several at once); see lattice verification_evidence_add --help.`
+      ? ` → Fix (primary, allowed in every phase): record passing verification evidence for uncovered intent ref(s) ${allMissingRefs.join(', ')} on story ${input.story.storyId} — proof-or-stop verification_evidence_add (or proof-or-stop verification_evidence_batch_add for several at once); see proof-or-stop verification_evidence_add --help.`
       : '';
     // Secondary remedy: only when at least one row genuinely lags delivered
     // checklist coverage (ledger-lag correction) or has no verificationIntentRefs
@@ -2041,7 +2041,7 @@ export function evaluateDoneIntentEquivalence(
     const anyRowLags = uncoveredRows.some((row) => rowLagsChecklist(row));
     const anyRowUnbound = uncoveredRows.some((row) => row.verificationIntentRefs.length === 0);
     const secondaryRemedy = (anyRowLags || anyRowUnbound)
-      ? ' → Only if a ledger row itself needs correction: lattice milestone_ledger_set (see lattice milestone_ledger_set --help) — CAUTION: it FULL-REPLACES the ledger (re-submit the complete milestone list, not just the rows above) and it is PLAN-phase-only (return the story to PLAN first).'
+      ? ' → Only if a ledger row itself needs correction: proof-or-stop milestone_ledger_set (see proof-or-stop milestone_ledger_set --help) — CAUTION: it FULL-REPLACES the ledger (re-submit the complete milestone list, not just the rows above) and it is PLAN-phase-only (return the story to PLAN first).'
       : '';
     gaps.push(gap(
       'uncovered_required_milestones',

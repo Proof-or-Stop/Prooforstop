@@ -55,6 +55,8 @@ import { MKDIR_LOCK_HOLDER_FILE } from '../core/mkdir-lock.js';
 import { MAIN_TOOLS } from '../cli-engine.js';
 import { createVerifierHandlers } from '../handlers/verifier.js';
 import { createVerdictHandlers } from '../handlers/verdict.js';
+import type { HandlerContext } from '../handlers/context.js';
+import { assessStoredValidationPassAdmissibility } from '../handlers/phase-gates.js';
 import { verificationIntentSchema } from '../cli/command-schemas.js';
 
 const DEFAULT_STORY_ID = 'B-validate-lock';
@@ -213,7 +215,7 @@ async function waitChild(proc: SpawnedChild, timeoutMs: number): Promise<ChildRe
   return Promise.race([proc.done, timeout]);
 }
 
-async function runLattice(root: string, command: string, args: Record<string, unknown>): Promise<string> {
+async function runProofOrStop(root: string, command: string, args: Record<string, unknown>): Promise<string> {
   const proc = spawnCommand(root, [command, JSON.stringify(args)], command);
   const result = await waitChild(proc, 10000);
   if (result.code !== 0) {
@@ -467,12 +469,12 @@ async function assertReviewerWritesAreNotBlocked(): Promise<void> {
     const validate = spawnValidate(root, storyId, 'review-holder');
     assert.equal(await waitForEntered(root, 1, 4000), true, 'validate must hold the execution lock');
 
-    const reviewRunOutput = await runLattice(root, 'review_run_start', {
+    const reviewRunOutput = await runProofOrStop(root, 'review_run_start', {
       storyId,
       agent: 'lattice-review-quality',
     });
     const reviewRunId = extractReviewRunId(reviewRunOutput);
-    await runLattice(root, 'review_pass_set', {
+    await runProofOrStop(root, 'review_pass_set', {
       storyId,
       agent: 'lattice-review-quality',
       reviewRunId,
@@ -496,7 +498,7 @@ async function assertDeliveryCheckSetIsNotBlocked(): Promise<void> {
     const validate = spawnValidate(root, storyId, 'delivery-holder');
     assert.equal(await waitForEntered(root, 1, 4000), true, 'validate must hold the execution lock');
 
-    await runLattice(root, 'delivery_check_set', {
+    await runProofOrStop(root, 'delivery_check_set', {
       storyId,
       agentId: 'lattice-review-delivery',
       docsPromises: [{
@@ -1244,7 +1246,7 @@ async function assertBareNpmAndReadOnlyCommandsBypassCapacity(): Promise<void> {
       ['story_get', { storyId, slim: true }],
       ['checklist_get', { storyId, slim: true }],
     ] as const) {
-      const output = await runLattice(root, command, args);
+      const output = await runProofOrStop(root, command, args);
       assert.ok(output.trim(), `${command} must complete while validation capacity is held`);
     }
     assert.deepEqual(capacityTicketPaths(root), ticketBefore,
@@ -1269,7 +1271,7 @@ async function assertDerivedVerdictCannotBypassCapacity(): Promise<void> {
     const coverage = { total: 0, required: 0, covered: 0, missingRequired: 0, entries: [] };
     store.writeTestEvidence(storyId, {
       result: 'PASS',
-      command: `lattice validate --story=${storyId} --json`,
+      command: `proof-or-stop validate --story=${storyId} --json`,
       output: JSON.stringify({ allPass: true, verificationCoverage: coverage }),
       timestamp: NOW,
       headHash: git(root, ['rev-parse', 'HEAD']).trim(),
@@ -1278,6 +1280,20 @@ async function assertDerivedVerdictCannotBypassCapacity(): Promise<void> {
       verificationCoverage: coverage,
     });
     process.chdir(root);
+
+    // B-3434 F-055: everything below asserts a NEGATIVE (the derived verdict must
+    // not settle while capacity is held). A negative is only evidence about the
+    // capacity guard if the input would otherwise have been accepted, so the
+    // seeded evidence is proven admissible FIRST — against the same gate the
+    // derive path calls, which is also what pins the command string above without
+    // this file restating the expected command.
+    const gateContext = { store, root, scanRoot: join(root, 'packages/main') } as HandlerContext;
+    const seededAdmissibility = assessStoredValidationPassAdmissibility(gateContext, storyId);
+    assert.equal(
+      seededAdmissibility.ok,
+      true,
+      `seeded validation evidence must be admissible before the capacity negative is meaningful: ${seededAdmissibility.reasons.join('; ')}`,
+    );
 
     let releaseOwner!: () => void;
     let ownerReady!: () => void;

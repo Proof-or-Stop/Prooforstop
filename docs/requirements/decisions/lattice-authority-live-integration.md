@@ -1,24 +1,24 @@
-# Proofbound Authority Unattended Development Requirements
+# Proof-or-Stop Authority Unattended Development Requirements
 
-> **Retired legacy note:** Authority Server and server-backed receipt semantics in this document are retired/out-of-core for the active Proofbound CLI. Current implementation baselines are local proof admissibility (`admissibilityStatus`, `assuranceLevel`, `evidenceScope`), gate-consumed local evidence, signed/offline receipt bundles, and local review quorum assurance. Do not use this document as active Authority Server implementation guidance.
+> **Retired legacy note:** Authority Server and server-backed receipt semantics in this document are retired/out-of-core for the active Proof-or-Stop CLI. Current implementation baselines are local proof admissibility (`admissibilityStatus`, `assuranceLevel`, `evidenceScope`), gate-consumed local evidence, signed/offline receipt bundles, and local review quorum assurance. Do not use this document as active Authority Server implementation guidance.
 
 ## Status
 
-This document is the single requirements source for developing the Proofbound
+This document is the single requirements source for developing the Proof-or-Stop
 Authority-backed unattended development path.
 
 It combines two previously separate stages into one coordinated product track:
 
-- **Stage A: Authority control plane and receipt foundation.** Proofbound CLI must
-  connect to the existing Python Proofbound Authority, use native signed envelopes,
+- **Stage A: Authority control plane and receipt foundation.** Proof-or-Stop CLI must
+  connect to the existing Python Proof-or-Stop Authority, use native signed envelopes,
   register and heartbeat runners, claim authority jobs, and verify native
   `gate_decision` receipts.
-- **Stage B: Authority-backed unattended executor.** Proofbound CLI must consume
+- **Stage B: Authority-backed unattended executor.** Proof-or-Stop CLI must consume
   authority jobs, execute bounded development steps, upload evidence, request
   gate evaluation, verify the returned receipt, retry or stop safely, and advance
   toward TEST / DONE without human babysitting.
-- **Stage C: Proofbound-native planner.** Proofbound must turn a natural-language
-  request into a Proofbound Story, verification intent, Authority job, and typed
+- **Stage C: Proof-or-Stop-native planner.** Proof-or-Stop must turn a natural-language
+  request into a Proof-or-Stop Story, verification intent, Authority job, and typed
   `plannedSteps[]` without handing story, job, or receipt authority to an
   external framework.
 
@@ -33,16 +33,16 @@ The existing Python implementation lives at the legacy repository path:
 /Users/jek/Documents/Work/Lattice/cord-team
 ```
 
-The product and server name is **Proofbound Authority**. The repository path and
+The product and server name is **Proof-or-Stop Authority**. The repository path and
 Python package entrypoint may keep legacy names during migration, but all new
 product copy, CLI help, API docs, tests, environment variables, and process facts
-must use Proofbound Authority naming.
+must use Proof-or-Stop Authority naming.
 
 ## Customer Server Access Boundary
 
 Hosted customer usage requires a customer-scoped server API key in addition to
 the existing Ed25519 actor signing model. The customer API key authorizes the
-tenant / workspace / project to use Proofbound Authority APIs; the actor private
+tenant / workspace / project to use Proof-or-Stop Authority APIs; the actor private
 key signs the exact runner, job, evidence, verdict, and gate envelopes. These
 two credentials are intentionally separate and must not be collapsed into one
 bearer token.
@@ -71,8 +71,8 @@ The current codebase now has the core unattended-development loop in place:
 - local autopilot mode works without Python authority;
 - shadow mode can surface authority readiness without blocking local work;
 - authority mode fails closed when prerequisites are missing;
-- Proofbound CLI can discover policy from Proofbound Authority;
-- Proofbound CLI consumes operator/server-provided Authority handoff files. The
+- Proof-or-Stop CLI can discover policy from Proof-or-Stop Authority;
+- Proof-or-Stop CLI consumes operator/server-provided Authority handoff files. The
   ordinary developer pair is `lattice_authority_trust.env` plus its referenced
   `lattice_staging-client.env`; advanced/live runner handoff may provide the
   `lattice_senior_*` pair. Public CLI code does not generate those files. A
@@ -84,8 +84,8 @@ The current codebase now has the core unattended-development loop in place:
   `antigravity` to runner registration, heartbeat, and signed claim routing.
   Server policy remains the authorization boundary and may reject a declaration
   before any job is owned;
-- Proofbound CLI has a native receipt verifier for Python-shaped
-  Proofbound Authority receipts;
+- Proof-or-Stop CLI has a native receipt verifier for Python-shaped
+  Proof-or-Stop Authority receipts;
 - live authority mode can register / heartbeat, read
   `/v1/runners/{runnerId}/jobs/stream` as an authenticated `jobs.available`
   notification hint, claim a real Authority job through the existing signed
@@ -93,18 +93,18 @@ The current codebase now has the core unattended-development loop in place:
   `gate.evaluate`, verify the returned native `gate_decision` receipt, and
   complete-or-release the lease without leaving a dangling claim;
 - the planner can turn a natural-language request or request file into a
-  Proofbound Story, typed JobPlan, and executable `plannedSteps[]`;
-- local Proofbound workflow and global `lattice` entrypoints remain usable.
+  Proof-or-Stop Story, typed JobPlan, and executable `plannedSteps[]`;
+- local Proof-or-Stop workflow and global `proof-or-stop` entrypoints remain usable.
 
 The loop is still deliberately bounded. A bundled local-test Authority key
 (`serverKey.productionInert=true`) proves local integration only and cannot
 satisfy production Authority DONE. Production Authority DONE still requires a
-non-inert Proofbound Authority server key, a verified native `gate_decision`
+non-inert Proof-or-Stop Authority server key, a verified native `gate_decision`
 receipt, and the required multi-host final verification wave.
 
 ## Implementation Status (2026-06-06)
 
-This section records what is implemented in the Proofbound CLI today versus what
+This section records what is implemented in the Proof-or-Stop CLI today versus what
 must still not be overclaimed. It is a status ledger, not a relaxation of any
 gate. The current pass implements the planner, bounded executor, live Authority
 job loop, evidence / gate / receipt wiring, repair / retry safety, and
@@ -114,7 +114,7 @@ Implemented (current tested surface):
 
 - autopilot modes: `autopilot status|doctor|run|execute`. `run` is dry-run
   projection by default; `execute --mode=local` is a real bounded executor over
-  argv-mapped Proofbound commands; `execute --mode=authority` is fail-closed and
+  argv-mapped Proof-or-Stop commands; `execute --mode=authority` is fail-closed and
   acts as a native `gate_decision` receipt verifier, not a receipt minter
   (`packages/main/src/core/autopilot.ts`, `autopilot-executor.ts`);
 - claimed-job entry point: `autopilot execute --jobFile=<job.json>` loads and
@@ -139,7 +139,7 @@ Implemented (current tested surface):
   HTTP errors, timeouts, malformed payloads, and non-SSE bodies all fall back to
   the same signed claim path. The evidence-submit primitive exists and is
   exercised by smoke tests;
-- `lattice story resolve` read-only worktree/phase resolver
+- `proof-or-stop story resolve` read-only worktree/phase resolver
   (`packages/main/src/handlers/story-resolve.ts`);
 - planner surface: `planner draft|review|create-story|create-job|status|run|
   source-manifest` plus `--interactionMode` and the
@@ -155,10 +155,10 @@ Implemented (current tested surface):
   `provider.claude` steps fail closed before any spawn unless explicitly enabled
   in `providerPolicy.allowedProviders` with a configured credential (`disabled` /
   `provider_unavailable` / `credential_unavailable` / `noninteractive_auth_unavailable`),
-  `story.advance` returns `blocked` so Proofbound lifecycle gates are never
+  `story.advance` returns `blocked` so Proof-or-Stop lifecycle gates are never
   bypassed, and for `until=DONE` `multiHostVerified` always stays `false`
   (host verdicts are owned elsewhere). The authority `gate.evaluate` step is
-  now wired to Proofbound Authority: `planner run` calls
+  now wired to Proof-or-Stop Authority: `planner run` calls
   `resolveAuthorityGateEvaluator` (`authority-client.ts`) BEFORE execution,
   which — only when `LATTICE_AUTHORITY_MODE` is `enforce`/`shadow`, a server
   URL is set, and a server verification key is pinned or discovered — appends
@@ -287,7 +287,7 @@ Implemented (current tested surface):
 - M15 Natural-Language-To-DONE E2E: `tasks/natural-language-to-done-smoke.ts`
   drives the whole Stage C→B chain through the REAL planner handler
   (`createPlannerHandlers` over a real `StoryStore`): a one-sentence request AND
-  an identical `--requestFile` each plan a real Proofbound Story, build the typed
+  an identical `--requestFile` each plan a real Proof-or-Stop Story, build the typed
   authority JobPlan, and run `executePlannedSteps` (fake provider → validate →
   run-events/evidence upload → `gate.evaluate`). The only stubbed surface is the
   Authority server, through the SAME injectable seam production uses —
@@ -351,7 +351,7 @@ Implemented (current tested surface):
   (`core/planned-steps-executor.ts`). Before any MUTATING provider step
   (`provider.codex` / `provider.claude`; `provider.fake` is fixtures-only and
   exempt) it resolves the authoritative story cwd via the same
-  `lattice.story.resolve` contract that powers `lattice story resolve`, runs the
+  `lattice.story.resolve` contract that powers `proof-or-stop story resolve`, runs the
   provider IN that worktree (never the project root), and captures
   `git status --porcelain` as structured evidence (digest + entries). It fails
   CLOSED — blocking the step and emitting a printable/uploadable
@@ -418,12 +418,12 @@ Remaining boundaries that must not be overclaimed:
   `gate_decision` receipt verifies, and the required multi-host final
   certification wave is satisfied;
 - the local live Python smoke proves policy discovery plus runner
-  register/heartbeat/jobs-stream-hint/claim/release against a real Proofbound
+  register/heartbeat/jobs-stream-hint/claim/release against a real Proof-or-Stop
   Authority server. The jobs stream is a notification hint before claim, not a
   lease, receipt, completion event, or Authority approval. When the server
   reports `serverKey.productionInert=true`, that evidence is
   integration evidence only and must not be treated as production Authority DONE;
-- server-side native `gate_decision` receipt issuance is owned by Proofbound
+- server-side native `gate_decision` receipt issuance is owned by Proof-or-Stop
   Authority. The CLI verifies and consumes those receipts; it never mints one.
 
 M8 per-step evidence streaming (2026-06-06). The §B4 evidence taxonomy now has
@@ -438,7 +438,7 @@ a run-level `git_evidence` record built from injected git state. Python event
 endpoints receive one signed event per POST: provider evidence is sent as a
 `providerEvent` envelope to `POST /v1/runs/{runId}/provider-events`, and run
 events are sent as an `event` envelope to `POST /v1/runs/{runId}/events`.
-Internal Proofbound evidence taxonomy is preserved locally, but payloads sent to
+Internal Proof-or-Stop evidence taxonomy is preserved locally, but payloads sent to
 Python `/v1/evidence` use Python `EvidenceKind` values such as `docs_check` or
 `logic_test`, never internal-only kinds such as `run_record`. Three boundaries
 are mechanical, pinned by `evidence-upload-loop-smoke`:
@@ -561,24 +561,24 @@ honest boundaries of the current deterministic projection; the
   `redactedProviderEnv` (planned-steps-executor) remains the env-projection seam.
   The live upload path redacts before transport and attaches retention metadata to
   uploaded envelopes (`evidence-live-wiring-smoke`); durable server-side GC
-  scheduling is still owned by Proofbound Authority storage operations, while the CLI
+  scheduling is still owned by Proof-or-Stop Authority storage operations, while the CLI
   retention engine proves the local decision logic.
 
-Because of these boundaries, Proofbound may claim the tested unattended local mode
+Because of these boundaries, Proof-or-Stop may claim the tested unattended local mode
 and the tested Authority-backed per-run loop. It must not claim production
-Authority DONE unless a non-inert Proofbound Authority server verifies the native
+Authority DONE unless a non-inert Proof-or-Stop Authority server verifies the native
 `gate_decision` receipt and the required independent-host final certification
 passes.
 
 ## Product Goal
 
-Proofbound should support unattended development in two user-selected development
+Proof-or-Stop should support unattended development in two user-selected development
 modes:
 
 | User-selected mode | Goal | Authority dependency | Production DONE claim |
 | --- | --- | --- | --- |
-| `local` / `non-authority` | Pure client-side bounded autopilot for development and validation. It must not connect to Proofbound Authority. | None. | No. |
-| `authority` | Proofbound CLI client plus Proofbound Authority server strong-verification mode. | Required. | Yes, only after verified native `gate_decision` receipt. |
+| `local` / `non-authority` | Pure client-side bounded autopilot for development and validation. It must not connect to Proof-or-Stop Authority. | None. | No. |
+| `authority` | Proof-or-Stop CLI client plus Proof-or-Stop Authority server strong-verification mode. | Required. | Yes, only after verified native `gate_decision` receipt. |
 
 `shadow` is an explicit diagnostic/readiness mode, not a third user-selected
 unattended development mode. It may inspect Authority readiness when requested,
@@ -591,9 +591,9 @@ For complete unattended development, the product goal extends to:
 
 ```text
 natural language request
--> Proofbound-native Story Planner
--> Proofbound Story + background + checklist + verification intent
--> Proofbound-native Job Planner
+-> Proof-or-Stop-native Story Planner
+-> Proof-or-Stop Story + background + checklist + verification intent
+-> Proof-or-Stop-native Job Planner
 -> local run plan or Authority job + typed plannedSteps[]
 -> Stage B executor
 -> evidence upload
@@ -606,24 +606,24 @@ natural language request
 This track must not:
 
 - redevelop the Python server from scratch;
-- make ordinary local Proofbound commands depend on Python authority;
-- allow non-authority mode to contact Proofbound Authority;
+- make ordinary local Proof-or-Stop commands depend on Python authority;
+- allow non-authority mode to contact Proof-or-Stop Authority;
 - allow env presence, runner heartbeat, job claim, or transport acceptance to
   satisfy DONE;
 - allow bundled default test keys to satisfy production Authority DONE;
-- treat legacy subject receipts as native Proofbound Authority DONE receipts;
-- write story or fixture JSON directly instead of using Proofbound commands;
+- treat legacy subject receipts as native Proof-or-Stop Authority DONE receipts;
+- write story or fixture JSON directly instead of using Proof-or-Stop commands;
 - run arbitrary shell commands from authority jobs;
 - hide failed verification behind a green local status;
 - auto-push to remote Git or create GitHub branches unless a human explicitly
-  asks outside the Proofbound flow;
+  asks outside the Proof-or-Stop flow;
 - make `obra/superpowers` or any other external methodology repository the owner
-  of Proofbound Story, Authority job, planned steps, gate evaluation, or receipt
+  of Proof-or-Stop Story, Authority job, planned steps, gate evaluation, or receipt
   semantics.
 
 ## Superpowers Reference Policy
 
-`obra/superpowers` is a useful methodology reference, not a Proofbound runtime
+`obra/superpowers` is a useful methodology reference, not a Proof-or-Stop runtime
 dependency and not an authority source.
 
 Reference repository:
@@ -632,10 +632,10 @@ Reference repository:
 https://github.com/obra/superpowers
 ```
 
-License note: the repository is MIT licensed. Proofbound may learn from the
+License note: the repository is MIT licensed. Proof-or-Stop may learn from the
 methodology, but copied text or code must preserve the required license notice.
 
-Reference principles Proofbound should absorb:
+Reference principles Proof-or-Stop should absorb:
 
 - clarify the user's intent before writing code;
 - turn rough ideas into a written spec;
@@ -649,19 +649,19 @@ Reference principles Proofbound should absorb:
 
 Lattice-specific constraints that override the reference:
 
-- Proofbound Story is created only through Proofbound commands;
-- verification intent is a Proofbound process fact, not prose-only planning text;
-- Authority jobs are issued by Proofbound Authority;
-- `plannedSteps[]` use Proofbound's typed step schema;
+- Proof-or-Stop Story is created only through Proof-or-Stop commands;
+- verification intent is a Proof-or-Stop process fact, not prose-only planning text;
+- Authority jobs are issued by Proof-or-Stop Authority;
+- `plannedSteps[]` use Proof-or-Stop's typed step schema;
 - provider execution is performed by the Stage B executor;
-- DONE is gated only by verified native Proofbound Authority `gate_decision`
+- DONE is gated only by verified native Proof-or-Stop Authority `gate_decision`
   receipts;
 - external skill/plugin docs may guide prompting, but they do not control
   lifecycle, job leases, evidence, or receipt authority.
 
 ## Naming And Environment Contract
 
-Canonical Proofbound CLI client names:
+Canonical Proof-or-Stop CLI client names:
 
 ```text
 LATTICE_AUTHORITY_URL
@@ -689,7 +689,7 @@ LATTICE_AUTHORITY_RECEIPT_CLOCK_SKEW_MS
 Legacy `LATTICE_AUTHORITY_*` client variables remain aliases for compatibility.
 When both names are present, `LATTICE_AUTHORITY_*` wins.
 
-Canonical Proofbound Authority server names:
+Canonical Proof-or-Stop Authority server names:
 
 ```text
 LATTICE_AUTHORITY_ENV
@@ -761,7 +761,7 @@ testKeyProfile: local-test | none
 
 Rules:
 
-- `authority.md` is an internal key-management file for Proofbound Authority tests
+- `authority.md` is an internal key-management file for Proof-or-Stop Authority tests
   and local development;
 - if `actorKeyPath` is present, the private key is read from that local path;
 - raw production private keys must not be committed to `authority.md`;
@@ -785,11 +785,11 @@ the default, but a negative value or a value above local policy is rejected.
 
 ## Authority Trust Model
 
-Proofbound Authority is the only source of production authority for this track.
+Proof-or-Stop Authority is the only source of production authority for this track.
 
 Trust rules:
 
-- non-authority mode never connects to Proofbound Authority;
+- non-authority mode never connects to Proof-or-Stop Authority;
 - local development may trust a discovered server key from localhost;
 - deployed verification must use HTTPS or a trusted local tunnel;
 - production verification must support pinned server public key and key id;
@@ -807,7 +807,7 @@ Trust rules:
 Python implementation models may use `snake_case` internally. Public API JSON,
 stored receipt JSON, and signed payloads use `camelCase` aliases.
 
-Proofbound must sign and verify the public wire payload:
+Proof-or-Stop must sign and verify the public wire payload:
 
 - sorted canonical JSON keys;
 - compact separators;
@@ -820,12 +820,12 @@ Proofbound must sign and verify the public wire payload:
   `2026-06-05T12:34:56.123000Z`.
 
 Raw Ed25519 keys are byte-compatible across Python and TypeScript. String
-encodings are not. Proofbound must normalize keys internally to bytes and accept
+encodings are not. Proof-or-Stop must normalize keys internally to bytes and accept
 hex or base64 only when the encoding is explicit.
 
 ## Native Receipt Contract
 
-Authority-backed DONE requires a native Proofbound Authority receipt:
+Authority-backed DONE requires a native Proof-or-Stop Authority receipt:
 
 ```text
 receiptId
@@ -844,7 +844,7 @@ serverKeyId
 signature
 ```
 
-For `lattice autopilot execute --mode=authority --until=DONE`, the receipt must:
+For `proof-or-stop autopilot execute --mode=authority --until=DONE`, the receipt must:
 
 - have `kind = gate_decision`;
 - have the expected `projectId`;
@@ -869,48 +869,48 @@ Freshness semantics:
   receipt freshness check fails.
 
 Legacy receipts with `subjectId`, `subjectKind`, or `authorityActorId` may remain
-supported for old compatibility tests, but they must not satisfy native Proofbound
+supported for old compatibility tests, but they must not satisfy native Proof-or-Stop
 Authority DONE.
 
 ## Command Surface
 
-The implementation should extend existing Proofbound commands rather than create a
+The implementation should extend existing Proof-or-Stop commands rather than create a
 parallel product surface.
 
 Required operator commands:
 
 ```bash
-lattice authority status --json
-lattice authority enforce policy --json
-lattice authority enforce runner --dry-run --json
-lattice authority enforce runner --live --once --json
-lattice authority job status --jobId=<job> --json
-lattice authority verdict submit --jobId=<job> --runId=<run> --verdictFile=<verdict.json> --json
-lattice authority verdict list --jobId=<job> --json
-lattice authority receipt verify --receiptFile=<receipt.json> --json
-lattice story resolve --storyId=<story> --json
-lattice autopilot status --json
-lattice autopilot doctor --json
-lattice autopilot run --mode=local --storyId=<story> --until=TEST --json
-lattice autopilot run --mode=local --storyId=<story> --until=DONE --requireMultiHost --json
-lattice autopilot execute --mode=local --storyId=<story> --until=TEST --json
-lattice autopilot execute --mode=local --storyId=<story> --until=DONE --requireMultiHost --json
-lattice autopilot run --mode=shadow --storyId=<story> --until=TEST --json
-lattice autopilot execute --mode=authority --storyId=<story> --until=DONE --json
-lattice autopilot review submit --storyId=<story> --runId=<run> --verdictFile=<verdict.json> --json
-lattice autopilot review status --storyId=<story> --runId=<run> --json
+proof-or-stop authority status --json
+proof-or-stop authority enforce policy --json
+proof-or-stop authority enforce runner --dry-run --json
+proof-or-stop authority enforce runner --live --once --json
+proof-or-stop authority job status --jobId=<job> --json
+proof-or-stop authority verdict submit --jobId=<job> --runId=<run> --verdictFile=<verdict.json> --json
+proof-or-stop authority verdict list --jobId=<job> --json
+proof-or-stop authority receipt verify --receiptFile=<receipt.json> --json
+proof-or-stop story resolve --storyId=<story> --json
+proof-or-stop autopilot status --json
+proof-or-stop autopilot doctor --json
+proof-or-stop autopilot run --mode=local --storyId=<story> --until=TEST --json
+proof-or-stop autopilot run --mode=local --storyId=<story> --until=DONE --requireMultiHost --json
+proof-or-stop autopilot execute --mode=local --storyId=<story> --until=TEST --json
+proof-or-stop autopilot execute --mode=local --storyId=<story> --until=DONE --requireMultiHost --json
+proof-or-stop autopilot run --mode=shadow --storyId=<story> --until=TEST --json
+proof-or-stop autopilot execute --mode=authority --storyId=<story> --until=DONE --json
+proof-or-stop autopilot review submit --storyId=<story> --runId=<run> --verdictFile=<verdict.json> --json
+proof-or-stop autopilot review status --storyId=<story> --runId=<run> --json
 ```
 
 The authority executor may add explicit runner options, but the user-facing path
-should remain under `lattice autopilot execute --mode=authority`.
+should remain under `proof-or-stop autopilot execute --mode=authority`.
 
 Status commands must be read-only and must report enough information for an
 operator or second host to understand whether a run is planning, executing,
 waiting for a decision, blocked, receipt-verified, or fully DONE.
 
-`lattice authority verdict submit` is the server-backed Authority path.
-`lattice autopilot review submit` is the local non-authority path. The local path
-records verifier verdicts in Proofbound local run state keyed by `storyId` and
+`proof-or-stop authority verdict submit` is the server-backed Authority path.
+`proof-or-stop autopilot review submit` is the local non-authority path. The local path
+records verifier verdicts in Proof-or-Stop local run state keyed by `storyId` and
 local `runId`; it must never create an Authority receipt or set Authority DONE
 flags.
 
@@ -932,7 +932,7 @@ flags.
 }
 ```
 
-Proofbound CLI must parse this as metadata only. Policy discovery must not write
+Proof-or-Stop CLI must parse this as metadata only. Policy discovery must not write
 evidence, pass gates, claim DONE, or mutate local story lifecycle state.
 
 ### A2. Actor Key Bootstrap
@@ -966,7 +966,7 @@ Rules:
 
 ### A3. Live Runner Control Plane
 
-`lattice authority enforce runner --live --once --json` must:
+`proof-or-stop authority enforce runner --live --once --json` must:
 
 - derive `publicKeyHex` from the actor private key;
 - register the actor key when needed;
@@ -985,9 +985,9 @@ control-plane-smoke-no-provider-execution
 
 ### A4. Receipt Verification
 
-`lattice authority receipt verify` must:
+`proof-or-stop authority receipt verify` must:
 
-- parse native Proofbound Authority receipt JSON;
+- parse native Proof-or-Stop Authority receipt JSON;
 - verify signature and binding fields;
 - fail for tamper, wrong project, wrong story, wrong kind, wrong key id, wrong
   public key, missing `decisionDigest`, and stale receipt when freshness is
@@ -999,12 +999,12 @@ control-plane-smoke-no-provider-execution
 
 Stage A is complete when:
 
-- Proofbound discovers server key metadata;
+- Proof-or-Stop discovers server key metadata;
 - cross-language signing fixtures pass;
 - actor key registration is secure in production;
 - live runner register / heartbeat / claim / release works;
-- a real signed `gate_decision` receipt can be produced by Proofbound Authority and
-  verified by Proofbound;
+- a real signed `gate_decision` receipt can be produced by Proof-or-Stop Authority and
+  verified by Proof-or-Stop;
 - no status, readiness, policy, heartbeat, or claim path overclaims
   `productionDone`.
 
@@ -1012,7 +1012,7 @@ Stage A is complete when:
 
 ### B1. Job Dispatch Contract
 
-Proofbound Authority must be able to dispatch jobs that the Proofbound runner can
+Proof-or-Stop Authority must be able to dispatch jobs that the Proof-or-Stop runner can
 execute without ambiguity.
 
 Each job must include:
@@ -1042,14 +1042,14 @@ createdAt
 
 | Step type | Meaning |
 | --- | --- |
-| `lattice.command` | Run an argv-mapped allowlisted Proofbound command. |
+| `lattice.command` | Run an argv-mapped allowlisted Proof-or-Stop command. |
 | `provider.codex` | Run a bounded Codex CLI provider action. |
 | `provider.claude` | Run a bounded Claude Code CLI provider action when explicitly enabled. |
 | `provider.fake` | Run a deterministic fake provider action for fixtures only. |
 | `validate.run` | Run configured validation. |
-| `codex.verify` | Run `lattice codex verify` when adapter evidence is needed. |
-| `gate.evaluate` | Ask Proofbound Authority to issue a gate decision. |
-| `story.advance` | Advance lifecycle only through Proofbound CLI gate commands. |
+| `codex.verify` | Run `proof-or-stop codex verify` when adapter evidence is needed. |
+| `gate.evaluate` | Ask Proof-or-Stop Authority to issue a gate decision. |
+| `story.advance` | Advance lifecycle only through Proof-or-Stop CLI gate commands. |
 | `stop.summary` | Stop and upload a final summary. |
 
 All command-like steps must be represented as argv arrays or structured provider
@@ -1200,23 +1200,23 @@ Rules:
 
 ### B2. Worktree And Scope Safety
 
-Authority mode must operate inside the story's authoritative Proofbound worktree.
+Authority mode must operate inside the story's authoritative Proof-or-Stop worktree.
 
 Rules:
 
-- use the read-only `lattice story resolve --storyId=<story> --json` contract to
+- use the read-only `proof-or-stop story resolve --storyId=<story> --json` contract to
   identify the authoritative cwd; until that command exists, the implementation
-  must use the same internal resolver that powers `lattice story_get --detail`
-  and `lattice story_advance --phase=INIT_CHECK`;
-- create or repair a story worktree only through Proofbound commands;
-- initial worktree creation must go through `lattice story_advance
+  must use the same internal resolver that powers `proof-or-stop story_get --detail`
+  and `proof-or-stop story_advance --phase=INIT_CHECK`;
+- create or repair a story worktree only through Proof-or-Stop commands;
+- initial worktree creation must go through `proof-or-stop story_advance
   --storyId=<story> --phase=INIT_CHECK`;
 - refuse to edit outside the configured project/worktree boundary;
 - never directly edit `.lattice/story`, `.lattice/story`, `docs/story`, or test
   fixture JSON;
 - preserve unrelated dirty user changes;
 - capture git status before and after each mutating step;
-- stop before merge or remote push unless the Proofbound lifecycle gate authorizes
+- stop before merge or remote push unless the Proof-or-Stop lifecycle gate authorizes
   it.
 
 ### B3. Provider Executor
@@ -1234,7 +1234,7 @@ Provider requirements:
 - run with max attempts;
 - run with explicit cwd;
 - capture stdout, stderr, exit code, duration, and model/provider metadata;
-- upload provider events to Proofbound Authority;
+- upload provider events to Proof-or-Stop Authority;
 - never treat provider success as validation success;
 - never treat provider output prose as gate evidence without structured
   evidence or a verified receipt.
@@ -1282,7 +1282,7 @@ Rules:
 
 ### B4. Evidence Upload
 
-Every executor loop must upload structured evidence to Proofbound Authority:
+Every executor loop must upload structured evidence to Proof-or-Stop Authority:
 
 | Evidence | Required fields |
 | --- | --- |
@@ -1325,7 +1325,7 @@ log dump.
 
 Rules:
 
-- Proofbound Authority stores evidence metadata, digests, redaction summaries, and
+- Proof-or-Stop Authority stores evidence metadata, digests, redaction summaries, and
   artifact refs in durable storage;
 - large raw artifacts may live in configured artifact storage, but the Authority
   record must retain their digest, size, media type, redaction state, and
@@ -1376,7 +1376,7 @@ Required behavior:
 
 ### B6. Gate Evaluation And DONE Receipt
 
-Authority mode must use Proofbound Authority to decide production DONE.
+Authority mode must use Proof-or-Stop Authority to decide production DONE.
 
 Flow:
 
@@ -1384,15 +1384,15 @@ Flow:
    process events, material hash, and requested target.
 2. Submit `POST /v1/gates/evaluate`.
 3. Receive or fetch a native `gate_decision` receipt.
-4. Verify receipt signature and bindings in Proofbound.
+4. Verify receipt signature and bindings in Proof-or-Stop.
 5. Only then allow authority DONE projection.
 
-Local Proofbound DONE and production DONE remain separate concepts unless the
+Local Proof-or-Stop DONE and production DONE remain separate concepts unless the
 verified receipt explicitly binds the story and decision digest.
 
 ### B7. Executor Loop
 
-`lattice autopilot execute --mode=authority` must implement a loop:
+`proof-or-stop autopilot execute --mode=authority` must implement a loop:
 
 ```text
 discover policy
@@ -1714,7 +1714,7 @@ Provider steps are execution hosts, not authority.
 - simulate success, validation failure, timeout, and blocked cases;
 - never modify files unless the fixture explicitly asks for a safe test change.
 
-Provider completion does not imply step success until Proofbound captures output,
+Provider completion does not imply step success until Proof-or-Stop captures output,
 uploads evidence, and runs any required validation step.
 
 ### B14. Validation And Repair Loop
@@ -1724,16 +1724,16 @@ Validation is an explicit step, not a provider side effect.
 The canonical validation command is:
 
 ```bash
-lattice validate --story=<story> --json
+proof-or-stop validate --story=<story> --json
 ```
 
 For broader release or deployment checks, the planned step may explicitly use
-`lattice validate --full --story=<story> --json`. Custom validation commands
+`proof-or-stop validate --full --story=<story> --json`. Custom validation commands
 must be allowlisted in the Authority job and linked to checklist evidence.
 
 Validation flow:
 
-1. Run the configured Proofbound validation command or allowlisted validation step.
+1. Run the configured Proof-or-Stop validation command or allowlisted validation step.
 2. Upload validation evidence.
 3. If validation passes, continue toward gate evaluation or next step.
 4. If validation fails, classify the failure.
@@ -1799,11 +1799,11 @@ path. It may not downgrade silently to local DONE.
 
 ### B16. Advancement And Completion
 
-The executor may advance lifecycle only through Proofbound CLI commands.
+The executor may advance lifecycle only through Proof-or-Stop CLI commands.
 
 Rules:
 
-- `story.advance` steps call Proofbound command handlers through argv-mapped
+- `story.advance` steps call Proof-or-Stop command handlers through argv-mapped
   commands;
 - TEST advancement requires local lifecycle gates to pass;
 - DONE authority projection requires verified native `gate_decision` receipt;
@@ -1935,7 +1935,7 @@ if full authority DONE is requested:
   reconcile multi-host verdicts
   if required verdicts fail or are missing: stop blocked
   mark fullAuthorityDone projection only after multi-host pass
-advance local lifecycle only through Proofbound commands when allowed
+advance local lifecycle only through Proof-or-Stop commands when allowed
 complete or release job
 write final summary
 ```
@@ -1964,30 +1964,30 @@ Stage B is complete when:
 Stage C makes complete unattended development possible from a natural-language
 request. It must generate the Story and Authority job inputs that Stage B needs.
 
-Stage C must be Proofbound-native. It may borrow methodology from Superpowers, but
-it must produce Proofbound process artifacts and use Proofbound commands.
+Stage C must be Proof-or-Stop-native. It may borrow methodology from Superpowers, but
+it must produce Proof-or-Stop process artifacts and use Proof-or-Stop commands.
 
 ### C1. Planner Command Surface
 
 Required commands:
 
 ```bash
-lattice planner draft --request="<one sentence or paragraph>" --interactionMode=autonomous --json
-lattice planner draft --requestFile=requirements.md --interactionMode=interview --json
-lattice planner review --draftFile=<draft.json> --json
-lattice planner create-story --draftFile=<draft.json> --json
-lattice planner create-job --storyId=<story> --json
-lattice planner status --runId=<plannerRun> --json
-lattice planner answer --runId=<plannerRun> --answersFile=<answers.json> --json
-lattice planner decision submit --runId=<plannerRun> --decisionFile=<decisions.json> --json
-lattice planner resume --runId=<plannerRun> --json
-lattice planner source-manifest --sourceRepo=<path-or-ref> --includedPaths=<paths> --excludedPaths=<paths> --json
-lattice planner run --request="<one sentence or paragraph>" --interactionMode=autonomous --mode=local --until=DONE --requireMultiHost --json
-lattice planner run --request="<one sentence or paragraph>" --interactionMode=autonomous --mode=authority --until=DONE --json
-lattice planner run --workflow=source-aligned-redevelopment --sourceRepo=<path-or-ref> --targetProject=<path> --targetProjectName=<name> --sourceLanguage=<source-language> --targetLanguage=<target-language> --interactionMode=autonomous --mode=local --until=DONE --json
-lattice planner run --request="<one sentence or paragraph>" --forceNewRun --forceNewRunReason="<reason>" --mode=authority --until=DONE --json
-lattice planner run --request="<one sentence or paragraph>" --interactionMode=decision-gated --mode=authority --until=DONE --json
-lattice planner run --requestFile=requirements.md --interactionMode=interview --mode=authority --until=DONE --json
+proof-or-stop planner draft --request="<one sentence or paragraph>" --interactionMode=autonomous --json
+proof-or-stop planner draft --requestFile=requirements.md --interactionMode=interview --json
+proof-or-stop planner review --draftFile=<draft.json> --json
+proof-or-stop planner create-story --draftFile=<draft.json> --json
+proof-or-stop planner create-job --storyId=<story> --json
+proof-or-stop planner status --runId=<plannerRun> --json
+proof-or-stop planner answer --runId=<plannerRun> --answersFile=<answers.json> --json
+proof-or-stop planner decision submit --runId=<plannerRun> --decisionFile=<decisions.json> --json
+proof-or-stop planner resume --runId=<plannerRun> --json
+proof-or-stop planner source-manifest --sourceRepo=<path-or-ref> --includedPaths=<paths> --excludedPaths=<paths> --json
+proof-or-stop planner run --request="<one sentence or paragraph>" --interactionMode=autonomous --mode=local --until=DONE --requireMultiHost --json
+proof-or-stop planner run --request="<one sentence or paragraph>" --interactionMode=autonomous --mode=authority --until=DONE --json
+proof-or-stop planner run --workflow=source-aligned-redevelopment --sourceRepo=<path-or-ref> --targetProject=<path> --targetProjectName=<name> --sourceLanguage=<source-language> --targetLanguage=<target-language> --interactionMode=autonomous --mode=local --until=DONE --json
+proof-or-stop planner run --request="<one sentence or paragraph>" --forceNewRun --forceNewRunReason="<reason>" --mode=authority --until=DONE --json
+proof-or-stop planner run --request="<one sentence or paragraph>" --interactionMode=decision-gated --mode=authority --until=DONE --json
+proof-or-stop planner run --requestFile=requirements.md --interactionMode=interview --mode=authority --until=DONE --json
 ```
 
 Command behavior:
@@ -1995,7 +1995,7 @@ Command behavior:
 - `planner draft` is read-only and produces a structured draft.
 - `planner review` checks completeness, ambiguity, unsupported scope, and
   placeholder content.
-- `planner create-story` mutates Proofbound Story state only through Proofbound
+- `planner create-story` mutates Proof-or-Stop Story state only through Proof-or-Stop
   commands.
 - `planner create-job` submits signed Authority job creation requests in
   authority mode. In local mode, the planner emits a local execution plan with
@@ -2111,7 +2111,7 @@ expectedAnswerShape
 Answer input:
 
 ```bash
-lattice planner answer --runId=<plannerRun> --answersFile=<answers.json> --json
+proof-or-stop planner answer --runId=<plannerRun> --answersFile=<answers.json> --json
 ```
 
 `answers.json` must include:
@@ -2129,7 +2129,7 @@ answeredAt
 Decision input:
 
 ```bash
-lattice planner decision submit --runId=<plannerRun> --decisionFile=<decisions.json> --json
+proof-or-stop planner decision submit --runId=<plannerRun> --decisionFile=<decisions.json> --json
 ```
 
 `decisions.json` must include:
@@ -2223,7 +2223,7 @@ The planner must generate:
 - explicit assumptions;
 - explicit out-of-scope items;
 - risk classification;
-- related docs selected from `lattice aux_doc_list`;
+- related docs selected from `proof-or-stop aux_doc_list`;
 - a planner digest that binds the natural-language input and generated draft.
 
 The Story Planner must not create a Story if:
@@ -2235,7 +2235,7 @@ The Story Planner must not create a Story if:
 - the request asks for destructive or unsafe behavior;
 - the request cannot be mapped to the current repository.
 
-When it does create a Story, it must call Proofbound commands such as
+When it does create a Story, it must call Proof-or-Stop commands such as
 `story_create`, `story_draft`, `checklist_add`, or their current canonical
 equivalents. It must not write story JSON directly.
 
@@ -2293,7 +2293,7 @@ Rules:
   of the same contract, not separate special workflows;
 - the source codebase is read-only input and must not be mutated by the
   executor;
-- target project files are created or modified only through the Proofbound story
+- target project files are created or modified only through the Proof-or-Stop story
   worktree and normal lifecycle gates;
 - variable, identifier, package, module, or project naming may be changed only
   according to an explicit `renameMap` or project-name-derived rule recorded in
@@ -2456,7 +2456,7 @@ Alignment evidence rules:
   be classified at manifest/mapping time before any repair step is enqueued and
   must not trigger repeated repair attempts;
 - provider output may propose mappings or repairs, but it is not alignment
-  evidence until Proofbound records a manifest diff, command result, validation
+  evidence until Proof-or-Stop records a manifest diff, command result, validation
   result, or explicit gap record;
 - anything that cannot be backed by manifest extraction or a passing check goes
   to `gapList[]`.
@@ -2870,10 +2870,10 @@ run planner draft
 if interactionMode=interview: ask 5-10 questions, record answers, require confirmation
 run planner review
 if interactionMode=decision-gated: pause only for required major decisions
-if safe and allowed: create Proofbound Story
+if safe and allowed: create Proof-or-Stop Story
 if not safe: stop with scope questions
 derive Authority job + typed plannedSteps[]
-submit job to Proofbound Authority
+submit job to Proof-or-Stop Authority
 run Stage B executor
 execute provider and validation steps
 upload evidence
@@ -2900,7 +2900,7 @@ Stage C is complete when:
 - `decision-gated` mode pauses for major decisions only and records decision
   receipts before continuing;
 - planner review rejects placeholder, vague, overbroad, or unverifiable drafts;
-- Story creation uses Proofbound commands only;
+- Story creation uses Proof-or-Stop commands only;
 - Job Planner creates a signed Authority job with typed `plannedSteps[]`;
 - planned steps include validation, evidence, retry, stop, and receipt policy;
 - Stage B can consume the generated job without hand-editing;
@@ -2912,7 +2912,7 @@ Stage C is complete when:
 ## Cross-Stage Closure Requirements
 
 The complete natural-language-to-DONE path needs several closure rules that span
-planner, executor, Proofbound lifecycle, and Proofbound Authority. These rules are
+planner, executor, Proof-or-Stop lifecycle, and Proof-or-Stop Authority. These rules are
 mandatory because otherwise a run can appear complete while one link in the
 chain is still only local, inferred, duplicated, or stale.
 
@@ -2940,7 +2940,7 @@ Rules:
 ### X2. Story Lifecycle Bootstrap
 
 Natural-language-to-DONE cannot jump directly from a request to provider
-execution. It must bootstrap the Proofbound Story lifecycle through Proofbound
+execution. It must bootstrap the Proof-or-Stop Story lifecycle through Proof-or-Stop
 commands.
 
 Required bootstrap sequence:
@@ -2960,7 +2960,7 @@ Stage B executor
 
 Rules:
 
-- Story creation and advancement use Proofbound commands only;
+- Story creation and advancement use Proof-or-Stop commands only;
 - planner-created Stories must not skip required lifecycle gates;
 - the executor must run in the authoritative story worktree, not the main mirror;
 - if the Story is still in IDEA, INIT, INIT_CHECK, PLAN, REVIEW, TEST, DONE, or
@@ -3009,8 +3009,8 @@ Per-run `authorityDone` is true only when:
 local lifecycle reached DONE or an approved authority target state
 all required validation evidence is uploaded
 all required checklist coverage bindings are satisfied
-Proofbound Authority issued native gate_decision receipt
-Proofbound verified the receipt signature and bindings
+Proof-or-Stop Authority issued native gate_decision receipt
+Proof-or-Stop verified the receipt signature and bindings
 Authority job is completed with final summary
 no required lease is left active
 final JSON reports localDone=true and authorityDone=true
@@ -3032,7 +3032,7 @@ Cleanup requirements:
 - record final stop/completion summary;
 - preserve unrelated user worktree changes;
 - report any remaining worktree, branch, lease, or receipt gap;
-- never silently merge, push, or delete user work outside Proofbound lifecycle
+- never silently merge, push, or delete user work outside Proof-or-Stop lifecycle
   rules.
 
 ### X5. Resume, Idempotency, And Duplicate Prevention
@@ -3080,7 +3080,7 @@ Rules:
 - forcing a new run requires `--forceNewRun` plus a non-empty reason when
   `plannerPolicy.forceNewRunAllowed=true`;
 - when `--forceNewRun` is used, downstream Story creation may use
-  `lattice story_create --forceNew`, but only through the planner-controlled
+  `proof-or-stop story_create --forceNew`, but only through the planner-controlled
   Story creation path;
 - if an existing draft/story/job conflicts with the requested mode or policy,
   the planner must report the existing ids and stop blocked rather than create a
@@ -3221,8 +3221,8 @@ This mechanism supports two development modes:
 
 | Mode | Review anchor | Storage | Blocking target |
 | --- | --- | --- | --- |
-| `local` / `shadow` non-authority | `validationDigest`, `materialHash`, local evidence refs, and local lifecycle state. | Proofbound local run state keyed by `storyId` and local `runId`. | `localReviewCertified` only. |
-| `authority` | verified `gate_decision` receipt, `gateInputDigest`, Authority evidence refs, and per-run DONE flags. | Proofbound Authority verdict endpoints keyed by `jobId` and `runId`. | `fullAuthorityDone` only. |
+| `local` / `shadow` non-authority | `validationDigest`, `materialHash`, local evidence refs, and local lifecycle state. | Proof-or-Stop local run state keyed by `storyId` and local `runId`. | `localReviewCertified` only. |
+| `authority` | verified `gate_decision` receipt, `gateInputDigest`, Authority evidence refs, and per-run DONE flags. | Proof-or-Stop Authority verdict endpoints keyed by `jobId` and `runId`. | `fullAuthorityDone` only. |
 
 Minimum policy:
 
@@ -3289,7 +3289,7 @@ Blocking rules:
 
 Authority ordering:
 
-- Proofbound Authority issues and stores the native `gate_decision` receipt before
+- Proof-or-Stop Authority issues and stores the native `gate_decision` receipt before
   the Authority multi-host final verification gate is evaluated;
 - verifier hosts inspect the verified receipt, gate input digest, evidence refs,
   planned step digests, and final per-run DONE flags;
@@ -3355,8 +3355,8 @@ exist and all required verifier verdicts are `pass`.
 Verdict submission:
 
 ```bash
-lattice authority verdict submit --jobId=<job> --runId=<run> --verdictFile=<verdict.json> --json
-lattice autopilot review submit --storyId=<story> --runId=<run> --verdictFile=<verdict.json> --json
+proof-or-stop authority verdict submit --jobId=<job> --runId=<run> --verdictFile=<verdict.json> --json
+proof-or-stop autopilot review submit --storyId=<story> --runId=<run> --verdictFile=<verdict.json> --json
 ```
 
 Authority API:
@@ -3375,7 +3375,7 @@ Rules:
   validation digest, material hash, host identity, provider, model, review wave
   id, prompt digest, and artifact digest;
 - Authority stores Authority verdict records as final verification evidence;
-- local Proofbound stores local verdict records as local review evidence;
+- local Proof-or-Stop stores local verdict records as local review evidence;
 - `authority job status` must show Authority verdict count, independent verifier
   count, failing findings, and whether the Authority multi-host gate is
   satisfied;
@@ -3404,9 +3404,9 @@ Reconciliation protocol:
 - after any repair that changes artifacts, evidence, material hash, local
   lifecycle state, planned-step outputs, or Authority gate input, all previous
   affected verdicts are stale for final certification;
-- after such repair in local mode, Proofbound must rerun validation, compute fresh
+- after such repair in local mode, Proof-or-Stop must rerun validation, compute fresh
   local anchors, and start a fresh review wave;
-- after such repair in Authority mode, Proofbound must rerun validation, rebuild
+- after such repair in Authority mode, Proof-or-Stop must rerun validation, rebuild
   gate input, request and verify a fresh `gate_decision` receipt, and then start
   a fresh review wave over the new chain;
 - if findings cannot be repaired unattended, the run stops blocked with the
@@ -3438,7 +3438,7 @@ Host decision waves for mid-run ambiguity:
 
 ## Server Requirements
 
-Proofbound Authority must provide or confirm support for:
+Proof-or-Stop Authority must provide or confirm support for:
 
 - actor key registration with production bootstrap guard;
 - policy discovery with server key metadata;
@@ -3454,7 +3454,7 @@ Proofbound Authority must provide or confirm support for:
 - `multiHostPolicy` discovery with required and preferred verifier providers;
 - Postgres persistence;
 - Alembic migrations;
-- deployment configuration under Proofbound Authority names;
+- deployment configuration under Proof-or-Stop Authority names;
 - HTTPS or trusted tunnel for deployed verification;
 - audit logs for actor, runner, job, evidence, and receipt operations.
 
@@ -3487,7 +3487,7 @@ Minimal stable Authority endpoints for this pass:
 Rules:
 
 - before M6 begins, Agent 1 must replace every `confirm ...` status with
-  `existing`, `partial`, or `missing` evidence from the running Proofbound Authority
+  `existing`, `partial`, or `missing` evidence from the running Proof-or-Stop Authority
   server;
 - `POST /v1/gates/evaluate` must explicitly state whether the server already
   mints native signed `gate_decision` receipts. If it does not, receipt issuance
@@ -3495,7 +3495,7 @@ Rules:
 - `partial` and `missing` statuses must map to a server Story or a blocked start
   decision. CLI agents must not guess endpoint behavior from names or docs.
 
-The Python server may keep existing compatibility aliases, but the Proofbound
+The Python server may keep existing compatibility aliases, but the Proof-or-Stop
 Authority track must document any alias used by the CLI and must not leave the
 Stage B executor guessing endpoint names.
 
@@ -3504,17 +3504,17 @@ derive host identity from the authenticated context. Submitted JSON may bind the
 claimed `hostId` for audit, but it is not the source of truth for independence
 counting.
 
-## Proofbound CLI Requirements
+## Proof-or-Stop CLI Requirements
 
-Proofbound CLI must provide:
+Proof-or-Stop CLI must provide:
 
 - canonical `LATTICE_AUTHORITY_*` settings with legacy alias fallback;
 - native actor envelope signing;
 - native receipt verification;
 - live runner control-plane client;
 - authority job consumer;
-- Proofbound-native Story Planner;
-- Proofbound-native Job Planner;
+- Proof-or-Stop-native Story Planner;
+- Proof-or-Stop-native Job Planner;
 - bounded provider executor;
 - structured evidence uploader;
 - gate evaluation client;
@@ -3522,7 +3522,7 @@ Proofbound CLI must provide:
 - multi-host review-wave reconciliation for local and Authority modes;
 - autopilot local / shadow / authority separation;
 - process-fact and command-policy entries for all new command surfaces;
-- global `lattice` verification after build/install.
+- global `proof-or-stop` verification after build/install.
 
 ## Milestones
 
@@ -3535,19 +3535,19 @@ multi-host final verification.
 | --- | --- | --- |
 | M1 | Contract Lock | Requirements, field contracts, command names, env names, and receipt semantics are frozen. |
 | M2 | Cross-Language Crypto Fixtures | Python and TypeScript agree on canonical JSON, Ed25519 signing, timestamps, and key encodings. |
-| M3 | Authority Metadata And Bootstrap | Proofbound Authority exposes server key metadata and production-safe actor key registration. |
-| M4 | Native Receipt Verifier | Proofbound verifies native `gate_decision` receipts and rejects wrong bindings. |
-| M5 | Live Runner Control Plane | Proofbound live runner registers, heartbeats, claims, and releases jobs without provider execution. |
+| M3 | Authority Metadata And Bootstrap | Proof-or-Stop Authority exposes server key metadata and production-safe actor key registration. |
+| M4 | Native Receipt Verifier | Proof-or-Stop verifies native `gate_decision` receipts and rejects wrong bindings. |
+| M5 | Live Runner Control Plane | Proof-or-Stop live runner registers, heartbeats, claims, and releases jobs without provider execution. |
 | M6 | Authority Job Schema | Jobs, planned steps, leases, retry policy, stop policy, provider policy, worktree policy, evidence policy, receipt policy, and multi-host policy are machine-readable. |
 | M7 | Provider Executor | Codex/Claude/fake provider execution is bounded, captured, and scoped to the story worktree. |
 | M8 | Evidence Upload | Runs, provider events, command events, validation results, git state, and summaries upload to Authority. |
 | M9 | Repair And Stop Policy | Failures retry, repair, return to DEV, or stop blocked according to explicit policy. |
 | M10 | Gate Evaluation Loop | Executor requests gate evaluation and verifies returned native receipts before authority DONE. |
 | M11 | End-To-End Authority Autopilot | One authority job can drive a story through provider work, validation, evidence, receipt verification, and final summary. |
-| M12 | Deployment And Global Verification | Postgres-backed server, key pinning, HTTPS/tunnel, global `lattice`, and full test matrix pass. |
-| M13 | Proofbound Story Planner | Natural-language requests produce reviewed Story drafts, background, checklist, verification intent, assumptions, and scope questions. |
-| M14 | Proofbound Job Planner | Story + verification intent produce signed Authority jobs with typed `plannedSteps[]`, policies, and planner digests. |
-| M15 | Natural-Language-To-DONE E2E | `lattice planner run --mode=authority --until=DONE` creates Story/job, runs Stage B, verifies receipt, reports authority DONE or blocked, and includes source-aligned redevelopment E2E fixtures when that workflow is selected. |
+| M12 | Deployment And Global Verification | Postgres-backed server, key pinning, HTTPS/tunnel, global `proof-or-stop`, and full test matrix pass. |
+| M13 | Proof-or-Stop Story Planner | Natural-language requests produce reviewed Story drafts, background, checklist, verification intent, assumptions, and scope questions. |
+| M14 | Proof-or-Stop Job Planner | Story + verification intent produce signed Authority jobs with typed `plannedSteps[]`, policies, and planner digests. |
+| M15 | Natural-Language-To-DONE E2E | `proof-or-stop planner run --mode=authority --until=DONE` creates Story/job, runs Stage B, verifies receipt, reports authority DONE or blocked, and includes source-aligned redevelopment E2E fixtures when that workflow is selected. |
 | M16 | Multi-Host Final Verification | At least two independent hosts, with 2-3 hosts per review wave and optional 3+ release certification including Gemini when available, submit verifier verdicts, reconcile disagreements, and verify local or Authority final artifacts before local certified DONE or full authority DONE is claimed. |
 
 ## Current Implementation Pass
@@ -3555,9 +3555,9 @@ multi-host final verification.
 This pass should implement the missing Stage B executor loop and the Stage C
 planner layer, not only document them.
 
-### Proofbound Development Flow Binding
+### Proof-or-Stop Development Flow Binding
 
-This product track must be built through the normal Proofbound Story flow, not as a
+This product track must be built through the normal Proof-or-Stop Story flow, not as a
 parallel unmanaged agent project.
 
 Rules:
@@ -3565,7 +3565,7 @@ Rules:
 - before implementation starts, this requirements document and the requirements
   navigation entry must be tracked and committed so every implementation worktree
   receives the same truth source;
-- create one parent track Story or one Story per milestone group using Proofbound
+- create one parent track Story or one Story per milestone group using Proof-or-Stop
   commands only. Direct story JSON edits are not allowed;
 - every implementation Story must link this document in `relatedDocs`;
 - each Story checklist item must map the relevant milestone, required block, and
@@ -3573,7 +3573,7 @@ Rules:
 - every Completion Criteria row used by a Story must produce
   `verificationEvidence` with command output, evidence refs, receipt refs, or an
   explicit blocked stop reason;
-- no Story reaches DONE until `lattice validate`, global `lattice` smoke, relevant
+- no Story reaches DONE until `proof-or-stop validate`, global `proof-or-stop` smoke, relevant
   Stage A preflight evidence, and any required multi-host verdict evidence are
   fresh for that Story;
 - final track DONE is blocked until all milestone Stories through M16 are DONE,
@@ -3591,7 +3591,7 @@ implementation may not assume server behavior that has not been verified.
 Before M6 starts, record preflight evidence for:
 
 ```bash
-lattice check
+proof-or-stop check
 npm run test:authority-receipt-classification
 npm run test:authority-runner-contracts
 npm run test:authority-runner-client
@@ -3604,7 +3604,7 @@ npm run test:authority-live-python
 Rules:
 
 - missing or failing preflight evidence blocks the dependent milestone Story;
-- `test:authority-live-python` must prove the local Proofbound Authority server can
+- `test:authority-live-python` must prove the local Proof-or-Stop Authority server can
   satisfy the endpoint status table above, or produce exact missing endpoint
   actions;
 - if the server cannot mint a verifiable native `gate_decision` receipt,
@@ -3622,8 +3622,8 @@ M9 Repair And Stop Policy
 M10 Gate Evaluation Loop
 M11 End-To-End Authority Autopilot
 M12 Final verification for the implemented path
-M13 Proofbound Story Planner
-M14 Proofbound Job Planner
+M13 Proof-or-Stop Story Planner
+M14 Proof-or-Stop Job Planner
 M15 Natural-Language-To-DONE E2E
 M16 Multi-Host Final Verification
 ```
@@ -3634,7 +3634,7 @@ definition of success for this pass is Stage B and Stage C working end to end.
 ### Localhost 6789 Live Verification Plan For M1-M16
 
 This plan creates the hard evidence needed to claim that the sixteen Authority
-milestones were validated against a real local Python Proofbound Authority server at
+milestones were validated against a real local Python Proof-or-Stop Authority server at
 `http://localhost:6789/`. It is a verification plan, not a second development
 track.
 
@@ -3649,14 +3649,14 @@ Core rule:
 
 The live verification must preserve two user-selected operating principles:
 
-1. **Proofbound non-authority CLI.** The client is allowed to execute locally under
-   local policy, with no Proofbound Authority server contact. This mode may produce
+1. **Proof-or-Stop non-authority CLI.** The client is allowed to execute locally under
+   local policy, with no Proof-or-Stop Authority server contact. This mode may produce
    local evidence, local validation, and local multi-host review, but it must not
    claim `authorityDone`, `fullAuthorityDone`, server receipt verification, or
    Python Authority evidence.
-2. **Proofbound CLI + Proofbound Authority.** The client is still allowed to execute
+2. **Proof-or-Stop CLI + Proof-or-Stop Authority.** The client is still allowed to execute
    locally, but final Authority claims require server-verified evidence from the
-   Python Proofbound Authority. In this mode the local runner executes provider /
+   Python Proof-or-Stop Authority. In this mode the local runner executes provider /
    validation work, uploads signed evidence to `http://localhost:6789/`, requests
    or verifies native `gate_decision` receipts, and uses server-backed job /
    evidence / receipt / multi-host records before claiming Authority DONE.
@@ -3683,7 +3683,7 @@ Non-goals:
 
 Localhost live verification prerequisites:
 
-- Python Proofbound Authority is started from
+- Python Proof-or-Stop Authority is started from
   `/Users/jek/Documents/Work/Lattice/cord-team`;
 - the server listens on `http://localhost:6789/`;
 - `/v1/authority/policy` returns a server key whose `publicKeyHex` is pinned in
@@ -3703,7 +3703,7 @@ Recommended localhost server setup evidence:
 cd /Users/jek/Documents/Work/Lattice/cord-team
 
 # The default package entrypoint uses port 8765. For the final hard evidence,
-# run the same app explicitly on the Proofbound local Authority default.
+# run the same app explicitly on the Proof-or-Stop local Authority default.
 uv run uvicorn cord_team.api.app:create_app \
   --factory \
   --host 127.0.0.1 \
@@ -3720,7 +3720,7 @@ must still be pinned and verified through `LATTICE_AUTHORITY_LIVE_PUBLIC_KEY`.
 If the server cannot run on HTTPS port 6789, record that as a verification
 blocker for M12 instead of downgrading the final evidence to another port.
 
-Required Proofbound live environment:
+Required Proof-or-Stop live environment:
 
 ```bash
 export LATTICE_AUTHORITY_LIVE_URL=http://localhost:6789/
@@ -3746,7 +3746,7 @@ default-test or ephemeral server key profile as production DONE evidence.
 | V2. Cross-language signing and control plane | M1-M5 | Prove TypeScript and Python agree on signing, receipts, actor key registration, runner registration, heartbeat, claim, and release. | `npm run build`; `npm --prefix packages/main run test:authority-runner-contracts`; `npm --prefix packages/main run test:authority-runner-client`; `npm --prefix packages/main run test:authority-runner-events`; Python fixture/schema tests; `npm --prefix packages/main run test:authority-live-python` against `http://localhost:6789/`. | Contract tests pass and live smoke outputs `passed: policy + control-plane`, not `SKIPPED`; release uses Python `release{runnerId,sessionId,reason}` and no `outcome`. |
 | V3. Stage B live execution loop | M6-M11 | Prove job schema, planned steps, provider execution, evidence upload, repair/stop policy, gate evaluation, receipt verification, and end-to-end Authority autopilot behavior while preserving local-only execution mode. | `npm --prefix packages/main run test:authority-job-loop`; `npm --prefix packages/main run test:authority-job-loop-live-smoke`; `npm --prefix packages/main run test:evidence-upload-loop-smoke`; `npm --prefix packages/main run test:evidence-live-wiring-smoke`; local/non-authority smoke proving zero server contact; live Authority evidence refs for run events, provider events, evidence upload, gate request, receipt verification, terminal status. | Non-authority execution can run locally with Authority flags false and no server contact; authority execution uploads evidence to the live server, gate receipt verification controls DONE, and failure paths release or block without dangling leases. |
 | V4. Stage C planner to Authority job | M13-M15 | Prove natural-language intake can create a Story draft, checklist, verification intent, Authority job, typed `plannedSteps[]`, and both non-authority and authority execution paths. | `npm --prefix packages/main run test:planner-unattended-smoke`; `npm --prefix packages/main run test:natural-language-to-done-smoke`; local planner run evidence with zero server contact; live job creation or live job-file equivalent bound to the same Story, planner digest, checklist digest, verification intent digest, and policy. | One-sentence and document-style requests produce non-placeholder Story/job plans; unsupported scope blocks; non-authority reports local-only status; authority DONE is claimed only after verified live receipt evidence. |
-| V5. Global Proofbound and deployment parity | M12 | Prove the globally installed `lattice` uses the same built code path and respects both non-authority and authority configuration. | Global `lattice check`; global local/non-authority smoke with no server contact; global `lattice authority` status/policy command where available; global `npm --prefix packages/main run test:authority-live-python` or equivalent global wrapper invocation; recorded binary realpath and package version. | Global `lattice` preserves local-only execution when non-authority is selected, and hits `http://localhost:6789/` with pinned-key verification only when authority mode is selected. |
+| V5. Global Proof-or-Stop and deployment parity | M12 | Prove the globally installed `proof-or-stop` uses the same built code path and respects both non-authority and authority configuration. | Global `proof-or-stop check`; global local/non-authority smoke with no server contact; global `proof-or-stop authority` status/policy command where available; global `npm --prefix packages/main run test:authority-live-python` or equivalent global wrapper invocation; recorded binary realpath and package version. | Global `proof-or-stop` preserves local-only execution when non-authority is selected, and hits `http://localhost:6789/` with pinned-key verification only when authority mode is selected. |
 | V6. Multi-host final certification and evidence closure | M16 plus final claim across M1-M15 | Prove final DONE is not a single-host overclaim. | Three bounded host-check waves before final DONE; each wave has at least two independent host verdicts, normally Codex CLI and Claude CLI, reviewing the same final anchors: commit/head, material hash, live smoke output, receipt refs, job/run ids, and evidence refs. Gemini may be added when available. Every wave prompt includes: `don't optimize for the sake of optimization`, `don't optimize arbitrarily`, `only fix real correctness issues`, and `preserve consistency of logic`. | Independent hosts return PASS in all three waves, or any real correctness BLOCK is repaired and the stale anchors are re-verified through fresh waves. Final claim explicitly states whether it is `localDone`, `authorityDone`, or `fullAuthorityDone`. |
 
 Original milestone to verification milestone mapping:
@@ -3765,8 +3765,8 @@ Original milestone to verification milestone mapping:
 | M10 Gate Evaluation Loop | V3 |
 | M11 End-To-End Authority Autopilot | V3 |
 | M12 Deployment And Global Verification | V1, V5 |
-| M13 Proofbound Story Planner | V4 |
-| M14 Proofbound Job Planner | V4 |
+| M13 Proof-or-Stop Story Planner | V4 |
+| M14 Proof-or-Stop Job Planner | V4 |
 | M15 Natural-Language-To-DONE E2E | V4 |
 | M16 Multi-Host Final Verification | V6 |
 
@@ -3796,7 +3796,7 @@ Minimum final evidence bundle:
   and key source summary with private material redacted;
 - live job id, run id, receipt id, and evidence refs when a job is claimed;
 - explicit proof that `test:authority-live-python` did not skip;
-- global `lattice` binary realpath/version;
+- global `proof-or-stop` binary realpath/version;
 - three bounded host-check wave summaries, with at least two independent host
   verdict artifacts per wave and the four required review principles recorded
   in each wave prompt digest;
@@ -3822,17 +3822,17 @@ Fail-closed rules:
 ### Twenty-Five Required Blocks For This Pass
 
 The following twenty-five blocks are mandatory for this implementation pass.
-They are not optional enhancements. If any block is missing, Proofbound must not
+They are not optional enhancements. If any block is missing, Proof-or-Stop must not
 claim full unattended development mode.
 
 1. **Authority job producer and schema.**
-   Proofbound Authority must dispatch jobs that include `plannedSteps[]`, retry
+   Proof-or-Stop Authority must dispatch jobs that include `plannedSteps[]`, retry
    policy, stop policy, lease metadata, evidence policy, provider policy, and
    receipt policy, and multi-host policy. The claimed job payload must be
    complete enough that the runner does not guess what to do.
 
 2. **Stage B executor loop.**
-   `lattice autopilot execute --mode=authority` must claim an authority job,
+   `proof-or-stop autopilot execute --mode=authority` must claim an authority job,
    consume `plannedSteps[]`, execute typed steps, heartbeat, renew leases,
    upload evidence, retry or repair when policy allows, and release or complete
    the job.
@@ -3845,7 +3845,7 @@ claim full unattended development mode.
 
 4. **Evidence upload loop.**
    The executor must upload provider events, command events, validation
-   evidence, git evidence, gate requests, and stop summaries to Proofbound
+   evidence, git evidence, gate requests, and stop summaries to Proof-or-Stop
    Authority. Local logs alone are not sufficient.
 
 5. **Validation, repair, retry, and safe stop.**
@@ -3864,21 +3864,21 @@ claim full unattended development mode.
    The pass must prove fake provider happy path, fake validation failure repair,
    gate rejection, tampered receipt rejection, Codex provider happy path, Codex
    timeout handling, dirty worktree protection, local/shadow autopilot
-   regression, and global `lattice` execution.
+   regression, and global `proof-or-stop` execution.
 
-8. **Proofbound Story Planner.**
-   Proofbound must turn a natural-language request into a reviewed Story draft with
+8. **Proof-or-Stop Story Planner.**
+   Proof-or-Stop must turn a natural-language request into a reviewed Story draft with
    background, checklist, verification intent, assumptions, scope questions,
    risk classification, related docs, and source-aligned redevelopment
-   workflow intent. Story creation must use Proofbound commands only.
+   workflow intent. Story creation must use Proof-or-Stop commands only.
 
-9. **Proofbound Job Planner.**
-   Proofbound must turn Story + verification intent into a signed Authority job
+9. **Proof-or-Stop Job Planner.**
+   Proof-or-Stop must turn Story + verification intent into a signed Authority job
    with typed `plannedSteps[]`, retry policy, stop policy, evidence policy,
    receipt policy, provider policy, worktree policy, and planner digests.
 
 10. **Natural-language-to-DONE E2E.**
-    The pass must prove `lattice planner run --request=... --mode=authority
+    The pass must prove `proof-or-stop planner run --request=... --mode=authority
     --until=DONE` can create the Story, create the Authority job, run Stage B,
     verify the native receipt, and report authority DONE or blocked according to
     gate outcome.
@@ -3982,49 +3982,49 @@ claim full unattended development mode.
 
 ### Implementation Pass Deliverables
 
-Proofbound CLI deliverables:
+Proof-or-Stop CLI deliverables:
 
-- `lattice planner draft` produces a structured Story draft from a
+- `proof-or-stop planner draft` produces a structured Story draft from a
   natural-language request.
-- `lattice planner draft --requestFile=<file>` supports multi-paragraph
+- `proof-or-stop planner draft --requestFile=<file>` supports multi-paragraph
   requirement text.
-- `lattice planner draft/run --interactionMode=autonomous|interview|decision-gated`
+- `proof-or-stop planner draft/run --interactionMode=autonomous|interview|decision-gated`
   selects the user participation policy.
-- `lattice planner answer`, `lattice planner decision submit`, and
-  `lattice planner resume` drive paused planner runs through structured files.
-- `lattice planner review` rejects ambiguous, placeholder, overbroad, unsafe, or
+- `proof-or-stop planner answer`, `proof-or-stop planner decision submit`, and
+  `proof-or-stop planner resume` drive paused planner runs through structured files.
+- `proof-or-stop planner review` rejects ambiguous, placeholder, overbroad, unsafe, or
   unverifiable drafts.
-- `lattice planner create-story` creates Story artifacts through Proofbound
+- `proof-or-stop planner create-story` creates Story artifacts through Proof-or-Stop
   commands only.
-- `lattice story resolve --storyId=<story> --json` or its internal resolver
+- `proof-or-stop story resolve --storyId=<story> --json` or its internal resolver
   equivalent provides the authoritative worktree cwd.
-- `lattice planner create-job` submits a signed Authority job with typed
+- `proof-or-stop planner create-job` submits a signed Authority job with typed
   `plannedSteps[]`.
-- `lattice planner create-job` output includes the `jobCreateRequestEnvelope`
+- `proof-or-stop planner create-job` output includes the `jobCreateRequestEnvelope`
   digest, idempotency key, actor key id, signature status, and server acceptance
   or rejection reason.
-- `lattice planner run --mode=local --until=DONE --requireMultiHost` composes
+- `proof-or-stop planner run --mode=local --until=DONE --requireMultiHost` composes
   Story Planner, a local run plan, local executor, validation, and local review
   certification without using Authority receipts.
-- `lattice planner run --workflow=source-aligned-redevelopment` produces a
+- `proof-or-stop planner run --workflow=source-aligned-redevelopment` produces a
   source-aligned redevelopment Story, local run plan or Authority job,
   source/target language adapter evidence, rename-map evidence, and alignment
   verification intent.
-- `lattice planner run --mode=authority --until=DONE` composes Story Planner,
+- `proof-or-stop planner run --mode=authority --until=DONE` composes Story Planner,
   Job Planner, and Stage B executor when policy allows unattended planning.
-- `lattice planner run --forceNewRun --forceNewRunReason=<reason>` creates a
+- `proof-or-stop planner run --forceNewRun --forceNewRunReason=<reason>` creates a
   distinct planner run only when policy allows it.
-- `lattice autopilot execute --mode=authority` consumes an authority job instead
+- `proof-or-stop autopilot execute --mode=authority` consumes an authority job instead
   of only projecting readiness.
-- `lattice autopilot execute --mode=authority` reads `LATTICE_AUTHORITY_URL`,
+- `proof-or-stop autopilot execute --mode=authority` reads `LATTICE_AUTHORITY_URL`,
   `LATTICE_AUTHORITY_*` key env vars, or `.lattice/authority.md` according to the
   configured precedence, defaulting to `http://localhost:6789/` only for local
   authority development.
-- `lattice autopilot execute --mode=local --until=DONE --requireMultiHost`
+- `proof-or-stop autopilot execute --mode=local --until=DONE --requireMultiHost`
   records local evidence and may report `localReviewCertified=true`, but must
   keep `authorityDone=false`, `fullAuthorityDone=false`, and
   `multiHostVerified=false`.
-- `lattice autopilot review submit/status` records and reports local verifier
+- `proof-or-stop autopilot review submit/status` records and reports local verifier
   verdicts keyed by `storyId` and local `runId`.
 - The executor reads `plannedSteps[]` and executes typed steps in order.
 - The executor supports `provider.fake` for deterministic E2E tests.
@@ -4068,14 +4068,14 @@ Proofbound CLI deliverables:
 - Final JSON distinguishes per-run receipt-backed `authorityDone` from
   multi-host-certified `fullAuthorityDone` and local `localReviewCertified`.
 
-Proofbound Authority deliverables:
+Proof-or-Stop Authority deliverables:
 
 - Job payloads include typed `plannedSteps[]`, retry policy, stop policy,
   evidence policy, receipt policy, provider policy, worktree policy,
   multi-host policy, and lease metadata.
 - Job records bind planner digests, story id, verification intent digest, and
   planned step digests.
-- Job claim returns enough data for Proofbound CLI to execute without guessing.
+- Job claim returns enough data for Proof-or-Stop CLI to execute without guessing.
 - Job heartbeat, lease renewal, release, and completion are idempotent.
 - Evidence endpoints accept the executor evidence classes required by this
   document.
@@ -4144,13 +4144,13 @@ Shared deliverables:
    same timeout, cwd, evidence, and stop semantics.
 
 8. **Global CLI and deployed-authority verification.**
-   Rebuild global `lattice`, run the local and live smoke matrix, then run the
+   Rebuild global `proof-or-stop`, run the local and live smoke matrix, then run the
    deployment-grade pinned-key verification.
 
 9. **Story Planner.**
    Implement `planner draft`, `planner review`, and `planner create-story` after
    the executor's typed step contract is stable. The planner must produce drafts
-   that map directly to Proofbound Story fields and verification intent.
+   that map directly to Proof-or-Stop Story fields and verification intent.
 
 10. **Job Planner.**
     Implement `planner create-job` after Stage B can consume typed
@@ -4181,13 +4181,13 @@ This pass is complete only when all of these cases pass:
 | dirty worktree protection | unrelated user changes are preserved; unsafe job stops. |
 | stale receipt freshness | stale enforce-mode receipt fails authority DONE. |
 | future receipt clock skew | future-dated receipt beyond `LATTICE_AUTHORITY_RECEIPT_CLOCK_SKEW_MS` fails with explicit reason. |
-| local autopilot regression | local mode still works without Proofbound Authority. |
+| local autopilot regression | local mode still works without Proof-or-Stop Authority. |
 | local review certified | local mode with `--requireMultiHost` reaches `localReviewCertified=true` only after required independent local verdicts pass. |
 | local review overclaim guard | local review never sets `authorityDone`, `fullAuthorityDone`, or `multiHostVerified`. |
 | shadow autopilot regression | shadow mode still warns only. |
-| global `lattice` | global binary runs the same authority/autopilot smoke path. |
+| global `proof-or-stop` | global binary runs the same authority/autopilot smoke path. |
 | status commands | `planner status` and `authority job status` are read-only and match run/job state. |
-| story resolver | `lattice story resolve --storyId=<story> --json` returns the authoritative cwd before provider work. |
+| story resolver | `proof-or-stop story resolve --storyId=<story> --json` returns the authoritative cwd before provider work. |
 | planner draft fixture: one sentence | inline one-sentence request produces Story draft with no placeholders. |
 | planner draft fixture: paragraph | inline paragraph request produces Story draft with preserved request digest. |
 | planner draft fixture: request file | multi-paragraph `--requestFile` produces Story draft with preserved request digest. |
@@ -4233,13 +4233,13 @@ This pass is complete only when all of these cases pass:
 | multi-host disagreement | failing independent verdict blocks local review certification or full authority DONE, or returns to repair when policy and budget allow. |
 | multi-host repair freshness | repair that changes material state forces fresh validation, fresh Authority receipt when applicable, and a fresh review wave. |
 
-After these pass, Proofbound can claim:
+After these pass, Proof-or-Stop can claim:
 
 ```text
-Proofbound natural-language-to-authority-DONE unattended development v1 is implemented.
+Proof-or-Stop natural-language-to-authority-DONE unattended development v1 is implemented.
 ```
 
-Before these pass, Proofbound may only claim:
+Before these pass, Proof-or-Stop may only claim:
 
 ```text
 Stage A authority control plane is connected, and Stage B/Stage C are in progress.
@@ -4263,7 +4263,7 @@ burst is allowed only when all of these are true:
 
 - Stage A readiness preflight has passed or the burst is limited to preflight
   remediation Stories;
-- each agent owns a separate Proofbound Story or non-overlapping write-set;
+- each agent owns a separate Proof-or-Stop Story or non-overlapping write-set;
 - every Story has explicit `relatedDocs`, `verificationIntent`, and validation
   rows before implementation starts;
 - no shared contract file is edited by multiple agents without the Codex
@@ -4279,7 +4279,7 @@ independence, not raw agent count.
 | Agent 1 | Python Authority API, config, deployment, receipts. | M3, M8, M10, M12 |
 | Agent 2 | Crypto contracts, fixtures, native verifier review. | M2, M4, M10 |
 | Agent 3 | Runner registry, job scheduler, leases, completion semantics, Authority job schema. | M5, M6, M11, M14 |
-| Agent 4 | Proofbound CLI autopilot executor, command policy, Job Planner integration. | M5, M7, M9, M11, M14 |
+| Agent 4 | Proof-or-Stop CLI autopilot executor, command policy, Job Planner integration. | M5, M7, M9, M11, M14 |
 | Agent 5 | Provider adapters, worktree safety, evidence capture, Story Planner implementation. | M7, M8, M9, M13 |
 | Agent 6 | E2E smokes, docs, deployment verification, overclaim audits, natural-language-to-DONE verification, multi-host final verification. | M1, M11, M12, M15, M16 |
 | Codex coordinator | Sequence, merge local work, prevent contract drift, run final matrix. | all |
@@ -4324,7 +4324,7 @@ Wave 5: end-to-end, multi-host verification, and deployment.
 - Coordinator reconciles any host disagreement before local review certification
   or full authority DONE is claimed.
 - Agent 1 verifies Postgres / Alembic / deployed server behavior.
-- Coordinator runs global build, global `lattice`, and final regression matrix.
+- Coordinator runs global build, global `proof-or-stop`, and final regression matrix.
 
 ## Validation Matrix
 
@@ -4332,7 +4332,7 @@ Wave 5: end-to-end, multi-host verification, and deployment.
 
 | Case | Expected |
 | --- | --- |
-| local autopilot without Proofbound Authority | pass |
+| local autopilot without Proof-or-Stop Authority | pass |
 | non-authority no server contact | local/non-authority mode does not read `authority.md`, connect to `http://localhost:6789/`, or call Authority endpoints |
 | local validation failure | returns local failure, no authority overclaim |
 | local multi-host review | required independent local verdicts set `localReviewCertified=true` |
@@ -4469,8 +4469,8 @@ Wave 5: end-to-end, multi-host verification, and deployment.
 | server private key configured | pass |
 | HTTPS/trusted tunnel health | pass |
 | pinned receipt verification | pass |
-| global `lattice authority receipt verify` | pass |
-| global `lattice autopilot execute --mode=authority` smoke | pass |
+| global `proof-or-stop authority receipt verify` | pass |
+| global `proof-or-stop autopilot execute --mode=authority` smoke | pass |
 
 ## Risk Register
 
@@ -4507,7 +4507,7 @@ Wave 5: end-to-end, multi-host verification, and deployment.
 | Source-aligned redevelopment leaks source secrets or proprietary material. | Source is read-only, excluded paths are enforced, secrets are redacted/excluded, and evidence prefers digests/refs. |
 | Source-aligned redevelopment launders license obligations. | Required license and attribution notices are preserved or surfaced as blockers. |
 | Source-aligned redevelopment overclaims alignment. | DONE requires deterministic module/function alignment maps, rename-map evidence, build/test parity, and explicit gap records. |
-| Cross-language redevelopment is marketed as exact semantic identity. | The contract is evidence-backed observable parity plus explicit gaps; Proofbound must not claim perfect equivalence for arbitrary language pairs. |
+| Cross-language redevelopment is marketed as exact semantic identity. | The contract is evidence-backed observable parity plus explicit gaps; Proof-or-Stop must not claim perfect equivalence for arbitrary language pairs. |
 | A language pair becomes hardcoded special-case behavior. | `sourceLanguage -> targetLanguage` runs through language adapters, neutral manifests, semantic mapping policy, and target-runnable parity oracles. |
 | Missing language adapters are hidden behind provider prose. | Missing adapters block or produce scoped gaps; provider output cannot replace deterministic manifest extraction. |
 | Source-only tests burn budget in cross-language repair loops. | Untranslatable checks route directly to `gapList[]` or blocked stop reasons instead of repeated repair attempts. |
@@ -4517,8 +4517,8 @@ Wave 5: end-to-end, multi-host verification, and deployment.
 
 This product track is complete only when all of the following are true:
 
-- local autopilot still works without Proofbound Authority;
-- local/non-authority mode never connects to Proofbound Authority;
+- local autopilot still works without Proof-or-Stop Authority;
+- local/non-authority mode never connects to Proof-or-Stop Authority;
 - shadow remains diagnostic/advisory and is not a third user-selected
   unattended development mode;
 - authority mode defaults to `http://localhost:6789/` only for local authority
@@ -4526,7 +4526,7 @@ This product track is complete only when all of the following are true:
 - default test keys and `authority.md` local-test profiles are rejected for
   deployed production Authority DONE;
 - one-sentence, paragraph, and multi-paragraph natural-language requests can be
-  transformed into reviewed Proofbound Story drafts;
+  transformed into reviewed Proof-or-Stop Story drafts;
 - `autonomous`, `interview`, and `decision-gated` interaction modes all pass
   their dedicated planner and end-to-end tests;
 - `autonomous` and post-confirmation `interview` can use bounded 2-3 host
@@ -4543,7 +4543,7 @@ This product track is complete only when all of the following are true:
   slowing low-risk autonomous work;
 - final multi-host review prompts include `dont optimize for the sake of
   optimization`;
-- Story Planner creates or reuses Stories only through Proofbound commands;
+- Story Planner creates or reuses Stories only through Proof-or-Stop commands;
 - Job Planner creates or reuses Authority jobs with typed `plannedSteps[]`;
 - Job Planner also creates local run plans for non-authority unattended
   development when `--mode=local` is selected;
@@ -4576,8 +4576,8 @@ This product track is complete only when all of the following are true:
   local validation and required independent local verifier verdicts pass;
 - local non-authority review never sets `authorityDone`, `fullAuthorityDone`, or
   `multiHostVerified`;
-- Proofbound Authority issues a native signed `gate_decision` receipt;
-- Proofbound verifies the receipt before authority DONE;
+- Proof-or-Stop Authority issues a native signed `gate_decision` receipt;
+- Proof-or-Stop verifies the receipt before authority DONE;
 - DONE reconciliation proves local lifecycle, Authority receipt, job completion,
   lease cleanup, and final summary are all aligned;
 - review policy supports 2-3 hosts per review wave and preferred 3+ release
@@ -4609,8 +4609,8 @@ This product track is complete only when all of the following are true:
 - final output includes an auditable timeline from request intake to final status;
 - read-only planner/job status commands expose the current phase, refs, and
   final state without mutating the run;
-- global `lattice` passes the full planner/authority/autopilot regression matrix;
-- deployed or deployment-grade Proofbound Authority verification passes with a
+- global `proof-or-stop` passes the full planner/authority/autopilot regression matrix;
+- deployed or deployment-grade Proof-or-Stop Authority verification passes with a
   pinned server key;
 - production Authority verification proves customer API key validation,
   wrong-project rejection, revoked/expired-key rejection, customer-key-gated

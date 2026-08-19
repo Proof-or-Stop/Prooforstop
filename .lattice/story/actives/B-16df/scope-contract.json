@@ -1,0 +1,45 @@
+{
+  "storyId": "B-16df",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/handlers/checklist.ts"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+    "packages/main/src/core/validation-executor.ts",
+    "packages/main/src/handlers/verifier.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialize scope contract from PLAN checklist files (CHK-001/002/003) and plan.md for the timeoutMs-config-override fix, matching scope-boundary.json allowed/excluded lists.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Global dev-memory experience log appended to by dev_memory_capture (2 entries: evidence-pin-immutability, done_prepare convergence-invariant re-anchor) - a shared, project-wide file every story writes to, out of scope for this story path-wise but a legitimate required DONE-gate side effect.",
+      "timestamp": "2026-08-16T16:24:12.811Z",
+      "paths": [
+        ".lattice/dev-memory/experience.jsonl"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/dev-memory/experience.jsonl"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "5dbba1401603d1e5fcc73a86e8ab5c121ce1e907",
+      "materialHash": "8941e66686e95f1edfd3e61eae02e7040a8ea86401dfc3b53c6550e46b552b17"
+    }
+  ],
+  "createdAt": "2026-08-14T11:47:22.453Z",
+  "updatedAt": "2026-08-16T16:24:12.811Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/handlers/checklist.ts": "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/tasks/validate-command-timeout-smoke.ts": "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+    "packages/main/src/core/validation-executor.ts": "packages/main/src/core/validation-executor.ts",
+    "packages/main/src/handlers/verifier.ts": "packages/main/src/handlers/verifier.ts",
+    ".lattice/dev-memory/experience.jsonl": ".lattice/dev-memory/experience.jsonl"
+  }
+}

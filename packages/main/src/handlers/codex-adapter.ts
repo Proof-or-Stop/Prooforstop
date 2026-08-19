@@ -2,6 +2,7 @@ import { execSync } from 'node:child_process';
 import type { HandlerContext } from './context.js';
 import {
   renderCodexAdapterChecks,
+  resolveGlobalFallbackHeartbeatTimeoutMs,
   resolveLocalCodexVerifyCommand,
   runCodexAdapterChecks,
 } from '../core/codex-adapter-checks.js';
@@ -21,13 +22,29 @@ function detectStoryIdFromBranch(root: string): string | null {
 
 export function createCodexAdapterHandlers(ctx: HandlerContext) {
   return {
-    verify_codex(args: { json?: boolean; storyId?: string } = {}) {
+    verify_codex(
+      args: {
+        json?: boolean;
+        storyId?: string;
+        heartbeatTimeoutMs?: number;
+        heartbeatTimeoutReason?: string;
+      } = {},
+    ) {
       const storyId = args.storyId || detectStoryIdFromBranch(ctx.root) || undefined;
+      // B-cdf6 (B-META F-013) Handler 编码约定: re-validate the Zod-bounded override at
+      // the handler entry too, so an out-of-bounds / unattributed budget is refused
+      // BEFORE any heartbeat runs (and on any path that bypassed the CLI schema).
+      resolveGlobalFallbackHeartbeatTimeoutMs({
+        timeoutMs: args.heartbeatTimeoutMs,
+        reason: args.heartbeatTimeoutReason,
+      });
       const result = runCodexAdapterChecks(ctx.root, {
         executeHeartbeats: true,
         registryNames: ctx.getAllToolNames?.(),
         storyId,
         store: ctx.store,
+        heartbeatTimeoutMs: args.heartbeatTimeoutMs,
+        heartbeatTimeoutReason: args.heartbeatTimeoutReason,
       });
       if (storyId) {
         try {
