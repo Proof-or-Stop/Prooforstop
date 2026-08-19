@@ -2289,6 +2289,31 @@
         "scanEscalationReason": null
       },
       "_hash": "68821a4997bc12d02521d9080cd3d63ee57e816b7331d66330fef15d10b5f694"
+    },
+    {
+      "id": "B-9ff1:RP-074",
+      "agent": "lattice-review-behavior",
+      "note": "Fresh RR-115 bound to head 9b415c9. Only delta since prior pass is the lattice.config.json validate.commands merge restoring main's resource declarations: independently diffed against main -- 117 entries (was 111), 97 declaring resources, 0 main keys dropped, 0 deep diffs across all 111 shared entries; new entries are the 5 red-w2d harness registrations for this story only, matching CHK-013. Re-verified item 2 exactly: red-w2d-specificity-conjunction.mjs exit 0, SIGSEGV 15.65 / ENOMEM 11.51 / HTTP 404 20.00 / Error 500 21.77 / test failed 34.05 (ADMIT). Ran the other four red-w2d harnesses (assertion-digest-scope, entropy-differential, rejection-matrix, command-readonly) and the envelope smoke directly -- all exit 0. red_evidence_envelope_check on a policy-less assertion still fails closed naming pinnedPath (red_evidence_policy_missing: pinnedPath), matching pre-existing resolver behavior wired into the new command. findings.json: 80 total, 0 open. checklist.json: 16/16 items done, all 16 checklist claims (schema/specificity/entropy/digest/binding/command house-pattern/registration/success-output/count-bound/registry-membership) map to code in envelope.ts, specificity.ts, red-evidence.ts handler, command-catalog.ts. No CLAUDE.md/README delta this round, so no new doc-promise-undelivered surface. git rev-list HEAD..main = 0. Working tree clean except review-tooling bookkeeping (prompt-envelopes.json, review-runs.json) written by this review_run_start call itself.",
+      "createdAt": "2026-08-19T15:48:33.334Z",
+      "reviewRound": "2026-08-19T15:13:53.073Z",
+      "reviewRunId": "B-9ff1:RR-115",
+      "envelopeId": "3a95305851fc4235c2623d0da83557e9c29b9b63dd3de143ff9cc759cb8af78c",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/authority-runner-session-evidence-envelope.md",
+          "docs/requirements/decisions/lattice-authority-remote-evidence-bundle.md",
+          "docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5d1a3f4b34a93c0a7f92b4b8e7fb09e62f459f321d3dc618f8e769e1c1535df5"
     }
   ]
 }
