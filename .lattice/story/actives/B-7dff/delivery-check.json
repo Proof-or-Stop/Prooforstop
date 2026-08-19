@@ -1,0 +1,39 @@
+{
+  "storyId": "B-7dff",
+  "checkedAt": "2026-08-19T00:58:44.189Z",
+  "headHash": "7d9dadc78d665e45e262f4001a61354a871fa340",
+  "materialHash": "6252802133ce751d6a0a79951a96f81b0719231e4da88bbc6ae8bf588516dc39",
+  "storyFilesHash": "0bab1cc35f5b0e4ceae7c9ed0ac03e365bd8ccd26fd92afe53f1b65eb0f9e775",
+  "reviewRound": "2026-08-19T00:17:10.730Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Rebind at current material hash; no code re-verification needed because the diff between the prior delivery-check binding (commit c10080cd98) and current HEAD touches only .lattice/dev-memory/* and story-internal bookkeeping (delivery-check.json, process-events.jsonl, test-evidence.json, closeout-write-receipts.jsonl) -- confirmed directly with git diff --stat c10080cd98..HEAD, zero packages/main/src files changed. keyed-scheduler.ts extraction and the CHK-001:happy:0 permanent waiver stand as previously reviewed. I independently re-checked the waiver's stated blocker in code rather than trusting the prior note: packages/main/src/handlers/checklist.ts:1422 defines verificationIntentProtectedPhases = [DEV,REVIEW,TEST,DONE] and line 1453 blocks any verificationIntent edit in those phases; verification_intent_repair (checklist.ts:2131) is mode=fromEvidence only and its own docstring says it Never overwrites authored intent -- it backfills missing lanes, not selector text. So the waiver's premise (no pin-repair path exists for an already-authored intent) holds. npm test 49/49 in 363.2s (full-suite: 49/49 passed in 363.2s; retries=0; jobs=2) was independently reproduced in the prior review round and nothing in the suite membership or scheduler code changed since."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Rebind only. validate-resource-claims.test.mjs (327 lines, resource-claim declaration logic) is unchanged in this diff window; its prior pass (34 assertions, configured plan: 110 commands, 97 declared, 13 exclusive by fail-closed default) remains the operative evidence, bound to merge commit 19ff5225fa1aa3e3482119c148254c8d5f37aa10 which I confirmed is still an ancestor of current HEAD (git merge-base --is-ancestor)."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Rebind only. validate-plan-scheduling.test.mjs (plan-order preservation, run-all cancellation, deadline/abort propagation, 43 assertions) is unchanged; no source touchpoint of executeValidationPlan appears in the c10080cd98..HEAD diff."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Rebind only. The gate-enforced synthetic-fixture equivalence smoke and the on-demand real-plan benchmark (jobs=1=2225.0s vs jobs=4=1474.9s, 1.51x, 106/107 identical per-command verdicts) are unchanged code paths. I re-read summary.json directly: the outcomeDiff field states the 1.51x-vs-3.17x gap and its cause (quorum-submit-smoke ~46% of parallel makespan) as its own dedicated, non-buried field -- confirmed prominent, not a footnote."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "Rebind only. Declaration coverage (97/110, 10 audited barriers held, collision probe bites on a mutated config) is unchanged; the CHK-005:happy:0 permanent waiver rests on the same verified pin-immutability facts as CHK-001:happy:0."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "This is a rebind, not a re-litigation, and I verified that framing rather than assuming it: git diff --stat between the prior delivery-check binding (c10080cd98) and current HEAD (7d9dadc78d) touches exactly six files, none of them packages/main/src or packages/main/tests -- .lattice/dev-memory/experience.jsonl and finish-decisions/B-7dff.json (the required dev_memory_finish_decision write), plus delivery-check.json/process-events.jsonl/test-evidence.json/closeout-write-receipts.jsonl bookkeeping. test-evidence.json's own diff shows the second validate run has disposition reused (provider lattice-verifier-reused, trusted-story-metadata-descendant, commandExecutions=0) with zero code re-execution, which is the validate engine's own admissibility logic independently confirming nothing material changed between the two evidence snapshots. docsPromises remains correctly empty: git diff --name-only main...HEAD -- *.md returns exactly one file, .lattice/story/actives/B-7dff/plan.md (a story-internal planning artifact, not a product doc), and grep for README/CLAUDE.md/docs/ paths in the full diff returns nothing. bug_list is empty and finding_list shows all 15 findings resolved with none open, confirmed directly rather than assumed. DIFFERENCE FROM THE PRIOR REVIEW, stated plainly: the prior delivery-check's M1 staleness caveat is NOT resolved -- it is still open and has moved, not cleared. milestone_status right now reports M1 (and M2-M4) still Blocked, with CHK-001:happy:0's stale binding now read against storyFilesHash 0bab1cc35f5b, a third value distinct from both the original 1e183269ed6f and the previously-cited 7446a31ff3c1. The mechanism: the dev_memory_finish_decision write this DONE attempt required touched .lattice/dev-memory/experience.jsonl, which counts as material for storyFilesHash purposes, so it re-staled the milestone ledger's evidence bindings a second time on top of the pre-existing gap. This is the same character of gap the prior review already named (mechanical rebinding lag on a read-only observability ledger explicitly disclaimed as NOT a lifecycle DONE gate, NOT an Authority verdict, and NOT a production-readiness gate), not a new substantive defect -- the underlying checklist evidence content, headHash bindings to merge commit 19ff5225fa1aa3e3482119c148254c8d5f37aa10, and test results are byte-identical to the previously reviewed state. I am not attempting to fix it here: doing so (checklist_update / verification_evidence_add) would itself be another story-owned-file write that re-invalidates this very delivery-check binding, recreating the loop this re-run exists to break. Flagging it accurately so DONE is not attempted under the belief that milestone_status now shows clean; it does not, and it was never a gate delivery-check itself enforces."
+  },
+  "_hash": "e214cdb0317a4d8cf00cbc667a14da26963d3407d9e3eb5c29ee202b873c47e5"
+}

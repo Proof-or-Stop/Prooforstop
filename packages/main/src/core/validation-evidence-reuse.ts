@@ -198,11 +198,21 @@ export function isCompleteRoutineValidationIdentity(value: unknown): value is Ro
   return typeof digest === 'string' && digest.length === 64 && validationIdentityDigest(unsigned) === digest;
 }
 
+/**
+ * B-7dff F-003: `concurrentPollutionBlocking` carries the plan-level dirty
+ * verdict that no single command owns (see
+ * ValidationResult.concurrentWorktreePollution). Per-command records are now
+ * only ever written when the attribution is exclusive, so without this the
+ * ambiguous case would be invisible to this summary — the summary would report
+ * PASS on a run `executeValidationPlan` already failed. It is counted as one
+ * required failure, exactly as a per-command blocking record is.
+ */
 export function summarizeRoutineCommandExecution(
   results: ValidationCommandResult[],
   expectedCommandCount: number,
-  options: { semanticPass?: boolean } = {},
+  options: { semanticPass?: boolean; concurrentPollutionBlocking?: boolean } = {},
 ): RoutineValidationCommandExecution {
+  const concurrentPollutionFailure = options.concurrentPollutionBlocking === true;
   const requiredFailures = results.filter((result) => (
     result.worktreePollution?.blocking === true
     || (!result.optional && (result.code !== 0 || result.timedOut))
@@ -213,16 +223,17 @@ export function summarizeRoutineCommandExecution(
     && (result.code !== 0 || result.timedOut)
   ));
   const semanticFailure = options.semanticPass === false;
+  const requiredFailureCount = requiredFailures.length + (concurrentPollutionFailure ? 1 : 0);
   const failureKind = requiredFailures.some((result) => result.failureKind === 'infra_failure' || result.timedOut)
     ? 'infra_failure'
-    : requiredFailures.length > 0 || semanticFailure ? 'validation_failure' : undefined;
+    : requiredFailureCount > 0 || semanticFailure ? 'validation_failure' : undefined;
   return {
     schema: 'lattice.routine-validation-command-execution',
     version: 1,
-    status: requiredFailures.length === 0 && !semanticFailure ? 'PASS' : 'FAIL',
+    status: requiredFailureCount === 0 && !semanticFailure ? 'PASS' : 'FAIL',
     complete: results.length === expectedCommandCount,
     commandCount: results.length,
-    requiredFailureCount: requiredFailures.length + (semanticFailure && requiredFailures.length === 0 ? 1 : 0),
+    requiredFailureCount: requiredFailureCount + (semanticFailure && requiredFailureCount === 0 ? 1 : 0),
     optionalFailureCount: optionalFailures.length,
     ...(failureKind ? { failureKind } : {}),
   };
