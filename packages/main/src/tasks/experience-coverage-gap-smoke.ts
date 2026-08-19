@@ -48,6 +48,8 @@ import { deriveFindingSignals } from '../core/finding-signals.js';
 import { computeCoverageGap } from '../core/experience-revalidation.js';
 import type { FindingSignalsCache, SignalSourceFinding } from '../core/experience-layer-types.js';
 import {
+  FINDING_SIGNALS_FILENAME,
+  LEARNING_DIR,
   readFindingSignals,
   resolveFindingSignalsPath,
   writeFindingSignals,
@@ -359,10 +361,10 @@ function run(): void {
     });
 
     // ─── tamper guard: ensure the cache file actually exists where expected ─────
-    check('sanity: resolveFindingSignalsPath points under .lattice/learning/', () => {
+    check('sanity: resolveFindingSignalsPath points under the canonical learning dir', () => {
       const root = mkTempRoot(); tmpRoots.push(root);
       const p = resolveFindingSignalsPath(root);
-      assert.ok(p.includes(join('.lattice', 'learning', 'finding-signals.json')), `unexpected cache path ${p}`);
+      assert.ok(p.includes(join(LEARNING_DIR, FINDING_SIGNALS_FILENAME)), `unexpected cache path ${p}`);
       // No file written yet.
       assert.ok(!existsSync(p) || readFileSync(p, 'utf-8').length >= 0);
     });
