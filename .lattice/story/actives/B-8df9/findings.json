@@ -238,7 +238,7 @@
       "desc": "CHK-005:happy:0, CHK-005:adversarial:0, CHK-006:happy:0, CHK-006:adversarial:0 verificationEvidence notes claim a mechanical upgrade that did not occur: each note says (e.g.) \"Re-pinned with a stable selector so this row is now mechanically re-verifiable rather than a bare command record.\" But these four intents are type=docs. enforceAndStampEvidence (packages/main/src/handlers/checklist.ts:680-688) checks isExecutableIntentType (packages/main/src/core/verification.ts:98-102, EXECUTABLE_INTENT_TYPES={logic,cli,browser}) BEFORE consulting any caller selector; for a docs/manual intent it returns evidencePatch={mechanical:false, command, result} and never reads input.selector, never writes intent.verification={command,selector}. Confirmed on-disk in .lattice/story/actives/B-8df9/checklist.json: none of the four evidence rows carry a selector, a verification pin on the intent, or a receipt; mechanical stays false on all four -- byte-identical in shape to an ordinary unpinned bare-command attestation. No selector was actually persisted despite the note text. This does not currently flip any gate (coverageStatusForCoveredEvidence treats non-executable intent types as unconditionally covered regardless of mechanical, so these rows were covered before and after identically), but it is a false claim of stronger evidence written permanently into the append-only audit trail of a story whose entire subject is exactly this failure mode (see SD-7319de10: a mechanism that claims to prove something stronger than it does). Recommend appending a corrective docs_check row (evidence is append-only) on each of the four intentRefs whose note accurately says these are re-attested non-mechanical docs_check narrative judgments (type=docs intents cannot be selector-pinned by design), not selector-pinned mechanical rows.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-19T15:48:01.816Z",
@@ -252,7 +252,10 @@
       ],
       "signatureTag": "missing|json|happy-adversarial-happy",
       "signatureTagSource": "auto",
-      "clusterId": "CL-001"
+      "clusterId": "CL-001",
+      "resolvedReason": "Correct, accepted in full, and the root cause is mine. Three lanes caught the same defect from three angles: quality saw the CHK-005 selectors pinned to which story happens to sit in INIT (B-dcf9 today); concept saw the CHK-006 selectors pinned to prose that command-policy.ts's own comment invites future editors to reword; test-coverage proved the decisive fact — docs-type intents route to the attestation-only branch of enforceAndStampEvidence BEFORE any caller-supplied selector is read, so NO selector, pin or receipt was ever persisted and mechanical stayed false. My note claiming the rows were \"re-pinned with a stable selector, now mechanically re-verifiable\" was therefore false from the moment it was written. It flipped no gate, but it put a false claim about evidence strength into a permanent audit trail — on the one story whose entire subject is that a signature must cover what its gate decides on, or the record will confidently mislead. Fix: appended a retraction to each of the four rows that withdraws the claim, states what they actually are (point-in-time attestations executed by hand on the merged tree), and records why they are not durably re-verifiable. Also recorded that the original author's decision to leave them unpinned was the better judgement. No selector remains claimed anywhere.",
+      "resolvedAt": "2026-08-19T15:51:03.300Z",
+      "resolutionType": "fixed"
     }
   ]
 }
