@@ -529,12 +529,12 @@
           "kind": "docs_check",
           "command": "node .lattice/story/actives/B-8df9/chk005-corpus-derivation.mjs",
           "result": "pass",
-          "note": "RETRACTION of my own earlier note on this row. I previously wrote that it was \"re-pinned with a stable selector so this row is now mechanically re-verifiable\". That was FALSE and a reviewer proved it: docs-type intents are routed to the attestation-only branch of enforceAndStampEvidence BEFORE any caller-supplied selector is read, so no selector, verification pin or receipt was ever persisted and mechanical stayed false. The row's shape is identical to a bare command record - which is what the original author recorded, and their judgement was better than my attempted upgrade. What this row actually is: a point-in-time attestation. The command was executed by hand on the merged tree and its claim held at that moment. It is NOT durably re-verifiable, for a reason worth stating: the CHK-005 corpus markers depend on which story happens to be sitting in INIT (B-dcf9 today), and the CHK-006 grep targets are prose in command-policy.ts that the module's own comment invites future editors to reword. Treat this as an attestation, not as mechanical evidence.",
+          "note": "Point-in-time attestation, re-executed by hand after the second main merge (six sibling validate entries arrived; both packages rebuilt). NOT mechanical evidence and no selector is claimed: docs-type intents route to the attestation-only branch of enforceAndStampEvidence before any caller-supplied selector is read, so nothing is pinned and mechanical stays false. This restates the retraction already recorded on this row after findings F-009/F-011/F-012 caught an earlier note of mine falsely claiming these rows were mechanically re-verifiable. What was actually observed just now on the merged tree: chk005-corpus-derivation.mjs exits 0 (CORPUS_FILES_ON_DISK_MARKER=300); grep \"NOT exempt because of the signature\" in packages/main/src/core/command-policy.ts hits 3; grep \"CHK-006\" in the same file hits 2. These observations are not durably re-verifiable - the corpus markers move with which stories exist and their phases, and the grep targets are prose the module's own comment invites future editors to reword.",
           "mechanical": false,
-          "headHash": "097cbed91a0553b83126201171e3433c8b62dadf",
-          "materialHash": "b3ae30c9b0573ffc9b04f68dc044699bb59ff4db0c027b33fbfc773796f6e113",
-          "storyFilesHash": "d83d13fa37a415bc9cd4f1eb416740f46003f489fa495e9d66ca63a2f7751f8c",
-          "timestamp": "2026-08-19T15:50:08.455Z"
+          "headHash": "8c9c60554e7e44d33064f030401f9b0425fd812e",
+          "materialHash": "e4b2e340c75e441473af303dcc88831a3ea10ce855550e4d4e41aa8f2a9bed7a",
+          "storyFilesHash": "0d6dbaf3449487543b2406949abcd4c32dd4f269d173145d4b99b04b20809410",
+          "timestamp": "2026-08-19T17:24:53.915Z"
         }
       ]
     },
