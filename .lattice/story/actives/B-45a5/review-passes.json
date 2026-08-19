@@ -224,6 +224,34 @@
         "scanEscalationReason": null
       },
       "_hash": "bb5221081e08109c393df84a607ee67547e164c93318bd76a4d0b2ccf5a07ba6"
+    },
+    {
+      "id": "B-45a5:RP-009",
+      "agent": "lattice-review-concept",
+      "note": "Re-attestation after TEST->DEV->REVIEW recovery for dev_memory_finish_decision + scope_contract_acknowledge; review_incremental_context confirms changedFiles=(none) since prior pass RP-006 (isFirstPass=false, scopeChanged=false, eligibilityReasonCodes=ELIGIBLE_NO_MATERIAL_CHANGE+ELIGIBLE_TRUSTED_PRIOR_BINDINGS). Independently verified via git diff --name-status -M f4960da..HEAD: only .lattice/story/actives/B-45a5/* and .lattice/dev-memory/finish-decisions/B-45a5.json changed -- zero packages/main/src touched since the prior pass. Re-confirmed still exactly four withdrawal-determination paths, no fifth added: (1) core/checklist-status.ts isWithdrawnChecklistStatus bare-status predicate, (2) core/proofstory.ts withdrawnChecklistItemIdsFrom/decisionAuthorizesWithdrawal (decision-record-only, item-status-blind), (3) core/proofstory.ts withdrawnItemIntentRefs consumed at evaluateReviewCompleteness (proofstory.ts:2166), (4) core/verification.ts:212 isWithdrawnChecklistStatus bare-status skip on the DONE-blocking coverage path -- comment unchanged, still labelled B-1909 CHK-002 terminal-but-not-delivered. Disclosures still accurate: lattice.config.json:155 three-clause mandatory guard label unchanged (no optional flag, same validate.commands array); validate-channel.ts:250-263 checkDispatchEvidence three-bucket docstring (WITHDRAWN/OWNER-EXEMPT/EVIDENCED, withdrawal checked first, decision-membership not item.status) unchanged and matches implementation. Live re-run: node packages/main/tests/red/red-b45a5-withdrawal-gates.mjs -> exit 0, B45A5-VERDICT=GREEN, A1/A2/C1-C9 CONTROL-OK, B1/B2/B3 GREEN, D1-D5/D23/D45/E1 REFUSED. No concept deletion/replacement this round; concept residue check completed, no blocker.",
+      "createdAt": "2026-08-19T13:01:47.421Z",
+      "reviewRound": "2026-08-19T12:59:26.603Z",
+      "reviewRunId": "B-45a5:RR-014",
+      "envelopeId": "d83d6fa6fb53b51a341c14fa81afa2ea71246964feaf510cb55ba899750a0d8d",
+      "writerSessionId": "sess-b45a5-main",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/dev-memory/finish-decisions/B-45a5.json",
+          ".lattice/story/actives/B-45a5/dev-memory-candidates.jsonl",
+          ".lattice/story/actives/B-45a5/scope-contract.json",
+          "lattice.config.json",
+          "packages/main/src/core/checklist-status.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/validate-channel.ts",
+          "packages/main/tests/red/red-b45a5-withdrawal-gates.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "3da29b8453aa76f7218e46212aa678d6c50c0c705b4c1d00d7fd9b16460ea3c3"
     }
   ]
 }
