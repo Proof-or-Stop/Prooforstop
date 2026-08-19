@@ -251,9 +251,9 @@
       "id": "CHK-003",
       "title": "Give the normal-channel gate the same decision-backed skip",
       "context": "handlers/validate-channel.ts checkDispatchEvidence, which today has zero status or withdrawal awareness. A withdrawn item must not require dispatch/subagent_result evidence because no work was dispatched by design. Same structural backing as the previous item. Do not weaken the dispatch requirement for any item that is not withdrawn - the normal-channel discipline is correct and must stay strict.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-08-19T00:34:40.415Z",
       "userSees": "The channel gate prints the withdrawn item as skipped with its decision id rather than 'has no dispatch/subagent_result evidence'.",
       "files": {
         "modify": [
@@ -286,6 +286,13 @@
             "priority": "must"
           }
         ]
+      },
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "1a43374ea15d88272ba1a778fc3244e251501b9086ce49b2856a260af888a569",
+        "storyFilesHash": "f79a0ce42f74ebdf1b8682f992ecd465bc77427f3187885d979ccbfba22f7b4c",
+        "headHash": "b66d0bc308ebefc165ee1742cf5113e593b8e7fe",
+        "attestedAt": "2026-08-19T00:34:40.632Z",
+        "materialHash": "12a01addc0a41a39a8bab04f957ae00867406d59e93b97b04f4c24269f506f15"
       }
     },
     {
