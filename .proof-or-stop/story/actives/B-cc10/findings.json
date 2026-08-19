@@ -1379,6 +1379,25 @@
       "signatureTag": "missing|ts|packages-main-tasks",
       "signatureTagSource": "auto",
       "resolvedAt": "2026-08-18T20:11:22.768Z"
+    },
+    {
+      "id": "B-cc10:F-075",
+      "desc": "doc-promise-undelivered: CLAUDE.md:787 and AGENTS.md:209 name the Codex adapter manifest path as `.proof-or-stop-codex/lattice.json`, but CHK-004 renamed the manifest filename itself (lattice.json -> proof-or-stop.json, PROOF_OR_STOP_MANIFEST_FILENAME in packages/main/src/core/brand-paths.ts:118) and the actual on-disk file is `.proof-or-stop-codex/proof-or-stop.json`. This diff only substituted the directory prefix (.lattice-codex -> .proof-or-stop-codex) and left the filename stale in both docs, so both now point at a path that never exists.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-19T05:07:03.523Z",
+      "reviewRound": "2026-08-18T03:33:16.325Z",
+      "reviewRunId": "B-cc10:RR-105",
+      "_hash": "2afb812339bf59ad94f5b4706af5c57886f5c79275842ec128dacbc1bd3a404c",
+      "files": [
+        "CLAUDE.md",
+        "AGENTS.md"
+      ],
+      "signatureTag": "missing|md|promise-undelivered-claude",
+      "signatureTagSource": "auto"
     }
   ]
 }
