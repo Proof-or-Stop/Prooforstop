@@ -594,22 +594,22 @@
         {
           "intentRef": "CHK-006:edge:0",
           "kind": "logic_test",
-          "file": ".lattice/story/actives/B-8df9/chk006-exemption-claims.mjs",
           "command": "node .lattice/story/actives/B-8df9/chk006-exemption-claims.mjs",
           "result": "pass",
-          "note": "The restated reason is checked against what the code DOES, using the compiled modules and a private mkdtemp fixture rather than against the old comment. Rows: INIT_CHECK_SET_OWNERSHIP_CLASS_MARKER and STORY_ADVANCE_OWNERSHIP_CLASS_MARKER read from the compiled COMMAND_POLICIES; LEASE_GATE_TOOK_LEASE_FOR_INIT_CHECK_SET_MARKER=false with the differential control LEASE_GATE_TOOK_LEASE_FOR_STORY_SCOPED_CONTROL_MARKER=true, so the exemption is measured and not a dead gate; INIT_CHECK_SET_CHANGED_PHASE_MARKER and INIT_CHECK_SET_NEW_FILES_OUTSIDE_STORY_DIR_MARKER measure the deposit-only claim by running the real command; SIGNATURE_REJECTS_EDIT_WITHOUT_RESIGN_MARKER and SIGNATURE_ACCEPTS_AN_OUT_OF_TOOL_RESIGN_MARKER measure the stated limit. 10 PASS / 0 FAILED, and the script exits non-zero if a later edit makes the sentence false.",
+          "note": "Post-merge re-execution after B-45a5 withdrawal-gate fix landed on main; pinned command and selector unchanged.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "6301033791e78f1726a2b725591cfb44e7dff0fc6de9f936bdf7edc54780f0dd",
             "outputTail": "⚠ session identity degraded: derived-ppid; export LATTICE_SESSION_ID or use a supported host adapter with task + agent/role identity before repeated mutating commands.\n=== B-8df9 CHK-006: the restated init_check_set exemption, measured against the code ===\n  PASS  INIT_CHECK_SET_OWNERSHIP_CLASS_MARKER=reviewerWrite\n        the exemption being justified exists at all\n  PASS  STORY_ADVANCE_OWNERSHIP_CLASS_MARKER=storyScopedMutating\n        the gate consumer named in the reason really is owner-gated\n  PASS  LEASE_GATE_TOOK_LEASE_FOR_INIT_CHECK_SET_MARKER=false\n        exempt: the gate returns before any lease is read or written\n  PASS  LEASE_GATE_TOOK_LEASE_FOR_STORY_SCOPED_CONTROL_MARKER=true\n        CONTROL: an owner-gated command on the same story DOES take the lease, so the line above is an exemption and not a dead gate\n  PASS  OWNERSHIP_CLASS_OF_CONTROL_COMMAND_MARKER=storyScopedMutating\n        the control is owner-gated by classification, not by accident\n  PASS  INIT_CHECK_SET_CHANGED_PHASE_MARKER=INIT->INIT\n        deposits evidence only: the phase is unchanged by the write itself\n  PASS  INIT_CHECK_SET_NEW_FILES_OUTSIDE_STORY_DIR_MARKER=none\n        the write is confined to this story directory (runtime locks excluded)\n  PASS  SIGNATURE_REJECTS_EDIT_WITHOUT_RESIGN_MARKER=true\n        tamper-EVIDENCE holds: an edit that does not re-sign is refused\n  PASS  SIGNATURE_ACCEPTS_AN_OUT_OF_TOOL_RESIGN_MARKER=true\n        and its LIMIT, which the reason must state rather than hide: re-signing with the exported INIT_CHECK_SALT / signInitCheck IS accepted, so the signature binds CONTENT and never the WRITER, and cannot justify who may write\n  PASS  INIT_CHECK_SALT_IS_EXPORTED_SOURCE_MARKER=true\n        the salt is a public constant, not a secret key\n  0 FAILED / 10 claims\n  EXEMPTION_REASON_MATCHES_CODE_MARKER=true — deposit-only justification holds, and the stated signature limit is real\n  claims digest=d9f417ed1260\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-03T04:18:27.627Z"
+            "executedAt": "2026-08-19T15:36:17.737Z",
+            "timeoutMs": 270000
           },
-          "headHash": "fe94cb5347af856ff91a1d6f343b452dcdd9f962",
-          "materialHash": "40b76a554538eb2d74dc87ba2718e58d3fbe2cbca0a2e66b02a030e7a87beab0",
-          "storyFilesHash": "13094962a60b6e3b3641e00d6f591ad8f40d9162c9a6696f788e9f11711b15fb",
-          "timestamp": "2026-08-03T04:18:27.947Z"
+          "headHash": "cb4b384562375eaa116397ac68fbe0b4bd6160cc",
+          "materialHash": "b3ae30c9b0573ffc9b04f68dc044699bb59ff4db0c027b33fbfc773796f6e113",
+          "storyFilesHash": "d83d13fa37a415bc9cd4f1eb416740f46003f489fa495e9d66ca63a2f7751f8c",
+          "timestamp": "2026-08-19T15:36:17.905Z"
         },
         {
           "intentRef": "CHK-006:happy:0",
