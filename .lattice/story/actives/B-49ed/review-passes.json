@@ -461,6 +461,27 @@
         "scanEscalationReason": null
       },
       "_hash": "89b30b3bc4522f6844cc09908cffe05491fe44b0518d559978e4f39c95d3e745"
+    },
+    {
+      "id": "B-49ed:RP-020",
+      "agent": "lattice-review-behavior",
+      "note": "Re-reviewed scoped diff (commit 15dee05d32): added maxRetries:10/retryDelay:50 to both rmSync calls in material-hash-large-tree-smoke.ts. Verified: (1) real assertion failures still exit 1 via direct test of the catch-branch pattern; (2) retry is bounded (max ~500ms extra per call, no unbounded stall); (3) mkdtempSync generates a fresh unique tmpdir per run so no partially-deleted fixture reuse across runs; (4) if retries exhaust, rmSync still throws (no silent masking, matches pre-fix exception-safety exactly, only lowers ENOTEMPTY probability); (5) pattern matches already-reviewed validation-reuse-merge-lineage-smoke.ts:21 exactly. Ran the smoke standalone, exit 0, happy path unaffected. No blocker.",
+      "createdAt": "2026-08-19T05:00:50.193Z",
+      "reviewRound": "2026-08-18T12:55:09.009Z",
+      "reviewRunId": "B-49ed:RR-049",
+      "envelopeId": "7fbacb8fef3e10ec1948a5f9116253cfea379a05f2c2da0cdff47bfea81cda5b",
+      "writerSessionId": "sess-4292375d1d751b41",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/material-hash-large-tree-smoke.ts",
+          "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "af842f806d96a2b44450292a8a0055ed7be05baf792dc54d1d9547699b6f4f97"
     }
   ]
 }
