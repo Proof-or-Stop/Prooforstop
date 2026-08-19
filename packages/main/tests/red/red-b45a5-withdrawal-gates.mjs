@@ -131,6 +131,38 @@
  * dangling-decisionRef case is one of the four this item owes and it pins that
  * threat explicitly, not because it is independently load-bearing here.
  *
+ * ── E1: A WITHDRAWAL MUST NOT LOOSEN A SURVIVING ITEM ────────────────
+ *
+ * `withdrawnItemIntentRefs` subtracts the withdrawn item's intent refs from the
+ * required set. A positional ref (`itemId:lane:index`) embeds the item id and so
+ * cannot collide, but an AUTHORED `intent.id` alias is a freeform string that two
+ * items may both claim. Subtracting such an alias wholesale would take away a
+ * requirement carried by an item NO decision withdrew — a relaxation in the
+ * opposite direction from the D rows, and one no D row can see, because every D
+ * fixture asks only about the forged item itself.
+ *
+ * Row E1 asks about the OTHER item: a SURVIVING item that shares one authored
+ * alias with a withdrawn one must keep owing EVERY ref it owns, alias included.
+ * C9 pins the premises — the collision is real, an in-force binding demands the
+ * alias for the surviving item, and the withdrawal is live in the same fixture
+ * (the withdrawn item's exclusive positional ref IS excluded) — so E1 can never
+ * be satisfied by the exclusion simply not running.
+ *
+ * Verified by ablation, not by assertion: deleting the `survivingRefs`
+ * subtraction from `withdrawnItemIntentRefs` in the compiled dist turns E1
+ * REFUSED -> PARTIAL (exit 1, verdict BYPASS) while every A/B/C/D row keeps the
+ * value it has today — B1/B2/B3 GREEN, all ten earlier controls CONTROL-OK, all
+ * seven D rows REFUSED. No pre-existing row moves, which is exactly why this one
+ * is here.
+ *
+ * PARTIAL rather than BYPASSED, and that is not a weakness: `checkDispatchEvidence`
+ * keys on the ITEM ID and never reads an intent ref, so an alias collision is
+ * structurally unable to reach it and its half of the row stays REFUSED. The
+ * conjunct is kept anyway because the claim is about the surviving ITEM, which
+ * nothing withdrew and which both gates therefore still owe — so if the channel
+ * gate ever becomes ref-aware, this row already covers that leak. PARTIAL is a
+ * failing verdict here exactly as it is for a D row.
+ *
  * ── TWO MODES ───────────────────────────────────────────────────────────────
  *
  *   (default)   repro-first: exit 1 while either gate is RED or any D row is
@@ -524,6 +556,129 @@ function buildForged(variant) {
   };
 }
 
+// ── E1: the ALIAS-COLLISION fixture ─────────────────────────────────────────
+
+/**
+ * Build a fixture where a withdrawn item and a SURVIVING item author the SAME
+ * `verificationIntent.id`.
+ *
+ * The surviving item owns exactly two refs — its own positional `id:lane:index`
+ * and the shared alias — and a binding it shares with the delivered item demands
+ * BOTH. So a subtraction that takes the alias is directly observable: the alias
+ * drops out of the demanded set while the positional ref stays, which is a
+ * PARTIAL loss and therefore not a refusal (see `gateTreatment`).
+ *
+ * The two undelivered items come from one factory and are identically situated;
+ * the only asymmetry is which one the confirmed decision names.
+ */
+function buildAliasCollision() {
+  const root = freshRoot('alias');
+  const storyId = 'B-fx01';
+  const store = new StoryStore(root);
+  const handlers = createProofStoryHandlers({ store, root, scanRoot: root });
+  const at = '2026-01-01T00:00:00.000Z';
+
+  const deliveredId = 'CHK-001';
+  const withdrawnId = 'CHK-002';
+  const survivingId = 'CHK-003';
+  const sharedAlias = 'INT-SHARED-ALIAS';
+
+  store.writeStory(storyId, {
+    storyId,
+    name: storyId,
+    title: 'item withdrawal fixture',
+    description: 'isolated fixture story; never a real story',
+    type: 'feature',
+    phase: 'REVIEW',
+    priority: 'medium',
+    riskSignals: [],
+    createdAt: at,
+    startedAt: at,
+    endedAt: null,
+  });
+
+  const sharingItem = (id) => ({
+    id,
+    title: 'never delivered',
+    status: 'done',
+    startTime: at,
+    endTime: null,
+    verificationIntent: { happy: [{ id: sharedAlias, desc: 'never delivered path', type: 'logic', priority: 'must' }] },
+  });
+
+  store.writeChecklist(storyId, {
+    items: [
+      {
+        id: deliveredId,
+        title: 'delivered and fully covered',
+        status: 'done',
+        startTime: at,
+        endTime: at,
+        verificationIntent: { happy: [{ desc: 'delivered path is covered', type: 'logic', priority: 'must' }] },
+        verificationEvidence: [{
+          intentRef: `${deliveredId}:happy:0`,
+          kind: 'logic_test',
+          result: 'pass',
+          note: 'fixture evidence covering the delivered intent',
+          createdAt: at,
+        }],
+      },
+      sharingItem(withdrawnId),
+      sharingItem(survivingId),
+    ],
+  });
+
+  store.writeProofStoryContract(storyId, {
+    schemaVersion: 'proofstory.contract.v1',
+    storyId,
+    diagnosticOnly: false,
+    hardeningLevel: 'standard',
+    triggerReasons: [],
+    acceptanceBindings: [
+      {
+        id: 'AB-001',
+        acceptanceClaim: 'the delivered path is accepted on its own',
+        checklistRefs: [deliveredId],
+        verificationIntentRefs: [`${deliveredId}:happy:0`],
+        milestoneIds: [],
+      },
+      {
+        id: 'AB-002',
+        acceptanceClaim: 'one acceptance spanning a delivered item and the withdrawn item',
+        checklistRefs: [deliveredId, withdrawnId],
+        verificationIntentRefs: [`${deliveredId}:happy:0`, `${withdrawnId}:happy:0`, sharedAlias],
+        milestoneIds: [],
+      },
+      {
+        // The SURVIVING item's own acceptance. Nothing withdraws this binding or
+        // this item, so every ref it names stays required no matter what happens
+        // to the item next door.
+        id: 'AB-003',
+        acceptanceClaim: 'one acceptance spanning a delivered item and the surviving item',
+        checklistRefs: [deliveredId, survivingId],
+        verificationIntentRefs: [`${deliveredId}:happy:0`, `${survivingId}:happy:0`, sharedAlias],
+        milestoneIds: [],
+      },
+    ],
+    diagnosticGaps: [],
+    createdAt: at,
+    updatedAt: at,
+  });
+
+  // The REAL applier withdraws exactly ONE of the two alias sharers.
+  handlers.scope_shrinkage_decision_set({
+    storyId,
+    decision: 'confirmed',
+    userConfirmed: true,
+    reason: 'one of the two alias-sharing items proved undeliverable and was withdrawn with user confirmation',
+    approvedBy: 'fixture-operator',
+    withdrawnChecklistItemRefs: [withdrawnId],
+  });
+
+  const events = [{ type: 'dispatch', itemId: deliveredId, at }];
+  return { root, storyId, store, events, deliveredId, withdrawnId, survivingId, sharedAlias };
+}
+
 /** Run BOTH real gates over one fixture and return only measured facts. */
 function measure(fx) {
   const checklist = fx.store.readChecklist(fx.storyId);
@@ -812,6 +967,30 @@ try {
     observe(`C8 ${entry?.fx.variant}: decision=${decision?.decision}/${decision?.userConfirmed} refs=[${(decision?.withdrawnChecklistItemRefs ?? []).join(' ')}] helperResolves=[${[...withdrawnChecklistItemIdsFrom(decision)].join(' ')}]`);
   }
 
+  // ── C9: the alias collision is real AND the withdrawal is live in it ────
+  // Both halves matter. Without the collision E1 measures nothing; without a
+  // live exclusion in the SAME fixture, an E1 refusal could be explained away as
+  // "the subtraction simply never ran here".
+  const aliasFx = buildAliasCollision();
+  const aliasM = measure(aliasFx);
+  const aliasResolved = withdrawnChecklistItemIdsFrom(aliasM.decision);
+  const aliasWithdrawnOwns = refsOwnedBy(aliasM.checklist, aliasFx.withdrawnId);
+  const aliasSurvivingOwns = refsOwnedBy(aliasM.checklist, aliasFx.survivingId);
+  // The withdrawn item's refs that NO surviving item owns: exactly the set the
+  // shipped subtraction is allowed to remove.
+  const aliasExclusive = [...aliasWithdrawnOwns].filter((ref) => !aliasSurvivingOwns.has(ref));
+  const c9 = aliasResolved.has(aliasFx.withdrawnId)
+    && !aliasResolved.has(aliasFx.survivingId)
+    && aliasWithdrawnOwns.has(aliasFx.sharedAlias)
+    && aliasSurvivingOwns.has(aliasFx.sharedAlias)
+    && aliasM.effective.some((b) => b.checklistRefs.includes(aliasFx.survivingId)
+      && b.verificationIntentRefs.includes(aliasFx.sharedAlias))
+    && aliasExclusive.length === 1
+    && !aliasM.demandedRefs.includes(aliasExclusive[0]);
+  row('C9', c9 ? 'CONTROL-OK' : 'BROKEN',
+    'premise: a withdrawn item and a SURVIVING item author the SAME intent alias, an in-force binding demands that alias for the surviving item, and the exclusion is live in this very fixture (the withdrawn item\'s exclusive ref is no longer demanded)');
+  observe(`C9 withdrawn=${aliasFx.withdrawnId} surviving=${aliasFx.survivingId} helperResolved=[${[...aliasResolved].join(' ')}] alias=${aliasFx.sharedAlias} withdrawnOwns=[${[...aliasWithdrawnOwns].join(' ')}] survivingOwns=[${[...aliasSurvivingOwns].join(' ')}] exclusive=[${aliasExclusive.join(' ')}] demanded=[${aliasM.demandedRefs.join(' ')}]`);
+
   const broken = rows.filter((r) => r.verdict === 'BROKEN');
 
   if (broken.length > 0) {
@@ -819,8 +998,8 @@ try {
     row('B1', 'NOT-MEASURED', 'the completeness gate\'s handling of the authorized withdrawal was not evaluated');
     row('B2', 'NOT-MEASURED', 'the channel gate\'s handling of the authorized withdrawal was not evaluated');
     row('B3', 'NOT-MEASURED', 'no joint conclusion is available while a control or premise is BROKEN');
-    for (const id of ['D1', 'D2', 'D3', 'D4', 'D5', 'D23', 'D45']) {
-      row(id, 'NOT-MEASURED', 'no conclusion is drawn about an unbacked withdrawal while a control or premise is BROKEN');
+    for (const id of ['D1', 'D2', 'D3', 'D4', 'D5', 'D23', 'D45', 'E1']) {
+      row(id, 'NOT-MEASURED', 'no conclusion is drawn about an unauthorized skip while a control or premise is BROKEN');
     }
     exitCode = 2;
   } else {
@@ -890,8 +1069,22 @@ try {
       'joint: is a decision overwritten to decision=rejected / userConfirmed=false unable to authorize the skip by EITHER route, the raw file write and the CLI? REFUSED = yes');
     observe('D45 derived from the two rows above; MIXED would mean only one of the two routes to the same un-authorized state is caught');
 
+    // ── E1: a withdrawal must not loosen a SURVIVING item's requirement ────
+    // Measured on the item NOTHING withdrew. Its refs are its own positional one
+    // and the shared alias; a subtraction that swallowed the alias leaves the
+    // positional ref still demanded, so `gateTreatment` scores the completeness
+    // half as a partial loss rather than a refusal. Ablating `survivingRefs` out
+    // of dist moves this row REFUSED -> PARTIAL and nothing else in the report.
+    const aliasT = gateTreatment(aliasM, aliasFx.survivingId);
+    const aliasVerdict = aliasT.completenessRefuses && aliasT.channelRefuses
+      ? 'REFUSED'
+      : (!aliasT.completenessRefuses && !aliasT.channelRefuses ? 'BYPASSED' : 'PARTIAL');
+    row('E1', aliasVerdict,
+      'an item NO decision withdrew, sharing one authored intent alias with a withdrawn one: are ALL of its refs, the shared alias included, still demanded by both gates? REFUSED = yes');
+    observe(`E1 subject=${aliasFx.survivingId} owns refs=[${aliasT.refs.join(' ')}] still demanded=[${aliasT.demanded.join(' ')}] completenessRefuses=${aliasT.completenessRefuses} channelRefuses=${aliasT.channelRefuses} inWithdrawnBucket=${aliasT.inWithdrawnBucket} launderedIntoCoveredOrExempted=${aliasT.laundered}`);
+
     const unbackedAllRefused = [...dVerdicts.values()].every((v) => v === 'REFUSED');
-    exitCode = b3 === 'GREEN' && unbackedAllRefused ? 0 : 1;
+    exitCode = b3 === 'GREEN' && unbackedAllRefused && aliasVerdict === 'REFUSED' ? 0 : 1;
   }
 
   // Same measurement in both modes; only the exit code differs.
@@ -902,14 +1095,15 @@ try {
 
 // ── report ──────────────────────────────────────────────────────────────────
 
-// The joint verdict spans BOTH halves: the gates must read an authorized
-// withdrawal (B rows) AND must refuse every unbacked one (D rows). A tree that
-// skips work no decision authorized is not 'green' in any useful sense, so an
-// unbacked bypass overrides an otherwise passing B verdict.
-const unbackedBypass = rows.some((r) => /^D\d+$/.test(r.id) && r.verdict !== 'REFUSED' && r.verdict !== 'NOT-MEASURED');
+// The joint verdict spans all three clauses: the gates must read an authorized
+// withdrawal (B rows), must refuse every unbacked one (D rows), and must not let
+// a withdrawal loosen a requirement carried by an item nothing withdrew (E row).
+// A tree that skips work no decision authorized is not 'green' in any useful
+// sense, so an unauthorized skip of EITHER shape overrides a passing B verdict.
+const unauthorizedSkip = rows.some((r) => /^[DE]\d+$/.test(r.id) && r.verdict !== 'REFUSED' && r.verdict !== 'NOT-MEASURED');
 const verdict = exitCode === 2
   ? 'BROKEN'
-  : unbackedBypass
+  : unauthorizedSkip
     ? 'BYPASS'
     : rows.find((r) => r.id === 'B3')?.verdict ?? 'BROKEN';
 
@@ -930,6 +1124,11 @@ lines.push('');
 // selector stays resolvable no matter how much detail this report grows below.
 lines.push('--- row index (each row is repeated in full, with its claim and observations, below) ---');
 for (const r of rows) lines.push(`B45A5-ROW-${r.id}=${r.verdict}`);
+// B45A5-VERDICT is the most-pinned selector of all and its only other emission is
+// the LAST line of the report, i.e. the first thing a truncation eats. Emitted
+// here too, with the identical value, so it is reachable on the same terms as the
+// rows. Duplication is the convention already in use above, not a new one.
+lines.push(`B45A5-VERDICT=${verdict}`);
 lines.push('--- end row index ---');
 lines.push('');
 for (const r of rows) {
@@ -944,14 +1143,16 @@ lines.push(`B45A5-VERDICT=${verdict}`);
 if (verdict === 'BROKEN') {
   lines.push('  a control or premise did not behave, so NOTHING is concluded about either gate.');
 } else if (verdict === 'BYPASS') {
-  lines.push('  a withdrawal NO decision authorizes was skipped: the gate is openable by editing JSON.');
+  lines.push('  a skip NO decision authorized was taken: either an unbacked withdrawal got through');
+  lines.push('  (openable by editing JSON), or a withdrawal loosened a NON-withdrawn item\'s requirement.');
 } else if (verdict === 'RED') {
   lines.push('  both gates demand delivery evidence for work a confirmed decision withdrew.');
 } else if (verdict === 'MIXED') {
   lines.push('  exactly one gate learned about the withdrawal; the other did not.');
 } else {
   lines.push('  both gates exclude the decision-backed withdrawn item, both still bite on everything that is');
-  lines.push('  not withdrawn, and every unbacked withdrawal is still refused by both.');
+  lines.push('  not withdrawn (including an item that only SHARES an authored intent alias with a withdrawn');
+  lines.push('  one), and every unbacked withdrawal is still refused by both.');
 }
 console.log(lines.join('\n'));
 // NOT process.exit(): on a PIPE (which is how `lattice validate` and the
