@@ -19628,6 +19628,46 @@
         "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
       },
       "_hash": "4213d16d4238192cfd325d7c61105272ad95471416b115c212088bd82b3f02fd"
+    },
+    {
+      "id": "B-3f3d:RP-355",
+      "agent": "lattice-review-docs",
+      "note": "Step 1 raw symbol extract produced a large local-binding dump; compared review_inventory_finalize, ReviewInventoryReceipt, authorizesTest, persistFinalizedReviewInventoryUnlocked. Step 2 compared 1 docs paragraph set in review-inventory-epoch-and-saturation-gate.md (Operator workflow, State and authority, Saturation rule). Single command-catalog description for review_inventory_finalize matches that decision: OPEN path mints only on a complete unchanged-material zero-new-family wave; no-OPEN path writes a FINALIZED unconsumed inventory-completeness receipt bound to current hashes; completeness is not PRE_CERT; authorizesTest stays false. Handler stamps authority=inventory-completeness-only and authorizesTest=false. No new decision doc required. No docs-code blocker.",
+      "createdAt": "2026-08-19T10:39:28.071Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-567",
+      "envelopeId": "5f232e605b520f7e6e9fed2e00f585fc8a7992464289147a5cea8581a44e5ee8",
+      "writerSessionId": "sess-4292375d1d751b41",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "6ed639de51aeb674b43f4fff0ccf8785129fcf88569645819f2216d81faf79c4"
     }
   ]
 }
