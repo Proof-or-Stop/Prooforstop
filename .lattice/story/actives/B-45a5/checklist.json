@@ -291,7 +291,11 @@
           {
             "desc": "Same structural backing as CHK-002: decision-record routed, never a bare status comparison",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b45a5-withdrawal-gates.mjs --attest",
+              "selector": "B45A5-ROW-C1=CONTROL-OK"
+            }
           }
         ]
       },
@@ -342,6 +346,26 @@
           "materialHash": "12a01addc0a41a39a8bab04f957ae00867406d59e93b97b04f4c24269f506f15",
           "storyFilesHash": "f79a0ce42f74ebdf1b8682f992ecd465bc77427f3187885d979ccbfba22f7b4c",
           "timestamp": "2026-08-19T00:34:57.350Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-b45a5-withdrawal-gates.mjs",
+          "command": "node packages/main/tests/red/red-b45a5-withdrawal-gates.mjs --attest",
+          "result": "pass",
+          "note": "Row C1 pins the same structural backing CHK-002 uses: the exclusion set comes from withdrawnChecklistItemIdsFrom applied to the DECISION RECORD (confirmed + userConfirmed), and the applier stamped the item with that decisionId. In checkDispatchEvidence the only key is withdrawnIds.has(id); the commit diff adds no item.status comparison, no isWithdrawnChecklistStatus call and no withdrawn string literal outside comments, and the check runs BEFORE the owner-exemption branch so an authorized withdrawal cannot be laundered into that bucket. Separately measured out of band on an mkdtemp fixture driven through the production entrypoint checkCommitAuthor: with the decision record present the gate passes and prints withdrawn (SD-0b48efcd): CHK-002, and with the same fixture minus the decision it fails with CHK-002 has no dispatch/subagent_result evidence. Full unbacked-state coverage (absent decisionRef, dangling decisionRef, a decision listing a DIFFERENT real item, a decision overwritten to rejected) is CHK-004 of this story and is not claimed by this row.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "6f83848a6ff3648797acc6e87cd8796cb0ad5eaceeed47499766086feb6c0100",
+            "outputTail": "=== B-45a5 CHK-001 — do the two REVIEW-path gates read an item-level withdrawal? ===\nmode=attest: exit 0 certifies the measurement RAN with sound controls, NOT that the tree is fixed.\n             the verdict is carried by the row markers below.\n\nB45A5-ROW-A1=CONTROL-OK\n  positive control: a fully covered, non-withdrawn fixture is accepted by both gates (rules out \"refuses everything\")\n    observed: completeness status=pass demanded=[] gapCodes=[]\n    observed: channel ok=true offenders=[]\nB45A5-ROW-A2=CONTROL-OK\n  negative control: a non-withdrawn item with genuinely missing evidence is still refused by both gates (rules out \"skips everything\")\n    observed: subject item=CHK-002 owns refs=[CHK-002:happy:0 INT-EXTRA-ALIAS]\n    observed: completeness status=fail demanded=[CHK-002:happy:0 INT-EXTRA-ALIAS]\n    observed: channel ok=false offenders=[CHK-002]\nB45A5-ROW-C1=CONTROL-OK\n  premise: the exported helper resolves the withdrawal from the DECISION RECORD, and the applier stamped the item with that same decision id\n    observed: helper resolved=[CHK-002] decision=confirmed/true itemStatus=withdrawn itemDecisionRef=SD-08e77d9b decisionId=SD-08e77d9b\nB45A5-ROW-C2=CONTROL-OK\n  premise: the withdrawn item shares a still-in-force acceptance binding with a delivered item, so no binding-level exclusion can account for the outcome\n    observed: sharedBinding=AB-002 refs=[CHK-001 CHK-002] inForce=[AB-001 AB-002] deliveredStatus=done\nB45A5-ROW-C3=CONTROL-OK\n  premise: the subject fixture and the negative control are identical once the authorized withdrawal is normalized away, so any verdict difference between them can only come from the withdrawal\n    observed: shapesEqual=true normalizedFields=[status decisionRef endTime] everything else compared byte-for-byte\nB45A5-ROW-C4=CONTROL-OK\n  guard: the withdrawn item is reported neither as covered nor as an owner exemption by the channel gate\n    observed: covered=[CHK-001] exempted=[] withdrawn=CHK-002\nB45A5-ROW-B1=GREEN\n  does the completeness gate still report review_completeness_missing_evidence for intents whose owning item a confirmed decision withdrew? RED = yes\n    observed: withdrawn item owns refs=[CHK-002:happy:0 INT-EXTRA-ALIAS] still demanded=[]\n    observed: completeness status=pass blocking=false\nB45A5-ROW-B2=GREEN\n  does the channel gate still report \"has no dispatch/subagent_result evidence\" for an item a confirmed decision withdrew? RED = yes\n    observed: channel ok=true offenders=[]\n    observed: detail: withdrawn (SD-08e77d9b): CHK-002\n    observed: detail: Covered: CHK-001\nB45A5-ROW-B3=GREEN\n  joint: do BOTH REVIEW-path gates ignore an item-level withdrawal authorized by a confirmed decision? RED = yes, GREEN = neither does, MIXED = only one learned about it\n    observed: derived from the two rows above; MIXED would mean only one gate learned about the withdrawal\n\nB45A5-VERDICT=GREEN\n  both gates exclude the withdrawn item, and both still bite on everything that is not withdrawn.\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-19T00:35:08.770Z"
+          },
+          "headHash": "a3f958ce7d4c15e0841ad5c8ad96f07cdf899e6b",
+          "materialHash": "12a01addc0a41a39a8bab04f957ae00867406d59e93b97b04f4c24269f506f15",
+          "storyFilesHash": "f79a0ce42f74ebdf1b8682f992ecd465bc77427f3187885d979ccbfba22f7b4c",
+          "timestamp": "2026-08-19T00:35:08.900Z"
         }
       ]
     },
