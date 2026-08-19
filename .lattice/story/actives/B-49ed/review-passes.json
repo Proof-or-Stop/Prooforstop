@@ -482,6 +482,30 @@
         "scanEscalationReason": null
       },
       "_hash": "af842f806d96a2b44450292a8a0055ed7be05baf792dc54d1d9547699b6f4f97"
+    },
+    {
+      "id": "B-49ed:RP-021",
+      "agent": "lattice-review-concept",
+      "note": "Re-review after HEAD moved to 15dee05d32 (fix: retry ENOTEMPTY when material-hash-large-tree-smoke removes its 6000-file fixture). Independently verified: diff scope is exactly 1 file / 2 insertions / 2 deletions in material-hash-large-tree-smoke.ts adding maxRetries:10,retryDelay:50 to two pre-existing rmSync calls. No exports/symbols/files deleted or renamed (validate --concept confirms zero deleted exports in main...HEAD). Verified line-141 rmSync sits outside try/catch by direct file read. Verified referenced sibling pattern at validation-reuse-merge-lineage-smoke.ts:21 genuinely carries same maxRetries/retryDelay values. Built dist, ran compiled smoke 3x sequential + 6x concurrent, all exit 0. Injected a real assertion failure into compiled artifact to confirm genuine-failure path still exits 1 via catch branch with cleanup intact. No concept-deletion residue; no blocker in this lane.",
+      "createdAt": "2026-08-19T05:02:34.559Z",
+      "reviewRound": "2026-08-19T05:01:43.915Z",
+      "reviewRunId": "B-49ed:RR-050",
+      "envelopeId": "884719d03ebc5efead48d419c03cfc22c7ae511f15af929b7e8bd73a27503eb1",
+      "writerSessionId": "sess-4292375d1d751b41",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/material-hash-large-tree-smoke.ts",
+          "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-49ed/background.md",
+          ".lattice/story/actives/B-49ed/checklist.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "cfe13a5855b0817181da15194b137b9cce7db6809c26553e338618d2ce8e2d97"
     }
   ]
 }
