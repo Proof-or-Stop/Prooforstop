@@ -274,6 +274,36 @@
         "scanEscalationReason": null
       },
       "_hash": "c876b8d17572bbf0b558a8608577e6984d2e8d91e38a58b95013f55df6eac140"
+    },
+    {
+      "id": "B-45a5:RP-011",
+      "agent": "lattice-review-quality",
+      "note": "Re-checked fourth scope-contract.json ack (headHash a934c8d659) after F-004/F-005/F-006 resolved. All 6 claims verified repo-wide, no exclusivity overreach; DONE gate reads only finishDecisionPath via readDevMemoryFinishDecision (machine.ts:945/1419); dev-memory-candidates.jsonl absent from both RUNTIME_ARTIFACT_REGISTRY and LATTICE_LIFECYCLE_ARTIFACT_FILENAMES (grep -c =0 in lifecycle-registry.ts), latter checked first at scope-path-classifier.ts:373 vs :387; 20-line candidates file; plan.md Files lines never name it and file postdates plan.md commit; only .lattice/ metadata moved since prior product-code commit 333322c68c through RR-018 head 4aef5ff8. Red guard reran: exit 0, VERDICT=GREEN, D1-D5/D23/D45/E1 REFUSED, no regression.",
+      "createdAt": "2026-08-19T13:18:31.008Z",
+      "reviewRound": "2026-08-19T12:59:26.603Z",
+      "reviewRunId": "B-45a5:RR-018",
+      "envelopeId": "b37922d68730079158d76fadf821ffa435825a56fa7f008ecfda5df3124f0487",
+      "writerSessionId": "sess-b45a5-main",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-45a5/scope-contract.json",
+          "packages/main/src/core/playbook-runtime-memory.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/scope-path-classifier.ts",
+          "packages/main/src/handlers/dev-memory.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-45a5/dev-memory-candidates.jsonl",
+          ".lattice/story/actives/B-45a5/plan.md",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/tests/red/red-b45a5-withdrawal-gates.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2fe32fb4be2272b9a3ad7a61a1eb8769cc0e02210dbb704b64dac6b1414a8e0b"
     }
   ]
 }
