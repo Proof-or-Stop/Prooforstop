@@ -1,93 +1,93 @@
 {
   "storyId": "B-8df9",
-  "checkedAt": "2026-08-19T17:10:58.489Z",
-  "headHash": "496a9e56e1a6347288e1302730d4bba289d46293",
-  "materialHash": "b3ae30c9b0573ffc9b04f68dc044699bb59ff4db0c027b33fbfc773796f6e113",
-  "storyFilesHash": "d83d13fa37a415bc9cd4f1eb416740f46003f489fa495e9d66ca63a2f7751f8c",
-  "reviewRound": "2026-08-19T16:53:53.247Z",
+  "checkedAt": "2026-08-19T17:53:55.068Z",
+  "headHash": "c6c62b07a71a6fd495572cba9b04a19afea13b68",
+  "materialHash": "e4b2e340c75e441473af303dcc88831a3ea10ce855550e4d4e41aa8f2a9bed7a",
+  "storyFilesHash": "0d6dbaf3449487543b2406949abcd4c32dd4f269d173145d4b99b04b20809410",
+  "reviewRound": "2026-08-19T17:25:22.275Z",
   "agentId": "",
   "docsPromises": [
     {
-      "docPath": "CLAUDE.md#INIT->INIT_CHECK 硬门槛（B-e71f）",
-      "promise": "签名公式变为 sha256(storyId:sha256(background.md):title:description:sha256(checklist):reviewRound:verdictHash:salt) — verdictHash 新加入签名域",
-      "verifiedBy": "code-read + independent tamper probe",
-      "evidence": "packages/main/src/core/init-check-gate.ts INIT_CHECK_SIGNATURE_DOMAIN (storyId/backgroundHash/title/description/checklistHash/reviewRound/verdictHash) and signInitCheckDomain() join order match the doc string exactly. I wrote and ran my own isolated fixture probe (not reusing the story's shipped red artifacts) against the compiled dist module: hand-injecting a second reviewer entry into agentResults without re-signing flips initCheckHashMatches from true to false; erasing a recorded critical issue without re-signing does the same. Both independently reproduce the story's central claim."
+      "docPath": "CLAUDE.md#init-check-signature-domain",
+      "promise": "The init-check.json signature domain (INIT_CHECK_SIGNATURE_DOMAIN) now covers the reviewer verdict (agentResults + issues) via computeInitCheckVerdictHash, in addition to storyId/background/title/description/checklist/reviewRound; a hand-edited agentResults or issues field invalidates _hash instead of passing the gate unchanged.",
+      "verifiedBy": "diff/grep + independent execution",
+      "evidence": "packages/main/src/core/init-check-gate.ts defines INIT_CHECK_SIGNATURE_DOMAIN (7 components incl. verdictHash), computeInitCheckVerdictHash, signInitCheckDomain; recomputeInitCheckHash/signInitCheck thread verdictHash through. Independently reproduced outside the shipped test: hand-constructed a verdict, injected a fabricated reviewer record without re-signing, and confirmed the stored signature no longer matches the recomputed one (initCheckHashMatches=false). Also ran packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs myself: 0 RED / 0 BROKEN / 24 rows, including B1-B3/C2-C3 (GREEN = fixed) and D1-D2/A (CONTROL-OK)."
     },
     {
-      "docPath": "CLAUDE.md#INIT->INIT_CHECK 硬门槛（B-e71f）",
-      "promise": "verdictHash = computeInitCheckVerdictHash over the two fields the gate actually decides on: agentResults (missingRequiredInitCheckAgents) and issues (blockingInitCheckIssues)",
-      "verifiedBy": "code-read",
-      "evidence": "packages/main/src/core/init-check-gate.ts computeInitCheckVerdictHash hashes {raw:{agentResults,issues}, consumed:initCheckAgentResults(data)}; missingRequiredInitCheckAgents/blockingInitCheckIssues both read from initCheckAgentResults. Live red-b8df9-chk002-verdict-shapes.mjs run by me: 0 FAILED/17 rows, including D1 (inject moves digest) and D2 (erase moves digest)."
+      "docPath": "CLAUDE.md#init-check-signature-domain",
+      "promise": "The signature buys tamper-EVIDENCE only, not tamper-proofing or \"reviewer coverage is trustworthy\": INIT_CHECK_SALT and signInitCheck are exported source, so an editor who also re-signs with the product's own function is accepted, and text implying otherwise is wrong.",
+      "verifiedBy": "independent execution",
+      "evidence": "Confirmed INIT_CHECK_SALT is `export const INIT_CHECK_SALT` (public source constant) at init-check-gate.ts:58. Independently re-signed a hand-tampered verdict with the exported signInitCheckDomain and confirmed it then verifies (initCheckHashMatches=true) - reproduces row H1 of the red artifact myself rather than trusting its self-report. Grepped CLAUDE.md/story-lifecycle.md/agent-prompt-consolidation doc for \"tamper-proof\" claims about init-check: none found; the only \"tamper-proof\" hit in the diff is an unrelated pre-existing milestone-ledger.json caveat, not touched by this story."
     },
     {
-      "docPath": "CLAUDE.md#INIT->INIT_CHECK 硬门槛（B-e71f） / story-lifecycle.md migration-position section",
-      "promise": "This buys tamper-EVIDENCE, not tamper-proofing / reviewer-coverage trustworthiness — INIT_CHECK_SALT and signInitCheck are exported source, so an editor who also re-signs is accepted",
-      "verifiedBy": "code-read + independent probe",
-      "evidence": "INIT_CHECK_SALT is an exported const in init-check-gate.ts. My own fixture probe Case D: re-signing a tampered record out-of-tool with the same exported signInitCheck/verdict-hash functions produces a signature the gate accepts (matches=true). review-passes.json RP (round-2 note) records a reviewer explicitly grepped for tamper-proof/tamperproof overclaiming language across background.md/plan.md/decisions and CLAUDE.md and found none; I independently grepped the same set and found no overclaiming language either."
+      "docPath": "CLAUDE.md#init-check-blocker-types",
+      "promise": "init_check_tampered fires when any signed component changes (rendered from describeInitCheckSignatureDomain(), not a hand-written field list), and a _hash mismatch after INIT phase is documented as expected steady state (story content moves through PLAN/DEV) rather than corruption, since the gate only reads init-check.json while phase===INIT.",
+      "verifiedBy": "diff/grep",
+      "evidence": "core/machine.ts getGuardFailureReason renders describeInitCheckSignatureDomain() in the tamper message instead of a restated list (diff confirmed); canEnterInitCheckGuard/getGuardFailureReason INIT_CHECK branch is early-return outside other phases (pre-existing structure, confirmed by reading core/machine.ts around canEnterInitCheckGuard). CLAUDE.md and story-lifecycle.md both state the post-INIT staleness-is-expected framing explicitly."
     },
     {
-      "docPath": "CLAUDE.md#INIT->INIT_CHECK 硬门槛（B-e71f）",
-      "promise": "init_check_tampered blocker message renders the live signature domain (describeInitCheckSignatureDomain()) instead of a hand-written field list, and _hash mismatch is only read/consulted when story.phase === 'INIT' (mismatch after INIT is expected steady state, not corruption)",
-      "verifiedBy": "code-read",
-      "evidence": "packages/main/src/core/machine.ts:1234 renders `${describeInitCheckSignatureDomain()}` in the tamper message; the surrounding guard (canEnterInitCheckGuard / the INIT_CHECK branch of getGuardFailureReason, ~line 1206) is scoped to story.phase==='INIT' by construction (comment: 'Only enabled when story.phase === INIT; other sources ... are not gated')."
+      "docPath": "CLAUDE.md#init-check-repair-fallback",
+      "promise": "init_check_repair signs over the SAME signature domain as an ordinary init_check_set (not a weaker one); since CHK-002 that domain includes the reviewer verdict, so a fallback record is bound to it too.",
+      "verifiedBy": "diff/grep",
+      "evidence": "handlers/init-check.ts fallback branch calls the same signInitCheck(...,computeInitCheckVerdictHash(data)) pattern as the ordinary init_check_set path (both construct data with _hash:\"\" then sign over the constructed record) - confirmed by reading the diff for both branches side by side."
     },
     {
-      "docPath": "docs/requirements/decisions/story-lifecycle.md#init-check signature domain widened to the reviewer verdict — migration position",
-      "promise": "Decision: no migration of the existing init-check.json corpus; invalidation accepted. Only one story in phase INIT (the only phase the gate reads) is operationally affected; counts are reproducible via chk005-corpus-derivation.mjs rather than trusted as static prose",
-      "verifiedBy": "live re-execution by me",
-      "evidence": "I ran `node .lattice/story/actives/B-8df9/chk005-corpus-derivation.mjs` myself on the current merged tree: GATED_INIT_STORY_COUNT_MARKER=1, GATED_INIT_STORY_ID=B-dcf9, TRACKED_VERIFYING_UNDER_CURRENT_DOMAIN_MARKER=0, TRACKED_WITH_UNREGISTERED_ACTOR_MARKER=2 (exit 0). Numbers differ from the frozen 2026-08-03 table in the doc (corpus grew 267->299 files) but the doc explicitly instructs re-running rather than trusting the table, and the operative claim (exactly one INIT-phase story affected) still holds live."
+      "docPath": "CLAUDE.md#init-check-migration-position / docs/requirements/decisions/story-lifecycle.md",
+      "promise": "No corpus migration: existing init-check.json records are left as-is and the resulting invalidation is accepted; only one INIT-phase story (B-dcf9) is operationally affected, with counts re-derived rather than copied from the story background, and no design assumes the corpus can be re-signed through the handler (~199/642 on-disk records carry a registry-invalid actor).",
+      "verifiedBy": "independent execution",
+      "evidence": "Ran .lattice/story/actives/B-8df9/chk005-corpus-derivation.mjs myself on the current (twice-merged) tree: GATED_INIT_STORY_COUNT_MARKER=1, GATED_INIT_STORY_ID=B-dcf9, SIGNATURE_VERIFIES_UNDER_CURRENT_DOMAIN=false, TRACKED_WITH_UNREGISTERED_ACTOR_MARKER=2 (this branch) - output matches the persisted verificationEvidence receipt byte-for-byte. story-lifecycle.md \"migration position\" section states this same position with a full re-derived count table and explicitly rejects any design assuming handler re-signing is possible."
     },
     {
-      "docPath": "CLAUDE.md#INIT->INIT_CHECK 硬门槛（B-e71f） / init_check_repair section",
-      "promise": "init_check_repair fallback reuses the SAME signature domain as an ordinary init_check_set (not a weaker one); since CHK-002 that domain includes the reviewer verdict too",
-      "verifiedBy": "code-read",
-      "evidence": "packages/main/src/handlers/init-check.ts / core/init-check-gate.ts: init_check_repair's write path calls the same signInitCheck/signInitCheckDomain with the same INIT_CHECK_SIGNATURE_DOMAIN constant, no separate salt or domain for fallback."
+      "docPath": "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+      "promise": "The init-check.json row in the artifact-freshness table is updated to point at INIT_CHECK_SIGNATURE_DOMAIN / describeInitCheckSignatureDomain() and to disclose the tamper-evidence-not-trustworthy-coverage caveat, rather than restating the pre-CHK-002 field list.",
+      "verifiedBy": "diff/grep",
+      "evidence": "Diff confirmed: the init-check.json row text was changed from the old hand-written field list to reference computeInitCheckVerdictHash / describeInitCheckSignatureDomain and states the same tamper-evidence caveat verified above."
     },
     {
-      "docPath": "checklist.json CHK-004 verificationEvidence corrections (append-only audit trail, not CLAUDE.md prose, but a structural promise this delivery review is specifically asked to check)",
-      "promise": "B-45a5 (merged to main during this story) wires decision-backed item-level withdrawal into the two REVIEW-path gates (validate --channel via checkDispatchEvidence, and proofstory_review_completeness_check via evaluateReviewCompleteness/withdrawnItemIntentRefs), so CHK-004 is excluded from required coverage and the gates pass BECAUSE of the withdrawal, not because the three now-inert CHK-004 waiver rows are consulted",
-      "verifiedBy": "live execution by me",
-      "evidence": "I ran (with LATTICE_SESSION_ID=sess-b8df9-main-agent) `node bin/lattice.js validate --channel --story=B-8df9` myself: output ends with `withdrawn (SD-7319de10): CHK-004` on its own line, followed by `Covered: CHK-001, CHK-002, CHK-003, CHK-005, CHK-006` (CHK-004 absent from Covered), exit code 0. I also ran `node bin/lattice.js proofstory_review_completeness_check '{\"storyId\":\"B-8df9\"}'` myself: `Status: pass / Blocking: no / Gaps: 0`. Source confirms the wiring: handlers/validate-channel.ts:305/385-389 (withdrawnItems pushed and rendered as its own detail line, separate from the coverage/offender logic) and core/proofstory.ts:1672-1682/2165-2167 (withdrawnItemIntentRefs subtracted before the coverage loop runs)."
+      "docPath": "CLAUDE.md#TEST→DONE 硬门槛（delivery-check）/ withdrawal handling",
+      "promise": "CHK-004:happy:0 correction states B-45a5 wired decision-backed withdrawal into two REVIEW-path gates only (withdrawnItemIntentRefs in proofstory.ts, withdrawnChecklistItemIdsFrom in validate-channel.ts), verified live on this story, while disclosing core/verification.ts:212 still does a bare status-string skip on a DONE-blocking path (buildVerificationCoverage, consumed by handlers/done-prepare.ts).",
+      "verifiedBy": "independent execution + diff/grep",
+      "evidence": "Ran `LATTICE_SESSION_ID=sess-b8df9-main-agent node bin/lattice.js validate --channel --story=B-8df9` myself: prints \"withdrawn (SD-7319de10): CHK-004\" on its own line, outside \"Covered: CHK-001, CHK-002, CHK-003, CHK-005, CHK-006\". Ran `proofstory_review_completeness_check` myself: \"Gaps: 0\". Read core/verification.ts:212 directly: `if (isWithdrawnChecklistStatus(item.status)) continue;` - confirmed a bare status-string check (isWithdrawnChecklistStatus is status===\"withdrawn\"). Grepped buildVerificationCoverage call sites: consumed by handlers/done-prepare.ts:1165 (DONE-blocking stale-evidence classification) and handlers/phase-gates.ts:625 - confirms the disclosed gap is real and the correction does not overclaim uniform decision-backing."
     },
     {
-      "docPath": "checklist.json CHK-004:happy:0 correction note (disclosed scope limit, checked for overclaim)",
-      "promise": "The correction does NOT overclaim: B-45a5 wired only the two REVIEW-path gates; core/verification.ts:212 still performs a bare item.status==='withdrawn' string skip (not decision-record-backed) on a DONE-blocking coverage path",
-      "verifiedBy": "code-read",
-      "evidence": "packages/main/src/core/verification.ts:212 reads `if (isWithdrawnChecklistStatus(item.status)) continue;` where isWithdrawnChecklistStatus (checklist-status.ts:30-32) is `status === 'withdrawn'`, no scopeShrinkageDecision consulted (unlike the two B-45a5 sites). buildVerificationCoverage (this function) is called from handlers/phase-gates.ts:625 inside assessStoredValidationPassAdmissibility, which computes currentCoverageSnapshot used to judge whether a stored validate PASS remains admissible on the DONE path — confirming this is genuinely a DONE-blocking path, not REVIEW-only, and genuinely un-migrated by B-45a5."
+      "docPath": "CHK-004:happy:0 verificationEvidence note (waiver restoration)",
+      "promise": "The 633-character original waiver text on CHK-004:happy:0, previously overwritten by mistake, has been restored verbatim from commit eac4a6605c, and the sibling rows CHK-004:edge:0/adversarial:0 were never touched.",
+      "verifiedBy": "independent execution",
+      "evidence": "Programmatically extracted the quoted block from the current checklist.json note and diffed it against `git show eac4a6605c:.lattice/story/actives/B-8df9/checklist.json` CHK-004:happy:0.note: both are exactly 633 characters and byte-identical. Confirmed CHK-004:edge:0 and CHK-004:adversarial:0 carry timestamps 2026-08-03 (unchanged since original write) and are 633 chars each, matching the original."
     }
   ],
   "realMachineTests": [
     {
       "featureId": "CHK-001",
-      "transcript": "I ran packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs myself on the current tree: 0 RED / 0 BROKEN / 24 rows, ending 'GREEN: both verdict fields are inside the signature domain, and the carry-forward refuses to re-sign a record that does not verify ...'. I also independently wrote and ran my own fixture probe (isolated, not a real story, imports the compiled core/init-check-gate.js directly) reproducing the same defect-then-fix behavior from scratch: injected-reviewer tamper caught=true, erased-critical-issue tamper caught=true, documented out-of-tool re-sign limit reproduced=true."
+      "transcript": "Ran packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs myself on the rebuilt, twice-merged tree: 0 RED / 0 BROKEN / 24 rows, exit 0. Reproduces the original defect claim as fixed (B1-B3/C2-C3 rows read GREEN = the record now fails signature and the gate refuses it) plus carry-forward (E/F) and read-vs-trust (G1) and scope-bound (H1) claims, each with its own CONTROL-OK precondition/floor row so a broken control cannot masquerade as a fix."
     },
     {
       "featureId": "CHK-002",
-      "transcript": "I ran packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs myself: 0 FAILED / 0 BROKEN / 17 rows covering all 6 documented on-disk agentResults shapes, injection/erasure digest-movement (D1/D2/D3), and a live corpus scan (L1: 299 files, 0 threw/unstable). init-check-required-agents-smoke.js receipt (stored, re-executed post-merge 2026-08-19) also passes, confirming CHK-002 did not regress the pre-existing dual-agentId accumulation behavior."
+      "transcript": "Ran packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs myself: 0 FAILED / 0 BROKEN / 17 rows, exit 0, covering all 6 documented on-disk agentResults shapes (canonical, koala pre-rename, two @fallback variants, three-entry historical actor, absent-field-synthesized) plus absence-vs-synthesis distinctness (X1/X2) and domain-widening render checks (M1/M2). Additionally constructed my own independent fixture outside the shipped test (hand-injected reviewer record via computeInitCheckVerdictHash/signInitCheckDomain/initCheckHashMatches called directly from the built dist module) and confirmed the same fail-closed / re-sign-passes behaviour."
     },
     {
       "featureId": "CHK-003",
-      "transcript": "Same red-b8df9-init-check-verdict-signature.mjs run covers CHK-003's rows directly: E0 (untampered predecessor still carried forward), F4 (a genuinely recorded blocker removed by tampering does not advance the gate), G1 (an unverified record still RENDERS via story_get but the gate refuses to act on it -- read vs trust boundary). I additionally read the CHK-003 implementation in handlers/init-check.ts myself: the carry-forward now recomputes the expected hash of the previous record over the SAME snapshot being signed and only trusts it via initCheckHashMatches; untrusted predecessors are dropped with an explicit stderr notice rather than silently re-signed."
-    },
-    {
-      "featureId": "CHK-005",
-      "transcript": "docs-type intent (non-mechanical by design: enforceAndStampEvidence routes docs intents to an attestation-only branch before any selector is read, confirmed by reading handlers/checklist.ts and core/verification.ts). I ran chk005-corpus-derivation.mjs myself on the live merged tree (see docsPromises entry) and independently confirmed the corpus-derivation numbers the migration-position decision cites are real, reproducible, and not fabricated. This is an attestation, not a durable mechanical re-verification claim -- and the checklist rows now say so accurately after the round-1 correction I verified in the next section."
-    },
-    {
-      "featureId": "CHK-006",
-      "transcript": "I ran chk006-exemption-claims.mjs myself: 0 FAILED / 10 claims, all PASS, including SIGNATURE_REJECTS_EDIT_WITHOUT_RESIGN_MARKER=true, SIGNATURE_ACCEPTS_AN_OUT_OF_TOOL_RESIGN_MARKER=true (the disclosed limit), and LEASE_GATE_TOOK_LEASE_FOR_INIT_CHECK_SET_MARKER=false against a CONTROL that does take the lease (LEASE_GATE_TOOK_LEASE_FOR_STORY_SCOPED_CONTROL_MARKER=true), so the exemption claim is measured against real gate behavior, not merely asserted."
+      "transcript": "The carry-forward trust check (store.readInitCheck stays unverified; init_check_set/handlers verify via initCheckSignatureIsValid before trusting previous.agentResults) is covered by the same red-b8df9-init-check-verdict-signature.mjs rows E0-E4, F1-F4 and G1, all of which I re-ran directly and observed CONTROL-OK/GREEN as recorded (E4/F4 GREEN show the gate still refuses to advance on laundered coverage after the fix; G1 CONTROL-OK shows an unverified record still renders through story_get without being trusted)."
     },
     {
       "featureId": "CHK-004",
-      "transcript": "No feature code exists for CHK-004; it was withdrawn mid-story, so there is nothing to real-machine-test. What I did verify by execution: the withdrawal is honored live by both REVIEW-path gates (see docsPromises evidence above), and the append-only audit trail for this item is now honest -- I recovered the pre-overwrite original waiver text from git commit eac4a6605c (633 chars) and confirmed byte-for-byte (633/633) that the current CHK-004:happy:0 row's 'PRESERVED VERBATIM' quoted block matches it exactly, and confirmed the intervening destructive overwrite (commit 85a212fd3e, which replaced the waiver text with a superseding annotation that claimed to speak for 'CHK-004's three waiver rows' while having just overwritten one of them) really happened and was really reverted 16 minutes later (commit 810a9167d7).",
-      "waiverReason": "CHK-004 withdrawn by explicit, userConfirmed=true scope-shrinkage decision SD-7319de10 (verified on disk in scope-shrinkage-decision.json): the human-fallback-attestation concept it would have hardened was judged not meaningfully stronger evidence than agent-authored content with a human keystroke on top, so the item was deliberately dropped rather than implemented."
+      "transcript": "Item is withdrawn by confirmed user decision SD-7319de10 (scope-shrinkage-decision.json, userConfirmed=true); no feature code was delivered for it, so there is no test to run for the withdrawn work itself. What IS independently verified live: `validate --channel --story=B-8df9` prints the withdrawal on its own line outside Covered, and `proofstory_review_completeness_check` reports Gaps: 0 - confirming the gates behave correctly because of the withdrawal path (B-45a5, already merged to main), not because of the inert CHK-004 waiver rows.",
+      "waiverReason": "CHK-004 is withdrawn by a confirmed user decision (SD-7319de10); it is a recorded scope reduction, not delivered functionality, so there is no CHK-004 feature behaviour to real-machine-test. The three verificationEvidence rows on this item are inert waivers by design (see docsPromises entry on the CHK-004 correction for what was independently verified about the withdrawal mechanism itself)."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "Ran .lattice/story/actives/B-8df9/chk005-corpus-derivation.mjs myself (an integration-test-classified row, not just re-reading the note): exit 0, CORPUS_FILES_ON_DISK_MARKER=300, GATED_INIT_STORY_COUNT_MARKER=1, GATED_INIT_STORY_ID=B-dcf9, TRACKED_WITH_UNREGISTERED_ACTOR_MARKER=2 - output matched the persisted receipt exactly. The two docs_check rows (happy/adversarial) are honestly marked mechanical:false with no selector claimed (attestation-only branch, corpus counts move with which stories exist) - confirmed this framing is accurate by re-running the underlying script rather than trusting the note alone."
+    },
+    {
+      "featureId": "CHK-006",
+      "transcript": "Ran .lattice/story/actives/B-8df9/chk006-exemption-claims.mjs myself: 0 FAILED / 10 claims, EXEMPTION_REASON_MATCHES_CODE_MARKER=true, exit 0. Confirms the restated init_check_set owner-lease exemption in core/command-policy.ts is measured against actual gate behaviour (deposit-only write, no lease taken, owner-gated control command DOES take the lease, signature accepts an out-of-tool re-sign) rather than asserted prose. Also confirmed via lattice.config.json diff that command-policy.ts changes from this story (finding_add / init_check_set / scope_check_save / scope_question_resolve reason text) are undisturbed by the concurrent main merge that added an unrelated red_evidence_envelope_check entry (present identically on both sides of the diff, not newly introduced by the merge)."
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "All 8 docsPromises verified against source/live execution, not against main-agent prose. Both shipped red artifacts and both story-specific evidence scripts (CHK-005/CHK-006) were re-run live by me and pass; I additionally wrote and ran my own independent tamper probe against the compiled module, outside the story's own test artifacts, and it reproduces the central claim from scratch. I independently confirmed both self-reported main-agent errors in the record: the false 're-pinned, mechanically re-verifiable' claim on 4 docs_check rows (now honestly retracted, confirmed no selector/receipt exists on any of the four) and the destructive overwrite of a CHK-004 waiver row (confirmed via git history: original 633 chars at eac4a6605c, overwritten at 85a212fd3e, restored byte-identical at 810a9167d7). I confirmed live that validate --channel and proofstory_review_completeness_check both pass BECAUSE of the B-45a5 item-level withdrawal wiring (CHK-004 printed as withdrawn, excluded from Covered/Gaps), and confirmed the disclosed residual gap (core/verification.ts:212's bare status-string skip on the DONE-admissibility path, unmigrated by B-45a5) is real and accurately scoped, not overclaimed. My own timestamp arithmetic on review-passes.json independently reproduces the reported ~394-hour stall between the last stale behavior/docs-lane pass (2026-08-03T05:42/05:40) and the pass that followed round rotation (2026-08-19T16:35/16:33), matching the story's own account of why it sat this long. Residual, disclosed, not blocking this story: finding F-005 (medium, dismissed as genuinely out-of-scope with a tracked follow-up) shows a third init-check hash comparison site (init-preflight.ts) that still open-codes the comparison instead of using the shared trust predicate -- a real but pre-existing, non-regressed gap outside this story's scope contract."
+    "summary": "On this twice-merged tree I independently re-derived every load-bearing claim rather than trusting prior notes: both story RED guards pass (0 RED/0 BROKEN/24 rows; 0 FAILED/0 BROKEN/17 rows) on a freshly rebuilt dist, my own constructed tamper fixture confirms fail-closed-then-re-signable behaviour outside the shipped tests, the lattice.config.json merge is exactly main's 117 entries plus this story's 2 new guards with zero reordering, the six concurrently-merged sibling validate entries have zero references to init-check, the CHK-004 waiver restoration is byte-identical (633 chars) to the pre-corruption commit, and the disclosed core/verification.ts:212 gap is real and does not overclaim. No unresolved TODO/FIXME/HACK introduced by this story's diff."
   },
-  "_hash": "1b359d1b83c04375fc714389f5a71cb19fb169dc74621c6846546a7edae396e7"
+  "_hash": "ce3dffacbcc65386870359c51fe8027bc1cc31bf46760e69516811eaf8e51309"
 }
