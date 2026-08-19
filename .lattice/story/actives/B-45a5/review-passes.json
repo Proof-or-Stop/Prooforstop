@@ -112,6 +112,32 @@
         "scanEscalationReason": null
       },
       "_hash": "65cceeb37d84f2735c97efa80a76b1851ad19bb448becce05a0dea616cfc095c"
+    },
+    {
+      "id": "B-45a5:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Post-merge re-attestation on current tree (HEAD 87462f3, story/B-45a5 merged main at 333322c68c). Re-verified all prior conclusions rather than treating them as formality: (1) git diff main...HEAD --name-only shows only story-metadata files changed since 333322c68c -- zero touches to proofstory.ts or validate-channel.ts since the merge. (2) git diff 07da31c12d..333322c68c confirms the merge diff has zero hunks inside evaluateReviewCompleteness or checkDispatchEvidence; the merge only touched sibling CLI-rebrand code. (3) npm --prefix packages/main run build succeeds clean; npx tsc --noEmit -p packages/main exits 0. (4) Re-ran red-b45a5-withdrawal-gates.mjs both plain and --attest against the rebuilt dist: both print B45A5-VERDICT=GREEN, B1/B2/B3 GREEN, A1/A2/C1-C9 CONTROL-OK, D1-D5/D23/D45/E1 REFUSED, exit 0. (5) Re-read the merged-tree source: withdrawnItemIntentRefs (proofstory.ts:1672) and checkDispatchEvidence (validate-channel.ts:288) both key exclusively on withdrawnChecklistItemIdsFrom(decision).has(item.id); grepped for any status===withdrawn comparison in either file and found none -- anti-forgery property intact. (6) Diff quality re-check: no dead code, no unsafe as-any, both new catch blocks assign an explicit fail-closed value not empty-swallowing, decisionId field usage is valid, no doc/README changes so no doc-promise check applies, no job/run metadata touched. (7) Spot-checked all 11 non-waiver verificationEvidence notes against fresh red-script output -- every referenced row id and claimed value matches verbatim. The one waiver (CHK-001:happy:0) is a documented legitimate self-invalidating-pin waiver, property re-proven via red-evidence.json plus the now-mandatory validate.commands entry. No new findings -- prior clean verdict holds on the current tree.",
+      "createdAt": "2026-08-19T03:54:51.798Z",
+      "reviewRound": "2026-08-19T03:51:10.195Z",
+      "reviewRunId": "B-45a5:RR-007",
+      "envelopeId": "a59ec01db9ff13028a3eaea88accdd73e01514545b4c12d0d1d5aa18bc71a77a",
+      "writerSessionId": "sess-b45a5-main",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "lattice.config.json",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/handlers/validate-channel.ts",
+          "packages/main/tests/red/red-b45a5-withdrawal-gates.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-45a5/checklist.json",
+          ".lattice/story/actives/B-45a5/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "cf8f6141b5347501f75b366c5b09930b6e8ba3f6180fcf30266b848aeeb9c213"
     }
   ]
 }
