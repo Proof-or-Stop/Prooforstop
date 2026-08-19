@@ -567,6 +567,41 @@
         "scanEscalationReason": null
       },
       "_hash": "dce12a68db531416a778ffbe393eb2e7a6d9267f41869227bc9f99ca80836060"
+    },
+    {
+      "id": "B-cc10:RP-017",
+      "agent": "lattice-review-docs",
+      "note": "Docs pass at HEAD 042854e: Step1 focused symbols PROOF_OR_STOP_STATE_DIR/LEARNING_DIR/EXECUTABLE_SCAN_ROOTS; Step2 compared 4 paragraphs (CLAUDE.md brand-exec scan roots now lists proof-or-stop.config.json then lattice.config.json matching scripts/verify-lattice-residue.mjs:323-336; F-075 adapter manifest path; identity-migration decision doc). No remaining doc-promise-undelivered on the compared paragraphs. No blocker.",
+      "createdAt": "2026-08-19T08:22:47.927Z",
+      "reviewRound": "2026-08-18T03:33:16.325Z",
+      "reviewRunId": "B-cc10:RR-119",
+      "envelopeId": "97185c1c3b88e72482877885bb942cf0759fe64114766aac92aede81fbeddf67",
+      "writerSessionId": "sess-8afdfabda88da0d8",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md",
+          "packages/main/src/core/brand-paths.ts",
+          "packages/main/src/core/learning-store.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/tasks/experience-hint-worktree-cache-smoke.ts",
+          "packages/main/src/tasks/experience-layer-hint-injection-smoke.ts",
+          "packages/main/src/tasks/experience-layer-playbook-smoke.ts",
+          "packages/main/src/tasks/playbook-promotion-worker-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "scripts/verify-lattice-residue.mjs",
+          "scripts/verify-role-telemetry.mjs",
+          "scripts/verify-session-brief-command-center.mjs",
+          "scripts/verify-workflow-phase-consistency.mjs"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "28b77903b380a3635401cea0850ca80503168c993f54e893f5317d388fd20e81"
     }
   ]
 }
