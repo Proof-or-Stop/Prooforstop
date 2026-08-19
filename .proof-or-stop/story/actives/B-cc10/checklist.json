@@ -62,19 +62,19 @@
           "command": "node -e \"const s=require('fs').readFileSync('docs/requirements/decisions/proof-or-stop-identity-migration.md','utf8');const n=(s.match(/storyFilesHash/g)||[]).length;console.log('CHK-001-CONTRACT-DOC storyFilesHash='+n);if(n<1)process.exit(1)\"",
           "result": "pass",
           "note": "Contract doc created and pinned by an executable node check. Doc records per-identity verdicts for 6 migrated + 8 frozen identities, both FROZEN supersessions with citations, the empirically-resolved storyFilesHash hazard (reassigned to CHK-002), and the 344-archive acceptance criterion.",
-          "headHash": "0a6add89bd046a4b0bb48ca1520479f0a9b3c5fc",
-          "materialHash": "0fb1f435bf4da97c431c1747f3cf66570914bb09116e0a9e853e998c54494ee6",
-          "storyFilesHash": "ac3c8740ab8f089d8906cf7e852f8ef0730009e9034e0ca0630d2d6d63727fe7",
+          "headHash": "8c17ad17b7aa92f9217dc7c2276ffaf5ebc8e387",
+          "materialHash": "4f58baad942b7069077c8266233db31270cc1935d541a4f6644d117043ece750",
+          "storyFilesHash": "bab7c0969a984690b89daff821cf3736dfc3e63951c766dedc44cf36c8254e13",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "8c1bc194e9e023b54958f556c3c613a60cc3769bb4e8b51b21f5a8667ccc469b",
             "outputTail": "CHK-001-CONTRACT-DOC storyFilesHash=3\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-18T15:26:57.758Z",
+            "executedAt": "2026-08-19T04:54:02.503Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-18T15:27:59.633Z"
+          "timestamp": "2026-08-19T04:55:02.906Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -83,19 +83,19 @@
           "command": "node scripts/verify-migration-contract.mjs",
           "result": "pass",
           "note": "All 6 migrated identities carry a verdict row in the contract doc; the check FAILS if any row is absent, which is the edge condition (an identity named with no verdict recorded).",
-          "headHash": "0a6add89bd046a4b0bb48ca1520479f0a9b3c5fc",
-          "materialHash": "0fb1f435bf4da97c431c1747f3cf66570914bb09116e0a9e853e998c54494ee6",
-          "storyFilesHash": "ac3c8740ab8f089d8906cf7e852f8ef0730009e9034e0ca0630d2d6d63727fe7",
+          "headHash": "8c17ad17b7aa92f9217dc7c2276ffaf5ebc8e387",
+          "materialHash": "4f58baad942b7069077c8266233db31270cc1935d541a4f6644d117043ece750",
+          "storyFilesHash": "bab7c0969a984690b89daff821cf3736dfc3e63951c766dedc44cf36c8254e13",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "defa96e32969ad0bfdff769cc941edd32060bd4e696ccd08fdfa75d43c13cc5e",
             "outputTail": "storyFilesHashMentions=3\nok contract doc answers the storyFilesHash question\nidentitiesWithoutRow=0\nok all 6 migrated identities carry a verdict row\nsupersessionsDocumented=true\nok both FROZEN supersessions documented with citations, not silently ignored\narchivesReadableAfterMove=true\nok archives readable at canonical path after the move\ndeprecatedDirTrackedFiles=9\nnoDuplicateStateDirSpelling=true\ndeprecatedDirDuplicatedAtCanonical=0\ndeprecatedDirLegacyOnly=9\nWARN 9 tracked file(s) exist only under .lattice (B-49ed). Left in place on purpose: they are another session's in-flight story, and moving them would break it. Read-both discovery keeps them readable — verified by story_get on that id.\nok no story is duplicated across both state-dir spellings (move is complete; 9 un-migrated file(s) from other sessions left in place by design)\nmoveCommit=ec7f315e\nfollowupFixCommit=8c0bd7b8\nmoveCommitIsPureRename=true\nmoveIsPureRenameCommit=true\nrevertUnitIsCommitSequence=true\nok move is the sequence ec7f315e (pure rename, content-preserving) + 8c0bd7b8 (nested-mv fix); reverting the move means reverting BOTH, not a single sha — the original one-revert claim was false and is retracted\nmigration contract verified\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-18T15:26:58.508Z",
+            "executedAt": "2026-08-19T04:54:03.168Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-18T15:27:59.633Z"
+          "timestamp": "2026-08-19T04:55:02.906Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -104,19 +104,19 @@
           "command": "node scripts/verify-migration-contract.mjs",
           "result": "pass",
           "note": "Both FROZEN supersessions are documented WITH citations (brand-rename-mapping.md:130 for @lattice/core, :72 for the bin aliases), so a reader cannot conclude a frozen row was silently ignored. Proven to fail closed: removing one citation made the witness exit non-zero.",
-          "headHash": "0a6add89bd046a4b0bb48ca1520479f0a9b3c5fc",
-          "materialHash": "0fb1f435bf4da97c431c1747f3cf66570914bb09116e0a9e853e998c54494ee6",
-          "storyFilesHash": "ac3c8740ab8f089d8906cf7e852f8ef0730009e9034e0ca0630d2d6d63727fe7",
+          "headHash": "8c17ad17b7aa92f9217dc7c2276ffaf5ebc8e387",
+          "materialHash": "4f58baad942b7069077c8266233db31270cc1935d541a4f6644d117043ece750",
+          "storyFilesHash": "bab7c0969a984690b89daff821cf3736dfc3e63951c766dedc44cf36c8254e13",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "defa96e32969ad0bfdff769cc941edd32060bd4e696ccd08fdfa75d43c13cc5e",
             "outputTail": "storyFilesHashMentions=3\nok contract doc answers the storyFilesHash question\nidentitiesWithoutRow=0\nok all 6 migrated identities carry a verdict row\nsupersessionsDocumented=true\nok both FROZEN supersessions documented with citations, not silently ignored\narchivesReadableAfterMove=true\nok archives readable at canonical path after the move\ndeprecatedDirTrackedFiles=9\nnoDuplicateStateDirSpelling=true\ndeprecatedDirDuplicatedAtCanonical=0\ndeprecatedDirLegacyOnly=9\nWARN 9 tracked file(s) exist only under .lattice (B-49ed). Left in place on purpose: they are another session's in-flight story, and moving them would break it. Read-both discovery keeps them readable — verified by story_get on that id.\nok no story is duplicated across both state-dir spellings (move is complete; 9 un-migrated file(s) from other sessions left in place by design)\nmoveCommit=ec7f315e\nfollowupFixCommit=8c0bd7b8\nmoveCommitIsPureRename=true\nmoveIsPureRenameCommit=true\nrevertUnitIsCommitSequence=true\nok move is the sequence ec7f315e (pure rename, content-preserving) + 8c0bd7b8 (nested-mv fix); reverting the move means reverting BOTH, not a single sha — the original one-revert claim was false and is retracted\nmigration contract verified\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-18T15:26:59.208Z",
+            "executedAt": "2026-08-19T04:54:03.842Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-18T15:27:59.633Z"
+          "timestamp": "2026-08-19T04:55:02.906Z"
         }
       ],
       "userSeesSnapshot": {
@@ -201,19 +201,19 @@
           "command": "node packages/main/dist/tasks/brand-path-resolver-smoke.js",
           "result": "pass",
           "note": "Case (c) of the smoke covers the neither-present / unrelated-path branch mechanically: every decision helper (isStateDirPath / isAdapterDirPath / isConfigFilename / isManifestFilename) must REJECT unrelated paths and must anchor on the first path segment, so a project with no state dir resolves to a clean negative instead of a false match. Manually confirmed alongside: running status in an empty scratch dir prints the no-active-story guidance plus the non-git warning, no stack trace.",
-          "headHash": "0a6add89bd046a4b0bb48ca1520479f0a9b3c5fc",
-          "materialHash": "0fb1f435bf4da97c431c1747f3cf66570914bb09116e0a9e853e998c54494ee6",
-          "storyFilesHash": "ac3c8740ab8f089d8906cf7e852f8ef0730009e9034e0ca0630d2d6d63727fe7",
+          "headHash": "8c17ad17b7aa92f9217dc7c2276ffaf5ebc8e387",
+          "materialHash": "4f58baad942b7069077c8266233db31270cc1935d541a4f6644d117043ece750",
+          "storyFilesHash": "bab7c0969a984690b89daff821cf3736dfc3e63951c766dedc44cf36c8254e13",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "ebc4a7d1cdf6e9a841973a25e3f8fef713c15197bc619b7d57496d5dfb9392b4",
             "outputTail": "B-cc10 CHK-002 brand path resolver smoke\n  [ok] rename follow-through: exclusion moved to .brand-path-resolver-sentinel, deprecated still excluded, source still included\n  [ok] candidate lists put canonical first and contain no duplicates\n  [ok] decision helpers accept every accepted spelling and reject unrelated paths\n  [ok] adapter manifest candidates cover the full cross product (4)\n  [ok] codex touchpoint detection arms on every adapter-dir spelling\nbrand-path-resolver-smoke: PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-18T15:26:59.794Z",
+            "executedAt": "2026-08-19T04:54:04.403Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-18T15:27:59.633Z"
+          "timestamp": "2026-08-19T04:55:02.906Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -221,19 +221,19 @@
           "command": "node packages/main/dist/tasks/brand-path-resolver-smoke.js",
           "result": "pass",
           "note": "The intent asked for a grep proving only the resolver holds the literal; grep is not an allowlisted executable, so the mechanical witness is the stronger equivalent: case (a) REBUILDS the module graph with PROOF_OR_STOP_STATE_DIR flipped to a sentinel and asserts isStoryMetadataPath still excludes story metadata under the CANONICAL dir. A second hardcoded copy of the old prefix anywhere in brand-paths->lattice-paths->evidence-freshness makes this FAIL. Verified by injecting exactly that regression: tsc reported 0 errors while this guard failed, proving the hazard is invisible to the compiler. The grep itself was also run and returns only brand-paths.ts:72 and :78.",
-          "headHash": "0a6add89bd046a4b0bb48ca1520479f0a9b3c5fc",
-          "materialHash": "0fb1f435bf4da97c431c1747f3cf66570914bb09116e0a9e853e998c54494ee6",
-          "storyFilesHash": "ac3c8740ab8f089d8906cf7e852f8ef0730009e9034e0ca0630d2d6d63727fe7",
+          "headHash": "8c17ad17b7aa92f9217dc7c2276ffaf5ebc8e387",
+          "materialHash": "4f58baad942b7069077c8266233db31270cc1935d541a4f6644d117043ece750",
+          "storyFilesHash": "bab7c0969a984690b89daff821cf3736dfc3e63951c766dedc44cf36c8254e13",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "ebc4a7d1cdf6e9a841973a25e3f8fef713c15197bc619b7d57496d5dfb9392b4",
             "outputTail": "B-cc10 CHK-002 brand path resolver smoke\n  [ok] rename follow-through: exclusion moved to .brand-path-resolver-sentinel, deprecated still excluded, source still included\n  [ok] candidate lists put canonical first and contain no duplicates\n  [ok] decision helpers accept every accepted spelling and reject unrelated paths\n  [ok] adapter manifest candidates cover the full cross product (4)\n  [ok] codex touchpoint detection arms on every adapter-dir spelling\nbrand-path-resolver-smoke: PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-18T15:27:00.286Z",
+            "executedAt": "2026-08-19T04:54:04.879Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-18T15:27:59.633Z"
+          "timestamp": "2026-08-19T04:55:02.906Z"
         }
       ],
       "userSeesSnapshot": {
@@ -305,19 +305,19 @@
           "command": "node scripts/verify-state-dir-migration.mjs",
           "result": "pass",
           "note": "Both era-spanning archives readable from .proof-or-stop with phases matching pre-move baselines: B-0168 (earliest era, first archive commit 2026-06-22) INIT, B-META-framework-audit (signed cross-story ledger) META. Two named archives from different eras as the acceptance requires, not one convenient recent story.",
-          "headHash": "0a6add89bd046a4b0bb48ca1520479f0a9b3c5fc",
-          "materialHash": "0fb1f435bf4da97c431c1747f3cf66570914bb09116e0a9e853e998c54494ee6",
-          "storyFilesHash": "ac3c8740ab8f089d8906cf7e852f8ef0730009e9034e0ca0630d2d6d63727fe7",
+          "headHash": "8c17ad17b7aa92f9217dc7c2276ffaf5ebc8e387",
+          "materialHash": "4f58baad942b7069077c8266233db31270cc1935d541a4f6644d117043ece750",
+          "storyFilesHash": "bab7c0969a984690b89daff821cf3736dfc3e63951c766dedc44cf36c8254e13",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "48153ec23fa58849fdaec2d284fe5d2158c32e25faef2a3acdb94b929dbf79b5",
             "outputTail": "canonicalStateDir=true\nok .proof-or-stop/story/actives exists\narchive B-0168 phase=INIT\nok B-0168 (earliest-era archive) phase INIT matches pre-move baseline\narchive B-META-framework-audit phase=META\nok B-META-framework-audit (signed cross-story ledger) phase META matches pre-move baseline\nhistoryFollows=true\nok git log --follow traces 3 commits through the rename\ntrackedArchiveFiles=7593\npreMoveArchiveFiles=7583\nok 7593 archive files tracked at canonical path (>= 7583 pre-move; no loss)\narchiveFloorHeld=true\nstate dir migration verified\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-18T15:27:00.884Z",
+            "executedAt": "2026-08-19T04:54:05.545Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-18T15:27:59.633Z"
+          "timestamp": "2026-08-19T04:55:02.906Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -326,19 +326,19 @@
           "command": "node scripts/verify-state-dir-migration.mjs",
           "result": "pass",
           "note": "git log --follow traces 3 commits through the rename for .proof-or-stop/story/actives/B-0168/background.md, proving git mv preserved history rather than recording delete+add.",
-          "headHash": "0a6add89bd046a4b0bb48ca1520479f0a9b3c5fc",
-          "materialHash": "0fb1f435bf4da97c431c1747f3cf66570914bb09116e0a9e853e998c54494ee6",
-          "storyFilesHash": "ac3c8740ab8f089d8906cf7e852f8ef0730009e9034e0ca0630d2d6d63727fe7",
+          "headHash": "8c17ad17b7aa92f9217dc7c2276ffaf5ebc8e387",
+          "materialHash": "4f58baad942b7069077c8266233db31270cc1935d541a4f6644d117043ece750",
+          "storyFilesHash": "bab7c0969a984690b89daff821cf3736dfc3e63951c766dedc44cf36c8254e13",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "48153ec23fa58849fdaec2d284fe5d2158c32e25faef2a3acdb94b929dbf79b5",
             "outputTail": "canonicalStateDir=true\nok .proof-or-stop/story/actives exists\narchive B-0168 phase=INIT\nok B-0168 (earliest-era archive) phase INIT matches pre-move baseline\narchive B-META-framework-audit phase=META\nok B-META-framework-audit (signed cross-story ledger) phase META matches pre-move baseline\nhistoryFollows=true\nok git log --follow traces 3 commits through the rename\ntrackedArchiveFiles=7593\npreMoveArchiveFiles=7583\nok 7593 archive files tracked at canonical path (>= 7583 pre-move; no loss)\narchiveFloorHeld=true\nstate dir migration verified\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-18T15:27:01.411Z",
+            "executedAt": "2026-08-19T04:54:06.043Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-18T15:27:59.633Z"
+          "timestamp": "2026-08-19T04:55:02.906Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -421,19 +421,19 @@
           "command": "node packages/main/dist/tasks/config-filename-migration-smoke.js",
           "result": "pass",
           "note": "Spawns the real CLI in a temp project containing ONLY proof-or-stop.config.json and asserts exit 0 with zero 'is deprecated' lines on stderr. Config discovery is resolver-driven via CONFIG_FILENAMES (canonical first), so canonical wins and stays silent.",
-          "headHash": "0a6add89bd046a4b0bb48ca1520479f0a9b3c5fc",
-          "materialHash": "0fb1f435bf4da97c431c1747f3cf66570914bb09116e0a9e853e998c54494ee6",
-          "storyFilesHash": "ac3c8740ab8f089d8906cf7e852f8ef0730009e9034e0ca0630d2d6d63727fe7",
+          "headHash": "8c17ad17b7aa92f9217dc7c2276ffaf5ebc8e387",
+          "materialHash": "4f58baad942b7069077c8266233db31270cc1935d541a4f6644d117043ece750",
+          "storyFilesHash": "bab7c0969a984690b89daff821cf3736dfc3e63951c766dedc44cf36c8254e13",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "f68e8e32d2b97ea33777bf590df6a1f0d865b8880380cab787534300fb973d51",
             "outputTail": "  [ok] canonical-only project loads with zero deprecation notices\n  [ok] deprecated-only project loads with one STDERR notice naming both filenames\n  [ok] validate --json stdout parses as exactly one JSON payload while notice fires on stderr\nconfig-filename-migration-smoke: PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-18T15:27:03.378Z",
+            "executedAt": "2026-08-19T04:54:07.940Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-18T15:27:59.633Z"
+          "timestamp": "2026-08-19T04:55:02.906Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -442,19 +442,19 @@
           "command": "node packages/main/dist/tasks/config-filename-migration-smoke.js",
           "result": "pass",
           "note": "Temp project containing ONLY lattice.config.json still exits 0 (read-both contract) and emits exactly ONE stderr line asserted to contain BOTH DEPRECATED_CONFIG_FILENAME and PROOF_OR_STOP_CONFIG_FILENAME, so the advisory is actionable without docs. Also asserts the notice is absent from stdout.",
-          "headHash": "0a6add89bd046a4b0bb48ca1520479f0a9b3c5fc",
-          "materialHash": "0fb1f435bf4da97c431c1747f3cf66570914bb09116e0a9e853e998c54494ee6",
-          "storyFilesHash": "ac3c8740ab8f089d8906cf7e852f8ef0730009e9034e0ca0630d2d6d63727fe7",
+          "headHash": "8c17ad17b7aa92f9217dc7c2276ffaf5ebc8e387",
+          "materialHash": "4f58baad942b7069077c8266233db31270cc1935d541a4f6644d117043ece750",
+          "storyFilesHash": "bab7c0969a984690b89daff821cf3736dfc3e63951c766dedc44cf36c8254e13",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "f68e8e32d2b97ea33777bf590df6a1f0d865b8880380cab787534300fb973d51",
             "outputTail": "  [ok] canonical-only project loads with zero deprecation notices\n  [ok] deprecated-only project loads with one STDERR notice naming both filenames\n  [ok] validate --json stdout parses as exactly one JSON payload while notice fires on stderr\nconfig-filename-migration-smoke: PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-18T15:27:05.245Z",
+            "executedAt": "2026-08-19T04:54:09.745Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-18T15:27:59.633Z"
+          "timestamp": "2026-08-19T04:55:02.907Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -463,19 +463,19 @@
           "command": "node packages/main/dist/tasks/config-filename-migration-smoke.js",
           "result": "pass",
           "note": "Runs validate --json in a deprecated-only project and JSON.parse's the WHOLE stdout (throws on any leading/trailing non-JSON, which is exactly the single-payload property). Asserts as a PRECONDITION that the notice actually fired on stderr, so the test cannot vacuously pass without exercising the contaminating path. Mutation-tested: rerouting the notice to stdout fails this smoke immediately.",
-          "headHash": "0a6add89bd046a4b0bb48ca1520479f0a9b3c5fc",
-          "materialHash": "0fb1f435bf4da97c431c1747f3cf66570914bb09116e0a9e853e998c54494ee6",
-          "storyFilesHash": "ac3c8740ab8f089d8906cf7e852f8ef0730009e9034e0ca0630d2d6d63727fe7",
+          "headHash": "8c17ad17b7aa92f9217dc7c2276ffaf5ebc8e387",
+          "materialHash": "4f58baad942b7069077c8266233db31270cc1935d541a4f6644d117043ece750",
+          "storyFilesHash": "bab7c0969a984690b89daff821cf3736dfc3e63951c766dedc44cf36c8254e13",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "f68e8e32d2b97ea33777bf590df6a1f0d865b8880380cab787534300fb973d51",
             "outputTail": "  [ok] canonical-only project loads with zero deprecation notices\n  [ok] deprecated-only project loads with one STDERR notice naming both filenames\n  [ok] validate --json stdout parses as exactly one JSON payload while notice fires on stderr\nconfig-filename-migration-smoke: PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-18T15:27:07.114Z",
+            "executedAt": "2026-08-19T04:54:11.631Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-18T15:27:59.633Z"
+          "timestamp": "2026-08-19T04:55:02.907Z"
         }
       ],
       "userSeesSnapshot": {
@@ -552,19 +552,19 @@
           "command": "node scripts/verify-core-package-rename.mjs",
           "result": "pass",
           "note": "Core package renamed to @proof-or-stop/core builds and actually emits dist/cli-engine.js. Artifact presence asserted separately from exit code because this build exits 0 even when it produces no dist.",
-          "headHash": "0a6add89bd046a4b0bb48ca1520479f0a9b3c5fc",
-          "materialHash": "0fb1f435bf4da97c431c1747f3cf66570914bb09116e0a9e853e998c54494ee6",
-          "storyFilesHash": "ac3c8740ab8f089d8906cf7e852f8ef0730009e9034e0ca0630d2d6d63727fe7",
+          "headHash": "8c17ad17b7aa92f9217dc7c2276ffaf5ebc8e387",
+          "materialHash": "4f58baad942b7069077c8266233db31270cc1935d541a4f6644d117043ece750",
+          "storyFilesHash": "bab7c0969a984690b89daff821cf3736dfc3e63951c766dedc44cf36c8254e13",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "72c7c14ef52a6b6dc4369e9d58f713150eedab06ef463080849897669079e7e9",
             "outputTail": "corePackageName=@proof-or-stop/core\nok core package uses the canonical renamed name\ncliEngineExists=true\nok core build emitted dist/cli-engine.js (exit code alone is insufficient)\nutilsDependsOn=@proof-or-stop/core\nok packages/utils depends on @proof-or-stop/core\nok packages/utils no longer references the deprecated core name\nlabDependsOn=@proof-or-stop/core\nok packages/lab depends on @proof-or-stop/core\nok packages/lab no longer references the deprecated core name\nutilsDistExists=true\nok packages/utils built against the renamed core (cross-package resolution intact)\nrootPackageName=lattice\noq2BoundaryHeld=true\nok ROOT package name stays \"lattice\" (OQ-2 exclusion) while core is renamed\ndeprecatedCoreNameWithoutCanonical=0\nok every @lattice/core mention sits beside the canonical name (read-both), none stranded\n\ncore package rename verified\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-18T15:27:07.761Z",
+            "executedAt": "2026-08-19T04:54:12.243Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-18T15:27:59.633Z"
+          "timestamp": "2026-08-19T04:55:02.907Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -573,19 +573,19 @@
           "command": "node scripts/verify-core-package-rename.mjs",
           "result": "pass",
           "note": "Sibling packages utils and lab resolve core under the new name. packages/utils builds against main dist output, so utilsDistExists=true proves cross-package resolution still works after the rename.",
-          "headHash": "0a6add89bd046a4b0bb48ca1520479f0a9b3c5fc",
-          "materialHash": "0fb1f435bf4da97c431c1747f3cf66570914bb09116e0a9e853e998c54494ee6",
-          "storyFilesHash": "ac3c8740ab8f089d8906cf7e852f8ef0730009e9034e0ca0630d2d6d63727fe7",
+          "headHash": "8c17ad17b7aa92f9217dc7c2276ffaf5ebc8e387",
+          "materialHash": "4f58baad942b7069077c8266233db31270cc1935d541a4f6644d117043ece750",
+          "storyFilesHash": "bab7c0969a984690b89daff821cf3736dfc3e63951c766dedc44cf36c8254e13",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "72c7c14ef52a6b6dc4369e9d58f713150eedab06ef463080849897669079e7e9",
             "outputTail": "corePackageName=@proof-or-stop/core\nok core package uses the canonical renamed name\ncliEngineExists=true\nok core build emitted dist/cli-engine.js (exit code alone is insufficient)\nutilsDependsOn=@proof-or-stop/core\nok packages/utils depends on @proof-or-stop/core\nok packages/utils no longer references the deprecated core name\nlabDependsOn=@proof-or-stop/core\nok packages/lab depends on @proof-or-stop/core\nok packages/lab no longer references the deprecated core name\nutilsDistExists=true\nok packages/utils built against the renamed core (cross-package resolution intact)\nrootPackageName=lattice\noq2BoundaryHeld=true\nok ROOT package name stays \"lattice\" (OQ-2 exclusion) while core is renamed\ndeprecatedCoreNameWithoutCanonical=0\nok every @lattice/core mention sits beside the canonical name (read-both), none stranded\n\ncore package rename verified\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-18T15:27:08.116Z",
+            "executedAt": "2026-08-19T04:54:12.578Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-18T15:27:59.633Z"
+          "timestamp": "2026-08-19T04:55:02.907Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -594,19 +594,19 @@
           "command": "node scripts/verify-core-package-rename.mjs",
           "result": "pass",
           "note": "Pins the OQ-2 scope boundary mechanically: ROOT package name must stay lattice while packages/main is @proof-or-stop/core. Verified it fails closed by temporarily renaming the root to @proof-or-stop/root, observing oq2BoundaryHeld=false and a non-zero exit, then restoring (git diff --stat -- package.json empty). A future sweep that quietly renames the root now breaks this check instead of passing silently.",
-          "headHash": "0a6add89bd046a4b0bb48ca1520479f0a9b3c5fc",
-          "materialHash": "0fb1f435bf4da97c431c1747f3cf66570914bb09116e0a9e853e998c54494ee6",
-          "storyFilesHash": "ac3c8740ab8f089d8906cf7e852f8ef0730009e9034e0ca0630d2d6d63727fe7",
+          "headHash": "8c17ad17b7aa92f9217dc7c2276ffaf5ebc8e387",
+          "materialHash": "4f58baad942b7069077c8266233db31270cc1935d541a4f6644d117043ece750",
+          "storyFilesHash": "bab7c0969a984690b89daff821cf3736dfc3e63951c766dedc44cf36c8254e13",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "72c7c14ef52a6b6dc4369e9d58f713150eedab06ef463080849897669079e7e9",
             "outputTail": "corePackageName=@proof-or-stop/core\nok core package uses the canonical renamed name\ncliEngineExists=true\nok core build emitted dist/cli-engine.js (exit code alone is insufficient)\nutilsDependsOn=@proof-or-stop/core\nok packages/utils depends on @proof-or-stop/core\nok packages/utils no longer references the deprecated core name\nlabDependsOn=@proof-or-stop/core\nok packages/lab depends on @proof-or-stop/core\nok packages/lab no longer references the deprecated core name\nutilsDistExists=true\nok packages/utils built against the renamed core (cross-package resolution intact)\nrootPackageName=lattice\noq2BoundaryHeld=true\nok ROOT package name stays \"lattice\" (OQ-2 exclusion) while core is renamed\ndeprecatedCoreNameWithoutCanonical=0\nok every @lattice/core mention sits beside the canonical name (read-both), none stranded\n\ncore package rename verified\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-18T15:27:08.464Z",
+            "executedAt": "2026-08-19T04:54:12.909Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-18T15:27:59.633Z"
+          "timestamp": "2026-08-19T04:55:02.907Z"
         }
       ],
       "userSeesSnapshot": {
@@ -684,19 +684,19 @@
           "command": "node bin/proof-or-stop.js --version",
           "result": "pass",
           "note": "Canonical bootstrap wrapper still prints the version after both deprecated bin aliases were deleted. Pinned command runs the surviving wrapper; selector is the exact version banner it prints.",
-          "headHash": "0a6add89bd046a4b0bb48ca1520479f0a9b3c5fc",
-          "materialHash": "0fb1f435bf4da97c431c1747f3cf66570914bb09116e0a9e853e998c54494ee6",
-          "storyFilesHash": "ac3c8740ab8f089d8906cf7e852f8ef0730009e9034e0ca0630d2d6d63727fe7",
+          "headHash": "8c17ad17b7aa92f9217dc7c2276ffaf5ebc8e387",
+          "materialHash": "4f58baad942b7069077c8266233db31270cc1935d541a4f6644d117043ece750",
+          "storyFilesHash": "bab7c0969a984690b89daff821cf3736dfc3e63951c766dedc44cf36c8254e13",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "7ab7060f4669fabe0d5f71b6c7732220534bfb6446fedde2f64a83fec6dff340",
             "outputTail": "Proof-or-Stop 0.3.261\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-18T15:27:09.141Z",
+            "executedAt": "2026-08-19T04:54:13.566Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-18T15:27:59.633Z"
+          "timestamp": "2026-08-19T04:55:02.907Z"
         },
         {
           "intentRef": "CHK-006:edge:0",
@@ -705,19 +705,19 @@
           "command": "node packages/main/tests/red/red-cc10-chk006-removed-bin-aliases.mjs",
           "result": "pass",
           "note": "Invoking the removed alias exits non-zero with Cannot find module rather than silently no-opping. The guard asserts notEqual(status,0) AND the MODULE_NOT_FOUND shape for BOTH aliases; proven non-vacuous by temporarily restoring bin/lattice.js, which made it fail.",
-          "headHash": "0a6add89bd046a4b0bb48ca1520479f0a9b3c5fc",
-          "materialHash": "0fb1f435bf4da97c431c1747f3cf66570914bb09116e0a9e853e998c54494ee6",
-          "storyFilesHash": "ac3c8740ab8f089d8906cf7e852f8ef0730009e9034e0ca0630d2d6d63727fe7",
+          "headHash": "8c17ad17b7aa92f9217dc7c2276ffaf5ebc8e387",
+          "materialHash": "4f58baad942b7069077c8266233db31270cc1935d541a4f6644d117043ece750",
+          "storyFilesHash": "bab7c0969a984690b89daff821cf3736dfc3e63951c766dedc44cf36c8254e13",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "750dea3d9dac27d23cd451a647f8f1d6df426a05bf9083c97dba5bb7859896d4",
             "outputTail": "REMOVED_ALIAS_FAILS_LOUDLY bin/lattice.js exit=1\nREMOVED_ALIAS_FAILS_LOUDLY bin/lattice-codex.js exit=1\nCANONICAL_REPLACEMENT_WORKS Proof-or-Stop 0.3.261\nCHANGELOG_ANNOUNCES_REMOVAL both aliases and both replacements named\nPASS red-cc10-chk006-removed-bin-aliases\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-18T15:27:09.924Z",
+            "executedAt": "2026-08-19T04:54:14.322Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-18T15:27:59.633Z"
+          "timestamp": "2026-08-19T04:55:02.907Z"
         },
         {
           "intentRef": "CHK-006:adversarial:0",
@@ -726,19 +726,19 @@
           "command": "node packages/main/tests/red/red-cc10-chk006-removed-bin-aliases.mjs",
           "result": "pass",
           "note": "CHANGELOG.md v0.3.261 Removed section names BOTH removed aliases (bin/lattice.js, bin/lattice-codex.js) AND both replacements (bin/proof-or-stop.js, bin/proof-or-stop-codex.js), so the break is announced rather than discovered. The guard asserts all four strings are present, which is plan.md's acceptance floor for immediate removal.",
-          "headHash": "0a6add89bd046a4b0bb48ca1520479f0a9b3c5fc",
-          "materialHash": "0fb1f435bf4da97c431c1747f3cf66570914bb09116e0a9e853e998c54494ee6",
-          "storyFilesHash": "ac3c8740ab8f089d8906cf7e852f8ef0730009e9034e0ca0630d2d6d63727fe7",
+          "headHash": "8c17ad17b7aa92f9217dc7c2276ffaf5ebc8e387",
+          "materialHash": "4f58baad942b7069077c8266233db31270cc1935d541a4f6644d117043ece750",
+          "storyFilesHash": "bab7c0969a984690b89daff821cf3736dfc3e63951c766dedc44cf36c8254e13",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "750dea3d9dac27d23cd451a647f8f1d6df426a05bf9083c97dba5bb7859896d4",
             "outputTail": "REMOVED_ALIAS_FAILS_LOUDLY bin/lattice.js exit=1\nREMOVED_ALIAS_FAILS_LOUDLY bin/lattice-codex.js exit=1\nCANONICAL_REPLACEMENT_WORKS Proof-or-Stop 0.3.261\nCHANGELOG_ANNOUNCES_REMOVAL both aliases and both replacements named\nPASS red-cc10-chk006-removed-bin-aliases\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-18T15:27:10.707Z",
+            "executedAt": "2026-08-19T04:54:15.082Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-18T15:27:59.633Z"
+          "timestamp": "2026-08-19T04:55:02.907Z"
         }
       ],
       "userSeesSnapshot": {
@@ -811,19 +811,19 @@
           "command": "node scripts/verify-lattice-residue.mjs",
           "result": "pass",
           "note": "CHECK 4 (the exempt->FORBIDDEN row flip) passes alongside the three pre-existing checks; forbidden tokens are derived by parsing core/brand-paths.ts so the gate cannot rot pinned to one spelling.",
-          "headHash": "0a6add89bd046a4b0bb48ca1520479f0a9b3c5fc",
-          "materialHash": "0fb1f435bf4da97c431c1747f3cf66570914bb09116e0a9e853e998c54494ee6",
-          "storyFilesHash": "ac3c8740ab8f089d8906cf7e852f8ef0730009e9034e0ca0630d2d6d63727fe7",
+          "headHash": "8c17ad17b7aa92f9217dc7c2276ffaf5ebc8e387",
+          "materialHash": "4f58baad942b7069077c8266233db31270cc1935d541a4f6644d117043ece750",
+          "storyFilesHash": "bab7c0969a984690b89daff821cf3736dfc3e63951c766dedc44cf36c8254e13",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "d07af55e2b029d70e6c2d7a4af43f0caed723748cd758382ee86037b05c49ade",
             "outputTail": "PASS lattice-residue [koala]: 0 brand residue in product runtime source\nPASS lattice-residue [brand-prose]: 0 bare `lattice <cmd>` invocations in active docs (3 documented exemption(s) verified live)\nPASS lattice-residue [brand-exec]: 0 bare `lattice <cmd>` invocations on the executable surface (bin, .codex, package.json, proof-or-stop.config.json, lattice.config.json, CITATION.cff, packages/utils/src)\nPASS lattice-residue [brand-decision]: 0 deprecated brand-path decision sites in product runtime source (forbidden tokens derived from packages/main/src/core/brand-paths.ts: lattice.config.json, .lattice-codex, lattice.json, .lattice)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-18T15:27:11.082Z",
+            "executedAt": "2026-08-19T04:54:15.455Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-18T15:27:59.633Z"
+          "timestamp": "2026-08-19T04:55:02.907Z"
         },
         {
           "intentRef": "CHK-007:edge:0",
@@ -832,19 +832,19 @@
           "command": "node scripts/verify-residue-inject-repro.mjs",
           "result": "pass",
           "note": "Proves CHECK 4 is enforcing, not reporting: the harness stages a real tracked inject (git ls-files scope, so an untracked write could not fool it), asserts the gate exits 1, reverts, and asserts it returns to exit 0. The inject is built from the gate own derived deprecated-token list so the repro cannot drift onto a spelling the gate no longer forbids.",
-          "headHash": "0a6add89bd046a4b0bb48ca1520479f0a9b3c5fc",
-          "materialHash": "0fb1f435bf4da97c431c1747f3cf66570914bb09116e0a9e853e998c54494ee6",
-          "storyFilesHash": "ac3c8740ab8f089d8906cf7e852f8ef0730009e9034e0ca0630d2d6d63727fe7",
+          "headHash": "8c17ad17b7aa92f9217dc7c2276ffaf5ebc8e387",
+          "materialHash": "4f58baad942b7069077c8266233db31270cc1935d541a4f6644d117043ece750",
+          "storyFilesHash": "bab7c0969a984690b89daff821cf3736dfc3e63951c766dedc44cf36c8254e13",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "48bb516f17d210a738e1c4f98b33f45382a294da062e36d2189a15cfafe1f4ea",
             "outputTail": "OK   koala token: tracked inject -> gate exited 1 (FAIL caught it)\nOK   koala token: after git revert -> gate exited 0 (PASS, tree restored clean)\nOK   forbidden brand decision: tracked inject -> gate exited 1 (FAIL caught it)\nOK   forbidden brand decision: after git revert -> gate exited 0 (PASS, tree restored clean)\n\nPASS inject-check: gate caught every tracked inject and the worktree was restored clean.\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-18T15:27:12.447Z",
+            "executedAt": "2026-08-19T04:54:16.805Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-18T15:27:59.633Z"
+          "timestamp": "2026-08-19T04:55:02.907Z"
         },
         {
           "intentRef": "CHK-007:adversarial:0",
@@ -853,19 +853,19 @@
           "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
           "result": "pass",
           "note": "The guard RECOMPUTES both re-pinned digests (package alias-edge inventory + the proof-or-stop-codex.js benign-loader whole-source fingerprint) and exits 0, so the pins bind the real current inputs. Both digests are pinned in TWO coupled copies (this guard and scripts/verify-process-fact-contract.mjs); I grepped each OLD digest repo-wide before editing and updated both together, so the old digests now have 0 occurrences and all 16 coupled digests match across the two files. NOTE the intent also expected verify-process-fact-contract to exit 0: it exits 1, but with 515 findings byte-identical to the pre-existing HEAD baseline (CLAUDE.md doc-drift unrelated to CHK-007). Its one CHK-007-caused finding (retired vocabulary guard must enforce narrow compatibility usage: bin/lattice.js, stale after CHK-006 deleted that alias) is fixed.",
-          "headHash": "0a6add89bd046a4b0bb48ca1520479f0a9b3c5fc",
-          "materialHash": "0fb1f435bf4da97c431c1747f3cf66570914bb09116e0a9e853e998c54494ee6",
-          "storyFilesHash": "ac3c8740ab8f089d8906cf7e852f8ef0730009e9034e0ca0630d2d6d63727fe7",
+          "headHash": "8c17ad17b7aa92f9217dc7c2276ffaf5ebc8e387",
+          "materialHash": "4f58baad942b7069077c8266233db31270cc1935d541a4f6644d117043ece750",
+          "storyFilesHash": "bab7c0969a984690b89daff821cf3736dfc3e63951c766dedc44cf36c8254e13",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "4530c52707cf394872167d6b67d3ec159dfe4ac40dcde1177b502018451d9b8e",
             "outputTail": "retired authority vocabulary guard PASS builds=794 cacheHits=2 fullAnalysis=1264 astCandidates=494 reachability=34\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-18T15:27:58.185Z",
+            "executedAt": "2026-08-19T04:55:01.550Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-18T15:27:59.633Z"
+          "timestamp": "2026-08-19T04:55:02.907Z"
         }
       ],
       "userSeesSnapshot": {
@@ -937,19 +937,19 @@
           "command": "node scripts/verify-migration-contract.mjs",
           "result": "pass",
           "note": "Upgrades CHK-008's original manual_transcript to a mechanical receipt. The rehearsal itself ran on a throwaway clone (not re-executable in-repo), but its load-bearing assertion IS re-checkable against the real move: archives readable at the canonical path. The rehearsal's other two properties are pinned by this same witness at edge:0 (half-done detector) and adversarial:0 (single pure-rename commit, so one revert suffices).",
-          "headHash": "0a6add89bd046a4b0bb48ca1520479f0a9b3c5fc",
-          "materialHash": "0fb1f435bf4da97c431c1747f3cf66570914bb09116e0a9e853e998c54494ee6",
-          "storyFilesHash": "ac3c8740ab8f089d8906cf7e852f8ef0730009e9034e0ca0630d2d6d63727fe7",
+          "headHash": "8c17ad17b7aa92f9217dc7c2276ffaf5ebc8e387",
+          "materialHash": "4f58baad942b7069077c8266233db31270cc1935d541a4f6644d117043ece750",
+          "storyFilesHash": "bab7c0969a984690b89daff821cf3736dfc3e63951c766dedc44cf36c8254e13",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "defa96e32969ad0bfdff769cc941edd32060bd4e696ccd08fdfa75d43c13cc5e",
             "outputTail": "storyFilesHashMentions=3\nok contract doc answers the storyFilesHash question\nidentitiesWithoutRow=0\nok all 6 migrated identities carry a verdict row\nsupersessionsDocumented=true\nok both FROZEN supersessions documented with citations, not silently ignored\narchivesReadableAfterMove=true\nok archives readable at canonical path after the move\ndeprecatedDirTrackedFiles=9\nnoDuplicateStateDirSpelling=true\ndeprecatedDirDuplicatedAtCanonical=0\ndeprecatedDirLegacyOnly=9\nWARN 9 tracked file(s) exist only under .lattice (B-49ed). Left in place on purpose: they are another session's in-flight story, and moving them would break it. Read-both discovery keeps them readable — verified by story_get on that id.\nok no story is duplicated across both state-dir spellings (move is complete; 9 un-migrated file(s) from other sessions left in place by design)\nmoveCommit=ec7f315e\nfollowupFixCommit=8c0bd7b8\nmoveCommitIsPureRename=true\nmoveIsPureRenameCommit=true\nrevertUnitIsCommitSequence=true\nok move is the sequence ec7f315e (pure rename, content-preserving) + 8c0bd7b8 (nested-mv fix); reverting the move means reverting BOTH, not a single sha — the original one-revert claim was false and is retracted\nmigration contract verified\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-18T15:27:58.931Z",
+            "executedAt": "2026-08-19T04:55:02.249Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-18T15:27:59.633Z"
+          "timestamp": "2026-08-19T04:55:02.907Z"
         },
         {
           "intentRef": "CHK-008:edge:0",
@@ -967,19 +967,19 @@
           "command": "node scripts/verify-migration-contract.mjs",
           "result": "pass",
           "note": "Re-earned mechanically at final HEAD. The witness now emits the originally-pinned key name alongside its renamed form; the underlying pure-rename property is unchanged and verified by re-execution.",
-          "headHash": "0a6add89bd046a4b0bb48ca1520479f0a9b3c5fc",
-          "materialHash": "0fb1f435bf4da97c431c1747f3cf66570914bb09116e0a9e853e998c54494ee6",
-          "storyFilesHash": "ac3c8740ab8f089d8906cf7e852f8ef0730009e9034e0ca0630d2d6d63727fe7",
+          "headHash": "8c17ad17b7aa92f9217dc7c2276ffaf5ebc8e387",
+          "materialHash": "4f58baad942b7069077c8266233db31270cc1935d541a4f6644d117043ece750",
+          "storyFilesHash": "bab7c0969a984690b89daff821cf3736dfc3e63951c766dedc44cf36c8254e13",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "defa96e32969ad0bfdff769cc941edd32060bd4e696ccd08fdfa75d43c13cc5e",
             "outputTail": "storyFilesHashMentions=3\nok contract doc answers the storyFilesHash question\nidentitiesWithoutRow=0\nok all 6 migrated identities carry a verdict row\nsupersessionsDocumented=true\nok both FROZEN supersessions documented with citations, not silently ignored\narchivesReadableAfterMove=true\nok archives readable at canonical path after the move\ndeprecatedDirTrackedFiles=9\nnoDuplicateStateDirSpelling=true\ndeprecatedDirDuplicatedAtCanonical=0\ndeprecatedDirLegacyOnly=9\nWARN 9 tracked file(s) exist only under .lattice (B-49ed). Left in place on purpose: they are another session's in-flight story, and moving them would break it. Read-both discovery keeps them readable — verified by story_get on that id.\nok no story is duplicated across both state-dir spellings (move is complete; 9 un-migrated file(s) from other sessions left in place by design)\nmoveCommit=ec7f315e\nfollowupFixCommit=8c0bd7b8\nmoveCommitIsPureRename=true\nmoveIsPureRenameCommit=true\nrevertUnitIsCommitSequence=true\nok move is the sequence ec7f315e (pure rename, content-preserving) + 8c0bd7b8 (nested-mv fix); reverting the move means reverting BOTH, not a single sha — the original one-revert claim was false and is retracted\nmigration contract verified\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-18T15:27:59.617Z",
+            "executedAt": "2026-08-19T04:55:02.887Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-18T15:27:59.633Z"
+          "timestamp": "2026-08-19T04:55:02.907Z"
         }
       ],
       "userSeesSnapshot": {
