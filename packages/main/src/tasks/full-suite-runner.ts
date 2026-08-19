@@ -108,7 +108,14 @@ const RESOURCE_POLICY: Record<string, FullSuiteEntry> = Object.fromEntries([
   ]),
   repoRead('test:main-write-lock-coverage'),
   repoRead('test:production-test-seam-guard', {}, [{ class: 'fixed-path', key: 'package.json', access: 'shared' }]),
-  repoRead('test:lattice-residue'), repoRead('test:proof-or-stop-prompt-baseline'),
+  repoRead('test:lattice-residue'),
+  // B-cc10 identity-migration members of test:serial-reference. A serial-reference
+  // name without a policy entry fails closed (unknownPolicy) before execution.
+  repoRead('test:residue-inject-repro'), repoRead('test:retired-authority-vocabulary-guard'),
+  repoRead('test:brand-path-resolver-smoke'), repoRead('test:config-filename-migration-smoke'),
+  repoRead('test:core-package-rename'), repoRead('test:state-dir-migration'),
+  repoRead('test:migration-contract'),
+  repoRead('test:proof-or-stop-prompt-baseline'),
   // B-cdf6: both added to test:serial-reference by this story. Membership authority is
   // test:serial-reference and a member without a policy fails closed before execution,
   // so the policy entry is mandatory, not optional. Both only read the repo and hold no
