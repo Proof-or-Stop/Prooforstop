@@ -1,0 +1,68 @@
+{
+  "storyId": "B-49ed",
+  "checkedAt": "2026-08-19T06:08:03.230Z",
+  "headHash": "12bdbd2ffc3a756b8cebea45ec255d97991a2978",
+  "materialHash": "489347b6a26190725695521bb871b4976d42b324416f52669b04c623cd78e444",
+  "storyFilesHash": "4456274b3dc1d2c99baa963a711346c4ac17f56e923ff52f5facf6a97ea79355",
+  "reviewRound": "2026-08-19T05:01:43.915Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/CLI.md#Independent topology critic (Wave 2A)",
+      "promise": "topology_critic_receipt_set is the sole producer for signed topology-critic-receipt.json and is restricted to a dispatched lattice-review-topology-critic identity; the verifier recomputes current bindings instead of trusting caller-supplied hashes or status.",
+      "status": "verified",
+      "verifiedBy": "diff/grep",
+      "evidence": "handlers/proofstory.ts topology_critic_receipt_set still rejects unless authority.entry.canonicalName === TOPOLOGY_CRITIC_ROLE, then calls deriveRoleProvenance with sessionId + sessionSource: getSessionIdentity().sessionSource. deriveRoleProvenance now refuses explicit-env/derived-ppid before the dispatch lookup. Pre-existing identity restriction, strengthened by this story."
+    },
+    {
+      "docPath": "docs/CLI.md#Independent topology critic (Wave 2A)",
+      "promise": "The receipt passes only when the critic differs from the implementation provenance in all four dimensions: agent identity, session identity, dispatch identity, and business-commit author identity.",
+      "status": "verified",
+      "verifiedBy": "grep independenceMatrix",
+      "evidence": "Pre-existing, not introduced by this story. topology-critic-receipt.ts independenceMatrix still returns agent/session/dispatch/businessCommitAuthor inequalities. This story did not weaken that matrix."
+    },
+    {
+      "docPath": "docs/CLI.md#Independent topology critic (Wave 2A)",
+      "promise": "When the basis contains an exclusion, topology_exclusion_approval_set creates an independently signed approval from the registered lattice-review-scope-plan role.",
+      "status": "verified",
+      "verifiedBy": "diff/grep",
+      "evidence": "handlers/proofstory.ts:550 (exclusion approver) and :565 (critic) are the only two production deriveRoleProvenance call sites; both now pass sessionSource: getSessionIdentity().sessionSource. Independent topology-signing-source-guard-smoke.js asserts bound production call sites: 2/2."
+    },
+    {
+      "docPath": "docs/requirements/decisions/session-ownership-and-write-leases.md#Current implementation",
+      "promise": "sessionId resolves through LATTICE_SESSION_ID (explicit-env) then host-adapter then generated-token then derived-ppid; the id is a local process-coordination id, never a cryptographic identity.",
+      "status": "verified",
+      "verifiedBy": "diff/grep",
+      "evidence": "Pre-existing taxonomy, consumed rather than redefined. SIGNABLE_SESSION_SOURCES accepts host-adapter and generated-token (hash-derived, unmintable) and refuses explicit-env and derived-ppid (mintable). adapter-session-env.ts unsets LATTICE_SESSION_ID/PROOF_OR_STOP_SESSION_ID so fixtures do not silently downgrade to explicit-env."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Independent run of node packages/main/dist/tasks/topology-signing-source-guard-smoke.js exited 0: refused (forgeable) explicit-env, derived-ppid before dispatch lookup; accepted (host-derived) host-adapter, generated-token; bound production call sites 2/2; accepted sources complete provenance for critic + exclusion approver. live-smoke-transcript.json records the same stdout and exit 0. CHK-001 happy mechanical receipt: proofstory-pre-review-check-smoke.js PASS (selector ProofStory pre-review check smoke: PASS) drives topology_critic_receipt_set through the production CLI with an adapter-derived session."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "topology-signing-source-guard-smoke.js asserts adapterSessionEnv (unsetting LATTICE_SESSION_ID) resolves via resolveSessionIdentity to host-adapter and adapterSessionId reproduces the derived id; control case with a lingering LATTICE_SESSION_ID downgrades to explicit-env. Diff migrates proofstory-pre-review-check-smoke.ts and proofstory-topology-critic-smoke.ts from LATTICE_SESSION_ID to adapterSessionEnv/withAdapterSessionEnv/adapterSessionId."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Independent run of node packages/main/dist/tasks/signing-guard-mutation-proof-smoke.js exited 0: relocated mutant that adds explicit-env/derived-ppid to SIGNABLE_SESSION_SOURCES is executed; mutant admits those sources at the source gate while the real guard still refuses them; real artifact byte-identical after the proof (guard removal admits / guard intact refuses / real artifact unchanged: true). Companion topology-signing-source-guard-smoke.js also PASSes with the guard intact."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Positive end-to-end signing is machine-covered by proofstory-pre-review-check-smoke.js (mechanical receipt PASS) which calls topology_critic_receipt_set through the production CLI under adapterSessionEnv, and by topology-signing-source-guard-smoke.js completing deriveRoleProvenance for both signing roles on accepted sources. Independent topology_critic_receipt_check on current HEAD returns AT_TOPOLOGY_CRITIC_CONTEXT_INVALID (partial/stale basis after merge), which is a completeness/freshness refusal, not no current registered dispatch provenance. Original CHK-004 host-dispatch manual transcripts were invalidated by verification_evidence_refresh_stale after merge."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "topology-signing-source-guard-smoke.js accepts generated-token alongside host-adapter and still lists refused (forgeable): explicit-env, derived-ppid. Independent signing-guard-mutation-proof-smoke.js drives resolveSessionIdentity: provider+task+agent yields host-adapter; generation without a boundary does not yield generated-token; generation with provider+task+agent+boundary does; dropping the agent dimension breaks generated-token."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "No product docs were edited in main...HEAD; four related-doc promises (CLI.md Wave 2A critic/exclusion-approver identity plus session-ownership source taxonomy) were independently verified in the new sessionSource gate and both production call sites. Independently re-ran topology-signing-source-guard-smoke.js and signing-guard-mutation-proof-smoke.js (both exit 0) covering refuse explicit-env/derived-ppid, accept host-adapter/generated-token, 2/2 bound call sites, and mutation-bites. CHK-004 host-dispatch receipts are stale after merge; machine E2E signing is still covered by the pre-review and source-guard smokes. Independently read Wave 4 commands: acceptance_topology_check observe/inconclusive, pre_review_check_read PR_ARTIFACT_MISSING, rollout report/check missing — observe/not blocking and not this story's delivery surface. No unresolved TODO/FIXME/HACK in the non-test source."
+  },
+  "_hash": "1023699ef25ed546b37ea3913125d3f81ef66c68506b2788d9a9747a8ce32e17"
+}
