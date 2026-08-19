@@ -1,0 +1,56 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-85f5",
+  "checkedAt": "2026-08-19T15:25:04.799Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "85d7fb4088f03ed8484c74ad2d78644684cd1b3eb708691a34195aa6d80492c7",
+  "executionBoundaryHash": "67fcd5a70d9d27b4aaa431a4fbbaeec83bf5d7d67f1dbe0e8d360b50c7c8578c",
+  "freshnessHash": "f08caeae0e201b686947089b6446763a7aa11ed53c1b868b7652fbc3e29dc6fd",
+  "effectiveExcludedKeywords": [
+    "Allow payload actor fields to override a dispatched environment identity",
+    "Authority",
+    "customerKeyRef",
+    "Layer4",
+    "Modify B-38b7 product documentation or fabricate rollout/quorum evidence",
+    "Refactor unrelated dispatch, lifecycle, provider, or reviewer systems",
+    "Register acceptance-rollout-verifier as a reviewer lane",
+    "Relax canonical PROOF_OR_STOP_AGENT precedence or unknown-actor fail-closed behavior",
+    "repair UX"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Allow payload actor fields to override a dispatched environment identity",
+      "source": "scopeBoundary.excluded",
+      "text": "Allow payload actor fields to override a dispatched environment identity",
+      "excluded": true
+    },
+    {
+      "keyword": "Modify B-38b7 product documentation or fabricate rollout/quorum evidence",
+      "source": "scopeBoundary.excluded",
+      "text": "Modify B-38b7 product documentation or fabricate rollout/quorum evidence",
+      "excluded": true
+    },
+    {
+      "keyword": "Refactor unrelated dispatch, lifecycle, provider, or reviewer systems",
+      "source": "scopeBoundary.excluded",
+      "text": "Refactor unrelated dispatch, lifecycle, provider, or reviewer systems",
+      "excluded": true
+    },
+    {
+      "keyword": "Register acceptance-rollout-verifier as a reviewer lane",
+      "source": "scopeBoundary.excluded",
+      "text": "Register acceptance-rollout-verifier as a reviewer lane",
+      "excluded": true
+    },
+    {
+      "keyword": "Relax canonical PROOF_OR_STOP_AGENT precedence or unknown-actor fail-closed behavior",
+      "source": "scopeBoundary.excluded",
+      "text": "Relax canonical PROOF_OR_STOP_AGENT precedence or unknown-actor fail-closed behavior",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "7759c4e7cbbe704616ac1ade8c9775ba28f1c9ff1e2af71c5eae1971c995f982"
+}
