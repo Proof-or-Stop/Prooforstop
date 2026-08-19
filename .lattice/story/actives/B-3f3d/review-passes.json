@@ -20275,6 +20275,90 @@
       },
       "readDiagnostics": [],
       "_hash": "48e97fc13420bc4922fc8e14151c66efad2e1f3ed9aac91b703a27e92e3141d3"
+    },
+    {
+      "id": "B-3f3d:RP-366",
+      "agent": "lattice-review-concept",
+      "note": "Incremental concept review of dc4e546 merge cleanup (HEAD 2af220c metadata-only). The only mass rename is five-migrated-reviewers -> six-migrated-reviewers; contract sources plus grep show zero residual five-migrated-reviewer prose. Remaining five-counts are different live concepts (five active REVIEW lanes excluding topology-critic; Story 6 five migrated complex roles). Duplicate artifact:review-inventory-epochs.json was merged, not deleted: one L4 entry remains and now also names certification_window_begin / not-PRE_CERT. English-authoring and kind-aware fresh-PASS / latest-FINDING text were restored, not retired. PATH -lc->-c and inventory fixture stubs add implementation, not a deleted concept. No concept-cleanup blocker.",
+      "createdAt": "2026-08-19T13:26:54.826Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-580",
+      "envelopeId": "b7dbf5345d3c241d6eb32346187590c42cf02432d26861f45513278b6b0abc61",
+      "writerSessionId": "sess-9590815b0e46672d",
+      "sessionSource": "derived-ppid",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3f3d/background.md",
+          ".lattice/story/actives/B-3f3d/plan.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/guide-scope-guard.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/init-assets.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/dev-memory-lifecycle-gates-smoke.ts",
+          "packages/main/src/tasks/global-agents-init-smoke.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "f29b891d32f211e27c0a4933720f88f96398603e570f6c2de7bafc849787b0f7"
+      },
+      "readDiagnostics": [],
+      "_hash": "995e9c4e8425b8d93d37669949cd948ae77d775c1828d041cd87eb730756befe"
     }
   ]
 }
