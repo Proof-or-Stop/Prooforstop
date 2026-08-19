@@ -1,0 +1,658 @@
+{
+  "passes": [
+    {
+      "id": "B-16df:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "git diff main...HEAD --stat and full source diff reviewed (checklist.ts, validate-command-timeout-smoke.ts). No concept word/mechanism was deleted or replaced en masse: purely additive change (new exported helper resolvePinnedCommandTimeoutMs, 2 new imports, timeoutMs threaded into the 4 existing runSingleAllowlistedCommand call sites, new smoke sections 6a/6b/7/8). No identifier/type/field/doc concept was removed or renamed, so there is no residue class to grep for. Independently confirmed npm --prefix packages/main run build clean and the smoke passes 27 assertions; swapping in mains unfixed checklist.ts + rebuild reproduced RED (resolvePinnedCommandTimeoutMs export missing), restoring the fix + rebuild returned to GREEN. validation-executor.ts and verifier.ts byte-for-byte unmodified per diff --stat. No blocker for this reviewer lane.",
+      "createdAt": "2026-08-14T12:30:30.403Z",
+      "reviewRound": "2026-08-14T12:21:00.555Z",
+      "reviewRunId": "B-16df:RR-003",
+      "envelopeId": "60606873e4f1295ab7ea19215b2cf307422ad2cc7c213c14c8363cfa21e7321a",
+      "writerSessionId": "sess-c9750d86fa0ba339c153ae54b3bb06f6",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-16df/background.md",
+          ".lattice/story/actives/B-16df/checklist.json",
+          ".lattice/story/actives/B-16df/plan.md",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-16df/red-evidence.json",
+          ".lattice/story/actives/B-16df/review.json",
+          ".lattice/story/actives/B-16df/scope-check.json",
+          ".lattice/story/actives/B-16df/scope-contract.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "83bb958fbdf40929f792a2a5f17dc240c8eb9b90c06b4718bad73b7201ec040f"
+    },
+    {
+      "id": "B-16df:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Round 2: full diff since round-1 pass. Only additive changes since then (sections 9-14 in validate-command-timeout-smoke.ts, now 40 assertions, closing coverage gaps from test-coverage reviewer). No concept word deleted/replaced en masse this round or cumulatively - resolvePinnedCommandTimeoutMs is a wholly new export (single declaration, exactly 4 call sites, verified via grep), no renames, no removed functions/fields. checklist.ts diff unchanged from round 1 (already reviewed clean). Doc-promise self-check: new JSDoc block in validate-command-timeout-smoke.ts (sections 12-14 claims re REPO_ROOT, byte-for-byte diff check, 4-call-site count, MAX_NODE_TIMER_DELAY_MS clamp) cross-checked against the actual new code - all delivered, nothing promised-but-missing. No README/CLAUDE.md/handler-schema/ENV changes in this diff. Wave-4 acceptance-topology chain not touched by this story diff (only checklist.ts + validate-command-timeout-smoke.ts + story metadata changed) so not applicable this round.",
+      "createdAt": "2026-08-14T13:02:19.602Z",
+      "reviewRound": "2026-08-14T12:59:33.229Z",
+      "reviewRunId": "B-16df:RR-004",
+      "envelopeId": "f33340d85e7e20fcef851a50a11ac12955b44b3c503ce5274d4bdb8c9068cc70",
+      "writerSessionId": "sess-c9750d86fa0ba339c153ae54b3bb06f6",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-16df/background.md",
+          ".lattice/story/actives/B-16df/checklist.json",
+          ".lattice/story/actives/B-16df/plan.md",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-16df/acceptance-basis.json",
+          ".lattice/story/actives/B-16df/decision.json",
+          ".lattice/story/actives/B-16df/findings.json",
+          ".lattice/story/actives/B-16df/index.json",
+          ".lattice/story/actives/B-16df/intent-collision.json",
+          ".lattice/story/actives/B-16df/original-intent-snapshot.json",
+          ".lattice/story/actives/B-16df/process-events.jsonl",
+          ".lattice/story/actives/B-16df/process-metrics.json",
+          ".lattice/story/actives/B-16df/prompt-envelopes.json",
+          ".lattice/story/actives/B-16df/proofstory.json",
+          ".lattice/story/actives/B-16df/red-evidence.json",
+          ".lattice/story/actives/B-16df/review-passes.json",
+          ".lattice/story/actives/B-16df/review-runs.json",
+          ".lattice/story/actives/B-16df/review.json",
+          ".lattice/story/actives/B-16df/scope-check.json",
+          ".lattice/story/actives/B-16df/scope-contract.json",
+          ".lattice/story/actives/B-16df/understanding.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "14ab8d39077ad456faf2a59436d384cba20f05238e646d4c0015f1ba001d54ca"
+    },
+    {
+      "id": "B-16df:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Round 3: full diff since round-2 pass, following the post-97b03047c0 rework that closed F-001/F-006/F-007/F-008 (temp-dir cleanup, broken try/catch swallowing a real assertion, brittle exact-string check, fixtures not exercising the claimed code path); smoke now 45 assertions. checklist.ts diff unchanged from prior rounds (already reviewed clean): purely additive new export resolvePinnedCommandTimeoutMs plus a timeoutMs option threaded into 4 pre-existing runSingleAllowlistedCommand call sites - no identifier/concept renamed or removed. validate-command-timeout-smoke.ts vs round-2 state: only the 3 removed lines are pure docstring rewording of the same pre-existing concepts (process-group kill, hermetic tmp-dir isolation, lattice.config.json validate.commands registration), immediately re-expressed with more detail in the same docstring block; all other changes are additive (rmSync-in-try/finally cleanup, unguarded diff-content assertion moved outside the environment-only try/catch, regex-tolerant call-site count check, real dynamic-import fixture wiring). No concept deletion/replacement in this round; concept residue check completed, no blocker.",
+      "createdAt": "2026-08-14T13:30:01.613Z",
+      "reviewRound": "2026-08-14T13:26:11.912Z",
+      "reviewRunId": "B-16df:RR-010",
+      "envelopeId": "e2fd72b844f910827143d393a322c6025807ad7837e48594e61166e0d4651633",
+      "writerSessionId": "sess-c9750d86fa0ba339c153ae54b3bb06f6",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-16df/background.md",
+          ".lattice/story/actives/B-16df/checklist.json",
+          ".lattice/story/actives/B-16df/plan.md",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "1b17a6af7e93cd38550b066e9172f00730047b5a9cc2072e1e97bb542034bb05"
+    },
+    {
+      "id": "B-16df:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Round-3 quality review. Independently re-verified F-001/F-006/F-007 fixes by live reproduction (not by trusting commit msg): (1) F-001 - built+ran smoke, temp-dir count under os.tmpdir() unchanged before/after a run (483->483), confirming all 9 mkdtempSync calls are cleaned via try/finally rmSync; 483 pre-existing leaked dirs all predate the fix. (2) F-006 - appended a real modification to validation-executor.ts, rebuilt, reran smoke: it now FAILS loudly (exit 1, FAIL: byte-for-byte-unmodified assertion) instead of soft-skipping, because check() now runs outside the execSync try/catch; reverted+rebuilt, smoke passes again (45 assertions). (3) F-007 - reformatted whitespace in all 4 checklist.ts call sites, rebuilt: smoke still passes (whitespace-tolerant regex), proving it is no longer a rigid literal-substring match; reverted+rebuilt clean. No new quality findings: no dead code, no unnecessary any/unsafe casts, no empty-catch swallowing beyond the documented/narrow execSync-only soft-skip guard, no circular import (verifier.ts/validation-executor.ts do not import checklist.ts), tsc --noEmit clean, git tree clean after experiments. Proof-metadata review coverage rule not applicable (no job/run.metadata touched).",
+      "createdAt": "2026-08-14T13:34:46.633Z",
+      "reviewRound": "2026-08-14T13:26:11.912Z",
+      "reviewRunId": "B-16df:RR-009",
+      "envelopeId": "0fa8fb5e22d006137cf5916a0b3b51be60639c157995fef3c4119454fe609e81",
+      "writerSessionId": "sess-c9750d86fa0ba339c153ae54b3bb06f6",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-16df/background.md",
+          ".lattice/story/actives/B-16df/checklist.json",
+          ".lattice/story/actives/B-16df/findings.json",
+          ".lattice/story/actives/B-16df/plan.md",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "d21ef7144a116a3e9bb7b8c55fa1e0dd0e9d8bd103d8d5d035c221139a60030f"
+    },
+    {
+      "id": "B-16df:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-4 confirmation pass: re-read checklist.json and verified all 5 previously-truncated waiver notes (F-009: CHK-001:happy:0/1/2, CHK-002:E-005, CHK-002:A-004) are now complete, non-truncated sentences ending in proper punctuation (lengths 429/471/477/391/574, none near the 899-900 char cutoff). Scanned all 32 waiver notes in the checklist for any similar truncation pattern; none found. No code changed since round 3 (only .lattice metadata touched at head b885510). F-008 fix (sections 9/15/16) and remainder of coverage previously confirmed correct in rounds 2-3 stand unchanged. No blocker.",
+      "createdAt": "2026-08-14T13:37:45.348Z",
+      "reviewRound": "2026-08-14T13:26:11.912Z",
+      "reviewRunId": "B-16df:RR-011",
+      "envelopeId": "8cef5d46de59b9af6c5d16e2bb5364a88ab72f4bff6ad50d49d321ca4c088e66",
+      "writerSessionId": "sess-c9750d86fa0ba339c153ae54b3bb06f6",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-16df/checklist.json"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-16df/background.md",
+          ".lattice/story/actives/B-16df/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0c8a3fc2662982250eeb9daae334d029a6013986a119ac045a503b447c25a842"
+    },
+    {
+      "id": "B-16df:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Fresh full-diff pass vs main (round 5, prior RP-003 invalidated by post-round hash drift from finding_resolve + waiver-note commits). Full diff is two source files: packages/main/src/handlers/checklist.ts (adds resolvePinnedCommandTimeoutMs helper + threads timeoutMs into 4 existing runSingleAllowlistedCommand call sites) and packages/main/src/tasks/validate-command-timeout-smoke.ts (adds regression coverage, sections 6-16). No concept was deleted or replaced: the change is purely additive (new exported helper + new imports of already-existing configuredValidationCommands/parseAllowlistedCommand), no renamed/removed identifiers, no deleted types or enum values. grep scan for concept residue not applicable (nothing deleted). All 9 prior findings (F-001..F-009) verified resolved. Template Wave 4 concept-boundary line (acceptance_topology_check chain) is out of scope for this diff: git diff --stat confirms no source file in that chain is touched by this change.",
+      "createdAt": "2026-08-14T13:41:23.066Z",
+      "reviewRound": "2026-08-14T13:26:11.912Z",
+      "reviewRunId": "B-16df:RR-012",
+      "envelopeId": "7dc72cc0844bdfa05413d1ee779ad698130938ac61f013a4b9bd601022050a1c",
+      "writerSessionId": "sess-c9750d86fa0ba339c153ae54b3bb06f6",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-16df/background.md",
+          ".lattice/story/actives/B-16df/plan.md",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-16df/checklist.json",
+          ".lattice/story/actives/B-16df/findings.json",
+          ".lattice/story/actives/B-16df/index.json",
+          ".lattice/story/actives/B-16df/review-runs.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a9d0cf19b0f05ae08fb61c028e20e4c1f007a753708b3fa5284ceb134ceacc47"
+    },
+    {
+      "id": "B-16df:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "Incremental round-5 confirmation pass (prior pass RP-004/RR-009 stale only due to F-009 resolving after it). No source code changed since RP-004: git diff RP-004-commit(427f1fa978)..HEAD touches only .lattice metadata (checklist.json waiver-note text + findings.json resolutions), confirmed via git diff --stat -- . \":!.lattice\" (empty). Re-ran npm --prefix packages/main run build (clean) and node packages/main/dist/tasks/validate-command-timeout-smoke.js (45 assertions, exit 0) to confirm the implementation still holds with zero drift. Independently re-verified F-009s fix: programmatically scanned all 32 waiver notes in checklist.json for the truncation signature (length>=895 or non-terminal last char) - zero matches; printed the 5 specific notes F-009 flagged (CHK-001:happy:0/1/2, CHK-002:E-005/A-004) in full and confirmed each is a complete, properly-punctuated sentence (429/471/477/391/574 chars respectively), matching the resolvedReason claim exactly. Findings.json: all 9 findings (F-001..F-009) status=resolved with resolvedReason/resolvedAt/resolutionType/resolveEvidenceStrength=strong populated; resolutionType correctly splits fixed (F-001,F-003,F-004,F-006,F-007,F-008,F-009) vs accepted_risk (F-002,F-005 - inherently pin-unsatisfiable red-state/text-drift claims). Spot-verified the accepted_risk framings honesty claim (deferred_gate_evidence waivers still block DONE) directly in source: packages/main/src/core/proofstory.ts:847 `if (row.waiverType === deferred_gate_evidence) return false;` - confirms these waivers cannot silently satisfy DONE-gate evidence, consistent with F-002/F-005s resolvedReason. Re-read the full checklist.ts vs main diff (29 insertions/8 deletions) - resolvePinnedCommandTimeoutMs exported, all 4 call sites threaded, validation-executor.ts/verifier.ts untouched (confirmed via diff --stat vs merge-base) - matches plan.md exactly, no dead code/unsafe casts/empty-catch swallowing beyond the now-fixed narrow execSync-only soft-skip guard (F-006). No new quality issues found. No blocker.",
+      "createdAt": "2026-08-14T13:43:09.495Z",
+      "reviewRound": "2026-08-14T13:26:11.912Z",
+      "reviewRunId": "B-16df:RR-013",
+      "envelopeId": "93965d2596798de128f20a29c23270ad56abbe79d5cb32a8071149362344d1a7",
+      "writerSessionId": "sess-c9750d86fa0ba339c153ae54b3bb06f6",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-16df/background.md",
+          ".lattice/story/actives/B-16df/checklist.json",
+          ".lattice/story/actives/B-16df/findings.json",
+          ".lattice/story/actives/B-16df/plan.md",
+          ".lattice/story/actives/B-16df/review-passes.json",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6d7d24de61cca1308219a10c5226ea80a196eb6b635eb2968ed6f91792a5e5b5"
+    },
+    {
+      "id": "B-16df:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "Story-level concept-deletion review, round RR-014. Confirmed via git diff (fa4e0f1def..HEAD) that no source code changed this round: packages/main/src/handlers/checklist.ts and packages/main/src/tasks/validate-command-timeout-smoke.ts are byte-identical to the last passing round. This round is metadata-only: (1) CHK-004 added (test-only smoke re-assertion, no files created/modified), and (2) proofstory.json verificationIntentRefs corrected from a dangling ref CHK-002:happy:0 (CHK-002 happy[0] actually carries custom id H-001, not the auto CHK-002:happy:0 pattern) to the valid CHK-004:happy:0. Reviewed full story diff vs main for checklist.ts and validate-command-timeout-smoke.ts: both are purely additive (new resolvePinnedCommandTimeoutMs export, new imports threaded into 4 existing runSingleAllowlistedCommand call sites; additive docstring) with no concept word deleted, renamed, or replaced en masse. Grepped B-16df story files for the corrected dangling ref CHK-002:happy:0; sole remaining hit (red-evidence.json:53) is an explanatory historical note about the fix itself, not a live dangling pointer. No concept deletion/replacement this round; concept residue check completed, no blocker.",
+      "createdAt": "2026-08-15T10:32:13.859Z",
+      "reviewRound": "2026-08-15T10:29:18.440Z",
+      "reviewRunId": "B-16df:RR-014",
+      "envelopeId": "7360fd17f07db4871c3fc4938fcd62d219eb8d6e33ea8aaf7f6447d567ea70c9",
+      "writerSessionId": "sess-c9750d86fa0ba339c153ae54b3bb06f6",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-16df/background.md",
+          ".lattice/story/actives/B-16df/checklist.json",
+          ".lattice/story/actives/B-16df/plan.md",
+          ".lattice/story/actives/B-16df/proofstory.json",
+          ".lattice/story/actives/B-16df/red-evidence.json",
+          "packages/main/src/handlers/checklist.ts (diff main...HEAD)",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts (diff main...HEAD)"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-16df/acceptance-basis.json",
+          ".lattice/story/actives/B-16df/closeout-write-receipts.jsonl",
+          ".lattice/story/actives/B-16df/decision.json",
+          ".lattice/story/actives/B-16df/findings.json",
+          ".lattice/story/actives/B-16df/index.json",
+          ".lattice/story/actives/B-16df/intent-collision.json",
+          ".lattice/story/actives/B-16df/original-intent-snapshot.json",
+          ".lattice/story/actives/B-16df/process-events.jsonl",
+          ".lattice/story/actives/B-16df/process-metrics.json",
+          ".lattice/story/actives/B-16df/prompt-envelopes.json",
+          ".lattice/story/actives/B-16df/review-passes.json",
+          ".lattice/story/actives/B-16df/review-runs.json",
+          ".lattice/story/actives/B-16df/review.json",
+          ".lattice/story/actives/B-16df/scope-check.json",
+          ".lattice/story/actives/B-16df/scope-contract.json",
+          ".lattice/story/actives/B-16df/test-evidence.json",
+          ".lattice/story/actives/B-16df/understanding.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2ada429b9d6d823d2fe95c45fb8e25bb3f20283fb16cb371b0ab87bb033c54d1"
+    },
+    {
+      "id": "B-16df:RP-009",
+      "agent": "lattice-review-quality",
+      "note": "Round-6 confirmation pass. No source code changed since RP-007/RR-013 (head d66e6be9): git diff --stat d66e6be9..b84379b9 -- . \":!.lattice\" is empty. This round only adds CHK-004 (a metadata-only checklist item recording a fresh mechanical evidence receipt with a stable non-count-embedding selector 'validate-command-timeout smoke passed:' for ProofStory acceptance binding AB-001) and corrects proofstory.json verificationIntentRefs to [CHK-004:happy:0]. Independently rebuilt (npm --prefix packages/main run build, clean) and re-ran node packages/main/dist/tasks/validate-command-timeout-smoke.js: exit 0, 45 assertions, output sha256 1f6fd0ecd6493659ffbbba7a35f3e5811009cab4ef61a7ccdd37f2e482646ec2 - byte-identical to the outputDigest recorded in checklist.json CHK-004 verificationEvidence receipt, confirming the CHK-004:happy:0 mechanical receipt is genuine and reproducible, not fabricated. Verified the receipt shape ({exitCode,outputDigest,outputTail,selectorMatched,executedAt}) matches enforceAndStampEvidence's own stamping logic (checklist.ts:680-687) and that kind:cli is the standard alias persisted as manual_transcript (confirmed via field-regression-cli-smoke.ts:1608-1629), so CHK-004's evidence kind is not anomalous. Re-confirmed all 9 prior findings F-001..F-009 remain status=resolved in findings.json (7 fixed, 2 accepted_risk for inherently pin-unsatisfiable claims). Re-read the checklist.ts vs main diff (resolvePinnedCommandTimeoutMs export + 4 threaded call sites) and validate-command-timeout-smoke.ts - matches plan.md CHK-002 exactly, no dead code, no unsafe casts, no empty-catch swallowing, validation-executor.ts/verifier.ts untouched. No doc-promise-undelivered items (CHK-004's userSees claim was independently reproduced). No new quality issues found. No blocker.",
+      "createdAt": "2026-08-15T10:32:39.352Z",
+      "reviewRound": "2026-08-15T10:29:18.440Z",
+      "reviewRunId": "B-16df:RR-016",
+      "envelopeId": "51c1a1e4f8bb2e26a1c22d2d12d21fb994a5e7187794118771551ad6ae7b6dc6",
+      "writerSessionId": "sess-c9750d86fa0ba339c153ae54b3bb06f6",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-16df/background.md",
+          ".lattice/story/actives/B-16df/checklist.json",
+          ".lattice/story/actives/B-16df/findings.json",
+          ".lattice/story/actives/B-16df/index.json",
+          ".lattice/story/actives/B-16df/plan.md",
+          ".lattice/story/actives/B-16df/proofstory.json",
+          ".lattice/story/actives/B-16df/red-evidence.json",
+          ".lattice/story/actives/B-16df/review-passes.json",
+          ".lattice/story/actives/B-16df/review-runs.json",
+          ".lattice/story/actives/B-16df/scope-boundary.json",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0d9d3da36de94834038ebdef11d822ccf6d656bf97744a83ebc20f587e7a36e7"
+    },
+    {
+      "id": "B-16df:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: CHK-004:happy:0 mechanical receipt independently re-verified (reran node packages/main/dist/tasks/validate-command-timeout-smoke.js myself: exit 0, output digest sha256:1f6fd0ecd6493659ffbbba7a35f3e5811009cab4ef61a7ccdd37f2e482646ec2 byte-identical to the stored receipt; kind=manual_transcript/alias-cli with mechanical:true which checklist.ts only mints via actual tool execution matching the pinned selector, not caller-injectable). AB-001 verificationIntentRefs now correctly point at CHK-004:happy:0 instead of the permanently pin-locked CHK-001/002/003 refs. CHK-004 has only a happy intent (no edge/adversarial) but this is a reasonable design, not a coverage gap: the smoke script is one linear check()-chain wrapped in a single try/catch (validate-command-timeout-smoke.ts:79-561) so ANY of the 45 assertions failing anywhere in sections 1-16 (including all of CHK-001/002/003s existing edge/adversarial coverage of matching, disambiguation, TOCTOU, clamping, unmatched-default fallthrough, etc.) throws and suppresses the passed: N assertions line CHK-004s selector depends on. CHK-004 is a metadata/acceptance-anchor item (added in PLAN, not slipped into REVIEW, per checklist.json auditLog) transitively gated by the full existing battery, not a new untested behavior needing its own edge/adversarial columns. Verified CHK-001-009 findings are all status=resolved, no source code changed this round (git status clean except lifecycle metadata; materialHash bd782343e68... matches both the CHK-004 receipt and the current dispatch context), and npm --prefix packages/main run build exits 0 with no diff. No blocker.",
+      "createdAt": "2026-08-15T10:33:46.243Z",
+      "reviewRound": "2026-08-15T10:29:18.440Z",
+      "reviewRunId": "B-16df:RR-015",
+      "envelopeId": "000f0fbf60177eb29806458906100af235abd081a08f7edbf4707c4708dafde5",
+      "writerSessionId": "sess-c9750d86fa0ba339c153ae54b3bb06f6",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-16df/acceptance-basis.json",
+          ".lattice/story/actives/B-16df/checklist.json",
+          ".lattice/story/actives/B-16df/findings.json",
+          ".lattice/story/actives/B-16df/proofstory.json",
+          ".lattice/story/actives/B-16df/review-passes.json",
+          ".lattice/story/actives/B-16df/review-runs.json",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-16df/background.md",
+          ".lattice/story/actives/B-16df/plan.md",
+          ".lattice/story/actives/B-16df/red-evidence.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "bdac16f3b70d701a7feaa51882a1c70ea369f07326aecbcbf1041e26ac41a039"
+    },
+    {
+      "id": "B-16df:RP-011",
+      "agent": "lattice-review-quality",
+      "note": "Round-7 confirmation pass. No source code changed since RP-006/RR-016 (head b84379b9): git diff b84379b9..89a50d23 --stat confirms only .lattice metadata files touched (checklist.json, review-runs.json, review-passes.json, prompt-envelopes.json, test-evidence.json, process-events.jsonl, process-metrics.json, closeout-write-receipts.jsonl, index.json) - packages/main/src/handlers/checklist.ts and packages/main/src/tasks/validate-command-timeout-smoke.ts are byte-identical to the RR-016 pass (git diff 68cc40ce..HEAD on those two files is empty). This round reworked CHK-001/CHK-002 verificationIntent text (rephrasing stale pre-fix framing to accurately describe the current 6a/6b section structure - cross-checked against actual source: grep for section 6a/6b/resolvePinnedCommandTimeoutMs in validate-command-timeout-smoke.ts matches the reworded intent text) and re-pinned 32 verificationEvidence entries with a stable selector (validate-command-timeout smoke passed: - no embedded assertion count, so it will not go stale as coverage grows). Independently rebuilt (npm --prefix packages/utils run build then npm --prefix packages/main run build, both exit 0) and reran the smoke myself: node packages/main/dist/tasks/validate-command-timeout-smoke.js prints 'validate-command-timeout smoke passed: 45 assertions' and exits 0, matching every receipt.outputTail/outputDigest (1f6fd0ec...) recorded in this round's re-pinned evidence. Verified 33/34 verificationEvidence entries have mechanical:true; the sole exception is CHK-001:adversarial:4 (kind=docs_check, a claim about NOT adding a project-root lattice.config.json entry - correctly left as a non-mechanical doc claim). Verified the 3 distinct headHash values referenced across evidence entries (68cc40ce, cc9aa305, fa4e0f1d) are all ancestors of current HEAD. No CLAUDE.md/README changes in this diff, so no doc-promise-undelivered risk. checklist.ts diff vs main (the 4 call sites threading resolvePinnedCommandTimeoutMs + the new exported helper) is unchanged from the RR-009/RR-013/RR-016 quality passes: no dead code, no unsafe any-casts, no swallowed-error catch blocks, no I/O-shell-isolation violation. No blockers found this round.",
+      "createdAt": "2026-08-15T11:04:20.300Z",
+      "reviewRound": "2026-08-15T11:00:58.353Z",
+      "reviewRunId": "B-16df:RR-018",
+      "envelopeId": "fbbde02dbb12e9890744d4a66115d3f8bf336c43c824135167408cfc3daa65a9",
+      "writerSessionId": "sess-c9750d86fa0ba339c153ae54b3bb06f6",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-16df/checklist.json",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-16df/background.md",
+          ".lattice/story/actives/B-16df/plan.md",
+          ".lattice/story/actives/B-16df/review-passes.json",
+          ".lattice/story/actives/B-16df/review-runs.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "942fcbe6af4266ef35541479cf39bc3dd846440c2a5b207396ca2ba5f71800af"
+    },
+    {
+      "id": "B-16df:RP-012",
+      "agent": "lattice-review-concept",
+      "note": "Story-level concept-deletion review, round RR-017. git diff b84379b9aa..89a50d2321 (this round vs prior RR-014/015/016 head) touches ONLY checklist.json plus lattice bookkeeping files - checklist.ts and validate-command-timeout-smoke.ts are byte-for-byte unchanged this round, confirmed by diff. No code concept was deleted or replaced this round. checklist.json edit is a text-only rewrite of CHK-001/CHK-002 verificationIntent desc strings (previously RED/pre-fix current-main framing for CHK-001:happy:2/edge:2/adversarial:2, already flagged/resolved as F-002 in an earlier round) to accurately describe the current section-6a/6b passing test structure, plus a selector swap on all 32 relevant verificationIntent pins from the permanently-stale count-embedding selector to a stable prefix selector with no count embedded. Verified: (1) grep confirms zero remaining count-embedding selectors in checklist.json verification blocks; (2) grep confirms 27-assertions string survives only in historical audit-trail waiver/finding notes explaining why the OLD pin became unsatisfiable - legitimate history, not residue of a deleted code concept; (3) built packages/main+utils and ran the smoke directly: exits 0, prints validate-command-timeout smoke passed: 45 assertions, matching the outputTail embedded in this rounds freshly-pinned mechanical:true receipts, confirming the new selector genuinely matches live runtime output; (4) full-story diff for the two source files remains purely additive with no identifier/type/field/doc concept removed or renamed, consistent with RR-012/RR-014 prior concept-review passes on this same code. No blocker for this reviewer lane.",
+      "createdAt": "2026-08-15T11:04:39.367Z",
+      "reviewRound": "2026-08-15T11:00:58.353Z",
+      "reviewRunId": "B-16df:RR-017",
+      "envelopeId": "e9018298bd5dde5569f9980dbbc520e8194a258f7d40efef0e3d430722da767a",
+      "writerSessionId": "sess-c9750d86fa0ba339c153ae54b3bb06f6",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-16df/background.md",
+          ".lattice/story/actives/B-16df/checklist.json",
+          ".lattice/story/actives/B-16df/findings.json",
+          ".lattice/story/actives/B-16df/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-16df/review-passes.json",
+          ".lattice/story/actives/B-16df/review-runs.json",
+          ".lattice/story/actives/B-16df/test-evidence.json",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3ded4c4b0205c4d60c6c8559efc5e9b50e5c22601389bf2ac4939d8465023ce9"
+    },
+    {
+      "id": "B-16df:RP-013",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage review passed: all 34 verificationIntent items across CHK-001/002/003/004 have exactly one bound verificationEvidence entry each (0 missing, 0 orphaned refs, 0 fail results, 0 kind:waiver). 33/34 are mechanical:true; independently rebuilt (npm run build) and re-ran node packages/main/dist/tasks/validate-command-timeout-smoke.js myself, reproducing the identical outputDigest 1f6fd0ec... (45 assertions, exit 0) recorded in every mechanical receipt. Spot-verified the 5 rewritten intent texts (CHK-001:happy:1/happy:2/edge:2/adversarial:2, CHK-002:A-004) against current source: section 6a/6b exist exactly as newly described, and red-evidence.json genuinely records the claimed pre-fix baseline (head ce9f57f, timedOut=false). The sole remaining mechanical:false item (CHK-001:adversarial:4, docs_check, result:pass) is a legitimate non-runtime claim (no new lattice.config.json entry added), independently confirmed via git diff main -- lattice.config.json. No dishonest overclaiming found.",
+      "createdAt": "2026-08-15T11:09:33.416Z",
+      "reviewRound": "2026-08-15T11:00:58.353Z",
+      "reviewRunId": "B-16df:RR-019",
+      "envelopeId": "e1f4bfd089d20afb0a9483748a0c1978f7a304207108a2616c22e5ae489f06bc",
+      "writerSessionId": "sess-c9750d86fa0ba339c153ae54b3bb06f6",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-16df/background.md",
+          ".lattice/story/actives/B-16df/checklist.json",
+          ".lattice/story/actives/B-16df/findings.json",
+          ".lattice/story/actives/B-16df/plan.md",
+          ".lattice/story/actives/B-16df/red-evidence.json"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-16df/proofstory.json",
+          ".lattice/story/actives/B-16df/test-evidence.json",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "86537162a5fb09f369b5a7a85ca5c3dc31c24e84e1983802b23fa19be681bbbb"
+    },
+    {
+      "id": "B-16df:RP-014",
+      "agent": "lattice-review-quality",
+      "note": "Round re-anchor pass (REVIEW->DEV->REVIEW bounce, no code touched, done_prepare convergence-invariant reset). git diff main...HEAD --name-only confirms only 2 source files changed: packages/main/src/handlers/checklist.ts (resolvePinnedCommandTimeoutMs helper + 4 call sites threading configured timeoutMs) and packages/main/src/tasks/validate-command-timeout-smoke.ts (16 sections, 45 assertions). Both are byte-identical to the RR-016/RR-018 quality-passed state (confirmed via git diff on those two paths against the prior reviewed head, empty). Rebuilt from scratch (rm -rf packages/main/dist; npm --prefix packages/main run build, exit 0) and ran node packages/main/dist/tasks/validate-command-timeout-smoke.js myself: prints validate-command-timeout smoke passed: 45 assertions, exit 0, matching every mechanical receipt outputTail/outputDigest already pinned in checklist.json. Confirmed HEAD is caught up with main via git merge-base --is-ancestor origin/main HEAD (two additional main merges since the last pass are already incorporated, worktree fully synced). Quality checks: (1) Dead code - none; checklistMod/verifierMod declared any and reused across sections is intentional (dynamic import required so the file compiles before CHK-002 adds the export, per plan.md CHK-001 CORRECTION), no unused imports/functions. (2) Type safety - no unnecessary as-any; the one try/catch (execSync git-diff call, smoke lines 381-388) only soft-skips execSync environment failures via console.warn, the check() content assertion runs unguarded outside the try (F-006 fix verified still in place, re-read source directly). (3) I/O shell isolation - N/A, task script. (4) Proof metadata review coverage - N/A, diff does not touch job/run metadata semantics. No CLAUDE.md/README changes in this diff (git diff origin/main...HEAD --stat shows no doc files), so no doc-promise-undelivered risk. All 9 prior findings (F-001..F-009) remain resolved (findings.json). No blockers this round.",
+      "createdAt": "2026-08-16T16:06:45.268Z",
+      "reviewRound": "2026-08-16T16:03:13.155Z",
+      "reviewRunId": "B-16df:RR-020",
+      "envelopeId": "963a7c88bdbc03b394e8c045cd912d63979a34bbf9dad262923221e11d64f409",
+      "writerSessionId": "sess-c9750d86fa0ba339c153ae54b3bb06f6",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-16df/background.md",
+          ".lattice/story/actives/B-16df/checklist.json",
+          ".lattice/story/actives/B-16df/findings.json",
+          ".lattice/story/actives/B-16df/plan.md",
+          ".lattice/story/actives/B-16df/red-evidence.json",
+          ".lattice/story/actives/B-16df/review-passes.json",
+          ".lattice/story/actives/B-16df/scope-boundary.json",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-16df/acceptance-basis.json",
+          ".lattice/story/actives/B-16df/index.json",
+          ".lattice/story/actives/B-16df/process-events.jsonl",
+          ".lattice/story/actives/B-16df/review-runs.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "bce225d9293e1087136a47c64f446ee6168e1c8b873760d0207172a75867e3f9"
+    },
+    {
+      "id": "B-16df:RP-015",
+      "agent": "lattice-review-test-coverage",
+      "note": "Mechanical re-anchor pass (REVIEW->DEV->REVIEW bounce, no code touched; two more main merges caught up). Independently re-verified rather than trusting the prior pass: rebuilt packages/main (npm --prefix packages/main run build, exit 0) and re-ran node packages/main/dist/tasks/validate-command-timeout-smoke.js myself -> validate-command-timeout smoke passed: 45 assertions, matching the outputDigest 1f6fd0ec... recorded in every mechanical receipt. Programmatically recomputed checklist.json coverage: 34 verificationIntent items across CHK-001/002/003/004, exactly 34 verificationEvidence entries, 0 missing refs, 0 orphaned refs, all result:pass, 33/34 mechanical:true and exactly 1 mechanical:false (CHK-001:adversarial:4, kind:docs_check, attesting no new lattice.config.json entry was added -- a legitimate non-runtime claim, confirmed by inspection that the smoke writes its temp config only under os.tmpdir()). Confirmed via git diff main...HEAD --stat that this story only materially changes packages/main/src/handlers/checklist.ts and packages/main/src/tasks/validate-command-timeout-smoke.ts; validation-executor.ts and verifier.ts carry only unrelated upstream changes picked up by the two new main merges (a withValidationExecutionLock to withOfficialValidationExecution refactor), never touched by this story, matching CHK-002 excludes. Read the checklist.ts diff directly: resolvePinnedCommandTimeoutMs is declared exactly once and all 4 runSingleAllowlistedCommand call sites (verification_evidence_add, batch_add, verification_run, its refresh loop) now pass timeoutMs: resolvePinnedCommandTimeoutMs(root, command), matching the plan CHK-002 design and H-002. Confirmed checklist.json and both source files are byte-identical (git diff, 0 lines) between the last checklist-content commit (d2cd02d40c, 2026-08-15T11:42 UTC) and current HEAD, across both intervening main-merge commits -- this really is a pure re-anchor, not silent drift. Confirmed 0 open findings in findings.json (all 9 prior findings resolved) and story HEAD is a descendant of the fetched main tip. No blocker for this reviewer lane; coverage remains complete and accurate.",
+      "createdAt": "2026-08-16T16:07:58.891Z",
+      "reviewRound": "2026-08-16T16:03:13.155Z",
+      "reviewRunId": "B-16df:RR-021",
+      "envelopeId": "84faedd92a4c0685d19ef8231069c4c45cf20d9999e0abbfb2b49dd9a09a30cd",
+      "writerSessionId": "sess-c9750d86fa0ba339c153ae54b3bb06f6",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-16df/background.md",
+          ".lattice/story/actives/B-16df/checklist.json",
+          ".lattice/story/actives/B-16df/findings.json",
+          ".lattice/story/actives/B-16df/plan.md",
+          ".lattice/story/actives/B-16df/red-evidence.json"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-16df/review-passes.json",
+          ".lattice/story/actives/B-16df/scope-boundary.json",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7cf8841d14c19647c15f7afa9ff5320ff426bc39f84b959fc48f292001a402d2"
+    },
+    {
+      "id": "B-16df:RP-016",
+      "agent": "lattice-review-concept",
+      "note": "Fresh full-diff pass vs main (main fully caught up, 0 behind, confirmed ancestor). Diff vs main is purely additive: checklist.ts (+29/-8) adds one exported resolvePinnedCommandTimeoutMs helper and threads it into its 4 existing runSingleAllowlistedCommand call sites; validate-command-timeout-smoke.ts (+457/-1) adds new test sections 6-16. No concept word was deleted or replaced en masse, so per this role scope (concept-deletion-residue grep scan) there is nothing to grep for and no blocker. Closing doc-promise-undelivered self-check: no CLAUDE.md/README/schema/ENV additions in the diff. Independently rebuilt (npm run build exit 0) and reran the pinned smoke directly (validate-command-timeout-smoke.js: 45/45 assertions pass), matching CHK-004s pinned mechanical receipt at headHash fa4e0f1 which is an ancestor of current HEAD with zero further diff on the touched source files since. All 9 prior findings (F-001..F-009) remain resolved, 0 open.",
+      "createdAt": "2026-08-16T16:09:29.942Z",
+      "reviewRound": "2026-08-16T16:03:13.155Z",
+      "reviewRunId": "B-16df:RR-022",
+      "envelopeId": "927f888d53e1fda2cfd1430210be4b501998aa23c5047415976870cf9544bd6c",
+      "writerSessionId": "sess-c9750d86fa0ba339c153ae54b3bb06f6",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-16df/background.md",
+          ".lattice/story/actives/B-16df/plan.md",
+          "lattice.config.json",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-16df/checklist.json",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f6d0fc5f77c308068f80fac7b0cc0f7fbb01a99552986d208cf03a4f70ef463b"
+    },
+    {
+      "id": "B-16df:RP-017",
+      "agent": "lattice-review-test-coverage",
+      "note": "Rebind pass: verified 34/34 verificationIntent entries (CHK-001:12, CHK-002:13, CHK-003:8, CHK-004:1) have matching verificationEvidence intentRefs, 33/34 mechanical:true unchanged. Confirmed via git diff against last review_pass_set commit (edecca7182) that checklist.ts, validation-executor.ts, verifier.ts, validate-command-timeout-smoke.ts, and checklist.json are byte-for-byte unchanged - only story metadata (dev-memory, delivery-check, index, scope-contract) landed since. Rebuilt packages/utils and packages/main clean, re-ran node packages/main/dist/tasks/validate-command-timeout-smoke.js fresh: 45 assertions pass, matches recorded receipts. Spot-checked checklist.ts source: resolvePinnedCommandTimeoutMs exported and threaded into all 4 runSingleAllowlistedCommand call sites (lines 1576, 1667, 1798, 1877) exactly as CHK-002 claims. No blocker.",
+      "createdAt": "2026-08-16T21:48:12.937Z",
+      "reviewRound": "2026-08-16T21:45:28.540Z",
+      "reviewRunId": "B-16df:RR-023",
+      "envelopeId": "1fcd51ea2c34a94f70640a431d973801a37e785e2a649e13d885ab8bdb778efa",
+      "writerSessionId": "sess-c9750d86fa0ba339c153ae54b3bb06f6",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-16df/background.md",
+          ".lattice/story/actives/B-16df/checklist.json",
+          ".lattice/story/actives/B-16df/index.json",
+          ".lattice/story/actives/B-16df/plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3b19d075b1301002c3ca9cb0f15cbb129bbfc89b29c6d534957366f52a74cdde"
+    },
+    {
+      "id": "B-16df:RP-018",
+      "agent": "lattice-review-concept",
+      "note": "Rebind pass. git diff main...HEAD --stat -- packages/main/src shows only checklist.ts (+29/-8) and validate-command-timeout-smoke.ts (+457) changed, matching scope-contract allowedModify/allowedTest exactly - purely additive (new export resolvePinnedCommandTimeoutMs + 4 timeoutMs-threaded call sites + smoke coverage), no concept deletion/replacement/mass-rename, so no residual-reference grep applies. Independently confirmed no source drift since last content review 97b03047c0: checklist.ts, validate-command-timeout-smoke.ts, validation-executor.ts are byte-for-byte identical; verifier.ts differs only via unrelated main-merge collateral (withValidationExecutionLock->withOfficialValidationExecution rename inside the lattice-validate handler, B-1734 workspace-contention work) that never touches configuredValidationCommands (line 224), which resolvePinnedCommandTimeoutMs depends on - confirmed via git diff hunk line ranges. Rebuilt packages/main clean and re-ran node packages/main/dist/tasks/validate-command-timeout-smoke.js fresh: 45 assertions pass. No blocker.",
+      "createdAt": "2026-08-16T21:49:16.743Z",
+      "reviewRound": "2026-08-16T21:45:28.540Z",
+      "reviewRunId": "B-16df:RR-024",
+      "envelopeId": "e0a133f5e3cdf94c0dba3b272e71d78fcd66a69900edd68dcecf769b099c2979",
+      "writerSessionId": "sess-c9750d86fa0ba339c153ae54b3bb06f6",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-16df/background.md",
+          ".lattice/story/actives/B-16df/checklist.json",
+          ".lattice/story/actives/B-16df/plan.md",
+          ".lattice/story/actives/B-16df/scope-contract.json",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/validation-executor.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7553a1b7f7cdb0e21b42173edd5096946cf872b895c352da56cc9a9a523388aa"
+    },
+    {
+      "id": "B-16df:RP-019",
+      "agent": "lattice-review-quality",
+      "note": "Rebind pass: no source has changed since the last genuine content review (commit 97b03047c0). git diff 97b03047c0..HEAD -- packages/main/src/handlers/checklist.ts packages/main/src/tasks/validate-command-timeout-smoke.ts is empty (0 lines) -- byte-identical to the already-reviewed state across 6 prior REVIEW rounds (9 findings, all resolved+verified in findings.json). Only story metadata landed since then (dev-memory capture, finish-decision, scope acknowledgement, REVIEW-phase bookkeeping) -- confirmed via git show --stat on the intervening commits (d70bdef1, 2ea9a5e4, 5dbba140), each touching only .lattice/dev-memory/** and .lattice/story/actives/B-16df/** JSON/JSONL files. git diff main...HEAD --name-only confirms the only code files touched anywhere in the story branch remain the same two: packages/main/src/handlers/checklist.ts (+29/-8, the resolvePinnedCommandTimeoutMs helper + 4 threaded call sites) and packages/main/src/tasks/validate-command-timeout-smoke.ts (+457/-8, sections 6-16). Rebuilt from scratch myself (npm --prefix packages/main run build, exit 0, clean) and ran node packages/main/dist/tasks/validate-command-timeout-smoke.js myself: prints validate-command-timeout smoke passed: 45 assertions, exit 0 -- matches every mechanical receipt outputTail/outputDigest already pinned in checklist.json. Confirmed story branch is caught up with origin/main (git merge-base --is-ancestor origin/main HEAD => true; the local main ref is a stale/diverged pointer from unrelated worktree activity (B-1734 commits) and is not what git diff main...HEAD actually resolved against -- name-only output only lists B-16df-owned paths). Quality checks on the unchanged diff: (1) Dead code -- none; all new imports (parseAllowlistedCommand, configuredValidationCommands in checklist.ts; mkdtempSync/writeFileSync/readFileSync/existsSync/rmSync, execSync, join, MAX_NODE_TIMER_DELAY_MS, runSingleAllowlistedCommand, parseAllowlistedCommand in the smoke) are used. (2) Type safety -- checklistMod/verifierMod: any (dynamic import) is deliberate and documented inline (required so the file compiles before CHK-002 adds the export, per plans CHK-001 CORRECTION note); the git-diff try/catch (smoke lines 313-327) has the content assertion genuinely outside the catch (F-006 fix verified still in place by direct source read) so a real modification cannot be silently swallowed as a soft-skip. (3) I/O shell isolation -- N/A, no bridge.ts/shells touched by this diff. (4) Proof metadata review coverage -- N/A, diff does not touch job.metadata/run.metadata proof/receipt semantics. Closing self-check: no CLAUDE.md/README changes in this diff (git diff main...HEAD --name-only has zero doc files), so no doc-promise-undelivered risk. Wave-4 acceptance-rollout quality boundary is not applicable -- this diffs two files touch neither the acceptance-rollout system nor its gates. All 9 prior findings (F-001..F-009) remain resolved+verified in findings.json; no new findings this round.",
+      "createdAt": "2026-08-16T21:49:59.970Z",
+      "reviewRound": "2026-08-16T21:45:28.540Z",
+      "reviewRunId": "B-16df:RR-025",
+      "envelopeId": "afd18b4ff49271db8ca7c3b45e573da32fbac26053cb570ac486173e9d1ead19",
+      "writerSessionId": "sess-c9750d86fa0ba339c153ae54b3bb06f6",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-16df/background.md",
+          ".lattice/story/actives/B-16df/checklist.json",
+          ".lattice/story/actives/B-16df/findings.json",
+          ".lattice/story/actives/B-16df/index.json",
+          ".lattice/story/actives/B-16df/plan.md",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/dev-memory/finish-decisions/B-16df.json",
+          ".lattice/story/actives/B-16df/review-passes.json",
+          ".lattice/story/actives/B-16df/scope-contract.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b98605d5064d8a8180257ba9cc60ce45a5d70fd3629888ba510520eb8b7fdec5"
+    },
+    {
+      "id": "B-16df:RP-020",
+      "agent": "lattice-review-concept",
+      "note": "Fresh REVIEW round at HEAD de78ef6 (main-drift restart; no code change since prior clean passes). Concept-deletion-completeness audit: diff main...HEAD is purely additive across the 2 touched src files, no identifier/symbol/enum/config-key/doc concept deleted or renamed, so no residue-grep target exists. Verified git diff main...HEAD -- validation-executor.ts verifier.ts is empty (0 lines), and grep -rn runSingleAllowlistedCommand( repo-wide shows all 4 real call sites in checklist.ts now route through the new resolvePinnedCommandTimeoutMs helper. No blocker.",
+      "createdAt": "2026-08-17T00:50:35.064Z",
+      "reviewRound": "2026-08-17T00:48:08.623Z",
+      "reviewRunId": "B-16df:RR-026",
+      "envelopeId": "baaf406484b30de8ccb5cc623f1646cedcd44998da3eedec919efaf853906a72",
+      "writerSessionId": "sess-c9750d86fa0ba339c153ae54b3bb06f6",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-16df/background.md",
+          ".lattice/story/actives/B-16df/plan.md",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-16df/checklist.json",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "01cc565d982312359753cbc7b69551d63ee98b582700119e5c2b30db5fd79460"
+    },
+    {
+      "id": "B-16df:RP-021",
+      "agent": "lattice-review-quality",
+      "note": "Fresh REVIEW round after main-drift staleness; re-audited current HEAD. resolvePinnedCommandTimeoutMs helper (checklist.ts) + 4 runSingleAllowlistedCommand call sites (lines 1576/1667/1798/1877) unchanged in substance from prior clean passes: exact {command,args} match against configuredValidationCommands, falls back to undefined preserving 270s default, no as-any in production code, validation-executor.ts/verifier.ts byte-for-byte unmodified from main (empty diff), no circular import (checklist.ts one-way imports verifier.ts). npm --prefix packages/main run build clean; node packages/main/dist/tasks/validate-command-timeout-smoke.js passed 45 assertions. No dead code, no unused imports, no empty catch. No blocker.",
+      "createdAt": "2026-08-17T00:52:05.916Z",
+      "reviewRound": "2026-08-17T00:48:08.623Z",
+      "reviewRunId": "B-16df:RR-028",
+      "envelopeId": "aaa4e8d05b6af211eb5ccfb662b0df0f65f35103d9980f3d6fa4097fbda94a21",
+      "writerSessionId": "sess-c9750d86fa0ba339c153ae54b3bb06f6",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-16df/background.md",
+          ".lattice/story/actives/B-16df/checklist.json",
+          ".lattice/story/actives/B-16df/plan.md",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "5e91919ea0933ace02989ab4baba3e7de068e837a51c0520b307a1ba4c99f1a2"
+    },
+    {
+      "id": "B-16df:RP-022",
+      "agent": "lattice-review-test-coverage",
+      "note": "Fresh REVIEW round after main-drift staleness. Independently confirmed all 34 verificationIntent items across CHK-001..CHK-004 have valid mechanical verificationEvidence at current material: scripted audit found 0 missing, 0 non-pass, 0 stale materialHash/storyFilesHash (all pinned to 3acc328f.../2dc7b6bb...). Evidence headHash ce86cb03 confirmed genuine ancestor of current HEAD de78ef6a with zero diff in story-relevant files across 9 intervening commits. Independently rebuilt (npm run build) and re-ran validate-command-timeout-smoke.js myself: 45/45 assertions pass, exit 0, output matches recorded receipts exactly. Confirmed resolvePinnedCommandTimeoutMs exported in checklist.ts and wired into all 4 runSingleAllowlistedCommand call sites; confirmed validation-executor.ts and verifier.ts untouched by any B-16df commit (diff-tree name-only check across all story commits). No blocker.",
+      "createdAt": "2026-08-17T00:52:15.483Z",
+      "reviewRound": "2026-08-17T00:48:08.623Z",
+      "reviewRunId": "B-16df:RR-027",
+      "envelopeId": "fbfa87091a7c3112c96ea15f4804d4df632818a1750b56c937be00f0dca26da8",
+      "writerSessionId": "sess-c9750d86fa0ba339c153ae54b3bb06f6",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-16df/background.md",
+          ".lattice/story/actives/B-16df/checklist.json",
+          ".lattice/story/actives/B-16df/plan.md",
+          ".lattice/story/actives/B-16df/red-evidence.json",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-16df/acceptance-basis.json",
+          ".lattice/story/actives/B-16df/done-required-evidence.json",
+          ".lattice/story/actives/B-16df/review-passes.json",
+          ".lattice/story/actives/B-16df/review-runs.json",
+          ".lattice/story/actives/B-16df/test-evidence.json",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "73da79bb203b2604974f8b46930c73778f5860bedb76d3a00b3e8380ca44a326"
+    }
+  ]
+}

@@ -138,6 +138,15 @@
       {
         "command": "node",
         "args": [
+          "packages/main/dist/tasks/validation-evidence-buffer-smoke.js"
+        ],
+        "focus": [
+          "fast"
+        ]
+      },
+      {
+        "command": "node",
+        "args": [
           "packages/main/dist/tasks/main-sync-readiness-smoke.js"
         ],
         "focus": [
@@ -441,6 +450,13 @@
         "command": "node",
         "args": [
           "packages/main/tests/red/red-1734-desktop-asset-manifest.mjs"
+        ],
+        "timeoutMs": 180000
+      },
+      {
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs"
         ],
         "timeoutMs": 180000
       },

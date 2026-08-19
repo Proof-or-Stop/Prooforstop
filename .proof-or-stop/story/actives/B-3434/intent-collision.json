@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-3434",
+  "id": "IC-20260815102920",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "The operator asked for the blocker to be solved and driven to DONE. That is read as: repair the buffer ceiling and its identical latent siblings, make an unreadable blob report its real cause, prove the above-limit case with a committed regression, reach a shipped disposition on aggregate artifact growth, and warn before the ceiling is reached. It is NOT read as licence to also fix the separate watchdog-budget asymmetry, nor to change which commands the suite declares, both of which are excluded.",
+  "acceptedInterpretationHash": "sha256:c126afb4d7110d540dc4fb627661a3d66d95988455ee10159b7d7ab6bc63ed96",
+  "notes": "Two candidate readings existed. The narrow one - raise the ceiling so B-9ff1 unblocks - was rejected because it reproduces the identical failure at a higher number with no regression and the same misleading message, which is how this defect survived. The broad one - fix every timeout and capacity asymmetry surfaced during the incident - was rejected because it merges two independent defects into one unreviewable change. The accepted reading is the middle: this ceiling, its siblings, its diagnosability, its regression, and a binding answer to the growth that caused it.",
+  "createdAt": "2026-08-15T10:29:20.127Z",
+  "updatedAt": "2026-08-15T10:29:20.127Z"
+}

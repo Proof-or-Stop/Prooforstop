@@ -18,6 +18,8 @@ import { captureEvidenceHashSnapshot, checkEvidenceHashSnapshotReuse } from '../
 import type { TestEvidenceData, VerificationCoverageReport } from '../core/types.js';
 import type { RoutineValidationIdentity, RoutineValidationSourceKind, ValidationCommand } from '../core/validation-types.js';
 import { StoryStore } from '../core/store.js';
+import type { HandlerContext } from '../handlers/context.js';
+import { assessStoredValidationPassAdmissibility } from '../handlers/phase-gates.js';
 import type { ChecklistData, StoryInfo } from '../core/types.js';
 import {
   captureLifecycleMetadataTransaction,
@@ -987,6 +989,47 @@ function assertHandlerExecutedThenReused(
       statusBefore.split('\n').filter(Boolean).filter((line) => !line.includes('/owner-lease.json')),
       'real reused handler path must not create any dirty path beyond the CLI owner heartbeat',
     );
+
+    // B-3434 F-055: the persisted `.command` is a gate contract, not a label.
+    // assessStoredValidationPassAdmissibility compares this exact field against
+    // the command the phase gate expects and answers `command_mismatch` for any
+    // other value — which silently disables reuse. Nothing above ever read
+    // `.command`, so a stale command string stayed green here.
+    //
+    // The expected value is NOT restated in this file. The gate builds it
+    // internally from the storyId, so this asserts the written record against
+    // the gate's own expression; a production rename cannot leave a second,
+    // stale copy passing here.
+    const gateContext = { store, root, scanRoot: root } as HandlerContext;
+    assert.equal(
+      assessStoredValidationPassAdmissibility(gateContext, storyId).reasonCodes.includes('command_mismatch'),
+      false,
+      `canonical reused evidence command ${JSON.stringify(reusedEvidence.command)} must be the command the phase gate accepts`,
+    );
+    // Bite: prove that check can observe a wrong command in THIS fixture rather
+    // than passing vacuously. The canonical bytes are restored immediately.
+    const canonicalEvidenceBytes = readFileSync(evidencePath, 'utf8');
+    writeFileSync(
+      evidencePath,
+      JSON.stringify({ ...reusedEvidence, command: `${reusedEvidence.command} --stale` }, null, 2),
+      'utf8',
+    );
+    assert.ok(
+      assessStoredValidationPassAdmissibility(gateContext, storyId).reasonCodes.includes('command_mismatch'),
+      'mutation bite: a wrong persisted command must be reported as command_mismatch by the same gate call',
+    );
+    writeFileSync(evidencePath, canonicalEvidenceBytes, 'utf8');
+    assert.equal(
+      readFileSync(evidencePath, 'utf8'),
+      canonicalEvidenceBytes,
+      'the command mutation bite must restore the canonical evidence bytes exactly',
+    );
+    assert.equal(
+      git(root, ['status', '--porcelain=v1', '--', ...managedPaths]),
+      '',
+      'the command mutation bite must leave no managed worktree/index dirt behind',
+    );
+
     if (sourceKind === 'configured' && commandCount === 1) {
       const semanticEnvironmentChange = runWith({ ...wrapperTransport, CI: 'false' });
       assert.equal(semanticEnvironmentChange.status, 0, `${semanticEnvironmentChange.stdout}\n${semanticEnvironmentChange.stderr}`);

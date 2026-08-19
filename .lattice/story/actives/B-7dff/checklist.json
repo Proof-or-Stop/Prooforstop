@@ -1,0 +1,52 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Extract the full-suite keyed scheduler into a core module shared by both callers",
+      "context": "runScheduled and the ResourceClaim/ResourceClass types live in packages/main/src/tasks/full-suite-runner.ts (scheduler at :454, RESOURCE_CLASSES at :75). Move them into core without changing full-suite behaviour, so npm test and routine validate share one admission-control implementation rather than two divergent ones.",
+      "relatedDocs": [
+        "CLAUDE.md#cli-gate-review-test-preflight"
+      ],
+      "userSees": "npm test still prints \"full-suite: 47/47 passed in <N>s; retries=0; jobs=4\" with no member skipped or reordered.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Declare a resource claim for every configured validate command, failing closed when undeclared",
+      "context": "The 99-102 entries in lattice.config.json validate.commands carry only command/args/timeoutMs/focus, no resource metadata. They write under .lattice/, claim fixed ports and share the git common dir, which is why full-suite needed RESOURCE_POLICY. An undeclared command must be scheduled exclusively, never silently concurrently.",
+      "relatedDocs": [
+        "CLAUDE.md#cli-gate-review-test-preflight"
+      ],
+      "userSees": "A validate command with no declared resource claim is scheduled exclusively and reported as such in the validate output, instead of being run concurrently by default.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Replace the sequential loop in executeValidationPlan with the shared scheduler, preserving evidence semantics",
+      "context": "packages/main/src/core/validation-executor.ts:623 awaits each command in order. Under concurrency the following must stay identical because gates and receipts read them: commands[] entry order and content (code, durationMs, timeoutMs, optional), details[] ordering, commandExecution counts, routineValidationIdentity and identityDigest, progress/heartbeat reporting, and abortSignal/deadlineAt propagation including the deadline-exceeded throw.",
+      "relatedDocs": [
+        "CLAUDE.md#verification-intent-evidence"
+      ],
+      "userSees": "lattice validate --story=B-xxxx --json returns the same commands[] entries in the same order with the same code and durationMs fields as a serial run, and reports the worker count it used.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Prove parallel equals serial on the real plan and record the measured makespan",
+      "context": "Baseline to beat: 858s serial total measured independently in B-3434 (2026-08-16T22:58) and B-d0b8 (2026-08-17T00:09), with a 267-271s floor from quorum-submit-smoke.js and an LPT-predicted 271s at jobs>=4. The regression must assert identical per-command pass/fail sets between serial and parallel execution and no resource collision, and must surface the observed makespan so the 3.17x claim is checkable rather than asserted.",
+      "relatedDocs": [
+        "CLAUDE.md#verification-intent-evidence"
+      ],
+      "userSees": "A smoke runs the plan both ways and prints \"serial=<N>s parallel=<N>s speedup=<N>x\" while asserting identical per-command outcomes; it fails if any command result differs.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "storyId": "B-45a5",
+  "name": "withdrawal-aware-review-gates",
+  "title": "Wire the existing item-level withdrawal helper into the two REVIEW-path gates",
+  "description": "withdrawnChecklistItemIdsFrom exists at core/proofstory.ts:1622 and is called only by a smoke test, so evaluateReviewCompleteness (core/proofstory.ts:2084) reads withdrawal at binding and milestone granularity but never at item granularity, and validate-channel.ts has no withdrawal awareness at all. A user-approved withdrawal therefore has no mechanical completion path and the operator must write waivers - prose where proof belongs. Wire both gates through the decision-backed helper, prove an unbacked decisionRef skips nothing, and delete the three B-8df9 waivers this unblocks.",
+  "type": "bug",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "keywords": [
+    "withdrawn",
+    "gate",
+    "review-completeness",
+    "channel",
+    "granularity"
+  ],
+  "riskSignals": [
+    {
+      "category": "State Machine/Gate",
+      "matched": "story_advance"
+    }
+  ],
+  "createdAt": "2026-08-16T22:45:19.985Z",
+  "startedAt": "2026-08-16T22:45:19.985Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-08-16T22:45:20.586Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-06dd4489fd479d1db793de165bd2b865",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-08-16T22:58:23.561Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-06dd4489fd479d1db793de165bd2b865",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-45a5",
+    "branch": "story/B-45a5",
+    "createdAt": "2026-08-16T22:58:20.896Z"
+  }
+}

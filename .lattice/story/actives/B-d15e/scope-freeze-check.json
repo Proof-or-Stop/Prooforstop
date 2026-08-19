@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-d15e",
+  "checkedAt": "2026-08-18T17:16:14.790Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "1726c921af71a512a5b8a88749827d41446a1eef778e3acec814193b498d6fd2",
+  "executionBoundaryHash": "de4c8a327d4501226861443185f91814a52ecac915b6c5694c9a713bf265802a",
+  "freshnessHash": "f241d241f9b56374386b04a861bf8c897b84efbe82140945e40b0b6c47f66f82",
+  "effectiveExcludedKeywords": [
+    "Authority",
+    "Change the runtime full-suite budget, scheduler concurrency, or member timeouts",
+    "Change unrelated DONE or validation policy",
+    "customerKeyRef",
+    "Layer4",
+    "repair UX",
+    "Rewrite frozen B-9812 historical receipts or contract captures"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Change the runtime full-suite budget, scheduler concurrency, or member timeouts",
+      "source": "scopeBoundary.excluded",
+      "text": "Change the runtime full-suite budget, scheduler concurrency, or member timeouts",
+      "excluded": true
+    },
+    {
+      "keyword": "Change unrelated DONE or validation policy",
+      "source": "scopeBoundary.excluded",
+      "text": "Change unrelated DONE or validation policy",
+      "excluded": true
+    },
+    {
+      "keyword": "Rewrite frozen B-9812 historical receipts or contract captures",
+      "source": "scopeBoundary.excluded",
+      "text": "Rewrite frozen B-9812 historical receipts or contract captures",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "5dc50d17e666d809cd9545844903567fd85db6eb342d8a13ac836621beb7b567"
+}

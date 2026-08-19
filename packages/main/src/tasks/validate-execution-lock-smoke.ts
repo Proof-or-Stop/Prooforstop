@@ -60,6 +60,8 @@ import { PROOF_OR_STOP_ACTIVITY_LOG, PROOF_OR_STOP_DIR, PROOF_OR_STOP_STORY_DIR 
 import { MAIN_TOOLS } from '../cli-engine.js';
 import { createVerifierHandlers } from '../handlers/verifier.js';
 import { createVerdictHandlers } from '../handlers/verdict.js';
+import type { HandlerContext } from '../handlers/context.js';
+import { assessStoredValidationPassAdmissibility } from '../handlers/phase-gates.js';
 import { verificationIntentSchema } from '../cli/command-schemas.js';
 
 const DEFAULT_STORY_ID = 'B-validate-lock';
@@ -1274,7 +1276,7 @@ async function assertDerivedVerdictCannotBypassCapacity(): Promise<void> {
     const coverage = { total: 0, required: 0, covered: 0, missingRequired: 0, entries: [] };
     store.writeTestEvidence(storyId, {
       result: 'PASS',
-      command: `lattice validate --story=${storyId} --json`,
+      command: `proof-or-stop validate --story=${storyId} --json`,
       output: JSON.stringify({ allPass: true, verificationCoverage: coverage }),
       timestamp: NOW,
       headHash: git(root, ['rev-parse', 'HEAD']).trim(),
@@ -1283,6 +1285,20 @@ async function assertDerivedVerdictCannotBypassCapacity(): Promise<void> {
       verificationCoverage: coverage,
     });
     process.chdir(root);
+
+    // B-3434 F-055: everything below asserts a NEGATIVE (the derived verdict must
+    // not settle while capacity is held). A negative is only evidence about the
+    // capacity guard if the input would otherwise have been accepted, so the
+    // seeded evidence is proven admissible FIRST — against the same gate the
+    // derive path calls, which is also what pins the command string above without
+    // this file restating the expected command.
+    const gateContext = { store, root, scanRoot: join(root, 'packages/main') } as HandlerContext;
+    const seededAdmissibility = assessStoredValidationPassAdmissibility(gateContext, storyId);
+    assert.equal(
+      seededAdmissibility.ok,
+      true,
+      `seeded validation evidence must be admissible before the capacity negative is meaningful: ${seededAdmissibility.reasons.join('; ')}`,
+    );
 
     let releaseOwner!: () => void;
     let ownerReady!: () => void;
