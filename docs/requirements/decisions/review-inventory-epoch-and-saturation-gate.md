@@ -39,14 +39,14 @@ verified saturation wave on a frozen candidate.
 During REVIEW:
 
 ```bash
-lattice review_inventory_begin --storyId=B-xxxx
-lattice review_inventory_status --storyId=B-xxxx
-lattice review_run_start --storyId=B-xxxx --agent=lattice-review-topology-critic
+proof-or-stop review_inventory_begin --storyId=B-xxxx
+proof-or-stop review_inventory_status --storyId=B-xxxx
+proof-or-stop review_run_start --storyId=B-xxxx --agent=lattice-review-topology-critic
 # submit the critic's terminal finding_add or review_pass_set with read evidence
-lattice review_inventory_critic_set '{"storyId":"B-xxxx","epochId":"<epoch>","reviewRunId":"<critic-run>","agent":"lattice-review-topology-critic","findingDispositions":[{"findingId":"B-xxxx:F-001","disposition":"verified_family","familyKey":"finding:B-xxxx:F-001","reason":"independent critic retained this verified family"}]}'
+proof-or-stop review_inventory_critic_set '{"storyId":"B-xxxx","epochId":"<epoch>","reviewRunId":"<critic-run>","agent":"lattice-review-topology-critic","findingDispositions":[{"findingId":"B-xxxx:F-001","disposition":"verified_family","familyKey":"finding:B-xxxx:F-001","reason":"independent critic retained this verified family"}]}'
 # use findingDispositions:[] only when the aggregate verified finding set is empty
-lattice review_inventory_wave_advance --storyId=B-xxxx # only when status reports new families
-lattice review_inventory_finalize --storyId=B-xxxx
+proof-or-stop review_inventory_wave_advance --storyId=B-xxxx # only when status reports new families
+proof-or-stop review_inventory_finalize --storyId=B-xxxx
 ```
 
 `begin` prints the epoch ID, `State: OPEN`, frozen material cutoff and exactly
@@ -65,7 +65,7 @@ that has not been consumed; in the latter case it signs `invalidatedAt` and
 `invalidationReason` into the receipt before allowing a new epoch:
 
 ```bash
-lattice review_inventory_cancel --storyId=B-xxxx --reason="return to DEV and replace the frozen candidate"
+proof-or-stop review_inventory_cancel --storyId=B-xxxx --reason="return to DEV and replace the frozen candidate"
 ```
 
 ## State and authority
