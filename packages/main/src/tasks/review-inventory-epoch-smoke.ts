@@ -7,8 +7,11 @@ import {
   assertReviewInventoryCutoff,
   assertReviewInventoryEvidenceWritable,
   buildWave,
+  consumeReviewInventoryCompletenessReceipt,
   consumeReviewInventoryReceipt,
   evaluateReviewInventoryWave,
+  isInventoryCompletenessOnlyReceipt,
+  persistFinalizedReviewInventory,
   findingFamily,
   reviewInventoryAggregateFamilies,
   reviewInventoryAcceptanceSubjectDigest,
@@ -493,6 +496,86 @@ const absentGate = reviewInventoryRemediationGate({
 assert.equal(absentGate.ok, false, 'artifact absence cannot bypass mandatory REVIEW to remediation DEV gate');
 assert.match(absentGate.nextCommand ?? '', /review_inventory_begin/);
 
+function completenessMemoryStore() {
+  let data: ReviewInventoryEpochData = {
+    schemaVersion: 'proofbound.review_inventory_epochs.v1',
+    epochs: [],
+    receipts: [],
+    criticReceipts: [],
+  };
+  const lockRoot = mkdtempSync(join(tmpdir(), 'review-inventory-completeness-'));
+  return {
+    readReviewInventoryEpochs: () => structuredClone(data),
+    writeReviewInventoryEpochs: (_storyId: string, next: ReviewInventoryEpochData) => { data = structuredClone(next); },
+    readReviewRuns: () => ({ runs: [] }),
+    readReviewPasses: () => ({ passes: [] }),
+    readFindings: () => ({ findings: [] }),
+    readScopeContract: () => null,
+    readChecklist: () => ({ items: [] }),
+    readProofStoryContract: () => null,
+    readScopeShrinkageDecision: () => null,
+    runtimeLockDirPath: (_storyId: string, ...segments: string[]) => join(lockRoot, ...segments),
+    snapshot: () => structuredClone(data),
+  };
+}
+
+const completenessStoryId = 'B-precert-completeness';
+const completenessRound = '2026-08-20T00:00:00.000Z';
+const completenessCutoff = { headHash: 'a'.repeat(40), materialHash: 'b'.repeat(64), storyFilesHash: 'c'.repeat(64) };
+const completenessStore = completenessMemoryStore();
+const persistedCompleteness = persistFinalizedReviewInventory({
+  store: completenessStore as never,
+  storyId: completenessStoryId,
+  reviewRound: completenessRound,
+  cutoff: completenessCutoff,
+});
+assert.equal(isInventoryCompletenessOnlyReceipt(persistedCompleteness.epoch, persistedCompleteness.receipt), true);
+assert.equal(persistedCompleteness.receipt.authorizesTest, false);
+assert.equal(persistedCompleteness.receipt.authority, 'inventory-completeness-only');
+assert.equal(persistedCompleteness.epoch.waves.length, 0);
+const consumedCompletenessId = consumeReviewInventoryCompletenessReceipt(
+  completenessStore as never,
+  completenessStoryId,
+  completenessRound,
+  completenessCutoff,
+);
+assert.equal(consumedCompletenessId, persistedCompleteness.receipt.receiptId);
+assert.ok(completenessStore.snapshot().receipts[0].consumedAt, 'PRE_CERT completeness consume must mark the receipt consumed');
+assert.ok(completenessStore.snapshot().epochs[0].consumedAt, 'PRE_CERT completeness consume must mark the epoch consumed');
+assert.throws(
+  () => consumeReviewInventoryCompletenessReceipt(
+    completenessStore as never,
+    completenessStoryId,
+    completenessRound,
+    completenessCutoff,
+  ),
+  /REVIEW_INVENTORY_RECEIPT_ALREADY_CONSUMED/,
+  'second PRE_CERT completeness consume must throw already-consumed',
+);
+
+const remediationCompletenessStore = completenessMemoryStore();
+persistFinalizedReviewInventory({
+  store: remediationCompletenessStore as never,
+  storyId: completenessStoryId,
+  reviewRound: completenessRound,
+  cutoff: completenessCutoff,
+});
+assert.throws(
+  () => consumeReviewInventoryReceipt(
+    remediationCompletenessStore as never,
+    completenessStoryId,
+    completenessRound,
+    completenessCutoff,
+  ),
+  /REVIEW_INVENTORY_REMEDIATION_BLOCKED|REVIEW_INVENTORY_LIVE_AGGREGATE_CHANGED/,
+  'remediation consume must still refuse completeness-only empty-wave receipts',
+);
+assert.equal(
+  remediationCompletenessStore.snapshot().receipts[0].consumedAt,
+  undefined,
+  'failed remediation consume must not consume a completeness receipt',
+);
+
 type ReplayEvent = { type: string; host?: string; lane?: string; accepted?: boolean; reason?: string };
 function replay(): Record<string, number> {
   const events: ReplayEvent[] = [];
@@ -561,6 +644,18 @@ function replay(): Record<string, number> {
   assert.equal(reviewInventoryRemediationGate(recoveryStore as never, storyId, reviewRound).ok, false,
     'consume followed by a simulated phase-write failure leaves REVIEW recoverable only through a new epoch');
   events.push({ type: 'phase-write-failure-recovery-required', accepted: false });
+
+  const emptyLiveWaveStore = memoryStore(finalizedData);
+  emptyLiveWaveStore.readReviewRuns = () => ({ runs: [] });
+  emptyLiveWaveStore.readReviewPasses = () => ({ passes: [] });
+  emptyLiveWaveStore.readFindings = () => ({ findings: [] });
+  assert.equal(isInventoryCompletenessOnlyReceipt(finalized, receipt), false);
+  assert.throws(
+    () => consumeReviewInventoryCompletenessReceipt(emptyLiveWaveStore as never, storyId, reviewRound, cutoff),
+    /REVIEW_INVENTORY_LIVE_AGGREGATE_CHANGED/,
+    'PRE_CERT consume of a wave-saturated receipt still recomputes the live aggregate',
+  );
+  assert.equal(emptyLiveWaveStore.snapshot().receipts[0].consumedAt, undefined, 'failed PRE_CERT wave consume must not mark consumed');
 
   const missing = evaluateReviewInventoryWave({ epoch: initial, runs: firstRuns.slice(0, 2), passes: firstPasses.slice(0, 2), findings: [] });
   assert.equal(missing.missingLanes.length, 1, 'timeout/absent terminal lane cannot saturate');
