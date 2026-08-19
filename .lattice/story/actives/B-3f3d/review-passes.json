@@ -20168,6 +20168,60 @@
       },
       "readDiagnostics": [],
       "_hash": "ab7a98569604c4ce6d6434afa0d9aae51eeaa605f04839e4fdf5ba641bc342f5"
+    },
+    {
+      "id": "B-3f3d:RP-364",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check on dfa917a4eb: leftover lattice <cmd> rewritten to proof-or-stop <cmd> in topology-critic host shims and review-inventory-epoch-and-saturation-gate.md. Grep of those three files, .claude/agents, .lattice-codex/agents, and this story docs: zero leftover lattice <subcommand> invocations. Runtime Next: lattice review_inventory_* in packages/main/src is the existing deprecated-alias hint convention (lattice alias still ships), excluded from brand-prose scan roots, and is not a deleted-concept residue. No other concept deletion this increment; inventory epoch/receipt/authority=inventory-completeness-only unchanged. Prior round-2+ shortcut residues already captured as F-001/F-009; not re-filed.",
+      "createdAt": "2026-08-19T11:55:57.831Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-572",
+      "envelopeId": "e65826dc8f2e8ee07cadffedaf4024911ef92244906059726b53dfa12aa75a46",
+      "writerSessionId": "sess-4292375d1d751b41",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/lattice-review-topology-critic.md",
+          ".lattice-codex/agents/lattice-review-topology-critic.md",
+          ".lattice/story/actives/B-3f3d/background.md",
+          ".lattice/story/actives/B-3f3d/plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "docs/evidence-integrity-program-spec.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/prewrite-guard.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/reviewer-list.ts",
+          "packages/main/src/handlers/transition-effects.ts",
+          "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "packages/main/templates/agents/lattice-review-topology-critic.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "7b32826253f95c1c486c67ea9e2592155903f84de74975dd48ff2f4578b84507"
+      },
+      "readDiagnostics": [],
+      "_hash": "5d484dcd3d421805b6d72c25ab80402baa7329fcf38d97aab4266057103d9a7b"
     }
   ]
 }
