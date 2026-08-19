@@ -1,10 +1,19 @@
 {
-  "advanceBaseline": 3,
-  "takeoverBaseline": 2,
-  "reviewRunBaseline": 0,
-  "reviewPassBaseline": 0,
-  "autoRecoveriesSpent": 0,
+  "advanceBaseline": 4,
+  "takeoverBaseline": 4,
+  "reviewRunBaseline": 104,
+  "reviewPassBaseline": 7,
+  "autoRecoveriesSpent": 1,
   "frozen": false,
-  "trippedReasons": [],
-  "updatedAt": "2026-08-18T03:32:30.205Z"
+  "trippedReasons": [
+    "pass-rate 7/104=7%<35%"
+  ],
+  "counterSnapshot": {
+    "advanceCount": 4,
+    "reviewRunCount": 104,
+    "reviewPassCount": 7,
+    "takeoverCount": 4,
+    "maxGateRepeat": 0
+  },
+  "updatedAt": "2026-08-19T04:55:19.540Z"
 }
