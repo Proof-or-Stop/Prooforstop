@@ -1,0 +1,36 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Decide where merge-integrity for structured config belongs: the unit test, the merge tooling, or the runner output",
+      "context": "packages/main/tests/validate-resource-claims.test.mjs:243 asserts declared.length > 0 && byDefault.length > 0 over the real configured plan, which is true at 5-of-117 as easily as 97-of-111. Tightening it to a count or ratio couples a per-package unit test to a moving branch and goes stale on every command addition. Weigh that against a structural content comparison at merge/review time and against simply surfacing the proportion in runner output. State the decision and the reason; do not implement all three by default.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Detect field-level loss for entries whose keys match on both sides",
+      "context": "B-9ff1:F-079's mechanism: 92 entries existed on both sides of the merge, so no command key was dropped and a key-level check passed, while main's resources:[{class:git-common-dir,key:'.',access:shared}] declarations vanished from each. The check that catches this compares ENTRY CONTENT for shared keys and reports fields present on one side and absent on the other - the test-coverage lane ran exactly that by hand during review and it was a single pass over both files.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Prove it against the actual regression, not a synthetic one",
+      "context": "The pre-fix state is recoverable from git history: the merge commit that introduced the loss, and its correction, are both in B-9ff1's branch history, with F-079 recording the before/after counts. Whatever check ships must fail against the pre-fix config and pass against the corrected one. A check that would not have caught F-079 is not worth shipping.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Keep the fail-closed default intact",
+      "context": "resolveValidationCommandResourceClaims in packages/main/src/core/validation-executor.ts defaults an undeclared command to exclusiveByDefault true, which is why the loss was a slowdown rather than a correctness break. Whatever is added must not weaken that default in the name of detecting its absence - the safe behaviour under missing declarations is the reason this incident cost only time.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

@@ -177,6 +177,19 @@ export const PROCESS_FACT_REQUIRED_SEMANTICS = {
   // consumes the chain in this leaf (gate rewiring is W3).
   red_evidence_quarantine: ['schema-contract', 'verification-policy'],
   red_evidence_recover: ['schema-contract', 'verification-policy'],
+  // W2d (B-9ff1): the read-only envelope pre-flight validates a candidate
+  // assertion against the §1.1 schema and the §1.2 policy registries, so it
+  // carries schema-contract + verification-policy semantics — but NOT
+  // 'gate-evidence': no gate consumes its answer (the gate-consumption query is
+  // §5 / W3). Canonical scope sentence, used verbatim at every site that states
+  // this guarantee: Scoped to the command handler itself and the CLI
+  // story-evidence writers, it writes no RED-evidence record, chain record or
+  // story/evidence artifact, emits no process event, changes no gate verdict,
+  // and runs no preCommand or postCommand hook. Nothing outside that scope is
+  // covered: see the red_evidence_envelope_check note in cli/activity-policy.ts,
+  // which lists the surfaces known when it was written and is not a proof of
+  // exhaustiveness.
+  red_evidence_envelope_check: ['schema-contract', 'verification-policy'],
   spike_start: ['schema-contract', 'verification-policy', 'gate-evidence'],
   spike_result_set: ['schema-contract', 'verification-policy', 'gate-evidence'],
   spike_result: ['schema-contract', 'verification-policy', 'gate-evidence'],

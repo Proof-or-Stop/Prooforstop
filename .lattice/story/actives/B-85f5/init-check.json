@@ -1,0 +1,30 @@
+{
+  "storyId": "B-85f5",
+  "checkedAt": "2026-08-19T15:26:10.258Z",
+  "reviewRound": "",
+  "agentId": "product-reviewer",
+  "issues": [
+    {
+      "severity": "medium",
+      "desc": "Naming-only scope-freeze corrections accurately distinguish reviewer identity and mutation permission from broader authority, without expanding the implementation scope or weakening the fail-closed non-goals. The operator-visible completion advisory remains: PLAN should explicitly state that the real acceptance_rollout_report no longer ends in agent_dispatch_actor_unknown, emits a valid full-3x2 artifact accepted by acceptance_rollout_report_read/acceptance_rollout_check, lets the blocked B-38b7 rollout continue, and still rejects an unknown canonical actor before mutation."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-08-19T15:25:54.264Z",
+      "issues": []
+    },
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-08-19T15:26:10.258Z",
+      "issues": [
+        {
+          "severity": "medium",
+          "desc": "Naming-only scope-freeze corrections accurately distinguish reviewer identity and mutation permission from broader authority, without expanding the implementation scope or weakening the fail-closed non-goals. The operator-visible completion advisory remains: PLAN should explicitly state that the real acceptance_rollout_report no longer ends in agent_dispatch_actor_unknown, emits a valid full-3x2 artifact accepted by acceptance_rollout_report_read/acceptance_rollout_check, lets the blocked B-38b7 rollout continue, and still rejects an unknown canonical actor before mutation."
+        }
+      ]
+    }
+  ],
+  "_hash": "c7534db21648bea7207c89748ecffa83c4fa58ebc3132f118ac6360e37e79ab2"
+}
