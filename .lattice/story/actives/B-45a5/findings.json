@@ -53,6 +53,21 @@
       "resolvedReason": "Added two rows to packages/main/tests/red/red-b45a5-withdrawal-gates.mjs plus a new buildAliasCollision() fixture. C9 (premise, CONTROL-OK) measures that the collision is real: a withdrawn item CHK-002 and a SURVIVING item CHK-003 both author intent id INT-SHARED-ALIAS, an in-force binding AB-003 demands that alias for the surviving item, the helper resolves the withdrawal to CHK-002 only, and the exclusion is live in this very fixture (the withdrawn item's exclusive positional ref CHK-002:happy:0 is no longer demanded) - so E1 can never be satisfied by the subtraction simply not running. E1 (REFUSED) measures the surviving item: all refs it owns, alias included, must still be demanded by both gates. VERIFIED TO BITE BY ABLATION, not by assertion: removed the survivingRefs subtraction from packages/main/dist/core/proofstory.js withdrawnItemIntentRefs, re-ran, and E1 moved REFUSED -> PARTIAL with exit 1 and B45A5-VERDICT=BYPASS, while a sorted diff of every B45A5-ROW/VERDICT marker shows E1 and VERDICT are the ONLY two that move - all ten earlier controls stay CONTROL-OK, B1/B2/B3 stay GREEN, all seven D rows stay REFUSED, confirming no pre-existing row covered this. dist then restored from backup and verified byte-exact with shasum -a 256 -c (ed16fdb72cf50c1f0290d0bb8e6e8011bc980bbb8d04dc5d2e2bb512f2380a1d, OK). PARTIAL not BYPASSED because checkDispatchEvidence keys on item id and never reads an intent ref, so an alias collision cannot structurally reach it; the header records that honestly and explains why the channel conjunct is kept anyway. PARTIAL is a failing verdict exactly as for a D row. SELECTOR RULE: both new ids carry values designed to stay (C9=CONTROL-OK, E1=REFUSED); no existing pin changed value. Artifact still exits 0 in default mode and 0 in --attest.",
       "resolvedAt": "2026-08-19T02:14:09.668Z",
       "resolutionType": "fixed"
+    },
+    {
+      "id": "B-45a5:F-004",
+      "desc": ".lattice/story/actives/B-45a5/scope-contract.json:40 the acknowledgement text for dev-memory-candidates.jsonl overstates its coupling to the DONE gate: it says the file is \"sibling artefact from the same command\" as .lattice/dev-memory/finish-decisions/B-45a5.json and that it \"does not exist until the closeout command the DONE gate itself demands has been run\". Both claims are checkably false. dev-memory-candidates.jsonl is written only by dev_memory_finish (packages/main/src/handlers/dev-memory.ts:351 resolveStoryCandidatePath), while the DONE gate (packages/main/src/core/machine.ts:1417-1425 readDevMemoryFinishDecision) requires only dev_memory_finish_decision (packages/main/src/handlers/playbook-runtime-memory.ts:222-262), a separate handler/command that never calls resolveStoryCandidatePath or touches the candidates file (confirmed: no shared code path, no CLI alias in packages/main/src/cli/command-catalog.ts:3199-3212, and commit eec7bdee1e writing the candidates file precedes commit 5569c68a37 writing the finish-decision record by ~2 minutes, i.e. two separate invocations). dev_memory_finish is not gate-required at all (command-policy.ts:509 status:'supported', not gateEvidence); an operator could have reached DONE via dev_memory_finish_decision alone without ever emitting this file. The bottom-line conclusion (framework-generated, non-product-code, story-metadata artefact, not real scope creep) still holds up independently, but the acknowledgement's stated rationale mischaracterizes which command the DONE gate demands and falsely implies a single-command origin for both artefacts. This should be corrected so the audit trail reflects the actual two-command sequence rather than an inaccurate causal claim.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-19T13:02:55.559Z",
+      "reviewRound": "2026-08-19T12:59:26.603Z",
+      "reviewRunId": "B-45a5:RR-013",
+      "_hash": "959a14183b38b8c8a0df8419ad4e2e757c9c0f624e7ddd7a8819caf5892df290",
+      "signatureTag": "missing|unknown|lattice-story-actives",
+      "signatureTagSource": "auto"
     }
   ]
 }
