@@ -710,6 +710,14 @@
             "access": "shared"
           }
         ]
+      },
+      {
+        "label": "B-45a5 standing regression guard (was CHK-001's RED artifact): three clauses, all mandatory. (1) Both REVIEW-path gates must keep EXCLUDING an item-level withdrawal authorized by a confirmed decision. (2) Both must keep biting on everything that is NOT withdrawn, including an item that merely shares an authored verificationIntent id alias with a withdrawn one. (3) Both must keep REFUSING every UNBACKED withdrawal: a status flipped by hand with no decisionRef, a dangling decisionRef, a decisionRef naming a real decision that does not list the item, or a decision overwritten to decision=rejected / userConfirmed=false. Clause 3 is the safety-critical one: without it the withdrawal mechanism is forgeable by hand-editing a JSON status field. Exits 1 if any clause regresses, 2 if a control/premise breaks. CHK-003 removed the pre-fix optional flag, so this is now mandatory",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b45a5-withdrawal-gates.mjs"
+        ],
+        "timeoutMs": 180000
       }
     ]
   },

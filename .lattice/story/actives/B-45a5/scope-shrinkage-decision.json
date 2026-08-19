@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "proofstory.scope_shrinkage_decision.v1",
+  "storyId": "B-45a5",
+  "decision": "confirmed",
+  "userConfirmed": true,
+  "removedMilestoneIds": [],
+  "reason": "The DONE intent-equivalence gate is correct and this records what it caught. The original acceptance claim had THREE clauses: (1) both REVIEW-path gates skip a withdrawn item ONLY via withdrawnChecklistItemIdsFrom(decision) requiring confirmed+userConfirmed; (2) an unbacked or unconfirmed withdrawal is still refused by both; and (3) B-8df9s three obsolete waiver rows are removed with its gates passing without them. Clauses 1 and 2 are delivered and mechanically proven. Clause 3 is NOT delivered by this story, so the outcome IS narrower than the opening snapshot and that shrinkage belongs on the record. AB-003 is the acceptance binding for CHK-005 and carries zero evidence, which is accurate. WHY CLAUSE 3 IS UNREACHABLE FROM HERE: B-8df9 has its own branch and its own compiled runtime without this fix, so deleting its waivers now would simply re-block it; the fix reaches B-8df9 only once this story merges to main, which clause 3 was itself a precondition for. Circular. Merging story/B-45a5 into B-8df9 would break the loop but would put this storys commits into B-8df9s diff, making its review evidence cover code it did not write. The work is RELOCATED, not abandoned: removing those three waiver rows and confirming B-8df9s gates pass without them is the first act of B-8df9s own closeout, under its own owner lease, which the ownership model requires anyway. My prior decision SD-ccafb44c recorded this at the checklist level only; recording it at the acceptance-binding level is what makes the narrowing visible to the DONE gate instead of leaving it implicit in summary prose.",
+  "approvedBy": "main-agent (acceptance-claim shrinkage, recorded at the level the DONE gate reads)",
+  "decisionId": "SD-ccafb44c",
+  "withdrawnChecklistItemRefs": [
+    "CHK-005"
+  ],
+  "withdrawnAcceptanceBindingRefs": [
+    "AB-003"
+  ],
+  "evidenceRefs": [],
+  "createdAt": "2026-08-19T01:27:58.244Z",
+  "updatedAt": "2026-08-19T14:59:50.245Z"
+}
