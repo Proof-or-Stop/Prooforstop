@@ -23623,6 +23623,92 @@
       },
       "readDiagnostics": [],
       "_hash": "dd484c01fb115241962d8cb12edc225512115a7ebce0ce918a0756c7b1a79599"
+    },
+    {
+      "id": "B-3f3d:RP-398",
+      "agent": "lattice-review-docs",
+      "note": "Step 1 extracted 36 exported inventory/reviewer/git-blob symbols from core/review-inventory-epoch.ts plus command-catalog review_inventory_* names (naive diff regex also emitted test locals). Step 2 compared 12 documentation paragraphs: Operator workflow/state/authority/saturation in review-inventory-epoch-and-saturation-gate.md; evidence-integrity-program-spec.md §7 frozen inventory boundary; AGENTS.md/CLAUDE.md English-authoring and kind-aware PASS binding; story-lifecycle.md and testing-infra.md latest-run kind-aware gate; lifecycle-artifact-scope.md six migrated reviewers; proofstory acceptance enforce-mode Wave 4 boundary. All six review_inventory_* commands are registered; computeActiveReviewers, authorizesTest=false, inventory-completeness-only, and kind-aware PASS/FINDING binding match code. Known candidate-routing freshness leak is honestly documented as B-8af0. No docs-code drift or undelivered command promise on the B-3f3d inventory subject. No new docs blocker.",
+      "createdAt": "2026-08-19T19:40:46.550Z",
+      "reviewRound": "2026-08-19T19:22:30.921Z",
+      "reviewRunId": "B-3f3d:RR-623",
+      "envelopeId": "72fa7e7208dd694b0db8afc3a52840822aa3b92957e1416fdf8d9e33d226bbe0",
+      "writerSessionId": "sess-4292375d1d751b41",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-3f3d/background.md",
+          ".proof-or-stop/story/actives/B-3f3d/plan.md",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/guide-scope-guard.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/cli/command-catalog.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/reviewer-list.ts",
+          "packages/main/src/registry.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 5,
+          "tokenCount": null
+        },
+        "digest": "fe9a04dfe3c4321ad47b5562e607095cb269da16181413a2894e4f4e3a628565"
+      },
+      "readDiagnostics": [],
+      "_hash": "f817bea40c7edc54805eca9054382fafaed82370433e74cd6dab55ade14b8eb2"
     }
   ]
 }
