@@ -138,6 +138,38 @@
         "scanEscalationReason": null
       },
       "_hash": "cf8f6141b5347501f75b366c5b09930b6e8ba3f6180fcf30266b848aeeb9c213"
+    },
+    {
+      "id": "B-45a5:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Post-merge re-attestation (round 2026-08-19T03:51:10.195Z, head 87462f3). Verified: (1) no fifth withdrawal-classification mechanism was introduced by the merge (grepped merge diff 07da31c12d..333322c68c for withdraw across all .ts, only two rebrand-prose hits, checklist-status.ts and withdrawn-disposition-smoke.ts byte-unchanged); (2) the merge's touches to proofstory.ts/validate-channel.ts fall entirely inside evaluateDoneIntentEquivalence and isMetadataOnlyLatticeCommit/checkCommitAuthor-doc-comment (lattice-> proof-or-stop rebrand prose), never inside evaluateReviewCompleteness or checkDispatchEvidence bodies (confirmed via diff hunk line ranges vs function start lines); checkDispatchEvidence's three-bucket docstring and lattice.config.json's three-clause B-45a5 label are byte-identical and appear exactly once; no symbol named in this story's docs was renamed; (3) this story's own disclosure (core/verification.ts:212 knowingly untouched) re-verified true: zero diff on that file across the merge range, line 212 content and the withdrawnChecklistItemIdsFrom/decisionAuthorizesWithdrawal line numbers (1622/1614) still match plan.md/understanding.json exactly; (4) re-ran red-b45a5-withdrawal-gates.mjs against the rebuilt runtime: exit 0, B45A5-VERDICT=GREEN, all rows CONTROL-OK/GREEN/REFUSED as expected. No concept-boundary finding this round.",
+      "createdAt": "2026-08-19T03:57:37.860Z",
+      "reviewRound": "2026-08-19T03:51:10.195Z",
+      "reviewRunId": "B-45a5:RR-012",
+      "envelopeId": "2d06115db3f50f098557dcb966ee4f654d64892cabeb7e20f7ab4717f7b86a9a",
+      "writerSessionId": "sess-b45a5-main",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-45a5/decision.json",
+          ".lattice/story/actives/B-45a5/intent-collision.json",
+          ".lattice/story/actives/B-45a5/plan.md",
+          ".lattice/story/actives/B-45a5/understanding.json",
+          "lattice.config.json",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/validate-channel.ts",
+          "packages/main/tests/red/red-b45a5-withdrawal-gates.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/checklist-status.ts",
+          "packages/main/src/tasks/scope-shrinkage-withdrawal-floor-smoke.ts",
+          "packages/main/src/tasks/withdrawn-disposition-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b4c46ea814567dc841f082af3e2f392e0cb2d0b45ebec3453c186e055fb71fa5"
     }
   ]
 }
