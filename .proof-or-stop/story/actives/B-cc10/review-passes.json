@@ -184,6 +184,42 @@
         "scanEscalationReason": null
       },
       "_hash": "03c9644ad2fa00c39be1ff0eee8d32921d720137c53050f81e676e3b63b9d73d"
+    },
+    {
+      "id": "B-cc10:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "Independently re-verified F-074 fix via merge-base/pre-fix/post-fix triangulation in three fresh isolated worktrees: merge-base 8b4df2b3 PASS, pre-fix 8bac58d1 FAIL (identical cleanTree:BLOCKED signature on .proof-or-stop/learning/runtime-memory-pack-cache), post-fix c3d1ab26 PASS. Checklist coverage matches ledger exactly (8/8 done, 24/24 intent covered, 21 mechanical + 3 audited waivers, 0 demoted/stale, 74 findings 73 resolved 1 dismissed 0 open). All 3 waivers individually read and are legitimate pinned-selector-drift cases with the underlying intent re-verified passing, not coverage gaps. Sanity-checked all three declared out-of-scope failures by executing each directly: unattended-dispatch-smoke fails on a missing local dispatch-policy fixture chk008-claude-real-missing-opt-in / expects allowRealHostSubprocess=true regex, zero hits for either string in git diff main...HEAD -- pre-existing fixture gap. validation-protocol-smoke fails because dev_memory_preflight_ack (B-a7c5) now short-circuits PLAN->DEV before the review-record check the test expects -- confirmed B-a7c5-owned. proofstory-topology-critic-smoke reproduced identically failing (actual partial vs expected complete) in a fresh isolated worktree built at merge-base 8b4df2b3 -- genuinely pre-existing. Investigated the coordinators separately-reported scripts/verify-entrypoints.mjs / verify_codex Global-fallback-heartbeat failure in depth: root-caused it via systematic debugging (instrumented dist/cli-engine.js with temporary debug traces, reverted cleanly) to the LOCAL SANDBOX global lattice shim (/Users/qipan/bin/lattice) pointing at the unmerged main checkout, whose OLD build only recognizes PROOF_OR_STOP_CONFIG_FILENAME=lattice.config.json (pre-B-cc10), not this storys proof-or-stop.config.json -- so hasProjectConfigFile/isRuntimeActivityRoot returns false against the fixture temp dir and writeLog silently no-ops (exit 0, no error, no activity record). Confirmed by pointing a test shim at the WORKTREE build instead: the activity record then writes correctly. This is an environmental sandbox artifact of testing an unmerged story against a stale global entrypoint (the exact class CLAUDE.md documents for stale_global_runtime_in_worktree / session_brief global-fallback exemption design), not a defect in B-cc10 code, and not caused by CHK-005/CHK-006 changes to verify-entrypoints.mjs itself. It self-resolves once this story reaches main and the global shim target is rebuilt/up to date; no finding filed. No blocker remains for the test-coverage lane.",
+      "createdAt": "2026-08-19T04:53:14.598Z",
+      "reviewRound": "2026-08-18T03:33:16.325Z",
+      "reviewRunId": "B-cc10:RR-104",
+      "envelopeId": "3728a32a095b2c89a372f38412ff797582e3017efec8f9fb691e860ef2fe8114",
+      "writerSessionId": "sess-7de7f5d7530405b4a63b84da4e683b63",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-cc10/checklist.json",
+          ".proof-or-stop/story/actives/B-cc10/findings.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/core/activity-log.ts",
+          "packages/main/src/core/brand-paths.ts",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/core/config.ts",
+          "scripts/verify-entrypoints.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-cc10/background.md",
+          ".proof-or-stop/story/actives/B-cc10/plan.md",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
+          "packages/main/src/tasks/unattended-dispatch-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "RESUME-B-cc10.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ec03f428b9e39e88128ef89c98e69cd8b9db12851228b2e131f33ecf64647372"
     }
   ]
 }
