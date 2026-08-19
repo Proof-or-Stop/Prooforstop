@@ -71,5 +71,17 @@ behaviour. Seven occurrences, six defects, one correct — a blind sweep breaks 
   signed history. B-META F-036 was never written — the earlier claim that it was is retracted.
 - **scope gate at `mode=shadow`** with a recorded reason: `scope_contract_set` silently drops the
   deleted side of a rename (`canonicalizeScopePath` cannot canonicalize a deleted path).
-- **`verify-entrypoints.mjs`** environmentally blocked: global shim `/Users/qipan/bin/lattice`
-  hardcodes the main checkout and must be repointed to `bin/proof-or-stop.js` before CHK-006 merges.
+- ~~**`verify-entrypoints.mjs`** environmentally blocked: global shim `/Users/qipan/bin/lattice`
+  hardcodes the main checkout and must be repointed before CHK-006 merges.~~ **RESOLVED** — the
+  operator authorized the change and both shims were repointed:
+
+  | shim | was | now |
+  |---|---|---|
+  | `/Users/qipan/bin/lattice` | `bin/lattice.js` (deleted by CHK-006) | `bin/proof-or-stop.js` |
+  | `/Users/qipan/bin/lattice-codex` | `bin/lattice-codex.js` (deleted by CHK-006) | `bin/proof-or-stop-codex.js` |
+
+  `lattice-codex` was NOT in the original ask but breaks from the same CHK-006 deletion, so
+  fixing only the one named would have left a second dead entry point. Both verified to run:
+  `lattice --version` and `lattice-codex --help` both print `Proof-or-Stop 0.3.262`. Originals
+  backed up as `*.bak-B-cc10`. These take effect immediately (the canonical bins already exist
+  in the main checkout) and survive the merge, when the deprecated bins disappear.
