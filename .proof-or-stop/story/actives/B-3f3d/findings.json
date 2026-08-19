@@ -8889,7 +8889,7 @@
       "desc": "Post-lane completeness critic on B-3f3d:RI-050 reviewRun B-3f3d:RR-602 after required lanes reached terminal evidence (concept/quality/behavior/docs=finding, test-coverage=pass). Topology pass remains forbidden: acceptance_basis status=invalid receiptVerification.ok=false code=AT_SCOPE_BINDING_MISSING; live classifier partial (AT_COVERAGE_BASIS_PARTIAL, AT_ADAPTER_RESULT_INVALID, scope-contract/closure/seal/freshness mismatches). Wave 4 independent checks: acceptance_topology_check fail/observe/non-blocking/inconclusive_basis_unverified; pre_review_check_read inconclusive/inadmissible (PR_ARTIFACT_TAMPERED, PR_EVIDENCE_STALE, PR_CUTOFF_UNBOUND; legacy command lattice pre_review_check; observe so diagnostic-only). acceptance_rollout_report_read and acceptance_rollout_check pass enforce current full-3x2 (codex-cli+claude-cli, 3 rounds, mislabeled3x1Count=0) with frozen materialHash 18b25d80 and storyFilesHash 5498191. excludedPathRefs=[]. topology_critic_receipt_set failed: role eligibility failed lattice-review-topology-critic must sign from a host-adapter session, received explicit-env. Independent source read of prewrite-guard.ts:203-217 and brand-paths.ts confirms two lane families: (1) deprecated-only .lattice/locks|runtime exemption prefixes versus STATE_DIR_NAMES/isStateDirPath/stateDirCandidates; (2) Recovery still emits lattice review_inventory_cancel. Dispositions: F-129 verified_family prewrite-guard-deprecated-state-dir-exemption; F-128 and F-132 duplicate of F-129; F-130 verified_family prewrite-guard-legacy-bin-recovery. Completeness critic_set binds this RR-602 terminal. Do not treat this as saturation PASS or TEST authority.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-topology-critic",
       "createdAt": "2026-08-19T17:42:21.411Z",
@@ -8938,7 +8938,11 @@
         "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
       ],
       "signatureTag": "missing|ts|post-lane-completeness",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Same repair as F-131: current acceptance_basis is verified. Completeness critic request_changes was because the PLAN basis was invalid/stale during RI-050 wave 1. Basis regenerate plus pre_review_check reissue remove AT_SCOPE_BINDING_MISSING. Observe pre-review remains diagnostic-only and does not block PRE_CERT admit. Prewrite-guard families F-128/129/130/132 already fixed in 6cbbbf73.",
+      "resolvedAt": "2026-08-19T19:22:56.988Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
