@@ -923,6 +923,15 @@ if (ATTEST) {
   lines.push('            0 when both gates are GREEN and every D row is REFUSED, 2 when a control is BROKEN.');
 }
 lines.push('');
+// ROW INDEX, deliberately duplicated ahead of the detail. A consumer that pins a
+// row id as a proof selector reads the FIRST occurrence, and captured output is
+// capped by the runner (validation-executor trimOutput keeps the leading
+// characters and drops the rest). Emitting every verdict up front means a pinned
+// selector stays resolvable no matter how much detail this report grows below.
+lines.push('--- row index (each row is repeated in full, with its claim and observations, below) ---');
+for (const r of rows) lines.push(`B45A5-ROW-${r.id}=${r.verdict}`);
+lines.push('--- end row index ---');
+lines.push('');
 for (const r of rows) {
   lines.push(`B45A5-ROW-${r.id}=${r.verdict}`);
   lines.push(`  ${r.claim}`);
@@ -945,4 +954,11 @@ if (verdict === 'BROKEN') {
   lines.push('  not withdrawn, and every unbacked withdrawal is still refused by both.');
 }
 console.log(lines.join('\n'));
-process.exit(exitCode);
+// NOT process.exit(): on a PIPE (which is how `lattice validate` and the
+// verification_evidence_add receipt runner both capture this) console.log is an
+// ASYNC write, and process.exit() abandons whatever has not flushed yet. That
+// silently truncated the tail of this report once it passed ~9 KB — the D45 row
+// and the verdict line were simply missing from the captured output, so a
+// consumer pinning a late row saw it as absent rather than as regressed. Setting
+// exitCode and returning normally keeps the same status and flushes first.
+process.exitCode = exitCode;
