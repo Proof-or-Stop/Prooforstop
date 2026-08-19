@@ -1495,6 +1495,48 @@
           "packages/main/tests/red/red-b45a5-withdrawal-gates.mjs"
         ],
         "timeoutMs": 180000
+      },
+      {
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/red-evidence-envelope-smoke.js"
+        ],
+        "timeoutMs": 180000
+      },
+      {
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2d-entropy-differential.mjs"
+        ],
+        "timeoutMs": 180000
+      },
+      {
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2d-specificity-conjunction.mjs"
+        ],
+        "timeoutMs": 180000
+      },
+      {
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2d-assertion-digest-scope.mjs"
+        ],
+        "timeoutMs": 180000
+      },
+      {
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2d-rejection-matrix.mjs"
+        ],
+        "timeoutMs": 180000
+      },
+      {
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2d-command-readonly.mjs"
+        ],
+        "timeoutMs": 180000
       }
     ]
   },

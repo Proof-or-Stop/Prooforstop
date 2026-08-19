@@ -417,6 +417,15 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   // registers the per-story target binding (§1.1.3) before a RED run.
   // W2c (B-506e) adds red_evidence_quarantine / red_evidence_recover (the two
   // owner-gated chain-control appends) to the SAME batch — auto-registered here.
+  // W2d (B-9ff1) adds the READ-ONLY red_evidence_envelope_check: a §1.1 envelope
+  // admissibility pre-flight that executes no envelope. Canonical scope
+  // sentence, used verbatim at every site that states this guarantee: Scoped to
+  // the command handler itself and the CLI story-evidence writers, it writes no
+  // RED-evidence record, chain record or story/evidence artifact, emits no
+  // process event, changes no gate verdict, and runs no preCommand or
+  // postCommand hook. Nothing outside that scope is covered: see the
+  // red_evidence_envelope_check note in cli/activity-policy.ts, which lists the
+  // surfaces known when it was written and is not a proof of exhaustiveness.
   registry.registerBatch(createRedEvidenceHandlers(ctx));
 
   // prewrite scope enforcement — pre-tool hook guard for write-like operations

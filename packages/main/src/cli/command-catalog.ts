@@ -3311,5 +3311,19 @@ Behavior:
     agent: z.string().optional().describe('Actor.'),
     actor: z.string().optional().describe('Actor alias.'),
   }},
+  { name: 'red_evidence_envelope_check', description: 'W2d: READ-ONLY admissibility pre-flight for a candidate RED assertion envelope (§1.1). Validates matcher schema bounds, the §1.3 minimum-specificity rules, the §1.1.2 exit-class and adapter-linkage compatibility, the §1.1.3 supplementary-artifact path syntax, and the assertion against the story COMMITTED target binding, reporting §1.6-tagged rejections (R1-1/R1-2/R1-3/R1-5/R1-6) BEFORE a run is spent. On an admissible envelope it reports the computed assertionDigest, the matched binding reference, and the resolved policyDigest. It executes no envelope. Scoped to the command handler itself and the CLI story-evidence writers, it writes no RED-evidence record, chain record or story/evidence artifact, emits no process event, changes no gate verdict, and runs no preCommand or postCommand hook. Nothing outside that scope is covered: see the red_evidence_envelope_check note in cli/activity-policy.ts, which lists the surfaces known when it was written and is not a proof of exhaustiveness. In particular an inadmissible envelope is reported by THROWING, and cli-engine.ts prints that report TWICE — once before and once after it awaits the onError hooks, which run only when the hooks map has an exact red_evidence_envelope_check key or a * key.', schema: {
+    storyId: z.string().min(1).describe('Story ID'),
+    assertionFile: z.string().min(1).describe('Path to the candidate §1.1 assertion envelope JSON (absolute, or resolved against the project root).'),
+    json: z.boolean().optional().describe('Output deterministic structured JSON.'),
+    status: z.never().optional().describe('Forbidden: admissibility is validator-derived.'),
+    verdict: z.never().optional().describe('Forbidden: callers cannot submit a verdict.'),
+    rejections: z.never().optional().describe('Forbidden: rejections are validator-derived.'),
+    assertionDigest: z.never().optional().describe('Forbidden: the assertion digest is recomputed, never accepted from a caller.'),
+    policyDigest: z.never().optional().describe('Forbidden: the policy digest comes from the resolved policy snapshot.'),
+    binding: z.never().optional().describe('Forbidden: the target binding is read from the committed tree.'),
+    evidence: z.never().optional().describe('Not supported: this check consumes and produces no evidence.'),
+    write: z.never().optional().describe('Not supported: the command is read-only.'),
+    apply: z.never().optional().describe('Not supported: the command applies no change.'),
+  }},
 
 ];

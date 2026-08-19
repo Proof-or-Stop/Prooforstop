@@ -1,0 +1,91 @@
+{
+  "schema": "lattice.done-required-evidence",
+  "version": 1,
+  "storyId": "B-9ff1",
+  "status": "PASS",
+  "startedAt": "2026-08-19T16:35:20.733Z",
+  "endedAt": "2026-08-19T16:41:08.594Z",
+  "durationMs": 347861,
+  "headHash": "b0a21a6fa096699144121cf6fba575065f188e7a",
+  "materialHash": "778d9c90a836b92d29f20bd2825104d6db49f9689277c5cf3aef3e43f5789925",
+  "storyFilesHash": "f9c50dda5b8c3d90533076714b57807700e9a140c1304fcb7e011cb8038a5cd9",
+  "policyHash": "6e3b308d27b3ecbdc367f7f51340bbd181a7f52483c83a6298eb0d6378cd18c3",
+  "commandSetHash": "03ffa95173e47709916f9181a6a61b482281186802535c1d9c22cbc09baf1fad",
+  "receipts": [
+    {
+      "label": "packages/main build",
+      "command": "npm",
+      "args": [
+        "--prefix",
+        "packages/main",
+        "run",
+        "build"
+      ],
+      "commandSpec": {
+        "schema": "lattice.command-spec.v2",
+        "digest": "a76398c632d34d84bee8e7f8311b0d8455e09520b58209a489f04c0f7317d9da",
+        "command": "npm",
+        "args": [
+          "--prefix",
+          "packages/main",
+          "run",
+          "build"
+        ],
+        "cwd": ".",
+        "resolvedCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-9ff1",
+        "shell": false,
+        "env": {},
+        "timeoutMs": 290000
+      },
+      "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-9ff1",
+      "status": "PASS",
+      "exitCode": 0,
+      "durationMs": 860,
+      "outputDigest": "ab672fa590b8a8929ddd2b315de51f9065b593fe6eefac69b85565d02d6956dd",
+      "outputTail": "\n> @lattice/core@0.3.265 build\n> node ../../scripts/build-main-with-binding.mjs\n\n",
+      "startedAt": "2026-08-19T16:35:20.733Z",
+      "endedAt": "2026-08-19T16:35:21.593Z",
+      "effectiveEnvironmentDigest": "ab93f4ac7f76e14ec65003c39d1716717a668d36c47a4b812fca492ab3cdb2c2",
+      "executableDigest": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
+      "shellExecutableDigest": null,
+      "headHash": "b0a21a6fa096699144121cf6fba575065f188e7a",
+      "materialHash": "778d9c90a836b92d29f20bd2825104d6db49f9689277c5cf3aef3e43f5789925",
+      "storyFilesHash": "f9c50dda5b8c3d90533076714b57807700e9a140c1304fcb7e011cb8038a5cd9"
+    },
+    {
+      "label": "root full test suite",
+      "command": "npm",
+      "args": [
+        "test"
+      ],
+      "commandSpec": {
+        "schema": "lattice.command-spec.v2",
+        "digest": "6799a93ad997f9caf9d5c45a723d844aa642b9ed152a8a5ed54a2b8a09358df2",
+        "command": "npm",
+        "args": [
+          "test"
+        ],
+        "cwd": ".",
+        "resolvedCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-9ff1",
+        "shell": false,
+        "env": {},
+        "timeoutMs": 7200000
+      },
+      "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-9ff1",
+      "status": "PASS",
+      "exitCode": 0,
+      "durationMs": 346745,
+      "outputDigest": "468581ac6b15d3a705e4415cdd31eb7d5385f9acda96381e4b8bc60a543abacf",
+      "outputTail": "\n> lattice@0.3.265 pretest\n> node scripts/ensure-dist.mjs\n\n\n> lattice@0.3.265 test\n> node packages/main/dist/tasks/full-suite-runner.js\n\nPASS test:proofstory-intent-hardening-smoke 148.0s\nPASS test:proofstory-acceptance-rollout 171.0s\nPASS test:review-incremental-context-smoke 69.7s\nPASS test:flow-stability-smoke 93.7s\nPASS test:brief-output 23.2s\nPASS test:milestone-status 33.2s\nPASS test:experiments 13.2s\nPASS test:main-write-lock-coverage 0.3s\nPASS test:production-test-seam-guard 1.0s\nPASS test:lattice-residue 0.3s\nPASS test:proof-or-stop-prompt-baseline 8.4s\nPASS test:codex-heartbeat-timeout 2.2s\nPASS test:audit-scan-bin-token 0.1s\nPASS test:review-convergence-smoke 0.1s\nPASS test:review-loop-smoke 0.7s\nPASS test:delivery-context-pack-smoke 5.5s\nPASS test:review-assurance-floor-smoke 6.4s\nPASS test:scope-shrinkage-withdrawal-floor-smoke 0.7s\nPASS test:withdrawn-disposition-smoke 1.3s\nPASS test:global-core-realpath 0.5s\nPASS test:review-assurance-floor-storyfileshash-smoke 0.3s\nPASS test:docs-drift-smoke 0.1s\nPASS test:docs-drift-wrapper-root 0.7s\nPASS test:full-suite-runner-smoke 33.0s\nPASS test:gitroot-cwd-contract 0.2s\nPASS test:full-suite-resource-sentinel 0.2s\nPASS test:process-fact-contract 2.7s\nPASS test:runtime-fact-contract 1.2s\nPASS test:evidence-quality 0.1s\nPASS test:anti-stall 0.1s\nPASS test:storydir-inside-gitroot-smoke 0.6s\nPASS test:gitroot-cwd-routing 1.4s\nPASS test:bare-gate-gitroot-cwd 0.3s\nPASS test:project-gitroot-cwd 0.4s\nPASS test:done-oracle-wrapper-root 1.4s\nPASS test:done-premerge-mainsha-recheck 6.1s\nPASS test:done-escalation-drift-advisory 1.2s\nPASS test:review-escalation-freshness-root 3.2s\nPASS test:dispatch-checklist-doctor-wrapper-root 0.8s\nPASS test:graceful-sites-gitroot-cwd 0.6s\nPASS test:experience-hint-worktree-cache 0.9s\nPASS test:done-merge-experience-refresh 2.2s\nPASS test:experience-coverage-gap 1.0s\nPASS test:closeout-trust 26.0s\nPASS test:e2e 2.3s\nPASS test:experience-arm-gate 0.2s\nPASS test:experience-arm-isolation-e2e 9.2s\nPASS test:convergence-breaker 0.4s\nPASS test:nested-worktree-bootstrap 14.1s\nfull-suite: 49/49 passed in 345.6s; retries=0; jobs=2\n",
+      "startedAt": "2026-08-19T16:35:21.726Z",
+      "endedAt": "2026-08-19T16:41:08.471Z",
+      "effectiveEnvironmentDigest": "ab93f4ac7f76e14ec65003c39d1716717a668d36c47a4b812fca492ab3cdb2c2",
+      "executableDigest": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
+      "shellExecutableDigest": null,
+      "headHash": "b0a21a6fa096699144121cf6fba575065f188e7a",
+      "materialHash": "778d9c90a836b92d29f20bd2825104d6db49f9689277c5cf3aef3e43f5789925",
+      "storyFilesHash": "f9c50dda5b8c3d90533076714b57807700e9a140c1304fcb7e011cb8038a5cd9"
+    }
+  ],
+  "reasons": []
+}

@@ -1,0 +1,92 @@
+{
+  "storyId": "B-9ff1",
+  "checkedAt": "2026-08-19T16:46:59.617Z",
+  "headHash": "f27e7415037aeb43090e5a0583304ed0f3c91f21",
+  "materialHash": "778d9c90a836b92d29f20bd2825104d6db49f9689277c5cf3aef3e43f5789925",
+  "storyFilesHash": "f9c50dda5b8c3d90533076714b57807700e9a140c1304fcb7e011cb8038a5cd9",
+  "reviewRound": "2026-08-19T15:13:53.073Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "B-9ff1:summary.actualTranscript / packages/main/src/handlers/red-evidence.ts",
+      "promise": "red_evidence_envelope_check is genuinely read-only, proven mechanically via a positive git-only spawn allowlist and a .lattice content-hash manifest byte-identical before and after a batch of direct handler invocations",
+      "verifiedBy": "execution this signature: node packages/main/tests/red/red-w2d-command-readonly.mjs, exit 0",
+      "evidence": "Fresh execution exit 0. Prints registration (MAIN_TOOLS/command-policy readOnly-none/process-fact L0/READ_ONLY_COMMANDS/registered handler), admissible success output with assertionDigest+binding+policyDigest, inadmissible tagged R1-2 rejection with success output absent, .lattice manifest net-identical across a batch of 8 direct handler invocations, and the observed spawn set (execFileSync git rev-parse, execFileSync git worktree, execSync git rev-parse, spawnSync git rev-parse, spawnSync git show; 32 calls, read-only git only). Also runs red-evidence-envelope-smoke.js through the real configuredValidationCommands+runValidationCommand path (exit 0, 4295ms). Zero code diff on this file set since the prior signature (verified: git diff <priorHead=61af4ca5> HEAD -- red-evidence-related files is empty)."
+    },
+    {
+      "docPath": "docs/requirements/decisions/red-evidence-subsystem-spec.md section 1.3 (pre-existing spec, not modified by this diff)",
+      "promise": "The section 1.3 rule-2 specificity rule is a length AND entropy CONJUNCTION, with a characterization block pinning SIGSEGV/ENOMEM/HTTP 404/Error 500 as REJECTED and the vaguer test failed as ADMITTED",
+      "verifiedBy": "execution this signature: node packages/main/tests/red/red-w2d-specificity-conjunction.mjs, exit 0",
+      "evidence": "Fresh execution exit 0. Characterization block printed verbatim: SIGSEGV len=7 bits=15.65 REJECT; ENOMEM len=6 bits=11.51 REJECT; HTTP 404 len=8 bits=20.00 REJECT; Error 500 len=9 bits=21.77 REJECT; test failed len=11 bits=34.05 ADMIT. 14-row differential table, AND never OR, 12 of 14 rows DIFFER, boundary inclusivity confirmed at both floors."
+    },
+    {
+      "docPath": "lattice.config.json validate.commands",
+      "promise": "All five red-w2d-*.mjs RED harnesses plus the red-evidence-envelope-smoke task are registered in the standing validate.commands suite, each exactly once, and all pass",
+      "verifiedBy": "direct execution of all six commands this signature, plus independent JSON-level diff of lattice.config.json against git show main:lattice.config.json",
+      "evidence": "All six exit 0 run directly this signature: red-w2d-rejection-matrix.mjs (142 fixtures), red-w2d-specificity-conjunction.mjs, red-w2d-command-readonly.mjs, red-w2d-assertion-digest-scope.mjs, red-w2d-entropy-differential.mjs, dist/tasks/red-evidence-envelope-smoke.js. Each named exactly once in validate.commands (117 entries = main's 111 + this story's 6)."
+    },
+    {
+      "docPath": "lattice.config.json (F-079 fix, re-resolution since prior signature)",
+      "promise": "The re-resolution of the lattice.config.json merge conflict restores main's B-7dff resources declarations that the first resolution had silently dropped, with zero main command keys missing",
+      "verifiedBy": "independent script: parsed current lattice.config.json and git show main:lattice.config.json, normalized every command+args key, diffed the sets, and separately diffed the resources field on every key present in both",
+      "evidence": "Zero main command keys missing from current (111/111 present). Current has 117 = 111 (main) + 6 (this story's red-w2d + smoke) entries, each of the 6 present exactly once at the expected path. Of main's 97 entries that declare resources, ALL 97 still declare resources in current with byte-identical resources content (0 dropped, 0 mismatched) - confirms F-079 (which found the pre-fix state at 5/117) is genuinely fixed, not just re-asserted. Independently corroborated by reading B-4f25/background.md (the follow-up story filed for this exact defect class), whose own numbers (97/111 on main, degraded to 5/117 pre-fix) match this story's own findings.json F-079 record."
+    },
+    {
+      "docPath": "B-9ff1:summary.limitations",
+      "promise": "The specificity metric is inverted on short real-world constants and ships that way; ENOMEM can never be pinned under any policy because the 12-bit entropy floor is non-tunable; the spec/code disagreement in three places about matcher-value bounds is NOT claimed resolved",
+      "verifiedBy": "re-read of current .lattice/story/actives/B-9ff1/summary.json limitations field, diffed against the text quoted in the prior signature",
+      "evidence": "Verbatim-identical to the text quoted and signed in the prior delivery-check.json: 'The specificity metric is inverted on a nameable class of real input and this story ships it that way... ENOMEM sits below the NON-TUNABLE 12-bit hard floor, so no policy can ever admit it: a RED assertion can never pin on ENOMEM.' Still explicitly names the three-way spec/code disagreement as open, deferred to B-595c, with no resolved/complete language. Not softened since prior signature."
+    },
+    {
+      "docPath": "B-9ff1:summary.pitfalls",
+      "promise": "The headline about the story owner's audit-prose defects is stated WITHOUT a specific finding count and ships a re-derivation recipe instead of a bare asserted number",
+      "verifiedBy": "re-read of current .lattice/story/actives/B-9ff1/summary.json pitfalls field, diffed against the text quoted in the prior signature, plus independent findings.json count",
+      "evidence": "Verbatim-identical headline to the prior signature: 'the reviewer lane whose job was auditing the story owner's STATEMENTS about the code found defects there repeatedly... none of those defects was self-caught' - no bare count, still instructs re-derivation via findings.json grouping. Not softened. RESIDUAL CARRIED FORWARD (already disclosed in the prior signature, unchanged in nature, now larger in magnitude): the recipe's own illustrative number ('twenty findings filed on 2026-08-18') is further stale - current findings.json has 80 total findings (78 resolved + 2 self-labeled dismissed probes), not 20 and not the 28 noted in the prior signature. The qualitative conclusion the recipe supports ('all prose, zero code findings' is false) still holds: F-079/F-080, both real code/process findings with a cited commit-adjacent artifact (lattice.config.json re-resolution), were filed and resolved after the prior signature, deepening rather than undermining that conclusion. This exact drifting-count-in-frozen-prose pattern is independently named, upheld and deferred to B-85a7 by this story's own F-076/F-077."
+    },
+    {
+      "docPath": "B-9ff1:summary.outcomeDiff",
+      "promise": "Proven defects are deferred to real owner stories rather than fixed in place, created only after F-064 established that prior resolution records had falsely claimed filed as follow-up",
+      "verifiedBy": "node bin/lattice.js story_list plus per-story index.json and background.md reads from /Users/jek/Documents/Work/proofbound, this signature",
+      "evidence": "All SIX now exist (a sixth, B-4f25, was filed since the prior signature for the F-079 defect class itself): B-595c (INIT, depends=[B-9ff1], resolves the four proven spec/code defects), B-3654 (INIT, depends=[B-9ff1]), B-1b2b (INIT, depends=[B-9ff1]), B-85a7 (INIT, depends=[B-9ff1], the drifting-count/self-absolution pattern), B-4f25 (INIT, depends=[B-9ff1], title 'Catch field-level loss when a structured-config merge keeps both sides keys' - background.md explicitly names B-9ff1:F-079 as its trigger event and its numbers, 97/111 main vs pre-fix 5/117, match findings.json exactly). B-def6 (INIT_CHECK) also exists, traceable to B-9ff1's closeout in its own background/checklist content, but STILL carries no depends=[B-9ff1] field and no formal F-xxx citation - same residual already reported in the prior signature, unchanged."
+    },
+    {
+      "docPath": "B-9ff1:summary.outcomeDiff / packages/main/src/core/proofstory.ts",
+      "promise": "This story does NOT retire the v1 surface: red_evidence_create and redEvidenceRecordSatisfied are untouched, packages/main/src/core/proofstory.ts has zero diff from main, and command-catalog still lists red_evidence_create with no superseded language",
+      "verifiedBy": "git diff main HEAD -- packages/main/src/core/proofstory.ts; grep of packages/main/src/cli/command-catalog.ts, this signature",
+      "evidence": "git diff main HEAD for proofstory.ts is empty. command-catalog.ts line 2766 still declares red_evidence_create unchanged, description 'Record ProofStory red evidence for a triggered pre-fix failure', no superseded/retired/deprecated marker within 3 lines of it or anywhere near it. red_evidence_envelope_check at line 3314 is additive and self-describes its own scope boundary."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-012",
+      "transcript": "red-w2d-command-readonly.mjs, re-run this signature, exit 0: registration, admissible success-output contract, inadmissible tagged-rejection path, fail-closed inputs, owner-lease bypass for read-only, .lattice content-hash manifest net-identical proof, positively-asserted read-only git spawn allowlist with a negative control."
+    },
+    {
+      "featureId": "CHK-013",
+      "transcript": "red-w2d-command-readonly.mjs section 8, re-run this signature, exit 0: resolves red-evidence-envelope-smoke.js via the real configuredValidationCommands()+runValidationCommand() path (code=0). All five red-w2d-*.mjs plus the dist smoke re-confirmed present exactly once in the re-resolved lattice.config.json validate.commands and all six exit 0 run directly this signature."
+    },
+    {
+      "featureId": "CHK-014",
+      "transcript": "red-w2d-command-readonly.mjs sections 3-4, re-run this signature, exit 0: admissible envelope carries assertionDigest+policyDigest+binding fields; inadmissible envelope omits the success verdict and carries the exact section 1.6 tag."
+    },
+    {
+      "featureId": "CHK-006",
+      "transcript": "red-w2d-specificity-conjunction.mjs section 1, re-run this signature, exit 0: all 8 DEFAULT_FORBIDDEN_CATCH_ALLS reject tagged R1-2 by exact membership; untrimmed blocklist-adjacent value tagged R1-3 alone."
+    },
+    {
+      "featureId": "CHK-007",
+      "transcript": "red-w2d-specificity-conjunction.mjs section 2, re-run this signature, exit 0: 14-row differential table, AND-vs-OR disagreement on 12 rows, boundary inclusivity at both floors, F-060 characterization block printed with measured bits."
+    },
+    {
+      "featureId": "CHK-008",
+      "transcript": "red-w2d-specificity-conjunction.mjs section 3, re-run this signature, exit 0: class-only/multi-class/no-present-in-red matchers reject R1-2; class matchers exempt from rule 2 on value; literal+class combination and pure-literal set accepted."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Re-signed at materialHash 778d9c90a836 after independent verification, not acceptance of the main agent's claim. Three-dot diff against main confirms B-9ff1's own code (the red-evidence feature files) is byte-for-byte unchanged since the prior signature (headHash 61af4ca5); the only source change attributable to this story since then is the lattice.config.json merge re-resolution. Every other file that differs from the prior signed head is byte-identical to current main (mergeMain churn from already-landed B-7dff/B-45a5, not new B-9ff1 work). The config fix (F-079) was independently re-derived from scratch (own JSON parse + diff script, not a re-read of the finding text): zero main command keys missing, all six of this story's commands present exactly once, and all 97 of main's resources-bearing entries still carry byte-identical resources content in the merged file (0 dropped, 0 mismatched) - genuinely fixed, corroborated independently by B-4f25's background.md which cites matching numbers. All six red-w2d/smoke harnesses re-executed fresh this signature, all exit 0, with the exact expected characterization/differential output reprinted. limitations and pitfalls headlines are verbatim-unchanged from the prior signature, not softened. All six deferred-work stories (B-595c, B-3654, B-def6, B-1b2b, B-85a7, and the newly-filed B-4f25) exist; five of six cite explicit finding ids and depend on B-9ff1; B-def6 remains real and traceable via its own content but still lacks a formal depends/finding-id citation - unchanged residual, reported again rather than silently dropped. findings.json: 80 total, 78 resolved + 2 self-labeled dismissed probes, zero open. git rev-list --count HEAD..main is 0 and git status is clean."
+  },
+  "_hash": "ba610e31c1aceb5662e58d442ff57ade84f053ba35e424b77c320b7170fc0efe"
+}

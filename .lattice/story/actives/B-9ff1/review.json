@@ -1,0 +1,140 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-08-13T16:56:09.167Z",
+      "issueCount": 22,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "split_quality",
+          "severity": "advisory",
+          "message": "Too many checklist items (16); may be over-fragmented, consider merging related items"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-004",
+          "message": "CHK-004 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-005",
+          "message": "CHK-005 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-006",
+          "message": "CHK-006 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-007",
+          "message": "CHK-007 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-008",
+          "message": "CHK-008 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-009",
+          "message": "CHK-009 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-010",
+          "message": "CHK-010 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-011",
+          "message": "CHK-011 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-012",
+          "message": "CHK-012 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-013",
+          "message": "CHK-013 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-014",
+          "message": "CHK-014 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-015",
+          "message": "CHK-015 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-016",
+          "message": "CHK-016 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-015",
+          "message": "CHK-015 (\"Enforce the matcher array count bound of one to maxMatchers, rejecting a vacuous or oversized matcher set as R1-3\") was added in PLAN phase: PLAN scope reviewer (scope-check _hash b67028b4) found the section 1.6 R1-3 matcher COUNT bound (0 matchers / more than maxMatchers) named in no checklist title; CHK-002 covers only the per-value byte-length bound maxMatcherLen, which is a different bound. Adding as a named item so gate review covers it."
+        },
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-016",
+          "message": "CHK-016 (\"Require a class matcher value to name a registered matcherClassRegistry entry case-sensitively, rejecting an unregistered class as R1-3\") was added in PLAN phase: PLAN scope reviewer (scope-check _hash b67028b4) found the section 1.6 R1-3 class-registry membership check named in no checklist title; CHK-008 covers only the sole-present-in-red rule, not membership. Adding as a named item so gate review covers it."
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "16 checklist items; please check for missing combined scenarios (e.g., what happens when Declare the assertion envelope schema with unique matcher ids and a kind enum limited to literal-line and class with no pattern language + Enforce trimmed literal values within one to maxMatcherLen bytes and the closed stream and polarity enums are performed simultaneously?)"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 3 undigested unknowns: Whether the entropy floor comparison is inclusive - RESOLVED: section 1.3 rule 2 states admissible iff len >= minMatcherLen AND entropyBits >= minMatcherEntropyBits, so both comparisons are inclusive (>=).; Whether class matchers are subject to rule 2 - RESOLVED: section 1.3 exempts class matchers from rule 2 because their breadth is bounded by the policy registry, but rule 3 still forbids a class matcher from being the sole present-in-red evidence.; Which R1-x tag carries path-validation failures - RESOLVED: R1-3, which the spec states explicitly covers path validation and not only matcher bounds; R1-2 is reserved for the minimum-specificity failure."
+        },
+        {
+          "type": "touchpoint_mapping_missing",
+          "severity": "advisory",
+          "message": "None of the checklist items have the files field filled in (legacy story compatibility mode); cannot perform coverage validation on understanding.touchpoints. Please list the changed files in files.modify/create/test for at least one item to enable strict touchpoint-to-files validation"
+        }
+      ],
+      "_hash": "79370e629914c92ba54294691cce4d1ed252309e0d753aed095b0fc8fdb2c08b"
+    }
+  ]
+}
