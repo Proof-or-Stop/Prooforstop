@@ -4774,6 +4774,29 @@
       "cancelReason": "RI-048 exhausted its 3-wave discovery budget without saturation: wave 1 found F-114/F-115/F-116, wave 2 found F-118/F-119, wave 3 found F-120. All were dispositioned verified_family (receipts CRIT-01/02/03) and none were dismissed. The framework itself directs cancel-and-replan at REVIEW_INVENTORY_BUDGET_EXHAUSTED rather than manufacturing a PASS. Root cause of the non-convergence is now identified and filed as BUG-USERSEES-NEVER-MECHANICALLY-CHECKED: nothing compares a checklist item declared userSees literal against emitted output, so F-118/F-119/F-120 were each found only by a reviewer hand-grepping one call site at a time, a search with no terminating condition. Independent topology-critic assessment concurred that wave-by-wave discovery was not converging and further identified a harder blocker: the topology-critic receipt path currently throws for BOTH verdicts (proofstory.ts basisVerification.ok) due to stale acceptance-basis binding, so no signed critic terminal state is reachable regardless of wave count. Cancelling to remediate root causes in DEV; no transition authority is claimed and the wave 1-3 signed disposition history is retained.",
       "terminalRunSequenceBoundary": 543,
       "_hash": "82da07a41375a15e9f9cda1fee880e939b073c952525a5c82dc5c50c5f2634b7"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-3f3d:RIE-049",
+      "storyId": "B-3f3d",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "state": "CANCELLED",
+      "begunAt": "2026-08-19T09:11:59.897Z",
+      "updatedAt": "2026-08-19T09:15:21.879Z",
+      "cutoff": {
+        "headHash": "d814bfc0ee7aa7ead60bf26d0f5709c681a9bc87",
+        "materialHash": "cfa873e3b102948b60736d1536cce4b60bd11f14447d8d24b36d3e1abb85adc9",
+        "storyFilesHash": "7962cb778b09526966df0de2cd24deebf8540485e79ae81453250e83c90458b3"
+      },
+      "scopeDigest": "8b6772312be730fa48cc66eca637b02dfa1258efaa1d7dacebf6bd85d279df0e",
+      "requiredLanes": [],
+      "maxWaves": 1,
+      "waves": [],
+      "receiptId": "B-3f3d:RIE-049:RCP-001",
+      "cancelledAt": "2026-08-19T09:15:21.879Z",
+      "cancelReason": "RIE-049 completeness receipt cannot be consumed for remediation DEV: scopeDigest is cutoff digest not acceptance-subject digest. Cancel so closeout can repair handler-smoke mechanical receipts without a sealed inventory.",
+      "terminalRunSequenceBoundary": 557,
+      "_hash": "5805e4757311ca525877bb83e7f90557e1613f175783c240f98cf33059f04cf8"
     }
   ],
   "receipts": [
@@ -5280,6 +5303,30 @@
       "issuedAt": "2026-08-16T09:34:59.711Z",
       "consumedAt": "2026-08-16T10:43:58.846Z",
       "_hash": "d1a5ff88cae866f64e396641f34e7b3efd25de83955ba8febf743e55c9fc1723"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_receipt.v1",
+      "receiptId": "B-3f3d:RIE-049:RCP-001",
+      "epochId": "B-3f3d:RIE-049",
+      "storyId": "B-3f3d",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "cutoff": {
+        "headHash": "d814bfc0ee7aa7ead60bf26d0f5709c681a9bc87",
+        "materialHash": "cfa873e3b102948b60736d1536cce4b60bd11f14447d8d24b36d3e1abb85adc9",
+        "storyFilesHash": "7962cb778b09526966df0de2cd24deebf8540485e79ae81453250e83c90458b3"
+      },
+      "scopeDigest": "8b6772312be730fa48cc66eca637b02dfa1258efaa1d7dacebf6bd85d279df0e",
+      "requiredLanes": [],
+      "waveCount": 0,
+      "findingSetDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "coverageDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "saturationResult": "ZERO_NEW_VERIFIED_FINDINGS",
+      "authority": "inventory-completeness-only",
+      "authorizesTest": false,
+      "issuedAt": "2026-08-19T09:11:59.897Z",
+      "invalidatedAt": "2026-08-19T09:15:21.879Z",
+      "invalidationReason": "RIE-049 completeness receipt cannot be consumed for remediation DEV: scopeDigest is cutoff digest not acceptance-subject digest. Cancel so closeout can repair handler-smoke mechanical receipts without a sealed inventory.",
+      "_hash": "deb24f6cacfe95c3a6a8075eae5574b2dd07f2cd7a6c6c930a561b8c012e87f7"
     }
   ],
   "criticReceipts": [
