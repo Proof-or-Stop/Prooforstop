@@ -380,6 +380,36 @@
         "scanEscalationReason": null
       },
       "_hash": "80bd2b7355e6409035ff4ed6726ad09f07f880c00bee415732b0b5b46949fe16"
+    },
+    {
+      "id": "B-45a5:RP-014",
+      "agent": "lattice-review-quality",
+      "note": "Post-merge re-attestation, round RR-019. Independently re-derived the lattice.config.json merge resolution instead of trusting the summary: diffed commands array by label(command+args) across ours-pre-merge(a3091e38dd,106 cmds)/theirs-main(354ff504ab,110 cmds)/merged-result(bf50716fcf,111 cmds). Confirmed ours contributed exactly 1 unique label (red-b45a5-withdrawal-gates.mjs, with NO optional flag) and theirs contributed exactly 5 (validate-parallel-equivalence-smoke.js, red-B-7dff-sequential-validate-plan.mjs, validate-plan-scheduling.test.mjs, validate-pollution-attribution.test.mjs, validate-resource-claims.test.mjs) as claimed. Verified programmatically: all 110 main entries present in merged in identical original order AND byte-identical JSON content (0 mismatches); all non-commands top-level+validate fields byte-identical to main; new entry appended at index 110 with no optional flag. Checked whether merged sibling code (B-7dff parallel-validate infra) touched this story gates: git diff on merge-base..main for proofstory.ts and validate-channel.ts is empty -- main did not modify either file, so no interaction risk; the merge only affected lattice.config.json for those files scope. Re-verified anti-forgery property on merged tree: withdrawnChecklistItemIdsFrom is the sole membership key (decisionAuthorizesWithdrawal requires decision===confirmed && userConfirmed===true, reads only decision.withdrawnChecklistItemRefs); grepped both changed files for item.status/.decisionRef/.size>0 shortcuts -- none found in code, only in comments. Rebuilt packages/main and packages/utils; ran node packages/main/tests/red/red-b45a5-withdrawal-gates.mjs directly: exit 0, B1/B2/B3=GREEN, A1/A2/C1-C9=CONTROL-OK, D1-D5/D23/D45/E1=REFUSED, matching claim. Confirmed 11/11 command-backed (kind=logic_test) verificationEvidence rows carry headHash=bf50716fcf (the merge commit) with executedAt in the post-merge window; the 1 remaining stale-headHash row is a documented permanent waiver (self-invalidating-pin rationale, not command-backed, correctly not re-executed). Verified scope-contract.json (the RP-011 scope-acknowledgement text) has had zero commits since the RP-011 review commit (4065282631) via merge-base --is-ancestor on all 4 commits that ever touched that file -- unchanged claim holds. tsc --noEmit clean on packages/main; no as-any/empty-catch/dead-code/unused-import issues in the proofstory.ts or validate-channel.ts diff hunks; new function withdrawnItemIntentRefs and its call are both live and correctly wired to the pre-existing required scopeShrinkageDecision field already threaded to the real REVIEW->TEST gate call site in handlers/phase-gates.ts. No findings this round.",
+      "createdAt": "2026-08-19T14:16:01.827Z",
+      "reviewRound": "2026-08-19T14:10:16.723Z",
+      "reviewRunId": "B-45a5:RR-019",
+      "envelopeId": "0641e77bb1e1a4de16e6ccf6edaa394665480650c9e2aa4995e2fe0c55191f77",
+      "writerSessionId": "sess-b45a5-main",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-45a5/checklist.json",
+          ".lattice/story/actives/B-45a5/review-passes.json",
+          ".lattice/story/actives/B-45a5/scope-contract.json",
+          "lattice.config.json",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/handlers/validate-channel.ts",
+          "packages/main/tests/red/red-b45a5-withdrawal-gates.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-45a5/background.md",
+          ".lattice/story/actives/B-45a5/plan.md",
+          ".lattice/story/actives/B-45a5/process-events.jsonl"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2f53235b96b1a8c6420fef6c7605ec367ae126d8ddf8b4ec24a3d9bc72284379"
     }
   ]
 }
