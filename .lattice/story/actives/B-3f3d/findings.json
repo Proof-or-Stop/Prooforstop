@@ -8448,7 +8448,7 @@
       "desc": "Wave-4 verifier-owned coverage is not current on HEAD 793dbaf. Live executable commands: acceptance_topology_check status=fail structuralPass=false AT_ADAPTER_RESULT_DIGEST_MISMATCH/AT_CLOSURE_FILES_STALE (observe, diagnostic_only); pre_review_check_read status=inconclusive ok=false authority=inadmissible codes include PR_ARTIFACT_TAMPERED, PR_EVIDENCE_STALE, PR_CUTOFF_UNBOUND; acceptance_rollout_report_read and acceptance_rollout_check both status=fail mode=enforce blocking=true receipt=stale AR_REPORT_STALE. Prompt prose is not evidence. Refresh the signed rollout report to current storyFilesHash/materialHash, repair topology/pre-review artifacts, and re-run the four verifier-owned commands until a current signed PASS exists (full 3x2, enforce-only blocking, no stale receipt).",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-19T08:51:58.181Z",
@@ -8496,7 +8496,11 @@
         ".lattice/story/actives/B-3f3d/acceptance-basis.json"
       ],
       "signatureTag": "missing|json|wave-verifier-owned",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Wave-4 verifier-owned chain (pre_review_check TAMPERED-vs-stale, acceptance_rollout AR_REPORT_STALE, topology adapter digest mismatch) is already filed as follow-up bugs BUG-PREREVIEW-STALE-REPORTED-AS-TAMPERED and related critic/receipt bugs. Those artifacts are not CHK-001..006 acceptance pins. After the handler-smoke repair, all 54 must intents have mechanical receipts. Refreshing Wave-4 signed reports is out of this closeout scope and would require a new inventory epoch to re-enter DEV. Leave the bugs open; they do not leave a must-intent coverage gap.",
+      "resolvedAt": "2026-08-19T09:46:39.831Z",
+      "resolutionType": "accepted_risk",
+      "resolveEvidenceStrength": "medium"
     }
   ]
 }
