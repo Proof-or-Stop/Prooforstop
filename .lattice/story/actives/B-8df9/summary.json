@@ -1,0 +1,56 @@
+{
+  "storyId": "B-8df9",
+  "changes": "core/init-check-gate.ts: the INIT-check signature domain now binds the reviewer VERDICT - agentResults and issues - alongside the story snapshot it already covered, via computeInitCheckVerdictHash, with the domain rendered from a single declared constant (describeInitCheckSignatureDomain) so gate text and docs cannot drift from what is signed. core/machine.ts: canEnterInitCheckGuard and getGuardFailureReason both route through one initCheckSignatureIsValid predicate against the same already-read snapshot, and the tamper message renders the declared domain. Two registered non-optional guards: red-b8df9-init-check-verdict-signature.mjs (24 rows) and red-b8df9-chk002-verdict-shapes.mjs (17 rows).",
+  "usage": "Automatic. Any INIT_CHECK transition now recomputes the hash over the reviewer verdict as well as the story snapshot. To see it: edit agentResults or issues in .lattice/story/actives/<id>/init-check.json without re-signing, then run story_advance INIT_CHECK - it is refused as tampered.",
+  "expectedOutcome": "Editing a recorded reviewer verdict without re-signing makes the INIT_CHECK gate refuse the transition, where before the signature validated while the gate decided on fields the signature never covered.",
+  "actualTranscript": "Verified by four independent probes written outside the shipped suite. The behavior lane and the delivery reviewer each built their own fixture against the compiled core/init-check-gate.js and confirmed three attacks all move the recomputed hash away from the stored signature: injecting a fabricated reviewer entry, erasing a recorded critical issue, and renaming an existing reviewer agentId in place. Both shipped guards run green on every validate: red-b8df9-init-check-verdict-signature.mjs 0 RED / 24 rows, red-b8df9-chk002-verdict-shapes.mjs 0 FAILED / 17 rows. validate 119 commands allPass.",
+  "outcomeDiff": "No difference. Observed behaviour matches the expected outcome on the twice-merged tree.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "HONEST BOUND ON THE CLAIM: the salt is a public source constant (INIT_CHECK_SALT is an export), so re-signing after an edit is accepted. What this delivers is tamper-EVIDENCE - an edit that does not re-sign is detected - not tamper-proofing. Two reviewers verified both halves of that statement, and the shipped docs describe it that way. CHK-004 was withdrawn during DEV by confirmed decision SD-7319de10. Its three waiver rows record, correctly for 2026-08-03, that a user-approved withdrawal had no mechanical completion path. Sibling story B-45a5 has since built that path, so those rows are now inert historical record; a dated correction sits on CHK-004:happy:0 alongside the original text preserved verbatim. That correction states its own bound: B-45a5 wired two REVIEW-path gates only, and core/verification.ts:212 still performs a bare status-string skip on a DONE-blocking path. Four docs_check rows on CHK-005 and CHK-006 are point-in-time attestations, not mechanical evidence: docs-type intents route to the attestation-only branch of enforceAndStampEvidence before any selector is read, so nothing is pinned.",
+  "pitfalls": "(1) A signature must cover what its gate decides on. This story exists because the INIT-check signature covered the story snapshot while the gate decided on agentResults and issues - a record that validated and still misled. (2) verification_evidence_add OVERWRITES the row for an intentRef; the immutability is git-level, not an in-file array. I wrote a correction onto CHK-004:happy:0 believing it appended, and destroyed the waiver row I was trying to preserve. Recovered from git and rewritten to carry the original text verbatim. Carry the old note forward inside the new one, or the live record loses it silently - three reviewer lanes passed the story while it was missing. (3) Claiming a docs-type row is selector-pinned is a false statement about evidence strength, because that branch never reads the selector. Three lanes filed it. (4) A pass from a lane outside the required set is a permanent liability on that story: two-week-old behavior and docs passes went stale as main advanced and blocked every advance, while quorum_submit named the wrong lanes. lifecycle_check --target=<phase> names the real blocker by id and is read-only; reach for it before bouncing off gates.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 556499
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 49642
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 401489563
+    },
+    "DEV": {
+      "count": 3,
+      "durationMs": 138895480
+    },
+    "REVIEW": {
+      "count": 3,
+      "durationMs": 1428684157
+    },
+    "TEST": {
+      "count": 2,
+      "durationMs": 4155170
+    }
+  },
+  "totalDurationMs": 1973831736,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-08-19T18:28:22.049Z",
+  "updatedAt": "2026-08-19T18:28:22.049Z"
+}
