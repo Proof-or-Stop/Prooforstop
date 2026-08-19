@@ -171,7 +171,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
   function appendDispatchEvent(args: {
     storyId: string;
     agentType?: string;
-    targetKind: 'init-review' | 'scope-plan-review' | 'topology-critic-review' | 'story-review' | 'delivery-review' | 'checklist' | 'finding' | 'cluster';
+    targetKind: 'init-review' | 'scope-plan-review' | 'topology-critic-review' | 'story-review' | 'delivery-review' | 'rollout-verify' | 'checklist' | 'finding' | 'cluster';
     itemId?: string;
     findingId?: string;
     clusterId?: string;
@@ -1039,6 +1039,21 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
           });
         }
         return result;
+      }
+      if (promptBuilder === 'rollout-verify') {
+        const lines = [
+          `As ${canonicalType}, run the registered acceptance-rollout cohort for ${args.storyId}.`,
+          `Working directory (subagent must cd here): ${root}`,
+          '',
+        ];
+        appendDispatchLivenessGuidance(lines, `${canonicalType}/story`);
+        lines.push(`Start the reviewer run: proof-or-stop review_run_start '{"storyId":"${args.storyId}","agent":"${canonicalType}"}' and copy the returned reviewRunId.`);
+        appendDispatchEvent({
+          storyId: args.storyId,
+          agentType: canonicalType,
+          targetKind: 'rollout-verify',
+        });
+        return { prompt: lines.join('\n') };
       }
       if (promptBuilder === 'delivery-review') {
         const result = buildDeliveryReviewPrompt({ storyId: args.storyId, resolved });

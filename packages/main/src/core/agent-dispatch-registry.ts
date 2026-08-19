@@ -180,6 +180,23 @@ export const AGENT_DISPATCH_REGISTRY = [
     reviewerLane: null,
     evidenceOwnership: ['cluster-resolution'],
   },
+  {
+    // Wave-4 cohort runner identity. Owns review_run_start so a parent that
+    // sets PROOF_OR_STOP_AGENT=acceptance-rollout-verifier can mint ReviewRuns.
+    // allowedPhases omits REVIEW so this actor does not join REVIEW_RUN_LANES.
+    canonicalName: 'acceptance-rollout-verifier',
+    aliases: [],
+    roleClass: 'story-reviewer',
+    allowedPhases: ['DEV', 'TEST'],
+    targetCardinality: 'story-only',
+    identifierKinds: [],
+    promptBuilder: 'rollout-verify',
+    promptBuilderByIdentifier: {},
+    permittedMutations: ['review_run_start', 'finding_add', 'review_pass_set'],
+    commitAllowed: false,
+    reviewerLane: 'acceptance-rollout-verifier',
+    evidenceOwnership: ['review-run', 'finding', 'review-pass'],
+  },
 ] as const satisfies readonly AgentDispatchRegistryEntry[];
 
 export class AgentDispatchRegistryDefinitionError extends Error {
@@ -193,7 +210,7 @@ const VALID_ROLE_CLASSES = new Set(['implementer', 'verification-intent', 'init-
 const VALID_PHASES = new Set(['IDEA', 'INIT', 'INIT_CHECK', 'PLAN', 'DEV', 'REVIEW', 'TEST', 'DONE', 'DISCARDED', 'TEST_CASE', 'TEST_CASE_REVIEW', 'META']);
 const VALID_CARDINALITIES = new Set(['story-only', 'exactly-one']);
 const VALID_IDENTIFIERS = new Set(['itemId', 'findingId', 'clusterId']);
-const VALID_PROMPT_BUILDERS = new Set(['implementer-dispatch', 'verification-intent-item', 'init-review', 'product-init-review', 'scope-plan-review', 'topology-critic-review', 'story-review', 'item-review', 'coverage-review', 'delivery-review', 'finding-repair', 'cluster-repair']);
+const VALID_PROMPT_BUILDERS = new Set(['implementer-dispatch', 'verification-intent-item', 'init-review', 'product-init-review', 'scope-plan-review', 'topology-critic-review', 'story-review', 'item-review', 'coverage-review', 'delivery-review', 'finding-repair', 'cluster-repair', 'rollout-verify']);
 const VALID_MUTATIONS = new Set(['checklist_update', 'init_check_set', 'scope_check_save', 'topology_exclusion_approval_set', 'topology_critic_receipt_set', 'review_run_start', 'finding_add', 'review_pass_set', 'review_inventory_critic_set', 'delivery_check_set', 'finding_resolve', 'red_evidence_binding_set', 'red_evidence_quarantine', 'red_evidence_recover']);
 const VALID_EVIDENCE_OWNERSHIP = new Set(['checklist-status', 'verification-intent', 'init-check', 'scope-check', 'topology-exclusion-approval', 'topology-critic-receipt', 'review-inventory-critic-receipt', 'review-run', 'finding', 'review-pass', 'delivery-check', 'finding-resolution', 'cluster-resolution']);
 

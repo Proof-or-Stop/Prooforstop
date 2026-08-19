@@ -43,7 +43,8 @@ export type AgentDispatchCanonicalType =
   | 'lattice-review-channel'
   | 'lattice-review-delivery'
   | 'lattice-finding-repair'
-  | 'lattice-cluster-repair';
+  | 'lattice-cluster-repair'
+  | 'acceptance-rollout-verifier';
 
 export type AgentDispatchRoleClass =
   | 'implementer'
@@ -70,7 +71,8 @@ export type AgentDispatchPromptBuilderKey =
   | 'coverage-review'
   | 'delivery-review'
   | 'finding-repair'
-  | 'cluster-repair';
+  | 'cluster-repair'
+  | 'rollout-verify';
 
 export type AgentDispatchMutationCommand =
   | 'checklist_update'
@@ -103,7 +105,8 @@ export type AgentDispatchReviewerLane =
   | 'lattice-review-behavior'
   | 'lattice-review-docs'
   | 'lattice-review-channel'
-  | 'lattice-review-delivery';
+  | 'lattice-review-delivery'
+  | 'acceptance-rollout-verifier';
 
 export type AgentDispatchEvidenceOwnership =
   | 'checklist-status'
