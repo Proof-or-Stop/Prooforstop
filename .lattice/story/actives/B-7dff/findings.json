@@ -332,7 +332,7 @@
       "desc": ".lattice/story/actives/B-7dff/checklist.json:571 CHK-005:happy:0 permanent waiver still carries a stale binding (headHash 33fbec3658..., storyFilesHash 1e183269ed..., timestamped 2026-08-18T16:47:42Z, ~106 commits behind current HEAD/story storyFilesHash 0bab1cc35f...) — same defect class as the CHK-001:happy:0 waiver that was just found and fixed to unblock done_intent_equivalence_check (which reported stale_milestone_evidence on M1). This row is silently invisible to the recovery tooling: verification_evidence_refresh_stale --dryRun reports \"No stale verification evidence for B-7dff\" for the whole story because refreshOnlyDrift() in evidence-refresh.ts short-circuits (returns null, i.e. not-a-candidate) on kind===waiver before ever calling checkEvidenceFreshnessForGit, so a waiver binding can drift indefinitely without ever surfacing in the refresh report. It does not currently block DONE only because CHK-005 is not one of the 4 milestones (M1-M4) in milestone_ledger_get, so done_intent_equivalence_check (confirmed independently: status=pass, uncoveredRequiredMilestoneIds=[], staleMilestoneEvidenceIds=[]) never inspects it — but the binding itself is stale, and any future milestone-ledger change or other consumer keying off this waivers headHash/materialHash/storyFilesHash would hit the exact same silent-staleness failure mode this story is fixing elsewhere. Fix: re-record the CHK-005:happy:0 waiver at the current head/material/storyFilesHash binding (same remediation already applied to CHK-001:happy:0), and/or extend the refresh-stale reporting surface to at least flag (not necessarily auto-refresh) stale waiver bindings instead of silently excluding them.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-19T02:09:22.114Z",
@@ -343,7 +343,11 @@
         ".lattice/story/actives/B-7dff/checklist.json"
       ],
       "signatureTag": "missing|json|lattice-story-actives",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Correct, and both lanes found it independently. The CHK-001:happy:0 rebind fixed one instance of the defect class while leaving the twin that CHK-001 own waiver note explicitly names, and the reason I left it - CHK-005 is outside the M1-M4 required set so no blocking gate consumes it today - is precisely the reasoning that let M1 slip past two reviewers until done_intent_equivalence_check refused. CHK-005:happy:0 has now been rebound at the current head/material/story-files binding with its text and reasoning unchanged, so both permanent waivers are current and the story contains only these two. F-017 traced the mechanism to source: evidence-refresh.ts filters waivers in refreshOnlyDrift and isWaiver BEFORE checkEvidenceFreshnessForGit runs, so a waiver binding can drift indefinitely while verification_evidence_refresh_stale --dryRun reports no stale evidence - the detection tool is structurally blind to this row type. That framework gap is filed as story B-0f97, Waiver evidence bindings drift silently because the refresh scan excludes them before the freshness check, created at INIT and confirmed visible in story_list.",
+      "resolvedAt": "2026-08-19T02:10:49.386Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
