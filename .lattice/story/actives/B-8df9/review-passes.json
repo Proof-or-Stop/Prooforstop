@@ -255,6 +255,31 @@
         "scanEscalationReason": null
       },
       "_hash": "33d304aae262ab7b534dafc85a3373fd9a2db94b22e71a73ef6436bc41a575fa"
+    },
+    {
+      "id": "B-8df9:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-verified CL-001 fix for my own F-012 (siblings F-009/F-011) on disk, not from prose. (1) grep-checked all four rows (CHK-005:happy:0, CHK-005:adversarial:0, CHK-006:happy:0, CHK-006:adversarial:0): none carries a selector/verification/receipt field and mechanical=false on all four, both now and in every prior git revision of those rows -- the false claim was only ever in the note text, never in a field the gate reads, so no demotion of real coverage occurred. (2) Recounted the checklist: 6 items (5 done + 1 withdrawn), 18 verificationIntent entries; the 10 previously-mechanical rows (CHK-001 happy/edge/adversarial, CHK-002 edge/adversarial, CHK-003 happy/edge/adversarial, CHK-005 edge, CHK-006 edge) are all still mechanical:true with fresh 2026-08-19 post-merge receipts, selectorMatched=true. (3) Read buildVerificationCoverage (core/verification.ts) and withdrawnItemIntentRefs (core/proofstory.ts): both exclude CHK-004 by item.status/decision membership, not by evidence presence, so the new CHK-004:happy:0 docs_check annotation cannot reintroduce it into coverage anywhere. (4) verification_evidence_refresh_stale --dryRun returned zero stale evidence for B-8df9. (5) git log confirms the CHK-002:happy:0 permanent waiver has been untouched since 2026-08-03T05:27:38Z. Coverage: 18/18 must intents covered (17 executed pass + 1 permanent pin-waiver), 0 gaps, 0 vague evidence. Correction holds; no new finding.",
+      "createdAt": "2026-08-19T16:05:55.686Z",
+      "reviewRound": "2026-08-03T04:27:32.508Z",
+      "reviewRunId": "B-8df9:RR-016",
+      "envelopeId": "25ee09f7766650223b4ac81e438bcbd32cd50b6c2a806540076fa4549dc04994",
+      "writerSessionId": "sess-b8df9-main-agent",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-8df9/background.md",
+          ".lattice/story/actives/B-8df9/checklist.json",
+          ".lattice/story/actives/B-8df9/plan.md",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "caabee24f0c299f4cfcd2300cbe213a14592cecc79a3cd48ed8c210e106a5d87"
     }
   ]
 }
