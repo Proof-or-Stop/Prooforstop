@@ -20359,6 +20359,67 @@
       },
       "readDiagnostics": [],
       "_hash": "995e9c4e8425b8d93d37669949cd948ae77d775c1828d041cd87eb730756befe"
+    },
+    {
+      "id": "B-3f3d:RP-367",
+      "agent": "lattice-review-topology-critic",
+      "note": "Current-round topology-critic pass on merge-cleanup + contract-text delta (dc4e5464ad) to supersede stale critic envelopes. Independently verified Wave 4 surfaces via local worktree CLI: acceptance_topology_check status=fail mode=observe blocking=false (AT_ADAPTER_RESULT_INVALID, AT_CLOSURE_FILES_STALE, AT_COVERAGE_BASIS_PARTIAL, AT_SCOPE_BINDING_MISSING); pre_review_check_read status=inconclusive mode=observe blocking=false with PR_* including TAMPERED-vs-stale and unresolved planned path; acceptance_rollout_report_read and acceptance_rollout_check status=fail mode=enforce blocking=true diagnostics=AR_REPORT_STALE. Those Wave-4 failures are the already-accepted F-125 verifier-owned stale chain, not a new producer/consumer or exclusion defect from this delta. acceptance_basis is complete-but-invalid against current HEAD 2af220c / storyFilesHash e07d60e; excludedPathRefs empty. Process-fact cleanup dropped duplicate artifact:review-inventory-epochs.json and folded certification_window_begin into the remaining inventory receipt consumerGate; producer handlers/review-inventory plus machine.ts/transition-orchestrator consumers remain registered. Contract text restored six migrated reviewers and kind-aware PASS/FINDING binding, matching review-run-binding-race.md. No new discovery exclusion. Scope-contract has two unacknowledged out-of-scope paths (codex-adapter-checks.ts heartbeat sh -c, dev-memory-lifecycle-gates-smoke.ts inventory fixture) that are owner-ack residuals, not topology closure/exclusion blockers. Did not call topology_critic_receipt_set: this is not a host-adapter session (Grok Build / non-claude-cli-non-codex-cli); topology_critic_receipt_check already reports unverifiable dispatch/session provenance and an existing stale request_changes receipt. Inventory epoch RIE-049 is CANCELLED so critic_set is not applicable. No new topology blocker.",
+      "createdAt": "2026-08-19T13:27:03.177Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-581",
+      "envelopeId": "ce3e3f4d9f43df3f11fa273bb7d35641acafa3b22b96e9414dfca93d8389b0dd",
+      "writerSessionId": "sess-4292375d1d751b41",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "packages/main/templates/agents/lattice-review-topology-critic.md"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "lattice.config.json",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/init-assets.ts",
+          "packages/main/src/tasks/dev-memory-lifecycle-gates-smoke.ts",
+          "packages/main/src/tasks/global-agents-init-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-run-binding-race.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "34db623b3ea6a6bb3129b4c20a73d07eed8e81107bd9e1d388f3cee845d165db"
+      },
+      "readDiagnostics": [],
+      "_hash": "d7d164ae50e69b3d0ea2bac26cca94fb293b174c1559fbd2d689f2dab64f85c9"
     }
   ]
 }
