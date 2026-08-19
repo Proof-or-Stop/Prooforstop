@@ -8607,7 +8607,7 @@
       "desc": "packages/main/src/handlers/prewrite-guard.ts:205-206 brand-decision sites `file.startsWith('.lattice/locks/')` and `file.startsWith('.lattice/runtime/')` hardcode only the deprecated state-dir spelling. After the rename, canonical `.proof-or-stop/locks/` and `.proof-or-stop/runtime/` fail this exemption, so OPEN_REVIEW_INVENTORY_MATERIAL_MUTATION treats them as material writes. B-cc10 CHK-007 requires `isStateDirPath` / `stateDirCandidates` from core/brand-paths.ts so both spellings are recognized. Same deny path emits `lattice review_inventory_cancel` at line 217 (`lattice <cmd>` invocation; should be `proof-or-stop review_inventory_cancel`).",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-19T17:31:05.481Z",
@@ -8640,7 +8640,11 @@
         "packages/main/src/handlers/prewrite-guard.ts"
       ],
       "signatureTag": "edge|ts|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 6cbbbf73 by lattice-implementer: OPEN-inventory lock/runtime exemption now iterates STATE_DIR_NAMES so both .proof-or-stop and .lattice prefixes are excluded; recovery string is proof-or-stop review_inventory_cancel. npm run test:lattice-residue PASS (brand-decision 0).",
+      "resolvedAt": "2026-08-19T18:29:41.986Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3f3d:F-129",
