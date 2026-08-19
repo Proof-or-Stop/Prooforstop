@@ -304,6 +304,54 @@
         "scanEscalationReason": null
       },
       "_hash": "2fe32fb4be2272b9a3ad7a61a1eb8769cc0e02210dbb704b64dac6b1414a8e0b"
+    },
+    {
+      "id": "B-45a5:RP-012",
+      "agent": "lattice-review-concept",
+      "note": "Post-merge re-attestation. Merge with main CONFLICTED only in lattice.config.json validate command list; verified the union resolution is a pure addition (0 removed lines vs main, only the 1 new B-45a5 guard entry added) with no reordering/corruption of the other 110 entries; JSON parse confirms exactly 111 commands, zero duplicates. (1) Checked for a fifth withdrawal-check pathway: diffed the true 3-way merge-base (e51c1a6) against pre-merge main tip and found sibling B-7dff touched only keyed-scheduler.ts/validation-executor.ts/validation-types.ts/verifier.ts/full-suite-runner*.ts/validate-parallel-*.ts/lattice-brand.ts, none of proofstory.ts, validate-channel.ts, verification.ts, or checklist-status.ts. grep across packages/main/src confirms all isWithdrawnChecklistStatus/withdrawnChecklistItemIdsFrom call sites are the same ones this story already accounts for (dashboard/hints/session/checklist_get/story-query/milestone-status/lifecycle-readiness are display-only summaries with blocking:false, not gates); no new blocking consumer appeared. (2) lattice.config.json guard label survived the JSON round-trip intact: still states the three mandatory clauses (authorized withdrawal excluded / non-withdrawn items still bite, including the alias-collision case / unbacked withdrawal refused); checkDispatchEvidence in validate-channel.ts still carries its three-bucket docstring (WITHDRAWN/OWNER-EXEMPT/EVIDENCED) verbatim per git diff main...HEAD. (3) core/verification.ts is byte-identical to main (git diff = 0 lines); the bare-status skip disclosed as knowingly untouched is still at line 212 exactly as documented in plan.md/intent-collision.json/summary.json, so the disclosure remains accurate. (4) Re-ran node packages/main/tests/red/red-b45a5-withdrawal-gates.mjs post-merge-and-rebuild: exit 0, VERDICT=GREEN, all 22 rows (A1-A2 controls, C1-C9 premises, B1-B3 gate rows, D1-D5/D23/D45/E1 forgery-refusal rows) pass as GREEN/CONTROL-OK/REFUSED. npm --prefix packages/main run build succeeded clean. Also checked the 5 new sibling validate entries (validate-parallel-equivalence-smoke.js, validate-plan-scheduling.test.mjs, validate-pollution-attribution.test.mjs, validate-resource-claims.test.mjs, red-B-7dff-sequential-validate-plan.mjs): all are B-7dff execution-scheduling/resource-claim concerns, orthogonal to this story's gate-content concern; grepped them plus the touched B-7dff src files for withdraw* and found zero hits except an unrelated full-suite-runner.ts isolation-list reference to the pre-existing smoke test names. Confirmed the new undeclared-resources guard entry gets B-7dff's fail-closed EXCLUSIVE scheduling default (not an error) per resolveValidationCommandResourceClaims, so no incompatibility. lattice validate --concept CLI gate independently confirms: no deleted exports in main...HEAD. No blocker.",
+      "createdAt": "2026-08-19T14:14:45.363Z",
+      "reviewRound": "2026-08-19T14:10:16.723Z",
+      "reviewRunId": "B-45a5:RR-020",
+      "envelopeId": "3e0864484422c3ef66b741850ea3cbbba72922421b1ef6218f33af083c2ba7c3",
+      "writerSessionId": "sess-b45a5-main",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-45a5/intent-collision.json",
+          ".lattice/story/actives/B-45a5/plan.md",
+          ".lattice/story/actives/B-45a5/summary.json",
+          ".lattice/story/actives/B-45a5/understanding.json",
+          "lattice.config.json",
+          "packages/main/src/core/checklist-status.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/validate-channel.ts",
+          "packages/main/tests/red/red-b45a5-withdrawal-gates.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/keyed-scheduler.ts",
+          "packages/main/src/core/lifecycle-readiness.ts",
+          "packages/main/src/core/milestone-status.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/dashboard.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/hints.ts",
+          "packages/main/src/handlers/session.ts",
+          "packages/main/src/handlers/story-query.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/validate-parallel-benchmark.ts",
+          "packages/main/src/tasks/validate-parallel-equivalence-smoke.ts",
+          "packages/main/tests/red/red-B-7dff-sequential-validate-plan.mjs",
+          "packages/main/tests/validate-plan-scheduling.test.mjs",
+          "packages/main/tests/validate-pollution-attribution.test.mjs",
+          "packages/main/tests/validate-resource-claims.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5f43d27fa3c4f4ef78a037ef06625a38455d5a2120404af8f983fe7e24383ffe"
     }
   ]
 }
