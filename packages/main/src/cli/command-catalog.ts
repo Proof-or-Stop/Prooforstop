@@ -645,9 +645,6 @@ Behavior:
     storyId: z.string().min(1).describe('Story ID'),
     reason: z.string().min(5).describe('Why the window is cancelled (at least 5 characters).'),
   }},
-  { name: 'review_inventory_finalize', description: 'Write a FINALIZED unconsumed inventory-completeness receipt bound to current head/material/storyFiles hashes; does not authorize PRE_CERT', schema: {
-    storyId: z.string().min(1).describe('Story ID'),
-  }},
   { name: 'review_run_start', description: 'Start a reviewer run for the current REVIEW round; write signed review-runs.json', schema: {
     storyId: z.string().describe('Story ID'),
     agent: z.string().optional().describe('Reviewer agent ID, for example lattice-review-quality; defaults to PROOF_OR_STOP_AGENT.'),
@@ -686,7 +683,7 @@ Behavior:
   { name: 'review_inventory_wave_advance', description: 'Persist one complete nonzero-new discovery wave and open the next unchanged-material wave', schema: {
     storyId: z.string().min(1).describe('Story ID with a complete critic-certified current wave that added verified finding families.'),
   }},
-  { name: 'review_inventory_finalize', description: 'Mint a receipt only when the current complete unchanged-material wave adds zero verified finding families', schema: {
+  { name: 'review_inventory_finalize', description: 'With an OPEN saturation epoch, mint a receipt only when the current complete unchanged-material wave adds zero verified finding families. With no OPEN epoch, write a FINALIZED unconsumed inventory-completeness receipt bound to current hashes; completeness is not PRE_CERT and authorizesTest stays false.', schema: {
     storyId: z.string().min(1).describe('Story ID.'),
   }},
   { name: 'review_inventory_cancel', description: 'Cancel an OPEN epoch or invalidate an unconsumed FINALIZED receipt without granting transition authority', schema: {
