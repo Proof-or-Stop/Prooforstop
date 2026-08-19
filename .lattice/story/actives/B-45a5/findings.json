@@ -1,0 +1,19 @@
+{
+  "findings": [
+    {
+      "id": "B-45a5:F-001",
+      "desc": "lattice.config.json:150-157 label for red-b45a5-withdrawal-gates.mjs (now mandatory, no longer optional) states only \"must keep EXCLUDING an item-level withdrawal authorized by a confirmed decision, and must keep biting on everything that is not withdrawn.\" That is the guards A1/A2/B1-B3 half. It omits the CHK-004 anti-bypass half (D1-D5: unbacked status=withdrawn with no/dangling/mismatched decisionRef, or decision=rejected/userConfirmed=false, must still be refused by both gates) entirely. The test file itself treats these as a THIRD, distinct clause -- its own GREEN report text (red-b45a5-withdrawal-gates.mjs tail) reads \"both gates exclude the decision-backed withdrawn item, both still bite on everything that is not withdrawn, AND every unbacked withdrawal is still refused by both\" -- three clauses, not two. A future reader who sees this guard start failing and consults only the config label will not learn that the failure could mean the withdrawal mechanism became forgeable by hand-editing a JSON status field, which is the guards most safety-critical property (plan.md standing rule 4: unbacked states are the actual threat model). Fix: append the D-row half to the label, e.g. \"...and must keep refusing every UNBACKED withdrawal (missing/dangling/mismatched decisionRef, or a decision overwritten to rejected/userConfirmed:false) so the mechanism cannot be forged by hand-editing JSON.\"",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-19T01:56:48.611Z",
+      "reviewRound": "2026-08-19T01:51:47.991Z",
+      "reviewRunId": "B-45a5:RR-003",
+      "_hash": "4a3f203534399c8ca3ded043df83a00999fc423b953629d5f6a1362cf9dc4854",
+      "signatureTag": "missing|unknown|lattice-config-json",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
