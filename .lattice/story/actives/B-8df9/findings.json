@@ -170,6 +170,21 @@
       "dismissedAt": "2026-08-03T04:47:53.998Z",
       "dismissReasonType": "already_covered",
       "dismissEvidenceStrength": "medium"
+    },
+    {
+      "id": "B-8df9:F-009",
+      "desc": "quality-durability: .lattice/story/actives/B-8df9/checklist.json CHK-005:happy:0 and CHK-005:adversarial:0 (re-pinned via verification_evidence_add during this post-merge re-attestation) cite the markers GATED_INIT_STORY_ID=B-dcf9 and SIGNATURE_VERIFIES_UNDER_CURRENT_DOMAIN=false, both emitted only while B-dcf9 (an unrelated, currently-active, high-priority story) remains in phase INIT. These are docs-type attestations (mechanical:false, no CLI-enforced selector pin, per packages/main/src/handlers/checklist.ts:682-689), so nothing gates on them today, but the evidence note explicitly claims the row is now durable/re-verifiable. As soon as B-dcf9 advances out of INIT (or a different story becomes the sole gated one), chk005-corpus-derivation.mjs will stop emitting that exact GATED_INIT_STORY_ID=B-dcf9 line, breaking the marker this row cites. This is precisely the failure class CHK-002:happy:0 waiver already documents for this same story (a selector must be pinned to something no later work/state change will legitimately alter, not a transient live value) — here the fragile value is a third-party stable-in-name-only system state rather than a prose conclusion line, but the durability failure mode is the same. Recommend re-pinning to a stable identifier (e.g. the corpus script line/row-id plus story-count semantics, or an explicit note that the row is a point-in-time snapshot rather than a live-reverifiable claim) rather than a live third-party phase-dependent value.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-19T15:44:02.256Z",
+      "reviewRound": "2026-08-03T04:27:32.508Z",
+      "reviewRunId": "B-8df9:RR-011",
+      "_hash": "b2f04ff8daabec4a86588a36545bd4ce5524aad2fac46cf3ff5ea03a0e12951d",
+      "signatureTag": "adversarial|unknown|quality-durability-lattice",
+      "signatureTagSource": "auto"
     }
   ]
 }
