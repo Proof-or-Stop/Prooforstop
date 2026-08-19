@@ -1,0 +1,44 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Decide whether the format rule is enforced at write time or documented and linted",
+      "context": "The failures on B-9ff1 were not caused by ignorance of the convention - several offending dev-memory entries state the convention in their own body while violating it. Weigh enforcement at dev_memory_capture against a documented format section plus an optional lint, and record the decision with its reason. The cheaper option is the regime under which the chain occurred.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Reject self-referential claims that an entry's own text lacks a property",
+      "context": "Entries asserted 'carries no count' and 'with nothing in it that can go stale'. Such a claim covers a whole body of prose and is checkable only by exhaustively searching a category; each was written after checking a narrower set. Quoting a false claim in order to correct it MUST remain legal, so the check has to distinguish assertion from quotation - a check that cannot do so cleanly is worse than none.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Reject a dev-memory identifier embedded as a claimed current retrieval result",
+      "context": "B-9ff1:F-077: a correction disproved a stale claim by pasting a live query result naming the entry retrieval then returned; that entry was superseded within the same session and the correction went stale exactly like the text it corrected. Naming which entries an entry SUPERSEDES must remain legal - that is metadata about a fixed chain, not a claim about current retrieval state.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Preserve the safe case: ordinals about the correction chain itself",
+      "context": "An ordinal such as 'the third version' or 'superseded twice' is stable because the chain is fixed once written. During B-9ff1 an attempt to strip these as well was an over-correction and produced its own false claim. Whatever rule ships must leave them legal, and a test should pin that.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Validate any proposed rule against the recorded chain rather than against invented examples",
+      "context": "B-9ff1's ledger records the entries in order, each with the review finding that caught it, in .lattice/dev-memory/experience.jsonl and .lattice/story/actives/B-9ff1/findings.json (F-066 through F-077). A proposed rule must be run against every entry in that chain: it has to block the offending text and leave the corrections' legitimate quotation and supersession metadata alone. A rule that would not have blocked the original text is not worth shipping.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

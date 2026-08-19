@@ -113,8 +113,17 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const MIN_NODE_MAJOR = 20;
+// B-cc10 CHK-005: the ROOT package name stays `lattice` (deliberately out of scope, see
+// proof-or-stop-identity-migration.md); only the core package was renamed.
 const CANONICAL_ROOT_PACKAGE_NAME = 'lattice';
-const CANONICAL_CORE_PACKAGE_NAME = '@lattice/core';
+const CANONICAL_CORE_PACKAGE_NAME = '@proof-or-stop/core';
+const DEPRECATED_CORE_PACKAGE_NAME = '@lattice/core';
+// Self-project detection must accept EITHER core spelling: a miss makes runtimeScope flip
+// self -> external, which downgrades drift checks to advisory (the B-cdf6 regression class).
+const SELF_CORE_PACKAGE_NAMES: ReadonlySet<string> = new Set([
+  CANONICAL_CORE_PACKAGE_NAME,
+  DEPRECATED_CORE_PACKAGE_NAME,
+]);
 const URL_RE = /\bhttps?:\/\/[^\s<>"')\]]+/gi;
 const HOST_PORT_RE = /\b(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}:\d{2,5}\b/g;
 const LOCAL_HOST_RE = /^(?:https?:\/\/)?(?:localhost|127\.0\.0\.1|\[?::1\]?)(?::\d+)?(?:[/?#]|$)/i;
@@ -123,7 +132,7 @@ const RUNTIME_MODE_AUTHORITY: RuntimeModeAuthority = 'local-runtime-diagnostic-o
 
 interface CorePackageCandidate {
   path: string;
-  packageName: typeof CANONICAL_CORE_PACKAGE_NAME;
+  packageName: typeof CANONICAL_CORE_PACKAGE_NAME | typeof DEPRECATED_CORE_PACKAGE_NAME;
   exists: boolean;
 }
 
@@ -434,7 +443,9 @@ export function renderLocalEntrypointRecoveryCommand(
   args: readonly string[],
 ): string {
   const tokens = [command, ...args].map(shellQuote);
-  return `cd -- ${shellQuote(worktreeRoot)} && node bin/lattice.js ${tokens.join(' ')}`;
+  // B-cc10 CHK-006: was `bin/lattice.js`. A recovery command must name a wrapper that
+  // still exists, or the operator's retry fails for a second, unrelated reason.
+  return `cd -- ${shellQuote(worktreeRoot)} && node bin/proof-or-stop.js ${tokens.join(' ')}`;
 }
 
 function shellQuote(value: string): string {
@@ -1008,15 +1019,25 @@ function resolveActiveCliEntrypoint(projectRoot: string, corePackageRoot: string
 function looksLikeLatticeEntrypoint(path: string, projectRoot: string, corePackageRoot: string): boolean {
   const real = safeRealpath(path) ?? path;
   const name = basename(path);
+  // B-cc10 CHK-006: this recognized ONLY the deprecated spellings, so the CANONICAL
+  // wrapper/bin was not identified as a Lattice entrypoint at all. With the aliases
+  // deleted that gap became load-bearing: a legitimate `bin/proof-or-stop.js` invocation
+  // would not be recognized here. Both spellings are accepted, canonical first; the
+  // deprecated names stay so a pre-rename launcher on PATH still classifies.
   if (
-    name === 'lattice'
+    name === 'proof-or-stop'
+    || name === 'proof-or-stop.cmd'
+    || name === 'proof-or-stop.js'
+    || name === 'proof-or-stop-codex.js'
+    || name === 'lattice'
     || name === 'lattice.cmd'
     || name === 'lattice.js'
     || name === 'lattice-codex.js'
   ) return true;
   if ((name === 'cli.js' || name === 'cli-engine.js') && pathContains(corePackageRoot, real)) return true;
-  if (samePath(real, join(projectRoot, 'bin', 'lattice.js'))) return true;
-  if (samePath(real, join(projectRoot, 'bin', 'lattice-codex.js'))) return true;
+  for (const rel of ['proof-or-stop.js', 'proof-or-stop-codex.js', 'lattice.js', 'lattice-codex.js']) {
+    if (samePath(real, join(projectRoot, 'bin', rel))) return true;
+  }
   return false;
 }
 
@@ -1030,7 +1051,8 @@ function detectSelfProject(projectRoot: string): boolean {
   const rootName = rootPackage?.name;
   const coreName = corePackage?.name;
   return rootName === CANONICAL_ROOT_PACKAGE_NAME
-    && coreName === CANONICAL_CORE_PACKAGE_NAME;
+    && typeof coreName === 'string'
+    && SELF_CORE_PACKAGE_NAMES.has(coreName);
 }
 
 function packagePathFromName(root: string, packageName: string): string {
@@ -1043,6 +1065,12 @@ function resolveCorePackageCandidate(root: string): CorePackageCandidate {
   const canonicalPath = packagePathFromName(root, CANONICAL_CORE_PACKAGE_NAME);
   if (existsSync(canonicalPath)) {
     return { path: canonicalPath, packageName: CANONICAL_CORE_PACKAGE_NAME, exists: true };
+  }
+  // B-cc10 CHK-005: fall back to the deprecated scope so an already-installed global
+  // @lattice/core is still FOUND (and reported) instead of looking absent.
+  const deprecatedPath = packagePathFromName(root, DEPRECATED_CORE_PACKAGE_NAME);
+  if (existsSync(deprecatedPath)) {
+    return { path: deprecatedPath, packageName: DEPRECATED_CORE_PACKAGE_NAME, exists: true };
   }
   return { path: canonicalPath, packageName: CANONICAL_CORE_PACKAGE_NAME, exists: false };
 }
@@ -1168,6 +1196,11 @@ function isPackagedRuntime(): boolean {
     || Boolean((process as typeof process & { pkg?: unknown }).pkg);
 }
 
+// B-cc10 CHK-006: the deprecated basenames below are INTENTIONAL and stay. This predicate
+// asks "was a retained COMPATIBILITY launcher used?", so recognizing the old names is the
+// whole point — adding the canonical spellings would make every ordinary canonical
+// invocation look like a compatibility launcher and invert the classification at line 626.
+// The `lattice` npm bin is still retained, so this signal remains reachable.
 function compatibilityLauncherSignal(activePath: string | null): boolean {
   if (readBrandEnv('ACTIVITY_SOURCE') === 'codex') return true;
   if (readBrandEnv('CODEX_ENTRYPOINT') === 'global-fallback' || readBrandEnv('CODEX_ENTRYPOINT') === 'local-wrapper') return true;

@@ -810,7 +810,7 @@ try {
       LATTICE_ACTIVITY_RECORD_READONLY: '1',
     };
     delete cliEnv.LATTICE_OWNER_SESSION_SMOKE_CHILD_MODE;
-    const briefDirect = spawnSync(process.execPath, ['bin/lattice.js', 'session_brief'], {
+    const briefDirect = spawnSync(process.execPath, ['bin/proof-or-stop.js', 'session_brief'], {
       cwd: projectRoot,
       env: cliEnv,
       encoding: 'utf8',
@@ -828,7 +828,7 @@ try {
       recentActivity.some(event => event.session === briefSessionId),
       'activity event persists the same opaque canonical id rendered by session_brief',
     );
-    const doctor = spawnSync(process.execPath, ['bin/lattice.js', 'doctor', '--format=json'], {
+    const doctor = spawnSync(process.execPath, ['bin/proof-or-stop.js', 'doctor', '--format=json'], {
       cwd: projectRoot,
       env: cliEnv,
       encoding: 'utf8',

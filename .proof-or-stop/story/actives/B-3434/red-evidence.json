@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-3434",
+  "records": [
+    {
+      "id": "RED-20260815104951",
+      "trigger": "Story B-9ff1 completed all review work and could not enter TEST; the metadata commit path refused with verified metadata changed after manifest verification while no file changed inside the commit window.",
+      "acceptanceTargetRef": "AB-001",
+      "baselineHeadHash": "35385eafc2cffb1931f9eb24bb2c173577f1eed2",
+      "baselineMaterialHash": "599998e6946c6f469f142172e747c46afc7fa06f80c37705570cac79133d4eed",
+      "observedFailure": "execFileSync reading a staged blob larger than Node's default 1048576-byte buffer throws ENOBUFS; the bare catch in the hash helpers returns null; the caller compares null against the expected digest and reports the failure as a metadata change. Measured artifact on B-9ff1: 1369692 bytes.",
+      "failingCommand": "node /private/tmp/claude-501/-Users-jek-Documents-CDR3/0dd30929-2f69-48ed-a466-9512f56096aa/scratchpad/red-b3434-repro.mjs",
+      "expectedGreenCommand": "node packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
+      "greenRelation": {
+        "targetRef": "AB-001",
+        "relation": "same_acceptance",
+        "command": "node packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs"
+      },
+      "createdAt": "2026-08-15T10:49:51.910Z"
+    }
+  ],
+  "createdAt": "2026-08-15T10:49:51.910Z",
+  "updatedAt": "2026-08-15T10:49:51.910Z"
+}

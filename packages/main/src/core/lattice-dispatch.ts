@@ -1292,7 +1292,7 @@ function requireReassignablePreviousDispatch(root: string, record: DispatchRecor
 
 function ensurePreparedPackForFake(root: string, dispatchId: string, pack: HandoffPack): HandoffPack {
   if (pack.allowedPaths.length > 0) return pack;
-  const safePath = `.lattice/dispatches/${dispatchId}/worker/fake-result.txt`;
+  const safePath = `${PROOF_OR_STOP_DIR}/dispatches/${dispatchId}/worker/fake-result.txt`;
   const patched: HandoffPack = {
     ...pack,
     allowedPaths: [safePath],
@@ -2167,7 +2167,7 @@ function runFakeLeafDispatch(
   const fakeGitCwd = resolveGitCwd({ store, storyId: record.storyId, metadataRoot: root, projectRoot: root });
   const worktreeAbs = ensureWorktree(root, fakeGitCwd, record.worktree.worktreePath, record.worktree.branch, baseRef);
   pack = normalizePackPaths(root, record.dispatchId, worktreeAbs, pack, 'canonical');
-  const markerPath = pack.allowedPaths[0] ?? `.lattice/dispatches/${record.dispatchId}/worker/fake-result.txt`;
+  const markerPath = pack.allowedPaths[0] ?? `${PROOF_OR_STOP_DIR}/dispatches/${record.dispatchId}/worker/fake-result.txt`;
   const safeMarkerPath = assertCanonicalWorktreePath(worktreeAbs, markerPath, 'fake dispatch marker');
   const markerAbs = resolve(worktreeAbs, safeMarkerPath);
   mkdirSync(dirname(markerAbs), { recursive: true });
@@ -2815,7 +2815,7 @@ function childDispatchArgs(parentPack: HandoffPack, parent: DispatchRecord, work
     objective: parentPack.objective ? `${parentPack.objective} (worker ${workerIndex + 1})` : `Worker ${workerIndex + 1}`,
     allowedPaths: parentPack.allowedPaths.length > workerIndex
       ? [parentPack.allowedPaths[workerIndex]]
-      : [`.lattice/dispatches/${childId}/worker/fake-result.txt`],
+      : [`${PROOF_OR_STOP_DIR}/dispatches/${childId}/worker/fake-result.txt`],
     deniedPaths: [...parentPack.deniedPaths],
     requiredCommands: [...parentPack.requiredCommands],
     successCriteria: [...parentPack.successCriteria],

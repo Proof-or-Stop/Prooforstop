@@ -12,6 +12,7 @@ import {
   formatProofOrStopProductLine,
 } from './lattice-brand.js';
 import { PROOF_OR_STOP_DIR } from './lattice-paths.js';
+import { CONFIG_FILENAMES } from './brand-paths.js';
 
 export type RolloutFormat = 'text' | 'json';
 export type RolloutStatus = 'pass' | 'warn' | 'fail' | 'skip';
@@ -231,7 +232,10 @@ function discoverProjects(root: string, maxDepth: number): string[] {
 }
 
 function looksLikeProject(dir: string): boolean {
-  return existsSync(join(dir, 'lattice.config.json')) ||
+  // B-cc10 CHK-004: accept BOTH config filenames. This is a discovery predicate;
+  // pinning it to one spelling would make rollout discovery skip projects that
+  // are on the other side of the migration.
+  return CONFIG_FILENAMES.some((name) => existsSync(join(dir, name))) ||
     existsSync(join(dir, PROOF_OR_STOP_DIR)) ||
     existsSync(join(dir, 'package.json')) ||
     existsSync(join(dir, 'AGENTS.md')) ||
@@ -299,7 +303,10 @@ function buildConfigProbe(projectRoot: string): RolloutProbe {
   const hasLatticeWrapper = existsSync(join(projectRoot, 'bin', `${PROOF_OR_STOP_PRIMARY_BIN}.js`));
   const hasDeprecatedWrapper = existsSync(join(projectRoot, 'bin', `${PROOF_OR_STOP_DEPRECATED_BIN}.js`));
   const hasBinAliases = packageBinHasLattice(mainPackagePath);
-  const isSelfLayout = mainPackageName === '@lattice/core';
+  // B-cc10 CHK-005: renamed @lattice/core -> @proof-or-stop/core. Accept both spellings.
+  // A miss here does NOT fail loudly: isSelfLayout=false short-circuits `ok` to true and
+  // silently disarms the version-sync/wrapper check (the B-cdf6 regression class).
+  const isSelfLayout = mainPackageName === '@proof-or-stop/core' || mainPackageName === '@lattice/core';
   const ok = isSelfLayout
     ? rootPackageVersion === LATTICE_CLI_VERSION && mainPackageVersion === LATTICE_CLI_VERSION && hasLatticeWrapper && hasBinAliases
     : true;

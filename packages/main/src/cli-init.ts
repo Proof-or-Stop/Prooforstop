@@ -52,11 +52,15 @@ import {
   LATTICE_RUNTIME_IGNORE_BLOCK_START,
   listRuntimeArtifactIgnorePatterns,
 } from './core/runtime-artifact-registry.js';
-import { PROOF_OR_STOP_STORY_DIR } from './core/lattice-paths.js';
+import { PROOF_OR_STOP_STORY_DIR, PROOF_OR_STOP_DIR } from './core/lattice-paths.js';
+// B-cc10 CHK-002: `init` is a WRITER, so it uses the CANONICAL names only — the
+// read-both contract resolves deprecated spellings for reads but never writes
+// them, otherwise two on-disk copies of the same state would diverge.
+import { PROOF_OR_STOP_ADAPTER_DIR, PROOF_OR_STOP_MANIFEST_FILENAME, PROOF_OR_STOP_CONFIG_FILENAME, CONFIG_FILENAMES, adapterManifestCandidates, ADAPTER_DIR_NAMES } from './core/brand-paths.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const packageRoot = join(__dirname, '..'); // @lattice/core package root
+const packageRoot = join(__dirname, '..'); // @proof-or-stop/core package root
 const agentTemplateDir = [
   resolveAgentTemplateDir(),
   join(packageRoot, 'templates', 'agents'),
@@ -204,7 +208,10 @@ function parseTargetDir(args: string[]): string | null {
 }
 
 function detectInitProfile(root: string): { profile: InitProfile; reason: string; compatibilityNote?: string } {
-  const hasCodexMarkers = existsSync(join(root, 'AGENTS.md')) || existsSync(join(root, '.lattice-codex'));
+  // B-cc10 F-004: probe BOTH adapter-dir spellings so a canonical-only project is
+  // still detected as Codex-enabled (read-both; ADAPTER_DIR_NAMES is canonical-first).
+  const hasCodexMarkers = existsSync(join(root, 'AGENTS.md'))
+    || ADAPTER_DIR_NAMES.some((dir) => existsSync(join(root, dir)));
   const hasClaudeMarkers = existsSync(join(root, 'CLAUDE.md')) || existsSync(join(root, '.claude'));
   if (hasCodexMarkers && hasClaudeMarkers) {
     return {
@@ -253,18 +260,18 @@ proof-or-stop init — 初始化 Proof-or-Stop 开发框架
   proof-or-stop init --help                        显示帮助
 
 默认初始化（global-thin mode）:
-  .lattice/Lattice.md           canonical host-neutral Proof-or-Stop 指南（新目录）
-  .lattice/lattice.json         项目 Proof-or-Stop 配置（global-thin）
-  AGENTS.md                     薄 Codex/AGENTS 指南（引用全局 lattice CLI）
-  lattice.config.json           项目配置（canonical）
-  .lattice/story/actives/       Story 数据目录
+  ${PROOF_OR_STOP_DIR}/Lattice.md           canonical host-neutral Proof-or-Stop 指南（新目录）
+  ${PROOF_OR_STOP_DIR}/${PROOF_OR_STOP_MANIFEST_FILENAME}   项目 Proof-or-Stop 配置（global-thin）
+  AGENTS.md                     薄 Codex/AGENTS 指南（引用全局 Proof-or-Stop CLI）
+  ${PROOF_OR_STOP_CONFIG_FILENAME}      项目配置（canonical）
+  ${PROOF_OR_STOP_STORY_DIR}/       Story 数据目录
   docs/requirements/            真相源目录
 
 full/thin asset mode（显式 --asset-mode=full 或 --asset-mode=thin）:
   LATTICE.md                    canonical host-neutral Proof-or-Stop 指南（旧位置）
   bin/proof-or-stop.js          本地 Proof-or-Stop bootstrap（仅 full/thin）
-  .lattice-codex/lattice.json           Codex adapter manifest（仅 full/thin + codex profile）
-  .lattice-codex/agents                 agent prompt copies（仅 full mode + codex profile）
+  ${PROOF_OR_STOP_ADAPTER_DIR}/${PROOF_OR_STOP_MANIFEST_FILENAME}   Codex adapter manifest（仅 full/thin + codex profile）
+  ${PROOF_OR_STOP_ADAPTER_DIR}/agents                 agent prompt copies（仅 full mode + codex profile）
 
 可选 starter 内容（仅 --starter / --with-template）:
   src/core/app.ts               应用组装（平台无关）
@@ -275,9 +282,9 @@ full/thin asset mode（显式 --asset-mode=full 或 --asset-mode=thin）:
   tests/                        测试目录
 
 初始化后（global-thin）:
-  1. 阅读 .lattice/Lattice.md
-  2. 使用全局 lattice CLI：proof-or-stop session_brief、proof-or-stop codex verify、proof-or-stop codex doctor
-  3. 可选: 编辑 lattice.config.json 调整 scanRoot 等路径
+  1. 阅读 ${PROOF_OR_STOP_DIR}/Lattice.md
+  2. 使用全局 Proof-or-Stop CLI：proof-or-stop session_brief、proof-or-stop codex verify、proof-or-stop codex doctor
+  3. 可选: 编辑 ${PROOF_OR_STOP_CONFIG_FILENAME} 调整 scanRoot 等路径
   4. 可选: proof-or-stop validate 跑项目验证
 `);
   process.exit(0);
@@ -484,10 +491,18 @@ function removeCodexWrapperIfManaged() {
 }
 
 function removeCodexManifestIfManaged() {
-  removeWholeFileIfGenerated('.lattice-codex/lattice.json', '.lattice-codex/lattice.json', [
-    renderProofOrStopCodexAdapterManifest(),
-    renderProofOrStopCodexAdapterManifest({ promptMode: 'registry' }),
-  ]);
+  // B-cc10 CHK-004: profile cleanup must consider BOTH manifest filenames, same
+  // reasoning as removeCodexWrapperIfManaged above. A cleanup pinned to one
+  // spelling would strand a managed manifest written under the other name, which
+  // `verify_codex` would then keep discovering after the profile said to remove it.
+  // adapterManifestCandidates() is the dir x filename cross product, so cleanup
+  // also covers a half-migrated checkout (canonical dir, deprecated filename).
+  for (const rel of adapterManifestCandidates()) {
+    removeWholeFileIfGenerated(rel, rel, [
+      renderProofOrStopCodexAdapterManifest(),
+      renderProofOrStopCodexAdapterManifest({ promptMode: 'registry' }),
+    ]);
+  }
 }
 
 function removeCodexNativeHooksIfManaged() {
@@ -508,10 +523,16 @@ function cleanupClaudeAssets() {
 
 function cleanupCodexAssets() {
   removeIfManagedDoc('AGENTS.md', 'AGENTS.md');
-  removePathIfExists('.lattice-codex/agents', '.lattice-codex/agents');
-  removePathIfExists('.lattice-codex/README.md', '.lattice-codex/README.md');
+  // B-cc10 F-026: sweep EVERY accepted adapter-dir spelling. This only removed the
+  // deprecated dir, so profile cleanup on a migrated project orphaned
+  // .proof-or-stop-codex/agents and README.md. ADAPTER_DIR_NAMES is already imported
+  // and used correctly by removeCodexManifestIfManaged / removeCodexWrapperIfManaged.
+  for (const dir of ADAPTER_DIR_NAMES) {
+    removePathIfExists(`${dir}/agents`, `${dir}/agents`);
+    removePathIfExists(`${dir}/README.md`, `${dir}/README.md`);
+  }
   removeCodexManifestIfManaged();
-  cleanupEmptyDirChain('.lattice-codex');
+  for (const dir of ADAPTER_DIR_NAMES) cleanupEmptyDirChain(dir);
   removeCodexWrapperIfManaged();
   removeCodexNativeHooksIfManaged();
 }
@@ -539,11 +560,11 @@ const dirs = [
   'docs/requirements/decisions',
   'docs/requirements/extracted',
 ];
-if (isGlobalThin) dirs.push('.lattice');
+if (isGlobalThin) dirs.push(PROOF_OR_STOP_DIR);
 // B-097f: do NOT create project .claude/agents — agent prompts resolve from the
 // user-global ~/.claude/agents single source. `.claude` (for hooks/settings) is
 // created on demand by the [5/5] block when wantsClaude.
-if (wantsCodex && selectedAssetMode === 'full') dirs.push('.lattice-codex/agents');
+if (wantsCodex && selectedAssetMode === 'full') dirs.push(`${PROOF_OR_STOP_ADAPTER_DIR}/agents`);
 for (const d of dirs) {
   const full = join(targetDir, d);
   if (!existsSync(full)) {
@@ -618,6 +639,14 @@ if (withStarter) {
 // `bin/lattice-codex.js` names are still ACCEPTED (a project that already has them is
 // left alone rather than gaining a duplicate), but they are never newly generated —
 // otherwise fresh projects would keep inheriting the retired brand.
+//
+// B-cc10 CHK-006 SCOPE NOTE: that story deleted the two deprecated aliases from THIS
+// repository's own `bin/`. It deliberately did NOT remove the tolerance below, because
+// this code path generates into and cleans up DOWNSTREAM user projects: a project that
+// was initialized before the rename still has the old wrapper on disk, and silently
+// ceasing to recognize it would either strand a managed file or hand that project a
+// duplicate wrapper. Recognizing an old name in someone else's checkout costs nothing;
+// shipping the dead name from our own bin/ was the actual break, and that is gone.
 const CANONICAL_BOOTSTRAP_REL = 'bin/proof-or-stop.js';
 const CANONICAL_CODEX_WRAPPER_REL = 'bin/proof-or-stop-codex.js';
 const DEPRECATED_BOOTSTRAP_REL = 'bin/lattice.js';
@@ -806,7 +835,7 @@ if (withStarter && !existsSync(debugPath)) {
   writeFileSync(debugPath, `// debug.ts — 调试入口
 // 框架的 devHost() 负责：WS server + .lattice-serve.json + cleanup
 
-import { devHost } from '@lattice/core/dev-host';
+import { devHost } from '@proof-or-stop/core/dev-host';
 import { createApp } from './app.js';
 import { readBrandEnv } from './core/brand-env.js';
 // import { GameMachine } from './machines/game/machine.js';
@@ -821,8 +850,8 @@ import { readBrandEnv } from './core/brand-env.js';
   console.log('  ✓ src/core/debug.ts (调试入口模板)');
 }
 
-// 2. lattice.config.json (canonical)
-console.log('\n[2/5] 生成 lattice.config.json...');
+// 2. project config (canonical filename only)
+console.log(`\n[2/5] 生成 ${PROOF_OR_STOP_CONFIG_FILENAME}...`);
 const latticeConfig: Record<string, unknown> = {
   scanRoot: withStarter || hadSrcBeforeInit ? 'src' : '.',
   testsDir: 'tests',
@@ -850,24 +879,38 @@ if (existsSync(pkgPath)) {
     }
   } catch { /* ignore */ }
 }
-if (existsSync(join(targetDir, 'lattice.config.json'))) {
-  console.log('  - lattice.config.json (exists, skip)');
+// B-cc10 CHK-004: the SKIP test is read-both, the WRITE is canonical-only. If the
+// existence test only looked for the canonical name, `init` on an unmigrated
+// project would write a SECOND config file next to the deprecated one — two
+// on-disk copies of the same state, with the canonical one silently winning and
+// the user's real settings ignored.
+const existingConfigFilename = CONFIG_FILENAMES.find((name) => existsSync(join(targetDir, name)));
+if (existingConfigFilename) {
+  console.log(`  - ${existingConfigFilename} (exists, skip)`);
 } else {
-  write('lattice.config.json', JSON.stringify(latticeConfig, null, 2) + '\n');
+  write(PROOF_OR_STOP_CONFIG_FILENAME, JSON.stringify(latticeConfig, null, 2) + '\n');
 }
 
 // 3. 文档入口
 console.log('\n[3/5] 配置 Proof-or-Stop / host 文档...');
 if (isGlobalThin) {
-  writeManagedMarkdown('.lattice/Lattice.md', LATTICE_DOT_DIR_MD_TEMPLATE, '.lattice/Lattice.md');
-  const latticeConfigPath = join(targetDir, '.lattice', 'lattice.json');
+  // B-cc10 CHK-007 (F-004): this was a hardcoded `.lattice/Lattice.md` while the
+  // manifest three lines below already went to PROOF_OR_STOP_DIR, so a single
+  // `init` STRADDLED two state directories and created a stray legacy directory
+  // on every fresh init. Derived now, so the guide lands beside the manifest.
+  const dotDirGuidePath = `${PROOF_OR_STOP_DIR}/Lattice.md`;
+  writeManagedMarkdown(dotDirGuidePath, LATTICE_DOT_DIR_MD_TEMPLATE, dotDirGuidePath);
+  const latticeConfigPath = join(targetDir, PROOF_OR_STOP_DIR, PROOF_OR_STOP_MANIFEST_FILENAME);
+  // B-cc10 CHK-004: report the path actually written rather than a hardcoded
+  // spelling, so the console never claims a filename that is not on disk.
+  const latticeConfigLabel = `${PROOF_OR_STOP_DIR}/${PROOF_OR_STOP_MANIFEST_FILENAME}`;
   if (!existsSync(latticeConfigPath)) {
     writeFileSync(latticeConfigPath, renderLatticeProjectConfig());
-    console.log('  ✓ .lattice/lattice.json');
+    console.log(`  ✓ ${latticeConfigLabel}`);
   } else {
-    console.log('  - .lattice/lattice.json (exists, skip)');
+    console.log(`  - ${latticeConfigLabel} (exists, skip)`);
   }
-  console.log('  - LATTICE.md (global-thin mode; canonical guide is .lattice/Lattice.md)');
+  console.log(`  - LATTICE.md (global-thin mode; canonical guide is ${dotDirGuidePath})`);
 } else {
   writeManagedMarkdown('LATTICE.md', LATTICE_MD_TEMPLATE, 'LATTICE.md');
 }
@@ -933,34 +976,45 @@ if (wantsClaude && agentTemplateDir) {
   console.log('  - .claude/agents (profile skip)');
 }
 
+// B-cc10 CHK-007: the adapter-dir README/agents writers below were hardcoded to the
+// DEPRECATED adapter directory while the MANIFEST already used the resolver, so
+// full-mode `init` created BOTH directories — measured on a fresh init:
+// `.lattice-codex/{README.md,agents}` plus `.proof-or-stop-codex/proof-or-stop.json`.
+// Same straddle class as the state-dir F-004 defect, on the adapter identity.
+const codexReadmeRel = `${PROOF_OR_STOP_ADAPTER_DIR}/README.md`;
+const codexAgentsRel = `${PROOF_OR_STOP_ADAPTER_DIR}/agents`;
+
 if (!isGlobalThin && wantsCodex) {
-  const codexReadmePath = join(targetDir, '.lattice-codex', 'README.md');
+  const codexReadmePath = join(targetDir, PROOF_OR_STOP_ADAPTER_DIR, 'README.md');
   if (!existsSync(dirname(codexReadmePath))) mkdirSync(dirname(codexReadmePath), { recursive: true });
   writeFileSync(codexReadmePath, renderCodexReadmeTemplate(selectedAssetMode));
-  console.log('  ✓ .lattice-codex/README.md');
+  console.log(`  ✓ ${codexReadmeRel}`);
 
-  const codexManifestPath = join(targetDir, '.lattice-codex', 'lattice.json');
+  // B-cc10 CHK-004: the manifest FILENAME comes from the resolver (canonical
+  // only — `init` is a writer). Both halves are resolver-derived now.
+  const codexManifestLabel = `${PROOF_OR_STOP_ADAPTER_DIR}/${PROOF_OR_STOP_MANIFEST_FILENAME}`;
+  const codexManifestPath = join(targetDir, PROOF_OR_STOP_ADAPTER_DIR, PROOF_OR_STOP_MANIFEST_FILENAME);
   writeFileSync(codexManifestPath, renderProofOrStopCodexAdapterManifest(selectedAssetMode === 'thin' ? { promptMode: 'registry' } : {}));
-  console.log('  ✓ .lattice-codex/lattice.json');
+  console.log(`  ✓ ${codexManifestLabel}`);
 } else if (isGlobalThin) {
-  console.log('  - .lattice-codex/README.md (global-thin mode; Codex adapter runs from global lattice CLI)');
-  console.log('  - .lattice-codex/lattice.json (global-thin mode; use proof-or-stop codex verify)');
+  console.log(`  - ${codexReadmeRel} (global-thin mode; Codex adapter runs from global Proof-or-Stop CLI)`);
+  console.log(`  - ${PROOF_OR_STOP_ADAPTER_DIR}/${PROOF_OR_STOP_MANIFEST_FILENAME} (global-thin mode; use proof-or-stop codex verify)`);
 } else {
-  console.log('  - .lattice-codex/README.md (profile skip)');
-  console.log('  - .lattice-codex/lattice.json (profile skip)');
+  console.log(`  - ${codexReadmeRel} (profile skip)`);
+  console.log(`  - ${PROOF_OR_STOP_ADAPTER_DIR}/${PROOF_OR_STOP_MANIFEST_FILENAME} (profile skip)`);
 }
 
 if (!isGlobalThin && wantsCodex && selectedAssetMode === 'thin') {
-  console.log('  - .lattice-codex/agents (thin asset mode; prompts resolve from registry)');
+  console.log(`  - ${codexAgentsRel} (thin asset mode; prompts resolve from registry)`);
 } else if (!isGlobalThin && wantsCodex && agentTemplateDir) {
-  const codexAgentDir = join(targetDir, '.lattice-codex', 'agents');
+  const codexAgentDir = join(targetDir, PROOF_OR_STOP_ADAPTER_DIR, 'agents');
   if (!existsSync(codexAgentDir)) mkdirSync(codexAgentDir, { recursive: true });
   const agentPromptFiles = listAgentPromptFiles(agentTemplateDir);
   const agentPromptFileSet = new Set(agentPromptFiles);
   for (const file of listAgentPromptFiles(codexAgentDir)) {
     if (agentPromptFileSet.has(file)) continue;
     unlinkSync(join(codexAgentDir, file));
-    console.log(`  - .lattice-codex/agents/${file} (removed stale prompt)`);
+    console.log(`  - ${codexAgentsRel}/${file} (removed stale prompt)`);
   }
   for (const file of agentPromptFiles) {
     const src = join(agentTemplateDir, file);
@@ -998,12 +1052,12 @@ if (!isGlobalThin && wantsCodex && selectedAssetMode === 'thin') {
       }
     }
     writeFileSync(dst, content);
-    console.log(`  ✓ .lattice-codex/agents/${file}`);
+    console.log(`  ✓ ${codexAgentsRel}/${file}`);
   }
 } else if (!isGlobalThin && wantsCodex) {
-  console.log('  - .lattice-codex/agents template source missing, skip');
+  console.log(`  - ${codexAgentsRel} template source missing, skip`);
 } else if (isGlobalThin) {
-  console.log('  - .lattice-codex/agents (global-thin mode; Codex prompts resolve from global lattice registry)');
+  console.log(`  - ${codexAgentsRel} (global-thin mode; Codex prompts resolve from global Proof-or-Stop registry)`);
 }
 
 // 6. hooks + settings.json
@@ -1136,11 +1190,11 @@ console.log(`
 ✓ 初始化完成
 
 Next steps:
-${isGlobalThin ? `  1. Read .lattice/Lattice.md
+${isGlobalThin ? `  1. Read ${PROOF_OR_STOP_DIR}/Lattice.md
   2. Use the global lattice CLI: proof-or-stop session_brief
   3. For Codex adapter: proof-or-stop codex verify / proof-or-stop codex doctor
   4. Optional: proof-or-stop validate to verify project` : `  1. Read LATTICE.md, then use the entrypoints generated for profile ${selectedProfile}
-  2. Optional: edit lattice.config.json to adjust scanRoot
+  2. Optional: edit ${PROOF_OR_STOP_CONFIG_FILENAME} to adjust scanRoot
   3. Optional: proof-or-stop validate to verify project`}
 `);
 

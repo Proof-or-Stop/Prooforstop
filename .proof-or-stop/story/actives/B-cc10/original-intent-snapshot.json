@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-cc10",
+  "sourceText": "在一个新的story中，制定合理的迁移计划，把以下 lattice 改掉，不考虑其他正在跑的story的影响\n1、移除bin/lattice.js bin/lattice-codex.js\n2、不再使用 .lattice 目录，改为使用 .proof-or-stop 目录\n3、不再使用 .lattice-codex ，改为使用 .proof-or-stop-codex 目录\n4、不再使用 lattice.config.json，改为使用 proof-or-stop.config.json\n5、不再使用 lattice.json，改为使用 proof-or-stop.json\n6、不再使用 @lattice/core 包名字，改为使用 @proof-or-stop/core 包名",
+  "normalizedOutcome": "All six named lattice identities are retired: the two bin aliases are gone, the two state directories and two config/manifest filenames resolve under proof-or-stop names, and the workspace package is @proof-or-stop/core — while the 344 archived story directories remain readable and their historical signatures still verify.",
+  "acceptanceClaim": "From a clean checkout: node bin/lattice.js fails with command-not-found; node bin/proof-or-stop.js session_brief and story_get both succeed reading state from .proof-or-stop; grep for @lattice/core outside node_modules/dist/state-dir returns nothing; and signature verification passes on two named archived stories from different eras.",
+  "keyRequirementIds": [
+    "REQ-001-remove-bin-aliases",
+    "REQ-002-state-dir",
+    "REQ-003-codex-adapter-dir",
+    "REQ-004-config-filename",
+    "REQ-005-manifest-filename",
+    "REQ-006-npm-package-name"
+  ],
+  "requestHash": "sha256:015ec551a05f75055870d03b1b9d1a4773db203b57eb6e2b1c30639eb8a826cb",
+  "createdAt": "2026-08-17T10:19:36.206Z",
+  "updatedAt": "2026-08-17T10:19:36.206Z"
+}

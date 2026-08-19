@@ -2,17 +2,27 @@
 
 import { execFileSync } from 'node:child_process';
 import { closeSync, fsyncSync, mkdirSync, openSync, renameSync, rmSync, unlinkSync, writeFileSync } from 'node:fs';
-import { join, resolve } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import { createServer } from 'node:net';
-import { OWNERSHIP_MARKER_FILENAME } from './full-suite-runner.js';
+// B-cc10 F-064: derive the sentinel paths from the runtime's own resolver-backed
+// helper. A fixture that hand-types the state-dir spelling can set up state at a
+// path the runtime stopped reading — the dominant defect class of this migration.
+import { OWNERSHIP_MARKER_FILENAME, stateDirKey } from './full-suite-runner.js';
 
 const root = resolve(process.cwd());
 const gitCwd = execFileSync('git', ['rev-parse', '--show-toplevel'], { encoding: 'utf8' }).trim();
-const runtimeLock = join(root, '.lattice', 'runtime', 'full-suite-runtime-sentinel.lock');
-const mainWriteLock = join(root, '.lattice', 'locks', 'full-suite-main-write-sentinel.lock');
-const fixedPath = join(root, '.lattice', 'runtime', 'full-suite-fixed-sentinel');
+const runtimeLock = join(root, ...stateDirKey('runtime', 'full-suite-runtime-sentinel.lock').split('/'));
+const mainWriteLock = join(root, ...stateDirKey('locks', 'full-suite-main-write-sentinel.lock').split('/'));
+const fixedPath = join(root, ...stateDirKey('runtime', 'full-suite-fixed-sentinel').split('/'));
 const acquired: string[] = [];
 function acquireOwnedDirectory(path: string, token: string): void {
+  // B-cc10 F-064: ensure the PARENT exists, then acquire the lock directory itself
+  // non-recursively. `recursive: false` on the lock is load-bearing — it is what makes
+  // the mkdir an atomic test-and-set, so a second holder fails with EEXIST instead of
+  // silently succeeding. Relaxing it to `true` would destroy the exclusivity this
+  // sentinel exists to prove. The canonical state dir may not have every subdirectory
+  // yet (the deprecated spelling had them), so only the parent is created recursively.
+  mkdirSync(dirname(path), { recursive: true });
   mkdirSync(path, { recursive: false });
   acquired.push(path);
   const temporary = join(path, `.owner-${process.pid}.tmp`);
@@ -21,6 +31,8 @@ function acquireOwnedDirectory(path: string, token: string): void {
   renameSync(temporary, join(path, OWNERSHIP_MARKER_FILENAME));
 }
 function publishReady(path: string, token: string): void {
+  // Same reason as acquireOwnedDirectory: the canonical parent may not exist yet.
+  mkdirSync(dirname(path), { recursive: true });
   const temporary = `${path}.${process.pid}.tmp`;
   const descriptor = openSync(temporary, 'wx');
   try { writeFileSync(descriptor, `${token}\n`); fsyncSync(descriptor); } finally { closeSync(descriptor); }
@@ -40,8 +52,11 @@ async function probeFixedPort(): Promise<'bound' | 'unsupported'> {
 async function main(): Promise<void> {
 try {
   execFileSync('git', ['rev-parse', '--git-common-dir'], { cwd: gitCwd, stdio: 'ignore' });
-  mkdirSync(join(root, '.lattice', 'runtime'), { recursive: true });
-  mkdirSync(join(root, '.lattice', 'locks'), { recursive: true });
+  // B-cc10 F-067: the parent-dir creation that used to live here hardcoded the DEPRECATED
+  // spelling, so once the targets below became resolver-derived it created a stray
+  // `.lattice/runtime` + `.lattice/locks` pair on every run while the real work happened
+  // under the canonical dir. acquireOwnedDirectory()/publishReady() each create their own
+  // parent from the resolved path, so no replacement is needed here.
   const ownershipToken = process.env.LATTICE_FULL_SUITE_OWNERSHIP_TOKEN ?? String(process.pid);
   for (const path of [runtimeLock, mainWriteLock, fixedPath]) acquireOwnedDirectory(path, ownershipToken);
   const markerMutation = process.env.LATTICE_FULL_SUITE_SENTINEL_MARKER_MUTATION;

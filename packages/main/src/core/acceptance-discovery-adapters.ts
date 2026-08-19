@@ -13,6 +13,7 @@ import { digestCanonicalJson, digestText } from './digest.js';
 import { PROCESS_FACT_REGISTRY, type ProcessFactRegistryEntry } from './process-fact-registry.js';
 import { RUNTIME_FACT_REGISTRY } from './runtime-fact-registry.js';
 import { PROOF_OR_STOP_STORY_DIR } from './lattice-paths.js';
+import { CONFIG_FILENAMES, STATE_DIR_NAMES, resolveConfigFilename } from './brand-paths.js';
 
 export const ACCEPTANCE_PLAN_DISCOVERY_PROFILE = {
   ref: 'profile:typescript-proof-gate:plan:v1',
@@ -147,7 +148,11 @@ interface BindingAnalysisContext {
 }
 
 const SOURCE_EXTENSIONS = new Set(['.ts', '.tsx', '.mts', '.cts', '.js', '.jsx', '.mjs', '.cjs']);
-const SOURCE_INVENTORY_EXCLUDED_DIRECTORIES = new Set(['.git', '.lattice', '.worktrees', 'dist', 'node_modules']);
+// B-cc10 CHK-002: state-dir spellings from the resolver, so the source inventory
+// keeps excluding the state directory across the rename.
+const SOURCE_INVENTORY_EXCLUDED_DIRECTORIES = new Set([
+  '.git', ...STATE_DIR_NAMES, '.worktrees', 'dist', 'node_modules',
+]);
 const GENERATED_PROOF_ARTIFACT_BASENAMES = new Set([
   'acceptance-basis.json',
   'pre-review-check.json',
@@ -392,6 +397,63 @@ export function enumerateBoundedSourceTree(
 const MAX_LATTICE_CONFIG_BYTES = 64 * 1024;
 
 /**
+ * Which project-config spelling this snapshot should read (B-cc10 CHK-004).
+ *
+ * The probe goes through `readSourceSafely` — the SAME hardened reader that does
+ * the real read — because that reader rejects any path whose spelling differs
+ * from the canonical physical path on disk (see the `canonicalFile !==
+ * relativePath` guard). Probing with `existsSync` instead could answer "present"
+ * for a spelling the reader would then refuse, so the probe has to bind to the
+ * reader that follows it.
+ *
+ * The resolved name is then used for the read, for the `semanticDigests` key,
+ * for the seal's `canonicalRef` and for the fingerprint filter, so all four stay
+ * consistent with whichever spelling actually resolved. Hardcoding the
+ * deprecated literal in any one of them is the B-cdf6 F-065/F-061 failure shape:
+ * the CANONICAL name would silently stop being recognized while the deprecated
+ * one kept working.
+ *
+ * Note this deliberately reuses the passed context so the probe's own snapshot /
+ * failure bookkeeping is shared with the subsequent read rather than duplicated.
+ */
+function resolveSnapshotConfigFilename(context: SourceReadContext): string {
+  // B-cc10: prefer a spelling that is PRESENT on disk, even if reading it safely fails.
+  // readSourceSafely deliberately refuses symlinks, so probing by readability alone made a
+  // symlinked config look ABSENT: the resolver fell through to the other spelling, and the
+  // reported blind spot became `snapshot_missing: <other name>` instead of the real
+  // "traverses symlink" refusal. Presence-first keeps the specific diagnosis attached to the
+  // file the operator actually has.
+  const presentByLstat = (name: string): boolean => {
+    try { lstatSync(join(context.physicalRoot, name)); return true; } catch { return false; }
+  };
+  const resolved = resolveConfigFilename(
+    (name) => presentByLstat(name)
+      || readSourceSafely(context, name, MAX_LATTICE_CONFIG_BYTES).text !== undefined,
+  );
+  // Probing a spelling that is simply ABSENT is not a blind spot — it is the
+  // expected outcome for the name this project does not use. Drop those cached
+  // probe failures so a migrated project does not report a permanent
+  // `snapshot_missing` / unreadable-config issue for the deprecated name it
+  // correctly no longer has. Mirrors the existing profileCandidates cleanup.
+  //
+  // B-cc10 follow-up: only drop failures for names that are genuinely ABSENT. The
+  // previous form deleted the cached failure for EVERY non-resolved spelling, which
+  // also erased real blind spots — an existing-but-unreadable config (e.g. over
+  // MAX_LATTICE_CONFIG_BYTES) had its oversize failure silently discarded, so the
+  // bounded-read blind spot never surfaced. Absence is expected; unreadable is not.
+  for (const name of CONFIG_FILENAMES) {
+    if (name === resolved) continue;
+    // lstat, NOT existsSync: this reader is deliberately no-follow, and existsSync
+    // resolves symlinks — a dangling/foreign symlink would look ABSENT and have its
+    // real safe-read failure discarded, which is the same blind spot in another guise.
+    let present = false;
+    try { lstatSync(join(context.physicalRoot, name)); present = true; } catch { present = false; }
+    if (!present) context.failures.delete(name);
+  }
+  return resolved;
+}
+
+/**
  * Detect the TypeScript discovery profile from no-follow workspace snapshots.
  * A repository-level tsconfig remains valid; package layouts may instead put
  * the canonical tsconfig at lattice.config.scanRoot. Unsafe or ambiguous
@@ -401,7 +463,7 @@ export function detectAcceptanceDiscoverySupport(workspaceRoot: string): boolean
   const rootContext = createSourceReadContext(workspaceRoot);
   if (readSourceSafely(rootContext, 'tsconfig.json').text !== undefined) return true;
   const configContext = createSourceReadContext(workspaceRoot);
-  const configRead = readSourceSafely(configContext, 'lattice.config.json', MAX_LATTICE_CONFIG_BYTES);
+  const configRead = readSourceSafely(configContext, resolveSnapshotConfigFilename(configContext), MAX_LATTICE_CONFIG_BYTES);
   if (configRead.text === undefined) return false;
   try {
     const parsed = JSON.parse(configRead.text) as unknown;
@@ -420,8 +482,9 @@ export function detectAcceptanceDiscoverySupport(workspaceRoot: string): boolean
 
 function configuredSourceInventory(workspaceRoot: string, readContext: SourceReadContext): { files: string[]; blindSpots: string[]; directoryFingerprints: DirectoryFingerprint[] } {
   let rawConfig: Record<string, unknown>;
+  const configFilename = resolveSnapshotConfigFilename(readContext);
   try {
-    const read = readSourceSafely(readContext, 'lattice.config.json', MAX_LATTICE_CONFIG_BYTES);
+    const read = readSourceSafely(readContext, configFilename, MAX_LATTICE_CONFIG_BYTES);
     if (read.text === undefined) throw new Error(read.blindSpot ?? 'safe config snapshot is unavailable');
     const parsed = JSON.parse(read.text) as unknown;
     if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) throw new Error('top-level value must be an object');
@@ -453,7 +516,7 @@ function configuredSourceInventory(workspaceRoot: string, readContext: SourceRea
   // Lifecycle rollout fields (for example proofStory.acceptanceTopologyGateMode)
   // must not
   // change the structural inventory they merely decide whether to block on.
-  readContext.semanticDigests.set('lattice.config.json', `sha256:${digestCanonicalJson({
+  readContext.semanticDigests.set(configFilename, `sha256:${digestCanonicalJson({
     scanRoot: configuredScanRoot,
     rootDir: configuredRootDir ?? null,
   })}`);
@@ -677,21 +740,30 @@ function sealSourceAssembly(
     canonicalRef: relativeFile(context.physicalRoot, fingerprint.path) ?? fingerprint.path,
     entryCount: fingerprint.entryCount, entriesDigest: fingerprint.entriesDigest,
   })).sort((left, right) => compareCodeUnits(left.canonicalRef, right.canonicalRef));
-  const fileProjection = stable([...context.fingerprints.keys()]).filter(file => file !== 'lattice.config.json').map(file => {
+  // B-cc10 CHK-004: which config spelling this snapshot actually read is decided
+  // by the context's own fingerprints, NOT by re-probing the filesystem. The seal
+  // must describe the snapshot it is sealing; re-probing could name a spelling
+  // this context never read (or that appeared mid-assembly) and would silently
+  // split the config out of `fileProjection` under one name while looking it up
+  // under another. Falling back to the canonical name keeps the both-absent case
+  // reporting `snapshot_missing` against the name a project should have.
+  const configFilename = CONFIG_FILENAMES.find(name => context.fingerprints.has(name))
+    ?? resolveConfigFilename(() => false);
+  const fileProjection = stable([...context.fingerprints.keys()]).filter(file => file !== configFilename).map(file => {
     const fingerprint = context.fingerprints.get(file)!;
     return { canonicalRef: file, size: fingerprint.size, contentDigest: fingerprint.contentDigest };
   });
-  const configFingerprint = context.fingerprints.get('lattice.config.json');
+  const configFingerprint = context.fingerprints.get(configFilename);
   const issues: AcceptanceSnapshotSealIssueV1[] = [...additionalIssues];
   for (const fingerprint of directories) {
     if (!revalidateDirectoryFingerprint(fingerprint)) issues.push({ code: 'directory_changed', targetKind: 'directory', canonicalRef: relativeFile(context.physicalRoot, fingerprint.path) ?? fingerprint.path });
   }
   for (const file of stable([...context.fingerprints.keys()])) {
     const code = revalidateFileFingerprint(context, context.fingerprints.get(file)!);
-    if (code) issues.push({ code, targetKind: file === 'lattice.config.json' ? 'config' : 'source_file', canonicalRef: file });
+    if (code) issues.push({ code, targetKind: file === configFilename ? 'config' : 'source_file', canonicalRef: file });
   }
   if (directories.length === 0) issues.push({ code: 'inventory_unsealable', targetKind: 'inventory', canonicalRef: 'configured-source-root' });
-  if (!configFingerprint) issues.push({ code: 'snapshot_missing', targetKind: 'config', canonicalRef: 'lattice.config.json' });
+  if (!configFingerprint) issues.push({ code: 'snapshot_missing', targetKind: 'config', canonicalRef: configFilename });
   const stableIssues = [...new Map(issues.map(issue => [`${issue.code}\0${issue.targetKind}\0${issue.canonicalRef}`, issue])).values()]
     .sort((left, right) => compareCodeUnits(`${left.code}:${left.targetKind}:${left.canonicalRef}`, `${right.code}:${right.targetKind}:${right.canonicalRef}`));
   const unsigned: Omit<AcceptanceSnapshotSealV1, 'sealDigest'> = {
@@ -701,8 +773,8 @@ function sealSourceAssembly(
     sourceSnapshotDigest: `sha256:${digestCanonicalJson(fileProjection)}`,
     sourceSnapshotCount: fileProjection.length,
     configSnapshotDigest: `sha256:${digestCanonicalJson(configFingerprint ? {
-      canonicalRef: 'lattice.config.json',
-      contentDigest: context.semanticDigests.get('lattice.config.json') ?? configFingerprint.contentDigest,
+      canonicalRef: configFilename,
+      contentDigest: context.semanticDigests.get(configFilename) ?? configFingerprint.contentDigest,
     } : null)}`,
     status: stableIssues.length === 0 ? 'complete' : 'partial',
     issues: stableIssues,
@@ -1058,7 +1130,7 @@ function topologyFactNames(input: AcceptanceDiscoveryInput): Set<string> {
 
 function generatedStoryArtifactDirectory(context: SourceReadContext, storyId: string): string | null {
   try {
-    const read = readSourceSafely(context, 'lattice.config.json', MAX_LATTICE_CONFIG_BYTES);
+    const read = readSourceSafely(context, resolveSnapshotConfigFilename(context), MAX_LATTICE_CONFIG_BYTES);
     if (read.text === undefined) return null;
     const parsed = JSON.parse(read.text) as Record<string, unknown>;
     const configured = parsed.storyDir ?? PROOF_OR_STOP_STORY_DIR;
@@ -1197,7 +1269,15 @@ function registeredProcessFactClosureFromGraph(graph: BoundedSourceGraph): Regis
       ...((entry.producerSourceRefs ?? []).map(file => `source-file:producer:${encodeURIComponent(entry.name)}:${file}`)),
       ...((entry.consumerSourceRefs ?? []).map(file => `source-file:consumer:${encodeURIComponent(entry.name)}:${file}`)),
       ...(entry.artifact ? [`artifact:${entry.artifact.path}`] : []),
-    ]).concat(graph.closureFiles.map(file => `source-file:closure:${file}`), ['source-file:config:lattice.config.json'])),
+    ]).concat(
+      graph.closureFiles.map(file => `source-file:closure:${file}`),
+      // B-cc10 F-031: name the config spelling this project ACTUALLY has. This was a
+      // hardcoded 'lattice.config.json' sitting beside dynamically-derived siblings, so a
+      // canonical-only project inventoried a file it does not contain — producing a spurious
+      // "lacks immutable bounded snapshot" blind spot that degraded the acceptance basis from
+      // complete to partial. Masked in tests because every fixture used the deprecated name.
+      [`source-file:config:${resolveSnapshotConfigFilename(graph.readContext)}`],
+    )),
     sourceFileRefs: graph.closureFiles,
     blindSpots: graph.blindSpots,
     entries: reached,
@@ -1455,7 +1535,7 @@ function buildResult(
       ];
     }
     if (method !== 'runtime_trace') {
-      provenanceRefs = stable([...provenanceRefs, sourceProvenance(graph.readContext, 'lattice.config.json')]);
+      provenanceRefs = stable([...provenanceRefs, sourceProvenance(graph.readContext, resolveSnapshotConfigFilename(graph.readContext))]);
       const blockingReadFailures = [...graph.readContext.failures.values()].filter(message => /budget|no-follow/.test(message));
       blindSpots = stable([...blindSpots, ...blockingReadFailures]);
     }

@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-7dff",
+  "mode": "maintenance",
+  "allowed": [
+    "Add a regression proving parallel and serial execution produce identical per-command outcomes, plus a measured makespan report",
+    "Declare resource claims for the configured validate commands, defaulting undeclared commands to exclusive (fail closed)",
+    "Extract the keyed parallel scheduler (runScheduled, ResourceClaim/ResourceClass, claim canonicalization and validation) from packages/main/src/tasks/full-suite-runner.ts into a core module used by both callers",
+    "Give the scheduler an explicit cancellation policy so full-suite keeps fail-fast while routine validate runs every command to completion",
+    "Replace the module-level mutable scheduler state (activeChildren, interruptSignal, schedulerCancellationReason) with per-run state so two callers cannot interfere",
+    "Replace the sequential loop in executeValidationPlan with the shared scheduler while preserving commands[] order, details[] order, durationMs, commandExecution counts, routineValidationIdentity, progress/heartbeat reporting and abortSignal/deadline propagation"
+  ],
+  "excluded": [
+    "Any change to the 300000ms full-suite performance budget or its enforcement",
+    "Changing which commands are in validate.commands or in the DONE-required policy",
+    "Raising the default jobs count for the existing full-suite runner",
+    "Reordering done_prepare closeout phases so cheap gates run before validation",
+    "Splitting or speeding up quorum-submit-smoke.js, which is the 267-271s critical-path floor; it is explicitly deferred to a follow-on story"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Operator instruction 2026-08-17: drive B-7dff through the full lifecycle without further per-step decisions. Scope is the parallel-scheduler reuse measured in the story background (858s serial baseline, 271s floor).",
+  "createdAt": "2026-08-17T11:33:39.567Z",
+  "updatedAt": "2026-08-17T11:33:39.567Z",
+  "_hash": "288c5183d7352d103029b079c380a1c24eb3f98ad9e82b32023a50c9d33a400b"
+}

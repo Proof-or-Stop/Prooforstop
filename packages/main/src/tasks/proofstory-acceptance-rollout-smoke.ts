@@ -27,6 +27,7 @@ import type {
 } from '../core/types.js';
 import type { HandlerContext } from '../handlers/context.js';
 import { runAcceptanceRolloutGate } from '../handlers/transition-orchestrator.js';
+import { STATE_DIR_NAMES } from '../core/brand-paths.js';
 
 const projectRoot = resolve(process.cwd());
 const runnerPath = join(projectRoot, 'scripts/run-proofstory-acceptance-rollout-cohort.mjs');
@@ -308,6 +309,11 @@ export async function runProofStoryAcceptanceRolloutSmoke(): Promise<void> {
       events: [],
     };
     store.writeStory(storyId, story);
+    // B-cc10: `git add .` would stage the CLI-written activity log, which quorum_submit's
+    // assertCleanQuorumBaseline then reports as 'M .proof-or-stop/activity.jsonl' and
+    // refuses on. Ignore the runtime activity log under EVERY state-dir spelling before
+    // the seed commit so only real fixture content is tracked.
+    write(join(root, '.gitignore'), STATE_DIR_NAMES.map((dir) => `${dir}/activity.jsonl`).join('\n') + '\n');
     git(root, ['add', '.']);
     git(root, ['commit', '-m', 'seed real rollout consumer']);
     git(root, ['switch', '-c', `story/${storyId}`]);

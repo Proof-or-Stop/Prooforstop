@@ -9,7 +9,8 @@ import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import type { ChecklistData, ChecklistItem, ChecklistStatus, FrozenClaimSnapshot, StoryInfo, VerificationEvidence, VerificationExecutionReceipt, VerificationIntent, VerificationIntentItem, VerificationIntentPin, VerificationIntentType, VerificationLane } from '../core/types.js';
 import { claimDigest } from '../core/frozen-claim-drift.js';
 import { buildVerificationCoverage, collectVerificationIntents, detectEvidenceRowContradiction, isExecutableIntentType, makeEvidence, VERIFICATION_LANES } from '../core/verification.js';
-import { DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS, EVIDENCE_COMMAND_TIMEOUT_CAP_MS, runSingleAllowlistedCommand, type SingleCommandExecutionResult } from '../core/validation-executor.js';
+import { DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS, EVIDENCE_COMMAND_TIMEOUT_CAP_MS, parseAllowlistedCommand, runSingleAllowlistedCommand, type SingleCommandExecutionResult } from '../core/validation-executor.js';
+import { configuredValidationCommands } from './verifier.js';
 import { createHash } from 'crypto';
 import { digestCanonicalJson } from '../core/digest.js';
 import { isDeliveredChecklistStatus, isTerminalChecklistStatus, isWithdrawnChecklistStatus } from '../core/checklist-status.js';
@@ -40,6 +41,21 @@ const INIT_REVIEWER_CHECKLIST_MUTATION_BLOCKED_AGENTS = new Set([
 type VerificationEvidenceKindInput = VerificationEvidence['kind'] | 'cli' | 'logic';
 type VerificationEvidenceInput = Omit<VerificationEvidence, 'kind'> & { kind: VerificationEvidenceKindInput };
 type ChecklistGetArgs = { storyId: string; slim?: boolean; fields?: string[] };
+
+/**
+ * Resolve the configured validate.commands timeout for a pinned verification command.
+ * An explicit, audited per-evidence override still takes precedence at the call site.
+ */
+export function resolvePinnedCommandTimeoutMs(root: string, command: string): number | undefined {
+  const { executable, args } = parseAllowlistedCommand(command);
+  const configured = configuredValidationCommands(root);
+  const match = configured.find(
+    candidate => candidate.command === executable
+      && candidate.args.length === args.length
+      && candidate.args.every((arg, index) => arg === args[index]),
+  );
+  return match?.timeoutMs;
+}
 
 function pickTopLevelFields<T extends Record<string, unknown>>(value: T, fields?: string[]): Partial<T> {
   const requested = (fields || []).map(field => field.trim()).filter(Boolean);
@@ -1774,9 +1790,12 @@ export function createChecklistHandlers(ctx: HandlerContext) {
           ...(args.commandTimeoutReason !== undefined ? { commandTimeoutReason: args.commandTimeoutReason } : {}),
         },
         {
-          runCommand: (command, cwd, timeoutMs) => runSingleAllowlistedCommand(
-            command, root, { cwd, ...(timeoutMs !== undefined ? { timeoutMs } : {}) },
-          ),
+          runCommand: (command, cwd, timeoutMs) => {
+            const effectiveTimeoutMs = timeoutMs ?? resolvePinnedCommandTimeoutMs(root, command);
+            return runSingleAllowlistedCommand(
+              command, root, { cwd, ...(effectiveTimeoutMs !== undefined ? { timeoutMs: effectiveTimeoutMs } : {}) },
+            );
+          },
           cwd: gitCwd,
         },
       );
@@ -1880,9 +1899,12 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       // refusal throws before the all-or-nothing write below, so the batch path is never
       // an unguarded bypass.
       const gitCwd = resolveStoryGitCwd(args.storyId);
-      const runCommand: SingleCommandRunner = (command, cwd, timeoutMs) => runSingleAllowlistedCommand(
-        command, root, { cwd, ...(timeoutMs !== undefined ? { timeoutMs } : {}) },
-      );
+      const runCommand: SingleCommandRunner = (command, cwd, timeoutMs) => {
+        const effectiveTimeoutMs = timeoutMs ?? resolvePinnedCommandTimeoutMs(root, command);
+        return runSingleAllowlistedCommand(
+          command, root, { cwd, ...(effectiveTimeoutMs !== undefined ? { timeoutMs: effectiveTimeoutMs } : {}) },
+        );
+      };
       const preCl = store.readChecklist(args.storyId);
       const stamps: EnforceAndStampResult[] = [];
       for (let i = 0; i < args.evidences.length; i++) {
@@ -2027,9 +2049,12 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         preItem,
         { intentRef: args.intentRef, kind, command: pin.command, selector: pin.selector, result: 'pass' },
         {
-          runCommand: (command, cwd, timeoutMs) => runSingleAllowlistedCommand(
-            command, root, { cwd, ...(timeoutMs !== undefined ? { timeoutMs } : {}) },
-          ),
+          runCommand: (command, cwd, timeoutMs) => {
+            const effectiveTimeoutMs = timeoutMs ?? resolvePinnedCommandTimeoutMs(root, command);
+            return runSingleAllowlistedCommand(
+              command, root, { cwd, ...(effectiveTimeoutMs !== undefined ? { timeoutMs: effectiveTimeoutMs } : {}) },
+            );
+          },
           cwd: runCwd,
         },
       );
@@ -2129,9 +2154,12 @@ export function createChecklistHandlers(ctx: HandlerContext) {
                   : {}),
               },
               {
-                runCommand: (command, cwd, timeoutMs) => runSingleAllowlistedCommand(
-                  command, root, { cwd, ...(timeoutMs !== undefined ? { timeoutMs } : {}) },
-                ),
+                runCommand: (command, cwd, timeoutMs) => {
+                  const effectiveTimeoutMs = timeoutMs ?? resolvePinnedCommandTimeoutMs(root, command);
+                  return runSingleAllowlistedCommand(
+                    command, root, { cwd, ...(effectiveTimeoutMs !== undefined ? { timeoutMs: effectiveTimeoutMs } : {}) },
+                  );
+                },
                 cwd: computed.refreshGitCwd,
               },
             );

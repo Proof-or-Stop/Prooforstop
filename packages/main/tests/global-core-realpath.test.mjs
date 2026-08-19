@@ -18,7 +18,7 @@ function git(cwd, ...args) {
 function makeRepoWithWorktree(base) {
   const repo = join(base, 'repo');
   mkdirSync(join(repo, 'packages', 'main'), { recursive: true });
-  writeFileSync(join(repo, 'packages', 'main', 'package.json'), JSON.stringify({ name: '@lattice/core', version: '0.0.0' }) + '\n');
+  writeFileSync(join(repo, 'packages', 'main', 'package.json'), JSON.stringify({ name: '@proof-or-stop/core', version: '0.0.0' }) + '\n');
   git(repo, 'init', '-b', 'main');
   git(repo, '-c', 'user.email=t@t', '-c', 'user.name=t', 'add', '.');
   git(repo, '-c', 'user.email=t@t', '-c', 'user.name=t', 'commit', '-m', 'init');

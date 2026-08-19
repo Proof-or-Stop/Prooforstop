@@ -39,6 +39,8 @@ const requiredSourcePaths = [
   'docs/requirements/decisions/slim-fields-token-savings-execution-plan.md',
   'packages/main/templates/agents',
   '.claude/agents',
+  // B-cc10 F-055: canonical first; a renamed root silently yields zero files.
+  '.proof-or-stop-codex/agents',
   '.lattice-codex/agents',
   'packages/main/src/core/prompt-registry.ts',
   'packages/main/src/core/managed-assets.ts',

@@ -39,12 +39,14 @@
  */
 
 import { strict as assert } from 'node:assert';
+import { LEARNING_DIR } from '../core/learning-store.js';
 import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 
 import { resetConfigCache } from '../core/config.js';
+import { stateDirCandidates } from '../core/brand-paths.js';
 import { StoryStore } from '../core/store.js';
 import { readFindingSignals } from '../core/learning-store.js';
 import { applyDoneMergeEffects } from '../handlers/done-effects.js';
@@ -121,7 +123,12 @@ function buildDoneReadyStoryWithLinkedWorktree(storyId: string): { root: string;
     workflow: { profile: 'light' },
   }, null, 2));
   write(root, 'README.md', `done-merge-experience-refresh-smoke ${storyId}\n`);
-  write(root, '.gitignore', '.worktrees/\n.linked-worktrees/\n.lattice/learning/\n.lattice/activity.jsonl\n');
+  write(root, '.gitignore', [
+    '.worktrees/',
+    '.linked-worktrees/',
+    ...stateDirCandidates('learning').map((rel) => `${rel}/`),
+    ...stateDirCandidates('activity.jsonl'),
+  ].join('\n') + '\n');
   write(root, 'packages/main/src/app.ts', 'export const app = true;\n');
 
   git(root, ['init']);
@@ -270,12 +277,20 @@ async function assertForcedDeriveFailureNeverBlocksMerge(): Promise<void> {
     const story0 = realStore.readStory(storyId);
 
     // Force the never-throw refresh into its catch branch by making the cache
-    // persist FAIL: plant a regular FILE at the main checkout's .lattice/learning
-    // path, so writeFindingSignals' mkdirSync(dirname, {recursive}) throws EEXIST
-    // when the refresh tries to persist. (.lattice/learning/ is gitignored, so the
-    // file is not committed/merged — it just blocks the write at refresh time.)
-    mkdirSync(join(root, '.lattice'), { recursive: true });
-    writeFileSync(join(root, '.lattice', 'learning'), 'not a directory — forces the cache persist to fail');
+    // persist FAIL: plant a regular FILE at the RESOLVED learning-cache path, so
+    // writeFindingSignals' mkdirSync(dirname, {recursive}) throws EEXIST when the
+    // refresh tries to persist. (The learning dir is gitignored, so the file is not
+    // committed/merged — it just blocks the write at refresh time.)
+    //
+    // B-cc10 F-076: this was hardcoded to `.lattice/learning`. When LEARNING_DIR moved
+    // to the canonical state dir the poison stopped intercepting anything, so the
+    // refresh SUCCEEDED and the forced-failure branch was never exercised — the
+    // sabotage missed and the control assertion could only fail. Deriving the path from
+    // LEARNING_DIR is what keeps this sabotage aimed at whatever the runtime actually
+    // writes; a hardcoded literal here is a silent hole by construction.
+    const poisonPath = join(root, ...LEARNING_DIR.split('/'));
+    mkdirSync(dirname(poisonPath), { recursive: true });
+    writeFileSync(poisonPath, 'not a directory — forces the cache persist to fail');
 
     let threw = false;
     let report = '';

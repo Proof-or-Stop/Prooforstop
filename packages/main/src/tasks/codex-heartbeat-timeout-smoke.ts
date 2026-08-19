@@ -222,8 +222,15 @@ function makeFixtureProject(): string {
 }
 
 const previousPath = process.env.PATH;
+const previousHome = process.env.HOME;
 const createdDirs: string[] = [];
 try {
+  // login-shell discovery (`sh -lc`) ignores PATH prepend, so HOME must be isolated
+  // or a real global shim (~/.local/bin/proof-or-stop) wins.
+  const isolatedHome = mkdtempSync(join(tmpdir(), 'codex-heartbeat-isolated-home-'));
+  createdDirs.push(isolatedHome);
+  process.env.HOME = isolatedHome;
+
   for (const scenario of scenarios) {
     const fakeBin = mkdtempSync(join(tmpdir(), 'codex-heartbeat-fake-bin-'));
     const projectDir = makeFixtureProject();
@@ -253,6 +260,8 @@ try {
 } finally {
   if (previousPath === undefined) delete process.env.PATH;
   else process.env.PATH = previousPath;
+  if (previousHome === undefined) delete process.env.HOME;
+  else process.env.HOME = previousHome;
   for (const dir of createdDirs) rmSync(dir, { recursive: true, force: true });
 }
 

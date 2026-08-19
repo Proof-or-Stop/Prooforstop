@@ -12,6 +12,7 @@
  *   - [CHK-004] Expose registry projections for consistency contracts
  */
 import type { StoryPhase } from './types.js';
+import { PROOF_OR_STOP_STATE_DIR } from './brand-paths.js';
 import { getCommandPolicyEntries, type CommandPhase } from './command-policy.js';
 
 export type LifecycleTransitionKind = 'forward' | 'rollback' | 'terminal';
@@ -745,7 +746,11 @@ export function isCanonicalStoryId(value: string): boolean {
   return STORY_ID_RE.test(value);
 }
 
+// B-cc10: the CANONICAL prefix is derived and listed FIRST; the '.lattice/' and
+// 'docs/' entries stay for read-both so a pre-migration checkout still resolves.
+// Before this, a story dir under the canonical path was not recognized at all.
 const DEFAULT_STORY_DIR_PREFIXES = [
+  `${PROOF_OR_STOP_STATE_DIR}/story/actives/`,
   '.lattice/story/actives/',
   'docs/story/actives/',
 ] as const;

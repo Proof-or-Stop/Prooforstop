@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-7dff",
+  "records": [
+    {
+      "id": "RED-20260817114008",
+      "trigger": "red_evidence_required: material-code behavior change on the routine validate execution path",
+      "acceptanceTargetRef": "CHK-002:happy:0",
+      "baselineHeadHash": "e2fa8cc0526106057cfe65a3c10f96bc3005cc06",
+      "baselineMaterialHash": "f73ad2d896c25fa4239927c471c64b2de29a770a2f866eec03571bdb6b9e5370",
+      "observedFailure": "executeValidationPlan ran the plan sequentially: wall 2789ms is not below 2230ms (80% of the 2788ms summed command time). Two commands with no conflicting resource claim must be admitted concurrently.",
+      "failingCommand": "node packages/main/tests/red/red-B-7dff-sequential-validate-plan.mjs",
+      "expectedGreenCommand": "node packages/main/tests/red/red-B-7dff-sequential-validate-plan.mjs",
+      "greenRelation": {
+        "targetRef": "CHK-002:happy:0",
+        "relation": "same_acceptance",
+        "command": "node packages/main/tests/red/red-B-7dff-sequential-validate-plan.mjs"
+      },
+      "note": "Recorded at pre-fix HEAD e2fa8cc052, which contains the probe only and no scheduler change. The first two assertions pass (both probes ran, both really slept 1200ms) so the failure is the sequential for-loop at validation-executor.ts:623 and not a broken plan.",
+      "createdAt": "2026-08-17T11:40:08.275Z"
+    }
+  ],
+  "createdAt": "2026-08-17T11:40:08.275Z",
+  "updatedAt": "2026-08-17T11:40:08.275Z"
+}

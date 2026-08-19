@@ -18,7 +18,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 const packageRoot = join(here, '..', '..');
 const repoRoot = join(packageRoot, '..', '..');
 const cliPath = join(packageRoot, 'dist', 'cli.js');
-const cliFallback = join(repoRoot, 'bin', 'lattice.js');
+const cliFallback = join(repoRoot, 'bin', 'proof-or-stop.js');
 
 function cliBin(): string {
   return existsSync(cliPath) ? cliPath : cliFallback;

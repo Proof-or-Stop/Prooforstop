@@ -1,0 +1,56 @@
+{
+  "storyId": "B-45a5",
+  "changes": "core/proofstory.ts: evaluateReviewCompleteness now subtracts a withdrawn item's verification intent refs from the required set before the coverage loop, via a new module-private withdrawnItemIntentRefs that delegates to the existing decision-backed withdrawnChecklistItemIdsFrom. It covers both the positional id:lane:index form and authored intent.id aliases, and will not subtract a ref a surviving item also owns. handlers/validate-channel.ts: checkDispatchEvidence takes a scopeShrinkageDecision opt (plumbed by checkCommitAuthor from store.readScopeShrinkageDecision) and routes withdrawn items into a new third result bucket rendered 'withdrawn (<decisionId>): CHK-xxx', checked before the owner-exemption branch so such an item can never appear under 'Covered:' or as an owner exemption. packages/main/tests/red/red-b45a5-withdrawal-gates.mjs: repro-first artifact, now a registered non-optional standing guard asserting three clauses - an authorized withdrawal is skipped, non-withdrawn items still bite, and an unbacked withdrawal is still refused.",
+  "usage": "Automatic. Any story whose checklist item was withdrawn by scope_shrinkage_decision_set (decision=confirmed, userConfirmed=true) now advances REVIEW->TEST without hand-written waiver rows. To see it: node bin/lattice.js validate --channel --story=<id> prints the item on its own 'withdrawn (<decisionId>)' line, and node bin/lattice.js proofstory_review_completeness_check --storyId=<id> reports Gaps: 0.",
+  "expectedOutcome": "A withdrawn checklist item stops blocking the advance and is named as withdrawn with its authorizing decision id, while an item whose withdrawal is not backed by a real confirmed decision is still refused by both gates.",
+  "actualTranscript": "Verified on this story itself. CHK-005 was withdrawn mid-DEV (SD-ccafb44c) and now carries zero evidence and zero waivers while both gates pass:\n  proofstory_review_completeness_check -> Status: pass, Blocking: no, Gaps: 0\n  validate --channel -> [channel] * pass\n      withdrawn (SD-ccafb44c): CHK-005\n      Covered: CHK-001, CHK-002, CHK-003, CHK-004\nThe withdrawn item is printed on its own line naming the authorizing decision, and it is absent from the list of items that carry evidence. Nothing records work never done as complete. Before this change the same situation required three hand-written waiver rows, which is what story B-8df9 is currently carrying. validate 103/103 green.",
+  "outcomeDiff": "No difference. Observed behaviour matches the expected outcome, and was verified on this story's own withdrawn item rather than only on a fixture.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "CHK-005 was withdrawn during DEV and its work relocated, by a recorded decision (SD-ccafb44c, userConfirmed=true). It asked for three obsolete waiver rows to be removed from story B-8df9 and B-8df9's gates then verified. That is unreachable from inside this story: B-8df9 has its own branch and its own compiled runtime without this fix, so removing them there now would simply re-block it, and the fix only reaches B-8df9 once this story merges - which CHK-005 was itself a precondition for. That work belongs to B-8df9's own closeout, under its own owner lease, which is what the ownership model requires anyway. Withdrawing it also became the story's own live verification. CHK-001:happy:0 carries a permanent waiver: its pinned selector was B45A5-ROW-B3=RED, and this story's whole purpose was to turn that row GREEN, so the pin is self-invalidating and cannot be re-earned. The property it stood for is still mechanically proven by red-evidence.json bound to pre-fix baseline HEAD e66bb0b2 and by the registered non-optional guard. One weaker pattern in core/verification.ts:212 - a bare status-string skip on a DONE-blocking path - is untouched and disclosed consistently across plan.md, understanding.json and intent-collision.json; the anti-forgery claim here covers the two named gates only, and its own tracked task exists.",
+  "pitfalls": "(1) A repro-first artifact must never pin its own RED verdict as evidence. CHK-001:happy:0 pinned B45A5-ROW-B3=RED; the fix flipped it GREEN and the evidence died, because pins are immutable. Pin a CONTROL row or an anti-bypass row whose value survives the fix - the same implementer got edge and adversarial right by pinning A1/A2. This is the third distinct way this repo has lost pinned evidence: literal counts (B-49d4), a prose conclusion line a sibling item reworded (B-8df9), and now a value the story itself inverts. (2) console.log followed by process.exit() abandons unflushed output on a pipe. A receipt truncated mid-line at B45A5-ROW-D5=R, so a regression in a late row read as an ABSENT SELECTOR rather than as a failure. Fixed with process.exitCode; 18 sibling artifacts share the pattern and have their own task. (3) Wiring a helper into two call sites can be a no-op masked by the other site working. Every wiring here was ablated individually - revert one, confirm only its own row goes red, restore - and one ablation contradicted the prediction it was given: the row degraded to a weaker state instead of flipping outright, because checkDispatchEvidence keys on item id and never reads an intent ref. The implementer measured that, then corrected its own note rather than restating the prediction. (4) Fixing findings moves HEAD and invalidates every reviewer verdict, including passes. Budget a full re-attestation round after any finding-fix commit.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 782975
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 38302
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 170718689
+    },
+    "DEV": {
+      "count": 4,
+      "durationMs": 12488219
+    },
+    "REVIEW": {
+      "count": 4,
+      "durationMs": 8063628
+    },
+    "TEST": {
+      "count": 4,
+      "durationMs": 39271230
+    }
+  },
+  "totalDurationMs": 231363644,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-08-19T03:23:46.127Z",
+  "updatedAt": "2026-08-19T15:01:23.629Z"
+}

@@ -1,0 +1,63 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-45a5",
+  "checkedAt": "2026-08-16T22:58:10.458Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "2641ff38df6d1e6aef87be3cd39075d14df32362442132fd0330625b649b5787",
+  "executionBoundaryHash": "1d2ea79b3bbbe8aa2a843ff79e87e2c8f2651bcc74a5401f0af43ad67e06fd1a",
+  "freshnessHash": "a823ed23fce13ec394eb40445295789338965e2278ce6ffbc92fc49c27b0a780",
+  "effectiveExcludedKeywords": [
+    "Any change to B-8df9 beyond deleting the three obsolete CHK-004 waiver rows",
+    "Any skip keyed on a bare status string. An item is skippable ONLY through withdrawnChecklistItemIdsFrom(decision), which requires decision==='confirmed' AND userConfirmed===true. Routing through core/checklist-status.ts is forbidden: it has zero decisionRef awareness and would yield a gate anyone can bypass by editing one JSON field",
+    "Authority",
+    "Changes to core/checklist-status.ts itself",
+    "customerKeyRef",
+    "Deriving the checklist-status consumer set to prevent recurrence; raised and deliberately declined here, tracked as its own follow-up because it is a codebase-wide audit rather than a gate fix",
+    "Layer4",
+    "Mutating acceptance bindings, or unfreezing proofstory_contract_set from its PLAN-only classification",
+    "repair UX",
+    "Weakening either gate for items that are NOT withdrawn; the review-completeness and normal-channel disciplines stay strict"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Any change to B-8df9 beyond deleting the three obsolete CHK-004 waiver rows",
+      "source": "scopeBoundary.excluded",
+      "text": "Any change to B-8df9 beyond deleting the three obsolete CHK-004 waiver rows",
+      "excluded": true
+    },
+    {
+      "keyword": "Any skip keyed on a bare status string. An item is skippable ONLY through withdrawnChecklistItemIdsFrom(decision), which requires decision==='confirmed' AND userConfirmed===true. Routing through core/checklist-status.ts is forbidden: it has zero decisionRef awareness and would yield a gate anyone can bypass by editing one JSON field",
+      "source": "scopeBoundary.excluded",
+      "text": "Any skip keyed on a bare status string. An item is skippable ONLY through withdrawnChecklistItemIdsFrom(decision), which requires decision==='confirmed' AND userConfirmed===true. Routing through core/checklist-status.ts is forbidden: it has zero decisionRef awareness and would yield a gate anyone can bypass by editing one JSON field",
+      "excluded": true
+    },
+    {
+      "keyword": "Changes to core/checklist-status.ts itself",
+      "source": "scopeBoundary.excluded",
+      "text": "Changes to core/checklist-status.ts itself",
+      "excluded": true
+    },
+    {
+      "keyword": "Deriving the checklist-status consumer set to prevent recurrence; raised and deliberately declined here, tracked as its own follow-up because it is a codebase-wide audit rather than a gate fix",
+      "source": "scopeBoundary.excluded",
+      "text": "Deriving the checklist-status consumer set to prevent recurrence; raised and deliberately declined here, tracked as its own follow-up because it is a codebase-wide audit rather than a gate fix",
+      "excluded": true
+    },
+    {
+      "keyword": "Mutating acceptance bindings, or unfreezing proofstory_contract_set from its PLAN-only classification",
+      "source": "scopeBoundary.excluded",
+      "text": "Mutating acceptance bindings, or unfreezing proofstory_contract_set from its PLAN-only classification",
+      "excluded": true
+    },
+    {
+      "keyword": "Weakening either gate for items that are NOT withdrawn; the review-completeness and normal-channel disciplines stay strict",
+      "source": "scopeBoundary.excluded",
+      "text": "Weakening either gate for items that are NOT withdrawn; the review-completeness and normal-channel disciplines stay strict",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "3d9af65e153ef381e908bd22833fbf546b4e73dd8b06dd1bb29bc2b8c570af45"
+}

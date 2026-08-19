@@ -9,6 +9,7 @@ import {
 } from 'node:fs';
 import { isAbsolute, join, relative, resolve } from 'node:path';
 import { loadConfig } from './config.js';
+import { STATE_DIR_NAMES } from './brand-paths.js';
 import {
   BOUNDARY_ONLY_MEMORY_LAYERS,
   MEMORY_BENCHMARK_TEXT_NOTE,
@@ -184,11 +185,27 @@ interface AddRecordInput {
   fact: Record<string, unknown>;
 }
 
-const DEFAULT_STORY_ROOTS = ['.lattice/story/actives', 'docs/story/actives'] as const;
-const PROTECTED_STORY_OUTPUT_ROOTS = ['.lattice/story', 'docs/story'] as const;
+// B-cc10 F-028: these hardcoded the deprecated spelling only, so on a migrated repo the
+// benchmark reported verdict=FAIL "missing real activity source" while 1500+ real lines
+// sat under the canonical dir. Derive every accepted spelling, canonical first.
+const DEFAULT_STORY_ROOTS = [
+  ...STATE_DIR_NAMES.map((dir) => `${dir}/story/actives`),
+  'docs/story/actives',
+] as const;
+const PROTECTED_STORY_OUTPUT_ROOTS = [
+  ...STATE_DIR_NAMES.map((dir) => `${dir}/story`),
+  'docs/story',
+] as const;
 const PROTECTED_FIXTURE_OUTPUT_ROOTS = ['packages/main/tests/fixtures'] as const;
-const ACTIVITY_SOURCE = '.lattice/activity.jsonl';
-const DEV_MEMORY_SOURCE = '.lattice/dev-memory/experience.jsonl';
+const ACTIVITY_SOURCE_CANDIDATES = STATE_DIR_NAMES.map((dir) => `${dir}/activity.jsonl`);
+const DEV_MEMORY_SOURCE_CANDIDATES = STATE_DIR_NAMES.map((dir) => `${dir}/dev-memory/experience.jsonl`);
+/** First existing candidate, canonical first; falls back to canonical for error text. */
+function resolveSource(root: string, candidates: readonly string[]): string {
+  for (const rel of candidates) {
+    if (existsSync(join(root, rel))) return rel;
+  }
+  return candidates[0];
+}
 
 const STORY_EVIDENCE_JSON_FILES = [
   'test-evidence.json',
@@ -377,7 +394,7 @@ function collectActivity(
   sources: Map<string, SourceAccumulator>,
   corpus: MemoryBenchmarkRealDataCorpusRecord[],
 ): void {
-  const source = readSourceFile(root, ACTIVITY_SOURCE, 'activity', sources);
+  const source = readSourceFile(root, resolveSource(root, ACTIVITY_SOURCE_CANDIDATES), 'activity', sources);
   if (!source) return;
   for (const entry of parseJsonl(source, 'activity', sources)) {
     if (!isRecord(entry.value)) continue;
@@ -737,7 +754,7 @@ function collectProjectDevMemory(
   sources: Map<string, SourceAccumulator>,
   corpus: MemoryBenchmarkRealDataCorpusRecord[],
 ): void {
-  const source = readSourceFile(root, DEV_MEMORY_SOURCE, 'dev-memory', sources);
+  const source = readSourceFile(root, resolveSource(root, DEV_MEMORY_SOURCE_CANDIDATES), 'dev-memory', sources);
   if (!source) return;
   collectDevMemoryJsonl(source, sources, corpus);
 }
@@ -833,11 +850,14 @@ function buildStats(
 
 function buildReasons(stats: MemoryBenchmarkRealDataStats, sources: readonly MemoryBenchmarkRealDataSourceStats[]): string[] {
   const reasons: string[] = [];
-  const activitySource = sources.find((source) => source.sourcePath === ACTIVITY_SOURCE);
+  // B-cc10 F-028: match against EVERY accepted spelling. `sources` already holds the
+  // path that was actually read, so no filesystem probe (and no `root`) is needed here.
+  const activitySource = sources.find((source) => ACTIVITY_SOURCE_CANDIDATES.includes(source.sourcePath));
+  const activityRel = activitySource?.sourcePath ?? ACTIVITY_SOURCE_CANDIDATES[0];
   const storyRoots = sources.filter((source) => source.sourceType === 'story-root');
   const existingStoryRoots = storyRoots.filter((source) => source.exists);
-  if (!activitySource?.exists) reasons.push(`missing real activity source: ${ACTIVITY_SOURCE}`);
-  if (activitySource?.exists && stats.activityScoreableRecords === 0) reasons.push(`no scoreable activity records found in ${ACTIVITY_SOURCE}`);
+  if (!activitySource?.exists) reasons.push(`missing real activity source: ${activityRel}`);
+  if (activitySource?.exists && stats.activityScoreableRecords === 0) reasons.push(`no scoreable activity records found in ${activityRel}`);
   if (existingStoryRoots.length === 0) {
     const expectedRoots = storyRoots.map((source) => source.sourcePath).join(', ') || DEFAULT_STORY_ROOTS.join(', ');
     reasons.push(`missing real story source root: ${expectedRoots}`);

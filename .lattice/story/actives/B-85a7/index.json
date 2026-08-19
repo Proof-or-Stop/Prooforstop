@@ -1,0 +1,35 @@
+{
+  "storyId": "B-85a7",
+  "name": "dev-memory-prose-format-rule",
+  "title": "Stop dev-memory prose from carrying self-referential absolution and volatile embedded values",
+  "description": "A dev-memory correction chain on story B-9ff1 failed to converge: entries kept asserting that their own text was free of some property, and a correction pasted a live retrieval result that went stale within the same session. Both are format properties rather than lapses of care - several offending entries state the convention in their own body while violating it. Deferred from B-9ff1:F-076 and B-9ff1:F-077, with the reviewing lane judging deferral acceptable and recommending a structural rule over another manual correction.",
+  "type": "feature",
+  "phase": "INIT",
+  "priority": "medium",
+  "source": "B-9ff1:F-076 and B-9ff1:F-077 (concept lane), deferred with the lane judging another in-story correction would repeat the pattern rather than end it",
+  "depends": [
+    "B-9ff1"
+  ],
+  "keywords": [
+    "dev-memory",
+    "experience-ledger",
+    "format-rule",
+    "self-reference",
+    "volatile-values",
+    "capture-validation"
+  ],
+  "createdAt": "2026-08-18T21:53:05.018Z",
+  "startedAt": "2026-08-18T21:53:05.018Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-08-18T21:53:06.001Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "agent": "main"
+    }
+  ]
+}

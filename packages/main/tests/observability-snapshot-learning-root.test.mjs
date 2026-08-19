@@ -12,7 +12,7 @@
  *      (byte-equal), i.e. resolution behavior is unchanged.
  *   3. Text output renders a `resolvedLearningRoot: <path>` line.
  *   4. In a fresh non-git temp root the field points under that temp root
- *      and ends with /.lattice/learning.
+ *      and ends with the canonical learning dir.
  */
 import assert from 'node:assert/strict';
 import { mkdtempSync, rmSync } from 'node:fs';
@@ -22,7 +22,7 @@ import { fileURLToPath } from 'node:url';
 
 const distRoot = fileURLToPath(new URL('../dist/', import.meta.url));
 const { StoryStore } = await import(join(distRoot, 'core/store.js'));
-const { resolveLearningDir } = await import(join(distRoot, 'core/learning-store.js'));
+const { LEARNING_DIR, resolveLearningDir } = await import(join(distRoot, 'core/learning-store.js'));
 const { createObservabilitySnapshotHandlers } = await import(join(distRoot, 'handlers/observability-snapshot.js'));
 
 const root = mkdtempSync(join(tmpdir(), 'lattice-obs-learning-root-'));
@@ -42,8 +42,8 @@ try {
 
   // 4: fresh mkdtemp non-git root => resolved under that temp root.
   assert.ok(
-    json.resolvedLearningRoot.endsWith(join('.lattice', 'learning')),
-    'resolvedLearningRoot must end with .lattice/learning',
+    json.resolvedLearningRoot.endsWith(LEARNING_DIR),
+    `resolvedLearningRoot must end with ${LEARNING_DIR}`,
   );
   assert.ok(
     json.resolvedLearningRoot.startsWith(root),

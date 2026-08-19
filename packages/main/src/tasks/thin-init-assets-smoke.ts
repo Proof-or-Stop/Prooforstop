@@ -27,9 +27,50 @@ import { renderCodexAdapterChecks, runCodexAdapterChecks } from '../core/codex-a
 import { loadConfig, resetConfigCache } from '../core/config.js';
 import { renderManagedAssetCheck, runManagedAssetCheck, runtimeIgnoreMissing } from '../core/managed-assets.js';
 import { listRuntimeArtifactIgnorePatterns } from '../core/runtime-artifact-registry.js';
+import {
+  PROOF_OR_STOP_ADAPTER_DIR,
+  PROOF_OR_STOP_CONFIG_FILENAME,
+  PROOF_OR_STOP_MANIFEST_FILENAME,
+  PROOF_OR_STOP_STATE_DIR,
+} from '../core/brand-paths.js';
+
+// B-cc10 CHK-004: this smoke asserts what `init` WRITES, so its fixture paths are
+// built from the same resolver constants the writers use rather than a second set
+// of hardcoded literals. Both the assertExists (mode that writes it) and the
+// assertAbsent (mode that must not) refer to the SAME artifact, so both track the
+// canonical name together.
+//
+// B-cc10 CHK-006 (B-cc10:F-001): the DIRECTORY halves of these two paths were still
+// hardcoded `.lattice/` / `.lattice-codex/` while only the FILENAME half came from the
+// resolver. Once CHK-003 moved the state dir, that half-derived path pointed at a
+// directory `init` no longer writes, so this smoke asserted a file that could never
+// appear. Both halves now come from the resolver, so a future dir rename cannot
+// desynchronize the fixture from the writer again.
+const LATTICE_MANIFEST_REL = `${PROOF_OR_STOP_STATE_DIR}/${PROOF_OR_STOP_MANIFEST_FILENAME}`;
+// B-cc10 CHK-007 (B-cc10:F-004): NOW DERIVED. CHK-006 deliberately pinned this to the
+// literal `.lattice/Lattice.md` because cli-init.ts wrote the guide to a hardcoded
+// deprecated directory while the MANIFEST already used the resolver — init straddled two
+// state dirs and created a stray legacy directory on every fresh init. CHK-007 unified the
+// writer (cli-init.ts + core/managed-assets.ts + the generated guide templates all derive
+// the state dir now), so the condition that comment said to wait for is satisfied and this
+// fixture tracks the writer again.
+const LATTICE_MD_REL = `${PROOF_OR_STOP_STATE_DIR}/Lattice.md`;
+const CODEX_MANIFEST_REL = `${PROOF_OR_STOP_ADAPTER_DIR}/${PROOF_OR_STOP_MANIFEST_FILENAME}`;
 
 const packageRoot = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const cliPath = join(packageRoot, 'dist', 'cli.js');
+
+/**
+ * Escape a derived path for literal use inside a RegExp.
+ *
+ * B-cc10 CHK-007: the previous inline `LATTICE_MD_REL.replace('.', '\\.')` escaped
+ * only the FIRST dot (String.replace with a string pattern is not global), so the
+ * `.md` dot stayed a wildcard. Harmless for this fixture but a latent
+ * false-positive; escaping properly keeps the assertion exact.
+ */
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
 
 function makeRoot(name: string): string {
   return mkdtempSync(join(tmpdir(), `lattice-${name}-`));
@@ -119,7 +160,7 @@ function assertGitignoreCoversRegistry(root: string): void {
 // ─── Activity Root Regressions ───────────────────────────────────────────────
 const canonicalActivityRoot = makeRoot('activity-canonical');
 try {
-  writeText(canonicalActivityRoot, 'lattice.config.json', '{}\n');
+  writeText(canonicalActivityRoot, PROOF_OR_STOP_CONFIG_FILENAME, '{}\n');
   runSessionBriefHeartbeat(canonicalActivityRoot, 'smoke-canonical-activity');
   assertSessionBriefActivity(canonicalActivityRoot, 'smoke-canonical-activity');
 } finally {
@@ -128,7 +169,7 @@ try {
 
 const managedGlobalThinActivityRoot = makeRoot('activity-global-thin');
 try {
-  writeText(managedGlobalThinActivityRoot, '.lattice/lattice.json', JSON.stringify({ assetMode: 'global-thin' }, null, 2));
+  writeText(managedGlobalThinActivityRoot, LATTICE_MANIFEST_REL, JSON.stringify({ assetMode: 'global-thin' }, null, 2));
   runSessionBriefHeartbeat(managedGlobalThinActivityRoot, 'smoke-global-thin-activity');
   assertSessionBriefActivity(managedGlobalThinActivityRoot, 'smoke-global-thin-activity');
 } finally {
@@ -141,9 +182,9 @@ for (const [name, manifest] of [
 ] as const) {
   const root = makeRoot(name);
   try {
-    writeText(root, '.lattice/lattice.json', manifest);
+    writeText(root, LATTICE_MANIFEST_REL, manifest);
     runSessionBriefHeartbeat(root, `smoke-${name}`);
-    assertAbsent(root, '.lattice/activity.jsonl');
+    assertAbsent(root, `${PROOF_OR_STOP_STATE_DIR}/activity.jsonl`);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -151,7 +192,7 @@ for (const [name, manifest] of [
 
 const loadConfigGlobalThinOnlyRoot = makeRoot('loadconfig-global-thin-only');
 try {
-  writeText(loadConfigGlobalThinOnlyRoot, '.lattice/lattice.json', JSON.stringify({
+  writeText(loadConfigGlobalThinOnlyRoot, LATTICE_MANIFEST_REL, JSON.stringify({
     assetMode: 'global-thin',
     scanRoot: 'managed-manifest-must-not-win',
     storyPrefix: 'Z',
@@ -160,48 +201,63 @@ try {
   const config = loadConfig(loadConfigGlobalThinOnlyRoot);
   assert.equal(config.scanRoot, 'src');
   assert.equal(config.storyPrefix, 'B');
-  assertAbsent(loadConfigGlobalThinOnlyRoot, 'lattice.config.json');
+  assertAbsent(loadConfigGlobalThinOnlyRoot, PROOF_OR_STOP_CONFIG_FILENAME);
 } finally {
   resetConfigCache();
   rmSync(loadConfigGlobalThinOnlyRoot, { recursive: true, force: true });
 }
 
 // ─── Test 1: Fresh default (global-thin) ─────────────────────────────────────
-// No --profile or --asset-mode flags: should produce .lattice/ dir with minimal assets.
-// Forbidden assets: bin/lattice.js, bin/lattice-codex.js, .lattice-codex/README.md, .lattice-codex/lattice.json, LATTICE.md.
+// No --profile or --asset-mode flags: should produce the state dir with minimal assets.
+// Forbidden assets: bin/lattice.js, bin/lattice-codex.js, adapter-dir README/manifest, LATTICE.md.
 const globalThinRoot = makeRoot('global-thin-default');
 try {
   const output = runInit(globalThinRoot, []);
   assert.match(output, /global-thin/i, 'init output should mention global-thin mode');
-  assert.match(output, /\.lattice\/Lattice\.md/i, 'init output should mention .lattice/Lattice.md');
+  // B-cc10 CHK-007: derived from LATTICE_MD_REL rather than a hardcoded `.lattice/`
+  // regex. A literal here would fail closed against the CANONICAL spelling the
+  // writer now emits — the same one-spelling-pinned-guard defect this story exists
+  // to remove (it is what broke brand-path-resolver-smoke on CHK-003's rename).
+  assert.match(
+    output,
+    new RegExp(escapeRegExp(LATTICE_MD_REL), 'i'),
+    `init output should mention ${LATTICE_MD_REL}`,
+  );
 
   // Required canonical assets
-  assertExists(globalThinRoot, '.lattice/Lattice.md');
-  assertExists(globalThinRoot, '.lattice/lattice.json');
+  assertExists(globalThinRoot, LATTICE_MD_REL);
+  assertExists(globalThinRoot, LATTICE_MANIFEST_REL);
   assertExists(globalThinRoot, 'AGENTS.md');
-  assertExists(globalThinRoot, 'lattice.config.json');
+  assertExists(globalThinRoot, PROOF_OR_STOP_CONFIG_FILENAME);
 
-  // AGENTS.md should reference global lattice, not node bin/lattice.js
+  // AGENTS.md should reference the global CLI, not a local bin wrapper.
+  //
+  // B-cc10 CHK-006 (B-cc10:F-002): the two `codex verify` assertions below matched
+  // /lattice codex verify/ while their own failure messages said "proof-or-stop codex
+  // verify" — and the templates emit `proof-or-stop codex verify`, which does NOT
+  // contain the substring "lattice codex verify". The regex and its message disagreed,
+  // so these lines could only ever have passed for the wrong reason. Same class as
+  // B-cdf6:F-047. They now pin the canonical command the template actually writes.
   const agentsMd = readFileSync(join(globalThinRoot, 'AGENTS.md'), 'utf8');
-  assert.match(agentsMd, /\.lattice\/Lattice\.md/, 'AGENTS.md should reference .lattice/Lattice.md');
-  assert.match(agentsMd, /lattice codex verify/, 'AGENTS.md should reference proof-or-stop codex verify');
+  assert.match(agentsMd, new RegExp(escapeRegExp(LATTICE_MD_REL)), `AGENTS.md should reference ${LATTICE_MD_REL}`);
+  assert.match(agentsMd, /proof-or-stop codex verify/, 'AGENTS.md should reference proof-or-stop codex verify');
   assert.doesNotMatch(agentsMd, /node bin\/lattice\.js/, 'AGENTS.md must not reference node bin/lattice.js in global-thin mode');
 
-  // .lattice/Lattice.md should reference global lattice CLI
-  const latticeMd = readFileSync(join(globalThinRoot, '.lattice/Lattice.md'), 'utf8');
-  assert.match(latticeMd, /lattice session_brief/, '.lattice/Lattice.md should reference proof-or-stop session_brief');
-  assert.match(latticeMd, /lattice codex verify/, '.lattice/Lattice.md should reference proof-or-stop codex verify');
+  // Lattice.md should reference the global CLI.
+  const latticeMd = readFileSync(join(globalThinRoot, LATTICE_MD_REL), 'utf8');
+  assert.match(latticeMd, /proof-or-stop session_brief/, `${LATTICE_MD_REL} should reference proof-or-stop session_brief`);
+  assert.match(latticeMd, /proof-or-stop codex verify/, `${LATTICE_MD_REL} should reference proof-or-stop codex verify`);
 
   // .lattice/lattice.json should declare global-thin mode
-  const latticeConfig = JSON.parse(readFileSync(join(globalThinRoot, '.lattice/lattice.json'), 'utf8'));
+  const latticeConfig = JSON.parse(readFileSync(join(globalThinRoot, LATTICE_MANIFEST_REL), 'utf8'));
   assert.equal(latticeConfig.assetMode, 'global-thin');
 
   // Forbidden default assets must not exist
   assertAbsent(globalThinRoot, 'bin/lattice.js');
   assertAbsent(globalThinRoot, 'bin/lattice-codex.js');
-  assertAbsent(globalThinRoot, '.lattice-codex/README.md');
-  assertAbsent(globalThinRoot, '.lattice-codex/lattice.json');
-  assertAbsent(globalThinRoot, '.lattice-codex/agents');
+  assertAbsent(globalThinRoot, `${PROOF_OR_STOP_ADAPTER_DIR}/README.md`);
+  assertAbsent(globalThinRoot, CODEX_MANIFEST_REL);
+  assertAbsent(globalThinRoot, `${PROOF_OR_STOP_ADAPTER_DIR}/agents`);
   assertAbsent(globalThinRoot, 'LATTICE.md');
 
   // Global codex verify should pass without local bin shims
@@ -218,26 +274,29 @@ const globalThinCodexRoot = makeRoot('global-thin-codex');
 try {
   runInit(globalThinCodexRoot, ['--profile=codex']);
   // Still global-thin (default mode), so .lattice/ should exist, no .lattice-codex/ assets
-  assertExists(globalThinCodexRoot, '.lattice/Lattice.md');
-  assertExists(globalThinCodexRoot, '.lattice/lattice.json');
+  assertExists(globalThinCodexRoot, LATTICE_MD_REL);
+  assertExists(globalThinCodexRoot, LATTICE_MANIFEST_REL);
   assertExists(globalThinCodexRoot, 'AGENTS.md');
   assertAbsent(globalThinCodexRoot, 'bin/lattice.js');
-  assertAbsent(globalThinCodexRoot, '.lattice-codex/lattice.json');
+  assertAbsent(globalThinCodexRoot, CODEX_MANIFEST_REL);
   assertCodexOk(globalThinCodexRoot);
 } finally {
   rmSync(globalThinCodexRoot, { recursive: true, force: true });
 }
 
 // ─── Test 3: Explicit full mode (opt-in local lattice assets) ────────────────
-// --asset-mode=full should create LATTICE.md, bin/lattice.js, .lattice-codex/ as before.
+// --asset-mode=full should create LATTICE.md, the local bin wrappers and the adapter dir.
+// B-cc10 CHK-006: these lists asserted `bin/lattice.js` / `bin/lattice-codex.js`, but
+// B-cdf6 already made `init` generate ONLY the canonical names (it never writes the
+// deprecated ones). They now pin the wrappers init actually produces.
 const fullRoot = makeRoot('explicit-full');
 try {
   const output = runInit(fullRoot, ['--profile=codex', '--asset-mode=full']);
   assert.match(output, /Codex asset mode: full/);
-  for (const relPath of ['LATTICE.md', 'AGENTS.md', '.lattice-codex/README.md', '.lattice-codex/lattice.json', 'bin/lattice.js', 'bin/lattice-codex.js']) {
+  for (const relPath of ['LATTICE.md', 'AGENTS.md', `${PROOF_OR_STOP_ADAPTER_DIR}/README.md`, CODEX_MANIFEST_REL, 'bin/proof-or-stop.js', 'bin/proof-or-stop-codex.js']) {
     assertExists(fullRoot, relPath);
   }
-  assertAbsent(fullRoot, '.lattice/lattice.json');
+  assertAbsent(fullRoot, LATTICE_MANIFEST_REL);
   assertManagedOk(fullRoot, 'full');
 } finally {
   rmSync(fullRoot, { recursive: true, force: true });
@@ -248,14 +307,14 @@ const thinRoot = makeRoot('explicit-thin');
 try {
   const output = runInit(thinRoot, ['--profile=codex', '--asset-mode=thin']);
   assert.match(output, /Codex asset mode: thin/);
-  for (const relPath of ['LATTICE.md', 'AGENTS.md', '.lattice-codex/README.md', '.lattice-codex/lattice.json', 'bin/lattice.js', 'bin/lattice-codex.js']) {
+  for (const relPath of ['LATTICE.md', 'AGENTS.md', `${PROOF_OR_STOP_ADAPTER_DIR}/README.md`, CODEX_MANIFEST_REL, 'bin/proof-or-stop.js', 'bin/proof-or-stop-codex.js']) {
     assertExists(thinRoot, relPath);
   }
-  assert.equal(existsSync(join(thinRoot, '.lattice-codex', 'agents')), false, 'thin init should not create .lattice-codex/agents');
-  const manifest = JSON.parse(readFileSync(join(thinRoot, '.lattice-codex', 'lattice.json'), 'utf8'));
+  assert.equal(existsSync(join(thinRoot, PROOF_OR_STOP_ADAPTER_DIR, 'agents')), false, 'thin init should not create .lattice-codex/agents');
+  const manifest = JSON.parse(readFileSync(join(thinRoot, CODEX_MANIFEST_REL), 'utf8'));
   assert.equal(manifest.adapterOwner, 'lattice');
   assert.equal(manifest.promptMode, 'registry');
-  assertAbsent(thinRoot, '.lattice/lattice.json');
+  assertAbsent(thinRoot, LATTICE_MANIFEST_REL);
   assertManagedOk(thinRoot, 'thin');
 } finally {
   rmSync(thinRoot, { recursive: true, force: true });
@@ -279,8 +338,8 @@ try {
     assert.equal(readFileSync(join(preserveRoot, relPath), 'utf-8'), content, `${relPath} must survive when user-owned`);
   }
   // New .lattice/ assets should still be created
-  assertExists(preserveRoot, '.lattice/Lattice.md');
-  assertExists(preserveRoot, '.lattice/lattice.json');
+  assertExists(preserveRoot, LATTICE_MD_REL);
+  assertExists(preserveRoot, LATTICE_MANIFEST_REL);
   // Codex verify should pass (global-thin project)
   assertCodexOk(preserveRoot);
 } finally {

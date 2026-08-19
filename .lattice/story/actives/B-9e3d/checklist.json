@@ -1,0 +1,40 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Choose one timeout-margin policy for both keyed-scheduler callers and implement it",
+      "context": "full-suite-runner.ts scales declared timeoutMs by CONCURRENCY_HEADROOM_FACTOR 1.5 at jobs>1 through withConcurrencyHeadroom(entry, jobs); validation-executor.ts applies lattice.config.json timeoutMs flat through resolveCommandTimeoutMs, which takes no jobs parameter. Pick one meaning for a declared timeout and make both callers implement it. If the routine plan gains headroom, document that every configured value is now a standalone budget; if the flat ceiling stays, that is the policy for both.",
+      "relatedDocs": [
+        "CLAUDE.md#verification-intent-evidence"
+      ],
+      "userSees": "Both callers derive a command timeout through the same documented rule, and the rule is stated in code rather than in a comment claiming the numbers were already calibrated.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Make the chosen policy enforceable so the two callers cannot silently diverge again",
+      "context": "The current gap is held closed only by an unenforced comment in validation-executor.ts. Whatever policy is chosen needs a mechanical check: either a shared helper both callers must route through, or a plan-build-time assertion that each declared timeout clears its observed contended duration by a stated margin. A regression must fail if a future change reintroduces two different rules.",
+      "relatedDocs": [
+        "CLAUDE.md#verification-intent-evidence"
+      ],
+      "userSees": "A test fails, naming both call sites, when one caller applies a margin the other does not.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Record the contended-duration basis for the configured validate timeouts",
+      "context": "Neither the config nor the code says which regime the ~110 configured timeoutMs values were measured under, which is why the calibration claim cannot be checked. Capture the observed contended durations that justify the chosen policy, so the next person can verify the margins instead of re-deriving them. B-7dff raised then reverted per-member budgets under the old model - read that git history first rather than starting from scratch.",
+      "relatedDocs": [
+        "CLAUDE.md#verification-intent-evidence"
+      ],
+      "userSees": "The chosen margins are traceable to recorded measurements rather than to an assertion that they were already calibrated.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

@@ -43,9 +43,10 @@ import {
   validateUsageLedgerRecord,
 } from './record.js';
 import { readBrandEnv } from '../brand-env.js';
+import { PROOF_OR_STOP_DIR } from '../lattice-paths.js';
 
 /** Relative path of the ledger from the project root. */
-export const USAGE_LEDGER_DIR = join('.lattice', 'usage');
+export const USAGE_LEDGER_DIR = join(PROOF_OR_STOP_DIR, 'usage');
 export const USAGE_LEDGER_FILENAME = 'llm-usage.jsonl';
 export const USAGE_LEDGER_RELATIVE_PATH = join(USAGE_LEDGER_DIR, USAGE_LEDGER_FILENAME);
 

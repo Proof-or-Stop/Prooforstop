@@ -135,8 +135,8 @@ function copyCodexAssetsToTemp() {
     '.claude',
     'bin/proof-or-stop-codex.js',
     'bin/proof-or-stop.js',
-    'bin/lattice-codex.js',
-    'bin/lattice.js',
+    // B-cc10 CHK-006: `bin/lattice-codex.js` / `bin/lattice.js` were deleted, so copying
+    // them here would throw ENOENT before any assertion ran.
     'bin/bootstrap-runner.js',
     'README.md',
     'AGENTS.md',
@@ -386,21 +386,25 @@ assertSessionBriefCommand(
   'canonical bootstrap-only fallback resolves to proof-or-stop session_brief',
 );
 
-// --- ADDITIVE COMPAT (B-cdf6): a pre-rename checkout has ONLY the old wrapper names.
-// The resolver must still name the wrapper that actually exists there, otherwise a
-// teammate branch merged in after the rename would be told to run a missing file. ---
+// --- B-cc10 CHK-006: the deprecated wrapper names are REMOVED from the resolver.
+// B-cdf6 asserted the opposite (a checkout holding ONLY an old name was told to run that
+// old name). Now that the aliases are deleted, a directory holding only a deprecated name
+// is an unsupported layout, and the resolver must name the CANONICAL wrapper rather than
+// endorsing a retired one — pointing an operator at `bin/lattice-codex.js` would be
+// pointing them at a file this project no longer ships. ---
 assertSessionBriefCommand(
   (dir) => writeFileSync(join(dir, 'bin', 'lattice-codex.js'), '// lattice-codex wrapper'),
-  'node bin/lattice-codex.js session_brief',
-  'deprecated lattice-codex wrapper still resolves to its own command',
+  'node bin/proof-or-stop-codex.js session_brief',
+  'deprecated lattice-codex wrapper no longer resolves to itself',
 );
 assertSessionBriefCommand(
   (dir) => writeFileSync(join(dir, 'bin', 'lattice.js'), '// lattice bootstrap'),
-  'node bin/lattice.js session_brief',
-  'deprecated lattice.js-only fallback still resolves to its own command',
+  'node bin/proof-or-stop-codex.js session_brief',
+  'deprecated lattice.js-only layout no longer resolves to itself',
 );
 
-// --- Canonical wins when BOTH names are present (the state of this repo). ---
+// --- Canonical wins when BOTH names are present. (This was the state of this repo until
+// B-cc10 CHK-006 deleted the aliases; it remains a valid downstream-project layout.) ---
 assertSessionBriefCommand(
   (dir) => {
     writeFileSync(join(dir, 'bin', 'proof-or-stop-codex.js'), '// codex wrapper');

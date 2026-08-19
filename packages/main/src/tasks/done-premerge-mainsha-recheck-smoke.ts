@@ -46,6 +46,7 @@ import { delimiter, dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { resetConfigCache } from '../core/config.js';
+import { stateDirCandidates } from '../core/brand-paths.js';
 import { StoryStore } from '../core/store.js';
 import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
 import { signDeliveryCheck } from '../core/delivery-check-hash.js';
@@ -207,7 +208,11 @@ function buildDoneReadyStoryWithLinkedWorktree(storyId: string): { root: string;
     workflow: { profile: 'light' },
   }, null, 2));
   write(root, 'README.md', `done-premerge-mainsha-recheck-smoke ${storyId}\n`);
-  write(root, '.gitignore', '.worktrees/\n.linked-worktrees/\n.lattice/activity.jsonl\n');
+  write(root, '.gitignore', [
+    '.worktrees/',
+    '.linked-worktrees/',
+    ...stateDirCandidates('activity.jsonl'),
+  ].join('\n') + '\n');
 
   git(root, ['init']);
   git(root, ['checkout', '-B', 'main']);

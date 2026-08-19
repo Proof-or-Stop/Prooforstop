@@ -55,6 +55,7 @@ import {
 } from '../core/learning-store.js';
 import { StoryStore } from '../core/store.js';
 import { createCapabilityReleaseBackfillHandlers } from '../handlers/capability-release-backfill.js';
+import { PROOF_OR_STOP_STATE_DIR, PROOF_OR_STOP_CONFIG_FILENAME } from '../core/brand-paths.js';
 
 const NOW = '2026-07-05T00:00:00.000Z';
 
@@ -124,7 +125,7 @@ try {
   // ════════════════════════════════════════════════════════════════════════════
   const root = mkdtemp('capability-release-backfill-smoke-');
   cleanup.push(root);
-  write(root, 'lattice.config.json', '{}');
+  write(root, PROOF_OR_STOP_CONFIG_FILENAME, '{}');
 
   // ── Fixture: one capability release for B-785e; three candidate playbooks ─────
   //   PBP-882  → B-785e, UNBOUND    → the single eligible candidate (plan='bind').
@@ -281,7 +282,7 @@ try {
   // ════════════════════════════════════════════════════════════════════════════
   const rootB = mkdtemp('capability-release-recordbind-smoke-');
   cleanup.push(rootB);
-  write(rootB, 'lattice.config.json', '{}');
+  write(rootB, PROOF_OR_STOP_CONFIG_FILENAME, '{}');
   gitInit(rootB);
 
   // An ARTIFACT release for B-785e whose paths declare a reusable capability, but
@@ -295,7 +296,10 @@ try {
     now: NOW,
   });
   writeArtifactReleaseLedgerForTest(rootB, [artifactRelease]);
-  git(rootB, ['add', '-f', '.lattice/artifact-releases.jsonl', 'lattice.config.json']);
+  // B-cc10: the fixture wrote its config under the DEPRECATED filename while the runtime
+  // writes ledgers under the CANONICAL state dir, so this git add referenced two paths that
+  // do not exist post-rename and the command failed.
+  git(rootB, ['add', '-f', `${PROOF_OR_STOP_STATE_DIR}/artifact-releases.jsonl`, PROOF_OR_STOP_CONFIG_FILENAME]);
   git(rootB, ['commit', '-q', '-m', 'fixture: artifact release + config']);
 
   writePlaybooks(rootB, [candidatePlaybook('PBP-882', 'B-785e', false)]);
@@ -347,8 +351,11 @@ try {
     assert.equal(pb.usage.surfacedCount, 7);
 
     // The ledger file is TRACKED and COMMITTED (git add -f + commit ran).
-    const tracked = git(rootB, ['ls-files', '--', '.lattice/capability-releases.jsonl']);
-    assert.equal(tracked, '.lattice/capability-releases.jsonl', 'capability ledger is tracked');
+    // B-cc10: the ledger now lives under the CANONICAL state dir, so assert against the
+    // resolved path rather than the deprecated literal.
+    const capabilityLedgerRel = `${PROOF_OR_STOP_STATE_DIR}/capability-releases.jsonl`;
+    const tracked = git(rootB, ['ls-files', '--', capabilityLedgerRel]);
+    assert.equal(tracked, capabilityLedgerRel, 'capability ledger is tracked');
     const status = git(rootB, ['status', '--porcelain', '--', '.lattice/capability-releases.jsonl']);
     assert.equal(status, '', 'capability ledger has no uncommitted changes (was committed)');
 
@@ -370,7 +377,7 @@ try {
   check('record-then-bind: an under-bound candidate whose story has NEITHER a capability NOR an artifact release is not eligible', () => {
     const rootC = mkdtemp('capability-release-noart-smoke-');
     cleanup.push(rootC);
-    write(rootC, 'lattice.config.json', '{}');
+    write(rootC, PROOF_OR_STOP_CONFIG_FILENAME, '{}');
     // No capability release and no artifact release for B-noart → nothing to record
     // from → conservatively not eligible (the migration never invents a binding).
     writePlaybooks(rootC, [candidatePlaybook('PBP-x', 'B-noart', false)]);

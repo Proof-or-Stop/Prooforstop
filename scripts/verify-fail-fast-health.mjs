@@ -83,7 +83,7 @@ export function sample() {
   }, null, 2));
 
   const extractOutput = runNode([
-    join(root, 'bin', 'lattice-codex.js'),
+    join(root, 'bin', 'proof-or-stop-codex.js'),
     '--root',
     tempProject,
     'aux_sync',

@@ -37,6 +37,12 @@ import {
   reviewerHostRenderIdentity,
 } from '../core/prompt-role-contract-registry.js';
 import { renderCodexAgentContent } from '../init-assets.js';
+// B-cc10 F-055: resolve whichever adapter dir exists. Hardcoding the renamed one made this
+// read a path that no longer exists (ENOENT) or scan zero files.
+function adapterDirName(base: string): string {
+  return existsSync(join(base, '.proof-or-stop-codex')) ? '.proof-or-stop-codex' : '.lattice-codex';
+}
+
 
 const registry = readPromptRegistry();
 const files = listPromptTemplateFiles(registry.root);
@@ -117,7 +123,7 @@ for (const entry of registry.agents) {
   if (existsSync(claudeMirrorPath)) {
     assert.equal(readFileSync(claudeMirrorPath, 'utf8'), expectedClaude, `${entry.file} .claude asset matches its canonical host input`);
   }
-  const codexMirrorPath = join(projectRoot, '.lattice-codex', 'agents', entry.file);
+  const codexMirrorPath = join(projectRoot, adapterDirName(projectRoot), 'agents', entry.file);
   if (existsSync(codexMirrorPath)) {
     assert.equal(readFileSync(codexMirrorPath, 'utf8'), expectedCodex, `${entry.file} .lattice-codex asset matches its canonical host input`);
   }

@@ -21,7 +21,7 @@
 #   2. package.json 存在但 `node` 不在 PATH → 无法解析 name、也无法跑递归 tsc
 #      gate → **fail-closed**：向 stderr 打印明确警告并 exit 1 拒绝 push。
 #      这里 **不能 fail-open**——静默 exit 0 会让 tsc gate 被无声绕过（F-002）。
-#   3. `node` 可用，但 package.json 的 `name` 字段 ≠ `@lattice/core`
+#   3. `node` 可用，但 package.json 的 `name` 字段不在名字集合内（`@proof-or-stop/core` / `@lattice/core`）
 #      → 确实非 Lattice 自举仓 → exit 0 放行。
 # 注意：本仓是扁平布局 `packages/main`。
 #
@@ -63,10 +63,17 @@ check_release_push_approval() {
 const fs = require("fs");
 const path = require("path");
 const [root, remoteName, localSha, remoteRef] = process.argv.slice(1);
-const approvalPath = path.join(root, ".lattice", "tmp", "remote-push-approval.json");
+// B-cc10 F-046: read BOTH state-dir spellings, canonical first. The writer moved to
+// .proof-or-stop/tmp/, and a hook pinned to only one spelling would either reject a valid
+// approval or keep requiring the deprecated path forever.
+const approvalCandidates = [
+  path.join(root, ".proof-or-stop", "tmp", "remote-push-approval.json"),
+  path.join(root, ".lattice", "tmp", "remote-push-approval.json"),
+];
+const approvalPath = approvalCandidates.find((candidate) => fs.existsSync(candidate)) || approvalCandidates[0];
 function reject(message) {
   console.error(`[pre-push] REJECTED: ${message}`);
-  console.error("[pre-push] Remote writes are default-denied. Run `lattice release_approve_push --confirm` from a clean local main, then retry `git push origin main` before the approval expires.");
+  console.error("[pre-push] Remote writes are default-denied. Run `proof-or-stop release_approve_push --confirm` from a clean local main, then retry `git push origin main` before the approval expires.");
   process.exit(1);
 }
 let approval;

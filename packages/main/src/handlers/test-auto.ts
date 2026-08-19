@@ -23,7 +23,13 @@ import {
   createIsolatedHandlers, createTempStoryFactory, cleanupTempStories, cleanupFixtureDir,
 } from './test-runner-core.js';
 
-const CANONICAL_CORE_PACKAGE_NAME = '@lattice/core';
+// B-cc10 CHK-005: renamed @lattice/core -> @proof-or-stop/core. This set gates a
+// SELF-PROTECTION check (refuse full-suite self-test), so it must match either spelling:
+// a miss would silently let the framework test itself and pollute its own state.
+const SELF_CORE_PACKAGE_NAMES: ReadonlySet<string> = new Set([
+  '@proof-or-stop/core',
+  '@lattice/core',
+]);
 
 /**
  * @task B-4b17
@@ -82,7 +88,7 @@ export function createTestAutoHandlers(ctx: HandlerContext) {
         const pkgPath = join(root, 'packages', 'main', 'package.json');
         if (existsSync(pkgPath)) {
           const pkg = JSON.parse(readFileSync(pkgPath, 'utf-8'));
-          if (pkg.name === CANONICAL_CORE_PACKAGE_NAME) {
+          if (typeof pkg.name === 'string' && SELF_CORE_PACKAGE_NAMES.has(pkg.name)) {
             throw new Error('Proof-or-Stop 自身项目禁止 test_auto 全量测试（会自己测自己导致副作用污染）。请运行 proof-or-stop validate --story=<storyId>，并用 checklist_update 或 verification_evidence_add 记录 verificationEvidence');
           }
         }

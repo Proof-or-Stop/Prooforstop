@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-def6",
+  "allowedCommands": [
+    "git *",
+    "node bin/proof-or-stop.js *",
+    "npm run build",
+    "npm run test:*",
+    "npm test",
+    "npx tsc --noEmit *"
+  ],
+  "allowedTools": [
+    "Agent",
+    "Bash",
+    "Edit",
+    "Glob",
+    "Grep",
+    "Read",
+    "Write"
+  ],
+  "allowedPaths": [
+    "CLAUDE.md",
+    "docs/requirements/decisions/**",
+    "lattice.config.json",
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src/core/runtime-artifact-registry.ts",
+    "packages/main/src/core/scope-contract.ts",
+    "packages/main/src/core/scope-path-classifier.ts",
+    "packages/main/src/tasks/**",
+    "packages/main/tests/**"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    "packages/main/src/core/convergence-breaker.ts",
+    "packages/main/src/core/evidence-refresh.ts",
+    "packages/main/src/core/story-owner-lease.ts",
+    "packages/main/src/handlers/dev-memory-capture.ts",
+    "packages/main/src/handlers/dev-memory-finish-decision.ts"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Single-file behavioural change in runtime-artifact-registry.ts plus its tests. scope-contract.ts is allowed only for the CHK-003 remediation-text correction. dev-memory handlers and the breaker/lease/refresh modules are blocked because this story must not change what is written or how leases and refreshes behave.",
+  "createdAt": "2026-08-19T13:42:27.937Z",
+  "updatedAt": "2026-08-19T13:42:27.937Z",
+  "_hash": "813b6dd1901d7d20b210265a9ba2d4d6e33e94598c754596e8fcba1218adb4dc"
+}

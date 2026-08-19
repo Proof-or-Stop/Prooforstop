@@ -1,0 +1,415 @@
+{
+  "passes": [
+    {
+      "id": "B-45a5:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "verificationIntent -> verificationEvidence coverage audit for CHK-001..004, all must-priority. CHK-005 correctly WITHDRAWN (decisionRef SD-ccafb44c, decision=confirmed/userConfirmed=true, matches scope-shrinkage-decision.json) and excluded from coverage demand, not a gap. Coverage: 12/12 must intents across CHK-001-004 have valid evidence (11 logic_test pass + 1 permanent waiver), each note ties concretely to a named row/behavior, none is a generic pass claim. Read the fixture code (packages/main/tests/red/red-b45a5-withdrawal-gates.mjs) and re-ran it directly against the current shared dist (read-only, no mutation) to independently reproduce every pinned selector verbatim: B1/B2/B3=GREEN, D1/D2/D3/D4/D5/D23/D45=REFUSED, A1/A2/C1..C8=CONTROL-OK, exit 0. Five judgement items from dispatch: (1) CHK-001:happy:0 waiver is honest, not laundering -- verified baseline HEAD e66bb0b2999c9c4200570a884516d370490f4339 in red-evidence.json record 2 matches the waiver note, and the registered CHK-001 artifact independently reruns GREEN today; the waiver targets a genuinely self-invalidating RED-VERDICT pin (not a prose-selector issue) and the underlying property is proven elsewhere by durable evidence, so a permanent waiver is the right instrument here, correctly distinguished from the B-8df9 prose-selector lesson. (2) CHK-004 D-rows do bite: read buildForged() and confirmed D3's decision (decisionNamesSubject false branch) withdraws a DIFFERENT real item (backedId=CHK-003, non-empty withdrawnChecklistItemRefs), with C5/C6 controls measuring that non-emptiness and live exclusion in the same fixture -- the anti-bypass proof is not hollow. Manually reconstructed the 3x5 ablation table against the real withdrawnChecklistItemIdsFrom/checkDispatchEvidence/withdrawnItemIntentRefs source and it matches exactly cell-for-cell. (3) D2's admitted non-independence vs D3 is accurate across the three ablations actually tested (no shape catches D2 without also catching D3) and is disclosed in the artifact's own docblock next to the ablation table, not noise -- CHK-004's plan.md tightening 4 explicitly owes this exact case regardless of independence, so keeping it is correct. (4) Selector durability: none of CHK-002/003/004's pins were invalidated by any later item in this story (only CHK-001's was, by design, since it records the pre-fix state the story exists to fix); forward risk from here on is the intended kind -- these rows now guard against regression. (5) Truncation defect verified real via git history: pre-fix commit b57e18bc18 shows a receipt literally cut mid-word at B45A5-ROW-D5=R; fix commit 67f374486c replaced process.exit() with process.exitCode for correct exit semantics on a piped async stdout write. All 11 currently-recorded receipts end on complete lines (checked each outputTail), and a fresh live run confirms complete output. The 18-other-affected-files claim is exactly correct (grep confirms 18 other packages/main/tests/red/*.mjs files still use process.exit()), correctly scoped out as a separate follow-up. One outstanding low-severity gap in my domain: B-45a5:F-003 (lattice-review-quality, this round) -- withdrawnItemIntentRefs alias-collision defensive subtraction (survivingRefs guard, proofstory.ts:1672-1682) has zero direct test coverage anywhere in the repo; independently confirmed by reading the guard and grepping for its symbols. Not duplicating that finding since it is already registered, verified, and correctly scoped this round; noting concurrence here rather than filing a near-duplicate. No blocking test-coverage gap found.",
+      "createdAt": "2026-08-19T02:04:02.116Z",
+      "reviewRound": "2026-08-19T01:51:47.991Z",
+      "reviewRunId": "B-45a5:RR-002",
+      "envelopeId": "6f42b58a1cdc1e1971a783b0bb086c9807d0102850b7aaf7819793677fd009d4",
+      "writerSessionId": "sess-b45a5-main",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-45a5/checklist.json",
+          ".lattice/story/actives/B-45a5/evidence/red-probe-channel-gate.mjs",
+          ".lattice/story/actives/B-45a5/plan.md",
+          ".lattice/story/actives/B-45a5/red-evidence.json",
+          ".lattice/story/actives/B-45a5/scope-shrinkage-decision.json",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/handlers/validate-channel.ts",
+          "packages/main/tests/red/red-b45a5-withdrawal-gates.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-45a5/acceptance-basis.json",
+          ".lattice/story/actives/B-45a5/index.json",
+          ".lattice/story/actives/B-45a5/process-events.jsonl",
+          ".lattice/story/actives/B-45a5/review.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "10b7ed5bd7e21878cd946a7c5cbb0d5f9f1bf0db8888ecb23255345738ead2dd"
+    },
+    {
+      "id": "B-45a5:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 narrow re-attestation of F-001/F-002 fixes plus F-003 spillover. F-001 label now states all three clauses incl. anti-bypass D1-D5 and C9/E1 alias-collision; ran red-b45a5-withdrawal-gates.mjs directly, exit=0/VERDICT=GREEN, all rows in the label are actually asserted. F-002 docstring enumerates the three disjoint exemption buckets in test order, verified decision-membership is the sole key not item.status. F-003 spillover: buildAliasCollision reuses the real applier + shared helpers, no duplicated withdrawn-notion; B45A5-VERDICT emitted from one const referenced twice, cannot diverge. git diff main...HEAD --stat: only 4 code/test files touched, no concept deleted/replaced this round so no residue grep applies. No blocker.",
+      "createdAt": "2026-08-19T02:33:18.224Z",
+      "reviewRound": "2026-08-19T01:51:47.991Z",
+      "reviewRunId": "B-45a5:RR-005",
+      "envelopeId": "6acb2067f9bad1136da01344d5cc52ed23f9089df22465fa25130ffc599d4da6",
+      "writerSessionId": "sess-b45a5-main",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "lattice.config.json",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/handlers/validate-channel.ts",
+          "packages/main/tests/red/red-b45a5-withdrawal-gates.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-45a5/checklist.json",
+          ".lattice/story/actives/B-45a5/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b926f089d42a9e477c0f5f37c3aa2020950a8f328c237667012a883d24ce6b09"
+    },
+    {
+      "id": "B-45a5:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 narrow re-attestation of F-001/F-002/F-003 fix commits (e73e71c, 42e0fc0, 75089971). (A) Verified the ablation claim independently: copied dist+templates to an isolated scratch dir, removed the survivingRefs subtraction from withdrawnItemIntentRefs in the copy only (never touched the real packages/main/dist), reran the copied artifact against the copy -> E1 REFUSED->PARTIAL, exit 0->1, B45A5-VERDICT GREEN->BYPASS, and ONLY E1+VERDICT moved (all 10 controls CONTROL-OK, B1-B3 GREEN, D1-D5+D23+D45 REFUSED unchanged). Confirmed checkDispatchEvidence (validate-channel.ts:280-374) loops checklist items keyed by item.id only and never reads a verificationIntent ref, so an alias collision is structurally unreachable from the channel gate -- PARTIAL not BYPASSED on ablation is the mechanically correct result, and the kept channel conjunct is legitimate forward cover (if the channel gate ever becomes ref-aware) not a tautological row; on the real (unablated) tree E1=REFUSED with completenessRefuses=true AND channelRefuses=true, so the row genuinely bites today. Real, unmodified tree reran clean: exit 0, all controls CONTROL-OK, B1/B2/B3 GREEN, D1-D5/D23/D45 REFUSED, E1 REFUSED, B45A5-VERDICT=GREEN, matching every pinned selector value in the existing verificationEvidence receipts (outputDigest differs run-to-run only because fixture decision ids (SD-xxxxxxxx) are randomized per run -- selectorMatched, not digest-equality, is the receipt mechanism). (B) Confirmed the B45A5-VERDICT duplication cannot diverge: both emissions read the same single const verdict binding (row-index push and report-footer push), no reassignment between them. On headroom: raw total is 11427/12000 chars (~95%) which looks tight, but that ratio is not what protects the pinned selectors post-fix -- the entire row-index block (all B45A5-ROW-* + B45A5-VERDICT) ends at character offset ~905, so it would take on the order of hundreds more ROWS (not more prose in the per-row detail section, which is the truncatable-by-design part) before the index block itself approaches the cap. Not one row away from losing a pinned selector; the fix decoupled selector survival from total report length, which is the point of front-loading. dist rebuilt once via npm run build at the start of this pass to sync with current HEAD (matches committed source, no ablation); all ablation testing was done in a scratch copy under packages/main/.review-ablation-tmp/, fully deleted afterward and confirmed via git status -- packages/main/dist was never mutated. No new findings; F-001/F-002/F-003 fixes verified sound.",
+      "createdAt": "2026-08-19T02:35:21.576Z",
+      "reviewRound": "2026-08-19T01:51:47.991Z",
+      "reviewRunId": "B-45a5:RR-004",
+      "envelopeId": "369720690a535b96f2a5c455646cf25c6d084bac16dd8ae1363329c3a8c2cf21",
+      "writerSessionId": "sess-b45a5-main",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "lattice.config.json",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/validate-channel.ts",
+          "packages/main/tests/red/red-b45a5-withdrawal-gates.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-45a5/checklist.json",
+          ".lattice/story/actives/B-45a5/red-evidence.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "62162398edbdcabfb9d76eb073ce925037065465bd2c28d28f311d06a5e2f450"
+    },
+    {
+      "id": "B-45a5:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 2 narrow re-attestation, scope = changed files since RP-001 (lattice.config.json, handlers/validate-channel.ts, tests/red/red-b45a5-withdrawal-gates.mjs) plus the post-fix evidence refresh. (1) New coverage bites: independently re-derived the E1/C9 ablation in an isolated dist copy outside packages/main/dist (never touched the shared dist) by patching a scratch copy of withdrawnItemIntentRefs to drop the survivingRefs subtraction; a sorted marker diff between stock and ablated runs showed ONLY B45A5-ROW-E1 (REFUSED->PARTIAL) and B45A5-VERDICT (GREEN->BYPASS) move, confirming no pre-existing row covered this and matching F-003's own resolvedReason verbatim. PARTIAL (not BYPASSED) is structurally correct, not a weak test: checkDispatchEvidence (validate-channel.ts:334-374) iterates checklist items by item.id only and never reads an intentRef/alias, and the alias fixture's survivingId item carries no dispatch/subagent_result event, so the channel half of E1 refuses unconditionally regardless of the completeness-side ablation - the row cannot reach BYPASSED by construction, and the overall unauthorizedSkip check still correctly promotes any non-REFUSED D/E row to VERDICT=BYPASS. (2) Re-ran the live command fresh against the real (unmutated) dist and grepped for every pinned selector from checklist verificationIntent (CHK-001..CHK-004, 9 total): B45A5-ROW-{A1,A2,B1,B2,C1,D1,D23,D45}= all matched verbatim x2 (row index + detail body); B45A5-ROW-B3=RED correctly matched 0 times (B3 is now GREEN post-fix, which is exactly why CHK-001:happy:0 stays a permanent waiver) - no evidence silently demoted to non-mechanical; CHK-002/003/004 all retain mechanical:true + selectorMatched:true + result:pass across all 9 receipts, 0 waivers. (3) Verified MAX_OUTPUT_CHARS=12000 in validation-executor.ts trimOutput keeps only leading chars; live report is 11405 chars (dispatch cited 11423, small run-to-run variance from randomized SD-xxxxxxxx decision ids, all fixed-length so not a growth risk). B45A5-VERDICT is emitted twice from the SAME verdict variable (row-index copy near the top, tail copy at the end of a fresh run) so the two emissions cannot diverge by construction. The full row index (all 24 pinned row ids + VERDICT) sits within the first ~1000 chars of the report, so even under future growth the pinned selectors stay reachable with a much larger margin than the raw 580-600 char total-length headroom suggests; judged not a latent defect of the flush-bug class. (4) Confirmed CHK-005's withdrawal is genuinely mechanical on THIS story, not just the fixture: lattice validate --channel --story=B-45a5 passes (status=pass) with CHK-005 listed under a distinct withdrawn(SD-ccafb44c) bucket separate from the Covered list, and proofstory_review_completeness_check reports Status=pass Gaps=0 - CHK-005 is excluded from the required set, not counted as satisfied. (5) Re-confirmed the CHK-001:happy:0 permanent waiver judgement is unchanged: its evidence commit (33e73d8) predates round 1's own review dispatch commit (78997f5) and was never touched by verification_evidence_refresh_stale (evidence-refresh.ts:161 explicitly skips kind=waiver rows - by design, waivers have no re-runnable receipt). Noted but not filing as a finding: findStaleEvidence currently flags this one waiver as storyFilesHash-stale, but this predates round 1 (not introduced by round 2's fixes), is purely an advisory UX-hint surface, and does not block either gate directly executed above (both pass), since evaluateReviewCompleteness/rowCoversIntent is freshness-agnostic and evaluateDoneIntentEquivalence only applies staleness demotion inside its hasMilestonePath branch, which this story never enters (no milestone-ledger.json). No blocker found this round.",
+      "createdAt": "2026-08-19T02:43:32.498Z",
+      "reviewRound": "2026-08-19T01:51:47.991Z",
+      "reviewRunId": "B-45a5:RR-006",
+      "envelopeId": "c4c7f84dc237c65863c2a70164991bf9842135ed2495e4a95c8c6869fda1ab66",
+      "writerSessionId": "sess-b45a5-main",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-45a5/checklist.json",
+          ".lattice/story/actives/B-45a5/scope-shrinkage-decision.json",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/evidence-refresh.ts",
+          "packages/main/src/core/evidence-stale-hint.ts",
+          "packages/main/src/core/milestone-status.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/validate-channel.ts",
+          "packages/main/tests/red/red-b45a5-withdrawal-gates.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "65cceeb37d84f2735c97efa80a76b1851ad19bb448becce05a0dea616cfc095c"
+    },
+    {
+      "id": "B-45a5:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Post-merge re-attestation on current tree (HEAD 87462f3, story/B-45a5 merged main at 333322c68c). Re-verified all prior conclusions rather than treating them as formality: (1) git diff main...HEAD --name-only shows only story-metadata files changed since 333322c68c -- zero touches to proofstory.ts or validate-channel.ts since the merge. (2) git diff 07da31c12d..333322c68c confirms the merge diff has zero hunks inside evaluateReviewCompleteness or checkDispatchEvidence; the merge only touched sibling CLI-rebrand code. (3) npm --prefix packages/main run build succeeds clean; npx tsc --noEmit -p packages/main exits 0. (4) Re-ran red-b45a5-withdrawal-gates.mjs both plain and --attest against the rebuilt dist: both print B45A5-VERDICT=GREEN, B1/B2/B3 GREEN, A1/A2/C1-C9 CONTROL-OK, D1-D5/D23/D45/E1 REFUSED, exit 0. (5) Re-read the merged-tree source: withdrawnItemIntentRefs (proofstory.ts:1672) and checkDispatchEvidence (validate-channel.ts:288) both key exclusively on withdrawnChecklistItemIdsFrom(decision).has(item.id); grepped for any status===withdrawn comparison in either file and found none -- anti-forgery property intact. (6) Diff quality re-check: no dead code, no unsafe as-any, both new catch blocks assign an explicit fail-closed value not empty-swallowing, decisionId field usage is valid, no doc/README changes so no doc-promise check applies, no job/run metadata touched. (7) Spot-checked all 11 non-waiver verificationEvidence notes against fresh red-script output -- every referenced row id and claimed value matches verbatim. The one waiver (CHK-001:happy:0) is a documented legitimate self-invalidating-pin waiver, property re-proven via red-evidence.json plus the now-mandatory validate.commands entry. No new findings -- prior clean verdict holds on the current tree.",
+      "createdAt": "2026-08-19T03:54:51.798Z",
+      "reviewRound": "2026-08-19T03:51:10.195Z",
+      "reviewRunId": "B-45a5:RR-007",
+      "envelopeId": "a59ec01db9ff13028a3eaea88accdd73e01514545b4c12d0d1d5aa18bc71a77a",
+      "writerSessionId": "sess-b45a5-main",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "lattice.config.json",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/handlers/validate-channel.ts",
+          "packages/main/tests/red/red-b45a5-withdrawal-gates.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-45a5/checklist.json",
+          ".lattice/story/actives/B-45a5/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "cf8f6141b5347501f75b366c5b09930b6e8ba3f6180fcf30266b848aeeb9c213"
+    },
+    {
+      "id": "B-45a5:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Post-merge re-attestation (round 2026-08-19T03:51:10.195Z, head 87462f3). Verified: (1) no fifth withdrawal-classification mechanism was introduced by the merge (grepped merge diff 07da31c12d..333322c68c for withdraw across all .ts, only two rebrand-prose hits, checklist-status.ts and withdrawn-disposition-smoke.ts byte-unchanged); (2) the merge's touches to proofstory.ts/validate-channel.ts fall entirely inside evaluateDoneIntentEquivalence and isMetadataOnlyLatticeCommit/checkCommitAuthor-doc-comment (lattice-> proof-or-stop rebrand prose), never inside evaluateReviewCompleteness or checkDispatchEvidence bodies (confirmed via diff hunk line ranges vs function start lines); checkDispatchEvidence's three-bucket docstring and lattice.config.json's three-clause B-45a5 label are byte-identical and appear exactly once; no symbol named in this story's docs was renamed; (3) this story's own disclosure (core/verification.ts:212 knowingly untouched) re-verified true: zero diff on that file across the merge range, line 212 content and the withdrawnChecklistItemIdsFrom/decisionAuthorizesWithdrawal line numbers (1622/1614) still match plan.md/understanding.json exactly; (4) re-ran red-b45a5-withdrawal-gates.mjs against the rebuilt runtime: exit 0, B45A5-VERDICT=GREEN, all rows CONTROL-OK/GREEN/REFUSED as expected. No concept-boundary finding this round.",
+      "createdAt": "2026-08-19T03:57:37.860Z",
+      "reviewRound": "2026-08-19T03:51:10.195Z",
+      "reviewRunId": "B-45a5:RR-012",
+      "envelopeId": "2d06115db3f50f098557dcb966ee4f654d64892cabeb7e20f7ab4717f7b86a9a",
+      "writerSessionId": "sess-b45a5-main",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-45a5/decision.json",
+          ".lattice/story/actives/B-45a5/intent-collision.json",
+          ".lattice/story/actives/B-45a5/plan.md",
+          ".lattice/story/actives/B-45a5/understanding.json",
+          "lattice.config.json",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/validate-channel.ts",
+          "packages/main/tests/red/red-b45a5-withdrawal-gates.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/checklist-status.ts",
+          "packages/main/src/tasks/scope-shrinkage-withdrawal-floor-smoke.ts",
+          "packages/main/src/tasks/withdrawn-disposition-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b4c46ea814567dc841f082af3e2f392e0cb2d0b45ebec3453c186e055fb71fa5"
+    },
+    {
+      "id": "B-45a5:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "Post-merge re-attestation (round 2026-08-19T03:51:10.195Z), no story code changed since RP-004 (round 1). Verified the receipts genuinely rebind to the CURRENT merged+rebuilt tree, not just metadata: (1) git log confirms all 11 mechanical evidence rows carry headHash=333322c68c, exactly the merge commit SHA (Merge branch main into story/B-45a5); every commit after it (fa31e4e2d0/cdc2e9c6e1/4d4438f148/87462f3108) touches only .lattice/story/actives/B-45a5/* runtime metadata, never packages/main or packages/utils source, confirming the headHash drift between the evidence rows and current HEAD 87462f3 is pure metadata/provenance movement per the frozen-field-drift policy, not a re-run signal. (2) Confirmed the build is actually post-merge: packages/main/dist/core/proofstory.js and dist/handlers/validate-channel.js mtimes are newer than their src (rebuilt after the merge touched those src files at the merge commit), and packages/utils/dist/*.js mtimes are also newer, matching the claim that both packages were rebuilt before re-running. (3) Independently re-ran `node packages/main/tests/red/red-b45a5-withdrawal-gates.mjs --attest` myself (read-only, did not touch the shared dist): exit 0, and every one of the 11 pinned selectors reproduced VERBATIM against verificationIntent -- CHK-001 edge/adversarial=A1/A2=CONTROL-OK, CHK-002 happy/edge/adversarial=B1=GREEN/A2=CONTROL-OK/C1=CONTROL-OK, CHK-003 happy/edge/adversarial=B2=GREEN/A2=CONTROL-OK/C1=CONTROL-OK, CHK-004 happy/edge/adversarial=D1/D23/D45=REFUSED, plus all other rows (A1,C1-C9,D1-D5,D23,D45,E1) exactly matching stored receipts, B45A5-VERDICT=GREEN both in the row-index and detail-section copies. No row silently demoted to non-mechanical; no selector drifted. (4) Coverage shape unchanged: read checklist.json directly -- CHK-001 = 2 mechanical (edge/adversarial) + 1 permanent waiver on happy:0 (correctly pinned to the self-invalidating B45A5-ROW-B3=RED value, which now reads GREEN post-fix by design, so it can never be re-earned and the waiver note explains this honestly); CHK-002/003/004 = 3 mechanical each, zero waivers; CHK-005 = withdrawn (decisionRef SD-ccafb44c), zero verificationEvidence entries, zero waivers -- matches round-1 shape exactly, nothing regressed to waiver or disappeared. (5) Withdrawn item still holds on the MERGED tree: ran `proofstory_review_completeness_check --storyId=B-45a5` fresh -> Status=pass, Gaps=0; ran `validate --channel --story=B-45a5` fresh -> status=pass, output shows `withdrawn (SD-ccafb44c): CHK-005` in its own bucket and `Covered: CHK-001, CHK-002, CHK-003, CHK-004` -- CHK-005 correctly excluded from Covered, not silently counted as satisfied. (6) Checked whether the sibling CLI-rebrand merge weakened coverage: diffed the pre-merge story head against the merge commit for both gate files. proofstory.ts: only two cosmetic string renames inside remedy-hint prose (lattice verification_evidence_add -> proof-or-stop verification_evidence_add etc.), zero lines touched near evaluateReviewCompleteness/withdrawnChecklistItemIdsFrom (proofstory.ts:1622/1672 unchanged). validate-channel.ts: one cosmetic comment rename plus one real but unrelated change -- isMetadataOnlyLatticeCommit widened its regex to accept both proof-or-stop: and lattice: prefixes (B-cdf6:F-053); confirmed by reading the call sites that this function feeds only isAcceptableCommit/the commit-author AUXILIARY signal, a separate code path from checkDispatchEvidence withdrawnIds bucket logic (validate-channel.ts:305-348) that CHK-003 wired -- zero lines of the withdrawal bucket itself were touched by the merge. No coverage was weakened. No blocking test-coverage gap found this round.",
+      "createdAt": "2026-08-19T03:57:38.739Z",
+      "reviewRound": "2026-08-19T03:51:10.195Z",
+      "reviewRunId": "B-45a5:RR-010",
+      "envelopeId": "738380eb8a261b2006ee68ccf0fe6a4f5f52b8203e8ae959210e21ae561854d3",
+      "writerSessionId": "sess-b45a5-main",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-45a5/checklist.json",
+          ".lattice/story/actives/B-45a5/process-events.jsonl",
+          ".lattice/story/actives/B-45a5/review-passes.json",
+          "packages/main/tests/red/red-b45a5-withdrawal-gates.mjs (executed --attest, output inspected)"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/handlers/validate-channel.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8d7f3d43c8a275c95a09645adbec7808be2f41c708710ef7f4c7e22864188f9f"
+    },
+    {
+      "id": "B-45a5:RP-008",
+      "agent": "lattice-review-behavior",
+      "note": "Verified by execution, not reading: compiled/rebuilt dist, ran the story own red-evidence artifact (all 22 rows GREEN/REFUSED/CONTROL-OK, exit 0) plus 22 independent probes against mkdtemp fixtures using the real production functions (checkDispatchEvidence, evaluateReviewCompleteness, withdrawnChecklistItemIdsFrom). Confirmed: (1) happy path unaffected; (2) decision-backed withdrawal lands in its own withdrawnItems bucket, never evidencedItems/exemptedItems, and completeness reports 0 gaps (excluded not satisfied); (3) unbacked withdrawal still refused for status-only, dangling decisionRef, decision-not-listing-item, and rejected/userConfirmed:false, PLUS two cases the shipped test does not cover -- malformed decision.json and userConfirmed key entirely absent -- both still refused by both gates; (4) withdrawn+Owner:main-agent ordering: withdrawn bucket wins (checked first), correctly attributed, no masking; (5) state-machine edges: readScopeShrinkageDecision throws (not silently null) on malformed JSON, checkCommitAuthor catches and falls back to null which fails CLOSED (still demands evidence); evaluateReviewCompleteness reaches the same decision record via proofStoryDiagnosticInput at phase-gates.ts:193 UNWRAPPED (pre-existing since 2026-06-30, not touched by this diff) so it throws instead of gracefully demanding -- also fail-closed (aborts, never silently authorizes) but a real asymmetry worth noting, non-blocking. Dangling withdrawnChecklistItemRefs entry is refused at CLI write time by scope_shrinkage_decision_set; via raw file write it is harmlessly ignored by both gates (matches no real item, no crash). End-to-end confirmed on the real B-45a5 story itself: validate --channel shows withdrawn (SD-ccafb44c): CHK-005 in its own bucket with Covered: CHK-001..CHK-004, and validate --json shows verification intent coverage 12/12 with CHK-005 correctly excluded from the required set. No behavioral regression found in the two gates diff.",
+      "createdAt": "2026-08-19T04:03:04.818Z",
+      "reviewRound": "2026-08-19T03:51:10.195Z",
+      "reviewRunId": "B-45a5:RR-011",
+      "envelopeId": "4d0220b7620dcbb6e92b45eb45c9ae54df55d348f7dbd7f61ae45ddde9fbfe97",
+      "writerSessionId": "sess-b45a5-main",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-45a5/background.md",
+          ".lattice/story/actives/B-45a5/plan.md",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/handlers/validate-channel.ts",
+          "packages/main/tests/red/red-b45a5-withdrawal-gates.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "bb5221081e08109c393df84a607ee67547e164c93318bd76a4d0b2ccf5a07ba6"
+    },
+    {
+      "id": "B-45a5:RP-009",
+      "agent": "lattice-review-concept",
+      "note": "Re-attestation after TEST->DEV->REVIEW recovery for dev_memory_finish_decision + scope_contract_acknowledge; review_incremental_context confirms changedFiles=(none) since prior pass RP-006 (isFirstPass=false, scopeChanged=false, eligibilityReasonCodes=ELIGIBLE_NO_MATERIAL_CHANGE+ELIGIBLE_TRUSTED_PRIOR_BINDINGS). Independently verified via git diff --name-status -M f4960da..HEAD: only .lattice/story/actives/B-45a5/* and .lattice/dev-memory/finish-decisions/B-45a5.json changed -- zero packages/main/src touched since the prior pass. Re-confirmed still exactly four withdrawal-determination paths, no fifth added: (1) core/checklist-status.ts isWithdrawnChecklistStatus bare-status predicate, (2) core/proofstory.ts withdrawnChecklistItemIdsFrom/decisionAuthorizesWithdrawal (decision-record-only, item-status-blind), (3) core/proofstory.ts withdrawnItemIntentRefs consumed at evaluateReviewCompleteness (proofstory.ts:2166), (4) core/verification.ts:212 isWithdrawnChecklistStatus bare-status skip on the DONE-blocking coverage path -- comment unchanged, still labelled B-1909 CHK-002 terminal-but-not-delivered. Disclosures still accurate: lattice.config.json:155 three-clause mandatory guard label unchanged (no optional flag, same validate.commands array); validate-channel.ts:250-263 checkDispatchEvidence three-bucket docstring (WITHDRAWN/OWNER-EXEMPT/EVIDENCED, withdrawal checked first, decision-membership not item.status) unchanged and matches implementation. Live re-run: node packages/main/tests/red/red-b45a5-withdrawal-gates.mjs -> exit 0, B45A5-VERDICT=GREEN, A1/A2/C1-C9 CONTROL-OK, B1/B2/B3 GREEN, D1-D5/D23/D45/E1 REFUSED. No concept deletion/replacement this round; concept residue check completed, no blocker.",
+      "createdAt": "2026-08-19T13:01:47.421Z",
+      "reviewRound": "2026-08-19T12:59:26.603Z",
+      "reviewRunId": "B-45a5:RR-014",
+      "envelopeId": "d83d6fa6fb53b51a341c14fa81afa2ea71246964feaf510cb55ba899750a0d8d",
+      "writerSessionId": "sess-b45a5-main",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/dev-memory/finish-decisions/B-45a5.json",
+          ".lattice/story/actives/B-45a5/dev-memory-candidates.jsonl",
+          ".lattice/story/actives/B-45a5/scope-contract.json",
+          "lattice.config.json",
+          "packages/main/src/core/checklist-status.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/validate-channel.ts",
+          "packages/main/tests/red/red-b45a5-withdrawal-gates.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "3da29b8453aa76f7218e46212aa678d6c50c0c705b4c1d00d7fd9b16460ea3c3"
+    },
+    {
+      "id": "B-45a5:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-attestation after metadata-only DEV round-trip (dev_memory_finish_decision + scope_contract_acknowledge). Delta since prior pass RP-007 (head 87462f3) touches only .lattice/story/actives/B-45a5/* and .lattice/dev-memory/* metadata, zero source/test/checklist content changed. All 9 pinned selectors (A1,A2,B1,B2,B3,C1,D1,D23,D45) re-run verbatim GREEN/CONTROL-OK/REFUSED, mechanical:true, none demoted. Coverage shape unchanged: CHK-001=2 mechanical+1 permanent waiver on happy:0 (B45A5-ROW-B3=RED, correctly inverted by this story own fix, cannot be re-earned), CHK-002/003/004=3 mechanical each zero waivers, CHK-005 withdrawn zero evidence zero waivers (decisionRef SD-ccafb44c). proofstory_review_completeness_check reports Gaps:0/Status:pass. validate --channel --story=B-45a5 shows CHK-005 in its own withdrawn (SD-ccafb44c) bucket, NOT under Covered (Covered: CHK-001,CHK-002,CHK-003,CHK-004). No blocker.",
+      "createdAt": "2026-08-19T13:03:58.496Z",
+      "reviewRound": "2026-08-19T12:59:26.603Z",
+      "reviewRunId": "B-45a5:RR-015",
+      "envelopeId": "2363da98bd1862f0b5cb8c0003bd2094e701a8848f3e07a2452a1dc79f6c4b62",
+      "writerSessionId": "sess-b45a5-main",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-45a5/background.md",
+          ".lattice/story/actives/B-45a5/checklist.json",
+          ".lattice/story/actives/B-45a5/plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "c876b8d17572bbf0b558a8608577e6984d2e8d91e38a58b95013f55df6eac140"
+    },
+    {
+      "id": "B-45a5:RP-011",
+      "agent": "lattice-review-quality",
+      "note": "Re-checked fourth scope-contract.json ack (headHash a934c8d659) after F-004/F-005/F-006 resolved. All 6 claims verified repo-wide, no exclusivity overreach; DONE gate reads only finishDecisionPath via readDevMemoryFinishDecision (machine.ts:945/1419); dev-memory-candidates.jsonl absent from both RUNTIME_ARTIFACT_REGISTRY and LATTICE_LIFECYCLE_ARTIFACT_FILENAMES (grep -c =0 in lifecycle-registry.ts), latter checked first at scope-path-classifier.ts:373 vs :387; 20-line candidates file; plan.md Files lines never name it and file postdates plan.md commit; only .lattice/ metadata moved since prior product-code commit 333322c68c through RR-018 head 4aef5ff8. Red guard reran: exit 0, VERDICT=GREEN, D1-D5/D23/D45/E1 REFUSED, no regression.",
+      "createdAt": "2026-08-19T13:18:31.008Z",
+      "reviewRound": "2026-08-19T12:59:26.603Z",
+      "reviewRunId": "B-45a5:RR-018",
+      "envelopeId": "b37922d68730079158d76fadf821ffa435825a56fa7f008ecfda5df3124f0487",
+      "writerSessionId": "sess-b45a5-main",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-45a5/scope-contract.json",
+          "packages/main/src/core/playbook-runtime-memory.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/scope-path-classifier.ts",
+          "packages/main/src/handlers/dev-memory.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-45a5/dev-memory-candidates.jsonl",
+          ".lattice/story/actives/B-45a5/plan.md",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/tests/red/red-b45a5-withdrawal-gates.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2fe32fb4be2272b9a3ad7a61a1eb8769cc0e02210dbb704b64dac6b1414a8e0b"
+    },
+    {
+      "id": "B-45a5:RP-012",
+      "agent": "lattice-review-concept",
+      "note": "Post-merge re-attestation. Merge with main CONFLICTED only in lattice.config.json validate command list; verified the union resolution is a pure addition (0 removed lines vs main, only the 1 new B-45a5 guard entry added) with no reordering/corruption of the other 110 entries; JSON parse confirms exactly 111 commands, zero duplicates. (1) Checked for a fifth withdrawal-check pathway: diffed the true 3-way merge-base (e51c1a6) against pre-merge main tip and found sibling B-7dff touched only keyed-scheduler.ts/validation-executor.ts/validation-types.ts/verifier.ts/full-suite-runner*.ts/validate-parallel-*.ts/lattice-brand.ts, none of proofstory.ts, validate-channel.ts, verification.ts, or checklist-status.ts. grep across packages/main/src confirms all isWithdrawnChecklistStatus/withdrawnChecklistItemIdsFrom call sites are the same ones this story already accounts for (dashboard/hints/session/checklist_get/story-query/milestone-status/lifecycle-readiness are display-only summaries with blocking:false, not gates); no new blocking consumer appeared. (2) lattice.config.json guard label survived the JSON round-trip intact: still states the three mandatory clauses (authorized withdrawal excluded / non-withdrawn items still bite, including the alias-collision case / unbacked withdrawal refused); checkDispatchEvidence in validate-channel.ts still carries its three-bucket docstring (WITHDRAWN/OWNER-EXEMPT/EVIDENCED) verbatim per git diff main...HEAD. (3) core/verification.ts is byte-identical to main (git diff = 0 lines); the bare-status skip disclosed as knowingly untouched is still at line 212 exactly as documented in plan.md/intent-collision.json/summary.json, so the disclosure remains accurate. (4) Re-ran node packages/main/tests/red/red-b45a5-withdrawal-gates.mjs post-merge-and-rebuild: exit 0, VERDICT=GREEN, all 22 rows (A1-A2 controls, C1-C9 premises, B1-B3 gate rows, D1-D5/D23/D45/E1 forgery-refusal rows) pass as GREEN/CONTROL-OK/REFUSED. npm --prefix packages/main run build succeeded clean. Also checked the 5 new sibling validate entries (validate-parallel-equivalence-smoke.js, validate-plan-scheduling.test.mjs, validate-pollution-attribution.test.mjs, validate-resource-claims.test.mjs, red-B-7dff-sequential-validate-plan.mjs): all are B-7dff execution-scheduling/resource-claim concerns, orthogonal to this story's gate-content concern; grepped them plus the touched B-7dff src files for withdraw* and found zero hits except an unrelated full-suite-runner.ts isolation-list reference to the pre-existing smoke test names. Confirmed the new undeclared-resources guard entry gets B-7dff's fail-closed EXCLUSIVE scheduling default (not an error) per resolveValidationCommandResourceClaims, so no incompatibility. lattice validate --concept CLI gate independently confirms: no deleted exports in main...HEAD. No blocker.",
+      "createdAt": "2026-08-19T14:14:45.363Z",
+      "reviewRound": "2026-08-19T14:10:16.723Z",
+      "reviewRunId": "B-45a5:RR-020",
+      "envelopeId": "3e0864484422c3ef66b741850ea3cbbba72922421b1ef6218f33af083c2ba7c3",
+      "writerSessionId": "sess-b45a5-main",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-45a5/intent-collision.json",
+          ".lattice/story/actives/B-45a5/plan.md",
+          ".lattice/story/actives/B-45a5/summary.json",
+          ".lattice/story/actives/B-45a5/understanding.json",
+          "lattice.config.json",
+          "packages/main/src/core/checklist-status.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/validate-channel.ts",
+          "packages/main/tests/red/red-b45a5-withdrawal-gates.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/keyed-scheduler.ts",
+          "packages/main/src/core/lifecycle-readiness.ts",
+          "packages/main/src/core/milestone-status.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/dashboard.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/hints.ts",
+          "packages/main/src/handlers/session.ts",
+          "packages/main/src/handlers/story-query.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/validate-parallel-benchmark.ts",
+          "packages/main/src/tasks/validate-parallel-equivalence-smoke.ts",
+          "packages/main/tests/red/red-B-7dff-sequential-validate-plan.mjs",
+          "packages/main/tests/validate-plan-scheduling.test.mjs",
+          "packages/main/tests/validate-pollution-attribution.test.mjs",
+          "packages/main/tests/validate-resource-claims.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5f43d27fa3c4f4ef78a037ef06625a38455d5a2120404af8f983fe7e24383ffe"
+    },
+    {
+      "id": "B-45a5:RP-013",
+      "agent": "lattice-review-test-coverage",
+      "note": "Post-merge re-attestation, independently verified not taken on report alone. (1) lattice.config.json: read the actual merged entry (index 110/111) at line 1490-1496 -- no optional flag, label states all 3 mandatory clauses; confirmed main=110 + story=1 = 111, all 5 of mains new entries present via grep. (2) Re-ran node packages/main/tests/red/red-b45a5-withdrawal-gates.mjs --attest myself: exit 0, B45A5-VERDICT=GREEN, all 23 row markers byte-identical to the 11 stored receipts outputTail. Confirmed dist is rebuilt after src and contains withdrawnItemIntentRefs/withdrawnChecklistItemIdsFrom wiring. All 11 evidence rows share headHash=bf50716fc (merge commit) and materialHash=ad4f98d1 matching current story materialHash. (3) Coverage shape confirmed exactly: CHK-001=2 mechanical(edge/adversarial)+1 permanent waiver(happy:0, non-re-earnable by design); CHK-002/003/004=3 mechanical each zero waivers; CHK-005=withdrawn, zero verificationEvidence entries. (4) Ran proofstory_review_completeness_check myself -> Gaps:0; ran validate --channel --story=B-45a5 myself -> pass, CHK-005 in its own withdrawn (SD-ccafb44c): CHK-005 bucket, separate from Covered: CHK-001,002,003,004. (5) Checked mains new parallel/scheduling infra (B-7dff): the B-45a5 config entry declares no resources claim, and resolveValidationPlanEntries/resolveValidationCommandResourceClaims in validation-executor.ts make an undeclared command exclusiveByDefault, so it can never run concurrently and the parallel machinery cannot weaken it. --focus is an explicit opt-in mode (normalizeFocusArg); default/full validate (the DONE-required and REVIEW/TEST gate path) always runs the unfiltered command list. finding_list shows zero open findings. No blocker found this round.",
+      "createdAt": "2026-08-19T14:15:15.724Z",
+      "reviewRound": "2026-08-19T14:10:16.723Z",
+      "reviewRunId": "B-45a5:RR-021",
+      "envelopeId": "d672fa3159bdbad65061741a7629176c252f7b9241f9340243de7bd9b08b9486",
+      "writerSessionId": "sess-b45a5-main",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "lattice.config.json",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/tests/red/red-b45a5-withdrawal-gates.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-45a5/checklist.json",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/validate-channel.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "80bd2b7355e6409035ff4ed6726ad09f07f880c00bee415732b0b5b46949fe16"
+    },
+    {
+      "id": "B-45a5:RP-014",
+      "agent": "lattice-review-quality",
+      "note": "Post-merge re-attestation, round RR-019. Independently re-derived the lattice.config.json merge resolution instead of trusting the summary: diffed commands array by label(command+args) across ours-pre-merge(a3091e38dd,106 cmds)/theirs-main(354ff504ab,110 cmds)/merged-result(bf50716fcf,111 cmds). Confirmed ours contributed exactly 1 unique label (red-b45a5-withdrawal-gates.mjs, with NO optional flag) and theirs contributed exactly 5 (validate-parallel-equivalence-smoke.js, red-B-7dff-sequential-validate-plan.mjs, validate-plan-scheduling.test.mjs, validate-pollution-attribution.test.mjs, validate-resource-claims.test.mjs) as claimed. Verified programmatically: all 110 main entries present in merged in identical original order AND byte-identical JSON content (0 mismatches); all non-commands top-level+validate fields byte-identical to main; new entry appended at index 110 with no optional flag. Checked whether merged sibling code (B-7dff parallel-validate infra) touched this story gates: git diff on merge-base..main for proofstory.ts and validate-channel.ts is empty -- main did not modify either file, so no interaction risk; the merge only affected lattice.config.json for those files scope. Re-verified anti-forgery property on merged tree: withdrawnChecklistItemIdsFrom is the sole membership key (decisionAuthorizesWithdrawal requires decision===confirmed && userConfirmed===true, reads only decision.withdrawnChecklistItemRefs); grepped both changed files for item.status/.decisionRef/.size>0 shortcuts -- none found in code, only in comments. Rebuilt packages/main and packages/utils; ran node packages/main/tests/red/red-b45a5-withdrawal-gates.mjs directly: exit 0, B1/B2/B3=GREEN, A1/A2/C1-C9=CONTROL-OK, D1-D5/D23/D45/E1=REFUSED, matching claim. Confirmed 11/11 command-backed (kind=logic_test) verificationEvidence rows carry headHash=bf50716fcf (the merge commit) with executedAt in the post-merge window; the 1 remaining stale-headHash row is a documented permanent waiver (self-invalidating-pin rationale, not command-backed, correctly not re-executed). Verified scope-contract.json (the RP-011 scope-acknowledgement text) has had zero commits since the RP-011 review commit (4065282631) via merge-base --is-ancestor on all 4 commits that ever touched that file -- unchanged claim holds. tsc --noEmit clean on packages/main; no as-any/empty-catch/dead-code/unused-import issues in the proofstory.ts or validate-channel.ts diff hunks; new function withdrawnItemIntentRefs and its call are both live and correctly wired to the pre-existing required scopeShrinkageDecision field already threaded to the real REVIEW->TEST gate call site in handlers/phase-gates.ts. No findings this round.",
+      "createdAt": "2026-08-19T14:16:01.827Z",
+      "reviewRound": "2026-08-19T14:10:16.723Z",
+      "reviewRunId": "B-45a5:RR-019",
+      "envelopeId": "0641e77bb1e1a4de16e6ccf6edaa394665480650c9e2aa4995e2fe0c55191f77",
+      "writerSessionId": "sess-b45a5-main",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-45a5/checklist.json",
+          ".lattice/story/actives/B-45a5/review-passes.json",
+          ".lattice/story/actives/B-45a5/scope-contract.json",
+          "lattice.config.json",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/handlers/validate-channel.ts",
+          "packages/main/tests/red/red-b45a5-withdrawal-gates.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-45a5/background.md",
+          ".lattice/story/actives/B-45a5/plan.md",
+          ".lattice/story/actives/B-45a5/process-events.jsonl"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2f53235b96b1a8c6420fef6c7605ec367ae126d8ddf8b4ec24a3d9bc72284379"
+    }
+  ]
+}

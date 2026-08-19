@@ -7,7 +7,7 @@ import { join } from 'path';
 
 const root = process.cwd();
 const mode = process.argv[2] || 'all';
-const cli = join(root, 'bin', 'lattice.js');
+const cli = join(root, 'bin', 'proof-or-stop.js');
 const EXPECTED_CORE_VERSION = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8')).version;
 const EXPECTED_EXTENSION_VERSION = '0.3.65';
 
@@ -61,15 +61,15 @@ const checks = {
     const core = readPackage('packages/main/package.json');
     const utils = readPackage('packages/utils/package.json');
     const lab = readPackage('packages/lab/package.json');
-    assert(core.name === '@lattice/core', `core package name mismatch: ${core.name}`);
+    assert(core.name === '@proof-or-stop/core', `core package name mismatch: ${core.name}`);
     assert(utils.name === '@lattice/utils', `utils package name mismatch: ${utils.name}`);
     assert(lab.name === '@lattice/lab', `lab package name mismatch: ${lab.name}`);
     assert(core.version === EXPECTED_CORE_VERSION, `core version mismatch: ${core.version}`);
     assert(utils.version === EXPECTED_EXTENSION_VERSION, `utils version mismatch: ${utils.version}`);
     assert(lab.version === EXPECTED_EXTENSION_VERSION, `lab version mismatch: ${lab.version}`);
     assert(core.dependencies?.['@lattice/lab'] === EXPECTED_EXTENSION_VERSION, `core should depend on @lattice/lab@${EXPECTED_EXTENSION_VERSION}`);
-    assert(utils.dependencies?.['@lattice/core'] === EXPECTED_EXTENSION_VERSION, `utils should depend on @lattice/core@${EXPECTED_EXTENSION_VERSION}`);
-    assert(lab.dependencies?.['@lattice/core'] === EXPECTED_EXTENSION_VERSION, `lab should depend on @lattice/core@${EXPECTED_EXTENSION_VERSION}`);
+    assert(utils.dependencies?.['@proof-or-stop/core'] === EXPECTED_EXTENSION_VERSION, `utils should depend on @proof-or-stop/core@${EXPECTED_EXTENSION_VERSION}`);
+    assert(lab.dependencies?.['@proof-or-stop/core'] === EXPECTED_EXTENSION_VERSION, `lab should depend on @proof-or-stop/core@${EXPECTED_EXTENSION_VERSION}`);
     assert(!core.dependencies?.['@lattice-agent/lab'], 'core should not depend on retired @lattice-agent/lab');
     assert(!utils.dependencies?.['@lattice-agent/core'], 'utils should not depend on retired @lattice-agent/core');
     assert(!lab.dependencies?.['@lattice-agent/core'], 'lab should not depend on retired @lattice-agent/core');

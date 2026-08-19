@@ -27,6 +27,8 @@ import type { StoryStore } from './store.js';
 import type { ProcessEvent } from './types.js';
 import { readBrandEnv } from './brand-env.js';
 
+import { ADAPTER_DIR_NAMES, PROOF_OR_STOP_ADAPTER_DIR, PROOF_OR_STOP_MANIFEST_FILENAME, adapterDirCandidates, adapterManifestCandidates, PROOF_OR_STOP_STATE_DIR } from './brand-paths.js';
+
 export type CodexAdapterCheckStatus = 'pass' | 'warn' | 'fail';
 
 export interface CodexAdapterCheck {
@@ -53,21 +55,20 @@ export interface CodexAdapterMaterialSnapshot {
 }
 
 /**
- * Local wrapper basenames, canonical first (B-cdf6).
+ * Local wrapper basenames (B-cdf6 rename; B-cc10 CHK-006 alias removal).
  *
- * The rename is additive: `bin/proof-or-stop-codex.js` / `bin/proof-or-stop.js` are
- * canonical, but the deprecated `bin/lattice-codex.js` / `bin/lattice.js` aliases are
- * retained and must keep satisfying this gate. A checkout generated before the rename
- * (or a teammate branch that has only the old wrappers) therefore still passes: every
- * consumer below picks the first entry that exists on disk rather than asserting one name.
+ * B-cdf6 kept the deprecated `bin/lattice-codex.js` / `bin/lattice.js` aliases as
+ * additional accepted entries. B-cc10 CHK-006 REMOVED both aliases from the repository,
+ * so they are removed from these lists too: a name that can no longer exist would only
+ * widen the accepted set without ever matching, and would keep teaching the dead name to
+ * the next maintainer. Consumers still resolve by first-existing rather than asserting a
+ * single name, so this stays a list rather than a scalar.
  */
 export const LOCAL_CODEX_WRAPPERS: readonly string[] = [
   'bin/proof-or-stop-codex.js',
-  'bin/lattice-codex.js',
 ];
 export const LOCAL_BOOTSTRAP_WRAPPERS: readonly string[] = [
   'bin/proof-or-stop.js',
-  'bin/lattice.js',
 ];
 
 /** First existing candidate, or the canonical name when none is present. */
@@ -186,13 +187,13 @@ export function resolveGlobalFallbackHeartbeatTimeoutMs(
  */
 export function resolveLocalCodexVerifyCommand(root: string): string {
   if (isGlobalThinProject(root)) return GLOBAL_THIN_CODEX_VERIFY_COMMAND;
-  // Canonical codex wrapper, then canonical bootstrap, then the deprecated aliases:
-  // whichever this checkout actually has is what the operator is told to run.
+  // Canonical codex wrapper, then canonical bootstrap: whichever this checkout
+  // actually has is what the operator is told to run. B-cc10 CHK-006 dropped the
+  // deprecated-alias rows — telling an operator to run a deleted file would hand
+  // them a command that cannot work.
   const candidates: Array<[string, string]> = [
     ['bin/proof-or-stop-codex.js', LOCAL_CODEX_VERIFY_COMMAND],
     ['bin/proof-or-stop.js',       LOCAL_MAIN_VERIFY_COMMAND],
-    ['bin/lattice-codex.js',       'node bin/lattice-codex.js verify_codex'],
-    ['bin/lattice.js',             'node bin/lattice.js verify_codex'],
   ];
   for (const [rel, cmd] of candidates) {
     if (existsSync(join(root, rel))) return cmd;
@@ -210,21 +211,25 @@ export function resolveCodexSessionBriefCommand(root: string): string {
 }
 
 const CODEX_MATERIAL_PATHS = [
-  '.lattice-codex/README.md',
-  '.lattice-codex/lattice.json',
-  '.lattice-codex/agents',
+  // B-cc10 CHK-002: adapter material under BOTH dir spellings and BOTH manifest
+  // filenames. This is a staleness-detection set, so a one-sided list would let
+  // an edit to a deprecated-spelled adapter asset leave a stale verification
+  // standing — the failure would be silent, which is why it is derived rather
+  // than typed out.
+  ...adapterDirCandidates('README.md'),
+  ...adapterManifestCandidates(),
+  ...adapterDirCandidates('agents'),
   '.codex/hooks.json',
   '.codex/hooks',
   '.claude/agents',
   'AGENTS.md',
   'README.md',
-  // Both the canonical wrappers and the retained deprecated aliases are adapter
-  // material: editing either changes what a Codex session actually executes, so a
-  // stale verification must not survive a change to any of the four.
+  // The canonical wrappers are adapter material: editing either changes what a Codex
+  // session actually executes, so a stale verification must not survive a change to
+  // them. B-cc10 CHK-006 removed the two deprecated alias entries along with the files
+  // themselves — a path that cannot exist contributes nothing to staleness detection.
   'bin/proof-or-stop-codex.js',
   'bin/proof-or-stop.js',
-  'bin/lattice-codex.js',
-  'bin/lattice.js',
   'bin/bootstrap-runner.js',
   'packages/main/templates/agents',
   'packages/main/src/init-assets.ts',
@@ -351,15 +356,32 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 interface CodexManifestSelection {
-  relPath: '.lattice-codex/lattice.json';
-  brand: 'lattice';
+  relPath: string;
+  brand: 'proof-or-stop' | 'lattice';
+  /** True when a DEPRECATED spelling of dir or filename is what resolved. */
+  legacy: boolean;
 }
 
 const isGlobalThinProject = isManagedGlobalThinRoot;
 
+/** Canonical adapter manifest relative path — the only one ever WRITTEN. */
+const CANONICAL_CODEX_MANIFEST_REL = `${PROOF_OR_STOP_ADAPTER_DIR}/${PROOF_OR_STOP_MANIFEST_FILENAME}`;
+/** B-cc10 F-019: canonical state-dir manifest path for user-facing check messages. */
+const CANONICAL_STATE_MANIFEST_REL = `${PROOF_OR_STOP_STATE_DIR}/${PROOF_OR_STOP_MANIFEST_FILENAME}`;
+
+/**
+ * Resolve the Codex adapter manifest read-both (B-cc10 CHK-002).
+ *
+ * Probes every accepted dir x filename spelling, canonical FIRST, so a
+ * partially-migrated checkout still verifies while a fully migrated one prefers
+ * the canonical pair. The candidate list comes from `core/brand-paths.ts`, so
+ * this decision function cannot recognize only one spelling.
+ */
 function resolveCodexManifest(root: string): CodexManifestSelection | null {
-  if (existsSync(join(root, '.lattice-codex', 'lattice.json'))) {
-    return { relPath: '.lattice-codex/lattice.json', brand: 'lattice' };
+  for (const relPath of adapterManifestCandidates()) {
+    if (!existsSync(join(root, relPath))) continue;
+    const legacy = relPath !== CANONICAL_CODEX_MANIFEST_REL;
+    return { relPath, brand: legacy ? 'lattice' : 'proof-or-stop', legacy };
   }
   return null;
 }
@@ -373,10 +395,12 @@ function checkAgentAssetResolution(resolution: AgentAssetResolution, checks: Cod
 }
 
 function checkManifest(root: string, checks: CodexAdapterCheck[], resolution: AgentAssetResolution): CodexPromptMode | null {
-  // Resolver priority: canonical .lattice/lattice.json first; legacy
-  // .Lattice/lattice.json remains read-only compatible.
+  // B-cc10 F-019: user-facing messages must name the CANONICAL paths. Resolver
+  // priority is canonical first with the deprecated spelling still read-only
+  // compatible; these strings previously advertised the deprecated names, which
+  // told users to look for files a migrated project no longer has.
   if (isGlobalThinProject(root)) {
-    push(checks, 'manifest', 'Codex manifest', 'pass', true, 'global-thin project: Codex adapter behavior runs from global lattice CLI (.lattice/lattice.json present)');
+    push(checks, 'manifest', 'Codex manifest', 'pass', true, `global-thin project: Codex adapter behavior runs from the global proof-or-stop CLI (${CANONICAL_STATE_MANIFEST_REL} present)`);
     return 'registry';
   }
   const selection = resolveCodexManifest(root);
@@ -388,11 +412,11 @@ function checkManifest(root: string, checks: CodexAdapterCheck[], resolution: Ag
         'Codex manifest',
         'pass',
         true,
-        `runtime-owned default: .lattice-codex/lattice.json not required for package prompt registry (hash=${resolution.promptRegistryHash.slice(0, 12)})`,
+        `runtime-owned default: ${CANONICAL_CODEX_MANIFEST_REL} not required for package prompt registry (hash=${resolution.promptRegistryHash.slice(0, 12)})`,
       );
       return 'registry';
     }
-    push(checks, 'manifest', 'Codex manifest', 'fail', true, 'missing .lattice-codex/lattice.json', LOCAL_INIT_VERIFY_COMMAND);
+    push(checks, 'manifest', 'Codex manifest', 'fail', true, `missing ${CANONICAL_CODEX_MANIFEST_REL}`, LOCAL_INIT_VERIFY_COMMAND);
     return null;
   }
   const manifestPath = join(root, selection.relPath);
@@ -461,9 +485,18 @@ function checkManifest(root: string, checks: CodexAdapterCheck[], resolution: Ag
 
 function checkAgentMirror(root: string, checks: CodexAdapterCheck[]): void {
   const claudeDir = join(root, '.claude', 'agents');
-  const codexDir = join(root, '.lattice-codex', 'agents');
+  // B-cc10 CHK-007: this READ was pinned to the deprecated adapter directory, so once
+  // `init` was unified onto the canonical one this check reported "missing
+  // .claude/agents or .lattice-codex/agents" on a freshly-inited project — a
+  // fresh init failing its own verify_codex. Read-both: canonical first, deprecated
+  // as the fallback, so an unmigrated project still verifies.
+  const agentsRelDir = `${PROOF_OR_STOP_ADAPTER_DIR}/agents`;
+  const codexDir = ADAPTER_DIR_NAMES
+    .map((dir) => join(root, dir, 'agents'))
+    .find((candidate) => existsSync(candidate))
+    ?? join(root, PROOF_OR_STOP_ADAPTER_DIR, 'agents');
   if (!existsSync(claudeDir) || !existsSync(codexDir)) {
-    push(checks, 'agents-mirror', 'Codex agents mirror', 'fail', true, 'missing .claude/agents or .lattice-codex/agents', LOCAL_INIT_VERIFY_COMMAND);
+    push(checks, 'agents-mirror', 'Codex agents mirror', 'fail', true, `missing .claude/agents or ${agentsRelDir}`, LOCAL_INIT_VERIFY_COMMAND);
     return;
   }
   const sourceFiles = listAgentPromptFiles(claudeDir);
@@ -487,18 +520,18 @@ function checkAgentMirror(root: string, checks: CodexAdapterCheck[]): void {
     }
     const targetPath = join(codexDir, file);
     if (!targetSet.has(file)) {
-      issues.push(`missing .lattice-codex/agents/${file}`);
+      issues.push(`missing ${agentsRelDir}/${file}`);
       continue;
     }
     const expected = renderPromptEntryForHost(registryEntry, 'codex');
     const actual = readText(targetPath);
-    if (expected !== actual) issues.push(`drift .lattice-codex/agents/${file}`);
+    if (expected !== actual) issues.push(`drift ${agentsRelDir}/${file}`);
   }
   for (const file of registryByFile.keys()) {
     if (!sourceSet.has(file)) issues.push(`missing .claude/agents/${file}`);
   }
   for (const file of targetFiles) {
-    if (!sourceSet.has(file)) issues.push(`stale .lattice-codex/agents/${file}`);
+    if (!sourceSet.has(file)) issues.push(`stale ${agentsRelDir}/${file}`);
   }
   if (issues.length > 0) {
     push(checks, 'agents-mirror', 'Codex agents mirror', 'fail', true, issues.slice(0, 6).join('; '), LOCAL_INIT_VERIFY_COMMAND);
@@ -529,9 +562,13 @@ function checkPromptRegistry(checks: CodexAdapterCheck[]): void {
 
 function checkExcludedAssets(root: string, checks: CodexAdapterCheck[]): void {
   const offenders = LATTICE_CODEX_ADAPTER_MANIFEST.excludedRuntimeAssets.filter(asset => existsSync(join(root, asset)));
-  const upperHooks = join(root, '.lattice-codex', 'hooks');
   const lowerHooks = join(root, '.codex', 'hooks');
-  if (existsSync(upperHooks)) {
+  // B-cc10 CHK-002: check the hooks-alias exclusion under EVERY accepted adapter
+  // dir spelling. Checking one spelling would let the offending directory hide
+  // under the other name and report a false 'pass'.
+  for (const hooksRel of adapterDirCandidates('hooks')) {
+    const upperHooks = join(root, hooksRel);
+    if (!existsSync(upperHooks)) continue;
     let isLowercaseAlias = false;
     try {
       if (existsSync(lowerHooks)) {
@@ -542,13 +579,13 @@ function checkExcludedAssets(root: string, checks: CodexAdapterCheck[]): void {
     } catch {
       isLowercaseAlias = false;
     }
-    if (!isLowercaseAlias) offenders.push('.lattice-codex/hooks');
+    if (!isLowercaseAlias) offenders.push(hooksRel);
   }
   if (offenders.length > 0) {
     push(checks, 'excluded-assets', 'Codex runtime exclusions', 'fail', true, `unexpected asset(s): ${offenders.join(', ')}`, `rm -rf ${offenders.join(' ')}`);
     return;
   }
-  push(checks, 'excluded-assets', 'Codex runtime exclusions', 'pass', true, 'no uppercase-only .lattice-codex/hooks or .lattice-codex/settings.json');
+  push(checks, 'excluded-assets', 'Codex runtime exclusions', 'pass', true, `no uppercase-only ${PROOF_OR_STOP_ADAPTER_DIR}/hooks or ${PROOF_OR_STOP_ADAPTER_DIR}/settings.json`);
 }
 
 function hookEntriesContainCommand(entries: unknown, commandNeedle: string): boolean {
@@ -798,10 +835,12 @@ function resolveGlobalCliCommandPath(root: string): string | null {
 /**
  * Read a wrapper's text, concatenating any sibling wrapper it re-exports.
  *
- * B-cdf6: `bin/lattice-codex.js` is a retained deprecated alias whose whole body is
- * `import './proof-or-stop-codex.js'`, so the env contract lives one hop away. Only
- * relative sibling imports inside `bin/` are followed, and only one hop, so this
- * cannot be used to satisfy the check from an arbitrary file.
+ * A wrapper may hold no behaviour of its own and simply `import` a canonical sibling,
+ * in which case the env contract lives one hop away. (B-cdf6's `bin/lattice-codex.js`
+ * alias was exactly that shape; B-cc10 CHK-006 removed it, but the delegation-following
+ * remains correct for any future thin wrapper.) Only relative sibling imports inside
+ * `bin/` are followed, and only one hop, so this cannot be used to satisfy the check
+ * from an arbitrary file.
  */
 function readWrapperTextFollowingDelegation(root: string, wrapperRelPath: string): string {
   const wrapperAbs = join(root, wrapperRelPath);
@@ -830,9 +869,9 @@ function checkLocalWrapper(root: string, checks: CodexAdapterCheck[], executeHea
     push(checks, 'local-wrapper', 'Local Codex wrapper', 'pass', true, 'global-thin project: local wrapper not required; use global proof-or-stop codex verify / proof-or-stop codex doctor');
     return;
   }
-  // Accept whichever wrapper name this checkout has, canonical preferred. A pre-rename
-  // checkout with only `bin/lattice-codex.js` still passes (additive compat), and a
-  // post-rename one is verified against the canonical file it actually executes.
+  // Resolve whichever wrapper name this checkout has, canonical preferred, and verify
+  // against the file it actually executes. B-cc10 CHK-006 removed the deprecated alias,
+  // so the canonical name is now the only accepted one.
   const wrapperRelPath = resolveWrapperRelPath(root, LOCAL_CODEX_WRAPPERS);
   const bootstrapRelPath = resolveWrapperRelPath(root, LOCAL_BOOTSTRAP_WRAPPERS);
   const wrapper = join(root, wrapperRelPath);
@@ -943,7 +982,10 @@ function checkGlobalFallback(
       stdio: ['pipe', 'pipe', 'pipe'],
       timeout: 2_000,
     }).trim();
+    // B-cc10 CHK-005: probe the canonical scope first, then the deprecated one, so an
+    // existing global install still satisfies the heartbeat instead of silently skipping.
     const globalCoreCandidates = [
+      { path: join(globalRoot, '@proof-or-stop', 'core'), label: '@proof-or-stop/core' },
       { path: join(globalRoot, '@lattice', 'core'), label: '@lattice/core' },
     ];
     const globalCore = globalCoreCandidates.find(candidate => existsSync(candidate.path));
@@ -974,7 +1016,12 @@ function checkGlobalFallback(
     checks,
     'global-fallback-heartbeat',
     'Global fallback heartbeat',
-    resolveGlobalCliCommandPath(root) ?? PROOF_OR_STOP_DEPRECATED_BIN,
+    // B-cc10 F-057: fall back to the CANONICAL bin. This fell back to executing 'lattice',
+    // which CHK-006 deleted, so on a machine whose global shim still points at a migrated
+    // checkout the heartbeat probe fails with 'Cannot find module .../bin/lattice.js'. Line
+    // 814 above legitimately probes BOTH names when DISCOVERING an installed CLI; this site
+    // is different — it picks the command to EXECUTE, so it must name the one that exists.
+    resolveGlobalCliCommandPath(root) ?? PROOF_OR_STOP_PRIMARY_BIN,
     ['session_brief'],
     `codex-check-global-${Date.now()}`,
     'global-fallback',
@@ -1051,6 +1098,42 @@ export function renderCodexAdapterChecks(result: CodexAdapterCheckResult): strin
   return lines.join('\n');
 }
 
+/** Escape a literal for safe interpolation into a RegExp source. */
+function escapeRegExp(literal: string): string {
+  return literal.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/**
+ * Which story text counts as "touches the Codex adapter", and therefore requires
+ * Codex adapter evidence at the REVIEW->TEST gate.
+ *
+ * B-cc10 CHK-002: built from {@link ADAPTER_DIR_NAMES} rather than hardcoding the
+ * adapter directory spelling. This is a GATE-ARMING decision, and a brand literal
+ * inside a regex is the exact B-cdf6 F-062 regression shape: with the old spelling
+ * hardcoded, a story naming the CANONICAL directory would silently fail to match,
+ * so the codex-adapter gate would quietly stop arming for precisely the stories
+ * that migrate the adapter. Failing that way is invisible — the gate reports
+ * nothing rather than reporting a miss.
+ */
+function codexTouchpointPattern(): RegExp {
+  const dirAlternatives = ADAPTER_DIR_NAMES.flatMap((dir) => {
+    const bare = dir.replace(/^\./, '');
+    return [escapeRegExp(dir), escapeRegExp(bare)];
+  });
+  const binAlternatives = ADAPTER_DIR_NAMES.map((dir) =>
+    escapeRegExp(`bin/${dir.replace(/^\./, '')}.js`),
+  );
+  const alternatives = [
+    ...dirAlternatives,
+    ...binAlternatives,
+    'codex adapter',
+    'verify_codex',
+    '\\.codex\\/hooks(?:\\.json)?',
+    'proof-or-stop codex (?:verify|doctor)',
+  ];
+  return new RegExp(`(?:${alternatives.join('|')})`, 'i');
+}
+
 export function storyRequiresCodexEvidence(store: StoryStore, storyId: string): boolean {
   try {
     const story = store.readStory(storyId);
@@ -1061,7 +1144,7 @@ export function storyRequiresCodexEvidence(store: StoryStore, storyId: string): 
       ...(story.riskSignals || []).flatMap(signal => [signal.category, signal.matched]),
       ...checklist.items.flatMap(item => [item.title, item.context || '', ...(item.relatedDocs || [])]),
     ].join('\n');
-    return /(?:\.lattice-codex|lattice-codex|codex adapter|verify_codex|bin\/lattice-codex\.js|\.codex\/hooks(?:\.json)?|proof-or-stop codex (?:verify|doctor))/i.test(haystack);
+    return codexTouchpointPattern().test(haystack);
   } catch {
     return false;
   }

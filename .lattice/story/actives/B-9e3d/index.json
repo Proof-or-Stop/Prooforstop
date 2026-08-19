@@ -1,0 +1,37 @@
+{
+  "storyId": "B-9e3d",
+  "name": "reconcile-scheduler-timeout-margin-policies",
+  "title": "Reconcile the two timeout-margin policies that now share one keyed scheduler",
+  "description": "Two callers of packages/main/src/core/keyed-scheduler.ts disagree about what a declared timeoutMs means, and nothing enforces or cross-references the difference.\n\npackages/main/src/tasks/full-suite-runner.ts treats a member timeoutMs as a STANDALONE budget and scales it by CONCURRENCY_HEADROOM_FACTOR = 1.5 whenever jobs > 1, via withConcurrencyHeadroom(entry, jobs) at its single production call site. Its own comments record the real ETIMEDOUT failures that motivated that scaling.\n\npackages/main/src/core/validation-executor.ts runs the routine validate plan through the same runScheduled at the same CPU-derived default jobs, but resolveCommandTimeoutMs takes no jobs parameter and applies the lattice.config.json timeoutMs values as a flat, unscaled ceiling. The only thing backing that is a comment asserting the configured values are already calibrated for that concurrency: unenforced, and with no cross-reference to the headroom model in either file.\n\nThis divergence does not exist on main today. main has withConcurrencyHeadroom in full-suite-runner and no scheduler use in validation-executor at all; routine validate only starts running through the shared scheduler when story B-7dff merges. So the defect arrives with B-7dff rather than pre-dating it.\n\nNot a live regression at the moment it lands: the quality reviewer spot-checked current margins on 2026-08-18 and they hold. The failure it invites is the one this repository keeps paying for - a command whose real contended duration creeps toward its flat ceiling fails as a test failure rather than as a budget artifact, on a host nobody was measuring.\n\nDecide ONE policy and make it enforceable in code rather than asserted in a comment. Either apply the same headroom scaling to the routine validate plan, in which case every configured timeoutMs becomes a standalone budget and the config meaning changes and must be documented; or keep the flat ceiling and assert it, for example by checking at plan build time that each declared timeout exceeds its observed contended duration by a stated margin. Add a regression that fails if the two callers policies diverge again. Note that B-7dff separately raised and then reverted per-member budgets under the old model, so read that story git history before re-deriving any numbers.",
+  "type": "bug",
+  "phase": "INIT",
+  "priority": "high",
+  "keywords": [
+    "keyed-scheduler",
+    "timeout-margin",
+    "concurrency-headroom",
+    "validate-plan",
+    "full-suite-runner"
+  ],
+  "riskSignals": [
+    {
+      "category": "Production/Emergency",
+      "matched": "production"
+    }
+  ],
+  "priorityElevatedFrom": "medium",
+  "createdAt": "2026-08-18T21:56:40.441Z",
+  "startedAt": "2026-08-18T21:56:40.441Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-08-18T21:56:41.639Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-cdd1d3d4d77b1f9e5bb25398e6586975",
+      "agent": "main"
+    }
+  ]
+}

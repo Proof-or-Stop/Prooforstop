@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { MANIFEST_FILENAMES, adapterManifestCandidates, stateDirCandidates, ADAPTER_DIR_NAMES } from './brand-paths.js';
 import {
   readPromptRegistry,
   renderPromptEntryForHost,
@@ -45,9 +46,13 @@ interface LocalAssetModeHint {
   source: string | null;
 }
 
+// B-cc10 F-022: the codex entry hardcoded the DEPRECATED adapter dir, so on a migrated
+// project (canonical .proof-or-stop-codex only) inspectHostAssets always reported codex
+// prompt assets as ABSENT — which is what doctor's agentAssetMode reads. Enumerate every
+// accepted spelling, canonical first, the same way localAssetModeHint already does.
 const HOST_ASSET_DIRS: Array<{ host: PromptHost; relDir: string }> = [
   { host: 'claude', relDir: '.claude/agents' },
-  { host: 'codex', relDir: '.lattice-codex/agents' },
+  ...ADAPTER_DIR_NAMES.map((dir) => ({ host: 'codex' as PromptHost, relDir: `${dir}/agents` })),
 ];
 
 function packageRoot(): string {
@@ -84,11 +89,19 @@ function normalizeMode(value: unknown): AgentAssetResolutionMode | null {
 }
 
 function localAssetModeHint(projectRoot: string): LocalAssetModeHint {
+  // B-cc10 CHK-002: probe every accepted state-dir / adapter-dir / manifest
+  // spelling, canonical first, so the asset-mode hint still resolves across the
+  // rename. `.Lattice` stays explicit — a case variant, not a brand identity.
   const candidates = [
-    join(projectRoot, '.lattice', 'lattice.json'),
-    join(projectRoot, '.Lattice', 'lattice.json'),
-    join(projectRoot, '.lattice-codex', 'lattice.json'),
-  ];
+    ...MANIFEST_FILENAMES.flatMap(file =>
+      stateDirCandidates(file).map(rel => join(projectRoot, rel))),
+    // B-cc10 CHK-004: the `.Lattice` case variant must accept BOTH manifest
+    // filenames. Pinning the deprecated one meant a `.Lattice` root whose
+    // manifest HAD been migrated stopped resolving — the rename breaking the
+    // newer layout while the older kept working (backwards B-cdf6 direction).
+    ...MANIFEST_FILENAMES.map(file => join(projectRoot, '.Lattice', file)),
+    ...adapterManifestCandidates().map(rel => join(projectRoot, rel)),
+  ].filter((value, index, all) => all.indexOf(value) === index);
   for (const candidate of candidates) {
     if (!existsSync(candidate)) continue;
     const parsed = readJson(candidate);
@@ -100,7 +113,11 @@ function localAssetModeHint(projectRoot: string): LocalAssetModeHint {
       return { mode, source: normalizeRel(relative(projectRoot, candidate)) };
     }
     if (
-      normalizeRel(relative(projectRoot, candidate)) === '.lattice-codex/lattice.json' &&
+      // B-cc10 CHK-002: match against EVERY accepted adapter-manifest spelling.
+      // A hardcoded deprecated path here is the B-cdf6 F-068 shape: the CANONICAL
+      // spelling would silently fail this branch and fall through to the wrong
+      // asset mode.
+      adapterManifestCandidates().includes(normalizeRel(relative(projectRoot, candidate))) &&
       parsed.adapterOwner === 'lattice' &&
       parsed.adapterKind === 'codex' &&
       parsed.promptMode === undefined

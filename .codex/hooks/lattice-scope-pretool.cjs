@@ -18,6 +18,13 @@ const { spawnSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
+// B-cc10 CHK-002: repo-root markers are INTERPOLATED from the single read-both
+// resolver (core/brand-paths.ts) at generation time. This generated hook is plain
+// JS and cannot import the resolver, so hardcoding the names here would leave a
+// second copy that silently stops recognizing the repo root after the rename --
+// the hook would then resolve the WRONG root rather than reporting an error.
+const ROOT_MARKERS = [".proof-or-stop",".lattice",".proof-or-stop-codex",".lattice-codex","proof-or-stop.config.json","lattice.config.json"];
+
 const GUARD_TIMEOUT_MS = 25000;
 const WRITE_TOOLS = new Set(['apply_patch', 'Edit', 'Write']);
 
@@ -88,10 +95,8 @@ function findRepoRoot(start) {
   let dir = path.resolve(String(start || process.cwd()));
   for (let i = 0; i < 20; i++) {
     if (
-      fs.existsSync(path.join(dir, '.lattice')) ||
-      fs.existsSync(path.join(dir, '.lattice-codex')) ||
+      ROOT_MARKERS.some((marker) => fs.existsSync(path.join(dir, marker))) ||
       fs.existsSync(path.join(dir, '.codex')) ||
-      fs.existsSync(path.join(dir, 'lattice.config.json')) ||
       fs.existsSync(path.join(dir, '.git'))
     ) return dir;
     const parent = path.dirname(dir);
