@@ -772,6 +772,35 @@
         "scanEscalationReason": null
       },
       "_hash": "3f9344f735acedb39053aae473e3922cc674cac43749d7915daed006d627c586"
+    },
+    {
+      "id": "B-7dff:RP-025",
+      "agent": "lattice-review-concept",
+      "note": "Re-review (round after RP-023, story-level). Independently verified source freeze via git diff 8310c7f78a6f97de76dc4afd8623ac31abc908b3..d0e8f1766c4b4bbbcc33f35d7083ab3d693ed615 --stat: only .lattice/story/actives/B-7dff/{checklist,done-required-evidence,index,process-events,process-metrics,prompt-envelopes,review-passes,review-runs,test-evidence,closeout-write-receipts} changed (10 story-bookkeeping files), zero packages/main/src files touched, zero lattice.config.json/package.json changes. Consistent with dispatch context stating changes since RP-023 were CHK-001:happy:0 waiver rebind, refresh of 13 command-backed evidence rows, and REVIEW-phase transitions -- none of which touch concept scope. Concept scope this story (keyed-scheduler.ts extraction from full-suite-runner.ts, worktree-pollution formatter unification in validation-executor.ts, RunScheduledOptions 4-arg signature migration) was already fully reviewed with zero residue in RP-019/RP-023; no new drift exists to re-review since RP-023. No concept deletion/replacement occurred in this round; concept residue check remains satisfied, no blocker.",
+      "createdAt": "2026-08-19T02:04:31.999Z",
+      "reviewRound": "2026-08-19T02:03:22.681Z",
+      "reviewRunId": "B-7dff:RR-039",
+      "envelopeId": "ae46c81a63e0d1750aa16fc4939179a74ece0fcda7ec5d246b8d1ab80230a255",
+      "writerSessionId": "sess-c8142ac4cb69f1c755df4c1fc223e028",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7dff/checklist.json"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/core/keyed-scheduler.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "scanEscalationReason": "No material change since RP-023 (verified via git diff --stat against RP-023 bound headHash 8310c7f7); source files re-triaged by name against prior full-read pass, not re-read in full, since diff confirms byte-identical content."
+      },
+      "_hash": "265e384c8307147451a1cace96839c1a62d2a6c3b151a05c22d3d9993bfffb6c"
     }
   ]
 }
