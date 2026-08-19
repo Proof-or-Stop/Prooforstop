@@ -668,6 +668,28 @@
         "scanEscalationReason": null
       },
       "_hash": "3c1e4fecc63be85e4c0ab0681e77b4ba71040983e6e7b96cc46fab6c8174a1a0"
+    },
+    {
+      "id": "B-cc10:RP-021",
+      "agent": "lattice-review-quality",
+      "note": "Quality pass at HEAD 24e05a7: HOME isolation restores HOME/PATH in finally, isolated-home temp dir is pushed to createdDirs and rmSync-cleaned, no silent catch, comment matches sh -lc discovery, production resolver unchanged.",
+      "createdAt": "2026-08-19T09:16:37.354Z",
+      "reviewRound": "2026-08-19T08:57:52.581Z",
+      "reviewRunId": "B-cc10:RR-121",
+      "envelopeId": "71d46f6079eb172240c6fdf28ab386c66c9444aa9c8b5049c203e09d5a72474c",
+      "writerSessionId": "sess-8afdfabda88da0d8",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/codex-heartbeat-timeout-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/codex-adapter-checks.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a95d6477d1917c2aefac717f2c0691db7935fa517e6aa4889bf839338cb6ca1d"
     }
   ]
 }
