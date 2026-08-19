@@ -1,0 +1,43 @@
+{
+  "task": "Stop heavy certification from starting before review inventory, merge-main, and a clean frozen candidate are mechanically admitted.",
+  "outcome": "An operator on an unconverged story runs proof-or-stop done_required_validate --storyId=B-xxxx and sees a non-zero exit with [pre_cert_window_required] before any root npm test starts, then Next: proof-or-stop certification_window_status --storyId=B-xxxx. After inventory finalize, merge main, and a clean tree, proof-or-stop certification_window_begin --storyId=B-xxxx prints State: ADMITTED plus frozen head/main/storyFiles hashes and one Next: line. A source commit inside that window makes certification_window_status print State: INVALIDATED and Next: proof-or-stop story_advance --storyId=B-xxxx --phase=REVIEW. The focused smoke prints PRE_CERT replay: premature_heavy_runs=0 admitted_heavy_runs=1 post_cert_source_commits=0 and exits 0.",
+  "facts": [
+    "U-01 splits into U-01a Review Epoch (B-3f3d) and U-01b PRE_CERT CertificationWindow (this story).",
+    "B-3f3d worktree already exports review-inventory-epoch.ts with finalizedUnconsumedReviewInventory, consumeReviewInventoryReceipt, and signed inventory receipts whose authority is inventory-completeness-only, not PRE_CERT.",
+    "B-3f3d is not merged to local main; this worktree was created from current main, so DEV must merge or rebase story/B-3f3d before consuming those APIs.",
+    "Current official heavy paths on main are done_required_validate, validate --full, and lattice.config.json doneRequiredCommands (packages/main build plus root npm test at 7200000ms).",
+    "Routine validate without --full and REVIEW preflight slices (--channel/--concept/--lint) are not the 35-45 minute matrix and must stay outside the window.",
+    "done_prepare already classifies merge-main, dirty-tree, and freshness; this story must reuse those classifiers, not invent a second hash.",
+    "Freshness policy for this slice stays strict: related story-owned drift invalidates; no cache relaxation and no silent receipt rebind.",
+    "resolved: B-3f3d public admit inputs are finalizedUnconsumedReviewInventory plus consumeReviewInventoryReceipt; this worktree must merge story/B-3f3d or fail closed when those exports are absent. Open B-3f3d critic findings do not authorize a stub-always-admit.",
+    "resolved: heavy entrypoints are done_required_validate, validate with full set, and doneRequiredCommands. validate --channel/--concept/--lint return before findValidateFile and stay cheap.",
+    "resolved: reproFirstPreflight default mode is warn; PLAN to DEV is not blocked by a missing story-evidence-binding. Do not mint a fake target-bug repro for this planned gate feature."
+  ],
+  "constraints": [
+    "Process facts need prompt plus hardcoded CLI/handler/gate fallback; a new gate artifact must be signed and registered.",
+    "Do not implement CausalEvidence, ReviewRemediation, AcceptanceAmendment, or ManagedRunSupervisor.",
+    "Do not reduce reviewer lanes or host quorum.",
+    "Do not finish B-3f3d REVIEW findings as this story's product.",
+    "Window must not long-lock other stories' DEV.",
+    "PLAN/DEV still need a valid story-evidence-binding because this story declares code files after the repro-first intake bypass.",
+    "English artifacts only for story metadata and new operator-facing strings."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/review-inventory-epoch.ts",
+    "packages/main/src/handlers/done-required-validation.ts",
+    "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/core/done-required-validation.ts",
+    "packages/main/src/core/done-prepare-validation-reuse.ts",
+    "packages/main/src/handlers/done-prepare.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/runtime-artifact-registry.ts",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "timestamp": "2026-08-18T06:45:25.777Z"
+}

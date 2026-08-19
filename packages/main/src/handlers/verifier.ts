@@ -44,6 +44,11 @@ import {
   stripAnsi,
 } from '../core/validation-executor.js';
 import { withOfficialValidationExecution } from '../core/validation-execution-lock.js';
+import {
+  isOfficialHeavyValidateInvocation,
+  refuseHeavyCertificationUnlessAdmitted,
+} from '../core/certification-window.js';
+import { currentCertificationIdentity } from './certification-window.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -1164,6 +1169,14 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           throw new Error(`CLI gate(s) failed: ${failedNames}`);
         }
         return sections;
+      }
+
+      if (args.story && isOfficialHeavyValidateInvocation(args)) {
+        refuseHeavyCertificationUnlessAdmitted({
+          store: ctx.store,
+          storyId: args.story,
+          current: currentCertificationIdentity(ctx, args.story),
+        });
       }
 
       const validateFile = findValidateFile(projectRoot);

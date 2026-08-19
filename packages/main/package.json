@@ -7,8 +7,8 @@
     "type": "git",
     "directory": "packages/main"
   },
-  "version": "0.3.261",
-  "description": "\u901a\u7528\u9879\u76ee\u5f00\u53d1\u6846\u67b6 \u2014 AI-driven Story \u5de5\u4f5c\u6d41 CLI",
+  "version": "0.3.263",
+  "description": "Proof-or-Stop — AI-driven Story workflow CLI",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
@@ -118,7 +118,9 @@
     "test:lattice-residue": "node ../../scripts/verify-lattice-residue.mjs",
     "test:retired-authority-vocabulary-guard": "node dist/tasks/retired-authority-vocabulary-guard-smoke.js",
     "test:residue-inject-repro": "node ../../scripts/verify-residue-inject-repro.mjs",
-    "test:migration-contract": "node scripts/verify-migration-contract.mjs"
+    "test:migration-contract": "node scripts/verify-migration-contract.mjs",
+    "test:topology-signing-source-guard": "node dist/tasks/topology-signing-source-guard-smoke.js",
+    "test:signing-guard-mutation-proof": "node dist/tasks/signing-guard-mutation-proof-smoke.js"
   },
   "dependencies": {
     "@lattice/lab": "0.3.65",

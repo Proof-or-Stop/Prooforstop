@@ -425,6 +425,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'parallel_wave_create', 'parallel_wave_inspect', 'parallel_plan', // B-29b6: read-only Proof-or-Stop Parallel Wave planning surfaces; no authority mutation
     'parallel_dispatch', 'parallel_status', 'parallel_merge_queue', 'parallel_report', // B-e70f: read-only Parallel Dispatch projections; no spawning or authority mutation
     'review_loop_status', 'review_loop_policy_show', // B-7a34: read-only review loop projections; REVIEW-only mutators are phase-scoped below
+    'certification_window_status', // B-1e1f: signed PRE_CERT window readout; any phase; mutating begin/cancel are phase-scoped below
     'dev_memory_*',  // B-1148: dev_memory_capture/list/search/preflight/finish/start declared allowedPhases:all in command-policy; phaseTools must match
     'memory_playbook_baseline_*', 'playbook_runtime_health', 'final_response_check',
     'signature_registry_*',  // B-4f46 CHK-003: audit-only finding signatureTag registry (Experience Layer Phase 1b); list/set declared allowedPhases:all in command-policy; no gate reads it
@@ -502,6 +503,8 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'red_evidence_quarantine', // W2c (B-506e): retire a bad chain head without mutating history; owner-lease + mutation-authority gated, storyScopedMutating, DEV-only
     'red_evidence_recover', // W2c (B-506e): undo a mistaken quarantine; owner-lease + mutation-authority gated, storyScopedMutating, DEV-only
     'acceptance_basis_generate', // Wave 1A registered verifier writer; DEV is allowed for implementation-time regeneration, without lifecycle consumption
+    'certification_window_begin', 'certification_window_cancel',
+    'review_inventory_finalize',
     'pre_review_check',
     'acceptance_rollout_report',
     'topology_exclusion_approval_set', 'topology_critic_receipt_set',
@@ -518,6 +521,8 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'validate', 'status',
     'bug_report', 'bug_update', 'bug_list',
     'review_loop_start', 'review_loop_iteration_add', 'review_loop_close',
+    'certification_window_begin', 'certification_window_cancel',
+    'review_inventory_finalize',
     'review_escalation_policy_set',
     'review_host_availability_probe',
     'story_advance',
@@ -535,6 +540,8 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'verification_intent_repair', // B-4e06: audited legacy intent backfill
     'bug_report', 'bug_update', 'bug_list', 'bug_analyze',
     'delivery_check_set', 'delivery_waiver_add', // B-b089: delivery reviewer 在 TEST 阶段写签名
+    'certification_window_begin', 'certification_window_cancel',
+    'review_inventory_finalize',
     'review_escalation_policy_set',
     'review_host_availability_probe',
     'review_escalation_fallback_set',

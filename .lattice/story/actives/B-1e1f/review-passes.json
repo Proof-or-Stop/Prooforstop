@@ -1,0 +1,689 @@
+{
+  "passes": [
+    {
+      "id": "B-1e1f:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement this round. git diff main...HEAD is additive (5004/16): new CertificationWindow/PRE_CERT owner, not a rename of Review Inventory, CausalEvidence, ReviewRemediation, or AcceptanceAmendment. Commands certification_window_begin/status/cancel exist in catalog, policy, registry, handlers, and process-fact L4 with PRE_CERT gateConsumer. Inventory completeness stays non-authority (inventoryReceiptAuthorizesPrecert always false). Heavy choke is done_required_validate + validate --full; cheap --channel/--concept/--lint stay outside. Invalidation is materialHash/storyFilesHash/verifier/test identity, not headHash-only. CLAUDE.md/README/AGENTS.md gained no new proof-or-stop command promises. Concept residue check completed, no blocker.",
+      "createdAt": "2026-08-18T09:23:51.346Z",
+      "reviewRound": "2026-08-18T09:16:08.689Z",
+      "reviewRunId": "B-1e1f:RR-001",
+      "envelopeId": "fae90712dc27c559344827864f5edeb992c1eab819c68da1f4704db15701bfde",
+      "writerSessionId": "sess-c5e3cefbb7429cdb",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-1e1f/background.md",
+          ".lattice/story/actives/B-1e1f/decision.json",
+          ".lattice/story/actives/B-1e1f/plan.md",
+          ".lattice/story/actives/B-1e1f/understanding.json",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/certification-window.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/done-prepare-validation-reuse.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/done-required-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/certification-window-heavy-choke-smoke.ts",
+          "packages/main/src/tasks/certification-window-invalidation-smoke.ts",
+          "packages/main/src/tasks/certification-window-replay-smoke.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "faa02c0a70cedb2077212933bdf3e9764f747670d2fbfa7d505347ba2b6ae22d"
+      },
+      "readDiagnostics": [],
+      "_hash": "d18a7019e9d59a635777cd0cd8194916c5c00bd98ab820b246a88bdb412b655f"
+    },
+    {
+      "id": "B-1e1f:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Round-2 quality re-review of F-001..F-009 after 6a26e8cc13. F-001 holds: collectAdmitFacts fail-closes coverage throws as MAX_SAFE_INTEGER and finding/policy throws as <findings-unreadable>, both refused by evaluateCertificationWindowAdmit. F-002 holds: windowAuthorizesHeavyCertification now requires a verified PrecertReceipt whose windowId/storyId/receiptId and frozen identity match; missing receipts[] no longer authorizes heavy. F-003 holds: currentCertificationIdentity sets hashUnavailable when a git repo cannot read materialHash/storyFilesHash, and detectCertificationWindowMaterialDrift invalidates instead of treating undefined as no drift. F-004 holds: persistHint reports persist:certification-window via reportHealthIssue. No new high/critical quality issues: no unused imports/dead fail-open paths in the admit/authorize/persist fix, persistHint is no longer a silent empty catch, cancel reason is runtime-checked at persistCancelled (>=5), inventory lineage already refuses missing hashes, and CLAUDE.md/README were not promised-but-undelivered. Smoke now exercises verifier-identity drift, peer-story write isolation, baseline lanes, receipt frozen binding, and retry storm.",
+      "createdAt": "2026-08-18T09:40:10.819Z",
+      "reviewRound": "2026-08-18T09:32:35.438Z",
+      "reviewRunId": "B-1e1f:RR-005",
+      "envelopeId": "873995ebd3f77b304ed988b8dafbad084c4ef134d93228feb69e991956069fb1",
+      "writerSessionId": "sess-review-quality-b1e1f",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-1e1f/background.md",
+          ".lattice/story/actives/B-1e1f/plan.md",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/done-required-validation.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/package-lock.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/done-prepare-validation-reuse.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/certification-window-heavy-choke-smoke.ts",
+          "packages/main/src/tasks/certification-window-invalidation-smoke.ts",
+          "packages/main/src/tasks/certification-window-replay-smoke.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "a6b9612feaf4743837d0d4974f3b0741abf6a844d65eb2edfd21cc6da210b51b"
+      },
+      "readDiagnostics": [],
+      "_hash": "0e85050c05227ff970b55dd6dab971bccff38695767a7a77bc30004b2563e41f"
+    },
+    {
+      "id": "B-1e1f:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Round 3 quality: F-001..F-004 remain fixed (fail-closed admit facts, verified receipt authorize, hashUnavailable drift, persistHint reports health). 9d9d05c104 is test-only (test-file invalidation + no main-write-lock + unchanged quorum files). No new critical dead-code, type-safety, I/O, fail-closed, or doc-promise issues.",
+      "createdAt": "2026-08-18T09:58:08.974Z",
+      "reviewRound": "2026-08-18T09:45:23.722Z",
+      "reviewRunId": "B-1e1f:RR-006",
+      "envelopeId": "63e0bb0d2116b057ea7f39f7fbb97b3c64dbccf9e7784a35d445c96cb4f0183f",
+      "writerSessionId": "sess-4f4456a5519941c18a5fd2dc2853caa9",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-1e1f/background.md",
+          ".lattice/story/actives/B-1e1f/decision.json",
+          ".lattice/story/actives/B-1e1f/plan.md",
+          ".lattice/story/actives/B-1e1f/understanding.json",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/certification-window.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/done-prepare-validation-reuse.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/done-required-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/certification-window-heavy-choke-smoke.ts",
+          "packages/main/src/tasks/certification-window-invalidation-smoke.ts",
+          "packages/main/src/tasks/certification-window-replay-smoke.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "a6b9612feaf4743837d0d4974f3b0741abf6a844d65eb2edfd21cc6da210b51b"
+      },
+      "readDiagnostics": [],
+      "_hash": "61c5bab40301363e059fe0977b26827f4557b54384ac08babfb7ecec833f7a7b"
+    },
+    {
+      "id": "B-1e1f:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Incremental quality re-review of B-1e1f on RR-007 (SAFE_INCREMENTAL vs RP-003/RR-006). git diff 44e3737d2b..HEAD has no packages/ or scripts/ changes; only ProofStory/REVIEW metadata rebound. Rechecked dead code, type safety, fail-closed catches, I/O isolation, and promised-but-undelivered: persistHint reports persist health, admit/classifier failures fail closed, window+receipt frozen identity is dual-signed, no shell/fn.ts imports, no CLAUDE.md/README certification_window promises. Prior F-001..F-004 remain resolved. No new quality blocker.",
+      "createdAt": "2026-08-18T10:10:30.718Z",
+      "reviewRound": "2026-08-18T10:05:16.232Z",
+      "reviewRunId": "B-1e1f:RR-007",
+      "envelopeId": "1693927006b51d1f0edf1168b33218d671329d6e36d15e1b6d6c921931d7b1cb",
+      "writerSessionId": "sess-129374acf2ebe85bd8a112d1c6709bad",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-1e1f/background.md",
+          ".lattice/story/actives/B-1e1f/plan.md",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/certification-window.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "packages/main/package-lock.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/done-prepare-validation-reuse.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/done-required-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/certification-window-heavy-choke-smoke.ts",
+          "packages/main/src/tasks/certification-window-invalidation-smoke.ts",
+          "packages/main/src/tasks/certification-window-replay-smoke.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "cb350fbbaeda598aaf27109756483e1eb57eb56e2e1b086443be70ecd8bf0ee0"
+    },
+    {
+      "id": "B-1e1f:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement this round. git diff main...HEAD and validate --concept report zero deleted exports/files; B-1e1f only adds CertificationWindow/PRE_CERT in packages/main/src/core/certification-window.ts, packages/main/src/handlers/certification-window.ts, and command-catalog certification_window_begin/status/cancel. Incremental edits since RP-001 tighten windowAuthorizesHeavyCertification plus hashUnavailable fail-closed and replace CJK relatedDocs anchors with AGENTS.md; they do not rename or leave residual old symbols. Wave4 acceptance_topology_check chain and existing heavy commands remain. CLAUDE.md/README have no undelivered certification_window promises. Concept residue check completed, no blocker.",
+      "createdAt": "2026-08-18T10:23:46.794Z",
+      "reviewRound": "2026-08-18T10:16:19.045Z",
+      "reviewRunId": "B-1e1f:RR-009",
+      "envelopeId": "5c3b75bd903de68e04d699b506bf44ee6ca1d6dbb32aa4c961aaf8a347dab67d",
+      "writerSessionId": "sess-cf96145de9cf012e",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-1e1f/background.md",
+          ".lattice/story/actives/B-1e1f/plan.md"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/done-required-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/certification-window-heavy-choke-smoke.ts",
+          "packages/main/src/tasks/certification-window-invalidation-smoke.ts",
+          "packages/main/src/tasks/certification-window-replay-smoke.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c1464c5e35eccc63cea052d4dcd7525e61e2bf1e3faa80d7a9ddc92f5513d77c"
+    },
+    {
+      "id": "B-1e1f:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: high-risk B-1e1f has 31 must intents (5 items x happy/edge/adversarial) and 31 mechanical result=pass receipts, 0 waivers, 0 fail. CHK-001 status/BLOCKED/ADMITTED/tamper/inventory-not-PRE_CERT/registry covered by certification-window-smoke.ts plus process-fact-contract; CHK-002 admit/consume/inventory/main/findings/API-absent/whole-tree-drift covered by the same smoke; CHK-003 heavy bind/routine-outside/premature done_required+validate --full/retry-storm/handler-bypass covered by certification-window-heavy-choke-smoke.ts (imports smoke); CHK-004 source+test invalidate, metadata-only keep RUNNING, receipt hash freeze, no silent rebind, no main-write-lock/peer lock covered by certification-window-invalidation-smoke.ts; CHK-005 replay line premature_heavy_runs=0 admitted_heavy_runs=1 post_cert_source_commits=0, second-admit-after-drift, and no quorum/lane weakening covered by certification-window-replay-smoke.ts. F-010..F-013 remediations still present (tests/app.test.ts + verifier/test identity drift, refuseHeavyCertificationUnlessAdmitted, no acquireMainWriteLock, main...HEAD excludes review-escalation/quorum-submit). This REVIEW round only retargeted relatedDocs CJK anchors to English; stale evidence materialHash with unchanged storyFilesHash is whole-tree drift, not a missing-coverage blocker.",
+      "createdAt": "2026-08-18T10:25:12.324Z",
+      "reviewRound": "2026-08-18T10:16:19.045Z",
+      "reviewRunId": "B-1e1f:RR-008",
+      "envelopeId": "dd29fbd9bac162314ac99c2d54d4eeb173ac51b51f40683856ff5e97d6258ac5",
+      "writerSessionId": "sess-cf96145de9cf012e",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-1e1f/background.md",
+          ".lattice/story/actives/B-1e1f/plan.md",
+          "packages/main/src/tasks/certification-window-heavy-choke-smoke.ts",
+          "packages/main/src/tasks/certification-window-invalidation-smoke.ts",
+          "packages/main/src/tasks/certification-window-replay-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/done-required-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "510e28147aeebe9e32adfc7a27e21288a9b615e90ce2aa7055d9866ec6287ce5",
+        "corpusDigest": "2be1059c625f4f40c6a2bcff2a34452cf19a4b1c73a3febf053437c6a45fd421"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "7639ac7e56195a8842a66abcc38693af8594c26193266ed29e249c9f999c3371"
+      },
+      "readDiagnostics": [],
+      "_hash": "92fed87edb8dd483b473afa3e3018c1e03d46c4627a308afd62006c337de4c8d"
+    },
+    {
+      "id": "B-1e1f:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "Incremental quality re-review of 09d765e2ce and 100e3b9cff. persistSyntheticAdmittedWindowForTest does not patch or wrap refuseHeavyCertificationUnlessAdmitted; the choke still requires a signed ADMITTED/RUNNING window plus matching PrecertReceipt and still fail-closes otherwise. The helper only mints a test fixture window (authorizesTest forced false; inventory completeness never authorizes) and is imported only by official smokes. loadReviewInventoryAdmitApis now createRequire()s the literal ./review-inventory-epoch.js specifier, satisfying the vocab guard. drop-acceptance-basis-prompt now deletes the proof-or-stop acceptance_basis_generate implementer line so the mutation can fail the contract verifier. No dead code, unused imports, as-any, empty-catch regression, shell/fn isolation break, or promised-but-undelivered surface in this increment.",
+      "createdAt": "2026-08-18T11:25:35.659Z",
+      "reviewRound": "2026-08-18T11:20:11.059Z",
+      "reviewRunId": "B-1e1f:RR-010",
+      "envelopeId": "ebfdfb06d46979ce30ad5b8eb90d5f9fb4a1ed467b4355c63b2a874a31d1bf2e",
+      "writerSessionId": "sess-cf96145de9cf012e",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/done-required-validation.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "bin/bootstrap-runner.js",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/templates/agents/lattice-implementer.md",
+          "packages/main/tests/red/red-1734-bootstrap-depfree.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "3418f7f84d7f416913c18beaed8a17113b7c3f2b699b26330d732d6434d43968"
+    },
+    {
+      "id": "B-1e1f:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check after 09d765e2ce and 100e3b9cff: no mass concept deletion. persistSyntheticAdmittedWindowForTest is additive/test-only and still forces authorizesTest=false. Heavy choke refuseHeavyCertificationUnlessAdmitted remains on done_required_validate and validate --full. Retargets lattice local bootstrap is not ready and the drop-acceptance-basis-prompt mutation regex to proof-or-stop have zero live leftovers; the only lattice acceptance_basis_generate mention is a pre-existing backward-compat comment in acceptance-coverage-basis.ts. inventoryReceiptAuthorizesPrecert still always false. CausalEvidence/ReviewRemediation/AcceptanceAmendment not introduced.",
+      "createdAt": "2026-08-18T11:25:47.390Z",
+      "reviewRound": "2026-08-18T11:20:11.059Z",
+      "reviewRunId": "B-1e1f:RR-011",
+      "envelopeId": "13317344cf7e336e5663e638e550e71b733917047067bfb1764eb9f97104997a",
+      "writerSessionId": "sess-cf96145de9cf012e",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-1e1f/background.md",
+          ".lattice/story/actives/B-1e1f/checklist.json",
+          ".lattice/story/actives/B-1e1f/decision.json",
+          ".lattice/story/actives/B-1e1f/plan.md",
+          ".lattice/story/actives/B-1e1f/understanding.json",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/done-required-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "packages/main/tests/red/red-1734-bootstrap-depfree.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "7639ac7e56195a8842a66abcc38693af8594c26193266ed29e249c9f999c3371"
+      },
+      "readDiagnostics": [],
+      "_hash": "f5b14fa222ba7b64011d839e8f5f083ee2a71c76a5bb59dd1cab4e509097766d"
+    },
+    {
+      "id": "B-1e1f:RP-009",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: 31/31 must intents still have mechanical pass receipts after 09d765e2ce/100e3b9cff/263b657. persistSyntheticAdmittedWindowForTest is test-only (authorizesTest forced false) and does not weaken refuseHeavyCertificationUnlessAdmitted; official heavy smokes now admit a signed window so they can exercise timeout/heartbeat instead of dying at PRE_CERT. Premature refuse, admitted-heavy bind, invalidation, and no-stub-always-admit remain covered by certification-window-smoke/replay/heavy-choke receipts. require() literal and drop-acceptance-basis-prompt retarget are guard fixes, not missing coverage. Refreshed hashes at 100e3b9cff are not treated as missing.",
+      "createdAt": "2026-08-18T11:27:19.591Z",
+      "reviewRound": "2026-08-18T11:20:11.059Z",
+      "reviewRunId": "B-1e1f:RR-012",
+      "envelopeId": "8b6de575d6613f53e747e0a61ec8c4bb2cf1780739fda8a175176ff0cc28cbe9",
+      "writerSessionId": "sess-cf96145de9cf012e",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-1e1f/background.md",
+          ".lattice/story/actives/B-1e1f/plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/tasks/certification-window-heavy-choke-smoke.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "packages/main/tests/red/red-1734-bootstrap-depfree.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "c5ea3901c714a293bdf6d7caac3d589e9685457aa85efee4cbf032f66dc21fd1"
+      },
+      "readDiagnostics": [],
+      "_hash": "8b733b945cea33b8bd7ed8a34b040594dc1319440811702dcc87b01581f2c227"
+    },
+    {
+      "id": "B-1e1f:RP-010",
+      "agent": "lattice-review-quality",
+      "note": "Quality review of b1c72a15b4 completeness surface (review-inventory-epoch.ts, review_inventory_finalize, store read/write, smoke). No dead code, as-any, silent catch, or I/O-isolation defect. authorizesTest is a false literal, always persisted false, and verify rejects !== false; CLI schema cannot set it. refuseHeavyCertificationUnlessAdmitted is unchanged and still the done_required_validate / validate --full choke. This is a FINALIZED completeness pin, not the B-3f3d wave machine (no wave states/commands/critic writer). Inventory completeness is not PRE_CERT.",
+      "createdAt": "2026-08-18T12:16:24.200Z",
+      "reviewRound": "2026-08-18T12:08:07.771Z",
+      "reviewRunId": "B-1e1f:RR-014",
+      "envelopeId": "6535b05982d5c5add3956186e7ce63951a2f2966d2b6195d34bbc5fa9374b4b8",
+      "writerSessionId": "sess-cf96145de9cf012e",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "package-lock.json",
+          "package.json",
+          "packages/main/package-lock.json",
+          "packages/main/package.json",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/registry.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a9d1cca136c3797358ecf29ad62fa1ad8c09712ea4f8b060a536360399939e73"
+    },
+    {
+      "id": "B-1e1f:RP-011",
+      "agent": "lattice-review-quality",
+      "note": "Incremental quality review of 0eab2a28836 remediating F-014. Dedicated setReviewInventoryAdmitApisForTest(null) begin prints [pre_cert_inventory_api_absent] and stays BLOCKED; hook resets to undefined; default no-receipt path still asserts [pre_cert_inventory_not_finalized] with production APIs present. No dead code, unused imports, as-any, empty catch, or shell/fn isolation issue. The null override is the existing typed test seam; persistBlocked + refuseBlocked is the real handler path. No new CLAUDE.md/README promises. No new quality blocker.",
+      "createdAt": "2026-08-18T12:30:52.891Z",
+      "reviewRound": "2026-08-18T12:26:21.171Z",
+      "reviewRunId": "B-1e1f:RR-015",
+      "envelopeId": "99472865f0c552102a708664623876f6eb010b6cb97a8f6e8ad8e0c13ef5e23c",
+      "writerSessionId": "sess-cf96145de9cf012e",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-1e1f/background.md",
+          ".lattice/story/actives/B-1e1f/plan.md",
+          "packages/main/src/tasks/certification-window-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/certification-window.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "4543e885087b69482a5ba57056600647a18aec3e7f0275caf512f5ff17013566"
+    },
+    {
+      "id": "B-1e1f:RP-012",
+      "agent": "lattice-review-quality",
+      "note": "Incremental quality review of 427e963bc068. Only packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts changed since RP-011: local rmForce wraps rmSync with maxRetries:8 retryDelay:25 and replaces all 7 finally cleanups. Node fs.rm retries ENOTEMPTY/EBUSY then rethrows; no silent catch, unused import, as-any, dead helper, or shell/fn isolation issue. rmSync import remains used. No product gate, proof-metadata, or CLAUDE.md/README promise change. No quality blocker.",
+      "createdAt": "2026-08-18T12:58:14.691Z",
+      "reviewRound": "2026-08-18T12:55:42.938Z",
+      "reviewRunId": "B-1e1f:RR-016",
+      "envelopeId": "4b93851b6274a362771bb39e38fc0c490cacaaccadbd05260031d4e80f981595",
+      "writerSessionId": "sess-cf96145de9cf012e",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "e4e2a15c6ceaa15ae368faac99d98f040b2b595537457e01d10da3784b84bdbc"
+    },
+    {
+      "id": "B-1e1f:RP-013",
+      "agent": "lattice-review-quality",
+      "note": "Incremental quality review of 252623dab9. collectAdmitFacts now passes an isEvidenceFresh callback so matching current vs evidence storyFilesHash does not count headHash-only metadata HEAD moves as missingRequired (the 31-intent false stale). Callback is fail-closed: both hashes must be truthy and equal; missing either side stays stale. buildVerificationCoverage still applies fail/waiver/missing before freshness, so this does not cover failed evidence. Whole-tree materialHash drift remains refused in inventoryLineageRefusal, not via coverage. refuseHeavyCertificationUnlessAdmitted is unchanged in core/certification-window.ts. authorizesTest stays false (inventoryBinding copies receipt; mock+begin assert false). Smoke adds unit cases for match/missing-current/missing-evidence and an integration begin that admits with fake evidence headHash plus matching storyFilesHash. No dead code, unused import, as-any, empty-catch swallow, shell/fn isolation break, or new CLAUDE.md/README promise. No quality blocker.",
+      "createdAt": "2026-08-18T13:34:05.709Z",
+      "reviewRound": "2026-08-18T13:28:26.046Z",
+      "reviewRunId": "B-1e1f:RR-017",
+      "envelopeId": "d26591e0f8cb0922feb938c088d8ff4c9a02836c66ab21de61e5f672d053601c",
+      "writerSessionId": "sess-cf96145de9cf012e",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-1e1f/background.md",
+          ".lattice/story/actives/B-1e1f/plan.md",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/verification.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "3af0bbfa8dc9caf6021b5bce7332db2dcc82d76ade566dd877faac7a60ce500b"
+    },
+    {
+      "id": "B-1e1f:RP-014",
+      "agent": "lattice-review-quality",
+      "note": "Incremental quality review after RP-013 (ee7064c). Scope: lifecycle-registry.ts + closeout-trust-smoke.ts (c9ca69cd976 persistSyntheticAdmittedWindowForTest before done_required_validate; 77e1774ec68 registers review-inventory-epochs.json). persist helper is used, not dead; authorizesTest forced false; refuseHeavyCertificationUnlessAdmitted unchanged since prior pass. Registry adds are consumed (FILENAMES classify + PROTOCOL_METADATA ignore so independently gated signed facts are not untrusted closeout). No as-any, empty catch, shell/fn leak, or promised-but-undelivered in this increment.",
+      "createdAt": "2026-08-18T14:52:46.242Z",
+      "reviewRound": "2026-08-18T14:48:05.483Z",
+      "reviewRunId": "B-1e1f:RR-018",
+      "envelopeId": "1727922099ec679c8877fbf6ae0904be6fe7e121067f7d3c0aabd1a2ae5abce2",
+      "writerSessionId": "sess-cf96145de9cf012e",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/done-required-validation.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "684df9a3908a48c83d0d00c37d8c3605edef42ebe72471b430ef1e1624d3fb70"
+    },
+    {
+      "id": "B-1e1f:RP-015",
+      "agent": "lattice-review-quality",
+      "note": "Incremental quality re-review after F-015. 82a9a7a lockstepped scripts/verify-process-fact-contract.mjs closeout-trust digest to 49af08591ff783654df81918b26db7a9be9478e0fa3655fadaeabb79e0cb6d37, matching PINNED_EXECUTABLE_SOURCE_FINGERPRINTS in retired-authority-vocabulary-guard-smoke.ts. Recomputed typescript-printer-remove-comments-sha256-v1 on packages/main/src/tasks/closeout-trust-smoke.ts equals that pin; leftover adb4b265 is gone. Incremental files add only the digest + coupling comments, no dead code, as-any, empty swallow, or new doc promises. persistHint still reports PERSIST failures; persistSyntheticAdmittedWindowForTest still forces authorizesTest=false. Prior quality findings remain resolved. No quality blocker.",
+      "createdAt": "2026-08-18T15:27:23.848Z",
+      "reviewRound": "2026-08-18T15:23:16.533Z",
+      "reviewRunId": "B-1e1f:RR-020",
+      "envelopeId": "61fde6a47a8ed0b520e3af7af0e91fb3efe2eae8fea0a5540ec614ff02f3ca26",
+      "writerSessionId": "sess-cf96145de9cf012e",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-1e1f/background.md",
+          ".lattice/story/actives/B-1e1f/plan.md",
+          "packages/main/src/handlers/certification-window.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "013c5ad38e2076e8300c31a34155e0dd47b36819f67df8438747297e46c03886"
+    }
+  ]
+}

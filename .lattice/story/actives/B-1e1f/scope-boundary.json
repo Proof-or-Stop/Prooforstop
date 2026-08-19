@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-1e1f",
+  "mode": "feature",
+  "allowed": [
+    "CertificationWindow deep module and signed window/receipt artifacts",
+    "Choke points on done_required_validate, validate --full, and doneRequiredCommands",
+    "PRE_CERT admission predicate over existing inventory, merge, clean-tree, and coverage facts",
+    "Process-fact registry, command catalog, and operator status/next-command surface",
+    "Window invalidation on source/test/verifier mutation"
+  ],
+  "excluded": [
+    "AcceptanceAmendment (U-05)",
+    "CausalEvidence DAG / execution-key receipt reuse (U-03)",
+    "Finishing B-3f3d REVIEW findings or merging B-3f3d as this story's product",
+    "Freshness relaxation or silent hash rebind",
+    "ManagedRunSupervisor (U-02)",
+    "ReviewRemediation atomic close (U-04)"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "User asked to implement U-01b from the cross-story optimization plan: PRE_CERT gate plus strict CertificationWindow only.",
+  "createdAt": "2026-08-18T06:36:45.989Z",
+  "updatedAt": "2026-08-18T06:36:45.989Z",
+  "_hash": "81bd6a6d4ac32c7234b09511c4a1e08e8c3d93e5f792de1422d155723ad030a4"
+}

@@ -602,7 +602,7 @@ main()
     process.exitCode = 1;
   })
   .finally(() => {
-    rmSync(root, { recursive: true, force: true });
+    rmSync(root, { recursive: true, force: true, maxRetries: 10, retryDelay: 50 });
     if (failures.length > 0) {
       console.error(`\n✗ usage-sweep smoke FAILED (${failures.length} failing): ${failures.join(', ')}`);
       process.exit(1);
