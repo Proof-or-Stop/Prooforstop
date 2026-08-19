@@ -1,0 +1,36 @@
+{
+  "passes": [
+    {
+      "id": "B-45a5:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "verificationIntent -> verificationEvidence coverage audit for CHK-001..004, all must-priority. CHK-005 correctly WITHDRAWN (decisionRef SD-ccafb44c, decision=confirmed/userConfirmed=true, matches scope-shrinkage-decision.json) and excluded from coverage demand, not a gap. Coverage: 12/12 must intents across CHK-001-004 have valid evidence (11 logic_test pass + 1 permanent waiver), each note ties concretely to a named row/behavior, none is a generic pass claim. Read the fixture code (packages/main/tests/red/red-b45a5-withdrawal-gates.mjs) and re-ran it directly against the current shared dist (read-only, no mutation) to independently reproduce every pinned selector verbatim: B1/B2/B3=GREEN, D1/D2/D3/D4/D5/D23/D45=REFUSED, A1/A2/C1..C8=CONTROL-OK, exit 0. Five judgement items from dispatch: (1) CHK-001:happy:0 waiver is honest, not laundering -- verified baseline HEAD e66bb0b2999c9c4200570a884516d370490f4339 in red-evidence.json record 2 matches the waiver note, and the registered CHK-001 artifact independently reruns GREEN today; the waiver targets a genuinely self-invalidating RED-VERDICT pin (not a prose-selector issue) and the underlying property is proven elsewhere by durable evidence, so a permanent waiver is the right instrument here, correctly distinguished from the B-8df9 prose-selector lesson. (2) CHK-004 D-rows do bite: read buildForged() and confirmed D3's decision (decisionNamesSubject false branch) withdraws a DIFFERENT real item (backedId=CHK-003, non-empty withdrawnChecklistItemRefs), with C5/C6 controls measuring that non-emptiness and live exclusion in the same fixture -- the anti-bypass proof is not hollow. Manually reconstructed the 3x5 ablation table against the real withdrawnChecklistItemIdsFrom/checkDispatchEvidence/withdrawnItemIntentRefs source and it matches exactly cell-for-cell. (3) D2's admitted non-independence vs D3 is accurate across the three ablations actually tested (no shape catches D2 without also catching D3) and is disclosed in the artifact's own docblock next to the ablation table, not noise -- CHK-004's plan.md tightening 4 explicitly owes this exact case regardless of independence, so keeping it is correct. (4) Selector durability: none of CHK-002/003/004's pins were invalidated by any later item in this story (only CHK-001's was, by design, since it records the pre-fix state the story exists to fix); forward risk from here on is the intended kind -- these rows now guard against regression. (5) Truncation defect verified real via git history: pre-fix commit b57e18bc18 shows a receipt literally cut mid-word at B45A5-ROW-D5=R; fix commit 67f374486c replaced process.exit() with process.exitCode for correct exit semantics on a piped async stdout write. All 11 currently-recorded receipts end on complete lines (checked each outputTail), and a fresh live run confirms complete output. The 18-other-affected-files claim is exactly correct (grep confirms 18 other packages/main/tests/red/*.mjs files still use process.exit()), correctly scoped out as a separate follow-up. One outstanding low-severity gap in my domain: B-45a5:F-003 (lattice-review-quality, this round) -- withdrawnItemIntentRefs alias-collision defensive subtraction (survivingRefs guard, proofstory.ts:1672-1682) has zero direct test coverage anywhere in the repo; independently confirmed by reading the guard and grepping for its symbols. Not duplicating that finding since it is already registered, verified, and correctly scoped this round; noting concurrence here rather than filing a near-duplicate. No blocking test-coverage gap found.",
+      "createdAt": "2026-08-19T02:04:02.116Z",
+      "reviewRound": "2026-08-19T01:51:47.991Z",
+      "reviewRunId": "B-45a5:RR-002",
+      "envelopeId": "6f42b58a1cdc1e1971a783b0bb086c9807d0102850b7aaf7819793677fd009d4",
+      "writerSessionId": "sess-b45a5-main",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-45a5/checklist.json",
+          ".lattice/story/actives/B-45a5/evidence/red-probe-channel-gate.mjs",
+          ".lattice/story/actives/B-45a5/plan.md",
+          ".lattice/story/actives/B-45a5/red-evidence.json",
+          ".lattice/story/actives/B-45a5/scope-shrinkage-decision.json",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/handlers/validate-channel.ts",
+          "packages/main/tests/red/red-b45a5-withdrawal-gates.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-45a5/acceptance-basis.json",
+          ".lattice/story/actives/B-45a5/index.json",
+          ".lattice/story/actives/B-45a5/process-events.jsonl",
+          ".lattice/story/actives/B-45a5/review.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "10b7ed5bd7e21878cd946a7c5cbb0d5f9f1bf0db8888ecb23255345738ead2dd"
+    }
+  ]
+}
