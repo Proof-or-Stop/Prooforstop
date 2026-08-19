@@ -3017,16 +3017,16 @@
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "f5cf15b71aeb65a7fd39e63fae9b87ba4ad481f1f8ac7a030416c474fbf9a23f",
-            "outputTail": "red-w2d-command-readonly: PASS\n  registration: MAIN_TOOLS + command-policy(readOnly/none) + process-fact L0 + READ_ONLY_COMMANDS + registered handler\n  success output: assertionDigest sha256:60f9d33cddb2b692b9ba243ffa33038b0c089b0654afeb559f01ad1daa383515 / binding M1 npm-script@1 npm-script:test:x / policyDigest sha256:470db38278a59387f2105c8bcdcca59ee52c8706cb3c69f7e150d3cd1154d767\n  inadmissible: tagged R1-2 rejection, success output absent; .lattice manifest of file paths and content hashes NET identical across the batch of 8 DIRECT handler invocations (aggregate before/after, not per-invocation; no empty directories, file modes or symlink identity recorded; the CLI wrapper is not exercised here)\n  spawn set observed across those invocations: execFileSync git rev-parse + execFileSync git worktree + execSync git rev-parse + spawnSync git rev-parse + spawnSync git show (32 calls) — read-only git, no runner/harness/shell\n  validate pipeline: packages/main/dist/tasks/red-evidence-envelope-smoke.js resolved via configuredValidationCommands and run via runValidationCommand -> exit 0 in 4405ms\n",
+            "outputDigest": "db80f438831b137d2cfcb7244b30f09b280709977af8c3f981986e39e1924cb0",
+            "outputTail": "red-w2d-command-readonly: PASS\n  registration: MAIN_TOOLS + command-policy(readOnly/none) + process-fact L0 + READ_ONLY_COMMANDS + registered handler\n  success output: assertionDigest sha256:60f9d33cddb2b692b9ba243ffa33038b0c089b0654afeb559f01ad1daa383515 / binding M1 npm-script@1 npm-script:test:x / policyDigest sha256:470db38278a59387f2105c8bcdcca59ee52c8706cb3c69f7e150d3cd1154d767\n  inadmissible: tagged R1-2 rejection, success output absent; .lattice manifest of file paths and content hashes NET identical across the batch of 8 DIRECT handler invocations (aggregate before/after, not per-invocation; no empty directories, file modes or symlink identity recorded; the CLI wrapper is not exercised here)\n  spawn set observed across those invocations: execFileSync git rev-parse + execFileSync git worktree + execSync git rev-parse + spawnSync git rev-parse + spawnSync git show (32 calls) — read-only git, no runner/harness/shell\n  validate pipeline: packages/main/dist/tasks/red-evidence-envelope-smoke.js resolved via configuredValidationCommands and run via runValidationCommand -> exit 0 in 4269ms\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-19T15:26:05.693Z",
+            "executedAt": "2026-08-19T15:36:35.169Z",
             "timeoutMs": 180000
           },
-          "headHash": "5aad31cf644c674c0b977a1984f975bf472c6c12",
+          "headHash": "fac90003ede1619e34b7a2c4a6a1aa958b16e8e6",
           "materialHash": "778d9c90a836b92d29f20bd2825104d6db49f9689277c5cf3aef3e43f5789925",
           "storyFilesHash": "f9c50dda5b8c3d90533076714b57807700e9a140c1304fcb7e011cb8038a5cd9",
-          "timestamp": "2026-08-19T15:26:17.935Z"
+          "timestamp": "2026-08-19T15:36:46.223Z"
         },
         {
           "intentRef": "CHK-014:adversarial:0",
@@ -3038,16 +3038,16 @@
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "50ed95d20be5f7db414dc84e5560b67eda16bb49446a85acb89b015aaa22a71a",
-            "outputTail": "red-w2d-command-readonly: PASS\n  registration: MAIN_TOOLS + command-policy(readOnly/none) + process-fact L0 + READ_ONLY_COMMANDS + registered handler\n  success output: assertionDigest sha256:60f9d33cddb2b692b9ba243ffa33038b0c089b0654afeb559f01ad1daa383515 / binding M1 npm-script@1 npm-script:test:x / policyDigest sha256:470db38278a59387f2105c8bcdcca59ee52c8706cb3c69f7e150d3cd1154d767\n  inadmissible: tagged R1-2 rejection, success output absent; .lattice manifest of file paths and content hashes NET identical across the batch of 8 DIRECT handler invocations (aggregate before/after, not per-invocation; no empty directories, file modes or symlink identity recorded; the CLI wrapper is not exercised here)\n  spawn set observed across those invocations: execFileSync git rev-parse + execFileSync git worktree + execSync git rev-parse + spawnSync git rev-parse + spawnSync git show (32 calls) — read-only git, no runner/harness/shell\n  validate pipeline: packages/main/dist/tasks/red-evidence-envelope-smoke.js resolved via configuredValidationCommands and run via runValidationCommand -> exit 0 in 5311ms\n",
+            "outputDigest": "e29a474355b201ce75e1659d99af4841519f45f31b4bb06812bc3132d3bd425f",
+            "outputTail": "red-w2d-command-readonly: PASS\n  registration: MAIN_TOOLS + command-policy(readOnly/none) + process-fact L0 + READ_ONLY_COMMANDS + registered handler\n  success output: assertionDigest sha256:60f9d33cddb2b692b9ba243ffa33038b0c089b0654afeb559f01ad1daa383515 / binding M1 npm-script@1 npm-script:test:x / policyDigest sha256:470db38278a59387f2105c8bcdcca59ee52c8706cb3c69f7e150d3cd1154d767\n  inadmissible: tagged R1-2 rejection, success output absent; .lattice manifest of file paths and content hashes NET identical across the batch of 8 DIRECT handler invocations (aggregate before/after, not per-invocation; no empty directories, file modes or symlink identity recorded; the CLI wrapper is not exercised here)\n  spawn set observed across those invocations: execFileSync git rev-parse + execFileSync git worktree + execSync git rev-parse + spawnSync git rev-parse + spawnSync git show (32 calls) — read-only git, no runner/harness/shell\n  validate pipeline: packages/main/dist/tasks/red-evidence-envelope-smoke.js resolved via configuredValidationCommands and run via runValidationCommand -> exit 0 in 4404ms\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-19T15:26:11.948Z",
+            "executedAt": "2026-08-19T15:36:40.429Z",
             "timeoutMs": 180000
           },
-          "headHash": "5aad31cf644c674c0b977a1984f975bf472c6c12",
+          "headHash": "fac90003ede1619e34b7a2c4a6a1aa958b16e8e6",
           "materialHash": "778d9c90a836b92d29f20bd2825104d6db49f9689277c5cf3aef3e43f5789925",
           "storyFilesHash": "f9c50dda5b8c3d90533076714b57807700e9a140c1304fcb7e011cb8038a5cd9",
-          "timestamp": "2026-08-19T15:26:17.935Z"
+          "timestamp": "2026-08-19T15:36:46.223Z"
         },
         {
           "intentRef": "CHK-014:adversarial:1",
@@ -3059,16 +3059,16 @@
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "4534a722b9b6a29b4737614164a0f3b3cbbf100698a79fd4aab20b7f832dd3f3",
-            "outputTail": "red-w2d-command-readonly: PASS\n  registration: MAIN_TOOLS + command-policy(readOnly/none) + process-fact L0 + READ_ONLY_COMMANDS + registered handler\n  success output: assertionDigest sha256:60f9d33cddb2b692b9ba243ffa33038b0c089b0654afeb559f01ad1daa383515 / binding M1 npm-script@1 npm-script:test:x / policyDigest sha256:470db38278a59387f2105c8bcdcca59ee52c8706cb3c69f7e150d3cd1154d767\n  inadmissible: tagged R1-2 rejection, success output absent; .lattice manifest of file paths and content hashes NET identical across the batch of 8 DIRECT handler invocations (aggregate before/after, not per-invocation; no empty directories, file modes or symlink identity recorded; the CLI wrapper is not exercised here)\n  spawn set observed across those invocations: execFileSync git rev-parse + execFileSync git worktree + execSync git rev-parse + spawnSync git rev-parse + spawnSync git show (32 calls) — read-only git, no runner/harness/shell\n  validate pipeline: packages/main/dist/tasks/red-evidence-envelope-smoke.js resolved via configuredValidationCommands and run via runValidationCommand -> exit 0 in 4637ms\n",
+            "outputDigest": "855c89ca2d33e3cfc4f48bfebdd47a091d35af0e4e2824b36e7977d99bb99e51",
+            "outputTail": "red-w2d-command-readonly: PASS\n  registration: MAIN_TOOLS + command-policy(readOnly/none) + process-fact L0 + READ_ONLY_COMMANDS + registered handler\n  success output: assertionDigest sha256:60f9d33cddb2b692b9ba243ffa33038b0c089b0654afeb559f01ad1daa383515 / binding M1 npm-script@1 npm-script:test:x / policyDigest sha256:470db38278a59387f2105c8bcdcca59ee52c8706cb3c69f7e150d3cd1154d767\n  inadmissible: tagged R1-2 rejection, success output absent; .lattice manifest of file paths and content hashes NET identical across the batch of 8 DIRECT handler invocations (aggregate before/after, not per-invocation; no empty directories, file modes or symlink identity recorded; the CLI wrapper is not exercised here)\n  spawn set observed across those invocations: execFileSync git rev-parse + execFileSync git worktree + execSync git rev-parse + spawnSync git rev-parse + spawnSync git show (32 calls) — read-only git, no runner/harness/shell\n  validate pipeline: packages/main/dist/tasks/red-evidence-envelope-smoke.js resolved via configuredValidationCommands and run via runValidationCommand -> exit 0 in 4379ms\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-19T15:26:17.478Z",
+            "executedAt": "2026-08-19T15:36:45.709Z",
             "timeoutMs": 180000
           },
-          "headHash": "5aad31cf644c674c0b977a1984f975bf472c6c12",
+          "headHash": "fac90003ede1619e34b7a2c4a6a1aa958b16e8e6",
           "materialHash": "778d9c90a836b92d29f20bd2825104d6db49f9689277c5cf3aef3e43f5789925",
           "storyFilesHash": "f9c50dda5b8c3d90533076714b57807700e9a140c1304fcb7e011cb8038a5cd9",
-          "timestamp": "2026-08-19T15:26:17.935Z"
+          "timestamp": "2026-08-19T15:36:46.223Z"
         }
       ]
     },
@@ -3144,13 +3144,13 @@
             "outputDigest": "77a53c2905d498b2bb2bbf4f05b0e59d8267cb9ed171c24241fec9ac09b69245",
             "outputTail": "tifactRef \"c:/outside\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"C:/\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"Z:/repo/packages/x.js\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"C:outside\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"C:\\\\outside\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"//server/share/x.js\"\n  ACCEPT             CHK-005: a repo-relative path whose FIRST segment merely contains a colon\n  REJECT R1-3        CHK-005: supplementaryArtifact is explicitly null (§0.4 forbids null for an absent optional field)\n  ACCEPT             CHK-005: supplementaryArtifact OMITTED entirely is admissible\n  REJECT R1-3        CHK-005: supplementaryArtifact expectation outside the closed enum\n  REJECT R1-3        CHK-005: supplementaryArtifact without targetArtifactRef\n  REJECT R1-2        CHK-011: below-threshold literal is R1-2, NOT R1-3\n  REJECT R1-2        CHK-002: empty value is R1-2 (§1.3 rule 1 non-emptiness), NOT R1-3\n  REJECT R1-3        CHK-002: the sibling clause `trimmed` stays R1-3 (explicitly enumerated there)\n  REJECT R1-2        CHK-011: the sibling clause `blocklisted` stays R1-2\n  REJECT R1-2        CHK-011: blocklisted literal .* is R1-2, NOT R1-3\n  REJECT R1-2        CHK-011: class-only present-in-red set is R1-2, NOT R1-3\n  REJECT R1-1        CHK-011: targetExercisedProof absent entirely is R1-1, NOT R1-6\n  REJECT R1-1        CHK-011: targetExercisedProof is not an object\n  REJECT R1-1        CHK-011: targetExercisedProof.method undefined\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"artifact-presence\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"path-touch\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"Harness-Token\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"\"\n  REJECT R1-1        CHK-011: targetExercisedProof.adapterId absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-1        CHK-011: targetExercisedProof.testCaseRef absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-1        CHK-011: targetExercisedProof.targetBindingDigest absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-6        CHK-011: NO committed binding registered for the target\n  REJECT R1-6        CHK-011: adapterId mismatching the committed binding\n  REJECT R1-6        CHK-011: correct adapterId but WRONG testCaseRef is R1-6 (mismatch), NOT R1-1 (missing)\n  REJECT R1-6        CHK-011: targetBindingDigest computed WITH createdAt included\n  REJECT R1-6        CHK-011: targetBindingDigest that recomputes to nothing\n  REJECT R1-5        adapterId absent from policy.runnerAdapterRegistry is R1-5\n  REJECT R1-5        CHK-011: testCaseRef \"free-form:not-derived\" matches no registered testCaseRefPattern is R1-5\n  REJECT R1-5        CHK-011: testCaseRef \"npm-script:\" matches no registered testCaseRefPattern is R1-5\n  REJECT R1-5        CHK-011: testCaseRef \"npm-script:test x\" matches no registered testCaseRefPattern is R1-5\n  REJECT R1-5        CHK-011: testCaseRef \"NPM-SCRIPT:test:x\" matches no registered testCaseRefPattern is R1-5\n  REJECT R1-5        CHK-011: testCaseRef \"prefix-npm-script:test:x\" matches no registered testCaseRefPattern is R1-5\n  REJECT R1-5        CHK-011: testCaseRef \"npm-script:test:x-suffix\\n\" matches no registered testCaseRefPattern is R1-5\n  REJECT R1-5        CHK-011: an npm-script testCaseRef under the node-test@1 adapter is R1-5\n  ACCEPT             CHK-011: the same ref IS admissible under the adapter whose pattern matches it\n  REJECT R1-2+R1-3   CHK-011: R1-2 and R1-3 co-occur and neither suppresses the other\n  REJECT R1-1+R1-2   CHK-011: R1-1 and R1-2 co-occur\n  REJECT R1-2+R1-3   CHK-015: an over-count envelope ALSO reports its §1.3 rule-3 violation (count does not suppress specificity)\n  REJECT R1-3        CHK-015: ZERO matchers reports the count bound ALONE (no fabricated §1.3 finding)\n  REJECT R1-2+R1-3   CHK-015: over-count + a below-floor literal are BOTH reported\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-19T15:26:17.643Z",
+            "executedAt": "2026-08-19T15:36:45.902Z",
             "timeoutMs": 180000
           },
-          "headHash": "5aad31cf644c674c0b977a1984f975bf472c6c12",
+          "headHash": "fac90003ede1619e34b7a2c4a6a1aa958b16e8e6",
           "materialHash": "778d9c90a836b92d29f20bd2825104d6db49f9689277c5cf3aef3e43f5789925",
           "storyFilesHash": "f9c50dda5b8c3d90533076714b57807700e9a140c1304fcb7e011cb8038a5cd9",
-          "timestamp": "2026-08-19T15:26:17.935Z"
+          "timestamp": "2026-08-19T15:36:46.223Z"
         },
         {
           "intentRef": "CHK-015:edge:0",
@@ -3165,13 +3165,13 @@
             "outputDigest": "77a53c2905d498b2bb2bbf4f05b0e59d8267cb9ed171c24241fec9ac09b69245",
             "outputTail": "tifactRef \"c:/outside\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"C:/\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"Z:/repo/packages/x.js\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"C:outside\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"C:\\\\outside\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"//server/share/x.js\"\n  ACCEPT             CHK-005: a repo-relative path whose FIRST segment merely contains a colon\n  REJECT R1-3        CHK-005: supplementaryArtifact is explicitly null (§0.4 forbids null for an absent optional field)\n  ACCEPT             CHK-005: supplementaryArtifact OMITTED entirely is admissible\n  REJECT R1-3        CHK-005: supplementaryArtifact expectation outside the closed enum\n  REJECT R1-3        CHK-005: supplementaryArtifact without targetArtifactRef\n  REJECT R1-2        CHK-011: below-threshold literal is R1-2, NOT R1-3\n  REJECT R1-2        CHK-002: empty value is R1-2 (§1.3 rule 1 non-emptiness), NOT R1-3\n  REJECT R1-3        CHK-002: the sibling clause `trimmed` stays R1-3 (explicitly enumerated there)\n  REJECT R1-2        CHK-011: the sibling clause `blocklisted` stays R1-2\n  REJECT R1-2        CHK-011: blocklisted literal .* is R1-2, NOT R1-3\n  REJECT R1-2        CHK-011: class-only present-in-red set is R1-2, NOT R1-3\n  REJECT R1-1        CHK-011: targetExercisedProof absent entirely is R1-1, NOT R1-6\n  REJECT R1-1        CHK-011: targetExercisedProof is not an object\n  REJECT R1-1        CHK-011: targetExercisedProof.method undefined\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"artifact-presence\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"path-touch\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"Harness-Token\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"\"\n  REJECT R1-1        CHK-011: targetExercisedProof.adapterId absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-1        CHK-011: targetExercisedProof.testCaseRef absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-1        CHK-011: targetExercisedProof.targetBindingDigest absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-6        CHK-011: NO committed binding registered for the target\n  REJECT R1-6        CHK-011: adapterId mismatching the committed binding\n  REJECT R1-6        CHK-011: correct adapterId but WRONG testCaseRef is R1-6 (mismatch), NOT R1-1 (missing)\n  REJECT R1-6        CHK-011: targetBindingDigest computed WITH createdAt included\n  REJECT R1-6        CHK-011: targetBindingDigest that recomputes to nothing\n  REJECT R1-5        adapterId absent from policy.runnerAdapterRegistry is R1-5\n  REJECT R1-5        CHK-011: testCaseRef \"free-form:not-derived\" matches no registered testCaseRefPattern is R1-5\n  REJECT R1-5        CHK-011: testCaseRef \"npm-script:\" matches no registered testCaseRefPattern is R1-5\n  REJECT R1-5        CHK-011: testCaseRef \"npm-script:test x\" matches no registered testCaseRefPattern is R1-5\n  REJECT R1-5        CHK-011: testCaseRef \"NPM-SCRIPT:test:x\" matches no registered testCaseRefPattern is R1-5\n  REJECT R1-5        CHK-011: testCaseRef \"prefix-npm-script:test:x\" matches no registered testCaseRefPattern is R1-5\n  REJECT R1-5        CHK-011: testCaseRef \"npm-script:test:x-suffix\\n\" matches no registered testCaseRefPattern is R1-5\n  REJECT R1-5        CHK-011: an npm-script testCaseRef under the node-test@1 adapter is R1-5\n  ACCEPT             CHK-011: the same ref IS admissible under the adapter whose pattern matches it\n  REJECT R1-2+R1-3   CHK-011: R1-2 and R1-3 co-occur and neither suppresses the other\n  REJECT R1-1+R1-2   CHK-011: R1-1 and R1-2 co-occur\n  REJECT R1-2+R1-3   CHK-015: an over-count envelope ALSO reports its §1.3 rule-3 violation (count does not suppress specificity)\n  REJECT R1-3        CHK-015: ZERO matchers reports the count bound ALONE (no fabricated §1.3 finding)\n  REJECT R1-2+R1-3   CHK-015: over-count + a below-floor literal are BOTH reported\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-19T15:26:17.804Z",
+            "executedAt": "2026-08-19T15:36:46.079Z",
             "timeoutMs": 180000
           },
-          "headHash": "5aad31cf644c674c0b977a1984f975bf472c6c12",
+          "headHash": "fac90003ede1619e34b7a2c4a6a1aa958b16e8e6",
           "materialHash": "778d9c90a836b92d29f20bd2825104d6db49f9689277c5cf3aef3e43f5789925",
           "storyFilesHash": "f9c50dda5b8c3d90533076714b57807700e9a140c1304fcb7e011cb8038a5cd9",
-          "timestamp": "2026-08-19T15:26:17.935Z"
+          "timestamp": "2026-08-19T15:36:46.223Z"
         },
         {
           "intentRef": "CHK-015:edge:1",
