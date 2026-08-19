@@ -497,6 +497,41 @@
         "scanEscalationReason": null
       },
       "_hash": "d686affcc1eea0476f06836f2bde43ad981c452f38de7e36d387396c5303ce04"
+    },
+    {
+      "id": "B-cc10:RP-015",
+      "agent": "lattice-review-quality",
+      "note": "Quality pass at HEAD 042854e: F-077 scratchRuntimeGitignore uses stateDirCandidates; ABA lock uses store.runtimeLockDirPath; F-078/F-079 LEARNING_DIR assertions are load-bearing not vacuous; import-fence now allows brand-paths. serial-reference PASS. No blocker.",
+      "createdAt": "2026-08-19T08:22:26.924Z",
+      "reviewRound": "2026-08-18T03:33:16.325Z",
+      "reviewRunId": "B-cc10:RR-117",
+      "envelopeId": "aeab193ad1ae92980b69ae81435a7c9c1e18a318fb3f7d184c4a771f1e376515",
+      "writerSessionId": "sess-8afdfabda88da0d8",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md",
+          "packages/main/src/core/brand-paths.ts",
+          "packages/main/src/core/learning-store.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/tasks/experience-hint-worktree-cache-smoke.ts",
+          "packages/main/src/tasks/experience-layer-hint-injection-smoke.ts",
+          "packages/main/src/tasks/experience-layer-playbook-smoke.ts",
+          "packages/main/src/tasks/playbook-promotion-worker-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "scripts/verify-lattice-residue.mjs",
+          "scripts/verify-role-telemetry.mjs",
+          "scripts/verify-session-brief-command-center.mjs",
+          "scripts/verify-workflow-phase-consistency.mjs"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b84f81ff907ab70d9a170f14fac319f78c7ca14bda4020fb3b2d29fbffc1e6d6"
     }
   ]
 }
