@@ -8337,7 +8337,7 @@
       "desc": "packages/main/src/core/review-incremental-context.ts:843 validateIncrementalReviewBasis(reviewBasis) runs whenever a trusted prior pass exists, before assembleConditionalReviewPromptEnvelope can honor reviewerEscalationReason. pathsPerList=512 (prompt-contracts.ts:103) therefore fail-closes review_run_start when IncrementalReviewBasis.changedFiles exceeds 512, even with a nonblank reviewerEscalationReason whose documented purpose is to mint a full-context ReviewRun when the bounded incremental basis is incomplete. Observed on this closeout: unmodified `review_run_start --agent=lattice-review-quality --reviewerEscalationReason=...` threw IncrementalReviewBasis.changedFiles exceeds 512 after merging 2109 main commits; review_incremental_context --role=lattice-review-quality throws the same. The assembler would have selected REVIEWER_REQUESTED_FULL (prompt-envelope.ts:403-404) if the throw did not happen first. high",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-19T08:16:07.421Z",
@@ -8379,7 +8379,11 @@
         "packages/main/src/core/prompt-contracts.ts"
       ],
       "signatureTag": "edge|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "reviewIncrementalContext now skips IncrementalReviewBasis construction when changedFiles/impactedFiles/authoritativeReferences exceed pathsPerList=512 and reports isFirstPass=true so review_run_start/review_pass_set get full context instead of throwing after a 2109-commit merge.",
+      "resolvedAt": "2026-08-19T08:28:00.217Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
