@@ -170,6 +170,32 @@
         "scanEscalationReason": null
       },
       "_hash": "b4c46ea814567dc841f082af3e2f392e0cb2d0b45ebec3453c186e055fb71fa5"
+    },
+    {
+      "id": "B-45a5:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "Post-merge re-attestation (round 2026-08-19T03:51:10.195Z), no story code changed since RP-004 (round 1). Verified the receipts genuinely rebind to the CURRENT merged+rebuilt tree, not just metadata: (1) git log confirms all 11 mechanical evidence rows carry headHash=333322c68c, exactly the merge commit SHA (Merge branch main into story/B-45a5); every commit after it (fa31e4e2d0/cdc2e9c6e1/4d4438f148/87462f3108) touches only .lattice/story/actives/B-45a5/* runtime metadata, never packages/main or packages/utils source, confirming the headHash drift between the evidence rows and current HEAD 87462f3 is pure metadata/provenance movement per the frozen-field-drift policy, not a re-run signal. (2) Confirmed the build is actually post-merge: packages/main/dist/core/proofstory.js and dist/handlers/validate-channel.js mtimes are newer than their src (rebuilt after the merge touched those src files at the merge commit), and packages/utils/dist/*.js mtimes are also newer, matching the claim that both packages were rebuilt before re-running. (3) Independently re-ran `node packages/main/tests/red/red-b45a5-withdrawal-gates.mjs --attest` myself (read-only, did not touch the shared dist): exit 0, and every one of the 11 pinned selectors reproduced VERBATIM against verificationIntent -- CHK-001 edge/adversarial=A1/A2=CONTROL-OK, CHK-002 happy/edge/adversarial=B1=GREEN/A2=CONTROL-OK/C1=CONTROL-OK, CHK-003 happy/edge/adversarial=B2=GREEN/A2=CONTROL-OK/C1=CONTROL-OK, CHK-004 happy/edge/adversarial=D1/D23/D45=REFUSED, plus all other rows (A1,C1-C9,D1-D5,D23,D45,E1) exactly matching stored receipts, B45A5-VERDICT=GREEN both in the row-index and detail-section copies. No row silently demoted to non-mechanical; no selector drifted. (4) Coverage shape unchanged: read checklist.json directly -- CHK-001 = 2 mechanical (edge/adversarial) + 1 permanent waiver on happy:0 (correctly pinned to the self-invalidating B45A5-ROW-B3=RED value, which now reads GREEN post-fix by design, so it can never be re-earned and the waiver note explains this honestly); CHK-002/003/004 = 3 mechanical each, zero waivers; CHK-005 = withdrawn (decisionRef SD-ccafb44c), zero verificationEvidence entries, zero waivers -- matches round-1 shape exactly, nothing regressed to waiver or disappeared. (5) Withdrawn item still holds on the MERGED tree: ran `proofstory_review_completeness_check --storyId=B-45a5` fresh -> Status=pass, Gaps=0; ran `validate --channel --story=B-45a5` fresh -> status=pass, output shows `withdrawn (SD-ccafb44c): CHK-005` in its own bucket and `Covered: CHK-001, CHK-002, CHK-003, CHK-004` -- CHK-005 correctly excluded from Covered, not silently counted as satisfied. (6) Checked whether the sibling CLI-rebrand merge weakened coverage: diffed the pre-merge story head against the merge commit for both gate files. proofstory.ts: only two cosmetic string renames inside remedy-hint prose (lattice verification_evidence_add -> proof-or-stop verification_evidence_add etc.), zero lines touched near evaluateReviewCompleteness/withdrawnChecklistItemIdsFrom (proofstory.ts:1622/1672 unchanged). validate-channel.ts: one cosmetic comment rename plus one real but unrelated change -- isMetadataOnlyLatticeCommit widened its regex to accept both proof-or-stop: and lattice: prefixes (B-cdf6:F-053); confirmed by reading the call sites that this function feeds only isAcceptableCommit/the commit-author AUXILIARY signal, a separate code path from checkDispatchEvidence withdrawnIds bucket logic (validate-channel.ts:305-348) that CHK-003 wired -- zero lines of the withdrawal bucket itself were touched by the merge. No coverage was weakened. No blocking test-coverage gap found this round.",
+      "createdAt": "2026-08-19T03:57:38.739Z",
+      "reviewRound": "2026-08-19T03:51:10.195Z",
+      "reviewRunId": "B-45a5:RR-010",
+      "envelopeId": "738380eb8a261b2006ee68ccf0fe6a4f5f52b8203e8ae959210e21ae561854d3",
+      "writerSessionId": "sess-b45a5-main",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-45a5/checklist.json",
+          ".lattice/story/actives/B-45a5/process-events.jsonl",
+          ".lattice/story/actives/B-45a5/review-passes.json",
+          "packages/main/tests/red/red-b45a5-withdrawal-gates.mjs (executed --attest, output inspected)"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/handlers/validate-channel.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8d7f3d43c8a275c95a09645adbec7808be2f41c708710ef7f4c7e22864188f9f"
     }
   ]
 }
