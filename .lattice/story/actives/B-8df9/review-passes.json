@@ -394,6 +394,29 @@
         "scanEscalationReason": null
       },
       "_hash": "2e36d8bf712363bf7e199fbf53622379cca9d5e96aedab92db635aa596287d13"
+    },
+    {
+      "id": "B-8df9:RP-015",
+      "agent": "lattice-review-behavior",
+      "note": "Fresh round-2 re-attestation on the merged tree (main pulled in via ab5f930d9e, lattice.config.json conflict resolved by clean append verified by diff, both packages rebuilt via npm --prefix packages/main run build, clean tsc). Verified behaviourally rather than by reading claims: (1) both red artifacts pass fresh at HEAD 8b73aa5 -- red-b8df9-init-check-verdict-signature.mjs 0 RED/0 BROKEN/24 rows, red-b8df9-chk002-verdict-shapes.mjs 0 FAILED/0 BROKEN/17 rows. (2) Constructed 3 independent adversarial tamper cases of my own against the compiled signInitCheck/computeInitCheckVerdictHash (not copied from the shipped suite): injecting a fabricated extra reviewer entry, erasing a recorded critical issue, and renaming an existing reviewer agentId in place -- all three move the recomputed hash away from the legit signature (correctly detected), while an unmodified record recomputes identically (sanity control passed). (3) Read the machine.ts diff directly: both canEnterInitCheckGuard and getGuardFailureReason now route through the single initCheckSignatureIsValid predicate against the SAME already-read snapshot (no re-read window), and the tamper message renders describeInitCheckSignatureDomain() instead of a hand-written field list. (4) CHK-004 withdrawal (SD-7319de10, B-45a5 wiring inherited via merge -- confirmed by git diff main...HEAD NOT touching proofstory.ts/validate-channel.ts, i.e. purely inherited): wrote an independent read-only probe importing the compiled checkDispatchEvidence directly against this story's real checklist/events/scope-shrinkage-decision.json (bypassing a contended workspace-wide validate lock -- observed validate --channel --story=B-8df9 stuck over 180s behind an unrelated B-def6 holder, consistent with prior lanes' documented contention) -- confirmed withdrawnItems=[CHK-004], evidencedItems(Covered)=[CHK-001,CHK-002,CHK-003,CHK-005,CHK-006] with CHK-004 absent, and the rendered detail line reads exactly \"withdrawn (SD-7319de10): CHK-004\" on its own line, separate from Covered. Also ran proofstory_review_completeness_check live: Gaps 0. Both gates pass because of the withdrawal exclusion path (checked first, before the evidencedItems bucket is ever reached), not via the three superseded CHK-004 waiver rows. (5) Ran all five story-relevant smokes fresh: init-check-required-agents-smoke, init-check-fallback-smoke, init-preflight-smoke, init-check-atomicity-smoke, init-check-reconcile-conflict-smoke -- all pass, confirming by-design single-caller dual-agentId accumulation is unchanged. (6) Ran the story-local chk005-corpus-derivation.mjs and chk006-exemption-claims.mjs fresh against the current (post-merge, 299-file) corpus: the one gated INIT story (B-dcf9) has registry-valid actors and can legally re-run the reviewer; the command-policy.ts owner-lease exemption reasoning for init_check_set (10/10 claims) still holds against actual code. No merge conflict markers found in packages/main/src, lattice.config.json, or CLAUDE.md. finding_list shows 0 open findings across all prior rounds; all resolved/dismissed with verified evidenceState. No blocking behavioral defect found on the rebuilt merged tree.",
+      "createdAt": "2026-08-19T16:35:58.791Z",
+      "reviewRound": "2026-08-03T04:27:32.508Z",
+      "reviewRunId": "B-8df9:RR-020",
+      "envelopeId": "dc96ad1bb87dcbff53f9e955fabf5c6ca85746d5427d43bb802e1235c0e1551b",
+      "writerSessionId": "sess-b8df9-main-agent",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9dfff0b04b8955667c044e5eac36d29fd986c2b59270a7e4a3bffcd70338e72c"
     }
   ]
 }
