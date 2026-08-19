@@ -21,7 +21,7 @@ import {
   validateReviewInventoryCriticReceipt,
   verifyReviewInventoryEpoch,
   verifyReviewInventoryReceipt,
-  persistFinalizedReviewInventory,
+  persistFinalizedReviewInventoryUnlocked,
   renderFinalizedReviewInventory,
   withReviewInventoryMutationLock,
 } from '../core/review-inventory-epoch.js';
@@ -525,7 +525,7 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
               'review_inventory_finalize: current headHash/materialHash/storyFilesHash are missing; refuse rather than invent a second freshness hash',
             );
           }
-          const persisted = persistFinalizedReviewInventory({
+          const persisted = persistFinalizedReviewInventoryUnlocked({
             store: ctx.store,
             storyId: args.storyId,
             reviewRound: story.currentReviewRound ?? '',
