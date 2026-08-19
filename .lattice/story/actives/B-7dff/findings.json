@@ -322,6 +322,24 @@
       ],
       "signatureTag": "missing|json|happy-second-permanent",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-7dff:F-017",
+      "desc": ".lattice/story/actives/B-7dff/checklist.json:571 CHK-005:happy:0 permanent waiver still carries a stale binding (headHash 33fbec3658..., storyFilesHash 1e183269ed..., timestamped 2026-08-18T16:47:42Z, ~106 commits behind current HEAD/story storyFilesHash 0bab1cc35f...) — same defect class as the CHK-001:happy:0 waiver that was just found and fixed to unblock done_intent_equivalence_check (which reported stale_milestone_evidence on M1). This row is silently invisible to the recovery tooling: verification_evidence_refresh_stale --dryRun reports \"No stale verification evidence for B-7dff\" for the whole story because refreshOnlyDrift() in evidence-refresh.ts short-circuits (returns null, i.e. not-a-candidate) on kind===waiver before ever calling checkEvidenceFreshnessForGit, so a waiver binding can drift indefinitely without ever surfacing in the refresh report. It does not currently block DONE only because CHK-005 is not one of the 4 milestones (M1-M4) in milestone_ledger_get, so done_intent_equivalence_check (confirmed independently: status=pass, uncoveredRequiredMilestoneIds=[], staleMilestoneEvidenceIds=[]) never inspects it — but the binding itself is stale, and any future milestone-ledger change or other consumer keying off this waivers headHash/materialHash/storyFilesHash would hit the exact same silent-staleness failure mode this story is fixing elsewhere. Fix: re-record the CHK-005:happy:0 waiver at the current head/material/storyFilesHash binding (same remediation already applied to CHK-001:happy:0), and/or extend the refresh-stale reporting surface to at least flag (not necessarily auto-refresh) stale waiver bindings instead of silently excluding them.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-19T02:09:22.114Z",
+      "reviewRound": "2026-08-19T02:03:22.681Z",
+      "reviewRunId": "B-7dff:RR-041",
+      "_hash": "cf0910dce06591ca3655aff92c93d3776fda2999b9b8e3a1563f6bdf26473380",
+      "files": [
+        ".lattice/story/actives/B-7dff/checklist.json"
+      ],
+      "signatureTag": "missing|json|lattice-story-actives",
+      "signatureTagSource": "auto"
     }
   ]
 }
