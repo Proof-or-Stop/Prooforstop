@@ -365,6 +365,35 @@
         "scanEscalationReason": null
       },
       "_hash": "4c762410458519ae5e16a9c75f0de02eb1b99ad57f202ecd6448a764defa0f4c"
+    },
+    {
+      "id": "B-8df9:RP-014",
+      "agent": "lattice-review-docs",
+      "note": "Step1 extracted 12 exported symbols from the touched core files (init-check-gate.ts/machine.ts/store.ts/types.ts/init-check.ts/command-policy.ts): INIT_CHECK_SIGNATURE_DOMAIN, InitCheckSignatureComponent, InitCheckSignatureInput, InitCheckVerdictSource, computeInitCheckVerdictHash, describeInitCheckSignatureDomain, initCheckAgentResults, initCheckHashMatches, initCheckSignatureDomainLabels, initCheckSignatureIsValid, recomputeInitCheckHash, signInitCheckDomain. Step2 grep found 4 of the 12 referenced in docs (rest are internal helpers/types, fallback-2, no finding needed), landing in 3 paragraphs compared in Step3: CLAUDE.md sign-domain section, story-lifecycle.md migration-position + fallback bullet, execution-plan.md artifact table row. No inconsistency: all three defer to describeInitCheckSignatureDomain() rather than hand-writing the pre-CHK-002 field list, correctly state the domain now binds agentResults+issues via computeInitCheckVerdictHash, and correctly scope this as tamper-evidence-not-trust. This regressed nothing from the prior F-002/F-004 fixes; no merge-introduced doc restates the old domain. Verified the merge-era CHK-004:happy:0 correction (appended 2026-08-19) as documentation: withdrawnItemIntentRefs at core/proofstory.ts:1672 (consumed at :2166) and checkDispatchEvidence withdrawn-bucket at handlers/validate-channel.ts:305 both exist and behave as described; core/verification.ts:212 (isWithdrawnChecklistStatus(item.status), a bare status-string skip) is on the done_prepare-consumed buildVerificationCoverage path and is honestly disclosed as out of the B-45a5 fix scope, so the correction does not overclaim uniform decision-backing. Live-checked proofstory_review_completeness_check reports Gaps: 0; validate-channel.ts renders withdrawn items via a dedicated `withdrawn (<decisionId>): <ids>` line, checked before mainAgentOwnedItems/evidencedItems so CHK-004 never lands in the Covered line, matching the claim. story_get confirms B-45a5 is DONE with the title the correction attributes to it. Repo-wide grep for the superseded framing outside this story only finds it in B-45a5s own historical background/understanding describing the bug it fixed, not any doc asserting the gap is still open. No leftover merge-conflict markers in CLAUDE.md/story-lifecycle.md/execution-plan.md. No blocker.",
+      "createdAt": "2026-08-19T16:33:13.249Z",
+      "reviewRound": "2026-08-03T04:27:32.508Z",
+      "reviewRunId": "B-8df9:RR-021",
+      "envelopeId": "4a7e7eed3187056bc55b1bd62ac484b5967b7207c989f0d5fca7c66373887d8c",
+      "writerSessionId": "sess-b8df9-main-agent",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-8df9/checklist.json",
+          "CLAUDE.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/validate-channel.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-45a5/background.md",
+          "docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2e36d8bf712363bf7e199fbf53622379cca9d5e96aedab92db635aa596287d13"
     }
   ]
 }
