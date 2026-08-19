@@ -64,19 +64,19 @@
           "command": "npm run test:full-suite-runner-smoke",
           "result": "pass",
           "note": "CORRECTION per finding F-009, superseding my own integration_test row on this intent. That row was wrong on the facts and wrong in motive. I asserted the schedulerIsolation assertion spawns real child processes; it does not. full-suite-runner-smoke.ts:37 defines pass = (name) => ({name, status: PASS, durationMs: 1, output: }) and the schedulerIsolation block at 210-226 drives runScheduled with in-process async closures that push to an array and setTimeout, with no spawn or execFileSync anywhere. By this storys own convention CHK-002 labels the identical drive-runScheduled-with-a-synthetic-executor pattern logic_test. I changed the kind specifically to restore M1 milestone integration_test coverage after CHK-001:happy:0 became a waiver, which is precisely the relabelling I had just disclaimed in the F-007 resolution text. The verification itself is sound and still passes; only its kind was misstated. M1 therefore has no integration_test row, and that gap is real rather than papered over: the genuine integration coverage for the scheduler is npm test, whose receipt cannot be minted because the runner caps a pinned command at 270000ms against a suite of about 334s.",
-          "headHash": "19ff5225fa1aa3e3482119c148254c8d5f37aa10",
-          "materialHash": "27c0322a2d3ec6e8ef664f3e476c1dab7227a666d84b163954d778c60a984c7f",
-          "storyFilesHash": "7446a31ff3c1bbc71a6496da2bc2b1bea888ccd9563f4644fe5daf60e8c3ffaf",
+          "headHash": "bc7dfaa9ae100f5a1eaf93c7460447a982dc9d3b",
+          "materialHash": "6252802133ce751d6a0a79951a96f81b0719231e4da88bbc6ae8bf588516dc39",
+          "storyFilesHash": "0bab1cc35f5b0e4ceae7c9ed0ac03e365bd8ccd26fd92afe53f1b65eb0f9e775",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "f9b96924090d03cf0ecdc72fd0cae962e4c50f8adea5d7e62b2ae51cb9177f50",
+            "outputDigest": "b37e9bc97477c3ef66662e8c2ca2548794d315ced04bdbebd821b65c4f6b2d4e",
             "outputTail": "put changes observed detailed inventory\",\"suppressing an explicit marker assertion before emission changes parsed inventory\",\"suppressing an explicit marker mutation before emission changes mutation inventory\",\"member consumes one unique temp ownership root through LATTICE/TMPDIR/TMP/TEMP\",\"successful temp ownership marker records a stable label without dynamic paths\",\"invalid temp ownership roots fail with dynamic diagnostic detail\",\"invalid temp ownership roots fail with dynamic diagnostic detail\",\"normal parent completion remains PASS after descendant cleanup\",\"normal completion fixture proves the grandchild started\",\"normal parent completion kills complete descendant process group\",\"actual process spawn increments launch accounting exactly once\",\"normal timeout removes only the runner-owned unique temp root\",\"runner cleanup cannot target the caller repository root\",\"timeout kills complete descendant process group\",\"external interruption reports INTERRUPTED\",\"PASS member residue fails closed and is retained for diagnosis\",\"SIGTERM cleanup removes all declared sentinel-owned resources and preserves siblings\",\"cleanup manifest is recorded before spawn and reconciled after interruption\",\"real production sentinel publishes ownership-ready handshake before pause\",\"real production sentinel creates all three runner-cleanable directories before pause\",\"real production sentinel token markers allow all three SIGKILL-interrupted resources to be removed\",\"real production sentinel publishes ownership-ready handshake before pause\",\"real production sentinel creates all three runner-cleanable directories before pause\",\"real production sentinel missing-marker mutation is retained and fails closed\",\"real production sentinel publishes ownership-ready handshake before pause\",\"real production sentinel creates all three runner-cleanable directories before pause\",\"real production sentinel tampered-marker mutation is retained and fails closed\",\"runner-cleanable target outside approved runtime roots is denied\",\"pre-existing runner-cleanable symlink is rejected before spawn and retained\",\"runner-cleanable target with symlinked ancestor is denied\",\"nonempty foreign ownership is reported and never recursively deleted\",\"pre-spawn manifest records pre-existing target type and absent owner marker\",\"pre-existing empty owned path fails before spawn and is never deleted\",\"pre-existing file and owner content are recorded, rejected before spawn, and retained\",\"post-spawn empty directory without launch marker is retained and fails cleanup\",\"post-spawn tampered ownership marker is retained and fails cleanup\",\"member-removed ownership marker is retained and reported as terminal FAIL\",\"member-tampered ownership marker is retained and reported as terminal FAIL\",\"fixture runner starts real descendant before SIGINT\",\"top-level SIGINT exits 130\",\"SIGINT receipt marks started and pending members INTERRUPTED\",\"pending INTERRUPTED members do not inflate processLaunchCount\",\"top-level SIGINT leaves no descendant heartbeat\",\"stale source makes direct npm test fail before argument parsing with launches0\",\"tampered dist makes direct npm test fail before argument parsing with launches0\",\"authoritative git identity probes retry a transient two-second timeout\",\"hung authoritative git identity probe reports a precise timeout\",\"hung authoritative git identity probe stops within its monotonic total budget\",\"dynamic assertion marker scan recognizes forbidden runtime detail\",\"dynamic assertion marker scan recognizes forbidden runtime detail\",\"dynamic assertion marker scan recognizes forbidden runtime detail\",\"dynamic assertion marker scan recognizes forbidden runtime detail\",\"dynamic assertion marker scan recognizes forbidden runtime detail\",\"dynamic assertion marker scan recognizes forbidden runtime detail\",\"dynamic assertion marker scan recognizes forbidden runtime detail\",\"emitted assertion markers contain only stable labels\"],\"mutations\":[\"inventory-omi\n...[truncated 188 chars]",
             "selectorMatched": true,
-            "executedAt": "2026-08-18T23:05:08.189Z",
+            "executedAt": "2026-08-19T01:36:13.400Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-18T23:06:24.894Z"
+          "timestamp": "2026-08-19T01:37:28.115Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -85,19 +85,19 @@
           "command": "npm run test:full-suite-runner-smoke",
           "result": "pass",
           "note": "An entry whose fixed-path claim has no canonicalKey makes runScheduled throw with zero execute() calls, so no process is ever spawned for it.",
-          "headHash": "19ff5225fa1aa3e3482119c148254c8d5f37aa10",
-          "materialHash": "27c0322a2d3ec6e8ef664f3e476c1dab7227a666d84b163954d778c60a984c7f",
-          "storyFilesHash": "7446a31ff3c1bbc71a6496da2bc2b1bea888ccd9563f4644fe5daf60e8c3ffaf",
+          "headHash": "bc7dfaa9ae100f5a1eaf93c7460447a982dc9d3b",
+          "materialHash": "6252802133ce751d6a0a79951a96f81b0719231e4da88bbc6ae8bf588516dc39",
+          "storyFilesHash": "0bab1cc35f5b0e4ceae7c9ed0ac03e365bd8ccd26fd92afe53f1b65eb0f9e775",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "18b677e6562198a08b4a6e443b5300b8ea7265d183230c2a1e40d300e7cdfe24",
-            "outputTail": "put changes observed detailed inventory\",\"suppressing an explicit marker assertion before emission changes parsed inventory\",\"suppressing an explicit marker mutation before emission changes mutation inventory\",\"member consumes one unique temp ownership root through LATTICE/TMPDIR/TMP/TEMP\",\"successful temp ownership marker records a stable label without dynamic paths\",\"invalid temp ownership roots fail with dynamic diagnostic detail\",\"invalid temp ownership roots fail with dynamic diagnostic detail\",\"normal parent completion remains PASS after descendant cleanup\",\"normal completion fixture proves the grandchild started\",\"normal parent completion kills complete descendant process group\",\"actual process spawn increments launch accounting exactly once\",\"normal timeout removes only the runner-owned unique temp root\",\"runner cleanup cannot target the caller repository root\",\"timeout kills complete descendant process group\",\"external interruption reports INTERRUPTED\",\"PASS member residue fails closed and is retained for diagnosis\",\"SIGTERM cleanup removes all declared sentinel-owned resources and preserves siblings\",\"cleanup manifest is recorded before spawn and reconciled after interruption\",\"real production sentinel publishes ownership-ready handshake before pause\",\"real production sentinel creates all three runner-cleanable directories before pause\",\"real production sentinel token markers allow all three SIGKILL-interrupted resources to be removed\",\"real production sentinel publishes ownership-ready handshake before pause\",\"real production sentinel creates all three runner-cleanable directories before pause\",\"real production sentinel missing-marker mutation is retained and fails closed\",\"real production sentinel publishes ownership-ready handshake before pause\",\"real production sentinel creates all three runner-cleanable directories before pause\",\"real production sentinel tampered-marker mutation is retained and fails closed\",\"runner-cleanable target outside approved runtime roots is denied\",\"pre-existing runner-cleanable symlink is rejected before spawn and retained\",\"runner-cleanable target with symlinked ancestor is denied\",\"nonempty foreign ownership is reported and never recursively deleted\",\"pre-spawn manifest records pre-existing target type and absent owner marker\",\"pre-existing empty owned path fails before spawn and is never deleted\",\"pre-existing file and owner content are recorded, rejected before spawn, and retained\",\"post-spawn empty directory without launch marker is retained and fails cleanup\",\"post-spawn tampered ownership marker is retained and fails cleanup\",\"member-removed ownership marker is retained and reported as terminal FAIL\",\"member-tampered ownership marker is retained and reported as terminal FAIL\",\"fixture runner starts real descendant before SIGINT\",\"top-level SIGINT exits 130\",\"SIGINT receipt marks started and pending members INTERRUPTED\",\"pending INTERRUPTED members do not inflate processLaunchCount\",\"top-level SIGINT leaves no descendant heartbeat\",\"stale source makes direct npm test fail before argument parsing with launches0\",\"tampered dist makes direct npm test fail before argument parsing with launches0\",\"authoritative git identity probes retry a transient two-second timeout\",\"hung authoritative git identity probe reports a precise timeout\",\"hung authoritative git identity probe stops within its monotonic total budget\",\"dynamic assertion marker scan recognizes forbidden runtime detail\",\"dynamic assertion marker scan recognizes forbidden runtime detail\",\"dynamic assertion marker scan recognizes forbidden runtime detail\",\"dynamic assertion marker scan recognizes forbidden runtime detail\",\"dynamic assertion marker scan recognizes forbidden runtime detail\",\"dynamic assertion marker scan recognizes forbidden runtime detail\",\"dynamic assertion marker scan recognizes forbidden runtime detail\",\"emitted assertion markers contain only stable labels\"],\"mutations\":[\"inventory-omi\n...[truncated 188 chars]",
+            "outputDigest": "b424d2384d464abb8e04b923eaaeb87b09832c8c87aeba1e1b2deeeb36eba837",
+            "outputTail": "tput changes observed detailed inventory\",\"suppressing an explicit marker assertion before emission changes parsed inventory\",\"suppressing an explicit marker mutation before emission changes mutation inventory\",\"member consumes one unique temp ownership root through LATTICE/TMPDIR/TMP/TEMP\",\"successful temp ownership marker records a stable label without dynamic paths\",\"invalid temp ownership roots fail with dynamic diagnostic detail\",\"invalid temp ownership roots fail with dynamic diagnostic detail\",\"normal parent completion remains PASS after descendant cleanup\",\"normal completion fixture proves the grandchild started\",\"normal parent completion kills complete descendant process group\",\"actual process spawn increments launch accounting exactly once\",\"normal timeout removes only the runner-owned unique temp root\",\"runner cleanup cannot target the caller repository root\",\"timeout kills complete descendant process group\",\"external interruption reports INTERRUPTED\",\"PASS member residue fails closed and is retained for diagnosis\",\"SIGTERM cleanup removes all declared sentinel-owned resources and preserves siblings\",\"cleanup manifest is recorded before spawn and reconciled after interruption\",\"real production sentinel publishes ownership-ready handshake before pause\",\"real production sentinel creates all three runner-cleanable directories before pause\",\"real production sentinel token markers allow all three SIGKILL-interrupted resources to be removed\",\"real production sentinel publishes ownership-ready handshake before pause\",\"real production sentinel creates all three runner-cleanable directories before pause\",\"real production sentinel missing-marker mutation is retained and fails closed\",\"real production sentinel publishes ownership-ready handshake before pause\",\"real production sentinel creates all three runner-cleanable directories before pause\",\"real production sentinel tampered-marker mutation is retained and fails closed\",\"runner-cleanable target outside approved runtime roots is denied\",\"pre-existing runner-cleanable symlink is rejected before spawn and retained\",\"runner-cleanable target with symlinked ancestor is denied\",\"nonempty foreign ownership is reported and never recursively deleted\",\"pre-spawn manifest records pre-existing target type and absent owner marker\",\"pre-existing empty owned path fails before spawn and is never deleted\",\"pre-existing file and owner content are recorded, rejected before spawn, and retained\",\"post-spawn empty directory without launch marker is retained and fails cleanup\",\"post-spawn tampered ownership marker is retained and fails cleanup\",\"member-removed ownership marker is retained and reported as terminal FAIL\",\"member-tampered ownership marker is retained and reported as terminal FAIL\",\"fixture runner starts real descendant before SIGINT\",\"top-level SIGINT exits 130\",\"SIGINT receipt marks started and pending members INTERRUPTED\",\"pending INTERRUPTED members do not inflate processLaunchCount\",\"top-level SIGINT leaves no descendant heartbeat\",\"stale source makes direct npm test fail before argument parsing with launches0\",\"tampered dist makes direct npm test fail before argument parsing with launches0\",\"authoritative git identity probes retry a transient two-second timeout\",\"hung authoritative git identity probe reports a precise timeout\",\"hung authoritative git identity probe stops within its monotonic total budget\",\"dynamic assertion marker scan recognizes forbidden runtime detail\",\"dynamic assertion marker scan recognizes forbidden runtime detail\",\"dynamic assertion marker scan recognizes forbidden runtime detail\",\"dynamic assertion marker scan recognizes forbidden runtime detail\",\"dynamic assertion marker scan recognizes forbidden runtime detail\",\"dynamic assertion marker scan recognizes forbidden runtime detail\",\"dynamic assertion marker scan recognizes forbidden runtime detail\",\"emitted assertion markers contain only stable labels\"],\"mutations\":[\"inventory-om\n...[truncated 189 chars]",
             "selectorMatched": true,
-            "executedAt": "2026-08-18T23:05:41.863Z",
+            "executedAt": "2026-08-19T01:36:46.574Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-18T23:06:24.894Z"
+          "timestamp": "2026-08-19T01:37:28.115Z"
         },
         {
           "intentRef": "CHK-001:happy:0",
@@ -184,19 +184,19 @@
           "command": "node packages/main/tests/validate-resource-claims.test.mjs",
           "result": "pass",
           "note": "Two commands with disjoint declared claims go through the real runScheduled with jobs=2 and each records the other as a live co-runner, so admission control let them overlap.",
-          "headHash": "19ff5225fa1aa3e3482119c148254c8d5f37aa10",
-          "materialHash": "27c0322a2d3ec6e8ef664f3e476c1dab7227a666d84b163954d778c60a984c7f",
-          "storyFilesHash": "7446a31ff3c1bbc71a6496da2bc2b1bea888ccd9563f4644fe5daf60e8c3ffaf",
+          "headHash": "bc7dfaa9ae100f5a1eaf93c7460447a982dc9d3b",
+          "materialHash": "6252802133ce751d6a0a79951a96f81b0719231e4da88bbc6ae8bf588516dc39",
+          "storyFilesHash": "0bab1cc35f5b0e4ceae7c9ed0ac03e365bd8ccd26fd92afe53f1b65eb0f9e775",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "c49a956c7e33be00d44e9e597a561694dcbc2f6574cd79181eb8e4cf1f76c695",
             "outputTail": "VI-OK B7DFF-CHK002-DISJOINT-DECLARED-CONCURRENT two commands with disjoint declared claims are admitted concurrently\nVI-OK B7DFF-CHK002-UNDECLARED-SINGLE-EXCLUSIVE-CLAIM an undeclared command resolves to a single exclusive claim on a synthetic key\nVI-OK B7DFF-CHK002-UNDECLARED-NEVER-OVERLAPS an undeclared command never overlaps any other command while declared ones do\nVI-OK B7DFF-CHK002-UNKNOWN-CLASS-REFUSED an unrecognised resource class is rejected at declaration time\nVI-OK B7DFF-CHK002-UNKNOWN-CLASS-REFUSED-IN-CONFIG lattice.config.json cannot register an unrecognised resource class\nVI-OK B7DFF-CHK002-CONFIGURED-PLAN-CLASSIFIED configured plan: 110 commands, 97 declared, 13 exclusive by fail-closed default\nVI-OK B7DFF-CHK005-AUDITED-BARRIERS-HELD 10 commands the audit proved write repo-shared paths remain undeclared\nVI-OK B7DFF-CHK005-COLLISION-PROBE-BITES declaring an audited repo-shared writer is reported by the probe rather than silently accepted\nvalidate-resource-claims: PASS (34 assertions)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-18T23:05:43.315Z",
+            "executedAt": "2026-08-19T01:36:47.850Z",
             "timeoutMs": 180000
           },
-          "timestamp": "2026-08-18T23:06:24.894Z"
+          "timestamp": "2026-08-19T01:37:28.115Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -205,19 +205,19 @@
           "command": "node packages/main/tests/validate-resource-claims.test.mjs",
           "result": "pass",
           "note": "An undeclared command resolves to exactly one exclusive claim on the synthetic barrier key, conflicts with every other entry in both directions, and in a 4-command plan at jobs=4 observes no co-runner while the declared commands in that same plan do overlap.",
-          "headHash": "19ff5225fa1aa3e3482119c148254c8d5f37aa10",
-          "materialHash": "27c0322a2d3ec6e8ef664f3e476c1dab7227a666d84b163954d778c60a984c7f",
-          "storyFilesHash": "7446a31ff3c1bbc71a6496da2bc2b1bea888ccd9563f4644fe5daf60e8c3ffaf",
+          "headHash": "bc7dfaa9ae100f5a1eaf93c7460447a982dc9d3b",
+          "materialHash": "6252802133ce751d6a0a79951a96f81b0719231e4da88bbc6ae8bf588516dc39",
+          "storyFilesHash": "0bab1cc35f5b0e4ceae7c9ed0ac03e365bd8ccd26fd92afe53f1b65eb0f9e775",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "c49a956c7e33be00d44e9e597a561694dcbc2f6574cd79181eb8e4cf1f76c695",
             "outputTail": "VI-OK B7DFF-CHK002-DISJOINT-DECLARED-CONCURRENT two commands with disjoint declared claims are admitted concurrently\nVI-OK B7DFF-CHK002-UNDECLARED-SINGLE-EXCLUSIVE-CLAIM an undeclared command resolves to a single exclusive claim on a synthetic key\nVI-OK B7DFF-CHK002-UNDECLARED-NEVER-OVERLAPS an undeclared command never overlaps any other command while declared ones do\nVI-OK B7DFF-CHK002-UNKNOWN-CLASS-REFUSED an unrecognised resource class is rejected at declaration time\nVI-OK B7DFF-CHK002-UNKNOWN-CLASS-REFUSED-IN-CONFIG lattice.config.json cannot register an unrecognised resource class\nVI-OK B7DFF-CHK002-CONFIGURED-PLAN-CLASSIFIED configured plan: 110 commands, 97 declared, 13 exclusive by fail-closed default\nVI-OK B7DFF-CHK005-AUDITED-BARRIERS-HELD 10 commands the audit proved write repo-shared paths remain undeclared\nVI-OK B7DFF-CHK005-COLLISION-PROBE-BITES declaring an audited repo-shared writer is reported by the probe rather than silently accepted\nvalidate-resource-claims: PASS (34 assertions)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-18T23:05:44.754Z",
+            "executedAt": "2026-08-19T01:36:49.119Z",
             "timeoutMs": 180000
           },
-          "timestamp": "2026-08-18T23:06:24.894Z"
+          "timestamp": "2026-08-19T01:37:28.115Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -226,19 +226,19 @@
           "command": "node packages/main/tests/validate-resource-claims.test.mjs",
           "result": "pass",
           "note": "A claim naming an unrecognised class throws from resolveValidationCommandResources and from the lattice.config.json parser, plan resolution fails closed on one bad claim, and a caller-supplied canonicalKey is discarded rather than trusted.",
-          "headHash": "19ff5225fa1aa3e3482119c148254c8d5f37aa10",
-          "materialHash": "27c0322a2d3ec6e8ef664f3e476c1dab7227a666d84b163954d778c60a984c7f",
-          "storyFilesHash": "7446a31ff3c1bbc71a6496da2bc2b1bea888ccd9563f4644fe5daf60e8c3ffaf",
+          "headHash": "bc7dfaa9ae100f5a1eaf93c7460447a982dc9d3b",
+          "materialHash": "6252802133ce751d6a0a79951a96f81b0719231e4da88bbc6ae8bf588516dc39",
+          "storyFilesHash": "0bab1cc35f5b0e4ceae7c9ed0ac03e365bd8ccd26fd92afe53f1b65eb0f9e775",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "c49a956c7e33be00d44e9e597a561694dcbc2f6574cd79181eb8e4cf1f76c695",
             "outputTail": "VI-OK B7DFF-CHK002-DISJOINT-DECLARED-CONCURRENT two commands with disjoint declared claims are admitted concurrently\nVI-OK B7DFF-CHK002-UNDECLARED-SINGLE-EXCLUSIVE-CLAIM an undeclared command resolves to a single exclusive claim on a synthetic key\nVI-OK B7DFF-CHK002-UNDECLARED-NEVER-OVERLAPS an undeclared command never overlaps any other command while declared ones do\nVI-OK B7DFF-CHK002-UNKNOWN-CLASS-REFUSED an unrecognised resource class is rejected at declaration time\nVI-OK B7DFF-CHK002-UNKNOWN-CLASS-REFUSED-IN-CONFIG lattice.config.json cannot register an unrecognised resource class\nVI-OK B7DFF-CHK002-CONFIGURED-PLAN-CLASSIFIED configured plan: 110 commands, 97 declared, 13 exclusive by fail-closed default\nVI-OK B7DFF-CHK005-AUDITED-BARRIERS-HELD 10 commands the audit proved write repo-shared paths remain undeclared\nVI-OK B7DFF-CHK005-COLLISION-PROBE-BITES declaring an audited repo-shared writer is reported by the probe rather than silently accepted\nvalidate-resource-claims: PASS (34 assertions)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-18T23:05:46.187Z",
+            "executedAt": "2026-08-19T01:36:50.420Z",
             "timeoutMs": 180000
           },
-          "timestamp": "2026-08-18T23:06:24.894Z"
+          "timestamp": "2026-08-19T01:37:28.115Z"
         }
       ],
       "userSeesSnapshot": {
@@ -312,19 +312,19 @@
           "command": "node packages/main/tests/validate-plan-scheduling.test.mjs",
           "result": "pass",
           "note": "integration_test (kind corrected from manual_transcript; pin, selector and assertions unchanged). The pinned command is an integration test, not a logic test: it imports the BUILT packages/main/dist/core/validation-executor.js and drives the real executeValidationPlan, which spawns real node child processes via process.execPath -- no function is exercised in isolation. Marker B7DFF-CHK003-PLAN-ORDER asserts commands[] and details[] are emitted in PLAN order on a plan whose probes are built so completion order is the exact reverse, and that each entry still carries its own label / args / code / optional / durationMs. The same run also carries B7DFF-CHK003-RUN-ALL-COMPLETE, B7DFF-CHK003-DEADLINE-THROWS, B7DFF-CHK003-ABORT-NOT-PASS, B7DFF-CHK003-JOBS-CONFIGURABLE and B7DFF-CHK003-WORKER-COUNT-REPORTED. Cross-checked on the REAL plan at the FINAL declaration coverage by npm run bench:validate-parallel (marker B7DFF-BENCH-REAL-PLAN-MEASURED, tree 3c4413ce0a): the same 107-command configured plan was executed twice through the same executeValidationPlan, once at jobs=1 and once at jobs=4, and both runs returned commands[] of length 107 with the SAME per-command pass/fail verdict for every command (the benchmark reports zero disagreement) and the same classification line validate scheduler: commands=107 declared=97 exclusiveByDefault=10 -- i.e. scheduling instead of looping did not change the evidence shape on the real plan. An earlier real-plan transcript (two node bin/lattice.js validate --json runs, jobs=4 vs LATTICE_VALIDATE_JOBS=1, byte-identical label/command/args/timeoutMs/optional per entry in plan order) supports the same property but was captured at an EARLIER declaration configuration (104 commands, declared=36), so it is cited as prior context rather than as the final-tree measurement.",
-          "headHash": "19ff5225fa1aa3e3482119c148254c8d5f37aa10",
-          "materialHash": "27c0322a2d3ec6e8ef664f3e476c1dab7227a666d84b163954d778c60a984c7f",
-          "storyFilesHash": "7446a31ff3c1bbc71a6496da2bc2b1bea888ccd9563f4644fe5daf60e8c3ffaf",
+          "headHash": "bc7dfaa9ae100f5a1eaf93c7460447a982dc9d3b",
+          "materialHash": "6252802133ce751d6a0a79951a96f81b0719231e4da88bbc6ae8bf588516dc39",
+          "storyFilesHash": "0bab1cc35f5b0e4ceae7c9ed0ac03e365bd8ccd26fd92afe53f1b65eb0f9e775",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "2f829d0ab4683f5b55d279760284e21663c36d47b985acfe6d76bb17fe876bf7",
             "outputTail": "VI-OK B7DFF-CHK003-PLAN-ORDER commands[] and details[] are emitted in plan order while completion order is reversed\nVI-OK B7DFF-CHK003-RUN-ALL-COMPLETE a failing command cancels nothing: every plan command ran and commands[].length equals the plan length\nVI-OK B7DFF-CHK003-DEADLINE-THROWS an exceeded deadlineAt raises the caller deadline error instead of returning a partial run\nVI-OK B7DFF-CHK003-ABORT-NOT-PASS an aborted abortSignal reaches every concurrently scheduled command and cannot report a pass\nVI-OK B7DFF-CHK003-JOBS-CONFIGURABLE worker count comes from the jobs option or LATTICE_VALIDATE_JOBS, defaults to 4, and refuses an unusable value\nVI-OK B7DFF-CHK003-WORKER-COUNT-REPORTED details reports the worker count, the declared count and the fail-closed exclusive count\nvalidate-plan-scheduling: PASS (43 assertions)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-18T23:05:49.305Z",
+            "executedAt": "2026-08-19T01:36:53.455Z",
             "timeoutMs": 180000
           },
-          "timestamp": "2026-08-18T23:06:24.894Z"
+          "timestamp": "2026-08-19T01:37:28.115Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -333,19 +333,19 @@
           "command": "node packages/main/tests/validate-plan-scheduling.test.mjs",
           "result": "pass",
           "note": "The plan is scheduled with cancellation run-all, so a failing command cancels nothing. Marker B7DFF-CHK003-RUN-ALL-COMPLETE runs a five-command plan whose second command exits 7 and whose fourth is an optional failure, then asserts commands.length equals the plan length, that the labels are still in plan order, and that every one of the five printed its own MARKER_<label> into its own output - i.e. the commands after the failure really executed rather than being reported as cancelled.",
-          "headHash": "19ff5225fa1aa3e3482119c148254c8d5f37aa10",
-          "materialHash": "27c0322a2d3ec6e8ef664f3e476c1dab7227a666d84b163954d778c60a984c7f",
-          "storyFilesHash": "7446a31ff3c1bbc71a6496da2bc2b1bea888ccd9563f4644fe5daf60e8c3ffaf",
+          "headHash": "bc7dfaa9ae100f5a1eaf93c7460447a982dc9d3b",
+          "materialHash": "6252802133ce751d6a0a79951a96f81b0719231e4da88bbc6ae8bf588516dc39",
+          "storyFilesHash": "0bab1cc35f5b0e4ceae7c9ed0ac03e365bd8ccd26fd92afe53f1b65eb0f9e775",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "2f829d0ab4683f5b55d279760284e21663c36d47b985acfe6d76bb17fe876bf7",
             "outputTail": "VI-OK B7DFF-CHK003-PLAN-ORDER commands[] and details[] are emitted in plan order while completion order is reversed\nVI-OK B7DFF-CHK003-RUN-ALL-COMPLETE a failing command cancels nothing: every plan command ran and commands[].length equals the plan length\nVI-OK B7DFF-CHK003-DEADLINE-THROWS an exceeded deadlineAt raises the caller deadline error instead of returning a partial run\nVI-OK B7DFF-CHK003-ABORT-NOT-PASS an aborted abortSignal reaches every concurrently scheduled command and cannot report a pass\nVI-OK B7DFF-CHK003-JOBS-CONFIGURABLE worker count comes from the jobs option or LATTICE_VALIDATE_JOBS, defaults to 4, and refuses an unusable value\nVI-OK B7DFF-CHK003-WORKER-COUNT-REPORTED details reports the worker count, the declared count and the fail-closed exclusive count\nvalidate-plan-scheduling: PASS (43 assertions)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-18T23:05:52.456Z",
+            "executedAt": "2026-08-19T01:36:56.469Z",
             "timeoutMs": 180000
           },
-          "timestamp": "2026-08-18T23:06:24.894Z"
+          "timestamp": "2026-08-19T01:37:28.115Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -354,19 +354,19 @@
           "command": "node packages/main/tests/validate-plan-scheduling.test.mjs",
           "result": "pass",
           "note": "Marker B7DFF-CHK003-DEADLINE-THROWS drives a concurrent two-command plan with deadlineAt already in the past and a sentinel deadlineError, and asserts executeValidationPlan raises that exact sentinel rather than returning any result; the assertion message carries the returned status and allPass when it does not, so a partial run reported as a pass cannot pass silently. The neighbouring marker B7DFF-CHK003-ABORT-NOT-PASS covers the abortSignal half in the same run: an already-aborted signal reaches both concurrently scheduled commands, both come back timedOut with code 124, and the result is allPass=false status=fail failureKind=infra_failure.",
-          "headHash": "19ff5225fa1aa3e3482119c148254c8d5f37aa10",
-          "materialHash": "27c0322a2d3ec6e8ef664f3e476c1dab7227a666d84b163954d778c60a984c7f",
-          "storyFilesHash": "7446a31ff3c1bbc71a6496da2bc2b1bea888ccd9563f4644fe5daf60e8c3ffaf",
+          "headHash": "bc7dfaa9ae100f5a1eaf93c7460447a982dc9d3b",
+          "materialHash": "6252802133ce751d6a0a79951a96f81b0719231e4da88bbc6ae8bf588516dc39",
+          "storyFilesHash": "0bab1cc35f5b0e4ceae7c9ed0ac03e365bd8ccd26fd92afe53f1b65eb0f9e775",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "2f829d0ab4683f5b55d279760284e21663c36d47b985acfe6d76bb17fe876bf7",
             "outputTail": "VI-OK B7DFF-CHK003-PLAN-ORDER commands[] and details[] are emitted in plan order while completion order is reversed\nVI-OK B7DFF-CHK003-RUN-ALL-COMPLETE a failing command cancels nothing: every plan command ran and commands[].length equals the plan length\nVI-OK B7DFF-CHK003-DEADLINE-THROWS an exceeded deadlineAt raises the caller deadline error instead of returning a partial run\nVI-OK B7DFF-CHK003-ABORT-NOT-PASS an aborted abortSignal reaches every concurrently scheduled command and cannot report a pass\nVI-OK B7DFF-CHK003-JOBS-CONFIGURABLE worker count comes from the jobs option or LATTICE_VALIDATE_JOBS, defaults to 4, and refuses an unusable value\nVI-OK B7DFF-CHK003-WORKER-COUNT-REPORTED details reports the worker count, the declared count and the fail-closed exclusive count\nvalidate-plan-scheduling: PASS (43 assertions)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-18T23:05:55.589Z",
+            "executedAt": "2026-08-19T01:36:59.687Z",
             "timeoutMs": 180000
           },
-          "timestamp": "2026-08-18T23:06:24.894Z"
+          "timestamp": "2026-08-19T01:37:28.115Z"
         }
       ],
       "userSeesSnapshot": {
@@ -446,19 +446,19 @@
           "command": "npm run test:validate-parallel-equivalence",
           "result": "pass",
           "note": "integration_test (kind corrected from manual_transcript; pin, selector and assertions unchanged). The pinned command is an integration test: it drives the real executeValidationPlan and spawns real node child processes, and marker B7DFF-CHK004-MEASURED-MAKESPAN asserts one run measured the SAME plan at jobs=1 and jobs=4 and printed the serial / parallel / speedup numbers it observed, with the only threshold being the serial makespan measured moments earlier on the same host (no speedup constant is encoded). That gate-enforced regression measures a SYNTHETIC 6-command fixture by design, because it is itself registered in validate.commands. The REAL-plan number is now measured by a separate, repeatable, ON-DEMAND command added for F-002: npm run bench:validate-parallel (packages/main/src/tasks/validate-parallel-benchmark.ts), marker B7DFF-BENCH-REAL-PLAN-MEASURED. It reads the plan through the same configuredValidationCommands reader the validate handler uses and runs it twice through the real executeValidationPlan with jobs passed explicitly. Measured once on the final tree 3c4413ce0a (clean, dirtyFiles=0), order=parallel-first, at commands=107 declared=97 exclusiveByDefault=10: jobs=1 = 2225.0s, jobs=4 = 1474.9s, speedup = 1.51x. Both modes reported 106 passed / 1 failed and ZERO per-command verdict disagreement. The single failure is validate.commands[6] (review-pass-discard-smoke) timing out at its own 180000ms budget in BOTH modes -- it passes standalone in 177s on an idle host, so it is a marginal per-command budget under load, not a parallelism effect. The makespan is dominated by validate.commands[37] (quorum-submit-smoke) at 684s under jobs=4 and 752s under jobs=1, i.e. one command is about 46 percent of the parallel makespan, which structurally caps the achievable speedup. HONESTY: 1.51x sits at the BOTTOM of the 1.5-1.7x band this story has been quoting, and it is ONE sample per mode on a loaded host that has previously shown roughly 28 percent spread between identical full-plan runs (781.3s vs 611.6s); the benchmark prints that caveat itself. The benchmark is deliberately NOT registered in lattice.config.json validate.commands (it would make validate recursive and cost tens of minutes) and produces NO gate evidence -- the real-plan number is repeatable on demand, not gate-enforced.",
-          "headHash": "19ff5225fa1aa3e3482119c148254c8d5f37aa10",
-          "materialHash": "27c0322a2d3ec6e8ef664f3e476c1dab7227a666d84b163954d778c60a984c7f",
-          "storyFilesHash": "7446a31ff3c1bbc71a6496da2bc2b1bea888ccd9563f4644fe5daf60e8c3ffaf",
+          "headHash": "bc7dfaa9ae100f5a1eaf93c7460447a982dc9d3b",
+          "materialHash": "6252802133ce751d6a0a79951a96f81b0719231e4da88bbc6ae8bf588516dc39",
+          "storyFilesHash": "0bab1cc35f5b0e4ceae7c9ed0ac03e365bd8ccd26fd92afe53f1b65eb0f9e775",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "222875dc7b1c3e070b3a916b9830f1dcc78084cbdc19de0a29f584181c2cce2e",
-            "outputTail": "\n> lattice@0.3.263 test:validate-parallel-equivalence\n> node packages/main/dist/tasks/validate-parallel-equivalence-smoke.js\n\nvalidate-parallel-equivalence: serial=4.59s parallel=2.32s speedup=1.98x (6 commands, jobs 1 vs 4, 700ms per probe)\n  serial   validate scheduler: jobs=1 commands=6 declared=5 exclusiveByDefault=1\n  parallel validate scheduler: jobs=4 commands=6 declared=5 exclusiveByDefault=1\nVI-OK B7DFF-CHK004-MEASURED-MAKESPAN one run measured the same plan serially and in parallel and reported the speedup it observed\nVI-OK B7DFF-CHK004-OUTCOMES-IDENTICAL every command produced the same pass/fail verdict and exit code in both modes\nVI-OK B7DFF-CHK004-OUTCOME-DIFF-BITES a single differing per-command outcome is reported by the comparator rather than passing silently\nVI-OK B7DFF-CHK004-NO-COLLISION conflicting claims never overlapped while 6 compatible pair(s) did\nVI-OK B7DFF-CHK004-COLLISION-PROBE-BITES the same probe reports an overlap when the two commands are allowed to overlap\nvalidate-parallel-equivalence: PASS (18 assertions)\n",
+            "outputDigest": "2a93b7df0020ec2ca0914ab477ff843bc78d2cbbea4ea17fa530cd00d8807b7f",
+            "outputTail": "\n> lattice@0.3.263 test:validate-parallel-equivalence\n> node packages/main/dist/tasks/validate-parallel-equivalence-smoke.js\n\nvalidate-parallel-equivalence: serial=4.55s parallel=2.30s speedup=1.98x (6 commands, jobs 1 vs 4, 700ms per probe)\n  serial   validate scheduler: jobs=1 commands=6 declared=5 exclusiveByDefault=1\n  parallel validate scheduler: jobs=4 commands=6 declared=5 exclusiveByDefault=1\nVI-OK B7DFF-CHK004-MEASURED-MAKESPAN one run measured the same plan serially and in parallel and reported the speedup it observed\nVI-OK B7DFF-CHK004-OUTCOMES-IDENTICAL every command produced the same pass/fail verdict and exit code in both modes\nVI-OK B7DFF-CHK004-OUTCOME-DIFF-BITES a single differing per-command outcome is reported by the comparator rather than passing silently\nVI-OK B7DFF-CHK004-NO-COLLISION conflicting claims never overlapped while 6 compatible pair(s) did\nVI-OK B7DFF-CHK004-COLLISION-PROBE-BITES the same probe reports an overlap when the two commands are allowed to overlap\nvalidate-parallel-equivalence: PASS (18 assertions)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-18T23:06:04.347Z",
+            "executedAt": "2026-08-19T01:37:08.332Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-18T23:06:24.894Z"
+          "timestamp": "2026-08-19T01:37:28.115Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -467,19 +467,19 @@
           "command": "npm run test:validate-parallel-equivalence",
           "result": "pass",
           "note": "The smoke compares the two runs per command on both verdict (code 0 and not timed out) and exit code, and throws when they differ; the fixture plan contains one deliberately failing probe, so the compared set is mixed and the equality cannot be a trivial pass-versus-pass. The pinned marker is the NEGATIVE CONTROL for that comparator: the same verdictDifferences function is re-run against a copy of the REAL parallel results with one command exit code flipped, and the smoke fails unless it reports exactly that command (declared A: pass (serial) vs fail (parallel)). A comparator that could no longer see a difference therefore fails here instead of passing vacuously.",
-          "headHash": "19ff5225fa1aa3e3482119c148254c8d5f37aa10",
-          "materialHash": "27c0322a2d3ec6e8ef664f3e476c1dab7227a666d84b163954d778c60a984c7f",
-          "storyFilesHash": "7446a31ff3c1bbc71a6496da2bc2b1bea888ccd9563f4644fe5daf60e8c3ffaf",
+          "headHash": "bc7dfaa9ae100f5a1eaf93c7460447a982dc9d3b",
+          "materialHash": "6252802133ce751d6a0a79951a96f81b0719231e4da88bbc6ae8bf588516dc39",
+          "storyFilesHash": "0bab1cc35f5b0e4ceae7c9ed0ac03e365bd8ccd26fd92afe53f1b65eb0f9e775",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "222875dc7b1c3e070b3a916b9830f1dcc78084cbdc19de0a29f584181c2cce2e",
-            "outputTail": "\n> lattice@0.3.263 test:validate-parallel-equivalence\n> node packages/main/dist/tasks/validate-parallel-equivalence-smoke.js\n\nvalidate-parallel-equivalence: serial=4.59s parallel=2.32s speedup=1.98x (6 commands, jobs 1 vs 4, 700ms per probe)\n  serial   validate scheduler: jobs=1 commands=6 declared=5 exclusiveByDefault=1\n  parallel validate scheduler: jobs=4 commands=6 declared=5 exclusiveByDefault=1\nVI-OK B7DFF-CHK004-MEASURED-MAKESPAN one run measured the same plan serially and in parallel and reported the speedup it observed\nVI-OK B7DFF-CHK004-OUTCOMES-IDENTICAL every command produced the same pass/fail verdict and exit code in both modes\nVI-OK B7DFF-CHK004-OUTCOME-DIFF-BITES a single differing per-command outcome is reported by the comparator rather than passing silently\nVI-OK B7DFF-CHK004-NO-COLLISION conflicting claims never overlapped while 6 compatible pair(s) did\nVI-OK B7DFF-CHK004-COLLISION-PROBE-BITES the same probe reports an overlap when the two commands are allowed to overlap\nvalidate-parallel-equivalence: PASS (18 assertions)\n",
+            "outputDigest": "2a93b7df0020ec2ca0914ab477ff843bc78d2cbbea4ea17fa530cd00d8807b7f",
+            "outputTail": "\n> lattice@0.3.263 test:validate-parallel-equivalence\n> node packages/main/dist/tasks/validate-parallel-equivalence-smoke.js\n\nvalidate-parallel-equivalence: serial=4.55s parallel=2.30s speedup=1.98x (6 commands, jobs 1 vs 4, 700ms per probe)\n  serial   validate scheduler: jobs=1 commands=6 declared=5 exclusiveByDefault=1\n  parallel validate scheduler: jobs=4 commands=6 declared=5 exclusiveByDefault=1\nVI-OK B7DFF-CHK004-MEASURED-MAKESPAN one run measured the same plan serially and in parallel and reported the speedup it observed\nVI-OK B7DFF-CHK004-OUTCOMES-IDENTICAL every command produced the same pass/fail verdict and exit code in both modes\nVI-OK B7DFF-CHK004-OUTCOME-DIFF-BITES a single differing per-command outcome is reported by the comparator rather than passing silently\nVI-OK B7DFF-CHK004-NO-COLLISION conflicting claims never overlapped while 6 compatible pair(s) did\nVI-OK B7DFF-CHK004-COLLISION-PROBE-BITES the same probe reports an overlap when the two commands are allowed to overlap\nvalidate-parallel-equivalence: PASS (18 assertions)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-18T23:06:13.101Z",
+            "executedAt": "2026-08-19T01:37:16.967Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-18T23:06:24.894Z"
+          "timestamp": "2026-08-19T01:37:28.115Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -488,19 +488,19 @@
           "command": "npm run test:validate-parallel-equivalence",
           "result": "pass",
           "note": "Collision detection is observed from the CHILD processes own clocks (each probe records the wall-clock interval it was alive into its own marker file), not from the scheduler bookkeeping under test. Two probes hold the SAME exclusive claim and the undeclared probe holds the fail-closed barrier: any overlap among those pairs fails the smoke with the pair and the overlap in ms, and a vacuity guard requires that compatible probes DID overlap in the same run, so a clean report cannot come from a run with no concurrency. The pinned marker is the NEGATIVE CONTROL: the same two probes are run again through the real scheduler with DISJOINT claims - a plan in which overlapping them would be the very collision the fixture forbids - and the same probe must report the overlap. Verified end to end by mutating a copy of the compiled smoke so the contended pair got disjoint keys: the smoke then FAILED with FAIL: no forbidden pair overlapped in the parallel run (conflict X overlapped conflict Y by 681ms), exit 1.",
-          "headHash": "19ff5225fa1aa3e3482119c148254c8d5f37aa10",
-          "materialHash": "27c0322a2d3ec6e8ef664f3e476c1dab7227a666d84b163954d778c60a984c7f",
-          "storyFilesHash": "7446a31ff3c1bbc71a6496da2bc2b1bea888ccd9563f4644fe5daf60e8c3ffaf",
+          "headHash": "bc7dfaa9ae100f5a1eaf93c7460447a982dc9d3b",
+          "materialHash": "6252802133ce751d6a0a79951a96f81b0719231e4da88bbc6ae8bf588516dc39",
+          "storyFilesHash": "0bab1cc35f5b0e4ceae7c9ed0ac03e365bd8ccd26fd92afe53f1b65eb0f9e775",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "46bd032517dcdca3037e521bfec73227792a4b2b5aa4cf104d0160b04fd25635",
-            "outputTail": "\n> lattice@0.3.263 test:validate-parallel-equivalence\n> node packages/main/dist/tasks/validate-parallel-equivalence-smoke.js\n\nvalidate-parallel-equivalence: serial=4.59s parallel=2.34s speedup=1.96x (6 commands, jobs 1 vs 4, 700ms per probe)\n  serial   validate scheduler: jobs=1 commands=6 declared=5 exclusiveByDefault=1\n  parallel validate scheduler: jobs=4 commands=6 declared=5 exclusiveByDefault=1\nVI-OK B7DFF-CHK004-MEASURED-MAKESPAN one run measured the same plan serially and in parallel and reported the speedup it observed\nVI-OK B7DFF-CHK004-OUTCOMES-IDENTICAL every command produced the same pass/fail verdict and exit code in both modes\nVI-OK B7DFF-CHK004-OUTCOME-DIFF-BITES a single differing per-command outcome is reported by the comparator rather than passing silently\nVI-OK B7DFF-CHK004-NO-COLLISION conflicting claims never overlapped while 6 compatible pair(s) did\nVI-OK B7DFF-CHK004-COLLISION-PROBE-BITES the same probe reports an overlap when the two commands are allowed to overlap\nvalidate-parallel-equivalence: PASS (18 assertions)\n",
+            "outputDigest": "59b764d92c47e980069a60a98c6018b8f7a19e5247fa7da57ed0528b1e38eef0",
+            "outputTail": "\n> lattice@0.3.263 test:validate-parallel-equivalence\n> node packages/main/dist/tasks/validate-parallel-equivalence-smoke.js\n\nvalidate-parallel-equivalence: serial=4.55s parallel=2.29s speedup=1.98x (6 commands, jobs 1 vs 4, 700ms per probe)\n  serial   validate scheduler: jobs=1 commands=6 declared=5 exclusiveByDefault=1\n  parallel validate scheduler: jobs=4 commands=6 declared=5 exclusiveByDefault=1\nVI-OK B7DFF-CHK004-MEASURED-MAKESPAN one run measured the same plan serially and in parallel and reported the speedup it observed\nVI-OK B7DFF-CHK004-OUTCOMES-IDENTICAL every command produced the same pass/fail verdict and exit code in both modes\nVI-OK B7DFF-CHK004-OUTCOME-DIFF-BITES a single differing per-command outcome is reported by the comparator rather than passing silently\nVI-OK B7DFF-CHK004-NO-COLLISION conflicting claims never overlapped while 6 compatible pair(s) did\nVI-OK B7DFF-CHK004-COLLISION-PROBE-BITES the same probe reports an overlap when the two commands are allowed to overlap\nvalidate-parallel-equivalence: PASS (18 assertions)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-18T23:06:21.843Z",
+            "executedAt": "2026-08-19T01:37:25.591Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-18T23:06:24.894Z"
+          "timestamp": "2026-08-19T01:37:28.115Z"
         }
       ],
       "userSeesSnapshot": {
@@ -585,19 +585,19 @@
           "command": "node packages/main/tests/validate-resource-claims.test.mjs",
           "result": "pass",
           "note": "10 of the 68 audited commands could not be proven temp-root isolated and were left on the fail-closed barrier rather than declared to improve the number. They are named in the test with the specific repo-shared write that refused each one (dist rebuild; two commands running the real CLI against the repo root so cli-engine writeLog appends to .lattice/activity.jsonl; quorum-submit-smoke out of scope; red-b49d4-registration-derivation and red-b49d4-chk002-receipt which write/sweep repoRoot paths; the three red-1734 guards which take the real build lock, rm the BUILD_MANIFEST or rename packages/main/dist; and proofstory-acceptance-rollout-smoke whose readOrCreatePrivateKey writes the rollout key into the git common dir with flag wx). The check is a subset check, so a NEW undeclared command still passes on the fail-closed default, but re-declaring any audited one fails.",
-          "headHash": "19ff5225fa1aa3e3482119c148254c8d5f37aa10",
-          "materialHash": "27c0322a2d3ec6e8ef664f3e476c1dab7227a666d84b163954d778c60a984c7f",
-          "storyFilesHash": "7446a31ff3c1bbc71a6496da2bc2b1bea888ccd9563f4644fe5daf60e8c3ffaf",
+          "headHash": "bc7dfaa9ae100f5a1eaf93c7460447a982dc9d3b",
+          "materialHash": "6252802133ce751d6a0a79951a96f81b0719231e4da88bbc6ae8bf588516dc39",
+          "storyFilesHash": "0bab1cc35f5b0e4ceae7c9ed0ac03e365bd8ccd26fd92afe53f1b65eb0f9e775",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "c49a956c7e33be00d44e9e597a561694dcbc2f6574cd79181eb8e4cf1f76c695",
             "outputTail": "VI-OK B7DFF-CHK002-DISJOINT-DECLARED-CONCURRENT two commands with disjoint declared claims are admitted concurrently\nVI-OK B7DFF-CHK002-UNDECLARED-SINGLE-EXCLUSIVE-CLAIM an undeclared command resolves to a single exclusive claim on a synthetic key\nVI-OK B7DFF-CHK002-UNDECLARED-NEVER-OVERLAPS an undeclared command never overlaps any other command while declared ones do\nVI-OK B7DFF-CHK002-UNKNOWN-CLASS-REFUSED an unrecognised resource class is rejected at declaration time\nVI-OK B7DFF-CHK002-UNKNOWN-CLASS-REFUSED-IN-CONFIG lattice.config.json cannot register an unrecognised resource class\nVI-OK B7DFF-CHK002-CONFIGURED-PLAN-CLASSIFIED configured plan: 110 commands, 97 declared, 13 exclusive by fail-closed default\nVI-OK B7DFF-CHK005-AUDITED-BARRIERS-HELD 10 commands the audit proved write repo-shared paths remain undeclared\nVI-OK B7DFF-CHK005-COLLISION-PROBE-BITES declaring an audited repo-shared writer is reported by the probe rather than silently accepted\nvalidate-resource-claims: PASS (34 assertions)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-18T23:06:23.432Z",
+            "executedAt": "2026-08-19T01:37:26.844Z",
             "timeoutMs": 180000
           },
-          "timestamp": "2026-08-18T23:06:24.895Z"
+          "timestamp": "2026-08-19T01:37:28.115Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -606,19 +606,19 @@
           "command": "node packages/main/tests/validate-resource-claims.test.mjs",
           "result": "pass",
           "note": "The probe is given a synthetic plan in which one audited repo-shared writer (red-1734-reader-race, which renames the repository packages/main/dist and takes the real build lock) HAS been given the shared claim, and it must report exactly that command together with the reason the audit refused it. Synthetic input on purpose: mutating the real config to prove this would be the repo-shared write the audit is about. Independently confirmed against the real config too: flipping red-1734-reader-race to declared in lattice.config.json made the test exit 1 with AssertionError naming it, and the file was restored. Separately, the first full validate run of this change (871s) exited fail because red-b49d4-registration-derivation caught an uncommitted lattice.config.json, showing a repo-shared write inside this plan surfaces as a failure rather than a silently faster run.",
-          "headHash": "19ff5225fa1aa3e3482119c148254c8d5f37aa10",
-          "materialHash": "27c0322a2d3ec6e8ef664f3e476c1dab7227a666d84b163954d778c60a984c7f",
-          "storyFilesHash": "7446a31ff3c1bbc71a6496da2bc2b1bea888ccd9563f4644fe5daf60e8c3ffaf",
+          "headHash": "bc7dfaa9ae100f5a1eaf93c7460447a982dc9d3b",
+          "materialHash": "6252802133ce751d6a0a79951a96f81b0719231e4da88bbc6ae8bf588516dc39",
+          "storyFilesHash": "0bab1cc35f5b0e4ceae7c9ed0ac03e365bd8ccd26fd92afe53f1b65eb0f9e775",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "c49a956c7e33be00d44e9e597a561694dcbc2f6574cd79181eb8e4cf1f76c695",
             "outputTail": "VI-OK B7DFF-CHK002-DISJOINT-DECLARED-CONCURRENT two commands with disjoint declared claims are admitted concurrently\nVI-OK B7DFF-CHK002-UNDECLARED-SINGLE-EXCLUSIVE-CLAIM an undeclared command resolves to a single exclusive claim on a synthetic key\nVI-OK B7DFF-CHK002-UNDECLARED-NEVER-OVERLAPS an undeclared command never overlaps any other command while declared ones do\nVI-OK B7DFF-CHK002-UNKNOWN-CLASS-REFUSED an unrecognised resource class is rejected at declaration time\nVI-OK B7DFF-CHK002-UNKNOWN-CLASS-REFUSED-IN-CONFIG lattice.config.json cannot register an unrecognised resource class\nVI-OK B7DFF-CHK002-CONFIGURED-PLAN-CLASSIFIED configured plan: 110 commands, 97 declared, 13 exclusive by fail-closed default\nVI-OK B7DFF-CHK005-AUDITED-BARRIERS-HELD 10 commands the audit proved write repo-shared paths remain undeclared\nVI-OK B7DFF-CHK005-COLLISION-PROBE-BITES declaring an audited repo-shared writer is reported by the probe rather than silently accepted\nvalidate-resource-claims: PASS (34 assertions)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-18T23:06:24.884Z",
+            "executedAt": "2026-08-19T01:37:28.105Z",
             "timeoutMs": 180000
           },
-          "timestamp": "2026-08-18T23:06:24.895Z"
+          "timestamp": "2026-08-19T01:37:28.115Z"
         }
       ],
       "userSeesSnapshot": {
