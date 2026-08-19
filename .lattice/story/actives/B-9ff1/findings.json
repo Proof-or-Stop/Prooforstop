@@ -1813,6 +1813,33 @@
       "resolvedAt": "2026-08-19T15:24:16.606Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-9ff1:F-080",
+      "desc": "F-079 resolvedReason: the three specific factual claims (117=111+6 with zero main entries dropped/zero story entries dropped; resources declared on 97/117 current vs 97/111 main; review-pass-discard-smoke timeoutMs 300000 already present in main pre-merge) were independently re-verified by parsing lattice.config.json and git show main:lattice.config.json -- all exactly correct. But the resolution's stated GENERAL lesson is over-broad and, taken literally, would reproduce this exact bug in a different instance. Lesson as written: 'when a merge conflict is in structured data, deciding which side is the BASE is the whole resolution ... Prefer the side that moved as the base, then re-apply your own additions.' Verified root cause of why using main as base actually cost nothing here: git diff 81c88bf448(merge-base) 752988c315(story pre-merge parent) -- lattice.config.json shows the story side made ZERO modifications to any pre-existing shared entry relative to the merge-base -- purely additive (6 new command lines; grep of the diff for deletion lines excluding file headers returns 0). That checkable fact -- the discarded side had no unique edits to lose -- is what made picking main as base safe, not that main had moved more (main touched ~1570 diff lines across shared entries vs merge-base). The stated lesson substitutes a comparative, unoperationalized judgment (moved how -- more commits? more lines? more recent?) for that checkable per-entry invariant, and frames picking one whole side as base as sufficient (the whole resolution). This is unsound in general: if the STORY side had also made even one real edit to a shared entry while main still moved more in aggregate, blanket-basing on main would silently drop that story edit, reproducing this same bug in reverse, and the rule as written gives no signal to catch that because it never asks whether the discarded side has edits worth preserving. The robust generalization is per-entry, not per-side: diff each candidate side against the merge-base version of the structured file; entries only one side touched can safely take that side; entries both sides touched are a genuine per-field conflict needing explicit reconciliation, not resolved by any single side-is-base choice. Recommend rewording or superseding the recorded lesson to state this checkable per-entry invariant rather than the comparative side-that-moved heuristic.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-19T15:32:30.696Z",
+      "reviewRound": "2026-08-19T15:13:53.073Z",
+      "reviewRunId": "B-9ff1:RR-113",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-9ff1/findings.json",
+          "lattice.config.json",
+          "packages/main/tests/validate-resource-claims.test.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "a2e42c5a6cd3cc76fe46bf656b447a6a742ae7cf3ee2f495395d39f198fb4cc9",
+      "files": [
+        "[\"\\.lattice/story/actives/B-9ff1/findings.json\"]"
+      ],
+      "signatureTag": "cleanup|json\"]|resolvedreason-three-specific",
+      "signatureTagSource": "auto"
     }
   ]
 }
