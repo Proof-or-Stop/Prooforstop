@@ -208,7 +208,11 @@
           {
             "desc": "A document with mismatched or nested marker pairs is rejected or left unchanged instead of being rewritten destructively.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node --input-type=module -e \"import assert from 'node:assert/strict'; import * as assets from '/private/tmp/proof-or-stop-b5a88-init-build/init-assets.js'; const names=['AGENTS_MD_TEMPLATE','LATTICE_MD_TEMPLATE','CLAUDE_MD_TEMPLATE','LATTICE_DOT_DIR_MD_TEMPLATE','AGENTS_MD_GLOBAL_THIN_TEMPLATE']; for (const name of names) { const value=assets[name]; assert.match(value,/<!-- proof-or-stop:start -->/); assert.match(value,/<!-- proof-or-stop:end -->/); assert.doesNotMatch(value,/<!-- lattice:start -->|<!-- lattice:end -->/); } console.log('CHK-002-TEMPLATE-PASS');\"",
+              "selector": "CHK-002-TEMPLATE-PASS"
+            }
           }
         ]
       },
@@ -252,6 +256,26 @@
           "materialHash": "bfa4dc85ed84afe6ba32b73e69b2e22440863e85ff1915ad12bd978f49d207a4",
           "storyFilesHash": "539057fab72b7c3bccdc7498dd32b614fd043c785223d8bbd1350842d3ffb9d3",
           "timestamp": "2026-08-20T05:51:32.614Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node --input-type=module -e \"import assert from 'node:assert/strict'; import * as assets from '/private/tmp/proof-or-stop-b5a88-init-build/init-assets.js'; const names=['AGENTS_MD_TEMPLATE','LATTICE_MD_TEMPLATE','CLAUDE_MD_TEMPLATE','LATTICE_DOT_DIR_MD_TEMPLATE','AGENTS_MD_GLOBAL_THIN_TEMPLATE']; for (const name of names) { const value=assets[name]; assert.match(value,/<!-- proof-or-stop:start -->/); assert.match(value,/<!-- proof-or-stop:end -->/); assert.doesNotMatch(value,/<!-- lattice:start -->|<!-- lattice:end -->/); } console.log('CHK-002-TEMPLATE-PASS');\"",
+          "result": "pass",
+          "note": "Tool-executed smoke confirms every init document template writes canonical ordinary markers and no legacy ordinary markers.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "b5fb3386837e216fcb067e17caa16af975d48e6f8a572393ef41cfb02ecff25c",
+            "outputTail": "CHK-002-TEMPLATE-PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T05:51:37.967Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "f33a2654287dc422ab1cc9a6756ca9d55e92f3b5",
+          "materialHash": "bfa4dc85ed84afe6ba32b73e69b2e22440863e85ff1915ad12bd978f49d207a4",
+          "storyFilesHash": "539057fab72b7c3bccdc7498dd32b614fd043c785223d8bbd1350842d3ffb9d3",
+          "timestamp": "2026-08-20T05:51:38.174Z"
         }
       ]
     },
