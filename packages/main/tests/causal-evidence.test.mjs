@@ -672,7 +672,7 @@ test('CHK-002: CAS receipts precede isolated import, retry commit only, and fail
   }
 });
 
-test('CHK-003: dependency domains shadow-compare closure and CertificationWindow rejects stale affected bypasses', () => {
+test('CHK-003: dependency domains shadow-compare closure and CertificationWindow rejects stale affected bypasses', async () => {
   const nodes = CAUSAL_DEPENDENCY_DOMAINS.map((domain, index) => ({
     id: `${domain}-node`, domain, inputIds: [`input-${domain}`],
     dependencyIds: index === 0 ? [] : [`${CAUSAL_DEPENDENCY_DOMAINS[index - 1]}-node`],
@@ -824,6 +824,61 @@ test('CHK-003: dependency domains shadow-compare closure and CertificationWindow
   const forgedDecision = { ...partial, affectedNodeIds: [], invalidatedNodeIds: [], falseFresh: 0 };
   assert.equal(verifyCausalDependencyDecision(forgedDecision), false);
   assert.equal(verifyCausalDependencyDecision(partial), true);
+
+  const forgedDomainNodes = nodes.map((node, index) => index === 0
+    ? { ...node, inputIds: ['omitted-story-owned-input'], recordedInputHashes: {} }
+    : node);
+  const forgedDomainDecision = evaluateCausalDependencies({
+    nodes: forgedDomainNodes,
+    currentInputHashes: { ...current, 'omitted-story-owned-input': 'new' },
+    previousMaterialHash: 'm1',
+    currentMaterialHash: 'm2',
+    previousStoryFilesHash: 's1',
+    currentStoryFilesHash: 's1',
+    rerunNodeIds: forgedDomainNodes.map(node => node.id),
+  });
+  assert.equal(forgedDomainDecision.causalDecision, 'strict');
+  assert.equal(forgedDomainDecision.materialHashStrict, true);
+  assert.equal(forgedDomainDecision.gateAdmissible, false);
+  assert.equal(forgedDomainDecision.falseFresh, 0);
+  emitIntentMarker(
+    'CHK-003:adversarial:0',
+    'forged or omitted dependency hashes are rejected by shadow compare and cannot create a fresh gate PASS',
+  );
+
+  const immutableDependencyDecision = { ...partial };
+  const rewrittenDependencyDecision = {
+    ...immutableDependencyDecision,
+    changedInputIds: [],
+  };
+  assert.equal(verifyCausalDependencyDecision(rewrittenDependencyDecision), false);
+  assert.equal(verifyCausalDependencyDecision(immutableDependencyDecision), true);
+  const immutableReceiptStore = new MemoryReceiptStore();
+  const immutableReceiptResult = await executeCausalEvidence({
+    identity: baseIdentity('B-causal-dependency-immutable'),
+    selector: 'DEPENDENCY-IMMUTABLE',
+    run: async () => ({ code: 0, output: 'DEPENDENCY-IMMUTABLE' }),
+    receiptStore: immutableReceiptStore,
+    preflight: preflight(),
+  });
+  const rewrittenReceipt = {
+    ...immutableReceiptResult.receipt,
+    identity: { ...immutableReceiptResult.receipt.identity, storyFilesHash: 'rewritten-story' },
+  };
+  rewrittenReceipt.receiptHash = computeCausalReceiptHash(rewrittenReceipt);
+  assert.throws(
+    () => immutableReceiptStore.writeCausalEvidenceReceipt('B-causal-dependency-immutable', rewrittenReceipt),
+    /overwrite/,
+  );
+  assert.equal(
+    immutableReceiptStore.readCausalEvidenceReceipt('B-causal-dependency-immutable', immutableReceiptResult.key.key).receiptHash,
+    immutableReceiptResult.receipt.receiptHash,
+  );
+  assert.equal(verifyCausalEvidenceReceipt(immutableReceiptResult.receipt, immutableReceiptResult.key.key), true);
+  emitIntentMarker(
+    'CHK-003:adversarial:1',
+    'content-addressed dependency and receipt provenance rewrite is rejected and original hashes remain stable',
+  );
 
   const unsignedWindow = {
     schemaVersion: CERTIFICATION_WINDOW_SCHEMA, windowId: 'window-1', storyId: 'B-causal-test', state: 'ADMITTED',
@@ -1000,7 +1055,7 @@ test('CHK-004: preflight refuses exact readiness failures with zero execution/ev
   assert.equal(deriveCausalMetrics(missingPreflightBatch.ledger).commandExecutions, 0);
   emitIntentMarker(
     'CHK-004:adversarial:1',
-    'missing preflight REFUSED before child runner: commandExecutions=0; evidenceWrites=0',
+    'missing, stale, or forged preflight is rejected before child launch with commandExecutions=0 and no gate-admissible PASS',
   );
 });
 
@@ -1087,9 +1142,16 @@ test('CHK-005: metrics are zero-safe and tamper-resistant canonical-ledger proje
   assert.equal(replayMetrics.commandReruns, 0);
   assert.equal(replayMetrics.cacheHitRate, 1);
   assert.match(renderCausalMetrics(replayMetrics), /intentCount=58 uniqueExecutionKeys=10 commandExecutions=0 cacheHitRate=100%/);
+  const completedRunMetrics = deriveCausalMetrics(metricInitialBatch.ledger);
+  assert.equal(completedRunMetrics.intentCount, 58);
+  assert.equal(completedRunMetrics.uniqueExecutionKeys, 10);
+  assert.equal(completedRunMetrics.commandExecutions, 10);
+  assert.equal(completedRunMetrics.commandExecutions, completedRunMetrics.uniqueExecutionKeys);
+  assert.ok(completedRunMetrics.cacheHitRate >= 0.8);
+  assert.match(renderCausalMetrics(completedRunMetrics), /intentCount=58 uniqueExecutionKeys=10 commandExecutions=10/);
   emitIntentMarker(
     'CHK-005:happy:0',
-    'CHK-005: metrics are zero-safe and tamper-resistant canonical-ledger projections',
+    'completed 58-intent run reports intentCount=58 uniqueExecutionKeys=10 commandExecutions=10 cacheHitRate>=80% with commandExecutions equal to uniqueExecutionKeys',
   );
 
   const batch = createCausalEvidenceBatch();
@@ -1139,6 +1201,40 @@ test('CHK-005: metrics are zero-safe and tamper-resistant canonical-ledger proje
   emitIntentMarker(
     'CHK-005:edge:1',
     'a run containing both reusable and newly executed receipts reports counts from the actual execution ledger rather than intent count or a caller-supplied number',
+  );
+
+  const importRetryBatch = createCausalEvidenceBatch();
+  const importRetryStore = new MemoryReceiptStore();
+  const importRetrySource = await executeCausalEvidence({
+    identity: baseIdentity('B-causal-metric-import-retry'),
+    selector: 'IMPORT-RETRY',
+    run: async () => ({ code: 0, output: 'IMPORT-RETRY' }),
+    receiptStore: importRetryStore,
+    batch: importRetryBatch,
+    preflight: preflight(),
+  });
+  let importRetryCommits = 0;
+  const importRetryResult = importCausalEvidenceReceipt({
+    receipt: importRetrySource.receipt,
+    expectedStoryId: 'B-causal-metric-import-retry',
+    expectedExecutionKey: importRetrySource.key.key,
+    expectedMaterialHash: 'material-a',
+    expectedStoryFilesHash: 'story-a',
+    revalidate: () => true,
+    commit: () => {
+      importRetryCommits++;
+      if (importRetryCommits === 1) throw new Error('transient metric import failure');
+    },
+    batch: importRetryBatch,
+  });
+  const importRetryMetrics = deriveCausalMetrics(importRetryBatch.ledger);
+  assert.equal(importRetryResult.commandReruns, 0);
+  assert.equal(importRetryMetrics.commandReruns, 0);
+  assert.equal(importRetryMetrics.commitFailureReruns, 1);
+  assert.equal(importRetryResult.receiptHash, importRetrySource.receipt.receiptHash);
+  emitIntentMarker(
+    'CHK-005:happy:1',
+    'receipt-first import retry preserves receiptHash and commandReruns=0 while transaction retry is counted separately',
   );
 
   const incompleteMetricsBatch = createCausalEvidenceBatch();
@@ -1197,6 +1293,59 @@ test('CHK-005: metrics are zero-safe and tamper-resistant canonical-ledger proje
   assert.equal(correctnessMetrics.affectedNodeRerun, 100);
   assert.equal(correctnessMetrics.falseFresh, 0);
   assert.match(renderCausalMetrics(correctnessMetrics), /unrelatedSpecializedRerun=0 affectedNodeRerun=100% falseFresh=0/);
+  emitIntentMarker(
+    'CHK-005:happy:2',
+    'mixed correctness metrics report unrelatedSpecializedRerun=0 affectedNodeRerun=100% falseFresh=0',
+  );
+
+  const metricFieldNames = Object.keys(correctnessMetrics).sort();
+  assert.deepEqual(metricFieldNames, [
+    'affectedNodeRerun', 'cacheHitRate', 'commandExecutions', 'commandReruns', 'commitFailureReruns',
+    'falseFresh', 'intentCount', 'uniqueExecutionKeys', 'unrelatedSpecializedRerun',
+  ]);
+  assert.equal('elapsedMs' in correctnessMetrics, false);
+  assert.equal('reviewerLanes' in correctnessMetrics, false);
+  assert.equal('coverage' in correctnessMetrics, false);
+  assert.equal('waivers' in correctnessMetrics, false);
+  assert.doesNotMatch(renderCausalMetrics(correctnessMetrics), /elapsed|reviewer|coverage|waiver/i);
+  emitIntentMarker(
+    'CHK-005:adversarial:1',
+    'metrics expose only U-03 execution and freshness fields without overlapping elapsed time or assurance-reduction fields',
+  );
+
+  const strictMetricDecision = evaluateCausalDependencies({
+    nodes: [],
+    currentInputHashes: {},
+    previousMaterialHash: 'metric-material-before',
+    currentMaterialHash: 'metric-material-after',
+    previousStoryFilesHash: 'metric-story',
+    currentStoryFilesHash: 'metric-story',
+    doneRequired: true,
+  });
+  const metricGateFacts = {
+    inventoryApisPresent: true,
+    inventory: null,
+    currentStoryId: 'B-causal-test',
+    headHash: 'h1',
+    materialHash: 'm1',
+    storyFilesHash: 's1',
+    expectedMainSha: 'h1',
+    mainIsAncestor: true,
+    openBlockingFindingIds: [],
+    missingRequiredIntents: 0,
+    dirtyNonRuntimePaths: [],
+    gitIndexReadable: true,
+    evidenceTargetWritable: true,
+    causalDecision: strictMetricDecision,
+  };
+  assert.equal(evaluateCertificationWindowAdmit({ ...metricGateFacts, openBlockingFindingIds: ['F-open'] }).admit, false);
+  assert.equal(evaluateCertificationWindowAdmit({ ...metricGateFacts, missingRequiredIntents: 1, causalDecision: undefined }).admit, false);
+  assert.equal(evaluateCertificationWindowAdmit({ ...metricGateFacts, dirtyNonRuntimePaths: ['packages/main/src/example.ts'], causalDecision: undefined }).admit, false);
+  assert.equal(evaluateCertificationWindowAdmit({ ...metricGateFacts, causalDecision: strictMetricDecision }).admit, false);
+  emitIntentMarker(
+    'CHK-005:adversarial:2',
+    'metrics PASS cannot bypass open findings missing coverage dirty tree or strict whole-tree causal drift',
+  );
 
   const tampered = { ...batch.ledger, intentCount: 99 };
   assert.throws(() => deriveCausalMetrics(tampered), /causal_ledger_tampered/);
