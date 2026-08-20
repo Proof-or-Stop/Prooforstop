@@ -185,7 +185,23 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "The installed main package exposes proof-or-stop but no lattice bin alias, and help/residue checks no longer advertise lattice as a supported invocation.",
+      "files": {
+        "modify": [
+          "packages/main/package.json",
+          "packages/main/package-lock.json",
+          "packages/main/src/cli.ts",
+          "packages/main/src/cli/help-renderer.ts",
+          "packages/main/src/init-assets.ts",
+          "scripts/verify-entrypoints.mjs",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/bin-alias-migration.test.mjs"
+        ]
+      }
     }
   ]
 }
