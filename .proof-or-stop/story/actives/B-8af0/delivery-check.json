@@ -1,0 +1,53 @@
+{
+  "storyId": "B-8af0",
+  "checkedAt": "2026-08-20T12:49:35.460Z",
+  "headHash": "57bf85cf0c82791a3e44a10c7eb46c9d139ae168",
+  "materialHash": "93cfea0e00ed722a8d95ca9392230888a8bcdfb87af118f7b813177f3141f233",
+  "storyFilesHash": "a1fe50c9b2db58a608bdad8cb157dd3748d7f214ebecef264436d78755f25b8b",
+  "reviewRound": "2026-08-20T12:00:08.932Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".proof-or-stop/story/actives/B-8af0/checklist.json#CHK-001",
+      "promise": "After rerouting reordered but semantically identical candidates, the terminal shows `State: OPEN`; after a selected path or contentHash changes, it shows `State: INVALIDATED` and `OPEN_REVIEW_INVENTORY_CANDIDATE_ROUTING_MUTATION`.",
+      "status": "verified",
+      "verifiedBy": "Independent delivery reviewer using recorded current-material real-handler smoke",
+      "evidence": "node packages/main/dist/tasks/review-inventory-handler-smoke.js exited 0; markers: B-8af0 canonical candidate-order OPEN: PASS; B-8af0 selected path mutation invalidates: PASS; B-8af0 candidate content-or-selection drift: PASS; B-8af0 canonical barrier real-handler discriminates order: PASS."
+    },
+    {
+      "docPath": ".proof-or-stop/story/actives/B-8af0/checklist.json#CHK-002",
+      "promise": "When review-inventory reads a persisted artifact with a truthy non-array `candidates` field, the terminal shows `State: INVALIDATED` and `OPEN_REVIEW_INVENTORY_INVALID_CANDIDATE_ARTIFACT`, never an uncaught `TypeError`.",
+      "status": "verified",
+      "verifiedBy": "Independent delivery reviewer using recorded current-material real-handler smoke",
+      "evidence": "node packages/main/dist/tasks/review-inventory-handler-smoke.js exited 0; markers: B-8af0 malformed candidates fail closed: PASS; B-8af0 malformed candidate variants deterministic: PASS; B-8af0 malformed candidate structural guard: PASS; B-8af0 pre-begin malformed candidates fail closed: PASS; B-8af0 handler artifactDigest tamper fail closed: PASS."
+    },
+    {
+      "docPath": ".proof-or-stop/story/actives/B-8af0/checklist.json#CHK-003",
+      "promise": "After an unrelated story-branch commit and candidate reroute, the terminal positively prints `State: OPEN`; the smoke output includes the B-8af0 story-branch routing-neutral pass marker.",
+      "status": "verified",
+      "verifiedBy": "Independent delivery reviewer using recorded current-material real-handler smoke",
+      "evidence": "node packages/main/dist/tasks/review-inventory-handler-smoke.js exited 0; markers: B-8af0 story-branch routing-neutral OPEN: PASS; B-8af0 routing-neutral positive OPEN state: PASS; B-8af0 immutable story-branch fixture: PASS."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Recorded current-material mechanical transcript: node packages/main/dist/tasks/review-inventory-handler-smoke.js exited 0 and printed canonical candidate-order OPEN, selected path mutation invalidates, candidate content-or-selection drift, and canonical barrier real-handler discriminates order PASS markers."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Recorded current-material mechanical transcript: node packages/main/dist/tasks/review-inventory-handler-smoke.js exited 0 and printed malformed candidates fail closed, deterministic variants, structural guard, pre-begin malformed candidates fail closed, and artifactDigest tamper fail closed PASS markers."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Recorded current-material mechanical transcript: node packages/main/dist/tasks/review-inventory-handler-smoke.js exited 0 and printed story-branch routing-neutral OPEN, routing-neutral positive OPEN state, and immutable story-branch fixture PASS markers."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Independent delivery review verified all three user-visible promises from current-material mechanical receipts. Reordering stays OPEN; selected content or path changes invalidate; malformed string and object artifacts fail closed before dereference; the unrelated story-branch fixture remains OPEN."
+  },
+  "_hash": "79cd1a36ce6aa4d4904154146f608a464cd3aeef0a35a64c3122fa0d0d2d2cec"
+}

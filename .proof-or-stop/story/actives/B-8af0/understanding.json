@@ -1,0 +1,29 @@
+{
+  "task": "Repair the residual review-inventory candidate-routing freshness leak and malformed artifact failure path inherited from B-3f3d.",
+  "outcome": "After an unrelated story-branch commit and a semantically identical candidate reroute, review_inventory_status shows State: OPEN rather than a candidate-routing mutation. A persisted artifact with truthy non-array candidates prints State: INVALIDATED with OPEN_REVIEW_INVENTORY_INVALID_CANDIDATE_ARTIFACT instead of an uncaught TypeError. A real selected path or content change still invalidates, and artifactDigest tampering remains rejected.",
+  "facts": [
+    "B-3f3d F-107/F-108 found equal corpusDigest but changed candidate barrier digest after unrelated changedPaths churn.",
+    "captureReviewInventoryScope projects candidates in stored order, so equivalent path/content candidates in a new order produce a distinct digest.",
+    "verifyCandidateSpecSet dereferences candidate fields without first proving that persisted JSON is an object with a candidates array.",
+    "ReviewInventoryEpoch has a closed blocker-code union, so the invalid-artifact contract must be added to types and the decision record.",
+    "The immutable reference fixture is git object 2c9395fa22e18ca40ba3ee47d9d40c2ad748e009; stash@{0} is unrelated B-3f3d metadata and must not be applied.",
+    "The existing handler smoke proves a real candidate drift invalidates an OPEN epoch but lacks the routing-neutral story-branch positive case."
+  ],
+  "constraints": [
+    "Do not apply or pop any stash.",
+    "Do not weaken artifact tamper detection or permit a genuine candidate selection/content change to retain an OPEN epoch.",
+    "Malformed persisted input must fail closed through the real handler path with no uncaught TypeError.",
+    "Touch only the user-confirmed candidate-routing scope and preserve unrelated worktree/main changes."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/handlers/review-inventory.ts",
+    "packages/main/src/core/candidate-spec-routing.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+    "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+    "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+    "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+  ],
+  "timestamp": "2026-08-20T09:20:40.168Z"
+}

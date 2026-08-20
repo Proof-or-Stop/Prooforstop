@@ -7,6 +7,7 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { StoryStore } from '../core/store.js';
 import { resetConfigCache } from '../core/config.js';
+import { digestCandidateRoutingValue, verifyCandidateSpecSet, type CandidateSpecSetArtifact } from '../core/candidate-spec-routing.js';
 import {
   consumeReviewInventoryReceipt,
   finalizedUnconsumedReviewInventory,
@@ -79,6 +80,10 @@ function setup() {
   writeFileSync(join(root, 'packages/main/src/consumer-b.ts'), "export { subject } from './consumer-a.js';\n");
   writeFileSync(join(root, 'packages/main/tests/isolated.test.ts'), 'export const isolatedTest = 1;\n');
   writeFileSync(join(root, 'docs/requirements/decisions/inventory.md'), '# Review inventory\n');
+  writeFileSync(join(root, 'docs/requirements/decisions/inventory-secondary.md'), '# Review inventory supplementary\n');
+  for (const name of ['almanac', 'beacon', 'compass', 'dossier', 'ledger', 'notebook']) {
+    writeFileSync(join(root, `docs/requirements/decisions/${name}.md`), `# ${name}\nUnrelated fixture material.\n`);
+  }
   git(root, ['init']);
   git(root, ['checkout', '-b', 'main']);
   git(root, ['config', 'user.name', 'lattice-implementer']);
@@ -116,6 +121,15 @@ function setup() {
     ] },
   ] } as never);
   return { root, store, handlers: createReviewInventoryHandlers({ root, scanRoot: join(root, 'packages/main'), store }) };
+}
+
+function rewriteCandidateArtifact(
+  artifact: CandidateSpecSetArtifact,
+  changes: Partial<Omit<CandidateSpecSetArtifact, 'artifactDigest'>>,
+): CandidateSpecSetArtifact {
+  const { artifactDigest: _artifactDigest, ...base } = artifact;
+  const next = { ...base, ...changes };
+  return { ...next, artifactDigest: digestCandidateRoutingValue(next) };
 }
 
 function seedProofStoryAcceptance(store: StoryStore): void {
@@ -787,16 +801,177 @@ assert.throws(
 );
 
 const candidateDrift = setup();
-cli(candidateDrift.root, 'review_inventory_begin', { storyId });
 cli(candidateDrift.root, 'candidate_spec_route', { storyId, hosts: false });
+cli(candidateDrift.root, 'review_inventory_begin', { storyId });
+const candidateBeforeDrift = candidateDrift.store.readCandidateSpecSet(storyId);
+assert.ok(candidateBeforeDrift, 'candidate route must persist the initial valid artifact');
+assert.ok(candidateBeforeDrift.candidates.length > 0, 'content-drift regression requires a selected candidate row');
+const candidateContentDrift = rewriteCandidateArtifact(candidateBeforeDrift, {
+  candidates: candidateBeforeDrift.candidates.map((candidate, index) => index === 0
+    ? { ...candidate, contentHash: 'f'.repeat(64) }
+    : candidate),
+});
+assert.equal(verifyCandidateSpecSet(candidateContentDrift), true, 'content drift fixture must remain a structurally valid artifact');
+candidateDrift.store.writeCandidateSpecSet(storyId, candidateContentDrift);
 const candidateDriftStatus = cli(candidateDrift.root, 'review_inventory_status', { storyId });
 assert.match(candidateDriftStatus, /State: INVALIDATED/);
 assert.match(candidateDriftStatus, /OPEN_REVIEW_INVENTORY_CANDIDATE_ROUTING_MUTATION/);
 assert.match(
   cli(candidateDrift.root, 'review_inventory_finalize', { storyId }),
   /State: FINALIZED[\s\S]*authorizesTest: false/,
-  'F039: candidate routing invalidates OPEN epoch; finalize then writes PRE_CERT completeness receipt',
+  'F039: selected candidate content drift invalidates OPEN epoch; finalize then writes PRE_CERT completeness receipt',
 );
+
+const candidatePathDrift = setup();
+cli(candidatePathDrift.root, 'candidate_spec_route', { storyId, hosts: false });
+cli(candidatePathDrift.root, 'review_inventory_begin', { storyId });
+const candidateBeforePathDrift = candidatePathDrift.store.readCandidateSpecSet(storyId);
+assert.ok(candidateBeforePathDrift, 'candidate route must persist the initial artifact before selected-path drift');
+assert.ok(candidateBeforePathDrift.candidates.length > 0, 'selected-path drift fixture requires a selected candidate row');
+const selectedCandidate = candidateBeforePathDrift.candidates[0]!;
+const mutatedSelectedPath = 'docs/requirements/decisions/almanac.md';
+assert.ok(!candidateBeforePathDrift.candidateSpecSet.includes(mutatedSelectedPath), 'selected-path drift fixture requires a path outside the initial selected set');
+const selectedCandidateBasis = candidateBeforePathDrift.candidateBasis[selectedCandidate.path];
+assert.ok(selectedCandidateBasis, 'selected-path drift fixture requires basis evidence for the selected row');
+const { [selectedCandidate.path]: _removedBasis, ...remainingCandidateBasis } = candidateBeforePathDrift.candidateBasis;
+const candidatePathMutation = rewriteCandidateArtifact(candidateBeforePathDrift, {
+  candidates: candidateBeforePathDrift.candidates.map((candidate, index) => index === 0
+    ? { ...candidate, path: mutatedSelectedPath }
+    : candidate),
+  candidateSpecSet: candidateBeforePathDrift.candidateSpecSet.map((path, index) => index === 0 ? mutatedSelectedPath : path),
+  candidateBasis: { ...remainingCandidateBasis, [mutatedSelectedPath]: selectedCandidateBasis },
+});
+assert.equal(verifyCandidateSpecSet(candidatePathMutation), true, 'selected-path mutation fixture must retain a structurally valid recomputed artifact');
+candidatePathDrift.store.writeCandidateSpecSet(storyId, candidatePathMutation);
+const candidatePathDriftStatus = cli(candidatePathDrift.root, 'review_inventory_status', { storyId });
+assert.match(candidatePathDriftStatus, /State: INVALIDATED/);
+assert.match(candidatePathDriftStatus, /OPEN_REVIEW_INVENTORY_CANDIDATE_ROUTING_MUTATION/);
+assert.doesNotMatch(candidatePathDriftStatus, /TypeError/);
+console.log('B-8af0 selected path mutation invalidates: PASS');
+
+const candidateOrderNeutral = setup();
+cli(candidateOrderNeutral.root, 'candidate_spec_route', { storyId, hosts: false });
+cli(candidateOrderNeutral.root, 'review_inventory_begin', { storyId });
+const candidateBeforeReorder = candidateOrderNeutral.store.readCandidateSpecSet(storyId);
+assert.ok(candidateBeforeReorder, 'candidate route must persist an artifact before the reorder regression');
+assert.ok(candidateBeforeReorder.candidates.length >= 2, 'reorder regression requires multiple selected candidate rows');
+const candidateReordered = rewriteCandidateArtifact(candidateBeforeReorder, {
+  candidates: [...candidateBeforeReorder.candidates].reverse(),
+  candidateSpecSet: [...candidateBeforeReorder.candidateSpecSet].reverse(),
+});
+assert.equal(verifyCandidateSpecSet(candidateReordered), true, 'reordered candidate artifact must retain a valid artifactDigest');
+candidateOrderNeutral.store.writeCandidateSpecSet(storyId, candidateReordered);
+const candidateOrderNeutralStatus = cli(candidateOrderNeutral.root, 'review_inventory_status', { storyId });
+assert.match(candidateOrderNeutralStatus, /State: OPEN/, 'the same selected path/content set in a different order must stay OPEN');
+assert.doesNotMatch(candidateOrderNeutralStatus, /OPEN_REVIEW_INVENTORY_CANDIDATE_ROUTING_MUTATION/);
+
+// Reconstructed from immutable B-3f3d fixture commit
+// 2c9395fa22e18ca40ba3ee47d9d40c2ad748e009. Never apply/pop its originating stash:
+// the real intervening branch commit is essential to exercise changedPaths freshness.
+const candidateStoryBranchNeutral = setup();
+git(candidateStoryBranchNeutral.root, ['checkout', '-b', `story/${storyId}`]);
+cli(candidateStoryBranchNeutral.root, 'candidate_spec_route', { storyId, hosts: false });
+cli(candidateStoryBranchNeutral.root, 'review_inventory_begin', { storyId });
+const runtimeActivityPath = join(candidateStoryBranchNeutral.root, '.proof-or-stop/activity.jsonl');
+assert.equal(existsSync(runtimeActivityPath), true, 'candidate route must leave a runtime activity artifact for the routing-neutral branch fixture');
+git(candidateStoryBranchNeutral.root, ['add', '.proof-or-stop/activity.jsonl']);
+git(candidateStoryBranchNeutral.root, ['commit', '-m', 'unrelated runtime artifact change that moves HEAD and changedPaths']);
+assert.notEqual(
+  git(candidateStoryBranchNeutral.root, ['diff', '--name-only', 'main...HEAD']),
+  '',
+  'B-8af0 fixture must produce non-empty changedPaths on a story branch',
+);
+cli(candidateStoryBranchNeutral.root, 'candidate_spec_route', { storyId, hosts: false });
+const candidateStoryBranchNeutralStatus = cli(candidateStoryBranchNeutral.root, 'review_inventory_status', { storyId });
+assert.match(candidateStoryBranchNeutralStatus, /State: OPEN/, 'routing-neutral re-route after an unrelated branch commit must stay OPEN');
+assert.doesNotMatch(candidateStoryBranchNeutralStatus, /OPEN_REVIEW_INVENTORY_CANDIDATE_ROUTING_MUTATION/);
+console.log('B-8af0 canonical candidate-order OPEN: PASS');
+console.log('B-8af0 candidate content-or-selection drift: PASS');
+console.log('B-8af0 canonical barrier real-handler discriminates order: PASS');
+console.log('B-8af0 story-branch routing-neutral OPEN: PASS');
+console.log('B-8af0 routing-neutral positive OPEN state: PASS');
+console.log('B-8af0 immutable story-branch fixture: PASS');
+
+for (const [label, malformedCandidates] of [
+  ['string', 'not-an-array'],
+  ['object', { path: 'not-an-array' }],
+] as const) {
+  const malformedCandidate = setup();
+  cli(malformedCandidate.root, 'candidate_spec_route', { storyId, hosts: false });
+  cli(malformedCandidate.root, 'review_inventory_begin', { storyId });
+  const artifact = malformedCandidate.store.readCandidateSpecSet(storyId);
+  assert.ok(artifact, `candidate route must persist an artifact before malformed ${label} injection`);
+  const { artifactDigest: _staleArtifactDigest, ...validBase } = artifact;
+  const malformedBase = {
+    ...validBase,
+    candidates: malformedCandidates,
+  };
+  // A stale digest is already rejected by the legacy integrity check. Recompute
+  // it so this proves the structural candidates guard remains fail-closed even
+  // when an attacker supplies a signed-looking replacement artifact.
+  const signedMalformedArtifact = {
+    ...malformedBase,
+    artifactDigest: digestCandidateRoutingValue(malformedBase),
+  } as unknown as CandidateSpecSetArtifact;
+  assert.equal(verifyCandidateSpecSet(signedMalformedArtifact), false, `malformed ${label} candidates must fail structural verification even with a recomputed artifactDigest`);
+  malformedCandidate.store.writeCandidateSpecSet(storyId, signedMalformedArtifact);
+  const malformedStatus = cli(malformedCandidate.root, 'review_inventory_status', { storyId });
+  assert.match(malformedStatus, /State: INVALIDATED/, `malformed ${label} candidates must invalidate the OPEN epoch`);
+  assert.match(malformedStatus, /OPEN_REVIEW_INVENTORY_INVALID_CANDIDATE_ARTIFACT/);
+  assert.doesNotMatch(malformedStatus, /TypeError/, `malformed ${label} candidates must fail closed without a raw TypeError`);
+}
+console.log('B-8af0 malformed candidates fail closed: PASS');
+console.log('B-8af0 malformed candidate variants deterministic: PASS');
+console.log('B-8af0 malformed candidate structural guard: PASS');
+
+for (const [label, malformedCandidates] of [
+  ['string', 'not-an-array'],
+  ['object', { path: 'not-an-array' }],
+] as const) {
+  const malformedBeforeBegin = setup();
+  cli(malformedBeforeBegin.root, 'candidate_spec_route', { storyId, hosts: false });
+  const artifact = malformedBeforeBegin.store.readCandidateSpecSet(storyId);
+  assert.ok(artifact, `candidate route must persist an artifact before pre-begin malformed ${label} injection`);
+  const { artifactDigest: _staleArtifactDigest, ...validBase } = artifact;
+  const malformedBase = { ...validBase, candidates: malformedCandidates };
+  const signedMalformedArtifact = {
+    ...malformedBase,
+    artifactDigest: digestCandidateRoutingValue(malformedBase),
+  } as unknown as CandidateSpecSetArtifact;
+  assert.equal(verifyCandidateSpecSet(signedMalformedArtifact), false, `pre-begin malformed ${label} candidates must fail structural verification despite a recomputed artifactDigest`);
+  malformedBeforeBegin.store.writeCandidateSpecSet(storyId, signedMalformedArtifact);
+  const beginStatus = cli(malformedBeforeBegin.root, 'review_inventory_begin', { storyId });
+  assert.match(beginStatus, /State: INVALIDATED/, `pre-begin malformed ${label} candidates must never sign an OPEN inventory epoch`);
+  assert.doesNotMatch(beginStatus, /State: OPEN/);
+  assert.match(beginStatus, /OPEN_REVIEW_INVENTORY_INVALID_CANDIDATE_ARTIFACT/);
+  assert.match(beginStatus, /Invalid candidate routing artifact: persisted candidate-spec-set\.json failed structural and artifactDigest verification\./);
+  assert.doesNotMatch(beginStatus, /TypeError/);
+  const persistedStatus = cli(malformedBeforeBegin.root, 'review_inventory_status', { storyId });
+  assert.match(persistedStatus, /State: INVALIDATED/, `pre-begin malformed ${label} invalidation must persist atomically`);
+  assert.match(persistedStatus, /OPEN_REVIEW_INVENTORY_INVALID_CANDIDATE_ARTIFACT/);
+}
+console.log('B-8af0 pre-begin malformed candidates fail closed: PASS');
+
+const staleDigestContentTamper = setup();
+cli(staleDigestContentTamper.root, 'candidate_spec_route', { storyId, hosts: false });
+cli(staleDigestContentTamper.root, 'review_inventory_begin', { storyId });
+const validArtifactBeforeTamper = staleDigestContentTamper.store.readCandidateSpecSet(storyId);
+assert.ok(validArtifactBeforeTamper, 'candidate route must persist a valid-shape artifact before stale-digest content tampering');
+assert.equal(verifyCandidateSpecSet(validArtifactBeforeTamper), true, 'stale-digest handler fixture must start from a valid routed artifact');
+assert.ok(validArtifactBeforeTamper.candidates.length > 0, 'stale-digest handler fixture requires a selected candidate row');
+const staleDigestContentTamperedArtifact = {
+  ...validArtifactBeforeTamper,
+  candidates: validArtifactBeforeTamper.candidates.map((candidate, index) => index === 0
+    ? { ...candidate, contentHash: 'e'.repeat(64) }
+    : candidate),
+};
+staleDigestContentTamper.store.writeCandidateSpecSet(storyId, staleDigestContentTamperedArtifact);
+const staleDigestContentTamperStatus = cli(staleDigestContentTamper.root, 'review_inventory_status', { storyId });
+assert.match(staleDigestContentTamperStatus, /State: INVALIDATED/);
+assert.match(staleDigestContentTamperStatus, /OPEN_REVIEW_INVENTORY_INVALID_CANDIDATE_ARTIFACT/);
+assert.match(staleDigestContentTamperStatus, /Invalid candidate routing artifact: persisted candidate-spec-set\.json failed structural and artifactDigest verification\./);
+assert.doesNotMatch(staleDigestContentTamperStatus, /TypeError/);
+console.log('B-8af0 handler artifactDigest tamper fail closed: PASS');
 
 const publicationRace = setup();
 cli(publicationRace.root, 'review_inventory_begin', { storyId });

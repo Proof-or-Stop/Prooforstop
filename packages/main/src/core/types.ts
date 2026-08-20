@@ -1743,7 +1743,8 @@ export interface ReviewInventoryEpoch {
     blockerCode:
       | 'OPEN_REVIEW_INVENTORY_MATERIAL_MUTATION'
       | 'OPEN_REVIEW_INVENTORY_SCOPE_MUTATION'
-      | 'OPEN_REVIEW_INVENTORY_CANDIDATE_ROUTING_MUTATION';
+      | 'OPEN_REVIEW_INVENTORY_CANDIDATE_ROUTING_MUTATION'
+      | 'OPEN_REVIEW_INVENTORY_INVALID_CANDIDATE_ARTIFACT';
     oldScopeDigest?: string;
     currentScopeDigest?: string;
     oldRequiredLanes?: string[];
