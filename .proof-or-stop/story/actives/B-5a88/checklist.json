@@ -295,9 +295,9 @@
         "docs/requirements/decisions/proof-or-stop-identity-migration.md",
         "packages/main/src/core/process-fact-registry.ts"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-08-20T05:55:42.355Z",
-      "endTime": null,
+      "endTime": "2026-08-20T06:11:30.776Z",
       "userSees": "User sees `\"schemaVersion\": \"proof-or-stop.done_required_evidence.v1\"` in new evidence, while story_get reports an archived `\"lattice.done_required_evidence.v1\"` artifact as valid.",
       "files": {
         "modify": [
@@ -417,7 +417,14 @@
           "storyFilesHash": "d0169898de849224bad64911759afc317837c874d6f556765d68bb63c0123ed0",
           "timestamp": "2026-08-20T06:11:23.594Z"
         }
-      ]
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "79277edf1316c189896d485def464f14499922b9c91d9e2170908dbd909de541",
+        "storyFilesHash": "d0169898de849224bad64911759afc317837c874d6f556765d68bb63c0123ed0",
+        "headHash": "2636f969b009ef4e0137d018b40fd1acca96426e",
+        "attestedAt": "2026-08-20T06:11:30.985Z",
+        "materialHash": "3b2247fe33acdc7dc2603e9dee5764e551824957f467fd57206c621c99b5d238"
+      }
     },
     {
       "id": "CHK-004",
