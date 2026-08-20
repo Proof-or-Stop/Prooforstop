@@ -1435,23 +1435,65 @@ function exportedCallableCount(source: ts.SourceFile, expected: string): number 
   return count;
 }
 
-function sameFileCallableCalls(source: ts.SourceFile, caller: string, callee: string): boolean {
-  let found = false;
-  const inspectBody = (node: ts.Node): void => {
-    if (ts.isCallExpression(node) && ts.isIdentifier(unwrapExpression(node.expression))
-      && (unwrapExpression(node.expression) as ts.Identifier).text === callee) found = true;
-    if (!found) ts.forEachChild(node, inspectBody);
-  };
-  for (const statement of source.statements) {
-    if (ts.isFunctionDeclaration(statement) && statement.name?.text === caller && statement.body) inspectBody(statement.body);
-    if (!ts.isVariableStatement(statement)) continue;
-    for (const declaration of statement.declarationList.declarations) {
-      if (!ts.isIdentifier(declaration.name) || declaration.name.text !== caller || !declaration.initializer) continue;
-      const initializer = unwrapExpression(declaration.initializer);
-      if (ts.isArrowFunction(initializer) || ts.isFunctionExpression(initializer)) inspectBody(initializer.body);
+const MAX_SAME_FILE_CALL_REACHABILITY_DEPTH = 32;
+
+function isCallableDeclaration(node: ts.Node): boolean {
+  return ts.isFunctionDeclaration(node) || ts.isMethodDeclaration(node)
+    || ts.isArrowFunction(node) || ts.isFunctionExpression(node);
+}
+
+function sameFileCallableBody(source: ts.SourceFile, expected: string): ts.Node | null {
+  const bodies: ts.Node[] = [];
+  const visit = (node: ts.Node): void => {
+    if (ts.isFunctionDeclaration(node) && node.name?.text === expected && node.body) bodies.push(node.body);
+    if (ts.isMethodDeclaration(node) && ts.isIdentifier(node.name) && node.name.text === expected && node.body) bodies.push(node.body);
+    if (ts.isVariableStatement(node)) {
+      for (const declaration of node.declarationList.declarations) {
+        if (!ts.isIdentifier(declaration.name) || declaration.name.text !== expected || !declaration.initializer) continue;
+        const initializer = unwrapExpression(declaration.initializer);
+        if ((ts.isArrowFunction(initializer) || ts.isFunctionExpression(initializer)) && initializer.body) bodies.push(initializer.body);
+      }
     }
+    ts.forEachChild(node, visit);
+  };
+  visit(source);
+  return bodies.length === 1 ? bodies[0] : null;
+}
+
+function sameFileCallableCallNames(source: ts.SourceFile, caller: string): Set<string> {
+  const body = sameFileCallableBody(source, caller);
+  if (!body) return new Set();
+  const called = new Set<string>();
+  const inspectBody = (node: ts.Node): void => {
+    if (node !== body && isCallableDeclaration(node)) return;
+    if (ts.isCallExpression(node)) {
+      const expression = unwrapExpression(node.expression);
+      if (ts.isIdentifier(expression)) called.add(expression.text);
+    }
+    ts.forEachChild(node, inspectBody);
+  };
+  inspectBody(body);
+  return called;
+}
+
+function sameFileCallableCalls(source: ts.SourceFile, caller: string, callee: string): boolean {
+  return sameFileCallableCallNames(source, caller).has(callee);
+}
+
+function sameFileCallableReachable(
+  source: ts.SourceFile,
+  caller: string,
+  callee: string,
+  visiting = new Set<string>(),
+  depth = 0,
+): boolean {
+  if (caller === callee) return true;
+  if (depth >= MAX_SAME_FILE_CALL_REACHABILITY_DEPTH || visiting.has(caller)) return false;
+  const nextVisiting = new Set(visiting).add(caller);
+  for (const candidate of sameFileCallableCallNames(source, caller)) {
+    if (candidate === callee || sameFileCallableReachable(source, candidate, callee, nextVisiting, depth + 1)) return true;
   }
-  return found;
+  return false;
 }
 
 function hasSameFileIncomingCall(source: ts.SourceFile, expected: string): boolean {
@@ -1502,12 +1544,17 @@ function producerConsumerRelation(
   producer: VerificationPlannedPathEndpointV1,
   consumer: VerificationPlannedPathEndpointV1,
 ): boolean {
+  const sourceText = graph.readContext.snapshots.get(consumer.expectedFileRef);
+  const source = sourceText !== undefined
+    ? ts.createSourceFile(consumer.expectedFileRef, sourceText, ts.ScriptTarget.Latest, true, scriptKindFor(consumer.expectedFileRef))
+    : undefined;
   const importedCall = (graph.sourceScans.get(consumer.expectedFileRef)?.calledImports ?? []).some(call =>
     call.sourceFile === producer.expectedFileRef && call.imported === producer.expectedSymbolOrFact
-      && call.caller === consumer.expectedSymbolOrFact);
-  const source = graph.readContext.snapshots.get(consumer.expectedFileRef) !== undefined
-    ? ts.createSourceFile(consumer.expectedFileRef, graph.readContext.snapshots.get(consumer.expectedFileRef)!, ts.ScriptTarget.Latest, true, scriptKindFor(consumer.expectedFileRef))
-    : undefined;
+      && (call.caller === consumer.expectedSymbolOrFact
+        || (registeredHandlerEndpoint(graph, consumer)
+          && call.caller !== null
+          && source !== undefined
+          && sameFileCallableReachable(source, consumer.expectedSymbolOrFact, call.caller))));
   const sameFileCall = producer.expectedFileRef === consumer.expectedFileRef && source
     ? sameFileCallableCalls(source, consumer.expectedSymbolOrFact, producer.expectedSymbolOrFact) : false;
   const registryRelation = (producer.expectedArtifactKind === 'process_fact' || consumer.expectedArtifactKind === 'process_fact')
