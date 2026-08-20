@@ -1,0 +1,86 @@
+{
+  "storyId": "B-8af0",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/candidate-spec-routing.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/handlers/review-inventory.ts",
+    "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+    "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+    "packages/main/src/tasks/candidate-spec-routing-smoke.ts"
+  ],
+  "protectedFiles": [
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/runtime-fact-registry.ts",
+    "packages/main/src/core/runtime-artifact-registry.ts"
+  ],
+  "explicitExcludes": [
+    "packages/main/src/B-3f3d user-facing status and userSees follow-ups",
+    "packages/main/src/B-49ed topology critic signing/provenance",
+    "packages/main/src/candidate-routing rollout promotion",
+    "packages/main/src/Authority or production behavior"
+  ],
+  "acknowledgements": [],
+  "createdAt": "2026-08-20T09:20:27.970Z",
+  "updatedAt": "2026-08-20T09:20:27.970Z",
+  "fileRules": [
+    {
+      "path": "packages/main/src/handlers/review-inventory.ts",
+      "allowedAnchors": [
+        "captureReviewInventoryScope",
+        "persistInvalidationIfDrifted",
+        "renderReviewInventoryStatus"
+      ],
+      "intentRefs": [
+        "CHK-001:canonical-order-open",
+        "CHK-001:content-and-selection-drift",
+        "CHK-002:truthy-nonarray-fails-closed",
+        "CHK-002:no-uncaught-typeerror"
+      ]
+    },
+    {
+      "path": "packages/main/src/core/candidate-spec-routing.ts",
+      "allowedAnchors": [
+        "verifyCandidateSpecSet"
+      ],
+      "intentRefs": [
+        "CHK-002:malformed-artifact-cannot-pass-as-valid",
+        "CHK-002:artifact-digest-tamper-still-rejected"
+      ]
+    },
+    {
+      "path": "packages/main/src/core/types.ts",
+      "allowedAnchors": [
+        "ReviewInventoryEpoch"
+      ],
+      "intentRefs": [
+        "CHK-002:truthy-nonarray-fails-closed"
+      ]
+    }
+  ],
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/core/candidate-spec-routing.ts": "packages/main/src/core/candidate-spec-routing.ts",
+    "packages/main/src/core/types.ts": "packages/main/src/core/types.ts",
+    "packages/main/src/handlers/review-inventory.ts": "packages/main/src/handlers/review-inventory.ts",
+    "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md": "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+    "packages/main/src/tasks/review-inventory-handler-smoke.ts": "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+    "packages/main/src/tasks/review-inventory-epoch-smoke.ts": "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+    "packages/main/src/tasks/candidate-spec-routing-smoke.ts": "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+    "packages/main/src/core/process-fact-registry.ts": "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/runtime-fact-registry.ts": "packages/main/src/core/runtime-fact-registry.ts",
+    "packages/main/src/core/runtime-artifact-registry.ts": "packages/main/src/core/runtime-artifact-registry.ts",
+    "packages/main/src/B-3f3d user-facing status and userSees follow-ups": "B-3f3d user-facing status and userSees follow-ups",
+    "packages/main/src/B-49ed topology critic signing/provenance": "B-49ed topology critic signing/provenance",
+    "packages/main/src/candidate-routing rollout promotion": "candidate-routing rollout promotion",
+    "packages/main/src/Authority or production behavior": "Authority or production behavior"
+  },
+  "anchorParserVersion": "typescript-5.9-ast-v1",
+  "anchorArtifactVersion": "lattice.scope-anchor.v1",
+  "astAnchorMode": "enforce"
+}
