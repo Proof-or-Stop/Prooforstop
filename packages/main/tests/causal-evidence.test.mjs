@@ -1229,9 +1229,55 @@ test('CHK-004: preflight refuses exact readiness failures with zero execution/ev
     /missing_or_forged_preflight.*causal_preflight_invalid/,
   );
   assert.equal(unrelatedLaunches, 0);
+
+  const boundIdentity = baseIdentity('B-causal-preflight-identity-bound');
+  const mismatchedIdentities = [
+    ['command', { command: { executable: process.execPath, args: ['-e', "console.log('DIFFERENT-COMMAND')"] } }],
+    ['story', { storyId: 'B-causal-preflight-different-story' }],
+    ['cwd', { cwd: tmpdir() }],
+    ['inputs', { inputs: { materialHash: 'different-material', explicitInput: 'a' } }],
+    ['selector policy', { selectorPolicy: { ...DEFAULT_CAUSAL_SELECTOR_POLICY, matcher: 'different' } }],
+  ];
+  for (const [label, overrides] of mismatchedIdentities) {
+    const report = preflightFor(boundIdentity);
+    const currentIdentity = { ...boundIdentity, ...overrides };
+    const store = new MemoryReceiptStore();
+    const batch = createCausalEvidenceBatch();
+    let launches = 0;
+    let writes = 0;
+    const writeTrackingStore = {
+      readCausalEvidenceReceipt: store.readCausalEvidenceReceipt.bind(store),
+      writeCausalEvidenceReceipt: (...args) => {
+        writes++;
+        return store.writeCausalEvidenceReceipt(...args);
+      },
+    };
+    await assert.rejects(
+      executeCausalEvidence({
+        identity: currentIdentity,
+        selector: `MISMATCHED-${label}`,
+        run: async () => {
+          launches++;
+          return { code: 0, output: `MISMATCHED-${label}` };
+        },
+        receiptStore: writeTrackingStore,
+        batch,
+        preflight: report,
+        revalidateBeforeRun: () => true,
+      }),
+      /missing_or_forged_preflight.*commandExecutions=0 evidenceWrites=0/,
+      `${label} mismatch refuses before execution`,
+    );
+    assert.equal(launches, 0, `${label} mismatch does not launch the child`);
+    assert.equal(writes, 0, `${label} mismatch does not write evidence`);
+    assert.equal(report.commandExecutions, 0, `${label} report remains zero-execution`);
+    assert.equal(report.evidenceWrites, 0, `${label} report remains zero-write`);
+    assert.equal(batch.ledger.intentCount, 0, `${label} mismatch does not record an intent`);
+    assert.equal(batch.ledger.executions.length, 0, `${label} mismatch does not record an execution`);
+  }
   emitIntentMarker(
     'CHK-004:adversarial:1',
-    'missing, stale, or forged preflight is rejected before child launch with commandExecutions=0 and no gate-admissible PASS',
+    'missing, stale, forged, or identity-mismatched preflight is rejected before child launch with commandExecutions=0 and no gate-admissible PASS',
   );
 });
 
