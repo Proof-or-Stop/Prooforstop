@@ -124,17 +124,22 @@
         {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "logic_test",
-          "verdict": "success",
-          "file": "packages/main/src/core/agent-dispatch-registry.ts",
           "command": "node --input-type=module -e \"import assert from \\\"node:assert/strict\\\"; import {resolveAgentDispatchType} from \\\"./packages/main/dist.staging/core/agent-dispatch-registry.js\\\"; assert.equal(resolveAgentDispatchType(\\\"verification-intent\\\").canonicalType,\\\"proof-or-stop-test-intent\\\"); assert.throws(()=>resolveAgentDispatchType(\\\"lattice-review-unknown\\\"),/unknown agentType/); console.log(\\\"CHK-001 alias-boundary smoke: PASS\\\")\"",
           "result": "pass",
-          "note": "The historical verification alias resolves only to the canonical test-intent role, while an unknown lattice-like role is rejected.",
-          "headHash": "2c0f92bc4eac52eb5dc332b678e3cf13a5ffda2d",
-          "materialHash": "d903508de381187a921b8a83171cfdc191dac23bb820c7575d59f7c3844fa089",
-          "storyFilesHash": "f6cd9a6b05415bf61a3c8c141efda7359dd27925595813c92ef591c5222182be",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-20T08:54:37.421Z"
+          "note": "Re-ran the pinned alias-boundary verifier; supported aliases resolve canonically and malformed reviewer-like IDs are rejected.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "87b0293ba6a868edc71290166edbd136f9ffd4d4a14868a71e6c48f8e555162f",
+            "outputTail": "CHK-001 alias-boundary smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T10:12:29.001Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "5aa0bf4e289897afad10b8195dbd3a726307902f",
+          "materialHash": "065b7ceee89b7a485d9f8c2b675c850b04ba566776e3bfb8e9225d0a055e692e",
+          "storyFilesHash": "a9d8324e30251fa6ad5ec54091383e90df00c63d6515235afdc2c684a6504eb7",
+          "timestamp": "2026-08-20T10:12:29.208Z"
         }
       ],
       "userSeesSnapshot": {
