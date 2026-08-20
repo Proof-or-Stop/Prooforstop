@@ -31,6 +31,10 @@ export const MODULAR_REVIEWER_ROLE_IDS = [
   'lattice-review-topology-critic',
 ] as const;
 export type ModularReviewerRoleId = typeof MODULAR_REVIEWER_ROLE_IDS[number];
+/** Five active REVIEW-lane bootstrap roles; topology-critic stays a modular body. */
+export const ACTIVE_MODULAR_REVIEWER_ROLE_IDS = Object.freeze(
+  MODULAR_REVIEWER_ROLE_IDS.filter(id => id !== 'lattice-review-topology-critic'),
+);
 /** Story 6 roles use the same trusted story-dispatch envelope, but are not REVIEW lanes. */
 export const MODULAR_COMPLEX_ROLE_IDS = [
   'lattice-review-story-init',
@@ -255,6 +259,10 @@ export function isModularReviewerRoleId(roleId: string): roleId is ModularReview
   return (MODULAR_REVIEWER_ROLE_IDS as readonly string[]).includes(roleId);
 }
 
+export function isActiveModularReviewerRoleId(roleId: string): boolean {
+  return (ACTIVE_MODULAR_REVIEWER_ROLE_IDS as readonly string[]).includes(roleId);
+}
+
 export function isModularComplexRoleId(roleId: string): roleId is ModularComplexRoleId {
   return (MODULAR_COMPLEX_ROLE_IDS as readonly string[]).includes(roleId);
 }
@@ -427,7 +435,7 @@ export function renderPromptEntryForHost(
     ? resolvePromptTemplateBody(entry, mode)
     : readPromptTemplate(entry);
   const hostTemplate = renderPromptForHost(selectedTemplate, host);
-  return isModularReviewerRoleId(entry.agentId)
+  return isActiveModularReviewerRoleId(entry.agentId)
     ? renderReviewerRunBootstrapForTemplate(hostTemplate, entry.file)
     : hostTemplate;
 }

@@ -90,7 +90,7 @@ for (const entry of registry.agents) {
   const isComplexRole = MODULAR_COMPLEX_ROLE_IDS.includes(entry.agentId as typeof MODULAR_COMPLEX_ROLE_IDS[number]);
   const expectedClaude = renderPromptEntryForHost(entry, 'claude');
   const expectedCodex = renderPromptEntryForHost(entry, 'codex');
-  if (MODULAR_REVIEWER_ROLE_IDS.includes(entry.agentId as typeof MODULAR_REVIEWER_ROLE_IDS[number])) {
+  if (ACTIVE_MODULAR_REVIEWER_ROLE_IDS.includes(entry.agentId as typeof ACTIVE_MODULAR_REVIEWER_ROLE_IDS[number])) {
     assert.match(expectedClaude, /review_run_start/, `${entry.file} Claude registry render is bootstrap-only`);
     assert.match(expectedCodex, /review_run_start/, `${entry.file} Codex registry render is bootstrap-only`);
     assert.doesNotMatch(expectedClaude, /proofbound:modular-role-body:v1/, `${entry.file} Claude registry excludes role body`);
@@ -105,7 +105,7 @@ for (const entry of registry.agents) {
     assert.equal(renderPromptEntryForHost(entry, 'claude', 'full-envelope'), source, `${entry.file} modular Claude render remains explicitly selectable`);
     assert.equal(renderPromptEntryForHost(entry, 'codex', 'full-envelope'), renderCodexAgentContent(source), `${entry.file} modular Codex render remains explicitly selectable`);
     assert.notEqual(expectedClaude, source, `${entry.file} rejected rollout cannot yield the modular Claude render`);
-  } else if (!MODULAR_REVIEWER_ROLE_IDS.includes(entry.agentId as typeof MODULAR_REVIEWER_ROLE_IDS[number])) {
+  } else if (!ACTIVE_MODULAR_REVIEWER_ROLE_IDS.includes(entry.agentId as typeof ACTIVE_MODULAR_REVIEWER_ROLE_IDS[number])) {
     assert.equal(expectedCodex, renderCodexAgentContent(source), `${entry.file} Codex render matches legacy transform`);
   }
   if (loadBearingPromptFiles.has(entry.file)) {
