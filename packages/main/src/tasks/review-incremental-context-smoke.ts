@@ -1325,7 +1325,9 @@ function runConcurrentCliReadOnlyCase(): void {
   const root = mkdtempSync(join(tmpdir(), 'lattice-incremental-cli-readonly-'));
   const storyId = 'B-readonly';
   try {
-    write(root, '.gitignore', '.lattice/activity.jsonl\n.lattice/locks/\n');
+    // Story artifacts stay under .lattice/story/actives; ignore canonical runtime
+    // so concurrent review_incremental_context activity/locks do not dirty porcelain.
+    write(root, '.gitignore', '.lattice/activity.jsonl\n.lattice/locks/\n.proof-or-stop/\n');
     write(root, 'lattice.config.json', JSON.stringify({
       storyDir: '.lattice/story/actives',
       workflow: { profile: 'balanced' },
@@ -1404,8 +1406,8 @@ function runDeterministicTicketReclaimAbaCase(): void {
   const root = mkdtempSync(join(tmpdir(), 'lattice-review-lock-aba-'));
   const storyId = 'B-mixed-writer-aba';
   const round = '2026-07-19T00:00:00.000Z';
-  const barrierRoot = join(root, '.lattice/locks/review-run', '.review-metadata-test-barrier');
-  const lockDir = join(root, '.lattice/locks/review-run', `${storyId}-review-runs.lock`);
+  const barrierRoot = join(root, '.proof-or-stop/locks/review-run', '.review-metadata-test-barrier');
+  const lockDir = join(root, '.proof-or-stop/locks/review-run', `${storyId}-review-runs.lock`);
   const deadTicket = join(lockDir, '0000000000000000-dead-a.ticket');
   const children: ReturnType<typeof spawn>[] = [];
   try {
