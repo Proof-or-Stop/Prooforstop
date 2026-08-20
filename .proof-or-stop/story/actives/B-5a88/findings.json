@@ -1,0 +1,52 @@
+{
+  "findings": [
+    {
+      "id": "B-5a88:F-001",
+      "desc": "Topology completeness is blocked by independently observed missing closure and invalid provenance. The official proof-or-stop acceptance_basis --storyId=B-5a88 --json result is status=verified but basisStatus=partial, with plannedPathRecords=[] and excludedPathRefs=[]; its blind spots include packages/main/templates/agents and five migration test paths (packages/main/tests/bin-alias-migration.test.mjs, brand-role-migration.test.mjs, managed-marker-migration.test.mjs, prompt-role-migration.test.mjs, release-push-approval-migration.test.mjs), so no signed exclusion accounts for those paths. acceptance_matrix reports topology state legacy_missing with no declarations or endpoints. Independently, topology_critic_receipt_check --storyId=B-5a88 rejects with AT_TOPOLOGY_CRITIC_CONTEXT_INVALID because implementation provenance lacks a business commit authored by the required implementer identity. The current implementation diff changes the topology producer to require proof-or-stop-implementer while accepting the legacy author only on read, but the current story history has no qualifying canonical or legacy implementer-authored business commit. Therefore this critic cannot truthfully certify scope, exclusions, or producer/consumer closure for RI-002.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-20T10:50:43.752Z",
+      "reviewRound": "2026-08-20T10:12:58.490Z",
+      "reviewRunId": "B-5a88:RR-011",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop-codex/agents/proof-or-stop-review-topology-critic.md",
+          "packages/main/src/core/topology-critic-receipt.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/proofstory-topology-critic-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "737580c982d0eb46e2ecc5fcb6607bfcb7304a9ba515312dc6628e5311bf51da"
+      },
+      "readDiagnostics": [],
+      "_hash": "edd6220a7d06d0d068bbe3c144c1cf650ca1b2d74069968950fdb81aecfcafc6",
+      "files": [
+        "packages/main/src/core/topology-critic-receipt.ts",
+        "packages/main/src/handlers/story-dispatch.ts",
+        "packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
+        "packages/main/src/core/agent-role-identity.ts",
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+      ],
+      "signatureTag": "missing|ts|topology-completeness-blocked",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
