@@ -1248,6 +1248,7 @@ export interface CausalImportArgs {
   expectedExecutionKey: string;
   expectedMaterialHash?: string;
   expectedStoryFilesHash?: string;
+  currentIdentity?: CausalExecutionIdentityInput;
   revalidate: () => boolean;
   commit: () => void;
   maxAttempts?: number;
@@ -1268,6 +1269,25 @@ export function importCausalEvidenceReceipt(args: CausalImportArgs): { receiptHa
     if (recordedMaterial !== args.expectedMaterialHash) throw new Error('causal evidence import refused: materialHash changed [causal_receipt_material_mismatch]');
   }
   if (args.expectedStoryFilesHash && receipt.identity.storyFilesHash !== args.expectedStoryFilesHash) throw new Error('causal evidence import refused: storyFilesHash changed [causal_receipt_story_files_mismatch]');
+  if (args.currentIdentity) {
+    const currentKey = createCausalExecutionKey(args.currentIdentity);
+    const identityMatchesCurrent = causalExecutionIdentityMatchesCurrent(receipt.identity, {
+      storyId: args.currentIdentity.storyId,
+      cwd: args.currentIdentity.cwd,
+      storyFilesHash: args.currentIdentity.storyFilesHash ?? '',
+      effectiveEnvironment: args.currentIdentity.effectiveEnvironment ?? {},
+      runtimeVersion: args.currentIdentity.runtimeVersion ?? '',
+      toolVersion: args.currentIdentity.toolVersion ?? '',
+    });
+    if (
+      !currentKey.reusable
+      || currentKey.key !== receipt.executionKey
+      || causalCanonical(currentKey.identity) !== causalCanonical(receipt.identity)
+      || !identityMatchesCurrent
+    ) {
+      throw new Error('causal evidence import refused: execution identity changed or is incomplete [causal_receipt_identity_mismatch]');
+    }
+  }
   const maxAttempts = Math.max(1, Math.floor(args.maxAttempts ?? 2));
   let attempts = 0;
   let lastError: unknown;
