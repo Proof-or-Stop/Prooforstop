@@ -82,7 +82,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "init --upgrade writes <!-- proof-or-stop:start --> / <!-- proof-or-stop:end --> and updates an existing <!-- lattice:start --> block in place.",
+      "userSees": "User sees `\"<!-- proof-or-stop:start -->\"` and `\"<!-- proof-or-stop:end -->\"` in a newly initialized file; an upgraded old file has one managed block, not two.",
       "files": {
         "modify": [
           "packages/main/src/claude-md-sync.ts",
