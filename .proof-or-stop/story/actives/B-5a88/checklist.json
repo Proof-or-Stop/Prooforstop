@@ -234,7 +234,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "npm pkg get name returns proof-or-stop and root package.json plus both root lockfile identity entries report the same package name and version.",
+      "userSees": "User sees `npm pkg get name` return `\"proof-or-stop\"` and `proof-or-stop --version` print `\"Proof-or-Stop <version>\"`.",
       "files": {
         "modify": [
           "package.json",
