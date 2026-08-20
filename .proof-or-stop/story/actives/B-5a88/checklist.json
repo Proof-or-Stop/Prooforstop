@@ -50,7 +50,11 @@
           {
             "desc": "New proof-or-stop reviewer role IDs are emitted and accepted by review_run_start, review_pass_set, init_check_set, and quorum resolution.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node --input-type=module -e \"import assert from \\\"node:assert/strict\\\"; import {canonicalAgentRoleId} from \\\"./packages/main/dist.staging/core/agent-role-identity.js\\\"; assert.equal(canonicalAgentRoleId(\\\"lattice-review-quality\\\"),\\\"proof-or-stop-review-quality\\\"); console.log(\\\"CHK-001 canonical role smoke: PASS\\\")\"",
+              "selector": "CHK-001 canonical role smoke: PASS"
+            }
           }
         ],
         "edge": [
@@ -67,7 +71,31 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/core/agent-role-identity.ts",
+          "command": "node --input-type=module -e \"import assert from \\\"node:assert/strict\\\"; import {canonicalAgentRoleId} from \\\"./packages/main/dist.staging/core/agent-role-identity.js\\\"; assert.equal(canonicalAgentRoleId(\\\"lattice-review-quality\\\"),\\\"proof-or-stop-review-quality\\\"); console.log(\\\"CHK-001 canonical role smoke: PASS\\\")\"",
+          "result": "pass",
+          "note": "Canonical role resolution maps a lattice reviewer input to the proof-or-stop output spelling.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "0b7b962674f541c151c294158a2c8621df1cab234403086f03527265bfee4be7",
+            "outputTail": "CHK-001 canonical role smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T05:43:16.567Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "05cac18b821099d9b80d88f5f99f13fd6b78f39e",
+          "materialHash": "012455f5dceacc10aeb8feb4f9aff3f9736baeb38bbf6e7fb9fa872e5e0a78a0",
+          "storyFilesHash": "3d87477376823d79a76d589bea110c3c451cf812d621f97ed7ccc83481d33b21",
+          "timestamp": "2026-08-20T05:43:16.717Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
