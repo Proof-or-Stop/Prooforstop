@@ -429,11 +429,12 @@
       "q": "Is CHANGELOG.md required as the removal announcement, or is the B-5a88 plan exclusion authoritative?",
       "evidence": "The identity-migration decision makes a CHANGELOG entry the floor for immediate bin removal, but B-5a88 explicitly excludes CHANGELOG and CHK-007 does not include it in its modify set.",
       "sourcePointers": [
-        "docs/requirements/decisions/proof-or-stop-identity-migration.md:53-60",
-        "docs/requirements/decisions/brand-rename-mapping.md:136",
-        ".proof-or-stop/story/actives/B-5a88/plan.md:5-8",
-        ".proof-or-stop/story/actives/B-5a88/checklist.json:299-368"
-      ]
+        "CHK-007",
+        "AGENTS.md",
+        "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+      ],
+      "resolution": "CHANGELOG.md remains excluded by the B-5a88 execution boundary and checklist scope because it is historical release history. The implementation will verify the bin removal and current help/residue behavior; a separate documentation story may add a release announcement without rewriting this historical file.",
+      "resolvedAt": "2026-08-20T05:07:56.698Z"
     }
   ]
 }
