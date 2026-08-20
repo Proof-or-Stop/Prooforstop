@@ -42,7 +42,7 @@
       "desc": "quality-fail-closed: packages/main/src/handlers/review-inventory.ts:400 still omits candidateArtifactInvalid when destructuring captureReviewInventoryScope, so an invalid persisted candidates shape present before review_inventory_begin is signed and returned as State: OPEN without a candidate digest. A later status/evidence call detects it, but the begin gate itself still violates the documented immediate OPEN_REVIEW_INVENTORY_INVALID_CANDIDATE_ARTIFACT failure mode; reject or persist/render INVALIDATED at begin and cover injection before begin.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-20T11:19:28.353Z",
@@ -80,7 +80,11 @@
         "packages/main/src/tasks/review-inventory-handler-smoke.ts"
       ],
       "signatureTag": "missing|ts|quality-fail-closed",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Duplicate quality record for the same pre-begin malformed-artifact defect as F-001. The shared fix is 49f7549, independently verified by RR-016/RP-010 with immediate and persisted typed INVALIDATED state for recomputed-digest malformed string and object candidates.",
+      "resolvedAt": "2026-08-20T12:05:22.212Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8af0:F-004",
