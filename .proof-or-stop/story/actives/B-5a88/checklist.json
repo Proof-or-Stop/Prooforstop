@@ -197,7 +197,11 @@
           {
             "desc": "An already-installed lattice managed block is found and replaced in place rather than duplicated or orphaned.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node --input-type=module -e \"import assert from 'node:assert/strict'; import { inspectManagedBlock, replaceManagedBlock } from '/private/tmp/proof-or-stop-b5a88-marker-build/core/managed-markers.js'; const replacement='<!-- proof-or-stop:start -->\\\\nnew\\\\n<!-- proof-or-stop:end -->'; const nested='<!-- lattice:start -->\\\\n<!-- lattice:start -->\\\\nold\\\\n<!-- lattice:end -->\\\\n<!-- lattice:end -->'; const mixed='<!-- proof-or-stop:start -->\\\\nold\\\\n<!-- lattice:end -->'; assert.equal(inspectManagedBlock(nested,'document').status,'malformed'); assert.equal(replaceManagedBlock(nested,replacement,'document'),null); assert.equal(inspectManagedBlock(mixed,'document').status,'malformed'); assert.equal(replaceManagedBlock(mixed,replacement,'document'),null); console.log('CHK-002-MALFORMED-PASS');\"",
+              "selector": "CHK-002-MALFORMED-PASS"
+            }
           }
         ],
         "adversarial": [
@@ -228,6 +232,26 @@
           "materialHash": "bfa4dc85ed84afe6ba32b73e69b2e22440863e85ff1915ad12bd978f49d207a4",
           "storyFilesHash": "539057fab72b7c3bccdc7498dd32b614fd043c785223d8bbd1350842d3ffb9d3",
           "timestamp": "2026-08-20T05:51:11.181Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node --input-type=module -e \"import assert from 'node:assert/strict'; import { inspectManagedBlock, replaceManagedBlock } from '/private/tmp/proof-or-stop-b5a88-marker-build/core/managed-markers.js'; const replacement='<!-- proof-or-stop:start -->\\\\nnew\\\\n<!-- proof-or-stop:end -->'; const nested='<!-- lattice:start -->\\\\n<!-- lattice:start -->\\\\nold\\\\n<!-- lattice:end -->\\\\n<!-- lattice:end -->'; const mixed='<!-- proof-or-stop:start -->\\\\nold\\\\n<!-- lattice:end -->'; assert.equal(inspectManagedBlock(nested,'document').status,'malformed'); assert.equal(replaceManagedBlock(nested,replacement,'document'),null); assert.equal(inspectManagedBlock(mixed,'document').status,'malformed'); assert.equal(replaceManagedBlock(mixed,replacement,'document'),null); console.log('CHK-002-MALFORMED-PASS');\"",
+          "result": "pass",
+          "note": "Tool-executed smoke confirms nested and mixed-family ordinary marker blocks are rejected without overwrite.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "466dba405ecc61eb2a9b1ab62b891a928fa3d91ffa9de77028b5494d8fa03e7d",
+            "outputTail": "CHK-002-MALFORMED-PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T05:51:32.456Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "d131b4c51c7ce513869a1fda20190238675e780e",
+          "materialHash": "bfa4dc85ed84afe6ba32b73e69b2e22440863e85ff1915ad12bd978f49d207a4",
+          "storyFilesHash": "539057fab72b7c3bccdc7498dd32b614fd043c785223d8bbd1350842d3ffb9d3",
+          "timestamp": "2026-08-20T05:51:32.614Z"
         }
       ]
     },
