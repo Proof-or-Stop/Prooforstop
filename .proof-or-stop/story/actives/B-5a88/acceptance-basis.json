@@ -31,11 +31,6 @@
         ],
         "coverageClaim": "partial",
         "blindSpots": [
-          "source file is unreadable or disappeared: packages/main/tests/bin-alias-migration.test.mjs",
-          "source file is unreadable or disappeared: packages/main/tests/brand-role-migration.test.mjs",
-          "source file is unreadable or disappeared: packages/main/tests/managed-marker-migration.test.mjs",
-          "source file is unreadable or disappeared: packages/main/tests/prompt-role-migration.test.mjs",
-          "source file is unreadable or disappeared: packages/main/tests/release-push-approval-migration.test.mjs",
           "source file is unreadable: packages/main/templates/agents"
         ],
         "provenanceRefs": [
@@ -141,7 +136,7 @@
             "scope:file:scripts/verify-proof-or-stop-prompt-baseline.mjs"
           ]
         },
-        "resultDigest": "sha256:68e1ededd7b3b9b7a7fc6494d04c3e951851641f703643b212980d22a0382b42"
+        "resultDigest": "sha256:039be64a42d206ddb075f678ce89982669da38d6b7a37282a263d17f059577c1"
       },
       {
         "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -155,11 +150,6 @@
         ],
         "coverageClaim": "partial",
         "blindSpots": [
-          "source file is unreadable or disappeared: packages/main/tests/bin-alias-migration.test.mjs",
-          "source file is unreadable or disappeared: packages/main/tests/brand-role-migration.test.mjs",
-          "source file is unreadable or disappeared: packages/main/tests/managed-marker-migration.test.mjs",
-          "source file is unreadable or disappeared: packages/main/tests/prompt-role-migration.test.mjs",
-          "source file is unreadable or disappeared: packages/main/tests/release-push-approval-migration.test.mjs",
           "source file is unreadable: packages/main/templates/agents"
         ],
         "provenanceRefs": [
@@ -260,7 +250,7 @@
             "scope:file:scripts/verify-proof-or-stop-prompt-baseline.mjs"
           ]
         },
-        "resultDigest": "sha256:229a75380ef28b9c7eef07eeb9e8a9868d82f7f67e89af9e9894a35655bcdb4a"
+        "resultDigest": "sha256:d428d74cd37e85e0ee587f1ba02acc6308c6c1e0415c3d8306bb848d0468d08d"
       },
       {
         "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -551,11 +541,6 @@
         ],
         "coverageClaim": "partial",
         "blindSpots": [
-          "source file is unreadable or disappeared: packages/main/tests/bin-alias-migration.test.mjs",
-          "source file is unreadable or disappeared: packages/main/tests/brand-role-migration.test.mjs",
-          "source file is unreadable or disappeared: packages/main/tests/managed-marker-migration.test.mjs",
-          "source file is unreadable or disappeared: packages/main/tests/prompt-role-migration.test.mjs",
-          "source file is unreadable or disappeared: packages/main/tests/release-push-approval-migration.test.mjs",
           "source file is unreadable: packages/main/templates/agents"
         ],
         "provenanceRefs": [
@@ -618,12 +603,12 @@
           "source-file:packages/main/src/tasks/version-bump-smoke.ts:sha256:6b08e092463eed8cf13719de4cbcbc976f73cba10ef96c36f06dab99389b6598",
           "source-file:packages/main/templates/agents:uninspectable",
           "source-file:packages/main/tests/artifact-schema-migration.test.mjs:sha256:d49d633b8bc3327e8a273fb13f7b1a6f461feec1613ad83fb77a09a8829dc04e",
-          "source-file:packages/main/tests/bin-alias-migration.test.mjs:uninspectable",
-          "source-file:packages/main/tests/brand-role-migration.test.mjs:uninspectable",
-          "source-file:packages/main/tests/managed-marker-migration.test.mjs:uninspectable",
+          "source-file:packages/main/tests/bin-alias-migration.test.mjs:sha256:62a5f4dfba960fcf1e69a0866e7d9183db759ba525545aa0e15870a037a918ce",
+          "source-file:packages/main/tests/brand-role-migration.test.mjs:sha256:694ea75f6ae630ece94c862d29aa223c9afc71bd9b3c7e08f3b31de1f4e99f0f",
+          "source-file:packages/main/tests/managed-marker-migration.test.mjs:sha256:d19ec7a73fc9b9d613204a4ef56d7910d95e38d2931220f38e79af59543afdbe",
           "source-file:packages/main/tests/package-identity-migration.test.mjs:sha256:e3bcd14a02f507ed8209ddf6f4edeffcb729cc6d9f78dd0d8eda41b6838bea33",
-          "source-file:packages/main/tests/prompt-role-migration.test.mjs:uninspectable",
-          "source-file:packages/main/tests/release-push-approval-migration.test.mjs:uninspectable",
+          "source-file:packages/main/tests/prompt-role-migration.test.mjs:sha256:6f317f52c98f2079e6add181a56d4a0bb5d782dddc3c9db67a426dd7625dc1bc",
+          "source-file:packages/main/tests/release-push-approval-migration.test.mjs:sha256:8387931fe14847d1d2635d4c4fe3ed070dae2efe339ebd95eb7ba80b5bf2b5f1",
           "source-file:packages/utils/package-lock.json:sha256:8ffe52289c362032f9cba6bd7cee09ec798066081e5513c15952c37cc8cdac3f",
           "source-file:packages/utils/package.json:sha256:753bf80f7df3e23558f03ab00fd83e1bc8757487f3fac81eec10ca5355c32775",
           "source-file:packages/utils/src/index.ts:sha256:12d6fac5e04a4bd27b886e3cacb7360870ea6f2b44a7bdf3727242f9a31e8799",
@@ -723,7 +708,7 @@
             "scope:file:scripts/verify-proof-or-stop-prompt-baseline.mjs"
           ]
         },
-        "resultDigest": "sha256:b063ba816696e9d55be266eed96734848c6d2ecd1a658771d58d0d5446a2ec88"
+        "resultDigest": "sha256:f711bff4a3eb923c2ae737e3e3dd00ac7f0f426fab3335294bf7b5f77c669753"
       }
     ],
     "scopeRefs": [
@@ -928,30 +913,15 @@
       "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
       "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
       "snapshot-seal:snapshot_missing:inventory:packages/main/templates/agents",
-      "snapshot-seal:snapshot_missing:inventory:packages/main/tests/bin-alias-migration.test.mjs",
-      "snapshot-seal:snapshot_missing:inventory:packages/main/tests/brand-role-migration.test.mjs",
-      "snapshot-seal:snapshot_missing:inventory:packages/main/tests/managed-marker-migration.test.mjs",
-      "snapshot-seal:snapshot_missing:inventory:packages/main/tests/prompt-role-migration.test.mjs",
-      "snapshot-seal:snapshot_missing:inventory:packages/main/tests/release-push-approval-migration.test.mjs",
       "snapshot-seal:snapshot_missing:source_file:packages/main/templates/agents",
-      "snapshot-seal:snapshot_missing:source_file:packages/main/tests/bin-alias-migration.test.mjs",
-      "snapshot-seal:snapshot_missing:source_file:packages/main/tests/brand-role-migration.test.mjs",
-      "snapshot-seal:snapshot_missing:source_file:packages/main/tests/managed-marker-migration.test.mjs",
-      "snapshot-seal:snapshot_missing:source_file:packages/main/tests/prompt-role-migration.test.mjs",
-      "snapshot-seal:snapshot_missing:source_file:packages/main/tests/release-push-approval-migration.test.mjs",
-      "source file is unreadable or disappeared: packages/main/tests/bin-alias-migration.test.mjs",
-      "source file is unreadable or disappeared: packages/main/tests/brand-role-migration.test.mjs",
-      "source file is unreadable or disappeared: packages/main/tests/managed-marker-migration.test.mjs",
-      "source file is unreadable or disappeared: packages/main/tests/prompt-role-migration.test.mjs",
-      "source file is unreadable or disappeared: packages/main/tests/release-push-approval-migration.test.mjs",
       "source file is unreadable: packages/main/templates/agents"
     ],
     "snapshotSeal": {
       "schemaVersion": "proofstory.acceptance_snapshot_seal.v1",
       "inventoryDirectoryDigest": "sha256:a5ef8eb2a947839b69a8a89f10c15b3e602b38ec291afbafce056262ce82f9c7",
       "inventoryDirectoryCount": 21,
-      "sourceSnapshotDigest": "sha256:b1fed74cfc37a6ec95860a7a19e93744b40547ff229a12180be2b3834d701bf6",
-      "sourceSnapshotCount": 841,
+      "sourceSnapshotDigest": "sha256:7aeeeda193e42a7cdc112615cbf730d6e7e33ccb5f0a448fae4df24ab4d207c2",
+      "sourceSnapshotCount": 846,
       "configSnapshotDigest": "sha256:ab4b658eaf618dd6e859c44d6bab29230deefeef2b53889c500533b9dde9b251",
       "status": "partial",
       "issues": [
@@ -982,91 +952,41 @@
         },
         {
           "code": "snapshot_missing",
-          "targetKind": "inventory",
-          "canonicalRef": "packages/main/tests/bin-alias-migration.test.mjs"
-        },
-        {
-          "code": "snapshot_missing",
-          "targetKind": "inventory",
-          "canonicalRef": "packages/main/tests/brand-role-migration.test.mjs"
-        },
-        {
-          "code": "snapshot_missing",
-          "targetKind": "inventory",
-          "canonicalRef": "packages/main/tests/managed-marker-migration.test.mjs"
-        },
-        {
-          "code": "snapshot_missing",
-          "targetKind": "inventory",
-          "canonicalRef": "packages/main/tests/prompt-role-migration.test.mjs"
-        },
-        {
-          "code": "snapshot_missing",
-          "targetKind": "inventory",
-          "canonicalRef": "packages/main/tests/release-push-approval-migration.test.mjs"
-        },
-        {
-          "code": "snapshot_missing",
           "targetKind": "source_file",
           "canonicalRef": "packages/main/templates/agents"
-        },
-        {
-          "code": "snapshot_missing",
-          "targetKind": "source_file",
-          "canonicalRef": "packages/main/tests/bin-alias-migration.test.mjs"
-        },
-        {
-          "code": "snapshot_missing",
-          "targetKind": "source_file",
-          "canonicalRef": "packages/main/tests/brand-role-migration.test.mjs"
-        },
-        {
-          "code": "snapshot_missing",
-          "targetKind": "source_file",
-          "canonicalRef": "packages/main/tests/managed-marker-migration.test.mjs"
-        },
-        {
-          "code": "snapshot_missing",
-          "targetKind": "source_file",
-          "canonicalRef": "packages/main/tests/prompt-role-migration.test.mjs"
-        },
-        {
-          "code": "snapshot_missing",
-          "targetKind": "source_file",
-          "canonicalRef": "packages/main/tests/release-push-approval-migration.test.mjs"
         }
       ],
-      "sealDigest": "sha256:a233fb1564f4752ce5dd76d1096b3f98ba87ff5200f47747a091ce74ba36bf3b"
+      "sealDigest": "sha256:4568c0a858a2cf13fec4d8ee2b401db31d4c33760bda74c40cb7d6d3eccd1c83"
     },
     "binding": {
-      "headHash": "7e40f54a40dd8a0886f46f0cb80ed90290093da5",
-      "materialHash": "065b7ceee89b7a485d9f8c2b675c850b04ba566776e3bfb8e9225d0a055e692e",
-      "storyFilesHash": "a9d8324e30251fa6ad5ec54091383e90df00c63d6515235afdc2c684a6504eb7",
+      "headHash": "541d9b883778ebdeebc931a158947f5e60ae0756",
+      "materialHash": "42db87db071d06bde4a84166e8b5a27c36f3b381daa69065b7b9082772ae1882",
+      "storyFilesHash": "b763be8ed6f0e03308fabd066c8c5400d86578f783e510761ce166ce552c8f1d",
       "scopeCheckDigest": "sha256:cbd8e7e44b42c1b396996e8b9294d95c898ba1c92e6f86e9cb055d351182a0f9",
       "scopeContractDigest": "sha256:844991ac0f5c231239135b73f58a8efa4bce235e5cc3d754d1f64dc0ee2744d6",
-      "closureFilesHash": "sha256:792725828d5caad252c4f17ac7a149494488ceaa6ccc4b522fac2749029d29a4"
+      "closureFilesHash": "sha256:e540e607987410c052df767b208576ad68ee9245d0b64c023629da7686d8d2dc"
     },
-    "receiptRef": "receipt:coverage-basis:B-5a88:plan:cbb08328f76e716f",
-    "basisDigest": "sha256:1f2b271ad0549ea76faf1e050b65a163adcdac42a852c43d9030ceb23eabf002"
+    "receiptRef": "receipt:coverage-basis:B-5a88:plan:70c3bc7367e40619",
+    "basisDigest": "sha256:c5e2ea9a7fa9383dd1e11c44f875282f53cdd85ca600f68fe0108330a5ad96a9"
   },
   "receipt": {
     "schemaVersion": "proofstory.acceptance_basis_receipt.v1",
-    "receiptRef": "receipt:coverage-basis:B-5a88:plan:cbb08328f76e716f",
+    "receiptRef": "receipt:coverage-basis:B-5a88:plan:70c3bc7367e40619",
     "issuer": "acceptance-coverage-basis-verifier",
     "issuerKeyId": "sha256:a944288d3323f4b761cbb51602e62f88fbc1b35530eabfa265971baee771138b",
     "signerPublicKey": "GpD4A2Km0wpT87L2EcszehhUu0nPgXbafTXgXTjTKAM=",
     "storyId": "B-5a88",
     "phaseBasis": "plan",
-    "basisDigest": "sha256:1f2b271ad0549ea76faf1e050b65a163adcdac42a852c43d9030ceb23eabf002",
+    "basisDigest": "sha256:c5e2ea9a7fa9383dd1e11c44f875282f53cdd85ca600f68fe0108330a5ad96a9",
     "topologyDigest": "sha256:27efb628b7d28364572da615b5ee4795e340114677685d967512673bba44079f",
     "scopeCheckDigest": "sha256:cbd8e7e44b42c1b396996e8b9294d95c898ba1c92e6f86e9cb055d351182a0f9",
     "scopeContractDigest": "sha256:844991ac0f5c231239135b73f58a8efa4bce235e5cc3d754d1f64dc0ee2744d6",
-    "headHash": "7e40f54a40dd8a0886f46f0cb80ed90290093da5",
-    "materialHash": "065b7ceee89b7a485d9f8c2b675c850b04ba566776e3bfb8e9225d0a055e692e",
-    "storyFilesHash": "a9d8324e30251fa6ad5ec54091383e90df00c63d6515235afdc2c684a6504eb7",
-    "closureFilesHash": "sha256:792725828d5caad252c4f17ac7a149494488ceaa6ccc4b522fac2749029d29a4",
-    "sealDigest": "sha256:a233fb1564f4752ce5dd76d1096b3f98ba87ff5200f47747a091ce74ba36bf3b",
+    "headHash": "541d9b883778ebdeebc931a158947f5e60ae0756",
+    "materialHash": "42db87db071d06bde4a84166e8b5a27c36f3b381daa69065b7b9082772ae1882",
+    "storyFilesHash": "b763be8ed6f0e03308fabd066c8c5400d86578f783e510761ce166ce552c8f1d",
+    "closureFilesHash": "sha256:e540e607987410c052df767b208576ad68ee9245d0b64c023629da7686d8d2dc",
+    "sealDigest": "sha256:4568c0a858a2cf13fec4d8ee2b401db31d4c33760bda74c40cb7d6d3eccd1c83",
     "workspaceIdentityDigest": "sha256:7269e2a5b5f07e8b7e813824b4892a55c277f4f75b9c118ed471e7c51cb3ee21",
-    "signature": "MY4/+5zA4NglWzEq6bU51k8L22qJj8HwC+oxCbcrDh56kHlYCHcQFIWdn8LY2FLA4xhq17sdCnWi6hOcBArNAQ=="
+    "signature": "/PdDP9VX6RcnK2uLNcKwomlObzW5OgHfJT58RMj7xQuuJX3k7VACnr7OHVyYnRJyU+Dd4qVsJmvWxycaKlbCAg=="
   }
 }
