@@ -42,7 +42,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   extractTemplateFrontmatter,
-  isModularReviewerRoleId,
+  isActiveModularReviewerRoleId,
   renderReviewerRunBootstrap,
 } from './prompt-registry.js';
 export {
@@ -241,7 +241,7 @@ export function syncGlobalAgents(opts: SyncGlobalAgentsOptions = {}): SyncGlobal
     // Shim filename follows the role name so Claude resolves subagent_type:<name>.
     const shimFile = `${name}.md`;
     const shimPath = join(globalDir, shimFile);
-    const expected = isModularReviewerRoleId(name)
+    const expected = isActiveModularReviewerRoleId(name)
       ? renderReviewerRunBootstrap(frontmatter, name)
       : renderAgentShim(frontmatter, name);
 

@@ -90,7 +90,7 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'lattice-review-channel',
-    templateHash: 'f49ae178d354b3cd940da3bd28d729fb6b602cbd6a2bf2d9b23dbf555460035d',
+    templateHash: '029d5fc9c42db199c513bda5674070b01550d9254172c71e572e229dc4de665b',
   },
   {
     role: 'lattice-review-concept',
@@ -156,7 +156,7 @@ const APPROVED_ROLE_BODY_ROLLOUT_MANIFEST = Object.freeze([
   modularCodexRenderDigest,
 })));
 const PROMPT_POLICY_PRIMARY_BOUNDARY =
-  'The independent code-reviewed approval manifest binds every exact role ID and selected complete prompt body by SHA-256. For the six modular reviewer roles it additionally binds the immutable legacy body, modular body, Role Contract, and Claude/Codex host-render digests before policy findings can be collected. Diagnostic occurrence scanners describe registered content inside those approved bodies; they do not authorize prompt changes.';
+  'The independent code-reviewed approval manifest binds every exact role ID and selected complete prompt body by SHA-256. For the five modular reviewer roles it additionally binds the immutable legacy body, modular body, Role Contract, and Claude/Codex host-render digests before policy findings can be collected. Diagnostic occurrence scanners describe registered content inside those approved bodies; they do not authorize prompt changes.';
 const ROLE_MATRIX_FIELDS = [
   'status',
   'phase',
@@ -173,7 +173,7 @@ const REVIEWER_AUDITED_ROLE_MATRIX_FIELDS = [...ROLE_MATRIX_FIELDS];
 const ROLE_MATRIX_MACHINE_CHECKS = [
   'Lock the exact 17 role snapshots and role IDs.',
   'Require each selected complete prompt body and registry template hash to match the independent code-reviewed approval manifest.',
-  'For six modular reviewer roles, bind immutable legacy/modular bodies, Role Contract, and Claude/Codex host renders.',
+  'For five modular reviewer roles, bind immutable legacy/modular bodies, Role Contract, and Claude/Codex host renders.',
   'Lock agent_prompt output hashes.',
   'Require every role-matrix field to be a non-empty string.',
   'Require JSON/Markdown parity and reject snapshot drift.',

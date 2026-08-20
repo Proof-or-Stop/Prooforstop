@@ -250,15 +250,17 @@ receipt-backed authority remain separate gate inputs.
 The package prompt registry (`packages/main/templates/agents/*.md` via
 `promptRegistryManifest()`) is the single source for ordinary role bodies and
 for the six migrated reviewer definitions. The registry host resolver exposes
-those six reviewers as a body-free bootstrap; `review_run_start` selects and
-returns exactly one legacy or modular role body. Each host keeps only a *thin
-adapter* or that canonical bootstrap. The adapter shape is dictated by the
-host's loader, but the selected-body source remains the package registry.
+the five active REVIEW lanes as a body-free bootstrap; `review_run_start`
+selects and returns exactly one legacy or modular role body for those lanes.
+Topology-critic stays a modular body and is not a REVIEW-lane bootstrap.
+Each host keeps only a *thin adapter* or that canonical bootstrap. The adapter
+shape is dictated by the host's loader, but the selected-body source remains
+the package registry.
 
 | Host | Thin adapter (what lives in the project/global) | Prompt content source |
 | --- | --- | --- |
-| Codex | `.lattice-codex/lattice.json` manifest (`promptMode: 'registry'`) — B-4ee0 | package registry host render: reviewer bootstrap or ordinary role body |
-| Claude | `.claude/agents/*.md` **thin shim/bootstrap** (frontmatter `name`/`description`/`tools` + a CLI pointer) | migrated reviewers use `review_run_start`; ordinary roles use `proof-or-stop agent_prompt` |
+| Codex | `.lattice-codex/lattice.json` manifest (`promptMode: 'registry'`) — B-4ee0 | package registry host render: five-lane reviewer bootstrap or ordinary role body |
+| Claude | `.claude/agents/*.md` **thin shim/bootstrap** (frontmatter `name`/`description`/`tools` + a CLI pointer) | five active REVIEW lanes use `review_run_start`; ordinary roles including topology-critic use `proof-or-stop agent_prompt` |
 
 B-4ee0 already collapsed the **Codex** side: in global-thin/thin mode Codex does
 not materialize `.lattice-codex/agents`; it resolves prompts from the registry via its
@@ -279,9 +281,10 @@ keeps one file per role, but that file is a **content-free shim**.
 
 2. **The registry host render is the shared bootstrap/body endpoint.**
    `proof-or-stop agent_prompt --role=<name>` returns the canonical registry host
-   render: a body-free `review_run_start` bootstrap for the six migrated
-   reviewers, and the canonical role body for ordinary roles. Codex registry
-   mode resolves the same host render. For migrated reviewers,
+   render: a body-free `review_run_start` bootstrap for the five active REVIEW
+   lanes among the six migrated reviewer definitions, and the canonical role
+   body for ordinary roles including topology-critic. Codex registry
+   mode resolves the same host render. For the five active REVIEW lanes,
    `review_run_start` alone supplies exactly one selected role body.
 
    `review_run_start` and Story-aware `agent_prompt` share one bakery-style
