@@ -9,9 +9,9 @@
         "docs/requirements/decisions/brand-rename-mapping.md",
         "packages/main/templates/agents/"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-08-20T05:20:56.406Z",
-      "endTime": null,
+      "endTime": "2026-08-20T05:43:48.084Z",
       "userSees": "User sees `\"proof-or-stop-review-quality\"` in reviewer_list output, and a legacy `\"lattice-review-quality\"` record is reported as a compatible alias.",
       "files": {
         "modify": [
@@ -147,7 +147,14 @@
           "storyFilesHash": "3d87477376823d79a76d589bea110c3c451cf812d621f97ed7ccc83481d33b21",
           "timestamp": "2026-08-20T05:43:38.658Z"
         }
-      ]
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "0b6c76261b8e685586ebbd5d1bd4f65ba33b312d7edc4cc7e545dc053d5ff6df",
+        "storyFilesHash": "3d87477376823d79a76d589bea110c3c451cf812d621f97ed7ccc83481d33b21",
+        "headHash": "93c2baf1868e12e903b5e5de876fd47afeebed48",
+        "attestedAt": "2026-08-20T05:43:48.359Z",
+        "materialHash": "012455f5dceacc10aeb8feb4f9aff3f9736baeb38bbf6e7fb9fa872e5e0a78a0"
+      }
     },
     {
       "id": "CHK-002",
