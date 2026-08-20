@@ -114,6 +114,16 @@ export interface CausalEvidenceReceipt {
 export interface CausalEvidenceReceiptStore {
   readCausalEvidenceReceipt(storyId: string, executionKey: string): CausalEvidenceReceipt | null;
   writeCausalEvidenceReceipt(storyId: string, receipt: CausalEvidenceReceipt): void;
+  /**
+   * Optional cross-request single-flight boundary. The callback must re-read
+   * the receipt before executing so callers that missed the initial read can
+   * converge on the first request's receipt.
+   */
+  withCausalEvidenceExecution?<T>(
+    storyId: string,
+    executionKey: string,
+    fn: () => Promise<T>,
+  ): Promise<T>;
 }
 
 export interface CausalSelectorVerdict {
@@ -475,10 +485,15 @@ export async function executeCausalEvidence(args: ExecuteCausalEvidenceArgs): Pr
     throw new Error('causal evidence refused: missing_or_forged_preflight commandExecutions=0 evidenceWrites=0 [causal_preflight_invalid]');
   }
 
-  const existing = key.reusable ? args.receiptStore?.readCausalEvidenceReceipt(key.identity.storyId, key.key) : null;
-  if (existing && !verifyCausalEvidenceReceipt(existing, key.key)) {
-    throw new Error(`causal evidence refused: receipt for ${key.key} is tampered or has the wrong identity [causal_receipt_tampered]`);
-  }
+  const readReceipt = (): CausalEvidenceReceipt | null => {
+    const existing = key.reusable ? args.receiptStore?.readCausalEvidenceReceipt(key.identity.storyId, key.key) : null;
+    if (existing && !verifyCausalEvidenceReceipt(existing, key.key)) {
+      throw new Error(`causal evidence refused: receipt for ${key.key} is tampered or has the wrong identity [causal_receipt_tampered]`);
+    }
+    return existing ?? null;
+  };
+
+  const existing = readReceipt();
   if (existing && existing.reusable) {
     const verdict = selectorVerdict(existing, args.selector, args.intentRef);
     if (args.batch) {
@@ -498,10 +513,7 @@ export async function executeCausalEvidence(args: ExecuteCausalEvidenceArgs): Pr
 
   // Incomplete identities are intentionally never deduplicated: a legacy or
   // partial identity cannot turn a second selector into a cached PASS.
-  let promise = key.reusable ? args.batch?.executions.get(key.key) : undefined;
-  let disposition: 'executed' | 'reused' = 'executed';
-  if (!promise) {
-    promise = (async () => {
+  const executeFresh = async (): Promise<CausalEvidenceReceipt> => {
       // This check is deliberately the last operation before invoking the child
       // runner. A post-run check can only reject the evidence after the command
       // has already executed, which violates the zero-execution refusal contract.
@@ -538,12 +550,44 @@ export async function executeCausalEvidence(args: ExecuteCausalEvidenceArgs): Pr
         args.receiptStore.writeCausalEvidenceReceipt(key.identity.storyId, receipt);
       }
       return receipt;
-    })();
-    if (key.reusable) args.batch?.executions.set(key.key, promise);
+  };
+
+  type ExecutionOutcome = {
+    receipt: CausalEvidenceReceipt;
+    disposition: 'executed' | 'reused';
+  };
+  let execution: Promise<ExecutionOutcome>;
+  const batchPromise = key.reusable ? args.batch?.executions.get(key.key) : undefined;
+  if (batchPromise) {
+    // Preserve the existing per-batch dedup semantics. A batch hit is always a
+    // reuse from this caller's perspective, regardless of who created it.
+    execution = batchPromise.then(receipt => ({ receipt, disposition: 'reused' as const }));
+  } else if (key.reusable && args.receiptStore?.withCausalEvidenceExecution) {
+    // Separate requests do not share `batch`. The store boundary re-reads
+    // inside its single-flight region so only the winner can launch the child.
+    execution = args.receiptStore.withCausalEvidenceExecution(
+      key.identity.storyId,
+      key.key,
+      async () => {
+        const lockedExisting = readReceipt();
+        if (lockedExisting && lockedExisting.reusable) {
+          return { receipt: lockedExisting, disposition: 'reused' as const };
+        }
+        return { receipt: await executeFresh(), disposition: 'executed' as const };
+      },
+    );
   } else {
-    disposition = 'reused';
+    execution = executeFresh().then(receipt => ({ receipt, disposition: 'executed' as const }));
   }
-  const receipt = await promise;
+  if (key.reusable && args.batch && !batchPromise) {
+    const batchReceipt = execution.then(({ receipt }) => receipt);
+    // The caller awaits `execution` directly. Observe the derived promise too
+    // so a failed first execution cannot become an unhandled rejection merely
+    // because the batch cache retains the same failure for later callers.
+    void batchReceipt.catch(() => undefined);
+    args.batch.executions.set(key.key, batchReceipt);
+  }
+  const { receipt, disposition } = await execution;
   const verdict = selectorVerdict(receipt, args.selector, args.intentRef);
   if (args.batch) {
     args.batch.ledger.intentCount++;
