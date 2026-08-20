@@ -130,7 +130,7 @@
       "desc": "doc-promise-undelivered: docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md:223-227 promises malformed persisted candidate artifacts fail closed as OPEN_REVIEW_INVENTORY_INVALID_CANDIDATE_ARTIFACT at the inventory gate, but review_inventory_begin at handlers/review-inventory.ts:400 destructures away candidateArtifactInvalid and signs a new State: OPEN epoch when the malformed artifact exists before begin. Only a later status call invalidates it, so the documented immediate gate behavior is not delivered.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-08-20T11:20:18.581Z",
@@ -163,7 +163,11 @@
         "packages/main/src/handlers/review-inventory.ts"
       ],
       "signatureTag": "doc-promise-undelivered|md|promise-undelivered-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 49f7549: the documented review-inventory gate now atomically records and renders the promised INVALIDATED state before any OPEN epoch can be returned. Fresh docs RR-018/RP-009 confirmed the decision text matches the string/object pre-begin real-handler fixture.",
+      "resolvedAt": "2026-08-20T12:05:32.601Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8af0:F-006",
