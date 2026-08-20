@@ -121,7 +121,22 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "npm pkg get name returns proof-or-stop and root package.json plus both root lockfile identity entries report the same package name and version.",
+      "files": {
+        "modify": [
+          "package.json",
+          "package-lock.json",
+          "packages/main/src/core/version-bump.ts",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/core/brand-env.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/package-identity-migration.test.mjs",
+          "packages/main/src/tasks/version-bump-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-006",
