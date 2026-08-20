@@ -46,6 +46,7 @@ import {
   evaluateCertificationWindowAdmit,
   inventoryReceiptAuthorizesPrecert,
   loadReviewInventoryAdmitApis,
+  persistBlockedCertificationWindow,
   nextPrecertReceiptId,
   projectCertificationWindowStatus,
   renderCertificationWindowStatus,
@@ -138,13 +139,48 @@ assert.doesNotMatch(beginOutput, /^State: ADMITTED$/m);
 const productionApis = loadReviewInventoryAdmitApis();
 assert.ok(productionApis, 'production loader must return the real inventory admit APIs');
 assert.equal(typeof productionApis.finalizedUnconsumedReviewInventory, 'function');
-assert.equal(typeof productionApis.consumeReviewInventoryReceipt, 'function');
+assert.equal(typeof productionApis.consumeReviewInventoryCompletenessReceipt, 'function');
+assert.equal(
+  productionApis.consumeReviewInventoryCompletenessReceipt.name,
+  'consumeReviewInventoryCompletenessReceipt',
+  'production admit APIs must bind PRE_CERT completeness consume, not remediation consume',
+);
 
 const blockedStatus = handlers.certification_window_status({ storyId });
 assertStatusSurface(blockedStatus, 'BLOCKED');
 assert.doesNotMatch(blockedStatus, /^headHash:/m);
 assert.doesNotMatch(blockedStatus, /^expectedMainSha:/m);
 assert.doesNotMatch(blockedStatus, /^storyFilesHash:/m);
+
+const blockedReuseStoryId = 'B-cw-blocked-reuse';
+const blockedReuseStore = makeStore(root, blockedReuseStoryId);
+const firstBlocked = persistBlockedCertificationWindow({
+  store: blockedReuseStore,
+  storyId: blockedReuseStoryId,
+  blockerCode: PRE_CERT_INVENTORY_NOT_FINALIZED,
+  blockerDetail: 'No FINALIZED unconsumed Review Inventory receipt is present.',
+});
+const reusedBlocked = persistBlockedCertificationWindow({
+  store: blockedReuseStore,
+  storyId: blockedReuseStoryId,
+  blockerCode: PRE_CERT_INVENTORY_NOT_FINALIZED,
+  blockerDetail: 'No FINALIZED unconsumed Review Inventory receipt is present.',
+});
+assert.equal(reusedBlocked.windowId, firstBlocked.windowId, 'same code+detail reuses the BLOCKED window');
+assert.equal(blockedReuseStore.readCertificationWindows(blockedReuseStoryId).windows.length, 1);
+const consumeFailedBlocked = persistBlockedCertificationWindow({
+  store: blockedReuseStore,
+  storyId: blockedReuseStoryId,
+  blockerCode: PRE_CERT_INVENTORY_NOT_FINALIZED,
+  blockerDetail: 'Inventory consume failed: REVIEW_INVENTORY_LIVE_AGGREGATE_CHANGED: final saturated wave is missing or invalid',
+});
+assert.notEqual(consumeFailedBlocked.windowId, firstBlocked.windowId, 'same code+new detail must not reuse the stale BLOCKED window');
+assert.match(consumeFailedBlocked.blockerDetail ?? '', /Inventory consume failed/);
+assert.equal(
+  blockedReuseStore.readCertificationWindows(blockedReuseStoryId).windows.at(-1)?.blockerDetail,
+  consumeFailedBlocked.blockerDetail,
+  'latest BLOCKED window must surface the consume-failure detail',
+);
 
 const inventoryReceipt = {
   receiptId: 'INV-1',
@@ -476,7 +512,7 @@ function mockInventoryApis(args: {
         cutoff: { materialHash, storyFilesHash: args.storyFilesHash },
       },
     }),
-    consumeReviewInventoryReceipt: () => {
+    consumeReviewInventoryCompletenessReceipt: () => {
       consumed.push('INV-1');
       return 'INV-1';
     },
@@ -506,7 +542,7 @@ setReviewInventoryAdmitApisForTest(undefined);
 
 setReviewInventoryAdmitApisForTest({
   finalizedUnconsumedReviewInventory: () => null,
-  consumeReviewInventoryReceipt: () => {
+  consumeReviewInventoryCompletenessReceipt: () => {
     throw new Error('consume must not run without a finalized inventory');
   },
 });
@@ -872,28 +908,15 @@ const testIdentityDrift = detectCertificationWindowMaterialDrift(runningWindow!,
 });
 assert.equal(testIdentityDrift.drifted, true, 'official test identity change must drift');
 
-const shippedRoot = process.cwd();
-const windowSource = readFileSync(join(shippedRoot, 'packages/main/src/core/certification-window.ts'), 'utf8');
-const handlerSource = readFileSync(join(shippedRoot, 'packages/main/src/handlers/done-required-validation.ts'), 'utf8');
-const verifierSource = readFileSync(join(shippedRoot, 'packages/main/src/handlers/verifier.ts'), 'utf8');
-assert.doesNotMatch(windowSource, /main-write-lock|acquireMainWriteLock/, 'CertificationWindow must not take the main write lock');
-assert.match(handlerSource, /refuseHeavyCertificationUnlessAdmitted/, 'done_required_validate must call the shared choke');
-assert.match(verifierSource, /refuseHeavyCertificationUnlessAdmitted/, 'validate --full must call the shared choke');
-const branchFiles = execFileSync('git', ['diff', '--name-only', 'main...HEAD'], {
-  cwd: shippedRoot,
-  encoding: 'utf8',
-});
-assert.doesNotMatch(
-  branchFiles,
-  /review-escalation|three-round-two-host|quorum-submit\.ts|host-quorum/,
-  'this story must not weaken host-quorum or reviewer-lane policy files',
-);
-
 setReviewInventoryAdmitApisForTest(undefined);
 const restoredApis = loadReviewInventoryAdmitApis();
 assert.ok(restoredApis, 'production loader is non-null after test override reset');
 assert.equal(typeof restoredApis.finalizedUnconsumedReviewInventory, 'function');
-assert.equal(typeof restoredApis.consumeReviewInventoryReceipt, 'function');
+assert.equal(typeof restoredApis.consumeReviewInventoryCompletenessReceipt, 'function');
+assert.equal(
+  restoredApis.consumeReviewInventoryCompletenessReceipt.name,
+  'consumeReviewInventoryCompletenessReceipt',
+);
 
 const realInventoryRoot = makeGitRoot();
 const realInventoryStoryId = 'B-cw-real';
@@ -917,14 +940,48 @@ assert.equal(
   1,
   'finalize must be idempotent on the same cutoff',
 );
-const realAdmitHandlers = createCertificationWindowHandlers({
-  store: realInventoryStore,
-  root: realInventoryRoot,
-  scanRoot: join(realInventoryRoot, 'packages', 'main'),
-});
-const realAdmittedBegin = realAdmitHandlers.certification_window_begin({ storyId: realInventoryStoryId });
-assertStatusSurface(realAdmittedBegin, 'ADMITTED');
+const realPair = restoredApis.finalizedUnconsumedReviewInventory(realInventoryStore, realInventoryStoryId);
+assert.ok(realPair?.receipt?.receiptId, 'production loader must see the FINALIZED completeness receipt');
+const realCutoff = {
+  materialHash: realPair?.receipt?.cutoff?.materialHash ?? '',
+  ...(realPair?.receipt?.cutoff?.storyFilesHash
+    ? { storyFilesHash: realPair.receipt.cutoff.storyFilesHash }
+    : {}),
+};
+const consumedViaLoader = restoredApis.consumeReviewInventoryCompletenessReceipt(
+  realInventoryStore,
+  realInventoryStoryId,
+  realPair?.epoch?.reviewRound ?? realPair?.receipt?.reviewRound ?? '',
+  realCutoff,
+);
+assert.equal(consumedViaLoader, realPair?.receipt?.receiptId);
 assert.ok(realInventoryStore.readReviewInventoryEpochs(realInventoryStoryId).receipts[0]?.consumedAt);
+assert.throws(
+  () => restoredApis.consumeReviewInventoryCompletenessReceipt(
+    realInventoryStore,
+    realInventoryStoryId,
+    realPair?.epoch?.reviewRound ?? realPair?.receipt?.reviewRound ?? '',
+    realCutoff,
+  ),
+  /REVIEW_INVENTORY_RECEIPT_ALREADY_CONSUMED/,
+);
+
+const shippedRoot = process.cwd();
+const windowSource = readFileSync(join(shippedRoot, 'packages/main/src/core/certification-window.ts'), 'utf8');
+const handlerSource = readFileSync(join(shippedRoot, 'packages/main/src/handlers/done-required-validation.ts'), 'utf8');
+const verifierSource = readFileSync(join(shippedRoot, 'packages/main/src/handlers/verifier.ts'), 'utf8');
+assert.doesNotMatch(windowSource, /main-write-lock|acquireMainWriteLock/, 'CertificationWindow must not take the main write lock');
+assert.match(handlerSource, /refuseHeavyCertificationUnlessAdmitted/, 'done_required_validate must call the shared choke');
+assert.match(verifierSource, /refuseHeavyCertificationUnlessAdmitted/, 'validate --full must call the shared choke');
+const branchFiles = execFileSync('git', ['diff', '--name-only', 'main...HEAD'], {
+  cwd: shippedRoot,
+  encoding: 'utf8',
+});
+assert.doesNotMatch(
+  branchFiles,
+  /review-escalation|three-round-two-host|quorum-submit\.ts|host-quorum/,
+  'this story must not weaken host-quorum or reviewer-lane policy files',
+);
 
 console.log('PRE_CERT replay: premature_heavy_runs=0 admitted_heavy_runs=1 post_cert_source_commits=0');
 console.log(prematureDone);

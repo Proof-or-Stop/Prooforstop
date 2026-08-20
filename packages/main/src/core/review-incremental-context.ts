@@ -7,11 +7,10 @@
  * passed on this story it reports isFirstPass=true and the full main...HEAD
  * material diff.
  *
- * HARD INVARIANT (this story): this module is STRICTLY READ-ONLY. It only reads
- * via the StoryStore and git; it performs no writes and has no gate/store side
- * effects. It does NOT touch canPassReviewGuard, review-run bindings,
- * materialHash, or staleness logic — it only surfaces information so an operator
- * can decide whether to re-run a reviewer. The framework still skips nobody.
+ * The legacy per-reviewer context below remains STRICTLY READ-ONLY. The same
+ * module also owns the separately signed post-remediation selection consumed by
+ * the REVIEW gate: it narrows only from a proven current dependency closure and
+ * otherwise requires the full active set. Round number is never lane evidence.
  *
  * Diff source: changedFilesBetweenRenameAware (`git diff --name-status -M`) so a
  * file rename since the reviewer's last pass still surfaces as a changed path
@@ -21,6 +20,9 @@
  */
 
 import { execFileSync } from 'node:child_process';
+import { lstatSync, readFileSync, realpathSync } from 'node:fs';
+import { dirname, extname, relative, resolve } from 'node:path';
+import ts from 'typescript';
 import type { StoryStore } from './store.js';
 import type { Finding, ReviewPass, ReviewRun } from './types.js';
 import {
@@ -36,16 +38,18 @@ import {
 } from './evidence-freshness.js';
 import { verifyReviewPass } from './finding-verify.js';
 import { verifyReviewRun } from './review-run.js';
+import { readGitBlobAt, type GitBlobReadResult } from './git-blob-reader.js';
 import {
   classifyImpact,
   IMPACT_CLASSIFICATION_POLICY_VERSION,
   type ImpactClassification,
 } from './impact-classification-policy.js';
 import {
-  FULL_TASK_CONTEXT_LIMITS,
   domainSeparatedDigest,
+  FULL_TASK_CONTEXT_LIMITS,
   validateIncrementalReviewBasis,
   type IncrementalReviewBasis,
+  type PromptFindingProjection,
 } from './prompt-contracts.js';
 import {
   PROMPT_DISPATCH_PROTOCOL_VERSION,
@@ -58,64 +62,424 @@ import {
 import { BASELINE_RUNTIME_CONTRACT } from './prompt-measurement.js';
 import { promptRoleContract } from './prompt-role-contract-registry.js';
 import { digestScopeContract } from './guard-session.js';
+import {
+  reviewInventoryDigest,
+  reviewInventoryAcceptanceSubjectDigestForStore,
+  verifyReviewInventoryEpoch,
+  verifyReviewInventoryReceipt,
+} from './review-inventory-epoch.js';
+import { resolveGitCwd } from './story-signed-workspace-resolution.js';
+
+export const POST_REMEDIATION_REVIEW_POLICY_VERSION = 'proofbound.post-remediation-review-selection.v1' as const;
+
+export type PostRemediationSelectionReason =
+  | 'PROVEN_CANONICAL_DEPENDENCY_CLOSURE'
+  | 'NO_CONSUMED_INVENTORY_RECEIPT'
+  | 'RECEIPT_OR_EPOCH_INVALID'
+  | 'CURRENT_REVIEW_ROUND_MISSING_OR_UNCHANGED'
+  | 'CURRENT_LINEAGE_UNAVAILABLE'
+  | 'SOURCE_CUTOFF_NOT_ANCESTOR'
+  | 'SCOPE_OR_POLICY_CHANGED'
+  | 'NO_MATERIAL_REMEDIATION'
+  | 'DIRTY_MATERIAL'
+  | 'UNTRACKED_OR_IGNORED_MATERIAL'
+  | 'CHANGED_FILE_OUTSIDE_FROZEN_SCOPE'
+  | 'UNSUPPORTED_RENAME_OR_DELETE'
+  | 'POLICY_IMPACT_REQUIRES_FULL_SET'
+  | 'DEPENDENCY_CLOSURE_INCOMPLETE'
+  | 'EMPTY_IMPACT_SELECTION';
+
+export interface PostRemediationReviewSelection {
+  schemaVersion: typeof POST_REMEDIATION_REVIEW_POLICY_VERSION;
+  storyId: string;
+  reviewRound: string;
+  headHash: string;
+  materialHash: string;
+  storyFilesHash: string;
+  sourceReceiptId: string | null;
+  sourceReviewRound: string | null;
+  sourceHeadHash: string | null;
+  activeLanes: string[];
+  selectedLanes: string[];
+  selection: 'dependency-closure' | 'full-set';
+  reason: PostRemediationSelectionReason;
+  reasonDetail: string;
+  changedFiles: string[];
+  closureFiles: string[];
+  scopeDigest: string;
+  requiredHostAssurance: 'unchanged';
+  policyVersion: typeof POST_REMEDIATION_REVIEW_POLICY_VERSION;
+  _hash: string;
+}
+
+export interface CanonicalDependencyClosure {
+  complete: boolean;
+  files: string[];
+  reason?: string;
+}
+
+function canonicalRepoPath(projectRoot: string, path: string): string | null {
+  const normalized = path.replace(/\\/g, '/').replace(/^\.\//, '').trim();
+  if (!normalized || normalized.startsWith('/') || normalized.split('/').includes('..')) return null;
+  const absolute = resolve(projectRoot, normalized);
+  const rel = relative(projectRoot, absolute).replace(/\\/g, '/');
+  return rel === normalized ? normalized : null;
+}
+
+function trackedFiles(gitCwd: string): string[] {
+  try {
+    return execFileSync('git', ['ls-files', '-z'], {
+      cwd: gitCwd,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    }).split('\0').map(path => path.trim()).filter(Boolean).sort();
+  } catch {
+    return [];
+  }
+}
+
+function hasOpaqueDynamicLoad(source: ts.SourceFile): boolean {
+  let opaque = false;
+  const visit = (node: ts.Node): void => {
+    if (ts.isCallExpression(node)) {
+      const dynamicImport = node.expression.kind === ts.SyntaxKind.ImportKeyword;
+      const commonJsRequire = ts.isIdentifier(node.expression) && node.expression.text === 'require';
+      if ((dynamicImport || commonJsRequire)
+        && (node.arguments.length !== 1 || !ts.isStringLiteralLike(node.arguments[0]))) opaque = true;
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(source);
+  return opaque;
+}
+
+/**
+ * Build a deterministic, bidirectional source dependency component from the
+ * tracked TypeScript/JavaScript inventory. Walking both directions covers
+ * transitive dependencies and all dependants that share a changed module.
+ * Any unresolved relative import, opaque dynamic load, symlink, alias escape,
+ * or missing changed source makes the proof incomplete rather than narrow.
+ */
+export function computeCanonicalDependencyClosure(
+  gitCwd: string,
+  changedFilesInput: readonly string[],
+): CanonicalDependencyClosure {
+  const changedFiles = [...new Set(changedFilesInput)].sort();
+  const tracked = trackedFiles(gitCwd);
+  if (tracked.length === 0) return { complete: false, files: changedFiles, reason: 'tracked source inventory unavailable' };
+  const trackedSet = new Set(tracked);
+  const sourceExtensions = new Set(['.ts', '.tsx', '.mts', '.cts', '.js', '.jsx', '.mjs', '.cjs']);
+  const sourceFiles = tracked.filter(path => sourceExtensions.has(extname(path)) && !isMaterialExcludedPath(path, gitCwd));
+  const sourceSet = new Set(sourceFiles);
+  const graph = new Map<string, Set<string>>(sourceFiles.map(path => [path, new Set<string>()]));
+  const realProjectRoot = realpathSync(gitCwd);
+  const configPath = ts.findConfigFile(gitCwd, ts.sys.fileExists);
+  let compilerOptions: ts.CompilerOptions = { moduleResolution: ts.ModuleResolutionKind.Node16 };
+  if (configPath) {
+    const config = ts.readConfigFile(configPath, ts.sys.readFile);
+    if (config.error) return { complete: false, files: changedFiles, reason: 'TypeScript config is unreadable' };
+    compilerOptions = ts.parseJsonConfigFileContent(config.config, ts.sys, dirname(configPath)).options;
+  }
+  for (const path of sourceFiles) {
+    const absolute = resolve(gitCwd, path);
+    try {
+      if (lstatSync(absolute).isSymbolicLink() || relative(realProjectRoot, realpathSync(absolute)).startsWith('..')) {
+        return { complete: false, files: changedFiles, reason: `source inventory contains symlink escape: ${path}` };
+      }
+      const text = readFileSync(absolute, 'utf8');
+      const source = ts.createSourceFile(path, text, ts.ScriptTarget.Latest, true);
+      if (hasOpaqueDynamicLoad(source)) {
+        return { complete: false, files: changedFiles, reason: `opaque dynamic dependency: ${path}` };
+      }
+      const imports = ts.preProcessFile(text, true, true).importedFiles.map(entry => entry.fileName);
+      for (const specifier of imports) {
+        const resolved = ts.resolveModuleName(specifier, absolute, compilerOptions, ts.sys).resolvedModule;
+        if (!resolved) {
+          if (specifier.startsWith('.')) return { complete: false, files: changedFiles, reason: `unresolved relative dependency: ${path} -> ${specifier}` };
+          continue;
+        }
+        const target = canonicalRepoPath(gitCwd, relative(gitCwd, resolved.resolvedFileName));
+        if (!target || !sourceSet.has(target)) {
+          if (!resolved.isExternalLibraryImport && !resolved.resolvedFileName.includes('/node_modules/')) {
+            return { complete: false, files: changedFiles, reason: `dependency escapes tracked source inventory: ${path} -> ${specifier}` };
+          }
+          continue;
+        }
+        graph.get(path)!.add(target);
+        graph.get(target)!.add(path);
+      }
+    } catch {
+      return { complete: false, files: changedFiles, reason: `source inventory unreadable: ${path}` };
+    }
+  }
+  const sourceChanged = changedFiles.filter(path => sourceExtensions.has(extname(path)));
+  if (sourceChanged.some(path => !trackedSet.has(path) || !sourceSet.has(path))) {
+    return { complete: false, files: changedFiles, reason: 'changed source is not a canonical tracked inventory member' };
+  }
+  const closure = new Set(changedFiles);
+  const queue = [...sourceChanged];
+  while (queue.length > 0) {
+    const path = queue.shift()!;
+    for (const adjacent of graph.get(path) ?? []) {
+      if (closure.has(adjacent)) continue;
+      closure.add(adjacent);
+      queue.push(adjacent);
+    }
+  }
+  return { complete: true, files: [...closure].sort() };
+}
+
+function signPostRemediationSelection(
+  selection: Omit<PostRemediationReviewSelection, '_hash'>,
+): PostRemediationReviewSelection {
+  return {
+    ...selection,
+    _hash: domainSeparatedDigest(POST_REMEDIATION_REVIEW_POLICY_VERSION, selection),
+  };
+}
+
+export function verifyPostRemediationReviewSelection(selection: PostRemediationReviewSelection): boolean {
+  const { _hash, ...unsigned } = selection;
+  const uniqueActive = [...new Set(selection.activeLanes)];
+  const uniqueSelected = [...new Set(selection.selectedLanes)];
+  return selection.schemaVersion === POST_REMEDIATION_REVIEW_POLICY_VERSION
+    && selection.policyVersion === POST_REMEDIATION_REVIEW_POLICY_VERSION
+    && selection.requiredHostAssurance === 'unchanged'
+    && _hash === domainSeparatedDigest(POST_REMEDIATION_REVIEW_POLICY_VERSION, unsigned)
+    && selection.activeLanes.length === uniqueActive.length
+    && selection.selectedLanes.length === uniqueSelected.length
+    && selection.selectedLanes.length > 0
+    && selection.selectedLanes.every(lane => selection.activeLanes.includes(lane))
+    && selection.selectedLanes.every((lane, index) => lane === selection.activeLanes.filter(active => uniqueSelected.includes(active))[index]);
+}
+
+export function verifyCurrentPostRemediationReviewSelection(
+  store: StoryStore,
+  projectRoot: string,
+  storyId: string,
+  selection: PostRemediationReviewSelection,
+  active?: readonly { name: string; reason: string; forced?: boolean }[],
+): boolean {
+  if (!verifyPostRemediationReviewSelection(selection) || selection.storyId !== storyId) return false;
+  const gitCwd = resolveGitCwd({ store, storyId, metadataRoot: projectRoot, projectRoot });
+  const story = store.readStory(storyId);
+  const scopeDigest = reviewInventoryAcceptanceSubjectDigestForStore(store, storyId);
+  const bindingMatches = story.currentReviewRound === selection.reviewRound
+    && currentGitHead(gitCwd) === selection.headHash
+    && currentMaterialHash(gitCwd, 'HEAD', projectRoot) === selection.materialHash
+    && currentStoryFilesHash(gitCwd, 'HEAD', projectRoot) === selection.storyFilesHash
+    && scopeDigest === selection.scopeDigest;
+  if (!bindingMatches) return false;
+  return !active || postRemediationReviewSelection(store, projectRoot, storyId, active)._hash === selection._hash;
+}
+
+function impactedLanes(
+  closureFiles: readonly string[],
+  active: readonly { name: string; reason: string; forced?: boolean }[],
+): string[] {
+  const hasDocs = closureFiles.some(path => /(^|\/)(docs?|requirements)(\/|$)|\.(md|mdx|rst|adoc)$/i.test(path));
+  const hasSource = closureFiles.some(path => /\.(ts|tsx|mts|cts|js|jsx|mjs|cjs)$/i.test(path) && !/(^|\/)(tests?|__tests__)(\/|$)|\.(test|spec)\./i.test(path));
+  const hasTests = closureFiles.some(path => /(^|\/)(tests?|__tests__)(\/|$)|\.(test|spec)\./i.test(path));
+  return active.filter(reviewer => {
+    if (reviewer.forced) return true;
+    // A production-source repair can alter any active review concern. Without
+    // a canonical docs/behavior dependency edge, excluding those lanes would
+    // be a guess rather than a proven closure.
+    if (hasSource) return true;
+    if (reviewer.name === 'docs') return hasDocs;
+    if (reviewer.name === 'concept') return false;
+    if (reviewer.name === 'quality') return hasTests;
+    if (reviewer.name === 'test-coverage') return hasTests;
+    if (reviewer.name === 'behavior') return false;
+    return true;
+  }).map(reviewer => `lattice-review-${reviewer.name}`);
+}
+
+export function postRemediationReviewSelection(
+  store: StoryStore,
+  projectRoot: string,
+  storyId: string,
+  active: readonly { name: string; reason: string; forced?: boolean }[],
+): PostRemediationReviewSelection {
+  const gitCwd = resolveGitCwd({ store, storyId, metadataRoot: projectRoot, projectRoot });
+  const story = store.readStory(storyId);
+  const headHash = currentGitHead(gitCwd) ?? '<unavailable>';
+  const materialHash = currentMaterialHash(gitCwd, 'HEAD', projectRoot) ?? '<unavailable>';
+  const storyFilesHash = currentStoryFilesHash(gitCwd, 'HEAD', projectRoot) ?? '<unavailable>';
+  const reviewRound = story.currentReviewRound ?? '<unavailable>';
+  const activeLanes = active.map(row => `lattice-review-${row.name}`);
+  const checklist = store.readChecklist(storyId);
+  const scopeDigest = reviewInventoryAcceptanceSubjectDigestForStore(store, storyId);
+  const data = store.readReviewInventoryEpochs(storyId);
+  const receipt = [...data.receipts].reverse().find(row => Boolean(row.consumedAt));
+  const fallback = (
+    reason: PostRemediationSelectionReason,
+    changedFiles: string[] = [],
+    closureFiles: string[] = [],
+    reasonDetail: string = reason,
+  ) =>
+    signPostRemediationSelection({
+      schemaVersion: POST_REMEDIATION_REVIEW_POLICY_VERSION,
+      storyId,
+      reviewRound,
+      headHash,
+      materialHash,
+      storyFilesHash,
+      sourceReceiptId: receipt?.receiptId ?? null,
+      sourceReviewRound: receipt?.reviewRound ?? null,
+      sourceHeadHash: receipt?.cutoff.headHash ?? null,
+      activeLanes,
+      selectedLanes: activeLanes,
+      selection: 'full-set',
+      reason,
+      reasonDetail,
+      changedFiles: [...new Set(changedFiles)].sort(),
+      closureFiles: [...new Set(closureFiles)].sort(),
+      scopeDigest,
+      requiredHostAssurance: 'unchanged',
+      policyVersion: POST_REMEDIATION_REVIEW_POLICY_VERSION,
+    });
+  if (!receipt) return fallback('NO_CONSUMED_INVENTORY_RECEIPT');
+  const epoch = data.epochs.find(row => row.epochId === receipt.epochId);
+  if (!verifyReviewInventoryReceipt(receipt) || !epoch || !verifyReviewInventoryEpoch(epoch)
+    || epoch.receiptId !== receipt.receiptId || !epoch.consumedAt) return fallback('RECEIPT_OR_EPOCH_INVALID');
+  if (!story.currentReviewRound || story.currentReviewRound === receipt.reviewRound) {
+    return fallback('CURRENT_REVIEW_ROUND_MISSING_OR_UNCHANGED');
+  }
+  if ([headHash, materialHash, storyFilesHash].some(value => value === '<unavailable>')) {
+    return fallback('CURRENT_LINEAGE_UNAVAILABLE');
+  }
+  try {
+    execFileSync('git', ['merge-base', '--is-ancestor', receipt.cutoff.headHash, 'HEAD'], {
+      cwd: gitCwd,
+      stdio: ['ignore', 'ignore', 'ignore'],
+    });
+  } catch {
+    return fallback('SOURCE_CUTOFF_NOT_ANCESTOR');
+  }
+  if (receipt.scopeDigest !== scopeDigest) return fallback('SCOPE_OR_POLICY_CHANGED');
+  const changedFiles = materialOnly(changedFilesBetweenRenameAware(gitCwd, receipt.cutoff.headHash, 'HEAD'), projectRoot);
+  if (changedFiles.length === 0) return fallback('NO_MATERIAL_REMEDIATION');
+  const statuses = changedFileStatusesBetweenRenameAware(gitCwd, receipt.cutoff.headHash, 'HEAD');
+  if (Object.values(statuses).some(status => status.startsWith('R') || status.startsWith('C') || status === 'D')) {
+    return fallback('UNSUPPORTED_RENAME_OR_DELETE', changedFiles);
+  }
+  const declaredFiles = new Set(checklist.items.flatMap(row => {
+    if (Array.isArray(row.files)) return row.files;
+    if (!row.files || typeof row.files !== 'object') return [];
+    return [...(row.files.modify ?? []), ...(row.files.create ?? []), ...(row.files.test ?? [])];
+  }).map(path => canonicalRepoPath(projectRoot, path)).filter((path): path is string => Boolean(path)));
+  if (changedFiles.some(path => !declaredFiles.has(path))) {
+    return fallback('CHANGED_FILE_OUTSIDE_FROZEN_SCOPE', changedFiles);
+  }
+  try {
+    const rawDirty = execFileSync('git', ['status', '--porcelain=v1', '-z', '--untracked-files=all', '--ignored=matching'], {
+      cwd: gitCwd,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    });
+    const records = rawDirty.split('\0').filter(Boolean);
+    const materialDirty: Array<{ status: string; path: string }> = [];
+    for (let index = 0; index < records.length; index += 1) {
+      const record = records[index];
+      if (record.length < 3 || record[2] !== ' ') {
+        materialDirty.push({ status: '??', path: record });
+        continue;
+      }
+      const status = record.slice(0, 2);
+      const paths = [record.slice(3)];
+      if ((status.includes('R') || status.includes('C')) && records[index + 1]) paths.push(records[++index]);
+      for (const path of paths) {
+        if (!isMaterialExcludedPath(path, projectRoot)) materialDirty.push({ status, path });
+      }
+    }
+    if (materialDirty.some(row => row.status === '??' || row.status === '!!')) {
+      return fallback('UNTRACKED_OR_IGNORED_MATERIAL', changedFiles);
+    }
+    if (materialDirty.length > 0) return fallback('DIRTY_MATERIAL', changedFiles);
+  } catch {
+    return fallback('UNTRACKED_OR_IGNORED_MATERIAL', changedFiles);
+  }
+  const policy = classifyImpact({ changedFiles, declaredTestFiles: [], testIntentRefsByFile: {}, changedFileStatus: statuses });
+  if (policy.impacts.some(impact => ['public-contract', 'authority-or-permission', 'command-or-gate-policy', 'dependency-or-build', 'unsupported-rename', 'unknown'].includes(impact.category))) {
+    return fallback(
+      'POLICY_IMPACT_REQUIRES_FULL_SET',
+      changedFiles,
+      [],
+      policy.impacts.map(impact => `${impact.path}:${impact.reasonCode}`).sort().join(', '),
+    );
+  }
+  const closure = computeCanonicalDependencyClosure(gitCwd, changedFiles);
+  if (!closure.complete) return fallback('DEPENDENCY_CLOSURE_INCOMPLETE', changedFiles, closure.files, closure.reason);
+  const selectedLanes = impactedLanes(closure.files, active);
+  if (selectedLanes.length === 0) return fallback('EMPTY_IMPACT_SELECTION', changedFiles, closure.files);
+  return signPostRemediationSelection({
+    schemaVersion: POST_REMEDIATION_REVIEW_POLICY_VERSION,
+    storyId,
+    reviewRound,
+    headHash,
+    materialHash,
+    storyFilesHash,
+    sourceReceiptId: receipt.receiptId,
+    sourceReviewRound: receipt.reviewRound,
+    sourceHeadHash: receipt.cutoff.headHash,
+    activeLanes,
+    selectedLanes,
+    selection: 'dependency-closure',
+    reason: 'PROVEN_CANONICAL_DEPENDENCY_CLOSURE',
+    reasonDetail: `${changedFiles.length} changed file(s) close over ${closure.files.length} tracked dependency file(s)`,
+    changedFiles: [...changedFiles].sort(),
+    closureFiles: closure.files,
+    scopeDigest,
+    requiredHostAssurance: 'unchanged',
+    policyVersion: POST_REMEDIATION_REVIEW_POLICY_VERSION,
+  });
+}
 
 export interface ReviewIncrementalContext {
   /** The reviewer role this context was computed for (echoed back). */
   role: string;
   /**
-   * Authoritative "no trusted prior verdict resolved" signal. `isFirstPass=true`
-   * means there is NO resolvable trusted prior-pass headHash at all, which
+   * Authoritative "no usable incremental baseline" signal. `isFirstPass=true`
+   * means there is NO resolvable prior-pass headHash to diff against, which
    * covers BOTH sub-cases:
-   *   (a) the reviewer has never passed/finding-ed on this story, or its prior
-   *       evidence is not trusted, AND
+   *   (a) the reviewer has never passed/finding-ed on this story, AND
    *   (b) a prior verdict EXISTS but the run it was bound to has a missing /
    *       unresolvable headHash (so we cannot compute an incremental base).
    * In both sub-cases `priorHeadHash` is null and `changedFiles` is the full
-   * story diff against `main`.
-   *
-   * `isFirstPass=false` says a trusted prior RESOLVED. It does not by itself say
-   * that incremental context is being served: when the diff from that prior does
-   * not fit the bounded path lists the review-basis contract accepts, the
-   * resolved prior is still reported (it is real audit-trail state) while
-   * `contextMode` stays 'full', `reviewBasis` stays null, and `changedFiles` is
-   * the full story diff against `main` — see the bounded-paths degradation in
-   * reviewIncrementalContext below.
-   *
-   * So: read `isFirstPass` for "did a trusted prior resolve", read `contextMode`
-   * / `reviewBasis` for "is an incremental baseline actually being served", and
-   * read `priorVerdict` for neither.
+   * `main...HEAD` material diff. Consumers MUST treat `isFirstPass` — NOT
+   * `priorVerdict` — as the authoritative "no incremental baseline" flag.
    */
   isFirstPass: boolean;
   /**
-   * The headHash the trusted prior verdict was bound to, when resolvable. Always
-   * null whenever `isFirstPass=true` (including sub-case (b) above). Non-null
-   * only when `isFirstPass=false`, in which case it is the base of the
-   * incremental `changedFiles` diff EXCEPT under the bounded-paths degradation,
-   * where the prior is reported but the served `changedFiles` is the full story
-   * diff against `main`. `reviewBasis === null` marks that case.
+   * The headHash the prior verdict was bound to, when resolvable. Always null
+   * whenever `isFirstPass=true` (including sub-case (b) above). Non-null only
+   * when `isFirstPass=false`, in which case it is the base of the incremental
+   * `changedFiles` diff.
    */
   priorHeadHash: string | null;
   /**
-   * Human summary of the most recent trusted prior verdict (e.g. "PASS
-   * (RP-001)"), or null when no trusted prior verdict resolved. INFORMATIONAL
-   * ONLY. Never infer "has incremental baseline" from `priorVerdict`; read
-   * `contextMode` / `reviewBasis` for that.
+   * Human summary of the most recent prior verdict (e.g. "PASS (RP-001)" or
+   * "finding F-002: high"), or null when the reviewer has no prior verdict.
+   * INFORMATIONAL ONLY. It MAY be non-null even when `isFirstPass=true`: in
+   * sub-case (b) a prior verdict exists but its bound headHash is unresolvable,
+   * so `priorVerdict` is non-null yet `priorHeadHash` is null and the full diff
+   * is returned. Never infer "has incremental baseline" from `priorVerdict`;
+   * use `isFirstPass` for that.
    */
   priorVerdict: string | null;
   /**
-   * Whether any MATERIAL file changed relative to the baseline. It equals
-   * `changedFiles.length > 0` when an incremental baseline is served, and is
-   * forced to true whenever the full story diff is served instead (first pass
-   * or bounded-paths degradation), because that read conservatively "shows
-   * everything". So it MAY be true even if `changedFiles` is empty — do not
-   * assume `scopeChanged === (changedFiles.length > 0)` in those branches.
+   * Whether any MATERIAL file changed relative to the baseline. When
+   * `isFirstPass=false` this equals `changedFiles.length > 0`. When
+   * `isFirstPass=true` it is forced to true (a first pass conservatively
+   * "shows everything"), so it MAY be true even if `changedFiles` is empty —
+   * do not assume `scopeChanged === (changedFiles.length > 0)` in that branch.
    */
   scopeChanged: boolean;
   /**
-   * Material files changed since the baseline: the full story diff against
-   * `main` whenever the full story diff is served (first pass or bounded-paths
-   * degradation), otherwise the diff from `priorHeadHash` to HEAD (rename-aware,
-   * material-filtered).
+   * Material files changed since the baseline. When `isFirstPass=true` this is
+   * the full `main...HEAD` material diff; otherwise the diff from
+   * `priorHeadHash` to HEAD (rename-aware, material-filtered).
    */
   changedFiles: string[];
   contextMode: 'full' | 'incremental';
@@ -232,22 +596,15 @@ function materialOnly(files: string[], projectRoot: string): string[] {
   return files.filter((file) => !isMaterialExcludedPath(file, projectRoot));
 }
 
-function gitFileAt(gitCwd: string, ref: string, path: string): string | null {
-  try {
-    return execFileSync('git', ['show', `${ref}:${path}`], {
-      cwd: gitCwd,
-      encoding: 'utf8',
-      stdio: ['ignore', 'pipe', 'ignore'],
-    });
-  } catch {
-    return null;
-  }
+function gitFileAt(gitCwd: string, ref: string, path: string): GitBlobReadResult {
+  return readGitBlobAt(gitCwd, ref, path);
 }
 
-function fixtureCases(raw: string | null): Array<Record<string, unknown>> | null {
-  if (raw === null) return [];
+function fixtureCases(raw: GitBlobReadResult): Array<Record<string, unknown>> | null {
+  if (raw.status === 'missing') return [];
+  if (raw.status === 'error') return null;
   try {
-    const parsed = JSON.parse(raw) as unknown;
+    const parsed = JSON.parse(raw.content.toString('utf8')) as unknown;
     if (!parsed || typeof parsed !== 'object' || !Array.isArray((parsed as { cases?: unknown }).cases)) return null;
     const cases = (parsed as { cases: unknown[] }).cases;
     if (!cases.every(value => value && typeof value === 'object' && !Array.isArray(value))) return null;
@@ -327,25 +684,27 @@ export function fixtureCaseClosure(
 /**
  * Read-only incremental review context for a reviewer `role` on `storyId`.
  *
- * - A trusted prior pass with a bound, resolvable headHash whose diff fits the
- *   bounded review-basis path lists → diff that headHash against HEAD
- *   (rename-aware, material-filtered); scopeChanged = changed > 0;
- *   isFirstPass = false; a review basis is emitted.
- * - No trusted prior verdict (or its bound headHash is unresolvable) →
+ * - A prior pass/finding with a bound, resolvable headHash → diff that headHash
+ *   against HEAD (rename-aware, material-filtered); scopeChanged = changed > 0;
+ *   isFirstPass = false.
+ * - No prior verdict (or prior verdict has no resolvable bound headHash) →
  *   isFirstPass = true, priorHeadHash = null, scopeChanged = true, and
- *   changedFiles = the full story diff against main.
- * - A trusted prior pass whose diff does NOT fit those bounded path lists →
- *   the same full story diff against main, with the resolved prior reported for
- *   audit (isFirstPass = false) but no review basis emitted; contextMode stays
- *   'full' and scopeChanged stays true.
+ *   changedFiles = the full main...HEAD material diff.
  */
 export function reviewIncrementalContext(
   store: StoryStore,
   projectRoot: string,
   storyId: string,
   role: string,
-  options: { excludedReviewRunId?: string; findingsCutoffAt?: string; passesCutoffAt?: string } = {},
+  options: {
+    excludedReviewRunId?: string;
+    findingsCutoffAt?: string;
+    passesCutoffAt?: string;
+    /** Signed run-start projection; prevents later finding disposition rewrites. */
+    findingProjection?: PromptFindingProjection[];
+  } = {},
 ): ReviewIncrementalContext {
+  const gitCwd = resolveGitCwd({ store, storyId, metadataRoot: projectRoot, projectRoot });
   const passes = store.readReviewPasses(storyId).passes || [];
   const runs = store.readReviewRuns(storyId).runs || [];
   const findings = store.readFindings(storyId).findings || [];
@@ -358,9 +717,9 @@ export function reviewIncrementalContext(
     options.excludedReviewRunId,
     options.passesCutoffAt,
   );
-  const currentHead = currentGitHead(projectRoot) ?? null;
-  const currentMaterial = currentMaterialHash(projectRoot, 'HEAD', projectRoot) ?? null;
-  const currentStoryFiles = currentStoryFilesHash(projectRoot, 'HEAD', projectRoot) ?? null;
+  const currentHead = currentGitHead(gitCwd) ?? null;
+  const currentMaterial = currentMaterialHash(gitCwd, 'HEAD', projectRoot) ?? null;
+  const currentStoryFiles = currentStoryFilesHash(gitCwd, 'HEAD', projectRoot) ?? null;
   const checklist = store.readChecklist(storyId);
   const scopeContract = store.readScopeContract(storyId);
   const story = store.readStory(storyId);
@@ -396,15 +755,6 @@ export function reviewIncrementalContext(
 
   const finalize = (args: {
     prior: TrustedPriorPass | null;
-    /**
-     * Set when a trusted prior resolved but `changedFiles` is NOT the diff from
-     * it — the full story diff is being served in its place. The prior is then
-     * reported for audit only: no incremental review basis is emitted from it
-     * (emitting one would bind a basis to a diff it was not computed from, and
-     * would re-enter the very bound the caller degraded away from), and
-     * `scopeChanged` stays forced-true exactly as on a first pass.
-     */
-    priorNotDiffed?: boolean;
     changedFiles: string[];
     freshnessClassification: EvidenceFreshnessClassification | 'NOT_EVALUATED';
     reasonCodes: string[];
@@ -427,10 +777,11 @@ export function reviewIncrementalContext(
         (item.verificationIntent?.[lane] ?? []).map((intent, index) =>
           intent.id?.trim() || `${item.id}:${lane}:${index}`)));
     let reviewBasis: IncrementalReviewBasis | null = null;
-    if (args.prior && !args.priorNotDiffed) {
+    if (args.prior) {
       const priorTime = Date.parse(args.prior.pass.createdAt);
       const cutoff = options.findingsCutoffAt ? Date.parse(options.findingsCutoffAt) : Number.POSITIVE_INFINITY;
-      const basisFindings = findings.filter(finding => {
+      const findingSource = options.findingProjection ?? findings;
+      const basisFindings = findingSource.filter(finding => {
         const created = Date.parse(finding.createdAt ?? '');
         return !Number.isFinite(cutoff) || (Number.isFinite(created) && created <= cutoff);
       });
@@ -457,6 +808,12 @@ export function reviewIncrementalContext(
         ...args.changedFiles,
         ...args.impact.impactedFiles,
       ])].sort();
+      const exceedsIncrementalCap = args.changedFiles.length > FULL_TASK_CONTEXT_LIMITS.pathsPerList
+        || args.impact.impactedFiles.length > FULL_TASK_CONTEXT_LIMITS.pathsPerList
+        || authoritativeReferences.length > FULL_TASK_CONTEXT_LIMITS.pathsPerList;
+      if (exceedsIncrementalCap) {
+        reviewBasis = null;
+      } else {
       reviewBasis = {
         schemaVersion: 'proofbound.incremental-review-basis.v1',
         storyId,
@@ -491,6 +848,7 @@ export function reviewIncrementalContext(
         ...(scopeContract ? { scopeAcknowledgementDigest: digestScopeContract(scopeContract) } : {}),
       };
       validateIncrementalReviewBasis(reviewBasis);
+      }
     }
     const reviewBasisDigest = reviewBasis
       ? domainSeparatedDigest('incremental-review-basis.v1', reviewBasis)
@@ -512,10 +870,10 @@ export function reviewIncrementalContext(
     };
     return {
       role,
-      isFirstPass: !args.prior,
+      isFirstPass: !args.prior || reviewBasis === null,
       priorHeadHash: args.prior?.run.headHash ?? null,
       priorVerdict: args.prior ? `PASS (${args.prior.pass.id})` : null,
-      scopeChanged: !args.prior || args.priorNotDiffed === true || args.changedFiles.length > 0,
+      scopeChanged: !args.prior || args.changedFiles.length > 0,
       changedFiles: args.changedFiles,
       contextMode,
       impactPolicyVersion: IMPACT_CLASSIFICATION_POLICY_VERSION,
@@ -537,25 +895,12 @@ export function reviewIncrementalContext(
     };
   };
 
-  // The full story diff against main. Every caller below reaches this the same
-  // way — via a reason code that starts with FULL_, which keeps contextMode at
-  // 'full' — so the basis computation stays single-sourced rather than copied
-  // per fallback. No incremental basis is ever emitted from here: callers that
-  // have no trusted prior pass null, and the caller that HAS one passes it for
-  // audit only (priorNotDiffed), because this diff is not taken from it.
-  //
-  // Diff basis ref: the literal `main` ref as it stands at computation time, not
-  // a hash pinned into the result. A concurrent story landing on the shared
-  // local `main` can therefore move this basis between the moment an envelope is
-  // assembled from this read and the moment verifyReviewRunPromptEnvelope
-  // recomputes it. The failure direction is CLOSED, not open: a moved ref that
-  // changes the material set changes changedFilesDigest and eligibilityDigest,
-  // and the mismatch REJECTS the run rather than silently accepting it.
-  const fullStoryDiffContext = (
-    reasonCodes: string[],
-    resolvedPriorForAudit: TrustedPriorPass | null = null,
-  ): ReviewIncrementalContext => {
-    const fullDiff = materialOnly(changedFilesBetweenRenameAware(projectRoot, 'main', 'HEAD'), projectRoot);
+  // First-timer (or a prior verdict whose bound headHash cannot be resolved):
+  // fall back to the full story diff against main. We treat a missing bound
+  // headHash as a first pass so we never compute an incremental diff from an
+  // unknown base — the conservative direction is "show everything".
+  if (!prior || !prior.run.headHash) {
+    const fullDiff = materialOnly(changedFilesBetweenRenameAware(gitCwd, 'main', 'HEAD'), projectRoot);
     const impact = classifyImpact({
       changedFiles: fullDiff,
       declaredTestFiles,
@@ -563,67 +908,26 @@ export function reviewIncrementalContext(
       fixtureCaseClosureByFile: Object.fromEntries(fullDiff.map(path => [
         path,
         declaredTestFiles.includes(path)
-          && fixtureCaseClosure(projectRoot, 'main', storyId, path, currentStoryIntentRefs),
+          && fixtureCaseClosure(gitCwd, 'main', storyId, path, currentStoryIntentRefs),
       ])),
-      changedFileStatus: changedFileStatusesBetweenRenameAware(projectRoot, 'main', 'HEAD'),
+      changedFileStatus: changedFileStatusesBetweenRenameAware(gitCwd, 'main', 'HEAD'),
     });
     return finalize({
-      prior: resolvedPriorForAudit,
-      priorNotDiffed: resolvedPriorForAudit !== null,
+      prior: null,
       changedFiles: fullDiff,
       freshnessClassification: 'NOT_EVALUATED',
-      reasonCodes,
+      reasonCodes: ['FULL_MISSING_TRUSTED_PRIOR_PASS'],
       impact,
     });
-  };
-
-  // First-timer (or a prior verdict whose bound headHash cannot be resolved):
-  // fall back to the full story diff against main. We treat a missing bound
-  // headHash as a first pass so we never compute an incremental diff from an
-  // unknown base — the conservative direction is "show everything".
-  if (!prior || !prior.run.headHash) {
-    return fullStoryDiffContext(['FULL_MISSING_TRUSTED_PRIOR_PASS']);
   }
 
   const changedFiles = materialOnly(
-    changedFilesBetweenRenameAware(projectRoot, prior.run.headHash, 'HEAD'),
+    changedFilesBetweenRenameAware(gitCwd, prior.run.headHash, 'HEAD'),
     projectRoot,
   );
-
-  // The prior verdict resolves, but it sits far enough behind HEAD that the
-  // incremental diff no longer fits the bounded path lists the review-basis
-  // contract accepts (typically because a large merge from main landed between
-  // that verdict and HEAD, so the diff measures the merge rather than the
-  // story). Degrade to the same full story diff the branch above uses instead
-  // of failing the read.
-  //
-  // What that degradation actually does, precisely: it replaces "no review
-  // context at all" — before this branch existed the oversized diff made
-  // validateIncrementalReviewBasis throw, so the read produced nothing usable —
-  // with the story's complete net diff against main. It does NOT enumerate
-  // main's own merged history. Compare the two sets rather than ranking them:
-  // the rejected set is every path that changed between the prior verdict and
-  // HEAD, which includes the already-reviewed main-side churn that pushed it
-  // over the bound; the served set is every material path in which this story
-  // differs from main, and it can be far smaller than the set it replaces. It
-  // is not "more context", and it is not "strictly more conservative".
-  //
-  // This does not relax the cap. FULL_TASK_CONTEXT_LIMITS stays the single
-  // source for the limit, validateIncrementalReviewBasis keeps enforcing it,
-  // and the degraded context emits no incremental basis at all — its FULL_
-  // reason code holds contextMode at 'full', so a reviewer is never served
-  // incremental context off a prior it could not diff against. The trusted
-  // prior is still reported (isFirstPass=false, priorPassRef / priorReviewRunId
-  // / priorHeadHash / priorVerdict) so the audit trail keeps naming the verdict
-  // this read actually resolved; that is informational only and moves no
-  // eligibility field.
-  if (changedFiles.length > FULL_TASK_CONTEXT_LIMITS.pathsPerList) {
-    return fullStoryDiffContext(['FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_PATHS'], prior);
-  }
-
-  const statuses = changedFileStatusesBetweenRenameAware(projectRoot, prior.run.headHash, 'HEAD');
+  const statuses = changedFileStatusesBetweenRenameAware(gitCwd, prior.run.headHash, 'HEAD');
   const freshness = checkEvidenceFreshnessForGit(
-    projectRoot,
+    gitCwd,
     prior.run.headHash,
     prior.run.materialHash,
     projectRoot,
@@ -653,7 +957,7 @@ export function reviewIncrementalContext(
     fixtureCaseClosureByFile: Object.fromEntries(changedFiles.map(path => [
       path,
       declaredTestFiles.includes(path)
-        && fixtureCaseClosure(projectRoot, prior.run.headHash, storyId, path, currentStoryIntentRefs),
+        && fixtureCaseClosure(gitCwd, prior.run.headHash, storyId, path, currentStoryIntentRefs),
     ])),
     changedFileStatus: statuses,
   });

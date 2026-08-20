@@ -14,6 +14,7 @@ import {
   type IncrementalReviewBasis,
   type KnownExecutionEnvironment,
   type PromptEnvelope,
+  type PromptFindingProjection,
   type RoleContract,
   type RuntimeContract,
 } from './prompt-contracts.js';
@@ -60,6 +61,8 @@ export interface ConditionalReviewAssemblyInput extends FullPromptAssemblyInput 
   changedFilesDigest: string;
   impactedFilesDigest: string;
   reviewBasis?: IncrementalReviewBasis | null;
+  /** Exact mutable finding fields observed at run start; signed by envelopeId. */
+  findingProjection?: PromptFindingProjection[];
   incrementalBudgetBytes?: number;
   fullBudgetBytes?: number;
   reviewerEscalationReason?: string;
@@ -425,6 +428,8 @@ export function assembleConditionalReviewPromptEnvelope(
     changedFilesDigest: input.changedFilesDigest,
     impactedFilesDigest: input.impactedFilesDigest,
     taskSemanticDigest: fullTaskSemanticDigest(input.taskContext),
+    findingProjection: input.findingProjection ?? [],
+    findingProjectionDigest: domainSeparatedDigest('prompt-finding-projection.v1', input.findingProjection ?? []),
     ...(basis ? {
       reviewBasisDigest: domainSeparatedDigest('incremental-review-basis.v1', basis),
       incrementalContextDigest: domainSeparatedDigest('incremental-review-context.raw-utf8.v1', incrementalPrompt!),

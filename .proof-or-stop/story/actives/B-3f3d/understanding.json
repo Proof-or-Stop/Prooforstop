@@ -1,0 +1,52 @@
+{
+  "task": "Prevent REVIEW and remediation DEV from alternating after each newly discovered finding by freezing one review candidate until bounded multi-lane discovery saturates.",
+  "outcome": "After lattice review_inventory_begin --storyId=B-3f3d, the terminal prints an epoch ID and frozen cutoff. lattice review_inventory_status then shows every required lane, current wave, new verified findings, blockers, and one exact next command. Material writes while OPEN are rejected. Only a signed zero-new-finding receipt permits one aggregated remediation DEV transition; the repaired material then receives fresh impacted-lane review. The B-cdf6 replay report shows mutation-driven reviewer redispatches reduced from at least 5 to 0 with unchanged reviewer/host coverage and zero quality regressions.",
+  "facts": [
+    "B-cdf6 mutated reviewed material after the first finding while other review lanes were still pending, invalidating work and causing RR-047 through RR-051 redispatches.",
+    "Current adversarial review already defines six canonical lenses plus a completeness critic and only converges when both add zero confirmed findings.",
+    "Current REVIEW gate requires all active receipts in round 1 but only one current receipt in round 2+, which cannot prove final review sufficiency.",
+    "ReviewRun and ReviewPass already bind current reviewRound and material hashes; these are reusable signed facts but do not define a frozen inventory epoch.",
+    "Round count is not evidence of completeness and must remain a metric only."
+  ],
+  "constraints": [
+    "All gate-relevant state must be prompt-directed and mechanically enforced at handler, hook, commit, and transition boundaries.",
+    "OPEN epoch drift fails closed to INVALIDATED; stale verdicts become advisory and never authorize transition.",
+    "Required reviewer lanes and two-host assurance cannot be reduced.",
+    "Budget exhaustion cannot manufacture PASS; it must require replan, decomposition, escalation, or human adjudication.",
+    "Do not implement PRE_CERT or atomic remediation closeout in this Story.",
+    "Do not weaken evidence freshness, signatures, material lineage, or TEST/DONE gates.",
+    "The untracked cross-story analysis documents are intake evidence summarized in Story background, not runtime implementation dependencies.",
+    "The retired legacy Authority receipt guide is not normative; reuse only current local binding predicates from active lifecycle and evidence-integrity sources."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/review-inventory-epoch.ts",
+    "packages/main/src/handlers/review-inventory.ts",
+    "packages/main/src/core/store.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/handlers/review-run.ts",
+    "packages/main/src/handlers/finding.ts",
+    "packages/main/src/handlers/reviewer-list.ts",
+    "packages/main/src/handlers/reviewer-batch.ts",
+    "packages/main/src/core/adversarial-review.ts",
+    "packages/main/src/core/adversarial-review-round.ts",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/core/review-incremental-context.ts",
+    "packages/main/src/core/prewrite-guard.ts",
+    "packages/main/src/core/prewrite-guard-check.ts",
+    "packages/main/src/handlers/prewrite-guard.ts",
+    ".claude/hooks/lattice-scope-pretool.cjs",
+    ".codex/hooks/lattice-scope-pretool.cjs",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+    "packages/main/src/tasks/prewrite-guard-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+  ],
+  "timestamp": "2026-08-14T14:01:26.362Z"
+}

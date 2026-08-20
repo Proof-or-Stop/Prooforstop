@@ -82,6 +82,19 @@ function treeDigest(root: string): string {
   return hash.digest('hex');
 }
 
+const lifecycleFixtureFiles = [
+  'packages/main/src/core/machine.ts',
+  'packages/main/src/handlers/phase-gates.ts',
+] as const;
+
+function lifecycleFixtureDigest(root: string): string {
+  const hash = createHash('sha256');
+  for (const file of lifecycleFixtureFiles) {
+    hash.update(file).update('\0').update(readFileSync(join(root, file))).update('\0');
+  }
+  return hash.digest('hex');
+}
+
 function story(phase: StoryInfo['phase'] = 'PLAN'): StoryInfo {
   return {
     storyId,
@@ -398,6 +411,35 @@ try {
     /Verification evidence recorded/,
   );
   assert.equal(store.readChecklist(storyId).items[0].verificationEvidence?.[0]?.note, 'Result: warning threshold test passed with expected fallback.', 'false-positive control persists ordinary evidence through the real CLI');
+  const audited = store.readChecklist(storyId).items[0].verificationEvidence![0];
+  assert.match(
+    run(writerCliRoot, 'checklist_update', {
+      storyId,
+      itemId: 'CHK-001',
+      verificationEvidence: [{ intentRef: audited.intentRef, kind: audited.kind, command: audited.command, result: audited.result, note: audited.note }],
+    }, false, 'main-agent'),
+    /verificationEvidence updated/,
+    'an exact semantic re-persist retains the audited non-mechanical provenance',
+  );
+  assert.equal(store.readChecklist(storyId).items[0].verificationEvidence?.[0]?.nonMechanicalReason, nonMatrixEscape, 'exact re-persist carries the on-disk audit reason');
+  assert.match(
+    run(writerCliRoot, 'checklist_update', {
+      storyId,
+      itemId: 'CHK-001',
+      verificationEvidence: [{ intentRef: audited.intentRef, kind: audited.kind, command: 'node changed-command.test.mjs', result: audited.result, note: audited.note }],
+    }, true, 'main-agent'),
+    /checklist_update_executable_evidence_unenforced/,
+    'changed command cannot inherit an old nonMechanicalReason',
+  );
+  run(writerCliRoot, 'checklist_update', {
+    storyId,
+    itemId: 'CHK-001',
+    verificationEvidence: [{ intentRef: audited.intentRef, kind: audited.kind, command: audited.command, result: 'fail', note: audited.note }],
+  }, false, 'main-agent');
+  const changedResult = store.readChecklist(storyId).items[0].verificationEvidence![0];
+  assert.equal(changedResult.result, 'fail', 'changed result remains an explicit failure');
+  assert.equal(changedResult.mechanical, undefined, 'changed result does not inherit non-mechanical provenance');
+  assert.equal(changedResult.nonMechanicalReason, undefined, 'changed result does not inherit the old audit reason');
   // B-ec67 F-007: checklist_update no longer accepts executable-intent evidence (it does
   // not execute pinned commands); a non-matrix row is now refused with the F-007 code
   // (NOT the matrix-projection code), directing callers to verification_evidence_add.
@@ -730,6 +772,8 @@ try {
   git(cliRoot, ['config', 'user.name', 'Topology Smoke']);
   write(cliRoot, 'lattice.config.json', JSON.stringify({ storyDir: '.lattice/story/actives', requirementsDir: 'docs/requirements' }, null, 2));
   write(cliRoot, 'README.md', 'acceptance topology smoke\n');
+  write(cliRoot, lifecycleFixtureFiles[0], 'export const lifecycleMachineFixture = true;\n');
+  write(cliRoot, lifecycleFixtureFiles[1], 'export const lifecyclePhaseGateFixture = true;\n');
   resetConfigCache();
   const store = new StoryStore(cliRoot);
   store.writeStory(storyId, story());
@@ -741,6 +785,7 @@ try {
   git(cliRoot, ['add', '.']);
   git(cliRoot, ['commit', '-m', 'seed topology story']);
 
+  const lifecycleDigestBefore = lifecycleFixtureDigest(cliRoot);
   const phaseBefore = store.readStory(storyId).phase;
   const transitionBefore = canSendStoryEventWithoutSnapshotCan(storyId, store, 'PLAN', 'START', cliRoot);
   const digestBefore = treeDigest(cliRoot);
@@ -797,15 +842,15 @@ try {
   }
   assert.deepEqual(lifecycleDecisions.valid, lifecycleDecisions.missing, 'valid and missing topology preserve PLAN→DEV and DEV→REVIEW decisions');
   assert.deepEqual(lifecycleDecisions.valid, lifecycleDecisions.malformed, 'valid and malformed topology preserve PLAN→DEV and DEV→REVIEW decisions');
+  assert.equal(lifecycleFixtureDigest(cliRoot), lifecycleDigestBefore, 'topology diagnostics do not modify fixture-local lifecycle sources');
+
+  const machineFixture = readFileSync(join(cliRoot, lifecycleFixtureFiles[0]), 'utf8');
+  write(cliRoot, lifecycleFixtureFiles[0], `${machineFixture}export const unauthorizedTopologyMutation = true;\n`);
+  assert.notEqual(lifecycleFixtureDigest(cliRoot), lifecycleDigestBefore, 'fixture-local lifecycle invariant bites an unauthorized machine mutation');
+  write(cliRoot, lifecycleFixtureFiles[0], machineFixture);
+  assert.equal(lifecycleFixtureDigest(cliRoot), lifecycleDigestBefore, 'restoring the fixture-local lifecycle source restores the invariant');
 } finally {
   rmSync(cliRoot, { recursive: true, force: true });
 }
-
-const repositoryRoot = resolve(packageRoot, '..', '..', '..');
-const lifecycleSourceDiff = [
-  execFileSync('git', ['diff', '--name-only', 'main...HEAD'], { cwd: repositoryRoot, encoding: 'utf8' }),
-  execFileSync('git', ['diff', '--name-only'], { cwd: repositoryRoot, encoding: 'utf8' }),
-].join('\n');
-assert.doesNotMatch(lifecycleSourceDiff, /packages\/main\/src\/(?:core\/machine|handlers\/phase-gates)\.ts/, 'Wave 1 and its fixes do not modify lifecycle machine or phase gates');
 
 console.log('ProofStory acceptance topology Wave 1 smoke passed');

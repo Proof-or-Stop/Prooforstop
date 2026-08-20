@@ -1,0 +1,14 @@
+{
+  "story_advance/fde1261dc134": {
+    "count": 1,
+    "command": "story_advance",
+    "lastReason": "Cannot enter DONE: dev_memory_finish_decision has not been recorded. [missing_dev_memory_finish_decision]\n→ Run `proof-or-stop dev_memory_finish_decision --storyId=B-3f3d --decision=captured|no-reusable-lesson|defer-with-reason`.",
+    "lastAt": "2026-08-20T08:28:41.828Z"
+  },
+  "story_advance/b0a6606bab05": {
+    "count": 1,
+    "command": "story_advance",
+    "lastReason": "Cannot enter DONE: ProofStory intent equivalence gate did not pass\n\nProofStory DONE intent equivalence: fail (mode=enforce, blocking=yes)\n  - unconfirmed_single_outcome_shrinkage: DONE summary appears narrower than the original snapshot, but no user-confirmed shrinkage decision exists.\n\n→ Cover required milestones with passing verification evidence or record an explicit scope_shrinkage_decision_set before rerunning story_advance --phase=DONE.",
+    "lastAt": "2026-08-20T08:33:56.577Z"
+  }
+}

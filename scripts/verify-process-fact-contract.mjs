@@ -141,6 +141,13 @@ const requiredProcessFactSemantics = {
   certification_window_begin: ['artifact', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding', 'blocker-state', 'gate-evidence'],
   certification_window_status: ['artifact', 'signed-artifact', 'blocker-state', 'freshness-policy', 'gate-evidence'],
   certification_window_cancel: ['artifact', 'signed-artifact', 'blocker-state', 'gate-evidence'],
+  review_inventory_begin: ['artifact', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding', 'reviewer-lane', 'gate-evidence'],
+  review_inventory_status: ['artifact', 'signed-artifact', 'blocker-state', 'freshness-policy', 'gate-evidence'],
+  review_inventory_critic_set: ['artifact', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding', 'reviewer-lane', 'review-pass', 'gate-evidence'],
+  review_inventory_wave_advance: ['artifact', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding', 'reviewer-lane', 'blocker-state', 'gate-evidence'],
+  review_inventory_finalize: ['artifact', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding', 'reviewer-lane', 'no-blocker-evidence', 'gate-evidence'],
+  review_inventory_cancel: ['artifact', 'signed-artifact', 'blocker-state', 'gate-evidence'],
+
   review_pass_set: ['review-pass', 'no-blocker-evidence', 'gate-evidence'],
   review_loop_start: ['blocker-state', 'schema-contract', 'gate-evidence'],
   review_loop_iteration_add: ['blocker-state', 'schema-contract', 'gate-evidence'],
@@ -238,6 +245,7 @@ const requiredArtifactFacts = [
   { name: 'artifact:scope-check.json', path: 'scope-check.json', signed: true, signaturePattern: /signScopeCheck/ },
   { name: 'artifact:delivery-check.json', path: 'delivery-check.json', signed: true, signaturePattern: /signDeliveryCheck\/recomputeDeliveryCheckHash/ },
   { name: 'artifact:review-runs.json', path: 'review-runs.json', signed: true, signaturePattern: /signReviewRun\/verifyReviewRun; .*ReviewRun\.storyFilesHash.*workspaceBinding\.bindingHash/ },
+  { name: 'artifact:review-inventory-epochs.json', path: 'review-inventory-epochs.json', signed: true, signaturePattern: /signReviewInventoryEpoch\/verifyReviewInventoryEpoch.*signReviewInventoryReceipt\/verifyReviewInventoryReceipt.*signReviewInventoryCriticReceipt\/verifyReviewInventoryCriticReceipt/ },
   { name: 'artifact:findings.json', path: 'findings.json', signed: true, signaturePattern: /signFinding\/verifyFinding; reviewRunId-inclusive records do not fall back to legacy signatures/ },
   { name: 'artifact:review-passes.json', path: 'review-passes.json', signed: true, signaturePattern: /signReviewPass\/verifyReviewPass; envelope-bound records use the versioned envelopeId-inclusive domain.*reviewRunId-inclusive records do not fall back to legacy signatures.*writerSessionId-inclusive records bind writer session provenance/ },
   { name: 'artifact:review-loops.jsonl', path: 'review-loops.jsonl', signed: false },
@@ -523,6 +531,8 @@ const processFactCommandNamePatterns = [
   /^story_review$/,
   /^review_run_start$/,
   /^certification_window_(begin|status|cancel)$/,
+  /^review_inventory_(begin|status|critic_set|wave_advance|finalize|cancel)$/,
+
   /^review_pass_set$/,
   /^review_loop_(start|iteration_add|close)$/,
   /^finding_(add|resolve|dismiss|cluster)$/,
@@ -1601,8 +1611,8 @@ function assertProofStoryProgressiveBoundary() {
     'acceptance rollout contract must keep verifier-derived frozen membership, >=3 matched pairs per arm, all thresholds, signed current receipt, genuine full-3x2, real lifecycle consumer, mode-invariant rollback, and canonical template-sourced role guidance (not regenerable host shims)',
   );
   const topologyCriticText = read('packages/main/src/core/topology-critic-receipt.ts');
-  const topologyCriticPromptPaths = [
-    'packages/main/templates/agents/lattice-review-topology-critic.md',
+  const topologyCriticTemplatePath = 'packages/main/templates/agents/lattice-review-topology-critic.md';
+  const topologyCriticHostPaths = [
     '.claude/agents/lattice-review-topology-critic.md',
     `${CODEX_AGENTS_DIR}/lattice-review-topology-critic.md`,
   ];
@@ -1630,7 +1640,13 @@ function assertProofStoryProgressiveBoundary() {
       && topologyCriticPolicy?.status === 'supported'
       && topologyCriticPolicy.gateEvidence !== true
       && activityPolicyText.includes("'topology_critic_receipt_check'")
-      && topologyCriticPromptPaths.every(path => read(path).startsWith('---\n') && read(path).includes('- A pass is forbidden when the basis')),
+      && read(topologyCriticTemplatePath).startsWith('---\n')
+      && read(topologyCriticTemplatePath).includes('<!-- proofbound:modular-role-body:v1 -->')
+      && read(topologyCriticTemplatePath).includes('- A pass is forbidden when the basis')
+      && topologyCriticHostPaths.every(path => read(path).startsWith('---\n')
+        && read(path).includes('<!-- proofbound:modular-role-body:v1 -->')
+        && read(path).includes('- A pass is forbidden when the basis')
+        && !read(path).includes('review_run_start')),
     'topology critic contract must bind role prompt, production producer/read-only verifier, required registered dispatch events, signed current fields, four-dimensional independence, exact scope-plan approvals, incomplete-basis rejection, and explicitly no Wave 2A lifecycle admission gate',
   );
   assert(coreText.includes('sourceText') && coreText.includes('keyRequirementIds'), 'core/proofstory.ts: requestHash must be derived from sourceText and keyRequirementIds');
@@ -2865,6 +2881,9 @@ function assertPhaseTransitionReopenAuditContract() {
   assert(persistWrites.length === 1, `${orchestratorPath}: runStoryTransitionInner must keep EXACTLY ONE store.writeStory (the single atomic rename the reopen recovery record rides); found ${persistWrites.length}`);
   const phaseWrite = persistWrites[0];
   assert(phaseWrite && phaseWrite.arguments.length === 2 && ts.isIdentifier(phaseWrite.arguments[1]) && phaseWrite.arguments[1].text === 'story', `${orchestratorPath}: the phase write must persist the same \`story\` object the reopen recovery record is attached to`);
+  const inventoryConsumes = transitionFn?.body ? collectCallExpressionsByName(transitionFn.body, 'consumeReviewInventoryReceipt') : [];
+  assert(inventoryConsumes.length === 1 && phaseWrite && inventoryConsumes[0].end < phaseWrite.end,
+    `${orchestratorPath}: REVIEW inventory receipt must be consumed exactly once BEFORE store.writeStory publishes phase=DEV`);
   const reopenRecordBranch = transitionFn?.body
     ? findIfStatement(transitionFn.body, (n) => isIdentifierEqualsStringLiteral(n.expression, 'eventType', 'REOPEN')
         && Boolean(findMemberAssignment(n.thenStatement, 'story', 'pendingReopenAudit')))
@@ -4241,6 +4260,164 @@ function assertValidationPersistenceTransactionContract() {
     mutationIssues.some(issue => issue.includes('persistStoryValidationEvidence'))
       && mutationIssues.some(issue => issue.includes('exactly two')),
     'validation persistence contract bite must fail when executed persistence is deleted while reuse persistence remains',
+  );
+}
+
+function assertReviewInventoryRemediationContract() {
+  const transitionPath = 'packages/main/src/handlers/transition-orchestrator.ts';
+  const transitionText = read(transitionPath);
+  assert(
+    /captureEvidenceHashSnapshot[\s\S]*materialDirtyFiles\.length\s*>\s*0[\s\S]*REVIEW_INVENTORY_REMEDIATION_BLOCKED/.test(transitionText),
+    `${transitionPath}: REVIEW to DEV must reject dirty story material before consuming the finalized inventory receipt`,
+  );
+
+  const epochPath = 'packages/main/src/core/review-inventory-epoch.ts';
+  const epochText = read(epochPath);
+  assert(
+    /\['verified_family',\s*'duplicate',\s*'not_verified'\]\.includes\(row\.disposition\)/.test(epochText),
+    `${epochPath}: critic finding dispositions must be runtime-enumerated and reject unknown values`,
+  );
+
+  const dispatchPath = 'packages/main/src/handlers/story-dispatch.ts';
+  const dispatchText = read(dispatchPath);
+  assert(
+    /promptBuilder\s*===\s*'topology-critic-review'[\s\S]*targetKind:\s*'topology-critic-review'[\s\S]*reviewRound/.test(dispatchText),
+    `${dispatchPath}: topology critic dispatch must persist its dedicated target kind and current review-round binding`,
+  );
+
+  const reviewRunPath = 'packages/main/src/core/review-run.ts';
+  const reviewRunText = read(reviewRunPath);
+  assert(
+    /args\.lane\s*===\s*'lattice-review-topology-critic'\s*\?\s*'topology-critic-review'\s*:\s*'story-review'/.test(reviewRunText),
+    `${reviewRunPath}: ReviewRun verification must consume the topology critic dispatch target kind`,
+  );
+
+  const inventoryHandlerPath = 'packages/main/src/handlers/review-inventory.ts';
+  const inventoryHandlerText = read(inventoryHandlerPath);
+  assert(
+    /review_inventory_critic_set[\s\S]*findingDispositions:\s*conservativeDispositions/.test(inventoryHandlerText),
+    `${inventoryHandlerPath}: the unique critic Next command must include executable findingDispositions`,
+  );
+  assert(
+    /REVIEW_INVENTORY_NEW_FINDINGS_REQUIRE_NEXT_WAVE[\s\S]*review_inventory_wave_advance/.test(inventoryHandlerText),
+    `${inventoryHandlerPath}: a complete nonzero-new wave must expose the explicit wave-advance blocker and command`,
+  );
+  assert(
+    /review_inventory_finalize:[\s\S]*REVIEW_INVENTORY_NEW_FINDINGS_REQUIRE_NEXT_WAVE[\s\S]*review_inventory_wave_advance/.test(inventoryHandlerText),
+    `${inventoryHandlerPath}: finalize must fail closed on new finding families instead of checkpointing implicitly`,
+  );
+  assert(
+    /withReviewInventoryMutationLock/.test(inventoryHandlerText),
+    `${inventoryHandlerPath}: finalize and wave persistence must use the shared reviewer-evidence lock`,
+  );
+
+  const findingHandlerPath = 'packages/main/src/handlers/finding.ts';
+  const findingHandlerText = read(findingHandlerPath);
+  assert(
+    /withReviewInventoryMutationLock[\s\S]*assertReviewInventoryEvidenceWritable/.test(findingHandlerText),
+    `${findingHandlerPath}: reviewer finding/pass writes must share the inventory lock and enforce temporal evidence admission`,
+  );
+  assert(
+    /latest\.state === 'FINALIZED'[\s\S]*reviewer evidence for that round remains sealed after receipt consumption[\s\S]*REVIEW_INVENTORY_WAVE_EVIDENCE_SEALED/.test(epochText),
+    `${epochPath}: finalized review rounds and old-wave ReviewRuns must remain sealed`,
+  );
+  assert(
+    /captureReviewInventoryBaselineFindingIds[\s\S]*baselineFindingIds[\s\S]*REVIEW_INVENTORY_BASELINE_FINDINGS_CHANGED/.test(inventoryHandlerText),
+    `${inventoryHandlerPath}: begin must sign and consumers must fail-close the carried-forward verified finding baseline`,
+  );
+  assert(
+    /epoch\.state === 'FINALIZED'[\s\S]*invalidatedAt:[\s\S]*invalidationReason:[\s\S]*signReviewInventoryReceipt/.test(inventoryHandlerText),
+    `${inventoryHandlerPath}: an unconsumed FINALIZED receipt needs a signed late-evidence invalidation path`,
+  );
+  assert(
+    /initialRunSequenceBoundary[\s\S]*nextRunSequenceBoundary[\s\S]*reviewRunSequence\(run\)[\s\S]*sequence <= sequenceBoundary/.test(epochText),
+    `${epochPath}: inventory waves must use signed monotonic ReviewRun boundaries instead of millisecond ordering`,
+  );
+  assert(
+    /runEvidence\.forEach[\s\S]*row\.findings\.forEach/.test(epochText),
+    `${epochPath}: every eligible same-lane ReviewRun must contribute verified findings even when one newer terminal is selected`,
+  );
+  const scopeContractHandlerText = read('packages/main/src/handlers/scope-contract.ts');
+  assert(
+    /scope_contract_acknowledge[\s\S]*withReviewInventoryMutationLock/.test(scopeContractHandlerText)
+      || /withReviewInventoryMutationLock[\s\S]*scope_contract_acknowledge/.test(scopeContractHandlerText),
+    'packages/main/src/handlers/scope-contract.ts: scope acknowledgement must share the inventory mutation lock',
+  );
+  assert(
+    /captureReviewInventoryScope[\s\S]*scopeDigest[\s\S]*requiredLanes[\s\S]*OPEN_REVIEW_INVENTORY_SCOPE_MUTATION/.test(inventoryHandlerText),
+    `${inventoryHandlerPath}: inventory consumers must recompute frozen scope and active lanes`,
+  );
+  const checklistHandlerText = read('packages/main/src/handlers/checklist.ts');
+  assert(
+    /withChecklistLock[\s\S]*withReviewInventoryMutationLock[\s\S]*withMkdirLock/.test(checklistHandlerText),
+    'packages/main/src/handlers/checklist.ts: every checklist acceptance writer must use inventory -> checklist lock order',
+  );
+  assert(
+    /reviewInventoryAcceptanceSubjectDigest[\s\S]*verificationIntent[\s\S]*verificationEvidence[\s\S]*userSeesSnapshot/.test(epochText),
+    `${epochPath}: the frozen acceptance subject must include complete checklist review semantics`,
+  );
+  assert(
+    /proofStoryContract[\s\S]*scopeShrinkageDecision[\s\S]*reviewInventoryAcceptanceSubjectDigestForStore/.test(epochText)
+      && /currentAcceptanceSubjectDigest[\s\S]*effective ProofStory\/checklist acceptance subject changed/.test(epochText),
+    `${epochPath}: OPEN and FINALIZED consumers must bind and recompute the effective ProofStory acceptance subject`,
+  );
+  const proofStoryHandlerText = read('packages/main/src/handlers/proofstory.ts');
+  assert(
+    /scope_shrinkage_decision_set[\s\S]*withReviewInventoryMutationLock[\s\S]*withMkdirLock/.test(proofStoryHandlerText),
+    'packages/main/src/handlers/proofstory.ts: scope shrinkage must use inventory -> checklist lock order',
+  );
+  const idempotentFindingHandlerText = read('packages/main/src/handlers/finding.ts');
+  assert(
+    /sameTerminal[\s\S]*verifyReviewPass[\s\S]*idempotent retry[\s\S]*conflicting terminal pass/.test(idempotentFindingHandlerText),
+    'packages/main/src/handlers/finding.ts: review-pass terminal writes must be strongly idempotent and reject semantic conflicts',
+  );
+  const agentsDocText = read('AGENTS.md');
+  const storyLifecycleText = read('docs/requirements/decisions/story-lifecycle.md');
+  const testingInfraText = read('docs/requirements/decisions/testing-infra.md');
+  for (const [label, text] of [['AGENTS.md', agentsDocText], ['story-lifecycle.md', storyLifecycleText], ['testing-infra.md', testingInfraText]]) {
+    assert(/fresh (?:non-latest )?PASS|fresh PASS/.test(text) && /open FINDING/.test(text), `${label}: latest-run guidance must preserve the kind-aware PASS/FINDING distinction`);
+  }
+  const latestRunHintBody = reviewRunText.match(/function latestRunHint\([\s\S]*?\n\}/)?.[0] ?? '';
+  assert(
+    /resubmit finding_add/.test(latestRunHintBody) && !/review_pass_set/.test(latestRunHintBody),
+    'packages/main/src/core/review-run.ts: FINDING-only non-latest-run recovery hint must never tell a valid PASS to resubmit review_pass_set',
+  );
+  const candidateHandlerText = read('packages/main/src/handlers/candidate-spec-routing.ts');
+  assert(
+    /withReviewInventoryMutationLock[\s\S]*writeCandidateSpecSet[\s\S]*refreshReviewInventoryContextLocked/.test(candidateHandlerText),
+    'packages/main/src/handlers/candidate-spec-routing.ts: candidate reroute must atomically invalidate an OPEN epoch',
+  );
+  assert(
+    /candidateSpecSetDigest[\s\S]*corpusDigest[\s\S]*OPEN_REVIEW_INVENTORY_CANDIDATE_ROUTING_MUTATION/.test(inventoryHandlerText),
+    `${inventoryHandlerPath}: epoch consumers must recompute the signed candidate universe`,
+  );
+  const reviewRunHandlerText = read('packages/main/src/handlers/review-run.ts');
+  assert(
+    /withReviewInventoryMutationLock[\s\S]*assertReviewInventoryContextFreshLocked[\s\S]*withReviewMetadataTransactionLock[\s\S]*writeReviewRuns/.test(reviewRunHandlerText),
+    'packages/main/src/handlers/review-run.ts: inventory precheck and durable RR publication must be one outer critical section',
+  );
+  const promptContractsText = read('packages/main/src/core/prompt-contracts.ts');
+  const promptEnvelopeText = read('packages/main/src/core/prompt-envelope.ts');
+  assert(
+    /findingProjection[\s\S]*findingProjectionDigest/.test(promptContractsText)
+      && /prompt-finding-projection\.v1/.test(promptEnvelopeText)
+      && /findingProjection:\s*envelope\.findingProjection/.test(reviewRunText),
+    'Prompt Envelope: historical eligibility must consume an envelope-signed run-start finding projection',
+  );
+  const mkdirLockText = read('packages/main/src/core/mkdir-lock.ts');
+  assert(
+    /classifyDefaultHolder[\s\S]*process\.kill\(holder\.pid, 0\)[\s\S]*observedProcessStartTimeMs[\s\S]*return 'active'/.test(mkdirLockText),
+    'packages/main/src/core/mkdir-lock.ts: stale reclaim must preserve a live same-host process incarnation beyond mtime expiry',
+  );
+  assert(
+    /REVIEW_INVENTORY_LIVE_AGGREGATE_CHANGED[\s\S]*begin a fresh inventory epoch/.test(epochText),
+    `${epochPath}: remediation consumption must fail closed after replaying a changed live terminal/finding aggregate`,
+  );
+
+  const projectConfig = read('lattice.config.json');
+  assert(
+    /"acceptanceRolloutGateMode"\s*:\s*"enforce"/.test(projectConfig),
+    'lattice.config.json: mandatory Wave 4 acceptance authority must be mechanically enforced for this repository',
   );
 }
 
@@ -7250,6 +7427,22 @@ function assertParentRoadmapTotalityRuntime() {
     registryFactText.includes("'runtime:incremental_review_eligibility_gate': ['runtime-behavior', 'prompt-envelope', 'schema-contract', 'normalization-policy', 'freshness-policy', 'review-run', 'review-pass', 'verification-policy', 'gate-evidence']"),
     'process-fact-registry: incremental review eligibility must remain a versioned gate-consumed prompt/review/normalization/freshness contract',
   );
+  const postRemediationLevel = parseProcessFactLevelRegistry().find(entry => entry.name === 'runtime:post_remediation_review_selection_gate');
+  assert(postRemediationLevel?.level === 'L4', 'post-remediation review selection must remain L4');
+  for (const token of ['domain-separated signed selection', 'current review round', 'canonical bidirectional transitive dependency closure', 'fail closed to all active lanes', 'Required host and escalation assurance remain independent and unchanged', 'any one current pass never substitute']) {
+    assert(postRemediationLevel?.rationale.includes(token), `post-remediation selection rationale missing trust boundary: ${token}`);
+  }
+  assert(postRemediationLevel?.gateConsumer.includes('storyMachine.evaluateReviewVerdict REVIEW to TEST selected-lane gate'), 'post-remediation selection must identify its REVIEW-to-TEST consumer');
+  assert(
+    registryFactText.includes("'runtime:post_remediation_review_selection_gate': ['runtime-behavior', 'signed-artifact', 'schema-contract', 'normalization-policy', 'freshness-policy', 'reviewer-lane', 'gate-evidence']"),
+    'process-fact-registry: post-remediation selection must remain a signed lane/freshness gate contract',
+  );
+  const postRemediationSource = read('packages/main/src/core/review-incremental-context.ts');
+  for (const token of ['POST_REMEDIATION_REVIEW_POLICY_VERSION', 'verifyCurrentPostRemediationReviewSelection', 'computeCanonicalDependencyClosure', 'UNTRACKED_OR_IGNORED_MATERIAL', 'UNSUPPORTED_RENAME_OR_DELETE', 'DEPENDENCY_CLOSURE_INCOMPLETE']) {
+    assert(postRemediationSource.includes(token), `post-remediation selection source missing fail-closed mechanism: ${token}`);
+  }
+  assert(read('packages/main/src/core/machine.ts').includes('computeFinalReviewRoster'), 'REVIEW gate must consume the canonical final-review roster');
+  assert(read('packages/main/src/handlers/reviewer-list.ts').includes('renderFinalReviewRoster'), 'operator status must project the canonical final-review roster');
   assert(levelText.includes('runtime:prompt_role_body_rollout_gate'), 'process-fact-levels: prompt role-body rollout gate fact missing');
   assert(
     registryFactText.includes("'runtime:prompt_role_body_rollout_gate': ['runtime-behavior', 'prompt-envelope', 'schema-contract', 'reviewer-lane', 'gate-evidence']"),
@@ -7259,6 +7452,19 @@ function assertParentRoadmapTotalityRuntime() {
   assert(roleBodyRolloutLevel?.level === 'L4', 'prompt role-body rollout must remain L4');
   for (const token of ['five active REVIEW lanes', 'content-addressed', 'byte-exact legacy role body', 'Every supported host mode binds both', 'total model input explicit', 'Compatibility and retired']) {
     assert(roleBodyRolloutLevel?.rationale.includes(token), `prompt role-body rollout rationale must preserve ${token}`);
+  }
+  const migratedReviewerContractSources = [
+    'packages/main/src/init-assets.ts',
+    'packages/main/src/registry.ts',
+    'packages/main/src/handlers/agent-prompt.ts',
+    'packages/main/src/core/process-fact-levels.ts',
+    'packages/main/src/tasks/global-agents-init-smoke.ts',
+    'docs/requirements/decisions/lifecycle-artifact-scope.md',
+  ];
+  for (const sourcePath of migratedReviewerContractSources) {
+    const source = read(sourcePath);
+    assert(/six migrated[\s*]+reviewer/i.test(source), `${sourcePath}: migrated reviewer contract must name all six definitions`);
+    assert(!/five migrated[\s*]+reviewer/i.test(source), `${sourcePath}: stale five-migrated-reviewer residue is forbidden`);
   }
   const reviewAtomicLevel = parseProcessFactLevelRegistry().find(entry => entry.name === 'runtime:review_run_atomic_persistence_gate');
   assert(reviewAtomicLevel?.level === 'L4', 'review-run atomic persistence must remain L4');
@@ -7819,7 +8025,11 @@ const inventory = [
     files: [
       {
         relPath: 'packages/main/src/handlers/checklist.ts',
-        patterns: ['verification_evidence_add', 'verification_evidence_batch_add', 'normalizeEvidence', 'makeEvidence', 'evidenceHashes'],
+        patterns: ['verification_evidence_add', 'verification_evidence_batch_add', 'normalizeEvidence', 'makeEvidence', 'evidenceHashes', 'hasExecutableVerifier', 'Boolean(intent.verification)', 'Boolean(callerSelector)'],
+      },
+      {
+        relPath: 'packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts',
+        patterns: ['INT-DOCS-PIN', 'selector-bearing docs check is mechanical', 'verification_run preserves mechanical docs authority'],
       },
       {
         relPath: 'packages/main/src/core/verification.ts',
@@ -8105,6 +8315,7 @@ assertOutOfBandReopenAuditRescueContract();
 assertReopenAuditConcurrencyResidualContract();
 assertReopenAuditLockRejectionRationaleContract();
 assertValidationPersistenceTransactionContract();
+assertReviewInventoryRemediationContract();
 assertProcessFactCommandInventory();
 await assertLifecycleArtifactScopePolicy();
 assertStrengtheningRoadmapGovernanceLedger();

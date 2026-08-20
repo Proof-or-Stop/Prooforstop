@@ -7,6 +7,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   LOAD_BEARING_LATTICE_PROMPT_SLICE,
+  isActiveModularReviewerRoleId,
   isModularReviewerRoleId,
   readPromptRegistry,
   renderCodexPromptContent,
@@ -198,7 +199,7 @@ function assertMirrorsMatch(): void {
       : renderCodexPromptContent(packageContent);
     assert.equal(claudeContent, expectedClaude, `.claude asset matches canonical host input for ${file}`);
     assert.equal(codexContent, expectedCodex, `.lattice-codex asset matches canonical host input for ${file}`);
-    if (isModularReviewerRoleId(roleId)) {
+    if (isActiveModularReviewerRoleId(roleId)) {
       assert.match(claudeContent, /review_run_start/, `.claude bootstrap selects ${file} at runtime`);
       assert.match(codexContent, /review_run_start/, `.lattice-codex bootstrap selects ${file} at runtime`);
     } else {
