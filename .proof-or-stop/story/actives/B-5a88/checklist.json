@@ -568,9 +568,9 @@
         "package.json",
         "package-lock.json"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-08-20T06:22:48.733Z",
-      "endTime": null,
+      "endTime": "2026-08-20T06:33:07.126Z",
       "userSees": "User sees `npm pkg get name` return `\"proof-or-stop\"` and `proof-or-stop --version` print `\"Proof-or-Stop <version>\"`.",
       "files": {
         "modify": [
@@ -688,7 +688,14 @@
           "storyFilesHash": "a1e8eeddd0e0a6c9ce28c35cd8426b629033d72421c9dc71e82e875987d53748",
           "timestamp": "2026-08-20T06:32:57.093Z"
         }
-      ]
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "e21b0ac637dc21ae7e4de7d536dfdb2a9ce7b4ffe23c561558e5bcac00d251b3",
+        "storyFilesHash": "a1e8eeddd0e0a6c9ce28c35cd8426b629033d72421c9dc71e82e875987d53748",
+        "headHash": "f8d244e988fa6d3a1aa15795b02d0be75b4f52a4",
+        "attestedAt": "2026-08-20T06:33:07.330Z",
+        "materialHash": "d84f7055846024336e3778edd3923c8881002568ab4663d476311c1c12aeaea9"
+      }
     },
     {
       "id": "CHK-006",
@@ -802,6 +809,18 @@
           }
         ]
       }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-08-20T06:33:07.126Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "CHK-005 implementation committed as 0820254b96; tool-executed identity, version, and self-host receipts recorded.",
+      "agent": "lattice-implementer"
     }
   ]
 }
