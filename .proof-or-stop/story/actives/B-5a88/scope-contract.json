@@ -446,10 +446,78 @@
       "phase": "DEV",
       "headHash": "152318f306aa01e5ea523851ed79c1d243ae44fc",
       "materialHash": "2ce77f36028ddd6fc00aaf1e1bb54f0aac847bbb6ee8825ee295b7a5f7554523"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "These three files contain the focused reviewer findings fixes and their required acceptance regression coverage; the implementation is necessary to close F-077, F-078, and F-079.",
+      "timestamp": "2026-08-20T19:19:04.316Z",
+      "paths": [
+        "packages/main/src/core/codex-adapter-checks.ts",
+        "packages/main/src/handlers/reviewer-list.ts",
+        "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/codex-adapter-checks.ts",
+        "packages/main/src/handlers/reviewer-list.ts",
+        "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "e181596ade3ffd9f4753334d7f0aa99a67e30e4e",
+      "materialHash": "1a4d3b5fda97ff519d324a411f8be923612536aa5ed1ad8f2782ecea6c21a6d6"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "These story-create guidance and focused regression files are the minimal implementation and verification surface required to close F-080, which identified legacy reviewer IDs in active story creation guidance.",
+      "timestamp": "2026-08-20T19:44:58.481Z",
+      "paths": [
+        "packages/main/src/handlers/story-create.ts",
+        "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs",
+        "packages/main/tests/f080-story-create-canonical-reviewer-guidance.test.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/handlers/story-create.ts",
+        "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs",
+        "packages/main/tests/f080-story-create-canonical-reviewer-guidance.test.mjs"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "49da8e41cd43f9ca9cc5ffb233cd77d51d73d64e",
+      "materialHash": "b40406773e9238d2f14ac0581f249445e9868f69ecf6be76c1bcc4535cf068bd"
+    },
+    {
+      "actor": "proof-or-stop-implementer",
+      "reason": "Canonical reviewer migration requires lane schemas, active recovery guidance, prompt budget normalization, mutation guard readers, and focused boundary coverage.",
+      "timestamp": "2026-08-20T20:21:10.019Z",
+      "paths": [
+        "packages/main/src/cli/command-catalog.ts",
+        "packages/main/src/core/done-oracle.ts",
+        "packages/main/src/core/guard-utils.ts",
+        "packages/main/src/core/prompt-budget.ts",
+        "packages/main/src/handlers/init-preflight.ts",
+        "packages/main/src/handlers/story-query.ts",
+        "packages/main/tests/f081-f085-canonical-role-boundaries.test.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/cli/command-catalog.ts",
+        "packages/main/src/core/done-oracle.ts",
+        "packages/main/src/core/guard-utils.ts",
+        "packages/main/src/core/prompt-budget.ts",
+        "packages/main/src/handlers/init-preflight.ts",
+        "packages/main/src/handlers/story-query.ts",
+        "packages/main/tests/f081-f085-canonical-role-boundaries.test.mjs"
+      ],
+      "affectedPathCount": 7,
+      "phase": "DEV",
+      "headHash": "49da8e41cd43f9ca9cc5ffb233cd77d51d73d64e",
+      "materialHash": "b40406773e9238d2f14ac0581f249445e9868f69ecf6be76c1bcc4535cf068bd"
     }
   ],
   "createdAt": "2026-08-20T05:20:00.402Z",
-  "updatedAt": "2026-08-20T18:08:29.115Z",
+  "updatedAt": "2026-08-20T20:21:10.019Z",
   "fileRules": [],
   "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
@@ -570,6 +638,19 @@
     "scripts/verify-core-package-rename.mjs": "scripts/verify-core-package-rename.mjs",
     "bin/bootstrap-runner.js": "bin/bootstrap-runner.js",
     "packages/main/src/core/machine.ts": "packages/main/src/core/machine.ts",
-    "packages/main/src/core/acceptance-rollout.ts": "packages/main/src/core/acceptance-rollout.ts"
+    "packages/main/src/core/acceptance-rollout.ts": "packages/main/src/core/acceptance-rollout.ts",
+    "packages/main/src/core/codex-adapter-checks.ts": "packages/main/src/core/codex-adapter-checks.ts",
+    "packages/main/src/handlers/reviewer-list.ts": "packages/main/src/handlers/reviewer-list.ts",
+    "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+    "packages/main/src/handlers/story-create.ts": "packages/main/src/handlers/story-create.ts",
+    "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs": "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs",
+    "packages/main/tests/f080-story-create-canonical-reviewer-guidance.test.mjs": "packages/main/tests/f080-story-create-canonical-reviewer-guidance.test.mjs",
+    "packages/main/src/cli/command-catalog.ts": "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/done-oracle.ts": "packages/main/src/core/done-oracle.ts",
+    "packages/main/src/core/guard-utils.ts": "packages/main/src/core/guard-utils.ts",
+    "packages/main/src/core/prompt-budget.ts": "packages/main/src/core/prompt-budget.ts",
+    "packages/main/src/handlers/init-preflight.ts": "packages/main/src/handlers/init-preflight.ts",
+    "packages/main/src/handlers/story-query.ts": "packages/main/src/handlers/story-query.ts",
+    "packages/main/tests/f081-f085-canonical-role-boundaries.test.mjs": "packages/main/tests/f081-f085-canonical-role-boundaries.test.mjs"
   }
 }
