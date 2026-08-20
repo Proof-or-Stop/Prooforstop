@@ -572,10 +572,32 @@
       "phase": "DEV",
       "headHash": "e0c8c531b367b0ecb183e052697df7ddd11d1201",
       "materialHash": "6d9e3e87b1b5567817c717e30661ad067ffd3ea6fd3196cfc474793b4e365d70"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "These four changed files are necessary acceptance-verifier and canonical-role emission choke points for B-5a88; the current final diff extends the already reviewed migration scope.",
+      "timestamp": "2026-08-20T23:44:14.942Z",
+      "paths": [
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/lattice-parallel-wave.ts",
+        "packages/main/src/handlers/dev-memory.ts",
+        "packages/main/src/handlers/evaluate.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/lattice-parallel-wave.ts",
+        "packages/main/src/handlers/dev-memory.ts",
+        "packages/main/src/handlers/evaluate.ts"
+      ],
+      "affectedPathCount": 4,
+      "phase": "DEV",
+      "headHash": "73c5bc144ce8027e6fedc15d6cbcaa452d9f89cd",
+      "materialHash": "3d97c9e77ea180d64d31a0b408befcfb468eec7be61d882546e89fdd91ab5695"
     }
   ],
   "createdAt": "2026-08-20T05:20:00.402Z",
-  "updatedAt": "2026-08-20T22:17:03.684Z",
+  "updatedAt": "2026-08-20T23:44:14.942Z",
   "fileRules": [],
   "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
@@ -724,6 +746,10 @@
     "packages/main/src/tasks/concept-gate-scope-smoke.ts": "packages/main/src/tasks/concept-gate-scope-smoke.ts",
     "packages/main/src/tasks/delivery-check-freshness-smoke.ts": "packages/main/src/tasks/delivery-check-freshness-smoke.ts",
     "packages/main/src/tasks/init-check-required-agents-smoke.ts": "packages/main/src/tasks/init-check-required-agents-smoke.ts",
-    "packages/main/src/tasks/live-smoke-transcript-smoke.ts": "packages/main/src/tasks/live-smoke-transcript-smoke.ts"
+    "packages/main/src/tasks/live-smoke-transcript-smoke.ts": "packages/main/src/tasks/live-smoke-transcript-smoke.ts",
+    "packages/main/src/core/acceptance-coverage-basis.ts": "packages/main/src/core/acceptance-coverage-basis.ts",
+    "packages/main/src/core/lattice-parallel-wave.ts": "packages/main/src/core/lattice-parallel-wave.ts",
+    "packages/main/src/handlers/dev-memory.ts": "packages/main/src/handlers/dev-memory.ts",
+    "packages/main/src/handlers/evaluate.ts": "packages/main/src/handlers/evaluate.ts"
   }
 }
