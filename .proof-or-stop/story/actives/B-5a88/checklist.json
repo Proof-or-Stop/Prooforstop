@@ -228,6 +228,29 @@
           "packages/main/tests/package-identity-migration.test.mjs",
           "packages/main/src/tasks/version-bump-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The root package.json and package-lock.json use proof-or-stop as the workspace name and stay synchronized with the CLI version constants.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Existing self-host detection accepts the canonical root/package identity and does not silently bypass its safety gate.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A split package/lockfile name or version is detected by the identity verification path before publish or install.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
       }
     },
     {
