@@ -62,18 +62,19 @@ function identity(cwd, storyId = 'B-5a15-concurrency', overrides = {}) {
   };
 }
 
-function readyPreflight(cwd, storyId) {
+function readyPreflight(runIdentity) {
+  const { cwd, storyId } = runIdentity;
   return preflightCausalEvidence({
     cli: { available: true, path: '/usr/bin/proof-or-stop' },
     worktree: { expected: cwd, actual: cwd },
     gitIndex: { readable: true, path: join(cwd, 'index'), expected: 'head', actual: 'head', contentDigest: 'sha256:test-index' },
-    gitMaterial: { available: true, headHash: 'head', materialHash: 'concurrency-material', storyFilesHash: 'concurrency-story' },
+    gitMaterial: { available: true, headHash: 'head', materialHash: runIdentity.inputs?.materialHash, storyFilesHash: runIdentity.storyFilesHash },
     writerLease: { available: true, valid: true },
     providerCapability: { required: ['allowlisted-command', 'bounded-output'], available: ['allowlisted-command', 'bounded-output'] },
     resources: { required: { timeoutMs: 1000 }, available: { timeoutMs: 1000 } },
     evidenceTarget: { writable: true, path: `${storyId}/causal-evidence/` },
     sideChannel: { available: true, maxOutputChars: 12_000, maxProgressEvents: 10 },
-  });
+  }, undefined, runIdentity);
 }
 
 function delayedRun(counter, marker) {
@@ -87,7 +88,7 @@ function delayedRun(counter, marker) {
 test('separate concurrent requests single-flight exact keys and isolate near-duplicates', async () => {
   const store = new MemoryReceiptStore();
   const sameIdentity = identity(repoRoot);
-  const preflight = readyPreflight(repoRoot, sameIdentity.storyId);
+  const preflight = readyPreflight(sameIdentity);
   const counter = { count: 0 };
   const [pass, mismatch] = await Promise.all([
     executeCausalEvidence({
@@ -118,6 +119,7 @@ test('separate concurrent requests single-flight exact keys and isolate near-dup
   const nearIdentity = identity(repoRoot, sameIdentity.storyId, {
     inputs: { materialHash: 'near-material', explicitInput: 'same' },
   });
+  const nearPreflight = readyPreflight(nearIdentity);
   const [first, near] = await Promise.all([
     executeCausalEvidence({
       identity: sameIdentity,
@@ -132,7 +134,7 @@ test('separate concurrent requests single-flight exact keys and isolate near-dup
       selector: 'CONCURRENCY-MARKER',
       run: delayedRun(nearCounter, 'CONCURRENCY-MARKER'),
       receiptStore: nearStore,
-      preflight,
+      preflight: nearPreflight,
       revalidateBeforeRun: () => true,
     }),
   ]);
@@ -143,7 +145,7 @@ test('separate concurrent requests single-flight exact keys and isolate near-dup
 test('batch retries a non-pass exact key through one shared retry flight', async () => {
   const batch = createCausalEvidenceBatch();
   const runIdentity = identity(repoRoot, 'B-5a15-batch-retry');
-  const preflight = readyPreflight(repoRoot, runIdentity.storyId);
+  const preflight = readyPreflight(runIdentity);
   const counter = { count: 0 };
   const run = async () => {
     counter.count++;
@@ -181,7 +183,7 @@ test('StoryStore single-flight preserves one exact receipt and concurrent index 
     const store = new StoryStore(root);
     const storyId = 'B-5a15-store-concurrency';
     const runIdentity = identity(root, storyId);
-    const preflight = readyPreflight(root, storyId);
+    const preflight = readyPreflight(runIdentity);
     const counter = { count: 0 };
     const [first, second] = await Promise.all([
       executeCausalEvidence({

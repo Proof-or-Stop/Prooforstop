@@ -205,44 +205,114 @@ function selectActiveScenarioRecords(
 }
 
 /**
- * The canonical scenario body executes a finite set of real operations. An active
- * story may expose a different, story-specific topology, so the executed results
- * are projected onto that topology after execution. Projection is deliberately
- * kind-preserving and sourceRef-bound: it may reuse a canonical result as a
- * template, but it cannot invent an assertion, change its kind, or retain the
- * template's source attribution.
+ * Execute every assertion in the active topology against the temporary story.
+ *
+ * This is intentionally separate from the generic canonical scenario ledger:
+ * active IDs may be arbitrary, and an active assertion is admissible only when
+ * its own real verifier observation is recorded. No canonical record is copied
+ * or relabeled here.
  */
-function adaptCanonicalScenarioRecordsToActiveTopology(
+function executeActiveScenarioTopology(
   expected: ReadonlyMap<string, { kind: ScenarioCaseKind; sourceRef: string }>,
-  canonicalRecords: readonly PreReviewCaseRecordV1[],
+  root: string,
+  store: StoryStore,
 ): PreReviewCaseRecordV1[] {
-  const templatesByKind = new Map<ScenarioCaseKind, PreReviewCaseRecordV1[]>();
-  for (const record of canonicalRecords) {
-    const templates = templatesByKind.get(record[1]) ?? [];
-    templates.push(record);
-    templatesByKind.set(record[1], templates);
-  }
-  for (const kind of ['positive', 'mutation', 'transcript'] as const) {
-    if ([...expected.values()].some(assertion => assertion.kind === kind) && !templatesByKind.has(kind)) {
-      throw new Error(`canonical scenario ledger has no ${kind} result for active topology`);
-    }
-  }
+  if (expected.size === 0) throw new Error('active topology has no executable assertions');
+  const records: PreReviewCaseRecordV1[] = [];
+  const verifierArtifactPath = store.storyFilePath(storyId, 'pre-review-check.json');
+  const handlerContext = { root, scanRoot: join(root, 'packages/main'), store } as unknown as HandlerContext;
+  const handlers = createProofStoryHandlers(handlerContext);
+  const runCanonicalProducer = (): any => JSON.parse(handlers.pre_review_check({ storyId, json: true }));
+  const runCanonicalRead = (): any => JSON.parse(handlers.pre_review_check_read({ storyId, json: true }));
+  const recordTarget = (id: string, kind: ScenarioCaseKind): string =>
+    kind === 'mutation'
+      ? `temp-story:${storyId}:pre-review-check.json#signature:${id}`
+      : `temp-story:${storyId}:pre_review_check->pre_review_check_read`;
 
-  const adapted = [...expected].map(([id, assertion], index) => {
-    const templates = templatesByKind.get(assertion.kind);
-    if (!templates || templates.length === 0) throw new Error(`active topology assertion ${id} has no canonical ${assertion.kind} result`);
-    const template = templates[index % templates.length];
-    const record = structuredClone(template);
-    record[0] = id;
-    record[1] = assertion.kind;
-    record[9] = assertion.sourceRef;
-    return record;
-  });
+  for (const [id, assertion] of expected) {
+    if (assertion.kind === 'positive') {
+      const produced = runCanonicalProducer();
+      const producerSequence = scenarioEvent('producer-evaluated');
+      const consumed = runCanonicalRead();
+      const consumerSequence = scenarioEvent('consumer-verified');
+      assert.equal(produced.ok, true, `active positive ${id} producer did not pass: ${JSON.stringify(produced)}`);
+      assert.equal(consumed.ok, true, `active positive ${id} verifier did not pass: ${JSON.stringify(consumed)}`);
+      records.push([
+        id,
+        'positive',
+        recordTarget(id, 'positive'),
+        'clean-canonical-verifier',
+        'run temp-story pre_review_check then pre_review_check_read',
+        'PASS',
+        consumed.ok ? 'PASS' : (consumed.codes?.[0] ?? 'FAIL'),
+        true,
+        [['producer-evaluated', producerSequence], ['consumer-verified', consumerSequence]],
+        assertion.sourceRef,
+      ]);
+      continue;
+    }
+
+    if (assertion.kind === 'mutation') {
+      const cleanArtifactBytes = readFileSync(verifierArtifactPath);
+      const mutatedArtifact = JSON.parse(cleanArtifactBytes.toString('utf8')) as { signature?: unknown };
+      mutatedArtifact.signature = `forged-active-${id}`;
+      writeFileSync(verifierArtifactPath, JSON.stringify(mutatedArtifact, null, 2) + '\n', 'utf8');
+      const mutationSequence = scenarioEvent('mutation-applied');
+      let observed: any;
+      try {
+        observed = runCanonicalRead();
+      } finally {
+        writeFileSync(verifierArtifactPath, cleanArtifactBytes);
+      }
+      const diagnosticSequence = scenarioEvent('diagnostic-observed');
+      assert.equal(observed.ok, false, `active mutation ${id} unexpectedly passed: ${JSON.stringify(observed)}`);
+      assert.ok(Array.isArray(observed.codes) && observed.codes.includes('PR_ARTIFACT_TAMPERED'),
+        `active mutation ${id} did not produce the signed-artifact diagnostic: ${JSON.stringify(observed)}`);
+      assert.deepEqual(readFileSync(verifierArtifactPath), cleanArtifactBytes,
+        `active mutation ${id} did not restore the verifier artifact byte-for-byte`);
+      const restored = runCanonicalRead();
+      const controlSequence = scenarioEvent('control-rerun');
+      assert.equal(restored.ok, true, `active mutation ${id} clean control did not recover: ${JSON.stringify(restored)}`);
+      records.push([
+        id,
+        'mutation',
+        recordTarget(id, 'mutation'),
+        `signature-forgery:${id}`,
+        'forge temp-story pre-review-check.json signature, read verifier, restore exact artifact, rerun control',
+        'PR_ARTIFACT_TAMPERED',
+        observed.codes.find((code: unknown) => code === 'PR_ARTIFACT_TAMPERED') ?? observed.codes[0],
+        true,
+        [['mutation-applied', mutationSequence], ['diagnostic-observed', diagnosticSequence], ['control-rerun', controlSequence]],
+        assertion.sourceRef,
+      ]);
+      continue;
+    }
+
+    const produced = runCanonicalProducer();
+    const producerSequence = scenarioEvent('producer-evaluated');
+    const consumed = runCanonicalRead();
+    const consumerSequence = scenarioEvent('consumer-verified');
+    assert.equal(produced.ok, true, `active transcript ${id} producer did not pass: ${JSON.stringify(produced)}`);
+    assert.equal(consumed.ok, true, `active transcript ${id} consumer did not pass: ${JSON.stringify(consumed)}`);
+    assert.ok(producerSequence < consumerSequence, `active transcript ${id} is not producer-before-consumer`);
+    records.push([
+      id,
+      'transcript',
+      recordTarget(id, 'transcript'),
+      'event-log-relation',
+      'record actual temp-story producer completion before verifier completion',
+      'ORDERED',
+      producerSequence < consumerSequence ? 'ORDERED' : 'UNORDERED',
+      true,
+      [['producer-evaluated', producerSequence], ['consumer-verified', consumerSequence]],
+      assertion.sourceRef,
+    ]);
+  }
 
   const knownKinds = activeScenarioKinds.size > 0
     ? activeScenarioKinds
     : new Map([...expected].map(([id, assertion]) => [id, assertion.kind] as const));
-  return selectActiveScenarioRecords(expected, adapted, knownKinds, true);
+  return selectActiveScenarioRecords(expected, records, knownKinds, true);
 }
 
 function loadFrozenAcceptanceRolloutCohortForScenarios(): AcceptanceRolloutCohortInputV1 {
@@ -588,29 +658,6 @@ assert.throws(
   /active topology assertion kind mismatch for A-POS-5/,
   'known assertion ID cannot be rebound to a different kind',
 );
-const arbitraryActiveAssertions = new Map<string, { kind: ScenarioCaseKind; sourceRef: string }>([
-  ['A-CHK-001-happy-0', { kind: 'positive', sourceRef: 'intent:CHK-001:happy:0' }],
-  ['A-CHK-002-edge-1', { kind: 'positive', sourceRef: 'intent:CHK-002:edge:1' }],
-  ['M-CHK-003-adversarial-0', { kind: 'mutation', sourceRef: 'intent:CHK-003:adversarial:0' }],
-  ['T-ACC-001', { kind: 'transcript', sourceRef: 'acceptance-binding:ACC-001' }],
-]);
-const arbitraryActiveRecords = adaptCanonicalScenarioRecordsToActiveTopology(arbitraryActiveAssertions, expandedRecords);
-assert.deepEqual(
-  arbitraryActiveRecords.map(record => [record[0], record[1], record[9]]),
-  [...arbitraryActiveAssertions].map(([id, assertion]) => [id, assertion.kind, assertion.sourceRef]),
-  'active topology projection preserves arbitrary IDs, kinds, and sourceRefs',
-);
-assert.throws(
-  () => selectActiveScenarioRecords(
-    arbitraryActiveAssertions,
-    [...arbitraryActiveRecords, structuredClone(arbitraryActiveRecords[0])],
-    new Map([...arbitraryActiveAssertions].map(([id, assertion]) => [id, assertion.kind] as const)),
-    true,
-  ),
-  /executed scenario ledger contains duplicate assertion ID/,
-  'active topology projection rejects duplicate records',
-);
-
 const root = mkdtempSync(join(tmpdir(), 'proofstory-pre-review-'));
 const originalCwd = process.cwd();
 try {
@@ -1099,8 +1146,15 @@ try {
     const rolloutControlPassed = isCanonicalRolloutSmokePass(rolloutSmokeOutput);
     assert.equal(rolloutControlPassed, true, `focused rollout enforce+rollback control did not pass: ${rolloutSmokeOutput}`);
     recordExecutedCase(['A-POS-5', 'positive', 'rollout:focused-enforce-rollback', 'focused-rollout-control', 'execute focused Wave 4 rollout smoke with enforce, rollback, and history-preservation controls', 'PASS', rolloutControlPassed ? 'PASS' : 'FAIL', true, [['producer-evaluated', rolloutProducerEvent], ['consumer-verified', rolloutConsumerEvent]]]);
-    const executedRecords = [...scenarioLedger.values()];
-    const selectedRecords = adaptCanonicalScenarioRecordsToActiveTopology(activeScenarioAssertions, executedRecords);
+    assert.ok(scenarioLedger.has('A-POS-1'), 'generic canonical positive fixture remains executed');
+    assert.ok(scenarioLedger.has('A-MUT-1'), 'generic canonical mutation fixture remains executed');
+    assert.ok(scenarioLedger.has('A-TRANSCRIPT-1'), 'generic canonical transcript fixture remains executed');
+    const selectedRecords = executeActiveScenarioTopology(activeScenarioAssertions, root, store);
+    assert.deepEqual(
+      selectedRecords.map(record => [record[0], record[1], record[9]]),
+      [...activeScenarioAssertions].map(([id, assertion]) => [id, assertion.kind, assertion.sourceRef]),
+      'active topology executor records every arbitrary ID, kind, and canonical sourceRef from real observations',
+    );
     const removedExpectedId = selectedRecords[0]?.[0];
     assert.ok(removedExpectedId, 'active topology must require at least one registered scenario record');
     assert.throws(
@@ -1111,7 +1165,17 @@ try {
         true,
       ),
       /executed scenario ledger missing expected assertion ID/,
-      'removing one active registered record makes exact-ID validation fail',
+      'removing one active executed record makes exact-ID validation fail',
+    );
+    assert.throws(
+      () => selectActiveScenarioRecords(
+        activeScenarioAssertions,
+        [...selectedRecords, structuredClone(selectedRecords[0])],
+        activeScenarioKinds,
+        true,
+      ),
+      /executed scenario ledger contains duplicate assertion ID/,
+      'duplicating one active executed record makes exact-ID validation fail',
     );
     console.log(`PROOFSTORY_SCENARIO_RECORDS=${JSON.stringify(selectedRecords.sort((a, b) => a[0].localeCompare(b[0])))}`);
   }

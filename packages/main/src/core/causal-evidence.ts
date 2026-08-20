@@ -640,7 +640,7 @@ export interface ExecuteCausalEvidenceResult {
 /** Execute/reuse one key, then evaluate the caller's selector independently. */
 export async function executeCausalEvidence(args: ExecuteCausalEvidenceArgs): Promise<ExecuteCausalEvidenceResult> {
   const key = createCausalExecutionKey(args.identity);
-  if (!args.preflight || !verifyCausalPreflight(args.preflight)) {
+  if (!args.preflight || !verifyCausalPreflight(args.preflight, args.identity)) {
     throw new Error('causal evidence refused: missing_or_forged_preflight commandExecutions=0 evidenceWrites=0 [causal_preflight_invalid]');
   }
 
@@ -838,6 +838,10 @@ export interface CausalPreflightReport {
   schemaVersion: typeof CAUSAL_PREFLIGHT_SCHEMA;
   ready: boolean;
   facts: CausalPreflightFacts;
+  /** The signed execution identity this readiness report was produced for. */
+  executionKey: string;
+  executionIdentity: CausalExecutionIdentity;
+  executionIdentityDigest: string;
   authorityRoot: string;
   checks: Record<string, { status: 'pass' | 'fail'; reason?: string }>;
   failedChecks: string[];
@@ -903,11 +907,15 @@ function signedPreflightReport(
   ready: boolean,
   checks: Record<string, { status: 'pass' | 'fail'; reason?: string }>,
   failedChecks: string[],
+  executionKey: CausalExecutionKey,
 ): CausalPreflightReport {
   const unsigned = {
     schemaVersion: CAUSAL_PREFLIGHT_SCHEMA,
     ready,
     facts: cloneCanonical(facts),
+    executionKey: executionKey.key,
+    executionIdentity: executionKey.identity,
+    executionIdentityDigest: executionKey.identityDigest,
     authorityRoot: authorityRootForPreflightFacts(facts),
     checks,
     failedChecks,
@@ -922,22 +930,27 @@ function signedPreflightReport(
 export function preflightCausalEvidence(
   facts: CausalPreflightFacts,
   revalidate?: () => boolean,
+  identity?: CausalExecutionIdentityInput,
 ): CausalPreflightReport {
+  if (!identity) {
+    throw new Error('causal preflight refused: execution identity is required [causal_preflight_identity_missing]');
+  }
+  const executionKey = createCausalExecutionKey(identity);
   const checks = preflightChecksForFacts(facts);
 
   if (Object.values(checks).some(check => check.status === 'fail')) {
     const failedChecks = Object.entries(checks).filter(([, check]) => check.status === 'fail').map(([name, check]) => `${name}:${check.reason}`);
-    return signedPreflightReport(facts, false, checks, failedChecks);
+    return signedPreflightReport(facts, false, checks, failedChecks, executionKey);
   }
   if (revalidate && !revalidate()) {
     const failedChecks = ['state_changed_before_launch'];
-    return signedPreflightReport(facts, false, { ...checks, atomicRevalidation: { status: 'fail' as const, reason: 'state_changed_before_launch' } }, failedChecks);
+    return signedPreflightReport(facts, false, { ...checks, atomicRevalidation: { status: 'fail' as const, reason: 'state_changed_before_launch' } }, failedChecks, executionKey);
   }
-  return signedPreflightReport(facts, true, checks, []);
+  return signedPreflightReport(facts, true, checks, [], executionKey);
 }
 
-export function verifyCausalPreflight(report: CausalPreflightReport): boolean {
-  if (!isRecord(report) || !isRecord(report.checks) || !isRecord(report.facts) || !Array.isArray(report.failedChecks)) return false;
+export function verifyCausalPreflight(report: CausalPreflightReport, expectedIdentity?: CausalExecutionIdentityInput): boolean {
+  if (!isRecord(report) || !isRecord(report.checks) || !isRecord(report.facts) || !isRecord(report.executionIdentity) || !Array.isArray(report.failedChecks)) return false;
   const checkNames = Object.keys(report.checks);
   if (
     checkNames.length !== CAUSAL_PREFLIGHT_CHECK_NAMES.length
@@ -949,6 +962,28 @@ export function verifyCausalPreflight(report: CausalPreflightReport): boolean {
   const { readinessHash: _ignored, signerPublicKey: _publicKey, signature: _signature, ...payload } = report;
   const signedPayload = { ...payload, signerPublicKey: report.signerPublicKey, signature: report.signature };
   const authorityRoot = authorityRootForPreflightFacts(report.facts as CausalPreflightFacts);
+  const boundIdentity = report.executionIdentity as CausalExecutionIdentity;
+  const identityBindingValid = report.executionIdentityDigest === causalDigest(boundIdentity)
+    && report.executionKey === `ce:v1:${report.executionIdentityDigest}`
+    && boundIdentity.schemaVersion === CAUSAL_EXECUTION_KEY_SCHEMA
+    && typeof boundIdentity.storyId === 'string'
+    && typeof boundIdentity.cwd === 'string'
+    && isRecord(boundIdentity.command)
+    && Array.isArray(boundIdentity.command.args)
+    && isRecord(boundIdentity.effectiveEnvironment)
+    && typeof boundIdentity.storyFilesHash === 'string'
+    && typeof boundIdentity.runtimeVersion === 'string'
+    && typeof boundIdentity.toolVersion === 'string'
+    && typeof boundIdentity.selectorPolicyDigest === 'string'
+    && typeof boundIdentity.complete === 'boolean';
+  const expectedBindingValid = expectedIdentity
+    ? (() => {
+      const expectedKey = createCausalExecutionKey(expectedIdentity);
+      return expectedKey.key === report.executionKey
+        && expectedKey.identityDigest === report.executionIdentityDigest
+        && causalCanonical(expectedKey.identity) === causalCanonical(boundIdentity);
+    })()
+    : true;
   return report.schemaVersion === CAUSAL_PREFLIGHT_SCHEMA
     && report.ready === true
     && report.failedChecks.length === 0
@@ -956,6 +991,8 @@ export function verifyCausalPreflight(report: CausalPreflightReport): boolean {
     && report.evidenceWrites === 0
     && report.authorityRoot === authorityRoot
     && causalCanonical(report.checks) === causalCanonical(expectedChecks)
+    && identityBindingValid
+    && expectedBindingValid
     && report.readinessHash === causalDigest(signedPayload)
     && verifyCausalAuthorityPayload(
       { ...payload },
@@ -1282,7 +1319,7 @@ export interface CausalImportArgs {
   expectedExecutionKey: string;
   expectedMaterialHash?: string;
   expectedStoryFilesHash?: string;
-  currentIdentity?: CausalExecutionIdentityInput;
+  currentIdentity?: CausalExecutionIdentityInput | (() => CausalExecutionIdentityInput | undefined);
   revalidate: () => boolean;
   commit: () => void;
   maxAttempts?: number;
@@ -1303,31 +1340,32 @@ export function importCausalEvidenceReceipt(args: CausalImportArgs): { receiptHa
     if (recordedMaterial !== args.expectedMaterialHash) throw new Error('causal evidence import refused: materialHash changed [causal_receipt_material_mismatch]');
   }
   if (args.expectedStoryFilesHash && receipt.identity.storyFilesHash !== args.expectedStoryFilesHash) throw new Error('causal evidence import refused: storyFilesHash changed [causal_receipt_story_files_mismatch]');
-  if (args.currentIdentity) {
-    const currentKey = createCausalExecutionKey(args.currentIdentity);
-    const identityMatchesCurrent = causalExecutionIdentityMatchesCurrent(receipt.identity, {
-      storyId: args.currentIdentity.storyId,
-      cwd: args.currentIdentity.cwd,
-      storyFilesHash: args.currentIdentity.storyFilesHash ?? '',
-      effectiveEnvironment: args.currentIdentity.effectiveEnvironment ?? {},
-      runtimeVersion: args.currentIdentity.runtimeVersion ?? '',
-      toolVersion: args.currentIdentity.toolVersion ?? '',
-    });
-    if (
-      !currentKey.reusable
-      || currentKey.key !== receipt.executionKey
-      || causalCanonical(currentKey.identity) !== causalCanonical(receipt.identity)
-      || !identityMatchesCurrent
-    ) {
-      throw new Error('causal evidence import refused: execution identity changed or is incomplete [causal_receipt_identity_mismatch]');
-    }
-  }
   const maxAttempts = Math.max(1, Math.floor(args.maxAttempts ?? 2));
   let attempts = 0;
   let lastError: unknown;
   while (attempts < maxAttempts) {
     attempts++;
     if (!args.revalidate()) throw new Error('causal evidence import refused: lease/index/material revalidation failed [causal_import_revalidation_failed]');
+    const currentIdentity = typeof args.currentIdentity === 'function' ? args.currentIdentity() : args.currentIdentity;
+    if (currentIdentity) {
+      const currentKey = createCausalExecutionKey(currentIdentity);
+      const identityMatchesCurrent = causalExecutionIdentityMatchesCurrent(receipt.identity, {
+        storyId: currentIdentity.storyId,
+        cwd: currentIdentity.cwd,
+        storyFilesHash: currentIdentity.storyFilesHash ?? '',
+        effectiveEnvironment: currentIdentity.effectiveEnvironment ?? {},
+        runtimeVersion: currentIdentity.runtimeVersion ?? '',
+        toolVersion: currentIdentity.toolVersion ?? '',
+      });
+      if (
+        !currentKey.reusable
+        || currentKey.key !== receipt.executionKey
+        || causalCanonical(currentKey.identity) !== causalCanonical(receipt.identity)
+        || !identityMatchesCurrent
+      ) {
+        throw new Error('causal evidence import refused: execution identity changed or is incomplete [causal_receipt_identity_mismatch]');
+      }
+    }
     try {
       args.commit();
       if (args.batch && attempts > 1) {

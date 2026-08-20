@@ -65,7 +65,7 @@ function baseIdentity(storyId = 'B-causal-test', overrides = {}) {
   };
 }
 
-function preflight(overrides = {}, revalidate) {
+function preflightFor(identity, overrides = {}, revalidate) {
   return preflightCausalEvidence({
     cli: { available: true, path: '/usr/bin/proof-or-stop' },
     worktree: { expected: repoRoot, actual: repoRoot },
@@ -77,7 +77,11 @@ function preflight(overrides = {}, revalidate) {
     evidenceTarget: { writable: true, path: 'B-causal-test/causal-evidence/' },
     sideChannel: { available: true, maxOutputChars: 12_000, maxProgressEvents: 10 },
     ...overrides,
-  }, revalidate);
+  }, revalidate, identity);
+}
+
+function preflight(overrides = {}, revalidate) {
+  return preflightFor(baseIdentity(), overrides, revalidate);
 }
 
 class MemoryReceiptStore {
@@ -127,9 +131,9 @@ test('CHK-001: keys bind all identity fields, deduplicate exact complete work, a
     return { code: 0, output: 'API_TOKEN=not-written-to-receipt MARKER-A' };
   };
   const [first, second, third] = await Promise.all([
-    executeCausalEvidence({ identity, selector: 'MARKER-A', intentRef: 'CHK-001:happy:0', run, receiptStore: store, batch, preflight: preflight(), revalidateBeforeRun: () => true }),
-    executeCausalEvidence({ identity, selector: 'MISSING', intentRef: 'CHK-001:edge:0', run, receiptStore: store, batch, preflight: preflight(), revalidateBeforeRun: () => true }),
-    executeCausalEvidence({ identity, selector: 'MARKER-A', intentRef: 'CHK-001:adversarial:0', run, receiptStore: store, batch, preflight: preflight(), revalidateBeforeRun: () => true }),
+    executeCausalEvidence({ identity, selector: 'MARKER-A', intentRef: 'CHK-001:happy:0', run, receiptStore: store, batch, preflight: preflightFor(identity), revalidateBeforeRun: () => true }),
+    executeCausalEvidence({ identity, selector: 'MISSING', intentRef: 'CHK-001:edge:0', run, receiptStore: store, batch, preflight: preflightFor(identity), revalidateBeforeRun: () => true }),
+    executeCausalEvidence({ identity, selector: 'MARKER-A', intentRef: 'CHK-001:adversarial:0', run, receiptStore: store, batch, preflight: preflightFor(identity), revalidateBeforeRun: () => true }),
   ]);
   assert.equal(executions, 1, 'three exact-key intents launch one command');
   assert.equal(first.disposition, 'executed');
@@ -147,7 +151,7 @@ test('CHK-001: keys bind all identity fields, deduplicate exact complete work, a
     run: async () => { executions++; return { code: 0, output: 'should-not-run MARKER-A' }; },
     receiptStore: store,
     batch: replayBatch,
-    preflight: preflight(),
+    preflight: preflightFor(identity),
     revalidateBeforeRun: () => true,
   });
   assert.equal(replay.disposition, 'reused');
@@ -172,7 +176,7 @@ test('CHK-001: keys bind all identity fields, deduplicate exact complete work, a
       },
       receiptStore: fanoutStore,
       batch: fanoutBatch,
-      preflight: preflight(),
+      preflight: preflightFor(fanoutIdentities[slot]),
       revalidateBeforeRun: () => true,
     });
   }));
@@ -209,7 +213,7 @@ test('CHK-001: keys bind all identity fields, deduplicate exact complete work, a
       },
       receiptStore: fanoutStore,
       batch: fanoutReplayBatch,
-      preflight: preflight(),
+      preflight: preflightFor(fanoutIdentities[slot]),
       revalidateBeforeRun: () => true,
     });
   }));
@@ -237,7 +241,7 @@ test('CHK-001: keys bind all identity fields, deduplicate exact complete work, a
     selector: 'MARKER-A',
     run: async () => { singleBatchExecutions++; return { code: 0, output: 'MARKER-A' }; },
     receiptStore: singleBatchStore,
-    preflight: preflight(),
+    preflight: preflightFor(singleBatchIdentity),
     revalidateBeforeRun: () => true,
   });
   const singleBatch = createCausalEvidenceBatch();
@@ -248,7 +252,7 @@ test('CHK-001: keys bind all identity fields, deduplicate exact complete work, a
     run: async () => { singleBatchExecutions++; return { code: 0, output: 'unexpected duplicate' }; },
     receiptStore: singleBatchStore,
     batch: singleBatch,
-    preflight: preflight(),
+    preflight: preflightFor(singleBatchIdentity),
     revalidateBeforeRun: () => true,
   });
   assert.equal(singleBatchExecutions, 1);
@@ -275,13 +279,14 @@ test('CHK-001: keys bind all identity fields, deduplicate exact complete work, a
   let mutationExecutions = 0;
   const mutationResults = [];
   for (const [label, change] of keyMutationCases) {
+    const mutationIdentity = baseIdentity(`B-causal-mutation-${label}`, change);
     const result = await executeCausalEvidence({
-      identity: baseIdentity(`B-causal-mutation-${label}`, change),
+      identity: mutationIdentity,
       selector: 'MUTATION-MARKER',
       run: async () => { mutationExecutions++; return { code: 0, output: 'MUTATION-MARKER' }; },
       receiptStore: mutationStore,
       batch: mutationBatch,
-      preflight: preflight(),
+      preflight: preflightFor(mutationIdentity),
       revalidateBeforeRun: () => true,
     });
     mutationResults.push(result);
@@ -319,7 +324,7 @@ test('CHK-001: keys bind all identity fields, deduplicate exact complete work, a
       run: async () => { nearDuplicateExecutions++; return { code: 0, output: 'NEAR-DUPLICATE-MARKER' }; },
       receiptStore: nearDuplicateStore,
       batch: nearDuplicateBatch,
-      preflight: preflight(),
+      preflight: preflightFor(identityForNearDuplicate),
       revalidateBeforeRun: () => true,
     })));
   }
@@ -337,13 +342,14 @@ test('CHK-001: keys bind all identity fields, deduplicate exact complete work, a
   const tamperStore = new MemoryReceiptStore();
   const tamperBatch = createCausalEvidenceBatch();
   let tamperExecutions = 0;
+  const tamperIdentity = baseIdentity('B-causal-tamper');
   const tamperResult = await executeCausalEvidence({
-    identity: baseIdentity('B-causal-tamper'),
+    identity: tamperIdentity,
     selector: 'TAMPER-MARKER',
     run: async () => { tamperExecutions++; return { code: 0, output: 'TAMPER-MARKER' }; },
     receiptStore: tamperStore,
     batch: tamperBatch,
-    preflight: preflight(),
+    preflight: preflightFor(tamperIdentity),
     revalidateBeforeRun: () => true,
   });
   tamperStore.receipts.set(
@@ -352,11 +358,11 @@ test('CHK-001: keys bind all identity fields, deduplicate exact complete work, a
   );
   await assert.rejects(
     executeCausalEvidence({
-      identity: baseIdentity('B-causal-tamper'),
+      identity: tamperIdentity,
       selector: 'TAMPER-MARKER',
       run: async () => { tamperExecutions++; return { code: 0, output: 'unexpected' }; },
       receiptStore: tamperStore,
-      preflight: preflight(),
+      preflight: preflightFor(tamperIdentity),
       revalidateBeforeRun: () => true,
     }),
     /causal_receipt_tampered/,
@@ -368,13 +374,14 @@ test('CHK-001: keys bind all identity fields, deduplicate exact complete work, a
   const collisionStore = new MemoryReceiptStore();
   const collisionBatch = createCausalEvidenceBatch();
   let collisionExecutions = 0;
+  const collisionIdentity = baseIdentity('B-causal-collision');
   const collisionResult = await executeCausalEvidence({
-    identity: baseIdentity('B-causal-collision'),
+    identity: collisionIdentity,
     selector: 'COLLISION-MARKER',
     run: async () => { collisionExecutions++; return { code: 0, output: 'COLLISION-MARKER' }; },
     receiptStore: collisionStore,
     batch: collisionBatch,
-    preflight: preflight(),
+    preflight: preflightFor(collisionIdentity),
     revalidateBeforeRun: () => true,
   });
   collisionStore.receipts.set(
@@ -383,11 +390,11 @@ test('CHK-001: keys bind all identity fields, deduplicate exact complete work, a
   );
   await assert.rejects(
     executeCausalEvidence({
-      identity: baseIdentity('B-causal-collision'),
+      identity: collisionIdentity,
       selector: 'COLLISION-MARKER',
       run: async () => { collisionExecutions++; return { code: 0, output: 'wrong output' }; },
       receiptStore: collisionStore,
-      preflight: preflight(),
+      preflight: preflightFor(collisionIdentity),
       revalidateBeforeRun: () => true,
     }),
     /causal_receipt_tampered/,
@@ -404,7 +411,7 @@ test('CHK-001: keys bind all identity fields, deduplicate exact complete work, a
     selector: 'PROVENANCE-MARKER',
     run: async () => { provenanceExecutions++; return { code: 0, output: 'PROVENANCE-MARKER' }; },
     receiptStore: provenanceStore,
-    preflight: preflight(),
+    preflight: preflightFor(provenanceIdentity),
     revalidateBeforeRun: () => true,
   });
   const provenanceChanges = [
@@ -419,12 +426,13 @@ test('CHK-001: keys bind all identity fields, deduplicate exact complete work, a
   ];
   const provenanceVariants = [];
   for (const change of provenanceChanges) {
+    const variantIdentity = { ...provenanceIdentity, ...change };
     const variant = await executeCausalEvidence({
-      identity: { ...provenanceIdentity, ...change },
+      identity: variantIdentity,
       selector: 'PROVENANCE-MARKER',
       run: async () => { provenanceExecutions++; return { code: 0, output: 'PROVENANCE-MARKER' }; },
       receiptStore: provenanceStore,
-      preflight: preflight(),
+      preflight: preflightFor(variantIdentity),
       revalidateBeforeRun: () => true,
     });
     provenanceVariants.push(variant);
@@ -434,7 +442,7 @@ test('CHK-001: keys bind all identity fields, deduplicate exact complete work, a
     selector: 'PROVENANCE-MISSING',
     run: async () => { provenanceExecutions++; return { code: 0, output: 'unexpected selector replay' }; },
     receiptStore: provenanceStore,
-    preflight: preflight(),
+    preflight: preflightFor(provenanceIdentity),
     revalidateBeforeRun: () => true,
   });
   assert.equal(provenanceBaseline.verdict.result, 'pass');
@@ -452,8 +460,8 @@ test('CHK-001: keys bind all identity fields, deduplicate exact complete work, a
   let incompleteExecutions = 0;
   const incompleteIdentity = { cwd: repoRoot, storyId: identity.storyId, command: identity.command };
   await Promise.all([
-    executeCausalEvidence({ identity: incompleteIdentity, selector: 'MARKER-A', run: async () => { incompleteExecutions++; return { code: 0, output: 'MARKER-A' }; }, batch, preflight: preflight(), revalidateBeforeRun: () => true }),
-    executeCausalEvidence({ identity: incompleteIdentity, selector: 'MARKER-A', run: async () => { incompleteExecutions++; return { code: 0, output: 'MARKER-A' }; }, batch, preflight: preflight(), revalidateBeforeRun: () => true }),
+    executeCausalEvidence({ identity: incompleteIdentity, selector: 'MARKER-A', run: async () => { incompleteExecutions++; return { code: 0, output: 'MARKER-A' }; }, batch, preflight: preflightFor(incompleteIdentity), revalidateBeforeRun: () => true }),
+    executeCausalEvidence({ identity: incompleteIdentity, selector: 'MARKER-A', run: async () => { incompleteExecutions++; return { code: 0, output: 'MARKER-A' }; }, batch, preflight: preflightFor(incompleteIdentity), revalidateBeforeRun: () => true }),
   ]);
   assert.equal(incompleteExecutions, 2, 'incomplete identities are never reused as PASS');
 });
@@ -475,13 +483,13 @@ test('B-5a15 F-007: non-PASS outcomes never occupy a reusable receipt key or bat
       executions++;
       return executions === 1 ? firstOutcome : { code: 0, output: `PASS-AFTER-${label}` };
     };
-    const first = await executeCausalEvidence({ identity, selector: `PASS-AFTER-${label}`, run, receiptStore: store, batch, preflight: preflight(), revalidateBeforeRun: () => true });
+    const first = await executeCausalEvidence({ identity, selector: `PASS-AFTER-${label}`, run, receiptStore: store, batch, preflight: preflightFor(identity), revalidateBeforeRun: () => true });
     assert.equal(first.receipt.status, label);
     assert.equal(first.receipt.reusable, false);
     assert.equal(verifyCausalEvidenceReceipt(first.receipt, first.key.key), true);
     assert.equal(store.receipts.size, 0, `${label} must not be persisted as a reusable CAS value`);
 
-    const second = await executeCausalEvidence({ identity, selector: `PASS-AFTER-${label}`, run, receiptStore: store, batch, preflight: preflight(), revalidateBeforeRun: () => true });
+    const second = await executeCausalEvidence({ identity, selector: `PASS-AFTER-${label}`, run, receiptStore: store, batch, preflight: preflightFor(identity), revalidateBeforeRun: () => true });
     assert.equal(second.receipt.status, 'pass');
     assert.equal(second.receipt.reusable, true);
     assert.equal(second.disposition, 'executed');
@@ -492,12 +500,13 @@ test('B-5a15 F-007: non-PASS outcomes never occupy a reusable receipt key or bat
 test('B-5a15 F-011: raw secret environment values are absent from persisted receipt output', async () => {
   const secret = 'bare-secret-value-123456';
   const store = new MemoryReceiptStore();
+  const identity = baseIdentity('B-causal-redaction', { effectiveEnvironment: { API_TOKEN: secret, NODE_ENV: 'test' } });
   const result = await executeCausalEvidence({
-    identity: baseIdentity('B-causal-redaction', { effectiveEnvironment: { API_TOKEN: secret, NODE_ENV: 'test' } }),
+    identity,
     selector: 'command-output',
     run: async () => ({ code: 0, output: `command-output ${secret}` }),
     receiptStore: store,
-    preflight: preflight(),
+    preflight: preflightFor(identity),
     revalidateBeforeRun: () => true,
   });
   assert.equal(result.receipt.reusable, true);
@@ -532,7 +541,7 @@ test('CHK-002: CAS receipts precede isolated import, retry commit only, and fail
       run: async () => { executions++; return { code: 0, output: 'MARKER-A' }; },
       receiptStore: store,
       batch,
-      preflight: preflight(),
+      preflight: preflightFor(identity),
       revalidateBeforeRun: () => true,
     });
     assert.equal(executions, 1);
@@ -673,12 +682,13 @@ test('CHK-002: CAS receipts precede isolated import, retry commit only, and fail
     emitIntentMarker('CHK-002:adversarial:1', 'wrong execution key or provenance fails closed before import and cannot produce PASS');
 
     const immutableStore = new MemoryReceiptStore();
+    const immutableIdentity = baseIdentity('B-causal-immutable');
     const immutableResult = await executeCausalEvidence({
-      identity: baseIdentity('B-causal-immutable'),
+      identity: immutableIdentity,
       selector: 'IMMUTABLE-MARKER',
       run: async () => ({ code: 0, output: 'IMMUTABLE-MARKER' }),
       receiptStore: immutableStore,
-      preflight: preflight(),
+      preflight: preflightFor(immutableIdentity),
       revalidateBeforeRun: () => true,
     });
     const replacement = {
@@ -944,12 +954,13 @@ test('CHK-003: dependency domains shadow-compare closure and CertificationWindow
   assert.equal(verifyCausalDependencyDecision(rewrittenDependencyDecision), false);
   assert.equal(verifyCausalDependencyDecision(immutableDependencyDecision), true);
   const immutableReceiptStore = new MemoryReceiptStore();
+  const immutableReceiptIdentity = baseIdentity('B-causal-dependency-immutable');
   const immutableReceiptResult = await executeCausalEvidence({
-    identity: baseIdentity('B-causal-dependency-immutable'),
+    identity: immutableReceiptIdentity,
     selector: 'DEPENDENCY-IMMUTABLE',
     run: async () => ({ code: 0, output: 'DEPENDENCY-IMMUTABLE' }),
     receiptStore: immutableReceiptStore,
-    preflight: preflight(),
+    preflight: preflightFor(immutableReceiptIdentity),
     revalidateBeforeRun: () => true,
   });
   const rewrittenReceipt = {
@@ -1010,7 +1021,8 @@ test('CHK-003: dependency domains shadow-compare closure and CertificationWindow
 });
 
 test('CHK-004: preflight refuses exact readiness failures with zero execution/evidence counters', async () => {
-  const validPreflight = preflight();
+  const preflightIdentity = baseIdentity('B-causal-preflight');
+  const validPreflight = preflightFor(preflightIdentity);
   assert.equal(validPreflight.ready, true);
   assert.equal(verifyCausalPreflight(validPreflight), true);
   const incompletePreflightPayload = { ...validPreflight, checks: {}, failedChecks: [] };
@@ -1037,7 +1049,7 @@ test('CHK-004: preflight refuses exact readiness failures with zero execution/ev
   };
   launchEvents.push('preflight-pass');
   const firstLaunch = await executeCausalEvidence({
-    identity: baseIdentity('B-causal-preflight'),
+    identity: preflightIdentity,
     selector: 'PREFLIGHT-CHILD',
     run: launch,
     receiptStore: launchStore,
@@ -1045,12 +1057,12 @@ test('CHK-004: preflight refuses exact readiness failures with zero execution/ev
     preflight: validPreflight,
     revalidateBeforeRun: () => true,
   });
-  const repeatedPreflight = preflight();
+  const repeatedPreflight = preflightFor(preflightIdentity);
   assert.equal(repeatedPreflight.ready, true);
   assert.equal(verifyCausalPreflight(repeatedPreflight), true);
   launchEvents.push('preflight-pass');
   const repeatedLaunch = await executeCausalEvidence({
-    identity: baseIdentity('B-causal-preflight'),
+    identity: preflightIdentity,
     selector: 'PREFLIGHT-CHILD',
     run: launch,
     receiptStore: launchStore,
@@ -1063,14 +1075,15 @@ test('CHK-004: preflight refuses exact readiness failures with zero execution/ev
   assert.equal(firstLaunch.disposition, 'executed');
   assert.equal(repeatedLaunch.disposition, 'reused');
   assert.equal(launchBatch.ledger.executions.length, 1);
-  const selfRehashedPreflight = preflight();
+  const missingRevalidationIdentity = baseIdentity('B-causal-missing-revalidation');
+  const selfRehashedPreflight = preflightFor(missingRevalidationIdentity);
   assert.equal(verifyCausalPreflight(selfRehashedPreflight), true);
   const missingRevalidationStore = new MemoryReceiptStore();
   const missingRevalidationBatch = createCausalEvidenceBatch();
   let missingRevalidationLaunches = 0;
   await assert.rejects(
     executeCausalEvidence({
-      identity: baseIdentity('B-causal-missing-revalidation'),
+      identity: missingRevalidationIdentity,
       selector: 'MISSING-REVALIDATION-CHILD',
       run: async () => {
         missingRevalidationLaunches++;
@@ -1139,14 +1152,15 @@ test('CHK-004: preflight refuses exact readiness failures with zero execution/ev
   const raceStore = new MemoryReceiptStore();
   const raceBatch = createCausalEvidenceBatch();
   let raceLaunches = 0;
+  const raceIdentity = baseIdentity('B-causal-preflight-race');
   await assert.rejects(
     executeCausalEvidence({
-      identity: baseIdentity('B-causal-preflight-race'),
+      identity: raceIdentity,
       selector: 'RACE-CHILD',
       run: async () => { raceLaunches++; return { code: 0, output: 'RACE-CHILD' }; },
       receiptStore: raceStore,
       batch: raceBatch,
-      preflight: preflight(),
+      preflight: preflightFor(raceIdentity),
       revalidateBeforeRun: () => false,
     }),
     /state_changed_before_launch.*commandExecutions=0 evidenceWrites=0/,
@@ -1159,11 +1173,12 @@ test('CHK-004: preflight refuses exact readiness failures with zero execution/ev
     'preflight RACE REFUSED: state_changed_before_launch; commandExecutions=0; evidenceWrites=0',
   );
 
-  const forgedPreflight = { ...preflight(), readinessHash: 'forged-readiness-hash' };
+  const forgedIdentity = baseIdentity('B-causal-forged-preflight');
+  const forgedPreflight = { ...preflightFor(forgedIdentity), readinessHash: 'forged-readiness-hash' };
   let forgedLaunches = 0;
   await assert.rejects(
     executeCausalEvidence({
-      identity: baseIdentity('B-causal-forged-preflight'),
+      identity: forgedIdentity,
       selector: 'FORGED-CHILD',
       run: async () => { forgedLaunches++; return { code: 0, output: 'FORGED-CHILD' }; },
       batch: createCausalEvidenceBatch(),
@@ -1180,9 +1195,10 @@ test('CHK-004: preflight refuses exact readiness failures with zero execution/ev
     writeCausalEvidenceReceipt: () => { missingEvidenceWrites++; },
   };
   const missingPreflightBatch = createCausalEvidenceBatch();
+  const missingPreflightIdentity = baseIdentity('B-causal-missing-preflight');
   await assert.rejects(
     executeCausalEvidence({
-      identity: baseIdentity('B-causal-missing-preflight'),
+      identity: missingPreflightIdentity,
       selector: 'MISSING-PREFLIGHT-CHILD',
       run: async () => {
         missingCommandExecutions++;
@@ -1197,6 +1213,22 @@ test('CHK-004: preflight refuses exact readiness failures with zero execution/ev
   assert.equal(missingEvidenceWrites, 0);
   assert.equal(missingPreflightBatch.ledger.intentCount, 0);
   assert.equal(deriveCausalMetrics(missingPreflightBatch.ledger).commandExecutions, 0);
+
+  const unrelatedIdentity = baseIdentity('B-causal-unrelated-preflight');
+  const launchIdentity = baseIdentity('B-causal-bound-launch');
+  let unrelatedLaunches = 0;
+  await assert.rejects(
+    executeCausalEvidence({
+      identity: launchIdentity,
+      selector: 'UNRELATED-PREFLIGHT-CHILD',
+      run: async () => { unrelatedLaunches++; return { code: 0, output: 'UNRELATED-PREFLIGHT-CHILD' }; },
+      batch: createCausalEvidenceBatch(),
+      preflight: preflightFor(unrelatedIdentity),
+      revalidateBeforeRun: () => true,
+    }),
+    /missing_or_forged_preflight.*causal_preflight_invalid/,
+  );
+  assert.equal(unrelatedLaunches, 0);
   emitIntentMarker(
     'CHK-004:adversarial:1',
     'missing, stale, or forged preflight is rejected before child launch with commandExecutions=0 and no gate-admissible PASS',
@@ -1206,15 +1238,16 @@ test('CHK-004: preflight refuses exact readiness failures with zero execution/ev
 test('CHK-006: atomic pre-run revalidation refuses before the child runner with zero counters or writes', async () => {
   const batch = createCausalEvidenceBatch();
   const store = new MemoryReceiptStore();
+  const raceIdentity = baseIdentity('B-causal-race');
   let runInvoked = false;
   let revalidations = 0;
   await assert.rejects(
     executeCausalEvidence({
-      identity: baseIdentity('B-causal-race'),
+      identity: raceIdentity,
       selector: 'MARKER-A',
       receiptStore: store,
       batch,
-      preflight: preflight(),
+      preflight: preflightFor(raceIdentity),
       revalidateBeforeRun: () => {
         revalidations++;
         return false;
@@ -1261,7 +1294,7 @@ test('CHK-005: metrics are zero-safe and tamper-resistant canonical-ledger proje
       run: async () => { metricInitialExecutions++; return { code: 0, output: `METRIC-${slot}` }; },
       receiptStore: metricReplayStore,
       batch: metricInitialBatch,
-      preflight: preflight(),
+      preflight: preflightFor(metricReplayIdentities[slot]),
       revalidateBeforeRun: () => true,
     });
   }));
@@ -1275,7 +1308,7 @@ test('CHK-005: metrics are zero-safe and tamper-resistant canonical-ledger proje
       run: async () => { metricReplayExecutions++; return { code: 0, output: 'unexpected metric replay' }; },
       receiptStore: metricReplayStore,
       batch: metricReplayBatch,
-      preflight: preflight(),
+      preflight: preflightFor(metricReplayIdentities[slot]),
       revalidateBeforeRun: () => true,
     });
   }));
@@ -1301,7 +1334,8 @@ test('CHK-005: metrics are zero-safe and tamper-resistant canonical-ledger proje
   );
 
   const batch = createCausalEvidenceBatch();
-  await executeCausalEvidence({ identity: baseIdentity(), selector: 'MARKER-A', run: async () => ({ code: 0, output: 'MARKER-A' }), batch, preflight: preflight(), revalidateBeforeRun: () => true });
+  const batchIdentity = baseIdentity();
+  await executeCausalEvidence({ identity: batchIdentity, selector: 'MARKER-A', run: async () => ({ code: 0, output: 'MARKER-A' }), batch, preflight: preflightFor(batchIdentity), revalidateBeforeRun: () => true });
   const metrics = deriveCausalMetrics(batch.ledger);
   assert.equal(metrics.intentCount, 1);
   assert.equal(metrics.uniqueExecutionKeys, 1);
@@ -1319,7 +1353,7 @@ test('CHK-005: metrics are zero-safe and tamper-resistant canonical-ledger proje
     run: async () => { mixedExecutions++; return { code: 0, output: 'MIXED-MARKER' }; },
     receiptStore: mixedStore,
     batch: mixedBatch,
-    preflight: preflight(),
+    preflight: preflightFor(mixedIdentity),
     revalidateBeforeRun: () => true,
   });
   await executeCausalEvidence({
@@ -1328,7 +1362,7 @@ test('CHK-005: metrics are zero-safe and tamper-resistant canonical-ledger proje
     run: async () => { mixedExecutions++; return { code: 0, output: 'unexpected reusable execution' }; },
     receiptStore: mixedStore,
     batch: mixedBatch,
-    preflight: preflight(),
+    preflight: preflightFor(mixedIdentity),
     revalidateBeforeRun: () => true,
   });
   await executeCausalEvidence({
@@ -1337,7 +1371,7 @@ test('CHK-005: metrics are zero-safe and tamper-resistant canonical-ledger proje
     run: async () => { mixedExecutions++; return { code: 0, output: 'MIXED-MARKER' }; },
     receiptStore: mixedStore,
     batch: mixedBatch,
-    preflight: preflight(),
+    preflight: preflightFor(mixedNewIdentity),
     revalidateBeforeRun: () => true,
   });
   const mixedMetrics = deriveCausalMetrics(mixedBatch.ledger);
@@ -1354,13 +1388,14 @@ test('CHK-005: metrics are zero-safe and tamper-resistant canonical-ledger proje
 
   const importRetryBatch = createCausalEvidenceBatch();
   const importRetryStore = new MemoryReceiptStore();
+  const importRetryIdentity = baseIdentity('B-causal-metric-import-retry');
   const importRetrySource = await executeCausalEvidence({
-    identity: baseIdentity('B-causal-metric-import-retry'),
+    identity: importRetryIdentity,
     selector: 'IMPORT-RETRY',
     run: async () => ({ code: 0, output: 'IMPORT-RETRY' }),
     receiptStore: importRetryStore,
     batch: importRetryBatch,
-    preflight: preflight(),
+    preflight: preflightFor(importRetryIdentity),
     revalidateBeforeRun: () => true,
   });
   let importRetryCommits = 0;
@@ -1398,7 +1433,7 @@ test('CHK-005: metrics are zero-safe and tamper-resistant canonical-ledger proje
       selector: `INCOMPLETE-${index}`,
       run: async () => ({ code: 0, output: `INCOMPLETE-${index}` }),
       batch: incompleteMetricsBatch,
-      preflight: preflight(),
+      preflight: preflightFor(incompleteIdentity),
       revalidateBeforeRun: () => true,
     });
     assert.equal(result.key.reusable, false);

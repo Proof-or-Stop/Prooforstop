@@ -84,8 +84,11 @@ import { isLeaseStale, readOwnerLease } from '../core/story-owner-lease.js';
 import {
   CAUSAL_MAX_OUTPUT_CHARS,
   CAUSAL_RECEIPT_DIRECTORY,
+  DEFAULT_CAUSAL_SELECTOR_POLICY,
   causalCanonical,
+  effectiveCausalEnvironment,
   preflightCausalEvidence,
+  resolveCausalToolVersion,
   verifyCausalPreflight,
   type CausalPreflightFacts,
 } from '../core/causal-evidence.js';
@@ -624,13 +627,25 @@ export function createValidationCausalPreflightGate(
   const input = { command, cwd, timeoutMs };
   const initialFacts = probeValidationCausalPreflightFacts(ctx, storyId, input);
   const factsUnchanged = () => causalCanonical(probeValidationCausalPreflightFacts(ctx, storyId, input)) === causalCanonical(initialFacts);
-  const report = preflightCausalEvidence(initialFacts, factsUnchanged);
-  if (!report.ready || !verifyCausalPreflight(report)) {
+  const identity = {
+    storyId,
+    cwd,
+    command,
+    bootstrap: { executable: 'proof-or-stop', args: ['validate'] },
+    inputs: { storyId, materialHash: initialFacts.gitMaterial?.materialHash ?? null, timeoutMs },
+    storyFilesHash: initialFacts.gitMaterial?.storyFilesHash,
+    effectiveEnvironment: effectiveCausalEnvironment(undefined, cwd),
+    runtimeVersion: process.version,
+    toolVersion: resolveCausalToolVersion(ctx.root),
+    selectorPolicy: DEFAULT_CAUSAL_SELECTOR_POLICY,
+  };
+  const report = preflightCausalEvidence(initialFacts, factsUnchanged, identity);
+  if (!report.ready || !verifyCausalPreflight(report, identity)) {
     throw new Error(`validate preflight REFUSED: ${report.failedChecks.join(', ') || 'invalid_preflight'} commandExecutions=0 evidenceWrites=0 [causal_preflight_refused]`);
   }
   return {
     beforeLaunch: () => {
-      if (!verifyCausalPreflight(report) || !factsUnchanged()) {
+      if (!verifyCausalPreflight(report, identity) || !factsUnchanged()) {
         throw new Error('validate preflight refused: state_changed_before_launch commandExecutions=0 evidenceWrites=0 [causal_preflight_refused]');
       }
     },

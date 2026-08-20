@@ -65,11 +65,11 @@ const readyPreflight = preflightCausalEvidence({
   resources: { required: { timeoutMs: 1000 }, available: { timeoutMs: 1000 } },
   evidenceTarget: { writable: true, path: 'B-5a15-smoke/causal-evidence/' },
   sideChannel: { available: true, maxOutputChars: 12_000, maxProgressEvents: 10 },
-});
+}, undefined, identity);
 assert.equal(readyPreflight.ready, true, 'preflight readiness is admissible');
 assert.equal(preflightCausalEvidence({
   cli: { available: false },
-}).commandExecutions, 0, 'refusal records zero command executions');
+}, undefined, identity).commandExecutions, 0, 'refusal records zero command executions');
 
 const completeKey = createCausalExecutionKey(identity);
 assert.equal(completeKey.reusable, true, 'complete identity is reusable');
