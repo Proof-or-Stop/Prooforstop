@@ -78,13 +78,13 @@ assert.ok(PROCESS_FACT_LEVELS.some((e) => e.name === COMMAND),
   `${COMMAND} must have a PROCESS_FACT_LEVELS entry (core/process-fact-levels.ts)`);
 
 // ── Point 8 (closed union) + permittedMutations + resolveAgentMutationAuthority ─
-const implementer = AGENT_DISPATCH_REGISTRY.find((e) => e.canonicalName === 'lattice-implementer');
-assert.ok(implementer, 'lattice-implementer registry entry must exist');
+const implementer = AGENT_DISPATCH_REGISTRY.find((e) => e.canonicalName === 'proof-or-stop-implementer');
+assert.ok(implementer, 'proof-or-stop-implementer registry entry must exist');
 assert.ok(entryPermitsMutation(implementer, COMMAND),
-  `${COMMAND} must be in at least the lattice-implementer permittedMutations (agent-dispatch-registry.ts)`);
+  `${COMMAND} must be in at least the proof-or-stop-implementer permittedMutations (agent-dispatch-registry.ts)`);
 // The owner role resolves mutation authority for the command.
 assert.doesNotThrow(
-  () => resolveAgentMutationAuthority({ command: COMMAND, envActor: 'lattice-implementer' }),
+  () => resolveAgentMutationAuthority({ command: COMMAND, envActor: 'proof-or-stop-implementer' }),
   `resolveAgentMutationAuthority must accept ${COMMAND} for the implementer role`,
 );
 // A role WITHOUT the mutation is rejected (proves the gate is live, not a declaration).

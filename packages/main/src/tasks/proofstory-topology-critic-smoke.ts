@@ -180,6 +180,13 @@ function writeDiscoveryRegistration(root: string): void {
   write(root, 'scripts/run-proofstory-pre-review-live-proof.mjs', 'export const preReviewLiveProofRunner=true;\n');
   write(root, 'packages/main/src/core/topology-critic-receipt.ts', 'export const topologyCriticReceipt=true;\n');
   write(root, 'packages/main/src/handlers/transition-orchestrator.ts', 'export const topologyConsumer=true;\n');
+  // Acceptance-basis discovery includes the rollout verifier pair in its
+  // repository snapshot even though this focused fixture does not exercise
+  // rollout behavior. Keep the scratch repository structurally complete so the
+  // topology receipt assertions test critic authority rather than snapshot
+  // absence.
+  write(root, 'packages/main/src/core/acceptance-rollout.ts', 'export const acceptanceRollout=true;\n');
+  write(root, 'scripts/run-proofstory-acceptance-rollout-cohort.mjs', 'export const acceptanceRolloutRunner=true;\n');
 }
 
 const root = mkdtempSync(join(tmpdir(), 'proofstory-topology-critic-'));
@@ -217,7 +224,7 @@ smokeSuite: try {
   git(root, ['add', '.']); git(root, ['commit', '-m', 'base']);
   git(root, ['switch', '-c', `story/${storyId}`]);
   write(root, 'packages/main/src/implementation.ts', 'export const implemented=true;\n');
-  git(root, ['add', '.']); git(root, ['commit', '--author=lattice-implementer <lattice-implementer@noreply.local>', '-m', 'implement topology critic fixture']);
+  git(root, ['add', '.']); git(root, ['commit', '--author=proof-or-stop-implementer <proof-or-stop-implementer@noreply.local>', '-m', 'implement topology critic fixture']);
   process.chdir(root);
 
   resetConfigCache();
@@ -237,6 +244,7 @@ smokeSuite: try {
   const planBasisOutput = cli(root, 'acceptance_basis_generate', { storyId, json: true });
   assert.equal(JSON.parse(planBasisOutput).artifact.basis.status, 'complete', planBasisOutput);
   assert.equal(store.readTopologyCriticReceipt(storyId), null, 'Wave 2A receipt is absent before the normal PLAN to DEV transition');
+  cli(root, 'dev_memory_preflight_ack', { storyId });
   const planToDevTranscript = cli(root, 'story_advance', { storyId, phase: 'DEV' });
   assert.equal(store.readStory(storyId).phase, 'DEV', planToDevTranscript);
   assert.match(planToDevTranscript, /Acceptance topology check:[\s\S]*mode=enforce; status=pass; structuralPass=true; blocking=false/, 'normal story_advance consumes the existing Wave 2 structural gate');
@@ -266,8 +274,8 @@ smokeSuite: try {
     console.log(`Topology critic receipt: PASS check=${checkResult.verification.code} semanticOk=${checkResult.verification.ok}`);
     break smokeSuite;
   }
-  git(root, ['config', 'user.name', 'lattice-implementer']);
-  git(root, ['config', 'user.email', 'lattice-implementer@noreply.local']);
+  git(root, ['config', 'user.name', 'proof-or-stop-implementer']);
+  git(root, ['config', 'user.email', 'proof-or-stop-implementer@noreply.local']);
   cli(root, 'dispatch', { storyId, agentType: TOPOLOGY_CRITIC_ROLE }, TOPOLOGY_CRITIC_ROLE, 'sess-critic-business-collision');
   assert.throws(() => cli(root, 'topology_critic_receipt_set', { storyId, verdict: 'pass', json: true }, TOPOLOGY_CRITIC_ROLE, 'sess-critic-business-collision'), 'production producer rejects a critic whose real git business author equals the implementer author');
   git(root, ['config', 'user.name', 'Critic Reviewer']);
@@ -398,7 +406,7 @@ smokeSuite: try {
     assert.equal(verifyTopologyCriticReceipt({ gitCwd: root, context: canonicalContext, receipt: malformed, approvals: [], implementation, events }).ok, false, `finding ref omission/duplicate/invention fails: ${refs.join(',')}`);
   }
 
-  assert.throws(() => deriveImplementationProvenance(root, events.filter(event => event.agentType !== 'lattice-implementer'), context), /missing a session-bound/);
+  assert.throws(() => deriveImplementationProvenance(root, events.filter(event => event.agentType !== 'proof-or-stop-implementer'), context), /missing a session-bound/);
   for (const missingField of ['headHash', 'businessCommitAuthor', 'storyFilesHash'] as const) {
     const brokenEvents = structuredClone(events);
     const event = [...brokenEvents].reverse().find(candidate => candidate.agentType === TOPOLOGY_CRITIC_ROLE && candidate.sessionId === criticSessionId)!;
@@ -546,7 +554,7 @@ smokeSuite: try {
   assert.throws(() => cli(root, 'topology_exclusion_approval_set', { storyId, exclusionRef: 'decision:nonexistent', json: true }, TOPOLOGY_EXCLUSION_APPROVER_ROLE, SCOPE_SESSION_TASK), 'production CLI rejects nonexistent exclusion approval');
   assert.equal(verify(excludedReceipt, excludedContext, [approval]).ok, true, 'exact restoration passes without residue');
 
-  git(root, ['commit', '--allow-empty', '--author=lattice-implementer <lattice-implementer@noreply.local>', '-m', 'new implementation business commit']);
+  git(root, ['commit', '--allow-empty', '--author=proof-or-stop-implementer <proof-or-stop-implementer@noreply.local>', '-m', 'new implementation business commit']);
   assert.equal(JSON.parse(cli(root, 'topology_critic_receipt_check', { storyId, json: true })).verification.ok, false, 'old dispatch and receipt cannot replay across a new business commit');
   git(root, ['config', 'user.name', 'Critic Reviewer']);
   git(root, ['config', 'user.email', 'critic@noreply.local']);

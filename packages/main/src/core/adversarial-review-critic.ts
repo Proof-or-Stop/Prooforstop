@@ -69,7 +69,7 @@ export const COMPLETENESS_CRITIC_DESC_TAG = '[completeness-critic]';
  * of `REVIEW_RUN_LANES`, so a critic finding recorded under either still counts
  * as lane evidence.
  */
-export const CRITIC_PROVENANCE_RECOMMENDED_LANES = ['lattice-review-quality', 'lattice-review-behavior'] as const;
+export const CRITIC_PROVENANCE_RECOMMENDED_LANES = ['proof-or-stop-review-quality', 'proof-or-stop-review-behavior'] as const;
 
 /**
  * Shape (do NOT emit) the finding_add args for a completeness-critic finding.

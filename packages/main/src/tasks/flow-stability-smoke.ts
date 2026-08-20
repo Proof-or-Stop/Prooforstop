@@ -620,7 +620,7 @@ function assertDispatchPromptsPinImplementerCommitAuthor(): void {
       scanRoot: join(root, 'packages/main'),
     });
     store.writeStory(storyId, { ...store.readStory(storyId), phase: 'DEV' });
-    const expectedAuthor = /git commit --author="lattice-implementer <lattice-implementer@noreply\.local>"/;
+    const expectedAuthor = /git commit --author="proof-or-stop-implementer <proof-or-stop-implementer@noreply\.local>"/;
 
     const itemPrompt = dispatch.dispatch({ storyId, itemId: 'CHK-001' }).prompt;
     assert.match(itemPrompt, expectedAuthor);
@@ -2423,7 +2423,7 @@ async function assertStoryAdvanceReviewEchoOmitsRetiredChannel(): Promise<void> 
       scanRoot: join(root, 'packages/main'),
     }).story_advance({ storyId, phase: 'REVIEW' });
 
-    assert.match(output, /Active reviewers: concept, quality, test-coverage/);
+    assert.match(output, /Active reviewers: proof-or-stop-review-concept, proof-or-stop-review-quality, proof-or-stop-review-test-coverage/);
     assert.doesNotMatch(output, /lattice-review-channel/);
     assert.doesNotMatch(output, /channel \(normal channel\)/);
   } finally {

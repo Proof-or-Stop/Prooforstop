@@ -342,13 +342,13 @@ function createReviewFixture(): { root: string; store: StoryStore; ctx: HandlerC
   store.writeStory(REVIEW_STORY_ID, reviewStory());
   store.writeChecklist(REVIEW_STORY_ID, reviewChecklist());
 
-  const conceptRun = runFor(REVIEW_STORY_ID, 'RR-concept', 'lattice-review-concept', headSha);
+  const conceptRun = runFor(REVIEW_STORY_ID, 'RR-concept', 'proof-or-stop-review-concept', headSha);
   store.writeReviewRuns(REVIEW_STORY_ID, { runs: [conceptRun] });
   store.writeReviewPasses(REVIEW_STORY_ID, {
-    passes: [signedPass(REVIEW_STORY_ID, 'RP-concept', 'lattice-review-concept', ts(3), 'RR-concept')],
+    passes: [signedPass(REVIEW_STORY_ID, 'RP-concept', 'proof-or-stop-review-concept', ts(3), 'RR-concept')],
   });
   store.writeFindings(REVIEW_STORY_ID, {
-    findings: [signedBlockingFinding(REVIEW_STORY_ID, `${REVIEW_STORY_ID}:F-1`, 'lattice-review-behavior', ts(5))],
+    findings: [signedBlockingFinding(REVIEW_STORY_ID, `${REVIEW_STORY_ID}:F-1`, 'proof-or-stop-review-behavior', ts(5))],
   });
 
   const ctx: HandlerContext = { store, root, scanRoot: join(root, 'packages/main') };
@@ -574,7 +574,7 @@ assert.equal(isCommandAllowed('lifecycle_orchestrate', 'DONE', DEFAULT_PHASE_TOO
     // The composed reviewerBatch section is the prior layer's read-only output.
     assert.equal(report.sections.reviewerBatch!.storyId, REVIEW_STORY_ID, 'reviewerBatch section is for the story');
     assert.ok(
-      report.sections.reviewerBatch!.lanes.some((lane) => lane.lane === 'behavior'),
+      report.sections.reviewerBatch!.lanes.some((lane) => lane.lane === 'proof-or-stop-review-behavior'),
       'reviewerBatch composes the active behavior lane',
     );
 

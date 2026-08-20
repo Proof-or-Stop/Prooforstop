@@ -22,6 +22,8 @@ import {
 import { type Finding, type CompletenessCriticInput } from '../core/adversarial-review.js';
 import { toFindingAddArgs } from '../core/adversarial-review-verifier.js';
 import { REVIEW_RUN_LANES } from '../core/review-run.js';
+import { canonicalAgentRoleId } from '../core/agent-role-identity.js';
+import type { ReviewRunLane } from '../core/review-run.js';
 
 let passed = 0;
 const check = (name: string, cond: boolean): void => {
@@ -35,6 +37,10 @@ const check = (name: string, cond: boolean): void => {
 // Explicit expected ground truth — declared independently of the module.
 const LEDGER_KINDS = ['critical', 'high', 'medium', 'low'];
 const ABSTRACT_SEVERITIES = ['BLOCKER', 'MAJOR', 'MINOR'];
+const QUALITY_LANE = 'proof-or-stop-review-quality' as ReviewRunLane;
+const BEHAVIOR_LANE = 'proof-or-stop-review-behavior' as ReviewRunLane;
+const canonicalLanes = new Set((REVIEW_RUN_LANES as readonly string[]).map(canonicalAgentRoleId));
+const canonicalRecommendedLanes = CRITIC_PROVENANCE_RECOMMENDED_LANES.map(canonicalAgentRoleId);
 
 // ── 1. constants ──────────────────────────────────────────────────────────────
 check(
@@ -42,14 +48,14 @@ check(
   COMPLETENESS_CRITIC_DESC_TAG === '[completeness-critic]',
 );
 check(
-  "CRITIC_PROVENANCE_RECOMMENDED_LANES deep-equals ['lattice-review-quality','lattice-review-behavior']",
+  "CRITIC_PROVENANCE_RECOMMENDED_LANES deep-equals ['proof-or-stop-review-quality','proof-or-stop-review-behavior']",
   CRITIC_PROVENANCE_RECOMMENDED_LANES.length === 2
-    && CRITIC_PROVENANCE_RECOMMENDED_LANES[0] === 'lattice-review-quality'
-    && CRITIC_PROVENANCE_RECOMMENDED_LANES[1] === 'lattice-review-behavior',
+    && canonicalRecommendedLanes[0] === 'proof-or-stop-review-quality'
+    && canonicalRecommendedLanes[1] === 'proof-or-stop-review-behavior',
 );
 check(
   'every recommended lane is in REVIEW_RUN_LANES',
-  CRITIC_PROVENANCE_RECOMMENDED_LANES.every((lane) => (REVIEW_RUN_LANES as readonly string[]).includes(lane)),
+  canonicalRecommendedLanes.every((lane) => canonicalLanes.has(lane)),
 );
 
 // ── 2. seam pass-through + input shape ───────────────────────────────────────
@@ -110,15 +116,15 @@ const majorFinding: Finding = {
   issue: 'loop skips last',
   fix: 'use <=',
 };
-const base = toFindingAddArgs(majorFinding, { reviewRunId: 'RR-1', agent: 'lattice-review-quality', category: 'missing' });
-const critic = toCriticFindingAddArgs(majorFinding, { reviewRunId: 'RR-1', agent: 'lattice-review-quality', category: 'missing' });
+const base = toFindingAddArgs(majorFinding, { reviewRunId: 'RR-1', agent: QUALITY_LANE, category: 'missing' });
+const critic = toCriticFindingAddArgs(majorFinding, { reviewRunId: 'RR-1', agent: QUALITY_LANE, category: 'missing' });
 
 check("critic.desc === '[completeness-critic] ' + base.desc", critic.desc === '[completeness-critic] ' + base.desc);
 check("critic.desc starts with '[completeness-critic] '", critic.desc.startsWith('[completeness-critic] '));
 check("critic.severity === 'high' (mapped, NOT 'MAJOR')", critic.severity === 'high');
 check('critic.severity is a ledger kind', LEDGER_KINDS.includes(critic.severity));
 check('critic.severity is NOT an abstract severity', !ABSTRACT_SEVERITIES.includes(critic.severity as string));
-check("critic.agent === 'lattice-review-quality' (a real lane, NOT 'completeness-critic')", critic.agent === 'lattice-review-quality');
+check("critic.agent === 'proof-or-stop-review-quality' (a real lane, NOT 'completeness-critic')", critic.agent === 'proof-or-stop-review-quality');
 check('critic.files === base.files', critic.files.length === base.files.length && critic.files[0] === base.files[0]);
 check('critic.category === base.category', critic.category === base.category);
 check('critic.reviewRunId === base.reviewRunId', critic.reviewRunId === base.reviewRunId);
@@ -141,19 +147,19 @@ check(
 const blockerFinding: Finding = { severity: 'BLOCKER', title: 'Unchecked write', file: 'b.ts', line: 7, issue: 'data loss', fix: 'fsync' };
 const minorFinding: Finding = { severity: 'MINOR', title: 'Typo', file: 'c.ts', line: 3, issue: 'recieve', fix: 'receive' };
 
-const criticBlocker = toCriticFindingAddArgs(blockerFinding, { reviewRunId: 'RR-2', agent: 'lattice-review-quality', category: 'adversarial' });
+const criticBlocker = toCriticFindingAddArgs(blockerFinding, { reviewRunId: 'RR-2', agent: QUALITY_LANE, category: 'adversarial' });
 check("BLOCKER -> critic.severity === 'critical'", criticBlocker.severity === 'critical');
 check('BLOCKER critic.severity is a ledger kind', LEDGER_KINDS.includes(criticBlocker.severity));
 check('BLOCKER critic.severity is NOT abstract', !ABSTRACT_SEVERITIES.includes(criticBlocker.severity as string));
 
-const criticMinor = toCriticFindingAddArgs(minorFinding, { reviewRunId: 'RR-3', agent: 'lattice-review-quality', category: 'edge' });
+const criticMinor = toCriticFindingAddArgs(minorFinding, { reviewRunId: 'RR-3', agent: QUALITY_LANE, category: 'edge' });
 check("MINOR -> critic.severity === 'medium'", criticMinor.severity === 'medium');
 check('MINOR critic.severity is a ledger kind', LEDGER_KINDS.includes(criticMinor.severity));
 check('MINOR critic.severity is NOT abstract', !ABSTRACT_SEVERITIES.includes(criticMinor.severity as string));
 
 // ── 6. second recommended lane ───────────────────────────────────────────────
-const criticBehavior = toCriticFindingAddArgs(majorFinding, { reviewRunId: 'RR-4', agent: 'lattice-review-behavior', category: 'missing' });
-check("toCriticFindingAddArgs(agent='lattice-review-behavior').agent === 'lattice-review-behavior'", criticBehavior.agent === 'lattice-review-behavior');
+const criticBehavior = toCriticFindingAddArgs(majorFinding, { reviewRunId: 'RR-4', agent: BEHAVIOR_LANE, category: 'missing' });
+check("toCriticFindingAddArgs(agent='proof-or-stop-review-behavior').agent === 'proof-or-stop-review-behavior'", criticBehavior.agent === 'proof-or-stop-review-behavior');
 check("criticBehavior.desc starts with '[completeness-critic] '", criticBehavior.desc.startsWith('[completeness-critic] '));
 
 // ── 7. CHK-001 seam: large array, by-reference, verbatim output ───────────────
@@ -208,8 +214,8 @@ check(
 // ── 8. CHK-002 desc tag is provenance-only, never a lane ──────────────────────
 // CHK-002:edge:1 — the tag is NOT a lane prefix.
 check(
-  "CHK-002:edge:1 — desc tag does not start with 'lattice-review-'",
-  !COMPLETENESS_CRITIC_DESC_TAG.startsWith('lattice-review-'),
+  "CHK-002:edge:1 — desc tag does not start with 'proof-or-stop-review-'",
+  !COMPLETENESS_CRITIC_DESC_TAG.startsWith('proof-or-stop-review-'),
 );
 // CHK-002:adversarial:0 — the tag is not a real reviewer lane.
 check(
@@ -221,8 +227,8 @@ check(
   !(REVIEW_RUN_LANES as readonly string[]).includes('completeness-critic'),
 );
 check(
-  "REVIEW_RUN_LANES does NOT include 'lattice-review-completeness' (FUTURE — no dedicated critic lane today)",
-  !(REVIEW_RUN_LANES as readonly string[]).includes('lattice-review-completeness'),
+  "REVIEW_RUN_LANES does NOT include 'proof-or-stop-review-completeness' (FUTURE — no dedicated critic lane today)",
+  !canonicalLanes.has('proof-or-stop-review-completeness'),
 );
 // CHK-002:adversarial:1 — recommended lanes exclude completeness-critic; both are real lanes.
 check(
@@ -230,15 +236,15 @@ check(
   !(CRITIC_PROVENANCE_RECOMMENDED_LANES as readonly string[]).includes('completeness-critic'),
 );
 check(
-  "CHK-002:adversarial:1 — both recommended lanes start with 'lattice-review-'",
-  CRITIC_PROVENANCE_RECOMMENDED_LANES.every((lane) => lane.startsWith('lattice-review-')),
+  "CHK-002:adversarial:1 — both recommended lanes start with 'proof-or-stop-review-'",
+  canonicalRecommendedLanes.every((lane) => lane.startsWith('proof-or-stop-review-')),
 );
 
 // ── 9. CHK-003 desc tag prefix is transparent + always distinct ───────────────
 // CHK-003:edge:1 — special chars pass through verbatim under the tag prefix.
 const specialFinding: Finding = { severity: 'MINOR', title: 'A "q" & <t>', file: 'x.ts', line: 9, issue: 'has — dash, %', fix: 'do `that`' };
-const specialBase = toFindingAddArgs(specialFinding, { reviewRunId: 'R', agent: 'lattice-review-quality', category: 'happy' });
-const specialCritic = toCriticFindingAddArgs(specialFinding, { reviewRunId: 'R', agent: 'lattice-review-quality', category: 'happy' });
+const specialBase = toFindingAddArgs(specialFinding, { reviewRunId: 'R', agent: QUALITY_LANE, category: 'happy' });
+const specialCritic = toCriticFindingAddArgs(specialFinding, { reviewRunId: 'R', agent: QUALITY_LANE, category: 'happy' });
 check(
   "CHK-003:edge:1 — special-char desc === '[completeness-critic] ' + base.desc (verbatim through prefix)",
   specialCritic.desc === '[completeness-critic] ' + specialBase.desc,

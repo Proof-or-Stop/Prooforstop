@@ -18,8 +18,8 @@
  * and STRUCTURALLY cannot carry another lens's findings. `runLens` is invoked once
  * per request with that single request and nothing else, so no lens can be biased
  * by, or have its output mis-attributed to, a sibling lens. The two lenses that map
- * to the same lane (behavior/correctness and crash-safety/edge → lattice-review-
- * behavior) still run + report distinctly; their findings are never merged or
+ * to the same lane (behavior/correctness and crash-safety/edge → proof-or-stop-
+ * review-behavior) still run + report distinctly; their findings are never merged or
  * de-duplicated.
  *
  * The lane type is ALIASED to review-run.ts's `ReviewRunLane` (the six real
@@ -46,17 +46,17 @@ export type LensLane = ReviewRunLane;
 /**
  * §4.2 lens → review_run lane mapping. Fully typed `Record<LensId, LensLane>` so
  * the compiler rejects any non-real lane. behavior/correctness and
- * crash-safety/edge intentionally map to the SAME lane (lattice-review-behavior);
- * there is no mapping to lattice-review-channel. The values must be a SUBSET of
+ * crash-safety/edge intentionally map to the SAME lane (proof-or-stop-review-behavior);
+ * there is no mapping to proof-or-stop-review-channel. The values must be a SUBSET of
  * REVIEW_RUN_LANES, not a bijection.
  */
 export const LENS_TO_LANE: Record<LensId, LensLane> = {
-  'concept/scope': 'lattice-review-concept',
-  'code-quality': 'lattice-review-quality',
-  'behavior/correctness': 'lattice-review-behavior',
-  'test-coverage': 'lattice-review-test-coverage',
-  'crash-safety/edge': 'lattice-review-behavior',
-  'docs-consistency': 'lattice-review-docs',
+  'concept/scope': 'proof-or-stop-review-concept',
+  'code-quality': 'proof-or-stop-review-quality',
+  'behavior/correctness': 'proof-or-stop-review-behavior',
+  'test-coverage': 'proof-or-stop-review-test-coverage',
+  'crash-safety/edge': 'proof-or-stop-review-behavior',
+  'docs-consistency': 'proof-or-stop-review-docs',
 };
 
 /**

@@ -312,7 +312,7 @@ function assertQuorumRefuses(registry: ReturnType<typeof createMainRegistry>, st
   const beforeVerdicts = verdictFileCount(root);
   const handler = registry.get('quorum_submit');
   assert.ok(handler, 'quorum_submit handler is registered');
-  assert.throws(
+  const refusal = assert.throws(
     () => handler({
       storyId: STORY_ID,
       hostA: 'host-a',
@@ -322,6 +322,14 @@ function assertQuorumRefuses(registry: ReturnType<typeof createMainRegistry>, st
     /quorum_submit refuses: no current reviewer pass evidence for the required lanes/,
     label,
   );
+  const refusalText = String(refusal);
+  if (refusalText.includes('missing current pass lane(s):')) {
+    assert.match(
+      refusalText,
+      new RegExp(`missing current pass lane\\(s\\): ${REVIEW_LANES.join(', ')}`),
+      `${label}: missing-lane diagnostics use canonical reviewer lanes`,
+    );
+  }
   assert.equal(hostVerdictEventCount(store), beforeEvents, `${label}: no host_verdict process events written`);
   assert.equal(verdictFileCount(root), beforeVerdicts, `${label}: no verdict files written`);
 }

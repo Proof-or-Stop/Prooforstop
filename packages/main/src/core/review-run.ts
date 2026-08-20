@@ -64,6 +64,15 @@ type ReviewLaneForEntry<Entry> = Entry extends {
 /** Includes the retired historical lane at the type boundary; runtime eligibility still rejects it. */
 export type ReviewRunLane =
   | ReviewLaneForEntry<(typeof AGENT_DISPATCH_REGISTRY)[number]>
+  | 'proof-or-stop-review-story-init'
+  | 'proof-or-stop-review-scope-plan'
+  | 'proof-or-stop-review-topology-critic'
+  | 'proof-or-stop-review-concept'
+  | 'proof-or-stop-review-quality'
+  | 'proof-or-stop-review-test-coverage'
+  | 'proof-or-stop-review-behavior'
+  | 'proof-or-stop-review-docs'
+  | 'proof-or-stop-review-delivery'
   | 'proof-or-stop-review-channel'
   // Historical lane spellings remain valid input types for persisted evidence
   // and migration tests; resolveReviewRunLane canonicalizes them before use.
@@ -1423,7 +1432,7 @@ function validateEvidenceRunBinding(
       message: `${evidence.kind} ${evidence.id} envelopeId does not equal its signed ReviewRun binding`,
     };
   }
-  if (run.lane !== evidence.agent) {
+  if (!agentRoleIdsEqual(run.lane, evidence.agent)) {
     return {
       code: 'wrong_lane',
       kind: evidence.kind,

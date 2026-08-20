@@ -1953,7 +1953,7 @@ function assertCloseoutTrustBoundary() {
     'pinned executable source structural fingerprint drift',
     'review executable structure before updating the pinned fingerprint',
     'b2c006a5becbd456a5728bb7615cf999cb514137383bc935b128073240899d98',
-    '458d8aeaf36286e2ca0cafe968c2e9559d46e57e6920ca9581ea58ee38b77887',
+    'f8d0a958d75eb7207d811725fb183abb982525a4a2f457210f05110b33b167a7',
     '51af0fd5730add5aeff160f50c83b7dd70d2e5cdcfa0430e58acf4058acfb844',
     // B-1e1f: lockstep with PINNED_EXECUTABLE_SOURCE_FINGERPRINTS closeout-trust-smoke.ts
     // after persistSyntheticAdmittedWindowForTest (see B-cdf6:F-057 coupling note).
@@ -2082,7 +2082,7 @@ function assertCloseoutTrustBoundary() {
     'buildPackageAliasEdgeInventory',
     'PACKAGE_ALIAS_EDGE_INVENTORY',
     'package-imports-self-exports-edge-inventory-sha256-v1',
-    'b7d92d8213ef6059411003d7b0f3228cb05cac03692bb3604f98070f04d4a923',
+    '884e04286b0e30ad3a40addbe110c2593eb214746bda8a2d7b656ec76a7b7f75',
     'resolvePackageAlias',
     'unresolved package import/self-reference alias',
     'package imports alias',
@@ -2661,7 +2661,7 @@ function assertCloseoutTrustBoundary() {
     'baseline project Program must construct exactly once per guard scan',
     'overlay Program builds must remain bounded at one',
     'synthetic LanguageService must construct exactly once per guard scan',
-    'synthetic LanguageService roots must remain bounded at 32',
+    'synthetic LanguageService roots must remain bounded at 36',
     'synthetic LanguageService Program requests must remain bounded at 320',
     'LanguageService getProgram must preserve object identity without a version change',
     'distinct LanguageService Program identities across controlled version changes must remain bounded at 128',

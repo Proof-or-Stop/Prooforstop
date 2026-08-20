@@ -213,10 +213,174 @@
       "phase": "DEV",
       "headHash": "287d47dc8f894c5f015425e706f4e2a276ba98e8",
       "materialHash": "cf2034a98665d10b7db58a943ea6fe84963df55f004a5a2c90fdcadefcf3bdb1"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Canonical role migration changes production reviewer lane output and package inventory; these focused smoke fixtures must assert canonical output while retaining explicit legacy compatibility cases.",
+      "timestamp": "2026-08-20T09:03:56.229Z",
+      "paths": [
+        "packages/main/src/tasks/review-pass-discard-smoke.ts",
+        "packages/main/src/tasks/adversarial-review-lens-runner-smoke.ts",
+        "packages/main/src/tasks/adversarial-review-critic-smoke.ts",
+        "packages/main/src/tasks/lifecycle-orchestrate-smoke.ts",
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "packages/main/tests/red/red-w2b-wiring-contract.mjs",
+        "packages/main/src/tasks/done-required-validation-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/review-pass-discard-smoke.ts",
+        "packages/main/src/tasks/adversarial-review-lens-runner-smoke.ts",
+        "packages/main/src/tasks/adversarial-review-critic-smoke.ts",
+        "packages/main/src/tasks/lifecycle-orchestrate-smoke.ts",
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "packages/main/tests/red/red-w2b-wiring-contract.mjs",
+        "packages/main/src/tasks/done-required-validation-smoke.ts"
+      ],
+      "affectedPathCount": 7,
+      "phase": "DEV",
+      "headHash": "2c0f92bc4eac52eb5dc332b678e3cf13a5ffda2d",
+      "materialHash": "d903508de381187a921b8a83171cfdc191dac23bb820c7575d59f7c3844fa089"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "User explicitly assigned these four canonical role migration smoke files to this session for DEV edits and targeted verification.",
+      "timestamp": "2026-08-20T09:05:10.037Z",
+      "paths": [
+        "packages/main/src/tasks/review-pass-discard-smoke.ts",
+        "packages/main/src/tasks/adversarial-review-lens-runner-smoke.ts",
+        "packages/main/src/tasks/adversarial-review-critic-smoke.ts",
+        "packages/main/src/tasks/lifecycle-orchestrate-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/review-pass-discard-smoke.ts",
+        "packages/main/src/tasks/adversarial-review-lens-runner-smoke.ts",
+        "packages/main/src/tasks/adversarial-review-critic-smoke.ts",
+        "packages/main/src/tasks/lifecycle-orchestrate-smoke.ts"
+      ],
+      "affectedPathCount": 4,
+      "phase": "DEV",
+      "headHash": "2c0f92bc4eac52eb5dc332b678e3cf13a5ffda2d",
+      "materialHash": "d903508de381187a921b8a83171cfdc191dac23bb820c7575d59f7c3844fa089"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Transfer the active lease so this session can apply the user-authorized targeted fixture update in the existing DEV worktree.",
+      "timestamp": "2026-08-20T09:05:28.160Z",
+      "paths": [
+        "packages/main/src/tasks/quorum-submit-smoke.ts",
+        "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/quorum-submit-smoke.ts",
+        "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "2c0f92bc4eac52eb5dc332b678e3cf13a5ffda2d",
+      "materialHash": "d903508de381187a921b8a83171cfdc191dac23bb820c7575d59f7c3844fa089"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Canonical role migration changes production reviewer lanes, topology authority, quorum diagnostics, and migration smoke fixtures that assert the resulting identities.",
+      "timestamp": "2026-08-20T09:36:45.906Z",
+      "paths": [
+        "packages/main/src/core/adversarial-review-lens-runner.ts",
+        "packages/main/src/core/adversarial-review-critic.ts",
+        "packages/main/src/core/topology-critic-receipt.ts",
+        "packages/main/src/handlers/proofstory.ts",
+        "packages/main/src/core/reviewer-quorum.ts",
+        "packages/main/src/handlers/reviewer-quorum.ts",
+        "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+        "packages/main/src/tasks/flow-stability-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/adversarial-review-lens-runner.ts",
+        "packages/main/src/core/adversarial-review-critic.ts",
+        "packages/main/src/core/topology-critic-receipt.ts",
+        "packages/main/src/handlers/proofstory.ts",
+        "packages/main/src/core/reviewer-quorum.ts",
+        "packages/main/src/handlers/reviewer-quorum.ts",
+        "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+        "packages/main/src/tasks/flow-stability-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "affectedPathCount": 9,
+      "phase": "DEV",
+      "headHash": "2c0f92bc4eac52eb5dc332b678e3cf13a5ffda2d",
+      "materialHash": "d903508de381187a921b8a83171cfdc191dac23bb820c7575d59f7c3844fa089"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "The canonical lens lane values must be accepted by the review-run lane type and runtime registry projection.",
+      "timestamp": "2026-08-20T09:39:07.695Z",
+      "paths": [
+        "packages/main/src/core/review-run.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/review-run.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "2c0f92bc4eac52eb5dc332b678e3cf13a5ffda2d",
+      "materialHash": "d903508de381187a921b8a83171cfdc191dac23bb820c7575d59f7c3844fa089"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Quorum required-lane diagnostics and pass lookup must emit canonical reviewer identities while reading legacy passes.",
+      "timestamp": "2026-08-20T09:43:38.186Z",
+      "paths": [
+        "packages/main/src/handlers/quorum-submit.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/handlers/quorum-submit.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "2c0f92bc4eac52eb5dc332b678e3cf13a5ffda2d",
+      "materialHash": "d903508de381187a921b8a83171cfdc191dac23bb820c7575d59f7c3844fa089"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Quorum required-lane diagnostics and pass lookup must emit canonical reviewer identities while reading legacy passes.",
+      "timestamp": "2026-08-20T09:43:49.269Z",
+      "paths": [
+        "packages/main/src/handlers/quorum-submit.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/handlers/quorum-submit.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "2c0f92bc4eac52eb5dc332b678e3cf13a5ffda2d",
+      "materialHash": "d903508de381187a921b8a83171cfdc191dac23bb820c7575d59f7c3844fa089"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Topology receipt smoke fixtures must create canonical implementer business commits after the production role identity migration.",
+      "timestamp": "2026-08-20T09:44:53.083Z",
+      "paths": [
+        "packages/main/src/tasks/proofstory-topology-critic-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/proofstory-topology-critic-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "2c0f92bc4eac52eb5dc332b678e3cf13a5ffda2d",
+      "materialHash": "d903508de381187a921b8a83171cfdc191dac23bb820c7575d59f7c3844fa089"
     }
   ],
   "createdAt": "2026-08-20T05:20:00.402Z",
-  "updatedAt": "2026-08-20T08:42:42.707Z",
+  "updatedAt": "2026-08-20T09:44:53.083Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -314,6 +478,21 @@
     "packages/main/src/handlers/validate-channel.ts": "packages/main/src/handlers/validate-channel.ts",
     "docs/requirements/baselines/proof-or-stop-prompt-baseline.json": "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
     "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md": "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
-    "docs/requirements/baselines/role-prompt-measurement-baseline.json": "docs/requirements/baselines/role-prompt-measurement-baseline.json"
+    "docs/requirements/baselines/role-prompt-measurement-baseline.json": "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+    "packages/main/src/tasks/review-pass-discard-smoke.ts": "packages/main/src/tasks/review-pass-discard-smoke.ts",
+    "packages/main/src/tasks/adversarial-review-lens-runner-smoke.ts": "packages/main/src/tasks/adversarial-review-lens-runner-smoke.ts",
+    "packages/main/src/tasks/adversarial-review-critic-smoke.ts": "packages/main/src/tasks/adversarial-review-critic-smoke.ts",
+    "packages/main/src/tasks/lifecycle-orchestrate-smoke.ts": "packages/main/src/tasks/lifecycle-orchestrate-smoke.ts",
+    "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+    "packages/main/tests/red/red-w2b-wiring-contract.mjs": "packages/main/tests/red/red-w2b-wiring-contract.mjs",
+    "packages/main/src/tasks/done-required-validation-smoke.ts": "packages/main/src/tasks/done-required-validation-smoke.ts",
+    "packages/main/src/core/adversarial-review-lens-runner.ts": "packages/main/src/core/adversarial-review-lens-runner.ts",
+    "packages/main/src/core/adversarial-review-critic.ts": "packages/main/src/core/adversarial-review-critic.ts",
+    "packages/main/src/core/topology-critic-receipt.ts": "packages/main/src/core/topology-critic-receipt.ts",
+    "packages/main/src/handlers/proofstory.ts": "packages/main/src/handlers/proofstory.ts",
+    "packages/main/src/handlers/reviewer-quorum.ts": "packages/main/src/handlers/reviewer-quorum.ts",
+    "packages/main/src/tasks/validate-command-timeout-smoke.ts": "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+    "packages/main/src/tasks/flow-stability-smoke.ts": "packages/main/src/tasks/flow-stability-smoke.ts",
+    "packages/main/src/handlers/quorum-submit.ts": "packages/main/src/handlers/quorum-submit.ts"
   }
 }
