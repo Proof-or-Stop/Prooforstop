@@ -186,7 +186,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "release_approve_push creates a proof-or-stop.remote-push-approval.v1 approval; pre-push accepts one fresh old or new schema and consumes it once.",
+      "userSees": "User sees `\"schema\": \"proof-or-stop.remote-push-approval.v1\"` after release_approve_push, then pre-push reports `\"one-shot remote publish approval consumed\"`.",
       "files": {
         "modify": [
           ".githooks/pre-push",
