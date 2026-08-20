@@ -500,7 +500,9 @@ export function createFindingHandlers(ctx: HandlerContext) {
       const authority = resolveAgentMutationAuthority({ command: 'finding_add', payloadActors: [args.agent] });
       const dispatchedActor = authority.actor;
       const missingAttribution = !dispatchedActor;
-      const agent = dispatchedActor || 'main';
+      // Registry aliases are accepted on input, but persisted findings are a
+      // new-write surface and must carry the canonical proof-or-stop role.
+      const agent = authority.entry?.canonicalName || dispatchedActor || 'main';
       const category = normalizeFindingCategory(args.category);
       // B-3fad CHK-001: evidenceState defaults to verified; explicit suspected/disproven requires the accompanying fields.
       const evidence = resolveEvidenceState(args);

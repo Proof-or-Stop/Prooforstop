@@ -104,8 +104,9 @@ try {
   const dispatch = registry.get('dispatch');
   const reviewRunStart = registry.get('review_run_start');
   const reviewPassSet = registry.get('review_pass_set');
+  const findingAdd = registry.get('finding_add');
   const quorumSubmit = registry.get('quorum_submit');
-  assert.ok(dispatch && reviewRunStart && reviewPassSet && quorumSubmit, 'canonical evidence consumers are registered');
+  assert.ok(dispatch && reviewRunStart && reviewPassSet && findingAdd && quorumSubmit, 'canonical evidence consumers are registered');
   for (const lane of ['proof-or-stop-review-concept', 'proof-or-stop-review-quality', 'proof-or-stop-review-test-coverage']) {
     assert.match(String(dispatch({ storyId, agentType: lane }).prompt), new RegExp(`Review lane: ${lane}`));
     const started = String(reviewRunStart({ storyId, agent: lane }));
@@ -124,6 +125,17 @@ try {
   const legacyStarted = String(reviewRunStart({ storyId, agent: legacyLane }));
   const legacyReviewRunId = legacyStarted.match(/Review run (\S+) started/)?.[1];
   assert.ok(legacyReviewRunId, 'legacy reviewer alias reaches review_run_start');
+  findingAdd({
+    storyId,
+    agent: legacyLane,
+    reviewRunId: legacyReviewRunId,
+    desc: 'legacy reviewer actor is canonicalized on a new finding write',
+    severity: 'low',
+    category: 'edge',
+    readManifest: { filesReadFully: ['packages/main/src/index.ts'], filesTriagedByName: [], scanEscalationReason: null },
+  });
+  const persistedLegacyFinding = store.readFindings(storyId).findings.at(-1);
+  assert.equal(persistedLegacyFinding?.agent, 'proof-or-stop-review-quality', 'new findings persist canonical reviewer IDs');
   reviewPassSet({
     storyId,
     agent: legacyLane,

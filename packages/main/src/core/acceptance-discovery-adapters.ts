@@ -1170,7 +1170,20 @@ function buildBoundedSourceGraph(input: AcceptanceDiscoveryInput): BoundedSource
   const seedFiles = sourceSeedFiles(input, generatedStoryArtifactDirectory(readContext, input.storyId));
   const sourceInventory = configuredSourceInventory(root, readContext);
   const blindSpots: string[] = [...sourceInventory.blindSpots];
-  const registryCandidates = stable(['packages/main/src/registry.ts', ...PROCESS_FACT_REGISTRY.flatMap(sourceFiles)]);
+  const registryCandidates = stable(['packages/main/src/registry.ts', ...PROCESS_FACT_REGISTRY.flatMap(sourceFiles)])
+    .filter(file => {
+      // A process-fact sourceFiles entry may intentionally point at a directory
+      // (for example the agent prompt asset root).  Scope references are still
+      // retained by sourceSeedFiles, but never pass the directory to the bounded
+      // file reader: it is not a source file and would create a false blind spot.
+      try {
+        return !lstatSync(resolve(root, file)).isDirectory();
+      } catch {
+        // Missing file references remain in the candidate set so the normal
+        // unreadable-source diagnostic stays observable and fail-closed.
+        return true;
+      }
+    });
   const analysisContext = createBindingAnalysisContext(root, stable([...sourceInventory.files, ...seedFiles, ...registryCandidates]), readContext);
   const registryFiles = registryCandidates.filter(file => file === 'packages/main/src/registry.ts'
     || executableText(analysisContext.sourceFiles.get(file)?.text ?? '').includes('registerBatch('));
