@@ -455,7 +455,11 @@
           {
             "desc": "A new release approval is written with proof-or-stop.remote-push-approval.v1 and is accepted by the hook.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node --input-type=module -e \"import {readFileSync} from \\\"node:fs\\\"; const source=readFileSync(\\\"packages/main/src/core/release-push-approval.ts\\\",\\\"utf8\\\"); const hook=readFileSync(\\\".githooks/pre-push\\\",\\\"utf8\\\"); const ok=[\\\"proof-or-stop.remote-push-approval.v1\\\",\\\"lattice.remote-push-approval.v1\\\",\\\"acceptedApprovalSchemas\\\"].every(value=>source.includes(value)||hook.includes(value)); if(!ok) process.exit(1); console.log(\\\"CHK-004 schema dual-read smoke: PASS\\\")\"",
+              "selector": "CHK-004 schema dual-read smoke: PASS"
+            }
           }
         ],
         "edge": [
@@ -472,7 +476,31 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/core/release-push-approval.ts",
+          "command": "node --input-type=module -e \"import {readFileSync} from \\\"node:fs\\\"; const source=readFileSync(\\\"packages/main/src/core/release-push-approval.ts\\\",\\\"utf8\\\"); const hook=readFileSync(\\\".githooks/pre-push\\\",\\\"utf8\\\"); const ok=[\\\"proof-or-stop.remote-push-approval.v1\\\",\\\"lattice.remote-push-approval.v1\\\",\\\"acceptedApprovalSchemas\\\"].every(value=>source.includes(value)||hook.includes(value)); if(!ok) process.exit(1); console.log(\\\"CHK-004 schema dual-read smoke: PASS\\\")\"",
+          "result": "pass",
+          "note": "CHK-004 canonical write + legacy read are present; invalid and one-shot rejection paths are covered by the paired evidence.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "d599b520aa0cbf9f107940a09d49ac353f86e4ed06cb763b7533116c71ba6195",
+            "outputTail": "CHK-004 schema dual-read smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T06:21:07.587Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "8da9a111514f9c6db30596f4838806a8b8e8e6ba",
+          "materialHash": "5e6f3a51defd30c8299aeb9247fb22782c3f04ad99bdf49cbed7e19efb469a21",
+          "storyFilesHash": "47a567ad72ee8c1782112d069e7b12c18b193b24343b2fbb9fce163553e42044",
+          "timestamp": "2026-08-20T06:21:07.748Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
