@@ -70,6 +70,7 @@ export function captureReviewInventoryScope(ctx: HandlerContext, storyId: string
   requiredLanes: string[];
   candidateSpecSetDigest?: string;
   corpusDigest?: string;
+  candidateArtifactInvalid: boolean;
 } {
   const story = ctx.store.readStory(storyId);
   const checklist = ctx.store.readChecklist(storyId);
@@ -78,7 +79,8 @@ export function captureReviewInventoryScope(ctx: HandlerContext, storyId: string
   const understanding = ctx.store.readUnderstanding(storyId);
   const touchpoints = understanding?.touchpoints ?? detectMdTouchpointsFromGit(ctx.root);
   const candidate = ctx.store.readCandidateSpecSet(storyId);
-  const validCandidate = candidate && verifyCandidateSpecSet(candidate) ? candidate : null;
+  const candidateArtifactInvalid = candidate !== null && !verifyCandidateSpecSet(candidate);
+  const validCandidate = candidateArtifactInvalid ? null : candidate;
   return {
     requiredLanes: computeActiveReviewers(story, checklist, decision, touchpoints)
       .map(row => `lattice-review-${row.name}`),
@@ -107,14 +109,18 @@ export function captureReviewInventoryScope(ctx: HandlerContext, storyId: string
     // that reselects the same specs with the same content does not.
     // artifactDigest stays untouched so verifyCandidateSpecSet keeps detecting
     // genuine tampering; only the BARRIER comparator is narrowed.
+    candidateArtifactInvalid,
     ...(validCandidate ? {
       candidateSpecSetDigest: reviewInventoryDigest({
         schemaVersion: validCandidate.schemaVersion,
         mode: validCandidate.mode,
-        candidates: (validCandidate.candidates ?? []).map(row => ({
-          path: row?.path,
-          contentHash: row?.contentHash,
-        })),
+        // Candidate route ranking and changedPaths are intentionally allowed to
+        // change ordering. The review barrier binds the selected semantic set, so
+        // canonicalize only the path/contentHash projection while retaining each
+        // row (including duplicate rows should a valid future schema permit them).
+        candidates: validCandidate.candidates
+          .map(row => ({ path: row.path, contentHash: row.contentHash }))
+          .sort((left, right) => left.path.localeCompare(right.path, 'en') || left.contentHash.localeCompare(right.contentHash, 'en')),
         // B-3f3d F-107: queryFiltering is NOT bound. It records HOW candidates were
         // selected, not WHAT was selected, and it is freshness-derived through the
         // same channel as F-104: changedPaths (git diff --name-only main...HEAD)
@@ -138,7 +144,8 @@ function persistInvalidationIfDrifted(ctx: HandlerContext, epoch: ReviewInventor
     || (current.storyFilesHash ?? '') !== (epoch.cutoff.storyFilesHash ?? '');
   const scopeChanged = currentScope.scopeDigest !== epoch.scopeDigest
     || reviewInventoryDigest(currentScope.requiredLanes) !== reviewInventoryDigest(epoch.requiredLanes);
-  const candidateChanged = (currentScope.candidateSpecSetDigest ?? '') !== (epoch.candidateSpecSetDigest ?? '')
+  const candidateChanged = currentScope.candidateArtifactInvalid
+    || (currentScope.candidateSpecSetDigest ?? '') !== (epoch.candidateSpecSetDigest ?? '')
     || (currentScope.corpusDigest ?? '') !== (epoch.corpusDigest ?? '');
   if (!materialChanged && !scopeChanged && !candidateChanged) return epoch;
   const now = new Date().toISOString();
@@ -152,8 +159,10 @@ function persistInvalidationIfDrifted(ctx: HandlerContext, epoch: ReviewInventor
       currentMaterialHash: current.materialHash,
       ...(epoch.cutoff.storyFilesHash ? { oldStoryFilesHash: epoch.cutoff.storyFilesHash } : {}),
       ...(current.storyFilesHash ? { currentStoryFilesHash: current.storyFilesHash } : {}),
-      blockerCode: candidateChanged
-        ? 'OPEN_REVIEW_INVENTORY_CANDIDATE_ROUTING_MUTATION'
+      blockerCode: currentScope.candidateArtifactInvalid
+        ? 'OPEN_REVIEW_INVENTORY_INVALID_CANDIDATE_ARTIFACT'
+        : candidateChanged
+          ? 'OPEN_REVIEW_INVENTORY_CANDIDATE_ROUTING_MUTATION'
         : scopeChanged
           ? 'OPEN_REVIEW_INVENTORY_SCOPE_MUTATION'
           : 'OPEN_REVIEW_INVENTORY_MATERIAL_MUTATION',
@@ -269,6 +278,9 @@ export function renderReviewInventoryStatus(epoch: ReviewInventoryEpoch, project
     ...(epoch.invalidation?.blockerCode === 'OPEN_REVIEW_INVENTORY_CANDIDATE_ROUTING_MUTATION'
       ? [`Changed candidate routing: ${epoch.invalidation.oldCandidateSpecSetDigest ?? 'none'} -> ${epoch.invalidation.currentCandidateSpecSetDigest ?? 'none'}; corpus ${epoch.invalidation.oldCorpusDigest ?? 'none'} -> ${epoch.invalidation.currentCorpusDigest ?? 'none'}`]
       : []),
+    ...(epoch.invalidation?.blockerCode === 'OPEN_REVIEW_INVENTORY_INVALID_CANDIDATE_ARTIFACT'
+      ? ['Invalid candidate routing artifact: persisted candidate-spec-set.json failed structural and artifactDigest verification.']
+      : []),
     ...(epoch.state === 'FINALIZED' && !epoch.consumedAt
       ? [`Recovery for genuine late evidence: lattice review_inventory_cancel --storyId=${epoch.storyId} --reason="late evidence invalidated finalized receipt"; then begin a fresh epoch and fresh ReviewRun`]
       : []),
@@ -357,7 +369,7 @@ export function assertOpenInventoryFresh(ctx: HandlerContext, storyId: string): 
     const refreshed = persistInvalidationIfDrifted(ctx, epoch);
     if (refreshed.state !== 'OPEN') {
       throw new Error(
-        `OPEN_REVIEW_INVENTORY_MATERIAL_MUTATION\nEpoch: ${epoch.epochId}\n` +
+        `${refreshed.invalidation?.blockerCode ?? 'OPEN_REVIEW_INVENTORY_MATERIAL_MUTATION'}\nEpoch: ${epoch.epochId}\n` +
         `Changed lineage: ${refreshed.invalidation?.oldMaterialHash} -> ${refreshed.invalidation?.currentMaterialHash}\n` +
         `Recovery: lattice review_inventory_begin --storyId=${storyId}`,
       );

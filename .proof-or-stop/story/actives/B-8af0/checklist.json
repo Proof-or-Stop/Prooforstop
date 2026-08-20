@@ -48,6 +48,7 @@
       "userSees": "After rerouting reordered but semantically identical candidates, the terminal shows `State: OPEN`; after a selected path or contentHash changes, it shows `State: INVALIDATED` and `OPEN_REVIEW_INVENTORY_CANDIDATE_ROUTING_MUTATION`.",
       "files": {
         "modify": [
+          "packages/main/src/handlers/candidate-spec-routing.ts",
           "packages/main/src/handlers/review-inventory.ts",
           "packages/main/src/core/candidate-spec-routing.ts"
         ],
