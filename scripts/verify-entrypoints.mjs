@@ -159,8 +159,17 @@ function assertInitHelpDocumentsStarterAsOptional(help, label) {
 }
 
 function assertManagedMarkerSync(content, expectedNeedle, staleNeedle, label) {
-  assertIncludes(content, '<!-- lattice:start -->', label);
-  assertIncludes(content, '<!-- lattice:end -->', label);
+  const managedMarkerPairs = [
+    ['<!-- proof-or-stop:start -->', '<!-- proof-or-stop:end -->'],
+    ['<!-- lattice:start -->', '<!-- lattice:end -->'],
+  ];
+  const hasManagedMarkerPair = managedMarkerPairs.some(([start, end]) =>
+    content.includes(start) && content.includes(end),
+  );
+  assert(
+    hasManagedMarkerPair,
+    `${label} missing a complete managed marker pair (canonical proof-or-stop or legacy lattice)`,
+  );
   assertIncludes(content, expectedNeedle, label);
   if (staleNeedle) assertNotIncludes(content, staleNeedle, label);
 }
