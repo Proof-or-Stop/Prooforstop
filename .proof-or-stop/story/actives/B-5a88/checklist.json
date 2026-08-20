@@ -347,7 +347,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "The installed main package exposes proof-or-stop but no lattice bin alias, and help/residue checks no longer advertise lattice as a supported invocation.",
+      "userSees": "User sees the package bin list contain `\"proof-or-stop\"` and not `\"lattice\"`, and help no longer prints `\"Usage: lattice ...\"`.",
       "files": {
         "modify": [
           "packages/main/package.json",
