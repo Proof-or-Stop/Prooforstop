@@ -415,11 +415,14 @@
       "q": "Does B-5a88 explicitly supersede the prior root/sibling npm identity boundary and choose clean break versus durable old-name compatibility?",
       "evidence": "The story requires renaming the root package and @lattice/utils/@lattice/lab, but identity-migration records root package and sibling package names as out of scope while brand-rename requires old npm names to keep resolving for multi-developer compatibility.",
       "sourcePointers": [
-        "docs/requirements/decisions/brand-rename-mapping.md:65-75",
-        "docs/requirements/decisions/proof-or-stop-identity-migration.md:22-33",
-        "docs/requirements/decisions/proof-or-stop-identity-migration.md:114-145",
-        ".proof-or-stop/story/actives/B-5a88/checklist.json:198-296"
-      ]
+        "CHK-005",
+        "CHK-006",
+        "package.json",
+        "packages/utils/package.json",
+        "packages/lab/package.json"
+      ],
+      "resolution": "B-5a88 CHK-005 and CHK-006 explicitly supersede the earlier additive package-identity boundary for this migration. The root and sibling package names are changed to proof-or-stop forms, and only required old package references in the repository are handled as compatibility reads; old npm package publication aliases are not retained by this story.",
+      "resolvedAt": "2026-08-20T05:07:53.708Z"
     },
     {
       "id": "OQ-003",
