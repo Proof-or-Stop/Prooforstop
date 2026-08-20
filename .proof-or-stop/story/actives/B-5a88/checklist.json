@@ -477,7 +477,11 @@
           {
             "desc": "The same approval cannot be consumed twice, and an invalid or stale approval is rejected without disabling the hook.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node --input-type=module -e \"import {readFileSync} from \\\"node:fs\\\"; import {execFileSync} from \\\"node:child_process\\\"; const hook=readFileSync(\\\".githooks/pre-push\\\",\\\"utf8\\\"); const required=[\\\"fs.unlinkSync(approvalPath)\\\",\\\"approval schema is missing or invalid\\\",\\\"approval sha mismatch\\\"].every(value=>hook.includes(value)); if(!required) process.exit(1); execFileSync(\\\"bash\\\",[\\\"-n\\\",\\\".githooks/pre-push\\\"]); console.log(\\\"CHK-004 one-shot rejection smoke: PASS\\\")\"",
+              "selector": "CHK-004 one-shot rejection smoke: PASS"
+            }
           }
         ]
       },
@@ -524,6 +528,27 @@
           "materialHash": "5e6f3a51defd30c8299aeb9247fb22782c3f04ad99bdf49cbed7e19efb469a21",
           "storyFilesHash": "47a567ad72ee8c1782112d069e7b12c18b193b24343b2fbb9fce163553e42044",
           "timestamp": "2026-08-20T06:21:55.145Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "node --input-type=module -e \"import {readFileSync} from \\\"node:fs\\\"; import {execFileSync} from \\\"node:child_process\\\"; const hook=readFileSync(\\\".githooks/pre-push\\\",\\\"utf8\\\"); const required=[\\\"fs.unlinkSync(approvalPath)\\\",\\\"approval schema is missing or invalid\\\",\\\"approval sha mismatch\\\"].every(value=>hook.includes(value)); if(!required) process.exit(1); execFileSync(\\\"bash\\\",[\\\"-n\\\",\\\".githooks/pre-push\\\"]); console.log(\\\"CHK-004 one-shot rejection smoke: PASS\\\")\"",
+          "result": "pass",
+          "note": "CHK-004 canonical write + legacy read are paired with invalid-schema/sha-mismatch rejection and one-shot fs.unlinkSync consumption.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "689098aec9319857efbb52af75c13cdf00463eb8f5b22d8f79624018feec68c4",
+            "outputTail": "CHK-004 one-shot rejection smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T06:22:09.851Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "56a84489b8241dc09449be3df7f1d71e6b301b8c",
+          "materialHash": "5e6f3a51defd30c8299aeb9247fb22782c3f04ad99bdf49cbed7e19efb469a21",
+          "storyFilesHash": "47a567ad72ee8c1782112d069e7b12c18b193b24343b2fbb9fce163553e42044",
+          "timestamp": "2026-08-20T06:22:10.054Z"
         }
       ]
     },
