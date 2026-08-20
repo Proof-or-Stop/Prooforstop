@@ -217,7 +217,7 @@ export function createCertificationWindowHandlers(ctx: HandlerContext) {
 
       let consumedReceiptId = facts.inventory?.receipt?.receiptId;
       try {
-        const consumed = apis.consumeReviewInventoryReceipt(
+        const consumed = apis.consumeReviewInventoryCompletenessReceipt(
           ctx.store,
           storyId,
           facts.inventory?.epoch?.reviewRound ?? facts.inventory?.receipt?.reviewRound ?? '',
@@ -227,7 +227,7 @@ export function createCertificationWindowHandlers(ctx: HandlerContext) {
           },
         );
         if (!consumed) {
-          throw new Error('consumeReviewInventoryReceipt returned no receipt id');
+          throw new Error('consumeReviewInventoryCompletenessReceipt returned no receipt id');
         }
         consumedReceiptId = consumed;
       } catch (error) {

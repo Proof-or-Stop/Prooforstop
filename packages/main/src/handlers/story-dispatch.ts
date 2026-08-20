@@ -171,7 +171,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
   function appendDispatchEvent(args: {
     storyId: string;
     agentType?: string;
-    targetKind: 'init-review' | 'scope-plan-review' | 'topology-critic-review' | 'story-review' | 'delivery-review' | 'checklist' | 'finding' | 'cluster';
+    targetKind: 'init-review' | 'scope-plan-review' | 'topology-critic-review' | 'story-review' | 'delivery-review' | 'rollout-verify' | 'checklist' | 'finding' | 'cluster';
     itemId?: string;
     findingId?: string;
     clusterId?: string;
@@ -507,7 +507,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     if (!['PLAN', 'DEV', 'REVIEW'].includes(story.phase)) {
       throw new Error(`topology critic dispatch is unsupported during ${story.phase}`);
     }
-    return { prompt: [
+    const lines = [
       `Independently review the current ProofStory acceptance topology for ${args.storyId}.`,
       `Working directory: ${root}`,
       '',
@@ -519,7 +519,16 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       'Every exclusion must already have a separately attributable lattice-review-scope-plan approval.',
       `Finish with proof-or-stop topology_critic_receipt_set '{"storyId":"${args.storyId}","verdict":"pass"}' or verdict=request_changes.`,
       `Then run proof-or-stop topology_critic_receipt_check '{"storyId":"${args.storyId}"}' to verify the persisted signed receipt.`,
-    ].join('\n') };
+    ];
+    if (story.phase === 'REVIEW') {
+      lines.push('',
+        'For an OPEN review inventory wave, act as an independent completeness critic only after every required lane has terminal evidence.',
+        `Start a fresh critic run with proof-or-stop review_run_start '{"storyId":"${args.storyId}","agent":"lattice-review-topology-critic"}', inspect the aggregate finding set and required-lane read coverage, then submit finding_add or review_pass_set with complete read evidence.`,
+        `Finally bind that terminal evidence with proof-or-stop review_inventory_critic_set '{"storyId":"${args.storyId}","epochId":"<current epoch>","reviewRunId":"<critic ReviewRun>","agent":"lattice-review-topology-critic","findingDispositions":[{"findingId":"<verified finding id>","disposition":"verified_family","familyKey":"<independently assessed family>","reason":"<critic evidence>"}]}'. Use findingDispositions:[] only when the aggregate verified finding set is empty; classify every finding exactly once.`,
+      );
+    }
+    return { prompt: lines.join('\n') };
+
   }
 
   function buildStoryReviewPrompt(args: {
@@ -957,11 +966,35 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         const result = buildTopologyCriticReviewPrompt({ storyId: args.storyId });
         const wrapped = assembleComplexStoryDispatch(story, canonicalType, result.prompt);
         const authorityBinding = topologyAuthorityDispatchBinding(story, true);
+        const envelopeMode = resolvePromptEnvelopeRolloutMode(canonicalType, loadConfig(root).promptEnvelope);
+        if (!story.currentReviewRound && envelopeMode === 'full-envelope') {
+          throw new Error(`review dispatch requires currentReviewRound for story ${args.storyId}`);
+        }
+        const reviewerBinding = story.currentReviewRound ? (() => {
+          const hostRenderHost = currentReviewerPromptHost();
+          const hostIdentity = reviewerHostRenderIdentity(root, canonicalType, hostRenderHost, envelopeMode);
+          const dispatchPromptDigest = reviewerDispatchPromptDigest(result.prompt);
+          return {
+            dispatchPrompt: result.prompt,
+            dispatchPromptDigest,
+            hostRenderHost,
+            hostRenderIdentityDigest: hostIdentity.identityDigest,
+            dispatchBindingDigest: reviewerDispatchBindingDigest({
+              storyId: args.storyId,
+              lane: canonicalType,
+              reviewRound: story.currentReviewRound!,
+              dispatchPromptDigest,
+              hostRenderIdentityDigest: hostIdentity.identityDigest,
+            }),
+            reviewRound: story.currentReviewRound,
+          };
+        })() : {};
         appendDispatchEvent({
           storyId: args.storyId,
           agentType: canonicalType,
           targetKind: 'topology-critic-review',
           ...authorityBinding,
+          ...reviewerBinding,
           ...(wrapped.envelope ? { promptEnvelope: wrapped.envelope, promptEnvelopeId: wrapped.envelope.envelopeId, promptEnvelopeDigest: wrapped.envelope.contextDigest, assembledPromptDigest: wrapped.envelope.assembledPromptDigest } : {}),
           ...(wrapped.promptBudget ? { promptBudget: wrapped.promptBudget } : {}),
         });
@@ -1006,6 +1039,21 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
           });
         }
         return result;
+      }
+      if (promptBuilder === 'rollout-verify') {
+        const lines = [
+          `As ${canonicalType}, run the registered acceptance-rollout cohort for ${args.storyId}.`,
+          `Working directory (subagent must cd here): ${root}`,
+          '',
+        ];
+        appendDispatchLivenessGuidance(lines, `${canonicalType}/story`);
+        lines.push(`Start the reviewer run: proof-or-stop review_run_start '{"storyId":"${args.storyId}","agent":"${canonicalType}"}' and copy the returned reviewRunId.`);
+        appendDispatchEvent({
+          storyId: args.storyId,
+          agentType: canonicalType,
+          targetKind: 'rollout-verify',
+        });
+        return { prompt: lines.join('\n') };
       }
       if (promptBuilder === 'delivery-review') {
         const result = buildDeliveryReviewPrompt({ storyId: args.storyId, resolved });

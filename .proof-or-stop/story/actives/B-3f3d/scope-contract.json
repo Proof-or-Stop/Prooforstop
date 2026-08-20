@@ -1,0 +1,886 @@
+{
+  "storyId": "B-3f3d",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/store.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "packages/main/src/handlers/review-run.ts",
+    "packages/main/src/handlers/finding.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/handlers/review-inventory.ts",
+    "packages/main/src/core/review-inventory-epoch.ts",
+    "packages/main/src/core/prewrite-guard.ts",
+    "packages/main/src/core/prewrite-guard-check.ts",
+    "packages/main/src/handlers/prewrite-guard.ts",
+    ".claude/hooks/lattice-scope-pretool.cjs",
+    ".codex/hooks/lattice-scope-pretool.cjs",
+    "packages/main/src/core/adversarial-review.ts",
+    "packages/main/src/core/adversarial-review-round.ts",
+    "packages/main/src/handlers/reviewer-list.ts",
+    "packages/main/src/handlers/reviewer-batch.ts",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/core/review-incremental-context.ts"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/review-inventory-epoch.ts",
+    "packages/main/src/handlers/review-inventory.ts",
+    "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+    "packages/main/src/tasks/prewrite-guard-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "packages/main/src/.remember/**",
+    "experiments/**",
+    "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+    "docs/requirements/decisions/claude-session-b-cdf6-review-convergence-analysis-and-optimization.md",
+    "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+    "tests/fixtures/**"
+  ],
+  "scopeChangeReason": "Initialize enforce-mode scope from the reviewed PLAN file map; keep local intake-analysis artifacts, memory, experiments and legacy direct fixture edits outside implementation scope.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "The command policy and process-fact registry define four new L4 review_inventory commands, and core/config.ts is the existing phase-specific default tool allowlist consumed by runtime admission. Without this one-line REVIEW allowlist update, process-fact contract detects policy/default phase drift and the public CLI commands are mechanically unreachable.",
+      "timestamp": "2026-08-14T14:23:52.524Z",
+      "paths": [
+        "packages/main/src/core/config.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/config.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "63200b856970455d619b3bf2874ff7a16d17e0d5",
+      "materialHash": "489486aaab4e9e5e7784b0066212d438d262bac473b4702d10ae943db2ca2af2",
+      "anchors": [
+        "review_inventory_begin",
+        "review_inventory_status",
+        "review_inventory_finalize",
+        "review_inventory_cancel",
+        "DEFAULT_TOOLS.REVIEW"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "These two tracked active decision documents are relatedDocs for CHK-001 through CHK-004 and are normative consumers of the new signed review-inventory process facts and REVIEW-to-remediation-DEV transition. Synchronizing their lifecycle and evidence semantics is required to avoid source/document contract drift.",
+      "timestamp": "2026-08-14T14:25:27.616Z",
+      "paths": [
+        "docs/evidence-integrity-program-spec.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "docs/evidence-integrity-program-spec.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "63200b856970455d619b3bf2874ff7a16d17e0d5",
+      "materialHash": "489486aaab4e9e5e7784b0066212d438d262bac473b4702d10ae943db2ca2af2",
+      "anchors": [
+        "ReviewInventoryEpoch",
+        "ReviewInventoryReceipt",
+        "REVIEW.DEV",
+        "REVIEW.TEST"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "The independent completeness critic must be a mechanically authorized REVIEW actor that can create a fresh signed ReviewRun and critic receipt after all required lanes terminate. These registries and dispatch prompt are the existing role-authority sources, and the two focused smokes verify the new authority plus the intentional REVIEW-to-DEV fail-closed ordering without weakening TEST-to-DEV legacy behavior.",
+      "timestamp": "2026-08-14T14:51:10.203Z",
+      "paths": [
+        "packages/main/src/core/agent-dispatch-registry.ts",
+        "packages/main/src/core/prompt-role-contract-registry.ts",
+        "packages/main/src/handlers/story-dispatch.ts",
+        "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+        "packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/agent-dispatch-registry.ts",
+        "packages/main/src/core/prompt-role-contract-registry.ts",
+        "packages/main/src/handlers/story-dispatch.ts",
+        "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+        "packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts"
+      ],
+      "affectedPathCount": 5,
+      "phase": "DEV",
+      "headHash": "c346bf7f4b962392c39bd6742f178f268382afd0",
+      "materialHash": "15df0037d503a4520d9bb47e5440516a50c27296880820a37186c814cae06027",
+      "anchors": [
+        "AGENT_DISPATCH_REGISTRY",
+        "ROLE_POLICIES",
+        "lattice_review_topology_critic",
+        "review_inventory_critic_set",
+        "canReenterDevGuard"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "The shared signed ReviewRun evidence validator is the authoritative persistence boundary used by both review_pass_set and finding_add. Calling assertReviewInventoryCutoff here is required so an OPEN epoch detects live material drift immediately before either form of reviewer evidence can be accepted.",
+      "timestamp": "2026-08-14T15:00:50.892Z",
+      "paths": [
+        "packages/main/src/core/review-run.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/review-run.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "281009ed51524ab7126f4089e1159bde281d446e",
+      "materialHash": "ddba52115f886e1c95333945c2fa89eb362cc1535f489093512616d5d0ae0151",
+      "anchors": [
+        "assertCurrentReviewRunForEvidence",
+        "assertReviewInventoryCutoff"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "The first frozen inventory review produced verified F-001 and F-008: legacy round-2 any-one semantics remain in readiness/operator contracts, and the newly required topology critic is absent from the canonical Prompt Envelope rollout allowlists. These existing authority and regression-test files must change together to remove contradictory guidance and make independent critic terminal evidence mechanically signable.",
+      "timestamp": "2026-08-14T15:23:28.954Z",
+      "paths": [
+        "packages/main/src/core/lifecycle-readiness.ts",
+        "packages/main/src/handlers/transition-effects.ts",
+        "CLAUDE.md",
+        "packages/main/src/core/prompt-registry.ts",
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/lifecycle-readiness.ts",
+        "packages/main/src/handlers/transition-effects.ts",
+        "CLAUDE.md",
+        "packages/main/src/core/prompt-registry.ts",
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+      ],
+      "affectedPathCount": 5,
+      "phase": "DEV",
+      "headHash": "910e92ef0660e6165827164b1d24d00edb1a53d9",
+      "materialHash": "ddba52115f886e1c95333945c2fa89eb362cc1535f489093512616d5d0ae0151",
+      "anchors": [
+        "MODULAR_REVIEWER_ROLE_IDS",
+        "MODULAR_COMPLEX_ROLE_IDS",
+        "lattice_review_topology_critic",
+        "PromptEnvelope"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Verified F-002 and F-008 require the topology critic to be admitted consistently by project configuration and all generated agent assets, and require a real handler-level persistence/negative-path smoke instead of relying only on pure helper simulation. These are the canonical configuration, prompt asset, template, and executable-test touchpoints for that remediation.",
+      "timestamp": "2026-08-14T15:46:50.572Z",
+      "paths": [
+        "lattice.config.json",
+        ".claude/agents/lattice-review-topology-critic.md",
+        ".lattice-codex/agents/lattice-review-topology-critic.md",
+        "packages/main/templates/agents/lattice-review-topology-critic.md",
+        "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "lattice.config.json",
+        ".claude/agents/lattice-review-topology-critic.md",
+        ".lattice-codex/agents/lattice-review-topology-critic.md",
+        "packages/main/templates/agents/lattice-review-topology-critic.md",
+        "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+      ],
+      "affectedPathCount": 5,
+      "phase": "DEV",
+      "headHash": "4ed2a694b41cf471ff70b7ebd7a375406985c5eb",
+      "materialHash": "ddba52115f886e1c95333945c2fa89eb362cc1535f489093512616d5d0ae0151",
+      "anchors": [
+        "lattice_review_topology_critic",
+        "review_inventory_handler_smoke",
+        "promptEnvelope"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "This command-generated signed lifecycle artifact is the canonical storage for the Story review inventory epochs and receipts introduced by CHK-001 and consumed by the REVIEW-to-remediation-DEV gate. The cancelled RI-001 recovery history and subsequent fresh epochs must remain tracked and reviewer-visible.",
+      "timestamp": "2026-08-14T15:48:41.329Z",
+      "paths": [
+        ".lattice/story/actives/B-3f3d/review-inventory-epochs.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-3f3d/review-inventory-epochs.json"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "4ed2a694b41cf471ff70b7ebd7a375406985c5eb",
+      "materialHash": "ddba52115f886e1c95333945c2fa89eb362cc1535f489093512616d5d0ae0151",
+      "anchors": [
+        "ReviewInventoryEpoch",
+        "ReviewInventoryReceipt"
+      ]
+    },
+    {
+      "actor": "lattice-owner",
+      "reason": "RI-002 verified findings require removing legacy round-dependent review semantics and aligning operator recovery guidance with the signed inventory receipt gate.",
+      "timestamp": "2026-08-14T17:23:10.134Z",
+      "paths": [
+        "AGENTS.md",
+        "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+        "packages/main/src/core/anti-stall.ts",
+        "packages/main/src/core/guard-utils.ts",
+        "packages/main/src/handlers/session.ts",
+        "packages/main/src/tasks/flow-stability-smoke.ts",
+        "packages/main/src/tasks/review-incremental-context-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "AGENTS.md",
+        "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+        "packages/main/src/core/anti-stall.ts",
+        "packages/main/src/core/guard-utils.ts",
+        "packages/main/src/handlers/session.ts",
+        "packages/main/src/tasks/flow-stability-smoke.ts",
+        "packages/main/src/tasks/review-incremental-context-smoke.ts"
+      ],
+      "affectedPathCount": 7,
+      "phase": "DEV",
+      "headHash": "16f947ac33ff55e1d80bb30994639e02a09cc2d3",
+      "materialHash": "86319ce328a0d827e39c7e8b8926a87572032c8ddf606f3c2fe27ceef794a5f1"
+    },
+    {
+      "actor": "lattice-owner",
+      "reason": "F-013 requires the registered rollout cohort fixture to include every current process-fact closure source so snapshot sealing remains complete and fail-closed.",
+      "timestamp": "2026-08-14T17:31:50.217Z",
+      "paths": [
+        "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "3323785aa72a28700e2d8d86d8b26b2f49fd00e9",
+      "materialHash": "4c9a15ad72cb520bf1ef36aaae0fb3799de4d0a98c0bbddecfbfd055bd5f2173"
+    },
+    {
+      "actor": "lattice-owner",
+      "reason": "RI-004 verified findings require synchronizing the mandatory rollout authority truth source and making docs-intent command+selector evidence produce a signed mechanical receipt with a dedicated bite test.",
+      "timestamp": "2026-08-14T19:04:56.449Z",
+      "paths": [
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "de7ce70ee8680bedb051edc308bbc7651ebc52b5",
+      "materialHash": "ee33359cccc0674273dcc70e6f9aacc62e8cc87579e97f855d0f304a3753a9ec"
+    },
+    {
+      "actor": "lattice-owner",
+      "reason": "F-029 through F-032 require review-inventory-epochs.json to be classified by the canonical lifecycle artifact registry so temporal sealing and recovery cannot diverge across consumers.",
+      "timestamp": "2026-08-14T19:41:06.457Z",
+      "paths": [
+        "packages/main/src/core/lifecycle-registry.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/lifecycle-registry.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "f4428eb9351bcec1fa6490c05202f4037b2b8507",
+      "materialHash": "22d162f19daee36736fa26ea01605f60130279b62837969c20342a36bdb620c1"
+    },
+    {
+      "actor": "lattice-owner",
+      "reason": "F033-F036 require shared live-owner lock semantics, serialized scope acknowledgement, and the corresponding authoritative lease design documentation to prevent lost review evidence and stale frozen scope.",
+      "timestamp": "2026-08-14T20:50:51.838Z",
+      "paths": [
+        "packages/main/src/core/mkdir-lock.ts",
+        "packages/main/src/handlers/scope-contract.ts",
+        "docs/requirements/decisions/session-ownership-and-write-leases.md"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/mkdir-lock.ts",
+        "packages/main/src/handlers/scope-contract.ts",
+        "docs/requirements/decisions/session-ownership-and-write-leases.md"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "a270f209e7da5f1b23efa473b5ba3e31ed50f4d8",
+      "materialHash": "704614412f71b7ba501a97ad6cfea4df171dcd34526217fecfbd7202cadc0ead"
+    },
+    {
+      "actor": "lattice-owner",
+      "reason": "F037-F041 require immutable Prompt Envelope subject snapshots, inventory-serialized candidate routing, and a real current-evidence routing smoke so frozen review subjects cannot drift without invalidation.",
+      "timestamp": "2026-08-14T22:07:25.168Z",
+      "paths": [
+        "packages/main/src/core/prompt-contracts.ts",
+        "packages/main/src/core/prompt-envelope.ts",
+        "packages/main/src/handlers/candidate-spec-routing.ts",
+        "packages/main/src/tasks/candidate-spec-routing-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/prompt-contracts.ts",
+        "packages/main/src/core/prompt-envelope.ts",
+        "packages/main/src/handlers/candidate-spec-routing.ts",
+        "packages/main/src/tasks/candidate-spec-routing-smoke.ts"
+      ],
+      "affectedPathCount": 4,
+      "phase": "DEV",
+      "headHash": "6462632ac2536edd7e60ce79f04328e6a5d9bf7d",
+      "materialHash": "2abff2e856508094d6c8646afdebcf302f91f4a251266881df8acf3f8b11dc0b"
+    },
+    {
+      "actor": "lattice-owner",
+      "reason": "F-042 requires the scope-shrink acceptance writer to share the review-inventory lock; F-045 requires canonical kind-aware latest-run guidance.",
+      "timestamp": "2026-08-14T23:26:41.822Z",
+      "paths": [
+        "packages/main/src/handlers/proofstory.ts",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/handlers/proofstory.ts",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "90e88a3f9c1da6fcbf79513d9874731dcb8ef0c5",
+      "materialHash": "0974c8bf1d4b8b50089c496d1fa526b38c459db22315f7d4ee57f2e94d977568"
+    },
+    {
+      "actor": "lattice-owner",
+      "reason": "F-046 terminal idempotency requires the scan-budget real-handler fixture to use a fresh ReviewRun for semantically distinct pass-only evidence.",
+      "timestamp": "2026-08-14T23:51:31.743Z",
+      "paths": [
+        "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "c179454a73e5baba942cf1d57f46461f78ddf547",
+      "materialHash": "132e35b4b916a213fc99c95ff9840e10b1a4bf02f672b16a6425bb6a95604d23"
+    },
+    {
+      "actor": "lattice-owner",
+      "reason": "F-049 remediation must apply the canonical English authoring predicate at story/checklist writers and prove CJK relatedDocs is rejected before persistence while the final gate remains fail closed.",
+      "timestamp": "2026-08-15T01:21:34.512Z",
+      "paths": [
+        "packages/main/src/handlers/english-artifact-gate.ts",
+        "packages/main/src/handlers/story-create.ts",
+        "packages/main/src/tasks/english-early-check-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/handlers/english-artifact-gate.ts",
+        "packages/main/src/handlers/story-create.ts",
+        "packages/main/src/tasks/english-early-check-smoke.ts"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "1c064054261457140af3565314d48244890164c5",
+      "materialHash": "2d99f41a6ba9ebd03a3c9100b9375e891ab4c73ec680b7e3baba68452a946376"
+    },
+    {
+      "actor": "lattice-owner",
+      "reason": "F-053 requires separating signed partial-basis diagnostics from actual pre-review artifact tamper, and F-051 requires a regression proving pinned docs/manual verification can re-earn a mechanical receipt after invalidation.",
+      "timestamp": "2026-08-15T02:22:02.755Z",
+      "paths": [
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/tasks/verification-run-and-guard-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/tasks/verification-run-and-guard-smoke.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "dbdfe4d768e2b7a28b3e73e8df8d6c9ac88ab2fe",
+      "materialHash": "bc689d6066f56e16398889aa9018344209836dc9f94b87faf45ad455e9e83ea4"
+    },
+    {
+      "actor": "lattice-owner",
+      "reason": "F-055 and F-056 require large generated-metadata blob verification and post-CAS rollback hardening at the shared immutable metadata commit boundary, with direct regression smokes.",
+      "timestamp": "2026-08-15T04:34:56.846Z",
+      "paths": [
+        "packages/main/src/core/done-prepare-generated-metadata.ts",
+        "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+        "packages/main/src/tasks/quorum-submit-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/done-prepare-generated-metadata.ts",
+        "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+        "packages/main/src/tasks/quorum-submit-smoke.ts"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "adb7f178606b607bfc0d33d49df452a181269784",
+      "materialHash": "186e7cc505fd5a193b8bfb0e04d214c3547ff006e24f8d211d0a1941f8dc9c7f"
+    },
+    {
+      "actor": "lattice-owner",
+      "reason": "Verified F-057 through F-060 require one bounded tri-state Git blob reader and direct gate-consumer regressions so large committed histories are readable while true read errors remain fail closed.",
+      "timestamp": "2026-08-15T07:32:20.776Z",
+      "paths": [
+        "packages/main/src/core/acceptance-rollout.ts",
+        "packages/main/src/core/audit-meta-store.ts",
+        "packages/main/src/core/git-blob-reader.ts",
+        "packages/main/src/core/material-code-policy.ts",
+        "packages/main/src/handlers/quorum-submit.ts",
+        "packages/main/src/tasks/gap-log-smoke.ts",
+        "packages/main/src/tasks/language-neutral-gates-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/acceptance-rollout.ts",
+        "packages/main/src/core/audit-meta-store.ts",
+        "packages/main/src/core/git-blob-reader.ts",
+        "packages/main/src/core/material-code-policy.ts",
+        "packages/main/src/handlers/quorum-submit.ts",
+        "packages/main/src/tasks/gap-log-smoke.ts",
+        "packages/main/src/tasks/language-neutral-gates-smoke.ts"
+      ],
+      "affectedPathCount": 7,
+      "phase": "DEV",
+      "headHash": "56a467ad0c647410f8f4274c880462c8aa3a8449",
+      "materialHash": "67bb8ae28586ee95b7131d37ec7baea62c56a5282d697855c14d4c20dc570db0"
+    },
+    {
+      "actor": "lattice-owner",
+      "reason": "F-061 and F-062 require the provenance verifier for large committed B-META histories to consume the same bounded tri-state Git blob reader as the writer, while preserving fail-closed mutation and unreadable-parent behavior.",
+      "timestamp": "2026-08-15T09:14:08.482Z",
+      "paths": [
+        "packages/main/src/core/finding-verify.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/finding-verify.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "53830e97e50f06f03d88d21cc050e70c75d78894",
+      "materialHash": "a194e0d023025da03e81d2c272c2bcc2704a4b9be0cdc417b3b2eee77b6a2221"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Focused regressions are required to prove the corrected acceptance-basis closure and evidence-provenance admission semantics for verified F064 and F065.",
+      "timestamp": "2026-08-15T12:44:10.952Z",
+      "paths": [
+        "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+        "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+        "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "49ee22695a6c19759d88674e0f4444ae205be800",
+      "materialHash": "86490a4fed04b4507f136aadd39492e626d503c2645c7fb9fd8a54e855213b8d"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "These focused acceptance topology fixtures must change to close verified F-070 by tracking the current canonical acceptance closure sources.",
+      "timestamp": "2026-08-15T14:23:05.268Z",
+      "paths": [
+        "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+        "packages/main/src/tasks/proofstory-topology-critic-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+        "packages/main/src/tasks/proofstory-topology-critic-smoke.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "9d251a380c815d542adef0fcde7655c56c512d37",
+      "materialHash": "a18109f21a98bbc31d81e8ccbf91e7413b88dac5d832c76bbc6b8097c828e634"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Necessary closure for TEST-discovered failures: establish the signed inventory prerequisite in the ProofStory fixture, approve the topology critic modular rollout with regenerated canonical baselines, and make the 47-test liveness aggregate acyclic with bounded five-worker scheduling that preserves the 300-second budget.",
+      "timestamp": "2026-08-15T18:23:42.331Z",
+      "paths": [
+        "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+        "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+        "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+        "docs/requirements/decisions/lifecycle-artifact-scope.md",
+        "package.json",
+        "packages/main/src/core/global-agents.ts",
+        "packages/main/src/tasks/agent-liveness-suite-smoke.ts",
+        "packages/main/src/tasks/full-suite-runner-smoke.ts",
+        "packages/main/src/tasks/full-suite-runner.ts",
+        "packages/main/src/tasks/global-agents-unit-smoke.ts",
+        "packages/main/src/tasks/init-check-required-agents-smoke.ts",
+        "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+        "packages/main/src/tasks/provider-codex-smoke.ts",
+        "packages/main/src/tasks/review-pass-discard-smoke.ts",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+        "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+        "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+        "docs/requirements/decisions/lifecycle-artifact-scope.md",
+        "package.json",
+        "packages/main/src/core/global-agents.ts",
+        "packages/main/src/tasks/agent-liveness-suite-smoke.ts",
+        "packages/main/src/tasks/full-suite-runner-smoke.ts",
+        "packages/main/src/tasks/full-suite-runner.ts",
+        "packages/main/src/tasks/global-agents-unit-smoke.ts",
+        "packages/main/src/tasks/init-check-required-agents-smoke.ts",
+        "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+        "packages/main/src/tasks/provider-codex-smoke.ts",
+        "packages/main/src/tasks/review-pass-discard-smoke.ts",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+      ],
+      "affectedPathCount": 15,
+      "phase": "DEV",
+      "headHash": "a2d7c9dbe1b9b7f9d8486edf38d5987a5b816006",
+      "materialHash": "4126abc5d8e0170179c9fc12b07e9400016fb95811911f6a84c8a91e978e730e"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Necessary F073 closure: synchronize the six migrated reviewer definitions across generated guidance, prompt handler comments, registry/measurement smokes, while retaining the distinct five active REVIEW lane roster.",
+      "timestamp": "2026-08-15T19:41:34.252Z",
+      "paths": [
+        "packages/main/src/handlers/agent-prompt.ts",
+        "packages/main/src/init-assets.ts",
+        "packages/main/src/tasks/global-agents-init-smoke.ts",
+        "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+        "packages/main/src/tasks/prompt-registry-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/handlers/agent-prompt.ts",
+        "packages/main/src/init-assets.ts",
+        "packages/main/src/tasks/global-agents-init-smoke.ts",
+        "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+        "packages/main/src/tasks/prompt-registry-smoke.ts"
+      ],
+      "affectedPathCount": 5,
+      "phase": "DEV",
+      "headHash": "1a24428bb8c6d64437d8ad7db2821280281e8d22",
+      "materialHash": "bd5d485538e19aa0c5220bf5085e667bed3d945337ee373e6650019703bf5751"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Reviewer-driven doc correction required by findings F-080 and F-085. The docs lane found this file understated the runner termination guarantee: it said timeouts only kill the member process group, and later still said termination polls until no captured PID remains, while the code this story changed had introduced (pid, birthIdentity) ownership keying and then a BOUNDED post-SIGKILL retry that exits on cleanup-budget expiry. Leaving it unedited would have shipped a doc promising a guarantee the code no longer makes. The edit is documentation-only, adds no behaviour, and was verified against the implementation by the docs reviewer lane (RP-273, RP-275, RP-281) and re-confirmed by the concept lane; scripts/verify-process-fact-contract.mjs still passes.",
+      "timestamp": "2026-08-16T10:47:53.483Z",
+      "paths": [
+        "docs/requirements/decisions/test-runner-consolidation-plan.md"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "docs/requirements/decisions/test-runner-consolidation-plan.md"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "5e4c90933515cfe0862174c11b50e06d428c9a4b",
+      "materialHash": "d9f40c894185e625ecb246ce0c672a44bb62cfe6c7a7c3f244319eca9e1ce907"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Reviewer-driven test additions that landed outside the declared allowedTest set. review-incremental-context-smoke.ts gained the F-090 assertions pinning that gate/policy, dependency/build and unsupported-rename impacts all force the full reviewer roster. review-assurance-floor-smoke.ts gained the F-096/F-097 forced-replay regression coverage including the String() coercion crash path. review-inventory-handler-smoke.ts is the home of the F-107/F-108 end-to-end routing-neutral fixture. Both the docs lane and the test-coverage lane independently assessed this as a real scope-contract gap rather than paperwork, since these files are the actual regression-test home for gate-consumed logic this story introduced or hardened. All three changes are test-only, add no production behaviour, and were each mutation-verified to fail when the corresponding production guard is reverted.",
+      "timestamp": "2026-08-17T02:49:37.727Z",
+      "paths": [
+        "packages/main/src/tasks/review-incremental-context-smoke.ts",
+        "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+        "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/review-incremental-context-smoke.ts",
+        "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+        "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+      ],
+      "affectedPathCount": 3,
+      "phase": "REVIEW",
+      "headHash": "8426fc9ed3f16ab03b85d6d8262201e8b5408b3a",
+      "materialHash": "0cd36c04d1526f0a06ceb4d8d2f623671fb516a19565b5f84c3f7d282604289b"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "CORRECTION to the reason recorded in commit c01daa57c4 for this path. That entry described this file as the home of the F-107/F-108 end-to-end routing-neutral fixture. That is NOT true of the committed file: grep confirms no such fixture is present, only the pre-existing F-039 candidateDrift test which asserts the OPPOSITE direction (a real candidate drift correctly invalidates the epoch). The routing-neutral disproof fixture, whose corpusDigest d49896cf to d49896cf and candidateSpecSetDigest a4cb4561 to 9dffdc85 result grounds the doc Known-incomplete callout, exists only in this worktree git stash at stash@{0} and is carried to story B-8af0 as checklist item 3. The ACCURATE reason this path belongs in scope is simply that this story materially modified it (885 insertions in git diff main...HEAD) as the handler-level smoke for the review-inventory epoch work, independent of the stashed fixture. Recording this correction rather than editing history so the inaccurate claim is visible alongside its retraction.",
+      "timestamp": "2026-08-17T03:19:42.491Z",
+      "paths": [
+        "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "REVIEW",
+      "headHash": "11b7d17222353540d9e333d72a40cd572f89efb9",
+      "materialHash": "772be7bd58475aa69b031b912dfe6e35d4a456989d97c9d5cead556d9ed9dfe1"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Closeout merge leftovers: scratch readmanifest, handoff/follow-up story specs already committed for F-115/F-092, acceptance-basis REVIEW-phase smoke, and retired-authority bound bump after catalog dedupe. Necessary to pass REVIEW-to-TEST scope gate without reverting shipped closeout artifacts.",
+      "timestamp": "2026-08-19T11:06:02.225Z",
+      "paths": [
+        ".remember-scratch-readmanifest.json",
+        "B-3f3d-FOLLOWUP-STORIES.md",
+        "B-3f3d-HANDOFF.md",
+        "packages/main/src/tasks/acceptance-basis-review-phase-smoke.ts",
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".remember-scratch-readmanifest.json",
+        "B-3f3d-FOLLOWUP-STORIES.md",
+        "B-3f3d-HANDOFF.md",
+        "packages/main/src/tasks/acceptance-basis-review-phase-smoke.ts",
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "affectedPathCount": 5,
+      "phase": "REVIEW",
+      "headHash": "a4ce87de43e6e08b859011cc59c51527896fb4d0",
+      "materialHash": "082b04ca3d44e739bf69b648206d83fbbbe890ee66ea258124d6216135b2f327"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Closeout merge cleanup (dc4e546): PATH-aware heartbeat resolve in codex-adapter-checks.ts and inventory fixture stubs in the dev-memory door3 smoke so routine validate can pass after merging main. Required to clear the REVIEW-to-TEST scope gate without reverting those validate-fix edits.",
+      "timestamp": "2026-08-19T14:06:23.352Z",
+      "paths": [
+        "packages/main/src/core/codex-adapter-checks.ts",
+        "packages/main/src/tasks/dev-memory-lifecycle-gates-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/codex-adapter-checks.ts",
+        "packages/main/src/tasks/dev-memory-lifecycle-gates-smoke.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "REVIEW",
+      "headHash": "1ce9e6212aef1187443e047a49d9981db0c0f706",
+      "materialHash": "c6ad40d38ebf3a2a17bb49fc18985099db54c64450d1409b7e54a86280c95036"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "B-cc10 renamed lattice.config.json to proof-or-stop.config.json and .lattice-codex to .proof-or-stop-codex. After merging local main, the Wave-4 topology-critic plus acceptanceRolloutGateMode=enforce settings must live on the new canonical config path, and the critic agent shim lives under the renamed adapter directory. Both files are the same closeout artifacts previously acknowledged as lattice.config.json and .lattice-codex/agents/lattice-review-topology-critic.md.",
+      "timestamp": "2026-08-19T16:35:19.311Z",
+      "paths": [
+        "proof-or-stop.config.json",
+        ".proof-or-stop-codex/agents/lattice-review-topology-critic.md"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "proof-or-stop.config.json",
+        ".proof-or-stop-codex/agents/lattice-review-topology-critic.md"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "c9524958f24c196a1fad52ed6e2303b896ad157b",
+      "materialHash": "824787ed988c20aa171fe7824cd3f3d762f94342f95c9e6823d284f3cfc7839d"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "PRE_CERT begin must consume completeness-only inventory receipts through a dedicated consume path; remediation consume stays wave-gated and cannot authorize REVIEW to DEV from empty-wave receipts. The CertificationWindow handler, core, and smoke are the only files that bind that split.",
+      "timestamp": "2026-08-20T04:06:02.139Z",
+      "paths": [
+        "packages/main/src/core/certification-window.ts",
+        "packages/main/src/handlers/certification-window.ts",
+        "packages/main/src/tasks/certification-window-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/certification-window.ts",
+        "packages/main/src/handlers/certification-window.ts",
+        "packages/main/src/tasks/certification-window-smoke.ts"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "1099bc7dd31856e06b1d548a8ff2d2d8b718a63b",
+      "materialHash": "d32efb491ddeb2daefd22cc076a9dd21ec49b12ed7525038d6f384d33cc0b89f"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Prompt-baseline follow-up for topology-critic as modular body (not a five-lane REVIEW bootstrap) regenerated host mirrors and adjacent channel/runtime-owned-agent smokes so agent_prompt and process-fact-contract stay byte-aligned. These paths are host-adapter/smoke mirrors of the registry, not a new product surface.",
+      "timestamp": "2026-08-20T07:14:32.063Z",
+      "paths": [
+        ".claude/agents/lattice-review-channel.md",
+        ".proof-or-stop-codex/agents/lattice-review-channel.md",
+        "packages/main/src/tasks/prompt-token-cost-smoke.ts",
+        "packages/main/src/tasks/runtime-owned-agent-assets-smoke.ts",
+        "packages/main/templates/agents/lattice-review-channel.md"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".claude/agents/lattice-review-channel.md",
+        ".proof-or-stop-codex/agents/lattice-review-channel.md",
+        "packages/main/src/tasks/prompt-token-cost-smoke.ts",
+        "packages/main/src/tasks/runtime-owned-agent-assets-smoke.ts",
+        "packages/main/templates/agents/lattice-review-channel.md"
+      ],
+      "affectedPathCount": 5,
+      "phase": "DEV",
+      "headHash": "e89e0e5709566e72f1d165bd71939611a3df4f57",
+      "materialHash": "d137260b802ec305a109369e0e47b95dc80afc5fc3d38946d873b8cb76b42f92"
+    }
+  ],
+  "createdAt": "2026-08-14T14:01:52.360Z",
+  "updatedAt": "2026-08-20T07:14:32.063Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/core/store.ts": "packages/main/src/core/store.ts",
+    "packages/main/src/core/types.ts": "packages/main/src/core/types.ts",
+    "packages/main/src/registry.ts": "packages/main/src/registry.ts",
+    "packages/main/src/cli/command-catalog.ts": "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts": "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-registry.ts": "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/process-fact-levels.ts": "packages/main/src/core/process-fact-levels.ts",
+    "scripts/verify-process-fact-contract.mjs": "scripts/verify-process-fact-contract.mjs",
+    "packages/main/src/handlers/review-run.ts": "packages/main/src/handlers/review-run.ts",
+    "packages/main/src/handlers/finding.ts": "packages/main/src/handlers/finding.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts": "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/handlers/review-inventory.ts": "packages/main/src/handlers/review-inventory.ts",
+    "packages/main/src/core/review-inventory-epoch.ts": "packages/main/src/core/review-inventory-epoch.ts",
+    "packages/main/src/core/prewrite-guard.ts": "packages/main/src/core/prewrite-guard.ts",
+    "packages/main/src/core/prewrite-guard-check.ts": "packages/main/src/core/prewrite-guard-check.ts",
+    "packages/main/src/handlers/prewrite-guard.ts": "packages/main/src/handlers/prewrite-guard.ts",
+    ".claude/hooks/lattice-scope-pretool.cjs": ".claude/hooks/lattice-scope-pretool.cjs",
+    ".codex/hooks/lattice-scope-pretool.cjs": ".codex/hooks/lattice-scope-pretool.cjs",
+    "packages/main/src/core/adversarial-review.ts": "packages/main/src/core/adversarial-review.ts",
+    "packages/main/src/core/adversarial-review-round.ts": "packages/main/src/core/adversarial-review-round.ts",
+    "packages/main/src/handlers/reviewer-list.ts": "packages/main/src/handlers/reviewer-list.ts",
+    "packages/main/src/handlers/reviewer-batch.ts": "packages/main/src/handlers/reviewer-batch.ts",
+    "packages/main/src/core/machine.ts": "packages/main/src/core/machine.ts",
+    "packages/main/src/core/review-incremental-context.ts": "packages/main/src/core/review-incremental-context.ts",
+    "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md": "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+    "packages/main/src/tasks/review-inventory-epoch-smoke.ts": "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+    "packages/main/src/tasks/prewrite-guard-smoke.ts": "packages/main/src/tasks/prewrite-guard-smoke.ts",
+    "packages/main/src/.remember/**": ".remember/**",
+    "experiments/**": "experiments/**",
+    "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md": "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+    "docs/requirements/decisions/claude-session-b-cdf6-review-convergence-analysis-and-optimization.md": "docs/requirements/decisions/claude-session-b-cdf6-review-convergence-analysis-and-optimization.md",
+    "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md": "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+    "tests/fixtures/**": "tests/fixtures/**",
+    "packages/main/src/core/config.ts": "packages/main/src/core/config.ts",
+    "docs/evidence-integrity-program-spec.md": "docs/evidence-integrity-program-spec.md",
+    "docs/requirements/decisions/story-lifecycle.md": "docs/requirements/decisions/story-lifecycle.md",
+    "packages/main/src/core/agent-dispatch-registry.ts": "packages/main/src/core/agent-dispatch-registry.ts",
+    "packages/main/src/core/prompt-role-contract-registry.ts": "packages/main/src/core/prompt-role-contract-registry.ts",
+    "packages/main/src/handlers/story-dispatch.ts": "packages/main/src/handlers/story-dispatch.ts",
+    "packages/main/src/tasks/agent-dispatch-registry-smoke.ts": "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+    "packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts": "packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts",
+    "packages/main/src/core/review-run.ts": "packages/main/src/core/review-run.ts",
+    "packages/main/src/core/lifecycle-readiness.ts": "packages/main/src/core/lifecycle-readiness.ts",
+    "packages/main/src/handlers/transition-effects.ts": "packages/main/src/handlers/transition-effects.ts",
+    "CLAUDE.md": "CLAUDE.md",
+    "packages/main/src/core/prompt-registry.ts": "packages/main/src/core/prompt-registry.ts",
+    "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+    "lattice.config.json": "lattice.config.json",
+    ".claude/agents/lattice-review-topology-critic.md": ".claude/agents/lattice-review-topology-critic.md",
+    ".lattice-codex/agents/lattice-review-topology-critic.md": ".lattice-codex/agents/lattice-review-topology-critic.md",
+    "packages/main/templates/agents/lattice-review-topology-critic.md": "packages/main/templates/agents/lattice-review-topology-critic.md",
+    "packages/main/src/tasks/review-inventory-handler-smoke.ts": "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+    ".lattice/story/actives/B-3f3d/review-inventory-epochs.json": ".lattice/story/actives/B-3f3d/review-inventory-epochs.json",
+    "AGENTS.md": "AGENTS.md",
+    "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md": "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+    "packages/main/src/core/anti-stall.ts": "packages/main/src/core/anti-stall.ts",
+    "packages/main/src/core/guard-utils.ts": "packages/main/src/core/guard-utils.ts",
+    "packages/main/src/handlers/session.ts": "packages/main/src/handlers/session.ts",
+    "packages/main/src/tasks/flow-stability-smoke.ts": "packages/main/src/tasks/flow-stability-smoke.ts",
+    "packages/main/src/tasks/review-incremental-context-smoke.ts": "packages/main/src/tasks/review-incremental-context-smoke.ts",
+    "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+    "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+    "packages/main/src/handlers/checklist.ts": "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts": "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts",
+    "packages/main/src/core/lifecycle-registry.ts": "packages/main/src/core/lifecycle-registry.ts",
+    "packages/main/src/core/mkdir-lock.ts": "packages/main/src/core/mkdir-lock.ts",
+    "packages/main/src/handlers/scope-contract.ts": "packages/main/src/handlers/scope-contract.ts",
+    "docs/requirements/decisions/session-ownership-and-write-leases.md": "docs/requirements/decisions/session-ownership-and-write-leases.md",
+    "packages/main/src/core/prompt-contracts.ts": "packages/main/src/core/prompt-contracts.ts",
+    "packages/main/src/core/prompt-envelope.ts": "packages/main/src/core/prompt-envelope.ts",
+    "packages/main/src/handlers/candidate-spec-routing.ts": "packages/main/src/handlers/candidate-spec-routing.ts",
+    "packages/main/src/tasks/candidate-spec-routing-smoke.ts": "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+    "packages/main/src/handlers/proofstory.ts": "packages/main/src/handlers/proofstory.ts",
+    "docs/requirements/decisions/testing-infra.md": "docs/requirements/decisions/testing-infra.md",
+    "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts": "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts",
+    "packages/main/src/handlers/english-artifact-gate.ts": "packages/main/src/handlers/english-artifact-gate.ts",
+    "packages/main/src/handlers/story-create.ts": "packages/main/src/handlers/story-create.ts",
+    "packages/main/src/tasks/english-early-check-smoke.ts": "packages/main/src/tasks/english-early-check-smoke.ts",
+    "packages/main/src/core/pre-review-check.ts": "packages/main/src/core/pre-review-check.ts",
+    "packages/main/src/tasks/verification-run-and-guard-smoke.ts": "packages/main/src/tasks/verification-run-and-guard-smoke.ts",
+    "packages/main/src/core/done-prepare-generated-metadata.ts": "packages/main/src/core/done-prepare-generated-metadata.ts",
+    "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts": "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+    "packages/main/src/tasks/quorum-submit-smoke.ts": "packages/main/src/tasks/quorum-submit-smoke.ts",
+    "packages/main/src/core/acceptance-rollout.ts": "packages/main/src/core/acceptance-rollout.ts",
+    "packages/main/src/core/audit-meta-store.ts": "packages/main/src/core/audit-meta-store.ts",
+    "packages/main/src/core/git-blob-reader.ts": "packages/main/src/core/git-blob-reader.ts",
+    "packages/main/src/core/material-code-policy.ts": "packages/main/src/core/material-code-policy.ts",
+    "packages/main/src/handlers/quorum-submit.ts": "packages/main/src/handlers/quorum-submit.ts",
+    "packages/main/src/tasks/gap-log-smoke.ts": "packages/main/src/tasks/gap-log-smoke.ts",
+    "packages/main/src/tasks/language-neutral-gates-smoke.ts": "packages/main/src/tasks/language-neutral-gates-smoke.ts",
+    "packages/main/src/core/finding-verify.ts": "packages/main/src/core/finding-verify.ts",
+    "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+    "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+    "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+    "packages/main/src/tasks/proofstory-topology-critic-smoke.ts": "packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
+    "docs/requirements/baselines/proof-or-stop-prompt-baseline.json": "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+    "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md": "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+    "docs/requirements/baselines/role-prompt-measurement-baseline.json": "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+    "docs/requirements/decisions/lifecycle-artifact-scope.md": "docs/requirements/decisions/lifecycle-artifact-scope.md",
+    "package.json": "package.json",
+    "packages/main/src/core/global-agents.ts": "packages/main/src/core/global-agents.ts",
+    "packages/main/src/tasks/agent-liveness-suite-smoke.ts": "packages/main/src/tasks/agent-liveness-suite-smoke.ts",
+    "packages/main/src/tasks/full-suite-runner-smoke.ts": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+    "packages/main/src/tasks/full-suite-runner.ts": "packages/main/src/tasks/full-suite-runner.ts",
+    "packages/main/src/tasks/global-agents-unit-smoke.ts": "packages/main/src/tasks/global-agents-unit-smoke.ts",
+    "packages/main/src/tasks/init-check-required-agents-smoke.ts": "packages/main/src/tasks/init-check-required-agents-smoke.ts",
+    "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts": "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+    "packages/main/src/tasks/provider-codex-smoke.ts": "packages/main/src/tasks/provider-codex-smoke.ts",
+    "packages/main/src/tasks/review-pass-discard-smoke.ts": "packages/main/src/tasks/review-pass-discard-smoke.ts",
+    "scripts/verify-proof-or-stop-prompt-baseline.mjs": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+    "packages/main/src/handlers/agent-prompt.ts": "packages/main/src/handlers/agent-prompt.ts",
+    "packages/main/src/init-assets.ts": "packages/main/src/init-assets.ts",
+    "packages/main/src/tasks/global-agents-init-smoke.ts": "packages/main/src/tasks/global-agents-init-smoke.ts",
+    "packages/main/src/tasks/prompt-contract-measurement-smoke.ts": "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+    "packages/main/src/tasks/prompt-registry-smoke.ts": "packages/main/src/tasks/prompt-registry-smoke.ts",
+    "docs/requirements/decisions/test-runner-consolidation-plan.md": "docs/requirements/decisions/test-runner-consolidation-plan.md",
+    "packages/main/src/tasks/review-assurance-floor-smoke.ts": "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+    ".remember-scratch-readmanifest.json": ".remember-scratch-readmanifest.json",
+    "B-3f3d-FOLLOWUP-STORIES.md": "B-3f3d-FOLLOWUP-STORIES.md",
+    "B-3f3d-HANDOFF.md": "B-3f3d-HANDOFF.md",
+    "packages/main/src/tasks/acceptance-basis-review-phase-smoke.ts": "packages/main/src/tasks/acceptance-basis-review-phase-smoke.ts",
+    "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+    "packages/main/src/core/codex-adapter-checks.ts": "packages/main/src/core/codex-adapter-checks.ts",
+    "packages/main/src/tasks/dev-memory-lifecycle-gates-smoke.ts": "packages/main/src/tasks/dev-memory-lifecycle-gates-smoke.ts",
+    "proof-or-stop.config.json": "proof-or-stop.config.json",
+    ".proof-or-stop-codex/agents/lattice-review-topology-critic.md": ".proof-or-stop-codex/agents/lattice-review-topology-critic.md",
+    "packages/main/src/core/certification-window.ts": "packages/main/src/core/certification-window.ts",
+    "packages/main/src/handlers/certification-window.ts": "packages/main/src/handlers/certification-window.ts",
+    "packages/main/src/tasks/certification-window-smoke.ts": "packages/main/src/tasks/certification-window-smoke.ts",
+    ".claude/agents/lattice-review-channel.md": ".claude/agents/lattice-review-channel.md",
+    ".proof-or-stop-codex/agents/lattice-review-channel.md": ".proof-or-stop-codex/agents/lattice-review-channel.md",
+    "packages/main/src/tasks/prompt-token-cost-smoke.ts": "packages/main/src/tasks/prompt-token-cost-smoke.ts",
+    "packages/main/src/tasks/runtime-owned-agent-assets-smoke.ts": "packages/main/src/tasks/runtime-owned-agent-assets-smoke.ts",
+    "packages/main/templates/agents/lattice-review-channel.md": "packages/main/templates/agents/lattice-review-channel.md"
+  }
+}

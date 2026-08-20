@@ -303,6 +303,19 @@ function hostVerdictEventCount(store: StoryStore): number {
   return store.readProcessEvents(STORY_ID).filter(event => event.type === 'host_verdict').length;
 }
 
+function seedLargeCommittedProcessEvents(fixture: ReturnType<typeof makeFixture>): string {
+  const path = join(fixture.store.storyDirPath(STORY_ID), 'process-events.jsonl');
+  appendFileSync(path, `${JSON.stringify({
+    type: 'plan_updated',
+    timestamp: '2026-06-22T09:30:00.000Z',
+    padding: 'x'.repeat(1_400_000),
+  })}\n`);
+  git(fixture.root, ['add', relative(fixture.root, path)]);
+  git(fixture.root, [...COMMIT_ENV, 'commit', '-m', 'seed large process event history']);
+  assert.ok(readFileSync(path).length > 1024 * 1024, 'large process-events fixture exceeds the execFileSync default maxBuffer');
+  return path;
+}
+
 function verdictFileCount(root: string): number {
   return listVerdicts(root, 'local', STORY_ID).length;
 }
@@ -2218,6 +2231,49 @@ try {
       assert.equal(hostVerdictEventCount(fixture.store), 6);
       assert.equal(verdictFileCount(fixture.root), 6);
       assert.notEqual(git(fixture.root, ['rev-parse', 'HEAD']), beforeHead);
+    });
+  });
+
+  check('atomic quorum commit hashes process-events larger than one MiB', () => {
+    withFreshFixture((fixture) => {
+      seedLargeCommittedProcessEvents(fixture);
+      recordReviewerPasses(fixture.registry);
+      const beforeHead = git(fixture.root, ['rev-parse', 'HEAD']);
+      const result: any = fixture.registry.get('quorum_submit')!(quorumArgs());
+      assert.equal(result.emittedCount, 6);
+      assert.equal(hostVerdictEventCount(fixture.store), 6);
+      assert.notEqual(git(fixture.root, ['rev-parse', 'HEAD']), beforeHead, 'large immutable metadata tree is installed atomically');
+      const committedHead = git(fixture.root, ['rev-parse', 'HEAD']);
+      const beforeRetryEvents = hostVerdictEventCount(fixture.store);
+      rmSync(join(fixture.root, '.lattice', 'autopilot-verdicts', STORY_ID), { recursive: true, force: true });
+      assert.throws(
+        () => fixture.registry.get('quorum_submit')!(quorumArgs()),
+        /quorum_submit refuses: verdicts already exist for runId/,
+        'the committed >1MiB process-events log remains the duplicate authority after cache deletion',
+      );
+      assert.equal(git(fixture.root, ['rev-parse', 'HEAD']), committedHead, 'large same-material retry writes no commit');
+      assert.equal(hostVerdictEventCount(fixture.store), beforeRetryEvents, 'large same-material retry writes no event');
+    });
+  });
+
+  check('large atomic quorum commit still rejects a post-manifest mutation', () => {
+    withFreshFixture((fixture) => {
+      const processEvents = seedLargeCommittedProcessEvents(fixture);
+      recordReviewerPasses(fixture.registry);
+      const beforeHead = git(fixture.root, ['rev-parse', 'HEAD']);
+      const handler = createQuorumSubmitHandlers(fixture.ctx, {
+        metadataCommit: {
+          afterAddBeforeCommit: () => appendFileSync(processEvents, `${JSON.stringify({
+            type: 'plan_updated',
+            timestamp: '2026-06-22T10:05:00.000Z',
+            mutation: 'post-manifest',
+          })}\n`),
+        },
+      }).quorum_submit;
+      assert.throws(() => handler(quorumArgs()), /verified metadata changed.*rolled back/s);
+      assert.equal(git(fixture.root, ['rev-parse', 'HEAD']), beforeHead);
+      assert.equal(hostVerdictEventCount(fixture.store), 0);
+      assert.equal(verdictFileCount(fixture.root), 0);
     });
   });
 

@@ -188,6 +188,16 @@ export interface IncrementalReviewBasis {
   scopeAcknowledgementDigest?: string;
 }
 
+/** Immutable finding fields visible when a review-run Prompt Envelope starts. */
+export interface PromptFindingProjection {
+  id: string;
+  createdAt: string;
+  status: string;
+  severity: string;
+  category: string;
+  desc: string;
+}
+
 export interface PromptEnvelope {
   schemaVersion: 'proofbound.prompt-envelope.v1';
   envelopeId: string;
@@ -219,6 +229,8 @@ export interface PromptEnvelope {
   changedFilesDigest?: string;
   impactedFilesDigest?: string;
   reviewBasisDigest?: string;
+  findingProjection?: PromptFindingProjection[];
+  findingProjectionDigest?: string;
   incrementalContextDigest?: string;
   taskSemanticDigest?: string;
   selectionReason?: 'SAFETY_REQUIRES_FULL' | 'SAFE_INCREMENTAL' | 'FULL_CHEAPER_OR_EQUAL' | 'INCREMENTAL_BUDGET_EXCEEDED' | 'REVIEWER_REQUESTED_FULL';
@@ -594,7 +606,7 @@ export function validatePromptEnvelope(value: unknown): asserts value is PromptE
     'freshnessClassification', 'toolPolicyDigest', 'systemInstructionDigest', 'requestedModelId',
     'dispatchPromptDigest', 'hostRenderIdentityDigest', 'impactPolicyVersion', 'eligibilityReasonCodes',
     'changedFilesDigest', 'impactedFilesDigest', 'reviewBasisDigest', 'incrementalContextDigest',
-    'taskSemanticDigest',
+    'taskSemanticDigest', 'findingProjection', 'findingProjectionDigest',
     'selectionReason', 'fullContextBytes', 'incrementalContextBytes', 'escalatedToFull',
     'escalationReason', 'budgetViolation',
   ];
@@ -620,7 +632,21 @@ export function validatePromptEnvelope(value: unknown): asserts value is PromptE
   if (record.impactPolicyVersion !== undefined) {
     requireDigest(record.taskSemanticDigest, 'PromptEnvelope.taskSemanticDigest');
   }
-  for (const key of ['changedFilesDigest', 'impactedFilesDigest', 'reviewBasisDigest', 'incrementalContextDigest', 'taskSemanticDigest']) {
+  if (record.findingProjection !== undefined) {
+    if (!Array.isArray(record.findingProjection)) throw new PromptContractValidationError('PromptEnvelope.findingProjection must be an array');
+    for (const [index, value] of record.findingProjection.entries()) {
+      const row = asRecord(value, `PromptEnvelope.findingProjection[${index}]`);
+      requireExactKeys(row, ['id', 'createdAt', 'status', 'severity', 'category', 'desc'], [], `PromptEnvelope.findingProjection[${index}]`);
+      for (const key of ['id', 'createdAt', 'status', 'severity', 'category', 'desc']) requireNonblank(row[key], `PromptEnvelope.findingProjection[${index}].${key}`);
+    }
+    requireDigest(record.findingProjectionDigest, 'PromptEnvelope.findingProjectionDigest');
+    if (record.findingProjectionDigest !== domainSeparatedDigest('prompt-finding-projection.v1', record.findingProjection)) {
+      throw new PromptContractValidationError('PromptEnvelope.findingProjectionDigest does not match findingProjection');
+    }
+  } else if (record.findingProjectionDigest !== undefined) {
+    throw new PromptContractValidationError('PromptEnvelope.findingProjectionDigest requires findingProjection');
+  }
+  for (const key of ['changedFilesDigest', 'impactedFilesDigest', 'reviewBasisDigest', 'incrementalContextDigest', 'taskSemanticDigest', 'findingProjectionDigest']) {
     if (record[key] !== undefined) requireDigest(record[key], `PromptEnvelope.${key}`);
   }
   if (record.eligibilityReasonCodes !== undefined) requireStringArray(record.eligibilityReasonCodes, 'PromptEnvelope.eligibilityReasonCodes');
