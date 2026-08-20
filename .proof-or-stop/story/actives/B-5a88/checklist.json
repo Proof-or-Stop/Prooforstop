@@ -129,6 +129,29 @@
         "test": [
           "packages/main/tests/artifact-schema-migration.test.mjs"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Every in-scope new artifact writer emits the proof-or-stop prefix for its schema while preserving the existing suffix and version.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Readers accept the corresponding lattice-prefixed artifact schema and continue validating its existing integrity and freshness fields.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "An unknown prefix, suffix, or version is rejected and archived story JSON is never rewritten as part of the migration.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
       }
     },
     {
