@@ -396,10 +396,28 @@
       "phase": "DEV",
       "headHash": "e133c7cc7f65890ab900bbe1519859e095aad6e2",
       "materialHash": "e661be1797ab8b8ee8380d0a02bd928a0c02227ea0bd8284b6e6fe8a6bf6ce26"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "These two compatibility fixes are required to validate the migrated global bootstrap and canonical INIT reviewer dispatch paths exposed by the current full suite; they remain explicit review-visible scope.",
+      "timestamp": "2026-08-20T14:18:15.773Z",
+      "paths": [
+        "bin/bootstrap-runner.js",
+        "packages/main/src/core/machine.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "bin/bootstrap-runner.js",
+        "packages/main/src/core/machine.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "eb6b5a121d6ddabfee77c3f5ebd528d4d2c20088",
+      "materialHash": "bd93b090d404e74938ba53cf2fbbeeb6d7a93379013c497172770dfbb1ca9f5b"
     }
   ],
   "createdAt": "2026-08-20T05:20:00.402Z",
-  "updatedAt": "2026-08-20T13:54:03.593Z",
+  "updatedAt": "2026-08-20T14:18:15.773Z",
   "fileRules": [],
   "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
@@ -517,6 +535,8 @@
     "packages/main/src/handlers/quorum-submit.ts": "packages/main/src/handlers/quorum-submit.ts",
     "packages/main/src/core/acceptance-discovery-adapters.ts": "packages/main/src/core/acceptance-discovery-adapters.ts",
     "packages/main/src/tasks/prompt-registry-smoke.ts": "packages/main/src/tasks/prompt-registry-smoke.ts",
-    "scripts/verify-core-package-rename.mjs": "scripts/verify-core-package-rename.mjs"
+    "scripts/verify-core-package-rename.mjs": "scripts/verify-core-package-rename.mjs",
+    "bin/bootstrap-runner.js": "bin/bootstrap-runner.js",
+    "packages/main/src/core/machine.ts": "packages/main/src/core/machine.ts"
   }
 }

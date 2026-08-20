@@ -30,6 +30,8 @@ assert.equal(dispatch.resolveAgentDispatchType('lattice-review-quality').canonic
 assert.equal(dispatch.resolveAgentDispatchType('verification-intent').canonicalType, 'proof-or-stop-test-intent');
 assert.throws(() => dispatch.resolveAgentDispatchType('lattice-review-unknown'), /unknown agentType/);
 assert.throws(() => dispatch.resolveAgentDispatchType('proof-or-stop-review-quality@fallback'), /unknown agentType/);
+assert.equal(dispatch.resolveAgentDispatchType('lattice-review-concept').canonicalType, 'proof-or-stop-review-concept');
+assert.equal(dispatch.resolveAgentDispatchType('lattice-review-test-coverage').canonicalType, 'proof-or-stop-review-test-coverage');
 assert.deepEqual(identity.legacyAgentRoleIds('proof-or-stop-implementer'), ['lattice-implementer']);
 assert.equal(
   identity.canonicalizeAgentRoleText('lattice-review-quality -> lattice-implementer'),
@@ -117,6 +119,18 @@ try {
       readManifest: { filesReadFully: ['packages/main/src/index.ts'], filesTriagedByName: [], scanEscalationReason: null },
     });
   }
+  const legacyLane = 'lattice-review-quality';
+  assert.match(String(dispatch({ storyId, agentType: legacyLane }).prompt), /Review lane: proof-or-stop-review-quality/);
+  const legacyStarted = String(reviewRunStart({ storyId, agent: legacyLane }));
+  const legacyReviewRunId = legacyStarted.match(/Review run (\S+) started/)?.[1];
+  assert.ok(legacyReviewRunId, 'legacy reviewer alias reaches review_run_start');
+  reviewPassSet({
+    storyId,
+    agent: legacyLane,
+    reviewRunId: legacyReviewRunId,
+    note: 'Legacy reviewer alias normalized to the canonical quality lane',
+    readManifest: { filesReadFully: ['packages/main/src/index.ts'], filesTriagedByName: [], scanEscalationReason: null },
+  });
   execFileSync('git', ['add', '-f', '.proof-or-stop/story'], { cwd: reviewRoot });
   execFileSync('git', ['commit', '-qm', 'canonical reviewer evidence'], { cwd: reviewRoot });
   const quorum = quorumSubmit({

@@ -15,6 +15,10 @@ const distRoot = join(packageRoot, distName);
 const schema = await import(join(distRoot, 'core/artifact-schema.js'));
 const validation = await import(join(distRoot, 'core/done-required-validation.js'));
 const closeout = await import(join(distRoot, 'core/closeout-trust.js'));
+const freshness = await import(join(distRoot, 'core/evidence-freshness.js'));
+const artifactStore = await import(join(distRoot, 'core/evidence/artifact-store.js'));
+const checklistStatus = await import(join(distRoot, 'core/checklist-status.js'));
+const processFacts = await import(join(distRoot, 'core/process-fact-registry.js'));
 
 const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-artifact-schema-'));
 try {
@@ -119,6 +123,29 @@ try {
     artifactPath: 'summary.json',
     artifactBytes,
   }).ok, false, 'unknown closeout schemas fail closed and are not rewritten');
+
+  // Exercise the adjacent consumers that must continue to read the migrated
+  // artifact family: freshness classification, immutable evidence storage,
+  // checklist terminal-status semantics, and the process-fact registry.
+  assert.equal(freshness.classifyEvidenceFreshness({
+    fresh: true,
+    reason: 'current material',
+    changedFiles: [],
+    materialFiles: [],
+  }, 'current-hash'), 'CURRENT_MATERIAL');
+  const candidate = artifactStore.writeArtifact(root, {
+    artifactKind: 'repro-probe',
+    evidenceScope: 'evidence-candidate',
+    subjectBinding: { candidateId: 'candidate-artifact-schema' },
+    payload: { observed: 'canonical writer and legacy reader were exercised' },
+    producer: 'artifact-schema-migration-test',
+  });
+  assert.equal(artifactStore.verifyArtifactDigest(candidate, candidate.artifactDigest), true, 'artifact store verifies the producer digest');
+  assert.deepEqual(artifactStore.readArtifact(root, candidate.artifactId), candidate, 'artifact store reads the exact persisted envelope');
+  assert.equal(checklistStatus.isTerminalChecklistStatus('withdrawn'), true);
+  assert.equal(checklistStatus.isDeliveredChecklistStatus('withdrawn'), false);
+  assert.ok(processFacts.getProcessFactRegistryEntry('acceptance_basis'), 'process-fact consumer retains the canonical command entry');
+  assert.equal(freshness.isStoryMetadataPath('.lattice/story/actives/B-archived/story.json'), true, 'archived story metadata remains excluded from material evidence');
 
   console.log('artifact-schema migration test passed');
 } finally {

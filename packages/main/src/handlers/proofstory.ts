@@ -105,7 +105,11 @@ function loadRegisteredAcceptanceRolloutCohort(workspaceRoot: string): Acceptanc
   const output = execFileSync(process.execPath, [runner], {
     cwd: workspaceRoot,
     encoding: 'utf8',
-    env: { ...process.env, PROOF_OR_STOP_AGENT: 'acceptance-rollout-verifier' },
+    // The verifier name is an artifact issuer, not a registered mutation
+    // role. The cohort runner invokes signed reviewer lanes itself, so its
+    // parent process must use the trusted host actor rather than laundering
+    // an unregistered actor through nested CLI calls.
+    env: { ...process.env, PROOF_OR_STOP_AGENT: 'main' },
     maxBuffer: 16 * 1024 * 1024,
   });
   const parsed = JSON.parse(output) as AcceptanceRolloutCohortInputV1;

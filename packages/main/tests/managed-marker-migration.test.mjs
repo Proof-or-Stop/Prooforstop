@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
-import { existsSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { tmpdir } from 'node:os';
 
 const packageRoot = fileURLToPath(new URL('..', import.meta.url));
 const distName = existsSync(join(packageRoot, 'dist', 'core', 'managed-markers.js'))
@@ -23,6 +24,18 @@ assert.equal(markers.replaceManagedBlock(legacy.replace('<!-- lattice:end -->', 
 const profile = sync.generateProfileSection('balanced');
 assert.match(profile, /<!-- proof-or-stop-profile:start -->/);
 assert.equal(markers.inspectManagedBlock(profile, 'profile').status, 'valid');
+const syncRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-marker-sync-'));
+try {
+  const claudePath = join(syncRoot, 'CLAUDE.md');
+  writeFileSync(claudePath, 'before\n<!-- lattice-profile:start -->\nlegacy\n<!-- lattice-profile:end -->\nafter\n');
+  assert.equal(sync.syncProfileSection(claudePath, 'balanced'), true);
+  const synced = readFileSync(claudePath, 'utf8');
+  assert.match(synced, /<!-- proof-or-stop-profile:start -->/);
+  assert.doesNotMatch(synced, /<!-- lattice-profile:start -->/);
+  assert.equal((synced.match(/proof-or-stop-profile:start/g) ?? []).length, 1);
+} finally {
+  rmSync(syncRoot, { recursive: true, force: true });
+}
 for (const name of ['AGENTS_MD_TEMPLATE', 'LATTICE_MD_TEMPLATE', 'CLAUDE_MD_TEMPLATE', 'LATTICE_DOT_DIR_MD_TEMPLATE', 'AGENTS_MD_GLOBAL_THIN_TEMPLATE']) {
   assert.match(assets[name], /<!-- proof-or-stop:start -->/);
   assert.match(assets[name], /<!-- proof-or-stop:end -->/);

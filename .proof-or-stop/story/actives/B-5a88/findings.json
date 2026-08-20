@@ -657,6 +657,132 @@
       ],
       "signatureTag": "topology-implementer-dispatch-provenance",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-011",
+      "desc": "All 21 checklist verificationEvidence entries are stale and cannot support this review: they bind headHash d05bfe21aef5497ac7547101ebe33ab34f5e8a13, materialHash 1649fe7d56718a5dc9fa2054723ee2b2da9d743289250d74e81213d34a7df205, and storyFilesHash aae531caf1a51188817b174790a10e0694dbcd84f7b5d680930238dbb309d16d, while current review run B-5a88:RR-043 binds headHash d86eadc3d33a8b7f25e4f4418c8c479d3b9b724b, materialHash e661be1797ab8b8ee8380d0a02bd928a0c02227ea0bd8284b6e6fe8a6bf6ce26, and storyFilesHash 1c664c47bfbebdd3adb0c74c18c7db3308e8a030d43802dc3d99b3ab1539631f. Story-owned material changed, so prior passes must be re-executed and rebound before coverage can pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-08-20T14:11:11.565Z",
+      "reviewRound": "2026-08-20T14:01:06.065Z",
+      "reviewRunId": "B-5a88:RR-043",
+      "_hash": "299fbb1ff4dc2d183c903a0478a9bee1d9e35de657a68a91a7b8a2b5a13c43d5",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/checklist.json",
+        "packages/main/tests/brand-role-migration.test.mjs",
+        "packages/main/tests/managed-marker-migration.test.mjs",
+        "packages/main/tests/artifact-schema-migration.test.mjs",
+        "packages/main/tests/release-push-approval-migration.test.mjs"
+      ],
+      "signatureTag": "missing|json|checklist-verificationevidence-entries",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-012",
+      "desc": "CHK-002 evidence does not execute the current worktree producer/consumer path. Its three pinned commands import /private/tmp/proof-or-stop-b5a88-marker-build/core/managed-markers.js, /private/tmp/proof-or-stop-b5a88-marker-build/claude-md-sync.js, and /private/tmp/proof-or-stop-b5a88-init-build/init-assets.js, with no current-repository file binding; the current repository test only imports packages/main/dist modules and asserts pure inspect/replace/generate behavior at managed-marker-migration.test.mjs:12-29. This leaves actual init/upgrade and Claude sync file operations unverified.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-08-20T14:11:12.766Z",
+      "reviewRound": "2026-08-20T14:01:06.065Z",
+      "reviewRunId": "B-5a88:RR-043",
+      "_hash": "0e5cededea7dac6119f915853172bc2566d0c388d871783c438468e1aeb5db16",
+      "files": [
+        "packages/main/src/core/managed-markers.ts",
+        "packages/main/src/claude-md-sync.ts",
+        "packages/main/src/init-assets.ts",
+        "packages/main/tests/managed-marker-migration.test.mjs"
+      ],
+      "signatureTag": "missing|ts|evidence-execute-current",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-013",
+      "desc": "CHK-003 does not cover the promised artifact-schema producer/consumer matrix. The pinned test only builds/validates command-spec envelopes and closeout receipts (artifact-schema-migration.test.mjs:21-121); it never invokes the done-required evidence writer/reader and freshness checks, store/checklist/delivery/process-fact paths, or the named archived-story byte-preservation reads required by the story plan. A mutation in those real consumers can pass the current evidence.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-08-20T14:11:13.912Z",
+      "reviewRound": "2026-08-20T14:01:06.065Z",
+      "reviewRunId": "B-5a88:RR-043",
+      "_hash": "4a4bf05529682864749fcc4a06c497b6d32653a85681e971c1913be38582143b",
+      "files": [
+        "packages/main/src/core/artifact-schema.ts",
+        "packages/main/src/core/done-required-validation.ts",
+        "packages/main/src/core/closeout-trust.ts",
+        "packages/main/src/core/evidence-freshness.ts",
+        "packages/main/tests/artifact-schema-migration.test.mjs"
+      ],
+      "signatureTag": "missing|ts|cover-promised-artifact",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-014",
+      "desc": "CHK-004 verificationIntent is not backed by the pinned executable evidence. The recorded happy/edge/adversarial commands only inspect source or hook text and run bash -n; they do not create and consume approvals through the real pre-push hook. The repository test does contain a stronger temp-git-hook integration at release-push-approval-migration.test.mjs:48-95, including canonical and lattice schemas, one-shot consumption, invalid schema, and expiry, but that test is not the command recorded in verificationEvidence and the evidence therefore does not protect the actual producer/consumer contract.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-08-20T14:11:14.925Z",
+      "reviewRound": "2026-08-20T14:01:06.065Z",
+      "reviewRunId": "B-5a88:RR-043",
+      "_hash": "8d8bf9b1bb86a609c6eddc69436fa26a4fce0c964218792afcfbb62a57e4dbfc",
+      "files": [
+        ".githooks/pre-push",
+        "packages/main/src/core/release-push-approval.ts",
+        "packages/main/tests/release-push-approval-migration.test.mjs"
+      ],
+      "signatureTag": "adversarial|.githooks|verificationintent-backed-pinned",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-015",
+      "desc": "CHK-001 consumer coverage is incomplete for the claimed legacy-alias compatibility. The current integration smoke drives only canonical proof-or-stop lanes through dispatch, review_run_start, review_pass_set, and quorum_submit at brand-role-migration.test.mjs:102-132; the pinned edge/adversarial evidence is direct canonicalization/dispatch smoke and does not exercise lattice aliases through those real consumers or malformed values through the consumer boundary.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-08-20T14:11:15.933Z",
+      "reviewRound": "2026-08-20T14:01:06.065Z",
+      "reviewRunId": "B-5a88:RR-043",
+      "_hash": "00de7608f7d699c677f7ecfc54c9f54ef8200805ca2eddf71642bac03f6cf83d",
+      "files": [
+        "packages/main/src/core/agent-role-identity.ts",
+        "packages/main/src/core/agent-dispatch-registry.ts",
+        "packages/main/tests/brand-role-migration.test.mjs"
+      ],
+      "signatureTag": "missing|ts|consumer-coverage-incomplete",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-016",
+      "desc": "The required acceptance-basis/topology coverage remains non-evidentiary and incomplete for this review. acceptance_topology_check is structurally passing but reports inconclusive_basis_unverified; pre_review_check_read reports PR_ARTIFACT_MISSING with executableEvidence, mutations, and transcript missing; acceptance_rollout_report_read and acceptance_rollout_check both report AR_REPORT_MISSING with receipt missing and quorum degraded-or-missing. The review-run coverage contract explicitly requires executable coverage of these verifier-owned checks, current signed receipt, three rounds by two hosts, degraded 3x1 rejection, threshold/membership/freshness mutations, mode-invariant diagnostics, enforce-only blocking, and non-destructive rollback history. Prompt prose and structural topology output do not establish those behaviors.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-08-20T14:11:16.878Z",
+      "reviewRound": "2026-08-20T14:01:06.065Z",
+      "reviewRunId": "B-5a88",
+      "_hash": "2a9db5d8094ffc2c863be5c34aad117ebbb49fed15a821f20f79a6d5e7a7633b",
+      "files": [
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/acceptance-basis.ts",
+        "packages/main/src/handlers/proofstory.ts",
+        "packages/main/tests"
+      ],
+      "signatureTag": "missing|ts|required-acceptance-basis",
+      "signatureTagSource": "auto"
     }
   ]
 }
