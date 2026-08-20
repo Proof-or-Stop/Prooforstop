@@ -458,6 +458,55 @@ test('CHK-001: keys bind all identity fields, deduplicate exact complete work, a
   assert.equal(incompleteExecutions, 2, 'incomplete identities are never reused as PASS');
 });
 
+test('B-5a15 F-007: non-PASS outcomes never occupy a reusable receipt key or batch cache', async () => {
+  const outcomes = [
+    ['fail', { code: 1, output: 'FAIL-ONCE' }],
+    ['timeout', { code: 124, output: 'TIMEOUT-ONCE', timedOut: true }],
+    ['cancelled', { code: 1, output: 'CANCELLED-ONCE', cancelled: true }],
+    ['partial', { code: 0, output: 'PARTIAL-ONCE', partial: true }],
+  ];
+  for (const [label, firstOutcome] of outcomes) {
+    const storyId = `B-causal-nonpass-${label}`;
+    const store = new MemoryReceiptStore();
+    const batch = createCausalEvidenceBatch();
+    const identity = baseIdentity(storyId);
+    let executions = 0;
+    const run = async () => {
+      executions++;
+      return executions === 1 ? firstOutcome : { code: 0, output: `PASS-AFTER-${label}` };
+    };
+    const first = await executeCausalEvidence({ identity, selector: `PASS-AFTER-${label}`, run, receiptStore: store, batch, preflight: preflight(), revalidateBeforeRun: () => true });
+    assert.equal(first.receipt.status, label);
+    assert.equal(first.receipt.reusable, false);
+    assert.equal(verifyCausalEvidenceReceipt(first.receipt, first.key.key), true);
+    assert.equal(store.receipts.size, 0, `${label} must not be persisted as a reusable CAS value`);
+
+    const second = await executeCausalEvidence({ identity, selector: `PASS-AFTER-${label}`, run, receiptStore: store, batch, preflight: preflight(), revalidateBeforeRun: () => true });
+    assert.equal(second.receipt.status, 'pass');
+    assert.equal(second.receipt.reusable, true);
+    assert.equal(second.disposition, 'executed');
+    assert.equal(executions, 2, `${label} must allow a later PASS for the same execution key`);
+  }
+});
+
+test('B-5a15 F-011: raw secret environment values are absent from persisted receipt output', async () => {
+  const secret = 'bare-secret-value-123456';
+  const store = new MemoryReceiptStore();
+  const result = await executeCausalEvidence({
+    identity: baseIdentity('B-causal-redaction', { effectiveEnvironment: { API_TOKEN: secret, NODE_ENV: 'test' } }),
+    selector: 'command-output',
+    run: async () => ({ code: 0, output: `command-output ${secret}` }),
+    receiptStore: store,
+    preflight: preflight(),
+    revalidateBeforeRun: () => true,
+  });
+  assert.equal(result.receipt.reusable, true);
+  assert.equal(result.receipt.outputTail.includes(secret), false);
+  assert.equal(result.receipt.outputProbe.includes(secret), false);
+  assert.equal(JSON.stringify(result.receipt).includes(secret), false);
+  assert.match(result.receipt.outputTail, /<redacted>/);
+});
+
 test('CHK-002: CAS receipts precede isolated import, retry commit only, and fail closed on tamper', async () => {
   const root = mkdtempSync(join(tmpdir(), 'causal-evidence-store-'));
   try {
@@ -728,6 +777,7 @@ test('CHK-003: dependency domains shadow-compare closure and CertificationWindow
   assert.equal(advisory.materialHashStrict, false);
   assert.equal(advisory.specializedRerun, 0);
   assert.equal(advisory.affectedNodeRerun, 0);
+  assert.equal(verifyCausalDependencyDecision(advisory), true, 'F-002 current identity-bound advisory remains valid at its issuing identity');
   assert.deepEqual(advisory.identityBinding, {
     previousMaterialHash: 'm1',
     currentMaterialHash: 'm2',
@@ -818,9 +868,25 @@ test('CHK-003: dependency domains shadow-compare closure and CertificationWindow
   assert.equal(incompleteDependency.materialHashStrict, true);
   assert.equal(incompleteDependency.gateAdmissible, false);
   assert.equal(incompleteDependency.falseFresh, 0);
+  for (const materialIdentity of [
+    { previousMaterialHash: undefined, currentMaterialHash: 'm1' },
+    { previousMaterialHash: 'm1', currentMaterialHash: undefined },
+    { previousMaterialHash: '', currentMaterialHash: 'm1' },
+  ]) {
+    const missingMaterial = evaluateCausalDependencies({
+      nodes: [],
+      currentInputHashes: {},
+      ...materialIdentity,
+      previousStoryFilesHash: 's1',
+      currentStoryFilesHash: 's1',
+    });
+    assert.equal(missingMaterial.causalDecision, 'strict');
+    assert.equal(missingMaterial.gateAdmissible, false);
+    assert.match(missingMaterial.reason, /material identity is missing or uncomputable/);
+  }
   emitIntentMarker(
     'CHK-003:edge:1',
-    'missing or ambiguous domain metadata falls back to strict materialHash invalidation with no false-fresh reuse',
+    'missing or ambiguous domain/material identity falls back to strict invalidation with no false-fresh reuse',
   );
 
   const nearbyDecisions = CAUSAL_DEPENDENCY_DOMAINS.map(domain => evaluateCausalDependencies({
@@ -919,6 +985,18 @@ test('CHK-003: dependency domains shadow-compare closure and CertificationWindow
   const laterMaterial = detectCertificationWindowMaterialDrift(window, { materialHash: 'm3', storyFilesHash: 's1', headHash: 'h3', causalDecision: advisory });
   assert.equal(laterMaterial.drifted, true, 'an advisory bound to m2 must not bypass a later live m3 material change');
   assert.match(laterMaterial.reason, /causal advisory binding|materialHash/);
+  const { _hash: _forgedHash, ...forgedAdvisoryPayload } = advisory;
+  const forgedAdvisory = {
+    ...advisory,
+    storyFilesHashAdvisory: false,
+    _hash: causalDigest({ ...forgedAdvisoryPayload, storyFilesHashAdvisory: false }),
+  };
+  assert.equal(verifyCausalDependencyDecision(forgedAdvisory), false, 'recomputing the content hash cannot create an authority-bound decision');
+  const forgedAdvisoryDrift = detectCertificationWindowMaterialDrift(window, {
+    materialHash: 'm3', storyFilesHash: 's1', headHash: 'h3', causalDecision: forgedAdvisory,
+  });
+  assert.equal(forgedAdvisoryDrift.drifted, true);
+  assert.match(forgedAdvisoryDrift.reason, /tampered/);
   emitIntentMarker(
     'CHK-003:adversarial:2',
     'CertificationWindow bypass is rejected and a stale affected PASS cannot enter a gate',
@@ -935,6 +1013,16 @@ test('CHK-004: preflight refuses exact readiness failures with zero execution/ev
   const validPreflight = preflight();
   assert.equal(validPreflight.ready, true);
   assert.equal(verifyCausalPreflight(validPreflight), true);
+  const incompletePreflightPayload = { ...validPreflight, checks: {}, failedChecks: [] };
+  const incompletePreflight = {
+    ...incompletePreflightPayload,
+    readinessHash: causalDigest(incompletePreflightPayload),
+  };
+  assert.equal(verifyCausalPreflight(incompletePreflight), false, 'an empty checks map remains invalid after readinessHash recomputation');
+  const failedChecks = { ...validPreflight.checks, cli: { status: 'fail', reason: 'forged_cli_failure' } };
+  const failedPreflightPayload = { ...validPreflight, checks: failedChecks, failedChecks: [] };
+  const failedPreflight = { ...failedPreflightPayload, readinessHash: causalDigest(failedPreflightPayload) };
+  assert.equal(verifyCausalPreflight(failedPreflight), false, 'a failed check cannot be made ready by clearing failedChecks and recomputing readinessHash');
   for (const check of Object.values(validPreflight.checks)) assert.equal(check.status, 'pass');
   assert.deepEqual(validPreflight.failedChecks, []);
 

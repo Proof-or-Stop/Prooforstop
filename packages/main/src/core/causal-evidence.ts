@@ -1,4 +1,4 @@
-import { createHash } from 'node:crypto';
+import { createHash, createHmac, randomBytes } from 'node:crypto';
 import { existsSync, readFileSync, realpathSync } from 'node:fs';
 import { join } from 'node:path';
 import { effectiveValidationCommandEnvironment } from './validation-command-environment.js';
@@ -19,6 +19,17 @@ export const CAUSAL_RECEIPT_DIRECTORY = 'causal-evidence/receipts';
 export const CAUSAL_RECEIPT_INDEX_FILE = 'causal-evidence/index.json';
 export const CAUSAL_OUTPUT_TAIL_CHARS = 4_000;
 export const CAUSAL_MAX_OUTPUT_CHARS = 12_000;
+export const CAUSAL_PREFLIGHT_CHECK_NAMES = [
+  'cli',
+  'worktree',
+  'gitIndex',
+  'gitMaterial',
+  'writerLease',
+  'providerCapability',
+  'resources',
+  'evidenceTarget',
+  'sideChannel',
+] as const;
 
 export const CAUSAL_DEPENDENCY_DOMAINS = [
   'source',
@@ -366,7 +377,8 @@ export function verifyCausalEvidenceReceipt(
   if (receipt.identityDigest !== causalDigest(receipt.identity)) return false;
   if (receipt.executionKey !== `ce:v1:${receipt.identityDigest}`) return false;
   if (receipt.storyId !== receipt.identity.storyId) return false;
-  if (receipt.identity.complete !== receipt.reusable) return false;
+  const statusAllowsReuse = receipt.status === 'pass' && receipt.exitCode === 0;
+  if (receipt.reusable !== (receipt.identity.complete && statusAllowsReuse)) return false;
   if (receipt.commandReruns !== 0) return false;
   if (!['pass', 'fail', 'timeout', 'cancelled', 'partial'].includes(receipt.status)) return false;
   return true;
@@ -389,10 +401,15 @@ function boundedOutputProbe(output: string): string {
   return `${output.slice(0, half)}\n<causal-output-gap>\n${output.slice(-half)}`;
 }
 
-function redactCausalOutput(output: string, effectiveEnvironment: Record<string, string>): string {
+function redactCausalOutput(output: string, effectiveEnvironment: Record<string, unknown> | undefined): string {
   let redacted = String(output ?? '');
-  for (const value of Object.values(effectiveEnvironment)) {
-    if (value.length >= 8 && value !== REDACTED) redacted = redacted.split(value).join(REDACTED);
+  for (const [rawKey, rawValue] of Object.entries(effectiveEnvironment ?? {})) {
+    if (rawValue === undefined || rawValue === null) continue;
+    const value = String(rawValue);
+    if (!value || value === REDACTED) continue;
+    if (SECRET_ENV_KEY.test(rawKey) || value.length >= 8) {
+      redacted = redacted.split(value).join(REDACTED);
+    }
   }
   return redacted
     .replace(/(authorization\s*[:=]\s*|bearer\s+)[^\s,;]+/gi, `$1${REDACTED}`)
@@ -524,14 +541,15 @@ export async function executeCausalEvidence(args: ExecuteCausalEvidenceArgs): Pr
         throw new Error('causal preflight refused: state_changed_before_launch commandExecutions=0 evidenceWrites=0 [causal_preflight_refused]');
       }
       const run = await args.run();
-      const redactedOutput = redactCausalOutput(run.output, key.identity.effectiveEnvironment);
+      const runStatus = statusForRun(run);
+      const redactedOutput = redactCausalOutput(run.output, args.identity.effectiveEnvironment);
       const receiptWithoutHash: Omit<CausalEvidenceReceipt, 'receiptHash'> = {
         schemaVersion: CAUSAL_EVIDENCE_SCHEMA,
         storyId: key.identity.storyId,
         executionKey: key.key,
         identityDigest: key.identityDigest,
         identity: key.identity,
-        status: statusForRun(run),
+        status: runStatus,
         exitCode: run.timedOut ? 124 : run.code,
         // The digest is non-reversible and remains over the complete observed
         // command output for compatibility; persisted bytes are redacted and bounded.
@@ -542,14 +560,17 @@ export async function executeCausalEvidence(args: ExecuteCausalEvidenceArgs): Pr
         executedAt: new Date().toISOString(),
         ...(run.durationMs !== undefined ? { durationMs: run.durationMs } : {}),
         ...(run.timeoutMs !== undefined ? { timeoutMs: run.timeoutMs } : {}),
-        reusable: key.reusable,
+        reusable: key.reusable && runStatus === 'pass' && run.code === 0,
         commandReruns: 0,
       };
       const receipt = {
         ...receiptWithoutHash,
         receiptHash: computeCausalReceiptHash(receiptWithoutHash as CausalEvidenceReceipt),
       } as CausalEvidenceReceipt;
-      if (args.receiptStore && key.reusable) {
+      // A non-PASS result is an execution outcome, not a reusable CAS value.
+      // Leaving it at this address would both turn a transient failure into a
+      // cache hit and prevent the later PASS from being written immutably.
+      if (args.receiptStore && receipt.reusable) {
         args.receiptStore.writeCausalEvidenceReceipt(key.identity.storyId, receipt);
       }
       return receipt;
@@ -562,9 +583,11 @@ export async function executeCausalEvidence(args: ExecuteCausalEvidenceArgs): Pr
   let execution: Promise<ExecutionOutcome>;
   const batchPromise = key.reusable ? args.batch?.executions.get(key.key) : undefined;
   if (batchPromise) {
-    // Preserve the existing per-batch dedup semantics. A batch hit is always a
-    // reuse from this caller's perspective, regardless of who created it.
-    execution = batchPromise.then(receipt => ({ receipt, disposition: 'reused' as const }));
+    // Only a PASS can be a per-batch cache hit. A failed/partial/timeout/
+    // cancelled attempt must leave the key eligible for a later PASS.
+    execution = batchPromise.then(async receipt => receipt.reusable
+      ? { receipt, disposition: 'reused' as const }
+      : { receipt: await executeFresh(), disposition: 'executed' as const });
   } else if (key.reusable && args.receiptStore?.withCausalEvidenceExecution) {
     // Separate requests do not share `batch`. The store boundary re-reads
     // inside its single-flight region so only the winner can launch the child.
@@ -583,7 +606,12 @@ export async function executeCausalEvidence(args: ExecuteCausalEvidenceArgs): Pr
     execution = executeFresh().then(receipt => ({ receipt, disposition: 'executed' as const }));
   }
   if (key.reusable && args.batch && !batchPromise) {
-    const batchReceipt = execution.then(({ receipt }) => receipt);
+    const batchReceipt = execution.then(({ receipt }) => {
+      if (!receipt.reusable && args.batch?.executions.get(key.key) === batchReceipt) {
+        args.batch.executions.delete(key.key);
+      }
+      return receipt;
+    });
     // The caller awaits `execution` directly. Observe the derived promise too
     // so a failed first execution cannot become an unhandled rejection merely
     // because the batch cache retains the same failure for later callers.
@@ -686,6 +714,14 @@ export function preflightCausalEvidence(
 }
 
 export function verifyCausalPreflight(report: CausalPreflightReport): boolean {
+  if (!isRecord(report) || !isRecord(report.checks) || !Array.isArray(report.failedChecks)) return false;
+  const checkNames = Object.keys(report.checks);
+  if (
+    checkNames.length !== CAUSAL_PREFLIGHT_CHECK_NAMES.length
+    || CAUSAL_PREFLIGHT_CHECK_NAMES.some(name => !Object.prototype.hasOwnProperty.call(report.checks, name))
+    || checkNames.some(name => !CAUSAL_PREFLIGHT_CHECK_NAMES.includes(name as (typeof CAUSAL_PREFLIGHT_CHECK_NAMES)[number]))
+    || Object.values(report.checks).some(check => !isRecord(check) || check.status !== 'pass')
+  ) return false;
   const { readinessHash: _ignored, ...payload } = report;
   return report.schemaVersion === CAUSAL_PREFLIGHT_SCHEMA
     && report.ready === true
@@ -712,6 +748,26 @@ export interface CausalDependencyDecisionIdentityBinding {
   currentHeadHash?: string;
 }
 
+export interface CausalDependencyDecisionAuthorityBinding {
+  schemaVersion: 'proofbound.causal-dependency-authority.v1';
+  producer: 'core/causal-evidence';
+  authority: 'proof-or-stop';
+  signature: string;
+}
+
+const CAUSAL_DEPENDENCY_DECISION_AUTHORITY_METADATA = Object.freeze({
+  schemaVersion: 'proofbound.causal-dependency-authority.v1',
+  producer: 'core/causal-evidence',
+  authority: 'proof-or-stop',
+} as const);
+const CAUSAL_DEPENDENCY_DECISION_KEY = randomBytes(32);
+
+function causalDependencyDecisionAuthoritySignature(payload: unknown): string {
+  return createHmac('sha256', CAUSAL_DEPENDENCY_DECISION_KEY)
+    .update(causalCanonical(payload))
+    .digest('hex');
+}
+
 export interface CausalDependencyDecision {
   schemaVersion: typeof CAUSAL_DEPENDENCY_SCHEMA;
   causalDecision: 'fresh' | 'advisory' | 'rerun' | 'strict';
@@ -728,6 +784,7 @@ export interface CausalDependencyDecision {
   reason: string;
   /** Hashes observed by evaluateCausalDependencies; included in the CAS hash. */
   identityBinding?: CausalDependencyDecisionIdentityBinding;
+  authorityBinding: CausalDependencyDecisionAuthorityBinding;
   _hash: string;
 }
 
@@ -771,14 +828,22 @@ export function evaluateCausalDependencies(args: {
   }
   const changedNodes = args.nodes.filter(node => node.inputIds.some(inputId => changedInputIds.has(inputId))).map(node => node.id);
   const affected = dependencyClosure(args.nodes, new Set(changedNodes));
-  const materialDrift = Boolean(args.previousMaterialHash && args.currentMaterialHash && args.previousMaterialHash !== args.currentMaterialHash);
-  const storyFilesMatch = Boolean(args.previousStoryFilesHash && args.currentStoryFilesHash && args.previousStoryFilesHash === args.currentStoryFilesHash);
+  const materialIdentityComplete = [args.previousMaterialHash, args.currentMaterialHash]
+    .every(value => typeof value === 'string' && value.length > 0);
+  const materialDrift = materialIdentityComplete && args.previousMaterialHash !== args.currentMaterialHash;
+  const storyFilesMatch = [args.previousStoryFilesHash, args.currentStoryFilesHash]
+    .every(value => typeof value === 'string' && value.length > 0)
+    && args.previousStoryFilesHash === args.currentStoryFilesHash;
   const doneRequiredStrict = args.doneRequired === true;
   let causalDecision: CausalDependencyDecision['causalDecision'] = 'fresh';
   let reason = 'causal dependency inputs match';
   let storyFilesHashAdvisory = false;
   let gateAdmissible = true;
-  if (!identityComplete) {
+  if (!materialIdentityComplete) {
+    causalDecision = 'strict';
+    reason = 'material identity is missing or uncomputable; strict refusal applies';
+    gateAdmissible = false;
+  } else if (!identityComplete) {
     causalDecision = 'strict';
     reason = 'dependency identity is missing or uncomputable; materialHash strict fallback applies';
     gateAdmissible = !materialDrift;
@@ -810,7 +875,7 @@ export function evaluateCausalDependencies(args: {
     ...(args.previousHeadHash !== undefined ? { previousHeadHash: args.previousHeadHash } : {}),
     ...(args.currentHeadHash !== undefined ? { currentHeadHash: args.currentHeadHash } : {}),
   };
-  const decisionWithoutHash = {
+  const decisionCore = {
     schemaVersion: CAUSAL_DEPENDENCY_SCHEMA,
     causalDecision,
     affectedNodeIds: [...affected].sort(),
@@ -826,7 +891,19 @@ export function evaluateCausalDependencies(args: {
     reason: causalRerunComplete ? 'affected dependency closure rerun is complete' : reason,
     identityBinding,
   };
-  return { ...decisionWithoutHash, _hash: causalDigest(decisionWithoutHash) };
+  const authorityBinding = Object.freeze({
+    ...CAUSAL_DEPENDENCY_DECISION_AUTHORITY_METADATA,
+    signature: causalDependencyDecisionAuthoritySignature(decisionCore),
+  });
+  const decisionWithoutHash = { ...decisionCore, authorityBinding };
+  const decision = {
+    ...decisionWithoutHash,
+    _hash: causalDigest(decisionWithoutHash),
+  } as CausalDependencyDecision;
+  for (const field of ['affectedNodeIds', 'invalidatedNodeIds', 'changedInputIds'] as const) Object.freeze(decision[field]);
+  Object.freeze(decision.identityBinding);
+  Object.freeze(decision);
+  return decision;
 }
 
 export function hasCausalDependencyDecisionIdentityBinding(
@@ -848,7 +925,7 @@ export function causalDependencyDecisionMatchesCurrentIdentity(
   decision: CausalDependencyDecision,
   current: { materialHash?: string; storyFilesHash?: string; headHash?: string },
 ): boolean {
-  if (!hasCausalDependencyDecisionIdentityBinding(decision)) return false;
+  if (!verifyCausalDependencyDecision(decision) || !hasCausalDependencyDecisionIdentityBinding(decision)) return false;
   const binding = decision.identityBinding!;
   if (
     binding.currentMaterialHash !== current.materialHash
@@ -859,11 +936,14 @@ export function causalDependencyDecisionMatchesCurrentIdentity(
 }
 
 export function verifyCausalDependencyDecision(decision: CausalDependencyDecision): boolean {
-  const { _hash: _ignored, ...payload } = decision;
+  if (!decision || typeof decision !== 'object') return false;
+  const { _hash: _ignored, authorityBinding, ...payload } = decision;
+  const { signature: _signature, ...authorityMetadata } = authorityBinding ?? {};
   return decision.schemaVersion === CAUSAL_DEPENDENCY_SCHEMA
-    && decision._hash === causalDigest(payload)
-    // Keep legacy strict/rerun/fresh records structurally readable, but never
-    // let an unbound advisory authorize the unrelated-material downgrade.
+    && decision._hash === causalDigest({ ...payload, authorityBinding })
+    && causalCanonical(authorityMetadata) === causalCanonical(CAUSAL_DEPENDENCY_DECISION_AUTHORITY_METADATA)
+    && typeof authorityBinding?.signature === 'string'
+    && authorityBinding.signature === causalDependencyDecisionAuthoritySignature(payload)
     && (decision.causalDecision !== 'advisory' || hasCausalDependencyDecisionIdentityBinding(decision));
 }
 

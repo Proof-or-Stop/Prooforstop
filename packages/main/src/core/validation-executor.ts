@@ -95,6 +95,8 @@ export interface ExecuteValidationPlanOptions {
   deadlineError?: () => Error;
   /** Scheduler worker count; overrides LATTICE_VALIDATE_JOBS. See {@link resolveValidatePlanJobs}. */
   jobs?: number;
+  /** Refuse each child launch if the caller's preflight snapshot is no longer valid. */
+  beforeLaunch?: () => void;
 }
 
 /**
@@ -1748,6 +1750,7 @@ export async function executeValidationPlan(
 
   await runScheduled<ValidationScheduleEntry, ValidationScheduleResult>(entries, jobs, async (entry) => {
     if (deadlineExceeded) return { name: entry.name, status: 'INTERRUPTED', commandIndex: entry.commandIndex };
+    options.beforeLaunch?.();
     const result = await runValidationCommand(entry.command, projectRoot, DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS, {
       progress: options.progress,
       heartbeatMs: options.heartbeatMs,

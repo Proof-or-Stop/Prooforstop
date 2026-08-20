@@ -26,8 +26,8 @@
 
 import { execFileSync, execSync, spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, readFileSync, readdirSync, realpathSync } from 'node:fs';
-import { join, dirname, relative } from 'node:path';
+import { accessSync, constants, existsSync, readFileSync, readdirSync, realpathSync, statSync } from 'node:fs';
+import { join, dirname, isAbsolute, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { HandlerContext } from './context.js';
 import { assertCwdInWorktree } from './context.js';
@@ -44,6 +44,7 @@ import {
   formatValidationEvidenceAdvisory,
   formatValidationProgressEvent,
   formatWorktreePollutionDetails,
+  DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS,
   runValidationCommand,
   stripAnsi,
 } from '../core/validation-executor.js';
@@ -78,6 +79,16 @@ import {
 } from '../core/done-prepare-generated-metadata.js';
 import { normalizeRelPath } from '../core/lattice-paths.js';
 import { readBrandEnv } from '../core/brand-env.js';
+import { getSessionId } from '../core/owner-session.js';
+import { isLeaseStale, readOwnerLease } from '../core/story-owner-lease.js';
+import {
+  CAUSAL_MAX_OUTPUT_CHARS,
+  CAUSAL_RECEIPT_DIRECTORY,
+  causalCanonical,
+  preflightCausalEvidence,
+  verifyCausalPreflight,
+  type CausalPreflightFacts,
+} from '../core/causal-evidence.js';
 
 const STATUS_FALLBACK_TIMEOUT_MS = 10_000;
 const SHELL_META_RE = /[;&|<>$()`]/;
@@ -462,6 +473,167 @@ function currentHead(gitCwd: string): string | undefined {
   } catch {
     return undefined;
   }
+}
+
+function canonicalVerifierProbePath(path: string): string | null {
+  try {
+    return realpathSync(path);
+  } catch {
+    return null;
+  }
+}
+
+function probeVerifierWorktree(cwd: string): string | null {
+  try {
+    const topLevel = execSync('git rev-parse --show-toplevel', {
+      cwd,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    }).trim();
+    return topLevel ? canonicalVerifierProbePath(topLevel) : null;
+  } catch {
+    return null;
+  }
+}
+
+function probeVerifierIndex(cwd: string): { readable: boolean; path?: string; reason?: string } {
+  try {
+    const rawPath = execFileSync('git', ['rev-parse', '--path-format=absolute', '--git-path', 'index'], {
+      cwd,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    }).trim();
+    const indexPath = canonicalVerifierProbePath(isAbsolute(rawPath) ? rawPath : resolve(cwd, rawPath));
+    if (!indexPath) return { readable: false, reason: 'git_index_path_unavailable' };
+    if (!statSync(indexPath).isFile()) return { readable: false, path: indexPath, reason: 'git_index_not_a_file' };
+    accessSync(indexPath, constants.R_OK);
+    return { readable: true, path: indexPath };
+  } catch {
+    return { readable: false, reason: 'git_index_unavailable' };
+  }
+}
+
+function probeVerifierTarget(path: string): { writable: boolean; probe: string; reason?: string } {
+  let probePath = path;
+  while (!existsSync(probePath)) {
+    const parent = dirname(probePath);
+    if (parent === probePath) return { writable: false, probe: probePath, reason: 'evidence_target_parent_unavailable' };
+    probePath = parent;
+  }
+  try {
+    if (!statSync(probePath).isDirectory()) return { writable: false, probe: probePath, reason: 'evidence_target_parent_not_directory' };
+    accessSync(probePath, constants.W_OK);
+    return { writable: true, probe: `access_w:${probePath}` };
+  } catch {
+    return { writable: false, probe: probePath, reason: 'evidence_target_access_denied' };
+  }
+}
+
+function probeVerifierCli(): { available: boolean; path?: string; reason?: string } {
+  const invoked = process.argv[1];
+  if (!invoked) return { available: false, reason: 'cli_invocation_unavailable' };
+  const candidate = isAbsolute(invoked) ? invoked : resolve(process.cwd(), invoked);
+  const cliPath = canonicalVerifierProbePath(candidate);
+  if (!cliPath) return { available: false, reason: `cli_path_unavailable ${candidate}` };
+  try {
+    if (!statSync(cliPath).isFile()) return { available: false, reason: `cli_not_a_file ${cliPath}` };
+    accessSync(cliPath, constants.R_OK);
+    return { available: true, path: cliPath };
+  } catch {
+    return { available: false, reason: `cli_not_readable ${cliPath}` };
+  }
+}
+
+function probeVerifierLease(storyDir: string, expectedCwd: string): { available: boolean; valid: boolean; reason?: string } {
+  const lease = readOwnerLease(storyDir);
+  if (!lease) return { available: false, valid: false, reason: 'lease_missing_or_invalid' };
+  if (lease.sessionId !== getSessionId()) return { available: true, valid: false, reason: `lease_foreign_session expected=${getSessionId()} actual=${lease.sessionId}` };
+  if (isLeaseStale(lease)) return { available: true, valid: false, reason: 'lease_stale' };
+  const leaseCwd = canonicalVerifierProbePath(lease.cwd);
+  const actualCwd = canonicalVerifierProbePath(expectedCwd);
+  if (!leaseCwd || !actualCwd || leaseCwd !== actualCwd) {
+    return { available: true, valid: false, reason: `lease_cwd_mismatch expected=${actualCwd ?? expectedCwd} actual=${leaseCwd ?? lease.cwd}` };
+  }
+  return { available: true, valid: true };
+}
+
+function probeValidationCausalPreflightFacts(
+  ctx: HandlerContext,
+  storyId: string,
+  input: { command: string; cwd: string; timeoutMs?: number },
+): CausalPreflightFacts {
+  if (ctx.causalPreflightFacts) return ctx.causalPreflightFacts(input);
+  const cli = probeVerifierCli();
+  const expectedWorktree = canonicalVerifierProbePath(input.cwd) ?? input.cwd;
+  const actualWorktree = probeVerifierWorktree(input.cwd);
+  const headHash = currentHead(input.cwd);
+  const materialHash = currentMaterialHash(input.cwd, 'HEAD', ctx.root);
+  const storyFilesHash = currentStoryFilesHash(input.cwd, 'HEAD', ctx.root);
+  const gitMaterialAvailable = Boolean(headHash && materialHash && storyFilesHash);
+  const gitIndex = probeVerifierIndex(input.cwd);
+  const storyDir = ctx.store.storyDirPath(storyId);
+  const targetPath = join(storyDir, CAUSAL_RECEIPT_DIRECTORY);
+  const target = probeVerifierTarget(targetPath);
+  const timeoutMs = input.timeoutMs ?? DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS;
+  const timeoutAvailable = Number.isFinite(timeoutMs) && timeoutMs > 0;
+  return {
+    cli,
+    worktree: actualWorktree
+      ? { expected: expectedWorktree, actual: actualWorktree }
+      : { expected: expectedWorktree, actual: '', reason: 'worktree_unavailable' },
+    gitIndex,
+    gitMaterial: {
+      available: gitMaterialAvailable,
+      ...(headHash ? { headHash } : {}),
+      ...(materialHash ? { materialHash } : {}),
+      ...(storyFilesHash ? { storyFilesHash } : {}),
+      ...(gitMaterialAvailable ? {} : { reason: 'git_material_or_story_files_hash_unavailable' }),
+    },
+    writerLease: probeVerifierLease(storyDir, input.cwd),
+    providerCapability: {
+      required: ['validation-plan', 'bounded-output'],
+      available: ['validation-plan', ...(CAUSAL_MAX_OUTPUT_CHARS > 0 ? ['bounded-output'] : [])],
+    },
+    resources: {
+      required: { timeoutMs },
+      available: { timeoutMs: timeoutAvailable ? timeoutMs : 0 },
+      ...(timeoutAvailable ? {} : { reason: 'timeout_resource_unavailable' }),
+    },
+    evidenceTarget: {
+      writable: target.writable,
+      path: targetPath,
+      probe: target.probe,
+      ...(target.reason ? { reason: target.reason } : {}),
+    },
+    sideChannel: { available: CAUSAL_MAX_OUTPUT_CHARS > 0, maxOutputChars: CAUSAL_MAX_OUTPUT_CHARS, maxProgressEvents: 1 },
+  };
+}
+
+export function createValidationCausalPreflightGate(
+  ctx: HandlerContext,
+  storyId: string,
+  commands: ValidationCommand[],
+  cwd: string,
+): { beforeLaunch: () => void } {
+  const command = commands.map(entry => `${entry.command} ${entry.args.join(' ')}`.trim()).join('\n');
+  const timeoutMs = Math.max(
+    DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS,
+    ...commands.map(entry => entry.timeoutMs ?? DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS),
+  );
+  const input = { command, cwd, timeoutMs };
+  const initialFacts = probeValidationCausalPreflightFacts(ctx, storyId, input);
+  const factsUnchanged = () => causalCanonical(probeValidationCausalPreflightFacts(ctx, storyId, input)) === causalCanonical(initialFacts);
+  const report = preflightCausalEvidence(initialFacts, factsUnchanged);
+  if (!report.ready || !verifyCausalPreflight(report)) {
+    throw new Error(`validate preflight REFUSED: ${report.failedChecks.join(', ') || 'invalid_preflight'} commandExecutions=0 evidenceWrites=0 [causal_preflight_refused]`);
+  }
+  return {
+    beforeLaunch: () => {
+      if (!verifyCausalPreflight(report) || !factsUnchanged()) {
+        throw new Error('validate preflight refused: state_changed_before_launch commandExecutions=0 evidenceWrites=0 [causal_preflight_refused]');
+      }
+    },
+  };
 }
 
 function evidenceFreshness(gitCwd: string, metadataRoot: string, headHash: string, evidence?: VerificationEvidence) {
@@ -1414,6 +1586,12 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           ctx.log?.(usingConfigured
             ? `running ${commands.length} configured validate.command(s)${focus ? ` for focus=${focus}` : ''}`
             : `validate.ts/js/mts not found and no configured validate.command(s); running ${commands.length} advisory fallback validation command(s)`);
+          // Keep the real verifier path behind the same fail-closed readiness
+          // contract as pinned verification evidence. The executor rechecks the
+          // snapshot at each scheduler worker's child-launch boundary.
+          const causalPreflightGate = args.story
+            ? createValidationCausalPreflightGate(ctx, args.story, commands, handlerGitCwd)
+            : undefined;
           const base = await executeValidationPlan({
             provider: usingConfigured ? 'lattice-verifier-configured-commands' : 'lattice-verifier-fallback-commands',
             commands,
@@ -1424,6 +1602,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             abortSignal: args.abortSignal,
             deadlineAt: args.deadlineAt,
             deadlineError: args.deadlineError,
+            beforeLaunch: causalPreflightGate?.beforeLaunch,
           });
           const summary = usingConfigured
             ? base.summary
