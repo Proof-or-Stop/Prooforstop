@@ -594,24 +594,101 @@
           {
             "desc": "The root package.json and package-lock.json use proof-or-stop as the workspace name and stay synchronized with the CLI version constants.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/package-identity-migration.test.mjs",
+              "selector": "package identity migration test passed"
+            }
           }
         ],
         "edge": [
           {
             "desc": "Existing self-host detection accepts the canonical root/package identity and does not silently bypass its safety gate.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist.staging/tasks/version-bump-smoke.js",
+              "selector": "version-bump smoke passed: 88 assertions"
+            }
           }
         ],
         "adversarial": [
           {
             "desc": "A split package/lockfile name or version is detected by the identity verification path before publish or install.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node --input-type=module -e \"import assert from 'node:assert/strict'; import {mkdtempSync,mkdirSync,writeFileSync,rmSync} from 'node:fs'; import {join} from 'node:path'; import {tmpdir} from 'node:os'; import {runRuntimeEnvironmentChecks} from './packages/main/dist.staging/core/runtime-environment-checks.js'; const root=mkdtempSync(join(tmpdir(),'b5a88-selfhost-')); mkdirSync(join(root,'packages','main'),{recursive:true}); writeFileSync(join(root,'package.json'),JSON.stringify({name:'proof-or-stop',version:'0.3.266'})); writeFileSync(join(root,'packages','main','package.json'),JSON.stringify({name:'@proof-or-stop/core',version:'0.3.266'})); const canonical=runRuntimeEnvironmentChecks(root,{commandResolver:()=>null,globalNpmRootResolver:()=>null,corePackageRoot:join(root,'packages','main')}); assert.equal(canonical.isSelfProject,true); writeFileSync(join(root,'package.json'),JSON.stringify({name:'lattice',version:'0.3.266'})); const legacy=runRuntimeEnvironmentChecks(root,{commandResolver:()=>null,globalNpmRootResolver:()=>null,corePackageRoot:join(root,'packages','main')}); assert.equal(legacy.isSelfProject,true); rmSync(root,{recursive:true,force:true}); console.log('self-host canonical and legacy root smoke: PASS');\"",
+              "selector": "self-host canonical and legacy root smoke: PASS"
+            }
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/package-identity-migration.test.mjs",
+          "command": "node packages/main/tests/package-identity-migration.test.mjs",
+          "result": "pass",
+          "note": "Tool-executed smoke confirms canonical root package/lock names, lock root entry, synced versions, npm package identity, and brand/runtime wiring.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "8f9a6a8e492c71ecc59206e624d91c8f0406780a9606b9d89da1cc8e6092defb",
+            "outputTail": "package identity migration test passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T06:32:55.868Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "0820254b96cbd9ee27d737aaa6a55abd658cc529",
+          "materialHash": "d84f7055846024336e3778edd3923c8881002568ab4663d476311c1c12aeaea9",
+          "storyFilesHash": "a1e8eeddd0e0a6c9ce28c35cd8426b629033d72421c9dc71e82e875987d53748",
+          "timestamp": "2026-08-20T06:32:57.093Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/version-bump-smoke.ts",
+          "command": "node packages/main/dist.staging/tasks/version-bump-smoke.js",
+          "result": "pass",
+          "note": "Tool-executed version smoke confirms canonical root identity and readable legacy lattice root identity.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "8cc4bc9365c57c76e577140a05225c4a564830490c9580da254959292feaa061",
+            "outputTail": "version-bump smoke passed: 88 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T06:32:56.500Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "0820254b96cbd9ee27d737aaa6a55abd658cc529",
+          "materialHash": "d84f7055846024336e3778edd3923c8881002568ab4663d476311c1c12aeaea9",
+          "storyFilesHash": "a1e8eeddd0e0a6c9ce28c35cd8426b629033d72421c9dc71e82e875987d53748",
+          "timestamp": "2026-08-20T06:32:57.093Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/version-bump.ts",
+          "command": "node --input-type=module -e \"import assert from 'node:assert/strict'; import {mkdtempSync,mkdirSync,writeFileSync,rmSync} from 'node:fs'; import {join} from 'node:path'; import {tmpdir} from 'node:os'; import {runRuntimeEnvironmentChecks} from './packages/main/dist.staging/core/runtime-environment-checks.js'; const root=mkdtempSync(join(tmpdir(),'b5a88-selfhost-')); mkdirSync(join(root,'packages','main'),{recursive:true}); writeFileSync(join(root,'package.json'),JSON.stringify({name:'proof-or-stop',version:'0.3.266'})); writeFileSync(join(root,'packages','main','package.json'),JSON.stringify({name:'@proof-or-stop/core',version:'0.3.266'})); const canonical=runRuntimeEnvironmentChecks(root,{commandResolver:()=>null,globalNpmRootResolver:()=>null,corePackageRoot:join(root,'packages','main')}); assert.equal(canonical.isSelfProject,true); writeFileSync(join(root,'package.json'),JSON.stringify({name:'lattice',version:'0.3.266'})); const legacy=runRuntimeEnvironmentChecks(root,{commandResolver:()=>null,globalNpmRootResolver:()=>null,corePackageRoot:join(root,'packages','main')}); assert.equal(legacy.isSelfProject,true); rmSync(root,{recursive:true,force:true}); console.log('self-host canonical and legacy root smoke: PASS');\"",
+          "result": "pass",
+          "note": "Tool-executed runtime smoke confirms canonical proof-or-stop self-host detection and legacy lattice root read compatibility both remain self-scoped.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "3aaaf3a789ca535da6379e70df5f0cecdd97e07ecb5c320cc5feb6a214d90acc",
+            "outputTail": "self-host canonical and legacy root smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T06:32:56.886Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "0820254b96cbd9ee27d737aaa6a55abd658cc529",
+          "materialHash": "d84f7055846024336e3778edd3923c8881002568ab4663d476311c1c12aeaea9",
+          "storyFilesHash": "a1e8eeddd0e0a6c9ce28c35cd8426b629033d72421c9dc71e82e875987d53748",
+          "timestamp": "2026-08-20T06:32:57.093Z"
+        }
+      ]
     },
     {
       "id": "CHK-006",
