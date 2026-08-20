@@ -514,10 +514,26 @@
       "phase": "DEV",
       "headHash": "49da8e41cd43f9ca9cc5ffb233cd77d51d73d64e",
       "materialHash": "b40406773e9238d2f14ac0581f249445e9868f69ecf6be76c1bcc4535cf068bd"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "This verifier contract was updated to enforce the canonical proof-or-stop runtime identity migration and is required by the story checks.",
+      "timestamp": "2026-08-20T22:15:44.757Z",
+      "paths": [
+        "scripts/verify-runtime-fact-contract.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "scripts/verify-runtime-fact-contract.mjs"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "824901a95e5bd548b0a2600180bab8cc20c434e0",
+      "materialHash": "6d9e3e87b1b5567817c717e30661ad067ffd3ea6fd3196cfc474793b4e365d70"
     }
   ],
   "createdAt": "2026-08-20T05:20:00.402Z",
-  "updatedAt": "2026-08-20T20:21:10.019Z",
+  "updatedAt": "2026-08-20T22:15:44.757Z",
   "fileRules": [],
   "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
@@ -651,6 +667,7 @@
     "packages/main/src/core/prompt-budget.ts": "packages/main/src/core/prompt-budget.ts",
     "packages/main/src/handlers/init-preflight.ts": "packages/main/src/handlers/init-preflight.ts",
     "packages/main/src/handlers/story-query.ts": "packages/main/src/handlers/story-query.ts",
-    "packages/main/tests/f081-f085-canonical-role-boundaries.test.mjs": "packages/main/tests/f081-f085-canonical-role-boundaries.test.mjs"
+    "packages/main/tests/f081-f085-canonical-role-boundaries.test.mjs": "packages/main/tests/f081-f085-canonical-role-boundaries.test.mjs",
+    "scripts/verify-runtime-fact-contract.mjs": "scripts/verify-runtime-fact-contract.mjs"
   }
 }
