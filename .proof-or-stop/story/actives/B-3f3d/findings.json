@@ -8943,6 +8943,65 @@
       "resolvedAt": "2026-08-19T19:22:56.988Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3f3d:F-134",
+      "desc": "concept-cleanup: inventory-completeness-is-PRE_CERT replacement incomplete: packages/main/src/core/command-policy.ts:206 still says review_inventory_finalize 'writes a PRE_CERT inventory-completeness receipt' even though the next sentence and command-catalog say completeness is not PRE_CERT. packages/main/src/core/review-inventory-epoch.ts:639 and :786 still name empty-wave receipts 'PRE_CERT completeness' receipts; packages/main/src/tasks/review-inventory-handler-smoke.ts has 5 assertion messages that say finalize 'writes PRE_CERT completeness receipt'. Runtime authorizesTest stays false and PRE_CERT consume is split, so this is leftover identity of the replaced concept, not a live TEST/PRE_CERT authority leak. severity=medium",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-20T07:25:58.843Z",
+      "reviewRound": "2026-08-20T07:14:40.200Z",
+      "reviewRunId": "B-3f3d:RR-637",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/lattice-review-concept.md",
+          ".claude/agents/lattice-review-topology-critic.md",
+          ".proof-or-stop-codex/agents/lattice-review-topology-critic.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/handlers/agent-prompt.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/global-agents.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-measurement.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/reviewer-list.ts",
+          "packages/main/src/init-assets.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "packages/main/src/tasks/prompt-token-cost-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "packages/main/src/tasks/runtime-owned-agent-assets-smoke.ts",
+          "packages/main/templates/agents/lattice-review-topology-critic.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "_hash": "5ea974c6c1ddf8aa0b4a377dc856205817162b1a744850f322d71b15413b474e",
+      "files": [
+        "packages/main/src/core/command-policy.ts",
+        "packages/main/src/core/review-inventory-epoch.ts",
+        "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|concept-cleanup-inventory",
+      "signatureTagSource": "auto"
     }
   ]
 }
