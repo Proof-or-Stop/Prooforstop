@@ -402,22 +402,32 @@ const requiredRuntimeEntries = [
     line: '- runtime:story_files_hash_freshness_gate [L4] owner=core/evidence-freshness gate=REVIEW/TEST/DONE freshness gates for review runs, verification evidence, review escalation records, and the review assurance floor DONE freshness gate',
   },
   {
+    // B-5a15: causal execution admission is producer-bound signed preflight,
+    // not caller-authored identity text; keep the gate-consumer summary line
+    // stable while mechanically checking the strengthened rationale.
     name: 'runtime:causal_execution_key_gate',
     level: 'L4',
     owner: 'core/causal-evidence',
     line: '- runtime:causal_execution_key_gate [L4] owner=core/causal-evidence gate=verification_evidence_add / verification_evidence_batch_add execution and verification coverage freshness gates',
+    rationaleTokens: ['producer-bound', 'Ed25519-signed preflight', 'current lease/index/identity', 'bounded batch snapshot'],
   },
   {
+    // B-5a15: canonical import trusts only durable Ed25519 CAS receipts and
+    // fresh lease/index/identity checks; commit retry cannot become a rerun.
     name: 'runtime:causal_receipt_import_gate',
     level: 'L4',
     owner: 'core/causal-evidence + core/store',
     line: '- runtime:causal_receipt_import_gate [L4] owner=core/causal-evidence + core/store gate=verification evidence canonical import and verification coverage/freshness gates',
+    rationaleTokens: ['durable CAS receipt', 'registered local Ed25519 authority', 'producer-bound signed preflight facts', 'current lease/index/identity', 'bounded batch snapshot'],
   },
   {
+    // B-5a15: dependency admission is identity-bound and accepts signed rerun
+    // evidence only; raw rerunNodeIds remain compatibility input, not proof.
     name: 'runtime:causal_dependency_preflight_metrics_gate',
     level: 'L4',
     owner: 'core/causal-evidence + core/evidence-freshness',
     line: '- runtime:causal_dependency_preflight_metrics_gate [L4] owner=core/causal-evidence + core/evidence-freshness gate=specialized verification freshness consumer, CertificationWindow, validation preflight, and closeout metrics',
+    rationaleTokens: ['producer-bound dependency decisions', 'durable Ed25519 causal authority', 'Missing or unknown input keys fail closed', 'signed rerun evidence', 'raw rerunNodeIds', 'bounded batch snapshots'],
   },
   {
     // B-1731: repro-first intake is a gate-consumed runtime predicate. The
@@ -7483,6 +7493,12 @@ function assertProcessFactCommandInventory() {
       formatProcessFactLevelRegistryEntry(actual) === expected.line,
       `${processFactLevelRegistryPath}: ${expected.name} summary line drifted`,
     );
+    for (const token of expected.rationaleTokens || []) {
+      assert(
+        actual.rationale.includes(token),
+        `${processFactLevelRegistryPath}: ${expected.name} rationale missing causal assurance token: ${token}`,
+      );
+    }
   }
   assertReviewRunStoryFilesHashContract(registry, levelRegistry);
   assertReviewAssuranceFloorContract(registry, levelRegistry);
