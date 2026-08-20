@@ -287,6 +287,29 @@
           "scripts/verify-global-lab-entrypoint.mjs",
           "packages/main/tests/package-identity-migration.test.mjs"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Sibling package metadata, lockfiles, and in-repo dependency references consistently use @proof-or-stop/utils and @proof-or-stop/lab.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The global lab entrypoint resolves canonical sibling packages alongside the already migrated @proof-or-stop/core package.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No exact-name consumer leaves a mixed package graph that resolves an old sibling name while metadata claims the new scope.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
       }
     },
     {
