@@ -161,7 +161,7 @@
       "reviewRound": "2026-08-20T16:42:51.728Z",
       "state": "OPEN",
       "begunAt": "2026-08-20T17:09:54.440Z",
-      "updatedAt": "2026-08-20T17:09:54.440Z",
+      "updatedAt": "2026-08-20T18:17:10.488Z",
       "cutoff": {
         "headHash": "fe0dccc86aadfe1bc1574189bd489a1f7b3b35b5",
         "materialHash": "8a4bb5365eec48bb494ba0c462d59873a1c4a34476135d1ee4ffccc7610dde25",
@@ -175,9 +175,71 @@
       ],
       "initialRunSequenceBoundary": 21,
       "maxWaves": 3,
-      "waves": [],
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-08-20T17:09:54.440Z",
+          "completedAt": "2026-08-20T18:17:10.488Z",
+          "lanes": [
+            {
+              "lane": "lattice-review-concept",
+              "reviewRunId": "B-5a15:RR-032",
+              "terminal": "pass",
+              "hostIdentity": "f609080e2f047e1ae7c38aa227e70422f1dcc47e8b9ac06c8067f7cab88414be",
+              "promptIdentity": "30abe61c4540d468564530e22def43a6585ef98a82c983b9b5dce56b215b5a37",
+              "evidenceIds": [
+                "B-5a15:RP-002"
+              ],
+              "coverageDigest": "ac7c2316401db57c0dc9b60f230a9355f75eeb8266e23a67e89c5847a9265b84"
+            },
+            {
+              "lane": "lattice-review-quality",
+              "reviewRunId": "B-5a15:RR-031",
+              "terminal": "finding",
+              "hostIdentity": "f609080e2f047e1ae7c38aa227e70422f1dcc47e8b9ac06c8067f7cab88414be",
+              "promptIdentity": "cedfc4c931d9f3768e9b48a8668cf6aa2cbf89e036b25d6269a117eb14629ae9",
+              "evidenceIds": [
+                "B-5a15:F-030",
+                "B-5a15:F-031"
+              ],
+              "coverageDigest": "d27a0b2b37c5ca5d455339a34ac84dd11a1c9ae192ac309fa913bc5c81f8d5da"
+            },
+            {
+              "lane": "lattice-review-test-coverage",
+              "reviewRunId": "B-5a15:RR-030",
+              "terminal": "pass",
+              "hostIdentity": "f609080e2f047e1ae7c38aa227e70422f1dcc47e8b9ac06c8067f7cab88414be",
+              "promptIdentity": "90187fca14153689a02da19c56dd9a7ba8c43c73bb9581793818976168f01758",
+              "evidenceIds": [
+                "B-5a15:RP-003"
+              ],
+              "coverageDigest": "ada8e4fd43ec9a04c22ecd34fba942ab87230f893f02c79e5b84db538b0d4895"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "acceptance-basis-current-binding",
+            "acceptance-pre-review-rollout-admissibility",
+            "acceptance-rollout-full-quorum",
+            "batch-rejection-retry",
+            "canonical-import-revalidation",
+            "causal-authority-durable",
+            "causal-input-key-completeness",
+            "environment-identity-case-sensitivity",
+            "pre-review-executable-proof",
+            "receipt-authenticity",
+            "stale-refresh-atomic-import",
+            "verification-evidence-freshness",
+            "verifier-index-identity"
+          ],
+          "verifiedFindingSetDigest": "9400863e546e732b3b175a94890466800167bccf8d537b0e78134dbb97d25bee",
+          "newVerifiedFindingCount": 13,
+          "criticDigest": "065ec68b2a6cde93debd6f3aa338cd5db5521cd9c906f307bd0be639af268fc8",
+          "saturated": false,
+          "nextRunSequenceBoundary": 35
+        }
+      ],
       "baselineFindingIds": [],
-      "_hash": "a3e12646d64c707ef505fe5eaf7f06acdcee9aef88529c592a30861818bdcdaa"
+      "_hash": "dbc13df39bd9cdd69f96159cb1a7d5697b9ae9773967dffc2de7198ad51eea27"
     }
   ],
   "receipts": [
@@ -254,5 +316,115 @@
       "_hash": "7b98e8edd9c0f4985a13f139982f85e108c7d117cd287fa2892f9054a65d7b8e"
     }
   ],
-  "criticReceipts": []
+  "criticReceipts": [
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-5a15:RI-004:CRIT-01",
+      "epochId": "B-5a15:RI-004",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-20T16:42:51.728Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "fe0dccc86aadfe1bc1574189bd489a1f7b3b35b5",
+        "materialHash": "8a4bb5365eec48bb494ba0c462d59873a1c4a34476135d1ee4ffccc7610dde25",
+        "storyFilesHash": "ceaa4b50b64a71d5eec244429a32d24d66a39a773174ae6d7a893568de49f049"
+      },
+      "aggregateFindingSetDigest": "9400863e546e732b3b175a94890466800167bccf8d537b0e78134dbb97d25bee",
+      "requiredLaneCoverageDigest": "4b6227e3a0b8996f5d72630c18c73e261f43fb5e549173625a0365affd0833ce",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-5a15:RR-035",
+      "terminalEvidenceIds": [
+        "B-5a15:RP-005"
+      ],
+      "readEvidenceDigest": "c9ddebd05c15439fc47a6dc4a4f088ea7077b85eb34fa190060811285b83d998",
+      "findingDispositions": [
+        {
+          "findingId": "B-5a15:F-022",
+          "disposition": "verified_family",
+          "familyKey": "acceptance-pre-review-rollout-admissibility",
+          "reason": "Current verifier reads show the pre-review executableProof is empty and both rollout consumers return missing/degraded-or-missing; topology structural pass is observe-only and cannot establish acceptance."
+        },
+        {
+          "findingId": "B-5a15:F-023",
+          "disposition": "verified_family",
+          "familyKey": "verification-evidence-freshness",
+          "reason": "The current-wave coverage record is bound to older HEAD/material/storyFiles hashes than the current REVIEW run, so the required current-head verification coverage remains unresolved."
+        },
+        {
+          "findingId": "B-5a15:F-024",
+          "disposition": "verified_family",
+          "familyKey": "pre-review-executable-proof",
+          "reason": "pre_review_check_read currently reports inconclusive, ok=false, executableEvidence=missing, empty commandDigests/caseRecords/bindingProofs, and the required PR coverage and authority failures."
+        },
+        {
+          "findingId": "B-5a15:F-025",
+          "disposition": "verified_family",
+          "familyKey": "acceptance-basis-current-binding",
+          "reason": "The signed acceptance basis is bound to an earlier HEAD than the current REVIEW run; the current topology command is diagnostic observe/read-only output rather than current signed acceptance evidence."
+        },
+        {
+          "findingId": "B-5a15:F-026",
+          "disposition": "verified_family",
+          "familyKey": "acceptance-rollout-full-quorum",
+          "reason": "Both current rollout reads return AR_REPORT_MISSING with no receipt and degraded-or-missing quorum, so full 3 rounds by codex-cli and claude-cli remain unproven."
+        },
+        {
+          "findingId": "B-5a15:F-027",
+          "disposition": "verified_family",
+          "familyKey": "causal-authority-durable",
+          "reason": "The current quality-lane finding remains open and its cross-process repro states that the process-local authority fails after restart; no current evidence disproves it."
+        },
+        {
+          "findingId": "B-5a15:F-028",
+          "disposition": "verified_family",
+          "familyKey": "causal-input-key-completeness",
+          "reason": "The current quality-lane finding remains open with a repro for changed unmapped input keys being ignored; no current evidence disproves this unresolved blocker."
+        },
+        {
+          "findingId": "B-5a15:F-029",
+          "disposition": "verified_family",
+          "familyKey": "receipt-authenticity",
+          "reason": "The current quality-lane finding remains open with a tamper/recomputed-self-hash repro accepting modified receipt content; no current evidence disproves it."
+        },
+        {
+          "findingId": "B-5a15:F-030",
+          "disposition": "verified_family",
+          "familyKey": "environment-identity-case-sensitivity",
+          "reason": "The current quality-lane finding remains open with a POSIX case-sensitive environment identity repro producing equal execution keys; no current evidence disproves it."
+        },
+        {
+          "findingId": "B-5a15:F-031",
+          "disposition": "verified_family",
+          "familyKey": "batch-rejection-retry",
+          "reason": "The current quality-lane finding remains open with a transient rejection repro that poisons the exact-key batch cache and prevents retry; no current evidence disproves it."
+        },
+        {
+          "findingId": "B-5a15:F-032",
+          "disposition": "verified_family",
+          "familyKey": "verifier-index-identity",
+          "reason": "The current quality-lane finding remains open with a changed Git index repro that leaves factsUnchanged true; no current evidence disproves this preflight integrity gap."
+        },
+        {
+          "findingId": "B-5a15:F-033",
+          "disposition": "verified_family",
+          "familyKey": "canonical-import-revalidation",
+          "reason": "The current quality-lane finding remains open because canonical import rechecks hashes/CAS but not lease and execution identity; no current evidence disproves it."
+        },
+        {
+          "findingId": "B-5a15:F-034",
+          "disposition": "verified_family",
+          "familyKey": "stale-refresh-atomic-import",
+          "reason": "The current quality-lane finding remains open because stale refresh writes a pre-refresh identity outside the canonical import path; no current evidence disproves this stale-evidence risk."
+        },
+        {
+          "findingId": "B-5a15:F-035",
+          "disposition": "verified_family",
+          "familyKey": "batch-rejection-retry",
+          "reason": "The current quality-lane finding remains open with the same rejected-promise retry blocker described in its current-wave evidence; no current evidence disproves this unresolved blocker."
+        }
+      ],
+      "createdAt": "2026-08-20T18:15:07.978Z",
+      "_hash": "dfd63a1b0f796ba12c74c49d51ed0404a017116aa68d02b8f1ba395c5f56eca7"
+    }
+  ]
 }

@@ -1,0 +1,201 @@
+{
+  "passes": [
+    {
+      "id": "B-5a15:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept-deletion review completed across the story diff and repository scope; no new concept deletion or replacement residue was found, and existing F-022..F-029 acceptance-chain families were not duplicated.",
+      "createdAt": "2026-08-20T17:50:58.758Z",
+      "reviewRound": "2026-08-20T16:42:51.728Z",
+      "reviewRunId": "B-5a15:RR-028",
+      "envelopeId": "c5a104a4166bc95566d1eaf728c4e14793756de2767c2048e3fa59ba6a86091f",
+      "writerSessionId": "sess-1e7c0439261c733e27b64b0d15b9e88c",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/review-inventory-epochs.json",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/context.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "packages/main/tests/causal-evidence-concurrency.test.mjs",
+          "packages/main/tests/causal-evidence.test.mjs",
+          "packages/main/tests/checklist-causal-preflight-batch.test.mjs",
+          "packages/main/tests/verifier-causal-preflight.test.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "bbf9a656efb5eccd18c2256ae17a715aa589d5cec5662b19ea11b1dad39832fc"
+    },
+    {
+      "id": "B-5a15:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion or replacement was introduced; the additive CausalEvidence diff has no residue-bearing concept cleanup, and the closing promised-but-undelivered check found no new unimplemented promise.",
+      "createdAt": "2026-08-20T17:52:11.147Z",
+      "reviewRound": "2026-08-20T16:42:51.728Z",
+      "reviewRunId": "B-5a15:RR-032",
+      "envelopeId": "30abe61c4540d468564530e22def43a6585ef98a82c983b9b5dce56b215b5a37",
+      "writerSessionId": "sess-2caa20e31c090ad6a5cfab5e3b6171e0",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/context.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e53ce44cc51987a752f3e77b45a549a6967a6b132f4c2c01d0e09d2c078deae8"
+    },
+    {
+      "id": "B-5a15:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage review completed across all 50 intents: 22 priority=must, zero waivers, and no new finding family. All 50 structurally matching evidence rows are stale against current HEAD/material/story bindings; the resulting gaps are already recorded by F-023 through F-026, so no duplicate findings were added. Those existing findings remain open and this terminal result is not an overall story-acceptance claim.",
+      "createdAt": "2026-08-20T17:52:35.915Z",
+      "reviewRound": "2026-08-20T16:42:51.728Z",
+      "reviewRunId": "B-5a15:RR-030",
+      "envelopeId": "90187fca14153689a02da19c56dd9a7ba8c43c73bb9581793818976168f01758",
+      "writerSessionId": "sess-02d6c34eb00f7abd1d3b8ac84be5d02c",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "ec7a8906ce14c87ddfc6043943c9b6e1a1ff28d4e8c9e9b20c3e8b3512caa9ab"
+      },
+      "readDiagnostics": [],
+      "_hash": "045e8db7b55c61549e718a848487b0d381bea6ad4594c65b2fdff69dd272ea49"
+    },
+    {
+      "id": "B-5a15:RP-004",
+      "agent": "lattice-review-topology-critic",
+      "note": "Topology artifacts were inspected; no additional topology finding is added beyond the current inventory wave.",
+      "createdAt": "2026-08-20T18:10:07.205Z",
+      "reviewRound": "2026-08-20T16:42:51.728Z",
+      "reviewRunId": "B-5a15:RR-034",
+      "writerSessionId": "sess-b07a34f5dfbc51ac21992f5844682e7f",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/findings.json",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a15/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a15/review-runs.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8431d5ab3168861be7e55f11ca5afaffc3bfa5a12e1992a2bf70885f1de6dc05"
+    },
+    {
+      "id": "B-5a15:RP-005",
+      "agent": "lattice-review-topology-critic",
+      "note": "Topology artifacts were inspected; no additional topology finding is added beyond the current inventory wave.",
+      "createdAt": "2026-08-20T18:14:37.233Z",
+      "reviewRound": "2026-08-20T16:42:51.728Z",
+      "reviewRunId": "B-5a15:RR-035",
+      "writerSessionId": "sess-b07a34f5dfbc51ac21992f5844682e7f",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/findings.json",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a15/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a15/review-runs.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "ae81c2d0af9cb07b5449c2e8eb9272572c9896d50cb01cacdf9c4d6d6ac4efe3"
+      },
+      "readDiagnostics": [],
+      "_hash": "5d823b176439dffa12d2116ae46872da03a20a248bc02385ec397ea1e7fbfcc9"
+    }
+  ]
+}

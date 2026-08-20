@@ -139,10 +139,26 @@
         "causalEvidenceReceiptPersistence",
         "acceptanceEvidenceOutput"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "The live verifier must bind every active B-5a15 topology assertion to a fresh executable proof.",
+      "timestamp": "2026-08-20T20:46:51.263Z",
+      "paths": [
+        "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "cbc1fbb0c2e0a532572e89d2b20321f3bc90d94b",
+      "materialHash": "92b9b4542b2f767e4eebff2f5980eb46da38e30dec7f98182aa7a7ce08896663"
     }
   ],
   "createdAt": "2026-08-20T09:29:12.295Z",
-  "updatedAt": "2026-08-20T16:47:15.749Z",
+  "updatedAt": "2026-08-20T20:46:51.263Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -170,6 +186,7 @@
     ".proof-or-stop/story/actives/B-5a15/causal-evidence/index.json": ".proof-or-stop/story/actives/B-5a15/causal-evidence/index.json",
     ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/1bffe0ccea0e35eef4104ab253884a46b33f1d3e8f5408cf5ae483650fe69a84.json": ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/1bffe0ccea0e35eef4104ab253884a46b33f1d3e8f5408cf5ae483650fe69a84.json",
     ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/8d87b53390f9816cad227924186c18714ddb968aa21c042fea57666d83bee06d.json": ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/8d87b53390f9816cad227924186c18714ddb968aa21c042fea57666d83bee06d.json",
-    ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/cd868a007315ae4b8f01f65861eb092f609c65277a5ca7a8c3eb7be55208124d.json": ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/cd868a007315ae4b8f01f65861eb092f609c65277a5ca7a8c3eb7be55208124d.json"
+    ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/cd868a007315ae4b8f01f65861eb092f609c65277a5ca7a8c3eb7be55208124d.json": ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/cd868a007315ae4b8f01f65861eb092f609c65277a5ca7a8c3eb7be55208124d.json",
+    "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
   }
 }

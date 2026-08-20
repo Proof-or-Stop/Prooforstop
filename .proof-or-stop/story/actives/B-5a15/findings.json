@@ -832,6 +832,382 @@
       ],
       "signatureTag": "adversarial|ts|receipt-integrity-unkeyed",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-030",
+      "desc": "packages/main/src/core/causal-evidence.ts:272-280 [high] redactEnvironment uppercases every environment key before hashing the execution identity. On POSIX, effectiveValidationCommandEnvironment preserves case and the child process treats Path and PATH as distinct, but createCausalExecutionKey produces the same ce:v1 key and canonical PATH entry for both (repro on current HEAD: Path=a and PATH=a yield equal keys). A command whose behavior depends on a case-sensitive custom variable can therefore reuse a receipt under a different effective environment, violating the explicit environment identity and stale-cache acceptance=0 contract. Preserve POSIX key case and add a case-sensitive environment mutation test.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-20T17:57:25.745Z",
+      "reviewRound": "2026-08-20T16:42:51.728Z",
+      "reviewRunId": "B-5a15:RR-031",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/findings.json",
+          ".proof-or-stop/story/actives/B-5a15/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a15/review-runs.json",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/context.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "packages/main/tests/causal-evidence-concurrency.test.mjs",
+          "packages/main/tests/causal-evidence.test.mjs",
+          "packages/main/tests/checklist-causal-preflight-batch.test.mjs",
+          "packages/main/tests/verifier-causal-preflight.test.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "ec7a8906ce14c87ddfc6043943c9b6e1a1ff28d4e8c9e9b20c3e8b3512caa9ab"
+      },
+      "readDiagnostics": [],
+      "_hash": "9210f90ad951b0831e64a98739ca1a1396b8c3e3b250099ee8279cea2f112c4c",
+      "signatureTag": "adversarial|unknown|packages-main-core",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-031",
+      "desc": "packages/main/src/core/causal-evidence.ts:608-619 [medium] The batch execution cache deletes an entry only when its promise resolves to a non-reusable receipt; if executeFresh rejects (for example a transient child/receipt-store I/O error), the derived batchReceipt remains a rejected promise in batch.executions. A later exact-key retry therefore returns the same rejection without invoking the child again (current-HEAD repro: first transient, second transient, runs=1). This permanently poisons the batch and violates the transaction/infra-failure retry contract; delete the same promise in a rejection handler and add a transient-error retry test.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-20T17:57:47.628Z",
+      "reviewRound": "2026-08-20T16:42:51.728Z",
+      "reviewRunId": "B-5a15:RR-031",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/findings.json",
+          ".proof-or-stop/story/actives/B-5a15/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a15/review-runs.json",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/context.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "packages/main/tests/causal-evidence-concurrency.test.mjs",
+          "packages/main/tests/causal-evidence.test.mjs",
+          "packages/main/tests/checklist-causal-preflight-batch.test.mjs",
+          "packages/main/tests/verifier-causal-preflight.test.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "ec7a8906ce14c87ddfc6043943c9b6e1a1ff28d4e8c9e9b20c3e8b3512caa9ab"
+      },
+      "readDiagnostics": [],
+      "_hash": "0128fe8b198bc6d00b0218d4d3b6aeab162b1081036dc4e12b9cc9387277f4b1",
+      "signatureTag": "edge|unknown|packages-main-core",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-032",
+      "desc": "packages/main/src/handlers/verifier.ts:499-510,624-635 [high] createValidationCausalPreflightGate rechecks canonicalized preflight facts before each child, but probeVerifierIndex records only readable/path and never fingerprints the Git index bytes or identity. Replacing or changing .git/index between the initial PASS and child launch therefore leaves factsUnchanged true, so validate can launch an expensive child against a stale current-index contract, violating CHK-004:adversarial:0/1. Include an index content digest or equivalent index identity in the verifier facts and revalidation.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-20T18:00:21.883Z",
+      "reviewRound": "2026-08-20T16:42:51.728Z",
+      "reviewRunId": "B-5a15:RR-029",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "packages/main/src/core/causal-evidence.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/context.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "packages/main/tests/causal-evidence-concurrency.test.mjs",
+          "packages/main/tests/causal-evidence.test.mjs",
+          "packages/main/tests/checklist-causal-preflight-batch.test.mjs",
+          "packages/main/tests/verifier-causal-preflight.test.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "c444c13baa7a9650a0235489a5f69229f97ddc081cc79a2aebc03d28366fd852"
+      },
+      "readDiagnostics": [],
+      "_hash": "ad826eb761cfcdca9f2eab37e430ceda2fbfc8cfc6d75c91d5554edefa039ce7",
+      "files": [
+        "packages/main/src/handlers/verifier.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-handlers",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-033",
+      "desc": "packages/main/src/handlers/checklist.ts:1419-1431 [high] commitCanonicalCausalEvidence revalidate checks only head/material/storyFiles hashes and CAS index; it never re-reads the writer lease or validates the receipt command/effective-environment/selector-policy identity at canonical commit/retry. If the lease is revoked or expired or the execution identity changes after the preflight or child run, the checklist import still commits. This violates CHK-002 lease/index/material/identity revalidation; make the import transaction revalidate the complete writer and identity snapshot.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-20T18:00:26.437Z",
+      "reviewRound": "2026-08-20T16:42:51.728Z",
+      "reviewRunId": "B-5a15:RR-029",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "packages/main/src/core/causal-evidence.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/context.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "packages/main/tests/causal-evidence-concurrency.test.mjs",
+          "packages/main/tests/causal-evidence.test.mjs",
+          "packages/main/tests/checklist-causal-preflight-batch.test.mjs",
+          "packages/main/tests/verifier-causal-preflight.test.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "c444c13baa7a9650a0235489a5f69229f97ddc081cc79a2aebc03d28366fd852"
+      },
+      "readDiagnostics": [],
+      "_hash": "d439768ea912ee6f1ae0e35cff3d82a70adc3c8171837d6bacfe0655abb94d63",
+      "files": [
+        "packages/main/src/handlers/checklist.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-handlers",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-034",
+      "desc": "packages/main/src/handlers/checklist.ts:1254-1363,2417-2476 [high] the re-executing stale-refresh path runs enforceAndStampEvidence outside the checklist lock, then writeStaleRefresh writes the pre-refresh head/material/storyFiles hashes and receipt directly with store.writeChecklist. It never recomputes current identity or passes the new receipt through commitCanonicalCausalEvidence/importCausalEvidenceReceipt. A material, lease, or index change while the command runs can therefore persist mechanical true evidence bound to a stale snapshot as if it were fresh. Revalidate and import the receipt atomically before the refresh write.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-20T18:00:30.378Z",
+      "reviewRound": "2026-08-20T16:42:51.728Z",
+      "reviewRunId": "B-5a15:RR-029",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "packages/main/src/core/causal-evidence.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/context.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "packages/main/tests/causal-evidence-concurrency.test.mjs",
+          "packages/main/tests/causal-evidence.test.mjs",
+          "packages/main/tests/checklist-causal-preflight-batch.test.mjs",
+          "packages/main/tests/verifier-causal-preflight.test.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "c444c13baa7a9650a0235489a5f69229f97ddc081cc79a2aebc03d28366fd852"
+      },
+      "readDiagnostics": [],
+      "_hash": "f993eaec0ce465864bb99dab382fdd3e6c46dcd2678297bf9d578048e5994f9a",
+      "files": [
+        "packages/main/src/handlers/checklist.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-handlers",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-035",
+      "desc": "packages/main/src/core/causal-evidence.ts:608-620 [medium] the batch cache removes a non-reusable receipt only in the fulfillment branch. If executeFresh rejects, for example on a runner or spawn infrastructure error, batchReceipt rejects and remains in args.batch.executions, so every later same-key intent reuses the rejection and cannot retry or reach a later PASS. This is distinct from the resolved fail, timeout, or partial-output case covered by F-007; remove the entry on rejection or finally as well.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-20T18:00:34.498Z",
+      "reviewRound": "2026-08-20T16:42:51.728Z",
+      "reviewRunId": "B-5a15:RR-029",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "packages/main/src/core/causal-evidence.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/context.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "packages/main/tests/causal-evidence-concurrency.test.mjs",
+          "packages/main/tests/causal-evidence.test.mjs",
+          "packages/main/tests/checklist-causal-preflight-batch.test.mjs",
+          "packages/main/tests/verifier-causal-preflight.test.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "c444c13baa7a9650a0235489a5f69229f97ddc081cc79a2aebc03d28366fd852"
+      },
+      "readDiagnostics": [],
+      "_hash": "6fb05aad39fba58ae6739dd5925a1e30fb323d297afda80d2881e2e028896685",
+      "files": [
+        "packages/main/src/core/causal-evidence.ts"
+      ],
+      "signatureTag": "edge|ts|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
