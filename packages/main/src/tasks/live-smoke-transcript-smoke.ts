@@ -795,14 +795,14 @@ assert.equal(
       doneRequiredCommands: [{ label: 'long legal suite', command: 'npm', args: ['test'], timeoutMs: 120_000 }],
     }, null, 2) + '\n', 'utf8');
     resetConfigCache();
-    const installedLattice = execFileSync('/bin/sh', ['-c', 'command -v lattice'], { encoding: 'utf8' }).trim();
-    const activeCliEntrypoint = realpathSync(installedLattice);
+    const installedProofOrStop = execFileSync('/bin/sh', ['-c', 'command -v proof-or-stop'], { encoding: 'utf8' }).trim();
+    const activeCliEntrypoint = realpathSync(installedProofOrStop);
     process.argv[1] = activeCliEntrypoint;
     const globalBin = join(root, 'global-bin');
-    const latticeSymlink = join(globalBin, 'lattice');
+    const proofOrStopSymlink = join(globalBin, 'proof-or-stop');
     mkdirSync(globalBin, { recursive: true });
-    symlinkSync(activeCliEntrypoint, latticeSymlink);
-    assert.equal(realpathSync(latticeSymlink), activeCliEntrypoint, 'fixture mirrors a global lattice symlink to the exact active CLI realpath');
+    symlinkSync(activeCliEntrypoint, proofOrStopSymlink);
+    assert.equal(realpathSync(proofOrStopSymlink), activeCliEntrypoint, 'fixture mirrors a global proof-or-stop symlink to the exact active CLI realpath');
     const budgetEnv = { ...process.env, PATH: `${globalBin}${delimiter}${process.env.PATH ?? ''}` };
     const doneRequiredCommand = 'proof-or-stop done_required_validate --storyId=B-livesmoke --json';
     const donePrepareCommand = 'proof-or-stop done_prepare --storyId=B-livesmoke --json';

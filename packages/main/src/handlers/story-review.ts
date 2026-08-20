@@ -571,7 +571,7 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
         }
       }
 
-      // 2.6. Scope check: read scope-check.json (written by lattice-review-scope-plan agent)
+      // 2.6. Scope check: read scope-check.json (written by proof-or-stop-review-scope-plan agent)
       // Only check scope when understanding exists and checklist has items
       // (without these, scope check is meaningless and would block trivial stories)
       const scopeData = store.readScopeCheck(args.storyId);
@@ -579,7 +579,7 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
         issues.push({
           type: 'missing_scope_check',
           severity: 'blocker',
-          message: `missing_scope_check: scope-check.json is missing PLAN gate evidence. Start a story-level PLAN scope reviewer with \`proof-or-stop dispatch --storyId=${args.storyId} --agentType=lattice-review-scope-plan\`; dispatch output is not gate evidence, and the lattice-review-scope-plan / scope-plan reviewer must finish by calling \`proof-or-stop scope_check_save\`. The implementation/main agent must not self-sign this evidence or manually edit story metadata. Local CLI guidance is not remote completion and must not be presented as receipt verification or production/full completion.`,
+          message: `missing_scope_check: scope-check.json is missing PLAN gate evidence. Start a story-level PLAN scope reviewer with \`proof-or-stop dispatch --storyId=${args.storyId} --agentType=proof-or-stop-review-scope-plan\`; dispatch output is not gate evidence, and the proof-or-stop-review-scope-plan / scope-plan reviewer must finish by calling \`proof-or-stop scope_check_save\`. The implementation/main agent must not self-sign this evidence or manually edit story metadata. Local CLI guidance is not remote completion and must not be presented as receipt verification or production/full completion.`,
         });
       } else if (scopeData) {
         // Verify both legacy and read-manifest-bound signatures without relying on cwd.

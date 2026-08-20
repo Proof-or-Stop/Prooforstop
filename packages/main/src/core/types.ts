@@ -2499,7 +2499,7 @@ export interface DeliveryCheckData {
   checkedAt: string;
   /** Git HEAD at delivery review time, retained for audit/debug only. */
   headHash?: string;
-  /** Material tree hash reviewed by lattice-review-delivery; signed and required for freshness. */
+  /** Material tree hash reviewed by proof-or-stop-review-delivery; signed and required for freshness. */
   materialHash?: string;
   /**
    * Story-owned file hash (storyFilesHash secondary-freshness signal). Signed.

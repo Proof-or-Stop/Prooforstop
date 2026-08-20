@@ -71,7 +71,7 @@ function withInitCheckLock<T>(store: StoryStore, storyId: string, fn: () => T): 
 /**
  * init_check_set handler factory.
  *
- * Called by the lattice-review-story-init subagent (CHK-002 template); writes init-check.json.
+ * Called by the proof-or-stop-review-story-init subagent (CHK-002 template); writes init-check.json.
  * The registry validates mutation authority. A registered PROOF_OR_STOP_AGENT (deprecated alias LATTICE_AGENT) is the
  * authoritative dispatched identity, so payload agent/agentId attribution
  * cannot impersonate a trusted host or a different reviewer lane.

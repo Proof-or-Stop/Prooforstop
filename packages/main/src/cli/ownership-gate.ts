@@ -13,6 +13,7 @@ import { PROOF_OR_STOP_DIR } from '../core/lattice-paths.js';
 import { isCanonicalStoryId } from '../core/lifecycle-registry.js';
 import type { ProofOrStopConfig } from '../core/config.js';
 import { readBrandEnv } from '../core/brand-env.js';
+import { agentRoleIdsEqual } from '../core/agent-role-identity.js';
 
 export interface ActiveStoryForOwnershipGate {
   storyId: string;
@@ -222,7 +223,7 @@ export function isDeliveryReviewerActor(args: Record<string, unknown>): boolean 
   const envAgent = readBrandEnv('AGENT');
   const env = typeof envAgent === 'string' ? envAgent.trim() : '';
   const actor = explicit || env;
-  return actor === 'lattice-review-delivery';
+  return agentRoleIdsEqual(actor, 'proof-or-stop-review-delivery');
 }
 
 export type TakeoverIntent = 'none' | 'takeover' | 'forceTakeover';

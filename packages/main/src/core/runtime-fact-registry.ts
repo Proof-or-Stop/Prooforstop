@@ -69,8 +69,8 @@ export const RUNTIME_FACT_REGISTRY = [
     checker: 'resolveCliEntrypoint',
     outputKey: 'cliEntrypoint',
     rationale: 'The CLI path determines which installed Proof-or-Stop runtime answers user commands.',
-    driftMessage: 'The lattice executable on PATH is missing or does not resolve to the expected runtime.',
-    repairHint: 'Run `command -v lattice`, rebuild/link the intended package, or use `node packages/main/dist/cli.js` for current-worktree checks.',
+    driftMessage: 'The proof-or-stop executable on PATH is missing or does not resolve to the expected runtime.',
+    repairHint: 'Run `command -v proof-or-stop`, rebuild/link the intended package, or use `node packages/main/dist/cli.js` for current-worktree checks.',
   },
   {
     id: 'global-core-realpath',
@@ -90,9 +90,9 @@ export const RUNTIME_FACT_REGISTRY = [
     externalSeverity: 'warn',
     checker: 'resolveProjectLocalBin',
     outputKey: 'projectLocalBin',
-    rationale: 'A project-local node_modules/.bin/lattice can shadow the global CLI inside npm scripts or modified PATHs.',
-    driftMessage: 'A local lattice binary is present and may override the intended CLI entrypoint.',
-    repairHint: 'Inspect `node_modules/.bin/lattice`, adjust PATH, or remove stale local installs before trusting bare CLI output.',
+    rationale: 'A project-local node_modules/.bin/proof-or-stop can shadow the global CLI inside npm scripts or modified PATHs.',
+    driftMessage: 'A local proof-or-stop binary is present and may override the intended CLI entrypoint.',
+    repairHint: 'Inspect `node_modules/.bin/proof-or-stop`, adjust PATH, or remove stale local installs before trusting bare CLI output.',
   },
   {
     id: 'node-version',

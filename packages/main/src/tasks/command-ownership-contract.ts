@@ -209,14 +209,24 @@ try {
     const savedAgent = process.env.LATTICE_AGENT;
     delete process.env.LATTICE_AGENT;
     assert.equal(
+      isDeliveryReviewerActor({ agentId: 'proof-or-stop-review-delivery' }),
+      true,
+      'canonical delivery reviewer actor is recognised',
+    );
+    assert.equal(
       isDeliveryReviewerActor({ agentId: 'lattice-review-delivery' }),
       true,
-      'agentId=lattice-review-delivery is recognised as the delivery reviewer actor',
+      'legacy delivery reviewer actor remains readable for compatibility',
     );
     assert.equal(
       isDeliveryReviewerActor({ agentId: 'main' }),
       false,
       'a non-delivery agentId is not the delivery reviewer actor',
+    );
+    assert.equal(
+      resolveEffectiveOwnershipClass('delivery_check_set', { agentId: 'proof-or-stop-review-delivery' }, 'B-c55d'),
+      'reviewerWrite',
+      'canonical delivery reviewer is reviewerWrite (owner-lease exempt)',
     );
     assert.equal(
       resolveEffectiveOwnershipClass('delivery_check_set', { agentId: 'lattice-review-delivery' }, 'B-c55d'),

@@ -693,7 +693,7 @@ function compatibilityRuntimeMessage(source: RuntimeModeSource): string {
     case 'repo-local-dist':
       return 'compatibility launcher is using the repository-local Proof-or-Stop dist runtime; run npm --prefix packages/main run build after core edits';
     case 'project-node-modules':
-      return 'compatibility launcher is using the project node_modules Proof-or-Stop package without requiring node_modules/.bin/lattice as the active CLI';
+      return 'compatibility launcher is using the project node_modules Proof-or-Stop package without requiring node_modules/.bin/proof-or-stop as the active CLI';
     case 'packaged-runtime':
       return 'compatibility launcher is using a packaged Proof-or-Stop runtime; project package.json/node_modules are not required';
     case 'external-development-engine':
@@ -1194,8 +1194,8 @@ function projectLocalBinPath(projectRoot: string): string {
 function projectLocalBinCandidates(projectRoot: string): string[] {
   const binDir = join(projectRoot, 'node_modules', '.bin');
   return process.platform === 'win32'
-    ? [join(binDir, 'lattice.cmd')]
-    : [join(binDir, 'lattice')];
+    ? [join(binDir, 'proof-or-stop.cmd')]
+    : [join(binDir, 'proof-or-stop')];
 }
 
 function isPackagedRuntime(): boolean {

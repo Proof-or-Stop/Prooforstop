@@ -1177,7 +1177,7 @@ export const PROCESS_FACT_ARTIFACTS = [
     consumerGate: 'topology_critic_receipt_set and topology_critic_receipt_check',
     consumerSourceRefs: ['packages/main/src/core/topology-critic-receipt.ts', 'packages/main/src/handlers/proofstory.ts', 'scripts/verify-process-fact-contract.mjs'],
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.topology_exclusion_approval_set,
-    rationale: 'Every topology exclusion is covered exactly once by a signed current lattice-review-scope-plan approval that is independently attributable from both implementation and critic provenance.',
+    rationale: 'Every topology exclusion is covered exactly once by a signed current proof-or-stop-review-scope-plan approval that is independently attributable from both implementation and critic provenance.',
   },
   {
     name: 'artifact:topology-critic-receipt.json',
