@@ -58,7 +58,8 @@ const identity = {
 const readyPreflight = preflightCausalEvidence({
   cli: { available: true, path: 'proof-or-stop' },
   worktree: { expected: process.cwd(), actual: process.cwd() },
-  gitIndex: { readable: true, expected: 'head', actual: 'head' },
+  gitIndex: { readable: true, path: `${process.cwd()}/.git/index`, expected: 'head', actual: 'head' },
+  gitMaterial: { available: true, headHash: 'head', materialHash: 'material-smoke', storyFilesHash: 'story-smoke' },
   writerLease: { available: true, valid: true },
   providerCapability: { required: ['allowlisted-command', 'bounded-output'], available: ['allowlisted-command', 'bounded-output'] },
   resources: { required: { timeoutMs: 1000 }, available: { timeoutMs: 1000 } },

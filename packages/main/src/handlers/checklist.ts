@@ -1,6 +1,6 @@
 
-import { existsSync } from 'fs';
-import { isAbsolute, join } from 'path';
+import { accessSync, constants, existsSync, realpathSync, statSync } from 'fs';
+import { dirname, isAbsolute, join, resolve } from 'path';
 import type { HandlerContext } from './context.js';
 import { assertCwdInWorktree } from './context.js';
 import { execSync } from 'child_process';
@@ -18,6 +18,8 @@ import { withMkdirLock } from '../core/mkdir-lock.js';
 import { effectiveExcludedKeywords, normalizeBoundaryArray, scanExcludedKeywordHits } from '../core/scope-anti-expansion.js';
 import type { ScopeFreezeTextSource } from '../core/types.js';
 import { resolveAgentMutationAuthority } from '../core/agent-dispatch-registry.js';
+import { getSessionId } from '../core/owner-session.js';
+import { isLeaseStale, readOwnerLease } from '../core/story-owner-lease.js';
 import {
   isAcceptanceMatrixDerivedEvidence,
   plannedPathDeclarationSnapshot,
@@ -28,6 +30,7 @@ import { BRAND_ENV_PREFIX, readBrandEnv } from '../core/brand-env.js';
 import {
   DEFAULT_CAUSAL_SELECTOR_POLICY,
   CAUSAL_MAX_OUTPUT_CHARS,
+  CAUSAL_RECEIPT_DIRECTORY,
   effectiveCausalEnvironment,
   executeCausalEvidence,
   createCausalEvidenceBatch,
@@ -35,6 +38,7 @@ import {
   resolveCausalToolVersion,
   importCausalEvidenceReceipt,
   type CausalEvidenceBatch,
+  type CausalPreflightFacts,
   type CausalEvidenceReceipt,
   type CausalEvidenceReceiptStore,
 } from '../core/causal-evidence.js';
@@ -296,6 +300,160 @@ function evidenceHashes(gitCwd: string, metadataRoot: string = gitCwd): { headHa
     ...(headHash ? { headHash } : {}),
     ...(materialHash ? { materialHash } : {}),
     ...(storyFilesHash ? { storyFilesHash } : {}),
+  };
+}
+
+type CausalPreflightProbeInput = {
+  storyId: string;
+  command: string;
+  cwd: string;
+  authoritativeCwd: string;
+  metadataRoot: string;
+  store: HandlerContext['store'];
+  timeoutMs?: number;
+};
+
+function canonicalProbePath(path: string): string | null {
+  try {
+    return realpathSync(path);
+  } catch {
+    return null;
+  }
+}
+
+function probeGitTopLevel(cwd: string): string | null {
+  try {
+    const topLevel = execSync('git rev-parse --show-toplevel', {
+      cwd,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    }).trim();
+    return topLevel ? canonicalProbePath(topLevel) : null;
+  } catch {
+    return null;
+  }
+}
+
+function probeGitIndex(cwd: string): { readable: boolean; path?: string; reason?: string } {
+  try {
+    const rawPath = execSync('git rev-parse --path-format=absolute --git-path index', {
+      cwd,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    }).trim();
+    const indexPath = canonicalProbePath(isAbsolute(rawPath) ? rawPath : resolve(cwd, rawPath));
+    if (!indexPath) return { readable: false, reason: 'git_index_path_unavailable' };
+    if (!statSync(indexPath).isFile()) return { readable: false, path: indexPath, reason: 'git_index_not_a_file' };
+    accessSync(indexPath, constants.R_OK);
+    return { readable: true, path: indexPath };
+  } catch {
+    return { readable: false, reason: 'git_index_unavailable' };
+  }
+}
+
+function probeWritableEvidenceTarget(path: string): { writable: boolean; probe: string; reason?: string } {
+  let probePath = path;
+  while (!existsSync(probePath)) {
+    const parent = dirname(probePath);
+    if (parent === probePath) return { writable: false, probe: probePath, reason: 'evidence_target_parent_unavailable' };
+    probePath = parent;
+  }
+  try {
+    if (!statSync(probePath).isDirectory()) {
+      return { writable: false, probe: probePath, reason: 'evidence_target_parent_not_directory' };
+    }
+    accessSync(probePath, constants.W_OK);
+    return { writable: true, probe: `access_w:${probePath}` };
+  } catch {
+    return { writable: false, probe: probePath, reason: 'evidence_target_access_denied' };
+  }
+}
+
+function probeActiveCli(): { available: boolean; path?: string; reason?: string } {
+  const invoked = process.argv[1];
+  if (!invoked) return { available: false, reason: 'cli_invocation_unavailable' };
+  const candidate = isAbsolute(invoked) ? invoked : resolve(process.cwd(), invoked);
+  try {
+    const cliPath = canonicalProbePath(candidate);
+    if (!cliPath) return { available: false, reason: `cli_path_unavailable ${candidate}` };
+    if (!statSync(cliPath).isFile()) return { available: false, reason: `cli_not_a_file ${cliPath}` };
+    // The canonical CLI is commonly launched as `node bin/proof-or-stop.js`,
+    // so the script itself need not have executable mode bits.
+    accessSync(cliPath, constants.R_OK);
+    return { available: true, path: cliPath };
+  } catch {
+    return { available: false, reason: `cli_not_executable ${candidate}` };
+  }
+}
+
+function probeWriterLease(storyDir: string, authoritativeCwd: string): { available: boolean; valid: boolean; reason?: string } {
+  const lease = readOwnerLease(storyDir);
+  if (!lease) return { available: false, valid: false, reason: 'lease_missing_or_invalid' };
+  if (lease.sessionId !== getSessionId()) return { available: true, valid: false, reason: `lease_foreign_session expected=${getSessionId()} actual=${lease.sessionId}` };
+  if (isLeaseStale(lease)) return { available: true, valid: false, reason: 'lease_stale' };
+  const leaseCwd = canonicalProbePath(lease.cwd);
+  const expectedCwd = canonicalProbePath(authoritativeCwd);
+  if (!leaseCwd || !expectedCwd || leaseCwd !== expectedCwd) {
+    return { available: true, valid: false, reason: `lease_cwd_mismatch expected=${expectedCwd ?? authoritativeCwd} actual=${leaseCwd ?? lease.cwd}` };
+  }
+  return { available: true, valid: true };
+}
+
+function probeCausalPreflightFacts(input: CausalPreflightProbeInput): CausalPreflightFacts {
+  const cli = probeActiveCli();
+  const expectedWorktree = canonicalProbePath(input.authoritativeCwd) ?? input.authoritativeCwd;
+  const actualWorktree = probeGitTopLevel(input.cwd);
+  const hashes = evidenceHashes(input.authoritativeCwd, input.metadataRoot);
+  const gitIndex = probeGitIndex(input.authoritativeCwd);
+  const gitMaterialAvailable = Boolean(hashes.headHash && hashes.materialHash && hashes.storyFilesHash);
+  const storyDir = input.store.storyDirPath(input.storyId);
+  const evidenceTargetPath = join(storyDir, CAUSAL_RECEIPT_DIRECTORY);
+  const evidenceTargetProbe = probeWritableEvidenceTarget(evidenceTargetPath);
+  let allowlistedCommand = true;
+  try {
+    parseAllowlistedCommand(input.command);
+  } catch {
+    allowlistedCommand = false;
+  }
+  const timeoutMs = input.timeoutMs ?? DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS;
+  const timeoutAvailable = Number.isFinite(timeoutMs) && timeoutMs > 0;
+
+  return {
+    cli,
+    worktree: actualWorktree
+      ? { expected: expectedWorktree, actual: actualWorktree }
+      : { expected: expectedWorktree, actual: '', reason: 'worktree_unavailable' },
+    gitIndex,
+    gitMaterial: {
+      available: gitMaterialAvailable,
+      ...(hashes.headHash ? { headHash: hashes.headHash } : {}),
+      ...(hashes.materialHash ? { materialHash: hashes.materialHash } : {}),
+      ...(hashes.storyFilesHash ? { storyFilesHash: hashes.storyFilesHash } : {}),
+      ...(gitMaterialAvailable ? {} : { reason: 'git_material_or_story_files_hash_unavailable' }),
+    },
+    writerLease: probeWriterLease(storyDir, input.authoritativeCwd),
+    providerCapability: {
+      required: ['allowlisted-command', 'bounded-output'],
+      available: [
+        ...(allowlistedCommand ? ['allowlisted-command'] : []),
+        ...(CAUSAL_MAX_OUTPUT_CHARS > 0 ? ['bounded-output'] : []),
+      ],
+      ...(allowlistedCommand ? {} : { reason: 'allowlisted_command_parse_failed' }),
+    },
+    resources: {
+      required: { timeoutMs },
+      available: { timeoutMs: timeoutAvailable ? timeoutMs : 0 },
+      ...(timeoutAvailable ? {} : { reason: 'timeout_resource_unavailable' }),
+    },
+    evidenceTarget: {
+      writable: evidenceTargetProbe.writable,
+      path: evidenceTargetPath,
+      probe: evidenceTargetProbe.probe,
+      ...(evidenceTargetProbe.reason ? { reason: evidenceTargetProbe.reason } : {}),
+    },
+    // The single allowlisted runner returns bounded output and emits no progress
+    // stream; one is the observed available event budget, not a fabricated large cap.
+    sideChannel: { available: CAUSAL_MAX_OUTPUT_CHARS > 0, maxOutputChars: CAUSAL_MAX_OUTPUT_CHARS, maxProgressEvents: 1 },
   };
 }
 
@@ -669,6 +827,7 @@ async function enforceAndStampEvidence(
   input: EvidenceWriteInput,
   deps: {
     runCommand: SingleCommandRunner;
+    preflightFacts: (input: { command: string; cwd: string; timeoutMs?: number }) => CausalPreflightFacts;
     cwd: string;
     storyId: string;
     projectRoot: string;
@@ -790,16 +949,7 @@ async function enforceAndStampEvidence(
   // make a refusal auditable.
   const hashes = evidenceHashes(deps.cwd, deps.metadataRoot);
   const timeoutMs = timeoutOverride?.timeoutMs;
-  const preflight = preflightCausalEvidence({
-    cli: { available: true, path: pinCommand },
-    worktree: { expected: deps.cwd, actual: deps.cwd },
-    gitIndex: { readable: Boolean(hashes.headHash), expected: hashes.headHash, actual: hashes.headHash },
-    writerLease: { available: true, valid: true },
-    providerCapability: { required: ['allowlisted-command', 'bounded-output'], available: ['allowlisted-command', 'bounded-output'] },
-    resources: { required: { timeoutMs: timeoutMs ?? DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS }, available: { timeoutMs: timeoutMs ?? DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS } },
-    evidenceTarget: { writable: true, path: `${deps.storyId}/causal-evidence/` },
-    sideChannel: { available: true, maxOutputChars: CAUSAL_MAX_OUTPUT_CHARS, maxProgressEvents: 10_000 },
-  }, () => {
+  const preflight = preflightCausalEvidence(deps.preflightFacts({ command: pinCommand, cwd: deps.cwd, timeoutMs }), () => {
     const current = evidenceHashes(deps.cwd, deps.metadataRoot);
     return current.headHash === hashes.headHash
       && current.materialHash === hashes.materialHash
@@ -1235,6 +1385,17 @@ export function createChecklistHandlers(ctx: HandlerContext) {
   // so the storyDir-aware metadata exclusion loads config from the right place.
   const resolveStoryGitCwd = (storyId: string): string =>
     resolveGitCwd({ store, storyId, metadataRoot: root, projectRoot: root });
+  const causalPreflightFactsFor = (storyId: string, authoritativeCwd: string) =>
+    (input: { command: string; cwd: string; timeoutMs?: number }): CausalPreflightFacts =>
+      probeCausalPreflightFacts({
+        storyId,
+        command: input.command,
+        cwd: input.cwd,
+        authoritativeCwd,
+        metadataRoot: root,
+        store,
+        ...(input.timeoutMs !== undefined ? { timeoutMs: input.timeoutMs } : {}),
+      });
   const commitCanonicalCausalEvidence = (
     storyId: string,
     gitCwd: string,
@@ -1875,6 +2036,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
               command, root, { cwd, ...(effectiveTimeoutMs !== undefined ? { timeoutMs: effectiveTimeoutMs } : {}) },
             );
           },
+          preflightFacts: causalPreflightFactsFor(args.storyId, gitCwd),
           cwd: gitCwd,
           storyId: args.storyId,
           projectRoot: root,
@@ -2013,6 +2175,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
           },
           {
             runCommand,
+            preflightFacts: causalPreflightFactsFor(args.storyId, gitCwd),
             cwd: gitCwd,
             storyId: args.storyId,
             projectRoot: root,
@@ -2163,6 +2326,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
               command, root, { cwd, ...(effectiveTimeoutMs !== undefined ? { timeoutMs: effectiveTimeoutMs } : {}) },
             );
           },
+          preflightFacts: causalPreflightFactsFor(args.storyId, gitCwd),
           cwd: runCwd,
           storyId: args.storyId,
           projectRoot: root,
@@ -2276,6 +2440,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
                     command, root, { cwd, ...(effectiveTimeoutMs !== undefined ? { timeoutMs: effectiveTimeoutMs } : {}) },
                   );
                 },
+                preflightFacts: causalPreflightFactsFor(args.storyId, computed.refreshGitCwd),
                 cwd: computed.refreshGitCwd,
                 storyId: args.storyId,
                 projectRoot: root,

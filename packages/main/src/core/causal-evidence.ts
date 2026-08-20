@@ -502,10 +502,13 @@ export async function executeCausalEvidence(args: ExecuteCausalEvidenceArgs): Pr
   let disposition: 'executed' | 'reused' = 'executed';
   if (!promise) {
     promise = (async () => {
-      const run = await args.run();
+      // This check is deliberately the last operation before invoking the child
+      // runner. A post-run check can only reject the evidence after the command
+      // has already executed, which violates the zero-execution refusal contract.
       if (args.revalidateBeforeRun && !args.revalidateBeforeRun()) {
         throw new Error('causal preflight refused: state_changed_before_launch commandExecutions=0 evidenceWrites=0 [causal_preflight_refused]');
       }
+      const run = await args.run();
       const redactedOutput = redactCausalOutput(run.output, key.identity.effectiveEnvironment);
       const receiptWithoutHash: Omit<CausalEvidenceReceipt, 'receiptHash'> = {
         schemaVersion: CAUSAL_EVIDENCE_SCHEMA,
@@ -558,13 +561,14 @@ export async function executeCausalEvidence(args: ExecuteCausalEvidenceArgs): Pr
 }
 
 export interface CausalPreflightFacts {
-  cli?: { available: boolean; path?: string };
-  worktree?: { expected: string; actual: string };
-  gitIndex?: { readable: boolean; expected?: string; actual?: string };
+  cli?: { available: boolean; path?: string; reason?: string };
+  worktree?: { expected: string; actual: string; reason?: string };
+  gitIndex?: { readable: boolean; path?: string; expected?: string; actual?: string; reason?: string };
+  gitMaterial?: { available: boolean; headHash?: string; materialHash?: string; storyFilesHash?: string; reason?: string };
   writerLease?: { available: boolean; valid: boolean; reason?: string };
-  providerCapability?: { required: string[]; available: string[] };
-  resources?: { required: Record<string, number>; available: Record<string, number> };
-  evidenceTarget?: { writable: boolean; path?: string; probe?: string };
+  providerCapability?: { required: string[]; available: string[]; reason?: string };
+  resources?: { required: Record<string, number>; available: Record<string, number>; reason?: string };
+  evidenceTarget?: { writable: boolean; path?: string; probe?: string; reason?: string };
   sideChannel?: { available: boolean; maxOutputChars: number; maxProgressEvents: number };
 }
 
@@ -587,30 +591,34 @@ export function preflightCausalEvidence(
   revalidate?: () => boolean,
 ): CausalPreflightReport {
   const checks: Record<string, { status: 'pass' | 'fail'; reason?: string }> = {};
-  if (!facts.cli?.available) preflightFailure(checks, 'cli', 'cli_unavailable');
+  if (!facts.cli?.available || !facts.cli.path) preflightFailure(checks, 'cli', facts.cli?.reason ?? 'cli_unavailable');
   else checks.cli = { status: 'pass' };
 
   if (!facts.worktree?.expected || !facts.worktree.actual) preflightFailure(checks, 'worktree', 'worktree_unavailable');
   else if (facts.worktree.expected !== facts.worktree.actual) preflightFailure(checks, 'worktree', `worktree_mismatch expected=${facts.worktree.expected} actual=${facts.worktree.actual}`);
   else checks.worktree = { status: 'pass' };
 
-  if (!facts.gitIndex?.readable) preflightFailure(checks, 'gitIndex', 'git_index_unavailable');
+  if (!facts.gitIndex?.readable || !facts.gitIndex.path) preflightFailure(checks, 'gitIndex', facts.gitIndex?.reason ?? 'git_index_unavailable');
   else if (facts.gitIndex.expected && facts.gitIndex.actual && facts.gitIndex.expected !== facts.gitIndex.actual) preflightFailure(checks, 'gitIndex', `git_index_mismatch expected=${facts.gitIndex.expected} actual=${facts.gitIndex.actual}`);
   else checks.gitIndex = { status: 'pass' };
+
+  if (!facts.gitMaterial?.available || !facts.gitMaterial.headHash || !facts.gitMaterial.materialHash || !facts.gitMaterial.storyFilesHash) {
+    preflightFailure(checks, 'gitMaterial', facts.gitMaterial?.reason ?? 'git_material_unavailable');
+  } else checks.gitMaterial = { status: 'pass' };
 
   if (!facts.writerLease?.available) preflightFailure(checks, 'writerLease', 'writer_unavailable');
   else if (!facts.writerLease.valid) preflightFailure(checks, 'writerLease', `lease_invalid${facts.writerLease.reason ? ` ${facts.writerLease.reason}` : ''}`);
   else checks.writerLease = { status: 'pass' };
 
   const missingCapability = (facts.providerCapability?.required ?? []).find(cap => !(facts.providerCapability?.available ?? []).includes(cap));
-  if (!facts.providerCapability || missingCapability) preflightFailure(checks, 'providerCapability', `provider_capability_missing${missingCapability ? ` ${missingCapability}` : ''}`);
+  if (!facts.providerCapability || missingCapability) preflightFailure(checks, 'providerCapability', facts.providerCapability?.reason ?? `provider_capability_missing${missingCapability ? ` ${missingCapability}` : ''}`);
   else checks.providerCapability = { status: 'pass' };
 
   const insufficient = Object.entries(facts.resources?.required ?? {}).find(([name, required]) => (facts.resources?.available[name] ?? 0) < required);
-  if (!facts.resources || insufficient) preflightFailure(checks, 'resources', insufficient ? `insufficient_resources ${insufficient[0]} required=${insufficient[1]} available=${facts.resources?.available[insufficient[0]] ?? 0}` : 'insufficient_resources');
+  if (!facts.resources || insufficient) preflightFailure(checks, 'resources', facts.resources?.reason ?? (insufficient ? `insufficient_resources ${insufficient[0]} required=${insufficient[1]} available=${facts.resources?.available[insufficient[0]] ?? 0}` : 'insufficient_resources'));
   else checks.resources = { status: 'pass' };
 
-  if (!facts.evidenceTarget?.writable) preflightFailure(checks, 'evidenceTarget', `evidence_target_not_writable${facts.evidenceTarget?.path ? ` ${facts.evidenceTarget.path}` : ''}${facts.evidenceTarget?.probe ? ` ${facts.evidenceTarget.probe}` : ''}`);
+  if (!facts.evidenceTarget?.writable || !facts.evidenceTarget.path) preflightFailure(checks, 'evidenceTarget', facts.evidenceTarget?.reason ?? `evidence_target_not_writable${facts.evidenceTarget?.path ? ` ${facts.evidenceTarget.path}` : ''}${facts.evidenceTarget?.probe ? ` ${facts.evidenceTarget.probe}` : ''}`);
   else checks.evidenceTarget = { status: 'pass' };
 
   if (!facts.sideChannel?.available || facts.sideChannel.maxOutputChars <= 0 || facts.sideChannel.maxProgressEvents <= 0) preflightFailure(checks, 'sideChannel', 'bounded_side_channel_unavailable');

@@ -50,7 +50,8 @@ function preflight(overrides = {}, revalidate) {
   return preflightCausalEvidence({
     cli: { available: true, path: '/usr/bin/proof-or-stop' },
     worktree: { expected: repoRoot, actual: repoRoot },
-    gitIndex: { readable: true, expected: 'head-a', actual: 'head-a' },
+    gitIndex: { readable: true, path: join(repoRoot, 'index'), expected: 'head-a', actual: 'head-a' },
+    gitMaterial: { available: true, headHash: 'head-a', materialHash: 'material-a', storyFilesHash: 'story-a' },
     writerLease: { available: true, valid: true },
     providerCapability: { required: ['allowlisted-command', 'bounded-output'], available: ['allowlisted-command', 'bounded-output'] },
     resources: { required: { timeoutMs: 1000 }, available: { timeoutMs: 1000 } },
@@ -251,6 +252,7 @@ test('CHK-004: preflight refuses exact readiness failures with zero execution/ev
     ['cli', { cli: { available: false } }, 'cli_unavailable'],
     ['worktree', { worktree: { expected: '/a', actual: '/b' } }, 'worktree_mismatch'],
     ['index', { gitIndex: { readable: false } }, 'git_index_unavailable'],
+    ['material', { gitMaterial: { available: false } }, 'git_material_unavailable'],
     ['writer', { writerLease: { available: false, valid: false } }, 'writer_unavailable'],
     ['lease', { writerLease: { available: true, valid: false, reason: 'expired' } }, 'lease_invalid'],
     ['provider', { providerCapability: { required: ['provider-x'], available: [] } }, 'provider_capability_missing'],
@@ -269,6 +271,41 @@ test('CHK-004: preflight refuses exact readiness failures with zero execution/ev
   assert.equal(race.ready, false);
   assert.deepEqual(race.failedChecks, ['state_changed_before_launch']);
   assert.equal(preflight().ready, true);
+});
+
+test('CHK-006: atomic pre-run revalidation refuses before the child runner with zero counters or writes', async () => {
+  const batch = createCausalEvidenceBatch();
+  const store = new MemoryReceiptStore();
+  let runInvoked = false;
+  let revalidations = 0;
+  await assert.rejects(
+    executeCausalEvidence({
+      identity: baseIdentity('B-causal-race'),
+      selector: 'MARKER-A',
+      receiptStore: store,
+      batch,
+      preflight: preflight(),
+      revalidateBeforeRun: () => {
+        revalidations++;
+        return false;
+      },
+      run: async () => {
+        runInvoked = true;
+        return { code: 0, output: 'MARKER-A' };
+      },
+    }),
+    /state_changed_before_launch.*commandExecutions=0 evidenceWrites=0/,
+  );
+  assert.equal(revalidations, 1);
+  assert.equal(runInvoked, false, 'the child runner is not invoked after a race refusal');
+  assert.equal(store.receipts.size, 0, 'the refusal writes no receipt');
+  assert.equal(batch.ledger.intentCount, 0, 'the refusal records no intent execution');
+  assert.equal(batch.ledger.executions.length, 0, 'the refusal records no command execution');
+  assert.equal(batch.ledger.selectorVerdicts.length, 0, 'the refusal records no selector verdict');
+  assert.deepEqual(deriveCausalMetrics(batch.ledger), {
+    intentCount: 0, uniqueExecutionKeys: 0, commandExecutions: 0, cacheHitRate: 0, commandReruns: 0,
+    commitFailureReruns: 0, unrelatedSpecializedRerun: 0, affectedNodeRerun: 0, falseFresh: 0,
+  });
 });
 
 test('CHK-005: metrics are zero-safe and tamper-resistant canonical-ledger projections', async () => {
