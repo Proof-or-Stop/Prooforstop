@@ -23869,6 +23869,52 @@
       },
       "readDiagnostics": [],
       "_hash": "c3878b76cf3baf8bb018ca5c4cb8bd097845f25722e58a754fab946b3dcd02da"
+    },
+    {
+      "id": "B-3f3d:RP-402",
+      "agent": "lattice-review-docs",
+      "note": "Step 1 extracted 28 added/changed export symbols from review-inventory-epoch.ts and certification-window.ts (including isInventoryCompletenessOnlyReceipt, consumeReviewInventoryCompletenessReceipt, persistFinalizedReviewInventory, persistFinalizedReviewInventoryUnlocked, reviewInventoryRemediationGate). Step 2 compared 6 paragraphs: review-inventory-epoch-and-saturation-gate.md State and authority / Final review after remediation / Process-fact contract; evidence-integrity-program-spec.md section 7; story-lifecycle.md REVIEW/DEV gates (no inventory/PRE_CERT section present). AGENTS.md and CLAUDE.md have no certification_window or review-inventory consume mentions. No blocker: user-facing docs state authority=inventory-completeness-only and authorizesTest=false, explicitly not PRE_CERT and cannot authorize TEST or certify repaired material. No doc claims inventory completeness is certification or authorizesTest=true. persistFinalizedReviewInventory comments 'Does not authorize TEST' match the consume split: PRE_CERT uses consumeReviewInventoryCompletenessReceipt on empty-wave completeness receipts, while consumeReviewInventoryReceipt still refuses those receipts for REVIEW-to-DEV.",
+      "createdAt": "2026-08-20T04:25:01.620Z",
+      "reviewRound": "2026-08-20T04:06:08.943Z",
+      "reviewRunId": "B-3f3d:RR-628",
+      "envelopeId": "dc4367089bca4e610be4a4c513ba16746312383282c3a1020c73b2a0639b3024",
+      "writerSessionId": "sess-4292375d1d751b41",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/guide-scope-guard.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "738c4a576eab7d58a43eb07602841deaad597b06204ff284a06d492047952a87"
+      },
+      "readDiagnostics": [],
+      "_hash": "f4753d39f7e19aa17972d124e2a2729ccf700fae1c21318ceaf7b88d1067f4f9"
     }
   ]
 }
