@@ -51,6 +51,32 @@
             "desc": "New proof-or-stop reviewer role IDs are emitted and accepted by review_run_start, review_pass_set, init_check_set, and quorum resolution.",
             "type": "logic",
             "priority": "must",
+            "plannedPathDeclarations": [
+              {
+                "schemaVersion": "proofstory.verification_planned_path_declaration.v1",
+                "id": "VPP-CHK001-DISPATCH",
+                "relation": "producer_to_consumer",
+                "producer": {
+                  "id": "VPP-CHK001-DISPATCH-PRODUCER",
+                  "role": "producer",
+                  "expectedArtifactKind": "source_file",
+                  "expectedFileRef": "packages/main/src/core/agent-dispatch-registry.ts",
+                  "expectedSymbolOrFact": "resolveAgentDispatchType",
+                  "fileDeclarationRef": "CHK-001:files:modify:0"
+                },
+                "consumers": [
+                  {
+                    "id": "VPP-CHK001-DISPATCH-CONSUMER",
+                    "role": "consumer",
+                    "expectedArtifactKind": "handler",
+                    "expectedFileRef": "packages/main/src/handlers/story-dispatch.ts",
+                    "expectedSymbolOrFact": "resolveAgentDispatchType",
+                    "fileDeclarationRef": "CHK-001:files:modify:16"
+                  }
+                ],
+                "outputFactRef": "planned-fact:canonical-agent-dispatch"
+              }
+            ],
             "verification": {
               "command": "node --input-type=module -e \"import assert from \\\"node:assert/strict\\\"; import {canonicalAgentRoleId} from \\\"./packages/main/dist/core/agent-role-identity.js\\\"; assert.equal(canonicalAgentRoleId(\\\"lattice-review-quality\\\"),\\\"proof-or-stop-review-quality\\\"); console.log(\\\"CHK-001 canonical role smoke: PASS\\\")\"",
               "selector": "CHK-001 canonical role smoke: PASS"

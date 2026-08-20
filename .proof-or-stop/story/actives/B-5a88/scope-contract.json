@@ -62,7 +62,8 @@
     "packages/main/src/cli/help-renderer.ts",
     "scripts/verify-entrypoints.mjs",
     "scripts/verify-lattice-residue.mjs",
-    "packages/main/src/cli-init.ts"
+    "packages/main/src/cli-init.ts",
+    "packages/main/src/core/acceptance-discovery-adapters.ts"
   ],
   "allowedCreate": [
     "packages/main/src/core/agent-role-identity.ts",
@@ -82,7 +83,7 @@
   ],
   "protectedFiles": [],
   "explicitExcludes": [],
-  "scopeChangeReason": "CHK-002 adds the shared managed-marker helper and shared init sync path; preserve the existing enforce contract arrays, protections, and exclusions unchanged.",
+  "scopeChangeReason": "Acceptance closure must ignore existing scope directories as source seeds; the verifier fix is limited to source-seed normalization in acceptance-discovery-adapters.ts.",
   "acknowledgements": [
     {
       "actor": "main-agent",
@@ -380,7 +381,9 @@
     }
   ],
   "createdAt": "2026-08-20T05:20:00.402Z",
-  "updatedAt": "2026-08-20T09:44:53.083Z",
+  "updatedAt": "2026-08-20T13:45:27.033Z",
+  "fileRules": [],
+  "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -493,6 +496,7 @@
     "packages/main/src/handlers/reviewer-quorum.ts": "packages/main/src/handlers/reviewer-quorum.ts",
     "packages/main/src/tasks/validate-command-timeout-smoke.ts": "packages/main/src/tasks/validate-command-timeout-smoke.ts",
     "packages/main/src/tasks/flow-stability-smoke.ts": "packages/main/src/tasks/flow-stability-smoke.ts",
-    "packages/main/src/handlers/quorum-submit.ts": "packages/main/src/handlers/quorum-submit.ts"
+    "packages/main/src/handlers/quorum-submit.ts": "packages/main/src/handlers/quorum-submit.ts",
+    "packages/main/src/core/acceptance-discovery-adapters.ts": "packages/main/src/core/acceptance-discovery-adapters.ts"
   }
 }
