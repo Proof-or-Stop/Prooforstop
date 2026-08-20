@@ -182,7 +182,7 @@
       "desc": "Topology critic cannot endorse B-8af0: acceptance_basis reports basisStatus=partial with four AT_UNMAPPED_SCOPE_REF diagnostics, and topology_critic_receipt_check reports AT_TOPOLOGY_CRITIC_CONTEXT_INVALID because no session-bound lattice-implementer dispatch provenance is present. These leave producer-to-consumer closure and implementation independence unverified, so the acceptance topology has no admissible pass.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-topology-critic",
       "createdAt": "2026-08-20T11:22:10.582Z",
@@ -209,7 +209,11 @@
         "packages/main/src/handlers/transition-orchestrator.ts"
       ],
       "signatureTag": "missing|ts|topology-critic-cannot",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Reassessed by the current topology critic after the formal DEV lattice-implementer dispatch. Receipt construction now passes implementation-provenance derivation; the old premise is fixed. Remaining partial acceptance topology is observe-only and outside B-8af0 scope (which explicitly excludes topology critic signing/provenance); acceptance_rollout_check is current enforce PASS full-3x2. The residual framework work is re-homed to active B-3253 Repair ProofStory topology provenance and focused regression coverage.",
+      "resolvedAt": "2026-08-20T12:10:24.040Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
