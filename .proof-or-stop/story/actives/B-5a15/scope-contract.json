@@ -26,9 +26,32 @@
     "packages/main/src/**/unrelated-*"
   ],
   "scopeChangeReason": "\"Initialize the DEV scope contract from the reviewed five-item B-5a15 plan; preserve excluded U-01/U-02/U-09 work, unrelated refactors, remote publish, and assurance-reducing changes.\"",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "B-5a15 adds gate-consumed CausalEvidence process facts; the registry and its contract verifier must change together under the repository process-fact hard contract.",
+      "timestamp": "2026-08-20T11:12:00.803Z",
+      "paths": [
+        "packages/main/src/core/process-fact-levels.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/process-fact-levels.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "3ebdc2cd6f863fdf61992fe005dd738b51b31790",
+      "materialHash": "5baf9d01e6e157ae02918867bb97482fbd04ea45ed00adf821b447f1022037f4",
+      "anchors": [
+        "CausalEvidence",
+        "processFactRegistry"
+      ]
+    }
+  ],
   "createdAt": "2026-08-20T09:29:12.295Z",
-  "updatedAt": "2026-08-20T09:29:12.295Z",
+  "updatedAt": "2026-08-20T11:12:00.803Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -45,6 +68,8 @@
     "packages/main/tests/causal-evidence.test.mjs": "packages/main/tests/causal-evidence.test.mjs",
     "docs/story/**": "docs/story/**",
     "tests/fixtures/**": "tests/fixtures/**",
-    "packages/main/src/**/unrelated-*": "packages/main/src/**/unrelated-*"
+    "packages/main/src/**/unrelated-*": "packages/main/src/**/unrelated-*",
+    "packages/main/src/core/process-fact-levels.ts": "packages/main/src/core/process-fact-levels.ts",
+    "scripts/verify-process-fact-contract.mjs": "scripts/verify-process-fact-contract.mjs"
   }
 }
