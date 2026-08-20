@@ -23709,6 +23709,69 @@
       },
       "readDiagnostics": [],
       "_hash": "f817bea40c7edc54805eca9054382fafaed82370433e74cd6dab55ade14b8eb2"
+    },
+    {
+      "id": "B-3f3d:RP-399",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. 54/54 must intents have non-fail evidence objects (46 integration_test, 7 logic_test, 1 docs_check, 0 waiver, 0 missing). f8b2b97463 completeness consume success, remediation refuse, wave live-aggregate, and persistBlocked detail reuse are asserted in review-inventory-epoch-smoke.ts and certification-window-smoke.ts; loadReviewInventoryAdmitApis binds consumeReviewInventoryCompletenessReceipt by name. Evidence hashes are materialHash-stale vs HEAD a6a87cf (bound to 6cbbbf73 / storyFilesHash 7b357339); that is a TEST refresh, not a missing-intent gap.",
+      "createdAt": "2026-08-20T04:15:54.110Z",
+      "reviewRound": "2026-08-20T04:06:08.943Z",
+      "reviewRunId": "B-3f3d:RR-624",
+      "envelopeId": "66d195faa21df2afbd8270b8ac490bd70c30d3cd4d1c011c9dd4b681b180fa2a",
+      "writerSessionId": "sess-4292375d1d751b41",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-3f3d/background.md",
+          ".proof-or-stop/story/actives/B-3f3d/plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/testing-completeness.md"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/guide-scope-guard.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "packages/main/src/tasks/review-inventory-epoch-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/testing-completeness.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "91e5ab696e935da111f161cfa4cb58ff349f1a84b24b5df5b0cae723a604a66c"
+      },
+      "readDiagnostics": [],
+      "_hash": "d0fed090746e7e7e5960865088693067f1539eeafa6942ec670daa63d35146e3"
     }
   ]
 }
