@@ -16,6 +16,7 @@
 
 import { StoryStore } from '../core/store.js';
 import type { StoryPhase, StoryEvent } from '../core/types.js';
+import type { CausalPreflightFacts } from '../core/causal-evidence.js';
 import { existsSync, realpathSync } from 'fs';
 import { randomBytes } from 'crypto';
 import { gitProbe } from '../core/git-probe.js';
@@ -36,6 +37,12 @@ export interface HandlerContext {
   autopilotCommandRunner?: import('../core/autopilot-executor.js').AutopilotCommandRunner;
   /** Test seam for DONE / done_recover post-merge package build execution. Production uses npm. */
   doneMainBuildRunner?: import('./done-effects.js').DoneMainBuildRunner;
+  /** Test seam for causal preflight snapshots. Production probes the real workspace. */
+  causalPreflightFacts?: (input: {
+    command: string;
+    cwd: string;
+    timeoutMs?: number;
+  }) => CausalPreflightFacts;
 }
 
 const PHASE_TO_EVENT: Record<string, string> = { ...PHASE_EVENT_BY_TARGET };

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 
@@ -25,6 +25,9 @@ for (const fact of [
 ]) {
   assert.match(probeSource, new RegExp(`\\b${fact}\\b`), `probe includes ${fact}`);
 }
+const gitIndexStart = source.indexOf('function probeGitIndex');
+assert.ok(gitIndexStart >= 0 && probeStart > gitIndexStart, 'the handler must retain the git index probe');
+assert.match(source.slice(gitIndexStart, probeStart), /contentDigest/, 'gitIndex probe includes a content identity digest');
 
 assert.ok(enforcementStart >= 0 && enforcementEnd > enforcementStart, 'the handler must retain the causal execution seam');
 const enforcementSource = source.slice(enforcementStart, enforcementEnd);
@@ -125,8 +128,110 @@ try {
   assert.match(response, /Verification evidence batch recorded for B-causal-batch: 58 item intent/);
   assert.match(response, /CausalEvidence: intentCount=58 uniqueExecutionKeys=10 commandExecutions=10 cacheHitRate=83%/,
     'the response uses source arithmetic: (58 - 10) / 58 rounds to 83%');
+  assert.equal((((58 - 10) / 58) * 100).toFixed(2), '82.76',
+    'the unrounded cache hit rate is 82.76%; the displayed 83% is presentation rounding');
   const displayedRate = Number(response.match(/cacheHitRate=(\d+)%/)?.[1]);
   assert.ok(displayedRate >= 80, 'the displayed causal cache hit rate satisfies the semantic >=80% contract');
+
+  const raceRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-causal-preflight-race-'));
+  try {
+    write(raceRoot, 'proof-or-stop.config.json', JSON.stringify({
+      scanRoot: 'packages/main',
+      rootDir: 'src',
+      storyDir: '.proof-or-stop/story/actives',
+      requirementsDir: 'docs/requirements',
+    }));
+    write(raceRoot, 'packages/main/package.json', JSON.stringify({ name: '@proof-or-stop/core', version: '0.3.266' }));
+    write(raceRoot, 'packages/main/src/base.ts', 'export const base = true;\n');
+    git(raceRoot, ['init', '-b', 'main']);
+    git(raceRoot, ['config', 'user.email', 'causal-preflight@example.test']);
+    git(raceRoot, ['config', 'user.name', 'Causal Preflight Test']);
+    git(raceRoot, ['add', '.']);
+    git(raceRoot, ['commit', '-m', 'seed']);
+
+    resetConfigCache();
+    const raceStore = new StoryStore(raceRoot);
+    const raceStoryId = 'B-causal-preflight-race';
+    raceStore.writeStory(raceStoryId, {
+      storyId: raceStoryId,
+      name: 'causal-preflight-race',
+      title: 'causal preflight race refusal',
+      description: 'focused handler preflight race test',
+      type: 'chore',
+      phase: 'DEV',
+      priority: 'medium',
+      createdAt: '2026-08-20T00:00:00.000Z',
+      startedAt: '2026-08-20T00:00:00.000Z',
+      endedAt: null,
+    });
+    raceStore.writeChecklist(raceStoryId, {
+      items: [{
+        id: 'CHK-001',
+        title: 'causal preflight race',
+        context: 'refuse a changed preflight snapshot before launch',
+        status: 'in_progress',
+        startTime: null,
+        endTime: null,
+        verificationIntent: {
+          happy: [{ id: 'INT-001', desc: 'causal preflight race', type: 'cli', priority: 'must' }],
+          edge: [],
+          adversarial: [],
+        },
+      }],
+    });
+    acquireOwnerLease(raceStore.storyDirPath(raceStoryId), {
+      command: 'verification_evidence_add',
+      cwd: raceRoot,
+    });
+
+    let preflightCalls = 0;
+    const launchMarker = join(raceRoot, 'child-launched');
+    const causalFacts = (contentDigest) => ({
+      cli: { available: true, path: process.execPath },
+      worktree: { expected: raceRoot, actual: raceRoot },
+      gitIndex: { readable: true, path: join(raceRoot, '.git', 'index'), contentDigest },
+      gitMaterial: { available: true, headHash: 'head', materialHash: 'material', storyFilesHash: 'story-files' },
+      writerLease: { available: true, valid: true },
+      providerCapability: {
+        required: ['allowlisted-command', 'bounded-output'],
+        available: ['allowlisted-command', 'bounded-output'],
+      },
+      resources: { required: { timeoutMs: 1000 }, available: { timeoutMs: 1000 } },
+      evidenceTarget: { writable: true, path: join(raceRoot, '.proof-or-stop', 'causal-receipts'), probe: 'test' },
+      sideChannel: { available: true, maxOutputChars: 1000, maxProgressEvents: 1 },
+    });
+    const raceHandlers = createChecklistHandlers({
+      store: raceStore,
+      root: raceRoot,
+      scanRoot: join(raceRoot, 'packages/main'),
+      causalPreflightFacts: () => {
+        preflightCalls++;
+        return causalFacts(preflightCalls === 1 ? 'sha256:index-before' : 'sha256:index-after');
+      },
+    });
+
+    await assert.rejects(
+      raceHandlers.verification_evidence_add({
+        storyId: raceStoryId,
+        itemId: 'CHK-001',
+        intentRef: 'INT-001',
+        kind: 'integration_test',
+        command: `node -e "require('node:fs').writeFileSync('${launchMarker}', 'launched'); console.log('CAUSAL_RACE_OK')"`,
+        selector: 'CAUSAL_RACE_OK',
+        result: 'pass',
+        note: 'changed index digest refusal',
+      }),
+      /state_changed_before_launch.*commandExecutions=0 evidenceWrites=0/,
+      'a changed second preflight snapshot is refused before the pinned child launch',
+    );
+    assert.equal(preflightCalls, 2, 'the handler observes the changed second preflight snapshot');
+    assert.equal(existsSync(launchMarker), false, 'the refused preflight launches no child command');
+    const raceItem = raceStore.readChecklist(raceStoryId).items[0];
+    assert.equal(raceItem.verificationEvidence?.length ?? 0, 0, 'the refused preflight records no evidence');
+    assert.equal(raceItem.verificationIntent?.happy?.[0]?.verification, undefined, 'the refused preflight records no pin');
+  } finally {
+    rmSync(raceRoot, { recursive: true, force: true });
+  }
 } finally {
   rmSync(root, { recursive: true, force: true });
 }

@@ -467,8 +467,8 @@ export interface ExecuteCausalEvidenceArgs {
   receiptStore?: CausalEvidenceReceiptStore;
   batch?: CausalEvidenceBatch;
   preflight?: CausalPreflightReport;
-  /** Atomic state check immediately before the child runner is called. */
-  revalidateBeforeRun?: () => boolean;
+  /** Required atomic state check immediately before the child runner is called. */
+  revalidateBeforeRun: () => boolean;
 }
 
 export interface ExecuteCausalEvidenceResult {
@@ -517,7 +517,10 @@ export async function executeCausalEvidence(args: ExecuteCausalEvidenceArgs): Pr
       // This check is deliberately the last operation before invoking the child
       // runner. A post-run check can only reject the evidence after the command
       // has already executed, which violates the zero-execution refusal contract.
-      if (args.revalidateBeforeRun && !args.revalidateBeforeRun()) {
+      if (!args.revalidateBeforeRun) {
+        throw new Error('causal preflight refused: missing_last_moment_revalidation commandExecutions=0 evidenceWrites=0 [causal_preflight_refused]');
+      }
+      if (!args.revalidateBeforeRun()) {
         throw new Error('causal preflight refused: state_changed_before_launch commandExecutions=0 evidenceWrites=0 [causal_preflight_refused]');
       }
       const run = await args.run();

@@ -1,5 +1,5 @@
 
-import { accessSync, constants, existsSync, realpathSync, statSync } from 'fs';
+import { accessSync, constants, existsSync, readFileSync, realpathSync, statSync } from 'fs';
 import { dirname, isAbsolute, join, resolve } from 'path';
 import type { HandlerContext } from './context.js';
 import { assertCwdInWorktree } from './context.js';
@@ -337,7 +337,12 @@ function probeGitTopLevel(cwd: string): string | null {
   }
 }
 
-function probeGitIndex(cwd: string): { readable: boolean; path?: string; reason?: string } {
+function probeGitIndex(cwd: string): {
+  readable: boolean;
+  path?: string;
+  contentDigest?: string;
+  reason?: string;
+} {
   try {
     const rawPath = execSync('git rev-parse --path-format=absolute --git-path index', {
       cwd,
@@ -348,7 +353,8 @@ function probeGitIndex(cwd: string): { readable: boolean; path?: string; reason?
     if (!indexPath) return { readable: false, reason: 'git_index_path_unavailable' };
     if (!statSync(indexPath).isFile()) return { readable: false, path: indexPath, reason: 'git_index_not_a_file' };
     accessSync(indexPath, constants.R_OK);
-    return { readable: true, path: indexPath };
+    const contentDigest = `sha256:${createHash('sha256').update(readFileSync(indexPath)).digest('hex')}`;
+    return { readable: true, path: indexPath, contentDigest };
   } catch {
     return { readable: false, reason: 'git_index_unavailable' };
   }
@@ -1388,15 +1394,15 @@ export function createChecklistHandlers(ctx: HandlerContext) {
     resolveGitCwd({ store, storyId, metadataRoot: root, projectRoot: root });
   const causalPreflightFactsFor = (storyId: string, authoritativeCwd: string) =>
     (input: { command: string; cwd: string; timeoutMs?: number }): CausalPreflightFacts =>
-      probeCausalPreflightFacts({
-        storyId,
-        command: input.command,
-        cwd: input.cwd,
-        authoritativeCwd,
-        metadataRoot: root,
-        store,
-        ...(input.timeoutMs !== undefined ? { timeoutMs: input.timeoutMs } : {}),
-      });
+      ctx.causalPreflightFacts?.(input) ?? probeCausalPreflightFacts({
+          storyId,
+          command: input.command,
+          cwd: input.cwd,
+          authoritativeCwd,
+          metadataRoot: root,
+          store,
+          ...(input.timeoutMs !== undefined ? { timeoutMs: input.timeoutMs } : {}),
+        });
   const commitCanonicalCausalEvidence = (
     storyId: string,
     gitCwd: string,

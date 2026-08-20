@@ -95,6 +95,7 @@ test('separate concurrent requests single-flight exact keys and isolate near-dup
       run: delayedRun(counter, 'CONCURRENCY-MARKER'),
       receiptStore: store,
       preflight,
+      revalidateBeforeRun: () => true,
     }),
     executeCausalEvidence({
       identity: sameIdentity,
@@ -102,6 +103,7 @@ test('separate concurrent requests single-flight exact keys and isolate near-dup
       run: delayedRun(counter, 'CONCURRENCY-MARKER'),
       receiptStore: store,
       preflight,
+      revalidateBeforeRun: () => true,
     }),
   ]);
 
@@ -122,6 +124,7 @@ test('separate concurrent requests single-flight exact keys and isolate near-dup
       run: delayedRun(nearCounter, 'CONCURRENCY-MARKER'),
       receiptStore: nearStore,
       preflight,
+      revalidateBeforeRun: () => true,
     }),
     executeCausalEvidence({
       identity: nearIdentity,
@@ -129,6 +132,7 @@ test('separate concurrent requests single-flight exact keys and isolate near-dup
       run: delayedRun(nearCounter, 'CONCURRENCY-MARKER'),
       receiptStore: nearStore,
       preflight,
+      revalidateBeforeRun: () => true,
     }),
   ]);
   assert.equal(nearCounter.count, 2, 'a near-duplicate identity executes separately');
@@ -156,6 +160,7 @@ test('StoryStore single-flight preserves one exact receipt and concurrent index 
         run: delayedRun(counter, 'CONCURRENCY-MARKER'),
         receiptStore: store,
         preflight,
+        revalidateBeforeRun: () => true,
       }),
       executeCausalEvidence({
         identity: runIdentity,
@@ -163,6 +168,7 @@ test('StoryStore single-flight preserves one exact receipt and concurrent index 
         run: delayedRun(counter, 'CONCURRENCY-MARKER'),
         receiptStore: store,
         preflight,
+        revalidateBeforeRun: () => true,
       }),
     ]);
 

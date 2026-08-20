@@ -91,6 +91,7 @@ const first = await executeCausalEvidence({
   receiptStore: store,
   batch,
   preflight: readyPreflight,
+  revalidateBeforeRun: () => true,
   run: async () => { executions++; return { code: 0, output: 'SECRET_TOKEN=secret-never-persisted SMOKE_MARKER' }; },
 });
 const second = await executeCausalEvidence({
@@ -100,6 +101,7 @@ const second = await executeCausalEvidence({
   receiptStore: store,
   batch,
   preflight: readyPreflight,
+  revalidateBeforeRun: () => true,
   run: async () => { executions++; return { code: 0, output: 'must-not-run' }; },
 });
 assert.equal(executions, 1, 'same key executes once');

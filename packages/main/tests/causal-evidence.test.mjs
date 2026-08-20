@@ -127,9 +127,9 @@ test('CHK-001: keys bind all identity fields, deduplicate exact complete work, a
     return { code: 0, output: 'API_TOKEN=not-written-to-receipt MARKER-A' };
   };
   const [first, second, third] = await Promise.all([
-    executeCausalEvidence({ identity, selector: 'MARKER-A', intentRef: 'CHK-001:happy:0', run, receiptStore: store, batch, preflight: preflight() }),
-    executeCausalEvidence({ identity, selector: 'MISSING', intentRef: 'CHK-001:edge:0', run, receiptStore: store, batch, preflight: preflight() }),
-    executeCausalEvidence({ identity, selector: 'MARKER-A', intentRef: 'CHK-001:adversarial:0', run, receiptStore: store, batch, preflight: preflight() }),
+    executeCausalEvidence({ identity, selector: 'MARKER-A', intentRef: 'CHK-001:happy:0', run, receiptStore: store, batch, preflight: preflight(), revalidateBeforeRun: () => true }),
+    executeCausalEvidence({ identity, selector: 'MISSING', intentRef: 'CHK-001:edge:0', run, receiptStore: store, batch, preflight: preflight(), revalidateBeforeRun: () => true }),
+    executeCausalEvidence({ identity, selector: 'MARKER-A', intentRef: 'CHK-001:adversarial:0', run, receiptStore: store, batch, preflight: preflight(), revalidateBeforeRun: () => true }),
   ]);
   assert.equal(executions, 1, 'three exact-key intents launch one command');
   assert.equal(first.disposition, 'executed');
@@ -148,6 +148,7 @@ test('CHK-001: keys bind all identity fields, deduplicate exact complete work, a
     receiptStore: store,
     batch: replayBatch,
     preflight: preflight(),
+    revalidateBeforeRun: () => true,
   });
   assert.equal(replay.disposition, 'reused');
   assert.equal(executions, 1, 'complete CAS receipt is reusable');
@@ -172,6 +173,7 @@ test('CHK-001: keys bind all identity fields, deduplicate exact complete work, a
       receiptStore: fanoutStore,
       batch: fanoutBatch,
       preflight: preflight(),
+      revalidateBeforeRun: () => true,
     });
   }));
   const fanoutMetrics = deriveCausalMetrics(fanoutBatch.ledger);
@@ -208,6 +210,7 @@ test('CHK-001: keys bind all identity fields, deduplicate exact complete work, a
       receiptStore: fanoutStore,
       batch: fanoutReplayBatch,
       preflight: preflight(),
+      revalidateBeforeRun: () => true,
     });
   }));
   const replayMetrics = deriveCausalMetrics(fanoutReplayBatch.ledger);
@@ -235,6 +238,7 @@ test('CHK-001: keys bind all identity fields, deduplicate exact complete work, a
     run: async () => { singleBatchExecutions++; return { code: 0, output: 'MARKER-A' }; },
     receiptStore: singleBatchStore,
     preflight: preflight(),
+    revalidateBeforeRun: () => true,
   });
   const singleBatch = createCausalEvidenceBatch();
   const batched = await executeCausalEvidence({
@@ -245,6 +249,7 @@ test('CHK-001: keys bind all identity fields, deduplicate exact complete work, a
     receiptStore: singleBatchStore,
     batch: singleBatch,
     preflight: preflight(),
+    revalidateBeforeRun: () => true,
   });
   assert.equal(singleBatchExecutions, 1);
   assert.equal(single.key.key, batched.key.key);
@@ -277,6 +282,7 @@ test('CHK-001: keys bind all identity fields, deduplicate exact complete work, a
       receiptStore: mutationStore,
       batch: mutationBatch,
       preflight: preflight(),
+      revalidateBeforeRun: () => true,
     });
     mutationResults.push(result);
   }
@@ -314,6 +320,7 @@ test('CHK-001: keys bind all identity fields, deduplicate exact complete work, a
       receiptStore: nearDuplicateStore,
       batch: nearDuplicateBatch,
       preflight: preflight(),
+      revalidateBeforeRun: () => true,
     })));
   }
   const nearDuplicateMetrics = deriveCausalMetrics(nearDuplicateBatch.ledger);
@@ -337,6 +344,7 @@ test('CHK-001: keys bind all identity fields, deduplicate exact complete work, a
     receiptStore: tamperStore,
     batch: tamperBatch,
     preflight: preflight(),
+    revalidateBeforeRun: () => true,
   });
   tamperStore.receipts.set(
     `B-causal-tamper:${tamperResult.key.key}`,
@@ -349,6 +357,7 @@ test('CHK-001: keys bind all identity fields, deduplicate exact complete work, a
       run: async () => { tamperExecutions++; return { code: 0, output: 'unexpected' }; },
       receiptStore: tamperStore,
       preflight: preflight(),
+      revalidateBeforeRun: () => true,
     }),
     /causal_receipt_tampered/,
   );
@@ -366,6 +375,7 @@ test('CHK-001: keys bind all identity fields, deduplicate exact complete work, a
     receiptStore: collisionStore,
     batch: collisionBatch,
     preflight: preflight(),
+    revalidateBeforeRun: () => true,
   });
   collisionStore.receipts.set(
     `B-causal-collision:${collisionResult.key.key}`,
@@ -378,6 +388,7 @@ test('CHK-001: keys bind all identity fields, deduplicate exact complete work, a
       run: async () => { collisionExecutions++; return { code: 0, output: 'wrong output' }; },
       receiptStore: collisionStore,
       preflight: preflight(),
+      revalidateBeforeRun: () => true,
     }),
     /causal_receipt_tampered/,
   );
@@ -394,6 +405,7 @@ test('CHK-001: keys bind all identity fields, deduplicate exact complete work, a
     run: async () => { provenanceExecutions++; return { code: 0, output: 'PROVENANCE-MARKER' }; },
     receiptStore: provenanceStore,
     preflight: preflight(),
+    revalidateBeforeRun: () => true,
   });
   const provenanceChanges = [
     { cwd: tmpdir() },
@@ -413,6 +425,7 @@ test('CHK-001: keys bind all identity fields, deduplicate exact complete work, a
       run: async () => { provenanceExecutions++; return { code: 0, output: 'PROVENANCE-MARKER' }; },
       receiptStore: provenanceStore,
       preflight: preflight(),
+      revalidateBeforeRun: () => true,
     });
     provenanceVariants.push(variant);
   }
@@ -422,6 +435,7 @@ test('CHK-001: keys bind all identity fields, deduplicate exact complete work, a
     run: async () => { provenanceExecutions++; return { code: 0, output: 'unexpected selector replay' }; },
     receiptStore: provenanceStore,
     preflight: preflight(),
+    revalidateBeforeRun: () => true,
   });
   assert.equal(provenanceBaseline.verdict.result, 'pass');
   assert.equal(provenanceExecutions, 1 + provenanceChanges.length);
@@ -438,8 +452,8 @@ test('CHK-001: keys bind all identity fields, deduplicate exact complete work, a
   let incompleteExecutions = 0;
   const incompleteIdentity = { cwd: repoRoot, storyId: identity.storyId, command: identity.command };
   await Promise.all([
-    executeCausalEvidence({ identity: incompleteIdentity, selector: 'MARKER-A', run: async () => { incompleteExecutions++; return { code: 0, output: 'MARKER-A' }; }, batch, preflight: preflight() }),
-    executeCausalEvidence({ identity: incompleteIdentity, selector: 'MARKER-A', run: async () => { incompleteExecutions++; return { code: 0, output: 'MARKER-A' }; }, batch, preflight: preflight() }),
+    executeCausalEvidence({ identity: incompleteIdentity, selector: 'MARKER-A', run: async () => { incompleteExecutions++; return { code: 0, output: 'MARKER-A' }; }, batch, preflight: preflight(), revalidateBeforeRun: () => true }),
+    executeCausalEvidence({ identity: incompleteIdentity, selector: 'MARKER-A', run: async () => { incompleteExecutions++; return { code: 0, output: 'MARKER-A' }; }, batch, preflight: preflight(), revalidateBeforeRun: () => true }),
   ]);
   assert.equal(incompleteExecutions, 2, 'incomplete identities are never reused as PASS');
 });
@@ -470,6 +484,7 @@ test('CHK-002: CAS receipts precede isolated import, retry commit only, and fail
       receiptStore: store,
       batch,
       preflight: preflight(),
+      revalidateBeforeRun: () => true,
     });
     assert.equal(executions, 1);
     assert.deepEqual(storeEvents, ['receipt-persist']);
@@ -615,6 +630,7 @@ test('CHK-002: CAS receipts precede isolated import, retry commit only, and fail
       run: async () => ({ code: 0, output: 'IMMUTABLE-MARKER' }),
       receiptStore: immutableStore,
       preflight: preflight(),
+      revalidateBeforeRun: () => true,
     });
     const replacement = {
       ...immutableResult.receipt,
@@ -860,6 +876,7 @@ test('CHK-003: dependency domains shadow-compare closure and CertificationWindow
     run: async () => ({ code: 0, output: 'DEPENDENCY-IMMUTABLE' }),
     receiptStore: immutableReceiptStore,
     preflight: preflight(),
+    revalidateBeforeRun: () => true,
   });
   const rewrittenReceipt = {
     ...immutableReceiptResult.receipt,
@@ -927,6 +944,7 @@ test('CHK-004: preflight refuses exact readiness failures with zero execution/ev
     receiptStore: launchStore,
     batch: launchBatch,
     preflight: validPreflight,
+    revalidateBeforeRun: () => true,
   });
   const repeatedPreflight = preflight();
   assert.equal(repeatedPreflight.ready, true);
@@ -939,12 +957,39 @@ test('CHK-004: preflight refuses exact readiness failures with zero execution/ev
     receiptStore: launchStore,
     batch: launchBatch,
     preflight: repeatedPreflight,
+    revalidateBeforeRun: () => true,
   });
   assert.deepEqual(launchEvents, ['preflight-pass', 'child-launch', 'preflight-pass']);
   assert.equal(childLaunches, 1);
   assert.equal(firstLaunch.disposition, 'executed');
   assert.equal(repeatedLaunch.disposition, 'reused');
   assert.equal(launchBatch.ledger.executions.length, 1);
+  const selfRehashedPreflight = preflight();
+  assert.equal(verifyCausalPreflight(selfRehashedPreflight), true);
+  const missingRevalidationStore = new MemoryReceiptStore();
+  const missingRevalidationBatch = createCausalEvidenceBatch();
+  let missingRevalidationLaunches = 0;
+  await assert.rejects(
+    executeCausalEvidence({
+      identity: baseIdentity('B-causal-missing-revalidation'),
+      selector: 'MISSING-REVALIDATION-CHILD',
+      run: async () => {
+        missingRevalidationLaunches++;
+        return { code: 0, output: 'MISSING-REVALIDATION-CHILD' };
+      },
+      receiptStore: missingRevalidationStore,
+      batch: missingRevalidationBatch,
+      preflight: selfRehashedPreflight,
+    }),
+    /missing_last_moment_revalidation.*commandExecutions=0 evidenceWrites=0/,
+  );
+  assert.equal(selfRehashedPreflight.commandExecutions, 0);
+  assert.equal(selfRehashedPreflight.evidenceWrites, 0);
+  assert.equal(missingRevalidationLaunches, 0);
+  assert.equal(missingRevalidationStore.receipts.size, 0);
+  assert.equal(missingRevalidationBatch.ledger.intentCount, 0);
+  assert.equal(missingRevalidationBatch.ledger.executions.length, 0);
+  assert.equal(deriveCausalMetrics(missingRevalidationBatch.ledger).commandExecutions, 0);
   emitIntentMarker(
     'CHK-004:happy:0',
     'expensive-run preflight PASS: cli=pass worktree=pass gitIndex=pass writerLease=pass providerCapability=pass resources=pass evidenceTarget=pass; childLaunch=1',
@@ -1055,7 +1100,7 @@ test('CHK-004: preflight refuses exact readiness failures with zero execution/ev
   assert.equal(deriveCausalMetrics(missingPreflightBatch.ledger).commandExecutions, 0);
   emitIntentMarker(
     'CHK-004:adversarial:1',
-    'missing, stale, or forged preflight is rejected before child launch with commandExecutions=0 and no gate-admissible PASS',
+    'missing, stale, forged preflight, or missing last-moment revalidation is rejected before child launch with commandExecutions=0 and no gate-admissible PASS',
   );
 });
 
@@ -1118,6 +1163,7 @@ test('CHK-005: metrics are zero-safe and tamper-resistant canonical-ledger proje
       receiptStore: metricReplayStore,
       batch: metricInitialBatch,
       preflight: preflight(),
+      revalidateBeforeRun: () => true,
     });
   }));
   const metricReplayBatch = createCausalEvidenceBatch();
@@ -1131,6 +1177,7 @@ test('CHK-005: metrics are zero-safe and tamper-resistant canonical-ledger proje
       receiptStore: metricReplayStore,
       batch: metricReplayBatch,
       preflight: preflight(),
+      revalidateBeforeRun: () => true,
     });
   }));
   const replayMetrics = deriveCausalMetrics(metricReplayBatch.ledger);
@@ -1155,7 +1202,7 @@ test('CHK-005: metrics are zero-safe and tamper-resistant canonical-ledger proje
   );
 
   const batch = createCausalEvidenceBatch();
-  await executeCausalEvidence({ identity: baseIdentity(), selector: 'MARKER-A', run: async () => ({ code: 0, output: 'MARKER-A' }), batch, preflight: preflight() });
+  await executeCausalEvidence({ identity: baseIdentity(), selector: 'MARKER-A', run: async () => ({ code: 0, output: 'MARKER-A' }), batch, preflight: preflight(), revalidateBeforeRun: () => true });
   const metrics = deriveCausalMetrics(batch.ledger);
   assert.equal(metrics.intentCount, 1);
   assert.equal(metrics.uniqueExecutionKeys, 1);
@@ -1174,6 +1221,7 @@ test('CHK-005: metrics are zero-safe and tamper-resistant canonical-ledger proje
     receiptStore: mixedStore,
     batch: mixedBatch,
     preflight: preflight(),
+    revalidateBeforeRun: () => true,
   });
   await executeCausalEvidence({
     identity: mixedIdentity,
@@ -1182,6 +1230,7 @@ test('CHK-005: metrics are zero-safe and tamper-resistant canonical-ledger proje
     receiptStore: mixedStore,
     batch: mixedBatch,
     preflight: preflight(),
+    revalidateBeforeRun: () => true,
   });
   await executeCausalEvidence({
     identity: mixedNewIdentity,
@@ -1190,6 +1239,7 @@ test('CHK-005: metrics are zero-safe and tamper-resistant canonical-ledger proje
     receiptStore: mixedStore,
     batch: mixedBatch,
     preflight: preflight(),
+    revalidateBeforeRun: () => true,
   });
   const mixedMetrics = deriveCausalMetrics(mixedBatch.ledger);
   assert.equal(mixedExecutions, 2);
@@ -1212,6 +1262,7 @@ test('CHK-005: metrics are zero-safe and tamper-resistant canonical-ledger proje
     receiptStore: importRetryStore,
     batch: importRetryBatch,
     preflight: preflight(),
+    revalidateBeforeRun: () => true,
   });
   let importRetryCommits = 0;
   const importRetryResult = importCausalEvidenceReceipt({
@@ -1249,6 +1300,7 @@ test('CHK-005: metrics are zero-safe and tamper-resistant canonical-ledger proje
       run: async () => ({ code: 0, output: `INCOMPLETE-${index}` }),
       batch: incompleteMetricsBatch,
       preflight: preflight(),
+      revalidateBeforeRun: () => true,
     });
     assert.equal(result.key.reusable, false);
   }
