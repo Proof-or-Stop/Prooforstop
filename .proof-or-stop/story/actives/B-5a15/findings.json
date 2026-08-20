@@ -1249,6 +1249,21 @@
       ],
       "signatureTag": "missing|json|wave-live-proof",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-038",
+      "desc": "Wave 4 live-proof projection remains inadmissible at current HEAD c4e3510524: .proof-or-stop/story/actives/B-5a15/pre-review-check.json is inconclusive with PR_NEW_PATH_UNMAPPED, PR_COVERAGE_BASIS_CHANGED, PR_COVERAGE_INCONCLUSIVE, PR_PLANNED_PATH_UNRESOLVED, PR_POSITIVE_EVIDENCE_MISSING, and PR_EVIDENCE_STALE; acceptance_rollout_check remains fail with AR_REPORT_STALE and an old binding at 4da58da. The verifier-owned acceptance_topology_check -> pre_review_check_read -> acceptance_rollout_check chain has no current signed PASS and does not prove genuine full 3 rounds x 2 hosts (codex-cli plus claude-cli).",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-20T21:12:15.278Z",
+      "reviewRound": "2026-08-20T21:07:41.337Z",
+      "reviewRunId": "B-5a15:RR-055",
+      "_hash": "545e08e9a21ed1345d396c1d52996497e27cdcf61277bb8a4d0e605893bcf5a7",
+      "signatureTag": "missing|unknown|wave-live-proof",
+      "signatureTagSource": "auto"
     }
   ]
 }
