@@ -23830,6 +23830,45 @@
       },
       "readDiagnostics": [],
       "_hash": "adeb56753b286ae64b549ce1917df10e08d5d3582f18330555e2e38850529ee4"
+    },
+    {
+      "id": "B-3f3d:RP-401",
+      "agent": "lattice-review-quality",
+      "note": "Quality review of f8b2b97463 only: shared markReviewInventoryConsumed writer, persistBlocked reuse requires code+detail, completeness consume skips live-aggregate only for empty-wave receipts, remediation consume still refuses them, tests cover second-consume already-consumed, persistBlocked stale-detail, and wave-saturated live-aggregate. No dead code, silent catch, or type-safety blocker in this delta.",
+      "createdAt": "2026-08-20T04:16:51.939Z",
+      "reviewRound": "2026-08-20T04:06:08.943Z",
+      "reviewRunId": "B-3f3d:RR-626",
+      "envelopeId": "791ca2b0da0e01c21fffd02e77319f8b8c29247702cb1223d1f58acbdebc9be5",
+      "writerSessionId": "sess-4292375d1d751b41",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "packages/main/src/tasks/review-inventory-epoch-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "c3878b76cf3baf8bb018ca5c4cb8bd097845f25722e58a754fab946b3dcd02da"
     }
   ]
 }
