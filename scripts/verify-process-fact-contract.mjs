@@ -55,7 +55,6 @@ const modularReviewerBootstrapFiles = new Set([
   'lattice-review-docs.md',
   'lattice-review-quality.md',
   'lattice-review-test-coverage.md',
-  'lattice-review-topology-critic.md',
 ]);
 const processFactLevelRegistryPath = 'packages/main/src/core/process-fact-levels.ts';
 const commandPolicyPath = 'packages/main/src/core/command-policy.ts';
@@ -1613,7 +1612,7 @@ function assertProofStoryProgressiveBoundary() {
   );
   const topologyCriticText = read('packages/main/src/core/topology-critic-receipt.ts');
   const topologyCriticTemplatePath = 'packages/main/templates/agents/lattice-review-topology-critic.md';
-  const topologyCriticBootstrapPaths = [
+  const topologyCriticHostPaths = [
     '.claude/agents/lattice-review-topology-critic.md',
     `${CODEX_AGENTS_DIR}/lattice-review-topology-critic.md`,
   ];
@@ -1644,9 +1643,10 @@ function assertProofStoryProgressiveBoundary() {
       && read(topologyCriticTemplatePath).startsWith('---\n')
       && read(topologyCriticTemplatePath).includes('<!-- proofbound:modular-role-body:v1 -->')
       && read(topologyCriticTemplatePath).includes('- A pass is forbidden when the basis')
-      && topologyCriticBootstrapPaths.every(path => read(path).startsWith('---\n')
-        && read(path).includes('review_run_start')
-        && !read(path).includes('- A pass is forbidden when the basis')),
+      && topologyCriticHostPaths.every(path => read(path).startsWith('---\n')
+        && read(path).includes('<!-- proofbound:modular-role-body:v1 -->')
+        && read(path).includes('- A pass is forbidden when the basis')
+        && !read(path).includes('review_run_start')),
     'topology critic contract must bind role prompt, production producer/read-only verifier, required registered dispatch events, signed current fields, four-dimensional independence, exact scope-plan approvals, incomplete-basis rejection, and explicitly no Wave 2A lifecycle admission gate',
   );
   assert(coreText.includes('sourceText') && coreText.includes('keyRequirementIds'), 'core/proofstory.ts: requestHash must be derived from sourceText and keyRequirementIds');
