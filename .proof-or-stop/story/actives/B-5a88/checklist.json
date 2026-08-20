@@ -130,7 +130,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "A newly written evidence artifact has a proof-or-stop.*.vN schema, while story_get still loads named archived lattice.* artifacts without tamper errors.",
+      "userSees": "User sees `\"schemaVersion\": \"proof-or-stop.done_required_evidence.v1\"` in new evidence, while story_get reports an archived `\"lattice.done_required_evidence.v1\"` artifact as valid.",
       "files": {
         "modify": [
           "packages/main/src/core/artifact-contract.ts",
