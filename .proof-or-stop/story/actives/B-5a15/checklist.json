@@ -281,11 +281,19 @@
         "adversarial": [
           {
             "desc": "Forge a fresh-looking dependency record by omitting a changed story-owned input or supplying the prior domain hash after the material change; assert shadow-compare detects the mismatch, the affected node is stale, the old output cannot produce PASS, and falseFresh remains 0.",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node --test packages/main/tests/causal-evidence.test.mjs",
+              "selector": "B-5a15|CHK-003:adversarial:0|PASS|forged or omitted dependency hashes are rejected by shadow compare and cannot create a fresh gate PASS"
+            }
           },
           {
             "desc": "Attempt to rewrite a stored evidence hash, dependency hash, materialHash, or receipt provenance to match the current tree after a related change; assert content-addressed evidence is immutable, the rewrite is rejected or ignored, the original bytes and hashes remain stable, and no old output is reclassified as fresh.",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node --test packages/main/tests/causal-evidence.test.mjs",
+              "selector": "B-5a15|CHK-003:adversarial:1|PASS|content-addressed dependency and receipt provenance rewrite is rejected and original hashes remain stable"
+            }
           },
           {
             "desc": "Invoke CertificationWindow with a stale affected node while presenting a valid-looking causal advisory, or bypass the causal decision and submit the old specialized PASS directly; assert the window rejects the bypass, does not downgrade a related invalidation to advisory, and emits no gate-admissible PASS.",
@@ -448,7 +456,11 @@
             "desc": "Attempt to bypass the preflight by omitting it, replaying a stale PASS, forging individual check results, changing the target after the PASS, or invoking the child runner through a lower-level path; assert the launch gate rejects the missing, stale, or forged preflight contract, records commandExecutions=0, and cannot produce a gate-admissible evidence PASS.",
             "type": "cli",
             "requiredIn": "strict",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node --test packages/main/tests/causal-evidence.test.mjs",
+              "selector": "B-5a15|CHK-004:adversarial:1|PASS|missing, stale, or forged preflight is rejected before child launch with commandExecutions=0 and no gate-admissible PASS"
+            }
           }
         ]
       },
@@ -483,18 +495,26 @@
             "priority": "must",
             "verification": {
               "command": "node --test packages/main/tests/causal-evidence.test.mjs",
-              "selector": "B-5a15|CHK-005:happy:0|PASS|CHK-005: metrics are zero-safe and tamper-resistant canonical-ledger projections"
+              "selector": "B-5a15|CHK-005:happy:0|PASS|completed 58-intent run reports intentCount=58 uniqueExecutionKeys=10 commandExecutions=10 cacheHitRate>=80% with commandExecutions equal to uniqueExecutionKeys"
             }
           },
           {
             "desc": "A receipt-first import failure followed by a successful retry reports commitFailureReruns=0 and preserves the original receipt hash in the metrics block.",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node --test packages/main/tests/causal-evidence.test.mjs",
+              "selector": "B-5a15|CHK-005:happy:1|PASS|receipt-first import retry preserves receiptHash and commandReruns=0 while transaction retry is counted separately"
+            }
           },
           {
             "desc": "A mixed run reports unrelatedSpecializedRerun=0, affectedNodeRerun=100%, falseFresh=0, and still keeps reviewer lanes, verification coverage, and DONE-required strictness visible.",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node --test packages/main/tests/causal-evidence.test.mjs",
+              "selector": "B-5a15|CHK-005:happy:2|PASS|mixed correctness metrics report unrelatedSpecializedRerun=0 affectedNodeRerun=100% falseFresh=0"
+            }
           }
         ],
         "edge": [
@@ -548,12 +568,20 @@
           {
             "desc": "Metrics do not add overlapping U-01 or U-02 elapsed time to U-03 savings and do not claim efficiency by reducing reviewer lanes, coverage, or adding waivers.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node --test packages/main/tests/causal-evidence.test.mjs",
+              "selector": "B-5a15|CHK-005:adversarial:1|PASS|metrics expose only U-03 execution and freshness fields without overlapping elapsed time or assurance-reduction fields"
+            }
           },
           {
             "desc": "A metrics PASS cannot advance a story to DONE while open findings, stale evidence, missing coverage, strict whole-tree drift, or required commands remain unresolved.",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node --test packages/main/tests/causal-evidence.test.mjs",
+              "selector": "B-5a15|CHK-005:adversarial:2|PASS|metrics PASS cannot bypass open findings missing coverage dirty tree or strict whole-tree causal drift"
+            }
           }
         ]
       },
