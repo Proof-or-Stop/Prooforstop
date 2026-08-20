@@ -81,7 +81,9 @@
     },
     {
       "docPath": "docs/requirements/decisions/test-runner-consolidation-plan.md#canonical-root-suite-execution",
-      "promise": "Timeouts terminate the member process tree via terminateProcessTreeAndVerify, which freezes the captured tree with SIGSTOP until two stable snapshots add no new members, SIGKILLs and re-polls until no captured PID remains, keys ownership on (pid, birthIdentity) from parseProcessRows, and bounds the post-SIGKILL retry by the cleanup budget with fail-closed surviving-PID recording."
+      "promise": "Timeouts terminate the member process tree via terminateProcessTreeAndVerify, which freezes the captured tree with SIGSTOP until two stable snapshots add no new members, SIGKILLs and re-polls until no captured PID remains, keys ownership on (pid, birthIdentity) from parseProcessRows, and bounds the post-SIGKILL retry by the cleanup budget with fail-closed surviving-PID recording.",
+      "waiverReason": "This leftover unique doc still names terminateProcessTreeAndVerify / parseProcessRows / birthIdentity, but current full-suite-runner.ts (identical to main) only has killProcessTree. B-3f3d did not change the root suite process-tree helpers; the promise is historical and not delivered by this story.",
+      "status": "waived"
     }
   ],
   "realMachineTests": [
@@ -116,5 +118,5 @@
     "hasUnresolvedTodos": false,
     "summary": "12 of 13 docsPromises are implemented at current HEAD (inventory epoch/receipt/gates, Wave 4 enforce full-3x2 rollout authority with observe-mode topology/pre-review remaining diagnostic, six migrated reviewers, kind-aware review-run binding). Independently read acceptance_topology_check (observe/fail/non-blocking/diagnostic_only), pre_review_check_read (observe/inconclusive/non-blocking/inadmissible), and matching acceptance_rollout_report_read + acceptance_rollout_check PASS/enforce/full-3x2/current at material d32efb491dde storyFiles ce5443e91eb5; those were not treated as prompt-only. All six CHK items have assertion-bearing smokes covering happy plus tamper/replay/cancel/budget/missing-critic paths. One docs promise is unmet: test-runner-consolidation-plan.md still names terminateProcessTreeAndVerify/parseProcessRows/birthIdentity, but current full-suite-runner.ts (identical to main) only has killProcessTree; the historical B-3f3d runner commits were overwritten by later main merges. No unresolved TODO/FIXME/HACK in the inventory/rollout product code."
   },
-  "_hash": "20b5d610cf146d4485e767b5830751426e68f189727c000e64bf06466c6c6fef"
+  "_hash": "b687b8f76b80654953480e8110fe9704361107be381538ff2d38896279aa6002"
 }
