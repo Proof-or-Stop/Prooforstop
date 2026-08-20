@@ -4,5 +4,11 @@
     "command": "story_advance",
     "lastReason": "Cannot enter REVIEW: acceptance rollout enforcement blocked DEV admission.\nAcceptance rollout enforcement:\n  mode=enforce; status=fail; blocking=true\n  receipt=stale; quorum=full-3x2\n  codes=AR_REPORT_STALE\n\n-> Run proof-or-stop acceptance_rollout_report, then acceptance_rollout_check. Roll back by setting proofStory.acceptanceRolloutGateMode to warn or observe; prior reports remain immutable.",
     "lastAt": "2026-08-20T04:02:44.907Z"
+  },
+  "story_advance/b4da08964aa0": {
+    "count": 1,
+    "command": "story_advance",
+    "lastReason": "Cannot enter REVIEW: Scope gate: fail (3 unacknowledged violation(s), mode=enforce)\n\nScope gate: fail (3 unacknowledged violation(s), mode=enforce)\nChanged files (133):\n  .claude/agents/lattice-review-topology-critic.md\n  .proof-or-stop-codex/agents/lattice-review-topology-critic.md\n  .proof-or-stop/story/actives/B-3f3d/acceptance-basis.json\n  .proof-or-stop/story/actives/B-3f3d/acceptance-rollout-report.json\n  .proof-or-stop/story/actives/B-3f3d/bug.json\n  .proof-or-stop/story/actives/B-3f3d/ca",
+    "lastAt": "2026-08-20T04:05:33.094Z"
   }
 }
