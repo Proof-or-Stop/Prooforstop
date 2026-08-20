@@ -397,7 +397,13 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
             `Next: lattice story_advance --storyId=${args.storyId} --phase=DEV`,
           );
         }
-        const { requiredLanes, scopeDigest, candidateSpecSetDigest, corpusDigest } = captureReviewInventoryScope(ctx, args.storyId);
+        const {
+          requiredLanes,
+          scopeDigest,
+          candidateSpecSetDigest,
+          corpusDigest,
+          candidateArtifactInvalid,
+        } = captureReviewInventoryScope(ctx, args.storyId);
         const cutoff = capture(ctx, args.storyId);
         const data = ctx.store.readReviewInventoryEpochs(args.storyId);
         const epochNum = data.epochs.reduce((max, row) => {
@@ -410,7 +416,12 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
           epochId: `${args.storyId}:RI-${String(epochNum).padStart(3, '0')}`,
           storyId: args.storyId,
           reviewRound: story.currentReviewRound,
-          state: 'OPEN',
+          // A persisted candidate artifact can be syntactically signed-looking while
+          // still failing the structural verifier. Never publish an OPEN epoch in
+          // that state: record the terminal blocker in the same signed write so
+          // callers receive a durable, rendered recovery state rather than a
+          // transiently admissible inventory.
+          state: candidateArtifactInvalid ? 'INVALIDATED' : 'OPEN',
           begunAt: now,
           updatedAt: now,
           cutoff,
@@ -421,6 +432,19 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
           initialRunSequenceBoundary: maxReviewRunSequence(ctx.store.readReviewRuns(args.storyId).runs),
           maxWaves: args.maxWaves ?? 3,
           waves: [],
+          ...(candidateArtifactInvalid ? {
+            invalidation: {
+              detectedAt: now,
+              oldMaterialHash: cutoff.materialHash,
+              currentMaterialHash: cutoff.materialHash,
+              ...(cutoff.storyFilesHash ? {
+                oldStoryFilesHash: cutoff.storyFilesHash,
+                currentStoryFilesHash: cutoff.storyFilesHash,
+              } : {}),
+              blockerCode: 'OPEN_REVIEW_INVENTORY_INVALID_CANDIDATE_ARTIFACT' as const,
+            },
+            terminalRunSequenceBoundary: maxReviewRunSequence(ctx.store.readReviewRuns(args.storyId).runs),
+          } : {}),
         };
         const baselineFindingIds = captureReviewInventoryBaselineFindingIds({
           epoch: { ...provisional, _hash: '' },
@@ -431,7 +455,7 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
         const epoch = signEpoch(unsigned);
         data.epochs.push(epoch);
         ctx.store.writeReviewInventoryEpochs(args.storyId, data);
-        return renderReviewInventoryBegin(epoch);
+        return candidateArtifactInvalid ? renderReviewInventoryStatus(epoch) : renderReviewInventoryBegin(epoch);
       });
     },
 
