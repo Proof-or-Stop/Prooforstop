@@ -1,0 +1,111 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-5a15",
+  "state": "confirmed",
+  "ledgerHash": "sha256:5d9860d9666f6e5a8d596d2bd6d3139b2f716a069b50eefe6c7eddb0c7b726a8",
+  "milestones": [
+    {
+      "id": "M1",
+      "sourceRequirementId": "REQ-001",
+      "claim": "Unique execution keys and exact-key deduplication",
+      "doneMeans": "CHK-001 implementation and its happy/edge/adversarial evidence pass with independent selector verdicts.",
+      "requiredEvidence": [
+        "logic_test",
+        "integration_test",
+        "cli"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "REQ-001",
+      "claim": "Receipt-first canonical import and retry",
+      "doneMeans": "CHK-002 proves immutable receipt persistence before import and zero command reruns after import failure.",
+      "requiredEvidence": [
+        "integration_test",
+        "cli"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M3",
+      "sourceRequirementId": "REQ-001",
+      "claim": "Causal dependency invalidation",
+      "doneMeans": "CHK-003 proves domain-specific invalidation, strict fallback, and CertificationWindow/DONE-required preservation.",
+      "requiredEvidence": [
+        "logic_test",
+        "integration_test"
+      ],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M4",
+      "sourceRequirementId": "REQ-001",
+      "claim": "Fail-closed expensive-run preflight",
+      "doneMeans": "CHK-004 proves all preflight checks happen before child launch and refusal records zero command executions.",
+      "requiredEvidence": [
+        "integration_test",
+        "cli"
+      ],
+      "checklistRefs": [
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "CHK-004:happy:0",
+        "CHK-004:edge:0",
+        "CHK-004:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M5",
+      "sourceRequirementId": "REQ-001",
+      "claim": "Correctness and efficiency metrics preserve assurance",
+      "doneMeans": "CHK-005 reports canonical metrics and cannot bypass reviewer, coverage, freshness, or DONE gates.",
+      "requiredEvidence": [
+        "logic_test",
+        "cli"
+      ],
+      "checklistRefs": [
+        "CHK-005"
+      ],
+      "verificationIntentRefs": [
+        "CHK-005:happy:0",
+        "CHK-005:edge:0",
+        "CHK-005:adversarial:0"
+      ],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-08-20T09:26:56.199Z",
+  "updatedAt": "2026-08-20T09:26:56.990Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260820092656",
+    "acceptedInterpretationHash": "sha256:a6f93466428d98e78775efca9ddbdf350548fdbd03f44d4f46ac9947de44691b",
+    "acceptedAt": "2026-08-20T09:26:56.990Z"
+  }
+}
