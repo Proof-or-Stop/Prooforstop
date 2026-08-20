@@ -711,6 +711,7 @@ function resolveCli(root) {
   // package built before the rename only exposes the \`lattice\` bin.
   const jsCandidates = [
     path.join(root, 'packages', 'main', 'dist', 'cli.js'),
+    path.join(root, 'node_modules', '@proof-or-stop', 'core', 'dist', 'cli.js'),
     path.join(root, 'node_modules', '@lattice', 'core', 'dist', 'cli.js'),
     path.join(root, 'bin', 'proof-or-stop.js'),
     path.join(root, 'bin', 'lattice.js'),
@@ -867,6 +868,7 @@ function resolveCli(root) {
   // package built before the rename only exposes the \`lattice\` bin.
   const jsCandidates = [
     path.join(root, 'packages', 'main', 'dist', 'cli.js'),
+    path.join(root, 'node_modules', '@proof-or-stop', 'core', 'dist', 'cli.js'),
     path.join(root, 'node_modules', '@lattice', 'core', 'dist', 'cli.js'),
     path.join(root, 'bin', 'proof-or-stop.js'),
     path.join(root, 'bin', 'lattice.js'),

@@ -21,8 +21,10 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   renderCodexAgentContent,
+  renderCodexEvidencePretoolHookScript,
   renderProofOrStopBootstrapScript,
   renderProofOrStopCodexAdapterManifest,
+  renderCodexPretoolScopeHookScript,
   renderProofOrStopCodexWrapperScript,
 } from '../init-assets.js';
 import { runCodexAdapterChecks, renderCodexAdapterChecks } from '../core/codex-adapter-checks.js';
@@ -36,6 +38,11 @@ import { renderReviewerRunBootstrapForTemplate } from '../core/global-agents.js'
 
 const packageRoot = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const repoRoot = join(packageRoot, '..', '..');
+
+const renderedScopeHook = renderCodexPretoolScopeHookScript();
+const renderedEvidenceHook = renderCodexEvidencePretoolHookScript();
+assert.match(renderedScopeHook, /@proof-or-stop', 'core', 'dist', 'cli\.js'/, 'generated scope hook must resolve the canonical core package');
+assert.match(renderedEvidenceHook, /@proof-or-stop', 'core', 'dist', 'cli\.js'/, 'generated evidence hook must resolve the canonical core package');
 
 function writeText(root: string, relPath: string, content: string): void {
   const full = join(root, relPath);

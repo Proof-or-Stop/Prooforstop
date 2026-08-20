@@ -197,10 +197,10 @@ function assertProfileAssets(tempDir, profile, opts = {}) {
       'bin/proof-or-stop-codex.js',
       CODEX_README_REL,
       CODEX_MANIFEST_REL,
-      `${AD}/agents/test-intent.md`,
-      `${AD}/agents/test-case-reviewer.md`,
-      `${AD}/agents/lattice-review-quality.md`,
-      `${AD}/agents/lattice-implementer.md`,
+      `${AD}/agents/proof-or-stop-test-intent.md`,
+      `${AD}/agents/proof-or-stop-test-case-reviewer.md`,
+      `${AD}/agents/proof-or-stop-review-quality.md`,
+      `${AD}/agents/proof-or-stop-implementer.md`,
     );
   } else if (!opts.allowExistingCodex) {
     absent.push('AGENTS.md', 'bin/proof-or-stop-codex.js', AD);

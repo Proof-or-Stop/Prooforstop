@@ -83,7 +83,7 @@ export function createDevMemoryHandlers(ctx: HandlerContext) {
       lesson: args.lesson,
       reusePrompt: args.reusePrompt,
       tags: parseTagsArg(args.tags),
-      sourceAgent: args.sourceAgent || 'lattice-implementer',
+      sourceAgent: args.sourceAgent || 'proof-or-stop-implementer',
       sourceStoryId: args.sourceStoryId,
       evidenceRefs: args.evidenceRefs,
     };

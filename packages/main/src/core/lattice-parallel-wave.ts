@@ -627,7 +627,7 @@ function dispatchAgentRole(recommendation: ParallelWaveRecommendation): Parallel
 
 function dispatchNextCommand(ref: ParallelWaveStoryRef): string {
   if (ref.recommendation === 'parallel_dev') {
-    return `proof-or-stop dispatch --storyId=${ref.storyId} --itemId=<CHK-id> --agentType=lattice-implementer`;
+    return `proof-or-stop dispatch --storyId=${ref.storyId} --itemId=<CHK-id> --agentType=proof-or-stop-implementer`;
   }
   if (ref.recommendation === 'plan_only') {
     return `proof-or-stop parallel_plan --storyIds='["${ref.storyId}"]'`;

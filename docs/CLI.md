@@ -1071,7 +1071,7 @@ npm --prefix packages/utils run build
 npm --prefix packages/lab run build
 ```
 
-A globally installed `proof-or-stop` (canonical package: `@proof-or-stop/core`) also automatically enables `proof-or-stop lab ...` when `@lattice/lab` is resolvable; if lab is not installed, the ordinary core commands still work and only `proof-or-stop lab ...` prompts to install/build lab.
+A globally installed `proof-or-stop` (canonical package: `@proof-or-stop/core`) also automatically enables `proof-or-stop lab ...` when `@proof-or-stop/lab` is resolvable; if lab is not installed, the ordinary core commands still work and only `proof-or-stop lab ...` prompts to install/build lab.
 
 Before releasing `0.3.5`, it is recommended to run:
 
