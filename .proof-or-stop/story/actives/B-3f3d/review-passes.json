@@ -24185,6 +24185,48 @@
       },
       "readDiagnostics": [],
       "_hash": "b7275e60bae8e89ba05677ad0324f7cb711e2ab63cec47f5cf779f8c2192dd7d"
+    },
+    {
+      "id": "B-3f3d:RP-407",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement this round. Commit d9d70a87b7 only inserts three discovery-fixture stubs (machine.ts, review-inventory-epoch.ts, review-inventory.ts) into writeAcceptanceBasisDiscoveryFixture so PLAN snapshot-seal can see the inventory process-fact producer/consumer source refs; those stubs are presence markers, do not implement inventory receipts, and do not authorize TEST. Residue check completed, no blocker.",
+      "createdAt": "2026-08-20T05:46:46.331Z",
+      "reviewRound": "2026-08-20T05:39:48.902Z",
+      "reviewRunId": "B-3f3d:RR-630",
+      "envelopeId": "385c6bfdc7bfd3ec908026e50d88c7a2cc6ddd037a85da90113496b48c3a7c8b",
+      "writerSessionId": "sess-4292375d1d751b41",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "fa7d981a521a9ade367595cd00d8fbd7ed11fd7780b2d420795a5d67a981ce5f"
     }
   ]
 }
