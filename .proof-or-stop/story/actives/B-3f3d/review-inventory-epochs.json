@@ -5131,6 +5131,26 @@
       "consumedAt": "2026-08-20T06:13:04.666Z",
       "consumedByReviewRound": "2026-08-20T05:39:48.902Z",
       "_hash": "80695033d75ed4c6c58a73d825d1bf372e3b25891ef49682a902956e327ab213"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-3f3d:RIE-058",
+      "storyId": "B-3f3d",
+      "reviewRound": "2026-08-20T07:14:40.200Z",
+      "state": "FINALIZED",
+      "begunAt": "2026-08-20T08:11:20.609Z",
+      "updatedAt": "2026-08-20T08:11:20.609Z",
+      "cutoff": {
+        "headHash": "4668c81936289bcb0bf5bbc6545357221c7acfc0",
+        "materialHash": "d137260b802ec305a109369e0e47b95dc80afc5fc3d38946d873b8cb76b42f92",
+        "storyFilesHash": "37e6b2d2d8913cf42686c0bb2e2b774eb7605aafb7d961f04ff182833896f4d2"
+      },
+      "scopeDigest": "77ca1b7e2cb39e8d549bbed0a61ec7a249218b2a1779a85026d7165d80211ec6",
+      "requiredLanes": [],
+      "maxWaves": 1,
+      "waves": [],
+      "receiptId": "B-3f3d:RIE-058:RCP-001",
+      "_hash": "2ddbbf2d9e4057f41fd3d380c1c5627c328a434f0a8164800c5f14916d70b9a1"
     }
   ],
   "receipts": [
@@ -5826,6 +5846,28 @@
       "issuedAt": "2026-08-20T06:13:03.566Z",
       "consumedAt": "2026-08-20T06:13:04.666Z",
       "_hash": "1833b6fbe386d597084abf3effd01fdc07dd4b26901253cfcd7c6cda2e2921c9"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_receipt.v1",
+      "receiptId": "B-3f3d:RIE-058:RCP-001",
+      "epochId": "B-3f3d:RIE-058",
+      "storyId": "B-3f3d",
+      "reviewRound": "2026-08-20T07:14:40.200Z",
+      "cutoff": {
+        "headHash": "4668c81936289bcb0bf5bbc6545357221c7acfc0",
+        "materialHash": "d137260b802ec305a109369e0e47b95dc80afc5fc3d38946d873b8cb76b42f92",
+        "storyFilesHash": "37e6b2d2d8913cf42686c0bb2e2b774eb7605aafb7d961f04ff182833896f4d2"
+      },
+      "scopeDigest": "77ca1b7e2cb39e8d549bbed0a61ec7a249218b2a1779a85026d7165d80211ec6",
+      "requiredLanes": [],
+      "waveCount": 0,
+      "findingSetDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "coverageDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "saturationResult": "ZERO_NEW_VERIFIED_FINDINGS",
+      "authority": "inventory-completeness-only",
+      "authorizesTest": false,
+      "issuedAt": "2026-08-20T08:11:20.609Z",
+      "_hash": "10afdfa5ad4f7330d8bfd5105db4b847c6405c8d034b912bd43579a434df041f"
     }
   ],
   "criticReceipts": [
