@@ -4139,6 +4139,132 @@
       ],
       "signatureTag": "missing|json|packages-main-handlers",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-087",
+      "desc": "CHK-007 is not internally coherent: the branch removes the lattice npm bin (packages/main/package.json:14-16 and bin/lattice.js/bin/lattice-codex.js are absent) and runtime-environment-checks.ts now reports/resolves proof-or-stop first (lines 499-500, 975), but active docs still promise lattice --version and a retained npm alias (README.md:96; docs/CLI.md:14-15). The standard runtime contract also fails: node scripts/verify-runtime-fact-contract.mjs exits 1 because scripts/verify-runtime-fact-contract.mjs:198-215 still requires lattice-only expected text, warnings, and PATH fixture. Users and the repository gate therefore receive contradictory command contracts; update the active docs and verifier fixture to canonical-first behavior with explicit legacy read compatibility before passing REVIEW.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-20T21:15:48.290Z",
+      "reviewRound": "2026-08-20T21:04:24.975Z",
+      "reviewRunId": "B-5a88:RR-089",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/package.json",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "README.md",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          "package.json",
+          "packages/lab/package.json",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/artifact-schema.ts",
+          "packages/main/src/core/managed-markers.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/reviewer-list.ts",
+          "packages/utils/package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8545f1636442804abb5b74408dc7916785f12c63fe8db2134b66e233721e6871",
+      "files": [
+        "README.md",
+        "docs/CLI.md",
+        "packages/main/package.json",
+        "packages/main/src/core/runtime-environment-checks.ts",
+        "scripts/verify-runtime-fact-contract.mjs"
+      ],
+      "signatureTag": "doc-code-drift|md|internally-coherent-branch",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-088",
+      "desc": "CHK-001 canonical-role migration still emits legacy reviewer IDs in user-facing operational guidance: packages/main/src/handlers/session.ts:699,1370-1371 tells users to run pending lattice-review-* reviewers and supplies agent=lattice-review-<name>; packages/main/src/handlers/story-review.ts:582 tells users to dispatch lattice-review-scope-plan; packages/main/src/handlers/validate-concept.ts:1075,1106,1178 returns dispatch lattice-review-concept; and packages/main/src/cli/command-catalog.ts:682,1349,2408,2433,3131,3137 advertises legacy IDs. These are new CLI output/help/next-step semantics, not archived evidence or compatibility readers, so they contradict CHK-001 canonical proof-or-stop userSees behavior. Update emitted guidance and expected strings to proof-or-stop-* while retaining aliases only in explicit legacy-read/test fixtures.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-20T21:16:09.767Z",
+      "reviewRound": "2026-08-20T21:04:24.975Z",
+      "reviewRunId": "B-5a88:RR-091",
+      "_hash": "29ff536d1a59a5d658390f6f9a7cd97f6ea0eaecd9d987b66ac0d8ba2d1d1ad1",
+      "files": [
+        "packages/main/src/handlers/session.ts",
+        "packages/main/src/handlers/story-review.ts",
+        "packages/main/src/handlers/validate-concept.ts",
+        "packages/main/src/cli/command-catalog.ts"
+      ],
+      "signatureTag": "missing|ts|canonical-role-migration",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-089",
+      "desc": "packages/main/src/tasks/flow-stability-smoke.ts:2577,3047,4473,4502 still assert or instruct the retired agentId=lattice-review-delivery after this story migrated the same smoke file and runtime delivery lane to proof-or-stop-review-delivery. Reproduction: npm test fails in test:flow-stability-smoke because session_brief emits agentId=proof-or-stop-review-delivery; update all four delivery assertions/hints and rerun the full suite.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-08-20T21:17:22.862Z",
+      "reviewRound": "2026-08-20T21:04:24.975Z",
+      "reviewRunId": "B-5a88:RR-092",
+      "_hash": "a8db1d73b077de6ae8dacbb4e61bf479991eb39ef157141b2a0e2c4fd0215a63",
+      "files": [
+        "packages/main/src/tasks/flow-stability-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-090",
+      "desc": "Canonical delivery-review ownership is not recognized: packages/main/src/cli/ownership-gate.ts:220-225 exact-matches only lattice-review-delivery, so proof-or-stop-review-delivery is classified as storyScopedMutating instead of reviewerWrite. Reproduction against the built CLI: isDeliveryReviewerActor({agentId:\"proof-or-stop-review-delivery\"}) returns false while the legacy alias returns true. A canonical delivery reviewer can therefore be blocked by story ownership rather than using the reviewer-write path required by the migrated role contract.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-20T21:18:32.164Z",
+      "reviewRound": "2026-08-20T21:04:24.975Z",
+      "reviewRunId": "B-5a88:RR-090",
+      "_hash": "32e9dda20c4118e9e29d2c7d9dcd1f3df98bfb5119f1ad3ff3434626eadd3b62",
+      "files": [
+        "packages/main/src/cli/ownership-gate.ts",
+        "packages/main/src/core/lifecycle-readiness.ts"
+      ],
+      "signatureTag": "missing|ts|canonical-delivery-review",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-091",
+      "desc": "Active user-facing guidance still teaches legacy reviewer IDs after the canonical migration: packages/main/src/handlers/validate-concept.ts:1075-1178 and packages/main/src/core/lifecycle-readiness.ts:595 emit lattice-review-concept/lattice-review-delivery, while packages/main/src/cli/command-catalog.ts:682,1349,2406-2408,2433 exposes legacy IDs in --help. Reproduction: proof-or-stop review_pass_set --help, agent_prompt --help, and delivery_check_set --help each display lattice-* reviewer examples or instructions. Legacy aliases remain readable, but fresh users are directed to non-canonical roles, so the promised user-visible migration is incomplete.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-20T21:18:48.326Z",
+      "reviewRound": "2026-08-20T21:04:24.975Z",
+      "reviewRunId": "B-5a88:RR-090",
+      "_hash": "cce8c81244ed8e34fe039fe192d34fc21a3e7c5b93dd439a2987f2eba4a46413",
+      "files": [
+        "packages/main/src/handlers/validate-concept.ts",
+        "packages/main/src/core/lifecycle-readiness.ts",
+        "packages/main/src/cli/command-catalog.ts"
+      ],
+      "signatureTag": "missing|ts|active-user-facing",
+      "signatureTagSource": "auto"
     }
   ]
 }
