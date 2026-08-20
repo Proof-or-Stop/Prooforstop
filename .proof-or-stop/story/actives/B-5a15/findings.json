@@ -5,7 +5,7 @@
       "desc": "packages/main/src/handlers/checklist.ts:981-985 [critical] The preflight launch revalidation callback only compares headHash, materialHash, and storyFilesHash. It does not revalidate the CLI/worktree, Git index, writer identity or lease, provider capability, resource budget, or writable evidence target after preflight and immediately before child launch, so those states can change in the gap and the command can start despite an invalid preflight contract, violating CHK-004:adversarial:0 and allowing nonzero command execution or partial evidence writes.",
       "severity": "critical",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-20T14:05:58.411Z",
@@ -33,7 +33,11 @@
         "packages/main/src/handlers/checklist.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 1626c43455: the launch-boundary callback now compares a canonical snapshot of all causal preflight facts, and checklist-causal-preflight-batch.test.mjs verifies the wiring and metrics response.",
+      "resolvedAt": "2026-08-20T14:36:21.135Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
