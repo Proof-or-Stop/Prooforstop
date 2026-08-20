@@ -1226,6 +1226,25 @@
       ],
       "signatureTag": "adversarial|ts|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-037",
+      "desc": "Wave 4 live-proof projection is not admissible for the current B-5a15 HEAD: acceptance_topology_check returned status=fail, structuralPass=false, result=inconclusive_basis_unverified with AT_SCOPE_BINDING_MISSING and a storyFilesHash freshness mismatch; pre_review_check_read returned ok=false with PR_POSITIVE_EVIDENCE_MISSING, PR_PRODUCTION_PATH_UNPROVEN, and PR_EVIDENCE_STALE; acceptance_rollout_check reported fail with AR_REPORT_STALE. The canonical verifier-owned chain has no current signed PASS and does not prove genuine full 3 rounds x 2 hosts (codex-cli plus claude-cli), so the story must not claim the live proof projection. Regenerate the verifier-owned artifacts and rerun all read/check consumers.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-20T20:59:58.845Z",
+      "reviewRound": "2026-08-20T20:59:22.722Z",
+      "reviewRunId": "B-5a15:RR-053",
+      "_hash": "ee84846aac8a96df1ddbf9c77101e20328c89e9d7a727a136648dd3ffb2206c4",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json"
+      ],
+      "signatureTag": "missing|json|wave-live-proof",
+      "signatureTagSource": "auto"
     }
   ]
 }
