@@ -17,26 +17,27 @@ import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { gunzipSync } from 'node:zlib';
 import { PROOF_OR_STOP_ADAPTER_DIR } from './brand-paths.js';
+import { canonicalAgentRoleId, canonicalizeAgentRoleText, legacyAgentRoleIds } from './agent-role-identity.js';
 
 export const PROMPT_REGISTRY_VERSION = 'lattice.prompt-registry.v1';
 export const PROMPT_REGISTRY_SOURCE = '@proof-or-stop/core/templates/agents';
 export const SUPPORTED_PROMPT_HOSTS = ['claude', 'codex'] as const;
 export const MODULAR_ROLE_BODY_MARKER = '<!-- proofbound:modular-role-body:v1 -->';
 export const MODULAR_REVIEWER_ROLE_IDS = [
-  'lattice-review-behavior',
-  'lattice-review-concept',
-  'lattice-review-docs',
-  'lattice-review-quality',
-  'lattice-review-test-coverage',
+  'proof-or-stop-review-behavior',
+  'proof-or-stop-review-concept',
+  'proof-or-stop-review-docs',
+  'proof-or-stop-review-quality',
+  'proof-or-stop-review-test-coverage',
 ] as const;
 export type ModularReviewerRoleId = typeof MODULAR_REVIEWER_ROLE_IDS[number];
 /** Story 6 roles use the same trusted story-dispatch envelope, but are not REVIEW lanes. */
 export const MODULAR_COMPLEX_ROLE_IDS = [
-  'lattice-review-story-init',
-  'lattice-review-scope-plan',
-  'lattice-implementer',
-  'lattice-review-delivery',
-  'lattice-evaluator',
+  'proof-or-stop-review-story-init',
+  'proof-or-stop-review-scope-plan',
+  'proof-or-stop-implementer',
+  'proof-or-stop-review-delivery',
+  'proof-or-stop-evaluator',
 ] as const;
 export type ModularComplexRoleId = typeof MODULAR_COMPLEX_ROLE_IDS[number];
 
@@ -61,7 +62,7 @@ export type ModularComplexRoleId = typeof MODULAR_COMPLEX_ROLE_IDS[number];
  * slice byte-identical to the HEAD slice, i.e. the drift is brand-only with no
  * semantic edit. The assertion is preserved, never deleted or loosened.
  */
-const LEGACY_REVIEWER_TEMPLATE_SHA256: Readonly<Record<ModularReviewerRoleId, string>> = Object.freeze({
+const LEGACY_REVIEWER_TEMPLATE_SHA256: Readonly<Record<string, string>> = Object.freeze({
   'lattice-review-behavior': '45efbfe90d7705408ed95f0111b2108b5e39fc9397aeb7d99eda600db2ea3fe0',
   'lattice-review-concept': '846023d241693435c995900e5869b13e838795718143f2fab14e7a8f7f23eb5d',
   'lattice-review-docs': '7aafa18c26dd713586f416dfc4a3b9676a88438f858c32374af9a978300dd43e',
@@ -70,7 +71,7 @@ const LEGACY_REVIEWER_TEMPLATE_SHA256: Readonly<Record<ModularReviewerRoleId, st
 });
 
 /** B-cdf6 CHK-005 + CHK-003 follow-up: re-approved for the same reason as LEGACY_REVIEWER_TEMPLATE_SHA256 above. */
-const LEGACY_COMPLEX_TEMPLATE_SHA256: Readonly<Record<ModularComplexRoleId, string>> = Object.freeze({
+const LEGACY_COMPLEX_TEMPLATE_SHA256: Readonly<Record<string, string>> = Object.freeze({
   'lattice-review-story-init': 'd63524b25475f370f642168881f680846424d7a80a69867219ccc9f969fd5ae6',
   'lattice-review-scope-plan': '9ac7cff64b53fc33555e4c5ef6f963a5c5bd09e7420d317a2312aafac9cfbd07',
   'lattice-implementer': '0ef513cc1e77c69d7ca5751a98e998143bfab5ac3eb7bc64a4c0cf2346cabf41',
@@ -248,11 +249,11 @@ function sha256(content: string): string {
 }
 
 export function isModularReviewerRoleId(roleId: string): roleId is ModularReviewerRoleId {
-  return (MODULAR_REVIEWER_ROLE_IDS as readonly string[]).includes(roleId);
+  return (MODULAR_REVIEWER_ROLE_IDS as readonly string[]).includes(canonicalAgentRoleId(roleId));
 }
 
 export function isModularComplexRoleId(roleId: string): roleId is ModularComplexRoleId {
-  return (MODULAR_COMPLEX_ROLE_IDS as readonly string[]).includes(roleId);
+  return (MODULAR_COMPLEX_ROLE_IDS as readonly string[]).includes(canonicalAgentRoleId(roleId));
 }
 
 export function isModularRoleId(roleId: string): boolean {
@@ -266,32 +267,34 @@ export function isModularRoleId(roleId: string): boolean {
  */
 export function restoreLegacyPromptTemplate(entry: PromptRegistryEntry): string {
   const modular = readPromptTemplate(entry);
-  if (!isModularRoleId(entry.agentId)) return modular;
+  const canonicalRole = canonicalAgentRoleId(entry.agentId);
+  const legacyRole = legacyAgentRoleIds(canonicalRole)[0] ?? canonicalRole;
+  if (!isModularRoleId(canonicalRole)) return canonicalizeAgentRoleText(modular);
   if (!modular.includes(MODULAR_ROLE_BODY_MARKER)) {
-    throw new Error(`modular reviewer prompt ${entry.agentId} is missing ${MODULAR_ROLE_BODY_MARKER}`);
+    throw new Error(`modular reviewer prompt ${canonicalRole} is missing ${MODULAR_ROLE_BODY_MARKER}`);
   }
   let restored = modular.replace(
     MODULAR_ROLE_BODY_MARKER,
-    entry.agentId === 'lattice-review-test-coverage'
+    canonicalRole === 'proof-or-stop-review-test-coverage'
       ? TEST_COVERAGE_LEGACY_PROCESS_CONTRACT
       : LOAD_BEARING_LATTICE_PROMPT_SLICE,
   );
-  if (entry.agentId === 'lattice-review-story-init') {
+  if (canonicalRole === 'proof-or-stop-review-story-init') {
     if (!restored.includes(STORY_INIT_LEGACY_TAIL_MARKER)) {
       throw new Error(`modular story-init prompt is missing ${STORY_INIT_LEGACY_TAIL_MARKER}`);
     }
     restored = restored.replace(STORY_INIT_LEGACY_TAIL_MARKER, STORY_INIT_LEGACY_TAIL.trimEnd());
   }
   const actualDigest = sha256(restored);
-  const expectedDigest = isModularReviewerRoleId(entry.agentId)
-    ? LEGACY_REVIEWER_TEMPLATE_SHA256[entry.agentId]
-    : LEGACY_COMPLEX_TEMPLATE_SHA256[entry.agentId as ModularComplexRoleId];
+  const expectedDigest = isModularReviewerRoleId(canonicalRole)
+    ? LEGACY_REVIEWER_TEMPLATE_SHA256[legacyRole]
+    : LEGACY_COMPLEX_TEMPLATE_SHA256[legacyRole];
   if (actualDigest !== expectedDigest) {
     throw new Error(
-      `legacy reviewer prompt reconstruction drift for ${entry.agentId}: expected ${expectedDigest}, got ${actualDigest}`,
+      `legacy reviewer prompt reconstruction drift for ${canonicalRole}: expected ${expectedDigest}, got ${actualDigest}`,
     );
   }
-  return restored;
+  return canonicalizeAgentRoleText(restored);
 }
 
 export function resolvePromptTemplateBody(
@@ -300,8 +303,7 @@ export function resolvePromptTemplateBody(
 ): string {
   if (mode === 'legacy-full-context') return restoreLegacyPromptTemplate(entry);
   const source = readPromptTemplate(entry);
-  if (!isModularRoleId(entry.agentId)) return source;
-  return source;
+  return canonicalizeAgentRoleText(source);
 }
 
 export function renderCodexPromptContent(content: string): string {
@@ -320,16 +322,22 @@ export function renderPromptForHost(content: string, host: PromptHost): string {
 export function readPromptRegistry(templateDir = defaultPromptTemplateDir()): PromptRegistrySnapshot {
   const agents = listPromptTemplateFiles(templateDir).map((file): PromptRegistryEntry => {
     const sourcePath = join(templateDir, file);
+    const agentId = canonicalAgentRoleId(file.replace(/\.md$/, ''));
     const content = readFileSync(sourcePath, 'utf8');
     return {
-      agentId: file.replace(/\.md$/, ''),
-      file,
+      agentId,
+      // New host assets are materialized under the canonical filename. The
+      // source template may retain its historical filename for one release;
+      // readers use the alias map in agent-asset-resolution.ts to accept both.
+      file: `${agentId}.md`,
       relPath: relative(packageRoot(), sourcePath).split('\\').join('/'),
       sourcePath,
       templateHash: sha256(content),
       bytes: Buffer.byteLength(content),
     };
   });
+  const duplicate = agents.find((entry, index) => agents.findIndex(candidate => candidate.agentId === entry.agentId) !== index);
+  if (duplicate) throw new Error(`duplicate canonical prompt role "${duplicate.agentId}" in ${templateDir}`);
 
   const hash = createHash('sha256');
   hash.update(`${PROMPT_REGISTRY_VERSION}\n`);
@@ -407,9 +415,14 @@ export function renderReviewerRunBootstrap(frontmatter: string, role: string): s
   return `---\n${frontmatter}\n---\n${buildReviewerRunBootstrapBody(role)}\n`;
 }
 
-export function renderReviewerRunBootstrapForTemplate(raw: string, file: string): string {
+export function renderReviewerRunBootstrapForTemplate(raw: string, file: string, role?: string): string {
   const { frontmatter, name } = extractTemplateFrontmatter(raw, file);
-  return renderReviewerRunBootstrap(frontmatter, name);
+  const canonicalRole = canonicalAgentRoleId(role || name);
+  const canonicalFrontmatter = frontmatter.replace(
+    /^name:\s*.+$/m,
+    `name: ${canonicalRole}`,
+  );
+  return renderReviewerRunBootstrap(canonicalFrontmatter, canonicalRole);
 }
 
 export function renderPromptEntryForHost(
@@ -421,9 +434,9 @@ export function renderPromptEntryForHost(
 ): string {
   const selectedTemplate = isModularComplexRoleId(entry.agentId)
     ? resolvePromptTemplateBody(entry, mode)
-    : readPromptTemplate(entry);
+    : canonicalizeAgentRoleText(readPromptTemplate(entry));
   const hostTemplate = renderPromptForHost(selectedTemplate, host);
   return isModularReviewerRoleId(entry.agentId)
-    ? renderReviewerRunBootstrapForTemplate(hostTemplate, entry.file)
+    ? renderReviewerRunBootstrapForTemplate(hostTemplate, entry.file, entry.agentId)
     : hostTemplate;
 }

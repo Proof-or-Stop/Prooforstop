@@ -29,6 +29,23 @@ export type StoryPhase = 'IDEA' | 'INIT' | 'INIT_CHECK' | 'PLAN' | 'DEV' | 'REVI
 
 /** Canonical role names accepted by the typed dispatch contract. */
 export type AgentDispatchCanonicalType =
+  | 'proof-or-stop-implementer'
+  | 'proof-or-stop-test-intent'
+  | 'proof-or-stop-review-story-init'
+  | 'proof-or-stop-product-reviewer'
+  | 'proof-or-stop-review-scope-plan'
+  | 'proof-or-stop-review-topology-critic'
+  | 'proof-or-stop-review-concept'
+  | 'proof-or-stop-review-quality'
+  | 'proof-or-stop-review-test-coverage'
+  | 'proof-or-stop-review-behavior'
+  | 'proof-or-stop-review-docs'
+  | 'proof-or-stop-review-channel'
+  | 'proof-or-stop-review-delivery'
+  | 'proof-or-stop-finding-repair'
+  | 'proof-or-stop-cluster-repair'
+  // Accepted only as legacy input/read values. Runtime registry rows always
+  // use the proof-or-stop spellings above.
   | 'lattice-implementer'
   | 'verification-intent'
   | 'lattice-review-story-init'
@@ -92,17 +109,17 @@ export type AgentDispatchMutationCommand =
   | 'red_evidence_recover';
 
 export type AgentDispatchReviewerLane =
-  | 'lattice-review-story-init'
-  | 'product-reviewer'
-  | 'lattice-review-scope-plan'
-  | 'lattice-review-topology-critic'
-  | 'lattice-review-concept'
-  | 'lattice-review-quality'
-  | 'lattice-review-test-coverage'
-  | 'lattice-review-behavior'
-  | 'lattice-review-docs'
-  | 'lattice-review-channel'
-  | 'lattice-review-delivery';
+  | 'proof-or-stop-review-story-init'
+  | 'proof-or-stop-product-reviewer'
+  | 'proof-or-stop-review-scope-plan'
+  | 'proof-or-stop-review-topology-critic'
+  | 'proof-or-stop-review-concept'
+  | 'proof-or-stop-review-quality'
+  | 'proof-or-stop-review-test-coverage'
+  | 'proof-or-stop-review-behavior'
+  | 'proof-or-stop-review-docs'
+  | 'proof-or-stop-review-channel'
+  | 'proof-or-stop-review-delivery';
 
 export type AgentDispatchEvidenceOwnership =
   | 'checklist-status'
@@ -848,7 +865,7 @@ export interface TopologyExclusionApprovalV1 {
   exclusionRef: string;
   scopeRef: string;
   approverIdentity: string;
-  approverRole: 'lattice-review-scope-plan';
+  approverRole: 'proof-or-stop-review-scope-plan' | 'lattice-review-scope-plan';
   approverProvenance: TopologyActorProvenanceV1;
   implementationProvenance: TopologyImplementationProvenanceV1;
   basisDigest: string;
@@ -872,7 +889,7 @@ export interface TopologyCriticReceiptV1 {
   schemaVersion: 'proofstory.topology_critic_receipt.v1';
   storyId: string;
   criticIdentity: string;
-  criticRole: 'lattice-review-topology-critic';
+  criticRole: 'proof-or-stop-review-topology-critic' | 'lattice-review-topology-critic';
   criticProvenance: TopologyActorProvenanceV1;
   implementationProvenance: TopologyImplementationProvenanceV1;
   basisDigest: string;

@@ -1040,7 +1040,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
           itemId: args.itemId,
           agentType: canonicalType,
         });
-        const wrapped = canonicalType === 'lattice-implementer'
+        const wrapped = canonicalType === 'proof-or-stop-implementer'
           ? assembleComplexStoryDispatch(story, canonicalType, result.prompt)
           : { prompt: result.prompt };
         appendDispatchEvent({

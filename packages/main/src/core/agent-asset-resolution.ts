@@ -10,6 +10,7 @@ import {
   type PromptRegistryEntry,
   type PromptRegistrySnapshot,
 } from './prompt-registry.js';
+import { legacyAgentRoleIds } from './agent-role-identity.js';
 
 export type AgentAssetResolutionMode = 'runtime-owned' | 'pinned-runtime' | 'full-asset' | 'debug-override';
 export type AgentAssetStatus = 'absent' | 'matches-runtime' | 'stale' | 'override';
@@ -149,7 +150,11 @@ function expectedByFile(registry: PromptRegistrySnapshot, host: PromptHost): Map
   const result = new Map<string, { entry: PromptRegistryEntry; content: string; hash: string }>();
   for (const entry of registry.agents) {
     const content = renderPromptEntryForHost(entry, host);
-    result.set(entry.file, { entry, content, hash: sha256(content) });
+    const expected = { entry, content, hash: sha256(content) };
+    result.set(entry.file, expected);
+    for (const legacyRole of legacyAgentRoleIds(entry.agentId)) {
+      result.set(`${legacyRole}.md`, expected);
+    }
   }
   return result;
 }
