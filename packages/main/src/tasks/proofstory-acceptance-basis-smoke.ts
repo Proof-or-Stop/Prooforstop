@@ -261,8 +261,7 @@ try {
   missingFutureMappingTopology.commandRefs = missingFutureMappingTopology.commandRefs
     .filter(ref => ref.refKind !== 'existing' || ref.canonicalSourceRef !== 'process-fact:pre_review_check_read');
   const missingFutureMapping = reconcileTopologyWithCoverageBasis(contract(missingFutureMappingTopology), phasePreReview.basis);
-  assert.ok(missingFutureMapping.some(item => item.code === 'AT_UNMAPPED_SCOPE_REF'
-    && item.pathRef?.startsWith('path:process-fact:pre_review_check_read->')), 'deleting one PRE_REVIEW mapping exposes the newly material path');
+  assert.equal(missingFutureMapping.length, 0, 'closed PRE_REVIEW control facts remain mapped by the phase-aware verifier without story metadata duplication');
   const unrelatedFutureTopology = structuredClone(phaseAwareTopology);
   unrelatedFutureTopology.commandRefs.push({ refKind: 'existing', canonicalSourceRef: 'process-fact:review_run_start' });
   assert.ok(reconcileTopologyWithCoverageBasis(contract(unrelatedFutureTopology), phasePlan.basis)

@@ -513,6 +513,9 @@ export function reconcileTopologyWithCoverageBasis(
     if (path.startsWith('actual:') && basis.plannedActualReconciliations.some(row => row.actualPathRefs.includes(path))) return true;
     if (topologySourceRefs.includes(`basis-path:${path}`)) return true;
     const processMatch = /^path:process-fact:(.+)->consumer:/.exec(path);
+    if (processMatch
+      && basis.phaseBasis === 'pre_review'
+      && acceptanceDiscoveryFactActivationPhase(processMatch[1]) === 'pre_review') return true;
     if (processMatch && topologySourceRefs.includes(`process-fact:${processMatch[1]}`)) return true;
     const runtimeMatch = /^path:runtime-fact:(.+)->checker:/.exec(path);
     if (runtimeMatch && topologySourceRefs.includes(`runtime-fact:${runtimeMatch[1]}`)) return true;

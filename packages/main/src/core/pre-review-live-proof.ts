@@ -125,6 +125,39 @@ export function buildPreReviewProofFromExecutedCases(input: {
 }): PreReviewExecutableProofV1 {
   if (input.contract.storyId !== input.storyId) throw new Error('executed pre-review proof story/contract mismatch');
   const caseRecords = assemblePreReviewCaseRecords(input.contract, input.caseRecords);
+  const recordsById = new Map(caseRecords.map(record => [record[0], record]));
+  const eventSequence = (record: PreReviewCaseRecordV1, eventName: string): number => {
+    const sequence = record[8].find(event => event[0] === eventName)?.[1];
+    if (typeof sequence !== 'number' || !Number.isInteger(sequence)) throw new Error(`pre-review executed record ${record[0]} is missing ${eventName} event`);
+    return sequence;
+  };
+  const bindingProofs = input.contract.acceptanceBindings.flatMap(binding => {
+    const topology = binding.verificationTopology;
+    if (!topology) return [];
+    return [{
+      bindingId: binding.id,
+      positiveAssertionIds: topology.positiveAssertionRefs.map(assertion => assertion.id),
+      mutationProofs: topology.mutationCaseRefs.map(assertion => {
+        const record = recordsById.get(assertion.id)!;
+        return {
+          mutationId: assertion.id,
+          expectedCode: record[5],
+          observedCode: record[6],
+          controlRestored: record[7],
+        };
+      }),
+      transcriptProofs: topology.transcriptAssertionRefs.map(assertion => {
+        const record = recordsById.get(assertion.id)!;
+        return {
+          transcriptId: assertion.id,
+          producerRefs: [...assertion.producerRefs],
+          consumerRefs: [...assertion.consumerRefs],
+          producerSequence: eventSequence(record, 'producer-evaluated'),
+          consumerSequence: eventSequence(record, 'consumer-verified'),
+        };
+      }),
+    }];
+  });
   return {
     schemaVersion: 'proofstory.pre_review_executable_proof.v1',
     storyId: input.storyId,
@@ -140,6 +173,6 @@ export function buildPreReviewProofFromExecutedCases(input: {
       targetDigest: digest(readFileSync(join(input.root, TARGET_PATH))),
       buildCommand: BUILD_COMMAND,
     },
-    bindingProofs: [],
+    bindingProofs,
   };
 }

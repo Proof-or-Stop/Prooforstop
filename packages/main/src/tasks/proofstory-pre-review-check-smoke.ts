@@ -555,6 +555,12 @@ const secondStoryProof = buildPreReviewProofFromExecutedCases({ root: repository
 assert.equal(secondStoryProof.storyId, 'B-pre-review-second', 'live proof derives story identity from invocation context');
 assert.equal(secondStoryProof.caseRecordsEncoding, 'gzip-base64', 'independent Story proof carries canonical executed records');
 assert.equal(secondStoryProof.commandDigests.length, 1, 'all executable cases collapse to one canonical aggregate digest');
+assert.deepEqual(secondStoryProof.bindingProofs, [{
+  bindingId: 'AC-PRE',
+  positiveAssertionIds: ['A'],
+  mutationProofs: [{ mutationId: 'M', expectedCode: 'PR_AUTHORITY_INADMISSIBLE', observedCode: 'PR_AUTHORITY_INADMISSIBLE', controlRestored: true }],
+  transcriptProofs: [{ transcriptId: 'T', producerRefs: ['P'], consumerRefs: ['C'], producerSequence: 5, consumerSequence: 6 }],
+}], 'live proof derives admissible binding proofs from executed records');
 const aggregateCases = [
   { kind: 'positive', id: 'A', observedCodes: [] },
   { kind: 'mutation', id: 'M', observedCodes: ['AT_UNKNOWN_REF'], restoredCodes: [], controlRestored: true },
@@ -582,6 +588,10 @@ for (const assertion of expandedTopology.mutationCaseRefs) {
 }
 const expandedProof = buildPreReviewProofFromExecutedCases({ root: repositoryRoot, storyId, contract: expandedContract, caseRecords: expandedRecords });
 assert.equal(expandedProof.commandDigests.length, 1);
+assert.equal(expandedProof.bindingProofs.length, 1, 'expanded live proof carries the active binding proof');
+assert.equal(expandedProof.bindingProofs[0].positiveAssertionIds.length, 4, 'binding proof retains every positive assertion ID');
+assert.equal(expandedProof.bindingProofs[0].mutationProofs.length, 17, 'binding proof retains every mutation proof');
+assert.equal(expandedProof.bindingProofs[0].transcriptProofs.length, 1, 'binding proof retains the transcript proof');
 const canonicalExpanded = assemblePreReviewCaseRecords(expandedContract, expandedRecords);
 assert.deepEqual(
   assemblePreReviewCaseRecords(expandedContract, [...expandedRecords].reverse()),
