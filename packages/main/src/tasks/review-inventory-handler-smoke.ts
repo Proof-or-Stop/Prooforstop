@@ -874,10 +874,20 @@ for (const [label, malformedCandidates] of [
   cli(malformedCandidate.root, 'review_inventory_begin', { storyId });
   const artifact = malformedCandidate.store.readCandidateSpecSet(storyId);
   assert.ok(artifact, `candidate route must persist an artifact before malformed ${label} injection`);
-  malformedCandidate.store.writeCandidateSpecSet(storyId, {
-    ...artifact,
+  const { artifactDigest: _staleArtifactDigest, ...validBase } = artifact;
+  const malformedBase = {
+    ...validBase,
     candidates: malformedCandidates,
-  } as unknown as CandidateSpecSetArtifact);
+  };
+  // A stale digest is already rejected by the legacy integrity check. Recompute
+  // it so this proves the structural candidates guard remains fail-closed even
+  // when an attacker supplies a signed-looking replacement artifact.
+  const signedMalformedArtifact = {
+    ...malformedBase,
+    artifactDigest: digestCandidateRoutingValue(malformedBase),
+  } as unknown as CandidateSpecSetArtifact;
+  assert.equal(verifyCandidateSpecSet(signedMalformedArtifact), false, `malformed ${label} candidates must fail structural verification even with a recomputed artifactDigest`);
+  malformedCandidate.store.writeCandidateSpecSet(storyId, signedMalformedArtifact);
   const malformedStatus = cli(malformedCandidate.root, 'review_inventory_status', { storyId });
   assert.match(malformedStatus, /State: INVALIDATED/, `malformed ${label} candidates must invalidate the OPEN epoch`);
   assert.match(malformedStatus, /OPEN_REVIEW_INVENTORY_INVALID_CANDIDATE_ARTIFACT/);

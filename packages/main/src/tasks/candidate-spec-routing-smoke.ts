@@ -289,6 +289,18 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
     assert.equal(verifyCandidateSpecSet(tampered), false, 'tampered candidate artifact must fail verification');
     assert.equal(verifyCandidateSpecSet({ ...artifact, candidates: 'not-an-array' }), false, 'a persisted string candidates field must fail closed before consumers dereference it');
     assert.equal(verifyCandidateSpecSet({ ...artifact, candidates: { path: 'not-an-array' } }), false, 'a persisted object candidates field must fail closed before consumers dereference it');
+    for (const [label, malformedCandidates] of [
+      ['string', 'not-an-array'],
+      ['object', { path: 'not-an-array' }],
+    ] as const) {
+      const { artifactDigest: _staleArtifactDigest, ...validBase } = artifact;
+      const malformedBase = { ...validBase, candidates: malformedCandidates };
+      const signedMalformedArtifact = {
+        ...malformedBase,
+        artifactDigest: digestCandidateRoutingValue(malformedBase),
+      };
+      assert.equal(verifyCandidateSpecSet(signedMalformedArtifact), false, `a persisted ${label} candidates field with a recomputed artifactDigest must still fail structural verification`);
+    }
     const manifest = {
       filesReadFully: artifact.candidateSpecSet,
       filesTriagedByName: [],
