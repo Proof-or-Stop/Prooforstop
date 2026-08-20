@@ -12,7 +12,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "reviewer_list prints proof-or-stop-review-* canonical lanes; a legacy lattice-review-* run still counts as the same lane.",
+      "userSees": "User sees `\"proof-or-stop-review-quality\"` in reviewer_list output, and a legacy `\"lattice-review-quality\"` record is reported as a compatible alias.",
       "files": {
         "modify": [
           "packages/main/src/core/agent-dispatch-registry.ts",
