@@ -49,6 +49,7 @@ const files = listPromptTemplateFiles(registry.root);
 const projectRoot = join(registry.root, '..', '..', '..', '..');
 const loadBearingPromptFiles = new Set([
   'lattice-review-channel.md',
+  'proof-or-stop-evaluator-cli.md',
 ]);
 const requiredSafetyPhrases = [
   'Fresh-Context Fence',

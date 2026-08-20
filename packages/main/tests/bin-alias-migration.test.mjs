@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -18,5 +19,11 @@ const changelog = readFileSync(join(repoRoot, 'CHANGELOG.md'), 'utf8');
 for (const path of ['bin/lattice.js', 'bin/lattice-codex.js', 'bin/proof-or-stop.js', 'bin/proof-or-stop-codex.js']) {
   assert.ok(changelog.includes(path), `CHANGELOG.md announces ${path}`);
 }
+
+const residueSelfTest = execFileSync(process.execPath, ['scripts/verify-lattice-residue.mjs', '--self-test'], {
+  cwd: repoRoot,
+  encoding: 'utf8',
+});
+assert.match(residueSelfTest, /PASS lattice-residue self-test:/, 'residue scanner executes its frozen/compatibility detector checks');
 
 console.log('bin-alias migration test passed');

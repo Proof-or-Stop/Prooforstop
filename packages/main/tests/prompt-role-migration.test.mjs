@@ -15,6 +15,22 @@ const contracts = await import(join(distRoot, 'core/prompt-role-contract-registr
 const registry = registryModule.readPromptRegistry();
 assert.equal(registry.agents.length, 17, 'all canonical prompt templates are registered');
 for (const entry of registry.agents) {
+  for (const host of ['claude', 'codex']) {
+    assert.doesNotMatch(
+      registryModule.renderPromptEntryForHost(entry, host),
+      /lattice:start-slot/,
+      `${entry.file} ${host} render must not expose an unexpanded guide slot`,
+    );
+  }
+}
+const evaluatorCli = registry.agents.find(entry => entry.file === 'proof-or-stop-evaluator-cli.md');
+assert.ok(evaluatorCli, 'canonical evaluator-cli prompt is registered');
+assert.match(
+  registryModule.renderPromptEntryForHost(evaluatorCli, 'claude'),
+  /<!-- lattice:start -->[\s\S]*<!-- lattice:end -->/,
+  'evaluator-cli render contains the load-bearing runtime guide',
+);
+for (const entry of registry.agents) {
   assert.match(entry.file, /^proof-or-stop-[a-z0-9-]+\.md$/);
   assert.equal(entry.agentId, entry.agentId.trim());
   assert.equal(contracts.promptRoleContract(entry.agentId).roleId, entry.agentId);
