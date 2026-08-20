@@ -36,7 +36,7 @@
           "source-file:packages/main/src/cli/command-catalog.ts:sha256:ea62fdefbce1b546222193a44313c1a369e7fbca6669d65b4b5f1cff1dc13d7b",
           "source-file:packages/main/src/handlers/checklist.ts:sha256:9d9d42f9a48397972bc56fc77132f159edb70a5d3ab86482ea6e15e8a1bd592d",
           "source-file:packages/main/src/handlers/proofstory.ts:sha256:06fa735b5348452cfb65d75c2fe5221693294e8d0f584f401b98e4e7924fd330",
-          "source-file:packages/main/src/handlers/verifier.ts:sha256:08f1d1c57f41cffb88c971f6f349bec5851b6f7f8c01de27d72192d53fbb4f88",
+          "source-file:packages/main/src/handlers/verifier.ts:sha256:739c39c1d22f4333527dd562adcf3b0fef3fa8652dc039e4307e844e7825089d",
           "source-file:packages/main/src/registry.ts:sha256:7dad24b13c18ea2f08eff2daf505bc2ccd5befe80d37d1a8f80579746be14b02",
           "source-file:proof-or-stop.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745"
         ],
@@ -62,7 +62,7 @@
             "scope:file:packages/main/tests/causal-evidence.test.mjs"
           ]
         },
-        "resultDigest": "sha256:79da91618ee6557267511ca9bbaaf23017aa6b990487a327ce0cd06fa000f188"
+        "resultDigest": "sha256:f3d65193bd4ffac9bb6d3b6253ca08fe98d3dccbe9a881b284b820a64fd0e60a"
       },
       {
         "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -79,10 +79,10 @@
         "blindSpots": [],
         "provenanceRefs": [
           "process-fact:acceptance_basis:da66e0998516b4d2ca3f45bc57585700a1f0675eeb30267234df766ee32d288f",
-          "process-fact:acceptance_basis_generate:c705ec303891a791afa607f361da9b178764f8186b88c4336bdd4441d32fe0b9",
+          "process-fact:acceptance_basis_generate:d589e8b03849fe472cddac8dbeaacd5466e53cd46d96d44a1ef11c4632daa08c",
           "process-fact:acceptance_topology_check:98a1a08190c79f0f548f297fa08b2d573493faec90f156fe9e07e66f9e3ff095",
           "process-fact:artifact:acceptance-basis.json:8cab0c9d56e68c579428c321969642d3f94a3596133e9393c047c110b44dcd82",
-          "process-fact:verification_evidence_batch_add:888b40ee94db10f81bb75715e6b4841ba30fb073bf026c5f5b560c6ba47f5633",
+          "process-fact:verification_evidence_batch_add:fa8f9be42025103882d3b49081d6342fc6e4b3c0e21025a976943258fe5e0d0e",
           "source-file:packages/main/src/core/acceptance-topology.ts:sha256:df44a37b6222c35311d1d6934d31138b5acb0b16b476e4b64fe33d33518c3dac",
           "source-file:packages/main/src/handlers/proofstory.ts:sha256:06fa735b5348452cfb65d75c2fe5221693294e8d0f584f401b98e4e7924fd330",
           "source-file:packages/main/src/handlers/transition-orchestrator.ts:sha256:b43f5c91e74c8849588abb53ead643cd16ba0a200c8b907a467408c3d7657698",
@@ -112,7 +112,7 @@
             "scope:file:packages/main/tests/causal-evidence.test.mjs"
           ]
         },
-        "resultDigest": "sha256:a863eee2701b59cfd3f098f533a5e86db3dbcbc6dfafd59c0751b22d494e7981"
+        "resultDigest": "sha256:626011a3cdf6597e10201bc97f4849092217425ecd3065f18ace03eb0093de19"
       },
       {
         "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -179,7 +179,7 @@
           "scope:file:packages/main/src/handlers/verifier.ts",
           "scope:file:packages/main/src/tasks/causal-evidence-smoke.ts",
           "scope:file:packages/main/tests/causal-evidence.test.mjs",
-          "source-file:packages/main/src/core/causal-evidence.ts:sha256:163212cb5a7bff431ef07e4d880c6f13938ed43df8670874b97e74b2ebf48df4",
+          "source-file:packages/main/src/core/causal-evidence.ts:sha256:57c75721277ee3aafac6cbeb0f75c668e97f4b3e6a8525fbc15e2048e1076d45",
           "source-file:packages/main/src/core/certification-window.ts:sha256:f717cfd436992ba1dc6ccf353124c92165d99f63beb26f9679795efe7367097c",
           "source-file:packages/main/src/handlers/checklist.ts:sha256:9d9d42f9a48397972bc56fc77132f159edb70a5d3ab86482ea6e15e8a1bd592d",
           "source-file:proof-or-stop.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745"
@@ -206,7 +206,7 @@
             "scope:file:packages/main/tests/causal-evidence.test.mjs"
           ]
         },
-        "resultDigest": "sha256:6e1c8e8cef1995260e24ecbb0b95e679333adc0d58090f68bf5fdefb76545e3a"
+        "resultDigest": "sha256:f2dd2ed032cda9a5de38222d62eaed558e0fc15766c4220dc1808a2c0c1edced"
       },
       {
         "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -234,7 +234,7 @@
         "blindSpots": [],
         "provenanceRefs": [
           "source-file:packages/main/src/core/acceptance-topology.ts:sha256:df44a37b6222c35311d1d6934d31138b5acb0b16b476e4b64fe33d33518c3dac",
-          "source-file:packages/main/src/core/causal-evidence.ts:sha256:163212cb5a7bff431ef07e4d880c6f13938ed43df8670874b97e74b2ebf48df4",
+          "source-file:packages/main/src/core/causal-evidence.ts:sha256:57c75721277ee3aafac6cbeb0f75c668e97f4b3e6a8525fbc15e2048e1076d45",
           "source-file:packages/main/src/core/certification-window.ts:sha256:f717cfd436992ba1dc6ccf353124c92165d99f63beb26f9679795efe7367097c",
           "source-file:packages/main/src/core/evidence-freshness.ts:sha256:c94f04eff92a7c7b160a84da408b2406c12e1ce18931e7ffc8046740fac6bbeb",
           "source-file:packages/main/src/core/process-fact-registry.ts:sha256:506d7641a8ec6b0d5adf375a43e6dba884b93be39b3dfefcd8092a714110a416",
@@ -244,9 +244,9 @@
           "source-file:packages/main/src/handlers/checklist.ts:sha256:9d9d42f9a48397972bc56fc77132f159edb70a5d3ab86482ea6e15e8a1bd592d",
           "source-file:packages/main/src/handlers/proofstory.ts:sha256:06fa735b5348452cfb65d75c2fe5221693294e8d0f584f401b98e4e7924fd330",
           "source-file:packages/main/src/handlers/transition-orchestrator.ts:sha256:b43f5c91e74c8849588abb53ead643cd16ba0a200c8b907a467408c3d7657698",
-          "source-file:packages/main/src/handlers/verifier.ts:sha256:08f1d1c57f41cffb88c971f6f349bec5851b6f7f8c01de27d72192d53fbb4f88",
+          "source-file:packages/main/src/handlers/verifier.ts:sha256:739c39c1d22f4333527dd562adcf3b0fef3fa8652dc039e4307e844e7825089d",
           "source-file:packages/main/src/tasks/causal-evidence-smoke.ts:sha256:c8eccdd5dc5849dd94a9d35ec4d06f7d11906fc8e7533fe4434a9dacebb1941c",
-          "source-file:packages/main/tests/causal-evidence.test.mjs:sha256:21f441693ae03c38256ff9a1a98232cbd39eaa6dc75a914fcb209267f788144b",
+          "source-file:packages/main/tests/causal-evidence.test.mjs:sha256:df872c55f4b7a3bb84077c006cacdcb64b42f7ae8e31d8c15b514e16c87a36bc",
           "source-file:proof-or-stop.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745",
           "source-file:scripts/verify-process-fact-contract.mjs:sha256:c00e73177c7ad45aebbba0b501de169f1cfb336ef97f56d2ed8641c5ec3a27ac"
         ],
@@ -272,7 +272,7 @@
             "scope:file:packages/main/tests/causal-evidence.test.mjs"
           ]
         },
-        "resultDigest": "sha256:4490588db9c98c3542d6b2d5f8fc3839027dc481f0a3c81c0618ddfe139cc7e0"
+        "resultDigest": "sha256:57d37f1fa60e2bc3e2c23a0201bc4dc435b5fed0291673dafb36f7a7c428d035"
       }
     ],
     "scopeRefs": [
@@ -304,10 +304,10 @@
       "planned:CHK-004:happy:0:CHK-004-preflight-to-evidence-enforcement",
       "planned:CHK-005:happy:0:CHK-005-ledger-to-causal-metrics",
       "process-fact:acceptance_basis:da66e0998516b4d2ca3f45bc57585700a1f0675eeb30267234df766ee32d288f",
-      "process-fact:acceptance_basis_generate:c705ec303891a791afa607f361da9b178764f8186b88c4336bdd4441d32fe0b9",
+      "process-fact:acceptance_basis_generate:d589e8b03849fe472cddac8dbeaacd5466e53cd46d96d44a1ef11c4632daa08c",
       "process-fact:acceptance_topology_check:98a1a08190c79f0f548f297fa08b2d573493faec90f156fe9e07e66f9e3ff095",
       "process-fact:artifact:acceptance-basis.json:8cab0c9d56e68c579428c321969642d3f94a3596133e9393c047c110b44dcd82",
-      "process-fact:verification_evidence_batch_add:888b40ee94db10f81bb75715e6b4841ba30fb073bf026c5f5b560c6ba47f5633",
+      "process-fact:verification_evidence_batch_add:fa8f9be42025103882d3b49081d6342fc6e4b3c0e21025a976943258fe5e0d0e",
       "source-file:closure:packages/main/src/core/acceptance-topology.ts",
       "source-file:closure:packages/main/src/core/causal-evidence.ts",
       "source-file:closure:packages/main/src/core/certification-window.ts",
@@ -564,42 +564,42 @@
       "schemaVersion": "proofstory.acceptance_snapshot_seal.v1",
       "inventoryDirectoryDigest": "sha256:16c03d66d98aed9d8b06929435c6093d15ca687796ecb9272ab1e86dc9434526",
       "inventoryDirectoryCount": 21,
-      "sourceSnapshotDigest": "sha256:e6fc1dc3602536670c3e87c958f72c541b54b6a34dee083b2943d34e547b40a4",
+      "sourceSnapshotDigest": "sha256:3d4c6574bbf7954cff8e9d41b699f3c73131218b73f017fb78d470be981059a3",
       "sourceSnapshotCount": 819,
       "configSnapshotDigest": "sha256:ab4b658eaf618dd6e859c44d6bab29230deefeef2b53889c500533b9dde9b251",
       "status": "complete",
       "issues": [],
-      "sealDigest": "sha256:efb8049cd2fbaa5756baacd7e24adf75a550304392ea69103bb0520de6e11269"
+      "sealDigest": "sha256:e0fd56fbae90f042d846c0c4e36664d997caf28c250dcdbc9914c9143ceec1c3"
     },
     "binding": {
-      "headHash": "ab5a859fbd964677280db6c8cf8c709249515bd3",
-      "materialHash": "432da04b4d4044ca8aa5914339fa12a11cf3967d018a9ba1922b625c8d7d0250",
-      "storyFilesHash": "52fcbb5526f4023897d65cca68d080a611e5a6989768e15ce377a0a58c72c6ac",
+      "headHash": "741f998303067d3be0ee7e4d0f80d6f8d67f9bb1",
+      "materialHash": "8a4bb5365eec48bb494ba0c462d59873a1c4a34476135d1ee4ffccc7610dde25",
+      "storyFilesHash": "ceaa4b50b64a71d5eec244429a32d24d66a39a773174ae6d7a893568de49f049",
       "scopeCheckDigest": "sha256:5ede873b0f0d4af50c8435087842f612f43bb8c4e63606dd1e7be2ff431e8146",
-      "scopeContractDigest": "sha256:20591e63f62026a8ec3a4f573202b0e1f27c980d18e721ed786b4d36e168fbc3",
-      "closureFilesHash": "sha256:3c1973bfa854f685d2219b1cff57d9ab6c2761f33e9ce855f7ae06ad4a853c4b"
+      "scopeContractDigest": "sha256:f981c07969b897adec759100909fa0024b12f9c6c5b36b7b1e78b58e08fdcff6",
+      "closureFilesHash": "sha256:9dcccd726f6af2b26c631adf3700fc294286e7b8792c02051c29e04e6546ca53"
     },
-    "receiptRef": "receipt:coverage-basis:B-5a15:plan:4b7a5035a97cbbd0",
-    "basisDigest": "sha256:ae766e6c5833bf24259563be313e9373fd3755993772b0c2c62bdcd1a4a7e3f6"
+    "receiptRef": "receipt:coverage-basis:B-5a15:plan:4cf99a69fdf1047c",
+    "basisDigest": "sha256:e88ba76e94c5b5586f2ecdf47f7dc1158263fe0733652d421d06b47e7aa0e08b"
   },
   "receipt": {
     "schemaVersion": "proofstory.acceptance_basis_receipt.v1",
-    "receiptRef": "receipt:coverage-basis:B-5a15:plan:4b7a5035a97cbbd0",
+    "receiptRef": "receipt:coverage-basis:B-5a15:plan:4cf99a69fdf1047c",
     "issuer": "acceptance-coverage-basis-verifier",
     "issuerKeyId": "sha256:a944288d3323f4b761cbb51602e62f88fbc1b35530eabfa265971baee771138b",
     "signerPublicKey": "GpD4A2Km0wpT87L2EcszehhUu0nPgXbafTXgXTjTKAM=",
     "storyId": "B-5a15",
     "phaseBasis": "plan",
-    "basisDigest": "sha256:ae766e6c5833bf24259563be313e9373fd3755993772b0c2c62bdcd1a4a7e3f6",
+    "basisDigest": "sha256:e88ba76e94c5b5586f2ecdf47f7dc1158263fe0733652d421d06b47e7aa0e08b",
     "topologyDigest": "sha256:b99e7bc1326d36e845062da1ab5c893c358c4ae00cf7390b611c0fd7dbd125e1",
     "scopeCheckDigest": "sha256:5ede873b0f0d4af50c8435087842f612f43bb8c4e63606dd1e7be2ff431e8146",
-    "scopeContractDigest": "sha256:20591e63f62026a8ec3a4f573202b0e1f27c980d18e721ed786b4d36e168fbc3",
-    "headHash": "ab5a859fbd964677280db6c8cf8c709249515bd3",
-    "materialHash": "432da04b4d4044ca8aa5914339fa12a11cf3967d018a9ba1922b625c8d7d0250",
-    "storyFilesHash": "52fcbb5526f4023897d65cca68d080a611e5a6989768e15ce377a0a58c72c6ac",
-    "closureFilesHash": "sha256:3c1973bfa854f685d2219b1cff57d9ab6c2761f33e9ce855f7ae06ad4a853c4b",
-    "sealDigest": "sha256:efb8049cd2fbaa5756baacd7e24adf75a550304392ea69103bb0520de6e11269",
+    "scopeContractDigest": "sha256:f981c07969b897adec759100909fa0024b12f9c6c5b36b7b1e78b58e08fdcff6",
+    "headHash": "741f998303067d3be0ee7e4d0f80d6f8d67f9bb1",
+    "materialHash": "8a4bb5365eec48bb494ba0c462d59873a1c4a34476135d1ee4ffccc7610dde25",
+    "storyFilesHash": "ceaa4b50b64a71d5eec244429a32d24d66a39a773174ae6d7a893568de49f049",
+    "closureFilesHash": "sha256:9dcccd726f6af2b26c631adf3700fc294286e7b8792c02051c29e04e6546ca53",
+    "sealDigest": "sha256:e0fd56fbae90f042d846c0c4e36664d997caf28c250dcdbc9914c9143ceec1c3",
     "workspaceIdentityDigest": "sha256:502be69be3d8741b5a049f6ed4e08a9bea5b0c7a099a24169e0b2582e7422b78",
-    "signature": "W721Ln36QliwTSma9xeDL0NsKHFe+4oQ1Tjvd2uTH8dgGEAXW6hMgUe6qmw0pcqGuSfcoz2tOXYlJBorAcfwAA=="
+    "signature": "jA8gVstDuBeeE1HSix0+EC8XbRF5h6Gpvy89kvRznnmaZSDqnFXDeiznlBtDleCToQ0HbAkWvkL4iyFW5lDKBQ=="
   }
 }
