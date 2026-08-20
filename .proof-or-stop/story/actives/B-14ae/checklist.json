@@ -88,13 +88,13 @@
     },
     {
       "id": "CHK-004",
-      "title": "Require a cheap focused/adversarial check as a PRE_CERT admit fact without running the full suite",
-      "context": "U-01 §7.1.4 item 3 says focused/adversarial quick checks must pass before heavy certification. B-1e1f CHK-002 admit facts are inventory, merge, clean-tree, coverage, blocking findings, git index, and evidence writability — not this item. Add one fail-closed admit fact whose command identity is NOT validate.commands. Reuse an existing cheap identity: the REVIEW→TEST CLI preflight already produced by runReviewToTestPreflightGate, and/or a stored validate --focus pass on the same storyFilesHash. Do not spawn the 103-command suite to satisfy the fact. Do not create a new test runner.",
+      "title": "Require a hash-bound validate --focus=fast pass as the PRE_CERT cheap-check fact without running the full suite",
+      "context": "U-01 §7.1.4 item 3 requires a cheap focused/adversarial check before heavy certification. The REVIEW-to-TEST preflight is not the producer: it runs only inside story_advance TEST and currently logs no persistable fact, so it cannot be required before certification_window_begin. Use exactly proof-or-stop validate --story=B-xxxx --focus=fast --json as the sole REVIEW-available producer. It runs only existing commands tagged focus:[\"fast\"], remains non-heavy, and must persist a signed PRE_CERT cheap-check receipt bound to story ID, PASS, RoutineValidationIdentity with invocation.focus=fast, headHash, materialHash, and storyFilesHash. certification_window_begin consumes only a fresh matching receipt and fails closed on missing, failed, tampered, or drifted evidence. Do not create a runner or use the 103-command unscoped suite; --channel/--concept/--lint remain transition preflight and do not substitute for this receipt unless they gain equivalent signed identity-bound persistence.",
       "relatedDocs": [
         "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
         "packages/main/src/core/certification-window.ts"
       ],
-      "userSees": "certification_window_begin on a candidate that has saturated inventory, merge, coverage, and a clean tree, but no fresh cheap-check fact, prints State: BLOCKED with a stable blocker code and Next pointing at the cheap check (proof-or-stop validate --channel/--concept/--lint or validate --focus). It does not start the 103-command suite.",
+      "userSees": "certification_window_begin on a candidate with saturated inventory, merge, coverage, and a clean tree but no current PRE_CERT cheap-check receipt prints State: BLOCKED with a stable cheap-check blocker and Next: proof-or-stop validate --story=B-xxxx --focus=fast. That command runs only configured fast-tagged commands and persists a PASS receipt bound to the current hashes; the same certification_window_begin then may print State: ADMITTED. It never starts the 103-command suite.",
       "excludes": [
         "Creating a new focused-test runner",
         "Treating the 103-command suite as the cheap check"
@@ -102,7 +102,8 @@
       "files": {
         "modify": [
           "packages/main/src/core/certification-window.ts",
-          "packages/main/src/handlers/certification-window.ts"
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/verifier.ts"
         ],
         "create": [],
         "test": [
@@ -116,14 +117,14 @@
     {
       "id": "CHK-005",
       "title": "Prove a B-cc10-shaped REVIEW loop cannot start the suite, and one admitted window runs it at most once",
-      "context": "Add a deterministic replay/smoke: REVIEW fixture, no window, both validate --story and story_advance TEST are refused with zero validate.commands children. After a fixture admit on a saturated inventory plus cheap-check fact, exactly one official unscoped validate is allowed. A second official start on the same frozen identity must reuse the stored PASS or refuse duplicate execution. Related story-owned drift invalidates the window and requires a new admit. Register the expanded choke in process-fact-levels/registry with gateConsumer = done_required_validate / validate --full / unscoped validate --story / runValidateGate. Update AGENTS.md, CLAUDE.md, and docs/CLI.md so the operator Next command is certification_window_begin, not 'just run validate'. Do not claim the 3-8 hour saving. Do not weaken reviewer lanes.",
+      "context": "Add a deterministic replay/smoke: REVIEW fixture, no window, both validate --story and story_advance TEST are refused with zero validate.commands children. After a fixture admit on a saturated inventory plus the hash-bound validate --focus=fast cheap-check receipt, exactly one official unscoped validate is allowed. A second official start on the same frozen identity must reuse the stored PASS or refuse duplicate execution. Related story-owned drift invalidates both the window and the cheap-check receipt and requires a new admit. Register the expanded choke and the cheap-check producer/consumer in process-fact-levels/registry with gateConsumer = done_required_validate / validate --full / unscoped validate --story / runValidateGate / certification_window_begin. Update scripts/verify-process-fact-contract.mjs with a non-vacuous assertion for the named L4 process facts and their consumer source; run it in the smoke/verification evidence. Update AGENTS.md, CLAUDE.md, and docs/CLI.md so the operator Next command is certification_window_begin, not just run validate. Do not claim the 3-8 hour saving. Do not weaken reviewer lanes.",
       "relatedDocs": [
         "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
         "AGENTS.md",
         "CLAUDE.md",
         "docs/CLI.md"
       ],
-      "userSees": "The replay smoke prints a fail-closed REVIEW refusal with [pre_cert_window_required], then after admit prints official heavy certification allowed once for this window, and a second start on the same hashes does not spawn a second full suite. session_brief / story_advance hint for a REVIEW story missing a window includes proof-or-stop certification_window_begin.",
+      "userSees": "The replay smoke prints a fail-closed REVIEW refusal with [pre_cert_window_required], then after a current signed fast cheap-check receipt and admit prints official heavy certification allowed once for this window; a second start on the same hashes does not spawn a second full suite. Story-owned drift invalidates the receipt and window. node scripts/verify-process-fact-contract.mjs passes while asserting the named L4 producer and consumers. session_brief / story_advance hint for a REVIEW story missing a window includes proof-or-stop certification_window_begin.",
       "excludes": [
         "Claiming the 3-8 hour wall-clock saving without a later A/B story",
         "Reducing required reviewer lanes",
@@ -133,6 +134,7 @@
         "modify": [
           "packages/main/src/core/process-fact-levels.ts",
           "packages/main/src/core/process-fact-registry.ts",
+          "scripts/verify-process-fact-contract.mjs",
           "AGENTS.md",
           "CLAUDE.md",
           "docs/CLI.md",
@@ -140,7 +142,8 @@
         ],
         "create": [],
         "test": [
-          "packages/main/src/tasks/certification-window-smoke.ts"
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
         ]
       },
       "status": "pending",
