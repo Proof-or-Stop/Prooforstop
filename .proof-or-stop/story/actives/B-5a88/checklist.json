@@ -72,7 +72,11 @@
           {
             "desc": "A non-reviewer or malformed role ID cannot be smuggled into a reviewer lane merely by containing the proof-or-stop or lattice prefix.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node --input-type=module -e \"import assert from \\\"node:assert/strict\\\"; import {resolveAgentDispatchType} from \\\"./packages/main/dist.staging/core/agent-dispatch-registry.js\\\"; assert.equal(resolveAgentDispatchType(\\\"verification-intent\\\").canonicalType,\\\"proof-or-stop-test-intent\\\"); assert.throws(()=>resolveAgentDispatchType(\\\"lattice-review-unknown\\\"),/unknown agentType/); console.log(\\\"CHK-001 alias-boundary smoke: PASS\\\")\"",
+              "selector": "CHK-001 alias-boundary smoke: PASS"
+            }
           }
         ]
       },
@@ -120,6 +124,28 @@
           "materialHash": "012455f5dceacc10aeb8feb4f9aff3f9736baeb38bbf6e7fb9fa872e5e0a78a0",
           "storyFilesHash": "3d87477376823d79a76d589bea110c3c451cf812d621f97ed7ccc83481d33b21",
           "timestamp": "2026-08-20T05:43:34.809Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/core/agent-dispatch-registry.ts",
+          "command": "node --input-type=module -e \"import assert from \\\"node:assert/strict\\\"; import {resolveAgentDispatchType} from \\\"./packages/main/dist.staging/core/agent-dispatch-registry.js\\\"; assert.equal(resolveAgentDispatchType(\\\"verification-intent\\\").canonicalType,\\\"proof-or-stop-test-intent\\\"); assert.throws(()=>resolveAgentDispatchType(\\\"lattice-review-unknown\\\"),/unknown agentType/); console.log(\\\"CHK-001 alias-boundary smoke: PASS\\\")\"",
+          "result": "pass",
+          "note": "The historical verification alias resolves only to the canonical test-intent role, while an unknown lattice-like role is rejected.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "87b0293ba6a868edc71290166edbd136f9ffd4d4a14868a71e6c48f8e555162f",
+            "outputTail": "CHK-001 alias-boundary smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T05:43:38.487Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "11078e477f4541d460bf7b123aa9d9a636cf2a02",
+          "materialHash": "012455f5dceacc10aeb8feb4f9aff3f9736baeb38bbf6e7fb9fa872e5e0a78a0",
+          "storyFilesHash": "3d87477376823d79a76d589bea110c3c451cf812d621f97ed7ccc83481d33b21",
+          "timestamp": "2026-08-20T05:43:38.658Z"
         }
       ]
     },
