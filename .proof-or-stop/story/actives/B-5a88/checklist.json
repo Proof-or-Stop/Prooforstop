@@ -186,7 +186,11 @@
           {
             "desc": "New managed files contain proof-or-stop start and end markers.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node --input-type=module -e \"import assert from \\\"node:assert/strict\\\"; import { inspectManagedBlock, replaceManagedBlock } from \\\"/private/tmp/proof-or-stop-b5a88-marker-build/core/managed-markers.js\\\"; import { generateProfileSection } from \\\"/private/tmp/proof-or-stop-b5a88-marker-build/claude-md-sync.js\\\"; const legacy=\\\"before\\\\n<!-- lattice:start -->\\\\nold\\\\n<!-- lattice:end -->\\\\nafter\\\\n\\\"; const replacement=\\\"<!-- proof-or-stop:start -->\\\\nnew\\\\n<!-- proof-or-stop:end -->\\\"; assert.equal(inspectManagedBlock(legacy,\\\"document\\\").status,\\\"valid\\\"); assert.match(replaceManagedBlock(legacy,replacement,\\\"document\\\"),/<!-- proof-or-stop:start -->/); const profile=generateProfileSection(\\\"balanced\\\"); assert.match(profile,/<!-- proof-or-stop-profile:start -->/); assert.equal(inspectManagedBlock(profile,\\\"profile\\\").status,\\\"valid\\\"); console.log(\\\"CHK-002-MARKER-PASS\\\");\"",
+              "selector": "CHK-002-MARKER-PASS"
+            }
           }
         ],
         "edge": [
@@ -203,7 +207,29 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "node --input-type=module -e \"import assert from \\\"node:assert/strict\\\"; import { inspectManagedBlock, replaceManagedBlock } from \\\"/private/tmp/proof-or-stop-b5a88-marker-build/core/managed-markers.js\\\"; import { generateProfileSection } from \\\"/private/tmp/proof-or-stop-b5a88-marker-build/claude-md-sync.js\\\"; const legacy=\\\"before\\\\n<!-- lattice:start -->\\\\nold\\\\n<!-- lattice:end -->\\\\nafter\\\\n\\\"; const replacement=\\\"<!-- proof-or-stop:start -->\\\\nnew\\\\n<!-- proof-or-stop:end -->\\\"; assert.equal(inspectManagedBlock(legacy,\\\"document\\\").status,\\\"valid\\\"); assert.match(replaceManagedBlock(legacy,replacement,\\\"document\\\"),/<!-- proof-or-stop:start -->/); const profile=generateProfileSection(\\\"balanced\\\"); assert.match(profile,/<!-- proof-or-stop-profile:start -->/); assert.equal(inspectManagedBlock(profile,\\\"profile\\\").status,\\\"valid\\\"); console.log(\\\"CHK-002-MARKER-PASS\\\");\"",
+          "result": "pass",
+          "note": "Tool-executed smoke confirms canonical ordinary/profile output and legacy ordinary dual-read with in-place replacement.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "55ec2d254458e7ae31ba549b6407877c1da890df0cb89b3838028c6c0c10a448",
+            "outputTail": "CHK-002-MARKER-PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T05:51:11.022Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "79b18938f5edd59fe636ea88314b90b0ff6c5050",
+          "materialHash": "bfa4dc85ed84afe6ba32b73e69b2e22440863e85ff1915ad12bd978f49d207a4",
+          "storyFilesHash": "539057fab72b7c3bccdc7498dd32b614fd043c785223d8bbd1350842d3ffb9d3",
+          "timestamp": "2026-08-20T05:51:11.181Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
