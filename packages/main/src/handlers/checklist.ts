@@ -31,12 +31,15 @@ import {
   DEFAULT_CAUSAL_SELECTOR_POLICY,
   CAUSAL_MAX_OUTPUT_CHARS,
   CAUSAL_RECEIPT_DIRECTORY,
+  causalCanonical,
+  deriveCausalMetrics,
   effectiveCausalEnvironment,
   executeCausalEvidence,
   createCausalEvidenceBatch,
   preflightCausalEvidence,
   resolveCausalToolVersion,
   importCausalEvidenceReceipt,
+  renderCausalMetrics,
   type CausalEvidenceBatch,
   type CausalPreflightFacts,
   type CausalEvidenceReceipt,
@@ -949,12 +952,11 @@ async function enforceAndStampEvidence(
   // make a refusal auditable.
   const hashes = evidenceHashes(deps.cwd, deps.metadataRoot);
   const timeoutMs = timeoutOverride?.timeoutMs;
-  const preflight = preflightCausalEvidence(deps.preflightFacts({ command: pinCommand, cwd: deps.cwd, timeoutMs }), () => {
-    const current = evidenceHashes(deps.cwd, deps.metadataRoot);
-    return current.headHash === hashes.headHash
-      && current.materialHash === hashes.materialHash
-      && current.storyFilesHash === hashes.storyFilesHash;
-  });
+  const preflightInput = { command: pinCommand, cwd: deps.cwd, timeoutMs };
+  const initialPreflightFacts = deps.preflightFacts(preflightInput);
+  const preflightFactsUnchanged = () =>
+    causalCanonical(deps.preflightFacts(preflightInput)) === causalCanonical(initialPreflightFacts);
+  const preflight = preflightCausalEvidence(initialPreflightFacts, preflightFactsUnchanged);
   if (!preflight.ready) {
     const reason = preflight.failedChecks.join(', ');
     throw new Error(`preflight REFUSED: ${reason} commandExecutions=0 evidenceWrites=0 [causal_preflight_refused]`);
@@ -978,12 +980,11 @@ async function enforceAndStampEvidence(
     receiptStore: deps.receiptStore,
     batch: deps.batch,
     preflight,
-    revalidateBeforeRun: () => {
-      const current = evidenceHashes(deps.cwd, deps.metadataRoot);
-      return current.headHash === hashes.headHash
-        && current.materialHash === hashes.materialHash
-        && current.storyFilesHash === hashes.storyFilesHash;
-    },
+    // This is deliberately the last fact check before runSingleAllowlistedCommand
+    // is invoked. Compare the complete probe snapshot, not just the three
+    // freshness hashes, so a changed CLI/worktree/index/lease/capability/resource/
+    // evidence-target/side-channel fact refuses before any child launch.
+    revalidateBeforeRun: preflightFactsUnchanged,
     run: async () => {
       const run = await deps.runCommand(pinCommand, deps.cwd, timeoutMs);
       return {
@@ -2231,7 +2232,8 @@ export function createChecklistHandlers(ctx: HandlerContext) {
           causalBatch,
         );
         const commitHint = autoCommitStoryMetadata(root, args.storyId, 'verification_evidence_batch_add');
-        return `Verification evidence batch recorded for ${args.storyId}: ${written} item intent(s)${commitHint}`;
+        const causalMetrics = renderCausalMetrics(deriveCausalMetrics(causalBatch.ledger));
+        return `Verification evidence batch recorded for ${args.storyId}: ${written} item intent(s)${commitHint}; ${causalMetrics}`;
       });
     },
 
