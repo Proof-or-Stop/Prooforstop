@@ -1264,6 +1264,105 @@
       "_hash": "545e08e9a21ed1345d396c1d52996497e27cdcf61277bb8a4d0e605893bcf5a7",
       "signatureTag": "missing|unknown|wave-live-proof",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-039",
+      "desc": ".proof-or-stop/story/actives/B-5a15/plan.md:10-94 references docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md and docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md, but neither file exists in the current repository, so the declared U-03 contract cannot be cross-checked against its decision sources during REVIEW.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-20T23:27:40.857Z",
+      "reviewRound": "2026-08-20T23:23:14.591Z",
+      "reviewRunId": "B-5a15:RR-056",
+      "_hash": "8b8929e37fbbbb3225d723e6da23f4c63a36f798eafb2b3e673503fd5936928f",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/plan.md",
+        "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+        "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md"
+      ],
+      "signatureTag": "missing|md|proof-stop-story",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-040",
+      "desc": "Current REVIEW acceptance is not admissible at HEAD 02a38773eb36fc0e02e3bc20ca0684e0c6d57d48. pre_review_check_read reports PR_ARTIFACT_TAMPERED, PR_POSITIVE_EVIDENCE_MISSING, and PR_CUTOFF_UNBOUND; acceptance_topology_check reports structuralPass=false with AT_CLOSURE_FILES_STALE and AT_SCOPE_BINDING_MISSING; the rollout receipt is still bound to prior HEAD cd3b5b4fb100235471c44dc552a06da89f2629e8. The story cannot claim user-facing acceptance until the verifier-owned basis, scope, pre-review proof, and rollout consumers are regenerated at the current HEAD and rechecked.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-20T23:28:23.108Z",
+      "reviewRound": "2026-08-20T23:23:14.591Z",
+      "reviewRunId": "B-5a15:RR-057",
+      "_hash": "e05fcae08dfaae75255425c8903444e4c22827284ed1dd4c7719b4b886441549",
+      "signatureTag": "missing|unknown|current-review-acceptance",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-041",
+      "desc": "packages/main/src/core/acceptance-discovery-adapters.ts:1454-1464 [high] sameFileCallableReachable traverses callable bodies and resolves every edge by bare function/property name. Because callableBodies now includes all methods and object properties, same-named methods in different classes or a shadowed local helper are merged into one graph node; a registered handler can therefore appear to reach an unrelated producer/consumer. That can make acceptance_basis enumerate a false path and permit a topology/pre-review PASS for code the handler never calls. Resolve edges by TypeScript symbols or fail closed on ambiguous names before using this reachability as gate evidence.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-20T23:29:17.285Z",
+      "reviewRound": "2026-08-20T23:23:14.591Z",
+      "reviewRunId": "B-5a15:RR-058",
+      "_hash": "d295c75d9cd460b52db9c8c90a45247e9e6257b6b45b7f89fee9060e044ca35a",
+      "signatureTag": "adversarial|unknown|packages-main-core",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-042",
+      "desc": "Current test-coverage acceptance is not admissible at HEAD 02a38773eb36fc0e02e3bc20ca0684e0c6d57d48. The checklist has 50/50 passing verificationEvidence rows, including the three re-earned selectors CHK-003:happy:1, CHK-003:edge:1, and CHK-004:adversarial:1 at head ef47a463, and the focused causal test covers execution keys, selector fan-out, CAS tamper/collision, import retry, freshness, preflight, and metrics. The live proof has 34 positive assertions, 16 biting PR_ARTIFACT_TAMPERED mutations with controls restored, and an ordered producer/consumer transcript; acceptance_rollout_report_read and acceptance_rollout_check pass current full-3x2 with all required rollout metrics. However, acceptance_basis returns invalid with receiptVerification.ok=false (AT_SCOPE_BINDING_MISSING: semantic discovery, scope-check, scope-contract, and closure digest mismatches), acceptance_topology_check returns fail with AT_CLOSURE_FILES_STALE and AT_SCOPE_BINDING_MISSING, and pre_review_check_read returns fail with PR_ARTIFACT_TAMPERED, PR_POSITIVE_EVIDENCE_MISSING, and PR_CUTOFF_UNBOUND. Therefore the verifier-owned acceptance_topology_check -> pre_review_check_read chain has no current admissible PASS, so this lane cannot pass until the basis and pre-review artifacts are regenerated through the CLI and re-read successfully; historical findings remain open and were not closed.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-20T23:32:07.753Z",
+      "reviewRound": "2026-08-20T23:23:14.591Z",
+      "reviewRunId": "B-5a15:RR-059",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/evidence/live-smoke-transcript.json",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a15/scope-check.json",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/tests/causal-evidence.test.mjs",
+          "packages/main/tests/checklist-causal-preflight-batch.test.mjs",
+          "packages/main/tests/verifier-causal-preflight.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2c14c8de1e23123a2d2c3b9bda8c3bccdeee1e1d02b04fa149ebb8f0c2013c3d",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a15/evidence/live-smoke-transcript.json",
+        ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+        ".proof-or-stop/story/actives/B-5a15/scope-check.json",
+        "packages/main/src/core/acceptance-discovery-adapters.ts",
+        "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+        "packages/main/tests/causal-evidence.test.mjs",
+        "packages/main/tests/checklist-causal-preflight-batch.test.mjs",
+        "packages/main/tests/verifier-causal-preflight.test.mjs"
+      ],
+      "signatureTag": "missing|json|current-test-coverage",
+      "signatureTagSource": "auto"
     }
   ]
 }
