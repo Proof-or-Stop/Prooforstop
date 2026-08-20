@@ -61,7 +61,11 @@
           {
             "desc": "Persisted lattice-* role IDs are normalized to the matching proof-or-stop lane without changing their historical evidence bytes.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node --input-type=module -e \"import assert from \\\"node:assert/strict\\\"; import {canonicalAgentRoleId, agentRoleIdsEqual} from \\\"./packages/main/dist.staging/core/agent-role-identity.js\\\"; assert.equal(canonicalAgentRoleId(\\\"lattice-review-quality@fallback\\\"),\\\"proof-or-stop-review-quality@fallback\\\"); assert.equal(agentRoleIdsEqual(\\\"lattice-review-delivery\\\",\\\"proof-or-stop-review-delivery\\\"),true); console.log(\\\"CHK-001 legacy suffix smoke: PASS\\\")\"",
+              "selector": "CHK-001 legacy suffix smoke: PASS"
+            }
           }
         ],
         "adversarial": [
@@ -94,6 +98,28 @@
           "materialHash": "012455f5dceacc10aeb8feb4f9aff3f9736baeb38bbf6e7fb9fa872e5e0a78a0",
           "storyFilesHash": "3d87477376823d79a76d589bea110c3c451cf812d621f97ed7ccc83481d33b21",
           "timestamp": "2026-08-20T05:43:16.717Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/core/agent-role-identity.ts",
+          "command": "node --input-type=module -e \"import assert from \\\"node:assert/strict\\\"; import {canonicalAgentRoleId, agentRoleIdsEqual} from \\\"./packages/main/dist.staging/core/agent-role-identity.js\\\"; assert.equal(canonicalAgentRoleId(\\\"lattice-review-quality@fallback\\\"),\\\"proof-or-stop-review-quality@fallback\\\"); assert.equal(agentRoleIdsEqual(\\\"lattice-review-delivery\\\",\\\"proof-or-stop-review-delivery\\\"),true); console.log(\\\"CHK-001 legacy suffix smoke: PASS\\\")\"",
+          "result": "pass",
+          "note": "Legacy role aliases with host suffixes normalize without losing the suffix, and canonical/legacy lane comparison agrees.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "949d5299974df01d8710f6507b024a257bda7af1726ac519a43d93a594466b15",
+            "outputTail": "CHK-001 legacy suffix smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T05:43:34.628Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "7b70fbddcda718340f81fbb4ffddf9106790c91e",
+          "materialHash": "012455f5dceacc10aeb8feb4f9aff3f9736baeb38bbf6e7fb9fa872e5e0a78a0",
+          "storyFilesHash": "3d87477376823d79a76d589bea110c3c451cf812d621f97ed7ccc83481d33b21",
+          "timestamp": "2026-08-20T05:43:34.809Z"
         }
       ]
     },
