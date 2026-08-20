@@ -398,6 +398,440 @@
       "_hash": "629e71cc70c25154b70195fa908b94212d9cc22bbfa0caafc0dd5c8fe419dbf1",
       "signatureTag": "missing|unknown|scope-contract-current",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-022",
+      "desc": "acceptance-admissibility: .proof-or-stop/story/actives/B-5a15/pre-review-check.json:1032-1061 records an empty executableProof (no commandDigests, caseRecords, or bindingProofs) with status=inconclusive and PR_* authority/coverage failures; packages/main/src/handlers/proofstory.ts:729-753 shows the verifier-owned acceptance_rollout_report_read and acceptance_rollout_check consumers, which currently return status=missing, receipt=missing, and quorum=degraded-or-missing. The topology check passing is insufficient: this candidate has no current verifier-owned pre-review PASS or signed full 3 rounds x 2 hosts (codex-cli + claude-cli) rollout receipt, so acceptance is not admissible and this review lane cannot pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-20T17:16:34.737Z",
+      "reviewRound": "2026-08-20T16:42:51.728Z",
+      "reviewRunId": "B-5a15:RR-024",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/evidence/live-smoke-transcript.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/story-files-hash-material-drift.md"
+        }
+      ],
+      "_hash": "b73713988a8b75a5c39ff2b32dc3348a2dd0add9c448235f836c3077342332bd",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+        "packages/main/src/handlers/proofstory.ts",
+        "packages/main/src/core/acceptance-rollout.ts"
+      ],
+      "signatureTag": "missing|json|acceptance-admissibility-proof",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-023",
+      "desc": ".proof-or-stop/story/actives/B-5a15/checklist.json:155-157 (and all 50 verificationEvidence rows) records result=pass only at headHash=a3ee1a102e135737ab7b5a01db29c154e7d14773, materialHash=432da04b4d4044ca8aa5914339fa12a11cf3967d018a9ba1922b625c8d7d0250, and storyFilesHash=52fcbb5526f4023897d65cca68d080a611e5a6989768e15ce377a0a58c72c6ac. Current REVIEW run B-5a15:RR-022 is fe0dccc86aadfe1bc1574189bd489a1f7b3b35b5 with materialHash=8a4bb5365eec48bb494ba0c462d59873a1c4a34476135d1ee4ffccc7610dde25 and storyFilesHash=ceaa4b50b64a71d5eec244429a32d24d66a39a773174ae6d7a893568de49f049. The 22 priority=must intents therefore have no valid current-head verification evidence; coverage cannot pass until evidence is refreshed and re-recorded.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-20T17:18:28.571Z",
+      "reviewRound": "2026-08-20T16:42:51.728Z",
+      "reviewRunId": "B-5a15:RR-022",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "cddc542cb561b518ed429d796173501ab0b345a16142df201620810bde79f5bd"
+      },
+      "readDiagnostics": [],
+      "_hash": "b8af3c5d0997a7338655a7c08579d39c09122a089ee295dc58833e57570b51cd",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/checklist.json"
+      ],
+      "signatureTag": "missing|json|proof-stop-story",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-024",
+      "desc": ".proof-or-stop/story/actives/B-5a15/pre-review-check.json:1032-1064 is not admissible verifier-owned pre-review proof: pre_review_check_read returns status=inconclusive, ok=false, executableEvidence=missing, with commandDigests=[], caseRecords=\"\", bindingProofs=[], and PR_COVERAGE_INCONCLUSIVE/PR_PRODUCTION_PATH_UNPROVEN/PR_MUTATION_EVIDENCE_MISSING/PR_CONTROL_NOT_RESTORED/PR_TRANSCRIPT_MISSING/PR_AUTHORITY_INADMISSIBLE. It provides no executable receipt covering the required acceptance_topology_check, pre_review_check_read, acceptance_rollout_report_read, and acceptance_rollout_check boundary.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-20T17:18:54.538Z",
+      "reviewRound": "2026-08-20T16:42:51.728Z",
+      "reviewRunId": "B-5a15:RR-022",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "cddc542cb561b518ed429d796173501ab0b345a16142df201620810bde79f5bd"
+      },
+      "readDiagnostics": [],
+      "_hash": "efa6162b9d8323e75b781030d86f96770c462b3d1140cadabbe97579e95fe370",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+        "packages/main/src/handlers/proofstory.ts"
+      ],
+      "signatureTag": "missing|json|proof-stop-story",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-025",
+      "desc": ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json:574-603 binds the signed acceptance basis to headHash=741f998303067d3be0ee7e4d0f80d6f8d67f9bb1, not current REVIEW head fe0dccc86aadfe1bc1574189bd489a1f7b3b35b5. Current acceptance_topology_check is only observe/readOnly/evidentiary=false and reports result=inconclusive_basis_unverified despite structuralPass=true, so it is diagnostic structural output rather than current signed verifier-owned acceptance evidence.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-20T17:19:02.810Z",
+      "reviewRound": "2026-08-20T16:42:51.728Z",
+      "reviewRunId": "B-5a15:RR-022",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "cddc542cb561b518ed429d796173501ab0b345a16142df201620810bde79f5bd"
+      },
+      "readDiagnostics": [],
+      "_hash": "c8b5f3e81817a3c1b06896659d68326cad740942b70d01b2b989d86f7c3c8dc4",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+        "packages/main/src/handlers/proofstory.ts"
+      ],
+      "signatureTag": "missing|json|proof-stop-story",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-026",
+      "desc": "packages/main/src/handlers/proofstory.ts:729-754: current acceptance_rollout_report_read and acceptance_rollout_check both return status=missing with AR_REPORT_MISSING, receipt=missing, and quorum=degraded-or-missing; no B-5a15 acceptance-rollout artifact exists. There is no current signed rollout receipt proving full 3 rounds x 2 hosts (codex-cli plus claude-cli), rejecting degraded 3x1, or covering threshold/membership/freshness mutations, mode-invariant diagnostics, enforce-only blocking, and non-destructive rollback history.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-20T17:19:08.119Z",
+      "reviewRound": "2026-08-20T16:42:51.728Z",
+      "reviewRunId": "B-5a15:RR-022",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "cddc542cb561b518ed429d796173501ab0b345a16142df201620810bde79f5bd"
+      },
+      "readDiagnostics": [],
+      "_hash": "0ca12aa5392ad8b2b8c018784796e00043156d77a6d39ff1d179655a8194b732",
+      "files": [
+        "packages/main/src/handlers/proofstory.ts",
+        "packages/main/src/core/acceptance-rollout.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-handlers",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-027",
+      "desc": "Causal dependency authority is process-local and cannot survive restart. packages/main/src/core/causal-evidence.ts:763-769 generates CAUSAL_DEPENDENCY_DECISION_KEY with randomBytes(32) at module load, while verifyCausalDependencyDecision at lines 924-948 recomputes the HMAC with that process-local key. Repro: create an advisory decision in one Node process, then import the same dist in a child and call verifyCausalDependencyDecision(decision, identity); the parent returns true and the child returns false. A signed/current CertificationWindow decision therefore becomes inadmissible after CLI or process restart, despite the acceptance contract requiring durable authority binding. Persist a stable authority key/signature or a verifiable durable authority artifact, and add a cross-process verification test.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-20T17:26:19.796Z",
+      "reviewRound": "2026-08-20T16:42:51.728Z",
+      "reviewRunId": "B-5a15:RR-023",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/store.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/findings.json",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a15/review-runs.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "4e00b62df4b0b3faa1f1e017b2ce3062d7cf75310ad737917ff876ae462e3230",
+      "files": [
+        "packages/main/src/core/causal-evidence.ts",
+        "packages/main/src/core/certification-window.ts"
+      ],
+      "signatureTag": "adversarial|ts|causal-dependency-authority",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-028",
+      "desc": "Unknown input keys are silently excluded from dependency drift. packages/main/src/core/causal-evidence.ts:819-858 iterates each node.inputIds, but never checks keys present in currentInputHashes that are absent from the declared dependency DAG. Repro: evaluate a node declaring only declared=same while currentInputHashes also contains unmapped=changed, with materialHash changed and storyFilesHash unchanged; the function returns causalDecision=advisory, gateAdmissible=true, changedInputIds=[], and materialHashStrict=false. A changed dependency outside the declared nodes can therefore evade strict rerun or freshness handling. Enforce declared and current input-key completeness, or treat unknown keys as missing and take the strict materialHash fallback, with an adversarial test.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-20T17:26:23.166Z",
+      "reviewRound": "2026-08-20T16:42:51.728Z",
+      "reviewRunId": "B-5a15:RR-023",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/store.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/findings.json",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a15/review-runs.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "e1f432071ccb2440ad94736a7211eb39ebfc300129a84b54a2069b75f0847291",
+      "files": [
+        "packages/main/src/core/causal-evidence.ts"
+      ],
+      "signatureTag": "adversarial|ts|unknown-input-keys",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-029",
+      "desc": "Receipt integrity is an unkeyed self-hash rather than authenticity. packages/main/src/core/causal-evidence.ts:359-365 and 368-384 accept any caller-recomputed SHA256 receiptHash; packages/main/src/core/store.ts:405-420 performs CAS checks under the supplied hash but adds no durable signature or authority binding. Repro: mutate persisted outputProbe from the original selector to EVIL, recompute receiptHash, update the index, and replay; the cache accepts EVIL with one child run, output {runs:1,first:pass,second:pass}. A local actor able to alter the artifact and index can manufacture a replayable PASS, violating tamper-resistant acceptance. Bind receipts to stable keyed authority or another non-caller-writable evidence source and add a tamper mutation test.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-20T17:26:26.196Z",
+      "reviewRound": "2026-08-20T16:42:51.728Z",
+      "reviewRunId": "B-5a15:RR-023",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/store.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/findings.json",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a15/review-runs.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "6a6ed513b5611dab8fd14ecb35d1a812073091b1452c1bb5203f11e351b3d51a",
+      "files": [
+        "packages/main/src/core/causal-evidence.ts",
+        "packages/main/src/core/store.ts"
+      ],
+      "signatureTag": "adversarial|ts|receipt-integrity-unkeyed",
+      "signatureTagSource": "auto"
     }
   ]
 }

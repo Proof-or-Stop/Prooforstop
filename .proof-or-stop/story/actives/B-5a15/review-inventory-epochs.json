@@ -136,9 +136,9 @@
       "epochId": "B-5a15:RIE-006",
       "storyId": "B-5a15",
       "reviewRound": "2026-08-20T13:34:58.729Z",
-      "state": "FINALIZED",
+      "state": "CANCELLED",
       "begunAt": "2026-08-20T14:06:41.352Z",
-      "updatedAt": "2026-08-20T14:06:41.352Z",
+      "updatedAt": "2026-08-20T17:09:49.915Z",
       "cutoff": {
         "headHash": "f9f8a824ef2e02f9cf46c0c7e05374c53246fa49",
         "materialHash": "a4dd2998a14c558092835e939d67dd027cd4090ea37b5e0eb46257d7f703d3c7",
@@ -149,7 +149,35 @@
       "maxWaves": 1,
       "waves": [],
       "receiptId": "B-5a15:RIE-006:RCP-001",
-      "_hash": "c36a48db0f5358580e88e3ce12c79cec676b66dc81d05ecaa96360484f4f389e"
+      "cancelledAt": "2026-08-20T17:09:49.915Z",
+      "cancelReason": "The finalized inventory receipt is bound to an older REVIEW round and cannot authorize the current remediation; invalidate it before starting the required fresh inventory epoch.",
+      "terminalRunSequenceBoundary": 21,
+      "_hash": "fbdd3577630fe768ebbfb9616cef0e868622bc0b3e3cd0012727996399439342"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-5a15:RI-004",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-20T16:42:51.728Z",
+      "state": "OPEN",
+      "begunAt": "2026-08-20T17:09:54.440Z",
+      "updatedAt": "2026-08-20T17:09:54.440Z",
+      "cutoff": {
+        "headHash": "fe0dccc86aadfe1bc1574189bd489a1f7b3b35b5",
+        "materialHash": "8a4bb5365eec48bb494ba0c462d59873a1c4a34476135d1ee4ffccc7610dde25",
+        "storyFilesHash": "ceaa4b50b64a71d5eec244429a32d24d66a39a773174ae6d7a893568de49f049"
+      },
+      "scopeDigest": "1098825b7b612d46c7476d5a07901a6312454ab05207cfef506949a970c3fd73",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage"
+      ],
+      "initialRunSequenceBoundary": 21,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [],
+      "_hash": "a3e12646d64c707ef505fe5eaf7f06acdcee9aef88529c592a30861818bdcdaa"
     }
   ],
   "receipts": [
@@ -221,7 +249,9 @@
       "authority": "inventory-completeness-only",
       "authorizesTest": false,
       "issuedAt": "2026-08-20T14:06:41.352Z",
-      "_hash": "e5b0a53ef399ffd776d5359c56215b6aef4b052c0364fa156d8e4cab785dadc1"
+      "invalidatedAt": "2026-08-20T17:09:49.915Z",
+      "invalidationReason": "The finalized inventory receipt is bound to an older REVIEW round and cannot authorize the current remediation; invalidate it before starting the required fresh inventory epoch.",
+      "_hash": "7b98e8edd9c0f4985a13f139982f85e108c7d117cd287fa2892f9054a65d7b8e"
     }
   ],
   "criticReceipts": []
