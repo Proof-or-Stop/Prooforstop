@@ -737,24 +737,101 @@
           {
             "desc": "Sibling package metadata, lockfiles, and in-repo dependency references consistently use @proof-or-stop/utils and @proof-or-stop/lab.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/package-identity-migration.test.mjs",
+              "selector": "package identity migration test passed"
+            }
           }
         ],
         "edge": [
           {
             "desc": "The global lab entrypoint resolves canonical sibling packages alongside the already migrated @proof-or-stop/core package.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-global-lab-entrypoint.mjs versions",
+              "selector": "ok versions"
+            }
           }
         ],
         "adversarial": [
           {
             "desc": "No exact-name consumer leaves a mixed package graph that resolves an old sibling name while metadata claims the new scope.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node --input-type=module -e \"import fs from \\\"node:fs\\\"; import assert from \\\"node:assert/strict\\\"; const files=[\\\"packages/utils/package.json\\\",\\\"packages/utils/package-lock.json\\\",\\\"packages/lab/package.json\\\",\\\"packages/lab/package-lock.json\\\",\\\"packages/main/package.json\\\",\\\"packages/main/package-lock.json\\\"]; for (const file of files) JSON.parse(fs.readFileSync(file,\\\"utf8\\\")); const core=JSON.parse(fs.readFileSync(\\\"packages/main/package.json\\\",\\\"utf8\\\")); const utils=JSON.parse(fs.readFileSync(\\\"packages/utils/package.json\\\",\\\"utf8\\\")); const lab=JSON.parse(fs.readFileSync(\\\"packages/lab/package.json\\\",\\\"utf8\\\")); assert.equal(core.dependencies[\\\"@proof-or-stop/lab\\\"],\\\"0.3.65\\\"); assert.equal(utils.name,\\\"@proof-or-stop/utils\\\"); assert.equal(lab.name,\\\"@proof-or-stop/lab\\\"); console.log(\\\"CHK-006 package graph JSON smoke: PASS\\\");\"",
+              "selector": "CHK-006 package graph JSON smoke: PASS"
+            }
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/package-identity-migration.test.mjs",
+          "command": "node packages/main/tests/package-identity-migration.test.mjs",
+          "result": "pass",
+          "note": "Package identity test confirms canonical utils/lab names, lockfile root names, main lab dependency, local lock graph, and unchanged entrypoint/exports metadata.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "8f9a6a8e492c71ecc59206e624d91c8f0406780a9606b9d89da1cc8e6092defb",
+            "outputTail": "package identity migration test passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T06:41:11.330Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "17b2e395ba462bc01c245d8469333fca2217b64d",
+          "materialHash": "7c12af78ab01e8e99e18f75b6095c5c79428da1fa6922ab15476480a77f5e077",
+          "storyFilesHash": "bfcb6e3479766535c417434d965a0607f70bdebd094cffffd841cf3d26272079",
+          "timestamp": "2026-08-20T06:41:11.894Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "logic_test",
+          "file": "scripts/verify-global-lab-entrypoint.mjs",
+          "command": "node scripts/verify-global-lab-entrypoint.mjs versions",
+          "result": "pass",
+          "note": "Global lab entrypoint version check resolves the canonical sibling package names alongside proof-or-stop/core.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "4920d5a44a0d3a616c9b8281e6322b7b8e407d9163f0c8e5bc0d9245be25a47e",
+            "outputTail": "ok versions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T06:41:11.537Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "17b2e395ba462bc01c245d8469333fca2217b64d",
+          "materialHash": "7c12af78ab01e8e99e18f75b6095c5c79428da1fa6922ab15476480a77f5e077",
+          "storyFilesHash": "bfcb6e3479766535c417434d965a0607f70bdebd094cffffd841cf3d26272079",
+          "timestamp": "2026-08-20T06:41:11.894Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/package-identity-migration.test.mjs",
+          "command": "node --input-type=module -e \"import fs from \\\"node:fs\\\"; import assert from \\\"node:assert/strict\\\"; const files=[\\\"packages/utils/package.json\\\",\\\"packages/utils/package-lock.json\\\",\\\"packages/lab/package.json\\\",\\\"packages/lab/package-lock.json\\\",\\\"packages/main/package.json\\\",\\\"packages/main/package-lock.json\\\"]; for (const file of files) JSON.parse(fs.readFileSync(file,\\\"utf8\\\")); const core=JSON.parse(fs.readFileSync(\\\"packages/main/package.json\\\",\\\"utf8\\\")); const utils=JSON.parse(fs.readFileSync(\\\"packages/utils/package.json\\\",\\\"utf8\\\")); const lab=JSON.parse(fs.readFileSync(\\\"packages/lab/package.json\\\",\\\"utf8\\\")); assert.equal(core.dependencies[\\\"@proof-or-stop/lab\\\"],\\\"0.3.65\\\"); assert.equal(utils.name,\\\"@proof-or-stop/utils\\\"); assert.equal(lab.name,\\\"@proof-or-stop/lab\\\"); console.log(\\\"CHK-006 package graph JSON smoke: PASS\\\");\"",
+          "result": "pass",
+          "note": "All changed package and lock JSON parses, canonical names are present, and main no longer resolves the old lab package name.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "5620c69351fdacf7152368e8275c9430d1443cc13cf1b36018fd19a5cff3f54a",
+            "outputTail": "CHK-006 package graph JSON smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T06:41:11.735Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "17b2e395ba462bc01c245d8469333fca2217b64d",
+          "materialHash": "7c12af78ab01e8e99e18f75b6095c5c79428da1fa6922ab15476480a77f5e077",
+          "storyFilesHash": "bfcb6e3479766535c417434d965a0607f70bdebd094cffffd841cf3d26272079",
+          "timestamp": "2026-08-20T06:41:11.894Z"
+        }
+      ]
     },
     {
       "id": "CHK-007",
