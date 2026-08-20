@@ -378,10 +378,28 @@
       "phase": "DEV",
       "headHash": "2c0f92bc4eac52eb5dc332b678e3cf13a5ffda2d",
       "materialHash": "d903508de381187a921b8a83171cfdc191dac23bb820c7575d59f7c3844fa089"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "These migration verifier and prompt-registry smoke paths are necessary to validate the canonical proof-or-stop identity rollout and remain explicit review-visible scope evidence.",
+      "timestamp": "2026-08-20T13:54:03.593Z",
+      "paths": [
+        "packages/main/src/tasks/prompt-registry-smoke.ts",
+        "scripts/verify-core-package-rename.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/prompt-registry-smoke.ts",
+        "scripts/verify-core-package-rename.mjs"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "e133c7cc7f65890ab900bbe1519859e095aad6e2",
+      "materialHash": "e661be1797ab8b8ee8380d0a02bd928a0c02227ea0bd8284b6e6fe8a6bf6ce26"
     }
   ],
   "createdAt": "2026-08-20T05:20:00.402Z",
-  "updatedAt": "2026-08-20T13:45:27.033Z",
+  "updatedAt": "2026-08-20T13:54:03.593Z",
   "fileRules": [],
   "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
@@ -497,6 +515,8 @@
     "packages/main/src/tasks/validate-command-timeout-smoke.ts": "packages/main/src/tasks/validate-command-timeout-smoke.ts",
     "packages/main/src/tasks/flow-stability-smoke.ts": "packages/main/src/tasks/flow-stability-smoke.ts",
     "packages/main/src/handlers/quorum-submit.ts": "packages/main/src/handlers/quorum-submit.ts",
-    "packages/main/src/core/acceptance-discovery-adapters.ts": "packages/main/src/core/acceptance-discovery-adapters.ts"
+    "packages/main/src/core/acceptance-discovery-adapters.ts": "packages/main/src/core/acceptance-discovery-adapters.ts",
+    "packages/main/src/tasks/prompt-registry-smoke.ts": "packages/main/src/tasks/prompt-registry-smoke.ts",
+    "scripts/verify-core-package-rename.mjs": "scripts/verify-core-package-rename.mjs"
   }
 }
