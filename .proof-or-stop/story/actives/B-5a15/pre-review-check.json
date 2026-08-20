@@ -2,15 +2,15 @@
   "schemaVersion": "proofstory.pre_review_check.v1",
   "storyId": "B-5a15",
   "mode": "observe",
-  "cutoffAt": "2026-08-20T21:45:46.258Z",
-  "planBasisDigest": "sha256:1a51b0cfcc64fd23fd9ae7039a7f68fb3fe904d949abbcc1cdba1eebebe0f23d",
+  "cutoffAt": "2026-08-20T23:02:04.402Z",
+  "planBasisDigest": "sha256:bf1755fb019817959203a3642c23d191d7cf2677be255f13ec8861ff5ec56547",
   "preReviewBasisArtifact": {
     "schemaVersion": "proofstory.acceptance_basis_artifact.v1",
     "basis": {
       "schemaVersion": "proofstory.acceptance_coverage_basis.v1",
       "storyId": "B-5a15",
       "phaseBasis": "pre_review",
-      "priorPlanBasisDigest": "sha256:1a51b0cfcc64fd23fd9ae7039a7f68fb3fe904d949abbcc1cdba1eebebe0f23d",
+      "priorPlanBasisDigest": "sha256:bf1755fb019817959203a3642c23d191d7cf2677be255f13ec8861ff5ec56547",
       "status": "complete",
       "generatedBy": {
         "verifier": "acceptance-coverage-basis-verifier",
@@ -231,6 +231,14 @@
           "adapterId": "static-call-graph:plan:v1",
           "method": "static_call_graph",
           "pathRefs": [
+            "actual:handler:packages/main/src/handlers/checklist.ts#enforceAndStampEvidence",
+            "actual:handler:packages/main/src/handlers/checklist.ts#verification_evidence_batch_add",
+            "actual:source_file:packages/main/src/core/causal-evidence.ts#deriveCausalMetrics",
+            "actual:source_file:packages/main/src/core/causal-evidence.ts#evaluateCausalDependencies",
+            "actual:source_file:packages/main/src/core/causal-evidence.ts#executeCausalEvidence",
+            "actual:source_file:packages/main/src/core/causal-evidence.ts#importCausalEvidenceReceipt",
+            "actual:source_file:packages/main/src/core/causal-evidence.ts#preflightCausalEvidence",
+            "actual:source_file:packages/main/src/core/certification-window.ts#detectCertificationWindowMaterialDrift",
             "path:process-fact:acceptance_basis->consumer:<audit-only>",
             "path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
             "path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
@@ -296,7 +304,7 @@
               "scope:file:packages/main/tests/causal-evidence.test.mjs"
             ]
           },
-          "resultDigest": "sha256:653f73e5ea3d3ac3cbe8e7bda86d880e9e4bb42905755943ed82bb18e0639894"
+          "resultDigest": "sha256:6249661cd247901a99a0a75bc073a988f7c4ce5ed12bcbdb98bc842a57912803"
         }
       ],
       "scopeRefs": [
@@ -580,8 +588,67 @@
           "plannedPathDigest": "sha256:a34c940da02a5412d0fb50e68e24f7754e9065471f5dd33dd3513a63512d733d"
         }
       ],
-      "plannedActualReconciliations": [],
+      "plannedActualReconciliations": [
+        {
+          "schemaVersion": "proofstory.planned_actual_path_reconciliation.v1",
+          "plannedPathRef": "planned:CHK-001:happy:0:CHK-001-causal-execution-to-evidence-batch",
+          "actualPathRefs": [
+            "actual:source_file:packages/main/src/core/causal-evidence.ts#executeCausalEvidence",
+            "actual:handler:packages/main/src/handlers/checklist.ts#verification_evidence_batch_add"
+          ],
+          "relation": "exact",
+          "reconciliationDigest": "sha256:7168c4b5e39e8cfaec4384c06de2f90a00f4e4d9d75fb38bee1a97fbc90c5e28"
+        },
+        {
+          "schemaVersion": "proofstory.planned_actual_path_reconciliation.v1",
+          "plannedPathRef": "planned:CHK-002:happy:0:CHK-002-receipt-to-canonical-import",
+          "actualPathRefs": [
+            "actual:source_file:packages/main/src/core/causal-evidence.ts#executeCausalEvidence",
+            "actual:source_file:packages/main/src/core/causal-evidence.ts#importCausalEvidenceReceipt"
+          ],
+          "relation": "exact",
+          "reconciliationDigest": "sha256:8e0656d6f09024d60323bc7027a871bdb2bb85bd72d1e27cb72b12f4ebfcedf7"
+        },
+        {
+          "schemaVersion": "proofstory.planned_actual_path_reconciliation.v1",
+          "plannedPathRef": "planned:CHK-003:happy:2:CHK-003-causal-decision-to-certification-window",
+          "actualPathRefs": [
+            "actual:source_file:packages/main/src/core/causal-evidence.ts#evaluateCausalDependencies",
+            "actual:source_file:packages/main/src/core/certification-window.ts#detectCertificationWindowMaterialDrift"
+          ],
+          "relation": "exact",
+          "reconciliationDigest": "sha256:faa9927c4a70c78d8cd92c616b1cc842f709566f1fe52fdf8637818d4000c4c1"
+        },
+        {
+          "schemaVersion": "proofstory.planned_actual_path_reconciliation.v1",
+          "plannedPathRef": "planned:CHK-004:happy:0:CHK-004-preflight-to-evidence-enforcement",
+          "actualPathRefs": [
+            "actual:source_file:packages/main/src/core/causal-evidence.ts#preflightCausalEvidence",
+            "actual:handler:packages/main/src/handlers/checklist.ts#enforceAndStampEvidence"
+          ],
+          "relation": "exact",
+          "reconciliationDigest": "sha256:ae2c93035b7a2e9eeb4193d60a71bce8f7db7136f4fdbcf34ea5bd23bf00cdd3"
+        },
+        {
+          "schemaVersion": "proofstory.planned_actual_path_reconciliation.v1",
+          "plannedPathRef": "planned:CHK-005:happy:0:CHK-005-ledger-to-causal-metrics",
+          "actualPathRefs": [
+            "actual:source_file:packages/main/src/core/causal-evidence.ts#deriveCausalMetrics",
+            "actual:handler:packages/main/src/handlers/checklist.ts#verification_evidence_batch_add"
+          ],
+          "relation": "exact",
+          "reconciliationDigest": "sha256:51d125492c9863255c9a5e85261aa1406126eeaecb0dbe72d29134a34524ae02"
+        }
+      ],
       "enumeratedPathRefs": [
+        "actual:handler:packages/main/src/handlers/checklist.ts#enforceAndStampEvidence",
+        "actual:handler:packages/main/src/handlers/checklist.ts#verification_evidence_batch_add",
+        "actual:source_file:packages/main/src/core/causal-evidence.ts#deriveCausalMetrics",
+        "actual:source_file:packages/main/src/core/causal-evidence.ts#evaluateCausalDependencies",
+        "actual:source_file:packages/main/src/core/causal-evidence.ts#executeCausalEvidence",
+        "actual:source_file:packages/main/src/core/causal-evidence.ts#importCausalEvidenceReceipt",
+        "actual:source_file:packages/main/src/core/causal-evidence.ts#preflightCausalEvidence",
+        "actual:source_file:packages/main/src/core/certification-window.ts#detectCertificationWindowMaterialDrift",
         "path:process-fact:acceptance_basis->consumer:<audit-only>",
         "path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
         "path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
@@ -613,23 +680,23 @@
         "schemaVersion": "proofstory.acceptance_snapshot_seal.v1",
         "inventoryDirectoryDigest": "sha256:16c03d66d98aed9d8b06929435c6093d15ca687796ecb9272ab1e86dc9434526",
         "inventoryDirectoryCount": 21,
-        "sourceSnapshotDigest": "sha256:cf11eadaf2f9317d81f9c97e195787fea91c769a0e3741ada78ded47e0b82562",
+        "sourceSnapshotDigest": "sha256:aa28c0abc00ffa8e70948c83aaa6483362e3ab9f75ca87c36c63b76577d55022",
         "sourceSnapshotCount": 819,
         "configSnapshotDigest": "sha256:ab4b658eaf618dd6e859c44d6bab29230deefeef2b53889c500533b9dde9b251",
         "status": "complete",
         "issues": [],
-        "sealDigest": "sha256:df49eb28d957062f2d0d2743b859c5475f463258375a9fc25a66b8f615edc3dc"
+        "sealDigest": "sha256:9458a6eff56224d2ae66ca18b45b3b6ffda8d3cbe4ac885c91ab7483e11924a1"
       },
       "binding": {
-        "headHash": "58ef1f6be85a4481a58f6be57f4bf28d09003c7e",
-        "materialHash": "dd23d669607ce19cb5589421cab00953124efe403eb72444370f6e3c524bc85f",
-        "storyFilesHash": "29acd240c6e75d9c651bcde4b8ecc2634d7ab7c4383c2285c3dd50cf31f0c6bc",
+        "headHash": "cd3b5b4fb100235471c44dc552a06da89f2629e8",
+        "materialHash": "aaa7d2e1e12738c7783a079d17144484f524d9aac67b4b1b73abe509e2045272",
+        "storyFilesHash": "d806bbf7ebde95e0318a536ed9249f24f23250fcdf1aa0cdcfda13fd497396ac",
         "scopeCheckDigest": "sha256:5ede873b0f0d4af50c8435087842f612f43bb8c4e63606dd1e7be2ff431e8146",
         "scopeContractDigest": "sha256:182437514a04a931a14736ec496941aefb37cdd49584531782279052b81936aa",
         "closureFilesHash": "sha256:523af408f984b9fe36ba7c4f98266d062973642589ee0e5fcfb1654c6965a6f3"
       },
       "receiptRef": "receipt:coverage-basis:B-5a15:pre_review:e5a413a05d911971",
-      "basisDigest": "sha256:4072325d3360e64090b42fdf9ecdc866a0a27287286b4cd932d201879c477fbe"
+      "basisDigest": "sha256:36c9d6fd7b565f083865e1cd655c055a3f5ab5a489891695c0932ed99ae2a6c1"
     },
     "receipt": {
       "schemaVersion": "proofstory.acceptance_basis_receipt.v1",
@@ -639,23 +706,23 @@
       "signerPublicKey": "GpD4A2Km0wpT87L2EcszehhUu0nPgXbafTXgXTjTKAM=",
       "storyId": "B-5a15",
       "phaseBasis": "pre_review",
-      "basisDigest": "sha256:4072325d3360e64090b42fdf9ecdc866a0a27287286b4cd932d201879c477fbe",
+      "basisDigest": "sha256:36c9d6fd7b565f083865e1cd655c055a3f5ab5a489891695c0932ed99ae2a6c1",
       "topologyDigest": "sha256:b99e7bc1326d36e845062da1ab5c893c358c4ae00cf7390b611c0fd7dbd125e1",
       "scopeCheckDigest": "sha256:5ede873b0f0d4af50c8435087842f612f43bb8c4e63606dd1e7be2ff431e8146",
       "scopeContractDigest": "sha256:182437514a04a931a14736ec496941aefb37cdd49584531782279052b81936aa",
-      "headHash": "58ef1f6be85a4481a58f6be57f4bf28d09003c7e",
-      "materialHash": "dd23d669607ce19cb5589421cab00953124efe403eb72444370f6e3c524bc85f",
-      "storyFilesHash": "29acd240c6e75d9c651bcde4b8ecc2634d7ab7c4383c2285c3dd50cf31f0c6bc",
+      "headHash": "cd3b5b4fb100235471c44dc552a06da89f2629e8",
+      "materialHash": "aaa7d2e1e12738c7783a079d17144484f524d9aac67b4b1b73abe509e2045272",
+      "storyFilesHash": "d806bbf7ebde95e0318a536ed9249f24f23250fcdf1aa0cdcfda13fd497396ac",
       "closureFilesHash": "sha256:523af408f984b9fe36ba7c4f98266d062973642589ee0e5fcfb1654c6965a6f3",
-      "sealDigest": "sha256:df49eb28d957062f2d0d2743b859c5475f463258375a9fc25a66b8f615edc3dc",
+      "sealDigest": "sha256:9458a6eff56224d2ae66ca18b45b3b6ffda8d3cbe4ac885c91ab7483e11924a1",
       "workspaceIdentityDigest": "sha256:502be69be3d8741b5a049f6ed4e08a9bea5b0c7a099a24169e0b2582e7422b78",
-      "signature": "M1HqMDVbm/flS5gtyEUMeBkLYEdwUv01VeAam4uccVONeovLyD7C7PG4eeLCwfKmqoUy+SZ8zIeGsr/QvZZtBw=="
+      "signature": "qP2dBJICeewdEPkvpPzRfXOZgYyYez74OD2FKtqxYtGbPK4L0H7ly0lXtP4sYVuAc/9taVaxfXWYu1+sW3iLAQ=="
     }
   },
   "topologyDigest": "sha256:b99e7bc1326d36e845062da1ab5c893c358c4ae00cf7390b611c0fd7dbd125e1",
   "scopeCheckDigest": "sha256:5ede873b0f0d4af50c8435087842f612f43bb8c4e63606dd1e7be2ff431e8146",
   "scopeContractDigest": "sha256:182437514a04a931a14736ec496941aefb37cdd49584531782279052b81936aa",
-  "storyFilesHash": "29acd240c6e75d9c651bcde4b8ecc2634d7ab7c4383c2285c3dd50cf31f0c6bc",
+  "storyFilesHash": "d806bbf7ebde95e0318a536ed9249f24f23250fcdf1aa0cdcfda13fd497396ac",
   "closureFilesHash": "sha256:523af408f984b9fe36ba7c4f98266d062973642589ee0e5fcfb1654c6965a6f3",
   "evidenceRefs": [],
   "executableProof": {
@@ -663,33 +730,178 @@
     "storyId": "B-5a15",
     "producer": "registered-verification-command",
     "verifier": "pre-review-check-command-runner",
-    "commandDigests": [],
+    "commandDigests": [
+      "sha256:b1492e26722acfa87e9f2c3ceb9405f6cc9850f35d38a58ac60752d135a4d4c6"
+    ],
     "caseRecordsEncoding": "gzip-base64",
-    "caseRecords": "",
+    "caseRecords": "H4sIAAAAAAACE92bTY+jRhCG/wpyriaiq7/Ah0jO7EaJolVWs3OzrBGDezxkPWA12Mn++4C/srarmiCFA30aG3DDPI/rLWjwYjGZhw+//h5GEQvf0u32WxhNppNtWeV1vjfNy9q8b8OqLu232c/h1prQmn1u/gqr9/KrmTULno8LnrM3k30Nf7pd0rxJV8042cakRZilRVnkWboJ98bmr7mxzSq7K4J/dxPcjhDUb6YIqHE/z798ufyp7c5MF4vJ1parXWZsaPbpZpfWptlSseV0McnKotq9N2tO+29XwHI5neRFbYp6dmIxO7CYRZP2M7eEmK+EOEVIkIQYSgh8JSQpQookBDeEzGpt/C0yTQGKEUAtirsaO/DxtsQSgo+OKD4M4+NrgWkqpDVQfK7rCzzvYprKaH2f0YB2MfC8i2kqo7UiCbEbQl5ntKYyWscIICSjwe+M1lRGxxHFB/3++JrRMZXRMVB8rjOae57RMZXR8X1GczSjuecZHVMZHSuSEEMJeVtkVEjHMUnotsq87mIxldJJhABCuhj3u4slVEonQPFhGB9fCyyhQjoRFJ/r+hKed7GEyujkPqMF2sWE510soTI6iUlC7IaQ1xmdUBnNogghhIS08DukWcRIQkARQr9C4C0hThISFCHACHFvCUmSkKIIcYyQ8JaQJgnFFCGBEZLeEiKTmpFJLTFCyldCjExqRia1wghpbwmRSc3IpNZXhKTnp9SMkVHN7qNaoifV0vOTasbIsGYxyYihjLw9KWJkXENEMoIbRl5fejAg8xoAQYRce0jPrz2AzGsQFCGGEfK2zICMa1AUIbTKvL32ADKsIaYIHa89Pl0eaEhXzceq1ObNf9DG0fuuTuu8LP4LqPOCw+H/+GdVFj9U+bpI6501M3oXl23C19KuTTM8ve1hixuW97sNLkNOg5ZicHbRvm0/ZwLzd5rVQWrr/LV50S5vJTXsaltuWtyPz/PHp99+mT88PT/NP33++PjxA7n4bOUMK2wifnMif2gOqzxdF2VV51lYvlTG7g/reHTy1e4zPBxBu5QhD1d8x+EUjDgjNrwy1kMZG6MyDg5lHFUmOpQxhzIYXhn0UAajVCYdyhSqTHcogytlMHwwQo9ghPEHI48dyhJMmcCe+KCDEYYPRugRjDD+YBSMViYAVcY7lDGHMhheGfRQNspgFMKhTKLKVIcyVzDy4ZXxHsr4KJVph7IYVZZ0KLs+yefD9zLeo5fx8fcyGdHKJMOUSey5D7qX8eF7Ge/Ry/j4e5nkDmUCVSY7lDGHMhheGfRQNspeJpVDmUaVxR3KwKGMD6+M91A2yl4mHbMfCp39UKxD2XUvE8P3MtGjl4nx9zLlmP1Q6OyHwm4o0r1MDN/LRI9eJsbfy5Rj9kOhsx9Kdyi77mVy+CqTPapMelBljtkPhc5+aOxeIl1lcvgqkz2qTI6/yrRj9kOjsx+adyhzVRkMrwx6KBvlGaN2zH5odPZDqw5lxzPGp3D+8NBOGbdmbFpUmc239f94M9HsmwMIN+W6GWBz/g5Yk5V2FTTIdunm2sPxbmCD8H27Me3mwYt5bVGf4X+3qhnpj8cPJ6aXV847i+SvFNnxZ4pplpltnRaZCV/yYpUX69kZ0HL5D1tOkO/XQgAA",
     "provenance": {
-      "runnerPath": "",
-      "runnerDigest": "",
-      "targetPath": "",
-      "targetDigest": "",
-      "buildCommand": ""
+      "runnerPath": "scripts/run-proofstory-pre-review-live-proof.mjs",
+      "runnerDigest": "sha256:e45f9001861defcd91a85f1c8f10df27d24487f95bb80dfd8ed6dde7c6a0f2e9",
+      "targetPath": "packages/main/dist/tasks/proofstory-pre-review-check-smoke.js",
+      "targetDigest": "sha256:b783196c1de51856975fa06e094f4f3f5a1e114348de0b994378c3922865081c",
+      "buildCommand": "npm --prefix packages/main run build"
     },
-    "bindingProofs": []
+    "bindingProofs": [
+      {
+        "bindingId": "ACC-001",
+        "positiveAssertionIds": [
+          "A-CHK-001-happy-0",
+          "A-CHK-001-happy-1",
+          "A-CHK-001-happy-2",
+          "A-CHK-001-edge-0",
+          "A-CHK-001-edge-1",
+          "A-CHK-001-edge-2",
+          "A-CHK-002-happy-0",
+          "A-CHK-002-happy-1",
+          "A-CHK-002-edge-0",
+          "A-CHK-002-edge-1",
+          "A-CHK-002-edge-2",
+          "A-CHK-003-happy-0",
+          "A-CHK-003-happy-1",
+          "A-CHK-003-happy-2",
+          "A-CHK-003-edge-0",
+          "A-CHK-003-edge-1",
+          "A-CHK-003-edge-2",
+          "A-CHK-004-happy-0",
+          "A-CHK-004-happy-1",
+          "A-CHK-004-edge-0",
+          "A-CHK-004-edge-1",
+          "A-CHK-004-edge-2",
+          "A-CHK-004-edge-3",
+          "A-CHK-004-edge-4",
+          "A-CHK-004-edge-5",
+          "A-CHK-004-edge-6",
+          "A-CHK-004-edge-7",
+          "A-CHK-005-happy-0",
+          "A-CHK-005-happy-1",
+          "A-CHK-005-happy-2",
+          "A-CHK-005-edge-0",
+          "A-CHK-005-edge-1",
+          "A-CHK-005-edge-2",
+          "A-CHK-005-edge-3"
+        ],
+        "mutationProofs": [
+          {
+            "mutationId": "M-CHK-001-adversarial-0",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-CHK-001-adversarial-1",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-CHK-001-adversarial-2",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-CHK-002-adversarial-0",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-CHK-002-adversarial-1",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-CHK-002-adversarial-2",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-CHK-002-adversarial-3",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-CHK-003-adversarial-0",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-CHK-003-adversarial-1",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-CHK-003-adversarial-2",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-CHK-003-adversarial-3",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-CHK-004-adversarial-0",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-CHK-004-adversarial-1",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-CHK-005-adversarial-0",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-CHK-005-adversarial-1",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-CHK-005-adversarial-2",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          }
+        ],
+        "transcriptProofs": [
+          {
+            "transcriptId": "T-ACC-001",
+            "producerRefs": [
+              "P-001"
+            ],
+            "consumerRefs": [
+              "C-001"
+            ],
+            "producerSequence": 177,
+            "consumerSequence": 178
+          }
+        ]
+      }
+    ]
   },
   "criticReceiptDigest": "sha256:f1e27433127b6a88d00583cccc41f0b2b98e5fee0f30811d1f692136fdc266cf",
   "codes": [
-    "PR_PLANNED_PATH_UNRESOLVED",
-    "PR_ADAPTER_RESULT_INVALID",
     "PR_POSITIVE_EVIDENCE_MISSING",
-    "PR_PRODUCTION_PATH_UNPROVEN",
-    "PR_MUTATION_EVIDENCE_MISSING",
-    "PR_MUTATION_DID_NOT_BITE",
-    "PR_CONTROL_NOT_RESTORED",
-    "PR_TRANSCRIPT_MISSING",
-    "PR_AUTHORITY_INADMISSIBLE",
     "PR_EVIDENCE_STALE"
   ],
   "status": "fail",
-  "issuedAt": "2026-08-20T21:45:46.258Z",
+  "issuedAt": "2026-08-20T23:02:04.402Z",
   "signerPublicKey": "4K3JOygx9kXStVuiYM8fjT485DCzR4yqnTy5Sch+TOQ=",
-  "signature": "MQLWQghXm9434sqWTkHYWcOEYuDUZIUEDr8NMRwWuX8KQKBrjWQiUqIgFBv8gvNTSdE3FzvS73aw4S6HkDyxAg=="
+  "signature": "f7alycH5Qi2dE8CVpK47q+DQUAcj6+VHyMQCMMBF19EpxgzM5vaC1iMHgZeYWKlMDSkiqYGqERSPMaW95A0jCA=="
 }
