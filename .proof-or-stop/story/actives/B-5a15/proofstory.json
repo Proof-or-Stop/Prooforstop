@@ -897,10 +897,6 @@
           },
           {
             "refKind": "existing",
-            "canonicalSourceRef": "basis-path:path:process-fact:verification_evidence_batch_add->consumer:storyMachine.checklistAllDone and validate verification coverage"
-          },
-          {
-            "refKind": "existing",
             "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/core/causal-evidence.ts#causalCanonical->consumer:packages/main/src/handlers/checklist.ts#causalCanonical"
           },
           {
@@ -942,6 +938,10 @@
           {
             "refKind": "existing",
             "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/core/causal-evidence.ts#verifyCausalDependencyDecision->consumer:packages/main/src/core/certification-window.ts#verifyCausalDependencyDecision"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "process-fact:verification_evidence_batch_add"
           }
         ]
       }
@@ -950,5 +950,5 @@
   "diagnosticGaps": [],
   "note": "\"Acceptance binding for B-5a15 U-03, preserving exact checklist coverage, independent selector verification, and strict downstream gates.\"",
   "createdAt": "2026-08-20T09:27:55.896Z",
-  "updatedAt": "2026-08-20T15:50:10.000Z"
+  "updatedAt": "2026-08-20T15:50:52.097Z"
 }
