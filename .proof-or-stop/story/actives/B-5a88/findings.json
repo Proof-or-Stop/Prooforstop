@@ -47,6 +47,588 @@
       ],
       "signatureTag": "missing|ts|topology-completeness-blocked",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-002",
+      "desc": "Mandatory verificationIntent coverage is incomplete despite non-failing evidence records. CHK-001:happy:0 states that canonical reviewer IDs are emitted and accepted by review_run_start, review_pass_set, init_check_set, and quorum, but its evidence only asserts canonicalAgentRoleId(lattice-review-quality) and brand-role-migration.test.mjs:17-29 exercises canonicalization/dispatch; none of those four consumers is executed. CHK-004:happy:0 and CHK-004:adversarial:0 are source-string scans plus bash -n; release-push-approval-migration.test.mjs:10-28 creates an approval and checks source/hook text, but does not execute hook acceptance for either schema or a second-consume/invalid/stale rejection. CHK-007:edge:0 records only node packages/main/dist/cli.js help, which does not execute the residue scanner distinction between frozen evidence and compatibility readers. These must intents therefore lack concrete behavioral verification.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-20T11:23:37.762Z",
+      "reviewRound": "2026-08-20T10:12:58.490Z",
+      "reviewRunId": "B-5a88:RR-012",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/proof-or-stop-review-test-coverage.md",
+          ".proof-or-stop-codex/agents/proof-or-stop-review-test-coverage.md",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "packages/main/tests/bin-alias-migration.test.mjs",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/prompt-role-migration.test.mjs",
+          "packages/main/tests/release-push-approval-migration.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "package-lock.json",
+          "package.json",
+          "packages/lab/package.json",
+          "packages/main/package.json",
+          "packages/main/templates/agents/",
+          "packages/utils/package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e518610dd31cc60ec9459556620346536e2b052a0f1e7791f42dc2f430dec654",
+      "files": [
+        "packages/main/tests/brand-role-migration.test.mjs",
+        "packages/main/tests/release-push-approval-migration.test.mjs",
+        "packages/main/tests/bin-alias-migration.test.mjs",
+        "packages/main/src/core/release-push-approval.ts",
+        ".githooks/pre-push",
+        "scripts/verify-lattice-residue.mjs"
+      ],
+      "signatureTag": "missing|mjs|mandatory-verificationintent-coverage",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-003",
+      "desc": "concept-cleanup: the renamed proof-or-stop-evaluator-cli prompt still contains the inert legacy marker <!-- lattice:start-slot --> at packages/main/templates/agents/proof-or-stop-evaluator-cli.md:7, .claude/agents/proof-or-stop-evaluator-cli.md:7, and .proof-or-stop-codex/agents/proof-or-stop-evaluator-cli.md:7. The migration decision requires M5.1 to replace this marker with the canonical load-bearing guide and M5.5 to ensure agent_prompt serves no unexpanded lattice:start-slot marker; renaming the frontmatter/file left this active concept residue in all three shipped assets.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-20T11:27:12.475Z",
+      "reviewRound": "2026-08-20T10:12:58.490Z",
+      "reviewRunId": "B-5a88:RR-015",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "packages/lab/package-lock.json",
+          "packages/main/package-lock.json",
+          "packages/utils/package-lock.json"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/proof-or-stop-evaluator-cli.md",
+          ".proof-or-stop-codex/agents/proof-or-stop-evaluator-cli.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/templates/agents/proof-or-stop-evaluator-cli.md"
+        ],
+        "scanEscalationReason": "Repository-wide lattice residue scan performed; active residues were triaged against the B-5a88 plan and migration decision docs."
+      },
+      "_hash": "376f122b57256baa046875dd691ac614de13adf2cd7a3f072d4e7364ca5fc45d",
+      "files": [
+        "packages/main/templates/agents/proof-or-stop-evaluator-cli.md",
+        ".claude/agents/proof-or-stop-evaluator-cli.md",
+        ".proof-or-stop-codex/agents/proof-or-stop-evaluator-cli.md"
+      ],
+      "signatureTag": "missing|md|concept-cleanup-renamed",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-004",
+      "desc": "concept-cleanup: the renamed sibling lockfiles still serialize a lattice npm bin for their local ../main dependency at packages/utils/package-lock.json:29 and packages/lab/package-lock.json:28 (bin {\"lattice\":\"dist/cli.js\"}). The current package and main lockfile publish only proof-or-stop, and CHK-007 requires the lattice bin removed; leaving it in these modified sibling lockfiles preserves stale install metadata that can reintroduce the retired command in sibling-package installs.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-20T11:27:30.312Z",
+      "reviewRound": "2026-08-20T10:12:58.490Z",
+      "reviewRunId": "B-5a88:RR-015",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "packages/lab/package-lock.json",
+          "packages/main/package-lock.json",
+          "packages/utils/package-lock.json"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/proof-or-stop-evaluator-cli.md",
+          ".proof-or-stop-codex/agents/proof-or-stop-evaluator-cli.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/templates/agents/proof-or-stop-evaluator-cli.md"
+        ],
+        "scanEscalationReason": "Repository-wide lattice residue scan performed; active residues were triaged against the B-5a88 plan and migration decision docs."
+      },
+      "_hash": "33e2cd51bb24c0300cc46fe0ec946b0058deac64d8112675b33a1d54ab52b6bc",
+      "files": [
+        "packages/utils/package-lock.json",
+        "packages/lab/package-lock.json"
+      ],
+      "signatureTag": "missing|json|concept-cleanup-renamed",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-005",
+      "desc": "quality-gate: package.json:2 changes the root package identity to proof-or-stop, but scripts/verify-core-package-rename.mjs:16-20 and :83-92 still enforce the superseded OQ-2 boundary that the root must remain lattice. Reproduction: node scripts/verify-core-package-rename.mjs exits 1 with rootPackageName=proof-or-stop and FAIL ROOT package name stays lattice; this also breaks the root test:serial-reference chain. Update the verifier and its contract evidence to match CHK-005 before accepting the migration.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-20T11:29:01.123Z",
+      "reviewRound": "2026-08-20T10:12:58.490Z",
+      "reviewRunId": "B-5a88:RR-014",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop-codex/agents/proof-or-stop-review-quality.md",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/artifact-schema.ts",
+          "packages/main/src/core/managed-markers.ts",
+          "packages/main/templates/agents/proof-or-stop-review-quality.md",
+          "scripts/verify-core-package-rename.mjs"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/lab/package.json",
+          "packages/lab/src/index.ts",
+          "packages/lab/src/register.ts",
+          "packages/lab/src/tool-defs.ts",
+          "packages/main/src/claude-md-sync.ts",
+          "packages/main/src/core/agent-asset-resolution.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/core/managed-assets.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/core/release-push-approval.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/reviewer-opt-in.ts",
+          "packages/main/src/core/reviewer-quorum.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/version-bump.ts",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/reviewer-batch.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/handlers/transition-effects.ts",
+          "packages/main/src/handlers/validate-channel.ts",
+          "packages/main/src/init-assets.ts",
+          "packages/utils/package.json",
+          "packages/utils/src/index.ts",
+          "packages/utils/src/register.ts",
+          "packages/utils/src/tool-defs.ts",
+          "scripts/verify-codex-assets.mjs",
+          "scripts/verify-entrypoints.mjs",
+          "scripts/verify-lattice-residue.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "74a9231b23ff44f8263dee7cbd8e91e9325be8b88a2f1a7908b168d6161ad56e",
+      "files": [
+        "package.json",
+        "scripts/verify-core-package-rename.mjs"
+      ],
+      "signatureTag": "missing|json|quality-gate-package",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-006",
+      "desc": "CHK-001 concept cleanup remains incomplete: the renamed implementer prompt still teaches the unsupported legacy role ID lattice-reviewer at packages/main/templates/agents/proof-or-stop-implementer.md:47, .claude/agents/proof-or-stop-implementer.md:141, and .proof-or-stop-codex/agents/proof-or-stop-implementer.md:141. The canonical role registry defines proof-or-stop-* roles and specific lattice-* compatibility aliases; lattice-reviewer is not a registered role. Users receiving these shipped prompts are therefore still instructed with a stale, unsupported role form, contrary to the requirement that new role assets use canonical IDs. severity=high",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-20T12:01:45.972Z",
+      "reviewRound": "2026-08-20T10:12:58.490Z",
+      "reviewRunId": "B-5a88:RR-017",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/proof-or-stop-evaluator-cli.md",
+          ".proof-or-stop-codex/agents/proof-or-stop-evaluator-cli.md",
+          ".proof-or-stop-codex/agents/proof-or-stop-review-concept.md",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "packages/lab/package-lock.json",
+          "packages/main/package-lock.json",
+          "packages/main/src/core/managed-markers.ts",
+          "packages/main/templates/agents/proof-or-stop-evaluator-cli.md",
+          "packages/main/templates/agents/proof-or-stop-implementer.md",
+          "packages/utils/package-lock.json"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/proof-or-stop-implementer.md",
+          ".githooks/pre-push",
+          ".proof-or-stop-codex/agents/proof-or-stop-implementer.md",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "package-lock.json",
+          "package.json",
+          "packages/lab/package.json",
+          "packages/main/package.json",
+          "packages/main/src/claude-md-sync.ts",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/artifact-schema.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/release-push-approval.ts",
+          "packages/main/src/init-assets.ts",
+          "packages/main/templates/agents/",
+          "packages/main/tests/bin-alias-migration.test.mjs",
+          "packages/main/tests/prompt-role-migration.test.mjs",
+          "packages/utils/package.json",
+          "scripts/verify-codex-assets.mjs",
+          "scripts/verify-entrypoints.mjs",
+          "scripts/verify-lattice-residue.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Repository-wide concept residue scan performed; compatibility aliases, historical story evidence, migration fixtures, and the F-003/F-004 remediation were triaged separately from active shipped prompt residue."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "954616403dd11e9eb01e3bfdbe74b43c245bd2145fcfb5f09cd9179da942b819"
+      },
+      "readDiagnostics": [],
+      "_hash": "39d111302ff5ae11a04f9ae347382b96761e5771949daefa57191aab247db583",
+      "files": [
+        "packages/main/templates/agents/proof-or-stop-implementer.md",
+        ".claude/agents/proof-or-stop-implementer.md",
+        ".proof-or-stop-codex/agents/proof-or-stop-implementer.md"
+      ],
+      "signatureTag": "missing|md|concept-cleanup-remains",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-007",
+      "desc": "verificationIntent executable-path gap: CHK-001:happy:0, CHK-001:edge:0, and CHK-001:adversarial:0 at .proof-or-stop/story/actives/B-5a88/checklist.json:55,66,77, plus CHK-005:edge:0 and CHK-005:adversarial:0 at checklist.json:604,615, all import packages/main/dist.staging. After npm --prefix packages/main run build, the exact five commands fail with ERR_MODULE_NOT_FOUND because this build emits packages/main/dist. The semantic equivalents against dist pass, but the declared must-intent commands and their prior pass receipts cannot be truthfully rerun at the current HEAD until the paths are corrected.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-20T12:02:35.235Z",
+      "reviewRound": "2026-08-20T10:12:58.490Z",
+      "reviewRunId": "B-5a88:RR-020",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "packages/main/tests/artifact-schema-migration.test.mjs",
+          "packages/main/tests/bin-alias-migration.test.mjs",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/package-identity-migration.test.mjs",
+          "packages/main/tests/prompt-role-migration.test.mjs",
+          "packages/main/tests/release-push-approval-migration.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "package-lock.json",
+          "package.json",
+          "packages/lab/package.json",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/release-push-approval.ts",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/tasks/version-bump-smoke.ts",
+          "packages/main/templates/agents/",
+          "packages/utils/package.json",
+          "scripts/verify-global-lab-entrypoint.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "954616403dd11e9eb01e3bfdbe74b43c245bd2145fcfb5f09cd9179da942b819"
+      },
+      "readDiagnostics": [],
+      "_hash": "6b4ffa47ad6cc4295a5a90a9cf9277ea28d0f09ff4665cf77d5ae6702a18a4b8",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/checklist.json",
+        "packages/main/tests/brand-role-migration.test.mjs",
+        "packages/main/tests/package-identity-migration.test.mjs"
+      ],
+      "signatureTag": "missing|json|verificationintent-executable-path",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-008",
+      "desc": "Current topology receipt cannot pass because implementation provenance lacks a session-bound lattice-implementer dispatch; the existing business commits are implementer-authored but a registered implementer dispatch must be created after returning to DEV before topology closure can be certified.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-20T12:28:37.616Z",
+      "reviewRound": "2026-08-20T10:12:58.490Z",
+      "reviewRunId": "B-5a88:RR-027",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop-codex/agents/proof-or-stop-review-topology-critic.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/handlers/story-dispatch.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+          "packages/main/src/core/acceptance-coverage-basis.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "f7a15657eb9e4d2791e403b5c9a5cce657dbc1f05f5ef01cdca7f75262dd78b6"
+      },
+      "readDiagnostics": [],
+      "_hash": "f8d2ed7e9803734f8be0640758f718d6b4bb4edf9a5816973d5a2052c65d8e31",
+      "files": [
+        "packages/main/src/core/topology-critic-receipt.ts",
+        "packages/main/src/handlers/story-dispatch.ts"
+      ],
+      "signatureTag": "missing|ts|current-topology-receipt",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-009",
+      "desc": "RI-005 wave 2 coverage freshness gap: all 21 must verificationIntent entries in .proof-or-stop/story/actives/B-5a88/checklist.json have one result=pass receipt, but none is bound to the current RI-005 cutoff (HEAD ffa12c10ed8e0de4a809ae60c6f4fb2a73d2b004, materialHash 0be487b014c2edd266e5e8e822305deffe9866e7e06a1497b66a2aa8caa9f6c3, storyFilesHash 5487935bb6af6080d1f1fc69b738185e15635dc0ece86b5bc67bcf7ee13d0f62). The receipts are bound to older heads/material/story hashes, so current REVIEW has no fresh must-intent coverage. Existing F-007 remains independently verified: five declared commands use absent packages/main/dist.staging while packages/main/dist exists; that path defect is not repaired or made admissible by the stale receipts. Re-run or refresh the must-intent evidence at the current cutoff before a coverage pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-20T12:37:04.862Z",
+      "reviewRound": "2026-08-20T10:12:58.490Z",
+      "reviewRunId": "B-5a88:RR-030",
+      "readManifest": {
+        "filesReadFully": [
+          ".githooks/pre-push",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "package-lock.json",
+          "package.json",
+          "packages/lab/package-lock.json",
+          "packages/lab/package.json",
+          "packages/lab/src/index.ts",
+          "packages/lab/src/register.ts",
+          "packages/lab/src/tool-defs.ts",
+          "packages/main/package-lock.json",
+          "packages/main/package.json",
+          "packages/main/src/claude-md-sync.ts",
+          "packages/main/src/cli.ts",
+          "packages/main/src/cli/help-renderer.ts",
+          "packages/main/src/core/agent-asset-resolution.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/artifact-contract.ts",
+          "packages/main/src/core/artifact-schema.ts",
+          "packages/main/src/core/brand-env.ts",
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/init-check-gate.ts",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/core/managed-assets.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/core/release-push-approval.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/reviewer-opt-in.ts",
+          "packages/main/src/core/reviewer-quorum.ts",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/version-bump.ts",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/delivery-check.ts",
+          "packages/main/src/handlers/done-required-validation.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/init-check.ts",
+          "packages/main/src/handlers/lattice-cli.ts",
+          "packages/main/src/handlers/review-preflight.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/reviewer-batch.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/handlers/transition-effects.ts",
+          "packages/main/src/handlers/workflow.ts",
+          "packages/main/src/init-assets.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/version-bump-smoke.ts",
+          "packages/main/tests/artifact-schema-migration.test.mjs",
+          "packages/main/tests/bin-alias-migration.test.mjs",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/package-identity-migration.test.mjs",
+          "packages/main/tests/prompt-role-migration.test.mjs",
+          "packages/main/tests/release-push-approval-migration.test.mjs",
+          "packages/utils/package-lock.json",
+          "packages/utils/package.json",
+          "packages/utils/src/index.ts",
+          "packages/utils/src/register.ts",
+          "packages/utils/src/tool-defs.ts",
+          "scripts/verify-codex-assets.mjs",
+          "scripts/verify-entrypoints.mjs",
+          "scripts/verify-global-lab-entrypoint.mjs",
+          "scripts/verify-lattice-residue.mjs",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/templates/agents/"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "62e1b23587cd5f4369ff67615800d82d86610835d4882a627daa1527353d5301"
+      },
+      "readDiagnostics": [],
+      "_hash": "4fc2e88af4ccbfd23e4d4a9e7fc33967e77c7124f93f580986a124c4cc04670e",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/checklist.json",
+        "packages/main/tests/brand-role-migration.test.mjs",
+        "packages/main/tests/managed-marker-migration.test.mjs",
+        "packages/main/tests/artifact-schema-migration.test.mjs",
+        "packages/main/tests/release-push-approval-migration.test.mjs",
+        "packages/main/tests/package-identity-migration.test.mjs",
+        "packages/main/tests/prompt-role-migration.test.mjs",
+        "packages/main/tests/bin-alias-migration.test.mjs",
+        "packages/main/src/core/agent-role-identity.ts",
+        "packages/main/src/core/agent-dispatch-registry.ts",
+        "packages/main/src/core/runtime-environment-checks.ts",
+        "packages/main/src/tasks/version-bump-smoke.ts"
+      ],
+      "signatureTag": "missing|json|wave-coverage-freshness",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-010",
+      "desc": "RI-005 topology receipt remains blocked: the current implementation provenance has no session-bound lattice-implementer dispatch, so the topology critic cannot truthfully issue a PASS or admissible receipt. This is the same topology/implementer-dispatch provenance family as B-5a88:F-008.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-20T12:40:55.635Z",
+      "reviewRound": "2026-08-20T10:12:58.490Z",
+      "reviewRunId": "B-5a88:RR-031",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/review-run.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": 70160
+        },
+        "digest": "d36f8eb4afcdea718b4d8bc5b7e7237627915a570f26eb93ee29bdafb2376e4a"
+      },
+      "readDiagnostics": [],
+      "_hash": "5f987e458de0c0d1528055be6f25c249fa9d79379db7e81155590896173e42c4",
+      "files": [
+        "packages/main/src/core/topology-critic-receipt.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/handlers/review-inventory.ts",
+        "packages/main/src/handlers/review-run.ts",
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+      ],
+      "signatureTag": "topology-implementer-dispatch-provenance",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
