@@ -103,6 +103,15 @@ function sourceFiles(entry: ProcessFactRegistryEntry): string[] {
   return stable([...(entry.producerSourceRefs ?? []), ...(entry.consumerSourceRefs ?? [])]);
 }
 
+function isExistingDirectory(root: string, file: string): boolean {
+  try { return lstatSync(resolve(root, file)).isDirectory(); }
+  catch { return false; }
+}
+
+function sourceFileRefs(root: string, files: readonly string[]): string[] {
+  return stable(files.filter(file => !isExistingDirectory(root, file)));
+}
+
 function processFactPath(entry: ProcessFactRegistryEntry): string {
   return `path:process-fact:${entry.name}->consumer:${entry.consumerGate ?? '<audit-only>'}`;
 }
@@ -1170,20 +1179,13 @@ function buildBoundedSourceGraph(input: AcceptanceDiscoveryInput): BoundedSource
   const seedFiles = sourceSeedFiles(input, generatedStoryArtifactDirectory(readContext, input.storyId));
   const sourceInventory = configuredSourceInventory(root, readContext);
   const blindSpots: string[] = [...sourceInventory.blindSpots];
-  const registryCandidates = stable(['packages/main/src/registry.ts', ...PROCESS_FACT_REGISTRY.flatMap(sourceFiles)])
-    .filter(file => {
-      // A process-fact sourceFiles entry may intentionally point at a directory
-      // (for example the agent prompt asset root).  Scope references are still
-      // retained by sourceSeedFiles, but never pass the directory to the bounded
-      // file reader: it is not a source file and would create a false blind spot.
-      try {
-        return !lstatSync(resolve(root, file)).isDirectory();
-      } catch {
-        // Missing file references remain in the candidate set so the normal
-        // unreadable-source diagnostic stays observable and fail-closed.
-        return true;
-      }
-    });
+  // A process-fact sourceFiles entry may intentionally point at a directory
+  // (for example the agent prompt asset root).  Scope references are still
+  // retained by sourceSeedFiles, but never pass the directory to the bounded
+  // file reader: it is not a source file and would create a false blind spot.
+  // Missing file references remain in the candidate set so their normal
+  // unreadable-source diagnostic stays observable and fail-closed.
+  const registryCandidates = sourceFileRefs(root, ['packages/main/src/registry.ts', ...PROCESS_FACT_REGISTRY.flatMap(sourceFiles)]);
   const analysisContext = createBindingAnalysisContext(root, stable([...sourceInventory.files, ...seedFiles, ...registryCandidates]), readContext);
   const registryFiles = registryCandidates.filter(file => file === 'packages/main/src/registry.ts'
     || executableText(analysisContext.sourceFiles.get(file)?.text ?? '').includes('registerBatch('));
@@ -1227,7 +1229,7 @@ function buildBoundedSourceGraph(input: AcceptanceDiscoveryInput): BoundedSource
   const inferredHandlerFiles = new Map<string, string>();
   for (const factory of factories) for (const command of factory.commandKeys) inferredHandlerFiles.set(command, factory.sourceFile);
   const entryFiles = (entry: ProcessFactRegistryEntry): string[] => stable([
-    ...sourceFiles(entry),
+    ...sourceFileRefs(root, sourceFiles(entry)),
     ...commandNamesForEntry(entry).map(command => inferredHandlerFiles.get(command) ?? '').filter(Boolean),
   ]);
   const closure = new Set(seedFiles);
@@ -1288,11 +1290,13 @@ function registeredProcessFactClosureFromGraph(graph: BoundedSourceGraph): Regis
     pathRefs: stable(reached.map(processFactPath)),
     sourceInventoryRefs: stable(reached.flatMap(entry => [
       `process-fact:${entry.name}:${digestCanonicalJson(entry)}`,
-      ...((entry.producerSourceRefs ?? []).map(file => `source-file:producer:${encodeURIComponent(entry.name)}:${file}`)),
-      ...((entry.consumerSourceRefs ?? []).map(file => `source-file:consumer:${encodeURIComponent(entry.name)}:${file}`)),
+      ...sourceFileRefs(graph.readContext.physicalRoot, entry.producerSourceRefs ?? [])
+        .map(file => `source-file:producer:${encodeURIComponent(entry.name)}:${file}`),
+      ...sourceFileRefs(graph.readContext.physicalRoot, entry.consumerSourceRefs ?? [])
+        .map(file => `source-file:consumer:${encodeURIComponent(entry.name)}:${file}`),
       ...(entry.artifact ? [`artifact:${entry.artifact.path}`] : []),
     ]).concat(
-      graph.closureFiles.map(file => `source-file:closure:${file}`),
+      sourceFileRefs(graph.readContext.physicalRoot, graph.closureFiles).map(file => `source-file:closure:${file}`),
       // B-cc10 F-031: name the config spelling this project ACTUALLY has. This was a
       // hardcoded 'lattice.config.json' sitting beside dynamically-derived siblings, so a
       // canonical-only project inventoried a file it does not contain — producing a spurious
@@ -1326,6 +1330,7 @@ function adapterId(method: CoverageDiscoveryMethodV1): string {
 
 function sourceProvenance(context: SourceReadContext, file: string): string {
   try {
+    if (isExistingDirectory(context.physicalRoot, file)) return `source-directory:${file}`;
     const read = readSourceSafely(context, file);
     if (read.text === undefined) return `source-file:${file}:uninspectable`;
     const semanticDigest = context.semanticDigests.get(file);
@@ -1525,7 +1530,10 @@ function buildResult(
     } else if (method === 'process_fact_registry') {
       pathRefs = graph.entries.map(processFactPath);
       blindSpots = graphBlindSpots;
-      provenanceRefs = stable(graph.entries.flatMap(entry => [`process-fact:${entry.name}:${digestCanonicalJson(entry)}`, ...sourceFiles(entry).map(file => sourceProvenance(graph.readContext, file))]));
+      provenanceRefs = stable(graph.entries.flatMap(entry => [
+        `process-fact:${entry.name}:${digestCanonicalJson(entry)}`,
+        ...sourceFileRefs(input.workspaceRoot, sourceFiles(entry)).map(file => sourceProvenance(graph.readContext, file)),
+      ]));
     } else if (method === 'handler_dispatch_inventory') {
       const commands = catalogCommands(graph.readContext);
       const registeredKeys = new Set(graph.factories.filter(factory => factory.registered).flatMap(factory => factory.commandKeys));
@@ -1542,7 +1550,8 @@ function buildResult(
       provenanceRefs = stable(['packages/main/src/cli/command-catalog.ts', 'packages/main/src/registry.ts', ...graph.factories.map(factory => factory.sourceFile)]
         .map(file => sourceProvenance(graph.readContext, file)));
     } else if (method === 'static_call_graph') {
-      const inspectableEntries = graph.entries.filter(entry => sourceFiles(entry).every(file => existsSync(resolve(input.workspaceRoot, file))));
+      const inspectableEntries = graph.entries.filter(entry => sourceFileRefs(input.workspaceRoot, sourceFiles(entry))
+        .every(file => existsSync(resolve(input.workspaceRoot, file))));
       const staticCalls = staticCallPaths(input, graph);
       pathRefs = inspectableEntries.map(processFactPath);
       pathRefs.push(...staticCalls.paths);
