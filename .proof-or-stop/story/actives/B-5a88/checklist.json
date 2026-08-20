@@ -84,17 +84,22 @@
         {
           "intentRef": "CHK-001:happy:0",
           "kind": "logic_test",
-          "verdict": "success",
-          "file": "packages/main/src/core/agent-role-identity.ts",
           "command": "node --input-type=module -e \"import assert from \\\"node:assert/strict\\\"; import {canonicalAgentRoleId} from \\\"./packages/main/dist.staging/core/agent-role-identity.js\\\"; assert.equal(canonicalAgentRoleId(\\\"lattice-review-quality\\\"),\\\"proof-or-stop-review-quality\\\"); console.log(\\\"CHK-001 canonical role smoke: PASS\\\")\"",
           "result": "pass",
-          "note": "Canonical role resolution maps a lattice reviewer input to the proof-or-stop output spelling.",
-          "headHash": "2c0f92bc4eac52eb5dc332b678e3cf13a5ffda2d",
-          "materialHash": "d903508de381187a921b8a83171cfdc191dac23bb820c7575d59f7c3844fa089",
-          "storyFilesHash": "f6cd9a6b05415bf61a3c8c141efda7359dd27925595813c92ef591c5222182be",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-20T08:54:37.421Z"
+          "note": "Re-ran the pinned canonical role verifier against the current build; canonical reviewer output is accepted.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "0b7b962674f541c151c294158a2c8621df1cab234403086f03527265bfee4be7",
+            "outputTail": "CHK-001 canonical role smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T10:11:45.449Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "0f5c199c1cf3a23850ceae3a5473e4802acc0465",
+          "materialHash": "065b7ceee89b7a485d9f8c2b675c850b04ba566776e3bfb8e9225d0a055e692e",
+          "storyFilesHash": "a9d8324e30251fa6ad5ec54091383e90df00c63d6515235afdc2c684a6504eb7",
+          "timestamp": "2026-08-20T10:11:45.683Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
