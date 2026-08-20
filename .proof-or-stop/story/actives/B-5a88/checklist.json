@@ -643,16 +643,22 @@
         {
           "intentRef": "CHK-005:edge:0",
           "kind": "logic_test",
-          "file": "packages/main/src/tasks/version-bump-smoke.ts",
           "command": "node packages/main/dist.staging/tasks/version-bump-smoke.js",
           "result": "pass",
-          "note": "Tool-executed version smoke confirms canonical root identity and readable legacy lattice root identity.",
-          "headHash": "2c0f92bc4eac52eb5dc332b678e3cf13a5ffda2d",
-          "materialHash": "d903508de381187a921b8a83171cfdc191dac23bb820c7575d59f7c3844fa089",
-          "storyFilesHash": "f6cd9a6b05415bf61a3c8c141efda7359dd27925595813c92ef591c5222182be",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-20T08:54:37.421Z"
+          "note": "Re-ran the pinned version-bump smoke against the current build; canonical root identity remains inside the self-host safety gate.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "8cc4bc9365c57c76e577140a05225c4a564830490c9580da254959292feaa061",
+            "outputTail": "version-bump smoke passed: 88 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T10:12:33.134Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "edbdc56895559455f7f6625c153a432e387ecae7",
+          "materialHash": "065b7ceee89b7a485d9f8c2b675c850b04ba566776e3bfb8e9225d0a055e692e",
+          "storyFilesHash": "a9d8324e30251fa6ad5ec54091383e90df00c63d6515235afdc2c684a6504eb7",
+          "timestamp": "2026-08-20T10:12:33.333Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
