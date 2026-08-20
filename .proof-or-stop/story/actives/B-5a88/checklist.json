@@ -96,7 +96,19 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "release_approve_push creates a proof-or-stop.remote-push-approval.v1 approval; pre-push accepts one fresh old or new schema and consumes it once.",
+      "files": {
+        "modify": [
+          ".githooks/pre-push",
+          "packages/main/src/core/release-push-approval.ts",
+          "packages/main/src/handlers/workflow.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/release-push-approval-migration.test.mjs"
+        ]
+      }
     },
     {
       "id": "CHK-005",
