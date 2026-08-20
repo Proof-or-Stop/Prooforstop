@@ -3,7 +3,7 @@
     {
       "id": "CHK-001",
       "title": "Reproduce and close the remaining candidate-routing freshness leak",
-      "context": "Pop the B-3f3d stash@{0} fixture, confirm it still fails, then determine whether candidate SELECTION or only ORDER moves under changedPaths churn. Bind a sorted set of path+contentHash if order is the cause. Evidence: corpusDigest identical while candidateSpecSetDigest moved.",
+      "context": "Read the preserved failing reference only through immutable git object 2c9395fa22e18ca40ba3ee47d9d40c2ad748e009; never apply or pop a stash. Reconstruct a minimal story-branch regression, confirm it initially fails, then determine whether candidate selection or only order moves under changedPaths churn. If order is the cause, bind a sorted path+contentHash set. The completed test must positively assert that a semantically unchanged re-route leaves the epoch State: OPEN, not merely absence of one blocker.",
       "status": "pending",
       "startTime": null,
       "endTime": null
@@ -11,7 +11,7 @@
     {
       "id": "CHK-002",
       "title": "Guard malformed candidate input at the gate boundary",
-      "context": "captureReviewInventoryScope must not throw on a non-array candidates value, since persistInvalidationIfDrifted has no try/catch at six gate lifecycle call sites and verifyCandidateSpecSet does not validate Array.isArray. Fail closed with a blocker rather than an uncaught TypeError.",
+      "context": "Persist a malformed candidate-spec artifact whose candidates field is truthy but not an array, then exercise the real review-inventory handler path through persistInvalidationIfDrifted. It must fail closed with a deterministic candidate-artifact blocker and must never throw an uncaught TypeError; verifier-only coverage is insufficient because this path is called by multiple lifecycle gates without a catch boundary.",
       "status": "pending",
       "startTime": null,
       "endTime": null
@@ -19,7 +19,7 @@
     {
       "id": "CHK-003",
       "title": "Add the end-to-end routing-neutral regression fixture",
-      "context": "B-3f3d:F-108. review-inventory-handler-smoke.ts must branch to story/<id> first so git diff main...HEAD is non-empty, otherwise changedPaths never populates and the fixture proves nothing. Assert the epoch stays OPEN after an unrelated commit plus a re-route.",
+      "context": "Build the regression in the handler smoke from immutable fixture facts, not by applying a stash. The test must check out a story/<id> branch first so git diff main...HEAD has changedPaths, commit an unrelated file, rerun candidate_spec_route, and positively assert the frozen epoch remains State: OPEN with no candidate-routing mutation. A test that merely lacks one blocker is insufficient because another invalidation could still close the epoch.",
       "status": "pending",
       "startTime": null,
       "endTime": null
