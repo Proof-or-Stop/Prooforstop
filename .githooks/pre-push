@@ -82,7 +82,11 @@ try {
 } catch {
   reject(`missing one-shot approval file: ${path.relative(root, approvalPath)}`);
 }
-if (!approval || approval.schema !== "lattice.remote-push-approval.v1") {
+const acceptedApprovalSchemas = new Set([
+  "proof-or-stop.remote-push-approval.v1",
+  "lattice.remote-push-approval.v1",
+]);
+if (!approval || !acceptedApprovalSchemas.has(approval.schema)) {
   reject("approval schema is missing or invalid");
 }
 if (approval.branch !== "refs/heads/main" || remoteRef !== "refs/heads/main") {
