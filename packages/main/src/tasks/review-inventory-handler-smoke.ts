@@ -897,6 +897,27 @@ console.log('B-8af0 malformed candidates fail closed: PASS');
 console.log('B-8af0 malformed candidate variants deterministic: PASS');
 console.log('B-8af0 malformed candidate structural guard: PASS');
 
+const staleDigestContentTamper = setup();
+cli(staleDigestContentTamper.root, 'candidate_spec_route', { storyId, hosts: false });
+cli(staleDigestContentTamper.root, 'review_inventory_begin', { storyId });
+const validArtifactBeforeTamper = staleDigestContentTamper.store.readCandidateSpecSet(storyId);
+assert.ok(validArtifactBeforeTamper, 'candidate route must persist a valid-shape artifact before stale-digest content tampering');
+assert.equal(verifyCandidateSpecSet(validArtifactBeforeTamper), true, 'stale-digest handler fixture must start from a valid routed artifact');
+assert.ok(validArtifactBeforeTamper.candidates.length > 0, 'stale-digest handler fixture requires a selected candidate row');
+const staleDigestContentTamperedArtifact = {
+  ...validArtifactBeforeTamper,
+  candidates: validArtifactBeforeTamper.candidates.map((candidate, index) => index === 0
+    ? { ...candidate, contentHash: 'e'.repeat(64) }
+    : candidate),
+};
+staleDigestContentTamper.store.writeCandidateSpecSet(storyId, staleDigestContentTamperedArtifact);
+const staleDigestContentTamperStatus = cli(staleDigestContentTamper.root, 'review_inventory_status', { storyId });
+assert.match(staleDigestContentTamperStatus, /State: INVALIDATED/);
+assert.match(staleDigestContentTamperStatus, /OPEN_REVIEW_INVENTORY_INVALID_CANDIDATE_ARTIFACT/);
+assert.match(staleDigestContentTamperStatus, /Invalid candidate routing artifact: persisted candidate-spec-set\.json failed structural and artifactDigest verification\./);
+assert.doesNotMatch(staleDigestContentTamperStatus, /TypeError/);
+console.log('B-8af0 handler artifactDigest tamper fail closed: PASS');
+
 const publicationRace = setup();
 cli(publicationRace.root, 'review_inventory_begin', { storyId });
 const publicationLane = 'lattice-review-concept';
