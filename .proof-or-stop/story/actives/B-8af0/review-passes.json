@@ -203,6 +203,130 @@
       },
       "readDiagnostics": [],
       "_hash": "07513e1a2bb20d2716a09126d885d8301a8dc7d57273f57a5a36fb56ac45cc41"
+    },
+    {
+      "id": "B-8af0:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "Reviewed the full current diff. A malformed persisted artifact now creates a signed INVALIDATED epoch with the stable blocker and terminal run boundary in the same write; it never grants an OPEN inventory or accepts review evidence. Existing cancellation/rebegin semantics remain explicit, and no concept-residue or new blocker was found.",
+      "createdAt": "2026-08-20T12:01:19.686Z",
+      "reviewRound": "2026-08-20T12:00:08.932Z",
+      "reviewRunId": "B-8af0:RR-015",
+      "envelopeId": "a4f0f6e6bc1ed309000a155aa0d6991d8d249f7bcfe1fbc2dc76968d17f01a8c",
+      "writerSessionId": "sess-7910df854ed25d48b9951940c9ba8e0f",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "B-3f3d-FOLLOWUP-STORIES.md",
+          "packages/main/src/core/candidate-spec-routing.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/candidate-spec-routing.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "04391ce43a00cb191df7383e73b2a414dbda5e61642f8fad9efefb219ea911f3"
+    },
+    {
+      "id": "B-8af0:RP-009",
+      "agent": "lattice-review-docs",
+      "note": "Reviewed the 10 changed declarations and one relevant decision paragraph. F-005 is now delivered: review_inventory_begin writes a signed INVALIDATED epoch with OPEN_REVIEW_INVENTORY_INVALID_CANDIDATE_ARTIFACT in the same transaction, renders it directly, and the string/object pre-begin fixture verifies durable no-OPEN behavior. No docs-code drift remains.",
+      "createdAt": "2026-08-20T12:01:46.642Z",
+      "reviewRound": "2026-08-20T12:00:08.932Z",
+      "reviewRunId": "B-8af0:RR-018",
+      "envelopeId": "48e1479e0e0b772b34ee8ee09e598b23b838d9d40d4193d19b5641f5e526d715",
+      "writerSessionId": "sess-7910df854ed25d48b9951940c9ba8e0f",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/candidate-spec-routing.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/candidate-spec-routing.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "95e96e45722f4cabf8f18b065a6795c564d123047ffcec5ba0d9c8000abe3e35"
+    },
+    {
+      "id": "B-8af0:RP-010",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed remediation 49f7549: recomputed-digest string/object malformed candidates injected before begin atomically render and persist INVALIDATED with the stable blocker; real handler smoke passes without TypeError.",
+      "createdAt": "2026-08-20T12:03:22.266Z",
+      "reviewRound": "2026-08-20T12:00:08.932Z",
+      "reviewRunId": "B-8af0:RR-016",
+      "envelopeId": "a8ee542133cd39ba7e8f78906feb990ad55534eafddbfe6f758a2775784686b8",
+      "writerSessionId": "sess-ce1e4a32823650df10074d112e637d38",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/candidate-spec-routing.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/candidate-spec-routing.ts",
+          "packages/main/src/tasks/candidate-spec-routing-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "31c0f43f4bad266714bbf7f065c6801dea9ea35c3c03be6a761571c7b756503f"
+      },
+      "readDiagnostics": [],
+      "_hash": "df9c73ec21b3d45e2678ae886ec58d7355d04ab2d95f36f8b3383ad76025214f"
+    },
+    {
+      "id": "B-8af0:RP-011",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage pass: current build real-handler smoke proves a structurally valid selected-path or contentHash mutation invalidates with OPEN_REVIEW_INVENTORY_CANDIDATE_ROUTING_MUTATION; recomputed artifactDigest, canonical reordering, and story-branch changedPaths-neutral reroute remain covered and pass.",
+      "createdAt": "2026-08-20T12:04:37.766Z",
+      "reviewRound": "2026-08-20T12:00:08.932Z",
+      "reviewRunId": "B-8af0:RR-017",
+      "envelopeId": "f85ccbeb78804bcee8533137b25b2c9359560244ec99f351e0a475f4180fd042",
+      "writerSessionId": "sess-3bfcf13c815bb20e1116d14eb4fbd9cb",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "7c2659c35bd4e6d0c6c9d7daba127ef21e8cd18c0c42c253257e6ea7376d23e1"
+      },
+      "readDiagnostics": [],
+      "_hash": "32f60feeb1e2a6fbffeb0d6c3f4f827cc8656ad2963641d44ae89509d62c48a9"
     }
   ]
 }
