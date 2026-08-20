@@ -52,10 +52,35 @@
         "617fb9cb57cf49dad90fe0f3e4cc561bed72e202d99548ae7f57bb6e78212ba9",
         "7bdaf4935cce62f86fce64cc70f959173c0d73cf8acc5d6d93324f904bec8b35"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "F-001 and F-005 proved review_inventory_begin could sign OPEN for a persisted malformed artifact; this anchor now atomically persists the documented typed INVALIDATED terminal state and is exercised by the real handler smoke.",
+      "timestamp": "2026-08-20T11:59:38.044Z",
+      "paths": [
+        "packages/main/src/handlers/review-inventory.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/handlers/review-inventory.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "282187fd92219289ce4d143e2c0e93a92248cdb3",
+      "materialHash": "93cfea0e00ed722a8d95ca9392230888a8bcdfb87af118f7b813177f3141f233",
+      "anchors": [
+        "review_inventory_begin"
+      ],
+      "hunkDigests": [
+        "269810f8cb39afb9a29de7eda9b143b1bbf096ecc9f33c0b6adba823265208b5",
+        "f4c56cd7cf637916cbd4c8f607e8aa78ae768aebf2b4ff78e4dbe465bfbbf91f",
+        "4473c7d6f273b540c039f21f6538a46a544ab9782f6721af08b666100908d536",
+        "e08fbc2bab74491781226f0305fb3719999817e9925d13c471358e8e1e0ac66d"
+      ]
     }
   ],
   "createdAt": "2026-08-20T09:20:27.970Z",
-  "updatedAt": "2026-08-20T10:24:43.150Z",
+  "updatedAt": "2026-08-20T11:59:38.044Z",
   "fileRules": [
     {
       "path": "packages/main/src/handlers/candidate-spec-routing.ts",
