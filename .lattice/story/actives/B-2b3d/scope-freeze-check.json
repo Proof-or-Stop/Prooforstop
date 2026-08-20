@@ -1,0 +1,73 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-2b3d",
+  "checkedAt": "2026-08-20T01:01:39.633Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "87e85a8acff944daa9968098fdcacacf5976a6f61d93e1293944f3a73b8c2922",
+  "executionBoundaryHash": "2cb0e4785677a9be40909c76b2d7ea8c7387f03482e8d111b001bc65b8256a96",
+  "freshnessHash": "d0f86bc15747e6ec19508459620bec5b5e17d8665f17709b68b3ff9e2412ed1a",
+  "effectiveExcludedKeywords": [
+    "Editing another story's test surface, including packages/main/tests/validate-resource-claims.test.mjs (B-4f25)",
+    "Mid-run write monitoring or any claim stronger than net-state invariance; spec section 2.2 forbids describing the four-tuple as proof of zero mid-run writes",
+    "Redefining materialHash; this story CALLS currentMaterialHash from packages/main/src/core/evidence-freshness.ts and does not reimplement or alter it",
+    "Resolving the section 1 matcher-value bounds contradiction or the specificity-metric inversion; both are owned by B-595c and neither is a dependency of section 2",
+    "Retiring the v1 surface (red_evidence_create, redEvidenceRecordSatisfied); retirement is section 6's adoption point",
+    "Section 3 supersedes-chain integrity and the idempotency key; that is a separate leaf",
+    "Section 4 owner-gated quarantine and recover operations; a separate leaf",
+    "Section 5 gate-consumption query contract; a separate leaf and the W2/W3 boundary"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Editing another story's test surface, including packages/main/tests/validate-resource-claims.test.mjs (B-4f25)",
+      "source": "scopeBoundary.excluded",
+      "text": "Editing another story's test surface, including packages/main/tests/validate-resource-claims.test.mjs (B-4f25)",
+      "excluded": true
+    },
+    {
+      "keyword": "Mid-run write monitoring or any claim stronger than net-state invariance; spec section 2.2 forbids describing the four-tuple as proof of zero mid-run writes",
+      "source": "scopeBoundary.excluded",
+      "text": "Mid-run write monitoring or any claim stronger than net-state invariance; spec section 2.2 forbids describing the four-tuple as proof of zero mid-run writes",
+      "excluded": true
+    },
+    {
+      "keyword": "Redefining materialHash; this story CALLS currentMaterialHash from packages/main/src/core/evidence-freshness.ts and does not reimplement or alter it",
+      "source": "scopeBoundary.excluded",
+      "text": "Redefining materialHash; this story CALLS currentMaterialHash from packages/main/src/core/evidence-freshness.ts and does not reimplement or alter it",
+      "excluded": true
+    },
+    {
+      "keyword": "Resolving the section 1 matcher-value bounds contradiction or the specificity-metric inversion; both are owned by B-595c and neither is a dependency of section 2",
+      "source": "scopeBoundary.excluded",
+      "text": "Resolving the section 1 matcher-value bounds contradiction or the specificity-metric inversion; both are owned by B-595c and neither is a dependency of section 2",
+      "excluded": true
+    },
+    {
+      "keyword": "Retiring the v1 surface (red_evidence_create, redEvidenceRecordSatisfied); retirement is section 6's adoption point",
+      "source": "scopeBoundary.excluded",
+      "text": "Retiring the v1 surface (red_evidence_create, redEvidenceRecordSatisfied); retirement is section 6's adoption point",
+      "excluded": true
+    },
+    {
+      "keyword": "Section 3 supersedes-chain integrity and the idempotency key; that is a separate leaf",
+      "source": "scopeBoundary.excluded",
+      "text": "Section 3 supersedes-chain integrity and the idempotency key; that is a separate leaf",
+      "excluded": true
+    },
+    {
+      "keyword": "Section 4 owner-gated quarantine and recover operations; a separate leaf",
+      "source": "scopeBoundary.excluded",
+      "text": "Section 4 owner-gated quarantine and recover operations; a separate leaf",
+      "excluded": true
+    },
+    {
+      "keyword": "Section 5 gate-consumption query contract; a separate leaf and the W2/W3 boundary",
+      "source": "scopeBoundary.excluded",
+      "text": "Section 5 gate-consumption query contract; a separate leaf and the W2/W3 boundary",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "afa0f312198dd5f0880afbe6ed4ae6c5402e55e8e0ac8df4feb92a077ade2512"
+}
