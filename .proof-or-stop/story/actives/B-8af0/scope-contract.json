@@ -26,9 +26,36 @@
     "packages/main/src/Authority or production behavior"
   ],
   "scopeChangeReason": "The real story-branch red fixture proved changedPaths is being promoted into protected exact-path candidate selection, so closing F-107/F-108 requires the narrow producer correction in currentStoryRoutingInput in addition to canonical barrier ordering.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "The declared B-8af0 closure requires strict candidate artifact shape validation and typed invalidation propagation; both anchors implement the approved F-107/F-111 behavior.",
+      "timestamp": "2026-08-20T10:24:43.150Z",
+      "paths": [
+        "packages/main/src/core/candidate-spec-routing.ts",
+        "packages/main/src/handlers/review-inventory.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/candidate-spec-routing.ts",
+        "packages/main/src/handlers/review-inventory.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "c3dcb470479d15c09d89b535674637046a2a1a2c",
+      "materialHash": "c9ede6af98196b040226f14fda956c2c03a3cc664ed2a0f4a508fe78161989e2",
+      "anchors": [
+        "isRecord",
+        "assertOpenInventoryFresh"
+      ],
+      "hunkDigests": [
+        "617fb9cb57cf49dad90fe0f3e4cc561bed72e202d99548ae7f57bb6e78212ba9",
+        "7bdaf4935cce62f86fce64cc70f959173c0d73cf8acc5d6d93324f904bec8b35"
+      ]
+    }
+  ],
   "createdAt": "2026-08-20T09:20:27.970Z",
-  "updatedAt": "2026-08-20T09:40:10.300Z",
+  "updatedAt": "2026-08-20T10:24:43.150Z",
   "fileRules": [
     {
       "path": "packages/main/src/handlers/candidate-spec-routing.ts",
