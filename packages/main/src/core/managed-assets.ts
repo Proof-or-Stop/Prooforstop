@@ -68,6 +68,13 @@ import {
 } from './prompt-registry.js';
 import { loadConfig } from './config.js';
 import { resolveProjectGitRoot } from './story-signed-workspace-resolution.js';
+import {
+  containsManagedMarker,
+  extractManagedBlock,
+  hasManagedBlock,
+  inspectManagedBlock,
+  replaceManagedBlock,
+} from './managed-markers.js';
 
 export type ManagedAssetStatus =
   | 'OK'
@@ -203,7 +210,6 @@ interface ManagedAssetPathInfo {
 // reappeared on every CLI invocation and repeatedly tripped the half-done
 // detector. Route it through the resolver like every other state path.
 const MANIFEST_REL_PATH = `${PROOF_OR_STOP_STATE_DIR}/managed-assets.json`;
-const INIT_DOC_SECTION_RE = /<!--\s*lattice:start\s*-->[\s\S]*?<!--\s*lattice:end\s*-->/;
 
 function packageRoot(): string {
   return join(dirname(fileURLToPath(import.meta.url)), '..', '..');
@@ -348,13 +354,11 @@ function removeLegacyScopePretoolHookIfGenerated(root: string, host: 'claude' | 
 }
 
 function extractManagedSection(content: string): string {
-  const match = content.match(INIT_DOC_SECTION_RE);
-  if (!match) return normalizeContent(content);
-  return match[0];
+  return extractManagedBlock(content, 'document');
 }
 
 function hasManagedMarkers(content: string): boolean {
-  return INIT_DOC_SECTION_RE.test(content);
+  return hasManagedBlock(content, 'document');
 }
 
 function safeJsonParse(text: string): unknown {
@@ -401,7 +405,7 @@ function collectApplyWarnings(root: string): string[] {
 
 function isManagedPrompt(actual: string, file: string): boolean {
   const base = file.replace(/\.md$/, '');
-  return actual.includes('<!-- lattice:start -->')
+  return containsManagedMarker(actual, 'document')
     || actual.includes(`name: ${base}`)
     || actual.includes('name: lattice-');
 }
@@ -1135,10 +1139,14 @@ function evaluateDefinition(root: string, def: ManagedAssetDefinition, manifest:
   if (def.kind === 'managed-block') {
     const desiredSection = extractManagedSection(expected ?? '');
     const manifestUnchanged = Boolean(manifestEntry?.contentHash && manifestEntry.contentHash === actualHash);
-    if (!hasManagedMarkers(actual)) {
-      return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'INCOMPATIBLE', expectedHash: sha256(desiredSection), actualHash, reason: 'file exists without Proof-or-Stop managed markers', action: 'fix manually: add markers or merge the managed section' };
+    const inspection = inspectManagedBlock(actual, 'document');
+    if (inspection.status !== 'valid') {
+      const reason = inspection.status === 'missing'
+        ? 'file exists without Proof-or-Stop managed markers'
+        : `managed block markers are malformed: ${inspection.reason}`;
+      return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'INCOMPATIBLE', expectedHash: sha256(desiredSection), actualHash, reason, action: 'fix manually: add one complete, non-nested managed block before syncing' };
     }
-    const actualSection = actual.match(INIT_DOC_SECTION_RE)?.[0] ?? '';
+    const actualSection = inspection.block.text;
     if (sha256(actualSection) === sha256(desiredSection)) {
       return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'OK', expectedHash: sha256(desiredSection), actualHash, reason: 'managed section matches template', action: 'none' };
     }
@@ -1202,7 +1210,9 @@ function applyDefinition(root: string, def: ManagedAssetDefinition, item: Manage
     if (actual === null) {
       writeFileSync(full, expected);
     } else {
-      writeFileSync(full, actual.replace(INIT_DOC_SECTION_RE, extractManagedSection(expected)));
+      const updated = replaceManagedBlock(actual, extractManagedSection(expected), 'document');
+      if (updated === null) return false;
+      writeFileSync(full, updated);
     }
     return true;
   }

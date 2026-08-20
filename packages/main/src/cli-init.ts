@@ -53,6 +53,7 @@ import {
   listRuntimeArtifactIgnorePatterns,
 } from './core/runtime-artifact-registry.js';
 import { PROOF_OR_STOP_STORY_DIR, PROOF_OR_STOP_DIR } from './core/lattice-paths.js';
+import { extractManagedBlock, hasManagedBlock, inspectManagedBlock, replaceManagedBlock } from './core/managed-markers.js';
 // B-cc10 CHK-002: `init` is a WRITER, so it uses the CANONICAL names only — the
 // read-both contract resolves deprecated spellings for reads but never writes
 // them, otherwise two on-disk copies of the same state would diverge.
@@ -71,7 +72,6 @@ const HOOK_FILES = ['log-tools.cjs', LATTICE_SCOPE_PRETOOL_HOOK_FILE, ENGLISH_ON
 
 // 通过 proof-or-stop init 调用时 argv[2]='init'，跳过；直接运行 init entrypoint 时 argv[2] 是目标目录
 const initArgs = process.argv[2] === 'init' ? process.argv.slice(3) : process.argv.slice(2);
-const INIT_DOC_SECTION_RE = /<!--\s*lattice:start\s*-->[\s\S]*?<!--\s*lattice:end\s*-->/;
 const GITIGNORE_RUNTIME_BLOCK_RE = new RegExp(
   `${escapeRegExp(LATTICE_RUNTIME_IGNORE_BLOCK_START)}[\\s\\S]*?${escapeRegExp(LATTICE_RUNTIME_IGNORE_BLOCK_END)}`,
 );
@@ -336,13 +336,11 @@ function writeExecutable(relPath: string, content: string): boolean {
 }
 
 function extractManagedSection(content: string): string {
-  const match = content.match(INIT_DOC_SECTION_RE);
-  if (!match) return content;
-  return match[0];
+  return extractManagedBlock(content, 'document');
 }
 
 function hasManagedMarkers(content: string): boolean {
-  return INIT_DOC_SECTION_RE.test(content);
+  return hasManagedBlock(content, 'document');
 }
 
 function writeManagedMarkdown(relPath: string, desiredContent: string, label: string) {
@@ -356,12 +354,21 @@ function writeManagedMarkdown(relPath: string, desiredContent: string, label: st
   }
 
   const existing = readFileSync(full, 'utf-8');
-  if (!INIT_DOC_SECTION_RE.test(existing)) {
+  const inspection = inspectManagedBlock(existing, 'document');
+  if (inspection.status === 'missing') {
     console.log(`  - ${label} (exists, no Proof-or-Stop managed markers, skip)`);
     return;
   }
+  if (inspection.status === 'malformed') {
+    console.log(`  - ${label} (malformed Proof-or-Stop managed markers, skip)`);
+    return;
+  }
 
-  const updated = existing.replace(INIT_DOC_SECTION_RE, extractManagedSection(desiredContent));
+  const updated = replaceManagedBlock(existing, extractManagedSection(desiredContent), 'document');
+  if (updated === null) {
+    console.log(`  - ${label} (managed markers became ambiguous, skip)`);
+    return;
+  }
   if (updated !== existing) {
     writeFileSync(full, updated);
     console.log(`  ✓ ${label} (Proof-or-Stop section synced)`);
