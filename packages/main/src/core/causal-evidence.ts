@@ -471,8 +471,8 @@ export interface ExecuteCausalEvidenceResult {
 /** Execute/reuse one key, then evaluate the caller's selector independently. */
 export async function executeCausalEvidence(args: ExecuteCausalEvidenceArgs): Promise<ExecuteCausalEvidenceResult> {
   const key = createCausalExecutionKey(args.identity);
-  if (args.preflight && !verifyCausalPreflight(args.preflight)) {
-    throw new Error('causal evidence refused: missing_or_forged_preflight [causal_preflight_invalid]');
+  if (!args.preflight || !verifyCausalPreflight(args.preflight)) {
+    throw new Error('causal evidence refused: missing_or_forged_preflight commandExecutions=0 evidenceWrites=0 [causal_preflight_invalid]');
   }
 
   const existing = key.reusable ? args.receiptStore?.readCausalEvidenceReceipt(key.identity.storyId, key.key) : null;

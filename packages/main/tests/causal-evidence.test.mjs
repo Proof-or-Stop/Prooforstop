@@ -438,8 +438,8 @@ test('CHK-001: keys bind all identity fields, deduplicate exact complete work, a
   let incompleteExecutions = 0;
   const incompleteIdentity = { cwd: repoRoot, storyId: identity.storyId, command: identity.command };
   await Promise.all([
-    executeCausalEvidence({ identity: incompleteIdentity, selector: 'MARKER-A', run: async () => { incompleteExecutions++; return { code: 0, output: 'MARKER-A' }; }, batch }),
-    executeCausalEvidence({ identity: incompleteIdentity, selector: 'MARKER-A', run: async () => { incompleteExecutions++; return { code: 0, output: 'MARKER-A' }; }, batch }),
+    executeCausalEvidence({ identity: incompleteIdentity, selector: 'MARKER-A', run: async () => { incompleteExecutions++; return { code: 0, output: 'MARKER-A' }; }, batch, preflight: preflight() }),
+    executeCausalEvidence({ identity: incompleteIdentity, selector: 'MARKER-A', run: async () => { incompleteExecutions++; return { code: 0, output: 'MARKER-A' }; }, batch, preflight: preflight() }),
   ]);
   assert.equal(incompleteExecutions, 2, 'incomplete identities are never reused as PASS');
 });
@@ -973,6 +973,35 @@ test('CHK-004: preflight refuses exact readiness failures with zero execution/ev
     /missing_or_forged_preflight/,
   );
   assert.equal(forgedLaunches, 0);
+
+  let missingCommandExecutions = 0;
+  let missingEvidenceWrites = 0;
+  const missingPreflightStore = {
+    readCausalEvidenceReceipt: () => null,
+    writeCausalEvidenceReceipt: () => { missingEvidenceWrites++; },
+  };
+  const missingPreflightBatch = createCausalEvidenceBatch();
+  await assert.rejects(
+    executeCausalEvidence({
+      identity: baseIdentity('B-causal-missing-preflight'),
+      selector: 'MISSING-PREFLIGHT-CHILD',
+      run: async () => {
+        missingCommandExecutions++;
+        return { code: 0, output: 'MISSING-PREFLIGHT-CHILD' };
+      },
+      receiptStore: missingPreflightStore,
+      batch: missingPreflightBatch,
+    }),
+    /missing_or_forged_preflight.*commandExecutions=0 evidenceWrites=0/,
+  );
+  assert.equal(missingCommandExecutions, 0);
+  assert.equal(missingEvidenceWrites, 0);
+  assert.equal(missingPreflightBatch.ledger.intentCount, 0);
+  assert.equal(deriveCausalMetrics(missingPreflightBatch.ledger).commandExecutions, 0);
+  emitIntentMarker(
+    'CHK-004:adversarial:1',
+    'missing preflight REFUSED before child runner: commandExecutions=0; evidenceWrites=0',
+  );
 });
 
 test('CHK-006: atomic pre-run revalidation refuses before the child runner with zero counters or writes', async () => {
@@ -1123,6 +1152,7 @@ test('CHK-005: metrics are zero-safe and tamper-resistant canonical-ledger proje
       selector: `INCOMPLETE-${index}`,
       run: async () => ({ code: 0, output: `INCOMPLETE-${index}` }),
       batch: incompleteMetricsBatch,
+      preflight: preflight(),
     });
     assert.equal(result.key.reusable, false);
   }
