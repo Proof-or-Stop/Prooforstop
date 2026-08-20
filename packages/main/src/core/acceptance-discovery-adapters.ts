@@ -126,6 +126,8 @@ interface BoundedSourceGraph {
   entries: ProcessFactRegistryEntry[];
   factories: FactoryInventory[];
   sourceScans: Map<string, LocalImportCallScan>;
+  sourceFiles: Map<string, ts.SourceFile>;
+  checker: ts.TypeChecker;
   blindSpots: string[];
   readContext: SourceReadContext;
   directoryFingerprints: DirectoryFingerprint[];
@@ -845,7 +847,12 @@ function createBindingAnalysisContext(root: string, files: readonly string[], re
     writeFile: () => undefined,
   };
   const program = ts.createProgram({ rootNames: [...absoluteSources.keys()], options, host });
-  return { root, physicalRoot, sourceFiles, readBlindSpots, checker: program.getTypeChecker(), readContext };
+  const programSourceFiles = new Map<string, ts.SourceFile>();
+  for (const [file, source] of sourceFiles) {
+    const programSource = program.getSourceFile(source.fileName);
+    if (programSource) programSourceFiles.set(file, programSource);
+  }
+  return { root, physicalRoot, sourceFiles: programSourceFiles, readBlindSpots, checker: program.getTypeChecker(), readContext };
 }
 
 function unwrapExpression(expression: ts.Expression): ts.Expression {
@@ -1280,7 +1287,8 @@ function buildBoundedSourceGraph(input: AcceptanceDiscoveryInput): BoundedSource
   }
   return {
     seedFiles, sourceInventoryFiles: sourceInventory.files, closureFiles: stable([...closure]), entries: [...reached], factories,
-    sourceScans, blindSpots: stable(blindSpots), readContext, directoryFingerprints: sourceInventory.directoryFingerprints,
+    sourceScans, sourceFiles: analysisContext.sourceFiles, checker: analysisContext.checker,
+    blindSpots: stable(blindSpots), readContext, directoryFingerprints: sourceInventory.directoryFingerprints,
   };
 }
 
@@ -1406,86 +1414,108 @@ function exportedCallableCount(source: ts.SourceFile, expected: string): number 
   return count;
 }
 
-function callableBodies(source: ts.SourceFile, expected: string): ts.Node[] {
-  const bodies: ts.Node[] = [];
-  const propertyName = (name: ts.PropertyName | undefined): string | null => {
-    if (!name) return null;
-    if (ts.isIdentifier(name) || ts.isStringLiteral(name) || ts.isNumericLiteral(name)) return name.text;
-    return null;
+interface CallableBody {
+  name: string;
+  body: ts.Node;
+  declaration: ts.Node;
+  symbol: ts.Symbol | undefined;
+}
+
+interface CalledCallable {
+  name: string;
+  symbol: ts.Symbol | undefined;
+}
+
+function propertyName(name: ts.PropertyName | undefined): string | null {
+  if (!name) return null;
+  if (ts.isIdentifier(name) || ts.isStringLiteral(name) || ts.isNumericLiteral(name)) return name.text;
+  return null;
+}
+
+function callableBodies(source: ts.SourceFile, expected: string | undefined, checker: ts.TypeChecker): CallableBody[] {
+  const bodies: CallableBody[] = [];
+  const add = (nameNode: ts.Node | undefined, body: ts.Node | undefined): void => {
+    if (!nameNode || body === undefined || !ts.isIdentifier(nameNode) && !ts.isStringLiteral(nameNode) && !ts.isNumericLiteral(nameNode)) return;
+    const name = nameNode.text;
+    if (expected !== undefined && name !== expected) return;
+    bodies.push({ name, body, declaration: nameNode.parent, symbol: checker.getSymbolAtLocation(nameNode) });
   };
-  for (const statement of source.statements) {
-    if (ts.isFunctionDeclaration(statement) && statement.name?.text === expected && statement.body) bodies.push(statement.body);
-    if (!ts.isVariableStatement(statement)) continue;
-    for (const declaration of statement.declarationList.declarations) {
-      if (!ts.isIdentifier(declaration.name) || declaration.name.text !== expected || !declaration.initializer) continue;
-      const initializer = unwrapExpression(declaration.initializer);
-      if (ts.isArrowFunction(initializer) || ts.isFunctionExpression(initializer)) bodies.push(initializer.body);
-    }
-  }
-  const visitMethods = (node: ts.Node): void => {
-    if (ts.isMethodDeclaration(node) && propertyName(node.name) === expected && node.body) bodies.push(node.body);
-    ts.forEachChild(node, visitMethods);
-  };
-  visitMethods(source);
-  const visitPropertyFunctions = (node: ts.Node): void => {
-    if (ts.isPropertyAssignment(node) && propertyName(node.name) === expected) {
+  const visit = (node: ts.Node): void => {
+    if (ts.isFunctionDeclaration(node) && node.body) add(node.name, node.body);
+    if (ts.isMethodDeclaration(node) && node.body) add(node.name, node.body);
+    if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name) && node.initializer) {
       const initializer = unwrapExpression(node.initializer);
-      if ((ts.isArrowFunction(initializer) || ts.isFunctionExpression(initializer)) && initializer.body) bodies.push(initializer.body);
+      if (ts.isArrowFunction(initializer) || ts.isFunctionExpression(initializer)) add(node.name, initializer.body);
     }
-    ts.forEachChild(node, visitPropertyFunctions);
+    if (ts.isPropertyAssignment(node)) {
+      const initializer = unwrapExpression(node.initializer);
+      if ((ts.isArrowFunction(initializer) || ts.isFunctionExpression(initializer)) && initializer.body) add(node.name, initializer.body);
+    }
+    ts.forEachChild(node, visit);
   };
-  visitPropertyFunctions(source);
+  visit(source);
   return bodies;
 }
 
-function callableNamesCalledBy(source: ts.SourceFile, expected: string): string[] {
-  const called = new Set<string>();
-  const inspectBody = (node: ts.Node): void => {
-    if (ts.isCallExpression(node)) {
-      const callee = unwrapExpression(node.expression);
-      if (ts.isIdentifier(callee)) called.add(callee.text);
-    }
-    ts.forEachChild(node, inspectBody);
-  };
-  for (const body of callableBodies(source, expected)) inspectBody(body);
-  return [...called];
+function uniqueCallableBodies(bodies: readonly CallableBody[]): CallableBody[] {
+  return [...new Map(bodies.map(body => [body.symbol ?? body.declaration, body])).values()];
 }
 
-function sameFileCallableReachable(source: ts.SourceFile, caller: string, callee: string): boolean {
-  const pending = [caller];
-  const visited = new Set<string>();
+function inspectCallableBody(body: CallableBody, checker: ts.TypeChecker): CalledCallable[] {
+  const called: CalledCallable[] = [];
+  const inspect = (node: ts.Node, root: boolean): void => {
+    if (!root && (ts.isFunctionDeclaration(node) || ts.isMethodDeclaration(node)
+      || ts.isArrowFunction(node) || ts.isFunctionExpression(node))) return;
+    if (ts.isCallExpression(node)) {
+      const callee = unwrapExpression(node.expression);
+      if (ts.isIdentifier(callee)) called.push({ name: callee.text, symbol: checker.getSymbolAtLocation(callee) });
+    }
+    ts.forEachChild(node, child => inspect(child, false));
+  };
+  inspect(body.body, true);
+  return called;
+}
+
+function uniqueCallable(source: ts.SourceFile, expected: string, checker: ts.TypeChecker): CallableBody | null {
+  const candidates = uniqueCallableBodies(callableBodies(source, expected, checker));
+  return candidates.length === 1 && candidates[0].symbol ? candidates[0] : null;
+}
+
+function sameFileCallableReachable(source: ts.SourceFile, caller: string, callee: string, checker: ts.TypeChecker): boolean {
+  const callerBody = uniqueCallable(source, caller, checker);
+  const calleeBody = uniqueCallable(source, callee, checker);
+  if (!callerBody || !calleeBody) return false;
+  const pending = [callerBody];
+  const visited = new Set<ts.Symbol>();
   while (pending.length > 0) {
     const current = pending.shift()!;
-    if (visited.has(current)) continue;
-    visited.add(current);
-    for (const called of callableNamesCalledBy(source, current)) {
-      if (called === callee) return true;
-      if (callableBodies(source, called).length > 0) pending.push(called);
+    if (!current.symbol || visited.has(current.symbol)) continue;
+    visited.add(current.symbol);
+    for (const called of inspectCallableBody(current, checker)) {
+      if (called.symbol === calleeBody.symbol) return true;
+      if (!called.symbol) continue;
+      const target = uniqueCallableBodies(callableBodies(source, called.name, checker))
+        .find(candidate => candidate.symbol === called.symbol);
+      if (target) pending.push(target);
     }
   }
   return false;
 }
 
-function sameFileCallableCalls(source: ts.SourceFile, caller: string, callee: string): boolean {
-  return callableNamesCalledBy(source, caller).includes(callee);
-}
-
-function hasSameFileIncomingCall(source: ts.SourceFile, expected: string): boolean {
-  const candidates = new Set<string>();
-  const collect = (node: ts.Node): void => {
-    if (ts.isFunctionDeclaration(node) && node.name) candidates.add(node.name.text);
-    if (ts.isMethodDeclaration(node) && (ts.isIdentifier(node.name) || ts.isStringLiteral(node.name))) candidates.add(node.name.text);
-    if (ts.isPropertyAssignment(node) && (ts.isIdentifier(node.name) || ts.isStringLiteral(node.name))) candidates.add(node.name.text);
-    if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name)) candidates.add(node.name.text);
-    ts.forEachChild(node, collect);
-  };
-  collect(source);
-  return [...candidates].some(candidate => candidate !== expected && sameFileCallableCalls(source, candidate, expected));
+function hasSameFileIncomingCall(source: ts.SourceFile, expected: string, checker: ts.TypeChecker): boolean {
+  const expectedBody = uniqueCallable(source, expected, checker);
+  if (!expectedBody) return false;
+  const candidates = uniqueCallableBodies(callableBodies(source, undefined, checker));
+  return candidates.some(candidate =>
+    candidate.symbol !== expectedBody.symbol
+    && inspectCallableBody(candidate, checker).some(called => called.symbol === expectedBody.symbol));
 }
 
 function sourceSnapshot(graph: BoundedSourceGraph, file: string): ts.SourceFile | undefined {
-  const text = graph.readContext.snapshots.get(file);
-  return text === undefined ? undefined : ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true, scriptKindFor(file));
+  // All symbol-aware helpers must receive nodes from the same Program as the
+  // checker. A separately parsed snapshot has equivalent text but unrelated
+  // symbols, so an absent Program source is intentionally uninspectable.
+  return graph.sourceFiles.get(file);
 }
 
 function callableSignatureMentionsType(source: ts.SourceFile, expected: string, typeName: string): boolean {
@@ -1522,7 +1552,9 @@ function callableSignatureMentionsType(source: ts.SourceFile, expected: string, 
   return found;
 }
 
-function callableReferencesProperty(source: ts.SourceFile, expected: string, property: string): boolean {
+function callableReferencesProperty(source: ts.SourceFile, expected: string, property: string, checker: ts.TypeChecker): boolean {
+  const callable = uniqueCallable(source, expected, checker);
+  if (!callable) return false;
   let found = false;
   const inspect = (node: ts.Node): void => {
     if (found) return;
@@ -1530,21 +1562,58 @@ function callableReferencesProperty(source: ts.SourceFile, expected: string, pro
     if (ts.isElementAccessExpression(node) && ts.isStringLiteral(node.argumentExpression) && node.argumentExpression.text === property) found = true;
     ts.forEachChild(node, inspect);
   };
-  for (const body of callableBodies(source, expected)) inspect(body);
+  inspect(callable.body);
   return found;
 }
 
-function callableDirectlyCallsIdentifier(source: ts.SourceFile, expected: string, calleeName: string): boolean {
+function topLevelBindingSymbol(source: ts.SourceFile, localName: string, checker: ts.TypeChecker): ts.Symbol | undefined {
+  const symbols: ts.Symbol[] = [];
+  for (const statement of source.statements) {
+    if (ts.isImportDeclaration(statement)) {
+      const clause = statement.importClause;
+      if (clause?.name?.text === localName) {
+        const symbol = checker.getSymbolAtLocation(clause.name);
+        if (symbol) symbols.push(symbol);
+      }
+      if (clause?.namedBindings && ts.isNamedImports(clause.namedBindings)) {
+        for (const element of clause.namedBindings.elements) if (element.name.text === localName) {
+          const symbol = checker.getSymbolAtLocation(element.name);
+          if (symbol) symbols.push(symbol);
+        }
+      }
+      if (clause?.namedBindings && ts.isNamespaceImport(clause.namedBindings)
+        && clause.namedBindings.name.text === localName) {
+        const symbol = checker.getSymbolAtLocation(clause.namedBindings.name);
+        if (symbol) symbols.push(symbol);
+      }
+    }
+    if (ts.isVariableStatement(statement)) {
+      for (const declaration of statement.declarationList.declarations) {
+        if (ts.isIdentifier(declaration.name) && declaration.name.text === localName) {
+          const symbol = checker.getSymbolAtLocation(declaration.name);
+          if (symbol) symbols.push(symbol);
+        }
+      }
+    }
+  }
+  return symbols.length === 1 ? symbols[0] : undefined;
+}
+
+function callableDirectlyCallsIdentifier(source: ts.SourceFile, expected: string, calleeName: string, checker: ts.TypeChecker): boolean {
+  const callable = uniqueCallable(source, expected, checker);
+  const importedSymbol = topLevelBindingSymbol(source, calleeName, checker);
+  if (!callable || !importedSymbol) return false;
   let found = false;
   const inspect = (node: ts.Node): void => {
     if (found) return;
     if (ts.isCallExpression(node)) {
       const callee = unwrapExpression(node.expression);
-      if (ts.isIdentifier(callee) && callee.text === calleeName) found = true;
+      if (ts.isIdentifier(callee) && callee.text === calleeName
+        && checker.getSymbolAtLocation(callee) === importedSymbol) found = true;
     }
     ts.forEachChild(node, inspect);
   };
-  for (const body of callableBodies(source, expected)) inspect(body);
+  inspect(callable.body);
   return found;
 }
 
@@ -1571,7 +1640,7 @@ function reachesRegisteredHandler(graph: BoundedSourceGraph, endpoint: Verificat
   if (!source) return false;
   return graph.factories.some(factory => factory.registered && factory.sourceFile === endpoint.expectedFileRef
     && factory.commandKeys.some(command => command !== endpoint.expectedSymbolOrFact
-      && sameFileCallableReachable(source, command, endpoint.expectedSymbolOrFact)));
+      && sameFileCallableReachable(source, command, endpoint.expectedSymbolOrFact, graph.checker)));
 }
 
 function outputFactContractRelation(
@@ -1591,8 +1660,8 @@ function outputFactContractRelation(
   const receiptFact = fact.match(/^([A-Za-z_$][\w$]*)\.([A-Za-z_$][\w$]*)$/);
   if (receiptFact && producer.expectedFileRef === consumer.expectedFileRef
     && typeDeclaresProperty(producerSource, receiptFact[1], receiptFact[2])
-    && callableReferencesProperty(producerSource, producer.expectedSymbolOrFact, receiptFact[2])
-    && callableReferencesProperty(consumerSource, consumer.expectedSymbolOrFact, receiptFact[2])) {
+    && callableReferencesProperty(producerSource, producer.expectedSymbolOrFact, receiptFact[2], graph.checker)
+    && callableReferencesProperty(consumerSource, consumer.expectedSymbolOrFact, receiptFact[2], graph.checker)) {
     return true;
   }
 
@@ -1607,7 +1676,7 @@ function outputFactContractRelation(
     const valueImportUsed = consumerScan?.calledImports.some(call =>
       call.sourceFile === producer.expectedFileRef
         && (call.caller === consumer.expectedSymbolOrFact
-          || (call.caller !== null && sameFileCallableReachable(consumerSource, consumer.expectedSymbolOrFact, call.caller))));
+          || (call.caller !== null && sameFileCallableReachable(consumerSource, consumer.expectedSymbolOrFact, call.caller, graph.checker))));
     return typeImport === true
       && callableSignatureMentionsType(producerSource, producer.expectedSymbolOrFact, fact)
       && valueImportUsed === true;
@@ -1626,10 +1695,9 @@ function endpointMatchesArtifactKind(graph: BoundedSourceGraph, endpoint: Verifi
   }
   const registered = registeredHandlerEndpoint(graph, endpoint);
   if (endpoint.expectedArtifactKind === 'dispatch') return registered;
-  const source = graph.sourceScans.get(endpoint.expectedFileRef) ? graph.readContext.snapshots.get(endpoint.expectedFileRef) : undefined;
-  if (source === undefined) return false;
-  const parsed = ts.createSourceFile(endpoint.expectedFileRef, source, ts.ScriptTarget.Latest, true, scriptKindFor(endpoint.expectedFileRef));
-  const exported = exportedCallableCount(parsed, endpoint.expectedSymbolOrFact);
+  const source = sourceSnapshot(graph, endpoint.expectedFileRef);
+  if (!source) return false;
+  const exported = exportedCallableCount(source, endpoint.expectedSymbolOrFact);
   if (endpoint.expectedArtifactKind === 'handler') {
     const internal = exported === 0 && !registered && reachesRegisteredHandler(graph, endpoint);
     return Number(registered) + exported + Number(internal) === 1;
@@ -1643,10 +1711,9 @@ function endpointIsRuntimeReachable(graph: BoundedSourceGraph, endpoint: Verific
   const importedIncoming = [...graph.sourceScans.values()].some(scan => scan.calledImports.some(call =>
     call.sourceFile === endpoint.expectedFileRef && call.imported === endpoint.expectedSymbolOrFact));
   if (importedIncoming) return true;
-  const sourceText = graph.readContext.snapshots.get(endpoint.expectedFileRef);
-  if (sourceText === undefined) return false;
-  const source = ts.createSourceFile(endpoint.expectedFileRef, sourceText, ts.ScriptTarget.Latest, true, scriptKindFor(endpoint.expectedFileRef));
-  return hasSameFileIncomingCall(source, endpoint.expectedSymbolOrFact);
+  const source = sourceSnapshot(graph, endpoint.expectedFileRef);
+  if (!source) return false;
+  return hasSameFileIncomingCall(source, endpoint.expectedSymbolOrFact, graph.checker);
 }
 
 function producerConsumerRelation(
@@ -1655,21 +1722,19 @@ function producerConsumerRelation(
   producer: VerificationPlannedPathEndpointV1,
   consumer: VerificationPlannedPathEndpointV1,
 ): boolean {
-  const source = graph.readContext.snapshots.get(consumer.expectedFileRef) !== undefined
-    ? ts.createSourceFile(consumer.expectedFileRef, graph.readContext.snapshots.get(consumer.expectedFileRef)!, ts.ScriptTarget.Latest, true, scriptKindFor(consumer.expectedFileRef))
-    : undefined;
+  const source = sourceSnapshot(graph, consumer.expectedFileRef);
   const importedCall = (graph.sourceScans.get(consumer.expectedFileRef)?.calledImports ?? []).some(call =>
     call.sourceFile === producer.expectedFileRef && call.imported === producer.expectedSymbolOrFact
-      && (call.caller === consumer.expectedSymbolOrFact
+        && (call.caller === consumer.expectedSymbolOrFact
         || (call.caller !== null && source !== undefined
-          && sameFileCallableReachable(source, consumer.expectedSymbolOrFact, call.caller))));
+          && sameFileCallableReachable(source, consumer.expectedSymbolOrFact, call.caller, graph.checker))));
   const lexicalImportedCall = source !== undefined
     && reachesRegisteredHandler(graph, consumer)
     && (graph.sourceScans.get(consumer.expectedFileRef)?.imports ?? []).some(binding =>
       binding.sourceFile === producer.expectedFileRef && binding.imported === producer.expectedSymbolOrFact)
-    && callableDirectlyCallsIdentifier(source, consumer.expectedSymbolOrFact, producer.expectedSymbolOrFact);
+    && callableDirectlyCallsIdentifier(source, consumer.expectedSymbolOrFact, producer.expectedSymbolOrFact, graph.checker);
   const sameFileCall = producer.expectedFileRef === consumer.expectedFileRef && source
-    ? sameFileCallableReachable(source, consumer.expectedSymbolOrFact, producer.expectedSymbolOrFact) : false;
+    ? sameFileCallableReachable(source, consumer.expectedSymbolOrFact, producer.expectedSymbolOrFact, graph.checker) : false;
   const registryRelation = (producer.expectedArtifactKind === 'process_fact' || consumer.expectedArtifactKind === 'process_fact')
     && graph.entries.some(entry => commandNamesForEntry(entry).includes(producer.expectedSymbolOrFact)
     && (entry.consumerSourceRefs ?? []).includes(consumer.expectedFileRef)

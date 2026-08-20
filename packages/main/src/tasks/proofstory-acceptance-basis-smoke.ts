@@ -750,6 +750,25 @@ try {
     assert.ok(genericControl.adapterResults.find(result => result.method === 'static_call_graph')?.pathRefs.includes('actual:handler:packages/main/src/consumers/c2.ts#c2'), 'PRE_REVIEW exact consumer relation emits the actual consumer endpoint');
     const c2Path = genericControl.enumeratedPathRefs.find(path => path.includes('static-call:packages/main/src/handlers/review-run.ts#emitReviewRunFact') && path.includes('consumer:packages/main/src/consumers/c2.ts#consumeReviewRun'));
     assert.ok(c2Path, 'planned bounded graph discovers its non-ProofStory handler and external C2 consumer');
+    const sameFilePath = structuredClone(genericPlannedPath);
+    sameFilePath.producer.expectedFileRef = 'packages/main/src/handlers/review-run.ts';
+    sameFilePath.producer.expectedSymbolOrFact = 'emitReviewRunFact';
+    sameFilePath.consumers[0].expectedFileRef = 'packages/main/src/handlers/review-run.ts';
+    sameFilePath.consumers[0].expectedSymbolOrFact = 'review_run_start';
+    sameFilePath.outputFactRef = 'process-fact:review_run_start';
+    const sameFileInput = { ...genericInput, plannedPathRecords: [sameFilePath] };
+    const sameFileControl = reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(sameFileInput));
+    const sameFileStatic = sameFileControl.adapterResults.find(result => result.method === 'static_call_graph');
+    assert.ok(sameFileStatic?.pathRefs.includes('actual:handler:packages/main/src/handlers/review-run.ts#emitReviewRunFact'), 'same-file valid edge emits the producer endpoint');
+    const reviewRunSourceControl = bytes(genericRoot, 'packages/main/src/handlers/review-run.ts');
+    write(genericRoot, 'packages/main/src/handlers/review-run.ts', reviewRunSourceControl.replace(
+      'review_run_start() { return emitReviewRunFact(); },',
+      'review_run_start() { function emitReviewRunFact() { return false; } return emitReviewRunFact(); },',
+    ));
+    const sameNameShadow = reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(sameFileInput));
+    assert.equal(sameNameShadow.status, 'partial', 'same-name nested helper cannot satisfy a same-file callable edge');
+    assert.ok(!sameNameShadow.adapterResults.find(result => result.method === 'static_call_graph')?.pathRefs.includes('actual:handler:packages/main/src/handlers/review-run.ts#emitReviewRunFact'), 'same-name nested helper does not emit a false producer endpoint');
+    write(genericRoot, 'packages/main/src/handlers/review-run.ts', reviewRunSourceControl);
     write(genericRoot, 'packages/main/src/consumers/c2.ts', [
       "import { emitReviewRunFact as consumeReviewRun } from '../handlers/review-run.js';",
       'export const c2 = () => true;',
