@@ -24,7 +24,7 @@
       "desc": "CHK-001:content-and-selection-drift / CHK-001:order-only-scope lacks a selected-path mutation assertion. packages/main/src/tasks/review-inventory-handler-smoke.ts:809-818 mutates only candidates[0].contentHash; no valid artifact changes a selected candidate path and candidateSpecSet/basis then proves the real review_inventory_status handler emits OPEN_REVIEW_INVENTORY_CANDIDATE_ROUTING_MUTATION. The stated user outcome requires invalidation when either selected path or contentHash changes, so a regression that drops path from the canonical barrier remains undetected.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-20T11:15:15.959Z",
@@ -35,7 +35,11 @@
         "packages/main/src/tasks/review-inventory-handler-smoke.ts"
       ],
       "signatureTag": "missing|ts|content-selection-drift",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 49f7549. Fresh RR-017/RP-011 rebuild and real-handler smoke prove a structurally valid selected-path mutation updates candidates, candidateSpecSet, candidateBasis, and artifactDigest, then review_inventory_status renders INVALIDATED with OPEN_REVIEW_INVENTORY_CANDIDATE_ROUTING_MUTATION.",
+      "resolvedAt": "2026-08-20T12:05:41.899Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8af0:F-003",
