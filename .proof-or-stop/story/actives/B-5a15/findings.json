@@ -38,6 +38,44 @@
       "resolvedAt": "2026-08-20T14:36:21.135Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5a15:F-002",
+      "desc": "High: CertificationWindow accepts a stale causal advisory because CausalDependencyDecision has no current HEAD/materialHash/storyFilesHash binding. In packages/main/src/core/causal-evidence.ts:706-718 and 739-748, the decision carries only decision flags plus a self-hash; packages/main/src/core/certification-window.ts:703-715 verifies only that self-hash and gateAdmissible, then waives material drift whenever causalDecision=advisory and storyFilesHashAdvisory=true. Repro command: node --input-type=module -e with an advisory decision computed at currentMaterialHash=m2, then detectCertificationWindowMaterialDrift with live materialHash=m3 and the same storyFilesHash; observed {\"decisionCurrentMaterial\":\"m2\",\"liveMaterial\":\"m3\",\"causalDecision\":\"advisory\",\"decisionHashValid\":true,\"drift\":{\"drifted\":false}}. A stale signed advisory can therefore keep specialized evidence admissible after a further material change; bind the decision to current material/HEAD/storyFilesHash and verify those bindings at consumption.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-20T15:06:27.939Z",
+      "reviewRound": "2026-08-20T14:36:09.282Z",
+      "reviewRunId": "B-5a15:RR-015",
+      "_hash": "93f50ef6dc4a0ff63279420b57e16f45eb66d4dd552ffd6f1192e0554ac2a31a",
+      "files": [
+        "packages/main/src/core/causal-evidence.ts",
+        "packages/main/src/core/certification-window.ts"
+      ],
+      "signatureTag": "adversarial|ts|high-certificationwindow-accepts",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-003",
+      "desc": "High: the acceptance contract is not currently admissible for B-5a15. acceptance_basis --storyId=B-5a15 --json reports status=invalid, basisStatus=partial, receiptVerification.ok=false with AT_SCOPE_BINDING_MISSING and freshness mismatch; acceptance_topology_check reports structuralPass=false, topologyState=legacy_missing, and AT_MISSING_TOPOLOGY; pre_review_check_read reports PR_ARTIFACT_MISSING; acceptance_rollout_report_read and acceptance_rollout_check both report AR_REPORT_MISSING with receipt=missing and quorum=degraded-or-missing. The review envelope requires a current signed PASS and genuine full 3 rounds x 2 hosts, so observe-mode blocking=false is only diagnostic and cannot serve as acceptance evidence. Regenerate and verify the canonical basis/topology/pre-review/rollout artifacts before claiming this story accepted.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-20T15:07:56.782Z",
+      "reviewRound": "2026-08-20T14:36:09.282Z",
+      "reviewRunId": "B-5a15:RR-015",
+      "_hash": "dbfa2701a6d47d00c34743f3ea1d32457a2f7b68d8f0c76d9e9357caf64ae194",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a15/proofstory.json"
+      ],
+      "signatureTag": "missing|json|high-acceptance-contract",
+      "signatureTagSource": "auto"
     }
   ]
 }
