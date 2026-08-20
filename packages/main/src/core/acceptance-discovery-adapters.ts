@@ -956,11 +956,20 @@ function analyzeLocalImportCalls(context: BindingAnalysisContext, file: string):
   };
   visitModuleBindings(source);
   const callerFor = (node: ts.Node): string | null => {
+    const propertyName = (name: ts.PropertyName | undefined): string | null => {
+      if (!name) return null;
+      if (ts.isIdentifier(name) || ts.isStringLiteral(name) || ts.isNumericLiteral(name)) return name.text;
+      return null;
+    };
     let current: ts.Node | undefined = node;
     while (current && current !== source) {
       if (ts.isFunctionDeclaration(current) && current.name) return current.name.text;
+      if (ts.isMethodDeclaration(current)) return propertyName(current.name);
       if ((ts.isArrowFunction(current) || ts.isFunctionExpression(current)) && ts.isVariableDeclaration(current.parent)
         && ts.isIdentifier(current.parent.name)) return current.parent.name.text;
+      if ((ts.isArrowFunction(current) || ts.isFunctionExpression(current)) && ts.isPropertyAssignment(current.parent)) {
+        return propertyName(current.parent.name);
+      }
       current = current.parent;
     }
     return null;
@@ -1381,23 +1390,68 @@ function exportedCallableCount(source: ts.SourceFile, expected: string): number 
   return count;
 }
 
-function sameFileCallableCalls(source: ts.SourceFile, caller: string, callee: string): boolean {
-  let found = false;
-  const inspectBody = (node: ts.Node): void => {
-    if (ts.isCallExpression(node) && ts.isIdentifier(unwrapExpression(node.expression))
-      && (unwrapExpression(node.expression) as ts.Identifier).text === callee) found = true;
-    if (!found) ts.forEachChild(node, inspectBody);
+function callableBodies(source: ts.SourceFile, expected: string): ts.Node[] {
+  const bodies: ts.Node[] = [];
+  const propertyName = (name: ts.PropertyName | undefined): string | null => {
+    if (!name) return null;
+    if (ts.isIdentifier(name) || ts.isStringLiteral(name) || ts.isNumericLiteral(name)) return name.text;
+    return null;
   };
   for (const statement of source.statements) {
-    if (ts.isFunctionDeclaration(statement) && statement.name?.text === caller && statement.body) inspectBody(statement.body);
+    if (ts.isFunctionDeclaration(statement) && statement.name?.text === expected && statement.body) bodies.push(statement.body);
     if (!ts.isVariableStatement(statement)) continue;
     for (const declaration of statement.declarationList.declarations) {
-      if (!ts.isIdentifier(declaration.name) || declaration.name.text !== caller || !declaration.initializer) continue;
+      if (!ts.isIdentifier(declaration.name) || declaration.name.text !== expected || !declaration.initializer) continue;
       const initializer = unwrapExpression(declaration.initializer);
-      if (ts.isArrowFunction(initializer) || ts.isFunctionExpression(initializer)) inspectBody(initializer.body);
+      if (ts.isArrowFunction(initializer) || ts.isFunctionExpression(initializer)) bodies.push(initializer.body);
     }
   }
-  return found;
+  const visitMethods = (node: ts.Node): void => {
+    if (ts.isMethodDeclaration(node) && propertyName(node.name) === expected && node.body) bodies.push(node.body);
+    ts.forEachChild(node, visitMethods);
+  };
+  visitMethods(source);
+  const visitPropertyFunctions = (node: ts.Node): void => {
+    if (ts.isPropertyAssignment(node) && propertyName(node.name) === expected) {
+      const initializer = unwrapExpression(node.initializer);
+      if ((ts.isArrowFunction(initializer) || ts.isFunctionExpression(initializer)) && initializer.body) bodies.push(initializer.body);
+    }
+    ts.forEachChild(node, visitPropertyFunctions);
+  };
+  visitPropertyFunctions(source);
+  return bodies;
+}
+
+function callableNamesCalledBy(source: ts.SourceFile, expected: string): string[] {
+  const called = new Set<string>();
+  const inspectBody = (node: ts.Node): void => {
+    if (ts.isCallExpression(node)) {
+      const callee = unwrapExpression(node.expression);
+      if (ts.isIdentifier(callee)) called.add(callee.text);
+    }
+    ts.forEachChild(node, inspectBody);
+  };
+  for (const body of callableBodies(source, expected)) inspectBody(body);
+  return [...called];
+}
+
+function sameFileCallableReachable(source: ts.SourceFile, caller: string, callee: string): boolean {
+  const pending = [caller];
+  const visited = new Set<string>();
+  while (pending.length > 0) {
+    const current = pending.shift()!;
+    if (visited.has(current)) continue;
+    visited.add(current);
+    for (const called of callableNamesCalledBy(source, current)) {
+      if (called === callee) return true;
+      if (callableBodies(source, called).length > 0) pending.push(called);
+    }
+  }
+  return false;
+}
+
+function sameFileCallableCalls(source: ts.SourceFile, caller: string, callee: string): boolean {
+  return callableNamesCalledBy(source, caller).includes(callee);
 }
 
 function hasSameFileIncomingCall(source: ts.SourceFile, expected: string): boolean {
@@ -1448,14 +1502,16 @@ function producerConsumerRelation(
   producer: VerificationPlannedPathEndpointV1,
   consumer: VerificationPlannedPathEndpointV1,
 ): boolean {
-  const importedCall = (graph.sourceScans.get(consumer.expectedFileRef)?.calledImports ?? []).some(call =>
-    call.sourceFile === producer.expectedFileRef && call.imported === producer.expectedSymbolOrFact
-      && call.caller === consumer.expectedSymbolOrFact);
   const source = graph.readContext.snapshots.get(consumer.expectedFileRef) !== undefined
     ? ts.createSourceFile(consumer.expectedFileRef, graph.readContext.snapshots.get(consumer.expectedFileRef)!, ts.ScriptTarget.Latest, true, scriptKindFor(consumer.expectedFileRef))
     : undefined;
+  const importedCall = (graph.sourceScans.get(consumer.expectedFileRef)?.calledImports ?? []).some(call =>
+    call.sourceFile === producer.expectedFileRef && call.imported === producer.expectedSymbolOrFact
+      && (call.caller === consumer.expectedSymbolOrFact
+        || (call.caller !== null && source !== undefined
+          && sameFileCallableReachable(source, consumer.expectedSymbolOrFact, call.caller))));
   const sameFileCall = producer.expectedFileRef === consumer.expectedFileRef && source
-    ? sameFileCallableCalls(source, consumer.expectedSymbolOrFact, producer.expectedSymbolOrFact) : false;
+    ? sameFileCallableReachable(source, consumer.expectedSymbolOrFact, producer.expectedSymbolOrFact) : false;
   const registryRelation = (producer.expectedArtifactKind === 'process_fact' || consumer.expectedArtifactKind === 'process_fact')
     && graph.entries.some(entry => commandNamesForEntry(entry).includes(producer.expectedSymbolOrFact)
     && (entry.consumerSourceRefs ?? []).includes(consumer.expectedFileRef)
