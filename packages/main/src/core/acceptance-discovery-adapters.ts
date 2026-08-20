@@ -1534,6 +1534,20 @@ function callableReferencesProperty(source: ts.SourceFile, expected: string, pro
   return found;
 }
 
+function callableDirectlyCallsIdentifier(source: ts.SourceFile, expected: string, calleeName: string): boolean {
+  let found = false;
+  const inspect = (node: ts.Node): void => {
+    if (found) return;
+    if (ts.isCallExpression(node)) {
+      const callee = unwrapExpression(node.expression);
+      if (ts.isIdentifier(callee) && callee.text === calleeName) found = true;
+    }
+    ts.forEachChild(node, inspect);
+  };
+  for (const body of callableBodies(source, expected)) inspect(body);
+  return found;
+}
+
 function typeDeclaresProperty(source: ts.SourceFile, typeName: string, property: string): boolean {
   const propertyName = (name: ts.PropertyName | ts.BindingName | undefined): string | null => {
     if (!name) return null;
@@ -1649,13 +1663,18 @@ function producerConsumerRelation(
       && (call.caller === consumer.expectedSymbolOrFact
         || (call.caller !== null && source !== undefined
           && sameFileCallableReachable(source, consumer.expectedSymbolOrFact, call.caller))));
+  const lexicalImportedCall = source !== undefined
+    && reachesRegisteredHandler(graph, consumer)
+    && (graph.sourceScans.get(consumer.expectedFileRef)?.imports ?? []).some(binding =>
+      binding.sourceFile === producer.expectedFileRef && binding.imported === producer.expectedSymbolOrFact)
+    && callableDirectlyCallsIdentifier(source, consumer.expectedSymbolOrFact, producer.expectedSymbolOrFact);
   const sameFileCall = producer.expectedFileRef === consumer.expectedFileRef && source
     ? sameFileCallableReachable(source, consumer.expectedSymbolOrFact, producer.expectedSymbolOrFact) : false;
   const registryRelation = (producer.expectedArtifactKind === 'process_fact' || consumer.expectedArtifactKind === 'process_fact')
     && graph.entries.some(entry => commandNamesForEntry(entry).includes(producer.expectedSymbolOrFact)
     && (entry.consumerSourceRefs ?? []).includes(consumer.expectedFileRef)
     && (sourceFiles(entry).includes(producer.expectedFileRef) || registeredHandlerEndpoint(graph, producer)));
-  return importedCall || sameFileCall || registryRelation || outputFactContractRelation(graph, record, producer, consumer);
+  return importedCall || lexicalImportedCall || sameFileCall || registryRelation || outputFactContractRelation(graph, record, producer, consumer);
 }
 
 function actualEndpointPathRefs(input: AcceptanceDiscoveryInput, graph: BoundedSourceGraph): string[] {
