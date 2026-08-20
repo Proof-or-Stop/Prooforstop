@@ -58,7 +58,7 @@ const identity = {
 const readyPreflight = preflightCausalEvidence({
   cli: { available: true, path: 'proof-or-stop' },
   worktree: { expected: process.cwd(), actual: process.cwd() },
-  gitIndex: { readable: true, path: `${process.cwd()}/.git/index`, expected: 'head', actual: 'head' },
+  gitIndex: { readable: true, path: `${process.cwd()}/.git/index`, expected: 'head', actual: 'head', contentDigest: 'sha256:smoke-index' },
   gitMaterial: { available: true, headHash: 'head', materialHash: 'material-smoke', storyFilesHash: 'story-smoke' },
   writerLease: { available: true, valid: true },
   providerCapability: { required: ['allowlisted-command', 'bounded-output'], available: ['allowlisted-command', 'bounded-output'] },
@@ -135,8 +135,9 @@ const dependency = evaluateCausalDependencies({
   previousMaterialHash: 'm1', currentMaterialHash: 'm1', previousStoryFilesHash: 's1', currentStoryFilesHash: 's1',
   rerunNodeIds: nodes.map(node => node.id),
 });
-assert.equal(dependency.affectedNodeRerun, 100, 'transitive affected closure is fully rerun');
-assert.equal(dependency.falseFresh, 0);
+assert.equal(dependency.affectedNodeRerun, 0, 'unsigned rerun claims cannot manufacture a complete rerun');
+assert.equal(dependency.falseFresh, 6, 'unsigned rerun claims leave the six-node affected closure false fresh');
+assert.equal(dependency.gateAdmissible, false, 'unsigned rerun claims are not gate-admissible');
 
 const metrics = deriveCausalMetrics(batch.ledger);
 assert.equal(metrics.intentCount, 2);
