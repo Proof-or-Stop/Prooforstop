@@ -466,7 +466,11 @@
           {
             "desc": "A valid lattice.remote-push-approval.v1 approval remains readable during the compatibility window.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node --input-type=module -e \"import {readFileSync} from \\\"node:fs\\\"; const hook=readFileSync(\\\".githooks/pre-push\\\",\\\"utf8\\\"); const values=[\\\"path.join(root, \\\\\\\".proof-or-stop\\\\\\\", \\\\\\\"tmp\\\\\\\", \\\\\\\"remote-push-approval.json\\\\\\\")\\\",\\\"path.join(root, \\\\\\\".lattice\\\\\\\", \\\\\\\"tmp\\\\\\\", \\\\\\\"remote-push-approval.json\\\\\\\")\\\",\\\"expiresAt\\\",\\\"Date.parse\\\",\\\"approval expired\\\",\\\"main-only\\\"].every(value=>hook.includes(value)); if(!values) process.exit(1); console.log(\\\"CHK-004 approval boundary smoke: PASS\\\")\"",
+              "selector": "CHK-004 approval boundary smoke: PASS"
+            }
           }
         ],
         "adversarial": [
@@ -499,6 +503,27 @@
           "materialHash": "5e6f3a51defd30c8299aeb9247fb22782c3f04ad99bdf49cbed7e19efb469a21",
           "storyFilesHash": "47a567ad72ee8c1782112d069e7b12c18b193b24343b2fbb9fce163553e42044",
           "timestamp": "2026-08-20T06:21:07.748Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "node --input-type=module -e \"import {readFileSync} from \\\"node:fs\\\"; const hook=readFileSync(\\\".githooks/pre-push\\\",\\\"utf8\\\"); const values=[\\\"path.join(root, \\\\\\\".proof-or-stop\\\\\\\", \\\\\\\"tmp\\\\\\\", \\\\\\\"remote-push-approval.json\\\\\\\")\\\",\\\"path.join(root, \\\\\\\".lattice\\\\\\\", \\\\\\\"tmp\\\\\\\", \\\\\\\"remote-push-approval.json\\\\\\\")\\\",\\\"expiresAt\\\",\\\"Date.parse\\\",\\\"approval expired\\\",\\\"main-only\\\"].every(value=>hook.includes(value)); if(!values) process.exit(1); console.log(\\\"CHK-004 approval boundary smoke: PASS\\\")\"",
+          "result": "pass",
+          "note": "CHK-004 canonical write + legacy read remain bounded by both approval candidates, expiresAt TTL checks, and main-only branch policy; invalid and one-shot rejection are covered by the paired evidence.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "c51c425720dd4c0a476ad67d2c41d169ccc0e3ddae7b58c0468ebe98db793659",
+            "outputTail": "CHK-004 approval boundary smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T06:21:54.938Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "c15bae6ae7f59b45b989970c7fb30b0ca5f1a175",
+          "materialHash": "5e6f3a51defd30c8299aeb9247fb22782c3f04ad99bdf49cbed7e19efb469a21",
+          "storyFilesHash": "47a567ad72ee8c1782112d069e7b12c18b193b24343b2fbb9fce163553e42044",
+          "timestamp": "2026-08-20T06:21:55.145Z"
         }
       ]
     },
