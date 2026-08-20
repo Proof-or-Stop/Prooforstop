@@ -1,0 +1,68 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Give every pinned command a content-addressed execution key and run each unique key once",
+      "context": "U-03a / SRC-137A P0-3. The execution key must bind at least real cwd, command spec, explicit inputs/storyFilesHash, effective env, runtime/tool version, and selector-policy digest. Identical keys execute once; an immutable receipt fans out to multiple intents. Each intent still verifies its own selector and must not share one fuzzy PASS. Replay of the B-137a 58-intent pattern must not exceed the true unique-command count.",
+      "relatedDocs": [
+        "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+        "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md"
+      ],
+      "userSees": "A 58-intent replay reports commandExecutions equal to uniqueExecutionKeys (about 10, not 58), and each intent still has its own selector verdict rather than one shared PASS.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Write CAS receipts before canonical evidence import and retry the transaction instead of re-running the command",
+      "context": "U-03a / SRC-137A P0-6 and B-74af. Command results persist as an immutable CAS receipt first. Canonical evidence import/Git commit is a separate atomic transaction. If import or metadata commit fails, retry only that transaction. Command re-executions after a canonical-commit failure must be 0. Receipts must not be rewritten to a new hash.",
+      "relatedDocs": [
+        "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+        "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md"
+      ],
+      "userSees": "After a simulated canonical Git/metadata commit failure, logs show receiptReuse or importRetry with commandRerun=0, and the original receipt hash is unchanged.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Declare evidence dependency domains and stale only causally affected nodes",
+      "context": "U-03b / SRC-9812 P0-3. Split source, test, build-input, manifest-semantic, integration, and review-subject into declarative domains. Keep materialHash and the current strict fallback. Do not rewrite stored hashes or disguise old output as new evidence. Unrelated merge must not rerun specialized commands; affected DAG nodes rerun at 100% with false-fresh=0. Shadow-compare first, then let CertificationWindow do precise invalidation. DONE-required whole-tree drift remains on the current strict policy.",
+      "relatedDocs": [
+        "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+        "docs/requirements/decisions/story-files-hash-material-drift.md",
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+      ],
+      "userSees": "An unrelated whole-tree merge leaves specialized-command rerun=0; a related story-owned material change reports affectedNodeRerun=100% and falseFresh=0.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Preflight expensive runs for CLI, worktree, Git index, lease, capability, and writable evidence targets",
+      "context": "U-03 optimization bullet: before an expensive run, check CLI/worktree, Git index, writer/lease, provider capability, resources, and that the evidence target is writable. Fail closed with a precise error instead of starting a 93-command suite that cannot persist. This is a preflight, not a freshness relaxation.",
+      "relatedDocs": [
+        "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+      ],
+      "userSees": "A missing writer lease or unwritable evidence target refuses before the suite starts, with an error naming the failed preflight check, and no command executions are recorded.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Report U-03 correctness and efficiency metrics without reducing assurance",
+      "context": "Section 12 of the plan: every optimization Story must report correctness invariants and efficiency. Required after-metrics include unique commands vs executions, exact-input cache hit rate (target >= 80%, stale cache acceptance = 0), command reruns after commit failure = 0, unrelated specialized rerun = 0, affected-node rerun = 100%, false-fresh = 0. Do not reduce reviewer lanes, hide coverage with waivers, or call the Story done while phase is not DONE.",
+      "relatedDocs": [
+        "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+      ],
+      "userSees": "The Story closeout prints a metrics block with uniqueExecutionKeys, commandExecutions, cacheHitRate, commitFailureReruns=0, unrelatedSpecializedRerun=0, falseFresh=0, and does not claim savings by adding U-01/U-02 overlapping hours.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
