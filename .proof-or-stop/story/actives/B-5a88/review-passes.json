@@ -1,0 +1,50 @@
+{
+  "passes": [
+    {
+      "id": "B-5a88:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept review passed: canonical reviewer identities, legacy read aliases, lane resolution, and topology role boundaries are coherent with the migration plan; no blocker found.",
+      "createdAt": "2026-08-20T10:16:53.176Z",
+      "reviewRound": "2026-08-20T10:12:58.490Z",
+      "reviewRunId": "B-5a88:RR-001",
+      "envelopeId": "d8a7a656c16f4f8b285ed7dac32c6b2bf6349e48888a4d570cd4280feb7328e9",
+      "writerSessionId": "sess-8a39253b9d37f31d4e506573af47ce1f",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "AGENTS.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/core/adversarial-review-critic.ts",
+          "packages/main/src/core/adversarial-review-lens-runner.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/reviewer-opt-in.ts",
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/adversarial-review-critic-smoke.ts",
+          "packages/main/src/tasks/adversarial-review-lens-runner-smoke.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/lifecycle-orchestrate-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/review-pass-discard-smoke.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+          "packages/main/tests/red/red-w2b-wiring-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "28f181d32c73b207a58cdc169a3a2909442d0d6719e618e7703e2e75a6f0507b"
+    }
+  ]
+}
