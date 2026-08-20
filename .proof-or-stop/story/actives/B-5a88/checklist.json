@@ -186,9 +186,9 @@
         "CLAUDE.md",
         "AGENTS.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-08-20T05:43:59.403Z",
-      "endTime": "2026-08-20T07:00:58.762Z",
+      "endTime": "2026-08-20T14:42:59.788Z",
       "userSees": "User sees `\"<!-- proof-or-stop:start -->\"` and `\"<!-- proof-or-stop:end -->\"` in a newly initialized file; an upgraded old file has one managed block, not two.",
       "files": {
         "modify": [
@@ -1033,6 +1033,15 @@
       "from": "done",
       "to": "in_progress",
       "reason": "Rework verification pins to execute current-worktree migration tests and remove temporary build provenance."
+    },
+    {
+      "timestamp": "2026-08-20T14:42:59.788Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Current-worktree marker and profile sync coverage added and passed; implementation committed as 6b921e517b."
     }
   ]
 }
