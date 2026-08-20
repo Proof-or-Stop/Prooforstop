@@ -53,7 +53,7 @@
       "desc": "Mandatory verificationIntent coverage is incomplete despite non-failing evidence records. CHK-001:happy:0 states that canonical reviewer IDs are emitted and accepted by review_run_start, review_pass_set, init_check_set, and quorum, but its evidence only asserts canonicalAgentRoleId(lattice-review-quality) and brand-role-migration.test.mjs:17-29 exercises canonicalization/dispatch; none of those four consumers is executed. CHK-004:happy:0 and CHK-004:adversarial:0 are source-string scans plus bash -n; release-push-approval-migration.test.mjs:10-28 creates an approval and checks source/hook text, but does not execute hook acceptance for either schema or a second-consume/invalid/stale rejection. CHK-007:edge:0 records only node packages/main/dist/cli.js help, which does not execute the residue scanner distinction between frozen evidence and compatibility readers. These must intents therefore lack concrete behavioral verification.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-20T11:23:37.762Z",
@@ -98,14 +98,18 @@
         "scripts/verify-lattice-residue.mjs"
       ],
       "signatureTag": "missing|mjs|mandatory-verificationintent-coverage",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Resolved by ffa12c10ed: brand-role-migration.test.mjs now executes canonical dispatch, review_run_start, review_pass_set, quorum_submit, and init_check_set paths; release-push-approval migration tests dual schema, invalid, stale, and second-consume rejection; bin-alias migration runs the residue self-test. Current focused tests and build pass.",
+      "resolvedAt": "2026-08-20T14:06:53.455Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-003",
       "desc": "concept-cleanup: the renamed proof-or-stop-evaluator-cli prompt still contains the inert legacy marker <!-- lattice:start-slot --> at packages/main/templates/agents/proof-or-stop-evaluator-cli.md:7, .claude/agents/proof-or-stop-evaluator-cli.md:7, and .proof-or-stop-codex/agents/proof-or-stop-evaluator-cli.md:7. The migration decision requires M5.1 to replace this marker with the canonical load-bearing guide and M5.5 to ensure agent_prompt serves no unexpanded lattice:start-slot marker; renaming the frontmatter/file left this active concept residue in all three shipped assets.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-20T11:27:12.475Z",
@@ -137,14 +141,18 @@
         ".proof-or-stop-codex/agents/proof-or-stop-evaluator-cli.md"
       ],
       "signatureTag": "missing|md|concept-cleanup-renamed",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Resolved by ffa12c10ed: all three shipped proof-or-stop-evaluator-cli prompt assets replaced the inert lattice:start-slot marker with the canonical load-bearing prompt content. Prompt baseline verification passes and no active inert marker remains.",
+      "resolvedAt": "2026-08-20T14:07:07.749Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-004",
       "desc": "concept-cleanup: the renamed sibling lockfiles still serialize a lattice npm bin for their local ../main dependency at packages/utils/package-lock.json:29 and packages/lab/package-lock.json:28 (bin {\"lattice\":\"dist/cli.js\"}). The current package and main lockfile publish only proof-or-stop, and CHK-007 requires the lattice bin removed; leaving it in these modified sibling lockfiles preserves stale install metadata that can reintroduce the retired command in sibling-package installs.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-20T11:27:30.312Z",
@@ -175,14 +183,18 @@
         "packages/lab/package-lock.json"
       ],
       "signatureTag": "missing|json|concept-cleanup-renamed",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Resolved by ffa12c10ed: packages/utils/package-lock.json and packages/lab/package-lock.json no longer publish the retired lattice bin for the local core dependency. bin-alias migration and lattice-residue checks pass.",
+      "resolvedAt": "2026-08-20T14:07:09.075Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-005",
       "desc": "quality-gate: package.json:2 changes the root package identity to proof-or-stop, but scripts/verify-core-package-rename.mjs:16-20 and :83-92 still enforce the superseded OQ-2 boundary that the root must remain lattice. Reproduction: node scripts/verify-core-package-rename.mjs exits 1 with rootPackageName=proof-or-stop and FAIL ROOT package name stays lattice; this also breaks the root test:serial-reference chain. Update the verifier and its contract evidence to match CHK-005 before accepting the migration.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-20T11:29:01.123Z",
@@ -254,14 +266,18 @@
         "scripts/verify-core-package-rename.mjs"
       ],
       "signatureTag": "missing|json|quality-gate-package",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Resolved by ffa12c10ed: scripts/verify-core-package-rename.mjs now asserts the migrated root package identity proof-or-stop while retaining the canonical core checks. Current verifier exits 0 with rootPackageName=proof-or-stop.",
+      "resolvedAt": "2026-08-20T14:07:10.385Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-006",
       "desc": "CHK-001 concept cleanup remains incomplete: the renamed implementer prompt still teaches the unsupported legacy role ID lattice-reviewer at packages/main/templates/agents/proof-or-stop-implementer.md:47, .claude/agents/proof-or-stop-implementer.md:141, and .proof-or-stop-codex/agents/proof-or-stop-implementer.md:141. The canonical role registry defines proof-or-stop-* roles and specific lattice-* compatibility aliases; lattice-reviewer is not a registered role. Users receiving these shipped prompts are therefore still instructed with a stale, unsupported role form, contrary to the requirement that new role assets use canonical IDs. severity=high",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-20T12:01:45.972Z",
@@ -333,14 +349,18 @@
         ".proof-or-stop-codex/agents/proof-or-stop-implementer.md"
       ],
       "signatureTag": "missing|md|concept-cleanup-remains",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Resolved by e51c7b5350: all three implementer prompt assets no longer instruct the unsupported lattice-reviewer role and instead reference the relevant reviewer lane. Prompt baseline, residue, and prompt-role migration checks pass.",
+      "resolvedAt": "2026-08-20T14:07:11.665Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-007",
       "desc": "verificationIntent executable-path gap: CHK-001:happy:0, CHK-001:edge:0, and CHK-001:adversarial:0 at .proof-or-stop/story/actives/B-5a88/checklist.json:55,66,77, plus CHK-005:edge:0 and CHK-005:adversarial:0 at checklist.json:604,615, all import packages/main/dist.staging. After npm --prefix packages/main run build, the exact five commands fail with ERR_MODULE_NOT_FOUND because this build emits packages/main/dist. The semantic equivalents against dist pass, but the declared must-intent commands and their prior pass receipts cannot be truthfully rerun at the current HEAD until the paths are corrected.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-20T12:02:35.235Z",
@@ -402,7 +422,11 @@
         "packages/main/tests/package-identity-migration.test.mjs"
       ],
       "signatureTag": "missing|json|verificationintent-executable-path",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Resolved by 28b4218e51 and the official verification evidence refresh: all CHK-001 executable verification paths use packages/main/dist, not packages/main/dist.staging; current build and focused migration tests pass.",
+      "resolvedAt": "2026-08-20T14:07:12.978Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-008",
@@ -456,7 +480,7 @@
       "desc": "RI-005 wave 2 coverage freshness gap: all 21 must verificationIntent entries in .proof-or-stop/story/actives/B-5a88/checklist.json have one result=pass receipt, but none is bound to the current RI-005 cutoff (HEAD ffa12c10ed8e0de4a809ae60c6f4fb2a73d2b004, materialHash 0be487b014c2edd266e5e8e822305deffe9866e7e06a1497b66a2aa8caa9f6c3, storyFilesHash 5487935bb6af6080d1f1fc69b738185e15635dc0ece86b5bc67bcf7ee13d0f62). The receipts are bound to older heads/material/story hashes, so current REVIEW has no fresh must-intent coverage. Existing F-007 remains independently verified: five declared commands use absent packages/main/dist.staging while packages/main/dist exists; that path defect is not repaired or made admissible by the stale receipts. Re-run or refresh the must-intent evidence at the current cutoff before a coverage pass.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-20T12:37:04.862Z",
@@ -578,7 +602,11 @@
         "packages/main/src/tasks/version-bump-smoke.ts"
       ],
       "signatureTag": "missing|json|wave-coverage-freshness",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Resolved by the official verification_evidence_refresh_stale run: all 21 stale verification evidence records were refreshed against the current implementation material and current packages/main/dist build path; current focused checks pass.",
+      "resolvedAt": "2026-08-20T14:07:14.235Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-010",
