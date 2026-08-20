@@ -17,6 +17,32 @@
           {
             "desc": "Run proof-or-stop verification_evidence_batch_add with a 58-intent pinned batch whose canonical identity tuples collapse to exactly 10 distinct execution keys, using deterministic command counters and selectors that match their captured outputs; assert exactly 10 child command executions, one immutable CAS receipt per unique key, 58 independently recorded selector verdicts, intentCount=58, uniqueExecutionKeys=10, commandExecutions=10, cacheHitRate>=80%, and no intent inherits another intent's verdict.",
             "type": "cli",
+            "plannedPathDeclarations": [
+              {
+                "schemaVersion": "proofstory.verification_planned_path_declaration.v1",
+                "id": "CHK-001-causal-execution-to-evidence-batch",
+                "relation": "producer_to_consumer",
+                "producer": {
+                  "id": "CHK-001-causal-execution",
+                  "role": "producer",
+                  "expectedArtifactKind": "source_file",
+                  "expectedFileRef": "packages/main/src/core/causal-evidence.ts",
+                  "expectedSymbolOrFact": "executeCausalEvidence",
+                  "fileDeclarationRef": "CHK-001:files:modify:1"
+                },
+                "consumers": [
+                  {
+                    "id": "CHK-001-evidence-batch",
+                    "role": "consumer",
+                    "expectedArtifactKind": "handler",
+                    "expectedFileRef": "packages/main/src/handlers/checklist.ts",
+                    "expectedSymbolOrFact": "verification_evidence_batch_add",
+                    "fileDeclarationRef": "CHK-001:files:modify:2"
+                  }
+                ],
+                "outputFactRef": "ExecuteCausalEvidenceResult.receipt"
+              }
+            ],
             "verification": {
               "command": "node --test packages/main/tests/causal-evidence.test.mjs",
               "selector": "58 intents fan out from 10 exact execution keys with commandExecutions=10 and independent selector verdicts"
@@ -349,6 +375,32 @@
           {
             "desc": "Run the causal-evidence test with a valid pinned command and writable canonical evidence target; assert the immutable content-addressed receipt is persisted before the canonical import begins, the receipt hash equals the hash of its stored bytes, the import succeeds, and the canonical evidence record references that exact receipt hash and execution key with commandRerun=0.",
             "type": "cli",
+            "plannedPathDeclarations": [
+              {
+                "schemaVersion": "proofstory.verification_planned_path_declaration.v1",
+                "id": "CHK-002-receipt-to-canonical-import",
+                "relation": "producer_to_consumer",
+                "producer": {
+                  "id": "CHK-002-causal-execution",
+                  "role": "producer",
+                  "expectedArtifactKind": "source_file",
+                  "expectedFileRef": "packages/main/src/core/causal-evidence.ts",
+                  "expectedSymbolOrFact": "executeCausalEvidence",
+                  "fileDeclarationRef": "CHK-002:files:modify:0"
+                },
+                "consumers": [
+                  {
+                    "id": "CHK-002-canonical-import",
+                    "role": "consumer",
+                    "expectedArtifactKind": "source_file",
+                    "expectedFileRef": "packages/main/src/core/causal-evidence.ts",
+                    "expectedSymbolOrFact": "importCausalEvidenceReceipt",
+                    "fileDeclarationRef": "CHK-002:files:modify:0"
+                  }
+                ],
+                "outputFactRef": "CausalEvidenceReceipt.receiptHash"
+              }
+            ],
             "verification": {
               "command": "node --test packages/main/tests/causal-evidence.test.mjs",
               "selector": "receipt-persist event precedes canonical-import event; import PASS references the unchanged CAS receipt hash and commandRerun=0"
@@ -696,6 +748,32 @@
           {
             "desc": "Pass the shadow-compare result into CertificationWindow for both cases and assert the window consumes the signed causal decision: it retains the specialized evidence for the unrelated merge as advisory, but requires fresh evidence for the related affected nodes before admitting a gate PASS.",
             "type": "cli",
+            "plannedPathDeclarations": [
+              {
+                "schemaVersion": "proofstory.verification_planned_path_declaration.v1",
+                "id": "CHK-003-causal-decision-to-certification-window",
+                "relation": "producer_to_consumer",
+                "producer": {
+                  "id": "CHK-003-causal-decision",
+                  "role": "producer",
+                  "expectedArtifactKind": "source_file",
+                  "expectedFileRef": "packages/main/src/core/causal-evidence.ts",
+                  "expectedSymbolOrFact": "evaluateCausalDependencies",
+                  "fileDeclarationRef": "CHK-003:files:modify:0"
+                },
+                "consumers": [
+                  {
+                    "id": "CHK-003-certification-window",
+                    "role": "consumer",
+                    "expectedArtifactKind": "source_file",
+                    "expectedFileRef": "packages/main/src/core/certification-window.ts",
+                    "expectedSymbolOrFact": "detectCertificationWindowMaterialDrift",
+                    "fileDeclarationRef": "CHK-003:files:modify:2"
+                  }
+                ],
+                "outputFactRef": "CausalDependencyDecision"
+              }
+            ],
             "verification": {
               "command": "node --test packages/main/tests/causal-evidence.test.mjs",
               "selector": "B-5a15|CHK-003:happy:2|PASS|CertificationWindow accepts only the causal decision and admits no stale affected-node PASS"
@@ -1042,6 +1120,32 @@
             "type": "cli",
             "requiredIn": "strict",
             "priority": "must",
+            "plannedPathDeclarations": [
+              {
+                "schemaVersion": "proofstory.verification_planned_path_declaration.v1",
+                "id": "CHK-004-preflight-to-evidence-enforcement",
+                "relation": "producer_to_consumer",
+                "producer": {
+                  "id": "CHK-004-preflight",
+                  "role": "producer",
+                  "expectedArtifactKind": "source_file",
+                  "expectedFileRef": "packages/main/src/core/causal-evidence.ts",
+                  "expectedSymbolOrFact": "preflightCausalEvidence",
+                  "fileDeclarationRef": "CHK-004:files:modify:0"
+                },
+                "consumers": [
+                  {
+                    "id": "CHK-004-evidence-enforcement",
+                    "role": "consumer",
+                    "expectedArtifactKind": "handler",
+                    "expectedFileRef": "packages/main/src/handlers/checklist.ts",
+                    "expectedSymbolOrFact": "enforceAndStampEvidence",
+                    "fileDeclarationRef": "CHK-004:files:modify:1"
+                  }
+                ],
+                "outputFactRef": "CausalPreflightReport.ready"
+              }
+            ],
             "verification": {
               "command": "node --test packages/main/tests/causal-evidence.test.mjs",
               "selector": "expensive-run preflight PASS: cli=pass worktree=pass gitIndex=pass writerLease=pass providerCapability=pass resources=pass evidenceTarget=pass; childLaunch=1"
@@ -1489,6 +1593,32 @@
             "desc": "A completed 58-intent replay prints intentCount, uniqueExecutionKeys, commandExecutions, cacheHitRate, and shows commandExecutions equal to uniqueExecutionKeys while all required evidence remains covered.",
             "type": "cli",
             "priority": "must",
+            "plannedPathDeclarations": [
+              {
+                "schemaVersion": "proofstory.verification_planned_path_declaration.v1",
+                "id": "CHK-005-ledger-to-causal-metrics",
+                "relation": "producer_to_consumer",
+                "producer": {
+                  "id": "CHK-005-ledger-metrics",
+                  "role": "producer",
+                  "expectedArtifactKind": "source_file",
+                  "expectedFileRef": "packages/main/src/core/causal-evidence.ts",
+                  "expectedSymbolOrFact": "deriveCausalMetrics",
+                  "fileDeclarationRef": "CHK-005:files:modify:0"
+                },
+                "consumers": [
+                  {
+                    "id": "CHK-005-evidence-batch",
+                    "role": "consumer",
+                    "expectedArtifactKind": "handler",
+                    "expectedFileRef": "packages/main/src/handlers/checklist.ts",
+                    "expectedSymbolOrFact": "verification_evidence_batch_add",
+                    "fileDeclarationRef": "CHK-005:files:modify:1"
+                  }
+                ],
+                "outputFactRef": "CausalEvidenceMetrics"
+              }
+            ],
             "verification": {
               "command": "node --test packages/main/tests/causal-evidence.test.mjs",
               "selector": "B-5a15|CHK-005:happy:0|PASS|completed 58-intent run reports intentCount=58 uniqueExecutionKeys=10 commandExecutions=10 cacheHitRate>=80% with commandExecutions equal to uniqueExecutionKeys"
