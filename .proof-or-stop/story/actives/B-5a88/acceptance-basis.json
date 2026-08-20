@@ -4,7 +4,7 @@
     "schemaVersion": "proofstory.acceptance_coverage_basis.v1",
     "storyId": "B-5a88",
     "phaseBasis": "plan",
-    "status": "partial",
+    "status": "complete",
     "generatedBy": {
       "verifier": "acceptance-coverage-basis-verifier",
       "command": "proof-or-stop acceptance_basis_generate",
@@ -29,10 +29,8 @@
           "path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
           "path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate"
         ],
-        "coverageClaim": "partial",
-        "blindSpots": [
-          "source file is unreadable: packages/main/templates/agents"
-        ],
+        "coverageClaim": "complete_for_scope",
+        "blindSpots": [],
         "provenanceRefs": [
           "source-file:packages/main/src/cli/command-catalog.ts:sha256:ea62fdefbce1b546222193a44313c1a369e7fbca6669d65b4b5f1cff1dc13d7b",
           "source-file:packages/main/src/handlers/agent-prompt.ts:sha256:f02583d891d8c482e4d862336e4cc98717559e747427d42cc8855ca92b607900",
@@ -75,6 +73,7 @@
             "scope:file:packages/main/src/cli-init.ts",
             "scope:file:packages/main/src/cli.ts",
             "scope:file:packages/main/src/cli/help-renderer.ts",
+            "scope:file:packages/main/src/core/acceptance-discovery-adapters.ts",
             "scope:file:packages/main/src/core/agent-asset-resolution.ts",
             "scope:file:packages/main/src/core/agent-dispatch-registry.ts",
             "scope:file:packages/main/src/core/agent-role-identity.ts",
@@ -136,7 +135,7 @@
             "scope:file:scripts/verify-proof-or-stop-prompt-baseline.mjs"
           ]
         },
-        "resultDigest": "sha256:039be64a42d206ddb075f678ce89982669da38d6b7a37282a263d17f059577c1"
+        "resultDigest": "sha256:bdd431f799d5c6a151abee6d79d0bbcdd6391a6d1e3929b1fa6dac7574fad19c"
       },
       {
         "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -148,10 +147,8 @@
           "path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
           "path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
         ],
-        "coverageClaim": "partial",
-        "blindSpots": [
-          "source file is unreadable: packages/main/templates/agents"
-        ],
+        "coverageClaim": "complete_for_scope",
+        "blindSpots": [],
         "provenanceRefs": [
           "process-fact:acceptance_basis:da66e0998516b4d2ca3f45bc57585700a1f0675eeb30267234df766ee32d288f",
           "process-fact:acceptance_basis_generate:c705ec303891a791afa607f361da9b178764f8186b88c4336bdd4441d32fe0b9",
@@ -189,6 +186,7 @@
             "scope:file:packages/main/src/cli-init.ts",
             "scope:file:packages/main/src/cli.ts",
             "scope:file:packages/main/src/cli/help-renderer.ts",
+            "scope:file:packages/main/src/core/acceptance-discovery-adapters.ts",
             "scope:file:packages/main/src/core/agent-asset-resolution.ts",
             "scope:file:packages/main/src/core/agent-dispatch-registry.ts",
             "scope:file:packages/main/src/core/agent-role-identity.ts",
@@ -250,7 +248,7 @@
             "scope:file:scripts/verify-proof-or-stop-prompt-baseline.mjs"
           ]
         },
-        "resultDigest": "sha256:c6ce9767527af61ce494e28204a3a8df6a366951c797ff97a5f3b86a5a696333"
+        "resultDigest": "sha256:f98d611290be2cb92300b0e0f53b8906f267cb073b353740f8451ac750af4d91"
       },
       {
         "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -288,6 +286,7 @@
             "scope:file:packages/main/src/cli-init.ts",
             "scope:file:packages/main/src/cli.ts",
             "scope:file:packages/main/src/cli/help-renderer.ts",
+            "scope:file:packages/main/src/core/acceptance-discovery-adapters.ts",
             "scope:file:packages/main/src/core/agent-asset-resolution.ts",
             "scope:file:packages/main/src/core/agent-dispatch-registry.ts",
             "scope:file:packages/main/src/core/agent-role-identity.ts",
@@ -349,7 +348,7 @@
             "scope:file:scripts/verify-proof-or-stop-prompt-baseline.mjs"
           ]
         },
-        "resultDigest": "sha256:52caf4f140f39847ea3ad5a5c0a30006dda878bfc18b5bdc2be97e33d94e802f"
+        "resultDigest": "sha256:05f0e8fbea4725413758da1214aa366d32bc66765966d1b9298fe2214224813b"
       },
       {
         "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -382,6 +381,7 @@
           "scope:file:packages/main/src/cli-init.ts",
           "scope:file:packages/main/src/cli.ts",
           "scope:file:packages/main/src/cli/help-renderer.ts",
+          "scope:file:packages/main/src/core/acceptance-discovery-adapters.ts",
           "scope:file:packages/main/src/core/agent-asset-resolution.ts",
           "scope:file:packages/main/src/core/agent-dispatch-registry.ts",
           "scope:file:packages/main/src/core/agent-role-identity.ts",
@@ -470,6 +470,7 @@
             "scope:file:packages/main/src/cli-init.ts",
             "scope:file:packages/main/src/cli.ts",
             "scope:file:packages/main/src/cli/help-renderer.ts",
+            "scope:file:packages/main/src/core/acceptance-discovery-adapters.ts",
             "scope:file:packages/main/src/core/agent-asset-resolution.ts",
             "scope:file:packages/main/src/core/agent-dispatch-registry.ts",
             "scope:file:packages/main/src/core/agent-role-identity.ts",
@@ -531,7 +532,7 @@
             "scope:file:scripts/verify-proof-or-stop-prompt-baseline.mjs"
           ]
         },
-        "resultDigest": "sha256:8b839bb13d81750f5166b5f36797bcc64e5c3bf19c781a7fbe6509b32807a686"
+        "resultDigest": "sha256:9869a9fbef9f29db45d5d626cec3cedfb33b6eee45e4cff50632d26941f18883"
       },
       {
         "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -546,10 +547,8 @@
           "path:static-call:packages/main/src/core/agent-dispatch-registry.ts#resolveAgentDispatchType->consumer:packages/main/src/handlers/story-dispatch.ts#resolveAgentDispatchType",
           "path:static-call:packages/main/src/core/agent-dispatch-registry.ts#validateAgentDispatchRequest->consumer:packages/main/src/handlers/story-dispatch.ts#validateAgentDispatchRequest"
         ],
-        "coverageClaim": "partial",
-        "blindSpots": [
-          "source file is unreadable: packages/main/templates/agents"
-        ],
+        "coverageClaim": "complete_for_scope",
+        "blindSpots": [],
         "provenanceRefs": [
           "source-file:.githooks/pre-push:sha256:a3f0234f63d6396d1fb94b66517e654030a7e2d0d05d2b89253957fa7cc37515",
           "source-file:package-lock.json:sha256:a74cfe9ea8511356f24679b6b0d0d240aa4c9617c23e33bd85cdb622c15cdb55",
@@ -565,6 +564,7 @@
           "source-file:packages/main/src/cli-init.ts:sha256:8f52d2532050274b057b5fe8d2ab034c09674919bd8b00708d6f89988cbb3f92",
           "source-file:packages/main/src/cli.ts:sha256:2b1353add9b5d9efd550e5cec362f4db22712a8b1aeff373fd16c004bd57b8a4",
           "source-file:packages/main/src/cli/help-renderer.ts:sha256:6f59e8594d15f440d951f89f8d314cfbccfc59f1d17fb7ceb391148431457502",
+          "source-file:packages/main/src/core/acceptance-discovery-adapters.ts:sha256:cd5569e7d8ec12446c4576a09e1359d8577bec0139f0586a4bf9ee670a71acd6",
           "source-file:packages/main/src/core/acceptance-topology.ts:sha256:df44a37b6222c35311d1d6934d31138b5acb0b16b476e4b64fe33d33518c3dac",
           "source-file:packages/main/src/core/agent-asset-resolution.ts:sha256:c19d1ad1faa58dc059728e47fad32e20001bd79e8166fbb3e639810d2183d2d9",
           "source-file:packages/main/src/core/agent-dispatch-registry.ts:sha256:c6d71c513e528fe53f610a6c0a86e2cf6dac53cb81d619340883ba95ee7e9df4",
@@ -608,7 +608,6 @@
           "source-file:packages/main/src/init-assets.ts:sha256:61965fe12db0a33585429e4b8a2ab3ec6a8f48600ae5006910bfe0a9f4c6315f",
           "source-file:packages/main/src/registry.ts:sha256:187248db63c3e3bde9197216404a14faacc2a70bcf711a2d984112e190f7db81",
           "source-file:packages/main/src/tasks/version-bump-smoke.ts:sha256:6b08e092463eed8cf13719de4cbcbc976f73cba10ef96c36f06dab99389b6598",
-          "source-file:packages/main/templates/agents:uninspectable",
           "source-file:packages/main/tests/artifact-schema-migration.test.mjs:sha256:d49d633b8bc3327e8a273fb13f7b1a6f461feec1613ad83fb77a09a8829dc04e",
           "source-file:packages/main/tests/bin-alias-migration.test.mjs:sha256:acb582becc21c08cf47d58e99547df62f2296da377aaac7ce7a200d215dafeb0",
           "source-file:packages/main/tests/brand-role-migration.test.mjs:sha256:b48dcab6a46afb2db03642f3cf0a28d6e8ccd290a628780a23a933618acd6856",
@@ -654,6 +653,7 @@
             "scope:file:packages/main/src/cli-init.ts",
             "scope:file:packages/main/src/cli.ts",
             "scope:file:packages/main/src/cli/help-renderer.ts",
+            "scope:file:packages/main/src/core/acceptance-discovery-adapters.ts",
             "scope:file:packages/main/src/core/agent-asset-resolution.ts",
             "scope:file:packages/main/src/core/agent-dispatch-registry.ts",
             "scope:file:packages/main/src/core/agent-role-identity.ts",
@@ -715,7 +715,7 @@
             "scope:file:scripts/verify-proof-or-stop-prompt-baseline.mjs"
           ]
         },
-        "resultDigest": "sha256:6ecb59fdda89fb75efb3efb021aab32d506214e814faa6323209135716b74beb"
+        "resultDigest": "sha256:1744bbfc584e47c03804871ffed88c7092facd61890d2f4fd1f39c015853811f"
       }
     ],
     "scopeRefs": [
@@ -740,6 +740,7 @@
       "scope:file:packages/main/src/cli-init.ts",
       "scope:file:packages/main/src/cli.ts",
       "scope:file:packages/main/src/cli/help-renderer.ts",
+      "scope:file:packages/main/src/core/acceptance-discovery-adapters.ts",
       "scope:file:packages/main/src/core/agent-asset-resolution.ts",
       "scope:file:packages/main/src/core/agent-dispatch-registry.ts",
       "scope:file:packages/main/src/core/agent-role-identity.ts",
@@ -822,6 +823,7 @@
       "source-file:closure:packages/main/src/cli-init.ts",
       "source-file:closure:packages/main/src/cli.ts",
       "source-file:closure:packages/main/src/cli/help-renderer.ts",
+      "source-file:closure:packages/main/src/core/acceptance-discovery-adapters.ts",
       "source-file:closure:packages/main/src/core/acceptance-topology.ts",
       "source-file:closure:packages/main/src/core/agent-asset-resolution.ts",
       "source-file:closure:packages/main/src/core/agent-dispatch-registry.ts",
@@ -865,7 +867,6 @@
       "source-file:closure:packages/main/src/init-assets.ts",
       "source-file:closure:packages/main/src/registry.ts",
       "source-file:closure:packages/main/src/tasks/version-bump-smoke.ts",
-      "source-file:closure:packages/main/templates/agents",
       "source-file:closure:packages/main/tests/artifact-schema-migration.test.mjs",
       "source-file:closure:packages/main/tests/bin-alias-migration.test.mjs",
       "source-file:closure:packages/main/tests/brand-role-migration.test.mjs",
@@ -958,80 +959,47 @@
       "planned:CHK-001:happy:0:VPP-CHK001-DISPATCH"
     ],
     "excludedPathRefs": [],
-    "blindSpots": [
-      "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/agent-dispatch-registry.ts#resolveAgentDispatchPromptBuilder->consumer:packages/main/src/handlers/story-dispatch.ts#resolveAgentDispatchPromptBuilder",
-      "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/agent-dispatch-registry.ts#resolveAgentDispatchType->consumer:packages/main/src/handlers/story-dispatch.ts#resolveAgentDispatchType",
-      "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/agent-dispatch-registry.ts#validateAgentDispatchRequest->consumer:packages/main/src/handlers/story-dispatch.ts#validateAgentDispatchRequest",
-      "snapshot-seal:snapshot_missing:inventory:packages/main/templates/agents",
-      "snapshot-seal:snapshot_missing:source_file:packages/main/templates/agents",
-      "source file is unreadable: packages/main/templates/agents"
-    ],
+    "blindSpots": [],
     "snapshotSeal": {
       "schemaVersion": "proofstory.acceptance_snapshot_seal.v1",
       "inventoryDirectoryDigest": "sha256:a5ef8eb2a947839b69a8a89f10c15b3e602b38ec291afbafce056262ce82f9c7",
       "inventoryDirectoryCount": 21,
-      "sourceSnapshotDigest": "sha256:c39ee4afe8e149b06080e3528c27c8fad4645720489199a3a5f044ea1653b058",
+      "sourceSnapshotDigest": "sha256:7aefec61ff7144a4f38be0614ff34d4c8eb745a760445fe43886491011538f70",
       "sourceSnapshotCount": 846,
       "configSnapshotDigest": "sha256:ab4b658eaf618dd6e859c44d6bab29230deefeef2b53889c500533b9dde9b251",
-      "status": "partial",
-      "issues": [
-        {
-          "code": "derivation_diagnostic",
-          "targetKind": "inventory",
-          "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/agent-dispatch-registry.ts#resolveAgentDispatchPromptBuilder->consumer:packages/main/src/handlers/story-dispatch.ts#resolveAgentDispatchPromptBuilder"
-        },
-        {
-          "code": "derivation_diagnostic",
-          "targetKind": "inventory",
-          "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/agent-dispatch-registry.ts#resolveAgentDispatchType->consumer:packages/main/src/handlers/story-dispatch.ts#resolveAgentDispatchType"
-        },
-        {
-          "code": "derivation_diagnostic",
-          "targetKind": "inventory",
-          "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/agent-dispatch-registry.ts#validateAgentDispatchRequest->consumer:packages/main/src/handlers/story-dispatch.ts#validateAgentDispatchRequest"
-        },
-        {
-          "code": "snapshot_missing",
-          "targetKind": "inventory",
-          "canonicalRef": "packages/main/templates/agents"
-        },
-        {
-          "code": "snapshot_missing",
-          "targetKind": "source_file",
-          "canonicalRef": "packages/main/templates/agents"
-        }
-      ],
-      "sealDigest": "sha256:010fd0da0bd8b4d9540e9bd8ae736c114165d3f414fe189ae4c6a699cd547149"
+      "status": "complete",
+      "issues": [],
+      "sealDigest": "sha256:2b423e002c85b6fb198f84c6368e00c04639e4774f1aef4295043b776ca050d6"
     },
     "binding": {
-      "headHash": "d80e354b617c8ad3a7708fbbab547dd33093a1be",
-      "materialHash": "1649fe7d56718a5dc9fa2054723ee2b2da9d743289250d74e81213d34a7df205",
-      "storyFilesHash": "aae531caf1a51188817b174790a10e0694dbcd84f7b5d680930238dbb309d16d",
+      "headHash": "3cdf2bc7ed234d38727d9bb7b1ed3e8e9e6ad590",
+      "materialHash": "e661be1797ab8b8ee8380d0a02bd928a0c02227ea0bd8284b6e6fe8a6bf6ce26",
+      "storyFilesHash": "1c664c47bfbebdd3adb0c74c18c7db3308e8a030d43802dc3d99b3ab1539631f",
       "scopeCheckDigest": "sha256:cbd8e7e44b42c1b396996e8b9294d95c898ba1c92e6f86e9cb055d351182a0f9",
-      "scopeContractDigest": "sha256:844991ac0f5c231239135b73f58a8efa4bce235e5cc3d754d1f64dc0ee2744d6",
-      "closureFilesHash": "sha256:7d6da8ed6f130047d259677d58abe21dee7cb6eb58408023dd14f2e55e9a6337"
+      "scopeContractDigest": "sha256:b9be939941e3ad97982a45f2d9251b66a3757193f1c69bb94e7bd0b2170cd1dc",
+      "closureFilesHash": "sha256:18feedfe66f393c178ad647779a79c1fb2e5587fbf4cc720fcdd6c9407ca7733"
     },
-    "receiptRef": "receipt:coverage-basis:B-5a88:plan:1829b8a82dde988a",
-    "basisDigest": "sha256:940d6800166bdea8f09a107636e60e31d903d21379bca43544032a37ab470789"
+    "receiptRef": "receipt:coverage-basis:B-5a88:plan:d1af861cc656b52b",
+    "basisDigest": "sha256:82c4fc83fa69ef3fd94c039924c51f46c8dfa11051b480e3cefb95c59c64958a"
   },
   "receipt": {
     "schemaVersion": "proofstory.acceptance_basis_receipt.v1",
-    "receiptRef": "receipt:coverage-basis:B-5a88:plan:1829b8a82dde988a",
+    "receiptRef": "receipt:coverage-basis:B-5a88:plan:d1af861cc656b52b",
     "issuer": "acceptance-coverage-basis-verifier",
     "issuerKeyId": "sha256:a944288d3323f4b761cbb51602e62f88fbc1b35530eabfa265971baee771138b",
     "signerPublicKey": "GpD4A2Km0wpT87L2EcszehhUu0nPgXbafTXgXTjTKAM=",
     "storyId": "B-5a88",
     "phaseBasis": "plan",
-    "basisDigest": "sha256:940d6800166bdea8f09a107636e60e31d903d21379bca43544032a37ab470789",
-    "topologyDigest": "sha256:708e615dabda4a296bea8ae137184056803f5d9107e046638d115e1ca21e15e6",
+    "basisDigest": "sha256:82c4fc83fa69ef3fd94c039924c51f46c8dfa11051b480e3cefb95c59c64958a",
+    "topologyDigest": "sha256:dbbcfb5ce48f59b037423b3de7ab80e0bcce2a552b562b0d92f472909b32b7be",
     "scopeCheckDigest": "sha256:cbd8e7e44b42c1b396996e8b9294d95c898ba1c92e6f86e9cb055d351182a0f9",
-    "scopeContractDigest": "sha256:844991ac0f5c231239135b73f58a8efa4bce235e5cc3d754d1f64dc0ee2744d6",
-    "headHash": "d80e354b617c8ad3a7708fbbab547dd33093a1be",
-    "materialHash": "1649fe7d56718a5dc9fa2054723ee2b2da9d743289250d74e81213d34a7df205",
-    "storyFilesHash": "aae531caf1a51188817b174790a10e0694dbcd84f7b5d680930238dbb309d16d",
-    "closureFilesHash": "sha256:7d6da8ed6f130047d259677d58abe21dee7cb6eb58408023dd14f2e55e9a6337",
-    "sealDigest": "sha256:010fd0da0bd8b4d9540e9bd8ae736c114165d3f414fe189ae4c6a699cd547149",
+    "scopeContractDigest": "sha256:b9be939941e3ad97982a45f2d9251b66a3757193f1c69bb94e7bd0b2170cd1dc",
+    "headHash": "3cdf2bc7ed234d38727d9bb7b1ed3e8e9e6ad590",
+    "materialHash": "e661be1797ab8b8ee8380d0a02bd928a0c02227ea0bd8284b6e6fe8a6bf6ce26",
+    "storyFilesHash": "1c664c47bfbebdd3adb0c74c18c7db3308e8a030d43802dc3d99b3ab1539631f",
+    "closureFilesHash": "sha256:18feedfe66f393c178ad647779a79c1fb2e5587fbf4cc720fcdd6c9407ca7733",
+    "sealDigest": "sha256:2b423e002c85b6fb198f84c6368e00c04639e4774f1aef4295043b776ca050d6",
     "workspaceIdentityDigest": "sha256:7269e2a5b5f07e8b7e813824b4892a55c277f4f75b9c118ed471e7c51cb3ee21",
-    "signature": "ldEOEQ0P/NTeheceSQIT8vi3FPD6K2bxyltJc3PCljcfWyzxVRCmajm+84poDaCmSWhREgZPx37ztgtE70kQCg=="
+    "signature": "q4nLGh5/60llRz5EFm96S8RGjetX4UZVB+k13+/bg4xVI9AdgjzEjg6oPC4x9mE9GAkDwySo386K4NGTImQgAQ=="
   }
 }
