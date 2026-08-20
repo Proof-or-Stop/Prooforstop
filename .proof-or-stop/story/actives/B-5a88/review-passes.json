@@ -91,6 +91,45 @@
         "scanEscalationReason": null
       },
       "_hash": "a61df1c461dad5465c40b1fea06966f5c2c1028ca130c96e575cdbae604adead"
+    },
+    {
+      "id": "B-5a88:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage review passed: all 21 must verification intents have non-failing tool-executed evidence or valid retained receipts, including the refreshed role and self-host intents; no coverage blocker found.",
+      "createdAt": "2026-08-20T10:17:41.590Z",
+      "reviewRound": "2026-08-20T10:12:58.490Z",
+      "reviewRunId": "B-5a88:RR-003",
+      "envelopeId": "de121e62941f895f833217ca520963be39ada7606310482ac55ca92d0f65fba7",
+      "writerSessionId": "sess-8a39253b9d37f31d4e506573af47ce1f",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          "AGENTS.md",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/reviewer-opt-in.ts",
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/tests/artifact-schema-migration.test.mjs",
+          "packages/main/tests/package-identity-migration.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/test-evidence.json",
+          "packages/main/src/tasks/adversarial-review-critic-smoke.ts",
+          "packages/main/src/tasks/adversarial-review-lens-runner-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/tests/red/red-w2b-wiring-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "972a5b0b322b1ab9007091099c2244a366fa730ee62104e2fa822f7470ecd575"
     }
   ]
 }
