@@ -1100,7 +1100,7 @@ test('CHK-004: preflight refuses exact readiness failures with zero execution/ev
   assert.equal(deriveCausalMetrics(missingPreflightBatch.ledger).commandExecutions, 0);
   emitIntentMarker(
     'CHK-004:adversarial:1',
-    'missing, stale, forged preflight, or missing last-moment revalidation is rejected before child launch with commandExecutions=0 and no gate-admissible PASS',
+    'missing, stale, or forged preflight is rejected before child launch with commandExecutions=0 and no gate-admissible PASS',
   );
 });
 
