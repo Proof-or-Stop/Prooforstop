@@ -149,7 +149,30 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "npm pkg get name --workspace=packages/utils and --workspace=packages/lab returns @proof-or-stop/utils and @proof-or-stop/lab, and in-repo package resolution succeeds.",
+      "files": {
+        "modify": [
+          "packages/utils/package.json",
+          "packages/utils/package-lock.json",
+          "packages/utils/src/index.ts",
+          "packages/utils/src/register.ts",
+          "packages/utils/src/tool-defs.ts",
+          "packages/lab/package.json",
+          "packages/lab/package-lock.json",
+          "packages/lab/src/index.ts",
+          "packages/lab/src/register.ts",
+          "packages/lab/src/tool-defs.ts",
+          "packages/main/package.json",
+          "packages/main/package-lock.json",
+          "packages/main/src/registry.ts"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-global-lab-entrypoint.mjs",
+          "packages/main/tests/package-identity-migration.test.mjs"
+        ]
+      }
     },
     {
       "id": "CHK-007",
