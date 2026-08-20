@@ -1,0 +1,21 @@
+{
+  "storyId": "B-5a15",
+  "expected": "\"The terminal prints `CausalEvidence: intentCount=58 uniqueExecutionKeys=10 commandExecutions=10 cacheHitRate=82%` and 58 selector verdicts, including explicit `selectorMismatch` where applicable.\"",
+  "actual": {
+    "command": "node scripts/run-proofstory-pre-review-live-proof.mjs",
+    "exitCode": 1,
+    "stdout": "",
+    "stderr": "file:///Users/qipan/work/repo/Prooforstop/.worktrees/B-5a15/packages/main/dist/tasks/proofstory-pre-review-check-smoke.js:85\n                throw new Error(`unknown active topology assertion ID: ${assertion.id}`);\n                      ^\n\nError: unknown active topology assertion ID: A-CHK-001-happy-0\n    at file:///Users/qipan/work/repo/Prooforstop/.worktrees/B-5a15/packages/main/dist/tasks/proofstory-pre-review-check-smoke.js:85:23\n    at ModuleJob.run (node:internal/modules/esm/module_job:569:25)\n    at async node:internal/modules/esm/loader:650:26\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)\n\nNode.js v26.7.0\nnode:internal/errors:999\n  const err = new Error(message);\n              ^\n\nError: Command failed: /opt/homebrew/Cellar/node/26.7.0/bin/node /Users/qipan/work/repo/Prooforstop/.worktrees/B-5a15/packages/main/dist/tasks/proofstory-pre-review-check-smoke.js --proof-scenarios\nfile:///Users/qipan/work/repo/Prooforstop/.worktrees/B-5a15/packages/main/dist/tasks/proofstory-pre-review-check-smoke.js:85\n                throw new Error(`unknown active topology assertion ID: ${assertion.id}`);\n                      ^\n\nError: unknown active topology assertion ID: A-CHK-001-happy-0\n    at file:///Users/qipan/work/repo/Prooforstop/.worktrees/B-5a15/packages/main/dist/tasks/proofstory-pre-review-check-smoke.js:85:23\n    at ModuleJob.run (node:internal/modules/esm/module_job:569:25)\n    at async node:internal/modules/esm/loader:650:26\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)\n\nNode.js v26.7.0\n\n    at genericNodeError (node:internal/errors:999:15)\n    at wrappedFn (node:internal/errors:544:14)\n    at checkExecSyncError (node:child_process:942:11)\n    at execFileSync (node:child_process:978:15)\n    at file:///Users/qipan/work/repo/Prooforstop/.worktrees/B-5a15/packages/main/dist/tasks/proofstory-pre-review-check-smoke.js:196:28\n    at ModuleJob.run (node:internal/modules/esm/module_job:569:25)\n \n...[truncated 2680 chars]"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-08-20T16:00:58.748Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "c12212f0fd235faa49a42fd6e5ede8eb5f492354",
+  "materialHash": "432da04b4d4044ca8aa5914339fa12a11cf3967d018a9ba1922b625c8d7d0250"
+}
