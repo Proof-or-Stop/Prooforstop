@@ -1214,7 +1214,7 @@
       "desc": "packages/main/src/core/causal-evidence.ts:640-642,905-931 [high] executeCausalEvidence verifies only the preflight report's self-signature and all-pass shape; CausalPreflightFacts carries no command, storyId, or execution-identity binding, and the core never compares the report to the key being executed. Repro: preflightCausalEvidence(all-pass facts) with no command field, followed by executeCausalEvidence with a different command identity and revalidateBeforeRun=()=>true, returned disposition=executed with runs=1. A preflight for another command/story, or a caller-synthesized all-pass report, can therefore pass the launch gate. Bind the signed preflight to the same execution identity/current probes or make the authoritative handler boundary unavoidable.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-20T20:57:45.383Z",
@@ -1225,7 +1225,11 @@
         "packages/main/src/core/causal-evidence.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by commit c4e3510524. Current causal-evidence.ts signs executionIdentity, executionIdentityDigest, and executionKey into each preflight and verifyCausalPreflight(report, expectedIdentity) compares that binding before executeCausalEvidence can launch a child. Repro against the current built artifact: a preflight signed for command A passed to command B returned missing_or_forged_preflight with runs=0. The stale finding's pre-change premise is disproven.",
+      "resolvedAt": "2026-08-20T21:11:32.470Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a15:F-037",
