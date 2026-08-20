@@ -1,5 +1,73 @@
 # Changelog
 
+## Proof-or-Stop v0.3.267 - 2026-08-20
+
+This release completes the state and package identity migration, strengthens signed
+review and initialization evidence, introduces a guarded certification window, and
+adds strict assertion-envelope validation for red evidence.
+
+**Identity and state migration (B-cc10)**
+
+- Migrated the canonical state directory to `.proof-or-stop/`, the adapter asset
+  directory to its new product-prefixed location, and the primary configuration filename to
+  `proof-or-stop.config.json`, with bounded read compatibility where required.
+- Renamed the core workspace package to `@proof-or-stop/core` and removed the two
+  deprecated repository wrapper files. The canonical `proof-or-stop` entrypoint and
+  retained npm bin compatibility remain available.
+- Preserved repository history through the directory moves and extended residue gates
+  so retired identities cannot silently return. The migration includes a reversible
+  preflight and explicit path-resolution rules.
+
+**Signed initialization verdicts (B-8df9)**
+
+- Added `agentResults` and `issues` to the INIT-check signature domain, so editing a
+  stored verdict after signing invalidates the artifact instead of preserving a false
+  pass.
+- Reads now verify the stored hash before trusting prior agent results. Existing corpus
+  handling follows an explicit migration policy and fails closed for unverifiable data.
+- Added shape, determinism, mutation, and gate regression coverage across supported
+  verdict forms.
+
+**Red-evidence assertion envelopes (B-9ff1)**
+
+- Added a closed assertion-envelope schema with bounded matcher counts, unique IDs,
+  literal-line and registered-class matchers, stream and polarity constraints, and
+  supplementary artifact path validation.
+- Enforced minimum specificity through catch-all rejection, byte-length plus entropy
+  requirements, and a rule preventing a class matcher from being the sole positive
+  red witness.
+- Added canonical assertion digests bound to policy and target-binding digests, with
+  tagged rejection reasons for malformed, stale, incompatible, or insufficient
+  envelopes.
+- Added a read-only envelope-check command and registered its smoke and adversarial
+  suites in routine validation.
+
+**Reviewer receipt provenance (B-49ed)**
+
+- Topology-critic receipts now require a host-derived session source before signing.
+  Plain locally asserted session identifiers no longer satisfy provenance.
+- Both host-adapter and generated-token sources are supported, while mutation tests
+  prove unsupported sources are rejected.
+- End-to-end coverage confirms a genuinely dispatched critic can produce a valid signed
+  receipt consumed by the gate.
+
+**Certification admission window (B-1e1f)**
+
+- Added a signed `CertificationWindow` process fact and PRE_CERT receipt, derived from
+  current inventory, merge, clean-tree, and coverage evidence.
+- Official heavy certification is refused unless the current window is admitted or
+  running, and a valid window can execute at most once.
+- Source, test, or verifier changes invalidate the window; stale receipts remain
+  visible for audit but cannot authorize another run.
+
+**Verification**
+
+- The merged `@proof-or-stop/core` package builds successfully at version `0.3.267`.
+- Focused suites cover initialization verdict signatures, assertion envelopes,
+  reviewer provenance, certification admission, invalidation, replay, and heavy-run
+  choke behavior.
+- All five Stories completed their required lifecycle validation before DONE.
+
 ## Proof-or-Stop v0.3.266 - 2026-08-19
 
 **Removed**
