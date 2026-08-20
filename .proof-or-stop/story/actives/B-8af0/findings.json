@@ -5,7 +5,7 @@
       "desc": "quality-fail-closed: packages/main/src/handlers/review-inventory.ts:400 captures candidateArtifactInvalid but discards it; a truthy non-array persisted candidates value present before the first review_inventory_begin still signs and returns State: OPEN with no candidate digest. Only a later status/evidence command invalidates it, so the initial inventory gate violates the documented deterministic INVALID_CANDIDATE_ARTIFACT fail-closed behavior. Reject or immediately persist/render INVALIDATED at begin, and add a pre-begin malformed-artifact handler fixture.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-20T11:13:04.047Z",
@@ -13,7 +13,11 @@
       "reviewRunId": "B-8af0:RR-002",
       "_hash": "6e741c9492cc13c95d7166691c588758b79068ed654c990a512971a53f183efd",
       "signatureTag": "missing|unknown|quality-fail-closed",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 49f7549. Fresh RR-016/RP-010 rebuild and real-handler smoke show recomputed-digest malformed string/object artifacts injected before begin immediately and persistently render INVALIDATED with OPEN_REVIEW_INVENTORY_INVALID_CANDIDATE_ARTIFACT and no TypeError.",
+      "resolvedAt": "2026-08-20T12:05:08.894Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8af0:F-002",
