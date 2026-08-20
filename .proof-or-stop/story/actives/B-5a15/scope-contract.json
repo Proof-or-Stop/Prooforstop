@@ -1,0 +1,50 @@
+{
+  "storyId": "B-5a15",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/types.ts",
+    "packages/main/src/core/causal-evidence.ts",
+    "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/core/store.ts",
+    "packages/main/src/core/runtime-artifact-registry.ts",
+    "packages/main/src/core/evidence-freshness.ts",
+    "packages/main/src/core/certification-window.ts",
+    "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/core/process-fact-registry.ts"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/causal-evidence.ts",
+    "packages/main/src/tasks/causal-evidence-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/tests/causal-evidence.test.mjs"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "docs/story/**",
+    "tests/fixtures/**",
+    "packages/main/src/**/unrelated-*"
+  ],
+  "scopeChangeReason": "\"Initialize the DEV scope contract from the reviewed five-item B-5a15 plan; preserve excluded U-01/U-02/U-09 work, unrelated refactors, remote publish, and assurance-reducing changes.\"",
+  "acknowledgements": [],
+  "createdAt": "2026-08-20T09:29:12.295Z",
+  "updatedAt": "2026-08-20T09:29:12.295Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/core/types.ts": "packages/main/src/core/types.ts",
+    "packages/main/src/core/causal-evidence.ts": "packages/main/src/core/causal-evidence.ts",
+    "packages/main/src/handlers/checklist.ts": "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/core/store.ts": "packages/main/src/core/store.ts",
+    "packages/main/src/core/runtime-artifact-registry.ts": "packages/main/src/core/runtime-artifact-registry.ts",
+    "packages/main/src/core/evidence-freshness.ts": "packages/main/src/core/evidence-freshness.ts",
+    "packages/main/src/core/certification-window.ts": "packages/main/src/core/certification-window.ts",
+    "packages/main/src/handlers/verifier.ts": "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/core/process-fact-registry.ts": "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/tasks/causal-evidence-smoke.ts": "packages/main/src/tasks/causal-evidence-smoke.ts",
+    "packages/main/tests/causal-evidence.test.mjs": "packages/main/tests/causal-evidence.test.mjs",
+    "docs/story/**": "docs/story/**",
+    "tests/fixtures/**": "tests/fixtures/**",
+    "packages/main/src/**/unrelated-*": "packages/main/src/**/unrelated-*"
+  }
+}
