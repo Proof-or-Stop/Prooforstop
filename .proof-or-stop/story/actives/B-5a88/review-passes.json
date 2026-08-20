@@ -235,6 +235,41 @@
         "scanEscalationReason": null
       },
       "_hash": "9923edbb4698244caa9fb925128d45ca7aa7f27a0cc6a589ca9ba099809ddc60"
+    },
+    {
+      "id": "B-5a88:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Remediation concept review passed: rechecked the frozen canonical-role migration scope and found no new residue or blocker.",
+      "createdAt": "2026-08-20T10:45:42.703Z",
+      "reviewRound": "2026-08-20T10:12:58.490Z",
+      "reviewRunId": "B-5a88:RR-008",
+      "envelopeId": "4f693a20fcdc25dcf36c082a8a1d5db7a5793f3cf62143080e9d26ea17e9b7c2",
+      "writerSessionId": "sess-8a39253b9d37f31d4e506573af47ce1f",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "AGENTS.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/reviewer-opt-in.ts",
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/tests/red/red-w2b-wiring-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8b9c1689dc75e256ba42756314490031d04f905475e15391816360623c1f1479"
     }
   ]
 }

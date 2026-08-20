@@ -28,6 +28,31 @@
       "cancelReason": "Topology critic cannot start: current story branch has no business commit authored by the registered proof-or-stop-implementer identity. Cancel the incomplete remediation epoch so the story can re-plan the decision artifact through the official PLAN-only command.",
       "terminalRunSequenceBoundary": 6,
       "_hash": "8a081342686d2ef6bce7f593041058a6ebe4a29accc95bd64a746b4747cee20a"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-5a88:RI-002",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-20T10:12:58.490Z",
+      "state": "OPEN",
+      "begunAt": "2026-08-20T10:43:46.443Z",
+      "updatedAt": "2026-08-20T10:43:46.443Z",
+      "cutoff": {
+        "headHash": "4e21ad50506ffc0fa0b9f19258cec738ebd48c44",
+        "materialHash": "065b7ceee89b7a485d9f8c2b675c850b04ba566776e3bfb8e9225d0a055e692e",
+        "storyFilesHash": "a9d8324e30251fa6ad5ec54091383e90df00c63d6515235afdc2c684a6504eb7"
+      },
+      "scopeDigest": "4c71004c049d370cff894d3e25aa72cbc563018c7baace83f1ae3f4b9be93589",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage"
+      ],
+      "initialRunSequenceBoundary": 7,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [],
+      "_hash": "014182af774bb4302287cfc355804f5994e1bb60c4c960d6ddd5681db4553339"
     }
   ],
   "receipts": [],
