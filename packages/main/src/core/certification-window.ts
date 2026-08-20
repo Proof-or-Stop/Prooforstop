@@ -4,7 +4,11 @@ import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from './evidence-freshness.js';
 import { withMkdirLock } from './mkdir-lock.js';
-import { verifyCausalDependencyDecision, type CausalDependencyDecision } from './causal-evidence.js';
+import {
+  causalDependencyDecisionMatchesCurrentIdentity,
+  verifyCausalDependencyDecision,
+  type CausalDependencyDecision,
+} from './causal-evidence.js';
 
 export const CERTIFICATION_WINDOW_STATES = [
   'BLOCKED',
@@ -438,12 +442,24 @@ export function evaluateCertificationWindowAdmit(
       blockerDetail: `[${PRE_CERT_INVENTORY_API_ABSENT}] Review inventory admit APIs are absent; begin stays fail-closed and does not stub-always-admit. Inventory completeness is not PRE_CERT.`,
     };
   }
-  if (facts.causalDecision && (!verifyCausalDependencyDecision(facts.causalDecision) || !facts.causalDecision.gateAdmissible)) {
+  const causalDecisionBindingAdmissible = facts.causalDecision?.causalDecision !== 'advisory'
+    || causalDependencyDecisionMatchesCurrentIdentity(facts.causalDecision, {
+      materialHash: facts.materialHash,
+      storyFilesHash: facts.storyFilesHash,
+      headHash: facts.headHash,
+    });
+  if (facts.causalDecision && (
+    !verifyCausalDependencyDecision(facts.causalDecision)
+    || !facts.causalDecision.gateAdmissible
+    || !causalDecisionBindingAdmissible
+  )) {
     return {
       admit: false,
       blockerCode: PRE_CERT_CAUSAL_FRESHNESS_REQUIRED,
       blockerDetail: facts.causalDecision && verifyCausalDependencyDecision(facts.causalDecision)
-        ? `CausalEvidence requires fresh affected-node evidence: ${facts.causalDecision.reason}`
+        ? causalDecisionBindingAdmissible
+          ? `CausalEvidence requires fresh affected-node evidence: ${facts.causalDecision.reason}`
+          : 'CausalEvidence advisory binding does not match the live certification hashes; unrelated-material downgrade is refused.'
         : 'CausalEvidence decision is missing or tampered; stale affected-node bypass is refused.',
     };
   }
@@ -705,6 +721,12 @@ export function detectCertificationWindowMaterialDrift(
   }
   if (current.causalDecision && !current.causalDecision.gateAdmissible) {
     return { drifted: true, reason: current.causalDecision.reason };
+  }
+  if (
+    current.causalDecision?.causalDecision === 'advisory'
+    && !causalDependencyDecisionMatchesCurrentIdentity(current.causalDecision, current)
+  ) {
+    return { drifted: true, reason: 'causal advisory binding does not match current certification hashes' };
   }
   const allowSpecializedUnrelatedDrift = current.causalDecision?.causalDecision === 'advisory'
     && current.causalDecision.storyFilesHashAdvisory;

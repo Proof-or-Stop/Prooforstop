@@ -722,12 +722,20 @@ test('CHK-003: dependency domains shadow-compare closure and CertificationWindow
   })));
   const advisory = evaluateCausalDependencies({
     nodes: nodes.map(node => ({ ...node, recordedInputHashes: { [`input-${node.domain}`]: current[`input-${node.domain}`] } })),
-    currentInputHashes: current, previousMaterialHash: 'm1', currentMaterialHash: 'm2', previousStoryFilesHash: 's1', currentStoryFilesHash: 's1',
+    currentInputHashes: current, previousMaterialHash: 'm1', currentMaterialHash: 'm2', previousStoryFilesHash: 's1', currentStoryFilesHash: 's1', previousHeadHash: 'h1', currentHeadHash: 'h2',
   });
   assert.equal(advisory.causalDecision, 'advisory');
   assert.equal(advisory.materialHashStrict, false);
   assert.equal(advisory.specializedRerun, 0);
   assert.equal(advisory.affectedNodeRerun, 0);
+  assert.deepEqual(advisory.identityBinding, {
+    previousMaterialHash: 'm1',
+    currentMaterialHash: 'm2',
+    previousStoryFilesHash: 's1',
+    currentStoryFilesHash: 's1',
+    previousHeadHash: 'h1',
+    currentHeadHash: 'h2',
+  });
   assert.equal(JSON.stringify(nodes.map(node => ({
     ...node,
     recordedInputHashes: { [`input-${node.domain}`]: current[`input-${node.domain}`] },
@@ -906,8 +914,11 @@ test('CHK-003: dependency domains shadow-compare closure and CertificationWindow
   const stale = detectCertificationWindowMaterialDrift(window, { materialHash: 'm1', storyFilesHash: 's1', causalDecision: partial });
   assert.equal(stale.drifted, true);
   assert.match(stale.reason, /affected dependency closure/);
-  const unrelated = detectCertificationWindowMaterialDrift(window, { materialHash: 'm2', storyFilesHash: 's1', causalDecision: advisory });
+  const unrelated = detectCertificationWindowMaterialDrift(window, { materialHash: 'm2', storyFilesHash: 's1', headHash: 'h2', causalDecision: advisory });
   assert.equal(unrelated.drifted, false, 'only explicit specialized advisory may use storyFilesHash secondary policy');
+  const laterMaterial = detectCertificationWindowMaterialDrift(window, { materialHash: 'm3', storyFilesHash: 's1', headHash: 'h3', causalDecision: advisory });
+  assert.equal(laterMaterial.drifted, true, 'an advisory bound to m2 must not bypass a later live m3 material change');
+  assert.match(laterMaterial.reason, /causal advisory binding|materialHash/);
   emitIntentMarker(
     'CHK-003:adversarial:2',
     'CertificationWindow bypass is rejected and a stale affected PASS cannot enter a gate',

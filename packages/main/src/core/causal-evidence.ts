@@ -703,6 +703,15 @@ export interface CausalDependencyNode {
   recordedInputHashes: Record<string, string>;
 }
 
+export interface CausalDependencyDecisionIdentityBinding {
+  previousMaterialHash?: string;
+  currentMaterialHash?: string;
+  previousStoryFilesHash?: string;
+  currentStoryFilesHash?: string;
+  previousHeadHash?: string;
+  currentHeadHash?: string;
+}
+
 export interface CausalDependencyDecision {
   schemaVersion: typeof CAUSAL_DEPENDENCY_SCHEMA;
   causalDecision: 'fresh' | 'advisory' | 'rerun' | 'strict';
@@ -717,6 +726,8 @@ export interface CausalDependencyDecision {
   doneRequiredStrict: boolean;
   gateAdmissible: boolean;
   reason: string;
+  /** Hashes observed by evaluateCausalDependencies; included in the CAS hash. */
+  identityBinding?: CausalDependencyDecisionIdentityBinding;
   _hash: string;
 }
 
@@ -743,6 +754,8 @@ export function evaluateCausalDependencies(args: {
   currentMaterialHash?: string;
   previousStoryFilesHash?: string;
   currentStoryFilesHash?: string;
+  previousHeadHash?: string;
+  currentHeadHash?: string;
   doneRequired?: boolean;
   rerunNodeIds?: string[];
 }): CausalDependencyDecision {
@@ -789,6 +802,14 @@ export function evaluateCausalDependencies(args: {
   const affectedNodeRerun = affected.size === 0 ? 0 : Math.round(((affected.size - missingReruns.length) / affected.size) * 100);
   const causalRerunComplete = causalDecision === 'rerun' && missingReruns.length === 0;
   const finalGateAdmissible = causalRerunComplete || (causalDecision !== 'rerun' && gateAdmissible && missingReruns.length === 0);
+  const identityBinding: CausalDependencyDecisionIdentityBinding = {
+    previousMaterialHash: args.previousMaterialHash,
+    currentMaterialHash: args.currentMaterialHash,
+    previousStoryFilesHash: args.previousStoryFilesHash,
+    currentStoryFilesHash: args.currentStoryFilesHash,
+    ...(args.previousHeadHash !== undefined ? { previousHeadHash: args.previousHeadHash } : {}),
+    ...(args.currentHeadHash !== undefined ? { currentHeadHash: args.currentHeadHash } : {}),
+  };
   const decisionWithoutHash = {
     schemaVersion: CAUSAL_DEPENDENCY_SCHEMA,
     causalDecision,
@@ -803,13 +824,47 @@ export function evaluateCausalDependencies(args: {
     doneRequiredStrict,
     gateAdmissible: finalGateAdmissible,
     reason: causalRerunComplete ? 'affected dependency closure rerun is complete' : reason,
+    identityBinding,
   };
   return { ...decisionWithoutHash, _hash: causalDigest(decisionWithoutHash) };
 }
 
+export function hasCausalDependencyDecisionIdentityBinding(
+  decision: CausalDependencyDecision,
+): boolean {
+  const binding = decision?.identityBinding;
+  if (!binding || typeof binding !== 'object' || Array.isArray(binding)) return false;
+  return [
+    binding.previousMaterialHash,
+    binding.currentMaterialHash,
+    binding.previousStoryFilesHash,
+    binding.currentStoryFilesHash,
+  ].every(value => typeof value === 'string' && value.length > 0)
+    && (binding.previousHeadHash === undefined || typeof binding.previousHeadHash === 'string')
+    && (binding.currentHeadHash === undefined || typeof binding.currentHeadHash === 'string');
+}
+
+export function causalDependencyDecisionMatchesCurrentIdentity(
+  decision: CausalDependencyDecision,
+  current: { materialHash?: string; storyFilesHash?: string; headHash?: string },
+): boolean {
+  if (!hasCausalDependencyDecisionIdentityBinding(decision)) return false;
+  const binding = decision.identityBinding!;
+  if (
+    binding.currentMaterialHash !== current.materialHash
+    || binding.currentStoryFilesHash !== current.storyFilesHash
+  ) return false;
+  if (current.headHash !== undefined) return binding.currentHeadHash === current.headHash;
+  return binding.currentHeadHash === undefined;
+}
+
 export function verifyCausalDependencyDecision(decision: CausalDependencyDecision): boolean {
   const { _hash: _ignored, ...payload } = decision;
-  return decision.schemaVersion === CAUSAL_DEPENDENCY_SCHEMA && decision._hash === causalDigest(payload);
+  return decision.schemaVersion === CAUSAL_DEPENDENCY_SCHEMA
+    && decision._hash === causalDigest(payload)
+    // Keep legacy strict/rerun/fresh records structurally readable, but never
+    // let an unbound advisory authorize the unrelated-material downgrade.
+    && (decision.causalDecision !== 'advisory' || hasCausalDependencyDecisionIdentityBinding(decision));
 }
 
 export function deriveCausalMetrics(ledger: CausalEvidenceLedger): CausalEvidenceMetrics {
