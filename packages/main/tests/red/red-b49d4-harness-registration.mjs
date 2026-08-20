@@ -77,7 +77,9 @@ const SELF_ABS = fileURLToPath(import.meta.url);
 const here = dirname(SELF_ABS);
 const pkgRoot = join(here, '..', '..'); // packages/main
 const repoRoot = join(pkgRoot, '..', '..');
-const CONFIG_PATH = join(repoRoot, 'lattice.config.json');
+// B-cc10: resolve whichever config filename exists. The canonical name is now
+// proof-or-stop.config.json, so a hardcoded deprecated name threw ENOENT here.
+const CONFIG_PATH = join(repoRoot, ['proof-or-stop.config.json', 'lattice.config.json'].find((n) => existsSync(join(repoRoot, n))) ?? 'proof-or-stop.config.json');
 const SELF_REL = relative(repoRoot, SELF_ABS).split(sep).join('/');
 
 /** POPULATION 2 — governed by this file. */

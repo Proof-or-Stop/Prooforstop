@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-49ed",
+  "sourceText": "那就按照1继续实现",
+  "normalizedOutcome": "A topology-critic receipt can only be signed from a session whose identity the host derived, so an implementer who also holds the owner lease and dispatches the reviewer can no longer supply the identity that reviewer signs under. Option 1 of three presented alternatives (host injects dispatch provenance) rather than option 2 (open the dispatch command to the critic role) or option 3 (re-key the independence binding).",
+  "acceptanceClaim": "topology_critic_receipt_set refuses a session sourced from LATTICE_SESSION_ID with an error naming the received source, while a genuinely dispatched critic whose session the host derived still signs request_changes successfully.",
+  "keyRequirementIds": [
+    "REQ-001-host-derived-signing-session",
+    "REQ-002-legitimate-critic-still-signs"
+  ],
+  "requestHash": "sha256:0908b9d74ca703d621bb054bddc833bfddd232117215be72785ffa0114bbc354",
+  "createdAt": "2026-08-17T15:52:40.770Z",
+  "updatedAt": "2026-08-17T15:52:40.770Z"
+}

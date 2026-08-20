@@ -189,7 +189,7 @@ export async function createApp() {
 
 ```typescript
 // core/debug.ts
-import { devHost } from '@lattice/core/dev-host';
+import { devHost } from '@proof-or-stop/core/dev-host';
 import { createApp } from './app.js';
 import { GameMachine } from './machines/game/machine.js';
 
@@ -790,7 +790,7 @@ Proof-or-Stop agent prompt 的**正文（body）只有一个真相源**：包内
 | 宿主 | 项目/全局里的薄适配 | 正文来源 |
 |---|---|---|
 | Claude | `.claude/agents/*.md` thin-shim（frontmatter `name`/`description`/`tools` + body 写「run `proof-or-stop agent_prompt --role=<name>`」，**无正文**） | `proof-or-stop agent_prompt`（registry） |
-| Codex | `.lattice-codex/lattice.json` manifest（`promptMode: 'registry'`，B-4ee0） | 同一 registry |
+| Codex | `.proof-or-stop-codex/proof-or-stop.json` manifest（`promptMode: 'registry'`，B-4ee0） | 同一 registry |
 
 - **取正文命令**：`proof-or-stop agent_prompt --role=<name>`（如 `lattice-implementer` / `lattice-review-concept`），从 registry 吐角色正文；非法 role 列出可用 role。Claude shim 取它，Codex manifest 指它，两者 byte-equal 同源。
 - **spawn 不变**：主 agent 仍 `Agent({ subagent_type: "lattice-review-*" })`。shim 的 `tools:` frontmatter 保留宿主**只读沙箱**（reviewer 改不了文件）；被 spawn 的 reviewer/implementer **第一步运行 `proof-or-stop agent_prompt --role=<自身角色>` 取权威指令**再执行。
@@ -879,9 +879,9 @@ executable intent（logic|cli|browser）的 evidence 会真的 **执行** pinned
 | concept | `proof-or-stop validate --concept` | 扫 `git diff main...HEAD` 抽 deleted symbols + 全仓 grep 残留引用 | ≥ 5 残留 → 触发 concept reviewer；< 5 → skip |
 | lint | `proof-or-stop validate --lint` | tsc / ruff / import-graph（shells 不得 import fn.ts） | fail → block；工具缺失 → skip |
 | docs-drift | `docs-drift` preflight | 校验 reviewer/流程文档引用的 proof-or-stop 命令与 registry 对齐 | fail → block REVIEW→TEST |
-| codex-adapter | `node bin/lattice-codex.js verify_codex` | 仅当 story 触及 Codex adapter 入口资产时要求 adapter 证据 | 缺失或 stale → block REVIEW→TEST |
+| codex-adapter | `node bin/proof-or-stop-codex.js verify_codex` | 仅当 story 触及 Codex adapter 入口资产时要求 adapter 证据 | 缺失或 stale → block REVIEW→TEST |
 | english-artifacts | `english-artifacts` preflight (B-5f42, no standalone flag; standalone `npm run test:legacy -- english-only-guards`) | 本分支 commit + 当前 story 元数据必须英文(CJK 触发 fail) | fail → block REVIEW→TEST |
-| lattice-residue | `lattice-residue` preflight (B-292d, no standalone flag; standalone `npm run test:lattice-residue`) | 三个独立 check（见 `scripts/verify-lattice-residue.mjs`，**文件名为 FROZEN**：`review-preflight.ts` 硬编码该路径且缺失时 fail-closed）：**[koala]** 对 product runtime source（`packages/*/src`）零容忍扫 `koala` 残留，无 exemption；**[brand-prose]** (B-cdf6) 扫 active docs 的 markdown（scan roots：`README.md` / `CLAUDE.md` / `AGENTS.md` / `docs` / `packages/main/templates`，外加 **host adapter 目录 `.claude/agents` + `.lattice-codex/agents`**——B-cdf6 CHK-003 follow-up 补入，因为这两处曾各带约 20 行陈旧 `lattice <cmd>` 却因在扫描范围外而无人报错；它们是 registry 的派生镜像，命中即表示模板/注入 slice 陈旧或镜像未重生成，且会被原样喂给 spawn 出来的 agent），检出 `lattice <subcommand>` 这类仍在教用户跑旧 bin 名的调用式 prose，应改写为 `proof-or-stop <cmd>`。brand-prose **不能**照抄 koala 的零容忍设计——`packages/*/src` 下有 602 个文件合法含该 token（签名 salt / `.lattice/` 路径 / `LATTICE_*` env / `lattice-*` role ID 等，均为 `docs/requirements/decisions/brand-rename-mapping.md` 的 FROZEN 行），故按「须跟空格 + 小写子命令」结构性排除这些 FROZEN 类，另加一份带理由、且会自校验是否失效的 `EXEMPT_PROSE_FILES`；**[brand-exec]** (B-cdf6 CHK-006 Pass A) 扫**可执行面**——scan roots：`bin` / `.codex` / `package.json` / `lattice.config.json` / `CITATION.cff` / `packages/utils/src`——同样检出裸 `lattice <cmd>` 调用式，但**无 exemption**，因为这些路径本不该出现教旧 bin 名的调用；这一 root 集合是 B-cdf6 补入的，此前 `bin/` / `.codex/` 从未被任何 gate 扫过 | 任一 check fail → block REVIEW→TEST |
+| lattice-residue | `lattice-residue` preflight (B-292d, no standalone flag; standalone `npm run test:lattice-residue`) | 四个独立 check（见 `scripts/verify-lattice-residue.mjs`，**文件名为 FROZEN**：`review-preflight.ts` 硬编码该路径且缺失时 fail-closed）：**[koala]** 对 product runtime source（`packages/*/src`）零容忍扫 `koala` 残留，无 exemption；**[brand-prose]** (B-cdf6) 扫 active docs 的 markdown（scan roots：`README.md` / `CLAUDE.md` / `AGENTS.md` / `docs` / `packages/main/templates`，外加 **host adapter 目录 `.claude/agents` + `.proof-or-stop-codex/agents`**——B-cdf6 CHK-003 follow-up 补入，因为这两处曾各带约 20 行陈旧 `lattice <cmd>` 却因在扫描范围外而无人报错；它们是 registry 的派生镜像，命中即表示模板/注入 slice 陈旧或镜像未重生成，且会被原样喂给 spawn 出来的 agent），检出 `lattice <subcommand>` 这类仍在教用户跑旧 bin 名的调用式 prose，应改写为 `proof-or-stop <cmd>`。brand-prose **不能**照抄 koala 的零容忍设计——`packages/*/src` 下有 602 个文件合法含该 token（签名 salt / `.lattice/` 路径 / `LATTICE_*` env / `lattice-*` role ID 等，均为 `docs/requirements/decisions/brand-rename-mapping.md` 的 FROZEN 行），故按「须跟空格 + 小写子命令」结构性排除这些 FROZEN 类，另加一份带理由、且会自校验是否失效的 `EXEMPT_PROSE_FILES`；**[brand-exec]** (B-cdf6 CHK-006 Pass A) 扫**可执行面**——scan roots：`bin` / `.codex` / `package.json` / `proof-or-stop.config.json` / `lattice.config.json` / `CITATION.cff` / `packages/utils/src`——同样检出裸 `lattice <cmd>` 调用式，但**无 exemption**，因为这些路径本不该出现教旧 bin 名的调用；这一 root 集合是 B-cdf6 补入的，此前 `bin/` / `.codex/` 从未被任何 gate 扫过；**[brand-decision]** (B-cc10 CHK-007) 扫 product runtime source 的**路径判定点**，把 deprecated brand-path 字面量（`.lattice` / `.lattice-codex` / `lattice.config.json` / `lattice.json`，token 由 `packages/main/src/core/brand-paths.ts` 解析得出而非硬编码）从 exempt 翻成 **forbidden**——即代码不得再用 deprecated 拼写做**决策**（比较 / 读路径 / existsSync 探测）；read-both 场景应改为走 resolver 导出的 `STATE_DIR_NAMES` / `ADAPTER_DIR_NAMES` 候选列表。注意这一 check 只管 decision site，不禁止 deprecated 名字在 read-both 候选列表、FROZEN 签名 salt、或引用旧名解释迁移的 decision 文档里出现 | 任一 check fail → block REVIEW→TEST |
 
 `lattice-review-channel` LLM agent 已退役（S1），由 `proof-or-stop validate --channel --story=<id>` CLI gate 接管；`lattice-review-concept` 按需 spawn（CLI 残留 ≥ 5 时）；`lattice-review-quality` 假设 lint 已绿只审主观项。
 
@@ -1073,7 +1073,7 @@ pre-push hook 的核心设计约束：**不调用旧 CLI alias**。原因：hook
 - **Proof-or-Stop 自举仓检测**：
   1. `$REPO_ROOT/packages/main/package.json` 文件存在——不存在则非 Proof-or-Stop 仓，立即 `exit 0`（对非 Proof-or-Stop 仓零摩擦）
   2. **`node` 可用性检测**：用 `command -v node` 探测。`node` 缺失时 **fail-closed**——无法判断本仓是否 Proof-or-Stop 自举仓，向 stderr 打印明确警告并 `exit 1` 拒绝 push（不静默 `exit 0`，否则 tsc gate 会被无声绕过）
-  3. 用 `node` 解析 package.json 的 `name` 字段，为 `@lattice/core` 才继续；否则非 Proof-or-Stop 自身，立即 `exit 0`
+  3. 用 `node` 解析 package.json 的 `name` 字段，命中名字集合（`@proof-or-stop/core` 或历史名 `@lattice/core`）才继续；否则非 Proof-or-Stop 自身，立即 `exit 0`。比较的是**名字集合**而非单个名字，故重命名 package 不会静默关掉递归 tsc gate
   注意本仓是扁平布局 `packages/main`，不是嵌套布局
 - **先构建 `packages/main`**：`npm --prefix packages/main run build`。原因是 `packages/utils` 的源码 import `packages/main/dist` 的编译产物，若 `dist` 不存在，递归 tsc 跑到 `packages/utils` 会因找不到模块而 FAIL。`npm run build` 即 tsc（非 Proof-or-Stop CLI 命令，符合约束）。构建失败 → push 被拒
 - **递归 tsc**：`find` REPO_ROOT 下所有 `tsconfig.json`（排除黑名单目录 `node_modules / dist / build / .worktrees / .git`），对每个所在目录跑 `npx tsc --noEmit -p <dir>`。覆盖面与 `validate --lint` 递归扫子包对齐，消除 B-9bd9 的单根 tsconfig 子包盲区

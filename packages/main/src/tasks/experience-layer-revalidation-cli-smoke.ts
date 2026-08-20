@@ -5,7 +5,7 @@
  *
  * The leaf smoke (experience-layer-revalidation-smoke.ts) is hermetic and never
  * touches the CLI; this smoke closes that gap by driving the REAL user-facing
- * path — `node bin/lattice.js learning_validate ...` from the repo root — and
+ * path — `node bin/proof-or-stop.js learning_validate ...` from the repo root — and
  * asserting:
  *   - the human report prints both "valid-rate" and "drift-rate" lines;
  *   - `--json` emits a parseable ValidRateReport (numeric counters + rates + a
@@ -51,9 +51,9 @@ function repoRoot(): string {
 }
 
 const ROOT = repoRoot();
-const CLI = join(ROOT, 'bin', 'lattice.js');
+const CLI = join(ROOT, 'bin', 'proof-or-stop.js');
 
-/** Run `node bin/lattice.js <command> [jsonArgs]` from the repo root; return stdout. */
+/** Run `node bin/proof-or-stop.js <command> [jsonArgs]` from the repo root; return stdout. */
 function runCli(command: string, jsonArgs?: string): string {
   const argv = [CLI, command];
   if (jsonArgs !== undefined) argv.push(jsonArgs);
@@ -85,7 +85,7 @@ function newDirtyLines(before: string, after: string): string[] {
 }
 
 function run(): void {
-  assert.ok(existsSync(CLI), `bin/lattice.js not found at ${CLI}`);
+  assert.ok(existsSync(CLI), `bin/proof-or-stop.js not found at ${CLI}`);
 
   // Snapshot the working tree BEFORE any CLI run (read-only assertion baseline).
   const before = porcelain();

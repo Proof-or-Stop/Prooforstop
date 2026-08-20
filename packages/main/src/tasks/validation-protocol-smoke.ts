@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { strict as assert } from 'node:assert';
+import { PROOF_OR_STOP_ADAPTER_DIR } from '../core/brand-paths.js';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { chmodSync, existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -1237,14 +1238,20 @@ try {
   const incompatibleAssetRoot = mkdtempSync(join(tmpdir(), 'lattice-managed-incompatible-'));
   try {
     // An excluded-path runtime asset present as a directory must report INCOMPATIBLE.
-    mkdirSync(join(incompatibleAssetRoot, '.lattice-codex', 'settings.json'), { recursive: true });
+    // B-cc10 F-071: CHK-007 moved this excluded-path definition's relPath in
+    // managed-assets.ts from the hardcoded deprecated adapter dir to the resolver-derived
+    // one. The fixture kept staging + probing the DEPRECATED path, so `find` returned
+    // undefined and the assertion compared undefined to 'INCOMPATIBLE'. Derive the path
+    // from the same resolver the production code uses, so the two cannot drift again.
+    const settingsRel = `${PROOF_OR_STOP_ADAPTER_DIR}/settings.json`;
+    mkdirSync(join(incompatibleAssetRoot, ...settingsRel.split('/')), { recursive: true });
     const result = runManagedAssetCheck(incompatibleAssetRoot, { apply: true, profile: 'codex', assetMode: 'full' });
-    const item = result.items.find(entry => entry.relPath === '.lattice-codex/settings.json');
+    const item = result.items.find(entry => entry.relPath === settingsRel);
     assert.equal(item?.status, 'INCOMPATIBLE');
     assert.equal(item?.applied, undefined);
-    assert.equal(result.applied.includes('.lattice-codex/settings.json'), false, 'INCOMPATIBLE must not be counted as applied');
+    assert.equal(result.applied.includes(settingsRel), false, 'INCOMPATIBLE must not be counted as applied');
     const rendered = renderManagedAssetCheck(result);
-    assert.match(rendered, /INCOMPATIBLE \.lattice-codex\/settings\.json/);
+    assert.match(rendered, new RegExp(`INCOMPATIBLE ${settingsRel.replace(/[.\/]/g, (ch) => `\\${ch}`)}`));
     assert.match(rendered, /action: .*fix manually|action: .*manually/);
   } finally {
     rmSync(incompatibleAssetRoot, { recursive: true, force: true });

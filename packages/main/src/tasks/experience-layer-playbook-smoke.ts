@@ -56,6 +56,7 @@ import {
   resolvePlaybookOutcomesPath,
   resolveProposalsDir,
   resolvePlaybooksPath,
+  LEARNING_DIR,
   writeProposal,
 } from '../core/learning-store.js';
 import { COMMAND_POLICIES } from '../core/command-policy.js';
@@ -429,14 +430,17 @@ async function run(): Promise<void> {
     });
 
     // ─── IMPORT-FENCE (non-vacuous) ─────────────────────────────────────────────
-    check('import-fence: learning-store.ts imports only node:, ./digest.js, ./experience-layer-types.js', () => {
+    check('import-fence: learning-store.ts imports only node:, ./digest.js, ./experience-layer-types.js, ./brand-paths.js', () => {
       const src = readFileSync(join(MAIN_DIR, 'src', 'core', 'learning-store.ts'), 'utf-8');
       const specs = importSpecifiers(src);
       assert.ok(specs.length > 0, 'learning-store.ts has imports');
-      const allowed = new Set(['./digest.js', './experience-layer-types.js']);
+      // B-cc10: LEARNING_DIR is derived from the single path resolver, so
+      // ./brand-paths.js is an allowed inward identity import, not an outward leak.
+      const allowed = new Set(['./digest.js', './experience-layer-types.js', './brand-paths.js']);
       const foreign = specs.filter((s) => !s.startsWith('node:') && !allowed.has(s));
-      assert.deepEqual(foreign, [], `learning-store.ts must not import outward beyond ./digest.js + ./experience-layer-types.js; found: ${foreign.join(', ')}`);
+      assert.deepEqual(foreign, [], `learning-store.ts must not import outward beyond digest/types/brand-paths; found: ${foreign.join(', ')}`);
       assert.ok(specs.includes('./digest.js'), 'learning-store.ts imports ./digest.js');
+      assert.ok(specs.includes('./brand-paths.js'), 'learning-store.ts routes LEARNING_DIR through brand-paths');
     });
 
     check('import-fence: handlers/playbook.ts imports only learning-store, types, and the context read port', () => {
@@ -486,7 +490,7 @@ async function run(): Promise<void> {
       const digest = readProposal(root, pid)!.proposalDigest;
       h.playbook_approve({ proposalId: pid, expectedProposalDigest: digest });
       assert.ok(existsSync(resolvePlaybooksPath(root)), 'playbooks.json under .lattice/learning/');
-      assert.ok(resolvePlaybooksPath(root).includes(join('.lattice', 'learning')), 'playbooks path is under .lattice/learning/');
+      assert.ok(resolvePlaybooksPath(root).includes(LEARNING_DIR), `playbooks path is under ${LEARNING_DIR}/`);
     });
 
     // ─── B-dddd M0-M2: explicit outcome ledger, no promotion evaluator ─────────

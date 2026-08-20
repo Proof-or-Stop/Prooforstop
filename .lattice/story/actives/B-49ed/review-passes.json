@@ -1,0 +1,697 @@
+{
+  "passes": [
+    {
+      "id": "B-49ed:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check for the sessionSource guard: migration complete, no stale references, no half-migrated helpers found.",
+      "createdAt": "2026-08-18T03:37:16.384Z",
+      "reviewRound": "2026-08-18T02:48:29.207Z",
+      "reviewRunId": "B-49ed:RR-001",
+      "envelopeId": "cd4af74a1d39fdbfee05289488f6daeae54f1dad964294d9df7f71aa7b9fdf18",
+      "writerSessionId": "sess-25934e96946adb5a03ddc1adead40c65",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/adapter-session-env.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
+          "packages/main/src/tasks/signing-guard-mutation-proof-smoke.ts",
+          "packages/main/src/tasks/topology-signing-source-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "packages/main/package.json",
+          "packages/main/src/core/owner-session-adapters.ts",
+          "packages/main/src/core/owner-session.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f505f6e7f456dcd1856c6d280b605b028eae317f42bdb9bdb0043ca51a4baf17"
+    },
+    {
+      "id": "B-49ed:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 delta (F-005 fix, single file changed: topology-signing-source-guard-smoke.ts new section 3). No concept deletion/replacement. Inline dispatch-event literal and raw execFileSync git rev-parse are not competing idioms vs adapter-session-env.ts: ProcessEvent has no canonical constructor anywhere in the repo, the one production event-builder is a stateful store-writer unusable here, and field names match deriveRoleProvenance exactly. Mutation-verified: bogus headHash in the synthesized event makes the smoke fail as expected (not vacuous). Source restored to committed state after the mutation probe.",
+      "createdAt": "2026-08-18T03:56:15.080Z",
+      "reviewRound": "2026-08-18T03:52:40.426Z",
+      "reviewRunId": "B-49ed:RR-005",
+      "envelopeId": "c1eced7fa304109ec978e9d7528cbfd9295019f44d08d0bf5c0837b0686e36bd",
+      "writerSessionId": "sess-25934e96946adb5a03ddc1adead40c65",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/adapter-session-env.ts",
+          "packages/main/src/tasks/topology-signing-source-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/types.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/review-run-smoke.ts",
+          "packages/main/src/tasks/story6-invariants-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "d6ad810ef8868242fa6af1ec500e5a7e579152faa942c797a2c9f0cfe183ac27"
+    },
+    {
+      "id": "B-49ed:RP-003",
+      "agent": "lattice-review-behavior",
+      "note": "Round 2: independently verified all three round-1 dispositions rather than trusting them. F-005 fix confirmed real: section 3 of topology-signing-source-guard-smoke.ts executes deriveRoleProvenance to completion for both roles x both accepted sources against a synthesized dispatch event carrying a real git HEAD hash; ran the test, it passes and the completion assertions (agentId, sessionId binding) are genuine, not vacuous. Traced field-by-field that the synthetic event matches exactly what production writes (story-dispatch.ts:201-213: type/storyId/agentType/sessionId/businessCommit/businessCommitAuthor/businessCommitAuthorSource/headHash/storyFilesHash all present and unstamped for timestamp, which appendProcessEventRecord auto-fills exactly as the synthetic event omits it too); authority.actor is gate-asserted equal to the role string before deriveRoleProvenance is ever called in proofstory.ts, matching the synthetic actor:role. dispatchIdentity falls back to digest(event) when promptEnvelopeId/dispatchBindingDigest are absent -- that fallback is never validated by the guard under test, so the omission does not create a false-pass risk; it faithfully represents what a caller supplies to appendProcessEvent even though the richer story-dispatch.ts wrapper usually adds those ids. F-004 accepted_risk confirmed: checked out main HEAD in place for packages/main/src/tasks/proofstory-topology-critic-smoke.ts, ran it with tsx, reproduced the identical assertion failure (actual partial, expected complete) with zero story changes present, then restored HEAD and diffed byte-identical. Pre-existing bug outside this story scope, disposition is honest. F-003 partially_mitigated confirmed: grepped all 29 files containing LATTICE_SESSION_ID under packages/main/src/tasks for topology_critic_receipt_set, topology_exclusion_approval_set, and deriveRoleProvenance itself -- zero hits outside the storys own new topology-signing-source-guard-smoke.ts. story-owner-lease-smoke.ts (74 of the hits) independently confirmed to assert explicit-env sessionSource semantics as its actual subject matter (lines around 196-206, 529-591), so migrating it would break the test it exists to run, not merely churn it. Disposition is honest, not self-serving; the userSees promise is genuinely over-broad relative to what matters (signing-guard reachability), and the residual literal count in non-signing fixtures carries no security consequence. No new findings from this round; all 5 round-1 findings (F-001..F-005) remain resolved and my independent spot-checks did not surface anything the resolutions misrepresent.",
+      "createdAt": "2026-08-18T03:57:08.084Z",
+      "reviewRound": "2026-08-18T03:52:40.426Z",
+      "reviewRunId": "B-49ed:RR-007",
+      "envelopeId": "4a480b811545754e788a3d4846671ff32921e30a0857b9b18b054c6abae2a3d3",
+      "writerSessionId": "sess-bae2d0b55e16227d4e935d24703eb0b6",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/session-ownership-and-write-leases.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "1f6801cbed3c01d46ffe62c25b194c5c9af6c6bcc7e22f76a130f8e9e01ea883"
+    },
+    {
+      "id": "B-49ed:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-audited F-010 rewrite: verified genuinely non-vacuous by independently reproducing the bite outside the repo (widened SIGNABLE_SESSION_SOURCES in a scratch dist copy, smoke failed with AssertionError; restored, smoke passed exit 0). Traced guard source topology-critic-receipt.ts:162-175 against compiled dist to confirm the smokes two assertions (source-gate throw vs dispatch-lookup throw) are the real, first two divergence points, not coincidental string matches. No leftover mutant files; finally-block cleanup verified robust; distinct file paths confirm real vs mutant are distinct ESM module instances. F-011 accepted, both halves correct: CHK-002:happy:0 evidence runs only the narrow smoke with no selector, never compares a full-suite pass count against the literal intent text; accepted_risk with weak strength is the right call given environment-blocked full-suite baseline attempts, not a blocking gap. F-005 follow-up confirmed: CHK-001:edge:0 now carries a fresh verification_run receipt whose outputTail includes the new section-3 completion line, obtained via re-execution of the existing pin rather than re-pinning. finding_list shows 0 open findings across all 11 filed, all resolved with recorded evidence. No new coverage gaps found this round.",
+      "createdAt": "2026-08-18T04:22:13.821Z",
+      "reviewRound": "2026-08-18T04:18:52.650Z",
+      "reviewRunId": "B-49ed:RR-014",
+      "envelopeId": "a58a566f0768b275eb11fd4266889d1555b450881359ac7af27c87f4e7aa1bb8",
+      "writerSessionId": "sess-bb4571e896a18423ba2230f65e1f00a8",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-49ed/checklist.json",
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/tasks/signing-guard-mutation-proof-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/dist/core/topology-critic-receipt.js",
+          "packages/main/src/tasks/topology-signing-source-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "27e0eb94c56677d4ad217e12e84628934ac4943e712d297148ac2d47496a9b6c"
+    },
+    {
+      "id": "B-49ed:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Round 3 delta review scoped to the one file changed since RP-002 (signing-guard-mutation-proof-smoke.ts). Verified F-010 rewrite genuinely imports/executes real guard + mutant (ran compiled smoke: PASS). No stray mutant file, no gitignore/test-discovery collision found. Filed low finding F-012 for dead scratch tempdir residue; not blocking.",
+      "createdAt": "2026-08-18T04:25:29.350Z",
+      "reviewRound": "2026-08-18T04:18:52.650Z",
+      "reviewRunId": "B-49ed:RR-015",
+      "envelopeId": "93d75258c8a296edab2eede7f11b47bb3bf686d2a261853163c8d93672eb2fce",
+      "writerSessionId": "sess-bb4571e896a18423ba2230f65e1f00a8",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".gitignore",
+          "packages/main/src/tasks/signing-guard-mutation-proof-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/package.json",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "dffc7ffe544719d1c85b332b284a20ee1340e03aaae46b3d67f7828e7c20d54d"
+    },
+    {
+      "id": "B-49ed:RP-006",
+      "agent": "lattice-review-behavior",
+      "note": "F-010 delta verified: (1) divergence assertion is genuine — traced topology-critic-receipt.ts:166-172 directly confirming source-gate throw precedes dispatch-lookup throw; ran the compiled proof in an isolated scratch copy (PASS) and adversarially rewrote the real guards error message to an unrelated string, confirming the proof correctly fails rather than passing vacuously. (2) F-005 section 3 (exclusion-approver full-path completion, topology-signing-source-guard-smoke.ts) is a separate file untouched since commit f3bf7456a0, zero diff across the F-010 window; ran it read-only and confirmed accepted sources complete provenance for: critic + exclusion approver still holds. (3) 9f9f53a514 asymmetry (issueTopologyCriticReceipt L424, verdict pass vs request_changes gating on basisStatus) lives entirely downstream of and independent from deriveRoleProvenance; git diff main...HEAD on proofstory.ts shows only the two sessionSource argument additions, nothing near the verdict branch; F-010s commit (534964831f) touched only the smoke file. (4) CHK-004 evidence is manual_transcript, unrelated to the rewritten file; CHK-003s already-resolved F-004 stale-userSees reference concerns a different pre-existing smoke file, unaffected. No new findings.",
+      "createdAt": "2026-08-18T04:26:58.234Z",
+      "reviewRound": "2026-08-18T04:18:52.650Z",
+      "reviewRunId": "B-49ed:RR-017",
+      "envelopeId": "8dc66e8ad3f6501c91909f15786b552299276f7080a19c63c1e1d8ef1f4fb1ea",
+      "writerSessionId": "sess-bae2d0b55e16227d4e935d24703eb0b6",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/session-ownership-and-write-leases.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "397b1abba903bfe15d4cc8c55acae92ce1831a833afb1c8d4f33a7de09645895"
+    },
+    {
+      "id": "B-49ed:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Concept-residue scan of the F-010->F-012->F-013 churn (mutation-proof rewrite -> scratch removal -> relocation) found no stale residue: (1) confirmed the previously-flagged duplicate byte-identity assertion in signing-guard-mutation-proof-smoke.ts is fixed, only one remains near end of file; (2) independently reproduced the mutation-proof bite by widening the real compiled SIGNABLE_SESSION_SOURCES guard (dist copy, restored after) -- smoke correctly threw and exited non-zero, then passed again after restore; (3) independently reproduced the import-rewrite regex claim by appending a re-export statement to the compiled guard and confirming the relocation still resolves it correctly, so the assertion is sound not vacuous; (4) grepped for stale-identifier / dist-mutant-path / old-count residue across touched files and repo -- all clean, remaining explicit-session-env uses in topology-signing-source-guard-smoke.ts are deliberate trap/control cases proving a downgrade regression is caught, not residue. One low finding filed (F-018): package.json description field converted from literal CJK to escaped unicode by an incidental json-writing tool call, now the sole outlier vs sibling packages which keep literal CJK -- cosmetic but should be restored for consistency since no CLI gate currently catches escaped-form drift. Wave 4 acceptance-topology chain is out of this story's scope (no touchpoints), not reviewed.",
+      "createdAt": "2026-08-18T04:48:44.305Z",
+      "reviewRound": "2026-08-18T04:41:21.380Z",
+      "reviewRunId": "B-49ed:RR-020",
+      "envelopeId": "f0e883f441021293fc819b40c28aed8bd9b6a839aa3b69da3a4510936cfa2eb0",
+      "writerSessionId": "sess-25934e96946adb5a03ddc1adead40c65",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/package.json",
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/adapter-session-env.ts",
+          "packages/main/src/tasks/signing-guard-mutation-proof-smoke.ts",
+          "packages/main/src/tasks/topology-signing-source-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/package-lock.json",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/proofstory-topology-critic-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5b2756cab596f78026a9716a89e76a12cf374b8791d4e2640380cc8eb756bb68"
+    },
+    {
+      "id": "B-49ed:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage review round 2 (post F-021/F-022 fix). F-021 (critical, RESOURCE_POLICY registration): independently confirmed FIXED with no fourth layer found. Traced full-suite-runner.ts entriesFromSerialReference+validateInventory directly (node eval): both test:topology-signing-source-guard and test:signing-guard-mutation-proof resolve cleanly, 51/51 members. Ran both proofs standalone (PASS) and ran the actual scheduled full-suite-runner.js directly (not npm wrapper) at --jobs 6: both proofs PASS in-scheduler (0.5s/0.3s); confirmed 48/51 passed, only test:flow-stability-smoke TIMEOUT (branch has zero diff on that file, reproduces standalone in 0s, consistent with runner --jobs 6 resource contention, not a regression from this story). Checked test:serial-reference-prefix (concatenated ahead of test:serial-reference, same policy path) and scripts/verify-full-suite-contract.mjs (unrelated: story-B-9812-scoped manual infra, not wired into package.json scripts/validate/DONE gate) as candidate fourth authorities -- neither is. F-022 (verificationEvidence refresh): confirmed CHK-002s 3 intents are fresh (materialHash/storyFilesHash match current HEAD). However found a NEW gap, filed as F-023 (medium): the other 12 of 15 intents (CHK-001/003/004/005) are STALE per findStaleEvidence -- storyFilesHash drift, not mere materialHash noise, because full-suite-runner.ts (story-owned, touched by the F-021 commit) changed after those receipts were captured. Per CLAUDE.md this is the strong-signal drift class requiring re-attestation via verification_evidence_refresh_stale before DONE, not just CHK-002. On the evidence-pin judgement call: the refusal to bind the full-suite run to CHK-002:adversarial:0 is correct and there is no legitimate bypass -- verification_evidence_add/_run intents are pinned per-command by design (B-ec67 evidence-pin seatbelt/core/evidence-pin-guard.ts), specifically to prevent laundering a broader runs pass into an intent pinned to a narrower command. Recording the full-suite pass only in the finding-resolution note is the correct and only available attestation path; this is not a gap in the framework.",
+      "createdAt": "2026-08-18T05:21:10.255Z",
+      "reviewRound": "2026-08-18T05:10:42.248Z",
+      "reviewRunId": "B-49ed:RR-024",
+      "envelopeId": "7d48f573a9ffa11dd865861b94ec06d95c2ab8d8a0aec72df2fc8c50679017c9",
+      "writerSessionId": "sess-bb4571e896a18423ba2230f65e1f00a8",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-49ed/checklist.json",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/evidence-pin-guard.ts",
+          "packages/main/src/core/evidence-stale-hint.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "scripts/verify-full-suite-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e71747670a5d6f150214c09ba7bde0ddb7aa5421aee5da8a6c7eef82f66a1df5"
+    },
+    {
+      "id": "B-49ed:RP-009",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed the two delta fixes since last verdict. (1) signing-guard-mutation-proof-smoke.ts probe() rewrite: ran retired-authority-vocabulary-guard-smoke directly (PASS), confirmed the guard has no execFileSync/spawnSync/child_process detection (only scans import()/require() non-literal loads and vm/Function usage) -- filed F-029 medium/missing: trades a flagged violation for the same violation class on an unmonitored surface. Confirmed interpolated values are all compile-time constants / JSON.stringify-escaped, so no injection risk. (2) validation-reuse-merge-lineage-smoke.ts rmScratch() maxRetries fix: ran the smoke 3x consecutively, all passed. maxRetries:10/retryDelay:50 is Node's documented mechanism for ENOTEMPTY/EBUSY races on recursive rmSync of a freshly-used git-repo tree on macOS; no call site holds a persistent lock, so this is the correct fix. No new findings on item 2. One finding filed total (F-029, medium).",
+      "createdAt": "2026-08-18T09:56:20.263Z",
+      "reviewRound": "2026-08-18T05:27:28.263Z",
+      "reviewRunId": "B-49ed:RR-031",
+      "envelopeId": "d784d8a5f2b5eff1fb1b0cbc92d85dfe5e99f450ef4b4fcde36ab247f2e74f96",
+      "writerSessionId": "sess-623213bafdae2991f875ad06d5d08040",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/signing-guard-mutation-proof-smoke.ts",
+          "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e1db4ea14e57c926d30672678f753988695f4140c6aebde0b3a40ffc9dc94405"
+    },
+    {
+      "id": "B-49ed:RP-010",
+      "agent": "lattice-review-quality",
+      "note": "Re-reviewed F-029 fix in signing-guard-mutation-proof-smoke.ts: verified via TS-AST parse + smoke reruns + guard-mutation control test that probe.mjs is a literal, non-interpolated fixture written outside the vocabulary guard scan scope. No blocking issues.",
+      "createdAt": "2026-08-18T10:16:41.435Z",
+      "reviewRound": "2026-08-18T05:27:28.263Z",
+      "reviewRunId": "B-49ed:RR-032",
+      "envelopeId": "bfb7745881ff7a2802dd66e581a3054132c09dac8f36d949179ce267bad8ebd6",
+      "writerSessionId": "sess-623213bafdae2991f875ad06d5d08040",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/signing-guard-mutation-proof-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-49ed/checklist.json",
+          ".lattice/story/actives/B-49ed/plan.md",
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/adapter-session-env.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "63b1c1f88e46f4845a19ccbc591a450cc3f6a13e7159335ba41ca69429c9555f"
+    },
+    {
+      "id": "B-49ed:RP-011",
+      "agent": "lattice-review-concept",
+      "note": "Concept-residue re-check of the post-F-029 delta: signing-guard-mutation-proof-smoke.ts now writes a STATIC probe.mjs (argv-only, no constructed code) executed via execFileSync; verified pathToFileURL still has live call sites (relocation + probe argv, not orphaned), the two comments referencing string-comparison/regex (F-010) and node -e constructed-string (F-029) shapes are historical lineage notes only, and both mutant.mjs + probe.mjs live in the same scratch dir cleaned by one finally{rmSync(scratch,...)} -- no leak. validation-reuse-merge-lineage-smoke.ts: all 7 rmSync(root,...) sites converted to rmScratch(root); only remaining rmSync( call is the helper definition -- no missed site. Ran both compiled smokes directly (node dist/tasks/*.js): both PASS. No concept deletion/replacement residue found.",
+      "createdAt": "2026-08-18T10:19:54.719Z",
+      "reviewRound": "2026-08-18T05:27:28.263Z",
+      "reviewRunId": "B-49ed:RR-033",
+      "envelopeId": "fe147fbd24d46c0d7eb078327948a2cd111d4aa8ec376ef3714477d64b1d56ac",
+      "writerSessionId": "sess-25934e96946adb5a03ddc1adead40c65",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/signing-guard-mutation-proof-smoke.ts",
+          "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/adapter-session-env.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
+          "packages/main/src/tasks/topology-signing-source-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f7ab495d0a233731555e4da7cf68909f4d62d755138fb743228ff52b0249a213"
+    },
+    {
+      "id": "B-49ed:RP-012",
+      "agent": "lattice-review-concept",
+      "note": "Incremental re-review: review_incremental_context + independent git diff 1848c0a6..HEAD confirm zero tracked source files changed since RP-011 pass; only .lattice/story/actives/B-49ed/* process metadata changed (F-030 resolution + verification evidence refresh). No new concept deletion/replacement. No blocker.",
+      "createdAt": "2026-08-18T13:14:11.775Z",
+      "reviewRound": "2026-08-18T12:55:09.009Z",
+      "reviewRunId": "B-49ed:RR-036",
+      "envelopeId": "1d8d894bcd8d4a0a927abfb7f6dbdaf1ef7fa7fe138091b3d8d5c707c00e58cc",
+      "writerSessionId": "sess-25934e96946adb5a03ddc1adead40c65",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-49ed/checklist.json",
+          ".lattice/story/actives/B-49ed/findings.json",
+          ".lattice/story/actives/B-49ed/index.json",
+          ".lattice/story/actives/B-49ed/process-events.jsonl",
+          ".lattice/story/actives/B-49ed/process-metrics.json",
+          ".lattice/story/actives/B-49ed/prompt-envelopes.json",
+          ".lattice/story/actives/B-49ed/review-passes.json",
+          ".lattice/story/actives/B-49ed/review-runs.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1a9e4a4bb741860fcb8c4ef930521788127fb790485d7c64d2c4b1b1b67cb95b"
+    },
+    {
+      "id": "B-49ed:RP-013",
+      "agent": "lattice-review-quality",
+      "note": "Re-confirmed via review_incremental_context (isFirstPass=false, scopeChanged=false, changedFiles=none) and independent git diff 933b880b3d..HEAD -- packages/main/src/ which is empty. Only commits since prior pass are proof-or-stop metadata-recording commits. RP-010 findings stand unchanged: F-029 static probe.mjs verified via TS compiler API parse; rmScratch maxRetries verified as Nodes documented ENOTEMPTY retry mechanism. No new finding this round. Standing scope caveat re validation-reuse-merge-lineage-smoke.ts is a scope/process disposition already recorded in F-030 resolution, outside this lanes quality remit to re-litigate.",
+      "createdAt": "2026-08-18T13:14:18.678Z",
+      "reviewRound": "2026-08-18T12:55:09.009Z",
+      "reviewRunId": "B-49ed:RR-035",
+      "envelopeId": "8ad1b46aac09ea6ba2c1e06afdf60c3f7788ec2f5abda4d5d346f513d00aac55",
+      "writerSessionId": "sess-623213bafdae2991f875ad06d5d08040",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-49ed/findings.json",
+          ".lattice/story/actives/B-49ed/review-passes.json"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/adapter-session-env.ts",
+          "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "751711ff0c37005449a66457da7790987c0be771a9b45df5b556fc47aa590121"
+    },
+    {
+      "id": "B-49ed:RP-014",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. All 15 must intents across CHK-001..CHK-005 have exactly 15 evidence rows (1:1), all storyFilesHash=0d4cdbba... matching current task-context storyFilesHash (F-030 refresh confirmed sound). Independently re-ran topology-signing-source-guard-smoke.js, proofstory-pre-review-check-smoke.js, and signing-guard-mutation-proof-smoke.js myself: output byte-matches stored receipts exactly, no content-vs-hash drift (F-022 failure mode did not recur). CHK-004 evidence is mechanical:false with nonMechanicalReason=refresh-stale-not-rerun, but its intents are type:manual (attestation-only, not in EXECUTABLE_INTENT_TYPES), so coverageStatusForCoveredEvidence short-circuits to covered regardless of mechanical flag by design -- not a coverage gap. headHash drift (bb0de5f6 -> 6a30a272) is 6 metadata-only commits (.lattice/ bookkeeping), storyFilesHash unchanged, matching headHash-only-drift-is-not-a-rerun-signal rule. On the F-030 scope question: reviewed the actual diff of validation-reuse-merge-lineage-smoke.ts -- a small self-contained test-only rmSync-retry helper applied across 7 cleanup call sites in one pre-existing smoke file, independently passing when re-run. Given its size, isolation from this story runtime scope, and explicit admission already in F-030 resolution text, I do not judge a DONE-blocking split is warranted.",
+      "createdAt": "2026-08-18T13:20:35.886Z",
+      "reviewRound": "2026-08-18T12:55:09.009Z",
+      "reviewRunId": "B-49ed:RR-037",
+      "envelopeId": "b909c27e1f75a70833af61091d28d5bd79bb9ef891d548e9b62dded1209a8d90",
+      "writerSessionId": "sess-755723cd1df32caddafb382982d9ec79",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-49ed/checklist.json",
+          ".lattice/story/actives/B-49ed/findings.json",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-49ed/background.md",
+          ".lattice/story/actives/B-49ed/plan.md",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/signing-guard-mutation-proof-smoke.ts",
+          "packages/main/src/tasks/topology-signing-source-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "45fa75b9a4659ef96180207857a6756cd9c5220b06c6f1cedb66d3a4d3e777b0"
+    },
+    {
+      "id": "B-49ed:RP-015",
+      "agent": "lattice-review-behavior",
+      "note": "Independently re-verified all four points post RP-006 delta, not just re-read prior claims. (1) topology-critic-receipt.ts and proofstory.ts unchanged since their sole founding commit 930539c28e, which predates all four signing-guard-mutation-proof-smoke rewrites; SIGNABLE_SESSION_SOURCES throw at topology-critic-receipt.ts:164-166 fires before the dispatch-event lookup at :167, for both call sites (proofstory.ts:550 approver, :565 critic), both passing sessionSource: getSessionIdentity().sessionSource. (2) topology-signing-source-guard-smoke.ts section 3 (untouched since F-005) drives full deriveRoleProvenance for BOTH TOPOLOGY_CRITIC_ROLE and TOPOLOGY_EXCLUSION_APPROVER_ROLE with a valid dispatch event; built and ran it, got PASS including accepted sources complete provenance for: critic + exclusion approver. (3) Read issueTopologyCriticReceipt:424 and verifyTopologyCriticReceipt:487 -- only verdict=pass throws/blocks on basisStatus!==complete; reproduced independently via an isolated probe outside the worktree importing the built module: request_changes succeeded with basisStatus:partial, pass threw critic cannot override partial discovery. This is the same mechanism 9f9f53a514 introduced (no separate stale-vs-partial code path exists). (4) Ran signing-guard-mutation-proof-smoke.js: PASS/exit0 with current static-argv probe.mjs shape (confirmed no dynamic import()/node -e in current source). Independently reproduced the mutation cycle on a scratch copy of dist outside the repo: widening SIGNABLE_SESSION_SOURCES in the real artifact copy caused exit1 via the files own pre-mutation control assertion, restoring caused exit0. Confirmed retired-authority-vocabulary-guard-smoke.js still passes with this file present. Confirmed via entriesFromSerialReference (using the correct concatenated test:serial-reference-prefix + test:serial-reference, matching full-suite-runner.ts:529) that both test:topology-signing-source-guard and test:signing-guard-mutation-proof are present with no unknownPolicy/stalePolicy/missingScripts entries in the 51-member canonical DONE-blocking inventory. No blocking issues found.",
+      "createdAt": "2026-08-18T13:22:19.727Z",
+      "reviewRound": "2026-08-18T12:55:09.009Z",
+      "reviewRunId": "B-49ed:RR-038",
+      "envelopeId": "cea82ef032ec7c714e61b2aa1c2c1e9537f55ce7c814b5d63b80ff9e4bf6435a",
+      "writerSessionId": "sess-bb4571e896a18423ba2230f65e1f00a8",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/session-ownership-and-write-leases.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "90512a33bd7a81e934398b1ea4d0ad0aa2c3b6519bcbe3427c86c9b9ccb02bbe"
+    },
+    {
+      "id": "B-49ed:RP-016",
+      "agent": "lattice-review-quality",
+      "note": "Re-review scoped to 2 files changed since prior pass. Independently verified both fixes rather than trusting commit text; ran mutant/control for both, confirmed no over-match, cross-checked sibling -topology regex still bites, scanned all 20 mutation branches for other brand-hardcoded prose regexes -- none found. No findings.",
+      "createdAt": "2026-08-18T15:42:03.183Z",
+      "reviewRound": "2026-08-18T12:55:09.009Z",
+      "reviewRunId": "B-49ed:RR-044",
+      "envelopeId": "40f56da2d1204ca472cab4fdefb4f5dc343094b0e5e50747bf9da81a665b4c12",
+      "writerSessionId": "sess-4292375d1d751b41",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "bin/bootstrap-runner.js",
+          "packages/main/templates/agents/lattice-implementer.md",
+          "packages/main/templates/agents/lattice-review-topology-critic.md",
+          "packages/main/tests/red/red-1734-bootstrap-depfree.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "eb613d85f44c1aebbd4d23555971393f6ef79625c114b7239027ea9086e79923"
+    },
+    {
+      "id": "B-49ed:RP-017",
+      "agent": "lattice-review-concept",
+      "note": "Re-review after HEAD moved to 7bfff86f23; independently re-verified both stale-brand fixes (bootstrap hint + mutation regex) by running the actual affected scripts, not just reading the diff. No concept-deletion residue.",
+      "createdAt": "2026-08-18T15:42:05.708Z",
+      "reviewRound": "2026-08-18T12:55:09.009Z",
+      "reviewRunId": "B-49ed:RR-040",
+      "envelopeId": "5f63c04978428f151ed912a3779c42b7fbc6c6155ea81cd74ef4ee69a37fb303",
+      "writerSessionId": "sess-4292375d1d751b41",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "bin/bootstrap-runner.js",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/templates/agents/lattice-implementer.md",
+          "packages/main/tests/red/red-1734-bootstrap-depfree.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "8bd134fcad822d884a54b33d7c99ffe7fad05b0171ae270ab54f55e614913a93"
+    },
+    {
+      "id": "B-49ed:RP-018",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-review after HEAD moved (commit 7bfff86f23). Changed files are only red-1734-bootstrap-depfree.mjs and scripts/verify-process-fact-contract.mjs, both unrelated to this story checklist. Independently reproduced pre-fix failure and post-fix pass for both assertions, ran all 4 drop-acceptance-basis-* mutations (all bite, control passes), confirmed -topology sibling was already brand-agnostic, and audited remaining text.replace mutation regexes plus lattice-prefixed literals in the file: no other brand-hardcoded no-op mutation regexes found. B-49ed verificationIntent/Evidence remains 5/5 items with 3/3 must intents covered by passing evidence; headHash-only staleness confirmed by re-running the pinned smoke tests (topology-signing-source-guard-smoke, signing-guard-mutation-proof-smoke) which still pass at current HEAD.",
+      "createdAt": "2026-08-18T15:47:40.839Z",
+      "reviewRound": "2026-08-18T12:55:09.009Z",
+      "reviewRunId": "B-49ed:RR-045",
+      "envelopeId": "65d95fef31de02a3043a8c494016e09674c7a257a7ba363390ea350033810d3c",
+      "writerSessionId": "sess-4292375d1d751b41",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "bin/bootstrap-runner.js",
+          "packages/main/templates/agents/lattice-implementer.md",
+          "packages/main/tests/red/red-1734-bootstrap-depfree.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "37682bf9a1459e1f0cd42ba44b242ad3b6951e3fba8d30263d16928a9e9b3433"
+    },
+    {
+      "id": "B-49ed:RP-019",
+      "agent": "lattice-review-behavior",
+      "note": "Re-issued at current HEAD (df2b165) after commit 7bfff86f23 landed. Verified independently: (1) red-1734-bootstrap-depfree.mjs:183 now asserts proof-or-stop local bootstrap is not ready, matching bin/bootstrap-runner.js:32 actual output; ran the real fresh-checkout spawn test end-to-end (exit 0, all VI-OK), then reverted to the stale lattice-prefixed regex to confirm it fails (exit 1, AssertionError) proving the assertion genuinely bites rather than being vacuous; restored file clean via git diff. (2) verify-process-fact-contract.mjs:592 regex now brand-agnostic /^Acceptance-basis boundary:.*$/m, matches the sole line at lattice-implementer.md:13, ran the drop-acceptance-basis-prompt mutation directly: control passes, mutant fails with acceptance basis contract must keep a sole verifier writer... (exit 1), confirming the strip is no longer a no-op. Scanned all 20 mutation regexes in the file for other brand-hardcoded patterns; none found besides the two already fixed (this one plus the prior -topology one). Both fixed files reproduce the pre-fix failure at main@16e2077461 independently verified via git show. No behavioral or edge-case regressions found; scope is exactly the two changed files per review_incremental_context.",
+      "createdAt": "2026-08-18T15:52:43.185Z",
+      "reviewRound": "2026-08-18T12:55:09.009Z",
+      "reviewRunId": "B-49ed:RR-046",
+      "envelopeId": "77a78b512e6a9f83802e630eba02ace8f4cf2f0feb3acb6c527eee3c2a876fef",
+      "writerSessionId": "sess-4292375d1d751b41",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "89b30b3bc4522f6844cc09908cffe05491fe44b0518d559978e4f39c95d3e745"
+    },
+    {
+      "id": "B-49ed:RP-020",
+      "agent": "lattice-review-behavior",
+      "note": "Re-reviewed scoped diff (commit 15dee05d32): added maxRetries:10/retryDelay:50 to both rmSync calls in material-hash-large-tree-smoke.ts. Verified: (1) real assertion failures still exit 1 via direct test of the catch-branch pattern; (2) retry is bounded (max ~500ms extra per call, no unbounded stall); (3) mkdtempSync generates a fresh unique tmpdir per run so no partially-deleted fixture reuse across runs; (4) if retries exhaust, rmSync still throws (no silent masking, matches pre-fix exception-safety exactly, only lowers ENOTEMPTY probability); (5) pattern matches already-reviewed validation-reuse-merge-lineage-smoke.ts:21 exactly. Ran the smoke standalone, exit 0, happy path unaffected. No blocker.",
+      "createdAt": "2026-08-19T05:00:50.193Z",
+      "reviewRound": "2026-08-18T12:55:09.009Z",
+      "reviewRunId": "B-49ed:RR-049",
+      "envelopeId": "7fbacb8fef3e10ec1948a5f9116253cfea379a05f2c2da0cdff47bfea81cda5b",
+      "writerSessionId": "sess-4292375d1d751b41",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/material-hash-large-tree-smoke.ts",
+          "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "af842f806d96a2b44450292a8a0055ed7be05baf792dc54d1d9547699b6f4f97"
+    },
+    {
+      "id": "B-49ed:RP-021",
+      "agent": "lattice-review-concept",
+      "note": "Re-review after HEAD moved to 15dee05d32 (fix: retry ENOTEMPTY when material-hash-large-tree-smoke removes its 6000-file fixture). Independently verified: diff scope is exactly 1 file / 2 insertions / 2 deletions in material-hash-large-tree-smoke.ts adding maxRetries:10,retryDelay:50 to two pre-existing rmSync calls. No exports/symbols/files deleted or renamed (validate --concept confirms zero deleted exports in main...HEAD). Verified line-141 rmSync sits outside try/catch by direct file read. Verified referenced sibling pattern at validation-reuse-merge-lineage-smoke.ts:21 genuinely carries same maxRetries/retryDelay values. Built dist, ran compiled smoke 3x sequential + 6x concurrent, all exit 0. Injected a real assertion failure into compiled artifact to confirm genuine-failure path still exits 1 via catch branch with cleanup intact. No concept-deletion residue; no blocker in this lane.",
+      "createdAt": "2026-08-19T05:02:34.559Z",
+      "reviewRound": "2026-08-19T05:01:43.915Z",
+      "reviewRunId": "B-49ed:RR-050",
+      "envelopeId": "884719d03ebc5efead48d419c03cfc22c7ae511f15af929b7e8bd73a27503eb1",
+      "writerSessionId": "sess-4292375d1d751b41",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/material-hash-large-tree-smoke.ts",
+          "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-49ed/background.md",
+          ".lattice/story/actives/B-49ed/checklist.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "cfe13a5855b0817181da15194b137b9cce7db6809c26553e338618d2ce8e2d97"
+    },
+    {
+      "id": "B-49ed:RP-022",
+      "agent": "lattice-review-quality",
+      "note": "Re-verdict on new round after HEAD moved by one commit (8a76b03874): applied same maxRetries:10/retryDelay:50 rmSync guard to usage-sweep-smoke.ts and story-files-hash-batch-smoke.ts, resolving prior F-031. Diff is minimal, consistent with existing pattern in material-hash-large-tree-smoke.ts, no dead code/type-safety/IO-isolation issues. No blocking findings.",
+      "createdAt": "2026-08-19T05:03:54.845Z",
+      "reviewRound": "2026-08-19T05:01:43.915Z",
+      "reviewRunId": "B-49ed:RR-051",
+      "envelopeId": "d27dcd85821720a3c59497da143c67b58cfc713d7461e257054e333ce6a9655b",
+      "writerSessionId": "sess-4292375d1d751b41",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/material-hash-large-tree-smoke.ts",
+          "packages/main/src/tasks/story-files-hash-batch-smoke.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "560eeacbc9d2aa5a8fbbc7c2713dfc1669118f42c1600fc2253830e162e1b672"
+    },
+    {
+      "id": "B-49ed:RP-023",
+      "agent": "lattice-review-behavior",
+      "note": "Re-verified commit 8a76b03874 (F-031 fix applying the already-reviewed retry-on-teardown pattern from RP-020 to story-files-hash-batch-smoke.ts and usage-sweep-smoke.ts). Confirmed: (1) failure/exit-code paths unaffected by the retry addition in both files, (2) bounded ~500ms worst-case stall (maxRetries:10, retryDelay:50, same constants as RP-020), (3) mkdtempSync used in both files so no fixture reuse across runs, (4) retries exhausting still throws since force:true only suppresses ENOENT not persistent removal failure, (5) both smoke tests executed against the rebuilt dist and pass (story-files-hash-batch: 4/4 checks, usage-sweep: 19/19 checks). No behavior regression found; re-issuing prior RP-020 conclusion bound to current round.",
+      "createdAt": "2026-08-19T05:04:35.064Z",
+      "reviewRound": "2026-08-19T05:01:43.915Z",
+      "reviewRunId": "B-49ed:RR-052",
+      "envelopeId": "565fad3b90b6e0aa490da5849ca0cc334d3e63d9a4c727e3a5a81b663809e1b5",
+      "writerSessionId": "sess-4292375d1d751b41",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/session-ownership-and-write-leases.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "caad0ef96907d7a5227347d821f43f37ff227e94bfd004d500ce4c325ef1e7b6"
+    },
+    {
+      "id": "B-49ed:RP-024",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-review after headHash moved to ae4e2917d6 (originally dispatched at 15dee05d32). Verified via mutation testing that material-hash-large-tree-smoke.ts still genuinely fails when an assertion is forced false (exit 1, printed FAILED, correct AssertionError) after the maxRetries/retryDelay rmSync fix; retry only affects post-assertion tmpdir cleanup, never masks assertion failures. Sibling commit 8a76b03874 applies the identical single-line fix to story-files-hash-batch-smoke.ts and usage-sweep-smoke.ts via finally blocks, zero assertion/exit logic touched (verified via diff). All 15 verificationEvidence items are headHash-stale per verification_evidence_refresh_stale --dryRun, but this is bookkeeping-only: none of the 15 pinned commands touch the three smoke files that moved, storyFilesHash held constant at 03e3854017 across the window, and the actual guard-logic files (proofstory.ts, owner-session-adapters.ts, topology-critic-receipt.ts) have zero diff since prior pass. intent_coverage_check --mode=enforce reports pass/blocking:false. No coverage gap found.",
+      "createdAt": "2026-08-19T05:07:32.871Z",
+      "reviewRound": "2026-08-19T05:01:43.915Z",
+      "reviewRunId": "B-49ed:RR-054",
+      "envelopeId": "1cfc9e83db3765b5ea2da6305564af56ad92b3cdb23bed041a1d59704aae4119",
+      "writerSessionId": "sess-4292375d1d751b41",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-49ed/checklist.json",
+          "packages/main/src/tasks/material-hash-large-tree-smoke.ts",
+          "packages/main/src/tasks/story-files-hash-batch-smoke.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-49ed/background.md",
+          ".lattice/story/actives/B-49ed/findings.json",
+          ".lattice/story/actives/B-49ed/plan.md",
+          ".lattice/story/actives/B-49ed/review-runs.json",
+          ".lattice/story/actives/B-49ed/test-evidence.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "72bf636585e0c6f1e7ee619b836448b609c186fecb00cd46c8c620da18e5040a"
+    },
+    {
+      "id": "B-49ed:RP-025",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 10 test-coverage pass: 15/15 must intents still have result=pass evidence (12 mechanical receipts on the three pinned guard smokes; 3 CHK-004 manual transcripts). Incremental material is retry-only rmSync (maxRetries:10/retryDelay:50) on material-hash-large-tree, usage-sweep, and story-files-hash-batch teardowns — assertions and exit-1 failure paths unchanged. Those three files are not pinned to any of the 15 intents. F-031 is resolved/fixed at the two named sites; leftover usage-sweep:404 is a small mkdtemp outsideDir, not a coverage hole. intent_coverage_check --mode=enforce: pass, blocking=false. Hash-stale receipts are bookkeeping after cleanup, not a missing/weakened assertion.",
+      "createdAt": "2026-08-19T05:09:01.614Z",
+      "reviewRound": "2026-08-19T05:01:43.915Z",
+      "reviewRunId": "B-49ed:RR-053",
+      "envelopeId": "db6d9ff606eb4c20d175e86d1a7b9128a234f38c366e7b0dcf4468d1503b7366",
+      "writerSessionId": "sess-4292375d1d751b41",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-49ed/background.md",
+          ".lattice/story/actives/B-49ed/plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-49ed/checklist.json",
+          "packages/main/src/tasks/material-hash-large-tree-smoke.ts",
+          "packages/main/src/tasks/story-files-hash-batch-smoke.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/session-ownership-and-write-leases.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "cf97324ea5f8baac2ae236b659613ba907a04be1cfcc586a2b6529cfe73f1d20"
+      },
+      "readDiagnostics": [],
+      "_hash": "303b5000b30ac06cd94ca963010e33ca4b5337a83f0ca985765876dd21ba6186"
+    },
+    {
+      "id": "B-49ed:RP-026",
+      "agent": "lattice-review-concept",
+      "note": "Incremental re-review after 8a76b03874. Delta confined to two files: each adds maxRetries:10/retryDelay:50 to an existing rmSync teardown call, identical to the already-reviewed material-hash-large-tree-smoke.ts pattern. No function/export/const/class removed in these files across full story diff. Purely additive resilience fix, no concept deletion/replacement, zero residual references.",
+      "createdAt": "2026-08-19T05:09:41.269Z",
+      "reviewRound": "2026-08-19T05:01:43.915Z",
+      "reviewRunId": "B-49ed:RR-055",
+      "envelopeId": "da6e660da34285aa8b5166f5561dbd21f4da5ed6a30d82650f11978433767a8a",
+      "writerSessionId": "sess-4292375d1d751b41",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/material-hash-large-tree-smoke.ts",
+          "packages/main/src/tasks/story-files-hash-batch-smoke.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "package.json",
+          "packages/main/package-lock.json",
+          "packages/main/package.json",
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/adapter-session-env.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
+          "packages/main/src/tasks/signing-guard-mutation-proof-smoke.ts",
+          "packages/main/src/tasks/topology-signing-source-guard-smoke.ts",
+          "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts",
+          "packages/main/tests/red/red-1734-bootstrap-depfree.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9c1affe12e17176df0bc9f85ed2863ddfb48492122769f3117a2eeed8c3701c9"
+    },
+    {
+      "id": "B-49ed:RP-027",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 2+ coverage pass after stale_closeout_review: 15/15 must intents still have result=pass (12 mechanical receipts on the pinned guard/pre-review/mutation smokes with selectorMatched=true; 3 CHK-004 manual_transcripts remain pass after refresh_stale demoted them to non-mechanical because they have no pinned command). F-031 and F-032 are resolved. rmSync maxRetries:10/retryDelay:50 on material-hash-large-tree, usage-sweep, and story-files-hash-batch is teardown-only; assertion and exit-1 paths are unchanged. Diff since last TEST is merge/metadata/review artifacts (main merge + delivery/validate/dev-memory), not new assertion changes. Old RP-021..RP-025 envelope digest drift is why this receipt is being re-bound, not a coverage gap.",
+      "createdAt": "2026-08-19T06:28:27.805Z",
+      "reviewRound": "2026-08-19T06:19:44.696Z",
+      "reviewRunId": "B-49ed:RR-058",
+      "envelopeId": "93cc0294198b5af5dee1e6d654be599300fdfb3d078b4d5b154a2ccc6adc196c",
+      "writerSessionId": "sess-4292375d1d751b41",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-49ed/background.md",
+          ".lattice/story/actives/B-49ed/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-49ed/checklist.json",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "packages/main/src/tasks/material-hash-large-tree-smoke.ts",
+          "packages/main/src/tasks/story-files-hash-batch-smoke.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/session-ownership-and-write-leases.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "bfaa3987ab581a83da4aee7ad4488f5a2446bc67c4e511f42e11557a907c28fe"
+      },
+      "readDiagnostics": [],
+      "_hash": "6bebff7b6cd507ad128c179a50a50d909f750b3011da0d63d8585c21c71523c0"
+    }
+  ]
+}

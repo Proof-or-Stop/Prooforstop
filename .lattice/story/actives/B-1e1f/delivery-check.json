@@ -1,0 +1,75 @@
+{
+  "storyId": "B-1e1f",
+  "checkedAt": "2026-08-18T16:56:42.974Z",
+  "headHash": "9ded297bf674b41044dfe474336e733195d237a7",
+  "materialHash": "483598fd6c663118e7ba4e47248617313a644e1cdd59b5e3f9739e3395e9029b",
+  "storyFilesHash": "a32e928f5bdf62e28c5bfb87b4b71e444a6e17bae0c56fd2d86ae80e6a212e4a",
+  "reviewRound": "2026-08-18T15:23:16.533Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "packages/main/src/cli/command-catalog.ts#certification_window_begin",
+      "promise": "certification_window_begin begins a PRE_CERT CertificationWindow and is fail-closed unless inventory, merge, clean-tree, and coverage facts admit",
+      "status": "verified",
+      "verifiedBy": "diff/grep + independent smoke",
+      "evidence": "Handler in handlers/certification-window.ts:179; evaluateCertificationWindowAdmit in core/certification-window.ts:427; registered in registry.ts:241 and command-catalog.ts:638. Independent 2026-08-18 smoke: missing inventory BLOCKED [pre_cert_inventory_not_finalized] (B-cw01/B-cw11); absent APIs BLOCKED [pre_cert_inventory_api_absent] (B-cw23); unmerged main BLOCKED [pre_cert_main_not_merged] (B-cw13); dirty tree and open findings refused; matching inventory+merge+clean+coverage admits B-cw12 with frozen hashes and Next: done_required_validate."
+    },
+    {
+      "docPath": "packages/main/src/cli/command-catalog.ts#certification_window_status",
+      "promise": "certification_window_status inspects the current PRE_CERT CertificationWindow and prints State and exactly one Next command",
+      "status": "verified",
+      "verifiedBy": "diff/grep + independent smoke + live status",
+      "evidence": "renderCertificationWindowStatus in core/certification-window.ts:491 throws if State: or Next: count != 1. Independent smoke printed exactly one State: and one Next: for BLOCKED/ADMITTED/RUNNING/INVALIDATED/CANCELLED. Live B-1e1f:CW-006 status: State: RUNNING, frozen head/main/storyFiles hashes, exactly one Next: proof-or-stop done_required_validate --storyId=B-1e1f."
+    },
+    {
+      "docPath": "packages/main/src/cli/command-catalog.ts#certification_window_cancel",
+      "promise": "certification_window_cancel cancels a BLOCKED, ADMITTED, or RUNNING CertificationWindow without granting heavy-certification authority",
+      "status": "verified",
+      "verifiedBy": "diff/grep + independent smoke",
+      "evidence": "persistCancelledCertificationWindow in core/certification-window.ts:570 writes CANCELLED, clears receiptId, refuses FINALIZED/INVALIDATED. Smoke cancels a blocked window and asserts State: CANCELLED. windowAuthorizesHeavyCertification (core/certification-window.ts:261) requires ADMITTED or RUNNING plus a verified PrecertReceipt."
+    },
+    {
+      "docPath": "packages/main/src/core/process-fact-levels.ts#certification_window_begin",
+      "promise": "Signed PRE_CERT CertificationWindow and BLOCKED or ADMITTED receipt are gate-consumed before official heavy certification; inventory completeness is not certification authority",
+      "status": "verified",
+      "verifiedBy": "diff/grep + independent smoke",
+      "evidence": "inventoryReceiptAuthorizesPrecert always returns false (core/certification-window.ts:252). ReviewInventoryReceipt.authorizesTest is typed false and verifyReviewInventoryReceipt rejects authorizesTest!==false (review-inventory-epoch.ts:42,110). refuseHeavyCertificationUnlessAdmitted is called from done-required-validation.ts:36 and verifier.ts:1169 when isOfficialHeavyValidateInvocation. Independent smoke: premature done_required_validate and validate --full throw [pre_cert_window_required] and do not write the HEAVY_RAN marker; inventory-completeness-only receipts never authorize."
+    },
+    {
+      "docPath": "packages/main/src/core/command-policy.ts#certification_window_begin",
+      "promise": "Begin stays fail-closed when review-inventory admit APIs are absent and never treats inventory completeness as certification authority",
+      "status": "verified",
+      "verifiedBy": "diff/grep + independent smoke",
+      "evidence": "loadReviewInventoryAdmitApis returns null when review-inventory-epoch exports are missing (core/certification-window.ts:320); handler persistBlocked with [pre_cert_inventory_api_absent] (handlers/certification-window.ts:192-201). Current worktree DOES export finalizedUnconsumedReviewInventory/consumeReviewInventoryReceipt (review-inventory-epoch.ts:135,151), so live B-1e1f begin admitted CW-006. Fail-closed path still proven by smoke B-cw23: State: BLOCKED Detail includes [pre_cert_inventory_api_absent] and Next: review_inventory_finalize."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Independent node packages/main/dist/tasks/certification-window-smoke.js exit 0. Covers: signed window+receipt verify; tampered frozen identity fail-closed [pre_cert_window_tampered] with no State: ADMITTED; status prints exactly one State: and one Next:; PROCESS_FACT_LEVELS/REGISTRY/COMMAND_POLICIES register begin/status/cancel as L4 signed gate-evidence writing certification-window.json. Live status B-1e1f:CW-006 State: RUNNING with frozen hashes and one Next: done_required_validate."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Independent smoke evaluateCertificationWindowAdmit admits only the full inventory+merge+clean+coverage set; refuses missing APIs (B-cw23 [pre_cert_inventory_api_absent]), missing inventory (B-cw01/B-cw11 [pre_cert_inventory_not_finalized]), whole-tree materialHash drift, other-story inventory, open verified findings (B-cw14 [pre_cert_blocking_findings_open]), missing coverage, unmerged main (B-cw13 [pre_cert_main_not_merged]), dirty tree. Admitted B-cw12 printed frozen headHash/expectedMainSha/storyFilesHash and Next: done_required_validate."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Independent certification-window-heavy-choke-smoke (re-imports main smoke) exit 0. Premature done_required_validate and validate --full throw [pre_cert_window_required] with Next: certification_window_status; HEAVY_RAN marker absent after first refuse and after a 3-retry storm. validate --channel/--concept/--lint and routine validate do not hit the PRE_CERT choke. done_required_validate.ts:36 and verifier.ts:1169 both call refuseHeavyCertificationUnlessAdmitted. Live CW-006 is RUNNING after official heavy started."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Independent certification-window-invalidation-smoke exit 0. Printed State: INVALIDATED Blocker: [pre_cert_window_invalidated] Detail: materialHash changed Next: story_advance --phase=REVIEW for B-cw21:CW-001. Smoke asserts metadata-only commit leaves RUNNING; source+test commit invalidates; stored PrecertReceipt _hash and frozen identity unchanged; verifier/test identity mutations detect drift."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "Independent node packages/main/dist/tasks/certification-window-replay-smoke.js exit 0. Printed PRE_CERT replay: premature_heavy_runs=0 admitted_heavy_runs=1 post_cert_source_commits=0. Premature heavy refused; admitted window started the official heavy command and moved to RUNNING bound to frozen receipt; post-invalidation done_required_validate again throws [pre_cert_window_required]."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "No product markdown (CLAUDE.md/docs/) changed; user-facing promises live in command-catalog, command-policy, and process-fact-levels and are implemented. Independent certification-window-smoke and pin smokes all exited 0: fail-closed begin, admit from inventory/merge/clean/coverage, official heavy choke, invalidation, and replay line premature_heavy_runs=0 admitted_heavy_runs=1 post_cert_source_commits=0. Live B-1e1f:CW-006 is RUNNING with frozen storyFilesHash a32e928f5bdf62e28c5bfb87b4b71e444a6e17bae0c56fd2d86ae80e6a212e4a."
+  },
+  "_hash": "69f0a4500f3a89a44cf5f3a8e4fded2a7349e96a9dfe81c210fab765aa05b510"
+}

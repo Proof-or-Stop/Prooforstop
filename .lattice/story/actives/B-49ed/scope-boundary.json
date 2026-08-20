@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-49ed",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Migrate test session setup under packages/main/src/tasks from LATTICE_SESSION_ID to LATTICE_OWNER_SESSION_ADAPTER_PROVIDER/TASK/AGENT (167 lines, 170 occurrences, 29 files)",
+    "Negative tests proving explicit-env, derived-ppid and generated-token are each refused for a critic receipt",
+    "Pass sessionSource at both production call sites in packages/main/src/handlers/proofstory.ts lines 550 and 565",
+    "Positive end-to-end test proving a genuinely dispatched critic can sign request_changes on a stale basis while pass remains refused",
+    "Require sessionSource host-adapter when signing a topology-critic receipt in deriveRoleProvenance (packages/main/src/core/topology-critic-receipt.ts)"
+  ],
+  "excluded": [
+    "Amending this story title or description, for which no CLI path exists",
+    "Any change to B-3f3d itself or to its open findings F-089/F-113/F-117",
+    "Fixing BUG-INDEPENDENCE-MATRIX-IS-TEXTUAL-ONLY in general beyond the critic receipt path",
+    "Opening the dispatch command to the critic role (option 2, rejected: lets the critic mint its own credential)",
+    "Re-keying the independence binding away from sessionId (option 3, rejected: requires redesigning what counts as a valid dispatch)"
+  ],
+  "confirmedBy": "qipan",
+  "confirmationNote": "User selected option 1 of three presented alternatives with the message 'that then continue implementing according to 1'. The three options for resolving BUG-CRITIC-DISPATCH-PROVENANCE-UNSATISFIABLE were: (1) host injects dispatch provenance, (2) open the dispatch command to the critic role, (3) re-key the independence binding. The user chose 1. Scope below is that choice plus the test migration it mechanically forces, which product-reviewer independently confirmed is a necessary consequence rather than scope creep.",
+  "createdAt": "2026-08-17T15:38:23.788Z",
+  "updatedAt": "2026-08-17T15:38:23.788Z",
+  "_hash": "395ba60acfaa084ec0fd082ebb4d893e3bc4f44c0472db767c16f426391bb3bd"
+}

@@ -1,4 +1,5 @@
 import type { ProofOrStopConfig } from './config.js';
+import { CONFIG_FILENAMES } from './brand-paths.js';
 import { isStoryMetadataPath } from './evidence-freshness.js';
 import { findRuntimeArtifactEntry } from './runtime-artifact-registry.js';
 import type { StoryStore } from './store.js';
@@ -279,7 +280,11 @@ export function dirtyWorktreeClassifierOptionsFromConfig(config: ProofOrStopConf
     'CLAUDE.md',
     'README.md',
     '.gitignore',
-    'lattice.config.json',
+    // B-cc10 CHK-004: both config filenames classify as config dirt. This list
+    // drives dirty-tree CLASSIFICATION, so a missing spelling would silently
+    // reclassify a touched config file into a different (possibly blocking)
+    // bucket depending on which side of the migration the project is on.
+    ...CONFIG_FILENAMES,
     'package.json',
     'package-lock.json',
     'npm-shrinkwrap.json',

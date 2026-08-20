@@ -1080,7 +1080,7 @@ export function executePlannedSteps(options: ExecutePlannedStepsOptions): Planne
     } else if (stopReason === 'repair_provider_unavailable' || stopReason === 'repair_provider_failed') {
       nextActions.add('The configured repair provider could not make progress; check providerPolicy enablement, availability, and credentials, then rerun.');
     } else if (failedStepId) {
-      nextActions.add(`Resolve blocked planned step ${failedStepId}, then rerun lattice planner run.`);
+      nextActions.add(`Resolve blocked planned step ${failedStepId}, then rerun proof-or-stop planner run.`);
     }
   }
   if (status === 'done' && options.jobPlan.mode === 'local') {

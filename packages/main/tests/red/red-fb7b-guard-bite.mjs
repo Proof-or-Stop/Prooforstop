@@ -3,7 +3,7 @@
  * B-fb7b + B-1734 guard-bite verifier — proves the structural smoke
  * (test-suite-utils-autobuild-smoke) actually BITES on each broken variant of the CONTENT-BOUND +
  * LOCKED build wiring, and confirms the positive invariants. Parallel-safe: every destructive case
- * runs against an ISOLATED temp fixture (the smoke walks up to lattice.config.json and reads the
+ * runs against an ISOLATED temp fixture (the smoke walks up to the project config (either spelling) and reads the
  * fixture's files), never the live worktree.
  *
  * One selector per case (pin as tool-executed verification evidence):
@@ -32,7 +32,7 @@ import { fileURLToPath } from 'node:url';
 
 function findRepoRoot(start) {
   let dir = start;
-  while (!existsSync(join(dir, 'lattice.config.json')) && dir !== dirname(dir)) dir = dirname(dir);
+  while (!existsSync(join(dir, 'proof-or-stop.config.json')) && !existsSync(join(dir, 'lattice.config.json')) && dir !== dirname(dir)) dir = dirname(dir);
   return dir;
 }
 const repoRoot = findRepoRoot(dirname(fileURLToPath(import.meta.url)));
@@ -43,7 +43,14 @@ const RED_REL = 'packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs';
 const RED_ABS = join(repoRoot, RED_REL);
 assert.ok(existsSync(RED_ABS), `repro-first RED missing: ${RED_REL}`);
 
-const realConfig = JSON.parse(readFileSync(join(repoRoot, 'lattice.config.json'), 'utf8'));
+// B-cc10 F-037: read whichever config filename repoRoot actually has. The walk-up above was
+// fixed to accept both spellings, but this read still hardcoded the deprecated one, so it
+// threw ENOENT in a migrated worktree. Fixing a walk-up is not enough — every read anchored
+// to the resolved root has to accept the same set of names.
+const realConfigPath = ['proof-or-stop.config.json', 'lattice.config.json']
+  .map((name) => join(repoRoot, name))
+  .find((candidate) => existsSync(candidate)) ?? join(repoRoot, 'proof-or-stop.config.json');
+const realConfig = JSON.parse(readFileSync(realConfigPath, 'utf8'));
 const real = rel => readFileSync(join(repoRoot, rel), 'utf8');
 
 // Files the smoke reads from repoRoot; a fixture copies the real ones unless a case overrides them.

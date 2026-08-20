@@ -87,6 +87,7 @@ import {
 } from '../core/prompt-role-contract-registry.js';
 import { canPassReviewGuard, type StoryMachineContext } from '../core/machine.js';
 import { resetConfigCache } from '../core/config.js';
+import { STATE_DIR_NAMES, stateDirCandidates } from '../core/brand-paths.js';
 import { signFinding, signReviewPass } from '../core/finding-verify.js';
 import {
   changedFilesBetweenRenameAware,
@@ -132,6 +133,19 @@ function git(cwd: string, args: string[]): string {
 function write(root: string, path: string, content: string): void {
   mkdirSync(dirname(join(root, path)), { recursive: true });
   writeFileSync(join(root, path), content);
+}
+
+/**
+ * B-cc10: scratch fixtures must ignore BOTH state-dir spellings. CLI writes the
+ * canonical dir; pinning only `.lattice/` leaves `?? .proof-or-stop/` dirty and
+ * breaks porcelain-preserving assertions (F-077).
+ */
+function scratchRuntimeGitignore(): string {
+  return [
+    ...stateDirCandidates('activity.jsonl'),
+    ...stateDirCandidates('locks').map((rel) => `${rel}/`),
+    ...stateDirCandidates('runtime').map((rel) => `${rel}/`),
+  ].join('\n') + '\n';
 }
 
 function directoryBytes(root: string): Record<string, string> {
@@ -337,7 +351,7 @@ function reviewStory(storyId: string, rounds: number, currentReviewRound?: strin
  */
 function buildIncrementalRepo(): { root: string; baseSha: string; headSha: string } {
   const root = mkdtempSync(join(tmpdir(), 'lattice-incremental-ctx-'));
-  write(root, '.gitignore', '.lattice/activity.jsonl\n');
+  write(root, '.gitignore', scratchRuntimeGitignore());
   write(root, 'src/feature.ts', 'export const feature = 1;\n');
   write(root, 'src/old-name.ts', 'export const renamed = true;\n');
   write(root, 'src/untouched.ts', 'export const untouched = 1;\n');
@@ -446,7 +460,7 @@ function runProductionVerifierTemporalCutoffRegression(): void {
     });
   };
   try {
-    write(root, '.gitignore', '.lattice/activity.jsonl\n.lattice/locks/\n');
+    write(root, '.gitignore', scratchRuntimeGitignore());
     write(root, 'lattice.config.json', JSON.stringify({
       scanRoot: '.',
       rootDir: 'src',
@@ -709,7 +723,7 @@ function assertLargeDiffReviewMetadataStability(): void {
       requirementsDir: 'docs/requirements',
       storyPrefix: 'B',
     }, null, 2)}\n`);
-    write(root, '.gitignore', '.lattice/activity.jsonl\n');
+    write(root, '.gitignore', scratchRuntimeGitignore());
     write(root, 'src/large.ts', 'export const seed = 0;\n');
     git(root, ['init']);
     git(root, ['checkout', '-B', 'main']);
@@ -1277,7 +1291,7 @@ function runFixtureDuplicateIdentityCases(): void {
 function buildBalancedProjectRoot(): string {
   const root = mkdtempSync(join(tmpdir(), 'lattice-incremental-gate-'));
   writeFileSync(join(root, 'lattice.json'), JSON.stringify({ workflow: { profile: 'balanced' } }));
-  write(root, '.gitignore', '.lattice/activity.jsonl\n');
+  write(root, '.gitignore', scratchRuntimeGitignore());
   write(root, 'src/seed.ts', 'export const seed = 1;\n');
   git(root, ['init']);
   git(root, ['checkout', '-B', 'main']);
@@ -1378,7 +1392,7 @@ function runConcurrentCliReadOnlyCase(): void {
   const root = mkdtempSync(join(tmpdir(), 'lattice-incremental-cli-readonly-'));
   const storyId = 'B-readonly';
   try {
-    write(root, '.gitignore', '.lattice/activity.jsonl\n.lattice/locks/\n');
+    write(root, '.gitignore', scratchRuntimeGitignore());
     write(root, 'lattice.config.json', JSON.stringify({
       storyDir: '.lattice/story/actives',
       workflow: { profile: 'balanced' },
@@ -1400,7 +1414,7 @@ function runConcurrentCliReadOnlyCase(): void {
 
     const storyDir = store.storyDirPath(storyId);
     const beforeStoryBytes = directoryBytes(storyDir);
-    const beforeVerdictBytes = directoryBytes(join(root, '.lattice/autopilot-verdicts'));
+    const beforeVerdictBytes = STATE_DIR_NAMES.map((dir) => directoryBytes(join(root, dir, 'autopilot-verdicts')));
     const beforeStatus = git(root, ['status', '--porcelain=v1']);
     const beforeStory = JSON.stringify(store.readStory(storyId));
     const command = [
@@ -1428,7 +1442,7 @@ function runConcurrentCliReadOnlyCase(): void {
     });
     assert.deepEqual(directoryBytes(storyDir), beforeStoryBytes, 'concurrent CLI calls preserve every Story artifact byte');
     assert.deepEqual(
-      directoryBytes(join(root, '.lattice/autopilot-verdicts')),
+      STATE_DIR_NAMES.map((dir) => directoryBytes(join(root, dir, 'autopilot-verdicts'))),
       beforeVerdictBytes,
       'concurrent CLI calls create no receipts, host verdicts, floor, or quorum artifacts',
     );
@@ -1457,12 +1471,9 @@ function runDeterministicTicketReclaimAbaCase(): void {
   const root = mkdtempSync(join(tmpdir(), 'lattice-review-lock-aba-'));
   const storyId = 'B-mixed-writer-aba';
   const round = '2026-07-19T00:00:00.000Z';
-  const barrierRoot = join(root, '.lattice/locks/review-run', '.review-metadata-test-barrier');
-  const lockDir = join(root, '.lattice/locks/review-run', `${storyId}-review-runs.lock`);
-  const deadTicket = join(lockDir, '0000000000000000-dead-a.ticket');
   const children: ReturnType<typeof spawn>[] = [];
   try {
-    write(root, '.gitignore', '.lattice/activity.jsonl\n.lattice/locks/\n');
+    write(root, '.gitignore', scratchRuntimeGitignore());
     write(root, 'lattice.config.json', JSON.stringify({
       scanRoot: '.',
       rootDir: 'src',
@@ -1511,6 +1522,11 @@ function runDeterministicTicketReclaimAbaCase(): void {
     });
     git(root, ['add', '.lattice/story']);
     git(root, [...COMMIT_ENV, 'commit', '-m', 'seed mixed writer review metadata']);
+    // B-cc10 F-077: plant the dead ticket in the CANONICAL lock dir (store.runtimeLockDirPath),
+    // not the deprecated `.lattice/locks/...` spelling the runtime no longer writes.
+    const lockDir = store.runtimeLockDirPath(storyId, 'review-run', 'review-runs');
+    const barrierRoot = join(dirname(lockDir), '.review-metadata-test-barrier');
+    const deadTicket = join(lockDir, '0000000000000000-dead-a.ticket');
     execFileSync(process.execPath, [
       DIST_CLI_PATH, '--root', root, 'dispatch',
       JSON.stringify({ storyId, agentType: 'lattice-review-quality' }),
@@ -1645,7 +1661,7 @@ function runConcurrentReviewerWriteCase(mask: number, iteration = 1, mutation?: 
     '>/dev/null',
   ].join(' ');
   try {
-    write(root, '.gitignore', '.lattice/activity.jsonl\n.lattice/locks/\n');
+    write(root, '.gitignore', scratchRuntimeGitignore());
     write(root, 'lattice.config.json', JSON.stringify({
       scanRoot: '.',
       rootDir: 'src',

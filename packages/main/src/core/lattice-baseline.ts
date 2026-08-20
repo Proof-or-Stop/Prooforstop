@@ -9,6 +9,7 @@ import {
 } from 'node:fs';
 import { dirname, isAbsolute, join, relative, resolve } from 'node:path';
 import { currentGitHead, currentMaterialHash } from './evidence-freshness.js';
+import { PROOF_OR_STOP_DIR } from './lattice-paths.js';
 
 export const BASELINE_FINAL_REPORT_SCHEMA_VERSION = 'lattice.baseline.final_report.v1' as const;
 export const BASELINE_SUITE_REPORT_SCHEMA_VERSION = 'lattice.baseline_suite_report.v1' as const;
@@ -840,7 +841,7 @@ function generatedRunId(prefix: string): string {
 
 function artifactsRoot(root: string, customRoot?: string): string {
   const resolved = !customRoot || customRoot.trim().length === 0
-    ? join(root, '.lattice', 'artifacts', 'baseline')
+    ? join(root, PROOF_OR_STOP_DIR, 'artifacts', 'baseline')
     : isAbsolute(customRoot) ? customRoot : resolve(root, customRoot);
   return resolved;
 }

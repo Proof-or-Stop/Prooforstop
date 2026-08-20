@@ -17,10 +17,16 @@ const hanCharacterPattern = /[\u3400-\u9fff]/;
 const codeLikeCommandNamePattern = /^[a-z][a-z0-9_.-]*(?::[a-z][a-z0-9_.-]*)*$/;
 const artifactFactNamePattern = /^artifact:[a-z0-9_.-]+(?:\/[a-z0-9_.-]+)*$/;
 
+// B-cc10: resolve the codex adapter agents dir instead of hardcoding the deprecated
+// spelling. With the old name, all 23 prompt mirrors read as "missing; no semantic drift
+// comparison available", so this contract failed and took several dependent smokes with it.
+const CODEX_AGENTS_DIR = ['.proof-or-stop-codex/agents', '.lattice-codex/agents']
+  .find((rel) => existsSync(rel)) ?? '.proof-or-stop-codex/agents';
+
 const promptDirs = [
   'packages/main/templates/agents',
   '.claude/agents',
-  '.lattice-codex/agents',
+  CODEX_AGENTS_DIR,
 ];
 
 const currentCategories = new Set(['happy', 'edge', 'adversarial', 'missing']);
@@ -132,6 +138,9 @@ const requiredProcessFactSemantics = {
   verification_evidence_batch_add: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
   verification_evidence_refresh_stale: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
   review_run_start: ['review-run', 'schema-contract', 'workspace-binding', 'gate-evidence'],
+  certification_window_begin: ['artifact', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding', 'blocker-state', 'gate-evidence'],
+  certification_window_status: ['artifact', 'signed-artifact', 'blocker-state', 'freshness-policy', 'gate-evidence'],
+  certification_window_cancel: ['artifact', 'signed-artifact', 'blocker-state', 'gate-evidence'],
   review_pass_set: ['review-pass', 'no-blocker-evidence', 'gate-evidence'],
   review_loop_start: ['blocker-state', 'schema-contract', 'gate-evidence'],
   review_loop_iteration_add: ['blocker-state', 'schema-contract', 'gate-evidence'],
@@ -513,6 +522,7 @@ const processFactCommandNamePatterns = [
   /^story_advance$/,
   /^story_review$/,
   /^review_run_start$/,
+  /^certification_window_(begin|status|cancel)$/,
   /^review_pass_set$/,
   /^review_loop_(start|iteration_add|close)$/,
   /^finding_(add|resolve|dismiss|cluster)$/,
@@ -589,7 +599,8 @@ function read(relPath) {
   let text = readFileSync(absPath, 'utf8');
   const mutation = process.env.LATTICE_PROCESS_FACT_CONTRACT_MUTATION;
   if (mutation === 'drop-acceptance-basis-prompt' && relPath.endsWith('lattice-implementer.md')) {
-    text = text.replace(/^Acceptance-basis boundary: only `(?:lattice|proof-or-stop) acceptance_basis_generate`.*$/m, '');
+    // B-cc10: accept either brand so the mutation actually drops the live prompt line.
+    text = text.replace(/^Acceptance-basis boundary: only `(?:proof-or-stop|lattice) acceptance_basis_generate`.*$/m, '');
   }
   if (mutation === 'drop-acceptance-basis-handler' && relPath === 'packages/main/src/handlers/proofstory.ts') {
     text = text.replace(/acceptance_basis_generate/g, 'basis_generate_removed');
@@ -1387,7 +1398,7 @@ function assertProofStoryProgressiveBoundary() {
   const acceptancePromptPaths = [
     'packages/main/templates/agents/lattice-implementer.md',
     '.claude/agents/lattice-implementer.md',
-    '.lattice-codex/agents/lattice-implementer.md',
+    `${CODEX_AGENTS_DIR}/lattice-implementer.md`,
   ];
   const acceptanceRequiredSemantics = process.env.LATTICE_PROCESS_FACT_CONTRACT_MUTATION === 'drop-acceptance-basis-contract'
     ? requiredProcessFactSemantics.acceptance_basis_generate.filter(item => item !== 'workspace-binding')
@@ -1586,14 +1597,14 @@ function assertProofStoryProgressiveBoundary() {
         rolloutPromptTokens.every(token => read(templatePath).toLowerCase().includes(token)))
       && rolloutBootstrapOnlyReviewerNames.every(name =>
         !read(`.claude/agents/${name}.md`).toLowerCase().includes('acceptance_rollout_check')
-        && !read(`.lattice-codex/agents/${name}.md`).toLowerCase().includes('acceptance_rollout_check')),
+        && !read(`${CODEX_AGENTS_DIR}/${name}.md`).toLowerCase().includes('acceptance_rollout_check')),
     'acceptance rollout contract must keep verifier-derived frozen membership, >=3 matched pairs per arm, all thresholds, signed current receipt, genuine full-3x2, real lifecycle consumer, mode-invariant rollback, and canonical template-sourced role guidance (not regenerable host shims)',
   );
   const topologyCriticText = read('packages/main/src/core/topology-critic-receipt.ts');
   const topologyCriticPromptPaths = [
     'packages/main/templates/agents/lattice-review-topology-critic.md',
     '.claude/agents/lattice-review-topology-critic.md',
-    '.lattice-codex/agents/lattice-review-topology-critic.md',
+    `${CODEX_AGENTS_DIR}/lattice-review-topology-critic.md`,
   ];
   const topologyCriticPolicy = commandPolicyEntries.get('topology_critic_receipt_set');
   assert(
@@ -1811,7 +1822,7 @@ function assertCloseoutTrustBoundary() {
   }
   for (const promptPath of [
     'packages/main/templates/agents/product-reviewer.md',
-    '.lattice-codex/agents/product-reviewer.md',
+    `${CODEX_AGENTS_DIR}/product-reviewer.md`,
     '.claude/agents/product-reviewer.md',
   ]) {
     const promptText = read(promptPath);
@@ -1883,7 +1894,9 @@ function assertCloseoutTrustBoundary() {
     'b2c006a5becbd456a5728bb7615cf999cb514137383bc935b128073240899d98',
     '458d8aeaf36286e2ca0cafe968c2e9559d46e57e6920ca9581ea58ee38b77887',
     '51af0fd5730add5aeff160f50c83b7dd70d2e5cdcfa0430e58acf4058acfb844',
-    'adb4b265eb726c0919808d3f99b191f646ac88b4f0f2c30bd904a6938a14d932',
+    // B-1e1f: lockstep with PINNED_EXECUTABLE_SOURCE_FINGERPRINTS closeout-trust-smoke.ts
+    // after persistSyntheticAdmittedWindowForTest (see B-cdf6:F-057 coupling note).
+    '49af08591ff783654df81918b26db7a9be9478e0fa3655fadaeabb79e0cb6d37',
     // B-cdf6 CHK-002: repinned alongside retired-authority-vocabulary-guard-smoke.ts
     // after the user-facing bin rename changed cli-engine.ts hint/error strings.
     //
@@ -1931,7 +1944,12 @@ function assertCloseoutTrustBoundary() {
     'SHIPPED_PACKAGE_MANIFESTS',
     'deriveShippedPackageEntrypoints',
     'every package bin/exports target must derive to an explicitly pinned scanned source entrypoint',
-    "'bin/lattice.js'",
+    // B-cc10 CHK-007: was "'bin/lattice.js'". CHK-006 DELETED that deprecated bin
+    // alias, so requiring the guard to still name it forced the guard to pin a
+    // non-existent entrypoint (it failed with "pinned shipped executable entrypoint
+    // must exist: bin/lattice.js"). The contract now requires the canonical wrapper,
+    // keeping the narrow-compatibility-usage requirement intact against a real file.
+    "'bin/proof-or-stop.js'",
     "'bin/bootstrap-runner.js'",
     "'packages/lab/src'",
     "'packages/utils/src'",
@@ -1998,12 +2016,12 @@ function assertCloseoutTrustBoundary() {
     'bin/bootstrap-runner.js is pinned in both the benign-loader and dynamic-code exemption maps, making seven exact whole-source executable exemption entries; no broad pattern exemptions are allowed',
     'BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS',
     '34f3b6ba8d8e2f8150e0b2fce0c8d2813f7638998a1697a429a13a934a8f7659',
-    'd03acdc43d743f67f80bb5194205c48dbeb44676580a6b3cbcc1d3e411ed65ec',
+    'c8906ce79242cd30e4519990a69fc7b2b6725a29b12699b9ad32d703b4e0b6d1',
     'PackageAliasEdge',
     'buildPackageAliasEdgeInventory',
     'PACKAGE_ALIAS_EDGE_INVENTORY',
     'package-imports-self-exports-edge-inventory-sha256-v1',
-    'b188998274384ced74b3854db09d331d6040ee8cc2c7897d0f966860f7a3eae4',
+    'b7d92d8213ef6059411003d7b0f3228cb05cac03692bb3604f98070f04d4a923',
     'resolvePackageAlias',
     'unresolved package import/self-reference alias',
     'package imports alias',
@@ -3619,7 +3637,13 @@ function promptSemanticTokens(text) {
 
 async function comparePromptSemantics(promptMap) {
   const templateDir = 'packages/main/templates/agents';
-  const mirrorDirs = ['.claude/agents', '.lattice-codex/agents'];
+  // B-cc10 F-055: include the canonical adapter mirror; the renamed one yields nothing.
+  // B-cc10 F-056: compare against mirror dirs that EXIST. Listing an absent dir made every
+  // role warn 'missing; no semantic drift comparison available' — 17 lines of noise that
+  // buried real signal, and (before the canonical dir was added) meant zero mirrors were
+  // compared at all while the check still exited 0 because the miss only warn()s.
+  const mirrorDirs = ['.claude/agents', '.proof-or-stop-codex/agents', '.lattice-codex/agents']
+    .filter((dir) => existsSync(join(root, dir)));
   const registryModule = await importBuiltModule('packages/main/dist/core/prompt-registry.js');
   if (!registryModule?.readPromptRegistry || !registryModule?.renderPromptEntryForHost) {
     fail('packages/main/dist/core/prompt-registry.js must expose the canonical host prompt renderer');
@@ -4962,6 +4986,56 @@ function assertCommandPolicyInventory(cliToolNames) {
 function policyBlockHasOwnershipClass(policy, ownershipClass) {
   return new RegExp(`ownershipClass\\s*:\\s*(['"\`])${ownershipClass}\\1`).test(policy.block)
     || policy.block.includes(`"ownershipClass":"${ownershipClass}"`);
+}
+
+function assertCertificationWindowCommandContract(cliToolNameSet, registry, levelRegistry, policyByName) {
+  const commands = ['certification_window_begin', 'certification_window_status', 'certification_window_cancel'];
+  for (const commandName of commands) {
+    assert(cliToolNameSet.has(commandName), `MAIN_TOOLS missing ${commandName}`);
+    const levelEntry = levelRegistry.get(commandName);
+    assert(levelEntry, `${processFactLevelRegistryPath}: ${commandName} missing from PROCESS_FACT_LEVELS`);
+    assert(levelEntry.level === 'L4', `${processFactLevelRegistryPath}: ${commandName} must stay L4`);
+    assert(levelEntry.category === 'certification-window', `${processFactLevelRegistryPath}: ${commandName} category must stay certification-window`);
+    assert(levelEntry.owner === 'handlers/certification-window', `${processFactLevelRegistryPath}: ${commandName} owner drifted`);
+    assert(
+      /done_required_validate \/ validate --full PRE_CERT certification-window gate/.test(levelEntry.gateConsumer || ''),
+      `${processFactLevelRegistryPath}: ${commandName} must name the PRE_CERT certification-window gateConsumer`,
+    );
+    const registryEntry = registry.get(commandName);
+    assert(registryEntry, `${processFactRegistryPath}: ${commandName} missing from PROCESS_FACT_REGISTRY`);
+    assert(registryEntry.level === 'L4', `${processFactRegistryPath}: ${commandName} registry level must stay L4`);
+    assert(registryEntry.artifact?.path === 'certification-window.json', `${processFactRegistryPath}: ${commandName} must write certification-window.json`);
+    assert(registryEntry.artifact?.signed === true, `${processFactRegistryPath}: ${commandName} artifact must stay signed`);
+    assert(
+      registryEntry.semantics.includes('signed-artifact') && registryEntry.semantics.includes('gate-evidence'),
+      `${processFactRegistryPath}: ${commandName} must carry signed-artifact + gate-evidence`,
+    );
+    const policy = policyByName.get(commandName);
+    assert(policy, `${commandPolicyPath}: ${commandName} missing COMMAND_POLICIES entry`);
+    assert(policy.gateEvidence, `${commandPolicyPath}: ${commandName} must stay gateEvidence`);
+    if (commandName === 'certification_window_status') {
+      assert(policy.destructiveRisk === 'none', `${commandPolicyPath}: ${commandName} destructiveRisk must stay none`);
+      assert(
+        policyBlockHasOwnershipClass(policy, 'readOnly'),
+        `${commandPolicyPath}: ${commandName} must stay readOnly`,
+      );
+    } else {
+      assert(policy.destructiveRisk === 'metadata-write', `${commandPolicyPath}: ${commandName} destructiveRisk must stay metadata-write`);
+      assert(
+        policyBlockHasOwnershipClass(policy, 'storyScopedMutating'),
+        `${commandPolicyPath}: ${commandName} must stay storyScopedMutating`,
+      );
+    }
+  }
+  const statusSource = read('packages/main/src/core/certification-window.ts');
+  assert(
+    /status must never claim inventory completeness is certification/.test(statusSource),
+    'packages/main/src/core/certification-window.ts must refuse status prose that treats inventory completeness as certification',
+  );
+  assert(
+    /inventoryReceiptAuthorizesPrecert/.test(statusSource),
+    'packages/main/src/core/certification-window.ts must keep inventoryReceiptAuthorizesPrecert as the inventory-not-PRE_CERT fence',
+  );
 }
 
 function assertReviewLoopCommandContract(cliToolNameSet, registry, levelRegistry, policyByName) {
@@ -7265,6 +7339,7 @@ function assertProcessFactCommandInventory() {
   assertCommandPolicyInventory(cliToolNames);
   assertCommandPolicyPhaseAlignment(policyEntries, configText);
   assertProcessFactRegistryContract(cliToolNames, policyEntries, configText);
+  assertCertificationWindowCommandContract(cliToolNameSet, registry, levelRegistry, policyByName);
   assertReviewLoopCommandContract(cliToolNameSet, registry, levelRegistry, policyByName);
   assertDoneClosureCommandContract(cliToolNameSet, registry, levelRegistry, policyByName);
   assertDoneRequiredValidationCommandContract(cliToolNameSet, registry, levelRegistry, policyByName);

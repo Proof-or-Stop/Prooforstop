@@ -48,7 +48,7 @@ import {
 } from '../core/experience-hint-loader.js';
 import type { ExperienceHints } from '../core/experience-hint-loader.js';
 import type { FindingSignal, FindingSignalsCache } from '../core/experience-layer-types.js';
-import { writeFindingSignals } from '../core/learning-store.js';
+import { FINDING_SIGNALS_FILENAME, LEARNING_DIR, writeFindingSignals } from '../core/learning-store.js';
 import { resolveReviewPromptHash } from '../core/review-run.js';
 import { readActivityLogTail } from '../core/activity-log.js';
 import { resetConfigCache } from '../core/config.js';
@@ -325,7 +325,7 @@ check('FALSE_POSITIVE_SCORE_CEILING boundary: at-ceiling score is NOT a false po
 
 check('malformed finding-signals.json => empty hints, no throw', () => {
   const root = mkTempRoot();
-  write(root, '.lattice/learning/finding-signals.json', '{ this is : not json');
+  write(root, join(LEARNING_DIR, FINDING_SIGNALS_FILENAME), '{ this is : not json');
   const hints = loadExperienceHints(root);
   assert.deepEqual(hints, { recurring: [], falsePositives: [] });
 });
@@ -341,7 +341,7 @@ check('NaN signalScore excluded; valid signals still returned', () => {
       { localSignature: 'good', category: 'edge', fileKinds: ['ts'], counts: { resolved: 3, dismissed: 0, falsePositive: 0, acceptedRisk: 0, unclear: 0, partiallyMitigated: 0 }, signalScore: 0.8, support: 3, exampleStoryIds: ['B-ok'], exampleFindingIds: [] },
     ],
   };
-  write(root, '.lattice/learning/finding-signals.json', JSON.stringify(raw));
+  write(root, join(LEARNING_DIR, FINDING_SIGNALS_FILENAME), JSON.stringify(raw));
   const hints = loadExperienceHints(root);
   assert.equal(hints.recurring.length, 1, 'only the valid signal survives');
   assert.equal(hints.recurring[0].localSignature, 'good');

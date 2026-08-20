@@ -430,13 +430,25 @@ async function run(): Promise<void> {
       //     ./digest.js (B-8387 Phase 2: digestCanonicalJson for playbook
       //     proposal digests — itself a leaf importing only node:crypto, so the
       //     isolation bar is preserved). Both are siblings inside core/.
-      const allowedLeaf = ['./digest.js', './experience-layer-types.js'];
+      // B-cc10: ./brand-paths.js joins the allowlist. The BAR is "leaf siblings only" — a
+      // module with no relative imports of its own — and brand-paths.ts satisfies it (verified
+      // below rather than asserted here, so a future non-leaf cannot sneak in by being listed).
+      // It is imported because the state-dir name must come from the resolver, not a hardcoded
+      // literal; lattice-paths.ts was NOT eligible since it imports brand-paths.js itself.
+      const allowedLeaf = ['./brand-paths.js', './digest.js', './experience-layer-types.js'];
       assert.deepEqual(relativeImports(types), [], `types.ts must have no relative imports, got: ${relativeImports(types).join(', ')}`);
       assert.deepEqual(
         [...relativeImports(ls)].sort(),
         allowedLeaf,
         `learning-store.ts must import only ./digest.js + the leaf, got: ${relativeImports(ls).join(', ')}`,
       );
+      // The allowlist is only meaningful if each entry is genuinely a leaf; otherwise adding a
+      // name to the list silently lowers the isolation bar it exists to hold.
+      for (const spec of allowedLeaf) {
+        const siblingPath = join(REPO_CORE, spec.replace('./', '').replace(/\.js$/, '.ts'));
+        const siblingSrc = readFileSync(siblingPath, 'utf8');
+        assert.deepEqual(relativeImports(siblingSrc), [], `${spec} is allowlisted as a leaf, so it must have no relative imports of its own, got: ${relativeImports(siblingSrc).join(', ')}`);
+      }
 
       // (3) finding-signals.ts: only siblings ./experience-layer-types.js,
       //     ./learning-store.js, and the store port ./store.js.

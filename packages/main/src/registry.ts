@@ -50,6 +50,8 @@ import { createReviewIncrementalContextHandlers } from './handlers/review-increm
 import { createStoryDraftHandlers } from './handlers/story-draft.js';
 import { createDraftCheckHandlers } from './handlers/draft-check.js';
 import { createDeliveryCheckHandlers } from './handlers/delivery-check.js';
+import { createCertificationWindowHandlers } from './handlers/certification-window.js';
+import { createReviewInventoryHandlers } from './handlers/review-inventory.js';
 import { createTestIntentHandoffHandlers } from './handlers/testintent-handoff.js';
 import { createAuxDocHandlers } from './handlers/aux-doc.js';
 import { createCodexAdapterHandlers } from './handlers/codex-adapter.js';
@@ -235,6 +237,10 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
 
   // B-35ed CHK-001: delivery_check_set — TEST→DONE 硬门槛产物 delivery-check.json 写入
   registry.registerBatch(createDeliveryCheckHandlers(ctx));
+
+  // B-1e1f CHK-001: PRE_CERT CertificationWindow begin/status/cancel
+  registry.registerBatch(createCertificationWindowHandlers(ctx));
+  registry.registerBatch(createReviewInventoryHandlers(ctx));
 
   // B-3749 CHK-002: PLAN handoff package for test-intent agents.
   registry.registerBatch(createTestIntentHandoffHandlers(ctx));

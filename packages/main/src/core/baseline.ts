@@ -2,6 +2,7 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
+import { PROOF_OR_STOP_DIR } from './lattice-paths.js';
 
 export const BASELINE_IDS = [
   'NL-CLI-1',
@@ -674,7 +675,7 @@ export function runBaseline(root: string, args: BaselineRunArgs): BaselineFinalR
   const expectedOutcome = args.expectedOutcome ?? scenario.defaultExpectedOutcome;
   const mode = args.authorityMode ?? 'non-authority';
   const runId = args.runId ?? nowRunId();
-  const outputRoot = args.outputRoot ?? join(root, '.lattice', 'artifacts', 'baseline');
+  const outputRoot = args.outputRoot ?? join(root, PROOF_OR_STOP_DIR, 'artifacts', 'baseline');
   const runDir = join(outputRoot, scenario.baselineId, runId);
   ensureDir(runDir);
 

@@ -5,7 +5,7 @@
  * single global mkdir-style lock that serializes every shared write to main /
  * B-META metadata. This module is the canonical primitive for that lock:
  *
- *   - canonical lock path: `.lattice/locks/main-write.lock/` (resolved against the
+ *   - canonical lock path: `.proof-or-stop/locks/main-write.lock/` (resolved against the
  *     main repo root, so a story worktree and the main checkout contend on the
  *     SAME directory).
  *   - atomic acquire via `core/mkdir-lock.ts` (`mkdirSync` of a non-existent
@@ -173,7 +173,7 @@ export interface MainWriteLockOptions {
 /**
  * Acquire the unified main write lock.
  *
- * Atomic mkdir acquire at `.lattice/locks/main-write.lock/`. A stale lock (mtime
+ * Atomic mkdir acquire at `.proof-or-stop/locks/main-write.lock/`. A stale lock (mtime
  * older than `staleMs`) is force-reclaimed first. A live (non-stale) lock is
  * handled per `options.onContention`: `'fail-fast'` (default) throws
  * immediately; `'wait'` polls until the lock frees or `waitDeadlineMs` elapses.

@@ -6,8 +6,8 @@ import { tmpdir } from 'os';
 import { dirname, join } from 'path';
 
 const root = process.cwd();
-const cli = join(root, 'bin', 'lattice.js');
-const codexCli = join(root, 'bin', 'lattice-codex.js');
+const cli = join(root, 'bin', 'proof-or-stop.js');
+const codexCli = join(root, 'bin', 'proof-or-stop-codex.js');
 const candidateDir = join(root, 'experiments', 'candidates', 'session-brief');
 const reportDir = join(root, 'experiments', 'reports');
 const resultPath = join(reportDir, 'session-brief-structured-v1.json');

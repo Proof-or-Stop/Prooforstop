@@ -31,6 +31,7 @@ import { createHash } from 'crypto';
 import { closeSync, existsSync, openSync, readFileSync, readSync, realpathSync, statSync } from 'fs';
 import { isAbsolute, join, relative, resolve } from 'path';
 import { loadConfig, PROOF_OR_STOP_CONFIG_FILENAME, type ProofOrStopConfig } from './config.js';
+import { CONFIG_FILENAMES } from './brand-paths.js';
 import { resolveProjectGitCwd } from './story-signed-workspace-resolution.js';
 import {
   currentGitHead,
@@ -52,7 +53,12 @@ export const IMMUTABLE_MANIFEST_BASENAMES: readonly string[] = [
   'yarn.lock',
   'bun.lockb',
   'tsconfig.json',
-  'lattice.config.json',
+  // B-cc10 CHK-004: BOTH config filenames are non-excludable. This list is a
+  // deny-list protecting Level-1 manifests from being excluded via materialCode
+  // config; listing only one spelling would let an excludePaths entry naming the
+  // other spelling be ACCEPTED, silently removing the project config from
+  // material classification. Sourced from the resolver so the pair cannot drift.
+  ...CONFIG_FILENAMES,
   // Go.
   'go.mod',
   'go.sum',
@@ -439,20 +445,34 @@ function computePolicyDigest(policy: Omit<MaterialCodePolicy, 'policyDigest'>): 
  * degrade to defaults).
  */
 function readMaterialCodeConfig(projectRoot: string): { signature: string; raw: RawMaterialCodeConfig } {
-  const configPath = join(projectRoot, PROOF_OR_STOP_CONFIG_FILENAME);
-  let content: string;
-  try {
-    content = readFileSync(configPath, 'utf8');
-  } catch (err) {
-    // B-956f FIX 3(a): ONLY a genuinely-absent file (ENOENT) degrades to defaults.
-    // Any other read failure (EACCES/EISDIR/IO) is NOT "no config" — treating it as
-    // absent is fail-OPEN (an unreadable config whose removeExtensions/excludePaths
-    // silently vanish). Fail CLOSED naming the file instead.
-    if ((err as NodeJS.ErrnoException)?.code === 'ENOENT') {
-      return { signature: 'absent', raw: {} }; // no config file → defaults
+  // B-cc10 CHK-004: probe BOTH config filenames, canonical first. This path
+  // deliberately bypasses loadConfig, so it does not inherit the resolver used
+  // there and must do its own read-both. Probing only the canonical name would
+  // make an unmigrated project's ENOENT degrade to `{}` DEFAULTS — silently
+  // dropping its materialCode removeExtensions/excludePaths, which is exactly
+  // the fail-OPEN this function's FIX 3(a) comment exists to prevent.
+  let configFilename = PROOF_OR_STOP_CONFIG_FILENAME;
+  let content: string | undefined;
+  let lastError: unknown;
+  for (const candidate of CONFIG_FILENAMES) {
+    try {
+      content = readFileSync(join(projectRoot, candidate), 'utf8');
+      configFilename = candidate;
+      lastError = undefined;
+      break;
+    } catch (err) {
+      // A non-ENOENT failure on a file that EXISTS must not be masked by simply
+      // trying the next spelling: remember it and fail closed if nothing resolves.
+      if ((err as NodeJS.ErrnoException)?.code !== 'ENOENT') lastError = err;
     }
+  }
+  if (content === undefined) {
+    if (lastError === undefined) {
+      return { signature: 'absent', raw: {} }; // no config file under either name → defaults
+    }
+    const err = lastError;
     throw new MaterialCodePolicyError(
-      PROOF_OR_STOP_CONFIG_FILENAME,
+      configFilename,
       `config file exists but could not be read (${err instanceof Error ? err.message : String(err)}); material-code policy fails closed instead of degrading to defaults`,
     );
   }
@@ -461,7 +481,9 @@ function readMaterialCodeConfig(projectRoot: string): { signature: string; raw: 
     parsed = JSON.parse(content);
   } catch (err) {
     throw new MaterialCodePolicyError(
-      PROOF_OR_STOP_CONFIG_FILENAME,
+      // Name the spelling that actually resolved, so the diagnostic points at the
+      // file on disk rather than at a canonical name that may not exist yet.
+      configFilename,
       `config file is not valid JSON (${err instanceof Error ? err.message : String(err)}); material-code policy fails closed instead of degrading to defaults`,
     );
   }

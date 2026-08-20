@@ -19,7 +19,7 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const BUILT_REGISTRY_PATH = join(ROOT, 'packages/main/dist/core/prompt-registry.js');
 const BUILT_ROLE_CONTRACT_REGISTRY_PATH = join(ROOT, 'packages/main/dist/core/prompt-role-contract-registry.js');
 const BUILT_PROMPT_MEASUREMENT_PATH = join(ROOT, 'packages/main/dist/core/prompt-measurement.js');
-const CLI_PATH = join(ROOT, 'bin/lattice.js');
+const CLI_PATH = join(ROOT, 'bin/proof-or-stop.js');
 const BASELINE_PATH = join(
   ROOT,
   'docs/requirements/baselines/proof-or-stop-prompt-baseline.json',
@@ -2151,7 +2151,7 @@ function buildCurrentBaseline({ snapshot, roleEntries, agentPromptOutputs }) {
       roles: roleEntries.map(({ content: _content, ...entry }) => entry),
     },
     agentPrompt: {
-      command: 'node bin/lattice.js agent_prompt --role=<role>',
+      command: 'node bin/proof-or-stop.js agent_prompt --role=<role>',
       metadata: 'sha256, bytes, and lines are computed from raw stdout; registry parity strips the CLI print newline only.',
       outputs: agentPromptOutputs,
     },

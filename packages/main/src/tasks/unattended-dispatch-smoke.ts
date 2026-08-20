@@ -11,6 +11,8 @@
  */
 
 import assert from 'node:assert/strict';
+// B-cc10: dispatch paths from the resolver, not a hardcoded state-dir literal.
+import { PROOF_OR_STOP_STATE_DIR } from '../core/brand-paths.js';
 import {
   chmodSync,
   existsSync,
@@ -201,12 +203,12 @@ function assertAuthorityFalse(value: unknown, label = 'result'): void {
 
 function readDispatch(root: string, dispatchId: string): DispatchRecord {
   return JSON.parse(
-    readFileSync(join(root, '.lattice/dispatches', dispatchId, 'dispatch.json'), 'utf8'),
+    readFileSync(join(root, `${PROOF_OR_STOP_STATE_DIR}/dispatches`, dispatchId, 'dispatch.json'), 'utf8'),
   ) as DispatchRecord;
 }
 
 function dispatchCount(root: string): number {
-  const dir = join(root, '.lattice/dispatches');
+  const dir = join(root, `${PROOF_OR_STOP_STATE_DIR}/dispatches`);
   if (!existsSync(dir)) return 0;
   return readdirSync(dir).filter(entry => existsSync(join(dir, entry, 'dispatch.json'))).length;
 }

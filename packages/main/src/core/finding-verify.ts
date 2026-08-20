@@ -137,9 +137,18 @@ export function verifyFinding(
   return f._hash === oldExpected;
 }
 
+import { PROOF_OR_STOP_STATE_DIR } from './brand-paths.js';
+
 export const GAP_LOG_PROVENANCE_SCHEMA = 'lattice.gap-log-provenance.v1' as const;
-export const GAP_LOG_ARTIFACT_PATH = '.lattice/story/actives/B-META-framework-audit/findings.json' as const;
-export const GAP_LOG_PROVENANCE_LEDGER_PATH = '.lattice/story/actives/B-META-framework-audit/gap-log-provenance.jsonl' as const;
+// B-cc10: these hardcoded '.lattice/' after CHK-003's move, so gap_log wrote to the
+// DEPRECATED directory. The write reported success while the canonical B-META ledger
+// never received the finding — a framework gap I believed I had recorded was in fact
+// unrecorded. Derive from the resolver. GAP_LOG_PROVENANCE_SCHEMA above stays frozen:
+// it is a signature identity, not a path.
+export const GAP_LOG_ARTIFACT_PATH =
+  `${PROOF_OR_STOP_STATE_DIR}/story/actives/B-META-framework-audit/findings.json` as const;
+export const GAP_LOG_PROVENANCE_LEDGER_PATH =
+  `${PROOF_OR_STOP_STATE_DIR}/story/actives/B-META-framework-audit/gap-log-provenance.jsonl` as const;
 
 export interface GapLogProvenanceReceipt {
   schemaVersion: typeof GAP_LOG_PROVENANCE_SCHEMA;

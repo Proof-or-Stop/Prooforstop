@@ -24,6 +24,17 @@
  * contract auditable: there is exactly one place where precedence is decided,
  * and exactly one list of prefixes to change if the brand ever moves again.
  *
+ * SIBLING RESOLVER
+ * ----------------
+ * B-cc10 CHK-002 applied this same additive read-both shape to brand-named
+ * ON-DISK PATHS in `core/brand-paths.ts` (state dir, Codex adapter dir, config
+ * filename, adapter manifest filename). The two modules are deliberately
+ * separate — env vars and filesystem paths have different write semantics: this
+ * module writes BOTH spellings (a value must survive a hop into a pre-rename
+ * child process), whereas `brand-paths.ts` writes ONLY the canonical name (two
+ * on-disk copies of the same state would diverge). Same precedence rule for
+ * reads, different write rule, hence not merged.
+ *
  * WRITES
  * ------
  * `setBrandEnv` / `applyBrandEnv` write BOTH names. That is deliberate and is not

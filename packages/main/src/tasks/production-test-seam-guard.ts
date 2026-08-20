@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 
 import assert from 'node:assert/strict';
-import { readdirSync, readFileSync } from 'node:fs';
+import { readdirSync, readFileSync, existsSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import ts from 'typescript';
+import { CONFIG_FILENAMES } from '../core/brand-paths.js';
 
 export const PRODUCTION_TEST_SEAM_REASON = 'production_test_seam_side_effect_flow' as const;
 
@@ -1108,7 +1109,10 @@ function main(): void {
   assert.equal(canonicalRoutineIncludes(packageJson.scripts, 'test:production-test-seam-guard'), true, 'canonical serial membership authority must include the production seam guard');
   assert.equal(canonicalRoutineIncludes({ ...packageJson.scripts, 'test:serial-reference': packageJson.scripts?.['test:serial-reference']?.replace('npm run test:production-test-seam-guard', '') ?? '' }, 'test:production-test-seam-guard'), false, 'removing the seam guard from main serial-reference fails membership');
   assert.equal(canonicalRoutineIncludes({ ...packageJson.scripts, 'test:serial-reference-prefix': '' }, 'test:full-suite-runner-smoke'), false, 'removing prefix serial-reference fails canonical smoke membership');
-  const latticeConfig = readFileSync(join(repoRoot, 'lattice.config.json'), 'utf8');
+  // B-cc10: read whichever config filename exists. This hardcoded the deprecated name
+  // and threw ENOENT after the rename, failing the whole guard on a migrated repo.
+  const configRel = CONFIG_FILENAMES.find((name) => existsSync(join(repoRoot, name))) ?? CONFIG_FILENAMES[0];
+  const latticeConfig = readFileSync(join(repoRoot, configRel), 'utf8');
   assert.match(latticeConfig, /packages\/main\/dist\/tasks\/production-test-seam-guard\.js/, 'routine validate must run the production seam guard');
   const scanRoots = [join(repoRoot, 'packages/main/src/core'), join(repoRoot, 'packages/main/src/handlers')];
   const files = scanRoots.flatMap(listTypeScriptFiles);

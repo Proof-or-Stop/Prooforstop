@@ -53,7 +53,7 @@ const temp = createTempProject();
 
 try {
   const createOut = run([
-    'bin/lattice.js',
+    'bin/proof-or-stop.js',
     '--root', temp,
     'lab',
     'create',
@@ -69,7 +69,7 @@ try {
   assert(config.candidatePolicy.allowFixtureMutation === false, 'lab config should keep allowFixtureMutation=false');
 
   const dryRunOut = run([
-    'bin/lattice.js',
+    'bin/proof-or-stop.js',
     '--root', temp,
     'lab',
     'run',
@@ -80,7 +80,7 @@ try {
   assert(dryRunOut.includes('No project files outside the sandbox were modified'), 'lab run --dry-run should confirm no mutation');
 
   const runOut = run([
-    'bin/lattice.js',
+    'bin/proof-or-stop.js',
     '--root', temp,
     'lab',
     'run',
@@ -94,7 +94,7 @@ try {
   assert(existsSync(resultPath), 'lab run should write result.json placeholder');
 
   const allowedEval = run([
-    'bin/lattice.js',
+    'bin/proof-or-stop.js',
     '--root', temp,
     'lab',
     'eval',
@@ -106,7 +106,7 @@ try {
   assert(parseCliJson(allowedEval).ok === true, 'lab eval should allow editableFiles');
 
   const blockedEval = run([
-    'bin/lattice.js',
+    'bin/proof-or-stop.js',
     '--root', temp,
     'lab',
     'eval',

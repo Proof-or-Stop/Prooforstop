@@ -3,9 +3,13 @@ import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, writeFileSync, appendFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { loadConfig } from './config.js';
+import { isStateDirPath, PROOF_OR_STOP_STATE_DIR } from './brand-paths.js';
 import { resolveProjectGitRoot } from './story-signed-workspace-resolution.js';
 
-export const ARTIFACT_RELEASE_LEDGER_REL_PATH = '.lattice/artifact-releases.jsonl';
+// B-cc10: was hardcoded '.lattice/artifact-releases.jsonl'. The ledger file itself moved with
+// CHK-003, so the constant pointed at a path that no longer holds it — the same
+// defect class as managed-assets.json and the gap-log paths.
+export const ARTIFACT_RELEASE_LEDGER_REL_PATH = `${PROOF_OR_STOP_STATE_DIR}/artifact-releases.jsonl`;
 export const ARTIFACT_RELEASE_SCHEMA_VERSION = 'proofbound.artifact-release.v1';
 
 export interface ArtifactReleaseRecordV1 {
@@ -65,7 +69,12 @@ export function isArtifactReleasePathV1(
 ): boolean {
   const path = normalizeArtifactReleasePath(rawPath);
   if (!path) return false;
-  if (path.startsWith('.lattice/')) return false;
+  // B-cc10 CHK-007: was `path.startsWith('.lattice/')`, which recognized ONLY the
+  // deprecated state directory. After the rename that exclusion silently stopped
+  // firing for canonical paths, so state-dir lifecycle metadata could be admitted
+  // into an artifact release. This is the F-065/F-061 shape `core/brand-paths.ts`
+  // exists to prevent; `isStateDirPath` accepts both spellings by construction.
+  if (isStateDirPath(path)) return false;
   if (path.startsWith('docs/story/')) return false;
   if (path.startsWith('packages/main/src/')) return false;
   if (path === 'packages/main/package.json' || path === 'packages/main/package-lock.json' || path === 'packages/main/tsconfig.json') return false;

@@ -1,5 +1,5 @@
 {
-  "name": "@lattice/core",
+  "name": "@proof-or-stop/core",
   "publishConfig": {
     "registry": "https://npm.pkg.github.com"
   },
@@ -8,7 +8,7 @@
     "directory": "packages/main"
   },
   "version": "0.3.267",
-  "description": "通用项目开发框架 — AI-driven Story 工作流 CLI",
+  "description": "Proof-or-Stop \u2014 AI-driven Story workflow CLI",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
@@ -77,6 +77,7 @@
     "test:delivery-context-pack-smoke": "node dist/tasks/delivery-context-pack-smoke.js",
     "test:flow-stability-smoke": "node dist/tasks/flow-stability-smoke.js",
     "test:review-assurance-floor-smoke": "node dist/tasks/review-assurance-floor-smoke.js",
+    "test:brand-path-resolver-smoke": "node dist/tasks/brand-path-resolver-smoke.js",
     "test:review-incremental-context-smoke": "node dist/tasks/review-incremental-context-smoke.js",
     "test:reviewer-scan-budget-guard": "node dist/tasks/reviewer-scan-budget-guard-smoke.js",
     "test:review-pass-provenance": "node dist/tasks/review-pass-provenance-smoke.js",
@@ -110,7 +111,16 @@
     "test:proofstory-acceptance-basis-smoke": "node dist/tasks/proofstory-acceptance-basis-smoke.js",
     "test:retired-authority-server-semantics": "node dist/tasks/retired-authority-server-semantics-smoke.js",
     "test:source-structure-convergence": "node dist/tasks/source-structure-convergence-smoke.js",
-    "usage-ledger-report": "node dist/tasks/usage-ledger-report.js"
+    "usage-ledger-report": "node dist/tasks/usage-ledger-report.js",
+    "test:config-filename-migration-smoke": "node dist/tasks/config-filename-migration-smoke.js",
+    "test:core-package-rename": "node scripts/verify-core-package-rename.mjs",
+    "test:state-dir-migration": "node scripts/verify-state-dir-migration.mjs",
+    "test:lattice-residue": "node ../../scripts/verify-lattice-residue.mjs",
+    "test:retired-authority-vocabulary-guard": "node dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+    "test:residue-inject-repro": "node ../../scripts/verify-residue-inject-repro.mjs",
+    "test:migration-contract": "node scripts/verify-migration-contract.mjs",
+    "test:topology-signing-source-guard": "node dist/tasks/topology-signing-source-guard-smoke.js",
+    "test:signing-guard-mutation-proof": "node dist/tasks/signing-guard-mutation-proof-smoke.js"
   },
   "dependencies": {
     "@lattice/lab": "0.3.65",

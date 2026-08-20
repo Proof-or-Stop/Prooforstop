@@ -64,6 +64,7 @@ import {
   type OwnerSessionTokenStoreRepair,
 } from '../core/owner-session-token-store.js';
 import { resolveRedEvidenceDoctorLine } from '../core/red-evidence/policy.js';
+import { STATE_DIR_NAMES } from '../core/brand-paths.js';
 
 export function createDoctorHandlers(ctx: HandlerContext) {
   const { root, store } = ctx;
@@ -1120,7 +1121,11 @@ function neutralizeConflictingLatticeDirIgnore(content: string): { content: stri
     const trimmed = line.trim();
     // Only the bare directory-form ignore conflicts; the re-includable file glob
     // `.lattice/*` and any negation `!...` lines are kept as-is.
-    if (trimmed === '.lattice/' || trimmed === '.lattice') {
+    // B-cc10 CHK-002: recognize EVERY accepted state-dir spelling. A hardcoded
+    // spelling here would silently stop neutralizing the conflicting ignore under
+    // the other name, and --repair would report success while the managed
+    // allowlist stayed shadowed.
+    if (STATE_DIR_NAMES.some(dir => trimmed === dir || trimmed === `${dir}/`)) {
       changed = true;
       return `# ${line} ${MANAGED_SUPERSEDE_MARKER}`;
     }

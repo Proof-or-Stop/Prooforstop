@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Rewrite the synthetic story background in verify-worktree-baseline-risk.mjs in English so the script reaches its baseline-risk assertions",
+      "context": "scripts/verify-worktree-baseline-risk.mjs:40 authors an inline background with Chinese section headers (## Trigger Event equivalents at lines 40/43/46/49). story_create now rejects it with english_artifact_cjk_authoring, so the script dies before testing anything. The mechanism under test is alive: core/baseline-risk.ts collectBaselineRisk/renderBaselineRiskLines, consumed by handlers/transition-orchestrator.ts. Keep the four-section structure and the >=50 chars per section / >=300 total requirement; preserve the existing verification intent (one real material file must trigger the warning, one .lattice/runtime/ path must stay hidden). Do not weaken the assertions to make it pass.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Decide on evidence whether verify-done-merge-preflight.mjs is superseded, then retire it or rewrite it against current behaviour",
+      "context": "scripts/verify-done-merge-preflight.mjs has 8 assertions (lines 110-124). Lines 116/121/122 target .git/koala/done-auto-git.lock and a Chinese parallel-DONE warning; grep shows zero references to done-auto-git or autoGitLock in packages/main/src, and the concept was superseded by .lattice/locks/main-write.lock (core/main-write-lock.ts, B-f60c). Line 110 expects a Chinese 'Cannot enter DONE' string that current source does not emit, and its over-broad dirty-tree semantics were deliberately replaced by scope-aware logic already covered by packages/main/src/tasks/done-merge-scope-smoke.ts (see its header comment: the old check threw on ANY dirty tracked file). Required output: an explicit per-assertion coverage comparison against the four modern smokes (done-merge-scope, done-premerge-mainsha-recheck, done-prepare-merge-rerun, done-merge-experience-refresh). Retire only assertions provably covered elsewhere; anything genuinely uncovered must be rewritten against real current strings, not deleted for convenience.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Close the root cause: make an unwired scripts/verify-*.mjs detectable instead of silently rotting",
+      "context": "This is why the two scripts rotted undetected and is the load-bearing item. 60 scripts/verify-*.mjs exist; only a subset is referenced by lattice.config.json validate.commands or package.json, and an unwired one can stay red indefinitely with no signal. Note done-merge-scope-smoke.ts itself is also NOT wired, so the gap is not limited to the orphan .mjs scripts. Decide and implement the cheapest mechanism that makes the unwired set VISIBLE (for example a check that enumerates verify-*.mjs and reports which are referenced by no gate, failing on a newly-added unwired script rather than on the existing backlog). Do not wire all 60 into validate -- that is out of scope and would slow the suite. Whatever is chosen must itself be wired into a gate, or it reproduces the same problem.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

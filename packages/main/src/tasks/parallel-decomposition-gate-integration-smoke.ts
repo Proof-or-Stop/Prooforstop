@@ -32,6 +32,7 @@ import { canStartDevGuard, canSkipPlanGuard, canReenterDevGuard, getGuardFailure
 import type { StoryMachineContext } from '../core/machine.js';
 import type { ChecklistData, ReviewData, ScopeContractData, StoryInfo } from '../core/types.js';
 import type { ParallelGateMode } from '../core/parallel-decomposition.js';
+import { PROOF_OR_STOP_STATE_DIR } from '../core/brand-paths.js';
 
 let passed = 0;
 function check(name: string, cond: boolean): void {
@@ -164,7 +165,10 @@ function buildRepo(opts: {
     workflow: { profile: opts.profile ?? 'balanced' },
   }));
   if (opts.parallelMode) {
-    write(root, '.lattice/audit-config.json', JSON.stringify({
+    // B-cc10: resolveAuditConfig reads `${PROOF_OR_STOP_DIR}/audit-config.json`, so writing
+    // it under the deprecated dir meant the parallelGate config never loaded and
+    // canStartDevGuard returned FALSE — the fixture was configuring a file nobody read.
+    write(root, `${PROOF_OR_STOP_STATE_DIR}/audit-config.json`, JSON.stringify({
       parallelGate: {
         mode: opts.parallelMode,
         maxConcurrentReview: 3,

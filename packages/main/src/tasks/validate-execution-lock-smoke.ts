@@ -52,6 +52,11 @@ import {
   withWorkspaceValidationCapacity,
 } from '../core/validation-execution-lock.js';
 import { MKDIR_LOCK_HOLDER_FILE } from '../core/mkdir-lock.js';
+// B-cc10 CHK-007 (F-001 tail): fixture paths come from the resolver, never from a
+// hardcoded brand literal. Hardcoding the NEW literal would just move the problem;
+// deriving means this fixture follows any future rename with the writers it exercises.
+import { CONFIG_FILENAMES, PROOF_OR_STOP_CONFIG_FILENAME } from '../core/brand-paths.js';
+import { PROOF_OR_STOP_ACTIVITY_LOG, PROOF_OR_STOP_DIR, PROOF_OR_STOP_STORY_DIR } from '../core/lattice-paths.js';
 import { MAIN_TOOLS } from '../cli-engine.js';
 import { createVerifierHandlers } from '../handlers/verifier.js';
 import { createVerdictHandlers } from '../handlers/verdict.js';
@@ -88,7 +93,7 @@ function repoRoot(): string {
 }
 
 function cliPath(): string {
-  return join(repoRoot(), 'bin/lattice.js');
+  return join(repoRoot(), 'bin/proof-or-stop.js');
 }
 
 function write(root: string, path: string, content: string): void {
@@ -245,8 +250,8 @@ function setupFixture(options: FixtureOptions = {}): { root: string; storyId: st
     'entered.log',
     'bare-entered.log',
     'release',
-    '.lattice/activity.jsonl',
-    '.lattice/locks/',
+    PROOF_OR_STOP_ACTIVITY_LOG,
+    `${PROOF_OR_STOP_DIR}/locks/`,
     '',
   ].join('\n'));
   const validateCommand = {
@@ -255,10 +260,10 @@ function setupFixture(options: FixtureOptions = {}): { root: string; storyId: st
     args: ['validate-probe.mjs'],
     timeoutMs: 10000,
   };
-  write(root, 'lattice.config.json', JSON.stringify({
+  write(root, PROOF_OR_STOP_CONFIG_FILENAME, JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.lattice/story/actives',
+    storyDir: PROOF_OR_STOP_STORY_DIR,
     requirementsDir: 'docs/requirements',
     ...(options.workflowProfile ? { workflow: { profile: options.workflowProfile } } : {}),
     validate: { commands: [validateCommand] },
@@ -1350,10 +1355,10 @@ async function assertNoStoryConfiguredGitRootFailureDoesNotMintWrapperCapacity()
     mkdirSync(join(root, 'configured-repo'), { recursive: true });
     write(root, 'packages/main/src/index.ts', 'export const configuredGitRootFailure = true;\n');
     write(root, 'validate-marker.mjs', `import { writeFileSync } from 'node:fs'; writeFileSync(${JSON.stringify(marker)}, 'entered\\n');\n`);
-    write(root, 'lattice.config.json', JSON.stringify({
+    write(root, PROOF_OR_STOP_CONFIG_FILENAME, JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
-      storyDir: '.lattice/story/actives',
+      storyDir: PROOF_OR_STOP_STORY_DIR,
       requirementsDir: 'docs/requirements',
       gitRoot: 'configured-repo',
       validate: {
@@ -1368,7 +1373,7 @@ async function assertNoStoryConfiguredGitRootFailureDoesNotMintWrapperCapacity()
     );
     assert.equal(existsSync(marker), false,
       'unresolved configured gitRoot must stop before the no-story validation callback');
-    assert.equal(existsSync(join(root, '.lattice/locks/validation-capacity.lock')), false,
+    assert.equal(existsSync(join(root, PROOF_OR_STOP_DIR, 'locks/validation-capacity.lock')), false,
       'unresolved configured gitRoot must not mint a split capacity lock under the metadata wrapper');
   } finally {
     rmSync(root, { recursive: true, force: true });
@@ -1605,7 +1610,7 @@ async function assertCapacityRepositoryScopeAndSelectiveModes(): Promise<void> {
       wrapperEntered = true;
       assert.equal(capacityTicketPaths(first.root).length, 1,
         'metadata wrapper must place capacity under the signed git workspace common dir');
-      assert.equal(existsSync(join(wrapper, '.lattice/locks/validation-capacity.lock')), false,
+      assert.equal(existsSync(join(wrapper, PROOF_OR_STOP_DIR, 'locks/validation-capacity.lock')), false,
         'metadata wrapper must not mint a split capacity root');
     });
     assert.equal(wrapperEntered, true);
@@ -1658,8 +1663,12 @@ async function assertCapacityRepositoryScopeAndSelectiveModes(): Promise<void> {
 }
 
 function assertProtectedInventoryAndTimeoutSourcesUnchanged(): void {
+  // B-cc10 CHK-007: `git diff -- <path>` on a path that does not exist on EITHER side
+  // silently diffs nothing and passes vacuously, so naming only one config spelling
+  // would quietly stop protecting this file after the rename. Both accepted spellings
+  // are listed so whichever one the checkout has is really compared.
   const protectedFiles = [
-    'lattice.config.json',
+    ...CONFIG_FILENAMES,
     'package.json',
     'packages/main/package.json',
     'packages/main/src/tasks/full-suite-runner.ts',

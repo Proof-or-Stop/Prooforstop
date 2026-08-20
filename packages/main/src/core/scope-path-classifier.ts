@@ -9,6 +9,7 @@ import { classifyLifecycleArtifact, classifySharedLifecycleMetadata } from './li
 import { findRuntimeArtifactEntry } from './runtime-artifact-registry.js';
 import { existsSync, realpathSync } from 'node:fs';
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
+import { STATE_DIR_NAMES } from './brand-paths.js';
 import type {
   ScopeContractData,
   ScopePathCategory,
@@ -139,8 +140,13 @@ export function canonicalizeScopePath(args: {
       || realpathSync.native(sourceAncestor).startsWith(`${sourceRootIdentity}${sep}`));
   const alreadySourcePrefixed = normalized === configuredSourceRel || normalized.startsWith(`${configuredSourceRel}/`);
   const topLevel = normalized.split('/')[0];
+  // B-cc10 CHK-002: the state dir comes from the resolver (every accepted
+  // spelling), so a path under the canonical state dir is still classified
+  // repo-root after the rename. Hardcoding one spelling would silently
+  // reclassify those paths to source-root — a wrong base, not an error.
   const explicitRepoTopLevel = new Set([
-    '.lattice', '.github', 'docs', 'requirements', 'scripts', 'tests', 'test',
+    ...STATE_DIR_NAMES,
+    '.github', 'docs', 'requirements', 'scripts', 'tests', 'test',
     'specs', 'fixtures', 'packages', 'src',
   ]).has(topLevel);
   let base: CanonicalScopePathResult['base'];

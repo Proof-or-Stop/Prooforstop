@@ -4,6 +4,12 @@ import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync, existsSync
 import { tmpdir } from 'os';
 import { join } from 'path';
 import { execFileSync } from 'child_process';
+// B-cc10 F-055: resolve whichever adapter dir exists. Hardcoding the renamed one made this
+// read a path that no longer exists (ENOENT) or scan zero files.
+function adapterDirName(base) {
+  return existsSync(join(base, '.proof-or-stop-codex')) ? '.proof-or-stop-codex' : '.lattice-codex';
+}
+
 
 const root = process.cwd();
 
@@ -56,7 +62,7 @@ function makeBackground(label) {
 
 const agentPaths = [
   join(root, '.claude', 'agents', 'product-reviewer.md'),
-  join(root, '.lattice-codex', 'agents', 'product-reviewer.md'),
+  join(root, adapterDirName(root), 'agents', 'product-reviewer.md'),
 ];
 for (const path of agentPaths) {
   assert(existsSync(path), `missing product-reviewer agent: ${path}`);

@@ -32,8 +32,8 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
 let repoRoot = here;
-while (!existsSync(join(repoRoot, 'lattice.config.json')) && repoRoot !== dirname(repoRoot)) repoRoot = dirname(repoRoot);
-assert.ok(existsSync(join(repoRoot, 'lattice.config.json')), 'could not locate repo root (lattice.config.json)');
+while (!existsSync(join(repoRoot, 'proof-or-stop.config.json')) && !existsSync(join(repoRoot, 'lattice.config.json')) && repoRoot !== dirname(repoRoot)) repoRoot = dirname(repoRoot);
+assert.ok(existsSync(join(repoRoot, 'proof-or-stop.config.json')) || existsSync(join(repoRoot, 'lattice.config.json')), 'could not locate repo root (lattice.config.json)');
 
 const read = rel => readFileSync(join(repoRoot, rel), 'utf8');
 const BOOTSTRAP_REL = 'bin/bootstrap-runner.js';
@@ -180,7 +180,9 @@ async function main() {
         `fresh-checkout bootstrap must NOT crash on proper-lockfile at module-init:\n${res.out.slice(0, 600)}`,
       );
       assert.ok(
-        /(?:lattice|proof-or-stop) local bootstrap is not ready/i.test(res.out) && /Recovery:/i.test(res.out),
+        // B-cc10: bin/bootstrap-runner.js prints 'proof-or-stop local bootstrap is not
+        // ready'. Accept either brand so this assertion holds on pre- and post-rename trees.
+        /(?:proof-or-stop|lattice) local bootstrap is not ready/i.test(res.out) && /Recovery:/i.test(res.out),
         `fresh-checkout bootstrap must print the recovery hint:\n${res.out.slice(0, 600)}`,
       );
       console.log('VI-OK C3:depfree:2');

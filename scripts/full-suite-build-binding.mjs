@@ -60,7 +60,7 @@ export function verifyBuildBinding(projectRoot) {
 
 // packages/utils source digest: utils/src + utils tsconfig + utils package.json,
 // AND the packages/main/dist tree — because `tsc -p packages/utils/tsconfig.json`
-// links against main/dist for @lattice/core types, so utils is stale whenever
+// links against main/dist for @proof-or-stop/core types, so utils is stale whenever
 // main/dist changes (edge:2 / the utils-links-main invariant).
 export function utilsSourceDigest(projectRoot) {
   const hash = createHash('sha256');

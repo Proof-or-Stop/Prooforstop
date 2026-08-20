@@ -62,6 +62,9 @@ const activeTextFiles = [
 ] as const;
 
 const activeTextDirs = [
+  // B-cc10 F-055: canonical first. listFilesFromRoot returns [] for a nonexistent root,
+  // so listing only the renamed dir contributed ZERO files and the guard passed on nothing.
+  '.proof-or-stop-codex',
   '.lattice-codex',
   '.claude/agents',
   'packages/main/templates/agents',
@@ -76,7 +79,10 @@ const SHIPPED_EXECUTABLE_SOURCE_DIRS = [
   'packages/utils/src',
 ] as const;
 const SHIPPED_EXECUTABLE_ENTRYPOINTS = [
-  'bin/lattice.js',
+  // B-cc10 CHK-007: `bin/lattice.js` was REMOVED by CHK-006 (deprecated bin alias
+  // deletion), but this pin still required it to exist, so the guard failed closed on
+  // its own repo. Replaced with the canonical wrapper that actually ships.
+  'bin/proof-or-stop.js',
   'bin/bootstrap-runner.js',
   'packages/main/src/cli.ts',
   'packages/main/src/index.ts',
@@ -174,7 +180,7 @@ const PACKAGE_ALIAS_MANIFEST_RECORDS: PackageAliasManifestRecord[] = SHIPPED_PAC
 }));
 const PACKAGE_ALIAS_EDGE_INVENTORY = buildPackageAliasEdgeInventory(PACKAGE_ALIAS_MANIFEST_RECORDS);
 const PACKAGE_ALIAS_EDGE_INVENTORY_ALGORITHM = 'package-imports-self-exports-edge-inventory-sha256-v1';
-const PINNED_PACKAGE_ALIAS_EDGE_INVENTORY_HASH = 'b188998274384ced74b3854db09d331d6040ee8cc2c7897d0f966860f7a3eae4';
+const PINNED_PACKAGE_ALIAS_EDGE_INVENTORY_HASH = 'b7d92d8213ef6059411003d7b0f3228cb05cac03692bb3604f98070f04d4a923';
 
 function packageAliasEdgeInventoryHash(records: readonly PackageAliasManifestRecord[], edges: readonly PackageAliasEdge[]): string {
   const manifestSurfaces = records.map(record => ({
@@ -363,7 +369,8 @@ const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   // the review_lane_missing diagnostic this file exists to test). No approved
   // call shape or occurrence count changed; the whole-file structural
   // fingerprint just moves with any source edit to this file.
-  ['packages/main/src/tasks/closeout-trust-smoke.ts', 'adb4b265eb726c0919808d3f99b191f646ac88b4f0f2c30bd904a6938a14d932'],
+  // B-1e1f: repinned after persistSyntheticAdmittedWindowForTest; approved call shapes/occurrence counts unchanged.
+  ['packages/main/src/tasks/closeout-trust-smoke.ts', '49af08591ff783654df81918b26db7a9be9478e0fa3655fadaeabb79e0cb6d37'],
   // B-1507 CHK-001: repinned after verification_run was added to
   // MILESTONE_STATUS_APPEND_COMMANDS in cli-engine.ts. The approved non-literal
   // loader call site (runCli → import(`file://${initPath}`)) is unchanged; this
@@ -1514,7 +1521,7 @@ const BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS = new Map<string, string>([
   // runLocalBootstrap) are byte-identical to that copy, including their path producers —
   // no import()/require() call, argument, or producer was added, moved, or rewritten.
   ['bin/bootstrap-runner.js', '34f3b6ba8d8e2f8150e0b2fce0c8d2813f7638998a1697a429a13a934a8f7659'],
-  ['bin/proof-or-stop-codex.js', 'd03acdc43d743f67f80bb5194205c48dbeb44676580a6b3cbcc1d3e411ed65ec'],
+  ['bin/proof-or-stop-codex.js', 'c8906ce79242cd30e4519990a69fc7b2b6725a29b12699b9ad32d703b4e0b6d1'],
 ]);
 
 function enclosingFunctionName(node: ts.Node): string | undefined {
@@ -4055,7 +4062,7 @@ function assertShippedExecutableRootPositiveControls(): void {
   const hermeticRecords: PackageAliasManifestRecord[] = [{
     path: 'packages/main/package.json',
     manifest: {
-      name: '@lattice/core',
+      name: '@proof-or-stop/core',
       imports: {
         '#compat': { node: './src/core/legacy-delivery-claims-compat.ts', default: './src/core/legacy-delivery-claims-compat.ts' },
         '#compat/*': './src/core/*.ts',
@@ -4068,7 +4075,11 @@ function assertShippedExecutableRootPositiveControls(): void {
   for (const [label, specifier] of [
     ['package imports alias', '#compat'],
     ['conditional wildcard package imports alias', '#compat/legacy-delivery-claims-compat'],
-    ['package self-reference alias', '@lattice/core/compat'],
+    // B-cc10 F-009 follow-through: a self-reference specifier resolves against the
+    // fixture manifest's OWN name, which this story renamed to @proof-or-stop/core just
+    // above (line ~4061). Leaving the deprecated spelling here made the alias
+    // unresolvable, so the guard failed on a name mismatch it created itself.
+    ['package self-reference alias', '@proof-or-stop/core/compat'],
   ] as const) {
     assert.ok(
       resolvePackageAlias(aliasControlFile, specifier, hermeticEdges).targets.includes(normalizeModulePath(LEGACY_DELIVERY_COMPAT_MODULE)),
@@ -4102,7 +4113,10 @@ function assertShippedExecutableRootPositiveControls(): void {
     assert.equal(existsSync(join(repoRoot, entrypoint)), true, `pinned shipped executable entrypoint must exist: ${entrypoint}`);
     assert.equal(isExecutableSourceFile(entrypoint), true, `pinned shipped executable entrypoint must use a scanned extension: ${entrypoint}`);
   }
-  for (const binEntrypoint of ['bin/lattice.js', 'bin/bootstrap-runner.js']) {
+  // B-cc10 CHK-007: `bin/lattice.js` was removed by CHK-006. This loop scans a
+  // SYNTHETIC source string (no filesystem read), so it did not fail — but naming a
+  // deleted file would let the case rot into testing nothing meaningful.
+  for (const binEntrypoint of ['bin/proof-or-stop.js', 'bin/bootstrap-runner.js']) {
     const directBypass = "import { createLegacyLocalOnlyDeliveryClaims } from '../packages/main/src/core/legacy-delivery-claims-compat.js';\ncreateLegacyLocalOnlyDeliveryClaims();\n";
     assert.ok(
       scanLegacyDeliveryCompatibilityUsage(binEntrypoint, directBypass)

@@ -17,6 +17,17 @@ import { dirname, join, resolve as resolvePath } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { PROOF_OR_STOP_BIN_NAMES } from './lattice-brand.js';
 import {
+  ADAPTER_DIR_NAMES,
+  MANIFEST_FILENAMES,
+  PROOF_OR_STOP_ADAPTER_DIR,
+  PROOF_OR_STOP_MANIFEST_FILENAME,
+  PROOF_OR_STOP_STATE_DIR,
+  STATE_DIR_NAMES,
+  adapterDirCandidates,
+  adapterManifestCandidates,
+  stateDirCandidates,
+} from './brand-paths.js';
+import {
   AGENTS_MD_GLOBAL_THIN_TEMPLATE,
   AGENTS_MD_TEMPLATE,
   CLAUDE_MD_TEMPLATE,
@@ -187,7 +198,11 @@ interface ManagedAssetPathInfo {
   actualRelPath?: string;
 }
 
-const MANIFEST_REL_PATH = '.lattice/managed-assets.json';
+// B-cc10: was hardcoded '.lattice/managed-assets.json', so the runtime kept
+// recreating the DEPRECATED state dir after CHK-003's move — the directory
+// reappeared on every CLI invocation and repeatedly tripped the half-done
+// detector. Route it through the resolver like every other state path.
+const MANIFEST_REL_PATH = `${PROOF_OR_STOP_STATE_DIR}/managed-assets.json`;
 const INIT_DOC_SECTION_RE = /<!--\s*lattice:start\s*-->[\s\S]*?<!--\s*lattice:end\s*-->/;
 
 function packageRoot(): string {
@@ -263,10 +278,15 @@ function managedAssetPathKind(root: string, relPath: string): ManagedAssetPathKi
 }
 
 function isCodexCaseInsensitiveAlias(root: string, relPath: string, actualRelPath?: string): boolean {
-  if (!relPath.startsWith('.codex/') || !actualRelPath?.startsWith('.lattice-codex/')) return false;
+  // B-cc10 CHK-002: accept EITHER adapter-dir spelling as the alias target.
+  // Hardcoding one spelling here would make the alias go unrecognized under the
+  // other name, and the caller would then read the wrong file (or none).
+  if (!relPath.startsWith('.codex/') || actualRelPath === undefined) return false;
+  const aliasTarget = actualRelPath;
+  if (!ADAPTER_DIR_NAMES.some((dir) => aliasTarget.startsWith(`${dir}/`))) return false;
   try {
     const lower = statSync(join(root, relPath));
-    const upper = statSync(join(root, actualRelPath));
+    const upper = statSync(join(root, aliasTarget));
     return lower.dev === upper.dev && lower.ino === upper.ino;
   } catch {
     return false;
@@ -515,10 +535,19 @@ export { runtimeIgnoreMissing };
 export function detectManagedAssetProfile(root: string): InitProfile {
   const agents = readText(root, 'AGENTS.md');
   const claude = readText(root, 'CLAUDE.md');
+  // B-cc10 CHK-002: probe every accepted adapter-dir / manifest spelling, so a
+  // project that has not been migrated is still detected as a Codex project.
+  // Detecting 'core' instead of 'codex' here would silently stop managing the
+  // adapter assets rather than reporting an error.
   const hasCodex = Boolean(
     (agents && hasManagedMarkers(agents))
-      || existsSync(join(root, '.lattice-codex', 'lattice.json'))
-      || existsSync(join(root, '.lattice-codex', 'agents'))
+      || adapterManifestCandidates().some(rel => existsSync(join(root, rel)))
+      || adapterDirCandidates('agents').some(rel => existsSync(join(root, rel)))
+      // B-cc10 CHK-006: this probed ONLY the deprecated `bin/lattice-codex.js`. Now that
+      // the alias is deleted, a canonical-only project (this repository included) has no
+      // codex wrapper this check can see, so profile detection could silently fall back to
+      // 'core' and stop managing adapter assets. Read BOTH names, canonical first.
+      || existsSync(join(root, 'bin', 'proof-or-stop-codex.js'))
       || existsSync(join(root, 'bin', 'lattice-codex.js'))
   );
   const hasClaude = Boolean(
@@ -533,16 +562,32 @@ export function detectManagedAssetProfile(root: string): InitProfile {
 }
 
 export function detectManagedAssetMode(root: string): InitAssetMode {
-  const globalThinConfig = ['.lattice/lattice.json', '.Lattice/lattice.json']
-    .find(relPath => existsSync(join(root, relPath)));
+  // B-cc10 CHK-002: read-both state-dir + manifest spellings, canonical first.
+  // `.Lattice` stays an explicit extra entry — it is a case variant, not a brand
+  // identity the resolver owns.
+  const globalThinConfig = [
+    ...MANIFEST_FILENAMES.flatMap(file => stateDirCandidates(file)),
+    // B-cc10 CHK-004: the `.Lattice` case variant accepts BOTH manifest
+    // filenames; pinning the deprecated one made a migrated `.Lattice` root stop
+    // being detected as global-thin.
+    ...MANIFEST_FILENAMES.map(file => `.Lattice/${file}`),
+  ].find(relPath => existsSync(join(root, relPath)));
   if (globalThinConfig) {
     const text = readText(root, globalThinConfig);
     if (text?.includes('global-thin')) return 'global-thin';
   }
-  if (existsSync(join(root, '.lattice-codex', 'lattice.json')) || existsSync(join(root, '.lattice-codex', 'agents'))) {
+  if (
+    adapterManifestCandidates().some(rel => existsSync(join(root, rel)))
+    || adapterDirCandidates('agents').some(rel => existsSync(join(root, rel)))
+  ) {
     return 'full';
   }
-  if (existsSync(join(root, 'bin', 'lattice.js'))) {
+  // B-cc10 CHK-006: read-both, canonical first. Probing only the deleted alias meant a
+  // canonical-only local-bootstrap project was not classified as 'full'.
+  if (
+    existsSync(join(root, 'bin', 'proof-or-stop.js'))
+    || existsSync(join(root, 'bin', 'lattice.js'))
+  ) {
     return 'full';
   }
   // Full-mode: LATTICE.md presence (any casing) implies non-global-thin project
@@ -667,14 +712,26 @@ export function listManagedAssetDefinitions(
   assetMode: InitAssetMode = 'full',
 ): ManagedAssetDefinition[] {
   const isGlobalThin = assetMode === 'global-thin';
-  // Global-thin: canonical assets live in .lattice/. No local bin shims.
+  // Global-thin: canonical assets live in the state directory. No local bin shims.
+  //
+  // B-cc10 CHK-007 (F-004): the guide + manifest relPaths are DERIVED from the
+  // resolver. They were hardcoded to the deprecated state directory even after
+  // CHK-003 moved it (the stale comment below used to say the state-dir component
+  // was "CHK-003's to move" — it moved, this did not follow), so `init` wrote the
+  // guide into a stray legacy directory while writing the manifest to the
+  // canonical one. WRITES use the canonical name only; the ownership recognizers
+  // still accept BOTH spellings so an already-installed project is classified as
+  // syncable rather than STALE_LOCAL_EDIT.
+  const dotDirGuideRel = `${PROOF_OR_STOP_STATE_DIR}/Lattice.md`;
+  const guideMentionsAnyStateDir = (actual: string): boolean =>
+    STATE_DIR_NAMES.some((dir) => actual.includes(`${dir}/Lattice.md`));
   if (isGlobalThin) {
     const defs: ManagedAssetDefinition[] = [
       managedDoc(
-        'doc:.lattice/Lattice.md',
-        '.lattice/Lattice.md',
+        `doc:${dotDirGuideRel}`,
+        dotDirGuideRel,
         LATTICE_DOT_DIR_MD_TEMPLATE,
-        actual => actual.includes('.lattice/Lattice.md')
+        actual => guideMentionsAnyStateDir(actual)
           // Read-both ownership recognition (B-cdf6 CHK-006): an ALREADY-INSTALLED
           // guide doc still carries the pre-rename `lattice codex verify` literal.
           // Recognizing only the canonical spelling would reclassify every existing
@@ -683,8 +740,10 @@ export function listManagedAssetDefinitions(
           || actual.includes('lattice codex verify'),
       ),
       wholeFile(
-        '.lattice:lattice.json',
-        '.lattice/lattice.json',
+        // B-cc10 CHK-004 + CHK-007: BOTH components now come from the resolver, so
+        // init writes the canonical manifest name inside the canonical state dir.
+        `${PROOF_OR_STOP_STATE_DIR}:${PROOF_OR_STOP_MANIFEST_FILENAME}`,
+        `${PROOF_OR_STOP_STATE_DIR}/${PROOF_OR_STOP_MANIFEST_FILENAME}`,
         renderLatticeProjectConfig(),
         actual => actual.includes('"assetMode"') && actual.includes('global-thin'),
         false,
@@ -709,7 +768,7 @@ export function listManagedAssetDefinitions(
           'doc:AGENTS.md',
           'AGENTS.md',
           AGENTS_MD_GLOBAL_THIN_TEMPLATE,
-          actual => actual.includes('.lattice/Lattice.md')
+          actual => guideMentionsAnyStateDir(actual)
           // Read-both ownership recognition (B-cdf6 CHK-006): an ALREADY-INSTALLED
           // guide doc still carries the pre-rename `lattice codex verify` literal.
           // Recognizing only the canonical spelling would reclassify every existing
@@ -777,6 +836,11 @@ export function listManagedAssetDefinitions(
     // demanding it unconditionally would report a spurious MISSING on every freshly
     // initialized project. Present-and-drifted is still worth reporting, so when the file
     // IS there it gets the same drift checking as the canonical one.
+    //
+    // B-cc10 CHK-006: this repository's own alias was deleted, so this branch is now
+    // inert HERE (the presence probe simply fails) while still drift-checking a
+    // downstream project that legitimately still carries the old wrapper. The
+    // conditional shape is exactly why removing our own file needed no change here.
     // B-cdf6: the presence probe must run against projectRoot, NOT root. `root`
     // defaults to packageRoot() — where the CLI package is installed — so probing it
     // asks "does the PACKAGE ship bin/lattice.js", which is never true. The alias
@@ -838,15 +902,20 @@ export function listManagedAssetDefinitions(
             actual => actual.includes("import './proof-or-stop-codex.js'"),
           )]
         : []),
+      // B-cc10 CHK-007: adapter-dir components are resolver-derived, matching the
+      // `init` writers. They were literal DEPRECATED spellings while the manifest
+      // filename already came from the resolver, so `check` tracked a directory
+      // full-mode `init` no longer writes.
       wholeFile(
-        '.lattice-codex:README.md',
-        '.lattice-codex/README.md',
+        `${PROOF_OR_STOP_ADAPTER_DIR}:README.md`,
+        `${PROOF_OR_STOP_ADAPTER_DIR}/README.md`,
         renderCodexReadmeTemplate(assetMode, 'lattice'),
         actual => actual.includes('Codex + Proof-or-Stop'),
       ),
       wholeFile(
-        '.lattice-codex:lattice.json',
-        '.lattice-codex/lattice.json',
+        // B-cc10 CHK-004 + CHK-007: both components from the resolver.
+        `${PROOF_OR_STOP_ADAPTER_DIR}:${PROOF_OR_STOP_MANIFEST_FILENAME}`,
+        `${PROOF_OR_STOP_ADAPTER_DIR}/${PROOF_OR_STOP_MANIFEST_FILENAME}`,
         renderProofOrStopCodexAdapterManifest(assetMode === 'thin' ? { promptMode: 'registry' } : {}),
         () => true,
       ),
@@ -865,7 +934,7 @@ export function listManagedAssetDefinitions(
         actual => actual.includes('evidence-pin seatbelt') && actual.includes('verification_pin_guard_check'),
         true,
       ),
-      { id: 'excluded:.lattice-codex/settings.json', relPath: '.lattice-codex/settings.json', kind: 'excluded-path' },
+      { id: `excluded:${PROOF_OR_STOP_ADAPTER_DIR}/settings.json`, relPath: `${PROOF_OR_STOP_ADAPTER_DIR}/settings.json`, kind: 'excluded-path' },
     );
     if (assetMode === 'full' && templates) {
       const files = listAgentPromptFiles(templates);
@@ -882,8 +951,8 @@ export function listManagedAssetDefinitions(
         const roleId = file.replace(/\.md$/, '');
         const entry = registryEntries.find(candidate => candidate.agentId === roleId);
         defs.push(wholeFile(
-          `.lattice-codex/agents:${file}`,
-          `.lattice-codex/agents/${file}`,
+          `${PROOF_OR_STOP_ADAPTER_DIR}/agents:${file}`,
+          `${PROOF_OR_STOP_ADAPTER_DIR}/agents/${file}`,
           entry
             ? renderPromptEntryForHost(entry, 'codex')
             : renderCodexAgentContent(readFileSync(join(templates, file), 'utf-8')),
@@ -944,11 +1013,19 @@ export function listManagedAssetDefinitions(
     }
   }
 
-  if (wantsCodex && assetMode === 'full' && templates && existsSync(join(projectRoot, '.lattice-codex', 'agents'))) {
+  // B-cc10 CHK-007: this stale-prompt sweep scans EVERY accepted adapter-dir
+  // spelling, not just one. It is a cleanup READ, so the read-both rule applies:
+  // pinning it to a single spelling would either miss a legacy install's stale
+  // prompts (old name) or miss the ones init writes today (new name).
+  if (wantsCodex && assetMode === 'full' && templates) {
     const expected = new Set(listAgentPromptFiles(templates));
-    for (const file of listAgentPromptFiles(join(projectRoot, '.lattice-codex', 'agents'))) {
-      if (!expected.has(file)) {
-        defs.push({ id: `.lattice-codex/agents:extra:${file}`, relPath: `.lattice-codex/agents/${file}`, kind: 'remove-extra' });
+    for (const adapterDir of ADAPTER_DIR_NAMES) {
+      const agentsDir = join(projectRoot, adapterDir, 'agents');
+      if (!existsSync(agentsDir)) continue;
+      for (const file of listAgentPromptFiles(agentsDir)) {
+        if (!expected.has(file)) {
+          defs.push({ id: `${adapterDir}/agents:extra:${file}`, relPath: `${adapterDir}/agents/${file}`, kind: 'remove-extra' });
+        }
       }
     }
   }

@@ -32,9 +32,19 @@ import type { CandidateSpecSetArtifact } from './candidate-spec-routing.js';
 import { appendProcessEvent as appendProcessEventFn, readProcessEvents as readProcessEventsFn } from './process-events.js';
 import { storyRuntimeLockPath } from './validation-execution-lock.js';
 import { loadConfig } from './config.js';
-import { LEGACY_DOCS_STORY_DIR, uniqueRelPaths } from './lattice-paths.js';
+import { LEGACY_DOCS_STORY_DIR, PROOF_OR_STOP_STORY_DIR_NAMES, uniqueRelPaths } from './lattice-paths.js';
 import { normalizeLegacyPhase, phaseRank } from './phase-flow.js';
 import type { PromptEnvelopeData } from './prompt-contracts.js';
+import {
+  CERTIFICATION_WINDOW_FILE,
+  emptyCertificationWindowData,
+  type CertificationWindowData,
+} from './certification-window.js';
+import {
+  REVIEW_INVENTORY_EPOCHS_FILE,
+  emptyReviewInventoryEpochData,
+  type ReviewInventoryEpochData,
+} from './review-inventory-epoch.js';
 
 type JsonCandidate<T> = {
   filePath: string;
@@ -61,8 +71,16 @@ export class StoryStore {
     this.projectRootValue = projectRoot;
     this.storyDirRelValue = config.storyDir.replace(/\\/g, '/');
     this.baseDir = join(projectRoot, config.storyDir);
+    // B-cc10 F-006 (critical): the read-both fallback must include EVERY accepted
+    // state-dir spelling, not just the older docs/ migration. PROOF_OR_STOP_STORY_DIR_NAMES
+    // is the canonical read-side list (it already gates hash exclusion in
+    // evidence-freshness.ts) but was never wired into discovery here, so a story
+    // directory merged in under the deprecated `.lattice/` spelling was invisible:
+    // story_get returned {"story": null} at exit 0 while the files sat on disk.
+    // Writes are unaffected — they still go only to the configured canonical dir.
     this.legacyBaseDirs = uniqueRelPaths([
       LEGACY_DOCS_STORY_DIR,
+      ...PROOF_OR_STOP_STORY_DIR_NAMES,
     ])
       .filter((rel) => rel !== this.storyDirRelValue)
       .map((rel) => join(projectRoot, rel));
@@ -873,6 +891,43 @@ export class StoryStore {
 
   writeAcceptanceBasis(storyId: string, data: AcceptanceBasisArtifactV1): void {
     this.writeJson(storyId, 'acceptance-basis.json', data);
+  }
+
+  readCertificationWindows(storyId: string): CertificationWindowData {
+    try {
+      const data = this.readJson<CertificationWindowData>(storyId, CERTIFICATION_WINDOW_FILE);
+      return {
+        schemaVersion: data.schemaVersion ?? emptyCertificationWindowData().schemaVersion,
+        windows: Array.isArray(data.windows) ? data.windows : [],
+        receipts: Array.isArray(data.receipts) ? data.receipts : [],
+      };
+    } catch (e) {
+      if (e instanceof StoryArtifactMissingError) return emptyCertificationWindowData();
+      throw e;
+    }
+  }
+
+  writeCertificationWindows(storyId: string, data: CertificationWindowData): void {
+    this.writeJson(storyId, CERTIFICATION_WINDOW_FILE, data);
+  }
+
+  readReviewInventoryEpochs(storyId: string): ReviewInventoryEpochData {
+    try {
+      const data = this.readJson<ReviewInventoryEpochData>(storyId, REVIEW_INVENTORY_EPOCHS_FILE);
+      return {
+        schemaVersion: data.schemaVersion ?? emptyReviewInventoryEpochData().schemaVersion,
+        epochs: Array.isArray(data.epochs) ? data.epochs : [],
+        receipts: Array.isArray(data.receipts) ? data.receipts : [],
+        criticReceipts: Array.isArray(data.criticReceipts) ? data.criticReceipts : [],
+      };
+    } catch (e) {
+      if (e instanceof StoryArtifactMissingError) return emptyReviewInventoryEpochData();
+      throw e;
+    }
+  }
+
+  writeReviewInventoryEpochs(storyId: string, data: ReviewInventoryEpochData): void {
+    this.writeJson(storyId, REVIEW_INVENTORY_EPOCHS_FILE, data);
   }
 
   readPreReviewCheck(storyId: string): PreReviewCheckArtifactV1 | null {

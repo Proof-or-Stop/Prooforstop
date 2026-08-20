@@ -1,0 +1,49 @@
+{
+  "task": "Retire six remaining lattice identities (two bin aliases, two state directories, two config filenames, one npm package name) that B-cdf6 deliberately left in place, migrating live on-disk state without orphaning or rewriting it.",
+  "outcome": "proof-or-stop resolves all state, config and package identities under proof-or-stop names; the 344 archived story directories remain readable and their historical signatures still verify; no bare .lattice / lattice.config.json / @lattice/core literal remains in product runtime source.",
+  "facts": [
+    "Measured in this worktree at PLAN time: git ls-files .lattice | wc -l = 7580 tracked files; ls .lattice/story/actives | wc -l = 344 story directories. Earlier counts of 7571/7574 and 326 were taken on main days apart; the numbers drift with ongoing story activity, so any acceptance check must re-measure rather than assert a literal.",
+    "The 8 lattice-*-integrity-v1 signature salts are standalone string constants (core/finding-verify.ts declares FINDING_SALT and REVIEW_PASS_SALT as literals; 6 siblings elsewhere). They are NOT derived from any directory or filename, so renaming paths does not invalidate historical signatures. Independently re-verified by the INIT reviewer.",
+    "RESOLVED (was unknown #1): storyFilesHash hashes path + blob-object-id pairs sorted BY PATH, per story-files-hash-material-drift.md:30-31, confirmed by the scope-plan reviewer reading the doc directly. PATHS ARE HASHED, so the state-dir rename genuinely shifts storyFilesHash for all 344 archives. CHK-001 must record this and the chosen handling before CHK-003 runs.",
+    "docs/requirements/decisions/brand-rename-mapping.md:124 gives the .lattice/ state-directory NAME a verdict of RENAMED (additive); only the literal VALUE is frozen in a parenthetical. This story completes that prescribed path.",
+    "RESOLVED (was unknown #2, scope-plan OQ-1): brand-rename-mapping.md:130 froze @lattice/core because renaming would silently self-disarm .githooks/pre-push. That premise is STALE: the hook now reads case \"$PKG_NAME\" in @lattice/core|@proof-or-stop/core, pre-widened by B-cdf6. The freeze is superseded on evidence; CHK-005 must still grep for OTHER exact-name consumers.",
+    "RESOLVED (was unknown #3, scope-plan OQ-2): the ROOT npm package name lattice is OUT of scope — not among the six identities the operator enumerated, frozen by brand-rename-mapping.md:131, and verifiably publishable (no private:true) so it is a registry-identity action for its own story.",
+    ".lattice/learning/ is explicitly materialHash-EXCLUDED (core/learning-store.ts, core/command-policy.ts), so cache churn there cannot make evidence stale.",
+    "B-cdf6 established the additive read-both pattern in core/brand-env.ts: canonical name wins, deprecated name still resolves. This story reuses that pattern for paths and filenames rather than inventing a new mechanism.",
+    "B-cdf6 lesson with direct bearing here: four regressions (F-065 at core/lattice-dispatch.ts:1671-1677, F-061 at 1702-1713, F-062 at core/done-required-timeout-budget.ts:178, F-068 at cli/activity-policy.ts:136) were hardcoded DEPRECATED literals inside comparisons and parsers, so the CANONICAL spelling silently failed while the old one worked. All four were found by reviewers, none by the implementer.",
+    "The canonical AST fingerprint for cli-engine.ts has TWO coupled pinned copies (tasks/retired-authority-vocabulary-guard-smoke.ts and scripts/verify-process-fact-contract.mjs); updating only one fails closed.",
+    "A fresh worktree needs THREE setup steps: npm install at root, npm --prefix packages/main install + build, and npm --prefix packages/utils install + build. The packages/main build exits 0 while producing no dist when its own deps are missing, so exit code alone is not a build-success signal."
+  ],
+  "constraints": [
+    "Never rewrite content inside archived story files. History MOVES (git mv preserves content and follows history); it is never edited.",
+    "The 8 signature salts and the 13 lattice-* agent role IDs are out of scope and must remain byte-identical (scope-boundary excludedScope).",
+    "Managed-block markers <!-- lattice:start --> / <!-- lattice:end --> and the lattice.remote-push-approval.v1 schema literal stay FROZEN per brand-rename-mapping.md — flagged as orphan-suspects by the scope-plan reviewer and confirmed out of scope here.",
+    "Read-both must hold for every renamed identity: the deprecated path/filename stays READABLE while only the canonical name is WRITTEN.",
+    "Deprecation notices go to STDERR, never stdout: B-cdf6 established that stdout contamination breaks --json for piped consumers.",
+    "CHK-003 (the git mv) must not start until CHK-008 (the apply-then-revert rehearsal) is done and its evidence recorded. ID order is not execution order in this story.",
+    "Removing the bin aliases (CHK-006) is the one irreversible break of B-cdf6 multi-developer compatibility, so it goes LAST and must be ANNOUNCED via CHANGELOG.",
+    "git push, npm publish, rm -rf on either state directory, and history-rewriting commands are blocked by execution-boundary."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/brand-env.ts",
+    "packages/main/src/core/lattice-paths.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/managed-assets.ts",
+    "packages/main/src/core/codex-adapter-checks.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/package.json",
+    "packages/utils/package.json",
+    "packages/lab/package.json",
+    "bin/lattice.js",
+    "bin/lattice-codex.js",
+    "bin/proof-or-stop-codex.js",
+    "scripts/verify-lattice-residue.mjs",
+    "scripts/verify-entrypoints.mjs",
+    ".githooks/pre-push",
+    "CLAUDE.md",
+    "docs/CLI.md",
+    "CHANGELOG.md"
+  ],
+  "timestamp": "2026-08-17T10:15:34.234Z"
+}

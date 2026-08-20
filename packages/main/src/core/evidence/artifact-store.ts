@@ -22,6 +22,7 @@ import {
 import { join } from 'path';
 import type { EvidenceArtifact, ArtifactKind, EvidenceScope, SubjectBinding } from './types.js';
 import { EVIDENCE_SCHEMA_VERSION } from './types.js';
+import { PROOF_OR_STOP_DIR } from '../lattice-paths.js';
 
 export interface CreateArtifactOptions<TPayload> {
   artifactKind: ArtifactKind;
@@ -32,7 +33,7 @@ export interface CreateArtifactOptions<TPayload> {
 }
 
 function evidenceRoot(projectRoot: string): string {
-  return join(projectRoot, '.lattice', 'evidence');
+  return join(projectRoot, PROOF_OR_STOP_DIR, 'evidence');
 }
 
 function objectsDir(projectRoot: string): string {

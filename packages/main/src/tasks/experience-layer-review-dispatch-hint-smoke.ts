@@ -40,7 +40,7 @@ import { dirname, join } from 'node:path';
 import { resolveHintMode } from '../core/hint-mode.js';
 import type { HintMode } from '../core/hint-mode.js';
 import type { FindingSignal, FindingSignalsCache } from '../core/experience-layer-types.js';
-import { writeFindingSignals } from '../core/learning-store.js';
+import { FINDING_SIGNALS_FILENAME, LEARNING_DIR, writeFindingSignals } from '../core/learning-store.js';
 import { surfaceExperienceHints } from '../core/experience-hint-surface.js';
 import { resolveReviewPromptHash } from '../core/review-run.js';
 import { readActivityLogTail } from '../core/activity-log.js';
@@ -538,7 +538,7 @@ check('CHK-002 adversarial:0 — a hint-surface failure never blocks/alters the 
   const root = mkTempRoot();
   writeProofOrStopConfig(root);
   seedStory(new StoryStore(root), onId, 'REVIEW');
-  write(root, '.lattice/learning/finding-signals.json', '{ not valid json');
+  write(root, join(LEARNING_DIR, FINDING_SIGNALS_FILENAME), '{ not valid json');
   const text = reviewNextSteps(root, onId);
 
   assert.equal(text, baseline, 'corrupt cache: REVIEW guidance byte-identical to baseline (failure swallowed)');

@@ -41,6 +41,7 @@ import {
   readPlaybookPromotionDecisionRows,
   readPlaybookPromotionHealthEvents,
   readProposal,
+  LEARNING_DIR,
   resolveFindingSignalsPath,
   resolvePlaybookAutoActivationsPath,
   writeProposal,
@@ -1204,9 +1205,9 @@ function run(): void {
       assert.notEqual(guard.recommendation, 'recommend_activate');
       assert.equal(guard.eligible, false);
       assert.ok(guard.blockers.includes('promotion_recommendation_hold'));
-      const beforeApply = snapshotDir(root, '.lattice/learning');
+      const beforeApply = snapshotDir(root, LEARNING_DIR);
       assert.match(runCliFailure(root, ['playbook_auto_promotion_apply', '--apply', '--json']), /fail-closed/);
-      assert.equal(snapshotDir(root, '.lattice/learning'), beforeApply, 'DONE-settlement apply does not write learning artifacts on failure');
+      assert.equal(snapshotDir(root, LEARNING_DIR), beforeApply, 'DONE-settlement apply does not write learning artifacts on failure');
     });
 
     check('M6 runtime verification consumes active playbooks and keeps candidates inert', () => {
@@ -1239,9 +1240,9 @@ function run(): void {
         guard.playbookId === preOutcomeCandidate.id
         && guard.blockers.includes('no_real_candidate_consumption_outcomes')
         && guard.blockers.includes('promotion_recommendation_hold')));
-      const beforeNoEvidenceApply = snapshotDir(preOutcomeRoot, '.lattice/learning');
+      const beforeNoEvidenceApply = snapshotDir(preOutcomeRoot, LEARNING_DIR);
       assert.match(runCliFailure(preOutcomeRoot, ['playbook_auto_promotion_apply', '--apply', '--json']), /fail-closed/);
-      assert.equal(snapshotDir(preOutcomeRoot, '.lattice/learning'), beforeNoEvidenceApply, 'pre-outcome apply did not write learning artifacts');
+      assert.equal(snapshotDir(preOutcomeRoot, LEARNING_DIR), beforeNoEvidenceApply, 'pre-outcome apply did not write learning artifacts');
       assert.ok(readPlaybooks(preOutcomeRoot).every((row) => row.status !== 'active'), 'pre-outcome apply did not activate');
 
       const noExposureRoot = mkProject();
@@ -1250,9 +1251,9 @@ function run(): void {
       seedLearning(noExposureRoot, noExposureStore);
       const noExposureCandidate = approveSeedCandidateViaCli(noExposureRoot);
       recordNoExposureOutcomeViaCli(noExposureRoot, noExposureCandidate.id);
-      const noExposureBeforeApply = snapshotDir(noExposureRoot, '.lattice/learning');
+      const noExposureBeforeApply = snapshotDir(noExposureRoot, LEARNING_DIR);
       assert.match(runCliFailure(noExposureRoot, ['playbook_auto_promotion_apply', '--apply', '--json']), /fail-closed/);
-      assert.equal(snapshotDir(noExposureRoot, '.lattice/learning'), noExposureBeforeApply, 'no-exposure apply did not write recommendation or activation rows');
+      assert.equal(snapshotDir(noExposureRoot, LEARNING_DIR), noExposureBeforeApply, 'no-exposure apply did not write recommendation or activation rows');
       assert.equal(readPlaybooks(noExposureRoot).find((row) => row.id === noExposureCandidate.id)?.status, 'candidate');
 
       const staleRoot = mkProject();
@@ -1281,9 +1282,9 @@ function run(): void {
       const staleDry = runCliJson<any>(staleRoot, ['playbook_auto_promotion_apply', '--json']);
       const staleGuard = staleDry.candidateGuards.find((row: any) => row.playbookId === staleCandidate.id);
       assert.ok(staleGuard?.blockers.includes('applied_recommend_activate_decision_digest_mismatch'));
-      const staleBeforeApply = snapshotDir(staleRoot, '.lattice/learning');
+      const staleBeforeApply = snapshotDir(staleRoot, LEARNING_DIR);
       assert.match(runCliFailure(staleRoot, ['playbook_auto_promotion_apply', '--apply', '--json']), /fail-closed/);
-      assert.equal(snapshotDir(staleRoot, '.lattice/learning'), staleBeforeApply, 'stale decision apply did not write replacement evidence or activation rows');
+      assert.equal(snapshotDir(staleRoot, LEARNING_DIR), staleBeforeApply, 'stale decision apply did not write replacement evidence or activation rows');
       assert.equal(readPlaybooks(staleRoot).find((row) => row.id === staleCandidate.id)?.status, 'candidate');
       assert.equal(readPlaybookAutoActivationEvents(staleRoot).filter((row) => row.playbookId === staleCandidate.id).length, 0);
       const staleDecisionRows = readPlaybookPromotionDecisionRows(staleRoot).decisions.filter((row) =>
@@ -1329,9 +1330,9 @@ function run(): void {
         'recommend_activate',
         'duplicate idempotency rows alone cannot satisfy activation thresholds',
       );
-      const beforeDryRun = snapshotDir(root, '.lattice/learning');
+      const beforeDryRun = snapshotDir(root, LEARNING_DIR);
       const noDecisionDry = runCliJson<any>(root, ['playbook_auto_promotion_apply', '--json']);
-      assert.equal(snapshotDir(root, '.lattice/learning'), beforeDryRun, 'auto-promotion dry-run remains read-only for learning artifacts');
+      assert.equal(snapshotDir(root, LEARNING_DIR), beforeDryRun, 'auto-promotion dry-run remains read-only for learning artifacts');
       const noDecisionGuard = noDecisionDry.candidateGuards.find((row: any) => row.playbookId === candidate.id);
       assert.equal(noDecisionGuard?.recommendation, 'recommend_activate');
       assert.ok(noDecisionGuard?.blockers.includes('missing_applied_recommend_activate_decision'));
@@ -1339,12 +1340,12 @@ function run(): void {
       const activationLogPath = resolvePlaybookAutoActivationsPath(root);
       mkdirSync(dirname(activationLogPath), { recursive: true });
       writeFileSync(activationLogPath, '{malformed activation row\n', 'utf8');
-      const beforeMalformedAuditApply = snapshotDir(root, '.lattice/learning');
+      const beforeMalformedAuditApply = snapshotDir(root, LEARNING_DIR);
       assert.match(
         runCliFailure(root, ['playbook_auto_promotion_apply', '--apply', '--json']),
         /fail-closed|Expected property name|Unexpected token|JSON/,
       );
-      assert.equal(snapshotDir(root, '.lattice/learning'), beforeMalformedAuditApply, 'malformed activation log must not leave candidate active or write recommendations');
+      assert.equal(snapshotDir(root, LEARNING_DIR), beforeMalformedAuditApply, 'malformed activation log must not leave candidate active or write recommendations');
       assert.equal(readPlaybooks(root).find((row) => row.id === candidate.id)?.status, 'candidate');
       assert.equal(readPlaybookAutoActivationEvents(root).filter((row) => row.playbookId === candidate.id).length, 0);
       assert.equal(readPlaybookPromotionDecisionRows(root).decisions.filter((row) => row.playbookId === candidate.id).length, 0);

@@ -12,6 +12,7 @@
  *   - [CHK-004] Expose registry projections for consistency contracts
  */
 import type { StoryPhase } from './types.js';
+import { PROOF_OR_STOP_STATE_DIR } from './brand-paths.js';
 import { getCommandPolicyEntries, type CommandPhase } from './command-policy.js';
 
 export type LifecycleTransitionKind = 'forward' | 'rollback' | 'terminal';
@@ -683,6 +684,15 @@ export const LATTICE_LIFECYCLE_ARTIFACT_FILENAMES: ReadonlySet<string> = new Set
   // dev_memory_preflight_ack. Consumed by the DEV-entry gate
   // (evaluateDevMemoryPreflightGate in core/machine.ts).
   'dev-memory-preflight-ack.json',
+  // B-1e1f: signed PRE_CERT CertificationWindow written by StoryStore
+  // (readCertificationWindows/writeCertificationWindows). Independently gated
+  // by refuseHeavyCertificationUnlessAdmitted; not closeout evidence.
+  'certification-window.json',
+  // B-1e1f: signed review-inventory epochs written by StoryStore
+  // (readReviewInventoryEpochs/writeReviewInventoryEpochs). Independently
+  // gated completeness process fact; writing it after REVIEW must not be
+  // treated as an untrusted closeout artifact.
+  'review-inventory-epochs.json',
 ]);
 
 /**
@@ -700,6 +710,12 @@ export const REVIEW_RETENTION_PROTOCOL_METADATA_PATHS: ReadonlySet<string> = new
   'test-runs.json',
   'owner-lease.json',
   'closeout-write-receipts.jsonl',
+  // Independently gated PRE_CERT process fact. Writing it after REVIEW must
+  // not be treated as an untrusted closeout artifact.
+  'certification-window.json',
+  // Independently gated completeness process fact. Writing it after REVIEW
+  // must not be treated as an untrusted closeout artifact.
+  'review-inventory-epochs.json',
 ]);
 
 export const LATTICE_LIFECYCLE_ARTIFACT_RELATIVE_PATHS: ReadonlySet<string> = new Set([
@@ -727,7 +743,11 @@ export function isCanonicalStoryId(value: string): boolean {
   return STORY_ID_RE.test(value);
 }
 
+// B-cc10: the CANONICAL prefix is derived and listed FIRST; the '.lattice/' and
+// 'docs/' entries stay for read-both so a pre-migration checkout still resolves.
+// Before this, a story dir under the canonical path was not recognized at all.
 const DEFAULT_STORY_DIR_PREFIXES = [
+  `${PROOF_OR_STOP_STATE_DIR}/story/actives/`,
   '.lattice/story/actives/',
   'docs/story/actives/',
 ] as const;

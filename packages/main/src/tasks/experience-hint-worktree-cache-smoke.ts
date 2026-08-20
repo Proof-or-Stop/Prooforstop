@@ -3,12 +3,12 @@
  * B-37b3 CHK-002: smoke proving the Experience Layer's derived finding-signals
  * cache is reachable from a LINKED GIT WORKTREE, not just the main checkout.
  *
- * Root cause this guards: `.lattice/learning/finding-signals.json` is gitignored
- * and lives ONLY in the main checkout, but story DEV/REVIEW runs in linked
- * worktrees. Before the fix, the learning-store resolved the learning dir relative
- * to the (worktree) root, so `loadExperienceHints` read `${worktree}/.lattice/...`
- * — which is absent — and the Experience Layer stayed dormant. The learning-store
- * now resolves the learning dir to the FIRST `git worktree list --porcelain` entry
+ * Root cause this guards: the finding-signals cache is gitignored and lives ONLY
+ * in the main checkout, but story DEV/REVIEW runs in linked worktrees. Before the
+ * fix, the learning-store resolved the learning dir relative to the (worktree)
+ * root, so `loadExperienceHints` read the worktree's own state dir — which is
+ * absent — and the Experience Layer stayed dormant. The learning-store now
+ * resolves the learning dir to the FIRST `git worktree list --porcelain` entry
  * (the main/primary worktree root), with a never-throw fallback to the passed root.
  *
  * B-37b3 F-001 (Codex host-2, medium): the earlier fix used
@@ -27,12 +27,12 @@
  *   2. Non-git fallback: a plain (non-git) temp dir resolves to itself unchanged;
  *      reading with no cache returns empty WITHOUT throwing.
  *   3. Write-then-read parity: writing the cache via the learning-store FROM THE
- *      WORKTREE lands it under `main/.lattice/learning/`, and a subsequent worktree
- *      read hits it.
+ *      WORKTREE lands it under `main/<canonical-state-dir>/learning/`, and a
+ *      subsequent worktree read hits it.
  *   4. separate-git-dir / bare-backed regression (B-37b3 F-001): a checkout whose
  *      git storage lives OUTSIDE the checkout (external `--separate-git-dir`, plus a
  *      worktree off a bare clone) resolves the learning dir under the CHECKOUT's
- *      `.lattice/learning`, NOT the external gitdir's parent.
+ *      canonical learning dir, NOT the external gitdir's parent.
  *
  * Runs entirely in an OS temp dir (hermetic, no network); cleans up after itself.
  */
@@ -49,10 +49,13 @@ import {
 } from '../core/experience-hint-loader.js';
 import type { FindingSignalsCache } from '../core/experience-layer-types.js';
 import {
+  FINDING_SIGNALS_FILENAME,
+  LEARNING_DIR,
   readFindingSignals,
   writeFindingSignals,
   resolveFindingSignalsPath,
 } from '../core/learning-store.js';
+import { stateDirCandidates } from '../core/brand-paths.js';
 
 let total = 0;
 let passed = 0;
@@ -152,9 +155,9 @@ check('worktree read resolves the cache written in the MAIN checkout', () => {
   assert.ok(writtenPath.startsWith(mainRoot), 'cache writes under the main checkout root');
   assert.ok(existsSync(writtenPath), 'cache file exists in the main checkout');
 
-  // The worktree's own .lattice/learning is absent on disk...
+  // The worktree's own learning dir is absent on disk (either spelling).
   assert.equal(
-    existsSync(join(worktreeRoot, '.lattice', 'learning', 'finding-signals.json')),
+    stateDirCandidates('learning', FINDING_SIGNALS_FILENAME).some((rel) => existsSync(join(worktreeRoot, rel))),
     false,
     'no cache physically lives inside the worktree',
   );
@@ -200,7 +203,7 @@ check('non-git temp dir resolves to itself; empty read does NOT throw', () => {
 
 // ─── 3. Write-then-read parity (write from the worktree lands in main) ─────────
 
-check('write from the worktree lands in main/.lattice/learning and a worktree read hits it', () => {
+check('write from the worktree lands in main canonical learning dir and a worktree read hits it', () => {
   const { mainRoot, worktreeRoot } = initMainAndWorktree();
   const signature = 'adversarial||ts|review';
 
@@ -209,11 +212,11 @@ check('write from the worktree lands in main/.lattice/learning and a worktree re
   // It must physically land under the MAIN checkout, not the worktree.
   assert.ok(writtenPath.startsWith(mainRoot), 'worktree write lands under the main checkout root');
   assert.ok(
-    existsSync(join(mainRoot, '.lattice', 'learning', 'finding-signals.json')),
-    'cache physically exists under main/.lattice/learning/',
+    existsSync(join(mainRoot, LEARNING_DIR, FINDING_SIGNALS_FILENAME)),
+    `cache physically exists under main/${LEARNING_DIR}/`,
   );
   assert.equal(
-    existsSync(join(worktreeRoot, '.lattice', 'learning', 'finding-signals.json')),
+    stateDirCandidates('learning', FINDING_SIGNALS_FILENAME).some((rel) => existsSync(join(worktreeRoot, rel))),
     false,
     'no cache leaks into the worktree directory',
   );
@@ -244,11 +247,11 @@ check('separate-git-dir checkout resolves the learning dir under the CHECKOUT, n
   // The external git storage is NOT under the checkout (precondition for the bug).
   assert.equal(externalGitDir.startsWith(checkoutRoot), false, 'git storage lives outside the checkout');
 
-  // resolveFindingSignalsPath must land under the CHECKOUT's .lattice/learning,
+  // resolveFindingSignalsPath must land under the CHECKOUT's canonical learning dir,
   // NOT under dirname(externalGitDir) (== base) — the old regression.
   const resolved = resolveFindingSignalsPath(checkoutRoot);
   assert.ok(
-    resolved.startsWith(join(checkoutRoot, '.lattice', 'learning')),
+    resolved.startsWith(join(checkoutRoot, LEARNING_DIR)),
     `separate-git-dir resolves under the checkout's learning dir (got ${resolved})`,
   );
   assert.equal(
@@ -296,7 +299,7 @@ check('bare-backed worktree resolves the learning dir under the MAIN checkout, n
   // NOT under dirname(bareDir) (== base), the old regression.
   const resolved = resolveFindingSignalsPath(wtRoot);
   assert.ok(
-    resolved.startsWith(join(wtRoot, '.lattice', 'learning')),
+    resolved.startsWith(join(wtRoot, LEARNING_DIR)),
     `bare-backed worktree resolves under the checkout's learning dir (got ${resolved})`,
   );
   assert.equal(resolved.startsWith(bareDir), false, 'resolved path must NOT live under the bare gitdir');

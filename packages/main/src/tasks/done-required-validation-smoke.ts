@@ -25,6 +25,7 @@ import {
   runValidationCommand,
 } from '../core/validation-executor.js';
 import type { DoneRequiredCommandReceipt, DoneRequiredEvidenceData, StoryInfo, TestEvidenceData } from '../core/types.js';
+import { persistSyntheticAdmittedWindowForTest } from '../core/certification-window.js';
 import { createDoneRequiredValidationHandlers } from '../handlers/done-required-validation.js';
 import {
   effectiveValidationCommandEnvironment,
@@ -180,6 +181,7 @@ function fixture(doneRequiredCommands?: unknown, proofAdmissibility?: unknown): 
       endTime: now,
     }],
   });
+  persistSyntheticAdmittedWindowForTest({ store, storyId: STORY_ID, projectRoot: root });
   return { root, store };
 }
 

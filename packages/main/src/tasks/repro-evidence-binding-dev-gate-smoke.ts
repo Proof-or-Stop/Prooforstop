@@ -45,6 +45,7 @@ import { computeChecklistHash } from '../handlers/init-check.js';
 import { createReproIntakeHandlers } from '../handlers/repro-intake.js';
 import { createSessionHandlers } from '../handlers/session.js';
 import { createStoryCreateHandlers } from '../handlers/story-create.js';
+import { PROOF_OR_STOP_STATE_DIR } from '../core/brand-paths.js';
 
 const NOW = '2026-06-24T12:00:00.000Z';
 
@@ -249,7 +250,9 @@ function createReviewedProbeAndSpike(root: string, candidateId: string) {
 }
 
 function tamperBindingObject(root: string, bindingDigest: string): void {
-  const objectPath = join(root, '.lattice', 'evidence', 'objects', 'sha256', `${bindingDigest}.json`);
+  // B-cc10: writeArtifact (imported above) stores objects under the CANONICAL state dir,
+  // so reading them from the deprecated path threw ENOENT.
+  const objectPath = join(root, PROOF_OR_STOP_STATE_DIR, 'evidence', 'objects', 'sha256', `${bindingDigest}.json`);
   const artifact = JSON.parse(readFileSync(objectPath, 'utf8')) as {
     payload: { reviewDigest: string };
   };
@@ -349,7 +352,11 @@ await check('engine errors fail open and surface in session_brief', async () => 
   await withRoot((root, store) => {
     const storyId = 'B-engine-error';
     writeStory(store, storyId, 'PLAN', fileChecklist);
-    write(root, '.lattice/evidence/refs/by-id', 'not a directory');
+    // B-cc10: plant the deliberate breakage where the engine actually READS. This wrote
+    // to the deprecated dir, so after the rename the sabotage missed entirely and the gate
+    // returned 'missing_story_evidence_binding' instead of the engine error under test —
+    // i.e. the test silently stopped exercising its own scenario.
+    write(root, `${PROOF_OR_STOP_STATE_DIR}/evidence/refs/by-id`, 'not a directory');
     const result = evaluateStoryEvidenceBindingGate(root, store, storyId);
     assert.equal(result.reasonCode, 'repro_first_preflight_engine_error');
     assert.equal(result.ok, true);

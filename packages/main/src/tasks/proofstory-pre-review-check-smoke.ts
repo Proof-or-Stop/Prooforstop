@@ -13,6 +13,7 @@ import { runPreReviewCheckGate } from '../handlers/transition-orchestrator.js';
 import { loadVerifiedPreReviewExecutableProof, PRE_REVIEW_LIVE_PROOF_COMMAND } from '../core/pre-review-check.js';
 import { currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { signScopeCheck } from '../handlers/scope-check.js';
+import { adapterSessionEnv } from './adapter-session-env.js';
 import {
   assemblePreReviewCaseRecords,
   buildPreReviewProofFromExecutedCases,
@@ -30,10 +31,11 @@ import {
 import type { AcceptanceRolloutCohortInputV1 } from '../core/types.js';
 import type { AcceptanceVerificationTopologyV1, ChecklistData, PreReviewCaseRecordV1, ProofStoryContractData, ScopeCheckData, ScopeContractData, StoryInfo } from '../core/types.js';
 import type { HandlerContext } from '../handlers/context.js';
+import { STATE_DIR_NAMES } from '../core/brand-paths.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const repositoryRoot = resolve(packageRoot, '..', '..', '..');
-const latticeBin = join(repositoryRoot, 'bin/lattice.js');
+const latticeBin = join(repositoryRoot, 'bin/proof-or-stop.js');
 const cohortCaseMode = process.argv.includes('--rollout-cohort-case');
 const cohortArm = process.env.LATTICE_ROLLOUT_COHORT_ARM === 'candidate' ? 'candidate' : 'baseline';
 const cohortScenario = process.env.LATTICE_ROLLOUT_COHORT_SCENARIO ?? 'control';
@@ -240,22 +242,27 @@ function write(root: string, rel: string, content: string): void {
 function git(root: string, args: string[]): string {
   return execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
 }
-function cli(root: string, command: string, args: Record<string, unknown>, allowFail = false, agent = 'lattice-implementer', sessionId = 'sess-pre-review-smoke'): string {
+/**
+ * `sessionTask` is a task LABEL, not a session id.
+ *
+ * Full-envelope reviewer dispatch requires a known session host provider, and a role that signs a
+ * topology receipt additionally requires a `host-adapter` session (see the guard in
+ * `core/topology-critic-receipt.ts#deriveRoleProvenance`). `adapterSessionEnv` supplies the
+ * provider + task + agent triple the adapter derives from, and — critically — it also UNSETS the
+ * session id env var: that variable short-circuits adapter resolution to `explicit-env` before the
+ * adapter branch is reached, which the signing guard then refuses. Pinning the provider here also
+ * keeps the fixture independent of the caller's environment: it otherwise passes from an
+ * interactive shell that already exports one and fails under `proof-or-stop validate`, whose child
+ * environment has none, with 'unsupported session host provider "absent"'.
+ */
+function cli(root: string, command: string, args: Record<string, unknown>, allowFail = false, agent = 'lattice-implementer', sessionTask = 'sess-pre-review-smoke'): string {
   try {
     return execFileSync(process.execPath, [latticeBin, '--root', root, command, JSON.stringify(args)], {
       cwd: root,
       env: {
         ...process.env,
-        LATTICE_SESSION_ID: sessionId,
         LATTICE_AGENT: agent,
-        // Full-envelope reviewer dispatch requires a known session host provider.
-        // Without this the smoke inherits whatever the caller happened to have:
-        // it passes from an interactive shell that already exports one, and fails
-        // under `proof-or-stop validate`, whose child environment has none, with
-        // 'unsupported session host provider "absent"'. Pin it so the fixture does
-        // not depend on the caller's environment.
-        LATTICE_OWNER_SESSION_ADAPTER_PROVIDER:
-          process.env.LATTICE_OWNER_SESSION_ADAPTER_PROVIDER ?? 'claude-code',
+        ...adapterSessionEnv(sessionTask, agent),
       },
       encoding: 'utf8',
       stdio: ['pipe', 'pipe', 'pipe'],
@@ -515,7 +522,15 @@ const root = mkdtempSync(join(tmpdir(), 'proofstory-pre-review-'));
 const originalCwd = process.cwd();
 try {
   smoke: {
-  write(root, '.gitignore', '.lattice/runtime/\n.lattice/activity.jsonl\n.lattice/locks/\n');
+  // B-cc10: the CLI writes runtime/activity/locks under the CANONICAL state dir, so a
+  // fixture ignoring only the deprecated spelling let `git add .` track
+  // .proof-or-stop/activity.jsonl — which quorum_submit's assertCleanQuorumBaseline then
+  // reported as 'M .proof-or-stop/activity.jsonl' and refused on.
+  write(root, '.gitignore', STATE_DIR_NAMES.flatMap((dir) => [
+    `${dir}/runtime/`,
+    `${dir}/activity.jsonl`,
+    `${dir}/locks/`,
+  ]).join('\n') + '\n');
   write(root, 'lattice.config.json', JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src', storyDir: '.lattice/story/actives', requirementsDir: 'docs/requirements', proofStory: { acceptanceTopologyGateMode: 'observe' } }));
   write(root, 'tsconfig.json', '{}\n');
   writeRegistration(root);

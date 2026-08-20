@@ -1,0 +1,383 @@
+{
+  "storyId": "B-1e1f",
+  "checkedAt": "2026-08-18T10:03:54.356Z",
+  "features": [
+    {
+      "feature": "Represent CertificationWindow and the PRE_CERT receipt as signed, registry-backed, gate-consumed process facts with an explicit gateConsumer",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Admit PRE_CERT only from an existing FINALIZED Review Inventory plus merge-main, clean-tree, and verification-coverage facts",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Refuse official heavy certification (done_required_validate, validate --full, lattice.config.json doneRequiredCommands) unless the current window is ADMITTED or RUNNING",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Invalidate the window on source, test, or verifier mutation and keep stored receipts fail-closed with original hashes (no silent rebind)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Prove a B-9812-shaped premature heavy run is refused and an admitted window runs at most once (normal heavy <=1; related drift requires a new admit)",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "A FINALIZED Review Inventory receipt has inventory-completeness-only authority (authorizesTest=false) and must not be treated as PRE_CERT",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Do not implement Review Inventory / ReviewConvergence epoch (U-01a)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-001 excludes: Review inventory epoch implementation",
+      "source": "description"
+    },
+    {
+      "feature": "Do not implement CausalEvidence execution-key cache / U-03a receipt transaction",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-001 excludes: CausalEvidence execution-key cache; scopeBoundary excluded: CausalEvidence DAG / execution-key receipt reuse (U-03)",
+      "source": "description"
+    },
+    {
+      "feature": "Do not implement dependency-domain precise stale (U-03b)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-002 excludes: Dependency-domain precise stale (U-03b)",
+      "source": "description"
+    },
+    {
+      "feature": "Do not implement AcceptanceAmendment (U-05)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-002 excludes: AcceptanceAmendment for missing intents; scopeBoundary excluded: AcceptanceAmendment (U-05)",
+      "source": "description"
+    },
+    {
+      "feature": "Do not change doneRequiredCommands membership",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-003 excludes: Changing doneRequiredCommands membership",
+      "source": "decisions:docs/requirements/decisions/done-full-test-gate-execution-plan.md"
+    },
+    {
+      "feature": "Do not implement content-addressed command reuse as this story's product",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-003 excludes: Content-addressed command reuse",
+      "source": "description"
+    },
+    {
+      "feature": "Do not take a long-lived repo-wide write lock that blocks other stories' DEV",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-004 excludes: Long-lived repo-wide write lock during DEV",
+      "source": "decisions:docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+    },
+    {
+      "feature": "Do not implement ReviewRemediation ledger transaction (U-04)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-004 excludes: ReviewRemediation ledger transaction; scopeBoundary excluded: ReviewRemediation atomic close (U-04)",
+      "source": "description"
+    },
+    {
+      "feature": "Do not claim the 3-8 hour wall-clock saving without a later A/B story",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-005 excludes: Claiming the 3-8 hour wall-clock saving without a later A/B story",
+      "source": "decisions:docs/requirements/decisions/lattice-workflow-efficiency-baseline.md"
+    },
+    {
+      "feature": "Do not reduce required reviewer lanes",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-005 excludes: Reducing required reviewer lanes",
+      "source": "decisions:docs/requirements/decisions/review-assurance-floor-execution-plan.md"
+    },
+    {
+      "feature": "PRE_CERT admit requires open verified blocking findings to be closed (spec 7.1.4 item 2)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Do not implement a new 1-3 minute focused/adversarial suite (U-07); existing coverage + clean-tree + git/evidence preflight stand in for spec 7.1.4 item 3",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "decision.json principle: PRE_CERT is admission, not another test; existing CHK-002 coverage/clean-tree/git-index+evidence-target preflight stand in",
+      "source": "description"
+    },
+    {
+      "feature": "PRE_CERT admit requires a cheap preflight of Git index plus evidence-target writability (spec 7.1.4 item 7, git/evidence subset)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Do not implement provider/port/process-group supervisor preflight (U-02 / ManagedRunSupervisor)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scopeBoundary excluded: ManagedRunSupervisor (U-02); CHK-002 keeps git-index + evidence-target writability only",
+      "source": "description"
+    },
+    {
+      "feature": "Keep current strict freshness: do not treat whole-tree materialHash-only drift as fresh and do not add a second freshness hash or cache-relaxation path",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:docs/requirements/decisions/story-files-hash-material-drift.md"
+    },
+    {
+      "feature": "Bind expected main SHA plus frozen headHash/materialHash/storyFilesHash/test-verifier identity on the admitted PRE_CERT window",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "While ADMITTED/RUNNING, certification-evidence and story-metadata writes remain allowed (window freezes source/test/verifier only)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Report post_cert_source_commits=0 as a required PRE_CERT acceptance metric on the replay line",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:docs/requirements/decisions/lattice-workflow-efficiency-baseline.md"
+    },
+    {
+      "feature": "Do not implement ManagedRunSupervisor (U-02) in this U-01b slice",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scopeBoundary excluded: ManagedRunSupervisor (U-02); decision.json constraints",
+      "source": "description"
+    },
+    {
+      "feature": "Do not reduce independent host-quorum counts",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "decision.json constraints: Do not reduce reviewer lanes or host quorum",
+      "source": "decisions:docs/requirements/decisions/review-assurance-floor-execution-plan.md"
+    },
+    {
+      "feature": "Do not skip final full validate, DONE-required, or delivery gates",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "decision.json principle: heavy suites stay exactly as they are; they just cannot start without a current window",
+      "source": "decisions:docs/requirements/decisions/story-lifecycle.md"
+    },
+    {
+      "feature": "Register the CertificationWindow artifact as story-metadata/lifecycle (not unknown .lattice dirt and not an extra HEAD-moving commit)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:docs/requirements/decisions/lifecycle-artifact-scope.md"
+    },
+    {
+      "feature": "Routine validate without --full and REVIEW preflight slices (--channel/--concept/--lint) stay outside the CertificationWindow",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:docs/requirements/decisions/testing-infra.md"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+      "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+      "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+      "docs/requirements/decisions/lifecycle-artifact-scope.md",
+      "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+      "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+      "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+      "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+      "docs/requirements/decisions/story-files-hash-material-drift.md",
+      "docs/requirements/decisions/story-lifecycle.md",
+      "docs/requirements/decisions/testing-infra.md"
+    ],
+    "filesTriagedByName": [
+      "docs/requirements/decisions/annotation-system.md",
+      "docs/requirements/decisions/authority-client-role.md",
+      "docs/requirements/decisions/authority-done-material-overlap-audit-cli-fix.md",
+      "docs/requirements/decisions/authority-receipt-cross-repo-live-smoke.md",
+      "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+      "docs/requirements/decisions/authority-runner-session-evidence-envelope.md",
+      "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
+      "docs/requirements/decisions/authority-session-receipt-gate-execution.md",
+      "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+      "docs/requirements/decisions/bounded-document-context-scaling-execution-plan.md",
+      "docs/requirements/decisions/brand-rename-mapping.md",
+      "docs/requirements/decisions/cc-learnings.md",
+      "docs/requirements/decisions/cell06-docker-server-execution-checklist.md",
+      "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+      "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+      "docs/requirements/decisions/cli-engine-english-translation-manifest.md",
+      "docs/requirements/decisions/cli-engine-modularization-execution-plan.md",
+      "docs/requirements/decisions/closeout-convergence-and-burn-alert-root-cause.md",
+      "docs/requirements/decisions/complex-role-modular-recall-recovery-execution-plan.md",
+      "docs/requirements/decisions/control-plane-proof-capability-closure-audit.md",
+      "docs/requirements/decisions/decision-doc-promotion-execution-plan.md",
+      "docs/requirements/decisions/dev-memory.md",
+      "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+      "docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md",
+      "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+      "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+      "docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md",
+      "docs/requirements/decisions/f009-gap-analyze-high-gaps-execution-plan.md",
+      "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
+      "docs/requirements/decisions/formal-unlock-artifact-isolation-execution-plan.md",
+      "docs/requirements/decisions/framework.md",
+      "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+      "docs/requirements/decisions/host-neutral-observability-console.md",
+      "docs/requirements/decisions/host-overflow.md",
+      "docs/requirements/decisions/language-neutral-gates-execution-plan.md",
+      "docs/requirements/decisions/lattice-authority-customer-api-key-access.md",
+      "docs/requirements/decisions/lattice-authority-live-integration.md",
+      "docs/requirements/decisions/lattice-authority-m1-m16-generated-proof-and-live-e2e.md",
+      "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+      "docs/requirements/decisions/lattice-authority-remote-evidence-bundle.md",
+      "docs/requirements/decisions/lattice-baseline-two-host-multi-agent-execution-plan.md",
+      "docs/requirements/decisions/lattice-cli-authority-client-receipt-ref.md",
+      "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
+      "docs/requirements/decisions/lattice-console-demo-mvp-requirements.md",
+      "docs/requirements/decisions/lattice-experience-layer-effectiveness-record.md",
+      "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+      "docs/requirements/decisions/lattice-experiment-protocol.md",
+      "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+      "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+      "docs/requirements/decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md",
+      "docs/requirements/decisions/lattice-parallel-wave.md",
+      "docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md",
+      "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+      "docs/requirements/decisions/lattice-unattended-completion-plan.md",
+      "docs/requirements/decisions/legacy-to-lattice-role-naming-execution-plan.md",
+      "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md",
+      "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+      "docs/requirements/decisions/milestone-not-applicable-justification.md",
+      "docs/requirements/decisions/milestone-status-done-gate-reconciliation.md",
+      "docs/requirements/decisions/milestone-triggered-gate-mode-default-decision.md",
+      "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
+      "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
+      "docs/requirements/decisions/multi-model-ablation-replication.md",
+      "docs/requirements/decisions/orchestrate-retirement.md",
+      "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+      "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+      "docs/requirements/decisions/plan-init-reopen.md",
+      "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md",
+      "docs/requirements/decisions/playbook-memory-performance-index-optimization-plan.md",
+      "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+      "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+      "docs/requirements/decisions/pos-agent-drivability-optimization.md",
+      "docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md",
+      "docs/requirements/decisions/product-capability-release-playbook-lineage-execution-plan.md",
+      "docs/requirements/decisions/project-vision.md",
+      "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+      "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+      "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+      "docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md",
+      "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+      "docs/requirements/decisions/repro-first-gate-enforce-execution-plan.md",
+      "docs/requirements/decisions/repro-first-story-intake-experiment.md",
+      "docs/requirements/decisions/resolve-gap-analyze-three-high-gaps-execution-plan.md",
+      "docs/requirements/decisions/review-run-binding-race.md",
+      "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md",
+      "docs/requirements/decisions/review-run-start-workspace-diagnostics-execution-plan.md",
+      "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+      "docs/requirements/decisions/role-separation.md",
+      "docs/requirements/decisions/root-document-migration-guide.md",
+      "docs/requirements/decisions/root-markdown-migration-execution-solution.md",
+      "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+      "docs/requirements/decisions/session-ownership-and-write-leases.md",
+      "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md",
+      "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+      "docs/requirements/decisions/stack-layering.md",
+      "docs/requirements/decisions/stash-split-execution-plan.md",
+      "docs/requirements/decisions/test-fixture-spec.md",
+      "docs/requirements/decisions/test-intent-review.md",
+      "docs/requirements/decisions/test-runner-consolidation-plan.md",
+      "docs/requirements/decisions/testing-completeness.md",
+      "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+      "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
+      "docs/requirements/decisions/tier-c-crosshost-quorum-threat-model.md",
+      "docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+      "docs/requirements/decisions/truth-source.md",
+      "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md",
+      "docs/requirements/decisions/unlock-layer2-ENG-suite.md",
+      "docs/requirements/decisions/unlock-layer3-loop-engineering-suite.md",
+      "docs/requirements/decisions/unlock-layer3-real-execution-udm-baseline.md",
+      "docs/requirements/decisions/unlock-layer4-production-safety-suite.md",
+      "docs/requirements/decisions/usage-ledger-prototype-pollution-hardening.md",
+      "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+      "docs/requirements/decisions/verification-context-pack.md",
+      "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+    ],
+    "scanEscalationReason": null
+  },
+  "summary": {
+    "total": 29,
+    "covered": 14,
+    "excluded": 15,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "2026-08-18T09:45:23.722Z",
+  "_hash": "4d63147e0755c26fadc839dcab9bf47a9d902c5c8cfb00c43baae90790486157",
+  "openQuestions": [
+    {
+      "id": "OQ-1",
+      "q": "Story relatedDocs/background treat docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md §§7.1.4-7.1.5 and §11 slice 3 as the U-01b source spec, but that file is absent from this worktree's decisions/ corpus (it is untracked on the main checkout). Which committed decisions/ file is the objective spec for this PLAN review?",
+      "evidence": "Background: 'The source decision is docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md section 7.1.4-7.1.5 and slice 3 in section 11.' Worktree filename enumeration of docs/requirements/decisions/*.md has no such file; `git cat-file -e HEAD:<path>` fails; main working tree shows the file as untracked (`??`).",
+      "sourcePointers": [
+        ".lattice/story/actives/B-1e1f/background.md",
+        ".lattice/story/actives/B-1e1f/decision.json",
+        "docs/requirements/decisions/story-files-hash-material-drift.md",
+        "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+      ],
+      "resolution": "The committed objective spec for this PLAN is this story envelope: background.md, understanding.json, decision.json, checklist.json, and plan.md. Those artifacts transcribe U-01b from a local untracked analysis file that is not yet in the decisions corpus. Until that file is committed, do not treat its absence as a second source of truth. The committed constraint docs that still bind this story are docs/requirements/decisions/story-files-hash-material-drift.md, docs/requirements/decisions/done-prepare-automation-execution-plan.md, docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md, and B-3f3d review-inventory-epoch-and-saturation-gate.md once story/B-3f3d is merged. DEV of CHK-001 may add the analysis file as a tracked decision; that is documentation, not a new scope.",
+      "resolvedAt": "2026-08-18T10:04:20.531Z"
+    },
+    {
+      "id": "OQ-2",
+      "q": "Does U-01b PRE_CERT admit treat materialHash-only whole-tree drift (storyFilesHash unchanged) as blocking/not-fresh, or does it follow story-files-hash-material-drift.md's re-attestation advisory for some consumers while keeping done-required strict?",
+      "evidence": "Story description: 'Do not relax freshness, reuse stale receipts'. Decision principle: 'Keep current strict freshness: related story-owned drift fail-closes; never rewrite stored hashes or treat whole-tree drift as fresh.' story-files-hash-material-drift.md Freshness Semantics: mismatching materialHash plus matching storyFilesHash means the record is valid for the story-owned file set, but the result must include an explicit whole-tree drift warning requiring re-attestation review; DONE-required evidence stays strict and re-runs on whole-tree materialHash drift.",
+      "sourcePointers": [
+        "docs/requirements/decisions/story-files-hash-material-drift.md",
+        ".lattice/story/actives/B-1e1f/decision.json"
+      ],
+      "resolution": "Follow story-files-hash-material-drift.md consumer table. storyFilesHash remains the story-owned related-drift signal. PRE_CERT window identity records both materialHash and storyFilesHash plus expected main SHA; admit does not treat materialHash-only whole-tree drift as an unchanged certification identity, and it does not rewrite stored receipt hashes. DONE-required stays on the current strict policy. This is not a new freshness function and not a cache-relaxation path.",
+      "resolvedAt": "2026-08-18T10:04:28.365Z"
+    }
+  ]
+}

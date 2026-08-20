@@ -44,6 +44,7 @@ import { createQuorumSubmitHandlers } from '../handlers/quorum-submit.js';
 import type { HandlerContext } from '../handlers/context.js';
 import { reviewerPromptHostForProvider } from '../handlers/story-dispatch.js';
 import type { ChecklistData, Finding, ReviewPass, ReviewRun, StoryInfo } from '../core/types.js';
+import { STATE_DIR_NAMES, PROOF_OR_STOP_ADAPTER_DIR, PROOF_OR_STOP_STATE_DIR } from '../core/brand-paths.js';
 
 const STORY_ID = 'B-quorum-smoke';
 const DIST_CLI_PATH = fileURLToPath(new URL('../cli.js', import.meta.url));
@@ -188,9 +189,14 @@ function makeFixture(
   const root = mkdtempSync(join(tmpdir(), 'lattice-quorum-submit-'));
   writeConfig(root);
   write(root, '.gitignore', [
-    '.lattice/autopilot-verdicts/',
-    '.lattice/activity.jsonl',
-    '.lattice/locks/',
+    // B-cc10: list BOTH state-dir spellings. The runtime writes under the canonical
+    // dir, so a fixture ignoring only the deprecated one left '?? .proof-or-stop/'
+    // untracked and failed its own clean-baseline assertion.
+    ...STATE_DIR_NAMES.flatMap((dir) => [
+      `${dir}/autopilot-verdicts/`,
+      `${dir}/activity.jsonl`,
+      `${dir}/locks/`,
+    ]),
     ...MIRRORED_REPO_IGNORE_PATTERNS,
     '',
   ].join('\n'));
@@ -204,7 +210,9 @@ function makeFixture(
   write(root, '.lattice/lattice.json', `${JSON.stringify({ assetMode }, null, 2)}\n`);
   if (assetMode === 'full') {
     const promptRegistry = readPromptRegistry();
-    const assetDir = selectedHost === 'codex' ? '.lattice-codex/agents' : '.claude/agents';
+    // B-cc10: the runtime resolves the codex prompt dir canonically, so a fixture writing to
+    // the deprecated spelling made every reviewer prompt asset look missing.
+    const assetDir = selectedHost === 'codex' ? `${PROOF_OR_STOP_ADAPTER_DIR}/agents` : '.claude/agents';
     for (const lane of REVIEW_LANES) {
       const entry = promptRegistry.agents.find(candidate => candidate.agentId === lane)!;
       const hostTemplate = renderPromptEntryForHost(entry, selectedHost);
@@ -979,7 +987,7 @@ try {
       const thin = makeFixture('global-thin');
       try {
         process.chdir(thin.root);
-        assert.equal(existsSync(join(thin.root, '.lattice-codex/agents')), false);
+        assert.equal(existsSync(join(thin.root, `${PROOF_OR_STOP_ADAPTER_DIR}/agents`)), false);
         assert.equal(existsSync(join(thin.root, '.claude/agents')), false);
         recordReviewerPasses(thin.registry, selected.provider);
         const thinEvidence = collectReviewerEvidenceState(thin.store, STORY_ID, thin.root);
@@ -1397,7 +1405,7 @@ try {
       {
         host: 'codex',
         provider: 'codex',
-        assetPath: '.lattice-codex/agents/lattice-review-quality.md',
+        assetPath: `${PROOF_OR_STOP_ADAPTER_DIR}/agents/lattice-review-quality.md`,
         otherAssetDir: '.claude/agents',
       },
       {
@@ -1716,7 +1724,7 @@ try {
       fixture.registry.get('quorum_submit')!(quorumArgs());
       const beforeHead = git(fixture.root, ['rev-parse', 'HEAD']);
       const beforeEvents = hostVerdictEventCount(fixture.store);
-      rmSync(join(fixture.root, '.lattice', 'autopilot-verdicts', STORY_ID), { recursive: true, force: true });
+      rmSync(join(fixture.root, PROOF_OR_STOP_STATE_DIR, 'autopilot-verdicts', STORY_ID), { recursive: true, force: true });
       assert.throws(
         () => fixture.registry.get('quorum_submit')!(quorumArgs()),
         /quorum_submit refuses: verdicts already exist for runId/,
@@ -2156,7 +2164,7 @@ try {
       const handler = createQuorumSubmitHandlers(fixture.ctx, {
         afterVerdictWrite: ({ verdictId, emittedCount }) => {
           if (emittedCount !== 6) return;
-          changedPath = join(fixture.root, '.lattice', 'autopilot-verdicts', STORY_ID, `${verdictId}.json`);
+          changedPath = join(fixture.root, PROOF_OR_STOP_STATE_DIR, 'autopilot-verdicts', STORY_ID, `${verdictId}.json`);
           const value = JSON.parse(readFileSync(changedPath, 'utf8')) as Record<string, unknown>;
           value.note = 'foreign concurrent replacement with same verdictId';
           changedBytes = Buffer.from(`${JSON.stringify(value, null, 2)}\n`);
@@ -2851,10 +2859,13 @@ try {
     // left the suite fully green. The codebase's own isAcknowledged() (core/scope-contract.ts)
     // treats acknowledged paths as in-scope, so the sweep must union them too: "in this story's
     // scope" has one meaning, and this guard now uses the same one the scope checker does.
-    const scopeContract = JSON.parse(readFileSync(
-      join(IMPLEMENTATION_REPO_ROOT, '.lattice/story/actives/B-3144/scope-contract.json'),
-      'utf8',
-    )) as {
+    // B-cc10: this reads the REAL repo's own story artifact, so it must resolve whichever
+    // state-dir spelling exists on disk rather than pinning the deprecated one.
+    const scopeContractPath = STATE_DIR_NAMES
+      .map((dir) => join(IMPLEMENTATION_REPO_ROOT, `${dir}/story/actives/B-3144/scope-contract.json`))
+      .find((candidate) => existsSync(candidate))
+      ?? join(IMPLEMENTATION_REPO_ROOT, `${PROOF_OR_STOP_STATE_DIR}/story/actives/B-3144/scope-contract.json`);
+    const scopeContract = JSON.parse(readFileSync(scopeContractPath, 'utf8')) as {
       allowedModify?: string[];
       allowedCreate?: string[];
       allowedTest?: string[];
@@ -3087,7 +3098,7 @@ try {
       git(fixture.root, [...COMMIT_ENV, 'commit', '-m', 'a tracked file the traversal would destroy']);
       const target = join(fixture.root, 'evidence-target.json');
       const targetBytes = readFileSync(target);
-      const verdictDir = join(fixture.root, '.lattice', 'autopilot-verdicts', STORY_ID);
+      const verdictDir = join(fixture.root, PROOF_OR_STOP_STATE_DIR, 'autopilot-verdicts', STORY_ID);
       // The crafted id resolves to <root>/evidence-target.json from inside the verdict cache dir.
       const craftedVerdictId = '../../../evidence-target';
       const targetRunId = `${STORY_ID}-q-r1`;

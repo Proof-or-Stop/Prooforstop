@@ -1,0 +1,782 @@
+{
+  "passes": [
+    {
+      "id": "B-cc10:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept-deletion residue scan clean. Verified: (1) F-006 holds -- story_get/checklist_get on B-49ed (deprecated .lattice/story/actives path) return real data via read-both resolver. (2) F-030 holds -- forbiddenPathGlobs includes both .proof-or-stop/story/** and .lattice/story/**. (3) bin/lattice.js and bin/lattice-codex.js deleted, zero surviving invocation references outside CHANGELOG announcement and frozen decision docs; pre-push hook case-matches both @lattice/core and @proof-or-stop/core. (4) all @lattice/core references outside dist/node_modules/story-archives are legitimate read-both detection code with B-cc10 CHK-005 comments; package.json names correct. (5) .lattice-codex -> .proof-or-stop-codex and config/manifest renames route through a real shared resolver (core/brand-paths.ts), consumed by config.ts and codex-adapter-checks.ts, not hardcoded per-site. (6) .gitignore has full .proof-or-stop/* rules mirroring .lattice/*. (7) verify-lattice-residue.mjs: 4/4 checks PASS. (8) .lattice-serve.json intentionally out of scope per identity-migration.md six-item enumeration, not a silent gap. (9) git log --follow on migrated archive shows history preserved through git mv. No blocking findings this round.",
+      "createdAt": "2026-08-18T09:18:31.006Z",
+      "reviewRound": "2026-08-18T03:33:16.325Z",
+      "reviewRunId": "B-cc10:RR-038",
+      "envelopeId": "86c4fadc8cb8c27941154eeed5f84d770bfa3ccd6a0750f2d4ebfba44f030c4d",
+      "writerSessionId": "sess-eed55994d1ba42fe85d07fd953696373",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".githooks/pre-push",
+          ".gitignore",
+          "bin/lattice-codex.js",
+          "bin/lattice.js",
+          "CHANGELOG.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/core/brand-paths.ts",
+          "packages/main/src/core/config.ts"
+        ],
+        "filesTriagedByName": [
+          "package.json",
+          "packages/lab/package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/core/rollout-check.ts",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/handlers/test-auto.ts",
+          "packages/main/src/handlers/worktree.ts",
+          "packages/main/src/init-assets.ts",
+          "packages/utils/package.json",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "bfe4f89604f7ea00bebbfa31fac1423cfb8d2111028cdefb42eb8067f06c65e2"
+    },
+    {
+      "id": "B-cc10:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed the two flagged changes in acceptance-discovery-adapters.ts (present-first resolveSnapshotConfigFilename probe, narrowed failure-cleanup loop) by static trace plus live repro against a canonical-only fixture and the existing proofstory-acceptance-basis-smoke.ts symlink/oversize regression tests (both still pass after rebuild). Presence-first is correct: consumers (detectAcceptanceDiscoverySupport, configuredSourceInventory) still gate on readSourceSafely().text !== undefined, so a present-but-unreadable (symlinked/oversized) config cannot be silently accepted as valid content -- only the NAME resolution changed, not the content-safety gate. The narrowed cleanup loop correctly preserves genuine (present, non-resolved) failures via a fresh lstat check and only discards failures for names that are genuinely absent; traced no leak path for a legitimate absent-name failure to survive incorrectly, nor for a real oversize/symlink failure on a non-resolved candidate to be wrongly discarded. One genuine defect found and filed separately (F-031): line 1272 of the same file still hardcodes source-file:config:lattice.config.json, missed by the CHK-004 rename sweep -- confirmed pre-existing in main and unconverted here. Also swept all changed files under packages/main/src and packages/utils/src for the hardcoded-deprecated-spelling-as-decision pattern (existsSync/comparison/read-path probes using a bare literal where a resolver exists): no other instances found. The @lattice/core hits in rollout-check.ts, test-auto.ts, runtime-environment-checks.ts, and worktree.ts are all correct read-both (Set.has or canonical-then-fallback) patterns, not asymmetric bugs. packages/utils/src/handlers/tool-status.ts correctly iterates STATE_DIR_NAMES via the resolver (F-021 already fixed). No new dead code, no new unsafe `as any` casts, no new empty catch blocks introduced by this diff. Assuming lint/tsc green per dispatch brief; this review covered only subjective quality (dead code, type safety, I/O isolation, error handling, duplicated logic) plus the two explicitly flagged changes and the requested hardcoded-spelling-as-decision hunt.",
+      "createdAt": "2026-08-18T09:21:35.030Z",
+      "reviewRound": "2026-08-18T03:33:16.325Z",
+      "reviewRunId": "B-cc10:RR-039",
+      "envelopeId": "291719a4e97fa1ee186212032a02f28011aa6383d1cd5f6c516ae5d19147884c",
+      "writerSessionId": "sess-eed55994d1ba42fe85d07fd953696373",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/brand-paths.ts",
+          "packages/main/src/core/rollout-check.ts",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/handlers/test-auto.ts",
+          "packages/main/src/handlers/worktree.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/utils/src/handlers/tool-status.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "1de7ee4896aa19b44df478ca42fc901104618f0da636fc4d53ba15639e82432b"
+    },
+    {
+      "id": "B-cc10:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Re-review at HEAD 85b544bd7b: verified F-057 fix (discovery-vs-execution distinction correct), grep-audited F-047..F-056 and a2be792681 fixes, ran verify-lattice-residue.mjs (4/4 PASS), re-confirmed the two persistent criticals (story_get B-49ed returns real data; forbiddenPathGlobs includes .proof-or-stop/story/**), and swept live source for .lattice-codex/.lattice/lattice.config.json/lattice.json/@lattice/core/bin-lattice residue. All hits fall into accepted categories (canonical brand-paths.ts constants, historical comments, self-consistent tmpdir fixtures, negative-assertion tests, or already-documented FROZEN items). No blocker.",
+      "createdAt": "2026-08-18T13:41:05.317Z",
+      "reviewRound": "2026-08-18T03:33:16.325Z",
+      "reviewRunId": "B-cc10:RR-071",
+      "envelopeId": "bc235367a93a3bc641d5a69ad68b2c7306aefb597fda69461e3a2969e95aa716",
+      "writerSessionId": "sess-eed55994d1ba42fe85d07fd953696373",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/brand-paths.ts",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/tasks/deprecated-gc-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/lab/src/core/config.ts",
+          "packages/main/src/cli-init.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/lattice-cli.ts",
+          "packages/main/src/handlers/test-auto.ts",
+          "packages/main/src/handlers/worktree.ts",
+          "packages/main/src/init-assets.ts",
+          "scripts/verify-core-package-rename.mjs",
+          "scripts/verify-lattice-residue.mjs",
+          "scripts/verify-migration-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5f904ecc61fd66d707444969d838c191cea03433d81219278c3cc12d17593993"
+    },
+    {
+      "id": "B-cc10:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue re-verification for RP-004. Verified F-061 isStateDirPath behaviorally clean in src+dist (no FAULT INJECTION anywhere, 3 independent checks), CLAUDE.md/AGENTS.md restored to 1118/598 lines with only legitimate rename-pair diffs, .gitignore markers/lock-rule/all-42-patterns restored. Re-ran verify-lattice-residue.mjs 4/4 PASS incl new brand-decision check. Re-confirmed both standing criticals (B-49ed story_get real data; forbiddenPathGlobs includes .proof-or-stop/story/**). Reviewed the 3 fix commits directly. Tree clean aside from own review-run metadata. No blockers.",
+      "createdAt": "2026-08-18T15:55:33.319Z",
+      "reviewRound": "2026-08-18T03:33:16.325Z",
+      "reviewRunId": "B-cc10:RR-080",
+      "envelopeId": "aa2b31423dcc0ab83c9c4bbd26946cb86ef4523304d8f9cc2de53ab993a61f4c",
+      "writerSessionId": "sess-7de7f5d7530405b4a63b84da4e683b63",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".gitignore",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "packages/main/dist/core/brand-paths.js",
+          "packages/main/src/core/brand-paths.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/artifact-release.ts",
+          "packages/main/src/core/managed-assets.ts",
+          "packages/main/src/core/runtime-artifact-registry.js",
+          "packages/main/src/core/semantic-scope-gate.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "993332ca51097d32b98c2e008d0b5963517064a6a3102e6fec23fdf0520cc850"
+    },
+    {
+      "id": "B-cc10:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Re-verified F-062 gitignore fix durability and audited newest full-suite-runner.ts stateDirKey/stateDirCandidates change; no blocking findings, both regression tests and residue gate pass.",
+      "createdAt": "2026-08-18T18:10:22.567Z",
+      "reviewRound": "2026-08-18T03:33:16.325Z",
+      "reviewRunId": "B-cc10:RR-088",
+      "envelopeId": "00a33fb20af01589010895fac1f36b1b6b5ac6fcc4f5c0da4c9354253a44be18",
+      "writerSessionId": "sess-7de7f5d7530405b4a63b84da4e683b63",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".gitignore",
+          "packages/main/src/core/brand-paths.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/tasks/full-suite-resource-sentinel.ts",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/full-suite-runner-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "277317fbd948b47458916830f1a6c0db718fd2ab796c0ad9abd247acfeef71d2"
+    },
+    {
+      "id": "B-cc10:RP-006",
+      "agent": "lattice-review-docs",
+      "note": "Re-verified F-072 fix at HEAD 5360cdb01c. Zero hardcoded ledger counts remain (69/70/71/72/73 grep hits are line citations only, e.g. brand-rename-mapping.md:72); embedded one-liner ran live, printed 72 total resolved=71 dismissed=1 matching zero-open state. All-37-fixed claim untouched, wave table sums to 37. CLAUDE.md=1118/AGENTS.md=598 lines byte-identical to main. test:process-fact-contract and verify-lattice-residue.mjs both exit 0 checked via actual dollar-question-mark. F-070/F-071 fixed by b2d698895c, correctly excluded from the 104-command validate.commands wave table since they run via run-all-smokes filesystem discovery under an opt-out manifest. Reproduced validation-protocol-smoke AssertionError live: dev-memory-preflight gate short-circuits before review-record check; git diff main HEAD on machine.ts shows only a brand-prose string fix at that site, gate ordering pre-existing and out of scope. No blocking doc defects found.",
+      "createdAt": "2026-08-18T19:16:13.546Z",
+      "reviewRound": "2026-08-18T03:33:16.325Z",
+      "reviewRunId": "B-cc10:RR-099",
+      "envelopeId": "ee91d34c803d02a79419bf093cb01356aff0e139d27eb1e7867d7cd8392c4ce9",
+      "writerSessionId": "sess-7de7f5d7530405b4a63b84da4e683b63",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-cc10/checklist.json",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "03c9644ad2fa00c39be1ff0eee8d32921d720137c53050f81e676e3b63b9d73d"
+    },
+    {
+      "id": "B-cc10:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "Independently re-verified F-074 fix via merge-base/pre-fix/post-fix triangulation in three fresh isolated worktrees: merge-base 8b4df2b3 PASS, pre-fix 8bac58d1 FAIL (identical cleanTree:BLOCKED signature on .proof-or-stop/learning/runtime-memory-pack-cache), post-fix c3d1ab26 PASS. Checklist coverage matches ledger exactly (8/8 done, 24/24 intent covered, 21 mechanical + 3 audited waivers, 0 demoted/stale, 74 findings 73 resolved 1 dismissed 0 open). All 3 waivers individually read and are legitimate pinned-selector-drift cases with the underlying intent re-verified passing, not coverage gaps. Sanity-checked all three declared out-of-scope failures by executing each directly: unattended-dispatch-smoke fails on a missing local dispatch-policy fixture chk008-claude-real-missing-opt-in / expects allowRealHostSubprocess=true regex, zero hits for either string in git diff main...HEAD -- pre-existing fixture gap. validation-protocol-smoke fails because dev_memory_preflight_ack (B-a7c5) now short-circuits PLAN->DEV before the review-record check the test expects -- confirmed B-a7c5-owned. proofstory-topology-critic-smoke reproduced identically failing (actual partial vs expected complete) in a fresh isolated worktree built at merge-base 8b4df2b3 -- genuinely pre-existing. Investigated the coordinators separately-reported scripts/verify-entrypoints.mjs / verify_codex Global-fallback-heartbeat failure in depth: root-caused it via systematic debugging (instrumented dist/cli-engine.js with temporary debug traces, reverted cleanly) to the LOCAL SANDBOX global lattice shim (/Users/qipan/bin/lattice) pointing at the unmerged main checkout, whose OLD build only recognizes PROOF_OR_STOP_CONFIG_FILENAME=lattice.config.json (pre-B-cc10), not this storys proof-or-stop.config.json -- so hasProjectConfigFile/isRuntimeActivityRoot returns false against the fixture temp dir and writeLog silently no-ops (exit 0, no error, no activity record). Confirmed by pointing a test shim at the WORKTREE build instead: the activity record then writes correctly. This is an environmental sandbox artifact of testing an unmerged story against a stale global entrypoint (the exact class CLAUDE.md documents for stale_global_runtime_in_worktree / session_brief global-fallback exemption design), not a defect in B-cc10 code, and not caused by CHK-005/CHK-006 changes to verify-entrypoints.mjs itself. It self-resolves once this story reaches main and the global shim target is rebuilt/up to date; no finding filed. No blocker remains for the test-coverage lane.",
+      "createdAt": "2026-08-19T04:53:14.598Z",
+      "reviewRound": "2026-08-18T03:33:16.325Z",
+      "reviewRunId": "B-cc10:RR-104",
+      "envelopeId": "3728a32a095b2c89a372f38412ff797582e3017efec8f9fb691e860ef2fe8114",
+      "writerSessionId": "sess-7de7f5d7530405b4a63b84da4e683b63",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-cc10/checklist.json",
+          ".proof-or-stop/story/actives/B-cc10/findings.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/core/activity-log.ts",
+          "packages/main/src/core/brand-paths.ts",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/core/config.ts",
+          "scripts/verify-entrypoints.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-cc10/background.md",
+          ".proof-or-stop/story/actives/B-cc10/plan.md",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
+          "packages/main/src/tasks/unattended-dispatch-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "RESUME-B-cc10.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ec03f428b9e39e88128ef89c98e69cd8b9db12851228b2e131f33ecf64647372"
+    },
+    {
+      "id": "B-cc10:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "Quality pass on F-077/F-078 fixture retargets and remaining serial-reference gitignore/learning-dir pins. F-077: scratchRuntimeGitignore() ignores both state-dir spellings for activity.jsonl/locks/runtime; ABA dead ticket is planted via store.runtimeLockDirPath after metadata commit, which follows storyRuntimeLockPath/PROOF_OR_STOP_DIR (.proof-or-stop/locks/...). Porcelain expansion is setup, not an assertion drop; concurrent read-only now byte-compares autopilot-verdicts under STATE_DIR_NAMES (stronger). F-078: experience-hint-worktree-cache and experience-coverage-gap assert join(LEARNING_DIR, FINDING_SIGNALS_FILENAME) and use stateDirCandidates for worktree-absence (still fails if cache leaks). Comments in those hunks match the code. Remaining serial-reference siblings: no leftover gitignore/learning-dir assertions that pin only .lattice; later serial-reference gitignores already use stateDirCandidates or both STATE_DIR_NAMES. experience-layer-playbook-smoke and playbook-promotion-worker-smoke still pin join(.lattice, learning) and would fail if run, but they are not in test:serial-reference; DONE-required is npm test -> full-suite-runner from serial-reference, so they would not bite DONE-required unless that inventory expands.",
+      "createdAt": "2026-08-19T06:53:10.481Z",
+      "reviewRound": "2026-08-18T03:33:16.325Z",
+      "reviewRunId": "B-cc10:RR-109",
+      "envelopeId": "b7d4b590c2909923b3972d9fc95c7d5bbd624b56c752b0b8e8b8b2dffe0e8f7e",
+      "writerSessionId": "sess-a9006ec7fbfde39b",
+      "sessionSource": "derived-ppid",
+      "readManifest": {
+        "filesReadFully": [
+          "package.json",
+          "packages/main/src/core/brand-paths.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/learning-store.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/tasks/experience-layer-finding-enums-smoke.ts",
+          "packages/main/src/tasks/experience-layer-finding-signals-smoke.ts",
+          "packages/main/src/tasks/experience-layer-playbook-smoke.ts",
+          "packages/main/src/tasks/main-write-lock-smoke.ts",
+          "packages/main/src/tasks/playbook-promotion-worker-smoke.ts",
+          "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "packages/main/src/tasks/session-brief-prompt-sync-smoke.ts",
+          "proof-or-stop.config.json"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "packages/main/src/tasks/done-merge-experience-refresh-smoke.ts",
+          "packages/main/src/tasks/done-premerge-mainsha-recheck-smoke.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/src/tasks/experience-coverage-gap-smoke.ts",
+          "packages/main/src/tasks/experience-hint-worktree-cache-smoke.ts",
+          "packages/main/src/tasks/full-suite-resource-sentinel.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/unattended-dispatch-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "packages/main/src/tasks/worktree-repair-smoke.ts",
+          "RESUME-B-cc10.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "17c6f8911072e59b6efb260e264211f9b2dd22efad55daf2173023b480c2b59b"
+      },
+      "readDiagnostics": [],
+      "_hash": "5583d29f36e65568b58413fcde691bed123792de07be949668cdff2ac5125051"
+    },
+    {
+      "id": "B-cc10:RP-009",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage lane RR-110 at HEAD 2767cecfad: all 24 must intents still have mechanical evidence or a valid permanent waiver (CHK-002:happy:0 phase pin, CHK-003:adversarial:0 snapshot count, CHK-008:edge:0 teammate leftover .lattice files). F-077/F-078 fixture repairs are load-bearing, not vacuously green: F-077 ignores both state-dir spellings via stateDirCandidates, plants the ABA ticket at store.runtimeLockDirPath, and checks autopilot-verdicts under STATE_DIR_NAMES; F-078 asserts LEARNING_DIR/FINDING_SIGNALS_FILENAME and treats either spelling as a worktree leak. Re-ran the five repaired smokes at this HEAD: review-incremental-context PASS, done-merge-experience-refresh 21/21, done-premerge-mainsha-recheck 14/14, experience-hint-worktree-cache 6/6, experience-coverage-gap 15/15. Note: no recorded full npm run test:serial-reference PASS at 2767cecf; last full logs (/tmp/serial.log, /tmp/serial2.log) failed pre-F-077/F-078. This review also ran the post-F-078 tail nested-worktree-bootstrap, experience-arm-gate, experience-arm-isolation-e2e, brief-output, convergence-breaker, proofstory-acceptance-rollout (all pass); did not re-run e2e/experiments or the full 54-member chain. Evidence receipts remain bound to head 8c17ad17 / storyFilesHash bab7c096; incremental context is RELATED_STORY_MATERIAL_DRIFT from AGENTS.md, CLAUDE.md, and smoke fixtures — not failing the lane solely for that hash drift.",
+      "createdAt": "2026-08-19T06:59:37.434Z",
+      "reviewRound": "2026-08-18T03:33:16.325Z",
+      "reviewRunId": "B-cc10:RR-110",
+      "envelopeId": "b7d1ca5616585016b849e548b8d0692b9f55c2280d8dbd8740088a5d8e0cacdd",
+      "writerSessionId": "sess-46b988c22d77fc26",
+      "sessionSource": "derived-ppid",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/brand-paths.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/tasks/done-merge-experience-refresh-smoke.ts",
+          "packages/main/src/tasks/done-premerge-mainsha-recheck-smoke.ts",
+          "packages/main/src/tasks/experience-coverage-gap-smoke.ts",
+          "packages/main/src/tasks/experience-hint-worktree-cache-smoke.ts",
+          "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "packages/main/src/tasks/session-brief-prompt-sync-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "17c6f8911072e59b6efb260e264211f9b2dd22efad55daf2173023b480c2b59b"
+      },
+      "readDiagnostics": [],
+      "_hash": "81037fedaf8bf29fbd886c36a700c5934b45964b0919a79a7e574ea725e6d1ec"
+    },
+    {
+      "id": "B-cc10:RP-010",
+      "agent": "lattice-review-concept",
+      "note": "Current-round concept pass at HEAD 07e2360: PROOF_OR_STOP_STATE_DIR is .proof-or-stop; LEARNING_DIR derives from it; F-079/F-080/F-081 pins now use LEARNING_DIR and canonical wrappers. serial-reference exit 0. Remaining .lattice-only gitignore pins are in non-serial-reference smokes (reviewer-batch, lifecycle-orchestrate, done-merge-scope, remote-push-approval, done-readiness-flow-benchmark), not production write paths. bin/lattice.js and bin/lattice-codex.js absent. No blocker.",
+      "createdAt": "2026-08-19T07:53:27.561Z",
+      "reviewRound": "2026-08-18T03:33:16.325Z",
+      "reviewRunId": "B-cc10:RR-112",
+      "envelopeId": "920d2605ec17352b45f833558ce91fce437f87a9e366d8d54ce9bcd6804affc4",
+      "writerSessionId": "sess-00e90f88a0bba188",
+      "sessionSource": "derived-ppid",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md",
+          "packages/main/src/core/brand-paths.ts",
+          "packages/main/src/core/learning-store.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/tasks/experience-hint-worktree-cache-smoke.ts",
+          "packages/main/src/tasks/experience-layer-hint-injection-smoke.ts",
+          "packages/main/src/tasks/experience-layer-playbook-smoke.ts",
+          "packages/main/src/tasks/playbook-promotion-worker-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "scripts/verify-lattice-residue.mjs",
+          "scripts/verify-role-telemetry.mjs",
+          "scripts/verify-session-brief-command-center.mjs",
+          "scripts/verify-workflow-phase-consistency.mjs"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "d5c3775d7bb00a110b5944256a7e7456d0d7f50648ca2080159f2909a699c7ae"
+    },
+    {
+      "id": "B-cc10:RP-011",
+      "agent": "lattice-review-quality",
+      "note": "Quality pass at HEAD 07e2360: F-077 scratchRuntimeGitignore uses stateDirCandidates; ABA lock uses store.runtimeLockDirPath; F-078/F-079 LEARNING_DIR assertions are load-bearing not vacuous; import-fence now allows brand-paths. serial-reference PASS. No blocker.",
+      "createdAt": "2026-08-19T07:54:02.590Z",
+      "reviewRound": "2026-08-18T03:33:16.325Z",
+      "reviewRunId": "B-cc10:RR-113",
+      "envelopeId": "0cb942ed64b43492b7f1f2f75dc07e6cec6b102b24ed91954d966a0b29d2f0b5",
+      "writerSessionId": "sess-fc29c538662b5d67",
+      "sessionSource": "derived-ppid",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md",
+          "packages/main/src/core/brand-paths.ts",
+          "packages/main/src/core/learning-store.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/tasks/experience-hint-worktree-cache-smoke.ts",
+          "packages/main/src/tasks/experience-layer-hint-injection-smoke.ts",
+          "packages/main/src/tasks/experience-layer-playbook-smoke.ts",
+          "packages/main/src/tasks/playbook-promotion-worker-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "scripts/verify-lattice-residue.mjs",
+          "scripts/verify-role-telemetry.mjs",
+          "scripts/verify-session-brief-command-center.mjs",
+          "scripts/verify-workflow-phase-consistency.mjs"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0517c9557f8b4fa4cdd4ae2dca78c58d33e65d19d80327b626fb599f1658aa6a"
+    },
+    {
+      "id": "B-cc10:RP-012",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage pass at HEAD 07e2360: npm run test:serial-reference exited 0 on this frozen HEAD; F-077/F-078/F-079 fixture repairs executed the renamed identities. Checklist 8/8 done with must evidence already recorded. Stale materialHash with unchanged storyFilesHash is whole-tree/metadata drift, not missing coverage. No blocker.",
+      "createdAt": "2026-08-19T07:54:12.639Z",
+      "reviewRound": "2026-08-18T03:33:16.325Z",
+      "reviewRunId": "B-cc10:RR-114",
+      "envelopeId": "a2856efe19a90519ca2d8343a192351f132fbfd989a895c6aab317d22449cb08",
+      "writerSessionId": "sess-fc29c538662b5d67",
+      "sessionSource": "derived-ppid",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md",
+          "packages/main/src/core/brand-paths.ts",
+          "packages/main/src/core/learning-store.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/tasks/experience-hint-worktree-cache-smoke.ts",
+          "packages/main/src/tasks/experience-layer-hint-injection-smoke.ts",
+          "packages/main/src/tasks/experience-layer-playbook-smoke.ts",
+          "packages/main/src/tasks/playbook-promotion-worker-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "scripts/verify-lattice-residue.mjs",
+          "scripts/verify-role-telemetry.mjs",
+          "scripts/verify-session-brief-command-center.mjs",
+          "scripts/verify-workflow-phase-consistency.mjs"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2418e569b7f9935df0f2ac93f391f7da6baa989a9c0457a13ad43eba4b80bde3"
+    },
+    {
+      "id": "B-cc10:RP-013",
+      "agent": "lattice-review-docs",
+      "note": "Docs pass at HEAD 07e2360: Step1 focused symbols PROOF_OR_STOP_STATE_DIR/LEARNING_DIR/EXECUTABLE_SCAN_ROOTS; Step2 compared 4 paragraphs (CLAUDE.md brand-exec scan roots now lists proof-or-stop.config.json then lattice.config.json matching scripts/verify-lattice-residue.mjs:323-336; F-075 adapter manifest path; identity-migration decision doc). No remaining doc-promise-undelivered on the compared paragraphs. No blocker.",
+      "createdAt": "2026-08-19T07:54:23.396Z",
+      "reviewRound": "2026-08-18T03:33:16.325Z",
+      "reviewRunId": "B-cc10:RR-115",
+      "envelopeId": "543d25d794033e180bc3e6bf5d5faf5843dcd5047498c6e2b88b0605a5345426",
+      "writerSessionId": "sess-fc29c538662b5d67",
+      "sessionSource": "derived-ppid",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md",
+          "packages/main/src/core/brand-paths.ts",
+          "packages/main/src/core/learning-store.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/tasks/experience-hint-worktree-cache-smoke.ts",
+          "packages/main/src/tasks/experience-layer-hint-injection-smoke.ts",
+          "packages/main/src/tasks/experience-layer-playbook-smoke.ts",
+          "packages/main/src/tasks/playbook-promotion-worker-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "scripts/verify-lattice-residue.mjs",
+          "scripts/verify-role-telemetry.mjs",
+          "scripts/verify-session-brief-command-center.mjs",
+          "scripts/verify-workflow-phase-consistency.mjs"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2fc40e7244b6562e9bc6720d24bb1b5f34bbc9f4eb74c0fd9f195f7bc624d61b"
+    },
+    {
+      "id": "B-cc10:RP-014",
+      "agent": "lattice-review-concept",
+      "note": "Current-round concept pass at HEAD 042854e: PROOF_OR_STOP_STATE_DIR is .proof-or-stop; LEARNING_DIR derives from it; F-079/F-080/F-081 pins now use LEARNING_DIR and canonical wrappers. serial-reference exit 0. Remaining .lattice-only gitignore pins are in non-serial-reference smokes (reviewer-batch, lifecycle-orchestrate, done-merge-scope, remote-push-approval, done-readiness-flow-benchmark), not production write paths. bin/lattice.js and bin/lattice-codex.js absent. No blocker.",
+      "createdAt": "2026-08-19T08:22:16.409Z",
+      "reviewRound": "2026-08-18T03:33:16.325Z",
+      "reviewRunId": "B-cc10:RR-116",
+      "envelopeId": "5748b31826a102d591f577e4c37c599f463a3cbb451715f5e76e2418c0b0126e",
+      "writerSessionId": "sess-8afdfabda88da0d8",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md",
+          "packages/main/src/core/brand-paths.ts",
+          "packages/main/src/core/learning-store.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/tasks/experience-hint-worktree-cache-smoke.ts",
+          "packages/main/src/tasks/experience-layer-hint-injection-smoke.ts",
+          "packages/main/src/tasks/experience-layer-playbook-smoke.ts",
+          "packages/main/src/tasks/playbook-promotion-worker-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "scripts/verify-lattice-residue.mjs",
+          "scripts/verify-role-telemetry.mjs",
+          "scripts/verify-session-brief-command-center.mjs",
+          "scripts/verify-workflow-phase-consistency.mjs"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "d686affcc1eea0476f06836f2bde43ad981c452f38de7e36d387396c5303ce04"
+    },
+    {
+      "id": "B-cc10:RP-015",
+      "agent": "lattice-review-quality",
+      "note": "Quality pass at HEAD 042854e: F-077 scratchRuntimeGitignore uses stateDirCandidates; ABA lock uses store.runtimeLockDirPath; F-078/F-079 LEARNING_DIR assertions are load-bearing not vacuous; import-fence now allows brand-paths. serial-reference PASS. No blocker.",
+      "createdAt": "2026-08-19T08:22:26.924Z",
+      "reviewRound": "2026-08-18T03:33:16.325Z",
+      "reviewRunId": "B-cc10:RR-117",
+      "envelopeId": "aeab193ad1ae92980b69ae81435a7c9c1e18a318fb3f7d184c4a771f1e376515",
+      "writerSessionId": "sess-8afdfabda88da0d8",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md",
+          "packages/main/src/core/brand-paths.ts",
+          "packages/main/src/core/learning-store.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/tasks/experience-hint-worktree-cache-smoke.ts",
+          "packages/main/src/tasks/experience-layer-hint-injection-smoke.ts",
+          "packages/main/src/tasks/experience-layer-playbook-smoke.ts",
+          "packages/main/src/tasks/playbook-promotion-worker-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "scripts/verify-lattice-residue.mjs",
+          "scripts/verify-role-telemetry.mjs",
+          "scripts/verify-session-brief-command-center.mjs",
+          "scripts/verify-workflow-phase-consistency.mjs"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b84f81ff907ab70d9a170f14fac319f78c7ca14bda4020fb3b2d29fbffc1e6d6"
+    },
+    {
+      "id": "B-cc10:RP-016",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage pass at HEAD 042854e: npm run test:serial-reference exited 0 on this frozen HEAD; F-077/F-078/F-079 fixture repairs executed the renamed identities. Checklist 8/8 done with must evidence already recorded. Stale materialHash with unchanged storyFilesHash is whole-tree/metadata drift, not missing coverage. No blocker.",
+      "createdAt": "2026-08-19T08:22:38.003Z",
+      "reviewRound": "2026-08-18T03:33:16.325Z",
+      "reviewRunId": "B-cc10:RR-118",
+      "envelopeId": "7e370ac7610915595dd6d144b2f013a0efeef43668781b70f056b750e0846d0f",
+      "writerSessionId": "sess-8afdfabda88da0d8",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md",
+          "packages/main/src/core/brand-paths.ts",
+          "packages/main/src/core/learning-store.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/tasks/experience-hint-worktree-cache-smoke.ts",
+          "packages/main/src/tasks/experience-layer-hint-injection-smoke.ts",
+          "packages/main/src/tasks/experience-layer-playbook-smoke.ts",
+          "packages/main/src/tasks/playbook-promotion-worker-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "scripts/verify-lattice-residue.mjs",
+          "scripts/verify-role-telemetry.mjs",
+          "scripts/verify-session-brief-command-center.mjs",
+          "scripts/verify-workflow-phase-consistency.mjs"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "dce12a68db531416a778ffbe393eb2e7a6d9267f41869227bc9f99ca80836060"
+    },
+    {
+      "id": "B-cc10:RP-017",
+      "agent": "lattice-review-docs",
+      "note": "Docs pass at HEAD 042854e: Step1 focused symbols PROOF_OR_STOP_STATE_DIR/LEARNING_DIR/EXECUTABLE_SCAN_ROOTS; Step2 compared 4 paragraphs (CLAUDE.md brand-exec scan roots now lists proof-or-stop.config.json then lattice.config.json matching scripts/verify-lattice-residue.mjs:323-336; F-075 adapter manifest path; identity-migration decision doc). No remaining doc-promise-undelivered on the compared paragraphs. No blocker.",
+      "createdAt": "2026-08-19T08:22:47.927Z",
+      "reviewRound": "2026-08-18T03:33:16.325Z",
+      "reviewRunId": "B-cc10:RR-119",
+      "envelopeId": "97185c1c3b88e72482877885bb942cf0759fe64114766aac92aede81fbeddf67",
+      "writerSessionId": "sess-8afdfabda88da0d8",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md",
+          "packages/main/src/core/brand-paths.ts",
+          "packages/main/src/core/learning-store.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/tasks/experience-hint-worktree-cache-smoke.ts",
+          "packages/main/src/tasks/experience-layer-hint-injection-smoke.ts",
+          "packages/main/src/tasks/experience-layer-playbook-smoke.ts",
+          "packages/main/src/tasks/playbook-promotion-worker-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "scripts/verify-lattice-residue.mjs",
+          "scripts/verify-role-telemetry.mjs",
+          "scripts/verify-session-brief-command-center.mjs",
+          "scripts/verify-workflow-phase-consistency.mjs"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "28b77903b380a3635401cea0850ca80503168c993f54e893f5317d388fd20e81"
+    },
+    {
+      "id": "B-cc10:RP-018",
+      "agent": "lattice-review-test-coverage",
+      "note": "HEAD 24e05a7 incremental re-review of codex-heartbeat-timeout-smoke: HOME/PATH isolation still pins [heartbeat_command_timeout] for killed budget, broken fallback still fails, override remains bounded.",
+      "createdAt": "2026-08-19T09:09:35.677Z",
+      "reviewRound": "2026-08-19T08:57:52.581Z",
+      "reviewRunId": "B-cc10:RR-122",
+      "envelopeId": "91b079f588b0c90bccef12ebfab30b15787a2947fd1bc2b4006c32f88e1e7691",
+      "writerSessionId": "sess-e51064b22b3bc4c2",
+      "sessionSource": "derived-ppid",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/codex-heartbeat-timeout-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-cc10/checklist.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4a7ecc17de14e6b87e7e53e5b75e293073effd37de9b61acd9e041d19de6cb02"
+    },
+    {
+      "id": "B-cc10:RP-019",
+      "agent": "lattice-review-concept",
+      "note": "HEAD 24e05a7 incremental concept re-review of HOME isolation in codex-heartbeat-timeout-smoke: no concept deletion/replacement this round. Smoke still writes canonical proof-or-stop plus deprecated lattice bins (read-both, matching resolveGlobalCliCommandPath). Production sh -lc left unchanged; empty isolated HOME only stops login PATH from picking ~/.local/bin/proof-or-stop. Identity-migration holds: canonical bin remains proof-or-stop; fixture .lattice activity file is pre-existing read-compat and was not reintroduced as a decision site. No blocker.",
+      "createdAt": "2026-08-19T09:11:17.515Z",
+      "reviewRound": "2026-08-19T08:57:52.581Z",
+      "reviewRunId": "B-cc10:RR-120",
+      "envelopeId": "519dad90cc64db71d338319e9fba7f7bdc00ab53b51164540714b328897cbe4f",
+      "writerSessionId": "sess-8afdfabda88da0d8",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/tasks/codex-heartbeat-timeout-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "bf676380e18b8d55e311661f8c40ef57a5e23948632ae41e787f313218fe0a4c"
+    },
+    {
+      "id": "B-cc10:RP-020",
+      "agent": "lattice-review-docs",
+      "note": "Incremental docs review at frozen HEAD 24e05a7 (material commit 5767a18c64). Step1 symbols: isolatedHome, previousHome (2 local smoke consts, not exported). Step2: 0 README/CLAUDE/docs hits (fallback 2). Commit touches only codex-heartbeat-timeout-smoke.ts; no CLAUDE.md/AGENTS.md/docs rewrite. Production resolveGlobalCliCommandPath still uses sh -lc; HOME isolation is test-only. No promised-but-undelivered CLI/docs claim; brand-exec paragraph unchanged and unrelated.",
+      "createdAt": "2026-08-19T09:14:20.730Z",
+      "reviewRound": "2026-08-19T08:57:52.581Z",
+      "reviewRunId": "B-cc10:RR-123",
+      "envelopeId": "08ff72c22c44d5f0edb1cbb8a5431e075d32a36b3db63359412518ea18ab9aa1",
+      "writerSessionId": "sess-abf3b2f19cd3a96c",
+      "sessionSource": "derived-ppid",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/codex-heartbeat-timeout-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3c1e4fecc63be85e4c0ab0681e77b4ba71040983e6e7b96cc46fab6c8174a1a0"
+    },
+    {
+      "id": "B-cc10:RP-021",
+      "agent": "lattice-review-quality",
+      "note": "Quality pass at HEAD 24e05a7: HOME isolation restores HOME/PATH in finally, isolated-home temp dir is pushed to createdDirs and rmSync-cleaned, no silent catch, comment matches sh -lc discovery, production resolver unchanged.",
+      "createdAt": "2026-08-19T09:16:37.354Z",
+      "reviewRound": "2026-08-19T08:57:52.581Z",
+      "reviewRunId": "B-cc10:RR-121",
+      "envelopeId": "71d46f6079eb172240c6fdf28ab386c66c9444aa9c8b5049c203e09d5a72474c",
+      "writerSessionId": "sess-8afdfabda88da0d8",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/codex-heartbeat-timeout-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/codex-adapter-checks.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a95d6477d1917c2aefac717f2c0691db7935fa517e6aa4889bf839338cb6ca1d"
+    },
+    {
+      "id": "B-cc10:RP-022",
+      "agent": "lattice-review-concept",
+      "note": "Post-merge remint at HEAD 82be2c8: identity concepts still canonical; full-suite inventory now includes B-cc10 members. No blocker.",
+      "createdAt": "2026-08-19T12:20:51.281Z",
+      "reviewRound": "2026-08-19T12:17:08.465Z",
+      "reviewRunId": "B-cc10:RR-124",
+      "envelopeId": "7d17785ae6690edc24baf8d386b2c91bd8984be553c7e32c1d86f651c6bbbdbc",
+      "writerSessionId": "sess-8afdfabda88da0d8",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "filesTriagedByName": [
+          "package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "706dba0d0604a8b9c00f98f57f241f5ef45cac1587de0afdbc1d5d7f8339cbf9"
+    },
+    {
+      "id": "B-cc10:RP-023",
+      "agent": "lattice-review-quality",
+      "note": "Post-merge remint HEAD 82be2c8: RESOURCE_POLICY rows match serial-reference identity members; repoRead is appropriate. No blocker.",
+      "createdAt": "2026-08-19T12:21:01.522Z",
+      "reviewRound": "2026-08-19T12:17:08.465Z",
+      "reviewRunId": "B-cc10:RR-125",
+      "envelopeId": "15fa9f2640b2dd98645cc2bf683099a34c22eddf6b7029006056b71764fcde95",
+      "writerSessionId": "sess-518e7162c2156e16",
+      "sessionSource": "derived-ppid",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "filesTriagedByName": [
+          "package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "88e679d94f10aa32ce142fb16d74f6baf37e1f13128c5a55674609b714a1ac20"
+    },
+    {
+      "id": "B-cc10:RP-024",
+      "agent": "lattice-review-docs",
+      "note": "Post-merge remint HEAD 82be2c8: inventory commit adds no docs promise; identity migration docs still match delivered names. No blocker.",
+      "createdAt": "2026-08-19T12:21:38.847Z",
+      "reviewRound": "2026-08-19T12:17:08.465Z",
+      "reviewRunId": "B-cc10:RR-127",
+      "envelopeId": "1ef4779a7b3e2d38b68b5ffda4cf99ebbeb57652c344e701efcbd2aa15d08ce1",
+      "writerSessionId": "sess-8afdfabda88da0d8",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "721afa38efc8ce0a62e778f758a4feaff65e496f5b6ff45231f3316ae12caf8d"
+    },
+    {
+      "id": "B-cc10:RP-025",
+      "agent": "lattice-review-test-coverage",
+      "note": "Post-merge remint HEAD 82be2c8: 24/24 coverage including CHK-006:happy waiver for frozen 0.3.261 selector vs 0.3.264 CLI. No blocker.",
+      "createdAt": "2026-08-19T12:24:15.899Z",
+      "reviewRound": "2026-08-19T12:17:08.465Z",
+      "reviewRunId": "B-cc10:RR-126",
+      "envelopeId": "2cdb4c63d9efb6d881d9249d7970352118b3a7d7f9132ab822b774aa00b7eee7",
+      "writerSessionId": "sess-35d741ab8d352b9a",
+      "sessionSource": "derived-ppid",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-cc10/checklist.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2d9c3a6dbf6a44015ef4f9b2cdaa97ac12fd77f92f20278bf708b5ab0ad3cd06"
+    }
+  ]
+}
