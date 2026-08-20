@@ -62,12 +62,12 @@ const checks = {
     const utils = readPackage('packages/utils/package.json');
     const lab = readPackage('packages/lab/package.json');
     assert(core.name === '@proof-or-stop/core', `core package name mismatch: ${core.name}`);
-    assert(utils.name === '@lattice/utils', `utils package name mismatch: ${utils.name}`);
-    assert(lab.name === '@lattice/lab', `lab package name mismatch: ${lab.name}`);
+    assert(utils.name === '@proof-or-stop/utils', `utils package name mismatch: ${utils.name}`);
+    assert(lab.name === '@proof-or-stop/lab', `lab package name mismatch: ${lab.name}`);
     assert(core.version === EXPECTED_CORE_VERSION, `core version mismatch: ${core.version}`);
     assert(utils.version === EXPECTED_EXTENSION_VERSION, `utils version mismatch: ${utils.version}`);
     assert(lab.version === EXPECTED_EXTENSION_VERSION, `lab version mismatch: ${lab.version}`);
-    assert(core.dependencies?.['@lattice/lab'] === EXPECTED_EXTENSION_VERSION, `core should depend on @lattice/lab@${EXPECTED_EXTENSION_VERSION}`);
+    assert(core.dependencies?.['@proof-or-stop/lab'] === EXPECTED_EXTENSION_VERSION, `core should depend on @proof-or-stop/lab@${EXPECTED_EXTENSION_VERSION}`);
     assert(utils.dependencies?.['@proof-or-stop/core'] === EXPECTED_EXTENSION_VERSION, `utils should depend on @proof-or-stop/core@${EXPECTED_EXTENSION_VERSION}`);
     assert(lab.dependencies?.['@proof-or-stop/core'] === EXPECTED_EXTENSION_VERSION, `lab should depend on @proof-or-stop/core@${EXPECTED_EXTENSION_VERSION}`);
     assert(!core.dependencies?.['@lattice-agent/lab'], 'core should not depend on retired @lattice-agent/lab');
