@@ -12,6 +12,7 @@ const { StoryStore } = await import(pathToFileURL(join(distRoot, 'core/store.js'
 
 const {
   DEFAULT_CAUSAL_SELECTOR_POLICY,
+  createCausalEvidenceBatch,
   executeCausalEvidence,
   preflightCausalEvidence,
 } = causal;
@@ -137,6 +138,35 @@ test('separate concurrent requests single-flight exact keys and isolate near-dup
   ]);
   assert.equal(nearCounter.count, 2, 'a near-duplicate identity executes separately');
   assert.notEqual(first.key.key, near.key.key);
+});
+
+test('batch retries a non-pass exact key through one shared retry flight', async () => {
+  const batch = createCausalEvidenceBatch();
+  const runIdentity = identity(repoRoot, 'B-5a15-batch-retry');
+  const preflight = readyPreflight(repoRoot, runIdentity.storyId);
+  const counter = { count: 0 };
+  const run = async () => {
+    counter.count++;
+    await new Promise(resolve => setTimeout(resolve, 25));
+    return counter.count === 1
+      ? { code: 1, output: 'FIRST-FAILURE' }
+      : { code: 0, output: 'RETRY-PASS' };
+  };
+  const call = () => executeCausalEvidence({
+    identity: runIdentity,
+    selector: 'RETRY-PASS',
+    run,
+    batch,
+    preflight,
+    revalidateBeforeRun: () => true,
+  });
+  const [first, second, third] = await Promise.all([call(), call(), call()]);
+
+  assert.equal(counter.count, 2, 'one failed attempt and one shared retry serve the exact key');
+  assert.equal(first.receipt.reusable, false);
+  assert.equal(second.receipt.reusable, true);
+  assert.equal(third.receipt.reusable, true);
+  assert.equal(batch.ledger.executions[0]?.executionAttempts, 2, 'ledger counts child executions, not retry followers');
 });
 
 test('StoryStore single-flight preserves one exact receipt and concurrent index writes', async () => {

@@ -194,6 +194,8 @@ export interface CausalEvidenceMetrics {
 
 export interface CausalEvidenceBatch {
   executions: Map<string, Promise<CausalEvidenceReceipt>>;
+  /** A failed first attempt may be retried once as a shared batch flight. */
+  retryExecutions: Map<string, Promise<CausalEvidenceReceipt>>;
   ledger: CausalEvidenceLedger;
 }
 
@@ -580,6 +582,7 @@ export function createCausalEvidenceBatch(): CausalEvidenceBatch {
   } satisfies Omit<CausalEvidenceLedger, '_hash'>;
   return {
     executions: new Map(),
+    retryExecutions: new Map(),
     ledger: { ...ledgerWithoutHash, _hash: causalDigest(ledgerWithoutHash) },
   };
 }
@@ -726,9 +729,40 @@ export async function executeCausalEvidence(args: ExecuteCausalEvidenceArgs): Pr
   if (batchPromise) {
     // Only a PASS can be a per-batch cache hit. A failed/partial/timeout/
     // cancelled attempt must leave the key eligible for a later PASS.
-    execution = batchPromise.then(async receipt => receipt.reusable
-      ? { receipt, disposition: 'reused' as const }
-      : { receipt: await executeFresh(), disposition: 'executed' as const });
+    execution = batchPromise.then(async receipt => {
+      if (receipt.reusable) return { receipt, disposition: 'reused' as const };
+
+      // All followers that observed the failed first flight must converge on
+      // one retry. Without this second single-flight boundary, each follower
+      // calls executeFresh() after the first promise resolves and the same
+      // exact key can launch several expensive retries concurrently.
+      const existingRetry = args.batch?.retryExecutions.get(key.key);
+      if (existingRetry) return { receipt: await existingRetry, disposition: 'reused' as const };
+      const publishedRetry = args.batch?.executions.get(key.key);
+      if (publishedRetry && publishedRetry !== batchPromise) {
+        return { receipt: await publishedRetry, disposition: 'reused' as const };
+      }
+
+      let retry: Promise<CausalEvidenceReceipt>;
+      retry = executeFresh().then(
+        nextReceipt => {
+          args.batch?.retryExecutions.delete(key.key);
+          if (nextReceipt.reusable && args.batch) {
+            const current = args.batch.executions.get(key.key);
+            if (!current || current === batchPromise) args.batch.executions.set(key.key, Promise.resolve(nextReceipt));
+          }
+          return nextReceipt;
+        },
+        error => {
+          args.batch?.retryExecutions.delete(key.key);
+          if (args.batch?.executions.get(key.key) === batchPromise) args.batch.executions.delete(key.key);
+          throw error;
+        },
+      );
+      void retry.catch(() => undefined);
+      args.batch?.retryExecutions.set(key.key, retry);
+      return { receipt: await retry, disposition: 'executed' as const };
+    });
   } else if (key.reusable && args.receiptStore?.withCausalEvidenceExecution) {
     // Separate requests do not share `batch`. The store boundary re-reads
     // inside its single-flight region so only the winner can launch the child.
