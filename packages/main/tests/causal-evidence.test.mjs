@@ -69,7 +69,7 @@ function preflight(overrides = {}, revalidate) {
   return preflightCausalEvidence({
     cli: { available: true, path: '/usr/bin/proof-or-stop' },
     worktree: { expected: repoRoot, actual: repoRoot },
-    gitIndex: { readable: true, path: join(repoRoot, 'index'), expected: 'head-a', actual: 'head-a' },
+    gitIndex: { readable: true, path: join(repoRoot, 'index'), expected: 'head-a', actual: 'head-a', contentDigest: 'sha256:test-index' },
     gitMaterial: { available: true, headHash: 'head-a', materialHash: 'material-a', storyFilesHash: 'story-a' },
     writerLease: { available: true, valid: true },
     providerCapability: { required: ['allowlisted-command', 'bounded-output'], available: ['allowlisted-command', 'bounded-output'] },
@@ -749,20 +749,20 @@ test('CHK-003: dependency domains shadow-compare closure and CertificationWindow
   });
   assert.equal(partial.causalDecision, 'rerun');
   assert.equal(partial.affectedNodeIds.length, 6);
-  assert.equal(partial.affectedNodeRerun, 17);
-  assert.equal(partial.falseFresh, 5);
+  assert.equal(partial.affectedNodeRerun, 0, 'caller-supplied rerunNodeIds are not execution evidence');
+  assert.equal(partial.falseFresh, 6);
   assert.equal(partial.gateAdmissible, false);
   assert.equal(verifyCausalDependencyDecision(partial), true);
 
   const complete = evaluateCausalDependencies({
     nodes, currentInputHashes: current, previousMaterialHash: 'm1', currentMaterialHash: 'm1', previousStoryFilesHash: 's1', currentStoryFilesHash: 's1', rerunNodeIds: nodes.map(node => node.id),
   });
-  assert.equal(complete.affectedNodeRerun, 100);
-  assert.equal(complete.falseFresh, 0);
-  assert.equal(complete.gateAdmissible, true);
+  assert.equal(complete.affectedNodeRerun, 0, 'caller-supplied rerunNodeIds cannot manufacture a complete rerun');
+  assert.equal(complete.falseFresh, 6);
+  assert.equal(complete.gateAdmissible, false);
   emitIntentMarker(
     'CHK-003:happy:1',
-    'related story-owned material change invalidates the affected transitive closure, reruns it at 100%, and reports falseFresh=0',
+    'related story-owned material change invalidates the affected transitive closure and ignores unsigned rerun assertions',
   );
 
   const advisoryNodesBefore = JSON.stringify(nodes.map(node => ({
@@ -847,9 +847,9 @@ test('CHK-003: dependency domains shadow-compare closure and CertificationWindow
     assert.deepEqual(domainDecision.affectedNodeIds, expectedAffected);
     assert.deepEqual(domainDecision.invalidatedNodeIds, expectedAffected);
     assert.deepEqual(domainDecision.changedInputIds, [`input-${domain}`]);
-    assert.equal(domainDecision.affectedNodeRerun, 100);
-    assert.equal(domainDecision.falseFresh, 0);
-    assert.equal(domainDecision.gateAdmissible, true);
+    assert.equal(domainDecision.affectedNodeRerun, 0);
+    assert.equal(domainDecision.falseFresh, expectedAffected.length);
+    assert.equal(domainDecision.gateAdmissible, false);
   }
   emitIntentMarker(
     'CHK-003:edge:0',
@@ -1117,7 +1117,7 @@ test('CHK-004: preflight refuses exact readiness failures with zero execution/ev
     assert.equal(report.commandExecutions, 0);
     assert.equal(report.evidenceWrites, 0);
   }
-  const indexMismatch = preflight({ gitIndex: { readable: true, path: join(repoRoot, 'index'), expected: 'head-a', actual: 'head-b' } });
+  const indexMismatch = preflight({ gitIndex: { readable: true, path: join(repoRoot, 'index'), expected: 'head-a', actual: 'head-b', contentDigest: 'sha256:test-index' } });
   assert.equal(indexMismatch.ready, false);
   assert.ok(indexMismatch.failedChecks.some(check => check.includes('git_index_mismatch expected=head-a actual=head-b')));
   assert.equal(indexMismatch.commandExecutions, 0);

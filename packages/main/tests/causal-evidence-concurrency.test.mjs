@@ -65,7 +65,7 @@ function readyPreflight(cwd, storyId) {
   return preflightCausalEvidence({
     cli: { available: true, path: '/usr/bin/proof-or-stop' },
     worktree: { expected: cwd, actual: cwd },
-    gitIndex: { readable: true, path: join(cwd, 'index'), expected: 'head', actual: 'head' },
+    gitIndex: { readable: true, path: join(cwd, 'index'), expected: 'head', actual: 'head', contentDigest: 'sha256:test-index' },
     gitMaterial: { available: true, headHash: 'head', materialHash: 'concurrency-material', storyFilesHash: 'concurrency-story' },
     writerLease: { available: true, valid: true },
     providerCapability: { required: ['allowlisted-command', 'bounded-output'], available: ['allowlisted-command', 'bounded-output'] },

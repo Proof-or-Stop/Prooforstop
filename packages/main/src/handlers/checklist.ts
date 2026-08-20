@@ -32,14 +32,18 @@ import {
   CAUSAL_MAX_OUTPUT_CHARS,
   CAUSAL_RECEIPT_DIRECTORY,
   causalCanonical,
+  createCausalExecutionKey,
   deriveCausalMetrics,
   effectiveCausalEnvironment,
   executeCausalEvidence,
   createCausalEvidenceBatch,
+  causalExecutionIdentityMatchesCurrent,
   preflightCausalEvidence,
   resolveCausalToolVersion,
   importCausalEvidenceReceipt,
   renderCausalMetrics,
+  verifyCausalEvidenceReceipt,
+  verifyCausalPreflight,
   type CausalEvidenceBatch,
   type CausalPreflightFacts,
   type CausalEvidenceReceipt,
@@ -686,6 +690,10 @@ interface EnforceAndStampResult {
   };
   pin?: { lane: VerificationLane; index: number; verification: VerificationIntentPin };
   causalReceipt?: CausalEvidenceReceipt;
+  causalPreflight?: {
+    input: { command: string; cwd: string; timeoutMs?: number };
+    facts: CausalPreflightFacts;
+  };
 }
 
 /** Resolve intentRef → the intent on THIS item, aligned with the coverage gate's canonical ref. */
@@ -1080,6 +1088,7 @@ async function enforceAndStampEvidence(
       receipt: verificationReceipt,
     },
     causalReceipt: receipt,
+    causalPreflight: { input: preflightInput, facts: initialPreflightFacts },
     ...(pinToSet ? { pin: pinToSet } : {}),
   };
 }
@@ -1206,7 +1215,22 @@ export function reconstructMissingIntentsFromEvidence(cl: ChecklistData): string
  * a failed / unavailable re-run leaves NO entry, so the row falls through to the
  * demote path. There is NO code path that mints one of these without a real pass.
  */
-type ReexecStamp = { command?: string; result?: 'pass' | 'fail'; mechanical: true; receipt: VerificationExecutionReceipt };
+type ReexecStamp = {
+  command?: string;
+  result?: 'pass' | 'fail';
+  mechanical: true;
+  receipt: VerificationExecutionReceipt;
+  causalReceipt: CausalEvidenceReceipt;
+  causalPreflight: NonNullable<EnforceAndStampResult['causalPreflight']>;
+};
+
+type CausalRefreshCommitter = (
+  storyId: string,
+  gitCwd: string,
+  hashes: ReturnType<typeof evidenceHashes>,
+  stamps: Array<Pick<EnforceAndStampResult, 'causalReceipt' | 'causalPreflight'>>,
+  commit: () => void,
+) => void;
 
 type StaleRefreshContext = {
   refreshGitCwd: string;
@@ -1264,7 +1288,11 @@ function writeStaleRefresh(
   ctx: HandlerContext,
   storyId: string,
   computed: StaleRefreshContext,
-  opts: { dryRun?: boolean; reexecByKey?: Map<string, ReexecStamp> } = {},
+  opts: {
+    dryRun?: boolean;
+    reexecByKey?: Map<string, ReexecStamp>;
+    commitCanonicalCausalEvidence?: CausalRefreshCommitter;
+  } = {},
 ): string {
   const { store, root } = ctx;
   const { headHash, materialHash, storyFilesHash, stale } = computed;
@@ -1275,6 +1303,7 @@ function writeStaleRefresh(
       `${opts.dryRun ? '[DRY-RUN] ' : ''}Stale verification evidence for ${storyId}: ${stale.length}`,
     ];
     let refreshed = 0;
+    const causalStamps: Array<Pick<EnforceAndStampResult, 'causalReceipt' | 'causalPreflight'>> = [];
     for (const entry of stale) {
       const item = cl.items.find(i => i.id === entry.itemId);
       const existing = item?.verificationEvidence || [];
@@ -1304,6 +1333,10 @@ function writeStaleRefresh(
           ...(ev.factProvenance ? { factProvenance: ev.factProvenance } : {}),
           mechanical: true,
           receipt: reexec.receipt,
+        });
+        causalStamps.push({
+          causalReceipt: reexec.causalReceipt,
+          causalPreflight: reexec.causalPreflight,
         });
         item.verificationEvidence = existing;
         refreshed++;
@@ -1353,7 +1386,27 @@ function writeStaleRefresh(
       refreshed++;
     }
 
-    if (!opts.dryRun) store.writeChecklist(storyId, cl);
+    if (!opts.dryRun) {
+      const commit = () => store.writeChecklist(storyId, cl);
+      if (causalStamps.length > 0) {
+        if (!opts.commitCanonicalCausalEvidence) {
+          throw new Error('causal evidence refresh refused: canonical import seam unavailable [causal_commit_seam_missing]');
+        }
+        opts.commitCanonicalCausalEvidence(
+          storyId,
+          computed.refreshGitCwd,
+          {
+            headHash,
+            ...(materialHash ? { materialHash } : {}),
+            ...(storyFilesHash ? { storyFilesHash } : {}),
+          },
+          causalStamps,
+          commit,
+        );
+      } else {
+        commit();
+      }
+    }
     lines.push(opts.dryRun
       ? '→ Rerun the above command without dryRun to refresh evidence metadata'
       : `Refreshed ${refreshed}/${stale.length} stale evidence item(s). Re-run proof-or-stop validate --story=${storyId} --json`);
@@ -1407,52 +1460,154 @@ export function createChecklistHandlers(ctx: HandlerContext) {
     storyId: string,
     gitCwd: string,
     hashes: ReturnType<typeof evidenceHashes>,
-    receipts: Array<CausalEvidenceReceipt | undefined>,
+    stamps: Array<Pick<EnforceAndStampResult, 'causalReceipt' | 'causalPreflight'>>,
     commit: () => void,
     batch?: CausalEvidenceBatch,
   ): void => {
-    const usable = receipts.filter((receipt): receipt is CausalEvidenceReceipt => Boolean(receipt));
+    const usable = stamps.filter((stamp): stamp is Pick<EnforceAndStampResult, 'causalReceipt' | 'causalPreflight'> => Boolean(stamp.causalReceipt && stamp.causalPreflight));
+    if (stamps.some(stamp => Boolean(stamp.causalReceipt) !== Boolean(stamp.causalPreflight))) {
+      throw new Error('causal evidence commit refused: receipt/preflight identity pairing is incomplete [causal_commit_identity_missing]');
+    }
     if (usable.length === 0) {
       commit();
       return;
     }
-    const revalidate = () => {
-      const current = evidenceHashes(gitCwd, root);
-      const indexed = usable.every(receipt => {
+    type CachedCausalPreflight = {
+      report: ReturnType<typeof preflightCausalEvidence>;
+      effectiveEnvironment: ReturnType<typeof effectiveCausalEnvironment>;
+      toolVersion: string;
+    };
+    type CachedCausalCommitSnapshot = {
+      currentHashes: ReturnType<typeof evidenceHashes>;
+      preflightByInput: Map<string, CachedCausalPreflight>;
+      valid: boolean;
+    };
+    const preflightInputKey = (input: { command: string; cwd: string; timeoutMs?: number }): string => JSON.stringify([
+      input.command,
+      input.cwd,
+      input.timeoutMs ?? DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS,
+    ]);
+    const buildCausalCommitSnapshot = (): CachedCausalCommitSnapshot => {
+      const currentHashes = evidenceHashes(gitCwd, root);
+      if (currentHashes.headHash !== hashes.headHash
+        || currentHashes.materialHash !== hashes.materialHash
+        || currentHashes.storyFilesHash !== hashes.storyFilesHash) {
+        return { currentHashes, preflightByInput: new Map(), valid: false };
+      }
+
+      const preflightByInput = new Map<string, CachedCausalPreflight>();
+      for (const { causalPreflight } of usable) {
+        if (!causalPreflight) continue;
+        const input = causalPreflight.input;
+        const key = preflightInputKey(input);
+        if (preflightByInput.has(key)) continue;
+        const currentFacts = causalPreflightFactsFor(storyId, gitCwd)(input);
+        // Receipt persistence can legitimately change liveness/probe details
+        // (for example, the evidence-target directory appears). Revalidate a
+        // fresh signed readiness report instead of requiring byte-identical
+        // snapshots, while retaining fail-closed current writer/index checks.
+        preflightByInput.set(key, {
+          report: preflightCausalEvidence(currentFacts),
+          effectiveEnvironment: effectiveCausalEnvironment(undefined, input.cwd),
+          toolVersion: resolveCausalToolVersion(root) ?? '',
+        });
+      }
+
+      const indexed = usable.every(({ causalReceipt: receipt, causalPreflight }) => {
+        if (!receipt || !causalPreflight || !verifyCausalEvidenceReceipt(receipt, receipt.executionKey)) return false;
         try {
-          return store.readCausalEvidenceReceipt(storyId, receipt.executionKey)?.receiptHash === receipt.receiptHash;
+          if (store.readCausalEvidenceReceipt(storyId, receipt.executionKey)?.receiptHash !== receipt.receiptHash) return false;
         } catch { // PROBE: a missing/tampered CAS index must block canonical import.
           return false;
         }
+        const input = causalPreflight.input;
+        const cachedPreflight = preflightByInput.get(preflightInputKey(input));
+        if (!cachedPreflight?.report.ready || !verifyCausalPreflight(cachedPreflight.report)) return false;
+        const inputs = receipt.identity.inputs;
+        const recordedMaterial = inputs && typeof inputs === 'object' && !Array.isArray(inputs)
+          ? (inputs as Record<string, unknown>).materialHash
+          : undefined;
+        const recordedTimeout = inputs && typeof inputs === 'object' && !Array.isArray(inputs)
+          ? (inputs as Record<string, unknown>).timeoutMs
+          : undefined;
+        const expectedTimeout = input.timeoutMs ?? DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS;
+        const expectedKey = createCausalExecutionKey({
+          storyId,
+          cwd: input.cwd,
+          command: input.command,
+          bootstrap: { executable: 'proof-or-stop', args: ['verification-evidence'] },
+          inputs,
+          storyFilesHash: currentHashes.storyFilesHash ?? '',
+          effectiveEnvironment: cachedPreflight.effectiveEnvironment,
+          runtimeVersion: process.version,
+          toolVersion: cachedPreflight.toolVersion,
+          selectorPolicy: DEFAULT_CAUSAL_SELECTOR_POLICY,
+        });
+        return recordedMaterial === currentHashes.materialHash
+          && recordedTimeout === expectedTimeout
+          && expectedKey.reusable
+          && expectedKey.key === receipt.executionKey
+          && causalCanonical(expectedKey.identity) === causalCanonical(receipt.identity)
+          && causalExecutionIdentityMatchesCurrent(receipt.identity, {
+            storyId,
+            cwd: input.cwd,
+            storyFilesHash: currentHashes.storyFilesHash ?? '',
+            effectiveEnvironment: cachedPreflight.effectiveEnvironment,
+            runtimeVersion: process.version,
+            toolVersion: cachedPreflight.toolVersion,
+          });
       });
-      return indexed
-        && current.headHash === hashes.headHash
-        && current.materialHash === hashes.materialHash
-        && current.storyFilesHash === hashes.storyFilesHash;
+      return { currentHashes, preflightByInput, valid: indexed };
+    };
+    let cachedSnapshot: CachedCausalCommitSnapshot | undefined;
+    const invalidateCausalCommitSnapshot = (): void => {
+      cachedSnapshot = undefined;
+    };
+    const revalidateCached = (): boolean => {
+      cachedSnapshot ??= buildCausalCommitSnapshot();
+      return cachedSnapshot.valid;
+    };
+    const revalidateFresh = (): boolean => {
+      invalidateCausalCommitSnapshot();
+      return revalidateCached();
+    };
+    const commitWithCacheInvalidation = (): void => {
+      try {
+        commit();
+      } catch (error) {
+        // importCausalEvidenceReceipt retries the same transaction after a
+        // commit failure. The retry must not reuse a pre-failure snapshot.
+        invalidateCausalCommitSnapshot();
+        throw error;
+      }
     };
     // Validate every receipt before allowing the single canonical checklist
     // write. Only the first receipt owns the metadata transaction; every
     // receipt remains independently key/story/hash-bound and import-gated.
-    for (const receipt of usable.slice(1)) {
+    for (const { causalReceipt: receipt } of usable.slice(1)) {
+      if (!receipt) throw new Error('causal evidence commit refused: missing receipt [causal_commit_identity_missing]');
       importCausalEvidenceReceipt({
         receipt,
         expectedStoryId: storyId,
         expectedExecutionKey: receipt.executionKey,
         ...(hashes.materialHash ? { expectedMaterialHash: hashes.materialHash } : {}),
         ...(hashes.storyFilesHash ? { expectedStoryFilesHash: hashes.storyFilesHash } : {}),
-        revalidate,
+        revalidate: revalidateCached,
         commit: () => undefined,
         batch,
       });
     }
     importCausalEvidenceReceipt({
-      receipt: usable[0],
+      receipt: usable[0].causalReceipt!,
       expectedStoryId: storyId,
-      expectedExecutionKey: usable[0].executionKey,
+      expectedExecutionKey: usable[0].causalReceipt!.executionKey,
       ...(hashes.materialHash ? { expectedMaterialHash: hashes.materialHash } : {}),
       ...(hashes.storyFilesHash ? { expectedStoryFilesHash: hashes.storyFilesHash } : {}),
-      revalidate,
-      commit,
+      // Re-probe immediately before the actual checklist write. No-op receipt
+      // imports above use the bounded batch snapshot; the canonical write gets
+      // its own fresh transaction snapshot.
+      revalidate: revalidateFresh,
+      commit: commitWithCacheInvalidation,
       batch,
     });
   };
@@ -2090,7 +2245,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
           args.storyId,
           gitCwd,
           hashes,
-          [stamp.causalReceipt],
+          [stamp],
           () => store.writeChecklist(args.storyId, cl),
           causalBatch,
         );
@@ -2233,7 +2388,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
           args.storyId,
           gitCwd,
           hashes,
-          stamps.map(stamp => stamp.causalReceipt),
+          stamps,
           () => store.writeChecklist(args.storyId, cl),
           causalBatch,
         );
@@ -2372,7 +2527,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
           args.storyId,
           gitCwd,
           hashes,
-          [stamp.causalReceipt],
+          [stamp],
           () => store.writeChecklist(args.storyId, cl),
           causalBatch,
         );
@@ -2458,11 +2613,14 @@ export function createChecklistHandlers(ctx: HandlerContext) {
               },
             );
             if (stamp.evidencePatch.mechanical === true && stamp.evidencePatch.receipt) {
+              if (!stamp.causalReceipt || !stamp.causalPreflight) continue;
               reexecByKey.set(`${entry.itemId}::${entry.intentRef}`, {
                 ...(stamp.evidencePatch.command ? { command: stamp.evidencePatch.command } : {}),
                 ...(stamp.evidencePatch.result ? { result: stamp.evidencePatch.result } : {}),
                 mechanical: true,
                 receipt: stamp.evidencePatch.receipt,
+                causalReceipt: stamp.causalReceipt,
+                causalPreflight: stamp.causalPreflight,
               });
             }
             // A non-mechanical / receiptless stamp is not a real pass → leave for demote.
@@ -2473,7 +2631,11 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         }
       }
 
-      return writeStaleRefresh(ctx, args.storyId, computed, { dryRun: args.dryRun, reexecByKey });
+      return writeStaleRefresh(ctx, args.storyId, computed, {
+        dryRun: args.dryRun,
+        reexecByKey,
+        commitCanonicalCausalEvidence,
+      });
     },
 
     /**

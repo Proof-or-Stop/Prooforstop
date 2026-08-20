@@ -14,7 +14,7 @@ function validFacts(repoPath) {
   return {
     cli: { available: true, path: join(repoPath, 'proof-or-stop.js') },
     worktree: { expected: repoPath, actual: repoPath },
-    gitIndex: { readable: true, path: join(repoPath, 'index') },
+    gitIndex: { readable: true, path: join(repoPath, 'index'), contentDigest: 'sha256:test-index' },
     gitMaterial: { available: true, headHash: 'head-a', materialHash: 'material-a', storyFilesHash: 'story-a' },
     writerLease: { available: true, valid: true },
     providerCapability: { required: ['validation-plan', 'bounded-output'], available: ['validation-plan', 'bounded-output'] },
@@ -40,7 +40,7 @@ test('B-5a15 F-012: verifier plan launches are refused when the causal preflight
       causalPreflightFacts: () => structuredClone(currentFacts),
     };
     const gate = createValidationCausalPreflightGate(ctx, 'B-verifier-preflight', [command], root);
-    currentFacts = { ...currentFacts, gitIndex: { ...currentFacts.gitIndex, path: join(root, 'changed-index') } };
+    currentFacts = { ...currentFacts, gitIndex: { ...currentFacts.gitIndex, contentDigest: 'sha256:index-after' } };
     await assert.rejects(
       executeValidationPlan(plan, root, undefined, 'B-verifier-preflight', { jobs: 1, beforeLaunch: gate.beforeLaunch }),
       /state_changed_before_launch.*causal_preflight_refused/,

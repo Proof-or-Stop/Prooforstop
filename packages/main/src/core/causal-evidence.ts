@@ -1,7 +1,15 @@
-import { createHash, createHmac, randomBytes } from 'node:crypto';
-import { existsSync, readFileSync, realpathSync } from 'node:fs';
-import { join } from 'node:path';
+import { createHash, createPublicKey, randomBytes } from 'node:crypto';
+import { existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
 import { effectiveValidationCommandEnvironment } from './validation-command-environment.js';
+import {
+  exportPublicKeyRaw,
+  importPrivateKeyRaw,
+  signCanonical,
+  verifyCanonical,
+  type PublicKeyBase64,
+  type SignatureBase64,
+} from './authority-signing.js';
 
 /**
  * CausalEvidence is deliberately a small, dependency-light boundary.  The
@@ -17,6 +25,8 @@ export const CAUSAL_PREFLIGHT_SCHEMA = 'proofbound.causal-evidence-preflight.v1'
 export const CAUSAL_DEPENDENCY_SCHEMA = 'proofbound.causal-dependency-decision.v1' as const;
 export const CAUSAL_RECEIPT_DIRECTORY = 'causal-evidence/receipts';
 export const CAUSAL_RECEIPT_INDEX_FILE = 'causal-evidence/index.json';
+export const CAUSAL_AUTHORITY_SCHEMA = 'proofbound.causal-evidence-authority.v1' as const;
+export const CAUSAL_AUTHORITY_KEY_FILE = 'lattice-causal-evidence-authority-v1.key';
 export const CAUSAL_OUTPUT_TAIL_CHARS = 4_000;
 export const CAUSAL_MAX_OUTPUT_CHARS = 12_000;
 export const CAUSAL_PREFLIGHT_CHECK_NAMES = [
@@ -117,6 +127,9 @@ export interface CausalEvidenceReceipt {
   timeoutMs?: number;
   /** Receipt hash excludes this field, like a normal CAS self-address. */
   receiptHash: string;
+  /** Durable local Ed25519 authority identity; the public key is verified against the registered key. */
+  signerPublicKey: PublicKeyBase64;
+  signature: SignatureBase64;
   /** Only complete identities can be used as a cached PASS. */
   reusable: boolean;
   commandReruns: 0;
@@ -184,6 +197,11 @@ export interface CausalEvidenceBatch {
   ledger: CausalEvidenceLedger;
 }
 
+export interface CausalDependencyRerunEvidence {
+  nodeId: string;
+  receipt: CausalEvidenceReceipt;
+}
+
 export const DEFAULT_CAUSAL_SELECTOR_POLICY = Object.freeze({
   schemaVersion: CAUSAL_SELECTOR_POLICY_SCHEMA,
   matcher: 'literal-output-inclusion',
@@ -195,19 +213,93 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 }
 
+function compareCanonicalKeys(left: string, right: string): number {
+  const leftPoints = Array.from(left);
+  const rightPoints = Array.from(right);
+  const length = Math.min(leftPoints.length, rightPoints.length);
+  for (let index = 0; index < length; index += 1) {
+    const leftPoint = leftPoints[index]?.codePointAt(0) ?? 0;
+    const rightPoint = rightPoints[index]?.codePointAt(0) ?? 0;
+    if (leftPoint !== rightPoint) return leftPoint - rightPoint;
+  }
+  return leftPoints.length - rightPoints.length;
+}
+
 /** Deterministic JSON used for every digest in this module. */
 export function causalCanonical(value: unknown): string {
   if (value === null || typeof value !== 'object') return JSON.stringify(value);
   if (Array.isArray(value)) return `[${value.map(causalCanonical).join(',')}]`;
   return `{${Object.entries(value as Record<string, unknown>)
     .filter(([, item]) => item !== undefined)
-    .sort(([left], [right]) => left.localeCompare(right))
+    .sort(([left], [right]) => compareCanonicalKeys(left, right))
     .map(([key, item]) => `${JSON.stringify(key)}:${causalCanonical(item)}`)
     .join(',')}}`;
 }
 
 export function causalDigest(value: unknown): string {
   return createHash('sha256').update(causalCanonical(value)).digest('hex');
+}
+
+function canonicalAuthorityRoot(root: string | undefined): string {
+  if (root) {
+    try { return realpathSync(root); } catch { /* use the stable process root below */ }
+  }
+  try { return realpathSync(process.cwd()); } catch { return root ?? process.cwd(); }
+}
+
+function causalAuthorityKeyPath(root: string | undefined): string {
+  const canonicalRoot = canonicalAuthorityRoot(root);
+  // Keep the authority key in the ignored, project-local runtime state. The
+  // Git common directory is not an application data directory and may be
+  // read-only for a host or sandbox; receipt verification must not depend on
+  // mutating `.git` or on a worktree-specific administrative layout.
+  return join(canonicalRoot, '.proof-or-stop', 'runtime', CAUSAL_AUTHORITY_KEY_FILE);
+}
+
+function readOrCreateCausalAuthorityPrivateKey(root: string | undefined): string {
+  const path = causalAuthorityKeyPath(root);
+  if (!existsSync(path)) {
+    mkdirSync(dirname(path), { recursive: true });
+    try {
+      writeFileSync(path, randomBytes(32).toString('base64'), { encoding: 'utf8', mode: 0o600, flag: 'wx' });
+    } catch {
+      if (!existsSync(path)) throw new Error(`causal authority key could not be created at ${path}`);
+    }
+  }
+  return readFileSync(path, 'utf8').trim();
+}
+
+function readCausalAuthorityPublicKey(root: string | undefined): PublicKeyBase64 | null {
+  try {
+    const privateKey = readFileSync(causalAuthorityKeyPath(root), 'utf8').trim();
+    return exportPublicKeyRaw(createPublicKey(importPrivateKeyRaw(privateKey)));
+  } catch {
+    return null;
+  }
+}
+
+function signCausalAuthorityPayload(payload: unknown, root: string | undefined): {
+  signerPublicKey: PublicKeyBase64;
+  signature: SignatureBase64;
+} {
+  const privateKey = readOrCreateCausalAuthorityPrivateKey(root);
+  const signerPublicKey = exportPublicKeyRaw(createPublicKey(importPrivateKeyRaw(privateKey)));
+  return { signerPublicKey, signature: signCanonical(payload, privateKey) };
+}
+
+function verifyCausalAuthorityPayload(
+  payload: unknown,
+  signerPublicKey: unknown,
+  signature: unknown,
+  root: string | undefined,
+): boolean {
+  const trusted = readCausalAuthorityPublicKey(root);
+  return Boolean(
+    trusted
+      && signerPublicKey === trusted
+      && typeof signature === 'string'
+      && verifyCanonical(payload, signature, trusted),
+  );
 }
 
 function cloneCanonical<T>(value: T): T {
@@ -273,11 +365,14 @@ export function redactEnvironment(environment: Record<string, unknown>): Record<
   const result: Record<string, string> = {};
   for (const [rawKey, rawValue] of Object.entries(environment)) {
     if (rawValue === undefined) continue;
-    const key = rawKey.toUpperCase();
+    // Windows environment lookup is case-insensitive; POSIX lookup is not.
+    // Normalizing POSIX keys would collapse distinct variables such as Path and
+    // PATH and make a receipt reusable under a different child environment.
+    const key = process.platform === 'win32' ? rawKey.toUpperCase() : rawKey;
     if (TRANSPORT_ENV_KEY.test(key)) continue;
     result[key] = SECRET_ENV_KEY.test(key) ? REDACTED : String(rawValue);
   }
-  return Object.fromEntries(Object.entries(result).sort(([left], [right]) => left.localeCompare(right)));
+  return Object.fromEntries(Object.entries(result).sort(([left], [right]) => compareCanonicalKeys(left, right)));
 }
 
 function realCanonicalCwd(cwd: string): string | null {
@@ -330,6 +425,37 @@ export function createCausalExecutionKey(input: CausalExecutionIdentityInput): C
   };
 }
 
+/** Compare a signed execution identity with the identity currently observable by its writer. */
+export function causalExecutionIdentityMatchesCurrent(
+  identity: CausalExecutionIdentity,
+  current: {
+    storyId: string;
+    cwd: string;
+    storyFilesHash: string;
+    effectiveEnvironment: Record<string, string>;
+    runtimeVersion: string;
+    toolVersion: string;
+  },
+): boolean {
+  const canonicalCwd = realCanonicalCwd(current.cwd);
+  if (!canonicalCwd) return false;
+  const expected: CausalExecutionIdentity = {
+    ...identity,
+    storyId: current.storyId,
+    cwd: canonicalCwd,
+    storyFilesHash: current.storyFilesHash,
+    effectiveEnvironment: redactEnvironment(current.effectiveEnvironment),
+    runtimeVersion: current.runtimeVersion,
+    toolVersion: current.toolVersion,
+  };
+  return causalCanonical(identity) === causalCanonical(expected)
+    && identityDigestForExecutionIdentity(identity) === identityDigestForExecutionIdentity(expected);
+}
+
+function identityDigestForExecutionIdentity(identity: CausalExecutionIdentity): string {
+  return causalDigest(identity);
+}
+
 /** Build the exact environment used by the existing command runner. */
 export function effectiveCausalEnvironment(
   overlay: Record<string, string> | undefined,
@@ -371,7 +497,20 @@ export function verifyCausalEvidenceReceipt(
 ): boolean {
   if (!receipt || receipt.schemaVersion !== CAUSAL_EVIDENCE_SCHEMA) return false;
   if (expectedKey && receipt.executionKey !== expectedKey) return false;
+  if (!isRecord(receipt.identity)) return false;
+  const {
+    receiptHash: _ignored,
+    signerPublicKey: _signerPublicKey,
+    signature: _signature,
+    ...authorityPayload
+  } = receipt;
   if (!receipt.receiptHash || receipt.receiptHash !== computeCausalReceiptHash(receipt)) return false;
+  if (!verifyCausalAuthorityPayload(
+    authorityPayload,
+    receipt.signerPublicKey,
+    receipt.signature,
+    receipt.identity.cwd,
+  )) return false;
   if (typeof receipt.outputProbe !== 'string' || receipt.outputProbe.length > CAUSAL_MAX_OUTPUT_CHARS) return false;
   if (receipt.identity.schemaVersion !== CAUSAL_EXECUTION_KEY_SCHEMA) return false;
   if (receipt.identityDigest !== causalDigest(receipt.identity)) return false;
@@ -543,7 +682,7 @@ export async function executeCausalEvidence(args: ExecuteCausalEvidenceArgs): Pr
       const run = await args.run();
       const runStatus = statusForRun(run);
       const redactedOutput = redactCausalOutput(run.output, args.identity.effectiveEnvironment);
-      const receiptWithoutHash: Omit<CausalEvidenceReceipt, 'receiptHash'> = {
+      const receiptWithoutAuthority: Omit<CausalEvidenceReceipt, 'receiptHash' | 'signerPublicKey' | 'signature'> = {
         schemaVersion: CAUSAL_EVIDENCE_SCHEMA,
         storyId: key.identity.storyId,
         executionKey: key.key,
@@ -563,9 +702,11 @@ export async function executeCausalEvidence(args: ExecuteCausalEvidenceArgs): Pr
         reusable: key.reusable && runStatus === 'pass' && run.code === 0,
         commandReruns: 0,
       };
+      const authority = signCausalAuthorityPayload(receiptWithoutAuthority, key.identity.cwd);
       const receipt = {
-        ...receiptWithoutHash,
-        receiptHash: computeCausalReceiptHash(receiptWithoutHash as CausalEvidenceReceipt),
+        ...receiptWithoutAuthority,
+        ...authority,
+        receiptHash: computeCausalReceiptHash({ ...receiptWithoutAuthority, ...authority } as CausalEvidenceReceipt),
       } as CausalEvidenceReceipt;
       // A non-PASS result is an execution outcome, not a reusable CAS value.
       // Leaving it at this address would both turn a transient failure into a
@@ -606,12 +747,24 @@ export async function executeCausalEvidence(args: ExecuteCausalEvidenceArgs): Pr
     execution = executeFresh().then(receipt => ({ receipt, disposition: 'executed' as const }));
   }
   if (key.reusable && args.batch && !batchPromise) {
-    const batchReceipt = execution.then(({ receipt }) => {
-      if (!receipt.reusable && args.batch?.executions.get(key.key) === batchReceipt) {
-        args.batch.executions.delete(key.key);
-      }
-      return receipt;
-    });
+    let batchReceipt: Promise<CausalEvidenceReceipt>;
+    batchReceipt = execution.then(
+      ({ receipt }) => {
+        if (!receipt.reusable && args.batch?.executions.get(key.key) === batchReceipt) {
+          args.batch.executions.delete(key.key);
+        }
+        return receipt;
+      },
+      error => {
+        // Infrastructure/runner rejection is not an evidence result. Remove
+        // the rejected single-flight promise so a later exact-key request can
+        // retry, while the attached observer prevents an unhandled rejection.
+        if (args.batch?.executions.get(key.key) === batchReceipt) {
+          args.batch.executions.delete(key.key);
+        }
+        throw error;
+      },
+    );
     // The caller awaits `execution` directly. Observe the derived promise too
     // so a failed first execution cannot become an unhandled rejection merely
     // because the batch cache retains the same failure for later callers.
@@ -638,7 +791,7 @@ export async function executeCausalEvidence(args: ExecuteCausalEvidenceArgs): Pr
 export interface CausalPreflightFacts {
   cli?: { available: boolean; path?: string; reason?: string };
   worktree?: { expected: string; actual: string; reason?: string };
-  gitIndex?: { readable: boolean; path?: string; expected?: string; actual?: string; reason?: string };
+  gitIndex?: { readable: boolean; path?: string; expected?: string; actual?: string; contentDigest?: string; reason?: string };
   gitMaterial?: { available: boolean; headHash?: string; materialHash?: string; storyFilesHash?: string; reason?: string };
   writerLease?: { available: boolean; valid: boolean; reason?: string };
   providerCapability?: { required: string[]; available: string[]; reason?: string };
@@ -650,10 +803,14 @@ export interface CausalPreflightFacts {
 export interface CausalPreflightReport {
   schemaVersion: typeof CAUSAL_PREFLIGHT_SCHEMA;
   ready: boolean;
+  facts: CausalPreflightFacts;
+  authorityRoot: string;
   checks: Record<string, { status: 'pass' | 'fail'; reason?: string }>;
   failedChecks: string[];
   commandExecutions: 0;
   evidenceWrites: 0;
+  signerPublicKey: PublicKeyBase64;
+  signature: SignatureBase64;
   readinessHash: string;
 }
 
@@ -661,10 +818,12 @@ function preflightFailure(report: Record<string, { status: 'pass' | 'fail'; reas
   report[name] = { status: 'fail', reason };
 }
 
-export function preflightCausalEvidence(
-  facts: CausalPreflightFacts,
-  revalidate?: () => boolean,
-): CausalPreflightReport {
+function authorityRootForPreflightFacts(facts: CausalPreflightFacts): string {
+  const expected = facts.worktree?.expected;
+  return canonicalAuthorityRoot(expected && existsSync(expected) ? expected : undefined);
+}
+
+function preflightChecksForFacts(facts: CausalPreflightFacts): Record<string, { status: 'pass' | 'fail'; reason?: string }> {
   const checks: Record<string, { status: 'pass' | 'fail'; reason?: string }> = {};
   if (!facts.cli?.available || !facts.cli.path) preflightFailure(checks, 'cli', facts.cli?.reason ?? 'cli_unavailable');
   else checks.cli = { status: 'pass' };
@@ -673,9 +832,13 @@ export function preflightCausalEvidence(
   else if (facts.worktree.expected !== facts.worktree.actual) preflightFailure(checks, 'worktree', `worktree_mismatch expected=${facts.worktree.expected} actual=${facts.worktree.actual}`);
   else checks.worktree = { status: 'pass' };
 
-  if (!facts.gitIndex?.readable || !facts.gitIndex.path) preflightFailure(checks, 'gitIndex', facts.gitIndex?.reason ?? 'git_index_unavailable');
-  else if (facts.gitIndex.expected && facts.gitIndex.actual && facts.gitIndex.expected !== facts.gitIndex.actual) preflightFailure(checks, 'gitIndex', `git_index_mismatch expected=${facts.gitIndex.expected} actual=${facts.gitIndex.actual}`);
-  else checks.gitIndex = { status: 'pass' };
+  if (!facts.gitIndex?.readable || !facts.gitIndex.path) {
+    preflightFailure(checks, 'gitIndex', facts.gitIndex?.reason ?? 'git_index_unavailable');
+  } else if (!facts.gitIndex.contentDigest) {
+    preflightFailure(checks, 'gitIndex', facts.gitIndex.reason ?? 'git_index_content_digest_unavailable');
+  } else if (facts.gitIndex.expected && facts.gitIndex.actual && facts.gitIndex.expected !== facts.gitIndex.actual) {
+    preflightFailure(checks, 'gitIndex', `git_index_mismatch expected=${facts.gitIndex.expected} actual=${facts.gitIndex.actual}`);
+  } else checks.gitIndex = { status: 'pass' };
 
   if (!facts.gitMaterial?.available || !facts.gitMaterial.headHash || !facts.gitMaterial.materialHash || !facts.gitMaterial.storyFilesHash) {
     preflightFailure(checks, 'gitMaterial', facts.gitMaterial?.reason ?? 'git_material_unavailable');
@@ -698,23 +861,49 @@ export function preflightCausalEvidence(
 
   if (!facts.sideChannel?.available || facts.sideChannel.maxOutputChars <= 0 || facts.sideChannel.maxProgressEvents <= 0) preflightFailure(checks, 'sideChannel', 'bounded_side_channel_unavailable');
   else checks.sideChannel = { status: 'pass' };
+  return checks;
+}
+
+function signedPreflightReport(
+  facts: CausalPreflightFacts,
+  ready: boolean,
+  checks: Record<string, { status: 'pass' | 'fail'; reason?: string }>,
+  failedChecks: string[],
+): CausalPreflightReport {
+  const unsigned = {
+    schemaVersion: CAUSAL_PREFLIGHT_SCHEMA,
+    ready,
+    facts: cloneCanonical(facts),
+    authorityRoot: authorityRootForPreflightFacts(facts),
+    checks,
+    failedChecks,
+    commandExecutions: 0 as const,
+    evidenceWrites: 0 as const,
+  };
+  const authority = signCausalAuthorityPayload(unsigned, unsigned.authorityRoot);
+  const signed = { ...unsigned, ...authority };
+  return { ...signed, readinessHash: causalDigest(signed) };
+}
+
+export function preflightCausalEvidence(
+  facts: CausalPreflightFacts,
+  revalidate?: () => boolean,
+): CausalPreflightReport {
+  const checks = preflightChecksForFacts(facts);
 
   if (Object.values(checks).some(check => check.status === 'fail')) {
     const failedChecks = Object.entries(checks).filter(([, check]) => check.status === 'fail').map(([name, check]) => `${name}:${check.reason}`);
-    const payload = { schemaVersion: CAUSAL_PREFLIGHT_SCHEMA, ready: false, checks, failedChecks, commandExecutions: 0 as const, evidenceWrites: 0 as const };
-    return { ...payload, ready: false, readinessHash: causalDigest(payload) };
+    return signedPreflightReport(facts, false, checks, failedChecks);
   }
   if (revalidate && !revalidate()) {
     const failedChecks = ['state_changed_before_launch'];
-    const payload = { schemaVersion: CAUSAL_PREFLIGHT_SCHEMA, ready: false, checks: { ...checks, atomicRevalidation: { status: 'fail' as const, reason: 'state_changed_before_launch' } }, failedChecks, commandExecutions: 0 as const, evidenceWrites: 0 as const };
-    return { ...payload, ready: false, readinessHash: causalDigest(payload) };
+    return signedPreflightReport(facts, false, { ...checks, atomicRevalidation: { status: 'fail' as const, reason: 'state_changed_before_launch' } }, failedChecks);
   }
-  const payload = { schemaVersion: CAUSAL_PREFLIGHT_SCHEMA, ready: true, checks, failedChecks: [] as string[], commandExecutions: 0 as const, evidenceWrites: 0 as const };
-  return { ...payload, ready: true, readinessHash: causalDigest(payload) };
+  return signedPreflightReport(facts, true, checks, []);
 }
 
 export function verifyCausalPreflight(report: CausalPreflightReport): boolean {
-  if (!isRecord(report) || !isRecord(report.checks) || !Array.isArray(report.failedChecks)) return false;
+  if (!isRecord(report) || !isRecord(report.checks) || !isRecord(report.facts) || !Array.isArray(report.failedChecks)) return false;
   const checkNames = Object.keys(report.checks);
   if (
     checkNames.length !== CAUSAL_PREFLIGHT_CHECK_NAMES.length
@@ -722,13 +911,24 @@ export function verifyCausalPreflight(report: CausalPreflightReport): boolean {
     || checkNames.some(name => !CAUSAL_PREFLIGHT_CHECK_NAMES.includes(name as (typeof CAUSAL_PREFLIGHT_CHECK_NAMES)[number]))
     || Object.values(report.checks).some(check => !isRecord(check) || check.status !== 'pass')
   ) return false;
-  const { readinessHash: _ignored, ...payload } = report;
+  const expectedChecks = preflightChecksForFacts(report.facts as CausalPreflightFacts);
+  const { readinessHash: _ignored, signerPublicKey: _publicKey, signature: _signature, ...payload } = report;
+  const signedPayload = { ...payload, signerPublicKey: report.signerPublicKey, signature: report.signature };
+  const authorityRoot = authorityRootForPreflightFacts(report.facts as CausalPreflightFacts);
   return report.schemaVersion === CAUSAL_PREFLIGHT_SCHEMA
     && report.ready === true
     && report.failedChecks.length === 0
     && report.commandExecutions === 0
     && report.evidenceWrites === 0
-    && report.readinessHash === causalDigest(payload);
+    && report.authorityRoot === authorityRoot
+    && causalCanonical(report.checks) === causalCanonical(expectedChecks)
+    && report.readinessHash === causalDigest(signedPayload)
+    && verifyCausalAuthorityPayload(
+      { ...payload },
+      report.signerPublicKey,
+      report.signature,
+      authorityRoot,
+    );
 }
 
 export interface CausalDependencyNode {
@@ -752,6 +952,7 @@ export interface CausalDependencyDecisionAuthorityBinding {
   schemaVersion: 'proofbound.causal-dependency-authority.v1';
   producer: 'core/causal-evidence';
   authority: 'proof-or-stop';
+  signerPublicKey: PublicKeyBase64;
   signature: string;
 }
 
@@ -760,14 +961,6 @@ const CAUSAL_DEPENDENCY_DECISION_AUTHORITY_METADATA = Object.freeze({
   producer: 'core/causal-evidence',
   authority: 'proof-or-stop',
 } as const);
-const CAUSAL_DEPENDENCY_DECISION_KEY = randomBytes(32);
-
-function causalDependencyDecisionAuthoritySignature(payload: unknown): string {
-  return createHmac('sha256', CAUSAL_DEPENDENCY_DECISION_KEY)
-    .update(causalCanonical(payload))
-    .digest('hex');
-}
-
 export interface CausalDependencyDecision {
   schemaVersion: typeof CAUSAL_DEPENDENCY_SCHEMA;
   causalDecision: 'fresh' | 'advisory' | 'rerun' | 'strict';
@@ -777,6 +970,7 @@ export interface CausalDependencyDecision {
   specializedRerun: number;
   affectedNodeRerun: number;
   falseFresh: number;
+  verifiedRerunNodeIds: string[];
   materialHashStrict: boolean;
   storyFilesHashAdvisory: boolean;
   doneRequiredStrict: boolean;
@@ -804,6 +998,50 @@ function dependencyClosure(nodes: readonly CausalDependencyNode[], changed: Set<
   return affected;
 }
 
+/** Inputs that an actual node execution must bind into its signed receipt. */
+export function causalDependencyExecutionInputs(
+  nodeId: string,
+  inputHashes: Record<string, string>,
+): Record<string, unknown> {
+  return { causalDependency: { nodeId, inputHashes: cloneCanonical(inputHashes) } };
+}
+
+export function createCausalDependencyRerunEvidence(
+  nodeId: string,
+  receipt: CausalEvidenceReceipt,
+): CausalDependencyRerunEvidence {
+  return { nodeId, receipt };
+}
+
+function verifyCausalDependencyRerunEvidence(
+  evidence: CausalDependencyRerunEvidence,
+  node: CausalDependencyNode,
+  currentInputHashes: Record<string, string>,
+): boolean {
+  if (!evidence || evidence.nodeId !== node.id) return false;
+  const receipt = evidence.receipt;
+  if (!verifyCausalEvidenceReceipt(receipt, receipt?.executionKey) || !receipt.reusable || receipt.status !== 'pass') return false;
+  if (!isRecord(receipt.identity.inputs)) return false;
+  const inputBinding: Record<string, unknown> = isRecord(receipt.identity.inputs.causalDependency)
+    ? { ...receipt.identity.inputs.causalDependency }
+    : {
+        nodeId: receipt.identity.inputs.causalNodeId,
+        inputHashes: receipt.identity.inputs.causalInputHashes,
+      };
+  if (inputBinding.nodeId !== node.id) return false;
+  const inputHashes: Record<string, unknown> = isRecord(inputBinding.inputHashes)
+    ? inputBinding.inputHashes
+    : {};
+  if (!isRecord(inputBinding.inputHashes)) return false;
+  const expectedIds = [...new Set(node.inputIds)].sort();
+  const actualIds = Object.keys(inputHashes).sort();
+  if (expectedIds.length !== node.inputIds.length || causalCanonical(expectedIds) !== causalCanonical(actualIds)) return false;
+  return expectedIds.every(inputId =>
+    typeof inputHashes[inputId] === 'string'
+      && inputHashes[inputId] === currentInputHashes[inputId],
+  );
+}
+
 export function evaluateCausalDependencies(args: {
   nodes: readonly CausalDependencyNode[];
   currentInputHashes: Record<string, string>;
@@ -815,9 +1053,22 @@ export function evaluateCausalDependencies(args: {
   currentHeadHash?: string;
   doneRequired?: boolean;
   rerunNodeIds?: string[];
+  rerunEvidence?: readonly CausalDependencyRerunEvidence[];
 }): CausalDependencyDecision {
   const changedInputIds = new Set<string>();
   let identityComplete = true;
+  const declaredInputIds = new Set<string>();
+  for (const node of args.nodes) {
+    for (const inputId of node.inputIds) declaredInputIds.add(inputId);
+  }
+  const currentInputIds = Object.keys(args.currentInputHashes);
+  const unknownCurrentInputIds = currentInputIds.filter(inputId => !declaredInputIds.has(inputId));
+  const missingCurrentInputIds = [...declaredInputIds].filter(inputId => !Object.prototype.hasOwnProperty.call(args.currentInputHashes, inputId));
+  if (unknownCurrentInputIds.length > 0 || missingCurrentInputIds.length > 0) {
+    identityComplete = false;
+    for (const inputId of unknownCurrentInputIds) changedInputIds.add(inputId);
+    for (const inputId of missingCurrentInputIds) changedInputIds.add(inputId);
+  }
   for (const node of args.nodes) {
     for (const inputId of node.inputIds) {
       const previous = node.recordedInputHashes[inputId];
@@ -845,8 +1096,8 @@ export function evaluateCausalDependencies(args: {
     gateAdmissible = false;
   } else if (!identityComplete) {
     causalDecision = 'strict';
-    reason = 'dependency identity is missing or uncomputable; materialHash strict fallback applies';
-    gateAdmissible = !materialDrift;
+    reason = 'dependency input-hash identity is missing or contains unknown keys; strict refusal applies';
+    gateAdmissible = false;
   } else if (affected.size > 0) {
     causalDecision = 'rerun';
     reason = 'affected dependency closure requires fresh execution';
@@ -862,11 +1113,23 @@ export function evaluateCausalDependencies(args: {
       : 'materialHash drift has no admissible causal proof';
     gateAdmissible = false;
   }
-  const rerunSet = new Set(args.rerunNodeIds ?? []);
+  const verifiedRerunNodeIds = [...new Set((args.rerunEvidence ?? []).flatMap(evidence => {
+    const node = args.nodes.find(candidate => candidate.id === evidence.nodeId);
+    return node && verifyCausalDependencyRerunEvidence(evidence, node, args.currentInputHashes) ? [node.id] : [];
+  }))].sort();
+  // `rerunNodeIds` is retained for source compatibility only. It is an
+  // untrusted assertion and deliberately has no effect on correctness metrics
+  // or gate admission.
+  void args.rerunNodeIds;
+  const rerunSet = new Set(verifiedRerunNodeIds);
   const missingReruns = [...affected].filter(id => !rerunSet.has(id));
   const affectedNodeRerun = affected.size === 0 ? 0 : Math.round(((affected.size - missingReruns.length) / affected.size) * 100);
   const causalRerunComplete = causalDecision === 'rerun' && missingReruns.length === 0;
   const finalGateAdmissible = causalRerunComplete || (causalDecision !== 'rerun' && gateAdmissible && missingReruns.length === 0);
+  // An incomplete dependency identity is a strict refusal, not a measurable
+  // stale-rerun observation. Do not turn the derived affected closure into a
+  // false-fresh count when the input identity itself is not admissible.
+  const falseFresh = identityComplete ? missingReruns.length : 0;
   const identityBinding: CausalDependencyDecisionIdentityBinding = {
     previousMaterialHash: args.previousMaterialHash,
     currentMaterialHash: args.currentMaterialHash,
@@ -883,7 +1146,8 @@ export function evaluateCausalDependencies(args: {
     changedInputIds: [...changedInputIds].sort(),
     specializedRerun: causalDecision === 'rerun' ? affected.size : 0,
     affectedNodeRerun,
-    falseFresh: missingReruns.length,
+    falseFresh,
+    verifiedRerunNodeIds,
     materialHashStrict: !storyFilesHashAdvisory,
     storyFilesHashAdvisory,
     doneRequiredStrict,
@@ -891,16 +1155,20 @@ export function evaluateCausalDependencies(args: {
     reason: causalRerunComplete ? 'affected dependency closure rerun is complete' : reason,
     identityBinding,
   };
-  const authorityBinding = Object.freeze({
+  const authorityMetadata = {
     ...CAUSAL_DEPENDENCY_DECISION_AUTHORITY_METADATA,
-    signature: causalDependencyDecisionAuthoritySignature(decisionCore),
+  } as const;
+  const authority = signCausalAuthorityPayload(decisionCore, process.cwd());
+  const authorityBinding = Object.freeze({
+    ...authorityMetadata,
+    ...authority,
   });
   const decisionWithoutHash = { ...decisionCore, authorityBinding };
   const decision = {
     ...decisionWithoutHash,
     _hash: causalDigest(decisionWithoutHash),
   } as CausalDependencyDecision;
-  for (const field of ['affectedNodeIds', 'invalidatedNodeIds', 'changedInputIds'] as const) Object.freeze(decision[field]);
+  for (const field of ['affectedNodeIds', 'invalidatedNodeIds', 'changedInputIds', 'verifiedRerunNodeIds'] as const) Object.freeze(decision[field]);
   Object.freeze(decision.identityBinding);
   Object.freeze(decision);
   return decision;
@@ -938,12 +1206,16 @@ export function causalDependencyDecisionMatchesCurrentIdentity(
 export function verifyCausalDependencyDecision(decision: CausalDependencyDecision): boolean {
   if (!decision || typeof decision !== 'object') return false;
   const { _hash: _ignored, authorityBinding, ...payload } = decision;
-  const { signature: _signature, ...authorityMetadata } = authorityBinding ?? {};
+  const { signature: _signature, signerPublicKey: _signerPublicKey, ...authorityMetadata } = authorityBinding ?? {};
   return decision.schemaVersion === CAUSAL_DEPENDENCY_SCHEMA
     && decision._hash === causalDigest({ ...payload, authorityBinding })
     && causalCanonical(authorityMetadata) === causalCanonical(CAUSAL_DEPENDENCY_DECISION_AUTHORITY_METADATA)
-    && typeof authorityBinding?.signature === 'string'
-    && authorityBinding.signature === causalDependencyDecisionAuthoritySignature(payload)
+    && verifyCausalAuthorityPayload(
+      payload,
+      authorityBinding?.signerPublicKey,
+      authorityBinding?.signature,
+      process.cwd(),
+    )
     && (decision.causalDecision !== 'advisory' || hasCausalDependencyDecisionIdentityBinding(decision));
 }
 

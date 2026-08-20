@@ -496,7 +496,7 @@ function probeVerifierWorktree(cwd: string): string | null {
   }
 }
 
-function probeVerifierIndex(cwd: string): { readable: boolean; path?: string; reason?: string } {
+function probeVerifierIndex(cwd: string): { readable: boolean; path?: string; contentDigest?: string; reason?: string } {
   try {
     const rawPath = execFileSync('git', ['rev-parse', '--path-format=absolute', '--git-path', 'index'], {
       cwd,
@@ -507,7 +507,8 @@ function probeVerifierIndex(cwd: string): { readable: boolean; path?: string; re
     if (!indexPath) return { readable: false, reason: 'git_index_path_unavailable' };
     if (!statSync(indexPath).isFile()) return { readable: false, path: indexPath, reason: 'git_index_not_a_file' };
     accessSync(indexPath, constants.R_OK);
-    return { readable: true, path: indexPath };
+    const contentDigest = `sha256:${createHash('sha256').update(readFileSync(indexPath)).digest('hex')}`;
+    return { readable: true, path: indexPath, contentDigest };
   } catch {
     return { readable: false, reason: 'git_index_unavailable' };
   }
