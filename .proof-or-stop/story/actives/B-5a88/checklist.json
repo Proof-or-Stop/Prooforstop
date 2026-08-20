@@ -875,24 +875,98 @@
           {
             "desc": "The main package bin map contains proof-or-stop and omits lattice, while the canonical help and entrypoint checks pass.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run test:lattice-residue",
+              "selector": "PASS lattice-residue [npm-bin]"
+            }
           }
         ],
         "edge": [
           {
             "desc": "Residue scanning distinguishes frozen historical evidence and compatibility readers from unsupported new lattice command aliases.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/cli.js help",
+              "selector": "Entrypoint: proof-or-stop"
+            }
           }
         ],
         "adversarial": [
           {
             "desc": "A reintroduced lattice bin alias or help invocation fails the verification path rather than being silently accepted.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-lattice-residue.mjs --self-test",
+              "selector": "PASS lattice-residue self-test: 65/65"
+            }
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-007:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:lattice-residue",
+          "result": "pass",
+          "note": "Residue gate passed, including the package metadata check requiring only proof-or-stop -> dist/cli.js.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "b14717bf0d5660b61373a7bc25098f6d0c619267dc5d8ff38b820e33df9f7c51",
+            "outputTail": "\n> @proof-or-stop/core@0.3.266 test:lattice-residue\n> node ../../scripts/verify-lattice-residue.mjs\n\nPASS lattice-residue [koala]: 0 brand residue in product runtime source\nPASS lattice-residue [brand-prose]: 0 bare `lattice <cmd>` invocations in active docs (3 documented exemption(s) verified live)\nPASS lattice-residue [brand-exec]: 0 bare `lattice <cmd>` invocations on the executable surface (bin, .codex, package.json, proof-or-stop.config.json, lattice.config.json, CITATION.cff, packages/utils/src)\nPASS lattice-residue [npm-bin]: packages/main publishes only the proof-or-stop bin\nPASS lattice-residue [brand-decision]: 0 deprecated brand-path decision sites in product runtime source (forbidden tokens derived from packages/main/src/core/brand-paths.ts: lattice.config.json, .lattice-codex, lattice.json, .lattice)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T06:56:25.096Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "e789957b415ac1d04616c41bb95266de8c44d63b",
+          "materialHash": "1e8282797d72550419094b0972eeb745b6b384233893a8d511b65bd1865129d9",
+          "storyFilesHash": "6d81fa9ceb389ecd79e947e51e78ffa4e8a46a1fb6453ab50ffe349a4680799c",
+          "timestamp": "2026-08-20T06:56:26.199Z"
+        },
+        {
+          "intentRef": "CHK-007:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js help",
+          "result": "pass",
+          "note": "Help prints the canonical entrypoint and proof-or-stop usage lines.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e441a4a69adde5e9f10f2f1ba2ddcb3f6eb3498362bddf2deb2ce31dd554c0a6",
+            "outputTail": ":\n    init_preflight\n  Intent:\n    intent_collision_get\n    intent_coverage_check\n  Learning:\n    learning_scan\n    learning_validate\n    learning_effectiveness\n  Lifecycle:\n    lifecycle_check\n    lifecycle_orchestrate\n  Light:\n    light_review\n  Live:\n    live_smoke_transcript\n  Memory:\n    memory_benchmark_run\n    memory_benchmark_compare\n    memory_benchmark_real_data\n    memory_playbook_baseline_generate\n    memory_playbook_baseline_verify\n  Milestone:\n    milestone_status\n    milestone_closeout\n    milestone_ledger_get\n  Next:\n    next\n  Observability:\n    observability_snapshot\n  Original:\n    original_intent_snapshot_get\n  Overflow:\n    overflow_auto\n  Parallel:\n    parallel_wave_create\n    parallel_wave_inspect\n    parallel_plan\n    parallel_dispatch\n    parallel_status\n    parallel_merge_queue\n    parallel_report\n  Parent:\n    parent_ledger_rollup_set\n    parent_ledger_rollup_get\n    parent_roadmap_status\n    parent_roadmap_evaluate\n  Pinn:\n    pinn_claim_check\n    pinn_benchmark_run\n    pinn_report_render\n  Plan:\n    plan_skeleton\n    plan_get\n  Planner:\n    planner_draft\n    planner_review\n    planner_create_story\n    planner_create_job\n    planner_status\n    planner_answer\n    planner_decision_submit\n    planner_resume\n    planner_run\n    planner_source_manifest\n  Playbook:\n    playbook_runtime_health\n    playbook_propose\n    playbook_diff\n    playbook_approve\n    playbook_activate\n    playbook_outcome_record\n    playbook_promotion_sweep\n    playbook_promotion_observe\n    playbook_promotion_status\n    playbook_seed_observe\n    playbook_seed_propose_batch\n    playbook_seed_backfill\n    playbook_candidate_batch_approve\n    playbook_candidate_ingest\n    playbook_runtime_consumption_verify\n    playbook_trial_run\n    playbook_auto_promotion_apply\n    playbook_promotion_timer\n    playbook_reject\n  Pre:\n    pre_review_check\n    pre_review_check_read\n  Prewrite:\n    prewrite_guard_check\n  Prompt:\n    prompt_measurement_report\n  Proofstory:\n    proofstory_contract_get\n    proofstory_gate_check\n    proofstory_review_completeness_check\n  Quantum:\n    quantum_claim_check\n    quantum_claim_benchmark\n    quantum_claim_report\n  Queue:\n    queue_governance_status\n    queue_exception_set\n  Quorum:\n    quorum_submit\n    quorum_prune\n  Recall:\n    recall\n  Recover:\n    recover_evidence\n  Red:\n    red_evidence_get\n    red_green_relation_create\n    red_green_relation_evaluate\n    red_evidence_binding_set\n    red_evidence_quarantine\n    red_evidence_recover\n  Regression:\n    regression_matrix_review_set\n  Repro:\n    repro_probe\n    repro_probe_get\n    repro_review_set\n  Reviewer:\n    reviewer_batch\n    reviewer_list\n  Runtime:\n    runtime_closure_status\n  Scope:\n    scope_contract_set\n    scope_contract_show\n    scope_contract_check\n    scope_contract_acknowledge\n    scope_diff_pack\n    scope_contract_init_from_plan\n    scope_shrinkage_decision_set\n    scope_shrinkage_decision_get\n  Signature:\n    signature_registry_list\n    signature_registry_set\n    signature_backfill\n  Slice:\n    slice_plan_get\n  Source:\n    source_lineage_audit\n  Spike:\n    spike_get\n    spike_record\n    spike_review_set\n  Stall:\n    stall_resolution_set\n  Summary:\n    summary_set\n    summary_get\n  Topology:\n    topology_exclusion_approval_set\n    topology_critic_receipt_set\n    topology_critic_receipt_check\n  Truth:\n    truth_scan\n    truth_nav\n    truth_analyze\n    truth_to_story\n    truth_extract\n  Usage:\n    usage_sweep\n  Verification:\n    verification_evidence_add\n    verification_evidence_batch_add\n    verification_run\n    verification_evidence_refresh_stale\n    verification_intent_repair\n    verification_context_pack_create\n    verification_context_pack_expand\n    verification_pin_guard_check\n  Verify:\n    verify_codex\n\n  Brief catalog (grouped command names).\n  What a command does + arguments: proof-or-stop <command> --help\n  Full catalog (descriptions, parameter schemas, development flow): proof-or-stop help --full   (or set PROOF_OR_STOP_BRIEF_OUTPUT=0)\n\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T06:56:25.823Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "e789957b415ac1d04616c41bb95266de8c44d63b",
+          "materialHash": "1e8282797d72550419094b0972eeb745b6b384233893a8d511b65bd1865129d9",
+          "storyFilesHash": "6d81fa9ceb389ecd79e947e51e78ffa4e8a46a1fb6453ab50ffe349a4680799c",
+          "timestamp": "2026-08-20T06:56:26.199Z"
+        },
+        {
+          "intentRef": "CHK-007:adversarial:0",
+          "kind": "logic_test",
+          "command": "node scripts/verify-lattice-residue.mjs --self-test",
+          "result": "pass",
+          "note": "Synthetic package and lock metadata cases reject a reintroduced lattice bin alias.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "8d3db4f5c9f4ff38db9a23f76d5a641713b79f4d61e9b6ad4e98e7563f196073",
+            "outputTail": "PASS lattice-residue self-test: 65/65 detector unit tests\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T06:56:26.034Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "e789957b415ac1d04616c41bb95266de8c44d63b",
+          "materialHash": "1e8282797d72550419094b0972eeb745b6b384233893a8d511b65bd1865129d9",
+          "storyFilesHash": "6d81fa9ceb389ecd79e947e51e78ffa4e8a46a1fb6453ab50ffe349a4680799c",
+          "timestamp": "2026-08-20T06:56:26.199Z"
+        }
+      ]
     }
   ],
   "auditLog": [
