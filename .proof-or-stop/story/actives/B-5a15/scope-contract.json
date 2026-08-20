@@ -91,10 +91,58 @@
         "CausalPreflightFacts",
         "causalPreflightFacts"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "The verifier-path fix must add a launch-boundary callback to validation-executor and a focused test proving validate cannot launch after causal preflight drift; both are necessary to close CHK-004 without weakening the gate.",
+      "timestamp": "2026-08-20T16:42:39.096Z",
+      "paths": [
+        "packages/main/src/core/validation-executor.ts",
+        "packages/main/tests/verifier-causal-preflight.test.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/validation-executor.ts",
+        "packages/main/tests/verifier-causal-preflight.test.mjs"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "e81e40ede4766cc62a79d5266a9726d68addf84a",
+      "materialHash": "8a4bb5365eec48bb494ba0c462d59873a1c4a34476135d1ee4ffccc7610dde25",
+      "anchors": [
+        "executeValidationPlan.beforeLaunch",
+        "createValidationCausalPreflightGate"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "These exact story-local causal-evidence index and receipt files are generated proof outputs required to record B-5a15 preflight execution and are part of the intended acceptance artifact path.",
+      "timestamp": "2026-08-20T16:47:15.749Z",
+      "paths": [
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/index.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/1bffe0ccea0e35eef4104ab253884a46b33f1d3e8f5408cf5ae483650fe69a84.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/8d87b53390f9816cad227924186c18714ddb968aa21c042fea57666d83bee06d.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/cd868a007315ae4b8f01f65861eb092f609c65277a5ca7a8c3eb7be55208124d.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/index.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/1bffe0ccea0e35eef4104ab253884a46b33f1d3e8f5408cf5ae483650fe69a84.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/8d87b53390f9816cad227924186c18714ddb968aa21c042fea57666d83bee06d.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/cd868a007315ae4b8f01f65861eb092f609c65277a5ca7a8c3eb7be55208124d.json"
+      ],
+      "affectedPathCount": 4,
+      "phase": "REVIEW",
+      "headHash": "e81e40ede4766cc62a79d5266a9726d68addf84a",
+      "materialHash": "8a4bb5365eec48bb494ba0c462d59873a1c4a34476135d1ee4ffccc7610dde25",
+      "anchors": [
+        "causalEvidenceReceiptPersistence",
+        "acceptanceEvidenceOutput"
+      ]
     }
   ],
   "createdAt": "2026-08-20T09:29:12.295Z",
-  "updatedAt": "2026-08-20T16:09:36.901Z",
+  "updatedAt": "2026-08-20T16:47:15.749Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -116,6 +164,12 @@
     "scripts/verify-process-fact-contract.mjs": "scripts/verify-process-fact-contract.mjs",
     "packages/main/tests/causal-evidence-concurrency.test.mjs": "packages/main/tests/causal-evidence-concurrency.test.mjs",
     "packages/main/tests/checklist-causal-preflight-batch.test.mjs": "packages/main/tests/checklist-causal-preflight-batch.test.mjs",
-    "packages/main/src/handlers/context.ts": "packages/main/src/handlers/context.ts"
+    "packages/main/src/handlers/context.ts": "packages/main/src/handlers/context.ts",
+    "packages/main/src/core/validation-executor.ts": "packages/main/src/core/validation-executor.ts",
+    "packages/main/tests/verifier-causal-preflight.test.mjs": "packages/main/tests/verifier-causal-preflight.test.mjs",
+    ".proof-or-stop/story/actives/B-5a15/causal-evidence/index.json": ".proof-or-stop/story/actives/B-5a15/causal-evidence/index.json",
+    ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/1bffe0ccea0e35eef4104ab253884a46b33f1d3e8f5408cf5ae483650fe69a84.json": ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/1bffe0ccea0e35eef4104ab253884a46b33f1d3e8f5408cf5ae483650fe69a84.json",
+    ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/8d87b53390f9816cad227924186c18714ddb968aa21c042fea57666d83bee06d.json": ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/8d87b53390f9816cad227924186c18714ddb968aa21c042fea57666d83bee06d.json",
+    ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/cd868a007315ae4b8f01f65861eb092f609c65277a5ca7a8c3eb7be55208124d.json": ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/cd868a007315ae4b8f01f65861eb092f609c65277a5ca7a8c3eb7be55208124d.json"
   }
 }
