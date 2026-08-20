@@ -8949,7 +8949,7 @@
       "desc": "concept-cleanup: inventory-completeness-is-PRE_CERT replacement incomplete: packages/main/src/core/command-policy.ts:206 still says review_inventory_finalize 'writes a PRE_CERT inventory-completeness receipt' even though the next sentence and command-catalog say completeness is not PRE_CERT. packages/main/src/core/review-inventory-epoch.ts:639 and :786 still name empty-wave receipts 'PRE_CERT completeness' receipts; packages/main/src/tasks/review-inventory-handler-smoke.ts has 5 assertion messages that say finalize 'writes PRE_CERT completeness receipt'. Runtime authorizesTest stays false and PRE_CERT consume is split, so this is leftover identity of the replaced concept, not a live TEST/PRE_CERT authority leak. severity=medium",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-20T07:25:58.843Z",
@@ -9001,7 +9001,11 @@
         "packages/main/src/tasks/review-inventory-handler-smoke.ts"
       ],
       "signatureTag": "missing|ts|concept-cleanup-inventory",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Runtime TEST/PRE_CERT authority is not leaked: inventoryReceiptAuthorizesPrecert is always false, persistFinalizedReviewInventory hardcodes authorizesTest=false, and certification_window_begin consumes completeness receipts only as a prerequisite. Leftover comment/catalog strings that say PRE_CERT completeness receipt are naming residue, not gate authority. Follow-up comment cleanup is not required to prove the consume split.",
+      "resolvedAt": "2026-08-20T07:31:49.430Z",
+      "resolutionType": "accepted_risk",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
