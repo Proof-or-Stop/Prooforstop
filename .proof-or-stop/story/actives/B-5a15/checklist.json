@@ -738,11 +738,11 @@
             }
           },
           {
-            "desc": "In the same DAG, change a story-owned source or build input that a specialized node declares, recompute the causal decision, and assert every affected node and its declared downstream dependents rerun exactly once at affectedNodeRerun=100%, unaffected specialized nodes do not rerun, and falseFresh=0.",
+            "desc": "Change a story-owned source or build input and assert the affected transitive closure is invalidated while unsigned caller-supplied rerun assertions cannot manufacture affectedNodeRerun=100% or falseFresh=0.",
             "type": "cli",
             "verification": {
               "command": "node --test packages/main/tests/causal-evidence.test.mjs",
-              "selector": "B-5a15|CHK-003:happy:1|PASS|related story-owned material change invalidates the affected transitive closure, reruns it at 100%, and reports falseFresh=0"
+              "selector": "B-5a15|CHK-003:happy:1|PASS|related story-owned material change invalidates the affected transitive closure and ignores unsigned rerun assertions"
             }
           },
           {
@@ -790,11 +790,11 @@
             }
           },
           {
-            "desc": "Exercise a legacy or incomplete dependency declaration with a materialHash change that cannot be attributed to a declared domain; assert the current strict materialHash fallback marks the evidence stale, refuses reuse as PASS, preserves the old stored hash, and reports falseFresh=0 rather than guessing that the change is unrelated.",
+            "desc": "Exercise a legacy or incomplete dependency declaration with a materialHash change and assert strict fallback marks evidence stale, refuses reuse as PASS, preserves the old stored hash, reports falseFresh=0, and does not guess unrelated.",
             "type": "cli",
             "verification": {
               "command": "node --test packages/main/tests/causal-evidence.test.mjs",
-              "selector": "B-5a15|CHK-003:edge:1|PASS|missing or ambiguous domain metadata falls back to strict materialHash invalidation with no false-fresh reuse"
+              "selector": "B-5a15|CHK-003:edge:1|PASS|missing or ambiguous domain/material identity falls back to strict invalidation with no false-fresh reuse"
             }
           },
           {
@@ -1236,13 +1236,13 @@
             }
           },
           {
-            "desc": "Attempt to bypass the preflight by omitting it, replaying a stale PASS, forging individual check results, changing the target after the PASS, or invoking the child runner through a lower-level path; assert the launch gate rejects the missing, stale, or forged preflight contract, records commandExecutions=0, and cannot produce a gate-admissible evidence PASS.",
+            "desc": "Attempt to bypass the preflight by omitting it, replaying a stale PASS, forging individual check results, changing the target after the PASS, or invoking the child runner through a lower-level path; assert missing, stale, forged, or identity-mismatched preflight and lower-level bypass rejection with commandExecutions=0 and no gate-admissible PASS.",
             "type": "cli",
             "requiredIn": "strict",
             "priority": "must",
             "verification": {
               "command": "node --test packages/main/tests/causal-evidence.test.mjs",
-              "selector": "B-5a15|CHK-004:adversarial:1|PASS|missing, stale, or forged preflight is rejected before child launch with commandExecutions=0 and no gate-admissible PASS"
+              "selector": "B-5a15|CHK-004:adversarial:1|PASS|missing, stale, forged, or identity-mismatched preflight is rejected before child launch with commandExecutions=0 and no gate-admissible PASS"
             }
           }
         ]
