@@ -849,9 +849,9 @@
         "docs/requirements/decisions/brand-rename-mapping.md",
         "packages/main/package.json"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-08-20T06:43:21.943Z",
-      "endTime": null,
+      "endTime": "2026-08-20T06:56:38.079Z",
       "userSees": "User sees the package bin list contain `\"proof-or-stop\"` and not `\"lattice\"`, and help no longer prints `\"Usage: lattice ...\"`.",
       "files": {
         "modify": [
@@ -966,7 +966,14 @@
           "storyFilesHash": "6d81fa9ceb389ecd79e947e51e78ffa4e8a46a1fb6453ab50ffe349a4680799c",
           "timestamp": "2026-08-20T06:56:26.199Z"
         }
-      ]
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "042ee430f5d6413473304fcfdf0597ee344b38c3cce4ca22cca007e660733a46",
+        "storyFilesHash": "6d81fa9ceb389ecd79e947e51e78ffa4e8a46a1fb6453ab50ffe349a4680799c",
+        "headHash": "6a0b28043990a53cfdfc5309d999db6fc12e7d35",
+        "attestedAt": "2026-08-20T06:56:38.342Z",
+        "materialHash": "1e8282797d72550419094b0972eeb745b6b384233893a8d511b65bd1865129d9"
+      }
     }
   ],
   "auditLog": [
@@ -988,6 +995,16 @@
       "from": "in_progress",
       "to": "done",
       "reason": "CHK-006 implementation committed as 17b2e395ba; canonical sibling package metadata, lockfiles, dependency graph, source identity references, and focused checks are complete.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-08-20T06:56:38.079Z",
+      "phase": "DEV",
+      "itemId": "CHK-007",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "CHK-007 implementation committed as e789957b41; tool-executed evidence recorded",
       "agent": "lattice-implementer"
     }
   ]
