@@ -77,6 +77,29 @@
         "test": [
           "packages/main/tests/managed-marker-migration.test.mjs"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "New managed files contain proof-or-stop start and end markers.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "An already-installed lattice managed block is found and replaced in place rather than duplicated or orphaned.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A document with mismatched or nested marker pairs is rejected or left unchanged instead of being rewritten destructively.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
       }
     },
     {
