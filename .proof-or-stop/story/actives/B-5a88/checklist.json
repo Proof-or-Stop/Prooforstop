@@ -42,7 +42,19 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "init --upgrade writes <!-- proof-or-stop:start --> / <!-- proof-or-stop:end --> and updates an existing <!-- lattice:start --> block in place.",
+      "files": {
+        "modify": [
+          "packages/main/src/claude-md-sync.ts",
+          "packages/main/src/init-assets.ts",
+          "packages/main/src/core/managed-assets.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/managed-marker-migration.test.mjs"
+        ]
+      }
     },
     {
       "id": "CHK-003",
