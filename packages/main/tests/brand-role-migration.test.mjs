@@ -27,5 +27,10 @@ assert.equal(dispatch.resolveAgentDispatchType('lattice-review-quality').canonic
 assert.equal(dispatch.resolveAgentDispatchType('verification-intent').canonicalType, 'proof-or-stop-test-intent');
 assert.throws(() => dispatch.resolveAgentDispatchType('lattice-review-unknown'), /unknown agentType/);
 assert.throws(() => dispatch.resolveAgentDispatchType('proof-or-stop-review-quality@fallback'), /unknown agentType/);
+assert.deepEqual(identity.legacyAgentRoleIds('proof-or-stop-implementer'), ['lattice-implementer']);
+assert.equal(
+  identity.canonicalizeAgentRoleText('lattice-review-quality -> lattice-implementer'),
+  'proof-or-stop-review-quality -> proof-or-stop-implementer',
+);
 
 console.log('brand-role migration test passed');
