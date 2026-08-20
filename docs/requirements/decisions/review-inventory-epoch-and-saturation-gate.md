@@ -212,16 +212,19 @@ changes which specs are selected, any selected spec's content, `schemaVersion`,
 `OPEN_REVIEW_INVENTORY_CANDIDATE_ROUTING_MUTATION`, and lanes from pre-reroute and
 post-reroute candidate sets can never form one wave.
 
-**Known incomplete (B-3f3d BUG-F107-INCOMPLETE, carried to story B-8af0):** these
-successive narrowings have NOT yet fully closed the freshness channel. An
-end-to-end fixture shows that after one unrelated commit touching only a test
-file, a routing-neutral `candidate_spec_route` re-run still invalidates an OPEN
-epoch: `corpusDigest` stays byte-identical while `candidateSpecSetDigest` moves.
-The leak therefore remains inside the candidates projection itself — most likely
-because `changedPaths` seeds `buildKeywordSeeds` at weight 50 and so can change
-which specs are selected, or merely their order. Until B-8af0 closes this, do NOT
-read this section as a guarantee that a routing-neutral re-route is safe under an
-OPEN epoch; treat cancel-then-reopen as the reliable path.
+**B-8af0 closure of BUG-F107-INCOMPLETE:** the candidate projection is now sorted
+by `path` then `contentHash` before its barrier digest is computed. A routing
+re-run may reorder an otherwise identical candidate list after unrelated
+`changedPaths` freshness changes, but cannot invalidate an OPEN epoch for that
+ordering alone. `changedPaths` remains ranking input but is not promoted into an
+exact-path protected candidate without an explicit understanding touchpoint. A
+changed selected path, selected content hash, corpus digest, schema/mode, or
+escalation policy still yields
+`OPEN_REVIEW_INVENTORY_CANDIDATE_ROUTING_MUTATION`. The full persisted artifact
+continues to require its original `artifactDigest` validation; a malformed or
+tampered persisted candidate artifact is fail-closed as
+`OPEN_REVIEW_INVENTORY_INVALID_CANDIDATE_ARTIFACT`, never silently treated as
+absent or allowed to throw a raw `TypeError` at the inventory gate.
 
 `candidate_spec_route` performs its durable replacement inside
 the inventory lock, so a supported REVIEW re-route is serialized against epoch

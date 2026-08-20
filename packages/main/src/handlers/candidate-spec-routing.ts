@@ -250,10 +250,12 @@ export function currentStoryRoutingInput(ctx: HandlerContext, storyId: string): 
   const understanding = ctx.store.readUnderstanding(storyId);
   const relatedDocs = checklist.items.flatMap(item => item.relatedDocs ?? []);
   const materialChangedPaths = changedPaths(ctx, storyId);
-  const exactPaths = [...new Set([
-    ...(understanding?.touchpoints ?? []),
-    ...materialChangedPaths,
-  ])];
+  // A diff path is freshness/ranking input, not a durable exact-path authority.
+  // Promoting every `main...HEAD` entry into protectedSources made an unrelated
+  // branch commit manufacture a selected candidate, so a routing-neutral reroute
+  // could never remain neutral. Explicit understanding touchpoints retain the
+  // protected exact-path contract; changed paths continue to seed ranking below.
+  const exactPaths = [...new Set(understanding?.touchpoints ?? [])];
   let reviewerEvidencePaths: string[] = [];
   try {
     const evidence = collectReviewerEvidenceState(ctx.store, storyId, ctx.root);

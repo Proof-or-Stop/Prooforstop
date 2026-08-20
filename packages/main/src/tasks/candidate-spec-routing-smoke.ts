@@ -287,6 +287,20 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
 
     const tampered = { ...artifact, candidateSpecSet: ['docs/requirements/decisions/noise.md'] };
     assert.equal(verifyCandidateSpecSet(tampered), false, 'tampered candidate artifact must fail verification');
+    assert.equal(verifyCandidateSpecSet({ ...artifact, candidates: 'not-an-array' }), false, 'a persisted string candidates field must fail closed before consumers dereference it');
+    assert.equal(verifyCandidateSpecSet({ ...artifact, candidates: { path: 'not-an-array' } }), false, 'a persisted object candidates field must fail closed before consumers dereference it');
+    for (const [label, malformedCandidates] of [
+      ['string', 'not-an-array'],
+      ['object', { path: 'not-an-array' }],
+    ] as const) {
+      const { artifactDigest: _staleArtifactDigest, ...validBase } = artifact;
+      const malformedBase = { ...validBase, candidates: malformedCandidates };
+      const signedMalformedArtifact = {
+        ...malformedBase,
+        artifactDigest: digestCandidateRoutingValue(malformedBase),
+      };
+      assert.equal(verifyCandidateSpecSet(signedMalformedArtifact), false, `a persisted ${label} candidates field with a recomputed artifactDigest must still fail structural verification`);
+    }
     const manifest = {
       filesReadFully: artifact.candidateSpecSet,
       filesTriagedByName: [],
@@ -308,6 +322,7 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
     assert.deepEqual(candidateReadBindingErrors({ manifest: fullyBoundManifest, artifact: fullyBound, mode: 'enforce', currentStoryInputDigest: digestCandidateRoutingValue(story) }), []);
     assert.equal(verifyCandidateSpecSet({ ...artifact, promptDigests: ['forged'] }), false, 'prompt digest tampering must invalidate artifact');
     assert.equal(verifyCandidateSpecSet({ ...artifact, candidates: artifact.candidates.map((candidate, index) => index === 0 ? { ...candidate, contentHash: 'forged' } : candidate) }), false, 'candidate content hash tampering must invalidate artifact');
+    console.log('B-8af0 artifactDigest tamper guard: PASS');
     assert.deepEqual(candidateReadBindingErrors({
       manifest: { filesReadFully: [], filesTriagedByName: [], scanEscalationReason: null },
       artifact: null,
