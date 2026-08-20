@@ -435,9 +435,9 @@
         ".githooks/pre-push",
         "packages/main/src/core/release-push-approval.ts"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-08-20T06:13:39.997Z",
-      "endTime": null,
+      "endTime": "2026-08-20T06:22:18.598Z",
       "userSees": "User sees `\"schema\": \"proof-or-stop.remote-push-approval.v1\"` after release_approve_push, then pre-push reports `\"one-shot remote publish approval consumed\"`.",
       "files": {
         "modify": [
@@ -550,7 +550,14 @@
           "storyFilesHash": "47a567ad72ee8c1782112d069e7b12c18b193b24343b2fbb9fce163553e42044",
           "timestamp": "2026-08-20T06:22:10.054Z"
         }
-      ]
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "2159121dc7228add535b72c74439cbc7a54f0cf6f28b0f772f95e456f66e2804",
+        "storyFilesHash": "47a567ad72ee8c1782112d069e7b12c18b193b24343b2fbb9fce163553e42044",
+        "headHash": "756cbb54a936f6687bf1540cf65f6d9fa44175d5",
+        "attestedAt": "2026-08-20T06:22:18.887Z",
+        "materialHash": "5e6f3a51defd30c8299aeb9247fb22782c3f04ad99bdf49cbed7e19efb469a21"
+      }
     },
     {
       "id": "CHK-005",
