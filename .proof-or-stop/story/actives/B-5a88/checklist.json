@@ -1,0 +1,96 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Make proof-or-stop-* the canonical agent role IDs and keep lattice-* readable",
+      "context": "Follow docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md M0.5: canonical IDs are proof-or-stop-implementer, proof-or-stop-review-*, proof-or-stop-evaluator, and the four currently unprefixed roles. Normalize read/gate choke points (REVIEW_RUN_LANES, isReviewerAgent, init-check required agents, quorum) so existing lattice-* evidence still counts. New review_run_start / finding_add / review_pass_set / init_check_set writes must use canonical IDs only.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+        "docs/requirements/decisions/brand-rename-mapping.md",
+        "packages/main/templates/agents/"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Switch managed-block markers to proof-or-stop start/end with dual-read",
+      "context": "Canonical markers become <!-- proof-or-stop:start --> and <!-- proof-or-stop:end -->. Readers must still locate <!-- lattice:start --> / <!-- lattice:end --> so already-installed CLAUDE.md and AGENTS.md blocks are not orphaned. New writes and init --upgrade emit the new markers. Do not leave a one-sided rename that skips existing managed regions.",
+      "relatedDocs": [
+        "docs/requirements/decisions/brand-rename-mapping.md",
+        "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+        "CLAUDE.md",
+        "AGENTS.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Write new artifact schemas as proof-or-stop.* while still accepting lattice.*",
+      "context": "Persisted schema literals such as lattice.done-required-evidence.v1 and lattice.closeout_write_receipt.v3 stay readable. New writes use the same suffix with a proof-or-stop. prefix. Do not rewrite archived story JSON in place; that would change historical bytes and signatures. Centralize the prefix so gates and residue scans cannot drift.",
+      "relatedDocs": [
+        "docs/requirements/decisions/brand-rename-mapping.md",
+        "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+        "packages/main/src/core/process-fact-registry.ts"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Move the remote-push-approval schema to a proof-or-stop literal with hook dual-read",
+      "context": "Writer in core/release-push-approval.ts and consumer in .githooks/pre-push currently require lattice.remote-push-approval.v1 exactly. New approvals must write a proof-or-stop.remote-push-approval.v1 schema. The hook and CLI must accept both during the window; a one-sided rename blocks git push origin main. Keep the one-shot consume semantics.",
+      "relatedDocs": [
+        "docs/requirements/decisions/brand-rename-mapping.md",
+        ".githooks/pre-push",
+        "packages/main/src/core/release-push-approval.ts"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Rename the root npm package from lattice to proof-or-stop",
+      "context": "Root package.json and both lockfiles currently name the workspace lattice. Change the publish identity to proof-or-stop, keep versions in sync with LATTICE_CLI_VERSION / PROOF_OR_STOP_CLI_VERSION, and update any self-host detection that keys on the root name. This is a registry-identity change; do not leave package.json and lockfile split.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+        "package.json",
+        "package-lock.json"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-006",
+      "title": "Rename sibling packages @lattice/utils and @lattice/lab to @proof-or-stop scoped names",
+      "context": "B-cc10 moved only @lattice/core. Update packages/utils and packages/lab package names, their lockfiles, and every in-repo import/dependency to @proof-or-stop/utils and @proof-or-stop/lab. Widen any remaining exact-name consumers the same way pre-push already accepts both core names.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+        "packages/utils/package.json",
+        "packages/lab/package.json"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-007",
+      "title": "Remove the leftover npm bin alias named lattice",
+      "context": "B-cc10 deleted bin/lattice.js but packages/main/package.json still maps bin.lattice to dist/cli.js. Remove that alias so npm no longer installs a lattice command. Keep bin.proof-or-stop. Update help, residue scans, and hooks that still treat lattice as a supported invocation after the alias is gone.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+        "docs/requirements/decisions/brand-rename-mapping.md",
+        "packages/main/package.json"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
