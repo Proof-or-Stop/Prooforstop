@@ -70,9 +70,9 @@
       "schemaVersion": "proofbound.certification_window.v1",
       "windowId": "B-3f3d:CW-004",
       "storyId": "B-3f3d",
-      "state": "RUNNING",
+      "state": "INVALIDATED",
       "createdAt": "2026-08-20T06:13:04.682Z",
-      "updatedAt": "2026-08-20T06:13:13.814Z",
+      "updatedAt": "2026-08-20T08:11:21.418Z",
       "frozen": {
         "headHash": "28cc49fd2db54bb06824b1baaa291f8311054098",
         "materialHash": "efb8d398af35d50047356a8268b58d08816aaf5e9264f071c2abe230a84597fd",
@@ -88,7 +88,36 @@
         "authorizesTest": false
       },
       "receiptId": "B-3f3d:PRECERT-002",
-      "_hash": "ef8be21462bfed095a74c9c82393aa4ddabd4387a85dffbba964cb202043abc1"
+      "blockerCode": "pre_cert_window_invalidated",
+      "blockerDetail": "storyFilesHash changed",
+      "invalidation": {
+        "detectedAt": "2026-08-20T08:11:21.418Z",
+        "oldHeadHash": "28cc49fd2db54bb06824b1baaa291f8311054098",
+        "currentHeadHash": "4668c81936289bcb0bf5bbc6545357221c7acfc0",
+        "oldMaterialHash": "efb8d398af35d50047356a8268b58d08816aaf5e9264f071c2abe230a84597fd",
+        "currentMaterialHash": "d137260b802ec305a109369e0e47b95dc80afc5fc3d38946d873b8cb76b42f92",
+        "oldStoryFilesHash": "e814f1b60e2a8ce8425495a784169d1ec21e8786bdc843e46d909172a60749ab",
+        "currentStoryFilesHash": "37e6b2d2d8913cf42686c0bb2e2b774eb7605aafb7d961f04ff182833896f4d2",
+        "blockerCode": "pre_cert_window_invalidated"
+      },
+      "_hash": "e90c9a4831d31fa9fe2f9bca3e6a52be05bbb8347167c12451cb61f474548a90"
+    },
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-3f3d:CW-005",
+      "storyId": "B-3f3d",
+      "state": "BLOCKED",
+      "createdAt": "2026-08-20T08:11:22.039Z",
+      "updatedAt": "2026-08-20T08:11:22.039Z",
+      "blockerCode": "pre_cert_main_not_merged",
+      "blockerDetail": "Local main is not an ancestor of HEAD.",
+      "inventory": {
+        "epochId": "B-3f3d:RIE-058",
+        "receiptId": "B-3f3d:RIE-058:RCP-001",
+        "authority": "inventory-completeness-only",
+        "authorizesTest": false
+      },
+      "_hash": "59bd9b0987444d70438dd6b360258fb50d413c59bd874dba1f8849df72814569"
     }
   ],
   "receipts": [
