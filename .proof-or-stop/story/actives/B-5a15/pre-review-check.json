@@ -2,7 +2,7 @@
   "schemaVersion": "proofstory.pre_review_check.v1",
   "storyId": "B-5a15",
   "mode": "observe",
-  "cutoffAt": "2026-08-20T23:05:17.220Z",
+  "cutoffAt": "2026-08-20T23:21:43.836Z",
   "planBasisDigest": "sha256:bf1755fb019817959203a3642c23d191d7cf2677be255f13ec8861ff5ec56547",
   "preReviewBasisArtifact": {
     "schemaVersion": "proofstory.acceptance_basis_artifact.v1",
@@ -44,6 +44,7 @@
           "provenanceRefs": [
             "source-file:packages/main/src/cli/command-catalog.ts:sha256:ea62fdefbce1b546222193a44313c1a369e7fbca6669d65b4b5f1cff1dc13d7b",
             "source-file:packages/main/src/handlers/checklist.ts:sha256:74b8462a1b4936085f4351f57b07dc358ed2fdd3dec17e6c35e04e323728ba36",
+            "source-file:packages/main/src/handlers/live-smoke-transcript.ts:sha256:9fd8e1d0f521f1f9099abd6aa1ddc4b18d47a40d9a70c3ea0ffca4425fe7118f",
             "source-file:packages/main/src/handlers/proofstory.ts:sha256:06fa735b5348452cfb65d75c2fe5221693294e8d0f584f401b98e4e7924fd330",
             "source-file:packages/main/src/handlers/verifier.ts:sha256:c7f921d898b383300a4bd38b0ec1f357c3553c3595dd0dbd41953477e68098b7",
             "source-file:packages/main/src/registry.ts:sha256:7dad24b13c18ea2f08eff2daf505bc2ccd5befe80d37d1a8f80579746be14b02",
@@ -58,20 +59,25 @@
               "scope:checklist:CHK-003",
               "scope:checklist:CHK-004",
               "scope:checklist:CHK-005",
+              "scope:file:packages/main/src/core/acceptance-coverage-basis.ts",
+              "scope:file:packages/main/src/core/acceptance-discovery-adapters.ts",
               "scope:file:packages/main/src/core/causal-evidence.ts",
               "scope:file:packages/main/src/core/certification-window.ts",
               "scope:file:packages/main/src/core/evidence-freshness.ts",
+              "scope:file:packages/main/src/core/pre-review-live-proof.ts",
               "scope:file:packages/main/src/core/process-fact-registry.ts",
               "scope:file:packages/main/src/core/runtime-artifact-registry.ts",
               "scope:file:packages/main/src/core/store.ts",
               "scope:file:packages/main/src/core/types.ts",
               "scope:file:packages/main/src/handlers/checklist.ts",
+              "scope:file:packages/main/src/handlers/live-smoke-transcript.ts",
               "scope:file:packages/main/src/handlers/verifier.ts",
               "scope:file:packages/main/src/tasks/causal-evidence-smoke.ts",
+              "scope:file:packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
               "scope:file:packages/main/tests/causal-evidence.test.mjs"
             ]
           },
-          "resultDigest": "sha256:90f95ebdcf1a01f9d16ff45e6c6a4961a025d61c09260d6479ca29b0659197a4"
+          "resultDigest": "sha256:5fbbadfd25b60faa38239a724473508febd43a2d042eb0e1bc1236f0b8ee6df1"
         },
         {
           "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -117,20 +123,25 @@
               "scope:checklist:CHK-003",
               "scope:checklist:CHK-004",
               "scope:checklist:CHK-005",
+              "scope:file:packages/main/src/core/acceptance-coverage-basis.ts",
+              "scope:file:packages/main/src/core/acceptance-discovery-adapters.ts",
               "scope:file:packages/main/src/core/causal-evidence.ts",
               "scope:file:packages/main/src/core/certification-window.ts",
               "scope:file:packages/main/src/core/evidence-freshness.ts",
+              "scope:file:packages/main/src/core/pre-review-live-proof.ts",
               "scope:file:packages/main/src/core/process-fact-registry.ts",
               "scope:file:packages/main/src/core/runtime-artifact-registry.ts",
               "scope:file:packages/main/src/core/store.ts",
               "scope:file:packages/main/src/core/types.ts",
               "scope:file:packages/main/src/handlers/checklist.ts",
+              "scope:file:packages/main/src/handlers/live-smoke-transcript.ts",
               "scope:file:packages/main/src/handlers/verifier.ts",
               "scope:file:packages/main/src/tasks/causal-evidence-smoke.ts",
+              "scope:file:packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
               "scope:file:packages/main/tests/causal-evidence.test.mjs"
             ]
           },
-          "resultDigest": "sha256:723c40ef4714212364bfd7cea428aa64c628772b241627e5ac0d73a4ce4e25ff"
+          "resultDigest": "sha256:4daa5aa3d6b91356a914a836f179fca86d5a9d461db9f7d72997fbbba0484ca9"
         },
         {
           "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -152,20 +163,25 @@
               "scope:checklist:CHK-003",
               "scope:checklist:CHK-004",
               "scope:checklist:CHK-005",
+              "scope:file:packages/main/src/core/acceptance-coverage-basis.ts",
+              "scope:file:packages/main/src/core/acceptance-discovery-adapters.ts",
               "scope:file:packages/main/src/core/causal-evidence.ts",
               "scope:file:packages/main/src/core/certification-window.ts",
               "scope:file:packages/main/src/core/evidence-freshness.ts",
+              "scope:file:packages/main/src/core/pre-review-live-proof.ts",
               "scope:file:packages/main/src/core/process-fact-registry.ts",
               "scope:file:packages/main/src/core/runtime-artifact-registry.ts",
               "scope:file:packages/main/src/core/store.ts",
               "scope:file:packages/main/src/core/types.ts",
               "scope:file:packages/main/src/handlers/checklist.ts",
+              "scope:file:packages/main/src/handlers/live-smoke-transcript.ts",
               "scope:file:packages/main/src/handlers/verifier.ts",
               "scope:file:packages/main/src/tasks/causal-evidence-smoke.ts",
+              "scope:file:packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
               "scope:file:packages/main/tests/causal-evidence.test.mjs"
             ]
           },
-          "resultDigest": "sha256:f3150d3fbf10c1450c6f2eb3e33f24eba424223ec5e7473aa3830503dd069560"
+          "resultDigest": "sha256:fd69c60add85e3c528775c5ab0702e55aa120f8229cef22ec0e27f1399ce2182"
         },
         {
           "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -186,16 +202,21 @@
             "scope:checklist:CHK-003",
             "scope:checklist:CHK-004",
             "scope:checklist:CHK-005",
+            "scope:file:packages/main/src/core/acceptance-coverage-basis.ts",
+            "scope:file:packages/main/src/core/acceptance-discovery-adapters.ts",
             "scope:file:packages/main/src/core/causal-evidence.ts",
             "scope:file:packages/main/src/core/certification-window.ts",
             "scope:file:packages/main/src/core/evidence-freshness.ts",
+            "scope:file:packages/main/src/core/pre-review-live-proof.ts",
             "scope:file:packages/main/src/core/process-fact-registry.ts",
             "scope:file:packages/main/src/core/runtime-artifact-registry.ts",
             "scope:file:packages/main/src/core/store.ts",
             "scope:file:packages/main/src/core/types.ts",
             "scope:file:packages/main/src/handlers/checklist.ts",
+            "scope:file:packages/main/src/handlers/live-smoke-transcript.ts",
             "scope:file:packages/main/src/handlers/verifier.ts",
             "scope:file:packages/main/src/tasks/causal-evidence-smoke.ts",
+            "scope:file:packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
             "scope:file:packages/main/tests/causal-evidence.test.mjs",
             "source-file:packages/main/src/core/causal-evidence.ts:sha256:bbe3fbce64d1b0ed41e4e62f43c883341bd04159cd1058d574f711edfbb26c76",
             "source-file:packages/main/src/core/certification-window.ts:sha256:f717cfd436992ba1dc6ccf353124c92165d99f63beb26f9679795efe7367097c",
@@ -211,20 +232,25 @@
               "scope:checklist:CHK-003",
               "scope:checklist:CHK-004",
               "scope:checklist:CHK-005",
+              "scope:file:packages/main/src/core/acceptance-coverage-basis.ts",
+              "scope:file:packages/main/src/core/acceptance-discovery-adapters.ts",
               "scope:file:packages/main/src/core/causal-evidence.ts",
               "scope:file:packages/main/src/core/certification-window.ts",
               "scope:file:packages/main/src/core/evidence-freshness.ts",
+              "scope:file:packages/main/src/core/pre-review-live-proof.ts",
               "scope:file:packages/main/src/core/process-fact-registry.ts",
               "scope:file:packages/main/src/core/runtime-artifact-registry.ts",
               "scope:file:packages/main/src/core/store.ts",
               "scope:file:packages/main/src/core/types.ts",
               "scope:file:packages/main/src/handlers/checklist.ts",
+              "scope:file:packages/main/src/handlers/live-smoke-transcript.ts",
               "scope:file:packages/main/src/handlers/verifier.ts",
               "scope:file:packages/main/src/tasks/causal-evidence-smoke.ts",
+              "scope:file:packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
               "scope:file:packages/main/tests/causal-evidence.test.mjs"
             ]
           },
-          "resultDigest": "sha256:2bf12318ce9cf2f2f5aa30e35c7470e7c6ef7f5ee813424ae6ba509a4e06889f"
+          "resultDigest": "sha256:d8e61b74bce3e9e35019b3c59553c1cc3e09262159eab4556352ed00a64ab540"
         },
         {
           "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -262,6 +288,8 @@
           "coverageClaim": "complete_for_scope",
           "blindSpots": [],
           "provenanceRefs": [
+            "source-file:packages/main/src/core/acceptance-coverage-basis.ts:sha256:0e5c01bcd179b743f5e93dba1d08e794afd8f18cadd13d7a23092d10c6597c0b",
+            "source-file:packages/main/src/core/acceptance-discovery-adapters.ts:sha256:a553846248a1b3c41ab990308655bec7edb12750c0cce983d2e0210b7678b66c",
             "source-file:packages/main/src/core/acceptance-topology.ts:sha256:df44a37b6222c35311d1d6934d31138b5acb0b16b476e4b64fe33d33518c3dac",
             "source-file:packages/main/src/core/causal-evidence.ts:sha256:bbe3fbce64d1b0ed41e4e62f43c883341bd04159cd1058d574f711edfbb26c76",
             "source-file:packages/main/src/core/certification-window.ts:sha256:f717cfd436992ba1dc6ccf353124c92165d99f63beb26f9679795efe7367097c",
@@ -273,10 +301,12 @@
             "source-file:packages/main/src/core/store.ts:sha256:0c6e1de70ae4963be8151141d906b9a8e69d3218deb424604696f3274530629b",
             "source-file:packages/main/src/core/types.ts:sha256:2ba7f71f21da99de77dff989b2ee09e1c88cc4fed91d3ee86586d0cabb6289f0",
             "source-file:packages/main/src/handlers/checklist.ts:sha256:74b8462a1b4936085f4351f57b07dc358ed2fdd3dec17e6c35e04e323728ba36",
+            "source-file:packages/main/src/handlers/live-smoke-transcript.ts:sha256:9fd8e1d0f521f1f9099abd6aa1ddc4b18d47a40d9a70c3ea0ffca4425fe7118f",
             "source-file:packages/main/src/handlers/proofstory.ts:sha256:06fa735b5348452cfb65d75c2fe5221693294e8d0f584f401b98e4e7924fd330",
             "source-file:packages/main/src/handlers/transition-orchestrator.ts:sha256:b43f5c91e74c8849588abb53ead643cd16ba0a200c8b907a467408c3d7657698",
             "source-file:packages/main/src/handlers/verifier.ts:sha256:c7f921d898b383300a4bd38b0ec1f357c3553c3595dd0dbd41953477e68098b7",
             "source-file:packages/main/src/tasks/causal-evidence-smoke.ts:sha256:d9d1bb142c12973e6744b930e1ff3f626cfd541d3cbb7d6ddf7c93475af57d74",
+            "source-file:packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts:sha256:9d4deec044dbb46b2939a919e215e5a3b471e7fbd38dcdb4bfe78327abc3c11e",
             "source-file:packages/main/tests/causal-evidence.test.mjs:sha256:01300c0ad1669f89ffaba7a53f3b10ab6f10da627274df8a8c9cf8df508bb9f9",
             "source-file:proof-or-stop.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745",
             "source-file:scripts/run-proofstory-pre-review-live-proof.mjs:sha256:1572b45b9c889106ffa8eb70f8bb2bbc82148fa6ec442458e234ef2167bb1108",
@@ -291,20 +321,25 @@
               "scope:checklist:CHK-003",
               "scope:checklist:CHK-004",
               "scope:checklist:CHK-005",
+              "scope:file:packages/main/src/core/acceptance-coverage-basis.ts",
+              "scope:file:packages/main/src/core/acceptance-discovery-adapters.ts",
               "scope:file:packages/main/src/core/causal-evidence.ts",
               "scope:file:packages/main/src/core/certification-window.ts",
               "scope:file:packages/main/src/core/evidence-freshness.ts",
+              "scope:file:packages/main/src/core/pre-review-live-proof.ts",
               "scope:file:packages/main/src/core/process-fact-registry.ts",
               "scope:file:packages/main/src/core/runtime-artifact-registry.ts",
               "scope:file:packages/main/src/core/store.ts",
               "scope:file:packages/main/src/core/types.ts",
               "scope:file:packages/main/src/handlers/checklist.ts",
+              "scope:file:packages/main/src/handlers/live-smoke-transcript.ts",
               "scope:file:packages/main/src/handlers/verifier.ts",
               "scope:file:packages/main/src/tasks/causal-evidence-smoke.ts",
+              "scope:file:packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
               "scope:file:packages/main/tests/causal-evidence.test.mjs"
             ]
           },
-          "resultDigest": "sha256:6249661cd247901a99a0a75bc073a988f7c4ce5ed12bcbdb98bc842a57912803"
+          "resultDigest": "sha256:6b9fcf3090ae14675a961a6c7a28840c00ab00a0943cb1a98ed3f43a6860df9a"
         }
       ],
       "scopeRefs": [
@@ -313,16 +348,21 @@
         "scope:checklist:CHK-003",
         "scope:checklist:CHK-004",
         "scope:checklist:CHK-005",
+        "scope:file:packages/main/src/core/acceptance-coverage-basis.ts",
+        "scope:file:packages/main/src/core/acceptance-discovery-adapters.ts",
         "scope:file:packages/main/src/core/causal-evidence.ts",
         "scope:file:packages/main/src/core/certification-window.ts",
         "scope:file:packages/main/src/core/evidence-freshness.ts",
+        "scope:file:packages/main/src/core/pre-review-live-proof.ts",
         "scope:file:packages/main/src/core/process-fact-registry.ts",
         "scope:file:packages/main/src/core/runtime-artifact-registry.ts",
         "scope:file:packages/main/src/core/store.ts",
         "scope:file:packages/main/src/core/types.ts",
         "scope:file:packages/main/src/handlers/checklist.ts",
+        "scope:file:packages/main/src/handlers/live-smoke-transcript.ts",
         "scope:file:packages/main/src/handlers/verifier.ts",
         "scope:file:packages/main/src/tasks/causal-evidence-smoke.ts",
+        "scope:file:packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
         "scope:file:packages/main/tests/causal-evidence.test.mjs"
       ],
       "sourceInventoryRefs": [
@@ -344,6 +384,8 @@
         "process-fact:pre_review_check:2c370593cd93bce5b4f4ed881481163fde83a8609e47b87d6a5280f52518d5f0",
         "process-fact:pre_review_check_read:25ea87d6732906e5c958332f5292b9e31c356661f51329e8665c8e60a232dcfe",
         "process-fact:verification_evidence_batch_add:888b40ee94db10f81bb75715e6b4841ba30fb073bf026c5f5b560c6ba47f5633",
+        "source-file:closure:packages/main/src/core/acceptance-coverage-basis.ts",
+        "source-file:closure:packages/main/src/core/acceptance-discovery-adapters.ts",
         "source-file:closure:packages/main/src/core/acceptance-topology.ts",
         "source-file:closure:packages/main/src/core/causal-evidence.ts",
         "source-file:closure:packages/main/src/core/certification-window.ts",
@@ -355,10 +397,12 @@
         "source-file:closure:packages/main/src/core/store.ts",
         "source-file:closure:packages/main/src/core/types.ts",
         "source-file:closure:packages/main/src/handlers/checklist.ts",
+        "source-file:closure:packages/main/src/handlers/live-smoke-transcript.ts",
         "source-file:closure:packages/main/src/handlers/proofstory.ts",
         "source-file:closure:packages/main/src/handlers/transition-orchestrator.ts",
         "source-file:closure:packages/main/src/handlers/verifier.ts",
         "source-file:closure:packages/main/src/tasks/causal-evidence-smoke.ts",
+        "source-file:closure:packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
         "source-file:closure:packages/main/tests/causal-evidence.test.mjs",
         "source-file:closure:scripts/run-proofstory-pre-review-live-proof.mjs",
         "source-file:closure:scripts/verify-process-fact-contract.mjs",
@@ -688,42 +732,42 @@
         "sealDigest": "sha256:9458a6eff56224d2ae66ca18b45b3b6ffda8d3cbe4ac885c91ab7483e11924a1"
       },
       "binding": {
-        "headHash": "cd3b5b4fb100235471c44dc552a06da89f2629e8",
+        "headHash": "7124e0c303724de9790f3c09be5907b133aab6c7",
         "materialHash": "aaa7d2e1e12738c7783a079d17144484f524d9aac67b4b1b73abe509e2045272",
         "storyFilesHash": "d806bbf7ebde95e0318a536ed9249f24f23250fcdf1aa0cdcfda13fd497396ac",
-        "scopeCheckDigest": "sha256:5ede873b0f0d4af50c8435087842f612f43bb8c4e63606dd1e7be2ff431e8146",
-        "scopeContractDigest": "sha256:182437514a04a931a14736ec496941aefb37cdd49584531782279052b81936aa",
-        "closureFilesHash": "sha256:523af408f984b9fe36ba7c4f98266d062973642589ee0e5fcfb1654c6965a6f3"
+        "scopeCheckDigest": "sha256:957be33768b66e9005662a784732c0f0e321627c601370844816bc43755b6dd3",
+        "scopeContractDigest": "sha256:487afb9713427d2fca6ea2f3f0ceca247841f2f8505fcc35423bc7792e474356",
+        "closureFilesHash": "sha256:71213e488c257a94ca76c73e5a3e2ff03267c48b3be5740508129425a9d4138a"
       },
-      "receiptRef": "receipt:coverage-basis:B-5a15:pre_review:e5a413a05d911971",
-      "basisDigest": "sha256:36c9d6fd7b565f083865e1cd655c055a3f5ab5a489891695c0932ed99ae2a6c1"
+      "receiptRef": "receipt:coverage-basis:B-5a15:pre_review:6d947d044cb55200",
+      "basisDigest": "sha256:8acc25e242b070cbd9e17d625197dbbb94be23c3636c2d1ff52931ea16729325"
     },
     "receipt": {
       "schemaVersion": "proofstory.acceptance_basis_receipt.v1",
-      "receiptRef": "receipt:coverage-basis:B-5a15:pre_review:e5a413a05d911971",
+      "receiptRef": "receipt:coverage-basis:B-5a15:pre_review:6d947d044cb55200",
       "issuer": "acceptance-coverage-basis-verifier",
       "issuerKeyId": "sha256:a944288d3323f4b761cbb51602e62f88fbc1b35530eabfa265971baee771138b",
       "signerPublicKey": "GpD4A2Km0wpT87L2EcszehhUu0nPgXbafTXgXTjTKAM=",
       "storyId": "B-5a15",
       "phaseBasis": "pre_review",
-      "basisDigest": "sha256:36c9d6fd7b565f083865e1cd655c055a3f5ab5a489891695c0932ed99ae2a6c1",
+      "basisDigest": "sha256:8acc25e242b070cbd9e17d625197dbbb94be23c3636c2d1ff52931ea16729325",
       "topologyDigest": "sha256:b99e7bc1326d36e845062da1ab5c893c358c4ae00cf7390b611c0fd7dbd125e1",
-      "scopeCheckDigest": "sha256:5ede873b0f0d4af50c8435087842f612f43bb8c4e63606dd1e7be2ff431e8146",
-      "scopeContractDigest": "sha256:182437514a04a931a14736ec496941aefb37cdd49584531782279052b81936aa",
-      "headHash": "cd3b5b4fb100235471c44dc552a06da89f2629e8",
+      "scopeCheckDigest": "sha256:957be33768b66e9005662a784732c0f0e321627c601370844816bc43755b6dd3",
+      "scopeContractDigest": "sha256:487afb9713427d2fca6ea2f3f0ceca247841f2f8505fcc35423bc7792e474356",
+      "headHash": "7124e0c303724de9790f3c09be5907b133aab6c7",
       "materialHash": "aaa7d2e1e12738c7783a079d17144484f524d9aac67b4b1b73abe509e2045272",
       "storyFilesHash": "d806bbf7ebde95e0318a536ed9249f24f23250fcdf1aa0cdcfda13fd497396ac",
-      "closureFilesHash": "sha256:523af408f984b9fe36ba7c4f98266d062973642589ee0e5fcfb1654c6965a6f3",
+      "closureFilesHash": "sha256:71213e488c257a94ca76c73e5a3e2ff03267c48b3be5740508129425a9d4138a",
       "sealDigest": "sha256:9458a6eff56224d2ae66ca18b45b3b6ffda8d3cbe4ac885c91ab7483e11924a1",
       "workspaceIdentityDigest": "sha256:502be69be3d8741b5a049f6ed4e08a9bea5b0c7a099a24169e0b2582e7422b78",
-      "signature": "qP2dBJICeewdEPkvpPzRfXOZgYyYez74OD2FKtqxYtGbPK4L0H7ly0lXtP4sYVuAc/9taVaxfXWYu1+sW3iLAQ=="
+      "signature": "1YIXtlKwotIM/xjRGwltIeY0D0le8PqI5Y7QNq9kTATKmc6fsPQClSqwEnGZtslfDQbESE2T8XgiCAQWwZvjCg=="
     }
   },
   "topologyDigest": "sha256:b99e7bc1326d36e845062da1ab5c893c358c4ae00cf7390b611c0fd7dbd125e1",
-  "scopeCheckDigest": "sha256:5ede873b0f0d4af50c8435087842f612f43bb8c4e63606dd1e7be2ff431e8146",
-  "scopeContractDigest": "sha256:182437514a04a931a14736ec496941aefb37cdd49584531782279052b81936aa",
+  "scopeCheckDigest": "sha256:957be33768b66e9005662a784732c0f0e321627c601370844816bc43755b6dd3",
+  "scopeContractDigest": "sha256:487afb9713427d2fca6ea2f3f0ceca247841f2f8505fcc35423bc7792e474356",
   "storyFilesHash": "d806bbf7ebde95e0318a536ed9249f24f23250fcdf1aa0cdcfda13fd497396ac",
-  "closureFilesHash": "sha256:523af408f984b9fe36ba7c4f98266d062973642589ee0e5fcfb1654c6965a6f3",
+  "closureFilesHash": "sha256:71213e488c257a94ca76c73e5a3e2ff03267c48b3be5740508129425a9d4138a",
   "evidenceRefs": [
     {
       "intentRef": "CHK-001:adversarial:0",
@@ -1249,7 +1293,7 @@
   "criticReceiptDigest": "sha256:f1e27433127b6a88d00583cccc41f0b2b98e5fee0f30811d1f692136fdc266cf",
   "codes": [],
   "status": "pass",
-  "issuedAt": "2026-08-20T23:05:17.220Z",
+  "issuedAt": "2026-08-20T23:21:43.836Z",
   "signerPublicKey": "4K3JOygx9kXStVuiYM8fjT485DCzR4yqnTy5Sch+TOQ=",
-  "signature": "iE2pFCX4Ca9pHGdLwjogHU0rQaVI95Qy6gEz3Dmw2sV5xAGN+TvfDdcF5E8NUygWrcjry9+oRWd+KFbrkOLbDQ=="
+  "signature": "6FWeKayO3uU7YIPHB+zisDkucJwKXKcirXED0q8tlwDsVinIrfCsXrpUv1KPQL8eOtlR/zLQokOKsGAa1KHeDA=="
 }
