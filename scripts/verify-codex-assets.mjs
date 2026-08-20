@@ -52,6 +52,13 @@ if (!result.ok) {
   process.exit(1);
 }
 
+const mainPackage = JSON.parse(readFileSync(join(root, 'packages', 'main', 'package.json'), 'utf8'));
+const mainLock = JSON.parse(readFileSync(join(root, 'packages', 'main', 'package-lock.json'), 'utf8'));
+assert(mainPackage.bin?.['proof-or-stop'] === 'dist/cli.js', 'Codex verification requires the canonical proof-or-stop npm bin');
+assert(mainLock.packages?.['']?.bin?.['proof-or-stop'] === 'dist/cli.js', 'Codex verification requires the lockfile proof-or-stop npm bin');
+assert(!Object.prototype.hasOwnProperty.call(mainPackage.bin ?? {}, 'lattice'), 'Codex verification must reject a reintroduced lattice npm bin alias');
+assert(!Object.prototype.hasOwnProperty.call(mainLock.packages?.['']?.bin ?? {}, 'lattice'), 'Codex verification must reject a reintroduced lockfile lattice npm bin alias');
+
 assert(DEFAULT_CODEX_HEARTBEAT_TIMEOUT_MS === 10_000, 'local/default Codex heartbeat timeout should remain conservative');
 assert(DEFAULT_GLOBAL_FALLBACK_HEARTBEAT_TIMEOUT_MS === 30_000, 'global fallback heartbeat timeout should allow real session_brief on large repos');
 assert(

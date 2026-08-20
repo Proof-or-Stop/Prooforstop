@@ -261,6 +261,24 @@ export const isBrandDecisionResidue = makeBrandDecisionDetector(DEPRECATED_BRAND
 const SRC_SCAN_ROOTS = ['packages/main/src', 'packages/lab/src', 'packages/utils/src'];
 
 /**
+ * The npm package may keep old filesystem/read fallbacks, but it must not publish
+ * the retired `lattice` executable alias. Keep this guard structural so adding the
+ * alias back to either package.json or package-lock.json fails the residue gate.
+ */
+export function isCanonicalNpmBinMap(value) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
+  return value['proof-or-stop'] === 'dist/cli.js'
+    && !Object.prototype.hasOwnProperty.call(value, 'lattice');
+}
+
+export function isCanonicalMainPackageMetadata(value) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
+  const record = value;
+  const bin = record.bin ?? record.packages?.['']?.bin;
+  return isCanonicalNpmBinMap(bin);
+}
+
+/**
  * Active docs — the brand-prose surface CHK-003 rewrote (check 2).
  *
  * B-cdf6 CHK-003 follow-up: the two host adapter directories were ADDED after they
@@ -558,6 +576,31 @@ function runScan() {
     );
   }
 
+  // --- CHECK 3b: npm metadata must publish only the canonical executable ---
+  const npmBinProblems = [];
+  for (const rel of ['packages/main/package.json', 'packages/main/package-lock.json']) {
+    const content = readTracked(rel);
+    if (content === null) {
+      npmBinProblems.push(`${rel}: file is not readable from the tracked tree`);
+      continue;
+    }
+    try {
+      const metadata = JSON.parse(content);
+      if (!isCanonicalMainPackageMetadata(metadata)) {
+        npmBinProblems.push(`${rel}: npm bin map must contain only proof-or-stop -> dist/cli.js`);
+      }
+    } catch (error) {
+      npmBinProblems.push(`${rel}: invalid JSON (${error instanceof Error ? error.message : String(error)})`);
+    }
+  }
+  if (npmBinProblems.length === 0) {
+    console.log('PASS lattice-residue [npm-bin]: packages/main publishes only the proof-or-stop bin');
+  } else {
+    failed = true;
+    console.error('FAIL lattice-residue [npm-bin]: retired lattice npm bin alias is active or metadata is invalid');
+    for (const problem of npmBinProblems) console.error(`  ${problem}`);
+  }
+
   // --- CHECK 4: FORBIDDEN deprecated-brand DECISION SITES in runtime source ---
   // The B-cc10 CHK-007 row flip. Scans the same product runtime source as check 1,
   // but SKIPS `**/tasks/**`: those are migration fixtures whose whole job can be to
@@ -762,6 +805,14 @@ const BRAND_DECISION_CASES = [
   ["if (path.startsWith('.lattice/')) return false; // legacy", true],
 ];
 
+const NPM_BIN_CASES = [
+  [{ bin: { 'proof-or-stop': 'dist/cli.js' } }, true],
+  [{ bin: { 'proof-or-stop': 'dist/cli.js', lattice: 'dist/cli.js' } }, false],
+  [{ bin: { lattice: 'dist/cli.js' } }, false],
+  [{ packages: { '': { bin: { 'proof-or-stop': 'dist/cli.js' } } } }, true],
+  [{ packages: { '': { bin: { 'proof-or-stop': 'dist/cli.js', lattice: 'dist/cli.js' } } } }, false],
+];
+
 /**
  * Run the inline detector unit tests. Throws on the first failure.
  * @returns {number} count of assertions run
@@ -784,6 +835,15 @@ export function runSelfTest() {
       }
       passed++;
     }
+  }
+  for (const [metadata, expected] of NPM_BIN_CASES) {
+    const actual = isCanonicalMainPackageMetadata(metadata);
+    if (actual !== expected) {
+      throw new Error(
+        `isCanonicalMainPackageMetadata() unit test FAILED:\n  input:    ${JSON.stringify(metadata)}\n  expected: ${expected}\n  actual:   ${actual}`,
+      );
+    }
+    passed++;
   }
   return passed;
 }

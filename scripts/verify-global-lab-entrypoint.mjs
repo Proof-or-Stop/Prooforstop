@@ -68,6 +68,8 @@ const checks = {
     assert(utils.version === EXPECTED_EXTENSION_VERSION, `utils version mismatch: ${utils.version}`);
     assert(lab.version === EXPECTED_EXTENSION_VERSION, `lab version mismatch: ${lab.version}`);
     assert(core.dependencies?.['@proof-or-stop/lab'] === EXPECTED_EXTENSION_VERSION, `core should depend on @proof-or-stop/lab@${EXPECTED_EXTENSION_VERSION}`);
+    assert(core.bin?.['proof-or-stop'] === 'dist/cli.js', 'core package should publish only the proof-or-stop bin');
+    assert(!Object.prototype.hasOwnProperty.call(core.bin ?? {}, 'lattice'), 'core package must not publish the lattice npm bin alias');
     assert(utils.dependencies?.['@proof-or-stop/core'] === EXPECTED_EXTENSION_VERSION, `utils should depend on @proof-or-stop/core@${EXPECTED_EXTENSION_VERSION}`);
     assert(lab.dependencies?.['@proof-or-stop/core'] === EXPECTED_EXTENSION_VERSION, `lab should depend on @proof-or-stop/core@${EXPECTED_EXTENSION_VERSION}`);
     assert(!core.dependencies?.['@lattice-agent/lab'], 'core should not depend on retired @lattice-agent/lab');
@@ -79,7 +81,7 @@ const checks = {
   },
   'lab-help': () => {
     const out = run(['lab_create', '--help']);
-    assert(out.includes('lattice lab_create'), 'global core bin should show lab_create help through the lattice bootstrap');
+    assert(out.includes('proof-or-stop lab_create'), 'global core bin should show lab_create help through the proof-or-stop bootstrap');
     assert(!out.includes('koala lab_create'), 'global core bin should not advertise retired koala lab_create alias help');
   },
   'lab-create-policy-gate': () => {

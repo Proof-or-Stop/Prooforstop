@@ -5,8 +5,11 @@
  * 可以把自己的 handler 通过 registry.register / registerBatch 注入进来，
  * 而 main 自身完全不知道这些扩展包的存在。
  *
- * main 的 cli.ts 启动时会调用 createMainRegistry(ctx) 完成内置 handler 的注册；
+ * main 的 proof-or-stop CLI 启动时会调用 createMainRegistry(ctx) 完成内置 handler 的注册；
  * 第三方 bootstrap 脚本可以在此基础上再调用扩展包的 register 函数追加注册。
+ *
+ * npm 的 executable identity 不在这里注册：`proof-or-stop` 是唯一 active bin，
+ * 历史 `lattice` wrapper/path 兼容由各自的 filesystem/read fallback 负责。
  */
 
 import { StoryStore } from './core/store.js';

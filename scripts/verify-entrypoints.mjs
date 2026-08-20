@@ -80,6 +80,19 @@ function readJson(root, relPath) {
   return JSON.parse(readFileSync(join(root, relPath), 'utf8'));
 }
 
+function assertCanonicalMainPackageBin(root) {
+  const packageJson = readJson(root, 'packages/main/package.json');
+  const packageLock = readJson(root, 'packages/main/package-lock.json');
+  const packageBin = packageJson.bin || {};
+  const lockBin = packageLock.packages?.['']?.bin || {};
+  assert(packageBin['proof-or-stop'] === 'dist/cli.js', 'packages/main package.json must publish proof-or-stop -> dist/cli.js');
+  assert(lockBin['proof-or-stop'] === 'dist/cli.js', 'packages/main package-lock.json must pin proof-or-stop -> dist/cli.js');
+  assert(!Object.prototype.hasOwnProperty.call(packageBin, 'lattice'), 'packages/main package.json must not reintroduce the lattice npm bin alias');
+  assert(!Object.prototype.hasOwnProperty.call(lockBin, 'lattice'), 'packages/main package-lock.json must not reintroduce the lattice npm bin alias');
+}
+
+assertCanonicalMainPackageBin(repoRoot);
+
 function assertPathExists(root, relPath, label = relPath) {
   assert(existsSync(join(root, relPath)), `${label} should exist`);
 }
