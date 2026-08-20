@@ -22,7 +22,13 @@ function roleAliases(canonical: CanonicalAgentRoleId, extra: readonly string[] =
  * be inferred from a name prefix. Legacy verification names intentionally map
  * to verification-intent and therefore cannot inherit implementer authority.
  */
-export const AGENT_DISPATCH_REGISTRY = [
+// Keep the exported table's public view at the contract level instead of
+// preserving each row's literal canonicalName. Historical smoke/audit code
+// still compares persisted lattice lane values against this table; widening
+// the view keeps those comparisons expressible while the runtime rows below
+// remain proof-or-stop canonical strings and aliases are still resolved to
+// those rows.
+export const AGENT_DISPATCH_REGISTRY: readonly AgentDispatchRegistryEntry[] = [
   {
     canonicalName: 'proof-or-stop-implementer',
     aliases: roleAliases('proof-or-stop-implementer'),
@@ -185,7 +191,7 @@ export const AGENT_DISPATCH_REGISTRY = [
     reviewerLane: null,
     evidenceOwnership: ['cluster-resolution'],
   },
-] as const satisfies readonly AgentDispatchRegistryEntry[];
+];
 
 export class AgentDispatchRegistryDefinitionError extends Error {
   constructor(message: string) {
