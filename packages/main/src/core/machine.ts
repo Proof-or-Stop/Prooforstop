@@ -229,10 +229,10 @@ function initPreflightGuidance(storyId: string): string {
 
 function renderMissingInitReviewerDispatches(storyId: string, missingAgents: string[]): string {
   const dispatches = missingAgents.map(agentId => {
-    if (agentId === 'lattice-review-story-init') {
+    if (agentId === 'lattice-review-story-init' || agentId === 'proof-or-stop-review-story-init') {
       return `   Agent({ subagent_type: "lattice-review-story-init", prompt: \`proof-or-stop dispatch '{"storyId":"${storyId}","agentType":"lattice-review-story-init"}'\` })`;
     }
-    if (agentId === 'product-reviewer') {
+    if (agentId === 'product-reviewer' || agentId === 'proof-or-stop-product-reviewer') {
       return `   Agent({ subagent_type: "product-reviewer", prompt: \`proof-or-stop dispatch '{"storyId":"${storyId}","agentType":"product-reviewer"}'\` })`;
     }
     throw new Error(`unsupported required INIT reviewer: ${agentId}`);
