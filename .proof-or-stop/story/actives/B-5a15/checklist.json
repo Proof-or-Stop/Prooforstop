@@ -9,8 +9,8 @@
         "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md"
       ],
       "userSees": "\"The terminal prints `CausalEvidence: intentCount=58 uniqueExecutionKeys=10 commandExecutions=10 cacheHitRate=82%` and 58 selector verdicts, including explicit `selectorMismatch` where applicable.\"",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-08-20T10:28:45.718Z",
       "endTime": null,
       "verificationIntent": {
         "happy": [
@@ -494,64 +494,104 @@
         "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
       ],
       "userSees": "\"The closeout metrics block prints `uniqueExecutionKeys`, `commandExecutions`, `cacheHitRate`, `commitFailureReruns=0`, `unrelatedSpecializedRerun=0`, `affectedNodeRerun=100%`, and `falseFresh=0` without a DONE claim while gates remain open.\"",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-08-20T10:28:11.089Z",
       "verificationIntent": {
         "happy": [
           {
             "desc": "A completed 58-intent replay prints intentCount, uniqueExecutionKeys, commandExecutions, cacheHitRate, and shows commandExecutions equal to uniqueExecutionKeys while all required evidence remains covered.",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node --test packages/main/tests/causal-evidence.test.mjs",
+              "selector": "CHK-005: metrics are zero-safe and tamper-resistant canonical-ledger projections"
+            }
           },
           {
             "desc": "A receipt-first import failure followed by a successful retry reports commitFailureReruns=0 and preserves the original receipt hash in the metrics block.",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node --test packages/main/tests/causal-evidence.test.mjs",
+              "selector": "CHK-005: metrics are zero-safe and tamper-resistant canonical-ledger projections"
+            }
           },
           {
             "desc": "A mixed run reports unrelatedSpecializedRerun=0, affectedNodeRerun=100%, falseFresh=0, and still keeps reviewer lanes, verification coverage, and DONE-required strictness visible.",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node --test packages/main/tests/causal-evidence.test.mjs",
+              "selector": "CHK-005: metrics are zero-safe and tamper-resistant canonical-ledger projections"
+            }
           }
         ],
         "edge": [
           {
             "desc": "An empty plan reports uniqueExecutionKeys=0 and commandExecutions=0 without dividing cacheHitRate by zero or claiming savings.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node --test packages/main/tests/causal-evidence.test.mjs",
+              "selector": "CHK-005: metrics are zero-safe and tamper-resistant canonical-ledger projections"
+            }
           },
           {
             "desc": "A run containing both reusable and newly executed receipts reports counts from the actual execution ledger rather than intent count or a caller-supplied number.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node --test packages/main/tests/causal-evidence.test.mjs",
+              "selector": "CHK-005: metrics are zero-safe and tamper-resistant canonical-ledger projections"
+            }
           },
           {
             "desc": "A legacy evidence row or missing dependency identity is counted as strict/non-reusable and cannot improve cacheHitRate or falseFresh.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node --test packages/main/tests/causal-evidence.test.mjs",
+              "selector": "CHK-005: metrics are zero-safe and tamper-resistant canonical-ledger projections"
+            }
           },
           {
             "desc": "A related node that fails to rerun makes affectedNodeRerun less than 100% and fails the correctness result instead of being hidden by a passing aggregate.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node --test packages/main/tests/causal-evidence.test.mjs",
+              "selector": "CHK-005: metrics are zero-safe and tamper-resistant canonical-ledger projections"
+            }
           }
         ],
         "adversarial": [
           {
             "desc": "Tampering with any metric field, execution ledger count, receipt reuse flag, or falseFresh value is detected from canonical inputs and cannot manufacture a passing metrics report.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node --test packages/main/tests/causal-evidence.test.mjs",
+              "selector": "CHK-005: metrics are zero-safe and tamper-resistant canonical-ledger projections"
+            }
           },
           {
             "desc": "Metrics do not add overlapping U-01 or U-02 elapsed time to U-03 savings and do not claim efficiency by reducing reviewer lanes, coverage, or adding waivers.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node --test packages/main/tests/causal-evidence.test.mjs",
+              "selector": "CHK-005: metrics are zero-safe and tamper-resistant canonical-ledger projections"
+            }
           },
           {
             "desc": "A metrics PASS cannot advance a story to DONE while open findings, stale evidence, missing coverage, strict whole-tree drift, or required commands remain unresolved.",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node --test packages/main/tests/causal-evidence.test.mjs",
+              "selector": "CHK-005: metrics are zero-safe and tamper-resistant canonical-ledger projections"
+            }
           }
         ]
       },
@@ -566,6 +606,215 @@
         "test": [
           "packages/main/tests/causal-evidence.test.mjs"
         ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "logic_test",
+          "command": "node --test packages/main/tests/causal-evidence.test.mjs",
+          "result": "pass",
+          "note": "Executed focused B-5a15 verification for CHK-005; selector matched the canonical test output for CHK-005.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "176f64fcd3666cb998415e194c0b34fe530a4c6bd3a9bd36c0f46e0f78017aa5",
+            "outputTail": "⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n✔ CHK-001: keys bind all identity fields, deduplicate exact complete work, and fan out selectors (11.031667ms)\n✔ CHK-002: CAS receipts precede isolated import, retry commit only, and fail closed on tamper (4.014958ms)\n✔ CHK-003: dependency domains shadow-compare closure and CertificationWindow rejects stale affected bypasses (0.576167ms)\n✔ CHK-004: preflight refuses exact readiness failures with zero execution/evidence counters (1.007584ms)\n✔ CHK-006: atomic pre-run revalidation refuses before the child runner with zero counters or writes (0.418458ms)\n✔ CHK-005: metrics are zero-safe and tamper-resistant canonical-ledger projections (0.326208ms)\nℹ tests 6\nℹ suites 0\nℹ pass 6\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 80.091917\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T10:26:26.903Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "c3c71917aa2d09d860b34d3b389a8f6a67ceae46",
+          "materialHash": "5baf9d01e6e157ae02918867bb97482fbd04ea45ed00adf821b447f1022037f4",
+          "storyFilesHash": "b9fff77ff3ecdd5f581edd826a66ca89cf282ac5f3a4890a1fefbac695850b1e",
+          "timestamp": "2026-08-20T10:26:29.696Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:1",
+          "kind": "logic_test",
+          "command": "node --test packages/main/tests/causal-evidence.test.mjs",
+          "result": "pass",
+          "note": "Executed focused B-5a15 verification for CHK-005; selector matched the canonical test output for CHK-005.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "332beb3f81136b82d449555fd16c708079d10e40afa3ac2a7639ce9a1f1645aa",
+            "outputTail": "⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n✔ CHK-001: keys bind all identity fields, deduplicate exact complete work, and fan out selectors (10.765625ms)\n✔ CHK-002: CAS receipts precede isolated import, retry commit only, and fail closed on tamper (4.110583ms)\n✔ CHK-003: dependency domains shadow-compare closure and CertificationWindow rejects stale affected bypasses (0.580334ms)\n✔ CHK-004: preflight refuses exact readiness failures with zero execution/evidence counters (0.761584ms)\n✔ CHK-006: atomic pre-run revalidation refuses before the child runner with zero counters or writes (0.367167ms)\n✔ CHK-005: metrics are zero-safe and tamper-resistant canonical-ledger projections (0.293209ms)\nℹ tests 6\nℹ suites 0\nℹ pass 6\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 79.708667\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T10:26:27.196Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "c3c71917aa2d09d860b34d3b389a8f6a67ceae46",
+          "materialHash": "5baf9d01e6e157ae02918867bb97482fbd04ea45ed00adf821b447f1022037f4",
+          "storyFilesHash": "b9fff77ff3ecdd5f581edd826a66ca89cf282ac5f3a4890a1fefbac695850b1e",
+          "timestamp": "2026-08-20T10:26:29.696Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:2",
+          "kind": "logic_test",
+          "command": "node --test packages/main/tests/causal-evidence.test.mjs",
+          "result": "pass",
+          "note": "Executed focused B-5a15 verification for CHK-005; selector matched the canonical test output for CHK-005.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "077eeb1c26443723b2a789b93d276d22811e317ab9ab0f3dbe532a6525c95807",
+            "outputTail": "⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n✔ CHK-001: keys bind all identity fields, deduplicate exact complete work, and fan out selectors (15.082041ms)\n✔ CHK-002: CAS receipts precede isolated import, retry commit only, and fail closed on tamper (3.633167ms)\n✔ CHK-003: dependency domains shadow-compare closure and CertificationWindow rejects stale affected bypasses (0.6055ms)\n✔ CHK-004: preflight refuses exact readiness failures with zero execution/evidence counters (0.803ms)\n✔ CHK-006: atomic pre-run revalidation refuses before the child runner with zero counters or writes (0.38975ms)\n✔ CHK-005: metrics are zero-safe and tamper-resistant canonical-ledger projections (0.309125ms)\nℹ tests 6\nℹ suites 0\nℹ pass 6\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 82.041458\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T10:26:27.491Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "c3c71917aa2d09d860b34d3b389a8f6a67ceae46",
+          "materialHash": "5baf9d01e6e157ae02918867bb97482fbd04ea45ed00adf821b447f1022037f4",
+          "storyFilesHash": "b9fff77ff3ecdd5f581edd826a66ca89cf282ac5f3a4890a1fefbac695850b1e",
+          "timestamp": "2026-08-20T10:26:29.696Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "logic_test",
+          "command": "node --test packages/main/tests/causal-evidence.test.mjs",
+          "result": "pass",
+          "note": "Executed focused B-5a15 verification for CHK-005; selector matched the canonical test output for CHK-005.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "c720445df9e7c960ef6f188e4957f89872544540f142d9d0fefc5aece804e2f8",
+            "outputTail": "⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n✔ CHK-001: keys bind all identity fields, deduplicate exact complete work, and fan out selectors (10.758792ms)\n✔ CHK-002: CAS receipts precede isolated import, retry commit only, and fail closed on tamper (3.483875ms)\n✔ CHK-003: dependency domains shadow-compare closure and CertificationWindow rejects stale affected bypasses (0.55075ms)\n✔ CHK-004: preflight refuses exact readiness failures with zero execution/evidence counters (0.733292ms)\n✔ CHK-006: atomic pre-run revalidation refuses before the child runner with zero counters or writes (0.352833ms)\n✔ CHK-005: metrics are zero-safe and tamper-resistant canonical-ledger projections (0.349625ms)\nℹ tests 6\nℹ suites 0\nℹ pass 6\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 80.33575\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T10:26:27.803Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "c3c71917aa2d09d860b34d3b389a8f6a67ceae46",
+          "materialHash": "5baf9d01e6e157ae02918867bb97482fbd04ea45ed00adf821b447f1022037f4",
+          "storyFilesHash": "b9fff77ff3ecdd5f581edd826a66ca89cf282ac5f3a4890a1fefbac695850b1e",
+          "timestamp": "2026-08-20T10:26:29.696Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:1",
+          "kind": "logic_test",
+          "command": "node --test packages/main/tests/causal-evidence.test.mjs",
+          "result": "pass",
+          "note": "Executed focused B-5a15 verification for CHK-005; selector matched the canonical test output for CHK-005.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "5896070a9f2cfc81a966d5dc8a5bfad8bbad9feae6f9a1fb859d7d37cae58b2d",
+            "outputTail": "⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n✔ CHK-001: keys bind all identity fields, deduplicate exact complete work, and fan out selectors (10.814917ms)\n✔ CHK-002: CAS receipts precede isolated import, retry commit only, and fail closed on tamper (4.815709ms)\n✔ CHK-003: dependency domains shadow-compare closure and CertificationWindow rejects stale affected bypasses (0.617417ms)\n✔ CHK-004: preflight refuses exact readiness failures with zero execution/evidence counters (0.796959ms)\n✔ CHK-006: atomic pre-run revalidation refuses before the child runner with zero counters or writes (0.382125ms)\n✔ CHK-005: metrics are zero-safe and tamper-resistant canonical-ledger projections (0.307292ms)\nℹ tests 6\nℹ suites 0\nℹ pass 6\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 92.420083\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T10:26:28.126Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "c3c71917aa2d09d860b34d3b389a8f6a67ceae46",
+          "materialHash": "5baf9d01e6e157ae02918867bb97482fbd04ea45ed00adf821b447f1022037f4",
+          "storyFilesHash": "b9fff77ff3ecdd5f581edd826a66ca89cf282ac5f3a4890a1fefbac695850b1e",
+          "timestamp": "2026-08-20T10:26:29.696Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:2",
+          "kind": "logic_test",
+          "command": "node --test packages/main/tests/causal-evidence.test.mjs",
+          "result": "pass",
+          "note": "Executed focused B-5a15 verification for CHK-005; selector matched the canonical test output for CHK-005.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2bcddf73f587b00429ccbaffaa0b09ea4ec7f8d9ed67aa75e6dc03681cb35cdc",
+            "outputTail": "⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n✔ CHK-001: keys bind all identity fields, deduplicate exact complete work, and fan out selectors (10.583375ms)\n✔ CHK-002: CAS receipts precede isolated import, retry commit only, and fail closed on tamper (4.044458ms)\n✔ CHK-003: dependency domains shadow-compare closure and CertificationWindow rejects stale affected bypasses (0.551792ms)\n✔ CHK-004: preflight refuses exact readiness failures with zero execution/evidence counters (0.732458ms)\n✔ CHK-006: atomic pre-run revalidation refuses before the child runner with zero counters or writes (0.340792ms)\n✔ CHK-005: metrics are zero-safe and tamper-resistant canonical-ledger projections (0.287667ms)\nℹ tests 6\nℹ suites 0\nℹ pass 6\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 77.659916\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T10:26:28.410Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "c3c71917aa2d09d860b34d3b389a8f6a67ceae46",
+          "materialHash": "5baf9d01e6e157ae02918867bb97482fbd04ea45ed00adf821b447f1022037f4",
+          "storyFilesHash": "b9fff77ff3ecdd5f581edd826a66ca89cf282ac5f3a4890a1fefbac695850b1e",
+          "timestamp": "2026-08-20T10:26:29.696Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:3",
+          "kind": "logic_test",
+          "command": "node --test packages/main/tests/causal-evidence.test.mjs",
+          "result": "pass",
+          "note": "Executed focused B-5a15 verification for CHK-005; selector matched the canonical test output for CHK-005.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "a92c5a5d170e1502aaeda6ba540c09e60c03255d4376700906d3ce997ea25d04",
+            "outputTail": "⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n✔ CHK-001: keys bind all identity fields, deduplicate exact complete work, and fan out selectors (10.895917ms)\n✔ CHK-002: CAS receipts precede isolated import, retry commit only, and fail closed on tamper (4.626375ms)\n✔ CHK-003: dependency domains shadow-compare closure and CertificationWindow rejects stale affected bypasses (0.606625ms)\n✔ CHK-004: preflight refuses exact readiness failures with zero execution/evidence counters (0.766583ms)\n✔ CHK-006: atomic pre-run revalidation refuses before the child runner with zero counters or writes (0.391458ms)\n✔ CHK-005: metrics are zero-safe and tamper-resistant canonical-ledger projections (0.320375ms)\nℹ tests 6\nℹ suites 0\nℹ pass 6\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 79.355\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T10:26:28.689Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "c3c71917aa2d09d860b34d3b389a8f6a67ceae46",
+          "materialHash": "5baf9d01e6e157ae02918867bb97482fbd04ea45ed00adf821b447f1022037f4",
+          "storyFilesHash": "b9fff77ff3ecdd5f581edd826a66ca89cf282ac5f3a4890a1fefbac695850b1e",
+          "timestamp": "2026-08-20T10:26:29.696Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "command": "node --test packages/main/tests/causal-evidence.test.mjs",
+          "result": "pass",
+          "note": "Executed focused B-5a15 verification for CHK-005; selector matched the canonical test output for CHK-005.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1486aff5ce13e311d789ef8ef3bffbd4232fe6efe4c432ea9e179080efd95c81",
+            "outputTail": "⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n✔ CHK-001: keys bind all identity fields, deduplicate exact complete work, and fan out selectors (10.29725ms)\n✔ CHK-002: CAS receipts precede isolated import, retry commit only, and fail closed on tamper (3.506792ms)\n✔ CHK-003: dependency domains shadow-compare closure and CertificationWindow rejects stale affected bypasses (0.611ms)\n✔ CHK-004: preflight refuses exact readiness failures with zero execution/evidence counters (0.810375ms)\n✔ CHK-006: atomic pre-run revalidation refuses before the child runner with zero counters or writes (0.367625ms)\n✔ CHK-005: metrics are zero-safe and tamper-resistant canonical-ledger projections (0.289417ms)\nℹ tests 6\nℹ suites 0\nℹ pass 6\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 74.366625\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T10:26:28.965Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "c3c71917aa2d09d860b34d3b389a8f6a67ceae46",
+          "materialHash": "5baf9d01e6e157ae02918867bb97482fbd04ea45ed00adf821b447f1022037f4",
+          "storyFilesHash": "b9fff77ff3ecdd5f581edd826a66ca89cf282ac5f3a4890a1fefbac695850b1e",
+          "timestamp": "2026-08-20T10:26:29.696Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:1",
+          "kind": "logic_test",
+          "command": "node --test packages/main/tests/causal-evidence.test.mjs",
+          "result": "pass",
+          "note": "Executed focused B-5a15 verification for CHK-005; selector matched the canonical test output for CHK-005.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "7ed97364bbc2b649e1e84157b9fc03e75e27e6cddef9d3ca464fa3c52f055554",
+            "outputTail": "⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n✔ CHK-001: keys bind all identity fields, deduplicate exact complete work, and fan out selectors (10.084042ms)\n✔ CHK-002: CAS receipts precede isolated import, retry commit only, and fail closed on tamper (4.006083ms)\n✔ CHK-003: dependency domains shadow-compare closure and CertificationWindow rejects stale affected bypasses (0.535125ms)\n✔ CHK-004: preflight refuses exact readiness failures with zero execution/evidence counters (0.728167ms)\n✔ CHK-006: atomic pre-run revalidation refuses before the child runner with zero counters or writes (0.334416ms)\n✔ CHK-005: metrics are zero-safe and tamper-resistant canonical-ledger projections (0.295625ms)\nℹ tests 6\nℹ suites 0\nℹ pass 6\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 74.098458\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T10:26:29.238Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "c3c71917aa2d09d860b34d3b389a8f6a67ceae46",
+          "materialHash": "5baf9d01e6e157ae02918867bb97482fbd04ea45ed00adf821b447f1022037f4",
+          "storyFilesHash": "b9fff77ff3ecdd5f581edd826a66ca89cf282ac5f3a4890a1fefbac695850b1e",
+          "timestamp": "2026-08-20T10:26:29.696Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:2",
+          "kind": "logic_test",
+          "command": "node --test packages/main/tests/causal-evidence.test.mjs",
+          "result": "pass",
+          "note": "Executed focused B-5a15 verification for CHK-005; selector matched the canonical test output for CHK-005.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "99bffad98c687e26781256c54beb2ae4350dcae69155bb306c04e93ee0f3b428",
+            "outputTail": "⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n✔ CHK-001: keys bind all identity fields, deduplicate exact complete work, and fan out selectors (9.920709ms)\n✔ CHK-002: CAS receipts precede isolated import, retry commit only, and fail closed on tamper (3.614625ms)\n✔ CHK-003: dependency domains shadow-compare closure and CertificationWindow rejects stale affected bypasses (0.5485ms)\n✔ CHK-004: preflight refuses exact readiness failures with zero execution/evidence counters (0.734583ms)\n✔ CHK-006: atomic pre-run revalidation refuses before the child runner with zero counters or writes (0.325667ms)\n✔ CHK-005: metrics are zero-safe and tamper-resistant canonical-ledger projections (0.282167ms)\nℹ tests 6\nℹ suites 0\nℹ pass 6\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 72.275875\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T10:26:29.522Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "c3c71917aa2d09d860b34d3b389a8f6a67ceae46",
+          "materialHash": "5baf9d01e6e157ae02918867bb97482fbd04ea45ed00adf821b447f1022037f4",
+          "storyFilesHash": "b9fff77ff3ecdd5f581edd826a66ca89cf282ac5f3a4890a1fefbac695850b1e",
+          "timestamp": "2026-08-20T10:26:29.696Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "096b70fdeb01488b6f2079b2d455fc963728392d405382bca2686bc1b5603554",
+        "storyFilesHash": "b9fff77ff3ecdd5f581edd826a66ca89cf282ac5f3a4890a1fefbac695850b1e",
+        "headHash": "c3c71917aa2d09d860b34d3b389a8f6a67ceae46",
+        "attestedAt": "2026-08-20T10:28:11.296Z",
+        "materialHash": "5baf9d01e6e157ae02918867bb97482fbd04ea45ed00adf821b447f1022037f4"
       }
     }
   ]
