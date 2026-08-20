@@ -323,7 +323,11 @@
           {
             "desc": "Every in-scope new artifact writer emits the proof-or-stop prefix for its schema while preserving the existing suffix and version.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/artifact-schema-migration.test.mjs",
+              "selector": "artifact-schema migration test passed"
+            }
           }
         ],
         "edge": [
@@ -340,7 +344,30 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "node packages/main/tests/artifact-schema-migration.test.mjs",
+          "result": "pass",
+          "note": "Canonical proof-or-stop command-spec and closeout receipt writers were asserted.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "24e0f7ca2fd730f0bef5ffde0ceaf3940b0e8eecc97055e13f5c0257b0cf8fb2",
+            "outputTail": "artifact-schema migration test passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T06:11:08.470Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "c2b0aa534be445ecae13c53ca6426adcc5cc4a48",
+          "materialHash": "3b2247fe33acdc7dc2603e9dee5764e551824957f467fd57206c621c99b5d238",
+          "storyFilesHash": "d0169898de849224bad64911759afc317837c874d6f556765d68bb63c0123ed0",
+          "timestamp": "2026-08-20T06:11:08.649Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
