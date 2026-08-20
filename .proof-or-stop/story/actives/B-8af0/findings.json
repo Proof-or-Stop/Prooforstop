@@ -1,0 +1,37 @@
+{
+  "findings": [
+    {
+      "id": "B-8af0:F-001",
+      "desc": "quality-fail-closed: packages/main/src/handlers/review-inventory.ts:400 captures candidateArtifactInvalid but discards it; a truthy non-array persisted candidates value present before the first review_inventory_begin still signs and returns State: OPEN with no candidate digest. Only a later status/evidence command invalidates it, so the initial inventory gate violates the documented deterministic INVALID_CANDIDATE_ARTIFACT fail-closed behavior. Reject or immediately persist/render INVALIDATED at begin, and add a pre-begin malformed-artifact handler fixture.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-20T11:13:04.047Z",
+      "reviewRound": "2026-08-20T11:11:04.601Z",
+      "reviewRunId": "B-8af0:RR-002",
+      "_hash": "6e741c9492cc13c95d7166691c588758b79068ed654c990a512971a53f183efd",
+      "signatureTag": "missing|unknown|quality-fail-closed",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-8af0:F-002",
+      "desc": "CHK-001:content-and-selection-drift / CHK-001:order-only-scope lacks a selected-path mutation assertion. packages/main/src/tasks/review-inventory-handler-smoke.ts:809-818 mutates only candidates[0].contentHash; no valid artifact changes a selected candidate path and candidateSpecSet/basis then proves the real review_inventory_status handler emits OPEN_REVIEW_INVENTORY_CANDIDATE_ROUTING_MUTATION. The stated user outcome requires invalidation when either selected path or contentHash changes, so a regression that drops path from the canonical barrier remains undetected.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-20T11:15:15.959Z",
+      "reviewRound": "2026-08-20T11:11:04.601Z",
+      "reviewRunId": "B-8af0:RR-004",
+      "_hash": "23da4b4a0bf1a007988f3f657e543427fb45d15117cd005f6d224aa00059b110",
+      "files": [
+        "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|content-selection-drift",
+      "signatureTagSource": "auto"
+    }
+  ]
+}

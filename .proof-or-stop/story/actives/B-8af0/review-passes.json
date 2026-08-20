@@ -1,0 +1,30 @@
+{
+  "passes": [
+    {
+      "id": "B-8af0:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Reviewed all B-8af0 diffs and the full review-inventory decision. The replacement keeps changedPaths as ranking-only input, canonically binds selected path plus contentHash, and classifies invalid persisted candidate artifacts fail-closed. Concept residue scan found no actionable stale concept.",
+      "createdAt": "2026-08-20T11:13:25.103Z",
+      "reviewRound": "2026-08-20T11:11:04.601Z",
+      "reviewRunId": "B-8af0:RR-001",
+      "envelopeId": "0956303379beb6d76d891bf16db602e18e4dc438a39313acfd0dfc006c0b52fa",
+      "writerSessionId": "sess-7910df854ed25d48b9951940c9ba8e0f",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/candidate-spec-routing.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/candidate-spec-routing.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "887112e3b5c8a0ec736b6295a64c41f57a9d10ce511710812006cfa9d208e346"
+    }
+  ]
+}
