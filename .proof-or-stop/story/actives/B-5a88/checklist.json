@@ -339,6 +339,29 @@
         "test": [
           "packages/main/tests/bin-alias-migration.test.mjs"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The main package bin map contains proof-or-stop and omits lattice, while the canonical help and entrypoint checks pass.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Residue scanning distinguishes frozen historical evidence and compatibility readers from unsupported new lattice command aliases.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A reintroduced lattice bin alias or help invocation fails the verification path rather than being silently accepted.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
       }
     }
   ]
