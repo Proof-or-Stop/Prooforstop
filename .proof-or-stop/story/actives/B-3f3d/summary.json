@@ -1,18 +1,18 @@
 {
   "storyId": "B-3f3d",
-  "changes": "REVIEW inventory freeze: persistFinalizedReviewInventory (and Unlocked inner persist) so a PRE_CERT completeness receipt can finalize without an OPEN epoch; IncrementalReviewBasis first-pass fallback at 512 paths; handler-smoke PRE_CERT finalize-without-OPEN; DEV-door preflight ack; topology-critic reconstruction digest pinned to 2300cde0; catalog single review_inventory_finalize; retired-authority bind cap 800 to 850; brand-prose rewritten to proof-or-stop; process-fact inventory artifact deduped; six-reviewer wording; PATH heartbeat resolve via sh -c; inventory fixture stubs in acceptance-basis and dev-memory door3. Closeout merge leftovers acknowledged on scope contract. 103-command validate PASS; story advanced to TEST.",
-  "usage": "From a story worktree use node packages/main/dist/cli.js (not a newer global CLI). In REVIEW, run review_inventory_finalize after lanes saturate; persistFinalizedReviewInventory writes a finalized completeness receipt. Incremental first-pass lists cap at 512 paths instead of throwing. DEV door requires a recorded preflight ack. Reviewer host shims start with review_run_start. After all active lanes pass, quorum_submit then story_advance --phase=TEST with PROOF_OR_STOP_MAX_TIMEOUT_MS=10800000. Use the worktree CLI 0.3.263 on this branch because global 0.3.264 rejects topology-critic envelopes.",
-  "expectedOutcome": "Operator can freeze REVIEW candidates, saturate required lanes including topology-critic, finalize a review-inventory receipt, pass REVIEW-to-TEST with 103-command validate, and see Story B-3f3d advanced to TEST with 6/6 checklist done and 0 open findings.",
-  "actualTranscript": "2026-08-19 worktree CLI 0.3.263: scope_contract_acknowledge added the last two OUT_OF_SCOPE paths; story_advance --phase=TEST printed ProofStory REVIEW completeness pass, REVIEW-to-TEST CLI preflight pass (channel/lint/docs-drift/english-artifacts/lattice-residue; concept warn ENOBUFS skip), then 103/103 validate PASS and Story B-3f3d advanced to TEST. finding_list openCount=0. Checklist 6/6 done. 14 follow-up bugs remain open and are documented in B-3f3d-FOLLOWUP-STORIES.md.",
-  "outcomeDiff": "No difference on the shipped checklist: inventory freeze, bounded saturation, and REVIEW-to-TEST advance all happened. Remaining gap is 14 documented follow-up bugs that the DONE bugs-fixed gate still treats as open.",
+  "changes": "REVIEW inventory freeze: OPEN epoch binds cutoff hashes and required lanes; saturation plus topology-critic; persistFinalizedReviewInventory writes inventory-completeness-only receipts (authorizesTest=false); certification_window_begin consumes those via consumeReviewInventoryCompletenessReceipt while REVIEW→DEV still uses consumeReviewInventoryReceipt. Incremental first-pass cap 512; topology-critic is a modular body not a five-lane REVIEW bootstrap; flow-stability discovery stubs and .proof-or-stop gitignore in concurrent incremental-context fixture.",
+  "usage": "In REVIEW: review_inventory_begin, saturate required lanes plus topology critic, review_inventory_finalize. Remediation DEV consumes the wave receipt once. After final review passes and 3x2, story_advance TEST. Then review_inventory_finalize (completeness if no OPEN), certification_window_begin, done_required_validate exactly once, done_prepare --mergeMain --refreshStale, story_advance DONE. Use node packages/main/dist/cli.js in the story worktree.",
+  "expectedOutcome": "Operator can freeze one REVIEW candidate, complete all required review lanes and a completeness critic until a zero-new-verified-finding saturation wave, enter one aggregated remediation DEV, run fresh final review without reducing quality assurance, then admit PRE_CERT and finish the story locally DONE.",
+  "actualTranscript": "Worktree CLI: two-wave inventory (RI-050) then remediation DEV; later completeness receipts RIE-059 consumed by certification_window_begin (CW-006 ADMITTED). Five current-round review passes RP-409..413, local 3x2, TEST 112/112, done_required_validate PASS (npm test 58/58), done_prepare PASS. finding_list open blocking empty; F-134 accepted_risk naming residue. 18 bugs fixed, 0 open.",
+  "outcomeDiff": "No difference versus the original snapshot: freeze, saturate, one remediation DEV, fresh final review, and local DONE are all delivered. PRE_CERT completeness is a prerequisite receipt, not TEST authority.",
   "acceptanceVerdict": "accepted",
   "outcomeKind": "success",
   "realMachineCoverage": {
     "ran": [],
     "skipped": []
   },
-  "limitations": "14 open follow-up bugs are not implemented in this story (F-107 leak, stale-lane status, critic findings invisible, pre-review stale-as-tampered, verified-count misread, replay symbol name, userSees not mechanical, epoch lock serialization, critic receipt/provenance/independence, prompt-envelope unrepairable, critic findings blocked on B-49ed). They are specified in B-3f3d-FOLLOWUP-STORIES.md. Global CLI 0.3.264 on main dropped topology-critic from the modular reviewer allowlist, so this branch must use node packages/main/dist/cli.js 0.3.263.",
-  "pitfalls": "Do not use the global proof-or-stop 0.3.264 against this worktree: it fails review_evidence_invalid on topology-critic envelopes even when the worktree CLI would pass. Do not product-commit after minting current-round review passes or they stale. Acknowledge OUT_OF_SCOPE paths before TEST; dirty scope-contract.json is enough. story_advance TEST runs the full 103-command validate (~15-20 min) after CLI preflight. REVIEW-to-DEV completeness receipts cannot be consumed when scopeDigest is the cutoff digest. Convergence-breaker freeze needs a human TTY story_resume --ack. Merge of 397 main commits is still required before DONE and will likely refresh evidence again.",
+  "limitations": "F-134 leftover comments still say PRE_CERT completeness receipt; gates do not treat completeness as PRE_CERT. Some follow-up items remain documented in B-3f3d-FOLLOWUP-STORIES.md and are not this story's DONE scope.",
+  "pitfalls": "Do not consume completeness receipts with consumeReviewInventoryReceipt (REVIEW→DEV); certification_window_begin must use consumeReviewInventoryCompletenessReceipt. persistBlockedCertificationWindow reuses BLOCKED windows only when blockerCode and blockerDetail both match. After TEST entry do not retry done_required_validate or validate at unchanged material (unchangedSuiteExecutions). Topology-critic is modular-body, not a five-lane review_run_start bootstrap. Use the worktree CLI.",
   "phaseStats": {
     "INIT": {
       "count": 1,
@@ -27,19 +27,19 @@
       "durationMs": 2674862
     },
     "DEV": {
-      "count": 26,
-      "durationMs": 93534548
+      "count": 33,
+      "durationMs": 130443032
     },
     "REVIEW": {
-      "count": 24,
-      "durationMs": 338575215
+      "count": 31,
+      "durationMs": 358178730
     },
     "TEST": {
-      "count": 2,
-      "durationMs": 546055
+      "count": 8,
+      "durationMs": 8305647
     }
   },
-  "totalDurationMs": 435763100,
+  "totalDurationMs": 500034691,
   "fixtureStats": {
     "totalRuns": 0,
     "totalCases": 0,
@@ -48,9 +48,9 @@
   },
   "bugStats": {
     "found": 18,
-    "fixed": 4,
-    "open": 14
+    "fixed": 18,
+    "open": 0
   },
   "createdAt": "2026-08-19T14:44:54.140Z",
-  "updatedAt": "2026-08-19T14:44:54.140Z"
+  "updatedAt": "2026-08-20T08:36:05.731Z"
 }
