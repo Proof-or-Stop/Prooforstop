@@ -4341,6 +4341,118 @@
       ],
       "signatureTag": "missing|ts|through-coverage-blocked",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-095",
+      "desc": "CHK-001 through CHK-007 coverage cannot be admitted for this REVIEW round: .proof-or-stop/story/actives/B-5a88/pre-review-check.json:1580-1586 is status=inconclusive with PR_NEW_PATH_UNMAPPED, PR_COVERAGE_BASIS_CHANGED, PR_COVERAGE_INCONCLUSIVE, and PR_PLANNED_PATH_UNRESOLVED; lines 1011-1039 mark the verifier snapshot seal partial with unmapped executable-gate paths. The current acceptance_topology_check returns status=fail and structuralPass=false with AT_CLOSURE_FILES_STALE and AT_SCOPE_BINDING_MISSING, topology_critic_receipt_check reports AT_TOPOLOGY_CRITIC_RECEIPT_MISSING, and acceptance_rollout_report_read reports AR_REPORT_STALE. All 21 intents have one passing evidence record, but those records do not substitute for current verifier-owned pre-review/topology/rollout evidence; reissue the artifacts and rerun the executable coverage boundary before passing.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-20T22:25:29.495Z",
+      "reviewRound": "2026-08-20T22:17:25.338Z",
+      "reviewRunId": "B-5a88:RR-105",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/review-run.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0fbcced5ee4ead01aa950274a596ff243030a0b4062bd8580916d4886117928a",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/acceptance-rollout.ts"
+      ],
+      "signatureTag": "missing|json|through-coverage-cannot",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-096",
+      "desc": "docs/CLI.md:1074 — user-facing lab package guidance still says a canonical proof-or-stop install enables lab when @lattice/lab is resolvable, but CHK-006 renames the sibling package and package dependency to @proof-or-stop/lab. No deprecated/read-only qualifier is present, so the documented installation contract points operators at a package name the migrated repository no longer publishes.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-20T22:27:40.757Z",
+      "reviewRound": "2026-08-20T22:17:25.338Z",
+      "reviewRunId": "B-5a88:RR-104",
+      "_hash": "37ba08203ba58b61d4d3fa7d448ae8767163affeefe2a02da57a2c485de5fa61",
+      "signatureTag": "missing|unknown|docs-1074-user",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-097",
+      "desc": "scripts/verify-entrypoints.mjs:200-203 — the fresh init profile verifier still asserts retired prompt paths .proof-or-stop-codex/agents/test-intent.md, test-case-reviewer.md, lattice-review-quality.md, and lattice-implementer.md. The current prompt registry canonicalizes every template filename to proof-or-stop-*.md (packages/main/src/core/prompt-registry.ts:360-370), and cli-init materializes exactly those canonical files while removing non-canonical extras (packages/main/src/cli-init.ts:1020-1029), so the verifier rejects a valid fresh --profile=codex/all --asset-mode=full initialization and the migration entrypoint contract cannot pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-20T22:28:00.629Z",
+      "reviewRound": "2026-08-20T22:17:25.338Z",
+      "reviewRunId": "B-5a88:RR-104",
+      "_hash": "8bda7b37db6b667cef14f1497c7b3bf4f354a5699efafeab61e71de79e6ae739",
+      "signatureTag": "missing|unknown|scripts-verify-entrypoints",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-098",
+      "desc": "concept-canonical-emission-residue: active new outputs and writes still use retired lattice role IDs. packages/main/src/handlers/evaluate.ts:67-105 emits and resolves lattice-evaluator and lattice-evaluator-cli in evaluator instructions, prompt envelopes, role contracts, and metadata locks; packages/main/src/core/lattice-parallel-wave.ts:628-631 emits agentType=lattice-implementer in the next-dispatch command; packages/main/src/handlers/dev-memory.ts:76-87 defaults newly captured memory sourceAgent to lattice-implementer. The canonical role registry now defines proof-or-stop-evaluator, proof-or-stop-evaluator-cli, and proof-or-stop-implementer, so this story remains incomplete for canonical new outputs/writes even though legacy aliases are accepted on read.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-20T22:28:52.781Z",
+      "reviewRound": "2026-08-20T22:17:25.338Z",
+      "reviewRunId": "B-5a88:RR-106",
+      "_hash": "2e78da66d4d7685e65bb199f7e6ce1b278477f1c3b6ea02fc97291388fcee046",
+      "files": [
+        "packages/main/src/handlers/evaluate.ts",
+        "packages/main/src/core/lattice-parallel-wave.ts",
+        "packages/main/src/handlers/dev-memory.ts"
+      ],
+      "signatureTag": "missing|ts|concept-canonical-emission",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-099",
+      "desc": "packages/main/src/init-assets.ts:714,870 - both generated Codex PreToolUse hook resolvers omit the canonical node_modules/@proof-or-stop/core/dist/cli.js candidate while the bootstrap resolver includes it. A consumer project with only the renamed @proof-or-stop/core package installed, and without local packages/main/dist or a bin wrapper, therefore resolves no CLI; the scope guard and evidence-pin hook silently exit 0, bypassing their intended seatbelt. Add the canonical package candidate before the legacy @lattice fallback and cover the rendered hook output.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-08-20T22:28:58.534Z",
+      "reviewRound": "2026-08-20T22:17:25.338Z",
+      "reviewRunId": "B-5a88:RR-107",
+      "_hash": "f67fccf7b3b46a6fa6b4e63c1c746ae58451a1889c9f85f06130324bd79fbfbc",
+      "files": [
+        "packages/main/src/init-assets.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-init",
+      "signatureTagSource": "auto"
     }
   ]
 }
