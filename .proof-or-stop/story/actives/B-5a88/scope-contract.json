@@ -61,11 +61,13 @@
     "packages/main/src/cli.ts",
     "packages/main/src/cli/help-renderer.ts",
     "scripts/verify-entrypoints.mjs",
-    "scripts/verify-lattice-residue.mjs"
+    "scripts/verify-lattice-residue.mjs",
+    "packages/main/src/cli-init.ts"
   ],
   "allowedCreate": [
     "packages/main/src/core/agent-role-identity.ts",
-    "packages/main/src/core/artifact-schema.ts"
+    "packages/main/src/core/artifact-schema.ts",
+    "packages/main/src/core/managed-markers.ts"
   ],
   "allowedTest": [
     "packages/main/tests/brand-role-migration.test.mjs",
@@ -80,10 +82,10 @@
   ],
   "protectedFiles": [],
   "explicitExcludes": [],
-  "scopeChangeReason": "Use the approved B-5a88 PLAN checklist and scope boundary as the implementation contract; preserve legacy reads, exclude archived story/fixture data, CHANGELOG, old sibling package publication names, remote/destructive operations, and unrelated dirty files.",
+  "scopeChangeReason": "CHK-002 adds the shared managed-marker helper and shared init sync path; preserve the existing enforce contract arrays, protections, and exclusions unchanged.",
   "acknowledgements": [],
   "createdAt": "2026-08-20T05:20:00.402Z",
-  "updatedAt": "2026-08-20T05:20:00.402Z",
+  "updatedAt": "2026-08-20T05:53:27.481Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -104,7 +106,7 @@
     "packages/main/src/handlers/review-preflight.ts": "packages/main/src/handlers/review-preflight.ts",
     "packages/main/src/handlers/transition-effects.ts": "packages/main/src/handlers/transition-effects.ts",
     "packages/main/src/handlers/story-dispatch.ts": "packages/main/src/handlers/story-dispatch.ts",
-    "packages/main/templates/agents": "packages/main/templates/agents/",
+    "packages/main/templates/agents": "packages/main/templates/agents",
     "scripts/verify-process-fact-contract.mjs": "scripts/verify-process-fact-contract.mjs",
     "scripts/verify-proof-or-stop-prompt-baseline.mjs": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
     "scripts/verify-codex-assets.mjs": "scripts/verify-codex-assets.mjs",
@@ -157,6 +159,8 @@
     "packages/main/tests/package-identity-migration.test.mjs": "packages/main/tests/package-identity-migration.test.mjs",
     "packages/main/src/tasks/version-bump-smoke.ts": "packages/main/src/tasks/version-bump-smoke.ts",
     "scripts/verify-global-lab-entrypoint.mjs": "scripts/verify-global-lab-entrypoint.mjs",
-    "packages/main/tests/bin-alias-migration.test.mjs": "packages/main/tests/bin-alias-migration.test.mjs"
+    "packages/main/tests/bin-alias-migration.test.mjs": "packages/main/tests/bin-alias-migration.test.mjs",
+    "packages/main/src/cli-init.ts": "packages/main/src/cli-init.ts",
+    "packages/main/src/core/managed-markers.ts": "packages/main/src/core/managed-markers.ts"
   }
 }
