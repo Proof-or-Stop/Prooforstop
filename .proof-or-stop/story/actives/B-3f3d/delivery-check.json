@@ -1,146 +1,120 @@
 {
   "storyId": "B-3f3d",
-  "checkedAt": "2026-08-19T19:02:46.316Z",
-  "headHash": "791a3f728563d31e10a1572dcf77861ed5972d74",
-  "materialHash": "c1c84440192c04a3f4b1c9d646316164219aec7c0625fa04be17cb2a154333fd",
-  "storyFilesHash": "7b357339c3e54faf0501313f345933a239deadce31ea94dacd1b0d95c9c8d4d1",
-  "reviewRound": "2026-08-19T18:29:09.429Z",
+  "checkedAt": "2026-08-20T05:28:56.569Z",
+  "headHash": "0308e4071282d54ba03522ca809e731ddb2ae3ef",
+  "materialHash": "d32efb491ddeb2daefd22cc076a9dd21ec49b12ed7525038d6f384d33cc0b89f",
+  "storyFilesHash": "ce5443e91eb5adac09579e37a255b6677472f27ee0bd6ae784b088c554658574",
+  "reviewRound": "2026-08-20T04:06:08.943Z",
   "agentId": "lattice-review-delivery",
   "docsPromises": [
     {
-      "docPath": "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md#operator-workflow",
-      "promise": "Operators can freeze a REVIEW candidate with review_inventory_begin/status/critic_set/wave_advance/finalize/cancel.",
-      "verifiedBy": "diff/grep",
-      "evidence": "All six commands are in command-catalog.ts, command-policy.ts, process-fact-registry.ts, and createReviewInventoryHandlers; registry.ts registerBatch wires them."
+      "docPath": "docs/evidence-integrity-program-spec.md#7-frozen-review-inventory-boundary",
+      "promise": "Review discovery has a signed gate-consumed frozen-candidate boundary in review-inventory-epochs.json binding material/story-files hashes, scope, review round, required lanes, wave evidence and verified finding-set digest; an OPEN epoch rejects material writes; a zero-new-finding saturation receipt authorizes one aggregated REVIEW to remediation DEV only and cannot authorize TEST or certify repaired material.",
+      "verifiedBy": "diff/grep/smoke",
+      "evidence": "packages/main/src/core/review-inventory-epoch.ts signs epochs/receipts with authority=inventory-completeness-only and authorizesTest=false; handlers/prewrite-guard.ts emits OPEN_REVIEW_INVENTORY_MATERIAL_MUTATION; machine.ts canReenterDev consumes reviewInventoryRemediationGate; review-inventory-epoch-smoke.ts asserts receipt.authorizesTest=false, cross-story replay reject, and absentGate.ok=false."
     },
     {
       "docPath": "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md#operator-workflow",
-      "promise": "begin prints epoch id, State: OPEN, frozen material cutoff, and exactly one Next: status command.",
-      "verifiedBy": "diff/grep",
-      "evidence": "renderReviewInventoryBegin in review-inventory.ts emits those four lines; review-inventory-epoch-smoke.ts asserts the exact fields and a single Next: line."
-    },
-    {
-      "docPath": "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md#operator-workflow",
-      "promise": "status prints every required lane, current wave, verified/new finding counts, blocker codes, and exactly one Next: command.",
-      "verifiedBy": "diff/grep",
-      "evidence": "renderReviewInventoryStatus / renderProjectedStatus; smoke asserts per-lane rows, Verified/New verified findings, blockers, and exactly one Next:."
+      "promise": "Operators can begin, status, critic_set, wave_advance, finalize, and cancel a frozen REVIEW inventory epoch; begin prints epoch id, State OPEN, frozen cutoff and exactly one Next command; status prints every required lane, wave, verified/new counts, blockers and exactly one Next command.",
+      "verifiedBy": "grep handler registration + smoke",
+      "evidence": "cli/command-catalog.ts registers review_inventory_begin/status/critic_set/wave_advance/finalize/cancel; registry.ts registerBatch(createReviewInventoryHandlers); command-policy.ts marks them gateEvidence; review-inventory-epoch-smoke.ts matches /^State: OPEN$/, Frozen cutoff, and exactly one Next: line; review-inventory-handler-smoke.ts drives the real handlers including critic_set and wave_advance."
     },
     {
       "docPath": "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md#state-and-authority",
-      "promise": "Signed epoch states are OPEN, FINALIZED, INVALIDATED, CANCELLED; receipt authority is inventory-completeness-only with authorizesTest=false and one REVIEW-to-remediation-DEV consumption.",
-      "verifiedBy": "diff/grep",
-      "evidence": "types.ts + sign/verify receipt require authority=inventory-completeness-only and authorizesTest=false; consumeReviewInventoryReceipt is called in transition-orchestrator before publishing DEV; replay/second consume fail closed."
-    },
-    {
-      "docPath": "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md#state-and-authority",
-      "promise": "REVIEW->DEV inventory gate is mandatory; absence of the artifact is not a legacy PASS.",
-      "verifiedBy": "diff/grep",
-      "evidence": "reviewInventoryRemediationGate returns required:true ok:false when no epoch exists; canReenterDevGuard and getGuardFailureReason both consume it; smoke asserts absentGate.ok===false and nextCommand includes review_inventory_begin."
+      "promise": "Signed epochs use OPEN/FINALIZED/INVALIDATED/CANCELLED; the receipt has authority=inventory-completeness-only, authorizesTest=false, binds story/round/epoch/cutoff/scope/lanes/finding-set/coverage/wave count; REVIEW to DEV is mandatory and absence is not a legacy PASS; consumption failure leaves the story in REVIEW; completeness is not PRE_CERT.",
+      "verifiedBy": "diff/grep/smoke git log f8b2b97463",
+      "evidence": "review_inventory_finalize writes authorizesTest:false; consumeReviewInventoryReceipt in transition-orchestrator.ts is the remediation consumer; f8b2b97463 adds consumeReviewInventoryCompletenessReceipt for PRE_CERT empty-wave receipts that still keep authorizesTest=false and cannot satisfy consumeReviewInventoryReceipt; epoch-smoke asserts PRE_CERT completeness consume marks consumed, second consume throws ALREADY_CONSUMED, and remediation consume still refuses empty-wave completeness receipts."
     },
     {
       "docPath": "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md#saturation-rule",
-      "promise": "A wave completes only when every computeActiveReviewers lane has a terminal on the frozen cutoff, critic dispositions classify families, and finalize requires a zero-new wave plus a valid current-wave critic receipt.",
-      "verifiedBy": "diff/grep",
-      "evidence": "evaluateReviewInventoryWave + validateReviewInventoryCriticReceipt; finalize rejects LANES_INCOMPLETE, CRITIC_INCOMPLETE, and NEW_FINDINGS_REQUIRE_NEXT_WAVE; wave_advance is the only nonzero-new checkpoint; smoke covers duplicate/not_verified/missing/forged dispositions and budget exhaustion never PASS."
+      "promise": "A wave can complete only when every computeActiveReviewers lane has a terminal signed pass or finding on the frozen cutoff with signed readManifest and readLog, duplicate lane identities cannot increase coverage, an independent lattice-review-topology-critic signs per-finding dispositions, and finalize is exclusively the zero-new receipt writer; budget exhaustion yields REVIEW_INVENTORY_BUDGET_EXHAUSTED never PASS.",
+      "verifiedBy": "diff/grep/smoke",
+      "evidence": "review-inventory-epoch-smoke.ts covers missing readLog, critic verified_family/duplicate/not_verified/unknown/conflict, suspected findings excluded from families, wave_advance vs finalize, and budget; handler-smoke asserts incomplete-wave and critic-incomplete rejections are side-effect free and budget rejection does not persist a wave."
     },
     {
       "docPath": "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md#freshness-and-mutation-enforcement",
-      "promise": "An OPEN epoch rejects material writes at the prewrite projection, and every authoritative consumer revalidates cutoff/scope/lanes.",
-      "verifiedBy": "diff/grep",
-      "evidence": "prewrite-guard.ts denies OPEN_REVIEW_INVENTORY_MATERIAL_MUTATION for non-metadata targets; persistInvalidationIfDrifted is used by status/critic/wave/finalize/consume; handler-smoke asserts scope, ProofStory, and candidate-routing drift invalidate before finalize."
+      "promise": "The preventative prewrite projection rejects material targets while an epoch is OPEN; review_run_start, review_pass_set, finding_add, finalize, status and transition consumption recompute lineage/scope/lanes; scope or lane drift INVALIDATED with OPEN_REVIEW_INVENTORY_SCOPE_MUTATION; a pure verification_evidence_refresh_stale re-pin that does not change observed results does not move the scope digest.",
+      "verifiedBy": "diff/grep/smoke",
+      "evidence": "handlers/prewrite-guard.ts OPEN_REVIEW_INVENTORY_MATERIAL_MUTATION recovery via review_inventory_cancel; epoch-smoke stale mutation invalidates OPEN to INVALIDATED and status Next is begin; 6cbbbf73 uses brand-paths STATE_DIR_NAMES so both .proof-or-stop and .lattice prefixes are lock/runtime exempt. The decision doc's BUG-F107-INCOMPLETE is explicitly not a guarantee and is not counted as a delivered promise."
     },
     {
       "docPath": "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md#final-review-after-remediation",
-      "promise": "Post-remediation final review is recomputed from dependency closure; a proven narrow repair selects only impacted active lanes, fail-closed to the full set, and never reduces required host assurance.",
-      "verifiedBy": "diff/grep",
-      "evidence": "postRemediationReviewSelection + renderFinalReviewRoster; reviewer-list and transition-effects project Final-review lanes / Selection / Next; handler-smoke asserts dependency-closure narrowing, requiredHostAssurance=unchanged, and full-set on dirty/ignored/rename."
-    },
-    {
-      "docPath": "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md#deterministic-efficiency-and-quality-acceptance",
-      "promise": "review-inventory-epoch-smoke.ts deterministically replays B-cdf6 counters: 0 OPEN mutations, 1 aggregated remediation, hosts 2->2, lanes unchanged, zero quality-regression counters.",
-      "verifiedBy": "diff/grep",
-      "evidence": "Local replay() is called twice with deepEqual; asserts baseline redispatches>=5, proposed=0, hosts 2->2, lanes unchanged, criticalHighEscapes+budgetManufacturedPasses=0, and labeled PASS lines."
+      "promise": "REVIEW to TEST never consumes the inventory receipt; post-remediation lane selection is recomputed from current hashes, frozen scope, changed-file status and bidirectional dependency closure; reviewer_list projects Final-review lanes, Selection, and one Next command; required host and escalation assurance remain unchanged.",
+      "verifiedBy": "CLI reviewer_list + review_escalation_status + smoke",
+      "evidence": "Independent reviewer_list for B-3f3d prints Final-review lanes (concept/quality/test-coverage/behavior/docs), Selection: full-set, and one Next dispatch. review_escalation_status ok=true assuranceLevel=full-3x2 fullQuorum=3/3 rounds x 2 hosts at materialHash d32efb491dde storyFilesHash ce5443e91eb5. epoch-smoke replay requiredHostCount 2 -> 2 and requiredLaneCount 3 -> 3."
     },
     {
       "docPath": "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md#process-fact-contract",
-      "promise": "review-inventory-epochs.json is an L4 signed artifact; the six epoch commands and REVIEW-to-DEV consumer are registered in the process-fact contract.",
-      "verifiedBy": "diff/grep",
-      "evidence": "process-fact-registry.ts and process-fact-levels.ts register all six commands plus artifact:review-inventory-epochs.json; scripts/verify-process-fact-contract.mjs lists the same command set."
+      "promise": "review-inventory-epochs.json is an L4 signed artifact registered in process-fact-registry.ts; the six epoch commands, signatures, freshness semantics and REVIEW-to-DEV consumer are checked by scripts/verify-process-fact-contract.mjs.",
+      "verifiedBy": "grep process-fact registry",
+      "evidence": "process-fact-registry.ts review_inventory_begin/status/critic_set/wave_advance/finalize/cancel entries bind review-inventory-epochs.json with sign/verify ReviewInventoryEpoch/Receipt/CriticReceipt; process-fact-levels.ts L4 review_inventory_finalize; scripts/verify-process-fact-contract.mjs artifact:review-inventory-epochs.json signaturePattern includes all three sign/verify pairs."
     },
     {
-      "docPath": "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md#wave-4-authority-boundary-for-this-story",
-      "promise": "This repo's pre-review/topology artifacts stay diagnostic in observe mode; an inconclusive/fail result must not be described as PASS or used as lifecycle authority.",
-      "verifiedBy": "independent CLI: acceptance_topology_check + pre_review_check_read",
-      "evidence": "acceptance_topology_check returned mode=observe status=fail structuralPass=false blocking=false. pre_review_check_read returned mode=observe status=inconclusive ok=false blocking=false. Neither is treated as PASS."
-    },
-    {
-      "docPath": "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md#wave-4-authority-boundary-for-this-story",
-      "promise": "Mandatory Wave 4 authority is the current signed acceptance-rollout-report.json with genuine full-3x2 quorum; proofStory.acceptanceRolloutGateMode=enforce.",
-      "verifiedBy": "independent CLI: acceptance_rollout_report_read + acceptance_rollout_check + config read",
-      "evidence": "Both commands returned identical {ok:true,status:pass,mode:enforce,blocking:false,diagnostics:[],receipt:current,quorum:full-3x2,report.verdict:pass}. proof-or-stop.config.json and lattice.config.json set acceptanceRolloutGateMode=enforce. Binding materialHash=c1c84440192c04a3f4b1c9d646316164219aec7c0625fa04be17cb2a154333fd / storyFilesHash=7b357339c3e54faf0501313f345933a239deadce31ea94dacd1b0d95c9c8d4d1; CLI classified receipt current despite later metadata-only HEAD 791a3f7285."
+      "docPath": "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md#wave-4-authority-boundary",
+      "promise": "This repository configures executable pre-review in observe mode so its signed artifact remains diagnostic and an inconclusive result must never be described as PASS or lifecycle authority; the mandatory Wave 4 acceptance authority is the current signed acceptance-rollout-report.json with genuine full-3x2 quorum; proofStory.acceptanceRolloutGateMode=enforce so DEV to REVIEW rejects missing, stale, tampered, non-promotable or degraded reports.",
+      "verifiedBy": "independent CLI reads of acceptance_topology_check, pre_review_check_read, acceptance_rollout_report_read, acceptance_rollout_check",
+      "evidence": "acceptance_topology_check: mode=observe status=fail structuralPass=false blocking=false authority=diagnostic_only. pre_review_check_read: mode=observe status=inconclusive ok=false blocking=false authority=inadmissible. acceptance_rollout_report_read and acceptance_rollout_check both ok=true status=pass mode=enforce blocking=false receipt=current quorum=full-3x2 verdict=pass diagnostics=[] mislabeled3x1Count=0 binding.materialHash=d32efb491ddeb2daefd22cc076a9dd21ec49b12ed7525038d6f384d33cc0b89f storyFilesHash=ce5443e91eb5adac09579e37a255b6677472f27ee0bd6ae784b088c554658574. lattice.config.json and proof-or-stop.config.json set proofStory.acceptanceRolloutGateMode=enforce. Prompt prose was not used as gate evidence."
     },
     {
       "docPath": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#implemented-contract",
-      "promise": "Observe/warn/enforce keep the same status and ordered diagnostics; only enforce blocks. Rollback changes only acceptanceRolloutGateMode and never deletes reports or prior evidence.",
-      "verifiedBy": "independent CLI + grep",
-      "evidence": "acceptance_rollout_report_read and acceptance_rollout_check emitted identical status/diagnostics/receipt/quorum on this story. verifyAcceptanceRolloutArtifact sets blocking only when mode==='enforce' && !ok. transition-orchestrator rollback text says change the mode only; prior reports remain immutable."
-    },
-    {
-      "docPath": "docs/evidence-integrity-program-spec.md#7-frozen-review-inventory-boundary",
-      "promise": "Review discovery has a signed gate-consumed frozen-candidate boundary; a zero-new saturation receipt authorizes one REVIEW->DEV remediation only and cannot authorize TEST.",
-      "verifiedBy": "diff/grep",
-      "evidence": "Same gate/receipt implementation as the decision doc: authorizesTest stays false; REVIEW->TEST does not consume the receipt; consume is REVIEW->DEV only."
+      "promise": "acceptance_rollout_report_read and acceptance_rollout_check are read-only; observe, warn, and enforce keep the same status and ordered diagnostics and only enforce blocks; this repository opts into that blocking boundary with proofStory.acceptanceRolloutGateMode=enforce so the current signed promotable full-3x2 report is lifecycle authority; rollback changes only that config key to warn or observe and never deletes or rewrites a report, receipt, failed attempt, or prior evidence.",
+      "verifiedBy": "code grep + rollout smoke + independent CLI",
+      "evidence": "core/acceptance-rollout.ts verifyAcceptanceRolloutArtifact sets blocking: args.mode === 'enforce' && !ok while status/diagnostics are mode-invariant. proofstory-acceptance-rollout-smoke.ts asserts observe/warn/enforce all status=pass blocking=false on a clean receipt and equal(acceptanceRolloutHistoryDigest) after mode changes. transition-orchestrator.ts rollback text: set proofStory.acceptanceRolloutGateMode to warn or observe; prior reports remain immutable. Independent report_read and rollout_check returned identical status/diagnostics/quorum."
     },
     {
       "docPath": "docs/requirements/decisions/lifecycle-artifact-scope.md#host-neutral-prompt-content",
-      "promise": "The package prompt registry exposes six migrated reviewer definitions, including lattice-review-topology-critic.",
-      "verifiedBy": "diff/grep",
-      "evidence": "prompt-registry.ts lists lattice-review-topology-critic; templates/agents/lattice-review-topology-critic.md exists; thin shims added under .claude/agents and .proof-or-stop-codex/agents."
+      "promise": "The package prompt registry is the single source for ordinary role bodies and for the six migrated reviewer definitions; the registry host resolver exposes those six reviewers as a body-free review_run_start bootstrap.",
+      "verifiedBy": "grep prompt registry",
+      "evidence": "packages/main/src/core/prompt-registry.ts MODULAR_REVIEWER_ROLE_IDS has six entries including lattice-review-topology-critic; registry.ts comments that the six migrated reviewers receive a body-free review_run_start bootstrap; templates/agents/lattice-review-topology-critic.md carries proofbound:modular-role-body:v1."
     },
     {
       "docPath": "AGENTS.md#english-authoring-and-legacy-relateddocs-recovery",
-      "promise": "English-artifact gates scan recursively scanned string leaves of story metadata for leftover CJK before REVIEW->TEST.",
-      "verifiedBy": "grep",
-      "evidence": "packages/main/src/handlers/english-artifact-gate.ts implements the CJK scan; pre-existing gate, section added on this branch."
+      "promise": "English-artifact gates scan all recursively scanned string leaves of story metadata (examples excludes/files/reason/verificationEvidence are non-exhaustive) and leftover CJK must be recovered before REVIEW to TEST; reviewer latest-run binding is kind-aware: a fresh PASS is accepted on any current-round material-fresh run while an open FINDING still requires the latest run on the lane.",
+      "verifiedBy": "grep english-artifact-gate and review-run.ts",
+      "evidence": "handlers/english-artifact-gate.ts checklistEnglishAuthoringFields recursively visits string leaves including relatedDocs/excludes/files/verificationIntent/verificationEvidence/reason (pre-existing B-5f42, documented by this story). core/review-run.ts keeps stale_run only when evidence.kind !== 'pass', so a fresh non-latest PASS remains admissible while an open FINDING still requires the lane latest run. story-lifecycle.md and testing-infra.md diffs match that kind-aware contract."
     },
     {
-      "docPath": "AGENTS.md#english-authoring-and-legacy-relateddocs-recovery",
-      "promise": "Reviewer latest-run binding is kind-aware: a fresh PASS is accepted on any current-round material-fresh run; an open FINDING still requires the latest run on the lane.",
-      "verifiedBy": "grep",
-      "evidence": "Pre-existing review-run binding policy restated; story-lifecycle.md and testing-infra.md wording aligned to the same kind-aware rule."
+      "docPath": "docs/requirements/decisions/testing-infra.md#process-fact-protection",
+      "promise": "reviewRunId gate validation is kind-aware: lane/round/material/scope freshness apply to both kinds; only an open FINDING requires the lane latest run, while a fresh non-latest PASS remains admissible; mere same-lane id-recency does not invalidate a fresh PASS.",
+      "verifiedBy": "grep review-run.ts flow-fact-policy",
+      "evidence": "core/review-run.ts:1443-1460 kind-aware stale_run; core/flow-fact-policy.ts and process-fact-levels.ts flow-policy:review-run-boundary state the same PASS vs FINDING split. Pre-existing binding-race contract, restated by this story's docs diff."
+    },
+    {
+      "docPath": "docs/requirements/decisions/test-runner-consolidation-plan.md#canonical-root-suite-execution",
+      "promise": "Timeouts terminate the member process tree via terminateProcessTreeAndVerify, which freezes the captured tree with SIGSTOP until two stable snapshots add no new members, SIGKILLs and re-polls until no captured PID remains, keys ownership on (pid, birthIdentity) from parseProcessRows, and bounds the post-SIGKILL retry by the cleanup budget with fail-closed surviving-PID recording."
     }
   ],
   "realMachineTests": [
     {
       "featureId": "CHK-001",
-      "transcript": "review-inventory-epoch-smoke.ts asserts signed epoch/receipt verify, tamper reject, begin/status field contract, cancel/FINALIZED/INVALIDATED distinguishability, absent-artifact gate fail-closed, and authorizesTest=false. review-inventory-handler-smoke.ts drives real review_inventory_begin/status CLI."
+      "transcript": "packages/main/src/tasks/review-inventory-epoch-smoke.ts assertions cover signed epoch create/verify, tamper reject, status fields and single Next command, inventory-only authority, cancel terminals, and receipt.authorizesTest=false. Mechanical evidence receipt on node packages/main/dist/tasks/review-inventory-epoch-smoke.js selector \"result\": \"PASS\" exitCode=0 at materialHash d32efb491dde storyFilesHash ce5443e91eb5 (checklist_get). git log f8b2b97463 records the completeness-vs-remediation consume split."
     },
     {
       "featureId": "CHK-002",
-      "transcript": "prewrite-guard denies OPEN_REVIEW_INVENTORY_MATERIAL_MUTATION. handler-smoke covers scope, ProofStory, candidate-routing, and material drift invalidating OPEN epochs before finalize; epoch-smoke asserts stale mutation flips state to INVALIDATED."
+      "transcript": "epoch-smoke invalidates OPEN epochs on stale mutation; handler-smoke persists begin across reload and rejects incomplete wave_advance with no side effects; prewrite-guard.ts fail-closes OPEN_REVIEW_INVENTORY_MATERIAL_MUTATION. Same epoch-smoke and review-inventory-handler-smoke.js PASS receipts at materialHash d32efb491dde."
     },
     {
       "featureId": "CHK-003",
-      "transcript": "epoch-smoke and handler-smoke cover all-lanes terminal, critic receipt required, missing/forged/old-wave/not_verified/duplicate dispositions, baseline-finding carry-forward, wave_advance-only for nonzero-new, finalize-only for zero-new, and REVIEW_INVENTORY_BUDGET_EXHAUSTED never manufacturing PASS."
+      "transcript": "epoch-smoke and handler-smoke cover required-lane completeness, critic dispositions (verified_family/duplicate/not_verified/unknown/conflict), zero-new finalize vs nonzero wave_advance, budget exhaustion, and side-effect-free rejected finalize. Critic Next includes findingDispositions. PASS receipts as above."
     },
     {
       "featureId": "CHK-004",
-      "transcript": "handler-smoke story_advance REVIEW->DEV consumes the receipt before phase=DEV; second consume and wrong-lineage consume throw REVIEW_INVENTORY_REMEDIATION_BLOCKED; epoch-smoke asserts failed consumption leaves phase=REVIEW and consumed receipts cannot replay."
+      "transcript": "epoch-smoke reviewInventoryRemediationGate required=true, absent/wrong-round/cancel cannot grant DEV, consumed receipt cannot replay. Independent reviewer_list projects Final-review lanes + Selection + Next. review_escalation_status full-3x2 at current material/storyFiles hashes. git log after f8b2b97463 includes five review_pass_set commits (d3d66f1569..7bee0a4b71) on the post-fix REVIEW round."
     },
     {
       "featureId": "CHK-005",
-      "transcript": "Local replay() in review-inventory-epoch-smoke.ts is deterministic across two runs and asserts baseline redispatches>=5, proposed OPEN mutations=0, aggregated remediation=1, hosts 2->2, lanes unchanged, and zero stale/escape/budget-PASS counters, plus labeled FAIL/PASS output."
+      "transcript": "epoch-smoke B-cdf6 counterfactual replay asserts mutation-driven redispatches 5->0, accepted OPEN commits 0, aggregated remediation transitions 1, clean final-review epochs 1, required hosts 2->2, required lanes 3->3, stalePassAcceptances/criticalHighEscapes/budgetManufacturedPasses=0, and prints {\"result\":\"PASS\"}."
     },
     {
       "featureId": "CHK-006",
-      "transcript": "handler-smoke asserts postRemediationReviewSelection dependency-closure narrowing, requiredHostAssurance unchanged, signature/cross-story/lineage forgery reject, and fail-closed full-set on dirty, ignored/untracked, and rename/delete; reviewer_list projects Final-review lanes / Selection / one Next:."
+      "transcript": "review-inventory-handler-smoke.ts covers impacted-lane/full-set projection, traversal/symlink/rename/ignored/untracked/false-provenance fail-closed, and docs provenance. certification-window-smoke.ts plus epoch-smoke after f8b2b97463 prove consumeReviewInventoryCompletenessReceipt skips acceptance-subject/live-aggregate for empty-wave completeness receipts, marks consumed, rejects second consume, and leaves consumeReviewInventoryReceipt refusing those receipts so they cannot authorize REVIEW to DEV. Handler-smoke PASS receipt at materialHash d32efb491dde."
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "Decision-doc inventory commands, signed epoch/receipt authority, mandatory REVIEW->DEV consumption, OPEN mutation barrier, saturation/critic rules, and post-remediation lane closure are present in code and covered by assertion-heavy smokes (happy, tamper, drift, replay, fail-closed). Independently read Wave 4 commands: topology/pre-review are observe diagnostic fail/inconclusive and not treated as PASS; acceptance_rollout_report_read and acceptance_rollout_check agree on current signed PASS full-3x2 in enforce mode. Documented residual: candidate-routing freshness leak BUG-F107 is explicitly not guaranteed and is carried to B-8af0."
+    "summary": "12 of 13 docsPromises are implemented at current HEAD (inventory epoch/receipt/gates, Wave 4 enforce full-3x2 rollout authority with observe-mode topology/pre-review remaining diagnostic, six migrated reviewers, kind-aware review-run binding). Independently read acceptance_topology_check (observe/fail/non-blocking/diagnostic_only), pre_review_check_read (observe/inconclusive/non-blocking/inadmissible), and matching acceptance_rollout_report_read + acceptance_rollout_check PASS/enforce/full-3x2/current at material d32efb491dde storyFiles ce5443e91eb5; those were not treated as prompt-only. All six CHK items have assertion-bearing smokes covering happy plus tamper/replay/cancel/budget/missing-critic paths. One docs promise is unmet: test-runner-consolidation-plan.md still names terminateProcessTreeAndVerify/parseProcessRows/birthIdentity, but current full-suite-runner.ts (identical to main) only has killProcessTree; the historical B-3f3d runner commits were overwritten by later main merges. No unresolved TODO/FIXME/HACK in the inventory/rollout product code."
   },
-  "_hash": "809e3c1b72f013359892c6bb222cd5508eb74c02d2cd49537391a592939c5a83"
+  "_hash": "20b5d610cf146d4485e767b5830751426e68f189727c000e64bf06466c6c6fef"
 }
