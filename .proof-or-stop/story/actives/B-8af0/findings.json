@@ -95,7 +95,7 @@
       "desc": "Current REVIEW inventory epoch B-8af0:RI-001 reconfirms B-8af0:F-002: CHK-001:content-and-selection-drift and CHK-001:order-only-scope still lack a selected-path mutation assertion. packages/main/src/tasks/review-inventory-handler-smoke.ts:809-818 changes only candidates[0].contentHash; no structurally valid artifact changes a selected path plus candidateSpecSet/candidateBasis and proves real review_inventory_status emits OPEN_REVIEW_INVENTORY_CANDIDATE_ROUTING_MUTATION. A path-omitting canonical barrier regression therefore remains undetected.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-20T11:20:06.400Z",
@@ -127,7 +127,11 @@
         "packages/main/src/tasks/review-inventory-handler-smoke.ts"
       ],
       "signatureTag": "missing|ts|current-review-inventory",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Duplicate current-inventory coverage record for F-002. The shared fix is 49f7549, independently verified by RR-017/RP-011 with a valid recomputed selected-path artifact that causes the real status handler to emit the routing-mutation invalidation blocker.",
+      "resolvedAt": "2026-08-20T12:05:52.649Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8af0:F-005",
