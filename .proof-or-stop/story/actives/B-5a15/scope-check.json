@@ -1,6 +1,6 @@
 {
   "storyId": "B-5a15",
-  "checkedAt": "2026-08-20T15:56:55.952Z",
+  "checkedAt": "2026-08-20T23:20:02.732Z",
   "features": [
     {
       "feature": "Execution keys bind the real cwd/realpath.",
@@ -610,6 +610,34 @@
       "status": "covered",
       "excluded_by": null,
       "source": "packages/main/tests/checklist-causal-preflight-batch.test.mjs + scope-contract acknowledgement 2"
+    },
+    {
+      "feature": "Acceptance-basis discovery resolves bounded producer-to-consumer planned paths for all five checklist items and fails closed on missing or ambiguous topology.",
+      "covered_by": "CHK-001 + CHK-002 + CHK-003 + CHK-004 + CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "scope-contract + acceptance-coverage-basis.ts + acceptance-discovery-adapters.ts"
+    },
+    {
+      "feature": "Pre-review live proof binds positive topology, mutation-biting, transcript, and authority evidence to the current story and source facts.",
+      "covered_by": "CHK-001 + CHK-002 + CHK-003 + CHK-004 + CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "pre-review-live-proof.ts + live-smoke-transcript.ts"
+    },
+    {
+      "feature": "The acceptance-basis smoke producer exercises the producer/read/lifecycle verifier chain for all five checklist items.",
+      "covered_by": "CHK-001 + CHK-002 + CHK-003 + CHK-004 + CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "proofstory-acceptance-basis-smoke.ts"
+    },
+    {
+      "feature": "Acceptance-basis and live-proof artifacts remain bounded story-scoped evidence and do not weaken REVIEW, TEST, or DONE assurance gates.",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "scope-contract + pre-review-live-proof.ts + live-smoke-transcript.ts"
     }
   ],
   "readManifest": {
@@ -626,14 +654,13 @@
     "scanEscalationReason": null
   },
   "summary": {
-    "total": 87,
-    "covered": 84,
+    "total": 91,
+    "covered": 88,
     "excluded": 3,
     "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
-  "reviewRound": "2026-08-20T14:36:09.282Z",
-  "_hash": "a54e178024ebcc4412f2683e1980ecb7c5804c5380b7c1ec824553bac40f53f8",
-  "openQuestions": []
+  "reviewRound": "2026-08-20T21:07:41.337Z",
+  "_hash": "b4481ef302236770523a1c7dbcacda5d807424e5cc3bafb44b01253f37ef6b86"
 }

@@ -678,6 +678,52 @@
         }
       ],
       "_hash": "53d9ddf3e0599f110b5d8e683d3f6b07e92e5182323dc72c24d37435af77b4e6"
+    },
+    {
+      "timestamp": "2026-08-20T23:15:11.112Z",
+      "issueCount": 3,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when Give every pinned command a content-addressed execution key and run each unique key once + Write CAS receipts before canonical evidence import and retry the transaction instead of re-running the command are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 1 high-risk signal(s): Production/Emergency. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run proof-or-stop story_review_dismiss '{\"storyId\":\"B-5a15\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        },
+        {
+          "type": "scope_check_stale",
+          "severity": "blocker",
+          "message": "scope-check.json reviewRound (2026-08-20T14:36:09.282Z) does not match the current review round (2026-08-20T21:07:41.337Z); please rerun the scope agent"
+        }
+      ],
+      "_hash": "1f9650d8c74f4594fa76d5d0b72b50949687dd73ade0a0ea324f2698e6d6372c"
+    },
+    {
+      "timestamp": "2026-08-20T23:16:32.714Z",
+      "issueCount": 3,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when Give every pinned command a content-addressed execution key and run each unique key once + Write CAS receipts before canonical evidence import and retry the transaction instead of re-running the command are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 1 high-risk signal(s): Production/Emergency. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run proof-or-stop story_review_dismiss '{\"storyId\":\"B-5a15\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        },
+        {
+          "type": "scope_check_stale",
+          "severity": "blocker",
+          "message": "scope-check.json reviewRound (2026-08-20T14:36:09.282Z) does not match the current review round (2026-08-20T21:07:41.337Z); please rerun the scope agent"
+        }
+      ],
+      "_hash": "84e6e7cd42e8f047a712b38076a539fbbbd1218d7d610686fde8717041bc3fb5"
     }
   ]
 }

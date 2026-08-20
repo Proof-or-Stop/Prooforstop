@@ -4,17 +4,22 @@
   "allowedModify": [
     "packages/main/src/core/types.ts",
     "packages/main/src/core/causal-evidence.ts",
-    "packages/main/src/handlers/checklist.ts",
     "packages/main/src/core/store.ts",
     "packages/main/src/core/runtime-artifact-registry.ts",
     "packages/main/src/core/evidence-freshness.ts",
     "packages/main/src/core/certification-window.ts",
+    "packages/main/src/handlers/checklist.ts",
     "packages/main/src/handlers/verifier.ts",
-    "packages/main/src/core/process-fact-registry.ts"
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/acceptance-coverage-basis.ts",
+    "packages/main/src/core/acceptance-discovery-adapters.ts",
+    "packages/main/src/core/pre-review-live-proof.ts",
+    "packages/main/src/handlers/live-smoke-transcript.ts"
   ],
   "allowedCreate": [
     "packages/main/src/core/causal-evidence.ts",
-    "packages/main/src/tasks/causal-evidence-smoke.ts"
+    "packages/main/src/tasks/causal-evidence-smoke.ts",
+    "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
   ],
   "allowedTest": [
     "packages/main/tests/causal-evidence.test.mjs"
@@ -25,7 +30,7 @@
     "tests/fixtures/**",
     "packages/main/src/**/unrelated-*"
   ],
-  "scopeChangeReason": "\"Initialize the DEV scope contract from the reviewed five-item B-5a15 plan; preserve excluded U-01/U-02/U-09 work, unrelated refactors, remote publish, and assurance-reducing changes.\"",
+  "scopeChangeReason": "The hardened B-5a15 implementation includes acceptance-basis discovery, bounded live-proof binding, and the acceptance-basis smoke producer; these five files are required to enforce and prove the story gate.",
   "acknowledgements": [
     {
       "actor": "main-agent",
@@ -158,7 +163,7 @@
     }
   ],
   "createdAt": "2026-08-20T09:29:12.295Z",
-  "updatedAt": "2026-08-20T20:46:51.263Z",
+  "updatedAt": "2026-08-20T23:16:06.710Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -187,6 +192,11 @@
     ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/1bffe0ccea0e35eef4104ab253884a46b33f1d3e8f5408cf5ae483650fe69a84.json": ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/1bffe0ccea0e35eef4104ab253884a46b33f1d3e8f5408cf5ae483650fe69a84.json",
     ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/8d87b53390f9816cad227924186c18714ddb968aa21c042fea57666d83bee06d.json": ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/8d87b53390f9816cad227924186c18714ddb968aa21c042fea57666d83bee06d.json",
     ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/cd868a007315ae4b8f01f65861eb092f609c65277a5ca7a8c3eb7be55208124d.json": ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/cd868a007315ae4b8f01f65861eb092f609c65277a5ca7a8c3eb7be55208124d.json",
-    "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+    "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+    "packages/main/src/core/acceptance-coverage-basis.ts": "packages/main/src/core/acceptance-coverage-basis.ts",
+    "packages/main/src/core/acceptance-discovery-adapters.ts": "packages/main/src/core/acceptance-discovery-adapters.ts",
+    "packages/main/src/core/pre-review-live-proof.ts": "packages/main/src/core/pre-review-live-proof.ts",
+    "packages/main/src/handlers/live-smoke-transcript.ts": "packages/main/src/handlers/live-smoke-transcript.ts",
+    "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
   }
 }
