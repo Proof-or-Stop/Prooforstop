@@ -20,6 +20,10 @@ export const PROOF_OR_STOP_CLI_VERSION = LATTICE_CLI_VERSION;
 
 export const PROOF_OR_STOP_PRODUCT_NAME = 'Proof-or-Stop' as const;
 export const PROOF_OR_STOP_PRIMARY_BIN = 'proof-or-stop' as const;
+/** Canonical root package identity used by self-host/runtime checks. */
+export const PROOF_OR_STOP_ROOT_PACKAGE_NAME = 'proof-or-stop' as const;
+/** Deprecated root package identity accepted while older checkouts are upgraded. */
+export const PROOF_OR_STOP_DEPRECATED_ROOT_PACKAGE_NAME = 'lattice' as const;
 
 /**
  * Deprecated bin alias, kept working so in-flight stories, git hooks and
@@ -57,7 +61,7 @@ export const PROOF_OR_STOP_BIN_NAMES: readonly string[] = [
 
 export interface ProofOrStopBrand {
   productName: typeof PROOF_OR_STOP_PRODUCT_NAME;
-  version: typeof LATTICE_CLI_VERSION;
+  version: typeof PROOF_OR_STOP_CLI_VERSION;
   primaryBin: typeof PROOF_OR_STOP_PRIMARY_BIN;
   /** Raw basename of argv[1], extension stripped. May be any script name. */
   invokedAs: string;
@@ -84,7 +88,7 @@ export function detectProofOrStopBrand(argv: string[] = process.argv): ProofOrSt
   const invokedAs = basename(argv[1] || PROOF_OR_STOP_PRIMARY_BIN).replace(/\.(?:js|cjs|mjs)$/i, '');
   return {
     productName: PROOF_OR_STOP_PRODUCT_NAME,
-    version: LATTICE_CLI_VERSION,
+    version: PROOF_OR_STOP_CLI_VERSION,
     primaryBin: PROOF_OR_STOP_PRIMARY_BIN,
     invokedAs,
     usageBin: resolveUsageBin(invokedAs),

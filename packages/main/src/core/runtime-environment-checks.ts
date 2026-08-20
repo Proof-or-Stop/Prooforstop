@@ -11,6 +11,10 @@ import {
   type RuntimeFactScope,
   type RuntimeFactSeverity,
 } from './runtime-fact-registry.js';
+import {
+  PROOF_OR_STOP_DEPRECATED_ROOT_PACKAGE_NAME,
+  PROOF_OR_STOP_ROOT_PACKAGE_NAME,
+} from './lattice-brand.js';
 import { readBrandEnv } from './brand-env.js';
 
 export type RuntimeFactStatus = 'pass' | 'warn' | 'fail';
@@ -113,11 +117,14 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const MIN_NODE_MAJOR = 20;
-// B-cc10 CHK-005: the ROOT package name stays `lattice` (deliberately out of scope, see
-// proof-or-stop-identity-migration.md); only the core package was renamed.
-const CANONICAL_ROOT_PACKAGE_NAME = 'lattice';
+const CANONICAL_ROOT_PACKAGE_NAME = PROOF_OR_STOP_ROOT_PACKAGE_NAME;
+const DEPRECATED_ROOT_PACKAGE_NAME = PROOF_OR_STOP_DEPRECATED_ROOT_PACKAGE_NAME;
 const CANONICAL_CORE_PACKAGE_NAME = '@proof-or-stop/core';
 const DEPRECATED_CORE_PACKAGE_NAME = '@lattice/core';
+const SELF_ROOT_PACKAGE_NAMES: ReadonlySet<string> = new Set([
+  CANONICAL_ROOT_PACKAGE_NAME,
+  DEPRECATED_ROOT_PACKAGE_NAME,
+]);
 // Self-project detection must accept EITHER core spelling: a miss makes runtimeScope flip
 // self -> external, which downgrades drift checks to advisory (the B-cdf6 regression class).
 const SELF_CORE_PACKAGE_NAMES: ReadonlySet<string> = new Set([
@@ -489,8 +496,8 @@ function checkCliEntrypoint(context: RuntimeCheckContext, severity: RuntimeFactS
     return {
       status: statusForDrift(severity),
       actual: null,
-      expected: context.isSelfProject ? join(expectedSelfCoreRoot(context), 'dist', 'cli.js') : 'lattice executable on PATH',
-      warnings: ['PATH lookup for `lattice` did not resolve a CLI executable'],
+      expected: context.isSelfProject ? join(expectedSelfCoreRoot(context), 'dist', 'cli.js') : 'proof-or-stop executable on PATH',
+      warnings: ['PATH lookup for `proof-or-stop` did not resolve a CLI executable'],
     };
   }
   const commandRealpath = safeRealpath(commandPath);
@@ -550,7 +557,7 @@ function checkProjectLocalBin(context: RuntimeCheckContext, severity: RuntimeFac
       matchesEntrypoint,
       shadowsEntrypoint,
     },
-    expected: 'project-local lattice should be absent or resolve to the active CLI entrypoint',
+    expected: 'project-local proof-or-stop should be absent or resolve to the active CLI entrypoint',
     ...(shadowsEntrypoint ? { warnings: [localBinWarning(localBin, localRealpath, cliRealpath, context.activeCliEntrypoint ?? context.cliEntrypoint)] } : {}),
   };
 }
@@ -965,10 +972,10 @@ function runAuthoritativeIdentityCommand(args: string[], cwd: string, budget: Id
 }
 
 function resolveCliCommandPath(projectRoot: string): string | null {
-  return resolveCommandOnPath('lattice', projectRoot);
+  return resolveCommandOnPath('proof-or-stop', projectRoot) ?? resolveCommandOnPath('lattice', projectRoot);
 }
 
-function resolveCommandOnPath(command: 'lattice', projectRoot: string): string | null {
+function resolveCommandOnPath(command: 'proof-or-stop' | 'lattice', projectRoot: string): string | null {
   const pathEnv = process.platform === 'win32'
     ? process.env.Path ?? process.env.PATH ?? ''
     : process.env.PATH ?? '';
@@ -983,7 +990,7 @@ function resolveCommandOnPath(command: 'lattice', projectRoot: string): string |
   return null;
 }
 
-function commandPathNames(command: 'lattice'): string[] {
+function commandPathNames(command: 'proof-or-stop' | 'lattice'): string[] {
   if (process.platform !== 'win32') return [command];
   const extensions = (process.env.PATHEXT ?? '.COM;.EXE;.BAT;.CMD')
     .split(';')
@@ -1050,7 +1057,7 @@ function detectSelfProject(projectRoot: string): boolean {
   const corePackage = readPackageJson(join(projectRoot, 'packages', 'main'));
   const rootName = rootPackage?.name;
   const coreName = corePackage?.name;
-  return rootName === CANONICAL_ROOT_PACKAGE_NAME
+  return SELF_ROOT_PACKAGE_NAMES.has(rootName)
     && typeof coreName === 'string'
     && SELF_CORE_PACKAGE_NAMES.has(coreName);
 }
