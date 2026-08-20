@@ -1,0 +1,68 @@
+{
+  "storyId": "B-5a15",
+  "checkedAt": "2026-08-20T08:00:29.621Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "medium",
+      "desc": "background.md Key Insights (line 5) and Solution Tradeoffs (line 8) use \"CAS receipt(s)\" without expanding CAS. The abbreviation is ambiguous (Compare-And-Swap vs Content-Addressed Storage). CHK-001 later says \"content-addressed execution key\" but background.md never defines CAS on first appearance."
+    },
+    {
+      "id": "INIT-002",
+      "severity": "medium",
+      "desc": "background.md Key Insights (line 5) says U-03 is \"ranked after U-01 and U-02\" with no first-appearance expansion of U-01 or U-02. Solution Tradeoffs (line 8) later maps U-01/U-09 to \"review epochs and later scoped re-review\" but U-02 is never defined anywhere in background.md."
+    },
+    {
+      "id": "INIT-003",
+      "severity": "medium",
+      "desc": "background.md Key Insights (line 5) uses \"precise CertificationWindow invalidation\" and CHK-003 context repeats CertificationWindow without defining it. A newly-onboarded reader of CLAUDE.md + background.md cannot tell whether CertificationWindow is an existing PRE_CERT command family or a new U-03 construct."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-08-20T07:57:17.732Z",
+      "issues": [
+        {
+          "id": "I-1",
+          "severity": "medium",
+          "desc": "Checklist userSees are metric-field names and replay/log assertions (commandExecutions, uniqueExecutionKeys, receiptReuse, affectedNodeRerun, falseFresh), not quoted operator-facing terminal text. At wrap-up the operator still would not know which command they type (proof-or-stop validate / verification_run / evidence import) or which last line means the work is done. PLAN understanding.outcome must be a concrete transcript, not another metric list."
+        },
+        {
+          "id": "I-2",
+          "severity": "medium",
+          "desc": "CHK-002 userSees stops at a halfway telemetry state: after a simulated Git/metadata commit failure, logs show receiptReuse or importRetry with commandRerun=0 and the original receipt hash unchanged. That does not close the B-74af user loop. The operator done-moment is that the original PASS still becomes canonical evidence and they can continue without re-waiting the 93-command suite. Rewrite userSees to include successful canonical landing, not only retry/reuse logs."
+        },
+        {
+          "id": "I-3",
+          "severity": "low",
+          "desc": "CHK-003 userSees only shows efficiency numbers (specialized-command rerun=0, affectedNodeRerun=100%, falseFresh=0) and omits the proof-preserving half promised in Conversational Texture: after an unrelated merge the operator can still advance, and DONE-required whole-tree drift remains strict so an old pass does not enter a gate after a real related change. Add that closeout text so without-weakening-proof is user-visible, not only context."
+        }
+      ]
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-08-20T08:00:29.621Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "medium",
+          "desc": "background.md Key Insights (line 5) and Solution Tradeoffs (line 8) use \"CAS receipt(s)\" without expanding CAS. The abbreviation is ambiguous (Compare-And-Swap vs Content-Addressed Storage). CHK-001 later says \"content-addressed execution key\" but background.md never defines CAS on first appearance."
+        },
+        {
+          "id": "INIT-002",
+          "severity": "medium",
+          "desc": "background.md Key Insights (line 5) says U-03 is \"ranked after U-01 and U-02\" with no first-appearance expansion of U-01 or U-02. Solution Tradeoffs (line 8) later maps U-01/U-09 to \"review epochs and later scoped re-review\" but U-02 is never defined anywhere in background.md."
+        },
+        {
+          "id": "INIT-003",
+          "severity": "medium",
+          "desc": "background.md Key Insights (line 5) uses \"precise CertificationWindow invalidation\" and CHK-003 context repeats CertificationWindow without defining it. A newly-onboarded reader of CLAUDE.md + background.md cannot tell whether CertificationWindow is an existing PRE_CERT command family or a new U-03 construct."
+        }
+      ]
+    }
+  ],
+  "_hash": "af7f27a093aab0bd767a0e18da5c7125d5abb2f2cc7ef173a66709e4ec988817"
+}

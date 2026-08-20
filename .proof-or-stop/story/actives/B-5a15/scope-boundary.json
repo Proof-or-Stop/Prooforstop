@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-5a15",
+  "mode": "feature",
+  "allowed": [
+    "Implement B-5a15 U-03 causal-evidence execution-key deduplication, immutable CAS receipts, causal freshness invalidation, expensive-run preflight, and correctness/efficiency metrics.",
+    "Modify only the Proof-or-Stop main package implementation and its focused tests, plus the two related decision documents when implementation evidence requires documentation.",
+    "Use the gated B-5a15 lifecycle and record verification evidence for each checklist item."
+  ],
+  "excluded": [
+    "Do not perform unrelated refactors or rename work outside B-5a15.",
+    "Do not push remote branches or change production/external systems.",
+    "Do not weaken reviewer, freshness, DONE, or assurance gates to claim efficiency."
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "User explicitly requested beginning implementation of story B-5a15; this boundary covers its five pending checklist items and excludes unrelated or assurance-reducing work.",
+  "createdAt": "2026-08-20T08:30:52.532Z",
+  "updatedAt": "2026-08-20T08:30:52.532Z",
+  "_hash": "42f8fa89b1abcec0bbadea1469d0f8e16e8e1eda73eecf132a373774635eebef"
+}

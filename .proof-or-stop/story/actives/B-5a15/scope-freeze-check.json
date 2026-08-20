@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-5a15",
+  "checkedAt": "2026-08-20T08:30:56.147Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "42f8fa89b1abcec0bbadea1469d0f8e16e8e1eda73eecf132a373774635eebef",
+  "executionBoundaryHash": "5a75a0a39105380d9f8853732c16b08711e8155e935333dc0784bd87c576d487",
+  "freshnessHash": "8080ac2147a06241a371fbd8d85e4de46288bc981e430d1646fe541e1fa9be58",
+  "effectiveExcludedKeywords": [
+    "Do not perform unrelated refactors or rename work outside B-5a15.",
+    "Do not push remote branches or change production/external systems.",
+    "Do not weaken reviewer, freshness, DONE, or assurance gates to claim efficiency."
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Do not perform unrelated refactors or rename work outside B-5a15.",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not perform unrelated refactors or rename work outside B-5a15.",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not push remote branches or change production/external systems.",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not push remote branches or change production/external systems.",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not weaken reviewer, freshness, DONE, or assurance gates to claim efficiency.",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not weaken reviewer, freshness, DONE, or assurance gates to claim efficiency.",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "8227f3fbfd34f946127d0f12553e76928750668444cf1bf124a6668561c43f9d"
+}
