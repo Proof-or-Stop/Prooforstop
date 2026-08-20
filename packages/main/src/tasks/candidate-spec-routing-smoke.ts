@@ -287,6 +287,8 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
 
     const tampered = { ...artifact, candidateSpecSet: ['docs/requirements/decisions/noise.md'] };
     assert.equal(verifyCandidateSpecSet(tampered), false, 'tampered candidate artifact must fail verification');
+    assert.equal(verifyCandidateSpecSet({ ...artifact, candidates: 'not-an-array' }), false, 'a persisted string candidates field must fail closed before consumers dereference it');
+    assert.equal(verifyCandidateSpecSet({ ...artifact, candidates: { path: 'not-an-array' } }), false, 'a persisted object candidates field must fail closed before consumers dereference it');
     const manifest = {
       filesReadFully: artifact.candidateSpecSet,
       filesTriagedByName: [],
