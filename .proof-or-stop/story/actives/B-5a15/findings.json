@@ -1208,6 +1208,24 @@
       ],
       "signatureTag": "edge|ts|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-036",
+      "desc": "packages/main/src/core/causal-evidence.ts:640-642,905-931 [high] executeCausalEvidence verifies only the preflight report's self-signature and all-pass shape; CausalPreflightFacts carries no command, storyId, or execution-identity binding, and the core never compares the report to the key being executed. Repro: preflightCausalEvidence(all-pass facts) with no command field, followed by executeCausalEvidence with a different command identity and revalidateBeforeRun=()=>true, returned disposition=executed with runs=1. A preflight for another command/story, or a caller-synthesized all-pass report, can therefore pass the launch gate. Bind the signed preflight to the same execution identity/current probes or make the authoritative handler boundary unavoidable.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-20T20:57:45.383Z",
+      "reviewRound": "2026-08-20T20:57:06.373Z",
+      "reviewRunId": "B-5a15:RR-052",
+      "_hash": "b10683f67af6e56c042dd7710a8e730b964795abb2f29ad2c47448bc30ea7ab3",
+      "files": [
+        "packages/main/src/core/causal-evidence.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
