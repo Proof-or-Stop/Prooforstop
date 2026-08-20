@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-8af0",
+  "mode": "correctness_fix",
+  "allowed": [
+    "an end-to-end routing-neutral regression fixture on a story branch",
+    "candidate-routing barrier freshness projection and invalidation semantics",
+    "runtime validation of malformed candidate-spec input at review-inventory gate boundaries"
+  ],
+  "excluded": [
+    "B-3f3d user-visible status and userSees contract repairs",
+    "topology-critic signing/provenance changes already owned by B-49ed",
+    "unrelated lifecycle, branding, or broad refactoring work",
+    "Wave-4 artifact and documentation follow-ups unrelated to candidate routing"
+  ],
+  "confirmedBy": "qipan",
+  "confirmationNote": "User confirmed continuation on 2026-08-20 after reviewing that B-8af0 owns the candidate-routing residual findings from B-3f3d.",
+  "createdAt": "2026-08-20T08:55:50.895Z",
+  "updatedAt": "2026-08-20T08:55:50.895Z",
+  "_hash": "6f1f1e0edde5f319f75cfde967d58d23fb85d96fc57087f5b24f5fa9f1c4fe5c"
+}
