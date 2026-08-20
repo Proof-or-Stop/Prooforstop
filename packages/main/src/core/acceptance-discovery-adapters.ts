@@ -1149,9 +1149,18 @@ function sourceSeedFiles(input: AcceptanceDiscoveryInput, storyArtifactDirectory
   ]).filter(file => {
     const canonical = file.replace(/\\/g, '/');
     const basename = canonical.split('/').at(-1) ?? '';
-    return !(storyArtifactDirectory
+    if (storyArtifactDirectory
       && GENERATED_PROOF_ARTIFACT_BASENAMES.has(basename)
-      && canonical === `${storyArtifactDirectory}${basename}`);
+      && canonical === `${storyArtifactDirectory}${basename}`) return false;
+    // Scope contracts may name an existing directory as a source seed.  It is
+    // still valid scope evidence, but it is not a source file for the bounded
+    // reader.  Keep regular files and missing planned endpoints so their
+    // normal read/closure diagnostics remain observable.
+    try {
+      return !lstatSync(resolve(input.workspaceRoot, canonical)).isDirectory();
+    } catch {
+      return true;
+    }
   });
 }
 
