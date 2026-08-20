@@ -130,6 +130,19 @@ export const RUNTIME_ARTIFACT_REGISTRY: RuntimeArtifactRegistryEntry[] = [
     repairableTrackedArtifact: true,
   },
   {
+    // B-5a15: immutable command receipts are lookup/runtime state, not story
+    // source material. The CAS bytes remain auditable and story-scoped, but
+    // writing them must not invalidate materialHash or make DONE's clean-tree
+    // gate depend on a verification retry.
+    id: 'runtime-causal-evidence-receipts',
+    description: 'Story-scoped CausalEvidence CAS receipt bytes and execution-key index.',
+    matchers: [{ kind: 'regexp', value: rx(String.raw`(?:^|/)(?:\.lattice|\.proof-or-stop)/story/actives/[^/]+/causal-evidence(?:/|$)|(?:^|/)docs/story/actives/[^/]+/causal-evidence(?:/|$)`) }],
+    ignorePatterns: ['**/causal-evidence/'],
+    materialHash: 'exclude',
+    volatile: true,
+    repairableTrackedArtifact: true,
+  },
+  {
     // B-bbaf CHK-002/006: the convergence-breaker runtime state — breaker-state.json
     // (graduated freeze + auto-recovery budget), takeover-count.json (per-story
     // takeover counter), and gate-failure-counts.json (repeated-identical-gate-

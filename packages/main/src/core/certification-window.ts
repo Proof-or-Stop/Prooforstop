@@ -4,6 +4,7 @@ import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from './evidence-freshness.js';
 import { withMkdirLock } from './mkdir-lock.js';
+import { verifyCausalDependencyDecision, type CausalDependencyDecision } from './causal-evidence.js';
 
 export const CERTIFICATION_WINDOW_STATES = [
   'BLOCKED',
@@ -40,6 +41,7 @@ export const PRE_CERT_RECEIPT_TAMPERED = 'pre_cert_receipt_tampered';
 export const PRE_CERT_INVENTORY_NOT_AUTHORITY = 'pre_cert_inventory_not_certification_authority';
 export const PRE_CERT_WINDOW_REQUIRED = 'pre_cert_window_required';
 export const PRE_CERT_WINDOW_INVALIDATED = 'pre_cert_window_invalidated';
+export const PRE_CERT_CAUSAL_FRESHNESS_REQUIRED = 'pre_cert_causal_freshness_required';
 
 export const PRECERT_VERIFIER_IDENTITY = 'proof-or-stop:done_required_validate';
 export const PRECERT_TEST_IDENTITY = 'npm test';
@@ -170,6 +172,8 @@ export interface CertificationWindowAdmitFacts {
   dirtyNonRuntimePaths: string[];
   gitIndexReadable: boolean;
   evidenceTargetWritable: boolean;
+  /** Optional signed decision used only by the explicit specialized consumer. */
+  causalDecision?: CausalDependencyDecision;
 }
 
 export interface CertificationWindowAdmitDecision {
@@ -434,6 +438,15 @@ export function evaluateCertificationWindowAdmit(
       blockerDetail: `[${PRE_CERT_INVENTORY_API_ABSENT}] Review inventory admit APIs are absent; begin stays fail-closed and does not stub-always-admit. Inventory completeness is not PRE_CERT.`,
     };
   }
+  if (facts.causalDecision && (!verifyCausalDependencyDecision(facts.causalDecision) || !facts.causalDecision.gateAdmissible)) {
+    return {
+      admit: false,
+      blockerCode: PRE_CERT_CAUSAL_FRESHNESS_REQUIRED,
+      blockerDetail: facts.causalDecision && verifyCausalDependencyDecision(facts.causalDecision)
+        ? `CausalEvidence requires fresh affected-node evidence: ${facts.causalDecision.reason}`
+        : 'CausalEvidence decision is missing or tampered; stale affected-node bypass is refused.',
+    };
+  }
   const lineageRefusal = inventoryLineageRefusal(facts);
   if (lineageRefusal) {
     return {
@@ -674,6 +687,8 @@ export interface CertificationWindowCurrentIdentity {
   headHash?: string;
   /** True when the workspace is a git repo but current hashes could not be read. */
   hashUnavailable?: boolean;
+  /** Signed specialized decision; absent keeps the existing strict hash gate. */
+  causalDecision?: CausalDependencyDecision;
 }
 
 export function detectCertificationWindowMaterialDrift(
@@ -685,10 +700,18 @@ export function detectCertificationWindowMaterialDrift(
   if (current.hashUnavailable) {
     return { drifted: true, reason: 'current certification hashes are missing' };
   }
+  if (current.causalDecision && !verifyCausalDependencyDecision(current.causalDecision)) {
+    return { drifted: true, reason: 'causal dependency decision is missing or tampered' };
+  }
+  if (current.causalDecision && !current.causalDecision.gateAdmissible) {
+    return { drifted: true, reason: current.causalDecision.reason };
+  }
+  const allowSpecializedUnrelatedDrift = current.causalDecision?.causalDecision === 'advisory'
+    && current.causalDecision.storyFilesHashAdvisory;
   if (current.storyFilesHash && frozen.storyFilesHash && current.storyFilesHash !== frozen.storyFilesHash) {
     return { drifted: true, reason: 'storyFilesHash changed' };
   }
-  if (current.materialHash && frozen.materialHash && current.materialHash !== frozen.materialHash) {
+  if (!allowSpecializedUnrelatedDrift && current.materialHash && frozen.materialHash && current.materialHash !== frozen.materialHash) {
     return { drifted: true, reason: 'materialHash changed' };
   }
   if (

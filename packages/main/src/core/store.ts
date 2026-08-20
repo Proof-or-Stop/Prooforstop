@@ -17,6 +17,7 @@ import type {
   PreReviewCheckArtifactV1,
   AcceptanceRolloutArtifactV1,
   TopologyCriticReceiptV1, TopologyExclusionApprovalsDataV1,
+  CausalEvidenceReceipt,
 } from './types.js';
 import type { RedTargetBindingsFile } from './red-evidence/target-bindings.js';
 import {
@@ -45,6 +46,12 @@ import {
   emptyReviewInventoryEpochData,
   type ReviewInventoryEpochData,
 } from './review-inventory-epoch.js';
+import {
+  CAUSAL_RECEIPT_DIRECTORY,
+  CAUSAL_RECEIPT_INDEX_FILE,
+  computeCausalReceiptHash,
+  verifyCausalEvidenceReceipt,
+} from './causal-evidence.js';
 
 type JsonCandidate<T> = {
   filePath: string;
@@ -303,6 +310,62 @@ export class StoryStore {
 
   writeTestEvidence(storyId: string, data: TestEvidenceData): void {
     this.writeJson(storyId, 'test-evidence.json', data);
+  }
+
+  // ── CausalEvidence CAS receipts ──
+  // Receipts are runtime-owned story artifacts. They are addressed by the
+  // immutable receipt hash, while the small index maps an exact execution key
+  // to that address. A different payload can never replace either address.
+  causalEvidenceReceiptPath(storyId: string, receiptHash: string): string {
+    return join(this.storyDir(storyId), CAUSAL_RECEIPT_DIRECTORY, `${receiptHash}.json`);
+  }
+
+  readCausalEvidenceReceipt(storyId: string, executionKey: string): CausalEvidenceReceipt | null {
+    const indexPath = this.storyFilePath(storyId, CAUSAL_RECEIPT_INDEX_FILE);
+    if (!existsSync(indexPath)) return null;
+    const index = JSON.parse(readFileSync(indexPath, 'utf8')) as { receipts?: Record<string, string> };
+    const receiptHash = index.receipts?.[executionKey];
+    if (!receiptHash) return null;
+    const receiptPath = this.causalEvidenceReceiptPath(storyId, receiptHash);
+    if (!existsSync(receiptPath)) throw new Error(`CausalEvidence receipt ${receiptHash} is missing [causal_receipt_missing]`);
+    const receipt = JSON.parse(readFileSync(receiptPath, 'utf8')) as CausalEvidenceReceipt;
+    if (receipt.receiptHash !== receiptHash || !verifyCausalEvidenceReceipt(receipt, executionKey)) {
+      throw new Error(`CausalEvidence receipt ${receiptHash} failed integrity validation [causal_receipt_tampered]`);
+    }
+    return receipt;
+  }
+
+  writeCausalEvidenceReceipt(storyId: string, receipt: CausalEvidenceReceipt): void {
+    if (!verifyCausalEvidenceReceipt(receipt)) {
+      throw new Error('CausalEvidence receipt refused: invalid or partial receipt [causal_receipt_invalid]');
+    }
+    const indexPath = this.storyFilePath(storyId, CAUSAL_RECEIPT_INDEX_FILE);
+    let index: { schemaVersion: 'proofbound.causal-evidence-index.v1'; receipts: Record<string, string> } = {
+      schemaVersion: 'proofbound.causal-evidence-index.v1',
+      receipts: {},
+    };
+    if (existsSync(indexPath)) index = JSON.parse(readFileSync(indexPath, 'utf8')) as typeof index;
+    const priorHash = index.receipts[receipt.executionKey];
+    if (priorHash && priorHash !== receipt.receiptHash) {
+      throw new Error(`CausalEvidence execution key ${receipt.executionKey} already points to ${priorHash}; refusing overwrite [causal_receipt_overwrite]`);
+    }
+    const receiptPath = this.causalEvidenceReceiptPath(storyId, receipt.receiptHash);
+    const serialized = JSON.stringify(receipt, null, 2) + '\n';
+    if (existsSync(receiptPath)) {
+      const priorBytes = readFileSync(receiptPath, 'utf8');
+      if (priorBytes !== serialized) {
+        throw new Error(`CausalEvidence CAS address ${receipt.receiptHash} contains different bytes [causal_receipt_collision]`);
+      }
+    } else {
+      this.writeJsonFile(receiptPath, receipt);
+    }
+    index.receipts[receipt.executionKey] = receipt.receiptHash;
+    this.writeJsonFile(indexPath, index);
+    // Defensive check: the in-memory receipt hash is the same address that was
+    // written, and future callers cannot accidentally persist a re-hashed row.
+    if (computeCausalReceiptHash(receipt) !== receipt.receiptHash) {
+      throw new Error('CausalEvidence receipt hash changed during persistence [causal_receipt_hash_drift]');
+    }
   }
 
   readDoneRequiredEvidence(storyId: string): DoneRequiredEvidenceData | null {

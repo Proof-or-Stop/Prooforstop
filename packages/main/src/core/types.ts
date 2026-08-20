@@ -1003,6 +1003,10 @@ export interface VerificationExecutionReceipt {
     /** Attributable ≥ 30-char justification for raising the budget. */
     reason: string;
   };
+  /** B-5a15: canonical CausalEvidence provenance (legacy receipts omit these). */
+  executionKey?: string;
+  causalReceiptHash?: string;
+  commandReruns?: 0;
 }
 
 export interface VerificationEvidence {
@@ -1764,6 +1768,14 @@ export interface VerificationCoverageReport {
   /** Present when fact provenance issues were found on covered/weak evidence */
   factProvenanceIssues?: import('./fact-provenance.js').FactProvenanceIssue[];
 }
+
+/**
+ * CausalEvidence receipts are defined with the execution service so their
+ * canonical digest helpers stay beside the schema. Re-exporting the shared
+ * receipt type here keeps the project-wide core type surface available to
+ * stores and handlers without duplicating a mutable receipt shape.
+ */
+export type { CausalEvidenceReceipt } from './causal-evidence.js';
 
 /**
  * RALPLAN-DR structured decision.

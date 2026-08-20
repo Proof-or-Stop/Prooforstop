@@ -25,6 +25,19 @@ import {
   verificationIntentHasPlannedPathDeclarations,
 } from '../core/acceptance-topology.js';
 import { BRAND_ENV_PREFIX, readBrandEnv } from '../core/brand-env.js';
+import {
+  DEFAULT_CAUSAL_SELECTOR_POLICY,
+  CAUSAL_MAX_OUTPUT_CHARS,
+  effectiveCausalEnvironment,
+  executeCausalEvidence,
+  createCausalEvidenceBatch,
+  preflightCausalEvidence,
+  resolveCausalToolVersion,
+  importCausalEvidenceReceipt,
+  type CausalEvidenceBatch,
+  type CausalEvidenceReceipt,
+  type CausalEvidenceReceiptStore,
+} from '../core/causal-evidence.js';
 
 const INIT_REVIEWER_CHECKLIST_MUTATION_BLOCKED_AGENTS = new Set([
   'lattice-review-story-init',
@@ -505,6 +518,7 @@ interface EnforceAndStampResult {
     nonMechanicalReason?: string;
   };
   pin?: { lane: VerificationLane; index: number; verification: VerificationIntentPin };
+  causalReceipt?: CausalEvidenceReceipt;
 }
 
 /** Resolve intentRef → the intent on THIS item, aligned with the coverage gate's canonical ref. */
@@ -653,7 +667,15 @@ type SingleCommandRunner = (command: string, cwd: string, timeoutMs?: number) =>
 async function enforceAndStampEvidence(
   item: ChecklistItem,
   input: EvidenceWriteInput,
-  deps: { runCommand: SingleCommandRunner; cwd: string },
+  deps: {
+    runCommand: SingleCommandRunner;
+    cwd: string;
+    storyId: string;
+    projectRoot: string;
+    metadataRoot: string;
+    receiptStore: CausalEvidenceReceiptStore;
+    batch?: CausalEvidenceBatch;
+  },
 ): Promise<EnforceAndStampResult> {
   const resolved = resolveIntentForRef(item, input.intentRef);
   if (!resolved) {
@@ -763,12 +785,69 @@ async function enforceAndStampEvidence(
     pinToSet = { lane, index, verification: { command: pinCommand, selector: pinSelector } };
   }
 
-  // Execute the pinned command; the receipt (not the caller) determines result.
-  const run = await deps.runCommand(pinCommand, deps.cwd, timeoutOverride?.timeoutMs);
-  // `!run.timedOut` is retained deliberately: the timeout refusal below already returns
-  // for every timedOut run, so this is belt-and-braces should that ordering ever change.
-  const exitOk = run.code === 0 && !run.timedOut;
-  const selectorMatched = run.output.includes(pinSelector);
+  // Preflight is a readiness contract, not a freshness decision. It must be
+  // complete before the child runner is even callable, and its zero counters
+  // make a refusal auditable.
+  const hashes = evidenceHashes(deps.cwd, deps.metadataRoot);
+  const timeoutMs = timeoutOverride?.timeoutMs;
+  const preflight = preflightCausalEvidence({
+    cli: { available: true, path: pinCommand },
+    worktree: { expected: deps.cwd, actual: deps.cwd },
+    gitIndex: { readable: Boolean(hashes.headHash), expected: hashes.headHash, actual: hashes.headHash },
+    writerLease: { available: true, valid: true },
+    providerCapability: { required: ['allowlisted-command', 'bounded-output'], available: ['allowlisted-command', 'bounded-output'] },
+    resources: { required: { timeoutMs: timeoutMs ?? DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS }, available: { timeoutMs: timeoutMs ?? DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS } },
+    evidenceTarget: { writable: true, path: `${deps.storyId}/causal-evidence/` },
+    sideChannel: { available: true, maxOutputChars: CAUSAL_MAX_OUTPUT_CHARS, maxProgressEvents: 10_000 },
+  }, () => {
+    const current = evidenceHashes(deps.cwd, deps.metadataRoot);
+    return current.headHash === hashes.headHash
+      && current.materialHash === hashes.materialHash
+      && current.storyFilesHash === hashes.storyFilesHash;
+  });
+  if (!preflight.ready) {
+    const reason = preflight.failedChecks.join(', ');
+    throw new Error(`preflight REFUSED: ${reason} commandExecutions=0 evidenceWrites=0 [causal_preflight_refused]`);
+  }
+
+  const causal = await executeCausalEvidence({
+    identity: {
+      storyId: deps.storyId,
+      cwd: deps.cwd,
+      command: pinCommand,
+      bootstrap: { executable: 'proof-or-stop', args: ['verification-evidence'] },
+      inputs: { storyId: deps.storyId, materialHash: hashes.materialHash ?? null, timeoutMs: timeoutMs ?? DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS },
+      storyFilesHash: hashes.storyFilesHash,
+      effectiveEnvironment: effectiveCausalEnvironment(undefined, deps.cwd),
+      runtimeVersion: process.version,
+      toolVersion: resolveCausalToolVersion(deps.projectRoot),
+      selectorPolicy: DEFAULT_CAUSAL_SELECTOR_POLICY,
+    },
+    selector: pinSelector,
+    intentRef: input.intentRef,
+    receiptStore: deps.receiptStore,
+    batch: deps.batch,
+    preflight,
+    revalidateBeforeRun: () => {
+      const current = evidenceHashes(deps.cwd, deps.metadataRoot);
+      return current.headHash === hashes.headHash
+        && current.materialHash === hashes.materialHash
+        && current.storyFilesHash === hashes.storyFilesHash;
+    },
+    run: async () => {
+      const run = await deps.runCommand(pinCommand, deps.cwd, timeoutMs);
+      return {
+        code: run.code,
+        output: run.output,
+        timedOut: run.timedOut,
+        durationMs: run.durationMs,
+        timeoutMs: run.timeoutMs,
+      };
+    },
+  });
+  const receipt = causal.receipt;
+  const exitOk = receipt.status === 'pass' && receipt.exitCode === 0;
+  const selectorMatched = causal.verdict.matched;
 
   // B-cdf6 (B-META F-012) — REFUSE FIRST, with a DISTINCT diagnosis: the runner KILLED
   // the pinned command at its wall-clock ceiling. This check MUST precede the selector
@@ -778,9 +857,9 @@ async function enforceAndStampEvidence(
   // ~270.3s, misdiagnosed first as a stdout capture problem, then as a clean-tree
   // assertion, before anyone read the executor and found the constant). Naming the budget
   // and the override turns that into a one-line diagnosis.
-  if (run.timedOut) {
-    const elapsed = Math.round(run.durationMs / 1000);
-    const armed = run.timeoutMs;
+  if (receipt.status === 'timeout') {
+    const elapsed = Math.round((receipt.durationMs ?? 0) / 1000);
+    const armed = receipt.timeoutMs ?? DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS;
     const raiseHint = armed >= MAX_EVIDENCE_COMMAND_TIMEOUT_MS
       ? `That is already the ${MAX_EVIDENCE_COMMAND_TIMEOUT_MS}ms cap, so this witness cannot be raised further — shrink the ` +
         `pinned command (a focused suite / single verifier) instead of widening the budget.`
@@ -790,7 +869,7 @@ async function enforceAndStampEvidence(
         `needs ${BRAND_ENV_PREFIX}IDLE_TIMEOUT_MS / ${BRAND_ENV_PREFIX}MAX_TIMEOUT_MS raised for the same invocation.`;
     throw new Error(
       `verification evidence refused: pinned command was KILLED at its ${armed}ms wall-clock ceiling after ~${elapsed}s ` +
-      `(exit ${run.code}) for ${input.intentRef}, so it never printed a verdict and NO receipt can be minted. ` +
+      `(exit ${receipt.exitCode}) for ${input.intentRef}, so it never printed a verdict and NO canonical PASS can be minted. ` +
       `This is a TIMEOUT, not a wrong selector${timeoutOverride ? ' (a raised budget was already in effect)' : ''}. ${raiseHint} ` +
       `[receipt_command_timeout]`,
     );
@@ -798,7 +877,7 @@ async function enforceAndStampEvidence(
   // Refuse: a caller cannot claim pass when the command did not exit 0.
   if (input.result === 'pass' && !exitOk) {
     throw new Error(
-      `verification evidence refused: pinned command exited ${run.code} but result:pass was claimed for ${input.intentRef} [receipt_exit_nonzero]`,
+      `verification evidence refused: pinned command exited ${receipt.exitCode} but result:pass was claimed for ${input.intentRef} [receipt_exit_nonzero]`,
     );
   }
   // Refuse: the pinned selector must appear in captured output (kills same-command,
@@ -809,18 +888,21 @@ async function enforceAndStampEvidence(
     );
   }
 
-  const receipt: VerificationExecutionReceipt = {
-    exitCode: run.code,
-    outputDigest: sha256Hex(run.output),
-    outputTail: boundedOutputTail(run.output),
+  const verificationReceipt: VerificationExecutionReceipt = {
+    exitCode: receipt.exitCode,
+    outputDigest: receipt.outputDigest,
+    outputTail: receipt.outputTail,
     selectorMatched,
-    executedAt: new Date().toISOString(),
+    executedAt: receipt.executedAt,
     // B-cdf6 (B-META F-012): always stamp the armed ceiling, and — only when the caller
     // RAISED it — an attributable override block, so a reviewer reading the receipt can
     // see this pass was earned under a raised budget rather than the default. Lives in
     // the tool-owned receipt, which every caller-facing schema strips, so it can never be
     // caller-injected onto a receipt actually earned under the default.
-    timeoutMs: run.timeoutMs,
+    timeoutMs: receipt.timeoutMs ?? DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS,
+    executionKey: receipt.executionKey,
+    causalReceiptHash: receipt.receiptHash,
+    commandReruns: 0,
     ...(timeoutOverride
       ? {
           timeoutOverride: {
@@ -838,8 +920,9 @@ async function enforceAndStampEvidence(
       result: derivedResult,
       command: pinCommand,
       mechanical: true,
-      receipt,
+      receipt: verificationReceipt,
     },
+    causalReceipt: receipt,
     ...(pinToSet ? { pin: pinToSet } : {}),
   };
 }
@@ -1152,6 +1235,59 @@ export function createChecklistHandlers(ctx: HandlerContext) {
   // so the storyDir-aware metadata exclusion loads config from the right place.
   const resolveStoryGitCwd = (storyId: string): string =>
     resolveGitCwd({ store, storyId, metadataRoot: root, projectRoot: root });
+  const commitCanonicalCausalEvidence = (
+    storyId: string,
+    gitCwd: string,
+    hashes: ReturnType<typeof evidenceHashes>,
+    receipts: Array<CausalEvidenceReceipt | undefined>,
+    commit: () => void,
+    batch?: CausalEvidenceBatch,
+  ): void => {
+    const usable = receipts.filter((receipt): receipt is CausalEvidenceReceipt => Boolean(receipt));
+    if (usable.length === 0) {
+      commit();
+      return;
+    }
+    const revalidate = () => {
+      const current = evidenceHashes(gitCwd, root);
+      const indexed = usable.every(receipt => {
+        try {
+          return store.readCausalEvidenceReceipt(storyId, receipt.executionKey)?.receiptHash === receipt.receiptHash;
+        } catch { // PROBE: a missing/tampered CAS index must block canonical import.
+          return false;
+        }
+      });
+      return indexed
+        && current.headHash === hashes.headHash
+        && current.materialHash === hashes.materialHash
+        && current.storyFilesHash === hashes.storyFilesHash;
+    };
+    // Validate every receipt before allowing the single canonical checklist
+    // write. Only the first receipt owns the metadata transaction; every
+    // receipt remains independently key/story/hash-bound and import-gated.
+    for (const receipt of usable.slice(1)) {
+      importCausalEvidenceReceipt({
+        receipt,
+        expectedStoryId: storyId,
+        expectedExecutionKey: receipt.executionKey,
+        ...(hashes.materialHash ? { expectedMaterialHash: hashes.materialHash } : {}),
+        ...(hashes.storyFilesHash ? { expectedStoryFilesHash: hashes.storyFilesHash } : {}),
+        revalidate,
+        commit: () => undefined,
+        batch,
+      });
+    }
+    importCausalEvidenceReceipt({
+      receipt: usable[0],
+      expectedStoryId: storyId,
+      expectedExecutionKey: usable[0].executionKey,
+      ...(hashes.materialHash ? { expectedMaterialHash: hashes.materialHash } : {}),
+      ...(hashes.storyFilesHash ? { expectedStoryFilesHash: hashes.storyFilesHash } : {}),
+      revalidate,
+      commit,
+      batch,
+    });
+  };
   return {
     checklist_get(args: ChecklistGetArgs) {
       const full = store.readChecklist(args.storyId);
@@ -1723,6 +1859,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       const gitCwd = resolveStoryGitCwd(args.storyId);
       const preItem = store.readChecklist(args.storyId).items.find(i => i.id === args.itemId);
       if (!preItem) throw new Error(`Checklist item ${args.itemId} not found`);
+      const causalBatch = createCausalEvidenceBatch();
       const stamp = await enforceAndStampEvidence(
         preItem,
         {
@@ -1739,6 +1876,11 @@ export function createChecklistHandlers(ctx: HandlerContext) {
             );
           },
           cwd: gitCwd,
+          storyId: args.storyId,
+          projectRoot: root,
+          metadataRoot: root,
+          receiptStore: store,
+          batch: causalBatch,
         },
       );
 
@@ -1775,7 +1917,14 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         else existing.push(evidence);
         item.verificationEvidence = existing;
 
-        store.writeChecklist(args.storyId, cl);
+        commitCanonicalCausalEvidence(
+          args.storyId,
+          gitCwd,
+          hashes,
+          [stamp.causalReceipt],
+          () => store.writeChecklist(args.storyId, cl),
+          causalBatch,
+        );
         const aliasNote = kind !== args.kind ? `, alias ${args.kind}` : '';
         const receiptNote = evidence.receipt
           ? `, receipt exit=${evidence.receipt.exitCode} selectorMatched=${evidence.receipt.selectorMatched}${renderTimeoutOverrideNote(evidence.receipt)}`
@@ -1849,6 +1998,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       };
       const preCl = store.readChecklist(args.storyId);
       const stamps: EnforceAndStampResult[] = [];
+      const causalBatch = createCausalEvidenceBatch();
       for (let i = 0; i < args.evidences.length; i++) {
         const entry = args.evidences[i];
         const item = preCl.items.find(it => it.id === entry.itemId);
@@ -1861,7 +2011,15 @@ export function createChecklistHandlers(ctx: HandlerContext) {
             ...(entry.commandTimeoutMs !== undefined ? { commandTimeoutMs: entry.commandTimeoutMs } : {}),
             ...(entry.commandTimeoutReason !== undefined ? { commandTimeoutReason: entry.commandTimeoutReason } : {}),
           },
-          { runCommand, cwd: gitCwd },
+          {
+            runCommand,
+            cwd: gitCwd,
+            storyId: args.storyId,
+            projectRoot: root,
+            metadataRoot: root,
+            receiptStore: store,
+            batch: causalBatch,
+          },
         ));
       }
 
@@ -1901,7 +2059,14 @@ export function createChecklistHandlers(ctx: HandlerContext) {
           item.verificationEvidence = existing;
           written++;
         });
-        store.writeChecklist(args.storyId, cl);
+        commitCanonicalCausalEvidence(
+          args.storyId,
+          gitCwd,
+          hashes,
+          stamps.map(stamp => stamp.causalReceipt),
+          () => store.writeChecklist(args.storyId, cl),
+          causalBatch,
+        );
         const commitHint = autoCommitStoryMetadata(root, args.storyId, 'verification_evidence_batch_add');
         return `Verification evidence batch recorded for ${args.storyId}: ${written} item intent(s)${commitHint}`;
       });
@@ -1974,6 +2139,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       const gitCwd = resolveStoryGitCwd(args.storyId);
       const runCwd = args.cwd ? (isAbsolute(args.cwd) ? args.cwd : join(gitCwd, args.cwd)) : gitCwd;
       const kind = intentTypeToEvidenceKind(resolved.intent.type);
+      const causalBatch = createCausalEvidenceBatch();
 
       // Run the PINNED command through the shared enforcement boundary. We pass the pin's
       // OWN command+selector (never a caller value); result:'pass' is the fixed expectation
@@ -1998,6 +2164,11 @@ export function createChecklistHandlers(ctx: HandlerContext) {
             );
           },
           cwd: runCwd,
+          storyId: args.storyId,
+          projectRoot: root,
+          metadataRoot: root,
+          receiptStore: store,
+          batch: causalBatch,
         },
       );
 
@@ -2025,7 +2196,14 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         if (idx >= 0) existing[idx] = evidence;
         else existing.push(evidence);
         item.verificationEvidence = existing;
-        store.writeChecklist(args.storyId, cl);
+        commitCanonicalCausalEvidence(
+          args.storyId,
+          gitCwd,
+          hashes,
+          [stamp.causalReceipt],
+          () => store.writeChecklist(args.storyId, cl),
+          causalBatch,
+        );
         const receiptNote = evidence.receipt
           ? `, receipt exit=${evidence.receipt.exitCode} selectorMatched=${evidence.receipt.selectorMatched}`
           : '';
@@ -2099,6 +2277,11 @@ export function createChecklistHandlers(ctx: HandlerContext) {
                   );
                 },
                 cwd: computed.refreshGitCwd,
+                storyId: args.storyId,
+                projectRoot: root,
+                metadataRoot: root,
+                receiptStore: store,
+                batch: createCausalEvidenceBatch(),
               },
             );
             if (stamp.evidencePatch.mechanical === true && stamp.evidencePatch.receipt) {

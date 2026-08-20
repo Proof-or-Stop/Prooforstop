@@ -211,6 +211,9 @@ const requiredRuntimeFactSemantics = {
   'runtime:review_run_atomic_persistence_gate': ['runtime-behavior', 'atomic-persistence', 'prompt-envelope', 'review-run', 'gate-evidence'],
   'runtime:proof_admissibility_gate_diagnostic': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'gate-evidence'],
   'runtime:parent_roadmap_totality_claim_consumer': ['runtime-behavior', 'schema-contract', 'verification-policy', 'gate-evidence'],
+  'runtime:causal_execution_key_gate': ['runtime-behavior', 'execution-evidence', 'schema-contract', 'workspace-binding', 'freshness-policy', 'verification-policy', 'gate-evidence'],
+  'runtime:causal_receipt_import_gate': ['runtime-behavior', 'execution-evidence', 'schema-contract', 'atomic-persistence', 'freshness-policy', 'workspace-binding', 'gate-evidence'],
+  'runtime:causal_dependency_preflight_metrics_gate': ['runtime-behavior', 'execution-evidence', 'schema-contract', 'freshness-policy', 'verification-policy', 'gate-evidence'],
 };
 const requiredReviewerLanes = [
   'lattice-review-story-init',
@@ -397,6 +400,24 @@ const requiredRuntimeEntries = [
     level: 'L4',
     owner: 'core/evidence-freshness',
     line: '- runtime:story_files_hash_freshness_gate [L4] owner=core/evidence-freshness gate=REVIEW/TEST/DONE freshness gates for review runs, verification evidence, review escalation records, and the review assurance floor DONE freshness gate',
+  },
+  {
+    name: 'runtime:causal_execution_key_gate',
+    level: 'L4',
+    owner: 'core/causal-evidence',
+    line: '- runtime:causal_execution_key_gate [L4] owner=core/causal-evidence gate=verification_evidence_add / verification_evidence_batch_add execution and verification coverage freshness gates',
+  },
+  {
+    name: 'runtime:causal_receipt_import_gate',
+    level: 'L4',
+    owner: 'core/causal-evidence + core/store',
+    line: '- runtime:causal_receipt_import_gate [L4] owner=core/causal-evidence + core/store gate=verification evidence canonical import and verification coverage/freshness gates',
+  },
+  {
+    name: 'runtime:causal_dependency_preflight_metrics_gate',
+    level: 'L4',
+    owner: 'core/causal-evidence + core/evidence-freshness',
+    line: '- runtime:causal_dependency_preflight_metrics_gate [L4] owner=core/causal-evidence + core/evidence-freshness gate=specialized verification freshness consumer, CertificationWindow, validation preflight, and closeout metrics',
   },
   {
     // B-1731: repro-first intake is a gate-consumed runtime predicate. The

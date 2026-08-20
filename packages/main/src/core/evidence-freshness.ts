@@ -4,6 +4,11 @@ import { resolve as resolvePath } from 'path';
 import { isMaterialExcludedRuntimeArtifactPath } from './runtime-artifact-registry.js';
 import { loadConfig } from './config.js';
 import {
+  evaluateCausalDependencies,
+  type CausalDependencyDecision,
+  type CausalDependencyNode,
+} from './causal-evidence.js';
+import {
   PROOF_OR_STOP_STORY_DIR,
   PROOF_OR_STOP_STORY_DIR_NAMES,
   LEGACY_DOCS_STORY_DIR,
@@ -34,6 +39,24 @@ export type EvidenceFreshness = {
 };
 
 export const EVIDENCE_FRESHNESS_CLASSIFIER_VERSION = 'proofbound.evidence-freshness-classifier.v1';
+
+/**
+ * Explicit opt-in adapter for specialized causal consumers. The established
+ * hash reader above remains authoritative for ordinary REVIEW/TEST/DONE and
+ * DONE-required callers; this helper never changes that strict fallback.
+ */
+export function evaluateCausalEvidenceFreshness(args: {
+  nodes: readonly CausalDependencyNode[];
+  currentInputHashes: Record<string, string>;
+  previousMaterialHash?: string;
+  currentMaterialHash?: string;
+  previousStoryFilesHash?: string;
+  currentStoryFilesHash?: string;
+  doneRequired?: boolean;
+  rerunNodeIds?: string[];
+}): CausalDependencyDecision {
+  return evaluateCausalDependencies(args);
+}
 
 export type EvidenceFreshnessClassification =
   | 'CURRENT_MATERIAL'
