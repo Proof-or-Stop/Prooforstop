@@ -345,7 +345,11 @@
           {
             "desc": "An unknown prefix, suffix, or version is rejected and archived story JSON is never rewritten as part of the migration.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/artifact-schema-migration.test.mjs",
+              "selector": "artifact-schema migration test passed"
+            }
           }
         ]
       },
@@ -391,6 +395,27 @@
           "materialHash": "3b2247fe33acdc7dc2603e9dee5764e551824957f467fd57206c621c99b5d238",
           "storyFilesHash": "d0169898de849224bad64911759afc317837c874d6f556765d68bb63c0123ed0",
           "timestamp": "2026-08-20T06:11:19.572Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "node packages/main/tests/artifact-schema-migration.test.mjs",
+          "result": "pass",
+          "note": "Unknown command-spec and closeout schema literals fail closed without rewriting.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "24e0f7ca2fd730f0bef5ffde0ceaf3940b0e8eecc97055e13f5c0257b0cf8fb2",
+            "outputTail": "artifact-schema migration test passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T06:11:23.438Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "13fe2e031122321f45df21be8c6db44294cd0207",
+          "materialHash": "3b2247fe33acdc7dc2603e9dee5764e551824957f467fd57206c621c99b5d238",
+          "storyFilesHash": "d0169898de849224bad64911759afc317837c874d6f556765d68bb63c0123ed0",
+          "timestamp": "2026-08-20T06:11:23.594Z"
         }
       ]
     },
