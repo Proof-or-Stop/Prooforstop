@@ -137,7 +137,9 @@ export async function runLocalBootstrap() {
         const labModule = await import(pathToFileURL(LAB_DIST).href);
         labRegister = typeof labModule.register === 'function' ? labModule.register : null;
         if (typeof labModule.createLabToolDefs === 'function') {
-          const zodModule = await import(pathToFileURL(join(repoRoot, 'packages', 'main', 'dist', 'core', 'zod.js')).href);
+          // zod is a package dependency of the main CLI; there is no generated
+          // packages/main/dist/core/zod.js facade in the current build layout.
+          const zodModule = await import('zod');
           labToolDefs = labModule.createLabToolDefs(zodModule.z);
         } else {
           labToolDefs = Array.isArray(labModule.labToolDefs) ? labModule.labToolDefs : [];
