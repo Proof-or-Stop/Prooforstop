@@ -1,0 +1,31 @@
+{
+  "storyId": "B-5a88",
+  "checkedAt": "2026-08-20T04:16:26.751Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-08-20T04:16:03.615Z",
+      "issues": [
+        {
+          "id": "I-1",
+          "severity": "medium",
+          "desc": "Background success is not a user-facing transcript. Conversational Texture says new CLI output, artifacts, spawn IDs, and npm names say proof-or-stop, and that old stories plus installed CLAUDE.md still load. That names surfaces but quotes no terminal/UI text, so the operator cannot tell the moment the work is done. PLAN must set understanding.outcome as concrete commands and output (reviewer_list/session_brief showing proof-or-stop-* IDs, npm pkg get name showing proof-or-stop, lattice gone from PATH, init --upgrade writing <!-- proof-or-stop:start -->, git push origin main still accepting a fresh approval). Otherwise DONE can be engineering-green while the operator still asks what to run."
+        },
+        {
+          "id": "I-2",
+          "severity": "medium",
+          "desc": "CHK-001 and CHK-003 have no user-observable close. CHK-001 is framed as REVIEW_RUN_LANES / isReviewerAgent / quorum normalization; the operator-facing done state is session_brief and reviewer_list printing proof-or-stop-* role IDs while in-flight lattice-* evidence still counts. CHK-003 is framed as schema-prefix literals; the operator-facing done state is a newly written evidence file using proof-or-stop.*.vN while archived lattice.* stories still load without a tamper storm. Add userSees or equivalent PLAN outcome quotes for those two items so DEV cannot mark them done on internal dual-read alone."
+        }
+      ]
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-08-20T04:16:26.751Z",
+      "issues": []
+    }
+  ],
+  "_hash": "fcaaf4a6c1143e6028273144d4062516fad2feba2911a48ea09df7848d3c2372"
+}

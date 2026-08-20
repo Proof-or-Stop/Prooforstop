@@ -1,0 +1,50 @@
+{
+  "storyId": "B-5a88",
+  "name": "remaining-lattice-identifier-migration",
+  "title": "Rename remaining lattice role IDs, markers, schemas, and npm identities to proof-or-stop forms",
+  "description": "After B-cc10, user-facing bins, state dirs, config filenames, and @proof-or-stop/core are migrated, but lattice still remains in agent role IDs, managed-block markers, persisted artifact schemas, the remote-push-approval schema, the root npm package name, sibling packages @lattice/utils and @lattice/lab, and the package.json bin alias lattice. This story retires those identifiers with dual-read compatibility so in-flight evidence and already-installed files keep resolving, while new writes use proof-or-stop forms. Signature salts and archived story body text stay frozen.",
+  "type": "chore",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "depends": [
+    "B-cc10"
+  ],
+  "keywords": [
+    "brand-identity",
+    "role-id",
+    "managed-block",
+    "artifact-schema",
+    "remote-push-approval",
+    "root-package",
+    "sibling-package",
+    "bin-alias"
+  ],
+  "createdAt": "2026-08-20T04:12:45.397Z",
+  "startedAt": "2026-08-20T04:12:45.397Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-08-20T04:12:45.971Z",
+      "branch": "main",
+      "user": "Pan Qi",
+      "sessionId": "sess-dbebc3fdf4cc01af",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-08-20T04:49:06.494Z",
+      "branch": "main",
+      "user": "Pan Qi",
+      "sessionId": "sess-521e4988098c1dbfc404a36393415c97",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-5a88",
+    "branch": "story/B-5a88",
+    "createdAt": "2026-08-20T04:49:03.575Z"
+  }
+}

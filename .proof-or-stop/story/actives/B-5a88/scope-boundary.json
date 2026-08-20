@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-5a88",
+  "mode": "feature",
+  "allowed": [
+    ".githooks/pre-push",
+    "package-lock.json",
+    "package.json",
+    "packages/lab/**",
+    "packages/lab/package-lock.json",
+    "packages/main/**",
+    "packages/main/package-lock.json",
+    "packages/main/templates/agents/**",
+    "packages/utils/**",
+    "packages/utils/package-lock.json",
+    "scripts/**",
+    "tests/**"
+  ],
+  "excluded": [
+    ".git/**",
+    ".worktrees/**",
+    "docs/story/**",
+    "tests/fixtures/**"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "用户指令：开始实现 story B-5a88；范围限定为 CHK-001 至 CHK-007 的 proof-or-stop identity migration 及其验证",
+  "createdAt": "2026-08-20T04:48:36.941Z",
+  "updatedAt": "2026-08-20T04:48:36.941Z",
+  "_hash": "e713d8bc4ade9ea2e8d028e036c7997d317027c4fb346dc858362bee8b6ad022"
+}
