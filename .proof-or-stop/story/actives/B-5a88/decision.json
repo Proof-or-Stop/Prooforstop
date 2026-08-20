@@ -1,0 +1,68 @@
+{
+  "principles": [
+    "先兼容读取再切换 canonical 写入，不能破坏已存在的证据链。",
+    "把 role/schema/marker/package 的 canonical 事实集中到可测试的 choke point，避免散落字符串漂移。",
+    "每个外部边界都要同时验证新行为、旧输入兼容和错误/one-shot 行为。",
+    "只提交 story 范围内的文件，保留其他开发者的 dirty worktree。"
+  ],
+  "drivers": [
+    "历史 artifact/signature freshness 与旧 installed project 兼容。",
+    "review/init/quorum/pre-push 等 gate 不能因命名迁移静默失效。",
+    "package 与 lockfile、bin、依赖引用必须作为一个可安装的 registry identity 一致变更。"
+  ],
+  "options": [
+    {
+      "name": "A: canonical-write dual-read migration",
+      "pros": [
+        "满足 CHK-001..CHK-007 的 proof-or-stop 当前身份目标",
+        "历史 role、marker、schema 和 approval 输入仍可被读取",
+        "可以用集中 aliases 和边界测试限制兼容面"
+      ],
+      "cons": [
+        "触及多个 gate 与 package 边界，需完整回归",
+        "旧 package/bin 的既有调用可能需要显式迁移策略"
+      ]
+    },
+    {
+      "name": "B: leave package/bin and schemas frozen",
+      "pros": [
+        "改动较小，短期不影响旧安装",
+        "减少 lockfile 和 hook 变更"
+      ],
+      "cons": [
+        "直接违背 CHK-003..CHK-007 和用户要求",
+        "proof-or-stop 未来写入仍会产生 lattice identity residue",
+        "无法完成用户可见的 rename"
+      ]
+    }
+  ],
+  "chosen": "A: canonical-write dual-read migration",
+  "rationale": "选择 A，因为本 story 的 checklist 已将剩余 package、schema、marker、role 和 bin residue 明确列为必须实现的 canonical migration；兼容性只保留在旧输入和历史读取边界。",
+  "preMortem": [
+    {
+      "scenario": "新 remote approval 写成 proof-or-stop schema，但 hook 仍只认 lattice schema",
+      "trigger": "release_approve_push 后 pre-push 报 approval schema invalid",
+      "consequence": "合法的 main 发布被阻断",
+      "mitigation": "writer、CLI reader、hook 三处共享 schema alias，并测试新旧 schema 与 one-shot consume"
+    },
+    {
+      "scenario": "role canonicalization 只改了 registry，review_run 或 quorum 仍按 lattice 前缀硬编码",
+      "trigger": "新 proof-or-stop reviewer run/pass 写入后 reviewer_list 或 gate 看不到该 lane",
+      "consequence": "review evidence 被错误视为缺失或不计入 quorum",
+      "mitigation": "集中 role alias/normalize helper，覆盖 review-run、finding/pass、init-check、quorum 和 prompt dispatch 的新旧输入测试"
+    },
+    {
+      "scenario": "marker writer 改名但 reader 不再识别已安装 lattice block",
+      "trigger": "init --upgrade 在旧 CLAUDE.md/AGENTS.md 上重复追加 managed block",
+      "consequence": "用户项目出现重复或孤儿配置",
+      "mitigation": "dual-read boundary test，验证旧 block 原位更新、新文件只写 proof-or-stop markers"
+    },
+    {
+      "scenario": "root/sibling package.json 与 lockfiles 或 in-repo dependencies 不一致",
+      "trigger": "npm install、npm pkg get name 或 global lab entrypoint 失败",
+      "consequence": "包无法解析或 self-host gate 静默失效",
+      "mitigation": "同步所有 package metadata/lockfiles/imports，运行 npm install/build/package identity smoke 与 pre-push detection tests"
+    }
+  ],
+  "timestamp": "2026-08-20T04:51:04.533Z"
+}
