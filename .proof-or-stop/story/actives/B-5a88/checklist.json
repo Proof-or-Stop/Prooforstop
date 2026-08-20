@@ -28,6 +28,29 @@
         "test": [
           "packages/main/tests/brand-role-migration.test.mjs"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "New proof-or-stop reviewer role IDs are emitted and accepted by review_run_start, review_pass_set, init_check_set, and quorum resolution.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Persisted lattice-* role IDs are normalized to the matching proof-or-stop lane without changing their historical evidence bytes.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A non-reviewer or malformed role ID cannot be smuggled into a reviewer lane merely by containing the proof-or-stop or lattice prefix.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
       }
     },
     {
