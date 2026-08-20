@@ -697,10 +697,30 @@
       "phase": "DEV",
       "headHash": "c9524958f24c196a1fad52ed6e2303b896ad157b",
       "materialHash": "824787ed988c20aa171fe7824cd3f3d762f94342f95c9e6823d284f3cfc7839d"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "PRE_CERT begin must consume completeness-only inventory receipts through a dedicated consume path; remediation consume stays wave-gated and cannot authorize REVIEW to DEV from empty-wave receipts. The CertificationWindow handler, core, and smoke are the only files that bind that split.",
+      "timestamp": "2026-08-20T04:06:02.139Z",
+      "paths": [
+        "packages/main/src/core/certification-window.ts",
+        "packages/main/src/handlers/certification-window.ts",
+        "packages/main/src/tasks/certification-window-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/certification-window.ts",
+        "packages/main/src/handlers/certification-window.ts",
+        "packages/main/src/tasks/certification-window-smoke.ts"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "1099bc7dd31856e06b1d548a8ff2d2d8b718a63b",
+      "materialHash": "d32efb491ddeb2daefd22cc076a9dd21ec49b12ed7525038d6f384d33cc0b89f"
     }
   ],
   "createdAt": "2026-08-14T14:01:52.360Z",
-  "updatedAt": "2026-08-19T16:35:19.311Z",
+  "updatedAt": "2026-08-20T04:06:02.139Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -829,6 +849,9 @@
     "packages/main/src/core/codex-adapter-checks.ts": "packages/main/src/core/codex-adapter-checks.ts",
     "packages/main/src/tasks/dev-memory-lifecycle-gates-smoke.ts": "packages/main/src/tasks/dev-memory-lifecycle-gates-smoke.ts",
     "proof-or-stop.config.json": "proof-or-stop.config.json",
-    ".proof-or-stop-codex/agents/lattice-review-topology-critic.md": ".proof-or-stop-codex/agents/lattice-review-topology-critic.md"
+    ".proof-or-stop-codex/agents/lattice-review-topology-critic.md": ".proof-or-stop-codex/agents/lattice-review-topology-critic.md",
+    "packages/main/src/core/certification-window.ts": "packages/main/src/core/certification-window.ts",
+    "packages/main/src/handlers/certification-window.ts": "packages/main/src/handlers/certification-window.ts",
+    "packages/main/src/tasks/certification-window-smoke.ts": "packages/main/src/tasks/certification-window-smoke.ts"
   }
 }
