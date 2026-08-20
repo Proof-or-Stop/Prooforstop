@@ -706,9 +706,9 @@
         "packages/utils/package.json",
         "packages/lab/package.json"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-08-20T06:35:00.900Z",
-      "endTime": null,
+      "endTime": "2026-08-20T06:41:24.280Z",
       "userSees": "User sees `npm pkg get name --workspace=packages/utils` return `\"@proof-or-stop/utils\"` and the lab entrypoint resolve `\"@proof-or-stop/lab\"`.",
       "files": {
         "modify": [
@@ -831,7 +831,14 @@
           "storyFilesHash": "bfcb6e3479766535c417434d965a0607f70bdebd094cffffd841cf3d26272079",
           "timestamp": "2026-08-20T06:41:11.894Z"
         }
-      ]
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "d38fdfd66a0cf4c74584d8bd53705108bfaca689528fff59d804730e32ce51a4",
+        "storyFilesHash": "bfcb6e3479766535c417434d965a0607f70bdebd094cffffd841cf3d26272079",
+        "headHash": "7d8a7f0b73c82b90928b036da84d1c6c40cec3cd",
+        "attestedAt": "2026-08-20T06:41:24.491Z",
+        "materialHash": "7c12af78ab01e8e99e18f75b6095c5c79428da1fa6922ab15476480a77f5e077"
+      }
     },
     {
       "id": "CHK-007",
@@ -897,6 +904,16 @@
       "from": "in_progress",
       "to": "done",
       "reason": "CHK-005 implementation committed as 0820254b96; tool-executed identity, version, and self-host receipts recorded.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-08-20T06:41:24.280Z",
+      "phase": "DEV",
+      "itemId": "CHK-006",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "CHK-006 implementation committed as 17b2e395ba; canonical sibling package metadata, lockfiles, dependency graph, source identity references, and focused checks are complete.",
       "agent": "lattice-implementer"
     }
   ]
