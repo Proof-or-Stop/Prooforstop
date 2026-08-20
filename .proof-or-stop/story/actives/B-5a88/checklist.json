@@ -177,6 +177,29 @@
         "test": [
           "packages/main/tests/release-push-approval-migration.test.mjs"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A new release approval is written with proof-or-stop.remote-push-approval.v1 and is accepted by the hook.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A valid lattice.remote-push-approval.v1 approval remains readable during the compatibility window.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The same approval cannot be consumed twice, and an invalid or stale approval is rejected without disabling the hook.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
       }
     },
     {
