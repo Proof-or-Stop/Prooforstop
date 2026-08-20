@@ -27,7 +27,8 @@
         "pathRefs": [
           "path:process-fact:acceptance_basis->consumer:<audit-only>",
           "path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
-          "path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate"
+          "path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
+          "path:process-fact:dispatch->consumer:<audit-only>"
         ],
         "coverageClaim": "complete_for_scope",
         "blindSpots": [],
@@ -135,7 +136,7 @@
             "scope:file:scripts/verify-proof-or-stop-prompt-baseline.mjs"
           ]
         },
-        "resultDigest": "sha256:e3396d35e423677a52bc085763cf5b36806f455f77bd3910d01696b7900efd3f"
+        "resultDigest": "sha256:0e193a32aeee34b00bd38419b8d98b5657704411b24fcae4a841b16584eb9ab1"
       },
       {
         "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -145,7 +146,8 @@
           "path:process-fact:acceptance_basis->consumer:<audit-only>",
           "path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
           "path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
-          "path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
+          "path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+          "path:process-fact:dispatch->consumer:<audit-only>"
         ],
         "coverageClaim": "complete_for_scope",
         "blindSpots": [],
@@ -154,6 +156,7 @@
           "process-fact:acceptance_basis_generate:c705ec303891a791afa607f361da9b178764f8186b88c4336bdd4441d32fe0b9",
           "process-fact:acceptance_topology_check:98a1a08190c79f0f548f297fa08b2d573493faec90f156fe9e07e66f9e3ff095",
           "process-fact:artifact:acceptance-basis.json:8cab0c9d56e68c579428c321969642d3f94a3596133e9393c047c110b44dcd82",
+          "process-fact:dispatch:d0a86112b48493e9682f00acbc71af330c0e55682299bc19951991c36b09caa0",
           "source-file:packages/main/src/core/acceptance-topology.ts:sha256:df44a37b6222c35311d1d6934d31138b5acb0b16b476e4b64fe33d33518c3dac",
           "source-file:packages/main/src/handlers/proofstory.ts:sha256:c4f6582905b8005ad1c92546a08c1922c70ed328445f0e7d6c589fbdf34c898b",
           "source-file:packages/main/src/handlers/transition-orchestrator.ts:sha256:b43f5c91e74c8849588abb53ead643cd16ba0a200c8b907a467408c3d7657698",
@@ -248,7 +251,7 @@
             "scope:file:scripts/verify-proof-or-stop-prompt-baseline.mjs"
           ]
         },
-        "resultDigest": "sha256:a06adb59c10429781aa37c356a1cb14f8d4e50bde99abf70eaf129238a4f1ee5"
+        "resultDigest": "sha256:c8d054a3e0e5d9f081f5be452ae79ff0607fb7f607aee0a5a6288d3a0201f3a9"
       },
       {
         "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -543,6 +546,7 @@
           "path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
           "path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
           "path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+          "path:process-fact:dispatch->consumer:<audit-only>",
           "path:static-call:packages/main/src/core/agent-dispatch-registry.ts#resolveAgentDispatchPromptBuilder->consumer:packages/main/src/handlers/story-dispatch.ts#resolveAgentDispatchPromptBuilder",
           "path:static-call:packages/main/src/core/agent-dispatch-registry.ts#resolveAgentDispatchType->consumer:packages/main/src/handlers/story-dispatch.ts#resolveAgentDispatchType",
           "path:static-call:packages/main/src/core/agent-dispatch-registry.ts#validateAgentDispatchRequest->consumer:packages/main/src/handlers/story-dispatch.ts#validateAgentDispatchRequest"
@@ -715,7 +719,7 @@
             "scope:file:scripts/verify-proof-or-stop-prompt-baseline.mjs"
           ]
         },
-        "resultDigest": "sha256:ce33272ea082b504e742bfdc77537a48768a3189b5c6a7e2f318c8232e2e835d"
+        "resultDigest": "sha256:1edeb04d0f08907ebad6843fadb127d194d1b50fb491af55ef8bf90ee3ab965a"
       }
     ],
     "scopeRefs": [
@@ -803,12 +807,13 @@
     ],
     "sourceInventoryRefs": [
       "artifact:acceptance-basis.json",
-      "handler:packages/main/src/handlers/story-dispatch.ts#resolveAgentDispatchType",
+      "handler:packages/main/src/handlers/story-dispatch.ts#dispatch",
       "planned:CHK-001:happy:0:VPP-CHK001-DISPATCH",
       "process-fact:acceptance_basis:da66e0998516b4d2ca3f45bc57585700a1f0675eeb30267234df766ee32d288f",
       "process-fact:acceptance_basis_generate:c705ec303891a791afa607f361da9b178764f8186b88c4336bdd4441d32fe0b9",
       "process-fact:acceptance_topology_check:98a1a08190c79f0f548f297fa08b2d573493faec90f156fe9e07e66f9e3ff095",
       "process-fact:artifact:acceptance-basis.json:8cab0c9d56e68c579428c321969642d3f94a3596133e9393c047c110b44dcd82",
+      "process-fact:dispatch:d0a86112b48493e9682f00acbc71af330c0e55682299bc19951991c36b09caa0",
       "source-file:closure:.githooks/pre-push",
       "source-file:closure:package-lock.json",
       "source-file:closure:package.json",
@@ -914,7 +919,7 @@
         "schemaVersion": "proofstory.planned_coverage_path.v1",
         "plannedPathRef": "planned:CHK-001:happy:0:VPP-CHK001-DISPATCH",
         "plannedPathDeclarationRef": "CHK-001:happy:0:VPP-CHK001-DISPATCH",
-        "declarationDigest": "sha256:f98b9f5f8d081261b792d32f06c62dae3b3240a42ba4dd6d574fb7bc08e16d91",
+        "declarationDigest": "sha256:4cddcbdff4d069b3b6b447ee66c4c6064491129631731c97c4c20bf481bd4339",
         "producer": {
           "id": "VPP-CHK001-DISPATCH-PRODUCER",
           "role": "producer",
@@ -929,7 +934,7 @@
             "role": "consumer",
             "expectedArtifactKind": "handler",
             "expectedFileRef": "packages/main/src/handlers/story-dispatch.ts",
-            "expectedSymbolOrFact": "resolveAgentDispatchType",
+            "expectedSymbolOrFact": "dispatch",
             "fileDeclarationRef": "CHK-001:files:modify:16"
           }
         ],
@@ -944,7 +949,7 @@
           "CHK-001:files:modify:0",
           "CHK-001:files:modify:16"
         ],
-        "plannedPathDigest": "sha256:e3e9caa21d4158fe591e9e617175658944b9a09e70898d111ac6fe902093250c"
+        "plannedPathDigest": "sha256:fa62cf97dc674dfb0016e0d3f2e3ff31fab7707dfb3cb3310f8ff2172431a051"
       }
     ],
     "plannedActualReconciliations": [],
@@ -953,6 +958,7 @@
       "path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
       "path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
       "path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+      "path:process-fact:dispatch->consumer:<audit-only>",
       "path:static-call:packages/main/src/core/agent-dispatch-registry.ts#resolveAgentDispatchPromptBuilder->consumer:packages/main/src/handlers/story-dispatch.ts#resolveAgentDispatchPromptBuilder",
       "path:static-call:packages/main/src/core/agent-dispatch-registry.ts#resolveAgentDispatchType->consumer:packages/main/src/handlers/story-dispatch.ts#resolveAgentDispatchType",
       "path:static-call:packages/main/src/core/agent-dispatch-registry.ts#validateAgentDispatchRequest->consumer:packages/main/src/handlers/story-dispatch.ts#validateAgentDispatchRequest",
@@ -964,42 +970,42 @@
       "schemaVersion": "proofstory.acceptance_snapshot_seal.v1",
       "inventoryDirectoryDigest": "sha256:a5ef8eb2a947839b69a8a89f10c15b3e602b38ec291afbafce056262ce82f9c7",
       "inventoryDirectoryCount": 21,
-      "sourceSnapshotDigest": "sha256:d2ac19d7f50329de3756fe344dc9ff6d83d6ce0898851e9d8c36b96b4cd4424c",
+      "sourceSnapshotDigest": "sha256:488fa303afe65359d8d1a5cbd3b0ba7957b7721c95acb14c6861342efba9f966",
       "sourceSnapshotCount": 846,
       "configSnapshotDigest": "sha256:ab4b658eaf618dd6e859c44d6bab29230deefeef2b53889c500533b9dde9b251",
       "status": "complete",
       "issues": [],
-      "sealDigest": "sha256:93b993ff51a6137a7982111245a053f2e00ec5267412b6fd2a522c64d213743c"
+      "sealDigest": "sha256:77e96d6f3d6dc817f67fc64e81cdf958d317f58ded0ab54259b65f67d80f9bc6"
     },
     "binding": {
-      "headHash": "ba6ba0a36544dc6543bd4f88b7feeb118ee5e5bc",
-      "materialHash": "4e5d6ffa94ce9ebed4ad91d54661840c6e89fd6cb232357032dc9b6bc9ba152d",
-      "storyFilesHash": "bc841b3990d8933797874b02dd8fbdc4055ba922aa2edeeade8e3d4999e0ecff",
+      "headHash": "7c1a422a66a05c91c31bbdc34ec88166d7ab537b",
+      "materialHash": "b410bfb30eb6d66a3dd26e0ad8e10615722169035dc979e9fa0592e71166f9a6",
+      "storyFilesHash": "d111b0d814e977bf421b021ef57120332888caa39f7a7cd4907aeb0797515c5f",
       "scopeCheckDigest": "sha256:cbd8e7e44b42c1b396996e8b9294d95c898ba1c92e6f86e9cb055d351182a0f9",
       "scopeContractDigest": "sha256:063bed6b02f572764b59784bcbc6d65569f1ef2760523586711e7e6e8840e333",
-      "closureFilesHash": "sha256:8c2167ef3522a6750d2a13c941ece954168badf78dcb29a6cfbf458764cbd433"
+      "closureFilesHash": "sha256:297f39cc776d8552c4085f48048b51d776cb207ce8a6d38f7a475213bbe4c236"
     },
-    "receiptRef": "receipt:coverage-basis:B-5a88:plan:c605177b58d04211",
-    "basisDigest": "sha256:a38b8f7afc4110682ebe02eb78e295d3bd161cf14fc108627f67a8bc5b248624"
+    "receiptRef": "receipt:coverage-basis:B-5a88:plan:d0e1422e8e8d3a6b",
+    "basisDigest": "sha256:93a057399cab139b40d413f292ea06982a96d971b74d35fe967cde70a2fb2a88"
   },
   "receipt": {
     "schemaVersion": "proofstory.acceptance_basis_receipt.v1",
-    "receiptRef": "receipt:coverage-basis:B-5a88:plan:c605177b58d04211",
+    "receiptRef": "receipt:coverage-basis:B-5a88:plan:d0e1422e8e8d3a6b",
     "issuer": "acceptance-coverage-basis-verifier",
     "issuerKeyId": "sha256:a944288d3323f4b761cbb51602e62f88fbc1b35530eabfa265971baee771138b",
     "signerPublicKey": "GpD4A2Km0wpT87L2EcszehhUu0nPgXbafTXgXTjTKAM=",
     "storyId": "B-5a88",
     "phaseBasis": "plan",
-    "basisDigest": "sha256:a38b8f7afc4110682ebe02eb78e295d3bd161cf14fc108627f67a8bc5b248624",
+    "basisDigest": "sha256:93a057399cab139b40d413f292ea06982a96d971b74d35fe967cde70a2fb2a88",
     "topologyDigest": "sha256:dbbcfb5ce48f59b037423b3de7ab80e0bcce2a552b562b0d92f472909b32b7be",
     "scopeCheckDigest": "sha256:cbd8e7e44b42c1b396996e8b9294d95c898ba1c92e6f86e9cb055d351182a0f9",
     "scopeContractDigest": "sha256:063bed6b02f572764b59784bcbc6d65569f1ef2760523586711e7e6e8840e333",
-    "headHash": "ba6ba0a36544dc6543bd4f88b7feeb118ee5e5bc",
-    "materialHash": "4e5d6ffa94ce9ebed4ad91d54661840c6e89fd6cb232357032dc9b6bc9ba152d",
-    "storyFilesHash": "bc841b3990d8933797874b02dd8fbdc4055ba922aa2edeeade8e3d4999e0ecff",
-    "closureFilesHash": "sha256:8c2167ef3522a6750d2a13c941ece954168badf78dcb29a6cfbf458764cbd433",
-    "sealDigest": "sha256:93b993ff51a6137a7982111245a053f2e00ec5267412b6fd2a522c64d213743c",
+    "headHash": "7c1a422a66a05c91c31bbdc34ec88166d7ab537b",
+    "materialHash": "b410bfb30eb6d66a3dd26e0ad8e10615722169035dc979e9fa0592e71166f9a6",
+    "storyFilesHash": "d111b0d814e977bf421b021ef57120332888caa39f7a7cd4907aeb0797515c5f",
+    "closureFilesHash": "sha256:297f39cc776d8552c4085f48048b51d776cb207ce8a6d38f7a475213bbe4c236",
+    "sealDigest": "sha256:77e96d6f3d6dc817f67fc64e81cdf958d317f58ded0ab54259b65f67d80f9bc6",
     "workspaceIdentityDigest": "sha256:7269e2a5b5f07e8b7e813824b4892a55c277f4f75b9c118ed471e7c51cb3ee21",
-    "signature": "QziXs4gV3VdPGFH+Y1hqhAfhlxKpz3D/UTAUtsvdmbaYJt2Rk8c2dwv5o9hMu0M65Qrn+mzp2ub46XB5fyJbAQ=="
+    "signature": "JVYq4mvKuzynGAfSgEpn3YGXC5quw3XIzL60tWyrWTeLrXJOskoAs6K7fONMzfNBZKp0WXnikQyBT9QPwCN8DQ=="
   }
 }
