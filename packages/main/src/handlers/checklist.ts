@@ -18,6 +18,7 @@ import { withMkdirLock } from '../core/mkdir-lock.js';
 import { effectiveExcludedKeywords, normalizeBoundaryArray, scanExcludedKeywordHits } from '../core/scope-anti-expansion.js';
 import type { ScopeFreezeTextSource } from '../core/types.js';
 import { resolveAgentMutationAuthority } from '../core/agent-dispatch-registry.js';
+import { agentRoleIdsEqual } from '../core/agent-role-identity.js';
 import {
   isAcceptanceMatrixDerivedEvidence,
   plannedPathDeclarationSnapshot,
@@ -159,7 +160,8 @@ function checklistActorFrom(args: { agent?: string; actor?: string }): string {
 }
 
 function isInitReviewerChecklistActor(actor: string): boolean {
-  return INIT_REVIEWER_CHECKLIST_MUTATION_BLOCKED_AGENTS.has(actor.trim());
+  return Array.from(INIT_REVIEWER_CHECKLIST_MUTATION_BLOCKED_AGENTS)
+    .some(blockedAgent => agentRoleIdsEqual(actor, blockedAgent));
 }
 
 function assertInitReviewerChecklistMutationAllowed(args: {

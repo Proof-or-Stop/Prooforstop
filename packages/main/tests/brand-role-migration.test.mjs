@@ -60,6 +60,20 @@ assert.equal(forcedQuality.some((reviewer) => reviewer.name === 'lattice-review-
 const qualityReviewer = forcedQuality.find((reviewer) => reviewer.name === 'quality');
 assert.ok(qualityReviewer);
 assert.equal(qualityReviewer.forced, true, 'deduplicated logical reviewer remains forced');
+const reviewerText = reviewerList.renderActiveReviewersText(
+  reviewerList.computeActiveReviewers(
+    { riskSignals: [{ category: 'gate' }] },
+    { items: [] },
+    null,
+    ['docs/README.md'],
+  ),
+);
+assert.match(reviewerText, /proof-or-stop-review-concept/);
+assert.match(reviewerText, /legacy alias: lattice-review-concept/);
+assert.match(reviewerText, /proof-or-stop-review-quality/);
+assert.match(reviewerText, /proof-or-stop-review-test-coverage/);
+assert.match(reviewerText, /proof-or-stop-review-behavior/);
+assert.doesNotMatch(reviewerText, /Active reviewers: concept, quality, test-coverage/);
 
 const reviewRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-review-role-'));
 try {

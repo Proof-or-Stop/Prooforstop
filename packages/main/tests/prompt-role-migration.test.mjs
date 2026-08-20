@@ -11,6 +11,7 @@ const distRoot = join(packageRoot, distName);
 
 const registryModule = await import(join(distRoot, 'core/prompt-registry.js'));
 const contracts = await import(join(distRoot, 'core/prompt-role-contract-registry.js'));
+const budget = await import(join(distRoot, 'core/prompt-budget.js'));
 
 const registry = registryModule.readPromptRegistry();
 assert.equal(registry.agents.length, 17, 'all canonical prompt templates are registered');
@@ -63,5 +64,33 @@ assert.equal(modular.mode, 'full-envelope');
 assert.equal(modular.legacyBytesRestored, false);
 assert.notEqual(modular.bodyDigest, legacy.bodyDigest);
 assert.equal(contracts.isPromptRoleEligibleForReviewEvidence('lattice-review-quality'), true);
+for (const role of [
+  'story-init',
+  'scope-plan',
+  'implementer',
+  'delivery',
+]) {
+  const canonical = role === 'implementer'
+    ? 'proof-or-stop-implementer'
+    : `proof-or-stop-review-${role}`;
+  const legacy = role === 'implementer'
+    ? 'lattice-implementer'
+    : `lattice-review-${role}`;
+  assert.equal(budget.isBudgetedComplexRole(canonical), true, `${canonical} is budgeted`);
+  assert.equal(budget.isBudgetedComplexRole(legacy), true, `${legacy} remains readable for budget observation`);
+  const canonicalObservation = budget.observeComplexRolePromptBudget({
+    roleId: canonical,
+    contextMode: 'full',
+    bytes: 100,
+    estimatedTokens: 25,
+  });
+  const legacyObservation = budget.observeComplexRolePromptBudget({
+    roleId: legacy,
+    contextMode: 'full',
+    bytes: 100,
+    estimatedTokens: 25,
+  });
+  assert.deepEqual(legacyObservation, canonicalObservation, `${legacy} and ${canonical} have equivalent budget observations`);
+}
 
 console.log('prompt-role migration test passed');

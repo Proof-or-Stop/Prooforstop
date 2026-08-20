@@ -159,7 +159,9 @@ function assertInitCheckGuardGuidance() {
     });
     const missingInitAgent = getGuardFailureReason(storyId, store, 'INIT_CHECK', root);
     assert.match(missingInitAgent ?? '', /missing_init_check_agent/);
-    assert.match(missingInitAgent ?? '', /product-reviewer/);
+    assert.match(missingInitAgent ?? '', /proof-or-stop-product-reviewer/);
+    assert.doesNotMatch(missingInitAgent ?? '', /lattice-review-story-init/);
+    assert.doesNotMatch(missingInitAgent ?? '', /subagent_type: "product-reviewer"/);
     assertIncludesInitPreflight(missingInitAgent, storyId, 'missing init-check agent guidance');
   } finally {
     rmSync(root, { recursive: true, force: true });
@@ -276,7 +278,7 @@ function assertStoryCreateAndGlobalHelpInitGuidance() {
 
     const helpRoot = makeRoot();
     try {
-      const help = execFileSync(process.execPath, [join(distRoot, 'cli.js'), '--root', helpRoot, 'help'], {
+      const help = execFileSync(process.execPath, [join(distRoot, 'cli.js'), '--root', helpRoot, 'help', '--full'], {
         cwd: helpRoot,
         encoding: 'utf8',
         stdio: ['pipe', 'pipe', 'pipe'],
@@ -340,7 +342,7 @@ function assertScopePlanDispatchPhaseGate() {
 
       assert.throws(
         () => dispatch.dispatch({ storyId, agentType: 'lattice-review-scope-plan' }),
-        new RegExp(`scope_check_save is PLAN-only; current phase ${phase} is unsupported`),
+        new RegExp(`(?:scope_check_save is PLAN-only; current phase ${phase} is unsupported|proof-or-stop-review-scope-plan cannot be dispatched during ${phase})`),
       );
       assert.equal(
         store.readProcessEvents(storyId).some((event) => event.targetKind === 'scope-plan-review'),

@@ -172,7 +172,7 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
     /**
      * init_check_repair — B-95d8 CHK-001 explicit, auditable INIT_CHECK fallback.
      *
-     * For environments that cannot spawn the lattice-review-story-init / product-reviewer
+     * For environments that cannot spawn the proof-or-stop-review-story-init / proof-or-stop-product-reviewer
      * subagents (no init reviewer available). Produces a SIGNED init-check.json that
      * `canEnterInitCheck` / `getGuardFailureReason` accept — WITHOUT weakening the gate:
      *
@@ -207,7 +207,7 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
       if (args.acknowledge !== true) {
         throw new Error(
           'init_check_repair: refused — this fallback bypasses the independent INIT reviewer and is disabled by default. ' +
-          'Re-run with explicit acknowledgement: pass acknowledge=true to confirm you are deliberately attesting in lieu of lattice-review-story-init / product-reviewer.',
+          'Re-run with explicit acknowledgement: pass acknowledge=true to confirm you are deliberately attesting in lieu of proof-or-stop-review-story-init / proof-or-stop-product-reviewer.',
         );
       }
       const reason = (args.fallbackReason ?? '').trim();

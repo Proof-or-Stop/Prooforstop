@@ -65,6 +65,28 @@ import { AGENT_DISPATCH_ACCEPTED_TYPES } from '../core/agent-dispatch-registry.j
 import { STALL_RESOLUTION_ACTIONS } from '../core/review-convergence.js';
 import { normalizeDeliveryPromiseOutcome } from '../core/delivery-promise-outcome.js';
 
+// review_run_start accepts canonical reviewer lanes for new callers and the
+// historical lattice spellings for persisted/compatibility callers. Runtime
+// phase and evidence eligibility checks remain in core/review-run.ts.
+const REVIEW_RUN_LANE_INPUTS = [
+  'proof-or-stop-review-topology-critic',
+  'proof-or-stop-review-concept',
+  'proof-or-stop-review-quality',
+  'proof-or-stop-review-behavior',
+  'proof-or-stop-review-docs',
+  'proof-or-stop-review-channel',
+  'proof-or-stop-review-test-coverage',
+  'proof-or-stop-review-delivery',
+  'lattice-review-topology-critic',
+  'lattice-review-concept',
+  'lattice-review-quality',
+  'lattice-review-behavior',
+  'lattice-review-docs',
+  'lattice-review-channel',
+  'lattice-review-test-coverage',
+  'lattice-review-delivery',
+] as const;
+
 const HIDDEN_LOCAL_ASSURANCE_REFUSAL = '@help-hidden local-assurance refusal sentinel';
 
 const READ_ONLY_STATUS_UNSUPPORTED_FLAGS = {
@@ -650,15 +672,8 @@ Behavior:
   }},
   { name: 'review_run_start', description: 'Start a reviewer run for the current REVIEW round; write signed review-runs.json', schema: {
     storyId: z.string().describe('Story ID'),
-    agent: z.string().optional().describe('Reviewer agent ID, for example lattice-review-quality; defaults to PROOF_OR_STOP_AGENT.'),
-    lane: z.enum([
-      'lattice-review-concept',
-      'lattice-review-quality',
-      'lattice-review-test-coverage',
-      'lattice-review-behavior',
-      'lattice-review-docs',
-      'lattice-review-channel',
-    ]).optional().describe('Explicit reviewer lane; synonym for agent, provide only one.'),
+    agent: z.string().optional().describe('Reviewer agent ID, for example proof-or-stop-review-quality; defaults to PROOF_OR_STOP_AGENT.'),
+    lane: z.enum(REVIEW_RUN_LANE_INPUTS).optional().describe('Explicit canonical reviewer lane; historical lattice aliases remain readable, provide only one.'),
     reviewedIntentRefs: z.array(z.string()).optional().describe('Scope-protected story: verification intent refs reviewed in this run; included in scope binding, optional.'),
     reviewerEscalationReason: z.string().trim().min(1).optional().describe('Reviewer-authored reason to mint a new full-context ReviewRun when the bounded incremental basis is incomplete.'),
   }},
