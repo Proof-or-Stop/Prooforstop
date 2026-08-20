@@ -24036,6 +24036,79 @@
       },
       "readDiagnostics": [],
       "_hash": "37ee41dda3accb90db8afad78ac08515c8e4cdd7b5bec9dc02df6310f7d2776d"
+    },
+    {
+      "id": "B-3f3d:RP-405",
+      "agent": "lattice-review-behavior",
+      "note": "Incremental re-review of d9d70a87b7 only. The commit is three write() lines in writeAcceptanceBasisDiscoveryFixture (flow-stability-smoke.ts:140-142) that stub machine.ts, review-inventory-epoch.ts, and review-inventory.ts inside a mkdtemp lattice-flow-review-echo- tree that is rmSync-cleaned. git show --name-only and git diff d9d70a^..d9d70a against packages/main/src/core/review-inventory-epoch.ts are empty; epoch.ts is also empty vs prior behavior pass a6a87cf/RP-400. REVIEW->DEV still consumes via consumeReviewInventoryReceipt (transition-orchestrator.ts:1488) before phase=DEV and prints This receipt does not authorize TEST. PRE_CERT still consumes via consumeReviewInventoryCompletenessReceipt (certification-window.ts:220). verifyReviewInventoryReceipt and persistFinalizedReviewInventory still require authorizesTest===false. Fixture stubs cannot change those consume functions. No blocker.",
+      "createdAt": "2026-08-20T05:45:40.992Z",
+      "reviewRound": "2026-08-20T05:39:48.902Z",
+      "reviewRunId": "B-3f3d:RR-632",
+      "envelopeId": "7698697d8277c2371ad34f2778a49dc394bcdf9c8fffbe3c6ced5467a2461e4b",
+      "writerSessionId": "sess-4292375d1d751b41",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/evidence-integrity-program-spec.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "8c61d5b5f6ff89341007a74e7babf060b35356fb91c69db51a3e0fd1b991f0d3"
+      },
+      "readDiagnostics": [],
+      "_hash": "e402e3e640c618a2be3e42f60856af9347762be3b52f416875ca67eb89209c76"
     }
   ]
 }
