@@ -1,0 +1,39 @@
+{
+  "findings": [
+    {
+      "id": "B-5a15:F-001",
+      "desc": "packages/main/src/handlers/checklist.ts:981-985 [critical] The preflight launch revalidation callback only compares headHash, materialHash, and storyFilesHash. It does not revalidate the CLI/worktree, Git index, writer identity or lease, provider capability, resource budget, or writable evidence target after preflight and immediately before child launch, so those states can change in the gap and the command can start despite an invalid preflight contract, violating CHK-004:adversarial:0 and allowing nonzero command execution or partial evidence writes.",
+      "severity": "critical",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-20T14:05:58.411Z",
+      "reviewRound": "2026-08-20T13:34:58.729Z",
+      "reviewRunId": "B-5a15:RR-009",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "fbab1f4a8a5d4497b994080223a48c0d9fc9d96f76dea31f5df2f3b72ba9adb3",
+      "files": [
+        "packages/main/src/handlers/checklist.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-handlers",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
