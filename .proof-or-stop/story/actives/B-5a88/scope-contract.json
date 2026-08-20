@@ -83,9 +83,140 @@
   "protectedFiles": [],
   "explicitExcludes": [],
   "scopeChangeReason": "CHK-002 adds the shared managed-marker helper and shared init sync path; preserve the existing enforce contract arrays, protections, and exclusions unchanged.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Canonical prompt template filenames now drive registry and host writes; these shared host assets and affected smoke assertions must follow the new names while retaining legacy alias read coverage.",
+      "timestamp": "2026-08-20T07:31:46.867Z",
+      "paths": [
+        "packages/main/src/core/global-agents.ts",
+        ".claude/agents",
+        ".proof-or-stop-codex/agents",
+        "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+        "packages/main/src/tasks/global-agents-unit-smoke.ts",
+        "packages/main/src/tasks/codex-registry-mode-smoke.ts",
+        "packages/main/src/tasks/prompt-token-cost-smoke.ts",
+        "packages/main/src/tasks/quorum-submit-smoke.ts",
+        "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts",
+        "packages/main/src/tasks/runtime-owned-agent-assets-smoke.ts",
+        "packages/main/src/tasks/session-brief-prompt-sync-smoke.ts",
+        "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+        "packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
+        "scripts/verify-test-intent-prompt-fixture-friendly.mjs",
+        "scripts/verify-test-intent-prompt-profile.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/global-agents.ts",
+        ".claude/agents",
+        ".proof-or-stop-codex/agents",
+        "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+        "packages/main/src/tasks/global-agents-unit-smoke.ts",
+        "packages/main/src/tasks/codex-registry-mode-smoke.ts",
+        "packages/main/src/tasks/prompt-token-cost-smoke.ts",
+        "packages/main/src/tasks/quorum-submit-smoke.ts",
+        "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts",
+        "packages/main/src/tasks/runtime-owned-agent-assets-smoke.ts",
+        "packages/main/src/tasks/session-brief-prompt-sync-smoke.ts",
+        "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+        "packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
+        "scripts/verify-test-intent-prompt-fixture-friendly.mjs",
+        "scripts/verify-test-intent-prompt-profile.mjs"
+      ],
+      "affectedPathCount": 15,
+      "phase": "DEV",
+      "headHash": "287d47dc8f894c5f015425e706f4e2a276ba98e8",
+      "materialHash": "cf2034a98665d10b7db58a943ea6fe84963df55f004a5a2c90fdcadefcf3bdb1"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Canonical Codex verifier now validates the checked-in README and manifest as active assets; migrate their generated output while retaining legacy adapter layouts only as read-only compatibility fixtures.",
+      "timestamp": "2026-08-20T08:04:34.616Z",
+      "paths": [
+        ".proof-or-stop-codex/README.md",
+        ".proof-or-stop-codex/proof-or-stop.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".proof-or-stop-codex/README.md",
+        ".proof-or-stop-codex/proof-or-stop.json"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "287d47dc8f894c5f015425e706f4e2a276ba98e8",
+      "materialHash": "cf2034a98665d10b7db58a943ea6fe84963df55f004a5a2c90fdcadefcf3bdb1"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Session-brief smoke exposes the hook as an active state-path and command compatibility choke point; canonical proof-or-stop state must be read first while legacy lattice state remains read-only compatible.",
+      "timestamp": "2026-08-20T08:13:10.994Z",
+      "paths": [
+        ".claude/hooks/session-brief-reminder.cjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".claude/hooks/session-brief-reminder.cjs"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "287d47dc8f894c5f015425e706f4e2a276ba98e8",
+      "materialHash": "cf2034a98665d10b7db58a943ea6fe84963df55f004a5a2c90fdcadefcf3bdb1"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "User-authorized canonical alias ordering for proof-or-stop-test-intent; retain both legacy aliases and preserve proof-or-stop-test-case-reviewer identity.",
+      "timestamp": "2026-08-20T08:15:55.577Z",
+      "paths": [
+        "packages/main/src/core/agent-role-identity.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/agent-role-identity.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "287d47dc8f894c5f015425e706f4e2a276ba98e8",
+      "materialHash": "cf2034a98665d10b7db58a943ea6fe84963df55f004a5a2c90fdcadefcf3bdb1"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Canonical story dispatch now emits proof-or-stop-implementer commit authors; the channel gate must accept that writer while preserving lattice-implementer read compatibility.",
+      "timestamp": "2026-08-20T08:40:54.733Z",
+      "paths": [
+        "packages/main/src/handlers/validate-channel.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/handlers/validate-channel.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "287d47dc8f894c5f015425e706f4e2a276ba98e8",
+      "materialHash": "cf2034a98665d10b7db58a943ea6fe84963df55f004a5a2c90fdcadefcf3bdb1"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Canonical prompt role filenames and IDs change the checked-in baseline lockfiles and overlap matrix; regenerate these derived artifacts so baseline verification binds the new canonical registry while preserving legacy compatibility findings.",
+      "timestamp": "2026-08-20T08:42:42.707Z",
+      "paths": [
+        "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+        "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+        "docs/requirements/baselines/role-prompt-measurement-baseline.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+        "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+        "docs/requirements/baselines/role-prompt-measurement-baseline.json"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "287d47dc8f894c5f015425e706f4e2a276ba98e8",
+      "materialHash": "cf2034a98665d10b7db58a943ea6fe84963df55f004a5a2c90fdcadefcf3bdb1"
+    }
+  ],
   "createdAt": "2026-08-20T05:20:00.402Z",
-  "updatedAt": "2026-08-20T05:53:27.481Z",
+  "updatedAt": "2026-08-20T08:42:42.707Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -161,6 +292,28 @@
     "scripts/verify-global-lab-entrypoint.mjs": "scripts/verify-global-lab-entrypoint.mjs",
     "packages/main/tests/bin-alias-migration.test.mjs": "packages/main/tests/bin-alias-migration.test.mjs",
     "packages/main/src/cli-init.ts": "packages/main/src/cli-init.ts",
-    "packages/main/src/core/managed-markers.ts": "packages/main/src/core/managed-markers.ts"
+    "packages/main/src/core/managed-markers.ts": "packages/main/src/core/managed-markers.ts",
+    "packages/main/src/core/global-agents.ts": "packages/main/src/core/global-agents.ts",
+    ".claude/agents": ".claude/agents",
+    ".proof-or-stop-codex/agents": ".proof-or-stop-codex/agents",
+    "packages/main/src/tasks/agent-dispatch-registry-smoke.ts": "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+    "packages/main/src/tasks/global-agents-unit-smoke.ts": "packages/main/src/tasks/global-agents-unit-smoke.ts",
+    "packages/main/src/tasks/codex-registry-mode-smoke.ts": "packages/main/src/tasks/codex-registry-mode-smoke.ts",
+    "packages/main/src/tasks/prompt-token-cost-smoke.ts": "packages/main/src/tasks/prompt-token-cost-smoke.ts",
+    "packages/main/src/tasks/quorum-submit-smoke.ts": "packages/main/src/tasks/quorum-submit-smoke.ts",
+    "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts": "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts",
+    "packages/main/src/tasks/runtime-owned-agent-assets-smoke.ts": "packages/main/src/tasks/runtime-owned-agent-assets-smoke.ts",
+    "packages/main/src/tasks/session-brief-prompt-sync-smoke.ts": "packages/main/src/tasks/session-brief-prompt-sync-smoke.ts",
+    "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+    "packages/main/src/tasks/proofstory-topology-critic-smoke.ts": "packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
+    "scripts/verify-test-intent-prompt-fixture-friendly.mjs": "scripts/verify-test-intent-prompt-fixture-friendly.mjs",
+    "scripts/verify-test-intent-prompt-profile.mjs": "scripts/verify-test-intent-prompt-profile.mjs",
+    ".proof-or-stop-codex/README.md": ".proof-or-stop-codex/README.md",
+    ".proof-or-stop-codex/proof-or-stop.json": ".proof-or-stop-codex/proof-or-stop.json",
+    ".claude/hooks/session-brief-reminder.cjs": ".claude/hooks/session-brief-reminder.cjs",
+    "packages/main/src/handlers/validate-channel.ts": "packages/main/src/handlers/validate-channel.ts",
+    "docs/requirements/baselines/proof-or-stop-prompt-baseline.json": "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+    "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md": "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+    "docs/requirements/baselines/role-prompt-measurement-baseline.json": "docs/requirements/baselines/role-prompt-measurement-baseline.json"
   }
 }

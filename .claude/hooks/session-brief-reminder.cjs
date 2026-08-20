@@ -8,6 +8,12 @@ const path = require('path');
 
 const DEFAULT_FRESH_MINUTES = 60;
 const REMINDER = 'Suggest running proof-or-stop session_brief first to restore context';
+const PROOF_OR_STOP_STATE_DIR = '.proof-or-stop';
+const PROOF_OR_STOP_CONFIG_FILENAME = 'proof-or-stop.config.json';
+// Legacy names are read-only compatibility fallbacks. New state is written by
+// the CLI under the canonical Proof-or-Stop names above.
+const LEGACY_STATE_DIR = '.lattice';
+const LEGACY_CONFIG_FILENAME = 'lattice.config.json';
 
 let input = '';
 process.stdin.setEncoding('utf8');
@@ -56,8 +62,14 @@ function findRepoRoot(start) {
   let dir = path.resolve(String(start || process.cwd()));
   while (true) {
     if (
-      fs.existsSync(path.join(dir, '.lattice'))
-      || fs.existsSync(path.join(dir, 'lattice.config.json'))
+      fs.existsSync(path.join(dir, PROOF_OR_STOP_STATE_DIR))
+      || fs.existsSync(path.join(dir, PROOF_OR_STOP_CONFIG_FILENAME))
+    ) {
+      return dir;
+    }
+    if (
+      fs.existsSync(path.join(dir, LEGACY_STATE_DIR))
+      || fs.existsSync(path.join(dir, LEGACY_CONFIG_FILENAME))
       || fs.existsSync(path.join(dir, '.koala'))
       || fs.existsSync(path.join(dir, '.git'))
     ) {
@@ -80,19 +92,26 @@ function hasFreshSessionBrief(root, thresholdMs) {
 
 function activityFiles(root) {
   return [
-    path.join(root, '.lattice', 'activity.jsonl'),
+    // Canonical runtime activity is authoritative and must be read first.
+    path.join(root, PROOF_OR_STOP_STATE_DIR, 'activity.jsonl'),
+    ...storyActivityFiles(root, path.join(PROOF_OR_STOP_STATE_DIR, 'story', 'actives')),
+    // Legacy locations remain read-only fallbacks for older workspaces.
+    path.join(root, LEGACY_STATE_DIR, 'activity.jsonl'),
+    ...storyActivityFiles(root, path.join(LEGACY_STATE_DIR, 'story', 'actives')),
     path.join(root, '.koala', 'activity.jsonl'),
     path.join(root, 'docs', 'story', 'activity.jsonl'),
-    ...storyActivityFiles(root),
+    ...storyActivityFiles(root, path.join('docs', 'story', 'actives')),
   ];
 }
 
-function storyActivityFiles(root) {
-  const activesDir = path.join(root, 'docs', 'story', 'actives');
+function storyActivityFiles(root, activesDir) {
+  const absoluteActivesDir = path.isAbsolute(activesDir)
+    ? activesDir
+    : path.join(root, activesDir);
   try {
-    return fs.readdirSync(activesDir, { withFileTypes: true })
+    return fs.readdirSync(absoluteActivesDir, { withFileTypes: true })
       .filter(entry => entry.isDirectory())
-      .map(entry => path.join(activesDir, entry.name, 'activity.jsonl'));
+      .map(entry => path.join(absoluteActivesDir, entry.name, 'activity.jsonl'));
   } catch {
     // PROBE: older repos may not have story-scoped Claude activity logs.
     return [];
@@ -137,7 +156,21 @@ function isSessionBrief(entry) {
 function containsSessionBriefCommand(value) {
   if (typeof value !== 'string') return false;
   const command = value.replace(/["']/g, '').trim();
-  return /(?:^|[\s;&|()])(?:[\w.-]+=\S+\s+)*lattice\s+session_brief(?:$|[\s;&|()])/.test(command)
-    || /(?:^|[\s;&|()])node\s+(?:\.\/)?(?:.*\/)?bin\/lattice\.js\s+session_brief(?:$|[\s;&|()])/.test(command)
-    || /(?:^|[\s;&|()])node\s+(?:\.\/)?(?:.*\/)?packages\/main\/dist\/cli\.js\s+session_brief(?:$|[\s;&|()])/.test(command);
+  const boundary = '(?:^|[\\s;&|()])';
+  const end = '(?:$|[\\s;&|()])';
+  const envPrefix = '(?:[\\w.-]+=\\S+\\s+)*';
+
+  // Canonical command forms are checked first. This includes the local
+  // canonical wrappers and the built CLI used by repository-local hooks.
+  if (
+    new RegExp(`${boundary}${envPrefix}proof-or-stop\\s+session_brief${end}`).test(command)
+    || new RegExp(`${boundary}node\\s+(?:\\.\\/)?(?:.*\\/)?bin\\/proof-or-stop(?:-codex)?\\.js\\s+session_brief${end}`).test(command)
+    || new RegExp(`${boundary}node\\s+(?:\\.\\/)?(?:.*\\/)?packages\\/main\\/dist\\/cli\\.js\\s+session_brief${end}`).test(command)
+  ) {
+    return true;
+  }
+
+  // Explicit legacy read-only fallback for pre-migration command records.
+  return new RegExp(`${boundary}${envPrefix}lattice\\s+session_brief${end}`).test(command)
+    || new RegExp(`${boundary}node\\s+(?:\\.\\/)?(?:.*\\/)?bin\\/lattice\\.js\\s+session_brief${end}`).test(command);
 }

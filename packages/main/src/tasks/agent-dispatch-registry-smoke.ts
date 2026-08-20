@@ -135,7 +135,7 @@ const allNames = AGENT_DISPATCH_REGISTRY.flatMap((entry) => [entry.canonicalName
 assert.equal(new Set(allNames).size, allNames.length, 'canonical names and aliases must not collide');
 assert.deepEqual(
   AGENT_DISPATCH_ACCEPTED_TYPES,
-  allNames.filter(name => name !== 'lattice-review-channel').sort(),
+  allNames.filter(name => name !== 'proof-or-stop-review-channel' && name !== 'lattice-review-channel').sort(),
   'accepted type list must enumerate every non-retired role while excluding channel',
 );
 assert.deepEqual(
@@ -150,7 +150,7 @@ assert.equal(
   false,
   'legacy implementation-reviewer stays deliberately folded into quality/behavior instead of acquiring a third REVIEW authority',
 );
-const deliveryEntry = AGENT_DISPATCH_REGISTRY.find((entry) => entry.canonicalName === 'lattice-review-delivery');
+const deliveryEntry = AGENT_DISPATCH_REGISTRY.find((entry) => entry.canonicalName === 'proof-or-stop-review-delivery');
 assert.deepEqual(deliveryEntry?.allowedPhases, ['TEST'], 'delivery reviewer dispatch is TEST-only');
 assert.equal(DEFAULT_PHASE_TOOLS.TEST.includes('delivery_check_set'), true, 'delivery_check_set must be legal in TEST');
 assert.equal(DEFAULT_PHASE_TOOLS.REVIEW.includes('delivery_check_set'), false, 'delivery_check_set must not be legal outside the delivery reviewer dispatch phase');
@@ -190,7 +190,7 @@ for (const entry of AGENT_DISPATCH_REGISTRY) {
     }
   }
 
-  if (entry.canonicalName === 'lattice-review-channel') {
+  if (entry.canonicalName === 'proof-or-stop-review-channel') {
     assert.throws(
       () => resolveAgentDispatchType(entry.canonicalName),
       /retired agentType/,
@@ -219,7 +219,7 @@ for (const entry of AGENT_DISPATCH_REGISTRY) {
 }
 
 const omitted = resolveAgentDispatchType();
-assert.equal(omitted.canonicalType, 'lattice-implementer');
+assert.equal(omitted.canonicalType, 'proof-or-stop-implementer');
 assert.equal(omitted.usedDefault, true);
 assert.equal(omitted.usedAlias, false);
 
@@ -285,7 +285,7 @@ for (const entry of AGENT_DISPATCH_REGISTRY) {
   coveredPromptBuilders.add(entry.promptBuilder);
   const names = [entry.canonicalName, ...entry.aliases];
   for (const alias of entry.aliases) coveredAliases.add(alias);
-  if (entry.canonicalName === 'lattice-review-channel') continue;
+  if (entry.canonicalName === 'proof-or-stop-review-channel') continue;
   for (const agentType of names) {
     for (const phase of ALL_PHASES) {
       for (let mask = 0; mask < 8; mask += 1) {
@@ -380,7 +380,7 @@ assert.equal(
     envActor: 'test-intent',
     payloadActors: ['verification-intent'],
   }).entry?.canonicalName,
-  'verification-intent',
+  'proof-or-stop-test-intent',
   'canonical and alias spellings of the same dispatched role are authority-equivalent',
 );
 assert.throws(
@@ -735,7 +735,7 @@ try {
   );
 
   const promptPatterns: Record<string, RegExp> = {
-    'implementer-dispatch': /git commit --author=.*lattice-implementer/,
+    'implementer-dispatch': /git commit --author=.*proof-or-stop-implementer/,
     'verification-intent-item': /define verification intent/,
     'init-review': /INIT_REVIEW_START/,
     'product-init-review': /product-reviewer/,
@@ -749,7 +749,7 @@ try {
   };
   const actualPromptCoverage = new Set<string>();
   for (const entry of AGENT_DISPATCH_REGISTRY) {
-    if (entry.canonicalName === 'lattice-review-channel') continue;
+    if (entry.canonicalName === 'proof-or-stop-review-channel') continue;
     for (const agentType of [entry.canonicalName, ...entry.aliases]) {
       for (const identifierKind of entry.targetCardinality === 'story-only' ? [null] : entry.identifierKinds) {
         for (const phase of entry.allowedPhases) {
@@ -768,7 +768,7 @@ try {
           assertCanonicalLivenessGuidance(prompt, label);
           if (!entry.commitAllowed) assert.doesNotMatch(prompt, /git commit --author=/, `${label} must not receive commit instructions`);
           if (entry.roleClass === 'verification-intent') assert.doesNotMatch(prompt, /status["': ]+done/i, `${label} must not complete an item`);
-          if (entry.roleClass.endsWith('reviewer')) assert.doesNotMatch(prompt, /lattice checklist_update/, `${label} must not mutate checklist status`);
+          if (entry.roleClass.endsWith('reviewer')) assert.doesNotMatch(prompt, /(?:proof-or-stop|lattice) checklist_update/, `${label} must not mutate checklist status`);
           actualPromptCoverage.add(expectedPromptBuilder);
         }
       }

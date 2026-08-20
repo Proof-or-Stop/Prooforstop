@@ -50,7 +50,7 @@ function evaluate(baseline, candidate) {
   }
 }
 
-const current = readFileSync('.claude/agents/test-intent.md', 'utf8');
+const current = readFileSync('.claude/agents/proof-or-stop-test-intent.md', 'utf8');
 const weak = current
   .replace(/### fixture-heavy item 的推荐字段[\s\S]*?### 写入/, '### 写入')
   .replace(/- fixture-heavy item 优先提供.*\n/, '');

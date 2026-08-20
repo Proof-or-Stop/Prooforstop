@@ -20,7 +20,7 @@
  *                          lane (round-decayed via isFindingBlocking).
  *   - The orchestrator launch INSTRUCTION for each lane that needs a (re-)run, in
  *     the canonical Agent subagent-spawn form
- *     `Agent({ subagent_type: "lattice-review-<lane>", prompt: "Review story <id> (<reason>)" })`
+ *     `Agent({ subagent_type: "proof-or-stop-review-<lane>", prompt: "Review story <id> (<reason>)" })`
  *     (matching transition-effects.ts). This is an instruction the orchestrator
  *     executes to spawn the reviewer subagent — a CLI cannot spawn one, so it is
  *     NOT a runnable `dispatch` CLI command.
@@ -50,7 +50,11 @@ import {
   collectReviewerEvidenceState,
   type ReviewerEvidenceRecord,
 } from '../core/review-run.js';
-import { findingAgentMatchesReviewer } from '../core/reviewer-opt-in.js';
+import {
+  canonicalReviewerLane,
+  findingAgentMatchesReviewer,
+  reviewerRoleReadIds,
+} from '../core/reviewer-opt-in.js';
 import { detectMdTouchpointsFromGit } from '../core/touchpoints-fallback.js';
 import { isFindingBlocking, resolveReviewRoundCount } from '../core/advisory.js';
 import { resolveWorkflowPolicy } from '../core/workflow-policy.js';
@@ -176,9 +180,23 @@ function assertBoundary(args: ReviewerBatchArgs): void {
  * prompt (falling back to "baseline" when absent).
  */
 function laneLaunchInstruction(storyId: string, lane: string, reason: string): string {
-  const name = lane.startsWith('lattice-review-') ? lane.slice('lattice-review-'.length) : lane;
+  const canonicalLane = canonicalReviewerLane(lane);
+  if (!canonicalLane) {
+    throw new Error(`reviewer_batch: active lane "${lane}" is not registered in the agent dispatch registry`);
+  }
   const why = reason && reason.trim() ? reason.trim() : 'baseline';
-  return `Agent({ subagent_type: "lattice-review-${name}", prompt: "Review story ${storyId} (${why})" })`;
+  return `Agent({ subagent_type: "${canonicalLane}", prompt: "Review story ${storyId} (${why})" })`;
+}
+
+function incrementalContextForLane(
+  ctx: HandlerContext,
+  storyId: string,
+  lane: string,
+) {
+  const candidates = reviewerRoleReadIds(lane).map((role) =>
+    reviewIncrementalContext(ctx.store, ctx.root, storyId, role),
+  );
+  return candidates.find((candidate) => !candidate.isFirstPass) ?? candidates[0];
 }
 
 /**
@@ -316,13 +334,14 @@ export function createReviewerBatchHandlers(ctx: HandlerContext): Record<string,
     const lanes: ReviewerLanePlan[] = activeReviewers.map((reviewer) => {
       // review_incremental_context facts: prior verdict, bound headHash,
       // scopeChanged, and the material files changed since the lane's last pass.
-      const incremental = reviewIncrementalContext(ctx.store, ctx.root, storyId, reviewer.name);
-      const hasCurrentEvidence = laneHasCurrentRoundEvidence(evidenceState.valid, reviewer.name);
-      const laneBlocking = blockingFindingsForLane(blockingFindings, reviewer.name);
+      const canonicalLane = canonicalReviewerLane(reviewer.name) ?? reviewer.name;
+      const incremental = incrementalContextForLane(ctx, storyId, canonicalLane);
+      const hasCurrentEvidence = laneHasCurrentRoundEvidence(evidenceState.valid, canonicalLane);
+      const laneBlocking = blockingFindingsForLane(blockingFindings, canonicalLane);
       const state = classifyLaneState(hasCurrentEvidence, incremental.scopeChanged, laneBlocking);
       const needsRun = state !== 'current-pass';
       return {
-        lane: reviewer.name,
+        lane: canonicalLane,
         reason: reviewer.reason,
         state,
         scopeChanged: incremental.scopeChanged,

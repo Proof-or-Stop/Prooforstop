@@ -54,9 +54,9 @@ const HISTORICAL_RED_COMMIT = 'ffedfb4eb3';
 const REVIEW_ROUND = '2026-06-22T10:00:00.000Z';
 const COMMIT_ENV = ['-c', 'user.email=quorum-smoke@example.test', '-c', 'user.name=Quorum Submit Smoke'];
 const REVIEW_LANES = [
-  'lattice-review-concept',
-  'lattice-review-quality',
-  'lattice-review-test-coverage',
+  'proof-or-stop-review-concept',
+  'proof-or-stop-review-quality',
+  'proof-or-stop-review-test-coverage',
 ] as const;
 
 // Ignore rules copied verbatim from the implementation repo's own .gitignore. Both
@@ -828,7 +828,7 @@ try {
         const output = String(start({ storyId: STORY_ID, agent: 'lattice-review-quality' }));
         assert.match(output, /context incremental\/SAFE_INCREMENTAL/);
         const latest = [...fixture.store.readReviewRuns(STORY_ID).runs].reverse().find(
-          candidate => candidate.lane === 'lattice-review-quality',
+          candidate => candidate.lane === 'proof-or-stop-review-quality',
         )!;
         const envelope = fixture.store.readPromptEnvelopes(STORY_ID).envelopes.find(
           candidate => candidate.envelopeId === latest.envelopeId,
@@ -905,7 +905,7 @@ try {
       assert.match(started.stdout, /context full\/REVIEWER_REQUESTED_FULL/);
       assert.match(started.stdout, /reviewer escalation: Bounded basis omitted/);
       const latest = [...fixture.store.readReviewRuns(STORY_ID).runs].reverse().find(
-        candidate => candidate.lane === 'lattice-review-quality',
+        candidate => candidate.lane === 'proof-or-stop-review-quality',
       )!;
       assert.equal(latest.reviewerEscalationReason, reason);
       assert.equal(verifyReviewRunPromptEnvelope(fixture.store, latest).ok, true);
@@ -992,7 +992,7 @@ try {
         recordReviewerPasses(thin.registry, selected.provider);
         const thinEvidence = collectReviewerEvidenceState(thin.store, STORY_ID, thin.root);
         const qualityDispatch = [...thin.store.readProcessEvents(STORY_ID)].reverse().find(
-          event => event.type === 'dispatch' && event.agentType === 'lattice-review-quality',
+          event => event.type === 'dispatch' && event.agentType === 'proof-or-stop-review-quality',
         );
         assert.equal(qualityDispatch?.hostRenderHost, selected.host);
         assert.equal(
@@ -1136,9 +1136,9 @@ try {
       const configPath = join(fixture.root, 'lattice.config.json');
       const config = JSON.parse(readFileSync(configPath, 'utf8'));
       const modes = {
-        'lattice-review-concept': 'legacy-full-context',
-        'lattice-review-quality': 'full-envelope',
-        'lattice-review-test-coverage': 'legacy-full-context',
+        'proof-or-stop-review-concept': 'legacy-full-context',
+        'proof-or-stop-review-quality': 'full-envelope',
+        'proof-or-stop-review-test-coverage': 'legacy-full-context',
       } as const;
       config.promptEnvelope.roles = modes;
       write(fixture.root, 'lattice.config.json', `${JSON.stringify(config, null, 2)}\n`);
@@ -1375,7 +1375,7 @@ try {
     );
     const qualityRun = [...store.readReviewRuns(STORY_ID).runs]
       .reverse()
-      .find(run => run.lane === 'lattice-review-quality');
+      .find(run => run.lane === 'proof-or-stop-review-quality');
     assert.ok(qualityRun, 'quality reviewer run exists for thin host-render verification');
     assert.equal(
       verifyReviewRunPromptEnvelope(store, qualityRun).ok,
@@ -1405,14 +1405,14 @@ try {
       {
         host: 'codex',
         provider: 'codex',
-        assetPath: `${PROOF_OR_STOP_ADAPTER_DIR}/agents/lattice-review-quality.md`,
+        assetPath: `${PROOF_OR_STOP_ADAPTER_DIR}/agents/proof-or-stop-review-quality.md`,
         otherAssetDir: '.claude/agents',
       },
       {
         host: 'claude',
         provider: 'claude-code',
-        assetPath: '.claude/agents/lattice-review-quality.md',
-        otherAssetDir: '.lattice-codex/agents',
+        assetPath: '.claude/agents/proof-or-stop-review-quality.md',
+        otherAssetDir: '.proof-or-stop-codex/agents',
       },
     ] as const) {
       const full = makeFixture('full', selected.host);
@@ -1429,10 +1429,10 @@ try {
         assert.equal(canPassReviewGuard(machineContext), true, `${selected.host}-only full-asset reviewer evidence passes`);
         const qualityRun = [...full.store.readReviewRuns(STORY_ID).runs]
           .reverse()
-          .find(run => run.lane === 'lattice-review-quality');
+          .find(run => run.lane === 'proof-or-stop-review-quality');
         assert.ok(qualityRun, `${selected.host} quality reviewer run exists for full-asset drift verification`);
         const qualityDispatch = [...full.store.readProcessEvents(STORY_ID)].reverse().find(
-          event => event.type === 'dispatch' && event.agentType === 'lattice-review-quality',
+          event => event.type === 'dispatch' && event.agentType === 'proof-or-stop-review-quality',
         );
         assert.equal(
           qualityDispatch?.hostRenderHost,
@@ -1478,7 +1478,7 @@ try {
       assert.equal(verifyReviewRunPromptEnvelope(store, latestRun).ok, true);
     }
     const qualityRun = [...store.readReviewRuns(STORY_ID).runs].reverse().find(
-      run => run.lane === 'lattice-review-quality',
+      run => run.lane === 'proof-or-stop-review-quality',
     )!;
     const postRunFinding: Finding = {
       id: `${STORY_ID}:F-CUTOFF`,

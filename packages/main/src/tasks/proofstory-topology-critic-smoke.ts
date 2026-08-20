@@ -287,13 +287,13 @@ smokeSuite: try {
   const promptEntry = readPromptRegistry(join(sourceRoot, 'templates/agents')).agents.find(entry => entry.agentId === TOPOLOGY_CRITIC_ROLE);
   assert.ok(promptEntry, 'registered topology critic prompt is discoverable');
   assert.equal(extractTemplateFrontmatter(readFileSync(promptEntry!.sourcePath, 'utf8'), promptEntry!.sourcePath).name, TOPOLOGY_CRITIC_ROLE, 'real prompt parser accepts topology critic frontmatter');
-  const canonicalPrompt = readFileSync(join(sourceRoot, 'templates/agents/lattice-review-topology-critic.md'), 'utf8');
-  assert.equal(readFileSync(join(repositoryRoot, '.claude/agents/lattice-review-topology-critic.md'), 'utf8'), canonicalPrompt, 'Claude prompt mirror is exact');
+  const canonicalPrompt = readFileSync(join(sourceRoot, 'templates/agents/proof-or-stop-review-topology-critic.md'), 'utf8');
+  assert.equal(readFileSync(join(repositoryRoot, '.claude/agents/proof-or-stop-review-topology-critic.md'), 'utf8'), canonicalPrompt, 'Claude prompt mirror is exact');
   // B-cc10 F-029: assert against whichever adapter-dir spelling actually exists on disk.
   // This hardcoded the deprecated path against the REAL repo root (not a scratch fixture),
   // so after the rename the readFileSync threw ENOENT instead of comparing anything.
   const codexMirror = ADAPTER_DIR_NAMES
-    .map((dir) => join(repositoryRoot, `${dir}/agents/lattice-review-topology-critic.md`))
+    .map((dir) => join(repositoryRoot, `${dir}/agents/proof-or-stop-review-topology-critic.md`))
     .find((candidate) => existsSync(candidate));
   assert.ok(codexMirror, `no Codex prompt mirror found under any of: ${ADAPTER_DIR_NAMES.join(', ')}`);
   assert.equal(readFileSync(codexMirror, 'utf8'), canonicalPrompt, 'Codex prompt mirror is exact');

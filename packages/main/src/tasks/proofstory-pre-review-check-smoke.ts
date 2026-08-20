@@ -131,14 +131,14 @@ function recordExecutedCase(unboundRecord: ExecutedCaseWithoutSourceRef): void {
 }
 
 const rolloutPromptNames = [
-  'lattice-implementer',
-  'test-case-reviewer',
-  'lattice-review-topology-critic',
-  'lattice-review-concept',
-  'lattice-review-quality',
-  'lattice-review-test-coverage',
-  'lattice-review-docs',
-  'lattice-review-delivery',
+  'proof-or-stop-implementer',
+  'proof-or-stop-test-case-reviewer',
+  'proof-or-stop-review-topology-critic',
+  'proof-or-stop-review-concept',
+  'proof-or-stop-review-quality',
+  'proof-or-stop-review-test-coverage',
+  'proof-or-stop-review-docs',
+  'proof-or-stop-review-delivery',
 ];
 const rolloutPromptTokens = [
   'acceptance_topology_check',
@@ -164,7 +164,7 @@ function rolloutPromptGuidancePass(overrides = new Map<string, string>()): boole
     const templatePath = `packages/main/templates/agents/${name}.md`;
     const template = overrides.get(templatePath) ?? readFileSync(join(repositoryRoot, templatePath), 'utf8');
     const tokensPresent = rolloutPromptTokens.every(token => template.toLowerCase().includes(token));
-    const codexPath = `.lattice-codex/agents/${name}.md`;
+    const codexPath = `.proof-or-stop-codex/agents/${name}.md`;
     const claudePath = `.claude/agents/${name}.md`;
     const codex = overrides.get(codexPath) ?? readFileSync(join(repositoryRoot, codexPath), 'utf8');
     const claude = overrides.get(claudePath) ?? readFileSync(join(repositoryRoot, claudePath), 'utf8');
@@ -653,10 +653,10 @@ try {
     git(root, ['add', '.']);
     git(root, ['commit', '-m', 'prepare actual cohort review fixture']);
     const reviewLanes = [
-      'lattice-review-concept',
-      'lattice-review-quality',
-      'lattice-review-test-coverage',
-      'lattice-review-docs',
+      'proof-or-stop-review-concept',
+      'proof-or-stop-review-quality',
+      'proof-or-stop-review-test-coverage',
+      'proof-or-stop-review-docs',
     ];
     for (const lane of reviewLanes) {
       cli(root, 'dispatch', { storyId, agentType: lane }, false, lane, `sess-${storyId}-${lane}-dispatch`);
@@ -966,9 +966,9 @@ try {
     // source of truth (where the guidance now lives); the authority-sentence
     // mutation stays on the Claude host shim so it bites via the codex/claude
     // mirror-parity contract.
-    const implTemplatePath = 'packages/main/templates/agents/lattice-implementer.md';
+    const implTemplatePath = 'packages/main/templates/agents/proof-or-stop-implementer.md';
     const templateControl = readFileSync(join(repositoryRoot, implTemplatePath), 'utf8');
-    const claudePath = '.claude/agents/lattice-implementer.md';
+    const claudePath = '.claude/agents/proof-or-stop-implementer.md';
     const claudeControl = readFileSync(join(repositoryRoot, claudePath), 'utf8');
     assert.ok(templateControl.includes('acceptance_rollout_check'), 'prompt command-removal mutation requires the canonical command token');
     assert.ok(templateControl.includes('full 3 rounds × 2 hosts'), 'prompt degradation mutation requires the canonical full-3x2 token');

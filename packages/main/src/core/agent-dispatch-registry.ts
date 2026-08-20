@@ -45,7 +45,7 @@ export const AGENT_DISPATCH_REGISTRY: readonly AgentDispatchRegistryEntry[] = [
   },
   {
     canonicalName: 'proof-or-stop-test-intent',
-    aliases: roleAliases('proof-or-stop-test-intent', ['proof-or-stop-test-case-reviewer']),
+    aliases: roleAliases('proof-or-stop-test-intent', ['proof-or-stop-test-case-reviewer', 'test-case-reviewer']),
     roleClass: 'verification-intent',
     allowedPhases: ['PLAN'],
     targetCardinality: 'exactly-one',

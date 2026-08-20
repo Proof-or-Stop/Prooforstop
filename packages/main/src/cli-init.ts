@@ -54,6 +54,7 @@ import {
 } from './core/runtime-artifact-registry.js';
 import { PROOF_OR_STOP_STORY_DIR, PROOF_OR_STOP_DIR } from './core/lattice-paths.js';
 import { extractManagedBlock, hasManagedBlock, inspectManagedBlock, replaceManagedBlock } from './core/managed-markers.js';
+import { canonicalAgentRoleId } from './core/agent-role-identity.js';
 // B-cc10 CHK-002: `init` is a WRITER, so it uses the CANONICAL names only — the
 // read-both contract resolves deprecated spellings for reads but never writes
 // them, otherwise two on-disk copies of the same state would diverge.
@@ -1026,7 +1027,7 @@ if (!isGlobalThin && wantsCodex && selectedAssetMode === 'thin') {
   for (const file of agentPromptFiles) {
     const src = join(agentTemplateDir, file);
     const dst = join(codexAgentDir, file);
-    const roleId = file.replace(/\.md$/, '');
+    const roleId = canonicalAgentRoleId(file.replace(/\.md$/, ''));
     // B-META-framework-audit:F-005 — a MODULAR COMPLEX role must be materialized as
     // its digest-pinned legacy-full-context reconstruction, not as the raw modular
     // template. `verify_codex`'s agents-mirror check compares each file against

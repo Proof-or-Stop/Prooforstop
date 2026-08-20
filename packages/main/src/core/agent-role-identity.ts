@@ -49,7 +49,9 @@ export const LEGACY_AGENT_ROLE_ALIASES: Readonly<Record<CanonicalAgentRoleId, re
   'proof-or-stop-review-topology-critic': ['lattice-review-topology-critic'],
   'proof-or-stop-product-reviewer': ['product-reviewer'],
   'proof-or-stop-test-case-reviewer': ['test-case-reviewer'],
-  'proof-or-stop-test-intent': ['verification-intent', 'test-intent'],
+  // The dispatch registry explicitly adds the canonical prompt role as a
+  // compatibility alias for the verification-intent dispatch row.
+  'proof-or-stop-test-intent': ['test-intent', 'verification-intent'],
   'proof-or-stop-finding-repair': ['lattice-finding-repair'],
   'proof-or-stop-cluster-repair': ['lattice-cluster-repair'],
 });
@@ -87,12 +89,46 @@ export function agentRoleIdsEqual(left: string | undefined, right: string | unde
 
 /** Replace role tokens in generated prompt text without changing unrelated prose. */
 export function canonicalizeAgentRoleText(text: string): string {
+  // Protect canonical tokens before replacing aliases.  Several historical
+  // aliases (for example `product-reviewer`) are substrings of their canonical
+  // forms, so a plain global replacement would turn an already-canonical role
+  // into `proof-or-stop-proof-or-stop-*` on the second pass.
+  const protectedTokens = CANONICAL_AGENT_ROLE_IDS.map((canonical, index) => ({
+    canonical,
+    token: `\u0000proof-or-stop-role-${index}\u0000`,
+  }));
+  let result = text;
+  for (const { canonical, token } of protectedTokens) {
+    result = result.split(canonical).join(token);
+  }
   const replacements = Object.entries(LEGACY_AGENT_ROLE_ALIASES)
     .flatMap(([canonical, aliases]) => aliases.map(alias => ({ alias, canonical })))
     .sort((left, right) => right.alias.length - left.alias.length);
-  let result = text;
   for (const { alias, canonical } of replacements) {
     result = result.split(alias).join(canonical);
+  }
+  for (const { canonical, token } of protectedTokens) {
+    result = result.split(token).join(canonical);
+  }
+  return result;
+}
+
+/**
+ * Reconstruct the historical role vocabulary used by frozen prompt digests.
+ * This is intentionally separate from canonicalizeAgentRoleText: new prompt
+ * assets and host output stay canonical, while only the digest comparison needs
+ * to project a canonical template back onto its legacy representation.
+ */
+export function legacyizeAgentRoleText(text: string): string {
+  const replacements = Object.entries(LEGACY_AGENT_ROLE_ALIASES)
+    .flatMap(([canonical, aliases]) => {
+      const legacy = aliases[0];
+      return legacy ? [{ canonical, legacy }] : [];
+    })
+    .sort((left, right) => right.canonical.length - left.canonical.length);
+  let result = text;
+  for (const { canonical, legacy } of replacements) {
+    result = result.split(canonical).join(legacy);
   }
   return result;
 }

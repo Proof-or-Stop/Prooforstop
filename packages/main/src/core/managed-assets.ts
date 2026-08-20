@@ -66,6 +66,7 @@ import {
   readPromptRegistry,
   renderPromptEntryForHost,
 } from './prompt-registry.js';
+import { canonicalAgentRoleId } from './agent-role-identity.js';
 import { loadConfig } from './config.js';
 import { resolveProjectGitRoot } from './story-signed-workspace-resolution.js';
 import {
@@ -952,7 +953,7 @@ export function listManagedAssetDefinitions(
       // for all 17 roles.
       const registryEntries = readPromptRegistry(templates).agents;
       for (const file of files) {
-        const roleId = file.replace(/\.md$/, '');
+        const roleId = canonicalAgentRoleId(file.replace(/\.md$/, ''));
         const entry = registryEntries.find(candidate => candidate.agentId === roleId);
         defs.push(wholeFile(
           `${PROOF_OR_STOP_ADAPTER_DIR}/agents:${file}`,
@@ -991,7 +992,7 @@ export function listManagedAssetDefinitions(
       // byte-identical to the hand-rolled output for all 17 roles on both hosts.
       const registryEntries = readPromptRegistry(templates).agents;
       for (const file of expected) {
-        const roleId = file.replace(/\.md$/, '');
+        const roleId = canonicalAgentRoleId(file.replace(/\.md$/, ''));
         const entry = registryEntries.find(candidate => candidate.agentId === roleId);
         defs.push(wholeFile(
           `.claude/agents:${file}`,

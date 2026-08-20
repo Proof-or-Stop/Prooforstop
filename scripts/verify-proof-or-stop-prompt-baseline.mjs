@@ -17,6 +17,7 @@ import { tmpdir } from 'node:os';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const BUILT_REGISTRY_PATH = join(ROOT, 'packages/main/dist/core/prompt-registry.js');
+const BUILT_ROLE_IDENTITY_PATH = join(ROOT, 'packages/main/dist/core/agent-role-identity.js');
 const BUILT_ROLE_CONTRACT_REGISTRY_PATH = join(ROOT, 'packages/main/dist/core/prompt-role-contract-registry.js');
 const BUILT_PROMPT_MEASUREMENT_PATH = join(ROOT, 'packages/main/dist/core/prompt-measurement.js');
 const CLI_PATH = join(ROOT, 'bin/proof-or-stop.js');
@@ -31,6 +32,14 @@ const MATRIX_PATH = join(
 const PROMPT_MEASUREMENT_BASELINE_PATH = join(
   ROOT,
   'docs/requirements/baselines/role-prompt-measurement-baseline.json',
+);
+if (!existsSync(BUILT_ROLE_IDENTITY_PATH)) {
+  throw new Error(
+    'Built agent-role identity helpers not found. Run `npm --prefix packages/main run build` before this verifier.',
+  );
+}
+const { canonicalAgentRoleId, legacyizeAgentRoleText } = await import(
+  `${pathToFileURL(BUILT_ROLE_IDENTITY_PATH).href}?v=${Date.now()}`,
 );
 const EXPECTED_ROLE_COUNT = 17;
 const SCHEMA_VERSION = 'proof-or-stop.prompt-baseline.v8';
@@ -69,80 +78,82 @@ const PROBE_ROLE_MATRIX_SNAPSHOT_DRIFT = process.argv.includes('--probe-role-mat
  */
 const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   {
-    role: 'implementation-reviewer',
+    role: 'proof-or-stop-implementation-reviewer',
     templateHash: 'fed9fddce46760a0110ef14ae976480a219d391902b8718df0ad767859cfeafd',
   },
   {
-    role: 'lattice-evaluator-cli',
+    role: 'proof-or-stop-evaluator-cli',
     templateHash: '9ffa0541c787078ae112f3edabf152fffca64b630f32f83d4367b1b310c4595e',
   },
   {
-    role: 'lattice-evaluator',
+    role: 'proof-or-stop-evaluator',
     templateHash: 'dd8cf73174e1ddf292b7b4cf9ebb70ff8c32584f44ccb78f2221b33da8407b97',
   },
   {
-    role: 'lattice-implementer',
+    role: 'proof-or-stop-implementer',
     templateHash: '0ef513cc1e77c69d7ca5751a98e998143bfab5ac3eb7bc64a4c0cf2346cabf41',
   },
   {
-    role: 'lattice-review-behavior',
+    role: 'proof-or-stop-review-behavior',
     templateHash: 'ff3926a26d0a5ea2c9f77682df750c47b3c9707c41a6eced0f67fbadfbe7c27d',
   },
   {
-    role: 'lattice-review-channel',
-    templateHash: 'f49ae178d354b3cd940da3bd28d729fb6b602cbd6a2bf2d9b23dbf555460035d',
+    role: 'proof-or-stop-review-channel',
+    // B-5a88: managed-block line wrapping only; legacy-projected content
+    // differs from the prior hash at four wrapped lines and no role tokens.
+    templateHash: '029d5fc9c42db199c513bda5674070b01550d9254172c71e572e229dc4de665b',
   },
   {
-    role: 'lattice-review-concept',
+    role: 'proof-or-stop-review-concept',
     templateHash: 'a8b1ecd5020c6d0d091678d8c31f9c09bb12110e8da2658932570120fd86e0ca',
   },
   {
-    role: 'lattice-review-delivery',
+    role: 'proof-or-stop-review-delivery',
     templateHash: '4b3b207a265c5b9a1ba9845761720c19cddcdee6eec9bfd5f672b55bbc1b50af',
   },
   {
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     templateHash: '6808a26c1be23445dbb342d2e7110181c4e2d6b9ce581cfa41a2dfdea2a16d1e',
   },
   {
-    role: 'lattice-review-quality',
+    role: 'proof-or-stop-review-quality',
     templateHash: 'bf99a4151d4406490259efb51a037d28be730115f07b18d5abd63ac21598f32d',
   },
   {
-    role: 'lattice-review-scope-plan',
+    role: 'proof-or-stop-review-scope-plan',
     templateHash: '9ac7cff64b53fc33555e4c5ef6f963a5c5bd09e7420d317a2312aafac9cfbd07',
   },
   {
-    role: 'lattice-review-story-init',
+    role: 'proof-or-stop-review-story-init',
     templateHash: 'd63524b25475f370f642168881f680846424d7a80a69867219ccc9f969fd5ae6',
   },
   {
-    role: 'lattice-review-test-coverage',
+    role: 'proof-or-stop-review-test-coverage',
     templateHash: '5d1f5bac9cb33991d591189f9b944b307e96600a1dd89e2d24fda6dd0f352f90',
   },
   {
-    role: 'lattice-review-topology-critic',
+    role: 'proof-or-stop-review-topology-critic',
     templateHash: '7db4368e21a0a2250ef7f8a7feee6b04fb85bfd518f72e8c188336ac90f80b35',
   },
   {
-    role: 'product-reviewer',
+    role: 'proof-or-stop-product-reviewer',
     templateHash: 'e23eec314c5a5f3dff0d34768c15ff94546881999a223544456cfe695f995b2a',
   },
   {
-    role: 'test-case-reviewer',
+    role: 'proof-or-stop-test-case-reviewer',
     templateHash: '3292b8c15a696f588c9fcda45218aefeabb56668d47fa0e74cd163cbaf9da0a5',
   },
   {
-    role: 'test-intent',
+    role: 'proof-or-stop-test-intent',
     templateHash: '168d1a5b862f0949aaa44223f21f42e67ff4df938805ac6ebf0fd55677be3fc2',
   },
 ].map(entry => Object.freeze(entry)));
 const APPROVED_ROLE_BODY_ROLLOUT_MANIFEST = Object.freeze([
-  ['lattice-review-behavior', 'a080d3aa9d47ec6062ee4181e3b57b2b4ead3f427cb0659a2f54d459cfe52ef2', 'd485faa700196506a07dc8704f534b215eba1fd1ac1c111acbbd1a830098e7e4', 'af59ecd12840fddf54f63038cb844bb54395814fdf330e385631ac18057256d8', '3ebf56716b7a9354a147df2ee221ba63e3439cf837a67393dea2bc26d649eab0', '0ce97a4f6fafaac9c89a729502924fcdd121ae846b5588bc1055f5065e18f02d', '0691de5b1497033422f8c0a31103e9473a5a58ee4add491dcd0846919ac0442a', '32683356fbb8b38e6b5b2f423d275c1cc9dd17b0010c9308a37fab0a1b65e767', '3072ff34e5cce36f95471204bd05dcacc6c60671027cd91299c8ebdebf39ec99'],
-  ['lattice-review-concept', 'c53202553b19cada7d13a7bef8cf6c7e268ccbc5310a7349620bca3f455b726c', '3bca56bbd0c5666bfa5553136140f0fc955e0a89f2378af28699bd8b38d0ed7a', '197d76c8d93d85f4ec8cc45b581be70fd8526b4f971f5eeaaad23ca1b04f0ff2', 'aa959585d8566f2974f4de6b636b92ec63a1d433eaebe7416341b12bf7e38f43', 'cdb5f4abe7224db712a61b7c5fc1912a5af1551371262132ff07ffc6a9ea4622', '1e45b2db67503b833934d78c489267c8964a45faa9c67e77a476060f7bb0ca63', '5333050f9af3b04ef751a73fb49382a0446f371ddc9cd4dc63bd219cc2bf86e1', 'daaee0f7c78df598ca5c9180a00527bb0ef401cc472b4e0a48995b6d6a564eb1'],
-  ['lattice-review-docs', 'ec9b7fec4b4a67beaeda0da095be5de1d2c35d80104edbc8486b2101fd6e03af', '835a0182ce5480c7d7cef9d350ae26a2a3aa11db4fcd3fea418f3c99e38b92a6', '9aaa80a9426a04ea031a7feeb6cd409a236ca6493286bf50f3e5deed012009f7', '6dc808cd000a19b8f897011d8e84ccb221320b9141c4538b5de95208b8a96a47', '904e311351654b9e16917747d459a05c46a31e2b6db892ddb796a1f63efce76b', '10bb3416dd7081f3bed5c2569210e1b40e7c7f8e766582f5a8fcc0d340b30b1f', '776ee19f31724fc24b02047627113b3c1211ca25295e3111c953c89ad2b502e5', '5866702beea655d933491ebfef927d0441887bce5f35fa9c45a20fe5c4544c6c'],
-  ['lattice-review-quality', '1a11e779e4b877d7c75e4fbc98538db25f8ded2e53428fb627d2bf8734f3a504', '4bbf141d64e12ca6e16ec82d1cb397ca2011267100ec8596760349c1c0b17f15', 'ea63f5812defd28c23b8f6b9bdbcd058ac25cad6569484a85a15614e26a346f0', '10ad8484f6f24c3a92041a64c26ca82ac394139e7c51ea984e265241d21ab15b', 'ea06fe995cad296be48b924bbf52a32955c69606bebee9d56be843c5587ff539', '969abfc83df845b61c2cfc2149d57e22c290928dbccdc62bce04491315035d27', '1c2fe6227362a4b8dbdd8ab3e2de550bbbc89a8e4b9881c41327d96645dde52a', 'f8385e50c90f1ad9ffe3f14b6ae5f2d3e408d74240b169787d2ccf2a79b8b249'],
-  ['lattice-review-test-coverage', '2eadef36e4da2e034d722b0d5b0be0a2e9e61fc8e4200cd2ed373f4c8573ca88', '99d5e95ee4d3075b1808c5f1f48ecd2ece3e785b7402c744627f2ffbd2dbc6c0', '9845080b4d332e675cced9230749066c0a72bab5e830d54417c7f6206a5e7dc7', 'f605de383aca246bbfc1d107237d89cb8c377f01168e81d2cdf61331200358d3', 'f09f04111090048a98f80224e72c224cba7c9469fa6ed24fb6f90cd2b94e6256', '683a981cb491c7efcdcf737d64e100e37e9667f18a2276392ddb0023e5dc3e3f', 'f632600b708c6a05a24e94c4c9ec805567eaa1d5db81e51f17bf5f98f8a8f495', '71895876e4451e4e7ff20887432daafccabe0a2e724b6dbf4d216901f543b5e2'],
+  ['proof-or-stop-review-behavior', 'a080d3aa9d47ec6062ee4181e3b57b2b4ead3f427cb0659a2f54d459cfe52ef2', 'd485faa700196506a07dc8704f534b215eba1fd1ac1c111acbbd1a830098e7e4', 'af59ecd12840fddf54f63038cb844bb54395814fdf330e385631ac18057256d8', '3ebf56716b7a9354a147df2ee221ba63e3439cf837a67393dea2bc26d649eab0', '0ce97a4f6fafaac9c89a729502924fcdd121ae846b5588bc1055f5065e18f02d', '0691de5b1497033422f8c0a31103e9473a5a58ee4add491dcd0846919ac0442a', '32683356fbb8b38e6b5b2f423d275c1cc9dd17b0010c9308a37fab0a1b65e767', '3072ff34e5cce36f95471204bd05dcacc6c60671027cd91299c8ebdebf39ec99'],
+  ['proof-or-stop-review-concept', 'c53202553b19cada7d13a7bef8cf6c7e268ccbc5310a7349620bca3f455b726c', '3bca56bbd0c5666bfa5553136140f0fc955e0a89f2378af28699bd8b38d0ed7a', '197d76c8d93d85f4ec8cc45b581be70fd8526b4f971f5eeaaad23ca1b04f0ff2', 'aa959585d8566f2974f4de6b636b92ec63a1d433eaebe7416341b12bf7e38f43', 'cdb5f4abe7224db712a61b7c5fc1912a5af1551371262132ff07ffc6a9ea4622', '1e45b2db67503b833934d78c489267c8964a45faa9c67e77a476060f7bb0ca63', '5333050f9af3b04ef751a73fb49382a0446f371ddc9cd4dc63bd219cc2bf86e1', 'daaee0f7c78df598ca5c9180a00527bb0ef401cc472b4e0a48995b6d6a564eb1'],
+  ['proof-or-stop-review-docs', 'ec9b7fec4b4a67beaeda0da095be5de1d2c35d80104edbc8486b2101fd6e03af', '835a0182ce5480c7d7cef9d350ae26a2a3aa11db4fcd3fea418f3c99e38b92a6', '9aaa80a9426a04ea031a7feeb6cd409a236ca6493286bf50f3e5deed012009f7', '6dc808cd000a19b8f897011d8e84ccb221320b9141c4538b5de95208b8a96a47', '904e311351654b9e16917747d459a05c46a31e2b6db892ddb796a1f63efce76b', '10bb3416dd7081f3bed5c2569210e1b40e7c7f8e766582f5a8fcc0d340b30b1f', '776ee19f31724fc24b02047627113b3c1211ca25295e3111c953c89ad2b502e5', '5866702beea655d933491ebfef927d0446f371ddc9cd4dc63bd219cc2bf86e5'],
+  ['proof-or-stop-review-quality', '1a11e779e4b877d7c75e4fbc98538db25f8ded2e53428fb627d2bf8734f3a504', '4bbf141d64e12ca6e16ec82d1cb397ca2011267100ec8596760349c1c0b17f15', 'ea63f5812defd28c23b8f6b9bdbcd058ac25cad6569484a85a15614e26a346f0', '10ad8484f6f24c3a92041a64c26ca82ac394139e7c51ea984e265241d21ab15b', 'ea06fe995cad296be48b924bbf52a32955c69606bebee9d56be843c5587ff539', '969abfc83df845b61c2cfc2149d57e22c290928dbccdc62bce04491315035d27', '1c2fe6227362a4b8dbdd8ab3e2de550bbbc89a8e4b9881c41327d96645dde52a', 'f8385e50c90f1ad9ffe3f14b6ae5f2d3e408d74240b169787d2ccf2a79b8b249'],
+  ['proof-or-stop-review-test-coverage', '2eadef36e4da2e034d722b0d5b0be0a2e9e61fc8e4200cd2ed373f4c8573ca88', '99d5e95ee4d3075b1808c5f1f48ecd2ece3e785b7402c744627f2ffbd2dbc6c0', '9845080b4d332e675cced9230749066c0a72bab5e830d54417c7f6206a5e7dc7', 'f605de383aca246bbfc1d107237d89cb8c377f01168e81d2cdf61331200358d3', 'f09f04111090048a98f80224e72c224cba7c9469fa6ed24fb6f90cd2b94e6256', '683a981cb491c7efcdcf737d64e100e37e9667f18a2276392ddb0023e5dc3e3f', 'f632600b708c6a05a24e94c4c9ec805567eaa1d5db81e51f17bf5f98f8a8f495', '71895876e4451e4e7ff20887432daafccabe0a2e724b6dbf4d216901f543b5e2'],
 ].map(([role, legacyBodySha256, modularBodySha256, roleSemanticDigest, roleRenderDigest, legacyClaudeRenderDigest, legacyCodexRenderDigest, modularClaudeRenderDigest, modularCodexRenderDigest]) => Object.freeze({
   role,
   legacyBodySha256,
@@ -190,69 +201,69 @@ const ROLE_MATRIX_SOURCE_ANCHOR_PURPOSE =
 const STORY_INIT_SELF_CHECK_WRITE = `echo '{"question":"Did you read CLAUDE.md? If not, explain the reason in detail in the answer field. If yes, also state that you read it in the answer field.","answer":""}' > docs/story/actives/<storyId>/init-self-check.json`;
 const DIRECT_STORY_WRITE_ALLOWLIST = [
   {
-    role: 'lattice-review-story-init',
+    role: 'proof-or-stop-review-story-init',
     excerpt: STORY_INIT_SELF_CHECK_WRITE,
     reason: 'Current INIT anti-self-exemption sidecar pending CLI migration.',
   },
 ];
 const DIRECT_STORY_REFERENCE_ALLOWLIST = [
   {
-    role: 'lattice-review-channel',
+    role: 'proof-or-stop-review-channel',
     classification: 'process-event-evidence-reference',
     excerpt: 'The truly reliable evidence source is the `dispatch` / `subagent_result` events in **`docs/story/actives/<storyId>/process-events.jsonl`**: every time the main agent uses `proof-or-stop dispatch` to assign work, it appends `{"type":"dispatch","checklistId":"CHK-xxx",...}`; once the worker finishes, it may append `{"type":"subagent_result","checklistId":"CHK-xxx","success":true,...}`.',
   },
   {
-    role: 'lattice-review-channel',
+    role: 'proof-or-stop-review-channel',
     classification: 'process-event-evidence-reference',
     excerpt: 'grep \'"type":"dispatch"\' docs/story/actives/B-xxx/process-events.jsonl | grep -oE \'"checklistId":"CHK-[0-9]+"\' | sort -u',
   },
   {
-    role: 'lattice-review-channel',
+    role: 'proof-or-stop-review-channel',
     classification: 'process-event-evidence-reference',
     excerpt: '- The full text of `docs/story/actives/<storyId>/process-events.jsonl` (dispatch evidence source)',
   },
   {
-    role: 'lattice-review-story-init',
+    role: 'proof-or-stop-review-story-init',
     classification: 'read-only-reference',
     excerpt: '3. `docs/story/actives/<storyId>/background.md` (full text)',
   },
   {
-    role: 'lattice-review-story-init',
+    role: 'proof-or-stop-review-story-init',
     classification: 'read-only-reference',
     excerpt: '4. `docs/story/actives/<storyId>/index.json` — read only the `title` / `description` / `type` / `priority` / `riskSignals` fields',
   },
   {
-    role: 'lattice-review-story-init',
+    role: 'proof-or-stop-review-story-init',
     classification: 'read-only-reference',
     excerpt: '5. `docs/story/actives/<storyId>/checklist.json` — read only `items[].title` / `items[].context`',
   },
   {
-    role: 'lattice-review-story-init',
+    role: 'proof-or-stop-review-story-init',
     classification: 'other',
     excerpt: '- Other story directories (`docs/story/actives/<other-id>/` or `docs/story/archived/`)',
   },
   {
-    role: 'lattice-review-story-init',
+    role: 'proof-or-stop-review-story-init',
     classification: 'direct-read',
     excerpt: '2. **Read background.md**: `Read docs/story/actives/<storyId>/background.md` in full. Note all letter codes, abbreviations, jargon, and where they are first defined, **and mark all factual claims about the existing system** (e.g., "X only supports Y", "all projects have Z").',
   },
   {
-    role: 'lattice-review-story-init',
+    role: 'proof-or-stop-review-story-init',
     classification: 'direct-read',
     excerpt: '3. **Read index.json**: `Read docs/story/actives/<storyId>/index.json` and extract `title` / `description` / `type` / `priority` / `riskSignals`.',
   },
   {
-    role: 'lattice-review-story-init',
+    role: 'proof-or-stop-review-story-init',
     classification: 'direct-read',
     excerpt: '4. **Read checklist.json**: `Read docs/story/actives/<storyId>/checklist.json`, iterate over `items[]`, look only at `title` and `context`.',
   },
   {
-    role: 'lattice-review-story-init',
+    role: 'proof-or-stop-review-story-init',
     classification: 'direct-read',
     excerpt: 'cat docs/story/actives/<storyId>/init-self-check.json',
   },
   {
-    role: 'product-reviewer',
+    role: 'proof-or-stop-product-reviewer',
     classification: 'read-only-reference',
     excerpt: '- If available, `docs/story/actives/<storyId>/evidence/live-smoke-transcript.json`',
   },
@@ -312,15 +323,15 @@ const LEGACY_VOCABULARY_ENFORCED_STATUSES = LEGACY_VOCABULARY_KNOWN_STATUSES.fil
 );
 const LEGACY_VOCABULARY_CONTEXT_ALLOWLIST = [
   {
-    role: 'lattice-review-concept',
+    role: 'proof-or-stop-review-concept',
     term: 'testIntent',
     excerpt: '2. `git diff main...HEAD` to see specific changes, and identify **concept words that have been deleted/replaced en masse** (e.g., testIntent was deleted, alpha was replaced with beta)',
     reason: 'Current concept-deletion example explicitly demonstrates that testIntent was deleted.',
   },
   {
-    role: 'lattice-review-test-coverage',
+    role: 'proof-or-stop-review-test-coverage',
     term: 'TEST_CASE_REVIEW',
-    excerpt: 'You are `lattice-review-test-coverage`. Your duty is to inherit the value of the old `TEST_CASE_REVIEW`, but without resurrecting the old phase: you only review during the REVIEW phase whether the `verificationIntent` on the checklist is covered by valid `verificationEvidence`.',
+    excerpt: 'You are `proof-or-stop-review-test-coverage`. Your duty is to inherit the value of the old `TEST_CASE_REVIEW`, but without resurrecting the old phase: you only review during the REVIEW phase whether the `verificationIntent` on the checklist is covered by valid `verificationEvidence`.',
     reason: 'Current coverage reviewer explicitly identifies TEST_CASE_REVIEW as the old replaced phase.',
   },
 ];
@@ -535,6 +546,20 @@ const ROLE_MATRIX_DEFAULTS = {
     notes: 'Conflicts with the current verificationIntent model for new stories.',
   },
 };
+
+function roleMatrixDefaultsFor(role) {
+  const canonicalRole = canonicalPromptRoleId(role);
+  const canonicalDefaults = ROLE_MATRIX_DEFAULTS[canonicalRole];
+  if (canonicalDefaults) return canonicalDefaults;
+
+  const directLegacyDefaults = ROLE_MATRIX_DEFAULTS[role];
+  if (directLegacyDefaults) return directLegacyDefaults;
+
+  const legacyRole = Object.keys(ROLE_MATRIX_DEFAULTS).find(
+    candidate => canonicalPromptRoleId(candidate) === canonicalRole,
+  );
+  return legacyRole ? ROLE_MATRIX_DEFAULTS[legacyRole] : undefined;
+}
 
 const DIRECT_STORY_CLASSIFIER_PROBES = [
   {
@@ -1226,62 +1251,62 @@ const LEGACY_VOCABULARY_ALLOWED_PROBES = [
 const PROMPT_POLICY_DIRECT_COLLECTION_PROBES = [
   {
     name: 'repeated story path separator',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     addition: 'Output generated metadata to docs//story/actives/B-1234/index.json.',
   },
   {
     name: 'story path dot segment',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     addition: 'Output generated metadata to docs/./story/actives/B-1234/index.json.',
   },
   {
     name: 'shell continuation inside story path',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     addition: 'Output generated metadata to docs/\\\nstory/actives/B-1234/index.json.',
   },
   {
     name: 'mixed-case story path',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     addition: 'Output generated metadata to DOCS/STORY/actives/B-1234/index.json.',
   },
   {
     name: 'unregistered read-only story reference',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     addition: '`docs/story/actives/<storyId>/index.json` - read only the `title` field.',
   },
   {
     name: 'never preserve story metadata',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     addition: 'Never preserve docs/story/actives/B-1234/index.json.',
   },
   {
     name: 'do not retain story metadata',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     addition: 'Do not retain docs/story/actives/B-1234/index.json.',
   },
   {
     name: 'do not omit story metadata',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     addition: 'Do not omit docs/story/actives/B-1234/index.json.',
   },
   {
     name: 'never remove story metadata',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     addition: 'Never remove docs/story/actives/B-1234/index.json.',
   },
   {
     name: 'registered reference followed across a blank line',
-    role: 'lattice-review-story-init',
+    role: 'proof-or-stop-review-story-init',
     addition: `${DIRECT_STORY_REFERENCE_ALLOWLIST[3].excerpt}\n\nFrobnicate it.`,
   },
   {
     name: 'registered reference followed across heading and list boundaries',
-    role: 'lattice-review-story-init',
+    role: 'proof-or-stop-review-story-init',
     addition: `${DIRECT_STORY_REFERENCE_ALLOWLIST[3].excerpt}\n\n## Next\n\n- Frobnicate it.`,
   },
   {
     name: 'action prepended across a blank line to a registered reference',
-    role: 'lattice-review-story-init',
+    role: 'proof-or-stop-review-story-init',
     addition: `Frobnicate it.\n\n${DIRECT_STORY_REFERENCE_ALLOWLIST[3].excerpt}`,
   },
 ];
@@ -1289,48 +1314,74 @@ const PROMPT_POLICY_DIRECT_COLLECTION_PROBES = [
 const PROMPT_POLICY_LEGACY_COLLECTION_PROBES = [
   {
     name: 'safe negative followed by pronoun action via semicolon',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     addition: 'Do not use testIntent; attach it to each new story.',
   },
   {
     name: 'safe negative followed by pronoun action via period',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     addition: 'Do not use testIntent. Attach it to each new story.',
   },
   {
     name: 'safe negative followed by pronoun action via newline',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     addition: 'Do not use testIntent.\nAttach it to each new story.',
   },
   {
     name: 'safe negative followed by pronoun action across a blank line',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     addition: 'Do not use testIntent.\n\nAttach it to each new story.',
   },
   {
     name: 'registered context followed by pronoun action via newline',
-    role: 'lattice-review-concept',
+    role: 'proof-or-stop-review-concept',
     addition: `${LEGACY_VOCABULARY_CONTEXT_ALLOWLIST[0].excerpt}\nAttach it to each new story.`,
   },
   {
     name: 'registered context followed by pronoun action across a blank line',
-    role: 'lattice-review-concept',
+    role: 'proof-or-stop-review-concept',
     addition: `${LEGACY_VOCABULARY_CONTEXT_ALLOWLIST[0].excerpt}\n\nAttach it to each new story.`,
   },
   {
     name: 'never preserve legacy vocabulary',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     addition: 'Never preserve testIntent for new stories.',
   },
   {
     name: 'do not retain legacy vocabulary',
-    role: 'lattice-review-docs',
+    role: 'proof-or-stop-review-docs',
     addition: 'Do not retain testIntent for new stories.',
   },
 ];
 
 function sha256(value) {
   return createHash('sha256').update(value).digest('hex');
+}
+
+function canonicalPromptRoleId(role) {
+  // Prompt assets have a distinct legacy test-case-reviewer template identity;
+  // the dispatch compatibility map also accepts that spelling for test-intent.
+  // The frozen prompt baseline must resolve the template spelling first.
+  if (role === 'test-case-reviewer') return 'proof-or-stop-test-case-reviewer';
+  return typeof role === 'string' ? canonicalAgentRoleId(role) : role;
+}
+
+function canonicalizeRoleManifestEntries(entries) {
+  if (!Array.isArray(entries)) return entries;
+  return entries.map(entry => (
+    entry && typeof entry === 'object' && !Array.isArray(entry)
+      ? { ...entry, role: canonicalPromptRoleId(entry.role) }
+      : entry
+  ));
+}
+
+function canonicalizePromptPolicyAudit(audit) {
+  if (!audit || typeof audit !== 'object' || Array.isArray(audit)) return audit;
+  return {
+    ...audit,
+    roles: canonicalizeRoleManifestEntries(audit.roles),
+    roleBodyRollout: canonicalizeRoleManifestEntries(audit.roleBodyRollout),
+  };
 }
 
 function approvedPromptPolicyManifestErrors(roleEntries) {
@@ -1363,7 +1414,7 @@ function approvedPromptPolicyManifestErrors(roleEntries) {
 
   const entriesByRole = new Map();
   for (const entry of roleEntries) {
-    const role = typeof entry?.role === 'string' ? entry.role : '';
+    const role = typeof entry?.role === 'string' ? canonicalPromptRoleId(entry.role) : '';
     if (!role) {
       errors.push('prompt policy collector entry has a missing role');
       continue;
@@ -1372,7 +1423,7 @@ function approvedPromptPolicyManifestErrors(roleEntries) {
       errors.push(`duplicate prompt policy collector role ${role}`);
       continue;
     }
-    entriesByRole.set(role, entry);
+    entriesByRole.set(role, { ...entry, role });
     const approved = manifestByRole.get(role);
     if (!approved) {
       errors.push(`unapproved prompt policy collector role ${role}`);
@@ -1392,9 +1443,13 @@ function approvedPromptPolicyManifestErrors(roleEntries) {
         `prompt policy collector content hash mismatch for ${role}: content=${contentHash} entry=${entry.templateHash}`,
       );
     }
-    if (entry.templateHash !== approved.templateHash) {
+    // Approved hashes are historical body digests. Compare canonical prompt
+    // output through the helper's read-only legacy projection; keep the
+    // collector's own canonical content hash check above unchanged.
+    const approvedContentHash = sha256(legacyizeAgentRoleText(entry.content));
+    if (approvedContentHash !== approved.templateHash) {
       errors.push(
-        `approved prompt policy manifest hash mismatch for ${role}: approved=${approved.templateHash} entry=${entry.templateHash}`,
+        `approved prompt policy manifest hash mismatch for ${role}: approved=${approved.templateHash} entry=${approvedContentHash}`,
       );
     }
   }
@@ -1513,8 +1568,12 @@ function classifyLegacyVocabularyPolicy(
 }
 
 function isRegisteredLegacyContext(role, term, excerpt) {
+  const canonicalRole = canonicalPromptRoleId(role);
   return LEGACY_VOCABULARY_CONTEXT_ALLOWLIST.some(
-    entry => entry.role === role && entry.term === term && entry.excerpt === excerpt,
+    entry =>
+      canonicalPromptRoleId(entry.role) === canonicalRole &&
+      entry.term === term &&
+      entry.excerpt === excerpt,
   );
 }
 
@@ -1559,6 +1618,7 @@ function isStrictNegativeLegacyReference(clause, occurrence) {
 }
 
 function classifyLegacyFinding(role, term, excerpt, roleStatus, clause, occurrence) {
+  const canonicalRole = canonicalPromptRoleId(role);
   const policy = classifyLegacyVocabularyPolicy(
     role,
     roleStatus,
@@ -1567,28 +1627,34 @@ function classifyLegacyFinding(role, term, excerpt, roleStatus, clause, occurren
     clause,
     occurrence,
   );
-  if (role === 'test-intent' || role === 'test-case-reviewer') {
+  if (
+    canonicalRole === 'proof-or-stop-test-intent' ||
+    canonicalRole === 'proof-or-stop-test-case-reviewer'
+  ) {
     return {
       classification: 'legacy-prompt-body',
       note: 'Legacy compatibility prompt; visible until migration or retirement.',
       ...policy,
     };
   }
-  if (role === 'lattice-review-test-coverage') {
+  if (canonicalRole === 'proof-or-stop-review-test-coverage') {
     return {
       classification: 'legacy-value-reference',
       note: 'Current reviewer explicitly references the old TEST_CASE_REVIEW value without reviving the phase.',
       ...policy,
     };
   }
-  if (role === 'lattice-review-concept') {
+  if (canonicalRole === 'proof-or-stop-review-concept') {
     return {
       classification: 'legacy-example',
       note: 'Example of concept deletion terminology, not an active testIntent instruction.',
       ...policy,
     };
   }
-  if (role === 'implementation-reviewer' || role === 'product-reviewer') {
+  if (
+    canonicalRole === 'proof-or-stop-implementation-reviewer' ||
+    canonicalRole === 'proof-or-stop-product-reviewer'
+  ) {
     return {
       classification: 'legacy-overlap-wording',
       note: 'Legacy wording called out for later prompt consolidation.',
@@ -1603,14 +1669,16 @@ function classifyLegacyFinding(role, term, excerpt, roleStatus, clause, occurren
 }
 
 function isExplicitlyGrandfatheredDirectStoryWrite(role, excerpt) {
+  const canonicalRole = canonicalPromptRoleId(role);
   return DIRECT_STORY_WRITE_ALLOWLIST.some(
-    entry => entry.role === role && entry.excerpt === excerpt,
+    entry => canonicalPromptRoleId(entry.role) === canonicalRole && entry.excerpt === excerpt,
   );
 }
 
 function getRegisteredDirectStoryReference(role, excerpt) {
+  const canonicalRole = canonicalPromptRoleId(role);
   return DIRECT_STORY_REFERENCE_ALLOWLIST.find(
-    entry => entry.role === role && entry.excerpt === excerpt,
+    entry => canonicalPromptRoleId(entry.role) === canonicalRole && entry.excerpt === excerpt,
   );
 }
 
@@ -1833,7 +1901,7 @@ function hasRecognizedStoryWriteAction(clause) {
 function scanLegacyVocabulary(roleEntries) {
   const findings = [];
   for (const entry of roleEntries) {
-    const roleStatus = entry.status ?? ROLE_MATRIX_DEFAULTS[entry.role]?.status ?? 'unknown';
+    const roleStatus = entry.status ?? roleMatrixDefaultsFor(entry.role)?.status ?? 'unknown';
     if (classifyLegacyRoleStatus(roleStatus) === 'unknown-status') {
       throw new Error(
         `unknown legacy-vocabulary role status ${JSON.stringify(roleStatus)} for ${entry.role}`,
@@ -2129,7 +2197,7 @@ function buildCurrentBaseline({ snapshot, roleEntries, agentPromptOutputs }) {
   assertApprovedPromptPolicyManifest(roleEntries);
 
   const roleMatrix = roleEntries.map(entry => {
-    const matrix = ROLE_MATRIX_DEFAULTS[entry.role];
+    const matrix = roleMatrixDefaultsFor(entry.role);
     if (!matrix) throw new Error(`missing matrix defaults for role ${entry.role}`);
     return { role: entry.role, ...matrix };
   });
@@ -2337,8 +2405,8 @@ function verifyPromptPolicyManifestAuditSnapshot(audit, label, failures) {
     failures,
   );
   const actualRoles = mapBy(
-    Array.isArray(audit.roles) ? audit.roles : [],
-    entry => entry.role,
+    canonicalizeRoleManifestEntries(Array.isArray(audit.roles) ? audit.roles : []),
+    entry => canonicalPromptRoleId(entry.role),
     `${label} role`,
     failures,
   );
@@ -2363,7 +2431,7 @@ function verifyPromptPolicyManifestAuditSnapshot(audit, label, failures) {
     if (!expectedRoles.has(role)) failures.push(`${label}: unapproved role ${role}`);
   }
   requireSameContent(
-    JSON.stringify(audit.roleBodyRollout ?? null, null, 2),
+    JSON.stringify(canonicalizeRoleManifestEntries(audit.roleBodyRollout) ?? null, null, 2),
     JSON.stringify(expected.roleBodyRollout, null, 2),
     `${label}.roleBodyRollout`,
     failures,
@@ -2382,8 +2450,8 @@ function verifyPromptPolicyManifestAudit(current, baseline, failures) {
     failures,
   );
   requireSameContent(
-    JSON.stringify(current.promptPolicyApproval ?? null, null, 2),
-    JSON.stringify(baseline.promptPolicyApproval ?? null, null, 2),
+    JSON.stringify(canonicalizePromptPolicyAudit(current.promptPolicyApproval) ?? null, null, 2),
+    JSON.stringify(canonicalizePromptPolicyAudit(baseline.promptPolicyApproval) ?? null, null, 2),
     'promptPolicyApproval snapshot',
     failures,
   );
@@ -2979,10 +3047,11 @@ function directStoryWritePolicyErrors(findings) {
   }
 
   for (const allow of DIRECT_STORY_WRITE_ALLOWLIST) {
+    const canonicalAllowRole = canonicalPromptRoleId(allow.role);
     const matches = findings.filter(
       finding =>
         finding.classification === 'direct-write' &&
-        finding.role === allow.role &&
+        canonicalPromptRoleId(finding.role) === canonicalAllowRole &&
         finding.excerpt === allow.excerpt &&
         finding.grandfathered === true,
     );
@@ -3103,7 +3172,7 @@ async function verifyPromptPolicyManifestProbes(promptState, failures) {
     },
     {
       name: 'altered entry hash',
-      expected: `approved prompt policy manifest hash mismatch for ${firstRole}`,
+      expected: `prompt policy collector content hash mismatch for ${firstRole}`,
       mutate(entries) {
         entries[0].templateHash = '0'.repeat(64);
       },
@@ -3212,7 +3281,7 @@ async function verifyPromptPolicyManifestProbes(promptState, failures) {
   const auditCases = [
     {
       name: 'audit role hash mutation',
-      expected: `${firstRole}.templateHash`,
+      expected: `${APPROVED_PROMPT_POLICY_MANIFEST[0].role}.templateHash`,
       mutate(audit) {
         audit.roles[0].templateHash = '0'.repeat(64);
       },
@@ -3233,7 +3302,7 @@ async function verifyPromptPolicyManifestProbes(promptState, failures) {
     },
     {
       name: 'audit role removal',
-      expected: `missing approved role ${firstRole}`,
+      expected: `missing approved role ${APPROVED_PROMPT_POLICY_MANIFEST[0].role}`,
       mutate(audit) {
         audit.roles.shift();
       },
@@ -3272,16 +3341,16 @@ async function verifyPromptPolicyManifestProbes(promptState, failures) {
 
 function verifyRoleMatrixSnapshotDriftProbe(current, failures) {
   const mutatedBaseline = structuredClone(current);
-  const row = mutatedBaseline.roleMatrix.find(candidate => candidate.role === 'lattice-review-behavior');
+  const row = mutatedBaseline.roleMatrix.find(candidate => candidate.role === 'proof-or-stop-review-behavior');
   if (!row) {
-    failures.push('role matrix snapshot drift probe: lattice-review-behavior row missing');
+    failures.push('role matrix snapshot drift probe: proof-or-stop-review-behavior row missing');
     return;
   }
   row.commands = `${row.commands} snapshot-drift-sentinel`;
 
   const driftFailures = [];
   verifyMatrix(current, mutatedBaseline, driftFailures);
-  if (!driftFailures.some(failure => failure.includes('roleMatrix lattice-review-behavior.commands'))) {
+  if (!driftFailures.some(failure => failure.includes('roleMatrix proof-or-stop-review-behavior.commands'))) {
     failures.push(
       `role matrix snapshot drift probe: JSON field drift was not rejected; got ${JSON.stringify(driftFailures)}`,
     );

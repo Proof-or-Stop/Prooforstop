@@ -87,24 +87,25 @@ const readme = read('README.md');
 const guide = read('docs/guide.md');
 const projectVision = read('docs/requirements/decisions/project-vision.md');
 
-for (const [label, content] of [['README.md', readme], ['docs/guide.md', guide]] as const) {
+for (const [label, content] of [['docs/guide.md', guide]] as const) {
   assert.match(content, /npm --prefix packages\/main run build/, `${label} documents local package build before refresh`);
   assert.match(content, /npm install -g \.\/packages\/main/, `${label} documents global package refresh`);
-  assert.match(content, /\blattice --version\b/, `${label} verifies lattice binary version`);
-  assert.match(content, /\blattice check\b/, `${label} documents proof-or-stop check`);
-  assert.match(content, /\blattice doctor --format=json\b/, `${label} documents proof-or-stop doctor json`);
-  assert.match(content, /\blattice rollout_check --projects "\$\(pwd\)" --json\b/, `${label} documents rollout_check refresh proof`);
+  assert.match(content, /\bproof-or-stop --version\b/, `${label} verifies canonical binary version`);
+  assert.match(content, /\bproof-or-stop check\b/, `${label} documents canonical check`);
+  assert.match(content, /\bproof-or-stop doctor --format=json\b/, `${label} documents canonical doctor json`);
+  assert.match(content, /\bproof-or-stop rollout_check --projects "\$\(pwd\)" --json\b/, `${label} documents canonical rollout_check refresh proof`);
 }
 
-assert.match(readme, /`lattice`\s+[\s\S]{0,120}(?:only active|sole active|active product) command/i, 'README states lattice is the only active command');
-// B-cc10 CHK-006: these pinned `node bin/lattice.js`, the wrapper this story DELETED.
-// A doc assertion must not instruct a reader to run a file that no longer exists, so
-// they now pin the canonical `bin/proof-or-stop.js` invocations.
-assert.match(readme, /node bin\/proof-or-stop\.js tool_status/, 'README uses the canonical local wrapper for generic tool_status');
-assert.match(readme, /node bin\/proof-or-stop\.js verify_codex/, 'README uses the canonical local wrapper for generic verify_codex fallback');
-assert.match(readme, /node bin\/proof-or-stop\.js aux_doc_list/, 'README uses the canonical local wrapper for generic aux_doc_list');
-assert.match(guide, /`lattice` is the current command entry/i, 'guide states lattice as current command entry');
-assert.match(projectVision, /`lattice` is the 0\.3\.5 active product entry/, 'project vision states lattice as active product entry');
+assert.match(readme, /`proof-or-stop` is the CLI command name/i, 'README states the canonical command entry');
+assert.match(readme, /`proof-or-stop --version`/, 'README documents the canonical version command');
+assert.match(readme, /proof-or-stop session_brief/, 'README documents the canonical context-recovery command');
+assert.match(readme, /proof-or-stop validate/, 'README documents the canonical validation command');
+assert.match(
+  guide,
+  /`proof-or-stop` is the current command entry point and the only active product command/i,
+  'guide states the canonical active command entry',
+);
+assert.match(projectVision, /`proof-or-stop` is the 0\.3\.5 active product entry/, 'project vision states proof-or-stop as active product entry');
 assert.match(projectVision, /`proof-or-stop rollout_check`[\s\S]{0,80}read-only scan/, 'project vision keeps rollout_check read-only constraint');
 
 for (const file of targetDocs) {

@@ -17,7 +17,12 @@ import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { gunzipSync } from 'node:zlib';
 import { PROOF_OR_STOP_ADAPTER_DIR } from './brand-paths.js';
-import { canonicalAgentRoleId, canonicalizeAgentRoleText, legacyAgentRoleIds } from './agent-role-identity.js';
+import {
+  canonicalAgentRoleId,
+  canonicalizeAgentRoleText,
+  legacyAgentRoleIds,
+  legacyizeAgentRoleText,
+} from './agent-role-identity.js';
 
 export const PROMPT_REGISTRY_VERSION = 'lattice.prompt-registry.v1';
 export const PROMPT_REGISTRY_SOURCE = '@proof-or-stop/core/templates/agents';
@@ -285,7 +290,11 @@ export function restoreLegacyPromptTemplate(entry: PromptRegistryEntry): string 
     }
     restored = restored.replace(STORY_INIT_LEGACY_TAIL_MARKER, STORY_INIT_LEGACY_TAIL.trimEnd());
   }
-  const actualDigest = sha256(restored);
+  // Template assets are now canonical, but these digests deliberately pin the
+  // historical prompt bytes. Project the reconstructed canonical body back to
+  // the old role vocabulary only for this comparison; returned host prompts
+  // remain canonical below.
+  const actualDigest = sha256(legacyizeAgentRoleText(restored));
   const expectedDigest = isModularReviewerRoleId(canonicalRole)
     ? LEGACY_REVIEWER_TEMPLATE_SHA256[legacyRole]
     : LEGACY_COMPLEX_TEMPLATE_SHA256[legacyRole];

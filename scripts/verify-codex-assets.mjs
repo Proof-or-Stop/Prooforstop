@@ -15,8 +15,17 @@ import { join } from 'node:path';
 import {
   CODEX_README_TEMPLATE,
   renderCodexReadmeTemplate,
-  renderLatticeCodexAdapterManifest,
+  renderProofOrStopCodexAdapterManifest,
 } from '../packages/main/dist/init-assets.js';
+import {
+  DEPRECATED_ADAPTER_DIR,
+  DEPRECATED_MANIFEST_FILENAME,
+  DEPRECATED_STATE_DIR,
+  PROOF_OR_STOP_ADAPTER_DIR,
+  PROOF_OR_STOP_CONFIG_FILENAME,
+  PROOF_OR_STOP_MANIFEST_FILENAME,
+  PROOF_OR_STOP_STATE_DIR,
+} from '../packages/main/dist/core/brand-paths.js';
 import {
   computeCodexAdapterMaterialSnapshot,
   DEFAULT_CODEX_HEARTBEAT_TIMEOUT_MS,
@@ -46,6 +55,10 @@ function assertNotIncludes(haystack, needle, label) {
 }
 
 const root = process.cwd();
+const canonicalCodexDir = PROOF_OR_STOP_ADAPTER_DIR;
+const legacyCodexDir = DEPRECATED_ADAPTER_DIR;
+const canonicalCodexManifest = join(canonicalCodexDir, PROOF_OR_STOP_MANIFEST_FILENAME);
+const legacyCodexManifest = join(legacyCodexDir, DEPRECATED_MANIFEST_FILENAME);
 const result = runCodexAdapterChecks(root, { executeHeartbeats: false });
 if (!result.ok) {
   console.error(renderCodexAdapterChecks(result));
@@ -88,24 +101,26 @@ assertNotIncludes(CODEX_README_TEMPLATE, 'node bin/koala-codex.js', 'template le
 assertNotIncludes(CODEX_README_TEMPLATE, '.lattice-codex/koala.json', 'template legacy Codex manifest');
 assertNotIncludes(CODEX_README_TEMPLATE, '`koala verify_codex`', 'template bare global verify guidance');
 assertNotIncludes(CODEX_README_TEMPLATE, '`koala init --verify-codex`', 'template bare global init guidance');
-assert(renderLatticeCodexAdapterManifest().includes('"activitySource": "codex"'), 'manifest template missing codex source');
-assert(renderLatticeCodexAdapterManifest().includes(LOCAL_CODEX_VERIFY_COMMAND), 'lattice manifest template missing local wrapper note');
-assertNotIncludes(renderLatticeCodexAdapterManifest(), 'koala-codex', 'lattice manifest legacy wrapper note');
-assertNotIncludes(renderLatticeCodexAdapterManifest(), '.lattice-codex/koala.json', 'lattice manifest legacy manifest note');
+assert(renderProofOrStopCodexAdapterManifest().includes('"activitySource": "codex"'), 'manifest template missing codex source');
+assert(renderProofOrStopCodexAdapterManifest().includes(LOCAL_CODEX_VERIFY_COMMAND), 'Proof-or-Stop manifest template missing local wrapper note');
+assertNotIncludes(renderProofOrStopCodexAdapterManifest(), 'koala-codex', 'Proof-or-Stop manifest legacy wrapper note');
+assertNotIncludes(renderProofOrStopCodexAdapterManifest(), '.lattice-codex/koala.json', 'Proof-or-Stop manifest legacy manifest note');
 
-const codexReadme = readFileSync(join(root, '.lattice-codex', 'README.md'), 'utf8');
-const manifest = readFileSync(join(root, '.lattice-codex', 'lattice.json'), 'utf8');
+// Active verifier paths are canonical. Legacy adapter paths are exercised only
+// by the explicit read-compatibility fixture below.
+const codexReadme = readFileSync(join(root, canonicalCodexDir, 'README.md'), 'utf8');
+const manifest = readFileSync(join(root, canonicalCodexManifest), 'utf8');
 const rootReadme = readFileSync(join(root, 'README.md'), 'utf8');
 const agents = readFileSync(join(root, 'AGENTS.md'), 'utf8');
 
-assert(codexReadme === renderCodexReadmeTemplate('full', 'lattice'), '.lattice-codex/README.md drifted from lattice template');
-assert(manifest === renderLatticeCodexAdapterManifest(), '.lattice-codex/lattice.json drifted from template');
-assertIncludes(codexReadme, LOCAL_CODEX_VERIFY_COMMAND, '.lattice-codex/README.md');
-assertIncludes(codexReadme, 'node bin/proof-or-stop-codex.js doctor', '.lattice-codex/README.md');
-assertNotIncludes(codexReadme, 'node bin/koala-codex.js', '.lattice-codex/README.md');
-assertNotIncludes(codexReadme, '.lattice-codex/koala.json', '.lattice-codex/README.md');
-assertNotIncludes(codexReadme, '`koala verify_codex`', '.lattice-codex/README.md');
-assertNotIncludes(codexReadme, '`koala init --verify-codex`', '.lattice-codex/README.md');
+assert(codexReadme === renderCodexReadmeTemplate('full', 'lattice'), `${canonicalCodexDir}/README.md drifted from canonical template`);
+assert(manifest === renderProofOrStopCodexAdapterManifest(), `${canonicalCodexManifest} drifted from canonical template`);
+assertIncludes(codexReadme, LOCAL_CODEX_VERIFY_COMMAND, `${canonicalCodexDir}/README.md`);
+assertIncludes(codexReadme, 'node bin/proof-or-stop-codex.js doctor', `${canonicalCodexDir}/README.md`);
+assertNotIncludes(codexReadme, 'node bin/koala-codex.js', `${canonicalCodexDir}/README.md`);
+assertNotIncludes(codexReadme, '.lattice-codex/koala.json', `${canonicalCodexDir}/README.md`);
+assertNotIncludes(codexReadme, '`koala verify_codex`', `${canonicalCodexDir}/README.md`);
+assertNotIncludes(codexReadme, '`koala init --verify-codex`', `${canonicalCodexDir}/README.md`);
 // README.md carries NO Codex-adapter command citations (verified: `grep -ci codex README.md`
 // is 0, and has been since before B-cdf6 — the two `assertIncludes(rootReadme, ...)` checks
 // that used to sit here asserted content the file never had, so this script was already red
@@ -120,13 +135,13 @@ assertNotIncludes(agents, '`koala verify_codex`', 'AGENTS.md');
 assertNotIncludes(agents, '`koala init --verify-codex`', 'AGENTS.md');
 
 function writeTempConfig(dir) {
-  writeFileSync(join(dir, 'lattice.config.json'), JSON.stringify({
+  writeFileSync(join(dir, PROOF_OR_STOP_CONFIG_FILENAME), JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     outDir: 'packages/main/dist',
     testsDir: 'packages/main/tests',
     fixturesDir: 'packages/main/tests/fixtures',
-    storyDir: '.lattice/story/actives',
+    storyDir: `${PROOF_OR_STOP_STATE_DIR}/story/actives`,
     requirementsDir: 'docs/requirements',
     storyPrefix: 'B',
   }, null, 2));
@@ -137,7 +152,7 @@ function copyCodexAssetsToTemp() {
   writeTempConfig(dir);
   mkdirSync(join(dir, 'bin'), { recursive: true });
   for (const rel of [
-    '.lattice-codex',
+    canonicalCodexDir,
     '.codex',
     '.claude',
     'bin/proof-or-stop-codex.js',
@@ -173,10 +188,31 @@ function assertCheckFails(mutator, expectedId, label) {
 }
 
 assertCheckFails(
-  (dir) => writeFileSync(join(dir, '.lattice-codex', 'lattice.json'), '{}\n'),
+  (dir) => writeFileSync(join(dir, canonicalCodexManifest), '{}\n'),
   'manifest',
   'manifest drift',
 );
+
+// Explicit read-compatibility fixture: a pre-migration checkout may still
+// contain the deprecated adapter directory and manifest filename. The active
+// repository remains canonical; this fixture proves the shared verifier does
+// not silently drop that supported legacy layout.
+{
+  const dir = copyCodexAssetsToTemp();
+  try {
+    const canonicalDir = join(dir, canonicalCodexDir);
+    const legacyDir = join(dir, legacyCodexDir);
+    mkdirSync(legacyDir, { recursive: true });
+    cpSync(join(canonicalDir, 'README.md'), join(legacyDir, 'README.md'));
+    cpSync(join(canonicalDir, 'agents'), join(legacyDir, 'agents'), { recursive: true });
+    cpSync(join(canonicalDir, PROOF_OR_STOP_MANIFEST_FILENAME), join(dir, legacyCodexManifest));
+    rmSync(canonicalDir, { recursive: true, force: true });
+    const checkResult = runCodexAdapterChecks(dir, { executeHeartbeats: false });
+    assert(checkResult.ok, `legacy adapter directory/manifest read fallback should pass: ${hardFailureIds(checkResult).join(', ')}`);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+}
 {
   const dir = copyCodexAssetsToTemp();
   try {
@@ -191,9 +227,9 @@ assertCheckFails(
   }
 }
 assertCheckFails(
-  (dir) => writeFileSync(join(dir, '.lattice-codex', 'settings.json'), '{}\n'),
+  (dir) => writeFileSync(join(dir, canonicalCodexDir, 'settings.json'), '{}\n'),
   'excluded-assets',
-  'forbidden .lattice-codex/settings.json',
+  `forbidden ${canonicalCodexDir}/settings.json`,
 );
 // B-cdf6: the bootstrap sibling may be named `proof-or-stop.js` (canonical) OR
 // `lattice.js` (retained deprecated alias), so the adapter check only fails when NO
@@ -222,73 +258,89 @@ assertCheckFails(
     rmSync(dir, { recursive: true, force: true });
   }
 }
-// Additive compat counterpart: a PRE-RENAME checkout has ONLY the deprecated wrapper
-// names, and its `bin/lattice-codex.js` is SELF-CONTAINED (it carries the full env block
-// rather than delegating, because the canonical file did not exist yet). That is the state
-// a teammate branch merges in with, and it must still pass — otherwise the rename would
-// surface as a build break in THEIR branch.
-//
-// Note this is deliberately not "delete the canonical files from this repo's bin/": that
-// would leave this repo's thin delegating alias pointing at a missing target, which is a
-// state no checkout is ever actually in.
-{
-  const dir = copyCodexAssetsToTemp();
-  try {
+// B-cc10 CHK-007: a PRE-RENAME checkout with ONLY the removed executable surface must
+// not be treated as a supported local-wrapper layout. The read-only legacy adapter
+// directory/manifest is covered above; these deprecated bin wrappers are intentionally
+// a hard failure so the verifier cannot silently endorse a command surface we no longer
+// ship.
+assertCheckFails(
+  (dir) => {
     rmSync(join(dir, 'bin', 'proof-or-stop.js'), { force: true });
     rmSync(join(dir, 'bin', 'proof-or-stop-codex.js'), { force: true });
-    writeFileSync(
-      join(dir, 'bin', 'lattice-codex.js'),
-      [
-        "#!/usr/bin/env node",
-        "process.env.LATTICE_ACTIVITY_SOURCE = 'codex';",
-        "process.env.LATTICE_ACTIVITY_RECORD_READONLY = '1';",
-        "process.env.LATTICE_CODEX_ENTRYPOINT = 'local-wrapper';",
-        '',
-      ].join('\n'),
-    );
-    writeFileSync(join(dir, 'bin', 'lattice.js'), '// pre-rename local bootstrap\n');
-    const checkResult = runCodexAdapterChecks(dir, { executeHeartbeats: false });
-    assert(
-      checkResult.ok,
-      `pre-rename deprecated-alias-only bin/ must still pass adapter checks: ${hardFailureIds(checkResult).join(', ')}`,
-    );
-  } finally {
-    rmSync(dir, { recursive: true, force: true });
-  }
-}
+    writeFileSync(join(dir, 'bin', 'lattice-codex.js'), '// removed deprecated Codex wrapper\n');
+    writeFileSync(join(dir, 'bin', 'lattice.js'), '// removed deprecated bootstrap\n');
+  },
+  'local-wrapper',
+  'deprecated-only executable surface is rejected',
+);
 
 {
   const dir = copyCodexAssetsToTemp();
   const fakeBin = mkdtempSync(join(tmpdir(), 'lattice-codex-stale-global-bin-'));
   const fakeGlobalRoot = mkdtempSync(join(tmpdir(), 'lattice-codex-stale-global-root-'));
+  const fakeHome = mkdtempSync(join(tmpdir(), 'lattice-codex-stale-global-home-'));
   const previousPath = process.env.PATH;
+  const previousHome = process.env.HOME;
   try {
     mkdirSync(join(dir, 'packages', 'main'), { recursive: true });
-    const fakeGlobalCore = join(fakeGlobalRoot, '@lattice', 'core');
-    mkdirSync(join(fakeGlobalCore, 'bin'), { recursive: true });
-    writeFileSync(join(fakeGlobalCore, 'bin', 'lattice'), '#!/bin/sh\nexit 0\n');
-    chmodSync(join(fakeGlobalCore, 'bin', 'lattice'), 0o755);
+    const fakeCanonicalCore = join(fakeGlobalRoot, '@proof-or-stop', 'core');
+    const fakeDeprecatedCore = join(fakeGlobalRoot, '@lattice', 'core');
+    const fakeCanonicalBin = join(fakeCanonicalCore, 'bin');
+    const fakeDeprecatedBin = join(fakeDeprecatedCore, 'bin');
+    mkdirSync(fakeCanonicalBin, { recursive: true });
+    mkdirSync(fakeDeprecatedBin, { recursive: true });
+    writeFileSync(join(fakeCanonicalBin, 'proof-or-stop'), '#!/bin/sh\nexit 0\n');
+    chmodSync(join(fakeCanonicalBin, 'proof-or-stop'), 0o755);
+    writeFileSync(join(fakeDeprecatedBin, 'lattice'), '#!/bin/sh\nexit 0\n');
+    chmodSync(join(fakeDeprecatedBin, 'lattice'), 0o755);
     writeFileSync(join(fakeBin, 'npm'), `#!/bin/sh\nif [ "$1" = "root" ] && [ "$2" = "-g" ]; then\n  printf '%s\\n' '${fakeGlobalRoot}'\n  exit 0\nfi\nexit 1\n`);
     chmodSync(join(fakeBin, 'npm'), 0o755);
-    process.env.PATH = `${fakeBin}:${join(fakeGlobalCore, 'bin')}:${previousPath || ''}`;
-    const checkResult = runCodexAdapterChecks(dir, {
-      executeLocalHeartbeat: false,
-      executeGlobalHeartbeat: true,
-      timeoutMs: 5_000,
-    });
-    const globalCheck = checkResult.checks.find(check => check.id === 'global-fallback-heartbeat');
-    assert(globalCheck, 'stale global fallback check should be present');
-    assert(globalCheck.status === 'warn', `stale global fallback should warn, got ${globalCheck.status}`);
-    assert(
-      globalCheck.detail.includes('not current worktree') && globalCheck.detail.includes('heartbeat-only'),
-      `stale global fallback warning should explain current-worktree boundary: ${globalCheck.detail}`,
+    // resolveGlobalCliCommandPath uses a login shell on macOS. Give that shell a
+    // hermetic profile, otherwise the host's real proof-or-stop command wins before
+    // this fixture's fake global install and the stale-global branch is never tested.
+    writeFileSync(
+      join(fakeHome, '.profile'),
+      `PATH='${fakeBin}:${fakeCanonicalBin}:${fakeDeprecatedBin}:/usr/bin:/bin'\nexport PATH\n`,
     );
-    assert(checkResult.ok, 'stale global fallback warning should not be a hard failure');
+    process.env.HOME = fakeHome;
+    process.env.PATH = `${fakeBin}:${fakeCanonicalBin}:${fakeDeprecatedBin}:/usr/bin:/bin`;
+
+    function assertStaleGlobalFallbackWarn(label) {
+      const checkResult = runCodexAdapterChecks(dir, {
+        executeLocalHeartbeat: false,
+        executeGlobalHeartbeat: true,
+        timeoutMs: 5_000,
+      });
+      const globalCheck = checkResult.checks.find(check => check.id === 'global-fallback-heartbeat');
+      assert(globalCheck, `${label}: stale global fallback check should be present`);
+      assert(globalCheck.status === 'warn', `${label}: stale global fallback should warn, got ${globalCheck.status}`);
+      assert(globalCheck.hard === false, `${label}: stale global fallback warning must remain advisory`);
+      assert(
+        globalCheck.detail.includes('not current worktree') && globalCheck.detail.includes('heartbeat-only'),
+        `${label}: stale global fallback warning should explain current-worktree boundary: ${globalCheck.detail}`,
+      );
+      assert(
+        hardFailureIds(checkResult).length === 0,
+        `${label}: stale global fallback warning must not mask hard failures: ${hardFailureIds(checkResult).join(', ')}`,
+      );
+      assert(checkResult.ok, `${label}: stale global fallback warning should not be a hard failure`);
+    }
+
+    // The current canonical global install wins when both names are present.
+    assertStaleGlobalFallbackWarn('canonical global fallback');
+
+    // A pre-migration install exposing only the deprecated global CLI is still
+    // read-compatible, but its stale heartbeat remains advisory rather than proof.
+    rmSync(fakeCanonicalCore, { recursive: true, force: true });
+    assertStaleGlobalFallbackWarn('deprecated global fallback');
   } finally {
     if (previousPath === undefined) delete process.env.PATH;
     else process.env.PATH = previousPath;
+    if (previousHome === undefined) delete process.env.HOME;
+    else process.env.HOME = previousHome;
     rmSync(fakeBin, { recursive: true, force: true });
     rmSync(fakeGlobalRoot, { recursive: true, force: true });
+    rmSync(fakeHome, { recursive: true, force: true });
     rmSync(dir, { recursive: true, force: true });
   }
 }
@@ -433,21 +485,32 @@ assertSessionBriefCommand(
   'legacy koala.js is ignored by session_brief resolver',
 );
 
-{
+function assertGlobalThinSessionBriefCommand(stateDir, manifestFilename, label) {
   const dir = mkdtempSync(join(tmpdir(), 'lattice-session-brief-global-thin-'));
   try {
-    mkdirSync(join(dir, '.lattice'), { recursive: true });
-    writeFileSync(join(dir, '.lattice', 'lattice.json'), JSON.stringify({ assetMode: 'global-thin' }));
+    mkdirSync(join(dir, stateDir), { recursive: true });
+    writeFileSync(join(dir, stateDir, manifestFilename), JSON.stringify({ assetMode: 'global-thin' }));
     const cmd = resolveCodexSessionBriefCommand(dir);
     const expected = `${GLOBAL_CODEX_FALLBACK_COMMAND} session_brief`;
-    assert(cmd === expected, `global-thin resolves to fallback command: expected "${expected}", got "${cmd}"`);
+    assert(cmd === expected, `${label}: expected "${expected}", got "${cmd}"`);
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
 }
 
+assertGlobalThinSessionBriefCommand(
+  PROOF_OR_STOP_STATE_DIR,
+  PROOF_OR_STOP_MANIFEST_FILENAME,
+  'canonical global-thin layout resolves to fallback command',
+);
+assertGlobalThinSessionBriefCommand(
+  DEPRECATED_STATE_DIR,
+  DEPRECATED_MANIFEST_FILENAME,
+  'legacy global-thin layout remains a read-only fallback',
+);
+
 function seedCodexStory(dir) {
-  mkdirSync(join(dir, '.lattice', 'story', 'actives'), { recursive: true });
+  mkdirSync(join(dir, PROOF_OR_STOP_STATE_DIR, 'story', 'actives'), { recursive: true });
   const store = new StoryStore(dir);
   const now = new Date().toISOString();
   store.writeStory('B-codex', {
@@ -521,7 +584,7 @@ assertGateStatus((dir, store) => {
     headHash: snapshot.headHash,
     materialHash: snapshot.materialHash,
   });
-  writeFileSync(join(dir, '.lattice-codex', 'README.md'), `${codexReadme}\npost verification drift\n`);
+  writeFileSync(join(dir, canonicalCodexDir, 'README.md'), `${codexReadme}\npost verification drift\n`);
 }, 'stale', 'post-verification Codex adapter edit');
 assertGateStatus((dir, store) => {
   const snapshot = computeCodexAdapterMaterialSnapshot(dir);
