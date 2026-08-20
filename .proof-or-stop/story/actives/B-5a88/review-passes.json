@@ -270,6 +270,41 @@
         "scanEscalationReason": null
       },
       "_hash": "8b9c1689dc75e256ba42756314490031d04f905475e15391816360623c1f1479"
+    },
+    {
+      "id": "B-5a88:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "Remediation quality review passed: rechecked the unchanged canonical identity migration diff for correctness, type safety, and metadata-boundary regressions; no blocker found.",
+      "createdAt": "2026-08-20T10:46:30.847Z",
+      "reviewRound": "2026-08-20T10:12:58.490Z",
+      "reviewRunId": "B-5a88:RR-009",
+      "envelopeId": "cf78cdfa7b170006521273298b8d6276277f0c32adb20fc1794a2a4a1a6e5a27",
+      "writerSessionId": "sess-8a39253b9d37f31d4e506573af47ce1f",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "AGENTS.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/reviewer-opt-in.ts",
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/tests/red/red-w2b-wiring-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "56b2b69d4fe86aa7eccbd45aa5feda75f70f4eba45bc8ea298f692a5f390a0a7"
     }
   ]
 }
