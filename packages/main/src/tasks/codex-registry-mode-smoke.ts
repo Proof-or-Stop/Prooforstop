@@ -123,7 +123,9 @@ try {
 
 const thinRoot = makeRoot('codex-thin');
 try {
-  writeText(thinRoot, '.proof-or-stop-codex/proof-or-stop.json', renderProofOrStopCodexAdapterManifest({ promptMode: 'registry' }));
+  const canonicalManifest = JSON.parse(renderProofOrStopCodexAdapterManifest({ promptMode: 'registry' }));
+  assert.equal(canonicalManifest.promptRegistry.schemaVersion, 'proof-or-stop.prompt-registry.v1', 'new manifests emit the canonical prompt-registry schema');
+  writeText(thinRoot, '.proof-or-stop-codex/proof-or-stop.json', `${JSON.stringify(canonicalManifest, null, 2)}\n`);
   const thin = runCodexAdapterChecks(thinRoot, { executeHeartbeats: false });
   assertOk(thin);
   assert.equal(checkById(thin, 'manifest').status, 'pass');
@@ -139,6 +141,15 @@ try {
   assert.equal(identity.hostRenderDigest.length, 64);
   assert.equal(identity.bootstrapDigest?.length, 64, 'registry mode binds the same body-free review bootstrap');
   assert.notEqual(identity.bootstrapDigest, identity.selectedRoleBodyDigest);
+
+  const legacyManifest = { ...canonicalManifest, promptRegistry: {
+    ...canonicalManifest.promptRegistry,
+    schemaVersion: 'lattice.prompt-registry.v1',
+  } };
+  writeText(thinRoot, '.proof-or-stop-codex/proof-or-stop.json', `${JSON.stringify(legacyManifest, null, 2)}\n`);
+  const legacy = runCodexAdapterChecks(thinRoot, { executeHeartbeats: false });
+  assertOk(legacy);
+  assert.equal(checkById(legacy, 'manifest').status, 'pass', 'legacy prompt-registry schema remains readable');
 } finally {
   rmSync(thinRoot, { recursive: true, force: true });
 }

@@ -24,7 +24,18 @@ import {
   legacyizeAgentRoleText,
 } from './agent-role-identity.js';
 
-export const PROMPT_REGISTRY_VERSION = 'lattice.prompt-registry.v1';
+export const PROMPT_REGISTRY_VERSION = 'proof-or-stop.prompt-registry.v1' as const;
+export const PROMPT_REGISTRY_VERSION_LEGACY = 'lattice.prompt-registry.v1' as const;
+export type PromptRegistrySchemaVersion = typeof PROMPT_REGISTRY_VERSION | typeof PROMPT_REGISTRY_VERSION_LEGACY;
+
+/** Readers accept the historical manifest schema; writers use only the canonical schema. */
+export function isPromptRegistrySchemaVersion(value: unknown): value is PromptRegistrySchemaVersion {
+  return value === PROMPT_REGISTRY_VERSION || value === PROMPT_REGISTRY_VERSION_LEGACY;
+}
+
+export function canonicalPromptRegistrySchemaVersion(value: unknown): typeof PROMPT_REGISTRY_VERSION | null {
+  return isPromptRegistrySchemaVersion(value) ? PROMPT_REGISTRY_VERSION : null;
+}
 export const PROMPT_REGISTRY_SOURCE = '@proof-or-stop/core/templates/agents';
 export const SUPPORTED_PROMPT_HOSTS = ['claude', 'codex'] as const;
 export const MODULAR_ROLE_BODY_MARKER = '<!-- proofbound:modular-role-body:v1 -->';
@@ -232,6 +243,24 @@ export interface PromptRegistryManifest {
   source: typeof PROMPT_REGISTRY_SOURCE;
   agentCount: number;
   materialHash: string;
+}
+
+/** Normalize a persisted manifest for read/compare paths without rewriting its bytes. */
+export function normalizePromptRegistryManifest(value: unknown): PromptRegistryManifest | null {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+  const candidate = value as Record<string, unknown>;
+  const schemaVersion = canonicalPromptRegistrySchemaVersion(candidate.schemaVersion);
+  if (!schemaVersion
+    || typeof candidate.source !== 'string'
+    || typeof candidate.agentCount !== 'number'
+    || !Number.isInteger(candidate.agentCount)
+    || typeof candidate.materialHash !== 'string') return null;
+  return {
+    schemaVersion,
+    source: candidate.source as typeof PROMPT_REGISTRY_SOURCE,
+    agentCount: candidate.agentCount,
+    materialHash: candidate.materialHash,
+  };
 }
 
 function packageRoot(): string {

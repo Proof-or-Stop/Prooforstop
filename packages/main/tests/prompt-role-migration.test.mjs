@@ -14,6 +14,18 @@ const contracts = await import(join(distRoot, 'core/prompt-role-contract-registr
 
 const registry = registryModule.readPromptRegistry();
 assert.equal(registry.agents.length, 17, 'all canonical prompt templates are registered');
+const manifest = registryModule.promptRegistryManifest();
+assert.equal(manifest.schemaVersion, 'proof-or-stop.prompt-registry.v1', 'new prompt manifests use the canonical schema');
+assert.equal(
+  registryModule.canonicalPromptRegistrySchemaVersion('lattice.prompt-registry.v1'),
+  'proof-or-stop.prompt-registry.v1',
+  'legacy prompt-registry manifests remain readable through the canonicalizer',
+);
+assert.equal(registryModule.normalizePromptRegistryManifest({
+  ...manifest,
+  schemaVersion: 'lattice.prompt-registry.v1',
+}).schemaVersion, 'proof-or-stop.prompt-registry.v1', 'legacy manifest records normalize without rewriting their stored bytes');
+assert.equal(registryModule.canonicalPromptRegistrySchemaVersion('proof-or-stop.prompt-registry.v99'), null, 'unknown prompt-registry schemas fail closed');
 for (const entry of registry.agents) {
   for (const host of ['claude', 'codex']) {
     assert.doesNotMatch(

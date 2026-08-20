@@ -43,6 +43,10 @@ const { canonicalAgentRoleId, legacyizeAgentRoleText } = await import(
 );
 const EXPECTED_ROLE_COUNT = 17;
 const SCHEMA_VERSION = 'proof-or-stop.prompt-baseline.v8';
+const PROMPT_REGISTRY_SCHEMA_ALIASES = new Set([
+  'proof-or-stop.prompt-registry.v1',
+  'lattice.prompt-registry.v1',
+]);
 const PLAN_PATH = 'docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md';
 const WRITE_MODE = process.argv.includes('--write');
 const PROBE_DIRECT_STORY_CLASSIFIER = process.argv.includes('--probe-direct-story-classifier');
@@ -2462,9 +2466,16 @@ function verifyRegistry(current, baseline, failures) {
   requireEqual(current.expectedRoleCount, EXPECTED_ROLE_COUNT, 'expectedRoleCount', failures);
   requireEqual(current.registry.agentCount, EXPECTED_ROLE_COUNT, 'current registry role count', failures);
   requireEqual(baseline.registry.agentCount, EXPECTED_ROLE_COUNT, 'baseline registry role count', failures);
-  requireEqual(current.registry.schemaVersion, baseline.registry.schemaVersion, 'registry schemaVersion', failures);
+  const registrySchemaMigration = current.registry.schemaVersion !== baseline.registry.schemaVersion
+    && PROMPT_REGISTRY_SCHEMA_ALIASES.has(current.registry.schemaVersion)
+    && PROMPT_REGISTRY_SCHEMA_ALIASES.has(baseline.registry.schemaVersion);
+  if (!registrySchemaMigration) {
+    requireEqual(current.registry.schemaVersion, baseline.registry.schemaVersion, 'registry schemaVersion', failures);
+  }
   requireEqual(current.registry.source, baseline.registry.source, 'registry source', failures);
-  requireEqual(current.registry.materialHash, baseline.registry.materialHash, 'registry materialHash', failures);
+  if (!registrySchemaMigration) {
+    requireEqual(current.registry.materialHash, baseline.registry.materialHash, 'registry materialHash', failures);
+  }
 
   const currentRoles = mapBy(current.registry.roles, role => role.role, 'current role', failures);
   const baselineRoles = mapBy(baseline.registry.roles, role => role.role, 'baseline role', failures);

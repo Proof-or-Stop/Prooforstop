@@ -103,13 +103,27 @@ function sourceFiles(entry: ProcessFactRegistryEntry): string[] {
   return stable([...(entry.producerSourceRefs ?? []), ...(entry.consumerSourceRefs ?? [])]);
 }
 
+function isResolvableRegularSourceFile(root: string, file: string): boolean {
+  try { return lstatSync(resolve(root, file)).isFile(); }
+  catch { return false; }
+}
+
 function isExistingDirectory(root: string, file: string): boolean {
   try { return lstatSync(resolve(root, file)).isDirectory(); }
   catch { return false; }
 }
 
 function sourceFileRefs(root: string, files: readonly string[]): string[] {
-  return stable(files.filter(file => !isExistingDirectory(root, file)));
+  return stable(files.filter(file => {
+    try {
+      // Follow neither directory symlinks nor file symlinks. Missing references
+      // stay in the candidate set so the existing unreadable-source diagnostic
+      // remains observable to the acceptance gate.
+      return lstatSync(resolve(root, file)).isFile();
+    } catch {
+      return true;
+    }
+  }));
 }
 
 function processFactPath(entry: ProcessFactRegistryEntry): string {
@@ -1263,11 +1277,24 @@ function buildBoundedSourceGraph(input: AcceptanceDiscoveryInput): BoundedSource
     if (supportsBindingAnalysis(file)) sourceScans.set(file, analyzeLocalImportCalls(analysisContext, file));
   }
   for (const entry of reached) {
-    for (const file of entryFiles(entry)) if (!existsSync(resolve(root, file))) blindSpots.push(`uninspectable registered source ${file} for ${entry.name}`);
+    const rawSourceRefs = sourceFiles(entry);
+    const acceptedSourceRefs = new Set(sourceFileRefs(root, rawSourceRefs));
+    for (const file of acceptedSourceRefs) {
+      if (!existsSync(resolve(root, file))) blindSpots.push(`uninspectable registered source ${file} for ${entry.name}`);
+    }
+    // Directory and symlink refs are excluded from the executable source set,
+    // but still pass through the no-follow reader once so their diagnostics are
+    // retained instead of silently disappearing from the acceptance basis.
+    for (const file of rawSourceRefs) {
+      if (acceptedSourceRefs.has(file)) continue;
+      const read = readSourceSafely(readContext, file);
+      if (read.blindSpot) blindSpots.push(`${read.blindSpot} for ${entry.name}`);
+    }
     if (entry.consumerGate) {
       const dispatchConsumer = isDispatchableProcessFact(entry)
         && graphFactoryCommandRegistered(factories, entry.name);
-      const explicitConsumer = dispatchConsumer || (entry.consumerSourceRefs ?? []).some(file => existsSync(resolve(root, file)));
+      const explicitConsumer = dispatchConsumer || sourceFileRefs(root, entry.consumerSourceRefs ?? [])
+        .some(file => isResolvableRegularSourceFile(root, file));
       const producerFiles = stable([
         ...(entry.producerSourceRefs ?? []),
         ...commandNamesForEntry(entry).map(command => inferredHandlerFiles.get(command) ?? '').filter(Boolean),

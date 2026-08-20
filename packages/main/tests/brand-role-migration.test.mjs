@@ -14,6 +14,7 @@ const distRoot = join(packageRoot, distName);
 
 const identity = await import(join(distRoot, 'core/agent-role-identity.js'));
 const dispatch = await import(join(distRoot, 'core/agent-dispatch-registry.js'));
+const reviewerList = await import(join(distRoot, 'handlers/reviewer-list.js'));
 
 const aliases = [
   ['lattice-implementer', 'proof-or-stop-implementer'],
@@ -37,6 +38,28 @@ assert.equal(
   identity.canonicalizeAgentRoleText('lattice-review-quality -> lattice-implementer'),
   'proof-or-stop-review-quality -> proof-or-stop-implementer',
 );
+assert.deepEqual(
+  reviewerList.parseForceReviewers('proof-or-stop-review-quality,lattice-review-quality,quality'),
+  ['quality'],
+  'canonical and legacy spellings of one logical reviewer deduplicate before mounting',
+);
+const forcedQuality = reviewerList.computeActiveReviewers(
+  { riskSignals: [] },
+  { items: [] },
+  null,
+  [],
+  ['proof-or-stop-review-quality', 'lattice-review-quality', 'quality'],
+);
+assert.equal(
+  forcedQuality.filter((reviewer) => reviewer.name === 'quality').length,
+  1,
+  'canonical, legacy, and short reviewer identities produce one logical roster entry',
+);
+assert.equal(forcedQuality.some((reviewer) => reviewer.name === 'proof-or-stop-review-quality'), false);
+assert.equal(forcedQuality.some((reviewer) => reviewer.name === 'lattice-review-quality'), false);
+const qualityReviewer = forcedQuality.find((reviewer) => reviewer.name === 'quality');
+assert.ok(qualityReviewer);
+assert.equal(qualityReviewer.forced, true, 'deduplicated logical reviewer remains forced');
 
 const reviewRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-review-role-'));
 try {

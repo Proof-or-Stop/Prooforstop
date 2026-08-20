@@ -38,6 +38,7 @@ import type { StoryInfo, ChecklistData, DecisionData, StoryEvent } from '../core
 import { detectMdTouchpointsFromGit } from '../core/touchpoints-fallback.js';
 import { REVIEW_RUN_LANES, isReviewRunLane } from '../core/review-run.js';
 import { isPromptRoleEligibleForReviewEvidence } from '../core/prompt-role-contract-registry.js';
+import { canonicalAgentRoleId } from '../core/agent-role-identity.js';
 import { readBrandEnv } from '../core/brand-env.js';
 
 export interface ActiveReviewer {
@@ -60,7 +61,7 @@ const BEHAVIOR_TRIGGERS = ['state machine', 'guard', 'gate'];
 const REVIEWER_ORDER: readonly string[] = ['concept', 'quality', 'test-coverage', 'behavior', 'docs', 'channel'];
 
 function reviewerLaneShortName(lane: string): string {
-  return lane.replace(/^lattice-review-/, '');
+  return canonicalAgentRoleId(lane).replace(/^proof-or-stop-review-/, '');
 }
 
 function supportedForceReviewerNames(): string {
@@ -144,7 +145,10 @@ export function computeActiveReviewers(
   // Auto reviewers with the same name will be overridden to reason='forced' + forced=true
   if (forced && forced.length > 0) {
     for (const f of forced) {
-      const name = String(f).trim();
+      // Keep this boundary defensive for callers that bypass parseForceReviewers:
+      // canonical, legacy, and short lane spellings must address one logical
+      // reviewer before they reach the roster map.
+      const name = normalizeForceReviewerName(String(f));
       if (!name) continue;
       map.set(name, { name, reason: 'forced', forced: true });
     }

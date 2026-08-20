@@ -19,6 +19,8 @@ import { isManagedGlobalThinRoot, loadConfig } from './config.js';
 import { PROOF_OR_STOP_DEPRECATED_BIN, PROOF_OR_STOP_PRIMARY_BIN } from './lattice-brand.js';
 import { resolveProjectGitCwd } from './story-signed-workspace-resolution.js';
 import {
+  canonicalPromptRegistrySchemaVersion,
+  normalizePromptRegistryManifest,
   promptRegistryManifest,
   readPromptRegistry,
   renderPromptEntryForHost,
@@ -449,8 +451,10 @@ function checkManifest(root: string, checks: CodexAdapterCheck[], resolution: Ag
       push(checks, 'manifest', 'Codex manifest', 'fail', true, `${selection.relPath} registry mode is missing promptRegistry metadata`, LOCAL_INIT_VERIFY_COMMAND);
       return 'registry';
     }
+    const normalizedActualRegistry = normalizePromptRegistryManifest(actualRegistry);
+    const actualSchemaVersion = canonicalPromptRegistrySchemaVersion(actualRegistry.schemaVersion);
     const mismatches = (['schemaVersion', 'source', 'agentCount', 'materialHash'] as const)
-      .filter(key => actualRegistry[key] !== expectedRegistry[key]);
+      .filter(key => (key === 'schemaVersion' ? actualSchemaVersion : normalizedActualRegistry?.[key]) !== expectedRegistry[key]);
     if (mismatches.length > 0) {
       push(
         checks,
@@ -464,7 +468,11 @@ function checkManifest(root: string, checks: CodexAdapterCheck[], resolution: Ag
       return 'registry';
     }
     const expectedRegistryManifest = renderProofOrStopCodexAdapterManifest({ promptMode: 'registry' });
-    if (actual !== expectedRegistryManifest) {
+    const normalizedManifest = {
+      ...parsed,
+      promptRegistry: normalizedActualRegistry,
+    };
+    if (`${JSON.stringify(normalizedManifest, null, 2)}\n` !== expectedRegistryManifest) {
       push(checks, 'manifest', 'Codex manifest', 'fail', true, `${selection.relPath} drifted from Proof-or-Stop registry template`, LOCAL_INIT_VERIFY_COMMAND);
       return 'registry';
     }
