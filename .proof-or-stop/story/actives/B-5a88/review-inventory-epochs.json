@@ -6,9 +6,9 @@
       "epochId": "B-5a88:RI-001",
       "storyId": "B-5a88",
       "reviewRound": "2026-08-20T10:12:58.490Z",
-      "state": "OPEN",
+      "state": "CANCELLED",
       "begunAt": "2026-08-20T10:21:49.158Z",
-      "updatedAt": "2026-08-20T10:21:49.158Z",
+      "updatedAt": "2026-08-20T10:34:25.918Z",
       "cutoff": {
         "headHash": "2ded7d3af434fc963094169495da11063cc09247",
         "materialHash": "065b7ceee89b7a485d9f8c2b675c850b04ba566776e3bfb8e9225d0a055e692e",
@@ -24,7 +24,10 @@
       "maxWaves": 3,
       "waves": [],
       "baselineFindingIds": [],
-      "_hash": "2c929e29c54ef5968b829d4bd29255652bb40b0d524c5cc035b2e461213a62e9"
+      "cancelledAt": "2026-08-20T10:34:25.918Z",
+      "cancelReason": "Topology critic cannot start: current story branch has no business commit authored by the registered proof-or-stop-implementer identity. Cancel the incomplete remediation epoch so the story can re-plan the decision artifact through the official PLAN-only command.",
+      "terminalRunSequenceBoundary": 6,
+      "_hash": "8a081342686d2ef6bce7f593041058a6ebe4a29accc95bd64a746b4747cee20a"
     }
   ],
   "receipts": [],
