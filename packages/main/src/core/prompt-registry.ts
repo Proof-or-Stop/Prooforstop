@@ -79,7 +79,7 @@ const LEGACY_REVIEWER_TEMPLATE_SHA256: Readonly<Record<string, string>> = Object
 const LEGACY_COMPLEX_TEMPLATE_SHA256: Readonly<Record<string, string>> = Object.freeze({
   'lattice-review-story-init': 'd63524b25475f370f642168881f680846424d7a80a69867219ccc9f969fd5ae6',
   'lattice-review-scope-plan': '9ac7cff64b53fc33555e4c5ef6f963a5c5bd09e7420d317a2312aafac9cfbd07',
-  'lattice-implementer': '0ef513cc1e77c69d7ca5751a98e998143bfab5ac3eb7bc64a4c0cf2346cabf41',
+  'lattice-implementer': '00b0181fafb0f6f5c93f0d945063d3b0732fa695ea88cae1c63e2b8767353829',
   'lattice-review-delivery': '4b3b207a265c5b9a1ba9845761720c19cddcdee6eec9bfd5f672b55bbc1b50af',
   'lattice-evaluator': 'dd8cf73174e1ddf292b7b4cf9ebb70ff8c32584f44ccb78f2221b33da8407b97',
 });

@@ -83,7 +83,7 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'proof-or-stop-evaluator-cli',
-    templateHash: '9ffa0541c787078ae112f3edabf152fffca64b630f32f83d4367b1b310c4595e',
+    templateHash: 'daeb3d45a8eb98ed337a4e9ce5650f3b96030f2e3efea1de971743a20212a7ec',
   },
   {
     role: 'proof-or-stop-evaluator',
@@ -91,7 +91,7 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'proof-or-stop-implementer',
-    templateHash: '0ef513cc1e77c69d7ca5751a98e998143bfab5ac3eb7bc64a4c0cf2346cabf41',
+    templateHash: '00b0181fafb0f6f5c93f0d945063d3b0732fa695ea88cae1c63e2b8767353829',
   },
   {
     role: 'proof-or-stop-review-behavior',

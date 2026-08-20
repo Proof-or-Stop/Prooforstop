@@ -15,7 +15,7 @@
       },
       {
         "role": "proof-or-stop-evaluator-cli",
-        "templateHash": "9ffa0541c787078ae112f3edabf152fffca64b630f32f83d4367b1b310c4595e"
+        "templateHash": "daeb3d45a8eb98ed337a4e9ce5650f3b96030f2e3efea1de971743a20212a7ec"
       },
       {
         "role": "proof-or-stop-evaluator",
@@ -23,7 +23,7 @@
       },
       {
         "role": "proof-or-stop-implementer",
-        "templateHash": "0ef513cc1e77c69d7ca5751a98e998143bfab5ac3eb7bc64a4c0cf2346cabf41"
+        "templateHash": "00b0181fafb0f6f5c93f0d945063d3b0732fa695ea88cae1c63e2b8767353829"
       },
       {
         "role": "proof-or-stop-review-behavior",
@@ -141,15 +141,15 @@
     "schemaVersion": "lattice.prompt-registry.v1",
     "source": "@proof-or-stop/core/templates/agents",
     "agentCount": 17,
-    "materialHash": "4ac157f3c11d8ed0619040a308d7132faf84ec1fc6384e46e3452d66082d4010",
+    "materialHash": "6f92c3561725038f3a329ea9183ef3c7674ca4a6e7684ee3c8f9d7695281032f",
     "roles": [
       {
         "role": "proof-or-stop-evaluator-cli",
         "file": "proof-or-stop-evaluator-cli.md",
         "relPath": "templates/agents/proof-or-stop-evaluator-cli.md",
-        "templateHash": "b0d44f8a14af4591a22f182a6a71a5f8ceaf8b5ae270c31c8810df4b705220b9",
-        "bytes": 4392,
-        "lines": 119
+        "templateHash": "99ffa52de8215d5cde0d2095522438df960b4159f905d5d53a0b961acb884401",
+        "bytes": 9468,
+        "lines": 213
       },
       {
         "role": "proof-or-stop-evaluator",
@@ -171,8 +171,8 @@
         "role": "proof-or-stop-implementer",
         "file": "proof-or-stop-implementer.md",
         "relPath": "templates/agents/proof-or-stop-implementer.md",
-        "templateHash": "818ef3da01c8627a0f6f45a0dc72b682f773bf9e4315f985945ba9405f8b3d25",
-        "bytes": 16183,
+        "templateHash": "832706c23b16277555ac3b305fcdb3293762ecd9c5ae911d6d9cec7641d732b5",
+        "bytes": 16193,
         "lines": 244
       },
       {
@@ -287,9 +287,9 @@
     "outputs": [
       {
         "role": "proof-or-stop-evaluator-cli",
-        "sha256": "ddb8867c9e9ea1957d8877a2eafbb6f3cdbc06a398a89c19fa0ad8a7ebed9135",
-        "bytes": 4393,
-        "lines": 120
+        "sha256": "69f622d9f5b9e6a7b8abbf4bbc39127455051b57fd172530aece86a50634d6d6",
+        "bytes": 9469,
+        "lines": 214
       },
       {
         "role": "proof-or-stop-evaluator",
@@ -305,8 +305,8 @@
       },
       {
         "role": "proof-or-stop-implementer",
-        "sha256": "5f48f2694cca4676a4a887489a71056f186911d7d2b17392f64a29fa490c0024",
-        "bytes": 16184,
+        "sha256": "698fd1e46a25f1b18d3f3bb7f704d4611fbdc792af98a8f696ece9b0af845547",
+        "bytes": 16194,
         "lines": 245
       },
       {
@@ -644,7 +644,7 @@
         {
           "role": "proof-or-stop-evaluator-cli",
           "relPath": "templates/agents/proof-or-stop-evaluator-cli.md",
-          "templateHash": "b0d44f8a14af4591a22f182a6a71a5f8ceaf8b5ae270c31c8810df4b705220b9"
+          "templateHash": "99ffa52de8215d5cde0d2095522438df960b4159f905d5d53a0b961acb884401"
         },
         {
           "role": "proof-or-stop-evaluator",
@@ -659,7 +659,7 @@
         {
           "role": "proof-or-stop-implementer",
           "relPath": "templates/agents/proof-or-stop-implementer.md",
-          "templateHash": "818ef3da01c8627a0f6f45a0dc72b682f773bf9e4315f985945ba9405f8b3d25"
+          "templateHash": "832706c23b16277555ac3b305fcdb3293762ecd9c5ae911d6d9cec7641d732b5"
         },
         {
           "role": "proof-or-stop-product-reviewer",
@@ -1786,6 +1786,18 @@
         "id": "3dc10ad8ea7eb3c0",
         "role": "proof-or-stop-evaluator",
         "line": 21,
+        "references": [
+          "docs/story/"
+        ],
+        "excerpt": "- Story operations must use Proof-or-Stop CLI commands. Do not directly read or write story metadata under `docs/story/`, and do not write fixtures directly under `tests/fixtures/`.",
+        "classification": "policy-reminder",
+        "grandfathered": false,
+        "note": "Prompt reminds agents not to bypass CLI-mediated story operations."
+      },
+      {
+        "id": "0bde1c7e688f2ccd",
+        "role": "proof-or-stop-evaluator-cli",
+        "line": 22,
         "references": [
           "docs/story/"
         ],
