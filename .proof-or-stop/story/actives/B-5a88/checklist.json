@@ -663,16 +663,22 @@
         {
           "intentRef": "CHK-005:adversarial:0",
           "kind": "logic_test",
-          "file": "packages/main/src/core/version-bump.ts",
           "command": "node --input-type=module -e \"import assert from 'node:assert/strict'; import {mkdtempSync,mkdirSync,writeFileSync,rmSync} from 'node:fs'; import {join} from 'node:path'; import {tmpdir} from 'node:os'; import {runRuntimeEnvironmentChecks} from './packages/main/dist.staging/core/runtime-environment-checks.js'; const root=mkdtempSync(join(tmpdir(),'b5a88-selfhost-')); mkdirSync(join(root,'packages','main'),{recursive:true}); writeFileSync(join(root,'package.json'),JSON.stringify({name:'proof-or-stop',version:'0.3.266'})); writeFileSync(join(root,'packages','main','package.json'),JSON.stringify({name:'@proof-or-stop/core',version:'0.3.266'})); const canonical=runRuntimeEnvironmentChecks(root,{commandResolver:()=>null,globalNpmRootResolver:()=>null,corePackageRoot:join(root,'packages','main')}); assert.equal(canonical.isSelfProject,true); writeFileSync(join(root,'package.json'),JSON.stringify({name:'lattice',version:'0.3.266'})); const legacy=runRuntimeEnvironmentChecks(root,{commandResolver:()=>null,globalNpmRootResolver:()=>null,corePackageRoot:join(root,'packages','main')}); assert.equal(legacy.isSelfProject,true); rmSync(root,{recursive:true,force:true}); console.log('self-host canonical and legacy root smoke: PASS');\"",
           "result": "pass",
-          "note": "Tool-executed runtime smoke confirms canonical proof-or-stop self-host detection and legacy lattice root read compatibility both remain self-scoped.",
-          "headHash": "2c0f92bc4eac52eb5dc332b678e3cf13a5ffda2d",
-          "materialHash": "d903508de381187a921b8a83171cfdc191dac23bb820c7575d59f7c3844fa089",
-          "storyFilesHash": "f6cd9a6b05415bf61a3c8c141efda7359dd27925595813c92ef591c5222182be",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-20T08:54:37.421Z"
+          "note": "Re-ran the pinned self-host adversarial verifier; both canonical and legacy root identities remain self-scoped before publish or install.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "3aaaf3a789ca535da6379e70df5f0cecdd97e07ecb5c320cc5feb6a214d90acc",
+            "outputTail": "self-host canonical and legacy root smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T10:12:36.937Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "0fe533eff827eeb369f1f7c34fb4c5b658a24fc9",
+          "materialHash": "065b7ceee89b7a485d9f8c2b675c850b04ba566776e3bfb8e9225d0a055e692e",
+          "storyFilesHash": "a9d8324e30251fa6ad5ec54091383e90df00c63d6515235afdc2c684a6504eb7",
+          "timestamp": "2026-08-20T10:12:37.119Z"
         }
       ],
       "userSeesSnapshot": {
