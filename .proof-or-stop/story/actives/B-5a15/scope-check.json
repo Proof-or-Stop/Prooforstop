@@ -1,0 +1,616 @@
+{
+  "storyId": "B-5a15",
+  "checkedAt": "2026-08-20T09:22:28.209Z",
+  "features": [
+    {
+      "feature": "Execution keys bind the real cwd/realpath.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+    },
+    {
+      "feature": "Execution keys bind the command specification.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+    },
+    {
+      "feature": "Execution keys bind explicit inputs, including storyFilesHash.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+    },
+    {
+      "feature": "Execution keys bind the effective environment digest.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+    },
+    {
+      "feature": "Execution keys bind runtime and tool versions.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+    },
+    {
+      "feature": "Execution keys bind the selector/policy contract digest.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+    },
+    {
+      "feature": "Each identical execution key runs at most once within a refresh.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+    },
+    {
+      "feature": "One immutable command receipt fans out to multiple intents.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+    },
+    {
+      "feature": "Every receiving intent independently verifies its own selector.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:codex-session-performance-and-workflow-optimization-plan.md"
+    },
+    {
+      "feature": "A selector failure fails only its related intent and never creates a shared fuzzy PASS.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:codex-session-performance-and-workflow-optimization-plan.md"
+    },
+    {
+      "feature": "Cross-refresh reuse requires every execution-key input to remain identical.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+    },
+    {
+      "feature": "Aggregate commands must not recursively re-execute already-covered child commands.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:codex-session-performance-and-workflow-optimization-plan.md"
+    },
+    {
+      "feature": "Reports expose intent count, unique command count, actual executions, and reuse count.",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:codex-session-performance-and-workflow-optimization-plan.md"
+    },
+    {
+      "feature": "Selector identity uses stable structured assertion IDs rather than display-count text.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:codex-session-performance-and-workflow-optimization-plan.md"
+    },
+    {
+      "feature": "Command-backed evidence uses structured command/bootstrap specs and bounded redacted output.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:proof-admissibility-hardening-execution-plan.md"
+    },
+    {
+      "feature": "A completed command result is persisted as a CAS receipt before canonical evidence import.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+    },
+    {
+      "feature": "The receipt is immutable and its hash is never rewritten.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+    },
+    {
+      "feature": "Canonical evidence import is a separate atomic transaction.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+    },
+    {
+      "feature": "Import or Git/metadata commit failure retries only the transaction and never the command.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+    },
+    {
+      "feature": "A transaction retry revalidates the receipt against the same material, environment, and policy.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:codex-session-performance-and-workflow-optimization-plan.md"
+    },
+    {
+      "feature": "Infrastructure failure and test failure have distinct dispositions.",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:codex-session-performance-and-workflow-optimization-plan.md"
+    },
+    {
+      "feature": "A failed transaction does not leave fresh-looking dirty state that blocks safe retry.",
+      "covered_by": "CHK-002 + CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:codex-session-performance-and-workflow-optimization-plan.md"
+    },
+    {
+      "feature": "Stale, raw, unsigned, or receipt-less output cannot satisfy a gate.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:codex-session-performance-and-workflow-optimization-plan.md"
+    },
+    {
+      "feature": "Canonical import/closeout writes are isolated and must not adopt pre-existing evidence bytes.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:routine-validation-fresh-pass-reuse.md"
+    },
+    {
+      "feature": "Evidence dependency domain \"source\" is declared explicitly.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+    },
+    {
+      "feature": "Evidence dependency domain \"test\" is declared explicitly.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+    },
+    {
+      "feature": "Evidence dependency domain \"build-input\" is declared explicitly.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+    },
+    {
+      "feature": "Evidence dependency domain \"manifest-semantic\" is declared explicitly.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+    },
+    {
+      "feature": "Evidence dependency domain \"integration\" is declared explicitly.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+    },
+    {
+      "feature": "Evidence dependency domain \"review-subject\" is declared explicitly.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+    },
+    {
+      "feature": "Only causally affected dependency nodes become stale and rerun.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+    },
+    {
+      "feature": "The existing whole-tree materialHash strict fallback is retained.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+    },
+    {
+      "feature": "storyFilesHash is secondary and never replaces materialHash.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:story-files-hash-material-drift.md"
+    },
+    {
+      "feature": "Stored hashes are not rewritten and old output is not disguised as new evidence.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+    },
+    {
+      "feature": "An unrelated whole-tree merge causes zero specialized-command reruns.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+    },
+    {
+      "feature": "Every causally affected DAG node reruns when required.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+    },
+    {
+      "feature": "Freshness evaluation reports falseFresh=0.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+    },
+    {
+      "feature": "Dependency invalidation is shadow-compared before it is used for CertificationWindow decisions.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+    },
+    {
+      "feature": "CertificationWindow consumes the precise affected-node invalidation result.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+    },
+    {
+      "feature": "DONE-required whole-tree drift remains strict and reruns the required suite.",
+      "covered_by": "CHK-003 + CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+    },
+    {
+      "feature": "Current-state evidence remains bound to current head/material/story hashes and stale tuples are rejected.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:proof-admissibility-hardening-execution-plan.md"
+    },
+    {
+      "feature": "A mismatching storyFilesHash is stale; a missing or uncomputable storyFilesHash falls back to strict materialHash.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:story-files-hash-material-drift.md"
+    },
+    {
+      "feature": "Matching storyFilesHash with whole-tree material drift is an explicit advisory, never silently fresh.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:story-files-hash-material-drift.md"
+    },
+    {
+      "feature": "The signed delivery-check storyFilesHash is not forgeable and requires re-attestation on unrelated drift.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:story-files-hash-material-drift.md"
+    },
+    {
+      "feature": "Preflight verifies the correct CLI and story worktree.",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:codex-session-performance-and-workflow-optimization-plan.md"
+    },
+    {
+      "feature": "Preflight verifies Git index write capability.",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:codex-session-performance-and-workflow-optimization-plan.md"
+    },
+    {
+      "feature": "Preflight verifies the writer/owner lease boundary.",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:codex-session-performance-and-workflow-optimization-plan.md"
+    },
+    {
+      "feature": "Preflight verifies provider capability.",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:codex-session-performance-and-workflow-optimization-plan.md"
+    },
+    {
+      "feature": "Preflight verifies that evidence targets are writable.",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:codex-session-performance-and-workflow-optimization-plan.md"
+    },
+    {
+      "feature": "Preflight classifies clean-tree/material dirt while allowing only permitted runtime metadata dirt.",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:routine-validation-fresh-pass-reuse.md"
+    },
+    {
+      "feature": "Preflight verifies resource availability and declared resource boundaries.",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:codex-session-performance-and-workflow-optimization-plan.md"
+    },
+    {
+      "feature": "Preflight verifies the output/progress side channel needed by the parent controller.",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:codex-session-performance-and-workflow-optimization-plan.md"
+    },
+    {
+      "feature": "A failed preflight refuses before any expensive child command starts.",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+    },
+    {
+      "feature": "The refusal names the failed preflight check precisely.",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+    },
+    {
+      "feature": "A preflight refusal records zero command executions.",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+    },
+    {
+      "feature": "Preflight is a readiness check, not a freshness relaxation.",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+    },
+    {
+      "feature": "Only a complete structured commandExecution PASS is reusable.",
+      "covered_by": "CHK-001 + CHK-002 + CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:routine-validation-fresh-pass-reuse.md"
+    },
+    {
+      "feature": "Failure, timeout, infrastructure failure, cancellation, skip, and partial execution are never reusable.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:routine-validation-fresh-pass-reuse.md"
+    },
+    {
+      "feature": "Current required verification coverage must be complete before reuse.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:routine-validation-fresh-pass-reuse.md"
+    },
+    {
+      "feature": "Reuse rejects material/unknown dirty paths while allowing only registered runtime metadata dirt.",
+      "covered_by": "CHK-003 + CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:routine-validation-fresh-pass-reuse.md"
+    },
+    {
+      "feature": "Reuse requires matching materialHash and storyFilesHash.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:routine-validation-fresh-pass-reuse.md"
+    },
+    {
+      "feature": "Reuse requires exact HEAD or a metadata-only descendant with unambiguous lineage.",
+      "covered_by": "CHK-003 + CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:routine-validation-fresh-pass-reuse.md"
+    },
+    {
+      "feature": "A HEAD race or unreadable/non-ancestor lineage rejects reuse.",
+      "covered_by": "CHK-003 + CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:routine-validation-fresh-pass-reuse.md"
+    },
+    {
+      "feature": "A reused result reports commandExecutions=0.",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:routine-validation-fresh-pass-reuse.md"
+    },
+    {
+      "feature": "Legacy or incomplete identity evidence executes normally rather than being upgraded in place.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:routine-validation-fresh-pass-reuse.md"
+    },
+    {
+      "feature": "Actual commandExecutions equals the number of unique execution keys.",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+    },
+    {
+      "feature": "The 58-intent replay does not execute more than its true unique-command count.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+    },
+    {
+      "feature": "Exact-input cacheHitRate is reported with a target of at least 80%.",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+    },
+    {
+      "feature": "Stale cache acceptance is reported as zero.",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+    },
+    {
+      "feature": "Commit-failure command reruns are reported as zero.",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+    },
+    {
+      "feature": "Unrelated specialized reruns are reported as zero.",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+    },
+    {
+      "feature": "Affected-node rerun rate is reported as 100%.",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+    },
+    {
+      "feature": "False-fresh evidence is reported as zero.",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+    },
+    {
+      "feature": "Reviewer lanes and host assurance are not reduced.",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+    },
+    {
+      "feature": "Coverage gaps are not hidden with waivers.",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+    },
+    {
+      "feature": "The story is not called complete while its lifecycle phase is not DONE.",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+    },
+    {
+      "feature": "Final full validation and DONE-required validation are not removed.",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+    },
+    {
+      "feature": "Overlapping U-01/U-02 savings are not added to claim a larger U-03 saving.",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+    },
+    {
+      "feature": "New gate-consumed receipt/freshness semantics are registered as process facts, not prompt-only prose.",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:proof-admissibility-hardening-execution-plan.md"
+    },
+    {
+      "feature": "ReviewConvergence (U-01) implementation is outside B-5a15.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "The story description explicitly excludes U-01; CHK-005 only prevents overlapping U-01 time from being claimed as U-03 savings.",
+      "source": "story.description"
+    },
+    {
+      "feature": "ManagedRunSupervisor (U-02) implementation is outside B-5a15.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "The story description explicitly excludes U-02; no supervisor lifecycle or provider-wait implementation is promised by the five CHKs.",
+      "source": "story.description"
+    },
+    {
+      "feature": "Dependency-scoped re-review (U-09) implementation is outside B-5a15.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "The story description explicitly excludes U-09; CHK-003 only owns U-03 causal freshness decisions and does not implement re-review orchestration.",
+      "source": "story.description"
+    },
+    {
+      "feature": "CHK-002 declares runtime-artifact-registry.ts as a modified touchpoint for story-scoped runtime-owned receipt evidence.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "plan.md + checklist.files"
+    },
+    {
+      "feature": "CHK-001 declares the causal-evidence-smoke.ts source task for the causal-evidence-smoke.js verification command.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "plan.md + checklist.files + checklist.verificationIntent"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+      "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+      "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+      "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+      "docs/requirements/decisions/story-files-hash-material-drift.md"
+    ],
+    "filesTriagedByName": [],
+    "scanEscalationReason": null
+  },
+  "summary": {
+    "total": 84,
+    "covered": 81,
+    "excluded": 3,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "a251b564fc3dee5aab3ece478a70316db42070e17e94b52539e8ee4c17e94dfc",
+  "openQuestions": []
+}

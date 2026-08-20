@@ -1,0 +1,36 @@
+{
+  "task": "\"Implement B-5a15 U-03 causal evidence execution deduplication, immutable receipts, causal freshness invalidation, run preflight, and proof-preserving metrics.\"",
+  "outcome": "\"CausalEvidence batch reports intentCount=58 uniqueExecutionKeys=10 commandExecutions=10 cacheHitRate>=80% commitFailureReruns=0; causal freshness reports unrelatedSpecializedRerun=0 affectedNodeRerun=100% falseFresh=0 while DONE-required whole-tree drift remains strict.\"",
+  "facts": [
+    "The active verification_evidence_add and verification_evidence_batch_add paths execute each executable intent through enforceAndStampEvidence and stamp a tool-owned receipt.",
+    "VerificationIntentPin currently binds only an immutable command and selector; it does not persist a content-addressed execution key or dependency domains.",
+    "Current evidence freshness preserves materialHash strictness and uses storyFilesHash only for an explicit whole-tree-drift advisory when story-owned files match.",
+    "CertificationWindow already fails closed on whole-tree material drift and is the intended consumer for certification invalidation.",
+    "autoCommitStoryMetadata stages story metadata after the write and returns a warning on commit failure; it does not expose a receipt-first import transaction or a retry-without-rerun protocol.",
+    "PLAN scope review found 81 covered features, 3 explicitly excluded features, and zero gaps, orphan suspects, drift, or open questions after file mapping corrections."
+  ],
+  "constraints": [
+    "Keep selector verification independent per intent; a shared command receipt must not turn a selector mismatch into PASS.",
+    "Execution keys must bind real cwd, command spec, explicit inputs/storyFilesHash, effective environment, runtime/tool version, and selector-policy digest.",
+    "CAS receipts are immutable and must be persisted before canonical evidence import; import/metadata commit retries may not re-run commands or rewrite the receipt hash.",
+    "Keep materialHash and DONE-required whole-tree strict fallback; only causally affected dependency nodes become stale.",
+    "Expensive runs fail closed before child commands when CLI/worktree, Git/index, lease/writer, capability/resource, or evidence-target preflight fails.",
+    "Do not reduce reviewer lanes, coverage, waivers, or assurance gates to claim efficiency.",
+    "Stay within the B-5a15 scope boundary and preserve unrelated dirty files."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/causal-evidence.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/core/evidence-freshness.ts",
+    "packages/main/src/core/certification-window.ts",
+    "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/core/store.ts",
+    "packages/main/src/core/runtime-artifact-registry.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/tasks/causal-evidence-smoke.ts",
+    "packages/main/tests/causal-evidence.test.mjs"
+  ],
+  "timestamp": "2026-08-20T09:24:53.470Z"
+}
