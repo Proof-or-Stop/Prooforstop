@@ -136,9 +136,9 @@
       "epochId": "B-5a88:RI-005",
       "storyId": "B-5a88",
       "reviewRound": "2026-08-20T10:12:58.490Z",
-      "state": "FINALIZED",
+      "state": "CANCELLED",
       "begunAt": "2026-08-20T11:54:44.089Z",
-      "updatedAt": "2026-08-20T13:07:26.489Z",
+      "updatedAt": "2026-08-20T15:03:07.078Z",
       "cutoff": {
         "headHash": "ffa12c10ed8e0de4a809ae60c6f4fb2a73d2b004",
         "materialHash": "0be487b014c2edd266e5e8e822305deffe9866e7e06a1497b66a2aa8caa9f6c3",
@@ -305,7 +305,362 @@
       ],
       "baselineFindingIds": [],
       "receiptId": "B-5a88:RI-005:RCP-001",
-      "_hash": "337f39f74ab3c2cda47bce5578554f4501366cc3d8a85a8b701a5ce046eb1eca"
+      "cancelledAt": "2026-08-20T15:03:07.078Z",
+      "cancelReason": "The finalized RI-005 receipt is bound to the prior review round and cannot authorize this current round; invalidate it before current-round remediation and fresh completeness review.",
+      "terminalRunSequenceBoundary": 51,
+      "_hash": "15021c43085b2ff54d54b20aec42ac2e7a170e5bc43739215eddbbec67a4ff27"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-5a88:RI-006",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-20T14:47:19.270Z",
+      "state": "CANCELLED",
+      "begunAt": "2026-08-20T15:03:14.697Z",
+      "updatedAt": "2026-08-20T17:49:36.332Z",
+      "cutoff": {
+        "headHash": "152318f306aa01e5ea523851ed79c1d243ae44fc",
+        "materialHash": "2ce77f36028ddd6fc00aaf1e1bb54f0aac847bbb6ee8825ee295b7a5f7554523",
+        "storyFilesHash": "04856e7ea2af89b7c1c9f7c842ce535bf9047a85266c02bebcf1b12d17f6b53b"
+      },
+      "scopeDigest": "1673999df8c6741962defff6b350fd96ca5ba798e283f86caa28eba2cb3bccbd",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage"
+      ],
+      "initialRunSequenceBoundary": 51,
+      "maxWaves": 3,
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-08-20T15:03:14.697Z",
+          "completedAt": "2026-08-20T15:50:18.950Z",
+          "lanes": [
+            {
+              "lane": "lattice-review-concept",
+              "reviewRunId": "B-5a88:RR-058",
+              "terminal": "finding",
+              "hostIdentity": "2c0b27dc790f304fc41d40f06a0b5123836b253c68795fdfb9917953a712f11f",
+              "promptIdentity": "a1ed5c90c2997697599029b9b81e8af92a0cd93ee983799de48da83b6aec2705",
+              "evidenceIds": [
+                "B-5a88:F-031",
+                "B-5a88:F-032",
+                "B-5a88:F-033",
+                "B-5a88:F-034",
+                "B-5a88:F-035"
+              ],
+              "coverageDigest": "04e6feb05e1c283347fe765c2967e0a90e864edb0d3ee90873e322be65baf208"
+            },
+            {
+              "lane": "lattice-review-quality",
+              "reviewRunId": "B-5a88:RR-059",
+              "terminal": "finding",
+              "hostIdentity": "2c0b27dc790f304fc41d40f06a0b5123836b253c68795fdfb9917953a712f11f",
+              "promptIdentity": "02fa8362059553239c7e7116e034549815cd14a211df5f3f1b2f1c8f70679071",
+              "evidenceIds": [
+                "B-5a88:F-036",
+                "B-5a88:F-037"
+              ],
+              "coverageDigest": "1e50d2aed3e770d5c1ea70381f2770f0dae3a6b3ad017d894317d75ee3012564"
+            },
+            {
+              "lane": "lattice-review-test-coverage",
+              "reviewRunId": "B-5a88:RR-060",
+              "terminal": "finding",
+              "hostIdentity": "2c0b27dc790f304fc41d40f06a0b5123836b253c68795fdfb9917953a712f11f",
+              "promptIdentity": "1f633fd70cdb08bad2fa6f1472eb10abf308e9e43f92d08b4cb4a499000f4c2c",
+              "evidenceIds": [
+                "B-5a88:F-038",
+                "B-5a88:F-039"
+              ],
+              "coverageDigest": "8eb9b707b133d5b0302756b3396d18df1a58a6422526f83ef4174ed14bd2c3a0"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "acceptance-chain",
+            "canonical-finding-agent",
+            "canonical-process-facts",
+            "current-verification-evidence",
+            "dynamic-fingerprint"
+          ],
+          "verifiedFindingSetDigest": "26b627a4f4d7518d3b8de7c2ed00c0e09da6cda6cb2447a0d006ffa2217449ad",
+          "newVerifiedFindingCount": 5,
+          "criticDigest": "508d8fb01f3a4b852f10e0c6829d34a84380035a76a662c5aa6c354a22106f63",
+          "saturated": false,
+          "nextRunSequenceBoundary": 61
+        },
+        {
+          "wave": 2,
+          "startedAt": "2026-08-20T15:50:18.950Z",
+          "completedAt": "2026-08-20T16:24:37.503Z",
+          "lanes": [
+            {
+              "lane": "lattice-review-concept",
+              "reviewRunId": "B-5a88:RR-062",
+              "terminal": "finding",
+              "hostIdentity": "2c0b27dc790f304fc41d40f06a0b5123836b253c68795fdfb9917953a712f11f",
+              "promptIdentity": "49b7e611ac38fd3af46bbd1c16493afe3785678e65cc5b3fbb90afd12beb664d",
+              "evidenceIds": [
+                "B-5a88:F-041",
+                "B-5a88:F-042",
+                "B-5a88:F-043",
+                "B-5a88:F-044",
+                "B-5a88:F-045",
+                "B-5a88:F-046"
+              ],
+              "coverageDigest": "9eb4aeffb28c106562f97c12acc054680d26a4cd0069b56dad3e3bb0b295e732"
+            },
+            {
+              "lane": "lattice-review-quality",
+              "reviewRunId": "B-5a88:RR-063",
+              "terminal": "finding",
+              "hostIdentity": "2c0b27dc790f304fc41d40f06a0b5123836b253c68795fdfb9917953a712f11f",
+              "promptIdentity": "0ece539988370c3c4b42c2da61db2e747a1bd9a817fab95414d39335dc02b71f",
+              "evidenceIds": [
+                "B-5a88:F-047",
+                "B-5a88:F-048",
+                "B-5a88:F-049",
+                "B-5a88:F-050",
+                "B-5a88:F-051"
+              ],
+              "coverageDigest": "0346a7c680b69258835f1c8809cb33fa306797fde20aeda7717df7c2ebe5d493"
+            },
+            {
+              "lane": "lattice-review-test-coverage",
+              "reviewRunId": "B-5a88:RR-064",
+              "terminal": "finding",
+              "hostIdentity": "2c0b27dc790f304fc41d40f06a0b5123836b253c68795fdfb9917953a712f11f",
+              "promptIdentity": "f4d7d7de1df7252651db698ac6643f2bdb5e36e2db04a4d72e7a870e60d00bf5",
+              "evidenceIds": [
+                "B-5a88:F-052",
+                "B-5a88:F-053"
+              ],
+              "coverageDigest": "dfdf0f86f7c5006f4bcac1b41b480c3bb1aaa25eb77fd3b90f96fe040e6183ca"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "acceptance-chain",
+            "acceptance-chain-inadmissible",
+            "canonical-finding-agent",
+            "canonical-process-facts",
+            "current-verification-evidence",
+            "docs-code-drift",
+            "dynamic-fingerprint",
+            "retired-authority-fingerprint",
+            "verification-evidence-stale"
+          ],
+          "verifiedFindingSetDigest": "9878002e311cad5ba04bb4260373f237d9e1dfd200d5657353a71ec6be95036e",
+          "newVerifiedFindingCount": 4,
+          "criticDigest": "20f4f48d62ed0842e4dd9e45a41176b3444fd3a3059e513a8d85d1d62a2ebd15",
+          "saturated": false,
+          "nextRunSequenceBoundary": 65
+        },
+        {
+          "wave": 3,
+          "startedAt": "2026-08-20T16:24:37.503Z",
+          "completedAt": "2026-08-20T17:49:28.519Z",
+          "lanes": [
+            {
+              "lane": "lattice-review-concept",
+              "reviewRunId": "B-5a88:RR-066",
+              "terminal": "finding",
+              "hostIdentity": "2c0b27dc790f304fc41d40f06a0b5123836b253c68795fdfb9917953a712f11f",
+              "promptIdentity": "07e78a342628f504fee8e61d8a41a8157ecb971b1a34e453744394767be81585",
+              "evidenceIds": [
+                "B-5a88:F-055",
+                "B-5a88:F-056",
+                "B-5a88:F-057",
+                "B-5a88:F-058",
+                "B-5a88:F-059",
+                "B-5a88:F-060",
+                "B-5a88:F-061",
+                "B-5a88:F-062"
+              ],
+              "coverageDigest": "9f15ff5c00ed6660b7ba4ae04b331aef33ddb9b63387fe439d86785bc8edb6dd"
+            },
+            {
+              "lane": "lattice-review-quality",
+              "reviewRunId": "B-5a88:RR-073",
+              "terminal": "finding",
+              "hostIdentity": "2c0b27dc790f304fc41d40f06a0b5123836b253c68795fdfb9917953a712f11f",
+              "promptIdentity": "3dc2a76193ffc797aa7c9bd4fc6da47cf37f8ce5e3e7ca024afa57bc2cf8f093",
+              "evidenceIds": [
+                "B-5a88:F-070",
+                "B-5a88:F-071",
+                "B-5a88:F-072",
+                "B-5a88:F-073",
+                "B-5a88:F-074",
+                "B-5a88:F-075"
+              ],
+              "coverageDigest": "1ad7f326481b46325cb0c0cf5119d5afa78008972e813a258b6546100cdf843e"
+            },
+            {
+              "lane": "lattice-review-test-coverage",
+              "reviewRunId": "B-5a88:RR-068",
+              "terminal": "finding",
+              "hostIdentity": "2c0b27dc790f304fc41d40f06a0b5123836b253c68795fdfb9917953a712f11f",
+              "promptIdentity": "02c2c205c44e3167f62743c1a9212775895ea5a5ba692e1fddd7f428b79a526f",
+              "evidenceIds": [
+                "B-5a88:F-064",
+                "B-5a88:F-065"
+              ],
+              "coverageDigest": "a56907a4e8074afa219947936c5e318302011adc68f07465fda71e6eb87b046c"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "acceptance-chain",
+            "acceptance-chain-inadmissible",
+            "canonical-finding-agent",
+            "canonical-process-facts",
+            "current-verification-evidence",
+            "docs-code-drift",
+            "dynamic-fingerprint",
+            "finding:B-5a88:F-055",
+            "finding:B-5a88:F-056",
+            "finding:B-5a88:F-057",
+            "finding:B-5a88:F-058",
+            "finding:B-5a88:F-059",
+            "finding:B-5a88:F-060",
+            "finding:B-5a88:F-061",
+            "finding:B-5a88:F-062",
+            "finding:B-5a88:F-064",
+            "finding:B-5a88:F-065",
+            "finding:B-5a88:F-070",
+            "finding:B-5a88:F-071",
+            "finding:B-5a88:F-072",
+            "finding:B-5a88:F-073",
+            "finding:B-5a88:F-074",
+            "finding:B-5a88:F-075",
+            "retired-authority-fingerprint",
+            "verification-evidence-stale"
+          ],
+          "verifiedFindingSetDigest": "9d129f57ca173a46ccb627dfaa5eea142f9622b953fd0289849816c0911626ef",
+          "newVerifiedFindingCount": 16,
+          "criticDigest": "ecffa232683eeac336ab56ae38868b24f02198391ee68616a68e16e1a64765a9",
+          "saturated": false,
+          "nextRunSequenceBoundary": 74
+        }
+      ],
+      "baselineFindingIds": [],
+      "cancelledAt": "2026-08-20T17:49:36.332Z",
+      "cancelReason": "Current review inventory exhausted its bounded wave budget after independently surfacing the concrete implementation and evidence blocker families; cancel the exhausted epoch so DEV can repair the bounded set and create a fresh review inventory.",
+      "terminalRunSequenceBoundary": 74,
+      "_hash": "72d97f173c1ff5851772c6d34e27a2fd67e886b1ad9422a137b01d68cc1c480f"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-5a88:RIE-007",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-20T14:47:19.270Z",
+      "state": "CANCELLED",
+      "begunAt": "2026-08-20T17:53:36.435Z",
+      "updatedAt": "2026-08-20T17:59:23.868Z",
+      "cutoff": {
+        "headHash": "152318f306aa01e5ea523851ed79c1d243ae44fc",
+        "materialHash": "2ce77f36028ddd6fc00aaf1e1bb54f0aac847bbb6ee8825ee295b7a5f7554523",
+        "storyFilesHash": "04856e7ea2af89b7c1c9f7c842ce535bf9047a85266c02bebcf1b12d17f6b53b"
+      },
+      "scopeDigest": "535af9ccc44c8f0b8670441f30031d8148089b1f0b41c3459b5222750d5cc70f",
+      "requiredLanes": [],
+      "maxWaves": 1,
+      "waves": [],
+      "receiptId": "B-5a88:RIE-007:RCP-001",
+      "cancelledAt": "2026-08-20T17:59:23.868Z",
+      "cancelReason": "Invalidate the stale unconsumed completeness receipt whose acceptance subject no longer matches; replan from a fresh inventory epoch before DEV remediation.",
+      "terminalRunSequenceBoundary": 74,
+      "_hash": "6af0b0e86763128b7aebd4a804e2f54432e14c538fedd6908b97f583fe999594"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-5a88:RI-007",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-20T14:47:19.270Z",
+      "state": "CANCELLED",
+      "begunAt": "2026-08-20T17:59:29.012Z",
+      "updatedAt": "2026-08-20T17:59:38.304Z",
+      "cutoff": {
+        "headHash": "152318f306aa01e5ea523851ed79c1d243ae44fc",
+        "materialHash": "2ce77f36028ddd6fc00aaf1e1bb54f0aac847bbb6ee8825ee295b7a5f7554523",
+        "storyFilesHash": "04856e7ea2af89b7c1c9f7c842ce535bf9047a85266c02bebcf1b12d17f6b53b"
+      },
+      "scopeDigest": "1673999df8c6741962defff6b350fd96ca5ba798e283f86caa28eba2cb3bccbd",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage"
+      ],
+      "initialRunSequenceBoundary": 74,
+      "maxWaves": 1,
+      "waves": [],
+      "baselineFindingIds": [
+        "B-5a88:F-030",
+        "B-5a88:F-031",
+        "B-5a88:F-032",
+        "B-5a88:F-033",
+        "B-5a88:F-034",
+        "B-5a88:F-035",
+        "B-5a88:F-036",
+        "B-5a88:F-037",
+        "B-5a88:F-038",
+        "B-5a88:F-039",
+        "B-5a88:F-040",
+        "B-5a88:F-041",
+        "B-5a88:F-042",
+        "B-5a88:F-043",
+        "B-5a88:F-044",
+        "B-5a88:F-045",
+        "B-5a88:F-046",
+        "B-5a88:F-047",
+        "B-5a88:F-048",
+        "B-5a88:F-049",
+        "B-5a88:F-050",
+        "B-5a88:F-051",
+        "B-5a88:F-052",
+        "B-5a88:F-053",
+        "B-5a88:F-054",
+        "B-5a88:F-055",
+        "B-5a88:F-056",
+        "B-5a88:F-057",
+        "B-5a88:F-058",
+        "B-5a88:F-059",
+        "B-5a88:F-060",
+        "B-5a88:F-061",
+        "B-5a88:F-062",
+        "B-5a88:F-064",
+        "B-5a88:F-065",
+        "B-5a88:F-070",
+        "B-5a88:F-071",
+        "B-5a88:F-072",
+        "B-5a88:F-073",
+        "B-5a88:F-074",
+        "B-5a88:F-075",
+        "B-5a88:F-076"
+      ],
+      "cancelledAt": "2026-08-20T17:59:38.304Z",
+      "cancelReason": "Close the fresh one-wave inventory shell before remediation; the prior bounded inventory already recorded the blocker families and this epoch has not collected new evidence.",
+      "terminalRunSequenceBoundary": 74,
+      "_hash": "30fb4ec548eac7685a5868515fb21719d7f68c9846d62ba3484f83ce5761a6a4"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-5a88:RIE-009",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-20T14:47:19.270Z",
+      "state": "FINALIZED",
+      "begunAt": "2026-08-20T17:59:39.424Z",
+      "updatedAt": "2026-08-20T17:59:39.424Z",
+      "cutoff": {
+        "headHash": "152318f306aa01e5ea523851ed79c1d243ae44fc",
+        "materialHash": "2ce77f36028ddd6fc00aaf1e1bb54f0aac847bbb6ee8825ee295b7a5f7554523",
+        "storyFilesHash": "04856e7ea2af89b7c1c9f7c842ce535bf9047a85266c02bebcf1b12d17f6b53b"
+      },
+      "scopeDigest": "535af9ccc44c8f0b8670441f30031d8148089b1f0b41c3459b5222750d5cc70f",
+      "requiredLanes": [],
+      "maxWaves": 1,
+      "waves": [],
+      "receiptId": "B-5a88:RIE-009:RCP-001",
+      "_hash": "ec802470e4e47b2253cea1b22ebec40fcbc7de1381e4c0fe1e834b8036f65d1a"
     }
   ],
   "receipts": [
@@ -333,7 +688,55 @@
       "authority": "inventory-completeness-only",
       "authorizesTest": false,
       "issuedAt": "2026-08-20T13:07:26.489Z",
-      "_hash": "863b50158c2edd60f1fb18a8415f8f3b559291268c2a40b5cbcf2a53e1caadd0"
+      "invalidatedAt": "2026-08-20T15:03:07.078Z",
+      "invalidationReason": "The finalized RI-005 receipt is bound to the prior review round and cannot authorize this current round; invalidate it before current-round remediation and fresh completeness review.",
+      "_hash": "625bb3673c88d060d5921c4972cc6858655254e80f4f12dbe98bea9ee9c512b3"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_receipt.v1",
+      "receiptId": "B-5a88:RIE-007:RCP-001",
+      "epochId": "B-5a88:RIE-007",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-20T14:47:19.270Z",
+      "cutoff": {
+        "headHash": "152318f306aa01e5ea523851ed79c1d243ae44fc",
+        "materialHash": "2ce77f36028ddd6fc00aaf1e1bb54f0aac847bbb6ee8825ee295b7a5f7554523",
+        "storyFilesHash": "04856e7ea2af89b7c1c9f7c842ce535bf9047a85266c02bebcf1b12d17f6b53b"
+      },
+      "scopeDigest": "535af9ccc44c8f0b8670441f30031d8148089b1f0b41c3459b5222750d5cc70f",
+      "requiredLanes": [],
+      "waveCount": 0,
+      "findingSetDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "coverageDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "saturationResult": "ZERO_NEW_VERIFIED_FINDINGS",
+      "authority": "inventory-completeness-only",
+      "authorizesTest": false,
+      "issuedAt": "2026-08-20T17:53:36.435Z",
+      "invalidatedAt": "2026-08-20T17:59:23.868Z",
+      "invalidationReason": "Invalidate the stale unconsumed completeness receipt whose acceptance subject no longer matches; replan from a fresh inventory epoch before DEV remediation.",
+      "_hash": "a5241adfa47c3b1246d6ffa99e361a0808b51b84c91e001ac6118ab19a4c2c88"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_receipt.v1",
+      "receiptId": "B-5a88:RIE-009:RCP-001",
+      "epochId": "B-5a88:RIE-009",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-20T14:47:19.270Z",
+      "cutoff": {
+        "headHash": "152318f306aa01e5ea523851ed79c1d243ae44fc",
+        "materialHash": "2ce77f36028ddd6fc00aaf1e1bb54f0aac847bbb6ee8825ee295b7a5f7554523",
+        "storyFilesHash": "04856e7ea2af89b7c1c9f7c842ce535bf9047a85266c02bebcf1b12d17f6b53b"
+      },
+      "scopeDigest": "535af9ccc44c8f0b8670441f30031d8148089b1f0b41c3459b5222750d5cc70f",
+      "requiredLanes": [],
+      "waveCount": 0,
+      "findingSetDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "coverageDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "saturationResult": "ZERO_NEW_VERIFIED_FINDINGS",
+      "authority": "inventory-completeness-only",
+      "authorizesTest": false,
+      "issuedAt": "2026-08-20T17:59:39.424Z",
+      "_hash": "d3e2679dc9fa5eebb77c30fe3cb7015064341bcb1df549d2a8f7f63ba08604fc"
     }
   ],
   "criticReceipts": [
@@ -428,6 +831,309 @@
       "findingDispositions": [],
       "createdAt": "2026-08-20T13:07:04.373Z",
       "_hash": "f8a0003b265692aa3ff4717ca28e852b4b8c31bed16713eca995f66156960561"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-5a88:RI-006:CRIT-01",
+      "epochId": "B-5a88:RI-006",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-20T14:47:19.270Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "152318f306aa01e5ea523851ed79c1d243ae44fc",
+        "materialHash": "2ce77f36028ddd6fc00aaf1e1bb54f0aac847bbb6ee8825ee295b7a5f7554523",
+        "storyFilesHash": "04856e7ea2af89b7c1c9f7c842ce535bf9047a85266c02bebcf1b12d17f6b53b"
+      },
+      "aggregateFindingSetDigest": "26b627a4f4d7518d3b8de7c2ed00c0e09da6cda6cb2447a0d006ffa2217449ad",
+      "requiredLaneCoverageDigest": "05078a2573e72cf58b53def41f3d39b7236f9ca38afa54861484bb801e4df363",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-5a88:RR-061",
+      "terminalEvidenceIds": [
+        "B-5a88:F-040"
+      ],
+      "readEvidenceDigest": "252f8db65c59c85bedd73f44a930a961dce6b91cbed4e8e85e8ec24c9a0eb76f",
+      "findingDispositions": [
+        {
+          "findingId": "B-5a88:F-031",
+          "disposition": "verified_family",
+          "familyKey": "canonical-process-facts",
+          "reason": "Current process-fact registry still emits legacy reviewer IDs, so canonical producer vocabulary remains unproven."
+        },
+        {
+          "findingId": "B-5a88:F-032",
+          "disposition": "verified_family",
+          "familyKey": "canonical-finding-agent",
+          "reason": "Current finding persistence still stores the supplied legacy actor spelling instead of the canonical role ID."
+        },
+        {
+          "findingId": "B-5a88:F-033",
+          "disposition": "verified_family",
+          "familyKey": "acceptance-chain",
+          "reason": "The verifier-owned acceptance chain is partial or inconclusive and cannot certify producer-consumer closure."
+        },
+        {
+          "findingId": "B-5a88:F-034",
+          "disposition": "verified_family",
+          "familyKey": "dynamic-fingerprint",
+          "reason": "The retired-authority smoke verifier fails because the coupled bootstrap-runner fingerprint pin is stale."
+        },
+        {
+          "findingId": "B-5a88:F-035",
+          "disposition": "verified_family",
+          "familyKey": "current-verification-evidence",
+          "reason": "All twenty-one required verification records are bound to an older head and lack current executable evidence."
+        },
+        {
+          "findingId": "B-5a88:F-036",
+          "disposition": "verified_family",
+          "familyKey": "canonical-process-facts",
+          "reason": "This independent quality finding confirms legacy reviewer IDs remain in process-fact producer fields."
+        },
+        {
+          "findingId": "B-5a88:F-037",
+          "disposition": "verified_family",
+          "familyKey": "canonical-finding-agent",
+          "reason": "This independent quality finding confirms finding_add persists a legacy actor spelling."
+        },
+        {
+          "findingId": "B-5a88:F-038",
+          "disposition": "verified_family",
+          "familyKey": "current-verification-evidence",
+          "reason": "The current review has no fresh executable receipts for any of the twenty-one must intents."
+        },
+        {
+          "findingId": "B-5a88:F-039",
+          "disposition": "verified_family",
+          "familyKey": "acceptance-chain",
+          "reason": "Wave four acceptance coverage is not admissible because basis, pre-review proof, and rollout receipt are incomplete or stale."
+        }
+      ],
+      "createdAt": "2026-08-20T15:49:24.419Z",
+      "_hash": "f2fd4d0082bf065738a8f1ae1b2137788549903eb98d114574e251b99040f49e"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-5a88:RI-006:CRIT-02",
+      "epochId": "B-5a88:RI-006",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-20T14:47:19.270Z",
+      "wave": 2,
+      "cutoff": {
+        "headHash": "152318f306aa01e5ea523851ed79c1d243ae44fc",
+        "materialHash": "2ce77f36028ddd6fc00aaf1e1bb54f0aac847bbb6ee8825ee295b7a5f7554523",
+        "storyFilesHash": "04856e7ea2af89b7c1c9f7c842ce535bf9047a85266c02bebcf1b12d17f6b53b"
+      },
+      "aggregateFindingSetDigest": "9878002e311cad5ba04bb4260373f237d9e1dfd200d5657353a71ec6be95036e",
+      "requiredLaneCoverageDigest": "e6103fec12fb146b6b1b34c91e63c4624a8f01a0acabbf6fc281758fe5e1bc34",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-5a88:RR-065",
+      "terminalEvidenceIds": [
+        "B-5a88:F-054"
+      ],
+      "readEvidenceDigest": "8060baa12139ad5f09131b8f93110c5cc46671596f2140d178a9ed63a9436593",
+      "findingDispositions": [
+        {
+          "findingId": "B-5a88:F-041",
+          "disposition": "verified_family",
+          "familyKey": "canonical-process-facts",
+          "reason": "Confirms the current-round canonical process-fact registry write gap already observed by the concept lane."
+        },
+        {
+          "findingId": "B-5a88:F-042",
+          "disposition": "verified_family",
+          "familyKey": "canonical-finding-agent",
+          "reason": "Confirms the current-round finding actor persistence gap already observed by the concept lane."
+        },
+        {
+          "findingId": "B-5a88:F-043",
+          "disposition": "verified_family",
+          "familyKey": "acceptance-chain-inadmissible",
+          "reason": "Confirms the current verifier-owned acceptance chain remains partial and cannot support topology closure."
+        },
+        {
+          "findingId": "B-5a88:F-044",
+          "disposition": "verified_family",
+          "familyKey": "retired-authority-fingerprint",
+          "reason": "Confirms the current dynamic-code exemption fingerprint mismatch remains a real implementation blocker."
+        },
+        {
+          "findingId": "B-5a88:F-045",
+          "disposition": "verified_family",
+          "familyKey": "verification-evidence-stale",
+          "reason": "Confirms all current must verification records remain bound to prior implementation material."
+        },
+        {
+          "findingId": "B-5a88:F-046",
+          "disposition": "verified_family",
+          "familyKey": "docs-code-drift",
+          "reason": "Confirms the independent documentation/package-name drift identified by the concept lane."
+        },
+        {
+          "findingId": "B-5a88:F-047",
+          "disposition": "verified_family",
+          "familyKey": "canonical-process-facts",
+          "reason": "Confirms the quality lane independently reproduced the canonical process-fact registry gap."
+        },
+        {
+          "findingId": "B-5a88:F-048",
+          "disposition": "verified_family",
+          "familyKey": "canonical-finding-agent",
+          "reason": "Confirms the quality lane independently reproduced the non-canonical finding actor persistence."
+        },
+        {
+          "findingId": "B-5a88:F-049",
+          "disposition": "verified_family",
+          "familyKey": "acceptance-chain-inadmissible",
+          "reason": "Confirms the quality lane identified the concrete registry-directory blind spot causing the partial basis."
+        },
+        {
+          "findingId": "B-5a88:F-050",
+          "disposition": "verified_family",
+          "familyKey": "retired-authority-fingerprint",
+          "reason": "Confirms the quality lane independently reproduced the fingerprint pin mismatch."
+        },
+        {
+          "findingId": "B-5a88:F-051",
+          "disposition": "verified_family",
+          "familyKey": "acceptance-chain-inadmissible",
+          "reason": "Confirms the quality lane found the acceptance proof artifacts stale or inadmissible."
+        },
+        {
+          "findingId": "B-5a88:F-052",
+          "disposition": "verified_family",
+          "familyKey": "verification-evidence-stale",
+          "reason": "Confirms the coverage lane found all 21 must evidence records stale at this review material."
+        },
+        {
+          "findingId": "B-5a88:F-053",
+          "disposition": "verified_family",
+          "familyKey": "acceptance-chain-inadmissible",
+          "reason": "Confirms the coverage lane found the current acceptance chain unavailable for admissible coverage."
+        }
+      ],
+      "createdAt": "2026-08-20T16:23:50.683Z",
+      "_hash": "52a566e5b598e5600a352586a5a4bddf58e4b156e1ea6a86b8e80d62f6e558e0"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-5a88:RI-006:CRIT-03",
+      "epochId": "B-5a88:RI-006",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-20T14:47:19.270Z",
+      "wave": 3,
+      "cutoff": {
+        "headHash": "152318f306aa01e5ea523851ed79c1d243ae44fc",
+        "materialHash": "2ce77f36028ddd6fc00aaf1e1bb54f0aac847bbb6ee8825ee295b7a5f7554523",
+        "storyFilesHash": "04856e7ea2af89b7c1c9f7c842ce535bf9047a85266c02bebcf1b12d17f6b53b"
+      },
+      "aggregateFindingSetDigest": "9d129f57ca173a46ccb627dfaa5eea142f9622b953fd0289849816c0911626ef",
+      "requiredLaneCoverageDigest": "12789366d50dcae1c038a9777b2e8163b2a95bf88565538f6a73aeb92f4c69af",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-5a88:RR-074",
+      "terminalEvidenceIds": [
+        "B-5a88:F-076"
+      ],
+      "readEvidenceDigest": "d1fd1e4d38db0a569e7f91bb4d24d2024b4dc5c441456e1df170c9cac5fad8d0",
+      "findingDispositions": [
+        {
+          "findingId": "B-5a88:F-055",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a88:F-055",
+          "reason": "Current wave-3 concept finding is independently evidenced and remains an open verified family."
+        },
+        {
+          "findingId": "B-5a88:F-056",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a88:F-056",
+          "reason": "Current wave-3 concept finding is independently evidenced and remains an open verified family."
+        },
+        {
+          "findingId": "B-5a88:F-057",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a88:F-057",
+          "reason": "Current wave-3 concept finding is independently evidenced and remains an open verified family."
+        },
+        {
+          "findingId": "B-5a88:F-058",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a88:F-058",
+          "reason": "Current wave-3 concept finding is independently evidenced and remains an open verified family."
+        },
+        {
+          "findingId": "B-5a88:F-059",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a88:F-059",
+          "reason": "Current wave-3 concept finding is independently evidenced and remains an open verified family."
+        },
+        {
+          "findingId": "B-5a88:F-060",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a88:F-060",
+          "reason": "Current wave-3 concept finding is independently evidenced and remains an open verified family."
+        },
+        {
+          "findingId": "B-5a88:F-061",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a88:F-061",
+          "reason": "Current wave-3 concept finding is independently evidenced and remains an open verified family."
+        },
+        {
+          "findingId": "B-5a88:F-062",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a88:F-062",
+          "reason": "Current wave-3 concept finding is independently evidenced and remains an open verified family."
+        },
+        {
+          "findingId": "B-5a88:F-064",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a88:F-064",
+          "reason": "Current wave-3 coverage finding is independently evidenced and remains an open verified family."
+        },
+        {
+          "findingId": "B-5a88:F-065",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a88:F-065",
+          "reason": "Current wave-3 coverage finding is independently evidenced and remains an open verified family."
+        },
+        {
+          "findingId": "B-5a88:F-070",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a88:F-070",
+          "reason": "Current wave-3 quality finding is independently evidenced and remains an open verified family."
+        },
+        {
+          "findingId": "B-5a88:F-071",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a88:F-071",
+          "reason": "Current wave-3 quality finding is independently evidenced and remains an open verified family."
+        },
+        {
+          "findingId": "B-5a88:F-072",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a88:F-072",
+          "reason": "Current wave-3 quality finding is independently evidenced and remains an open verified family."
+        },
+        {
+          "findingId": "B-5a88:F-073",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a88:F-073",
+          "reason": "Current wave-3 quality finding is independently evidenced and remains an open verified family."
+        },
+        {
+          "findingId": "B-5a88:F-074",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a88:F-074",
+          "reason": "Current wave-3 quality finding is independently evidenced and remains an open verified family."
+        },
+        {
+          "findingId": "B-5a88:F-075",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a88:F-075",
+          "reason": "Current wave-3 quality finding is independently evidenced and remains an open verified family."
+        }
+      ],
+      "createdAt": "2026-08-20T17:47:41.422Z",
+      "_hash": "03f2542f74f8fd4c56921c003953a9af5fa10006f6e203f3864fa0ae438aa2a2"
     }
   ]
 }

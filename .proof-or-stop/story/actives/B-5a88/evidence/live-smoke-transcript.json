@@ -2,19 +2,19 @@
   "storyId": "B-5a88",
   "expected": "User sees `\"proof-or-stop-review-quality\"` in reviewer_list output, and a legacy `\"lattice-review-quality\"` record is reported as a compatible alias.",
   "actual": {
-    "command": "node packages/main/tests/artifact-schema-migration.test.mjs",
+    "command": "node packages/main/tests/brand-role-migration.test.mjs",
     "exitCode": 0,
-    "stdout": "artifact-schema migration test passed\n"
+    "stdout": "brand-role migration test passed\n"
   },
   "mode": {
     "runCommands": true,
     "writeEvidence": true
   },
-  "capturedAtIso": "2026-08-20T14:32:39.688Z",
+  "capturedAtIso": "2026-08-20T18:38:12.572Z",
   "claims": {
     "authorityDone": false,
     "productionDone": false
   },
-  "headHash": "88ac32387bab18c58fd873d67878cefb0eb9f8f8",
-  "materialHash": "c02f7e43867babc09d5dfdfdf6814d4d8748d45c2827bd44c99b13135dc72706"
+  "headHash": "30774de66c470db98b365d45753bb54a35e8204b",
+  "materialHash": "21dab727c4e615397c37028d6272cc9537a7f6e392e3390f1aa794070a375906"
 }

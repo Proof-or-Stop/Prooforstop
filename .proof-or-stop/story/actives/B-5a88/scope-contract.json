@@ -414,10 +414,42 @@
       "phase": "DEV",
       "headHash": "eb6b5a121d6ddabfee77c3f5ebd528d4d2c20088",
       "materialHash": "bd93b090d404e74938ba53cf2fbbeeb6d7a93379013c497172770dfbb1ca9f5b"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Repair the production acceptance rollout verifier actor and refresh its signed evidence so the story can prove the canonical migration through the actual acceptance workflow.",
+      "timestamp": "2026-08-20T14:47:01.844Z",
+      "paths": [
+        "packages/main/src/core/acceptance-rollout.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/acceptance-rollout.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "152318f306aa01e5ea523851ed79c1d243ae44fc",
+      "materialHash": "2ce77f36028ddd6fc00aaf1e1bb54f0aac847bbb6ee8825ee295b7a5f7554523"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Refresh the coupled dynamic-code exemption pin after the authorized bootstrap-runner migration changed its exact executable fingerprint; keep the retirement guard fail-closed on future drift.",
+      "timestamp": "2026-08-20T18:08:29.115Z",
+      "paths": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "152318f306aa01e5ea523851ed79c1d243ae44fc",
+      "materialHash": "2ce77f36028ddd6fc00aaf1e1bb54f0aac847bbb6ee8825ee295b7a5f7554523"
     }
   ],
   "createdAt": "2026-08-20T05:20:00.402Z",
-  "updatedAt": "2026-08-20T14:18:15.773Z",
+  "updatedAt": "2026-08-20T18:08:29.115Z",
   "fileRules": [],
   "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
@@ -537,6 +569,7 @@
     "packages/main/src/tasks/prompt-registry-smoke.ts": "packages/main/src/tasks/prompt-registry-smoke.ts",
     "scripts/verify-core-package-rename.mjs": "scripts/verify-core-package-rename.mjs",
     "bin/bootstrap-runner.js": "bin/bootstrap-runner.js",
-    "packages/main/src/core/machine.ts": "packages/main/src/core/machine.ts"
+    "packages/main/src/core/machine.ts": "packages/main/src/core/machine.ts",
+    "packages/main/src/core/acceptance-rollout.ts": "packages/main/src/core/acceptance-rollout.ts"
   }
 }
