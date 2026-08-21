@@ -1,0 +1,154 @@
+{
+  "passes": [
+    {
+      "id": "B-45a0:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept deletion/replacement review completed: this diff adds the Story-Aware Dynamic Validation program and does not retire or rename an existing implementation concept. Repository-wide residue scan found only explicitly legacy testIntent/TEST_CASE compatibility references and the documented stale B-38b7 history; no new active concept residue or undocumented promise replacement was introduced. Previous DYN-1..DYN-5 repair surfaces were triaged for concept-boundary consistency; no concept blocker.",
+      "createdAt": "2026-08-21T12:22:34.459Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-004",
+      "envelopeId": "bb16acea2a28cca4561ad7004f484141c8f16142a8ed942a229e2a58dda79e5d",
+      "writerSessionId": "sess-0a43f8fda46148ec165964306c0cbb7b",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/NAV.md",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-smoke.ts",
+          "scripts/verify-story-aware-validation-plan.mjs",
+          "scripts/verify-validation-catalog.mjs",
+          "scripts/verify-validation-inventory.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "71b7001584bd4af929d890b5f250a0151dfea36789fb146769a04cf712b139ec"
+    },
+    {
+      "id": "B-45a0:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept-residue review complete: this diff adds the story-aware dynamic-validation program and imports its approved design record; it does not delete or replace an existing concept. Repository-wide grep found no active B-38b7 authority residue. The DYN-1 observe-only and DYN-3 gated terms remain consistently represented in the canonical verifier/docs chain; no concept-cleanup blocker was found.",
+      "createdAt": "2026-08-21T12:33:49.412Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-011",
+      "envelopeId": "e0af55f2363c62a767aa671c0204c357f8af818e5dcb1c222c951313f73b313d",
+      "writerSessionId": "sess-7533e48ca985409900174248d09ed320",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/NAV.md",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/material-path-policy.ts",
+          "packages/main/src/core/story-aware-validation-cli.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-runtime-tracer.cjs",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/**",
+          "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-production-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-smoke.ts",
+          "packages/main/tests/**",
+          "scripts/run-dynamic-validation-audit.mjs",
+          "scripts/run-dynamic-validation-fault-injection.mjs",
+          "scripts/run-dynamic-validation-replay.mjs",
+          "scripts/verify-story-aware-validation-plan.mjs",
+          "scripts/verify-validation-catalog.mjs",
+          "scripts/verify-validation-inventory.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "26590f99a4ea19a81e4a258e4bac3cc655d0b998227eef1889f1400ec5e90ac7"
+    },
+    {
+      "id": "B-45a0:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion or replacement is introduced: the dynamic-validation design, CLI mode, and implementation are additive, while legacy testIntent/phase references and B-38b7 are explicitly retained as compatibility or stale-history records. I completed the concept-residue scan and checked the canonical acceptance chain; existing production/coverage and stale Wave-4 evidence blockers are already registered by other review lanes and are not duplicated here.",
+      "createdAt": "2026-08-21T12:45:12.629Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-013",
+      "envelopeId": "dc633fc6f2572d31d9337611425e3b7d69562bf1c6a44dddacbdaa4fe2aea661",
+      "writerSessionId": "sess-7b6e9ffeb99909d30972b2098c6fce7d",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/NAV.md",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-production-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-runtime-tracer.cjs",
+          "scripts/run-dynamic-validation-audit.mjs",
+          "scripts/run-dynamic-validation-fault-injection.mjs",
+          "scripts/run-dynamic-validation-replay.mjs",
+          "scripts/verify-validation-catalog.mjs",
+          "scripts/verify-validation-inventory.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f7fa94975d6aeca9e665c05a18f7010d3d00a8e7687f2f7044885540e5db7733"
+    },
+    {
+      "id": "B-45a0:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed current HEAD 0d3491f8ad and the changed validation implementation, tracer, verifier observe paths, DYN-5 adapter, and production/mutation smokes. No additional distinct finding beyond the still-open current F-033, F-038, and F-044; those remain blockers for closure/revocation, environment/module fail-closed handling, and real adapter execution.",
+      "createdAt": "2026-08-21T13:38:18.812Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-029",
+      "envelopeId": "e8563cc06543fa144ae820c4a651264e39116e23e7011a651063b368edd38a72",
+      "writerSessionId": "sess-de0737601d709eef7efc453560a73f02",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-runtime-tracer.cjs",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/story-aware-validation-case-adapter.mjs",
+          "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-production-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "70fb8ddd2dfdc87beed2d2ce9a70c249537ee2239424fc0e907fe01bd59ba4ff"
+    }
+  ]
+}
