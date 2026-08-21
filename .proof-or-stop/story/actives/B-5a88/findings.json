@@ -5930,6 +5930,101 @@
       "resolvedAt": "2026-08-21T08:00:43.234Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5a88:F-153",
+      "desc": "Post-fix coverage review confirms F-146 remains open: evidence_inspect --storyId=B-5a88 --format=json reports staleRefs=[test-evidence] because test-evidence.json storyFilesHash does not match the current story-owned state. The 21 checklist receipts are fresh, but they do not replace a fresh configured validation artifact; TEST assurance still requires the story-scoped validate rerun.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-21T08:07:00.353Z",
+      "reviewRound": "2026-08-21T08:03:56.673Z",
+      "reviewRunId": "B-5a88:RR-162",
+      "_hash": "e2a483f57358198d255cb6b0c30e98bcd7a63c14b30eb1665ff446e0bfffbcd6",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/test-evidence.json"
+      ],
+      "signatureTag": "missing|json|post-coverage-review",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-154",
+      "desc": "Post-fix coverage review confirms F-147 remains open: CHK-001:happy:0 has a fresh passing mechanical receipt, but the pinned command only imports canonicalAgentRoleId and asserts one lattice-review-quality alias. It does not execute the four consumers named by the must intent: review_run_start, review_pass_set, init_check_set, and quorum resolution; no real Codex PreToolUse E2E is claimed.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-21T08:07:07.716Z",
+      "reviewRound": "2026-08-21T08:03:56.673Z",
+      "reviewRunId": "B-5a88:RR-162",
+      "_hash": "f8b57f1e758dd3b74dcee451e7035e112ac7eae99315dc8616aafed1be6602fa",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/checklist.json",
+        "packages/main/tests/brand-role-migration.test.mjs"
+      ],
+      "signatureTag": "missing|json|post-coverage-review",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-155",
+      "desc": "Post-fix coverage review confirms F-149 remains open: CHK-002 happy, edge, and adversarial receipts are fresh and mechanical, but their immutable pins execute /private/tmp/proof-or-stop-b5a88-marker-build and /private/tmp/proof-or-stop-b5a88-init-build helpers. They do not execute the current-worktree init or init --upgrade producer/consumer path, generated thin/global-thin output, or exactly-one-block replacement; fresh hashes do not upgrade this into current producer coverage.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-21T08:07:15.478Z",
+      "reviewRound": "2026-08-21T08:03:56.673Z",
+      "reviewRunId": "B-5a88:RR-162",
+      "_hash": "fca935d5d4a1a78dd668cc617752163285b15ff964f83229b7286ef183d3b45d",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/checklist.json",
+        "packages/main/tests/managed-marker-migration.test.mjs"
+      ],
+      "signatureTag": "missing|json|post-coverage-review",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-156",
+      "desc": "Post-fix coverage review confirms F-150 remains open: CHK-004 happy, edge, and adversarial receipts are fresh source-token and bash -n checks, but they do not execute the real .githooks/pre-push producer/consumer path for canonical and lattice schema acceptance, one-shot second-consume rejection, invalid-schema rejection, sha-mismatch rejection, or expiry rejection. The stronger migration test is not the recorded evidence for these three intents.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-21T08:07:23.449Z",
+      "reviewRound": "2026-08-21T08:03:56.673Z",
+      "reviewRunId": "B-5a88:RR-162",
+      "_hash": "bdf93c33a82a3ae538a34304d97afc63363dccc3ad7836f1a01683072dac2866",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/checklist.json",
+        ".githooks/pre-push",
+        "packages/main/tests/release-push-approval-migration.test.mjs"
+      ],
+      "signatureTag": "adversarial|json|post-coverage-review",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-157",
+      "desc": "Post-fix coverage review confirms F-151 remains open: CHK-007:edge:0 has a fresh passing mechanical receipt that only runs node packages/main/dist/cli.js help and matches Entrypoint: proof-or-stop. It does not execute the residue scanner distinction between frozen historical evidence, compatibility readers, and unsupported new lattice command aliases; scripts/verify-lattice-residue.mjs --self-test is pinned only to CHK-007:adversarial:0.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-21T08:07:30.941Z",
+      "reviewRound": "2026-08-21T08:03:56.673Z",
+      "reviewRunId": "B-5a88:RR-162",
+      "_hash": "2cd912e8bb4bc73179b0aca9d0754575561b2fce0bf4a2f153bc916cf0a2ed49",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/checklist.json",
+        "scripts/verify-lattice-residue.mjs"
+      ],
+      "signatureTag": "missing|json|post-coverage-review",
+      "signatureTagSource": "auto"
     }
   ]
 }
