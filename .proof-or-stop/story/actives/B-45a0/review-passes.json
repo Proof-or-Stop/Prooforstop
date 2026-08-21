@@ -582,6 +582,87 @@
       },
       "readDiagnostics": [],
       "_hash": "24269195a474879864a15371639956423d396e37b21ae39d0221bbcef660ad7a"
+    },
+    {
+      "id": "B-45a0:RP-014",
+      "agent": "lattice-review-quality",
+      "note": "RI-027 current-head quality review passed on 487f69a804, with material implementation e08081e317. Read the closure-isolation replay source in full; historical replay --plan-only completed with faultInjection allPass=true; mutation audit, production-path/shard-receipt and authority smoke, process-fact/plan/inventory/catalog integrity checks, build, and git diff check all passed. Cross-checked promised behavior and DYN-5 content-digest case evidence versus signed ValidationShardReceipt, full-only/forbidden escalation, runtime closure, and dual-graph semantics. No current quality or docs-code consistency blocker.",
+      "createdAt": "2026-08-21T19:15:29.926Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-097",
+      "envelopeId": "51386c3f3ff279086c5d8aa3771f1f41b272e242f76b494b961df821dd408864",
+      "writerSessionId": "sess-de0737601d709eef7efc453560a73f02",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/tasks/story-aware-validation-case-adapter.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "118567828f284c9ce0c1521bec2775771726784fb6683ecf2ea7f4e60f3cfe2e"
+      },
+      "readDiagnostics": [],
+      "_hash": "259f3244d421ff2b99f4d97ef8b391941f58f1ec31b47e8b8911052611482c79"
+    },
+    {
+      "id": "B-45a0:RP-015",
+      "agent": "lattice-review-docs",
+      "note": "RI-027 docs lane passed on current HEAD 487f69a804. Extracted 746 changed symbols from git diff and compared 8 relevant documentation paragraphs/sections against the implementation: catalog policy fields, full-only/forbidden escalation and baseline rules, runtime closure/dual-graph authority, DYN-5 case routing, content-digest case-evidence files, and signed ValidationShardReceipt semantics in both the operations decision and CLI docs. The corrected wording is consistent (the receipt, not the per-case file, carries the signature gate); no current-head doc-code blocker or promised-but-undelivered behavior found.",
+      "createdAt": "2026-08-21T19:16:32.270Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-099",
+      "envelopeId": "2a8a8b198b24608ef7308199f047d8a736dc971dfa40d9e3d524b7fbb00b658a",
+      "writerSessionId": "sess-de0737601d709eef7efc453560a73f02",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/tasks/story-aware-validation-case-adapter.mjs",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "118567828f284c9ce0c1521bec2775771726784fb6683ecf2ea7f4e60f3cfe2e"
+      },
+      "readDiagnostics": [],
+      "_hash": "38ddc77a28bdc1d4a740d421ab31b4f4c1c57888f801ccc7589007b3bfecbc84"
     }
   ]
 }
