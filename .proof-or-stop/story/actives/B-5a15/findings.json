@@ -4547,6 +4547,63 @@
       ],
       "signatureTag": "missing|md|canonical-missing-verifier",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-110",
+      "desc": "The current B-5a15 acceptance contract documents node packages/main/dist/tasks/verifier-causal-preflight-smoke.js at docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md:136, but the exact command exits MODULE_NOT_FOUND and neither packages/main/src/tasks/verifier-causal-preflight-smoke.ts nor the corresponding dist artifact exists. The available packages/main/tests/verifier-causal-preflight.test.mjs exercises existing verifier modules but does not provide the documented smoke entrypoint. acceptance_topology_check is structurally pass, acceptance_rollout_report_read reports full-3x2, but pre_review_check_read is not admissible with PR_ARTIFACT_TAMPERED and PR_COVERAGE_BASIS_CHANGED. This is the verified canonical missing verifier-smoke-artifact family; current wave findings F-107, F-108, and F-109 are exact duplicates, not independent defects.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-21T19:49:27.350Z",
+      "reviewRound": "2026-08-21T17:48:55.675Z",
+      "reviewRunId": "B-5a15:RR-197",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          "packages/main/tests/verifier-causal-preflight.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/scope-contract.json",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/dist/tasks/verifier-causal-preflight-smoke.js",
+          "packages/main/src/tasks/verifier-causal-preflight-smoke.ts"
+        ],
+        "scanEscalationReason": "The exact documented smoke command was executed; the referenced source and dist paths were enumerated; the canonical acceptance and pre-review projections were read; no full decisions-directory escalation was needed."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "ddbdfc17633ff27afb5d1246815963c558c34c8789abe3ca00f6f8b280128b08"
+      },
+      "readDiagnostics": [],
+      "_hash": "604b050eaa12cd586a06b51ddecea708b17741ac8e051f3de2cdbc18bc1335f3",
+      "files": [
+        "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md:136",
+        "packages/main/src/tasks/verifier-causal-preflight-smoke.ts",
+        "packages/main/dist/tasks/verifier-causal-preflight-smoke.js",
+        "packages/main/tests/verifier-causal-preflight.test.mjs",
+        ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a15/pre-review-check.json"
+      ],
+      "signatureTag": "verifier-causal-preflight-missing-artifact-family",
+      "signatureTagSource": "confirmed"
     }
   ]
 }

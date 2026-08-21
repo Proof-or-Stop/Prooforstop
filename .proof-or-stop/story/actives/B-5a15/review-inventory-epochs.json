@@ -2047,6 +2047,51 @@
       ],
       "createdAt": "2026-08-21T19:29:14.046Z",
       "_hash": "a36b3402828622f38287fef044ba78ec8f8ab8d022f5c351de2bb22895a594be"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-5a15:RI-011:CRIT-02",
+      "epochId": "B-5a15:RI-011",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-21T17:48:55.675Z",
+      "wave": 2,
+      "cutoff": {
+        "headHash": "44b421ada3e61a8832657990dbed605597227d71",
+        "materialHash": "853d5eb4322ecb6d3ba9b94131ecab4e76ac0b8a2e77f47f24a2c39fc04ac775",
+        "storyFilesHash": "01a95005cb46a073e03805e42aef1925a31b87ed2f3d0b43e4378a5e2f1f1406"
+      },
+      "aggregateFindingSetDigest": "6d7f0ffd4053091e6111d4b299c2b4b906765c5129ba60be541ca206b6fc06b1",
+      "requiredLaneCoverageDigest": "e2931f1b842013e99c97b9c84f937673a5ff47b3d9ec8c21bb3e37f57e06a2a3",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-5a15:RR-197",
+      "terminalEvidenceIds": [
+        "B-5a15:F-110"
+      ],
+      "readEvidenceDigest": "947a3996e9b6be26fa3b210d39f7438f2650bb2fed3f831378af974eb35b5f7f",
+      "findingDispositions": [
+        {
+          "findingId": "B-5a15:F-107",
+          "disposition": "verified_family",
+          "familyKey": "verifier-causal-preflight-missing-artifact-family",
+          "reason": "Canonical finding for this wave: the exact documented smoke command exits MODULE_NOT_FOUND and its acknowledged source and dist artifact are absent."
+        },
+        {
+          "findingId": "B-5a15:F-108",
+          "disposition": "duplicate",
+          "familyKey": "verifier-causal-preflight-missing-artifact-family",
+          "canonicalFindingId": "B-5a15:F-107",
+          "reason": "The exact documented command and missing source/dist paths match the wave canonical F-107; this is the same verified critical family."
+        },
+        {
+          "findingId": "B-5a15:F-109",
+          "disposition": "duplicate",
+          "familyKey": "verifier-causal-preflight-missing-artifact-family",
+          "canonicalFindingId": "B-5a15:F-107",
+          "reason": "The exact documented command and missing source/dist paths match the wave canonical F-107; this is the same verified critical family."
+        }
+      ],
+      "createdAt": "2026-08-21T19:50:20.781Z",
+      "_hash": "41c6b66b3d3636060e2d2f3964e40a8b7135926868427498d6487912f980a637"
     }
   ]
 }
