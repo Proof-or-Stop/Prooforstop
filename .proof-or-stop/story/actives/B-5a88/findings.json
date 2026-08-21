@@ -6290,7 +6290,7 @@
       "desc": "Current HEAD freshness is a new blocker, distinct from the already recorded immutable pin boundaries F-158 through F-161. evidence_inspect reports headHash 8f69da70b3f8fcf243e4077bad00e5a35f16f5d5, materialHash 572ac22d63f98acdc2f37b3ae966670f1975ed0b6ba6edecc19b0175a705ab3d, freshness stale, and staleRefs=22, while checklist_get still shows all 21 mechanical pass receipts bound to the prior head 1571feb73840e1a5f5103ce48be3c00ac687ad46, materialHash 968aac46b9b084904048e248a71583a35d7d00c5a3affe935787f21c73e02444, and storyFilesHash a861ee0250c5a9328afc406106510c93871bffefb28f89c3220063ba4e7dacd9. The required verification_evidence_refresh_stale and formal validate commands are owner-gated by active session sess-8a39253b9d37f31d4e506573af47ce1f, so this run has no current fresh mechanical receipts or current formal validate PASS. F-164 prompt and asset checks pass independently, but they do not rebind the 21 checklist receipts. Refresh the evidence and rerun story-scoped validate under the owner before coverage can pass.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-08-21T11:35:39.789Z",
@@ -6315,7 +6315,11 @@
         "packages/main/tests/prompt-role-migration.test.mjs"
       ],
       "signatureTag": "missing|json|current-head-freshness",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Resolved after official verification_evidence_refresh_stale refreshed all 21 mechanical verification receipts and current story-scoped validate executed all 112 configured commands with status=pass and allPass=true. evidence_inspect at HEAD 0f9bdc2106 shows freshness=fresh and staleRefs=[]; current materialHash=572ac22d63f98acdc2f37b3ae966670f1975ed0b6ba6edecc19b0175a705ab3d and current storyFilesHash=089e9f0aa4d57e920868a86eea4bb3b2b93a207aa06cf9f65d8054e055c26e6a.",
+      "resolvedAt": "2026-08-21T12:03:57.151Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
