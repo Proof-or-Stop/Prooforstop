@@ -1401,7 +1401,7 @@
             "type": "cli",
             "priority": "must",
             "verification": {
-              "command": "proof-or-stop validate --dynamic-mode=observe --json",
+              "command": "node packages/main/dist/cli.js validate --dynamic-mode=observe --json",
               "selector": "selection manifest accounting fields"
             }
           }
