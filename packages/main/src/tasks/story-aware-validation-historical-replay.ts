@@ -331,7 +331,8 @@ const focusedSelectionFaults = (() => {
   const directSeed = candidates[0];
   const directPath = sourceChange?.path;
   const directProbe = directSeed && directPath ? { ...directSeed, inputRoots: [directPath] } : undefined;
-  const targetSeed = candidates.find(entry => entry.id !== directProbe?.id);
+  const targetSeedBase = candidates.find(entry => entry.id !== directProbe?.id);
+  const targetSeed = targetSeedBase ? { ...targetSeedBase, triggerExtensions: { ...targetSeedBase.triggerExtensions, processFacts: ['validate'], capabilities: ['file-edit'] } } : undefined;
   const findDependentPath = (change: StoryChangedFile | undefined, direct: typeof directProbe, target: typeof targetSeed) => {
     if (!change || !direct || !target) return undefined;
     const stem = (change.path || '').split('/').pop()!.replace(/\.[^.]+$/, '');
@@ -371,7 +372,7 @@ const focusedSelectionFaults = (() => {
   const probeInventory = { ...inventory, commands: probeCommands, digest: stableDigest(probeCommands) };
   const probeCatalog = [directProbe, targetEntry];
   const probeCatalogDigest = stableDigest(probeCatalog);
-  const probeClosures = new Map(probeCatalog.map(entry => [entry.id, createValidationClosureCertificate({ commandId: entry.id, baseHead: fiReferenceBase, inventoryDigest: probeInventory.digest, catalogDigest: probeCatalogDigest, staticPaths: entry.inputRoots })]));
+  const probeClosures = new Map(probeCatalog.map(entry => [entry.id, createValidationClosureCertificate({ commandId: entry.id, baseHead: fiReferenceBase, inventoryDigest: probeInventory.digest, catalogDigest: probeCatalogDigest, staticPaths: entry.inputRoots, processFacts: entry.triggerExtensions.processFacts, capabilities: entry.triggerExtensions.capabilities })]));
   const probeChanges = buildStoryChangeManifest({ storyId: 'B-fi-focused', gitCwd: root, baseHead: fiReferenceBase, head: fiReferenceHead, changedFiles: [sourceChange] });
   const baseContext = { storyId: 'B-fi-focused', baseHead: fiReferenceBase, head: fiReferenceHead, inventory: probeInventory, catalog: probeCatalog, changes: probeChanges, closures: probeClosures, baselineEpochId: 'fi-focused-epoch', buildProofDigest: 'fi-focused-build', mode: 'observe' as const };
   const noGraphPlan = buildDynamicValidationPlan(baseContext);
@@ -399,13 +400,12 @@ const focusedSelectionFaults = (() => {
     runtimeTrace: { readPaths: [targetEntry.inputRoots[0]!, directPath!], unknownRuntimeInputs: ['fi-focused-undeclared-runtime-edge'] },
   });
   const incompleteExecute = buildDynamicValidationPlan({ ...baseContext, closures: new Map([...probeClosures, [targetEntry.id, incompleteClosure]]), receipts: [makeProbeReceipt(incompleteClosure)] });
-  const tamperedStaticClosure = { ...targetClosure, certifiedPaths: [], certifiedPathsDigest: stableDigest([]) };
-  const tamperedFactClosure = { ...targetClosure, processFactBindingDigest: stableDigest(['fi-focused-unknown-process-fact']) };
-  const tamperedCapabilityClosure = { ...targetClosure, capabilityBindingDigest: stableDigest(['fi-focused-unknown-capability']) };
-  const tamperedPlan = (closure: typeof targetClosure) => buildDynamicValidationPlan({ ...baseContext, closures: new Map([...probeClosures, [targetEntry.id, closure]]), receipts: [probeReceipt] });
-  const staticExecute = tamperedPlan(tamperedStaticClosure);
-  const factExecute = tamperedPlan(tamperedFactClosure);
-  const capabilityExecute = tamperedPlan(tamperedCapabilityClosure);
+  const omittedStaticClosure = createValidationClosureCertificate({ commandId: targetEntry.id, baseHead: fiReferenceBase, inventoryDigest: probeInventory.digest, catalogDigest: probeCatalogDigest, staticPaths: [], processFacts: targetEntry.triggerExtensions.processFacts, capabilities: targetEntry.triggerExtensions.capabilities });
+  const omittedFactClosure = createValidationClosureCertificate({ commandId: targetEntry.id, baseHead: fiReferenceBase, inventoryDigest: probeInventory.digest, catalogDigest: probeCatalogDigest, staticPaths: targetEntry.inputRoots, processFacts: [], capabilities: targetEntry.triggerExtensions.capabilities });
+  const omittedCapabilityClosure = createValidationClosureCertificate({ commandId: targetEntry.id, baseHead: fiReferenceBase, inventoryDigest: probeInventory.digest, catalogDigest: probeCatalogDigest, staticPaths: targetEntry.inputRoots, processFacts: targetEntry.triggerExtensions.processFacts, capabilities: [] });
+  const staticExecute = buildDynamicValidationPlan({ ...baseContext, closures: new Map([...probeClosures, [targetEntry.id, omittedStaticClosure]]), receipts: [makeProbeReceipt(omittedStaticClosure)] });
+  const factExecute = buildDynamicValidationPlan({ ...baseContext, closures: new Map([...probeClosures, [targetEntry.id, omittedFactClosure]]), receipts: [makeProbeReceipt(omittedFactClosure)] });
+  const capabilityExecute = buildDynamicValidationPlan({ ...baseContext, closures: new Map([...probeClosures, [targetEntry.id, omittedCapabilityClosure]]), receipts: [makeProbeReceipt(omittedCapabilityClosure)] });
   const validTarget = validReuse.rows.find(row => row.commandId === targetEntry.id)!;
   const forgedTarget = forgedExecute.rows.find(row => row.commandId === targetEntry.id)!;
   const incompleteTarget = incompleteExecute.rows.find(row => row.commandId === targetEntry.id)!;
@@ -414,7 +414,7 @@ const focusedSelectionFaults = (() => {
   const capabilityTarget = capabilityExecute.rows.find(row => row.commandId === targetEntry.id)!;
   const graphCatalog = graphDirectProbe && graphTargetMatch?.target ? [graphDirectProbe, graphTargetMatch.target] : undefined;
   const graphInventory = graphCatalog ? { ...inventory, commands: inventory.commands.filter(command => graphCatalog.some(entry => entry.id === command.id)), digest: stableDigest(inventory.commands.filter(command => graphCatalog.some(entry => entry.id === command.id))) } : undefined;
-  const graphClosures = graphCatalog && graphInventory ? new Map(graphCatalog.map(entry => [entry.id, createValidationClosureCertificate({ commandId: entry.id, baseHead: fiReferenceBase, inventoryDigest: graphInventory.digest, catalogDigest: stableDigest(graphCatalog), staticPaths: entry.inputRoots })])) : undefined;
+  const graphClosures = graphCatalog && graphInventory ? new Map(graphCatalog.map(entry => [entry.id, createValidationClosureCertificate({ commandId: entry.id, baseHead: fiReferenceBase, inventoryDigest: graphInventory.digest, catalogDigest: stableDigest(graphCatalog), staticPaths: entry.inputRoots, processFacts: entry.triggerExtensions.processFacts, capabilities: entry.triggerExtensions.capabilities })])) : undefined;
   const graphChanges = graphSourceChange && graphCatalog && graphInventory && graphClosures ? buildStoryChangeManifest({ storyId: 'B-fi-focused-graph', gitCwd: root, baseHead: fiReferenceBase, head: fiReferenceHead, changedFiles: [graphSourceChange] }) : undefined;
   const graphContext = graphCatalog && graphInventory && graphClosures && graphChanges ? { storyId: 'B-fi-focused-graph', baseHead: fiReferenceBase, head: fiReferenceHead, inventory: graphInventory, catalog: graphCatalog, changes: graphChanges, closures: graphClosures, baselineEpochId: 'fi-focused-epoch', buildProofDigest: 'fi-focused-build', mode: 'observe' as const } : undefined;
   const graphTargetRow = graphContext && graphTargetMatch?.target ? buildDynamicValidationPlan(graphContext).rows.find(row => row.commandId === graphTargetMatch.target.id) : undefined;
@@ -430,9 +430,34 @@ const focusedSelectionFaults = (() => {
   const graphExecute = graphContext && graphReceipt && graphTargetMatch?.graph ? buildDynamicValidationPlan({ ...graphContext, graph: graphTargetMatch.graph, receipts: [graphReceipt] }) : undefined;
   const graphNoGraphTarget = graphNoGraphPlan && graphTargetMatch?.target ? graphNoGraphPlan.rows.find(row => row.commandId === graphTargetMatch.target.id) : undefined;
   const graphExecuteTarget = graphExecute && graphTargetMatch?.target ? graphExecute.rows.find(row => row.commandId === graphTargetMatch.target.id) : undefined;
+  const headOnlyChangedFile = graphSourceChange?.status === 'renamed' && graphSourceChange.oldPath
+    ? { path: graphSourceChange.oldPath, status: 'deleted' as const, blobId: '<deleted>' }
+    : graphSourceChange;
+  const headOnlyDirectProbe = graphDirectProbe && headOnlyChangedFile ? { ...graphDirectProbe, inputRoots: [headOnlyChangedFile.path] } : undefined;
+  const headOnlyCatalog = headOnlyDirectProbe && graphTargetMatch?.target ? [headOnlyDirectProbe, graphTargetMatch.target] : undefined;
+  const headOnlyInventory = headOnlyCatalog ? { ...inventory, commands: inventory.commands.filter(command => headOnlyCatalog.some(entry => entry.id === command.id)), digest: stableDigest(inventory.commands.filter(command => headOnlyCatalog.some(entry => entry.id === command.id))) } : undefined;
+  const headOnlyCatalogDigest = headOnlyCatalog ? stableDigest(headOnlyCatalog) : undefined;
+  const headOnlyClosures = headOnlyCatalog && headOnlyInventory && headOnlyCatalogDigest ? new Map(headOnlyCatalog.map(entry => [entry.id, createValidationClosureCertificate({ commandId: entry.id, baseHead: fiReferenceBase, inventoryDigest: headOnlyInventory.digest, catalogDigest: headOnlyCatalogDigest, staticPaths: entry.inputRoots, processFacts: entry.triggerExtensions.processFacts, capabilities: entry.triggerExtensions.capabilities })])) : undefined;
+  const headOnlyGraph = headOnlyCatalog && graphSourceChange
+    ? buildDualRevisionImpactGraph({ gitCwd: root, baseHead: fiReferenceHead, head: fiReferenceHead, catalog: headOnlyCatalog })
+    : undefined;
+  const headOnlyChanges = headOnlyChangedFile && headOnlyCatalog && headOnlyInventory && headOnlyClosures
+    ? buildStoryChangeManifest({ storyId: 'B-fi-focused-head-only', gitCwd: root, baseHead: fiReferenceBase, head: fiReferenceHead, changedFiles: [headOnlyChangedFile] })
+    : undefined;
+  const headOnlyContext = headOnlyCatalog && headOnlyInventory && headOnlyClosures && headOnlyChanges
+    ? { storyId: 'B-fi-focused-head-only', baseHead: fiReferenceBase, head: fiReferenceHead, inventory: headOnlyInventory, catalog: headOnlyCatalog, changes: headOnlyChanges, closures: headOnlyClosures, baselineEpochId: 'fi-focused-epoch', buildProofDigest: 'fi-focused-build', mode: 'observe' as const }
+    : undefined;
+  const headOnlyPrePlan = headOnlyContext && headOnlyGraph ? buildDynamicValidationPlan({ ...headOnlyContext, graph: headOnlyGraph }) : undefined;
+  const headOnlyTargetRow = headOnlyPrePlan && graphTargetMatch?.target ? headOnlyPrePlan.rows.find(row => row.commandId === graphTargetMatch.target.id) : undefined;
+  const headOnlyReceipt = graphReceipt && headOnlyTargetRow && headOnlyCatalogDigest && headOnlyInventory && headOnlyClosures && graphTargetMatch?.target ? (() => {
+    const { signature: _signature, schema: _schema, expiresAt: _expiresAt, ...receiptBody } = graphReceipt;
+    return createValidationCommandReceipt({ ...receiptBody, id: 'fi-focused-head-only-receipt', inputDigest: headOnlyTargetRow.inputDigest, closureCertificateDigest: headOnlyClosures.get(graphTargetMatch.target.id)!.signature, catalogDigest: headOnlyCatalogDigest, inventoryDigest: headOnlyInventory.digest });
+  })() : undefined;
+  const headOnlyPlan = headOnlyContext && headOnlyGraph && headOnlyReceipt ? buildDynamicValidationPlan({ ...headOnlyContext, graph: headOnlyGraph, receipts: [headOnlyReceipt] }) : undefined;
+  const headOnlyTarget = headOnlyPlan && graphTargetMatch?.target ? headOnlyPlan.rows.find(row => row.commandId === graphTargetMatch.target.id) : undefined;
   return [
-    { fiId: 'FI-2', commandId: targetEntry.id, mutation: 'receipt-signature-and-closure-edge-rejection', expected: 'valid-reuse-forged-execute-static-runtime-fact-capability-escalate', observed: { valid: validTarget.disposition, forged: forgedTarget.disposition, forgedFullEscalated: forgedExecute.fullEscalated, incomplete: incompleteTarget.disposition, incompleteFullEscalated: incompleteExecute.fullEscalated, static: staticTarget.disposition, fact: factTarget.disposition, capability: capabilityTarget.disposition, incompleteReasons: incompleteTarget.reasons, undeclaredRuntimeInputs: incompleteClosure.undeclaredObservedPaths }, passed: validTarget.disposition === 'reuse' && forgedTarget.disposition === 'execute' && forgedExecute.fullEscalated === false && [incompleteExecute, staticExecute, factExecute, capabilityExecute].every(plan => plan.fullEscalated === true) && [incompleteTarget, staticTarget, factTarget, capabilityTarget].every(row => row.disposition === 'execute') },
-    { fiId: 'FI-5', commandId: graphTargetMatch?.target.id || targetEntry.id, mutation: 'dual-revision-graph-causal-dependent-delete-rename', expected: 'delete-or-rename-unimpacted-reuse-head-and-base-graph-impact-execute', observed: { noGraph: graphNoGraphTarget?.disposition, graph: graphExecuteTarget?.disposition, graphReasons: graphExecuteTarget?.reasons, baseHead: fiReferenceBase, head: fiReferenceHead, change: graphSourceChange, baseGraphDigest: graphTargetMatch?.graph.baseGraphDigest, headGraphDigest: graphTargetMatch?.graph.headGraphDigest }, passed: Boolean(graphSourceChange && ['deleted', 'renamed'].includes(graphSourceChange.status) && graphTargetMatch?.graph && graphTargetMatch.graph.graphUnknown === false && graphNoGraphTarget?.disposition === 'reuse' && graphExecuteTarget?.disposition === 'execute' && graphExecuteTarget.reasons.some(reason => reason.startsWith('reverse-dependency:'))) },
+    { fiId: 'FI-2', commandId: targetEntry.id, mutation: 'receipt-signature-and-closure-edge-rejection', expected: 'valid-reuse-forged-execute-static-runtime-fact-capability-escalate', observed: { valid: validTarget.disposition, forged: forgedTarget.disposition, forgedFullEscalated: forgedExecute.fullEscalated, incomplete: incompleteTarget.disposition, incompleteFullEscalated: incompleteExecute.fullEscalated, static: staticTarget.disposition, fact: factTarget.disposition, capability: capabilityTarget.disposition, incompleteReasons: incompleteTarget.reasons, staticCertificateValid: verifyValidationClosureCertificate(omittedStaticClosure), factCertificateValid: verifyValidationClosureCertificate(omittedFactClosure), capabilityCertificateValid: verifyValidationClosureCertificate(omittedCapabilityClosure), undeclaredRuntimeInputs: incompleteClosure.undeclaredObservedPaths }, passed: validTarget.disposition === 'reuse' && forgedTarget.disposition === 'execute' && forgedExecute.fullEscalated === false && [incompleteExecute, staticExecute, factExecute, capabilityExecute].every(plan => plan.fullEscalated === true) && [incompleteTarget, staticTarget, factTarget, capabilityTarget].every(row => row.disposition === 'execute') },
+    { fiId: 'FI-5', commandId: graphTargetMatch?.target.id || targetEntry.id, mutation: 'dual-revision-graph-causal-dependent-delete-rename', expected: 'delete-or-rename-head-only-reuse-dual-revision-execute', observed: { noGraph: graphNoGraphTarget?.disposition, headOnly: headOnlyTarget?.disposition, headOnlyReasons: headOnlyTarget?.reasons, graph: graphExecuteTarget?.disposition, graphReasons: graphExecuteTarget?.reasons, baseHead: fiReferenceBase, head: fiReferenceHead, change: graphSourceChange, headOnlyChangedFile: headOnlyChangedFile, baseGraphDigest: graphTargetMatch?.graph.baseGraphDigest, headGraphDigest: graphTargetMatch?.graph.headGraphDigest, headOnlyGraphDigest: headOnlyGraph?.headGraphDigest }, passed: Boolean(graphSourceChange && ['deleted', 'renamed'].includes(graphSourceChange.status) && graphTargetMatch?.graph && graphTargetMatch.graph.graphUnknown === false && headOnlyGraph && headOnlyGraph.graphUnknown === false && headOnlyTarget?.disposition === 'reuse' && graphExecuteTarget?.disposition === 'execute' && graphExecuteTarget.reasons.some(reason => reason.startsWith('reverse-dependency:'))) },
   ];
 })();
 const faultInjection = [...catalog.flatMap((entry) => {
