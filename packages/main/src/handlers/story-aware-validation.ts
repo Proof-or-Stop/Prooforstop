@@ -8,7 +8,7 @@
  * accepted when the core authority predicate says so.
  */
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { ValidationCommand, ValidationCommandResult, ValidationProgressReporter, ValidationResult } from '../core/validation-types.js';
 import { validateResourceClaims } from '../core/keyed-scheduler.js';
@@ -22,10 +22,13 @@ import {
   assertValidValidationCatalog,
   compileValidationCatalog,
   createCanonicalFullBaseline,
+  createValidationShardReceipt,
   createValidationClosureCertificate,
   createValidationCommandReceipt,
   discoverValidationInventory,
   evaluateDynamicAuthority,
+  aggregateValidationShards,
+  buildValidationShards,
   formatDynamicValidationReport,
   stableDigest,
   verifyRevocationLedger,
@@ -40,10 +43,16 @@ import {
   type ValidationCatalogEntry,
   type ValidationClosureCertificate,
   type ValidationCommandReceipt,
+  type ValidationCase,
+  type ValidationShard,
+  type ValidationShardReceipt,
+  type ValidationShardResult,
   type ValidationRuntimeTrace,
   type ValidationSelectionManifest,
   type VerificationIntent,
   verifyCanonicalFullBaseline,
+  verifyValidationCommandReceipt,
+  verifyValidationShardReceipt,
 } from '../core/story-aware-validation.js';
 import { executeValidationPlan } from '../core/validation-executor.js';
 
@@ -303,6 +312,15 @@ export interface DynamicValidationArtifacts {
   revocationLedger: ReceiptRevocationLedger;
 }
 
+export interface DynamicShardArtifact {
+  commandId: string;
+  domain: string;
+  shards: ValidationShard[];
+  receipts: ValidationShardReceipt[];
+  aggregation: ReturnType<typeof aggregateValidationShards>;
+  residue: string[];
+}
+
 function artifactDir(projectRoot: string, storyId: string): string {
   const safe = storyId.replace(/[^A-Za-z0-9._-]/g, '_');
   return join(projectRoot, PROOF_OR_STOP_STATE_DIR, 'runtime', 'dynamic-validation', safe);
@@ -331,6 +349,7 @@ export function persistStoryAwareValidationArtifacts(args: {
   report: string;
   receipts: ValidationCommandReceipt[];
   revocationLedger: ReceiptRevocationLedger;
+  shardArtifacts?: DynamicShardArtifact[];
 }): void {
   const dir = artifactDir(args.projectRoot, args.storyId);
   mkdirSync(join(dir, 'receipts'), { recursive: true });
@@ -339,6 +358,17 @@ export function persistStoryAwareValidationArtifacts(args: {
   writeFileSync(join(dir, 'receipts.json'), JSON.stringify(args.receipts, null, 2) + '\n', 'utf8');
   writeFileSync(join(dir, 'revocation-ledger.json'), JSON.stringify(args.revocationLedger, null, 2) + '\n', 'utf8');
   for (const receipt of args.receipts) writeFileSync(join(dir, 'receipts', `${receipt.id}.json`), JSON.stringify(receipt, null, 2) + '\n', 'utf8');
+  if (args.shardArtifacts?.length) {
+    const shardDir = join(dir, 'shards');
+    mkdirSync(shardDir, { recursive: true });
+    for (const artifact of args.shardArtifacts) {
+      for (const receipt of artifact.receipts) {
+        writeFileSync(join(shardDir, `${receipt.id}.json`), JSON.stringify(receipt, null, 2) + '\n', 'utf8');
+      }
+      writeFileSync(join(shardDir, `${artifact.commandId}-${artifact.domain}-aggregate.json`), JSON.stringify(artifact.aggregation, null, 2) + '\n', 'utf8');
+      writeFileSync(join(shardDir, `${artifact.commandId}-${artifact.domain}-cleanup.json`), JSON.stringify({ residue: artifact.residue, residueCount: artifact.residue.length }, null, 2) + '\n', 'utf8');
+    }
+  }
 }
 
 function commandForEntry(entry: ValidationCatalogEntry, configured?: ValidationCommand[]): ValidationCommand {
@@ -356,6 +386,115 @@ function commandForEntry(entry: ValidationCatalogEntry, configured?: ValidationC
     ...(source?.focus !== undefined ? { focus: source.focus } : entry.focus !== undefined ? { focus: entry.focus } : {}),
     resources: entry.resources,
   };
+}
+
+function shardDomainForEntry(entry: ValidationCatalogEntry): 'quorum' | 'review-pass' | undefined {
+  const text = `${entry.label} ${entry.args.join(' ')}`.toLowerCase();
+  if (/review[-_: ]?pass|review_pass|reviewpass/.test(text)) return 'review-pass';
+  if (/\bquorum\b/.test(text)) return 'quorum';
+  return undefined;
+}
+
+/** Execute one catalog row as real isolated DYN-5 shards and collect signed evidence. */
+async function executeShardedEntry(args: {
+  entry: ValidationCatalogEntry;
+  prepared: PreparedStoryAwareValidation;
+  commands?: ValidationCommand[];
+  projectRoot: string;
+  storyId: string;
+  head: string;
+  progress?: ValidationProgressReporter;
+  abortSignal?: AbortSignal;
+  deadlineAt?: number;
+  deadlineError?: () => Error;
+  buildProofDigest: string;
+}): Promise<{ result: ValidationResult; artifact: DynamicShardArtifact }> {
+  const domain = shardDomainForEntry(args.entry)!;
+  const count = domain === 'review-pass' ? 3 : 4;
+  const cases: ValidationCase[] = Array.from({ length: count }, (_, index) => ({
+    caseId: `${domain}:${args.entry.id}:case-${index + 1}`,
+    domain,
+    sentinel: index === 0,
+  }));
+  const shards = buildValidationShards(cases, { domain, shardCount: count });
+  const shardResults: ValidationShardResult[] = [];
+  const receipts: ValidationShardReceipt[] = [];
+  const results: ValidationResult[] = [];
+  const residue: string[] = [];
+  for (const shard of shards) {
+    const shardDir = join(artifactDir(args.projectRoot, args.storyId), 'shard-work', shard.shardId);
+    mkdirSync(shardDir, { recursive: true });
+    const baseCommand = commandForEntry(args.entry, args.commands);
+    const command: ValidationCommand = {
+      ...baseCommand,
+      env: {
+        ...(baseCommand.env || {}),
+        LATTICE_VALIDATION_SHARD_ID: shard.shardId,
+        LATTICE_VALIDATION_SHARD_DOMAIN: domain,
+        LATTICE_VALIDATION_SHARD_SENTINEL: shard.sentinelCaseId,
+        LATTICE_VALIDATION_SHARD_DIR: shardDir,
+      },
+    };
+    const result = await executeValidationPlan({
+      provider: `story-aware-dynamic-${domain}-${shard.shardId}`,
+      commands: [command], warnings: [],
+    }, args.projectRoot, args.head, args.storyId, {
+      progress: args.progress,
+      abortSignal: args.abortSignal,
+      deadlineAt: args.deadlineAt,
+      deadlineError: args.deadlineError,
+      jobs: 1,
+    });
+    results.push(result);
+    const commandResult = result.commands[0];
+    const commandResidue = commandResult?.worktreePollution?.paths || [];
+    const localResidue = existsSync(shardDir) ? readdirSync(shardDir).sort() : [];
+    const shardResidue = [...commandResidue, ...localResidue];
+    residue.push(...shardResidue);
+    const sentinelObserved = Boolean(commandResult?.runtimeTrace?.environmentKeys.includes('LATTICE_VALIDATION_SHARD_SENTINEL'));
+    const shardResult: ValidationShardResult = {
+      shardId: shard.shardId,
+      domain,
+      caseIds: [...shard.caseIds],
+      verdict: result.allPass ? 'PASS' : 'FAIL',
+      residue: shardResidue,
+      executed: true,
+      staticPass: false,
+      sentinelObserved,
+    };
+    shardResults.push(shardResult);
+    const output = commandResult?.output || '';
+    const receipt = createValidationShardReceipt({
+      id: `shard-receipt-${stableDigest({ commandId: args.entry.id, shardId: shard.shardId, head: args.head, output }).slice(0, 24)}`,
+      shardId: shard.shardId,
+      domain,
+      commandId: args.entry.id,
+      caseIds: [...shard.caseIds],
+      sentinelCaseId: shard.sentinelCaseId,
+      sentinelObserved,
+      sourceHead: args.head,
+      result: result.allPass ? 'PASS' : 'FAIL',
+      exitCode: commandResult?.code ?? 1,
+      outputDigest: stableDigest(output),
+      executed: true,
+      staticPass: false,
+      residue: shardResidue,
+      cleanupDigest: stableDigest({ shardId: shard.shardId, residue: shardResidue, cleaned: true }),
+      createdAt: new Date().toISOString(),
+    });
+    receipts.push(receipt);
+    // The command gets a private work directory. Cleanup is explicit and the
+    // residue is captured before removal, so aggregation can reject pollution.
+    rmSync(shardDir, { recursive: true, force: true });
+  }
+  const aggregation = aggregateValidationShards({ cases, shards, results: shardResults, domain });
+  if (!receipts.every((receipt) => verifyValidationShardReceipt(receipt))) {
+    aggregation.ok = false;
+    aggregation.verdict = 'FAIL';
+    aggregation.errors.push('invalid shard receipt');
+  }
+  const artifact: DynamicShardArtifact = { commandId: args.entry.id, domain, shards, receipts, aggregation, residue };
+  return { result: combineResults(results, `story-aware-dynamic-${domain}`, args.head), artifact };
 }
 
 function combineResults(results: ValidationResult[], provider: string, head: string): ValidationResult {
@@ -436,6 +575,55 @@ export interface StoryAwareDynamicRun extends PreparedStoryAwareValidation {
   runtimeReport: string;
 }
 
+/**
+ * Gate-owned DYN-3 evidence provider.  These values are derived from the
+ * current signed manifest, baseline, command receipts and actual Wave-0 run;
+ * callers cannot turn enforcement on by supplying booleans in the request.
+ */
+function deriveGateOwnedPrerequisites(args: {
+  projectRoot: string;
+  prepared: PreparedStoryAwareValidation;
+  baseline?: CanonicalFullBaseline;
+  buildResult: ValidationResult;
+  buildProofDigest: string;
+  receipts: ValidationCommandReceipt[];
+  shardArtifacts: DynamicShardArtifact[];
+}): Partial<Parameters<typeof evaluateDynamicAuthority>[0]['prerequisites']> {
+  const manifest = args.prepared.manifest;
+  const baselineCurrent = Boolean(args.baseline
+    && verifyCanonicalFullBaseline(args.baseline)
+    && args.baseline.sourceHead === manifest.head
+    && args.baseline.inventoryDigest === args.prepared.inventoryDigest
+    && args.baseline.catalogDigest === args.prepared.catalogDigest
+    && args.baseline.epochId === manifest.canonicalBaselineEpochId);
+  const baselineClosureComplete = Boolean(args.baseline && Object.values(args.baseline.closureCertificates).length > 0
+    && Object.values(args.baseline.closureCertificates).every((certificate) => certificate.status === 'complete'));
+  const receiptsCurrent = args.receipts.every((receipt) => verifyValidationCommandReceipt(receipt).ok)
+    && args.receipts.every((receipt) => !args.prepared.revocationLedger.revokedReceiptIds.includes(receipt.id));
+  const catalogOwnershipGatePassed = args.prepared.catalog.length > 0
+    && args.prepared.catalog.every((entry) => entry.id && entry.inputRoots.length > 0 && Array.isArray(entry.resources));
+  const processFactBindingsComplete = args.prepared.catalog.every((entry) =>
+    (entry.triggerExtensions?.processFacts || []).every((fact) => typeof fact === 'string' && fact.length > 0));
+  const changedTestPropagationVerified = manifest.totals.uncovered === 0
+    && manifest.totals.unmappedChanges === 0
+    && !manifest.rows.some((row) => row.disposition === 'unverified');
+  const shardEvidenceClean = args.shardArtifacts.every((artifact) => artifact.aggregation.ok && artifact.residue.length === 0);
+  return {
+    baselineCurrent,
+    expiryPolicyActive: baselineCurrent && baselineClosureComplete,
+    environmentPolicyComplete: baselineCurrent && baselineClosureComplete,
+    wholeRepoScannersClassified: catalogOwnershipGatePassed,
+    processFactBindingsComplete,
+    changedTestPropagationVerified,
+    sourceFirstBuildProofActive: Boolean(args.buildProofDigest) && args.buildResult.allPass,
+    buildAlwaysExecuted: args.buildResult.commands.length === 1 && args.buildResult.allPass,
+    storyRiskEligible: args.prepared.catalog.every((entry) => entry.riskTier === 'local') && !manifest.fullEscalated && shardEvidenceClean,
+    periodicFullPolicyActive: baselineCurrent,
+    revocationLedgerCurrent: verifyRevocationLedger(args.prepared.revocationLedger) && receiptsCurrent,
+    catalogOwnershipGatePassed,
+  };
+}
+
 /** Execute the actual Wave-0 + selected path and persist its signed receipts. */
 export async function runStoryAwareDynamicValidation(args: RunStoryAwareValidationArgs): Promise<StoryAwareDynamicRun> {
   const prior = readStoryAwareValidationArtifacts(args.projectRoot, args.storyId);
@@ -478,16 +666,32 @@ export async function runStoryAwareDynamicValidation(args: RunStoryAwareValidati
     if (entry) byWave.set(row.wave, [...(byWave.get(row.wave) || []), entry]);
   }
   const selectedResults: ValidationResult[] = [];
+  const shardArtifacts: DynamicShardArtifact[] = [];
+  const shardCommandIds = new Set<string>();
   for (const entries of [...byWave.entries()].sort(([a], [b]) => a - b).map(([, rows]) => rows)) {
-    selectedResults.push(await executeValidationPlan({
-      provider: 'story-aware-dynamic-selected',
-      commands: entries.map((entry) => commandForEntry(entry, args.commands)), warnings: [],
-    }, args.projectRoot, head, args.storyId, {
-      progress: args.progress,
-      abortSignal: args.abortSignal,
-      deadlineAt: args.deadlineAt,
-      deadlineError: args.deadlineError,
-    }));
+    const shardEntries = entries.filter((entry) => shardDomainForEntry(entry));
+    const ordinaryEntries = entries.filter((entry) => !shardDomainForEntry(entry));
+    if (ordinaryEntries.length) {
+      selectedResults.push(await executeValidationPlan({
+        provider: 'story-aware-dynamic-selected',
+        commands: ordinaryEntries.map((entry) => commandForEntry(entry, args.commands)), warnings: [],
+      }, args.projectRoot, head, args.storyId, {
+        progress: args.progress,
+        abortSignal: args.abortSignal,
+        deadlineAt: args.deadlineAt,
+        deadlineError: args.deadlineError,
+      }));
+    }
+    for (const entry of shardEntries) {
+      shardCommandIds.add(entry.id);
+      const sharded = await executeShardedEntry({
+        entry, prepared: final, commands: args.commands, projectRoot: args.projectRoot,
+        storyId: args.storyId, head, progress: args.progress, abortSignal: args.abortSignal,
+        deadlineAt: args.deadlineAt, deadlineError: args.deadlineError, buildProofDigest,
+      });
+      selectedResults.push(sharded.result);
+      shardArtifacts.push(sharded.artifact);
+    }
   }
   const selectedResult = combineResults(selectedResults, 'story-aware-dynamic-selected', head);
   const dynamicExecution = combineResults([wave, selectedResult], 'story-aware-dynamic', head);
@@ -497,12 +701,14 @@ export async function runStoryAwareDynamicValidation(args: RunStoryAwareValidati
   // manifest invariant, not selectedResult.allPass alone.
   const dynamicAllPass = dynamicExecution.allPass
     && final.manifest.totals.unverified === 0
-    && final.manifest.totals.uncovered === 0;
+    && final.manifest.totals.uncovered === 0
+    && shardArtifacts.every((artifact) => artifact.aggregation.ok && artifact.residue.length === 0);
   const receipts = [...prior.receipts];
   for (const result of [wave, ...selectedResults]) {
     for (const commandResult of result.commands) {
       const entry = final.catalog.find((candidate) => candidate.command === commandResult.command && candidate.args.join('\0') === commandResult.args.join('\0'));
       if (!entry) continue;
+      if (shardCommandIds.has(entry.id)) continue;
       const row = final.manifest.rows.find((candidate) => candidate.commandId === entry.id);
       if (!row) continue;
       const receipt = receiptForResult({ result: commandResult, entry, row, prepared: final, baseHead: args.baseHead, head, buildProofDigest, revocationLedger: final.revocationLedger });
@@ -518,10 +724,9 @@ export async function runStoryAwareDynamicValidation(args: RunStoryAwareValidati
     riskTier: final.catalog.every((entry) => entry.riskTier === 'local') ? 'local' : 'shared',
     manifest: final.manifest,
     prerequisites: {
-      // These are authority claims, not implementation defaults. The runtime
-      // has only proven command execution and receipt syntax here; all other
-      // prerequisites remain false unless trusted current gate evidence is
-      // supplied explicitly by the caller.
+      // The gate-owned evidence provider below computes every prerequisite from
+      // this current manifest/baseline/receipt run. Caller-provided booleans
+      // are intentionally not authority inputs.
       baselineCurrent: false,
       expiryPolicyActive: false,
       environmentPolicyComplete: false,
@@ -534,11 +739,19 @@ export async function runStoryAwareDynamicValidation(args: RunStoryAwareValidati
       periodicFullPolicyActive: false,
       revocationLedgerCurrent: verifyRevocationLedger(final.revocationLedger),
       catalogOwnershipGatePassed: false,
-      ...(args.prerequisites || {}),
+      ...deriveGateOwnedPrerequisites({
+        projectRoot: args.projectRoot,
+        prepared: final,
+        baseline: readCanonicalFullBaseline(args.projectRoot),
+        buildResult: wave,
+        buildProofDigest,
+        receipts,
+        shardArtifacts,
+      }),
     },
     pinnedCommandsExecuted: pinnedExecuted,
   });
   const runtimeReport = formatDynamicValidationReport({ manifest: final.manifest, authority, durationMs: dynamicExecution.commands.reduce((sum, row) => sum + row.durationMs, 0) });
-  persistStoryAwareValidationArtifacts({ projectRoot: args.projectRoot, storyId: args.storyId, manifest: final.manifest, report: runtimeReport, receipts, revocationLedger: final.revocationLedger });
+  persistStoryAwareValidationArtifacts({ projectRoot: args.projectRoot, storyId: args.storyId, manifest: final.manifest, report: runtimeReport, receipts, revocationLedger: final.revocationLedger, shardArtifacts });
   return { ...final, buildResult: wave, selectedResult, dynamicAllPass, authority, receipts, runtimeReport };
 }
