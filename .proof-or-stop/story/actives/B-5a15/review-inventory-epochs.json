@@ -1172,6 +1172,49 @@
       ],
       "createdAt": "2026-08-21T16:25:20.375Z",
       "_hash": "ba57c52bd72d0346e41fd067882433cb3f7ff1bc5a7c2028f570b9e051245e83"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-5a15:RI-008:CRIT-02",
+      "epochId": "B-5a15:RI-008",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-21T15:29:32.809Z",
+      "wave": 2,
+      "cutoff": {
+        "headHash": "965af0e24a7323d4a8906f00f4596daf6fefb915",
+        "materialHash": "853d5eb4322ecb6d3ba9b94131ecab4e76ac0b8a2e77f47f24a2c39fc04ac775",
+        "storyFilesHash": "01a95005cb46a073e03805e42aef1925a31b87ed2f3d0b43e4378a5e2f1f1406"
+      },
+      "aggregateFindingSetDigest": "cfda92fce5c8f3f6fe83de7d721e29c59315babffe153f6349ed9192205b3976",
+      "requiredLaneCoverageDigest": "31f746ea9b2e0edfc6bb1c193dc24f338f006162a14fab3b5b3a2b2db2171e9f",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-5a15:RR-153",
+      "terminalEvidenceIds": [
+        "B-5a15:F-076"
+      ],
+      "readEvidenceDigest": "cc046b336dbd954d9bc85bdba87a14de62fc429bde0c3a650584749a52528a5e",
+      "findingDispositions": [
+        {
+          "findingId": "B-5a15:F-072",
+          "disposition": "verified_family",
+          "familyKey": "verifier-owned-acceptance-chain-scope-binding",
+          "reason": "Wave-2 topology review independently confirmed the current acceptance-chain scope binding failure and retained the required-lane finding family."
+        },
+        {
+          "findingId": "B-5a15:F-073",
+          "disposition": "verified_family",
+          "familyKey": "verifier-owned-acceptance-chain-scope-binding",
+          "reason": "Wave-2 quality review independently confirmed the same verifier-owned acceptance-chain scope binding failure."
+        },
+        {
+          "findingId": "B-5a15:F-074",
+          "disposition": "verified_family",
+          "familyKey": "verifier-owned-acceptance-chain-scope-binding",
+          "reason": "Wave-2 coverage review independently confirmed the same acceptance-chain scope binding failure with complete intent coverage."
+        }
+      ],
+      "createdAt": "2026-08-21T17:11:35.872Z",
+      "_hash": "298c5b94d34895244e95e6e8288a74e309f242a1592beff54e5fe93f40748698"
     }
   ]
 }
