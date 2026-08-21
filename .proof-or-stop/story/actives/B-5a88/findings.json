@@ -4478,7 +4478,7 @@
       "desc": "docs/host-run-usage.md:102-115,124-148 — active reviewer launch and host_run examples still present lattice-review-concept/quality/test-coverage/behavior/docs as the currently enabled lanes and use lattice-review-quality as the binding --lane example, without labeling these as legacy compatibility or showing the canonical proof-or-stop-review-* identities; this leaves canonical reviewer guidance incomplete after F-100.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-21T01:36:02.444Z",
@@ -4486,14 +4486,18 @@
       "reviewRunId": "B-5a88:RR-125",
       "_hash": "f74b8d8a66f32985c335b1e63e5429774f377c2f63d67b2abebd6bc8021ff7e2",
       "signatureTag": "missing|unknown|docs-host-usage",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Updated docs/host-run-usage.md active lane lists, examples, and field table to proof-or-stop-review-*; retained lattice-review-* only in an explicit legacy compatibility note. Static canonical/legacy scan and git diff --check pass.",
+      "resolvedAt": "2026-08-21T01:40:20.986Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-102",
       "desc": "packages/main/src/core/review-run.ts:191-195,1559-1562 [medium] active reviewer-evidence comments still call the lane family lattice-review-* and lattice-implementer, while isReviewerAgent resolves canonical proof-or-stop roles and legacy aliases. After F-100 canonicalized the surrounding docs and adversarial-review comments, these gate-adjacent comments remain inconsistent and can mislead future changes about which identities are accepted versus emitted.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-21T01:36:24.929Z",
@@ -4501,7 +4505,11 @@
       "reviewRunId": "B-5a88:RR-124",
       "_hash": "8e6714ecd0913470df438c4fd8f21a84ec4964feb2de66adaa153fe0b28c5549",
       "signatureTag": "missing|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Updated review-run.ts reviewer-evidence comments to describe proof-or-stop-review-* as canonical and lattice-review-* as legacy input canonicalized before checks; runtime logic unchanged. Static scan and git diff --check pass.",
+      "resolvedAt": "2026-08-21T01:40:21.037Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-103",
