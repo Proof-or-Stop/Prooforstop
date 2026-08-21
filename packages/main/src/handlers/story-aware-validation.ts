@@ -100,6 +100,8 @@ function baselineEpoch(args: PrepareStoryAwareValidationArgs): string {
   return args.baselineEpochId || args.baseHead;
 }
 
+const DYNAMIC_RUNNER_DIGEST = stableDigest({ provider: 'story-aware-dynamic', version: 2, executor: 'validation-executor' });
+
 function waveZeroCommand(catalog: ValidationCatalogEntry[]): string | undefined {
   const build = catalog.find((entry) =>
     entry.args.some((arg) => arg === 'build') || /(?:^|[-_:])build(?:$|[-_:])|\bbuild\b/i.test(entry.label),
@@ -221,7 +223,7 @@ export function persistCanonicalFullBaseline(args: {
     inventoryDigest: inventory.digest,
     catalogDigest,
     toolchainDigest: args.toolchainDigest || stableDigest({ node: process.version, platform: process.platform, arch: process.arch }),
-    runnerDigest: stableDigest({ provider: 'lattice-verifier-configured-commands', version: 1 }),
+    runnerDigest: DYNAMIC_RUNNER_DIGEST,
     buildProofDigest: args.buildProofDigest || stableDigest(args.result.commands.map((row) => ({ command: row.command, args: row.args, code: row.code, output: row.output }))),
     allPass: true,
     createdAt: new Date().toISOString(),
@@ -363,14 +365,17 @@ export function persistStoryAwareValidationArtifacts(args: {
   receipts: ValidationCommandReceipt[];
   revocationLedger: ReceiptRevocationLedger;
   shardArtifacts?: DynamicShardArtifact[];
+  preserveExistingReceipts?: boolean;
 }): void {
   const dir = artifactDir(args.projectRoot, args.storyId);
   mkdirSync(join(dir, 'receipts'), { recursive: true });
   writeFileSync(join(dir, 'selection.json'), JSON.stringify(args.manifest, null, 2) + '\n', 'utf8');
   writeFileSync(join(dir, 'report.txt'), args.report + '\n', 'utf8');
-  writeFileSync(join(dir, 'receipts.json'), JSON.stringify(args.receipts, null, 2) + '\n', 'utf8');
-  writeFileSync(join(dir, 'revocation-ledger.json'), JSON.stringify(args.revocationLedger, null, 2) + '\n', 'utf8');
-  for (const receipt of args.receipts) writeFileSync(join(dir, 'receipts', `${receipt.id}.json`), JSON.stringify(receipt, null, 2) + '\n', 'utf8');
+  if (!args.preserveExistingReceipts) {
+    writeFileSync(join(dir, 'receipts.json'), JSON.stringify(args.receipts, null, 2) + '\n', 'utf8');
+    writeFileSync(join(dir, 'revocation-ledger.json'), JSON.stringify(args.revocationLedger, null, 2) + '\n', 'utf8');
+    for (const receipt of args.receipts) writeFileSync(join(dir, 'receipts', `${receipt.id}.json`), JSON.stringify(receipt, null, 2) + '\n', 'utf8');
+  }
   if (args.shardArtifacts?.length) {
     const shardDir = join(dir, 'shards');
     mkdirSync(shardDir, { recursive: true });
@@ -434,10 +439,26 @@ async function executeShardedEntry(args: {
   const receipts: ValidationShardReceipt[] = [];
   const results: ValidationResult[] = [];
   const residue: string[] = [];
+  const baseCommand = commandForEntry(args.entry, args.commands);
+  const shardAdapter = baseCommand.env?.LATTICE_VALIDATION_SHARD_ADAPTER;
+  if (!shardAdapter) {
+    const rejectedResults: ValidationShardResult[] = shards.map((shard) => ({
+      shardId: shard.shardId, domain, caseIds: [...shard.caseIds], verdict: 'FAIL', executed: false, staticPass: false, sentinelObserved: false,
+    }));
+    const aggregation = aggregateValidationShards({ cases, shards, results: rejectedResults, domain });
+    return {
+      result: {
+        provider: `story-aware-dynamic-${domain}-unwired`, status: 'fail', allPass: false,
+        summary: `DYN-5 ${domain} adapter is not configured; dynamic sharding failed closed`,
+        details: ['Configure LATTICE_VALIDATION_SHARD_ADAPTER and a case-aware runner before enabling this command.'],
+        warnings: [], timestamp: new Date().toISOString(), headSha: args.head, commands: [], commandExecutions: 0, disposition: 'executed',
+      },
+      artifact: { commandId: args.entry.id, domain, shards, receipts: [], aggregation, residue: [] },
+    };
+  }
   for (const shard of shards) {
     const shardDir = join(artifactDir(args.projectRoot, args.storyId), 'shard-work', shard.shardId);
     mkdirSync(shardDir, { recursive: true });
-    const baseCommand = commandForEntry(args.entry, args.commands);
     const command: ValidationCommand = {
       ...baseCommand,
       env: {
@@ -445,6 +466,7 @@ async function executeShardedEntry(args: {
         LATTICE_VALIDATION_SHARD_ID: shard.shardId,
         LATTICE_VALIDATION_SHARD_DOMAIN: domain,
         LATTICE_VALIDATION_SHARD_SENTINEL: shard.sentinelCaseId,
+        LATTICE_VALIDATION_SHARD_CASE_IDS: shard.caseIds.join(','),
         LATTICE_VALIDATION_SHARD_DIR: shardDir,
       },
     };
@@ -465,10 +487,12 @@ async function executeShardedEntry(args: {
     const shardResidue = [...commandResidue, ...localResidue];
     residue.push(...shardResidue);
     const sentinelMarker = `PROOF_OR_STOP_SENTINEL:${shard.sentinelCaseId}`;
+    const caseMarker = `PROOF_OR_STOP_CASES:${shard.caseIds.join(',')}`;
     const sentinelObserved = Boolean(
       commandResult?.output.includes(sentinelMarker)
       || existsSync(join(shardDir, `${shard.sentinelCaseId}.sentinel`)),
     );
+    const caseRoutingObserved = Boolean(commandResult?.output.includes(caseMarker));
     const shardResult: ValidationShardResult = {
       shardId: shard.shardId,
       domain,
@@ -477,7 +501,7 @@ async function executeShardedEntry(args: {
       residue: shardResidue,
       executed: true,
       staticPass: false,
-      sentinelObserved,
+      sentinelObserved: sentinelObserved && caseRoutingObserved,
     };
     shardResults.push(shardResult);
     const output = commandResult?.output || '';
@@ -488,7 +512,7 @@ async function executeShardedEntry(args: {
       commandId: args.entry.id,
       caseIds: [...shard.caseIds],
       sentinelCaseId: shard.sentinelCaseId,
-      sentinelObserved,
+      sentinelObserved: sentinelObserved && caseRoutingObserved,
       sourceHead: args.head,
       result: result.allPass ? 'PASS' : 'FAIL',
       exitCode: commandResult?.code ?? 1,
@@ -555,7 +579,7 @@ function receiptForResult(args: {
     closureCertificateDigest: args.row.closureCertificateDigest,
     catalogDigest: args.prepared.catalogDigest,
     inventoryDigest: args.prepared.inventoryDigest,
-    runnerDigest: stableDigest({ provider: 'story-aware-dynamic', version: 1 }),
+    runnerDigest: DYNAMIC_RUNNER_DIGEST,
     toolchainDigest: args.prepared.manifest.toolchainDigest,
     buildProofDigest: args.buildProofDigest,
     sourceHead: args.head,

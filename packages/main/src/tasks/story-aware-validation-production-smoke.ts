@@ -27,6 +27,15 @@ try {
   git(['add', '.']);
   git(['commit', '-m', 'production validation fixture']);
   const head = git(['rev-parse', 'HEAD']);
+  const commands = [
+    { command: process.execPath, args: ['-e', "process.stdout.write('build\\n')", 'build'], label: 'build' },
+    {
+      command: process.execPath,
+      args: ['-e', "process.stdout.write('PROOF_OR_STOP_CASES:'+process.env.LATTICE_VALIDATION_SHARD_CASE_IDS+'\\nPROOF_OR_STOP_SENTINEL:'+process.env.LATTICE_VALIDATION_SHARD_SENTINEL+'\\n')", 'review-pass'],
+      label: 'review-pass-discard-smoke',
+      env: { LATTICE_VALIDATION_SHARD_ADAPTER: 'case-output-v1' },
+    },
+  ];
   const run = await runStoryAwareDynamicValidation({
     projectRoot: root,
     gitCwd: root,
@@ -35,6 +44,7 @@ try {
     head,
     changedFiles: [],
     mode: 'enforce-low-risk',
+    commands,
   });
   assert.equal(run.buildResult.allPass, true);
   assert.equal(run.authority.authoritative, false, 'no canonical baseline must fail closed');
