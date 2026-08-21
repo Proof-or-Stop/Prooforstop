@@ -8972,6 +8972,42 @@
       "resolvedAt": "2026-08-21T21:04:12.344Z",
       "resolutionType": "partially_mitigated",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5a88:F-238",
+      "desc": "concept-cleanup: scripts/verify-lattice-residue.mjs:334,657-673,721-745 still describe and fixture-test bin/lattice.js as a retained alias (including \"KEEP lattice\"), while docs/requirements/decisions/brand-rename-mapping.md:72 and packages/main/package.json make the current wrapper/bin map canonical-only; the CHK-007 residue verifier therefore leaves the retired npm-bin concept as contradictory active guidance. packages/main/src/core/runtime-environment-checks.ts:1199-1210 repeats the stale \"lattice npm bin is still retained\" claim.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-21T23:15:37.252Z",
+      "reviewRound": "2026-08-21T23:08:44.617Z",
+      "reviewRunId": "B-5a88:RR-279",
+      "_hash": "fbfc32f004a2672dccbfb3cdfe63455db0f9c7710bda64f5f18b9024a86c4ac6",
+      "signatureTag": "missing|unknown|concept-cleanup-scripts",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-239",
+      "desc": "acceptance-basis.json:3-7 and pre-review-check.json:2-5 — current Wave 4 coverage is not admissible. The verifier-owned acceptance_topology_check --storyId=B-5a88 --json returns status=fail and structuralPass=false with AT_CLOSURE_FILES_STALE and AT_SCOPE_BINDING_MISSING; pre_review_check_read returns status=inconclusive with executableEvidence, mutations, transcript, and authority missing. The separate acceptance_rollout_report_read and acceptance_rollout_check are current pass/full-3x2, but do not repair these current-story receipts or provide executable proof of the required degraded-3x1 rejection, threshold/membership/freshness mutation coverage, mode-invariant diagnostics, enforce-only blocking, and rollback-history behavior. Regenerate admissible current basis/pre-review evidence and bind the required Wave 4 cases before coverage can pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-21T23:16:18.881Z",
+      "reviewRound": "2026-08-21T23:08:44.617Z",
+      "reviewRunId": "B-5a88:RR-280",
+      "_hash": "96ce816db5715de99ef68e9154b5e8b87f08422d7a16e1d2487995b20b8677a9",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+        ".proof-or-stop/story/actives/B-5a88/checklist.json"
+      ],
+      "signatureTag": "missing|json|acceptance-basis-json",
+      "signatureTagSource": "auto"
     }
   ]
 }

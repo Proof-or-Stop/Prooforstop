@@ -1203,11 +1203,13 @@ function isPackagedRuntime(): boolean {
     || Boolean((process as typeof process & { pkg?: unknown }).pkg);
 }
 
-// B-cc10 CHK-006: the deprecated basenames below are INTENTIONAL and stay. This predicate
+// B-cc10 CHK-006: the deprecated basenames below remain recognized for older checkouts and
+// compatibility provenance. This predicate
 // asks "was a retained COMPATIBILITY launcher used?", so recognizing the old names is the
 // whole point — adding the canonical spellings would make every ordinary canonical
 // invocation look like a compatibility launcher and invert the classification at line 626.
-// The `lattice` npm bin is still retained, so this signal remains reachable.
+// The current package ships only the proof-or-stop bin; an older checkout may still reach this
+// signal through its legacy launcher and must remain classifiable as compatibility traffic.
 function compatibilityLauncherSignal(activePath: string | null): boolean {
   if (readBrandEnv('ACTIVITY_SOURCE') === 'codex') return true;
   if (readBrandEnv('CODEX_ENTRYPOINT') === 'global-fallback' || readBrandEnv('CODEX_ENTRYPOINT') === 'local-wrapper') return true;

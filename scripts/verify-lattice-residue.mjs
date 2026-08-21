@@ -331,7 +331,9 @@ const DOC_SCAN_ROOTS = [
  *     original finding: they are overwhelmingly (a) smoke/verifier fixtures that embed stale
  *     prose as the SPECIMEN under test — rewriting them destroys the positive test case, which
  *     is how Pass B broke and then restored this very file's self-test — and (b) tests that
- *     deliberately exercise the retained `bin/lattice.js` alias. Gating still fails closed.
+ *     deliberately exercise legacy `bin/lattice.js` provenance and compatibility paths. The
+ *     alias is removed from the shipped bin map; these read-both probes remain outside the
+ *     brand detector so they do not erase historical compatibility evidence. Gating still fails closed.
  *   - `scripts` — 173 hits / 24 files, same specimen-fixture class (77 of them in
  *     verify-entrypoints.mjs alone, which asserts on the deprecated bin on purpose).
  *   - `CHANGELOG.md` — 19 hits, FROZEN historical release record per the mapping table.
@@ -654,8 +656,8 @@ function runScan() {
  *     hashed into `_hash` fields already persisted on live artifacts; renaming it
  *     would invalidate every stored signature and make active stories read as
  *     tampered.
- *   - `./lattice.js` is the deprecated-but-retained bin alias (RENAMED-additive row:
- *     add `proof-or-stop`, KEEP `lattice`), so the module path legitimately survives.
+ *   - `./lattice.js` is a retired bin alias that can still occur in historical/read-both
+ *     provenance, so the module path remains a compatibility specimen rather than a shipped bin.
  * Both are therefore correctly outside the koala detector's remit, and both are
  * separately outside the brand-prose detector's remit by structural exclusion
  * (see BRAND_PROSE_CASES).
@@ -669,7 +671,7 @@ const RESIDUE_CASES = [
   ['existsSync(.claude/skills/koala)', true],
   // frozen signature salt (mapping table: FROZEN) — not koala residue
   ['const REVIEW_SALT = "lattice-review-integrity-v1";', false],
-  // deprecated-but-retained bin alias (mapping table: RENAMED-additive, keeps `lattice`)
+  // retired bin alias in historical/read-both provenance (not a shipped executable)
   ['import { lattice } from "./lattice.js";', false],
   ['a clean line with no brand token at all', false],
 ];
@@ -718,7 +720,7 @@ const BRAND_PROSE_CASES = [
   // Deprecated-but-still-READ config filename (B-cc10 CHK-004 flipped canonical to
   // `proof-or-stop.config.json`; this spelling still resolves for reads).
   ['edit `lattice.config.json` directly', false],
-  // bin wrapper paths (deprecated alias retained)
+  // legacy bin wrapper paths in read-both provenance (the shipped bin map is canonical-only)
   ['node bin/lattice.js verify_codex', false],
   ['node bin/lattice-codex.js session_brief', false],
   // managed-block markers (FROZEN)
@@ -739,8 +741,8 @@ const BRAND_PROSE_CASES = [
   // is followed by `-`, which the left/right fences reject. Byte-frozen by the mapping table.
   ['const SALT = "lattice-review-integrity-v1";', false],
   ['lattice-closeout-write-receipt-integrity-v3', false],
-  // Retained deprecated bin ALIAS paths — a file path, not an invocation. Never flagged,
-  // which is what makes the rename additive: keeping the alias cannot fail the gate.
+  // Retired deprecated bin ALIAS paths in compatibility probes — file paths, not invocations.
+  // Never flag these historical/read-both specimens; the shipped alias itself is absent.
   ["path.join(root, 'bin', 'lattice.js'),", false],
   ["const BOOTSTRAP_WRAPPERS = ['proof-or-stop.js', 'lattice.js'];", false],
   ['import \'./proof-or-stop-codex.js\';', false],
