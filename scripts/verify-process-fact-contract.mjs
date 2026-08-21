@@ -1506,7 +1506,7 @@ function assertProofStoryProgressiveBoundary() {
       && read('packages/main/src/core/pre-review-live-proof.ts').includes('assemblePreReviewCaseRecords')
       && read('packages/main/src/core/pre-review-live-proof.ts').includes('extra assertion IDs')
       && read('scripts/run-proofstory-pre-review-live-proof.mjs').includes("['--prefix', 'packages/main', 'run', 'build']")
-      && acceptanceDiscoveryText.includes('exportedCallableCount(parsed, endpoint.expectedSymbolOrFact)')
+      && acceptanceDiscoveryText.includes('exportedCallableCount(source, endpoint.expectedSymbolOrFact)')
       && acceptanceDiscoveryText.includes('endpointMatchesArtifactKind')
       && acceptanceDiscoveryText.includes('endpointIsRuntimeReachable')
       && acceptanceDiscoveryText.includes('producerConsumerRelation')
