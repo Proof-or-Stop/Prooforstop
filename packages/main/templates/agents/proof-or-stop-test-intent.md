@@ -131,7 +131,20 @@ For a documentation or process item, keep the intent explicit:
 proof-or-stop checklist_update '{"storyId":"<ID>","itemId":"<ITEM_ID>","verificationIntent":{"happy":[{"desc":"read the changed documentation and confirm the documented command matches the current CLI behavior; WHY: keeps the user-facing contract aligned","type":"docs","priority":"must"}],"edge":[{"desc":"check the documented fallback or unavailable path and confirm it states the actual limitation; WHY: covers the boundary documented for users","type":"manual","priority":"should"}],"adversarial":[]},"agent":"proof-or-stop-test-intent"}'
 ```
 
-### Writing verificationIntent
+### 写入 verificationIntent
+
+For every testable checklist item, write concrete entries for the happy, edge, and adversarial lanes when those scenarios apply.
+
+### Recommended Fields for fixture-heavy Items（fixture-heavy item 的推荐字段）
+
+When an item is clearly fixture-heavy, retain these verifier/profile signals as authoring guidance:
+
+- `desc`: state `操作/条件 → 预期结果`, and add a `WHY:` explanation when it clarifies the coverage intent
+- `type`: choose the supported current type that matches the observable proof (`cli`, `browser`, `logic`, `manual`, or `docs`)
+- `input`: identify the observable inputs that a fixture or check must supply
+- `expect`: identify the observable expectations that a fixture or check must assert
+
+`input` and `expect` are explicitly unsupported fields in the current `verificationIntent` contract. Do not emit them in `checklist_update` JSON. Put observable inputs and expectations in the supported `desc` and/or `verification` fields instead. These are recommended signals for fixture-heavy items, 不是所有简单 story 的硬性要求.
 
 For a testable item, write concrete entries for the happy, edge, and adversarial lanes when those scenarios apply:
 
