@@ -3567,6 +3567,64 @@
       ],
       "signatureTag": "missing|md|promise-undelivered-current",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-091",
+      "desc": "doc-promise-undelivered: current acceptance_topology_check, pre_review_check_read, acceptance_rollout_report_read, and acceptance_rollout_check are all passing with full-3x2 evidence, but docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md:136 still names packages/main/dist/tasks/verifier-causal-preflight-smoke.js without a corresponding packages/main/src/tasks/verifier-causal-preflight-smoke.ts or built artifact. The documented verifier command is not executable or source-backed.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-21T18:21:22.293Z",
+      "reviewRound": "2026-08-21T17:48:55.675Z",
+      "reviewRunId": "B-5a15:RR-170",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a15/scope-check.json",
+          ".proof-or-stop/story/actives/B-5a15/scope-contract.json",
+          ".proof-or-stop/story/actives/B-5a15/topology-critic-receipt.json",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/dist/tasks/verifier-causal-preflight-smoke.js",
+          "packages/main/src/tasks/verifier-causal-preflight-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": null
+        },
+        "digest": "42b7eae6b0d7aa944bf63f9b52a2058e9fd955b31f829c85cd9470a9ff7254f6"
+      },
+      "readDiagnostics": [],
+      "_hash": "f04474d3854fafdf0e7873030844e629115b5f65150d2809ae5885230db3d800",
+      "files": [
+        "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+        "packages/main/src/tasks/verifier-causal-preflight-smoke.ts",
+        "packages/main/dist/tasks/verifier-causal-preflight-smoke.js"
+      ],
+      "signatureTag": "missing|md|promise-undelivered-current",
+      "signatureTagSource": "auto"
     }
   ]
 }
