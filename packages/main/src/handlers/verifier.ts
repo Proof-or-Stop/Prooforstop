@@ -78,6 +78,8 @@ import {
 } from '../core/done-prepare-generated-metadata.js';
 import { normalizeRelPath } from '../core/lattice-paths.js';
 import { readBrandEnv } from '../core/brand-env.js';
+import { resolveDynamicMode } from '../core/story-aware-validation.js';
+import { prepareStoryAwareValidation } from './story-aware-validation.js';
 
 const STATUS_FALLBACK_TIMEOUT_MS = 10_000;
 const SHELL_META_RE = /[;&|<>$()`]/;
@@ -1215,6 +1217,12 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
       // configured gitRoot is authoritative, however: if it cannot resolve,
       // stop before capacity acquisition rather than mint a wrapper-local lock.
       const projectConfig = loadConfig(projectRoot);
+      const dynamicMode = resolveDynamicMode(
+        process.env.PROOF_OR_STOP_DYNAMIC_VALIDATION_MODE
+        || process.env.LATTICE_DYNAMIC_VALIDATION_MODE
+        || (projectConfig as unknown as { validation?: { dynamic?: { mode?: unknown } }; validate?: { dynamic?: { mode?: unknown } } }).validation?.dynamic?.mode
+        || (projectConfig as unknown as { validate?: { dynamic?: { mode?: unknown } } }).validate?.dynamic?.mode,
+      );
       const configuredGitRootExpected = Boolean(projectConfig.gitRoot?.trim());
       const resolvedProjectGitRoot = args.story
         ? null
@@ -1404,12 +1412,33 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           const reuse = built && args.story
             ? evaluateStoryRoutineReuse({ ctx, storyId: args.story, gitCwd: handlerGitCwd, identity: built.identity, coverage: built.snapshot.coverage })
             : null;
-          if (reuse?.reusable && built) {
+          if (reuse?.reusable && built && dynamicMode === 'off') {
             ctx.log?.('routine validation reused; commandExecutions=0');
             return reusedStoryValidationResult({
               ctx, storyId: args.story!, gitCwd: handlerGitCwd,
               snapshot: built.snapshot, identity: built.identity, reuse, focus,
             });
+          }
+          let dynamicPreview: { mode: string; manifest?: unknown; report?: string; authority: 'observe-only' | 'full-plan-oracle' } | undefined;
+          if (args.story && dynamicMode !== 'off') {
+            try {
+              const baseHead = execFileSync('git', ['merge-base', 'main', 'HEAD'], {
+                cwd: handlerGitCwd,
+                encoding: 'utf8',
+              }).trim();
+              const dynamic = prepareStoryAwareValidation({
+                projectRoot,
+                storyId: args.story,
+                baseHead,
+                head: currentHead(handlerGitCwd),
+                mode: dynamicMode,
+              });
+              dynamicPreview = { mode: dynamicMode, manifest: dynamic.manifest, report: dynamic.report, authority: 'full-plan-oracle' };
+              ctx.log?.(dynamic.report);
+            } catch (error) {
+              ctx.log?.('dynamic validation preview unavailable; retaining complete-plan oracle: ' + (error instanceof Error ? error.message : String(error)));
+              dynamicPreview = { mode: dynamicMode, authority: 'full-plan-oracle' };
+            }
           }
           ctx.log?.(usingConfigured
             ? `running ${commands.length} configured validate.command(s)${focus ? ` for focus=${focus}` : ''}`
@@ -1425,6 +1454,9 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             deadlineAt: args.deadlineAt,
             deadlineError: args.deadlineError,
           });
+          const dynamicValidation = dynamicPreview
+            ? { ...dynamicPreview, fullPlanAllPass: base.allPass }
+            : undefined;
           const summary = usingConfigured
             ? base.summary
             : `${base.summary}; ${fallbackDiscoveryDetail}`;
@@ -1443,7 +1475,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           // overrides it, and a future plan-level field cannot be lost by
           // forgetting to add it to the list below. Every whitelisted key is
           // still computed exactly as before — the whitelist output wins.
-          const result = { ...base, ...externalResult({
+          const result = { ...base, ...(dynamicValidation ? { dynamicValidation } : {}), ...externalResult({
             provider: base.provider,
             status: base.status,
             summary,

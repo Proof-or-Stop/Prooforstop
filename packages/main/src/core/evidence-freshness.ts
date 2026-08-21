@@ -3,6 +3,7 @@ import { createHash } from 'crypto';
 import { resolve as resolvePath } from 'path';
 import { isMaterialExcludedRuntimeArtifactPath } from './runtime-artifact-registry.js';
 import { loadConfig } from './config.js';
+import { resolveStoryChangedFiles } from './story-aware-validation.js';
 import {
   PROOF_OR_STOP_STORY_DIR,
   PROOF_OR_STOP_STORY_DIR_NAMES,
@@ -473,15 +474,9 @@ function objectIdsAtRef(gitCwd: string, ref: string): Map<string, string> {
 
 export function currentStoryFilesHash(gitCwd: string, ref = 'HEAD', metadataRoot: string = gitCwd): string | undefined {
   try {
-    const base = mergeBaseWithMain(gitCwd, ref);
-    if (!base) return undefined;
-    const objectIds = objectIdsAtRef(gitCwd, ref);
-    const entries = changedStoryFilesBetween(gitCwd, base, ref)
-      .filter(entry => !isMaterialExcludedPath(entry.path, metadataRoot))
-      .map((entry) => {
-        const objectId = entry.deleted ? undefined : objectIds.get(entry.path);
-        return `${entry.path}\0${objectId || '<deleted>'}`;
-      })
+    if (!mergeBaseWithMain(gitCwd, ref)) return undefined;
+    const entries = resolveStoryChangedFiles(gitCwd, ref, metadataRoot)
+      .map(entry => entry.path + '\0' + (entry.blobId || '<deleted>'))
       .sort();
     return createHash('sha256').update(entries.join('\0')).digest('hex');
   } catch {
