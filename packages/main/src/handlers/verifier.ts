@@ -80,7 +80,7 @@ import {
 import { normalizeRelPath } from '../core/lattice-paths.js';
 import { readBrandEnv } from '../core/brand-env.js';
 import { getSessionId } from '../core/owner-session.js';
-import { isLeaseStale, readOwnerLease } from '../core/story-owner-lease.js';
+import { acquireOrRefreshOwnerLease, isLeaseStale, readOwnerLease } from '../core/story-owner-lease.js';
 import {
   CAUSAL_MAX_OUTPUT_CHARS,
   CAUSAL_RECEIPT_DIRECTORY,
@@ -627,6 +627,12 @@ export function createValidationCausalPreflightGate(
   const input = { command, cwd, timeoutMs };
   const initialFacts = probeValidationCausalPreflightFacts(ctx, storyId, input);
   const factsUnchanged = () => causalCanonical(probeValidationCausalPreflightFacts(ctx, storyId, input)) === causalCanonical(initialFacts);
+  const storyDir = ctx.store.storyDirPath(storyId);
+  const refreshSameOwnerLease = () => {
+    const lease = readOwnerLease(storyDir);
+    if (!lease || lease.sessionId !== getSessionId()) return false;
+    return acquireOrRefreshOwnerLease(storyDir, { command: 'validate', cwd }).action === 'refreshed';
+  };
   const identity = {
     storyId,
     cwd,
@@ -645,7 +651,11 @@ export function createValidationCausalPreflightGate(
   }
   return {
     beforeLaunch: () => {
-      if (!verifyCausalPreflight(report, identity) || !factsUnchanged()) {
+      // Validation can spend many minutes between the CLI owner gate and a
+      // later scheduler launch. Keep this session's lease alive at each child
+      // boundary, while refusing missing/foreign leases rather than acquiring
+      // ownership as a side effect of causal preflight.
+      if (!refreshSameOwnerLease() || !verifyCausalPreflight(report, identity) || !factsUnchanged()) {
         throw new Error('validate preflight refused: state_changed_before_launch commandExecutions=0 evidenceWrites=0 [causal_preflight_refused]');
       }
     },
