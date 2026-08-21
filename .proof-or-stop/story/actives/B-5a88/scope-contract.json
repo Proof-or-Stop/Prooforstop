@@ -646,10 +646,28 @@
       "phase": "DEV",
       "headHash": "aae4afb0004466eae18d1bc51bc7b103089aec19",
       "materialHash": "132005af8d5402d8c3f8ae2a1db0e66a4e5b1ff7c1406377a7c044f2dad182e2"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Canonical global-thin manifest and its focused smoke are required to verify the F-107 identity migration.",
+      "timestamp": "2026-08-21T02:35:25.334Z",
+      "paths": [
+        ".proof-or-stop/proof-or-stop.json",
+        "packages/main/src/tasks/thin-init-assets-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".proof-or-stop/proof-or-stop.json",
+        "packages/main/src/tasks/thin-init-assets-smoke.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "ad67d923cf8ae7eb6d423c7b3ee9400f8a33ce9f",
+      "materialHash": "3953e9236797f4c3774c00d69b6b5fe7191190ad1a64875a4c4dee44790fadf6"
     }
   ],
   "createdAt": "2026-08-20T05:20:00.402Z",
-  "updatedAt": "2026-08-21T01:43:25.093Z",
+  "updatedAt": "2026-08-21T02:35:25.334Z",
   "fileRules": [],
   "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
@@ -807,6 +825,8 @@
     "CLAUDE.md": "CLAUDE.md",
     "packages/main/src/core/adversarial-review-round.ts": "packages/main/src/core/adversarial-review-round.ts",
     "packages/main/src/core/adversarial-review-verifier.ts": "packages/main/src/core/adversarial-review-verifier.ts",
-    "docs/host-run-usage.md": "docs/host-run-usage.md"
+    "docs/host-run-usage.md": "docs/host-run-usage.md",
+    ".proof-or-stop/proof-or-stop.json": ".proof-or-stop/proof-or-stop.json",
+    "packages/main/src/tasks/thin-init-assets-smoke.ts": "packages/main/src/tasks/thin-init-assets-smoke.ts"
   }
 }
