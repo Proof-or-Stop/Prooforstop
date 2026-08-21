@@ -801,6 +801,33 @@
       "consumedAt": "2026-08-21T17:32:48.214Z",
       "consumedByReviewRound": "2026-08-21T15:29:32.809Z",
       "_hash": "ec1d4261b3ddf7ea62b1bb70db069aa3ebb33db0f214129700096f5b4e957692"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-5a15:RI-009",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-21T17:48:55.675Z",
+      "state": "OPEN",
+      "begunAt": "2026-08-21T18:04:55.794Z",
+      "updatedAt": "2026-08-21T18:04:55.794Z",
+      "cutoff": {
+        "headHash": "329907af5d236fdcd492b1a4d948e861c4082d68",
+        "materialHash": "853d5eb4322ecb6d3ba9b94131ecab4e76ac0b8a2e77f47f24a2c39fc04ac775",
+        "storyFilesHash": "01a95005cb46a073e03805e42aef1925a31b87ed2f3d0b43e4378a5e2f1f1406"
+      },
+      "scopeDigest": "c523b5f0f0bd71a6dfb0575a059c84ba12488cab574e3c2e474bbdc4e9f54a98",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage"
+      ],
+      "initialRunSequenceBoundary": 160,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [
+        "B-5a15:F-081"
+      ],
+      "_hash": "790138db712deb5cde0d372fb43ade1a27da2d8ac433aac3bb662307d71eae16"
     }
   ],
   "receipts": [
