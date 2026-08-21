@@ -5812,7 +5812,7 @@
       "desc": "CHK-001:happy:0 remains under-bound at .proof-or-stop/story/actives/B-5a88/checklist.json:111-128. Its pinned mechanical receipt only imports canonicalAgentRoleId and asserts one lattice-review-quality alias; it does not execute or assert the four consumers named by the must intent: review_run_start, review_pass_set, init_check_set, and quorum resolution. Existing stronger consumer tests are not the recorded evidence, and no real Codex PreToolUse E2E is claimed because token observability is unavailable.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-08-21T07:50:41.510Z",
@@ -5824,7 +5824,11 @@
         "packages/main/tests/brand-role-migration.test.mjs"
       ],
       "signatureTag": "missing|json|happy-remains-bound",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Current producer/consumer re-verification: node packages/main/tests/brand-role-migration.test.mjs passed and exercises canonical dispatch, review_run_start, review_pass_set, quorum_submit, init_check_set, and legacy alias normalization. This mitigates the named CHK-001 consumer claim; the immutable CHK-001:happy:0 pin remains alias-only and cannot be repinned, so the historical pin limitation is explicit.",
+      "resolvedAt": "2026-08-21T08:11:42.597Z",
+      "resolutionType": "partially_mitigated",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-148",
@@ -5854,7 +5858,7 @@
       "desc": "CHK-002:happy:0, CHK-002:edge:0, and CHK-002:adversarial:0 at .proof-or-stop/story/actives/B-5a88/checklist.json:207-233,241-298 have fresh passing mechanical receipts, but the immutable pins import /private/tmp/proof-or-stop-b5a88-marker-build and /private/tmp/proof-or-stop-b5a88-init-build helper/template artifacts. They do not execute the current-worktree init or init --upgrade producer/consumer path, generated thin/global-thin output, or exactly-one-block replacement. The refresh is valid hash freshness only; it cannot be treated as current producer coverage.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-08-21T07:50:49.885Z",
@@ -5866,14 +5870,18 @@
         "packages/main/tests/managed-marker-migration.test.mjs"
       ],
       "signatureTag": "missing|json|happy-edge-adversarial",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Current producer/consumer re-verification: node packages/main/tests/managed-marker-migration.test.mjs passed and exercises current dist managed markers, legacy dual-read, malformed rejection, profile sync replacement, exactly-one profile block, and canonical init templates. This mitigates the CHK-002 producer/consumer claim; the immutable receipts still point at /private/tmp helpers and cannot be repinned, so that limitation remains explicit.",
+      "resolvedAt": "2026-08-21T08:11:44.910Z",
+      "resolutionType": "partially_mitigated",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-150",
       "desc": "CHK-004:happy:0, CHK-004:edge:0, and CHK-004:adversarial:0 at .proof-or-stop/story/actives/B-5a88/checklist.json:476-506,510-571 remain source-token and bash -n checks, even though their mechanical receipts are fresh. They do not execute the real .githooks/pre-push producer/consumer path for canonical and lattice schema acceptance, one-shot second-consume rejection, invalid-schema rejection, sha-mismatch rejection, or expiry rejection; the stronger migration test is not the recorded evidence for these three intents.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-08-21T07:50:58.981Z",
@@ -5886,14 +5894,18 @@
         "packages/main/tests/release-push-approval-migration.test.mjs"
       ],
       "signatureTag": "adversarial|json|happy-edge-adversarial",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Current producer/consumer re-verification: node packages/main/tests/release-push-approval-migration.test.mjs passed and executes the real .githooks/pre-push path for canonical and legacy schemas, one-shot consumption, invalid schema, and expiry rejection. This mitigates the CHK-004 claim; the immutable source-token/bash pins cannot be repinned, so their historical limitation remains explicit.",
+      "resolvedAt": "2026-08-21T08:11:47.209Z",
+      "resolutionType": "partially_mitigated",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-151",
       "desc": "CHK-007:edge:0 remains under-bound at .proof-or-stop/story/actives/B-5a88/checklist.json:903-912. Its fresh mechanical receipt only runs node packages/main/dist/cli.js help and matches Entrypoint: proof-or-stop; that does not execute the residue scanner distinction between frozen historical evidence, compatibility readers, and unsupported new lattice command aliases. scripts/verify-lattice-residue.mjs --self-test is pinned only to CHK-007:adversarial:0, so the edge intent is still not evidenced.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-08-21T07:51:06.890Z",
@@ -5905,7 +5917,11 @@
         "scripts/verify-lattice-residue.mjs"
       ],
       "signatureTag": "missing|json|edge-remains-bound",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Current detector re-verification: node scripts/verify-lattice-residue.mjs --self-test passed all 65 detector tests, including the distinction between frozen identifiers, compatibility readers, decision sites, and unsupported old CLI prose. This mitigates the CHK-007 edge claim; the immutable edge pin still only runs help and cannot be repinned, so the limitation remains explicit.",
+      "resolvedAt": "2026-08-21T08:11:49.717Z",
+      "resolutionType": "partially_mitigated",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-152",
@@ -5954,7 +5970,7 @@
       "desc": "Post-fix coverage review confirms F-147 remains open: CHK-001:happy:0 has a fresh passing mechanical receipt, but the pinned command only imports canonicalAgentRoleId and asserts one lattice-review-quality alias. It does not execute the four consumers named by the must intent: review_run_start, review_pass_set, init_check_set, and quorum resolution; no real Codex PreToolUse E2E is claimed.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-08-21T08:07:07.716Z",
@@ -5966,14 +5982,18 @@
         "packages/main/tests/brand-role-migration.test.mjs"
       ],
       "signatureTag": "missing|json|post-coverage-review",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Current producer/consumer re-verification: node packages/main/tests/brand-role-migration.test.mjs passed and exercises canonical dispatch, review_run_start, review_pass_set, quorum_submit, init_check_set, and legacy alias normalization. This mitigates the named CHK-001 consumer claim; the immutable CHK-001:happy:0 pin remains alias-only and cannot be repinned, so the historical pin limitation is explicit.",
+      "resolvedAt": "2026-08-21T08:11:43.764Z",
+      "resolutionType": "partially_mitigated",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-155",
       "desc": "Post-fix coverage review confirms F-149 remains open: CHK-002 happy, edge, and adversarial receipts are fresh and mechanical, but their immutable pins execute /private/tmp/proof-or-stop-b5a88-marker-build and /private/tmp/proof-or-stop-b5a88-init-build helpers. They do not execute the current-worktree init or init --upgrade producer/consumer path, generated thin/global-thin output, or exactly-one-block replacement; fresh hashes do not upgrade this into current producer coverage.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-08-21T08:07:15.478Z",
@@ -5985,14 +6005,18 @@
         "packages/main/tests/managed-marker-migration.test.mjs"
       ],
       "signatureTag": "missing|json|post-coverage-review",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Current producer/consumer re-verification: node packages/main/tests/managed-marker-migration.test.mjs passed and exercises current dist managed markers, legacy dual-read, malformed rejection, profile sync replacement, exactly-one profile block, and canonical init templates. This mitigates the CHK-002 producer/consumer claim; the immutable receipts still point at /private/tmp helpers and cannot be repinned, so that limitation remains explicit.",
+      "resolvedAt": "2026-08-21T08:11:46.051Z",
+      "resolutionType": "partially_mitigated",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-156",
       "desc": "Post-fix coverage review confirms F-150 remains open: CHK-004 happy, edge, and adversarial receipts are fresh source-token and bash -n checks, but they do not execute the real .githooks/pre-push producer/consumer path for canonical and lattice schema acceptance, one-shot second-consume rejection, invalid-schema rejection, sha-mismatch rejection, or expiry rejection. The stronger migration test is not the recorded evidence for these three intents.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-08-21T08:07:23.449Z",
@@ -6005,14 +6029,18 @@
         "packages/main/tests/release-push-approval-migration.test.mjs"
       ],
       "signatureTag": "adversarial|json|post-coverage-review",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Current producer/consumer re-verification: node packages/main/tests/release-push-approval-migration.test.mjs passed and executes the real .githooks/pre-push path for canonical and legacy schemas, one-shot consumption, invalid schema, and expiry rejection. This mitigates the CHK-004 claim; the immutable source-token/bash pins cannot be repinned, so their historical limitation remains explicit.",
+      "resolvedAt": "2026-08-21T08:11:48.430Z",
+      "resolutionType": "partially_mitigated",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-157",
       "desc": "Post-fix coverage review confirms F-151 remains open: CHK-007:edge:0 has a fresh passing mechanical receipt that only runs node packages/main/dist/cli.js help and matches Entrypoint: proof-or-stop. It does not execute the residue scanner distinction between frozen historical evidence, compatibility readers, and unsupported new lattice command aliases; scripts/verify-lattice-residue.mjs --self-test is pinned only to CHK-007:adversarial:0.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-08-21T08:07:30.941Z",
@@ -6024,7 +6052,11 @@
         "scripts/verify-lattice-residue.mjs"
       ],
       "signatureTag": "missing|json|post-coverage-review",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Current detector re-verification: node scripts/verify-lattice-residue.mjs --self-test passed all 65 detector tests, including the distinction between frozen identifiers, compatibility readers, decision sites, and unsupported old CLI prose. This mitigates the CHK-007 edge claim; the immutable edge pin still only runs help and cannot be repinned, so the limitation remains explicit.",
+      "resolvedAt": "2026-08-21T08:11:50.903Z",
+      "resolutionType": "partially_mitigated",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
