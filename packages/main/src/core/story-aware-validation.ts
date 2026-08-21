@@ -233,12 +233,12 @@ export const resolveStoryChangeManifest = buildStoryChangeManifest;
 
 export interface ValidationInventoryCommand {
   id: string; label: string; command: string; args: string[]; shell?: boolean; cwd?: string;
-  env?: Record<string, string>; timeoutMs?: number; focus?: string[]; resources?: ResourceClaim[]; originalIndex: number;
+  env?: Record<string, string>; timeoutMs?: number; focus?: string[]; resources?: ResourceClaim[]; caseRegistryPath?: string; originalIndex: number;
 }
 export interface ValidationCatalogEntry {
   schema?: typeof VALIDATION_CATALOG_SCHEMA;
   id: string; label: string; command: string; args: string[]; shell?: boolean; cwd?: string;
-  env?: Record<string, string>; timeoutMs?: number; focus?: string[]; resources: ResourceClaim[];
+  env?: Record<string, string>; timeoutMs?: number; focus?: string[]; resources: ResourceClaim[]; caseRegistryPath?: string;
   originalIndex: number;
   triggerExtensions: { files?: string[]; symbols?: string[]; processFacts?: string[]; capabilities?: string[]; packages?: string[] };
   inputRoots: string[]; closurePolicy: ClosurePolicy; assurance: Assurance; riskTier: RiskTier;
@@ -271,7 +271,7 @@ export function discoverValidationInventory(projectRoot: string, injected?: Vali
       const args = Array.isArray(value.args) ? value.args.filter((v): v is string => typeof v === 'string') : [];
       const label = typeof value.label === 'string' ? value.label : value.command + '-' + (index + 1);
       const resources = Array.isArray(value.resources) ? value.resources as ResourceClaim[] : [];
-      return [{ id: typeof value.id === 'string' ? value.id : commandId({ command: value.command, args, label }, index), label, command: value.command, args, ...(typeof value.shell === 'boolean' ? { shell: value.shell } : {}), ...(typeof value.cwd === 'string' ? { cwd: value.cwd } : {}), ...(typeof value.timeoutMs === 'number' ? { timeoutMs: value.timeoutMs } : {}), resources, originalIndex: index }];
+      return [{ id: typeof value.id === 'string' ? value.id : commandId({ command: value.command, args, label }, index), label, command: value.command, args, ...(typeof value.shell === 'boolean' ? { shell: value.shell } : {}), ...(typeof value.cwd === 'string' ? { cwd: value.cwd } : {}), ...(typeof value.timeoutMs === 'number' ? { timeoutMs: value.timeoutMs } : {}), ...(typeof value.caseRegistryPath === 'string' ? { caseRegistryPath: value.caseRegistryPath } : {}), resources, originalIndex: index }];
     });
   }
   const normalized = commands.map((row, index) => ({ ...row, id: row.id || commandId(row, index), originalIndex: row.originalIndex ?? index }));
@@ -332,8 +332,8 @@ export const validateCatalog = validateValidationCatalog;
 export function compileValidationCatalog(inventory: ValidationInventory, options: Partial<Pick<ValidationCatalogEntry, 'assurance' | 'riskTier' | 'closurePolicy' | 'fullBaselineReusePolicy' | 'cpuWeight' | 'expectedP50Ms'>> & { inputRoots?: string[] } = {}): ValidationCatalogEntry[] {
   return inventory.commands.map(row => ({
     ...row, schema: VALIDATION_CATALOG_SCHEMA,
-    inputRoots: options.inputRoots || [sourceRootForCommand(row)],
-    triggerExtensions: { files: options.inputRoots || [sourceRootForCommand(row)] },
+    inputRoots: options.inputRoots || [sourceRootForCommand(row), ...(row.caseRegistryPath ? [row.caseRegistryPath] : [])],
+    triggerExtensions: { files: options.inputRoots || [sourceRootForCommand(row), ...(row.caseRegistryPath ? [row.caseRegistryPath] : [])] },
     closurePolicy: options.closurePolicy || 'static-and-traced', assurance: options.assurance || 'story-selectable',
     riskTier: options.riskTier || 'local', fullBaselineReusePolicy: options.fullBaselineReusePolicy || 'not-applicable',
     resources: Array.isArray(row.resources) ? row.resources : [], cpuWeight: options.cpuWeight || 1,
@@ -842,6 +842,7 @@ export interface ValidationShardResult {
 export interface ValidationShardReceipt {
   schema: typeof VALIDATION_SHARD_RECEIPT_SCHEMA; id: string; shardId: string; domain: string;
   commandId: string; caseIds: string[]; sentinelCaseId: string; sentinelObserved: boolean;
+  caseRegistryDigest: string; adapterDigest: string; registryObserved: boolean;
   sourceHead: string; result: 'PASS' | 'FAIL'; exitCode: number; outputDigest: string;
   executed: boolean; staticPass: boolean; residue: string[]; cleanupDigest: string; createdAt: string; signature: string;
 }
@@ -854,6 +855,9 @@ export function verifyValidationShardReceipt(receipt: ValidationShardReceipt): b
     && receipt.executed === true && receipt.staticPass === false
     && receipt.caseIds.includes(receipt.sentinelCaseId)
     && receipt.sentinelObserved === true
+    && receipt.registryObserved === true
+    && HEX64.test(receipt.caseRegistryDigest)
+    && HEX64.test(receipt.adapterDigest)
     && receipt.residue.length === 0
     && verifyPayload(withoutSignature(receipt), receipt.signature);
 }

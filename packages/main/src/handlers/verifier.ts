@@ -1430,6 +1430,19 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             reusedCommands?: number;
             receipts?: number;
             selectedAllPass?: boolean;
+            authoritativeResult?: {
+              provider: string;
+              status: 'pass' | 'fail';
+              allPass: boolean;
+              summary: string;
+              details: string[];
+              warnings: string[];
+              timestamp: string;
+              headSha: string;
+              commands: ValidationCommandResult[];
+              commandExecutions: number;
+              disposition: 'executed';
+            };
             oracleStatus?: 'not-run' | 'executed';
             selectionManifestAccounting?: {
               selector: string;
@@ -1498,6 +1511,19 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
                     reusedCommands: dynamic.manifest.totals.reused,
                     receipts: dynamic.receipts.length,
                     selectedAllPass: dynamic.dynamicAllPass,
+                    authoritativeResult: {
+                      provider: 'lattice-verifier-dynamic-authoritative',
+                      status: dynamic.dynamicAllPass ? 'pass' : 'fail',
+                      allPass: dynamic.dynamicAllPass,
+                      summary: dynamic.dynamicAllPass ? 'Dynamic validation passed' : 'Dynamic validation failed',
+                      details: [dynamic.runtimeReport],
+                      warnings: dynamic.authority.authoritative ? [] : ['Dynamic authority was not accepted; complete-plan fallback is required.'],
+                      timestamp: new Date().toISOString(),
+                      headSha: currentHead(handlerGitCwd) || '',
+                      commands: [...dynamic.buildResult.commands, ...dynamic.selectedResult.commands],
+                      commandExecutions: dynamic.buildResult.commands.length + dynamic.selectedResult.commands.length,
+                      disposition: 'executed',
+                    },
                   };
                   ctx.log?.(dynamic.runtimeReport);
                 }
@@ -1576,6 +1602,33 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
               },
             };
           }
+          if (args.story && dynamicMode === 'enforce-low-risk' && dynamicPreview?.authority === 'enforce-authority' && dynamicPreview.authoritativeResult) {
+            // DYN-3 authority is a real result boundary: once every blocking
+            // prerequisite passes, do not pay for a second complete-plan run.
+            // The dynamic executor already selected the complete inventory on
+            // any escalation, and its result carries the signed manifest and
+            // receipt evidence used by TEST/DONE.
+            const authoritative = {
+              ...dynamicPreview.authoritativeResult,
+              dynamicValidation: {
+                ...dynamicPreview,
+                fullPlanAllPass: dynamicPreview.authoritativeResult.allPass,
+                oracleStatus: 'not-run' as const,
+                verdictEquivalent: undefined,
+              },
+            };
+            const decorated = decorateAndMaybePersistStoryValidation(
+              ctx,
+              args.story,
+              focus,
+              authoritative,
+              built?.identity,
+              authoritative.commands,
+              authoritative.commandExecutions,
+              authoritative.allPass,
+            );
+            return args.json ? JSON.stringify(decorated) : renderExternalResult(decorated);
+          }
           ctx.log?.(usingConfigured
             ? `running ${commands.length} configured validate.command(s)${focus ? ` for focus=${focus}` : ''}`
             : `validate.ts/js/mts not found and no configured validate.command(s); running ${commands.length} advisory fallback validation command(s)`);
@@ -1640,7 +1693,16 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
               ...dynamicValidation,
               selectedAllPass: base.allPass,
               observeOracle,
-              report: `${dynamicValidation.report || ''}\nobserve runtime traces: ${JSON.stringify(base.commands.map((row, index) => ({ commandId: manifest.rows[index]?.commandId, events: row.runtimeTrace?.events || [], unknownRuntimeInputs: row.runtimeTrace?.unknownRuntimeInputs || [] })))}`,
+              report: `${dynamicValidation.report || ''}\nobserve runtime traces: ${JSON.stringify(base.commands.map((row, index) => ({
+                commandId: manifest.rows[index]?.commandId,
+                events: row.runtimeTrace?.events || [],
+                readPaths: row.runtimeTrace?.readPaths || [],
+                loadedPaths: row.runtimeTrace?.loadedPaths || [],
+                spawnedPaths: row.runtimeTrace?.spawnedPaths || [],
+                registryKeys: row.runtimeTrace?.registryKeys || [],
+                environmentKeys: row.runtimeTrace?.environmentKeys || [],
+                unknownRuntimeInputs: row.runtimeTrace?.unknownRuntimeInputs || [],
+              })))}`,
               verdictEquivalent: observeOracle.equivalent,
             };
             persistStoryAwareValidationArtifacts({
@@ -1759,6 +1821,50 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           args: ['tsx', ...tsArgs],
           ...(validateFileDefaultTimeoutMs() ? { timeoutMs: validateFileDefaultTimeoutMs() } : {}),
         };
+        if (!args.story && dynamicMode !== 'off' && !focus) {
+          try {
+            const baseHead = execFileSync('git', ['merge-base', 'main', 'HEAD'], {
+              cwd: handlerGitCwd,
+              encoding: 'utf8',
+            }).trim();
+            const dynamic = prepareStoryAwareValidation({
+              projectRoot,
+              storyId: 'B-dynamic-validation-adhoc',
+              baseHead,
+              head: currentHead(handlerGitCwd) || baseHead,
+              mode: dynamicMode,
+              commands: [identityCommand],
+              gitCwd: handlerGitCwd,
+              changedFiles: [],
+            });
+            const preview = externalResult({
+              provider: 'lattice-verifier-dynamic-preview',
+              status: 'warn',
+              summary: 'Dynamic validation bounded preview; full-plan oracle not run; supply --story',
+              details: [dynamic.report, 'full-plan oracle not run; supply --story'],
+              warnings: ['Project-level dynamic preview is diagnostic only; no validation commands executed and no authority granted.'],
+              headSha: currentHead(handlerGitCwd),
+              commands: [],
+            });
+            const result = {
+              ...preview,
+              disposition: 'preview' as const,
+              commandExecutions: 0,
+              dynamicValidation: {
+                mode: dynamicMode,
+                manifest: dynamic.manifest,
+                report: dynamic.report,
+                authority: 'full-plan-oracle' as const,
+                oracleStatus: 'not-run' as const,
+                fullPlanAllPass: undefined,
+                verdictEquivalent: undefined,
+              },
+            };
+            return args.json ? JSON.stringify(result) : renderExternalResult(result);
+          } catch (error) {
+            ctx.log?.('dynamic validation preview unavailable; retaining validate-file oracle: ' + (error instanceof Error ? error.message : String(error)));
+          }
+        }
         const built = args.story ? buildStoryRoutineIdentity({
           ctx,
           storyId: args.story,
@@ -1829,6 +1935,19 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
                 reusedCommands: dynamic.manifest.totals.reused,
                 receipts: dynamic.receipts.length,
                 selectedAllPass: dynamic.dynamicAllPass,
+                authoritativeResult: dynamic.authority.authoritative ? {
+                  provider: 'lattice-verifier-dynamic-authoritative',
+                  status: dynamic.dynamicAllPass ? 'pass' : 'fail',
+                  allPass: dynamic.dynamicAllPass,
+                  summary: dynamic.dynamicAllPass ? 'Dynamic validation passed' : 'Dynamic validation failed',
+                  details: [dynamic.runtimeReport],
+                  warnings: [],
+                  timestamp: new Date().toISOString(),
+                  headSha: currentHead(handlerGitCwd) || '',
+                  commands: [...dynamic.buildResult.commands, ...dynamic.selectedResult.commands],
+                  commandExecutions: dynamic.buildResult.commands.length + dynamic.selectedResult.commands.length,
+                  disposition: 'executed' as const,
+                } : undefined,
               };
             }
             ctx.log?.(dynamicValidation.report || 'dynamic validation prepared for validate-file entrypoint');
@@ -1836,6 +1955,28 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             ctx.log?.('dynamic validation execution unavailable; retaining validate-file oracle: ' + (error instanceof Error ? error.message : String(error)));
             dynamicValidation = { mode: dynamicMode, authority: 'full-plan-oracle', report: 'dynamic validation unavailable; validate-file oracle retained' };
           }
+        }
+        if (args.story && dynamicMode === 'enforce-low-risk' && dynamicValidation?.authority === 'enforce-authority' && dynamicValidation.authoritativeResult) {
+          const authoritative = {
+            ...dynamicValidation.authoritativeResult,
+            dynamicValidation: {
+              ...dynamicValidation,
+              fullPlanAllPass: dynamicValidation.authoritativeResult.allPass,
+              oracleStatus: 'not-run' as const,
+              verdictEquivalent: undefined,
+            },
+          };
+          const decorated = decorateAndMaybePersistStoryValidation(
+            ctx,
+            args.story,
+            focus,
+            authoritative,
+            built?.identity,
+            authoritative.commands,
+            authoritative.commandExecutions,
+            authoritative.allPass,
+          );
+          return args.json ? JSON.stringify(decorated) : renderExternalResult(decorated);
         }
         const commandResult = await runValidateFile();
         const { code, output } = commandResult;
@@ -1854,6 +1995,15 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             ...dynamicValidation,
             fullPlanAllPass: code === 0,
             oracleStatus: 'executed',
+            report: `${dynamicValidation.report || ''}\nvalidate-file runtime trace: ${JSON.stringify({
+              events: commandResult.runtimeTrace?.events || [],
+              readPaths: commandResult.runtimeTrace?.readPaths || [],
+              loadedPaths: commandResult.runtimeTrace?.loadedPaths || [],
+              spawnedPaths: commandResult.runtimeTrace?.spawnedPaths || [],
+              registryKeys: commandResult.runtimeTrace?.registryKeys || [],
+              environmentKeys: commandResult.runtimeTrace?.environmentKeys || [],
+              unknownRuntimeInputs: commandResult.runtimeTrace?.unknownRuntimeInputs || [],
+            })}`,
             ...(observeOracle ? { observeOracle, verdictEquivalent: observeOracle.equivalent } : {
               verdictEquivalent: dynamicValidation.selectedAllPass === undefined ? undefined : dynamicValidation.selectedAllPass === (code === 0),
             }),

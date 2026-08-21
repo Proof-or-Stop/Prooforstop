@@ -13,11 +13,17 @@ const git = (args: string[]) => execFileSync('git', args, { cwd: root, encoding:
 try {
   mkdirSync(join(root, 'packages/main/src'), { recursive: true });
   writeFileSync(join(root, 'packages/main/src/.keep'), '\n');
+  const caseRegistryPath = 'packages/main/src/review-pass-cases.json';
+  writeFileSync(join(root, caseRegistryPath), JSON.stringify([
+    { caseId: 'review-pass:case-1', domain: 'review-pass', sentinel: true },
+    { caseId: 'review-pass:case-2', domain: 'review-pass' },
+    { caseId: 'review-pass:case-3', domain: 'review-pass' },
+  ]) + '\n');
   writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
     validate: {
       commands: [
         { command: process.execPath, args: ['-e', "process.stdout.write('build\\n')", 'build'], label: 'build' },
-        { command: process.execPath, args: ['-e', "process.stdout.write('PROOF_OR_STOP_SENTINEL:'+process.env.LATTICE_VALIDATION_SHARD_SENTINEL+'\\n')", 'review-pass'], label: 'review-pass-discard-smoke' },
+        { command: process.execPath, args: ['-e', "process.stdout.write('PROOF_OR_STOP_SENTINEL:'+process.env.LATTICE_VALIDATION_SHARD_SENTINEL+'\\n')", 'review-pass'], label: 'review-pass-discard-smoke', caseRegistryPath },
       ],
     },
   }, null, 2));
@@ -31,9 +37,10 @@ try {
     { command: process.execPath, args: ['-e', "process.stdout.write('build\\n')", 'build'], label: 'build' },
     {
       command: process.execPath,
-      args: ['-e', "process.stdout.write('PROOF_OR_STOP_CASES:'+process.env.LATTICE_VALIDATION_SHARD_CASE_IDS+'\\nPROOF_OR_STOP_SENTINEL:'+process.env.LATTICE_VALIDATION_SHARD_SENTINEL+'\\n')", 'review-pass'],
+      args: ['-e', "const fs=require('node:fs'); const cases=JSON.parse(fs.readFileSync(process.env.LATTICE_VALIDATION_SHARD_CASE_REGISTRY,'utf8')); const ids=cases.filter(c=>process.env.LATTICE_VALIDATION_SHARD_CASE_IDS.split(',').includes(c.caseId)).map(c=>c.caseId).join(','); process.stdout.write('PROOF_OR_STOP_CASES:'+ids+'\\nPROOF_OR_STOP_SENTINEL:'+process.env.LATTICE_VALIDATION_SHARD_SENTINEL+'\\n')", 'review-pass'],
       label: 'review-pass-discard-smoke',
-      env: { LATTICE_VALIDATION_SHARD_ADAPTER: 'case-output-v1' },
+      env: { LATTICE_VALIDATION_SHARD_ADAPTER: 'case-registry-output-v1' },
+      caseRegistryPath,
     },
   ];
   const run = await runStoryAwareDynamicValidation({
