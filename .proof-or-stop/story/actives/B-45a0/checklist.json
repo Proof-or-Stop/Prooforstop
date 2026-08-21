@@ -688,7 +688,42 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The replay campaign covers 30 to 50 representative Story classes and emits per-story/per-command evidence showing full failures are a subset of dynamic execute rows.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/run-dynamic-validation-replay.mjs --verify-threshold",
+              "selector": "historical replay threshold PASS"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "FI-1 through FI-5 and the Section 20 mutation rows each produce a durable named fail-closed receipt, including deleted/renamed and whole-repository cases.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/run-dynamic-validation-fault-injection.mjs --verify",
+              "selector": "fault injection matrix PASS"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Missing one catalog mutant, false-negative replay, absent paired run, nonzero undeclared runtime inputs, or residual artifact blocks enforcement even if a generic suite is green.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/run-dynamic-validation-replay.mjs --mutation=missing-evidence",
+              "selector": "enforcement threshold blocked"
+            }
+          }
+        ]
+      }
     },
     {
       "id": "CHK-012",
