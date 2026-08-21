@@ -1,0 +1,115 @@
+{
+  "findings": [
+    {
+      "id": "B-45a0:F-001",
+      "desc": "packages/main/src/handlers/verifier.ts:1453-1465 runs runStoryAwareDynamicValidation for observe mode, and packages/main/src/handlers/story-aware-validation.ts:325-366 launches Wave-0 plus selected commands. The same validate invocation then executes the complete plan at verifier.ts:1555-1565, so observe launches a competing validation plan and duplicates command/build side effects. The plan requires DYN-1 observe to instrument/compute selection while the unchanged complete plan remains the sole authority; gate observe to selection-only or attach instrumentation to the existing executor.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T12:01:06.168Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-001",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9a1197fe8d4b21e824ae5e09610c1d85c3d74d474b1aaaa304ace8e6a3ffbee4",
+      "signatureTag": "adversarial|unknown|packages-main-handlers",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-002",
+      "desc": "packages/main/src/handlers/story-aware-validation.ts:127-140 creates every closure from static inputRoots with producedBy=story-closure-preview, while packages/main/src/core/story-aware-validation.ts:355-385 only validates a caller-supplied ValidationRuntimeTrace. There is no runtime tracer or canonical-full-baseline compiler/call site: runStoryAwareDynamicValidation never supplies runtimeTraces, and the only references are the type and pure smoke tests. Undeclared file loads/spawns/environment reads therefore cannot invalidate a certificate, yet selection can admit a reuse receipt; this is the false-negative route explicitly closed by the plan and makes closure/reuse evidence unsafe.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T12:01:17.979Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-001",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/story-aware-validation.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b8c4c614a625d55dfcdfd612fe02490ee428860ed612b3b4046f66cce2b1b1a3",
+      "signatureTag": "missing|unknown|packages-main-handlers",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-003",
+      "desc": "packages/main/src/core/story-aware-validation.ts:787-819 only provides in-memory shard partition/aggregation helpers; rg shows no production caller outside story-aware-validation-smoke.ts and story-aware-validation-mutation-smoke.ts. The promised DYN-5 runtime assets (quorum-submit-shards.ts and review-pass-shards.ts), isolated command execution, durable shard/sentinel receipts, and cleanup/residue evidence are absent, so quorum/review-pass commands remain monolithic and the sharding safety/performance contract is not delivered.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T12:01:36.606Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-001",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a1e56e70909d50dd341eaaf18207301fad7935bebe68a99ca46d7281101b870d",
+      "signatureTag": "missing|unknown|packages-main-core",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-004",
+      "desc": "packages/main/src/handlers/story-aware-validation.ts:396-413 hard-codes 10 of the 12 DYN-3 enforcement prerequisites to false and permits only RunStoryAwareValidationArgs.prerequisites to override them. The verifier call at packages/main/src/handlers/verifier.ts:1454-1465 never supplies prerequisites, and rg finds no production provider of these trusted rows. Therefore --dynamic-mode=enforce-low-risk can never produce authoritative dynamic TEST evidence even after the replay/fault campaign; it always reports full-fallback. The implementation needs a gate-owned, current evidence reader/binding or must not claim the DYN-3 happy path is delivered.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T12:01:53.063Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-001",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7bcab2bd51e0900357de9d36acba71276bb32cdcaac82ad9dadff9b69abd8dd0",
+      "signatureTag": "missing|unknown|packages-main-handlers",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
