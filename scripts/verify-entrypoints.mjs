@@ -726,7 +726,7 @@ checks.push(() => {
   try {
     const cliPath = join(repoRoot, 'packages/main/dist/cli.js');
     for (const flag of ['--web', '--cli']) {
-      const result = runBounded(process.execPath, [cliPath, 'serve', flag], {
+      const result = runBounded(process.execPath, [cliPath, '--root', tempDir, 'serve', flag], {
         cwd: tempDir,
         env: process.env,
       });

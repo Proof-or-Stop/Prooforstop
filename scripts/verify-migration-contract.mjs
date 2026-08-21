@@ -32,8 +32,12 @@ missing.length === 0
   : fail(`identities with no verdict row: ${missing.join(', ')}`);
 
 // CHK-001 adversarial: a reader cannot conclude a FROZEN row was silently ignored.
+const supersessionCitations = [
+  'brand-rename-mapping.md:73',
+  'brand-rename-mapping.md:130',
+];
 const supersessions = /[Ss]upersession/.test(doc)
-  && doc.includes('brand-rename-mapping.md:130') && doc.includes('brand-rename-mapping.md:72');
+  && supersessionCitations.every((citation) => doc.includes(citation));
 console.log(`supersessionsDocumented=${supersessions}`);
 supersessions
   ? ok('both FROZEN supersessions documented with citations, not silently ignored')
