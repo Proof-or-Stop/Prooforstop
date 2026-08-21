@@ -46,6 +46,8 @@ import { executeValidationPlan } from '../core/validation-executor.js';
 
 export interface PrepareStoryAwareValidationArgs {
   projectRoot: string;
+  /** Git worktree root may differ from the config/project root on wrapper layouts. */
+  gitCwd?: string;
   storyId: string;
   baseHead: string;
   head?: string;
@@ -98,7 +100,8 @@ function initialLedger(args: PrepareStoryAwareValidationArgs): ReceiptRevocation
 }
 
 function prepare(args: PrepareStoryAwareValidationArgs): PreparedStoryAwareValidation {
-  const head = args.head || currentHead(args.projectRoot);
+  const gitCwd = args.gitCwd || args.projectRoot;
+  const head = args.head || currentHead(gitCwd);
   const inventory = discoverValidationInventory(args.projectRoot);
   const catalog = compileValidationCatalog(inventory);
   assertValidValidationCatalog(inventory, catalog);
@@ -106,7 +109,7 @@ function prepare(args: PrepareStoryAwareValidationArgs): PreparedStoryAwareValid
   const catalogDigest = stableDigest(catalog);
   const changes = buildStoryChangeManifest({
     storyId: args.storyId,
-    gitCwd: args.projectRoot,
+    gitCwd,
     baseHead: args.baseHead,
     head,
     scopeContract: args.scopeContract,
@@ -117,7 +120,7 @@ function prepare(args: PrepareStoryAwareValidationArgs): PreparedStoryAwareValid
   });
   const graph = args.changedFiles && args.changedFiles.length === 0
     ? undefined
-    : buildDualRevisionImpactGraph({ gitCwd: args.projectRoot, baseHead: args.baseHead, head, catalog });
+    : buildDualRevisionImpactGraph({ gitCwd, baseHead: args.baseHead, head, catalog });
   const closures = new Map<string, ValidationClosureCertificate>();
   for (const entry of catalog) {
     const trace = args.runtimeTraces?.get(entry.id);
@@ -146,7 +149,7 @@ function prepare(args: PrepareStoryAwareValidationArgs): PreparedStoryAwareValid
     baselineEpochId: baselineEpoch(args),
     revocationLedger: initialLedger(args),
     mode: args.mode || 'observe',
-    gitCwd: args.projectRoot,
+    gitCwd,
     buildProofDigest: args.buildProofDigest,
     toolchainDigest: args.toolchainDigest || stableDigest({ node: process.version, platform: process.platform, arch: process.arch }),
     scopeContract: args.scopeContract,
@@ -310,7 +313,7 @@ export interface StoryAwareDynamicRun extends PreparedStoryAwareValidation {
 export async function runStoryAwareDynamicValidation(args: RunStoryAwareValidationArgs): Promise<StoryAwareDynamicRun> {
   const prior = readStoryAwareValidationArtifacts(args.projectRoot, args.storyId);
   const first = prepare({ ...args, receipts: args.receipts || prior.receipts, revocationLedger: args.revocationLedger || prior.revocationLedger });
-  const head = args.head || currentHead(args.projectRoot);
+  const head = args.head || currentHead(args.gitCwd || args.projectRoot);
   const waveId = first.catalog.find((entry) => first.manifest.rows.some((row) => row.commandId === entry.id && row.reasons.includes('wave-0-build')))?.id
     || waveZeroCommand(first.catalog);
   if (!waveId) throw new Error('dynamic validation inventory is empty; cannot execute Wave-0 build');
