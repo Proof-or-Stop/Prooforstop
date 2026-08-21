@@ -8894,6 +8894,21 @@
       ],
       "signatureTag": "missing|mjs|current-prompt-policy",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-236",
+      "desc": "packages/main/src/handlers/proofstory.ts:306-355 and packages/main/src/core/topology-critic-receipt.ts:464-501 — current acceptance topology is not backed by a valid current topology-critic receipt: topology_critic_receipt_check returns AT_TOPOLOGY_CRITIC_RECEIPT_INVALID with missing or unverifiable critic and implementation agent/session/dispatch/headHash/businessCommit provenance, implementation mismatch, request_changes verdict, stale freshness binding, and stale finding refs. acceptance_topology_check remains non-evidentiary structural output; the required current signed PASS with session-bound implementation dispatch and exact topology provenance is absent.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-21T20:59:22.095Z",
+      "reviewRound": "2026-08-21T20:53:57.831Z",
+      "reviewRunId": "B-5a88:RR-273",
+      "_hash": "b81f0b7a4a01a0269a17fdf6fdadfa8f5f9c0884ac81dd5435b8c56f96ccdabc",
+      "signatureTag": "missing|unknown|packages-main-handlers",
+      "signatureTagSource": "auto"
     }
   ]
 }
