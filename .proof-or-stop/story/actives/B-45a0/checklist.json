@@ -437,7 +437,42 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "An unchanged complete certified source closure with a current PASS receipt is reused per command while the canonical build executes.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run test:dynamic-validation-receipts",
+              "selector": "admissible per-command reuse PASS"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Expiry, revocation, non-ancestor source, baseline epoch drift, dirty tree, runner/toolchain change, or changed input forces execution.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run test:dynamic-validation-receipt-mutations",
+              "selector": "receipt rejection matrix PASS"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Forged signature, stale pre-build dist digest, incomplete closure, failed/timeout receipt, or noncanonical full-only provenance can never authorize reuse.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run test:dynamic-validation-receipt-forgery",
+              "selector": "forged receipt rejected"
+            }
+          }
+        ]
+      }
     },
     {
       "id": "CHK-008",
