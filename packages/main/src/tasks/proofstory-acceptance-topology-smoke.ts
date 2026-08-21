@@ -438,6 +438,39 @@ try {
     /Verification evidence batch recorded/,
   );
   assert.equal(store.readChecklist(storyId).items[0].verificationEvidence?.[0]?.command, 'node cli-contract-test.mjs acceptance_matrix', 'all three writer surfaces preserve a non-producer argument token');
+  const sameEvidenceCommand = 'node cli-contract-test.mjs acceptance_matrix';
+  assert.match(
+    run(writerCliRoot, 'checklist_update', {
+      storyId,
+      itemId: 'CHK-001',
+      verificationEvidence: [{ intentRef: 'INT-001', kind: 'integration_test', command: sameEvidenceCommand, result: 'pass', note: 'same evidence with updated metadata' }],
+    }, false, 'main-agent'),
+    /verificationEvidence updated/,
+  );
+  const sameEvidence = store.readChecklist(storyId).items[0].verificationEvidence?.[0];
+  assert.equal(sameEvidence?.mechanical, false, 'same command/result carries forward the audited non-mechanical provenance');
+  assert.equal(sameEvidence?.nonMechanicalReason, nonMatrixEscape, 'same command/result carries forward the on-disk non-mechanical reason');
+  assert.equal(sameEvidence?.note, 'same evidence with updated metadata', 'same-evidence re-persistence still updates ordinary metadata');
+  const changedCommandBefore = JSON.stringify(store.readChecklist(storyId));
+  assert.match(
+    run(writerCliRoot, 'checklist_update', {
+      storyId,
+      itemId: 'CHK-001',
+      verificationEvidence: [{ intentRef: 'INT-001', kind: 'integration_test', command: 'node mutated-evidence.mjs', result: 'pass', note: 'changed command must not reuse attestation' }],
+    }, true, 'main-agent'),
+    /checklist_update_executable_evidence_unenforced/,
+  );
+  assert.equal(JSON.stringify(store.readChecklist(storyId)), changedCommandBefore, 'changed command refusal is atomic');
+  const changedResultBefore = JSON.stringify(store.readChecklist(storyId));
+  assert.match(
+    run(writerCliRoot, 'checklist_update', {
+      storyId,
+      itemId: 'CHK-001',
+      verificationEvidence: [{ intentRef: 'INT-001', kind: 'integration_test', command: sameEvidenceCommand, note: 'changed result must not reuse attestation' }],
+    }, true, 'main-agent'),
+    /checklist_update_executable_evidence_unenforced/,
+  );
+  assert.equal(JSON.stringify(store.readChecklist(storyId)), changedResultBefore, 'changed result refusal is atomic');
 } finally {
   rmSync(writerCliRoot, { recursive: true, force: true });
 }

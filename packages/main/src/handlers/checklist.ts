@@ -712,13 +712,13 @@ function resolveIntentForRef(
  *
  * A tool-execution receipt / audited attestation therefore survives a checklist_update
  * re-persist (reordering the array, editing note/file/verdict metadata) ONLY by being
- * carried forward from the EXISTING on-disk evidence for the same intentRef — never from
- * the incoming row. A mechanical receipt is carried forward only when the caller does not
- * change the underlying evidence the receipt attests to (same command + same result); if
- * the caller changes command or result the stale receipt is dropped and the row is re-judged
- * as fresh (an executable intent then needs a real on-disk receipt or the guard refuses it).
- * This closes F-008's receipt-loss demotion (a legitimate re-persist previously stripped a
- * real receipt, silently re-grandfathering it) without opening a caller-receipt injection path.
+ * carried forward from the EXISTING on-disk evidence for the same intentRef and the same
+ * command + result identity — never from the incoming row. If the caller changes command
+ * or result, the stale provenance is dropped and the row is re-judged as fresh (an
+ * executable intent then needs a real on-disk receipt or the guard refuses it). This closes
+ * F-008's receipt-loss demotion (a legitimate re-persist previously stripped a real receipt,
+ * silently re-grandfathering it) and F-044's stale non-mechanical attestation bypass without
+ * opening a caller-provenance injection path.
  */
 function carryForwardOnDiskProvenance(
   existing: readonly VerificationEvidence[] | undefined,
@@ -728,19 +728,21 @@ function carryForwardOnDiskProvenance(
   const { mechanical: _callerMechanical, receipt: _callerReceipt, nonMechanicalReason: _callerReason, ...trusted } = incoming;
   const prior = existing?.find(e => e.intentRef === incoming.intentRef);
   if (!prior || prior.mechanical === undefined) return trusted; // no prior, or legacy/undefined provenance: nothing to carry
+  const sameCommand = (incoming.command ?? undefined) === (prior.command ?? undefined);
+  const sameResult = (incoming.result ?? undefined) === (prior.result ?? undefined);
   if (prior.mechanical === true) {
     // A receipt is bound to a specific command execution; carry it forward only when the
     // caller re-persists the SAME command + result (does not change the underlying evidence).
-    const sameCommand = (incoming.command ?? undefined) === (prior.command ?? undefined);
-    const sameResult = (incoming.result ?? undefined) === (prior.result ?? undefined);
     if (prior.receipt && sameCommand && sameResult) {
       return { ...trusted, mechanical: true, receipt: prior.receipt };
     }
     return trusted; // command/result changed → stale receipt dropped, row re-judged as fresh
   }
   // prior.mechanical === false → audited non-mechanical attestation; carry forward the
-  // on-disk reason so a re-persist of an audited-escape row stays attributable (still
-  // demoted by the coverage gate for executable intents).
+  // on-disk reason only for the same command + result, so a re-persist of an audited-escape
+  // row stays attributable without accepting mutated evidence metadata (still demoted by
+  // the coverage gate for executable intents).
+  if (!sameCommand || !sameResult) return trusted; // command/result changed → stale attestation dropped
   return {
     ...trusted,
     mechanical: false,
