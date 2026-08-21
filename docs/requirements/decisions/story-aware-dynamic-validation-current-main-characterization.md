@@ -10,12 +10,13 @@ revocation ledger all bind to the same HEAD.
 
 The inventory is discovered from canonical `proof-or-stop.config.json`, with
 legacy `lattice.config.json` as a fallback, and receives a stable command ID
-from command plus arguments. The root configuration declares a
-`validate.dynamic.policyDefaults` tuple for the 110 ordinary rows and explicit
-overrides for the review-pass and quorum gate rows; therefore the compiled
-112-command catalog reports `policySource=explicit` for all 112 entries (the
-inventory digest is emitted by `verify-validation-inventory.mjs`). Every
-command carries the catalog policy tuple:
+from command plus arguments. The root configuration now records the DYN-1
+policy tuple explicitly on every command: 58 `full-only` /
+`whole-repository` validation-infrastructure rows and 54
+`story-selectable` / `static-and-traced` rows (including the two DYN-5 gate
+rows). The compiled 112-command catalog reports
+`policySource=explicit` for all 112 entries (the inventory digest is emitted
+by `verify-validation-inventory.mjs`). Every command carries the catalog policy tuple:
 
 | Field | Meaning |
 | --- | --- |

@@ -3,10 +3,11 @@
 This document records the evidence required before enabling low-risk dynamic
 TEST authority. It is a checklist of signed, current artifacts rather than a
 claim that a synthetic smoke is historical proof. The current root inventory
-is 112 commands; `validate.dynamic.policyDefaults` plus the two gate-row
-overrides make all 112 compiled catalog entries explicit, while authority
-still falls back whenever a selected gate/full-only row or any other
-prerequisite is not admissible.
+is 112 commands: 58 explicitly classified `full-only` /
+`whole-repository` validation-infrastructure rows and 54
+`story-selectable` / `static-and-traced` rows, including the two DYN-5 gate
+rows. Authority still falls back whenever a selected gate/full-only row or any
+other prerequisite is not admissible.
 
 ## Mandatory gate
 
