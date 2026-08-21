@@ -4284,6 +4284,58 @@
       ],
       "signatureTag": "missing|md|required-executable-coverage",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-105",
+      "desc": "Canonical missing-artifact family for B-5a15:F-099, F-100, F-101, F-102, F-103, and F-104. The implementation baseline at docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md:136 documents node packages/main/dist/tasks/verifier-causal-preflight-smoke.js, but the acknowledged source task and corresponding build artifact are absent; the exact command exits MODULE_NOT_FOUND. The current pre_review_check_read also fails with PR_ARTIFACT_TAMPERED and PR_COVERAGE_BASIS_CHANGED, so this verifier-owned producer/consumer acceptance path is not admissible. These six findings are one verified critical missing-artifact family, not independent defects.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-21T19:15:37.342Z",
+      "reviewRound": "2026-08-21T17:48:55.675Z",
+      "reviewRunId": "B-5a15:RR-187",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/tests/verifier-causal-preflight.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "packages/main/dist/tasks/verifier-causal-preflight-smoke.js",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/verifier-causal-preflight-smoke.ts"
+        ],
+        "scanEscalationReason": "The missing source/build pair was verified by exact path enumeration and command reproduction; no full decisions-directory escalation was needed."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "c38a8f8f5ef68c95e4566758097a01d0d2d20cfeb5867565bb2be1cd023ee789"
+      },
+      "readDiagnostics": [],
+      "_hash": "5610a0b29195b2bb9e4a450c153b602e21147505d6633595cb0cc4f64da68211",
+      "files": [
+        "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+        "packages/main/src/tasks/verifier-causal-preflight-smoke.ts",
+        "packages/main/dist/tasks/verifier-causal-preflight-smoke.js",
+        "packages/main/tests/verifier-causal-preflight.test.mjs",
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/src/core/causal-evidence.ts",
+        ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a15/pre-review-check.json"
+      ],
+      "signatureTag": "verifier-causal-preflight-missing-artifact-family",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
