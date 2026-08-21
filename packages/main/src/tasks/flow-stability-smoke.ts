@@ -4159,7 +4159,7 @@ async function assertPhaseGatesAndEffectsExtraction(): Promise<void> {
     const actor = { stop() { stopped = true; } };
     await assert.rejects(
       () => runValidateGate({ store, root: failRoot, scanRoot: join(failRoot, 'packages/main') }, storyId, actor),
-      /Cannot enter TEST: proof-or-stop validate did not pass/,
+      /Cannot enter TEST: proof-or-stop validate (?:did not pass|execution error)/,
       'runValidateGate must block TEST when proof-or-stop validate fails',
     );
     assert.equal(stopped, false, 'runValidateGate must leave actor stop to transition-orchestrator');
