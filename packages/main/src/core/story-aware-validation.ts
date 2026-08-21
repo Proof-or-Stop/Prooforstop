@@ -748,6 +748,9 @@ export function buildValidationSchedule(entries: ScheduledValidationEntry[], opt
   const waves: ValidationScheduleRow[][] = [];
   const sorted = [...entries].sort((a, b) => (a.wave || 0) - (b.wave || 0) || b.expectedP50Ms - a.expectedP50Ms || a.originalIndex - b.originalIndex);
   for (const entry of sorted) {
+    if (!Number.isFinite(entry.cpuWeight) || entry.cpuWeight < 1 || entry.cpuWeight > cpuCapacity) {
+      throw new Error(`validation command ${entry.commandId} cpuWeight=${entry.cpuWeight} exceeds scheduler capacity=${cpuCapacity}`);
+    }
     let waveIndex = entry.wave || 0;
     while (true) {
       const wave = waves[waveIndex] || []; const cpu = wave.reduce((sum, row) => sum + row.cpuWeight, 0);
