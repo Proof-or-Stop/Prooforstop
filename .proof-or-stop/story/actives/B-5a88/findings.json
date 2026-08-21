@@ -5794,7 +5794,7 @@
       "desc": "Configured validation remains stale at .proof-or-stop/story/actives/B-5a88/test-evidence.json:2-8. evidence_inspect --storyId=B-5a88 --format=json reports staleRefs=[test-evidence] because its storyFilesHash does not match the current story-owned state; a current story-scoped validate rerun is required before TEST assurance can be claimed. The reviewer validate and verification_evidence_refresh_stale attempts were owner-gated by the active same-worktree owner lease, so no fresh configured validation PASS is claimed.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-08-21T07:50:33.561Z",
@@ -5805,7 +5805,11 @@
         ".proof-or-stop/story/actives/B-5a88/test-evidence.json"
       ],
       "signatureTag": "missing|json|configured-validation-remains",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Resolved by the official story-scoped proof-or-stop validate --story=B-5a88 --json rerun. The result returned status=pass, allPass=true, configured commandExecutions=0 via trusted-story-metadata-descendant reuse, and verification coverage 21/21 with 0 required missing. evidence_inspect reports staleRefs=[] and fresh=true; test-evidence is bound to materialHash 968aac46b9b084904048e248a71583a35d7d00c5a3affe935787f21c73e02444 and storyFilesHash a861ee0250c5a9328afc406106510c93871bffefb28f89c3220063ba4e7dacd9, with current HEAD c511e37a6c08ae4338cbfef12180f1c95a6f0c76 a metadata-only descendant.",
+      "resolvedAt": "2026-08-21T10:03:11.437Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-147",
@@ -5952,7 +5956,7 @@
       "desc": "Post-fix coverage review confirms F-146 remains open: evidence_inspect --storyId=B-5a88 --format=json reports staleRefs=[test-evidence] because test-evidence.json storyFilesHash does not match the current story-owned state. The 21 checklist receipts are fresh, but they do not replace a fresh configured validation artifact; TEST assurance still requires the story-scoped validate rerun.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-08-21T08:07:00.353Z",
@@ -5963,7 +5967,11 @@
         ".proof-or-stop/story/actives/B-5a88/test-evidence.json"
       ],
       "signatureTag": "missing|json|post-coverage-review",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Resolved by the same official story-scoped proof-or-stop validate --story=B-5a88 --json PASS used for F-146. It returned status=pass, allPass=true, configured commandExecutions=0 via trusted-story-metadata-descendant reuse, and verification coverage 21/21 with 0 required missing. evidence_inspect reports staleRefs=[] and fresh=true for test-evidence, bound to materialHash 968aac46b9b084904048e248a71583a35d7d00c5a3affe935787f21c73e02444 and storyFilesHash a861ee0250c5a9328afc406106510c93871bffefb28f89c3220063ba4e7dacd9; current HEAD c511e37a6c08ae4338cbfef12180f1c95a6f0c76 is a metadata-only descendant.",
+      "resolvedAt": "2026-08-21T10:03:24.623Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-154",
