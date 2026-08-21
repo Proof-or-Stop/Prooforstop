@@ -8649,6 +8649,40 @@
       "_hash": "bcc69cf1de2d76429e82f73ac6fc68bb473e6140fef66ad3fceb4eeb279ec3dc",
       "signatureTag": "edge|unknown|verification-blocker-scripts",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-225",
+      "desc": "scripts/verify-entrypoints.mjs:729-740 — the isolated --root serve regression check still fails at runtime: node scripts/verify-entrypoints.mjs reaches check 11/28, then proof-or-stop serve --web output lacks the required \"🐨 proof-or-stop serve\" launcher marker and exits non-zero. The --root isolation change does not establish the intended serve behavior, so F-224 remains unresolved.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-21T20:03:27.308Z",
+      "reviewRound": "2026-08-21T20:00:25.137Z",
+      "reviewRunId": "B-5a88:RR-263",
+      "_hash": "a46cdb62a3e9c818fcaa49449c07100ebed700994d37084dd09343dc0d9f93b5",
+      "files": [
+        "scripts/verify-entrypoints.mjs",
+        "packages/main/dist/cli.js"
+      ],
+      "signatureTag": "edge|mjs|scripts-verify-entrypoints",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-226",
+      "desc": "scripts/verify-entrypoints.mjs:729-735 still cannot verify the serve contract after the --root change: it creates an empty tempDir, invokes the CLI there, and expects the built-in serve banner. The CLI then runs npx tsx from that empty project; in this worktree the command emits only the Node deprecation warning and times out without the expected banner, so verify-entrypoints exits at the serve assertion. The --root change removes the lifecycle-gate error but leaves the witness with no runnable project/core or local tsx precondition.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T20:05:10.081Z",
+      "reviewRound": "2026-08-21T20:00:25.137Z",
+      "reviewRunId": "B-5a88:RR-264",
+      "_hash": "50050f4d31eba858be59888438acceff0eb9eee6d977fcbe68dd038316e453ff",
+      "signatureTag": "edge|unknown|scripts-verify-entrypoints",
+      "signatureTagSource": "auto"
     }
   ]
 }

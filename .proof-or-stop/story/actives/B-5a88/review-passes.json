@@ -4062,6 +4062,31 @@
         "scanEscalationReason": null
       },
       "_hash": "aaea3b9336a869432c41bf5de3ce1ead46848a96e4af3eb15605973988d45cac"
+    },
+    {
+      "id": "B-5a88:RP-073",
+      "agent": "lattice-review-concept",
+      "note": "Concept review complete: F-223 supersession citations and F-224 isolated serve-root invocation are present and mechanically checked; active brand/bin residue checks pass. Full entrypoint smoke is environment-limited because tsx is unavailable locally; direct built serve confirms the expected launcher banner and wait path.",
+      "createdAt": "2026-08-21T20:05:45.418Z",
+      "reviewRound": "2026-08-21T20:00:25.137Z",
+      "reviewRunId": "B-5a88:RR-265",
+      "envelopeId": "de6b9d64654c1318a04c482a8193d8104e3215c4a48613a38af0bdc1cc934919",
+      "writerSessionId": "sess-900b66faad8a44ef5aebf6b0f6f86ff2",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/verifier/serve.ts",
+          "scripts/verify-entrypoints.mjs",
+          "scripts/verify-lattice-residue.mjs",
+          "scripts/verify-migration-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2af75df7e80cf99f6136867be8afd13afbaac214aec0bf0acfdefb3f36f586e4"
     }
   ]
 }
