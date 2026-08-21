@@ -1430,6 +1430,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             reusedCommands?: number;
             receipts?: number;
             selectedAllPass?: boolean;
+            oracleStatus?: 'not-run' | 'executed';
             selectionManifestAccounting?: {
               selector: string;
               inventory: number;
@@ -1516,6 +1517,38 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
               dynamicPreview = { mode: dynamicMode, authority: 'full-plan-oracle' };
             }
           }
+          // A project-level dynamic invocation is intentionally a bounded
+          // diagnostic preview. It has no story scope or receipt authority,
+          // so running the complete configured plan here would make the
+          // documented `--dynamic-mode=observe --json` probe unexpectedly
+          // consume the full validation budget. Story-scoped validation below
+          // remains the only path that executes and compares the full oracle.
+          if (!args.story && dynamicMode !== 'off' && dynamicPreview) {
+            const previewDetails = [
+              ...(dynamicPreview.report ? [dynamicPreview.report] : []),
+              'full-plan oracle not run; supply --story',
+            ];
+            const preview = externalResult({
+              provider: 'lattice-verifier-dynamic-preview',
+              status: 'warn',
+              summary: 'Dynamic validation bounded preview; full-plan oracle not run; supply --story',
+              details: previewDetails,
+              warnings: ['Project-level dynamic preview is diagnostic only; no validation commands executed and no authority granted.'],
+              headSha: currentHead(handlerGitCwd),
+              commands: [],
+            });
+            return {
+              ...preview,
+              disposition: 'preview',
+              commandExecutions: 0,
+              dynamicValidation: {
+                ...dynamicPreview,
+                oracleStatus: 'not-run',
+                fullPlanAllPass: undefined,
+                verdictEquivalent: undefined,
+              },
+            };
+          }
           ctx.log?.(usingConfigured
             ? `running ${commands.length} configured validate.command(s)${focus ? ` for focus=${focus}` : ''}`
             : `validate.ts/js/mts not found and no configured validate.command(s); running ${commands.length} advisory fallback validation command(s)`);
@@ -1534,6 +1567,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             ? {
               ...dynamicPreview,
               fullPlanAllPass: base.allPass,
+              oracleStatus: 'executed' as const,
               // Observe/shadow remain oracle-authoritative, but record the
               // verdict comparison so a selection mismatch is visible rather
               // than silently looking like a successful optimization.
