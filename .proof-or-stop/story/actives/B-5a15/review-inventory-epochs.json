@@ -1001,9 +1001,9 @@
       "epochId": "B-5a15:RI-010",
       "storyId": "B-5a15",
       "reviewRound": "2026-08-21T17:48:55.675Z",
-      "state": "OPEN",
+      "state": "CANCELLED",
       "begunAt": "2026-08-21T18:37:38.643Z",
-      "updatedAt": "2026-08-21T18:37:38.643Z",
+      "updatedAt": "2026-08-21T19:01:04.137Z",
       "cutoff": {
         "headHash": "884583b6aaca09b68ee01180d4d6f90a2047623f",
         "materialHash": "853d5eb4322ecb6d3ba9b94131ecab4e76ac0b8a2e77f47f24a2c39fc04ac775",
@@ -1034,7 +1034,10 @@
         "B-5a15:F-094",
         "B-5a15:F-095"
       ],
-      "_hash": "447e3e44f327a786b3093d92a594d35047f146b742e60b903c4f2fd15aca0e48"
+      "cancelledAt": "2026-08-21T19:01:04.137Z",
+      "cancelReason": "Topology closeout retention rejected the current critic artifact while scope refresh made the acceptance basis stale; cancel this epoch to regenerate the signed basis before retrying review.",
+      "terminalRunSequenceBoundary": 180,
+      "_hash": "fe85c061fb28a445133b6d9e60db7fd33bc615a3aab3caeddd52baec95e34d18"
     }
   ],
   "receipts": [
