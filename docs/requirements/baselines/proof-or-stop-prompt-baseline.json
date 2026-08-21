@@ -75,7 +75,7 @@
       },
       {
         "role": "proof-or-stop-test-intent",
-        "templateHash": "2c665efd03d9f3bd31d1c3396aebb276c031d51b4bba33bb98fc203a1744f1f8"
+        "templateHash": "b28c73eeb25c4dd6ac31aae646188fd382c5394ebb0ea7c5f4d35901879f6170"
       }
     ],
     "roleBodyRollout": [
@@ -275,8 +275,8 @@
         "role": "proof-or-stop-test-intent",
         "file": "proof-or-stop-test-intent.md",
         "relPath": "templates/agents/proof-or-stop-test-intent.md",
-        "templateHash": "b84bf95541e112fa39385b1bb124c14059e775c29dbbf627a1ed8c3624fc96e9",
-        "bytes": 10215,
+        "templateHash": "ee8c2ad1fdb888148e1bf36dd1c4d0130902589e6b9217514128617da2e9833a",
+        "bytes": 10203,
         "lines": 179
       }
     ]
@@ -383,8 +383,8 @@
       },
       {
         "role": "proof-or-stop-test-intent",
-        "sha256": "992b05f3c9409bd198b45ed616bf7bfe17bdc33f5d9f67e402991ad561499dd7",
-        "bytes": 10216,
+        "sha256": "130c41f629a557ff39e003849a81728be3d694cbe2e808d231b901b3e5620b3e",
+        "bytes": 10204,
         "lines": 180
       }
     ]
@@ -724,7 +724,7 @@
         {
           "role": "proof-or-stop-test-intent",
           "relPath": "templates/agents/proof-or-stop-test-intent.md",
-          "templateHash": "b84bf95541e112fa39385b1bb124c14059e775c29dbbf627a1ed8c3624fc96e9"
+          "templateHash": "ee8c2ad1fdb888148e1bf36dd1c4d0130902589e6b9217514128617da2e9833a"
         }
       ]
     }
@@ -1371,23 +1371,6 @@
         "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
-        "id": "e813057e2fe3ac4c",
-        "role": "proof-or-stop-test-intent",
-        "line": 116,
-        "clauseIndex": 1,
-        "occurrence": 1,
-        "term": "testIntent",
-        "matchedText": "test-intent",
-        "clause": "Optional current fields are `id`, `requiredIn`, `verification`, and `plannedPathDeclarations` when the story's dispatched proof-or-stop-test-intent workflow explicitly provides the required values.",
-        "excerpt": "Optional current fields are `id`, `requiredIn`, `verification`, and `plannedPathDeclarations` when the story's dispatched proof-or-stop-test-intent workflow explicitly provides the required values. Do not invent unsupported fields such as `input` or `expect`.",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
         "id": "909e1060589ec71c",
         "role": "proof-or-stop-test-intent",
         "line": 131,
@@ -1414,23 +1397,6 @@
         "matchedText": "test-intent",
         "clause": "WHY: covers the failure boundary\",\"type\":\"cli\",\"priority\":\"must\"}]},\"agent\":\"proof-or-stop-test-intent\"}'",
         "excerpt": "proof-or-stop checklist_update '{\"storyId\":\"<STORY_ID>\",\"itemId\":\"<ITEM_ID>\",\"verificationIntent\":{\"happy\":[{\"desc\":\"run the supported command with valid input → returns the expected result; WHY: covers the primary contract\",\"type\":\"cli\",\"priority\":\"must\"}],\"edge\":[{\"desc\":\"run the command with the boundary input → returns the documented boundary result; WHY: covers the input limit\",\"type\":\"logic\",\"priority\":\"must\"}],\"adversarial\":[{\"desc\":\"run the command with malformed or unauthorized input → rejects it without changing persisted state; WHY: covers the failure boundary\",\"type\":\"cli\",\"priority\":\"must\"}]},\"agent\":\"proof-or-stop-test-intent\"}'",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "b1db07470700c866",
-        "role": "proof-or-stop-test-intent",
-        "line": 163,
-        "clauseIndex": 1,
-        "occurrence": 1,
-        "term": "testIntent",
-        "matchedText": "test-intent",
-        "clause": "- Do not add planned path declarations unless the dispatched proof-or-stop-test-intent workflow supplies valid declarations and file references",
-        "excerpt": "- Do not add planned path declarations unless the dispatched proof-or-stop-test-intent workflow supplies valid declarations and file references",
         "classification": "legacy-prompt-body",
         "note": "Legacy compatibility prompt; visible until migration or retirement.",
         "roleStatus": "legacy",

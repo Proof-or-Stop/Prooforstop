@@ -1649,10 +1649,12 @@ function runConcurrentReviewerWriteCase(mask: number, iteration = 1, mutation?: 
     'lattice-review-quality',
     'lattice-review-test-coverage',
   ];
-  const rolloutModes = Object.fromEntries(roles.map((role, index) => [
+  const canonicalRoles = roles.map(role => canonicalAgentRoleId(role));
+  const rolloutModes = Object.fromEntries(canonicalRoles.map((role, index) => [
     role,
     (mask & (1 << index)) === 0 ? 'legacy-full-context' : 'full-envelope',
   ]));
+  const rolloutModeFor = (role: string) => rolloutModes[canonicalAgentRoleId(role)];
   const round = '2026-07-19T00:00:00.000Z';
   const shellCommand = (command: string, payload: Record<string, unknown>, role: string) => [
     `LATTICE_AGENT=${JSON.stringify(role)}`,
@@ -1742,7 +1744,7 @@ function runConcurrentReviewerWriteCase(mask: number, iteration = 1, mutation?: 
     const runs = store.readReviewRuns(storyId).runs;
     const reviewRunIdentity = runs.length === roles.length && new Set(runs.map(run => run.reviewRunId)).size === roles.length;
     if (!mutation) assert.equal(reviewRunIdentity, true, 'concurrent review_run_start preserves every lane and unique IDs');
-    const fullRoles = roles.filter(role => rolloutModes[role] === 'full-envelope');
+    const fullRoles = roles.filter(role => rolloutModeFor(role) === 'full-envelope');
     if (mutation === 'mixed-envelope-selection') {
       const data = store.readPromptEnvelopes(storyId); data.envelopes = data.envelopes.slice(1); store.writePromptEnvelopes(storyId, data);
     }
@@ -1753,14 +1755,14 @@ function runConcurrentReviewerWriteCase(mask: number, iteration = 1, mutation?: 
     );
     let mixedEnvelopeSelection = store.readPromptEnvelopes(storyId).envelopes.length === fullRoles.length;
     for (const run of runs) {
-      const full = rolloutModes[run.lane] === 'full-envelope';
+      const full = rolloutModeFor(run.lane) === 'full-envelope';
       mixedEnvelopeSelection = mixedEnvelopeSelection && Boolean(run.envelopeId) === full && Boolean(run.assembledPrompt) === full;
       if (!mutation) assert.equal(Boolean(run.envelopeId), full, `mixed mask ${mask} iteration ${iteration} ${run.lane} binds its selected rollout representation`);
       if (!mutation) assert.equal(Boolean(run.assembledPrompt), full, `mixed mask ${mask} iteration ${iteration} ${run.lane} stores assembled prompt only in full mode`);
     }
 
     const evidenceCommands = roles.map((role, index) => {
-      const reviewRunId = runs.find(run => run.lane === role)!.reviewRunId;
+      const reviewRunId = runs.find(run => canonicalAgentRoleId(run.lane) === canonicalAgentRoleId(role))!.reviewRunId;
       return index % 2 === 0
         ? shellCommand('review_pass_set', {
           storyId,
@@ -1794,10 +1796,10 @@ function runConcurrentReviewerWriteCase(mask: number, iteration = 1, mutation?: 
     if (!mutation) assert.equal(signedResultAdmissibility, true, `collector accepts every current signed result under mixed mask ${mask} iteration ${iteration}`);
     const observedAgents = [...new Set(evidence.valid.map(item => item.agent))].sort();
     if (mutation === 'lane-no-overwrite') observedAgents.pop();
-    const laneNoOverwrite = JSON.stringify(observedAgents) === JSON.stringify([...roles].sort());
+    const laneNoOverwrite = JSON.stringify(observedAgents) === JSON.stringify([...canonicalRoles].sort());
     if (!mutation) assert.deepEqual(
       observedAgents,
-      [...roles].sort(),
+      [...canonicalRoles].sort(),
       `collector counts every reviewer lane once without overwrite under mixed mask ${mask} iteration ${iteration}`,
     );
     let realGateMutationTrace: GuardObservation['mutationTrace'];
