@@ -6213,7 +6213,7 @@
       "desc": "concept-cleanup: canonical managed markers are still emitted in legacy form by the prompt surface. packages/main/src/core/prompt-registry.ts:125-219 defines LOAD_BEARING_LATTICE_PROMPT_SLICE with <!-- lattice:start/end -->, and renderPromptEntryForHost at :466-480 returns that content; direct current-dist rendering reports both Claude and Codex evaluator-cli output contain the legacy pair. The three shipped proof-or-stop-evaluator-cli assets in .claude/agents/proof-or-stop-evaluator-cli.md:7,101, .proof-or-stop-codex/agents/proof-or-stop-evaluator-cli.md:7,101, and packages/main/templates/agents/proof-or-stop-evaluator-cli.md:7,101 also contain the pair. This violates the migration decisions new-write contract in brand-rename-mapping.md:135 and proof-or-stop-identity-migration.md:27: legacy markers are allowed only for compatibility reads, while new managed and prompt assets must use proof-or-stop:start/end. packages/main/tests/prompt-role-migration.test.mjs:39-44 currently asserts the legacy pair, so the test preserves the residue instead of detecting it.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-08-21T10:21:23.547Z",
@@ -6228,7 +6228,11 @@
         "packages/main/tests/prompt-role-migration.test.mjs"
       ],
       "signatureTag": "missing|ts|concept-cleanup-canonical",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Resolved by commit ea958530e4. The prompt-registry producer now emits proof-or-stop managed markers for new writers; legacy lattice markers are projected only for historical reconstruction and compatibility reads. All three shipped proof-or-stop-evaluator-cli assets use canonical markers and the migration smoke rejects legacy markers in the canonical asset. Current verification passes: npm --prefix packages/main run build; node packages/main/dist/tasks/prompt-registry-smoke.js (17 agents); node packages/main/tests/prompt-role-migration.test.mjs; node scripts/verify-proof-or-stop-prompt-baseline.mjs; node scripts/verify-lattice-residue.mjs --self-test (65/65).",
+      "resolvedAt": "2026-08-21T10:42:59.562Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
