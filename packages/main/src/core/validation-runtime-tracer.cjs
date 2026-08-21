@@ -49,6 +49,24 @@ if (typeof fs.createReadStream === 'function') {
     return originalCreateReadStream.call(this, path, ...args);
   };
 }
+for (const name of ['open', 'openSync', 'readdir', 'readdirSync', 'stat', 'statSync', 'lstat', 'lstatSync', 'access', 'accessSync', 'opendir', 'opendirSync', 'copyFile', 'copyFileSync', 'readlink', 'readlinkSync']) {
+  const original = fs[name];
+  if (typeof original !== 'function') continue;
+  fs[name] = function wrappedFilesystemRead(path, ...args) {
+    add(trace.readPaths, pathArg(path));
+    return original.call(this, path, ...args);
+  };
+}
+if (fs.promises) {
+  for (const name of ['open', 'readdir', 'stat', 'lstat', 'access', 'opendir', 'copyFile', 'readlink']) {
+    const original = fs.promises[name];
+    if (typeof original !== 'function') continue;
+    fs.promises[name] = async function wrappedPromiseFilesystemRead(path, ...args) {
+      add(trace.readPaths, pathArg(path));
+      return original.call(this, path, ...args);
+    };
+  }
+}
 const originalLoad = Module._load;
 Module._load = function wrappedModuleLoad(request, parent, isMain) {
   add(trace.loadedPaths, typeof request === 'string' ? request : undefined);

@@ -607,6 +607,7 @@ function receiptAdmissible(receipt: ValidationCommandReceipt | undefined, entry:
   if (!verifyValidationCommandReceipt(receipt, ctx.now || Date.now()).ok || isReceiptRevoked(receipt, ctx.revocationLedger)) return false;
   if (!verifyValidationClosureCertificate(closure) || receipt.closureCertificateDigest !== closure.signature) return false;
   if (receipt.catalogDigest !== stableDigest(ctx.catalog) || receipt.inventoryDigest !== currentInventoryDigest(ctx.inventory)) return false;
+  if (ctx.runnerDigest && receipt.runnerDigest !== ctx.runnerDigest) return false;
   if (ctx.buildProofDigest && receipt.buildProofDigest !== ctx.buildProofDigest) return false;
   if (receipt.sourceBaseHead !== ctx.baseHead || receipt.canonicalBaselineEpochId !== (ctx.baselineEpochId || '')) return false;
   if (ctx.gitCwd) {

@@ -1622,7 +1622,10 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             const manifest = dynamicValidation.manifest as ValidationSelectionManifest;
             const selected = new Set(manifest.rows.filter(row => row.disposition === 'execute').map(row => row.commandId));
             const commandIds = manifest.rows.map(row => row.commandId);
-            const selectedOrder = commandIds.filter(id => selected.has(id));
+            const instrumentedOrder = base.commands.flatMap((row, index) => {
+              const commandId = manifest.rows[index]?.commandId;
+              return commandId && selected.has(commandId) && row.runtimeTrace?.events.includes('spawn') ? [commandId] : [];
+            });
             const observeOracle = runObserveOracle({
               manifest,
               fullOracle: {
@@ -1630,13 +1633,14 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
                 failedCommandIds: base.commands.flatMap((row, index) =>
                   (row.code !== 0 || row.timedOut) && manifest.rows[index] ? [manifest.rows[index]!.commandId] : []),
               },
-              instrumentedOrder: selectedOrder,
+              instrumentedOrder,
               authoritativeOrder: commandIds,
             });
             dynamicValidation = {
               ...dynamicValidation,
               selectedAllPass: base.allPass,
               observeOracle,
+              report: `${dynamicValidation.report || ''}\nobserve runtime traces: ${JSON.stringify(base.commands.map((row, index) => ({ commandId: manifest.rows[index]?.commandId, events: row.runtimeTrace?.events || [], unknownRuntimeInputs: row.runtimeTrace?.unknownRuntimeInputs || [] })))}`,
               verdictEquivalent: observeOracle.equivalent,
             };
             persistStoryAwareValidationArtifacts({
@@ -1646,6 +1650,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
               report: `${dynamicValidation.report || ''}\nobserve oracle: ${JSON.stringify(observeOracle)}`,
               receipts: [],
               revocationLedger: buildRevocationLedger([], []),
+              preserveExistingReceipts: true,
             });
           }
           const summary = usingConfigured
