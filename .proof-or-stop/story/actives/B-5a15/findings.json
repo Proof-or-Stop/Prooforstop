@@ -1378,6 +1378,45 @@
       "_hash": "653b3f4c67cf9989b0a6e29f0e83609fa08f83c2c9e0361b0cdda49c77164655",
       "signatureTag": "missing|unknown|concept-input-missing",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-044",
+      "desc": "Focused acceptance smoke fails: after verification_evidence_add records an audited non-mechanical row for executable intent INT-001, checklist_update with a changed command/result is accepted instead of returning checklist_update_executable_evidence_unenforced. carryForwardOnDiskProvenance in packages/main/src/handlers/checklist.ts:741-747 preserves mechanical:false solely by intentRef and does not require command/result identity, so the bulk write path accepts mutated evidence metadata and contradicts the acceptance control at packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts:401-410. Reproduced with npm --prefix packages/main run test:proofstory-acceptance-topology-smoke; expected refusal, got verificationEvidence updated (1).",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T03:16:13.710Z",
+      "reviewRound": "2026-08-21T02:36:00.789Z",
+      "reviewRunId": "B-5a15:RR-078",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/causal-evidence.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a15/review-passes.json",
+          ".proof-or-stop/story/actives/B-5a15/review-runs.json",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+          "packages/main/tests/causal-evidence-concurrency.test.mjs",
+          "packages/main/tests/causal-evidence.test.mjs",
+          "packages/main/tests/checklist-causal-preflight-batch.test.mjs",
+          "packages/main/tests/verifier-causal-preflight.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4498932d7c856526936b7c8f85daf8bede9a6fa496cea710d90fcd747b95414d",
+      "files": [
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|focused-acceptance-smoke",
+      "signatureTagSource": "auto"
     }
   ]
 }
