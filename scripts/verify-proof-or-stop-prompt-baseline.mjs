@@ -149,7 +149,13 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'proof-or-stop-test-intent',
-    templateHash: '168d1a5b862f0949aaa44223f21f42e67ff4df938805ac6ebf0fd55677be3fc2',
+    // B-5a88: re-approved after the verificationIntent migration in
+    // 110e688042 and the fixture-heavy authoring guidance restoration in
+    // 8cff6d925b. Audit scope was limited to the three synchronized
+    // proof-or-stop-test-intent prompt assets; they contain no legacy
+    // testIntent/cli_blackbox/browser_blackbox contract and explicitly keep
+    // input/expect out of emitted verificationIntent entries.
+    templateHash: 'a8a16203d62bd4c39fc28b0536e5686723eaead7185485cc3e58809aca56285d',
   },
 ].map(entry => Object.freeze(entry)));
 const APPROVED_ROLE_BODY_ROLLOUT_MANIFEST = Object.freeze([
