@@ -120,7 +120,8 @@
     "test:residue-inject-repro": "node ../../scripts/verify-residue-inject-repro.mjs",
     "test:migration-contract": "node scripts/verify-migration-contract.mjs",
     "test:topology-signing-source-guard": "node dist/tasks/topology-signing-source-guard-smoke.js",
-    "test:signing-guard-mutation-proof": "node dist/tasks/signing-guard-mutation-proof-smoke.js"
+    "test:signing-guard-mutation-proof": "node dist/tasks/signing-guard-mutation-proof-smoke.js",
+    "test:story-aware-validation": "node dist/tasks/story-aware-validation-smoke.js"
   },
   "dependencies": {
     "@lattice/lab": "0.3.65",

@@ -1,0 +1,143 @@
+/**
+ * Focused contract smoke for Story-aware dynamic validation.
+ *
+ * It intentionally exercises the pure core, including fail-closed receipt,
+ * closure, selection, scheduler, oracle, authority and shard guards.  The
+ * existing complete validation plan remains outside this smoke and is the
+ * authoritative oracle in observe/shadow mode.
+ */
+import assert from 'node:assert/strict';
+import {
+  aggregateValidationShards,
+  buildDynamicValidationPlan,
+  buildStoryChangeManifest,
+  buildValidationSchedule,
+  buildValidationShards,
+  compileValidationCatalog,
+  createValidationClosureCertificate,
+  createValidationCommandReceipt,
+  discoverValidationInventory,
+  evaluateDynamicAuthority,
+  verifyValidationClosureCertificate,
+  verifyValidationCommandReceipt,
+  verifyStoryChangeManifest,
+  verifyValidationSchedule,
+} from '../core/story-aware-validation.js';
+
+const inventory = discoverValidationInventory('/tmp', [
+  { id: 'always', label: 'always', command: 'node', args: ['always.js'], originalIndex: 0 },
+  { id: 'local', label: 'local', command: 'node', args: ['local.js'], originalIndex: 1 },
+]);
+const catalog = compileValidationCatalog(inventory, { inputRoots: ['packages/main/src/local.ts'] });
+const changes = buildStoryChangeManifest({
+  storyId: 'B-smoke',
+  gitCwd: '.',
+  baseHead: 'base',
+  head: 'head',
+  changedFiles: [{ path: 'packages/main/src/local.ts', status: 'modified', blobId: 'blob' }],
+});
+assert.equal(verifyStoryChangeManifest(changes), true);
+const closures = new Map(catalog.map(entry => [entry.id, createValidationClosureCertificate({
+  commandId: entry.id,
+  baseHead: 'base',
+  inventoryDigest: inventory.digest,
+  catalogDigest: 'catalog',
+  staticPaths: ['packages/main/src/local.ts'],
+})]));
+assert.equal([...closures.values()].every(verifyValidationClosureCertificate), true);
+const undeclared = createValidationClosureCertificate({
+  commandId: 'local',
+  baseHead: 'base',
+  inventoryDigest: inventory.digest,
+  catalogDigest: 'catalog',
+  staticPaths: ['packages/main/src/local.ts'],
+  runtimeTrace: { readPaths: ['packages/main/src/undeclared.ts'] },
+});
+assert.equal(undeclared.status, 'unverified');
+assert.equal(verifyValidationClosureCertificate(undeclared), false);
+const selection = buildDynamicValidationPlan({
+  storyId: 'B-smoke',
+  baseHead: 'base',
+  head: 'head',
+  inventory,
+  catalog,
+  changes,
+  closures,
+  baselineEpochId: 'epoch',
+  buildProofDigest: 'build',
+  mode: 'observe',
+});
+assert.equal(selection.totals.unverified, 0);
+assert.equal(selection.totals.uncovered, 0);
+assert.equal(selection.totals.inventory, selection.totals.executed + selection.totals.reused);
+
+const receipt = createValidationCommandReceipt({
+  id: 'receipt',
+  commandId: 'local',
+  commandIdentityDigest: 'command',
+  inputDigest: 'input',
+  closureCertificateDigest: 'closure',
+  catalogDigest: 'catalog',
+  inventoryDigest: 'inventory',
+  runnerDigest: 'runner',
+  toolchainDigest: 'toolchain',
+  buildProofDigest: 'build',
+  sourceHead: 'head',
+  sourceBaseHead: 'base',
+  canonicalBaselineEpochId: 'epoch',
+  producedBy: 'story-execution',
+  cleanTreeDigest: 'clean',
+  executionEnvironmentDigest: 'environment',
+  result: 'PASS',
+  exitCode: 0,
+  outputDigest: 'output',
+  durationMs: 1,
+  createdAt: new Date().toISOString(),
+  revocationLedgerDigest: 'ledger',
+});
+assert.equal(verifyValidationCommandReceipt(receipt).ok, true);
+const tamperedReceipt = { ...receipt, result: 'FAIL' as const };
+assert.equal(verifyValidationCommandReceipt(tamperedReceipt).ok, false);
+
+const schedule = buildValidationSchedule([
+  { commandId: 'slow', originalIndex: 0, cpuWeight: 1, expectedP50Ms: 20, resources: [] },
+  { commandId: 'fast', originalIndex: 1, cpuWeight: 1, expectedP50Ms: 10, resources: [] },
+]);
+assert.equal(verifyValidationSchedule(schedule, [...schedule]).ok, true);
+
+const cases = Array.from({ length: 12 }, (_, index) => ({ caseId: 'case-' + index, domain: 'quorum' as const, sentinel: index < 4 }));
+const shards = buildValidationShards(cases);
+const aggregate = aggregateValidationShards({
+  cases,
+  shards,
+  results: shards.map(shard => ({ shardId: shard.shardId, domain: shard.domain, caseIds: shard.caseIds, verdict: 'PASS' as const, executed: true })),
+});
+assert.equal(aggregate.ok, true);
+const missingShard = aggregateValidationShards({
+  cases,
+  shards,
+  results: shards.slice(1).map(shard => ({ shardId: shard.shardId, domain: shard.domain, caseIds: shard.caseIds, verdict: 'PASS' as const, executed: true })),
+});
+assert.equal(missingShard.ok, false);
+const duplicateCase = aggregateValidationShards({
+  cases,
+  shards,
+  results: shards.map(shard => ({
+    shardId: shard.shardId,
+    domain: shard.domain,
+    caseIds: shard.caseIds.concat(shard.caseIds[0] || ''),
+    verdict: 'PASS' as const,
+    executed: true,
+  })),
+});
+assert.equal(duplicateCase.ok, false);
+
+const authority = evaluateDynamicAuthority({
+  mode: 'enforce-low-risk',
+  riskTier: 'local',
+  manifest: selection,
+  prerequisites: {},
+});
+assert.equal(authority.authoritative, false);
+assert.equal(authority.fallbackToFull, true);
+console.log('story-aware-validation smoke passed');
