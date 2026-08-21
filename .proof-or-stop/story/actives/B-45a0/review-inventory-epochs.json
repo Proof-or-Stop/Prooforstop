@@ -504,9 +504,9 @@
       "epochId": "B-45a0:RI-015",
       "storyId": "B-45a0",
       "reviewRound": "2026-08-21T11:57:12.698Z",
-      "state": "OPEN",
+      "state": "INVALIDATED",
       "begunAt": "2026-08-21T15:30:50.684Z",
-      "updatedAt": "2026-08-21T15:30:50.684Z",
+      "updatedAt": "2026-08-21T15:57:46.002Z",
       "cutoff": {
         "headHash": "e89d5bbb6c6109896108fa1d3e7392f2516fc0c7",
         "materialHash": "5d7bf5d5da5ed0f991794ec11ec175feef10f2e9ffe7e5a0b7c065feb5f51e36",
@@ -523,7 +523,42 @@
       "maxWaves": 3,
       "waves": [],
       "baselineFindingIds": [],
-      "_hash": "53011bbb96e551cbff931519887c88f369facaa61a2ba6ac125a4cd12bcbc23c"
+      "invalidation": {
+        "detectedAt": "2026-08-21T15:57:46.002Z",
+        "oldMaterialHash": "5d7bf5d5da5ed0f991794ec11ec175feef10f2e9ffe7e5a0b7c065feb5f51e36",
+        "currentMaterialHash": "44c4d5828d6a043bf047867d51736e71035bdcbce974c75dd3f62a9703e992cf",
+        "oldStoryFilesHash": "b8173f10406c1951c799832b4972ff11092c078eebb04f25a161f867929ff171",
+        "currentStoryFilesHash": "6aa200db43470c476123c4a5eaaa3c617a03f6d2176b17a59da5ac85a2877cb6",
+        "blockerCode": "OPEN_REVIEW_INVENTORY_MATERIAL_MUTATION"
+      },
+      "terminalRunSequenceBoundary": 56,
+      "_hash": "715911400576a7dd35631f5fa1a68f21f24a9879db4d8c8818ceb218102257b8"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-45a0:RI-016",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "state": "OPEN",
+      "begunAt": "2026-08-21T15:59:04.059Z",
+      "updatedAt": "2026-08-21T15:59:04.059Z",
+      "cutoff": {
+        "headHash": "63981cb389b9c89fc1788a9489a6eb125696f000",
+        "materialHash": "44c4d5828d6a043bf047867d51736e71035bdcbce974c75dd3f62a9703e992cf",
+        "storyFilesHash": "6aa200db43470c476123c4a5eaaa3c617a03f6d2176b17a59da5ac85a2877cb6"
+      },
+      "scopeDigest": "d2e2f961fb38432362abaf100fb69d213516ddb2925112ed92e0c107db6d0461",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage",
+        "lattice-review-docs"
+      ],
+      "initialRunSequenceBoundary": 56,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [],
+      "_hash": "80d7eff5ed7b8709f5a9b74a1f8a9fd098ccccfc1f325d3ef6e58f416e720991"
     }
   ],
   "receipts": [],
