@@ -77,8 +77,11 @@ export interface PreparedStoryAwareValidation {
   revocationLedger: ReceiptRevocationLedger;
 }
 
-function currentHead(projectRoot: string): string {
-  try { return execFileSync('git', ['rev-parse', 'HEAD'], { cwd: projectRoot, encoding: 'utf8' }).trim(); } catch { return 'unknown'; }
+function currentHead(gitCwd: string): string {
+  // Callers resolve this through the story-keyed resolveGitCwd boundary before
+  // entering the adapter. Keeping the parameter named gitCwd prevents a
+  // wrapper-root metadataRoot from being mistaken for the authoritative repo.
+  try { return execFileSync('git', ['rev-parse', 'HEAD'], { cwd: gitCwd, encoding: 'utf8' }).trim(); } catch { return 'unknown'; }
 }
 
 function baselineEpoch(args: PrepareStoryAwareValidationArgs): string {
