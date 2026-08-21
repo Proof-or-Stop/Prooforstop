@@ -35,7 +35,13 @@ function makeProject(baseline) {
   execFileSync('git', ['config', 'user.email', 'lattice@example.com'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
   execFileSync('git', ['add', '.'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
   execFileSync('git', ['commit', '-m', 'baseline'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
-  run(dir, ['lab', 'create', JSON.stringify({ id:'lab-test-intent-prompt-quality-v1', target:'test-intent-prompt', profile:'test-intent-prompt-quality-v1', editableFiles:['samples/prompt.md'] })]);
+  run(dir, [
+    'lab_create',
+    '--id=lab-test-intent-prompt-quality-v1',
+    '--target=test-intent-prompt',
+    '--profile=test-intent-prompt-quality-v1',
+    '--editableFiles=samples/prompt.md',
+  ]);
   return dir;
 }
 
@@ -43,7 +49,7 @@ function evaluate(baseline, candidate) {
   const dir = makeProject(baseline);
   try {
     writeFileSync(join(dir, 'samples', 'prompt.md'), candidate);
-    run(dir, ['lab', 'run', '--config', 'experiments/configs/lab-test-intent-prompt-quality-v1.json', '--confirm']);
+    run(dir, ['lab_run', '--config', 'experiments/configs/lab-test-intent-prompt-quality-v1.json', '--confirm']);
     return JSON.parse(readFileSync(join(dir, 'experiments', 'runs', 'lab-test-intent-prompt-quality-v1', 'run-001', 'result.json'), 'utf8'));
   } finally {
     rmSync(dir, { recursive: true, force: true });
@@ -88,4 +94,4 @@ for (const [name, check] of Object.entries(checks)) {
   check();
   console.log(`ok ${name}`);
 }
-console.log('testIntent prompt profile verified');
+console.log('verificationIntent prompt profile verified');
