@@ -610,6 +610,86 @@
         "scanEscalationReason": null
       },
       "_hash": "e604d57ea014a25fddad7fe179bd6d885d344f978bc4fa822585f73ef463833a"
+    },
+    {
+      "id": "B-5a15:RP-017",
+      "agent": "lattice-review-concept",
+      "note": "Concept deletion and residual-reference review is clean; current story evidence and requirement coverage have no blocker.",
+      "createdAt": "2026-08-21T11:30:47.042Z",
+      "reviewRound": "2026-08-21T11:29:50.266Z",
+      "reviewRunId": "B-5a15:RR-109",
+      "envelopeId": "0def4a834325429ba0b097446525b0f38db68cd923cf2f9c290b55e36261111b",
+      "writerSessionId": "sess-1ff81192c8f5688bf40ac6afd86a20f7",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/checklist.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3fa45e7d41f21ea29e80b9b9876f02c4577bcdfea1db813ec8bf69c7b72fb2fe"
+    },
+    {
+      "id": "B-5a15:RP-018",
+      "agent": "lattice-review-quality",
+      "note": "Quality review found no blocker in the refreshed story-level implementation or evidence: same-owner validation lease refresh is guarded against foreign or missing leases and covered by F-012, while the secret identity digest fix and F-047 adversarial tests remain intact.",
+      "createdAt": "2026-08-21T11:31:37.544Z",
+      "reviewRound": "2026-08-21T11:29:50.266Z",
+      "reviewRunId": "B-5a15:RR-107",
+      "envelopeId": "89d6aea182d03bb216965d8cd2f67aabb5573742548415449b47627b8159cca8",
+      "writerSessionId": "sess-1ff81192c8f5688bf40ac6afd86a20f7",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/tests/causal-evidence.test.mjs",
+          "packages/main/tests/verifier-causal-preflight.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "984343dc9501fe1d5a897ed340c4b4d50c656b79c359e727df0a135a17da8421"
+    },
+    {
+      "id": "B-5a15:RP-019",
+      "agent": "lattice-review-test-coverage",
+      "note": "Current test-coverage review passed: 50 verification intents have 50 passing evidence entries, including 22 must intents; current evidence is fresh and acceptance rollout, pre-review, live proof, topology, and review completeness checks are passing.",
+      "createdAt": "2026-08-21T11:33:14.630Z",
+      "reviewRound": "2026-08-21T11:29:50.266Z",
+      "reviewRunId": "B-5a15:RR-108",
+      "envelopeId": "d9644bbb4fa8c941f46e69a9f755c60b50d744908c5b01443a607ca8a38c1513",
+      "writerSessionId": "sess-1ff81192c8f5688bf40ac6afd86a20f7",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1ac52de62e13d82bc6c75ae1f6f65e9949a554f54dea60d95ba8cf70bf2a8377"
     }
   ]
 }
