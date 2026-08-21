@@ -2206,6 +2206,70 @@
       ],
       "signatureTag": "edge|ts|packages-main-handlers",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a15:F-068",
+      "desc": "packages/main/src/handlers/proofstory.ts:688-770 and packages/main/src/handlers/transition-orchestrator.ts:137-149 — Wave-4 verifier-owned acceptance chain is not a current pass for B-5a15: acceptance_topology_check reports AT_SCOPE_BINDING_MISSING because acceptance-basis.json has a scope-contract digest mismatch, while pre_review_check_read reports PR_ARTIFACT_TAMPERED. The stored pre-review PASS is bound to HEAD e06b1f1, but the current review HEAD is 4bd6103. The rollout report is signed full-3x2/current, but topology and pre-review prerequisites are not. Reissue the verifier-owned basis and pre-review evidence at the current HEAD and rerun the canonical chain before approving REVIEW.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-21T15:38:03.303Z",
+      "reviewRound": "2026-08-21T15:29:32.809Z",
+      "reviewRunId": "B-5a15:RR-139",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/templates/agents/lattice-review-concept.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop-codex/agents/lattice-review-concept.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": "The proof-admissibility decision document was triaged by filename and bounded excerpts; all other listed decision documents were read for this story review."
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "8ed7966151e1de5b71a51f2e53d9b82d77d6369c0c8cdf6ebaaf0b68f082aa5a"
+      },
+      "readDiagnostics": [],
+      "_hash": "c55484c641a11c3dcdebff729aa898aa00774e548d1055d5b03b201c9559691c",
+      "signatureTag": "missing|unknown|packages-main-handlers",
+      "signatureTagSource": "auto"
     }
   ]
 }
