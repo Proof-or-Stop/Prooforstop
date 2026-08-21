@@ -4884,6 +4884,170 @@
       ],
       "signatureTag": "topology-acceptance-closeout-not-admissible",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a15:F-116",
+      "desc": ".proof-or-stop/story/actives/B-5a15/checklist.json:verificationEvidence (all 50 rows) — ReviewRun B-5a15:RR-204 at current HEAD 4ac282fe6865f62bc2a3d1dcb9a86274f0ce4002 found 50/50 intent rows bound to prior head b80c102c594c7a1be8f441724783cc20f41da9e8, material 853d5eb4322ecb6d3ba9b94131ecab4e76ac0b8a2e77f47f24a2c39fc04ac775, and storyFiles 01a95005cb46a073e03805e42aef1925a31b87ed2f3d0b43e4378a5e2f1f1406; evidence_inspect classifies every intent ref stale. The 22 priority=must intents therefore have no current valid verificationEvidence. The documented node packages/main/dist/tasks/verifier-causal-preflight-smoke.js command independently passed, but it does not refresh or replace the stale checklist evidence; rerun and re-record current focused/validation evidence before coverage can pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-21T20:39:12.530Z",
+      "reviewRound": "2026-08-21T20:31:33.599Z",
+      "reviewRunId": "B-5a15:RR-204",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/tasks/verifier-causal-preflight-smoke.ts",
+          "packages/main/tests/verifier-causal-preflight.test.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/dist/tasks/verifier-causal-preflight-smoke.js",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "088e6b04bccf791f04057dd08075819d55a7882d34961340d008995dcca6e352",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/checklist.json",
+        "packages/main/tests/causal-evidence.test.mjs",
+        "packages/main/src/tasks/verifier-causal-preflight-smoke.ts",
+        "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md:136"
+      ],
+      "signatureTag": "missing|json|proof-stop-story",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-117",
+      "desc": "pre-review-admissibility: .proof-or-stop/story/actives/B-5a15/pre-review-check.json:1-1298 is not a current admissible REVIEW PASS. proof-or-stop pre_review_check_read --storyId=B-5a15 --json at HEAD 4ac282fe68 returns status=inconclusive and ok=false with PR_ARTIFACT_TAMPERED, PR_NEW_PATH_UNMAPPED, and PR_COVERAGE_BASIS_CHANGED after the new packages/main/src/tasks/verifier-causal-preflight-smoke.ts:1-30 path was added. npm build and node packages/main/dist/tasks/verifier-causal-preflight-smoke.js passing only establish supplementary F-012 execution; they do not rebind the signed pre-review basis or make the CHK-004/current review evidence admissible. Reissue the verifier-owned acceptance basis and pre_review_check through the CLI at the current scope/HEAD before REVIEW can pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-21T20:41:11.959Z",
+      "reviewRound": "2026-08-21T20:31:33.599Z",
+      "reviewRunId": "B-5a15:RR-206",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/tasks/verifier-causal-preflight-smoke.ts",
+          "packages/main/tests/checklist-causal-preflight-batch.test.mjs",
+          "packages/main/tests/verifier-causal-preflight.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "packages/main/tests/causal-evidence-concurrency.test.mjs",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "16cf5a1e585c870a38eb1a0042e76db2fec672f425ce7c36222dcdddacf597ae",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+        "packages/main/src/tasks/verifier-causal-preflight-smoke.ts",
+        "packages/main/tests/causal-evidence.test.mjs",
+        "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md"
+      ],
+      "signatureTag": "missing|json|review-admissibility-proof",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-118",
+      "desc": "doc-promise-undelivered: CHK-003 is not wired into the production certification-window path. collectAdmitFacts at packages/main/src/handlers/certification-window.ts:76-141 never returns causalDecision, and certification_window_begin/status at :183-186 and :265-269 call refreshCertificationWindowLineage/currentCertificationIdentity without one. The only evaluateCausalDependencies/evaluateCausalEvidenceFreshness references under packages/main/src are the core adapter and smoke task, not this handler. Consequently the signed-consumer gates in packages/main/src/core/certification-window.ts:445-464 and :725-743 are exercised only by direct unit tests; a real certification_window_begin/status cannot consume the causal DAG decision, so the promised selective U-03b invalidation is absent and behavior falls back to coarse strict materialHash handling. Wire a production decision producer/loader into the handler and bind it to the frozen certification identity before accepting advisory drift.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T20:43:46.445Z",
+      "reviewRound": "2026-08-21T20:31:33.599Z",
+      "reviewRunId": "B-5a15:RR-207",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "af28e6159349e62a4ef6c2c0fd3da48ecbb43e0d9880ba5235496dc43e6a1a1a",
+      "files": [
+        "packages/main/src/handlers/certification-window.ts",
+        "packages/main/src/core/certification-window.ts",
+        "packages/main/src/core/causal-evidence.ts",
+        "packages/main/src/core/evidence-freshness.ts"
+      ],
+      "signatureTag": "missing|ts|promise-undelivered-wired",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-119",
+      "desc": "packages/main/src/core/certification-window.ts:725-743 has an advisory provenance gap. detectCertificationWindowMaterialDrift verifies the signed decision and checks only that identityBinding.currentMaterialHash/currentStoryFilesHash/currentHeadHash match the live identity; it never requires identityBinding.previousMaterialHash/previousStoryFilesHash/previousHeadHash to equal window.frozen. Reproduction on the built implementation: evaluateCausalDependencies({nodes:[], currentInputHashes:{}, previousMaterialHash:\"m0\", currentMaterialHash:\"m2\", previousStoryFilesHash:\"s1\", currentStoryFilesHash:\"s1\", previousHeadHash:\"h0\", currentHeadHash:\"h2\"}) returns a signed advisory, and passing it to a window frozen at materialHash=\"m1\", storyFilesHash=\"s1\", headHash=\"h1\" with live m2/s1/h2 returns {drifted:false}. Thus a valid advisory issued for a different prior snapshot can suppress the frozen window materialHash invalidation and preserve stale certification. Require the decision previous binding to match the frozen identity before allowSpecializedUnrelatedDrift, and add this cross-snapshot adversarial test.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T20:44:39.807Z",
+      "reviewRound": "2026-08-21T20:31:33.599Z",
+      "reviewRunId": "B-5a15:RR-207",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "b65e1d265da13263055fa9e16a4631c93ebaffd140f061010ffde1ccdf64bd45",
+      "files": [
+        "packages/main/src/core/certification-window.ts",
+        "packages/main/src/core/causal-evidence.ts",
+        "packages/main/tests/causal-evidence.test.mjs"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
