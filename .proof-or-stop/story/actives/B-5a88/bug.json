@@ -1,0 +1,23 @@
+{
+  "bugs": [
+    {
+      "id": "BUG-001",
+      "title": "Canonical role migration smoke tests still assert legacy lattice reviewer lanes",
+      "status": "fixed",
+      "foundAt": "2026-08-21T01:11:20.854Z",
+      "fixedAt": "2026-08-21T01:14:00.593Z",
+      "evidence": {
+        "symptom": "Configured validation failed because canonical reviewer outputs were compared against lattice-review-* literals in two smoke tests",
+        "reproSteps": [
+          "npm --prefix packages/main run build",
+          "node packages/main/dist/tasks/adversarial-review-round-smoke.js",
+          "node packages/main/dist/tasks/delivery-check-freshness-smoke.js"
+        ],
+        "hypothesis": "The role-ID migration changed production outputs to proof-or-stop-review-* while smoke assertions retained legacy output expectations",
+        "rootCause": "Two migration smoke tests asserted retired lattice reviewer lane strings for canonical output",
+        "fixEvidence": "Updated only canonical output assertions; legacy agent input remains covered; both focused smoke tests now pass",
+        "reproTest": "packages/main/src/tasks/adversarial-review-round-smoke.ts and packages/main/src/tasks/delivery-check-freshness-smoke.ts"
+      }
+    }
+  ]
+}

@@ -756,7 +756,7 @@ check('process-fact registry keeps delivery-check as L4 signed gate evidence pro
   assert.equal(command?.artifact?.path, 'delivery-check.json');
   assert.equal(command?.artifact?.signed, true);
   assert.equal(command?.artifact?.producerCommand, 'delivery_check_set');
-  assert.equal(command?.artifact?.reviewerLane, 'lattice-review-delivery');
+  assert.equal(command?.artifact?.reviewerLane, 'proof-or-stop-review-delivery');
   assert.equal(hasProcessFactSemantic('delivery_check_set', 'gate-evidence'), true);
 
   const artifact = getProcessFactRegistryEntry('artifact:delivery-check.json');
