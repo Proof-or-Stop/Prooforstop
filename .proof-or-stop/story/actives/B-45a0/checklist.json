@@ -18,9 +18,9 @@
         ],
         "test": []
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-08-21T07:52:14.671Z",
-      "endTime": null,
+      "endTime": "2026-08-21T07:53:14.173Z",
       "verificationIntent": {
         "happy": [
           {
@@ -204,7 +204,14 @@
           "storyFilesHash": "97c4944ed8a4c737fbd5eb229696fcbdd2644979a8633fa46455c7047be7a201",
           "timestamp": "2026-08-21T07:53:04.001Z"
         }
-      ]
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "6be687a608a8fbea4ebdb79bffc964e8aee6183e41c94cefa160fe17f9185d40",
+        "storyFilesHash": "97c4944ed8a4c737fbd5eb229696fcbdd2644979a8633fa46455c7047be7a201",
+        "headHash": "2706ea11eba78a772522df127cda3dce44c78942",
+        "attestedAt": "2026-08-21T07:53:14.420Z",
+        "materialHash": "c0be178180d2138f485f2fce135c49f3f6038da93a2f7b8fd849f1d8838aa7b8"
+      }
     },
     {
       "id": "CHK-002",
@@ -975,6 +982,16 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Starting evidence-backed completion of the canonical design import.",
+      "agent": "main-agent"
+    },
+    {
+      "timestamp": "2026-08-21T07:53:14.173Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Canonical design source, digest, NAV linkage, and integrity verifier are committed and receipt-backed.",
       "agent": "main-agent"
     }
   ]
