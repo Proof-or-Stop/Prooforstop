@@ -563,7 +563,42 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "An eligible local/docs Story with current certificates, receipts, pins, build proof, baseline, ledger, and zero gaps passes TEST as dynamic-authoritative.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run test:dynamic-validation-test-gate",
+              "selector": "low-risk dynamic TEST PASS"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Gate/shared-core/validation-infra/full-only, package/config, protected/excluded, pinned, or unmapped changes select full validation and retain independent DONE-required evidence.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run test:dynamic-validation-test-gate-escalation",
+              "selector": "mandatory full escalation PASS"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Focused receipts, prose, missing prerequisite rows, ignored escalation, or stale manifests cannot impersonate dynamic TEST authority.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run test:dynamic-validation-test-gate-mutations",
+              "selector": "authority mutations rejected"
+            }
+          }
+        ]
+      }
     },
     {
       "id": "CHK-010",
