@@ -1524,6 +1524,24 @@
       ],
       "signatureTag": "missing|json|concept-wave-verifier",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-049",
+      "desc": "test-evidence.json:1 — current validation evidence is stale and cannot support this review: evidence_inspect reports staleRefs=1 because the recorded validation evidence storyFilesHash does not match the current story-owned file state; rerun proof-or-stop validate --story=B-5a15 --json and record fresh evidence before passing review.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-21T07:39:07.967Z",
+      "reviewRound": "2026-08-21T07:36:45.377Z",
+      "reviewRunId": "B-5a15:RR-097",
+      "_hash": "732f3ebd62a7caa478cf5fc5afa3d6d1d5d6a9f6b108827ddcf3ef547d626f1c",
+      "files": [
+        "test-evidence.json"
+      ],
+      "signatureTag": "missing|json|test-evidence-json",
+      "signatureTagSource": "auto"
     }
   ]
 }
