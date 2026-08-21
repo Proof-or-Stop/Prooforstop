@@ -10,6 +10,7 @@ import assert from 'node:assert/strict';
 import {
   aggregateValidationShards,
   buildDynamicValidationPlan,
+  buildRevocationLedger,
   buildStoryChangeManifest,
   buildValidationSchedule,
   buildValidationShards,
@@ -22,6 +23,7 @@ import {
   verifyValidationCommandReceipt,
   verifyStoryChangeManifest,
   verifyValidationSchedule,
+  stableDigest,
 } from '../core/story-aware-validation.js';
 
 const inventory = discoverValidationInventory('/tmp', [
@@ -70,6 +72,65 @@ const selection = buildDynamicValidationPlan({
 assert.equal(selection.totals.unverified, 0);
 assert.equal(selection.totals.uncovered, 0);
 assert.equal(selection.totals.inventory, selection.totals.executed + selection.totals.reused);
+
+// A clean second run may reuse only a signed receipt whose input and closure
+// digests match. An unverified closure executes, and a revoked receipt is not
+// admitted even when every other field is valid.
+const localRow = selection.rows.find((row) => row.commandId === catalog[1]!.id)!;
+const localClosure = closures.get(catalog[1]!.id)!;
+const makeReceipt = (revocationLedgerDigest: string) => createValidationCommandReceipt({
+  id: 'receipt',
+  commandId: localRow.commandId,
+  commandIdentityDigest: 'command',
+  inputDigest: localRow.inputDigest,
+  closureCertificateDigest: localClosure.signature,
+  catalogDigest: stableDigest(catalog),
+  inventoryDigest: inventory.digest,
+  runnerDigest: 'runner',
+  toolchainDigest: 'toolchain',
+  buildProofDigest: 'build',
+  sourceHead: 'head',
+  sourceBaseHead: 'base',
+  canonicalBaselineEpochId: 'epoch',
+  producedBy: 'story-execution',
+  cleanTreeDigest: 'clean',
+  executionEnvironmentDigest: 'environment',
+  result: 'PASS',
+  exitCode: 0,
+  outputDigest: 'output',
+  durationMs: 1,
+  createdAt: new Date().toISOString(),
+  revocationLedgerDigest,
+});
+const reusableReceipt = makeReceipt('ledger');
+const reusedSelection = buildDynamicValidationPlan({
+  storyId: 'B-smoke', baseHead: 'base', head: 'head', inventory, catalog,
+  changes: buildStoryChangeManifest({ storyId: 'B-smoke', gitCwd: '.', baseHead: 'base', head: 'head', changedFiles: [] }),
+  closures, receipts: [reusableReceipt], baselineEpochId: 'epoch', buildProofDigest: 'build', mode: 'observe',
+});
+assert.equal(verifyValidationCommandReceipt(reusableReceipt).ok, true);
+assert.equal(reusedSelection.rows.find((row) => row.commandId === localRow.commandId)?.disposition, 'reuse');
+const unverifiedSelection = buildDynamicValidationPlan({
+  storyId: 'B-smoke', baseHead: 'base', head: 'head', inventory, catalog,
+  changes: buildStoryChangeManifest({ storyId: 'B-smoke', gitCwd: '.', baseHead: 'base', head: 'head', changedFiles: [] }),
+  closures: new Map([[localRow.commandId, undeclared]]), baselineEpochId: 'epoch', buildProofDigest: 'build', mode: 'observe',
+});
+assert.equal(unverifiedSelection.rows.find((row) => row.commandId === localRow.commandId)?.reasons[0], 'closure-certificate-unavailable-or-incomplete');
+const escalatedSelection = buildDynamicValidationPlan({
+  storyId: 'B-smoke', baseHead: 'base', head: 'head', inventory, catalog,
+  changes: buildStoryChangeManifest({ storyId: 'B-smoke', gitCwd: '.', baseHead: 'base', head: 'head', changedFiles: [{ path: 'packages/main/dist/generated.js', status: 'modified', blobId: 'dist' }] }),
+  closures, baselineEpochId: 'epoch', buildProofDigest: 'build', mode: 'observe',
+});
+assert.equal(escalatedSelection.fullEscalated, true);
+assert.equal(escalatedSelection.totals.executed, escalatedSelection.totals.inventory);
+const revokedLedger = buildRevocationLedger(['receipt']);
+const revokedSelection = buildDynamicValidationPlan({
+  storyId: 'B-smoke', baseHead: 'base', head: 'head', inventory, catalog,
+  changes: buildStoryChangeManifest({ storyId: 'B-smoke', gitCwd: '.', baseHead: 'base', head: 'head', changedFiles: [] }),
+  closures, receipts: [makeReceipt(revokedLedger.digest)], revocationLedger: revokedLedger,
+  baselineEpochId: 'epoch', buildProofDigest: 'build', mode: 'observe',
+});
+assert.equal(revokedSelection.rows.find((row) => row.commandId === localRow.commandId)?.disposition, 'execute');
 
 const receipt = createValidationCommandReceipt({
   id: 'receipt',

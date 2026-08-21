@@ -12,6 +12,9 @@ import { createHash } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import { join, posix } from 'node:path';
 import type { ResourceClaim } from './keyed-scheduler.js';
+import { validateResourceClaims } from './keyed-scheduler.js';
+import { CAPABILITY_CATEGORIES } from './capabilities.js';
+import { PROCESS_FACT_REGISTRY } from './process-fact-registry.js';
 import { isMaterialExcludedPath } from './material-path-policy.js';
 
 export const STORY_CHANGE_MANIFEST_SCHEMA = 'proof-or-stop.story-change-manifest.v1' as const;
@@ -289,19 +292,34 @@ export function validateValidationCatalog(inventory: ValidationInventory | Valid
   for (const id of new Set(catalogIds.filter((id, i) => catalogIds.indexOf(id) !== i))) errors.push('duplicate catalog ID: ' + id);
   for (const id of inventoryIds) if (!catalogIds.includes(id)) errors.push('inventory command absent from catalog: ' + id);
   for (const id of catalogIds) if (!inventoryIds.includes(id)) errors.push('catalog command absent from inventory: ' + id);
-  const facts = new Set(knownProcessFacts); const capabilities = new Set(knownCapabilities);
+  const facts = new Set([...knownProcessFacts]);
+  if (facts.size === 0) for (const entry of PROCESS_FACT_REGISTRY) facts.add(entry.name);
+  const capabilities = new Set([...knownCapabilities]);
+  if (capabilities.size === 0) for (const capability of CAPABILITY_CATEGORIES) capabilities.add(capability);
   for (const entry of catalog) {
+    if (entry.schema !== VALIDATION_CATALOG_SCHEMA) errors.push('catalog schema mismatch: ' + (entry.id || '<missing>'));
     if (!entry.id || !entry.command || !Array.isArray(entry.args)) errors.push('malformed catalog entry: ' + (entry.id || '<missing>'));
-    if (!Array.isArray(entry.inputRoots) || entry.inputRoots.length === 0 || entry.inputRoots.some(path => !validRelativePath(path) || path.startsWith('packages/main/dist/'))) errors.push('invalid or dist-only inputRoots: ' + entry.id);
+    const trigger = entry.triggerExtensions;
+    if (!trigger || typeof trigger !== 'object' || Object.values(trigger).some(value => value !== undefined && !Array.isArray(value))) errors.push('malformed trigger extensions: ' + entry.id);
+    const roots = Array.isArray(entry.inputRoots) ? entry.inputRoots : [];
+    const triggerFiles = Array.isArray(trigger?.files) ? trigger.files : [];
+    if (roots.length === 0 || roots.some(path => !validRelativePath(path) || path.startsWith('packages/main/dist/') || path.startsWith('dist/')))
+      errors.push('invalid or dist-only inputRoots: ' + entry.id);
+    if (triggerFiles.some(path => !validRelativePath(path) || path.startsWith('packages/main/dist/') || path.startsWith('dist/')))
+      errors.push('invalid or dist-only trigger files: ' + entry.id);
     if (!['static-and-traced', 'whole-repository', 'never-reuse'].includes(entry.closurePolicy)) errors.push('invalid closurePolicy: ' + entry.id);
     if (!['always', 'story-selectable', 'full-only'].includes(entry.assurance)) errors.push('invalid assurance: ' + entry.id);
     if ((entry.assurance === 'always' || entry.assurance === 'story-selectable') && entry.fullBaselineReusePolicy !== 'not-applicable') errors.push('non-full command has baseline reuse policy: ' + entry.id);
     if (entry.assurance === 'full-only' && !['exact-current-epoch-only', 'forbidden'].includes(entry.fullBaselineReusePolicy)) errors.push('full-only policy invalid: ' + entry.id);
     if (!Number.isFinite(entry.cpuWeight) || entry.cpuWeight < 1 || entry.cpuWeight > 1024) errors.push('invalid cpuWeight: ' + entry.id);
+    if (entry.expectedP50Ms !== undefined && (!Number.isFinite(entry.expectedP50Ms) || entry.expectedP50Ms < 1 || entry.expectedP50Ms > 86_400_000)) errors.push('invalid expectedP50Ms: ' + entry.id);
     if (!Array.isArray(entry.resources) || entry.resources.some(claim => !claimValid(claim))) errors.push('malformed resources: ' + entry.id);
-    for (const fact of entry.triggerExtensions.processFacts || []) if (facts.size > 0 && !facts.has(fact)) errors.push('unknown process fact ' + fact + ': ' + entry.id);
-    for (const capability of entry.triggerExtensions.capabilities || []) if (capabilities.size > 0 && !capabilities.has(capability)) errors.push('unknown capability ' + capability + ': ' + entry.id);
-    if (entry.closurePolicy !== 'never-reuse' && entry.inputRoots.length === 0 && !(entry.triggerExtensions.files || []).length) warnings.push('no source closure roots: ' + entry.id);
+    else {
+      try { validateResourceClaims(entry.resources, entry.id); } catch (error) { errors.push(error instanceof Error ? error.message : 'invalid resources: ' + entry.id); }
+    }
+    for (const fact of trigger?.processFacts || []) if (facts.size > 0 && !facts.has(fact)) errors.push('unknown process fact ' + fact + ': ' + entry.id);
+    for (const capability of trigger?.capabilities || []) if (capabilities.size > 0 && !capabilities.has(capability)) errors.push('unknown capability ' + capability + ': ' + entry.id);
+    if (entry.closurePolicy !== 'never-reuse' && roots.length === 0 && !triggerFiles.length) warnings.push('no source closure roots: ' + entry.id);
   }
   return { ok: errors.length === 0, errors, warnings };
 }
@@ -530,9 +548,14 @@ export interface DynamicValidationContext {
   receipts?: ValidationCommandReceipt[]; baselineEpochId?: string; revocationLedger?: ReceiptRevocationLedger;
   buildProofDigest?: string; toolchainDigest?: string; runnerDigest?: string; mode?: DynamicValidationMode;
   graph?: DualRevisionImpactGraph; scopeContract?: ScopeContractData; gitCwd?: string; now?: number;
+  /** Stable build/Wave-0 command that must execute on every dynamic run. */
+  buildCommandId?: string;
 }
 function closureMap(value: DynamicValidationContext['closures']): Map<string, ValidationClosureCertificate> {
   return value instanceof Map ? value : new Map(Object.entries(value || {}));
+}
+function currentInventoryDigest(inventory: ValidationInventory | ValidationInventoryCommand[]): string {
+  return Array.isArray(inventory) ? stableDigest(inventory) : inventory.digest;
 }
 function isTrustedAncestor(sourceHead: string, currentHead: string, gitCwd = process.cwd()): boolean {
   if (!sourceHead || sourceHead === currentHead) return true;
@@ -542,7 +565,7 @@ function receiptAdmissible(receipt: ValidationCommandReceipt | undefined, entry:
   if (!receipt || receipt.commandId !== entry.id || receipt.inputDigest !== inputDigest) return false;
   if (!verifyValidationCommandReceipt(receipt, ctx.now || Date.now()).ok || isReceiptRevoked(receipt, ctx.revocationLedger)) return false;
   if (!verifyValidationClosureCertificate(closure) || receipt.closureCertificateDigest !== closure.signature) return false;
-  if (receipt.catalogDigest !== stableDigest(ctx.catalog) || receipt.inventoryDigest !== stableDigest(ctx.inventory)) return false;
+  if (receipt.catalogDigest !== stableDigest(ctx.catalog) || receipt.inventoryDigest !== currentInventoryDigest(ctx.inventory)) return false;
   if (ctx.buildProofDigest && receipt.buildProofDigest !== ctx.buildProofDigest) return false;
   if (receipt.sourceBaseHead !== ctx.baseHead || receipt.canonicalBaselineEpochId !== (ctx.baselineEpochId || '')) return false;
   if (entry.assurance === 'full-only' && receipt.producedBy !== 'canonical-full-baseline') return false;
@@ -568,6 +591,7 @@ export function buildDynamicValidationPlan(ctx: DynamicValidationContext): Valid
     const reasons = selected.get(id) || []; if (!reasons.includes(reason)) reasons.push(reason); selected.set(id, reasons);
   };
   for (const entry of ctx.catalog) if (entry.assurance === 'always') select(entry.id, 'always');
+  if (ctx.buildCommandId) select(ctx.buildCommandId, 'wave-0-build');
   for (const pin of ctx.changes.pinnedValidationCommands) {
     const row = inventory.find(command => command.id === pin || command.label === pin || command.command === pin);
     if (!row) throw new Error('pinned command absent: ' + pin);
@@ -621,13 +645,16 @@ export function buildDynamicValidationPlan(ctx: DynamicValidationContext): Valid
   const totals = {
     inventory: rows.length, executed: rows.filter(row => row.disposition === 'execute').length,
     reused: rows.filter(row => row.disposition === 'reuse').length, unverified: rows.filter(row => row.disposition === 'unverified').length,
-    uncovered: unmapped.length, unmappedChanges: unmapped.length,
+    // An unmapped change is a trigger for the complete-plan escalation, not a
+    // final inventory gap: once every command is selected, the oracle covers
+    // that change and the signed manifest remains gap-free.
+    uncovered: fullEscalated ? 0 : unmapped.length, unmappedChanges: fullEscalated ? 0 : unmapped.length,
   };
   if (totals.unverified || totals.uncovered) throw new Error('dynamic selection failed closed: unresolved inventory coverage');
   const body = {
     schema: VALIDATION_SELECTION_SCHEMA, storyId: ctx.storyId, baseHead: ctx.baseHead, head: ctx.head, changeDigest: ctx.changes.changeDigest,
     scopeContractDigest: ctx.scopeContract && ctx.scopeContract.digest || stableDigest(ctx.scopeContract || {}),
-    catalogDigest: stableDigest(ctx.catalog), inventoryDigest: stableDigest(ctx.inventory),
+    catalogDigest: stableDigest(ctx.catalog), inventoryDigest: currentInventoryDigest(ctx.inventory),
     dependencyGraphDigest: ctx.graph ? stableDigest({ base: ctx.graph.baseGraphDigest, head: ctx.graph.headGraphDigest }) : '',
     closureCertificateSetDigest: stableDigest([...closures.entries()]), toolchainDigest: ctx.toolchainDigest || '',
     buildProofDigest: ctx.buildProofDigest || '', canonicalBaselineEpochId: ctx.baselineEpochId || '',
@@ -691,7 +718,7 @@ export function formatDynamicValidationReport(args: { manifest: ValidationSelect
   const m = args.manifest;
   const lines = [
     'Dynamic validation plan', '  inventory: ' + m.totals.inventory, '  changed files: ' + m.changedFiles.length,
-    '  pinned commands: ' + m.changedFiles.length, '  executed: ' + m.totals.executed, '  reused: ' + m.totals.reused,
+    '  pinned commands: ' + m.rows.filter((row) => row.reasons.includes('verification-intent-pin')).length, '  executed: ' + m.totals.executed, '  reused: ' + m.totals.reused,
     '  unverified: ' + m.totals.unverified, '  uncovered: ' + m.totals.uncovered, '  unmapped changes: ' + m.totals.unmappedChanges,
     '  escalation: ' + (m.fullEscalated ? 'yes' : 'no'), '  selection digest: ' + stableDigest(m),
   ];
