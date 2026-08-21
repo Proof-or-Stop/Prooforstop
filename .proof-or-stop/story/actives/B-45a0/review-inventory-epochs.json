@@ -475,9 +475,9 @@
       "epochId": "B-45a0:RI-014",
       "storyId": "B-45a0",
       "reviewRound": "2026-08-21T11:57:12.698Z",
-      "state": "OPEN",
+      "state": "CANCELLED",
       "begunAt": "2026-08-21T15:27:40.990Z",
-      "updatedAt": "2026-08-21T15:27:40.990Z",
+      "updatedAt": "2026-08-21T15:30:38.035Z",
       "cutoff": {
         "headHash": "9833c3fef6fe9a341d6c22464fd134b6731eee1c",
         "materialHash": "5d7bf5d5da5ed0f991794ec11ec175feef10f2e9ffe7e5a0b7c065feb5f51e36",
@@ -494,7 +494,10 @@
       "maxWaves": 3,
       "waves": [],
       "baselineFindingIds": [],
-      "_hash": "a652b87198f9bd6c03c70a27aeb2beb95dcaeef6d3ccce7164013715a2ab5e15"
+      "cancelledAt": "2026-08-21T15:30:38.035Z",
+      "cancelReason": "RI-014 started before required checklist/review ledger metadata commit; current-head binding changed to 0715c23b41 and needs a fresh inventory.",
+      "terminalRunSequenceBoundary": 53,
+      "_hash": "9f0bb93893aa3a704629cf3cbe6969b8107589f4d3228e1580a6f318d58203fe"
     }
   ],
   "receipts": [],
