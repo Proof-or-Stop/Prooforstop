@@ -5,7 +5,7 @@
       "desc": "Topology completeness is blocked by independently observed missing closure and invalid provenance. The official proof-or-stop acceptance_basis --storyId=B-5a88 --json result is status=verified but basisStatus=partial, with plannedPathRecords=[] and excludedPathRefs=[]; its blind spots include packages/main/templates/agents and five migration test paths (packages/main/tests/bin-alias-migration.test.mjs, brand-role-migration.test.mjs, managed-marker-migration.test.mjs, prompt-role-migration.test.mjs, release-push-approval-migration.test.mjs), so no signed exclusion accounts for those paths. acceptance_matrix reports topology state legacy_missing with no declarations or endpoints. Independently, topology_critic_receipt_check --storyId=B-5a88 rejects with AT_TOPOLOGY_CRITIC_CONTEXT_INVALID because implementation provenance lacks a business commit authored by the required implementer identity. The current implementation diff changes the topology producer to require proof-or-stop-implementer while accepting the legacy author only on read, but the current story history has no qualifying canonical or legacy implementer-authored business commit. Therefore this critic cannot truthfully certify scope, exclusions, or producer/consumer closure for RI-002.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-topology-critic",
       "createdAt": "2026-08-20T10:50:43.752Z",
@@ -46,7 +46,11 @@
         "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
       ],
       "signatureTag": "missing|ts|topology-completeness-blocked",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by current topology evidence: f98f853126 includes a business commit authored by proof-or-stop-implementer; acceptance_basis is complete with no blind spots, acceptance_topology_check passes, and the independent topology_critic_receipt_check now passes with all provenance bindings valid.",
+      "resolvedAt": "2026-08-21T21:15:25.272Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-002",
@@ -433,7 +437,7 @@
       "desc": "Current topology receipt cannot pass because implementation provenance lacks a session-bound lattice-implementer dispatch; the existing business commits are implementer-authored but a registered implementer dispatch must be created after returning to DEV before topology closure can be certified.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-topology-critic",
       "createdAt": "2026-08-20T12:28:37.616Z",
@@ -473,7 +477,11 @@
         "packages/main/src/handlers/story-dispatch.ts"
       ],
       "signatureTag": "missing|ts|current-topology-receipt",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by current canonical topology reattestation: the f98f853126 business commit has the required proof-or-stop-implementer author and the independent topology receipt now verifies agent, session, dispatch, and businessCommitAuthor provenance.",
+      "resolvedAt": "2026-08-21T21:15:26.507Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-009",
@@ -613,7 +621,7 @@
       "desc": "RI-005 topology receipt remains blocked: the current implementation provenance has no session-bound lattice-implementer dispatch, so the topology critic cannot truthfully issue a PASS or admissible receipt. This is the same topology/implementer-dispatch provenance family as B-5a88:F-008.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-topology-critic",
       "createdAt": "2026-08-20T12:40:55.635Z",
@@ -656,7 +664,11 @@
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
       ],
       "signatureTag": "topology-implementer-dispatch-provenance",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by current topology receipt reattestation: acceptance basis is complete, structural topology passes, and topology_critic_receipt_check returns ok=true with current storyFilesHash, scope, closure, and provenance bindings.",
+      "resolvedAt": "2026-08-21T21:15:27.751Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-011",
@@ -8773,7 +8785,7 @@
       "desc": "current-head-test-evidence: packages/main/src/tasks/review-incremental-context-smoke.ts:1652-1655,1756-1758 — rolloutModes is keyed by legacy lattice-review-* names while review_run_start persists canonical proof-or-stop-review-* lanes; under mask 31 the smoke reads an undefined mode and deterministically asserts that a full-envelope run has no envelope. node packages/main/dist/tasks/review-incremental-context-smoke.js --guard-scenario=31 fails, so the canonical alias/envelope concurrency matrix is not currently green or evidenced.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-21T20:37:40.245Z",
@@ -8781,14 +8793,18 @@
       "reviewRunId": "B-5a88:RR-271",
       "_hash": "63b30c31e96de756c9ad17a3e4fcb8e94191fc8b750a153b5713d6595c99d3d5",
       "signatureTag": "edge|unknown|current-head-test",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by f98f853126: review-incremental-context-smoke now resolves rollout mode keys through the canonical proof-or-stop reviewer lane; build, guard scenario 31, and the complete incremental smoke pass.",
+      "resolvedAt": "2026-08-21T21:04:06.659Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-231",
       "desc": "CHK-001:happy:0 remains under-covered at current HEAD: its pinned receipt only asserts canonicalAgentRoleId, while the authored must intent requires emission and acceptance through review_run_start, review_pass_set, init_check_set, and quorum resolution. The stronger brand-role migration test passes on current HEAD but is not intent-bound.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-21T20:37:45.583Z",
@@ -8800,14 +8816,18 @@
         "packages/main/dist/core/agent-role-identity.js"
       ],
       "signatureTag": "happy-remains-bound",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Partially mitigated: current brand-role-migration test executes canonical dispatch, review_run_start, review_pass_set, init_check_set, and quorum paths and passes on f98f853126; the authored happy receipt remains the immutable canonicalAgentRoleId pin and was not retroactively replaced.",
+      "resolvedAt": "2026-08-21T21:04:07.801Z",
+      "resolutionType": "partially_mitigated",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-232",
       "desc": "CHK-002:happy:0, CHK-002:edge:0, and CHK-002:adversarial:0 remain under-covered at current HEAD: all pinned receipts execute imports from /private/tmp/proof-or-stop-b5a88-marker-build or /private/tmp/proof-or-stop-b5a88-init-build rather than the current repository producer/consumer and init paths. The current managed-marker migration test passes, but it is not bound to these intents.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-21T20:37:48.649Z",
@@ -8821,14 +8841,18 @@
         "packages/main/src/claude-md-sync.ts"
       ],
       "signatureTag": "coverage-remains-bound",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Partially mitigated: current managed-marker-migration test exercises repository dist producer/consumer and init paths and passes on f98f853126; the three authored receipts retain their historical temporary-build command pins because Proof-or-Stop rejects command replacement.",
+      "resolvedAt": "2026-08-21T21:04:08.925Z",
+      "resolutionType": "partially_mitigated",
+      "resolveEvidenceStrength": "medium"
     },
     {
       "id": "B-5a88:F-233",
       "desc": "CHK-004:happy:0, CHK-004:edge:0, and CHK-004:adversarial:0 remain under-covered at current HEAD: the pinned receipts are source-token and bash-syntax scans, not execution of create/write approval, pre-push canonical and legacy consumption, one-shot second-consume, invalid-schema, SHA-mismatch, and expiry rejection. release-push-approval-migration.test.mjs passes on current HEAD but is not intent-bound.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-21T20:37:51.688Z",
@@ -8841,14 +8865,18 @@
         "packages/main/tests/release-push-approval-migration.test.mjs"
       ],
       "signatureTag": "coverage-pinned-intents",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Partially mitigated: current release-push-approval migration test executes canonical/legacy hook consumption, second-consume, invalid-schema, SHA-mismatch, and expiry rejection paths and passes; the three authored source-scan/bash pins remain immutable and were not rewritten.",
+      "resolvedAt": "2026-08-21T21:04:10.058Z",
+      "resolutionType": "partially_mitigated",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-234",
       "desc": "CHK-007:edge:0 remains under-covered at current HEAD: its pinned receipt runs only dist/cli.js help, which cannot verify the required distinction between frozen historical evidence, compatibility readers, and unsupported new lattice command aliases. verify-lattice-residue.mjs --self-test and bin-alias-migration.test.mjs pass on current HEAD, but neither is bound to this edge intent.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-21T20:37:54.894Z",
@@ -8861,7 +8889,11 @@
         "packages/main/dist/cli.js"
       ],
       "signatureTag": "edge-remains-bound",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Partially mitigated: current verify-lattice-residue self-test and bin-alias migration test cover frozen-history, compatibility-reader, and unsupported-alias distinctions and pass; the authored edge receipt remains the help-only pin because command replacement is forbidden.",
+      "resolvedAt": "2026-08-21T21:04:11.198Z",
+      "resolutionType": "partially_mitigated",
+      "resolveEvidenceStrength": "medium"
     },
     {
       "id": "B-5a88:F-235",
@@ -8900,7 +8932,7 @@
       "desc": "packages/main/src/handlers/proofstory.ts:306-355 and packages/main/src/core/topology-critic-receipt.ts:464-501 — current acceptance topology is not backed by a valid current topology-critic receipt: topology_critic_receipt_check returns AT_TOPOLOGY_CRITIC_RECEIPT_INVALID with missing or unverifiable critic and implementation agent/session/dispatch/headHash/businessCommit provenance, implementation mismatch, request_changes verdict, stale freshness binding, and stale finding refs. acceptance_topology_check remains non-evidentiary structural output; the required current signed PASS with session-bound implementation dispatch and exact topology provenance is absent.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-08-21T20:59:22.095Z",
@@ -8908,7 +8940,38 @@
       "reviewRunId": "B-5a88:RR-273",
       "_hash": "b81f0b7a4a01a0269a17fdf6fdadfa8f5f9c0884ac81dd5435b8c56f96ccdabc",
       "signatureTag": "missing|unknown|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by current verifier-owned acceptance artifacts and independent receipt: acceptance_basis is complete, acceptance_topology_check passes, and topology_critic_receipt_check returns ok=true after the current implementation and session provenance were re-established.",
+      "resolvedAt": "2026-08-21T21:15:28.997Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5a88:F-237",
+      "desc": "Current HEAD 45ae604 re-ran the focused brand-role, managed-marker, release-push-approval, bin-alias, immutable tool-evidence, and verification-run guard tests successfully, but the authored verificationEvidence remains under-bound: CHK-001:happy:0 pins only canonicalAgentRoleId while the current brand-role test exercises review_run_start/review_pass_set/init_check/quorum; CHK-002:happy:0/edge:0/adversarial:0 pin imports from /private/tmp/proof-or-stop-b5a88-marker-build or init-build while the current managed-marker test exercises repository dist producers/consumers; CHK-004:happy:0/edge:0/adversarial:0 pin source-token/bash scans while the current release-hook test executes canonical/legacy consume, second-consume, invalid-schema, and expiry paths; CHK-007:edge:0 pins only dist/cli.js help while the current residue self-test executes frozen-history/compatibility-reader/unsupported-alias distinctions. The evidence pin is immutable in packages/main/src/handlers/checklist.ts:734-765 and rejects command/selector replacement, so these current passing tests cannot be retroactively substituted for the 21/21 pinned receipts. Existing F-231/F-232/F-233/F-234 remain verified open.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-21T20:59:48.104Z",
+      "reviewRound": "2026-08-21T20:53:57.831Z",
+      "reviewRunId": "B-5a88:RR-274",
+      "_hash": "02ea43baa0307c5926ab3c210e14bfb86ddf61aecd87bd659de5a360eee00b42",
+      "files": [
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/tests/brand-role-migration.test.mjs",
+        "packages/main/tests/managed-marker-migration.test.mjs",
+        "packages/main/tests/release-push-approval-migration.test.mjs",
+        "packages/main/tests/bin-alias-migration.test.mjs",
+        "scripts/verify-lattice-residue.mjs"
+      ],
+      "signatureTag": "missing|ts|current-head-45ae604",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Partially mitigated: the current focused migration, evidence-guard, residue, and verifier tests pass on f98f853126, but the underlying authored verificationEvidence pins remain immutable and weaker than the stronger current tests; F-231 through F-234 record each limitation explicitly.",
+      "resolvedAt": "2026-08-21T21:04:12.344Z",
+      "resolutionType": "partially_mitigated",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
