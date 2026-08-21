@@ -995,6 +995,46 @@
       "cancelReason": "Wave budget exhausted after repeated independent confirmation of one missing verifier smoke artifact; cancel this epoch to replan the scoped remediation.",
       "terminalRunSequenceBoundary": 175,
       "_hash": "5b9944a6053f9147028c8ae0b1244e2b116d29e9cb347d4a01516745c73c96d2"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-5a15:RI-010",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-21T17:48:55.675Z",
+      "state": "OPEN",
+      "begunAt": "2026-08-21T18:37:38.643Z",
+      "updatedAt": "2026-08-21T18:37:38.643Z",
+      "cutoff": {
+        "headHash": "884583b6aaca09b68ee01180d4d6f90a2047623f",
+        "materialHash": "853d5eb4322ecb6d3ba9b94131ecab4e76ac0b8a2e77f47f24a2c39fc04ac775",
+        "storyFilesHash": "01a95005cb46a073e03805e42aef1925a31b87ed2f3d0b43e4378a5e2f1f1406"
+      },
+      "scopeDigest": "2973bf65af4397eb798597f98a674e11c250d5258a7843a01694a091802fdfe0",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage"
+      ],
+      "initialRunSequenceBoundary": 175,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [
+        "B-5a15:F-081",
+        "B-5a15:F-083",
+        "B-5a15:F-084",
+        "B-5a15:F-085",
+        "B-5a15:F-086",
+        "B-5a15:F-087",
+        "B-5a15:F-088",
+        "B-5a15:F-089",
+        "B-5a15:F-090",
+        "B-5a15:F-091",
+        "B-5a15:F-092",
+        "B-5a15:F-093",
+        "B-5a15:F-094",
+        "B-5a15:F-095"
+      ],
+      "_hash": "447e3e44f327a786b3093d92a594d35047f146b742e60b903c4f2fd15aca0e48"
     }
   ],
   "receipts": [
