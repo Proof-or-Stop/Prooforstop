@@ -13,6 +13,8 @@ export interface ValidationCommand {
   timeoutMs?: number;
   optional?: boolean;
   focus?: string[];
+  /** Versioned real case registry consumed by DYN-5 adapters. */
+  caseRegistryPath?: string;
   /**
    * What this command touches, in the SAME vocabulary the full test suite
    * declares (core/keyed-scheduler.ts): git-common-dir / fixed-path /

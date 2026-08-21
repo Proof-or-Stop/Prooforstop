@@ -136,7 +136,7 @@ export function readCanonicalFullBaseline(projectRoot: string): CanonicalFullBas
 
 function sourceAuthorityPath(value: string): string | undefined {
   const normalized = value.replace(/\\/g, '/').replace(/^\.\//, '');
-  if (!normalized.includes('/') || !/\.(?:c?m?js|mjs|mts|ts|tsx|json)$/.test(normalized)) return undefined;
+  if (!/\.(?:c?m?js|mjs|mts|ts|tsx|json)$/.test(normalized)) return undefined;
   if (normalized.startsWith('packages/main/dist/')) {
     return normalized.replace(/^packages\/main\/dist\//, 'packages/main/src/').replace(/\.(?:c?m?js|mjs)$/, '.ts');
   }
@@ -168,7 +168,19 @@ function runtimeTraceForResult(result: ValidationCommandResult | undefined, proj
     const rel = relative(root, absolute).replace(/\\/g, '/');
     return rel && !rel.startsWith('../') && rel !== '..' ? rel : undefined;
   };
-  const readPaths = (boundary.readPaths || []).map(normalizeObserved).filter((path): path is string => Boolean(path));
+  const unknownRuntimeInputs = [...boundary.unknownRuntimeInputs];
+  const normalizedReads = (boundary.readPaths || []).map((value) => ({ value, path: normalizeObserved(value) }));
+  for (const row of normalizedReads) {
+    if (!row.path && (isAbsolute(row.value) || row.value.includes('/') || row.value.includes('\\'))) {
+      unknownRuntimeInputs.push(`unmapped-runtime-read:${row.value}`);
+    }
+  }
+  for (const [kind, values] of [['module-load', boundary.loadedPaths || []], ['process-spawn', boundary.spawnedPaths || []]] as const) {
+    for (const value of values) {
+      if (isAbsolute(value) && !normalizeObserved(value)) unknownRuntimeInputs.push(`unmapped-runtime-${kind}:${value}`);
+    }
+  }
+  const readPaths = normalizedReads.map((row) => row.path).filter((path): path is string => Boolean(path));
   const loadedPaths = (boundary.loadedPaths || []).map(normalizeObserved).filter((path): path is string => Boolean(path));
   const spawnedPaths = (boundary.spawnedPaths || boundary.argv).map(normalizeObserved).filter((path): path is string => Boolean(path));
   return {
@@ -184,7 +196,7 @@ function runtimeTraceForResult(result: ValidationCommandResult | undefined, proj
     spawnedPaths: [...new Set(spawnedPaths)],
     registryKeys: [...(boundary.registryKeys || [])],
     environmentKeys: [...boundary.environmentKeys],
-    unknownRuntimeInputs: [...boundary.unknownRuntimeInputs],
+    unknownRuntimeInputs: [...new Set(unknownRuntimeInputs)],
   };
 }
 
@@ -243,7 +255,12 @@ export function persistCanonicalFullBaseline(args: {
 function prepare(args: PrepareStoryAwareValidationArgs): PreparedStoryAwareValidation {
   const gitCwd = args.gitCwd || args.projectRoot;
   const head = args.head || currentHead(gitCwd);
-  const inventory = discoverValidationInventory(args.projectRoot);
+  const injectedInventory = args.commands?.map((row, index) => ({
+    ...row,
+    id: `validation-${stableDigest({ command: row.command, args: row.args }).slice(0, 16)}`,
+    originalIndex: index,
+  }));
+  const inventory = discoverValidationInventory(args.projectRoot, injectedInventory);
   const catalog = compileValidationCatalog(inventory);
   assertValidValidationCatalog(inventory, catalog);
   for (const entry of catalog) validateResourceClaims(entry.resources, entry.id);
@@ -262,11 +279,14 @@ function prepare(args: PrepareStoryAwareValidationArgs): PreparedStoryAwareValid
   const graph = args.changedFiles && args.changedFiles.length === 0
     ? undefined
     : buildDualRevisionImpactGraph({ gitCwd, baseHead: args.baseHead, head, catalog });
+  const toolchainDigest = args.toolchainDigest || stableDigest({ node: process.version, platform: process.platform, arch: process.arch });
   const baseline = readCanonicalFullBaseline(args.projectRoot);
   const baselineUsable = baseline
     && baseline.sourceHead === args.baseHead
     && baseline.inventoryDigest === inventory.digest
     && baseline.catalogDigest === catalogDigest
+    && baseline.runnerDigest === DYNAMIC_RUNNER_DIGEST
+    && baseline.toolchainDigest === toolchainDigest
     ? baseline
     : undefined;
   const closures = new Map<string, ValidationClosureCertificate>();
@@ -303,10 +323,11 @@ function prepare(args: PrepareStoryAwareValidationArgs): PreparedStoryAwareValid
     receipts: args.receipts,
     baselineEpochId: baselineEpoch(args),
     revocationLedger: initialLedger(args),
+    runnerDigest: DYNAMIC_RUNNER_DIGEST,
     mode: args.mode || 'observe',
     gitCwd,
     buildProofDigest: args.buildProofDigest,
-    toolchainDigest: args.toolchainDigest || stableDigest({ node: process.version, platform: process.platform, arch: process.arch }),
+    toolchainDigest,
     scopeContract: args.scopeContract,
     buildCommandId: waveZeroCommand(catalog),
   };
@@ -417,6 +438,33 @@ function shardDomainForEntry(entry: ValidationCatalogEntry): 'quorum' | 'review-
   return undefined;
 }
 
+const DYN5_ADAPTER_REGISTRY: Record<string, string> = {
+  'case-registry-output-v1': stableDigest({
+    name: 'case-registry-output-v1',
+    contract: ['caseRegistryPath', 'runtime-read-of-registry', 'case-routing-marker', 'sentinel-marker'],
+  }),
+};
+
+function loadShardCaseRegistry(projectRoot: string, entry: ValidationCatalogEntry, domain: string): { cases: ValidationCase[]; path: string; digest: string } | undefined {
+  if (!entry.caseRegistryPath) return undefined;
+  const path = isAbsolute(entry.caseRegistryPath) ? resolve(entry.caseRegistryPath) : resolve(projectRoot, entry.caseRegistryPath);
+  const root = resolve(projectRoot);
+  const rel = relative(root, path);
+  if (rel.startsWith('../') || rel === '..') return undefined;
+  try {
+    const parsed = JSON.parse(readFileSync(path, 'utf8')) as unknown;
+    if (!Array.isArray(parsed)) return undefined;
+    const cases = parsed.filter((row): row is ValidationCase => Boolean(row && typeof row === 'object'
+      && typeof (row as Record<string, unknown>).caseId === 'string'
+      && typeof (row as Record<string, unknown>).domain === 'string'
+      && (row as Record<string, unknown>).domain === domain));
+    if (cases.length < 3 || new Set(cases.map((row) => row.caseId)).size !== cases.length) return undefined;
+    return { cases, path, digest: stableDigest(cases) };
+  } catch {
+    return undefined;
+  }
+}
+
 /** Execute one catalog row as real isolated DYN-5 shards and collect signed evidence. */
 async function executeShardedEntry(args: {
   entry: ValidationCatalogEntry;
@@ -432,12 +480,21 @@ async function executeShardedEntry(args: {
   buildProofDigest: string;
 }): Promise<{ result: ValidationResult; artifact: DynamicShardArtifact }> {
   const domain = shardDomainForEntry(args.entry)!;
-  const count = domain === 'review-pass' ? 3 : 4;
-  const cases: ValidationCase[] = Array.from({ length: count }, (_, index) => ({
-    caseId: `${domain}:${args.entry.id}:case-${index + 1}`,
-    domain,
-    sentinel: index === 0,
-  }));
+  const registry = loadShardCaseRegistry(args.projectRoot, args.entry, domain);
+  const failClosed = (reason: string): { result: ValidationResult; artifact: DynamicShardArtifact } => {
+    const aggregation = { ok: false, verdict: 'FAIL' as const, errors: [reason], coveredCaseIds: [] };
+    return {
+      result: {
+        provider: `story-aware-dynamic-${domain}-unwired`, status: 'fail', allPass: false,
+        summary: reason, details: [reason], warnings: [], timestamp: new Date().toISOString(), headSha: args.head,
+        commands: [], commandExecutions: 0, disposition: 'executed',
+      },
+      artifact: { commandId: args.entry.id, domain, shards: [], receipts: [], aggregation, residue: [] },
+    };
+  };
+  if (!registry) return failClosed(`DYN-5 ${domain} case registry is missing, outside the project root, malformed, or incomplete`);
+  const count = domain === 'review-pass' ? 3 : Math.min(4, Math.max(3, registry.cases.length));
+  const cases = registry.cases;
   const shards = buildValidationShards(cases, { domain, shardCount: count });
   const shardResults: ValidationShardResult[] = [];
   const receipts: ValidationShardReceipt[] = [];
@@ -445,7 +502,8 @@ async function executeShardedEntry(args: {
   const residue: string[] = [];
   const baseCommand = commandForEntry(args.entry, args.commands);
   const shardAdapter = baseCommand.env?.LATTICE_VALIDATION_SHARD_ADAPTER;
-  if (!shardAdapter) {
+  const adapterDigest = typeof shardAdapter === 'string' ? DYN5_ADAPTER_REGISTRY[shardAdapter] : undefined;
+  if (!adapterDigest) {
     const rejectedResults: ValidationShardResult[] = shards.map((shard) => ({
       shardId: shard.shardId, domain, caseIds: [...shard.caseIds], verdict: 'FAIL', executed: false, staticPass: false, sentinelObserved: false,
     }));
@@ -454,7 +512,7 @@ async function executeShardedEntry(args: {
       result: {
         provider: `story-aware-dynamic-${domain}-unwired`, status: 'fail', allPass: false,
         summary: `DYN-5 ${domain} adapter is not configured; dynamic sharding failed closed`,
-        details: ['Configure LATTICE_VALIDATION_SHARD_ADAPTER and a case-aware runner before enabling this command.'],
+        details: ['Configure a registered case-aware adapter and LATTICE_VALIDATION_SHARD_ADAPTER before enabling this command.'],
         warnings: [], timestamp: new Date().toISOString(), headSha: args.head, commands: [], commandExecutions: 0, disposition: 'executed',
       },
       artifact: { commandId: args.entry.id, domain, shards, receipts: [], aggregation, residue: [] },
@@ -471,6 +529,7 @@ async function executeShardedEntry(args: {
         LATTICE_VALIDATION_SHARD_DOMAIN: domain,
         LATTICE_VALIDATION_SHARD_SENTINEL: shard.sentinelCaseId,
         LATTICE_VALIDATION_SHARD_CASE_IDS: shard.caseIds.join(','),
+        LATTICE_VALIDATION_SHARD_CASE_REGISTRY: registry.path,
         LATTICE_VALIDATION_SHARD_DIR: shardDir,
       },
     };
@@ -492,6 +551,8 @@ async function executeShardedEntry(args: {
     residue.push(...shardResidue);
     const sentinelMarker = `PROOF_OR_STOP_SENTINEL:${shard.sentinelCaseId}`;
     const caseMarker = `PROOF_OR_STOP_CASES:${shard.caseIds.join(',')}`;
+    const registryObserved = Boolean(commandResult?.runtimeTrace?.readPaths?.some((path) => resolve(path) === registry.path)
+      || commandResult?.runtimeTrace?.loadedPaths?.some((path) => resolve(path) === registry.path));
     const sentinelObserved = Boolean(
       commandResult?.output.includes(sentinelMarker)
       || existsSync(join(shardDir, `${shard.sentinelCaseId}.sentinel`)),
@@ -505,7 +566,7 @@ async function executeShardedEntry(args: {
       residue: shardResidue,
       executed: true,
       staticPass: false,
-      sentinelObserved: sentinelObserved && caseRoutingObserved,
+      sentinelObserved: sentinelObserved && caseRoutingObserved && registryObserved,
     };
     shardResults.push(shardResult);
     const output = commandResult?.output || '';
@@ -516,7 +577,10 @@ async function executeShardedEntry(args: {
       commandId: args.entry.id,
       caseIds: [...shard.caseIds],
       sentinelCaseId: shard.sentinelCaseId,
-      sentinelObserved: sentinelObserved && caseRoutingObserved,
+      sentinelObserved: sentinelObserved && caseRoutingObserved && registryObserved,
+      caseRegistryDigest: registry.digest,
+      adapterDigest,
+      registryObserved,
       sourceHead: args.head,
       result: result.allPass ? 'PASS' : 'FAIL',
       exitCode: commandResult?.code ?? 1,
@@ -635,12 +699,15 @@ function deriveGateOwnedPrerequisites(args: {
   shardArtifacts: DynamicShardArtifact[];
 }): Partial<Parameters<typeof evaluateDynamicAuthority>[0]['prerequisites']> {
   const manifest = args.prepared.manifest;
+  const currentToolchainDigest = stableDigest({ node: process.version, platform: process.platform, arch: process.arch });
   const baselineCurrent = Boolean(args.baseline
     && verifyCanonicalFullBaseline(args.baseline)
     && args.baseline.sourceHead === manifest.baseHead
     && args.baseline.inventoryDigest === args.prepared.inventoryDigest
     && args.baseline.catalogDigest === args.prepared.catalogDigest
-    && args.baseline.epochId === manifest.canonicalBaselineEpochId);
+    && args.baseline.epochId === manifest.canonicalBaselineEpochId
+    && args.baseline.runnerDigest === DYNAMIC_RUNNER_DIGEST
+    && args.baseline.toolchainDigest === currentToolchainDigest);
   const baselineClosureComplete = Boolean(args.baseline && Object.values(args.baseline.closureCertificates).length > 0
     && Object.values(args.baseline.closureCertificates).every((certificate) => certificate.status === 'complete'));
   const receiptsCurrent = args.receipts.every((receipt) => verifyValidationCommandReceipt(receipt).ok)

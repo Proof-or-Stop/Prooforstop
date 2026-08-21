@@ -256,6 +256,32 @@ try {
     rmSync(configuredOnlyRoot, { recursive: true, force: true });
   }
 
+  // Story-aware dynamic preview must also be reachable when the project uses
+  // the native validate.ts entrypoint (not only configured commands).
+  const dynamicValidateFileRoot = mkdtempSync(join(tmpdir(), 'lattice-validation-dynamic-validate-file-'));
+  try {
+    writeFileSync(join(dynamicValidateFileRoot, 'validate.ts'), 'console.log("validate-file dynamic fixture")\n');
+    initSmokeGitRepo(dynamicValidateFileRoot);
+    gitQuiet(dynamicValidateFileRoot, ['add', '.']);
+    gitQuiet(dynamicValidateFileRoot, ['commit', '-m', 'seed dynamic validate-file smoke']);
+    resetConfigCache();
+    const dynamicJson = await createVerifierHandlers({
+      root: dynamicValidateFileRoot,
+      scanRoot: dynamicValidateFileRoot,
+      store: new StoryStore(dynamicValidateFileRoot),
+      log: () => {},
+    }).validate({ dynamicMode: 'observe', json: true });
+    const dynamicResult = JSON.parse(String(dynamicJson));
+    assert.equal(dynamicResult.provider, 'lattice-verifier-dynamic-preview');
+    assert.equal(dynamicResult.commandExecutions, 0);
+    assert.equal(dynamicResult.dynamicValidation.mode, 'observe');
+    assert.equal(dynamicResult.dynamicValidation.oracleStatus, 'not-run');
+    assert.equal(dynamicResult.dynamicValidation.manifest.totals.inventory, 1);
+  } finally {
+    rmSync(dynamicValidateFileRoot, { recursive: true, force: true });
+    resetConfigCache();
+  }
+
   const configuredFailRoot = mkdtempSync(join(tmpdir(), 'lattice-validation-configured-fail-'));
   try {
     writeFileSync(join(configuredFailRoot, 'lattice.config.json'), JSON.stringify({
