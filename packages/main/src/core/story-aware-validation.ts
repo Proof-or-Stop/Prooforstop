@@ -354,6 +354,8 @@ function sourceRootForCommand(row: ValidationInventoryCommand): string {
 
 export interface ValidationRuntimeTrace {
   readPaths?: string[]; loadedPaths?: string[]; spawnedPaths?: string[]; registryKeys?: string[]; environmentKeys?: string[];
+  command?: string; argv?: string[]; cwd?: string; startedAt?: string; endedAt?: string; exitCode?: number; events?: string[];
+  unknownRuntimeInputs?: string[];
 }
 export interface ValidationClosureCertificate {
   schema: typeof VALIDATION_CLOSURE_SCHEMA; commandId: string; baseHead: string; inventoryDigest: string; catalogDigest: string;
@@ -373,7 +375,10 @@ export function createValidationClosureCertificate(args: {
   const undeclaredObservedPaths = observed.filter(path => !paths.includes(path));
   const env = uniqueSorted(trace.environmentKeys || []); const declared = new Set(uniqueSorted(args.declaredEnvironmentKeys || []));
   const undeclaredObservedEnvironmentKeys = env.filter(key => !declared.has(key));
-  const status: ValidationClosureCertificate['status'] = undeclaredObservedPaths.length || undeclaredObservedEnvironmentKeys.length ? 'unverified' : 'complete';
+  const status: ValidationClosureCertificate['status'] = undeclaredObservedPaths.length
+    || undeclaredObservedEnvironmentKeys.length
+    || (trace.unknownRuntimeInputs || []).length > 0
+    ? 'unverified' : 'complete';
   const body = {
     schema: VALIDATION_CLOSURE_SCHEMA, commandId: args.commandId, baseHead: args.baseHead,
     inventoryDigest: args.inventoryDigest, catalogDigest: args.catalogDigest,
@@ -392,6 +397,41 @@ export function verifyValidationClosureCertificate(cert: ValidationClosureCertif
 }
 export const createClosureCertificate = createValidationClosureCertificate;
 export const verifyClosureCertificate = verifyValidationClosureCertificate;
+
+/** Canonical full-plan evidence which supplies runtime closure traces for reuse. */
+export const VALIDATION_BASELINE_SCHEMA = 'proof-or-stop.validation-canonical-full-baseline.v1' as const;
+export interface CanonicalFullBaseline {
+  schema: typeof VALIDATION_BASELINE_SCHEMA;
+  epochId: string;
+  sourceHead: string;
+  inventoryDigest: string;
+  catalogDigest: string;
+  toolchainDigest: string;
+  runnerDigest: string;
+  buildProofDigest: string;
+  allPass: true;
+  createdAt: string;
+  expiresAt: string;
+  traces: Record<string, ValidationRuntimeTrace>;
+  closureCertificates: Record<string, ValidationClosureCertificate>;
+  signature: string;
+}
+export function createCanonicalFullBaseline(args: Omit<CanonicalFullBaseline, 'schema' | 'signature' | 'expiresAt'> & { expiresAt?: string }): CanonicalFullBaseline {
+  const createdAt = args.createdAt || new Date().toISOString();
+  const requestedExpiry = args.expiresAt ? Date.parse(args.expiresAt) : Date.parse(createdAt) + MAX_RECEIPT_AGE_MS;
+  const expiresAt = new Date(Math.min(requestedExpiry, Date.parse(createdAt) + MAX_RECEIPT_AGE_MS)).toISOString();
+  const body = { ...args, schema: VALIDATION_BASELINE_SCHEMA, createdAt, expiresAt };
+  return { ...body, signature: signPayload(body) } as CanonicalFullBaseline;
+}
+export function verifyCanonicalFullBaseline(baseline: CanonicalFullBaseline, now = Date.now()): boolean {
+  const created = Date.parse(baseline.createdAt); const expires = Date.parse(baseline.expiresAt);
+  return baseline.schema === VALIDATION_BASELINE_SCHEMA
+    && baseline.allPass === true
+    && Number.isFinite(created) && Number.isFinite(expires) && expires > created && now < expires
+    && baseline.inventoryDigest.length > 0 && baseline.catalogDigest.length > 0
+    && Object.values(baseline.closureCertificates).every(verifyValidationClosureCertificate)
+    && verifyPayload(withoutSignature(baseline), baseline.signature);
+}
 
 interface GraphData { paths: Set<string>; imports: Map<string, Set<string>>; }
 function parseImports(source: string): string[] {

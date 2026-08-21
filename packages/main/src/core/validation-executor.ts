@@ -1261,6 +1261,8 @@ export function runValidationCommand(
   const timeoutMs = deadlineRemainingMs === undefined
     ? configuredTimeoutMs
     : Math.min(configuredTimeoutMs, deadlineRemainingMs);
+  const effectiveEnv = effectiveValidationCommandEnvironment(process.env, command.env, cwd);
+  const startedAt = new Date(started).toISOString();
   const commandIndex = options.commandIndex ?? 1;
   const totalCommands = options.totalCommands ?? 1;
   const heartbeatMs = options.heartbeatMs ?? resolveValidateHeartbeatMs();
@@ -1286,6 +1288,7 @@ export function runValidationCommand(
     let timer: NodeJS.Timeout | undefined;
     let killTimer: NodeJS.Timeout | undefined;
     let heartbeatTimer: NodeJS.Timeout | undefined;
+    const runtimeEvents: string[] = ['spawn-request'];
 
     const finish = (rawCode: number | null) => {
       if (settled) return;
@@ -1300,6 +1303,7 @@ export function runValidationCommand(
       // could even exit 0 — without this normalization those would mis-report as not-124
       // even though `timedOut` is set.
       const code = timedOut ? 124 : (rawCode ?? 1);
+      runtimeEvents.push('finish');
       const failureKind = commandFailureKind({ code, timedOut, runnerFailure });
       const statusAfter = readGitStatus(statusGitCwd);
       const pollutionStatusLines = detectNewDirtyStatus(statusBefore, statusAfter);
@@ -1316,6 +1320,21 @@ export function runValidationCommand(
         timeoutMs,
         ...(failureKind ? { failureKind } : {}),
         durationMs: Date.now() - started,
+        runtimeTrace: {
+          command: command.command,
+          argv: [...command.args],
+          cwd,
+          environmentKeys: Object.keys(effectiveEnv).sort(),
+          startedAt,
+          endedAt: new Date().toISOString(),
+          exitCode: code,
+          events: [...runtimeEvents],
+          // The executor observes the process boundary only. File reads, module loads,
+          // registry access, and generated-input reads require explicit instrumentation;
+          // retaining this marker makes closure certificates fail closed until that seam
+          // is installed instead of treating argv as a fake runtime trace.
+          unknownRuntimeInputs: ['file-read/module-load/registry tracing unavailable'],
+        },
         ...(pollutionStatusLines.length > 0
           ? {
               worktreePollution: {
@@ -1339,7 +1358,7 @@ export function runValidationCommand(
 
     const child = spawn(command.command, command.args, {
       cwd,
-      env: effectiveValidationCommandEnvironment(process.env, command.env, cwd),
+      env: effectiveEnv,
       shell: command.shell || isWindows,
       stdio: ['ignore', 'pipe', 'pipe'],
       // POSIX: give the child its own process group (it becomes group leader) so the
@@ -1349,6 +1368,7 @@ export function runValidationCommand(
       // re-introducing the exact hang this guards against. Not unref'd: we still await it.
       ...(isWindows ? {} : { detached: true }),
     });
+    runtimeEvents.push('spawn');
 
     emitValidationProgress(options.progress, validationProgressEvent('command_start', command, {
       commandIndex,
@@ -1426,8 +1446,9 @@ export function runValidationCommand(
 
     child.stdout?.on('data', (d: Buffer) => { output += d.toString(); });
     child.stderr?.on('data', (d: Buffer) => { output += d.toString(); });
-    child.on('close', (code) => finish(code));
+    child.on('close', (code) => { runtimeEvents.push('close'); finish(code); });
     child.on('error', (e) => {
+      runtimeEvents.push('error');
       runnerFailure = true;
       output += output ? `\n${e.message}` : e.message;
       finish(null);
