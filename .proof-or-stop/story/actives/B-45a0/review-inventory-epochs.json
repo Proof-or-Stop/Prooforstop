@@ -498,6 +498,32 @@
       "cancelReason": "RI-014 started before required checklist/review ledger metadata commit; current-head binding changed to 0715c23b41 and needs a fresh inventory.",
       "terminalRunSequenceBoundary": 53,
       "_hash": "9f0bb93893aa3a704629cf3cbe6969b8107589f4d3228e1580a6f318d58203fe"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-45a0:RI-015",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "state": "OPEN",
+      "begunAt": "2026-08-21T15:30:50.684Z",
+      "updatedAt": "2026-08-21T15:30:50.684Z",
+      "cutoff": {
+        "headHash": "e89d5bbb6c6109896108fa1d3e7392f2516fc0c7",
+        "materialHash": "5d7bf5d5da5ed0f991794ec11ec175feef10f2e9ffe7e5a0b7c065feb5f51e36",
+        "storyFilesHash": "b8173f10406c1951c799832b4972ff11092c078eebb04f25a161f867929ff171"
+      },
+      "scopeDigest": "d2e2f961fb38432362abaf100fb69d213516ddb2925112ed92e0c107db6d0461",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage",
+        "lattice-review-docs"
+      ],
+      "initialRunSequenceBoundary": 53,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [],
+      "_hash": "53011bbb96e551cbff931519887c88f369facaa61a2ba6ac125a4cd12bcbc23c"
     }
   ],
   "receipts": [],
