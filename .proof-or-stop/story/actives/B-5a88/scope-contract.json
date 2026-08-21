@@ -711,10 +711,29 @@
       "anchors": [
         "canonical_test_intent_handoff"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "F-136 requires updating the existing handoff smoke to assert canonical verificationIntent guidance emitted by the production handler.",
+      "timestamp": "2026-08-21T05:43:09.530Z",
+      "paths": [
+        "packages/main/src/tasks/testintent-handoff-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/testintent-handoff-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "a1be4b601fba558e0245b92c9dd5c0f569898265",
+      "materialHash": "0ec06165ed1019029b855585bb797f5b77d9e96a7aeb58ce9326a467e2c4539c",
+      "anchors": [
+        "canonical_test_intent_handoff"
+      ]
     }
   ],
   "createdAt": "2026-08-20T05:20:00.402Z",
-  "updatedAt": "2026-08-21T05:16:29.890Z",
+  "updatedAt": "2026-08-21T05:43:09.530Z",
   "fileRules": [],
   "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
@@ -882,6 +901,7 @@
     "packages/main/src/tasks/closeout-trust-smoke.ts": "packages/main/src/tasks/closeout-trust-smoke.ts",
     "packages/main/src/tasks/proof-admissibility-smoke.ts": "packages/main/src/tasks/proof-admissibility-smoke.ts",
     "packages/main/src/handlers/testintent-handoff.ts": "packages/main/src/handlers/testintent-handoff.ts",
-    "scripts/verify-testintent-handoff.mjs": "scripts/verify-testintent-handoff.mjs"
+    "scripts/verify-testintent-handoff.mjs": "scripts/verify-testintent-handoff.mjs",
+    "packages/main/src/tasks/testintent-handoff-smoke.ts": "packages/main/src/tasks/testintent-handoff-smoke.ts"
   }
 }
