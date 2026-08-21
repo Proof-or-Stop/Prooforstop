@@ -845,7 +845,15 @@ function deriveGateOwnedPrerequisites(args: {
     changedTestPropagationVerified,
     sourceFirstBuildProofActive: Boolean(args.buildProofDigest) && args.buildResult.allPass,
     buildAlwaysExecuted: args.buildResult.commands.length === 1 && args.buildResult.allPass,
-    storyRiskEligible: args.prepared.catalog.every((entry) => entry.riskTier === 'local') && !manifest.fullEscalated && shardEvidenceClean,
+    // Gate/validation-infra rows remain in the inventory and are selected by
+    // impact/full-escalation rules, but their mere presence must not make every
+    // unrelated local Story ineligible.  Eligibility is about the rows this
+    // manifest actually executes or reuses; a selected gate row still forces
+    // full fallback through `manifest.fullEscalated`/risk below.
+    storyRiskEligible: args.prepared.catalog
+      .filter((entry) => manifest.rows.some((row) => row.commandId === entry.id && row.disposition !== 'unverified'))
+      .every((entry) => entry.riskTier === 'local')
+      && !manifest.fullEscalated && shardEvidenceClean,
     periodicFullPolicyActive: baselineCurrent,
     revocationLedgerCurrent: verifyRevocationLedger(args.prepared.revocationLedger) && receiptsCurrent,
     catalogOwnershipGatePassed,
@@ -949,7 +957,9 @@ export async function runStoryAwareDynamicValidation(args: RunStoryAwareValidati
   const pinnedExecuted = final.manifest.rows.filter((row) => row.reasons.includes('verification-intent-pin')).every((row) => row.disposition === 'execute');
   const authority = evaluateDynamicAuthority({
     mode: args.mode || 'observe',
-    riskTier: final.catalog.every((entry) => entry.riskTier === 'local') ? 'local' : 'shared',
+    riskTier: final.catalog
+      .filter((entry) => final.manifest.rows.some((row) => row.commandId === entry.id && row.disposition !== 'unverified'))
+      .every((entry) => entry.riskTier === 'local') ? 'local' : 'shared',
     manifest: final.manifest,
     prerequisites: {
       // The gate-owned evidence provider below computes every prerequisite from

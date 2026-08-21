@@ -18,8 +18,11 @@ commands execute, no receipts are issued, and no TEST/DONE authority is granted.
 
 ## Required configuration
 
-Each object in `validate.commands` must preserve these fields through the
-verifier inventory: `assurance`, `riskTier`, `closurePolicy`,
+Canonical `proof-or-stop.config.json` (with legacy `lattice.config.json`
+fallback) owns the inventory. `validate.dynamic.policyDefaults` supplies the
+explicit policy tuple for ordinary commands; gate-heavy rows override those
+defaults. Each object in `validate.commands` must preserve these fields through
+the verifier inventory: `assurance`, `riskTier`, `closurePolicy`,
 `fullBaselineReusePolicy`, `cpuWeight`, `expectedP50Ms`, and (for DYN-5)
 `caseRegistryPath`, `declaredEnvironmentKeys`, and
 `env.LATTICE_VALIDATION_SHARD_ADAPTER`.
@@ -64,3 +67,11 @@ case coverage, sentinel, adapter/registry digests and cleanup residue.
 Rollback is non-destructive: set mode to `off` or `observe`. Existing Story
 evidence remains valid, while dynamic receipts simply stop being consumed by
 the authority predicate.
+
+To establish a canonical full baseline for the current HEAD, run the normal
+Story-scoped validator in `shadow`/`enforce-low-risk` after a clean build; the
+executor writes the baseline only after the complete plan passes and all
+runtime closure traces are admissible. Inspect the resulting
+`.proof-or-stop/runtime/dynamic-validation/canonical-full-baseline.json` before
+expecting reuse. If it is missing, expired, or digest-mismatched, the gate
+selects full validation.

@@ -49,6 +49,16 @@
     ]
   },
   "validate": {
+    "dynamic": {
+      "mode": "observe",
+      "policyDefaults": {
+        "assurance": "story-selectable",
+        "riskTier": "local",
+        "closurePolicy": "static-and-traced",
+        "fullBaselineReusePolicy": "not-applicable",
+        "cpuWeight": 1
+      }
+    },
     "commands": [
       {
         "command": "npm",

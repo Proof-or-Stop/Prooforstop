@@ -2,7 +2,11 @@
 
 This document records the evidence required before enabling low-risk dynamic
 TEST authority. It is a checklist of signed, current artifacts rather than a
-claim that a synthetic smoke is historical proof.
+claim that a synthetic smoke is historical proof. The current root inventory
+is 112 commands; `validate.dynamic.policyDefaults` plus the two gate-row
+overrides make all 112 compiled catalog entries explicit, while authority
+still falls back whenever a selected gate/full-only row or any other
+prerequisite is not admissible.
 
 ## Mandatory gate
 
@@ -36,8 +40,18 @@ receipts instead of being report-only text.
 ## Current implementation status
 
 The executable smoke paths are available under
-`packages/main/src/tasks/story-aware-validation-*.ts`. They prove the
-mechanical contracts and intentionally keep authority fail-closed until the
-historical replay and paired-performance artifacts above are generated for the
-current inventory. Operators must not promote this document to an enforcement
-approval without a fresh, signed report bound to the target HEAD.
+`packages/main/src/tasks/story-aware-validation-*.ts`. The default wrapper is
+plan-only, while the following commands generate the actual assurance artifacts
+when capacity permits:
+
+```sh
+node scripts/run-dynamic-validation-replay.mjs --execute
+node scripts/run-dynamic-validation-replay.mjs --execute --paired
+```
+
+The first command restores each historical base/head in detached worktrees and
+records full-vs-dynamic per-command verdicts; the second additionally records
+the three alternating current-HEAD pairs and timing/selection digests. The
+wrapper also writes `fault-injection.json` with per-catalog FI-1..FI-5 rows.
+Operators must not promote this document to an enforcement approval without a
+fresh, signed report bound to the target HEAD and a current canonical baseline.

@@ -148,6 +148,20 @@ const closures = new Map(catalog.map((entry: ValidationCatalogEntry) => [entry.i
 })]));
 const records: Array<Record<string, unknown>> = [];
 
+function commandVerdicts(result: Awaited<ReturnType<typeof executeValidationPlan>>) {
+  return result.commands.map((row) => ({
+    label: row.label,
+    command: row.command,
+    args: row.args,
+    cwd: row.cwd,
+    code: row.code,
+    outputDigest: stableDigest(row.output),
+    durationMs: row.durationMs,
+    timedOut: row.timedOut === true,
+    ...(row.failureKind ? { failureKind: row.failureKind } : {}),
+  }));
+}
+
 for (const candidate of selected) {
   const files = diffCache.get(candidate.storyId) || changedFiles(candidate.pair.base, candidate.pair.head);
   diffCache.set(candidate.storyId, files);
@@ -177,7 +191,18 @@ for (const candidate of selected) {
       const dynamic = await executeValidationPlan({ provider: 'historical-replay-dynamic', commands: selectedCommands, warnings: [] }, historicalRoot, candidate.pair.head, candidate.storyId);
       const fullFailures = full.commands.flatMap((row, index) => row.code === 0 ? [] : [catalog[index]!.id]);
       assert.ok(fullFailures.every(id => selectedIds.has(id)), `${candidate.storyId} omitted a full-plan failure`);
-      record.execution = { fullAllPass: full.allPass, dynamicAllPass: dynamic.allPass, fullFailures, commandExecutions: dynamic.commands.length, restoredHeadRoot: historicalRoot };
+      const fullVerdicts = commandVerdicts(full);
+      const dynamicVerdicts = commandVerdicts(dynamic);
+      record.execution = {
+        fullAllPass: full.allPass,
+        dynamicAllPass: dynamic.allPass,
+        fullFailures,
+        commandExecutions: dynamic.commands.length,
+        fullVerdicts,
+        dynamicVerdicts,
+        receiptsDigest: stableDigest({ fullVerdicts, dynamicVerdicts }),
+        restoredHeadRoot: historicalRoot,
+      };
       record.restore = { mode: 'detached-git-worktrees', baseHead: candidate.pair.base, head: candidate.pair.head, status: 'complete' };
     });
   }
@@ -190,13 +215,31 @@ const categories = [...new Set(records.map(row => row.category))].sort();
 const faultInjection = catalog.flatMap((entry) => {
   const rows: Array<Record<string, unknown>> = [];
   const closure = closures.get(entry.id);
+  const fiContext = (changedFiles: StoryChangedFile[]) => {
+    const changes = buildStoryChangeManifest({ storyId: `B-fi-${entry.id}`, gitCwd: root, baseHead: 'fi-base', head: 'fi-head', changedFiles });
+    return buildDynamicValidationPlan({
+      storyId: `B-fi-${entry.id}`, baseHead: 'fi-base', head: 'fi-head', inventory, catalog,
+      changes, closures, baselineEpochId: 'fi-epoch', buildProofDigest: 'fi-build', mode: 'observe', gitCwd: root,
+    });
+  };
   if (entry.assurance === 'story-selectable') {
-    rows.push({ fiId: 'FI-1', commandId: entry.id, mutation: 'certified-source-dependency', expected: 'execute', passed: true });
-    rows.push({ fiId: 'FI-2', commandId: entry.id, mutation: 'missing-static-runtime-fact-edge', expected: 'unverified-or-execute', passed: Boolean(closure && verifyValidationClosureCertificate({ ...closure, certifiedPaths: [] })) === false });
+    const sourcePath = entry.inputRoots[0] || 'packages/main/src/fi-source.ts';
+    const impacted = fiContext([{ path: sourcePath, status: 'modified', blobId: stableDigest(sourcePath) }]);
+    rows.push({ fiId: 'FI-1', commandId: entry.id, mutation: 'certified-source-dependency', expected: 'execute', observed: impacted.rows.find((row) => row.commandId === entry.id)?.disposition, passed: verifyValidationSelectionManifest(impacted) && impacted.rows.find((row) => row.commandId === entry.id)?.disposition === 'execute' });
+    const missingEdge = closure ? verifyValidationClosureCertificate({ ...closure, certifiedPaths: [], signature: closure.signature }) : false;
+    rows.push({ fiId: 'FI-2', commandId: entry.id, mutation: 'missing-static-runtime-fact-edge', expected: 'unverified-or-execute', observed: missingEdge ? 'accepted' : 'rejected', passed: missingEdge === false });
   }
-  if (entry.assurance === 'full-only') rows.push({ fiId: 'FI-3', commandId: entry.id, mutation: 'impacted-full-only-command', expected: 'full-escalation', passed: true });
-  if (entry.closurePolicy === 'whole-repository') rows.push({ fiId: 'FI-4', commandId: entry.id, mutation: 'unrelated-material-file', expected: 'execute', passed: true });
-  rows.push({ fiId: 'FI-5', commandId: entry.id, mutation: 'deleted-and-renamed-inputs', expected: 'base-and-head-graph-selection', passed: true });
+  if (entry.assurance === 'full-only') {
+    const impacted = fiContext([{ path: entry.inputRoots[0] || 'packages/main/src/fi-full-only.ts', status: 'modified', blobId: stableDigest(entry.id) }]);
+    rows.push({ fiId: 'FI-3', commandId: entry.id, mutation: 'impacted-full-only-command', expected: 'full-escalation', observed: impacted.fullEscalated, passed: impacted.fullEscalated === true });
+  }
+  if (entry.closurePolicy === 'whole-repository') {
+    const impacted = fiContext([{ path: 'packages/main/src/fi-unrelated-material.ts', status: 'modified', blobId: stableDigest('fi-unrelated-material') }]);
+    rows.push({ fiId: 'FI-4', commandId: entry.id, mutation: 'unrelated-material-file', expected: 'execute', observed: impacted.rows.find((row) => row.commandId === entry.id)?.disposition, passed: impacted.rows.find((row) => row.commandId === entry.id)?.disposition === 'execute' });
+  }
+  const deleted = fiContext([{ path: entry.inputRoots[0] || 'packages/main/src/fi-deleted.ts', status: 'deleted', blobId: '<deleted>' }]);
+  const renamed = fiContext([{ path: entry.inputRoots[0] || 'packages/main/src/fi-renamed.ts', oldPath: 'packages/main/src/fi-old.ts', status: 'renamed', blobId: stableDigest('fi-renamed') }]);
+  rows.push({ fiId: 'FI-5', commandId: entry.id, mutation: 'deleted-and-renamed-inputs', expected: 'base-and-head-graph-selection', observed: { deletedManifest: verifyValidationSelectionManifest(deleted), renamedManifest: verifyValidationSelectionManifest(renamed) }, passed: verifyValidationSelectionManifest(deleted) && verifyValidationSelectionManifest(renamed) });
   return rows;
 });
 const faultInjectionPath = join(outputRoot, 'fault-injection.json');
@@ -221,19 +264,49 @@ if (paired) {
     const order = pair % 2 === 0 ? ['full', 'dynamic'] : ['dynamic', 'full'];
     for (const mode of order) {
       const startedAt = Date.now();
+      const cpuBefore = process.cpuUsage();
+      const planCommands = mode === 'full' ? fullCommands : dynamicCommands;
       const result = await executeValidationPlan({
         provider: `historical-paired-${pair + 1}-${mode}`,
-        commands: mode === 'full' ? fullCommands : dynamicCommands,
+        commands: planCommands,
         warnings: [],
       }, root, currentHead, 'B-current-paired');
-      runs.push({ pair: pair + 1, mode, allPass: result.allPass, commandCount: result.commands.length, verdicts: result.commands.map((row) => ({ label: row.label, code: row.code })), wallTimeMs: Date.now() - startedAt });
+      const wallTimeMs = Date.now() - startedAt;
+      const cpu = process.cpuUsage(cpuBefore);
+      runs.push({
+        pair: pair + 1,
+        mode,
+        allPass: result.allPass,
+        commandCount: result.commands.length,
+        verdicts: commandVerdicts(result),
+        wallTimeMs,
+        cpuUtilizationPct: wallTimeMs > 0 ? Number((((cpu.user + cpu.system) / 1000) / wallTimeMs * 100).toFixed(2)) : 0,
+        resourceOverlapTimeline: planCommands.map((command) => ({ label: command.label, resources: command.resources || [] })),
+        residue: result.commands.flatMap((row) => row.worktreePollution?.paths || []),
+      });
     }
   }
   pairedPerformance = {
     schema: 'proof-or-stop.dynamic-validation.paired-performance.v1',
     head: currentHead, inventoryDigest: inventory.digest, catalogDigest,
-    selectionDigest: stableDigest(pairedManifest), selectedCommandIds: [...selectedIds],
-    order: 'full-dynamic / dynamic-full / full-dynamic', runs,
+    selectionDigest: stableDigest(pairedManifest),
+    dependencyGraphDigest: pairedManifest.dependencyGraphDigest,
+    closureCertificateSetDigest: pairedManifest.closureCertificateSetDigest,
+    canonicalBaselineEpochId: pairedManifest.canonicalBaselineEpochId,
+    toolchainDigest: pairedManifest.toolchainDigest,
+    revocationLedgerDigest: pairedManifest.receiptRevocationLedgerDigest,
+    selectedCommandIds: [...selectedIds],
+    selectedCount: pairedManifest.totals.executed,
+    executedCount: pairedManifest.totals.executed,
+    reusedCount: pairedManifest.totals.reused,
+    unverifiedCount: pairedManifest.totals.unverified,
+    order: 'full-dynamic / dynamic-full / full-dynamic',
+    runs,
+    medianWallTimeMs: (() => {
+      const values = runs.map((row) => Number(row.wallTimeMs)).sort((a, b) => a - b);
+      return values.length === 0 ? 0 : values[Math.floor(values.length / 2)];
+    })(),
+    resourceTimelineDigest: stableDigest(runs.map((row) => ({ pair: row.pair, mode: row.mode, commandCount: row.commandCount, wallTimeMs: row.wallTimeMs }))),
     verdictEquivalent: runs.filter((row) => row.mode === 'full').every((full) => {
       const peer = runs.find((row) => row.pair === full.pair && row.mode === 'dynamic');
       return Boolean(peer && full.allPass === peer.allPass);
@@ -256,3 +329,4 @@ console.log(`historical stories: ${records.length}`);
 console.log(`historical categories: ${categories.join(', ')}`);
 console.log(`historical replay mode: ${execute ? 'execute' : 'plan-only'}`);
 console.log(`historical replay report: ${join(outputRoot, 'report.json')}`);
+if (paired) console.log(`paired-performance: ${join(outputRoot, 'paired-performance.json')}`);
