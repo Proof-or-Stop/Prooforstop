@@ -3304,6 +3304,473 @@
       ],
       "signatureTag": "missing|md|current-protocol-smoke",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-070",
+      "desc": "At RI-016 current HEAD 1b70b583d6566508713ed25ecb6a030dcb9bfd60, current session_brief reports all 45 verification intents stale after the material binding changed; the current review context computes materialHash 44c4d5828d6a043bf047867d51736e71035bdcbce974c75dd3f62a9703e992cf, while the prior review freeze was 5d7bf5d5da5ed0f991794ec11ec175feef10f2e9ffe7e5a0b7c065feb5f51e36. Until verification_evidence_refresh_stale plus a current validation rerun re-records evidence, prior result=pass rows are not mechanical current-head evidence. This blocks coverage claims even where implementation smoke output is green.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-21T16:02:52.691Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-058",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "packages/main/src/tasks/story-aware-validation-production-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 8,
+          "tokenCount": null
+        },
+        "digest": "c5db20f0b24973e6c0d2afe34ec87a97547a8017ea5bd7cefc9f78cd7bdccc2e"
+      },
+      "readDiagnostics": [],
+      "_hash": "0eace72b12a3b584807484f6423dbbd863c1e0a328d034e5b0a64bd5e7c5bf9d",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/background.md",
+        ".proof-or-stop/story/actives/B-45a0/checklist.json",
+        ".proof-or-stop/story/actives/B-45a0/plan.md",
+        "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+        "docs/requirements/decisions/dynamic-validation-operations.md",
+        "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+        "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+        "packages/main/src/core/story-aware-validation.ts",
+        "packages/main/src/handlers/story-aware-validation.ts",
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+        "packages/main/src/tasks/story-aware-validation-production-smoke.ts",
+        "packages/main/src/tasks/validation-protocol-smoke.ts",
+        "scripts/run-dynamic-validation-replay.mjs"
+      ],
+      "signatureTag": "missing|md|current-head-1b70b583d6566508713ed25ecb6a030dcb9bfd60",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-071",
+      "desc": "At RI-016 current HEAD 1b70b583d6566508713ed25ecb6a030dcb9bfd60, the latest signed historical-replay report has faultInjection.allPass=true with FI-1..FI-5 family counts, but admissibility=false because execute=false and one or more Stories were not executed. All 50 records remain execution=not-run and pairedPerformance is absent (pairedRequested=false). The bcbfeb5492 source hardens signed receipts and FI mutation generation, but those optional --execute/--paired paths have not produced current actual full/dynamic base-head pairs, per-command receipts, full-failure subset proof, or the three alternating paired runs required by Sections 24 and 27. A signed plan-only report and passing mutation artifact are not executable replay assurance.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-21T16:03:12.333Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-058",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/runtime/dynamic-validation/historical-replay/report.json",
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "3753e48e7111930fa92f9b73b7c77c036ca1f586611d402aec89f86937d4e425"
+      },
+      "readDiagnostics": [],
+      "_hash": "1a2d704ecb681fd0847e893650faae93e4730687e813c46da88efeb5d20b0a09",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/background.md",
+        ".proof-or-stop/story/actives/B-45a0/checklist.json",
+        ".proof-or-stop/story/actives/B-45a0/plan.md",
+        "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+        "docs/requirements/decisions/dynamic-validation-operations.md",
+        "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+        "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+        "scripts/run-dynamic-validation-replay.mjs",
+        ".proof-or-stop/runtime/dynamic-validation/historical-replay/report.json"
+      ],
+      "signatureTag": "missing|md|current-head-1b70b583d6566508713ed25ecb6a030dcb9bfd60",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-072",
+      "desc": "The current protocol smoke still does not prove the bcbfeb5492 dynamic-policy/oracle branches. In packages/main/src/tasks/validation-protocol-smoke.ts:315-326, the story-scoped validate-file loop only checks that mode is echoed, oracleStatus is executed, verdictEquivalent is boolean, and one command exists. It does not assert observe/shadow full-plan authority, enforce-low-risk prerequisite fallback versus enforce authority, project/unscoped no-authority preview, full/dynamic command accounting, signed selection/closure/revocation, or mode-invariant diagnostics. The PLAN-to-DEV regression at :1476-1479 also only asserts a review-reason string and is not evidence of the current dev-memory-intercepted path. Thus the new handler semantics are implemented but their required mode-specific and fail-closed behavior is not covered by executable smoke.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-21T16:03:29.184Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-058",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "3753e48e7111930fa92f9b73b7c77c036ca1f586611d402aec89f86937d4e425"
+      },
+      "readDiagnostics": [],
+      "_hash": "773832d94e00b4f4f531646b561549d70a5e21db02e14a9d0d2f74a0951875cc",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/background.md",
+        ".proof-or-stop/story/actives/B-45a0/checklist.json",
+        ".proof-or-stop/story/actives/B-45a0/plan.md",
+        "docs/requirements/decisions/dynamic-validation-operations.md",
+        "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+        "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+        "packages/main/src/handlers/story-aware-validation.ts",
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/src/tasks/validation-protocol-smoke.ts"
+      ],
+      "signatureTag": "missing|md|current-protocol-smoke",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-073",
+      "desc": "The updated production smoke does not cover the negative DYN-5/original-oracle contract. In packages/main/src/tasks/story-aware-validation-production-smoke.ts:62-94, the no-baseline run checks build PASS, authority=false, seven persisted receipts, registry/sentinel flags, zero residue, and case-ID aggregates, but does not assert run.dynamicAllPass=false or originalOracle.equivalent. The positive fixture at :121-127 asserts authority=true and dynamicAllPass=true, yet there are no cases for original-oracle mismatch, missing/duplicate/misrouted cases, degraded quorum/review-pass capacity, receipt/signature failure, or cleanup residue. The plan requires exact no-omission/no-duplicate/correct-routing plus fail-closed mutation coverage; the new handler's oracle hardening is therefore not verified by this production path.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-21T16:03:53.800Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-058",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/tasks/story-aware-validation-case-adapter.mjs",
+          "packages/main/src/tasks/story-aware-validation-production-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": null
+        },
+        "digest": "3e49c1d4b18663f7694becc8e3305fdfe84349ae04bafab41417c0dcf506140f"
+      },
+      "readDiagnostics": [],
+      "_hash": "52d32b0e0b6e258df82c09e283fb539e40d3cd32d0bf04f8ceb7a1ddeff1f2bf",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/background.md",
+        ".proof-or-stop/story/actives/B-45a0/checklist.json",
+        ".proof-or-stop/story/actives/B-45a0/plan.md",
+        "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+        "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+        "packages/main/src/core/story-aware-validation.ts",
+        "packages/main/src/handlers/story-aware-validation.ts",
+        "packages/main/src/tasks/story-aware-validation-production-smoke.ts",
+        "packages/main/src/tasks/story-aware-validation-case-adapter.mjs"
+      ],
+      "signatureTag": "adversarial|md|updated-production-smoke",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-074",
+      "desc": "At RI-016 current HEAD 1b70b583d6566508713ed25ecb6a030dcb9bfd60, no current signed verifier-owned acceptance set is bound to this review: all 45 prior verification rows are stale, and the earlier F-067 acceptance artifacts cannot be reused after the bcbfeb5492 implementation change. Wave 4 still requires executable acceptance_topology_check, pre_review_check_read, acceptance_rollout_report_read, and acceptance_rollout_check with current full 3 rounds x 2 hosts (codex-cli plus claude-cli), degraded 3x1 rejection, threshold/membership/freshness mutations, mode-invariant diagnostics, enforce-only blocking, and non-destructive rollback history. The dynamic handler/replay changes do not themselves produce these acceptance receipts, so the story has no current evidence for the verifier-owned acceptance gate.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-21T16:04:18.075Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-058",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "packages/main/src/tasks/story-aware-validation-production-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 8,
+          "tokenCount": null
+        },
+        "digest": "c5db20f0b24973e6c0d2afe34ec87a97547a8017ea5bd7cefc9f78cd7bdccc2e"
+      },
+      "readDiagnostics": [],
+      "_hash": "bda21376c0d0db3601356cc05517e154d9c05d34a6d7d5859d2c2d139ffbaf50",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/background.md",
+        ".proof-or-stop/story/actives/B-45a0/checklist.json",
+        ".proof-or-stop/story/actives/B-45a0/plan.md",
+        "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+        "docs/requirements/decisions/dynamic-validation-operations.md",
+        "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+        "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+        "packages/main/src/core/story-aware-validation.ts",
+        "packages/main/src/handlers/story-aware-validation.ts",
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+        "packages/main/src/tasks/story-aware-validation-production-smoke.ts",
+        "packages/main/src/tasks/validation-protocol-smoke.ts",
+        "scripts/run-dynamic-validation-replay.mjs"
+      ],
+      "signatureTag": "missing|md|current-head-1b70b583d6566508713ed25ecb6a030dcb9bfd60",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-075",
+      "desc": "The historical and paired assurance campaign still measures full versus full instead of the selective dynamic plan required by Sections 19.1-19.3. At current HEAD, bun packages/main/src/tasks/story-aware-validation-historical-replay.ts --plan-only produced 50 representative records and every one selected all 112 commands. The harness builds plans without a dual-revision impact graph or any admissible canonical-full-baseline receipts (historical-replay.ts:169-178), while the 58 full-only rows all use forbidden reuse; this forces full escalation. The paired path repeats the same no-receipt/no-graph construction (lines 278-292), so dynamicCommands is also the complete 112-command inventory. Consequently a signed execute+paired report can satisfy the current gate by comparing the full plan to itself, providing no evidence for selective false-negative safety or performance. The paired evidence also records configured resource claims rather than an acquisition/overlap timeline and measures process.cpuUsage on the harness parent rather than command CPU (lines 294-340). Required remediation is to restore/build the actual base and HEAD graphs, admit a current canonical baseline plus valid receipts/closure evidence, assert the dynamic selection is genuinely selective where expected, and gate actual scheduler/resource/CPU evidence.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-21T16:06:04.242Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-057",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "scripts/run-dynamic-validation-replay.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "lattice.config.json",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": 3400
+        },
+        "digest": "675babfe54ac54a927f4800c728dea1e379c5614b0366730fa9fa15a92b38525"
+      },
+      "readDiagnostics": [],
+      "_hash": "03b5c420900a32c888975343992ce466432929eb8133f14b441969b488ea9a5a",
+      "files": [
+        "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+        "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+        "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md"
+      ],
+      "signatureTag": "adversarial|ts|historical-paired-assurance",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-076",
+      "desc": "The new signed fault-injection artifact can report allPass without proving the specified FI-2 and FI-5 mutations. For FI-2, the harness edits certificate fields but deliberately retains the old signature, then defines passed solely as verifyValidationClosureCertificate(mutatedCert) === false (historical-replay.ts:244-258); it does not require the observed row to execute/full-escalate and therefore only retests generic signature rejection, not removal of a real static, runtime-traced, or process-fact edge. For FI-5, fiContext never supplies buildDualRevisionImpactGraph and uses fake refs fi-base/fi-head, so its execute assertion is satisfied by direct input-root/full-escalation behavior rather than replaying both base and HEAD graphs (lines 233-273). The current run nevertheless emitted FI familyCounts 54/162/58/58/112 and allPass:true. In addition, report admissibility only gates receipt shape, faultInjection.allPass, and final boolean paired equivalence (lines 359-376); it does not gate actual per-command equivalence, zero residue, zero unverified/uncovered rows, required selection overhead, or signed paired/report verification in the wrapper. This allows a mechanically signed assurance PASS that omits Section 19.1-19.3 and Section 20 proof obligations.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-21T16:06:27.858Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-057",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "scripts/run-dynamic-validation-replay.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "lattice.config.json",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": 3400
+        },
+        "digest": "675babfe54ac54a927f4800c728dea1e379c5614b0366730fa9fa15a92b38525"
+      },
+      "readDiagnostics": [],
+      "_hash": "4be52a655eefbfdaa822480d9dc093b8429f7b8caed93be763968554a541050e",
+      "files": [
+        "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+        "scripts/run-dynamic-validation-replay.mjs",
+        "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+        "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md"
+      ],
+      "signatureTag": "adversarial|ts|signed-fault-injection",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-077",
+      "desc": "The current characterization and operator evidence docs still describe the pre-remediation catalog: a policyDefaults tuple for 110 ordinary rows plus two gate overrides. The canonical and legacy configs now explicitly classify all 112 rows as 54 story-selectable and 58 full-only/validation-infra/whole-repository/forbidden, with the two gate rows inside the 54 selectable rows. The stale text at story-aware-dynamic-validation-current-main-characterization.md:13-16, dynamic-validation-enforcement-evidence.md:5-9, and dynamic-validation-operations.md:22-27 obscures the actual authority/fallback boundary introduced to fix F-063. Update the inventory counts, ownership source, and fallback semantics so operators do not infer that 110 ordinary commands remain dynamically reusable.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-21T16:06:51.632Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-057",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "scripts/run-dynamic-validation-replay.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "lattice.config.json",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": 3400
+        },
+        "digest": "675babfe54ac54a927f4800c728dea1e379c5614b0366730fa9fa15a92b38525"
+      },
+      "readDiagnostics": [],
+      "_hash": "99089823bae0a8bc69a47374f4788570b755c7df88935fb1b11a0a3303ca015c",
+      "files": [
+        "proof-or-stop.config.json",
+        "lattice.config.json",
+        "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+        "docs/requirements/decisions/dynamic-validation-operations.md",
+        "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md"
+      ],
+      "signatureTag": "doc-code-drift|json|current-characterization-operator",
+      "signatureTagSource": "auto"
     }
   ]
 }
