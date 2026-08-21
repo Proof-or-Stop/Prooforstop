@@ -4472,6 +4472,57 @@
       "resolvedAt": "2026-08-21T01:30:58.607Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5a88:F-101",
+      "desc": "docs/host-run-usage.md:102-115,124-148 — active reviewer launch and host_run examples still present lattice-review-concept/quality/test-coverage/behavior/docs as the currently enabled lanes and use lattice-review-quality as the binding --lane example, without labeling these as legacy compatibility or showing the canonical proof-or-stop-review-* identities; this leaves canonical reviewer guidance incomplete after F-100.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-21T01:36:02.444Z",
+      "reviewRound": "2026-08-21T01:32:45.146Z",
+      "reviewRunId": "B-5a88:RR-125",
+      "_hash": "f74b8d8a66f32985c335b1e63e5429774f377c2f63d67b2abebd6bc8021ff7e2",
+      "signatureTag": "missing|unknown|docs-host-usage",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-102",
+      "desc": "packages/main/src/core/review-run.ts:191-195,1559-1562 [medium] active reviewer-evidence comments still call the lane family lattice-review-* and lattice-implementer, while isReviewerAgent resolves canonical proof-or-stop roles and legacy aliases. After F-100 canonicalized the surrounding docs and adversarial-review comments, these gate-adjacent comments remain inconsistent and can mislead future changes about which identities are accepted versus emitted.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T01:36:24.929Z",
+      "reviewRound": "2026-08-21T01:32:45.146Z",
+      "reviewRunId": "B-5a88:RR-124",
+      "_hash": "8e6714ecd0913470df438c4fd8f21a84ec4964feb2de66adaa153fe0b28c5549",
+      "signatureTag": "missing|unknown|packages-main-core",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-103",
+      "desc": "F-100 fix coverage is not represented by current verificationIntent/verificationEvidence. CHK-001 covers runtime canonical-role identity, legacy alias equality, and dispatch rejection, but no intent covers the changed active guidance/comment surfaces at docs/CLI.md:488-503, CLAUDE.md:615-658, or packages/main/src/core/adversarial-review-critic.ts:22-23,69. The focused git diff --check/static-role-scan noted in the F-100 resolvedReason is not checklist verificationEvidence and has no intentRef; all 21 existing evidence receipts are additionally pinned to pre-fix head 188db1c, material 3d97c9, and storyFiles 5a3601 rather than current review head e4dfc23/material bcbad0/storyFiles 9929809.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-21T01:36:47.161Z",
+      "reviewRound": "2026-08-21T01:32:45.146Z",
+      "reviewRunId": "B-5a88:RR-126",
+      "_hash": "2a3d24133313dd582694d21f66ca6b95288eb94284503f5850e2a3959459aae6",
+      "files": [
+        "docs/CLI.md",
+        "CLAUDE.md",
+        "packages/main/src/core/adversarial-review-critic.ts",
+        ".proof-or-stop/story/actives/B-5a88/checklist.json"
+      ],
+      "signatureTag": "missing|md|coverage-represented-current",
+      "signatureTagSource": "auto"
     }
   ]
 }

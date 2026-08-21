@@ -99,10 +99,12 @@ command never throws and `exitCode` is a field.
 Reviewer Prompt 不应由调用方手工拼接或假定某个 rollout mode。先由
 `review_run_start` 按当前 Story、lane 和 `promptEnvelope.roles` 的逐角色 flag
 选择可信正文与 full/incremental context，再将它返回的 dispatch Prompt 交给
-`host_run`。当前可独立启用 `lattice-review-concept`、
-`lattice-review-quality`、`lattice-review-test-coverage`、
-`lattice-review-behavior`、`lattice-review-docs`；未启用角色保持
-`legacy-full-context`，retired channel 不可进入该 rollout。
+`host_run`。当前可独立启用 `proof-or-stop-review-concept`、
+`proof-or-stop-review-quality`、`proof-or-stop-review-test-coverage`、
+`proof-or-stop-review-behavior`、`proof-or-stop-review-docs`；未启用角色保持
+`legacy-full-context`，retired channel 不可进入该 rollout。`lattice-review-*`
+仅作为明确标注的 legacy 兼容输入保留，并在使用前 canonicalize；它们不是当前
+主动 lane 名称。
 
 ReviewRun 摘要会记录 rollout mode、role-body/context/assembled digest、selection
 reason 和预算判定。reviewer 如发现增量材料不足，必须通过既有 escalation
@@ -112,7 +114,7 @@ reason 请求 full context；feature flag 本身不会授予 incremental eligibi
 
 ```
 proof-or-stop host_run --host codex --storyId B-xxxx --agentType reviewer \
-  --reviewRunId B-xxxx:RR-001 --lane lattice-review-quality \
+  --reviewRunId B-xxxx:RR-001 --lane proof-or-stop-review-quality \
   --promptFile reviewer-prompt.txt
 ```
 
@@ -121,17 +123,17 @@ proof-or-stop host_run --host codex --storyId B-xxxx --agentType reviewer \
 ```
 # Codex host
 proof-or-stop host_run --host codex --storyId B-xxxx --agentType reviewer \
-  --reviewRunId B-xxxx:RR-002 --lane lattice-review-quality \
+  --reviewRunId B-xxxx:RR-002 --lane proof-or-stop-review-quality \
   --promptFile quorum-prompt.txt
 
 # Claude host
 proof-or-stop host_run --host claude --storyId B-xxxx --agentType reviewer \
-  --reviewRunId B-xxxx:RR-002 --lane lattice-review-quality \
+  --reviewRunId B-xxxx:RR-002 --lane proof-or-stop-review-quality \
   --promptFile quorum-prompt.txt
 
 # Antigravity / agy host
 proof-or-stop host_run --host agy --storyId B-xxxx --agentType reviewer \
-  --reviewRunId B-xxxx:RR-002 --lane lattice-review-quality \
+  --reviewRunId B-xxxx:RR-002 --lane proof-or-stop-review-quality \
   --promptFile quorum-prompt.txt
 ```
 
@@ -145,7 +147,7 @@ Every usage row carries the attribution passed to `host_run`:
 | `--agentType` | `agentType` | e.g. `reviewer`, `autopilot-repair`, `host-readiness-probe`. Required. |
 | `--phase` | `phase` | When omitted and `--storyId` is set, the phase resolves from the **configured story store** at call time (honoring a project's `storyDir`); an explicit `--phase` is used as-is and the store is never read. |
 | `--reviewRunId` | `threadId` | e.g. `B-xxxx:RR-001`. Joins rows against `review-runs.json`. |
-| `--lane` | `subagentId` | e.g. `lattice-review-quality`. |
+| `--lane` | `subagentId` | e.g. `proof-or-stop-review-quality`. |
 
 `--reviewRunId` must start with `<storyId>:` when `--storyId` is given, so a
 ledger row can never silently mis-join across stories — a mismatch is refused

@@ -188,11 +188,13 @@ export function isReviewRunLane(value: string): value is ReviewRunLane {
 }
 
 // A finding / review pass counts as reviewer evidence (subject to reviewRunId
-// binding) only when its agent is a lattice-review-* lane. main / main-agent /
-// lattice-implementer / other non-reviewer actors create findings during DEV or
-// for meta-process notes and must NOT be treated as reviewer evidence by the
-// REVIEW→TEST gate. Mirrors the predicate used at finding_add time
-// (handlers/finding.ts) and elsewhere in the codebase.
+// binding) only when its agent resolves to a proof-or-stop-review-* lane.
+// Historical lattice-review-* values are explicit legacy compatibility input
+// and are canonicalized before this check. main / main-agent / lattice-implementer
+// / other non-reviewer actors create findings during DEV or for meta-process
+// notes and must NOT be treated as reviewer evidence by the REVIEW→TEST gate.
+// Mirrors the predicate used at finding_add time (handlers/finding.ts) and
+// elsewhere in the codebase.
 export function isReviewerAgent(agent: string | undefined | null): boolean {
   const entry = resolveRegisteredAgentActor(agent);
   return !!entry?.reviewerLane
@@ -1556,10 +1558,12 @@ export function collectReviewerEvidenceState(
   const findings = store.readFindings(storyId).findings || [];
   const passes = store.readReviewPasses(storyId).passes || [];
 
-  // Only true reviewer lanes (lattice-review-*) require reviewRunId binding.
-  // main / main-agent / lattice-implementer / other non-reviewer actors create
-  // findings during DEV or capture meta-process notes that must not be treated
-  // as reviewer evidence by the REVIEW→TEST gate.
+  // Only true reviewer lanes (proof-or-stop-review-*) require reviewRunId
+  // binding. Historical lattice-review-* values are legacy compatibility input
+  // and are canonicalized before this check. main / main-agent /
+  // lattice-implementer / other non-reviewer actors create findings during DEV
+  // or capture meta-process notes that must not be treated as reviewer evidence
+  // by the REVIEW→TEST gate.
   const reviewerFindings = findings
     .filter((finding) => isReviewerAgent(finding.agent))
     .filter((finding) => !currentRound || finding.reviewRound === currentRound || !finding.reviewRound)
