@@ -104,7 +104,7 @@ test('CHK-001: keys bind all identity fields, deduplicate exact complete work, a
   assert.equal(key.reusable, true);
   assert.equal(key.identity.cwd, repoRoot);
   assert.match(key.key, /^ce:v1:[0-9a-f]{64}$/);
-  assert.equal(key.identity.effectiveEnvironment.API_TOKEN, '<redacted>');
+  assert.match(key.identity.effectiveEnvironment.API_TOKEN, /^<redacted>:sha256:[0-9a-f]{64}$/);
 
   for (const change of [
     { inputs: { materialHash: 'material-b', explicitInput: 'a' } },
@@ -515,6 +515,66 @@ test('B-5a15 F-011: raw secret environment values are absent from persisted rece
   assert.equal(result.receipt.outputProbe.includes(secret), false);
   assert.equal(JSON.stringify(result.receipt).includes(secret), false);
   assert.match(result.receipt.outputTail, /<redacted>/);
+});
+
+test('B-5a15 F-047: secret environment mutations split execution receipts without leaking credentials', async () => {
+  const firstSecret = 'credential-alpha-123456789';
+  const secondSecret = 'credential-beta-987654321';
+  const store = new MemoryReceiptStore();
+  const firstIdentity = baseIdentity('B-causal-secret-mutation', {
+    effectiveEnvironment: { NODE_ENV: 'test', API_TOKEN: firstSecret },
+  });
+  const secondIdentity = {
+    ...firstIdentity,
+    effectiveEnvironment: { NODE_ENV: 'test', API_TOKEN: secondSecret },
+  };
+  const firstKey = createCausalExecutionKey(firstIdentity);
+  const secondKey = createCausalExecutionKey(secondIdentity);
+
+  assert.notEqual(firstKey.key, secondKey.key, 'credential changes must change the execution key');
+  assert.notEqual(
+    firstKey.identity.effectiveEnvironment.API_TOKEN,
+    secondKey.identity.effectiveEnvironment.API_TOKEN,
+    'credential identity components must be value-specific',
+  );
+  assert.equal(firstKey.identity.effectiveEnvironment.API_TOKEN.includes(firstSecret), false);
+  assert.equal(secondKey.identity.effectiveEnvironment.API_TOKEN.includes(secondSecret), false);
+
+  let executions = 0;
+  const first = await executeCausalEvidence({
+    identity: firstIdentity,
+    selector: 'SECRET-MUTATION-A',
+    run: async () => {
+      executions++;
+      return { code: 0, output: `SECRET-MUTATION-A API_TOKEN=${firstSecret}` };
+    },
+    receiptStore: store,
+    preflight: preflightFor(firstIdentity),
+    revalidateBeforeRun: () => true,
+  });
+  const second = await executeCausalEvidence({
+    identity: secondIdentity,
+    selector: 'SECRET-MUTATION-B',
+    run: async () => {
+      executions++;
+      return { code: 0, output: `SECRET-MUTATION-B API_TOKEN=${secondSecret}` };
+    },
+    receiptStore: store,
+    preflight: preflightFor(secondIdentity),
+    revalidateBeforeRun: () => true,
+  });
+
+  assert.equal(executions, 2, 'different credentials must not reuse one receipt');
+  assert.equal(first.disposition, 'executed');
+  assert.equal(second.disposition, 'executed');
+  assert.notEqual(first.receipt.executionKey, second.receipt.executionKey);
+  assert.notEqual(first.receipt.receiptHash, second.receipt.receiptHash);
+  for (const [receipt, secret] of [[first.receipt, firstSecret], [second.receipt, secondSecret]]) {
+    assert.equal(receipt.outputTail.includes(secret), false);
+    assert.equal(receipt.outputProbe.includes(secret), false);
+    assert.equal(JSON.stringify(receipt).includes(secret), false);
+    assert.equal(verifyCausalEvidenceReceipt(receipt, receipt.executionKey), true);
+  }
 });
 
 test('CHK-002: CAS receipts precede isolated import, retry commit only, and fail closed on tamper', async () => {
