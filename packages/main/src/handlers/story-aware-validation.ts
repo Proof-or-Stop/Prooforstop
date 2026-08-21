@@ -609,7 +609,7 @@ function deriveGateOwnedPrerequisites(args: {
   const manifest = args.prepared.manifest;
   const baselineCurrent = Boolean(args.baseline
     && verifyCanonicalFullBaseline(args.baseline)
-    && args.baseline.sourceHead === manifest.head
+    && args.baseline.sourceHead === manifest.baseHead
     && args.baseline.inventoryDigest === args.prepared.inventoryDigest
     && args.baseline.catalogDigest === args.prepared.catalogDigest
     && args.baseline.epochId === manifest.canonicalBaselineEpochId);

@@ -35,9 +35,24 @@ fs.readFile = function wrappedReadFile(path, ...args) {
   add(trace.readPaths, pathArg(path));
   return originalReadFile.call(this, path, ...args);
 };
+if (fs.promises && typeof fs.promises.readFile === 'function') {
+  const originalPromisesReadFile = fs.promises.readFile.bind(fs.promises);
+  fs.promises.readFile = function wrappedPromisesReadFile(path, ...args) {
+    add(trace.readPaths, pathArg(path));
+    return originalPromisesReadFile(path, ...args);
+  };
+}
+if (typeof fs.createReadStream === 'function') {
+  const originalCreateReadStream = fs.createReadStream;
+  fs.createReadStream = function wrappedCreateReadStream(path, ...args) {
+    add(trace.readPaths, pathArg(path));
+    return originalCreateReadStream.call(this, path, ...args);
+  };
+}
 const originalLoad = Module._load;
 Module._load = function wrappedModuleLoad(request, parent, isMain) {
   add(trace.loadedPaths, typeof request === 'string' ? request : undefined);
+  add(trace.registryKeys, typeof request === 'string' ? request : undefined);
   return originalLoad.call(this, request, parent, isMain);
 };
 for (const name of ['spawn', 'spawnSync', 'execFile', 'execFileSync']) {
