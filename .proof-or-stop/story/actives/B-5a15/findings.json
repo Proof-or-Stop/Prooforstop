@@ -1772,6 +1772,157 @@
       ],
       "signatureTag": "missing|json|concept-review-proof",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-060",
+      "desc": "pre-review-check.json:735-769 — the verifier-owned pre-review artifact is bound to HEAD 4a42ec9d001ea2841eef10269e580a3cbde5caed, materialHash cc13224df2083df910ceee0890cd84df4559d4c93b85d22ba6089cb6c60fec95, and storyFilesHash 187c87c92d80249a41831953fc6d9bfb2cd088231d77ab9498b98c7a9016d8a6, while the current review HEAD is 8d7cf109fc886db62a779b289107b0b3dde21321 with materialHash b38de9f6b3c247c94a667f92756c974ca4541e2b76f7b2aaaae09d6d9e7fd8fb and storyFilesHash 985eb4c7aa5d9de6bd8f232e1f41be9be8e5f72d21f688ec1acc1692ba3d5c0a; pre_review_check_read consequently reports PR_ARTIFACT_TAMPERED, PR_EVIDENCE_STALE, and PR_AUTHORITY_INADMISSIBLE, so REVIEW lacks admissible pre-review proof.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T13:27:50.302Z",
+      "reviewRound": "2026-08-21T13:09:42.171Z",
+      "reviewRunId": "B-5a15:RR-117",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a15/process-events.jsonl",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "scanEscalationReason": "The two related decision documents named by the checklist are absent from this worktree; their paths were checked and no full read was possible."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "557764b0d480960d890d656a98520e286c1e06bed12f6b96dced29de40f1beb5"
+      },
+      "readDiagnostics": [],
+      "_hash": "7018c89626a835c66374e78e126749a9b30e3173dde92a32c91c85eea1699aaf",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/pre-review-check.json"
+      ],
+      "signatureTag": "missing|json|review-check-json",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-061",
+      "desc": "packages/main/src/handlers/checklist.ts:524-547,762-803 — carryForwardOnDiskProvenance correctly requires kind, verdict, file, note, and structured metadata to match, but normalizeEvidence immediately calls evidenceHashesForPersistence, whose sameEvidenceIdentity only compares command and result. When checklist_update changes another semantic field while retaining command/result, the trusted receipt/provenance is dropped at 789-803 yet the new row is still stamped with the prior head/material/story hashes at 542-547. That leaves newly authored evidence with stale freshness bindings and defeats the fail-closed same-semantics rule.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T13:28:14.093Z",
+      "reviewRound": "2026-08-21T13:09:42.171Z",
+      "reviewRunId": "B-5a15:RR-117",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a15/process-events.jsonl",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "scanEscalationReason": "The two related decision documents named by the checklist are absent from this worktree; their paths were checked and no full read was possible."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "557764b0d480960d890d656a98520e286c1e06bed12f6b96dced29de40f1beb5"
+      },
+      "readDiagnostics": [],
+      "_hash": "cf6cd7661f49bdd42cf75f0977d84922946d90888ef39057aad56b24bbd3452f",
+      "files": [
+        "packages/main/src/handlers/checklist.ts"
+      ],
+      "signatureTag": "edge|ts|packages-main-handlers",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-062",
+      "desc": "Wave-4 verifier-owned coverage is not admissible at current REVIEW head 8d7cf109fc886db62a779b289107b0b3dde21321. acceptance_topology_check returns status=fail/result=inconclusive_basis_unverified with AT_ADAPTER_RESULT_DIGEST_MISMATCH and AT_CLOSURE_FILES_STALE; pre_review_check_read returns status=fail with PR_ARTIFACT_TAMPERED, PR_POSITIVE_EVIDENCE_MISSING, PR_AUTHORITY_INADMISSIBLE, PR_EVIDENCE_STALE, and PR_CUTOFF_UNBOUND. Although all 50 verification intents have one valid passing evidence row and acceptance_rollout_report_read/acceptance_rollout_check are current full-3x2, the required verifier-owned topology-to-pre-review coverage chain cannot support a review pass until its basis and pre-review artifacts are regenerated through the CLI and re-read successfully.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-21T13:36:01.129Z",
+      "reviewRound": "2026-08-21T13:09:42.171Z",
+      "reviewRunId": "B-5a15:RR-118",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "scanEscalationReason": "The two related decision documents named by the checklist are absent from this worktree; their paths were checked and no full read was possible."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "24de711a89c66831f209d4ce8b15d4189eba88a36055eed5728006a3d67f6d10"
+      },
+      "readDiagnostics": [],
+      "_hash": "bebbaa92d918a5e0b9f7114aca72fdc0c3c39b570d683b71b9ba3dc49d4da816",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a15/pre-review-check.json"
+      ],
+      "signatureTag": "missing|json|wave-verifier-owned",
+      "signatureTagSource": "auto"
     }
   ]
 }
