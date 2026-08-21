@@ -506,6 +506,32 @@
         "scanEscalationReason": "The two U-03 source decision documents named by the checklist are absent at this HEAD; the available hardening and material-drift decisions were read fully, while the missing paths were triaged by name and the committed story plan supplied the scoped requirements."
       },
       "_hash": "beb67f1100b88555b2dbe7e8073fabe3f5a667a60335ef0ae09b3baeb5a7bb9a"
+    },
+    {
+      "id": "B-5a15:RP-013",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified 48 verificationIntent entries against 48 passing verificationEvidence entries, including all 22 must intents; no blocker.",
+      "createdAt": "2026-08-21T07:08:25.208Z",
+      "reviewRound": "2026-08-21T07:04:14.708Z",
+      "reviewRunId": "B-5a15:RR-085",
+      "envelopeId": "fecff519f8b471a48d750845df3d46dfd1a24331e63131e6cc9e1c85e6c3c52c",
+      "writerSessionId": "sess-5563ce41f3b81a8d7aa48b533f9fa67e",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2dfa61b52f018361c0c0d84f901eb80bd0ca2d15bf2bf52c61c96a1d139ac901"
     }
   ]
 }

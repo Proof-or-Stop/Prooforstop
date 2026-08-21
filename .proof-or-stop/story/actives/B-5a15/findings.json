@@ -1487,6 +1487,43 @@
       ],
       "signatureTag": "missing|json|acceptance-proof-currently",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-047",
+      "desc": "packages/main/src/core/causal-evidence.ts:381,420-428 — high: redactEnvironment replaces every secret-valued effective-environment entry with the same <redacted> literal before the identity digest is computed, so two runs that differ only in API_TOKEN/password/etc. receive the same reusable execution key and can reuse a receipt under different credentials. The effective environment is required key material; preserve a non-secret digest/version of each secret while keeping raw values out of receipts, and add a mutation test.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T07:11:49.071Z",
+      "reviewRound": "2026-08-21T07:04:14.708Z",
+      "reviewRunId": "B-5a15:RR-087",
+      "_hash": "4187199c5eab76cdeffae0db350911122d7f5b157ef678993b840ddec29aaffd",
+      "files": [
+        "packages/main/src/core/causal-evidence.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-core",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-048",
+      "desc": "CONCEPT/Wave-4 verifier chain: .proof-or-stop/story/actives/B-5a15/acceptance-basis.json:625 and pre-review-check.json:739 carry different scopeContractDigest values; node bin/proof-or-stop.js acceptance_topology_check --storyId=B-5a15 reports status=fail, structuralPass=false, diagnostic AT_SCOPE_BINDING_MISSING with message scope-contract digest mismatch. Refresh/regenerate the verifier-owned acceptance basis before treating the current topology/verificationIntent coverage as clean. The issue is diagnostic-only and non-blocking; acceptance_rollout_check separately passes with receipt=current and quorum=full-3x2.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-21T07:11:55.331Z",
+      "reviewRound": "2026-08-21T07:04:14.708Z",
+      "reviewRunId": "B-5a15:RR-086",
+      "_hash": "fe428a8a689c9856dbadd532b572940d52f15db7bf78c538fac048b604f67732",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a15/pre-review-check.json"
+      ],
+      "signatureTag": "missing|json|concept-wave-verifier",
+      "signatureTagSource": "auto"
     }
   ]
 }
