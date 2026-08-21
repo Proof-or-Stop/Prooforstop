@@ -1421,7 +1421,25 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
               snapshot: built.snapshot, identity: built.identity, reuse, focus,
             });
           }
-          let dynamicPreview: { mode: string; manifest?: unknown; report?: string; authority: 'observe-only' | 'full-plan-oracle' | 'enforce-authority' | 'full-fallback'; selectedCommands?: number; reusedCommands?: number; receipts?: number; selectedAllPass?: boolean } | undefined;
+          let dynamicPreview: {
+            mode: string;
+            manifest?: unknown;
+            report?: string;
+            authority: 'observe-only' | 'full-plan-oracle' | 'enforce-authority' | 'full-fallback';
+            selectedCommands?: number;
+            reusedCommands?: number;
+            receipts?: number;
+            selectedAllPass?: boolean;
+            selectionManifestAccounting?: {
+              selector: string;
+              inventory: number;
+              executed: number;
+              reused: number;
+              unverified: number;
+              uncovered: number;
+              unmappedChanges: number;
+            };
+          } | undefined;
           // Focused validation is explicitly non-authoritative and may pass a
           // filtered command list; keep dynamic inventory/execution aligned
           // with the complete configured plan only.
@@ -1476,16 +1494,22 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
                   // the diagnostic command bounded on large repositories.
                   changedFiles: [],
                 });
+                const selectionManifestAccounting = dynamic.manifest.totals;
+                const selectionReport = `${dynamic.report}\n  selection manifest accounting fields: ${JSON.stringify(selectionManifestAccounting)}`;
                 dynamicPreview = {
                   mode: dynamicMode,
                   manifest: dynamic.manifest,
-                  report: dynamic.report,
+                  report: selectionReport,
                   authority: 'full-plan-oracle',
                   selectedCommands: dynamic.manifest.totals.executed,
                   reusedCommands: dynamic.manifest.totals.reused,
                   receipts: 0,
+                  selectionManifestAccounting: {
+                    selector: 'selection manifest accounting fields',
+                    ...selectionManifestAccounting,
+                  },
                 };
-                ctx.log?.(dynamic.report);
+                ctx.log?.(selectionReport);
               }
             } catch (error) {
               ctx.log?.('dynamic validation execution unavailable; retaining complete-plan oracle: ' + (error instanceof Error ? error.message : String(error)));
