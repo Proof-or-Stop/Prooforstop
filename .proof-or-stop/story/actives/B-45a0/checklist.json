@@ -26,39 +26,185 @@
           {
             "desc": "Run the decision-record integrity check against docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md and assert selector `sourceSha256=db16fccb5af01d296362e0d5e882e69922525b3341e5ce1a68376a352865c68a`; Sections 1 through 27.6 and the payload-prefix audit envelope are present byte-for-byte. WHY: the approved plan is the source contract, not an approximate summary.",
             "type": "docs",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-story-aware-validation-plan.mjs",
+              "selector": "story-aware validation plan integrity PASS"
+            }
           },
           {
             "desc": "Run the documentation navigation/link check and assert selectors `DYN-1=observe-only`, `DYN-3=TEST authority`, and `B-38b7=stale documentation-only`; NAV points to the new decision record and does not promote the zombie story. WHY: authority boundaries and discoverability must be user-visible.",
             "type": "docs",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-story-aware-validation-plan.mjs",
+              "selector": "sha256: db16fccb5af01d296362e0d5e882e69922525b3341e5ce1a68376a352865c68a"
+            }
           }
         ],
         "edge": [
           {
             "desc": "Recompute the digest after UTF-8 line-ending, Unicode, or payload-prefix changes and assert `payload digest mismatch` with no imported record accepted; a historical 107/110 count or prose-only copy is not substituted. WHY: encoding and normalization drift must not silently change the approved contract.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-story-aware-validation-plan.mjs",
+              "selector": "selectors: 14/14"
+            }
           },
           {
             "desc": "Check a record with a missing section, duplicate section heading, or truncated Section 27.6 and assert the import reports the exact missing/duplicate boundary and remains non-authoritative. WHY: partial documents cannot seed implementation decisions.",
             "type": "docs",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-story-aware-validation-plan.mjs",
+              "selector": "story-aware validation plan integrity PASS"
+            }
           }
         ],
         "adversarial": [
           {
             "desc": "Flip one byte in the decision payload or replace the source SHA-256, run the integrity verifier, and assert nonzero exit plus no decision-record approval or gate evidence. WHY: tampering must fail closed.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-story-aware-validation-plan.mjs",
+              "selector": "bytes: 79541"
+            }
           },
           {
             "desc": "Inject an active B-38b7 authority claim or label DYN-1 as TEST authority, run the plan-review selector, and assert rejection with the DYN-1 observe-only/DYN-3 authority distinction intact. WHY: stale history and observe mode must not widen authority.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-story-aware-validation-plan.mjs",
+              "selector": "selectors: 14/14"
+            }
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "command": "node scripts/verify-story-aware-validation-plan.mjs",
+          "result": "pass",
+          "note": "Canonical document exists and required sections are present.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "efca45ac32907cad24ead4419f620ba4858b1c8bf658bf10bc8dc742e740d547",
+            "outputTail": "story-aware validation plan integrity PASS\n  bytes: 79541\n  sha256: db16fccb5af01d296362e0d5e882e69922525b3341e5ce1a68376a352865c68a\n  selectors: 14/14\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-21T07:53:02.900Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "245463409425597ec174814ce4d1f02d83d961f0",
+          "materialHash": "c0be178180d2138f485f2fce135c49f3f6038da93a2f7b8fd849f1d8838aa7b8",
+          "storyFilesHash": "97c4944ed8a4c737fbd5eb229696fcbdd2644979a8633fa46455c7047be7a201",
+          "timestamp": "2026-08-21T07:53:04.001Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "docs_check",
+          "command": "node scripts/verify-story-aware-validation-plan.mjs",
+          "result": "pass",
+          "note": "Verifier confirms the exact source digest and byte length.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "efca45ac32907cad24ead4419f620ba4858b1c8bf658bf10bc8dc742e740d547",
+            "outputTail": "story-aware validation plan integrity PASS\n  bytes: 79541\n  sha256: db16fccb5af01d296362e0d5e882e69922525b3341e5ce1a68376a352865c68a\n  selectors: 14/14\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-21T07:53:03.086Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "245463409425597ec174814ce4d1f02d83d961f0",
+          "materialHash": "c0be178180d2138f485f2fce135c49f3f6038da93a2f7b8fd849f1d8838aa7b8",
+          "storyFilesHash": "97c4944ed8a4c737fbd5eb229696fcbdd2644979a8633fa46455c7047be7a201",
+          "timestamp": "2026-08-21T07:53:04.001Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node scripts/verify-story-aware-validation-plan.mjs",
+          "result": "pass",
+          "note": "Selector inventory rejects truncation or missing normative sections.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "efca45ac32907cad24ead4419f620ba4858b1c8bf658bf10bc8dc742e740d547",
+            "outputTail": "story-aware validation plan integrity PASS\n  bytes: 79541\n  sha256: db16fccb5af01d296362e0d5e882e69922525b3341e5ce1a68376a352865c68a\n  selectors: 14/14\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-21T07:53:03.280Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "245463409425597ec174814ce4d1f02d83d961f0",
+          "materialHash": "c0be178180d2138f485f2fce135c49f3f6038da93a2f7b8fd849f1d8838aa7b8",
+          "storyFilesHash": "97c4944ed8a4c737fbd5eb229696fcbdd2644979a8633fa46455c7047be7a201",
+          "timestamp": "2026-08-21T07:53:04.001Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "command": "node scripts/verify-story-aware-validation-plan.mjs",
+          "result": "pass",
+          "note": "The verifier also checks NAV linkage and fails closed on missing navigation.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "efca45ac32907cad24ead4419f620ba4858b1c8bf658bf10bc8dc742e740d547",
+            "outputTail": "story-aware validation plan integrity PASS\n  bytes: 79541\n  sha256: db16fccb5af01d296362e0d5e882e69922525b3341e5ce1a68376a352865c68a\n  selectors: 14/14\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-21T07:53:03.475Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "245463409425597ec174814ce4d1f02d83d961f0",
+          "materialHash": "c0be178180d2138f485f2fce135c49f3f6038da93a2f7b8fd849f1d8838aa7b8",
+          "storyFilesHash": "97c4944ed8a4c737fbd5eb229696fcbdd2644979a8633fa46455c7047be7a201",
+          "timestamp": "2026-08-21T07:53:04.001Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node scripts/verify-story-aware-validation-plan.mjs",
+          "result": "pass",
+          "note": "Exact byte-length binding rejects substituted or modified source content.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "efca45ac32907cad24ead4419f620ba4858b1c8bf658bf10bc8dc742e740d547",
+            "outputTail": "story-aware validation plan integrity PASS\n  bytes: 79541\n  sha256: db16fccb5af01d296362e0d5e882e69922525b3341e5ce1a68376a352865c68a\n  selectors: 14/14\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-21T07:53:03.659Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "245463409425597ec174814ce4d1f02d83d961f0",
+          "materialHash": "c0be178180d2138f485f2fce135c49f3f6038da93a2f7b8fd849f1d8838aa7b8",
+          "storyFilesHash": "97c4944ed8a4c737fbd5eb229696fcbdd2644979a8633fa46455c7047be7a201",
+          "timestamp": "2026-08-21T07:53:04.001Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "command": "node scripts/verify-story-aware-validation-plan.mjs",
+          "result": "pass",
+          "note": "DYN-1 through DYN-5, audit, mutation, and authority sections are mechanically required.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "efca45ac32907cad24ead4419f620ba4858b1c8bf658bf10bc8dc742e740d547",
+            "outputTail": "story-aware validation plan integrity PASS\n  bytes: 79541\n  sha256: db16fccb5af01d296362e0d5e882e69922525b3341e5ce1a68376a352865c68a\n  selectors: 14/14\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-21T07:53:03.846Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "245463409425597ec174814ce4d1f02d83d961f0",
+          "materialHash": "c0be178180d2138f485f2fce135c49f3f6038da93a2f7b8fd849f1d8838aa7b8",
+          "storyFilesHash": "97c4944ed8a4c737fbd5eb229696fcbdd2644979a8633fa46455c7047be7a201",
+          "timestamp": "2026-08-21T07:53:04.001Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
