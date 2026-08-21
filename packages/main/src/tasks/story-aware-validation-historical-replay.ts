@@ -314,15 +314,24 @@ for (const candidate of selected) {
 }
 
 const categories = [...new Set(records.map(row => row.category))].sort();
-const fiReferenceHead = git(['rev-parse', 'HEAD']);
-const fiGraph = buildDualRevisionImpactGraph({ gitCwd: root, baseHead: fiReferenceHead, head: fiReferenceHead, catalog });
+const fiCandidate = candidates.find(candidate => changedFiles(candidate.pair.base, candidate.pair.head).some(change => change.status === 'renamed'))
+  || candidates.find(candidate => changedFiles(candidate.pair.base, candidate.pair.head).some(change => change.status === 'deleted'))
+  || selected[0];
+const fiPair = fiCandidate?.pair || { base: git(['rev-parse', 'HEAD^']), head: git(['rev-parse', 'HEAD']) };
+const fiReferenceBase = fiPair.base;
+const fiReferenceHead = fiPair.head;
+const fiGraph = buildDualRevisionImpactGraph({ gitCwd: root, baseHead: fiReferenceBase, head: fiReferenceHead, catalog });
+const fiRevisionChanges = changedFiles(fiReferenceBase, fiReferenceHead);
+const fiDeletedPath = fiRevisionChanges.find(change => change.status === 'deleted')?.path || fiRevisionChanges.find(change => change.status === 'renamed')?.oldPath;
+const fiRenamed = fiRevisionChanges.find(change => change.status === 'renamed');
+const fiFallbackPath = fiRevisionChanges[0]?.path;
 const faultInjection = catalog.flatMap((entry) => {
   const rows: Array<Record<string, unknown>> = [];
   const closure = closures.get(entry.id);
   const fiContext = (changedFiles: StoryChangedFile[], closureSet = closures) => {
-    const changes = buildStoryChangeManifest({ storyId: `B-fi-${entry.id}`, gitCwd: root, baseHead: fiReferenceHead, head: fiReferenceHead, changedFiles });
+    const changes = buildStoryChangeManifest({ storyId: `B-fi-${entry.id}`, gitCwd: root, baseHead: fiReferenceBase, head: fiReferenceHead, changedFiles });
     return buildDynamicValidationPlan({
-      storyId: `B-fi-${entry.id}`, baseHead: fiReferenceHead, head: fiReferenceHead, inventory, catalog,
+      storyId: `B-fi-${entry.id}`, baseHead: fiReferenceBase, head: fiReferenceHead, inventory, catalog,
       changes, closures: closureSet, baselineEpochId: 'fi-epoch', buildProofDigest: 'fi-build', mode: 'observe', graph: fiGraph, gitCwd: root,
     });
   };
@@ -358,11 +367,15 @@ const faultInjection = catalog.flatMap((entry) => {
     const impacted = fiContext([{ path: 'packages/main/src/fi-unrelated-material.ts', status: 'modified', blobId: stableDigest('fi-unrelated-material') }]);
     rows.push({ fiId: 'FI-4', commandId: entry.id, mutation: 'unrelated-material-file', expected: 'execute', observed: impacted.rows.find((row) => row.commandId === entry.id)?.disposition, passed: impacted.rows.find((row) => row.commandId === entry.id)?.disposition === 'execute' });
   }
-  const deleted = fiContext([{ path: entry.inputRoots[0] || 'packages/main/src/fi-deleted.ts', status: 'deleted', blobId: '<deleted>' }]);
-  const renamed = fiContext([{ path: entry.inputRoots[0] || 'packages/main/src/fi-renamed.ts', oldPath: 'packages/main/src/fi-old.ts', status: 'renamed', blobId: stableDigest('fi-renamed') }]);
+  const deleted = fiContext([{ path: fiDeletedPath || fiFallbackPath || entry.inputRoots[0] || 'packages/main/src/fi-deleted.ts', status: 'deleted', blobId: '<deleted>' }]);
+  const renamed = fiContext([{
+    path: fiRenamed?.path || fiFallbackPath || entry.inputRoots[0] || 'packages/main/src/fi-renamed.ts',
+    oldPath: fiRenamed?.oldPath || fiDeletedPath || entry.inputRoots[0] || 'packages/main/src/fi-old.ts',
+    status: 'renamed', blobId: stableDigest('fi-renamed'),
+  }]);
   const deletedRow = deleted.rows.find((row) => row.commandId === entry.id);
   const renamedRow = renamed.rows.find((row) => row.commandId === entry.id);
-  rows.push({ fiId: 'FI-5', commandId: entry.id, mutation: 'deleted-and-renamed-inputs', expected: 'base-and-head-graph-selection', observed: { deletedManifest: verifyValidationSelectionManifest(deleted), renamedManifest: verifyValidationSelectionManifest(renamed), deletedDisposition: deletedRow?.disposition, renamedDisposition: renamedRow?.disposition, deletedGraph: deleted.dependencyGraphDigest, renamedGraph: renamed.dependencyGraphDigest }, passed: verifyValidationSelectionManifest(deleted) && verifyValidationSelectionManifest(renamed) && deleted.dependencyGraphDigest.length > 0 && renamed.dependencyGraphDigest.length > 0 && deletedRow?.disposition === 'execute' && renamedRow?.disposition === 'execute' });
+  rows.push({ fiId: 'FI-5', commandId: entry.id, mutation: 'deleted-and-renamed-inputs', expected: 'base-and-head-graph-selection', observed: { baseHead: fiReferenceBase, head: fiReferenceHead, revisionChanges: fiRevisionChanges.length, deletedPath: fiDeletedPath, renamedPath: fiRenamed?.path, deletedManifest: verifyValidationSelectionManifest(deleted), renamedManifest: verifyValidationSelectionManifest(renamed), deletedDisposition: deletedRow?.disposition, renamedDisposition: renamedRow?.disposition, deletedGraph: deleted.dependencyGraphDigest, renamedGraph: renamed.dependencyGraphDigest }, passed: fiReferenceBase !== fiReferenceHead && fiRevisionChanges.length > 0 && Boolean(fiDeletedPath || fiRenamed) && verifyValidationSelectionManifest(deleted) && verifyValidationSelectionManifest(renamed) && deleted.dependencyGraphDigest.length > 0 && renamed.dependencyGraphDigest.length > 0 && deletedRow?.disposition === 'execute' && renamedRow?.disposition === 'execute' });
   return rows;
 });
 const faultInjectionPath = join(outputRoot, 'fault-injection.json');
@@ -504,7 +517,12 @@ const gateReasons = [
   !replayExecutionEquivalent ? 'replay per-command verdict equivalence or residue check failed' : '',
   !verifyPayload(faultInjectionBody, faultInjectionArtifact.signature) ? 'fault-injection artifact signature is invalid' : '',
   !faultInjectionArtifact.allPass ? 'FI-1..FI-5 coverage is incomplete or failing' : '',
-  paired && (!pairedPerformance || pairedPerformance.verdictEquivalent !== true || !verifyPayload(Object.fromEntries(Object.entries(pairedPerformance).filter(([key]) => key !== 'signature')), String(pairedPerformance.signature || ''))) ? 'paired full/dynamic verdict equivalence or signature is missing' : '',
+  paired && (!pairedPerformance
+    || pairedPerformance.verdictEquivalent !== true
+    || pairedPerformance.perCommandEquivalent !== true
+    || !Array.isArray(pairedPerformance.runs)
+    || (pairedPerformance.runs as Array<Record<string, unknown>>).some((run) => !Array.isArray(run.residue) || run.residue.length > 0)
+    || !verifyPayload(Object.fromEntries(Object.entries(pairedPerformance).filter(([key]) => key !== 'signature')), String(pairedPerformance.signature || ''))) ? 'paired full/dynamic per-command equivalence, residue, verdict or signature is missing' : '',
 ].filter(Boolean);
 const reportBody = {
   schema: 'proof-or-stop.dynamic-validation.historical-replay.v1',

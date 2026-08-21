@@ -30,6 +30,16 @@ parser fallback for legacy external configurations. Each object in
 `env.LATTICE_VALIDATION_SHARD_ADAPTER`. The runner source is included in the
 catalog input roots so changing it revokes the closure/baseline evidence.
 
+`full-only` is a complete-plan escalation policy, not merely a row-level
+fallback label. An impacted full-only row escalates the complete plan. An
+unimpacted row may avoid escalation only when its declared
+`fullBaselineReusePolicy=exact-current-epoch-only` has a valid, signed
+canonical baseline receipt for the current epoch. `forbidden` rows never
+reuse; until the catalog contains an exact-epoch policy for them they make the
+complete plan execute. The current catalog deliberately has 58 `forbidden`
+validation-infrastructure rows, so current runs are expected to full-escalate
+until that policy population is changed with fresh evidence.
+
 The registry is a project-relative JSON array. Each case has a stable `caseId`,
 domain (`quorum` or `review-pass`), a sentinel flag, and an executable
 `runner` (`command`, `args`, optional `cwd`/`env`, and a success marker). The
