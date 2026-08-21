@@ -43,6 +43,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { StoryStore } from '../core/store.js';
+import { acquireOwnerLease } from '../core/story-owner-lease.js';
 import { createChecklistHandlers } from '../handlers/checklist.js';
 import { createEvidencePinGuardHandlers } from '../handlers/evidence-pin-guard.js';
 import { buildVerificationCoverage } from '../core/verification.js';
@@ -116,6 +117,7 @@ function makeEnv(storyId: string, intents: VerificationIntentItem[]): Env {
   git(root, ['config', 'user.name', 'B1507 Smoke']);
   git(root, ['add', '.']);
   git(root, ['commit', '-m', 'seed']);
+  git(root, ['branch', 'main']);
   resetConfigCache();
   const store = new StoryStore(root);
   const at = '2026-07-25T00:00:00.000Z';
@@ -132,6 +134,7 @@ function makeEnv(storyId: string, intents: VerificationIntentItem[]): Env {
     }],
   };
   store.writeStory(storyId, story);
+  acquireOwnerLease(store.storyDirPath(storyId), { command: 'smoke_fixture_setup', cwd: root });
   store.writeChecklist(storyId, checklist);
   const handlers = createChecklistHandlers({ store, root, scanRoot: join(root, 'packages/main') });
   const guard = createEvidencePinGuardHandlers({ store, root, scanRoot: join(root, 'packages/main') });
@@ -274,8 +277,8 @@ async function partB(): Promise<void> {
     // has NO verification pin, so refresh's re-exec loop must SKIP it → demote-only path.
     const head0 = git(env.root, ['rev-parse', 'HEAD']);
     const material0 = currentMaterialHash(env.root, 'HEAD', env.root);
-    const storyFiles0 = currentStoryFilesHash(env.root, 'HEAD', env.root); // undefined (no main branch)
-    assert.equal(storyFiles0, undefined, 'B: no-main temp repo has no storyFilesHash (so material drift => stale, no advisory downgrade)');
+    const storyFiles0 = currentStoryFilesHash(env.root, 'HEAD', env.root);
+    assert.ok(storyFiles0, 'B: main-backed temp repo has a storyFilesHash for causal freshness');
     const fakeReceipt: VerificationExecutionReceipt = {
       exitCode: 0, outputDigest: sha256Hex('MARKER_OK\n'), outputTail: 'MARKER_OK\n', selectorMatched: true,
       executedAt: '2026-07-25T00:00:00.000Z',

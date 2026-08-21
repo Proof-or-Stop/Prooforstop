@@ -16,6 +16,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { StoryStore } from '../core/store.js';
+import { acquireOwnerLease } from '../core/story-owner-lease.js';
 import { createChecklistHandlers } from '../handlers/checklist.js';
 import { buildVerificationCoverage } from '../core/verification.js';
 import { resetConfigCache } from '../core/config.js';
@@ -69,6 +70,7 @@ function makeEnv(intents: Array<{ ref: string; type: VerificationIntentType }>):
   git(root, ['config', 'user.name', 'EC67 Smoke']);
   git(root, ['add', '.']);
   git(root, ['commit', '-m', 'seed']);
+  git(root, ['branch', 'main']);
   resetConfigCache();
   const store = new StoryStore(root);
   const storyId = 'B-ec67s';
@@ -89,6 +91,7 @@ function makeEnv(intents: Array<{ ref: string; type: VerificationIntentType }>):
     }],
   };
   store.writeStory(storyId, story);
+  acquireOwnerLease(store.storyDirPath(storyId), { command: 'smoke_fixture_setup', cwd: root });
   store.writeChecklist(storyId, checklist);
   const handlers = createChecklistHandlers({ store, root, scanRoot: join(root, 'packages/main') });
   return { root, store, handlers, storyId };
