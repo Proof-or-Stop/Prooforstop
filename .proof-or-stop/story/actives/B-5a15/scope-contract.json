@@ -257,10 +257,31 @@
       "phase": "DEV",
       "headHash": "370fd5b0ae43fe23cd92ef5e99eb511af6306d7f",
       "materialHash": "853d5eb4322ecb6d3ba9b94131ecab4e76ac0b8a2e77f47f24a2c39fc04ac775"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "The requirements contract names this executable verifier smoke entrypoint; adding its source is necessary to make the documented acceptance command runnable and to close the independently verified blocker.",
+      "timestamp": "2026-08-21T18:37:14.228Z",
+      "paths": [
+        "packages/main/src/tasks/verifier-causal-preflight-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/verifier-causal-preflight-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "REVIEW",
+      "headHash": "bb922933b1654d403c82a142ae217c5d4b91ca99",
+      "materialHash": "853d5eb4322ecb6d3ba9b94131ecab4e76ac0b8a2e77f47f24a2c39fc04ac775",
+      "anchors": [
+        "CHK_004",
+        "verifierCausalPreflightSmoke",
+        "documentedVerificationCommand"
+      ]
     }
   ],
   "createdAt": "2026-08-20T09:29:12.295Z",
-  "updatedAt": "2026-08-21T15:28:51.885Z",
+  "updatedAt": "2026-08-21T18:37:14.228Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -302,6 +323,7 @@
     "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
     "packages/main/src/tasks/flow-stability-smoke.ts": "packages/main/src/tasks/flow-stability-smoke.ts",
     "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md": "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
-    "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md": "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+    "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md": "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+    "packages/main/src/tasks/verifier-causal-preflight-smoke.ts": "packages/main/src/tasks/verifier-causal-preflight-smoke.ts"
   }
 }
