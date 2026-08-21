@@ -2467,6 +2467,54 @@
         "scanEscalationReason": null
       },
       "_hash": "e340825764b6d15c9810d015011d21d61e475b2f7f8fbcdd701acffea44e9264"
+    },
+    {
+      "id": "B-5a88:RP-041",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Round 22 quality review: no blocker. F-121 is fail-closed in both closeout-trust and auto-commit-metadata; focused closeout/schema regressions, all seven migration tests, rebuilt closeout smoke, and process-fact contract pass. No source or test-quality regression found.",
+      "createdAt": "2026-08-21T05:05:17.319Z",
+      "reviewRound": "2026-08-21T04:57:59.566Z",
+      "reviewRunId": "B-5a88:RR-152",
+      "envelopeId": "bbb52270868f430d6012d5769653e9a9f6ca58e50091ed24577c46072e28fc78",
+      "writerSessionId": "sess-6e7c202295b048ea67c37b8e0a3d7656",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "packages/main/src/core/artifact-schema.ts",
+          "packages/main/src/core/auto-commit-metadata.ts",
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "packages/main/tests/artifact-schema-migration.test.mjs",
+          "packages/main/tests/bin-alias-migration.test.mjs",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/package-identity-migration.test.mjs",
+          "packages/main/tests/prompt-role-migration.test.mjs",
+          "packages/main/tests/release-push-approval-migration.test.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "package-lock.json",
+          "package.json",
+          "packages/main/package-lock.json",
+          "packages/main/package.json",
+          "packages/main/src/core/process-fact-registry.ts",
+          "scripts/verify-codex-assets.mjs",
+          "scripts/verify-entrypoints.mjs",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": "Round 22 quality review covered the current story implementation diff, F-121 closeout trust and metadata receipt choke points, adjacent schema consumers, and migration regression surface."
+      },
+      "_hash": "fc6a7e7bd0900c212a28def13121c3e69b0adc9391a4df59651644e517533711"
     }
   ]
 }

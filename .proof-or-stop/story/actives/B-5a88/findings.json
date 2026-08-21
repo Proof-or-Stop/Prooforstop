@@ -5113,6 +5113,279 @@
       "_hash": "b654fac578d7d3c6e789d63347c2b2632250928a6d35c7d0074c8244a6603e07",
       "signatureTag": "missing|unknown|focused-closeout-validation",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-129",
+      "desc": "packages/main/src/handlers/testintent-handoff.ts:87,105-106 — the registered active testintent_handoff PLAN command still returns agent=\"test-intent\" and generates a checklist_update example with agent=\"test-intent\". B-5a88 CHK-001/plan makes proof-or-stop-test-intent the canonical verification-intent role and permits the old spelling only as a read-compatible alias; a user following this current handoff therefore emits legacy role identity in new guidance/write input. Change the handoff output and generated command to proof-or-stop-test-intent, retaining test-intent only in explicit compatibility readers/tests.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-21T05:05:34.310Z",
+      "reviewRound": "2026-08-21T04:57:59.566Z",
+      "reviewRunId": "B-5a88:RR-151",
+      "_hash": "d0827825c0813c230580bd0d90035866aaed1006e93237ebb5b3a5d27d0ba682",
+      "signatureTag": "missing|unknown|packages-main-handlers",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-130",
+      "desc": "F-123 remains open in Round 22: .proof-or-stop/story/actives/B-5a88/test-evidence.json:2-7 is a PASS from 2026-08-21T03:22:00.298Z bound to headHash d9f4f638, materialHash 3953e923, and storyFilesHash 4b16941a; current RR-153 is bound to HEAD 78e60ff, materialHash c0797390, and storyFilesHash 5ebd1b90. No configured validate evidence is fresh for the current material/story scope, so TEST validation remains stale.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-21T05:06:22.054Z",
+      "reviewRound": "2026-08-21T04:57:59.566Z",
+      "reviewRunId": "B-5a88:RR-153",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          ".proof-or-stop/story/actives/B-5a88/review-runs.json",
+          ".proof-or-stop/story/actives/B-5a88/test-evidence.json",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/release-push-approval-migration.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/managed-assets.ts",
+          "packages/main/src/core/release-push-approval.ts",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "02e7d05cbc4dd1912375d746fbdf31efe7a7a927b077b3c458e7ba8181ddd0a7",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/test-evidence.json"
+      ],
+      "signatureTag": "missing|json|remains-open-round",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-131",
+      "desc": "F-124 remains open: .proof-or-stop/story/actives/B-5a88/checklist.json:113-128 binds CHK-001:happy:0 only to a canonicalAgentRoleId alias smoke. That receipt does not execute or assert acceptance through review_run_start, review_pass_set, init_check_set, and quorum resolution required by the intent; the stronger brand-role migration test is not the pinned evidence.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-21T05:06:32.122Z",
+      "reviewRound": "2026-08-21T04:57:59.566Z",
+      "reviewRunId": "B-5a88:RR-153",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          ".proof-or-stop/story/actives/B-5a88/review-runs.json",
+          ".proof-or-stop/story/actives/B-5a88/test-evidence.json",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/release-push-approval-migration.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/managed-assets.ts",
+          "packages/main/src/core/release-push-approval.ts",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "32be6f3d8c439673ef99aee5a57a6dd86aea2ccd664bf65504781a66f7a29c9e",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/checklist.json",
+        "packages/main/tests/brand-role-migration.test.mjs"
+      ],
+      "signatureTag": "missing|json|remains-open-proof",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-132",
+      "desc": "F-125 remains open across the CHK-002 bindings: .proof-or-stop/story/actives/B-5a88/checklist.json:243-298 executes helper/template assertions imported from /private/tmp/proof-or-stop-b5a88-marker-build and /private/tmp/proof-or-stop-b5a88-init-build. The receipts provide no current-worktree build or init/init --upgrade provenance and do not discriminate generated thin/global-thin output or exactly-one-block behavior of the repository producers.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-21T05:06:42.171Z",
+      "reviewRound": "2026-08-21T04:57:59.566Z",
+      "reviewRunId": "B-5a88:RR-153",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          ".proof-or-stop/story/actives/B-5a88/review-runs.json",
+          ".proof-or-stop/story/actives/B-5a88/test-evidence.json",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/release-push-approval-migration.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/managed-assets.ts",
+          "packages/main/src/core/release-push-approval.ts",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9f90ebc83ed16c9bee06362c248dc8b300483d3fa0b16863e7fe416b7faa10ac",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/checklist.json",
+        "packages/main/tests/managed-marker-migration.test.mjs"
+      ],
+      "signatureTag": "missing|json|remains-open-across",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-133",
+      "desc": "F-126 remains open: .proof-or-stop/story/actives/B-5a88/checklist.json:514-566 records CHK-004 happy, edge, and adversarial evidence as source-token checks plus bash -n. These receipts never execute the real pre-push producer/consumer path, so canonical and lattice schema acceptance, second-consume rejection, invalid/sha-mismatch rejection, and expiry rejection remain unbound.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-21T05:06:52.181Z",
+      "reviewRound": "2026-08-21T04:57:59.566Z",
+      "reviewRunId": "B-5a88:RR-153",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          ".proof-or-stop/story/actives/B-5a88/review-runs.json",
+          ".proof-or-stop/story/actives/B-5a88/test-evidence.json",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/release-push-approval-migration.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/managed-assets.ts",
+          "packages/main/src/core/release-push-approval.ts",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3381be84dff13c17897de62811572a2f242af6a920ed048c0726a130b6d52405",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/checklist.json",
+        ".githooks/pre-push",
+        "packages/main/tests/release-push-approval-migration.test.mjs"
+      ],
+      "signatureTag": "adversarial|json|remains-open-proof",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-134",
+      "desc": "F-127 remains open: .proof-or-stop/story/actives/B-5a88/checklist.json:909-918 binds CHK-007:edge:0 only to node packages/main/dist/cli.js help. Help output cannot verify the required residue distinction between frozen historical evidence, compatibility readers, and unsupported new lattice command aliases; verify-lattice-residue --self-test is pinned only to the adversarial intent.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-21T05:07:03.172Z",
+      "reviewRound": "2026-08-21T04:57:59.566Z",
+      "reviewRunId": "B-5a88:RR-153",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          ".proof-or-stop/story/actives/B-5a88/review-runs.json",
+          ".proof-or-stop/story/actives/B-5a88/test-evidence.json",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/release-push-approval-migration.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/managed-assets.ts",
+          "packages/main/src/core/release-push-approval.ts",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "927f5e7c506ff333679a365e565e94000277651cfc0119d858309e62ad6b790b",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/checklist.json",
+        "scripts/verify-lattice-residue.mjs"
+      ],
+      "signatureTag": "missing|json|remains-open-proof",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-135",
+      "desc": "F-128 remains open and reproduces on the current checkout: node packages/main/dist/tasks/done-prepare-auto-closeout-smoke.js exits 1 before its assertions because done_prepare is BLOCKED at validate with pre_cert_window_required/pre_cert_window_missing, while the smoke requires DONE prepare: PASS at packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts:371-374. Closeout assurance remains unverified.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-21T05:07:13.988Z",
+      "reviewRound": "2026-08-21T04:57:59.566Z",
+      "reviewRunId": "B-5a88:RR-153",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          ".proof-or-stop/story/actives/B-5a88/review-runs.json",
+          ".proof-or-stop/story/actives/B-5a88/test-evidence.json",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/release-push-approval-migration.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/managed-assets.ts",
+          "packages/main/src/core/release-push-approval.ts",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1bcf8e5527645d7471824ed685988fcb7bbdf4f20f05b030687c55425632bde5",
+      "files": [
+        "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+        "packages/main/dist/tasks/done-prepare-auto-closeout-smoke.js"
+      ],
+      "signatureTag": "missing|ts|remains-open-reproduces",
+      "signatureTagSource": "auto"
     }
   ]
 }
