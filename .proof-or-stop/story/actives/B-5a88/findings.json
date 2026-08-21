@@ -4453,6 +4453,21 @@
       ],
       "signatureTag": "missing|ts|packages-main-init",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-100",
+      "desc": "docs/CLI.md:488,503; CLAUDE.md:615,658; packages/main/src/core/adversarial-review-critic.ts:22-23; packages/main/src/core/adversarial-review-verifier.ts:64; packages/main/src/core/adversarial-review-round.ts:92 — the canonical role migration still teaches or describes lattice-review-* as the active reviewer identity, while LENS_TO_LANE and process-fact output now use proof-or-stop-review-*; these references are not labeled as legacy compatibility, so the stated migration scope of removing stale role guidance is incomplete and the canonical smoke assertion fix does not cover the residuals.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-21T01:22:01.741Z",
+      "reviewRound": "2026-08-21T01:16:25.495Z",
+      "reviewRunId": "B-5a88:RR-123",
+      "_hash": "dbfa847655007459b4ebab6b4be30142b41356cfcaaffd5f2602424767c50cfd",
+      "signatureTag": "missing|unknown|docs-claude-packages",
+      "signatureTagSource": "auto"
     }
   ]
 }

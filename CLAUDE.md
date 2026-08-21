@@ -417,7 +417,7 @@ project/
 
 **DONE 门禁**：进入 DONE 前要求 story 分支已包含 main 的所有提交（`git merge-base --is-ancestor`）。DONE 必须在期望的 `story/<storyId>` 分支对应 worktree 中执行；若 linked worktree 当前分支不匹配或不是 story 分支，CLI 会在写入 DONE 状态、merge、删除分支或清理 worktree 前拒绝。有冲突在 worktree 里 `git merge main` 解决。
 
-**Sub agent 工作目录约定**：sub agent（lattice-implementer 等）在主 agent 的 worktree 中工作，通过 `proof-or-stop validate` 验证后提交。
+**Sub agent 工作目录约定**：sub agent（proof-or-stop-implementer 等）在主 agent 的 worktree 中工作，通过 `proof-or-stop validate` 验证后提交。
 
 ### 多 session 写协调（设计真相源）
 
@@ -490,7 +490,7 @@ Proof-or-Stop 支持多 worktree 并行，写权限的跨 session 协调按 roll
 
 ## CHK-001: <checklist item title>
 
-**Owner**: lattice-implementer | main-agent
+**Owner**: proof-or-stop-implementer | main-agent
 **DependsOn**: none | CHK-002, CHK-003
 **Files**:
 - Modify: src/foo.ts, src/bar.ts
@@ -512,7 +512,7 @@ Proof-or-Stop 支持多 worktree 并行，写权限的跨 session 协调按 roll
 
 | 字段 | 必填 | 含义 |
 |---|---|---|
-| Owner | 是 | 谁执行：lattice-implementer（正常通道）或 main-agent（快速通道/文档类） |
+| Owner | 是 | 谁执行：proof-or-stop-implementer（正常通道）或 main-agent（快速通道/文档类） |
 | DependsOn | 是 | 依赖哪些 CHK-xxx 先完成，none 表示无依赖 |
 | Files | 是 | 要改/建/测的文件路径 |
 | Verify | 是 | 验证命令和期望输出 |
@@ -530,7 +530,7 @@ Proof-or-Stop 支持多 worktree 并行，写权限的跨 session 协调按 roll
 
 **触发**：所有 INIT → INIT_CHECK 转换（`story_advance INIT_CHECK`）。其他来源（IDEA→INIT_CHECK 等）不门禁。
 
-**机制**：`story_create` 完成后停在 INIT 阶段，主 agent 必须 `Agent({ subagent_type: "lattice-review-story-init" })` spawn reviewer 审查 background + checklist 初版。reviewer 调 `proof-or-stop init_check_set '{"storyId":"B-xxx","agentId":"<self-id>","issues":[...]}'` 写带签名的 `docs/story/actives/B-xxx/init-check.json`。`story_advance INIT_CHECK` 在 xstate guard `canEnterInitCheck` + `getGuardFailureReason` 双层校验。
+**机制**：`story_create` 完成后停在 INIT 阶段，主 agent 必须 `Agent({ subagent_type: "proof-or-stop-review-story-init" })` spawn reviewer 审查 background + checklist 初版。reviewer 调 `proof-or-stop init_check_set '{"storyId":"B-xxx","agentId":"<self-id>","issues":[...]}'` 写带签名的 `docs/story/actives/B-xxx/init-check.json`。`story_advance INIT_CHECK` 在 xstate guard `canEnterInitCheck` + `getGuardFailureReason` 双层校验。
 
 **签名域**（[init-check.ts](packages/main/src/handlers/init-check.ts) `signInitCheck`）：
 
@@ -556,7 +556,7 @@ sha256(`${storyId}:${sha256(background.md)}:${title}:${description}:${sha256(che
 proof-or-stop init_check_set '{"storyId":"B-xxx","agentId":"reviewer-self-id","issues":[{"severity":"medium","desc":"..."}]}'
 
 # 失配后强制重跑：reviewer 没有 itemId/findingId/clusterId，主 agent 直接 spawn
-# Agent({ subagent_type: "lattice-review-story-init", prompt: "storyId: B-xxx，请审查 background + checklist 初版" })
+# Agent({ subagent_type: "proof-or-stop-review-story-init", prompt: "storyId: B-xxx，请审查 background + checklist 初版" })
 ```
 
 **无 subagent 环境的受控 fallback（B-95d8 CHK-001）**：
@@ -612,7 +612,7 @@ see story/B-9975
 
 ### scope-plan reviewer PLAN→DEV 硬门槛
 
-正常通道 PLAN 阶段必须跑 `lattice-review-scope-plan` 产出 `scope-check.json`。`story_review` 规则（[story-review.ts:274-279](packages/main/src/handlers/story-review.ts#L274-L279)）：
+正常通道 PLAN 阶段必须跑 `proof-or-stop-review-scope-plan` 产出 `scope-check.json`。`story_review` 规则（[story-review.ts:274-279](packages/main/src/handlers/story-review.ts#L274-L279)）：
 
 - `understanding` 存在 + checklist 非空 + `scope-check.json` 缺失 → `missing_scope_check` **blocker**，直接卡 PLAN→DEV
 - 已有 scope-check.json 但签名失效 / review round 过期 → 要求重跑
@@ -655,7 +655,7 @@ proof-or-stop scope_question_resolve '{
 
 ### TEST→DONE 硬门槛（delivery-check）
 
-TEST 阶段自动 spawn `lattice-review-delivery` 产出 `delivery-check.json`。`story_advance DONE` 校验：
+TEST 阶段自动 spawn `proof-or-stop-review-delivery` 产出 `delivery-check.json`。`story_advance DONE` 校验：
 
 - delivery-check.json 缺失 → `missing_delivery_check` blocker
 - `_hash` 重算不匹配 → `delivery_check_tampered` blocker
@@ -749,8 +749,8 @@ checklist + plan.md 写完后必须 `story_review` 通过（issueCount=0）才�
 | 角色 | 职责 | 写代码 |
 |---|---|---|
 | **主 agent** | 需求管理（PLAN + plan.md）+ 分配任务 + 验收（REVIEW/TEST/DONE） | 仅快速通道 |
-| **lattice-implementer** | 写代码 + 写测试，接受主 agent 按 plan.md 分配的 checklist item | 正常通道必须 |
-| **lattice-review-\*** | REVIEW 阶段按 opt-in 路由并行审查（baseline concept+quality+test-coverage，按 riskSignals / touchpoints 加挂 behavior/docs），各自提 finding。`test-coverage` 继承旧 TEST_CASE_REVIEW 职责，检查 verificationIntent → verificationEvidence 覆盖；`channel` LLM agent 已退役（S1）由 `validate --channel` CLI 接管；`quality` 假设 lint 已绿只审主观项 | 不写 |
+| **proof-or-stop-implementer** | 写代码 + 写测试，接受主 agent 按 plan.md 分配的 checklist item | 正常通道必须 |
+| **proof-or-stop-review-\*** | REVIEW 阶段按 opt-in 路由并行审查（baseline concept+quality+test-coverage，按 riskSignals / touchpoints 加挂 behavior/docs），各自提 finding。旧的 `lattice-review-channel` LLM agent 已退役（S1），由 `validate --channel` CLI 接管；`test-coverage` 继承旧 TEST_CASE_REVIEW 职责，检查 verificationIntent → verificationEvidence 覆盖；`quality` 假设 lint 已绿只审主观项 | 不写 |
 | **lattice-evaluator** | browser 项目产品质量打分（功能完整性 + 可用性） | 不写 |
 | **lattice-evaluator-cli** | CLI / core 项目产品质量打分（通过 bridge API 驱动状态转换验证） | 不写 |
 
@@ -762,15 +762,15 @@ checklist + plan.md 写完后必须 `story_review` 通过（issueCount=0）才�
 
 **正常通道**（> 2 项 或 有 riskSignals）：
 - **主 agent 不写业务代码**，只做 PLAN + plan.md + 分配 + 验收
-- 代码由 lattice-implementer subagent 写（在主 agent 的 worktree 里，不额外开 worktree）
+- 代码由 proof-or-stop-implementer subagent 写（在主 agent 的 worktree 里，不额外开 worktree）
 - REVIEW 阶段 reviewer 检查 commit author——正常通道全是主 agent 写的 → critical finding → 卡住 REVIEW→TEST
 
 **通道实时计算**：不存储，每次进 DEV 时从 checklist.items.length + story.riskSignals 实时判定。checklist_add/remove 改变 items 数量后自动生效。PLAN 阶段新增 item 必须提供 `reason`（≥10 字符）作为 replan/scope audit 信号，避免用 remove+add 静默绕过 title/context 冻结。
 
 ### 主 agent 行为准则
 
-- **正常通道必须分配**：用 `Agent({ subagent_type: "lattice-implementer", prompt: "..." })` 分配
-- **fresh worker per item**：每个 CHK-xxx 派一个新的 lattice-implementer，不复用上下文。prompt 只给该 item 需要的最小信息（storyId + plan.md 对应章节 + 必读文件），不给整段会话历史
+- **正常通道必须分配**：用 `Agent({ subagent_type: "proof-or-stop-implementer", prompt: "..." })` 分配
+- **fresh worker per item**：每个 CHK-xxx 派一个新的 proof-or-stop-implementer，不复用上下文。prompt 只给该 item 需要的最小信息（storyId + plan.md 对应章节 + 必读文件），不给整段会话历史
 - **fresh worker 机械边界**：prompt-only worker claims are not mechanical evidence。可审计证据只来自 `proof-or-stop dispatch` / dispatch/process-event/commit evidence / commit author 等结构化事实。Proof-or-Stop cannot mechanically prove true subagent context isolation，只能证明可观察 assignment evidence；prompt 里说“已派 fresh worker”不能作为 gate 证据。
 - **并行条件**：只有同时满足以下条件的 item 才能并行派发：(1) DependsOn 为空或依赖已 done (2) Files 写集不重叠 (3) 不共享稀缺资源。不满足时串行
 - **REVIEW 验收必须完整**：reviewer 返回后，先 `finding_list` 确认所有 finding 都已通过 `finding_add` 注册（reviewer 只在文本里报告但没注册 = 没发现，要求 reviewer 重跑）。然后逐条 resolve 或回 DEV 修复，不允许跳过 medium finding 留给下一个 story
@@ -786,11 +786,11 @@ Proof-or-Stop agent prompt 的**正文（body）只有一个真相源**：包内
 | Claude | `.claude/agents/*.md` thin-shim（frontmatter `name`/`description`/`tools` + body 写「run `proof-or-stop agent_prompt --role=<name>`」，**无正文**） | `proof-or-stop agent_prompt`（registry） |
 | Codex | `.proof-or-stop-codex/proof-or-stop.json` manifest（`promptMode: 'registry'`，B-4ee0） | 同一 registry |
 
-- **取正文命令**：`proof-or-stop agent_prompt --role=<name>`（如 `lattice-implementer` / `lattice-review-concept`），从 registry 吐角色正文；非法 role 列出可用 role。Claude shim 取它，Codex manifest 指它，两者 byte-equal 同源。
-- **spawn 不变**：主 agent 仍 `Agent({ subagent_type: "lattice-review-*" })`。shim 的 `tools:` frontmatter 保留宿主**只读沙箱**（reviewer 改不了文件）；被 spawn 的 reviewer/implementer **第一步运行 `proof-or-stop agent_prompt --role=<自身角色>` 取权威指令**再执行。
+- **取正文命令**：`proof-or-stop agent_prompt --role=<name>`（如 `proof-or-stop-implementer` / `proof-or-stop-review-concept`），从 registry 吐角色正文；非法 role 列出可用 role。Claude shim 取它，Codex manifest 指它，两者 byte-equal 同源。
+- **spawn 不变**：主 agent 仍 `Agent({ subagent_type: "proof-or-stop-review-*" })`。shim 的 `tools:` frontmatter 保留宿主**只读沙箱**（reviewer 改不了文件）；被 spawn 的 reviewer/implementer **第一步运行 `proof-or-stop agent_prompt --role=<自身角色>` 取权威指令**再执行。
 - **init 行为**：`proof-or-stop init` 往**项目里写 0 个 agent 文件**；17 个 thin-shim 一次性放在全局 `~/.claude/agents`，所有项目共用。
 - **迁移显式**：已有 project-local 管理文件时，普通 `init` 只 WARN 不删；删除/迁移仅在 `proof-or-stop init --upgrade`，且只删 17 个管理 basename、保留用户自建文件。`proof-or-stop doctor` 报 `agentAssetMode: runtime-owned`。
-- **角色数量**：registry 共 **17** 个 role 模板（`scripts/verify-proof-or-stop-prompt-baseline.mjs` 的 `EXPECTED_ROLE_COUNT = 17` 钉住），其中 **13** 个带 `lattice-` 前缀。这 13 个 role ID 是 `subagent_type` 值，本次改名**刻意冻结**（改名会让在飞 story 的 spawn 失败），目标前缀 `proof-or-stop-*` 由 `docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md` 负责。
+- **角色数量**：registry 共 **17** 个 role 模板（`scripts/verify-proof-or-stop-prompt-baseline.mjs` 的 `EXPECTED_ROLE_COUNT = 17` 钉住），其中 **13** 个仍保留 legacy `lattice-` 前缀。这些 role ID 是为兼容在飞 story 而冻结的历史 `subagent_type` 值；当前身份与输出指导使用 `proof-or-stop-*`，目标前缀迁移由 `docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md` 负责。
 - 真相源：`docs/requirements/decisions/lifecycle-artifact-scope.md` →「Policy: host-neutral prompt content, thin host adapters (B-097f)」+ `lattice-runtime-owned-agent-assets-execution-plan.md` 的 Implementation Status。
 
 ## REVIEW 阶段规则（框架实现）
@@ -877,7 +877,7 @@ executable intent（logic|cli|browser）的 evidence 会真的 **执行** pinned
 | english-artifacts | `english-artifacts` preflight (B-5f42, no standalone flag; standalone `npm run test:legacy -- english-only-guards`) | 本分支 commit + 当前 story 元数据必须英文(CJK 触发 fail) | fail → block REVIEW→TEST |
 | lattice-residue | `lattice-residue` preflight (B-292d, no standalone flag; standalone `npm run test:lattice-residue`) | 四个独立 check（见 `scripts/verify-lattice-residue.mjs`，**文件名为 FROZEN**：`review-preflight.ts` 硬编码该路径且缺失时 fail-closed）：**[koala]** 对 product runtime source（`packages/*/src`）零容忍扫 `koala` 残留，无 exemption；**[brand-prose]** (B-cdf6) 扫 active docs 的 markdown（scan roots：`README.md` / `CLAUDE.md` / `AGENTS.md` / `docs` / `packages/main/templates`，外加 **host adapter 目录 `.claude/agents` + `.proof-or-stop-codex/agents`**——B-cdf6 CHK-003 follow-up 补入，因为这两处曾各带约 20 行陈旧 `lattice <cmd>` 却因在扫描范围外而无人报错；它们是 registry 的派生镜像，命中即表示模板/注入 slice 陈旧或镜像未重生成，且会被原样喂给 spawn 出来的 agent），检出 `lattice <subcommand>` 这类仍在教用户跑旧 bin 名的调用式 prose，应改写为 `proof-or-stop <cmd>`。brand-prose **不能**照抄 koala 的零容忍设计——`packages/*/src` 下有 602 个文件合法含该 token（签名 salt / `.lattice/` 路径 / `LATTICE_*` env / `lattice-*` role ID 等，均为 `docs/requirements/decisions/brand-rename-mapping.md` 的 FROZEN 行），故按「须跟空格 + 小写子命令」结构性排除这些 FROZEN 类，另加一份带理由、且会自校验是否失效的 `EXEMPT_PROSE_FILES`；**[brand-exec]** (B-cdf6 CHK-006 Pass A) 扫**可执行面**——scan roots：`bin` / `.codex` / `package.json` / `proof-or-stop.config.json` / `lattice.config.json` / `CITATION.cff` / `packages/utils/src`——同样检出裸 `lattice <cmd>` 调用式，但**无 exemption**，因为这些路径本不该出现教旧 bin 名的调用；这一 root 集合是 B-cdf6 补入的，此前 `bin/` / `.codex/` 从未被任何 gate 扫过；**[brand-decision]** (B-cc10 CHK-007) 扫 product runtime source 的**路径判定点**，把 deprecated brand-path 字面量（`.lattice` / `.lattice-codex` / `lattice.config.json` / `lattice.json`，token 由 `packages/main/src/core/brand-paths.ts` 解析得出而非硬编码）从 exempt 翻成 **forbidden**——即代码不得再用 deprecated 拼写做**决策**（比较 / 读路径 / existsSync 探测）；read-both 场景应改为走 resolver 导出的 `STATE_DIR_NAMES` / `ADAPTER_DIR_NAMES` 候选列表。注意这一 check 只管 decision site，不禁止 deprecated 名字在 read-both 候选列表、FROZEN 签名 salt、或引用旧名解释迁移的 decision 文档里出现 | 任一 check fail → block REVIEW→TEST |
 
-`lattice-review-channel` LLM agent 已退役（S1），由 `proof-or-stop validate --channel --story=<id>` CLI gate 接管；`lattice-review-concept` 按需 spawn（CLI 残留 ≥ 5 时）；`lattice-review-quality` 假设 lint 已绿只审主观项。
+legacy `lattice-review-channel` LLM agent 已退役（S1），由 `proof-or-stop validate --channel --story=<id>` CLI gate 接管；`proof-or-stop-review-concept` 按需 spawn（CLI 残留 ≥ 5 时）；`proof-or-stop-review-quality` 假设 lint 已绿只审主观项。
 
 ### REVIEW→TEST gate behavior (`canPassReviewGuard`) + incremental review context (B-f675)
 
@@ -920,7 +920,7 @@ proof-or-stop reviewer_list '{"storyId":"B-xxx","forceReviewer":"docs,behavior"}
 
 **story_review 轮次命名**：`story_review.planReviewRound: number (PLAN review round count)` 是 PLAN 阶段 `review.json.reviews.length` 的 1-based 数字计数。`story_review.reviewRound` 只作为 legacy numeric PLAN review alias 保留给旧调用方；它不是 finding / review pass / delivery check 里的签名 `reviewRound`。签名 artifact 的 `reviewRound` 仍必须是 `reviewRound: string (ISO 8601 review round id)`。
 
-**pass-only finding_add 归一化**：low severity 且 agent 为 `lattice-review-*` 的 pass-only `finding_add`（如 no findings / PASS / 检查通过）由 `core/flow-fact-policy.ts` 的 `flow-policy:pass-only-normalization` 机械转成 `review_pass_set`，写 `review-passes.json`，不写 open finding。含 pass 但同时含 failure / blocker / 缺少 / 失败 等矛盾语义的记录仍是真 finding；非 reviewer 或非 low severity 也不能当作 pass。
+**pass-only finding_add 归一化**：low severity 且 agent 为 `proof-or-stop-review-*` 的 pass-only `finding_add`（如 no findings / PASS / 检查通过）由 `core/flow-fact-policy.ts` 的 `flow-policy:pass-only-normalization` 机械转成 `review_pass_set`，写 `review-passes.json`，不写 open finding。含 pass 但同时含 failure / blocker / 缺少 / 失败 等矛盾语义的记录仍是真 finding；非 reviewer 或非 low severity 也不能当作 pass。
 
 ### Cluster 聚簇（finding 批量处理）
 

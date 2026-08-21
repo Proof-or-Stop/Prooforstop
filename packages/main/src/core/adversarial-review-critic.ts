@@ -19,8 +19,8 @@
  *
  * WHY the `[completeness-critic]` provenance goes in `--desc` and `--agent`
  * stays a REAL review lane: a finding / review pass only counts as reviewer
- * evidence when its agent satisfies `agent.startsWith('lattice-review-')`
- * (review-run.ts `isReviewerAgent`). There is NO `lattice-review-completeness`
+ * evidence when its agent satisfies `agent.startsWith('proof-or-stop-review-')`
+ * (review-run.ts `isReviewerAgent`). There is NO `proof-or-stop-review-completeness`
  * lane today (§4.3), so putting `completeness-critic` in `--agent` would store
  * the finding as NON-reviewer provenance and the REVIEW→TEST gate would not
  * count it as lane evidence. Instead the critic's provenance is carried as a

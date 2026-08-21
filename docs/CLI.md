@@ -485,7 +485,7 @@ topology result. `proof-or-stop topology_critic_receipt_set --storyId=<id>
 --verdict=pass|request_changes` is the sole producer for the signed
 `topology-critic-receipt.json`; `proof-or-stop topology_critic_receipt_check
 --storyId=<id> [--json]` is its read-only verifier. The producer is restricted
-to a dispatched `lattice-review-topology-critic` identity and the verifier
+to a dispatched `proof-or-stop-review-topology-critic` identity and the verifier
 recomputes all current bindings instead of trusting caller-supplied hashes or
 status fields.
 
@@ -500,7 +500,7 @@ Role labels in prose are not evidence.
 When the basis contains an exclusion, `proof-or-stop
 topology_exclusion_approval_set --storyId=<id> --exclusionRef=<decision-ref>`
 creates an independently signed approval from the registered
-`lattice-review-scope-plan` role. Approvals must form an exact one-to-one map
+`proof-or-stop-review-scope-plan` role. Approvals must form an exact one-to-one map
 to the current exclusions and remain independent of both implementation and
 critic provenance. Missing, duplicate, forged, stale, orphaned, or cross-Story
 approvals fail verification.
