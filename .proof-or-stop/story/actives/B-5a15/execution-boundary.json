@@ -1,0 +1,57 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-5a15",
+  "allowedCommands": [
+    "git diff",
+    "git log",
+    "git show",
+    "git status",
+    "git worktree list",
+    "node",
+    "npm --prefix packages/main run build",
+    "npm test",
+    "proof-or-stop checklist_get",
+    "proof-or-stop checklist_update",
+    "proof-or-stop execution_boundary_set",
+    "proof-or-stop init_check_set",
+    "proof-or-stop init_preflight",
+    "proof-or-stop review_pass_set",
+    "proof-or-stop review_run_start",
+    "proof-or-stop scope_boundary_set",
+    "proof-or-stop scope_freeze_check",
+    "proof-or-stop story_advance",
+    "proof-or-stop story_get",
+    "proof-or-stop validate",
+    "rg",
+    "sed"
+  ],
+  "allowedTools": [
+    "Node.js",
+    "Proof-or-Stop CLI",
+    "shell"
+  ],
+  "allowedPaths": [
+    ".proof-or-stop/story/actives/B-5a15",
+    "AGENTS.md",
+    "docs/requirements/decisions",
+    "package-lock.json",
+    "package.json",
+    "packages/main/package-lock.json",
+    "packages/main/package.json",
+    "packages/main/src",
+    "packages/main/tests"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".git",
+    ".worktrees",
+    "docs/story",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "B-5a15 implementation may inspect and modify the main package, focused tests, related decision documents, and story metadata through Proof-or-Stop commands. Keep fixture/story directories CLI-only and do not publish or clean unrelated worktrees.",
+  "createdAt": "2026-08-20T08:30:52.535Z",
+  "updatedAt": "2026-08-20T08:30:52.535Z",
+  "_hash": "5a75a0a39105380d9f8853732c16b08711e8155e935333dc0784bd87c576d487"
+}

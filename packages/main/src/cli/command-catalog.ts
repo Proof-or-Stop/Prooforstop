@@ -499,8 +499,8 @@ Behavior:
     verdict: z.enum(VERIFICATION_EVIDENCE_VERDICTS).optional().describe('Evidence verdict semantics; does not override the result pass/fail gate.'),
     waiverType: z.enum(['permanent', 'deferred_gate_evidence']).optional().describe('When kind=waiver, this can mark temporary gate self-test evidence.'),
     file: z.string().optional().describe('Test or documentation file path.'),
-    command: z.string().optional().describe('Command to run. For an executable intent (logic|cli|browser) this is the pinned command the tool RUNS; executable+argv only (no raw shell); pinned immutably on the first selector-bearing write.'),
-    selector: z.string().optional().describe('B-ec67: proof selector — a string that MUST appear in the pinned command output. Providing it (with command) pins the executable intent and makes evidence tool-executed; result is then derived from the actual exit + selector match.'),
+    command: z.string().optional().describe('Command to run. For logic|cli|browser, or a docs/manual intent deliberately given a verifier, this is the pinned command the tool RUNS; executable+argv only (no raw shell); pinned immutably on the first selector-bearing write.'),
+    selector: z.string().optional().describe('B-ec67: proof selector — a string that MUST appear in the pinned command output. Providing it with command pins the intent verifier (including a mechanically checked docs/manual intent) and makes evidence tool-executed; result is derived from the actual exit + selector match.'),
     result: z.enum(['pass', 'fail']).optional().describe('Command result. For a tool-executed (pinned) executable intent this is DERIVED from the receipt and a contradicting caller pass is refused.'),
     note: z.string().describe('Why this evidence satisfies the intent.'),
     nonMechanicalReason: z.string().min(30, 'nonMechanicalReason must be ≥ 30 characters').optional().describe('B-ec67 audited escape: record a non-mechanical attestation for an executable intent WITHOUT execution (execution impossible in this environment). Attributable + gate-visible; never grants coverage.'),
@@ -516,8 +516,8 @@ Behavior:
       verdict: z.enum(VERIFICATION_EVIDENCE_VERDICTS).optional().describe('Evidence verdict semantics; does not override the result pass/fail gate.'),
       waiverType: z.enum(['permanent', 'deferred_gate_evidence']).optional().describe('When kind=waiver, this can mark temporary gate self-test evidence.'),
       file: z.string().optional().describe('Test or documentation file path.'),
-      command: z.string().optional().describe('Command to run. For an executable intent (logic|cli|browser) this is the pinned command the tool RUNS; executable+argv only (no raw shell); pinned immutably on the first selector-bearing write.'),
-      selector: z.string().optional().describe('B-ec67: proof selector — a string that MUST appear in the pinned command output. Providing it (with command) pins the executable intent and makes evidence tool-executed.'),
+      command: z.string().optional().describe('Command to run. For logic|cli|browser, or a docs/manual intent deliberately given a verifier, this is the pinned command the tool RUNS; executable+argv only (no raw shell); pinned immutably on the first selector-bearing write.'),
+      selector: z.string().optional().describe('B-ec67: proof selector — a string that MUST appear in the pinned command output. Providing it with command pins the intent verifier (including a mechanically checked docs/manual intent) and makes evidence tool-executed.'),
       result: z.enum(['pass', 'fail']).optional().describe('Command result. For a tool-executed (pinned) executable intent this is DERIVED from the receipt and a contradicting caller pass is refused.'),
       note: z.string().describe('Why this evidence satisfies the intent.'),
       nonMechanicalReason: z.string().min(30, 'nonMechanicalReason must be ≥ 30 characters').optional().describe('B-ec67 audited escape for an executable intent: record a non-mechanical attestation WITHOUT execution. Attributable + gate-visible; never grants coverage.'),
@@ -667,15 +667,42 @@ Behavior:
     storyId: z.string().min(1).describe('Story ID'),
     reason: z.string().min(5).describe('Why the window is cancelled (at least 5 characters).'),
   }},
-  { name: 'review_inventory_finalize', description: 'Write a FINALIZED unconsumed inventory-completeness receipt bound to current head/material/storyFiles hashes; does not authorize PRE_CERT', schema: {
-    storyId: z.string().min(1).describe('Story ID'),
-  }},
   { name: 'review_run_start', description: 'Start a reviewer run for the current REVIEW round; write signed review-runs.json', schema: {
     storyId: z.string().describe('Story ID'),
     agent: z.string().optional().describe('Reviewer agent ID, for example proof-or-stop-review-quality; defaults to PROOF_OR_STOP_AGENT.'),
     lane: z.enum(REVIEW_RUN_LANE_INPUTS).optional().describe('Explicit canonical reviewer lane; historical lattice aliases remain readable, provide only one.'),
     reviewedIntentRefs: z.array(z.string()).optional().describe('Scope-protected story: verification intent refs reviewed in this run; included in scope binding, optional.'),
     reviewerEscalationReason: z.string().trim().min(1).optional().describe('Reviewer-authored reason to mint a new full-context ReviewRun when the bounded incremental basis is incomplete.'),
+  }},
+  { name: 'review_inventory_begin', description: 'Begin one signed frozen-candidate REVIEW inventory epoch', schema: {
+    storyId: z.string().min(1).describe('Story ID in REVIEW.'),
+    maxWaves: z.number().int().min(1).max(5).optional().describe('Bounded discovery-wave budget; defaults to 3.'),
+  }},
+  { name: 'review_inventory_status', description: 'Inspect the latest inventory epoch; OPEN drift is fail-closed to INVALIDATED', schema: {
+    storyId: z.string().min(1).describe('Story ID.'),
+  }},
+  { name: 'review_inventory_critic_set', description: 'Record independent completeness-critic authority for the current frozen inventory wave', schema: {
+    storyId: z.string().min(1).describe('Story ID.'),
+    epochId: z.string().min(1).describe('Current OPEN inventory epoch ID.'),
+    reviewRunId: z.string().min(1).describe('Fresh proof-or-stop-review-topology-critic ReviewRun with terminal read evidence.'),
+    agent: z.literal('proof-or-stop-review-topology-critic').optional().describe('Critic actor; must agree with the dispatched PROOF_OR_STOP_AGENT authority.'),
+    findingDispositions: z.array(z.object({
+      findingId: z.string().min(1),
+      disposition: z.enum(['verified_family', 'duplicate', 'not_verified']),
+      familyKey: z.string().min(1).optional(),
+      canonicalFindingId: z.string().min(1).optional(),
+      reason: z.string().min(10),
+    }).strict()).describe('Independent signed disposition for every raw finding in this wave; unresolved findings block finalization.'),
+  }},
+  { name: 'review_inventory_wave_advance', description: 'Persist one complete nonzero-new discovery wave and open the next unchanged-material wave', schema: {
+    storyId: z.string().min(1).describe('Story ID with a complete critic-certified current wave that added verified finding families.'),
+  }},
+  { name: 'review_inventory_finalize', description: 'With an OPEN saturation epoch, mint a receipt only when the current complete unchanged-material wave adds zero verified finding families. With no OPEN epoch, write a FINALIZED unconsumed inventory-completeness receipt bound to current hashes; completeness is not PRE_CERT and authorizesTest stays false.', schema: {
+    storyId: z.string().min(1).describe('Story ID.'),
+  }},
+  { name: 'review_inventory_cancel', description: 'Cancel an OPEN epoch or invalidate an unconsumed FINALIZED receipt without granting transition authority', schema: {
+    storyId: z.string().min(1).describe('Story ID.'),
+    reason: z.string().trim().min(10).describe('Auditable cancellation and recovery reason.'),
   }},
   { name: 'review_pass_set', description: 'Record a reviewer pass credential (reviewer checked, found no blocking findings)', schema: {
     storyId: z.string().describe('Story ID'),

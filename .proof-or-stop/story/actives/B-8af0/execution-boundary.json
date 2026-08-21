@@ -1,0 +1,54 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-8af0",
+  "allowedCommands": [
+    "git diff",
+    "git log",
+    "git show",
+    "git status",
+    "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+    "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
+    "npm --prefix packages/main run build",
+    "npm test",
+    "npx tsc --noEmit -p packages/main",
+    "proof-or-stop",
+    "rg"
+  ],
+  "allowedTools": [
+    "git",
+    "shell"
+  ],
+  "allowedPaths": [
+    "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+    "packages/main/package-lock.json",
+    "packages/main/package.json",
+    "packages/main/src/core/candidate-spec-routing.ts",
+    "packages/main/src/core/review-inventory-epoch.ts",
+    "packages/main/src/core/store.ts",
+    "packages/main/src/handlers/review-inventory.ts",
+    "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+    "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+    "proof-or-stop.config.json"
+  ],
+  "excludedCommands": [
+    "git clean",
+    "git push",
+    "git reset --hard",
+    "git restore",
+    "test_auto"
+  ],
+  "excludedTools": [
+    "network-publish",
+    "production"
+  ],
+  "excludedPaths": [
+    ".git",
+    "docs/story",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "qipan",
+  "confirmationNote": "Bounded correctness repair for B-3f3d residual candidate-routing findings. Preserve unrelated dirty files and do not publish remotely.",
+  "createdAt": "2026-08-20T08:56:07.795Z",
+  "updatedAt": "2026-08-20T08:56:07.795Z",
+  "_hash": "1ef55b89a7a9149f39fdb99b81710867bf5053547db74e1e99e206b6f4457bad"
+}

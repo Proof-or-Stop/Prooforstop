@@ -1,0 +1,63 @@
+{
+  "schemaVersion": "proofbound.certification_windows.v1",
+  "windows": [
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-8af0:CW-001",
+      "storyId": "B-8af0",
+      "state": "BLOCKED",
+      "createdAt": "2026-08-20T12:51:54.702Z",
+      "updatedAt": "2026-08-20T12:51:54.702Z",
+      "blockerCode": "pre_cert_inventory_not_finalized",
+      "blockerDetail": "No FINALIZED unconsumed Review Inventory receipt is present.",
+      "inventory": {},
+      "_hash": "59ce9e8cbc6ab8e73cabe31203063a157dfe5687938113a896f768fe0bcb417e"
+    },
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-8af0:CW-002",
+      "storyId": "B-8af0",
+      "state": "RUNNING",
+      "createdAt": "2026-08-20T12:52:27.427Z",
+      "updatedAt": "2026-08-20T12:52:40.756Z",
+      "frozen": {
+        "headHash": "854e9c0f02e58d52b310c5724e317c5342794c81",
+        "materialHash": "93cfea0e00ed722a8d95ca9392230888a8bcdfb87af118f7b813177f3141f233",
+        "storyFilesHash": "a1fe50c9b2db58a608bdad8cb157dd3748d7f214ebecef264436d78755f25b8b",
+        "expectedMainSha": "07dc3ee74c6a58828614e0d51fab99329f7e1c5f",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventory": {
+        "epochId": "B-8af0:RIE-002",
+        "receiptId": "B-8af0:RIE-002:RCP-001",
+        "authority": "inventory-completeness-only",
+        "authorizesTest": false
+      },
+      "receiptId": "B-8af0:PRECERT-001",
+      "_hash": "642e418e36e0364c0120a7e360a6efd62d36448c1a97c8d4731b55082a6deb21"
+    }
+  ],
+  "receipts": [
+    {
+      "schemaVersion": "proofbound.precert_receipt.v1",
+      "receiptId": "B-8af0:PRECERT-001",
+      "windowId": "B-8af0:CW-002",
+      "storyId": "B-8af0",
+      "authority": "pre-cert",
+      "authorizesHeavyCertification": true,
+      "frozen": {
+        "headHash": "854e9c0f02e58d52b310c5724e317c5342794c81",
+        "materialHash": "93cfea0e00ed722a8d95ca9392230888a8bcdfb87af118f7b813177f3141f233",
+        "storyFilesHash": "a1fe50c9b2db58a608bdad8cb157dd3748d7f214ebecef264436d78755f25b8b",
+        "expectedMainSha": "07dc3ee74c6a58828614e0d51fab99329f7e1c5f",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventoryEpochId": "B-8af0:RIE-002",
+      "inventoryReceiptId": "B-8af0:RIE-002:RCP-001",
+      "createdAt": "2026-08-20T12:52:27.427Z",
+      "_hash": "67b1ec41c59cdf0465e4108b0f1b2b54cdcf88c069bc654b732b4bb62956ec3a"
+    }
+  ]
+}

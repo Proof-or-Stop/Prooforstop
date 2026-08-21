@@ -14,6 +14,7 @@
       "lattice-review-docs": "full-envelope",
       "lattice-review-quality": "full-envelope",
       "lattice-review-test-coverage": "full-envelope",
+      "lattice-review-topology-critic": "full-envelope",
       "lattice-review-story-init": "legacy-full-context",
       "lattice-review-scope-plan": "legacy-full-context",
       "lattice-implementer": "legacy-full-context",
@@ -34,6 +35,7 @@
   },
   "proofStory": {
     "devGateMode": "enforce",
+    "acceptanceRolloutGateMode": "enforce",
     "reviewGateMode": "enforce",
     "doneGateMode": "enforce"
   },

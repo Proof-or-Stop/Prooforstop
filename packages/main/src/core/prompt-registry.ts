@@ -51,8 +51,13 @@ export const MODULAR_REVIEWER_ROLE_IDS = [
   'proof-or-stop-review-docs',
   'proof-or-stop-review-quality',
   'proof-or-stop-review-test-coverage',
+  'proof-or-stop-review-topology-critic',
 ] as const;
 export type ModularReviewerRoleId = typeof MODULAR_REVIEWER_ROLE_IDS[number];
+/** Five active REVIEW-lane bootstrap roles; topology-critic stays a modular body. */
+export const ACTIVE_MODULAR_REVIEWER_ROLE_IDS = Object.freeze(
+  MODULAR_REVIEWER_ROLE_IDS.filter(id => id !== 'proof-or-stop-review-topology-critic'),
+);
 /** Story 6 roles use the same trusted story-dispatch envelope, but are not REVIEW lanes. */
 export const MODULAR_COMPLEX_ROLE_IDS = [
   'proof-or-stop-review-story-init',
@@ -90,6 +95,9 @@ const LEGACY_REVIEWER_TEMPLATE_SHA256: Readonly<Record<string, string>> = Object
   'lattice-review-docs': '7aafa18c26dd713586f416dfc4a3b9676a88438f858c32374af9a978300dd43e',
   'lattice-review-quality': '1f023f75aeab93b6d08e4ec1261a867e43ebd638f6d5ec18e1407cad7c90f58b',
   'lattice-review-test-coverage': 'e433ed9bded50288388fff6447142555e412756137461d841ca7724848458753',
+  // Post-merge of B-cdf6 rebranded slice into this branch's modular critic template.
+  'lattice-review-topology-critic': '2300cde0d2c95e9ec8af14bf96ee7d9e58f962bdbd0bc7704279e457fac90224',
+
 });
 
 /** B-cdf6 CHK-005 + CHK-003 follow-up: re-approved for the same reason as LEGACY_REVIEWER_TEMPLATE_SHA256 above. */
@@ -320,6 +328,10 @@ export function isModularReviewerRoleId(roleId: string): roleId is ModularReview
   return (MODULAR_REVIEWER_ROLE_IDS as readonly string[]).includes(canonicalAgentRoleId(roleId));
 }
 
+export function isActiveModularReviewerRoleId(roleId: string): boolean {
+  return (ACTIVE_MODULAR_REVIEWER_ROLE_IDS as readonly string[]).includes(canonicalAgentRoleId(roleId));
+}
+
 export function isModularComplexRoleId(roleId: string): roleId is ModularComplexRoleId {
   return (MODULAR_COMPLEX_ROLE_IDS as readonly string[]).includes(canonicalAgentRoleId(roleId));
 }
@@ -521,7 +533,7 @@ export function renderPromptEntryForHost(
     ? resolvePromptTemplateBody(entry, mode)
     : canonicalizePromptRoleText(readPromptTemplate(entry)));
   const hostTemplate = renderPromptForHost(selectedTemplate, host);
-  return isModularReviewerRoleId(entry.agentId)
-    ? renderReviewerRunBootstrapForTemplate(hostTemplate, entry.file, entry.agentId)
+  return isActiveModularReviewerRoleId(entry.agentId)
+    ? renderReviewerRunBootstrapForTemplate(hostTemplate, entry.file, canonicalAgentRoleId(entry.agentId))
     : hostTemplate;
 }

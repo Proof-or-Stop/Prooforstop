@@ -29,8 +29,22 @@ import {
   canSendStoryEventWithoutSnapshotCan,
   getGuardFailureReason,
 } from '../core/machine.js';
+import { captureEvidenceHashSnapshot } from '../core/evidence-freshness.js';
+import {
+  reviewInventoryAcceptanceSubjectDigestForStore,
+  signReviewInventoryEpoch,
+  signReviewInventoryReceipt,
+} from '../core/review-inventory-epoch.js';
 import { StoryStore } from '../core/store.js';
-import type { ChecklistData, MilestoneLedgerData, StoryInfo, StoryPhase, StorySummaryData } from '../core/types.js';
+import type {
+  ChecklistData,
+  MilestoneLedgerData,
+  ReviewInventoryEpoch,
+  ReviewInventoryReceipt,
+  StoryInfo,
+  StoryPhase,
+  StorySummaryData,
+} from '../core/types.js';
 import { computeIntentRequestHash, computeMilestoneLedgerHash } from '../core/proofstory.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -88,6 +102,7 @@ function ackDevMemoryPreflightForProofstory(store: StoryStore, storyId: string):
 
 function writeLifecycleGateBlockedStory(store: StoryStore, storyId: string, phase: Extract<StoryPhase, 'REVIEW' | 'TEST'>): void {
   const now = new Date().toISOString();
+  const reviewRound = `${storyId}:review-round-1`;
   store.writeStory(storyId, {
     storyId,
     name: `${storyId.toLowerCase()}-proofstory-reentry`,
@@ -100,6 +115,7 @@ function writeLifecycleGateBlockedStory(store: StoryStore, storyId: string, phas
     createdAt: now,
     startedAt: now,
     endedAt: null,
+    currentReviewRound: reviewRound,
     events: [{ phase, action: 'advance', timestamp: now }],
   });
   store.writeChecklist(storyId, {
@@ -117,6 +133,59 @@ function writeLifecycleGateBlockedStory(store: StoryStore, storyId: string, phas
     }],
   });
   ackDevMemoryPreflightForProofstory(store, storyId);
+}
+
+function seedFinalizedReviewInventoryPrecondition(root: string, store: StoryStore, storyId: string): void {
+  const story = store.readStory(storyId);
+  const reviewRound = story.currentReviewRound!;
+  const now = new Date().toISOString();
+  const snapshot = captureEvidenceHashSnapshot({ gitCwd: root, metadataRoot: root, ref: 'HEAD' });
+  const cutoff = {
+    headHash: snapshot.headHash ?? '',
+    materialHash: snapshot.materialHash ?? '',
+    ...(snapshot.storyFilesHash ? { storyFilesHash: snapshot.storyFilesHash } : {}),
+  };
+  const epochId = `${storyId}:RI-001`;
+  const receiptId = `${epochId}:RCP-001`;
+  const scopeDigest = reviewInventoryAcceptanceSubjectDigestForStore(store, storyId);
+  const epochUnsigned: Omit<ReviewInventoryEpoch, '_hash'> = {
+    schemaVersion: 'proofbound.review_inventory_epoch.v1',
+    epochId,
+    storyId,
+    reviewRound,
+    state: 'FINALIZED',
+    begunAt: now,
+    updatedAt: now,
+    cutoff,
+    scopeDigest,
+    requiredLanes: [],
+    maxWaves: 1,
+    waves: [],
+    receiptId,
+  };
+  const receiptUnsigned: Omit<ReviewInventoryReceipt, '_hash'> = {
+    schemaVersion: 'proofbound.review_inventory_receipt.v1',
+    receiptId,
+    epochId,
+    storyId,
+    reviewRound,
+    cutoff,
+    scopeDigest,
+    requiredLanes: [],
+    waveCount: 0,
+    findingSetDigest: '0'.repeat(64),
+    coverageDigest: '0'.repeat(64),
+    saturationResult: 'ZERO_NEW_VERIFIED_FINDINGS',
+    authority: 'inventory-completeness-only',
+    authorizesTest: false,
+    issuedAt: now,
+  };
+  store.writeReviewInventoryEpochs(storyId, {
+    schemaVersion: 'proofbound.review_inventory_epochs.v1',
+    epochs: [{ ...epochUnsigned, _hash: signReviewInventoryEpoch(epochUnsigned) }],
+    receipts: [{ ...receiptUnsigned, _hash: signReviewInventoryReceipt(receiptUnsigned) }],
+    criticReceipts: [],
+  });
 }
 
 function assertDevAdmissionBlocked(root: string, store: StoryStore, storyId: string, currentPhase: Extract<StoryPhase, 'PLAN' | 'REVIEW' | 'TEST'>): void {
@@ -234,6 +303,7 @@ try {
   for (const phase of ['REVIEW', 'TEST'] as const) {
     const reentryStoryId = `B-proofstory-${phase.toLowerCase()}-reentry`;
     writeLifecycleGateBlockedStory(store, reentryStoryId, phase);
+    if (phase === 'REVIEW') seedFinalizedReviewInventoryPrecondition(root, store, reentryStoryId);
     assertDevAdmissionBlocked(root, store, reentryStoryId, phase);
   }
 

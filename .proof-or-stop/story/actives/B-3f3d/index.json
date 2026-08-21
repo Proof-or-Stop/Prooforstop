@@ -4,7 +4,7 @@
   "title": "Freeze REVIEW candidates and require bounded multi-lane finding saturation before remediation DEV",
   "description": "B-cdf6 proved that four reviewer lanes were launched against one cutoff, but the first returned finding triggered a material commit before the remaining lanes terminated; later verdicts were bound to the old material and the Story re-entered REVIEW repeatedly. B-9812 reached 53 verified findings across 10 finding rounds, while B-74af re-entered DEV and REVIEW four times despite zero findings, so round count alone is neither completeness proof nor a safe optimization target. Implement one gate-consumed Frozen Review Inventory Epoch that binds a candidate to exact headHash, materialHash, storyFilesHash, scope and required lanes; runs independent discovery lenses plus the completeness critic; verifies raw findings and duplicate dispositions; and finalizes an inventory receipt only after all required lanes are terminal and one complete saturation wave adds zero new verified findings. An OPEN epoch must mechanically reject product, test, verifier and policy material mutation at the real write and commit boundaries. TIMEOUT, FAILED, CANCELLED, missing read or coverage evidence, duplicate reviewer identity, or a raw absence of output must never count as a clean wave. If the bounded wave budget is exhausted while new finding families continue, the lifecycle must require replan, decomposition, root-cause escalation or explicit human adjudication, never manufacture PASS. Finalization authorizes one remediation DEV entry with the aggregated finding inventory; it does not certify the old defective candidate, and any remediation material change requires fresh final review on the new material before TEST. Preserve all current required reviewer lanes, finding severity and evidence-state behavior, freshness rules, final validation, delivery and independent-host quorum. Explicit non-goals are atomic remediation closeout, PRE_CERT heavy-certification scheduling, evidence cache relaxation, lowering reviewer or host counts, and claiming absolute absence of all conceivable bugs.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "riskSignals": [
     {
@@ -14,7 +14,7 @@
   ],
   "createdAt": "2026-08-14T13:42:11.040Z",
   "startedAt": "2026-08-14T13:42:11.040Z",
-  "endedAt": null,
+  "endedAt": "2026-08-20T08:40:34.527Z",
   "events": [
     {
       "phase": "INIT",
@@ -33,11 +33,705 @@
       "user": "Pan Qi",
       "sessionId": "sess-aeee1db44f9c7b91c5e5f6e143e28836",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-08-14T13:49:23.460Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-aeee1db44f9c7b91c5e5f6e143e28836",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-14T14:05:46.380Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-aeee1db44f9c7b91c5e5f6e143e28836",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-14T15:02:11.470Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-aeee1db44f9c7b91c5e5f6e143e28836",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-14T15:22:27.650Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-aeee1db44f9c7b91c5e5f6e143e28836",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-08-14T15:50:37.222Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-aeee1db44f9c7b91c5e5f6e143e28836",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-14T16:15:20.660Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-aeee1db44f9c7b91c5e5f6e143e28836",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-14T16:42:42.149Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-f1ed9b2259394f1c881ce217585b79dc",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-14T17:02:59.053Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-f1ed9b2259394f1c881ce217585b79dc",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-08-14T17:33:40.427Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-f1ed9b2259394f1c881ce217585b79dc",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-14T17:37:08.931Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-f1ed9b2259394f1c881ce217585b79dc",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-14T17:53:23.106Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-f1ed9b2259394f1c881ce217585b79dc",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-14T18:09:53.381Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-f1ed9b2259394f1c881ce217585b79dc",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-14T18:32:53.785Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-f1ed9b2259394f1c881ce217585b79dc",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-14T18:48:25.706Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-f1ed9b2259394f1c881ce217585b79dc",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-14T19:12:05.342Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-f1ed9b2259394f1c881ce217585b79dc",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-14T19:26:15.751Z",
+      "user": "human",
+      "reason": "Human-authorized bootstrap recovery after RI-005 proved the newly introduced inventory cannot carry pre-begin F029/F030 and can omit old-run late evidence F031; RI-005 was cancelled, F029-F032 remain blocking, and no inventory receipt authority was fabricated."
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-14T19:48:54.316Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-f1ed9b2259394f1c881ce217585b79dc",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-14T20:30:21.161Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-f1ed9b2259394f1c881ce217585b79dc",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-14T21:08:42.391Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-f1ed9b2259394f1c881ce217585b79dc",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-14T21:46:18.917Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-f1ed9b2259394f1c881ce217585b79dc",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-14T22:19:29.429Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-f1ed9b2259394f1c881ce217585b79dc",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-14T23:10:03.487Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-f1ed9b2259394f1c881ce217585b79dc",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-15T00:05:04.681Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-f1ed9b2259394f1c881ce217585b79dc",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-15T00:32:01.033Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-f1ed9b2259394f1c881ce217585b79dc",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-15T00:47:00.337Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-f1ed9b2259394f1c881ce217585b79dc",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-15T01:16:22.264Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-f1ed9b2259394f1c881ce217585b79dc",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-15T01:40:53.249Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-f1ed9b2259394f1c881ce217585b79dc",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-15T02:03:34.049Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-f1ed9b2259394f1c881ce217585b79dc",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-15T02:36:05.242Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-f1ed9b2259394f1c881ce217585b79dc",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-15T02:58:56.995Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-f1ed9b2259394f1c881ce217585b79dc",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-15T03:51:37.543Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-f1ed9b2259394f1c881ce217585b79dc",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-15T04:23:23.795Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-f1ed9b2259394f1c881ce217585b79dc",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-15T04:49:26.445Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-f1ed9b2259394f1c881ce217585b79dc",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-15T05:51:21.479Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-f1ed9b2259394f1c881ce217585b79dc",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-15T08:24:40.660Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-f1ed9b2259394f1c881ce217585b79dc",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-15T09:09:50.691Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-f1ed9b2259394f1c881ce217585b79dc",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-15T09:35:32.661Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-f1ed9b2259394f1c881ce217585b79dc",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-15T12:27:11.297Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-f1ed9b2259394f1c881ce217585b79dc",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-15T13:05:38.389Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-f1ed9b2259394f1c881ce217585b79dc",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-15T14:12:54.347Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-f1ed9b2259394f1c881ce217585b79dc",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-15T14:47:41.331Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-f1ed9b2259394f1c881ce217585b79dc",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-15T15:29:01.006Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-f1ed9b2259394f1c881ce217585b79dc",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-15T15:52:57.944Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-f1ed9b2259394f1c881ce217585b79dc",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-08-15T16:58:12.166Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-f1ed9b2259394f1c881ce217585b79dc",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-15T17:01:48.006Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-f1ed9b2259394f1c881ce217585b79dc",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-15T18:27:36.976Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-f1ed9b2259394f1c881ce217585b79dc",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-15T19:08:32.424Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-f1ed9b2259394f1c881ce217585b79dc",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-15T19:45:13.097Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-f1ed9b2259394f1c881ce217585b79dc",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-15T20:35:26.687Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-f1ed9b2259394f1c881ce217585b79dc",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-15T21:05:42.531Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-f1ed9b2259394f1c881ce217585b79dc",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-15T21:36:33.257Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-f1ed9b2259394f1c881ce217585b79dc",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-16T07:56:52.725Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-60b0d01cf32ddaf04d1ef8467d5fcef8",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-16T10:43:58.389Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-60b0d01cf32ddaf04d1ef8467d5fcef8",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-16T10:48:07.896Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-60b0d01cf32ddaf04d1ef8467d5fcef8",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "reviewer_forced",
+      "timestamp": "2026-08-16T11:04:23.121Z",
+      "reviewer": "behavior",
+      "reason": "manual",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "reviewer_forced",
+      "timestamp": "2026-08-16T11:43:08.915Z",
+      "reviewer": "behavior",
+      "reason": "manual",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-08-19T14:39:23.925Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-4292375d1d751b41",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-19T14:50:59.978Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-4292375d1d751b41",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-19T15:12:31.832Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-4292375d1d751b41",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-08-19T15:50:33.001Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-4292375d1d751b41",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-19T16:34:48.755Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-4292375d1d751b41",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-19T16:56:02.376Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-4292375d1d751b41",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-19T18:13:19.875Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-4292375d1d751b41",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-19T18:29:09.429Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-4292375d1d751b41",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-08-19T18:56:41.085Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-4292375d1d751b41",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-19T19:19:17.553Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-4292375d1d751b41",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-19T19:22:30.921Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-4292375d1d751b41",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-08-19T19:44:49.185Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-4292375d1d751b41",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-19T19:55:06.582Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-4292375d1d751b41",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-20T04:06:08.943Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-4292375d1d751b41",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-08-20T05:19:12.304Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-4292375d1d751b41",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-20T05:31:09.715Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-4292375d1d751b41",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-20T05:39:48.902Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-4292375d1d751b41",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-08-20T06:12:12.111Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-4292375d1d751b41",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-20T06:21:01.661Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-4292375d1d751b41",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-20T07:14:40.200Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-4292375d1d751b41",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-08-20T08:10:48.557Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-4292375d1d751b41",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-08-20T08:40:34.527Z",
+      "branch": "story/B-3f3d",
+      "user": "Pan Qi",
+      "sessionId": "sess-4292375d1d751b41",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-3f3d",
-    "branch": "story/B-3f3d",
-    "createdAt": "2026-08-14T13:48:33.295Z"
-  }
+  "currentReviewRound": "2026-08-20T07:14:40.200Z"
 }
