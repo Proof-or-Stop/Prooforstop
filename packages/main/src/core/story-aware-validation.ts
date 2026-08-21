@@ -233,12 +233,14 @@ export const resolveStoryChangeManifest = buildStoryChangeManifest;
 
 export interface ValidationInventoryCommand {
   id: string; label: string; command: string; args: string[]; shell?: boolean; cwd?: string;
-  env?: Record<string, string>; timeoutMs?: number; focus?: string[]; resources?: ResourceClaim[]; caseRegistryPath?: string; originalIndex: number;
+  env?: Record<string, string>; timeoutMs?: number; focus?: string[]; resources?: ResourceClaim[]; caseRegistryPath?: string;
+  assurance?: Assurance; riskTier?: RiskTier; closurePolicy?: ClosurePolicy; fullBaselineReusePolicy?: FullBaselineReusePolicy; cpuWeight?: number; expectedP50Ms?: number; originalIndex: number;
 }
 export interface ValidationCatalogEntry {
   schema?: typeof VALIDATION_CATALOG_SCHEMA;
   id: string; label: string; command: string; args: string[]; shell?: boolean; cwd?: string;
   env?: Record<string, string>; timeoutMs?: number; focus?: string[]; resources: ResourceClaim[]; caseRegistryPath?: string;
+  policySource: 'explicit' | 'default';
   originalIndex: number;
   triggerExtensions: { files?: string[]; symbols?: string[]; processFacts?: string[]; capabilities?: string[]; packages?: string[] };
   inputRoots: string[]; closurePolicy: ClosurePolicy; assurance: Assurance; riskTier: RiskTier;
@@ -271,7 +273,10 @@ export function discoverValidationInventory(projectRoot: string, injected?: Vali
       const args = Array.isArray(value.args) ? value.args.filter((v): v is string => typeof v === 'string') : [];
       const label = typeof value.label === 'string' ? value.label : value.command + '-' + (index + 1);
       const resources = Array.isArray(value.resources) ? value.resources as ResourceClaim[] : [];
-      return [{ id: typeof value.id === 'string' ? value.id : commandId({ command: value.command, args, label }, index), label, command: value.command, args, ...(typeof value.shell === 'boolean' ? { shell: value.shell } : {}), ...(typeof value.cwd === 'string' ? { cwd: value.cwd } : {}), ...(typeof value.timeoutMs === 'number' ? { timeoutMs: value.timeoutMs } : {}), ...(typeof value.caseRegistryPath === 'string' ? { caseRegistryPath: value.caseRegistryPath } : {}), resources, originalIndex: index }];
+      const env = value.env && typeof value.env === 'object' && !Array.isArray(value.env)
+        ? Object.fromEntries(Object.entries(value.env as Record<string, unknown>).filter(([, item]) => typeof item === 'string')) as Record<string, string>
+        : undefined;
+      return [{ id: typeof value.id === 'string' ? value.id : commandId({ command: value.command, args, label }, index), label, command: value.command, args, ...(typeof value.shell === 'boolean' ? { shell: value.shell } : {}), ...(typeof value.cwd === 'string' ? { cwd: value.cwd } : {}), ...(env ? { env } : {}), ...(typeof value.timeoutMs === 'number' ? { timeoutMs: value.timeoutMs } : {}), ...(typeof value.caseRegistryPath === 'string' ? { caseRegistryPath: value.caseRegistryPath } : {}), ...(typeof value.assurance === 'string' ? { assurance: value.assurance as Assurance } : {}), ...(typeof value.riskTier === 'string' ? { riskTier: value.riskTier as RiskTier } : {}), ...(typeof value.closurePolicy === 'string' ? { closurePolicy: value.closurePolicy as ClosurePolicy } : {}), ...(typeof value.fullBaselineReusePolicy === 'string' ? { fullBaselineReusePolicy: value.fullBaselineReusePolicy as FullBaselineReusePolicy } : {}), ...(typeof value.cpuWeight === 'number' ? { cpuWeight: value.cpuWeight } : {}), ...(typeof value.expectedP50Ms === 'number' ? { expectedP50Ms: value.expectedP50Ms } : {}), resources, originalIndex: index }];
     });
   }
   const normalized = commands.map((row, index) => ({ ...row, id: row.id || commandId(row, index), originalIndex: row.originalIndex ?? index }));
@@ -334,9 +339,10 @@ export function compileValidationCatalog(inventory: ValidationInventory, options
     ...row, schema: VALIDATION_CATALOG_SCHEMA,
     inputRoots: options.inputRoots || [sourceRootForCommand(row), ...(row.caseRegistryPath ? [row.caseRegistryPath] : [])],
     triggerExtensions: { files: options.inputRoots || [sourceRootForCommand(row), ...(row.caseRegistryPath ? [row.caseRegistryPath] : [])] },
-    closurePolicy: options.closurePolicy || 'static-and-traced', assurance: options.assurance || 'story-selectable',
-    riskTier: options.riskTier || 'local', fullBaselineReusePolicy: options.fullBaselineReusePolicy || 'not-applicable',
-    resources: Array.isArray(row.resources) ? row.resources : [], cpuWeight: options.cpuWeight || 1,
+    closurePolicy: options.closurePolicy || row.closurePolicy || 'static-and-traced', assurance: options.assurance || row.assurance || 'story-selectable',
+    riskTier: options.riskTier || row.riskTier || 'local', fullBaselineReusePolicy: options.fullBaselineReusePolicy || row.fullBaselineReusePolicy || 'not-applicable',
+    policySource: options.assurance || options.riskTier || options.closurePolicy || options.fullBaselineReusePolicy || row.assurance || row.riskTier || row.closurePolicy || row.fullBaselineReusePolicy ? 'explicit' : 'default',
+    resources: Array.isArray(row.resources) ? row.resources : [], cpuWeight: options.cpuWeight || row.cpuWeight || 1,
     ...(options.expectedP50Ms === undefined ? {} : { expectedP50Ms: options.expectedP50Ms }),
   })) as ValidationCatalogEntry[];
 }

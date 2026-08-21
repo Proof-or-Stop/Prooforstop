@@ -78,8 +78,8 @@ import {
 } from '../core/done-prepare-generated-metadata.js';
 import { normalizeRelPath } from '../core/lattice-paths.js';
 import { readBrandEnv } from '../core/brand-env.js';
-import { buildRevocationLedger, resolveDynamicMode, runObserveOracle, stableDigest, type DynamicValidationMode, type ValidationSelectionManifest } from '../core/story-aware-validation.js';
-import { persistCanonicalFullBaseline, persistStoryAwareValidationArtifacts, prepareStoryAwareValidation, runStoryAwareDynamicValidation } from './story-aware-validation.js';
+import { appendReceiptRevocation, buildRevocationLedger, resolveDynamicMode, runObserveOracle, stableDigest, type DynamicValidationMode, type ValidationSelectionManifest } from '../core/story-aware-validation.js';
+import { persistCanonicalFullBaseline, persistStoryAwareValidationArtifacts, prepareStoryAwareValidation, readStoryAwareValidationArtifacts, runStoryAwareDynamicValidation } from './story-aware-validation.js';
 
 const STATUS_FALLBACK_TIMEOUT_MS = 10_000;
 const SHELL_META_RE = /[;&|<>$()`]/;
@@ -108,6 +108,53 @@ export function findValidateFile(projectRoot: string): string | null {
     if (existsSync(join(projectRoot, f))) return f;
   }
   return null;
+}
+
+/** Resolve Story-owned selection inputs instead of allowing an empty authority context. */
+function storyDynamicInputs(ctx: HandlerContext, storyId: string): {
+  scopeContract?: { allowedPaths?: string[]; plannedFiles?: string[]; protectedFiles?: string[]; explicitExcludes?: string[]; digest?: string };
+  verificationIntents?: Array<{ id: string; validationCommand?: string }>;
+  affectedProcessFacts?: string[];
+  affectedCapabilities?: string[];
+} {
+  const story = ctx.store.readStory(storyId) as any;
+  const checklist = ctx.store.readChecklist(storyId);
+  const scope = ctx.store.readScopeContract(storyId) as any;
+  const plannedFiles = checklist.items.flatMap((item) => [
+    ...(item.files?.modify || []),
+    ...(item.files?.create || []),
+    ...(item.files?.test || []),
+  ]);
+  const verificationIntents: Array<{ id: string; validationCommand?: string }> = checklist.items.flatMap((item): Array<{ id: string; validationCommand?: string }> => {
+    const intent = item.verificationIntent as any;
+    if (!intent || typeof intent !== 'object') return [];
+    return ['happy', 'edge', 'adversarial'].flatMap((lane): Array<{ id: string; validationCommand?: string }> => (Array.isArray(intent[lane]) ? intent[lane] : [])
+      .flatMap((entry: any, index: number) => entry?.verification?.command
+        ? [{ id: `${item.id}:${lane}:${index}`, validationCommand: entry.verification.command }]
+        : []));
+  });
+  const affectedProcessFacts: string[] = checklist.items.flatMap((item): string[] => (['happy', 'edge', 'adversarial'] as const).flatMap((lane): string[] => {
+    const intents = (item.verificationIntent as any)?.[lane];
+    if (!Array.isArray(intents)) return [];
+    return intents.flatMap((entry: any): string[] => (entry?.plannedPathDeclarations || []).flatMap((declaration: any): string[] => [declaration.producer, ...(declaration.consumers || [])]
+      .filter((endpoint: any) => endpoint?.expectedArtifactKind === 'process_fact')
+      .map((endpoint: any) => endpoint.expectedSymbolOrFact).filter((fact: unknown): fact is string => typeof fact === 'string' && fact.length > 0)));
+  }));
+  const affectedCapabilities: string[] = Array.isArray(story?.affectedCapabilities)
+    ? story.affectedCapabilities.filter((value: unknown): value is string => typeof value === 'string')
+    : [];
+  return {
+    scopeContract: scope ? {
+      allowedPaths: [...(scope.allowedModify || []), ...(scope.allowedCreate || []), ...(scope.allowedTest || [])],
+      plannedFiles,
+      protectedFiles: scope.protectedFiles || [],
+      explicitExcludes: scope.explicitExcludes || [],
+      digest: stableDigest(scope),
+    } : (plannedFiles.length > 0 ? { plannedFiles } : undefined),
+    verificationIntents,
+    affectedProcessFacts: [...new Set(affectedProcessFacts)],
+    affectedCapabilities: [...new Set(affectedCapabilities)],
+  };
 }
 
 function hasAny(projectRoot: string, paths: string[]): boolean {
@@ -1414,6 +1461,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           const reuse = built && args.story
             ? evaluateStoryRoutineReuse({ ctx, storyId: args.story, gitCwd: handlerGitCwd, identity: built.identity, coverage: built.snapshot.coverage })
             : null;
+          const dynamicInputs = args.story ? storyDynamicInputs(ctx, args.story) : {};
           if (reuse?.reusable && built && dynamicMode === 'off') {
             ctx.log?.('routine validation reused; commandExecutions=0');
             return reusedStoryValidationResult({
@@ -1478,6 +1526,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
                     mode: dynamicMode,
                     commands,
                     gitCwd: handlerGitCwd,
+                    ...dynamicInputs,
                   });
                   dynamicPreview = {
                     mode: dynamicMode,
@@ -1501,6 +1550,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
                     deadlineAt: args.deadlineAt,
                     deadlineError: args.deadlineError,
                     progress: validationProgressReporter(ctx),
+                    ...dynamicInputs,
                   });
                   dynamicPreview = {
                     mode: dynamicMode,
@@ -1650,7 +1700,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
               sourceHead: currentHead(handlerGitCwd) || '',
               result: base,
             });
-          let dynamicValidation = dynamicPreview
+          let dynamicValidation: any = dynamicPreview
             ? {
               ...dynamicPreview,
               fullPlanAllPass: base.allPass,
@@ -1705,14 +1755,26 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
               })))}`,
               verdictEquivalent: observeOracle.equivalent,
             };
+            const runtimeClosureInvalidCommandIds = base.commands.flatMap((row, index) => {
+              const commandId = manifest.rows[index]?.commandId;
+              return commandId && (row.runtimeTrace?.unknownRuntimeInputs?.length || 0) > 0 ? [commandId] : [];
+            });
+            dynamicValidation = { ...dynamicValidation, runtimeClosureInvalidCommandIds };
+            const priorArtifacts = readStoryAwareValidationArtifacts(projectRoot, args.story!);
+            const revokedReceiptIds = priorArtifacts.receipts
+              .filter((receipt) => runtimeClosureInvalidCommandIds.includes(receipt.commandId))
+              .map((receipt) => receipt.id);
+            const observeLedger = revokedReceiptIds.length > 0
+              ? appendReceiptRevocation(priorArtifacts.revocationLedger, revokedReceiptIds)
+              : priorArtifacts.revocationLedger;
             persistStoryAwareValidationArtifacts({
               projectRoot,
               storyId: args.story!,
               manifest,
-              report: `${dynamicValidation.report || ''}\nobserve oracle: ${JSON.stringify(observeOracle)}`,
-              receipts: [],
-              revocationLedger: buildRevocationLedger([], []),
-              preserveExistingReceipts: true,
+              report: `${dynamicValidation.report || ''}\nobserve oracle: ${JSON.stringify(observeOracle)}\nruntime closure invalid command IDs: ${JSON.stringify(runtimeClosureInvalidCommandIds)}`,
+              receipts: priorArtifacts.receipts,
+              revocationLedger: observeLedger,
+              preserveExistingReceipts: false,
             });
           }
           const summary = usingConfigured
@@ -1877,6 +1939,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
         const reuse = built && args.story
           ? evaluateStoryRoutineReuse({ ctx, storyId: args.story, gitCwd: handlerGitCwd, identity: built.identity, coverage: built.snapshot.coverage })
           : null;
+        const dynamicInputs = args.story ? storyDynamicInputs(ctx, args.story) : {};
         if (reuse?.reusable && built && dynamicMode === 'off') {
           ctx.log?.('routine validation reused; commandExecutions=0');
           const reused = reusedStoryValidationResult({
@@ -1903,6 +1966,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
                 mode: dynamicMode,
                 commands: [identityCommand],
                 gitCwd: handlerGitCwd,
+                ...dynamicInputs,
               });
               dynamicValidation = {
                 mode: dynamicMode,
@@ -1925,6 +1989,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
                 deadlineAt: args.deadlineAt,
                 deadlineError: args.deadlineError,
                 progress: validationProgressReporter(ctx),
+                ...dynamicInputs,
               });
               dynamicValidation = {
                 mode: dynamicMode,
@@ -2009,14 +2074,23 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             }),
           };
           if (args.story && dynamicMode === 'observe') {
+            const runtimeClosureInvalidCommandIds = (commandResult.runtimeTrace?.unknownRuntimeInputs?.length || 0) > 0 && commandId ? [commandId] : [];
+            dynamicValidation = { ...dynamicValidation, runtimeClosureInvalidCommandIds };
+            const priorArtifacts = readStoryAwareValidationArtifacts(projectRoot, args.story);
+            const revokedReceiptIds = priorArtifacts.receipts
+              .filter((receipt) => runtimeClosureInvalidCommandIds.includes(receipt.commandId))
+              .map((receipt) => receipt.id);
+            const observeLedger = revokedReceiptIds.length > 0
+              ? appendReceiptRevocation(priorArtifacts.revocationLedger, revokedReceiptIds)
+              : priorArtifacts.revocationLedger;
             persistStoryAwareValidationArtifacts({
               projectRoot,
               storyId: args.story,
               manifest,
-              report: `${dynamicValidation.report || ''}\nvalidate-file observe oracle: ${JSON.stringify(observeOracle)}`,
-              receipts: [],
-              revocationLedger: buildRevocationLedger([], []),
-              preserveExistingReceipts: true,
+              report: `${dynamicValidation.report || ''}\nvalidate-file observe oracle: ${JSON.stringify(observeOracle)}\nruntime closure invalid command IDs: ${JSON.stringify(runtimeClosureInvalidCommandIds)}`,
+              receipts: priorArtifacts.receipts,
+              revocationLedger: observeLedger,
+              preserveExistingReceipts: false,
             });
           }
         }

@@ -7,6 +7,8 @@
  * signed-artifact, closure, catalog, scheduler, or shard gate.
  */
 import assert from 'node:assert/strict';
+import { mkdtempSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import {
   aggregateValidationShards,
   buildDynamicValidationPlan,
@@ -33,12 +35,16 @@ import {
   type ValidationCommandReceipt,
   type ValidationSelectionManifest,
 } from '../core/story-aware-validation.js';
+import { executeValidationPlan } from '../core/validation-executor.js';
+import type { ValidationCommand } from '../core/validation-types.js';
 
-const inventory = discoverValidationInventory('/tmp', [
-  { id: 'build', label: 'build', command: 'node', args: ['build.mjs'], originalIndex: 0, resources: [] },
-  { id: 'unit', label: 'unit', command: 'node', args: ['unit.mjs'], originalIndex: 1, resources: [] },
-  { id: 'integration', label: 'integration', command: 'node', args: ['integration.mjs'], originalIndex: 2, resources: [] },
-  { id: 'e2e', label: 'e2e', command: 'node', args: ['e2e.mjs'], originalIndex: 3, resources: [] },
+const replayRoot = mkdtempSync(`${tmpdir()}/proof-story-aware-replay-`);
+const replayCommand = (name: string) => ({ command: process.execPath, args: ['-e', `process.stdout.write(${JSON.stringify(`replay:${name}:pass`)});`, name] });
+const inventory = discoverValidationInventory(replayRoot, [
+  { id: 'build', label: 'build', ...replayCommand('build'), originalIndex: 0, resources: [] },
+  { id: 'unit', label: 'unit', ...replayCommand('unit'), originalIndex: 1, resources: [] },
+  { id: 'integration', label: 'integration', ...replayCommand('integration'), originalIndex: 2, resources: [] },
+  { id: 'e2e', label: 'e2e', ...replayCommand('e2e'), originalIndex: 3, resources: [] },
 ]);
 const catalog = compileValidationCatalog(inventory, { inputRoots: ['packages/main/src'] });
 const catalogCheck = validateValidationCatalog(inventory, catalog);
@@ -71,23 +77,54 @@ function context(changePath: string, status: 'added' | 'modified' | 'deleted' | 
 }
 
 // Replay classes vary file status, extension, source area, and generated-output
-// escalation. Replaying each class twice proves stable command selection and
-// stable signed manifest material without invoking a project command.
+// escalation. Each class executes both the complete inventory oracle and the
+// selected dynamic plan, then verifies the signed evidence produced by the
+// real executor. This catches a planner-only replay that never exercises a
+// command boundary.
 let replayClasses = 0;
-for (let index = 0; index < 30; index++) {
-  const status = (['added', 'modified', 'deleted', 'renamed'] as const)[index % 4]!;
-  const path = index % 7 === 0
-    ? `packages/main/dist/replay-${index}.js`
-    : `packages/main/src/replay-${index}.${index % 2 ? 'ts' : 'js'}`;
-  const first = buildDynamicValidationPlan(context(path, status));
-  const second = buildDynamicValidationPlan(context(path, status));
-  assert.equal(stableDigest(first), stableDigest(second), `replay class ${index} was nondeterministic`);
-  assert.equal(verifyValidationSelectionManifest(first), true);
-  if (path.startsWith('packages/main/dist/')) {
-    assert.equal(first.fullEscalated, true, `generated-output class ${index} did not escalate`);
-    assert.equal(first.totals.executed, first.totals.inventory);
+try {
+  for (let index = 0; index < 30; index++) {
+    const status = (['added', 'modified', 'deleted', 'renamed'] as const)[index % 4]!;
+    const path = index % 7 === 0
+      ? `packages/main/dist/replay-${index}.js`
+      : `packages/main/src/replay-${index}.${index % 2 ? 'ts' : 'js'}`;
+    const first = buildDynamicValidationPlan(context(path, status));
+    const second = buildDynamicValidationPlan(context(path, status));
+    assert.equal(stableDigest(first), stableDigest(second), `replay class ${index} was nondeterministic`);
+    assert.equal(verifyValidationSelectionManifest(first), true);
+    if (path.startsWith('packages/main/dist/')) {
+      assert.equal(first.fullEscalated, true, `generated-output class ${index} did not escalate`);
+      assert.equal(first.totals.executed, first.totals.inventory);
+    }
+    const commandById = new Map(catalog.map((entry) => [entry.id, entry]));
+    const toCommand = (entry: ValidationCatalogEntry): ValidationCommand => ({
+      label: entry.label, command: entry.command, args: entry.args, ...(entry.cwd ? { cwd: entry.cwd } : {}),
+      ...(entry.timeoutMs ? { timeoutMs: entry.timeoutMs } : {}), resources: entry.resources,
+    });
+    const full = await executeValidationPlan({ provider: 'replay-full-oracle', commands: catalog.map(toCommand), warnings: [] }, replayRoot, 'head', 'B-mutation', { jobs: 2 });
+    const selectedEntries = first.rows.filter((row) => row.disposition === 'execute').map((row) => commandById.get(row.commandId)!).filter(Boolean);
+    const dynamic = await executeValidationPlan({ provider: 'replay-dynamic-selection', commands: selectedEntries.map(toCommand), warnings: [] }, replayRoot, 'head', 'B-mutation', { jobs: 2 });
+    assert.equal(full.allPass, true, `complete oracle failed in replay class ${index}`);
+    assert.equal(dynamic.allPass, true, `dynamic selection failed in replay class ${index}`);
+    const fullFailureIds = full.commands.flatMap((row, commandIndex) => row.code === 0 ? [] : [catalog[commandIndex]!.id]);
+    const selectedIds = new Set(selectedEntries.map((entry) => entry.id));
+    assert.equal(fullFailureIds.every((id) => selectedIds.has(id)), true, `dynamic class ${index} omitted a complete-plan failure`);
+    const executedReceipts = full.commands.map((row, commandIndex) => createValidationCommandReceipt({
+      id: `replay-${index}-${catalog[commandIndex]!.id}`,
+      commandId: catalog[commandIndex]!.id,
+      commandIdentityDigest: stableDigest({ command: row.command, args: row.args }),
+      inputDigest: first.rows.find((candidate) => candidate.commandId === catalog[commandIndex]!.id)!.inputDigest,
+      closureCertificateDigest: closures.get(catalog[commandIndex]!.id)!.signature,
+      catalogDigest, inventoryDigest: inventory.digest, runnerDigest: 'runner', toolchainDigest: 'toolchain', buildProofDigest: 'build',
+      sourceHead: 'head', sourceBaseHead: 'base', canonicalBaselineEpochId: 'epoch', producedBy: 'story-execution',
+      cleanTreeDigest: 'clean', executionEnvironmentDigest: 'environment', result: row.code === 0 ? 'PASS' : 'FAIL', exitCode: row.code,
+      outputDigest: stableDigest(row.output), durationMs: row.durationMs, createdAt: new Date().toISOString(), revocationLedgerDigest: 'ledger',
+    }));
+    assert.equal(executedReceipts.every((receipt) => verifyValidationCommandReceipt(receipt).ok), true, `replay class ${index} receipt evidence invalid`);
+    replayClasses++;
   }
-  replayClasses++;
+} finally {
+  rmSync(replayRoot, { recursive: true, force: true });
 }
 
 const baseline = buildDynamicValidationPlan(context('packages/main/src/replay.ts'));
