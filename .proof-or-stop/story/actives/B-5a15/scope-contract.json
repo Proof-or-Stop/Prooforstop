@@ -204,10 +204,29 @@
         "configured_validation_smoke_coverage",
         "B_5a15_acceptance_provenance_identity"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Align the smoke guard with the current repository command-catalog baseline; no production behavior changes.",
+      "timestamp": "2026-08-21T07:02:27.661Z",
+      "paths": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "e415e4549b7a53d1b5aee65bcfc1d2113272bae6",
+      "materialHash": "012baf0a63c4e3e8976ac5caf65847255ece15c546ab39ac9dd10edb87816acd",
+      "anchors": [
+        "retiredAuthorityVocabularyGuardSmoke.dynamicBindingGraphBound"
+      ]
     }
   ],
   "createdAt": "2026-08-20T09:29:12.295Z",
-  "updatedAt": "2026-08-21T03:36:08.182Z",
+  "updatedAt": "2026-08-21T07:02:27.661Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -245,6 +264,7 @@
     "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts": "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts",
     "packages/main/src/tasks/validate-command-timeout-smoke.ts": "packages/main/src/tasks/validate-command-timeout-smoke.ts",
     "packages/main/src/tasks/verification-run-and-guard-smoke.ts": "packages/main/src/tasks/verification-run-and-guard-smoke.ts",
-    "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts"
+    "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+    "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
   }
 }
