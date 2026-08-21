@@ -7502,6 +7502,34 @@ function assertParentRoadmapTotalityRuntime() {
   }
 }
 
+// DYN-1..DYN-5 runtime facts are gate-consumed process facts, not descriptive
+// documentation.  Keep a source-level contract here so deleting the level or
+// weakening its registry semantics cannot make dynamic validation appear
+// authoritative while the production registry silently loses its evidence.
+function assertStoryAwareDynamicValidationRuntime() {
+  const levelText = read('packages/main/src/core/process-fact-levels.ts');
+  const registryText = read('packages/main/src/core/process-fact-registry.ts');
+  const facts = [
+    'runtime:story_aware_dynamic_selection_manifest',
+    'runtime:story_aware_dynamic_closure_receipt',
+    'runtime:story_aware_dynamic_shard_aggregate',
+    'runtime:story_aware_dynamic_authority_gate',
+  ];
+  const levels = parseProcessFactLevelRegistry();
+  for (const fact of facts) {
+    assert(levelText.includes(`name: '${fact}'`), `process-fact-levels: dynamic fact missing: ${fact}`);
+    assert(registryText.includes(`'${fact}':`), `process-fact-registry: dynamic fact missing: ${fact}`);
+    const level = levels.find((entry) => entry.name === fact);
+    assert(level?.level === 'L4', `process-fact-levels: dynamic fact must remain L4: ${fact}`);
+    assert(level?.gateConsumer && /dynamic|validate|TEST|authority/i.test(level.gateConsumer), `process-fact-levels: dynamic fact must name a gate consumer: ${fact}`);
+  }
+  for (const token of ['signed-artifact', 'schema-contract', 'gate-evidence']) {
+    assert(registryText.includes(`'runtime:story_aware_dynamic_selection_manifest':`) && registryText.includes(`'runtime:story_aware_dynamic_authority_gate':`), 'process-fact-registry: dynamic fact semantic map must remain present');
+    assert(registryText.includes(token), `process-fact-registry: dynamic semantic map missing ${token}`);
+  }
+  assert(read('packages/main/src/handlers/story-aware-validation.ts').includes('originalOracle'), 'DYN-5 aggregate must retain complete-plan oracle equivalence evidence');
+}
+
 function assertPromptMeasurementObservationBoundary() {
   const command = 'prompt_measurement_report';
   const catalogText = read('packages/main/src/cli/command-catalog.ts');
@@ -8321,6 +8349,7 @@ await assertLifecycleArtifactScopePolicy();
 assertStrengtheningRoadmapGovernanceLedger();
 assertParentRoadmapIntentTotalityPlan();
 assertParentRoadmapTotalityRuntime();
+assertStoryAwareDynamicValidationRuntime();
 assertPromptMeasurementObservationBoundary();
 printProcessFactLevelRegistrySummary();
 

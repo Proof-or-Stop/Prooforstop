@@ -13,7 +13,7 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
-import { buildDynamicValidationPlan, buildStoryChangeManifest, compileValidationCatalog, createValidationClosureCertificate, discoverValidationInventory, stableDigest, verifyValidationClosureCertificate, verifyValidationSelectionManifest, type StoryChangedFile, type ValidationCatalogEntry } from '../core/story-aware-validation.js';
+import { buildDynamicValidationPlan, buildStoryChangeManifest, compileValidationCatalog, createValidationClosureCertificate, discoverValidationInventory, signPayload, stableDigest, verifyPayload, verifyValidationClosureCertificate, verifyValidationSelectionManifest, type StoryChangedFile, type ValidationCatalogEntry } from '../core/story-aware-validation.js';
 import { executeValidationPlan } from '../core/validation-executor.js';
 
 const root = resolve(process.cwd());
@@ -162,6 +162,10 @@ function commandVerdicts(result: Awaited<ReturnType<typeof executeValidationPlan
   }));
 }
 
+function signedArtifact<T extends Record<string, unknown>>(body: T): T & { signature: string } {
+  return { ...body, signature: signPayload(body) };
+}
+
 for (const candidate of selected) {
   const files = diffCache.get(candidate.storyId) || changedFiles(candidate.pair.base, candidate.pair.head);
   diffCache.set(candidate.storyId, files);
@@ -193,6 +197,16 @@ for (const candidate of selected) {
       assert.ok(fullFailures.every(id => selectedIds.has(id)), `${candidate.storyId} omitted a full-plan failure`);
       const fullVerdicts = commandVerdicts(full);
       const dynamicVerdicts = commandVerdicts(dynamic);
+      const fullReceipt = signedArtifact({
+        schema: 'proof-or-stop.dynamic-validation.replay-command-receipt.v1',
+        storyId: candidate.storyId, mode: 'full', baseHead: candidate.pair.base,
+        head: candidate.pair.head, allPass: full.allPass, verdicts: fullVerdicts,
+      });
+      const dynamicReceipt = signedArtifact({
+        schema: 'proof-or-stop.dynamic-validation.replay-command-receipt.v1',
+        storyId: candidate.storyId, mode: 'dynamic', baseHead: candidate.pair.base,
+        head: candidate.pair.head, allPass: dynamic.allPass, verdicts: dynamicVerdicts,
+      });
       record.execution = {
         fullAllPass: full.allPass,
         dynamicAllPass: dynamic.allPass,
@@ -200,6 +214,7 @@ for (const candidate of selected) {
         commandExecutions: dynamic.commands.length,
         fullVerdicts,
         dynamicVerdicts,
+        receipts: [fullReceipt, dynamicReceipt],
         receiptsDigest: stableDigest({ fullVerdicts, dynamicVerdicts }),
         restoredHeadRoot: historicalRoot,
       };
@@ -215,19 +230,33 @@ const categories = [...new Set(records.map(row => row.category))].sort();
 const faultInjection = catalog.flatMap((entry) => {
   const rows: Array<Record<string, unknown>> = [];
   const closure = closures.get(entry.id);
-  const fiContext = (changedFiles: StoryChangedFile[]) => {
+  const fiContext = (changedFiles: StoryChangedFile[], closureSet = closures) => {
     const changes = buildStoryChangeManifest({ storyId: `B-fi-${entry.id}`, gitCwd: root, baseHead: 'fi-base', head: 'fi-head', changedFiles });
     return buildDynamicValidationPlan({
       storyId: `B-fi-${entry.id}`, baseHead: 'fi-base', head: 'fi-head', inventory, catalog,
-      changes, closures, baselineEpochId: 'fi-epoch', buildProofDigest: 'fi-build', mode: 'observe', gitCwd: root,
+      changes, closures: closureSet, baselineEpochId: 'fi-epoch', buildProofDigest: 'fi-build', mode: 'observe', gitCwd: root,
     });
   };
   if (entry.assurance === 'story-selectable') {
     const sourcePath = entry.inputRoots[0] || 'packages/main/src/fi-source.ts';
     const impacted = fiContext([{ path: sourcePath, status: 'modified', blobId: stableDigest(sourcePath) }]);
     rows.push({ fiId: 'FI-1', commandId: entry.id, mutation: 'certified-source-dependency', expected: 'execute', observed: impacted.rows.find((row) => row.commandId === entry.id)?.disposition, passed: verifyValidationSelectionManifest(impacted) && impacted.rows.find((row) => row.commandId === entry.id)?.disposition === 'execute' });
-    const missingEdge = closure ? verifyValidationClosureCertificate({ ...closure, certifiedPaths: [], signature: closure.signature }) : false;
-    rows.push({ fiId: 'FI-2', commandId: entry.id, mutation: 'missing-static-runtime-fact-edge', expected: 'unverified-or-execute', observed: missingEdge ? 'accepted' : 'rejected', passed: missingEdge === false });
+    const mutationRows = [
+      { name: 'missing-static-edge', cert: closure ? { ...closure, certifiedPaths: [], certifiedPathsDigest: stableDigest([]), signature: closure.signature } : undefined },
+      { name: 'missing-runtime-traced-edge', cert: closure ? { ...closure, status: 'unverified' as const, undeclaredObservedPaths: ['packages/main/src/fi-runtime-edge.ts'], signature: closure.signature } : undefined },
+      { name: 'missing-process-fact-edge', cert: closure ? { ...closure, status: 'unverified' as const, processFactBindingDigest: stableDigest([]), signature: closure.signature } : undefined },
+    ];
+    for (const mutation of mutationRows) {
+      const mutatedClosures = new Map(closures);
+      if (mutation.cert) mutatedClosures.set(entry.id, mutation.cert);
+      const mutated = fiContext([{ path: sourcePath, status: 'modified', blobId: stableDigest(sourcePath) }], mutatedClosures);
+      const mutatedRow = mutated.rows.find((row) => row.commandId === entry.id);
+      rows.push({
+        fiId: 'FI-2', commandId: entry.id, mutation: mutation.name,
+        expected: 'unverified-or-execute', observed: mutatedRow?.disposition,
+        passed: mutation.cert ? verifyValidationClosureCertificate(mutation.cert) === false : false,
+      });
+    }
   }
   if (entry.assurance === 'full-only') {
     const impacted = fiContext([{ path: entry.inputRoots[0] || 'packages/main/src/fi-full-only.ts', status: 'modified', blobId: stableDigest(entry.id) }]);
@@ -239,7 +268,9 @@ const faultInjection = catalog.flatMap((entry) => {
   }
   const deleted = fiContext([{ path: entry.inputRoots[0] || 'packages/main/src/fi-deleted.ts', status: 'deleted', blobId: '<deleted>' }]);
   const renamed = fiContext([{ path: entry.inputRoots[0] || 'packages/main/src/fi-renamed.ts', oldPath: 'packages/main/src/fi-old.ts', status: 'renamed', blobId: stableDigest('fi-renamed') }]);
-  rows.push({ fiId: 'FI-5', commandId: entry.id, mutation: 'deleted-and-renamed-inputs', expected: 'base-and-head-graph-selection', observed: { deletedManifest: verifyValidationSelectionManifest(deleted), renamedManifest: verifyValidationSelectionManifest(renamed) }, passed: verifyValidationSelectionManifest(deleted) && verifyValidationSelectionManifest(renamed) });
+  const deletedRow = deleted.rows.find((row) => row.commandId === entry.id);
+  const renamedRow = renamed.rows.find((row) => row.commandId === entry.id);
+  rows.push({ fiId: 'FI-5', commandId: entry.id, mutation: 'deleted-and-renamed-inputs', expected: 'base-and-head-graph-selection', observed: { deletedManifest: verifyValidationSelectionManifest(deleted), renamedManifest: verifyValidationSelectionManifest(renamed), deletedDisposition: deletedRow?.disposition, renamedDisposition: renamedRow?.disposition }, passed: verifyValidationSelectionManifest(deleted) && verifyValidationSelectionManifest(renamed) && deletedRow?.disposition === 'execute' && renamedRow?.disposition === 'execute' });
   return rows;
 });
 const faultInjectionPath = join(outputRoot, 'fault-injection.json');
@@ -286,7 +317,7 @@ if (paired) {
       });
     }
   }
-  pairedPerformance = {
+  pairedPerformance = signedArtifact({
     schema: 'proof-or-stop.dynamic-validation.paired-performance.v1',
     head: currentHead, inventoryDigest: inventory.digest, catalogDigest,
     selectionDigest: stableDigest(pairedManifest),
@@ -311,19 +342,49 @@ if (paired) {
       const peer = runs.find((row) => row.pair === full.pair && row.mode === 'dynamic');
       return Boolean(peer && full.allPass === peer.allPass);
     }),
-  };
+  });
   mkdirSync(outputRoot, { recursive: true });
   writeFileSync(join(outputRoot, 'paired-performance.json'), JSON.stringify(pairedPerformance, null, 2) + '\n');
 }
-const report = {
+const faultInjectionBody = {
+  schema: 'proof-or-stop.dynamic-validation.fault-injection.v1',
+  rows: faultInjection,
+  requiredFamilies: ['FI-1', 'FI-2', 'FI-3', 'FI-4', 'FI-5'],
+  familyCounts: Object.fromEntries(['FI-1', 'FI-2', 'FI-3', 'FI-4', 'FI-5'].map((id) => [id, faultInjection.filter((row) => row.fiId === id).length])),
+  allPass: ['FI-1', 'FI-2', 'FI-3', 'FI-4', 'FI-5'].every((id) => faultInjection.some((row) => row.fiId === id) && faultInjection.filter((row) => row.fiId === id).every((row) => row.passed)),
+  digest: stableDigest(faultInjection),
+  path: faultInjectionPath,
+};
+const faultInjectionArtifact = signedArtifact(faultInjectionBody);
+const executableRecords = records.filter((row) => row.execution && typeof row.execution === 'object');
+const executionReceiptsValid = executableRecords.every((row) => {
+  const execution = row.execution as Record<string, unknown>;
+  const receipts = Array.isArray(execution.receipts) ? execution.receipts : [];
+  return receipts.length === 2 && receipts.every((receipt) => {
+    if (!receipt || typeof receipt !== 'object' || typeof (receipt as Record<string, unknown>).signature !== 'string') return false;
+    const body = { ...(receipt as Record<string, unknown>) };
+    delete body.signature;
+    return verifyPayload(body, (receipt as Record<string, unknown>).signature);
+  });
+});
+const gateReasons = [
+  !execute ? 'plan-only replay has no executable receipts' : '',
+  executableRecords.length !== records.length ? 'one or more Stories were not executed' : '',
+  !executionReceiptsValid ? 'replay command receipts are missing or invalid' : '',
+  !faultInjectionArtifact.allPass ? 'FI-1..FI-5 coverage is incomplete or failing' : '',
+  paired && (!pairedPerformance || pairedPerformance.verdictEquivalent !== true) ? 'paired full/dynamic verdict equivalence is missing' : '',
+].filter(Boolean);
+const reportBody = {
   schema: 'proof-or-stop.dynamic-validation.historical-replay.v1',
   generatedAt: new Date().toISOString(), root, execute, storyCount: records.length,
   categories, recordsDigest: stableDigest(records), records,
-  faultInjection: { schema: 'proof-or-stop.dynamic-validation.fault-injection.v1', rows: faultInjection, allPass: faultInjection.every(row => row.passed), digest: stableDigest(faultInjection), path: faultInjectionPath },
+  faultInjection: faultInjectionArtifact,
+  admissibility: { execute, pairedRequested: paired, admissible: gateReasons.length === 0, reasons: gateReasons },
   ...(pairedPerformance ? { pairedPerformance } : {}),
 };
+const report = signedArtifact(reportBody);
 mkdirSync(outputRoot, { recursive: true });
-writeFileSync(faultInjectionPath, JSON.stringify(report.faultInjection, null, 2) + '\n');
+writeFileSync(faultInjectionPath, JSON.stringify(faultInjectionArtifact, null, 2) + '\n');
 writeFileSync(join(outputRoot, 'report.json'), JSON.stringify(report, null, 2) + '\n');
 console.log(`historical stories: ${records.length}`);
 console.log(`historical categories: ${categories.join(', ')}`);
