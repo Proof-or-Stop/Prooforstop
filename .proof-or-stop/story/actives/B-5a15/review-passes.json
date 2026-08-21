@@ -196,6 +196,28 @@
       },
       "readDiagnostics": [],
       "_hash": "5d823b176439dffa12d2116ae46872da03a20a248bc02385ec397ea1e7fbfcc9"
+    },
+    {
+      "id": "B-5a15:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Checked store.ts CAS index persistence and orphan recovery plus executeCausalEvidence against the injected index-write-failure regression. The focused causal-evidence suite passed 9/9: the receipt survives the failed index write, retry repairs only the missing index, reuses the unchanged receipt, and launches the command once with commandReruns=0. No quality blocker found in this reviewed path.",
+      "createdAt": "2026-08-21T01:21:20.166Z",
+      "reviewRound": "2026-08-21T00:55:29.363Z",
+      "reviewRunId": "B-5a15:RR-067",
+      "envelopeId": "94e85a47c8471f674e8dd4742e813c9f6fdb61cb20f687b9509835b11c0117bd",
+      "writerSessionId": "sess-1ff81192c8f5688bf40ac6afd86a20f7",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "788901e9e3a844e986c71a5ec4e2b2a9a87000d1c3dc9c2582c52cd0fbf5ba54"
     }
   ]
 }
