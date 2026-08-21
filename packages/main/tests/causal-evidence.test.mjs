@@ -1097,6 +1097,43 @@ test('CHK-003: dependency domains shadow-compare closure and CertificationWindow
   );
 });
 
+test('B-5a15: a dependency decision remains verifiable across linked worktrees', () => {
+  const repositoryRoot = mkdtempSync(join(tmpdir(), 'causal-dependency-worktree-'));
+  const savedCwd = process.cwd();
+  const linkedWorktree = join(repositoryRoot, 'verify-worktree');
+  try {
+    execFileSync('git', ['init'], { cwd: repositoryRoot, stdio: 'ignore' });
+    execFileSync('git', ['config', 'user.name', 'Causal Evidence Test'], { cwd: repositoryRoot, stdio: 'ignore' });
+    execFileSync('git', ['config', 'user.email', 'causal-evidence-test@example.com'], { cwd: repositoryRoot, stdio: 'ignore' });
+    writeFileSync(join(repositoryRoot, 'seed.txt'), 'seed\n');
+    execFileSync('git', ['add', 'seed.txt'], { cwd: repositoryRoot, stdio: 'ignore' });
+    execFileSync('git', ['commit', '-m', 'seed'], { cwd: repositoryRoot, stdio: 'ignore' });
+    execFileSync('git', ['branch', 'verify'], { cwd: repositoryRoot, stdio: 'ignore' });
+    execFileSync('git', ['worktree', 'add', linkedWorktree, 'verify'], { cwd: repositoryRoot, stdio: 'ignore' });
+
+    process.chdir(repositoryRoot);
+    const decision = evaluateCausalDependencies({
+      nodes: [],
+      currentInputHashes: {},
+      previousMaterialHash: 'material-a',
+      currentMaterialHash: 'material-a',
+      previousStoryFilesHash: 'story-a',
+      currentStoryFilesHash: 'story-a',
+    });
+    assert.equal(verifyCausalDependencyDecision(decision), true, 'the issuing worktree verifies its signed decision');
+
+    process.chdir(linkedWorktree);
+    assert.equal(
+      verifyCausalDependencyDecision(decision),
+      true,
+      'a changed linked worktree resolves the same stable authority context',
+    );
+  } finally {
+    process.chdir(savedCwd);
+    rmSync(repositoryRoot, { recursive: true, force: true });
+  }
+});
+
 test('CHK-004: preflight refuses exact readiness failures with zero execution/evidence counters', async () => {
   const preflightIdentity = baseIdentity('B-causal-preflight');
   const validPreflight = preflightFor(preflightIdentity);

@@ -10,6 +10,7 @@ import {
   type PublicKeyBase64,
   type SignatureBase64,
 } from './authority-signing.js';
+import { resolveSharedLockRoot } from './validation-execution-lock.js';
 
 /**
  * CausalEvidence is deliberately a small, dependency-light boundary.  The
@@ -243,18 +244,23 @@ export function causalDigest(value: unknown): string {
 }
 
 function canonicalAuthorityRoot(root: string | undefined): string {
-  if (root) {
-    try { return realpathSync(root); } catch { /* use the stable process root below */ }
+  const requestedRoot = root || process.cwd();
+  try {
+    // Authority identity is repository-scoped, not linked-worktree-scoped.
+    // resolveSharedLockRoot collapses every worktree to the same stable Git
+    // context while retaining the requested root for non-Git projects.
+    return realpathSync(resolveSharedLockRoot(requestedRoot));
+  } catch {
+    // use the stable process root below
   }
   try { return realpathSync(process.cwd()); } catch { return root ?? process.cwd(); }
 }
 
 function causalAuthorityKeyPath(root: string | undefined): string {
   const canonicalRoot = canonicalAuthorityRoot(root);
-  // Keep the authority key in the ignored, project-local runtime state. The
-  // Git common directory is not an application data directory and may be
-  // read-only for a host or sandbox; receipt verification must not depend on
-  // mutating `.git` or on a worktree-specific administrative layout.
+  // Keep the authority key in the ignored runtime state of the stable
+  // repository context. Receipt and decision verification must not depend on
+  // a worktree-specific administrative layout.
   return join(canonicalRoot, '.proof-or-stop', 'runtime', CAUSAL_AUTHORITY_KEY_FILE);
 }
 
