@@ -8683,6 +8683,62 @@
       "_hash": "50050f4d31eba858be59888438acceff0eb9eee6d977fcbe68dd038316e453ff",
       "signatureTag": "edge|unknown|scripts-verify-entrypoints",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-227",
+      "desc": "scripts/verify-entrypoints.mjs:724-751 passes 28/28 on current HEAD, but the 21 fresh intent receipts contain no intent-bound verify-entrypoints.mjs receipt and existing B-5a88:F-225/F-226 remain status=open. The runtime regression is reproduced as fixed, but its Proof-or-Stop finding closure is not recorded; do not claim F-225/F-226 root-cause closure until those findings are explicitly resolved or superseded with current evidence.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-21T20:18:00.568Z",
+      "reviewRound": "2026-08-21T20:12:26.031Z",
+      "reviewRunId": "B-5a88:RR-267",
+      "_hash": "6cd2697260d80c4e220b189f44be394e38f5679ca3b13b8b470930d31002af8c",
+      "files": [
+        "scripts/verify-entrypoints.mjs",
+        "packages/main/dist/cli.js"
+      ],
+      "signatureTag": "missing|mjs|scripts-verify-entrypoints",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-228",
+      "desc": "scripts/verify-entrypoints.mjs:738-745 — the serve smoke asserts only startup strings and ignores result.status; a process that prints those strings and then exits non-zero is treated as success because result.error is null for non-zero exits (only timeout is tolerated), so a real CLI/serve failure can be masked.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-08-21T20:19:04.880Z",
+      "reviewRound": "2026-08-21T20:12:26.031Z",
+      "reviewRunId": "B-5a88:RR-266",
+      "_hash": "e7cb7029aa51c922c2922de3fb655bcd505a5c7b10522dd07cfacd87f3c258cc",
+      "files": [
+        "scripts/verify-entrypoints.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|scripts-verify-entrypoints",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-229",
+      "desc": "scripts/verify-migration-contract.mjs:35-40 — 88dd31307a changed the required citation from brand-rename-mapping.md:72 to brand-rename-mapping.md:73. Line 72 is the bin-entries supersession row, while lines 73 and 130 are both cited from the @lattice/core discussion in proof-or-stop-identity-migration.md; the bin-alias supersession is no longer mechanically required, so the verifier can pass while that rationale citation is absent.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-08-21T20:19:07.429Z",
+      "reviewRound": "2026-08-21T20:12:26.031Z",
+      "reviewRunId": "B-5a88:RR-266",
+      "_hash": "597b1365d161f70e4ccf9d3f0c214d64053d4465215fc9acc5adbff1817ab655",
+      "files": [
+        "scripts/verify-migration-contract.mjs",
+        "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+      ],
+      "signatureTag": "adversarial|mjs|scripts-verify-migration",
+      "signatureTagSource": "auto"
     }
   ]
 }
