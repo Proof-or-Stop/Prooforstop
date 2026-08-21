@@ -115,7 +115,10 @@ const unverifiedSelection = buildDynamicValidationPlan({
   changes: buildStoryChangeManifest({ storyId: 'B-smoke', gitCwd: '.', baseHead: 'base', head: 'head', changedFiles: [] }),
   closures: new Map([[localRow.commandId, undeclared]]), baselineEpochId: 'epoch', buildProofDigest: 'build', mode: 'observe',
 });
-assert.equal(unverifiedSelection.rows.find((row) => row.commandId === localRow.commandId)?.reasons[0], 'closure-certificate-unavailable-or-incomplete');
+const unverifiedRow = unverifiedSelection.rows.find((row) => row.commandId === localRow.commandId)!;
+assert.equal(unverifiedRow.reasons.some((reason) => reason.includes('closure-certificate-unavailable-or-incomplete')), true);
+assert.equal(unverifiedSelection.fullEscalated, true);
+assert.equal(unverifiedSelection.totals.executed, unverifiedSelection.totals.inventory);
 const escalatedSelection = buildDynamicValidationPlan({
   storyId: 'B-smoke', baseHead: 'base', head: 'head', inventory, catalog,
   changes: buildStoryChangeManifest({ storyId: 'B-smoke', gitCwd: '.', baseHead: 'base', head: 'head', changedFiles: [{ path: 'packages/main/dist/generated.js', status: 'modified', blobId: 'dist' }] }),
