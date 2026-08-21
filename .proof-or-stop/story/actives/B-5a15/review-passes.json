@@ -218,6 +218,46 @@
         "scanEscalationReason": null
       },
       "_hash": "788901e9e3a844e986c71a5ec4e2b2a9a87000d1c3dc9c2582c52cd0fbf5ba54"
+    },
+    {
+      "id": "B-5a15:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage review passed: all 50 verification intents map one-to-one to 50 passing mechanical evidence rows, including all 22 must intents with zero waivers. Read-only acceptance_basis, acceptance_topology_check, pre_review_check_read, acceptance_rollout_report_read, and acceptance_rollout_check all returned verified/pass with no diagnostics; current source and test paths were inspected and no coverage blocker was found.",
+      "createdAt": "2026-08-21T01:32:34.811Z",
+      "reviewRound": "2026-08-21T00:55:29.363Z",
+      "reviewRunId": "B-5a15:RR-069",
+      "envelopeId": "863f2a1cff31339e862a9f6bbbe647bd135e58ab48a286e46dbf612fd2f7a21a",
+      "writerSessionId": "sess-1ff81192c8f5688bf40ac6afd86a20f7",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/tests/causal-evidence.test.mjs",
+          "packages/main/tests/checklist-causal-preflight-batch.test.mjs",
+          "packages/main/tests/verifier-causal-preflight.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "88ddca13939cf217c24850adbb2eb855b4f18b263870124dcdf68d6d064fb9fb"
     }
   ]
 }
