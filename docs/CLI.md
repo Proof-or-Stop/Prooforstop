@@ -930,7 +930,9 @@ For a command to participate in `shadow` or `enforce-low-risk`, its
 in-root `caseRegistryPath`, `env.LATTICE_VALIDATION_SHARD_ADAPTER`, and the
 allowed `declaredEnvironmentKeys`. Registry rows contain executable case
 `runner` objects and a success marker; the registered adapter executes every
-requested case in an isolated shard and writes signed case evidence. Echoing
+requested case in an isolated shard and writes case evidence bound by its
+content digest, then emits a signed `ValidationShardReceipt` for the shard.
+Echoing
 `PROOF_OR_STOP_CASES` or `PROOF_OR_STOP_SENTINEL` without a case-body marker is
 rejected.
 

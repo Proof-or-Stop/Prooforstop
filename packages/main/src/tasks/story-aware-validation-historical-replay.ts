@@ -332,27 +332,37 @@ const focusedSelectionFaults = (() => {
   const directPath = sourceChange?.path;
   const directProbe = directSeed && directPath ? { ...directSeed, inputRoots: [directPath] } : undefined;
   const targetSeed = candidates.find(entry => entry.id !== directProbe?.id);
-  const dependentPath = directProbe && sourceChange && targetSeed
-    ? (() => {
-      const stem = directPath!.split('/').pop()!.replace(/\.[^.]+$/, '');
-      let matches: string[] = [];
+  const findDependentPath = (change: StoryChangedFile | undefined, direct: typeof directProbe, target: typeof targetSeed) => {
+    if (!change || !direct || !target) return undefined;
+    const stem = (change.path || '').split('/').pop()!.replace(/\.[^.]+$/, '');
+    const refs = [...new Set([fiReferenceHead, fiReferenceBase])];
+    let matches: string[] = [];
+    for (const ref of refs) {
       try {
-        matches = execFileSync('git', ['grep', '-l', stem, fiReferenceHead, '--', 'packages/main/src'], { cwd: root, encoding: 'utf8' }).trim().split('\n').filter(Boolean).map(path => path.includes(':') ? path.slice(path.indexOf(':') + 1) : path);
-      } catch { /* no textual candidates */ }
-      for (const path of matches) {
-        if (path === directPath || path === directPath!.replace(/\.[^.]+$/, '.js')) continue;
-        const targetProbe = { ...targetSeed, inputRoots: [path] };
-        const graph = buildDualRevisionImpactGraph({ gitCwd: root, baseHead: fiReferenceBase, head: fiReferenceHead, catalog: [directProbe, targetProbe] });
-        if (graph.commandsAffectedBy(sourceChange).includes(targetSeed.id)) return path;
-      }
-      return undefined;
-    })()
-    : undefined;
+        matches.push(...execFileSync('git', ['grep', '-l', stem, ref, '--', 'packages/main/src'], { cwd: root, encoding: 'utf8' }).trim().split('\n').filter(Boolean).map(path => path.includes(':') ? path.slice(path.indexOf(':') + 1) : path));
+      } catch { /* no textual candidates at this ref */ }
+    }
+    for (const path of [...new Set(matches)]) {
+      if (path === change.path || path === change.path.replace(/\.[^.]+$/, '.js')) continue;
+      const targetProbe = { ...target, inputRoots: [path] };
+      const graph = buildDualRevisionImpactGraph({ gitCwd: root, baseHead: fiReferenceBase, head: fiReferenceHead, catalog: [direct, targetProbe] });
+      if (graph.commandsAffectedBy(change).includes(target.id)) return path;
+    }
+    return undefined;
+  };
+  const dependentPath = findDependentPath(sourceChange, directProbe, targetSeed);
   const targetMatch = directProbe && sourceChange && targetSeed && dependentPath
     ? { target: { ...targetSeed, inputRoots: [dependentPath] }, graph: buildDualRevisionImpactGraph({ gitCwd: root, baseHead: fiReferenceBase, head: fiReferenceHead, catalog: [directProbe, { ...targetSeed, inputRoots: [dependentPath] }] }) }
     : undefined;
   const targetEntry = targetMatch?.target;
   const withGraph = targetMatch?.graph;
+  const graphSourceChange = fiRenamed || fiRevisionChanges.find(change => change.status === 'deleted') || sourceChange;
+  const graphDirectPath = graphSourceChange?.path;
+  const graphDirectProbe = directSeed && graphDirectPath ? { ...directSeed, inputRoots: [graphDirectPath] } : undefined;
+  const graphDependentPath = findDependentPath(graphSourceChange, graphDirectProbe, targetSeed);
+  const graphTargetMatch = graphDirectProbe && targetSeed && graphDependentPath
+    ? { target: { ...targetSeed, inputRoots: [graphDependentPath] }, graph: buildDualRevisionImpactGraph({ gitCwd: root, baseHead: fiReferenceBase, head: fiReferenceHead, catalog: [graphDirectProbe, { ...targetSeed, inputRoots: [graphDependentPath] }] }) }
+    : undefined;
   if (!directProbe || !targetEntry || !withGraph || !sourceChange || withGraph.graphUnknown) {
     const probeFailure = { directPath, sourceChange, directCommandId: directProbe?.id, targetSeedId: targetSeed?.id, dependentPath, graphUnknown: withGraph?.graphUnknown };
     return [{ fiId: 'FI-2', commandId: 'focused-selection-probe', mutation: 'receipt-signature-and-closure-edge-rejection', expected: 'valid-reuse-forged-execute-incomplete-closure-escalates', observed: probeFailure, passed: false }, { fiId: 'FI-5', commandId: 'focused-selection-probe', mutation: 'dual-revision-graph-causal-dependent', expected: 'unimpacted-reuse-graph-impact-execute', observed: probeFailure, passed: false }];
@@ -389,14 +399,40 @@ const focusedSelectionFaults = (() => {
     runtimeTrace: { readPaths: [targetEntry.inputRoots[0]!, directPath!], unknownRuntimeInputs: ['fi-focused-undeclared-runtime-edge'] },
   });
   const incompleteExecute = buildDynamicValidationPlan({ ...baseContext, closures: new Map([...probeClosures, [targetEntry.id, incompleteClosure]]), receipts: [makeProbeReceipt(incompleteClosure)] });
-  const graphExecute = buildDynamicValidationPlan({ ...baseContext, graph: withGraph, receipts: [probeReceipt] });
+  const tamperedStaticClosure = { ...targetClosure, certifiedPaths: [], certifiedPathsDigest: stableDigest([]) };
+  const tamperedFactClosure = { ...targetClosure, processFactBindingDigest: stableDigest(['fi-focused-unknown-process-fact']) };
+  const tamperedCapabilityClosure = { ...targetClosure, capabilityBindingDigest: stableDigest(['fi-focused-unknown-capability']) };
+  const tamperedPlan = (closure: typeof targetClosure) => buildDynamicValidationPlan({ ...baseContext, closures: new Map([...probeClosures, [targetEntry.id, closure]]), receipts: [probeReceipt] });
+  const staticExecute = tamperedPlan(tamperedStaticClosure);
+  const factExecute = tamperedPlan(tamperedFactClosure);
+  const capabilityExecute = tamperedPlan(tamperedCapabilityClosure);
   const validTarget = validReuse.rows.find(row => row.commandId === targetEntry.id)!;
   const forgedTarget = forgedExecute.rows.find(row => row.commandId === targetEntry.id)!;
   const incompleteTarget = incompleteExecute.rows.find(row => row.commandId === targetEntry.id)!;
-  const graphTarget = graphExecute.rows.find(row => row.commandId === targetEntry.id)!;
+  const staticTarget = staticExecute.rows.find(row => row.commandId === targetEntry.id)!;
+  const factTarget = factExecute.rows.find(row => row.commandId === targetEntry.id)!;
+  const capabilityTarget = capabilityExecute.rows.find(row => row.commandId === targetEntry.id)!;
+  const graphCatalog = graphDirectProbe && graphTargetMatch?.target ? [graphDirectProbe, graphTargetMatch.target] : undefined;
+  const graphInventory = graphCatalog ? { ...inventory, commands: inventory.commands.filter(command => graphCatalog.some(entry => entry.id === command.id)), digest: stableDigest(inventory.commands.filter(command => graphCatalog.some(entry => entry.id === command.id))) } : undefined;
+  const graphClosures = graphCatalog && graphInventory ? new Map(graphCatalog.map(entry => [entry.id, createValidationClosureCertificate({ commandId: entry.id, baseHead: fiReferenceBase, inventoryDigest: graphInventory.digest, catalogDigest: stableDigest(graphCatalog), staticPaths: entry.inputRoots })])) : undefined;
+  const graphChanges = graphSourceChange && graphCatalog && graphInventory && graphClosures ? buildStoryChangeManifest({ storyId: 'B-fi-focused-graph', gitCwd: root, baseHead: fiReferenceBase, head: fiReferenceHead, changedFiles: [graphSourceChange] }) : undefined;
+  const graphContext = graphCatalog && graphInventory && graphClosures && graphChanges ? { storyId: 'B-fi-focused-graph', baseHead: fiReferenceBase, head: fiReferenceHead, inventory: graphInventory, catalog: graphCatalog, changes: graphChanges, closures: graphClosures, baselineEpochId: 'fi-focused-epoch', buildProofDigest: 'fi-focused-build', mode: 'observe' as const } : undefined;
+  const graphTargetRow = graphContext && graphTargetMatch?.target ? buildDynamicValidationPlan(graphContext).rows.find(row => row.commandId === graphTargetMatch.target.id) : undefined;
+  const graphReceipt = graphContext && graphTargetMatch?.target && graphTargetRow && graphClosures ? createValidationCommandReceipt({
+    id: 'fi-focused-graph-receipt', commandId: graphTargetMatch.target.id,
+    commandIdentityDigest: stableDigest({ command: graphTargetMatch.target.command, args: graphTargetMatch.target.args }), inputDigest: graphTargetRow.inputDigest,
+    closureCertificateDigest: graphClosures.get(graphTargetMatch.target.id)!.signature, catalogDigest: stableDigest(graphCatalog), inventoryDigest: graphInventory!.digest,
+    runnerDigest: stableDigest(graphTargetMatch.target.runnerSourceDigest || ''), toolchainDigest: '', buildProofDigest: 'fi-focused-build', sourceHead: fiReferenceHead, sourceBaseHead: fiReferenceBase,
+    canonicalBaselineEpochId: 'fi-focused-epoch', producedBy: 'story-execution', cleanTreeDigest: stableDigest({ focused: true }), executionEnvironmentDigest: stableDigest({ node: process.version, platform: process.platform, arch: process.arch }),
+    result: 'PASS', exitCode: 0, outputDigest: stableDigest('fi-focused-graph-pass'), durationMs: 1, createdAt: new Date().toISOString(), revocationLedgerDigest: stableDigest({}),
+  }) : undefined;
+  const graphNoGraphPlan = graphContext && graphReceipt ? buildDynamicValidationPlan({ ...graphContext, receipts: [graphReceipt] }) : undefined;
+  const graphExecute = graphContext && graphReceipt && graphTargetMatch?.graph ? buildDynamicValidationPlan({ ...graphContext, graph: graphTargetMatch.graph, receipts: [graphReceipt] }) : undefined;
+  const graphNoGraphTarget = graphNoGraphPlan && graphTargetMatch?.target ? graphNoGraphPlan.rows.find(row => row.commandId === graphTargetMatch.target.id) : undefined;
+  const graphExecuteTarget = graphExecute && graphTargetMatch?.target ? graphExecute.rows.find(row => row.commandId === graphTargetMatch.target.id) : undefined;
   return [
-    { fiId: 'FI-2', commandId: targetEntry.id, mutation: 'receipt-signature-and-closure-edge-rejection', expected: 'valid-reuse-forged-execute-incomplete-closure-escalates', observed: { valid: validTarget.disposition, forged: forgedTarget.disposition, forgedFullEscalated: forgedExecute.fullEscalated, incomplete: incompleteTarget.disposition, incompleteFullEscalated: incompleteExecute.fullEscalated, incompleteReasons: incompleteTarget.reasons, undeclaredRuntimeInputs: incompleteClosure.undeclaredObservedPaths, undeclaredRuntimeKeys: incompleteClosure.undeclaredObservedEnvironmentKeys }, passed: validTarget.disposition === 'reuse' && forgedTarget.disposition === 'execute' && forgedExecute.fullEscalated === false && incompleteTarget.disposition === 'execute' && incompleteExecute.fullEscalated === true && incompleteTarget.reasons.some(reason => reason.includes('closure-certificate-unavailable-or-incomplete')) },
-    { fiId: 'FI-5', commandId: targetEntry.id, mutation: 'dual-revision-graph-causal-dependent', expected: 'unimpacted-reuse-graph-impact-execute', observed: { noGraph: validTarget.disposition, graph: graphTarget.disposition, graphReasons: graphTarget.reasons, baseHead: fiReferenceBase, head: fiReferenceHead, baseGraphDigest: withGraph.baseGraphDigest, headGraphDigest: withGraph.headGraphDigest, changedPath: directPath }, passed: fiReferenceBase !== fiReferenceHead && withGraph.graphUnknown === false && validTarget.disposition === 'reuse' && graphTarget.disposition === 'execute' && graphTarget.reasons.some(reason => reason.startsWith('reverse-dependency:')) },
+    { fiId: 'FI-2', commandId: targetEntry.id, mutation: 'receipt-signature-and-closure-edge-rejection', expected: 'valid-reuse-forged-execute-static-runtime-fact-capability-escalate', observed: { valid: validTarget.disposition, forged: forgedTarget.disposition, forgedFullEscalated: forgedExecute.fullEscalated, incomplete: incompleteTarget.disposition, incompleteFullEscalated: incompleteExecute.fullEscalated, static: staticTarget.disposition, fact: factTarget.disposition, capability: capabilityTarget.disposition, incompleteReasons: incompleteTarget.reasons, undeclaredRuntimeInputs: incompleteClosure.undeclaredObservedPaths }, passed: validTarget.disposition === 'reuse' && forgedTarget.disposition === 'execute' && forgedExecute.fullEscalated === false && [incompleteExecute, staticExecute, factExecute, capabilityExecute].every(plan => plan.fullEscalated === true) && [incompleteTarget, staticTarget, factTarget, capabilityTarget].every(row => row.disposition === 'execute') },
+    { fiId: 'FI-5', commandId: graphTargetMatch?.target.id || targetEntry.id, mutation: 'dual-revision-graph-causal-dependent-delete-rename', expected: 'delete-or-rename-unimpacted-reuse-head-and-base-graph-impact-execute', observed: { noGraph: graphNoGraphTarget?.disposition, graph: graphExecuteTarget?.disposition, graphReasons: graphExecuteTarget?.reasons, baseHead: fiReferenceBase, head: fiReferenceHead, change: graphSourceChange, baseGraphDigest: graphTargetMatch?.graph.baseGraphDigest, headGraphDigest: graphTargetMatch?.graph.headGraphDigest }, passed: Boolean(graphSourceChange && ['deleted', 'renamed'].includes(graphSourceChange.status) && graphTargetMatch?.graph && graphTargetMatch.graph.graphUnknown === false && graphNoGraphTarget?.disposition === 'reuse' && graphExecuteTarget?.disposition === 'execute' && graphExecuteTarget.reasons.some(reason => reason.startsWith('reverse-dependency:'))) },
   ];
 })();
 const faultInjection = [...catalog.flatMap((entry) => {

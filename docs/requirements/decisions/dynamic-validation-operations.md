@@ -44,8 +44,10 @@ The registry is a project-relative JSON array. Each case has a stable `caseId`,
 domain (`quorum` or `review-pass`), a sentinel flag, and an executable
 `runner` (`command`, `args`, optional `cwd`/`env`, and a success marker). The
 registered adapter checks the registry digest, exact case routing, executes
-every runner in an isolated shard, writes one signed case evidence file, and
-fails closed on a static marker or missing body execution.
+every runner in an isolated shard, writes one case-evidence file bound by its
+content digest, and emits a signed `ValidationShardReceipt` for the shard;
+the receipt—not the per-case file—carries the signature gate. It fails closed
+on a static marker or missing body execution.
 
 ## Artifacts and inspection
 
