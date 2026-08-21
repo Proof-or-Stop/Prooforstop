@@ -4541,7 +4541,7 @@
       "desc": "packages/main/src/core/review-run.ts:193-194,1563-1564 [medium] The F-102 rewrite now labels lattice-review-* as legacy, but still presents lattice-implementer as an unqualified active identity in both gate-adjacent reviewer-evidence comments. Since the canonical emitted role is proof-or-stop-implementer and this story is retiring lattice role IDs, future changes can still misread the old spelling as the current writer; state it as legacy lattice-implementer input accepted for compatibility.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-21T01:48:26.748Z",
@@ -4552,14 +4552,18 @@
         "packages/main/src/core/review-run.ts"
       ],
       "signatureTag": "missing|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Duplicate of B-5a88:F-105 from the concurrent quality/concept review runs; both identified the same unqualified lattice-implementer comment in review-run.ts.",
+      "resolvedAt": "2026-08-21T01:52:42.848Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-105",
       "desc": "packages/main/src/core/review-run.ts:193-194,1563-1564 [medium] The active reviewer-evidence comments label lattice-review-* as legacy but leave lattice-implementer unqualified. Because proof-or-stop-implementer is the canonical emitted role, explicitly describe lattice-implementer as a legacy compatibility input/non-reviewer alias so future changes cannot mistake it for the current writer; this is the same unresolved guidance gap surfaced as B-5a88:F-104.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-08-21T01:50:01.640Z",
@@ -4570,7 +4574,11 @@
         "packages/main/src/core/review-run.ts"
       ],
       "signatureTag": "missing|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Updated review-run.ts comments at both reviewer-evidence sites to identify lattice-implementer as a historical/legacy compatibility alias and proof-or-stop-implementer as the canonical implementer. Runtime logic is unchanged; git diff --check and targeted static scan pass.",
+      "resolvedAt": "2026-08-21T01:52:48.561Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
