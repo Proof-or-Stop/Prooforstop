@@ -423,6 +423,92 @@
         "scanEscalationReason": null
       },
       "_hash": "25881d5a5331146ad1705a0572cf65882749b848338ef0fcef471893c3c12c31"
+    },
+    {
+      "id": "B-45a0:RP-010",
+      "agent": "lattice-review-quality",
+      "note": "RI-025 current-head quality review passed. Build, process-fact/plan/inventory/catalog verification, core/production/mutation/protocol smoke, dual-graph/delete-rename, selection ledger/fail-closed, receipt reuse, and mandatory full-escalation audits all passed. Reviewed replay fault isolation, typed Story inputs, closure and full-only/forbidden semantics, DYN-5 adapter/shard receipt flow, and the corrected docs wording distinguishing digest-bound case files from signed ValidationShardReceipt; no new quality blocker found.",
+      "createdAt": "2026-08-21T18:41:35.616Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-087",
+      "envelopeId": "68484c55c412675f999f3d4dbe0473685588d0c20440eba71ac357865add3910",
+      "writerSessionId": "sess-de0737601d709eef7efc453560a73f02",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/story-aware-validation-case-adapter.mjs",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-production-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "scripts/run-dynamic-validation-audit.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "lattice.config.json",
+          "proof-or-stop.config.json",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-story-aware-validation-plan.mjs",
+          "scripts/verify-validation-catalog.mjs",
+          "scripts/verify-validation-inventory.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f7c1c571a4e0457dbfcd412af06279cc8d07da009b494d4dc77e66471750deb8"
+    },
+    {
+      "id": "B-45a0:RP-011",
+      "agent": "lattice-review-docs",
+      "note": "RI-025 docs review passed: extracted 842 changed symbols and compared 6 relevant documentation paragraphs/sections covering mode authority, catalog policy fields, full-only/forbidden escalation, DYN-5 routing, per-case evidence, and signed ValidationShardReceipt semantics. Current runbook and CLI now describe per-case files as content-digest-bound and reserve the signature gate for ValidationShardReceipt; implementation matches, and full-only/forbidden behavior matches the catalog and selector. No current-head docs blocker found.",
+      "createdAt": "2026-08-21T18:42:16.055Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-089",
+      "envelopeId": "03ad321db016bbe489547504d1cfb8e939e6329bd8d7fbf9e2230467378f65cb",
+      "writerSessionId": "sess-de0737601d709eef7efc453560a73f02",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/tasks/story-aware-validation-case-adapter.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "lattice.config.json",
+          "proof-or-stop.config.json",
+          "scripts/run-dynamic-validation-replay.mjs",
+          "scripts/verify-validation-catalog.mjs",
+          "scripts/verify-validation-inventory.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-operations.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "36dde9a875084d67ec6aa8e11c59e637f945a93b7a496c41cb36f693f621acf9"
+      },
+      "readDiagnostics": [],
+      "_hash": "887df795f85b94cb9bb67a7c4a329f804ed5d0e69fa269d79593620a03015711"
     }
   ]
 }
