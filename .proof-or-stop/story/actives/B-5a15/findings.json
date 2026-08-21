@@ -1417,6 +1417,76 @@
       ],
       "signatureTag": "adversarial|ts|focused-acceptance-smoke",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-045",
+      "desc": "packages/main/src/handlers/checklist.ts:527-529,2009-2020 [high] checklist_update still accepts caller-supplied headHash/materialHash (and internal storyFilesHash) after carrying a trusted receipt. The freshness gate later trusts these fields (packages/main/src/core/verification.ts:221-225; packages/main/src/core/evidence-freshness.ts:590-601), so a same-command/result re-persist can rebind a real receipt to forged current hashes and make stale executable evidence appear fresh without rerunning the command. Derive all freshness hashes from the server-side current tree and add a mutation test.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T03:46:29.144Z",
+      "reviewRound": "2026-08-21T03:36:34.350Z",
+      "reviewRunId": "B-5a15:RR-079",
+      "_hash": "3f598e0ecd92be9f2d8ca1b871dbcdbc1720f9c79eece17263d5c7fb56624180",
+      "signatureTag": "adversarial|unknown|packages-main-handlers",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-046",
+      "desc": "Acceptance proof is not currently admissible: local acceptance_basis reports AT_SCOPE_BINDING_MISSING with scope-contract digest mismatch, acceptance_topology_check reports structuralPass=false/status=fail, and pre_review_check_read reports PR_ARTIFACT_TAMPERED. This leaves the verifier-owned acceptance basis/pre-review evidence unable to support a trustworthy current coverage gate; reissue the verifier-owned artifacts through the local CLI and rerun the read checks before REVIEW can pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-21T03:46:48.394Z",
+      "reviewRound": "2026-08-21T03:36:34.350Z",
+      "reviewRunId": "B-5a15:RR-081",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/evidence/live-smoke-transcript.json",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/lattice-evidence.ts",
+          "packages/main/src/handlers/live-smoke-transcript.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/tests/causal-evidence-concurrency.test.mjs",
+          "packages/main/tests/causal-evidence.test.mjs",
+          "packages/main/tests/checklist-causal-preflight-batch.test.mjs",
+          "packages/main/tests/verifier-causal-preflight.test.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/finding.ts"
+        ],
+        "scanEscalationReason": "Coverage review required verifier-owned acceptance proof, rollout assurance, live-proof state, and regression-test inspection."
+      },
+      "_hash": "21653667fdbe6589c76c2e296f495e9b2b073298ff971f59c7223129c9de94da",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/handlers/proofstory.ts"
+      ],
+      "signatureTag": "missing|json|acceptance-proof-currently",
+      "signatureTagSource": "auto"
     }
   ]
 }

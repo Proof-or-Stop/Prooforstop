@@ -258,6 +258,51 @@
         "scanEscalationReason": null
       },
       "_hash": "88ddca13939cf217c24850adbb2eb855b4f18b263870124dcdf68d6d064fb9fb"
+    },
+    {
+      "id": "B-5a15:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "Concept review completed for CHK-001 through CHK-005: audited the current diff, full story intent, CausalEvidence key and CAS implementation, checklist and verifier launch wiring, freshness and CertificationWindow consumers, process and runtime registries, regression smoke/concurrency/preflight tests, and a repository-wide residue scan. This story adds CausalEvidence and does not delete or replace an existing concept; no concept residue or promised-but-undelivered implementation was found, so there is no concept blocker.",
+      "createdAt": "2026-08-21T03:43:57.410Z",
+      "reviewRound": "2026-08-21T03:36:34.350Z",
+      "reviewRunId": "B-5a15:RR-080",
+      "envelopeId": "bde52991f6b33ec07a34f776f72267589062951da19a89a182894536fc5853e4",
+      "writerSessionId": "sess-1ff81192c8f5688bf40ac6afd86a20f7",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "packages/main/tests/causal-evidence-concurrency.test.mjs",
+          "packages/main/tests/checklist-causal-preflight-batch.test.mjs",
+          "packages/main/tests/verifier-causal-preflight.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a15/review-runs.json",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "dc0baf484739fbc7dc14fb168c83cff68497d8e8e90b12388783236a63a4a1bf"
     }
   ]
 }
