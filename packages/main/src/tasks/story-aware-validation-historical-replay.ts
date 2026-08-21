@@ -327,28 +327,50 @@ const fiRenamed = fiRevisionChanges.find(change => change.status === 'renamed');
 const fiFallbackPath = fiRevisionChanges[0]?.path;
 const focusedSelectionFaults = (() => {
   const candidates = catalog.filter(entry => entry.assurance === 'story-selectable' && entry.inputRoots.length > 0);
-  const directEntry = candidates[0];
-  const directPath = directEntry?.inputRoots[0];
-  const targetEntry = candidates.find(entry => entry.id !== directEntry?.id && !entry.inputRoots.includes(directPath || ''));
-  if (!directEntry || !targetEntry || !directPath) {
-    return [{ fiId: 'FI-2', commandId: 'focused-selection-probe', mutation: 'receipt-signature-rejection-is-local', expected: 'valid-reuse-forged-execute', observed: 'probe-catalog-unavailable', passed: false }, { fiId: 'FI-5', commandId: 'focused-selection-probe', mutation: 'dual-revision-graph-causal-dependent', expected: 'unimpacted-reuse-graph-impact-execute', observed: 'probe-catalog-unavailable', passed: false }];
+  const sourceChange = fiRevisionChanges.find(change => change.status !== 'deleted' && change.path.startsWith('packages/main/src/'));
+  const directSeed = candidates[0];
+  const directPath = sourceChange?.path;
+  const directProbe = directSeed && directPath ? { ...directSeed, inputRoots: [directPath] } : undefined;
+  const targetSeed = candidates.find(entry => entry.id !== directProbe?.id);
+  const dependentPath = directProbe && sourceChange && targetSeed
+    ? (() => {
+      const stem = directPath!.split('/').pop()!.replace(/\.[^.]+$/, '');
+      let matches: string[] = [];
+      try {
+        matches = execFileSync('git', ['grep', '-l', stem, fiReferenceHead, '--', 'packages/main/src'], { cwd: root, encoding: 'utf8' }).trim().split('\n').filter(Boolean).map(path => path.includes(':') ? path.slice(path.indexOf(':') + 1) : path);
+      } catch { /* no textual candidates */ }
+      for (const path of matches) {
+        if (path === directPath || path === directPath!.replace(/\.[^.]+$/, '.js')) continue;
+        const targetProbe = { ...targetSeed, inputRoots: [path] };
+        const graph = buildDualRevisionImpactGraph({ gitCwd: root, baseHead: fiReferenceBase, head: fiReferenceHead, catalog: [directProbe, targetProbe] });
+        if (graph.commandsAffectedBy(sourceChange).includes(targetSeed.id)) return path;
+      }
+      return undefined;
+    })()
+    : undefined;
+  const targetMatch = directProbe && sourceChange && targetSeed && dependentPath
+    ? { target: { ...targetSeed, inputRoots: [dependentPath] }, graph: buildDualRevisionImpactGraph({ gitCwd: root, baseHead: fiReferenceBase, head: fiReferenceHead, catalog: [directProbe, { ...targetSeed, inputRoots: [dependentPath] }] }) }
+    : undefined;
+  const targetEntry = targetMatch?.target;
+  const withGraph = targetMatch?.graph;
+  if (!directProbe || !targetEntry || !withGraph || !sourceChange || withGraph.graphUnknown) {
+    const probeFailure = { directPath, sourceChange, directCommandId: directProbe?.id, targetSeedId: targetSeed?.id, dependentPath, graphUnknown: withGraph?.graphUnknown };
+    return [{ fiId: 'FI-2', commandId: 'focused-selection-probe', mutation: 'receipt-signature-and-closure-edge-rejection', expected: 'valid-reuse-forged-execute-incomplete-closure-escalates', observed: probeFailure, passed: false }, { fiId: 'FI-5', commandId: 'focused-selection-probe', mutation: 'dual-revision-graph-causal-dependent', expected: 'unimpacted-reuse-graph-impact-execute', observed: probeFailure, passed: false }];
   }
-  const probeCommands = inventory.commands.filter(command => command.id === directEntry.id || command.id === targetEntry.id);
+  const probeCommands = inventory.commands.filter(command => command.id === directProbe.id || command.id === targetEntry.id);
   const probeInventory = { ...inventory, commands: probeCommands, digest: stableDigest(probeCommands) };
-  const probeCatalog = [directEntry, targetEntry];
+  const probeCatalog = [directProbe, targetEntry];
   const probeCatalogDigest = stableDigest(probeCatalog);
   const probeClosures = new Map(probeCatalog.map(entry => [entry.id, createValidationClosureCertificate({ commandId: entry.id, baseHead: fiReferenceBase, inventoryDigest: probeInventory.digest, catalogDigest: probeCatalogDigest, staticPaths: entry.inputRoots })]));
-  const probeChanges = buildStoryChangeManifest({ storyId: 'B-fi-focused', gitCwd: root, baseHead: fiReferenceBase, head: fiReferenceHead, changedFiles: [{ path: directPath, status: 'modified', blobId: stableDigest(directPath) }] });
-  const noGraph = { baseHead: fiReferenceBase, head: fiReferenceHead, baseGraphDigest: 'focused-no-graph', headGraphDigest: 'focused-no-graph', graphUnknown: false, commandsAffectedBy: () => [directEntry.id] };
-  const withGraph = { baseHead: fiReferenceBase, head: fiReferenceHead, baseGraphDigest: 'focused-base-graph', headGraphDigest: 'focused-head-graph', graphUnknown: false, commandsAffectedBy: () => [directEntry.id, targetEntry.id] };
+  const probeChanges = buildStoryChangeManifest({ storyId: 'B-fi-focused', gitCwd: root, baseHead: fiReferenceBase, head: fiReferenceHead, changedFiles: [sourceChange] });
   const baseContext = { storyId: 'B-fi-focused', baseHead: fiReferenceBase, head: fiReferenceHead, inventory: probeInventory, catalog: probeCatalog, changes: probeChanges, closures: probeClosures, baselineEpochId: 'fi-focused-epoch', buildProofDigest: 'fi-focused-build', mode: 'observe' as const };
-  const noGraphPlan = buildDynamicValidationPlan({ ...baseContext, graph: noGraph });
+  const noGraphPlan = buildDynamicValidationPlan(baseContext);
   const targetRow = noGraphPlan.rows.find(row => row.commandId === targetEntry.id)!;
   const targetClosure = probeClosures.get(targetEntry.id)!;
-  const probeReceipt = createValidationCommandReceipt({
+  const makeProbeReceipt = (closure: typeof targetClosure) => createValidationCommandReceipt({
     id: 'fi-focused-receipt', commandId: targetEntry.id,
     commandIdentityDigest: stableDigest({ command: targetEntry.command, args: targetEntry.args }),
-    inputDigest: targetRow.inputDigest, closureCertificateDigest: targetClosure.signature,
+    inputDigest: targetRow.inputDigest, closureCertificateDigest: closure.signature,
     catalogDigest: probeCatalogDigest, inventoryDigest: probeInventory.digest,
     runnerDigest: stableDigest(targetEntry.runnerSourceDigest || ''), toolchainDigest: '', buildProofDigest: 'fi-focused-build',
     sourceHead: fiReferenceHead, sourceBaseHead: fiReferenceBase, canonicalBaselineEpochId: 'fi-focused-epoch',
@@ -357,16 +379,24 @@ const focusedSelectionFaults = (() => {
     result: 'PASS', exitCode: 0, outputDigest: stableDigest('fi-focused-pass'), durationMs: 1,
     createdAt: new Date().toISOString(), revocationLedgerDigest: stableDigest({}),
   });
-  const validReuse = buildDynamicValidationPlan({ ...baseContext, graph: noGraph, receipts: [probeReceipt] });
+  const probeReceipt = makeProbeReceipt(targetClosure);
+  const validReuse = buildDynamicValidationPlan({ ...baseContext, receipts: [probeReceipt] });
   const forgedReceipt = { ...probeReceipt, signature: '0'.repeat(64) };
-  const forgedExecute = buildDynamicValidationPlan({ ...baseContext, graph: noGraph, receipts: [forgedReceipt] });
+  const forgedExecute = buildDynamicValidationPlan({ ...baseContext, receipts: [forgedReceipt] });
+  const incompleteClosure = createValidationClosureCertificate({
+    commandId: targetEntry.id, baseHead: fiReferenceBase, inventoryDigest: probeInventory.digest, catalogDigest: probeCatalogDigest,
+    staticPaths: targetEntry.inputRoots, processFacts: ['fi-focused-process-fact'], capabilities: ['fi-focused-capability'],
+    runtimeTrace: { readPaths: [targetEntry.inputRoots[0]!, directPath!], unknownRuntimeInputs: ['fi-focused-undeclared-runtime-edge'] },
+  });
+  const incompleteExecute = buildDynamicValidationPlan({ ...baseContext, closures: new Map([...probeClosures, [targetEntry.id, incompleteClosure]]), receipts: [makeProbeReceipt(incompleteClosure)] });
   const graphExecute = buildDynamicValidationPlan({ ...baseContext, graph: withGraph, receipts: [probeReceipt] });
   const validTarget = validReuse.rows.find(row => row.commandId === targetEntry.id)!;
   const forgedTarget = forgedExecute.rows.find(row => row.commandId === targetEntry.id)!;
+  const incompleteTarget = incompleteExecute.rows.find(row => row.commandId === targetEntry.id)!;
   const graphTarget = graphExecute.rows.find(row => row.commandId === targetEntry.id)!;
   return [
-    { fiId: 'FI-2', commandId: targetEntry.id, mutation: 'receipt-signature-rejection-is-local', expected: 'valid-reuse-forged-execute', observed: { valid: validTarget.disposition, forged: forgedTarget.disposition, fullEscalated: forgedExecute.fullEscalated }, passed: validTarget.disposition === 'reuse' && forgedTarget.disposition === 'execute' && forgedExecute.fullEscalated === false },
-    { fiId: 'FI-5', commandId: targetEntry.id, mutation: 'dual-revision-graph-causal-dependent', expected: 'unimpacted-reuse-graph-impact-execute', observed: { noGraph: validTarget.disposition, graph: graphTarget.disposition, graphReasons: graphTarget.reasons, baseHead: fiReferenceBase, head: fiReferenceHead }, passed: fiReferenceBase !== fiReferenceHead && validTarget.disposition === 'reuse' && graphTarget.disposition === 'execute' && graphTarget.reasons.some(reason => reason.startsWith('reverse-dependency:')) },
+    { fiId: 'FI-2', commandId: targetEntry.id, mutation: 'receipt-signature-and-closure-edge-rejection', expected: 'valid-reuse-forged-execute-incomplete-closure-escalates', observed: { valid: validTarget.disposition, forged: forgedTarget.disposition, forgedFullEscalated: forgedExecute.fullEscalated, incomplete: incompleteTarget.disposition, incompleteFullEscalated: incompleteExecute.fullEscalated, incompleteReasons: incompleteTarget.reasons, undeclaredRuntimeInputs: incompleteClosure.undeclaredObservedPaths, undeclaredRuntimeKeys: incompleteClosure.undeclaredObservedEnvironmentKeys }, passed: validTarget.disposition === 'reuse' && forgedTarget.disposition === 'execute' && forgedExecute.fullEscalated === false && incompleteTarget.disposition === 'execute' && incompleteExecute.fullEscalated === true && incompleteTarget.reasons.some(reason => reason.includes('closure-certificate-unavailable-or-incomplete')) },
+    { fiId: 'FI-5', commandId: targetEntry.id, mutation: 'dual-revision-graph-causal-dependent', expected: 'unimpacted-reuse-graph-impact-execute', observed: { noGraph: validTarget.disposition, graph: graphTarget.disposition, graphReasons: graphTarget.reasons, baseHead: fiReferenceBase, head: fiReferenceHead, baseGraphDigest: withGraph.baseGraphDigest, headGraphDigest: withGraph.headGraphDigest, changedPath: directPath }, passed: fiReferenceBase !== fiReferenceHead && withGraph.graphUnknown === false && validTarget.disposition === 'reuse' && graphTarget.disposition === 'execute' && graphTarget.reasons.some(reason => reason.startsWith('reverse-dependency:')) },
   ];
 })();
 const faultInjection = [...catalog.flatMap((entry) => {

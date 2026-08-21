@@ -519,7 +519,15 @@ function buildGraphAtRef(gitCwd: string, ref: string): GraphData {
       for (const specifier of parseImports(tree.get(path) || '')) {
         if (specifier.startsWith('.')) {
           const base = normalPath(posix.normalize(posix.join(posix.dirname(path), specifier)));
-          const candidates = [base, base + '.ts', base + '.tsx', base + '.js', base + '.mjs', base + '/index.ts', base + '/index.js'];
+          // TypeScript/ESM source commonly imports the emitted `.js` name
+          // while the revision graph is built from `.ts` source. Resolve both
+          // the literal specifier and its extension-stripped source forms so
+          // reverse dependencies are not silently lost across transpilation.
+          const sourceBase = base.replace(/\.(?:c|m)?js$/, '');
+          const candidates = [
+            base, base + '.ts', base + '.tsx', base + '.js', base + '.mjs', base + '/index.ts', base + '/index.js',
+            sourceBase, sourceBase + '.ts', sourceBase + '.tsx', sourceBase + '.js', sourceBase + '.mjs', sourceBase + '/index.ts', sourceBase + '/index.js',
+          ];
           const resolved = candidates.find(candidate => paths.has(candidate));
           if (resolved) deps.add(resolved);
         } else if (specifier.startsWith('packages/')) deps.add(normalPath(specifier));
