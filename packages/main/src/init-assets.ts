@@ -126,17 +126,17 @@ export const AGENTS_MD_GLOBAL_THIN_TEMPLATE = `# AGENTS.md
 `;
 
 export interface ProofOrStopProjectConfig {
-  latticeVersion: 1;
+  proofOrStopVersion: 1;
   assetMode: 'global-thin';
   description: string;
   generatedAt: string;
 }
 
-export function renderLatticeProjectConfig(): string {
+export function renderProofOrStopProjectConfig(): string {
   return JSON.stringify({
-    latticeVersion: 1,
+    proofOrStopVersion: 1,
     assetMode: 'global-thin',
-    description: 'Global-thin Proof-or-Stop project: executable Codex adapter behavior lives in the global lattice CLI; no local bin shims required.',
+    description: 'Global-thin Proof-or-Stop project: executable Codex adapter behavior lives in the global proof-or-stop CLI; no local bin shims required.',
     generatedAt: new Date().toISOString(),
   } satisfies ProofOrStopProjectConfig, null, 2) + '\n';
 }
@@ -160,8 +160,8 @@ export interface CodexAdapterManifest {
   notes: readonly string[];
 }
 
-export const LATTICE_CODEX_ADAPTER_MANIFEST: CodexAdapterManifest = {
-  adapterOwner: 'lattice',
+export const PROOF_OR_STOP_CODEX_ADAPTER_MANIFEST: CodexAdapterManifest = {
+  adapterOwner: 'proof-or-stop',
   adapterKind: 'codex',
   activitySource: 'codex',
   recommendedEntrypoints: [
@@ -172,14 +172,14 @@ export const LATTICE_CODEX_ADAPTER_MANIFEST: CodexAdapterManifest = {
     },
     {
       name: 'global-fallback',
-      command: 'LATTICE_ACTIVITY_SOURCE=codex LATTICE_ACTIVITY_RECORD_READONLY=1 LATTICE_CODEX_ENTRYPOINT=global-fallback proof-or-stop',
-      useWhen: 'Only the global lattice CLI is available for read-only heartbeats; do not use it as current-worktree gate/status evidence when a local wrapper or core CLI exists.',
+      command: 'PROOF_OR_STOP_ACTIVITY_SOURCE=codex PROOF_OR_STOP_ACTIVITY_RECORD_READONLY=1 PROOF_OR_STOP_CODEX_ENTRYPOINT=global-fallback proof-or-stop',
+      useWhen: 'Only the global proof-or-stop CLI is available for read-only heartbeats; do not use it as current-worktree gate/status evidence when a local wrapper or core CLI exists.',
     },
   ],
   sessionEnv: {
-    source: 'LATTICE_ACTIVITY_SOURCE',
-    session: 'LATTICE_OWNER_SESSION_ADAPTER_TASK',
-    recordReadOnly: 'LATTICE_ACTIVITY_RECORD_READONLY',
+    source: 'PROOF_OR_STOP_ACTIVITY_SOURCE',
+    session: 'PROOF_OR_STOP_OWNER_SESSION_ADAPTER_TASK',
+    recordReadOnly: 'PROOF_OR_STOP_ACTIVITY_RECORD_READONLY',
     sessionCandidates: [
       'CODEX_THREAD_ID',
       'CODEX_SESSION_ID',
@@ -217,18 +217,26 @@ export function renderCodexAdapterManifest(options: RenderCodexAdapterManifestOp
 
 export function renderProofOrStopCodexAdapterManifest(options: RenderCodexAdapterManifestOptions = {}): string {
   if (options.promptMode !== 'registry') {
-    return `${JSON.stringify(LATTICE_CODEX_ADAPTER_MANIFEST, null, 2)}\n`;
+    return `${JSON.stringify(PROOF_OR_STOP_CODEX_ADAPTER_MANIFEST, null, 2)}\n`;
   }
 
   return `${JSON.stringify({
-    ...LATTICE_CODEX_ADAPTER_MANIFEST,
+    ...PROOF_OR_STOP_CODEX_ADAPTER_MANIFEST,
     promptMode: 'registry',
     promptRegistry: options.promptRegistry ?? promptRegistryManifest(),
     notes: [
-      ...LATTICE_CODEX_ADAPTER_MANIFEST.notes,
+      ...PROOF_OR_STOP_CODEX_ADAPTER_MANIFEST.notes,
       `Thin asset mode uses the package prompt registry instead of materializing ${PROOF_OR_STOP_ADAPTER_DIR}/agents prompt copies. Migrated reviewers resolve to the canonical body-free review_run_start bootstrap; that command supplies exactly one selected role body.`,
     ],
   }, null, 2)}\n`;
+}
+
+export const CODEX_ADAPTER_MANIFEST_OWNER = PROOF_OR_STOP_CODEX_ADAPTER_MANIFEST.adapterOwner;
+/** @deprecated Legacy manifests may still be read from pre-migration installs. */
+export const LEGACY_CODEX_ADAPTER_MANIFEST_OWNER = 'lattice' as const;
+
+export function isCodexAdapterManifestOwner(value: unknown): value is 'proof-or-stop' | 'lattice' {
+  return value === CODEX_ADAPTER_MANIFEST_OWNER || value === LEGACY_CODEX_ADAPTER_MANIFEST_OWNER;
 }
 
 const CODEX_README_LATTICE_TEMPLATE = `# Codex + Proof-or-Stop
@@ -310,9 +318,9 @@ This repository uses registry-backed Codex prompts:
 - This is adapter hygiene only. It does not replace validation evidence, receipts, or release-readiness assurance.
 `;
 
-export type CodexAdapterBrand = 'lattice';
+export type CodexAdapterBrand = 'proof-or-stop' | 'lattice';
 
-export function renderCodexReadmeTemplate(assetMode: InitAssetMode = 'full', _brand: CodexAdapterBrand = 'lattice'): string {
+export function renderCodexReadmeTemplate(assetMode: InitAssetMode = 'full', _brand: CodexAdapterBrand = 'proof-or-stop'): string {
   const base = CODEX_README_LATTICE_TEMPLATE;
   const appendix = CODEX_README_THIN_APPENDIX;
   if (assetMode === 'thin') return `${base}${appendix}`;
@@ -900,6 +908,10 @@ function resolveCli(root) {
  */
 /** @deprecated Use `ProofOrStopProjectConfig`. */
 export type LatticeProjectConfig = ProofOrStopProjectConfig;
+/** @deprecated Use `renderProofOrStopProjectConfig`. */
+export const renderLatticeProjectConfig = renderProofOrStopProjectConfig;
+/** @deprecated Use `PROOF_OR_STOP_CODEX_ADAPTER_MANIFEST`. */
+export const LATTICE_CODEX_ADAPTER_MANIFEST = PROOF_OR_STOP_CODEX_ADAPTER_MANIFEST;
 /** @deprecated Use `renderProofOrStopBootstrapScript`. */
 export const renderLatticeBootstrapScript = renderProofOrStopBootstrapScript;
 /** @deprecated Use `renderProofOrStopCodexAdapterManifest`. */

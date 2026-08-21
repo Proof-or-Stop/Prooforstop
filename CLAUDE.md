@@ -751,8 +751,8 @@ checklist + plan.md 写完后必须 `story_review` 通过（issueCount=0）才�
 | **主 agent** | 需求管理（PLAN + plan.md）+ 分配任务 + 验收（REVIEW/TEST/DONE） | 仅快速通道 |
 | **proof-or-stop-implementer** | 写代码 + 写测试，接受主 agent 按 plan.md 分配的 checklist item | 正常通道必须 |
 | **proof-or-stop-review-\*** | REVIEW 阶段按 opt-in 路由并行审查（baseline concept+quality+test-coverage，按 riskSignals / touchpoints 加挂 behavior/docs），各自提 finding。旧的 `lattice-review-channel` LLM agent 已退役（S1），由 `validate --channel` CLI 接管；`test-coverage` 继承旧 TEST_CASE_REVIEW 职责，检查 verificationIntent → verificationEvidence 覆盖；`quality` 假设 lint 已绿只审主观项 | 不写 |
-| **lattice-evaluator** | browser 项目产品质量打分（功能完整性 + 可用性） | 不写 |
-| **lattice-evaluator-cli** | CLI / core 项目产品质量打分（通过 bridge API 驱动状态转换验证） | 不写 |
+| **proof-or-stop-evaluator** | browser 项目产品质量打分（功能完整性 + 可用性） | 不写 |
+| **proof-or-stop-evaluator-cli** | CLI / core 项目产品质量打分（通过 bridge API 驱动状态转换验证） | 不写 |
 
 ### 两条通道的角色约束
 

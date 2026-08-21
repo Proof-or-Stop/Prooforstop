@@ -159,7 +159,7 @@ export function resolveChannel(
 
 /**
  * Match by reviewer short name against the finding agent string.
- * An agent like "lattice-review-concept" matches name="concept".
+ * An agent like "proof-or-stop-review-concept" matches name="concept".
  * Supports the bare "concept" name and any form of <prefix>-concept / <prefix>:concept.
  */
 export function findingAgentMatchesReviewer(agent: string | undefined, reviewerName: string): boolean {

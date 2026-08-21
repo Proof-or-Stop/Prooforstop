@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 
 import assert from 'node:assert/strict';
-import { existsSync, mkdtempSync, rmSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { existsSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -76,6 +77,40 @@ try {
     ).valid,
     false,
     'unknown command-spec schemas fail closed and are not rewritten',
+  );
+
+  execFileSync('git', ['init'], { cwd: root, stdio: 'ignore' });
+  execFileSync('git', ['config', 'user.name', 'Proof-or-Stop migration test'], { cwd: root, stdio: 'ignore' });
+  execFileSync('git', ['config', 'user.email', 'migration-test@example.invalid'], { cwd: root, stdio: 'ignore' });
+  writeFileSync(join(root, 'tracked.txt'), 'baseline\n');
+  execFileSync('git', ['add', 'tracked.txt'], { cwd: root, stdio: 'ignore' });
+  execFileSync('git', ['commit', '-m', 'baseline'], { cwd: root, stdio: 'ignore' });
+
+  const canonicalSnapshot = freshness.captureEvidenceHashSnapshot({ gitCwd: root, metadataRoot: root, ref: 'HEAD' });
+  assert.equal(canonicalSnapshot.schemaVersion, 'proof-or-stop.evidence_hash_snapshot.v1', 'freshness capture writes the canonical schema');
+  assert.equal(schema.isEvidenceHashSnapshotSchema(canonicalSnapshot.schemaVersion), true);
+  assert.equal(schema.isEvidenceHashSnapshotSchema('lattice.evidence_hash_snapshot.v1'), true, 'legacy freshness schema remains readable');
+  assert.equal(schema.isEvidenceHashSnapshotSchema('proof-or-stop.evidence_hash_snapshot.v99'), false, 'unknown freshness schemas fail closed');
+  assert.equal(
+    freshness.checkEvidenceHashSnapshotReuse(canonicalSnapshot, { gitCwd: root, metadataRoot: root, ref: 'HEAD' }).reusable,
+    true,
+    'canonical freshness snapshot can be captured and reused',
+  );
+  assert.equal(
+    freshness.checkEvidenceHashSnapshotReuse(
+      { ...canonicalSnapshot, schemaVersion: 'lattice.evidence_hash_snapshot.v1' },
+      { gitCwd: root, metadataRoot: root, ref: 'HEAD' },
+    ).reusable,
+    true,
+    'historical lattice freshness snapshot remains readable through intentional dual-read compatibility',
+  );
+  assert.equal(
+    freshness.checkEvidenceHashSnapshotReuse(
+      { ...canonicalSnapshot, schemaVersion: 'proof-or-stop.evidence_hash_snapshot.v99' },
+      { gitCwd: root, metadataRoot: root, ref: 'HEAD' },
+    ).reusable,
+    false,
+    'unknown freshness schemas remain rejected',
   );
 
   assert.equal(schema.DONE_REQUIRED_EVIDENCE_SCHEMA, 'proof-or-stop.done-required-evidence');

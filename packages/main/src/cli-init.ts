@@ -17,7 +17,7 @@ import {
   renderProofOrStopBootstrapScript,
   renderProofOrStopCodexAdapterManifest,
   renderProofOrStopCodexWrapperScript,
-  renderLatticeProjectConfig,
+  renderProofOrStopProjectConfig,
   renderCodexHooksJson,
   renderCodexPretoolScopeHookScript,
   renderCodexEvidencePretoolHookScript,
@@ -913,7 +913,7 @@ if (isGlobalThin) {
   // spelling, so the console never claims a filename that is not on disk.
   const latticeConfigLabel = `${PROOF_OR_STOP_DIR}/${PROOF_OR_STOP_MANIFEST_FILENAME}`;
   if (!existsSync(latticeConfigPath)) {
-    writeFileSync(latticeConfigPath, renderLatticeProjectConfig());
+    writeFileSync(latticeConfigPath, renderProofOrStopProjectConfig());
     console.log(`  ✓ ${latticeConfigLabel}`);
   } else {
     console.log(`  - ${latticeConfigLabel} (exists, skip)`);
@@ -1199,7 +1199,7 @@ console.log(`
 
 Next steps:
 ${isGlobalThin ? `  1. Read ${PROOF_OR_STOP_DIR}/Lattice.md
-  2. Use the global lattice CLI: proof-or-stop session_brief
+  2. Use the global proof-or-stop CLI: proof-or-stop session_brief
   3. For Codex adapter: proof-or-stop codex verify / proof-or-stop codex doctor
   4. Optional: proof-or-stop validate to verify project` : `  1. Read LATTICE.md, then use the entrypoints generated for profile ${selectedProfile}
   2. Optional: edit ${PROOF_OR_STOP_CONFIG_FILENAME} to adjust scanRoot

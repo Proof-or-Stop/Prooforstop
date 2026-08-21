@@ -37,7 +37,7 @@ const CODEX_MANIFEST_REL = `${AD}/${PROOF_OR_STOP_MANIFEST_FILENAME}`;
 const repoRoot = process.cwd();
 // B-cdf6: the global-fallback advice names the CANONICAL bin. The LATTICE_* env vars in it
 // are FROZEN (Pass B owns them); only the bin token moved.
-const GLOBAL_CODEX_FALLBACK = 'LATTICE_ACTIVITY_SOURCE=codex LATTICE_ACTIVITY_RECORD_READONLY=1 LATTICE_CODEX_ENTRYPOINT=global-fallback proof-or-stop';
+const GLOBAL_CODEX_FALLBACK = 'PROOF_OR_STOP_ACTIVITY_SOURCE=codex PROOF_OR_STOP_ACTIVITY_RECORD_READONLY=1 PROOF_OR_STOP_CODEX_ENTRYPOINT=global-fallback proof-or-stop';
 const INIT_ENTRYPOINT = 'packages/main/dist/cli-init.js';
 const CORE_ENTRYPOINT = 'packages/main/dist/cli.js';
 const MANAGED_GITIGNORE_BLOCK_START = LATTICE_RUNTIME_IGNORE_BLOCK_START;
@@ -498,7 +498,7 @@ checks.push(() => {
     assertIncludes(codexReadme, 'Codex 官方 PreToolUse hook 使用小写 `.codex/hooks.json`', CODEX_README_REL);
 
     const codexManifest = readJson(tempDir, CODEX_MANIFEST_REL);
-    assert(codexManifest.adapterOwner === 'lattice', 'adapter manifest should be owned by lattice');
+    assert(codexManifest.adapterOwner === 'proof-or-stop', 'adapter manifest should be owned by proof-or-stop');
     assert(codexManifest.activitySource === 'codex', 'adapter manifest should declare activitySource=codex');
     assert(
       codexManifest.recommendedEntrypoints.some(entry => entry.command === 'node bin/proof-or-stop-codex.js'),
@@ -523,8 +523,9 @@ checks.push(() => {
         && codexManifest.sessionEnv.sessionCandidates.includes('TERM_SESSION_ID'),
       'adapter manifest should document Codex thread/session/OpenAI/terminal task env candidates',
     );
-    assert(codexManifest.sessionEnv.session === 'LATTICE_OWNER_SESSION_ADAPTER_TASK', 'adapter manifest should name the non-logging task bridge');
-    assert(codexManifest.sessionEnv.recordReadOnly === 'LATTICE_ACTIVITY_RECORD_READONLY', 'adapter manifest should document read-only activity opt-in');
+    assert(codexManifest.sessionEnv.session === 'PROOF_OR_STOP_OWNER_SESSION_ADAPTER_TASK', 'adapter manifest should name the non-logging task bridge');
+    assert(codexManifest.sessionEnv.recordReadOnly === 'PROOF_OR_STOP_ACTIVITY_RECORD_READONLY', 'adapter manifest should document read-only activity opt-in');
+    assert(!JSON.stringify(codexManifest).includes('LATTICE_'), 'new Codex adapter manifest must not emit legacy environment names');
     assert(!codexManifest.excludedRuntimeAssets.includes(`${AD}/hooks`), 'adapter manifest should allow managed Codex native hooks');
     assert(codexManifest.excludedRuntimeAssets.includes(`${AD}/settings.json`), 'adapter manifest should exclude .lattice-codex/settings.json');
     assertPathExists(tempDir, '.codex/hooks', 'lattice init .codex/hooks');
@@ -611,7 +612,7 @@ checks.push(() => {
     const checkApply = JSON.parse(run(process.execPath, [join(repoRoot, CORE_ENTRYPOINT), 'check', '--apply', '--json'], { cwd: tempDir }));
     assert(checkApply.ok === true, 'lattice check --apply should repair safe managed drift');
     assert(checkApply.applied.includes(CODEX_MANIFEST_REL), 'lattice check --apply should report applied managed manifest');
-    assert(readJson(tempDir, CODEX_MANIFEST_REL).adapterOwner === 'lattice', 'lattice check --apply should restore Codex manifest');
+    assert(readJson(tempDir, CODEX_MANIFEST_REL).adapterOwner === 'proof-or-stop', 'proof-or-stop check --apply should restore Codex manifest');
     // B-cc10 F-044: MANIFEST_REL_PATH now writes only the canonical path, so asserting the
     // deprecated one could never pass — the assertion was checking for a file init stopped
     // creating.

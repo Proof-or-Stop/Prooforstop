@@ -49,7 +49,7 @@ import {
   renderProofOrStopBootstrapScript,
   renderProofOrStopCodexAdapterManifest,
   renderProofOrStopCodexWrapperScript,
-  renderLatticeProjectConfig,
+  renderProofOrStopProjectConfig,
   type InitAssetMode,
   type InitProfile,
 } from '../init-assets.js';
@@ -749,7 +749,7 @@ export function listManagedAssetDefinitions(
         // init writes the canonical manifest name inside the canonical state dir.
         `${PROOF_OR_STOP_STATE_DIR}:${PROOF_OR_STOP_MANIFEST_FILENAME}`,
         `${PROOF_OR_STOP_STATE_DIR}/${PROOF_OR_STOP_MANIFEST_FILENAME}`,
-        renderLatticeProjectConfig(),
+        renderProofOrStopProjectConfig(),
         actual => actual.includes('"assetMode"') && actual.includes('global-thin'),
         false,
         actual => {
@@ -758,7 +758,8 @@ export function listManagedAssetDefinitions(
             return Boolean(
               parsed && typeof parsed === 'object' && !Array.isArray(parsed)
               && (parsed as Record<string, unknown>)['assetMode'] === 'global-thin'
-              && (parsed as Record<string, unknown>)['latticeVersion'] === 1,
+              && ((parsed as Record<string, unknown>)['proofOrStopVersion'] === 1
+                || (parsed as Record<string, unknown>)['latticeVersion'] === 1),
             );
           } catch { return false; }
         },
@@ -914,7 +915,7 @@ export function listManagedAssetDefinitions(
       wholeFile(
         `${PROOF_OR_STOP_ADAPTER_DIR}:README.md`,
         `${PROOF_OR_STOP_ADAPTER_DIR}/README.md`,
-        renderCodexReadmeTemplate(assetMode, 'lattice'),
+        renderCodexReadmeTemplate(assetMode, 'proof-or-stop'),
         actual => actual.includes('Codex + Proof-or-Stop'),
       ),
       wholeFile(

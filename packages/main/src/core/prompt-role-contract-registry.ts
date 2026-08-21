@@ -24,6 +24,7 @@ import {
   type PromptRegistrySnapshot,
 } from './prompt-registry.js';
 import { canonicalAgentRoleId } from './agent-role-identity.js';
+import { isCodexAdapterManifestOwner } from '../init-assets.js';
 
 export const PROMPT_ROLE_CONTRACT_REGISTRY_VERSION = 'proofbound.prompt-role-contract-registry.v1';
 export const PROMPT_ENVELOPE_ROLLOUT_VERSION = 'proofbound.prompt-envelope-rollout.v1';
@@ -116,7 +117,7 @@ function reviewerHostRenderSource(
     if (globalSource === 'package-registry') return globalSource;
     if (codexSource === 'full-asset') return codexSource;
     if (
-      codexManifest?.adapterOwner === 'lattice'
+      isCodexAdapterManifestOwner(codexManifest?.adapterOwner)
       && codexManifest.adapterKind === 'codex'
       && codexManifest.promptMode === undefined
     ) {

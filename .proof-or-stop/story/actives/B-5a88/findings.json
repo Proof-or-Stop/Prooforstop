@@ -4579,6 +4579,134 @@
       "resolvedAt": "2026-08-21T01:52:48.561Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5a88:F-106",
+      "desc": "All 21 current must intents have passing verificationEvidence, but every receipt is bound to head b411f1e6dd2fe15b82d5acc60a915f2e1aa3f690, materialHash 132005af8d5402d8c3f8ae2a1db0e66a4e5b1ff7c1406377a7c044f2dad182e2, and storyFilesHash d596981d4835cf2ee52adf24ce290f0591233966baf14f494c3b981d3a017723, while signed current review run B-5a88:RR-133 is bound to head a3011a8de48afcfeb4ef4c9c788ffda4544a11b8 and storyFilesHash a145e49d49342dabc0b09dbad0e2a0a73e62bf67105683f9a4c81cc8ff7198b8. The intervening story-owned diff includes packages/main/src/core/review-run.ts:190-198 and :1561-1569, so the structured receipts are stale against the current review scope. The two focused commands node packages/main/tests/brand-role-migration.test.mjs and node packages/main/tests/prompt-role-migration.test.mjs both pass at the current worktree, and proof-or-stop validate --focus=fast --json --noSync passes, but neither focused command is in proof-or-stop.config.json nor recorded as current verificationEvidence. Refresh or re-record all 21 receipts at the current HEAD before treating coverage as gate-valid.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-21T02:05:14.892Z",
+      "reviewRound": "2026-08-21T01:53:38.379Z",
+      "reviewRunId": "B-5a88:RR-133",
+      "readManifest": {
+        "filesReadFully": [
+          "AGENTS.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/prompt-role-migration.test.mjs",
+          "proof-or-stop.config.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "e953b65f9f9f4dfc8a0878f2854d12eb521941afdecb272a1b413ea1ec8066f3",
+      "files": [
+        "packages/main/src/core/review-run.ts",
+        "packages/main/tests/brand-role-migration.test.mjs",
+        "packages/main/tests/prompt-role-migration.test.mjs",
+        "proof-or-stop.config.json"
+      ],
+      "signatureTag": "missing|ts|current-intents-passing",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-107",
+      "desc": "New canonical Codex/global-thin assets still emit and enforce retired lattice identity: packages/main/src/init-assets.ts:128-141 writes latticeVersion and describes the global lattice CLI in renderLatticeProjectConfig(), while packages/main/src/init-assets.ts:163-182 makes renderProofOrStopCodexAdapterManifest() produce adapterOwner=\"lattice\", LATTICE_ACTIVITY_SOURCE/LATTICE_ACTIVITY_RECORD_READONLY/LATTICE_CODEX_ENTRYPOINT, and an active global lattice CLI entrypoint. That writer is called for the canonical .proof-or-stop/proof-or-stop.json and .proof-or-stop-codex/proof-or-stop.json paths by packages/main/src/cli-init.ts:911-916,1001-1005 and mirrored by packages/main/src/core/managed-assets.ts:747-763,914-925. packages/main/src/core/codex-adapter-checks.ts:85,426-446,708-716 then uses the same legacy manifest/env values as its expected identity and heartbeat environment. The story contract permits lattice spellings only for compatibility reads; newly generated canonical artifacts and active verification paths must use proof-or-stop forms.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T02:07:05.155Z",
+      "reviewRound": "2026-08-21T01:53:38.379Z",
+      "reviewRunId": "B-5a88:RR-134",
+      "_hash": "7a7085935bbf485b843b40c75953f73c467dba5d3f00cd406f3910c1832772ee",
+      "files": [
+        "packages/main/src/init-assets.ts",
+        "packages/main/src/cli-init.ts",
+        "packages/main/src/core/managed-assets.ts",
+        "packages/main/src/core/codex-adapter-checks.ts"
+      ],
+      "signatureTag": "missing|ts|canonical-codex-global",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-108",
+      "desc": "CHK-003 remains incomplete: packages/main/src/core/evidence-freshness.ts:75 types EvidenceHashSnapshot as lattice.evidence_hash_snapshot.v1, :265 captureEvidenceHashSnapshot() writes that legacy schema, and :302 checkEvidenceHashSnapshotReuse() accepts only that legacy value. This snapshot is consumed by verifier/lifecycle-readiness freshness gates, so new persisted freshness snapshots still use the retired lattice identity and a canonical proof-or-stop.evidence_hash_snapshot.v1 snapshot would be rejected. The shared artifact-schema.ts allow-list and artifact-schema-migration.test.mjs do not cover this schema or execute captureEvidenceHashSnapshot(); the writer/reader need a canonical constant plus exact legacy dual-read coverage.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-21T02:10:27.426Z",
+      "reviewRound": "2026-08-21T01:53:38.379Z",
+      "reviewRunId": "B-5a88:RR-132",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop-codex/agents/proof-or-stop-review-concept.md",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/artifact-schema.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/lifecycle-readiness.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/tests/artifact-schema-migration.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9029f7a7b4f688d15957be05263e37ea15c98e42b34c938fa76a5c5986ba31f2",
+      "files": [
+        "packages/main/src/core/evidence-freshness.ts",
+        "packages/main/src/core/artifact-schema.ts",
+        "packages/main/tests/artifact-schema-migration.test.mjs"
+      ],
+      "signatureTag": "concept-legacy-evidence-snapshot-schema",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-109",
+      "desc": "Canonical role migration still leaves active guidance/baseline semantics using unqualified legacy IDs. CLAUDE.md:754-755 presents lattice-evaluator and lattice-evaluator-cli as current roles without a legacy label; packages/main/src/core/reviewer-opt-in.ts:162 uses lattice-review-concept as the current reviewer example; packages/main/src/cli/command-catalog.ts:2495 calls lattice-implementer the deliberate dispatch default and :3195 documents lattice-implementer as the dev-memory default even though runtime defaults emit proof-or-stop-implementer; and scripts/verify-proof-or-stop-prompt-baseline.mjs:360-491 defines lattice-evaluator, lattice-implementer, and lattice-review-* entries as optional/active/conditional without labeling them compatibility aliases. These are active guidance/baseline surfaces, not explicit legacy read-only paths, so they can continue teaching retired IDs and leave the repository-wide rename incomplete. Canonicalize the displayed/default role names and mark any retained compatibility entries explicitly legacy.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-21T02:10:56.013Z",
+      "reviewRound": "2026-08-21T01:53:38.379Z",
+      "reviewRunId": "B-5a88:RR-132",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop-codex/agents/proof-or-stop-review-concept.md",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/core/reviewer-opt-in.ts",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2bb6ec435e0b4011d47b08bce08624db1d85c74fe1c97f94653e51bfb499a016",
+      "files": [
+        "CLAUDE.md",
+        "packages/main/src/core/reviewer-opt-in.ts",
+        "packages/main/src/cli/command-catalog.ts",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+      ],
+      "signatureTag": "concept-unqualified-legacy-role-guidance",
+      "signatureTagSource": "confirmed"
     }
   ]
 }

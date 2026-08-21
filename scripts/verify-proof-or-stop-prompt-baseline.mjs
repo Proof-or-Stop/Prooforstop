@@ -64,12 +64,12 @@ const PROBE_ROLE_MATRIX_SNAPSHOT_DRIFT = process.argv.includes('--probe-role-mat
  * still binds each role to one exact body hash, so any unapproved prompt edit still fails. Audit
  * performed before repinning: `git diff main...HEAD -- packages/main/templates/agents/` contains
  * no changed line that mentions neither brand token (i.e. every diff line is a brand-token swap),
- * and the two roles whose hashes did NOT move (implementation-reviewer, lattice-review-topology-critic)
+ * and the two roles whose hashes did NOT move (implementation-reviewer, proof-or-stop-review-topology-critic)
  * are exactly the templates the rename did not touch.
  *
  * B-cdf6 CHK-003 follow-up: 5 more templateHash values were RE-APPROVED
- * (lattice-evaluator, lattice-implementer, lattice-review-delivery,
- * lattice-review-scope-plan, lattice-review-story-init). CHK-005 repinned only what the
+ * proof-or-stop-evaluator, proof-or-stop-implementer, proof-or-stop-review-delivery,
+ * proof-or-stop-review-scope-plan, proof-or-stop-review-story-init). CHK-005 repinned only what the
  * TEMPLATE rewrite moved; it could not move these, because these 5 roles resolve through
  * `legacy-full-context` reconstruction, whose inputs are the INJECTED payloads in
  * `core/prompt-registry.ts` (`LOAD_BEARING_LATTICE_PROMPT_SLICE` and
@@ -357,7 +357,7 @@ const ROLE_MATRIX_DEFAULTS = {
     overlapCategory: 'duplicates behavior and quality',
     notes: 'Not in current review-run lanes; planned to fold into behavior and quality.',
   },
-  'lattice-evaluator-cli': {
+  'proof-or-stop-evaluator-cli': {
     status: 'optional',
     phase: 'TEST optional',
     purpose: 'CLI/core evaluator for user-facing command behavior.',
@@ -369,7 +369,7 @@ const ROLE_MATRIX_DEFAULTS = {
     overlapCategory: 'overlaps behavior and delivery',
     notes: 'Advisory unless persisted through a structured evaluator evidence path.',
   },
-  'lattice-evaluator': {
+  'proof-or-stop-evaluator': {
     status: 'optional',
     phase: 'TEST optional',
     purpose: 'Browser/product evaluator for UI-facing behavior.',
@@ -381,7 +381,7 @@ const ROLE_MATRIX_DEFAULTS = {
     overlapCategory: 'overlaps behavior and product',
     notes: 'Advisory unless a policy consumes saved evaluator evidence.',
   },
-  'lattice-implementer': {
+  'proof-or-stop-implementer': {
     status: 'active',
     phase: 'DEV',
     purpose: 'Implementation worker that edits code, verifies locally, and updates checklist evidence.',
@@ -393,7 +393,7 @@ const ROLE_MATRIX_DEFAULTS = {
     overlapCategory: 'DEV owner',
     notes: 'Does not own review, test phase advancement, or DONE closure.',
   },
-  'lattice-review-behavior': {
+  'proof-or-stop-review-behavior': {
     status: 'active',
     phase: 'REVIEW',
     purpose: 'Reviews promised user-visible behavior, edge cases, and userSees mismatch.',
@@ -417,7 +417,7 @@ const ROLE_MATRIX_DEFAULTS = {
     overlapCategory: 'duplicates channel CLI gate',
     notes: 'Plan marks this as retired in favor of validate channel checks.',
   },
-  'lattice-review-concept': {
+  'proof-or-stop-review-concept': {
     status: 'conditional',
     phase: 'REVIEW',
     purpose: 'Reviews concept deletion, rename, and terminology residue.',
@@ -429,7 +429,7 @@ const ROLE_MATRIX_DEFAULTS = {
     overlapCategory: 'overlaps docs and quality cleanup',
     notes: 'Route only when rename, removal, or concept-retirement triggers exist.',
   },
-  'lattice-review-delivery': {
+  'proof-or-stop-review-delivery': {
     status: 'active',
     phase: 'TEST/DONE',
     purpose: 'Reviews final delivery claims, docs promises, real machine tests, and closeout.',
@@ -441,7 +441,7 @@ const ROLE_MATRIX_DEFAULTS = {
     overlapCategory: 'overlaps docs and product',
     notes: 'Fresh-context review independently derives docs promises and real-machine test coverage; it does not consume prior docs review, other reviewer results, or test-evidence.json.',
   },
-  'lattice-review-docs': {
+  'proof-or-stop-review-docs': {
     status: 'active',
     phase: 'REVIEW',
     purpose: 'Reviews code/documentation drift around changed public behavior.',
@@ -453,7 +453,7 @@ const ROLE_MATRIX_DEFAULTS = {
     overlapCategory: 'single REVIEW docs owner',
     notes: 'Owns REVIEW doc drift and docs-promised-code-missing checks.',
   },
-  'lattice-review-quality': {
+  'proof-or-stop-review-quality': {
     status: 'active',
     phase: 'REVIEW',
     purpose: 'Reviews maintainability, type safety, I/O shell isolation, and proof metadata consistency.',
@@ -465,7 +465,7 @@ const ROLE_MATRIX_DEFAULTS = {
     overlapCategory: 'overlaps implementation-reviewer',
     notes: 'Target owner for implementation-reviewer maintainability checks.',
   },
-  'lattice-review-scope-plan': {
+  'proof-or-stop-review-scope-plan': {
     status: 'active',
     phase: 'PLAN',
     purpose: 'Reviews story/checklist scope against source-of-truth requirements.',
@@ -477,7 +477,7 @@ const ROLE_MATRIX_DEFAULTS = {
     overlapCategory: 'PLAN scope owner',
     notes: 'Should avoid default full decisions-directory scans without escalation.',
   },
-  'lattice-review-story-init': {
+  'proof-or-stop-review-story-init': {
     status: 'active',
     phase: 'INIT',
     purpose: 'Reviews new story readability, facts, risk wording, and initial checklist sanity.',
@@ -489,7 +489,7 @@ const ROLE_MATRIX_DEFAULTS = {
     overlapCategory: 'overlaps scope-plan on checklist sanity',
     notes: 'Baseline includes grandfathered direct story-file reads and init-self-check write wording.',
   },
-  'lattice-review-topology-critic': {
+  'proof-or-stop-review-topology-critic': {
     status: 'active',
     phase: 'PLAN/DEV/REVIEW',
     purpose: 'Independently reviews acceptance topology completeness and signs a current critic receipt.',
@@ -501,7 +501,7 @@ const ROLE_MATRIX_DEFAULTS = {
     overlapCategory: 'independent acceptance-topology authority critic',
     notes: 'Cannot override partial or unsupported discovery and cannot approve its own exclusions.',
   },
-  'lattice-review-test-coverage': {
+  'proof-or-stop-review-test-coverage': {
     status: 'active',
     phase: 'REVIEW',
     purpose: 'Reviews verificationIntent to verificationEvidence coverage.',
@@ -534,7 +534,7 @@ const ROLE_MATRIX_DEFAULTS = {
     inputs: 'Legacy testIntent and fixture JSON.',
     outputs: 'testintent_record results and testintent_check status.',
     capabilities: 'Legacy fixture coverage review.',
-    overlapCategory: 'replaced by current lattice-review-test-coverage; target proof-or-stop-review-test-coverage',
+    overlapCategory: 'replaced by current proof-or-stop-review-test-coverage; target proof-or-stop-review-test-coverage',
     notes: 'Legacy-only prompt tied to old TEST_CASE_REVIEW phase.',
   },
   'test-intent': {
@@ -566,6 +566,8 @@ function roleMatrixDefaultsFor(role) {
 }
 
 const DIRECT_STORY_CLASSIFIER_PROBES = [
+  // These probes intentionally retain deprecated lattice-* role IDs to prove
+  // that compatibility reads still classify old prompt evidence correctly.
   {
     name: 'negative direct read/write policy reminder',
     role: 'lattice-review-quality',

@@ -28,6 +28,11 @@ export const DONE_REQUIRED_COMMAND_SPEC_SCHEMA_LEGACY_V1 = 'lattice.command-spec
 export const CLOSEOUT_WRITE_RECEIPT_SCHEMA = 'proof-or-stop.closeout_write_receipt.v3' as const;
 export const CLOSEOUT_WRITE_RECEIPT_SCHEMA_LEGACY = 'lattice.closeout_write_receipt.v3' as const;
 
+/** Versioned freshness snapshot written by current lifecycle readers. */
+export const EVIDENCE_HASH_SNAPSHOT_SCHEMA = 'proof-or-stop.evidence_hash_snapshot.v1' as const;
+/** Historical freshness snapshot accepted only for dual-read compatibility. */
+export const EVIDENCE_HASH_SNAPSHOT_SCHEMA_LEGACY = 'lattice.evidence_hash_snapshot.v1' as const;
+
 export type DoneRequiredEvidenceSchema = 'proof-or-stop.done-required-evidence' | 'lattice.done-required-evidence';
 
 export type DoneRequiredEvidenceVersionedSchema =
@@ -42,6 +47,10 @@ export type DoneRequiredCommandSpecSchema =
 export type CloseoutWriteReceiptSchema =
   | typeof CLOSEOUT_WRITE_RECEIPT_SCHEMA
   | typeof CLOSEOUT_WRITE_RECEIPT_SCHEMA_LEGACY;
+
+export type EvidenceHashSnapshotSchema =
+  | typeof EVIDENCE_HASH_SNAPSHOT_SCHEMA
+  | typeof EVIDENCE_HASH_SNAPSHOT_SCHEMA_LEGACY;
 
 export function isDoneRequiredEvidenceSchema(value: unknown): value is DoneRequiredEvidenceSchema {
   return value === DONE_REQUIRED_EVIDENCE_SCHEMA || value === DONE_REQUIRED_EVIDENCE_SCHEMA_LEGACY;
@@ -66,4 +75,8 @@ export function isDoneRequiredCommandSpecV2Schema(value: unknown): value is
 
 export function isCloseoutWriteReceiptSchema(value: unknown): value is CloseoutWriteReceiptSchema {
   return value === CLOSEOUT_WRITE_RECEIPT_SCHEMA || value === CLOSEOUT_WRITE_RECEIPT_SCHEMA_LEGACY;
+}
+
+export function isEvidenceHashSnapshotSchema(value: unknown): value is EvidenceHashSnapshotSchema {
+  return value === EVIDENCE_HASH_SNAPSHOT_SCHEMA || value === EVIDENCE_HASH_SNAPSHOT_SCHEMA_LEGACY;
 }

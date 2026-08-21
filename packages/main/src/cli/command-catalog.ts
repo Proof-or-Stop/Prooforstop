@@ -2492,7 +2492,7 @@ Behavior:
     itemId: z.string().optional().describe('Checklist item ID (CHK-xxx). Supply only when the registered agent type requires an item target; story-only roles must omit all identifiers.'),
     findingId: z.string().optional().describe('Finding ID (F-xxx or B-xxx:F-xxx). Supply only for a registered finding-target role; mutually exclusive with itemId/clusterId.'),
     clusterId: z.string().optional().describe('Cluster ID (CL-xxx). Supply only for a registered cluster-target role; mutually exclusive with itemId/findingId.'),
-    agentType: z.enum(AGENT_DISPATCH_ACCEPTED_TYPES as [string, ...string[]]).optional().describe('Registered subagent type or compatibility alias. Omit only for the deliberate lattice-implementer default; runtime enforces phase and target cardinality from the same registry.'),
+    agentType: z.enum(AGENT_DISPATCH_ACCEPTED_TYPES as [string, ...string[]]).optional().describe('Registered subagent type or compatibility alias. Omit only for the deliberate proof-or-stop-implementer default; runtime enforces phase and target cardinality from the same registry.'),
   }},
 
   // Background CLI trio (B-45ed CHK-007: background.md set/append/get).
@@ -3192,7 +3192,7 @@ Behavior:
     lesson: z.string().describe('Reusable lesson (at least 10 characters).'),
     reusePrompt: z.string().describe('How to retrieve this lesson in a later session (at least 5 characters).'),
     tags: z.union([z.array(z.string()), z.string()]).optional().describe('Keyword tags, as a comma-separated string or array.'),
-    sourceAgent: z.string().optional().describe('Source agent (default: lattice-implementer).'),
+    sourceAgent: z.string().optional().describe('Source agent (default: proof-or-stop-implementer).'),
     sourceStoryId: z.string().optional().describe('Source story ID.'),
     evidenceRefs: z.array(z.string()).optional().describe('Evidence references (file paths or commit SHAs).'),
   }},

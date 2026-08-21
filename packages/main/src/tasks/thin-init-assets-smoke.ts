@@ -251,6 +251,8 @@ try {
   // .lattice/lattice.json should declare global-thin mode
   const latticeConfig = JSON.parse(readFileSync(join(globalThinRoot, LATTICE_MANIFEST_REL), 'utf8'));
   assert.equal(latticeConfig.assetMode, 'global-thin');
+  assert.equal(latticeConfig.proofOrStopVersion, 1, 'global-thin config should write the canonical proof-or-stop version field');
+  assert.equal(Object.hasOwn(latticeConfig, 'latticeVersion'), false, 'global-thin config should not write the legacy version field');
 
   // Forbidden default assets must not exist
   assertAbsent(globalThinRoot, 'bin/lattice.js');
@@ -312,7 +314,11 @@ try {
   }
   assert.equal(existsSync(join(thinRoot, PROOF_OR_STOP_ADAPTER_DIR, 'agents')), false, 'thin init should not create .lattice-codex/agents');
   const manifest = JSON.parse(readFileSync(join(thinRoot, CODEX_MANIFEST_REL), 'utf8'));
-  assert.equal(manifest.adapterOwner, 'lattice');
+  assert.equal(manifest.adapterOwner, 'proof-or-stop');
+  assert.equal(manifest.sessionEnv.source, 'PROOF_OR_STOP_ACTIVITY_SOURCE');
+  assert.equal(manifest.sessionEnv.session, 'PROOF_OR_STOP_OWNER_SESSION_ADAPTER_TASK');
+  assert.equal(manifest.sessionEnv.recordReadOnly, 'PROOF_OR_STOP_ACTIVITY_RECORD_READONLY');
+  assert.equal(JSON.stringify(manifest).includes('LATTICE_'), false, 'new Codex adapter manifest should not emit legacy environment names');
   assert.equal(manifest.promptMode, 'registry');
   assertAbsent(thinRoot, LATTICE_MANIFEST_REL);
   assertManagedOk(thinRoot, 'thin');

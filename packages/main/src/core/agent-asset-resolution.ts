@@ -11,6 +11,7 @@ import {
   type PromptRegistrySnapshot,
 } from './prompt-registry.js';
 import { legacyAgentRoleIds } from './agent-role-identity.js';
+import { isCodexAdapterManifestOwner } from '../init-assets.js';
 
 export type AgentAssetResolutionMode = 'runtime-owned' | 'pinned-runtime' | 'full-asset' | 'debug-override';
 export type AgentAssetStatus = 'absent' | 'matches-runtime' | 'stale' | 'override';
@@ -119,7 +120,7 @@ function localAssetModeHint(projectRoot: string): LocalAssetModeHint {
       // spelling would silently fail this branch and fall through to the wrong
       // asset mode.
       adapterManifestCandidates().includes(normalizeRel(relative(projectRoot, candidate))) &&
-      parsed.adapterOwner === 'lattice' &&
+      isCodexAdapterManifestOwner(parsed.adapterOwner) &&
       parsed.adapterKind === 'codex' &&
       parsed.promptMode === undefined
     ) {
