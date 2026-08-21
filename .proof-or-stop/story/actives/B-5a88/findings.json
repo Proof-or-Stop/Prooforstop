@@ -5765,6 +5765,171 @@
       "_hash": "be060a63dded6f3bcda8297164979932196ae9b6aed8814db2bf9bab7d47a66a",
       "signatureTag": "missing|unknown|packages-main-templates",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-145",
+      "desc": "profile-verifier reproducibility: scripts/verify-test-intent-prompt-profile.mjs:11-20 hard-requires packages/lab/dist/handlers/lab.js before checking the prompt. git ls-files confirms that file is untracked, .gitignore:2 ignores dist, and package.json:11 build does not build packages/lab (only package.json:12 build:lab does). In a clean checkout, the verifier exits at lines 13-17 with the built-lab error, so the passing local profile result is not reproducible from the committed sources.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-21T07:49:32.960Z",
+      "reviewRound": "2026-08-21T07:45:05.210Z",
+      "reviewRunId": "B-5a88:RR-161",
+      "_hash": "850be9bc09d1b2a19aa5688ef8f994f2dbb3f85941b20ed059667f267445a986",
+      "files": [
+        "scripts/verify-test-intent-prompt-profile.mjs",
+        "package.json"
+      ],
+      "signatureTag": "missing|mjs|profile-verifier-reproducibility",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 961cf1985b: the profile verifier now detects a missing packages/lab/dist and runs npm --prefix packages/lab run build before loading handlers, so a clean checkout has a deterministic build path; profile, fixture-friendly, and lab policy checks pass.",
+      "resolvedAt": "2026-08-21T08:00:27.097Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5a88:F-146",
+      "desc": "Configured validation remains stale at .proof-or-stop/story/actives/B-5a88/test-evidence.json:2-8. evidence_inspect --storyId=B-5a88 --format=json reports staleRefs=[test-evidence] because its storyFilesHash does not match the current story-owned state; a current story-scoped validate rerun is required before TEST assurance can be claimed. The reviewer validate and verification_evidence_refresh_stale attempts were owner-gated by the active same-worktree owner lease, so no fresh configured validation PASS is claimed.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-21T07:50:33.561Z",
+      "reviewRound": "2026-08-21T07:45:05.210Z",
+      "reviewRunId": "B-5a88:RR-159",
+      "_hash": "b2db8f3599a5c405c775cf9c24411ffa598d0a4efceb6b65ff4df15e99beeae0",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/test-evidence.json"
+      ],
+      "signatureTag": "missing|json|configured-validation-remains",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-147",
+      "desc": "CHK-001:happy:0 remains under-bound at .proof-or-stop/story/actives/B-5a88/checklist.json:111-128. Its pinned mechanical receipt only imports canonicalAgentRoleId and asserts one lattice-review-quality alias; it does not execute or assert the four consumers named by the must intent: review_run_start, review_pass_set, init_check_set, and quorum resolution. Existing stronger consumer tests are not the recorded evidence, and no real Codex PreToolUse E2E is claimed because token observability is unavailable.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-21T07:50:41.510Z",
+      "reviewRound": "2026-08-21T07:45:05.210Z",
+      "reviewRunId": "B-5a88:RR-159",
+      "_hash": "80956357bf5be52ef0786a3476cebbe30be1067114b387b690f7e3c5b86a6508",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/checklist.json",
+        "packages/main/tests/brand-role-migration.test.mjs"
+      ],
+      "signatureTag": "missing|json|happy-remains-bound",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-148",
+      "desc": "legacy profile contract remains: packages/lab/src/profiles/test-intent-prompt-quality-v1.ts:31-42 still scores cliBrowserTypes by requiring cli_blackbox and browser_blackbox, and includes that retired check in the quality denominator. The current three prompts intentionally contain neither term, while scripts/verify-test-intent-prompt-profile.mjs:70-90 only asserts six current signals and lowers the high-score threshold to >0.7. Thus the verifier can pass while the production profile still treats the forbidden legacy vocabulary as a quality criterion; the profile and verificationIntent prompt contract are not semantically aligned.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-21T07:50:46.141Z",
+      "reviewRound": "2026-08-21T07:45:05.210Z",
+      "reviewRunId": "B-5a88:RR-161",
+      "_hash": "abe1482c098b5dd65aa93598ff356af449c863de35ab0d2a5785071555d12ba2",
+      "files": [
+        "packages/lab/src/profiles/test-intent-prompt-quality-v1.ts",
+        "scripts/verify-test-intent-prompt-profile.mjs"
+      ],
+      "signatureTag": "missing|ts|legacy-profile-contract",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 961cf1985b: test-intent-prompt-quality-v1 now scores current verificationIntent supported types, desc/WHY, fixture-heavy guidance, the explicit unsupported input/expect guard, and distinct edge/adversarial guidance; legacy blackbox type names are no longer quality criteria. The profile verifier passes.",
+      "resolvedAt": "2026-08-21T08:00:35.093Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5a88:F-149",
+      "desc": "CHK-002:happy:0, CHK-002:edge:0, and CHK-002:adversarial:0 at .proof-or-stop/story/actives/B-5a88/checklist.json:207-233,241-298 have fresh passing mechanical receipts, but the immutable pins import /private/tmp/proof-or-stop-b5a88-marker-build and /private/tmp/proof-or-stop-b5a88-init-build helper/template artifacts. They do not execute the current-worktree init or init --upgrade producer/consumer path, generated thin/global-thin output, or exactly-one-block replacement. The refresh is valid hash freshness only; it cannot be treated as current producer coverage.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-21T07:50:49.885Z",
+      "reviewRound": "2026-08-21T07:45:05.210Z",
+      "reviewRunId": "B-5a88:RR-159",
+      "_hash": "b7b60a1d341e1846e6ee34f8a891abc0157df8e5e584c89f43e7497de417bab1",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/checklist.json",
+        "packages/main/tests/managed-marker-migration.test.mjs"
+      ],
+      "signatureTag": "missing|json|happy-edge-adversarial",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-150",
+      "desc": "CHK-004:happy:0, CHK-004:edge:0, and CHK-004:adversarial:0 at .proof-or-stop/story/actives/B-5a88/checklist.json:476-506,510-571 remain source-token and bash -n checks, even though their mechanical receipts are fresh. They do not execute the real .githooks/pre-push producer/consumer path for canonical and lattice schema acceptance, one-shot second-consume rejection, invalid-schema rejection, sha-mismatch rejection, or expiry rejection; the stronger migration test is not the recorded evidence for these three intents.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-21T07:50:58.981Z",
+      "reviewRound": "2026-08-21T07:45:05.210Z",
+      "reviewRunId": "B-5a88:RR-159",
+      "_hash": "26ca01f01ba9783ede6647b53e0542db881ef99bf4739bae4611876f9829d823",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/checklist.json",
+        ".githooks/pre-push",
+        "packages/main/tests/release-push-approval-migration.test.mjs"
+      ],
+      "signatureTag": "adversarial|json|happy-edge-adversarial",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-151",
+      "desc": "CHK-007:edge:0 remains under-bound at .proof-or-stop/story/actives/B-5a88/checklist.json:903-912. Its fresh mechanical receipt only runs node packages/main/dist/cli.js help and matches Entrypoint: proof-or-stop; that does not execute the residue scanner distinction between frozen historical evidence, compatibility readers, and unsupported new lattice command aliases. scripts/verify-lattice-residue.mjs --self-test is pinned only to CHK-007:adversarial:0, so the edge intent is still not evidenced.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-21T07:51:06.890Z",
+      "reviewRound": "2026-08-21T07:45:05.210Z",
+      "reviewRunId": "B-5a88:RR-159",
+      "_hash": "b5d9aceec25753c4bf21e505d0114cf29d08df5a787afd2594183a2c03e3a722",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/checklist.json",
+        "scripts/verify-lattice-residue.mjs"
+      ],
+      "signatureTag": "missing|json|edge-remains-bound",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-152",
+      "desc": "scripts/verify-test-intent-prompt-profile.mjs:54-58 directly invokes the mutating lab handler and passes confirm:true, but packages/lab/src/handlers/lab.ts:219-240 never checks args.confirm; the declared guardrail at packages/lab/src/tool-defs.ts:29-38 is bypassed. Repro: direct createLabHandlers(...).lab_run({config:'experiments/configs/lab-boundary.json'}) with no confirm created experiments/runs/lab-boundary/run-001/result.json and a sandbox. The verifier therefore no longer exercises the CLI ownership/fail-closed boundary. Keep this verifier isolated and explicitly boundary-tested, or route the mutation through a guarded test seam while preserving the separate CLI fail-closed coverage.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-08-21T07:51:42.248Z",
+      "reviewRound": "2026-08-21T07:45:05.210Z",
+      "reviewRunId": "B-5a88:RR-158",
+      "_hash": "46a7e5dc90a978bf0c52bca8050f6f8063654c772fada87f72ca2b352d9cd07b",
+      "files": [
+        "scripts/verify-test-intent-prompt-profile.mjs",
+        "packages/lab/src/handlers/lab.ts",
+        "packages/lab/src/tool-defs.ts"
+      ],
+      "signatureTag": "adversarial|mjs|scripts-verify-test",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 961cf1985b: the profile verifier wraps direct lab handler execution with an explicit confirm=true adapter, rejects missing confirmation before handler execution, and runs the normal evaluation only with confirm=true; the existing lab-create ownership fail-closed test and prompt profile verifier both pass.",
+      "resolvedAt": "2026-08-21T08:00:43.234Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
