@@ -4729,6 +4729,46 @@
       "resolvedAt": "2026-08-21T03:23:07.968Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5a88:F-111",
+      "desc": "packages/main/src/init-assets.ts:766-770,781-782 and .proof-or-stop/story/actives/B-5a88/test-evidence.json:3 — the generated Codex evidence PreTool hook explicitly marks the real Codex shell tool token as PENDING-REAL-TOKEN and only matches shell/local_shell/exec_command, so the hook can be a no-op if the real emitted token differs. Current proof-or-stop validate is pass/allPass=true and its thin-init/Codex smokes pass, but the transcript explicitly records Codex coverage as candidate-only, not confirmed; codex_doctor also reports global-fallback-heartbeat not executed. Resolve by capturing the actual Codex emitted tool_name and rerunning the adapter e2e with a current evidence receipt before claiming complete thin-init/Codex coverage.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-21T03:31:34.784Z",
+      "reviewRound": "2026-08-21T03:24:05.779Z",
+      "reviewRunId": "B-5a88:RR-138",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "packages/main/tests/artifact-schema-migration.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/test-evidence.json",
+          "packages/main/dist/tasks/codex-adapter-gate-scope-smoke.js",
+          "packages/main/dist/tasks/init-preflight-smoke.js",
+          "packages/main/dist/tasks/thin-init-assets-smoke.js",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/init-assets.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "150d46d09097928d4c584dba4139237657269c5109e5af3b4b616263d17005c5",
+      "files": [
+        "packages/main/src/init-assets.ts",
+        ".proof-or-stop/story/actives/B-5a88/test-evidence.json"
+      ],
+      "signatureTag": "missing|ts|packages-main-init",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Accepted as an environment-bound coverage limitation: the generated hook intentionally remains fail-open and labels the real Codex PreToolUse tool_name as unconfirmed, matching documented candidates shell/local_shell/exec_command only. Current validate status=pass/allPass=true, focused Codex/thin-init smokes and 22/22 evidence refs are fresh; no false Codex e2e claim is made. A host with the real PreToolUse token must rerun the adapter e2e before upgrading this assurance.",
+      "resolvedAt": "2026-08-21T03:33:30.444Z",
+      "resolutionType": "accepted_risk",
+      "resolveEvidenceStrength": "medium"
     }
   ]
 }

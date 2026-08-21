@@ -2263,6 +2263,84 @@
         "scanEscalationReason": null
       },
       "_hash": "f99d086567c533cb6244cb28dd3a06f2d9f8ff1627e1022c5f2ecd3c37e85d88"
+    },
+    {
+      "id": "B-5a88:RP-037",
+      "agent": "lattice-review-quality",
+      "note": "F-107 clean at current HEAD d91f73c585: global-thin config and Codex manifest writers emit proof-or-stop identities; heartbeat checks use canonical command/env constants with bounded legacy fallback; focused global-thin, heartbeat, path-resolver, and registry smokes pass. No blocking quality finding.",
+      "createdAt": "2026-08-21T03:30:59.869Z",
+      "reviewRound": "2026-08-21T03:24:05.779Z",
+      "reviewRunId": "B-5a88:RR-139",
+      "envelopeId": "0b550ea3a2e77ab0f84a5281de56f54b299447c49e8651fc481cda477f0cdd2b",
+      "writerSessionId": "sess-0f05cebf0ba7242db3fa84dc5cfa7df5",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "packages/main/src/core/brand-env.ts",
+          "packages/main/src/core/brand-paths.ts",
+          "packages/main/src/tasks/thin-init-assets-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/cli-init.ts",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/managed-assets.ts",
+          "packages/main/src/init-assets.ts",
+          "packages/main/src/tasks/brand-path-resolver-smoke.ts",
+          "packages/main/src/tasks/codex-heartbeat-timeout-smoke.ts",
+          "packages/main/src/tasks/codex-registry-mode-smoke.ts",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/prompt-role-migration.test.mjs",
+          "scripts/verify-codex-assets.mjs",
+          "scripts/verify-entrypoints.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5fb2bf6363e4ed0d1585da882d22aa6a46ac41c8bfb240bab6a0bad9aaf074f8"
+    },
+    {
+      "id": "B-5a88:RP-038",
+      "agent": "lattice-review-concept",
+      "note": "Rechecked F-108/F-109 against the current source and 500eed99aa..HEAD diff; F-108 is canonical-write plus explicit legacy dual-read, F-109 cited guidance is canonical, and no new active lattice identity or guidance remains outside compatibility/negative/frozen surfaces.",
+      "createdAt": "2026-08-21T03:31:20.986Z",
+      "reviewRound": "2026-08-21T03:24:05.779Z",
+      "reviewRunId": "B-5a88:RR-140",
+      "envelopeId": "d0251e8a06ea176ff1e6f7613fce3609f72b7b34df56bb614adb076357c79342",
+      "writerSessionId": "sess-2e37202e29e955c54a38007dd0e35167",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop-codex/agents/proof-or-stop-review-concept.md",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/artifact-schema.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/reviewer-opt-in.ts",
+          "packages/main/tests/artifact-schema-migration.test.mjs",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/prompt-role-migration.test.mjs",
+          "scripts/verify-lattice-residue.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "fe91fed6d1f781e5598a4edba96cf5747acc96d9ef6ceefb808d278314e4120c"
     }
   ]
 }
