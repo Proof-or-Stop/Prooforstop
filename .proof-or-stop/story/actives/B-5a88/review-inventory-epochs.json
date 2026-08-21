@@ -1612,16 +1612,90 @@
       "epochId": "B-5a88:RIE-022",
       "storyId": "B-5a88",
       "reviewRound": "2026-08-21T20:53:57.831Z",
-      "state": "FINALIZED",
+      "state": "CANCELLED",
       "begunAt": "2026-08-21T22:15:01.336Z",
-      "updatedAt": "2026-08-21T22:15:01.336Z",
+      "updatedAt": "2026-08-21T23:19:39.950Z",
       "cutoff": {
         "headHash": "15c593700aecf418bdc8939f7c96e1d1afd1ba44",
         "materialHash": "c32f8efc7c636cc5c73bdcd425530d1897fd0a91625732a5ac4d3c8520169e3a",
         "storyFilesHash": "254e16d089a2079d9332bd375bf4104a3809e98a62db398b0916f5479daee69d"
       },
       "receiptId": "B-5a88:RIE-022:RCP-001",
-      "_hash": "e40b44bb9c5fa5c88cce73e5551e814dffd3b1c9ea471ffd43662757cd7b2c70"
+      "cancelledAt": "2026-08-21T23:19:39.950Z",
+      "cancelReason": "Invalidate the prior unconsumed inventory receipt because its reviewRound predates the current REVIEW round and cannot authorize this remediation.",
+      "terminalRunSequenceBoundary": 281,
+      "_hash": "4bba0b7a793b0c84c37c2e78e9b7726a0d80712d5dab5f3b29a532e92d7d54af"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-5a88:RI-016",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-21T23:08:44.617Z",
+      "state": "INVALIDATED",
+      "begunAt": "2026-08-21T23:21:12.977Z",
+      "updatedAt": "2026-08-21T23:23:08.857Z",
+      "cutoff": {
+        "headHash": "ab86172c3e43e9ac06b958a5677c6e31913ad5ca",
+        "materialHash": "2658d690e365ac7b5b2c9f3b68f576314ff9488554590ab3e710997dd3c171f0",
+        "storyFilesHash": "df715ace6733b87f99d0ae49b2b92a8a219a90a2fe9f84b32a2b9109ff07384a"
+      },
+      "scopeDigest": "7e45bda69f57fe01ddacdb0d6af3ffe521ab2c08851158392a54410c106f22ac",
+      "requiredLanes": [
+        "proof-or-stop-review-concept",
+        "proof-or-stop-review-quality",
+        "proof-or-stop-review-test-coverage"
+      ],
+      "initialRunSequenceBoundary": 281,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [],
+      "invalidation": {
+        "detectedAt": "2026-08-21T23:23:08.857Z",
+        "oldMaterialHash": "2658d690e365ac7b5b2c9f3b68f576314ff9488554590ab3e710997dd3c171f0",
+        "currentMaterialHash": "2658d690e365ac7b5b2c9f3b68f576314ff9488554590ab3e710997dd3c171f0",
+        "oldStoryFilesHash": "df715ace6733b87f99d0ae49b2b92a8a219a90a2fe9f84b32a2b9109ff07384a",
+        "currentStoryFilesHash": "df715ace6733b87f99d0ae49b2b92a8a219a90a2fe9f84b32a2b9109ff07384a",
+        "blockerCode": "OPEN_REVIEW_INVENTORY_SCOPE_MUTATION",
+        "oldScopeDigest": "7e45bda69f57fe01ddacdb0d6af3ffe521ab2c08851158392a54410c106f22ac",
+        "currentScopeDigest": "7e45bda69f57fe01ddacdb0d6af3ffe521ab2c08851158392a54410c106f22ac",
+        "oldRequiredLanes": [
+          "proof-or-stop-review-concept",
+          "proof-or-stop-review-quality",
+          "proof-or-stop-review-test-coverage"
+        ],
+        "currentRequiredLanes": [
+          "lattice-review-concept",
+          "lattice-review-quality",
+          "lattice-review-test-coverage"
+        ]
+      },
+      "terminalRunSequenceBoundary": 281,
+      "_hash": "279203b0fba4396a68a375fac5d21ef28392b5765d606df2587dcd3a36a26349"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-5a88:RI-017",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-21T23:08:44.617Z",
+      "state": "OPEN",
+      "begunAt": "2026-08-21T23:33:10.713Z",
+      "updatedAt": "2026-08-21T23:33:10.713Z",
+      "cutoff": {
+        "headHash": "ab86172c3e43e9ac06b958a5677c6e31913ad5ca",
+        "materialHash": "2658d690e365ac7b5b2c9f3b68f576314ff9488554590ab3e710997dd3c171f0",
+        "storyFilesHash": "df715ace6733b87f99d0ae49b2b92a8a219a90a2fe9f84b32a2b9109ff07384a"
+      },
+      "scopeDigest": "7e45bda69f57fe01ddacdb0d6af3ffe521ab2c08851158392a54410c106f22ac",
+      "requiredLanes": [
+        "proof-or-stop-review-concept",
+        "proof-or-stop-review-quality",
+        "proof-or-stop-review-test-coverage"
+      ],
+      "initialRunSequenceBoundary": 286,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [],
+      "_hash": "001fc0c7ee2b57e39a22b0608b137c46472c01f69e329750781df4df77064b6a"
     }
   ],
   "receipts": [
@@ -1866,7 +1940,9 @@
       "authorizesTest": false,
       "saturationResult": "ZERO_NEW_VERIFIED_FINDINGS",
       "issuedAt": "2026-08-21T22:15:01.336Z",
-      "_hash": "02eaefdeb027e3009837b42fba91e682a6f90f7e7c8b651b326b03ed70a091b3"
+      "invalidatedAt": "2026-08-21T23:19:39.950Z",
+      "invalidationReason": "Invalidate the prior unconsumed inventory receipt because its reviewRound predates the current REVIEW round and cannot authorize this remediation.",
+      "_hash": "b7f389d75461757703492c60f92ec9eac0688e98f101990247a552b3bc49b3c5"
     }
   ],
   "criticReceipts": [

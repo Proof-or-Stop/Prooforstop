@@ -4374,6 +4374,44 @@
         "scanEscalationReason": null
       },
       "_hash": "9ac4455fadd68257cf7f84c8bcb53e9c118108bde7d7670bc5c5dfc4851d8d99"
+    },
+    {
+      "id": "B-5a88:RP-080",
+      "agent": "lattice-review-concept",
+      "note": "F-238 fix reviewed at current HEAD: retired-bin guidance is corrected, canonical-only bin metadata and residue tests pass, and remaining legacy references are explicitly compatibility, frozen, or negative self-test specimens.",
+      "createdAt": "2026-08-21T23:26:43.721Z",
+      "reviewRound": "2026-08-21T23:08:44.617Z",
+      "reviewRunId": "B-5a88:RR-283",
+      "envelopeId": "45706d392ad5a00b12b8500c87ca8b988d7259eefd57e176686af756f7347867",
+      "writerSessionId": "sess-3530bb7cb55cb65cb4e31fb1e255dee8",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/package.json",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/tests/bin-alias-migration.test.mjs",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli-init.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/core/managed-assets.ts",
+          "scripts/build-lock-target.mjs",
+          "scripts/verify-codex-assets.mjs",
+          "scripts/verify-entrypoints.mjs",
+          "scripts/verify-global-lab-entrypoint.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6101178730a66ced88b27a60923f8d6a6b5ebb21bd1b1f0d86220814f52ca269"
     }
   ]
 }
