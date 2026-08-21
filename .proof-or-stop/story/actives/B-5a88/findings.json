@@ -4789,6 +4789,169 @@
       ],
       "signatureTag": "missing|ts|concept-cleanup-packages",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-113",
+      "desc": "Configured validation is not current for Round 20: lifecycle_check --target=TEST reports PASS at 2026-08-21T03:22:00.298Z from test-evidence.json bound to headHash d9f4f638ba73a6af8bad344b03d1a979caf5773d, materialHash 3953e9236797f4c3774c00d69b6b5fe7191190ad1a64875a4c4dee44790fadf6, and storyFilesHash 4b16941a7285fc454761abbc253ef52d85e395e4b2d8d09052e97ad8ef7424eb; current Round 20 is headHash 9af8d8247a80d35b057a02fa324634aa131a51b7, materialHash 9a666ec36e453c3ad6ed4d1b7bfdd784ba1ced39c17cd614f34f8102b4827244, storyFilesHash 6d2b426ab4c3404c2ea2d221ac98b2b0040a15a4bf02e3fb6064699ec6114188. Rerun configured validation before treating TEST validation as fresh.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-21T04:06:12.748Z",
+      "reviewRound": "2026-08-21T03:56:33.382Z",
+      "reviewRunId": "B-5a88:RR-147",
+      "_hash": "b41c90c1c771f37e2a700f93bc21e0f523b159c026ca646d1fe1f89964c3a6bb",
+      "files": [
+        "proof-or-stop.config.json",
+        ".proof-or-stop/story/actives/B-5a88/test-evidence.json"
+      ],
+      "signatureTag": "missing|json|configured-validation-current",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-114",
+      "desc": "CHK-004:happy:0, CHK-004:edge:0, and CHK-004:adversarial:0 are bound to source-token smokes that only read release-push-approval.ts/.githooks/pre-push (and run bash -n for the last case); they do not execute createReleasePushApproval or the hook dual-read, one-shot consumption, invalid-schema, sha-mismatch, and expired-approval behaviors stated by the intents. The real behavioral coverage exists in packages/main/tests/release-push-approval-migration.test.mjs but is not the command in any of the three verificationEvidence receipts, so the required negative/compatibility coverage is not bound to this story evidence.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-21T04:06:30.954Z",
+      "reviewRound": "2026-08-21T03:56:33.382Z",
+      "reviewRunId": "B-5a88:RR-147",
+      "_hash": "06f8daa7bd89eff5ac0ada433539db36bb3a75c5aa07cc2e081d58ecc5c7ab70",
+      "files": [
+        "packages/main/src/core/release-push-approval.ts",
+        ".githooks/pre-push",
+        "packages/main/tests/release-push-approval-migration.test.mjs"
+      ],
+      "signatureTag": "adversarial|ts|happy-edge-adversarial",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-115",
+      "desc": "CHK-001:happy:0 is under-bound: its receipt only imports canonicalAgentRoleId and checks one lattice-review-quality alias, while the authored must intent requires canonical reviewer IDs to be emitted and accepted by review_run_start, review_pass_set, init_check_set, and quorum resolution. It also provides no bound Codex asset/host evidence for the in-scope verify-codex-assets surface. packages/main/tests/brand-role-migration.test.mjs contains stronger consumer coverage and passed when run manually, but it is not the pinned verificationEvidence command. No real Codex PreToolUse E2E is evidenced: verify-codex-assets runs executeHeartbeats:false and the host pretool smoke stopped at an EPERM global thin-shim write before its later hook assertions; do not treat this as Codex E2E coverage.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-21T04:06:52.288Z",
+      "reviewRound": "2026-08-21T03:56:33.382Z",
+      "reviewRunId": "B-5a88:RR-147",
+      "_hash": "c5cc1f3e73385033bba8dda55a7f90e626674ba9c8a95297406ff69d4fd4f65f",
+      "files": [
+        "packages/main/tests/brand-role-migration.test.mjs",
+        "scripts/verify-codex-assets.mjs",
+        "packages/main/src/core/agent-role-identity.ts",
+        "packages/main/src/handlers/review-run.ts",
+        "packages/main/src/handlers/init-check.ts",
+        "packages/main/src/core/reviewer-quorum.ts"
+      ],
+      "signatureTag": "missing|mjs|happy-bound-receipt",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-116",
+      "desc": "CHK-002:happy:0 and CHK-002:adversarial:0 are bound to imports from /private/tmp/proof-or-stop-b5a88-marker-build and /private/tmp/proof-or-stop-b5a88-init-build that inspect helper output/template constants; neither receipt invokes the current worktree init or init --upgrade path, nor verifies the generated global-thin/thin file has exactly one managed block. The focused managed-marker test and packages/main/dist/tasks/thin-init-assets-smoke.js both passed when run manually, but that thin-init execution is not bound to CHK-002 evidence, so generated thin-init coverage remains unproven by the recorded receipts.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-21T04:07:12.918Z",
+      "reviewRound": "2026-08-21T03:56:33.382Z",
+      "reviewRunId": "B-5a88:RR-147",
+      "_hash": "4041568b516f508a2886409bcb803dd1505522186efc20c3ceb8cdbe2d90e697",
+      "files": [
+        "packages/main/tests/managed-marker-migration.test.mjs",
+        "packages/main/src/tasks/thin-init-assets-smoke.ts",
+        "packages/main/src/cli-init.ts",
+        "packages/main/src/init-assets.ts"
+      ],
+      "signatureTag": "missing|mjs|happy-adversarial-bound",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-117",
+      "desc": "concept-cleanup: docs/requirements/decisions/proof-or-stop-identity-migration.md:22-30 and docs/requirements/decisions/brand-rename-mapping.md:127,131,134-135,237-240 still mark the exact role IDs, root npm name, managed markers, and remote approval schema as FROZEN/out of scope. B-5a88 plan.md:6-10 explicitly supersedes those rows and current writers emit proof-or-stop forms, so these active related decision docs contradict the canonical new-write contract and can direct future work back to legacy names. Add an explicit B-5a88 supersession/update or label the old rows historical-only.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-21T04:07:47.188Z",
+      "reviewRound": "2026-08-21T03:56:33.382Z",
+      "reviewRunId": "B-5a88:RR-146",
+      "_hash": "1c3b5fdae1ff2884d2e7447fe594668bf5890f883cb3120b66d2d8314f8f9a3f",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+        "docs/requirements/decisions/brand-rename-mapping.md",
+        ".proof-or-stop/story/actives/B-5a88/plan.md"
+      ],
+      "signatureTag": "missing|md|concept-cleanup-docs",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-118",
+      "desc": "packages/main/src/core/auto-commit-metadata.ts:133-145 — high: auto-commit metadata chains only from CLOSEOUT_WRITE_RECEIPT_SCHEMA, so a migrated story whose latest readable receipt is lattice.closeout_write_receipt.v3 gets the next canonical receipt at sequence 1 with previousIntegrityHash null; closeout-trust.ts:526-529 consumes both schemas and then rejects that mixed/reset chain, making the current artifact lose its causally valid closeout receipt after the first post-migration write. The producer must seed from the dual-read schema predicate and preserve the legacy predecessor.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T04:09:21.436Z",
+      "reviewRound": "2026-08-21T03:56:33.382Z",
+      "reviewRunId": "B-5a88:RR-145",
+      "_hash": "fa16867e7296239f2e5876c6129f2a000dd33421ed7d3bdade60b32e3a222ca3",
+      "files": [
+        "packages/main/src/core/auto-commit-metadata.ts",
+        "packages/main/src/core/closeout-trust.ts"
+      ],
+      "signatureTag": "edge|ts|packages-main-core",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-119",
+      "desc": "packages/main/src/core/proof-admissibility.ts:219-228,715-717 — medium: the current DONE-required writer is proof-or-stop.done_required_evidence.v1 (artifact-schema.ts:18), but PROOF_SURFACE_REGISTRY advertises only lattice.done_required_evidence.v1, so a direct evaluateProofAdmissibility consumer rejects a valid canonical artifact with unsupported_schema_version. Reproduction with all other checks valid: evaluateProofAdmissibility({artifactKind:\"done-required-evidence\", consumer:\"DONE_REQUIRED\", claim:\"done-readiness\", checks:{schemaVersion:\"proof-or-stop.done_required_evidence.v1\", ...}}) returns allowed=false; done-required-validation.ts:1015-1017 masks this by projecting the diagnostic back to the legacy label. The registry and direct consumer need canonical-plus-legacy exact dual-read, rather than requiring every caller to lie about the stored schema.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T04:10:36.473Z",
+      "reviewRound": "2026-08-21T03:56:33.382Z",
+      "reviewRunId": "B-5a88:RR-145",
+      "_hash": "e41afc06aac215fad10208bac25e1b0e168b27dfb0245a37fcbbcd338628a988",
+      "files": [
+        "packages/main/src/core/proof-admissibility.ts",
+        "packages/main/src/core/artifact-schema.ts",
+        "packages/main/src/core/done-required-validation.ts"
+      ],
+      "signatureTag": "edge|ts|packages-main-core",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-120",
+      "desc": "packages/main/src/core/managed-assets.ts:1477-1508,1526-1533 — medium: --upgrade classifies managed agent files only by the new proof-or-stop template basenames. A pre-migration .claude/agents/lattice-review-quality.md is therefore returned in userFiles, not managedFiles, and migrateProjectLocalManagedAgents leaves it in place; the current dist repro reports managedBasenames=[proof-or-stop-review-quality.md], managedFiles=[], userFiles=[lattice-review-quality.md], removed=[], preserved=[lattice-review-quality.md]. Because cli-init.ts:958-979 only migrates managedFiles and codex-adapter-checks.ts:539-565 requires canonical registry filenames, an old project-local legacy prompt can remain as a shadow while the new global canonical shim is installed and then fails mirror verification. Known legacy role aliases should be recognized for explicit migration/read compatibility while fresh writes remain canonical.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T04:10:54.332Z",
+      "reviewRound": "2026-08-21T03:56:33.382Z",
+      "reviewRunId": "B-5a88:RR-145",
+      "_hash": "5d3a401b2d6b7ab635199f4689727a188409102282626537c21115e2e706d6c4",
+      "files": [
+        "packages/main/src/core/managed-assets.ts",
+        "packages/main/src/cli-init.ts",
+        "packages/main/src/core/global-agents.ts",
+        "packages/main/src/core/codex-adapter-checks.ts"
+      ],
+      "signatureTag": "edge|ts|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
