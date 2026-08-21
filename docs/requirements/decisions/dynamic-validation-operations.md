@@ -24,8 +24,9 @@ explicit policy tuple for ordinary commands; gate-heavy rows override those
 defaults. Each object in `validate.commands` must preserve these fields through
 the verifier inventory: `assurance`, `riskTier`, `closurePolicy`,
 `fullBaselineReusePolicy`, `cpuWeight`, `expectedP50Ms`, and (for DYN-5)
-`caseRegistryPath`, `declaredEnvironmentKeys`, and
-`env.LATTICE_VALIDATION_SHARD_ADAPTER`.
+`caseRegistryPath`, `runnerSourcePath`, `declaredEnvironmentKeys`, and
+`env.LATTICE_VALIDATION_SHARD_ADAPTER`. The runner source is included in the
+catalog input roots so changing it revokes the closure/baseline evidence.
 
 The registry is a project-relative JSON array. Each case has a stable `caseId`,
 domain (`quorum` or `review-pass`), a sentinel flag, and an executable
@@ -68,10 +69,11 @@ Rollback is non-destructive: set mode to `off` or `observe`. Existing Story
 evidence remains valid, while dynamic receipts simply stop being consumed by
 the authority predicate.
 
-To establish a canonical full baseline for the current HEAD, run the normal
-Story-scoped validator in `shadow`/`enforce-low-risk` after a clean build; the
-executor writes the baseline only after the complete plan passes and all
-runtime closure traces are admissible. Inspect the resulting
+To establish a canonical full baseline for the current HEAD, run the unscoped
+validator (`proof-or-stop validate --json`) in `shadow`/`enforce-low-risk`
+after a clean build; the verifier writes the baseline only for this
+non-Story complete-plan run, after it passes and all runtime closure traces
+are admissible. Inspect the resulting
 `.proof-or-stop/runtime/dynamic-validation/canonical-full-baseline.json` before
 expecting reuse. If it is missing, expired, or digest-mismatched, the gate
 selects full validation.

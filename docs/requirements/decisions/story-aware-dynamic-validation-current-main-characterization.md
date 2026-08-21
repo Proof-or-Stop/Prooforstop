@@ -24,13 +24,15 @@ command carries the catalog policy tuple:
 | `closurePolicy` | `static-and-traced`, `whole-repository`, or `never-reuse` |
 | `fullBaselineReusePolicy` | `not-applicable`, `exact-current-epoch-only`, or `forbidden` |
 | `caseRegistryPath` | in-root DYN-5 registry, when sharding is required |
+| `runnerSourcePath` | executable DYN-5 runner bound into source closure |
 | `declaredEnvironmentKeys` | command-specific environment reads allowed by closure |
 
 Missing policy is recorded as `policySource=default` and cannot satisfy the
 enforcement ownership prerequisite. This makes an unregistered command fail
 closed instead of silently entering the reusable set. The two gate rows also
-declare `caseRegistryPath` and `LATTICE_VALIDATION_SHARD_ADAPTER` in both
-canonical and legacy config files.
+declare `caseRegistryPath`, `runnerSourcePath`, and
+`LATTICE_VALIDATION_SHARD_ADAPTER` in both canonical and legacy config files;
+the runner path is part of each gate row's source closure.
 
 ## Baseline run
 

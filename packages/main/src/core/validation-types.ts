@@ -15,6 +15,8 @@ export interface ValidationCommand {
   focus?: string[];
   /** Versioned real case registry consumed by DYN-5 adapters. */
   caseRegistryPath?: string;
+  /** Source entrypoint executed by the registered DYN-5 case runners. */
+  runnerSourcePath?: string;
   /** Environment keys the command is permitted to read during closure tracing. */
   declaredEnvironmentKeys?: string[];
   /** Explicit catalog policy; omitted fields remain non-authoritative defaults. */

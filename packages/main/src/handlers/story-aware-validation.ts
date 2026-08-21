@@ -438,6 +438,7 @@ function commandForEntry(entry: ValidationCatalogEntry, configured?: ValidationC
     ...(source?.env !== undefined ? { env: source.env } : entry.env !== undefined ? { env: entry.env } : {}),
     ...(source?.declaredEnvironmentKeys !== undefined ? { declaredEnvironmentKeys: source.declaredEnvironmentKeys } : entry.declaredEnvironmentKeys !== undefined ? { declaredEnvironmentKeys: entry.declaredEnvironmentKeys } : {}),
     ...(source?.caseRegistryPath !== undefined ? { caseRegistryPath: source.caseRegistryPath } : entry.caseRegistryPath !== undefined ? { caseRegistryPath: entry.caseRegistryPath } : {}),
+    ...(source?.runnerSourcePath !== undefined ? { runnerSourcePath: source.runnerSourcePath } : entry.runnerSourcePath !== undefined ? { runnerSourcePath: entry.runnerSourcePath } : {}),
     ...(source?.assurance !== undefined ? { assurance: source.assurance } : entry.assurance !== undefined ? { assurance: entry.assurance } : {}),
     ...(source?.riskTier !== undefined ? { riskTier: source.riskTier } : entry.riskTier !== undefined ? { riskTier: entry.riskTier } : {}),
     ...(source?.closurePolicy !== undefined ? { closurePolicy: source.closurePolicy } : entry.closurePolicy !== undefined ? { closurePolicy: entry.closurePolicy } : {}),
