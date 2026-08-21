@@ -1,0 +1,66 @@
+# Dynamic validation operations runbook
+
+This runbook is the operator contract for the four policy modes.
+
+## Mode selection and rollback
+
+Set `validate.dynamic.mode` (or pass `--dynamic-mode`) to one of:
+
+| Mode | Behavior | Authority |
+| --- | --- | --- |
+| `off` | ordinary complete validator | full plan |
+| `observe` | compute and persist selection, then run the complete plan | full plan |
+| `shadow` | execute the dynamic plan, then the complete plan and compare verdicts | full plan |
+| `enforce-low-risk` | use the dynamic result only after every gate-owned prerequisite passes | dynamic for eligible local/docs Stories; otherwise full fallback |
+
+Without `--story`, all non-off modes are bounded previews: zero project
+commands execute, no receipts are issued, and no TEST/DONE authority is granted.
+
+## Required configuration
+
+Each object in `validate.commands` must preserve these fields through the
+verifier inventory: `assurance`, `riskTier`, `closurePolicy`,
+`fullBaselineReusePolicy`, `cpuWeight`, `expectedP50Ms`, and (for DYN-5)
+`caseRegistryPath`, `declaredEnvironmentKeys`, and
+`env.LATTICE_VALIDATION_SHARD_ADAPTER`.
+
+The registry is a project-relative JSON array. Each case has a stable `caseId`,
+domain (`quorum` or `review-pass`), a sentinel flag, and an executable
+`runner` (`command`, `args`, optional `cwd`/`env`, and a success marker). The
+registered adapter checks the registry digest, exact case routing, executes
+every runner in an isolated shard, writes one signed case evidence file, and
+fails closed on a static marker or missing body execution.
+
+## Artifacts and inspection
+
+For Story `B-xxxx`, inspect:
+
+```text
+.proof-or-stop/runtime/dynamic-validation/B-xxxx/selection.json
+.proof-or-stop/runtime/dynamic-validation/B-xxxx/report.txt
+.proof-or-stop/runtime/dynamic-validation/B-xxxx/receipts.json
+.proof-or-stop/runtime/dynamic-validation/B-xxxx/revocation-ledger.json
+.proof-or-stop/runtime/dynamic-validation/B-xxxx/shards/*
+```
+
+Every selection row explains `execute`, `reuse`, or fail-closed disposition.
+Receipts bind command identity, input/closure/catalog/inventory digests, runner
+and toolchain, build proof, baseline epoch, ancestry, clean tree, expiry and
+the append-only revocation-ledger digest. Shard artifacts additionally expose
+case coverage, sentinel, adapter/registry digests and cleanup residue.
+
+## Triage and recovery
+
+| Symptom | Required response |
+| --- | --- |
+| `catalog/inventory mismatch` | refresh the catalog and rerun catalog verification |
+| `closure-certificate-unavailable` | run the complete baseline; do not reuse |
+| `undeclared-runtime-*` | inspect trace, add a justified declaration or keep full-only |
+| `baselineCurrent=false` | establish a fresh canonical full baseline for current main |
+| `receipt revoked/expired` | rerun the affected command and retain the ledger history |
+| DYN-5 registry/adapter failure | fix registry/runner routing; aggregation remains FAIL |
+| scope/protected/unmapped change | full validation; never override with a text flag |
+
+Rollback is non-destructive: set mode to `off` or `observe`. Existing Story
+evidence remains valid, while dynamic receipts simply stop being consumed by
+the authority predicate.

@@ -78,8 +78,8 @@ import {
 } from '../core/done-prepare-generated-metadata.js';
 import { normalizeRelPath } from '../core/lattice-paths.js';
 import { readBrandEnv } from '../core/brand-env.js';
-import { appendReceiptRevocation, buildRevocationLedger, resolveDynamicMode, runObserveOracle, stableDigest, type DynamicValidationMode, type ValidationSelectionManifest } from '../core/story-aware-validation.js';
-import { persistCanonicalFullBaseline, persistStoryAwareValidationArtifacts, prepareStoryAwareValidation, readStoryAwareValidationArtifacts, runStoryAwareDynamicValidation } from './story-aware-validation.js';
+import { appendReceiptRevocation, buildRevocationLedger, createValidationClosureCertificate, resolveDynamicMode, runObserveOracle, stableDigest, verifyValidationClosureCertificate, type DynamicValidationMode, type ValidationSelectionManifest, type ValidationCatalogEntry } from '../core/story-aware-validation.js';
+import { persistCanonicalFullBaseline, persistStoryAwareValidationArtifacts, prepareStoryAwareValidation, readStoryAwareValidationArtifacts, runStoryAwareDynamicValidation, runtimeTraceForResult } from './story-aware-validation.js';
 
 const STATUS_FALLBACK_TIMEOUT_MS = 10_000;
 const SHELL_META_RE = /[;&|<>$()`]/;
@@ -340,6 +340,14 @@ export function configuredValidationCommands(projectRoot: string): ValidationCom
           ...(entry.shell === true ? { shell: true } : {}),
           ...(typeof entry.cwd === 'string' ? { cwd: entry.cwd } : {}),
           ...(entry.env && typeof entry.env === 'object' ? { env: Object.fromEntries(Object.entries(entry.env).map(([k, v]) => [k, String(v)])) } : {}),
+          ...(Array.isArray(entry.declaredEnvironmentKeys) ? { declaredEnvironmentKeys: entry.declaredEnvironmentKeys.filter((item: unknown): item is string => typeof item === 'string') } : {}),
+          ...(typeof entry.caseRegistryPath === 'string' ? { caseRegistryPath: entry.caseRegistryPath } : {}),
+          ...(typeof entry.assurance === 'string' ? { assurance: entry.assurance } : {}),
+          ...(typeof entry.riskTier === 'string' ? { riskTier: entry.riskTier } : {}),
+          ...(typeof entry.closurePolicy === 'string' ? { closurePolicy: entry.closurePolicy } : {}),
+          ...(typeof entry.fullBaselineReusePolicy === 'string' ? { fullBaselineReusePolicy: entry.fullBaselineReusePolicy } : {}),
+          ...(typeof entry.cpuWeight === 'number' ? { cpuWeight: entry.cpuWeight } : {}),
+          ...(typeof entry.expectedP50Ms === 'number' ? { expectedP50Ms: entry.expectedP50Ms } : {}),
           ...(typeof entry.timeoutMs === 'number' ? { timeoutMs: entry.timeoutMs } : {}),
           ...(typeof entry.optional === 'boolean' ? { optional: entry.optional } : {}),
           ...(focus ? { focus } : {}),
@@ -1502,6 +1510,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
               unmappedChanges: number;
             };
             observeOracle?: ReturnType<typeof runObserveOracle>;
+            catalog?: ValidationCatalogEntry[];
           } | undefined;
           // Focused validation is explicitly non-authoritative and may pass a
           // filtered command list; keep dynamic inventory/execution aligned
@@ -1536,6 +1545,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
                     selectedCommands: dynamic.manifest.totals.executed,
                     reusedCommands: dynamic.manifest.totals.reused,
                     receipts: 0,
+                    catalog: dynamic.catalog,
                   };
                   ctx.log?.(dynamic.report);
                 } else {
@@ -1574,6 +1584,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
                       commandExecutions: dynamic.buildResult.commands.length + dynamic.selectedResult.commands.length,
                       disposition: 'executed',
                     },
+                    catalog: dynamic.catalog,
                   };
                   ctx.log?.(dynamic.runtimeReport);
                 }
@@ -1699,6 +1710,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
               projectRoot,
               sourceHead: currentHead(handlerGitCwd) || '',
               result: base,
+              commands,
             });
           let dynamicValidation: any = dynamicPreview
             ? {
@@ -1727,7 +1739,10 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             const commandIds = manifest.rows.map(row => row.commandId);
             const instrumentedOrder = base.commands.flatMap((row, index) => {
               const commandId = manifest.rows[index]?.commandId;
-              return commandId && selected.has(commandId) && row.runtimeTrace?.events.includes('spawn') ? [commandId] : [];
+              // The authoritative executor result order is the observation;
+              // do not derive it from the predicted manifest or a fragile
+              // tracer event spelling.
+              return commandId && selected.has(commandId) ? [commandId] : [];
             });
             const observeOracle = runObserveOracle({
               manifest,
@@ -1756,8 +1771,22 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
               verdictEquivalent: observeOracle.equivalent,
             };
             const runtimeClosureInvalidCommandIds = base.commands.flatMap((row, index) => {
-              const commandId = manifest.rows[index]?.commandId;
-              return commandId && (row.runtimeTrace?.unknownRuntimeInputs?.length || 0) > 0 ? [commandId] : [];
+              const manifestRow = manifest.rows[index];
+              const entry = (dynamicValidation.catalog as ValidationCatalogEntry[] | undefined)?.find((candidate: ValidationCatalogEntry) => candidate.id === manifestRow?.commandId);
+              if (!manifestRow || !entry) return [];
+              const certificate = createValidationClosureCertificate({
+                commandId: entry.id,
+                baseHead: manifest.baseHead,
+                inventoryDigest: manifest.inventoryDigest,
+                catalogDigest: manifest.catalogDigest,
+                staticPaths: entry.inputRoots,
+                runtimeTrace: runtimeTraceForResult(row, projectRoot),
+                declaredEnvironmentKeys: entry.declaredEnvironmentKeys || Object.keys(entry.env || {}),
+                processFacts: entry.triggerExtensions.processFacts,
+                capabilities: entry.triggerExtensions.capabilities,
+                producedBy: 'story-closure-preview',
+              });
+              return verifyValidationClosureCertificate(certificate) ? [] : [entry.id];
             });
             dynamicValidation = { ...dynamicValidation, runtimeClosureInvalidCommandIds };
             const priorArtifacts = readStoryAwareValidationArtifacts(projectRoot, args.story!);
@@ -1774,7 +1803,10 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
               report: `${dynamicValidation.report || ''}\nobserve oracle: ${JSON.stringify(observeOracle)}\nruntime closure invalid command IDs: ${JSON.stringify(runtimeClosureInvalidCommandIds)}`,
               receipts: priorArtifacts.receipts,
               revocationLedger: observeLedger,
-              preserveExistingReceipts: false,
+              // Observe is audit-only: selection.json/report.txt and the
+              // append-only revocation ledger may change, but prior receipts
+              // are never replaced by an empty observe result.
+              preserveExistingReceipts: true,
             });
           }
           const summary = usingConfigured
@@ -1976,6 +2008,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
                 selectedCommands: dynamic.manifest.totals.executed,
                 reusedCommands: dynamic.manifest.totals.reused,
                 receipts: 0,
+                catalog: dynamic.catalog,
               };
             } else {
               const dynamic = await runStoryAwareDynamicValidation({
@@ -2013,6 +2046,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
                   commandExecutions: dynamic.buildResult.commands.length + dynamic.selectedResult.commands.length,
                   disposition: 'executed' as const,
                 } : undefined,
+                catalog: dynamic.catalog,
               };
             }
             ctx.log?.(dynamicValidation.report || 'dynamic validation prepared for validate-file entrypoint');
@@ -2048,7 +2082,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
         if (dynamicValidation?.manifest) {
           const manifest = dynamicValidation.manifest as ValidationSelectionManifest;
           const commandId = manifest.rows[0]?.commandId;
-          const instrumentedOrder = commandId && commandResult.runtimeTrace?.events.includes('spawn') ? [commandId] : [];
+          const instrumentedOrder = commandId ? [commandId] : [];
           const commandIds = manifest.rows.map((row) => row.commandId);
           const observeOracle = dynamicMode === 'observe' ? runObserveOracle({
             manifest,
@@ -2074,7 +2108,20 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             }),
           };
           if (args.story && dynamicMode === 'observe') {
-            const runtimeClosureInvalidCommandIds = (commandResult.runtimeTrace?.unknownRuntimeInputs?.length || 0) > 0 && commandId ? [commandId] : [];
+            const entry = (dynamicValidation.catalog as ValidationCatalogEntry[] | undefined)?.find(candidate => candidate.id === commandId);
+            const closure = entry ? createValidationClosureCertificate({
+              commandId: entry.id,
+              baseHead: manifest.baseHead,
+              inventoryDigest: manifest.inventoryDigest,
+              catalogDigest: manifest.catalogDigest,
+              staticPaths: entry.inputRoots,
+              runtimeTrace: runtimeTraceForResult(commandResult, projectRoot),
+              declaredEnvironmentKeys: entry.declaredEnvironmentKeys || Object.keys(entry.env || {}),
+              processFacts: entry.triggerExtensions.processFacts,
+              capabilities: entry.triggerExtensions.capabilities,
+              producedBy: 'story-closure-preview',
+            }) : undefined;
+            const runtimeClosureInvalidCommandIds = commandId && (!closure || !verifyValidationClosureCertificate(closure)) ? [commandId] : [];
             dynamicValidation = { ...dynamicValidation, runtimeClosureInvalidCommandIds };
             const priorArtifacts = readStoryAwareValidationArtifacts(projectRoot, args.story);
             const revokedReceiptIds = priorArtifacts.receipts
@@ -2090,7 +2137,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
               report: `${dynamicValidation.report || ''}\nvalidate-file observe oracle: ${JSON.stringify(observeOracle)}\nruntime closure invalid command IDs: ${JSON.stringify(runtimeClosureInvalidCommandIds)}`,
               receipts: priorArtifacts.receipts,
               revocationLedger: observeLedger,
-              preserveExistingReceipts: false,
+              preserveExistingReceipts: true,
             });
           }
         }

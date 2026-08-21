@@ -233,13 +233,13 @@ export const resolveStoryChangeManifest = buildStoryChangeManifest;
 
 export interface ValidationInventoryCommand {
   id: string; label: string; command: string; args: string[]; shell?: boolean; cwd?: string;
-  env?: Record<string, string>; timeoutMs?: number; focus?: string[]; resources?: ResourceClaim[]; caseRegistryPath?: string;
+  env?: Record<string, string>; timeoutMs?: number; focus?: string[]; resources?: ResourceClaim[]; caseRegistryPath?: string; declaredEnvironmentKeys?: string[];
   assurance?: Assurance; riskTier?: RiskTier; closurePolicy?: ClosurePolicy; fullBaselineReusePolicy?: FullBaselineReusePolicy; cpuWeight?: number; expectedP50Ms?: number; originalIndex: number;
 }
 export interface ValidationCatalogEntry {
   schema?: typeof VALIDATION_CATALOG_SCHEMA;
   id: string; label: string; command: string; args: string[]; shell?: boolean; cwd?: string;
-  env?: Record<string, string>; timeoutMs?: number; focus?: string[]; resources: ResourceClaim[]; caseRegistryPath?: string;
+  env?: Record<string, string>; timeoutMs?: number; focus?: string[]; resources: ResourceClaim[]; caseRegistryPath?: string; declaredEnvironmentKeys?: string[];
   policySource: 'explicit' | 'default';
   originalIndex: number;
   triggerExtensions: { files?: string[]; symbols?: string[]; processFacts?: string[]; capabilities?: string[]; packages?: string[] };
@@ -276,7 +276,10 @@ export function discoverValidationInventory(projectRoot: string, injected?: Vali
       const env = value.env && typeof value.env === 'object' && !Array.isArray(value.env)
         ? Object.fromEntries(Object.entries(value.env as Record<string, unknown>).filter(([, item]) => typeof item === 'string')) as Record<string, string>
         : undefined;
-      return [{ id: typeof value.id === 'string' ? value.id : commandId({ command: value.command, args, label }, index), label, command: value.command, args, ...(typeof value.shell === 'boolean' ? { shell: value.shell } : {}), ...(typeof value.cwd === 'string' ? { cwd: value.cwd } : {}), ...(env ? { env } : {}), ...(typeof value.timeoutMs === 'number' ? { timeoutMs: value.timeoutMs } : {}), ...(typeof value.caseRegistryPath === 'string' ? { caseRegistryPath: value.caseRegistryPath } : {}), ...(typeof value.assurance === 'string' ? { assurance: value.assurance as Assurance } : {}), ...(typeof value.riskTier === 'string' ? { riskTier: value.riskTier as RiskTier } : {}), ...(typeof value.closurePolicy === 'string' ? { closurePolicy: value.closurePolicy as ClosurePolicy } : {}), ...(typeof value.fullBaselineReusePolicy === 'string' ? { fullBaselineReusePolicy: value.fullBaselineReusePolicy as FullBaselineReusePolicy } : {}), ...(typeof value.cpuWeight === 'number' ? { cpuWeight: value.cpuWeight } : {}), ...(typeof value.expectedP50Ms === 'number' ? { expectedP50Ms: value.expectedP50Ms } : {}), resources, originalIndex: index }];
+      const declaredEnvironmentKeys = Array.isArray(value.declaredEnvironmentKeys)
+        ? value.declaredEnvironmentKeys.filter((item): item is string => typeof item === 'string')
+        : undefined;
+      return [{ id: typeof value.id === 'string' ? value.id : commandId({ command: value.command, args, label }, index), label, command: value.command, args, ...(typeof value.shell === 'boolean' ? { shell: value.shell } : {}), ...(typeof value.cwd === 'string' ? { cwd: value.cwd } : {}), ...(env ? { env } : {}), ...(typeof value.timeoutMs === 'number' ? { timeoutMs: value.timeoutMs } : {}), ...(typeof value.caseRegistryPath === 'string' ? { caseRegistryPath: value.caseRegistryPath } : {}), ...(declaredEnvironmentKeys ? { declaredEnvironmentKeys } : {}), ...(typeof value.assurance === 'string' ? { assurance: value.assurance as Assurance } : {}), ...(typeof value.riskTier === 'string' ? { riskTier: value.riskTier as RiskTier } : {}), ...(typeof value.closurePolicy === 'string' ? { closurePolicy: value.closurePolicy as ClosurePolicy } : {}), ...(typeof value.fullBaselineReusePolicy === 'string' ? { fullBaselineReusePolicy: value.fullBaselineReusePolicy as FullBaselineReusePolicy } : {}), ...(typeof value.cpuWeight === 'number' ? { cpuWeight: value.cpuWeight } : {}), ...(typeof value.expectedP50Ms === 'number' ? { expectedP50Ms: value.expectedP50Ms } : {}), resources, originalIndex: index }];
     });
   }
   const normalized = commands.map((row, index) => ({ ...row, id: row.id || commandId(row, index), originalIndex: row.originalIndex ?? index }));
@@ -837,6 +840,8 @@ export function verifyValidationSchedule(schedule: ValidationScheduleRow[], entr
 
 export interface ValidationCase {
   caseId: string; domain: 'quorum' | 'review-pass' | string; sentinel?: boolean; payload?: unknown;
+  /** The real case body executed by the registered adapter. */
+  runner?: { command: string; args?: string[]; cwd?: string; env?: Record<string, string>; successMarker?: string };
 }
 export interface ValidationShard {
   shardId: string; domain: string; caseIds: string[]; sentinelCaseId: string; staticPass?: boolean;

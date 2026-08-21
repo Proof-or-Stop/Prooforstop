@@ -8,6 +8,7 @@
  * accepted when the core authority predicate says so.
  */
 import { execFileSync } from 'node:child_process';
+import { builtinModules } from 'node:module';
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { isAbsolute, join, relative, resolve } from 'node:path';
 import type { ValidationCommand, ValidationCommandResult, ValidationProgressReporter, ValidationResult } from '../core/validation-types.js';
@@ -154,19 +155,22 @@ function sourceAuthorityPath(value: string): string | undefined {
  * what did run.  Missing instrumentation remains an unknown input and is
  * consumed by createValidationClosureCertificate's fail-closed branch.
  */
-function runtimeTraceForResult(result: ValidationCommandResult | undefined, projectRoot: string): ValidationRuntimeTrace {
+export function runtimeTraceForResult(result: ValidationCommandResult | undefined, projectRoot: string): ValidationRuntimeTrace {
   if (!result?.runtimeTrace) {
     return { unknownRuntimeInputs: ['executor did not emit runtime trace'] };
   }
   const boundary = result.runtimeTrace;
   const normalizeObserved = (value: string): string | undefined => {
+    if (!value) return undefined;
+    if (/^node:/.test(value) || builtinModules.includes(value)) return undefined;
     const candidate = sourceAuthorityPath(value);
-    if (!candidate) return undefined;
-    if (!isAbsolute(candidate)) return candidate;
+    if (candidate && !isAbsolute(candidate)) return candidate;
     const root = resolve(projectRoot);
-    const absolute = resolve(candidate);
+    const absolute = resolve(candidate || value);
     const rel = relative(root, absolute).replace(/\\/g, '/');
-    return rel && !rel.startsWith('../') && rel !== '..' ? rel : undefined;
+    if (rel && !rel.startsWith('../') && rel !== '..') return candidate || rel;
+    if (isAbsolute(value)) return `__external__/${value.replace(/^[\\/]+/, '').replace(/\\/g, '/')}`;
+    return `__unresolved__/${value.replace(/\\/g, '/')}`;
   };
   const unknownRuntimeInputs = [...boundary.unknownRuntimeInputs];
   const normalizedReads = (boundary.readPaths || []).map((value) => ({ value, path: normalizeObserved(value) }));
@@ -182,7 +186,10 @@ function runtimeTraceForResult(result: ValidationCommandResult | undefined, proj
   }
   const readPaths = normalizedReads.map((row) => row.path).filter((path): path is string => Boolean(path));
   const loadedPaths = (boundary.loadedPaths || []).map(normalizeObserved).filter((path): path is string => Boolean(path));
-  const spawnedPaths = (boundary.spawnedPaths || boundary.argv).map(normalizeObserved).filter((path): path is string => Boolean(path));
+  const spawnedPaths = (boundary.spawnedPaths || boundary.argv)
+    .filter((value) => !/^(?:node|bun|npm|npx|tsx|-[-A-Za-z])$/.test(value) && !/(?:^|[\\/])(?:node|bun)(?:\.exe)?$/.test(value) && (isAbsolute(value) || value.includes('/') || /\.(?:c?m?js|mjs|mts|ts|tsx|json)$/.test(value)))
+    .map(normalizeObserved)
+    .filter((path): path is string => Boolean(path));
   return {
     command: boundary.command,
     argv: [...boundary.argv],
@@ -206,9 +213,11 @@ export function persistCanonicalFullBaseline(args: {
   result: ValidationResult;
   buildProofDigest?: string;
   toolchainDigest?: string;
+  commands?: ValidationCommand[];
 }): CanonicalFullBaseline | undefined {
   if (!args.result.allPass) return undefined;
-  const inventory = discoverValidationInventory(args.projectRoot);
+  const injected = args.commands?.map((row, index) => ({ ...row, id: `validation-${stableDigest({ command: row.command, args: row.args }).slice(0, 16)}`, originalIndex: index }));
+  const inventory = discoverValidationInventory(args.projectRoot, injected);
   const catalog = compileValidationCatalog(inventory);
   assertValidValidationCatalog(inventory, catalog);
   const catalogDigest = stableDigest(catalog);
@@ -227,7 +236,10 @@ export function persistCanonicalFullBaseline(args: {
       catalogDigest,
       staticPaths: entry.inputRoots,
       runtimeTrace: trace,
-      declaredEnvironmentKeys: trace.environmentKeys,
+      // Only keys explicitly declared by the catalog are admissible.  The
+      // tracer records actual reads; inheriting the full parent environment
+      // here would turn an undeclared secret/config read into a false PASS.
+      declaredEnvironmentKeys: entry.declaredEnvironmentKeys || Object.keys(entry.env || {}),
       processFacts: entry.triggerExtensions.processFacts,
       capabilities: entry.triggerExtensions.capabilities,
       producedBy: 'canonical-full-baseline-compiler',
@@ -424,6 +436,14 @@ function commandForEntry(entry: ValidationCatalogEntry, configured?: ValidationC
     ...(source?.shell !== undefined ? { shell: source.shell } : entry.shell !== undefined ? { shell: entry.shell } : {}),
     ...(source?.cwd !== undefined ? { cwd: source.cwd } : entry.cwd !== undefined ? { cwd: entry.cwd } : {}),
     ...(source?.env !== undefined ? { env: source.env } : entry.env !== undefined ? { env: entry.env } : {}),
+    ...(source?.declaredEnvironmentKeys !== undefined ? { declaredEnvironmentKeys: source.declaredEnvironmentKeys } : entry.declaredEnvironmentKeys !== undefined ? { declaredEnvironmentKeys: entry.declaredEnvironmentKeys } : {}),
+    ...(source?.caseRegistryPath !== undefined ? { caseRegistryPath: source.caseRegistryPath } : entry.caseRegistryPath !== undefined ? { caseRegistryPath: entry.caseRegistryPath } : {}),
+    ...(source?.assurance !== undefined ? { assurance: source.assurance } : entry.assurance !== undefined ? { assurance: entry.assurance } : {}),
+    ...(source?.riskTier !== undefined ? { riskTier: source.riskTier } : entry.riskTier !== undefined ? { riskTier: entry.riskTier } : {}),
+    ...(source?.closurePolicy !== undefined ? { closurePolicy: source.closurePolicy } : entry.closurePolicy !== undefined ? { closurePolicy: entry.closurePolicy } : {}),
+    ...(source?.fullBaselineReusePolicy !== undefined ? { fullBaselineReusePolicy: source.fullBaselineReusePolicy } : entry.fullBaselineReusePolicy !== undefined ? { fullBaselineReusePolicy: entry.fullBaselineReusePolicy } : {}),
+    ...(source?.cpuWeight !== undefined ? { cpuWeight: source.cpuWeight } : entry.cpuWeight !== undefined ? { cpuWeight: entry.cpuWeight } : {}),
+    ...(source?.expectedP50Ms !== undefined ? { expectedP50Ms: source.expectedP50Ms } : entry.expectedP50Ms !== undefined ? { expectedP50Ms: entry.expectedP50Ms } : {}),
     ...(source?.timeoutMs !== undefined ? { timeoutMs: source.timeoutMs } : entry.timeoutMs !== undefined ? { timeoutMs: entry.timeoutMs } : {}),
     ...(source?.optional !== undefined ? { optional: source.optional } : {}),
     ...(source?.focus !== undefined ? { focus: source.focus } : entry.focus !== undefined ? { focus: entry.focus } : {}),
@@ -439,7 +459,7 @@ function shardDomainForEntry(entry: ValidationCatalogEntry): 'quorum' | 'review-
 }
 
 const DYN5_ADAPTER_ENTRYPOINT = 'packages/main/src/tasks/story-aware-validation-case-adapter.mjs';
-const DYN5_ADAPTER_REGISTRY: Record<string, { digest: string; entrypoint: string }> = {
+const DYN5_ADAPTER_REGISTRY: Record<string, { digest: string; entrypoint: string; sourceDigest?: string }> = {
   'case-registry-output-v1': {
     digest: stableDigest({
       name: 'case-registry-output-v1',
@@ -448,6 +468,7 @@ const DYN5_ADAPTER_REGISTRY: Record<string, { digest: string; entrypoint: string
       contract: ['caseRegistryPath', 'runtime-read-of-registry', 'case-routing-marker', 'sentinel-marker', 'case-evidence-files'],
     }),
     entrypoint: DYN5_ADAPTER_ENTRYPOINT,
+    sourceDigest: '905fddfcc5599656dc4c5c4c5b6d9ea140142b2ad64d06575bbd769ffd4126b0',
   },
 };
 
@@ -456,6 +477,11 @@ function registeredShardAdapter(projectRoot: string, command: ValidationCommand,
   const adapter = DYN5_ADAPTER_REGISTRY[name];
   if (!adapter) return undefined;
   const expectedEntrypoint = resolve(projectRoot, adapter.entrypoint);
+  // The registry binds both the semantic contract and the checked-in adapter
+  // bytes.  A command cannot opt in by echoing markers or by replacing the
+  // entrypoint under the same name.
+  if (!existsSync(expectedEntrypoint)) return undefined;
+  if (adapter.sourceDigest && stableDigest(readFileSync(expectedEntrypoint, 'utf8')) !== adapter.sourceDigest) return undefined;
   const commandPath = resolve(command.command);
   const runtimePath = resolve(process.execPath);
   const nodeLike = commandPath === runtimePath || /(?:^|[\\/])(?:node|bun)(?:\.exe)?$/i.test(commandPath);
@@ -475,6 +501,8 @@ function loadShardCaseRegistry(projectRoot: string, entry: ValidationCatalogEntr
     const cases = parsed.filter((row): row is ValidationCase => Boolean(row && typeof row === 'object'
       && typeof (row as Record<string, unknown>).caseId === 'string'
       && typeof (row as Record<string, unknown>).domain === 'string'
+      && Boolean((row as Record<string, unknown>).runner)
+      && typeof ((row as Record<string, unknown>).runner as Record<string, unknown>)?.command === 'string'
       && (row as Record<string, unknown>).domain === domain));
     if (cases.length < 3 || new Set(cases.map((row) => row.caseId)).size !== cases.length) return undefined;
     return { cases, path, digest: stableDigest(cases) };
@@ -551,6 +579,7 @@ async function executeShardedEntry(args: {
         LATTICE_VALIDATION_SHARD_CASE_REGISTRY_DIGEST: registry.digest,
         LATTICE_VALIDATION_SHARD_ADAPTER_DIGEST: adapter.digest,
         LATTICE_VALIDATION_SHARD_DIR: shardDir,
+        LATTICE_VALIDATION_PROJECT_ROOT: args.projectRoot,
       },
     };
     const result = await executeValidationPlan({
@@ -594,6 +623,9 @@ async function executeShardedEntry(args: {
           && evidence.shardId === shard.shardId
           && evidence.domain === domain
           && evidence.executed === true
+          && evidence.exitCode === 0
+          && typeof evidence.outputDigest === 'string'
+          && typeof evidence.successMarker === 'string'
           && typeof evidence.evidenceDigest === 'string'
           && evidence.evidenceDigest === stableDigest(body)
           && shard.caseIds.includes(caseId)

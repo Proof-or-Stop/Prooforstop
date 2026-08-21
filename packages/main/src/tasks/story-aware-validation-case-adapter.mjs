@@ -7,7 +7,9 @@
  * merely echoing the expected markers.
  */
 import { createHash } from 'node:crypto';
+import { spawnSync } from 'node:child_process';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 
 const env = process.env;
 const registryPath = env.LATTICE_VALIDATION_SHARD_CASE_REGISTRY;
@@ -18,8 +20,9 @@ const sentinelCaseId = env.LATTICE_VALIDATION_SHARD_SENTINEL;
 const registryDigest = env.LATTICE_VALIDATION_SHARD_CASE_REGISTRY_DIGEST;
 const adapterDigest = env.LATTICE_VALIDATION_SHARD_ADAPTER_DIGEST;
 const requestedIds = (env.LATTICE_VALIDATION_SHARD_CASE_IDS || '').split(',').filter(Boolean);
+const projectRoot = env.LATTICE_VALIDATION_PROJECT_ROOT;
 
-if (!registryPath || !shardDir || !domain || !shardId || !sentinelCaseId || !registryDigest || !adapterDigest) {
+if (!registryPath || !shardDir || !domain || !shardId || !sentinelCaseId || !registryDigest || !adapterDigest || !projectRoot) {
   throw new Error('DYN-5 adapter environment is incomplete');
 }
 
@@ -45,6 +48,24 @@ const digest = (value) => createHash('sha256').update(canonical(value)).digest('
 
 mkdirSync(shardDir, { recursive: true });
 for (const caseId of requestedIds) {
+  const testCase = byId.get(caseId);
+  const runner = testCase?.runner;
+  if (!runner || typeof runner.command !== 'string' || !Array.isArray(runner.args)) {
+    throw new Error(`DYN-5 case ${caseId} has no executable runner`);
+  }
+  const runnerCwd = runner.cwd ? resolve(projectRoot, runner.cwd) : projectRoot;
+  const runnerEnv = { ...process.env, ...(runner.env || {}) };
+  const execution = spawnSync(runner.command, runner.args, {
+    cwd: runnerCwd,
+    env: runnerEnv,
+    encoding: 'utf8',
+    timeout: Number(env.LATTICE_VALIDATION_CASE_TIMEOUT_MS || 120000),
+  });
+  const output = `${execution.stdout || ''}${execution.stderr || ''}`;
+  const successMarker = runner.successMarker || `PROOF_OR_STOP_CASE_EXECUTED:${caseId}`;
+  if (execution.error || execution.status !== 0 || !output.includes(successMarker)) {
+    throw new Error(`DYN-5 case ${caseId} did not execute successfully: ${execution.error?.message || output || `exit ${execution.status}`}`);
+  }
   const evidence = {
     schema: 'proof-or-stop.validation-shard-case-evidence.v1',
     adapter: 'case-registry-output-v1',
@@ -55,11 +76,15 @@ for (const caseId of requestedIds) {
     caseId,
     sentinel: caseId === sentinelCaseId,
     executed: true,
+    exitCode: execution.status,
+    outputDigest: digest(output),
+    successMarker,
   };
   writeFileSync(`${shardDir}/${encodeURIComponent(caseId)}.case.json`, JSON.stringify({
     ...evidence,
     evidenceDigest: digest(evidence),
   }) + '\n', 'utf8');
+  process.stdout.write(`PROOF_OR_STOP_CASE_EXECUTED:${caseId}\n`);
 }
 process.stdout.write(`PROOF_OR_STOP_CASES:${requestedIds.join(',')}\n`);
 process.stdout.write(`PROOF_OR_STOP_SENTINEL:${sentinelCaseId}\n`);
