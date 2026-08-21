@@ -880,10 +880,36 @@
       "phase": "DEV",
       "headHash": "2ffa7abafce569ddc08f362c19a0757dfa551d19",
       "materialHash": "901a2ddfe07ac8bdbfa87eea4b26d77f8f610eeef9d20c65a4ebd1a4a978d128"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "These four review-inventory paths are necessary for the current Story review inventory finalization and certification-window evidence; the merged implementation and smoke preserve the canonical reviewer identity migration contract.",
+      "timestamp": "2026-08-21T23:05:36.329Z",
+      "paths": [
+        "packages/main/src/core/review-incremental-context.ts",
+        "packages/main/src/core/review-inventory-epoch.ts",
+        "packages/main/src/handlers/review-inventory.ts",
+        "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/review-incremental-context.ts",
+        "packages/main/src/core/review-inventory-epoch.ts",
+        "packages/main/src/handlers/review-inventory.ts",
+        "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+      ],
+      "affectedPathCount": 4,
+      "phase": "DEV",
+      "headHash": "dd0de4e361653487e4a020ff00390d9590c2b6d6",
+      "materialHash": "83313a2237456066d5ad1f830603586cd4640a51aabd24e8ce59e6afb3936f32",
+      "anchors": [
+        "review_inventory_certification",
+        "canonical_reviewer_identity_migration"
+      ]
     }
   ],
   "createdAt": "2026-08-20T05:20:00.402Z",
-  "updatedAt": "2026-08-21T20:00:05.596Z",
+  "updatedAt": "2026-08-21T23:05:36.329Z",
   "fileRules": [],
   "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
@@ -1096,6 +1122,10 @@
     "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
     "packages/main/src/tasks/review-incremental-context-smoke.ts": "packages/main/src/tasks/review-incremental-context-smoke.ts",
     "packages/main/src/tasks/review-run-smoke.ts": "packages/main/src/tasks/review-run-smoke.ts",
-    "scripts/verify-migration-contract.mjs": "scripts/verify-migration-contract.mjs"
+    "scripts/verify-migration-contract.mjs": "scripts/verify-migration-contract.mjs",
+    "packages/main/src/core/review-incremental-context.ts": "packages/main/src/core/review-incremental-context.ts",
+    "packages/main/src/core/review-inventory-epoch.ts": "packages/main/src/core/review-inventory-epoch.ts",
+    "packages/main/src/handlers/review-inventory.ts": "packages/main/src/handlers/review-inventory.ts",
+    "packages/main/src/tasks/review-inventory-handler-smoke.ts": "packages/main/src/tasks/review-inventory-handler-smoke.ts"
   }
 }
