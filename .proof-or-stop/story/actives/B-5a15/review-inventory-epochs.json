@@ -353,6 +353,22 @@
       },
       "terminalRunSequenceBoundary": 69,
       "_hash": "ead499197b50c809069d4ce63c289f201a71e237c458e5d3faa39580ea8d3efe"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-5a15:RIE-010",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-21T02:10:58.189Z",
+      "state": "FINALIZED",
+      "begunAt": "2026-08-21T02:13:44.330Z",
+      "updatedAt": "2026-08-21T02:13:44.330Z",
+      "cutoff": {
+        "headHash": "9b2634fdaa5ac4b040498536d8ca9c8ee13e7dc1",
+        "materialHash": "95579731deb560adb45f4ac83d1898af3dbf03f9338d3de0faed04aebb7bf4c7",
+        "storyFilesHash": "72043fca5fd0ae9d02c6d22b84c50719212f7840080f7dd590bfcf5f5630a233"
+      },
+      "receiptId": "B-5a15:RIE-010:RCP-001",
+      "_hash": "f9db3504da7810cc22544c747161bca0d16789d4416ba35dad9453c0f6b62030"
     }
   ],
   "receipts": [
@@ -427,6 +443,23 @@
       "invalidatedAt": "2026-08-20T17:09:49.915Z",
       "invalidationReason": "The finalized inventory receipt is bound to an older REVIEW round and cannot authorize the current remediation; invalidate it before starting the required fresh inventory epoch.",
       "_hash": "7b98e8edd9c0f4985a13f139982f85e108c7d117cd287fa2892f9054a65d7b8e"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_receipt.v1",
+      "receiptId": "B-5a15:RIE-010:RCP-001",
+      "epochId": "B-5a15:RIE-010",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-21T02:10:58.189Z",
+      "cutoff": {
+        "headHash": "9b2634fdaa5ac4b040498536d8ca9c8ee13e7dc1",
+        "materialHash": "95579731deb560adb45f4ac83d1898af3dbf03f9338d3de0faed04aebb7bf4c7",
+        "storyFilesHash": "72043fca5fd0ae9d02c6d22b84c50719212f7840080f7dd590bfcf5f5630a233"
+      },
+      "authority": "inventory-completeness-only",
+      "authorizesTest": false,
+      "saturationResult": "ZERO_NEW_VERIFIED_FINDINGS",
+      "issuedAt": "2026-08-21T02:13:44.330Z",
+      "_hash": "a8f7dd5e93fe84d9c4c14feafc81b5f269db4f9e8f033a9c8f8c1aa10eff6de8"
     }
   ],
   "criticReceipts": [
