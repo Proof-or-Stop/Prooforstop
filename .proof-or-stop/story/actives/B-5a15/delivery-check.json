@@ -1,0 +1,39 @@
+{
+  "storyId": "B-5a15",
+  "checkedAt": "2026-08-21T11:45:28.329Z",
+  "headHash": "af73cd865377195228ec1e1b02b4f93331fb2bbf",
+  "materialHash": "cc13224df2083df910ceee0890cd84df4559d4c93b85d22ba6089cb6c60fec95",
+  "storyFilesHash": "187c87c92d80249a41831953fc6d9bfb2cd088231d77ab9498b98c7a9016d8a6",
+  "reviewRound": "2026-08-21T11:29:50.266Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "packages/main/tests/causal-evidence.test.mjs asserts exact identity binding, the 58-intent to 10-key fan-out with 10 child executions and 58 selector verdicts, zero-execution replay, one-key single/batch reuse, near-duplicate separation, selectorMismatch, tamper/collision rejection, and incomplete-identity non-reuse; causal-evidence-concurrency.test.mjs also asserts concurrent single-flight isolation."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "packages/main/tests/causal-evidence.test.mjs asserts receipt persistence before canonical import, import/index retry with executions=1 and commandReruns=0, stable receiptHash, idempotent canonical import, orphan recovery, and fail-closed wrong-key/tampered/receiptless paths."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "packages/main/tests/causal-evidence.test.mjs asserts declared dependency-domain closure, unrelated versus related rerun metrics, strict fallback for missing identity, shadow comparison, falseFresh=0, and CertificationWindow rejection of stale affected-node bypasses."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "packages/main/tests/causal-evidence.test.mjs and packages/main/tests/checklist-causal-preflight-batch.test.mjs assert CLI/worktree/index/lease/capability/resource/evidence-target refusals before child launch with zero executions and zero evidence writes, plus changed-snapshot race refusal; packages/main/tests/verifier-causal-preflight.test.mjs asserts same-owner stale-lease refresh before a later launch."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "packages/main/tests/causal-evidence.test.mjs asserts zero-safe and mixed reused/new canonical-ledger metrics, tamper resistance, commandReruns=0, unrelatedSpecializedRerun=0, affectedNodeRerun=100%, falseFresh=0, and assurance-preserving gate behavior; scripts/verify-process-fact-contract.mjs covers registry contract verification."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "The code-and-test diff contains no documentation promise changes. All five checklist features have assertion-backed tests with happy, edge, and adversarial coverage. The signed pre-review/live transcript exits 0, the current TEST receipt reports PASS with 50/50 required verification intents covered and no required failures, and this delivery signature makes no claim that the separate DONE gates are already satisfied."
+  },
+  "_hash": "84ac54c1a89a7069cab7a2ee1138c68f3f33a358517beb645cc888227f8662c7"
+}
