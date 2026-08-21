@@ -2644,6 +2644,54 @@
       ],
       "signatureTag": "missing|json|current-verifier-owned",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-075",
+      "desc": "At current review run B-5a15:RR-151 and HEAD 8d45e5961a, the verifier-owned acceptance chain is not admissible: acceptance_basis is status=invalid despite basisStatus=complete because the stored scope-contract digest sha256:a84e13ebdc5fc43ff4b5be4420c72ca4c550a192850a998f9e4e1b596f5264f9 does not match the current scope contract; acceptance_topology_check fails structuralPass=false with AT_SCOPE_BINDING_MISSING; pre_review_check_read fails with PR_ARTIFACT_TAMPERED. acceptance_rollout_check reports full-3x2, but that rollout result cannot substitute for the failed topology and pre-review prerequisites. Regenerate the verifier-owned basis and pre-review artifacts at one consistent current binding before approving the acceptance topology.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-21T16:41:27.550Z",
+      "reviewRound": "2026-08-21T15:29:32.809Z",
+      "reviewRunId": "B-5a15:RR-151",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/findings.json",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a15/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a15/review-runs.json",
+          ".proof-or-stop/story/actives/B-5a15/scope-contract.json",
+          ".proof-or-stop/story/actives/B-5a15/topology-critic-receipt.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "3844a8d744f529f7e4a7704904bba1ff25a3612fd9d36f7315c008a5034c9b67",
+      "files": [
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/handlers/proofstory.ts",
+        "packages/main/src/handlers/transition-orchestrator.ts",
+        ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a15/topology-critic-receipt.json"
+      ],
+      "signatureTag": "verifier-owned-acceptance-chain-stale",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
