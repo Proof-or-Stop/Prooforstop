@@ -1451,29 +1451,55 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
                 encoding: 'utf8',
               }).trim();
               if (args.story) {
-                const dynamic = await runStoryAwareDynamicValidation({
-                  projectRoot,
-                  storyId: args.story,
-                  baseHead,
-                  head: currentHead(handlerGitCwd),
-                  mode: dynamicMode,
-                  commands,
-                  abortSignal: args.abortSignal,
-                  deadlineAt: args.deadlineAt,
-                  deadlineError: args.deadlineError,
-                  progress: validationProgressReporter(ctx),
-                });
-                dynamicPreview = {
-                  mode: dynamicMode,
-                  manifest: dynamic.manifest,
-                  report: dynamic.runtimeReport,
-                  authority: dynamic.authority.authoritative ? 'enforce-authority' : dynamicMode === 'enforce-low-risk' ? 'full-fallback' : 'full-plan-oracle',
-                  selectedCommands: dynamic.selectedResult.commands.length + dynamic.buildResult.commands.length,
-                  reusedCommands: dynamic.manifest.totals.reused,
-                  receipts: dynamic.receipts.length,
-                  selectedAllPass: dynamic.dynamicAllPass,
-                };
-                ctx.log?.(dynamic.runtimeReport);
+                if (dynamicMode === 'observe') {
+                  // DYN-1 observe is selection-only. The ordinary complete
+                  // plan below is the one authoritative execution; launching
+                  // a selected plan here would duplicate commands and violate
+                  // observe's resource/order equivalence contract.
+                  const dynamic = prepareStoryAwareValidation({
+                    projectRoot,
+                    storyId: args.story,
+                    baseHead,
+                    head: currentHead(handlerGitCwd),
+                    mode: dynamicMode,
+                    commands,
+                    gitCwd: handlerGitCwd,
+                  });
+                  dynamicPreview = {
+                    mode: dynamicMode,
+                    manifest: dynamic.manifest,
+                    report: dynamic.report,
+                    authority: 'full-plan-oracle',
+                    selectedCommands: dynamic.manifest.totals.executed,
+                    reusedCommands: dynamic.manifest.totals.reused,
+                    receipts: 0,
+                  };
+                  ctx.log?.(dynamic.report);
+                } else {
+                  const dynamic = await runStoryAwareDynamicValidation({
+                    projectRoot,
+                    storyId: args.story,
+                    baseHead,
+                    head: currentHead(handlerGitCwd),
+                    mode: dynamicMode,
+                    commands,
+                    abortSignal: args.abortSignal,
+                    deadlineAt: args.deadlineAt,
+                    deadlineError: args.deadlineError,
+                    progress: validationProgressReporter(ctx),
+                  });
+                  dynamicPreview = {
+                    mode: dynamicMode,
+                    manifest: dynamic.manifest,
+                    report: dynamic.runtimeReport,
+                    authority: dynamic.authority.authoritative ? 'enforce-authority' : dynamicMode === 'enforce-low-risk' ? 'full-fallback' : 'full-plan-oracle',
+                    selectedCommands: dynamic.selectedResult.commands.length + dynamic.buildResult.commands.length,
+                    reusedCommands: dynamic.manifest.totals.reused,
+                    receipts: dynamic.receipts.length,
+                    selectedAllPass: dynamic.dynamicAllPass,
+                  };
+                  ctx.log?.(dynamic.runtimeReport);
+                }
               } else {
                 // The explicit mode CLI is also useful as a project-level
                 // diagnostic. Without a story there is no story evidence or
