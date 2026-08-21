@@ -522,8 +522,11 @@ export function verifyCloseoutWriteReceipt(receipt: CloseoutWriteReceipt, expect
 }
 
 function validReceiptChain(receipts: CloseoutWriteReceipt[], storyId: string, artifactPath: string): boolean {
+  const artifactReceipts = receipts.filter((item) => item.artifactPath === artifactPath);
+  if (artifactReceipts.some((item) => !isCloseoutWriteReceiptSchema(item.schemaVersion))) return false;
+
   let previous: CloseoutWriteReceipt | null = null;
-  for (const receipt of receipts.filter((item) => isCloseoutWriteReceiptSchema(item.schemaVersion) && item.artifactPath === artifactPath)) {
+  for (const receipt of artifactReceipts) {
     if (receipt.storyId !== storyId) return false;
     if (receipt.sequence !== (previous?.sequence ?? 0) + 1) return false;
     if (receipt.previousIntegrityHash !== (previous?.integrityHash ?? null)) return false;

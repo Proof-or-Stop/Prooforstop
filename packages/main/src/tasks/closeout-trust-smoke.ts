@@ -902,6 +902,27 @@ try {
   assert.equal(chainedWrapperReceipt.sequence, legacyWrapperReceipt.sequence + 1, 'canonical receipt continues after legacy receipt');
   assert.equal(chainedWrapperReceipt.previousIntegrityHash, legacyWrapperReceipt.integrityHash, 'canonical receipt links to legacy predecessor');
 
+  // F-121: an unsupported schema for the same artifact must not be ignored by
+  // either the trust reader or the auto-commit receipt predecessor selector.
+  const supportedWrapperLedger = readFileSync(wrapperReceiptPath, 'utf8');
+  const supportedWrapperHead = currentGitHead(wrapperRepo)!;
+  const unsupportedWrapperReceipt = {
+    ...chainedWrapperReceipt,
+    schemaVersion: 'proof-or-stop.closeout_write_receipt.v999',
+  };
+  writeFileSync(wrapperReceiptPath, `${supportedWrapperLedger}${JSON.stringify(unsupportedWrapperReceipt)}\n`, 'utf8');
+  assert.equal(
+    latestCausallyValidCloseoutReceipt(wrapperStore.storyDirPath(wrapperStoryId), wrapperStoryId, 'summary.json'),
+    null,
+    'unsupported receipt schemas for an artifact must fail the trusted chain closed',
+  );
+  writeFileSync(wrapperStore.storyFilePath(wrapperStoryId, 'summary.json'), '{"round":3}\n', 'utf8');
+  const refusedUnsupportedAppend = autoCommitStoryMetadata(wrapper, wrapperStoryId, 'summary_set', { closeoutArtifactPaths: ['summary.json'] });
+  assert.match(refusedUnsupportedAppend, /local causal closeout receipt was not issued: unsupported closeout receipt schema/);
+  const afterRefusal = readCloseoutWriteReceipts(wrapperStore.storyDirPath(wrapperStoryId));
+  assert.equal(afterRefusal.filter(receipt => receipt.artifactPath === 'summary.json').length, 3, 'refusal must not append a receipt after an unsupported schema');
+  git(wrapperRepo, ['reset', '--hard', supportedWrapperHead]);
+
   const canonicalRetention = evaluateReviewRunMetadataRetention(
     wrapperStore, wrapperStore.readStory(wrapperStoryId), preCloseoutRun, wrapperRepo,
     currentScopeContextForStory(wrapperStore, wrapperStoryId, wrapperRepo),

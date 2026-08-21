@@ -129,8 +129,13 @@ function appendLocalCausalReceiptsBeforeCommit(args: {
     const artifactPath = join(storyDir, policy.path);
     if (!existsSync(artifactPath)) continue;
     const bytes = readFileSync(artifactPath);
-    const previous = readCloseoutWriteReceipts(storyDir)
-      .filter((receipt) => isCloseoutWriteReceiptSchema(receipt.schemaVersion) && receipt.artifactPath === policy.path)
+    const artifactReceipts = readCloseoutWriteReceipts(storyDir)
+      .filter((receipt) => receipt.artifactPath === policy.path);
+    if (artifactReceipts.some((receipt) => !isCloseoutWriteReceiptSchema(receipt.schemaVersion))) {
+      throw new Error(`unsupported closeout receipt schema for ${policy.path}`);
+    }
+    const previous = artifactReceipts
+      .filter((receipt) => isCloseoutWriteReceiptSchema(receipt.schemaVersion))
       .at(-1);
     const receipt = buildCloseoutWriteReceipt({
       storyId: args.storyId,
