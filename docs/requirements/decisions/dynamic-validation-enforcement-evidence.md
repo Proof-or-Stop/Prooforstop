@@ -7,7 +7,10 @@ is 112 commands: 58 explicitly classified `full-only` /
 `whole-repository` validation-infrastructure rows and 54
 `story-selectable` / `static-and-traced` rows, including the two DYN-5 gate
 rows. Authority still falls back whenever a selected gate/full-only row or any
-other prerequisite is not admissible.
+other prerequisite is not admissible. A full-only impact or unavailable
+canonical baseline escalates the complete plan; with the current 58
+`forbidden` rows, this full escalation is expected rather than an accidental
+per-row fallback.
 
 ## Mandatory gate
 

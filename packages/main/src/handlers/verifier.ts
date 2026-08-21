@@ -64,7 +64,7 @@ import { captureEvidenceHashSnapshot, checkEvidenceFreshnessForGit, checkEvidenc
 import { syncClusterResolves } from '../core/cluster-sync.js';
 import { resolveGitCwd, resolveProjectGitRoot, evaluateStoryDirConfigInsideGitRoot } from '../core/story-signed-workspace-resolution.js';
 import { resolveVerificationIntentPolicy, resolveWorkflowPolicy } from '../core/workflow-policy.js';
-import type { ChecklistData, TestEvidenceData, VerificationEvidence } from '../core/types.js';
+import type { ChecklistData, ChecklistItem, ScopeContractData, StoryInfo, TestEvidenceData, VerificationEvidence, VerificationIntentItem } from '../core/types.js';
 import {
   buildRoutineValidationIdentity,
   evaluateRoutineValidationReuse,
@@ -117,32 +117,33 @@ function storyDynamicInputs(ctx: HandlerContext, storyId: string): {
   affectedProcessFacts?: string[];
   affectedCapabilities?: string[];
 } {
-  const story = ctx.store.readStory(storyId) as any;
+  const story: StoryInfo = ctx.store.readStory(storyId);
   const checklist = ctx.store.readChecklist(storyId);
-  const scope = ctx.store.readScopeContract(storyId) as any;
+  const scope: ScopeContractData | null = ctx.store.readScopeContract(storyId);
+  const lanes = ['happy', 'edge', 'adversarial'] as const;
   const plannedFiles = checklist.items.flatMap((item) => [
     ...(item.files?.modify || []),
     ...(item.files?.create || []),
     ...(item.files?.test || []),
   ]);
-  const verificationIntents: Array<{ id: string; validationCommand?: string }> = checklist.items.flatMap((item): Array<{ id: string; validationCommand?: string }> => {
-    const intent = item.verificationIntent as any;
-    if (!intent || typeof intent !== 'object') return [];
-    return ['happy', 'edge', 'adversarial'].flatMap((lane): Array<{ id: string; validationCommand?: string }> => (Array.isArray(intent[lane]) ? intent[lane] : [])
-      .flatMap((entry: any, index: number) => entry?.verification?.command
+  const verificationIntents: Array<{ id: string; validationCommand?: string }> = checklist.items.flatMap((item: ChecklistItem): Array<{ id: string; validationCommand?: string }> => {
+    const intent = item.verificationIntent;
+    if (!intent) return [];
+    return lanes.flatMap((lane): Array<{ id: string; validationCommand?: string }> => (intent[lane] || [])
+      .flatMap((entry: VerificationIntentItem, index: number) => entry.verification?.command
         ? [{ id: `${item.id}:${lane}:${index}`, validationCommand: entry.verification.command }]
         : []));
   });
-  const affectedProcessFacts: string[] = checklist.items.flatMap((item): string[] => (['happy', 'edge', 'adversarial'] as const).flatMap((lane): string[] => {
-    const intents = (item.verificationIntent as any)?.[lane];
-    if (!Array.isArray(intents)) return [];
-    return intents.flatMap((entry: any): string[] => (entry?.plannedPathDeclarations || []).flatMap((declaration: any): string[] => [declaration.producer, ...(declaration.consumers || [])]
-      .filter((endpoint: any) => endpoint?.expectedArtifactKind === 'process_fact')
-      .map((endpoint: any) => endpoint.expectedSymbolOrFact).filter((fact: unknown): fact is string => typeof fact === 'string' && fact.length > 0)));
-  }));
-  const affectedCapabilities: string[] = Array.isArray(story?.affectedCapabilities)
-    ? story.affectedCapabilities.filter((value: unknown): value is string => typeof value === 'string')
-    : [];
+  const affectedProcessFacts: string[] = checklist.items.flatMap((item: ChecklistItem): string[] => {
+    const intent = item.verificationIntent;
+    if (!intent) return [];
+    return lanes.flatMap((lane): string[] => (intent[lane] || []).flatMap((entry: VerificationIntentItem): string[] =>
+      (entry.plannedPathDeclarations || []).flatMap((declaration) => [declaration.producer, ...declaration.consumers]
+        .filter((endpoint) => endpoint.expectedArtifactKind === 'process_fact')
+        .map((endpoint) => endpoint.expectedSymbolOrFact)
+        .filter((fact): fact is string => typeof fact === 'string' && fact.length > 0))));
+  });
+  const affectedCapabilities: string[] = (story.affectedCapabilities || []).filter((value): value is string => typeof value === 'string' && value.length > 0);
   return {
     scopeContract: scope ? {
       allowedPaths: [...(scope.allowedModify || []), ...(scope.allowedCreate || []), ...(scope.allowedTest || [])],

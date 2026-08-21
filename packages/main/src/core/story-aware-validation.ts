@@ -729,6 +729,11 @@ export function buildDynamicValidationPlan(ctx: DynamicValidationContext): Valid
   // `forbidden` therefore always escalates; `exact-current-epoch-only` must
   // prove a signed canonical receipt before the plan can remain dynamic.
   for (const entry of ctx.catalog) {
+    const entryClosure = closures.get(entry.id);
+    if (!entryClosure || !verifyValidationClosureCertificate(entryClosure)) {
+      escalationReasons.push('closure-certificate-unavailable-or-incomplete:' + entry.id);
+      continue;
+    }
     if (entry.assurance !== 'full-only') continue;
     if (selected.has(entry.id)) {
       escalationReasons.push('impacted-full-only-command:' + entry.id);
