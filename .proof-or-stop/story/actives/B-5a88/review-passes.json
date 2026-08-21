@@ -4176,6 +4176,140 @@
         "scanEscalationReason": null
       },
       "_hash": "eb785646190a85ab74aff7687f2342845c52a55aefd1218a1fd53d3eebd1bda5"
+    },
+    {
+      "id": "B-5a88:RP-076",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Current-round test-coverage pass at HEAD bfd1491fd3: recomputed 7 checklist items and 21 must intents with exactly 21 unique intent-bound evidence refs; evidence_inspect marks all 21 intent refs fresh against the current materialHash and storyFilesHash. Six focused migration/evidence/guard tests pass. F-231/F-232/F-233/F-234/F-237 remain explicitly resolved as partially_mitigated for immutable verification pins. The separate aggregate test-evidence ref is stale and is not one of the 21 intent records; no coverage blocker found.",
+      "createdAt": "2026-08-21T21:22:31.478Z",
+      "reviewRound": "2026-08-21T20:53:57.831Z",
+      "reviewRunId": "B-5a88:RR-277",
+      "envelopeId": "f7550f72f23cad7d8a3b44c11569ba52b8cee02c7d1cedce8b784a43eb2543c3",
+      "writerSessionId": "sess-f4c3ae22a99b775d3ff99b7da5af5e4f",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts",
+          "packages/main/src/tasks/verification-run-and-guard-smoke.ts",
+          "packages/main/tests/bin-alias-migration.test.mjs",
+          "packages/main/tests/release-push-approval-migration.test.mjs",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "13b016726a6cdc0295320be787d548632b9dab69aa2819c872ecd4c4b6495fe9"
+    },
+    {
+      "id": "B-5a88:RP-077",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Current-round concept re-attestation on HEAD bfd1491fd3: prompt baseline and migration contract pass; canonical role/identity, dispatch, prompt-registry, and bin migration checks pass; retired lattice usage names are excluded from active usage resolution; topology_critic_receipt_check is ok with agent/session/dispatch/business-commit-author provenance. No new concept blocker is registered. Existing stale Wave-4/pre-review and older prompt-policy findings remain in the current finding set and are not duplicated or resolved by this lane.",
+      "createdAt": "2026-08-21T21:23:40.828Z",
+      "reviewRound": "2026-08-21T20:53:57.831Z",
+      "reviewRunId": "B-5a88:RR-278",
+      "envelopeId": "f292574f01073f53716bf9619dee88cd24b6ed72feecb4887d52493d152ad152",
+      "writerSessionId": "sess-593795a9080e8e08bed815191a2494a1",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/lattice-brand.ts",
+          "scripts/verify-migration-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "package-lock.json",
+          "package.json",
+          "packages/lab/package-lock.json",
+          "packages/lab/package.json",
+          "packages/main/package-lock.json",
+          "packages/main/package.json",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/templates/agents/proof-or-stop-implementer.md",
+          "packages/main/templates/agents/proof-or-stop-review-concept.md",
+          "packages/main/templates/agents/proof-or-stop-review-quality.md",
+          "packages/main/templates/agents/proof-or-stop-review-topology-critic.md",
+          "packages/main/templates/agents/proof-or-stop-test-intent.md",
+          "packages/main/tests/bin-alias-migration.test.mjs",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/prompt-role-migration.test.mjs",
+          "packages/utils/package-lock.json",
+          "packages/utils/package.json",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ef5f9f5a97d4be67ce16e5d36fbc3d8d59f68e16ab05167533c89f9bf4e5216c"
+    },
+    {
+      "id": "B-5a88:RP-078",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Current HEAD bfd1491fd3 quality re-attestation: authoritative prompt-envelope eligibility verifies at full with INCREMENTAL_BUDGET_EXCEEDED and matching eligibilityDigest/reviewBasisDigest; F-230 guard and complete incremental smokes, F-235 prompt baseline, migration verifiers, and diff checks pass with no quality blocker.",
+      "createdAt": "2026-08-21T21:24:15.157Z",
+      "reviewRound": "2026-08-21T20:53:57.831Z",
+      "reviewRunId": "B-5a88:RR-276",
+      "envelopeId": "a3a455c93e0abbf4018a201520bd0931d3ced25f8cb714b5fe6dd6d6d1fed525",
+      "writerSessionId": "sess-6fabe934298279bfdb17582a87242624",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "packages/main/templates/agents/proof-or-stop-test-intent.md",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "package-lock.json",
+          "package.json",
+          "packages/lab/package.json",
+          "packages/main/package-lock.json",
+          "packages/main/package.json",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/release-push-approval.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "packages/main/templates/agents/",
+          "packages/main/tests/prompt-role-migration.test.mjs",
+          "packages/utils/package.json",
+          "scripts/verify-codex-assets.mjs",
+          "scripts/verify-core-package-rename.mjs",
+          "scripts/verify-entrypoints.mjs",
+          "scripts/verify-global-lab-entrypoint.mjs",
+          "scripts/verify-lattice-residue.mjs",
+          "scripts/verify-migration-contract.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ae3437b4d159f9f9224f5c6ee094cb997e682963c6c2a6368b0b27e454690eb0"
     }
   ]
 }
