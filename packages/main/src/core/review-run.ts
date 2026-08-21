@@ -190,8 +190,10 @@ export function isReviewRunLane(value: string): value is ReviewRunLane {
 // A finding / review pass counts as reviewer evidence (subject to reviewRunId
 // binding) only when its agent resolves to a proof-or-stop-review-* lane.
 // Historical lattice-review-* values are explicit legacy compatibility input
-// and are canonicalized before this check. main / main-agent / lattice-implementer
-// / other non-reviewer actors create findings during DEV or for meta-process
+// and are canonicalized before this check. lattice-implementer is a
+// historical/legacy compatibility alias; the canonical implementer is
+// proof-or-stop-implementer. main / main-agent / other non-reviewer actors
+// create findings during DEV or for meta-process
 // notes and must NOT be treated as reviewer evidence by the REVIEW→TEST gate.
 // Mirrors the predicate used at finding_add time (handlers/finding.ts) and
 // elsewhere in the codebase.
@@ -1561,7 +1563,9 @@ export function collectReviewerEvidenceState(
   // Only true reviewer lanes (proof-or-stop-review-*) require reviewRunId
   // binding. Historical lattice-review-* values are legacy compatibility input
   // and are canonicalized before this check. main / main-agent /
-  // lattice-implementer / other non-reviewer actors create findings during DEV
+  // lattice-implementer is a historical/legacy compatibility alias; the
+  // canonical implementer is proof-or-stop-implementer. Other non-reviewer
+  // actors create findings during DEV
   // or capture meta-process notes that must not be treated as reviewer evidence
   // by the REVIEW→TEST gate.
   const reviewerFindings = findings

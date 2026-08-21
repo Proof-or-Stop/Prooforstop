@@ -4535,6 +4535,42 @@
       "resolvedAt": "2026-08-21T01:42:14.718Z",
       "resolutionType": "partially_mitigated",
       "resolveEvidenceStrength": "medium"
+    },
+    {
+      "id": "B-5a88:F-104",
+      "desc": "packages/main/src/core/review-run.ts:193-194,1563-1564 [medium] The F-102 rewrite now labels lattice-review-* as legacy, but still presents lattice-implementer as an unqualified active identity in both gate-adjacent reviewer-evidence comments. Since the canonical emitted role is proof-or-stop-implementer and this story is retiring lattice role IDs, future changes can still misread the old spelling as the current writer; state it as legacy lattice-implementer input accepted for compatibility.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T01:48:26.748Z",
+      "reviewRound": "2026-08-21T01:44:06.947Z",
+      "reviewRunId": "B-5a88:RR-129",
+      "_hash": "3bbc8ab17e0783cf4bc48b388a32c1ecb9913a5baca234a2e40cf6379a5fc1f3",
+      "files": [
+        "packages/main/src/core/review-run.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-core",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-105",
+      "desc": "packages/main/src/core/review-run.ts:193-194,1563-1564 [medium] The active reviewer-evidence comments label lattice-review-* as legacy but leave lattice-implementer unqualified. Because proof-or-stop-implementer is the canonical emitted role, explicitly describe lattice-implementer as a legacy compatibility input/non-reviewer alias so future changes cannot mistake it for the current writer; this is the same unresolved guidance gap surfaced as B-5a88:F-104.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-21T01:50:01.640Z",
+      "reviewRound": "2026-08-21T01:44:06.947Z",
+      "reviewRunId": "B-5a88:RR-131",
+      "_hash": "abf6dc893f36cfc3cbcbb1688df372f7a78e080ac838a7e8733954a3f69e7b4d",
+      "files": [
+        "packages/main/src/core/review-run.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }

@@ -2087,6 +2087,91 @@
         "scanEscalationReason": null
       },
       "_hash": "c9d688fd6ac0b2728435f8a3afc90d21298b1f24313565b921f6e9d7cc443a59"
+    },
+    {
+      "id": "B-5a88:RP-033",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Round 16 concept review passed: active canonical reviewer guidance in docs/host-run-usage.md and review-run.ts comments is proof-or-stop-first; lattice-review-* and lattice-implementer references are explicitly legacy/non-reviewer compatibility, focused static scan and git diff --check found no blocker.",
+      "createdAt": "2026-08-21T01:49:13.382Z",
+      "reviewRound": "2026-08-21T01:44:06.947Z",
+      "reviewRunId": "B-5a88:RR-131",
+      "envelopeId": "be37d8ddf431a4eb2208899eb8bb662b3b8c8e5e4032347b90ce8d4e58d5ab67",
+      "writerSessionId": "sess-0366c8b47d41cda4744207ce8572e4f3",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "packages/main/src/core/agent-role-identity.ts"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/host-run-usage.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "package-lock.json",
+          "package.json",
+          "packages/lab/package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/core/release-push-approval.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/handlers/transition-effects.ts",
+          "packages/main/templates/agents/",
+          "packages/utils/package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8083eb7ce5a81f8c2bbe9cc66645e18e69c9cfe5717d8d2ebef2c69adecf05e2"
+    },
+    {
+      "id": "B-5a88:RP-034",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 16 coverage review passed: all 21 must intents have one non-failing verificationEvidence receipt; receipts match this run materialHash/storyFilesHash, with only head-only metadata drift from b411f1e6 to 85d018f3. Focused adversarial-review-round smoke passed 77 assertions and delivery-check-freshness smoke passed its mutation/tamper/staleness matrix. F-103 remains partially mitigated: docs/comment fixes have no dedicated immutable intentRef; focused smoke mitigation does not replace that binding.",
+      "createdAt": "2026-08-21T01:49:58.032Z",
+      "reviewRound": "2026-08-21T01:44:06.947Z",
+      "reviewRunId": "B-5a88:RR-127",
+      "envelopeId": "2d4b2e93ea5ac6e4abb61f772e9edd099aa4d3ef0e4523ba895532dd93ef5dc8",
+      "writerSessionId": "sess-40789456705a43254c2a225059e1c10e",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop-codex/agents/proof-or-stop-review-test-coverage.md",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/core/adversarial-review-round.ts",
+          "packages/main/src/core/delivery-check-hash.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/tasks/adversarial-review-round-smoke.ts",
+          "packages/main/src/tasks/delivery-check-freshness-smoke.ts",
+          "packages/main/tests/artifact-schema-migration.test.mjs",
+          "packages/main/tests/bin-alias-migration.test.mjs",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/package-identity-migration.test.mjs",
+          "packages/main/tests/prompt-role-migration.test.mjs",
+          "packages/main/tests/release-push-approval-migration.test.mjs",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "686d22112e2c262aa4044faaac011ef46e0432efa25da8c256a24518599960bb"
     }
   ]
 }
