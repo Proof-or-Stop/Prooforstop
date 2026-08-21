@@ -10,7 +10,7 @@
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
-import { join, posix } from 'node:path';
+import { join, posix, resolve } from 'node:path';
 import type { ResourceClaim } from './keyed-scheduler.js';
 import { validateResourceClaims } from './keyed-scheduler.js';
 import { CAPABILITY_CATEGORIES } from './capabilities.js';
@@ -233,13 +233,13 @@ export const resolveStoryChangeManifest = buildStoryChangeManifest;
 
 export interface ValidationInventoryCommand {
   id: string; label: string; command: string; args: string[]; shell?: boolean; cwd?: string;
-  env?: Record<string, string>; timeoutMs?: number; focus?: string[]; resources?: ResourceClaim[]; caseRegistryPath?: string; runnerSourcePath?: string; declaredEnvironmentKeys?: string[];
+  env?: Record<string, string>; timeoutMs?: number; focus?: string[]; resources?: ResourceClaim[]; caseRegistryPath?: string; runnerSourcePath?: string; runnerSourceDigest?: string; declaredEnvironmentKeys?: string[];
   assurance?: Assurance; riskTier?: RiskTier; closurePolicy?: ClosurePolicy; fullBaselineReusePolicy?: FullBaselineReusePolicy; cpuWeight?: number; expectedP50Ms?: number; originalIndex: number;
 }
 export interface ValidationCatalogEntry {
   schema?: typeof VALIDATION_CATALOG_SCHEMA;
   id: string; label: string; command: string; args: string[]; shell?: boolean; cwd?: string;
-  env?: Record<string, string>; timeoutMs?: number; focus?: string[]; resources: ResourceClaim[]; caseRegistryPath?: string; runnerSourcePath?: string; declaredEnvironmentKeys?: string[];
+  env?: Record<string, string>; timeoutMs?: number; focus?: string[]; resources: ResourceClaim[]; caseRegistryPath?: string; runnerSourcePath?: string; runnerSourceDigest?: string; declaredEnvironmentKeys?: string[];
   policySource: 'explicit' | 'default';
   originalIndex: number;
   triggerExtensions: { files?: string[]; symbols?: string[]; processFacts?: string[]; capabilities?: string[]; packages?: string[] };
@@ -297,7 +297,14 @@ export function discoverValidationInventory(projectRoot: string, injected?: Vali
       return [{ id: typeof value.id === 'string' ? value.id : commandId({ command: value.command, args, label }, index), label, command: value.command, args, ...(typeof value.shell === 'boolean' ? { shell: value.shell } : {}), ...(typeof value.cwd === 'string' ? { cwd: value.cwd } : {}), ...(env ? { env } : {}), ...(typeof value.timeoutMs === 'number' ? { timeoutMs: value.timeoutMs } : {}), ...(typeof value.caseRegistryPath === 'string' ? { caseRegistryPath: value.caseRegistryPath } : {}), ...(typeof value.runnerSourcePath === 'string' ? { runnerSourcePath: value.runnerSourcePath } : {}), ...(declaredEnvironmentKeys ? { declaredEnvironmentKeys } : {}), ...(typeof value.assurance === 'string' ? { assurance: value.assurance as Assurance } : typeof policyDefaults.assurance === 'string' ? { assurance: policyDefaults.assurance as Assurance } : {}), ...(typeof value.riskTier === 'string' ? { riskTier: value.riskTier as RiskTier } : typeof policyDefaults.riskTier === 'string' ? { riskTier: policyDefaults.riskTier as RiskTier } : {}), ...(typeof value.closurePolicy === 'string' ? { closurePolicy: value.closurePolicy as ClosurePolicy } : typeof policyDefaults.closurePolicy === 'string' ? { closurePolicy: policyDefaults.closurePolicy as ClosurePolicy } : {}), ...(typeof value.fullBaselineReusePolicy === 'string' ? { fullBaselineReusePolicy: value.fullBaselineReusePolicy as FullBaselineReusePolicy } : typeof policyDefaults.fullBaselineReusePolicy === 'string' ? { fullBaselineReusePolicy: policyDefaults.fullBaselineReusePolicy as FullBaselineReusePolicy } : {}), ...(typeof value.cpuWeight === 'number' ? { cpuWeight: value.cpuWeight } : typeof policyDefaults.cpuWeight === 'number' ? { cpuWeight: policyDefaults.cpuWeight } : {}), ...(typeof value.expectedP50Ms === 'number' ? { expectedP50Ms: value.expectedP50Ms } : typeof policyDefaults.expectedP50Ms === 'number' ? { expectedP50Ms: policyDefaults.expectedP50Ms } : {}), resources, originalIndex: index }];
     });
   }
-  const normalized = commands.map((row, index) => ({ ...row, id: row.id || commandId(row, index), originalIndex: row.originalIndex ?? index }));
+  const normalized = commands.map((row, index) => ({
+    ...row,
+    ...(row.runnerSourcePath && existsSync(resolve(projectRoot, row.runnerSourcePath))
+      ? { runnerSourceDigest: sha256(readFileSync(resolve(projectRoot, row.runnerSourcePath))) }
+      : {}),
+    id: row.id || commandId(row, index),
+    originalIndex: row.originalIndex ?? index,
+  }));
   return { schema: 'proof-or-stop.validation-inventory.v1', commands: normalized, digest: stableDigest(normalized), source: injected ? 'injected' : existsSync(join(projectRoot, 'proof-or-stop.config.json')) ? 'proof-or-stop.config.json' : 'lattice.config.json' };
 }
 function validRelativePath(path: string): boolean {
@@ -329,6 +336,8 @@ export function validateValidationCatalog(inventory: ValidationInventory | Valid
     const triggerFiles = Array.isArray(trigger?.files) ? trigger.files : [];
     if (roots.length === 0 || roots.some(path => !validRelativePath(path) || path.startsWith('packages/main/dist/') || path.startsWith('dist/')))
       errors.push('invalid or dist-only inputRoots: ' + entry.id);
+    if (entry.runnerSourcePath && (!validRelativePath(entry.runnerSourcePath) || !entry.runnerSourceDigest))
+      errors.push('runner source digest missing or path invalid: ' + entry.id);
     if (triggerFiles.some(path => !validRelativePath(path) || path.startsWith('packages/main/dist/') || path.startsWith('dist/')))
       errors.push('invalid or dist-only trigger files: ' + entry.id);
     if (!['static-and-traced', 'whole-repository', 'never-reuse'].includes(entry.closurePolicy)) errors.push('invalid closurePolicy: ' + entry.id);

@@ -439,6 +439,7 @@ function commandForEntry(entry: ValidationCatalogEntry, configured?: ValidationC
     ...(source?.declaredEnvironmentKeys !== undefined ? { declaredEnvironmentKeys: source.declaredEnvironmentKeys } : entry.declaredEnvironmentKeys !== undefined ? { declaredEnvironmentKeys: entry.declaredEnvironmentKeys } : {}),
     ...(source?.caseRegistryPath !== undefined ? { caseRegistryPath: source.caseRegistryPath } : entry.caseRegistryPath !== undefined ? { caseRegistryPath: entry.caseRegistryPath } : {}),
     ...(source?.runnerSourcePath !== undefined ? { runnerSourcePath: source.runnerSourcePath } : entry.runnerSourcePath !== undefined ? { runnerSourcePath: entry.runnerSourcePath } : {}),
+    ...(source?.runnerSourceDigest !== undefined ? { runnerSourceDigest: source.runnerSourceDigest } : entry.runnerSourceDigest !== undefined ? { runnerSourceDigest: entry.runnerSourceDigest } : {}),
     ...(source?.assurance !== undefined ? { assurance: source.assurance } : entry.assurance !== undefined ? { assurance: entry.assurance } : {}),
     ...(source?.riskTier !== undefined ? { riskTier: source.riskTier } : entry.riskTier !== undefined ? { riskTier: entry.riskTier } : {}),
     ...(source?.closurePolicy !== undefined ? { closurePolicy: source.closurePolicy } : entry.closurePolicy !== undefined ? { closurePolicy: entry.closurePolicy } : {}),
@@ -825,6 +826,7 @@ function deriveGateOwnedPrerequisites(args: {
   const catalogOwnershipGatePassed = args.prepared.catalog.length > 0
     && args.prepared.catalog.every((entry) => entry.id
       && entry.inputRoots.length > 0
+      && (!entry.runnerSourcePath || Boolean(entry.runnerSourceDigest))
       && Array.isArray(entry.resources)
       && entry.policySource === 'explicit'
       && ['static-and-traced', 'whole-repository', 'never-reuse'].includes(entry.closurePolicy)

@@ -17,6 +17,8 @@ export interface ValidationCommand {
   caseRegistryPath?: string;
   /** Source entrypoint executed by the registered DYN-5 case runners. */
   runnerSourcePath?: string;
+  /** Content digest of the registered runner source, bound into catalog identity. */
+  runnerSourceDigest?: string;
   /** Environment keys the command is permitted to read during closure tracing. */
   declaredEnvironmentKeys?: string[];
   /** Explicit catalog policy; omitted fields remain non-authoritative defaults. */

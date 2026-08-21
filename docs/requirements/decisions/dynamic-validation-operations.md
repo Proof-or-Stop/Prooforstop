@@ -69,11 +69,11 @@ Rollback is non-destructive: set mode to `off` or `observe`. Existing Story
 evidence remains valid, while dynamic receipts simply stop being consumed by
 the authority predicate.
 
-To establish a canonical full baseline for the current HEAD, run the unscoped
-validator (`proof-or-stop validate --json`) in `shadow`/`enforce-low-risk`
-after a clean build; the verifier writes the baseline only for this
-non-Story complete-plan run, after it passes and all runtime closure traces
-are admissible. Inspect the resulting
+To establish a canonical full baseline for the current HEAD, run the ordinary
+unscoped complete validator with dynamic mode off:
+`proof-or-stop validate --dynamic-mode=off --json` after a clean build. The
+verifier writes the baseline only for this non-Story complete-plan run, after
+it passes and all runtime closure traces are admissible. Inspect the resulting
 `.proof-or-stop/runtime/dynamic-validation/canonical-full-baseline.json` before
 expecting reuse. If it is missing, expired, or digest-mismatched, the gate
 selects full validation.
