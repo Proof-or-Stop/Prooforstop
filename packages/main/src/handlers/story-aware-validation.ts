@@ -472,7 +472,7 @@ const DYN5_ADAPTER_REGISTRY: Record<string, { digest: string; entrypoint: string
   },
 };
 
-function registeredShardAdapter(projectRoot: string, command: ValidationCommand, name: unknown): { digest: string; entrypoint: string } | undefined {
+function registeredShardAdapter(projectRoot: string, command: ValidationCommand, name: unknown): { digest: string; entrypoint: string; useAdapterEntrypoint?: boolean } | undefined {
   if (typeof name !== 'string') return undefined;
   const adapter = DYN5_ADAPTER_REGISTRY[name];
   if (!adapter) return undefined;
@@ -486,7 +486,16 @@ function registeredShardAdapter(projectRoot: string, command: ValidationCommand,
   const runtimePath = resolve(process.execPath);
   const nodeLike = commandPath === runtimePath || /(?:^|[\\/])(?:node|bun)(?:\.exe)?$/i.test(commandPath);
   const entrypointBound = command.args.some((arg) => resolve(projectRoot, arg) === expectedEntrypoint);
-  return nodeLike && entrypointBound ? adapter : undefined;
+  // The complete inventory keeps the original, end-to-end smoke command as
+  // its full-plan oracle.  Dynamic DYN-5 execution is allowed to replace that
+  // command boundary with the registered adapter only when the catalog row is
+  // explicitly wired to one of the two known gate domains.  This keeps the
+  // ordinary full plan authoritative while making the sharded path executable
+  // from the repository's real configuration (rather than only temp fixtures).
+  const domainCommand = command.args.some((arg) => /(?:review-pass-discard-smoke|quorum-submit-smoke)\.(?:m?js|ts)$/.test(arg));
+  return nodeLike && (entrypointBound || domainCommand)
+    ? { ...adapter, ...(domainCommand && !entrypointBound ? { useAdapterEntrypoint: true } : {}) }
+    : undefined;
 }
 
 function loadShardCaseRegistry(projectRoot: string, entry: ValidationCatalogEntry, domain: string): { cases: ValidationCase[]; path: string; digest: string } | undefined {
@@ -568,7 +577,14 @@ async function executeShardedEntry(args: {
     const shardDir = join(artifactDir(args.projectRoot, args.storyId), 'shard-work', shard.shardId);
     mkdirSync(shardDir, { recursive: true });
     const command: ValidationCommand = {
-      ...baseCommand,
+      ...(adapter.useAdapterEntrypoint ? {
+        ...baseCommand,
+        // Preserve the configured runtime identity.  Using the host Bun
+        // executable here would bypass the Node preload tracer on projects
+        // whose complete inventory is explicitly bound to `node`.
+        command: baseCommand.command,
+        args: [resolve(args.projectRoot, adapter.entrypoint), domain],
+      } : baseCommand),
       env: {
         ...(baseCommand.env || {}),
         LATTICE_VALIDATION_SHARD_ID: shard.shardId,

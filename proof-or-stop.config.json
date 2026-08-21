@@ -114,11 +114,22 @@
         "timeoutMs": 180000
       },
       {
+        "label": "review-pass-discard-smoke",
         "command": "node",
         "args": [
           "packages/main/dist/tasks/review-pass-discard-smoke.js"
         ],
         "timeoutMs": 300000,
+        "caseRegistryPath": "packages/main/src/tasks/story-aware-validation-domain-cases.json",
+        "env": {
+          "LATTICE_VALIDATION_SHARD_ADAPTER": "case-registry-output-v1"
+        },
+        "assurance": "story-selectable",
+        "riskTier": "gate",
+        "closurePolicy": "static-and-traced",
+        "fullBaselineReusePolicy": "not-applicable",
+        "cpuWeight": 3,
+        "expectedP50Ms": 265000,
         "resources": [
           {
             "class": "git-common-dir",
@@ -560,11 +571,22 @@
         ]
       },
       {
+        "label": "quorum-submit-smoke",
         "command": "node",
         "args": [
           "packages/main/dist/tasks/quorum-submit-smoke.js"
         ],
-        "timeoutMs": 1200000
+        "timeoutMs": 1200000,
+        "caseRegistryPath": "packages/main/src/tasks/story-aware-validation-domain-cases.json",
+        "env": {
+          "LATTICE_VALIDATION_SHARD_ADAPTER": "case-registry-output-v1"
+        },
+        "assurance": "story-selectable",
+        "riskTier": "gate",
+        "closurePolicy": "static-and-traced",
+        "fullBaselineReusePolicy": "not-applicable",
+        "cpuWeight": 4,
+        "expectedP50Ms": 643000
       },
       {
         "command": "node",

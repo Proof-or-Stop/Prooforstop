@@ -248,7 +248,7 @@ export interface ValidationCatalogEntry {
 }
 export interface ValidationInventory {
   schema: 'proof-or-stop.validation-inventory.v1';
-  commands: ValidationInventoryCommand[]; digest: string; source: 'lattice.config.json' | 'injected';
+  commands: ValidationInventoryCommand[]; digest: string; source: 'proof-or-stop.config.json' | 'lattice.config.json' | 'injected';
 }
 function commandId(row: { command: string; args: string[]; label?: string }, index: number): string {
   // Labels are presentation metadata; command identity is stable when a label
@@ -258,7 +258,9 @@ function commandId(row: { command: string; args: string[]; label?: string }, ind
 export function discoverValidationInventory(projectRoot: string, injected?: ValidationInventoryCommand[]): ValidationInventory {
   let commands: ValidationInventoryCommand[] = injected ? injected.map((row, index) => ({ ...row, originalIndex: row.originalIndex ?? index })) : [];
   if (!injected) {
-    const configPath = join(projectRoot, 'lattice.config.json');
+    const canonicalPath = join(projectRoot, 'proof-or-stop.config.json');
+    const legacyPath = join(projectRoot, 'lattice.config.json');
+    const configPath = existsSync(canonicalPath) ? canonicalPath : legacyPath;
     const raw = existsSync(configPath) ? JSON.parse(readFileSync(configPath, 'utf8')) as Record<string, unknown> : {};
     const validation = ((raw.validate || raw.validation) as Record<string, unknown> | undefined) || {};
     const rows: unknown[] = Array.isArray(validation.commands) ? validation.commands : typeof validation.command === 'string' ? [validation.command] : [];
@@ -283,7 +285,7 @@ export function discoverValidationInventory(projectRoot: string, injected?: Vali
     });
   }
   const normalized = commands.map((row, index) => ({ ...row, id: row.id || commandId(row, index), originalIndex: row.originalIndex ?? index }));
-  return { schema: 'proof-or-stop.validation-inventory.v1', commands: normalized, digest: stableDigest(normalized), source: injected ? 'injected' : 'lattice.config.json' };
+  return { schema: 'proof-or-stop.validation-inventory.v1', commands: normalized, digest: stableDigest(normalized), source: injected ? 'injected' : existsSync(join(projectRoot, 'proof-or-stop.config.json')) ? 'proof-or-stop.config.json' : 'lattice.config.json' };
 }
 function validRelativePath(path: string): boolean {
   const value = normalPath(path);
