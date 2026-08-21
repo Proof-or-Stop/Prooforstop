@@ -64,6 +64,19 @@ function runBounded(cmd, args, opts = {}) {
   });
 }
 
+function assertExpectedBoundedExit(result, label) {
+  // `serve` is intentionally long-lived, so the harness may terminate it after
+  // it has emitted its startup markers. Keep that timeout/termination contract
+  // explicit while rejecting every other spawn failure and every non-zero exit.
+  if (result.error) {
+    assert(result.error.code === 'ETIMEDOUT', `${label} failed unexpectedly: ${result.error.code || result.error.message}`);
+    return;
+  }
+  if (result.signal === 'SIGTERM' && result.status === null) return;
+  assert(result.signal === null, `${label} terminated unexpectedly by ${result.signal}`);
+  assert(result.status === 0, `${label} exited with status ${result.status}`);
+}
+
 function assert(condition, message) {
   if (!condition) throw new Error(message);
 }
@@ -724,6 +737,15 @@ checks.push(() => {
 checks.push(() => {
   const tempDir = mkdtempSync(join(tmpdir(), 'lattice-entrypoints-serve-flags-'));
   try {
+    let rejectedNonZeroExit = false;
+    try {
+      assertExpectedBoundedExit({ status: 17, signal: null }, 'serve exit contract synthetic non-zero case');
+    } catch (error) {
+      rejectedNonZeroExit = true;
+      assertIncludes(String(error?.message || error), 'exited with status 17', 'serve exit contract non-zero rejection');
+    }
+    assert(rejectedNonZeroExit, 'serve exit contract must reject a non-zero child exit');
+
     const localBinDir = join(tempDir, 'node_modules', '.bin');
     mkdirSync(localBinDir, { recursive: true });
     const tsxShim = join(localBinDir, 'tsx');
@@ -741,9 +763,7 @@ checks.push(() => {
       assertNotIncludes(output, 'Unknown option', `lattice serve ${flag} should not be rejected as an unknown option`);
       assertNotIncludes(output, '--web', `lattice serve ${flag} runtime output`);
       assertNotIncludes(output, '--cli', `lattice serve ${flag} runtime output`);
-      if (result.error && result.error.code !== 'ETIMEDOUT') {
-        throw result.error;
-      }
+      assertExpectedBoundedExit(result, `proof-or-stop serve ${flag}`);
     }
   } finally {
     rmSync(tempDir, { recursive: true, force: true });
