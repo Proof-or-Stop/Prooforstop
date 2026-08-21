@@ -78,8 +78,8 @@ import {
 } from '../core/done-prepare-generated-metadata.js';
 import { normalizeRelPath } from '../core/lattice-paths.js';
 import { readBrandEnv } from '../core/brand-env.js';
-import { resolveDynamicMode } from '../core/story-aware-validation.js';
-import { runStoryAwareDynamicValidation } from './story-aware-validation.js';
+import { resolveDynamicMode, type DynamicValidationMode } from '../core/story-aware-validation.js';
+import { prepareStoryAwareValidation, runStoryAwareDynamicValidation } from './story-aware-validation.js';
 
 const STATUS_FALLBACK_TIMEOUT_MS = 10_000;
 const SHELL_META_RE = /[;&|<>$()`]/;
@@ -1185,6 +1185,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
     async validate(args: {
       full?: string | boolean;
       focus?: string;
+      dynamicMode?: DynamicValidationMode;
       story?: string;
       storyId?: string;
       json?: boolean;
@@ -1218,7 +1219,8 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
       // stop before capacity acquisition rather than mint a wrapper-local lock.
       const projectConfig = loadConfig(projectRoot);
       const dynamicMode = resolveDynamicMode(
-        process.env.PROOF_OR_STOP_DYNAMIC_VALIDATION_MODE
+        args.dynamicMode
+        || process.env.PROOF_OR_STOP_DYNAMIC_VALIDATION_MODE
         || process.env.LATTICE_DYNAMIC_VALIDATION_MODE
         || (projectConfig as unknown as { validation?: { dynamic?: { mode?: unknown } }; validate?: { dynamic?: { mode?: unknown } } }).validation?.dynamic?.mode
         || (projectConfig as unknown as { validate?: { dynamic?: { mode?: unknown } } }).validate?.dynamic?.mode,
@@ -1423,35 +1425,53 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           // Focused validation is explicitly non-authoritative and may pass a
           // filtered command list; keep dynamic inventory/execution aligned
           // with the complete configured plan only.
-          if (args.story && dynamicMode !== 'off' && !focus) {
+          if (dynamicMode !== 'off' && !focus) {
             try {
               const baseHead = execFileSync('git', ['merge-base', 'main', 'HEAD'], {
                 cwd: handlerGitCwd,
                 encoding: 'utf8',
               }).trim();
-              const dynamic = await runStoryAwareDynamicValidation({
-                projectRoot,
-                storyId: args.story,
-                baseHead,
-                head: currentHead(handlerGitCwd),
-                mode: dynamicMode,
-                commands,
-                abortSignal: args.abortSignal,
-                deadlineAt: args.deadlineAt,
-                deadlineError: args.deadlineError,
-                progress: validationProgressReporter(ctx),
-              });
-              dynamicPreview = {
-                mode: dynamicMode,
-                manifest: dynamic.manifest,
-                report: dynamic.runtimeReport,
-                authority: dynamic.authority.authoritative ? 'enforce-authority' : dynamicMode === 'enforce-low-risk' ? 'full-fallback' : 'full-plan-oracle',
-                selectedCommands: dynamic.selectedResult.commands.length + dynamic.buildResult.commands.length,
-                reusedCommands: dynamic.manifest.totals.reused,
-                receipts: dynamic.receipts.length,
-                selectedAllPass: dynamic.dynamicAllPass,
-              };
-              ctx.log?.(dynamic.runtimeReport);
+              if (args.story) {
+                const dynamic = await runStoryAwareDynamicValidation({
+                  projectRoot,
+                  storyId: args.story,
+                  baseHead,
+                  head: currentHead(handlerGitCwd),
+                  mode: dynamicMode,
+                  commands,
+                  abortSignal: args.abortSignal,
+                  deadlineAt: args.deadlineAt,
+                  deadlineError: args.deadlineError,
+                  progress: validationProgressReporter(ctx),
+                });
+                dynamicPreview = {
+                  mode: dynamicMode,
+                  manifest: dynamic.manifest,
+                  report: dynamic.runtimeReport,
+                  authority: dynamic.authority.authoritative ? 'enforce-authority' : dynamicMode === 'enforce-low-risk' ? 'full-fallback' : 'full-plan-oracle',
+                  selectedCommands: dynamic.selectedResult.commands.length + dynamic.buildResult.commands.length,
+                  reusedCommands: dynamic.manifest.totals.reused,
+                  receipts: dynamic.receipts.length,
+                  selectedAllPass: dynamic.dynamicAllPass,
+                };
+                ctx.log?.(dynamic.runtimeReport);
+              } else {
+                // The explicit mode CLI is also useful as a project-level
+                // diagnostic. Without a story there is no story evidence or
+                // receipt cache to mutate, so emit a signed preview and keep
+                // the complete configured plan authoritative.
+                const dynamic = prepareStoryAwareValidation({
+                  projectRoot,
+                  storyId: 'B-dynamic-validation-adhoc',
+                  baseHead,
+                  head: currentHead(handlerGitCwd),
+                  mode: dynamicMode,
+                  commands,
+                  gitCwd: handlerGitCwd,
+                });
+                dynamicPreview = { mode: dynamicMode, manifest: dynamic.manifest, report: dynamic.report, authority: 'full-plan-oracle' };
+                ctx.log?.(dynamic.report);
+              }
             } catch (error) {
               ctx.log?.('dynamic validation execution unavailable; retaining complete-plan oracle: ' + (error instanceof Error ? error.message : String(error)));
               dynamicPreview = { mode: dynamicMode, authority: 'full-plan-oracle' };
