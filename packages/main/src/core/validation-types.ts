@@ -51,7 +51,10 @@ export interface ValidationCommandResult {
     exitCode: number;
     /** Observable executor boundary events, in occurrence order. */
     events: string[];
-    /** File/module/registry tracing is not available unless explicitly instrumented. */
+    readPaths?: string[];
+    loadedPaths?: string[];
+    spawnedPaths?: string[];
+    registryKeys?: string[];
     unknownRuntimeInputs: string[];
   };
   worktreePollution?: {

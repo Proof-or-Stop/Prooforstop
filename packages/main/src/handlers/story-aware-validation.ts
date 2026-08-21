@@ -9,7 +9,7 @@
  */
 import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { isAbsolute, join, relative, resolve } from 'node:path';
 import type { ValidationCommand, ValidationCommandResult, ValidationProgressReporter, ValidationResult } from '../core/validation-types.js';
 import { validateResourceClaims } from '../core/keyed-scheduler.js';
 import { PROOF_OR_STOP_STATE_DIR } from '../core/brand-paths.js';
@@ -148,14 +148,23 @@ function sourceAuthorityPath(value: string): string | undefined {
  * what did run.  Missing instrumentation remains an unknown input and is
  * consumed by createValidationClosureCertificate's fail-closed branch.
  */
-function runtimeTraceForResult(result: ValidationCommandResult | undefined): ValidationRuntimeTrace {
+function runtimeTraceForResult(result: ValidationCommandResult | undefined, projectRoot: string): ValidationRuntimeTrace {
   if (!result?.runtimeTrace) {
     return { unknownRuntimeInputs: ['executor did not emit runtime trace'] };
   }
   const boundary = result.runtimeTrace;
-  const spawnedPaths = boundary.argv
-    .map(sourceAuthorityPath)
-    .filter((path): path is string => Boolean(path));
+  const normalizeObserved = (value: string): string | undefined => {
+    const candidate = sourceAuthorityPath(value);
+    if (!candidate) return undefined;
+    if (!isAbsolute(candidate)) return candidate;
+    const root = resolve(projectRoot);
+    const absolute = resolve(candidate);
+    const rel = relative(root, absolute).replace(/\\/g, '/');
+    return rel && !rel.startsWith('../') && rel !== '..' ? rel : undefined;
+  };
+  const readPaths = (boundary.readPaths || []).map(normalizeObserved).filter((path): path is string => Boolean(path));
+  const loadedPaths = (boundary.loadedPaths || []).map(normalizeObserved).filter((path): path is string => Boolean(path));
+  const spawnedPaths = (boundary.spawnedPaths || boundary.argv).map(normalizeObserved).filter((path): path is string => Boolean(path));
   return {
     command: boundary.command,
     argv: [...boundary.argv],
@@ -164,7 +173,10 @@ function runtimeTraceForResult(result: ValidationCommandResult | undefined): Val
     endedAt: boundary.endedAt,
     exitCode: boundary.exitCode,
     events: [...boundary.events],
+    readPaths: [...new Set(readPaths)],
+    loadedPaths: [...new Set(loadedPaths)],
     spawnedPaths: [...new Set(spawnedPaths)],
+    registryKeys: [...(boundary.registryKeys || [])],
     environmentKeys: [...boundary.environmentKeys],
     unknownRuntimeInputs: [...boundary.unknownRuntimeInputs],
   };
@@ -188,7 +200,7 @@ export function persistCanonicalFullBaseline(args: {
     const result = args.result.commands.find((row) => row.command === entry.command
       && row.args.length === entry.args.length
       && row.args.every((arg, index) => arg === entry.args[index]));
-    const trace = runtimeTraceForResult(result);
+    const trace = runtimeTraceForResult(result, args.projectRoot);
     traces[entry.id] = trace;
     closureCertificates[entry.id] = createValidationClosureCertificate({
       commandId: entry.id,
@@ -451,7 +463,11 @@ async function executeShardedEntry(args: {
     const localResidue = existsSync(shardDir) ? readdirSync(shardDir).sort() : [];
     const shardResidue = [...commandResidue, ...localResidue];
     residue.push(...shardResidue);
-    const sentinelObserved = Boolean(commandResult?.runtimeTrace?.environmentKeys.includes('LATTICE_VALIDATION_SHARD_SENTINEL'));
+    const sentinelMarker = `PROOF_OR_STOP_SENTINEL:${shard.sentinelCaseId}`;
+    const sentinelObserved = Boolean(
+      commandResult?.output.includes(sentinelMarker)
+      || existsSync(join(shardDir, `${shard.sentinelCaseId}.sentinel`)),
+    );
     const shardResult: ValidationShardResult = {
       shardId: shard.shardId,
       domain,
