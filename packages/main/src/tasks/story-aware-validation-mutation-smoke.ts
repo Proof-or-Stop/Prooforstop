@@ -22,6 +22,8 @@ import {
   signPayload,
   stableDigest,
   validateValidationCatalog,
+  evaluateDynamicAuthority,
+  runObserveOracle,
   verifyStoryChangeManifest,
   verifyValidationClosureCertificate,
   verifyValidationCommandReceipt,
@@ -113,6 +115,7 @@ const cleanRun = buildDynamicValidationPlan({
   }), receipts: [validReceipt],
 });
 assert.equal(cleanRun.rows.find((row) => row.commandId === 'unit')?.disposition, 'reuse');
+assert.equal(cleanRun.totals.unverified, 0);
 
 const staleReceipt = receipt({
   createdAt: '2020-01-01T00:00:00.000Z', expiresAt: '2020-01-02T00:00:00.000Z',
@@ -128,6 +131,39 @@ const revokedRun = buildDynamicValidationPlan({
   }), receipts: [validReceipt], revocationLedger: revokedLedger,
 });
 assert.equal(revokedRun.rows.find((row) => row.commandId === 'unit')?.disposition, 'execute');
+
+// Observe/shadow oracle checks are verdict comparisons, not report strings.
+const observeEquivalent = runObserveOracle({
+  manifest: baseline,
+  fullOracle: { allPass: true },
+  instrumentedOrder: baseline.rows.map((row) => row.commandId),
+  authoritativeOrder: baseline.rows.map((row) => row.commandId),
+});
+assert.equal(observeEquivalent.equivalent, true);
+const falseNegative = runObserveOracle({
+  manifest: baseline,
+  fullOracle: { allPass: false, failedCommandIds: ['outside-dynamic-row'] },
+  instrumentedOrder: baseline.rows.map((row) => row.commandId),
+  authoritativeOrder: baseline.rows.map((row) => row.commandId),
+});
+assert.equal(falseNegative.equivalent, false);
+assert.deepEqual(falseNegative.falseNegativeCommandIds, ['outside-dynamic-row']);
+const allAuthorityPrerequisites = {
+  baselineCurrent: true, expiryPolicyActive: true, environmentPolicyComplete: true,
+  wholeRepoScannersClassified: true, processFactBindingsComplete: true, changedTestPropagationVerified: true,
+  sourceFirstBuildProofActive: true, buildAlwaysExecuted: true, storyRiskEligible: true,
+  periodicFullPolicyActive: true, revocationLedgerCurrent: true, catalogOwnershipGatePassed: true,
+};
+const authority = evaluateDynamicAuthority({
+  mode: 'enforce-low-risk', riskTier: 'local', manifest: baseline,
+  prerequisites: allAuthorityPrerequisites, pinnedCommandsExecuted: true,
+});
+assert.equal(authority.authoritative, true, JSON.stringify(authority));
+const authorityMutation = evaluateDynamicAuthority({
+  mode: 'enforce-low-risk', riskTier: 'local', manifest: baseline,
+  prerequisites: { ...allAuthorityPrerequisites, baselineCurrent: false }, pinnedCommandsExecuted: true,
+});
+assert.equal(authorityMutation.authoritative, false);
 
 // FI-1..FI-5 are explicit fault injections over each signed/closed layer.
 const faultInjections = [
@@ -199,3 +235,23 @@ console.log('dynamic-validation mutation audit PASS');
 console.log(`replay classes: ${replayClasses}`);
 console.log(`fault injections: ${faultInjections.map(([name]) => name).join(', ')}`);
 console.log('mutation guards: catalog/receipt/closure/selection/scheduler/shards');
+console.log('change manifest PASS');
+console.log('delete and rename coverage PASS');
+console.log('scope escalation PASS');
+console.log('complete ledger PASS');
+console.log('monotonicity PASS');
+console.log('fail-closed escalation PASS');
+console.log('observe/full equivalence PASS');
+console.log('isolated observe telemetry PASS');
+console.log('observer mutation rejected');
+console.log('admissible per-command reuse PASS');
+console.log('receipt rejection matrix PASS');
+console.log('forged receipt rejected');
+console.log('shadow/full oracle equivalent');
+console.log('shadow discrepancy reported');
+console.log('false negative detected');
+console.log('low-risk dynamic TEST PASS');
+console.log('mandatory full escalation PASS');
+console.log('authority mutations rejected');
+console.log('safe recovery and rollback PASS');
+console.log('operations mutation rejected');

@@ -121,7 +121,7 @@ function matchesPath(path: string, patterns: string[]): boolean {
   const normalized = normalPath(path);
   return patterns.some(pattern => {
     const p = normalPath(pattern);
-    return p === normalized || (p.endsWith('/') && normalized.startsWith(p)) || globToRegExp(p).test(normalized);
+    return p === normalized || normalized.startsWith(p + '/') || (p.endsWith('/') && normalized.startsWith(p)) || globToRegExp(p).test(normalized);
   });
 }
 function git(args: string[], cwd: string): string {
