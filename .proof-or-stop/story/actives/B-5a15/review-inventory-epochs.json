@@ -1525,6 +1525,49 @@
       ],
       "createdAt": "2026-08-21T18:17:51.167Z",
       "_hash": "05f3c0bc81e35ce8aaca37452c78c8802b9217a89f1d9d1dabae5694510c1f38"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-5a15:RI-009:CRIT-02",
+      "epochId": "B-5a15:RI-009",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-21T17:48:55.675Z",
+      "wave": 2,
+      "cutoff": {
+        "headHash": "329907af5d236fdcd492b1a4d948e861c4082d68",
+        "materialHash": "853d5eb4322ecb6d3ba9b94131ecab4e76ac0b8a2e77f47f24a2c39fc04ac775",
+        "storyFilesHash": "01a95005cb46a073e03805e42aef1925a31b87ed2f3d0b43e4378a5e2f1f1406"
+      },
+      "aggregateFindingSetDigest": "6e8e545a3ca200d3676e72ab278846fc9939dfd4c69cb1f19e0a1e727d4ef08e",
+      "requiredLaneCoverageDigest": "4ed26f9243369d061dde79af31b25c7832294a1b80168da92c46fae9b46404af",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-5a15:RR-170",
+      "terminalEvidenceIds": [
+        "B-5a15:F-091"
+      ],
+      "readEvidenceDigest": "2319f4c490e051c4c6ed13bda369b0fde3491fddde72851fb12db105c6323664",
+      "findingDispositions": [
+        {
+          "findingId": "B-5a15:F-088",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a15:F-088",
+          "reason": "Conservative executable default: retain this verified finding as its own family"
+        },
+        {
+          "findingId": "B-5a15:F-089",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a15:F-089",
+          "reason": "Conservative executable default: retain this verified finding as its own family"
+        },
+        {
+          "findingId": "B-5a15:F-090",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a15:F-090",
+          "reason": "Conservative executable default: retain this verified finding as its own family"
+        }
+      ],
+      "createdAt": "2026-08-21T18:21:40.472Z",
+      "_hash": "90c74fb76a4b6dcd59c3a3509e32aa56da4c7fdf7cddb920dc5cc05dbf88b725"
     }
   ]
 }
