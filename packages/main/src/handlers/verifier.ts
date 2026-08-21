@@ -1468,8 +1468,23 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
                   mode: dynamicMode,
                   commands,
                   gitCwd: handlerGitCwd,
+                  // A project-level observe/shadow report has no story scope
+                  // from which to resolve a dual revision graph. Treat it as
+                  // an empty change manifest: the complete configured plan
+                  // remains the only authority, while the signed inventory /
+                  // selection accounting is still emitted. This also keeps
+                  // the diagnostic command bounded on large repositories.
+                  changedFiles: [],
                 });
-                dynamicPreview = { mode: dynamicMode, manifest: dynamic.manifest, report: dynamic.report, authority: 'full-plan-oracle' };
+                dynamicPreview = {
+                  mode: dynamicMode,
+                  manifest: dynamic.manifest,
+                  report: dynamic.report,
+                  authority: 'full-plan-oracle',
+                  selectedCommands: dynamic.manifest.totals.executed,
+                  reusedCommands: dynamic.manifest.totals.reused,
+                  receipts: 0,
+                };
                 ctx.log?.(dynamic.report);
               }
             } catch (error) {
