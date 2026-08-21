@@ -740,6 +740,11 @@ export function buildDynamicValidationPlan(ctx: DynamicValidationContext): Valid
     if (selected.has(row.id) || entry.assurance === 'always' || entry.closurePolicy === 'never-reuse') {
       return { commandId: row.id, disposition: 'execute', reasons: selected.get(row.id) || [entry.closurePolicy === 'never-reuse' ? 'never-reuse-policy' : 'always'], inputDigest, ...(closure ? { closureCertificateDigest: closure.signature } : {}) };
     }
+    // `forbidden` is stronger than receipt provenance: these full-only
+    // commands must execute on every dynamic run and can never reuse.
+    if (entry.assurance === 'full-only' && entry.fullBaselineReusePolicy === 'forbidden') {
+      return { commandId: row.id, disposition: 'execute', reasons: ['full-only-reuse-forbidden'], inputDigest, ...(closure ? { closureCertificateDigest: closure.signature } : {}) };
+    }
     if (!closure || !verifyValidationClosureCertificate(closure)) return { commandId: row.id, disposition: 'execute', reasons: ['closure-certificate-unavailable-or-incomplete'], inputDigest };
     const receipt = (ctx.receipts || []).filter(candidate => candidate.commandId === row.id)
       .sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt) || b.id.localeCompare(a.id))
