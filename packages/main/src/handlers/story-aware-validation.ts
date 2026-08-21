@@ -209,6 +209,7 @@ export function persistCanonicalFullBaseline(args: {
       catalogDigest,
       staticPaths: entry.inputRoots,
       runtimeTrace: trace,
+      declaredEnvironmentKeys: trace.environmentKeys,
       processFacts: entry.triggerExtensions.processFacts,
       capabilities: entry.triggerExtensions.capabilities,
       producedBy: 'canonical-full-baseline-compiler',
