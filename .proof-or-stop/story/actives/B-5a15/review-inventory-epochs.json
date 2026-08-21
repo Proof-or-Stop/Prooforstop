@@ -1044,9 +1044,9 @@
       "epochId": "B-5a15:RI-011",
       "storyId": "B-5a15",
       "reviewRound": "2026-08-21T17:48:55.675Z",
-      "state": "OPEN",
+      "state": "FINALIZED",
       "begunAt": "2026-08-21T19:01:44.787Z",
-      "updatedAt": "2026-08-21T19:51:16.943Z",
+      "updatedAt": "2026-08-21T20:18:39.606Z",
       "cutoff": {
         "headHash": "44b421ada3e61a8832657990dbed605597227d71",
         "materialHash": "853d5eb4322ecb6d3ba9b94131ecab4e76ac0b8a2e77f47f24a2c39fc04ac775",
@@ -1157,6 +1157,55 @@
           "criticDigest": "3b68ff0151a1ec3d1bedb1f7b257d9ef20bf445a4664a10831c2b7a7fc277c50",
           "saturated": false,
           "nextRunSequenceBoundary": 197
+        },
+        {
+          "wave": 3,
+          "startedAt": "2026-08-21T19:51:16.943Z",
+          "completedAt": "2026-08-21T20:18:39.606Z",
+          "lanes": [
+            {
+              "lane": "lattice-review-concept",
+              "reviewRunId": "B-5a15:RR-198",
+              "terminal": "finding",
+              "hostIdentity": "cc38161b49e00dbcd64e32083078abd4440aa4e08c1466bb35de13960b44ed6e",
+              "promptIdentity": "ddd938fa048e8a4852b09b920185ef4c3511d8407808c1700874c6baeed55d84",
+              "evidenceIds": [
+                "B-5a15:F-111"
+              ],
+              "coverageDigest": "82de338e847668427e5a7069210a8205838ac0d30dabba7841449d6b2aea5a47"
+            },
+            {
+              "lane": "lattice-review-quality",
+              "reviewRunId": "B-5a15:RR-200",
+              "terminal": "finding",
+              "hostIdentity": "cc38161b49e00dbcd64e32083078abd4440aa4e08c1466bb35de13960b44ed6e",
+              "promptIdentity": "86e2418f2d6dd1456d101e6722690576b553f8a8f0b96a78f5c37a04b314f7e9",
+              "evidenceIds": [
+                "B-5a15:F-113"
+              ],
+              "coverageDigest": "3c4b5e05534b4723a38306c165a13f769993de285bf7b1ef56c30d2ebda41c41"
+            },
+            {
+              "lane": "lattice-review-test-coverage",
+              "reviewRunId": "B-5a15:RR-199",
+              "terminal": "finding",
+              "hostIdentity": "cc38161b49e00dbcd64e32083078abd4440aa4e08c1466bb35de13960b44ed6e",
+              "promptIdentity": "9ca79d9b59d098390c9d181496924f0ebaafc54fe532264059e7e0df274195c1",
+              "evidenceIds": [
+                "B-5a15:F-112"
+              ],
+              "coverageDigest": "f6170e92e2010b66759fda0f941b9bec4f036c6c66ed261bd5496174329f07a2"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "verifier-causal-preflight-missing-artifact",
+            "verifier-causal-preflight-missing-artifact-family"
+          ],
+          "verifiedFindingSetDigest": "6d7f0ffd4053091e6111d4b299c2b4b906765c5129ba60be541ca206b6fc06b1",
+          "newVerifiedFindingCount": 0,
+          "criticDigest": "aca706b249d7b412f03ab055da0733188ff595d661123bfbf9fa76c5d1495f57",
+          "saturated": true,
+          "nextRunSequenceBoundary": 203
         }
       ],
       "baselineFindingIds": [
@@ -1178,7 +1227,8 @@
         "B-5a15:F-097",
         "B-5a15:F-098"
       ],
-      "_hash": "64eb9230da3eff56f67d5b26b1a4a255fc7eaf5ff8e84ca7a74742afadfa960c"
+      "receiptId": "B-5a15:RI-011:RCP-001",
+      "_hash": "0cf52a03272680c7ab9e26d7ddc49009dd72793242fdff2010913b32f6d87efe"
     }
   ],
   "receipts": [
@@ -1388,6 +1438,32 @@
       "issuedAt": "2026-08-21T17:31:54.452Z",
       "consumedAt": "2026-08-21T17:32:48.214Z",
       "_hash": "b2eb553829896414d30db1135c00919b7185d800b3070af835f1e93ebfb97dd1"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_receipt.v1",
+      "receiptId": "B-5a15:RI-011:RCP-001",
+      "epochId": "B-5a15:RI-011",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-21T17:48:55.675Z",
+      "cutoff": {
+        "headHash": "44b421ada3e61a8832657990dbed605597227d71",
+        "materialHash": "853d5eb4322ecb6d3ba9b94131ecab4e76ac0b8a2e77f47f24a2c39fc04ac775",
+        "storyFilesHash": "01a95005cb46a073e03805e42aef1925a31b87ed2f3d0b43e4378a5e2f1f1406"
+      },
+      "scopeDigest": "2973bf65af4397eb798597f98a674e11c250d5258a7843a01694a091802fdfe0",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage"
+      ],
+      "waveCount": 3,
+      "findingSetDigest": "6d7f0ffd4053091e6111d4b299c2b4b906765c5129ba60be541ca206b6fc06b1",
+      "coverageDigest": "7a2ff7ca0b9a5ebe4dd228ba3b22476ab9a49f2099bddac1fcdfdae063790215",
+      "saturationResult": "ZERO_NEW_VERIFIED_FINDINGS",
+      "authority": "inventory-completeness-only",
+      "authorizesTest": false,
+      "issuedAt": "2026-08-21T20:18:39.606Z",
+      "_hash": "11a04de01d6fbd18218a5a3e6b857e80cdf70594991d3d1d184562718a2a405f"
     }
   ],
   "criticReceipts": [
@@ -2141,6 +2217,51 @@
       ],
       "createdAt": "2026-08-21T19:50:20.781Z",
       "_hash": "41c6b66b3d3636060e2d2f3964e40a8b7135926868427498d6487912f980a637"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-5a15:RI-011:CRIT-03",
+      "epochId": "B-5a15:RI-011",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-21T17:48:55.675Z",
+      "wave": 3,
+      "cutoff": {
+        "headHash": "44b421ada3e61a8832657990dbed605597227d71",
+        "materialHash": "853d5eb4322ecb6d3ba9b94131ecab4e76ac0b8a2e77f47f24a2c39fc04ac775",
+        "storyFilesHash": "01a95005cb46a073e03805e42aef1925a31b87ed2f3d0b43e4378a5e2f1f1406"
+      },
+      "aggregateFindingSetDigest": "6d7f0ffd4053091e6111d4b299c2b4b906765c5129ba60be541ca206b6fc06b1",
+      "requiredLaneCoverageDigest": "bbab05cd1a295c79d7d0f747e1134d4577cbcdcfca1c4bbe91cf1ab458c654c3",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-5a15:RR-203",
+      "terminalEvidenceIds": [
+        "B-5a15:F-115"
+      ],
+      "readEvidenceDigest": "afd1ab1b2db63307a0ab51d657137716d7edd76e40e19a62a73f01071511f683",
+      "findingDispositions": [
+        {
+          "findingId": "B-5a15:F-111",
+          "disposition": "verified_family",
+          "familyKey": "verifier-causal-preflight-missing-artifact-family",
+          "reason": "F111 is the current-wave canonical verified family: the exact verifier-causal-preflight smoke artifact and source/dist producer path are absent, and the documented command fails with MODULE_NOT_FOUND. This is the same canonical missing-artifact family identified by prior F105 and F107-F110 evidence."
+        },
+        {
+          "findingId": "B-5a15:F-112",
+          "disposition": "duplicate",
+          "familyKey": "verifier-causal-preflight-missing-artifact-family",
+          "canonicalFindingId": "B-5a15:F-111",
+          "reason": "F112 repeats the same current-wave verifier-causal-preflight missing-artifact family and does not add a distinct basis, topology, scope, rollout, or closure defect."
+        },
+        {
+          "findingId": "B-5a15:F-113",
+          "disposition": "duplicate",
+          "familyKey": "verifier-causal-preflight-missing-artifact-family",
+          "canonicalFindingId": "B-5a15:F-111",
+          "reason": "F113 repeats the same current-wave verifier-causal-preflight missing-artifact family already canonically represented by F111 and does not add a distinct verified family."
+        }
+      ],
+      "createdAt": "2026-08-21T20:17:01.724Z",
+      "_hash": "5c6c06031f9806dbed205d97ea5ff04ef80c66b6ec8d7ead1bb93cc64eb336eb"
     }
   ]
 }
