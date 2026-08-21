@@ -5750,6 +5750,21 @@
       ],
       "signatureTag": "missing|ts|remains-current-reproducible",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-144",
+      "desc": "packages/main/templates/agents/proof-or-stop-test-intent.md and generated .proof-or-stop-codex/agents/proof-or-stop-test-intent.md / .claude/agents/proof-or-stop-test-intent.md: the canonical proof-or-stop-test-intent prompt still instructs the agent to write legacy testIntent (including its description and steps around lines 3, 88, 98, 158-159). The current handoff and checklist contract emit and require verificationIntent, so following the canonical prompt can write stale fields and leaves the F-137 migration incomplete; retain testIntent only in explicit compatibility reads.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-21T07:03:05.515Z",
+      "reviewRound": "2026-08-21T05:43:55.504Z",
+      "reviewRunId": "B-5a88:RR-157",
+      "_hash": "be060a63dded6f3bcda8297164979932196ae9b6aed8814db2bf9bab7d47a66a",
+      "signatureTag": "missing|unknown|packages-main-templates",
+      "signatureTagSource": "auto"
     }
   ]
 }
