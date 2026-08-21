@@ -1266,6 +1266,49 @@
       ],
       "createdAt": "2026-08-21T17:11:35.872Z",
       "_hash": "298c5b94d34895244e95e6e8288a74e309f242a1592beff54e5fe93f40748698"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-5a15:RI-008:CRIT-03",
+      "epochId": "B-5a15:RI-008",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-21T15:29:32.809Z",
+      "wave": 3,
+      "cutoff": {
+        "headHash": "965af0e24a7323d4a8906f00f4596daf6fefb915",
+        "materialHash": "853d5eb4322ecb6d3ba9b94131ecab4e76ac0b8a2e77f47f24a2c39fc04ac775",
+        "storyFilesHash": "01a95005cb46a073e03805e42aef1925a31b87ed2f3d0b43e4378a5e2f1f1406"
+      },
+      "aggregateFindingSetDigest": "cfda92fce5c8f3f6fe83de7d721e29c59315babffe153f6349ed9192205b3976",
+      "requiredLaneCoverageDigest": "9b3e5411880c5de18e93c15e13c59e2ccbeb2a3c15be7504c10119c1e18575dc",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-5a15:RR-157",
+      "terminalEvidenceIds": [
+        "B-5a15:F-080"
+      ],
+      "readEvidenceDigest": "efbe53df418b424b2ad5fec6efdd23bfbd01388b9764e7e647f15e788e3bb715",
+      "findingDispositions": [
+        {
+          "findingId": "B-5a15:F-077",
+          "disposition": "verified_family",
+          "familyKey": "verifier-owned-acceptance-chain-scope-binding",
+          "reason": "Wave-3 concept review and the topology critic independently confirmed the current acceptance-chain scope binding and artifact-tamper blockers."
+        },
+        {
+          "findingId": "B-5a15:F-078",
+          "disposition": "verified_family",
+          "familyKey": "verifier-owned-acceptance-chain-scope-binding",
+          "reason": "Wave-3 coverage review confirmed complete intent coverage while independently reproducing the same verifier-owned stale evidence blockers."
+        },
+        {
+          "findingId": "B-5a15:F-079",
+          "disposition": "verified_family",
+          "familyKey": "verifier-owned-acceptance-chain-scope-binding",
+          "reason": "Wave-3 quality review independently reproduced the same acceptance-chain scope binding and artifact-tamper blockers."
+        }
+      ],
+      "createdAt": "2026-08-21T17:31:36.757Z",
+      "_hash": "a2164e52580633a6adabc25a5b88a688075694d8657f0192a62fa2eea2c95233"
     }
   ]
 }
