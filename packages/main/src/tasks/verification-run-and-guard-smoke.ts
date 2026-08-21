@@ -111,6 +111,10 @@ function makeEnv(storyId: string, intents: VerificationIntentItem[]): Env {
   write(root, 'lattice.config.json', JSON.stringify({
     scanRoot: 'packages/main', rootDir: 'src', storyDir: '.lattice/story/actives', requirementsDir: 'docs/requirements',
   }, null, 2));
+  // Causal execution keys require a resolved tool version. npm runs this smoke
+  // with packages/main as process.cwd(), so seed the minimal manifest that the
+  // resolver expects in an isolated fixture repo.
+  write(root, 'packages/main/package.json', JSON.stringify({ name: '@proof-or-stop/core', version: '0.0.0-smoke' }, null, 2));
   write(root, 'packages/main/src/base.ts', 'export const base = true;\n');
   git(root, ['init', '-b', 'work']);
   git(root, ['config', 'user.email', 'smoke@example.test']);
