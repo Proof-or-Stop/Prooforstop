@@ -749,9 +749,9 @@
       "epochId": "B-5a88:RIE-013",
       "storyId": "B-5a88",
       "reviewRound": "2026-08-20T21:04:24.975Z",
-      "state": "FINALIZED",
+      "state": "CANCELLED",
       "begunAt": "2026-08-20T21:44:57.707Z",
-      "updatedAt": "2026-08-20T21:44:57.707Z",
+      "updatedAt": "2026-08-21T13:54:10.510Z",
       "cutoff": {
         "headHash": "090a917ccc38158e54424eab4dde8f240c410f6f",
         "materialHash": "773a009d2deae81d2dc3376781a7408c9ef7cd1ec8e529f4c8e4edc30180ed96",
@@ -762,7 +762,58 @@
       "maxWaves": 1,
       "waves": [],
       "receiptId": "B-5a88:RIE-013:RCP-001",
-      "_hash": "627d51cc5abe376287a6259c46ae20bc157e80a8e19483edb5c8dfae6593df45"
+      "cancelledAt": "2026-08-21T13:54:10.510Z",
+      "cancelReason": "Late concept review evidence F-166 invalidated the finalized inventory receipt; refresh the review epoch before remediation.",
+      "terminalRunSequenceBoundary": 175,
+      "_hash": "c0aeb423cafa893416494700ddcb9a2f32cbb9676bb6eac44502e1f0256b18d9"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-5a88:RI-010",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-21T08:03:56.673Z",
+      "state": "CANCELLED",
+      "begunAt": "2026-08-21T13:54:15.227Z",
+      "updatedAt": "2026-08-21T14:33:21.121Z",
+      "cutoff": {
+        "headHash": "72bf3559d7aae7f8044f7240d2b89853a8d58a2a",
+        "materialHash": "572ac22d63f98acdc2f37b3ae966670f1975ed0b6ba6edecc19b0175a705ab3d",
+        "storyFilesHash": "089e9f0aa4d57e920868a86eea4bb3b2b93a207aa06cf9f65d8054e055c26e6a"
+      },
+      "scopeDigest": "9b3d21ef239a6f5675b936508940140444dc87828503d940bdfa512de36b94c9",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage"
+      ],
+      "initialRunSequenceBoundary": 175,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [],
+      "cancelledAt": "2026-08-21T14:33:21.121Z",
+      "cancelReason": "Current inventory cannot be certified: acceptance basis is invalid and the topology critic role has no review_run_start authority; return to DEV for the verified hook residue and refresh evidence.",
+      "terminalRunSequenceBoundary": 182,
+      "_hash": "6283707953929ef37467dd427948b3b8fb737f6002fc31cdb643cc38662d5bfe"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-5a88:RIE-015",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-21T08:03:56.673Z",
+      "state": "FINALIZED",
+      "begunAt": "2026-08-21T14:33:42.033Z",
+      "updatedAt": "2026-08-21T14:33:42.033Z",
+      "cutoff": {
+        "headHash": "72bf3559d7aae7f8044f7240d2b89853a8d58a2a",
+        "materialHash": "572ac22d63f98acdc2f37b3ae966670f1975ed0b6ba6edecc19b0175a705ab3d",
+        "storyFilesHash": "089e9f0aa4d57e920868a86eea4bb3b2b93a207aa06cf9f65d8054e055c26e6a"
+      },
+      "scopeDigest": "57a154d8b5539864e5d361ef29f619a8b309da8531eb647da8b1c24ca01f6089",
+      "requiredLanes": [],
+      "maxWaves": 1,
+      "waves": [],
+      "receiptId": "B-5a88:RIE-015:RCP-001",
+      "_hash": "9e3873db1e0a8894859a85745d53976cc587eed203e9ecb68d5d2c16ca6a82e1"
     }
   ],
   "receipts": [
@@ -886,7 +937,31 @@
       "authority": "inventory-completeness-only",
       "authorizesTest": false,
       "issuedAt": "2026-08-20T21:44:57.707Z",
-      "_hash": "db6ad25d343e41e5daaa0fdb94e5408e18b25c8007df6ad5e9b99bb17aee1918"
+      "invalidatedAt": "2026-08-21T13:54:10.510Z",
+      "invalidationReason": "Late concept review evidence F-166 invalidated the finalized inventory receipt; refresh the review epoch before remediation.",
+      "_hash": "a05d8bfe97855090015532512aa5914c4fb5ac2ada22faf48bc2e2af00e0da55"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_receipt.v1",
+      "receiptId": "B-5a88:RIE-015:RCP-001",
+      "epochId": "B-5a88:RIE-015",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-21T08:03:56.673Z",
+      "cutoff": {
+        "headHash": "72bf3559d7aae7f8044f7240d2b89853a8d58a2a",
+        "materialHash": "572ac22d63f98acdc2f37b3ae966670f1975ed0b6ba6edecc19b0175a705ab3d",
+        "storyFilesHash": "089e9f0aa4d57e920868a86eea4bb3b2b93a207aa06cf9f65d8054e055c26e6a"
+      },
+      "scopeDigest": "57a154d8b5539864e5d361ef29f619a8b309da8531eb647da8b1c24ca01f6089",
+      "requiredLanes": [],
+      "waveCount": 0,
+      "findingSetDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "coverageDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "saturationResult": "ZERO_NEW_VERIFIED_FINDINGS",
+      "authority": "inventory-completeness-only",
+      "authorizesTest": false,
+      "issuedAt": "2026-08-21T14:33:42.033Z",
+      "_hash": "09af268d49d486027bcef6e0994935da53b215f98c0fec2c4176a6545719d45f"
     }
   ],
   "criticReceipts": [

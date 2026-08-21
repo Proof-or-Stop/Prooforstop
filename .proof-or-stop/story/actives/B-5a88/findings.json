@@ -6320,6 +6320,251 @@
       "resolvedAt": "2026-08-21T12:03:57.151Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5a88:F-166",
+      "desc": "concept-cleanup: CHK-007 leaves retired CLI invocation instructions in .githooks/pre-push comments at lines 5, 11, and 34: `lattice validate --lint`, `lattice release_approve_push --confirm`, and a `lattice` command reference. The lattice npm bin has been removed, so these user-facing hook instructions are no longer runnable; update them to proof-or-stop forms or explicitly mark them as historical compatibility text.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-21T13:52:42.010Z",
+      "reviewRound": "2026-08-21T08:03:56.673Z",
+      "reviewRunId": "B-5a88:RR-175",
+      "_hash": "2e0ced208197482f30690ee8d1e13f333554444b5210bbfc666c75a6efb4495e",
+      "signatureTag": "missing|unknown|concept-cleanup-leaves",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-167",
+      "desc": "RI-010 concept-cleanup: .githooks/pre-push:5,11,34 still gives operators retired lattice CLI instructions (lattice validate --lint, lattice release_approve_push --confirm, and another lattice command reference). CHK-007 removed the lattice npm bin, so these user-facing instructions are not runnable; replace them with proof-or-stop forms or explicitly mark them as historical compatibility text.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-21T13:57:00.262Z",
+      "reviewRound": "2026-08-21T08:03:56.673Z",
+      "reviewRunId": "B-5a88:RR-176",
+      "readManifest": {
+        "filesReadFully": [
+          ".githooks/pre-push",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "package-lock.json",
+          "package.json",
+          "packages/lab/package.json",
+          "packages/main/package-lock.json",
+          "packages/main/package.json",
+          "packages/utils/package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0879bcc9a1a9c5f253ad2d4b28bbf3cc2010b5c35dba18dd5331d6111d13b872",
+      "files": [
+        ".githooks/pre-push"
+      ],
+      "signatureTag": "concept-cleanup-retired-hook-instructions",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-168",
+      "desc": "quality-cleanup: .githooks/pre-push:5,11,34 still instructs maintainers to run removed lattice validate --lint and lattice release_approve_push --confirm commands and describes the build as a lattice command; the hook implementation is already canonical proof-or-stop, so these stale instructions can send future operators down invalid recovery paths and violate the story user-facing rename contract.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-08-21T13:59:48.048Z",
+      "reviewRound": "2026-08-21T08:03:56.673Z",
+      "reviewRunId": "B-5a88:RR-177",
+      "_hash": "10d60e7324066904aa23ba7e5061dba4bf17afb81c8ef583c5d48f6c75b45b32",
+      "signatureTag": "missing|unknown|quality-cleanup-githooks",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-169",
+      "desc": "CHK-004:happy:0, CHK-004:edge:0, and CHK-004:adversarial:0 are not covered by the recorded executable evidence: the linked verification commands only read source/hook strings and run bash -n, so they do not execute create/write approval plus hook consumption for canonical and legacy schemas, expired or mismatched approvals, and second-consume rejection. The repository test packages/main/tests/release-push-approval-migration.test.mjs contains those behavioral cases but is not the evidence bound to these three intents; the stated write/read, compatibility, and one-shot guarantees therefore remain unproven by the checklist evidence.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-21T14:04:40.195Z",
+      "reviewRound": "2026-08-21T08:03:56.673Z",
+      "reviewRunId": "B-5a88:RR-178",
+      "_hash": "c500eeccf6eece20b766de75bd005d2fc1ca3ab539bcfe640ed200d743965dab",
+      "files": [
+        ".githooks/pre-push",
+        "packages/main/src/core/release-push-approval.ts",
+        "packages/main/tests/release-push-approval-migration.test.mjs"
+      ],
+      "signatureTag": "missing|.githooks|happy-edge-adversarial",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-170",
+      "desc": "Topology/completeness review is blocked: acceptance_basis for B-5a88 returned status=invalid with receiptVerification ok=false (AT_ADAPTER_RESULT_DIGEST_MISMATCH), including basis semantic discovery digest, scope-contract, closure-files, snapshot-seal, and storyFilesHash freshness mismatches; acceptance_topology_check returned status=fail/structuralPass=false with AT_CLOSURE_FILES_STALE, AT_SCOPE_BINDING_MISSING, and AT_UNMAPPED_SCOPE_REF for path:process-fact:dispatch->consumer:<audit-only>; topology_critic_receipt_check returned AT_TOPOLOGY_CRITIC_RECEIPT_MISSING. The current basis cannot support a truthful topology/completeness pass until it is regenerated and the unmapped path is mapped or independently excluded.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-21T14:10:32.642Z",
+      "reviewRound": "2026-08-21T08:03:56.673Z",
+      "reviewRunId": "B-5a88:RR-179",
+      "readManifest": {
+        "filesReadFully": [
+          ".githooks/pre-push"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "c6ce0ca5b0a2d363d1ca95490bfea04bd6cd5b8dea54ee4b9f8f13b743486241",
+      "files": [
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/topology-critic-receipt.ts",
+        "packages/main/src/handlers/proofstory.ts"
+      ],
+      "signatureTag": "topology-completeness-current-basis-invalid",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-171",
+      "desc": "concept-cleanup: .githooks/pre-push:5 still documents removed lattice validate --lint, and :11 still documents removed lattice release_approve_push --confirm; the hook implementation and user guidance now require proof-or-stop names, so this residual documentation can direct operators to unsupported commands.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-21T14:15:15.495Z",
+      "reviewRound": "2026-08-21T08:03:56.673Z",
+      "reviewRunId": "B-5a88:RR-180",
+      "readManifest": {
+        "filesReadFully": [
+          ".githooks/pre-push"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "d0142bbafa8403966ecd2aaf874fa0ef141f6fb604cfd8ad33cb20ff67a7f65a",
+      "files": [
+        ".githooks/pre-push"
+      ],
+      "signatureTag": "missing|.githooks|concept-cleanup-githooks",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-172",
+      "desc": "quality-cleanup: .githooks/pre-push:5-6,11-12,34-35 still instructs operators to run retired lattice validate --lint and lattice release_approve_push --confirm commands after the rename; these instructions are no longer executable or canonical and can misroute lint/publish recovery, leaving the hook guidance inconsistent with the implemented proof-or-stop CLI.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-08-21T14:17:33.782Z",
+      "reviewRound": "2026-08-21T08:03:56.673Z",
+      "reviewRunId": "B-5a88:RR-181",
+      "readManifest": {
+        "filesReadFully": [
+          ".githooks/pre-push"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "ba966d4a8ff332b746cac1f88ea7c451b11abaa3f930d67caa24352c8083d828",
+      "files": [
+        ".githooks/pre-push"
+      ],
+      "signatureTag": "missing|.githooks|quality-cleanup-githooks",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-173",
+      "desc": "CHK-004 has no executable intent-bound evidence for the approval write and hook consumption boundary. All three current verificationEvidence commands only read source text and run bash -n; they do not invoke createReleasePushApproval or writeReleasePushApproval, execute the hook with canonical and legacy approvals, assert one-shot second-consume rejection, or exercise invalid, stale, SHA, remote, and ref rejection. The migration test contains those runtime cases at packages/main/tests/release-push-approval-migration.test.mjs:48-95, but it is not bound to any CHK-004 intent, so the checklist can pass while the required behavior remains unverified.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-21T14:20:44.914Z",
+      "reviewRound": "2026-08-21T08:03:56.673Z",
+      "reviewRunId": "B-5a88:RR-182",
+      "readManifest": {
+        "filesReadFully": [
+          ".githooks/pre-push",
+          "packages/main/src/core/release-push-approval.ts",
+          "packages/main/tests/release-push-approval-migration.test.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/release.ts",
+          "packages/main/src/handlers/workflow.ts",
+          "packages/main/src/tasks/remote-push-approval-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "d639343dd28e7ea6d2a170e547ff257371283f13435723adebad06bbc7b4f5a6",
+      "files": [
+        ".githooks/pre-push",
+        "packages/main/src/core/release-push-approval.ts",
+        "packages/main/tests/release-push-approval-migration.test.mjs",
+        "packages/main/src/handlers/release.ts",
+        "packages/main/src/tasks/remote-push-approval-smoke.ts"
+      ],
+      "signatureTag": "missing|.githooks|executable-intent-bound",
+      "signatureTagSource": "auto"
     }
   ]
 }
