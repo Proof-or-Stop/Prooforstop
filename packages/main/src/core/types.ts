@@ -1827,7 +1827,7 @@ export interface ReviewInventoryCriticReceipt {
   cutoff: { headHash: string; materialHash: string; storyFilesHash?: string };
   aggregateFindingSetDigest: string;
   requiredLaneCoverageDigest: string;
-  criticLane: 'lattice-review-topology-critic';
+  criticLane: 'proof-or-stop-review-topology-critic' | 'lattice-review-topology-critic';
   reviewRunId: string;
   terminalEvidenceIds: string[];
   readEvidenceDigest: string;

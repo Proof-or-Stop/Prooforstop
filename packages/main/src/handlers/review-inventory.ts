@@ -482,7 +482,7 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
         command: 'review_inventory_critic_set',
         payloadActors: [args.agent],
       });
-      if (canonicalAgentRoleId(authority.actor) !== 'proof-or-stop-review-topology-critic') {
+      if (!authority.actor || canonicalAgentRoleId(authority.actor) !== 'proof-or-stop-review-topology-critic') {
         throw new Error('review_inventory_critic_set: only proof-or-stop-review-topology-critic may write critic authority');
       }
       return inventoryLock(ctx, args.storyId, () => {
