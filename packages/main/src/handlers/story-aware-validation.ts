@@ -371,6 +371,20 @@ export interface DynamicShardArtifact {
   receipts: ValidationShardReceipt[];
   aggregation: ReturnType<typeof aggregateValidationShards>;
   residue: string[];
+  /**
+   * The unchanged complete-plan command is the DYN-5 oracle.  Shard coverage
+   * is not admissible merely because every mini-case passed: the aggregate
+   * verdict must agree with this command executed without the shard adapter.
+   */
+  originalOracle?: {
+    commandId: string;
+    executed: boolean;
+    allPass: boolean;
+    verdict: 'PASS' | 'FAIL';
+    exitCode: number;
+    outputDigest: string;
+    equivalent: boolean;
+  };
 }
 
 function artifactDir(projectRoot: string, storyId: string): string {
@@ -420,7 +434,7 @@ export function persistStoryAwareValidationArtifacts(args: {
       for (const receipt of artifact.receipts) {
         writeFileSync(join(shardDir, `${receipt.id}.json`), JSON.stringify(receipt, null, 2) + '\n', 'utf8');
       }
-      writeFileSync(join(shardDir, `${artifact.commandId}-${artifact.domain}-aggregate.json`), JSON.stringify(artifact.aggregation, null, 2) + '\n', 'utf8');
+      writeFileSync(join(shardDir, `${artifact.commandId}-${artifact.domain}-aggregate.json`), JSON.stringify({ ...artifact.aggregation, originalOracle: artifact.originalOracle || null }, null, 2) + '\n', 'utf8');
       writeFileSync(join(shardDir, `${artifact.commandId}-${artifact.domain}-cleanup.json`), JSON.stringify({ residue: artifact.residue, residueCount: artifact.residue.length }, null, 2) + '\n', 'utf8');
     }
   }
@@ -537,6 +551,33 @@ async function executeShardedEntry(args: {
   buildProofDigest: string;
 }): Promise<{ result: ValidationResult; artifact: DynamicShardArtifact }> {
   const domain = shardDomainForEntry(args.entry)!;
+  const baseCommand = commandForEntry(args.entry, args.commands);
+  // Run the configured smoke command once, without shard routing, before the
+  // adapter replaces its command boundary.  This is the unchanged complete
+  // domain test required by DYN-5 aggregate equivalence.
+  const oracleEnv = Object.fromEntries(Object.entries(baseCommand.env || {})
+    .filter(([key]) => !key.startsWith('LATTICE_VALIDATION_SHARD_')));
+  const oracle = await executeValidationPlan({
+    provider: `story-aware-dynamic-${domain}-original-oracle`,
+    commands: [{ ...baseCommand, ...(Object.keys(oracleEnv).length ? { env: oracleEnv } : { env: undefined }) }],
+    warnings: [],
+  }, args.projectRoot, args.head, args.storyId, {
+    progress: args.progress,
+    abortSignal: args.abortSignal,
+    deadlineAt: args.deadlineAt,
+    deadlineError: args.deadlineError,
+    jobs: 1,
+  });
+  const oracleCommand = oracle.commands[0];
+  const originalOracle = {
+    commandId: args.entry.id,
+    executed: Boolean(oracleCommand),
+    allPass: oracle.allPass,
+    verdict: oracle.allPass ? 'PASS' as const : 'FAIL' as const,
+    exitCode: oracleCommand?.code ?? 1,
+    outputDigest: stableDigest(oracleCommand?.output || ''),
+    equivalent: false,
+  };
   const registry = loadShardCaseRegistry(args.projectRoot, args.entry, domain);
   const failClosed = (reason: string): { result: ValidationResult; artifact: DynamicShardArtifact } => {
     const aggregation = { ok: false, verdict: 'FAIL' as const, errors: [reason], coveredCaseIds: [] };
@@ -546,7 +587,7 @@ async function executeShardedEntry(args: {
         summary: reason, details: [reason], warnings: [], timestamp: new Date().toISOString(), headSha: args.head,
         commands: [], commandExecutions: 0, disposition: 'executed',
       },
-      artifact: { commandId: args.entry.id, domain, shards: [], receipts: [], aggregation, residue: [] },
+      artifact: { commandId: args.entry.id, domain, shards: [], receipts: [], aggregation, residue: [], originalOracle },
     };
   };
   if (!registry) return failClosed(`DYN-5 ${domain} case registry is missing, outside the project root, malformed, or incomplete`);
@@ -557,7 +598,6 @@ async function executeShardedEntry(args: {
   const receipts: ValidationShardReceipt[] = [];
   const results: ValidationResult[] = [];
   const residue: string[] = [];
-  const baseCommand = commandForEntry(args.entry, args.commands);
   const shardAdapter = baseCommand.env?.LATTICE_VALIDATION_SHARD_ADAPTER;
   const adapter = registeredShardAdapter(args.projectRoot, baseCommand, shardAdapter);
   if (!adapter) {
@@ -572,7 +612,7 @@ async function executeShardedEntry(args: {
         details: ['Configure a registered case-aware adapter and LATTICE_VALIDATION_SHARD_ADAPTER before enabling this command.'],
         warnings: [], timestamp: new Date().toISOString(), headSha: args.head, commands: [], commandExecutions: 0, disposition: 'executed',
       },
-      artifact: { commandId: args.entry.id, domain, shards, receipts: [], aggregation, residue: [] },
+      artifact: { commandId: args.entry.id, domain, shards, receipts: [], aggregation, residue: [], originalOracle },
     };
   }
   for (const shard of shards) {
@@ -712,7 +752,14 @@ async function executeShardedEntry(args: {
     aggregation.verdict = 'FAIL';
     aggregation.errors.push('invalid shard receipt');
   }
-  const artifact: DynamicShardArtifact = { commandId: args.entry.id, domain, shards, receipts, aggregation, residue };
+  const aggregateVerdict = aggregation.verdict;
+  originalOracle.equivalent = originalOracle.executed && aggregateVerdict === originalOracle.verdict;
+  if (!originalOracle.equivalent) {
+    aggregation.ok = false;
+    aggregation.verdict = 'FAIL';
+    aggregation.errors.push(`aggregate verdict mismatch: original=${originalOracle.verdict} aggregate=${aggregateVerdict}`);
+  }
+  const artifact: DynamicShardArtifact = { commandId: args.entry.id, domain, shards, receipts, aggregation, residue, originalOracle };
   return { result: combineResults(results, `story-aware-dynamic-${domain}`, args.head), artifact };
 }
 
@@ -941,7 +988,7 @@ export async function runStoryAwareDynamicValidation(args: RunStoryAwareValidati
   const dynamicAllPass = dynamicExecution.allPass
     && final.manifest.totals.unverified === 0
     && final.manifest.totals.uncovered === 0
-    && shardArtifacts.every((artifact) => artifact.aggregation.ok && artifact.residue.length === 0);
+    && shardArtifacts.every((artifact) => artifact.aggregation.ok && artifact.residue.length === 0 && artifact.originalOracle?.equivalent === true);
   const receipts = [...prior.receipts];
   for (const result of [wave, ...selectedResults]) {
     for (const commandResult of result.commands) {

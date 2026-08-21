@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { spawnSync } from 'node:child_process';
+import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -30,6 +31,18 @@ if (!output.includes('historical stories: ') || !output.includes('dynamic-valida
 }
 if (requested.has('--execute') && !output.includes('historical replay mode: execute')) throw new Error('execute replay mode was not invoked');
 if (requested.has('--paired') && !output.includes('paired-performance')) throw new Error('paired performance campaign was not invoked');
+const reportPath = join(root, '.proof-or-stop', 'runtime', 'dynamic-validation', 'historical-replay', 'report.json');
+try {
+  const report = JSON.parse(readFileSync(reportPath, 'utf8'));
+  const admissible = report?.admissibility?.admissible === true;
+  if (requested.has('--execute') && requested.has('--paired') && !admissible) {
+    throw new Error(`historical replay assurance gate blocked: ${(report?.admissibility?.reasons || []).join('; ')}`);
+  }
+  process.stdout.write(admissible ? 'historical replay assurance PASS\n' : 'historical replay assurance BLOCKED (plan-only or incomplete)\n');
+} catch (error) {
+  if (requested.has('--execute')) throw error;
+  process.stdout.write('historical replay assurance BLOCKED (plan-only or incomplete)\n');
+}
 if (mode === '--mutation=missing-evidence') {
   if (!output.includes('mutation guards:')) throw new Error('missing-evidence mutation guard did not run');
   process.stdout.write('enforcement threshold blocked\n');
