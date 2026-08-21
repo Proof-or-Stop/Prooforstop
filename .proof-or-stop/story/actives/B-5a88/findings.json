@@ -7356,6 +7356,1269 @@
       ],
       "signatureTag": "missing|ts|topology-completeness-review",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-195",
+      "desc": ".proof-or-stop/story/actives/B-5a88/checklist.json:113-128 and 514-566 (and the other 15 intent receipts) bind all 21 must verificationEvidence rows to headHash 8f69da70b3f8fcf243e4077bad00e5a35f16f5d5 and materialHash 572ac22d63f98acdc2f37b3ae966670f1975ed0b6ba6edecc19b0175a705ab3d, while signed review run B-5a88:RR-206 is bound to current head 253cc807453a5ec1151d816907c794e5b9108a26 and current materialHash 35f3b5acf39d68c848de6a1e70db64d07a0042b6743ba865424c2c083228b8d6. The receipts are stale and cannot be admitted as current coverage; focused migration tests pass independently but that does not refresh the intent-bound evidence.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-21T15:33:45.558Z",
+      "reviewRound": "2026-08-21T15:29:13.712Z",
+      "reviewRunId": "B-5a88:RR-206",
+      "_hash": "e47f8aa3da3e424fcdfb61fbd4a85ee5033d6a2f2c69a49edfd2c7c96111452d",
+      "files": [
+        "packages/main/tests/brand-role-migration.test.mjs",
+        "packages/main/tests/release-push-approval-migration.test.mjs",
+        ".githooks/pre-push"
+      ],
+      "signatureTag": "coverage-current-evidence-stale",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-196",
+      "desc": "concept-retired-bin-smoke-regression: packages/main/src/tasks/lattice-cli-migration-smoke.ts:87-97 and :253-258 still assert that the removed lattice bin alias exists and is retained. Current packages/main/package.json omits bin.lattice per CHK-007, so running the compiled smoke against the current package fails at the undefined alias assertion and the repository test surface still teaches the retired command concept.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-21T15:35:16.952Z",
+      "reviewRound": "2026-08-21T15:29:13.712Z",
+      "reviewRunId": "B-5a88:RR-207",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/package.json",
+          "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+          "packages/main/tests/bin-alias-migration.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "package-lock.json",
+          "package.json",
+          "packages/lab/package.json",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/release-push-approval.ts",
+          "packages/main/templates/agents/",
+          "packages/utils/package.json"
+        ],
+        "scanEscalationReason": "Repository-wide concept residue scan performed; compatibility readers and historical evidence were triaged separately from active migration writers and tests."
+      },
+      "_hash": "3030957be70c5967a2c80d6d153f52206b658ae9bf227d0c0e9978a4e731da64",
+      "files": [
+        "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+        "packages/main/package.json"
+      ],
+      "signatureTag": "missing|ts|concept-retired-bin-smoke-regression",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-197",
+      "desc": "packages/main/src/core/agent-role-identity.ts:75-78 legacyAgentRoleIds canonicalizes a suffixed role such as proof-or-stop-review-quality@fallback, then indexes LEGACY_AGENT_ROLE_ALIASES with the suffixed string; the helper therefore returns [] even though canonicalAgentRoleId deliberately preserves @fallback and the migration must keep suffixed legacy evidence readable. Normalize the base role for the map lookup and preserve the suffix on returned aliases.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T15:38:18.642Z",
+      "reviewRound": "2026-08-21T15:29:13.712Z",
+      "reviewRunId": "B-5a88:RR-205",
+      "readManifest": {
+        "filesReadFully": [
+          ".githooks/pre-push",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/artifact-schema.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/templates/agents"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3594c1cdc768742961352375928cbb429950649699ea0da7fa24e9a8177caf79",
+      "files": [
+        "packages/main/src/core/agent-role-identity.ts"
+      ],
+      "signatureTag": "edge|ts|packages-main-core",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-198",
+      "desc": "packages/main/src/core/artifact-schema.ts:14-23 declares canonical proof-or-stop schema strings with as unknown as legacy lattice literal types. This makes strict TypeScript accept canonical writes as lattice schemas while validation-types.ts still exposes only lattice literals, so consumers cannot statically distinguish the new writer contract from historical data and future schema drift is hidden behind an unsound cast. Update the shared envelope types to the canonical|legacy union and remove the casts.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T15:38:21.760Z",
+      "reviewRound": "2026-08-21T15:29:13.712Z",
+      "reviewRunId": "B-5a88:RR-205",
+      "readManifest": {
+        "filesReadFully": [
+          ".githooks/pre-push",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/artifact-schema.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/templates/agents"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "872f7e118a135c88b12981c6df17300d7e8da9157489d52d635e35d4e1afb2ce",
+      "files": [
+        "packages/main/src/core/artifact-schema.ts",
+        "packages/main/src/core/done-required-validation.ts",
+        "packages/main/src/core/validation-types.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-core",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-199",
+      "desc": ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json:74-77 stores a verifier receipt with verdict=pass bound to head d0cf5706, while the current quality review is at head 253cc807; acceptance_rollout_report_read returns AR_REPORT_STALE, acceptance_rollout_check returns fail, and pre_review_check_read is inconclusive with PR_ARTIFACT_TAMPERED/PR_EVIDENCE_STALE/PR_CUTOFF_UNBOUND. Wave 4 requires a current verifier-owned signed PASS and genuine full 3 rounds x 2 hosts, so this stale/inconclusive evidence cannot support REVIEW or DONE.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T15:38:26.566Z",
+      "reviewRound": "2026-08-21T15:29:13.712Z",
+      "reviewRunId": "B-5a88:RR-205",
+      "readManifest": {
+        "filesReadFully": [
+          ".githooks/pre-push",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/artifact-schema.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/templates/agents"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9bf42357643a471d02ee783c8480a5ff05a0837e99629c53d9761df4f6d106c0",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json"
+      ],
+      "signatureTag": "missing|json|proof-stop-story",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-200",
+      "desc": "Current RI-013 coverage review confirms that all 21 must verification intents still point to the pre-remediation HEAD/materialHash rather than current HEAD 253cc80745/materialHash 35f3b5acf3; the passing receipts therefore cannot serve as current REVIEW coverage evidence until refreshed or independently re-verified.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-21T15:44:05.311Z",
+      "reviewRound": "2026-08-21T15:29:13.712Z",
+      "reviewRunId": "B-5a88:RR-210",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "17ab0794ebd9a5480ef17e6f60d73ac142f7d51ba869600795bff30fe43ada23"
+      },
+      "readDiagnostics": [],
+      "_hash": "344029feeb85acf6a1d8fbce88b6d0127977868d29b1eb350d158f649774a531",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/checklist.json"
+      ],
+      "signatureTag": "missing|json|current-coverage-review",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-201",
+      "desc": "packages/main/src/core/agent-role-identity.ts:75-77 drops the @fallback suffix before lookup but then indexes LEGACY_AGENT_ROLE_ALIASES with the suffixed canonical string, so legacyAgentRoleIds(\"proof-or-stop-review-quality@fallback\") returns [] instead of the historical alias. init_check_repair explicitly emits <required>@fallback identities, and prompt/asset compatibility code relies on this helper, so fallback reviewer identities cannot be reconstructed or surfaced correctly.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T15:44:36.484Z",
+      "reviewRound": "2026-08-21T15:29:13.712Z",
+      "reviewRunId": "B-5a88:RR-208",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/handlers/init-check.ts",
+          "packages/main/tests/brand-role-migration.test.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "10599c0ebc5b605a61f759d1b54b77d5a94d3c6fd3ccd121055cd7be3de444d7",
+      "files": [
+        "packages/main/src/core/agent-role-identity.ts",
+        "packages/main/src/handlers/init-check.ts",
+        "packages/main/tests/brand-role-migration.test.mjs"
+      ],
+      "signatureTag": "edge|ts|packages-main-core",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-202",
+      "desc": "packages/main/src/core/acceptance-rollout.ts:239-265 and .proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json:1: the current verifier-owned Wave 4 evidence cannot support this REVIEW. acceptance_rollout_report_read returns AR_REPORT_STALE (receipt=stale), while pre_review_check_read returns inconclusive with PR_ARTIFACT_TAMPERED, PR_NEW_PATH_UNMAPPED, PR_COVERAGE_BASIS_CHANGED, PR_POSITIVE_EVIDENCE_MISSING, PR_EVIDENCE_STALE, and PR_CUTOFF_UNBOUND. The required current signed PASS receipt and genuine full 3 rounds x 2 hosts are therefore absent for the current Story binding; stale historical full-3x2 data must not be accepted as REVIEW/DONE quality evidence.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T15:45:11.915Z",
+      "reviewRound": "2026-08-21T15:29:13.712Z",
+      "reviewRunId": "B-5a88:RR-208",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/pre-review-check.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "bf6085b8f3b32fcd30b2abea9b6cb1a64e474e0ffe46a2df7c33ecf3240479d0",
+      "files": [
+        "packages/main/src/core/acceptance-rollout.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json"
+      ],
+      "signatureTag": "missing|ts|packages-main-core",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-203",
+      "desc": "concept-cleanup: CHK-007 bin removal is not reflected in packages/main/src/tasks/lattice-cli-migration-smoke.ts:97: the smoke still asserts mainPackage.bin.lattice === dist/cli.js and labels the deprecated alias retained, while current packages/main/package.json omits that alias and bin-alias-migration.test.mjs asserts its absence; running this acceptance smoke therefore fails after the intended removal.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-21T15:45:39.678Z",
+      "reviewRound": "2026-08-21T15:29:13.712Z",
+      "reviewRunId": "B-5a88:RR-209",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/tasks/lattice-cli-migration-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "packages/main/package.json",
+          "packages/main/tests/bin-alias-migration.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "624a556795ad45278e5cf84a66cc64ba6bb2ee2b5ada32799183c11c8a7545bd"
+      },
+      "readDiagnostics": [],
+      "_hash": "1ff3fcdcb8ac243beabc4d4d79d72f4ab4ee89e9225882f0b0446bec8adc7251",
+      "files": [
+        "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+        "packages/main/package.json",
+        "packages/main/tests/bin-alias-migration.test.mjs"
+      ],
+      "signatureTag": "missing|ts|concept-cleanup-removal",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-204",
+      "desc": "Wave 4 topology/completeness remains non-closable: pre_review_check_read reports PR_ARTIFACT_TAMPERED with PR_NEW_PATH_UNMAPPED, PR_COVERAGE_BASIS_CHANGED, PR_POSITIVE_EVIDENCE_MISSING, PR_EVIDENCE_STALE, and PR_CUTOFF_UNBOUND, while acceptance_rollout_report_read and acceptance_rollout_check report stale receipt AR_REPORT_STALE. The verifier-owned acceptance basis/topology is structurally complete, but current rollout and pre-review closure evidence cannot support a topology pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-21T15:57:14.841Z",
+      "reviewRound": "2026-08-21T15:29:13.712Z",
+      "reviewRunId": "B-5a88:RR-213",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "11b8e89163d98e13ae260559dbab62d909d4eed8d62226b9c4a05378ecdd4acf",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+        "packages/main/src/core/acceptance-rollout.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/acceptance-topology.ts"
+      ],
+      "signatureTag": "topology-wave4-closure-stale",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-205",
+      "desc": "RI-013 wave 2 cutoff for RR-215: all 21 must verificationEvidence rows are pass/mechanical but remain bound to headHash 8f69da70b3f8 and materialHash 572ac22d63f9, while the current signed run is bound to HEAD 253cc807453a and materialHash 35f3b5acf39d. Rebuilt current-source migration tests pass (brand-role, managed-marker, artifact-schema, release-push-approval, package-identity, global-lab, bin-alias, and lattice-residue), but those executions are not recorded against the 21 intent refs; the current .githooks/pre-push differs from the receipt cutoff, so CHK-004 cannot inherit the old hook evidence. Refresh/re-record the current intent evidence, and bind the stronger behavioral tests for the previously under-bound CHK-001/002/004/007 paths before REVIEW coverage can pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-21T16:12:00.418Z",
+      "reviewRound": "2026-08-21T15:29:13.712Z",
+      "reviewRunId": "B-5a88:RR-215",
+      "readManifest": {
+        "filesReadFully": [
+          ".githooks/pre-push",
+          "packages/main/tests/artifact-schema-migration.test.mjs",
+          "packages/main/tests/bin-alias-migration.test.mjs",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/package-identity-migration.test.mjs",
+          "packages/main/tests/release-push-approval-migration.test.mjs",
+          "scripts/verify-global-lab-entrypoint.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "954616403dd11e9eb01e3bfdbe74b43c245bd2145fcfb5f09cd9179da942b819"
+      },
+      "readDiagnostics": [],
+      "_hash": "5c89b49c3a1a49567572ab32a42ee1da4300fd90ccb4cb16a0b3f1f4f1b46de1",
+      "files": [
+        ".githooks/pre-push",
+        "packages/main/tests/brand-role-migration.test.mjs",
+        "packages/main/tests/managed-marker-migration.test.mjs",
+        "packages/main/tests/artifact-schema-migration.test.mjs",
+        "packages/main/tests/release-push-approval-migration.test.mjs",
+        "packages/main/tests/package-identity-migration.test.mjs",
+        "packages/main/tests/bin-alias-migration.test.mjs",
+        "scripts/verify-global-lab-entrypoint.mjs"
+      ],
+      "signatureTag": "coverage-current-cutoff-independent-confirmation",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-206",
+      "desc": "adversarial-alias-rewrite: packages/main/src/core/prompt-registry.ts:353 (via canonicalizeAgentRoleText) rewrites every literal verification-intent in prompt prose, not just role tokens; the checked-in proof-or-stop-test-intent.md contains ordinary verification-intent workflow text, so renderPromptEntryForHost produces bytes different from .claude/agents/proof-or-stop-test-intent.md and scripts/verify-codex-assets.mjs fails the hard agents-mirror check on the current checkout. Scope alias canonicalization to role-token contexts or update one canonical producer/consumer consistently.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T16:12:10.739Z",
+      "reviewRound": "2026-08-21T15:29:13.712Z",
+      "reviewRunId": "B-5a88:RR-214",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/artifact-schema.ts",
+          "packages/main/src/core/managed-markers.ts",
+          "packages/main/src/core/release-push-approval.ts",
+          "packages/main/src/handlers/release.ts"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/proof-or-stop-test-intent.md",
+          "packages/main/src/core/prompt-registry.ts",
+          "scripts/verify-codex-assets.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "55fef847c4b83db9263b48d72e88c2146fde3bd148bb279988785741a2c8b2f0",
+      "files": [
+        "packages/main/src/core/prompt-registry.ts",
+        "scripts/verify-codex-assets.mjs",
+        ".claude/agents/proof-or-stop-test-intent.md"
+      ],
+      "signatureTag": "adversarial|ts|adversarial-alias-rewrite",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-207",
+      "desc": "concept-retired-bin-smoke-regression: CHK-007 requires the lattice npm bin alias to be removed, but packages/main/src/tasks/lattice-cli-migration-smoke.ts:87-97 still asserts mainPackage.bin.lattice === dist/cli.js and :253-258 still describes the retained alias. Current packages/main/package.json:14-17 has only proof-or-stop, and packages/main/tests/bin-alias-migration.test.mjs:10-16 verifies the old wrapper is absent. Reproduction: node packages/main/dist/tasks/lattice-cli-migration-smoke.js fails with AssertionError actual undefined, expected dist/cli.js, while node packages/main/tests/bin-alias-migration.test.mjs passes. Update the acceptance smoke to assert the canonical-only bin contract before REVIEW can pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-21T16:13:42.936Z",
+      "reviewRound": "2026-08-21T15:29:13.712Z",
+      "reviewRunId": "B-5a88:RR-216",
+      "readManifest": {
+        "filesReadFully": [
+          ".githooks/pre-push",
+          "package.json",
+          "packages/lab/package.json",
+          "packages/main/package.json",
+          "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+          "packages/main/tests/bin-alias-migration.test.mjs",
+          "packages/utils/package.json"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "scripts/verify-codex-assets.mjs",
+          "scripts/verify-entrypoints.mjs",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": "Focused concept review of CHK-007 at the current frozen cutoff; compatibility and frozen residue references were triaged against the migration decision docs."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "b1706766867ec8e229684c1ab25d08c36caa53761a3515e701fe55c7fe9afa20"
+      },
+      "readDiagnostics": [],
+      "_hash": "e20a3d882bdd6aacae45bf2df36c7e0e183f9ff4d56d2e36a355f5e5fe9e3178",
+      "files": [
+        "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+        "packages/main/package.json",
+        "packages/main/tests/bin-alias-migration.test.mjs"
+      ],
+      "signatureTag": "missing|ts|concept-retired-bin-smoke-regression",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-208",
+      "desc": "\"RI-013 wave 3 current-cutoff confirmation: all 21 must verificationEvidence rows are pass/mechanical but remain bound to headHash 8f69da70b3f8, materialHash 572ac22d63f9, and storyFilesHash 089e9f0aa4d5, while fresh review run B-5a88:RR-226 is bound to head 253cc807453, materialHash 35f3b5acf39d, and storyFilesHash e3d1a7e1f872. The receipts cannot support current discriminating coverage until refreshed or independently re-recorded; this is the existing F-195/F-200/F-205 stale-evidence family, not a new family.\"",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-21T16:36:00.618Z",
+      "reviewRound": "2026-08-21T15:29:13.712Z",
+      "reviewRunId": "B-5a88:RR-226",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "package-lock.json",
+          "package.json",
+          "packages/lab/package-lock.json",
+          "packages/lab/package.json",
+          "packages/main/package-lock.json",
+          "packages/main/package.json",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/templates/agents/",
+          "packages/main/tests/artifact-schema-migration.test.mjs",
+          "packages/main/tests/bin-alias-migration.test.mjs",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/package-identity-migration.test.mjs",
+          "packages/main/tests/release-push-approval-migration.test.mjs",
+          "packages/utils/package-lock.json",
+          "packages/utils/package.json",
+          "scripts/verify-global-lab-entrypoint.mjs",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 10,
+          "tokenCount": 10000
+        },
+        "digest": "0669152eb9a55be943c05bed6fb473848204ccec0c31ca98e47e91354df90f4f"
+      },
+      "readDiagnostics": [],
+      "_hash": "c38d943204c8a7ffcf5e9d0fa9edce7ef31c1822ae57eb92cdd6860295cff82c",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/checklist.json",
+        "packages/main/tests/brand-role-migration.test.mjs",
+        "packages/main/tests/managed-marker-migration.test.mjs",
+        "packages/main/tests/artifact-schema-migration.test.mjs",
+        "packages/main/tests/release-push-approval-migration.test.mjs",
+        "packages/main/tests/package-identity-migration.test.mjs",
+        "packages/main/tests/bin-alias-migration.test.mjs",
+        "scripts/verify-global-lab-entrypoint.mjs",
+        ".githooks/pre-push"
+      ],
+      "signatureTag": "coverage-current-evidence-stale",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-209",
+      "desc": "packages/main/src/tasks/prompt-registry-smoke.ts:127-131: the quality proof-metadata assertion is still gated on entry.file === lattice-review-quality.md, but the migrated registry now emits proof-or-stop-review-quality.md. The branch is therefore unreachable and prompt-registry-smoke passes even if the required job.metadata/run.metadata review guidance is removed from the canonical quality prompt; update the selector to the canonical filename and keep the phrase assertions live.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T16:37:08.014Z",
+      "reviewRound": "2026-08-21T15:29:13.712Z",
+      "reviewRunId": "B-5a88:RR-225",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "packages/main/templates/agents/proof-or-stop-review-quality.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "8c8588a330eba699fd82da6aea5a3ce8bb06237556d87b88664e3b82df42d2c2",
+      "files": [
+        "packages/main/src/tasks/prompt-registry-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|prompt-registry-quality-contract-guard",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-210",
+      "desc": "Current topology-critic recheck: acceptance_basis is verified/complete and acceptance_topology_check is diagnostic PASS with structuralPass=true and topologyState=configured, but pre_review_check_read is inconclusive with PR_ARTIFACT_TAMPERED, PR_NEW_PATH_UNMAPPED, PR_COVERAGE_BASIS_CHANGED, PR_POSITIVE_EVIDENCE_MISSING, PR_EVIDENCE_STALE, and PR_CUTOFF_UNBOUND; acceptance_rollout_report_read and acceptance_rollout_check report AR_REPORT_STALE, status=fail, promotionEligible=false. The current pre-review closure and rollout evidence are not admissible as current final REVIEW/DONE proof, reconfirming the existing topology-wave4-closure-stale family B-5a88:F-204; no new topology family is claimed.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-21T16:45:40.289Z",
+      "reviewRound": "2026-08-21T15:29:13.712Z",
+      "reviewRunId": "B-5a88:RR-228",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        }
+      ],
+      "_hash": "f345a063ad8d318f632e8df8889b6da6198e5d4c0778c550ddb80f3d82749d2a",
+      "files": [
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/acceptance-rollout.ts",
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json"
+      ],
+      "signatureTag": "topology-wave4-closure-stale",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-211",
+      "desc": "Baseline family coverage-current-evidence-stale, previously recorded by F-195 and F-208; no new family claimed. All 21 must verificationEvidence rows are result=pass and mechanical=true, but every row is bound to headHash 8f69da70b3f8fcf243e4077bad00e5a35f16f5d5, materialHash 572ac22d63f98acdc2f37b3ae966670f1975ed0b6ba6edecc19b0175a705ab3d, and storyFilesHash 089e9f0aa4d57e920868a86eea4bb3b2b93a207aa06cf9f65d8054e055c26e6a. RI-014 frozen cutoff and RR-231 bind current head 253cc807453a5ec1151d816907c794e5b9108a26, materialHash 35f3b5acf39d68c848de6a1e70db64d07a0042b6743ba865424c2c083228b8d6, and storyFilesHash e3d1a7e1f8729775aca891d9896ad391ed78de2b20a57f3abbfc5799c8ccf8ba. Therefore none of the 21 intent receipts is admissible as current cutoff evidence; independently passing migration tests do not refresh an intent-bound receipt until re-executed and recorded against this cutoff. This is explicitly stale evidence, not a claim that all underlying behavior fails.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-21T16:55:23.679Z",
+      "reviewRound": "2026-08-21T15:29:13.712Z",
+      "reviewRunId": "B-5a88:RR-231",
+      "readManifest": {
+        "filesReadFully": [
+          ".githooks/pre-push",
+          "packages/main/src/core/release-push-approval.ts",
+          "packages/main/tests/artifact-schema-migration.test.mjs",
+          "packages/main/tests/bin-alias-migration.test.mjs",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/package-identity-migration.test.mjs",
+          "packages/main/tests/release-push-approval-migration.test.mjs",
+          "scripts/verify-global-lab-entrypoint.mjs",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": "Focused RI-014 wave-1 coverage review of the current frozen cutoff and in-scope migration producers and tests; no full decisions-directory escalation."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "1583d54290e4ae6bd6291844e76ab8b732aa65f55baed35fcf7a480772ee0b00",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/checklist.json",
+        "packages/main/tests/brand-role-migration.test.mjs",
+        "packages/main/tests/managed-marker-migration.test.mjs",
+        "packages/main/tests/artifact-schema-migration.test.mjs",
+        "packages/main/tests/release-push-approval-migration.test.mjs",
+        "packages/main/tests/package-identity-migration.test.mjs",
+        "packages/main/tests/bin-alias-migration.test.mjs",
+        "scripts/verify-global-lab-entrypoint.mjs",
+        "scripts/verify-lattice-residue.mjs"
+      ],
+      "signatureTag": "coverage-current-evidence-stale",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-212",
+      "desc": "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts:404-410: the smoke expects checklist_update to fail with checklist_update_executable_evidence_unenforced, but lines 388-400 first persist an audited non-mechanical INT-001 receipt; carryForwardOnDiskProvenance then legitimately carries mechanical:false and nonMechanicalReason into the replacement, so the CLI succeeds and this changed smoke fails. Isolate the refusal case with a fresh intent/item or assert the documented re-persist behavior.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T16:55:47.721Z",
+      "reviewRound": "2026-08-21T15:29:13.712Z",
+      "reviewRunId": "B-5a88:RR-230",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "602fe224caffc4a9ec10a4fb34a50cec6728b0d7b6a328b01ceaf04accc90fc2",
+      "files": [
+        "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|acceptance-topology-smoke-stale-assertion",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-213",
+      "desc": "Baseline family coverage-pinned-intents, previously recorded by F-141, F-169, F-176, F-180, F-184, and F-193; no new family claimed. CHK-004:happy:0, CHK-004:edge:0, and CHK-004:adversarial:0 are pinned to source-token checks, with the adversarial command only adding bash -n. They do not execute createReleasePushApproval or writeReleasePushApproval, run the pre-push consumer for canonical and lattice schemas, or assert one-shot second-consume, invalid-schema, SHA-mismatch, and expiry rejection. The stronger current migration test at packages/main/tests/release-push-approval-migration.test.mjs:11-95 does execute those behaviors, but no CHK-004 receipt runs or binds that test; the already-stale receipts also cannot establish this behavior at the RI-014 cutoff.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-21T16:56:12.033Z",
+      "reviewRound": "2026-08-21T15:29:13.712Z",
+      "reviewRunId": "B-5a88:RR-231",
+      "readManifest": {
+        "filesReadFully": [
+          ".githooks/pre-push",
+          "packages/main/src/core/release-push-approval.ts",
+          "packages/main/tests/artifact-schema-migration.test.mjs",
+          "packages/main/tests/bin-alias-migration.test.mjs",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/package-identity-migration.test.mjs",
+          "packages/main/tests/release-push-approval-migration.test.mjs",
+          "scripts/verify-global-lab-entrypoint.mjs",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": "Focused RI-014 wave-1 coverage review of the current frozen cutoff and in-scope migration producers and tests; no full decisions-directory escalation."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "dab597589d691c1699767c87d4b7f58aa0a04f9c9e8e79f581103e50b00500e3",
+      "files": [
+        ".githooks/pre-push",
+        "packages/main/src/core/release-push-approval.ts",
+        "packages/main/tests/release-push-approval-migration.test.mjs"
+      ],
+      "signatureTag": "coverage-pinned-intents",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-214",
+      "desc": "Baseline family happy-remains-bound, previously recorded by F-124 and F-139; no new family claimed. CHK-001:happy:0 is pinned only to a canonicalAgentRoleId alias assertion. Its authored must intent requires canonical reviewer IDs to be emitted and accepted by review_run_start, review_pass_set, init_check_set, and quorum resolution. The stronger current test packages/main/tests/brand-role-migration.test.mjs:167-215 and :259-264 exercises those consumer paths, but it is not the command bound to CHK-001:happy:0; with the receipt stale against RI-014, no current executable evidence covers the full intent.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-21T16:56:16.909Z",
+      "reviewRound": "2026-08-21T15:29:13.712Z",
+      "reviewRunId": "B-5a88:RR-231",
+      "readManifest": {
+        "filesReadFully": [
+          ".githooks/pre-push",
+          "packages/main/src/core/release-push-approval.ts",
+          "packages/main/tests/artifact-schema-migration.test.mjs",
+          "packages/main/tests/bin-alias-migration.test.mjs",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/package-identity-migration.test.mjs",
+          "packages/main/tests/release-push-approval-migration.test.mjs",
+          "scripts/verify-global-lab-entrypoint.mjs",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": "Focused RI-014 wave-1 coverage review of the current frozen cutoff and in-scope migration producers and tests; no full decisions-directory escalation."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "6cb2b413ba989416eb9e64680906a80c89bef4b38446163a6078d09ec4272448",
+      "files": [
+        "packages/main/tests/brand-role-migration.test.mjs"
+      ],
+      "signatureTag": "happy-remains-bound",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-215",
+      "desc": "Baseline family coverage-remains-bound, previously recorded by F-140; no new family claimed. CHK-002:happy:0 and CHK-002:edge:0 import helpers from /private/tmp/proof-or-stop-b5a88-marker-build, and CHK-002:adversarial:0 imports /private/tmp/proof-or-stop-b5a88-init-build/init-assets.js. The pinned checks therefore do not bind the current repository producer/consumer path, current-worktree init or init --upgrade, generated thin/global-thin output, or exactly-one managed-block behavior; the edge check also uses synthetic malformed strings rather than a valid legacy replacement path. The current managed-marker migration test is stronger but is not the intent-bound command, and all three receipts are stale at RI-014.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-21T16:56:21.262Z",
+      "reviewRound": "2026-08-21T15:29:13.712Z",
+      "reviewRunId": "B-5a88:RR-231",
+      "readManifest": {
+        "filesReadFully": [
+          ".githooks/pre-push",
+          "packages/main/src/core/release-push-approval.ts",
+          "packages/main/tests/artifact-schema-migration.test.mjs",
+          "packages/main/tests/bin-alias-migration.test.mjs",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/package-identity-migration.test.mjs",
+          "packages/main/tests/release-push-approval-migration.test.mjs",
+          "scripts/verify-global-lab-entrypoint.mjs",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": "Focused RI-014 wave-1 coverage review of the current frozen cutoff and in-scope migration producers and tests; no full decisions-directory escalation."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "55c9ae0f80cc0695496c97bad0d1e42f7ce92b16b99d1242b5dd2fe3f8314bc7",
+      "files": [
+        "packages/main/tests/managed-marker-migration.test.mjs"
+      ],
+      "signatureTag": "coverage-remains-bound",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-216",
+      "desc": "Baseline family edge-remains-bound, previously recorded by F-142; no new family claimed. CHK-007:edge:0 is evidenced only by node packages/main/dist/cli.js help, which cannot execute the required residue distinction between frozen historical evidence, compatibility readers, and unsupported new lattice command aliases. scripts/verify-lattice-residue.mjs --self-test is executed only by the separate CHK-007:adversarial:0 receipt, so the edge intent remains unbound even though the current bin-alias migration test contains that stronger self-test at lines 23-27; that evidence is also not recorded against the edge intent or the RI-014 cutoff.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-21T16:56:26.255Z",
+      "reviewRound": "2026-08-21T15:29:13.712Z",
+      "reviewRunId": "B-5a88:RR-231",
+      "readManifest": {
+        "filesReadFully": [
+          ".githooks/pre-push",
+          "packages/main/src/core/release-push-approval.ts",
+          "packages/main/tests/artifact-schema-migration.test.mjs",
+          "packages/main/tests/bin-alias-migration.test.mjs",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/package-identity-migration.test.mjs",
+          "packages/main/tests/release-push-approval-migration.test.mjs",
+          "scripts/verify-global-lab-entrypoint.mjs",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": "Focused RI-014 wave-1 coverage review of the current frozen cutoff and in-scope migration producers and tests; no full decisions-directory escalation."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "1bf8a4deb4b6932b1d5c6310ddd6721d125f22a2f9fe10cd394ddcd2274042ad",
+      "files": [
+        "packages/main/tests/bin-alias-migration.test.mjs",
+        "scripts/verify-lattice-residue.mjs"
+      ],
+      "signatureTag": "edge-remains-bound",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-217",
+      "desc": "New family, distinct from the existing concept-retired-bin-smoke-regression baseline: packages/main/src/core/lattice-brand.ts:29-35 says the lattice bin alias is gone, but lines 55-60 include lattice in PROOF_OR_STOP_BIN_NAMES and lines 69-85 document and implement lattice as a recognized usageBin. With no bin/lattice.js and only proof-or-stop in packages/main/package.json:14-16, a legacy-named invocation can still make user-facing help or error guidance teach lattice, contradicting docs/requirements/decisions/brand-rename-mapping.md:72, which defines the current entrypoint and package bin map as canonical-only. Remove lattice from active usage recognition and keep historical/provenance compatibility bounded to dedicated readers; this is a source-level runtime contract, not the existing stale smoke-only baseline.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-21T16:59:30.787Z",
+      "reviewRound": "2026-08-21T15:29:13.712Z",
+      "reviewRunId": "B-5a88:RR-229",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/lattice-brand.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "packages/main/package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8455cd54388d0c8de995c7ac492ede16bbbe095c421994994eb69c099becf8e2"
+      },
+      "readDiagnostics": [],
+      "_hash": "cb55dbc074e43a3f802046db30d61b666c9c2aa3338ae57fe3d7068dad7c8ffd",
+      "files": [
+        "packages/main/src/core/lattice-brand.ts",
+        "packages/main/package.json",
+        "docs/requirements/decisions/brand-rename-mapping.md"
+      ],
+      "signatureTag": "missing|ts|concept-retired-bin-runtime-fallback",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-218",
+      "desc": "prompt-alias-envelope: packages/main/src/core/prompt-role-contract-registry.ts:535-538 canonicalizes lattice-review-quality to proof-or-stop-review-quality, but review-run envelope assembly still receives legacy lane values and rejects roleContract.roleId !== lane at packages/main/src/core/prompt-envelope.ts:293-296. WHY: the promised dual-read compatibility for existing lattice-* review evidence is broken; review-run-smoke, prompt-full-context-envelope-smoke, and review-incremental-context-smoke all fail with the role/lane mismatch.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T17:40:31.267Z",
+      "reviewRound": "2026-08-21T15:29:13.712Z",
+      "reviewRunId": "B-5a88:RR-235",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "packages/main/src/tasks/review-run-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "f2cb22707eed7dab537e052a1f0d4c1b2a2fdee39f56790b0df09e3fd13d20e3",
+      "files": [
+        "packages/main/src/core/prompt-role-contract-registry.ts",
+        "packages/main/src/core/prompt-envelope.ts",
+        "packages/main/src/tasks/review-run-smoke.ts",
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+        "packages/main/src/tasks/review-incremental-context-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|prompt-alias-envelope",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-219",
+      "desc": "packages/main/src/core/prompt-role-contract-registry.ts:572-590: promptEnvelope.roles canonicalizes each key for validation but resolves only roles[canonicalRole] (or the first matching alias), so a config containing both lattice-review-quality=full-envelope and proof-or-stop-review-quality=legacy-full-context is accepted and silently chooses one mode instead of failing closed. The reviewer can therefore receive a mode that conflicts with the other spelling; reject duplicate logical role keys and cover the canonical/legacy collision.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T17:55:08.557Z",
+      "reviewRound": "2026-08-21T15:29:13.712Z",
+      "reviewRunId": "B-5a88:RR-241",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/prompt-role-contract-registry.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/prompt-registry-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "07f54e029fd242e506bf7ea4d85fd34bbb8e404613e109ed3000a858ef9a642c",
+      "files": [
+        "packages/main/src/core/prompt-role-contract-registry.ts",
+        "packages/main/src/tasks/prompt-registry-smoke.ts"
+      ],
+      "signatureTag": "prompt-alias-envelope-collision",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-220",
+      "desc": "packages/main/src/core/agent-role-identity.ts:107-112: canonicalizeAgentRoleText replaces aliases with unbounded substring split/join, despite its contract saying unrelated prose is preserved. The helper converts test-intentional into proof-or-stop-test-intentional, and prompt-registry uses it on entire role bodies at packages/main/src/core/prompt-registry.ts:351-354, so longer prose tokens can be corrupted in emitted prompts and their digests. Use token/identifier boundaries and add a non-role substring regression case.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T17:55:31.000Z",
+      "reviewRound": "2026-08-21T15:29:13.712Z",
+      "reviewRunId": "B-5a88:RR-241",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/prompt-registry.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "5521a5d36a271e45476e92b777adc04bdd37c9181cd868f17f220b5d6c4eed0a",
+      "files": [
+        "packages/main/src/core/agent-role-identity.ts",
+        "packages/main/src/core/prompt-registry.ts"
+      ],
+      "signatureTag": "prompt-role-token-boundary",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-221",
+      "desc": "Baseline family coverage-current-evidence-stale; no new family claimed. .proof-or-stop/story/actives/B-5a88/checklist.json:109-128 and all 21 verificationEvidence rows are result=pass/mechanical=true but share only the old headHash 8f69da70b3f8fcf243e4077bad00e5a35f16f5d5, materialHash 572ac22d63f98acdc2f37b3ae966670f1975ed0b6ba6edecc19b0175a705ab3d, and storyFilesHash 089e9f0aa4d57e920868a86eea4bb3b2b93a207aa06cf9f65d8054e055c26e6a. Fresh run B-5a88:RR-246 at review-runs.json:259249-259257 is bound to head 253cc807453a5ec1151d816907c794e5b9108a26, materialHash 35f3b5acf39d68c848de6a1e70db64d07a0042b6743ba865424c2c083228b8d6, and storyFilesHash e3d1a7e1f8729775aca891d9896ad391ed78de2b20a57f3abbfc5799c8ccf8ba. Zero intent receipts are admissible at this cutoff. Existing baseline discriminating-coverage families remain open for CHK-001:happy:0, CHK-002 temporary-build pins, CHK-004 source scans, and CHK-007:edge:0 help-only evidence; stronger tests are not intent-bound. Re-record current intent evidence before coverage can pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-21T18:07:33.107Z",
+      "reviewRound": "2026-08-21T15:29:13.712Z",
+      "reviewRunId": "B-5a88:RR-246",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          ".proof-or-stop/story/actives/B-5a88/review-runs.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "155a399927c6ecdf7f15bc387b9aeb39f0df0413a97574a26df49d32f9d3e0e1",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/checklist.json",
+        ".proof-or-stop/story/actives/B-5a88/review-runs.json"
+      ],
+      "signatureTag": "coverage-current-evidence-stale",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-222",
+      "desc": "Baseline family concept-retired-bin-runtime-fallback, previously recorded by F-217; no new family claimed. Current source still violates the CHK-007 canonical-only entrypoint contract: packages/main/src/core/lattice-brand.ts:35,45,55-60 actively registers the retired lattice and lattice-codex tokens in PROOF_OR_STOP_BIN_NAMES, and :83-84 returns either token from resolveUsageBin. Although bin/lattice.js and bin/lattice-codex.js are absent and packages/main/package.json publishes only proof-or-stop, a legacy-named invocation can still make generated usage/help teach a removed command. This is an unchanged baseline residue, not a new family.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-21T18:10:34.990Z",
+      "reviewRound": "2026-08-21T15:29:13.712Z",
+      "reviewRunId": "B-5a88:RR-247",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/artifact-schema.ts",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/core/managed-markers.ts",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/",
+          ".proof-or-stop-codex/agents/",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/package-lock.json",
+          "packages/main/package.json",
+          "packages/main/templates/agents/",
+          "scripts/verify-entrypoints.mjs"
+        ],
+        "scanEscalationReason": "Repository-wide active-surface lattice residue scan completed, excluding frozen story archives, CHANGELOG, node_modules, and dist; verify-lattice-residue and its 65-case self-test both passed."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "7e6964cf3bea1b7cdc022fbf0f65abf911e47c575c189c8a7393beff2c23b261"
+      },
+      "readDiagnostics": [],
+      "_hash": "0f00aeb6d23dd1f50eaae1825a58b6ed3386bfe76b295a5ffa0a34d9f8c9bc2e",
+      "files": [
+        "packages/main/src/core/lattice-brand.ts",
+        "packages/main/package.json",
+        "packages/main/package-lock.json",
+        "docs/requirements/decisions/brand-rename-mapping.md"
+      ],
+      "signatureTag": "concept-retired-bin-runtime-fallback",
+      "signatureTagSource": "confirmed"
     }
   ]
 }

@@ -1132,6 +1132,478 @@
       "consumedAt": "2026-08-21T15:00:25.076Z",
       "consumedByReviewRound": "2026-08-21T08:03:56.673Z",
       "_hash": "d1b76136b6b2fd6ab527453c0e188f94743ae0f998a1896e0f9d49b9af2b421c"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-5a88:RI-013",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-21T15:29:13.712Z",
+      "state": "CANCELLED",
+      "begunAt": "2026-08-21T15:40:29.650Z",
+      "updatedAt": "2026-08-21T16:47:58.969Z",
+      "cutoff": {
+        "headHash": "253cc807453a5ec1151d816907c794e5b9108a26",
+        "materialHash": "35f3b5acf39d68c848de6a1e70db64d07a0042b6743ba865424c2c083228b8d6",
+        "storyFilesHash": "e3d1a7e1f8729775aca891d9896ad391ed78de2b20a57f3abbfc5799c8ccf8ba"
+      },
+      "scopeDigest": "4604e6442c96d584f1c71cdec1884adaade0b4ad783005da346e973691e3fd36",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage"
+      ],
+      "initialRunSequenceBoundary": 207,
+      "maxWaves": 3,
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-08-21T15:40:29.650Z",
+          "completedAt": "2026-08-21T16:05:06.675Z",
+          "lanes": [
+            {
+              "lane": "lattice-review-concept",
+              "reviewRunId": "B-5a88:RR-209",
+              "terminal": "finding",
+              "hostIdentity": "9b0f70436f71cb4d81444d7cfc5a37dd7c820cf86882d018e90be616b00e5c38",
+              "promptIdentity": "d5de0710f4acb1d1b2599fa19ff2b721112ca092b45e3ee1dcbc85dc0c3c06b0",
+              "evidenceIds": [
+                "B-5a88:F-203"
+              ],
+              "coverageDigest": "b6e3a23ad35c4e865db4945e4abe52bfd2149f8e4da45c616693e7aed5ff86a4"
+            },
+            {
+              "lane": "lattice-review-quality",
+              "reviewRunId": "B-5a88:RR-208",
+              "terminal": "finding",
+              "hostIdentity": "9b0f70436f71cb4d81444d7cfc5a37dd7c820cf86882d018e90be616b00e5c38",
+              "promptIdentity": "c7f0e84994b61cab903303c597958959707d266ee2d516a731ac140344713b3f",
+              "evidenceIds": [
+                "B-5a88:F-201",
+                "B-5a88:F-202"
+              ],
+              "coverageDigest": "85406a79919aea65efeccff57b54c02c923db690b93c9fdf4913f155b1948ad8"
+            },
+            {
+              "lane": "lattice-review-test-coverage",
+              "reviewRunId": "B-5a88:RR-210",
+              "terminal": "finding",
+              "hostIdentity": "9b0f70436f71cb4d81444d7cfc5a37dd7c820cf86882d018e90be616b00e5c38",
+              "promptIdentity": "c1494ee69705a4f0530f0bbf2fdf9e7af4d366512cca68375a4bf3a1f7814ed5",
+              "evidenceIds": [
+                "B-5a88:F-200"
+              ],
+              "coverageDigest": "6db37f08f40dd4c82c9a4f3e0e2fb1199fc477908ced8130316d571388f26ed8"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "concept-retired-bin-smoke-regression",
+            "coverage-current-evidence-stale",
+            "quality-fallback-role-alias",
+            "wave4-acceptance-closure-stale"
+          ],
+          "verifiedFindingSetDigest": "80e987f9320ee0c322a1e5be91d348258374208698ff623a46cfb90b0e919478",
+          "newVerifiedFindingCount": 4,
+          "criticDigest": "48e7aab613e230e836c5287ead9ac73e38fa6205341e697e321a4bc12e5a5bb5",
+          "saturated": false,
+          "nextRunSequenceBoundary": 213
+        },
+        {
+          "wave": 2,
+          "startedAt": "2026-08-21T16:05:06.675Z",
+          "completedAt": "2026-08-21T16:28:51.097Z",
+          "lanes": [
+            {
+              "lane": "lattice-review-concept",
+              "reviewRunId": "B-5a88:RR-216",
+              "terminal": "finding",
+              "hostIdentity": "9b0f70436f71cb4d81444d7cfc5a37dd7c820cf86882d018e90be616b00e5c38",
+              "promptIdentity": "63fa7652294257cc23139ccf94299dc0a72847002a7bcc043e60adf5433d9718",
+              "evidenceIds": [
+                "B-5a88:F-207"
+              ],
+              "coverageDigest": "bf89b695468273fe444762794b764e41e4b7eec5f184a4fe45e748eadff5bb99"
+            },
+            {
+              "lane": "lattice-review-quality",
+              "reviewRunId": "B-5a88:RR-214",
+              "terminal": "finding",
+              "hostIdentity": "9b0f70436f71cb4d81444d7cfc5a37dd7c820cf86882d018e90be616b00e5c38",
+              "promptIdentity": "57ce0d226bce6a894e787903dd577802a3e8261222b51e9da77e03bea98f3709",
+              "evidenceIds": [
+                "B-5a88:F-206"
+              ],
+              "coverageDigest": "75d1636fec82710a6f241e03e720e329a1b6190f7bce8d713501d357a7806b54"
+            },
+            {
+              "lane": "lattice-review-test-coverage",
+              "reviewRunId": "B-5a88:RR-215",
+              "terminal": "finding",
+              "hostIdentity": "9b0f70436f71cb4d81444d7cfc5a37dd7c820cf86882d018e90be616b00e5c38",
+              "promptIdentity": "7668ece1dd71be39be03da78a1e617d4caa2b1f9259ec6d6cc25cc7b899dee98",
+              "evidenceIds": [
+                "B-5a88:F-205"
+              ],
+              "coverageDigest": "5b88513bad05d9f67f630016cf7e0e142559762fde1ca51fbe398d79b25f5fbe"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "adversarial|ts|prompt-registry-alias-rewrite",
+            "concept-retired-bin-smoke-regression",
+            "coverage-current-evidence-stale",
+            "missing|json|current-coverage-review",
+            "missing|ts|concept-retired-bin-smoke-regression",
+            "quality-fallback-role-alias",
+            "wave4-acceptance-closure-stale"
+          ],
+          "verifiedFindingSetDigest": "96701a04bd425e3b94b72a3c1671c4205e8c87595f045beae9918216996e17e1",
+          "newVerifiedFindingCount": 3,
+          "criticDigest": "8f7965f8c5d41238ee4ce38e47e13ed1e28ce616d5337a2de82141f4d15dfbf2",
+          "saturated": false,
+          "nextRunSequenceBoundary": 219
+        }
+      ],
+      "baselineFindingIds": [],
+      "cancelledAt": "2026-08-21T16:47:58.969Z",
+      "cancelReason": "RI-013 exhausted its three-wave budget after discovering a new quality-contract family; reopen a fresh baseline inventory so remediation can proceed without manufacturing saturation",
+      "terminalRunSequenceBoundary": 228,
+      "_hash": "bcfd3e42efebb71c68a528c6f455eb08fc4cf197d0af4a2564b38a20769b2a0b"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-5a88:RI-014",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-21T15:29:13.712Z",
+      "state": "CANCELLED",
+      "begunAt": "2026-08-21T16:48:03.050Z",
+      "updatedAt": "2026-08-21T18:03:33.164Z",
+      "cutoff": {
+        "headHash": "253cc807453a5ec1151d816907c794e5b9108a26",
+        "materialHash": "35f3b5acf39d68c848de6a1e70db64d07a0042b6743ba865424c2c083228b8d6",
+        "storyFilesHash": "e3d1a7e1f8729775aca891d9896ad391ed78de2b20a57f3abbfc5799c8ccf8ba"
+      },
+      "scopeDigest": "4604e6442c96d584f1c71cdec1884adaade0b4ad783005da346e973691e3fd36",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage"
+      ],
+      "initialRunSequenceBoundary": 228,
+      "maxWaves": 3,
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-08-21T16:48:03.050Z",
+          "completedAt": "2026-08-21T17:28:02.255Z",
+          "lanes": [
+            {
+              "lane": "lattice-review-concept",
+              "reviewRunId": "B-5a88:RR-229",
+              "terminal": "finding",
+              "hostIdentity": "9b0f70436f71cb4d81444d7cfc5a37dd7c820cf86882d018e90be616b00e5c38",
+              "promptIdentity": "7bcb9d06484ae9ab9818610d15fb88b72b0e02e703f8263ad5b811a6620b5859",
+              "evidenceIds": [
+                "B-5a88:F-217"
+              ],
+              "coverageDigest": "a233ce5915d876cdca40c90a3c3fc6fff785deffee6121704370c6c730ceab29"
+            },
+            {
+              "lane": "lattice-review-quality",
+              "reviewRunId": "B-5a88:RR-230",
+              "terminal": "finding",
+              "hostIdentity": "9b0f70436f71cb4d81444d7cfc5a37dd7c820cf86882d018e90be616b00e5c38",
+              "promptIdentity": "f5c02d9ec6ad64158e4c7f303d75ebfe170da85bcb53a2383cef4ce84a660f4c",
+              "evidenceIds": [
+                "B-5a88:F-212"
+              ],
+              "coverageDigest": "6649e05e8f171be29987e9709ba881e952937602814c1c6790d89afb50139275"
+            },
+            {
+              "lane": "lattice-review-test-coverage",
+              "reviewRunId": "B-5a88:RR-231",
+              "terminal": "finding",
+              "hostIdentity": "9b0f70436f71cb4d81444d7cfc5a37dd7c820cf86882d018e90be616b00e5c38",
+              "promptIdentity": "0a4d1f88b8d0e5baa3373981dffa0f232530288201662a38dbef9699e12ab2bc",
+              "evidenceIds": [
+                "B-5a88:F-211",
+                "B-5a88:F-213",
+                "B-5a88:F-214",
+                "B-5a88:F-215",
+                "B-5a88:F-216"
+              ],
+              "coverageDigest": "bc12c0f5fd236f602b291b9d26ccb077410f5b593c7cc1d39900f4c653169dab"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "adversarial-alias-rewrite",
+            "coverage-current-evidence-stale",
+            "coverage-pinned-intents",
+            "coverage-remains-bound",
+            "edge-remains-bound",
+            "happy-remains-bound",
+            "legacy-reviewer-fallback-alias",
+            "missing|ts|acceptance-topology-smoke-stale-assertion",
+            "missing|ts|concept-retired-bin-runtime-fallback",
+            "missing|ts|concept-retired-smoke",
+            "prompt-registry-quality-contract-guard",
+            "topology-wave4-closure-stale"
+          ],
+          "verifiedFindingSetDigest": "8b6f88be0026f93bfbc6a83bd40a8dee15fd1b7a43658996bea6c0957a25bd84",
+          "newVerifiedFindingCount": 12,
+          "criticDigest": "505b49808919202e9066127c94c2edadc6e988cce4606714728911f55a8fdc8e",
+          "saturated": false,
+          "nextRunSequenceBoundary": 234
+        },
+        {
+          "wave": 2,
+          "startedAt": "2026-08-21T17:28:02.255Z",
+          "completedAt": "2026-08-21T17:48:43.355Z",
+          "lanes": [
+            {
+              "lane": "lattice-review-concept",
+              "reviewRunId": "B-5a88:RR-237",
+              "terminal": "pass",
+              "hostIdentity": "9b0f70436f71cb4d81444d7cfc5a37dd7c820cf86882d018e90be616b00e5c38",
+              "promptIdentity": "bb429de6dc9e00743e9999b685939d20efd10375c37725aa5d5b128998e271bd",
+              "evidenceIds": [
+                "B-5a88:RP-056"
+              ],
+              "coverageDigest": "2e9a751432b81ffa0a9f9b5ec6a547a29c2e0b73c938626cb184340564a24a7e"
+            },
+            {
+              "lane": "lattice-review-quality",
+              "reviewRunId": "B-5a88:RR-235",
+              "terminal": "finding",
+              "hostIdentity": "9b0f70436f71cb4d81444d7cfc5a37dd7c820cf86882d018e90be616b00e5c38",
+              "promptIdentity": "4d39658f7949292b6dfd72d7e110f17eb0c9dd838c7d1d1b18b09907fb94ad9f",
+              "evidenceIds": [
+                "B-5a88:F-218"
+              ],
+              "coverageDigest": "878ff15706740350fa35e45b8ce86387a1337407bed1fbaec4a7e706225d0da9"
+            },
+            {
+              "lane": "lattice-review-test-coverage",
+              "reviewRunId": "B-5a88:RR-236",
+              "terminal": "pass",
+              "hostIdentity": "9b0f70436f71cb4d81444d7cfc5a37dd7c820cf86882d018e90be616b00e5c38",
+              "promptIdentity": "466c7a2925fd0381290d5a0bd313cc6e75b698d9011061bd7eb24948b7d54744",
+              "evidenceIds": [
+                "B-5a88:RP-055"
+              ],
+              "coverageDigest": "ceeca6be951ee6109642eb8f52af9bc93a0c4afb9993909ab3101063819213f1"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "adversarial-alias-rewrite",
+            "coverage-current-evidence-stale",
+            "coverage-pinned-intents",
+            "coverage-remains-bound",
+            "edge-remains-bound",
+            "happy-remains-bound",
+            "legacy-reviewer-fallback-alias",
+            "missing|ts|acceptance-topology-smoke-stale-assertion",
+            "missing|ts|concept-retired-bin-runtime-fallback",
+            "missing|ts|concept-retired-smoke",
+            "prompt-alias-envelope",
+            "prompt-registry-quality-contract-guard",
+            "topology-wave4-closure-stale"
+          ],
+          "verifiedFindingSetDigest": "4029f88041d4514bd05917c1e25f3593facdd814b9e96ed8d4e13abb9c2e0e50",
+          "newVerifiedFindingCount": 1,
+          "criticDigest": "bfe28ccf7572c0b947fa60cdfc49c659fd3e4bb08c6d1ec80cdd0116c1571cd3",
+          "saturated": false,
+          "nextRunSequenceBoundary": 239
+        }
+      ],
+      "baselineFindingIds": [
+        "B-5a88:F-200",
+        "B-5a88:F-201",
+        "B-5a88:F-202",
+        "B-5a88:F-203",
+        "B-5a88:F-204",
+        "B-5a88:F-205",
+        "B-5a88:F-206",
+        "B-5a88:F-207",
+        "B-5a88:F-208",
+        "B-5a88:F-209",
+        "B-5a88:F-210"
+      ],
+      "cancelledAt": "2026-08-21T18:03:33.164Z",
+      "cancelReason": "RI-014 exhausted all three waves after discovering prompt envelope families; reopen baseline inventory so remediation can proceed without fabricating saturation",
+      "terminalRunSequenceBoundary": 245,
+      "_hash": "749cf334e8c410e78cec1a28870721d98f46044c42a338ad87b11432180d6248"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-5a88:RI-015",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-21T15:29:13.712Z",
+      "state": "FINALIZED",
+      "begunAt": "2026-08-21T18:03:38.588Z",
+      "updatedAt": "2026-08-21T18:51:23.575Z",
+      "cutoff": {
+        "headHash": "253cc807453a5ec1151d816907c794e5b9108a26",
+        "materialHash": "35f3b5acf39d68c848de6a1e70db64d07a0042b6743ba865424c2c083228b8d6",
+        "storyFilesHash": "e3d1a7e1f8729775aca891d9896ad391ed78de2b20a57f3abbfc5799c8ccf8ba"
+      },
+      "scopeDigest": "4604e6442c96d584f1c71cdec1884adaade0b4ad783005da346e973691e3fd36",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage"
+      ],
+      "initialRunSequenceBoundary": 245,
+      "maxWaves": 3,
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-08-21T18:03:38.588Z",
+          "completedAt": "2026-08-21T18:22:00.601Z",
+          "lanes": [
+            {
+              "lane": "lattice-review-concept",
+              "reviewRunId": "B-5a88:RR-247",
+              "terminal": "finding",
+              "hostIdentity": "9b0f70436f71cb4d81444d7cfc5a37dd7c820cf86882d018e90be616b00e5c38",
+              "promptIdentity": "f2beda91cb3349f18297db6f4a4fa9171ae6d6d6a1cf6c204ec9aebc04fe1721",
+              "evidenceIds": [
+                "B-5a88:F-222"
+              ],
+              "coverageDigest": "4fe005498d2f853f3939f971da9d8b53c2b0e5aad8f44152baceb09208f1a9c4"
+            },
+            {
+              "lane": "lattice-review-quality",
+              "reviewRunId": "B-5a88:RR-248",
+              "terminal": "pass",
+              "hostIdentity": "9b0f70436f71cb4d81444d7cfc5a37dd7c820cf86882d018e90be616b00e5c38",
+              "promptIdentity": "5018ae038f555f216cad89e9993b06c2c2feded0140f2df227f50d6a9348d9b2",
+              "evidenceIds": [
+                "B-5a88:RP-063"
+              ],
+              "coverageDigest": "f2ddfa1e1ed02977c4db4b3fbca1f89bc3cd88dc6cb609799d78d7f88a7e92db"
+            },
+            {
+              "lane": "lattice-review-test-coverage",
+              "reviewRunId": "B-5a88:RR-246",
+              "terminal": "finding",
+              "hostIdentity": "9b0f70436f71cb4d81444d7cfc5a37dd7c820cf86882d018e90be616b00e5c38",
+              "promptIdentity": "09a59d0743b205cb7849bca126596d2f7b76e83b6370828e7acc1dac90c892db",
+              "evidenceIds": [
+                "B-5a88:F-221"
+              ],
+              "coverageDigest": "cb1ef121db6f45f61b84abbcc8d1651645b72e97236dde6a4450592c5dff561d"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "adversarial-alias-rewrite",
+            "coverage-current-evidence-stale",
+            "coverage-pinned-intents",
+            "coverage-remains-bound",
+            "edge-remains-bound",
+            "happy-remains-bound",
+            "legacy-reviewer-fallback-alias",
+            "missing|ts|acceptance-topology-smoke-stale-assertion",
+            "missing|ts|concept-retired-bin-runtime-fallback",
+            "missing|ts|concept-retired-smoke",
+            "prompt-alias-envelope",
+            "prompt-alias-envelope-collision",
+            "prompt-registry-quality-contract-guard",
+            "prompt-role-token-boundary",
+            "topology-wave4-closure-stale"
+          ],
+          "verifiedFindingSetDigest": "3443ffba365f48cd2c0232c65d25a70fe66d60dd27786af8cf3b55c4942d5fc7",
+          "newVerifiedFindingCount": 15,
+          "criticDigest": "379a704c3d00ec655b75d592d50520578c342dd0a9c96af8ab03aaa9d1561800",
+          "saturated": false,
+          "nextRunSequenceBoundary": 250
+        },
+        {
+          "wave": 2,
+          "startedAt": "2026-08-21T18:22:00.601Z",
+          "completedAt": "2026-08-21T18:51:23.575Z",
+          "lanes": [
+            {
+              "lane": "lattice-review-concept",
+              "reviewRunId": "B-5a88:RR-253",
+              "terminal": "pass",
+              "hostIdentity": "9b0f70436f71cb4d81444d7cfc5a37dd7c820cf86882d018e90be616b00e5c38",
+              "promptIdentity": "0afc03802ee46d884267333b80aadba57a733ce5b029a4b7b1e9cf724aa19b96",
+              "evidenceIds": [
+                "B-5a88:RP-068"
+              ],
+              "coverageDigest": "eebbdafb6cb70984c1dfc8d4287e0c2d55d6580336299c4ce3da59c3fad092d8"
+            },
+            {
+              "lane": "lattice-review-quality",
+              "reviewRunId": "B-5a88:RR-255",
+              "terminal": "pass",
+              "hostIdentity": "9b0f70436f71cb4d81444d7cfc5a37dd7c820cf86882d018e90be616b00e5c38",
+              "promptIdentity": "6e5c92cbbc6886407396dcf71233288d3d04c45e935807cfe9235e375adc76f8",
+              "evidenceIds": [
+                "B-5a88:RP-069"
+              ],
+              "coverageDigest": "7c2b9fd0e3179b9e3caeb655f6148edd8e191a8be4c1c8afa36978a443243df1"
+            },
+            {
+              "lane": "lattice-review-test-coverage",
+              "reviewRunId": "B-5a88:RR-251",
+              "terminal": "pass",
+              "hostIdentity": "9b0f70436f71cb4d81444d7cfc5a37dd7c820cf86882d018e90be616b00e5c38",
+              "promptIdentity": "f476f549ef830f71ff1e38075ea1e381079f4486e6ec46f4105fc6f30e27ed9f",
+              "evidenceIds": [
+                "B-5a88:RP-066"
+              ],
+              "coverageDigest": "85be04603333687299c6d5cdfbcb349f82ab4f653fb0b25ebc0e534e8df66ce4"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "adversarial-alias-rewrite",
+            "coverage-current-evidence-stale",
+            "coverage-pinned-intents",
+            "coverage-remains-bound",
+            "edge-remains-bound",
+            "happy-remains-bound",
+            "legacy-reviewer-fallback-alias",
+            "missing|ts|acceptance-topology-smoke-stale-assertion",
+            "missing|ts|concept-retired-bin-runtime-fallback",
+            "missing|ts|concept-retired-smoke",
+            "prompt-alias-envelope",
+            "prompt-alias-envelope-collision",
+            "prompt-registry-quality-contract-guard",
+            "prompt-role-token-boundary",
+            "topology-wave4-closure-stale"
+          ],
+          "verifiedFindingSetDigest": "3443ffba365f48cd2c0232c65d25a70fe66d60dd27786af8cf3b55c4942d5fc7",
+          "newVerifiedFindingCount": 0,
+          "criticDigest": "66db4674732591c8ca34810b1879c65a1865c119be5c277fcf3544f8bf833d67",
+          "saturated": true,
+          "nextRunSequenceBoundary": 257
+        }
+      ],
+      "baselineFindingIds": [
+        "B-5a88:F-200",
+        "B-5a88:F-201",
+        "B-5a88:F-202",
+        "B-5a88:F-203",
+        "B-5a88:F-204",
+        "B-5a88:F-205",
+        "B-5a88:F-206",
+        "B-5a88:F-207",
+        "B-5a88:F-208",
+        "B-5a88:F-209",
+        "B-5a88:F-210",
+        "B-5a88:F-211",
+        "B-5a88:F-212",
+        "B-5a88:F-213",
+        "B-5a88:F-214",
+        "B-5a88:F-215",
+        "B-5a88:F-216",
+        "B-5a88:F-217",
+        "B-5a88:F-218",
+        "B-5a88:F-219",
+        "B-5a88:F-220"
+      ],
+      "receiptId": "B-5a88:RI-015:RCP-001",
+      "_hash": "10bee84559ab844dea1e165b73b43b76e4f82cdc97c01e28720591e0466ba1fc"
     }
   ],
   "receipts": [
@@ -1333,6 +1805,32 @@
       "issuedAt": "2026-08-21T14:52:32.748Z",
       "consumedAt": "2026-08-21T15:00:25.076Z",
       "_hash": "4cf8d96578a77f76ecfc290c2efa7c803f3a10f254a786678f31896bcb9b62aa"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_receipt.v1",
+      "receiptId": "B-5a88:RI-015:RCP-001",
+      "epochId": "B-5a88:RI-015",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-21T15:29:13.712Z",
+      "cutoff": {
+        "headHash": "253cc807453a5ec1151d816907c794e5b9108a26",
+        "materialHash": "35f3b5acf39d68c848de6a1e70db64d07a0042b6743ba865424c2c083228b8d6",
+        "storyFilesHash": "e3d1a7e1f8729775aca891d9896ad391ed78de2b20a57f3abbfc5799c8ccf8ba"
+      },
+      "scopeDigest": "4604e6442c96d584f1c71cdec1884adaade0b4ad783005da346e973691e3fd36",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage"
+      ],
+      "waveCount": 2,
+      "findingSetDigest": "3443ffba365f48cd2c0232c65d25a70fe66d60dd27786af8cf3b55c4942d5fc7",
+      "coverageDigest": "0a2056da4559148f63061e52e09929be3715eafc502f9e9492320067afdd89ac",
+      "saturationResult": "ZERO_NEW_VERIFIED_FINDINGS",
+      "authority": "inventory-completeness-only",
+      "authorizesTest": false,
+      "issuedAt": "2026-08-21T18:51:23.575Z",
+      "_hash": "ec86ff5530685a7211cf25d02efc3d75f312b7bbf88bb3da7b3d0f41931c4cc8"
     }
   ],
   "criticReceipts": [
@@ -2071,6 +2569,537 @@
       ],
       "createdAt": "2026-08-21T14:52:20.872Z",
       "_hash": "b159688bc0e140e0e8ad14122871a80f32549f25e6558b5a28534ca3cf410b52"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-5a88:RI-013:CRIT-01",
+      "epochId": "B-5a88:RI-013",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-21T15:29:13.712Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "253cc807453a5ec1151d816907c794e5b9108a26",
+        "materialHash": "35f3b5acf39d68c848de6a1e70db64d07a0042b6743ba865424c2c083228b8d6",
+        "storyFilesHash": "e3d1a7e1f8729775aca891d9896ad391ed78de2b20a57f3abbfc5799c8ccf8ba"
+      },
+      "aggregateFindingSetDigest": "80e987f9320ee0c322a1e5be91d348258374208698ff623a46cfb90b0e919478",
+      "requiredLaneCoverageDigest": "9a83149a31b66d427b11e744d5f46c717da55497aa28fc9d124243eebe6234b5",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-5a88:RR-213",
+      "terminalEvidenceIds": [
+        "B-5a88:F-204"
+      ],
+      "readEvidenceDigest": "b02a56379446edf1fd69abbb595b9c27a9f8868b1ce7bcd3bf0eba27cf7c9b60",
+      "findingDispositions": [
+        {
+          "findingId": "B-5a88:F-200",
+          "disposition": "verified_family",
+          "familyKey": "coverage-current-evidence-stale",
+          "reason": "RI-013 coverage lane independently confirms all 21 intent receipts remain bound to the prior HEAD/materialHash; this is a verified current-evidence freshness family."
+        },
+        {
+          "findingId": "B-5a88:F-201",
+          "disposition": "verified_family",
+          "familyKey": "quality-fallback-role-alias",
+          "reason": "RI-013 quality lane confirms @fallback is dropped before lookup and remains behaviorally unresolved; this is a verified role-alias family."
+        },
+        {
+          "findingId": "B-5a88:F-202",
+          "disposition": "verified_family",
+          "familyKey": "wave4-acceptance-closure-stale",
+          "reason": "RI-013 quality lane records stale/inconclusive acceptance rollout/pre-review evidence; current topology checks reproduce the same closure blocker."
+        },
+        {
+          "findingId": "B-5a88:F-203",
+          "disposition": "verified_family",
+          "familyKey": "concept-retired-bin-smoke-regression",
+          "reason": "RI-013 concept lane confirms the bin removal is not reflected in the migration smoke; this is a verified regression family."
+        }
+      ],
+      "createdAt": "2026-08-21T15:58:23.522Z",
+      "_hash": "e7052478ec09caccbdc2dc615a210bd5646c8b18fd6257d94f09ebf7d5b8a7a1"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-5a88:RI-013:CRIT-02",
+      "epochId": "B-5a88:RI-013",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-21T15:29:13.712Z",
+      "wave": 2,
+      "cutoff": {
+        "headHash": "253cc807453a5ec1151d816907c794e5b9108a26",
+        "materialHash": "35f3b5acf39d68c848de6a1e70db64d07a0042b6743ba865424c2c083228b8d6",
+        "storyFilesHash": "e3d1a7e1f8729775aca891d9896ad391ed78de2b20a57f3abbfc5799c8ccf8ba"
+      },
+      "aggregateFindingSetDigest": "96701a04bd425e3b94b72a3c1671c4205e8c87595f045beae9918216996e17e1",
+      "requiredLaneCoverageDigest": "7a1c981d76463e8f15fa3f1a6be00811d3bee89a7a67432998be5e5b66480b85",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-5a88:RR-219",
+      "terminalEvidenceIds": [
+        "B-5a88:RP-050"
+      ],
+      "readEvidenceDigest": "8bddf3bb64143f4abc8758054ef8da7bc40b4d76ca123a81e894563d942c0199",
+      "findingDispositions": [
+        {
+          "findingId": "B-5a88:F-205",
+          "disposition": "verified_family",
+          "familyKey": "missing|json|current-coverage-review",
+          "reason": "Verified duplicate-family instance of the existing current coverage freshness family represented by F-200: the 21 must verificationEvidence receipts remain bound to pre-remediation HEAD/materialHash and cannot support the current REVIEW cutoff. F-205 adds independent current-source test and hook-cutoff detail but no distinct topology family."
+        },
+        {
+          "findingId": "B-5a88:F-206",
+          "disposition": "verified_family",
+          "familyKey": "adversarial|ts|prompt-registry-alias-rewrite",
+          "reason": "Genuinely new verified family in this wave: prompt-registry alias canonicalization rewrites ordinary verification-intent prose and breaks the shipped Codex/Claude mirror. No prior aggregate finding covers this producer/consumer and mirror-parity failure."
+        },
+        {
+          "findingId": "B-5a88:F-207",
+          "disposition": "verified_family",
+          "familyKey": "missing|ts|concept-retired-bin-smoke-regression",
+          "reason": "Verified duplicate-family instance of the existing retired-bin acceptance-smoke family represented by F-196: the smoke still asserts removed bin.lattice and fails against the canonical-only package identity. The stronger reproduction does not create a new family."
+        }
+      ],
+      "createdAt": "2026-08-21T16:25:02.193Z",
+      "_hash": "8b984a34168cdfc3988fb0e85d10f750af0409771420de3f83431c0e7c4eabce"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-5a88:RI-013:CRIT-03",
+      "epochId": "B-5a88:RI-013",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-21T15:29:13.712Z",
+      "wave": 3,
+      "cutoff": {
+        "headHash": "253cc807453a5ec1151d816907c794e5b9108a26",
+        "materialHash": "35f3b5acf39d68c848de6a1e70db64d07a0042b6743ba865424c2c083228b8d6",
+        "storyFilesHash": "e3d1a7e1f8729775aca891d9896ad391ed78de2b20a57f3abbfc5799c8ccf8ba"
+      },
+      "aggregateFindingSetDigest": "bf5144fa72f3453ac1767526ee20c2e193308680a3f762dbd9ffb733ab90ac8e",
+      "requiredLaneCoverageDigest": "4232a10b78e16b2cc95b53a82643be9d4d7ac896028b294915827b5ededf88e4",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-5a88:RR-228",
+      "terminalEvidenceIds": [
+        "B-5a88:F-210"
+      ],
+      "readEvidenceDigest": "86972ad4888a9c139f6aaef99b1b1787bdf833ab3ef748a53f824956881afa4e",
+      "findingDispositions": [
+        {
+          "findingId": "B-5a88:F-208",
+          "disposition": "verified_family",
+          "familyKey": "coverage-current-evidence-stale",
+          "reason": "Current cutoff recheck confirms this is the already observed stale verification-evidence family F-195/F-200/F-205, not a new topology or coverage family."
+        },
+        {
+          "findingId": "B-5a88:F-209",
+          "disposition": "verified_family",
+          "familyKey": "missing|ts|prompt-registry-quality-contract-guard",
+          "reason": "The canonical quality-prompt metadata selector is independently confirmed unreachable after migration, so this is a distinct verified quality-contract family."
+        }
+      ],
+      "createdAt": "2026-08-21T16:47:06.823Z",
+      "_hash": "c8aeb64fb6a104e2742daf02a46ed2be1c2c724336a19e8d331228deaad884bf"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-5a88:RI-014:CRIT-01",
+      "epochId": "B-5a88:RI-014",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-21T15:29:13.712Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "253cc807453a5ec1151d816907c794e5b9108a26",
+        "materialHash": "35f3b5acf39d68c848de6a1e70db64d07a0042b6743ba865424c2c083228b8d6",
+        "storyFilesHash": "e3d1a7e1f8729775aca891d9896ad391ed78de2b20a57f3abbfc5799c8ccf8ba"
+      },
+      "aggregateFindingSetDigest": "8b6f88be0026f93bfbc6a83bd40a8dee15fd1b7a43658996bea6c0957a25bd84",
+      "requiredLaneCoverageDigest": "288cb3b35e73f8cdfbc575c74062ac45323372fa149129754c45b701936335eb",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-5a88:RR-234",
+      "terminalEvidenceIds": [
+        "B-5a88:RP-054"
+      ],
+      "readEvidenceDigest": "db1ba5a21b7b1272994f2fa8b48ca8002ff60d018bfeac9b3dbe54b3e9fa7e55",
+      "findingDispositions": [
+        {
+          "findingId": "B-5a88:F-200",
+          "disposition": "verified_family",
+          "familyKey": "coverage-current-evidence-stale",
+          "reason": "In-wave representative for the known stale 21-intent coverage family; F-195/F-208 are prior baseline evidence and this is not a new behavioral claim."
+        },
+        {
+          "findingId": "B-5a88:F-201",
+          "disposition": "verified_family",
+          "familyKey": "legacy-reviewer-fallback-alias",
+          "reason": "The @fallback lookup defect is independently evidenced here; no prior matching family exists, and F-197 is outside this frozen raw-finding set."
+        },
+        {
+          "findingId": "B-5a88:F-202",
+          "disposition": "duplicate",
+          "familyKey": "topology-wave4-closure-stale",
+          "canonicalFindingId": "B-5a88:F-204",
+          "reason": "Same stale Wave 4 receipt and inconclusive pre-review closure as the in-wave F-204 representative."
+        },
+        {
+          "findingId": "B-5a88:F-203",
+          "disposition": "verified_family",
+          "familyKey": "missing|ts|concept-retired-smoke",
+          "reason": "In-wave representative for the pre-existing F-062 retired-bin smoke family; no new runtime family is claimed."
+        },
+        {
+          "findingId": "B-5a88:F-204",
+          "disposition": "verified_family",
+          "familyKey": "topology-wave4-closure-stale",
+          "reason": "Current topology run RR-213 found stale rollout and inconclusive pre-review closure; this is the in-wave representative and no earlier matching family was found."
+        },
+        {
+          "findingId": "B-5a88:F-205",
+          "disposition": "duplicate",
+          "familyKey": "coverage-current-evidence-stale",
+          "canonicalFindingId": "B-5a88:F-200",
+          "reason": "Same stale 21-intent cutoff family as the in-wave F-200 representative; rebuilt tests do not refresh intent receipts."
+        },
+        {
+          "findingId": "B-5a88:F-206",
+          "disposition": "verified_family",
+          "familyKey": "adversarial-alias-rewrite",
+          "reason": "Distinct prompt-registry prose rewrite breaks the shipped mirror; no earlier matching family exists."
+        },
+        {
+          "findingId": "B-5a88:F-207",
+          "disposition": "duplicate",
+          "familyKey": "missing|ts|concept-retired-smoke",
+          "canonicalFindingId": "B-5a88:F-203",
+          "reason": "Same lattice-cli-migration-smoke assertion failure as the in-wave F-203 representative."
+        },
+        {
+          "findingId": "B-5a88:F-208",
+          "disposition": "duplicate",
+          "familyKey": "coverage-current-evidence-stale",
+          "canonicalFindingId": "B-5a88:F-200",
+          "reason": "Explicitly repeats the known F-195/F-200/F-205 stale-evidence family."
+        },
+        {
+          "findingId": "B-5a88:F-209",
+          "disposition": "verified_family",
+          "familyKey": "prompt-registry-quality-contract-guard",
+          "reason": "Distinct migrated-filename smoke guard gap; no earlier matching family exists."
+        },
+        {
+          "findingId": "B-5a88:F-210",
+          "disposition": "duplicate",
+          "familyKey": "topology-wave4-closure-stale",
+          "canonicalFindingId": "B-5a88:F-204",
+          "reason": "Explicitly reconfirms the in-wave F-204 topology-wave4-closure-stale family and claims no new topology family."
+        },
+        {
+          "findingId": "B-5a88:F-211",
+          "disposition": "duplicate",
+          "familyKey": "coverage-current-evidence-stale",
+          "canonicalFindingId": "B-5a88:F-200",
+          "reason": "Latest test-coverage lane labels this the baseline coverage-current-evidence-stale family previously recorded by F-195 and F-208."
+        },
+        {
+          "findingId": "B-5a88:F-212",
+          "disposition": "verified_family",
+          "familyKey": "missing|ts|acceptance-topology-smoke-stale-assertion",
+          "reason": "Latest quality run RR-230 identifies a distinct changed smoke expectation failure caused by carried-forward non-mechanical provenance; no earlier matching family exists."
+        },
+        {
+          "findingId": "B-5a88:F-213",
+          "disposition": "verified_family",
+          "familyKey": "coverage-pinned-intents",
+          "reason": "Baseline representative: the latest test-coverage lane explicitly names prior F-141, F-169, F-176, F-180, F-184, and F-193; no new family is claimed."
+        },
+        {
+          "findingId": "B-5a88:F-214",
+          "disposition": "verified_family",
+          "familyKey": "happy-remains-bound",
+          "reason": "Baseline representative: the latest test-coverage lane explicitly names F-124 and F-139; no new family is claimed."
+        },
+        {
+          "findingId": "B-5a88:F-215",
+          "disposition": "verified_family",
+          "familyKey": "coverage-remains-bound",
+          "reason": "Baseline representative: the latest test-coverage lane explicitly names F-140; no new family is claimed."
+        },
+        {
+          "findingId": "B-5a88:F-216",
+          "disposition": "verified_family",
+          "familyKey": "edge-remains-bound",
+          "reason": "Baseline representative: the latest test-coverage lane explicitly names F-142; no new family is claimed."
+        },
+        {
+          "findingId": "B-5a88:F-217",
+          "disposition": "verified_family",
+          "familyKey": "missing|ts|concept-retired-bin-runtime-fallback",
+          "reason": "Latest concept run RR-229 explicitly identifies this as distinct from the retired-bin smoke baseline: runtime usage recognition still teaches lattice."
+        }
+      ],
+      "createdAt": "2026-08-21T17:27:23.536Z",
+      "_hash": "314416e6768a8667c7a3452f25d16d0d3342b2c9a803950ee2f5629cf2a94ca5"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-5a88:RI-014:CRIT-02",
+      "epochId": "B-5a88:RI-014",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-21T15:29:13.712Z",
+      "wave": 2,
+      "cutoff": {
+        "headHash": "253cc807453a5ec1151d816907c794e5b9108a26",
+        "materialHash": "35f3b5acf39d68c848de6a1e70db64d07a0042b6743ba865424c2c083228b8d6",
+        "storyFilesHash": "e3d1a7e1f8729775aca891d9896ad391ed78de2b20a57f3abbfc5799c8ccf8ba"
+      },
+      "aggregateFindingSetDigest": "4029f88041d4514bd05917c1e25f3593facdd814b9e96ed8d4e13abb9c2e0e50",
+      "requiredLaneCoverageDigest": "91654419a78672c417436c3a5e6f258fff6b03a0c778a54b4a30fb960e7dfbfe",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-5a88:RR-239",
+      "terminalEvidenceIds": [
+        "B-5a88:RP-058"
+      ],
+      "readEvidenceDigest": "2dabf95e168c912072e65e9312655f797ed67bde02fd701713219282ab661aef",
+      "findingDispositions": [
+        {
+          "findingId": "B-5a88:F-218",
+          "disposition": "verified_family",
+          "familyKey": "prompt-alias-envelope",
+          "reason": "Current RI-014 raw finding F-218 is a distinct producer/consumer closure family: prompt-role-contract-registry canonicalizes the legacy quality lane while prompt-envelope rejects the legacy lane before envelope assembly. Prior finding records show no same prompt-alias-envelope family; F-209 is a separate smoke-selector guard. Retain as a verified new family; do not resolve it."
+        }
+      ],
+      "createdAt": "2026-08-21T17:48:16.853Z",
+      "_hash": "990d5e2e5127efc8fdea44956e83dcfcfba5940696c9a8c280ede67773377db1"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-5a88:RI-014:CRIT-03",
+      "epochId": "B-5a88:RI-014",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-21T15:29:13.712Z",
+      "wave": 3,
+      "cutoff": {
+        "headHash": "253cc807453a5ec1151d816907c794e5b9108a26",
+        "materialHash": "35f3b5acf39d68c848de6a1e70db64d07a0042b6743ba865424c2c083228b8d6",
+        "storyFilesHash": "e3d1a7e1f8729775aca891d9896ad391ed78de2b20a57f3abbfc5799c8ccf8ba"
+      },
+      "aggregateFindingSetDigest": "3443ffba365f48cd2c0232c65d25a70fe66d60dd27786af8cf3b55c4942d5fc7",
+      "requiredLaneCoverageDigest": "121b08eee1670e4b1fa8e1996991db1d2b08e16a58e05d1dcf7230ffd8bbb535",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-5a88:RR-245",
+      "terminalEvidenceIds": [
+        "B-5a88:RP-062"
+      ],
+      "readEvidenceDigest": "1a286546d601e560b9fdd6099c52272f9ea6b00c5824739a4567b8587162c2c8",
+      "findingDispositions": [
+        {
+          "findingId": "B-5a88:F-219",
+          "disposition": "verified_family",
+          "familyKey": "prompt-alias-envelope-collision",
+          "reason": "RR-241 source evidence confirms canonical and legacy logical-role keys can silently disagree because resolution falls back to the first alias match; distinct verified family."
+        },
+        {
+          "findingId": "B-5a88:F-220",
+          "disposition": "verified_family",
+          "familyKey": "prompt-role-token-boundary",
+          "reason": "RR-241 source evidence confirms split/join rewriting is applied to whole rendered prompt bodies, allowing non-role substrings to be corrupted; distinct verified family."
+        }
+      ],
+      "createdAt": "2026-08-21T18:03:03.650Z",
+      "_hash": "5bce4976516c493f3800ec1d59c7945f57cf6dede0a5ce924904a6ca369f5d05"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-5a88:RI-015:CRIT-01",
+      "epochId": "B-5a88:RI-015",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-21T15:29:13.712Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "253cc807453a5ec1151d816907c794e5b9108a26",
+        "materialHash": "35f3b5acf39d68c848de6a1e70db64d07a0042b6743ba865424c2c083228b8d6",
+        "storyFilesHash": "e3d1a7e1f8729775aca891d9896ad391ed78de2b20a57f3abbfc5799c8ccf8ba"
+      },
+      "aggregateFindingSetDigest": "3443ffba365f48cd2c0232c65d25a70fe66d60dd27786af8cf3b55c4942d5fc7",
+      "requiredLaneCoverageDigest": "8ef645d22e705733687c6b7ce08185b215bf9b1c0c2d51152097100195ad55d0",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-5a88:RR-250",
+      "terminalEvidenceIds": [
+        "B-5a88:RP-065"
+      ],
+      "readEvidenceDigest": "d5ed7985cad131b22618f799490ac3de5727946205412c17b60c37a9b8aa170d",
+      "findingDispositions": [
+        {
+          "findingId": "B-5a88:F-200",
+          "disposition": "verified_family",
+          "familyKey": "coverage-current-evidence-stale",
+          "reason": "Existing RI-014 baseline representative for stale verification evidence; retain this verified family and claim no new family."
+        },
+        {
+          "findingId": "B-5a88:F-201",
+          "disposition": "verified_family",
+          "familyKey": "legacy-reviewer-fallback-alias",
+          "reason": "Existing RI-014 baseline representative for the legacy reviewer fallback alias; retain this verified family and claim no new family."
+        },
+        {
+          "findingId": "B-5a88:F-202",
+          "disposition": "duplicate",
+          "familyKey": "topology-wave4-closure-stale",
+          "canonicalFindingId": "B-5a88:F-204",
+          "reason": "Existing RI-014 baseline duplicate of the topology Wave 4 closure family represented by F-204; claim no new family."
+        },
+        {
+          "findingId": "B-5a88:F-203",
+          "disposition": "verified_family",
+          "familyKey": "missing|ts|concept-retired-smoke",
+          "reason": "Existing RI-014 baseline representative for the retired-bin smoke family; retain this verified family and claim no new family."
+        },
+        {
+          "findingId": "B-5a88:F-204",
+          "disposition": "verified_family",
+          "familyKey": "topology-wave4-closure-stale",
+          "reason": "Existing RI-014 baseline representative for the stale topology Wave 4 closure family; retain this verified family and claim no new family."
+        },
+        {
+          "findingId": "B-5a88:F-205",
+          "disposition": "duplicate",
+          "familyKey": "coverage-current-evidence-stale",
+          "canonicalFindingId": "B-5a88:F-200",
+          "reason": "Existing RI-014 baseline duplicate of the stale verification-evidence family represented by F-200; claim no new family."
+        },
+        {
+          "findingId": "B-5a88:F-206",
+          "disposition": "verified_family",
+          "familyKey": "adversarial-alias-rewrite",
+          "reason": "Existing RI-014 baseline representative for the adversarial alias rewrite family; retain this verified family and claim no new family."
+        },
+        {
+          "findingId": "B-5a88:F-207",
+          "disposition": "duplicate",
+          "familyKey": "missing|ts|concept-retired-smoke",
+          "canonicalFindingId": "B-5a88:F-203",
+          "reason": "Existing RI-014 baseline duplicate of the retired-bin smoke family represented by F-203; claim no new family."
+        },
+        {
+          "findingId": "B-5a88:F-208",
+          "disposition": "duplicate",
+          "familyKey": "coverage-current-evidence-stale",
+          "canonicalFindingId": "B-5a88:F-200",
+          "reason": "Existing RI-014 baseline duplicate of the stale verification-evidence family represented by F-200; claim no new family."
+        },
+        {
+          "findingId": "B-5a88:F-209",
+          "disposition": "verified_family",
+          "familyKey": "prompt-registry-quality-contract-guard",
+          "reason": "Existing RI-014 baseline representative for the prompt-registry quality guard family; retain this verified family and claim no new family."
+        },
+        {
+          "findingId": "B-5a88:F-210",
+          "disposition": "duplicate",
+          "familyKey": "topology-wave4-closure-stale",
+          "canonicalFindingId": "B-5a88:F-204",
+          "reason": "Existing RI-014 baseline duplicate of the topology Wave 4 closure family represented by F-204; claim no new family."
+        },
+        {
+          "findingId": "B-5a88:F-211",
+          "disposition": "duplicate",
+          "familyKey": "coverage-current-evidence-stale",
+          "canonicalFindingId": "B-5a88:F-200",
+          "reason": "Existing RI-014 baseline duplicate of the stale verification-evidence family represented by F-200; claim no new family."
+        },
+        {
+          "findingId": "B-5a88:F-212",
+          "disposition": "verified_family",
+          "familyKey": "missing|ts|acceptance-topology-smoke-stale-assertion",
+          "reason": "Existing RI-014 baseline representative for the stale acceptance-topology smoke assertion family; retain it and claim no new family."
+        },
+        {
+          "findingId": "B-5a88:F-213",
+          "disposition": "verified_family",
+          "familyKey": "coverage-pinned-intents",
+          "reason": "Existing RI-014 baseline representative for pinned verification intents; retain this verified family and claim no new family."
+        },
+        {
+          "findingId": "B-5a88:F-214",
+          "disposition": "verified_family",
+          "familyKey": "happy-remains-bound",
+          "reason": "Existing RI-014 baseline representative for happy-path binding; retain this verified family and claim no new family."
+        },
+        {
+          "findingId": "B-5a88:F-215",
+          "disposition": "verified_family",
+          "familyKey": "coverage-remains-bound",
+          "reason": "Existing RI-014 baseline representative for coverage binding; retain this verified family and claim no new family."
+        },
+        {
+          "findingId": "B-5a88:F-216",
+          "disposition": "verified_family",
+          "familyKey": "edge-remains-bound",
+          "reason": "Existing RI-014 baseline representative for edge-path binding; retain this verified family and claim no new family."
+        },
+        {
+          "findingId": "B-5a88:F-217",
+          "disposition": "verified_family",
+          "familyKey": "missing|ts|concept-retired-bin-runtime-fallback",
+          "reason": "Existing RI-014 baseline representative for the retired-bin runtime fallback family; retain this verified family and claim no new family."
+        },
+        {
+          "findingId": "B-5a88:F-218",
+          "disposition": "verified_family",
+          "familyKey": "prompt-alias-envelope",
+          "reason": "Existing RI-014 baseline representative for the prompt alias envelope family; retain this verified family and claim no new family."
+        },
+        {
+          "findingId": "B-5a88:F-219",
+          "disposition": "verified_family",
+          "familyKey": "prompt-alias-envelope-collision",
+          "reason": "Existing RI-014 baseline representative for prompt alias envelope collision; retain this verified family and claim no new family."
+        },
+        {
+          "findingId": "B-5a88:F-220",
+          "disposition": "verified_family",
+          "familyKey": "prompt-role-token-boundary",
+          "reason": "Existing RI-014 baseline representative for the prompt role token boundary family; retain this verified family and claim no new family."
+        },
+        {
+          "findingId": "B-5a88:F-221",
+          "disposition": "duplicate",
+          "familyKey": "coverage-current-evidence-stale",
+          "canonicalFindingId": "B-5a88:F-200",
+          "reason": "Finding F-221 explicitly identifies the existing stale coverage family and says no new family is claimed; duplicate F-200."
+        },
+        {
+          "findingId": "B-5a88:F-222",
+          "disposition": "duplicate",
+          "familyKey": "missing|ts|concept-retired-bin-runtime-fallback",
+          "canonicalFindingId": "B-5a88:F-217",
+          "reason": "Finding F-222 explicitly identifies the existing retired-bin runtime fallback family and says no new family is claimed; duplicate F-217."
+        }
+      ],
+      "createdAt": "2026-08-21T18:20:31.374Z",
+      "_hash": "28c78f1c172262f15aaf0d7de41958b816b1da8f40c8729ae4155847fa04e5f8"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-5a88:RI-015:CRIT-02",
+      "epochId": "B-5a88:RI-015",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-21T15:29:13.712Z",
+      "wave": 2,
+      "cutoff": {
+        "headHash": "253cc807453a5ec1151d816907c794e5b9108a26",
+        "materialHash": "35f3b5acf39d68c848de6a1e70db64d07a0042b6743ba865424c2c083228b8d6",
+        "storyFilesHash": "e3d1a7e1f8729775aca891d9896ad391ed78de2b20a57f3abbfc5799c8ccf8ba"
+      },
+      "aggregateFindingSetDigest": "3443ffba365f48cd2c0232c65d25a70fe66d60dd27786af8cf3b55c4942d5fc7",
+      "requiredLaneCoverageDigest": "f2324a3de6cc03756e34559558597cd39c499ca73ccd66135ebf042c442b0516",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-5a88:RR-257",
+      "terminalEvidenceIds": [
+        "B-5a88:RP-071"
+      ],
+      "readEvidenceDigest": "a5de0e1f4835d325225aa7bf9cea1ecc0d1ed49c2aa1db744734395eaef0a48e",
+      "findingDispositions": [],
+      "createdAt": "2026-08-21T18:50:57.526Z",
+      "_hash": "c8616e9f4f879f89489337581561c3ce80dddb748d9cde8d5d3ab075e7fecd13"
     }
   ]
 }
