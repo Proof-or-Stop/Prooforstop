@@ -6260,6 +6260,30 @@
       "resolvedAt": "2026-08-21T10:59:54.516Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5a88:F-164",
+      "desc": "Canonical-new-marker boundary is broken for complex prompt assets: packages/main/src/core/prompt-registry.ts:308-344 and :475-484 make the default render for the five MODULAR_COMPLEX_ROLE_IDS return the legacy <!-- lattice:start/end --> reconstruction. packages/main/src/core/cli-init.ts:1027-1062 and packages/main/src/core/managed-assets.ts:994-1005 write that default render into fresh full Codex/Claude prompt assets. Reproduction after npm --prefix packages/main run build: renderPromptEntryForHost(..., claude) reports legacy markers for proof-or-stop-evaluator, proof-or-stop-implementer, proof-or-stop-review-delivery, proof-or-stop-review-scope-plan, and proof-or-stop-review-story-init. This violates the B-5a88 and brand-rename new-write contract: legacy markers are compatibility reads only. F-162/F-163 fix direct evaluator-cli and review-channel assets but do not cover this complex legacy-full-context producer. The verifier path also accepts the same legacy output via packages/main/src/core/managed-assets.ts:407-412, so fresh init can pass while emitting legacy markers.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-08-21T11:17:14.216Z",
+      "reviewRound": "2026-08-21T08:03:56.673Z",
+      "reviewRunId": "B-5a88:RR-169",
+      "_hash": "24439203eb793abd677dbbfb7d758956a7993074ce04c45a207769ececa40c84",
+      "files": [
+        "packages/main/src/core/prompt-registry.ts",
+        "packages/main/src/core/cli-init.ts",
+        "packages/main/src/core/managed-assets.ts"
+      ],
+      "signatureTag": "missing|ts|canonical-marker-boundary",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Resolved by commit 2945366d77. The default legacy-full-context renderer now canonicalizes managed markers before any new Claude/Codex asset is written; cli-init and managed-assets continue using the shared renderer, while historical reconstruction retains legacy markers only for compatibility reads. Current verification passes: npm --prefix packages/main run build; node packages/main/dist/tasks/prompt-registry-smoke.js (17 agents); node packages/main/tests/prompt-role-migration.test.mjs; node scripts/verify-proof-or-stop-prompt-baseline.mjs; node packages/main/dist/tasks/prompt-token-cost-smoke.js; node packages/main/dist/tasks/runtime-owned-agent-assets-smoke.js; node packages/main/dist/tasks/managed-assets-wrapper-root-smoke.js; node packages/main/dist/tasks/thin-init-assets-smoke.js; node packages/main/dist/tasks/init-preflight-smoke.js; node packages/main/tests/managed-marker-migration.test.mjs; node scripts/verify-lattice-residue.mjs --self-test (65/65).",
+      "resolvedAt": "2026-08-21T11:28:24.338Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
