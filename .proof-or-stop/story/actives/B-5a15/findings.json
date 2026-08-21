@@ -1976,6 +1976,124 @@
       ],
       "signatureTag": "missing|md|concept-review-required",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a15:F-064",
+      "desc": "Existing-family B-5a15:F-060/F-056/F-062: .proof-or-stop/story/actives/B-5a15/pre-review-check.json:735-769 is bound to headHash 4a42ec9d001ea2841eef10269e580a3cbde5caed, materialHash cc13224df2083df910ceee0890cd84df4559d4c93b85d22ba6089cb6c60fec95, and storyFilesHash 187c87c92d80249a41831953fc6d9bfb2cd088231d77ab9498b98c7a9016d8a6, while current review run RR-124 is bound to HEAD a1ce1227e7e8b52d7b8b4494cd27bfef632be1b1, materialHash b38de9f6b3c247c94a667f92756c974ca4541e2b76f7b2aaaae09d6d9e7fd8fb, and storyFilesHash 985eb4c7aa5d9de6bd8f232e1f41be9be8e5f72d21f688ec1acc1692ba3d5c0a. pre_review_check_read returns PR_ARTIFACT_TAMPERED, PR_POSITIVE_EVIDENCE_MISSING, PR_AUTHORITY_INADMISSIBLE, PR_EVIDENCE_STALE, and PR_CUTOFF_UNBOUND; acceptance_topology_check also reports AT_ADAPTER_RESULT_DIGEST_MISMATCH and AT_CLOSURE_FILES_STALE. This is a repeated stale verifier-owned pre-review/acceptance-chain family and blocks a quality pass until the artifacts are reissued through the CLI.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T14:06:54.235Z",
+      "reviewRound": "2026-08-21T13:09:42.171Z",
+      "reviewRunId": "B-5a15:RR-124",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/tests/causal-evidence.test.mjs",
+          "packages/main/tests/verifier-causal-preflight.test.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "scanEscalationReason": "Both U-03 related decision documents named by CHK-001/CHK-002/CHK-004 were checked and are absent from this worktree."
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "692cc7f51224c1b8e5c3f08e89635d10acebc1c91690e350c2bc6bd8d35ac823"
+      },
+      "readDiagnostics": [],
+      "_hash": "5239728c1ceec179b2551b3b4a97fef16ae7696403c0a0a4c7254804a06c3416",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json"
+      ],
+      "signatureTag": "missing|json|review-check-json",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a15:F-065",
+      "desc": "Existing-family B-5a15:F-061: packages/main/src/handlers/checklist.ts:524-547 defines sameEvidenceIdentity using only command and result. checklist_update at packages/main/src/handlers/checklist.ts:2102-2107 first strips trusted provenance when carryForwardOnDiskProvenance detects a semantic mutation, but normalizeEvidence then calls evidenceHashesForPersistence with priorEvidence and reuses the prior headHash, materialHash, and storyFilesHash whenever command and result still match. A changed note, verdict, file, or structured attestation can therefore be persisted as newly authored evidence with stale freshness pins even though its receipt was dropped, defeating the fail-closed semantic freshness rule and repeating F-061.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T14:06:59.066Z",
+      "reviewRound": "2026-08-21T13:09:42.171Z",
+      "reviewRunId": "B-5a15:RR-124",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/tests/causal-evidence.test.mjs",
+          "packages/main/tests/verifier-causal-preflight.test.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "scanEscalationReason": "Both U-03 related decision documents named by CHK-001/CHK-002/CHK-004 were checked and are absent from this worktree."
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "692cc7f51224c1b8e5c3f08e89635d10acebc1c91690e350c2bc6bd8d35ac823"
+      },
+      "readDiagnostics": [],
+      "_hash": "1cff96edd8994a2b25f5ec9f8445c7a243d00018adb03c6be618043a225b36d4",
+      "files": [
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/tests/causal-evidence.test.mjs"
+      ],
+      "signatureTag": "edge|ts|packages-main-handlers",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
