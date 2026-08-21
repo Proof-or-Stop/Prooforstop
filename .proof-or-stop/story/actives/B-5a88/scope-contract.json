@@ -664,10 +664,36 @@
       "phase": "DEV",
       "headHash": "ad67d923cf8ae7eb6d423c7b3ee9400f8a33ce9f",
       "materialHash": "3953e9236797f4c3774c00d69b6b5fe7191190ad1a64875a4c4dee44790fadf6"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "These paths are the minimal decision-document, producer, admissibility, and focused regression surfaces required to resolve Round 20 findings F-117 through F-120 while preserving explicit legacy compatibility boundaries.",
+      "timestamp": "2026-08-21T04:26:04.260Z",
+      "paths": [
+        "docs/requirements/decisions/brand-rename-mapping.md",
+        "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+        "packages/main/src/core/auto-commit-metadata.ts",
+        "packages/main/src/core/proof-admissibility.ts",
+        "packages/main/src/tasks/closeout-trust-smoke.ts",
+        "packages/main/src/tasks/proof-admissibility-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "docs/requirements/decisions/brand-rename-mapping.md",
+        "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+        "packages/main/src/core/auto-commit-metadata.ts",
+        "packages/main/src/core/proof-admissibility.ts",
+        "packages/main/src/tasks/closeout-trust-smoke.ts",
+        "packages/main/src/tasks/proof-admissibility-smoke.ts"
+      ],
+      "affectedPathCount": 6,
+      "phase": "DEV",
+      "headHash": "671432c290632e20a028c14083684a5b94e5ce62",
+      "materialHash": "778463f4917f222c10038bbe3bfa34c7f62d5bdd3a4db9fbe895b9996a2bda7c"
     }
   ],
   "createdAt": "2026-08-20T05:20:00.402Z",
-  "updatedAt": "2026-08-21T02:35:25.334Z",
+  "updatedAt": "2026-08-21T04:26:04.260Z",
   "fileRules": [],
   "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
@@ -827,6 +853,12 @@
     "packages/main/src/core/adversarial-review-verifier.ts": "packages/main/src/core/adversarial-review-verifier.ts",
     "docs/host-run-usage.md": "docs/host-run-usage.md",
     ".proof-or-stop/proof-or-stop.json": ".proof-or-stop/proof-or-stop.json",
-    "packages/main/src/tasks/thin-init-assets-smoke.ts": "packages/main/src/tasks/thin-init-assets-smoke.ts"
+    "packages/main/src/tasks/thin-init-assets-smoke.ts": "packages/main/src/tasks/thin-init-assets-smoke.ts",
+    "docs/requirements/decisions/brand-rename-mapping.md": "docs/requirements/decisions/brand-rename-mapping.md",
+    "docs/requirements/decisions/proof-or-stop-identity-migration.md": "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+    "packages/main/src/core/auto-commit-metadata.ts": "packages/main/src/core/auto-commit-metadata.ts",
+    "packages/main/src/core/proof-admissibility.ts": "packages/main/src/core/proof-admissibility.ts",
+    "packages/main/src/tasks/closeout-trust-smoke.ts": "packages/main/src/tasks/closeout-trust-smoke.ts",
+    "packages/main/src/tasks/proof-admissibility-smoke.ts": "packages/main/src/tasks/proof-admissibility-smoke.ts"
   }
 }
