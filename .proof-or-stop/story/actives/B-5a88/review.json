@@ -438,6 +438,55 @@
         }
       ],
       "_hash": "6009a256874cf9a7f7860a95374075a6666233ab43a93105db3b681702a9c60e"
+    },
+    {
+      "timestamp": "2026-08-21T15:15:51.133Z",
+      "issueCount": 2,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "7 checklist items; please check for missing combined scenarios (e.g., what happens when Make proof-or-stop-* the canonical agent role IDs and keep lattice-* readable + Switch managed-block markers to proof-or-stop start/end with dual-read are performed simultaneously?)"
+        },
+        {
+          "type": "scope_check_stale",
+          "severity": "blocker",
+          "message": "scope-check.json reviewRound (none) does not match the current review round (2026-08-21T08:03:56.673Z); please rerun the scope agent"
+        }
+      ],
+      "_hash": "67358e83d09b3b1b7205aa939c4dd6791d3cf7b5d9fa409b3cc63d3d23740c5a"
+    },
+    {
+      "timestamp": "2026-08-21T15:25:56.354Z",
+      "issueCount": 2,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "7 checklist items; please check for missing combined scenarios (e.g., what happens when Make proof-or-stop-* the canonical agent role IDs and keep lattice-* readable + Switch managed-block markers to proof-or-stop start/end with dual-read are performed simultaneously?)"
+        },
+        {
+          "type": "scope_open_question_unresolved",
+          "severity": "blocker",
+          "message": "scope_open_question_unresolved: OQ-001 unresolved — \"Should the removed bin aliases be announced in CHANGELOG.md, or is CHANGELOG....\". Please run `proof-or-stop scope_question_resolve --storyId=B-5a88 --oqId=OQ-001 --resolution=...` to provide a written resolution (the main agent is responsible for the conclusion)"
+        }
+      ],
+      "_hash": "f3d16a7579294d3719a94bcbd96152ed0b8e532a09f0e83cb45e58dadaa26086"
+    },
+    {
+      "timestamp": "2026-08-21T15:26:38.426Z",
+      "issueCount": 1,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "7 checklist items; please check for missing combined scenarios (e.g., what happens when Make proof-or-stop-* the canonical agent role IDs and keep lattice-* readable + Switch managed-block markers to proof-or-stop start/end with dual-read are performed simultaneously?)"
+        }
+      ],
+      "_hash": "d42b83aaf1f1d8bbabf307f06e46a741d983da263e9864a6ae2a44aba71425fe"
     }
   ]
 }

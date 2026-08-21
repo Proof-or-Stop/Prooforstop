@@ -669,13 +669,17 @@
           {
             "refKind": "existing",
             "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/core/agent-dispatch-registry.ts#validateAgentDispatchRequest->consumer:packages/main/src/handlers/story-dispatch.ts#validateAgentDispatchRequest"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:process-fact:dispatch->consumer:<audit-only>"
           }
         ]
       }
     }
   ],
   "diagnosticGaps": [],
-  "note": "Approved B-5a88 acceptance binding with canonical topology closure.",
+  "note": "Canonical identity migration topology includes the verifier-discovered dispatch audit path.",
   "createdAt": "2026-08-20T05:20:29.310Z",
-  "updatedAt": "2026-08-20T13:44:27.676Z"
+  "updatedAt": "2026-08-21T15:13:31.906Z"
 }

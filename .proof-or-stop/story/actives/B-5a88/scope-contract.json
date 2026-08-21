@@ -19,7 +19,6 @@
     "packages/main/src/handlers/review-preflight.ts",
     "packages/main/src/handlers/transition-effects.ts",
     "packages/main/src/handlers/story-dispatch.ts",
-    "packages/main/templates/agents",
     "scripts/verify-process-fact-contract.mjs",
     "scripts/verify-proof-or-stop-prompt-baseline.mjs",
     "scripts/verify-codex-assets.mjs",
@@ -63,7 +62,24 @@
     "scripts/verify-entrypoints.mjs",
     "scripts/verify-lattice-residue.mjs",
     "packages/main/src/cli-init.ts",
-    "packages/main/src/core/acceptance-discovery-adapters.ts"
+    "packages/main/src/core/acceptance-discovery-adapters.ts",
+    "packages/main/templates/agents/proof-or-stop-evaluator-cli.md",
+    "packages/main/templates/agents/proof-or-stop-evaluator.md",
+    "packages/main/templates/agents/proof-or-stop-implementation-reviewer.md",
+    "packages/main/templates/agents/proof-or-stop-implementer.md",
+    "packages/main/templates/agents/proof-or-stop-product-reviewer.md",
+    "packages/main/templates/agents/proof-or-stop-review-behavior.md",
+    "packages/main/templates/agents/proof-or-stop-review-channel.md",
+    "packages/main/templates/agents/proof-or-stop-review-concept.md",
+    "packages/main/templates/agents/proof-or-stop-review-delivery.md",
+    "packages/main/templates/agents/proof-or-stop-review-docs.md",
+    "packages/main/templates/agents/proof-or-stop-review-quality.md",
+    "packages/main/templates/agents/proof-or-stop-review-scope-plan.md",
+    "packages/main/templates/agents/proof-or-stop-review-story-init.md",
+    "packages/main/templates/agents/proof-or-stop-review-test-coverage.md",
+    "packages/main/templates/agents/proof-or-stop-review-topology-critic.md",
+    "packages/main/templates/agents/proof-or-stop-test-case-reviewer.md",
+    "packages/main/templates/agents/proof-or-stop-test-intent.md"
   ],
   "allowedCreate": [
     "packages/main/src/core/agent-role-identity.ts",
@@ -83,7 +99,7 @@
   ],
   "protectedFiles": [],
   "explicitExcludes": [],
-  "scopeChangeReason": "Acceptance closure must ignore existing scope directories as source seeds; the verifier fix is limited to source-seed normalization in acceptance-discovery-adapters.ts.",
+  "scopeChangeReason": "Replace the directory scope seed with its explicit regular template files so acceptance discovery can inspect every source file.",
   "acknowledgements": [
     {
       "actor": "main-agent",
@@ -748,10 +764,30 @@
       "phase": "DEV",
       "headHash": "c02d8d9ca9988d17b83a701ccbb124bce7fb55eb",
       "materialHash": "dda982279ee9eb8a91ae95427d96a5c8e3c404635e46364756556cf7faf91a02"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "CHK-002 marker migration updates this smoke test so generated thin shims reject the canonical proof-or-stop marker slice; this test change is required to verify the story contract.",
+      "timestamp": "2026-08-21T15:06:26.580Z",
+      "paths": [
+        "packages/main/src/tasks/global-agents-init-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/global-agents-init-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "1a2ff87b81ba8911cef796f85670d6b2ea96c26d",
+      "materialHash": "35f3b5acf39d68c848de6a1e70db64d07a0042b6743ba865424c2c083228b8d6",
+      "anchors": [
+        "CHK_002",
+        "proof_or_stop_marker_migration"
+      ]
     }
   ],
   "createdAt": "2026-08-20T05:20:00.402Z",
-  "updatedAt": "2026-08-21T08:02:26.513Z",
+  "updatedAt": "2026-08-21T15:15:05.399Z",
   "fileRules": [],
   "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
@@ -921,6 +957,24 @@
     "packages/main/src/handlers/testintent-handoff.ts": "packages/main/src/handlers/testintent-handoff.ts",
     "scripts/verify-testintent-handoff.mjs": "scripts/verify-testintent-handoff.mjs",
     "packages/main/src/tasks/testintent-handoff-smoke.ts": "packages/main/src/tasks/testintent-handoff-smoke.ts",
-    "packages/lab/src/profiles/test-intent-prompt-quality-v1.ts": "packages/lab/src/profiles/test-intent-prompt-quality-v1.ts"
+    "packages/lab/src/profiles/test-intent-prompt-quality-v1.ts": "packages/lab/src/profiles/test-intent-prompt-quality-v1.ts",
+    "packages/main/src/tasks/global-agents-init-smoke.ts": "packages/main/src/tasks/global-agents-init-smoke.ts",
+    "packages/main/templates/agents/proof-or-stop-evaluator-cli.md": "packages/main/templates/agents/proof-or-stop-evaluator-cli.md",
+    "packages/main/templates/agents/proof-or-stop-evaluator.md": "packages/main/templates/agents/proof-or-stop-evaluator.md",
+    "packages/main/templates/agents/proof-or-stop-implementation-reviewer.md": "packages/main/templates/agents/proof-or-stop-implementation-reviewer.md",
+    "packages/main/templates/agents/proof-or-stop-implementer.md": "packages/main/templates/agents/proof-or-stop-implementer.md",
+    "packages/main/templates/agents/proof-or-stop-product-reviewer.md": "packages/main/templates/agents/proof-or-stop-product-reviewer.md",
+    "packages/main/templates/agents/proof-or-stop-review-behavior.md": "packages/main/templates/agents/proof-or-stop-review-behavior.md",
+    "packages/main/templates/agents/proof-or-stop-review-channel.md": "packages/main/templates/agents/proof-or-stop-review-channel.md",
+    "packages/main/templates/agents/proof-or-stop-review-concept.md": "packages/main/templates/agents/proof-or-stop-review-concept.md",
+    "packages/main/templates/agents/proof-or-stop-review-delivery.md": "packages/main/templates/agents/proof-or-stop-review-delivery.md",
+    "packages/main/templates/agents/proof-or-stop-review-docs.md": "packages/main/templates/agents/proof-or-stop-review-docs.md",
+    "packages/main/templates/agents/proof-or-stop-review-quality.md": "packages/main/templates/agents/proof-or-stop-review-quality.md",
+    "packages/main/templates/agents/proof-or-stop-review-scope-plan.md": "packages/main/templates/agents/proof-or-stop-review-scope-plan.md",
+    "packages/main/templates/agents/proof-or-stop-review-story-init.md": "packages/main/templates/agents/proof-or-stop-review-story-init.md",
+    "packages/main/templates/agents/proof-or-stop-review-test-coverage.md": "packages/main/templates/agents/proof-or-stop-review-test-coverage.md",
+    "packages/main/templates/agents/proof-or-stop-review-topology-critic.md": "packages/main/templates/agents/proof-or-stop-review-topology-critic.md",
+    "packages/main/templates/agents/proof-or-stop-test-case-reviewer.md": "packages/main/templates/agents/proof-or-stop-test-case-reviewer.md",
+    "packages/main/templates/agents/proof-or-stop-test-intent.md": "packages/main/templates/agents/proof-or-stop-test-intent.md"
   }
 }

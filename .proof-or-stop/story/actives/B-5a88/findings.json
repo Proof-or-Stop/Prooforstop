@@ -6565,6 +6565,797 @@
       ],
       "signatureTag": "missing|.githooks|executable-intent-bound",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-174",
+      "desc": "concept-cleanup: .githooks/pre-push still instructs operators to run retired lattice validate --lint and lattice release_approve_push --confirm commands; replace these comments with proof-or-stop forms.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-21T14:39:18.699Z",
+      "reviewRound": "2026-08-21T08:03:56.673Z",
+      "reviewRunId": "B-5a88:RR-183",
+      "readManifest": {
+        "filesReadFully": [
+          ".githooks/pre-push"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "e6c4150f508daa6956571722d199ca8f4481fb07fa85ff555174b12a602cf6ae",
+      "files": [
+        ".githooks/pre-push"
+      ],
+      "signatureTag": "missing|.githooks|concept-cleanup-githooks",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-175",
+      "desc": "quality-cleanup: .githooks/pre-push still contains retired lattice CLI instructions at lines 5 and 11, which can send operators down invalid recovery paths after the lattice bin was removed.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T14:39:35.686Z",
+      "reviewRound": "2026-08-21T08:03:56.673Z",
+      "reviewRunId": "B-5a88:RR-184",
+      "readManifest": {
+        "filesReadFully": [
+          ".githooks/pre-push"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "5c79986b279da3518f3fac73b06ce959d7670828e18345ecb467f672b44918b0",
+      "files": [
+        ".githooks/pre-push"
+      ],
+      "signatureTag": "missing|.githooks|quality-cleanup-githooks",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-176",
+      "desc": "CHK-004 coverage: the pinned intents do not execute approval write/read and hook consumption for canonical and legacy schemas, expiry/hash mismatch, and second-consume rejection; the existing migration test is not bound to these intent receipts.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-21T14:42:39.318Z",
+      "reviewRound": "2026-08-21T08:03:56.673Z",
+      "reviewRunId": "B-5a88:RR-186",
+      "readManifest": {
+        "filesReadFully": [
+          ".githooks/pre-push",
+          "packages/main/src/core/release-push-approval.ts",
+          "packages/main/tests/release-push-approval-migration.test.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "fbb10f89694e173d0a59cf67aedcfd9b5188e8baac76466f4622d028329535ea",
+      "files": [
+        ".githooks/pre-push",
+        "packages/main/src/core/release-push-approval.ts",
+        "packages/main/tests/release-push-approval-migration.test.mjs"
+      ],
+      "signatureTag": "missing|.githooks|coverage-pinned-intents",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-177",
+      "desc": "Topology/completeness review: the current acceptance_basis is invalid and acceptance_topology_check reports stale closure files, missing scope binding, and an unmapped audit-only process-fact path; regenerate the basis and resolve or explicitly exclude the unmapped path before relying on this review inventory.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-21T14:43:00.917Z",
+      "reviewRound": "2026-08-21T08:03:56.673Z",
+      "reviewRunId": "B-5a88:RR-187",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "00b590dd950f1273b979e2b61b10da13362c676725506321aa2aa10fa42cbbf9",
+      "files": [
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/topology-critic-receipt.ts",
+        "packages/main/src/handlers/proofstory.ts"
+      ],
+      "signatureTag": "missing|ts|topology-completeness-review",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-178",
+      "desc": "concept-cleanup: .githooks/pre-push still instructs operators to run retired lattice validate --lint and lattice release_approve_push --confirm commands; replace these comments with proof-or-stop forms.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-21T14:43:53.372Z",
+      "reviewRound": "2026-08-21T08:03:56.673Z",
+      "reviewRunId": "B-5a88:RR-188",
+      "readManifest": {
+        "filesReadFully": [
+          ".githooks/pre-push"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "31512f628ff6795cc75a8ae3854d695adf9c37de6ef87b161e1232561b296d8a",
+      "files": [
+        ".githooks/pre-push"
+      ],
+      "signatureTag": "missing|.githooks|concept-cleanup-githooks",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-179",
+      "desc": "quality-cleanup: .githooks/pre-push still contains retired lattice CLI instructions at lines 5 and 11, which can send operators down invalid recovery paths after the lattice bin was removed.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T14:44:09.650Z",
+      "reviewRound": "2026-08-21T08:03:56.673Z",
+      "reviewRunId": "B-5a88:RR-189",
+      "readManifest": {
+        "filesReadFully": [
+          ".githooks/pre-push"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "c38ab39077a7f51519018780c4dd96c80223eef4e42323edb3f1ea74a4ea8705",
+      "files": [
+        ".githooks/pre-push"
+      ],
+      "signatureTag": "missing|.githooks|quality-cleanup-githooks",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-180",
+      "desc": "CHK-004 coverage: the pinned intents do not execute approval write/read and hook consumption for canonical and legacy schemas, expiry/hash mismatch, and second-consume rejection; the existing migration test is not bound to these intent receipts.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-21T14:44:27.599Z",
+      "reviewRound": "2026-08-21T08:03:56.673Z",
+      "reviewRunId": "B-5a88:RR-190",
+      "readManifest": {
+        "filesReadFully": [
+          ".githooks/pre-push",
+          "packages/main/src/core/release-push-approval.ts",
+          "packages/main/tests/release-push-approval-migration.test.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "bf6efaf09939beda26667293da5dfd45b97cbc3fbda63ffa842cadc11a7faacd",
+      "files": [
+        ".githooks/pre-push",
+        "packages/main/src/core/release-push-approval.ts",
+        "packages/main/tests/release-push-approval-migration.test.mjs"
+      ],
+      "signatureTag": "missing|.githooks|coverage-pinned-intents",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-181",
+      "desc": "Topology/completeness review: the current acceptance_basis is invalid and acceptance_topology_check reports stale closure files, missing scope binding, and an unmapped audit-only process-fact path; regenerate the basis and resolve or explicitly exclude the unmapped path before relying on this review inventory.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-21T14:44:48.753Z",
+      "reviewRound": "2026-08-21T08:03:56.673Z",
+      "reviewRunId": "B-5a88:RR-191",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "58ded3a0288cb0f76f642356df3c0adadcb7cb1247bc3e2ba222d6d9c13d3ecf",
+      "files": [
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/topology-critic-receipt.ts",
+        "packages/main/src/handlers/proofstory.ts"
+      ],
+      "signatureTag": "missing|ts|topology-completeness-review",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-182",
+      "desc": "concept-cleanup: .githooks/pre-push still instructs operators to run retired lattice validate --lint and lattice release_approve_push --confirm commands; replace these comments with proof-or-stop forms.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-21T14:45:34.643Z",
+      "reviewRound": "2026-08-21T08:03:56.673Z",
+      "reviewRunId": "B-5a88:RR-192",
+      "readManifest": {
+        "filesReadFully": [
+          ".githooks/pre-push"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "89d54685ea83e95e48b7d71cca1fc5c2060a65c8528e4df793c8872a300457c6",
+      "files": [
+        ".githooks/pre-push"
+      ],
+      "signatureTag": "missing|.githooks|concept-cleanup-githooks",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-183",
+      "desc": "quality-cleanup: .githooks/pre-push still contains retired lattice CLI instructions at lines 5 and 11, which can send operators down invalid recovery paths after the lattice bin was removed.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T14:45:50.971Z",
+      "reviewRound": "2026-08-21T08:03:56.673Z",
+      "reviewRunId": "B-5a88:RR-193",
+      "readManifest": {
+        "filesReadFully": [
+          ".githooks/pre-push"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "9f096d24577b0a5c96d543643b4b61c0b4495bfacd185daad874a4089710d90a",
+      "files": [
+        ".githooks/pre-push"
+      ],
+      "signatureTag": "missing|.githooks|quality-cleanup-githooks",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-184",
+      "desc": "CHK-004 coverage: the pinned intents do not execute approval write/read and hook consumption for canonical and legacy schemas, expiry/hash mismatch, and second-consume rejection; the existing migration test is not bound to these intent receipts.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-21T14:46:08.660Z",
+      "reviewRound": "2026-08-21T08:03:56.673Z",
+      "reviewRunId": "B-5a88:RR-194",
+      "readManifest": {
+        "filesReadFully": [
+          ".githooks/pre-push",
+          "packages/main/src/core/release-push-approval.ts",
+          "packages/main/tests/release-push-approval-migration.test.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "bf8642761687cb8d57b281e42cab69802fb472c4b93b9eb9fa2d308a63473af7",
+      "files": [
+        ".githooks/pre-push",
+        "packages/main/src/core/release-push-approval.ts",
+        "packages/main/tests/release-push-approval-migration.test.mjs"
+      ],
+      "signatureTag": "missing|.githooks|coverage-pinned-intents",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-185",
+      "desc": "Topology/completeness review: the current acceptance_basis is invalid and acceptance_topology_check reports stale closure files, missing scope binding, and an unmapped audit-only process-fact path; regenerate the basis and resolve or explicitly exclude the unmapped path before relying on this review inventory.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-21T14:46:24.107Z",
+      "reviewRound": "2026-08-21T08:03:56.673Z",
+      "reviewRunId": "B-5a88:RR-195",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "41b687fa4b404845a999d6a26cf1beb41345e7f533b5baf6653799522755c533",
+      "files": [
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/topology-critic-receipt.ts",
+        "packages/main/src/handlers/proofstory.ts"
+      ],
+      "signatureTag": "missing|ts|topology-completeness-review",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-186",
+      "desc": "Topology/completeness review: the current acceptance_basis is invalid and acceptance_topology_check reports stale closure files, missing scope binding, and an unmapped audit-only process-fact path; regenerate the basis and resolve or explicitly exclude the unmapped path before relying on this review inventory.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-21T14:47:42.615Z",
+      "reviewRound": "2026-08-21T08:03:56.673Z",
+      "reviewRunId": "B-5a88:RR-196",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "d304ce063765923e2e7bff4bdb706052bd4dd8e74a79a524a7106492f5dedc9c",
+      "files": [
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/topology-critic-receipt.ts",
+        "packages/main/src/handlers/proofstory.ts"
+      ],
+      "signatureTag": "missing|ts|topology-completeness-review",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-187",
+      "desc": "concept-cleanup: .githooks/pre-push still instructs operators to run retired lattice validate --lint and lattice release_approve_push --confirm commands; replace these comments with proof-or-stop forms.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-21T14:48:56.972Z",
+      "reviewRound": "2026-08-21T08:03:56.673Z",
+      "reviewRunId": "B-5a88:RR-197",
+      "readManifest": {
+        "filesReadFully": [
+          ".githooks/pre-push"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "ea9bc8a64e087ff30f4983bb8106ccc570167f7201607614e0066c0e6140f44c",
+      "files": [
+        ".githooks/pre-push"
+      ],
+      "signatureTag": "missing|.githooks|concept-cleanup-githooks",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-188",
+      "desc": "quality-cleanup: .githooks/pre-push still contains retired lattice CLI instructions at lines 5 and 11, which can send operators down invalid recovery paths after the lattice bin was removed.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T14:49:19.975Z",
+      "reviewRound": "2026-08-21T08:03:56.673Z",
+      "reviewRunId": "B-5a88:RR-198",
+      "readManifest": {
+        "filesReadFully": [
+          ".githooks/pre-push"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "a418ffec3c4b6ad00c3ad898df95f47ef534243c3885347dd143d4350dd2594a",
+      "files": [
+        ".githooks/pre-push"
+      ],
+      "signatureTag": "missing|.githooks|quality-cleanup-githooks",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-189",
+      "desc": "CHK-004 coverage: the pinned intents do not execute approval write/read and hook consumption for canonical and legacy schemas, expiry/hash mismatch, and second-consume rejection; the existing migration test is not bound to these intent receipts.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-21T14:49:39.686Z",
+      "reviewRound": "2026-08-21T08:03:56.673Z",
+      "reviewRunId": "B-5a88:RR-199",
+      "readManifest": {
+        "filesReadFully": [
+          ".githooks/pre-push",
+          "packages/main/src/core/release-push-approval.ts",
+          "packages/main/tests/release-push-approval-migration.test.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "b7b5b7ceeee1ff6cdb84604453451e394f6c104f2f966f802ea71245480cdc7c",
+      "files": [
+        ".githooks/pre-push",
+        "packages/main/src/core/release-push-approval.ts",
+        "packages/main/tests/release-push-approval-migration.test.mjs"
+      ],
+      "signatureTag": "missing|.githooks|coverage-pinned-intents",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-190",
+      "desc": "Topology/completeness review: the current acceptance_basis is invalid and acceptance_topology_check reports stale closure files, missing scope binding, and an unmapped audit-only process-fact path; regenerate the basis and resolve or explicitly exclude the unmapped path before relying on this review inventory.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-21T14:49:56.084Z",
+      "reviewRound": "2026-08-21T08:03:56.673Z",
+      "reviewRunId": "B-5a88:RR-200",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "e2ef38ecf9c3146a76eb55bd2bc19c0e3f8a3fa40e8f18761621f56ec98a53b2",
+      "files": [
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/topology-critic-receipt.ts",
+        "packages/main/src/handlers/proofstory.ts"
+      ],
+      "signatureTag": "missing|ts|topology-completeness-review",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-191",
+      "desc": "concept-cleanup: .githooks/pre-push still instructs operators to run retired lattice validate --lint and lattice release_approve_push --confirm commands; replace these comments with proof-or-stop forms.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-21T14:51:13.759Z",
+      "reviewRound": "2026-08-21T08:03:56.673Z",
+      "reviewRunId": "B-5a88:RR-201",
+      "readManifest": {
+        "filesReadFully": [
+          ".githooks/pre-push"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "2b1c516ca8b99aa8503a30a346e4ef8bf73d1abbb3ab281bac90d5ba41707b37",
+      "files": [
+        ".githooks/pre-push"
+      ],
+      "signatureTag": "missing|.githooks|concept-cleanup-githooks",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-192",
+      "desc": "quality-cleanup: .githooks/pre-push still contains retired lattice CLI instructions at lines 5 and 11, which can send operators down invalid recovery paths after the lattice bin was removed.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T14:51:29.977Z",
+      "reviewRound": "2026-08-21T08:03:56.673Z",
+      "reviewRunId": "B-5a88:RR-202",
+      "readManifest": {
+        "filesReadFully": [
+          ".githooks/pre-push"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "e10aef1b9dd856bd5de6215fec5509a5759937fee6cf39d0c0a27c576266d895",
+      "files": [
+        ".githooks/pre-push"
+      ],
+      "signatureTag": "missing|.githooks|quality-cleanup-githooks",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-193",
+      "desc": "CHK-004 coverage: the pinned intents do not execute approval write/read and hook consumption for canonical and legacy schemas, expiry/hash mismatch, and second-consume rejection; the existing migration test is not bound to these intent receipts.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-21T14:51:46.355Z",
+      "reviewRound": "2026-08-21T08:03:56.673Z",
+      "reviewRunId": "B-5a88:RR-203",
+      "readManifest": {
+        "filesReadFully": [
+          ".githooks/pre-push",
+          "packages/main/src/core/release-push-approval.ts",
+          "packages/main/tests/release-push-approval-migration.test.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "326ac1fe482c1ed68b661f59e36cb2eadaa1f92236f46a98fc586f11b814a0c2",
+      "files": [
+        ".githooks/pre-push",
+        "packages/main/src/core/release-push-approval.ts",
+        "packages/main/tests/release-push-approval-migration.test.mjs"
+      ],
+      "signatureTag": "missing|.githooks|coverage-pinned-intents",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-194",
+      "desc": "Topology/completeness review: the current acceptance_basis is invalid and acceptance_topology_check reports stale closure files, missing scope binding, and an unmapped audit-only process-fact path; regenerate the basis and resolve or explicitly exclude the unmapped path before relying on this review inventory.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-21T14:52:04.330Z",
+      "reviewRound": "2026-08-21T08:03:56.673Z",
+      "reviewRunId": "B-5a88:RR-204",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "58d65299ee9a76accb7fbfc484f7c7c93ce2529459072ac41f8d05cde008163f",
+      "files": [
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/topology-critic-receipt.ts",
+        "packages/main/src/handlers/proofstory.ts"
+      ],
+      "signatureTag": "missing|ts|topology-completeness-review",
+      "signatureTagSource": "auto"
     }
   ]
 }

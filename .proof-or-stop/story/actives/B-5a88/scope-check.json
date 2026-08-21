@@ -1,287 +1,372 @@
 {
   "storyId": "B-5a88",
-  "checkedAt": "2026-08-20T05:15:27.849Z",
+  "checkedAt": "2026-08-21T15:24:50.558Z",
   "features": [
     {
-      "feature": "User-visible reviewer_list emits proof-or-stop-review-* canonical lanes.",
+      "feature": "Canonical proof-or-stop role IDs are emitted for all canonical prompt roles and the verification-intent dispatch role.",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
-      "source": "description/checklist/plan"
+      "source": "decisions:proof-or-stop-agent-prompt-consolidation-execution-plan.md"
     },
     {
-      "feature": "A persisted lattice-review-* run is normalized to the matching canonical reviewer lane without changing historical evidence bytes.",
+      "feature": "Exact lattice-* and formerly unprefixed role aliases remain readable for historical and in-flight evidence; unknown role spellings fail closed.",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
-      "source": "description/checklist/plan"
+      "source": "decisions:proof-or-stop-identity-migration.md"
     },
     {
-      "feature": "New review_run_start, finding_add, review_pass_set, and init_check_set evidence writes use canonical proof-or-stop-* role IDs.",
+      "feature": "Role normalization covers review-run lanes, reviewer classification, INIT required agents, finding/review-pass writes, quorum, delivery/floor readers, and process-fact readers.",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
-      "source": "checklist/plan"
+      "source": "decisions:proof-or-stop-agent-prompt-consolidation-execution-plan.md"
     },
     {
-      "feature": "All 16 canonical role IDs, including the four formerly unprefixed roles, are represented in template filenames/frontmatter, prompt registry records, host shims, Codex manifests, and dispatch resolution.",
+      "feature": "Template filenames/frontmatter and prompt registry records use canonical role IDs.",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
-      "source": "checklist/plan"
+      "source": "decisions:proof-or-stop-agent-prompt-consolidation-execution-plan.md"
     },
     {
-      "feature": "agent_prompt resolves a canonical role body and gives a precise legacy-alias warning or replacement for old role IDs.",
+      "feature": "agent_prompt resolution, host shims, and Codex/Claude/Antigravity manifests resolve canonical roles and identify legacy aliases.",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
-      "source": "checklist/plan"
+      "source": "decisions:proof-or-stop-agent-prompt-consolidation-execution-plan.md"
     },
     {
-      "feature": "delivery_check_set plus delivery/floor consumers write and read canonical role IDs with legacy compatibility.",
+      "feature": "Role alias sunset is machine-defined: legacy writes stop, terminal evidence remains readable during its reference window, and removal requires the documented non-terminal-reference condition.",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
-      "source": "plan M0.5/checklist context"
+      "source": "decisions:proof-or-stop-agent-prompt-consolidation-execution-plan.md"
     },
     {
-      "feature": "Process-fact registry and its contract verifier normalize canonical and legacy role IDs.",
+      "feature": "Role migration has canonical/legacy golden and contract coverage.",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
-      "source": "checklist/plan"
+      "source": "decisions:proof-or-stop-agent-prompt-consolidation-execution-plan.md"
     },
     {
-      "feature": "Codex, Claude Code, and Antigravity host resolution has golden coverage for the same canonical role IDs.",
-      "covered_by": "CHK-001",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "checklist/plan"
-    },
-    {
-      "feature": "Legacy role alias sunset is machine-defined: terminal evidence remains readable, new legacy writes stop, and removal has a non-terminal-reference plus two-release condition.",
-      "covered_by": "CHK-001",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "checklist/plan"
-    },
-    {
-      "feature": "A malformed or non-reviewer role cannot enter a reviewer lane merely by containing a canonical or legacy prefix.",
-      "covered_by": "CHK-001",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "checklist verificationIntent"
-    },
-    {
-      "feature": "New managed files and init --upgrade emit proof-or-stop:start/end markers.",
+      "feature": "Managed-block writers emit proof-or-stop start/end marker families.",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
-      "source": "checklist/plan"
+      "source": "decisions:proof-or-stop-identity-migration.md"
     },
     {
-      "feature": "Readers locate existing lattice:start/end blocks and replace them in place without duplication or orphaning.",
+      "feature": "Managed-block readers dual-read exact lattice markers and upgrade existing blocks in place without duplicate blocks.",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
-      "source": "checklist/plan/OQ-001"
+      "source": "decisions:brand-rename-mapping.md"
     },
     {
-      "feature": "Mismatched or nested managed markers are rejected or left unchanged rather than destructively rewritten.",
+      "feature": "Mixed, mismatched, or malformed managed markers fail closed.",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
-      "source": "checklist verificationIntent"
+      "source": "decisions:brand-rename-mapping.md"
     },
     {
-      "feature": "Every in-scope new artifact writer uses proof-or-stop.* while preserving the schema suffix and version.",
+      "feature": "New gate-consumed artifact writers use proof-or-stop schema prefixes while preserving suffix and version.",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
-      "source": "checklist/plan"
+      "source": "decisions:proof-or-stop-identity-migration.md"
     },
     {
-      "feature": "Artifact readers accept corresponding lattice.* schemas and retain existing integrity and freshness validation.",
+      "feature": "Artifact readers accept exact lattice schema aliases while preserving integrity, freshness, and archived-byte behavior.",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
-      "source": "checklist/plan"
+      "source": "decisions:brand-rename-mapping.md"
     },
     {
-      "feature": "Unknown artifact prefix, suffix, or version is rejected and archived story JSON is never rewritten.",
+      "feature": "The schema migration has a complete writer/reader/freshness/process-fact/residue matrix, including done-required and closeout receipts.",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
-      "source": "checklist verificationIntent/plan"
+      "source": "decisions:proof-or-stop-agent-prompt-consolidation-execution-plan.md"
     },
     {
-      "feature": "A complete schema/writer/reader/freshness matrix exists for every gate-consumed artifact and its process-fact/residue contract.",
+      "feature": "Two named archived stories from different eras remain CLI-readable and historically signed without rewriting their JSON.",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
-      "source": "plan CHK-003/verification order"
+      "source": "decisions:proof-or-stop-identity-migration.md"
     },
     {
-      "feature": "Two named archived stories from different eras are read and their historical signatures verify after the migration.",
-      "covered_by": "CHK-003",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "checklist/plan"
+      "feature": "Signature salts remain byte-for-byte frozen because they participate in persisted historical signatures.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "brand-rename-mapping.md:150-164; proof-or-stop-identity-migration.md:11-17",
+      "source": "decisions:brand-rename-mapping.md"
     },
     {
-      "feature": "New release approvals use proof-or-stop.remote-push-approval.v1 and are accepted by the hook.",
+      "feature": "Archived story body text and historical evidence bytes remain untouched.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "brand-rename-mapping.md:129; proof-or-stop-identity-migration.md:14-17",
+      "source": "decisions:brand-rename-mapping.md"
+    },
+    {
+      "feature": "Remote-push approvals write proof-or-stop.remote-push-approval.v1.",
       "covered_by": "CHK-004",
       "status": "covered",
       "excluded_by": null,
-      "source": "checklist/plan/OQ-001"
+      "source": "decisions:proof-or-stop-identity-migration.md"
     },
     {
-      "feature": "Old lattice.remote-push-approval.v1 remains readable during the window; stale or invalid approvals fail closed and a valid approval is consumed only once.",
+      "feature": "The CLI and pre-push hook dual-read the exact legacy approval schema and preserve one-shot, stale, hash, ref, remote, and invalid-input rejection.",
       "covered_by": "CHK-004",
       "status": "covered",
       "excluded_by": null,
-      "source": "checklist/plan/OQ-001"
+      "source": "decisions:brand-rename-mapping.md"
     },
     {
-      "feature": "Root package.json and root lockfile identity entries become proof-or-stop with synchronized versions.",
+      "feature": "The root workspace package and lockfile write proof-or-stop as the package identity.",
       "covered_by": "CHK-005",
       "status": "covered",
       "excluded_by": null,
-      "source": "checklist/plan/OQ-002"
+      "source": "decisions:proof-or-stop-identity-migration.md"
     },
     {
-      "feature": "proof-or-stop --version visibly reports Proof-or-Stop rather than a legacy product name.",
+      "feature": "Root self-host and exact-name consumers retain bounded legacy reads while canonical version identity remains synchronized.",
       "covered_by": "CHK-005",
       "status": "covered",
       "excluded_by": null,
-      "source": "checklist/plan"
+      "source": "decisions:proof-or-stop-identity-migration.md"
     },
     {
-      "feature": "Self-host detection accepts the canonical package identity without silently bypassing the safety gate.",
+      "feature": "proof-or-stop --version reports the Proof-or-Stop product name rather than a legacy product name.",
       "covered_by": "CHK-005",
       "status": "covered",
       "excluded_by": null,
-      "source": "checklist/plan"
+      "source": "decisions:brand-rename-mapping.md"
     },
     {
-      "feature": "@proof-or-stop/utils and @proof-or-stop/lab metadata, lockfiles, dependency edges, and imports form a resolvable package graph.",
+      "feature": "Sibling package manifests, lockfiles, dependency edges, and source-facing references use @proof-or-stop/utils and @proof-or-stop/lab.",
       "covered_by": "CHK-006",
       "status": "covered",
       "excluded_by": null,
-      "source": "checklist/plan/OQ-002"
+      "source": "decisions:brand-rename-mapping.md"
     },
     {
-      "feature": "The global lab entrypoint resolves canonical sibling packages and no exact-name consumer leaves a mixed old/new graph.",
+      "feature": "Deprecated sibling package names are not published as alias packages or treated as a new runtime write identity.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "proof-or-stop-identity-migration.md:190-194",
+      "source": "decisions:proof-or-stop-identity-migration.md"
+    },
+    {
+      "feature": "The global lab entrypoint and package graph resolve the canonical sibling names.",
       "covered_by": "CHK-006",
       "status": "covered",
       "excluded_by": null,
-      "source": "checklist/plan"
+      "source": "decisions:proof-or-stop-identity-migration.md"
     },
     {
-      "feature": "The installed main package exposes proof-or-stop and omits the lattice bin alias.",
+      "feature": "The packages/main lattice bin alias is removed while proof-or-stop remains the supported bin.",
       "covered_by": "CHK-007",
       "status": "covered",
       "excluded_by": null,
-      "source": "checklist/plan"
+      "source": "decisions:proof-or-stop-identity-migration.md"
     },
     {
-      "feature": "Help, entrypoint, residue, and generated invocation checks reject unsupported lattice command aliases while preserving explicit compatibility readers.",
+      "feature": "Entrypoint, help, residue, and Codex asset verification do not advertise the removed lattice bin and reject reintroduction.",
       "covered_by": "CHK-007",
       "status": "covered",
       "excluded_by": null,
-      "source": "checklist/plan"
+      "source": "decisions:brand-rename-mapping.md"
     },
     {
-      "feature": "The removed bin aliases are announced in CHANGELOG.md as required by the identity-migration decision.",
-      "covered_by": null,
-      "status": "excluded",
-      "excluded_by": "OQ-003 resolution and current plan/checklist explicitly exclude CHANGELOG.md from this story",
-      "source": "OQ-003/plan"
-    },
-    {
-      "feature": "Active root entrypoints and prompt guidance stop teaching stale lattice role, marker, package, and command forms while preserving clearly labeled compatibility text.",
-      "covered_by": null,
-      "status": "excluded",
-      "excluded_by": "execution-boundary allowedPaths exclude root Markdown; current checklist targets runtime/template assets and does not authorize root-entrypoint edits",
-      "source": "scope-boundary/checklist files"
-    },
-    {
-      "feature": "Existing root and sibling lattice package names remain resolvable for teammate branches as a durable bilingual npm contract.",
-      "covered_by": null,
-      "status": "excluded",
-      "excluded_by": "OQ-002 resolution explicitly excludes old npm publication aliases; canonical root/sibling identities and required in-repo reads are covered by CHK-005/CHK-006",
-      "source": "OQ-002/checklist"
-    },
-    {
-      "feature": "Archived story/evidence JSON, historical bytes, and signature salts are not rewritten.",
-      "covered_by": null,
-      "status": "excluded",
-      "excluded_by": "current plan and understanding explicitly preserve archived story bytes and signature salts",
-      "source": "plan/understanding"
-    },
-    {
-      "feature": "docs/story and tests/fixtures are not directly modified.",
-      "covered_by": null,
-      "status": "excluded",
-      "excluded_by": "scope-boundary and understanding constraints explicitly exclude these paths",
-      "source": "scope-boundary/understanding"
-    },
-    {
-      "feature": "CHANGELOG.md is not modified as historical release history.",
-      "covered_by": null,
-      "status": "excluded",
-      "excluded_by": "OQ-003 resolution and current plan explicitly exclude CHANGELOG.md",
-      "source": "OQ-003/plan"
-    },
-    {
-      "feature": "Remote push, destructive cleanup, and unrelated dirty-worktree files remain out of scope.",
-      "covered_by": null,
-      "status": "excluded",
-      "excluded_by": "execution-boundary excluded commands/tools and understanding/plan constraints",
-      "source": "execution-boundary/understanding"
-    },
-    {
-      "feature": "Canonical role migration is owned by this story versus the prior frozen-role decision and the larger agent-consolidation plan.",
+      "feature": "Active prompts, docs, root entrypoints, and guidance stop teaching retired role, marker, package, and command forms except clearly labeled compatibility text.",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
-      "source": "checklist/plan/OQ-001 role-scope resolution"
+      "source": "decisions:proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+    },
+    {
+      "feature": "The removed bin aliases are announced in CHANGELOG.md as the migration decision requires.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "brand-rename-mapping.md:137,213-214; proof-or-stop-identity-migration.md:198",
+      "source": "decisions:proof-or-stop-identity-migration.md"
+    },
+    {
+      "feature": "The distinct ProofStory domain concept remains byte-for-byte preserved rather than treated as a brand alias.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "brand-rename-mapping.md:140,228-243",
+      "source": "decisions:brand-rename-mapping.md"
     }
   ],
   "readManifest": {
     "filesReadFully": [
-      ".proof-or-stop/story/actives/B-5a88/background.md",
-      ".proof-or-stop/story/actives/B-5a88/checklist.json",
-      ".proof-or-stop/story/actives/B-5a88/decision.json",
-      ".proof-or-stop/story/actives/B-5a88/execution-boundary.json",
-      ".proof-or-stop/story/actives/B-5a88/index.json",
-      ".proof-or-stop/story/actives/B-5a88/plan.md",
-      ".proof-or-stop/story/actives/B-5a88/process-events.jsonl",
-      ".proof-or-stop/story/actives/B-5a88/review.json",
-      ".proof-or-stop/story/actives/B-5a88/scope-boundary.json",
-      ".proof-or-stop/story/actives/B-5a88/scope-check.json",
-      ".proof-or-stop/story/actives/B-5a88/scope-freeze-check.json",
-      ".proof-or-stop/story/actives/B-5a88/understanding.json",
       "docs/requirements/decisions/brand-rename-mapping.md",
-      "docs/requirements/decisions/legacy-to-lattice-role-naming-execution-plan.md",
       "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
-      "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+      "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+    ],
+    "filesTriagedByName": [
+      "docs/requirements/decisions/annotation-system.md",
+      "docs/requirements/decisions/authority-client-role.md",
+      "docs/requirements/decisions/authority-done-material-overlap-audit-cli-fix.md",
+      "docs/requirements/decisions/authority-receipt-cross-repo-live-smoke.md",
+      "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+      "docs/requirements/decisions/authority-runner-session-evidence-envelope.md",
+      "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
+      "docs/requirements/decisions/authority-session-receipt-gate-execution.md",
+      "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+      "docs/requirements/decisions/bounded-document-context-scaling-execution-plan.md",
+      "docs/requirements/decisions/cc-learnings.md",
+      "docs/requirements/decisions/cell06-docker-server-execution-checklist.md",
+      "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+      "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+      "docs/requirements/decisions/cli-engine-english-translation-manifest.md",
+      "docs/requirements/decisions/cli-engine-modularization-execution-plan.md",
+      "docs/requirements/decisions/closeout-convergence-and-burn-alert-root-cause.md",
+      "docs/requirements/decisions/complex-role-modular-recall-recovery-execution-plan.md",
+      "docs/requirements/decisions/control-plane-proof-capability-closure-audit.md",
+      "docs/requirements/decisions/decision-doc-promotion-execution-plan.md",
+      "docs/requirements/decisions/dev-memory.md",
+      "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+      "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+      "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+      "docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md",
+      "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+      "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+      "docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md",
+      "docs/requirements/decisions/f009-gap-analyze-high-gaps-execution-plan.md",
+      "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
+      "docs/requirements/decisions/formal-unlock-artifact-isolation-execution-plan.md",
+      "docs/requirements/decisions/framework.md",
+      "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+      "docs/requirements/decisions/host-neutral-observability-console.md",
+      "docs/requirements/decisions/host-overflow.md",
+      "docs/requirements/decisions/language-neutral-gates-execution-plan.md",
+      "docs/requirements/decisions/lattice-authority-customer-api-key-access.md",
+      "docs/requirements/decisions/lattice-authority-live-integration.md",
+      "docs/requirements/decisions/lattice-authority-m1-m16-generated-proof-and-live-e2e.md",
+      "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+      "docs/requirements/decisions/lattice-authority-remote-evidence-bundle.md",
+      "docs/requirements/decisions/lattice-baseline-two-host-multi-agent-execution-plan.md",
+      "docs/requirements/decisions/lattice-cli-authority-client-receipt-ref.md",
+      "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
+      "docs/requirements/decisions/lattice-console-demo-mvp-requirements.md",
+      "docs/requirements/decisions/lattice-experience-layer-effectiveness-record.md",
+      "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+      "docs/requirements/decisions/lattice-experiment-protocol.md",
+      "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+      "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+      "docs/requirements/decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md",
+      "docs/requirements/decisions/lattice-parallel-wave.md",
+      "docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md",
+      "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+      "docs/requirements/decisions/lattice-unattended-completion-plan.md",
+      "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+      "docs/requirements/decisions/legacy-to-lattice-role-naming-execution-plan.md",
+      "docs/requirements/decisions/lifecycle-artifact-scope.md",
+      "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+      "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md",
+      "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+      "docs/requirements/decisions/milestone-not-applicable-justification.md",
+      "docs/requirements/decisions/milestone-status-done-gate-reconciliation.md",
+      "docs/requirements/decisions/milestone-triggered-gate-mode-default-decision.md",
+      "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
+      "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
+      "docs/requirements/decisions/multi-model-ablation-replication.md",
+      "docs/requirements/decisions/orchestrate-retirement.md",
+      "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+      "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+      "docs/requirements/decisions/plan-init-reopen.md",
+      "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md",
+      "docs/requirements/decisions/playbook-memory-performance-index-optimization-plan.md",
+      "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+      "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+      "docs/requirements/decisions/pos-agent-drivability-optimization.md",
+      "docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md",
+      "docs/requirements/decisions/product-capability-release-playbook-lineage-execution-plan.md",
+      "docs/requirements/decisions/project-vision.md",
+      "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+      "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+      "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+      "docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md",
+      "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+      "docs/requirements/decisions/repro-first-gate-enforce-execution-plan.md",
+      "docs/requirements/decisions/repro-first-story-intake-experiment.md",
+      "docs/requirements/decisions/resolve-gap-analyze-three-high-gaps-execution-plan.md",
+      "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+      "docs/requirements/decisions/review-run-binding-race.md",
+      "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md",
+      "docs/requirements/decisions/review-run-start-workspace-diagnostics-execution-plan.md",
+      "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+      "docs/requirements/decisions/role-separation.md",
       "docs/requirements/decisions/root-document-migration-guide.md",
       "docs/requirements/decisions/root-markdown-migration-execution-solution.md",
-      "docs/requirements/decisions/story-files-hash-material-drift.md"
+      "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+      "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+      "docs/requirements/decisions/session-ownership-and-write-leases.md",
+      "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md",
+      "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+      "docs/requirements/decisions/stack-layering.md",
+      "docs/requirements/decisions/stash-split-execution-plan.md",
+      "docs/requirements/decisions/story-files-hash-material-drift.md",
+      "docs/requirements/decisions/story-lifecycle.md",
+      "docs/requirements/decisions/test-fixture-spec.md",
+      "docs/requirements/decisions/test-intent-review.md",
+      "docs/requirements/decisions/test-runner-consolidation-plan.md",
+      "docs/requirements/decisions/testing-completeness.md",
+      "docs/requirements/decisions/testing-infra.md",
+      "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+      "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
+      "docs/requirements/decisions/tier-c-crosshost-quorum-threat-model.md",
+      "docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+      "docs/requirements/decisions/truth-source.md",
+      "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md",
+      "docs/requirements/decisions/unlock-layer2-ENG-suite.md",
+      "docs/requirements/decisions/unlock-layer3-loop-engineering-suite.md",
+      "docs/requirements/decisions/unlock-layer3-real-execution-udm-baseline.md",
+      "docs/requirements/decisions/unlock-layer4-production-safety-suite.md",
+      "docs/requirements/decisions/usage-ledger-prototype-pollution-hardening.md",
+      "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+      "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+      "docs/requirements/decisions/verification-context-pack.md",
+      "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
     ],
-    "filesTriagedByName": [],
     "scanEscalationReason": null
   },
   "summary": {
-    "total": 35,
-    "covered": 28,
-    "excluded": 7,
+    "total": 29,
+    "covered": 24,
+    "excluded": 5,
     "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
-  "reviewRound": "",
-  "_hash": "4a312c6706404b97984a15c59ba469c4f78021504e3a377021004d18bada97d0",
-  "openQuestions": []
+  "reviewRound": "2026-08-21T08:03:56.673Z",
+  "_hash": "0f4f207c22bc3b0360ad86b9afa409fcf49160f76df8aac3bb067c9ff408698f",
+  "openQuestions": [
+    {
+      "id": "OQ-001",
+      "q": "Should the removed bin aliases be announced in CHANGELOG.md, or is CHANGELOG.md frozen and explicitly excluded from B-5a88?",
+      "evidence": "proof-or-stop-identity-migration.md requires a CHANGELOG announcement for immediate bin removal at lines 66-73, while the same decision later says CHANGELOG.md is untouched at line 198 and brand-rename-mapping.md marks it frozen and path-blocked at lines 137 and 213-214.",
+      "sourcePointers": [
+        "docs/requirements/decisions/brand-rename-mapping.md",
+        "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+        "CHK-006"
+      ],
+      "resolution": "The removed bin aliases are outside B-5a88: CHK-006 covers sibling package identities, while the active brand mapping explicitly freezes CHANGELOG.md as historical release data. Keep CHANGELOG.md untouched and rely on the prior migration decision and README compatibility note as the existing announcement record.",
+      "resolvedAt": "2026-08-21T15:26:33.899Z"
+    }
+  ]
 }
