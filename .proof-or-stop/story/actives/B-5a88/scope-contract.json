@@ -730,10 +730,28 @@
       "anchors": [
         "canonical_test_intent_handoff"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "These paths are required to validate the migrated verificationIntent prompt contract, keep the clean-checkout profile verifier buildable, and preserve lab confirmation boundaries exposed by the Round 24 review findings.",
+      "timestamp": "2026-08-21T08:02:26.513Z",
+      "paths": [
+        "packages/lab/src/profiles/test-intent-prompt-quality-v1.ts",
+        "scripts/verify-test-intent-prompt-profile.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/lab/src/profiles/test-intent-prompt-quality-v1.ts",
+        "scripts/verify-test-intent-prompt-profile.mjs"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "c02d8d9ca9988d17b83a701ccbb124bce7fb55eb",
+      "materialHash": "dda982279ee9eb8a91ae95427d96a5c8e3c404635e46364756556cf7faf91a02"
     }
   ],
   "createdAt": "2026-08-20T05:20:00.402Z",
-  "updatedAt": "2026-08-21T05:43:09.530Z",
+  "updatedAt": "2026-08-21T08:02:26.513Z",
   "fileRules": [],
   "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
@@ -902,6 +920,7 @@
     "packages/main/src/tasks/proof-admissibility-smoke.ts": "packages/main/src/tasks/proof-admissibility-smoke.ts",
     "packages/main/src/handlers/testintent-handoff.ts": "packages/main/src/handlers/testintent-handoff.ts",
     "scripts/verify-testintent-handoff.mjs": "scripts/verify-testintent-handoff.mjs",
-    "packages/main/src/tasks/testintent-handoff-smoke.ts": "packages/main/src/tasks/testintent-handoff-smoke.ts"
+    "packages/main/src/tasks/testintent-handoff-smoke.ts": "packages/main/src/tasks/testintent-handoff-smoke.ts",
+    "packages/lab/src/profiles/test-intent-prompt-quality-v1.ts": "packages/lab/src/profiles/test-intent-prompt-quality-v1.ts"
   }
 }
