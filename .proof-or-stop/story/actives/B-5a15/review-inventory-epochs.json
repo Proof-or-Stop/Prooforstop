@@ -1038,6 +1038,49 @@
       "cancelReason": "Topology closeout retention rejected the current critic artifact while scope refresh made the acceptance basis stale; cancel this epoch to regenerate the signed basis before retrying review.",
       "terminalRunSequenceBoundary": 180,
       "_hash": "fe85c061fb28a445133b6d9e60db7fd33bc615a3aab3caeddd52baec95e34d18"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-5a15:RI-011",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-21T17:48:55.675Z",
+      "state": "OPEN",
+      "begunAt": "2026-08-21T19:01:44.787Z",
+      "updatedAt": "2026-08-21T19:01:44.787Z",
+      "cutoff": {
+        "headHash": "44b421ada3e61a8832657990dbed605597227d71",
+        "materialHash": "853d5eb4322ecb6d3ba9b94131ecab4e76ac0b8a2e77f47f24a2c39fc04ac775",
+        "storyFilesHash": "01a95005cb46a073e03805e42aef1925a31b87ed2f3d0b43e4378a5e2f1f1406"
+      },
+      "scopeDigest": "2973bf65af4397eb798597f98a674e11c250d5258a7843a01694a091802fdfe0",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage"
+      ],
+      "initialRunSequenceBoundary": 180,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [
+        "B-5a15:F-081",
+        "B-5a15:F-083",
+        "B-5a15:F-084",
+        "B-5a15:F-085",
+        "B-5a15:F-086",
+        "B-5a15:F-087",
+        "B-5a15:F-088",
+        "B-5a15:F-089",
+        "B-5a15:F-090",
+        "B-5a15:F-091",
+        "B-5a15:F-092",
+        "B-5a15:F-093",
+        "B-5a15:F-094",
+        "B-5a15:F-095",
+        "B-5a15:F-096",
+        "B-5a15:F-097",
+        "B-5a15:F-098"
+      ],
+      "_hash": "5bf5446a4659267b273ca496075c5c947cfc37a5587b7356cfb9a4124b79b3d4"
     }
   ],
   "receipts": [
