@@ -4384,6 +4384,169 @@
       ],
       "signatureTag": "missing|md|canonical-missing-artifact",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-107",
+      "desc": "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md:136 [critical] documents node packages/main/dist/tasks/verifier-causal-preflight-smoke.js, but the exact command exits MODULE_NOT_FOUND and neither packages/main/src/tasks/verifier-causal-preflight-smoke.ts nor the corresponding dist artifact exists. The only matching test is packages/main/tests/verifier-causal-preflight.test.mjs, which exercises existing verifier modules but does not provide the documented smoke entrypoint. This leaves the CHK-004 verifier-owned acceptance command unexecutable and confirms the canonical missing-artifact family remains open.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T19:36:48.857Z",
+      "reviewRound": "2026-08-21T17:48:55.675Z",
+      "reviewRunId": "B-5a15:RR-193",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a15/scope-contract.json",
+          "packages/main/tests/verifier-causal-preflight.test.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "packages/main/dist/tasks/verifier-causal-preflight-smoke.js",
+          "packages/main/src/tasks/verifier-causal-preflight-smoke.ts"
+        ],
+        "scanEscalationReason": "The exact documented command was executed and the acknowledged source/build paths were enumerated; full decisions-directory escalation was not required."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "b97c2ecd4a78e45fef855a888ade497e186625567e8224c73f26358097fd48c3"
+      },
+      "readDiagnostics": [],
+      "_hash": "26a43f1c0b0a12ecb6971e84592f82c66afa78f82c16fb40cede465ef1b7ffc0",
+      "files": [
+        "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md:136",
+        "packages/main/src/tasks/verifier-causal-preflight-smoke.ts",
+        "packages/main/dist/tasks/verifier-causal-preflight-smoke.js",
+        "packages/main/tests/verifier-causal-preflight.test.mjs"
+      ],
+      "signatureTag": "verifier-causal-preflight-missing-artifact-family",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a15:F-108",
+      "desc": "Canonical missing-artifact family remains verified: docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md:136 documents node packages/main/dist/tasks/verifier-causal-preflight-smoke.js, but the acknowledged source packages/main/src/tasks/verifier-causal-preflight-smoke.ts and corresponding built artifact are absent. Reproducing the exact command exits MODULE_NOT_FOUND, so the CHK-004 verifier-owned smoke contract is not executable and cannot provide admissible acceptance evidence.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-21T19:36:52.475Z",
+      "reviewRound": "2026-08-21T17:48:55.675Z",
+      "reviewRunId": "B-5a15:RR-192",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "packages/main/tests/verifier-causal-preflight.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a15/review-inventory-epochs.json",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/dist/tasks/verifier-causal-preflight-smoke.js",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/verifier-causal-preflight-smoke.ts"
+        ],
+        "scanEscalationReason": "The exact documented command was executed and the acknowledged source/build paths were enumerated; the missing-artifact family was directly verified."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "ddbdfc17633ff27afb5d1246815963c558c34c8789abe3ca00f6f8b280128b08"
+      },
+      "readDiagnostics": [],
+      "_hash": "5f07c70f6b8974b229b979581628475b1af05e7ee29c4f106996f723a672cb68",
+      "files": [
+        "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md:136",
+        "packages/main/src/tasks/verifier-causal-preflight-smoke.ts",
+        "packages/main/dist/tasks/verifier-causal-preflight-smoke.js",
+        "packages/main/tests/verifier-causal-preflight.test.mjs",
+        ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a15/pre-review-check.json"
+      ],
+      "signatureTag": "verifier-causal-preflight-missing-artifact-family",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a15:F-109",
+      "desc": "Canonical missing verifier smoke finding remains verified: docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md:136 documents node packages/main/dist/tasks/verifier-causal-preflight-smoke.js, but packages/main/src/tasks/verifier-causal-preflight-smoke.ts and the corresponding dist artifact are absent. The exact documented command exits MODULE_NOT_FOUND. The 50/50 verification-intent evidence and full 3x2 rollout do not provide this verifier-owned executable coverage, so the acceptance contract remains incomplete.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-21T19:37:21.113Z",
+      "reviewRound": "2026-08-21T17:48:55.675Z",
+      "reviewRunId": "B-5a15:RR-194",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a15/review-inventory-epochs.json",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 8,
+          "tokenCount": null
+        },
+        "digest": "875430603460af4694a651a2691fdefd5eb53da8227d0ae755c964d58adc34a1"
+      },
+      "readDiagnostics": [],
+      "_hash": "96ba3decd2a8879883653ee986ad6ac4fd3871c4149ab8c220d4e0219613d930",
+      "files": [
+        "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+        "packages/main/src/tasks/verifier-causal-preflight-smoke.ts",
+        "packages/main/dist/tasks/verifier-causal-preflight-smoke.js",
+        "packages/main/tests/verifier-causal-preflight.test.mjs"
+      ],
+      "signatureTag": "missing|md|canonical-missing-verifier",
+      "signatureTagSource": "auto"
     }
   ]
 }
