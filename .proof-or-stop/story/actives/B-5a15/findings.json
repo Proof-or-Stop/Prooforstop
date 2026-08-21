@@ -1542,6 +1542,44 @@
       ],
       "signatureTag": "missing|json|test-evidence-json",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-050",
+      "desc": "Wave-4 verifier-owned concept chain is not clean: .proof-or-stop/story/actives/B-5a15/acceptance-basis.json:1 — acceptance_topology_check reports AT_SCOPE_BINDING_MISSING (scope-contract digest mismatch); .proof-or-stop/story/actives/B-5a15/pre-review-check.json:1 — pre_review_check_read reports PR_ARTIFACT_TAMPERED; .proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json:1 — acceptance_rollout_report_read and acceptance_rollout_check report AR_REPORT_STALE, receipt=stale, promotionEligible=false. Reissue the verifier-owned artifacts through the Proof-or-Stop commands before accepting this review.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-21T09:12:23.504Z",
+      "reviewRound": "2026-08-21T09:09:51.859Z",
+      "reviewRunId": "B-5a15:RR-100",
+      "_hash": "f5fa2d44920888e1726ed33eb5cd475618000fad35eded9982f4788c0dd93be9",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json"
+      ],
+      "signatureTag": "missing|json|wave-verifier-owned",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-051",
+      "desc": "pre-review-check.json:1 — current signed review prerequisites are not admissible: pre_review_check_read returns PR_ARTIFACT_TAMPERED and acceptance_rollout_check returns AR_REPORT_STALE; evidence_inspect also reports freshness=stale with staleRefs=1 and receiptRefs=0 unverified. Reissue the pre-review artifact through proof-or-stop pre_review_check and refresh the stale rollout/evidence artifacts before passing review.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-21T09:13:12.780Z",
+      "reviewRound": "2026-08-21T09:09:51.859Z",
+      "reviewRunId": "B-5a15:RR-099",
+      "_hash": "125f30be1e2cf07dd341aa53a129ca8ab50063e1783fda9d18ac02bc193b4bb2",
+      "files": [
+        "pre-review-check.json"
+      ],
+      "signatureTag": "missing|json|review-check-json",
+      "signatureTagSource": "auto"
     }
   ]
 }
