@@ -370,7 +370,42 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Observe mode produces a signed provisional manifest while the unchanged complete N-command plan remains authoritative.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run test:dynamic-validation-observe-equivalence",
+              "selector": "observe/full equivalence PASS"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Warm and cold graph timings, closure traces, and unselected reasons are recorded without changing command order, resources, cleanup, or backpressure.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run test:dynamic-validation-trace-isolation",
+              "selector": "isolated observe telemetry PASS"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Observer output, sidecar transport, or tracing cannot alter full-run verdict/order/resource limits; undeclared runtime input invalidates reuse eligibility.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run test:dynamic-validation-observe-mutations",
+              "selector": "observer mutation rejected"
+            }
+          }
+        ]
+      }
     },
     {
       "id": "CHK-007",
