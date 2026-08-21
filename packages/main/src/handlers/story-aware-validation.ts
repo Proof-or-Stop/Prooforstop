@@ -299,6 +299,8 @@ export interface RunStoryAwareValidationArgs extends PrepareStoryAwareValidation
 export interface StoryAwareDynamicRun extends PreparedStoryAwareValidation {
   buildResult: ValidationResult;
   selectedResult: ValidationResult;
+  /** Verdict after accounting for both executed rows and admitted reuse rows. */
+  dynamicAllPass: boolean;
   authority: DynamicAuthorityDecision;
   receipts: ValidationCommandReceipt[];
   runtimeReport: string;
@@ -359,6 +361,13 @@ export async function runStoryAwareDynamicValidation(args: RunStoryAwareValidati
   }
   const selectedResult = combineResults(selectedResults, 'story-aware-dynamic-selected', head);
   const dynamicExecution = combineResults([wave, selectedResult], 'story-aware-dynamic', head);
+  // A reused row has no process result in this invocation, but its signed
+  // receipt was already admitted by the final manifest. Therefore the
+  // complete dynamic verdict is the execution verdict plus the zero-gap
+  // manifest invariant, not selectedResult.allPass alone.
+  const dynamicAllPass = dynamicExecution.allPass
+    && final.manifest.totals.unverified === 0
+    && final.manifest.totals.uncovered === 0;
   const receipts = [...prior.receipts];
   for (const result of [wave, ...selectedResults]) {
     for (const commandResult of result.commands) {
@@ -401,5 +410,5 @@ export async function runStoryAwareDynamicValidation(args: RunStoryAwareValidati
   });
   const runtimeReport = formatDynamicValidationReport({ manifest: final.manifest, authority, durationMs: dynamicExecution.commands.reduce((sum, row) => sum + row.durationMs, 0) });
   persistStoryAwareValidationArtifacts({ projectRoot: args.projectRoot, storyId: args.storyId, manifest: final.manifest, report: runtimeReport, receipts, revocationLedger: final.revocationLedger });
-  return { ...final, buildResult: wave, selectedResult, authority, receipts, runtimeReport };
+  return { ...final, buildResult: wave, selectedResult, dynamicAllPass, authority, receipts, runtimeReport };
 }

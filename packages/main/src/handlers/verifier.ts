@@ -1419,7 +1419,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
               snapshot: built.snapshot, identity: built.identity, reuse, focus,
             });
           }
-          let dynamicPreview: { mode: string; manifest?: unknown; report?: string; authority: 'observe-only' | 'full-plan-oracle' | 'enforce-authority' | 'full-fallback'; selectedCommands?: number; reusedCommands?: number; receipts?: number } | undefined;
+          let dynamicPreview: { mode: string; manifest?: unknown; report?: string; authority: 'observe-only' | 'full-plan-oracle' | 'enforce-authority' | 'full-fallback'; selectedCommands?: number; reusedCommands?: number; receipts?: number; selectedAllPass?: boolean } | undefined;
           // Focused validation is explicitly non-authoritative and may pass a
           // filtered command list; keep dynamic inventory/execution aligned
           // with the complete configured plan only.
@@ -1449,6 +1449,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
                 selectedCommands: dynamic.selectedResult.commands.length + dynamic.buildResult.commands.length,
                 reusedCommands: dynamic.manifest.totals.reused,
                 receipts: dynamic.receipts.length,
+                selectedAllPass: dynamic.dynamicAllPass,
               };
               ctx.log?.(dynamic.runtimeReport);
             } catch (error) {
@@ -1471,7 +1472,16 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             deadlineError: args.deadlineError,
           });
           const dynamicValidation = dynamicPreview
-            ? { ...dynamicPreview, fullPlanAllPass: base.allPass }
+            ? {
+              ...dynamicPreview,
+              fullPlanAllPass: base.allPass,
+              // Observe/shadow remain oracle-authoritative, but record the
+              // verdict comparison so a selection mismatch is visible rather
+              // than silently looking like a successful optimization.
+              verdictEquivalent: dynamicPreview.selectedAllPass === undefined
+                ? undefined
+                : dynamicPreview.selectedAllPass === base.allPass,
+            }
             : undefined;
           const summary = usingConfigured
             ? base.summary
