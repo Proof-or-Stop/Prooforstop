@@ -1,68 +1,68 @@
 {
   "principles": [
-    "先兼容读取再切换 canonical 写入，不能破坏已存在的证据链。",
-    "把 role/schema/marker/package 的 canonical 事实集中到可测试的 choke point，避免散落字符串漂移。",
-    "每个外部边界都要同时验证新行为、旧输入兼容和错误/one-shot 行为。",
-    "只提交 story 范围内的文件，保留其他开发者的 dirty worktree。"
+    "Read legacy inputs before switching canonical writes so existing evidence chains remain valid.",
+    "Centralize canonical role, schema, marker, and package facts at testable choke points to prevent string drift.",
+    "Verify every external boundary for new behavior, legacy-input compatibility, and error or one-shot behavior.",
+    "Commit only Story-scoped files and preserve other developers dirty worktrees."
   ],
   "drivers": [
-    "历史 artifact/signature freshness 与旧 installed project 兼容。",
-    "review/init/quorum/pre-push 等 gate 不能因命名迁移静默失效。",
-    "package 与 lockfile、bin、依赖引用必须作为一个可安装的 registry identity 一致变更。"
+    "Historical artifact and signature freshness must remain compatible with already-installed projects.",
+    "Review, init, quorum, and pre-push gates must not silently fail during the naming migration.",
+    "Package and lockfile metadata, bins, and dependency references must move as one installable registry identity."
   ],
   "options": [
     {
       "name": "A: canonical-write dual-read migration",
       "pros": [
-        "满足 CHK-001..CHK-007 的 proof-or-stop 当前身份目标",
-        "历史 role、marker、schema 和 approval 输入仍可被读取",
-        "可以用集中 aliases 和边界测试限制兼容面"
+        "Meets the current proof-or-stop identity goals in CHK-001 through CHK-007.",
+        "Historical role, marker, schema, and approval inputs remain readable.",
+        "Central aliases and boundary tests constrain the compatibility surface."
       ],
       "cons": [
-        "触及多个 gate 与 package 边界，需完整回归",
-        "旧 package/bin 的既有调用可能需要显式迁移策略"
+        "Touches multiple gate and package boundaries and requires full regression.",
+        "Existing package or bin callers may need an explicit migration strategy."
       ]
     },
     {
       "name": "B: leave package/bin and schemas frozen",
       "pros": [
-        "改动较小，短期不影响旧安装",
-        "减少 lockfile 和 hook 变更"
+        "Smaller change with short-term compatibility for old installations.",
+        "Reduces lockfile and hook changes."
       ],
       "cons": [
-        "直接违背 CHK-003..CHK-007 和用户要求",
-        "proof-or-stop 未来写入仍会产生 lattice identity residue",
-        "无法完成用户可见的 rename"
+        "Directly violates CHK-003 through CHK-007 and the requested migration.",
+        "Future proof-or-stop writes would continue producing lattice identity residue.",
+        "The user-visible rename would remain incomplete."
       ]
     }
   ],
   "chosen": "A: canonical-write dual-read migration",
-  "rationale": "选择 A，因为本 story 的 checklist 已将剩余 package、schema、marker、role 和 bin residue 明确列为必须实现的 canonical migration；兼容性只保留在旧输入和历史读取边界。",
+  "rationale": "Option A is selected because this Story explicitly requires the remaining package, schema, marker, role, and bin residue to migrate to canonical identities; compatibility is retained only at legacy-input and historical-read boundaries.",
   "preMortem": [
     {
-      "scenario": "新 remote approval 写成 proof-or-stop schema，但 hook 仍只认 lattice schema",
-      "trigger": "release_approve_push 后 pre-push 报 approval schema invalid",
-      "consequence": "合法的 main 发布被阻断",
-      "mitigation": "writer、CLI reader、hook 三处共享 schema alias，并测试新旧 schema 与 one-shot consume"
+      "scenario": "A new remote approval uses the proof-or-stop schema while the hook still accepts only the lattice schema.",
+      "trigger": "pre-push reports an invalid approval schema after release_approve_push.",
+      "consequence": "A valid main release is blocked.",
+      "mitigation": "Share schema aliases across the writer, CLI reader, and hook, and test new and legacy schemas plus one-shot consumption."
     },
     {
-      "scenario": "role canonicalization 只改了 registry，review_run 或 quorum 仍按 lattice 前缀硬编码",
-      "trigger": "新 proof-or-stop reviewer run/pass 写入后 reviewer_list 或 gate 看不到该 lane",
-      "consequence": "review evidence 被错误视为缺失或不计入 quorum",
-      "mitigation": "集中 role alias/normalize helper，覆盖 review-run、finding/pass、init-check、quorum 和 prompt dispatch 的新旧输入测试"
+      "scenario": "Role canonicalization changes only the registry while review_run or quorum still hard-codes the lattice prefix.",
+      "trigger": "After a new proof-or-stop reviewer run or pass is written, reviewer_list or the gate cannot see the lane.",
+      "consequence": "Review evidence is treated as missing or excluded from quorum.",
+      "mitigation": "Use one role alias and normalization helper across review-run, finding/pass, init-check, quorum, and prompt dispatch, with new and legacy input tests."
     },
     {
-      "scenario": "marker writer 改名但 reader 不再识别已安装 lattice block",
-      "trigger": "init --upgrade 在旧 CLAUDE.md/AGENTS.md 上重复追加 managed block",
-      "consequence": "用户项目出现重复或孤儿配置",
-      "mitigation": "dual-read boundary test，验证旧 block 原位更新、新文件只写 proof-or-stop markers"
+      "scenario": "The marker writer is renamed but the reader no longer recognizes an installed lattice block.",
+      "trigger": "init --upgrade appends a duplicate managed block to an old CLAUDE.md or AGENTS.md.",
+      "consequence": "The user project contains duplicate or orphaned configuration.",
+      "mitigation": "Use a dual-read boundary test that updates an old block in place and writes only proof-or-stop markers in new files."
     },
     {
-      "scenario": "root/sibling package.json 与 lockfiles 或 in-repo dependencies 不一致",
-      "trigger": "npm install、npm pkg get name 或 global lab entrypoint 失败",
-      "consequence": "包无法解析或 self-host gate 静默失效",
-      "mitigation": "同步所有 package metadata/lockfiles/imports，运行 npm install/build/package identity smoke 与 pre-push detection tests"
+      "scenario": "Root and sibling package metadata, lockfiles, or in-repository dependencies become inconsistent.",
+      "trigger": "npm install, npm pkg get name, or the global lab entrypoint fails.",
+      "consequence": "The package cannot resolve or its self-host gate silently fails.",
+      "mitigation": "Synchronize all package metadata, lockfiles, and imports, then run package identity, build, install, and pre-push detection tests."
     }
   ],
-  "timestamp": "2026-08-20T04:51:04.533Z"
+  "timestamp": "2026-08-21T00:30:55.970Z"
 }
