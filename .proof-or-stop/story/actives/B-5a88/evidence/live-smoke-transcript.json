@@ -2,20 +2,20 @@
   "storyId": "B-5a88",
   "expected": "User sees `\"proof-or-stop-review-quality\"` in reviewer_list output, and a legacy `\"lattice-review-quality\"` record is reported as a compatible alias.",
   "actual": {
-    "command": "node scripts/run-proofstory-pre-review-live-proof.mjs",
+    "command": "node packages/main/dist/cli.js reviewer_list --storyId=B-5a88 --json",
     "exitCode": 0,
-    "stdout": "PROOFSTORY_PRE_REVIEW_PROOF={\"schemaVersion\":\"proofstory.pre_review_executable_proof.v1\",\"storyId\":\"B-5a88\",\"producer\":\"registered-verification-command\",\"verifier\":\"pre-review-check-command-runner\",\"commandDigests\":[\"sha256:e01fec9b2e9d2eb632ed164a7c8b1b6b574bfdeb6dee31fa5fff6e9bb379a0d8\"],\"caseRecordsEncoding\":\"gzip-base64\",\"caseRecords\":\"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\",\"provenance\":{\"runnerPath\":\"scripts/run-proofstory-pre-review-live-proof.mjs\",\"runnerDigest\":\"sha256:e45f9001861defcd91a85f1c8f10df27d24487f95bb80dfd8ed6dde7c6a0f2e9\",\"targetPath\":\"packages/main/dist/tasks/proofstory-pre-review-check-smoke.js\",\"targetDigest\":\"sha256:8c2d5bf3b82401c23c8214080f37c68b29f9f506cadde259e03cd39e7def87b6\",\"buildCommand\":\"npm --prefix packages/main run build\"},\"bindingProofs\":[]}\n",
-    "stderr": "⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n"
+    "stdout": "{\"reviewers\":[{\"name\":\"concept\",\"lane\":\"proof-or-stop-review-concept\",\"legacyAliases\":[\"lattice-review-concept\"],\"reason\":\"baseline\"},{\"name\":\"quality\",\"lane\":\"proof-or-stop-review-quality\",\"legacyAliases\":[\"lattice-review-quality\"],\"reason\":\"baseline\"},{\"name\":\"test-coverage\",\"lane\":\"proof-or-stop-review-test-coverage\",\"legacyAliases\":[\"lattice-review-test-coverage\"],\"reason\":\"baseline\"}]}\n",
+    "stderr": "[0.1s] running reviewer_list...\n[0.1s] reviewer_list done\n"
   },
   "mode": {
     "runCommands": true,
     "writeEvidence": true
   },
-  "capturedAtIso": "2026-08-20T23:45:43.211Z",
+  "capturedAtIso": "2026-08-21T22:05:16.678Z",
   "claims": {
     "authorityDone": false,
     "productionDone": false
   },
-  "headHash": "7658325d1bef8a76069a51f2dfecec271991de3d",
-  "materialHash": "3d97c9e77ea180d64d31a0b408befcfb468eec7be61d882546e89fdd91ab5695"
+  "headHash": "4d4db6bbd17c672e09fee4c6cad9d0588d533604",
+  "materialHash": "c32f8efc7c636cc5c73bdcd425530d1897fd0a91625732a5ac4d3c8520169e3a"
 }
