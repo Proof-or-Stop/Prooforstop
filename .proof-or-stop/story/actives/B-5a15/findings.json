@@ -2765,6 +2765,247 @@
       ],
       "signatureTag": "verifier-owned-acceptance-chain-stale",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a15:F-077",
+      "desc": "packages/main/src/handlers/proofstory.ts:688-769,1052-1071; .proof-or-stop/story/actives/B-5a15/acceptance-basis.json:620-643; .proof-or-stop/story/actives/B-5a15/pre-review-check.json:5-6,739-770,1294-1295; .proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json:8422-8442 [high] — The verifier-owned acceptance chain is not current or admissible for this REVIEW run. ReviewRun B-5a15:RR-154 and current HEAD are 027ccf9, but the signed acceptance basis is bound to HEAD e06b1f1 with scopeContractDigest sha256:a84e13ebdc5fc43ff4b5be4420c72ca4c550a192850a998f9e4e1b596f5264f9, the pre-review artifact uses that same stale basis and cutoff 2026-08-21T15:24:38.999Z, and the rollout PASS is bound to HEAD f4857f4. The read-only consumers at proofstory.ts therefore cannot provide a current signed PASS for acceptance_topology_check -> pre_review_check_read -> acceptance_rollout_report_read/acceptance_rollout_check; focused evidence and the stale full-3x2 rollout cannot substitute. Reissue all verifier-owned artifacts at one current HEAD/materialHash/storyFilesHash/scope binding, then rerun the canonical chain before approving REVIEW.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-21T17:18:23.310Z",
+      "reviewRound": "2026-08-21T15:29:32.809Z",
+      "reviewRunId": "B-5a15:RR-154",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a15/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a15/review-runs.json",
+          ".proof-or-stop/story/actives/B-5a15/scope-contract.json",
+          ".proof-or-stop/story/actives/B-5a15/topology-critic-receipt.json",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/tests/causal-evidence.test.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 8,
+          "tokenCount": null
+        },
+        "digest": "875430603460af4694a651a2691fdefd5eb53da8227d0ae755c964d58adc34a1"
+      },
+      "readDiagnostics": [],
+      "_hash": "b49ae69aa1bfd993087288de44207ec3392f98299cf0e340de92b9755844cdff",
+      "files": [
+        "packages/main/src/handlers/proofstory.ts",
+        "packages/main/src/handlers/transition-orchestrator.ts",
+        "packages/main/src/core/acceptance-rollout.ts",
+        ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json"
+      ],
+      "signatureTag": "verifier-owned-acceptance-chain-current-binding",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a15:F-078",
+      "desc": "Wave-3 coverage review at HEAD 027ccf9ff70fe2b0809baeda4b4facf6a483a283 found 50/50 verification intents mapped one-to-one to 50 passing verificationEvidence rows, including 22 mandatory intents and 0 waivers, but every row is stale: checklist.json verificationEvidence records headHash 5ed667b3d64632e6b7ed4707be7eb3eb9acc4c80 while the current review HEAD is 027ccf9ff70fe2b0809baeda4b4facf6a483a283 (materialHash and storyFilesHash match). The implementation's freshness gate treats a stale headHash as stale evidence (packages/main/src/core/milestone-status.ts:275-320 and packages/main/src/core/proofstory.ts:1927-1972), so no current executable evidence covers any intent. The verifier-owned acceptance chain is independently not admissible: acceptance_topology_check returns status=fail, structuralPass=false, diagnostic AT_SCOPE_BINDING_MISSING for the acceptance-basis scope-contract digest, and pre_review_check_read returns status=fail with PR_ARTIFACT_TAMPERED (packages/main/src/core/pre-review-check.ts:407-433). acceptance_rollout_report_read is pass with current full-3x2 quorum, but rollout evidence cannot substitute for failed topology and pre-review prerequisites. Refresh all 50 verificationEvidence rows and regenerate the verifier-owned basis and pre-review artifacts at one consistent current binding before approving coverage.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-21T17:21:03.421Z",
+      "reviewRound": "2026-08-21T15:29:32.809Z",
+      "reviewRunId": "B-5a15:RR-156",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a15/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a15/scope-check.json",
+          ".proof-or-stop/story/actives/B-5a15/scope-contract.json",
+          ".proof-or-stop/story/actives/B-5a15/test-evidence.json",
+          ".proof-or-stop/story/actives/B-5a15/topology-critic-receipt.json",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/tests/causal-evidence.test.mjs",
+          "packages/main/tests/checklist-causal-preflight-batch.test.mjs",
+          "packages/main/tests/verifier-causal-preflight.test.mjs",
+          "scripts/run-proofstory-pre-review-live-proof.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 10,
+          "tokenCount": null
+        },
+        "digest": "23015033c962a8eb9b4a5341901e6317fa72bc547f53f2c5bf54b1488a244ebd"
+      },
+      "readDiagnostics": [],
+      "_hash": "2b30d3fad20a916faf87b21ac643e872aa6fd08900dbd96300cabb097f721ad7",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/checklist.json",
+        ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+        "packages/main/src/core/milestone-status.ts",
+        "packages/main/src/core/proofstory.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/acceptance-topology.ts"
+      ],
+      "signatureTag": "missing|json|wave-coverage-review",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-079",
+      "desc": "verifier-owned-acceptance-chain-not-admissible: .proof-or-stop/story/actives/B-5a15/acceptance-basis.json:1 — at fresh quality ReviewRun B-5a15:RR-155 (HEAD 027ccf9), acceptance_topology_check returns status=fail and structuralPass=false with AT_SCOPE_BINDING_MISSING because the stored acceptance-basis receipt has a scope-contract digest mismatch; pre_review_check_read independently returns status=fail with PR_ARTIFACT_TAMPERED, matching packages/main/src/core/pre-review-check.ts:407. acceptance_rollout_check reports a rollout PASS, but that diagnostic/rollout receipt cannot substitute for the failed verifier-owned topology and pre-review prerequisites; the transition consumer preserves that authority boundary at packages/main/src/handlers/transition-orchestrator.ts:137-149. Regenerate the acceptance basis and pre-review artifact through the Proof-or-Stop verifier at one consistent current binding, then obtain current signed assurance evidence before approving this review.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T17:21:53.608Z",
+      "reviewRound": "2026-08-21T15:29:32.809Z",
+      "reviewRunId": "B-5a15:RR-155",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a15/review-runs.json",
+          ".proof-or-stop/story/actives/B-5a15/scope-check.json",
+          ".proof-or-stop/story/actives/B-5a15/scope-contract.json",
+          ".proof-or-stop/story/actives/B-5a15/topology-critic-receipt.json",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/context.ts",
+          "packages/main/src/handlers/live-smoke-transcript.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "packages/main/tests/causal-evidence-concurrency.test.mjs",
+          "packages/main/tests/causal-evidence.test.mjs",
+          "packages/main/tests/checklist-causal-preflight-batch.test.mjs",
+          "packages/main/tests/verifier-causal-preflight.test.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 8,
+          "tokenCount": null
+        },
+        "digest": "875430603460af4694a651a2691fdefd5eb53da8227d0ae755c964d58adc34a1"
+      },
+      "readDiagnostics": [],
+      "_hash": "56b818ad7355101a969112d3d29627cfa3faa9436aefc9c75517bbe17f1e1a8f",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/handlers/transition-orchestrator.ts"
+      ],
+      "signatureTag": "verifier-owned-acceptance-chain-stale",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
