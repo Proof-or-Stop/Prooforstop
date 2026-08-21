@@ -314,14 +314,15 @@ for (const candidate of selected) {
 }
 
 const categories = [...new Set(records.map(row => row.category))].sort();
-const fiGraph = buildDualRevisionImpactGraph({ gitCwd: root, baseHead: 'fi-base', head: 'fi-head', catalog });
+const fiReferenceHead = git(['rev-parse', 'HEAD']);
+const fiGraph = buildDualRevisionImpactGraph({ gitCwd: root, baseHead: fiReferenceHead, head: fiReferenceHead, catalog });
 const faultInjection = catalog.flatMap((entry) => {
   const rows: Array<Record<string, unknown>> = [];
   const closure = closures.get(entry.id);
   const fiContext = (changedFiles: StoryChangedFile[], closureSet = closures) => {
-    const changes = buildStoryChangeManifest({ storyId: `B-fi-${entry.id}`, gitCwd: root, baseHead: 'fi-base', head: 'fi-head', changedFiles });
+    const changes = buildStoryChangeManifest({ storyId: `B-fi-${entry.id}`, gitCwd: root, baseHead: fiReferenceHead, head: fiReferenceHead, changedFiles });
     return buildDynamicValidationPlan({
-      storyId: `B-fi-${entry.id}`, baseHead: 'fi-base', head: 'fi-head', inventory, catalog,
+      storyId: `B-fi-${entry.id}`, baseHead: fiReferenceHead, head: fiReferenceHead, inventory, catalog,
       changes, closures: closureSet, baselineEpochId: 'fi-epoch', buildProofDigest: 'fi-build', mode: 'observe', graph: fiGraph, gitCwd: root,
     });
   };
