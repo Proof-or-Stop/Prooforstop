@@ -1577,6 +1577,101 @@
         "scanEscalationReason": null
       },
       "_hash": "1ad8ac9a26e3057398c5fcae5e48295fd68037e8b8082675175e85bdfde90d26"
+    },
+    {
+      "id": "B-5a88:RP-024",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Coverage review passed: 7 checklist items and 21 must verification intents each have passing evidence with zero failing evidence and zero waivers; the required pre-review, topology, rollout, smoke, and diff checks passed with no blocker.",
+      "createdAt": "2026-08-21T00:38:10.607Z",
+      "reviewRound": "2026-08-21T00:31:41.379Z",
+      "reviewRunId": "B-5a88:RR-111",
+      "envelopeId": "33a59dd77e51e34ce5da84394321e9c77cc688ef1d64229fe2cf3797d74e6ed8",
+      "writerSessionId": "sess-62b3a47a5e2724ed6db2f0ba92de042e",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "packages/main/dist/tasks/proofstory-pre-review-check-smoke.js",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "20b850fe3a0cb7127c62189e52681093ccbbf8b8cc30132bcff7eb12db6b6b0b"
+    },
+    {
+      "id": "B-5a88:RP-025",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Reviewed current canonical role and dispatch choke points, focused migration/dispatch smoke, diff hygiene, and verifier-owned acceptance checks; no quality blocker found.",
+      "createdAt": "2026-08-21T00:38:25.070Z",
+      "reviewRound": "2026-08-21T00:31:41.379Z",
+      "reviewRunId": "B-5a88:RR-112",
+      "envelopeId": "2074192d10c962bd1d958d85e85ab8ea9b3e9cc7902caed390f53081ff62dbc6",
+      "writerSessionId": "sess-84e5d27bc09188676b79d573072b9516",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/agent-role-identity.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/lattice-parallel-wave.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/dev-memory.ts",
+          "packages/main/src/handlers/evaluate.ts",
+          "packages/main/src/init-assets.ts",
+          "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+          "packages/main/tests/brand-role-migration.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1cf34beae8ce8e70181788f596dd85c09906a43b2b638a4ddd6d7a25d0334549"
+    },
+    {
+      "id": "B-5a88:RP-026",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Canonical role, managed-marker, package/bin migration review passed; English decision artifact, focused migration tests, and git diff check are clean with no blocker.",
+      "createdAt": "2026-08-21T00:41:12.425Z",
+      "reviewRound": "2026-08-21T00:31:41.379Z",
+      "reviewRunId": "B-5a88:RR-113",
+      "envelopeId": "4e11c03648db5d15f493ae8afd0eb35696b40583b542bb6202107c6dcec5dd1a",
+      "writerSessionId": "sess-aec83de9d693206f94702585456d1099",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/artifact-schema.ts",
+          "packages/main/src/core/managed-markers.ts"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          "package-lock.json",
+          "package.json",
+          "packages/lab/package-lock.json",
+          "packages/lab/package.json",
+          "packages/main/package-lock.json",
+          "packages/main/package.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/help-renderer.ts",
+          "packages/main/tests/bin-alias-migration.test.mjs",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/package-identity-migration.test.mjs",
+          "packages/main/tests/prompt-role-migration.test.mjs",
+          "packages/utils/package-lock.json",
+          "packages/utils/package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e1732ded564168063a91b04600bb9986d9ef07e22f744983b0ee5750a83970c2"
     }
   ]
 }
