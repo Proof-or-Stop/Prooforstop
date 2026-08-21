@@ -4713,7 +4713,7 @@
       "desc": "test-evidence.json:2 and top-level hash fields: the story-wide evidence inspection reports staleRefs=1 because the retained proof-or-stop validate receipt is result=FAIL, pinned to head 900c75c5/material 3d97c9e7/story 5a3601fb, not current HEAD 5baf0a1/material 3953e923/story 4b16941; refresh or explicitly retire this receipt before claiming all pinned receipts are current.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-21T02:44:09.835Z",
@@ -4724,7 +4724,11 @@
         ".proof-or-stop/story/actives/B-5a88/test-evidence.json"
       ],
       "signatureTag": "missing|json|test-evidence-json",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Current evidence_inspect reports staleRefs=[] and freshness status=fresh after the clean-tree elevated proof-or-stop validate --story=B-5a88 --json completed 112/112 configured commands with status=pass and allPass=true. The stale validation receipt no longer blocks coverage.",
+      "resolvedAt": "2026-08-21T03:23:07.968Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
