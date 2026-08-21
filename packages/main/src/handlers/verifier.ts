@@ -1631,7 +1631,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
                   (row.code !== 0 || row.timedOut) && manifest.rows[index] ? [manifest.rows[index]!.commandId] : []),
               },
               instrumentedOrder: selectedOrder,
-              authoritativeOrder: selectedOrder,
+              authoritativeOrder: commandIds,
             });
             dynamicValidation = {
               ...dynamicValidation,

@@ -609,6 +609,19 @@ function receiptAdmissible(receipt: ValidationCommandReceipt | undefined, entry:
   if (receipt.catalogDigest !== stableDigest(ctx.catalog) || receipt.inventoryDigest !== currentInventoryDigest(ctx.inventory)) return false;
   if (ctx.buildProofDigest && receipt.buildProofDigest !== ctx.buildProofDigest) return false;
   if (receipt.sourceBaseHead !== ctx.baseHead || receipt.canonicalBaselineEpochId !== (ctx.baselineEpochId || '')) return false;
+  if (ctx.gitCwd) {
+    const executionEnvironmentDigest = stableDigest({ node: process.version, platform: process.platform, arch: process.arch });
+    if (receipt.executionEnvironmentDigest !== executionEnvironmentDigest) return false;
+  }
+  if (ctx.gitCwd) {
+    try {
+      const status = execFileSync('git', ['status', '--porcelain'], { cwd: ctx.gitCwd, encoding: 'utf8' }).trim();
+      const cleanTreeDigest = stableDigest({ head: ctx.head, storyId: ctx.storyId, status: status ? 'dirty' : 'clean-at-command-start' });
+      if (status || receipt.cleanTreeDigest !== cleanTreeDigest) return false;
+    } catch {
+      return false;
+    }
+  }
   if (entry.assurance === 'full-only' && receipt.producedBy !== 'canonical-full-baseline') return false;
   return isTrustedAncestor(receipt.sourceHead, ctx.head, ctx.gitCwd);
 }
@@ -885,6 +898,7 @@ export function runObserveOracle(args: {
   const selected = new Set(args.manifest.rows.filter(row => row.disposition === 'execute').map(row => row.commandId));
   const failures = args.fullOracle.failedCommandIds || [];
   const falseNegativeCommandIds = failures.filter(id => !selected.has(id));
-  const equivalent = falseNegativeCommandIds.length === 0 && args.instrumentedOrder.join('\0') === args.authoritativeOrder.join('\0');
+  const authoritativeSelectedOrder = args.authoritativeOrder.filter(id => selected.has(id));
+  const equivalent = falseNegativeCommandIds.length === 0 && args.instrumentedOrder.join('\0') === authoritativeSelectedOrder.join('\0');
   return { mode: 'observe', authoritative: false, equivalent, falseNegativeCommandIds, reason: equivalent ? 'observe-only selection agrees with full-plan oracle' : 'observe-only oracle mismatch; retain full authority' };
 }
