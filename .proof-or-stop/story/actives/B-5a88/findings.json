@@ -5386,6 +5386,370 @@
       ],
       "signatureTag": "missing|ts|remains-open-reproduces",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-136",
+      "desc": "packages/main/src/tasks/testintent-handoff-smoke.ts:67 — medium: the maintained handoff smoke still asserts /You are the test-intent agent/ after the handler now emits proof-or-stop-test-intent. The implementation-level verifier passes, but the repository smoke exits nonzero against the current behavior, so F-129 is not test-clean and the stale assertion can mask the canonical-role migration until updated.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T05:22:53.479Z",
+      "reviewRound": "2026-08-21T05:17:02.676Z",
+      "reviewRunId": "B-5a88:RR-154",
+      "_hash": "83c6fd4b444a27e74b9731ef8f2b85537be3eaa64616959756a5509c79a709aa",
+      "signatureTag": "missing|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-137",
+      "desc": "packages/main/src/handlers/testintent-handoff.ts:59-60 and scripts/verify-testintent-handoff.mjs:89 — medium: F-129 canonicalization is only partial. The active handoff now identifies proof-or-stop-test-intent and generates a canonical verificationIntent command, but its prompt still instructs that agent to write legacy testIntent; the smoke test asserts that stale wording, so it cannot catch the mismatch. Update the prompt and regression assertion to use verificationIntent, retaining testIntent only for explicit compatibility reads.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-21T05:24:29.627Z",
+      "reviewRound": "2026-08-21T05:17:02.676Z",
+      "reviewRunId": "B-5a88:RR-155",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/handlers/testintent-handoff.ts",
+          "packages/main/templates/agents/proof-or-stop-review-concept.md",
+          "scripts/verify-testintent-handoff.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/artifact-schema.ts",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "71dc04eb85616df3a210cb0b6b827718685086a90b911565b8a086082077d2a3",
+      "files": [
+        "packages/main/src/handlers/testintent-handoff.ts",
+        "scripts/verify-testintent-handoff.mjs"
+      ],
+      "signatureTag": "missing|ts|packages-main-handlers",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-138",
+      "desc": "Stale validation artifact, distinct from the current checklist receipt bindings: .proof-or-stop/story/actives/B-5a88/test-evidence.json:2,4-8 records PASS at 2026-08-21T03:22:00.298Z with headHash d9f4f638ba73a6af8bad344b03d1a979caf5773d, materialHash 3953e9236797f4c3774c00d69b6b5fe7191190ad1a64875a4c4dee44790fadf6, and storyFilesHash 4b16941a7285fc454761abbc253ef52d85e395e4b2d8d09052e97ad8ef7424eb. RR-156 is bound to current HEAD de9d29b8c4d2832ffd22e4e00bdd481dfa613180, materialHash 17293903fe227d4e75cbaa58d0e325b0cfdab51e1c278e9bbb016a43898974b1, and storyFilesHash da15b5a93c4334512481bcc84f86d7a50f5f623020274ab41b8f43e58da4752d. The current 21 checklist receipts do match the current material/story hashes; this finding is only the stale TEST validation artifact. The required story-scoped validate rerun was owner-blocked by active session sess-8a39253b9d37f31d4e506573af47ce1f, so no fresh validation PASS is claimed.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-21T05:26:07.544Z",
+      "reviewRound": "2026-08-21T05:17:02.676Z",
+      "reviewRunId": "B-5a88:RR-156",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          ".proof-or-stop/story/actives/B-5a88/test-evidence.json",
+          "packages/main/dist/tasks/done-prepare-auto-closeout-smoke.js",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "package-lock.json",
+          "package.json",
+          "packages/lab/package-lock.json",
+          "packages/lab/package.json",
+          "packages/main/package-lock.json",
+          "packages/main/package.json",
+          "packages/main/templates/agents/",
+          "packages/main/tests/artifact-schema-migration.test.mjs",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/release-push-approval-migration.test.mjs",
+          "packages/utils/package-lock.json",
+          "packages/utils/package.json",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": "Coverage review focused on all 21 verificationIntent/evidence bindings and prior F-123..F-128 coverage findings; no broader decisions-directory escalation was required."
+      },
+      "_hash": "43c43a51789eed5b1c0c021c6f96235d78b4b34023285617d420bece3a43d045",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/test-evidence.json"
+      ],
+      "signatureTag": "missing|json|stale-validation-artifact",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-139",
+      "desc": "CHK-001:happy:0 remains under-bound at .proof-or-stop/story/actives/B-5a88/checklist.json:111-128. Its intent requires new proof-or-stop reviewer IDs to be emitted and accepted by review_run_start, review_pass_set, init_check_set, and quorum resolution, but its pinned command imports only canonicalAgentRoleId and asserts one lattice-review-quality alias. It does not execute or assert any of those four consumers. The current materialHash/storyFilesHash are fresh; this is an intent/evidence binding gap, not a stale-hash finding.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-21T05:26:18.094Z",
+      "reviewRound": "2026-08-21T05:17:02.676Z",
+      "reviewRunId": "B-5a88:RR-156",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          ".proof-or-stop/story/actives/B-5a88/test-evidence.json",
+          "packages/main/dist/tasks/done-prepare-auto-closeout-smoke.js",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "package-lock.json",
+          "package.json",
+          "packages/lab/package-lock.json",
+          "packages/lab/package.json",
+          "packages/main/package-lock.json",
+          "packages/main/package.json",
+          "packages/main/templates/agents/",
+          "packages/main/tests/artifact-schema-migration.test.mjs",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/release-push-approval-migration.test.mjs",
+          "packages/utils/package-lock.json",
+          "packages/utils/package.json",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": "Coverage review focused on all 21 verificationIntent/evidence bindings and prior F-123..F-128 coverage findings; no broader decisions-directory escalation was required."
+      },
+      "_hash": "c0eb7f32ae3de123b12f4c075808e56128dece489ee550b2290f177908244aec",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/checklist.json",
+        "packages/main/tests/brand-role-migration.test.mjs"
+      ],
+      "signatureTag": "missing|json|happy-remains-bound",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-140",
+      "desc": "CHK-002 coverage remains under-bound to repository producers/consumers at .proof-or-stop/story/actives/B-5a88/checklist.json:207-233,241-298. The happy and edge pins import /private/tmp/proof-or-stop-b5a88-marker-build helpers; the edge command tests malformed synthetic strings rather than a valid legacy block replacement; the adversarial pin imports /private/tmp/proof-or-stop-b5a88-init-build/init-assets.js and only checks template marker strings. None of the three pinned receipts executes the current-worktree init/sync or init --upgrade producer path, generated thin/global-thin output, or exactly-one-block behavior. Current-worktree managed-marker tests passed independently, but are not the recorded evidence for these intents.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-21T05:26:28.657Z",
+      "reviewRound": "2026-08-21T05:17:02.676Z",
+      "reviewRunId": "B-5a88:RR-156",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          ".proof-or-stop/story/actives/B-5a88/test-evidence.json",
+          "packages/main/dist/tasks/done-prepare-auto-closeout-smoke.js",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "package-lock.json",
+          "package.json",
+          "packages/lab/package-lock.json",
+          "packages/lab/package.json",
+          "packages/main/package-lock.json",
+          "packages/main/package.json",
+          "packages/main/templates/agents/",
+          "packages/main/tests/artifact-schema-migration.test.mjs",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/release-push-approval-migration.test.mjs",
+          "packages/utils/package-lock.json",
+          "packages/utils/package.json",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": "Coverage review focused on all 21 verificationIntent/evidence bindings and prior F-123..F-128 coverage findings; no broader decisions-directory escalation was required."
+      },
+      "_hash": "39b6b2f3051916dfd1f6e2e89d8bbad24352946cd623c364750f87b35f0b0933",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/checklist.json",
+        "packages/main/tests/managed-marker-migration.test.mjs"
+      ],
+      "signatureTag": "missing|json|coverage-remains-bound",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-141",
+      "desc": "CHK-004:happy:0, CHK-004:edge:0, and CHK-004:adversarial:0 remain unsupported by their pinned checks at .proof-or-stop/story/actives/B-5a88/checklist.json:476-506,510-571. The happy/edge commands only scan source or hook tokens, and the adversarial command scans token presence plus bash -n. They do not execute the real pre-push producer/consumer path for canonical or lattice approval acceptance, one-shot second-consume rejection, invalid-schema rejection, sha-mismatch rejection, or expiry rejection. packages/main/tests/release-push-approval-migration.test.mjs covers those behaviors independently, but none of the three recorded receipts runs it.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-21T05:26:39.082Z",
+      "reviewRound": "2026-08-21T05:17:02.676Z",
+      "reviewRunId": "B-5a88:RR-156",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          ".proof-or-stop/story/actives/B-5a88/test-evidence.json",
+          "packages/main/dist/tasks/done-prepare-auto-closeout-smoke.js",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "package-lock.json",
+          "package.json",
+          "packages/lab/package-lock.json",
+          "packages/lab/package.json",
+          "packages/main/package-lock.json",
+          "packages/main/package.json",
+          "packages/main/templates/agents/",
+          "packages/main/tests/artifact-schema-migration.test.mjs",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/release-push-approval-migration.test.mjs",
+          "packages/utils/package-lock.json",
+          "packages/utils/package.json",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": "Coverage review focused on all 21 verificationIntent/evidence bindings and prior F-123..F-128 coverage findings; no broader decisions-directory escalation was required."
+      },
+      "_hash": "0c18f78bebb0cf4599493a425ab2b1f50070d9b78b1d27931642ae5e95886c40",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/checklist.json",
+        ".githooks/pre-push",
+        "packages/main/tests/release-push-approval-migration.test.mjs"
+      ],
+      "signatureTag": "adversarial|json|happy-edge-adversarial",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-142",
+      "desc": "CHK-007:edge:0 remains under-bound at .proof-or-stop/story/actives/B-5a88/checklist.json:903-912. Its intent requires residue scanning to distinguish frozen historical evidence, compatibility readers, and unsupported new lattice command aliases, but the pinned evidence is only node packages/main/dist/cli.js help and asserts the canonical entrypoint text. The stronger scripts/verify-lattice-residue.mjs --self-test is pinned only to CHK-007:adversarial:0, so the edge intent has no evidence for the claimed distinction.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-21T05:26:49.559Z",
+      "reviewRound": "2026-08-21T05:17:02.676Z",
+      "reviewRunId": "B-5a88:RR-156",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          ".proof-or-stop/story/actives/B-5a88/test-evidence.json",
+          "packages/main/dist/tasks/done-prepare-auto-closeout-smoke.js",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "package-lock.json",
+          "package.json",
+          "packages/lab/package-lock.json",
+          "packages/lab/package.json",
+          "packages/main/package-lock.json",
+          "packages/main/package.json",
+          "packages/main/templates/agents/",
+          "packages/main/tests/artifact-schema-migration.test.mjs",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/release-push-approval-migration.test.mjs",
+          "packages/utils/package-lock.json",
+          "packages/utils/package.json",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": "Coverage review focused on all 21 verificationIntent/evidence bindings and prior F-123..F-128 coverage findings; no broader decisions-directory escalation was required."
+      },
+      "_hash": "d6ac9606720eaa09c9c7cca85d56cff6ba99a52a090ead11d416ae7401b5b010",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/checklist.json",
+        "scripts/verify-lattice-residue.mjs"
+      ],
+      "signatureTag": "missing|json|edge-remains-bound",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-143",
+      "desc": "F-128 remains current and reproducible: node packages/main/dist/tasks/done-prepare-auto-closeout-smoke.js exits before its PASS assertions because done_prepare returns BLOCKED at validate with pre_cert_window_required/pre_cert_window_missing. The current source assertion at packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts:360-374 still requires DONE prepare: PASS and successfulCloseout=1, while the current execution returned the certification-window blocker. Closeout assurance is therefore unverified on this checkout.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-21T05:27:00.145Z",
+      "reviewRound": "2026-08-21T05:17:02.676Z",
+      "reviewRunId": "B-5a88:RR-156",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          ".proof-or-stop/story/actives/B-5a88/test-evidence.json",
+          "packages/main/dist/tasks/done-prepare-auto-closeout-smoke.js",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "package-lock.json",
+          "package.json",
+          "packages/lab/package-lock.json",
+          "packages/lab/package.json",
+          "packages/main/package-lock.json",
+          "packages/main/package.json",
+          "packages/main/templates/agents/",
+          "packages/main/tests/artifact-schema-migration.test.mjs",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/release-push-approval-migration.test.mjs",
+          "packages/utils/package-lock.json",
+          "packages/utils/package.json",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": "Coverage review focused on all 21 verificationIntent/evidence bindings and prior F-123..F-128 coverage findings; no broader decisions-directory escalation was required."
+      },
+      "_hash": "3dd9e77fa919f1e7a531f507d5c0378f630fb2d7b2ebc99332ffe76fb5d1643e",
+      "files": [
+        "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+        "packages/main/dist/tasks/done-prepare-auto-closeout-smoke.js"
+      ],
+      "signatureTag": "missing|ts|remains-current-reproducible",
+      "signatureTagSource": "auto"
     }
   ]
 }
