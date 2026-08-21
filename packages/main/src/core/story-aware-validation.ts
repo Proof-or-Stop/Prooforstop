@@ -742,6 +742,13 @@ export function buildDynamicValidationPlan(ctx: DynamicValidationContext): Valid
       escalationReasons.push('closure-certificate-unavailable-or-incomplete:' + entry.id);
       continue;
     }
+    const expectedStaticClosureDigest = stableDigest(uniqueSorted(entry.inputRoots || []));
+    const expectedProcessFactBindingDigest = stableDigest(uniqueSorted(entry.triggerExtensions.processFacts || []));
+    const expectedCapabilityBindingDigest = stableDigest(uniqueSorted(entry.triggerExtensions.capabilities || []));
+    if (entryClosure.staticClosureDigest !== expectedStaticClosureDigest || entryClosure.processFactBindingDigest !== expectedProcessFactBindingDigest || entryClosure.capabilityBindingDigest !== expectedCapabilityBindingDigest) {
+      escalationReasons.push('closure-binding-mismatch:' + entry.id);
+      continue;
+    }
     if (entry.assurance !== 'full-only') continue;
     if (selected.has(entry.id)) {
       escalationReasons.push('impacted-full-only-command:' + entry.id);
