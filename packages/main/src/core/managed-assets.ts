@@ -66,7 +66,7 @@ import {
   readPromptRegistry,
   renderPromptEntryForHost,
 } from './prompt-registry.js';
-import { canonicalAgentRoleId } from './agent-role-identity.js';
+import { canonicalAgentRoleId, legacyAgentRoleIds } from './agent-role-identity.js';
 import { loadConfig } from './config.js';
 import { resolveProjectGitRoot } from './story-signed-workspace-resolution.js';
 import {
@@ -1465,9 +1465,9 @@ export const AGENT_ASSET_MODE_RUNTIME_OWNED = 'runtime-owned' as const;
 export interface ProjectLocalAgentScan {
   /** Absolute project .claude/agents dir scanned. */
   agentsDir: string;
-  /** The managed template basename set used for the exact-match comparison. */
+  /** The canonical and exact legacy-alias basename set used for comparison. */
   managedBasenames: string[];
-  /** Project-local *.md files whose basename exactly matches a managed template. */
+  /** Project-local *.md files whose basename exactly matches a managed role or alias. */
   managedFiles: string[];
   /** Project-local *.md files NOT in the managed set (user-authored — preserved). */
   userFiles: string[];
@@ -1477,9 +1477,11 @@ export interface ProjectLocalAgentScan {
  * Scan a project's `.claude/agents` for project-local managed agent files.
  *
  * "Managed" = basename exactly matches one of the running CLI package's
- * `templates/agents/*.md`. This is the precise set the explicit `--upgrade`
- * migration is allowed to delete; everything else is user-authored and
- * preserved. Returns empty sets when the dir or template source is absent.
+ * `templates/agents/*.md`, or an exact legacy alias for one of those canonical
+ * roles from the shared role identity mapping. This is the precise set the
+ * explicit `--upgrade` migration is allowed to delete; everything else is
+ * user-authored and preserved. Returns empty sets when the dir or template
+ * source is absent.
  */
 export function scanProjectLocalManagedAgents(
   projectRoot: string,
@@ -1487,7 +1489,10 @@ export function scanProjectLocalManagedAgents(
 ): ProjectLocalAgentScan {
   const agentsDir = join(projectRoot, '.claude', 'agents');
   const managedBasenames = templateDir && existsSync(templateDir)
-    ? listManagedAgentBasenames(templateDir)
+    ? [...new Set(listManagedAgentBasenames(templateDir).flatMap((file) => {
+      const roleId = canonicalAgentRoleId(file.replace(/\.md$/, ''));
+      return [file, ...legacyAgentRoleIds(roleId).map(alias => `${alias}.md`)];
+    }))].sort((a, b) => a.localeCompare(b))
     : [];
   const managedSet = new Set(managedBasenames);
   const managedFiles: string[] = [];
@@ -1516,9 +1521,10 @@ export interface MigrateProjectLocalAgentsResult {
 }
 
 /**
- * Migrate (delete) ONLY the exact managed agent basenames from a project's
- * `.claude/agents`. NEVER wildcard-deletes; user-authored files are preserved.
- * Removes the dir only if it becomes empty. Idempotent: no managed files → no-op.
+ * Migrate (delete) ONLY the exact managed agent or known legacy-alias basenames
+ * from a project's `.claude/agents`. NEVER wildcard-deletes; user-authored
+ * files are preserved. Removes the dir only if it becomes empty. Idempotent:
+ * no managed files → no-op.
  *
  * This is the explicit `--upgrade` migration. Callers must ensure the global
  * single source is ready first (see syncGlobalAgents).

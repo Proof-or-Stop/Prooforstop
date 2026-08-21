@@ -49,9 +49,9 @@ signature and are **RENAMED** under the corrected test:
 
 `PRESERVE` remains correct for `ProofStory` (a distinct domain concept, not a brand variant).
 
-`FROZEN-THIS-STORY` remains correct **only** for the agent role IDs, whose migration is owned by
-`proof-or-stop-agent-prompt-consolidation-execution-plan.md` — renaming `subagent_type` values
-mid-flight breaks spawning for in-flight stories.
+Historical `lattice-*` role spellings are compatibility-only legacy reads, not active canonical
+identities. B-5a88 owns their migration: new writes emit `proof-or-stop-*`, while exact known
+aliases remain readable for in-flight records and unknown role spellings fail closed.
 
 ### Additional hard constraint: this repository is multi-developer
 
@@ -101,10 +101,9 @@ Verified stray-spelling census at time of writing (`grep -rIoE` across the repo,
 
 ## Why the "User-visible in runtime output" column exists
 
-After this story ships, a user running `proof-or-stop session_brief` will **still** see
-`lattice-*` role IDs and `.lattice/` paths in the output. That is intentional, not an oversight.
-The last column records exactly what residue each frozen row leaves in front of a user, so that
-a future reader (or reviewer) can tell a deliberate freeze apart from a missed replacement.
+After this story and B-5a88 ship, new runtime output and new writes use canonical
+`proof-or-stop-*` role IDs. Historical records may still expose exact `lattice-*` aliases and
+`.lattice/` paths; that is intentional compatibility, not an active naming verdict.
 
 ---
 
@@ -124,8 +123,8 @@ a future reader (or reviewer) can tell a deliberate freeze apart from a missed r
 | `.lattice/` state directory (the NAME; its VALUE `.lattice` is frozen) | **RENAMED (additive)** | — | Live on-disk state (locks, `activity.jsonl`, `authority.md`, `learning/`, `evidence/`, `dev-memory/`). Renaming it in docs only makes docs wrong; renaming in code orphans existing state. It stores what already happened. | **Yes** — paths like `.lattice/story/actives/B-xxxx/` appear in `session_brief`, gate diagnostics and error messages. Intentional. |
 | `.lattice-serve.json` (the NAME; its VALUE is frozen) | **RENAMED (additive)** | — | Runtime discovery file written by `serve` and read back by tooling; renaming breaks the read side. (Runtime-generated; gitignored, absent from a clean tree.) | Yes — referenced in debugging docs and by `serve` output. |
 | `.lattice-codex/` (incl. `.lattice-codex/lattice.json` manifest) | FROZEN | — | Live Codex adapter state directory + manifest path; the adapter resolves it by exact name. | Yes — in Codex adapter paths and `verify_codex` output. |
-| **The 13 `lattice-`prefixed agent role IDs** (of 17 total registry templates; see enumeration below) | **FROZEN-THIS-STORY** | *(target: `proof-or-stop-*`)* | The target canonical prefix is `proof-or-stop-*` per `docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md:36-43`, which states all canonical role IDs use the `proof-or-stop-*` prefix and that current `lattice-*` names are "transitional aliases only". Renaming is **deferred here** because these are `subagent_type` values resolved against host shims plus the registry manifest — changing them would break spawning for in-flight stories. **This freeze is intentional and owned by that plan, not an oversight.** | **Yes** — `proof-or-stop reviewer_list` and `session_brief` still print `lattice-review-concept`, `lattice-implementer`, etc. Intentional; see the owning plan. |
-| The 4 non-`lattice-` role IDs (`implementation-reviewer`, `product-reviewer`, `test-case-reviewer`, `test-intent`) | FROZEN-THIS-STORY | *(target: `proof-or-stop-*`)* | Same owning plan (`:36-43`) lists these as transitional aliases too. Not brand-token hits, but recorded so the 17-role set is completely accounted for. | Yes — same surfaces as above. |
+| **The 13 `lattice-`prefixed agent role IDs** (of 17 total registry templates; see enumeration below) | **RENAMED with legacy-read compatibility** | `proof-or-stop-*` | B-5a88 migrates the canonical role identity and alias mapping. New writes emit canonical IDs; exact known `lattice-*` aliases remain readable for historical/in-flight records and are the only legacy spellings managed by `--upgrade`. | **No for new writes** — historical records may still show the alias. |
+| The 4 non-`lattice-` role IDs (`implementation-reviewer`, `product-reviewer`, `test-case-reviewer`, `test-intent`) | **RENAMED with legacy-read compatibility** | `proof-or-stop-*` | B-5a88 applies the same canonical role identity mapping. New writes emit canonical IDs; exact mapped aliases remain readable only for compatibility. | **No for new writes** — historical records may still show the alias. |
 | **390 frozen story archives** under `.lattice/story/` (markdown containing the brand token) | **FROZEN** | — | CLAUDE.md rule 8 forbids direct writes under the story directory; all story mutation goes through the CLI. These are historical records — rewriting them falsifies the audit trail. | Yes — quoted back in `story_get` / `session_brief` output. |
 | `packages/main` npm package name `@lattice/core` | **FROZEN** | — | `.githooks/pre-push:148` gates the entire recursive-tsc pre-push defence on `PKG_NAME = "@lattice/core"` and **`exit 0`s on mismatch** (verified). Renaming the package therefore **silently self-disarms** the hook rather than failing loudly — the worst possible failure mode. | No — but a silent rename would remove a safety gate with no visible signal. |
 | Root npm package name `lattice` | FROZEN | — | Package identity / lockfile key; renaming is a publish-level change outside this story's additive-at-the-CLI-boundary scope. | No. |
@@ -198,9 +197,9 @@ the verified pre-existing count**; treat any single number as approximate and th
 
 | Verdict | Rows |
 |---|---|
-| RENAMED | 8 |
+| RENAMED | 10 |
 | FROZEN | 15 |
-| FROZEN-THIS-STORY | 2 |
+| FROZEN-THIS-STORY | 0 |
 | PRESERVE | 1 |
 | **Total** | **26** |
 

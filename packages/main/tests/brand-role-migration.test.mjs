@@ -15,6 +15,7 @@ const distRoot = join(packageRoot, distName);
 const identity = await import(join(distRoot, 'core/agent-role-identity.js'));
 const dispatch = await import(join(distRoot, 'core/agent-dispatch-registry.js'));
 const reviewerList = await import(join(distRoot, 'handlers/reviewer-list.js'));
+const managedAssets = await import(join(distRoot, 'core/managed-assets.js'));
 
 const aliases = [
   ['lattice-implementer', 'proof-or-stop-implementer'],
@@ -74,6 +75,25 @@ assert.match(reviewerText, /proof-or-stop-review-quality/);
 assert.match(reviewerText, /proof-or-stop-review-test-coverage/);
 assert.match(reviewerText, /proof-or-stop-review-behavior/);
 assert.doesNotMatch(reviewerText, /Active reviewers: concept, quality, test-coverage/);
+
+const localAgentsRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-local-agent-migration-'));
+try {
+  const agentsDir = join(localAgentsRoot, '.claude', 'agents');
+  mkdirSync(agentsDir, { recursive: true });
+  writeFileSync(join(agentsDir, 'lattice-review-quality.md'), 'legacy managed role\n');
+  writeFileSync(join(agentsDir, 'my-personal-agent.md'), 'user-authored role\n');
+  const templateDir = join(packageRoot, 'templates', 'agents');
+  const scan = managedAssets.scanProjectLocalManagedAgents(localAgentsRoot, templateDir);
+  assert.ok(scan.managedFiles.includes('lattice-review-quality.md'), 'legacy lattice role basename is managed by exact alias mapping');
+  assert.deepEqual(scan.userFiles, ['my-personal-agent.md'], 'unrelated user-authored agent remains outside the managed set');
+  const migration = managedAssets.migrateProjectLocalManagedAgents(localAgentsRoot, templateDir);
+  assert.deepEqual(migration.removed, ['lattice-review-quality.md']);
+  assert.deepEqual(migration.preserved, ['my-personal-agent.md']);
+  assert.equal(existsSync(join(agentsDir, 'lattice-review-quality.md')), false, 'upgrade removes the legacy managed role');
+  assert.equal(existsSync(join(agentsDir, 'my-personal-agent.md')), true, 'upgrade preserves the user-authored role');
+} finally {
+  rmSync(localAgentsRoot, { recursive: true, force: true });
+}
 
 const reviewRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-review-role-'));
 try {

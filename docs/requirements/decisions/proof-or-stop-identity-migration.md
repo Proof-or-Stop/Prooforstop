@@ -5,8 +5,11 @@ user-facing CLI surface; this story renames the **structural** identities: on-di
 directories, config/manifest filenames, the workspace package name, and the deprecated bin
 aliases.
 
-Scope source: the operator enumerated exactly six items. Anything not in that list stays frozen,
-and each exclusion below carries its own basis rather than being a convenience.
+Scope source: the operator enumerated exactly six structural items. That scope remains the
+boundary for B-cc10; a later approved migration may supersede a freeze when its compatibility
+contract is explicit. B-5a88 supersedes the earlier agent-role freeze: canonical
+`proof-or-stop-*` role IDs are emitted for new writes, while `lattice-*` role IDs remain
+compatibility-only legacy reads.
 
 ## Per-identity verdicts
 
@@ -24,13 +27,21 @@ and each exclusion below carries its own basis rather than being a convenience.
 | Identity | Basis |
 |---|---|
 | 8 `lattice-*-integrity-v1` signature salts | Standalone string constants (`core/finding-verify.ts` + 6 siblings), independent of any path or filename. Renaming would invalidate every historical signature. Verified by the INIT reviewer. |
-| 13 `lattice-*` agent role IDs | `subagent_type` values; owned by `proof-or-stop-agent-prompt-consolidation-execution-plan.md`. Renaming breaks spawning for in-flight stories. |
 | ROOT npm package name `lattice` | Not among the operator's six. `brand-rename-mapping.md:131`. Verified publishable (`package.json` has no `private: true`), so it is a registry-identity action for its own story. Raised as scope-plan **OQ-2** after being a silent omission. |
 | Managed-block markers `<!-- lattice:start/end -->` | `brand-rename-mapping.md:134` — "changing the marker orphans every existing managed block." |
 | `lattice.remote-push-approval.v1` schema literal | `brand-rename-mapping.md:135` — exact-match string compared in `core/release-push-approval.ts` and `.githooks/pre-push:78`; a one-sided rename breaks release approval. |
 | `LATTICE_*` env keys as STORED keys | Already read-both via `core/brand-env.ts` (B-cdf6). Not re-litigated here. |
 | `__LATTICE_WS_PORT`, `LATTICE_SHELL` | Hardcoded protocol identifiers across 5 source files; a protocol change, not a diagnostics edit. Disclosed B-cdf6 follow-up. |
 | Content inside archived story files | History MOVES via `git mv`; it is never edited. |
+
+## Agent-role verdict supersession (B-5a88)
+
+The earlier frozen verdict for the 13 `lattice-*` role IDs is superseded by the implemented
+role-identity migration. The canonical `proof-or-stop-*` role ID is the only spelling emitted by
+new prompt, dispatch, reviewer, and migration writes. The exact `lattice-*` aliases remain
+readable for historical in-flight records and are compatibility-only; unknown role spellings are
+not accepted by the role registry. Project-local Claude `--upgrade` removes only canonical role
+basenames and their known legacy aliases, preserving unrelated user-authored files.
 
 ## Two deliberate supersessions of prior FROZEN verdicts
 
