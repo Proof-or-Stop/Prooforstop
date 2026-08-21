@@ -20,6 +20,7 @@ import { isMaterialExcludedPath } from './material-path-policy.js';
 export const STORY_CHANGE_MANIFEST_SCHEMA = 'proof-or-stop.story-change-manifest.v1' as const;
 export const VALIDATION_CATALOG_SCHEMA = 'proof-or-stop.validation-catalog.v1' as const;
 export const VALIDATION_RECEIPT_SCHEMA = 'proof-or-stop.validation-command-receipt.v1' as const;
+export const VALIDATION_SHARD_RECEIPT_SCHEMA = 'proof-or-stop.validation-shard-receipt.v1' as const;
 export const VALIDATION_SELECTION_SCHEMA = 'proof-or-stop.validation-selection.v1' as const;
 export const VALIDATION_CLOSURE_SCHEMA = 'proof-or-stop.validation-closure-certificate.v1' as const;
 export const DYNAMIC_MODES = ['off', 'observe', 'shadow', 'enforce-low-risk'] as const;
@@ -822,7 +823,25 @@ export interface ValidationShard {
 }
 export interface ValidationShardResult {
   shardId: string; domain: string; caseIds: string[]; verdict: 'PASS' | 'FAIL';
-  residue?: string[]; executed?: boolean; staticPass?: boolean;
+  residue?: string[]; executed?: boolean; staticPass?: boolean; sentinelObserved?: boolean; receiptId?: string;
+}
+export interface ValidationShardReceipt {
+  schema: typeof VALIDATION_SHARD_RECEIPT_SCHEMA; id: string; shardId: string; domain: string;
+  commandId: string; caseIds: string[]; sentinelCaseId: string; sentinelObserved: boolean;
+  sourceHead: string; result: 'PASS' | 'FAIL'; exitCode: number; outputDigest: string;
+  executed: boolean; staticPass: boolean; residue: string[]; cleanupDigest: string; createdAt: string; signature: string;
+}
+export function createValidationShardReceipt(args: Omit<ValidationShardReceipt, 'schema' | 'signature'>): ValidationShardReceipt {
+  const body = { ...args, schema: VALIDATION_SHARD_RECEIPT_SCHEMA };
+  return { ...body, signature: signPayload(body) };
+}
+export function verifyValidationShardReceipt(receipt: ValidationShardReceipt): boolean {
+  return receipt.schema === VALIDATION_SHARD_RECEIPT_SCHEMA
+    && receipt.executed === true && receipt.staticPass === false
+    && receipt.caseIds.includes(receipt.sentinelCaseId)
+    && receipt.sentinelObserved === true
+    && receipt.residue.length === 0
+    && verifyPayload(withoutSignature(receipt), receipt.signature);
 }
 export function buildValidationShards(cases: ValidationCase[], options: { domain?: string; shardCount?: number } = {}): ValidationShard[] {
   const domain = options.domain || cases[0]?.domain || 'quorum';
@@ -851,6 +870,7 @@ export function aggregateValidationShards(args: { cases: ValidationCase[]; shard
     if (!shard || shard.caseIds.slice().sort().join('\0') !== result.caseIds.slice().sort().join('\0')) errors.push('routing mismatch:' + result.shardId);
     if (result.staticPass || result.executed === false) errors.push('non-executed static PASS:' + result.shardId);
     if (result.residue && result.residue.length) errors.push('residue:' + result.shardId);
+    if (result.sentinelObserved !== true) errors.push('sentinel not observed:' + result.shardId);
     if (shard && !result.caseIds.includes(shard.sentinelCaseId)) errors.push('sentinel omitted:' + result.shardId);
   }
   const verdict = errors.length || results.some(result => result.verdict === 'FAIL') ? 'FAIL' : 'PASS';
