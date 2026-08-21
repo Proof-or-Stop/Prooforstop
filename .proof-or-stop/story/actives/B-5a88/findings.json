@@ -6065,6 +6065,148 @@
       "resolvedAt": "2026-08-21T08:11:50.903Z",
       "resolutionType": "partially_mitigated",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5a88:F-158",
+      "desc": "CHK-001:happy:0 is under-bound: the must intent claims new proof-or-stop reviewer IDs are emitted and accepted by review_run_start, review_pass_set, init_check_set, and quorum resolution, but the recorded receipt command only calls canonicalAgentRoleId for one lattice-review-quality alias and never invokes those four consumers. Current command evidence node packages/main/tests/brand-role-migration.test.mjs passed and its lines 162-215 and 259-264 execute the review-run, review-pass, quorum, and init-check paths, but that stronger command is not pinned to CHK-001:happy:0. The required consumer behavior therefore lacks admissible evidence for this intent.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-21T10:09:54.869Z",
+      "reviewRound": "2026-08-21T08:03:56.673Z",
+      "reviewRunId": "B-5a88:RR-165",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/release-push-approval-migration.test.mjs",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "73a495676ee2546029fdec3596796697f0493cbd409f6e619d6fa9acc52e9f15",
+      "files": [
+        "packages/main/tests/brand-role-migration.test.mjs",
+        "packages/main/src/core/agent-role-identity.ts"
+      ],
+      "signatureTag": "missing|mjs|happy-bound-intent",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Resolved as partially mitigated by the current focused behavioral test node packages/main/tests/brand-role-migration.test.mjs. It exercises canonical role normalization plus real dispatch, review_run_start, review_pass_set, quorum_submit, and init_check_set consumer paths and passes. The immutable CHK-001 happy receipt remains alias-only, so this is not claimed as fully repaired; the stronger current test is the compensating evidence.",
+      "resolvedAt": "2026-08-21T10:11:57.678Z",
+      "resolutionType": "partially_mitigated",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5a88:F-159",
+      "desc": "CHK-002:happy:0, CHK-002:edge:0, and CHK-002:adversarial:0 remain under-bound to the repository producer path: the recorded receipts import /private/tmp/proof-or-stop-b5a88-marker-build and /private/tmp/proof-or-stop-b5a88-init-build artifacts and inspect helper/template values, so they do not execute the current-worktree init or init --upgrade generation path, generated thin/global-thin output, or exactly-one-block upgrade behavior. The current command evidence node packages/main/tests/managed-marker-migration.test.mjs passed and exercises current dist helper, sync, and template modules at lines 13-46, but it is not the command pinned to these three intents. The producer/consumer behavior claimed by CHK-002 therefore lacks admissible bound evidence.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-21T10:09:58.075Z",
+      "reviewRound": "2026-08-21T08:03:56.673Z",
+      "reviewRunId": "B-5a88:RR-165",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/release-push-approval-migration.test.mjs",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "8a941b1ad40907ed9d511aecf4d00c822fe10312114e633af42c86fb6954b067",
+      "files": [
+        "packages/main/tests/managed-marker-migration.test.mjs",
+        "packages/main/src/core/managed-assets.ts",
+        "packages/main/src/init-assets.ts"
+      ],
+      "signatureTag": "missing|mjs|happy-edge-adversarial",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Resolved as partially mitigated by the current focused behavioral test node packages/main/tests/managed-marker-migration.test.mjs. It passes against the current build and covers canonical markers, legacy ordinary dual-read, malformed rejection, profile synchronization, exactly-one managed block, and canonical init templates. The immutable CHK-002 receipts still reference /private/tmp helper builds, so this is not claimed as fully repaired.",
+      "resolvedAt": "2026-08-21T10:11:59.130Z",
+      "resolutionType": "partially_mitigated",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5a88:F-160",
+      "desc": "CHK-004:happy:0, CHK-004:edge:0, and CHK-004:adversarial:0 are evidenced only by source-token checks plus bash -n in their recorded commands; those commands do not execute the real pre-push producer/consumer path for canonical and lattice schema acceptance, one-shot second-consume rejection, invalid-schema rejection, sha-mismatch rejection, or expiry rejection. The current command evidence node packages/main/tests/release-push-approval-migration.test.mjs passed and executes hook acceptance and rejection cases at lines 32-95, but that stronger test is not pinned to any of the three CHK-004 intents. These must behaviors remain unverified by bound evidence.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-21T10:10:01.284Z",
+      "reviewRound": "2026-08-21T08:03:56.673Z",
+      "reviewRunId": "B-5a88:RR-165",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/release-push-approval-migration.test.mjs",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "56888543a84caf39cc82ced846a93d9f0cba03e38480587f1ace84e42486c584",
+      "files": [
+        "packages/main/tests/release-push-approval-migration.test.mjs",
+        ".githooks/pre-push",
+        "packages/main/src/core/release-push-approval.ts"
+      ],
+      "signatureTag": "adversarial|mjs|happy-edge-adversarial",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Resolved as partially mitigated by the current focused behavioral test node packages/main/tests/release-push-approval-migration.test.mjs. It passes the real .githooks/pre-push path for canonical and legacy schemas, one-shot consumption, invalid schema, sha mismatch, and expiry rejection. The immutable CHK-004 receipts remain source-token/bash checks, so this is not claimed as fully repaired.",
+      "resolvedAt": "2026-08-21T10:12:00.663Z",
+      "resolutionType": "partially_mitigated",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5a88:F-161",
+      "desc": "CHK-007:edge:0 lacks evidence for its claimed behavior: the recorded command node packages/main/dist/cli.js help only checks the canonical entrypoint text and does not execute residue scanning that distinguishes frozen historical evidence, compatibility readers, and unsupported new lattice command aliases. The current command evidence node scripts/verify-lattice-residue.mjs --self-test passed 65/65 and the scanner implementation at lines 522-624 plus the self-test entry at lines 863-866 contains the required detector behavior, but that command is pinned only to CHK-007:adversarial:0, not the edge intent. The must edge intent therefore remains uncovered.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-21T10:10:04.601Z",
+      "reviewRound": "2026-08-21T08:03:56.673Z",
+      "reviewRunId": "B-5a88:RR-165",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/release-push-approval-migration.test.mjs",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "9d3b0bc8587e0a085df6b800ca0bb563b5baf4c36d8df30975fee0d88b6a92a6",
+      "files": [
+        "scripts/verify-lattice-residue.mjs",
+        "packages/main/dist/cli.js"
+      ],
+      "signatureTag": "missing|mjs|edge-lacks-evidence",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Resolved as partially mitigated by the current node scripts/verify-lattice-residue.mjs --self-test result, which passes all 65 detector tests and covers frozen evidence, compatibility readers, and unsupported aliases. The immutable CHK-007 edge receipt remains help-only, so this is not claimed as fully repaired.",
+      "resolvedAt": "2026-08-21T10:12:02.257Z",
+      "resolutionType": "partially_mitigated",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
