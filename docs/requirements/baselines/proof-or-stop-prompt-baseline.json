@@ -15,7 +15,7 @@
       },
       {
         "role": "proof-or-stop-evaluator-cli",
-        "templateHash": "daeb3d45a8eb98ed337a4e9ce5650f3b96030f2e3efea1de971743a20212a7ec"
+        "templateHash": "bbec313f09595dd1b5b49271494daea4e03060881b6f7d2215ad123620e214cc"
       },
       {
         "role": "proof-or-stop-evaluator",
@@ -75,7 +75,7 @@
       },
       {
         "role": "proof-or-stop-test-intent",
-        "templateHash": "a8a16203d62bd4c39fc28b0536e5686723eaead7185485cc3e58809aca56285d"
+        "templateHash": "2c665efd03d9f3bd31d1c3396aebb276c031d51b4bba33bb98fc203a1744f1f8"
       }
     ],
     "roleBodyRollout": [
@@ -141,14 +141,14 @@
     "schemaVersion": "proof-or-stop.prompt-registry.v1",
     "source": "@proof-or-stop/core/templates/agents",
     "agentCount": 17,
-    "materialHash": "3eb441ce170d437596ea54c3baaf10bbbd38891895eba420e2715f1338033425",
+    "materialHash": "6328dd426c05e3abd55a99981cc19a0e853444631e6aeec5b9af3c54cae59f2d",
     "roles": [
       {
         "role": "proof-or-stop-evaluator-cli",
         "file": "proof-or-stop-evaluator-cli.md",
         "relPath": "templates/agents/proof-or-stop-evaluator-cli.md",
-        "templateHash": "99ffa52de8215d5cde0d2095522438df960b4159f905d5d53a0b961acb884401",
-        "bytes": 9468,
+        "templateHash": "db4c2712365ed4142b0d54269738130abe8eeda91a8accb27f2e7391657c3c89",
+        "bytes": 9480,
         "lines": 213
       },
       {
@@ -275,8 +275,8 @@
         "role": "proof-or-stop-test-intent",
         "file": "proof-or-stop-test-intent.md",
         "relPath": "templates/agents/proof-or-stop-test-intent.md",
-        "templateHash": "4bb33d56dedce1fa628256dcb7dcff0c1947c74fb2c21a517b70216c34dd07c3",
-        "bytes": 10243,
+        "templateHash": "b84bf95541e112fa39385b1bb124c14059e775c29dbbf627a1ed8c3624fc96e9",
+        "bytes": 10215,
         "lines": 179
       }
     ]
@@ -287,8 +287,8 @@
     "outputs": [
       {
         "role": "proof-or-stop-evaluator-cli",
-        "sha256": "69f622d9f5b9e6a7b8abbf4bbc39127455051b57fd172530aece86a50634d6d6",
-        "bytes": 9469,
+        "sha256": "8ce54cefe45b342a26588df7f411074a6327c8c7f3c63c9a4c57a91ab51bfd71",
+        "bytes": 9481,
         "lines": 214
       },
       {
@@ -383,8 +383,8 @@
       },
       {
         "role": "proof-or-stop-test-intent",
-        "sha256": "c94418b351af35c52a6001f1d0ebad48a5b857aa5d90b43bd9f33072e770fa4c",
-        "bytes": 10244,
+        "sha256": "992b05f3c9409bd198b45ed616bf7bfe17bdc33f5d9f67e402991ad561499dd7",
+        "bytes": 10216,
         "lines": 180
       }
     ]
@@ -644,7 +644,7 @@
         {
           "role": "proof-or-stop-evaluator-cli",
           "relPath": "templates/agents/proof-or-stop-evaluator-cli.md",
-          "templateHash": "99ffa52de8215d5cde0d2095522438df960b4159f905d5d53a0b961acb884401"
+          "templateHash": "db4c2712365ed4142b0d54269738130abe8eeda91a8accb27f2e7391657c3c89"
         },
         {
           "role": "proof-or-stop-evaluator",
@@ -724,7 +724,7 @@
         {
           "role": "proof-or-stop-test-intent",
           "relPath": "templates/agents/proof-or-stop-test-intent.md",
-          "templateHash": "4bb33d56dedce1fa628256dcb7dcff0c1947c74fb2c21a517b70216c34dd07c3"
+          "templateHash": "b84bf95541e112fa39385b1bb124c14059e775c29dbbf627a1ed8c3624fc96e9"
         }
       ]
     }
@@ -1371,15 +1371,15 @@
         "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
-        "id": "fc154f27f4f17341",
+        "id": "e813057e2fe3ac4c",
         "role": "proof-or-stop-test-intent",
         "line": 116,
         "clauseIndex": 1,
         "occurrence": 1,
         "term": "testIntent",
         "matchedText": "test-intent",
-        "clause": "Optional current fields are `id`, `requiredIn`, `verification`, and `plannedPathDeclarations` when the story's dispatched proof-or-stop-proof-or-stop-test-intent workflow explicitly provides the required values.",
-        "excerpt": "Optional current fields are `id`, `requiredIn`, `verification`, and `plannedPathDeclarations` when the story's dispatched proof-or-stop-proof-or-stop-test-intent workflow explicitly provides the required values. Do not invent unsupported fields such as `input` or `expect`.",
+        "clause": "Optional current fields are `id`, `requiredIn`, `verification`, and `plannedPathDeclarations` when the story's dispatched proof-or-stop-test-intent workflow explicitly provides the required values.",
+        "excerpt": "Optional current fields are `id`, `requiredIn`, `verification`, and `plannedPathDeclarations` when the story's dispatched proof-or-stop-test-intent workflow explicitly provides the required values. Do not invent unsupported fields such as `input` or `expect`.",
         "classification": "legacy-prompt-body",
         "note": "Legacy compatibility prompt; visible until migration or retirement.",
         "roleStatus": "legacy",
@@ -1422,15 +1422,15 @@
         "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
-        "id": "5753a33226793efa",
+        "id": "b1db07470700c866",
         "role": "proof-or-stop-test-intent",
         "line": 163,
         "clauseIndex": 1,
         "occurrence": 1,
         "term": "testIntent",
         "matchedText": "test-intent",
-        "clause": "- Do not add planned path declarations unless the dispatched proof-or-stop-proof-or-stop-test-intent workflow supplies valid declarations and file references",
-        "excerpt": "- Do not add planned path declarations unless the dispatched proof-or-stop-proof-or-stop-test-intent workflow supplies valid declarations and file references",
+        "clause": "- Do not add planned path declarations unless the dispatched proof-or-stop-test-intent workflow supplies valid declarations and file references",
+        "excerpt": "- Do not add planned path declarations unless the dispatched proof-or-stop-test-intent workflow supplies valid declarations and file references",
         "classification": "legacy-prompt-body",
         "note": "Legacy compatibility prompt; visible until migration or retirement.",
         "roleStatus": "legacy",

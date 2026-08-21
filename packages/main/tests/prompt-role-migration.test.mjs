@@ -40,7 +40,7 @@ const evaluatorCli = registry.agents.find(entry => entry.file === 'proof-or-stop
 assert.ok(evaluatorCli, 'canonical evaluator-cli prompt is registered');
 assert.match(
   registryModule.renderPromptEntryForHost(evaluatorCli, 'claude'),
-  /<!-- lattice:start -->[\s\S]*<!-- lattice:end -->/,
+  /<!-- proof-or-stop:start -->[\s\S]*<!-- proof-or-stop:end -->/,
   'evaluator-cli render contains the load-bearing runtime guide',
 );
 for (const entry of registry.agents) {

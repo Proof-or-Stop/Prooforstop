@@ -23,6 +23,12 @@ import {
   legacyAgentRoleIds,
   legacyizeAgentRoleText,
 } from './agent-role-identity.js';
+import {
+  LEGACY_LATTICE_MANAGED_END,
+  LEGACY_LATTICE_MANAGED_START,
+  PROOF_OR_STOP_MANAGED_END,
+  PROOF_OR_STOP_MANAGED_START,
+} from './managed-markers.js';
 
 export const PROMPT_REGISTRY_VERSION = 'proof-or-stop.prompt-registry.v1' as const;
 export const PROMPT_REGISTRY_VERSION_LEGACY = 'lattice.prompt-registry.v1' as const;
@@ -122,7 +128,7 @@ Execution rules:
 - Gates consume structured facts: signatures, hashes, verificationEvidence, review pass, init/scope/delivery check, and validate evidence. Do not let gates infer process facts from ordinary text like "passed / no problem".
 - When changing reviewer prompts, CLI schema, handlers, or gates, run \`npm run test:process-fact-contract\` to confirm the prompt has not drifted and the process fact inventory still proves the hard fallback exists.
 `;
-export const LOAD_BEARING_LATTICE_PROMPT_SLICE = `<!-- lattice:start -->
+export const LOAD_BEARING_LATTICE_PROMPT_SLICE = `<!-- proof-or-stop:start -->
 # Proof-or-Stop Load-Bearing Runtime Guide
 
 This embedded slice is intentionally compact. It replaces the old full guide
@@ -216,7 +222,7 @@ failure, form one evidence-backed hypothesis, isolate with the smallest
 reproducer or comparison, apply one fix, then rerun the relevant verification.
 Do not declare a fix without reproduction, root cause, and re-verification.
 
-<!-- lattice:end -->`;
+<!-- proof-or-stop:end -->`;
 
 export type PromptHost = typeof SUPPORTED_PROMPT_HOSTS[number];
 
@@ -321,9 +327,12 @@ export function restoreLegacyPromptTemplate(entry: PromptRegistryEntry): string 
   }
   // Template assets are now canonical, but these digests deliberately pin the
   // historical prompt bytes. Project the reconstructed canonical body back to
-  // the old role vocabulary only for this comparison; returned host prompts
-  // remain canonical below.
-  const actualDigest = sha256(legacyizeAgentRoleText(restored));
+  // the old marker and role vocabularies only for this compatibility check and
+  // returned historical body; new prompt writers remain canonical.
+  const historical = restored
+    .replace(PROOF_OR_STOP_MANAGED_START, LEGACY_LATTICE_MANAGED_START)
+    .replace(PROOF_OR_STOP_MANAGED_END, LEGACY_LATTICE_MANAGED_END);
+  const actualDigest = sha256(legacyizeAgentRoleText(historical));
   const expectedDigest = isModularReviewerRoleId(canonicalRole)
     ? LEGACY_REVIEWER_TEMPLATE_SHA256[legacyRole]
     : LEGACY_COMPLEX_TEMPLATE_SHA256[legacyRole];
@@ -332,7 +341,7 @@ export function restoreLegacyPromptTemplate(entry: PromptRegistryEntry): string 
       `legacy reviewer prompt reconstruction drift for ${canonicalRole}: expected ${expectedDigest}, got ${actualDigest}`,
     );
   }
-  return canonicalizeAgentRoleText(restored);
+  return canonicalizeAgentRoleText(historical);
 }
 
 export function resolvePromptTemplateBody(

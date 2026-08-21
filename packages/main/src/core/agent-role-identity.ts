@@ -97,6 +97,9 @@ export function canonicalizeAgentRoleText(text: string): string {
     canonical,
     token: `\u0000proof-or-stop-role-${index}\u0000`,
   }));
+  const tokenByCanonical = new Map<string, string>(
+    protectedTokens.map(({ canonical, token }) => [canonical, token]),
+  );
   let result = text;
   for (const { canonical, token } of protectedTokens) {
     result = result.split(canonical).join(token);
@@ -105,7 +108,7 @@ export function canonicalizeAgentRoleText(text: string): string {
     .flatMap(([canonical, aliases]) => aliases.map(alias => ({ alias, canonical })))
     .sort((left, right) => right.alias.length - left.alias.length);
   for (const { alias, canonical } of replacements) {
-    result = result.split(alias).join(canonical);
+    result = result.split(alias).join(tokenByCanonical.get(canonical) ?? canonical);
   }
   for (const { canonical, token } of protectedTokens) {
     result = result.split(token).join(canonical);

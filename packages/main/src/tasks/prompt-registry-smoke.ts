@@ -27,6 +27,7 @@ import {
   renderPromptEntryForHost,
   restoreLegacyPromptTemplate,
 } from '../core/prompt-registry.js';
+import { canonicalizeAgentRoleText } from '../core/agent-role-identity.js';
 import { assertNoDuplicatePromptEnvelopeRoleKeys } from '../core/config.js';
 import {
   ACTIVE_MODULAR_REVIEWER_ROLE_IDS,
@@ -71,9 +72,14 @@ const qualityProofMetadataPhrases = [
   'client-controlled or stale metadata cannot satisfy',
   'not receipt-backed production proof',
 ];
+const LEGACY_LOAD_BEARING_PROMPT_SLICE = LOAD_BEARING_LATTICE_PROMPT_SLICE
+  .replace('<!-- proof-or-stop:start -->', '<!-- lattice:start -->')
+  .replace('<!-- proof-or-stop:end -->', '<!-- lattice:end -->');
 
 function extractLatticeBlock(content: string): string | null {
-  return content.match(/<!-- lattice:start -->[\s\S]*?<!-- lattice:end -->/)?.[0] ?? null;
+  return content.match(/<!-- proof-or-stop:start -->[\s\S]*?<!-- proof-or-stop:end -->/)?.[0]
+    ?? content.match(/<!-- lattice:start -->[\s\S]*?<!-- lattice:end -->/)?.[0]
+    ?? null;
 }
 
 assert.equal(registry.schemaVersion, PROMPT_REGISTRY_VERSION);
@@ -91,13 +97,14 @@ for (const entry of registry.agents) {
   const isComplexRole = MODULAR_COMPLEX_ROLE_IDS.includes(entry.agentId as typeof MODULAR_COMPLEX_ROLE_IDS[number]);
   const expectedClaude = renderPromptEntryForHost(entry, 'claude');
   const expectedCodex = renderPromptEntryForHost(entry, 'codex');
+  const canonicalSource = canonicalizeAgentRoleText(source);
   if (MODULAR_REVIEWER_ROLE_IDS.includes(entry.agentId as typeof MODULAR_REVIEWER_ROLE_IDS[number])) {
     assert.match(expectedClaude, /review_run_start/, `${entry.file} Claude registry render is bootstrap-only`);
     assert.match(expectedCodex, /review_run_start/, `${entry.file} Codex registry render is bootstrap-only`);
     assert.doesNotMatch(expectedClaude, /proofbound:modular-role-body:v1/, `${entry.file} Claude registry excludes role body`);
     assert.doesNotMatch(expectedCodex, /proofbound:modular-role-body:v1/, `${entry.file} Codex registry excludes role body`);
   } else if (!isComplexRole) {
-    assert.equal(expectedClaude, source, `${entry.file} Claude render matches template`);
+    assert.equal(expectedClaude, canonicalSource, `${entry.file} Claude render matches canonical template output`);
   }
   if (isComplexRole) {
     const legacy = restoreLegacyPromptTemplate(entry);
@@ -107,10 +114,17 @@ for (const entry of registry.agents) {
     assert.equal(renderPromptEntryForHost(entry, 'codex', 'full-envelope'), renderCodexAgentContent(source), `${entry.file} modular Codex render remains explicitly selectable`);
     assert.notEqual(expectedClaude, source, `${entry.file} rejected rollout cannot yield the modular Claude render`);
   } else if (!MODULAR_REVIEWER_ROLE_IDS.includes(entry.agentId as typeof MODULAR_REVIEWER_ROLE_IDS[number])) {
-    assert.equal(expectedCodex, renderCodexAgentContent(source), `${entry.file} Codex render matches legacy transform`);
+    assert.equal(expectedCodex, renderCodexAgentContent(canonicalSource), `${entry.file} Codex render matches canonical transform`);
   }
   if (loadBearingPromptFiles.has(entry.file)) {
-    assert.equal(extractLatticeBlock(source), LOAD_BEARING_LATTICE_PROMPT_SLICE, `${entry.file} uses canonical load-bearing prompt slice`);
+    const expectedSlice = entry.file === 'proof-or-stop-evaluator-cli.md'
+      ? LOAD_BEARING_LATTICE_PROMPT_SLICE
+      : LEGACY_LOAD_BEARING_PROMPT_SLICE;
+    assert.equal(extractLatticeBlock(source), expectedSlice, `${entry.file} uses the expected load-bearing prompt slice`);
+    if (entry.file === 'proof-or-stop-evaluator-cli.md') {
+      assert.match(source, /<!-- proof-or-stop:start -->[\s\S]*<!-- proof-or-stop:end -->/);
+      assert.doesNotMatch(source, /<!-- lattice:start -->[\s\S]*<!-- lattice:end -->/);
+    }
     for (const phrase of requiredSafetyPhrases) {
       assert.ok(source.includes(phrase), `${entry.file} keeps load-bearing prompt phrase: ${phrase}`);
     }
@@ -122,11 +136,11 @@ for (const entry of registry.agents) {
   }
   const claudeMirrorPath = join(projectRoot, '.claude', 'agents', entry.file);
   if (existsSync(claudeMirrorPath)) {
-    assert.equal(readFileSync(claudeMirrorPath, 'utf8'), expectedClaude, `${entry.file} .claude asset matches its canonical host input`);
+    assert.equal(canonicalizeAgentRoleText(readFileSync(claudeMirrorPath, 'utf8')), expectedClaude, `${entry.file} .claude asset matches its canonical host input`);
   }
   const codexMirrorPath = join(projectRoot, adapterDirName(projectRoot), 'agents', entry.file);
   if (existsSync(codexMirrorPath)) {
-    assert.equal(readFileSync(codexMirrorPath, 'utf8'), expectedCodex, `${entry.file} .lattice-codex asset matches its canonical host input`);
+    assert.equal(canonicalizeAgentRoleText(readFileSync(codexMirrorPath, 'utf8')), expectedCodex, `${entry.file} .lattice-codex asset matches its canonical host input`);
   }
   material.update(`${entry.file}\0${entry.templateHash}\0${entry.bytes}\n`);
 }

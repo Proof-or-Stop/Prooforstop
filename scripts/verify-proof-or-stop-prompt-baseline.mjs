@@ -87,7 +87,7 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'proof-or-stop-evaluator-cli',
-    templateHash: 'daeb3d45a8eb98ed337a4e9ce5650f3b96030f2e3efea1de971743a20212a7ec',
+    templateHash: 'bbec313f09595dd1b5b49271494daea4e03060881b6f7d2215ad123620e214cc',
   },
   {
     role: 'proof-or-stop-evaluator',
@@ -155,7 +155,7 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
     // proof-or-stop-test-intent prompt assets; they contain no legacy
     // testIntent/cli_blackbox/browser_blackbox contract and explicitly keep
     // input/expect out of emitted verificationIntent entries.
-    templateHash: 'a8a16203d62bd4c39fc28b0536e5686723eaead7185485cc3e58809aca56285d',
+    templateHash: '2c665efd03d9f3bd31d1c3396aebb276c031d51b4bba33bb98fc203a1744f1f8',
   },
 ].map(entry => Object.freeze(entry)));
 const APPROVED_ROLE_BODY_ROLLOUT_MANIFEST = Object.freeze([

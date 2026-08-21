@@ -72,6 +72,9 @@ const compactQueryGuidancePhrases = [
   `proof-or-stop story_get '{"storyId":"B-xxxx"}'`,
   `proof-or-stop checklist_get '{"storyId":"B-xxxx"}'`,
 ];
+const LEGACY_LOAD_BEARING_PROMPT_SLICE = LOAD_BEARING_LATTICE_PROMPT_SLICE
+  .replace('<!-- proof-or-stop:start -->', '<!-- lattice:start -->')
+  .replace('<!-- proof-or-stop:end -->', '<!-- lattice:end -->');
 
 const modularReviewerSafetyPhrases = [
   'proofbound:modular-role-body:v1',
@@ -150,8 +153,8 @@ function assertPromptReductions(): void {
     } else {
       assert.equal(
         extractLatticeBlock(content),
-        LOAD_BEARING_LATTICE_PROMPT_SLICE,
-        `${file} uses canonical load-bearing prompt slice`,
+        LEGACY_LOAD_BEARING_PROMPT_SLICE,
+        `${file} uses the historical load-bearing prompt slice`,
       );
       for (const phrase of requiredPromptPhrases) {
         assert.ok(content.includes(phrase), `${file} keeps prompt-safety phrase: ${phrase}`);
