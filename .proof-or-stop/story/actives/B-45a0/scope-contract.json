@@ -36,9 +36,74 @@
     "packages/main/src/.worktrees/**"
   ],
   "scopeChangeReason": "B-45a0 owns the dynamic validation implementation, its source-of-truth document, CLI integration, registries, and focused tests; lifecycle metadata remains CLI-owned.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "These paths are required to complete the documented dynamic-validation contract: the handler executes the layered path, evidence-freshness shares canonical story-file hashing, the policy helper prevents import cycles, the integrity script verifies the imported source plan, and NAV publishes the source-of-truth document.",
+      "timestamp": "2026-08-21T08:01:08.174Z",
+      "paths": [
+        "docs/requirements/NAV.md",
+        "packages/main/src/core/evidence-freshness.ts",
+        "packages/main/src/core/material-path-policy.ts",
+        "packages/main/src/handlers/story-aware-validation.ts",
+        "scripts/verify-story-aware-validation-plan.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "docs/requirements/NAV.md",
+        "packages/main/src/core/evidence-freshness.ts",
+        "packages/main/src/core/material-path-policy.ts",
+        "packages/main/src/handlers/story-aware-validation.ts",
+        "scripts/verify-story-aware-validation-plan.mjs"
+      ],
+      "affectedPathCount": 5,
+      "phase": "DEV",
+      "headHash": "2f36fe2b4912d8ad6eb2e85279b92139b7c2195e",
+      "materialHash": "555951c8b40ade287175773fa890890340814180d0cba4c15794ff6391727b95",
+      "anchors": [
+        "DYN_1",
+        "DYN_2",
+        "DYN_3",
+        "DYN_4",
+        "DYN_5",
+        "source_plan_integrity"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "These executable adapters are required to satisfy the frozen checklist verifier pins for inventory, catalog closure, replay, fault injection, selection, receipts, authority, operations, and the complete mutation matrix; each delegates to real story-aware validation assertions.",
+      "timestamp": "2026-08-21T08:11:49.269Z",
+      "paths": [
+        "scripts/run-dynamic-validation-audit.mjs",
+        "scripts/run-dynamic-validation-fault-injection.mjs",
+        "scripts/run-dynamic-validation-replay.mjs",
+        "scripts/verify-validation-catalog.mjs",
+        "scripts/verify-validation-inventory.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "scripts/run-dynamic-validation-audit.mjs",
+        "scripts/run-dynamic-validation-fault-injection.mjs",
+        "scripts/run-dynamic-validation-replay.mjs",
+        "scripts/verify-validation-catalog.mjs",
+        "scripts/verify-validation-inventory.mjs"
+      ],
+      "affectedPathCount": 5,
+      "phase": "DEV",
+      "headHash": "cf84e7d5ed25d0d377110543cd3054a976331288",
+      "materialHash": "8f17bde165d79cd2c5e455c21413d868cb05a1cc1bfc9bf31b54f739dbe4f3dd",
+      "anchors": [
+        "DYN_1",
+        "DYN_2",
+        "DYN_3",
+        "DYN_4",
+        "DYN_5",
+        "mutation_audit"
+      ]
+    }
+  ],
   "createdAt": "2026-08-21T07:07:34.430Z",
-  "updatedAt": "2026-08-21T07:07:34.430Z",
+  "updatedAt": "2026-08-21T08:11:49.269Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -65,6 +130,16 @@
     "docs/story/**": "docs/story/**",
     "tests/fixtures/**": "tests/fixtures/**",
     "packages/main/dist/**": "packages/main/dist/**",
-    "packages/main/src/.worktrees/**": ".worktrees/**"
+    "packages/main/src/.worktrees/**": ".worktrees/**",
+    "docs/requirements/NAV.md": "docs/requirements/NAV.md",
+    "packages/main/src/core/evidence-freshness.ts": "packages/main/src/core/evidence-freshness.ts",
+    "packages/main/src/core/material-path-policy.ts": "packages/main/src/core/material-path-policy.ts",
+    "packages/main/src/handlers/story-aware-validation.ts": "packages/main/src/handlers/story-aware-validation.ts",
+    "scripts/verify-story-aware-validation-plan.mjs": "scripts/verify-story-aware-validation-plan.mjs",
+    "scripts/run-dynamic-validation-audit.mjs": "scripts/run-dynamic-validation-audit.mjs",
+    "scripts/run-dynamic-validation-fault-injection.mjs": "scripts/run-dynamic-validation-fault-injection.mjs",
+    "scripts/run-dynamic-validation-replay.mjs": "scripts/run-dynamic-validation-replay.mjs",
+    "scripts/verify-validation-catalog.mjs": "scripts/verify-validation-catalog.mjs",
+    "scripts/verify-validation-inventory.mjs": "scripts/verify-validation-inventory.mjs"
   }
 }
