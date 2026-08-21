@@ -749,7 +749,27 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Selected commands are assigned by CPU weight and expected P50 using stable longest-processing-time waves; workers never exceed capacity and serial verdict matches full-plan verdict.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Shared resources overlap only when safe; exclusive git/dist/lock/port claims serialize, drain barriers are honored, and the timeline has no missing or duplicate command.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Mutations removing CPU-weight enforcement, writer exclusivity, or drain barriers are rejected and cannot produce an authoritative PASS.",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-013",
