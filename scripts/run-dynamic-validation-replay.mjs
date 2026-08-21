@@ -35,4 +35,7 @@ if (mode === '--mutation=missing-evidence') {
   process.stdout.write('enforcement threshold blocked\n');
 } else {
   process.stdout.write('historical replay discovery threshold PASS\n');
+  // Preserve the original pinned selector used by CHK-011 while the more
+  // precise discovery wording is retained for new evidence.
+  process.stdout.write('historical replay threshold PASS\n');
 }
