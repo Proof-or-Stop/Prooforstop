@@ -1,20 +1,20 @@
 {
-  "task": "将剩余 lattice 身份表面迁移为 proof-or-stop，并在历史证据、已安装 managed block、旧 package 和旧 schema 读取边界保留兼容。",
-  "outcome": "proof-or-stop reviewer_list 显示 proof-or-stop-review-* canonical lanes；proof-or-stop --version 显示 Proof-or-Stop；npm pkg get name 返回 proof-or-stop，@proof-or-stop/utils 与 @proof-or-stop/lab 可解析；proof-or-stop init --upgrade 写出 proof-or-stop markers，旧 lattice markers 仍被读取；新 evidence 和 push approval schema 以 proof-or-stop.* 写出而旧 lattice.* 仍可验证；packages/main 不再安装 lattice bin alias。",
+  "task": "Migrate the remaining lattice identity surfaces to proof-or-stop while preserving compatibility at historical evidence, installed managed-block, old package, and old schema read boundaries.",
+  "outcome": "The user sees reviewer_list show proof-or-stop-review-* canonical lanes, proof-or-stop --version show Proof-or-Stop, npm pkg get name return proof-or-stop, @proof-or-stop/utils and @proof-or-stop/lab resolve, init --upgrade write proof-or-stop markers while reading old lattice markers, new evidence and push-approval schemas use proof-or-stop.* while old lattice.* remains verifiable, and packages/main no longer installs the lattice bin alias.",
   "facts": [
-    "B-5a88 checklist 明确要求 CHK-001..CHK-007 的 canonical proof-or-stop 写入和 lattice 双读兼容。",
-    "当前 packages/main/src/core/lattice-brand.ts 已有 proof-or-stop brand aliases，但 role registry、marker、artifact schema、package metadata 和 sibling package identities 仍有 lattice residue。",
-    "历史 story/evidence signatures 可能依赖旧 schema、salt 或路径；不能直接改写归档 story JSON。",
-    "pre-push 的 remote-push approval consumer、review lane classification、init-check required agents、quorum 和 package self-host detection 都是跨文件 choke points。",
-    "工作区已存在与本 story 无关的 dirty files，开发和提交必须只包含 B-5a88 相关路径。"
+    "B-5a88 checklist explicitly requires canonical proof-or-stop writes and lattice dual-read compatibility for CHK-001 through CHK-007.",
+    "packages/main/src/core/lattice-brand.ts already has proof-or-stop brand aliases, but role registry, markers, artifact schemas, package metadata, and sibling package identities still contain lattice residue.",
+    "Historical story and evidence signatures may depend on old schemas, salts, or paths; archived Story JSON must not be rewritten directly.",
+    "Pre-push remote-push approval consumption, review-lane classification, init-check required agents, quorum, and package self-host detection are cross-file choke points.",
+    "Unrelated dirty files already exist in the workspace, so development and commits must include only B-5a88 paths."
   ],
   "constraints": [
-    "遵循 frozen-evidence 原则：历史读取兼容，新的持久化写入只用 proof-or-stop。",
-    "managed block readers 双读 lattice 和 proof-or-stop markers，writers 和 init --upgrade 只写新 markers。",
-    "新 review_run_start、finding_add、review_pass_set、init_check_set 写入 canonical role IDs；旧 lattice role IDs 仍能通过 normalize/read path 参与 gate。",
-    "remote push approval 保持 one-shot consume semantics，并让 hook/CLI 接受两种 schema。",
-    "同步更新 root/sibling package.json、lockfiles、依赖引用和 exact-name consumers；移除 packages/main 的 lattice bin alias。",
-    "不修改 docs/story、tests/fixtures、归档证据、CHANGELOG，不执行远端 push 或 destructive cleanup。"
+    "Follow the frozen-evidence principle: keep historical reads compatible and use only proof-or-stop forms for new persistent writes.",
+    "Managed-block readers must read both lattice and proof-or-stop markers; writers and init --upgrade must write only the new markers.",
+    "New review_run_start, finding_add, review_pass_set, and init_check_set writes must use canonical role IDs; old lattice role IDs must still participate in gates through normalize/read paths.",
+    "Remote push approval must retain one-shot consumption semantics while hook and CLI accept both schemas.",
+    "Synchronize root and sibling package.json files, lockfiles, dependency references, and exact-name consumers; remove the packages/main lattice bin alias.",
+    "Do not modify docs/story, tests/fixtures, archived evidence, or CHANGELOG; do not push remotely or perform destructive cleanup."
   ],
   "unknowns": [],
   "touchpoints": [
@@ -37,5 +37,5 @@
     "packages/lab/package-lock.json",
     "packages/main/templates/agents/"
   ],
-  "timestamp": "2026-08-20T04:51:29.831Z"
+  "timestamp": "2026-08-21T00:45:31.845Z"
 }
