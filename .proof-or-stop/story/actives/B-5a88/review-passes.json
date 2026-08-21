@@ -1718,6 +1718,89 @@
         "scanEscalationReason": null
       },
       "_hash": "5777865154338d4fbcffe10f4dc212a5175339d258a767b830ee49a9fa969c73"
+    },
+    {
+      "id": "B-5a88:RP-028",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Focused concept review passed: canonical role, marker, schema, package, and bin migration checked; understanding and decision artifacts are English; brand-role, prompt-role, and bin-alias tests pass with no blocker.",
+      "createdAt": "2026-08-21T00:49:48.142Z",
+      "reviewRound": "2026-08-21T00:46:07.057Z",
+      "reviewRunId": "B-5a88:RR-115",
+      "envelopeId": "9ffe9f9ad208689906135fd666f61b384028a7164abad38a1864cfd9523cee8f",
+      "writerSessionId": "sess-9bdce79e7e2073a6fbb804dd7a93a332",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/decision.json",
+          ".proof-or-stop/story/actives/B-5a88/understanding.json",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/artifact-schema.ts",
+          "packages/main/src/core/managed-markers.ts",
+          "packages/main/tests/bin-alias-migration.test.mjs",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/prompt-role-migration.test.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "package.json",
+          "packages/lab/package.json",
+          "packages/main/package.json",
+          "packages/utils/package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8040eaa8c4c8229173cae1f24e4a95a41f14371cf6266ddf5b0707c2d1e5ca23"
+    },
+    {
+      "id": "B-5a88:RP-029",
+      "agent": "proof-or-stop-review-quality",
+      "note": "No blocker in canonical role and dispatch choke points; focused canonical-role/dispatch tests and git diff check passed.",
+      "createdAt": "2026-08-21T00:49:57.116Z",
+      "reviewRound": "2026-08-21T00:46:07.057Z",
+      "reviewRunId": "B-5a88:RR-116",
+      "envelopeId": "fc662505a8c4008c2741336a59d2f3459721edc37f084da2c0862dac1460f424",
+      "writerSessionId": "sess-e19ca7e17aff133ec8df7da49e6b5330",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/agent-role-identity.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/reviewer-opt-in.ts",
+          "packages/main/src/core/reviewer-quorum.ts",
+          "packages/main/src/handlers/reviewer-list.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/f081-f085-canonical-role-boundaries.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "af0ad920c44fbe97dc723fe9b6908199700044fb15a484e95ee15364cd002ed1"
+    },
+    {
+      "id": "B-5a88:RP-030",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Coverage review passed: all 21 must verification intents have passing evidence; pre_review_check_read, acceptance rollout, topology smoke, and git diff --check were reviewed with no blocker.",
+      "createdAt": "2026-08-21T00:50:06.266Z",
+      "reviewRound": "2026-08-21T00:46:07.057Z",
+      "reviewRunId": "B-5a88:RR-117",
+      "envelopeId": "a7b31479ccd46185bc111afcfe2314f50f9d62d6640d0c7073671e62e950bd79",
+      "writerSessionId": "sess-6b1d57c760999277a922d38c0cc13942",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "53231063fb8d29900f90e7a6154d3e3180b89b96be7a06928f6f16db0fd612c9"
     }
   ]
 }
