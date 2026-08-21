@@ -1,0 +1,70 @@
+{
+  "storyId": "B-45a0",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/core/validation-types.ts",
+    "packages/main/src/core/keyed-scheduler.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/runtime-fact-registry.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "lattice.config.json",
+    "package.json",
+    "packages/main/package.json"
+  ],
+  "allowedCreate": [
+    "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+    "packages/main/src/core/story-aware-validation.ts",
+    "packages/main/src/core/story-aware-validation-cli.ts",
+    "packages/main/tests/story-aware-validation.test.mjs",
+    "packages/main/tests/story-aware-validation-cli.test.mjs",
+    "packages/main/src/tasks/story-aware-validation-smoke.ts",
+    "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/tests/**",
+    "packages/main/src/tasks/**"
+  ],
+  "protectedFiles": [
+    ".proof-or-stop/story/**",
+    "docs/story/**",
+    "tests/fixtures/**"
+  ],
+  "explicitExcludes": [
+    "packages/main/dist/**",
+    "packages/main/src/.worktrees/**"
+  ],
+  "scopeChangeReason": "B-45a0 owns the dynamic validation implementation, its source-of-truth document, CLI integration, registries, and focused tests; lifecycle metadata remains CLI-owned.",
+  "acknowledgements": [],
+  "createdAt": "2026-08-21T07:07:34.430Z",
+  "updatedAt": "2026-08-21T07:07:34.430Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/handlers/verifier.ts": "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/core/validation-types.ts": "packages/main/src/core/validation-types.ts",
+    "packages/main/src/core/keyed-scheduler.ts": "packages/main/src/core/keyed-scheduler.ts",
+    "packages/main/src/core/process-fact-registry.ts": "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/process-fact-levels.ts": "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/runtime-fact-registry.ts": "packages/main/src/core/runtime-fact-registry.ts",
+    "packages/main/src/cli/command-catalog.ts": "packages/main/src/cli/command-catalog.ts",
+    "lattice.config.json": "lattice.config.json",
+    "package.json": "package.json",
+    "packages/main/package.json": "packages/main/package.json",
+    "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md": "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+    "packages/main/src/core/story-aware-validation.ts": "packages/main/src/core/story-aware-validation.ts",
+    "packages/main/src/core/story-aware-validation-cli.ts": "packages/main/src/core/story-aware-validation-cli.ts",
+    "packages/main/tests/story-aware-validation.test.mjs": "packages/main/tests/story-aware-validation.test.mjs",
+    "packages/main/tests/story-aware-validation-cli.test.mjs": "packages/main/tests/story-aware-validation-cli.test.mjs",
+    "packages/main/src/tasks/story-aware-validation-smoke.ts": "packages/main/src/tasks/story-aware-validation-smoke.ts",
+    "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts": "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts",
+    "packages/main/tests/**": "packages/main/tests/**",
+    "packages/main/src/tasks/**": "packages/main/src/tasks/**",
+    ".proof-or-stop/story/**": ".proof-or-stop/story/**",
+    "docs/story/**": "docs/story/**",
+    "tests/fixtures/**": "tests/fixtures/**",
+    "packages/main/dist/**": "packages/main/dist/**",
+    "packages/main/src/.worktrees/**": ".worktrees/**"
+  }
+}
