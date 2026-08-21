@@ -675,6 +675,74 @@ const SELECTOR = 'MARKER_OK';
   } finally { cleanup(env); }
 }
 
+// ── 12e. F-061/F-065/F-067: semantic mutations must receive fresh server-owned
+//        freshness bindings even when command/result are unchanged. Exact semantic
+//        re-persist remains the only safe carry-forward case. ──────────────────────
+{
+  const env = makeEnv([
+    { ref: 'INT-F067-NOTE', type: 'manual' },
+    { ref: 'INT-F067-VERDICT', type: 'manual' },
+    { ref: 'INT-F067-FILE', type: 'manual' },
+    { ref: 'INT-F067-ATTESTATION', type: 'manual' },
+  ]);
+  try {
+    const command = 'manual-evidence-source';
+    const attestation = {
+      kind: 'human' as const,
+      actor: 'f067-fixture',
+      checkedClaims: ['baseline semantic evidence'],
+      command,
+      result: 'pass' as const,
+    };
+    const baselineRows = [
+      { intentRef: 'INT-F067-NOTE', kind: 'manual_transcript' as const, command, result: 'pass' as const, note: 'baseline note', verdict: 'success' as const },
+      { intentRef: 'INT-F067-VERDICT', kind: 'manual_transcript' as const, command, result: 'pass' as const, note: 'baseline verdict', verdict: 'success' as const },
+      { intentRef: 'INT-F067-FILE', kind: 'manual_transcript' as const, command, result: 'pass' as const, note: 'baseline file', file: 'evidence/baseline.txt' },
+      { intentRef: 'INT-F067-ATTESTATION', kind: 'manual_transcript' as const, command, result: 'pass' as const, note: 'baseline attestation', attestation },
+    ];
+    env.handlers.checklist_update({ storyId: env.storyId, itemId: 'CHK-001', verificationEvidence: baselineRows });
+    const seeded = env.store.readChecklist(env.storyId).items[0].verificationEvidence ?? [];
+    assert.equal(seeded.length, 4, 'F-067 baseline rows are persisted');
+
+    // The exact same semantic rows retain their original server-owned bindings.
+    env.handlers.checklist_update({ storyId: env.storyId, itemId: 'CHK-001', verificationEvidence: baselineRows });
+    const carried = env.store.readChecklist(env.storyId).items[0].verificationEvidence ?? [];
+    for (const row of seeded) {
+      const rePersisted = carried.find(candidate => candidate.intentRef === row.intentRef);
+      assert.equal(rePersisted?.headHash, row.headHash, `F-067 exact re-persist keeps headHash for ${row.intentRef}`);
+      assert.equal(rePersisted?.materialHash, row.materialHash, `F-067 exact re-persist keeps materialHash for ${row.intentRef}`);
+      assert.equal(rePersisted?.storyFilesHash, row.storyFilesHash, `F-067 exact re-persist keeps storyFilesHash for ${row.intentRef}`);
+    }
+
+    // Move the repository to a new material identity without changing command/result.
+    write(env.root, 'packages/main/src/base.ts', 'export const base = "f067-material-drift";\n');
+    git(env.root, ['add', '.']);
+    git(env.root, ['commit', '-m', 'F-067 material drift']);
+    const current = {
+      headHash: currentGitHead(env.root),
+      materialHash: currentMaterialHash(env.root, 'HEAD', env.root),
+      storyFilesHash: currentStoryFilesHash(env.root, 'HEAD', env.root),
+    };
+    assert.notEqual(current.headHash, seeded[0].headHash, 'F-067 fixture moves HEAD');
+    assert.notEqual(current.materialHash, seeded[0].materialHash, 'F-067 fixture moves materialHash');
+    assert.notEqual(current.storyFilesHash, seeded[0].storyFilesHash, 'F-067 fixture moves storyFilesHash');
+
+    const mutatedRows = [
+      { intentRef: 'INT-F067-NOTE', kind: 'manual_transcript' as const, command, result: 'pass' as const, note: 'changed note', verdict: 'success' as const },
+      { intentRef: 'INT-F067-VERDICT', kind: 'manual_transcript' as const, command, result: 'pass' as const, note: 'baseline verdict', verdict: 'audit_only' as const },
+      { intentRef: 'INT-F067-FILE', kind: 'manual_transcript' as const, command, result: 'pass' as const, note: 'baseline file', file: 'evidence/changed.txt' },
+      { intentRef: 'INT-F067-ATTESTATION', kind: 'manual_transcript' as const, command, result: 'pass' as const, note: 'baseline attestation', attestation: { ...attestation, checkedClaims: ['changed structured attestation'] } },
+    ];
+    env.handlers.checklist_update({ storyId: env.storyId, itemId: 'CHK-001', verificationEvidence: mutatedRows });
+    const mutated = env.store.readChecklist(env.storyId).items[0].verificationEvidence ?? [];
+    for (const row of mutated) {
+      assert.equal(row.headHash, current.headHash, `F-067 semantic mutation receives current headHash for ${row.intentRef}`);
+      assert.equal(row.materialHash, current.materialHash, `F-067 semantic mutation receives current materialHash for ${row.intentRef}`);
+      assert.equal(row.storyFilesHash, current.storyFilesHash, `F-067 semantic mutation receives current storyFilesHash for ${row.intentRef}`);
+    }
+  } finally { cleanup(env); }
+}
+
 // ══════════════════════════════════════════════════════════════════════════════════
 // B-cdf6 (B-META F-012): distinct receipt-timeout refusal + bounded audited timeout
 // override.
