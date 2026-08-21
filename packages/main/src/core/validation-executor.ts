@@ -1,5 +1,6 @@
 import { execSync, spawn } from 'node:child_process';
-import { isAbsolute, resolve } from 'node:path';
+import { existsSync, mkdirSync, readFileSync, rmSync } from 'node:fs';
+import { isAbsolute, join, resolve } from 'node:path';
 import { loadConfig } from './config.js';
 import {
   classifyGitStatusRows,
@@ -55,6 +56,14 @@ const MAX_OUTPUT_CHARS = 12000;
  * non-default override the operator owns.
  */
 export const DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS = 270_000;
+
+const RUNTIME_TRACE_DIR = '.proof-or-stop/runtime/validation-traces';
+const RUNTIME_TRACER_RELATIVE_PATH = 'packages/main/src/core/validation-runtime-tracer.cjs';
+
+function runtimeTracerPath(projectRoot: string): string | undefined {
+  const candidate = resolve(projectRoot, RUNTIME_TRACER_RELATIVE_PATH);
+  return existsSync(candidate) ? candidate : undefined;
+}
 
 /**
  * B-cdf6 (B-META F-012): hard cap for a per-evidence pinned-command timeout override.
@@ -1278,6 +1287,16 @@ export function runValidationCommand(
     statusGitCwd = projectRoot;
   }
   const statusBefore = readGitStatus(statusGitCwd);
+  const tracer = runtimeTracerPath(projectRoot);
+  const traceFile = tracer
+    ? join(projectRoot, RUNTIME_TRACE_DIR, `${process.pid}-${commandIndex}-${Date.now()}.json`)
+    : undefined;
+  const spawnEnv = { ...effectiveEnv };
+  if (tracer && traceFile) {
+    mkdirSync(join(projectRoot, RUNTIME_TRACE_DIR), { recursive: true });
+    spawnEnv.PROOF_OR_STOP_RUNTIME_TRACE_FILE = traceFile;
+    spawnEnv.NODE_OPTIONS = `${spawnEnv.NODE_OPTIONS || ''} --require ${tracer}`.trim();
+  }
 
   return new Promise((resolveResult) => {
     const isWindows = process.platform === 'win32';
@@ -1324,16 +1343,28 @@ export function runValidationCommand(
           command: command.command,
           argv: [...command.args],
           cwd,
-          environmentKeys: Object.keys(effectiveEnv).sort(),
+          environmentKeys: Object.keys(spawnEnv).sort(),
           startedAt,
           endedAt: new Date().toISOString(),
           exitCode: code,
           events: [...runtimeEvents],
-          // The executor observes the process boundary only. File reads, module loads,
-          // registry access, and generated-input reads require explicit instrumentation;
-          // retaining this marker makes closure certificates fail closed until that seam
-          // is installed instead of treating argv as a fake runtime trace.
-          unknownRuntimeInputs: ['file-read/module-load/registry tracing unavailable'],
+          ...(traceFile && existsSync(traceFile)
+            ? (() => {
+                try {
+                  const observed = JSON.parse(readFileSync(traceFile, 'utf8')) as Record<string, unknown>;
+                  return {
+                    readPaths: Array.isArray(observed.readPaths) ? observed.readPaths.filter((v): v is string => typeof v === 'string') : [],
+                    loadedPaths: Array.isArray(observed.loadedPaths) ? observed.loadedPaths.filter((v): v is string => typeof v === 'string') : [],
+                    spawnedPaths: Array.isArray(observed.spawnedPaths) ? observed.spawnedPaths.filter((v): v is string => typeof v === 'string') : [],
+                    registryKeys: Array.isArray(observed.registryKeys) ? observed.registryKeys.filter((v): v is string => typeof v === 'string') : [],
+                    events: Array.isArray(observed.events) ? observed.events.filter((v): v is string => typeof v === 'string') : [...runtimeEvents],
+                    unknownRuntimeInputs: [],
+                  };
+                } catch {
+                  return { unknownRuntimeInputs: ['runtime trace malformed'] };
+                }
+              })()
+            : { unknownRuntimeInputs: ['runtime tracer unavailable for command'] }),
         },
         ...(pollutionStatusLines.length > 0
           ? {
@@ -1354,11 +1385,12 @@ export function runValidationCommand(
         timedOut,
       }));
       resolveResult(result);
+      if (traceFile) rmSync(traceFile, { force: true });
     };
 
     const child = spawn(command.command, command.args, {
       cwd,
-      env: effectiveEnv,
+      env: spawnEnv,
       shell: command.shell || isWindows,
       stdio: ['ignore', 'pipe', 'pipe'],
       // POSIX: give the child its own process group (it becomes group leader) so the

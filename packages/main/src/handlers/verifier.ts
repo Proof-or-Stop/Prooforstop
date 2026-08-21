@@ -78,8 +78,8 @@ import {
 } from '../core/done-prepare-generated-metadata.js';
 import { normalizeRelPath } from '../core/lattice-paths.js';
 import { readBrandEnv } from '../core/brand-env.js';
-import { resolveDynamicMode, stableDigest, type DynamicValidationMode } from '../core/story-aware-validation.js';
-import { persistCanonicalFullBaseline, prepareStoryAwareValidation, runStoryAwareDynamicValidation } from './story-aware-validation.js';
+import { buildRevocationLedger, resolveDynamicMode, runObserveOracle, stableDigest, type DynamicValidationMode, type ValidationSelectionManifest } from '../core/story-aware-validation.js';
+import { persistCanonicalFullBaseline, persistStoryAwareValidationArtifacts, prepareStoryAwareValidation, runStoryAwareDynamicValidation } from './story-aware-validation.js';
 
 const STATUS_FALLBACK_TIMEOUT_MS = 10_000;
 const SHELL_META_RE = /[;&|<>$()`]/;
@@ -1440,6 +1440,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
               uncovered: number;
               unmappedChanges: number;
             };
+            observeOracle?: ReturnType<typeof runObserveOracle>;
           } | undefined;
           // Focused validation is explicitly non-authoritative and may pass a
           // filtered command list; keep dynamic inventory/execution aligned
@@ -1596,7 +1597,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
               sourceHead: currentHead(handlerGitCwd) || '',
               result: base,
             });
-          const dynamicValidation = dynamicPreview
+          let dynamicValidation = dynamicPreview
             ? {
               ...dynamicPreview,
               fullPlanAllPass: base.allPass,
@@ -1617,6 +1618,36 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
                 : dynamicPreview.selectedAllPass === base.allPass,
             }
             : undefined;
+          if (dynamicValidation?.mode === 'observe' && dynamicValidation.manifest) {
+            const manifest = dynamicValidation.manifest as ValidationSelectionManifest;
+            const selected = new Set(manifest.rows.filter(row => row.disposition === 'execute').map(row => row.commandId));
+            const commandIds = manifest.rows.map(row => row.commandId);
+            const selectedOrder = commandIds.filter(id => selected.has(id));
+            const observeOracle = runObserveOracle({
+              manifest,
+              fullOracle: {
+                allPass: base.allPass,
+                failedCommandIds: base.commands.flatMap((row, index) =>
+                  (row.code !== 0 || row.timedOut) && manifest.rows[index] ? [manifest.rows[index]!.commandId] : []),
+              },
+              instrumentedOrder: selectedOrder,
+              authoritativeOrder: selectedOrder,
+            });
+            dynamicValidation = {
+              ...dynamicValidation,
+              selectedAllPass: base.allPass,
+              observeOracle,
+              verdictEquivalent: observeOracle.equivalent,
+            };
+            persistStoryAwareValidationArtifacts({
+              projectRoot,
+              storyId: args.story!,
+              manifest,
+              report: `${dynamicValidation.report || ''}\nobserve oracle: ${JSON.stringify(observeOracle)}`,
+              receipts: [],
+              revocationLedger: buildRevocationLedger([], []),
+            });
+          }
           const summary = usingConfigured
             ? base.summary
             : `${base.summary}; ${fallbackDiscoveryDetail}`;
