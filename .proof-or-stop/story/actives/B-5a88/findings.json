@@ -6207,6 +6207,28 @@
       "resolvedAt": "2026-08-21T10:12:02.257Z",
       "resolutionType": "partially_mitigated",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5a88:F-162",
+      "desc": "concept-cleanup: canonical managed markers are still emitted in legacy form by the prompt surface. packages/main/src/core/prompt-registry.ts:125-219 defines LOAD_BEARING_LATTICE_PROMPT_SLICE with <!-- lattice:start/end -->, and renderPromptEntryForHost at :466-480 returns that content; direct current-dist rendering reports both Claude and Codex evaluator-cli output contain the legacy pair. The three shipped proof-or-stop-evaluator-cli assets in .claude/agents/proof-or-stop-evaluator-cli.md:7,101, .proof-or-stop-codex/agents/proof-or-stop-evaluator-cli.md:7,101, and packages/main/templates/agents/proof-or-stop-evaluator-cli.md:7,101 also contain the pair. This violates the migration decisions new-write contract in brand-rename-mapping.md:135 and proof-or-stop-identity-migration.md:27: legacy markers are allowed only for compatibility reads, while new managed and prompt assets must use proof-or-stop:start/end. packages/main/tests/prompt-role-migration.test.mjs:39-44 currently asserts the legacy pair, so the test preserves the residue instead of detecting it.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-21T10:21:23.547Z",
+      "reviewRound": "2026-08-21T08:03:56.673Z",
+      "reviewRunId": "B-5a88:RR-166",
+      "_hash": "6afe759f73562579ce83a1218e5fef77798533a1891735f525fde28dd9c7defe",
+      "files": [
+        "packages/main/src/core/prompt-registry.ts",
+        ".claude/agents/proof-or-stop-evaluator-cli.md",
+        ".proof-or-stop-codex/agents/proof-or-stop-evaluator-cli.md",
+        "packages/main/templates/agents/proof-or-stop-evaluator-cli.md",
+        "packages/main/tests/prompt-role-migration.test.mjs"
+      ],
+      "signatureTag": "missing|ts|concept-cleanup-canonical",
+      "signatureTagSource": "auto"
     }
   ]
 }
