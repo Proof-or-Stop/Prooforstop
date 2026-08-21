@@ -41,7 +41,7 @@ export function generateProfileSection(profile: WorkflowProfile): string {
 
   // Subagent requirements
   if (policy.subagents.requireWorkerInNormalChannel) {
-    lines.push('**Normal channel**: must use the lattice-implementer subagent to write code; the main agent does not write business code.');
+    lines.push('**Normal channel**: must use the proof-or-stop-implementer subagent to write code; the main agent does not write business code.');
   } else {
     lines.push('**Normal channel**: subagent is recommended but not required; the main agent may write code itself.');
   }

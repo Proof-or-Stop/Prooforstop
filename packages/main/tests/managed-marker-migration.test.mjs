@@ -23,6 +23,8 @@ assert.equal(markers.replaceManagedBlock(legacy.replace('<!-- lattice:end -->', 
 
 const profile = sync.generateProfileSection('balanced');
 assert.match(profile, /<!-- proof-or-stop-profile:start -->/);
+assert.match(profile, /must use the proof-or-stop-implementer subagent/);
+assert.doesNotMatch(profile, /lattice-implementer/);
 assert.equal(markers.inspectManagedBlock(profile, 'profile').status, 'valid');
 const syncRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-marker-sync-'));
 try {
