@@ -3625,6 +3625,210 @@
       ],
       "signatureTag": "missing|md|promise-undelivered-current",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-092",
+      "desc": "doc-promise-undelivered: docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md:136 declares node packages/main/dist/tasks/verifier-causal-preflight-smoke.js as the B-5a15 verifier baseline, but packages/main/src/tasks has no corresponding source task and packages/main/dist/tasks has no artifact; executing the exact command from the story worktree fails with MODULE_NOT_FOUND. The existing packages/main/tests/verifier-causal-preflight.test.mjs only exercises handlers/verifier.js and cannot satisfy the documented built smoke command, leaving CHK-004 verifier preflight proof unexecutable.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-21T18:28:14.667Z",
+      "reviewRound": "2026-08-21T17:48:55.675Z",
+      "reviewRunId": "B-5a15:RR-172",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/tests/verifier-causal-preflight.test.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "8ed7966151e1de5b71a51f2e53d9b82d77d6369c0c8cdf6ebaaf0b68f082aa5a"
+      },
+      "readDiagnostics": [],
+      "_hash": "445d492f5242f5364f5dd9c807c39e28a12ca2618a8d05c53ecf825db85f2e83",
+      "files": [
+        "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/tests/verifier-causal-preflight.test.mjs"
+      ],
+      "signatureTag": "missing|md|promise-undelivered-docs",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-093",
+      "desc": "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md:136 declares node packages/main/dist/tasks/verifier-causal-preflight-smoke.js as a verification command. The expected built artifact is absent, and packages/main/src/tasks/verifier-causal-preflight-smoke.ts is also absent; only differently named smoke tasks and packages/main/tests/verifier-causal-preflight.test.mjs exist. The documented command is therefore not executable or source-backed, leaving the verifier preflight acceptance contract incomplete.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-21T18:29:00.770Z",
+      "reviewRound": "2026-08-21T17:48:55.675Z",
+      "reviewRunId": "B-5a15:RR-171",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "packages/main/dist/tasks/verifier-causal-preflight-smoke.js",
+          "packages/main/src/tasks/verifier-causal-preflight-smoke.ts",
+          "packages/main/tests/verifier-causal-preflight.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "12f1485fca1dcfa112831364e4a65c8bcdafe7d61802fc0afefcbdeb9d2a5ac8"
+      },
+      "readDiagnostics": [],
+      "_hash": "b557cbed08f6e9834e042f515040cbf86adbdae7c4596cdf22635c748dbfd985",
+      "files": [
+        "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+        "packages/main/src/tasks/verifier-causal-preflight-smoke.ts",
+        "packages/main/dist/tasks/verifier-causal-preflight-smoke.js",
+        "packages/main/tests/verifier-causal-preflight.test.mjs"
+      ],
+      "signatureTag": "missing|md|docs-requirements-decisions",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-094",
+      "desc": "doc-promise-undelivered: docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md:136 documents node packages/main/dist/tasks/verifier-causal-preflight-smoke.js as the verifier preflight contract, but packages/main/src/tasks/verifier-causal-preflight-smoke.ts and packages/main/dist/tasks/verifier-causal-preflight-smoke.js are both absent; executing the documented command fails with MODULE_NOT_FOUND. The story has verifier-causal-preflight.test.mjs and inline preflight wiring, but no source-backed executable smoke artifact, so the documented acceptance command cannot run.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T18:29:42.006Z",
+      "reviewRound": "2026-08-21T17:48:55.675Z",
+      "reviewRunId": "B-5a15:RR-173",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "packages/main/tests/verifier-causal-preflight.test.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/dist/tasks/verifier-causal-preflight-smoke.js",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/verifier-causal-preflight-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "19c5d2ca611cfa65f840b7cc5ec7d16ffe8d7b9a220bcc64f4ec7922e7654a56"
+      },
+      "readDiagnostics": [],
+      "_hash": "cb7fd31450fd4cf1d8d36c7042ea418ee64602118ddee08195a9eafa1cb9c1eb",
+      "files": [
+        "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+        "packages/main/src/tasks/verifier-causal-preflight-smoke.ts",
+        "packages/main/dist/tasks/verifier-causal-preflight-smoke.js",
+        "packages/main/tests/verifier-causal-preflight.test.mjs"
+      ],
+      "signatureTag": "missing|md|promise-undelivered-verifier",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a15:F-095",
+      "desc": "doc-promise-undelivered: docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md:136 declares node packages/main/dist/tasks/verifier-causal-preflight-smoke.js as an implementation baseline command, but the repository contains no packages/main/src/tasks/verifier-causal-preflight-smoke.ts and no corresponding packages/main/dist/tasks/verifier-causal-preflight-smoke.js. The existing verifier-causal-preflight.test.mjs exercises compiled handlers directly, not the documented smoke artifact. The command is therefore non-executable and not source-backed; creating the missing task would add a new source file outside the signed B-5a15 scope contract, whose allowed creates do not include this path.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-21T18:34:31.830Z",
+      "reviewRound": "2026-08-21T17:48:55.675Z",
+      "reviewRunId": "B-5a15:RR-175",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "packages/main/tests/verifier-causal-preflight.test.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/dist/tasks/verifier-causal-preflight-smoke.js",
+          "packages/main/src/tasks/verifier-causal-preflight-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "804578af044af9b54be4e4fbcd894f89d16740de58295880352e80284a9158b0"
+      },
+      "readDiagnostics": [],
+      "_hash": "e111825ad45426a16257e3253f0019554b0136446c8879b0571c1d531c2e2c88",
+      "files": [
+        "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+        "packages/main/src/tasks/verifier-causal-preflight-smoke.ts",
+        "packages/main/dist/tasks/verifier-causal-preflight-smoke.js",
+        "packages/main/tests/verifier-causal-preflight.test.mjs"
+      ],
+      "signatureTag": "missing|md|promise-undelivered-verifier",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
