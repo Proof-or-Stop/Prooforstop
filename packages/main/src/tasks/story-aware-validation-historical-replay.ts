@@ -13,7 +13,7 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
-import { buildDynamicValidationPlan, buildStoryChangeManifest, compileValidationCatalog, createValidationClosureCertificate, discoverValidationInventory, signPayload, stableDigest, verifyPayload, verifyValidationClosureCertificate, verifyValidationSelectionManifest, type StoryChangedFile, type ValidationCatalogEntry } from '../core/story-aware-validation.js';
+import { buildDualRevisionImpactGraph, buildDynamicValidationPlan, buildStoryChangeManifest, compileValidationCatalog, computeValidationInputDigest, createValidationClosureCertificate, createValidationCommandReceipt, discoverValidationInventory, signPayload, stableDigest, verifyPayload, verifyValidationClosureCertificate, verifyValidationSelectionManifest, type StoryChangedFile, type ValidationCatalogEntry, type ValidationCommandReceipt } from '../core/story-aware-validation.js';
 import { executeValidationPlan } from '../core/validation-executor.js';
 
 const root = resolve(process.cwd());
@@ -166,14 +166,62 @@ function signedArtifact<T extends Record<string, unknown>>(body: T): T & { signa
   return { ...body, signature: signPayload(body) };
 }
 
+function validationCommands(entries: ValidationCatalogEntry[]) {
+  return entries.map((entry) => ({ label: entry.label, command: entry.command, args: entry.args, cwd: entry.cwd, env: entry.env, resources: entry.resources }));
+}
+
+function receiptForBaseline(args: {
+  entry: ValidationCatalogEntry;
+  row: { inputDigest: string; closureCertificateDigest?: string };
+  result: Awaited<ReturnType<typeof executeValidationPlan>>['commands'][number];
+  storyId: string;
+  baseHead: string;
+  head: string;
+  catalogDigest: string;
+  inventoryDigest: string;
+  baselineEpoch: string;
+  buildProofDigest: string;
+}): ValidationCommandReceipt | undefined {
+  if (args.result.code !== 0 || args.result.timedOut || !args.row.closureCertificateDigest) return undefined;
+  const createdAt = new Date().toISOString();
+  return createValidationCommandReceipt({
+    id: `historical-receipt-${stableDigest({ storyId: args.storyId, commandId: args.entry.id, inputDigest: args.row.inputDigest, head: args.head }).slice(0, 24)}`,
+    commandId: args.entry.id,
+    commandIdentityDigest: stableDigest({ command: args.entry.command, args: args.entry.args }),
+    inputDigest: args.row.inputDigest,
+    closureCertificateDigest: args.row.closureCertificateDigest,
+    catalogDigest: args.catalogDigest,
+    inventoryDigest: args.inventoryDigest,
+    runnerDigest: stableDigest(args.entry.runnerSourceDigest || ''),
+    toolchainDigest: '',
+    buildProofDigest: args.buildProofDigest,
+    sourceHead: args.head,
+    sourceBaseHead: args.baseHead,
+    canonicalBaselineEpochId: args.baselineEpoch,
+    producedBy: 'canonical-full-baseline',
+    cleanTreeDigest: stableDigest({ head: args.head, storyId: args.storyId, status: 'clean-at-command-start' }),
+    executionEnvironmentDigest: stableDigest({ node: process.version, platform: process.platform, arch: process.arch }),
+    result: 'PASS',
+    exitCode: 0,
+    outputDigest: stableDigest(args.result.output),
+    durationMs: args.result.durationMs,
+    createdAt,
+    revocationLedgerDigest: stableDigest({}),
+  });
+}
+
 for (const candidate of selected) {
   const files = diffCache.get(candidate.storyId) || changedFiles(candidate.pair.base, candidate.pair.head);
   diffCache.set(candidate.storyId, files);
   candidate.category = candidateCategory(candidate);
   const changes = buildStoryChangeManifest({ storyId: candidate.storyId, gitCwd: root, baseHead: candidate.pair.base, head: candidate.pair.head, changedFiles: files });
+  // Graph extraction is needed for executable assurance. Plan-only mode keeps
+  // the inexpensive inventory characterization path and does not pretend to
+  // have executed dual-revision closure evidence.
+  const graph = execute ? buildDualRevisionImpactGraph({ gitCwd: root, baseHead: candidate.pair.base, head: candidate.pair.head, catalog }) : undefined;
   const manifest = buildDynamicValidationPlan({
     storyId: candidate.storyId, baseHead: candidate.pair.base, head: candidate.pair.head,
-    inventory, catalog, changes, closures, baselineEpochId: candidate.pair.base,
+    inventory, catalog, changes, closures, baselineEpochId: candidate.pair.base, graph,
     buildProofDigest: 'historical-replay-plan', mode: 'shadow', gitCwd: root,
   });
   assert.equal(verifyValidationSelectionManifest(manifest), true, `${candidate.storyId} produced an invalid selection manifest`);
@@ -181,22 +229,53 @@ for (const candidate of selected) {
     storyId: candidate.storyId, category: candidate.category, baseHead: candidate.pair.base,
     head: candidate.pair.head, changedFiles: files.length, selectionDigest: stableDigest(manifest),
     selectedCommandIds: manifest.rows.filter(row => row.disposition === 'execute').map(row => row.commandId),
+    selectedCount: manifest.totals.executed, reusedCount: manifest.totals.reused,
+    fullEscalated: manifest.fullEscalated, dependencyGraphDigest: manifest.dependencyGraphDigest,
     execution: 'not-run',
     restore: execute
       ? { mode: 'detached-git-worktrees', baseHead: candidate.pair.base, head: candidate.pair.head, status: 'pending' }
       : { mode: 'plan-only', baseHead: candidate.pair.base, head: candidate.pair.head, status: 'not-run' },
   };
   if (execute) {
-    const commands = catalog.map((entry) => ({ label: entry.label, command: entry.command, args: entry.args, cwd: entry.cwd, env: entry.env, resources: entry.resources }));
-    const selectedIds = new Set(record.selectedCommandIds as string[]);
-    const selectedCommands = catalog.filter(entry => selectedIds.has(entry.id)).map((entry) => ({ label: entry.label, command: entry.command, args: entry.args, cwd: entry.cwd, env: entry.env, resources: entry.resources }));
     await withHistoricalWorktrees(candidate.pair.base, candidate.pair.head, async ({ head: historicalRoot }) => {
+      const commands = validationCommands(catalog);
+      // Establish a canonical full result on this exact historical head, then
+      // feed signed PASS receipts back into the selector. Without this step a
+      // replay is merely full-vs-full because no reusable baseline exists.
       const full = await executeValidationPlan({ provider: 'historical-replay-full', commands, warnings: [] }, historicalRoot, candidate.pair.head, candidate.storyId);
+      const baselineReceipts = catalog.flatMap((entry, index) => {
+        const row = manifest.rows.find((candidateRow) => candidateRow.commandId === entry.id);
+        const result = full.commands[index];
+        const receipt = row && result ? receiptForBaseline({
+          entry, row, result, storyId: candidate.storyId, baseHead: candidate.pair.base, head: candidate.pair.head,
+          catalogDigest, inventoryDigest: inventory.digest, baselineEpoch: candidate.pair.base,
+          buildProofDigest: 'historical-replay-plan',
+        }) : undefined;
+        return receipt ? [receipt] : [];
+      });
+      const dynamicManifest = buildDynamicValidationPlan({
+        storyId: candidate.storyId, baseHead: candidate.pair.base, head: candidate.pair.head,
+        inventory, catalog, changes, closures, receipts: baselineReceipts,
+        baselineEpochId: candidate.pair.base, graph, buildProofDigest: 'historical-replay-plan',
+        mode: 'shadow', gitCwd: historicalRoot,
+      });
+      const selectedIds = new Set(dynamicManifest.rows.filter(row => row.disposition === 'execute').map(row => row.commandId));
+      const selectedCommands = catalog.filter(entry => selectedIds.has(entry.id)).map(entry => ({ label: entry.label, command: entry.command, args: entry.args, cwd: entry.cwd, env: entry.env, resources: entry.resources }));
       const dynamic = await executeValidationPlan({ provider: 'historical-replay-dynamic', commands: selectedCommands, warnings: [] }, historicalRoot, candidate.pair.head, candidate.storyId);
       const fullFailures = full.commands.flatMap((row, index) => row.code === 0 ? [] : [catalog[index]!.id]);
       assert.ok(fullFailures.every(id => selectedIds.has(id)), `${candidate.storyId} omitted a full-plan failure`);
       const fullVerdicts = commandVerdicts(full);
       const dynamicVerdicts = commandVerdicts(dynamic);
+      const dynamicById = new Map(dynamic.commands.map((row) => [catalog.find((entry) => entry.label === row.label)?.id || row.label, row]));
+      const perCommandEquivalent = dynamicManifest.rows.every((row) => {
+        const index = catalog.findIndex((entry) => entry.id === row.commandId);
+        const fullRow = full.commands[index];
+        if (!fullRow) return false;
+        if (row.disposition === 'reuse') return fullRow.code === 0;
+        const dynamicRow = dynamicById.get(row.commandId);
+        return Boolean(dynamicRow && dynamicRow.code === fullRow.code);
+      });
+      const dynamicResidue = dynamic.commands.flatMap((row) => row.worktreePollution?.paths || []);
       const fullReceipt = signedArtifact({
         schema: 'proof-or-stop.dynamic-validation.replay-command-receipt.v1',
         storyId: candidate.storyId, mode: 'full', baseHead: candidate.pair.base,
@@ -206,12 +285,20 @@ for (const candidate of selected) {
         schema: 'proof-or-stop.dynamic-validation.replay-command-receipt.v1',
         storyId: candidate.storyId, mode: 'dynamic', baseHead: candidate.pair.base,
         head: candidate.pair.head, allPass: dynamic.allPass, verdicts: dynamicVerdicts,
+        selectedCount: dynamicManifest.totals.executed, reusedCount: dynamicManifest.totals.reused,
+        perCommandEquivalent, residue: dynamicResidue,
       });
       record.execution = {
         fullAllPass: full.allPass,
         dynamicAllPass: dynamic.allPass,
         fullFailures,
         commandExecutions: dynamic.commands.length,
+        selectedCount: dynamicManifest.totals.executed,
+        reusedCount: dynamicManifest.totals.reused,
+        fullEscalated: dynamicManifest.fullEscalated,
+        dependencyGraphDigest: dynamicManifest.dependencyGraphDigest,
+        perCommandEquivalent,
+        residue: dynamicResidue,
         fullVerdicts,
         dynamicVerdicts,
         receipts: [fullReceipt, dynamicReceipt],
@@ -227,6 +314,7 @@ for (const candidate of selected) {
 }
 
 const categories = [...new Set(records.map(row => row.category))].sort();
+const fiGraph = buildDualRevisionImpactGraph({ gitCwd: root, baseHead: 'fi-base', head: 'fi-head', catalog });
 const faultInjection = catalog.flatMap((entry) => {
   const rows: Array<Record<string, unknown>> = [];
   const closure = closures.get(entry.id);
@@ -234,7 +322,7 @@ const faultInjection = catalog.flatMap((entry) => {
     const changes = buildStoryChangeManifest({ storyId: `B-fi-${entry.id}`, gitCwd: root, baseHead: 'fi-base', head: 'fi-head', changedFiles });
     return buildDynamicValidationPlan({
       storyId: `B-fi-${entry.id}`, baseHead: 'fi-base', head: 'fi-head', inventory, catalog,
-      changes, closures: closureSet, baselineEpochId: 'fi-epoch', buildProofDigest: 'fi-build', mode: 'observe', gitCwd: root,
+      changes, closures: closureSet, baselineEpochId: 'fi-epoch', buildProofDigest: 'fi-build', mode: 'observe', graph: fiGraph, gitCwd: root,
     });
   };
   if (entry.assurance === 'story-selectable') {
@@ -254,7 +342,9 @@ const faultInjection = catalog.flatMap((entry) => {
       rows.push({
         fiId: 'FI-2', commandId: entry.id, mutation: mutation.name,
         expected: 'unverified-or-execute', observed: mutatedRow?.disposition,
-        passed: mutation.cert ? verifyValidationClosureCertificate(mutation.cert) === false : false,
+        passed: mutation.cert ? verifyValidationClosureCertificate(mutation.cert) === false
+          && mutated.fullEscalated === true
+          && mutatedRow?.disposition === 'execute' : false,
       });
     }
   }
@@ -270,7 +360,7 @@ const faultInjection = catalog.flatMap((entry) => {
   const renamed = fiContext([{ path: entry.inputRoots[0] || 'packages/main/src/fi-renamed.ts', oldPath: 'packages/main/src/fi-old.ts', status: 'renamed', blobId: stableDigest('fi-renamed') }]);
   const deletedRow = deleted.rows.find((row) => row.commandId === entry.id);
   const renamedRow = renamed.rows.find((row) => row.commandId === entry.id);
-  rows.push({ fiId: 'FI-5', commandId: entry.id, mutation: 'deleted-and-renamed-inputs', expected: 'base-and-head-graph-selection', observed: { deletedManifest: verifyValidationSelectionManifest(deleted), renamedManifest: verifyValidationSelectionManifest(renamed), deletedDisposition: deletedRow?.disposition, renamedDisposition: renamedRow?.disposition }, passed: verifyValidationSelectionManifest(deleted) && verifyValidationSelectionManifest(renamed) && deletedRow?.disposition === 'execute' && renamedRow?.disposition === 'execute' });
+  rows.push({ fiId: 'FI-5', commandId: entry.id, mutation: 'deleted-and-renamed-inputs', expected: 'base-and-head-graph-selection', observed: { deletedManifest: verifyValidationSelectionManifest(deleted), renamedManifest: verifyValidationSelectionManifest(renamed), deletedDisposition: deletedRow?.disposition, renamedDisposition: renamedRow?.disposition, deletedGraph: deleted.dependencyGraphDigest, renamedGraph: renamed.dependencyGraphDigest }, passed: verifyValidationSelectionManifest(deleted) && verifyValidationSelectionManifest(renamed) && deleted.dependencyGraphDigest.length > 0 && renamed.dependencyGraphDigest.length > 0 && deletedRow?.disposition === 'execute' && renamedRow?.disposition === 'execute' });
   return rows;
 });
 const faultInjectionPath = join(outputRoot, 'fault-injection.json');
@@ -282,41 +372,63 @@ if (paired) {
     commandId: entry.id, baseHead: currentHead, inventoryDigest: inventory.digest,
     catalogDigest, staticPaths: entry.inputRoots,
   })]));
-  const pairedManifest = buildDynamicValidationPlan({
+  const currentGraph = buildDualRevisionImpactGraph({ gitCwd: root, baseHead: currentHead, head: currentHead, catalog });
+  const fullCommands = validationCommands(catalog);
+  let pairedManifest = buildDynamicValidationPlan({
     storyId: 'B-current-paired', baseHead: currentHead, head: currentHead, inventory, catalog,
     changes: currentChanges, closures: currentClosures, baselineEpochId: currentHead,
-    buildProofDigest: 'paired-performance', mode: 'shadow', gitCwd: root,
+    buildProofDigest: 'paired-performance', graph: currentGraph, mode: 'shadow', gitCwd: root,
   });
-  const fullCommands = catalog.map((entry) => ({ label: entry.label, command: entry.command, args: entry.args, cwd: entry.cwd, env: entry.env, resources: entry.resources }));
-  const selectedIds = new Set(pairedManifest.rows.filter((row) => row.disposition === 'execute').map((row) => row.commandId));
-  const dynamicCommands = catalog.filter((entry) => selectedIds.has(entry.id)).map((entry) => ({ label: entry.label, command: entry.command, args: entry.args, cwd: entry.cwd, env: entry.env, resources: entry.resources }));
+  let selectedIds = new Set<string>();
+  let dynamicCommands: ReturnType<typeof validationCommands> = [];
   const runs: Array<Record<string, unknown>> = [];
-  for (let pair = 0; pair < 3; pair++) {
-    const order = pair % 2 === 0 ? ['full', 'dynamic'] : ['dynamic', 'full'];
-    for (const mode of order) {
-      const startedAt = Date.now();
-      const cpuBefore = process.cpuUsage();
-      const planCommands = mode === 'full' ? fullCommands : dynamicCommands;
-      const result = await executeValidationPlan({
-        provider: `historical-paired-${pair + 1}-${mode}`,
-        commands: planCommands,
-        warnings: [],
-      }, root, currentHead, 'B-current-paired');
-      const wallTimeMs = Date.now() - startedAt;
-      const cpu = process.cpuUsage(cpuBefore);
-      runs.push({
-        pair: pair + 1,
-        mode,
-        allPass: result.allPass,
-        commandCount: result.commands.length,
-        verdicts: commandVerdicts(result),
-        wallTimeMs,
-        cpuUtilizationPct: wallTimeMs > 0 ? Number((((cpu.user + cpu.system) / 1000) / wallTimeMs * 100).toFixed(2)) : 0,
-        resourceOverlapTimeline: planCommands.map((command) => ({ label: command.label, resources: command.resources || [] })),
-        residue: result.commands.flatMap((row) => row.worktreePollution?.paths || []),
-      });
+  await withHistoricalWorktrees(currentHead, currentHead, async ({ head: pairedRoot }) => {
+    const baseline = await executeValidationPlan({ provider: 'historical-paired-canonical-baseline', commands: fullCommands, warnings: [] }, pairedRoot, currentHead, 'B-current-paired');
+    const baselineReceipts = catalog.flatMap((entry, index) => {
+      const row = pairedManifest.rows.find((candidateRow) => candidateRow.commandId === entry.id);
+      const result = baseline.commands[index];
+      const receipt = row && result ? receiptForBaseline({
+        entry, row, result, storyId: 'B-current-paired', baseHead: currentHead, head: currentHead,
+        catalogDigest, inventoryDigest: inventory.digest, baselineEpoch: currentHead,
+        buildProofDigest: 'paired-performance',
+      }) : undefined;
+      return receipt ? [receipt] : [];
+    });
+    pairedManifest = buildDynamicValidationPlan({
+      storyId: 'B-current-paired', baseHead: currentHead, head: currentHead, inventory, catalog,
+      changes: currentChanges, closures: currentClosures, receipts: baselineReceipts,
+      baselineEpochId: currentHead, buildProofDigest: 'paired-performance', graph: currentGraph,
+      mode: 'shadow', gitCwd: pairedRoot,
+    });
+    selectedIds = new Set(pairedManifest.rows.filter((row) => row.disposition === 'execute').map((row) => row.commandId));
+    dynamicCommands = catalog.filter(entry => selectedIds.has(entry.id)).map(entry => ({ label: entry.label, command: entry.command, args: entry.args, cwd: entry.cwd, env: entry.env, resources: entry.resources }));
+    for (let pair = 0; pair < 3; pair++) {
+      const order = pair % 2 === 0 ? ['full', 'dynamic'] : ['dynamic', 'full'];
+      for (const mode of order) {
+        const startedAt = Date.now();
+        const cpuBefore = process.cpuUsage();
+        const planCommands = mode === 'full' ? fullCommands : dynamicCommands;
+        const result = await executeValidationPlan({
+          provider: `historical-paired-${pair + 1}-${mode}`,
+          commands: planCommands,
+          warnings: [],
+        }, pairedRoot, currentHead, 'B-current-paired');
+        const wallTimeMs = Date.now() - startedAt;
+        const cpu = process.cpuUsage(cpuBefore);
+        runs.push({
+          pair: pair + 1,
+          mode,
+          allPass: result.allPass,
+          commandCount: result.commands.length,
+          verdicts: commandVerdicts(result),
+          wallTimeMs,
+          cpuUtilizationPct: wallTimeMs > 0 ? Number((((cpu.user + cpu.system) / 1000) / wallTimeMs * 100).toFixed(2)) : 0,
+          resourceOverlapTimeline: planCommands.map((command) => ({ label: command.label, resources: command.resources || [] })),
+          residue: result.commands.flatMap((row) => row.worktreePollution?.paths || []),
+        });
+      }
     }
-  }
+  });
   pairedPerformance = signedArtifact({
     schema: 'proof-or-stop.dynamic-validation.paired-performance.v1',
     head: currentHead, inventoryDigest: inventory.digest, catalogDigest,
@@ -338,9 +450,16 @@ if (paired) {
       return values.length === 0 ? 0 : values[Math.floor(values.length / 2)];
     })(),
     resourceTimelineDigest: stableDigest(runs.map((row) => ({ pair: row.pair, mode: row.mode, commandCount: row.commandCount, wallTimeMs: row.wallTimeMs }))),
+    perCommandEquivalent: runs.filter((row) => row.mode === 'full').every((full) => {
+      const peer = runs.find((row) => row.pair === full.pair && row.mode === 'dynamic');
+      if (!peer || !Array.isArray(full.verdicts) || !Array.isArray(peer.verdicts)) return false;
+      const fullByLabel = new Map((full.verdicts as Array<Record<string, unknown>>).map((row) => [row.label, row.code]));
+      return (peer.verdicts as Array<Record<string, unknown>>).every((row) => fullByLabel.get(row.label) === row.code)
+        && Array.isArray(peer.residue) && peer.residue.length === 0;
+    }),
     verdictEquivalent: runs.filter((row) => row.mode === 'full').every((full) => {
       const peer = runs.find((row) => row.pair === full.pair && row.mode === 'dynamic');
-      return Boolean(peer && full.allPass === peer.allPass);
+      return Boolean(peer && full.allPass === peer.allPass && peer.commandCount === pairedManifest.totals.executed);
     }),
   });
   mkdirSync(outputRoot, { recursive: true });
@@ -357,6 +476,15 @@ const faultInjectionBody = {
 };
 const faultInjectionArtifact = signedArtifact(faultInjectionBody);
 const executableRecords = records.filter((row) => row.execution && typeof row.execution === 'object');
+const replayExecutionEquivalent = executableRecords.every((row) => {
+  const execution = row.execution as Record<string, unknown>;
+  return execution.perCommandEquivalent === true
+    && Array.isArray(execution.residue) && execution.residue.length === 0
+    && Array.isArray(execution.fullFailures)
+    && typeof execution.selectedCount === 'number'
+    && typeof execution.reusedCount === 'number'
+    && typeof execution.dependencyGraphDigest === 'string' && execution.dependencyGraphDigest.length > 0;
+});
 const executionReceiptsValid = executableRecords.every((row) => {
   const execution = row.execution as Record<string, unknown>;
   const receipts = Array.isArray(execution.receipts) ? execution.receipts : [];
@@ -371,8 +499,10 @@ const gateReasons = [
   !execute ? 'plan-only replay has no executable receipts' : '',
   executableRecords.length !== records.length ? 'one or more Stories were not executed' : '',
   !executionReceiptsValid ? 'replay command receipts are missing or invalid' : '',
+  !replayExecutionEquivalent ? 'replay per-command verdict equivalence or residue check failed' : '',
+  !verifyPayload(faultInjectionBody, faultInjectionArtifact.signature) ? 'fault-injection artifact signature is invalid' : '',
   !faultInjectionArtifact.allPass ? 'FI-1..FI-5 coverage is incomplete or failing' : '',
-  paired && (!pairedPerformance || pairedPerformance.verdictEquivalent !== true) ? 'paired full/dynamic verdict equivalence is missing' : '',
+  paired && (!pairedPerformance || pairedPerformance.verdictEquivalent !== true || !verifyPayload(Object.fromEntries(Object.entries(pairedPerformance).filter(([key]) => key !== 'signature')), String(pairedPerformance.signature || ''))) ? 'paired full/dynamic verdict equivalence or signature is missing' : '',
 ].filter(Boolean);
 const reportBody = {
   schema: 'proof-or-stop.dynamic-validation.historical-replay.v1',

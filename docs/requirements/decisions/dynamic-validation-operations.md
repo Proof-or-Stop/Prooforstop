@@ -19,10 +19,12 @@ commands execute, no receipts are issued, and no TEST/DONE authority is granted.
 ## Required configuration
 
 Canonical `proof-or-stop.config.json` (with legacy `lattice.config.json`
-fallback) owns the inventory. `validate.dynamic.policyDefaults` supplies the
-explicit policy tuple for ordinary commands; gate-heavy rows override those
-defaults. Each object in `validate.commands` must preserve these fields through
-the verifier inventory: `assurance`, `riskTier`, `closurePolicy`,
+fallback) owns the inventory. Each object in `validate.commands` carries an
+explicit policy tuple. The current 112-row catalog has 58
+full-only/whole-repository validation-infrastructure rows and 54
+story-selectable/static-and-traced rows; defaults remain only a fail-closed
+parser fallback for legacy external configurations. Each object in
+`validate.commands` must preserve these fields through the verifier inventory: `assurance`, `riskTier`, `closurePolicy`,
 `fullBaselineReusePolicy`, `cpuWeight`, `expectedP50Ms`, and (for DYN-5)
 `caseRegistryPath`, `runnerSourcePath`, `declaredEnvironmentKeys`, and
 `env.LATTICE_VALIDATION_SHARD_ADAPTER`. The runner source is included in the
