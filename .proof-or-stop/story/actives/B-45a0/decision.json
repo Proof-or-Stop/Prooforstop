@@ -1,0 +1,89 @@
+{
+  "principles": [
+    "Treat current inventory N as immutable denominator for each kickoff epoch; execute plus admissible reuse must cover all rows.",
+    "Derive authoritative triggers from certified source closures and dual-revision graphs; manual declarations only add coverage.",
+    "Fail closed on uncertainty and preserve complete full validation as fallback, periodic baseline, and audit oracle.",
+    "Separate selection width, scheduler latency, internal sharding, focused validation, and DONE-required authority.",
+    "Make every gate-consumed fact signed, digest-bound, ancestry-compatible, clean-tree generated, current, and mechanically verifiable."
+  ],
+  "drivers": [
+    "Reduce routine validation latency without weakening deterministic TEST/DONE assurance.",
+    "Eliminate false-negative reuse routes from incomplete triggers, stale dist, deleted/renamed paths, cross-branch receipts, and ambiguous lookup.",
+    "Give operators an exact reason for every execute/reuse/escalation decision.",
+    "Support staged observe, shadow, and low-risk enforcement with rollback."
+  ],
+  "options": [
+    {
+      "name": "Heuristic path filter",
+      "pros": [
+        "Small initial implementation",
+        "May reduce command count quickly"
+      ],
+      "cons": [
+        "Cannot prove closure completeness",
+        "Allows false-negative stale receipt reuse",
+        "Contradicts the approved plan and gate authority"
+      ]
+    },
+    {
+      "name": "Atomic all-at-once replacement",
+      "pros": [
+        "Single integration point",
+        "No temporary shadow mode"
+      ],
+      "cons": [
+        "High blast radius",
+        "No equivalence evidence before authority changes",
+        "Hard to isolate receipt, graph, gate, scheduler, and shard failures"
+      ]
+    },
+    {
+      "name": "Phased proof-carrying program",
+      "pros": [
+        "Matches DYN-1 through DYN-5 and audit gates",
+        "Full oracle remains authoritative until soundness evidence exists",
+        "Each receipt, closure, selection, gate, schedule, and shard invariant is independently testable"
+      ],
+      "cons": [
+        "Longer delivery sequence",
+        "Requires current-main discovery and durable evidence campaigns before enforcement",
+        "Initial warm/cold graph and baseline overhead must be measured"
+      ]
+    }
+  ],
+  "chosen": "Phased proof-carrying program",
+  "rationale": "The approved design explicitly requires observe-only catalog/closure/selection first, per-command receipt shadow reuse second, narrowly admitted low-risk TEST authority third, then scheduler and shard optimizations. This is the only option that preserves the complete inventory denominator and makes false-negative, stale receipt, scope, ancestry, build, revocation, and full-only failures fail closed before authority changes.",
+  "preMortem": [
+    {
+      "scenario": "A missing static, runtime, or process-fact edge leaves a changed command in reuse and a full run later fails.",
+      "trigger": "Fault injection or historical replay observes a full failure outside the dynamic execute set, or a trace path is outside the certificate.",
+      "consequence": "Dynamic authority could claim a false PASS.",
+      "mitigation": "Keep DYN-1 observe/shadow full oracle authoritative; invalidate incomplete certificates; require FI-1/FI-5 and zero false negatives before DYN-3."
+    },
+    {
+      "scenario": "A stale pre-build dist or cross-branch receipt is accepted because digest fields happen to match.",
+      "trigger": "Build output changes after provisional planning, sourceHead is not a trusted ancestor, baseline epoch drifts, or receipt is expired/revoked/dirty.",
+      "consequence": "A command is reused without current source or environment proof.",
+      "mitigation": "Always execute Wave 0 source-first build; bind buildProofDigest, ancestry, epoch, clean-tree, expiry, and revocation ledger into receipt and TEST gate."
+    },
+    {
+      "scenario": "A gate or catalog change is misclassified as low-risk and dynamic authority bypasses full validation.",
+      "trigger": "Protected/explicit-exclusion path, lifecycle/process/runtime fact, selector/executor/scheduler/catalog, package/config, or unmapped path changes.",
+      "consequence": "Shared validation semantics change without complete-plan verification.",
+      "mitigation": "Maintain mandatory full escalation classifier and blocking Section 24 prerequisites; reject missing catalog ownership and ignored escalation."
+    },
+    {
+      "scenario": "Weighted scheduling or sharding changes verdicts, omits a case, or leaves residue.",
+      "trigger": "CPU weight removal, resource claim mutation, missing drain barrier, deleted/duplicated/wrong-routed shard, or static PASS sentinel.",
+      "consequence": "A faster report hides incomplete or contaminated validation.",
+      "mitigation": "Keep scheduler/shard work after authority proof; retain serial/full equivalence, stable sentinels, exact aggregation, mutation matrix, and zero residue checks."
+    },
+    {
+      "scenario": "The program claims a universal latency SLA from favorable runs while full-escalated or heavy domains remain slow.",
+      "trigger": "Performance report excludes full escalation or quorum/review-pass population and uses best-run instead of paired medians.",
+      "consequence": "Operators lose an honest expectation and may disable safety controls.",
+      "mitigation": "Report risk-tier populations, warm/cold selection overhead, medians/P75, and full-escalated domains separately; do not claim 12–14 minutes universally."
+    }
+  ],
+  "timestamp": "2026-08-21T05:25:39.913Z"
+}

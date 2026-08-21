@@ -20,7 +20,45 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run the decision-record integrity check against docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md and assert selector `sourceSha256=db16fccb5af01d296362e0d5e882e69922525b3341e5ce1a68376a352865c68a`; Sections 1 through 27.6 and the payload-prefix audit envelope are present byte-for-byte. WHY: the approved plan is the source contract, not an approximate summary.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "Run the documentation navigation/link check and assert selectors `DYN-1=observe-only`, `DYN-3=TEST authority`, and `B-38b7=stale documentation-only`; NAV points to the new decision record and does not promote the zombie story. WHY: authority boundaries and discoverability must be user-visible.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Recompute the digest after UTF-8 line-ending, Unicode, or payload-prefix changes and assert `payload digest mismatch` with no imported record accepted; a historical 107/110 count or prose-only copy is not substituted. WHY: encoding and normalization drift must not silently change the approved contract.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Check a record with a missing section, duplicate section heading, or truncated Section 27.6 and assert the import reports the exact missing/duplicate boundary and remains non-authoritative. WHY: partial documents cannot seed implementation decisions.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Flip one byte in the decision payload or replace the source SHA-256, run the integrity verifier, and assert nonzero exit plus no decision-record approval or gate evidence. WHY: tampering must fail closed.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Inject an active B-38b7 authority claim or label DYN-1 as TEST authority, run the plan-review selector, and assert rejection with the DYN-1 observe-only/DYN-3 authority distinction intact. WHY: stale history and observe mode must not widen authority.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -49,7 +87,69 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Current main discovery emits a complete inventory with one stable command ID per configured validation command and a frozen inventory digest.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-validation-inventory.mjs",
+              "selector": "inventory coverage PASS"
+            }
+          },
+          {
+            "desc": "The characterization report records serial and resource-aware full results, command order, risk tiers, scanner classes, and implementation touchpoints.",
+            "type": "docs",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-validation-inventory.mjs --report",
+              "selector": "current-main characterization complete"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A command with a missing timeout, resource claim, or historical duration is retained in the inventory and classified conservatively rather than silently omitted.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-validation-inventory.mjs --mutation=missing-metadata",
+              "selector": "conservative classification"
+            }
+          },
+          {
+            "desc": "Historical 107/110 command snapshots cannot change the kickoff-derived N or inventory digest.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-validation-inventory.mjs --mutation=historical-count",
+              "selector": "historical count rejected"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Adding a duplicate ID, catalogless command, or unknown configured command fails inventory construction before selection.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-validation-inventory.mjs --mutation=duplicate-or-unmapped",
+              "selector": "inventory validation failure"
+            }
+          },
+          {
+            "desc": "A shared lifecycle, scheduler, executor, catalog, process-fact, or validation-config change is classified as full-risk during characterization.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-validation-inventory.mjs --mutation=high-risk-touchpoint",
+              "selector": "mandatory full classification"
+            }
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
@@ -78,7 +178,42 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The signed Story change manifest and shared resolver agree on the current merge-base-to-HEAD file set and selection inputs.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run test:dynamic-validation-change-manifest",
+              "selector": "change manifest PASS"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Deleted paths resolve dependents through the base graph and renamed paths union old-base and new-HEAD reverse dependents.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run test:dynamic-validation-dual-graph",
+              "selector": "delete and rename coverage PASS"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "An unmapped, protected, explicit-exclusion, or out-of-scope actual change remains in the manifest and forces full escalation.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run test:dynamic-validation-scope-escalation",
+              "selector": "scope escalation PASS"
+            }
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
