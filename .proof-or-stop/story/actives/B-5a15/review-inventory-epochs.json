@@ -1623,6 +1623,51 @@
       ],
       "createdAt": "2026-08-21T18:21:40.472Z",
       "_hash": "90c74fb76a4b6dcd59c3a3509e32aa56da4c7fdf7cddb920dc5cc05dbf88b725"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-5a15:RI-009:CRIT-03",
+      "epochId": "B-5a15:RI-009",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-21T17:48:55.675Z",
+      "wave": 3,
+      "cutoff": {
+        "headHash": "329907af5d236fdcd492b1a4d948e861c4082d68",
+        "materialHash": "853d5eb4322ecb6d3ba9b94131ecab4e76ac0b8a2e77f47f24a2c39fc04ac775",
+        "storyFilesHash": "01a95005cb46a073e03805e42aef1925a31b87ed2f3d0b43e4378a5e2f1f1406"
+      },
+      "aggregateFindingSetDigest": "3a2a64c5d3f527d279f1630cc98720d1cbdff3b9c98e90591a166785f1954ea5",
+      "requiredLaneCoverageDigest": "7c7c682227c21efd7f3a41ce428fc9a7905817b5fc24c22ae460887d5a335f88",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-5a15:RR-175",
+      "terminalEvidenceIds": [
+        "B-5a15:F-095"
+      ],
+      "readEvidenceDigest": "db07ae14fbe0247af2df975feffcf804ffa465868f40eae52ae1e63cac4052d0",
+      "findingDispositions": [
+        {
+          "findingId": "B-5a15:F-092",
+          "disposition": "verified_family",
+          "familyKey": "verifier-causal-preflight-smoke-missing",
+          "reason": "Independent topology review confirmed the documented command names an absent source task and absent dist artifact; the existing test does not provide that command artifact, and the signed scope does not authorize creating it."
+        },
+        {
+          "findingId": "B-5a15:F-093",
+          "disposition": "duplicate",
+          "familyKey": "verifier-causal-preflight-smoke-missing",
+          "canonicalFindingId": "B-5a15:F-092",
+          "reason": "Duplicate of the same independently verified missing-artifact and out-of-scope-source family; this lane reports the same absent command artifact."
+        },
+        {
+          "findingId": "B-5a15:F-094",
+          "disposition": "duplicate",
+          "familyKey": "verifier-causal-preflight-smoke-missing",
+          "canonicalFindingId": "B-5a15:F-092",
+          "reason": "Duplicate of the same independently verified missing-artifact and out-of-scope-source family; this lane reports the same absent command artifact."
+        }
+      ],
+      "createdAt": "2026-08-21T18:35:28.444Z",
+      "_hash": "4b04ecef744249a9193fdd723fd470c0509163f64bfbe15d103475bf13c9fbd9"
     }
   ]
 }
