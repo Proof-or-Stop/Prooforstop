@@ -4769,6 +4769,26 @@
       "resolvedAt": "2026-08-21T03:33:30.444Z",
       "resolutionType": "accepted_risk",
       "resolveEvidenceStrength": "medium"
+    },
+    {
+      "id": "B-5a88:F-112",
+      "desc": "concept-cleanup: packages/main/src/claude-md-sync.ts:44 is an active profile writer that still emits guidance to use the lattice-implementer subagent. B-5a88 requires new role/prompt output to use proof-or-stop-* and retain lattice-* only as read-only compatibility; generated CLAUDE.md therefore continues teaching a retired legacy role ID. Replace the emitted role with proof-or-stop-implementer and keep any legacy spelling only in explicitly labeled compatibility text.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-21T03:44:07.915Z",
+      "reviewRound": "2026-08-21T03:24:05.779Z",
+      "reviewRunId": "B-5a88:RR-143",
+      "_hash": "3fa45a064160971fe1d54b15c5b472ddecdf569670cfc1200cbbfba34f2f6a5b",
+      "files": [
+        "packages/main/src/claude-md-sync.ts",
+        "packages/main/src/core/agent-role-identity.ts",
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+      ],
+      "signatureTag": "missing|ts|concept-cleanup-packages",
+      "signatureTagSource": "auto"
     }
   ]
 }
