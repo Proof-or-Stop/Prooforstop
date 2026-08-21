@@ -628,7 +628,42 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Off, observe, shadow, and enforce-low-risk modes print structured JSON and readable why-ran, why-reused, and why-escalated reports with required digests and cleanup fields.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "proof-or-stop validate --dynamic-mode=observe --json",
+              "selector": "selection manifest accounting fields"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A cold or corrupt graph cache, absent or expired baseline, or incident rollback safely returns to complete full execution and records the reason.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run test:dynamic-validation-operations",
+              "selector": "safe recovery and rollback PASS"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Wrong counts, omitted receipts, missing revocation/baseline evidence, suppressed residues, or universal SLA wording causes the operations verifier to reject the report.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run test:dynamic-validation-operations-mutations",
+              "selector": "operations mutation rejected"
+            }
+          }
+        ]
+      }
     },
     {
       "id": "CHK-011",
