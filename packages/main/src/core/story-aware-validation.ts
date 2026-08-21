@@ -468,6 +468,7 @@ export function verifyCanonicalFullBaseline(baseline: CanonicalFullBaseline, now
 }
 
 interface GraphData { paths: Set<string>; imports: Map<string, Set<string>>; }
+const graphTreeCache = new Map<string, Map<string, string>>();
 function parseImports(source: string): string[] {
   const output: string[] = [];
   const patterns = [
@@ -484,11 +485,36 @@ function sourceAtRef(gitCwd: string, ref: string, path: string): string {
 function buildGraphAtRef(gitCwd: string, ref: string): GraphData {
   const paths = new Set<string>(); const imports = new Map<string, Set<string>>();
   try {
-    const allPaths = git(['ls-tree', '-r', '--name-only', ref], gitCwd).split('\n').map(normalPath).filter(Boolean);
+    const cacheKey = `${gitCwd}\0${ref}`;
+    let tree = graphTreeCache.get(cacheKey);
+    if (!tree) {
+      const listing = execFileSync('git', ['ls-tree', '-r', '-z', '--format=%(objectname) %(path)', ref], { cwd: gitCwd, encoding: 'utf8', maxBuffer: 128 * 1024 * 1024 });
+      const rows = listing.split('\0').filter(Boolean).map(row => {
+        const separator = row.indexOf(' ');
+        return separator > 0 ? { oid: row.slice(0, separator), path: normalPath(row.slice(separator + 1)) } : undefined;
+      }).filter((row): row is { oid: string; path: string } => Boolean(row));
+      tree = new Map<string, string>();
+      if (rows.length) {
+        const batchInput = Buffer.from(rows.map(row => `${row.oid}\n`).join(''));
+        const batchOutput = execFileSync('git', ['cat-file', '--batch'], { cwd: gitCwd, input: batchInput, maxBuffer: 256 * 1024 * 1024 });
+        let offset = 0;
+        for (const row of rows) {
+          const headerEnd = batchOutput.indexOf(0x0a, offset);
+          if (headerEnd < 0) break;
+          const header = batchOutput.subarray(offset, headerEnd).toString('utf8').split(' ');
+          const size = Number(header[2]);
+          const bodyStart = headerEnd + 1;
+          if (header[1] === 'blob' && Number.isFinite(size) && size >= 0 && bodyStart + size <= batchOutput.length) tree.set(row.path, batchOutput.subarray(bodyStart, bodyStart + size).toString('utf8'));
+          offset = bodyStart + Math.max(0, size) + 1;
+        }
+      }
+      graphTreeCache.set(cacheKey, tree);
+    }
+    const allPaths = [...tree.keys()];
     for (const path of allPaths) paths.add(path);
     for (const path of allPaths) {
       const deps = new Set<string>();
-      for (const specifier of parseImports(sourceAtRef(gitCwd, ref, path))) {
+      for (const specifier of parseImports(tree.get(path) || '')) {
         if (specifier.startsWith('.')) {
           const base = normalPath(posix.normalize(posix.join(posix.dirname(path), specifier)));
           const candidates = [base, base + '.ts', base + '.tsx', base + '.js', base + '.mjs', base + '/index.ts', base + '/index.js'];
