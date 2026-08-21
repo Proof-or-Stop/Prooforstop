@@ -1,0 +1,88 @@
+{
+  "storyId": "B-8af0",
+  "checkedAt": "2026-08-20T09:19:47.515Z",
+  "features": [
+    {
+      "feature": "A routing-neutral reroute with the same selected path/contentHash multiset remains State: OPEN despite changedPaths churn",
+      "covered_by": "CHK-001, CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist CHK-001, CHK-003; understanding outcome; B-3f3d:F-107/F-108"
+    },
+    {
+      "feature": "Candidate barrier comparison is order-neutral but preserves invalidation for any selected path or contentHash change",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist CHK-001 verificationIntent edge/adversarial; decision chosen option"
+    },
+    {
+      "feature": "The regression uses a real story branch, a nonempty git diff main...HEAD, reroutes after the unrelated commit, and asserts positive OPEN rather than mere blocker absence",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist CHK-003 verificationIntent"
+    },
+    {
+      "feature": "Truthy non-array candidates fail closed on the real handler path for both string and object values with no uncaught TypeError",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist CHK-002 verificationIntent; B-3f3d:F-111"
+    },
+    {
+      "feature": "Malformed candidate input produces the named OPEN_REVIEW_INVENTORY_INVALID_CANDIDATE_ARTIFACT blocker and terminal State: INVALIDATED",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "CHK-002 userSees, declared core/types.ts and review-inventory decision targets, real-handler verification intent"
+    },
+    {
+      "feature": "Candidate artifact tamper detection remains enforced while the barrier moves to canonical selected-candidate semantics",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decision principle/rationale; CHK-002 artifact-digest-tamper-still-rejected verificationIntent; candidate-spec-routing smoke"
+    },
+    {
+      "feature": "The failing historical reference is read only from immutable git object 2c9395fa22e18ca40ba3ee47d9d40c2ad748e009; no stash is applied or popped",
+      "covered_by": "CHK-001, CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist CHK-001/003 context; understanding constraints"
+    },
+    {
+      "feature": "Broader B-3f3d follow-ups, review-inventory redesign, candidate-routing rollout promotion, and Authority/production claims are not changed",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "User-authorized B-8af0 scope is F-107/F-108/F-111 candidate routing and malformed artifact hardening only.",
+      "source": "user authorization; B-3f3d F-107/F-108/F-111 carry-forward records"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+    ],
+    "filesTriagedByName": [
+      "docs/guide-scope-guard.md",
+      "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
+      "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+      "packages/main/src/core/candidate-spec-routing.ts",
+      "packages/main/src/core/types.ts",
+      "packages/main/src/handlers/review-inventory.ts",
+      "packages/main/src/handlers/scope-check.ts"
+    ],
+    "scanEscalationReason": null
+  },
+  "summary": {
+    "total": 8,
+    "covered": 7,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "22f0b0fbd18615dcb8c55b7713670cf5d9900f1fb3521389e2ee498acdb2261d",
+  "openQuestions": []
+}

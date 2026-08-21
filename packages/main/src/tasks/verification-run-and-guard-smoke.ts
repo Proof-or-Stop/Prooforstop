@@ -44,7 +44,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { StoryStore } from '../core/store.js';
 import { acquireOwnerLease } from '../core/story-owner-lease.js';
-import { createChecklistHandlers } from '../handlers/checklist.js';
+import { createChecklistHandlers, refreshStaleEvidenceMetadataOnly } from '../handlers/checklist.js';
 import { createEvidencePinGuardHandlers } from '../handlers/evidence-pin-guard.js';
 import { buildVerificationCoverage } from '../core/verification.js';
 import { currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
@@ -259,6 +259,7 @@ async function partB(): Promise<void> {
     intent('INT-REEXEC', 'cli'),  // pinned via add to PASS_CMD (always re-passes)
     intent('INT-FAIL', 'cli'),    // pinned via add to READ_FLAG_CMD (re-fails once flag flips)
     intent('INT-PINLESS', 'cli'), // NO pin — a hand-written mechanical row (B-3b88 coexistence)
+    intent('INT-DOC', 'docs'),    // docs intent with a deliberate pinned mechanical verifier
   ]);
   try {
     // Seed a material file the READ_FLAG pin depends on, so re-execution outcome is controllable.
@@ -275,6 +276,10 @@ async function partB(): Promise<void> {
     await env.handlers.verification_evidence_add({
       storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-FAIL', kind: 'integration_test',
       command: READ_FLAG_CMD, selector: SELECTOR, result: 'pass', note: 'pin + pass the flag-dependent verifier',
+    });
+    await env.handlers.verification_evidence_add({
+      storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-DOC', kind: 'docs_check',
+      command: PASS_CMD, selector: SELECTOR, result: 'pass', note: 'pin + pass the documentation verifier',
     });
 
     // Hand-write a pin-LESS mechanical row bound to the CURRENT head+material. The intent
@@ -312,6 +317,14 @@ async function partB(): Promise<void> {
     const material1 = currentMaterialHash(env.root, 'HEAD', env.root);
     assert.ok(material1 && material1 !== materialBefore, 'B: material drift produced a NEW materialHash');
 
+    // Reproduce the real recovery state: a metadata-only refresh cannot execute
+    // commands, so it demotes and rebinds receipts to the current material.
+    // The subsequent async refresh must recover these CURRENT non-mechanical
+    // rows, not report that there is no stale evidence.
+    refreshStaleEvidenceMetadataOnly({ store: env.store, root: env.root, scanRoot: env.root }, env.storyId);
+    assert.equal(findEvidence(env, 'INT-DOC')?.mechanical, false,
+      'B: metadata-only refresh demotes the pinned docs receipt before recovery');
+
     // Run the REAL async re-executing refresh.
     const out = await env.handlers.verification_evidence_refresh_stale({ storyId: env.storyId });
     assert.match(out, /Refreshed \d+\/\d+/, 'B: refresh reported a refresh count');
@@ -342,11 +355,20 @@ async function partB(): Promise<void> {
     assert.equal(pinlessAfter?.mechanical, false, 'B3: pin-less stale mechanical row is DEMOTED (demote-only)');
     assert.equal(pinlessAfter?.receipt, undefined, 'B3: pin-less demotion strips the receipt');
 
+    // B4: a deliberately pinned docs verifier is recovered too. This locks the
+    // B3F3D-006-H3 path: docs/manual types are not skipped merely because their
+    // intent type is non-executable by default.
+    const docAfter = findEvidence(env, 'INT-DOC');
+    assert.equal(docAfter?.mechanical, true, 'B4: pinned docs verifier re-earns mechanical authority');
+    assert.equal(docAfter?.receipt?.selectorMatched, true, 'B4: pinned docs selector matched on recovery');
+    assert.equal(docAfter?.materialHash, material1, 'B4: recovered docs receipt binds current material');
+
     // Gate cross-check: only the re-executed row still covers; the other two are uncovered.
     const cov = buildVerificationCoverage(env.store.readChecklist(env.storyId));
     assert.equal(cov.entries.find(e => e.intentRef === 'INT-REEXEC')?.status, 'covered', 'B: re-executed row covers');
     assert.equal(cov.entries.find(e => e.intentRef === 'INT-FAIL')?.status, 'non_mechanical', 'B: demoted-fail row is uncovered');
     assert.equal(cov.entries.find(e => e.intentRef === 'INT-PINLESS')?.status, 'non_mechanical', 'B: demoted pin-less row is uncovered');
+    assert.equal(cov.entries.find(e => e.intentRef === 'INT-DOC')?.status, 'covered', 'B: recovered pinned docs row covers');
   } finally { cleanup(env); }
 }
 

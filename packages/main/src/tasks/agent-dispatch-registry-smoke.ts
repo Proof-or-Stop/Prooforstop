@@ -152,6 +152,20 @@ assert.equal(
 );
 const deliveryEntry = AGENT_DISPATCH_REGISTRY.find((entry) => entry.canonicalName === 'lattice-review-delivery');
 assert.deepEqual(deliveryEntry?.allowedPhases, ['TEST'], 'delivery reviewer dispatch is TEST-only');
+const rolloutVerifier = AGENT_DISPATCH_REGISTRY.find((entry) => entry.canonicalName === 'acceptance-rollout-verifier');
+assert.ok(rolloutVerifier, 'acceptance-rollout-verifier must be a registered dispatch actor');
+assert.equal(rolloutVerifier?.roleClass, 'story-reviewer');
+assert.deepEqual(rolloutVerifier?.allowedPhases, ['DEV', 'TEST']);
+assert.equal(
+  assertRegisteredAgentMutationAllowed('acceptance-rollout-verifier', 'review_run_start'),
+  rolloutVerifier,
+  'acceptance-rollout-verifier must be allowed to call review_run_start',
+);
+assert.equal(
+  REVIEW_RUN_LANES.includes('acceptance-rollout-verifier' as (typeof REVIEW_RUN_LANES)[number]),
+  false,
+  'acceptance-rollout-verifier is not a REVIEW evidence lane',
+);
 assert.equal(DEFAULT_PHASE_TOOLS.TEST.includes('delivery_check_set'), true, 'delivery_check_set must be legal in TEST');
 assert.equal(DEFAULT_PHASE_TOOLS.REVIEW.includes('delivery_check_set'), false, 'delivery_check_set must not be legal outside the delivery reviewer dispatch phase');
 assert.equal(DEFAULT_PHASE_TOOLS.TEST.includes('delivery_waiver_add'), true, 'delivery waiver must share the delivery reviewer phase');
@@ -596,6 +610,11 @@ try {
     /not a registered REVIEW reviewer/,
     'implementer must not mint reviewer-run/pass authority through the real review-run consumer',
   );
+  assert.equal(
+    resolveReviewRunLane('lattice-review-topology-critic'),
+    'lattice-review-topology-critic',
+    'independent topology critic must mint its own REVIEW ReviewRun before critic authority',
+  );
   const findingsBeforeDenied = JSON.stringify(store.readFindings(storyId));
   assert.throws(
     () => findingHandlers.finding_add({
@@ -733,6 +752,9 @@ try {
     () => handlers.dispatch({ storyId, itemId: 'CHK-001', agentType: 'lattice-review-quality' }),
     /story-only; omit itemId/,
   );
+  const criticReviewPrompt = handlers.dispatch({ storyId, agentType: 'lattice-review-topology-critic' }).prompt;
+  assert.match(criticReviewPrompt, /review_run_start[\s\S]*review_inventory_critic_set/,
+    'REVIEW critic prompt must require fresh terminal ReviewRun evidence and bound critic receipt');
 
   const promptPatterns: Record<string, RegExp> = {
     'implementer-dispatch': /git commit --author=.*lattice-implementer/,
@@ -746,6 +768,7 @@ try {
     'delivery-review': /delivery_check_set/,
     'finding-repair': /finding_resolve/,
     'cluster-repair': /Resolves: CL-001/,
+    'rollout-verify': /review_run_start/,
   };
   const actualPromptCoverage = new Set<string>();
   for (const entry of AGENT_DISPATCH_REGISTRY) {

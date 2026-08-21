@@ -56,8 +56,10 @@ import type { ChecklistData, PendingReopenAudit, ProcessEvent, StoryInfo, StoryP
 import { checkMetaStoryAdvanceGuard } from '../core/audit-meta-store.js';
 import { renderSummaryForHint } from './summary.js';
 import { collectBaselineRisk, renderBaselineRiskLines } from '../core/baseline-risk.js';
-import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
+import { captureEvidenceHashSnapshot, currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { currentMilestoneStatusEvidenceBinding } from '../core/milestone-status.js';
+import { consumeReviewInventoryReceipt } from '../core/review-inventory-epoch.js';
+import { assertReviewInventoryContextFreshLocked } from './review-inventory.js';
 import { findStaleEvidence, renderEvidenceStaleHint } from '../core/evidence-stale-hint.js';
 import { checkMainDivergence } from '../core/done-oracle.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
@@ -92,6 +94,7 @@ import {
   renderRelatedDocsHint,
   buildNextSteps,
 } from './transition-effects.js';
+
 import {
   autoSyncMain,
   detectDoneStoryWorktreeContext,
@@ -1340,6 +1343,25 @@ async function runStoryTransitionInner(
       };
       story.pendingReopenAudit = reopenAudit;
     }
+    let remediationCutoff: { materialHash: string; storyFilesHash?: string } | undefined;
+    if (oldPhase === 'REVIEW' && args.phase === 'DEV') {
+      if (!transitionGitCwd) {
+        transitionGitCwd = resolveGitCwd({
+          store,
+          storyId: args.storyId,
+          metadataRoot: ctx.root,
+          projectRoot: ctx.root,
+        });
+      }
+      const remediationSnapshot = captureEvidenceHashSnapshot({ gitCwd: transitionGitCwd, metadataRoot: ctx.root, ref: 'HEAD' });
+      if (remediationSnapshot.materialDirtyFiles.length > 0) {
+        throw new Error(`REVIEW_INVENTORY_REMEDIATION_BLOCKED: current material worktree is dirty (${remediationSnapshot.materialDirtyFiles.join(', ')})`);
+      }
+      remediationCutoff = {
+        materialHash: remediationSnapshot.materialHash ?? '',
+        storyFilesHash: remediationSnapshot.storyFilesHash ?? '',
+      };
+    }
     // B-d877 R3 FIX A: ATOMIC persist claim — the AUTHORITATIVE correctness fence.
     //
     // The R2 fence was a plain read-then-write ("re-read phase, then writeStory"):
@@ -1459,6 +1481,34 @@ async function runStoryTransitionInner(
           }
         }
         if (reopenMutated) store.writeChecklist(args.storyId, reopenChecklist);
+      }
+      if (oldPhase === 'REVIEW' && args.phase === 'DEV') {
+        // Consume authority before publishing phase=DEV. A consume failure cannot
+        // leave unauthorized DEV; a later write failure requires a new epoch.
+        const consumedReceiptId = consumeReviewInventoryReceipt(
+          store,
+          args.storyId,
+          story.currentReviewRound ?? '',
+          remediationCutoff!,
+          () => assertReviewInventoryContextFreshLocked(ctx, args.storyId),
+        );
+        // B-3f3d F-119: CHK-004's userSees promises the accepted rollback reports which epoch
+        // authorized it, the aggregate finding count, and that the receipt does NOT authorize
+        // TEST. The consume was silent, so an operator could not see any of that. Reported from
+        // the consumed record itself -- the epoch id and family count are read back, not
+        // recomputed, so the line cannot drift from what was actually consumed.
+        if (consumedReceiptId) {
+          const consumedEpoch = store.readReviewInventoryEpochs(args.storyId)
+            .epochs.filter((row: { state?: string }) => row.state === 'FINALIZED').slice(-1)[0];
+          const familyCount = consumedEpoch
+            ? new Set(consumedEpoch.waves.flatMap(wave => wave.verifiedFindingFamilies)).size
+            : 0;
+          process.stderr.write(
+            `Remediation authorized once by epoch ${consumedEpoch?.epochId ?? consumedReceiptId}\n`
+            + `Aggregate verified finding families: ${familyCount}\n`
+            + 'This receipt does not authorize TEST\n',
+          );
+        }
       }
       store.writeStory(args.storyId, story);
     } finally {

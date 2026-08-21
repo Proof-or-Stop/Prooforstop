@@ -146,3 +146,15 @@ confirms each host's real shell tool name.
 Each step is its own Proof-or-Stop story (audit trail), cheapest first. Step 1 opens
 now. Steps touch evidence integrity, so they are high-assurance and go through full
 cross-host quorum review themselves — dogfooding.
+
+## 7. Frozen review inventory boundary
+
+Review discovery now has a signed, gate-consumed frozen-candidate boundary.
+`review-inventory-epochs.json` binds material/story-files hashes, scope, review
+round, required lanes, wave evidence and the verified finding-set digest. An
+OPEN epoch rejects material writes at the prewrite projection and every
+authoritative reviewer evidence/finalize/transition consumer revalidates the
+cutoff. A zero-new-finding saturation receipt authorizes one aggregated
+REVIEW→DEV remediation only; it explicitly cannot authorize TEST or certify the
+repaired material. See
+`docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md`.

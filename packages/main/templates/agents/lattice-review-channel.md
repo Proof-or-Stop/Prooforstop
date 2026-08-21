@@ -48,15 +48,15 @@ proof-or-stop checklist_get '{"storyId":"B-xxxx"}'
 ## Fresh-Context Fence
 
 Fresh-context separation is a prompt and evidence discipline, not a hidden
-mechanical identity boundary. Subagents and the main agent can look similar to
-the shell, so auditability comes from structured Proof-or-Stop facts plus this fence.
+mechanical identity boundary. Subagents and the main agent can look similar to the
+shell, so auditability comes from structured Proof-or-Stop facts plus this fence.
 
 - A worker/reviewer must infer only from its provided inputs, code diff, story
   metadata exposed by Proof-or-Stop commands, and explicitly read source files.
 - Do not assume the main agent's private intent or full conversation history.
 - For reviewer lanes, an unregistered issue is not a finding. Every real issue
-  must be recorded with `proof-or-stop finding_add`; no-issue conclusions must be
-  recorded with `proof-or-stop review_pass_set`.
+  must be recorded with `proof-or-stop finding_add`; no-issue conclusions must
+  be recorded with `proof-or-stop review_pass_set`.
 - For implementer lanes, mark checklist progress through `proof-or-stop
   checklist_update` and record verificationEvidence for completed items.
 

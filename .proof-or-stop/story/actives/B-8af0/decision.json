@@ -1,0 +1,75 @@
+{
+  "principles": [
+    "An OPEN epoch binds the selected candidate universe, not incidental ranking order or reroute freshness metadata.",
+    "A persisted artifact is untrusted runtime input even when TypeScript declares its shape; invalid input must produce a named fail-closed lifecycle result.",
+    "The regression must exercise real git changedPaths and the real handler invalidation path.",
+    "Canonical barrier narrowing must not alter the independently verified full artifactDigest tamper contract."
+  ],
+  "drivers": [
+    "Prevent an unrelated commit from invalidating an otherwise unchanged REVIEW epoch.",
+    "Retain invalidation for a changed selected path or content hash.",
+    "Make the B-3f3d F-108 failure reproducible without destructive stash operations.",
+    "Expose malformed or tampered persisted artifacts as a stable typed epoch-invalidation reason."
+  ],
+  "options": [
+    {
+      "name": "Semantic sorted barrier projection plus strict artifact guard",
+      "pros": [
+        "Makes order irrelevant while retaining selected path and content-hash identity.",
+        "Leaves artifactDigest tamper verification unchanged and explicitly tested.",
+        "Allows a dedicated typed invalid-artifact blocker through the actual handler path."
+      ],
+      "cons": [
+        "Requires a scope-shape addition, blocker union/document update, and regression coverage in two smoke suites."
+      ]
+    },
+    {
+      "name": "Stabilize the router output order only",
+      "pros": [
+        "Smaller apparent code change."
+      ],
+      "cons": [
+        "Does not protect the barrier from alternate valid producers or future ordering changes.",
+        "Does not address malformed persisted candidates."
+      ]
+    },
+    {
+      "name": "Continue comparing full artifactDigest",
+      "pros": [
+        "No implementation change."
+      ],
+      "cons": [
+        "Preserves the confirmed freshness false positive and fails the user outcome."
+      ]
+    }
+  ],
+  "chosen": "Semantic sorted barrier projection plus strict artifact guard",
+  "rationale": "The barrier must compare a canonical set of selected path/content pairs. A runtime type guard prevents malformed JSON from escaping into map() and lets persistInvalidationIfDrifted report the typed OPEN_REVIEW_INVENTORY_INVALID_CANDIDATE_ARTIFACT result. Full artifact identity stays independently verified and is negatively tested after the comparator narrows. The decision record is updated when the historical known-incomplete statement is conclusively closed.",
+  "preMortem": [
+    {
+      "scenario": "Sorting masks a genuine candidate change.",
+      "trigger": "A changed selected path or content hash produces the same barrier digest.",
+      "consequence": "An OPEN epoch would mix review evidence from different candidate universes.",
+      "mitigation": "Test positive invariance only for reordered equal path/content pairs and a negative test for changed path/content."
+    },
+    {
+      "scenario": "The malformed artifact is silently treated as absent.",
+      "trigger": "A non-array candidates artifact omits the scope digest without recording invalidity.",
+      "consequence": "Operators cannot distinguish a bad artifact from no routing artifact.",
+      "mitigation": "Carry explicit invalid-artifact state into persistInvalidationIfDrifted, add the blocker to the closed type union, and assert its rendered text."
+    },
+    {
+      "scenario": "The new regression never populates changedPaths.",
+      "trigger": "Fixture remains on main or commits before creating the story branch.",
+      "consequence": "The false-green test passes without exercising the original leak.",
+      "mitigation": "Assert git diff main...HEAD is nonempty before rerouting and assert State: OPEN afterwards."
+    },
+    {
+      "scenario": "Canonicalization bypasses the old tamper detector.",
+      "trigger": "A modified artifact no longer needs its artifactDigest to verify.",
+      "consequence": "Persisted routing data could silently bypass integrity validation.",
+      "mitigation": "Retain full artifactDigest verification and run a mutation-negative candidate-routing smoke."
+    }
+  ],
+  "timestamp": "2026-08-20T09:19:28.435Z"
+}

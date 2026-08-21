@@ -4,11 +4,11 @@
   "title": "Close the remaining candidate-routing barrier freshness leak and harden malformed candidate input",
   "description": "Split out from B-3f3d. Three related items remain after B-3f3d narrowed the OPEN-epoch barrier three times (F-099 evidence semantics, F-103/F-104 candidate identity, F-107 queryFiltering). (1) The candidate-routing barrier STILL leaks freshness: B-3f3d:F-107 was marked resolved on unit-level evidence only, and an end-to-end fixture then falsified it. With an unrelated commit touching only a test file, the epoch is invalidated with corpusDigest byte-identical (d49896cf->d49896cf) while candidateSpecSetDigest moves (a4cb4561->9dffdc85), so the leak is inside the candidates projection itself. Leading hypothesis: changedPaths seeds buildKeywordSeeds at weight 50 in core/candidate-spec-routing.ts:334, changing which specs are selected or their order; if only order moves, bind a sorted set of path+contentHash instead of the ordered array. A failing repro fixture already exists in the B-3f3d worktree git stash (stash@{0}) and fails CORRECTLY. (2) Malformed candidate input is unguarded: handlers/review-inventory.ts captureReviewInventoryScope does (candidates ?? []).map(...) which only guards null/undefined, so a non-array truthy candidates throws TypeError uncaught, and persistInvalidationIfDrifted has no try/catch across six gate lifecycle call sites; store.readCandidateSpecSet is a bare cast and verifyCandidateSpecSet never checks Array.isArray. (3) B-3f3d:F-108: the drift-detection call site has no end-to-end fixture proving a routing-neutral re-route does NOT invalidate.",
   "type": "bug",
-  "phase": "INIT",
+  "phase": "DONE",
   "priority": "high",
   "createdAt": "2026-08-17T02:28:58.542Z",
   "startedAt": "2026-08-17T02:28:58.542Z",
-  "endedAt": null,
+  "endedAt": "2026-08-20T13:04:47.642Z",
   "events": [
     {
       "phase": "INIT",
@@ -18,6 +18,79 @@
       "user": "Pan Qi",
       "sessionId": "sess-be66cefde50c74df3e9acd344e6b43d6",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-08-20T09:06:46.277Z",
+      "branch": "main",
+      "user": "Pan Qi",
+      "sessionId": "sess-9784802211d863e1fc1aaf88f70e948f",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-08-20T09:07:07.543Z",
+      "branch": "story/B-8af0",
+      "user": "Pan Qi",
+      "sessionId": "sess-45e727105e7b7de9bddaea8a74409012",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-20T09:25:29.008Z",
+      "branch": "story/B-8af0",
+      "user": "Pan Qi",
+      "sessionId": "sess-45e727105e7b7de9bddaea8a74409012",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-20T11:11:04.601Z",
+      "branch": "story/B-8af0",
+      "user": "Pan Qi",
+      "sessionId": "sess-45e727105e7b7de9bddaea8a74409012",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-20T11:28:03.252Z",
+      "branch": "story/B-8af0",
+      "user": "Pan Qi",
+      "sessionId": "sess-45e727105e7b7de9bddaea8a74409012",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-20T12:00:08.932Z",
+      "branch": "story/B-8af0",
+      "user": "Pan Qi",
+      "sessionId": "sess-45e727105e7b7de9bddaea8a74409012",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-08-20T12:24:40.763Z",
+      "branch": "story/B-8af0",
+      "user": "Pan Qi",
+      "sessionId": "sess-45e727105e7b7de9bddaea8a74409012",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-08-20T13:04:47.642Z",
+      "branch": "story/B-8af0",
+      "user": "Pan Qi",
+      "sessionId": "sess-45e727105e7b7de9bddaea8a74409012",
+      "agent": "main"
     }
-  ]
+  ],
+  "currentReviewRound": "2026-08-20T12:00:08.932Z"
 }

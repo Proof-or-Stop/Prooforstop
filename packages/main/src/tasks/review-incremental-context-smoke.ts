@@ -7,10 +7,10 @@
  * proof-or-stop review_incremental_context CLI registered) changes NOTHING about the
  * REVIEW→TEST gate canPassReviewGuard.
  *
- * HARD INVARIANT this guard defends: the incremental helper is a pure read-only
- * advisory. It must not write to the store and must not alter any gate input
- * (findings / review-passes / review-runs / currentReviewRound). The framework
- * still skips no reviewer; round-2+ targeted re-review is an operator judgement.
+ * HARD INVARIANT this guard defends: the legacy per-reviewer context is a pure
+ * read-only diagnostic and does not mutate gate inputs. Post-remediation lane
+ * selection is a separate signed current-material fact consumed by the gate;
+ * only proven dependency closure narrows it, never the round number.
  *
  * Cases:
  *   (a) RETURNING REVIEWER — a reviewer 'quality' with a prior PASS bound to an
@@ -27,19 +27,11 @@
  *       isFirstPass=true, priorHeadHash=null, full main...HEAD diff, while
  *       priorVerdict stays NON-null. Pins the documented contract that consumers
  *       must key off isFirstPass (not priorVerdict) for "no incremental baseline".
- *   (f) BOUNDED-PATHS DEGRADATION — a prior that DOES resolve but whose diff to
- *       HEAD does not fit the bounded review-basis path lists: the read degrades
- *       to the full story diff against main (reason code
- *       FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_PATHS, contextMode full,
- *       reviewBasis null) while still reporting the resolved prior. Asserts the
- *       boundary is exact — at the cap an incremental basis is emitted, one path
- *       over it degrades — against the same bounded-path rule prompt-contracts
- *       enforces rather than against a restated number.
  *   (d) GATE-UNCHANGED ASSERTION (the load-bearing one) — exercises the REAL
  *       canPassReviewGuard (imported from core/machine.ts) over deterministic
  *       fixture stories and asserts the actual gate semantics:
- *         - Round 1 (roundCount<=1): blocks unless ALL opt-in reviewers have a
- *           valid current-round verdict + quorum.
+ *         - Every round blocks unless every current selected lane has a valid
+ *           current-round verdict + quorum; unknown impact selects all lanes.
  *         - Missing currentReviewRound: pass-shaped legacy evidence fails closed.
  *         - A current-round INVALID (stale/unknown-run) binding blocks — in ALL
  *           rounds, before the round split.
@@ -70,11 +62,7 @@ import {
   reviewIncrementalContext,
 } from '../core/review-incremental-context.js';
 import { BASELINE_RUNTIME_CONTRACT } from '../core/prompt-measurement.js';
-import {
-  FULL_TASK_CONTEXT_LIMITS,
-  domainSeparatedDigest,
-  validateIncrementalReviewBasis,
-} from '../core/prompt-contracts.js';
+import { domainSeparatedDigest } from '../core/prompt-contracts.js';
 import {
   assembleFullPromptEnvelope,
   buildFullTaskContext,
@@ -87,13 +75,10 @@ import {
 } from '../core/prompt-role-contract-registry.js';
 import { canPassReviewGuard, type StoryMachineContext } from '../core/machine.js';
 import { resetConfigCache } from '../core/config.js';
-import { STATE_DIR_NAMES, stateDirCandidates } from '../core/brand-paths.js';
 import { signFinding, signReviewPass } from '../core/finding-verify.js';
 import {
-  changedFilesBetweenRenameAware,
   classifyEvidenceFreshness,
   currentGitHead,
-  isMaterialExcludedPath,
 } from '../core/evidence-freshness.js';
 import {
   collectReviewerEvidenceState,
@@ -133,19 +118,6 @@ function git(cwd: string, args: string[]): string {
 function write(root: string, path: string, content: string): void {
   mkdirSync(dirname(join(root, path)), { recursive: true });
   writeFileSync(join(root, path), content);
-}
-
-/**
- * B-cc10: scratch fixtures must ignore BOTH state-dir spellings. CLI writes the
- * canonical dir; pinning only `.lattice/` leaves `?? .proof-or-stop/` dirty and
- * breaks porcelain-preserving assertions (F-077).
- */
-function scratchRuntimeGitignore(): string {
-  return [
-    ...stateDirCandidates('activity.jsonl'),
-    ...stateDirCandidates('locks').map((rel) => `${rel}/`),
-    ...stateDirCandidates('runtime').map((rel) => `${rel}/`),
-  ].join('\n') + '\n';
 }
 
 function directoryBytes(root: string): Record<string, string> {
@@ -351,7 +323,7 @@ function reviewStory(storyId: string, rounds: number, currentReviewRound?: strin
  */
 function buildIncrementalRepo(): { root: string; baseSha: string; headSha: string } {
   const root = mkdtempSync(join(tmpdir(), 'lattice-incremental-ctx-'));
-  write(root, '.gitignore', scratchRuntimeGitignore());
+  write(root, '.gitignore', '.lattice/activity.jsonl\n');
   write(root, 'src/feature.ts', 'export const feature = 1;\n');
   write(root, 'src/old-name.ts', 'export const renamed = true;\n');
   write(root, 'src/untouched.ts', 'export const untouched = 1;\n');
@@ -460,7 +432,7 @@ function runProductionVerifierTemporalCutoffRegression(): void {
     });
   };
   try {
-    write(root, '.gitignore', scratchRuntimeGitignore());
+    write(root, '.gitignore', '.lattice/activity.jsonl\n.lattice/locks/\n');
     write(root, 'lattice.config.json', JSON.stringify({
       scanRoot: '.',
       rootDir: 'src',
@@ -520,6 +492,18 @@ function runProductionVerifierTemporalCutoffRegression(): void {
     }, role);
     const passA = store.readReviewPasses(storyId).passes.find(pass => pass.reviewRunId === runA.reviewRunId)!;
 
+    const mutableFinding = signedFinding(
+      storyId,
+      `${storyId}:F-MUTABLE`,
+      role,
+      'medium',
+      runA.startedAt,
+      'resolved',
+      round,
+      runA.reviewRunId,
+    );
+    store.writeFindings(storyId, { findings: [mutableFinding] });
+
     runCli('review_run_start', { storyId, agent: role }, role);
     const runB = store.readReviewRuns(storyId).runs.at(-1)!;
     const envelopeB = store.readPromptEnvelopes(storyId).envelopes.find(
@@ -531,6 +515,20 @@ function runProductionVerifierTemporalCutoffRegression(): void {
       verifyReviewRunPromptEnvelope(store, runB),
       { ok: true },
       'production verifier accepts B before a later pass is appended',
+    );
+    assert.ok(envelopeB.findingProjection?.some(row => row.id === mutableFinding.id && row.status === 'resolved'));
+    const findingData = store.readFindings(storyId);
+    const laterDisposition = findingData.findings.find(row => row.id === mutableFinding.id)!;
+    laterDisposition.status = 'dismissed';
+    laterDisposition.severity = 'low';
+    laterDisposition.category = 'happy';
+    laterDisposition.desc = 'Later mutable metadata must not rewrite an already-started run.';
+    laterDisposition.resolvedAt = new Date().toISOString();
+    store.writeFindings(storyId, findingData);
+    assert.deepEqual(
+      verifyReviewRunPromptEnvelope(store, runB),
+      { ok: true },
+      'F040: post-start finding disposition/severity/category/desc mutation cannot invalidate the signed run-start projection',
     );
     runCli('review_pass_set', {
       storyId,
@@ -723,7 +721,7 @@ function assertLargeDiffReviewMetadataStability(): void {
       requirementsDir: 'docs/requirements',
       storyPrefix: 'B',
     }, null, 2)}\n`);
-    write(root, '.gitignore', scratchRuntimeGitignore());
+    write(root, '.gitignore', '.lattice/activity.jsonl\n');
     write(root, 'src/large.ts', 'export const seed = 0;\n');
     git(root, ['init']);
     git(root, ['checkout', '-B', 'main']);
@@ -897,168 +895,35 @@ function runIncrementalCases(): void {
   }
 }
 
-/**
- * The material path count the incremental branch measures between a bound
- * headHash and HEAD, computed with the same production helpers that branch uses.
- */
-function materialDiffPathCount(root: string, baseSha: string): number {
-  return changedFilesBetweenRenameAware(root, baseSha, 'HEAD')
-    .filter(path => !isMaterialExcludedPath(path, root)).length;
-}
-
-/**
- * (f) BOUNDED-PATHS DEGRADATION — the branch that fires when a prior DOES
- * resolve but sits too far behind HEAD to diff incrementally.
- *
- * Distinct from cases (b) and (e): here the prior pass is trusted AND its bound
- * headHash resolves, so neither of the isFirstPass sub-cases applies. What
- * disqualifies it is only distance — the prior-to-HEAD diff does not fit the
- * bounded path lists the review-basis contract accepts.
- *
- * Fixture (one repo, two priors, no magic numbers — every count is derived from
- * FULL_TASK_CONTEXT_LIMITS.pathsPerList):
- *   C0 main   seed: `cap` bulk files + the story file
- *   C1 main   modifies bulk file 0                     <- the AT-CAP prior binds here
- *   C2 main   modifies bulk files 1..cap-1             <- `main` stays here
- *   C3 story  modifies the story file                  <- HEAD
- * so diff(C1..HEAD) = (cap-1) bulk + 1 story = EXACTLY cap, diff(C0..HEAD) =
- * cap bulk + 1 story = cap+1, and the full story diff against main is the one
- * story file. The two priors differ ONLY in the commit they are bound to, so
- * the boundary is the only variable between the two observations.
- *
- * The boundary is pinned to the contract, not to the literal 512: at the cap an
- * incremental basis is emitted and finalize already ran it through
- * validateIncrementalReviewBasis, and that same basis with ONE more path is
- * asserted to be rejected by that validator — i.e. the guard's `>` fires exactly
- * where prompt-contracts' bounded-path rule starts rejecting.
- *
- * Note on contextMode at the cap: it is 'full' on BOTH sides here, because
- * ordinary `src/**` paths independently classify FULL_PRIVATE_IMPLEMENTATION_V1.
- * That is why "did the guard fire" is asserted through the guard's own signals —
- * its reason code, whether a review basis was emitted, and which diff was
- * served — rather than through contextMode, which cannot discriminate.
- */
-function runBoundedPathsDegradationCase(): void {
-  const cap = FULL_TASK_CONTEXT_LIMITS.pathsPerList;
-  const bounded = 'FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_PATHS';
-  const storyId = 'B-bounded-paths';
-  const role = 'lattice-review-quality';
-  const storyFile = 'src/story.ts';
-  const bulkFile = (index: number) => `src/bulk/f${String(index).padStart(5, '0')}.ts`;
-  const root = mkdtempSync(join(tmpdir(), 'lattice-incremental-bounded-paths-'));
+function runWrapperRootRoutingCase(): void {
+  const metadataRoot = mkdtempSync(join(tmpdir(), 'lattice-incremental-wrapper-'));
+  const gitRoot = join(metadataRoot, 'repo');
   try {
-    write(root, '.gitignore', '.lattice/activity.jsonl\n');
-    write(root, storyFile, 'export const story = 0;\n');
-    for (let index = 0; index < cap; index += 1) write(root, bulkFile(index), `export const bulk${index} = 0;\n`);
-    git(root, ['init']);
-    git(root, ['checkout', '-B', 'main']);
-    git(root, ['add', '.']);
-    git(root, [...COMMIT_ENV, 'commit', '-m', 'seed bounded-paths base']);
-    const overCapBaseSha = currentGitHead(root)!;
+    mkdirSync(gitRoot, { recursive: true });
+    write(metadataRoot, 'lattice.config.json', JSON.stringify({ gitRoot: 'repo' }, null, 2));
+    write(gitRoot, 'src/feature.ts', 'export const feature = 1;\n');
+    git(gitRoot, ['init']);
+    git(gitRoot, ['checkout', '-B', 'main']);
+    git(gitRoot, ['add', '.']);
+    git(gitRoot, [...COMMIT_ENV, 'commit', '-m', 'wrapper base']);
+    git(gitRoot, ['checkout', '-b', 'story/B-wrapper']);
+    write(gitRoot, 'src/feature.ts', 'export const feature = 2;\n');
+    git(gitRoot, ['add', '.']);
+    git(gitRoot, [...COMMIT_ENV, 'commit', '-m', 'wrapper feature']);
 
-    write(root, bulkFile(0), 'export const bulk0 = 1;\n');
-    git(root, ['add', '.']);
-    git(root, [...COMMIT_ENV, 'commit', '-m', 'main advances by one bulk path']);
-    const atCapBaseSha = currentGitHead(root)!;
-
-    for (let index = 1; index < cap; index += 1) write(root, bulkFile(index), `export const bulk${index} = 1;\n`);
-    git(root, ['add', '.']);
-    git(root, [...COMMIT_ENV, 'commit', '-m', 'main advances by the remaining bulk paths']);
-
-    git(root, ['checkout', '-b', `story/${storyId}`]);
-    write(root, storyFile, 'export const story = 1;\n');
-    git(root, ['add', '.']);
-    git(root, [...COMMIT_ENV, 'commit', '-m', 'story material change ahead of main']);
-
-    const story = reviewStory(storyId, 2, ts(1));
-    const priorAtCap = trustedReviewEvidence(storyId, role, 'RR-AT-CAP', ts(5), ts(6), atCapBaseSha);
-    const priorOverCap = trustedReviewEvidence(storyId, role, 'RR-OVER-CAP', ts(5), ts(6), overCapBaseSha);
-    const storeFor = (evidence: ReturnType<typeof trustedReviewEvidence>) => buildFixtureStore({
-      story,
-      runs: [evidence.run],
-      passes: [evidence.pass],
-      promptEnvelopes: [evidence.envelope],
-    });
-
-    // ---- AT EXACTLY THE CAP: the guard must NOT fire ----
-    const atCap = reviewIncrementalContext(storeFor(priorAtCap), root, storyId, role);
-    assert.equal(atCap.eligibilityReasonCodes.includes(bounded), false, `at exactly the cap the guard must not raise ${bounded}`);
-    assert.equal(atCap.changedFiles.length, cap, 'fixture must place the incremental diff at EXACTLY the bounded path cap');
-    assert.equal(atCap.isFirstPass, false, 'at the cap the trusted prior is the baseline');
-    assert.equal(atCap.priorHeadHash, atCapBaseSha, 'at the cap changedFiles is the diff from the prior headHash');
-    assert.notEqual(atCap.reviewBasis, null, 'at the cap the incremental review basis is still emitted');
-    assert.equal(atCap.reviewBasis!.changedFiles.length, cap, 'the emitted basis carries the full at-cap path list');
-    assert.ok(atCap.changedFiles.includes(storyFile), 'the at-cap incremental diff still contains the story file');
-
-    // Boundary pinned to the contract rather than to the number: finalize already
-    // validated the basis above, and that same basis plus ONE path is rejected by
-    // the very rule the guard exists to keep satisfiable.
-    validateIncrementalReviewBasis(atCap.reviewBasis!);
-    assert.throws(
-      () => validateIncrementalReviewBasis({
-        ...atCap.reviewBasis!,
-        changedFiles: [...atCap.reviewBasis!.changedFiles, 'src/one-path-over-the-cap.ts'],
-      }),
-      /IncrementalReviewBasis\.changedFiles exceeds/,
-      'the guard threshold must be the same bounded-path rule prompt-contracts enforces',
-    );
-
-    // ---- ONE PATH OVER THE CAP: the guard must fire and degrade ----
-    // The degraded context no longer exposes the oversized diff, so the fixture's
-    // distance is measured directly, through the same production helpers the
-    // branch under test uses.
-    assert.equal(
-      materialDiffPathCount(root, overCapBaseSha),
-      cap + 1,
-      'fixture must place the over-cap incremental diff exactly ONE path over the bound',
-    );
-    const overCap = reviewIncrementalContext(storeFor(priorOverCap), root, storyId, role);
-    assert.ok(overCap.eligibilityReasonCodes.includes(bounded), `one path over the cap must raise ${bounded}`);
-    assert.equal(overCap.contextMode, 'full', 'the degraded context must stay full');
-    assert.equal(overCap.reviewBasis, null, 'the degraded context must emit NO incremental review basis');
-    assert.equal(overCap.reviewBasisDigest, null, 'a suppressed basis must leave no basis digest behind');
-    assert.equal(overCap.scopeChanged, true, 'the degraded context shows everything, so scopeChanged stays true');
-
-    // The served diff is the story's net diff against main — NOT main's own
-    // already-reviewed churn that pushed the incremental diff over the bound.
-    assert.deepEqual(
-      overCap.changedFiles,
-      [storyFile],
-      'the degraded context serves the story net diff against main, not the oversized prior-to-HEAD set',
-    );
-
-    // The resolved prior is reported for audit (it is real state), and reporting
-    // it moves informational fields ONLY: against a same-repo first-timer the
-    // served diff, its digest, the impact-derived reason codes and contextMode
-    // are identical — the prior identity is the only difference.
-    const firstTimer = reviewIncrementalContext(buildFixtureStore({ story }), root, storyId, role);
-    assert.equal(firstTimer.isFirstPass, true, 'control: a lane with no prior evidence is a first pass');
-    assert.equal(firstTimer.priorPassRef, null, 'control: a first pass has no prior pass reference');
-    assert.equal(overCap.isFirstPass, false, 'a resolvable trusted prior must NOT be reported as a first pass');
-    assert.equal(overCap.priorPassRef, priorOverCap.pass.id, 'the degraded context reports the real prior pass');
-    assert.equal(overCap.priorReviewRunId, priorOverCap.run.reviewRunId, 'the degraded context reports the real prior run');
-    assert.equal(overCap.priorHeadHash, overCapBaseSha, 'the degraded context reports the real prior headHash');
-    assert.equal(overCap.priorVerdict, `PASS (${priorOverCap.pass.id})`, 'the degraded context reports the real prior verdict');
-    assert.deepEqual(overCap.changedFiles, firstTimer.changedFiles, 'the prior must not change WHICH files are served');
-    assert.equal(overCap.changedFilesDigest, firstTimer.changedFilesDigest, 'the prior must not change the changed-files digest');
-    assert.equal(overCap.impactedFilesDigest, firstTimer.impactedFilesDigest, 'the prior must not change the impacted-files digest');
-    assert.equal(overCap.contextMode, firstTimer.contextMode, 'the prior must not change contextMode');
-    assert.equal(overCap.scopeChanged, firstTimer.scopeChanged, 'the prior must not change scopeChanged');
-    assert.equal(overCap.freshnessClassification, firstTimer.freshnessClassification, 'the prior must not change the freshness classification');
-    assert.deepEqual(
-      overCap.eligibilityReasonCodes.filter(code => code !== bounded),
-      firstTimer.eligibilityReasonCodes.filter(code => code !== 'FULL_MISSING_TRUSTED_PRIOR_PASS'),
-      'apart from its own FULL_ reason code the degraded context classifies exactly like the first pass',
-    );
-    assert.notEqual(
-      overCap.eligibilityDigest,
-      firstTimer.eligibilityDigest,
-      'the resolved prior IS bound into the authoritative eligibility digest (audit fidelity, not eligibility)',
-    );
-    console.log(`${MARKER} (f) BOUNDED-PATHS DEGRADATION: cap=${cap} stays incremental (basis emitted, no ${bounded}); cap+1 degrades to the ${overCap.changedFiles.length}-path story diff with reviewBasis=null and the real prior ${overCap.priorPassRef} still reported`);
+    resetConfigCache();
+    const storyId = 'B-wrapper';
+    const store = new StoryStore(metadataRoot);
+    store.writeStory(storyId, reviewStory(storyId, 1, ts(1)));
+    store.writeChecklist(storyId, { items: [] });
+    const ctx = reviewIncrementalContext(store, metadataRoot, storyId, 'concept');
+    assert.equal(ctx.currentHeadHash, currentGitHead(gitRoot), 'wrapper-root HEAD must come from configured gitRoot');
+    assert.ok(ctx.changedFiles.includes('src/feature.ts'), 'wrapper-root diff must come from configured gitRoot');
+    assert.equal(ctx.currentHeadHash?.length, 40, 'non-git metadataRoot cannot collapse lineage to unavailable');
+    console.log(`${MARKER} WRAPPER ROOT: metadataRoot routes every Git read through configured gitRoot`);
   } finally {
     resetConfigCache();
-    rmSync(root, { recursive: true, force: true });
+    rmSync(metadataRoot, { recursive: true, force: true });
   }
 }
 
@@ -1213,6 +1078,44 @@ function runPolicyCases(): void {
     materialFiles: ['<story-files-changed>'],
   }, 'a'.repeat(40)), 'RELATED_STORY_MATERIAL_DRIFT');
   console.log(`${MARKER} POLICY: stable v1 bounded categories and canonical freshness classifications PASS`);
+
+  // B-3f3d F-090: the post-remediation selector may only narrow the reviewer
+  // roster when the impact is provably benign. Every category that
+  // postRemediationReviewSelection routes to POLICY_IMPACT_REQUIRES_FULL_SET
+  // must actually be produced by classifyImpact, or the fail-closed branch
+  // silently stops firing and round-2+ reviews get narrowed after a
+  // remediation touched gate/policy source itself.
+  const FULL_SET_CATEGORIES = [
+    'public-contract', 'authority-or-permission', 'command-or-gate-policy',
+    'dependency-or-build', 'unsupported-rename', 'unknown',
+  ];
+  const gatePolicyImpact = classifyImpact({
+    changedFiles: ['packages/main/src/core/command-policy.ts'],
+    declaredTestFiles: [],
+    testIntentRefsByFile: {},
+    changedFileStatus: { 'packages/main/src/core/command-policy.ts': 'M' },
+  });
+  assert.ok(
+    gatePolicyImpact.impacts.some(impact => FULL_SET_CATEGORIES.includes(impact.category)),
+    'changing gate/policy source must classify into a category that forces the full reviewer set',
+  );
+  const buildImpact = classifyImpact({
+    changedFiles: ['package.json'],
+    declaredTestFiles: [],
+    testIntentRefsByFile: {},
+    changedFileStatus: { 'package.json': 'M' },
+  });
+  assert.ok(
+    buildImpact.impacts.some(impact => FULL_SET_CATEGORIES.includes(impact.category)),
+    'changing dependency/build material must classify into a category that forces the full reviewer set',
+  );
+  // The rename case is already asserted above to be FULL_UNSUPPORTED_RENAME;
+  // pin that its impact category is likewise in the full-set trigger list.
+  assert.ok(
+    renamed.impacts.some(impact => FULL_SET_CATEGORIES.includes(impact.category)),
+    'an unsupported rename must classify into a category that forces the full reviewer set',
+  );
+  console.log(`${MARKER} F-090: gate/policy, dependency and unsupported-rename impacts all force the full reviewer set PASS`);
 }
 
 function runFixtureDuplicateIdentityCases(): void {
@@ -1273,6 +1176,36 @@ function runFixtureDuplicateIdentityCases(): void {
   }
 }
 
+function runLargeFixtureReadFailureCase(): void {
+  const root = mkdtempSync(join(tmpdir(), 'lattice-fixture-large-read-'));
+  const storyId = 'B-large-fixture';
+  const fixturePath = 'cases.json';
+  const intentRef = `${storyId}:CHK-001:happy:0`;
+  try {
+    write(root, fixturePath, JSON.stringify({
+      cases: [{ _id: 'large-case', intentRef, expect: true, padding: 'x'.repeat(1_100_000) }],
+    }));
+    git(root, ['init']);
+    git(root, ['checkout', '-B', 'main']);
+    git(root, ['add', fixturePath]);
+    git(root, [...COMMIT_ENV, 'commit', '-m', 'seed large fixture']);
+    git(root, ['checkout', '-b', `story/${storyId}`]);
+    write(root, fixturePath, JSON.stringify({
+      cases: [{ _id: 'large-case', expect: false, padding: 'y'.repeat(1_100_000) }],
+    }));
+    git(root, ['add', fixturePath]);
+    git(root, [...COMMIT_ENV, 'commit', '-m', 'change large fixture without intent binding']);
+    assert.equal(
+      fixtureCaseClosure(root, 'main', storyId, fixturePath, new Set([intentRef])),
+      false,
+      'large before/after read failures must not collapse to equal empty fixture sets',
+    );
+    console.log(`${MARKER} LARGE FIXTURE: >1MiB changed unbound case fails closed`);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Case (d): GATE-UNCHANGED ASSERTION over deterministic git-free fixtures.
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1291,7 +1224,7 @@ function runFixtureDuplicateIdentityCases(): void {
 function buildBalancedProjectRoot(): string {
   const root = mkdtempSync(join(tmpdir(), 'lattice-incremental-gate-'));
   writeFileSync(join(root, 'lattice.json'), JSON.stringify({ workflow: { profile: 'balanced' } }));
-  write(root, '.gitignore', scratchRuntimeGitignore());
+  write(root, '.gitignore', '.lattice/activity.jsonl\n');
   write(root, 'src/seed.ts', 'export const seed = 1;\n');
   git(root, ['init']);
   git(root, ['checkout', '-B', 'main']);
@@ -1338,9 +1271,9 @@ function runGateUnchangedCase(): void {
       const story = reviewStory(storyId, 2, undefined);
       const passes = [signedPass(storyId, 'RP-1', 'lattice-review-concept', ts(20))];
       const store = buildFixtureStore({ story, passes });
-      const outcome = assertGateUnchangedByHelper(store, projectRoot, storyId, '(d.3) round-2 single valid receipt');
-      assert.equal(outcome, false, '(d.3) Round 2+ missing currentReviewRound must BLOCK the gate');
-      console.log(`${MARKER} (d.3) ROUND 2+ missing currentReviewRound -> gate BLOCK; identical with/without helper`);
+      const outcome = assertGateUnchangedByHelper(store, projectRoot, storyId, '(d.3) later-round single valid receipt');
+      assert.equal(outcome, false, '(d.3) missing currentReviewRound must BLOCK the gate in every review');
+      console.log(`${MARKER} (d.3) missing currentReviewRound -> gate BLOCK; incremental context cannot change the assurance floor`);
     }
 
     // (d.4) INVALID (unknown-run) current-round binding BLOCKS — in BOTH rounds.
@@ -1392,7 +1325,9 @@ function runConcurrentCliReadOnlyCase(): void {
   const root = mkdtempSync(join(tmpdir(), 'lattice-incremental-cli-readonly-'));
   const storyId = 'B-readonly';
   try {
-    write(root, '.gitignore', scratchRuntimeGitignore());
+    // Story artifacts stay under .lattice/story/actives; ignore canonical runtime
+    // so concurrent review_incremental_context activity/locks do not dirty porcelain.
+    write(root, '.gitignore', '.lattice/activity.jsonl\n.lattice/locks/\n.proof-or-stop/\n');
     write(root, 'lattice.config.json', JSON.stringify({
       storyDir: '.lattice/story/actives',
       workflow: { profile: 'balanced' },
@@ -1414,7 +1349,7 @@ function runConcurrentCliReadOnlyCase(): void {
 
     const storyDir = store.storyDirPath(storyId);
     const beforeStoryBytes = directoryBytes(storyDir);
-    const beforeVerdictBytes = STATE_DIR_NAMES.map((dir) => directoryBytes(join(root, dir, 'autopilot-verdicts')));
+    const beforeVerdictBytes = directoryBytes(join(root, '.lattice/autopilot-verdicts'));
     const beforeStatus = git(root, ['status', '--porcelain=v1']);
     const beforeStory = JSON.stringify(store.readStory(storyId));
     const command = [
@@ -1442,7 +1377,7 @@ function runConcurrentCliReadOnlyCase(): void {
     });
     assert.deepEqual(directoryBytes(storyDir), beforeStoryBytes, 'concurrent CLI calls preserve every Story artifact byte');
     assert.deepEqual(
-      STATE_DIR_NAMES.map((dir) => directoryBytes(join(root, dir, 'autopilot-verdicts'))),
+      directoryBytes(join(root, '.lattice/autopilot-verdicts')),
       beforeVerdictBytes,
       'concurrent CLI calls create no receipts, host verdicts, floor, or quorum artifacts',
     );
@@ -1471,9 +1406,12 @@ function runDeterministicTicketReclaimAbaCase(): void {
   const root = mkdtempSync(join(tmpdir(), 'lattice-review-lock-aba-'));
   const storyId = 'B-mixed-writer-aba';
   const round = '2026-07-19T00:00:00.000Z';
+  const barrierRoot = join(root, '.proof-or-stop/locks/review-run', '.review-metadata-test-barrier');
+  const lockDir = join(root, '.proof-or-stop/locks/review-run', `${storyId}-review-runs.lock`);
+  const deadTicket = join(lockDir, '0000000000000000-dead-a.ticket');
   const children: ReturnType<typeof spawn>[] = [];
   try {
-    write(root, '.gitignore', scratchRuntimeGitignore());
+    write(root, '.gitignore', '.lattice/activity.jsonl\n.lattice/locks/\n');
     write(root, 'lattice.config.json', JSON.stringify({
       scanRoot: '.',
       rootDir: 'src',
@@ -1522,11 +1460,6 @@ function runDeterministicTicketReclaimAbaCase(): void {
     });
     git(root, ['add', '.lattice/story']);
     git(root, [...COMMIT_ENV, 'commit', '-m', 'seed mixed writer review metadata']);
-    // B-cc10 F-077: plant the dead ticket in the CANONICAL lock dir (store.runtimeLockDirPath),
-    // not the deprecated `.lattice/locks/...` spelling the runtime no longer writes.
-    const lockDir = store.runtimeLockDirPath(storyId, 'review-run', 'review-runs');
-    const barrierRoot = join(dirname(lockDir), '.review-metadata-test-barrier');
-    const deadTicket = join(lockDir, '0000000000000000-dead-a.ticket');
     execFileSync(process.execPath, [
       DIST_CLI_PATH, '--root', root, 'dispatch',
       JSON.stringify({ storyId, agentType: 'lattice-review-quality' }),
@@ -1661,7 +1594,7 @@ function runConcurrentReviewerWriteCase(mask: number, iteration = 1, mutation?: 
     '>/dev/null',
   ].join(' ');
   try {
-    write(root, '.gitignore', scratchRuntimeGitignore());
+    write(root, '.gitignore', '.lattice/activity.jsonl\n.lattice/locks/\n');
     write(root, 'lattice.config.json', JSON.stringify({
       scanRoot: '.',
       rootDir: 'src',
@@ -1905,10 +1838,11 @@ function runScheduleMutationTrial(): {
 
 function run(): void {
   runPolicyCases();
-  runBoundedPathsDegradationCase();
   runFixtureDuplicateIdentityCases();
+  runLargeFixtureReadFailureCase();
   assertLargeDiffReviewMetadataStability();
   runIncrementalCases();
+  runWrapperRootRoutingCase();
   const cutoffStarted = performance.now();
   runProductionVerifierTemporalCutoffRegression();
   const cutoffDurationMs = performance.now() - cutoffStarted;
@@ -1988,8 +1922,6 @@ if (isDirectRun) {
     runDeterministicTicketReclaimAbaCase();
   } else if (process.argv.includes('--cutoff-verifier-only')) {
     runProductionVerifierTemporalCutoffRegression();
-  } else if (process.argv.includes('--bounded-paths-only')) {
-    runBoundedPathsDegradationCase();
   } else if (process.argv.includes('--guard-map-only')) {
     runIncrementalGuardClassMatrix();
   } else if (process.argv.includes('--schedule-mutation-only')) {
