@@ -836,10 +836,38 @@
         "agent_template_rename",
         "legacy_template_retirement"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "These seven production prompt/schema and focused migration smoke files are the necessary implementation and regression surface for the reviewed B-5a88 rename fixes.",
+      "timestamp": "2026-08-21T19:40:38.973Z",
+      "paths": [
+        "packages/main/src/core/prompt-envelope.ts",
+        "packages/main/src/core/validation-types.ts",
+        "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+        "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+        "packages/main/src/tasks/review-incremental-context-smoke.ts",
+        "packages/main/src/tasks/review-run-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/prompt-envelope.ts",
+        "packages/main/src/core/validation-types.ts",
+        "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+        "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+        "packages/main/src/tasks/review-incremental-context-smoke.ts",
+        "packages/main/src/tasks/review-run-smoke.ts"
+      ],
+      "affectedPathCount": 7,
+      "phase": "DEV",
+      "headHash": "dce25ebde139358a2a42c9c6ce567c5d0eb086d5",
+      "materialHash": "c425b49ca9fe6971b2bbda60e4b2144529d88bf1c2e5d5abf8e7d8c8c31266e5"
     }
   ],
   "createdAt": "2026-08-20T05:20:00.402Z",
-  "updatedAt": "2026-08-21T15:28:26.086Z",
+  "updatedAt": "2026-08-21T19:40:38.973Z",
   "fileRules": [],
   "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
@@ -1044,6 +1072,13 @@
     "packages/main/templates/agents/lattice-review-topology-critic.md": "packages/main/templates/agents/lattice-review-topology-critic.md",
     "packages/main/templates/agents/product-reviewer.md": "packages/main/templates/agents/product-reviewer.md",
     "packages/main/templates/agents/test-case-reviewer.md": "packages/main/templates/agents/test-case-reviewer.md",
-    "packages/main/templates/agents/test-intent.md": "packages/main/templates/agents/test-intent.md"
+    "packages/main/templates/agents/test-intent.md": "packages/main/templates/agents/test-intent.md",
+    "packages/main/src/core/prompt-envelope.ts": "packages/main/src/core/prompt-envelope.ts",
+    "packages/main/src/core/validation-types.ts": "packages/main/src/core/validation-types.ts",
+    "packages/main/src/tasks/lattice-cli-migration-smoke.ts": "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+    "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+    "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+    "packages/main/src/tasks/review-incremental-context-smoke.ts": "packages/main/src/tasks/review-incremental-context-smoke.ts",
+    "packages/main/src/tasks/review-run-smoke.ts": "packages/main/src/tasks/review-run-smoke.ts"
   }
 }
