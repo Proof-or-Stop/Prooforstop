@@ -797,7 +797,27 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Quorum and review-pass shards cover every stable case exactly once, retain a real end-to-end sentinel in each domain, and aggregate the original verdict without static PASS.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Shard failure, resource conflict, or cleanup interruption yields explicit aggregate failure with case attribution and residue diagnostics.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Deleting a shard, duplicating a case, routing a case incorrectly, substituting static PASS, or leaving temporary/process/ticket/quarantine residue is rejected.",
+            "type": "logic"
+          }
+        ]
+      }
     }
   ]
 }
