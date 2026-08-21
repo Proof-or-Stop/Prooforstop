@@ -244,7 +244,42 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Every current inventory command has one valid catalog entry, source roots, assurance policy, closure certificate, and fact/capability binding.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-validation-catalog.mjs",
+              "selector": "validation catalog PASS"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A whole-repository scanner or never-reuse command is classified conservatively and cannot receive an ordinary reusable receipt.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-validation-catalog.mjs --mutation=closure-policy",
+              "selector": "conservative closure policy"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A missing ID, invalid root, undeclared runtime read/environment key, unknown fact, or invalid full-only provenance rejects the certificate/catalog.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-validation-catalog.mjs --mutation-suite",
+              "selector": "catalog closure mutants rejected"
+            }
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
