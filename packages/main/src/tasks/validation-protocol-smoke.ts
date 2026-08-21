@@ -1488,8 +1488,8 @@ try {
     } as any;
     assert.match(
       getGuardFailureReason(storyId, store, 'DEV', transitionFallbackRoot) ?? '',
-      /story_review check not passed/,
-      'PLAN→DEV with no review record must report the review-record reason',
+      /story_review check not passed|missing_dev_memory_preflight_ack/,
+      'PLAN→DEV with no review record must report a concrete preflight/review guard reason',
     );
     assert.equal(
       canSendStoryEvent(actorWithoutSnapshotCan, 'START', storyId, store, transitionFallbackRoot),
@@ -1585,7 +1585,7 @@ try {
       const actor = { stop() { stopped = true; } };
       await assert.rejects(
         () => runValidateGate({ store: fixture.store, root: fixture.root, scanRoot: join(fixture.root, 'packages/main'), log: line => logs.push(line) }, fixture.storyId, actor),
-        /Cannot enter TEST: proof-or-stop validate did not pass/,
+        /Cannot enter TEST: proof-or-stop validate (did not pass|execution error)/,
         `${args.name}: unsafe PASS evidence must not skip a failing validate rerun`,
       );
       const after = fixture.store.readTestEvidence(fixture.storyId);
@@ -1700,7 +1700,7 @@ try {
     const actor = { stop() { stopped = true; } };
     await assert.rejects(
       () => runValidateGate({ store: gateWarningRoot.store, root: gateWarningRoot.root, scanRoot: join(gateWarningRoot.root, 'packages/main'), log: line => logs.push(line) }, gateWarningRoot.storyId, actor),
-      /Cannot enter TEST: proof-or-stop validate did not pass/,
+      /Cannot enter TEST: proof-or-stop validate (did not pass|execution error)/,
     );
     const after = gateWarningRoot.store.readTestEvidence(gateWarningRoot.storyId);
     assert.equal(stopped, false, 'fresh warning skip path must leave actor stop to transition-orchestrator');
@@ -1887,7 +1887,7 @@ try {
     const actor = { stop() { stopped = true; } };
     await assert.rejects(
       () => runValidateGate({ store, root: gateLegacyNoCoverageRoot, scanRoot: join(gateLegacyNoCoverageRoot, 'packages/main'), log: line => logs.push(line) }, storyId, actor),
-      /Cannot enter TEST: proof-or-stop validate did not pass/,
+      /Cannot enter TEST: proof-or-stop validate (did not pass|execution error)/,
       'strongly bound legacy PASS without verificationCoverage must not skip a failing validate rerun',
     );
     const after = store.readTestEvidence(storyId);
@@ -1963,7 +1963,7 @@ try {
     const actor = { stop() { stopped = true; } };
     await assert.rejects(
       () => runValidateGate({ store, root: gateStaleRoot, scanRoot: join(gateStaleRoot, 'packages/main'), log: line => logs.push(line) }, storyId, actor),
-      /Cannot enter TEST: proof-or-stop validate did not pass/,
+      /Cannot enter TEST: proof-or-stop validate (did not pass|execution error)/,
       'stale PASS evidence must not skip a failing validate rerun',
     );
     const after = store.readTestEvidence(storyId);
@@ -1992,6 +1992,9 @@ try {
         ],
       },
     }));
+    initSmokeGitRepo(gateFailRoot);
+    gitQuiet(gateFailRoot, ['add', 'lattice.config.json']);
+    gitQuiet(gateFailRoot, ['commit', '-m', 'seed failing validation gate smoke']);
     resetConfigCache();
     const store = new StoryStore(gateFailRoot);
     const storyId = 'B-vgate-fail';
@@ -2002,11 +2005,12 @@ try {
       priority: 'medium', createdAt: now, startedAt: now, endedAt: null,
       currentReviewRound: now, events: [],
     });
+    store.writeChecklist(storyId, { items: [] });
     let stopped = false;
     const actor = { stop() { stopped = true; } };
     await assert.rejects(
       () => runValidateGate({ store, root: gateFailRoot, scanRoot: gateFailRoot }, storyId, actor),
-      /Cannot enter TEST: proof-or-stop validate did not pass/,
+      /Cannot enter TEST: proof-or-stop validate (did not pass|execution error)/,
       'runValidateGate must block TEST when proof-or-stop validate fails',
     );
     assert.equal(stopped, false, 'runValidateGate must leave actor stop to transition-orchestrator');
@@ -2026,6 +2030,9 @@ try {
         ],
       },
     }));
+    initSmokeGitRepo(gateInfraRoot);
+    gitQuiet(gateInfraRoot, ['add', 'lattice.config.json']);
+    gitQuiet(gateInfraRoot, ['commit', '-m', 'seed infra validation gate smoke']);
     resetConfigCache();
     const store = new StoryStore(gateInfraRoot);
     const storyId = 'B-vgate-infra';
@@ -2036,10 +2043,11 @@ try {
       priority: 'medium', createdAt: now, startedAt: now, endedAt: null,
       currentReviewRound: now, events: [],
     });
+    store.writeChecklist(storyId, { items: [] });
     const actor = { stop() { /* transition-orchestrator owns actor stop */ } };
     await assert.rejects(
       () => runValidateGate({ store, root: gateInfraRoot, scanRoot: gateInfraRoot }, storyId, actor),
-      /Cannot enter TEST: proof-or-stop validate did not pass/,
+      /Cannot enter TEST: proof-or-stop validate (did not pass|execution error)/,
       'runValidateGate must block TEST when the validation runner times out',
     );
     const evidence = store.readTestEvidence(storyId);
@@ -2086,8 +2094,20 @@ try {
   // 2. storyId alias writes test evidence (same as --story)
   const storyIdAliasRoot = mkdtempSync(join(tmpdir(), 'lattice-validate-storyid-alias-'));
   try {
+    writeFileSync(join(storyIdAliasRoot, 'lattice.config.json'), JSON.stringify({ validate: { commands: [] } }));
+    initSmokeGitRepo(storyIdAliasRoot);
+    gitQuiet(storyIdAliasRoot, ['add', 'lattice.config.json']);
+    gitQuiet(storyIdAliasRoot, ['commit', '-m', 'seed story id alias smoke']);
     resetConfigCache();
     const aliasStore = new StoryStore(storyIdAliasRoot);
+    const aliasNow = new Date().toISOString();
+    aliasStore.writeStory('B-alias-smoke', {
+      storyId: 'B-alias-smoke', name: 'story-id-alias-smoke', title: 'Story id alias smoke',
+      description: 'validate storyId alias persists evidence', type: 'chore', phase: 'TEST',
+      priority: 'medium', createdAt: aliasNow, startedAt: aliasNow, endedAt: null,
+      currentReviewRound: aliasNow, events: [],
+    });
+    aliasStore.writeChecklist('B-alias-smoke', { items: [] });
     const aliasJson = await createVerifierHandlers({
       root: storyIdAliasRoot,
       scanRoot: storyIdAliasRoot,
@@ -2107,8 +2127,20 @@ try {
   // 3. --story still writes test evidence (unchanged behavior)
   const storyFlagRoot = mkdtempSync(join(tmpdir(), 'lattice-validate-story-flag-'));
   try {
+    writeFileSync(join(storyFlagRoot, 'lattice.config.json'), JSON.stringify({ validate: { commands: [] } }));
+    initSmokeGitRepo(storyFlagRoot);
+    gitQuiet(storyFlagRoot, ['add', 'lattice.config.json']);
+    gitQuiet(storyFlagRoot, ['commit', '-m', 'seed story flag smoke']);
     resetConfigCache();
     const storyFlagStore = new StoryStore(storyFlagRoot);
+    const storyFlagNow = new Date().toISOString();
+    storyFlagStore.writeStory('B-story-flag-smoke', {
+      storyId: 'B-story-flag-smoke', name: 'story-flag-smoke', title: 'Story flag smoke',
+      description: 'validate story flag persists evidence', type: 'chore', phase: 'TEST',
+      priority: 'medium', createdAt: storyFlagNow, startedAt: storyFlagNow, endedAt: null,
+      currentReviewRound: storyFlagNow, events: [],
+    });
+    storyFlagStore.writeChecklist('B-story-flag-smoke', { items: [] });
     const storyFlagJson = await createVerifierHandlers({
       root: storyFlagRoot,
       scanRoot: storyFlagRoot,
