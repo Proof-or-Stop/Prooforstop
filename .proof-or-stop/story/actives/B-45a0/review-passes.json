@@ -549,6 +549,39 @@
         "scanEscalationReason": null
       },
       "_hash": "b52ac855122ae616d05dc5760ddf6d8e425ac4295e1b6f1d8b4895c98759cda6"
+    },
+    {
+      "id": "B-45a0:RP-013",
+      "agent": "lattice-review-concept",
+      "note": "RI-027 current-head concept/adversarial review found no blocker. Verified the isolated FI-2 runtime probe retains target fact/capability bindings; static/fact/capability omissions use valid signed certificates and their validity is mechanically required by row.passed, while the undeclared-runtime certificate is mechanically required invalid. Verified the actual rename old-path HEAD-only counterfactual reuses and the dual-revision graph selects the dependent. Current plan-only fault campaign reports FI-1..FI-5 allPass, and story-aware plus mutation smokes pass.",
+      "createdAt": "2026-08-21T19:10:58.941Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-095",
+      "envelopeId": "d1b05c1c67f835723d70bc22d5626dd245ca252f6984f00f03316fed17141716",
+      "writerSessionId": "sess-8a91bb08c5c7a6e78c425521687dd55d",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "980a4ed6fb2f4a09d8bb290474c880e175da1984b66a0529b98600076b3aaedb"
+      },
+      "readDiagnostics": [],
+      "_hash": "24269195a474879864a15371639956423d396e37b21ae39d0221bbcef660ad7a"
     }
   ]
 }
