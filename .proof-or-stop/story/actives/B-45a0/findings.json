@@ -5278,6 +5278,120 @@
       ],
       "signatureTag": "dynamic-validation-fault-injection-isolation",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-105",
+      "desc": "CHK-011:happy:0/edge:0: current review HEAD f9b4aad0c2 (RI-027 metadata over material e08081e317) still has no executable historical replay evidence. .proof-or-stop/runtime/dynamic-validation/historical-replay/report.json:5-6 records execute=false for 50 Stories; report.json:11827-11831 records pairedRequested=false, admissible=false with reasons that the plan-only replay has no executable receipts and one or more Stories were not executed, while all 50 records are execution=not-run (for example report.json:146) and pairedPerformance is absent/null. The enforcement evidence contract requires current-HEAD per-Story full/dynamic verdict receipts with failures(full) subset executed(dynamic), plus three alternating current-HEAD pairs with timing, selection, resource, and residue evidence (docs/requirements/decisions/dynamic-validation-enforcement-evidence.md:21-30). The implementation exposes --execute/--paired, but those required campaigns are not present or bound to this review HEAD, so DYN-3 enforcement evidence remains inadmissible.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-21T19:08:33.928Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-094",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/runtime/dynamic-validation/historical-replay/report.json",
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "4e9523f4b454be5123e3740edb5435648bbb62a8fb44872a9ef1e4aafdf77d69"
+      },
+      "readDiagnostics": [],
+      "_hash": "fd1138fcabb4754fa629476663a3b853ca436c449c904be60db2c7a0b9b55cde",
+      "files": [
+        ".proof-or-stop/runtime/dynamic-validation/historical-replay/report.json",
+        ".proof-or-stop/story/actives/B-45a0/background.md",
+        ".proof-or-stop/story/actives/B-45a0/checklist.json",
+        ".proof-or-stop/story/actives/B-45a0/plan.md",
+        "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+        "docs/requirements/decisions/dynamic-validation-operations.md",
+        "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+        "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+        "scripts/run-dynamic-validation-replay.mjs"
+      ],
+      "signatureTag": "missing|json|happy-edge-current",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-106",
+      "desc": "CHK-001..CHK-013: current verification evidence is stale for RI-027. session_brief at current full HEAD f9b4aad0c2/materialHash 61756af6 reports 45 verification intents stale after the inventory/material update. The existing passing evidence remains bound to the prior head/material (for example .proof-or-stop/story/actives/B-45a0/checklist.json:102-103 binds headHash=9833c3fef6 and materialHash=5d7bf5d5...), so the 45 passing rows are not current-head mechanical coverage even though checklist_get still reports 13/13 done and all rows passing. Refresh with proof-or-stop verification_evidence_refresh_stale --storyId=B-45a0 and rerun proof-or-stop validate --story=B-45a0 --json before accepting coverage.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-21T19:08:50.936Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-094",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "4e9523f4b454be5123e3740edb5435648bbb62a8fb44872a9ef1e4aafdf77d69"
+      },
+      "readDiagnostics": [],
+      "_hash": "448fa8dbe118443f4749ba289a5b8cbeaa0e333cb7b289742240210f3c2949bc",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/background.md",
+        ".proof-or-stop/story/actives/B-45a0/checklist.json",
+        ".proof-or-stop/story/actives/B-45a0/plan.md",
+        "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+        "docs/requirements/decisions/dynamic-validation-operations.md",
+        "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+        "packages/main/src/core/story-aware-validation.ts",
+        "packages/main/src/handlers/story-aware-validation.ts",
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+        "packages/main/src/tasks/validation-protocol-smoke.ts"
+      ],
+      "signatureTag": "missing|md|current-verification-evidence",
+      "signatureTagSource": "auto"
     }
   ]
 }
