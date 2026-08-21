@@ -242,39 +242,60 @@
           "kind": "logic_test",
           "command": "node --input-type=module -e \"import assert from \\\"node:assert/strict\\\"; import { inspectManagedBlock, replaceManagedBlock } from \\\"/private/tmp/proof-or-stop-b5a88-marker-build/core/managed-markers.js\\\"; import { generateProfileSection } from \\\"/private/tmp/proof-or-stop-b5a88-marker-build/claude-md-sync.js\\\"; const legacy=\\\"before\\\\n<!-- lattice:start -->\\\\nold\\\\n<!-- lattice:end -->\\\\nafter\\\\n\\\"; const replacement=\\\"<!-- proof-or-stop:start -->\\\\nnew\\\\n<!-- proof-or-stop:end -->\\\"; assert.equal(inspectManagedBlock(legacy,\\\"document\\\").status,\\\"valid\\\"); assert.match(replaceManagedBlock(legacy,replacement,\\\"document\\\"),/<!-- proof-or-stop:start -->/); const profile=generateProfileSection(\\\"balanced\\\"); assert.match(profile,/<!-- proof-or-stop-profile:start -->/); assert.equal(inspectManagedBlock(profile,\\\"profile\\\").status,\\\"valid\\\"); console.log(\\\"CHK-002-MARKER-PASS\\\");\"",
           "result": "pass",
-          "note": "Tool-executed smoke confirms canonical ordinary/profile output and legacy ordinary dual-read with in-place replacement.",
-          "headHash": "66718e885e81175e3692663278ac67ad3d55f483",
-          "materialHash": "0ec06165ed1019029b855585bb797f5b77d9e96a7aeb58ce9326a467e2c4539c",
-          "storyFilesHash": "42d181539e56f56c04c27261e61dd6090b02b6ed07f8d46b1ff170611a483337",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-21T05:44:15.181Z"
+          "note": "Re-ran the pinned marker producer/consumer smoke against the current worktree build; canonical ordinary/profile markers and legacy ordinary dual-read passed.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "55ec2d254458e7ae31ba549b6407877c1da890df0cb89b3838028c6c0c10a448",
+            "outputTail": "CHK-002-MARKER-PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-21T07:43:21.155Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "2b34d1b864b1355576a2d5adb3db58d1cf069563",
+          "materialHash": "27b989f50d9fcbebe0bf8c2721abcfc3e12ed2691e377b1a1ba05e491ff7ea1a",
+          "storyFilesHash": "771f686aeb73fd51707fdb608922ec0933a8b41f8abfd9c87715ab8feb9b1902",
+          "timestamp": "2026-08-21T07:43:21.305Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
           "kind": "logic_test",
           "command": "node --input-type=module -e \"import assert from 'node:assert/strict'; import { inspectManagedBlock, replaceManagedBlock } from '/private/tmp/proof-or-stop-b5a88-marker-build/core/managed-markers.js'; const replacement='<!-- proof-or-stop:start -->\\\\nnew\\\\n<!-- proof-or-stop:end -->'; const nested='<!-- lattice:start -->\\\\n<!-- lattice:start -->\\\\nold\\\\n<!-- lattice:end -->\\\\n<!-- lattice:end -->'; const mixed='<!-- proof-or-stop:start -->\\\\nold\\\\n<!-- lattice:end -->'; assert.equal(inspectManagedBlock(nested,'document').status,'malformed'); assert.equal(replaceManagedBlock(nested,replacement,'document'),null); assert.equal(inspectManagedBlock(mixed,'document').status,'malformed'); assert.equal(replaceManagedBlock(mixed,replacement,'document'),null); console.log('CHK-002-MALFORMED-PASS');\"",
           "result": "pass",
-          "note": "Tool-executed smoke confirms nested and mixed-family ordinary marker blocks are rejected without overwrite.",
-          "headHash": "66718e885e81175e3692663278ac67ad3d55f483",
-          "materialHash": "0ec06165ed1019029b855585bb797f5b77d9e96a7aeb58ce9326a467e2c4539c",
-          "storyFilesHash": "42d181539e56f56c04c27261e61dd6090b02b6ed07f8d46b1ff170611a483337",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-21T05:44:15.181Z"
+          "note": "Re-ran the pinned malformed-marker smoke against the current worktree build; nested legacy and mixed-family markers were rejected without overwrite.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "466dba405ecc61eb2a9b1ab62b891a928fa3d91ffa9de77028b5494d8fa03e7d",
+            "outputTail": "CHK-002-MALFORMED-PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-21T07:44:19.489Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "2b34d1b864b1355576a2d5adb3db58d1cf069563",
+          "materialHash": "27b989f50d9fcbebe0bf8c2721abcfc3e12ed2691e377b1a1ba05e491ff7ea1a",
+          "storyFilesHash": "771f686aeb73fd51707fdb608922ec0933a8b41f8abfd9c87715ab8feb9b1902",
+          "timestamp": "2026-08-21T07:44:19.696Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "logic_test",
           "command": "node --input-type=module -e \"import assert from 'node:assert/strict'; import * as assets from '/private/tmp/proof-or-stop-b5a88-init-build/init-assets.js'; const names=['AGENTS_MD_TEMPLATE','LATTICE_MD_TEMPLATE','CLAUDE_MD_TEMPLATE','LATTICE_DOT_DIR_MD_TEMPLATE','AGENTS_MD_GLOBAL_THIN_TEMPLATE']; for (const name of names) { const value=assets[name]; assert.match(value,/<!-- proof-or-stop:start -->/); assert.match(value,/<!-- proof-or-stop:end -->/); assert.doesNotMatch(value,/<!-- lattice:start -->|<!-- lattice:end -->/); } console.log('CHK-002-TEMPLATE-PASS');\"",
           "result": "pass",
-          "note": "Tool-executed smoke confirms every init document template writes canonical ordinary markers and no legacy ordinary markers.",
-          "headHash": "66718e885e81175e3692663278ac67ad3d55f483",
-          "materialHash": "0ec06165ed1019029b855585bb797f5b77d9e96a7aeb58ce9326a467e2c4539c",
-          "storyFilesHash": "42d181539e56f56c04c27261e61dd6090b02b6ed07f8d46b1ff170611a483337",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-21T05:44:15.181Z"
+          "note": "Re-ran the pinned init-template smoke against the current worktree build; all shipped templates emit canonical markers and no legacy ordinary markers.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "b5fb3386837e216fcb067e17caa16af975d48e6f8a572393ef41cfb02ecff25c",
+            "outputTail": "CHK-002-TEMPLATE-PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-21T07:44:31.472Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "2b34d1b864b1355576a2d5adb3db58d1cf069563",
+          "materialHash": "27b989f50d9fcbebe0bf8c2721abcfc3e12ed2691e377b1a1ba05e491ff7ea1a",
+          "storyFilesHash": "771f686aeb73fd51707fdb608922ec0933a8b41f8abfd9c87715ab8feb9b1902",
+          "timestamp": "2026-08-21T07:44:31.643Z"
         }
       ],
       "userSeesSnapshot": {
