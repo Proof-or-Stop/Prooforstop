@@ -321,17 +321,26 @@ export function configuredValidationCommands(projectRoot: string): ValidationCom
   if (!validate || typeof validate !== 'object') return commands;
   const dynamicDefaults = validate.dynamic?.policyDefaults && typeof validate.dynamic.policyDefaults === 'object'
     ? validate.dynamic.policyDefaults : {};
+  const applyDynamicDefaults = (command: ValidationCommand): ValidationCommand => ({
+    ...command,
+    ...(command.assurance !== undefined ? {} : typeof dynamicDefaults.assurance === 'string' ? { assurance: dynamicDefaults.assurance } : {}),
+    ...(command.riskTier !== undefined ? {} : typeof dynamicDefaults.riskTier === 'string' ? { riskTier: dynamicDefaults.riskTier } : {}),
+    ...(command.closurePolicy !== undefined ? {} : typeof dynamicDefaults.closurePolicy === 'string' ? { closurePolicy: dynamicDefaults.closurePolicy } : {}),
+    ...(command.fullBaselineReusePolicy !== undefined ? {} : typeof dynamicDefaults.fullBaselineReusePolicy === 'string' ? { fullBaselineReusePolicy: dynamicDefaults.fullBaselineReusePolicy } : {}),
+    ...(command.cpuWeight !== undefined ? {} : typeof dynamicDefaults.cpuWeight === 'number' ? { cpuWeight: dynamicDefaults.cpuWeight } : {}),
+    ...(command.expectedP50Ms !== undefined ? {} : typeof dynamicDefaults.expectedP50Ms === 'number' ? { expectedP50Ms: dynamicDefaults.expectedP50Ms } : {}),
+  });
 
   if (typeof validate.command === 'string') {
     const cmd = commandFromString('configured validate.command', validate.command);
-    if (cmd) commands.push(cmd);
+    if (cmd) commands.push(applyDynamicDefaults(cmd));
   }
   if (Array.isArray(validate.commands)) {
     for (let i = 0; i < validate.commands.length; i++) {
       const entry = validate.commands[i];
       if (typeof entry === 'string') {
         const cmd = commandFromString(`configured validate.commands[${i}]`, entry);
-        if (cmd) commands.push(cmd);
+        if (cmd) commands.push(applyDynamicDefaults(cmd));
       } else if (entry && typeof entry === 'object' && typeof entry.command === 'string') {
         const args = Array.isArray(entry.args) ? entry.args.map(String) : [];
         const focus = normalizeValidateFocus(entry.focus);

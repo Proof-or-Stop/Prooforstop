@@ -41,8 +41,9 @@ receipts instead of being report-only text.
 
 The executable smoke paths are available under
 `packages/main/src/tasks/story-aware-validation-*.ts`. The default wrapper is
-plan-only, while the following commands generate the actual assurance artifacts
-when capacity permits:
+plan-only and characterization-only; the following commands generate durable
+replay/performance artifacts when capacity permits, but those artifacts remain
+non-authoritative until a current signed review/baseline gate consumes them:
 
 ```sh
 node scripts/run-dynamic-validation-replay.mjs --execute
