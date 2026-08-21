@@ -6233,6 +6233,33 @@
       "resolvedAt": "2026-08-21T10:42:59.562Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5a88:F-163",
+      "desc": "concept-cleanup: the renamed proof-or-stop-review-channel prompt remains a legacy-marker new asset. packages/main/templates/agents/proof-or-stop-review-channel.md:7,101 and both shipped host mirrors at the corresponding marker lines still contain <!-- lattice:start/end -->. This is not only a historical read: the current story diff adds these canonical filenames, cli-init.ts:1017-1062 enumerates the template files and writes Codex full-asset prompts through renderPromptEntryForHost, and prompt-registry.ts:482-484 returns this non-modular retired role source unchanged; direct current-dist rendering reports both Claude and Codex output legacy markers and no canonical marker. The migration decisions require canonical markers for new managed assets and init/sync writers in brand-rename-mapping.md:135 and proof-or-stop-identity-migration.md:27. Retired role status does not define a legacy-marker writer exception. prompt-registry-smoke.ts:51-53 still names lattice-review-channel.md, so the passing smoke does not cover the renamed proof-or-stop-review-channel asset. The managed-markers parser dual-read remains the valid historical compatibility boundary.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-21T10:47:25.212Z",
+      "reviewRound": "2026-08-21T08:03:56.673Z",
+      "reviewRunId": "B-5a88:RR-167",
+      "_hash": "04ba3c2b2639e4a5dc919a0e161e5014a40e01cdb7860b090459cd5cd3b6f3fa",
+      "files": [
+        "packages/main/templates/agents/proof-or-stop-review-channel.md",
+        ".claude/agents/proof-or-stop-review-channel.md",
+        ".proof-or-stop-codex/agents/proof-or-stop-review-channel.md",
+        "packages/main/src/cli-init.ts",
+        "packages/main/src/core/prompt-registry.ts",
+        "packages/main/src/tasks/prompt-registry-smoke.ts"
+      ],
+      "signatureTag": "missing|md|concept-cleanup-renamed",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Resolved by commit 38b80d1017. The three shipped proof-or-stop-review-channel assets now emit proof-or-stop managed markers, and the cli-init full-asset writer no longer writes legacy lattice markers for this role. Current verification passes: npm --prefix packages/main run build; node packages/main/dist/tasks/prompt-registry-smoke.js (17 agents); node packages/main/tests/prompt-role-migration.test.mjs; node scripts/verify-proof-or-stop-prompt-baseline.mjs; node scripts/verify-entrypoints.mjs (28/28); node packages/main/dist/tasks/global-agents-init-smoke.js; node packages/main/dist/tasks/thin-init-assets-smoke.js; node packages/main/tests/managed-marker-migration.test.mjs; node scripts/verify-lattice-residue.mjs --self-test (65/65).",
+      "resolvedAt": "2026-08-21T10:59:54.516Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
