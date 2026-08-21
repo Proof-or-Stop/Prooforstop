@@ -38,6 +38,7 @@ import {
 } from './evidence-freshness.js';
 import { verifyReviewPass } from './finding-verify.js';
 import { verifyReviewRun } from './review-run.js';
+import { canonicalAgentRoleId } from './agent-role-identity.js';
 import { readGitBlobAt, type GitBlobReadResult } from './git-blob-reader.js';
 import {
   classifyImpact,
@@ -292,7 +293,7 @@ function impactedLanes(
     if (reviewer.name === 'test-coverage') return hasTests;
     if (reviewer.name === 'behavior') return false;
     return true;
-  }).map(reviewer => `lattice-review-${reviewer.name}`);
+  }).map(reviewer => canonicalAgentRoleId(`proof-or-stop-review-${reviewer.name}`));
 }
 
 export function postRemediationReviewSelection(
@@ -307,7 +308,7 @@ export function postRemediationReviewSelection(
   const materialHash = currentMaterialHash(gitCwd, 'HEAD', projectRoot) ?? '<unavailable>';
   const storyFilesHash = currentStoryFilesHash(gitCwd, 'HEAD', projectRoot) ?? '<unavailable>';
   const reviewRound = story.currentReviewRound ?? '<unavailable>';
-  const activeLanes = active.map(row => `lattice-review-${row.name}`);
+  const activeLanes = active.map(row => canonicalAgentRoleId(`proof-or-stop-review-${row.name}`));
   const checklist = store.readChecklist(storyId);
   const scopeDigest = reviewInventoryAcceptanceSubjectDigestForStore(store, storyId);
   const data = store.readReviewInventoryEpochs(storyId);

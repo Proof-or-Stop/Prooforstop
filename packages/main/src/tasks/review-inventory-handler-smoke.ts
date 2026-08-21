@@ -493,8 +493,8 @@ assert.equal(narrowClosure.complete, true, JSON.stringify(narrowClosure));
 const narrowSelection = postRemediationReviewSelection(reloaded, first.root, storyId, activeReviewers);
 assert.equal(narrowSelection.selection, 'dependency-closure', JSON.stringify(narrowSelection));
 assert.deepEqual(narrowSelection.selectedLanes, [
-  'lattice-review-quality',
-  'lattice-review-test-coverage',
+  'proof-or-stop-review-quality',
+  'proof-or-stop-review-test-coverage',
 ]);
 assert.equal(narrowSelection.requiredHostAssurance, 'unchanged');
 assert.equal(verifyPostRemediationReviewSelection(narrowSelection), true);
