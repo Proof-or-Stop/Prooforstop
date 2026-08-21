@@ -2,9 +2,9 @@
 
 import { strict as assert } from 'node:assert';
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { appendFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { StoryStore } from '../core/store.js';
 import { resetConfigCache } from '../core/config.js';
@@ -515,10 +515,17 @@ function writeRegistration(root: string): void {
   write(root, 'packages/main/src/core/process-fact-registry.ts', "export const facts=['acceptance_basis','acceptance_basis_generate','pre_review_check','pre_review_check_read','artifact:pre-review-check.json'];\n");
   write(root, 'packages/main/src/core/acceptance-topology.ts', 'export const acceptanceTopology=true;\n');
   write(root, 'packages/main/src/core/agent-dispatch-registry.ts', 'export const agentDispatch=true;\n');
+  // The production process-fact closure now reaches the signed REVIEW
+  // inventory through transition-orchestrator.  Keep the cohort repository a
+  // faithful, sealed source graph: omitting these registered closure files
+  // makes acceptance_basis_generate correctly return partial.
+  write(root, 'packages/main/src/core/machine.ts', 'export const reviewInventoryGate=true;\n');
+  write(root, 'packages/main/src/core/review-inventory-epoch.ts', 'export const reviewInventoryEpoch=true;\n');
   write(root, 'packages/main/src/core/pre-review-check.ts', 'export const preReviewCheck=true;\n');
   write(root, 'packages/main/src/core/pre-review-live-proof.ts', 'export const preReviewLiveProof=true;\n');
   write(root, 'packages/main/src/core/topology-critic-receipt.ts', 'export const topologyCritic=true;\n');
   write(root, 'packages/main/src/core/acceptance-rollout.ts', 'export const acceptanceRollout=true;\n');
+  write(root, 'packages/main/src/handlers/review-inventory.ts', 'export const reviewInventoryHandlers=true;\n');
   write(root, 'scripts/run-proofstory-acceptance-rollout-cohort.mjs', 'export const acceptanceRolloutCohort=true;\n');
   write(root, 'scripts/verify-process-fact-contract.mjs', "export const facts=['pre_review_check','pre_review_check_read','artifact:pre-review-check.json'];\n");
 }
@@ -802,6 +809,16 @@ try {
     store.writeStory(storyId, reviewStory);
     git(root, ['add', '.']);
     git(root, ['commit', '-m', 'prepare actual cohort review fixture']);
+    const processEventsPath = join(store.storyDirPath(storyId), 'process-events.jsonl');
+    appendFileSync(processEventsPath, `${JSON.stringify({
+      type: 'plan_updated',
+      timestamp: '2026-07-23T12:30:00.000Z',
+      padding: 'x'.repeat(1_400_000),
+    })}\n`);
+    git(root, ['add', relative(root, processEventsPath)]);
+    git(root, ['commit', '-m', 'seed large immutable rollout history']);
+    assert.ok(readFileSync(processEventsPath).length > 1024 * 1024,
+      'acceptance rollout immutable quorum commit must exceed the default child-process buffer');
     const reviewLanes = [
       'lattice-review-concept',
       'lattice-review-quality',
@@ -898,6 +915,25 @@ try {
   }
 
   if (!liveProofMode) {
+    rmSync(join(root, 'packages/main/src/producer.ts'));
+    git(root, ['add', 'packages/main/src/producer.ts']);
+    git(root, ['commit', '-m', 'remove planned producer for partial basis']);
+    const partial = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true }));
+    assert.equal(partial.artifact.preReviewBasisArtifact.basis.status, 'partial',
+      'an unmapped current source path produces a signed inconclusive pre-review basis');
+    const partialRead = JSON.parse(cli(root, 'pre_review_check_read', { storyId, json: true }));
+    assert.equal(partialRead.readOnly, true, 'observe pre-review read remains read-only');
+    assert.equal(partialRead.blocking, false, 'observe pre-review diagnostics remain nonblocking');
+    assert.equal(partialRead.ok, false, 'an inconclusive observe artifact never becomes authority');
+    assert.ok(!partialRead.codes.includes('PR_ARTIFACT_TAMPERED'),
+      `a freshly issued, validly signed inconclusive artifact must not self-report tampering: ${JSON.stringify(partialRead.codes)}`);
+    write(root, 'packages/main/src/producer.ts', 'export const produceFact=()=>({fact:true});\n');
+    git(root, ['add', 'packages/main/src/producer.ts']);
+    git(root, ['commit', '-m', 'restore planned producer control']);
+    captureProof(fixtureProof);
+    parsed = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true }));
+    assert.equal(parsed.ok, true, 'removing the unmapped path restores the clean pre-review control');
+
     const originalContract = structuredClone(store.readProofStoryContract(storyId)!);
     const omittedContract = structuredClone(originalContract);
     omittedContract.acceptanceBindings[0].verificationTopology!.consumerRefs = [];
@@ -929,7 +965,14 @@ try {
     const value = structuredClone(artifact); mutate(value); store.writePreReviewCheck(storyId, value);
     const tampered = JSON.parse(cli(root, 'pre_review_check_read', { storyId, json: true }));
     assert.ok(tampered.codes.includes('PR_ARTIFACT_TAMPERED'), `${label}: ${JSON.stringify(tampered.codes)}`);
-    if (label === 'signature') recordExecutedCase(['A-MUT-3', 'mutation', 'artifact:signature', 'field-tamper', 'tamper signed pre-review artifact field', 'PR_ARTIFACT_TAMPERED', tampered.codes.includes('PR_ARTIFACT_TAMPERED') ? 'PR_ARTIFACT_TAMPERED' : tampered.codes[0], true, [['mutation-applied', scenarioEvent('mutation-applied')], ['diagnostic-observed', scenarioEvent('diagnostic-observed')], ['control-rerun', scenarioEvent('control-rerun')]]]);
+    if (label === 'signature') {
+      const observeDiagnostic = runPreReviewCheckGate(ctx, storyId);
+      assert.match(observeDiagnostic, /mode=observe; status=fail; blocking=false/,
+        'observe mode preserves a tampered failure as diagnostic-only without relabeling it PASS or authority');
+      assert.match(observeDiagnostic, /codes=PR_ARTIFACT_TAMPERED/,
+        'observe mode keeps the exact tamper diagnostic visible');
+      recordExecutedCase(['A-MUT-3', 'mutation', 'artifact:signature', 'field-tamper', 'tamper signed pre-review artifact field', 'PR_ARTIFACT_TAMPERED', tampered.codes.includes('PR_ARTIFACT_TAMPERED') ? 'PR_ARTIFACT_TAMPERED' : tampered.codes[0], true, [['mutation-applied', scenarioEvent('mutation-applied')], ['diagnostic-observed', scenarioEvent('diagnostic-observed')], ['control-rerun', scenarioEvent('control-rerun')]]]);
+    }
     if (label === 'adapter record') recordExecutedCase(['A-MUT-8', 'mutation', 'basis:adapter-record', 'adapter-tamper', 'remove signed adapter result', 'PR_ARTIFACT_TAMPERED', tampered.codes.includes('PR_ARTIFACT_TAMPERED') ? 'PR_ARTIFACT_TAMPERED' : tampered.codes[0], true, [['mutation-applied', scenarioEvent('mutation-applied')], ['diagnostic-observed', scenarioEvent('diagnostic-observed')], ['control-rerun', scenarioEvent('control-rerun')]]]);
   }
   store.writePreReviewCheck(storyId, parsed.artifact);

@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-8af0",
+  "records": [
+    {
+      "id": "RED-B8AF0-F107-HISTORICAL",
+      "trigger": "B-3f3d F-107/F-108 carried routing-neutral regression",
+      "acceptanceTargetRef": "REQ-001",
+      "baselineHeadHash": "1cedfc0b2a06756af4fd7fa321816d5a93b4b349",
+      "baselineMaterialHash": "baa09cbe3613120c46f09d1bc905aa154b832b9208e8135521c596d2284d774c",
+      "observedFailure": "The historical real-handler fixture on a story branch made one unrelated test-only commit, reran candidate_spec_route, and invalidated the OPEN epoch while corpusDigest stayed d49896cf to d49896cf and candidateSpecSetDigest moved a4cb4561 to 9dffdc85.",
+      "failureReceiptHash": "sha256:e4f33990811d63428f87919602a53d63c59a7d364629ab4167ef877ebbeac65f",
+      "expectedGreenCommand": "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
+      "greenRelation": {
+        "targetRef": "REQ-001",
+        "relation": "regression_to_green",
+        "command": "node packages/main/dist/tasks/review-inventory-handler-smoke.js"
+      },
+      "note": "Historical verified red evidence is B-3f3d:F-107. The preserved immutable git object is 2c9395fa22e18ca40ba3ee47d9d40c2ad748e009; this story must not apply or pop any stash. The DEV smoke will make the same real-handler path executable at current HEAD.",
+      "createdAt": "2026-08-20T09:23:46.729Z"
+    },
+    {
+      "id": "RED-B8AF0-F107-ACCEPTANCE",
+      "trigger": "B-3f3d F-107/F-108 carried routing-neutral regression",
+      "acceptanceTargetRef": "AC-B8AF0-CARRIED",
+      "baselineHeadHash": "20d431bb1e0003911ac4d4f37edd6f6f472eb5e2",
+      "baselineMaterialHash": "baa09cbe3613120c46f09d1bc905aa154b832b9208e8135521c596d2284d774c",
+      "observedFailure": "The historical real-handler fixture on a story branch made one unrelated test-only commit, reran candidate_spec_route, and invalidated the OPEN epoch while corpusDigest stayed d49896cf to d49896cf and candidateSpecSetDigest moved a4cb4561 to 9dffdc85.",
+      "failureReceiptHash": "sha256:e4f33990811d63428f87919602a53d63c59a7d364629ab4167ef877ebbeac65f",
+      "expectedGreenCommand": "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
+      "greenRelation": {
+        "targetRef": "AC-B8AF0-CARRIED",
+        "relation": "regression_to_green",
+        "command": "node packages/main/dist/tasks/review-inventory-handler-smoke.js"
+      },
+      "note": "Historical verified red evidence is B-3f3d:F-107. Its immutable WIP fixture object is 2c9395fa22e18ca40ba3ee47d9d40c2ad748e009; no stash is applied or popped. The current DEV smoke will make the same real-handler path executable at B-8af0 HEAD.",
+      "createdAt": "2026-08-20T09:25:10.391Z"
+    }
+  ],
+  "createdAt": "2026-08-20T09:23:46.729Z",
+  "updatedAt": "2026-08-20T09:25:10.391Z"
+}

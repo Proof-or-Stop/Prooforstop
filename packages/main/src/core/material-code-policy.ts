@@ -39,6 +39,7 @@ import {
   isStoryMetadataPath,
 } from './evidence-freshness.js';
 import { isMaterialExcludedRuntimeArtifactPath } from './runtime-artifact-registry.js';
+import { readGitBlobAt } from './git-blob-reader.js';
 
 export const MATERIAL_CODE_POLICY_SCHEMA_VERSION = 'lattice.material_code_policy.v1' as const;
 export const MATERIAL_CLASSIFICATION_SNAPSHOT_SCHEMA_VERSION =
@@ -1009,25 +1010,13 @@ function diffBaseRef(gitCwd: string, headRef = 'HEAD'): string {
  * git blob/mode at HEAD; falls back to the main blob when HEAD is unavailable.
  */
 function extensionlessScriptSignal(gitCwd: string, path: string, headRef = 'HEAD'): boolean {
-  // B-956f FIX 1: read the mode/blob at the PINNED head sha (headRef) so the hint
-  // is consistent with the diff enumerated against that same sha.
-  // Executable bit at the pinned head.
-  try {
-    const meta = execFileSync('git', ['ls-tree', headRef, '--', path], {
-      cwd: gitCwd, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'],
-    }).trim();
-    const mode = meta.split(/\s+/)[0];
-    if (mode === '100755') return true;
-  } catch { /* not tracked at the pinned head */ }
-  // Shebang from the pinned head blob.
-  for (const spec of [`${headRef}:${path}`, `main:${path}`]) {
-    try {
-      const blob = execFileSync('git', ['show', spec], {
-        cwd: gitCwd, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'], maxBuffer: 1024 * 1024,
-      });
-      if (blob.startsWith('#!')) return true;
-      return false;
-    } catch { /* try next spec */ }
+  for (const ref of [headRef, 'main']) {
+    const blob = readGitBlobAt(gitCwd, ref, path);
+    // Classification is a gate input. An unreadable tracked state must remain
+    // conservative instead of silently becoming a non-material file.
+    if (blob.status === 'error') return true;
+    if (blob.status === 'missing') continue;
+    return blob.mode === '100755' || blob.content.subarray(0, 2).toString() === '#!';
   }
   return false;
 }
@@ -1040,20 +1029,10 @@ function extensionlessScriptSignal(gitCwd: string, path: string, headRef = 'HEAD
  * worktree carries this identity any more.
  */
 function oldTreeScriptSignal(gitCwd: string, baseRef: string, path: string): boolean {
-  try {
-    const meta = execFileSync('git', ['ls-tree', baseRef, '--', path], {
-      cwd: gitCwd, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'],
-    }).trim();
-    if (meta.split(/\s+/)[0] === '100755') return true;
-  } catch { /* not present at base */ }
-  try {
-    const blob = execFileSync('git', ['show', `${baseRef}:${path}`], {
-      cwd: gitCwd, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'], maxBuffer: 1024 * 1024,
-    });
-    return blob.startsWith('#!');
-  } catch {
-    return false;
-  }
+  const blob = readGitBlobAt(gitCwd, baseRef, path);
+  if (blob.status === 'error') return true;
+  if (blob.status === 'missing') return false;
+  return blob.mode === '100755' || blob.content.subarray(0, 2).toString() === '#!';
 }
 
 /**

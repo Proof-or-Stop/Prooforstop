@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import { execFileSync, spawn, type ChildProcess } from 'node:child_process';
 import { hostname } from 'node:os';
 import {
   existsSync,
@@ -24,8 +25,9 @@ import { readBrandEnv } from './brand-env.js';
  *
  * Semantics:
  *  - `mkdirSync(lockDir)` is the atomic acquire. EEXIST means another holder.
- *  - While waiting, if the lock dir's mtime is older than `staleMs`, the holder
- *    is presumed dead/crashed → force-reclaim by removing the dir.
+ *  - While waiting, a same-host holder PID is probed. A live owner is never
+ *    reclaimed merely because its critical section exceeds `staleMs`.
+ *    Unknown/tokenless/remote holders retain the bounded mtime fallback.
  *  - If acquisition does not succeed before `deadlineMs`, throw a clear error.
  *  - `finally` always releases the lock so a throwing `fn` cannot leak it.
  */
@@ -142,6 +144,8 @@ export interface MkdirLockOptions {
    * successor's fresh dir is never force-removed.
    */
   ownedAuxFiles?: string[];
+  /** Refresh holder.json mtime from a token-bound helper while synchronous work may exceed staleMs. */
+  heartbeatMs?: number;
 }
 
 /**
@@ -227,6 +231,38 @@ const DEFAULT_DEADLINE_MS = 30000;
 const DEFAULT_STALE_MS = 10000;
 const DEFAULT_POLL_MS = 50;
 
+function observedProcessStartTimeMs(pid: number): number | undefined {
+  try {
+    const value = execFileSync('ps', ['-o', 'lstart=', '-p', String(pid)], {
+      encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], timeout: 1_000,
+    }).trim();
+    const parsed = Date.parse(value);
+    return Number.isFinite(parsed) ? parsed : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+function classifyDefaultHolder(holder: MkdirLockHolderInfo | null): ExistingMkdirLockState {
+  if (!holder || holder.hostname !== hostname()) return 'unknown';
+  try {
+    process.kill(holder.pid, 0);
+    if (holder.processStartTimeMs !== undefined) {
+      const observedStart = observedProcessStartTimeMs(holder.pid);
+      // ps reports whole seconds on supported hosts; tolerate its rounding but
+      // reject a reused PID whose process incarnation differs from the token.
+      if (observedStart !== undefined) {
+        return Math.abs(observedStart - holder.processStartTimeMs) > 2_000 ? 'stale' : 'active';
+      }
+    }
+    // A live PID without a verifiable process-start identity may be a reused
+    // PID. Defer to the bounded holder-mtime/heartbeat lease, never lock forever.
+    return 'unknown';
+  } catch (error: any) {
+    return error?.code === 'ESRCH' ? 'stale' : 'active';
+  }
+}
+
 function sleepSync(ms: number): void {
   Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
 }
@@ -276,13 +312,13 @@ export function acquireMkdirLock(lockDir: string, options: MkdirLockOptions = {}
       let liveHolder: MkdirLockHolderInfo | null = null;
       try {
         const nowMs = Date.now();
-        const ageMs = nowMs - statSync(lockDir).mtimeMs;
-        const holder = options.classifyExistingLock || options.failFastIfHeld
-          ? readMkdirLockHolder(lockDir)
-          : null;
+        let leaseMtimeMs = statSync(lockDir).mtimeMs;
+        try { leaseMtimeMs = Math.max(leaseMtimeMs, statSync(join(lockDir, MKDIR_LOCK_HOLDER_FILE)).mtimeMs); } catch { /* nascent/tokenless lock */ }
+        const ageMs = nowMs - leaseMtimeMs;
+        const holder = readMkdirLockHolder(lockDir);
         const classification = options.classifyExistingLock
           ? options.classifyExistingLock({ lockDir, holder, ageMs, staleMs, nowMs })
-          : 'unknown';
+          : classifyDefaultHolder(holder);
         if (classification === 'stale' || (classification === 'unknown' && ageMs > staleMs)) {
           rmSync(lockDir, { recursive: true, force: true });
         } else {
@@ -334,15 +370,23 @@ export function acquireMkdirLock(lockDir: string, options: MkdirLockOptions = {}
   //    so remove the just-created dir and FAIL the acquire.
   const ourLockId = options.holderInfo?.lockId ?? randomUUID();
   const holderToWrite: MkdirLockHolderInfo = options.holderInfo
-    ? { ...options.holderInfo, lockId: ourLockId }
+    ? {
+        ...options.holderInfo,
+        lockId: ourLockId,
+        processStartTimeMs: options.holderInfo.processStartTimeMs
+          ?? observedProcessStartTimeMs(options.holderInfo.pid)
+          ?? (options.holderInfo.pid === process.pid ? Date.now() - process.uptime() * 1_000 : undefined),
+      }
     : {
         pid: process.pid,
         hostname: hostname(),
         command: label,
         acquiredAt: new Date().toISOString(),
         lockId: ourLockId,
+        processStartTimeMs: observedProcessStartTimeMs(process.pid) ?? Date.now() - process.uptime() * 1_000,
       };
   let releaseLockId: string | undefined;
+  let heartbeatProcess: ChildProcess | undefined;
   try {
     writeFileSync(
       join(lockDir, MKDIR_LOCK_HOLDER_FILE),
@@ -350,6 +394,21 @@ export function acquireMkdirLock(lockDir: string, options: MkdirLockOptions = {}
       'utf-8',
     );
     releaseLockId = ourLockId;
+    const heartbeatMs = options.heartbeatMs;
+    if (heartbeatMs !== undefined && Number.isFinite(heartbeatMs) && heartbeatMs > 0) {
+      const heartbeatScript = [
+        "const fs=require('fs');",
+        'const [path,lockId,parentPidText,intervalText]=process.argv.slice(1);',
+        'const parentPid=Number(parentPidText), interval=Number(intervalText);',
+        'const beat=()=>{try{process.kill(parentPid,0);const row=JSON.parse(fs.readFileSync(path,\'utf8\'));if(row.lockId!==lockId)process.exit(0);const now=new Date();fs.utimesSync(path,now,now);}catch{process.exit(0)}};',
+        'beat();setInterval(beat,interval);',
+      ].join('');
+      heartbeatProcess = spawn(process.execPath, ['-e', heartbeatScript, join(lockDir, MKDIR_LOCK_HOLDER_FILE), ourLockId, String(process.pid), String(heartbeatMs)], {
+        stdio: 'ignore',
+      });
+      heartbeatProcess.on('error', () => { /* bounded mtime fallback remains authoritative */ });
+      heartbeatProcess.unref();
+    }
   } catch (writeErr: any) {
     if (options.requireHolderToken) {
       // Fail-closed: cannot prove ownership on release, so do not proceed
@@ -370,6 +429,9 @@ export function acquireMkdirLock(lockDir: string, options: MkdirLockOptions = {}
   return {
     lockDir,
     release() {
+      if (heartbeatProcess && heartbeatProcess.exitCode === null) {
+        try { heartbeatProcess.kill(); } catch { /* already exited */ }
+      }
       // B-d877 R4 (codex #2): release is OWNERSHIP-SAFE and NON-recursive. It
       // NEVER recursively force-removes an identity-unverified directory, so a
       // holder that was suspended (holder.json write failed / OS freeze),

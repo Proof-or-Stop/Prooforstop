@@ -30,6 +30,7 @@ import {
   verifyGapLogArtifactBinding,
   type GapLogProvenanceReceipt,
 } from './finding-verify.js';
+import { readGitBlobAt } from './git-blob-reader.js';
 
 /** Fixed ID of the meta-story (unique container across the repo) */
 export const META_STORY_ID = 'B-META-framework-audit';
@@ -319,16 +320,16 @@ function provenanceKey(gitCwd: string): Buffer {
   return readFileSync(path);
 }
 
-function headArtifactDigest(gitCwd: string): string | null {
+function headArtifactDigest(gitCwd: string):
+  | { status: 'ok'; digest: string }
+  | { status: 'missing' }
+  | { status: 'error'; reason: string } {
+  const blob = readGitBlobAt(gitCwd, 'HEAD', GAP_LOG_ARTIFACT_PATH);
+  if (blob.status !== 'ok') return blob;
   try {
-    const text = execFileSync('git', ['show', `HEAD:${GAP_LOG_ARTIFACT_PATH}`], {
-      cwd: gitCwd,
-      encoding: 'utf8',
-      stdio: ['pipe', 'pipe', 'pipe'],
-    });
-    return digestGapLogArtifact(JSON.parse(text));
-  } catch {
-    return null;
+    return { status: 'ok', digest: digestGapLogArtifact(JSON.parse(blob.content.toString('utf8'))) };
+  } catch (error: any) {
+    return { status: 'error', reason: `invalid committed JSON: ${error?.message ?? String(error)}` };
   }
 }
 
@@ -349,7 +350,13 @@ function assertGapLogHistoryExtendable(
     return;
   }
   const currentDigest = digestGapLogArtifact(data);
-  const committedDigest = headArtifactDigest(gitCwd);
+  const committed = headArtifactDigest(gitCwd);
+  if (committed.status === 'error') {
+    throw new Error(
+      `gap_log: committed B-META history could not be read (${committed.reason}); refusing genesis or extension`,
+    );
+  }
+  const committedDigest = committed.status === 'ok' ? committed.digest : null;
   const canonicalEmptyDigest = digestGapLogArtifact({ findings: [] });
   if (
     (committedDigest !== null && committedDigest !== currentDigest)

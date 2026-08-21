@@ -153,7 +153,7 @@ export interface ReviewInventoryAdmitApis {
     store: unknown,
     storyId: string,
   ) => ReviewInventoryAdmitPair | null;
-  consumeReviewInventoryReceipt: (
+  consumeReviewInventoryCompletenessReceipt: (
     store: unknown,
     storyId: string,
     reviewRound: string,
@@ -332,11 +332,11 @@ export function loadReviewInventoryAdmitApis(): ReviewInventoryAdmitApis | null 
   try {
     const required = createRequire(import.meta.url)('./review-inventory-epoch.js') as Record<string, unknown>;
     const finalized = required.finalizedUnconsumedReviewInventory;
-    const consume = required.consumeReviewInventoryReceipt;
+    const consume = required.consumeReviewInventoryCompletenessReceipt;
     if (typeof finalized !== 'function' || typeof consume !== 'function') return null;
     return {
       finalizedUnconsumedReviewInventory: finalized as ReviewInventoryAdmitApis['finalizedUnconsumedReviewInventory'],
-      consumeReviewInventoryReceipt: consume as ReviewInventoryAdmitApis['consumeReviewInventoryReceipt'],
+      consumeReviewInventoryCompletenessReceipt: consume as ReviewInventoryAdmitApis['consumeReviewInventoryCompletenessReceipt'],
     };
   } catch {
     return null;
@@ -574,7 +574,13 @@ export function persistBlockedCertificationWindow(args: {
   return withCertificationWindowLock(args.store, args.storyId, () => {
     const data = args.store.readCertificationWindows(args.storyId);
     const latest = latestCertificationWindow(data);
-    if (latest && verifyCertificationWindow(latest) && latest.state === 'BLOCKED' && latest.blockerCode === args.blockerCode) {
+    if (
+      latest
+      && verifyCertificationWindow(latest)
+      && latest.state === 'BLOCKED'
+      && latest.blockerCode === args.blockerCode
+      && latest.blockerDetail === args.blockerDetail
+    ) {
       return latest;
     }
     const now = new Date().toISOString();

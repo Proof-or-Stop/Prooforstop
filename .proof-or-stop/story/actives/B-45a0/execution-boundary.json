@@ -1,0 +1,37 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-45a0",
+  "allowedCommands": [
+    "git *",
+    "node *",
+    "npm *",
+    "proof-or-stop *",
+    "rg *",
+    "sed *",
+    "shasum *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "Bash",
+    "Glob",
+    "Grep",
+    "Read"
+  ],
+  "allowedPaths": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "docs/requirements/**",
+    "lattice.config.json",
+    "package.json",
+    "packages/main/**",
+    "scripts/**"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "codex",
+  "confirmationNote": "Implement only the approved B-45a0 story-aware dynamic validation program; preserve unrelated dirty/generated files and keep focused/DONE authority boundaries separate.",
+  "createdAt": "2026-08-21T05:19:54.234Z",
+  "updatedAt": "2026-08-21T05:19:54.234Z",
+  "_hash": "db32c810f98b248112cd3a9022382221ff3138dd4eae2a0f1bd2f8f95decdd5d"
+}

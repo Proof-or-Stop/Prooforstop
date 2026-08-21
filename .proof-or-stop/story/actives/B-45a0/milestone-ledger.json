@@ -1,0 +1,97 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-45a0",
+  "state": "candidate",
+  "ledgerHash": "sha256:b9ba4f360b336bae26de19a4bd3326540a264615b7fd3c493e14834a68c5b06d",
+  "milestones": [
+    {
+      "id": "DYN-1",
+      "sourceRequirementId": "DYN-1",
+      "claim": "Observe-only catalog, closure, change, and selection prove soundness while full validation remains authoritative.",
+      "doneMeans": "The plan import, current-main characterization, isolated observe mode, complete catalog/manifest, and full-plan equivalence evidence pass.",
+      "requiredEvidence": [
+        "catalog-verifier",
+        "selection-manifest",
+        "full-plan-equivalence"
+      ],
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002",
+        "CHK-003",
+        "CHK-004",
+        "CHK-005",
+        "CHK-006"
+      ],
+      "verificationIntentRefs": [],
+      "status": "planned"
+    },
+    {
+      "id": "DYN-2",
+      "sourceRequirementId": "DYN-2",
+      "claim": "Source-first per-command receipts and shadow reuse are proven against the full-plan oracle.",
+      "doneMeans": "Receipt admissibility, baseline, revocation, expiry, ancestry, tree, build proof, and shadow evidence pass.",
+      "requiredEvidence": [
+        "per-command-receipts",
+        "receipt-mutation-suite",
+        "shadow-full-equivalence"
+      ],
+      "checklistRefs": [
+        "CHK-007",
+        "CHK-008"
+      ],
+      "verificationIntentRefs": [],
+      "status": "planned"
+    },
+    {
+      "id": "DYN-3",
+      "sourceRequirementId": "DYN-3",
+      "claim": "Only eligible low-risk Stories obtain dynamic TEST authority through a fail-closed gate.",
+      "doneMeans": "All Section 24 prerequisites, operation/rollback, mutation, and independent DONE-required boundaries pass.",
+      "requiredEvidence": [
+        "dynamic-test-gate",
+        "enforcement-prerequisites",
+        "operations-rollback"
+      ],
+      "checklistRefs": [
+        "CHK-009",
+        "CHK-010",
+        "CHK-011"
+      ],
+      "verificationIntentRefs": [],
+      "status": "planned"
+    },
+    {
+      "id": "DYN-4",
+      "sourceRequirementId": "DYN-4",
+      "claim": "Selected commands use resource-safe weighted LPT scheduling.",
+      "doneMeans": "Capacity, resources, order, barrier, equivalence, and timeline checks pass.",
+      "requiredEvidence": [
+        "scheduler-timeline",
+        "scheduler-mutation-suite"
+      ],
+      "checklistRefs": [
+        "CHK-012"
+      ],
+      "verificationIntentRefs": [],
+      "status": "planned"
+    },
+    {
+      "id": "DYN-5",
+      "sourceRequirementId": "DYN-5",
+      "claim": "Quorum and review-pass are safely shardable with exact aggregation and sentinels.",
+      "doneMeans": "Case aggregation, routing, sentinel, mutation, and cleanup evidence pass.",
+      "requiredEvidence": [
+        "shard-aggregation",
+        "shard-mutation-suite",
+        "residue-proof"
+      ],
+      "checklistRefs": [
+        "CHK-013"
+      ],
+      "verificationIntentRefs": [],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-08-21T04:51:01.088Z",
+  "updatedAt": "2026-08-21T04:51:01.088Z"
+}
