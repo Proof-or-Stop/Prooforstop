@@ -5392,6 +5392,54 @@
       ],
       "signatureTag": "missing|md|current-verification-evidence",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-107",
+      "desc": "The current verifier-derived acceptance topology cannot support a review pass: acceptance_basis is partial/invalid with AT_ADAPTER_RESULT_DIGEST_MISMATCH, stale bindings (basis head 3c65657d versus current baa40b7d), snapshot_missing blind spots, and unmapped acceptance process-fact paths. The same current acceptance artifacts remain inconclusive/stale, so producer/consumer closure and exclusion authority are not mechanically verified. This topology blocker is independent of the already-open F-105 historical replay and F-106 stale verification-evidence findings, both of which remain verified.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-21T19:22:00.572Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-100",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/runtime/dynamic-validation/historical-replay/report.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": null
+        },
+        "digest": "3e49c1d4b18663f7694becc8e3305fdfe84349ae04bafab41417c0dcf506140f"
+      },
+      "readDiagnostics": [],
+      "_hash": "0c6af8e40b48218e483d7767e07eab2ac01e7c9af575878b016a26e13a02aee8",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+        ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+        ".proof-or-stop/runtime/dynamic-validation/historical-replay/report.json",
+        "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+        "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+      ],
+      "signatureTag": "missing|json|current-verifier-derived",
+      "signatureTagSource": "auto"
     }
   ]
 }
