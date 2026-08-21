@@ -5237,6 +5237,47 @@
       ],
       "signatureTag": "dynamic-validation-fault-injection-real-causality",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-104",
+      "desc": "The focused FI-2 row can still report PASS without proving four isolated, valid omission mutations. In packages/main/src/tasks/story-aware-validation-historical-replay.ts:397-402, the runtime-incomplete certificate uses processFacts=['fi-focused-process-fact'] and capabilities=['fi-focused-capability'], while the focused target catalog was deliberately bound to processFacts=['validate'] and capabilities=['file-edit'] at :332. The runtime probe therefore carries fact and capability binding mismatches in addition to its undeclared runtime input; if runtime incompleteness detection regresses, closure-binding-mismatch can still force execute/full escalation and satisfy the current predicate. Separately, :459 records staticCertificateValid/factCertificateValid/capabilityCertificateValid but the passed expression does not require any of them to be true, so reverting these probes to stale-signature certificates would still leave faultInjection.allPass=true as long as they execute via generic invalid-certificate escalation. The current artifact happens to show all three validity fields true, but the signed enforcement threshold mechanically consumes row.passed/allPass, not those observational fields. Make the runtime probe retain the target's expected fact/capability bindings and require each valid-omission certificate check (plus the intended per-probe reason) in passed. FI-5 itself is now causally verified: the actual resolver.ts->projection.ts rename yields headOnly=reuse and dual graph=execute. Repro: bun packages/main/src/tasks/story-aware-validation-historical-replay.ts --plan-only; jq the focused receipt-signature-and-closure-edge-rejection row from .proof-or-stop/runtime/dynamic-validation/historical-replay/fault-injection.json.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-21T19:00:58.512Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-091",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "980a4ed6fb2f4a09d8bb290474c880e175da1984b66a0529b98600076b3aaedb"
+      },
+      "readDiagnostics": [],
+      "_hash": "67c36ab54391641dbd4df912d20f90162ed8c7f715dfaa1a99aaff88507a97fc",
+      "files": [
+        "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+        "packages/main/src/core/story-aware-validation.ts",
+        "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+      ],
+      "signatureTag": "dynamic-validation-fault-injection-isolation",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
