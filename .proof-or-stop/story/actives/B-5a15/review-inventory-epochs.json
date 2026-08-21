@@ -438,7 +438,7 @@
       "reviewRound": "2026-08-21T13:09:42.171Z",
       "state": "OPEN",
       "begunAt": "2026-08-21T13:18:56.801Z",
-      "updatedAt": "2026-08-21T13:18:56.801Z",
+      "updatedAt": "2026-08-21T13:56:30.400Z",
       "cutoff": {
         "headHash": "da58973a8538beab4a1cd188f11a8c49a6094199",
         "materialHash": "b38de9f6b3c247c94a667f92756c974ca4541e2b76f7b2aaaae09d6d9e7fd8fb",
@@ -452,9 +452,62 @@
       ],
       "initialRunSequenceBoundary": 112,
       "maxWaves": 3,
-      "waves": [],
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-08-21T13:18:56.801Z",
+          "completedAt": "2026-08-21T13:56:30.400Z",
+          "lanes": [
+            {
+              "lane": "lattice-review-concept",
+              "reviewRunId": "B-5a15:RR-114",
+              "terminal": "finding",
+              "hostIdentity": "d320b5b624a152b01f7e80a8a9038987355ceb96b3f2a2220b926521fe5bd931",
+              "promptIdentity": "c0c2f05492e6c72a142e4eafa7ddf6e740bc15b18e32e1961b7fc52a8422fc6e",
+              "evidenceIds": [
+                "B-5a15:F-059"
+              ],
+              "coverageDigest": "fae3d9310a66c7ba36a1ab26bfd6585045b6e17b8e04f851d7c0aac9037db737"
+            },
+            {
+              "lane": "lattice-review-quality",
+              "reviewRunId": "B-5a15:RR-117",
+              "terminal": "finding",
+              "hostIdentity": "c643bb3ae27746e2155f3374882cf1c568f2364dc24aed0906d75d9b0230370b",
+              "promptIdentity": "8a8656aed30cd809d274faa329d4cce1bb309f953d1424dcf4db8449021c2346",
+              "evidenceIds": [
+                "B-5a15:F-060",
+                "B-5a15:F-061"
+              ],
+              "coverageDigest": "06cb79316035ac78045f165f64fbf87cffdd0ee803b9946445778affe27b441d"
+            },
+            {
+              "lane": "lattice-review-test-coverage",
+              "reviewRunId": "B-5a15:RR-118",
+              "terminal": "finding",
+              "hostIdentity": "c643bb3ae27746e2155f3374882cf1c568f2364dc24aed0906d75d9b0230370b",
+              "promptIdentity": "15b045d99facc48ff0276def8fb64590d17724b46b58b8bce7e406e4adcbe4ec",
+              "evidenceIds": [
+                "B-5a15:F-062"
+              ],
+              "coverageDigest": "84a222aec88ae79d522b92f6a36ca0bef3320b63e668def0bd287b28c5c147fc"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "required-related-documents-missing",
+            "semantic-evidence-freshness-binding",
+            "verifier-owned-acceptance-chain-stale",
+            "verifier-owned-pre-review-evidence-stale"
+          ],
+          "verifiedFindingSetDigest": "e75da9d7df56a340313e73c52beefbdebc438377b22f69ecd9d6f00f3d618d35",
+          "newVerifiedFindingCount": 4,
+          "criticDigest": "a2abfb07c2498b879a23e23d535bd47a20776cb8a40fdf0c689507484dfdd02b",
+          "saturated": false,
+          "nextRunSequenceBoundary": 122
+        }
+      ],
       "baselineFindingIds": [],
-      "_hash": "e7e0d7c97b68b3253b569e3eab28d6f57691a4ed5f5be59adadf7a6803e97f3b"
+      "_hash": "0defcff2f96b29d03cbc35c7dfd7bd62828478bf055bf0a202a8bdb51a0adaab"
     }
   ],
   "receipts": [
@@ -721,6 +774,61 @@
       ],
       "createdAt": "2026-08-20T18:15:07.978Z",
       "_hash": "dfd63a1b0f796ba12c74c49d51ed0404a017116aa68d02b8f1ba395c5f56eca7"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-5a15:RI-007:CRIT-01",
+      "epochId": "B-5a15:RI-007",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-21T13:09:42.171Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "da58973a8538beab4a1cd188f11a8c49a6094199",
+        "materialHash": "b38de9f6b3c247c94a667f92756c974ca4541e2b76f7b2aaaae09d6d9e7fd8fb",
+        "storyFilesHash": "985eb4c7aa5d9de6bd8f232e1f41be9be8e5f72d21f688ec1acc1692ba3d5c0a"
+      },
+      "aggregateFindingSetDigest": "e75da9d7df56a340313e73c52beefbdebc438377b22f69ecd9d6f00f3d618d35",
+      "requiredLaneCoverageDigest": "65e9ae5f17aebb75f11c1ccfe6f6ef7e8c8caa8031bd9fc92ebfebb2cc1ce671",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-5a15:RR-122",
+      "terminalEvidenceIds": [
+        "B-5a15:RP-021"
+      ],
+      "readEvidenceDigest": "643159fbb5b5d3b9879b0eec9c520bcadb6bfebc532a75ec42bbab2fa71944ba",
+      "findingDispositions": [
+        {
+          "findingId": "B-5a15:F-058",
+          "disposition": "verified_family",
+          "familyKey": "required-related-documents-missing",
+          "reason": "Verified: both checklist-declared U-03 source-plan paths are absent from the current worktree, preventing complete source-backed concept review."
+        },
+        {
+          "findingId": "B-5a15:F-059",
+          "disposition": "verified_family",
+          "familyKey": "required-related-documents-missing",
+          "reason": "Verified: the checklist references the same two absent decision documents and no alternate path is present."
+        },
+        {
+          "findingId": "B-5a15:F-060",
+          "disposition": "verified_family",
+          "familyKey": "verifier-owned-pre-review-evidence-stale",
+          "reason": "Verified: the pre-review artifact is bound to an older head and material/story-files tuple than the current REVIEW state."
+        },
+        {
+          "findingId": "B-5a15:F-061",
+          "disposition": "verified_family",
+          "familyKey": "semantic-evidence-freshness-binding",
+          "reason": "Verified: the reported checklist evidence normalization path can retain prior freshness bindings after a semantic change."
+        },
+        {
+          "findingId": "B-5a15:F-062",
+          "disposition": "verified_family",
+          "familyKey": "verifier-owned-acceptance-chain-stale",
+          "reason": "Verified: the current topology-to-pre-review coverage chain reports stale or inadmissible verifier-owned artifacts despite complete intent rows."
+        }
+      ],
+      "createdAt": "2026-08-21T13:56:10.089Z",
+      "_hash": "b4574650f3d853b55d3e5c09b06b034050b4c9e6c183a56d9c8504d4afdb10aa"
     }
   ]
 }

@@ -1923,6 +1923,59 @@
       ],
       "signatureTag": "missing|json|wave-verifier-owned",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-063",
+      "desc": "Repeated required-document issue, classified into the existing concept-review required-docs family represented by B-5a15:F-053, F-058, and F-059: the frozen CHK-001/CHK-002 relatedDocs still name docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md and docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md, and neither path exists in the current repository. This prevents source-backed concept/residual review against the stated U-03 requirements. The frozen diff scan found no separate concept deletion or replacement residue beyond this repeated missing-input family.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-21T14:00:09.876Z",
+      "reviewRound": "2026-08-21T13:09:42.171Z",
+      "reviewRunId": "B-5a15:RR-123",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          ".proof-or-stop/story/actives/B-5a15/scope-contract.json",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "53dbc34333664df63163feed7c2a3e159ddf602cecf69824f811e997687a809a"
+      },
+      "readDiagnostics": [],
+      "_hash": "f45f91cd7ce3d8e9ece5e604a50e77bf39c519bd695353f7734e844f7dd9e232",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/checklist.json",
+        "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+        "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+      ],
+      "signatureTag": "missing|md|concept-review-required",
+      "signatureTagSource": "confirmed"
     }
   ]
 }

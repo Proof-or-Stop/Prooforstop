@@ -690,6 +690,88 @@
         "scanEscalationReason": null
       },
       "_hash": "1ac52de62e13d82bc6c75ae1f6f65e9949a554f54dea60d95ba8cf70bf2a8377"
+    },
+    {
+      "id": "B-5a15:RP-020",
+      "agent": "lattice-review-topology-critic",
+      "note": "Completeness critic reviewed all ten current-wave raw findings and found no additional independent finding family; the existing verified findings remain unresolved, and the topology receipt is request_changes.",
+      "createdAt": "2026-08-21T13:47:12.530Z",
+      "reviewRound": "2026-08-21T13:09:42.171Z",
+      "reviewRunId": "B-5a15:RR-121",
+      "envelopeId": "3a52123c18b42ca032ce21e9b37af3319e1d9cc7b49b0df7f99442ba8ca345bb",
+      "writerSessionId": "sess-6ee2f67108c1eff3c69354ccbbe84222",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "scanEscalationReason": "The two U-03 decision documents referenced by the story are absent from this worktree; their paths were checked but cannot be read."
+      },
+      "_hash": "0d868236bb5b23d44588aed19a0425adb26edd08f6f107ac5b83177a9a13b588"
+    },
+    {
+      "id": "B-5a15:RP-021",
+      "agent": "lattice-review-topology-critic",
+      "note": "\"Fresh full-context critic review completed; story background, plan, checklist, related documents, and current findings were inspected. Existing raw findings are independently classified below; no additional finding was introduced.\"",
+      "createdAt": "2026-08-21T13:55:42.667Z",
+      "reviewRound": "2026-08-21T13:09:42.171Z",
+      "reviewRunId": "B-5a15:RR-122",
+      "envelopeId": "c02aafca1438370f7a68e0355ff733633eefe5b1d999a56339377c255445fc4e",
+      "writerSessionId": "sess-1ff81192c8f5688bf40ac6afd86a20f7",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/findings.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "scanEscalationReason": "Both required U-03 source-plan paths were checked in the current worktree and are absent, so no full read was possible. The remaining related decision documents were read fully."
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": null
+        },
+        "digest": "a18cedc555d9b60d9b2b31e2f64514de4b6371ccac4e805188a5195cc82368f3"
+      },
+      "readDiagnostics": [],
+      "_hash": "6b66ab0b9dec95efffbe43de2724c97cdb0832d99db5a0264961bf093589e456"
     }
   ]
 }
