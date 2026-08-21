@@ -8619,6 +8619,36 @@
       ],
       "signatureTag": "concept-retired-bin-runtime-fallback",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-223",
+      "desc": "scripts/verify-migration-contract.mjs:35-40 reads only docs/requirements/decisions/brand-rename-mapping.md and requires literal citations brand-rename-mapping.md:130 and brand-rename-mapping.md:72, but this Story rewrites those frozen rows and moves the supersession citations into proof-or-stop-identity-migration.md:52 and :66. The required migration-contract gate now fails with supersessionsDocumented=false, so the documented adversarial verification is not delivered after the identity migration.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-21T19:44:21.641Z",
+      "reviewRound": "2026-08-21T19:41:06.085Z",
+      "reviewRunId": "B-5a88:RR-259",
+      "_hash": "3a9103818c515c0c9029eb7aa5eff0807f4e8076ac5d04c5d12e489eb6bf8de6",
+      "signatureTag": "missing|unknown|scripts-verify-migration",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-224",
+      "desc": "verification-blocker: scripts/verify-entrypoints.mjs:729-735 runs the self-repository packages/main/dist/cli.js from the active Story worktree and asserts the serve launcher banner, but the CLI applies the active Story phase policy before starting serve; in REVIEW it returns `Command \"serve\" is not available in REVIEW phase` instead of `🐨 proof-or-stop serve`, so this in-scope entrypoint verifier is red under the required current-worktree review/test context. Repro: node scripts/verify-entrypoints.mjs (fails at 12/28 with missing `🐨 proof-or-stop serve`). Isolate the launcher smoke from the active Story lifecycle (or explicitly arrange an independent fixture project) before relying on this verifier.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T19:50:06.208Z",
+      "reviewRound": "2026-08-21T19:41:06.085Z",
+      "reviewRunId": "B-5a88:RR-258",
+      "_hash": "bcc69cf1de2d76429e82f73ac6fc68bb473e6140fef66ad3fceb4eeb279ec3dc",
+      "signatureTag": "edge|unknown|verification-blocker-scripts",
+      "signatureTagSource": "auto"
     }
   ]
 }
