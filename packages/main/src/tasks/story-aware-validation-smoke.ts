@@ -174,7 +174,7 @@ const shards = buildValidationShards(cases);
 const aggregate = aggregateValidationShards({
   cases,
   shards,
-  results: shards.map(shard => ({ shardId: shard.shardId, domain: shard.domain, caseIds: shard.caseIds, verdict: 'PASS' as const, executed: true })),
+  results: shards.map(shard => ({ shardId: shard.shardId, domain: shard.domain, caseIds: shard.caseIds, verdict: 'PASS' as const, executed: true, sentinelObserved: true })),
 });
 assert.equal(aggregate.ok, true);
 const missingShard = aggregateValidationShards({
