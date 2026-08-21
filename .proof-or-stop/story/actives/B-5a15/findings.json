@@ -1580,6 +1580,24 @@
       ],
       "signatureTag": "missing|json|review-check-json",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-052",
+      "desc": "test-evidence.json:1 — current validation evidence is stale and cannot support a clean coverage review: evidence_inspect reports freshness=stale with staleRefs=1 and receiptRefs=0 unverified against current head aa8521f7084e12a63e81a822fe468dd7765a0ca7, materialHash dc7de7ff7ba6546f5d2dbaa7be182b29a9193c53b3fa204f5838aea69da6c696, and storyFilesHash 2a15df8c9d0467a9c388bb21464ef262d8f3447abb4cd46921064e64f5f59635; rerun the stale validation command and record fresh evidence before passing review.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-21T09:28:26.351Z",
+      "reviewRound": "2026-08-21T09:26:53.172Z",
+      "reviewRunId": "B-5a15:RR-101",
+      "_hash": "04571a5208aa08a92b6d69db384c6a063124bf16eab67eea5df815de903a2eb5",
+      "files": [
+        "test-evidence.json"
+      ],
+      "signatureTag": "missing|json|test-evidence-json",
+      "signatureTagSource": "auto"
     }
   ]
 }

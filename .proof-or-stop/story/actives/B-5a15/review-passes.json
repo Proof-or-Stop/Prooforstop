@@ -559,6 +559,57 @@
         "scanEscalationReason": null
       },
       "_hash": "30c69d0f2955da8d52c5929ec32d4c2df20b72f61895b51fe615229df81e1509"
+    },
+    {
+      "id": "B-5a15:RP-015",
+      "agent": "lattice-review-quality",
+      "note": "Quality review found no blocker: the committed story-level implementation and evidence are consistent; secret environment identities use value-specific SHA-256 digests without raw credential persistence, and F-047 verifies distinct keys and receipts, redacted output, receipt JSON, and signatures.",
+      "createdAt": "2026-08-21T09:28:09.779Z",
+      "reviewRound": "2026-08-21T09:26:53.172Z",
+      "reviewRunId": "B-5a15:RR-102",
+      "envelopeId": "b240bfe4099301d643133ffc7c22c91c0778b24e453a1d55758a0f57a1a2b51b",
+      "writerSessionId": "sess-1ff81192c8f5688bf40ac6afd86a20f7",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "aaac2296f7331ab3d079f14f9c8cd3788812a2680a4a31b0fe69b27cf0d45ce7"
+    },
+    {
+      "id": "B-5a15:RP-016",
+      "agent": "lattice-review-concept",
+      "note": "Concept deletion and residual-reference review is clean; current requirement intent and verifier evidence have no blocker.",
+      "createdAt": "2026-08-21T09:28:13.004Z",
+      "reviewRound": "2026-08-21T09:26:53.172Z",
+      "reviewRunId": "B-5a15:RR-103",
+      "envelopeId": "2dbb0abbf6f9b2d0363f7d2608d1ffae8b2fffdb240ed8e97ee67e282b960083",
+      "writerSessionId": "sess-1ff81192c8f5688bf40ac6afd86a20f7",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/checklist.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e604d57ea014a25fddad7fe179bd6d885d344f978bc4fa822585f73ef463833a"
     }
   ]
 }
