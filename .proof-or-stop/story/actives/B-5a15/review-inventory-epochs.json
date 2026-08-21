@@ -159,9 +159,9 @@
       "epochId": "B-5a15:RI-004",
       "storyId": "B-5a15",
       "reviewRound": "2026-08-20T16:42:51.728Z",
-      "state": "OPEN",
+      "state": "INVALIDATED",
       "begunAt": "2026-08-20T17:09:54.440Z",
-      "updatedAt": "2026-08-20T18:17:10.488Z",
+      "updatedAt": "2026-08-21T00:25:05.156Z",
       "cutoff": {
         "headHash": "fe0dccc86aadfe1bc1574189bd489a1f7b3b35b5",
         "materialHash": "8a4bb5365eec48bb494ba0c462d59873a1c4a34476135d1ee4ffccc7610dde25",
@@ -239,7 +239,53 @@
         }
       ],
       "baselineFindingIds": [],
-      "_hash": "dbc13df39bd9cdd69f96159cb1a7d5697b9ae9773967dffc2de7198ad51eea27"
+      "invalidation": {
+        "detectedAt": "2026-08-21T00:25:05.156Z",
+        "oldMaterialHash": "8a4bb5365eec48bb494ba0c462d59873a1c4a34476135d1ee4ffccc7610dde25",
+        "currentMaterialHash": "1a50b82963411dfc5d31ba711d6c85dd9d6b20c49f5fd89f4e138c6da47b71bc",
+        "oldStoryFilesHash": "ceaa4b50b64a71d5eec244429a32d24d66a39a773174ae6d7a893568de49f049",
+        "currentStoryFilesHash": "f4b91d14aaf2c1c4d002e798d2a315ba04d718c6ac62eed2f97519f42e7f7d7b",
+        "blockerCode": "OPEN_REVIEW_INVENTORY_SCOPE_MUTATION",
+        "oldScopeDigest": "1098825b7b612d46c7476d5a07901a6312454ab05207cfef506949a970c3fd73",
+        "currentScopeDigest": "30143513081e1eb5a7089fe3e3f7054f45a702598657073461fee61af2a94efe",
+        "oldRequiredLanes": [
+          "lattice-review-concept",
+          "lattice-review-quality",
+          "lattice-review-test-coverage"
+        ],
+        "currentRequiredLanes": [
+          "lattice-review-concept",
+          "lattice-review-quality",
+          "lattice-review-test-coverage"
+        ]
+      },
+      "terminalRunSequenceBoundary": 61,
+      "_hash": "5db35175b729e4850b28e448199d1812107bc885157293d95c675b0eea5a86c2"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-5a15:RI-005",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-21T00:24:00.772Z",
+      "state": "OPEN",
+      "begunAt": "2026-08-21T00:25:18.459Z",
+      "updatedAt": "2026-08-21T00:25:18.459Z",
+      "cutoff": {
+        "headHash": "0360ad0c744dfb34efd54c618b7e676531380d1d",
+        "materialHash": "1a50b82963411dfc5d31ba711d6c85dd9d6b20c49f5fd89f4e138c6da47b71bc",
+        "storyFilesHash": "f4b91d14aaf2c1c4d002e798d2a315ba04d718c6ac62eed2f97519f42e7f7d7b"
+      },
+      "scopeDigest": "30143513081e1eb5a7089fe3e3f7054f45a702598657073461fee61af2a94efe",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage"
+      ],
+      "initialRunSequenceBoundary": 61,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [],
+      "_hash": "9882a06ef902b3e6c69b66bb7b92414499900b53c5925ee209fa7daf9710f552"
     }
   ],
   "receipts": [
