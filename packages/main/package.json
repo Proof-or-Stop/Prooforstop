@@ -121,7 +121,8 @@
     "test:migration-contract": "node scripts/verify-migration-contract.mjs",
     "test:topology-signing-source-guard": "node dist/tasks/topology-signing-source-guard-smoke.js",
     "test:signing-guard-mutation-proof": "node dist/tasks/signing-guard-mutation-proof-smoke.js",
-    "test:story-aware-validation": "node dist/tasks/story-aware-validation-smoke.js"
+    "test:story-aware-validation": "node dist/tasks/story-aware-validation-smoke.js",
+    "test:story-aware-validation-mutation": "node dist/tasks/story-aware-validation-mutation-smoke.js"
   },
   "dependencies": {
     "@lattice/lab": "0.3.65",
