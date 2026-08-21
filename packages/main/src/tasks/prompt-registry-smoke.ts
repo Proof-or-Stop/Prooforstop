@@ -104,8 +104,12 @@ for (const entry of registry.agents) {
   }
   if (isComplexRole) {
     const legacy = restoreLegacyPromptTemplate(entry);
-    assert.equal(expectedClaude, legacy, `${entry.file} rejected rollout defaults Claude to frozen legacy bytes`);
-    assert.equal(expectedCodex, renderCodexAgentContent(legacy), `${entry.file} rejected rollout defaults Codex to frozen legacy bytes`);
+    const canonicalLegacy = legacy
+      .replace('<!-- lattice:start -->', '<!-- proof-or-stop:start -->')
+      .replace('<!-- lattice:end -->', '<!-- proof-or-stop:end -->');
+    assert.equal(expectedClaude, canonicalLegacy, `${entry.file} default full-context Claude render canonicalizes historical markers`);
+    assert.equal(expectedCodex, renderCodexAgentContent(canonicalLegacy), `${entry.file} default full-context Codex render canonicalizes historical markers`);
+    assert.match(legacy, /<!-- lattice:start -->[\s\S]*<!-- lattice:end -->/, `${entry.file} retains legacy markers only in historical reconstruction`);
     assert.equal(renderPromptEntryForHost(entry, 'claude', 'full-envelope'), source, `${entry.file} modular Claude render remains explicitly selectable`);
     assert.equal(renderPromptEntryForHost(entry, 'codex', 'full-envelope'), renderCodexAgentContent(source), `${entry.file} modular Codex render remains explicitly selectable`);
     assert.notEqual(expectedClaude, source, `${entry.file} rejected rollout cannot yield the modular Claude render`);

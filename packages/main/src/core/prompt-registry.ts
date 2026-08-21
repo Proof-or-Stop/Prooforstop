@@ -353,6 +353,16 @@ export function resolvePromptTemplateBody(
   return canonicalizeAgentRoleText(source);
 }
 
+/**
+ * Historical reconstruction remains legacy-byte compatible, but every newly
+ * rendered host asset uses the canonical managed marker pair.
+ */
+function canonicalizeRenderedManagedMarkers(content: string): string {
+  return content
+    .replace(LEGACY_LATTICE_MANAGED_START, PROOF_OR_STOP_MANAGED_START)
+    .replace(LEGACY_LATTICE_MANAGED_END, PROOF_OR_STOP_MANAGED_END);
+}
+
 export function renderCodexPromptContent(content: string): string {
   return content
     .replace(/Claude Code/g, 'Codex')
@@ -479,9 +489,9 @@ export function renderPromptEntryForHost(
     ? 'legacy-full-context'
     : 'full-envelope',
 ): string {
-  const selectedTemplate = isModularComplexRoleId(entry.agentId)
+  const selectedTemplate = canonicalizeRenderedManagedMarkers(isModularComplexRoleId(entry.agentId)
     ? resolvePromptTemplateBody(entry, mode)
-    : canonicalizeAgentRoleText(readPromptTemplate(entry));
+    : canonicalizeAgentRoleText(readPromptTemplate(entry)));
   const hostTemplate = renderPromptForHost(selectedTemplate, host);
   return isModularReviewerRoleId(entry.agentId)
     ? renderReviewerRunBootstrapForTemplate(hostTemplate, entry.file, entry.agentId)

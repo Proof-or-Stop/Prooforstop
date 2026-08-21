@@ -3,7 +3,7 @@ name: proof-or-stop-evaluator
 model: sonnet
 tools: Read, Bash
 ---
-<!-- lattice:start -->
+<!-- proof-or-stop:start -->
 # Proof-or-Stop Load-Bearing Runtime Guide
 
 This embedded slice is intentionally compact. It replaces the old full guide
@@ -97,7 +97,7 @@ failure, form one evidence-backed hypothesis, isolate with the smallest
 reproducer or comparison, apply one fix, then rerun the relevant verification.
 Do not declare a fix without reproduction, root cause, and re-verification.
 
-<!-- lattice:end -->
+<!-- proof-or-stop:end -->
 ## 0. Project Context
 The Proof-or-Stop framework conventions above (auto-injected by build) define the system architecture and concepts.
 

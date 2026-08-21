@@ -60,6 +60,32 @@ for (const entry of registry.agents) {
   assert.equal(entry.agentId, entry.agentId.trim());
   assert.equal(contracts.promptRoleContract(entry.agentId).roleId, entry.agentId);
 }
+for (const roleId of registryModule.MODULAR_COMPLEX_ROLE_IDS) {
+  const entry = registry.agents.find(candidate => candidate.agentId === roleId);
+  assert.ok(entry, `${roleId} complex role is registered`);
+  for (const host of ['claude', 'codex']) {
+    const rendered = registryModule.renderPromptEntryForHost(entry, host);
+    assert.match(
+      rendered,
+      /<!-- proof-or-stop:start -->[\s\S]*<!-- proof-or-stop:end -->/,
+      `${roleId}/${host} default writer emits canonical managed markers`,
+    );
+    assert.doesNotMatch(
+      rendered,
+      /<!-- lattice:start -->[\s\S]*<!-- lattice:end -->/,
+      `${roleId}/${host} default writer does not emit legacy managed markers`,
+    );
+  }
+  const historical = contracts.resolvePromptRoleBody(roleId, {
+    version: contracts.PROMPT_ENVELOPE_ROLLOUT_VERSION,
+    roles: { [roleId]: 'legacy-full-context' },
+  });
+  assert.match(
+    historical.body,
+    /<!-- lattice:start -->[\s\S]*<!-- lattice:end -->/,
+    `${roleId} compatibility read retains the historical marker projection`,
+  );
+}
 
 const legacy = contracts.resolvePromptRoleBody('lattice-review-quality', undefined);
 assert.equal(legacy.roleId, 'proof-or-stop-review-quality');

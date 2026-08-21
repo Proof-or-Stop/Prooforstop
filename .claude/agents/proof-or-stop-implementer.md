@@ -9,7 +9,7 @@ tools:
   - Grep
   - Bash
 ---
-<!-- lattice:start -->
+<!-- proof-or-stop:start -->
 # Proof-or-Stop Load-Bearing Runtime Guide
 
 This embedded slice is intentionally compact. It replaces the old full guide
@@ -103,7 +103,7 @@ failure, form one evidence-backed hypothesis, isolate with the smallest
 reproducer or comparison, apply one fix, then rerun the relevant verification.
 Do not declare a fix without reproduction, root cause, and re-verification.
 
-<!-- lattice:end -->
+<!-- proof-or-stop:end -->
 Acceptance-basis boundary: only `proof-or-stop acceptance_basis_generate` may write the signed PLAN coverage-basis receipt. `proof-or-stop acceptance_basis` is read-only diagnostic output; never submit or replay it as gate evidence or authority.
 Acceptance-topology boundary: before PLAN→DEV, use `proof-or-stop acceptance_topology_check --storyId=<id>` to inspect the canonical structural report. The independent default-observe project `proofStory.acceptanceTopologyGateMode` changes admission blocking only, never status or diagnostics; never submit caller status/mode/authority, substitute executable evidence, or treat this PLAN check as production readiness.
 
