@@ -184,10 +184,30 @@
         "configured_validation_smoke_coverage",
         "B_5a15_causal_evidence_retry_safety"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "This smoke update is required to prove the F-044 acceptance-control regression and preserve atomic refusal for mutated command or result evidence.",
+      "timestamp": "2026-08-21T03:36:08.182Z",
+      "paths": [
+        "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "398f29aacd00458dabd784c548041d174b3891fd",
+      "materialHash": "861070b7b992e720ecf2503f9afe7917f7d36b897ba45a752a247721fc571023",
+      "anchors": [
+        "configured_validation_smoke_coverage",
+        "B_5a15_acceptance_provenance_identity"
+      ]
     }
   ],
   "createdAt": "2026-08-20T09:29:12.295Z",
-  "updatedAt": "2026-08-21T02:10:37.355Z",
+  "updatedAt": "2026-08-21T03:36:08.182Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -224,6 +244,7 @@
     "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
     "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts": "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts",
     "packages/main/src/tasks/validate-command-timeout-smoke.ts": "packages/main/src/tasks/validate-command-timeout-smoke.ts",
-    "packages/main/src/tasks/verification-run-and-guard-smoke.ts": "packages/main/src/tasks/verification-run-and-guard-smoke.ts"
+    "packages/main/src/tasks/verification-run-and-guard-smoke.ts": "packages/main/src/tasks/verification-run-and-guard-smoke.ts",
+    "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts"
   }
 }
