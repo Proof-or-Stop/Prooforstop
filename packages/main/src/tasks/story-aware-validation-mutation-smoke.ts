@@ -224,7 +224,7 @@ assert.equal(verifyValidationSchedule(scheduled.map((row) => ({ ...row, wave: 0 
 
 const cases = Array.from({ length: 12 }, (_, index) => ({ caseId: `mutation-case-${index}`, domain: 'quorum' as const, sentinel: index < 4 }));
 const shards = buildValidationShards(cases);
-const validShardResults = shards.map((shard) => ({ shardId: shard.shardId, domain: shard.domain, caseIds: shard.caseIds, verdict: 'PASS' as const, executed: true }));
+const validShardResults = shards.map((shard) => ({ shardId: shard.shardId, domain: shard.domain, caseIds: shard.caseIds, verdict: 'PASS' as const, executed: true, sentinelObserved: true }));
 assert.equal(aggregateValidationShards({ cases, shards, results: validShardResults }).ok, true);
 assert.equal(aggregateValidationShards({ cases, shards, results: validShardResults.slice(1) }).ok, false);
 assert.equal(aggregateValidationShards({ cases, shards, results: validShardResults.map((row) => ({ ...row, caseIds: [...row.caseIds, row.caseIds[0]!] })) }).ok, false);
