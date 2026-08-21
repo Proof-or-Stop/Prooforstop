@@ -110,6 +110,2748 @@
       "_hash": "7bcab2bd51e0900357de9d36acba71276bb32cdcaac82ad9dadff9b69abd8dd0",
       "signatureTag": "missing|unknown|packages-main-handlers",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-005",
+      "desc": "Coverage is not current at the review head: every one of the 45 must verification intents has a mechanical evidence row bound to headHash 3d65b3d67b8b1b43e185bbc2e5eaddd4e3a287ad and the prior materialHash, while the current review head is d3a9ebcc135e03ce51874221303bc87a63e15499. session_brief reports 45 stale intents. Those receipts cannot establish current behavior coverage after the runtime-trace, observe, shard, and authority changes; refresh/re-run each pinned verifier and re-record current-head evidence before this review can pass. Severity: high.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-21T12:23:38.654Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-006",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "9cce8804ac506c99614d12e32793d6a7b846248c93face9787b4368fd29ebdfc",
+      "files": [
+        "packages/main/src/handlers/story-aware-validation.ts",
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/src/tasks/story-aware-validation-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|coverage-current-review",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-006",
+      "desc": "packages/main/src/core/validation-executor.ts:1332-1336 hard-codes unknownRuntimeInputs=[file-read/module-load/registry tracing unavailable] for every production command, while packages/main/src/core/story-aware-validation.ts:379-382 marks any such trace unverified and verifyValidationClosureCertificate rejects it. The production baseline path in packages/main/src/handlers/story-aware-validation.ts:173-204 therefore can never emit a reusable complete certificate, and runStoryAwareDynamicValidation has no runtime-tracer/provider seam to supply one. This leaves the DYN-3 happy path and the approved plan zero undeclared runtime-input and reuse-soundness contract undelivered; add real executor runtime tracing or fail the claimed capability closed with a current explicit gate.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T12:23:57.888Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-005",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/story-aware-validation.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "1d2b4ec73beb590c29c620b71d05f6acae3d9aba4f38fdbc61341f9bcfe4fc35"
+      },
+      "readDiagnostics": [],
+      "_hash": "09e843d0b828f29bcbaf0fb2db8f1353825963ad8db578a949dde4fa363c5e41",
+      "files": [
+        "packages/main/src/core/validation-executor.ts",
+        "packages/main/src/core/story-aware-validation.ts",
+        "packages/main/src/handlers/story-aware-validation.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-core",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-007",
+      "desc": "packages/main/src/handlers/story-aware-validation.ts:399-498 now invokes a generic catalog row once per synthetic shard, but it does not invoke the canonical quorum_submit/review-pass flows or pass a case subset; executeShardedEntry fabricates one case per shard and line 454 declares the real sentinel observed solely because the executor echoes the injected LATTICE_VALIDATION_SHARD_SENTINEL key in its environmentKeys. The configured quorum-submit-smoke and review-pass-discard-smoke commands do not consume these shard variables, and no durable end-to-end case receipt or real sentinel observation exists. Thus DYN-5 aggregation can report PASS for repeated whole-command runs while the required exact case routing, real sentinel, and shard coverage contract is unproven.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T12:24:12.454Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-005",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/story-aware-validation.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "1d2b4ec73beb590c29c620b71d05f6acae3d9aba4f38fdbc61341f9bcfe4fc35"
+      },
+      "readDiagnostics": [],
+      "_hash": "fcb4e813a66f7a2768033b7af44993f1e2b42b28a8ef61d5f632407413318760",
+      "files": [
+        "packages/main/src/handlers/story-aware-validation.ts",
+        "packages/main/src/core/validation-executor.ts",
+        "lattice.config.json"
+      ],
+      "signatureTag": "missing|ts|packages-main-handlers",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-008",
+      "desc": "CHK-013 three must intents are pinned only to the pure helper smoke node packages/main/dist/tasks/story-aware-validation-smoke.js and its mutation companion. Those tasks call buildValidationShards and aggregateValidationShards with synthetic PASS rows; they never invoke production executeShardedEntry at story-aware-validation.ts:398-497 or runStoryAwareDynamicValidation shard execution at story-aware-validation.ts:671-705, so no executable evidence covers isolated command launches, sentinel environment propagation, signed durable shard receipts, cleanup/residue capture, or aggregate failure attribution. The implementation path can regress while all current CHK-013 receipts stay green. Add a production handler or CLI integration verifier and biting mutation cases, then refresh the current-head evidence. Severity: high.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-21T12:24:19.173Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-006",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "41cbe0c6650985a0a9a68d203829dd83d4e419960dfd803202fd1c143d04f16c",
+      "files": [
+        "packages/main/src/handlers/story-aware-validation.ts",
+        "packages/main/src/tasks/story-aware-validation-smoke.ts",
+        "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|three-intents-pinned",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-009",
+      "desc": "The required verifier-owned acceptance coverage is absent from all checklist evidence and the current read commands are not admissible: acceptance_topology_check returns inconclusive diagnostic_only with AT_MISSING_TOPOLOGY and stale basis diagnostics; pre_review_check_read returns inconclusive with executableEvidence=missing, mutations=missing, transcript=missing, and authority=inadmissible; acceptance_rollout_report_read and acceptance_rollout_check both return blocking fail AR_REPORT_STALE. No current signed full 3 rounds by codex-cli plus claude-cli receipt, degraded 3x1 rejection, threshold/membership/freshness mutation evidence, mode-invariant diagnostics, enforce-only blocking, or non-destructive rollback history is pinned by a verificationEvidence row. The Wave 4 coverage contract therefore cannot be reviewed as covered; add executable verifier-owned coverage and a current report, then bind evidence to this head. Severity: high.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-21T12:24:36.955Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-006",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "463a9b12cf669d5cd6691070154bd647aeaea81554e92dcf66128cc37ec307c9",
+      "files": [
+        "packages/main/src/handlers/proofstory.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/acceptance-rollout.ts",
+        "packages/main/src/handlers/transition-orchestrator.ts"
+      ],
+      "signatureTag": "missing|ts|required-verifier-owned",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-010",
+      "desc": "packages/main/src/handlers/verifier.ts:1454-1477 correctly avoids executing a competing plan for observe, but the production observe path only calls prepareStoryAwareValidation and later records verdictEquivalent as undefined at lines 1612-1617 because selectedAllPass is never computed. The full-plan result is not passed through runObserveOracle, and no persisted observe artifact records full-run failures outside the selected set, reuse-failure checks, closure-trace status, or the primary soundness metrics required by DYN-1. The pure runObserveOracle helper is exercised only by smoke tests, so observe is selection-only but does not deliver the required production observe audit comparison.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T12:24:57.897Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-005",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "1d2b4ec73beb590c29c620b71d05f6acae3d9aba4f38fdbc61341f9bcfe4fc35"
+      },
+      "readDiagnostics": [],
+      "_hash": "45cf4d3d36a4766e5004fb117c9e5251ad79b1063f3f29ba88edda88679f63b5",
+      "files": [
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/src/core/story-aware-validation.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-handlers",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-011",
+      "desc": "CHK-009 happy and mutation evidence exercises evaluateDynamicAuthority only through the pure story-aware-validation smoke/audit adapters; there is no executable test that calls verifier-owned runStoryAwareDynamicValidation and proves deriveGateOwnedPrerequisites binds current baseline, build proof, receipts, shard artifacts, revocation, clean tree, and inventory coverage into the TEST authority decision. The production path at story-aware-validation.ts:722-753 can therefore regress to full-fallback or incorrectly admit authority while the low-risk TEST PASS and authority mutation selectors remain green. Add a CLI or handler integration test with current artifacts plus biting prerequisite mutations, and bind its receipt to CHK-009 before claiming DYN-3 coverage. Severity: high.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-21T12:25:11.031Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-006",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "scripts/run-dynamic-validation-audit.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "205418dc7da05e1ede026584eb9f5be37705d5027ceb4634ef22d75fb315c9e9",
+      "files": [
+        "packages/main/src/handlers/story-aware-validation.ts",
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/src/tasks/story-aware-validation-smoke.ts",
+        "scripts/run-dynamic-validation-audit.mjs"
+      ],
+      "signatureTag": "missing|ts|happy-mutation-evidence",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-012",
+      "desc": "doc-code-drift: docs/CLI.md:44-45 and 915-917 describe validate\\u0027s existing full/JSON behavior but omit the new --dynamic-mode={off|observe|shadow|enforce-low-risk} contract implemented by packages/main/src/cli/command-catalog.ts:2065-2069 and packages/main/src/handlers/verifier.ts:1447-1568. CHK-010 explicitly requires docs/CLI.md modification, while the imported plan Sections 17-23 require operator-visible mode selection, observe/shadow full-plan authority, enforce-low-risk fallback/authority, and off rollback. A user following the CLI guide cannot discover the mode, the required --story boundary, or that no-story is a bounded non-authoritative preview. Add the mode/authority/rollback contract to the validate documentation.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-21T12:25:44.753Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-007",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/NAV.md"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "419005f835375f69b795a148a06d7ecf115d0beda5e1a2e67ef83ee257701adf"
+      },
+      "readDiagnostics": [],
+      "_hash": "905a6e647ba6bab3e6b3fe3bf838670755523024df7fcadab0e55b2d38bc4391",
+      "files": [
+        "docs/CLI.md",
+        "packages/main/src/cli/command-catalog.ts",
+        "packages/main/src/handlers/verifier.ts",
+        "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+      ],
+      "signatureTag": "doc-code-drift|md|code-drift-docs",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-013",
+      "desc": "DYN-3 authority is unreachable because canonical baseline closure certificates are always marked unverified. packages/main/src/handlers/story-aware-validation.ts:197-214 passes runtimeTraceForResult into createValidationClosureCertificate without declaredEnvironmentKeys, while packages/main/src/core/validation-executor.ts:1342-1367 always records Object.keys(spawnEnv) as runtime environmentKeys. The certificate builder compares those keys against an empty declaration set and sets status=unverified, then verifyCanonicalFullBaseline rejects the baseline because every certificate must verify. A canonical full PASS therefore cannot become reusable or satisfy baselineCurrent, so the promised low-risk dynamic TEST path never has a passing production precondition.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T12:36:09.928Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-010",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-runtime-tracer.cjs",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "1d2b4ec73beb590c29c620b71d05f6acae3d9aba4f38fdbc61341f9bcfe4fc35"
+      },
+      "readDiagnostics": [],
+      "_hash": "51e3b936245ebc66c00ffdaec583dc2adbeafd3bd9e5cb8f62e738af306d58db",
+      "files": [
+        "packages/main/src/handlers/story-aware-validation.ts",
+        "packages/main/src/core/validation-executor.ts",
+        "packages/main/src/core/story-aware-validation.ts"
+      ],
+      "signatureTag": "missing|ts|authority-unreachable-canonical",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-014",
+      "desc": "The gate-owned baseline binding uses incompatible revisions and can never recognize the canonical main baseline for a Story branch. packages/main/src/handlers/story-aware-validation.ts:259-263 only reuses a baseline when baseline.sourceHead equals args.baseHead, but :609-614 computes baselineCurrent only when baseline.sourceHead equals manifest.head. A canonical full baseline is produced for the main or merge-base content-tree, whereas manifest.head is the Story HEAD; those values differ for any non-empty Story. Even after the certificate issue is fixed, enforce-low-risk receives prerequisite-failed:baselineCurrent and falls back to full instead of implementing the DYN-3 authority contract.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T12:36:26.676Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-010",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-runtime-tracer.cjs",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "1d2b4ec73beb590c29c620b71d05f6acae3d9aba4f38fdbc61341f9bcfe4fc35"
+      },
+      "readDiagnostics": [],
+      "_hash": "e32d816b0dc4ee5951ed19f512ac6058f9f7c0e3264aa53bab0ef92fea3ada43",
+      "files": [
+        "packages/main/src/handlers/story-aware-validation.ts"
+      ],
+      "signatureTag": "missing|ts|gate-owned-baseline",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-015",
+      "desc": "Current stable HEAD 875a30aad5 is not covered by current mechanical verification evidence. checklist_get shows all 45 recorded verificationEvidence rows still bound to headHash 3d65b3d67b8b1b43e185bbc2e5eaddd4e3a287ad and materialHash da7ea3cf71e219f9b0a8ab8e4b04e817ee33469c57ffd2e50be2a2c9f6b762ed, while the runtime-trace, observe-oracle, shard, and authority changes landed afterward. acceptance_rollout_check --storyId=B-45a0 --json returns status=fail, blocking=true, diagnostics=[AR_REPORT_STALE], receipt=stale. pre_review_check_read returns inconclusive with executableEvidence=missing, mutations=missing, transcript=missing, authority=inadmissible, and acceptance_topology_check reports stale basis/closure evidence. Refresh every pinned verifier and regenerate current acceptance/pre-review receipts before the coverage lane can pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-21T12:46:03.683Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-015",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/core/validation-runtime-tracer.cjs",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/story-aware-validation-production-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/package.json",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-types.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "6c6df5b508c1c9033f71423b5c175d865adf71a2a0dbddd57047196b792d8290"
+      },
+      "readDiagnostics": [],
+      "_hash": "a1763d3092ee16f619960c32f0eabcdc54fa4411a9e546ac5b7d140b839465e6",
+      "files": [
+        "packages/main/src/handlers/story-aware-validation.ts",
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/src/core/validation-executor.ts",
+        "packages/main/src/core/validation-runtime-tracer.cjs",
+        "packages/main/src/tasks/story-aware-validation-production-smoke.ts",
+        "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+      ],
+      "signatureTag": "missing|ts|current-stable-head",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-016",
+      "desc": "DYN-1 observe destroys reusable evidence: packages/main/src/handlers/verifier.ts:1642-1648 calls persistStoryAwareValidationArtifacts during every observe run with receipts=[] and a fresh empty revocation ledger. That helper writes receipts.json and revocation-ledger.json, overwriting prior signed per-command receipts and append-only revocations even though observe is required to be side-effect isolated. A later shadow/enforce run loses admissible reuse and historical revocation state; persist only a sidecar selection/oracle artifact or preserve the existing cache.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T12:46:30.322Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-014",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/tasks/story-aware-validation-production-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "5b156562e9877a1eed5e5f485afb8541c8e9c5c0367b8e5f84166d6c7dae43c8",
+      "signatureTag": "adversarial|unknown|observe-destroys-reusable",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-017",
+      "desc": "Runtime closure tracing is incomplete and can certify undeclared inputs: packages/main/src/core/validation-runtime-tracer.cjs:28-50 wraps only readFile/readFileSync, promises.readFile, and createReadStream. It does not intercept fs.open/openSync/promises.open plus read, readdir/opendir, stat/access, copy/link, or other file APIs that can load validation inputs. validation-executor.ts:1351-1362 then treats any present trace as unknownRuntimeInputs=[] and the closure certificate can become complete, so a command using an unwrapped read can be reused despite an undeclared runtime file. DYN-1/DYN-2 require complete runtime reads or fail-closed unknown input; expand the supported trace seam or mark unsupported APIs unknown.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T12:47:05.625Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-014",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-runtime-tracer.cjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "55f91404885dcd9c76e59588784c233e4eebbbbd78a8be62c4cae38b7931f2f0",
+      "signatureTag": "adversarial|unknown|runtime-closure-tracing",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-018",
+      "desc": "Per-command receipt reuse does not bind the runner identity required by DYN-2: packages/main/src/handlers/story-aware-validation.ts:288-305 never sets DynamicValidationContext.runnerDigest, while packages/main/src/core/story-aware-validation.ts:682-687 computes inputDigest with `runnerDigest: ctx.runnerDigest` (therefore empty) and :605-626 does not compare receipt.runnerDigest to a current runner digest. A receipt produced before a validation-executor/runner change can keep the same inputDigest and be reused; only catalog/toolchain/build/tree checks run. Add a current runner digest to the signed manifest/input and require receipt.runnerDigest equality, or fail reuse closed on missing binding.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T12:47:31.888Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-014",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/story-aware-validation.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "5955ea598ea210bef6dbcb9aee8fce5e6bc465e875def4b89f321f7c9461a848",
+      "signatureTag": "missing|unknown|command-receipt-reuse",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-019",
+      "desc": "DYN-5 still does not route real quorum/review-pass cases: packages/main/src/handlers/story-aware-validation.ts:416-433 fabricates 3/4 synthetic case IDs per catalog row, and :437-505 runs the unchanged whole command once per shard with only env hints. The configured quorum-submit/review-pass commands do not consume a case subset, while :467-470 marks a sentinel only from a command-emitted marker or shard file that those real flows do not produce. Aggregation can therefore PASS repeated whole-command executions without exact case routing, genuine per-shard sentinel execution, or case-level receipts; wire the actual domain runners/case registry or fail DYN-5 closed.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T12:47:55.671Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-014",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "lattice.config.json",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/story-aware-validation.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "packages/main/src/tasks/review-pass-discard-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-production-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "f8a93cfb214ee2fa641778604ea8638ba1411916fbcbd2e4dadd171c9b24c376",
+      "signatureTag": "missing|unknown|still-route-real",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-020",
+      "desc": "The production observe oracle is partly self-referential and drops runtime evidence: packages/main/src/handlers/verifier.ts:1621-1640 builds `instrumentedOrder` directly from the predicted manifest selected rows, then passes it to runObserveOracle; no executor-observed order or runtime closure trace is used. The full command results do provide runtimeTrace, but the observe path neither feeds those traces back into closure/selection nor persists them in the observe artifact. Consequently equivalent=true can be reported even when the instrumented full executor observed undeclared reads/spawns or a different actual order, so DYN-1 audit soundness is not proven.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T12:48:24.724Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-014",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/tasks/story-aware-validation-production-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "d451d8d46d4097b8368836646d215da68c55e1291d78564d894b874ee50e08ef",
+      "signatureTag": "missing|unknown|production-observe-oracle",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-021",
+      "desc": "doc-code-drift: docs/CLI.md:917-924 presents --dynamic-mode observe/shadow/enforce-low-risk as the validate contract, but verifier.ts:1331-1333 places the entire dynamic-mode dispatch inside `if (!validateFile)`; when a supported validate.ts/js/mts entrypoint exists, execution jumps to verifier.ts:1700-1770 and runs only that file, with no dynamic manifest, preview, Wave-0/selected path, oracle comparison, or authority result. A user following the documented command therefore gets the legacy validate-file path and the promised dynamic behavior is missing. Either route dynamic modes through the validate-file plan or document and mechanically enforce the unsupported-entrypoint boundary before claiming these modes.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-21T12:54:53.840Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-017",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/NAV.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "5a7727b7d210e473aa3edc85ec97e2acf705cf7847f7f1a1ec4fc91501ac96cb"
+      },
+      "readDiagnostics": [],
+      "_hash": "4a7d8fb5cae2f2b7b67c97d7bfd86c99b8ca4ddbc70f2dc8f5dfd99f3e7a9bc1",
+      "files": [
+        "docs/CLI.md",
+        "packages/main/src/handlers/verifier.ts"
+      ],
+      "signatureTag": "missing|md|code-drift-docs",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-022",
+      "desc": "validate-file dynamic dispatch still does not plan the validate-file command: packages/main/src/handlers/story-aware-validation.ts:246 calls discoverValidationInventory(args.projectRoot) without passing args.commands, although the validate-file path at verifier.ts:1792-1800/1811-1822 passes its identityCommand explicitly. In a project with validate.ts/js/mts and no lattice.config validate.commands, the inventory is empty and runStoryAwareDynamicValidation throws; verifier catches it and silently runs only the legacy validate-file oracle. If lattice.config has unrelated commands, the dynamic manifest is for those commands while the actual validate-file command is outside the denominator. The new entrypoint must inject the identity command into inventory or fail explicitly instead of claiming dynamic modes are covered.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T13:00:08.950Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-018",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/tasks/story-aware-validation-production-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "ae277f5df7853799004d6b6bc6ef6030ae46162193b525fa02fc61cb146cca9d",
+      "signatureTag": "missing|unknown|validate-file-dynamic",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-023",
+      "desc": "Runner binding remains incomplete after adding the comparison: packages/main/src/handlers/story-aware-validation.ts:103 defines DYNAMIC_RUNNER_DIGEST and receiptForResult uses it at :586, but prepare() builds DynamicValidationContext at :294-312 without `runnerDigest`. Thus story selection inputDigest at story-aware-validation.ts:683-689 is still computed with an empty runner digest, and receiptAdmissible.ts:605-611 cannot execute the new equality check. A prior receipt can remain admissible across a dynamic executor/runner change; bind the same current runner digest into the manifest context and baseline or fail reuse closed when it is absent.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T13:00:27.183Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-018",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/story-aware-validation.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/validation-runtime-tracer.cjs",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "fdc164b9147105a7b4a97732f684a11598b8e561cc6d5de0259ba81e95eb3307",
+      "signatureTag": "missing|unknown|runner-binding-remains",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-024",
+      "desc": "At current HEAD e864d86611, the mechanical evidence is still stale. checklist_get --storyId=B-45a0 --json shows all 45 verificationEvidence rows bound to headHash 3d65b3d67b8b1b43e185bbc2e5eaddd4e3a287ad and materialHash da7ea3cf71e219f9b0a8ab8e4b04e817ee33469c57ffd2e50be2a2c9f6b762ed. acceptance_rollout_check --storyId=B-45a0 --json returns status=fail, blocking=true, diagnostics=[AR_REPORT_STALE], receipt=stale; pre_review_check_read is inconclusive with executableEvidence=missing, mutations=missing, transcript=missing, authority=inadmissible; acceptance_topology_check reports stale basis/closure and missing topology. The evidence cannot cover the post-875 runtime fixes or the e864 validate-file dynamic entrypoint. Refresh all pinned evidence and regenerate the verifier-owned acceptance/pre-review receipts at e864d86611 before this coverage lane can pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-21T13:00:31.518Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-019",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-production-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "6c6df5b508c1c9033f71423b5c175d865adf71a2a0dbddd57047196b792d8290"
+      },
+      "readDiagnostics": [],
+      "_hash": "cc176e43b0fce770ec2927f9db6a990af61c477691168d79ed712ba8f01083d1",
+      "files": [
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/src/handlers/story-aware-validation.ts",
+        "packages/main/src/core/story-aware-validation.ts",
+        "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+      ],
+      "signatureTag": "missing|ts|current-head-e864d86611",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-025",
+      "desc": "The new validate-file dynamic entrypoint has no current executable verifier coverage. e864d86611 adds the dynamic-mode branch in packages/main/src/handlers/verifier.ts:1755-1871, but repository searches find no task or integration test invoking proof-or-stop validate --story=B-xxxx --dynamic-mode=observe|shadow|enforce-low-risk through runValidateFileAndRender. The existing validation-evidence-reuse-smoke.ts validate-file cases cover sourceKind identity/reuse and explicitly test routine reuse semantics, not the new dynamic manifest, observe oracle, runtimeTrace, oracleStatus, selected/reused accounting, or low-risk authority/fallback behavior. The three checklist evidence rows for CHK-010/CHK-012/CHK-013 are stale and point to generic/pure smoke paths. Add current-head command-backed happy, edge, and mutation coverage for the validate-file dynamic path, then re-record verification evidence.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-21T13:00:34.855Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-019",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-production-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "6c6df5b508c1c9033f71423b5c175d865adf71a2a0dbddd57047196b792d8290"
+      },
+      "readDiagnostics": [],
+      "_hash": "41161e40677ad4c5b72d795157680cbca35f22055c9756049fc8b21e2144e4ca",
+      "files": [
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+        "packages/main/src/core/story-aware-validation.ts",
+        "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+      ],
+      "signatureTag": "missing|ts|validate-file-dynamic",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-026",
+      "desc": "Runtime trace normalization drops external inputs instead of failing closed: packages/main/src/handlers/story-aware-validation.ts:162-173 returns undefined for an absolute observed path outside projectRoot and filters it out. A validation command reading `/tmp/input.json`, a home config, or another external workspace therefore produces no undeclaredObservedPath; validation-executor.ts:1351-1362 reports a present trace with unknownRuntimeInputs=[] and the closure can be certified complete. Preserve an external-path/unknown marker so DYN-2 cannot reuse across changes outside the repository.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T13:00:54.393Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-018",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/story-aware-validation.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/validation-runtime-tracer.cjs",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "7ed6a242609bd52744ebc0a601b72080a13eaab007e369c05436caf0a184395c",
+      "signatureTag": "adversarial|unknown|runtime-trace-normalization",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-027",
+      "desc": "DYN-5 adapter gating is self-attested rather than bound to a real adapter: packages/main/src/handlers/story-aware-validation.ts:446-462 enables sharding for any nonempty `LATTICE_VALIDATION_SHARD_ADAPTER` value, with no registry, executable digest, or domain/case contract check. The same command output is accepted at :493-508 when it prints `PROOF_OR_STOP_CASES:<ids>` and `PROOF_OR_STOP_SENTINEL:<id>`, so a generic command can set an arbitrary adapter string and echo markers without executing the routed quorum/review-pass cases; aggregation then produces signed PASS evidence. Bind the adapter value to a registered case-aware runner and verify its output/receipt, or keep the domain permanently non-authoritative.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T13:01:25.216Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-018",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/tasks/story-aware-validation-production-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "packages/main/src/tasks/review-pass-discard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "a142c08eb18fb1b4f4d34e7172371b2aba33e5f482628de9fdc7071cdc88b6f0",
+      "signatureTag": "adversarial|unknown|adapter-gating-self",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-028",
+      "desc": "packages/main/src/handlers/verifier.ts:1480-1500 can label an enforce-low-risk run as enforce-authority, but execution unconditionally continues into the complete configured plan at :1582-1592 and the returned status/allPass/commands are then built from that complete-plan result at :1674-1684. The validate-file branch repeats the same pattern at :1811-1832 and :1840-1944. No branch consumes dynamic.dynamicAllPass as the TEST verdict or skips the full oracle when the gate-owned authority decision is true. DYN-3 is therefore only report metadata, not low-risk dynamic TEST authority, so the principal enforce capability and performance outcome remain undelivered.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-21T13:01:48.530Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-020",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/story-aware-validation-production-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "1d2b4ec73beb590c29c620b71d05f6acae3d9aba4f38fdbc61341f9bcfe4fc35"
+      },
+      "readDiagnostics": [],
+      "_hash": "c98cf48bf1f5124326a95cfd0446a5e5a0bf546c7980d6b431a62bccc71e1ca9",
+      "files": [
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/src/handlers/story-aware-validation.ts",
+        "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+      ],
+      "signatureTag": "missing|ts|dynamic-authority-not-consumed",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-029",
+      "desc": "Canonical baseline freshness still ignores runner/toolchain identity: packages/main/src/handlers/story-aware-validation.ts:638-645 defines baselineCurrent from sourceHead, inventory/catalog digests, and epoch only; packages/main/src/core/story-aware-validation.ts:427-434 verifies the baseline signature/expiry but never compares runnerDigest or toolchainDigest to the current executor. An old signed canonical baseline remains gate-current after runner or toolchain changes, so its closure/receipts can authorize dynamic evidence against a changed execution environment. Bind current runner/toolchain digests into baselineCurrent and the baseline verifier, or fail authority closed.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T13:01:50.665Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-018",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/story-aware-validation.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "48b1284d04a0e7c7d901c611da2a4cad1c934ea3cb7ff26781b7162e7a5873a4",
+      "signatureTag": "adversarial|unknown|canonical-baseline-freshness",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-030",
+      "desc": "packages/main/src/handlers/story-aware-validation.ts:434-447 still manufactures three or four synthetic case IDs and treats any nonempty LATTICE_VALIDATION_SHARD_ADAPTER value as sufficient wiring. Lines :493-508 then accept runner-authored PROOF_OR_STOP_CASES and PROOF_OR_STOP_SENTINEL strings as proof of exact routing, without a canonical quorum/review-pass case registry or case-level results. packages/main/src/tasks/story-aware-validation-production-smoke.ts:31-40 demonstrates the accepted adapter is only a node command that echoes those supplied environment values; it executes no real quorum or review-pass cases yet the aggregate passes. The missing-adapter path now fails closed, but a self-attesting echo adapter can still mint PASS, so DYN-5 exact routing and genuine sentinel execution remain fail-open.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-21T13:02:05.151Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-020",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/tasks/story-aware-validation-production-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "1d2b4ec73beb590c29c620b71d05f6acae3d9aba4f38fdbc61341f9bcfe4fc35"
+      },
+      "readDiagnostics": [],
+      "_hash": "d0f5c4ca03f49a5a006617ce8ebe002eb523162ff5a5306bbde7212c16a7be70",
+      "files": [
+        "packages/main/src/handlers/story-aware-validation.ts",
+        "packages/main/src/tasks/story-aware-validation-production-smoke.ts",
+        "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+      ],
+      "signatureTag": "adversarial|ts|dyn5-self-attested-routing",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-031",
+      "desc": "Observe now checks whether full-plan results emitted a `spawn` event, but still does not persist or compare the actual runtime closure: packages/main/src/handlers/verifier.ts:1625-1644 reduces each command trace to events/unknownRuntimeInputs only, and runObserveOracle receives only the result-array order. readPaths/loadedPaths/spawnedPaths/environmentKeys from the executor are not fed into the manifest closure certificates or the persisted observe report, so an undeclared runtime input observed during the full oracle is not surfaced as an observe mismatch/invalid reuse candidate. The validate-file branch at :1842-1870 omits even this trace summary. DYN-1 requires closure-trace audit evidence, not only a spawn-presence check.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T13:02:36.418Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-018",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/validation-runtime-tracer.cjs",
+          "packages/main/src/handlers/story-aware-validation.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "9ccaa41438dd3fb9cc31a41a2bd1e3f2aea57b515fb2e967f77f45f8a79ea29c",
+      "signatureTag": "missing|unknown|observe-checks-whether",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-032",
+      "desc": "packages/main/src/handlers/story-aware-validation.ts:441-560 still treats DYN-5 adapter identity as a name-to-constant digest and accepts stdout markers after only observing a registry read; an arbitrary command can read LATTICE_VALIDATION_SHARD_CASE_REGISTRY and echo the exact PROOF_OR_STOP_CASES/SENTINEL markers without executing any registered case or real domain runner. The production smoke at packages/main/src/tasks/story-aware-validation-production-smoke.ts:26-43 demonstrates this generic echo command is accepted. Bind the adapter to a registered executable/implementation digest and case-level execution receipt, or keep DYN-5 non-authoritative.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T13:13:24.277Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-021",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/story-aware-validation-production-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "ad47b6dde97701855991a6df211edd829a2a35c138620d0eb7945117f43757a4",
+      "files": [
+        "packages/main/src/handlers/story-aware-validation.ts",
+        "packages/main/src/tasks/story-aware-validation-production-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-handlers",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-033",
+      "desc": "packages/main/src/handlers/verifier.ts:1674-1716 and 1983-2020 now append full-oracle runtimeTrace fields to a human/report string, but do not pass those observations through runtimeTraceForResult/createValidationClosureCertificate, invalidate the affected closure, or revoke existing receipts. A full oracle can therefore observe a new undeclared read/spawn/environment access while the next dynamic run still admits the old reusable receipt; trace visibility is not closure/reuse enforcement. Feed the full oracle trace into closure certification and fail closed on undeclared inputs.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T13:13:39.511Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-021",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/story-aware-validation-production-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "96b2f293271bd90a8cdecac2d5f67432e3a0c7a938b4fbcdbcbaf4eec49dd326",
+      "files": [
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/src/handlers/story-aware-validation.ts",
+        "packages/main/src/core/story-aware-validation.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-handlers",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-034",
+      "desc": "At current HEAD 70043236d1, all 45 checklist verificationEvidence rows remain bound to old headHash 3d65b3d67b8b1b43e185bbc2e5eaddd4e3a287ad and materialHash da7ea3cf71e219f9b0a8ab8e4b04e817ee33469c57ffd2e50be2a2c9f6b762ed. acceptance_rollout_check is blocking with AR_REPORT_STALE and stale receipt; pre_review_check_read is inconclusive with executableEvidence, mutations, and transcript missing and authority inadmissible; acceptance_topology_check is inconclusive with stale basis and missing topology. The new validate-file preview and registry-backed shard code therefore has no admissible current acceptance evidence. Refresh current-head checklist evidence and reissue rollout, pre-review, and topology receipts before coverage can pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-21T13:13:55.013Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-022",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/story-aware-validation-production-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "6c6df5b508c1c9033f71423b5c175d865adf71a2a0dbddd57047196b792d8290"
+      },
+      "readDiagnostics": [],
+      "_hash": "86f523f913b7bec0fa8cfa5d69b44842eb19970fd4b2e37704a4f7ee30fd33e1",
+      "files": [
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/src/handlers/story-aware-validation.ts",
+        "packages/main/src/tasks/validation-protocol-smoke.ts",
+        "packages/main/src/tasks/story-aware-validation-production-smoke.ts",
+        "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+      ],
+      "signatureTag": "missing|ts|current-head-70043236d1",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-035",
+      "desc": "The current validate-file dynamic entrypoint is not covered end to end for a story-scoped invocation. validation-protocol-smoke.ts now exercises only a no-story dynamic preview with dynamicMode observe, commandExecutions 0, oracleStatus not-run, and a synthetic one-file manifest. No current smoke or verification evidence invokes validate-file with storyId and dynamicMode observe, shadow, or enforce-low-risk to assert story-aware manifest binding, runtime trace, authority versus fallback, authoritativeResult, or oracle equivalence. The implementation branch in verifier.ts can therefore regress while all current smoke tests remain green. Add executable story-scoped validate-file coverage for observe, shadow, and enforce or an explicit fail-closed fallback.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-21T13:14:13.893Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-022",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "6c6df5b508c1c9033f71423b5c175d865adf71a2a0dbddd57047196b792d8290"
+      },
+      "readDiagnostics": [],
+      "_hash": "ff5b92763234a6b5a663c480bc7a24b3cd0c8222dceb690e00a22f8dc46f65b7",
+      "files": [
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/src/tasks/validation-protocol-smoke.ts",
+        "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+        "packages/main/src/core/story-aware-validation.ts",
+        "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+      ],
+      "signatureTag": "missing|ts|current-validate-file",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-036",
+      "desc": "packages/main/src/handlers/verifier.ts:1493-1504 and 1917-1928 omit the live Story scopeContract, verificationIntents, affectedProcessFacts, and affectedCapabilities when calling runStoryAwareDynamicValidation. packages/main/src/handlers/story-aware-validation.ts:268-278 therefore signs an empty scope/pin/fact/capability projection, and line 833 treats the absent pin set as vacuously executed. The enforce-authority branches at verifier.ts:1605-1630 and 1959-1979 then persist that result as routine validation evidence without the mandatory Story inputs. A protected/out-of-scope/excluded change or missing verificationIntent pin can therefore be absent from the authority decision instead of forcing full validation, violating DYN-3 and Section 14.1.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-21T13:14:30.690Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-023",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "5a7727b7d210e473aa3edc85ec97e2acf705cf7847f7f1a1ec4fc91501ac96cb"
+      },
+      "readDiagnostics": [],
+      "_hash": "c2c3718c759225fa5a5917ab8a700be68543b6bc712eafe7b441fcc3c4621dea",
+      "files": [
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/src/handlers/story-aware-validation.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-handlers",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-037",
+      "desc": "The new registry-backed production smoke is still weaker than the DYN-5 contract. story-aware-validation-production-smoke.ts runs only the review-pass domain with the case-registry adapter, then asserts build pass, authority false, shardRoot existence, and that one aggregate artifact contains coveredCaseIds. It does not assert every signed per-shard receipt has registryObserved, sentinelObserved, caseRegistryDigest, adapterDigest, zero residue, and valid signatures; it does not assert exact no-omission/no-duplicate/correct-routing case sets, aggregate verdict equivalence, or quorum 3-to-4 shard behavior. Because the smoke accepts authority false and never exercises a complete current acceptance receipt, the registry-backed production path can be partially wired while the smoke passes. Extend executable smoke and mutation evidence across review-pass and quorum with exact receipt and residue assertions.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-21T13:14:34.303Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-022",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/tasks/story-aware-validation-production-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "6c6df5b508c1c9033f71423b5c175d865adf71a2a0dbddd57047196b792d8290"
+      },
+      "readDiagnostics": [],
+      "_hash": "cb93932c61e26648f8ecbc129414b2e181f06aa5507e59aefda98ca08dfb1965",
+      "files": [
+        "packages/main/src/tasks/story-aware-validation-production-smoke.ts",
+        "packages/main/src/handlers/story-aware-validation.ts",
+        "packages/main/src/core/story-aware-validation.ts",
+        "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+      ],
+      "signatureTag": "adversarial|ts|registry-backed-production",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-038",
+      "desc": "packages/main/src/core/validation-runtime-tracer.cjs:19,70-74 records every environment key visible at startup and only the unresolved Module._load request string, while packages/main/src/handlers/story-aware-validation.ts:221-234 declares that entire key set as allowed for canonical baselines. Thus a command reading an undeclared secret env var is indistinguishable from merely inheriting it, and require('external-package') is recorded as a bare package name then dropped by sourceAuthorityPath instead of resolving to the loaded file. The resulting closure certificate can remain complete for undeclared environment/module inputs. Trace actual env access and resolved module filenames, or fail closed when resolution is unavailable.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T13:14:41.339Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-021",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-runtime-tracer.cjs",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/story-aware-validation-production-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "2be9dacd011ee1ab68308e370d29d62c2301addb310ab65ff9e819c81c9aa014",
+      "files": [
+        "packages/main/src/core/validation-runtime-tracer.cjs",
+        "packages/main/src/core/validation-executor.ts",
+        "packages/main/src/handlers/story-aware-validation.ts"
+      ],
+      "signatureTag": "adversarial|cjs|packages-main-core",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-039",
+      "desc": "packages/main/src/handlers/story-aware-validation.ts:715-735 does not mechanically prove the Section 24 enforcement prerequisites it labels PASS: wholeRepoScannersClassified is just catalogOwnershipGatePassed; processFactBindingsComplete is vacuously true for empty bindings; changedTestPropagationVerified only rechecks zero manifest counters; periodicFullPolicyActive is only baselineCurrent; and catalogOwnershipGatePassed only checks id/inputRoots/resources. packages/main/src/core/story-aware-validation.ts:332-341 compounds this by assigning every discovered command the same story-selectable/local/static-and-traced defaults, so actual full-only, whole-repository, gate/shared risk, ownership-review, changed-test consumer, and periodic-audit facts are not represented. An enforce-low-risk run can therefore receive all-true prerequisite rows without the facts Section 24 requires.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-21T13:14:47.288Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-023",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/story-aware-validation.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "5a7727b7d210e473aa3edc85ec97e2acf705cf7847f7f1a1ec4fc91501ac96cb"
+      },
+      "readDiagnostics": [],
+      "_hash": "0df88580f476a0eae29b219d1f68c7e101d78bd9c38cffc6bf37c2996ff78963",
+      "files": [
+        "packages/main/src/handlers/story-aware-validation.ts",
+        "packages/main/src/core/story-aware-validation.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-handlers",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-040",
+      "desc": "packages/main/src/handlers/story-aware-validation.ts:441-446 registers a marker-only DYN-5 adapter, while lines 552-569 accept a shard when the command merely read the registry and printed PROOF_OR_STOP_CASES/PROOF_OR_STOP_SENTINEL. The production-path test at packages/main/src/tasks/story-aware-validation-production-smoke.ts:38-44 does exactly that: it reads JSON, echoes IDs and a sentinel, and executes no quorum/review-pass case logic, yet lines 56-63 assert production shard receipts PASS. Thus missing/unregistered adapters do fail closed, but the registered adapter can mint PASS by replaying markers without running each case or the genuine end-to-end sentinel, violating DYN-5 static-PASS, routing, and aggregate-equivalence requirements. The repository validate config also contains no caseRegistryPath/LATTICE_VALIDATION_SHARD_ADAPTER for its actual review-pass/quorum commands, so the real domains are not wired.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-21T13:15:03.920Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-023",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/story-aware-validation-production-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "lattice.config.json",
+          "packages/main/src/handlers/story-aware-validation.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "5a7727b7d210e473aa3edc85ec97e2acf705cf7847f7f1a1ec4fc91501ac96cb"
+      },
+      "readDiagnostics": [],
+      "_hash": "ff4294a71ec84cc2ae7e4835656a8399b723828c9ca2da2f237eacbf68b8a13b",
+      "files": [
+        "packages/main/src/handlers/story-aware-validation.ts",
+        "packages/main/src/tasks/story-aware-validation-production-smoke.ts",
+        "lattice.config.json"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-handlers",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-041",
+      "desc": "doc-promise-undelivered: Section 19 and CHK-011 require 30-50 historical Story replays with failures(full, Story) subset-of executed(dynamic, Story), plus durable per-catalog FI evidence. packages/main/src/tasks/story-aware-validation-mutation-smoke.ts:73-90 instead fabricates 30 paths, builds the same pure manifest twice, and explicitly invokes no project command; scripts/run-dynamic-validation-replay.mjs:15-22 then treats the replay classes: 30 string as historical replay threshold PASS. No historical Story, complete-plan oracle, per-command failure comparison, paired 3x2 run, or durable replay receipt is consumed. The promised current-main characterization, operations record, and enforcement-evidence documents are also absent. This leaves the required zero-false-negative evidence undelivered while the audit adapter reports PASS.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-21T13:15:33.191Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-023",
+      "readManifest": {
+        "filesReadFully": [
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "5a7727b7d210e473aa3edc85ec97e2acf705cf7847f7f1a1ec4fc91501ac96cb"
+      },
+      "readDiagnostics": [],
+      "_hash": "304b67503d1a8d992a5049f17e5d1e577bbb063fe1d71c9a6c56dcaf651c2c03",
+      "files": [
+        "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts",
+        "scripts/run-dynamic-validation-replay.mjs",
+        "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+      ],
+      "signatureTag": "doc-promise-undelivered|ts|promise-undelivered-section",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-042",
+      "desc": "At current HEAD 0d3491f8adbd4db4d40e189476e6df761277474e, checklist_get shows all 45 verificationEvidence rows still bound to old headHash 3d65b3d67b8b1b43e185bbc2e5eaddd4e3a287ad and materialHash da7ea3cf71e219f9b0a8ab8e4b04e817ee33469c57ffd2e50be2a2c9f6b762ed. acceptance_rollout_check is blocking with AR_REPORT_STALE and a stale receipt; pre_review_check_read is inconclusive with executableEvidence, mutations, and transcript missing and authority inadmissible; acceptance_topology_check is inconclusive with partial legacy-missing topology and stale closure/basis diagnostics. Therefore the latest replay hardening, validate-file path, and registry smoke have no admissible current Story evidence for review coverage or Wave 4 acceptance. Refresh all current-head evidence and reissue verifier-owned rollout, pre-review, and topology receipts before this lane can pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-21T13:37:32.996Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-028",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-production-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "6c6df5b508c1c9033f71423b5c175d865adf71a2a0dbddd57047196b792d8290"
+      },
+      "readDiagnostics": [],
+      "_hash": "0c1e1b40d1b6893dfc8ad94d0ceef04a8e61c7f328bc379e27a697d0bb0c231b",
+      "files": [
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/src/handlers/story-aware-validation.ts",
+        "packages/main/src/tasks/validation-protocol-smoke.ts",
+        "packages/main/src/tasks/story-aware-validation-production-smoke.ts",
+        "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts",
+        "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+      ],
+      "signatureTag": "missing|ts|current-head-0d3491f8adbd4db4d40e189476e6df761277474e",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-043",
+      "desc": "DYN-3/DYN-5 are not wired through the real verifier command inventory. configuredValidationCommands() narrows each configured command to generic ValidationCommand fields and drops the catalog's assurance, riskTier, closurePolicy, fullBaselineReusePolicy, cpuWeight and expectedP50Ms fields (verifier.ts:317-353; validation-types.ts:6-29). prepare() then gives the injected args.commands inventory precedence (story-aware-validation.ts:255-264), so the normal verifier path cannot retain explicit catalog policy even though raw config discovery supports it. The repository configs also declare no caseRegistryPath or registered shard adapter. The production smoke bypasses this path by calling runStoryAwareDynamicValidation directly with a synthetic config and explicitly expects non-authoritative output. Consequently Section 24's explicit-policy prerequisite fails closed in production, and there is no demonstrated real DYN-3 enforce/DYN-5 execution path.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-21T13:37:38.619Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-030",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/story-aware-validation-case-adapter.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "lattice.config.json",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-production-smoke.ts",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "5a7727b7d210e473aa3edc85ec97e2acf705cf7847f7f1a1ec4fc91501ac96cb"
+      },
+      "readDiagnostics": [],
+      "_hash": "677c4715ef56f8d82623ea7a07af811f3796b2a4a6d6ac7a78c6a63648e62c3a",
+      "files": [
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/src/core/validation-types.ts",
+        "packages/main/src/handlers/story-aware-validation.ts",
+        "packages/main/src/core/story-aware-validation.ts",
+        "packages/main/src/tasks/story-aware-validation-production-smoke.ts",
+        "lattice.config.json",
+        "proof-or-stop.config.json"
+      ],
+      "signatureTag": "missing|ts|wired-through-real",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-044",
+      "desc": "The registered DYN-5 adapter is still a trusted evidence generator rather than a real case executor. story-aware-validation.ts binds the exact adapter entrypoint and checks per-case evidence, but story-aware-validation-case-adapter.mjs:46-63 merely loops over requested IDs and writes evidence with executed:true plus routing/sentinel markers; it never invokes the quorum/review-pass handler cases or any test body. An unchanged adapter can therefore report every requested stable ID as executed even when no behavior ran, violating the plan's genuine end-to-end sentinel and static-PASS rejection requirements.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-21T13:37:41.513Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-030",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/story-aware-validation-case-adapter.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "lattice.config.json",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-production-smoke.ts",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "5a7727b7d210e473aa3edc85ec97e2acf705cf7847f7f1a1ec4fc91501ac96cb"
+      },
+      "readDiagnostics": [],
+      "_hash": "b154787df2bbca07680247f5c7dd0c07586e5ec1a4eac00c292406d79efc97cc",
+      "files": [
+        "packages/main/src/handlers/story-aware-validation.ts",
+        "packages/main/src/tasks/story-aware-validation-case-adapter.mjs",
+        "packages/main/src/review-pass-cases.json"
+      ],
+      "signatureTag": "adversarial|ts|registered-adapter-still",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-045",
+      "desc": "The Section 19/21 assurance campaign remains synthetic rather than the promised replay evidence. story-aware-validation-mutation-smoke.ts creates a temporary repository with four Node -e commands, generates 30 path-shape classes, and now gives only class 29 a synthetic e2e failure. It does not restore 30-50 historical Story base/head pairs, run each Story's complete oracle versus dynamic selection, persist durable per-Story manifests/receipts, run FI-1..FI-5 for every applicable catalog entry, or perform the three alternating paired current-HEAD experiments. The required characterization, operations and enforcement-evidence decision documents are also absent. The new paired verdict assertion improves the synthetic smoke but does not satisfy the rollout gate for DYN-3 enforcement.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-21T13:37:44.364Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-030",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/story-aware-validation-case-adapter.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "lattice.config.json",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-production-smoke.ts",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "5a7727b7d210e473aa3edc85ec97e2acf705cf7847f7f1a1ec4fc91501ac96cb"
+      },
+      "readDiagnostics": [],
+      "_hash": "d20302ca2051dc558eef441767a872fe5f91ef442f5ee443eb1f1056b4fc2e99",
+      "files": [
+        "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts",
+        "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+        "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+        "docs/requirements/decisions/dynamic-validation-operations.md",
+        "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md"
+      ],
+      "signatureTag": "doc-promise-undelivered|ts|section-assurance-campaign",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-046",
+      "desc": "packages/main/src/tasks/validation-protocol-smoke.ts:261-279 only calls validate with dynamicMode observe and no storyId, then asserts the no-story lattice-verifier-dynamic-preview metadata and zero command executions. The story-scoped branch in packages/main/src/handlers/verifier.ts:1952-2024 separately handles validate-file observe, shadow, and enforce-low-risk, including runtime trace, full-plan fallback, and authoritativeResult, but no executable smoke or current evidence invokes that branch for any of the three modes. validation-evidence-reuse-smoke covers routine validate-file reuse semantics, not story-scoped dynamic selection or oracle equivalence. A regression in the requested story-aware validate-file modes can therefore pass all current dynamic smoke tests.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-21T13:37:50.405Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-028",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "6c6df5b508c1c9033f71423b5c175d865adf71a2a0dbddd57047196b792d8290"
+      },
+      "readDiagnostics": [],
+      "_hash": "b27f513ba210e1a54abb5e7a619d4e1c2abf9b3877154d9fc4355a3e80848da2",
+      "files": [
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/src/tasks/validation-protocol-smoke.ts",
+        "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+        "packages/main/src/core/story-aware-validation.ts",
+        "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+      ],
+      "signatureTag": "missing|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-047",
+      "desc": "packages/main/src/tasks/story-aware-validation-production-smoke.ts:17-69 now exercises a real registry-backed review-pass adapter and verifies three signed shard receipts, sentinels, exact review-pass coverage, and zero residue, but it never executes a registry-backed quorum command. The only quorum assertions are pure aggregateValidationShards mutations in packages/main/src/tasks/story-aware-validation-mutation-smoke.ts:262-269 with synthetic results, not subprocess routing, runtime registry reads, signed receipts, or cleanup. DYN-5 requires both three review-pass groups and isolated three-to-four quorum shards before claiming complete sharding coverage; current production evidence leaves the quorum path unproven.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-21T13:38:07.066Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-028",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-production-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "6c6df5b508c1c9033f71423b5c175d865adf71a2a0dbddd57047196b792d8290"
+      },
+      "readDiagnostics": [],
+      "_hash": "e11d1c2d7bc956b98a213e9c324084b9c1b28b2f2231f457f337e97cad0ffe52",
+      "files": [
+        "packages/main/src/tasks/story-aware-validation-production-smoke.ts",
+        "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts",
+        "packages/main/src/handlers/story-aware-validation.ts",
+        "packages/main/src/core/story-aware-validation.ts",
+        "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+      ],
+      "signatureTag": "missing|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-048",
+      "desc": "The latest replay hardening now executes a complete four-command synthetic oracle and selected dynamic plan for 30 generated file-status classes, compares per-command verdicts, injects one failing e2e case, and verifies pass receipts. However, packages/main/src/tasks/story-aware-validation-mutation-smoke.ts:41-124 still fabricates one four-command inventory and generated paths rather than restoring 30-50 historical Story base/head pairs across the required docs, local, shared-core, lifecycle, process-fact, runtime, package/config, rename/delete, red, and test-only populations. scripts/run-dynamic-validation-replay.mjs:9-22 treats the synthetic replay-classes: 30 marker as the historical replay threshold. No current evidence demonstrates historical failure coverage, paired full-dynamic performance runs, or durable replay receipts required by Sections 19.1-19.3 and the enforce threshold.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-21T13:38:21.852Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-028",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts",
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "6c6df5b508c1c9033f71423b5c175d865adf71a2a0dbddd57047196b792d8290"
+      },
+      "readDiagnostics": [],
+      "_hash": "e5db3ffe041358967b94d81a1d760f2e04762f12b94d1abebdbf249c384a099a",
+      "files": [
+        "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts",
+        "scripts/run-dynamic-validation-replay.mjs",
+        "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+      ],
+      "signatureTag": "missing|ts|latest-replay-hardening",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-049",
+      "desc": "The documentation does not deliver an operable or truthful end-to-end dynamic-validation contract. docs/CLI.md:917-926 labels off/observe/shadow/enforce-low-risk as supported and says enforce-low-risk may grant TEST authority, but it omits the required catalog configuration fields (assurance, riskTier, closurePolicy, fullBaselineReusePolicy, caseRegistryPath and registered adapter), baseline/receipt/closure creation and refresh procedure, artifact inspection, revocation and rollback operations, DYN-5 registry setup, and troubleshooting for each fail-closed reason. The current real verifier/config path cannot preserve those policies and the checked-in configs do not wire a registry adapter, so the advertised authority cannot be reached from the documented interface. NAV only links the imported design record and explicitly says DYN-3 remains gated; the promised current-main characterization, operations runbook, and enforcement-evidence documents are absent. This leaves the implementation status and operator path materially undocumented and conflicts with the request to cover the complete imported plan.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-21T13:38:24.002Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-031",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/NAV.md",
+          "lattice.config.json",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/story-aware-validation-production-smoke.ts",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "5a7727b7d210e473aa3edc85ec97e2acf705cf7847f7f1a1ec4fc91501ac96cb"
+      },
+      "readDiagnostics": [],
+      "_hash": "94a7aa9b776c87b809650866d6ddfade55e5554e87db6a52b34f08d80473f865",
+      "files": [
+        "docs/CLI.md",
+        "docs/requirements/NAV.md",
+        "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+        "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+        "docs/requirements/decisions/dynamic-validation-operations.md",
+        "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/src/handlers/story-aware-validation.ts"
+      ],
+      "signatureTag": "doc-code-drift|md|documentation-deliver-operable",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-050",
+      "desc": "The real root inventory still cannot satisfy DYN-3 authority. At current HEAD, configuredValidationCommands plus compileValidationCatalog reports 112 commands but only the two newly wired gate commands have policySource=explicit; 110 remain policySource=default. deriveGateOwnedPrerequisites requires every catalog entry to have explicit valid assurance/riskTier/closure/full-baseline policy, so catalogOwnershipGatePassed is mechanically false for every real repository run. The positive authority smoke uses a one-command temporary config and therefore does not prove the checked-in 112-command verifier path. This is fail-closed, but it means the requested layered validate capability is not actually enabled or end-to-end consumable in the project configuration.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-21T14:21:28.104Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-035",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/story-aware-validation-domain-case-runner.mjs",
+          "packages/main/src/tasks/story-aware-validation-domain-cases.json",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/NAV.md",
+          "lattice.config.json",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-production-smoke.ts",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "68a448862b1e751fff0014b456803f0a04a55ff787a5d8519fdf442d0f7bd023"
+      },
+      "readDiagnostics": [],
+      "_hash": "1ae4cf160c756d4eee561faca907c293f377014497d3f2ce1e4476ec2efdff15",
+      "files": [
+        "proof-or-stop.config.json",
+        "lattice.config.json",
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/src/handlers/story-aware-validation.ts",
+        "packages/main/src/core/story-aware-validation.ts"
+      ],
+      "signatureTag": "missing|json|real-root-inventory",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-051",
+      "desc": "DYN-5 now executes a registered runner, but the registered cases are not the real review-pass/quorum scenario groups required by the plan. All three review-pass IDs invoke the same signReviewPass call with only caseId text changed; all four quorum IDs invoke the same evaluateReviewAssuranceFloor call over an empty changedFiles set. The runner never executes review-pass discard scenarios, quorum submission, cross-host/quorum behavior, or the original smoke verdicts. Thus seven marker-producing core probes can aggregate PASS even if the actual review-pass-discard-smoke or quorum-submit-smoke behavior is broken. No equivalence assertion compares aggregate verdict to the original test, so F-044's genuine end-to-end sentinel/equivalence gap remains.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-21T14:21:34.064Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-035",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/story-aware-validation-domain-case-runner.mjs",
+          "packages/main/src/tasks/story-aware-validation-domain-cases.json",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/NAV.md",
+          "lattice.config.json",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-production-smoke.ts",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "68a448862b1e751fff0014b456803f0a04a55ff787a5d8519fdf442d0f7bd023"
+      },
+      "readDiagnostics": [],
+      "_hash": "b664e5d6d61776541768a2e2ce9b61166f97d49b3dc16ac436332b8383ead38e",
+      "files": [
+        "proof-or-stop.config.json",
+        "packages/main/src/tasks/story-aware-validation-domain-cases.json",
+        "packages/main/src/tasks/story-aware-validation-domain-case-runner.mjs",
+        "packages/main/src/handlers/story-aware-validation.ts",
+        "packages/main/src/tasks/review-pass-discard-smoke.ts",
+        "packages/main/src/tasks/quorum-submit-smoke.ts"
+      ],
+      "signatureTag": "adversarial|json|executes-registered-runner",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-052",
+      "desc": "The Section 19 enforcement campaign is still not admissible. The checked-in wrapper always invokes historical replay with --plan-only, so the 50-Story PASS only proves discovery/selection and executes neither historical full nor dynamic plans. The new faultInjection table hard-codes passed:true for FI-1, FI-3, FI-4 and FI-5 on each row; FI-2 only invalidates a pre-signed certificate by changing its payload, which proves signature checking rather than missing-edge propagation. The optional --paired path is not invoked by the wrapper and omits required toolchain/graph/closure/baseline/revocation digests, selected/reused/unverified counts, CPU/resource timelines, residue, and median reporting. Even --execute records only final booleans/full failure IDs, not complete per-command verdicts and durable signed receipts. Therefore the plan's historical restore/replay, per-catalog FI-1..FI-5, and three-pair gate evidence remain unfulfilled despite a plan-only 'historical replay discovery threshold PASS'.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-21T14:21:38.936Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-035",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/story-aware-validation-domain-case-runner.mjs",
+          "packages/main/src/tasks/story-aware-validation-domain-cases.json",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/NAV.md",
+          "lattice.config.json",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-production-smoke.ts",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "68a448862b1e751fff0014b456803f0a04a55ff787a5d8519fdf442d0f7bd023"
+      },
+      "readDiagnostics": [],
+      "_hash": "3008f37ea22c1417f95b126cf0540ac7553fe257632ece9f490c94e1c3067f85",
+      "files": [
+        "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+        "scripts/run-dynamic-validation-replay.mjs",
+        "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts",
+        "scripts/run-dynamic-validation-fault-injection.mjs",
+        "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md"
+      ],
+      "signatureTag": "missing|ts|section-enforcement-campaign",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-053",
+      "desc": "The new documents exist and correctly say enforcement is still gated, but the promised operator/current-main contract remains incomplete and partly misleading. The file titled current-main characterization gives no current inventory count/digest or policy coverage and does not disclose that the checked-in root catalog is 2 explicit commands versus 110 default commands, so its real authority prerequisite is permanently false. The operations runbook says to establish a canonical baseline and generate historical/paired evidence but gives no executable command for creating that baseline or for running historical replay in --execute/--paired mode. Its linked measurement list omits the historical replay/fault-injection/paired campaign entirely, while the only checked-in wrapper forces --plan-only. Therefore docs/CLI.md's claim that these files provide the full operator contract is not yet true, and an operator cannot follow the documentation to produce or diagnose the required enforcement evidence.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-21T14:22:29.962Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-038",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/NAV.md",
+          "lattice.config.json",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "proof-or-stop.config.json",
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "d6b2f0ba8d428092ecb1c02b1804192eab9ede829594225097e9b25f9c917961"
+      },
+      "readDiagnostics": [],
+      "_hash": "3a85783dfadb0b25c0f47a3d28dc1bf5d978de0254a0a4442a930d1e60fb9994",
+      "files": [
+        "docs/CLI.md",
+        "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+        "docs/requirements/decisions/dynamic-validation-operations.md",
+        "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+        "proof-or-stop.config.json",
+        "scripts/run-dynamic-validation-replay.mjs"
+      ],
+      "signatureTag": "doc-code-drift|md|documents-exist-correctly",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-054",
+      "desc": "packages/main/src/core/story-aware-validation.ts:342-349 still builds catalog inputRoots from only the command source root and caseRegistryPath. The checked-in registry at packages/main/src/tasks/story-aware-validation-domain-cases.json:1-100 points every case to packages/main/src/tasks/story-aware-validation-domain-case-runner.mjs, but that runner source is absent from inputRoots, trigger files, and any source digest. packages/main/src/handlers/story-aware-validation.ts:232-243 signs canonical closure certificates from those roots, while :577-599 executes the runner during DYN-5 sharding. A change to the runner can therefore leave inventory/catalog/baseline closure and registry digest unchanged; a current baseline plus clean shard receipts can still reach DYN-3 authority while executing unbound runner code. Bind runner paths and their transitive source digest to the catalog/closure, or fail closed on runner provenance drift.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T14:42:01.674Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-041",
+      "readManifest": {
+        "filesReadFully": [
+          "lattice.config.json",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/story-aware-validation-case-adapter.mjs",
+          "packages/main/src/tasks/story-aware-validation-domain-case-runner.mjs",
+          "packages/main/src/tasks/story-aware-validation-domain-cases.json",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "packages/main/src/tasks/story-aware-validation-production-smoke.ts",
+          "proof-or-stop.config.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "fb2ff3f6aeeaaf204361a8f240bb9d45517d428405b39d0ef2e0f6828502a704",
+      "files": [
+        "packages/main/src/core/story-aware-validation.ts",
+        "packages/main/src/handlers/story-aware-validation.ts",
+        "packages/main/src/tasks/story-aware-validation-domain-cases.json",
+        "packages/main/src/tasks/story-aware-validation-domain-case-runner.mjs"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-core",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-055",
+      "desc": "Current-head evidence coverage is stale and the gate prerequisites are not admissible. RI-011 material HEAD is 2e17b0d63fc25d08bc1b4bcd2cbd021bd1825eb0, while checklist_get shows all 45 passing verificationEvidence rows still bind headHash 3d65b3d67b8b1b43e185bbc2e5eaddd4e3a287ad and materialHash da7ea3cf71e219f9b0a8ab8e4b04e817ee33469c57ffd2e50be2a2c9f6b762ed. acceptance_rollout_check returns blocking AR_REPORT_STALE with receipt stale; pre_review_check_read is inconclusive with PR_ARTIFACT_TAMPERED, PR_NEW_PATH_UNMAPPED, PR_COVERAGE_BASIS_CHANGED, PR_PRODUCTION_PATH_UNPROVEN, PR_MUTATION_EVIDENCE_MISSING, PR_TRANSCRIPT_MISSING and PR_AUTHORITY_INADMISSIBLE; acceptance_topology_check is partial/legacy_missing with AT_ADAPTER_RESULT_DIGEST_MISMATCH, AT_CLOSURE_FILES_STALE and AT_MISSING_TOPOLOGY. Section 24 and the story acceptance claim require current signed artifacts before dynamic TEST authority, so this is a blocking missing-coverage finding even though the historical evidence rows are marked pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-21T14:44:44.088Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-042",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/story-aware-validation-case-adapter.mjs",
+          "packages/main/src/tasks/story-aware-validation-domain-case-runner.mjs",
+          "packages/main/src/tasks/story-aware-validation-domain-cases.json",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "packages/main/src/tasks/story-aware-validation-production-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 8,
+          "tokenCount": null
+        },
+        "digest": "c5db20f0b24973e6c0d2afe34ec87a97547a8017ea5bd7cefc9f78cd7bdccc2e"
+      },
+      "readDiagnostics": [],
+      "_hash": "89ba780174438555c81f96e616672f2c342a8924c24c11557b35da8e8dd87551",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/checklist.json",
+        "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+        "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md"
+      ],
+      "signatureTag": "missing|json|current-head-evidence",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-056",
+      "desc": "The required historical/FI/paired assurance campaign is not present as current executable evidence. scripts/run-dynamic-validation-replay.mjs defaults to --plan-only; the current .proof-or-stop/runtime/dynamic-validation/historical-replay/report.json has execute=false and 50 records with execution=not-run, and it has no pairedPerformance artifact. The optional --execute/--paired branches exist but have not produced a current signed report bound to 2e17b0d63f. Moreover, story-aware-validation-historical-replay.ts lines 215-242 constructs FI rows from planner/closure assertions (with no per-mutant command execution or runtime-trace receipt), while Section 19.1 requires each real base/head pair to run dynamic and full plans, Section 19.2 requires three alternating current-HEAD pairs, and Section 19.3 requires durable FI PASS evidence before enforce authority. The current mutation-audit PASS therefore does not cover the imported plan's enforcement threshold.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-21T14:45:05.679Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-042",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/story-aware-validation-case-adapter.mjs",
+          "packages/main/src/tasks/story-aware-validation-domain-case-runner.mjs",
+          "packages/main/src/tasks/story-aware-validation-domain-cases.json",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "packages/main/src/tasks/story-aware-validation-production-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 8,
+          "tokenCount": null
+        },
+        "digest": "c5db20f0b24973e6c0d2afe34ec87a97547a8017ea5bd7cefc9f78cd7bdccc2e"
+      },
+      "readDiagnostics": [],
+      "_hash": "5d73b95c2ee76d42023f254d73164222e6453c446a095bfa29fbfdfaf2082315",
+      "files": [
+        "scripts/run-dynamic-validation-replay.mjs",
+        "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+        "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+        "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md"
+      ],
+      "signatureTag": "missing|mjs|required-historical-paired",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-057",
+      "desc": "The current root catalog is still neither fully explicit nor safely classified. Running the current verifier parser/compiler at d202c4bf yields 112 commands with 111 explicit and 1 default: configuredValidationCommands does not apply dynamic.policyDefaults to the string-form retired-authority-vocabulary-guard row, so catalogOwnershipGatePassed is false. More seriously, the global defaults classify every command story-selectable/static-and-traced, with 110 local, 2 gate, and zero full-only, whole-repository, never-reuse, shared, or validation-infra entries despite the inventory containing lifecycle gates, whole-repository scanners, and validation infrastructure. A blanket default is not the plan's required command-by-command inventory audit and can make high-risk commands reusable/omittable instead of forcing full validation.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-21T14:49:15.390Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-044",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "packages/main/src/tasks/story-aware-validation-domain-case-runner.mjs",
+          "packages/main/src/tasks/story-aware-validation-domain-cases.json",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/NAV.md",
+          "lattice.config.json",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "packages/main/src/tasks/review-pass-discard-smoke.ts",
+          "proof-or-stop.config.json",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "d6b2f0ba8d428092ecb1c02b1804192eab9ede829594225097e9b25f9c917961"
+      },
+      "readDiagnostics": [],
+      "_hash": "c2baa7649a12551f0907f2dc53c94dce15b0784f45df323cc800f21184dd971a",
+      "files": [
+        "proof-or-stop.config.json",
+        "lattice.config.json",
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/src/core/story-aware-validation.ts",
+        "packages/main/src/handlers/story-aware-validation.ts"
+      ],
+      "signatureTag": "adversarial|json|current-root-catalog",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-058",
+      "desc": "DYN-5 executes real functions but does not split or prove equivalence with the original domains. The registry routes only three individual functions from the much larger review-pass-discard smoke, while the four quorum IDs exercise a newly added miniature quorum_submit fixture branch rather than partitioning the original quorum-submit smoke. Any unsharded original scenario can fail while all seven DYN-5 cases aggregate PASS, and no assertion compares aggregate verdict with the unchanged complete review-pass/quorum command. This does not satisfy 'aggregate verdict equals original test' or the required complete three-group/3-4-shard coverage.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-21T14:49:19.242Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-044",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "packages/main/src/tasks/story-aware-validation-domain-case-runner.mjs",
+          "packages/main/src/tasks/story-aware-validation-domain-cases.json",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/NAV.md",
+          "lattice.config.json",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "packages/main/src/tasks/review-pass-discard-smoke.ts",
+          "proof-or-stop.config.json",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "d6b2f0ba8d428092ecb1c02b1804192eab9ede829594225097e9b25f9c917961"
+      },
+      "readDiagnostics": [],
+      "_hash": "91e039d924585c847af45a27e0277133088ee46d9610ea0604a60dda30647ffe",
+      "files": [
+        "proof-or-stop.config.json",
+        "packages/main/src/tasks/story-aware-validation-domain-cases.json",
+        "packages/main/src/tasks/story-aware-validation-domain-case-runner.mjs",
+        "packages/main/src/tasks/review-pass-discard-smoke.ts",
+        "packages/main/src/tasks/quorum-submit-smoke.ts",
+        "packages/main/src/handlers/story-aware-validation.ts"
+      ],
+      "signatureTag": "missing|json|executes-real-functions",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-059",
+      "desc": "The assurance campaign still permits non-evidentiary PASS artifacts. FI-2 changes certifiedPaths while retaining the old signature, so rejection only proves signature integrity and never removes a static, runtime-traced, or process-fact/capability edge from a valid closure. FI-5 merely verifies that deleted/renamed manifests are structurally valid, without asserting the target command executes from both base and HEAD graphs. Because the root catalog declares no full-only or whole-repository rows, FI-3 and FI-4 have zero coverage yet faultInjection.allPass can be true. Paired runs use untraced preview closures with no admitted canonical baseline/receipts, do not gate on unverifiedCount=0, fault allPass, verdictEquivalent, or zero residue, label resource declarations as an overlap timeline, and measure only parent-process CPU. Historical/FI outputs are unsigned JSON digests rather than the durable signed PASS receipts required by Section 19.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-21T14:49:23.233Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-044",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "packages/main/src/tasks/story-aware-validation-domain-case-runner.mjs",
+          "packages/main/src/tasks/story-aware-validation-domain-cases.json",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/NAV.md",
+          "lattice.config.json",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "packages/main/src/tasks/review-pass-discard-smoke.ts",
+          "proof-or-stop.config.json",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "d6b2f0ba8d428092ecb1c02b1804192eab9ede829594225097e9b25f9c917961"
+      },
+      "readDiagnostics": [],
+      "_hash": "ed85bbd27c06ad4c4c5588aafd5f78ab57f464adeae2710010552e64272b7ad4",
+      "files": [
+        "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+        "scripts/run-dynamic-validation-replay.mjs",
+        "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md"
+      ],
+      "signatureTag": "adversarial|ts|assurance-campaign-still",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-060",
+      "desc": "The runnerSourcePath fix binds only a pathname, not the runner bytes. packages/main/src/core/story-aware-validation.ts:355-357 adds runnerSourcePath to inputRoots/trigger files, but createValidationClosureCertificate and computeValidationInputDigest still hash only normalized path strings (story-aware-validation.ts:379-397, 567-579); no blob/content digest is computed for runnerSourcePath. The canonical baseline therefore remains valid when packages/main/src/tasks/story-aware-validation-domain-case-runner.mjs is modified in place, and the DYN-5 adapter executes that changed code while the catalog, closure certificate, baseline and receipt identity remain unchanged. A current baseline plus clean shards can still reach authority after runner tampering. Bind runnerSourcePath to a content/blob digest (and verify it at execution) or invalidate the baseline on same-path runner content drift.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T14:49:27.047Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-045",
+      "readManifest": {
+        "filesReadFully": [
+          "lattice.config.json",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/story-aware-validation-case-runner.mjs",
+          "packages/main/src/tasks/story-aware-validation-domain-case-runner.mjs",
+          "packages/main/src/tasks/story-aware-validation-domain-cases.json",
+          "packages/main/src/tasks/story-aware-validation-production-smoke.ts",
+          "proof-or-stop.config.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "22d13cbf3bb0b63177724f0631f3f21625cb0ae61c165afa08a2aefac8d7fbc5",
+      "files": [
+        "packages/main/src/core/story-aware-validation.ts",
+        "packages/main/src/handlers/story-aware-validation.ts",
+        "packages/main/src/tasks/story-aware-validation-domain-case-runner.mjs"
+      ],
+      "signatureTag": "adversarial|ts|runnersourcepath-binds-pathname",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-061",
+      "desc": "Dynamic gate/evidence semantics remain absent from the mandated process-fact contract. The implementation adds signed selection manifests, closure certificates, command/shard receipts, revocation state, and a dynamic-authoritative TEST result, but process-fact-registry and verify-process-fact-contract contain no dynamic-validation artifact or producer/consumer/freshness/revocation entry. The generic validate row does not enumerate these new gate-consumed semantics. This leaves the producer/TEST-DONE consumer relationship unprotected against drift and violates the repository rule that validation gate evidence and signed-artifact semantics must be registered and mechanically verified.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-21T14:49:29.600Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-044",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "packages/main/src/tasks/story-aware-validation-domain-case-runner.mjs",
+          "packages/main/src/tasks/story-aware-validation-domain-cases.json",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/NAV.md",
+          "lattice.config.json",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "packages/main/src/tasks/review-pass-discard-smoke.ts",
+          "proof-or-stop.config.json",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "d6b2f0ba8d428092ecb1c02b1804192eab9ede829594225097e9b25f9c917961"
+      },
+      "readDiagnostics": [],
+      "_hash": "89ae019ee72df023f4eded7a632bbe1084b5060143331e441ad6f99d9744e34d",
+      "files": [
+        "packages/main/src/core/process-fact-registry.ts",
+        "packages/main/src/core/process-fact-levels.ts",
+        "scripts/verify-process-fact-contract.mjs",
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/src/handlers/story-aware-validation.ts"
+      ],
+      "signatureTag": "missing|ts|dynamic-gate-evidence",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-062",
+      "desc": "The current-main and operations documents make false current-state and recovery claims. Both characterization/enforcement evidence say all 112 root catalog entries are policySource=explicit, but the current verifier path yields 111 explicit plus the string-form retired-authority guard as default. They also describe 110 blanket local/story-selectable/static defaults as a completed current-main classification without disclosing that the catalog has zero full-only, whole-repository, or validation-infra rows. The runbook's baseline instruction is executable but wrong: it says an unscoped proof-or-stop validate --json in shadow/enforce writes the canonical baseline, while verifier returns every unscoped non-off mode as a zero-command preview and persists the baseline only on the ordinary unscoped complete-plan/off path. Following the documented command therefore cannot create the artifact needed for authority. The docs also call historical/FI outputs assurance artifacts without stating that they are unsigned and not gate-consumed. The advertised full operator/current-main contract is not truthful.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-21T14:50:26.472Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-046",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/NAV.md",
+          "lattice.config.json",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "proof-or-stop.config.json",
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "d6b2f0ba8d428092ecb1c02b1804192eab9ede829594225097e9b25f9c917961"
+      },
+      "readDiagnostics": [],
+      "_hash": "2d87ccbf015edf707f13e88bf30d41e687bc1a6860c772c53f1cfe90aa34cf6d",
+      "files": [
+        "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+        "docs/requirements/decisions/dynamic-validation-operations.md",
+        "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+        "docs/CLI.md",
+        "proof-or-stop.config.json",
+        "packages/main/src/handlers/verifier.ts"
+      ],
+      "signatureTag": "doc-code-drift|md|current-main-operations",
+      "signatureTagSource": "auto"
     }
   ]
 }
