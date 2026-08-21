@@ -807,9 +807,9 @@
       "epochId": "B-5a15:RI-009",
       "storyId": "B-5a15",
       "reviewRound": "2026-08-21T17:48:55.675Z",
-      "state": "OPEN",
+      "state": "CANCELLED",
       "begunAt": "2026-08-21T18:04:55.794Z",
-      "updatedAt": "2026-08-21T18:21:53.902Z",
+      "updatedAt": "2026-08-21T18:36:18.963Z",
       "cutoff": {
         "headHash": "329907af5d236fdcd492b1a4d948e861c4082d68",
         "materialHash": "853d5eb4322ecb6d3ba9b94131ecab4e76ac0b8a2e77f47f24a2c39fc04ac775",
@@ -930,12 +930,71 @@
           "criticDigest": "3f46bda5b834b50e2c9abe0f7c7ea319c30877ea47a0cc21463cc0a9cffd0896",
           "saturated": false,
           "nextRunSequenceBoundary": 170
+        },
+        {
+          "wave": 3,
+          "startedAt": "2026-08-21T18:21:53.902Z",
+          "completedAt": "2026-08-21T18:36:06.058Z",
+          "lanes": [
+            {
+              "lane": "lattice-review-concept",
+              "reviewRunId": "B-5a15:RR-172",
+              "terminal": "finding",
+              "hostIdentity": "4120e3b52696149692d6d2c7a342984293528fb4031ae6074db823faa08d68b0",
+              "promptIdentity": "6df863db62a3cb53fbb1ce6ba5838c7a4f3f27024d91750aa56e7ad417929546",
+              "evidenceIds": [
+                "B-5a15:F-092"
+              ],
+              "coverageDigest": "90c64005a498b195cedc1db3a0d38bf11ccd018c45aa276803cab2c6f208ec2f"
+            },
+            {
+              "lane": "lattice-review-quality",
+              "reviewRunId": "B-5a15:RR-173",
+              "terminal": "finding",
+              "hostIdentity": "4120e3b52696149692d6d2c7a342984293528fb4031ae6074db823faa08d68b0",
+              "promptIdentity": "78c85656228b0ff0ad4bddc0a10f4ca3a516c3d705cd735865baa805ada7ab3e",
+              "evidenceIds": [
+                "B-5a15:F-094"
+              ],
+              "coverageDigest": "87bb8d2c67a518eb7544cceca9d226bbcc6c05f6a8ff6c481f0de58adaeb99a2"
+            },
+            {
+              "lane": "lattice-review-test-coverage",
+              "reviewRunId": "B-5a15:RR-171",
+              "terminal": "finding",
+              "hostIdentity": "4120e3b52696149692d6d2c7a342984293528fb4031ae6074db823faa08d68b0",
+              "promptIdentity": "de4c6d82f7cc36e9f3b689807f8d8e0db51c15b8c7e32d0d420e6ba7be9125f3",
+              "evidenceIds": [
+                "B-5a15:F-093"
+              ],
+              "coverageDigest": "62901be5a810a00e19f8ee74738feb4172fa40747486f1ca1340fbd880c0fb31"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "finding:B-5a15:F-081",
+            "finding:B-5a15:F-083",
+            "finding:B-5a15:F-084",
+            "finding:B-5a15:F-085",
+            "finding:B-5a15:F-086",
+            "finding:B-5a15:F-088",
+            "finding:B-5a15:F-089",
+            "finding:B-5a15:F-090",
+            "verifier-causal-preflight-smoke-missing"
+          ],
+          "verifiedFindingSetDigest": "3a2a64c5d3f527d279f1630cc98720d1cbdff3b9c98e90591a166785f1954ea5",
+          "newVerifiedFindingCount": 1,
+          "criticDigest": "9de6fd98102cfa913924b26b5595c672cc98783686cd3dc14a30f9f766cc9102",
+          "saturated": false,
+          "nextRunSequenceBoundary": 175
         }
       ],
       "baselineFindingIds": [
         "B-5a15:F-081"
       ],
-      "_hash": "aa88a028572b47bb7ca7496ace6432fc5b57c6782e3bc2cdc5bd69beeb3fa17a"
+      "cancelledAt": "2026-08-21T18:36:18.963Z",
+      "cancelReason": "Wave budget exhausted after repeated independent confirmation of one missing verifier smoke artifact; cancel this epoch to replan the scoped remediation.",
+      "terminalRunSequenceBoundary": 175,
+      "_hash": "5b9944a6053f9147028c8ae0b1244e2b116d29e9cb347d4a01516745c73c96d2"
     }
   ],
   "receipts": [
