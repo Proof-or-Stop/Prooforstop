@@ -7,7 +7,7 @@
  * @description
  *   test-intent-quality-v1 评估的是输出样本，不适合评估 agent prompt 文档。
  *   这个 profile 专门评估 test-intent prompt 是否包含 fixture-heavy、input/expect、
- *   WHY、desc/type、非全局硬性要求和 adversarial 去重等生产规则。
+ *   WHY、desc/type、当前 verificationIntent 类型、非全局硬性要求和 adversarial 去重等生产规则。
  * @changes
  *   - [CHK-001] 新增 prompt-level test-intent profile
  */
@@ -28,15 +28,20 @@ function summarize(label: string, present: boolean): string {
 export function evaluateTestIntentPromptQualityProfile(ctx: LabProfileContext): LabRunMetrics {
   const text = ctx.content;
   const lower = text.toLowerCase();
+  const supportedTypes = ['cli', 'browser', 'logic', 'manual', 'docs'];
   const checks: Record<string, boolean> = {
-    fixtureHeavy: text.includes('fixture-heavy') || text.includes('fixture-heavy item'),
-    inputExample: text.includes('"input"') || text.includes('input`') || text.includes('input /'),
-    expectExample: text.includes('"expect"') || text.includes('expect`') || text.includes('expect /'),
+    fixtureHeavyGuidance: text.includes('fixture-heavy') && text.includes('推荐字段'),
+    supportedTypes: supportedTypes.every((type) => new RegExp(`\\b${type}\\b`).test(lower)),
+    descGuidance: text.includes('desc') && text.includes('操作/条件 → 预期结果'),
     whyGuidance: text.includes('WHY:') || text.includes('WHY') || text.includes('覆盖意图'),
     nonMandatory: text.includes('不是所有简单 story 的硬性要求') || text.includes('推荐字段'),
-    descTypePreserved: text.includes('操作/条件 → 预期结果') && lower.includes('type'),
-    adversarialDistinct: text.includes('adversarial 不是 edge 的重复') || text.includes('edge/adversarial 不要只是 happy'),
-    cliBrowserTypes: text.includes('cli_blackbox') && text.includes('browser_blackbox'),
+    unsupportedFieldsGuard: (text.includes('"input"') || text.includes('`input`')) &&
+      (text.includes('"expect"') || text.includes('`expect`')) &&
+      lower.includes('unsupported fields') &&
+      lower.includes('do not emit'),
+    adversarialDistinct: text.includes('materially different conditions') ||
+      text.includes('adversarial 不是 edge 的重复') ||
+      text.includes('edge/adversarial 不要只是 happy'),
   };
   const submetrics = Object.fromEntries(Object.entries(checks).map(([key, value]) => [key, ratio(value)]));
   const quality = Object.values(submetrics).reduce((sum, value) => sum + value, 0) / Object.values(submetrics).length;

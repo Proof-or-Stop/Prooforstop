@@ -10,17 +10,74 @@ const root = process.cwd();
 const mode = process.argv[2] || 'all';
 const labHandlerPath = join(root, 'packages', 'lab', 'dist', 'handlers', 'lab.js');
 
-if (!existsSync(labHandlerPath)) {
-  throw new Error(
-    `Built lab handlers are required at ${labHandlerPath}; run ` +
-    '`npm --prefix packages/lab run build` before running this verifier.',
-  );
+function ensureLabHandlersBuilt() {
+  if (existsSync(labHandlerPath)) return;
+
+  const command = 'npm --prefix packages/lab run build';
+  try {
+    execFileSync('npm', ['--prefix', 'packages/lab', 'run', 'build'], {
+      cwd: root,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+  } catch (error) {
+    const output = [error?.stdout, error?.stderr]
+      .filter(Boolean)
+      .map((value) => String(value).trim())
+      .filter(Boolean)
+      .join('\n');
+    throw new Error(
+      `Unable to build lab handlers before running the prompt profile verifier. ` +
+      `Command \`${command}\` failed.${output ? `\n${output}` : ''}`,
+      { cause: error },
+    );
+  }
+
+  if (!existsSync(labHandlerPath)) {
+    throw new Error(
+      `Lab build completed but did not produce ${labHandlerPath}. ` +
+      `Run \`${command}\` and inspect the build output.`,
+    );
+  }
 }
 
+ensureLabHandlersBuilt();
 const { createLabHandlers } = await import(pathToFileURL(labHandlerPath).href);
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
+}
+
+function createConfirmedLabHandlers(rootDir) {
+  const handlers = createLabHandlers({ root: rootDir });
+  return {
+    lab_create: handlers.lab_create,
+    lab_run(args) {
+      if (args?.confirm !== true) {
+        throw new Error('Prompt profile verifier lab_run requires confirm=true.');
+      }
+      return handlers.lab_run({ ...args, confirm: true });
+    },
+  };
+}
+
+function assertConfirmGate(lab, dir) {
+  let refused = false;
+  try {
+    lab.lab_run({ config: 'experiments/configs/lab-test-intent-prompt-quality-v1.json' });
+  } catch (error) {
+    refused = true;
+    assert(String(error).includes('confirm=true'), 'missing confirm=true should be rejected clearly');
+  }
+  assert(refused, 'lab_run without confirm=true must be rejected');
+  assert(
+    !existsSync(join(dir, 'experiments', 'runs', 'lab-test-intent-prompt-quality-v1', 'run-001')),
+    'rejected lab_run must not create run artifacts',
+  );
+  assert(
+    !existsSync(join(dir, '.worktrees', 'lab-test-intent-prompt-quality-v1-run-001')),
+    'rejected lab_run must not create a sandbox',
+  );
 }
 
 function makeProject(baseline) {
@@ -37,13 +94,14 @@ function makeProject(baseline) {
   execFileSync('git', ['config', 'user.email', 'lattice@example.com'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
   execFileSync('git', ['add', '.'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
   execFileSync('git', ['commit', '-m', 'baseline'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
-  const lab = createLabHandlers({ root: dir });
+  const lab = createConfirmedLabHandlers(dir);
   lab.lab_create({
     id: 'lab-test-intent-prompt-quality-v1',
     target: 'test-intent-prompt',
     profile: 'test-intent-prompt-quality-v1',
     editableFiles: ['samples/prompt.md'],
   });
+  assertConfirmGate(lab, dir);
   return dir;
 }
 
@@ -51,7 +109,7 @@ function evaluate(baseline, candidate) {
   const dir = makeProject(baseline);
   try {
     writeFileSync(join(dir, 'samples', 'prompt.md'), candidate);
-    const lab = createLabHandlers({ root: dir });
+    const lab = createConfirmedLabHandlers(dir);
     lab.lab_run({
       config: 'experiments/configs/lab-test-intent-prompt-quality-v1.json',
       confirm: true,
@@ -68,12 +126,13 @@ const weak = current
   .replace(/- fixture-heavy item 优先提供.*\n/, '');
 
 const canonicalProfileSignals = [
-  'has fixtureHeavy',
-  'has inputExample',
-  'has expectExample',
+  'has fixtureHeavyGuidance',
+  'has supportedTypes',
+  'has descGuidance',
   'has whyGuidance',
+  'has unsupportedFieldsGuard',
   'has nonMandatory',
-  'has descTypePreserved',
+  'has adversarialDistinct',
 ];
 
 const checks = {
@@ -86,7 +145,7 @@ const checks = {
   },
   'prompt-low': () => {
     const result = evaluate(current, weak);
-    assert(result.contentSummary.includes('missing fixtureHeavy'), 'weak prompt should miss fixtureHeavy');
+    assert(result.contentSummary.includes('missing fixtureHeavyGuidance'), 'weak prompt should miss fixture-heavy guidance');
     assert(result.normalizedScore < 0.8, `weak prompt should score lower, got ${result.normalizedScore}`);
   },
   'registry': () => {
