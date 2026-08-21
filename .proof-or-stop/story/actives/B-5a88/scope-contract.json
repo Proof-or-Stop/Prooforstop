@@ -594,10 +594,26 @@
       "phase": "DEV",
       "headHash": "73c5bc144ce8027e6fedc15d6cbcaa452d9f89cd",
       "materialHash": "3d97c9e77ea180d64d31a0b408befcfb468eec7be61d882546e89fdd91ab5695"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "This smoke test must be updated with canonical proof-or-stop reviewer lane outputs introduced by this Story; leaving legacy expectations causes validation to fail.",
+      "timestamp": "2026-08-21T01:15:44.635Z",
+      "paths": [
+        "packages/main/src/tasks/adversarial-review-round-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/adversarial-review-round-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "c424cab02e610dd2dfb11348f0daa2b21bfcda4e",
+      "materialHash": "f44d06fc3d91f34970325f6e0687dd893c3d91b520e93af1a1b5550d422675d6"
     }
   ],
   "createdAt": "2026-08-20T05:20:00.402Z",
-  "updatedAt": "2026-08-20T23:44:14.942Z",
+  "updatedAt": "2026-08-21T01:15:44.635Z",
   "fileRules": [],
   "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
@@ -750,6 +766,7 @@
     "packages/main/src/core/acceptance-coverage-basis.ts": "packages/main/src/core/acceptance-coverage-basis.ts",
     "packages/main/src/core/lattice-parallel-wave.ts": "packages/main/src/core/lattice-parallel-wave.ts",
     "packages/main/src/handlers/dev-memory.ts": "packages/main/src/handlers/dev-memory.ts",
-    "packages/main/src/handlers/evaluate.ts": "packages/main/src/handlers/evaluate.ts"
+    "packages/main/src/handlers/evaluate.ts": "packages/main/src/handlers/evaluate.ts",
+    "packages/main/src/tasks/adversarial-review-round-smoke.ts": "packages/main/src/tasks/adversarial-review-round-smoke.ts"
   }
 }
