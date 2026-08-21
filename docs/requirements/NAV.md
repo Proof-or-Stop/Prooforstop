@@ -98,6 +98,7 @@
 - [@test Annotation and Fixture Specification](decisions/test-fixture-spec.md)
 - [testIntent Adversarial Review System](decisions/test-intent-review.md)
 - [Test Runner Consolidation Plan](decisions/test-runner-consolidation-plan.md)
+- [Story-Aware Dynamic Validation — Execution and Audit Plan](decisions/story-aware-dynamic-validation-execution-plan.md) — approved design record; DYN-1 is observe-only and DYN-3 TEST authority remains gated.
 - [Testing Completeness Decisions](decisions/testing-completeness.md)
 - [Testing Infrastructure](decisions/testing-infra.md)
 - [Three-Round Two-Host Review Escalation Execution Plan](decisions/three-round-two-host-review-escalation-execution-plan.md)
