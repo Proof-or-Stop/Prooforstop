@@ -920,6 +920,108 @@
       },
       "readDiagnostics": [],
       "_hash": "6b6cc569772b1da0321bf69720022d4a7750ff753043328d95359e8ca5ffb6cd"
+    },
+    {
+      "id": "B-5a15:RP-025",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage review passed: 50 of 50 verification intents are covered, all 22 mandatory intents have passing evidence, zero waivers are present, and no new coverage blocker was found.",
+      "createdAt": "2026-08-21T14:50:24.251Z",
+      "reviewRound": "2026-08-21T13:09:42.171Z",
+      "reviewRunId": "B-5a15:RR-132",
+      "envelopeId": "725ffffa8d49b08a52c46e4aad3b739841edd71fdedbbaa69b8bdfc5212e47ad",
+      "writerSessionId": "sess-1ff81192c8f5688bf40ac6afd86a20f7",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "744219bf686de424f0c914a93617f7ed65e8a6f72c606cf069d5d54d287a3df5"
+      },
+      "readDiagnostics": [],
+      "_hash": "8456dd6b5c05e25ff4d5689fe480abfb48e62d000c7b41ea06a02dfbaf0f3c53"
+    },
+    {
+      "id": "B-5a15:RP-026",
+      "agent": "lattice-review-topology-critic",
+      "note": "Final wave-3 completeness review passed: the frozen scope, required-lane terminal evidence, and current raw findings were read; no separate completeness family was found beyond the existing required-document and semantic-freshness families.",
+      "createdAt": "2026-08-21T14:51:30.383Z",
+      "reviewRound": "2026-08-21T13:09:42.171Z",
+      "reviewRunId": "B-5a15:RR-133",
+      "envelopeId": "b9ec7cfc4613f8295dfe97cbd8a358855d287c440b59f59f9d9998196e4f5cb1",
+      "writerSessionId": "sess-1ff81192c8f5688bf40ac6afd86a20f7",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/findings.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a15/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a15/review-runs.json",
+          ".proof-or-stop/story/actives/B-5a15/scope-contract.json",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/tests/causal-evidence.test.mjs",
+          "packages/main/tests/verifier-causal-preflight.test.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "scanEscalationReason": "The frozen checklist names two U-03 decision documents that were checked by filename and are absent from this worktree; the bounded review read therefore records them as triaged rather than claiming a full decisions-directory scan."
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "692cc7f51224c1b8e5c3f08e89635d10acebc1c91690e350c2bc6bd8d35ac823"
+      },
+      "readDiagnostics": [],
+      "_hash": "929ce27a0130feb84f44cac682e5e269cc9382cce9be1ea05b505f86a5a8f9e7"
     }
   ]
 }

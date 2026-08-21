@@ -2094,6 +2094,118 @@
       ],
       "signatureTag": "edge|ts|packages-main-handlers",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a15:F-066",
+      "desc": "Existing-family B-5a15:F-063/F-058/F-059 — .proof-or-stop/story/actives/B-5a15/checklist.json:8-9 and 366-367 still declare docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md and docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md, and both paths are absent from the current worktree. The frozen U-03 concept scope therefore cannot be source-backed against its declared requirements. The main diff has no deleted or renamed concept and no separate concept-residue family; this is the repeated required-related-documents-missing family in final wave 3/3.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-21T14:35:01.319Z",
+      "reviewRound": "2026-08-21T13:09:42.171Z",
+      "reviewRunId": "B-5a15:RR-129",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          ".proof-or-stop/story/actives/B-5a15/scope-contract.json",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "scanEscalationReason": "The two checklist-declared U-03 decision documents were checked by path and are absent from this worktree; no full read was possible."
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "53dbc34333664df63163feed7c2a3e159ddf602cecf69824f811e997687a809a"
+      },
+      "readDiagnostics": [],
+      "_hash": "1ed69eee617341127d21f5ea7f7f92ff62e437d02a5b8ff26744a7bb95d980d7",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/checklist.json",
+        "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+        "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md"
+      ],
+      "signatureTag": "missing|md|concept-review-required",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a15:F-067",
+      "desc": "packages/main/src/handlers/checklist.ts still permits evidenceHashesForPersistence to carry prior headHash, materialHash, and storyFilesHash whenever command and result match, after carryForwardOnDiskProvenance has rejected a semantic mutation. A changed note, verdict, file, or structured attestation can therefore leave the newly authored evidence row stamped with stale freshness bindings. The trusted receipt is dropped, but the freshness pins are retained; this repeats the existing semantic-evidence-freshness-binding family and requires a regression assertion that all semantic mutations receive newly computed bindings.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T14:49:36.710Z",
+      "reviewRound": "2026-08-21T13:09:42.171Z",
+      "reviewRunId": "B-5a15:RR-130",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "scanEscalationReason": "The two related U-03 decision documents named by the checklist are absent from this worktree; their paths were checked and no full read was possible."
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "692cc7f51224c1b8e5c3f08e89635d10acebc1c91690e350c2bc6bd8d35ac823"
+      },
+      "readDiagnostics": [],
+      "_hash": "749520289c4b3a16d52c2b25acceb18694ed1602931f3a5331a12b28fdc5fbe4",
+      "files": [
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/tests/causal-evidence.test.mjs"
+      ],
+      "signatureTag": "edge|ts|packages-main-handlers",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
