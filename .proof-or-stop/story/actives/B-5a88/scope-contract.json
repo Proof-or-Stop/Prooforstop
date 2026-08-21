@@ -610,10 +610,30 @@
       "phase": "DEV",
       "headHash": "c424cab02e610dd2dfb11348f0daa2b21bfcda4e",
       "materialHash": "f44d06fc3d91f34970325f6e0687dd893c3d91b520e93af1a1b5550d422675d6"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "These files contain active reviewer-role guidance and canonical lane comments directly required to resolve F-100; the edits are documentation-only and preserve runtime compatibility behavior.",
+      "timestamp": "2026-08-21T01:32:14.441Z",
+      "paths": [
+        "CLAUDE.md",
+        "packages/main/src/core/adversarial-review-round.ts",
+        "packages/main/src/core/adversarial-review-verifier.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "CLAUDE.md",
+        "packages/main/src/core/adversarial-review-round.ts",
+        "packages/main/src/core/adversarial-review-verifier.ts"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "11411bc5ffa0eaca9a91547658ffa99b715364a8",
+      "materialHash": "bcbad0369ccfdeba0af660e2a96a2c60b2c9a5f6eb99383107cdb10158121ec9"
     }
   ],
   "createdAt": "2026-08-20T05:20:00.402Z",
-  "updatedAt": "2026-08-21T01:15:44.635Z",
+  "updatedAt": "2026-08-21T01:32:14.441Z",
   "fileRules": [],
   "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
@@ -767,6 +787,9 @@
     "packages/main/src/core/lattice-parallel-wave.ts": "packages/main/src/core/lattice-parallel-wave.ts",
     "packages/main/src/handlers/dev-memory.ts": "packages/main/src/handlers/dev-memory.ts",
     "packages/main/src/handlers/evaluate.ts": "packages/main/src/handlers/evaluate.ts",
-    "packages/main/src/tasks/adversarial-review-round-smoke.ts": "packages/main/src/tasks/adversarial-review-round-smoke.ts"
+    "packages/main/src/tasks/adversarial-review-round-smoke.ts": "packages/main/src/tasks/adversarial-review-round-smoke.ts",
+    "CLAUDE.md": "CLAUDE.md",
+    "packages/main/src/core/adversarial-review-round.ts": "packages/main/src/core/adversarial-review-round.ts",
+    "packages/main/src/core/adversarial-review-verifier.ts": "packages/main/src/core/adversarial-review-verifier.ts"
   }
 }
