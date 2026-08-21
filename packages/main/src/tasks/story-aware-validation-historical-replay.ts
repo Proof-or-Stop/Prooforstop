@@ -13,7 +13,7 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
-import { buildDualRevisionImpactGraph, buildDynamicValidationPlan, buildStoryChangeManifest, compileValidationCatalog, computeValidationInputDigest, createValidationClosureCertificate, createValidationCommandReceipt, discoverValidationInventory, signPayload, stableDigest, verifyPayload, verifyValidationClosureCertificate, verifyValidationSelectionManifest, type StoryChangedFile, type ValidationCatalogEntry, type ValidationCommandReceipt } from '../core/story-aware-validation.js';
+import { buildDualRevisionImpactGraph, buildDynamicValidationPlan, buildStoryChangeManifest, compileValidationCatalog, createValidationClosureCertificate, createValidationCommandReceipt, discoverValidationInventory, signPayload, stableDigest, verifyPayload, verifyValidationClosureCertificate, verifyValidationSelectionManifest, type StoryChangedFile, type ValidationCatalogEntry, type ValidationCommandReceipt } from '../core/story-aware-validation.js';
 import { executeValidationPlan } from '../core/validation-executor.js';
 
 const root = resolve(process.cwd());
@@ -351,7 +351,8 @@ const faultInjection = catalog.flatMap((entry) => {
   }
   if (entry.assurance === 'full-only') {
     const impacted = fiContext([{ path: entry.inputRoots[0] || 'packages/main/src/fi-full-only.ts', status: 'modified', blobId: stableDigest(entry.id) }]);
-    rows.push({ fiId: 'FI-3', commandId: entry.id, mutation: 'impacted-full-only-command', expected: 'full-escalation', observed: impacted.fullEscalated, passed: impacted.fullEscalated === true });
+    const impactedRow = impacted.rows.find((row) => row.commandId === entry.id);
+    rows.push({ fiId: 'FI-3', commandId: entry.id, mutation: 'impacted-full-only-command', expected: 'full-only-command-executes', observed: { fullEscalated: impacted.fullEscalated, disposition: impactedRow?.disposition }, passed: impactedRow?.disposition === 'execute' });
   }
   if (entry.closurePolicy === 'whole-repository') {
     const impacted = fiContext([{ path: 'packages/main/src/fi-unrelated-material.ts', status: 'modified', blobId: stableDigest('fi-unrelated-material') }]);

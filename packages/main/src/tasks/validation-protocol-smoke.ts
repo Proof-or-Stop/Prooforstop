@@ -324,6 +324,19 @@ try {
       assert.equal(result.dynamicValidation.oracleStatus, 'executed');
       assert.equal(typeof result.dynamicValidation.verdictEquivalent, 'boolean');
       assert.ok(result.commands.length >= 1, `${mode} must execute the validate-file oracle`);
+      if (mode === 'observe') {
+        assert.equal(result.dynamicValidation.authority, 'full-plan-oracle', 'observe must never claim TEST authority');
+        assert.equal(typeof result.dynamicValidation.observeOracle?.equivalent, 'boolean', 'observe must persist the oracle comparison');
+        assert.ok(result.dynamicValidation.report.includes('validate-file runtime trace'), 'observe must expose command-boundary trace evidence');
+      } else if (mode === 'shadow') {
+        assert.equal(result.dynamicValidation.authority, 'full-plan-oracle', 'shadow must retain the full-plan authority oracle');
+        assert.equal(typeof result.dynamicValidation.selectedAllPass, 'boolean', 'shadow must expose selected-plan verdict');
+        assert.equal(typeof result.dynamicValidation.verdictEquivalent, 'boolean', 'shadow must compare selected and full verdicts');
+      } else {
+        assert.ok(['full-fallback', 'enforce-authority'].includes(result.dynamicValidation.authority), 'enforce-low-risk must either prove authority or fall back to full');
+        assert.equal(typeof result.dynamicValidation.fullPlanAllPass, 'boolean', 'enforce-low-risk must expose the executed full-plan verdict');
+        if (result.dynamicValidation.authority === 'full-fallback') assert.equal(result.dynamicValidation.oracleStatus, 'executed', 'fallback must execute the full oracle');
+      }
     }
   } finally {
     rmSync(storyDynamicValidateFileRoot, { recursive: true, force: true });

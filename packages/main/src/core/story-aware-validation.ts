@@ -479,9 +479,6 @@ function parseImports(source: string): string[] {
   for (const pattern of patterns) for (const match of source.matchAll(pattern)) if (match[1]) output.push(match[1]);
   return output;
 }
-function sourceAtRef(gitCwd: string, ref: string, path: string): string {
-  try { return git(['show', ref + ':' + path], gitCwd); } catch { return ''; }
-}
 function buildGraphAtRef(gitCwd: string, ref: string): GraphData {
   const paths = new Set<string>(); const imports = new Map<string, Set<string>>();
   try {
@@ -492,7 +489,8 @@ function buildGraphAtRef(gitCwd: string, ref: string): GraphData {
       const rows = listing.split('\0').filter(Boolean).map(row => {
         const separator = row.indexOf(' ');
         return separator > 0 ? { oid: row.slice(0, separator), path: normalPath(row.slice(separator + 1)) } : undefined;
-      }).filter((row): row is { oid: string; path: string } => Boolean(row));
+      }).filter((row): row is { oid: string; path: string } => Boolean(row))
+        .filter(row => /\.(?:c?js|mjs|tsx?|jsx?|json)$/.test(row.path));
       tree = new Map<string, string>();
       if (rows.length) {
         const batchInput = Buffer.from(rows.map(row => `${row.oid}\n`).join(''));
@@ -693,7 +691,6 @@ export function classifyFullValidationReasons(changes: StoryChangeManifest, cata
     if (FULL_ESCALATION_TOKENS.some(token => row.path.toLowerCase().includes(token))) reasons.push('validation-runtime-changed:' + row.path);
     if (row.path.startsWith('dist/') || row.path.startsWith('packages/main/dist/')) reasons.push('generated-output-changed:' + row.path);
   }
-  if (!changes.changedFiles.length && catalog.some(row => row.assurance === 'full-only')) reasons.push('missing-canonical-baseline');
   return uniqueSorted(reasons);
 }
 export function buildDynamicValidationPlan(ctx: DynamicValidationContext): ValidationSelectionManifest {
@@ -722,16 +719,10 @@ export function buildDynamicValidationPlan(ctx: DynamicValidationContext): Valid
   for (const fact of ctx.changes.affectedProcessFacts) for (const entry of ctx.catalog.filter(row => (row.triggerExtensions.processFacts || []).includes(fact))) select(entry.id, 'process-fact:' + fact);
   for (const capability of ctx.changes.affectedCapabilities) for (const entry of ctx.catalog.filter(row => (row.triggerExtensions.capabilities || []).includes(capability))) select(entry.id, 'capability:' + capability);
   const escalationReasons = uniqueSorted([...classifyFullValidationReasons(ctx.changes, ctx.catalog), ...unmapped.map(path => 'unmapped-change:' + path)]);
-  for (const entry of ctx.catalog) {
-    if (entry.assurance === 'full-only' && selected.has(entry.id)) escalationReasons.push('impacted-full-only-command:' + entry.id);
-    if (entry.assurance === 'full-only' && !selected.has(entry.id) && entry.fullBaselineReusePolicy === 'forbidden') escalationReasons.push('full-only-baseline-unavailable:' + entry.id);
-  }
-  for (const entry of ctx.catalog) {
-    if (entry.assurance === 'full-only' && !selected.has(entry.id)
-      && (!ctx.baselineEpochId || !(ctx.receipts || []).some(receipt => receipt.commandId === entry.id && receipt.canonicalBaselineEpochId === ctx.baselineEpochId))) {
-      escalationReasons.push('full-only-baseline-unavailable:' + entry.id);
-    }
-  }
+  // `full-only` is a per-command no-reuse policy, not a reason to promote
+  // every story-selectable row into a full-plan escalation. Those rows are
+  // selected below and executed on every dynamic run; only changed scope,
+  // unknown graph, or an unmapped dependency escalates the whole plan.
   if (ctx.graph && ctx.graph.graphUnknown) escalationReasons.push('dependency-graph-unavailable');
   const fullEscalated = escalationReasons.length > 0;
   if (fullEscalated) for (const entry of ctx.catalog) select(entry.id, 'full-escalation:' + escalationReasons.join(','));
