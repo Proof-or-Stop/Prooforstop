@@ -724,6 +724,11 @@ checks.push(() => {
 checks.push(() => {
   const tempDir = mkdtempSync(join(tmpdir(), 'lattice-entrypoints-serve-flags-'));
   try {
+    const localBinDir = join(tempDir, 'node_modules', '.bin');
+    mkdirSync(localBinDir, { recursive: true });
+    const tsxShim = join(localBinDir, 'tsx');
+    writeFileSync(tsxShim, `#!/bin/sh\nexec ${process.execPath} "$@"\n`);
+    chmodSync(tsxShim, 0o755);
     const cliPath = join(repoRoot, 'packages/main/dist/cli.js');
     for (const flag of ['--web', '--cli']) {
       const result = runBounded(process.execPath, [cliPath, '--root', tempDir, 'serve', flag], {
