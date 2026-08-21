@@ -494,7 +494,11 @@ function buildGraphAtRef(gitCwd: string, ref: string): GraphData {
       tree = new Map<string, string>();
       if (rows.length) {
         const batchInput = Buffer.from(rows.map(row => `${row.oid}\n`).join(''));
-        const batchOutput = execFileSync('git', ['cat-file', '--batch'], { cwd: gitCwd, input: batchInput, maxBuffer: 256 * 1024 * 1024 });
+        // A repository-wide dual graph can legitimately exceed the default
+        // child-process buffer (the current tree is ~348 MiB of source blobs).
+        // Keep the batch read bounded but above the documented production
+        // corpus; truncation must never silently become an empty graph.
+        const batchOutput = execFileSync('git', ['cat-file', '--batch'], { cwd: gitCwd, input: batchInput, maxBuffer: 1024 * 1024 * 1024 });
         let offset = 0;
         for (const row of rows) {
           const headerEnd = batchOutput.indexOf(0x0a, offset);
@@ -719,10 +723,33 @@ export function buildDynamicValidationPlan(ctx: DynamicValidationContext): Valid
   for (const fact of ctx.changes.affectedProcessFacts) for (const entry of ctx.catalog.filter(row => (row.triggerExtensions.processFacts || []).includes(fact))) select(entry.id, 'process-fact:' + fact);
   for (const capability of ctx.changes.affectedCapabilities) for (const entry of ctx.catalog.filter(row => (row.triggerExtensions.capabilities || []).includes(capability))) select(entry.id, 'capability:' + capability);
   const escalationReasons = uniqueSorted([...classifyFullValidationReasons(ctx.changes, ctx.catalog), ...unmapped.map(path => 'unmapped-change:' + path)]);
-  // `full-only` is a per-command no-reuse policy, not a reason to promote
-  // every story-selectable row into a full-plan escalation. Those rows are
-  // selected below and executed on every dynamic run; only changed scope,
-  // unknown graph, or an unmapped dependency escalates the whole plan.
+  // Normative full-only semantics: an impacted full-only command escalates the
+  // complete plan. An unimpacted command may avoid that escalation only when
+  // its policy permits an exact canonical baseline receipt in this epoch.
+  // `forbidden` therefore always escalates; `exact-current-epoch-only` must
+  // prove a signed canonical receipt before the plan can remain dynamic.
+  for (const entry of ctx.catalog) {
+    if (entry.assurance !== 'full-only') continue;
+    if (selected.has(entry.id)) {
+      escalationReasons.push('impacted-full-only-command:' + entry.id);
+      continue;
+    }
+    const closure = closures.get(entry.id);
+    const paths = closure ? closure.certifiedPaths : entry.inputRoots;
+    const inputDigest = computeValidationInputDigest({
+      command: entry, certifiedPaths: paths.map(path => ({ path })),
+      catalogDigest: stableDigest(ctx.catalog),
+      graphDigest: ctx.graph ? stableDigest({ base: ctx.graph.baseGraphDigest, head: ctx.graph.headGraphDigest }) : '',
+      closureCertificateDigest: closure ? closure.signature : '', baselineEpoch: ctx.baselineEpochId,
+      toolchainDigest: ctx.toolchainDigest, buildProofDigest: ctx.buildProofDigest, runnerDigest: ctx.runnerDigest,
+    });
+    const hasExactBaselineReceipt = entry.fullBaselineReusePolicy === 'exact-current-epoch-only'
+      && Boolean(closure)
+      && (ctx.receipts || []).some(receipt => receipt.producedBy === 'canonical-full-baseline'
+        && receipt.canonicalBaselineEpochId === (ctx.baselineEpochId || '')
+        && receiptAdmissible(receipt, entry, closure!, ctx, inputDigest));
+    if (!hasExactBaselineReceipt) escalationReasons.push('full-only-baseline-unavailable:' + entry.id);
+  }
   if (ctx.graph && ctx.graph.graphUnknown) escalationReasons.push('dependency-graph-unavailable');
   const fullEscalated = escalationReasons.length > 0;
   if (fullEscalated) for (const entry of ctx.catalog) select(entry.id, 'full-escalation:' + escalationReasons.join(','));

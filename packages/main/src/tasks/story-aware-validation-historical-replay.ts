@@ -352,7 +352,7 @@ const faultInjection = catalog.flatMap((entry) => {
   if (entry.assurance === 'full-only') {
     const impacted = fiContext([{ path: entry.inputRoots[0] || 'packages/main/src/fi-full-only.ts', status: 'modified', blobId: stableDigest(entry.id) }]);
     const impactedRow = impacted.rows.find((row) => row.commandId === entry.id);
-    rows.push({ fiId: 'FI-3', commandId: entry.id, mutation: 'impacted-full-only-command', expected: 'full-only-command-executes', observed: { fullEscalated: impacted.fullEscalated, disposition: impactedRow?.disposition }, passed: impactedRow?.disposition === 'execute' });
+    rows.push({ fiId: 'FI-3', commandId: entry.id, mutation: 'impacted-full-only-command', expected: 'full-plan-escalation', observed: { fullEscalated: impacted.fullEscalated, disposition: impactedRow?.disposition }, passed: impacted.fullEscalated === true && impactedRow?.disposition === 'execute' });
   }
   if (entry.closurePolicy === 'whole-repository') {
     const impacted = fiContext([{ path: 'packages/main/src/fi-unrelated-material.ts', status: 'modified', blobId: stableDigest('fi-unrelated-material') }]);
