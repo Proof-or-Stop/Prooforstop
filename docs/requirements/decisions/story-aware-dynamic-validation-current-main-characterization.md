@@ -8,9 +8,14 @@ revocation ledger all bind to the same HEAD.
 
 ## Inventory and policy
 
-The inventory is discovered from `lattice.config.json` (or `validate.commands`)
-and receives a stable command ID from command plus arguments. Every command
-must carry the catalog policy tuple:
+The inventory is discovered from canonical `proof-or-stop.config.json`, with
+legacy `lattice.config.json` as a fallback, and receives a stable command ID
+from command plus arguments. The root configuration declares a
+`validate.dynamic.policyDefaults` tuple for the 110 ordinary rows and explicit
+overrides for the review-pass and quorum gate rows; therefore the compiled
+112-command catalog reports `policySource=explicit` for all 112 entries (the
+inventory digest is emitted by `verify-validation-inventory.mjs`). Every
+command carries the catalog policy tuple:
 
 | Field | Meaning |
 | --- | --- |
@@ -23,7 +28,9 @@ must carry the catalog policy tuple:
 
 Missing policy is recorded as `policySource=default` and cannot satisfy the
 enforcement ownership prerequisite. This makes an unregistered command fail
-closed instead of silently entering the reusable set.
+closed instead of silently entering the reusable set. The two gate rows also
+declare `caseRegistryPath` and `LATTICE_VALIDATION_SHARD_ADAPTER` in both
+canonical and legacy config files.
 
 ## Baseline run
 
@@ -43,6 +50,11 @@ bun packages/main/src/tasks/story-aware-validation-production-smoke.ts
 bun packages/main/src/tasks/story-aware-validation-mutation-smoke.ts
 node scripts/verify-validation-catalog.mjs
 node scripts/verify-story-aware-validation-plan.mjs
+node scripts/run-dynamic-validation-replay.mjs
+
+# Optional assurance campaigns (they execute real historical/current plans):
+node scripts/run-dynamic-validation-replay.mjs --execute
+node scripts/run-dynamic-validation-replay.mjs --execute --paired
 ```
 
 The production smoke uses the same configured-command parser as the verifier,
@@ -52,6 +64,14 @@ The mutation smoke covers catalog, closure, receipt, selection, scheduler and
 shard fault classes. A root `npm test` result remains a separate full-suite
 signal; a failure in an unrelated legacy assertion must not be relabeled as a
 dynamic-validation PASS.
+
+`run-dynamic-validation-replay.mjs` defaults to a safe plan-only inventory
+characterization. `--execute` creates detached git worktrees for each
+historical base/head pair, runs the full and selected plans there, and writes
+per-Story records. `--paired` adds the required alternating
+`full→dynamic`, `dynamic→full`, `full→dynamic` current-HEAD campaign and a
+durable `paired-performance.json`; neither flag is implied by the default
+smoke wrapper.
 
 ## Interpretation
 

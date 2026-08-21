@@ -5,10 +5,14 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = join(fileURLToPath(new URL('..', import.meta.url)));
-const mode = process.argv[2] || '--verify-threshold';
+const requested = new Set(process.argv.slice(2));
+const mode = requested.has('--mutation=missing-evidence') ? '--mutation=missing-evidence' : '--verify-threshold';
+const historicalArgs = requested.has('--execute') || requested.has('--paired')
+  ? [...(requested.has('--execute') || requested.has('--paired') ? ['--execute'] : []), ...(requested.has('--paired') ? ['--paired'] : [])]
+  : ['--plan-only'];
 const historical = spawnSync(process.env.BUN_BINARY || 'bun', [
   join(root, 'packages/main/src/tasks/story-aware-validation-historical-replay.ts'),
-  '--plan-only',
+  ...historicalArgs,
 ], { cwd: root, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 });
 const mutation = spawnSync(process.env.BUN_BINARY || 'bun', [
   join(root, 'packages/main/src/tasks/story-aware-validation-mutation-smoke.ts'),
@@ -24,6 +28,8 @@ if (result.status !== 0) process.exit(result.status || 1);
 if (!output.includes('historical stories: ') || !output.includes('dynamic-validation mutation audit PASS')) {
   throw new Error('replay audit did not prove historical Story discovery plus mutation coverage');
 }
+if (requested.has('--execute') && !output.includes('historical replay mode: execute')) throw new Error('execute replay mode was not invoked');
+if (requested.has('--paired') && !output.includes('paired-performance')) throw new Error('paired performance campaign was not invoked');
 if (mode === '--mutation=missing-evidence') {
   if (!output.includes('mutation guards:')) throw new Error('missing-evidence mutation guard did not run');
   process.stdout.write('enforcement threshold blocked\n');

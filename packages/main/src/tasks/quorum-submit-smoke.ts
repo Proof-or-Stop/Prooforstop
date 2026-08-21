@@ -718,6 +718,41 @@ function directProcessEventAppends(): string[] {
   return violations;
 }
 
+const dyn5Case = process.env.PROOF_OR_STOP_DYN5_CASE;
+if (dyn5Case) {
+  const previousDyn5Cwd = process.cwd();
+  try {
+    withClearedSessionEnvironment(() => {
+      withFreshFixture((fixture) => {
+        const handler = fixture.registry.get('quorum_submit')!;
+        if (dyn5Case === 'quorum:scenario-1') {
+          recordReviewerPasses(fixture.registry);
+          const result: any = handler(quorumArgs());
+          assert.equal(result.emittedCount, 6, 'real quorum submit must emit one 3x2 verdict set');
+        } else if (dyn5Case === 'quorum:scenario-2') {
+          recordReviewerPasses(fixture.registry);
+          handler(quorumArgs());
+          assert.throws(() => handler(quorumArgs()), /verdicts already exist for runId/, 'duplicate quorum must be refused');
+        } else if (dyn5Case === 'quorum:scenario-3') {
+          assert.throws(() => handler(quorumArgs()), /no current reviewer pass evidence/, 'quorum without reviewer passes must be refused');
+        } else if (dyn5Case === 'quorum:scenario-4') {
+          recordReviewerPasses(fixture.registry);
+          const result: any = handler(quorumArgs());
+          assert.equal(result.emittedCount, 6, 'quorum floor must retain all three local rounds');
+          assert.equal(quorumFloorRounds(fixture).validRounds.length, 3, 'quorum floor must observe three valid rounds');
+        } else {
+          throw new Error(`unknown DYN-5 quorum case: ${dyn5Case}`);
+        }
+      });
+    });
+    console.log(`PROOF_OR_STOP_DOMAIN_CASE:${dyn5Case}`);
+  } finally {
+    process.chdir(previousDyn5Cwd);
+    resetConfigCache();
+  }
+  process.exit(0);
+}
+
 const previousCwd = process.cwd();
 const { root, store, registry } = makeFixture();
 

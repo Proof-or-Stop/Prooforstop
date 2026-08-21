@@ -5,35 +5,39 @@
  * print-only command so every isolated shard reaches the same core signing and
  * assurance code used by the review/quorum smoke domains.
  */
-import { signReviewPass } from '../../dist/core/finding-verify.js';
-import { evaluateReviewAssuranceFloor } from '../../dist/core/review-assurance-floor.js';
+import { spawnSync } from 'node:child_process';
+import { resolve } from 'node:path';
 
 const [domain, caseId] = process.argv.slice(2);
 if (!domain || !caseId) throw new Error('domain and caseId are required');
 
-if (domain === 'review-pass') {
-  const signature = signReviewPass(
-    'B-dynamic-validation-domain',
-    caseId,
-    'lattice-review-concept',
-    `DYN-5 isolated review-pass scenario ${caseId}`,
-    '2026-08-18T00:00:00.000Z',
-    'dyn5-domain-round',
-  );
-  if (!/^[a-f0-9]{64}$/.test(signature)) throw new Error('review-pass core signature was not produced');
-} else if (domain === 'quorum') {
-  const report = evaluateReviewAssuranceFloor({
-    projectRoot: process.cwd(),
-    gitCwd: process.cwd(),
-    storyId: 'B-dynamic-validation-domain',
-    changedFiles: [],
-    touchpoints: ['packages/main/src/handlers/quorum-submit.ts'],
-  });
-  if (!report || report.schemaVersion !== 'lattice.review_assurance_floor.v1') {
-    throw new Error('quorum assurance-floor core report was not produced');
-  }
-} else {
+if (domain !== 'review-pass' && domain !== 'quorum') {
   throw new Error(`unsupported DYN-5 domain: ${domain}`);
 }
 
-process.stdout.write(`PROOF_OR_STOP_DOMAIN_CASE:${caseId}\n`);
+const smoke = domain === 'review-pass'
+  ? 'packages/main/dist/tasks/review-pass-discard-smoke.js'
+  : 'packages/main/dist/tasks/quorum-submit-smoke.js';
+const execution = spawnSync(process.execPath, [resolve(process.cwd(), smoke)], {
+  cwd: process.cwd(),
+  // The parent adapter is the traced command boundary.  The historical smoke
+  // fixtures intentionally mutate process.env while modelling host/session
+  // isolation; inheriting the tracer's Proxy into that child would make those
+  // legitimate mutations throw before the scenario runs.  Keep the adapter
+  // registry/spawn trace, and run the real scenario body in its native env.
+  env: (() => {
+    const childEnv = { ...process.env, PROOF_OR_STOP_DYN5_CASE: caseId };
+    delete childEnv.NODE_OPTIONS;
+    delete childEnv.PROOF_OR_STOP_RUNTIME_TRACE_FILE;
+    return childEnv;
+  })(),
+  encoding: 'utf8',
+  timeout: Number(process.env.LATTICE_VALIDATION_CASE_TIMEOUT_MS || 120000),
+});
+const output = `${execution.stdout || ''}${execution.stderr || ''}`;
+const marker = `PROOF_OR_STOP_DOMAIN_CASE:${caseId}`;
+if (execution.error || execution.status !== 0 || !output.includes(marker)) {
+  throw new Error(`DYN-5 real ${domain} case failed: ${execution.error?.message || output || `exit ${execution.status}`}`);
+}
+
+process.stdout.write(`${marker}\n`);

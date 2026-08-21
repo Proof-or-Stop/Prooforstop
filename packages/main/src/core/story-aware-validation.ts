@@ -263,11 +263,24 @@ export function discoverValidationInventory(projectRoot: string, injected?: Vali
     const configPath = existsSync(canonicalPath) ? canonicalPath : legacyPath;
     const raw = existsSync(configPath) ? JSON.parse(readFileSync(configPath, 'utf8')) as Record<string, unknown> : {};
     const validation = ((raw.validate || raw.validation) as Record<string, unknown> | undefined) || {};
+    const dynamic = validation.dynamic && typeof validation.dynamic === 'object' ? validation.dynamic as Record<string, unknown> : {};
+    const policyDefaults = dynamic.policyDefaults && typeof dynamic.policyDefaults === 'object'
+      ? dynamic.policyDefaults as Record<string, unknown>
+      : {};
     const rows: unknown[] = Array.isArray(validation.commands) ? validation.commands : typeof validation.command === 'string' ? [validation.command] : [];
     commands = rows.flatMap((rawRow: unknown, index: number): ValidationInventoryCommand[] => {
       if (typeof rawRow === 'string') {
         const parts = rawRow.trim().split(/\s+/);
-        return parts[0] ? [{ id: commandId({ command: parts[0], args: parts.slice(1), label: parts[0] }, index), label: parts[0], command: parts[0], args: parts.slice(1), originalIndex: index }] : [];
+        return parts[0] ? [{
+          id: commandId({ command: parts[0], args: parts.slice(1), label: parts[0] }, index),
+          label: parts[0], command: parts[0], args: parts.slice(1),
+          ...(typeof policyDefaults.assurance === 'string' ? { assurance: policyDefaults.assurance as Assurance } : {}),
+          ...(typeof policyDefaults.riskTier === 'string' ? { riskTier: policyDefaults.riskTier as RiskTier } : {}),
+          ...(typeof policyDefaults.closurePolicy === 'string' ? { closurePolicy: policyDefaults.closurePolicy as ClosurePolicy } : {}),
+          ...(typeof policyDefaults.fullBaselineReusePolicy === 'string' ? { fullBaselineReusePolicy: policyDefaults.fullBaselineReusePolicy as FullBaselineReusePolicy } : {}),
+          ...(typeof policyDefaults.cpuWeight === 'number' ? { cpuWeight: policyDefaults.cpuWeight } : {}),
+          originalIndex: index,
+        }] : [];
       }
       if (!rawRow || typeof rawRow !== 'object') return [];
       const value = rawRow as Record<string, unknown>;
@@ -281,7 +294,7 @@ export function discoverValidationInventory(projectRoot: string, injected?: Vali
       const declaredEnvironmentKeys = Array.isArray(value.declaredEnvironmentKeys)
         ? value.declaredEnvironmentKeys.filter((item): item is string => typeof item === 'string')
         : undefined;
-      return [{ id: typeof value.id === 'string' ? value.id : commandId({ command: value.command, args, label }, index), label, command: value.command, args, ...(typeof value.shell === 'boolean' ? { shell: value.shell } : {}), ...(typeof value.cwd === 'string' ? { cwd: value.cwd } : {}), ...(env ? { env } : {}), ...(typeof value.timeoutMs === 'number' ? { timeoutMs: value.timeoutMs } : {}), ...(typeof value.caseRegistryPath === 'string' ? { caseRegistryPath: value.caseRegistryPath } : {}), ...(declaredEnvironmentKeys ? { declaredEnvironmentKeys } : {}), ...(typeof value.assurance === 'string' ? { assurance: value.assurance as Assurance } : {}), ...(typeof value.riskTier === 'string' ? { riskTier: value.riskTier as RiskTier } : {}), ...(typeof value.closurePolicy === 'string' ? { closurePolicy: value.closurePolicy as ClosurePolicy } : {}), ...(typeof value.fullBaselineReusePolicy === 'string' ? { fullBaselineReusePolicy: value.fullBaselineReusePolicy as FullBaselineReusePolicy } : {}), ...(typeof value.cpuWeight === 'number' ? { cpuWeight: value.cpuWeight } : {}), ...(typeof value.expectedP50Ms === 'number' ? { expectedP50Ms: value.expectedP50Ms } : {}), resources, originalIndex: index }];
+      return [{ id: typeof value.id === 'string' ? value.id : commandId({ command: value.command, args, label }, index), label, command: value.command, args, ...(typeof value.shell === 'boolean' ? { shell: value.shell } : {}), ...(typeof value.cwd === 'string' ? { cwd: value.cwd } : {}), ...(env ? { env } : {}), ...(typeof value.timeoutMs === 'number' ? { timeoutMs: value.timeoutMs } : {}), ...(typeof value.caseRegistryPath === 'string' ? { caseRegistryPath: value.caseRegistryPath } : {}), ...(declaredEnvironmentKeys ? { declaredEnvironmentKeys } : {}), ...(typeof value.assurance === 'string' ? { assurance: value.assurance as Assurance } : typeof policyDefaults.assurance === 'string' ? { assurance: policyDefaults.assurance as Assurance } : {}), ...(typeof value.riskTier === 'string' ? { riskTier: value.riskTier as RiskTier } : typeof policyDefaults.riskTier === 'string' ? { riskTier: policyDefaults.riskTier as RiskTier } : {}), ...(typeof value.closurePolicy === 'string' ? { closurePolicy: value.closurePolicy as ClosurePolicy } : typeof policyDefaults.closurePolicy === 'string' ? { closurePolicy: policyDefaults.closurePolicy as ClosurePolicy } : {}), ...(typeof value.fullBaselineReusePolicy === 'string' ? { fullBaselineReusePolicy: value.fullBaselineReusePolicy as FullBaselineReusePolicy } : typeof policyDefaults.fullBaselineReusePolicy === 'string' ? { fullBaselineReusePolicy: policyDefaults.fullBaselineReusePolicy as FullBaselineReusePolicy } : {}), ...(typeof value.cpuWeight === 'number' ? { cpuWeight: value.cpuWeight } : typeof policyDefaults.cpuWeight === 'number' ? { cpuWeight: policyDefaults.cpuWeight } : {}), ...(typeof value.expectedP50Ms === 'number' ? { expectedP50Ms: value.expectedP50Ms } : typeof policyDefaults.expectedP50Ms === 'number' ? { expectedP50Ms: policyDefaults.expectedP50Ms } : {}), resources, originalIndex: index }];
     });
   }
   const normalized = commands.map((row, index) => ({ ...row, id: row.id || commandId(row, index), originalIndex: row.originalIndex ?? index }));
