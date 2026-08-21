@@ -438,12 +438,30 @@ function shardDomainForEntry(entry: ValidationCatalogEntry): 'quorum' | 'review-
   return undefined;
 }
 
-const DYN5_ADAPTER_REGISTRY: Record<string, string> = {
-  'case-registry-output-v1': stableDigest({
-    name: 'case-registry-output-v1',
-    contract: ['caseRegistryPath', 'runtime-read-of-registry', 'case-routing-marker', 'sentinel-marker'],
-  }),
+const DYN5_ADAPTER_ENTRYPOINT = 'packages/main/src/tasks/story-aware-validation-case-adapter.mjs';
+const DYN5_ADAPTER_REGISTRY: Record<string, { digest: string; entrypoint: string }> = {
+  'case-registry-output-v1': {
+    digest: stableDigest({
+      name: 'case-registry-output-v1',
+      version: 1,
+      entrypoint: DYN5_ADAPTER_ENTRYPOINT,
+      contract: ['caseRegistryPath', 'runtime-read-of-registry', 'case-routing-marker', 'sentinel-marker', 'case-evidence-files'],
+    }),
+    entrypoint: DYN5_ADAPTER_ENTRYPOINT,
+  },
 };
+
+function registeredShardAdapter(projectRoot: string, command: ValidationCommand, name: unknown): { digest: string; entrypoint: string } | undefined {
+  if (typeof name !== 'string') return undefined;
+  const adapter = DYN5_ADAPTER_REGISTRY[name];
+  if (!adapter) return undefined;
+  const expectedEntrypoint = resolve(projectRoot, adapter.entrypoint);
+  const commandPath = resolve(command.command);
+  const runtimePath = resolve(process.execPath);
+  const nodeLike = commandPath === runtimePath || /(?:^|[\\/])(?:node|bun)(?:\.exe)?$/i.test(commandPath);
+  const entrypointBound = command.args.some((arg) => resolve(projectRoot, arg) === expectedEntrypoint);
+  return nodeLike && entrypointBound ? adapter : undefined;
+}
 
 function loadShardCaseRegistry(projectRoot: string, entry: ValidationCatalogEntry, domain: string): { cases: ValidationCase[]; path: string; digest: string } | undefined {
   if (!entry.caseRegistryPath) return undefined;
@@ -502,8 +520,8 @@ async function executeShardedEntry(args: {
   const residue: string[] = [];
   const baseCommand = commandForEntry(args.entry, args.commands);
   const shardAdapter = baseCommand.env?.LATTICE_VALIDATION_SHARD_ADAPTER;
-  const adapterDigest = typeof shardAdapter === 'string' ? DYN5_ADAPTER_REGISTRY[shardAdapter] : undefined;
-  if (!adapterDigest) {
+  const adapter = registeredShardAdapter(args.projectRoot, baseCommand, shardAdapter);
+  if (!adapter) {
     const rejectedResults: ValidationShardResult[] = shards.map((shard) => ({
       shardId: shard.shardId, domain, caseIds: [...shard.caseIds], verdict: 'FAIL', executed: false, staticPass: false, sentinelObserved: false,
     }));
@@ -530,6 +548,8 @@ async function executeShardedEntry(args: {
         LATTICE_VALIDATION_SHARD_SENTINEL: shard.sentinelCaseId,
         LATTICE_VALIDATION_SHARD_CASE_IDS: shard.caseIds.join(','),
         LATTICE_VALIDATION_SHARD_CASE_REGISTRY: registry.path,
+        LATTICE_VALIDATION_SHARD_CASE_REGISTRY_DIGEST: registry.digest,
+        LATTICE_VALIDATION_SHARD_ADAPTER_DIGEST: adapter.digest,
         LATTICE_VALIDATION_SHARD_DIR: shardDir,
       },
     };
@@ -545,19 +565,59 @@ async function executeShardedEntry(args: {
     });
     results.push(result);
     const commandResult = result.commands[0];
-    const commandResidue = commandResult?.worktreePollution?.paths || [];
-    const localResidue = existsSync(shardDir) ? readdirSync(shardDir).sort() : [];
-    const shardResidue = [...commandResidue, ...localResidue];
-    residue.push(...shardResidue);
     const sentinelMarker = `PROOF_OR_STOP_SENTINEL:${shard.sentinelCaseId}`;
     const caseMarker = `PROOF_OR_STOP_CASES:${shard.caseIds.join(',')}`;
     const registryObserved = Boolean(commandResult?.runtimeTrace?.readPaths?.some((path) => resolve(path) === registry.path)
       || commandResult?.runtimeTrace?.loadedPaths?.some((path) => resolve(path) === registry.path));
     const sentinelObserved = Boolean(
       commandResult?.output.includes(sentinelMarker)
-      || existsSync(join(shardDir, `${shard.sentinelCaseId}.sentinel`)),
+      || false,
     );
     const caseRoutingObserved = Boolean(commandResult?.output.includes(caseMarker));
+    const evidenceFiles = existsSync(shardDir)
+      ? readdirSync(shardDir).filter((name) => name.endsWith('.case.json'))
+      : [];
+    const evidenceCaseIds: string[] = [];
+    let evidenceValid = evidenceFiles.length === shard.caseIds.length;
+    for (const file of evidenceFiles) {
+      try {
+        const evidence = JSON.parse(readFileSync(join(shardDir, file), 'utf8')) as Record<string, unknown>;
+        const body = { ...evidence };
+        delete body.evidenceDigest;
+        const caseId = typeof evidence.caseId === 'string' ? evidence.caseId : '';
+        evidenceCaseIds.push(caseId);
+        evidenceValid = evidenceValid
+          && evidence.schema === 'proof-or-stop.validation-shard-case-evidence.v1'
+          && evidence.adapter === shardAdapter
+          && evidence.adapterDigest === adapter.digest
+          && evidence.registryDigest === registry.digest
+          && evidence.shardId === shard.shardId
+          && evidence.domain === domain
+          && evidence.executed === true
+          && typeof evidence.evidenceDigest === 'string'
+          && evidence.evidenceDigest === stableDigest(body)
+          && shard.caseIds.includes(caseId)
+          && (Boolean(evidence.sentinel) === (caseId === shard.sentinelCaseId));
+        if (evidenceValid) rmSync(join(shardDir, file), { force: true });
+      } catch {
+        evidenceValid = false;
+      }
+    }
+    evidenceValid = evidenceValid
+      && new Set(evidenceCaseIds).size === shard.caseIds.length
+      && shard.caseIds.every((caseId) => evidenceCaseIds.includes(caseId));
+    const shardRel = relative(args.projectRoot, shardDir).replace(/\\/g, '/');
+    const commandResidue = (commandResult?.worktreePollution?.paths || []).filter((path) => {
+      const normalized = path.replace(/\\/g, '/');
+      // The executor snapshots before its finally-cleanup removes the private
+      // shard evidence and runtime trace sidecar.  Both are verified above or
+      // owned by the runtime artifact registry, so they are not residue.
+      return !normalized.startsWith(shardRel + '/') && !normalized.startsWith('.proof-or-stop/runtime/validation-traces/');
+    });
+    const localResidue = existsSync(shardDir) ? readdirSync(shardDir).sort() : [];
+    const shardResidue = [...commandResidue, ...localResidue];
+    residue.push(...shardResidue);
+    const sentinelEvidenceObserved = evidenceValid && evidenceCaseIds.includes(shard.sentinelCaseId);
     const shardResult: ValidationShardResult = {
       shardId: shard.shardId,
       domain,
@@ -566,7 +626,7 @@ async function executeShardedEntry(args: {
       residue: shardResidue,
       executed: true,
       staticPass: false,
-      sentinelObserved: sentinelObserved && caseRoutingObserved && registryObserved,
+      sentinelObserved: sentinelObserved && caseRoutingObserved && registryObserved && sentinelEvidenceObserved,
     };
     shardResults.push(shardResult);
     const output = commandResult?.output || '';
@@ -577,9 +637,9 @@ async function executeShardedEntry(args: {
       commandId: args.entry.id,
       caseIds: [...shard.caseIds],
       sentinelCaseId: shard.sentinelCaseId,
-      sentinelObserved: sentinelObserved && caseRoutingObserved && registryObserved,
+      sentinelObserved: sentinelObserved && caseRoutingObserved && registryObserved && sentinelEvidenceObserved,
       caseRegistryDigest: registry.digest,
-      adapterDigest,
+      adapterDigest: adapter.digest,
       registryObserved,
       sourceHead: args.head,
       result: result.allPass ? 'PASS' : 'FAIL',
@@ -708,12 +768,20 @@ function deriveGateOwnedPrerequisites(args: {
     && args.baseline.epochId === manifest.canonicalBaselineEpochId
     && args.baseline.runnerDigest === DYNAMIC_RUNNER_DIGEST
     && args.baseline.toolchainDigest === currentToolchainDigest);
-  const baselineClosureComplete = Boolean(args.baseline && Object.values(args.baseline.closureCertificates).length > 0
-    && Object.values(args.baseline.closureCertificates).every((certificate) => certificate.status === 'complete'));
+  const baselineClosureComplete = Boolean(args.baseline
+    && args.prepared.catalog.every((entry) => args.baseline?.closureCertificates[entry.id]?.status === 'complete')
+    && Object.values(args.baseline.closureCertificates).length === args.prepared.catalog.length);
   const receiptsCurrent = args.receipts.every((receipt) => verifyValidationCommandReceipt(receipt).ok)
     && args.receipts.every((receipt) => !args.prepared.revocationLedger.revokedReceiptIds.includes(receipt.id));
   const catalogOwnershipGatePassed = args.prepared.catalog.length > 0
-    && args.prepared.catalog.every((entry) => entry.id && entry.inputRoots.length > 0 && Array.isArray(entry.resources));
+    && args.prepared.catalog.every((entry) => entry.id
+      && entry.inputRoots.length > 0
+      && Array.isArray(entry.resources)
+      && entry.policySource === 'explicit'
+      && ['static-and-traced', 'whole-repository', 'never-reuse'].includes(entry.closurePolicy)
+      && ['always', 'story-selectable', 'full-only'].includes(entry.assurance)
+      && ['local', 'shared', 'gate', 'validation-infra'].includes(entry.riskTier)
+      && ['not-applicable', 'exact-current-epoch-only', 'forbidden'].includes(entry.fullBaselineReusePolicy));
   const processFactBindingsComplete = args.prepared.catalog.every((entry) =>
     (entry.triggerExtensions?.processFacts || []).every((fact) => typeof fact === 'string' && fact.length > 0));
   const changedTestPropagationVerified = manifest.totals.uncovered === 0

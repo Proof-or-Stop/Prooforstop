@@ -16,7 +16,7 @@ const trace = {
   loadedPaths: [],
   spawnedPaths: [],
   registryKeys: [],
-  environmentKeys: Object.keys(process.env).sort(),
+  environmentKeys: [],
   events: ['tracer-loaded'],
 };
 const add = (list, value) => {
@@ -24,6 +24,21 @@ const add = (list, value) => {
   if (!list.includes(value)) list.push(value);
 };
 const pathArg = value => typeof value === 'string' ? value : (value && typeof value.path === 'string' ? value.path : undefined);
+const originalEnvironment = process.env;
+process.env = new Proxy(originalEnvironment, {
+  get(target, property, receiver) {
+    if (typeof property === 'string') add(trace.environmentKeys, property);
+    return Reflect.get(target, property, receiver);
+  },
+  has(target, property) {
+    if (typeof property === 'string') add(trace.environmentKeys, property);
+    return Reflect.has(target, property);
+  },
+  ownKeys(target) {
+    for (const key of Reflect.ownKeys(target)) if (typeof key === 'string') add(trace.environmentKeys, key);
+    return Reflect.ownKeys(target);
+  },
+});
 
 const originalReadFileSync = fs.readFileSync;
 fs.readFileSync = function wrappedReadFileSync(path, ...args) {
@@ -69,8 +84,11 @@ if (fs.promises) {
 }
 const originalLoad = Module._load;
 Module._load = function wrappedModuleLoad(request, parent, isMain) {
-  add(trace.loadedPaths, typeof request === 'string' ? request : undefined);
-  add(trace.registryKeys, typeof request === 'string' ? request : undefined);
+  const requestName = typeof request === 'string' ? request : undefined;
+  let resolved = requestName;
+  try { if (requestName) resolved = Module._resolveFilename(requestName, parent, isMain); } catch { /* retain request identity */ }
+  add(trace.loadedPaths, resolved);
+  add(trace.registryKeys, resolved || requestName);
   return originalLoad.call(this, request, parent, isMain);
 };
 for (const name of ['spawn', 'spawnSync', 'execFile', 'execFileSync']) {

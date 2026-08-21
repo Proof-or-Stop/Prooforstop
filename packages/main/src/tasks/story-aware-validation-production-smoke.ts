@@ -7,6 +7,7 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, 
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { runStoryAwareDynamicValidation } from '../handlers/story-aware-validation.js';
+import { verifyValidationShardReceipt } from '../core/story-aware-validation.js';
 
 const root = mkdtempSync(join(tmpdir(), 'proof-story-aware-production-'));
 const git = (args: string[]) => execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
@@ -14,16 +15,23 @@ try {
   mkdirSync(join(root, 'packages/main/src'), { recursive: true });
   writeFileSync(join(root, 'packages/main/src/.keep'), '\n');
   const caseRegistryPath = 'packages/main/src/review-pass-cases.json';
+  const adapterPath = 'packages/main/src/tasks/story-aware-validation-case-adapter.mjs';
+  const adapterSource = readFileSync(new URL('./story-aware-validation-case-adapter.mjs', import.meta.url), 'utf8');
+  const runtimeNode = execFileSync('node', ['-p', 'process.execPath'], { encoding: 'utf8' }).trim();
   writeFileSync(join(root, caseRegistryPath), JSON.stringify([
     { caseId: 'review-pass:case-1', domain: 'review-pass', sentinel: true },
-    { caseId: 'review-pass:case-2', domain: 'review-pass' },
-    { caseId: 'review-pass:case-3', domain: 'review-pass' },
+    { caseId: 'review-pass:case-2', domain: 'review-pass', sentinel: true },
+    { caseId: 'review-pass:case-3', domain: 'review-pass', sentinel: true },
   ]) + '\n');
+  mkdirSync(join(root, 'packages/main/src/tasks'), { recursive: true });
+  writeFileSync(join(root, adapterPath), adapterSource);
+  mkdirSync(join(root, 'packages/main/src/core'), { recursive: true });
+  writeFileSync(join(root, 'packages/main/src/core/validation-runtime-tracer.cjs'), readFileSync(new URL('../core/validation-runtime-tracer.cjs', import.meta.url), 'utf8'));
   writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
     validate: {
       commands: [
-        { command: process.execPath, args: ['-e', "process.stdout.write('build\\n')", 'build'], label: 'build' },
-        { command: process.execPath, args: ['-e', "process.stdout.write('PROOF_OR_STOP_SENTINEL:'+process.env.LATTICE_VALIDATION_SHARD_SENTINEL+'\\n')", 'review-pass'], label: 'review-pass-discard-smoke', caseRegistryPath },
+        { command: runtimeNode, args: ['-e', "process.stdout.write('build\\n')", 'build'], label: 'build', assurance: 'story-selectable', riskTier: 'local', closurePolicy: 'static-and-traced', fullBaselineReusePolicy: 'not-applicable' },
+        { command: runtimeNode, args: [adapterPath, 'review-pass'], label: 'review-pass-discard-smoke', env: { LATTICE_VALIDATION_SHARD_ADAPTER: 'case-registry-output-v1' }, caseRegistryPath, assurance: 'story-selectable', riskTier: 'local', closurePolicy: 'static-and-traced', fullBaselineReusePolicy: 'not-applicable' },
       ],
     },
   }, null, 2));
@@ -33,16 +41,6 @@ try {
   git(['add', '.']);
   git(['commit', '-m', 'production validation fixture']);
   const head = git(['rev-parse', 'HEAD']);
-  const commands = [
-    { command: process.execPath, args: ['-e', "process.stdout.write('build\\n')", 'build'], label: 'build' },
-    {
-      command: process.execPath,
-      args: ['-e', "const fs=require('node:fs'); const cases=JSON.parse(fs.readFileSync(process.env.LATTICE_VALIDATION_SHARD_CASE_REGISTRY,'utf8')); const ids=cases.filter(c=>process.env.LATTICE_VALIDATION_SHARD_CASE_IDS.split(',').includes(c.caseId)).map(c=>c.caseId).join(','); process.stdout.write('PROOF_OR_STOP_CASES:'+ids+'\\nPROOF_OR_STOP_SENTINEL:'+process.env.LATTICE_VALIDATION_SHARD_SENTINEL+'\\n')", 'review-pass'],
-      label: 'review-pass-discard-smoke',
-      env: { LATTICE_VALIDATION_SHARD_ADAPTER: 'case-registry-output-v1' },
-      caseRegistryPath,
-    },
-  ];
   const run = await runStoryAwareDynamicValidation({
     projectRoot: root,
     gitCwd: root,
@@ -51,7 +49,6 @@ try {
     head,
     changedFiles: [],
     mode: 'enforce-low-risk',
-    commands,
   });
   assert.equal(run.buildResult.allPass, true);
   assert.equal(run.authority.authoritative, false, 'no canonical baseline must fail closed');
@@ -59,6 +56,17 @@ try {
   assert.equal(existsSync(shardRoot), true, 'production run must persist shard artifacts');
   const shardFiles = readFileSync(join(shardRoot, readdirSync(shardRoot).find(name => name.endsWith('aggregate.json'))!), 'utf8');
   assert.match(shardFiles, /coveredCaseIds/);
+  const receiptFiles = readdirSync(shardRoot).filter(name => name.startsWith('shard-receipt-') && name.endsWith('.json'));
+  assert.equal(receiptFiles.length, 3, 'registered adapter must emit one receipt per review-pass shard');
+  for (const name of receiptFiles) {
+    const receipt = JSON.parse(readFileSync(join(shardRoot, name), 'utf8'));
+    assert.equal(verifyValidationShardReceipt(receipt), true, `invalid persisted shard receipt ${name}`);
+    assert.equal(receipt.registryObserved, true);
+    assert.equal(receipt.sentinelObserved, true);
+    assert.equal(receipt.residue.length, 0);
+  }
+  const aggregate = JSON.parse(shardFiles);
+  assert.deepEqual(aggregate.coveredCaseIds.sort(), ['review-pass:case-1', 'review-pass:case-2', 'review-pass:case-3']);
   console.log('story-aware validation production path PASS');
   console.log('production shard receipts PASS');
   console.log('gate-owned authority fallback PASS');

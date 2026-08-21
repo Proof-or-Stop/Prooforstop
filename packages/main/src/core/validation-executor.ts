@@ -1357,6 +1357,7 @@ export function runValidationCommand(
                     loadedPaths: Array.isArray(observed.loadedPaths) ? observed.loadedPaths.filter((v): v is string => typeof v === 'string') : [],
                     spawnedPaths: Array.isArray(observed.spawnedPaths) ? observed.spawnedPaths.filter((v): v is string => typeof v === 'string') : [],
                     registryKeys: Array.isArray(observed.registryKeys) ? observed.registryKeys.filter((v): v is string => typeof v === 'string') : [],
+                    environmentKeys: Array.isArray(observed.environmentKeys) ? observed.environmentKeys.filter((v): v is string => typeof v === 'string') : [],
                     events: Array.isArray(observed.events) ? observed.events.filter((v): v is string => typeof v === 'string') : [...runtimeEvents],
                     unknownRuntimeInputs: [],
                   };
