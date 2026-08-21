@@ -1,0 +1,219 @@
+{
+  "findings": [
+    {
+      "id": "B-8af0:F-001",
+      "desc": "quality-fail-closed: packages/main/src/handlers/review-inventory.ts:400 captures candidateArtifactInvalid but discards it; a truthy non-array persisted candidates value present before the first review_inventory_begin still signs and returns State: OPEN with no candidate digest. Only a later status/evidence command invalidates it, so the initial inventory gate violates the documented deterministic INVALID_CANDIDATE_ARTIFACT fail-closed behavior. Reject or immediately persist/render INVALIDATED at begin, and add a pre-begin malformed-artifact handler fixture.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-20T11:13:04.047Z",
+      "reviewRound": "2026-08-20T11:11:04.601Z",
+      "reviewRunId": "B-8af0:RR-002",
+      "_hash": "6e741c9492cc13c95d7166691c588758b79068ed654c990a512971a53f183efd",
+      "signatureTag": "missing|unknown|quality-fail-closed",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 49f7549. Fresh RR-016/RP-010 rebuild and real-handler smoke show recomputed-digest malformed string/object artifacts injected before begin immediately and persistently render INVALIDATED with OPEN_REVIEW_INVENTORY_INVALID_CANDIDATE_ARTIFACT and no TypeError.",
+      "resolvedAt": "2026-08-20T12:05:08.894Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-8af0:F-002",
+      "desc": "CHK-001:content-and-selection-drift / CHK-001:order-only-scope lacks a selected-path mutation assertion. packages/main/src/tasks/review-inventory-handler-smoke.ts:809-818 mutates only candidates[0].contentHash; no valid artifact changes a selected candidate path and candidateSpecSet/basis then proves the real review_inventory_status handler emits OPEN_REVIEW_INVENTORY_CANDIDATE_ROUTING_MUTATION. The stated user outcome requires invalidation when either selected path or contentHash changes, so a regression that drops path from the canonical barrier remains undetected.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-20T11:15:15.959Z",
+      "reviewRound": "2026-08-20T11:11:04.601Z",
+      "reviewRunId": "B-8af0:RR-004",
+      "_hash": "23da4b4a0bf1a007988f3f657e543427fb45d15117cd005f6d224aa00059b110",
+      "files": [
+        "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|content-selection-drift",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 49f7549. Fresh RR-017/RP-011 rebuild and real-handler smoke prove a structurally valid selected-path mutation updates candidates, candidateSpecSet, candidateBasis, and artifactDigest, then review_inventory_status renders INVALIDATED with OPEN_REVIEW_INVENTORY_CANDIDATE_ROUTING_MUTATION.",
+      "resolvedAt": "2026-08-20T12:05:41.899Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-8af0:F-003",
+      "desc": "quality-fail-closed: packages/main/src/handlers/review-inventory.ts:400 still omits candidateArtifactInvalid when destructuring captureReviewInventoryScope, so an invalid persisted candidates shape present before review_inventory_begin is signed and returned as State: OPEN without a candidate digest. A later status/evidence call detects it, but the begin gate itself still violates the documented immediate OPEN_REVIEW_INVENTORY_INVALID_CANDIDATE_ARTIFACT failure mode; reject or persist/render INVALIDATED at begin and cover injection before begin.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-20T11:19:28.353Z",
+      "reviewRound": "2026-08-20T11:11:04.601Z",
+      "reviewRunId": "B-8af0:RR-006",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/candidate-spec-routing.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/candidate-spec-routing.ts",
+          "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "31c0f43f4bad266714bbf7f065c6801dea9ea35c3c03be6a761571c7b756503f"
+      },
+      "readDiagnostics": [],
+      "_hash": "e626ed1cc78448d858a7386827593e47957fff793ae1ec04e581460d16a46874",
+      "files": [
+        "packages/main/src/handlers/review-inventory.ts",
+        "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|quality-fail-closed",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Duplicate quality record for the same pre-begin malformed-artifact defect as F-001. The shared fix is 49f7549, independently verified by RR-016/RP-010 with immediate and persisted typed INVALIDATED state for recomputed-digest malformed string and object candidates.",
+      "resolvedAt": "2026-08-20T12:05:22.212Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-8af0:F-004",
+      "desc": "Current REVIEW inventory epoch B-8af0:RI-001 reconfirms B-8af0:F-002: CHK-001:content-and-selection-drift and CHK-001:order-only-scope still lack a selected-path mutation assertion. packages/main/src/tasks/review-inventory-handler-smoke.ts:809-818 changes only candidates[0].contentHash; no structurally valid artifact changes a selected path plus candidateSpecSet/candidateBasis and proves real review_inventory_status emits OPEN_REVIEW_INVENTORY_CANDIDATE_ROUTING_MUTATION. A path-omitting canonical barrier regression therefore remains undetected.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-20T11:20:06.400Z",
+      "reviewRound": "2026-08-20T11:11:04.601Z",
+      "reviewRunId": "B-8af0:RR-007",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "7c2659c35bd4e6d0c6c9d7daba127ef21e8cd18c0c42c253257e6ea7376d23e1"
+      },
+      "readDiagnostics": [],
+      "_hash": "0f069fc15bbc61ddc82969821a00982134cf3e3539070641b0257ab9b9f22961",
+      "files": [
+        "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|current-review-inventory",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Duplicate current-inventory coverage record for F-002. The shared fix is 49f7549, independently verified by RR-017/RP-011 with a valid recomputed selected-path artifact that causes the real status handler to emit the routing-mutation invalidation blocker.",
+      "resolvedAt": "2026-08-20T12:05:52.649Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-8af0:F-005",
+      "desc": "doc-promise-undelivered: docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md:223-227 promises malformed persisted candidate artifacts fail closed as OPEN_REVIEW_INVENTORY_INVALID_CANDIDATE_ARTIFACT at the inventory gate, but review_inventory_begin at handlers/review-inventory.ts:400 destructures away candidateArtifactInvalid and signs a new State: OPEN epoch when the malformed artifact exists before begin. Only a later status call invalidates it, so the documented immediate gate behavior is not delivered.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-20T11:20:18.581Z",
+      "reviewRound": "2026-08-20T11:11:04.601Z",
+      "reviewRunId": "B-8af0:RR-008",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "b5c49d81b9da4252a0015404014b4a8d9a8dcbbd28d2ec9be0ad0f56b342f305",
+      "files": [
+        "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+        "packages/main/src/handlers/review-inventory.ts"
+      ],
+      "signatureTag": "doc-promise-undelivered|md|promise-undelivered-docs",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 49f7549: the documented review-inventory gate now atomically records and renders the promised INVALIDATED state before any OPEN epoch can be returned. Fresh docs RR-018/RP-009 confirmed the decision text matches the string/object pre-begin real-handler fixture.",
+      "resolvedAt": "2026-08-20T12:05:32.601Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-8af0:F-006",
+      "desc": "Topology critic cannot endorse B-8af0: acceptance_basis reports basisStatus=partial with four AT_UNMAPPED_SCOPE_REF diagnostics, and topology_critic_receipt_check reports AT_TOPOLOGY_CRITIC_CONTEXT_INVALID because no session-bound lattice-implementer dispatch provenance is present. These leave producer-to-consumer closure and implementation independence unverified, so the acceptance topology has no admissible pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-20T11:22:10.582Z",
+      "reviewRound": "2026-08-20T11:11:04.601Z",
+      "reviewRunId": "B-8af0:RR-009",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "2a61e5e8d5862963c423ab15ecec7f978a8aa656cd687cf6ecfc99b8eb06c910",
+      "files": [
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/handlers/transition-orchestrator.ts"
+      ],
+      "signatureTag": "missing|ts|topology-critic-cannot",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Reassessed by the current topology critic after the formal DEV lattice-implementer dispatch. Receipt construction now passes implementation-provenance derivation; the old premise is fixed. Remaining partial acceptance topology is observe-only and outside B-8af0 scope (which explicitly excludes topology critic signing/provenance); acceptance_rollout_check is current enforce PASS full-3x2. The residual framework work is re-homed to active B-3253 Repair ProofStory topology provenance and focused regression coverage.",
+      "resolvedAt": "2026-08-20T12:10:24.040Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

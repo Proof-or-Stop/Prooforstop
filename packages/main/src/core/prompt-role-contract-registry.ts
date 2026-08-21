@@ -11,7 +11,6 @@ import {
   validateRoleContract,
 } from './prompt-contracts.js';
 import {
-  MODULAR_REVIEWER_ROLE_IDS,
   MODULAR_COMPLEX_ROLE_IDS,
   isModularReviewerRoleId,
   isModularRoleId,
@@ -26,10 +25,11 @@ import {
 import { canonicalAgentRoleId } from './agent-role-identity.js';
 import { isCodexAdapterManifestOwner } from '../init-assets.js';
 
+export { ACTIVE_MODULAR_REVIEWER_ROLE_IDS, isActiveModularReviewerRoleId } from './prompt-registry.js';
+
 export const PROMPT_ROLE_CONTRACT_REGISTRY_VERSION = 'proofbound.prompt-role-contract-registry.v1';
 export const PROMPT_ENVELOPE_ROLLOUT_VERSION = 'proofbound.prompt-envelope-rollout.v1';
 export type PromptEnvelopeRolloutMode = 'legacy-full-context' | 'full-envelope';
-export const ACTIVE_MODULAR_REVIEWER_ROLE_IDS: readonly string[] = Object.freeze([...MODULAR_REVIEWER_ROLE_IDS]);
 export const ACTIVE_MODULAR_COMPLEX_ROLE_IDS: readonly string[] = Object.freeze([...MODULAR_COMPLEX_ROLE_IDS]);
 
 export interface ResolvedPromptRoleBody {
@@ -317,8 +317,8 @@ const ROLE_POLICIES: Readonly<Record<string, RolePolicy>> = Object.freeze({
     status: ACTIVE,
     defaultDispatch: true,
     responsibility: 'Independently challenge acceptance topology, discovery, closure, and exclusions.',
-    allowedCommandIds: ['topology_critic_receipt_set', 'topology_critic_receipt_check'],
-    requiredOutputIds: ['topology-critic-receipt'],
+    allowedCommandIds: ['topology_critic_receipt_set', 'topology_critic_receipt_check', 'review_run_start', 'finding_add', 'review_pass_set', 'review_inventory_critic_set'],
+    requiredOutputIds: ['topology-critic-receipt', 'review-finding-or-pass'],
   },
   'proof-or-stop-review-story-init': {
     ...commonPolicy,

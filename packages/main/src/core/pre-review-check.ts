@@ -417,7 +417,20 @@ export function verifyPreReviewCheckArtifact(input: PreReviewCheckInput & { arti
       expectedClosureFilesHash: input.currentArtifact.basis.binding.closureFilesHash,
       expectedSealDigest: input.currentArtifact.basis.snapshotSeal.sealDigest,
     });
-    if (!receipt.ok || artifact.storyId !== input.storyId) codes.push('PR_ARTIFACT_TAMPERED');
+    // A partial/unsupported basis is a valid signed diagnostic artifact. The
+    // receipt verifier includes the basis's own semantic diagnostics in its
+    // `ok` result, so `!receipt.ok` alone does not mean bytes or bindings were
+    // tampered. Ignore only diagnostics already inherent in the signed basis;
+    // signature, key, workspace freshness, expected binding, and receipt/basis
+    // mismatch diagnostics remain integrity failures and fail closed.
+    const signedBasisDiagnostics = new Set(
+      verifyAcceptanceCoverageBasis(artifact.preReviewBasisArtifact.basis).diagnostics
+        .map(item => `${item.code}: ${item.message}`),
+    );
+    const receiptIntegrityFailed = receipt.diagnostics.some(
+      diagnostic => !signedBasisDiagnostics.has(diagnostic),
+    );
+    if (receiptIntegrityFailed || artifact.storyId !== input.storyId) codes.push('PR_ARTIFACT_TAMPERED');
   }
   const ordered = orderedCodes(codes);
   const ok = ordered.length === 0 && artifact?.status === 'pass';

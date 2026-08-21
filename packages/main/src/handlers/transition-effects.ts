@@ -49,8 +49,13 @@ import {
   evaluateReviewAssuranceFloor,
   renderReviewAssuranceGuidance,
 } from '../core/review-assurance-floor.js';
-import { computeActiveReviewers } from './reviewer-list.js';
-import { canonicalAgentDispatchType, canonicalReviewerLane } from '../core/reviewer-opt-in.js';
+import {
+  computeActiveReviewers,
+  computeFinalReviewRoster,
+  renderActiveReviewersText,
+  renderFinalReviewRoster,
+} from './reviewer-list.js';
+import { canonicalAgentDispatchType } from '../core/reviewer-opt-in.js';
 import { existsSync } from 'fs';
 import { join } from 'path';
 import { renderAgentLivenessGuidance } from '../core/agent-liveness-policy.js';
@@ -246,7 +251,8 @@ export function buildNextSteps(
     })(),
     REVIEW: (() => {
       // B-fdcf CHK-002: Dynamic echo by opt-in list (no longer fixed at 5 after channel LLM reviewer was retired).
-      let activeLine = 'Active reviewers: concept, quality (fallback: cannot resolve opt-in list, using baseline)';
+      let activeLine = 'Active reviewers: concept, quality, test-coverage (fallback: cannot resolve opt-in list, using baseline)';
+      let finalReviewLine = `Final-review lanes: proof-or-stop-review-concept, proof-or-stop-review-quality, proof-or-stop-review-test-coverage\nSelection: full-set (CURRENT_LINEAGE_UNAVAILABLE)\nNext: proof-or-stop dispatch '{"storyId":"${storyId}","agentType":"proof-or-stop-review-concept"}'`;
       let agentLines = '';
       try {
         const story = store.readStory(storyId);
@@ -263,31 +269,24 @@ export function buildNextSteps(
           decisionForReview,
           touchpointsForReview,
         );
-        const canonicalActive = active.map((reviewer) => {
-          const lane = canonicalReviewerLane(reviewer.name);
-          if (!lane) {
-            throw new Error(`unknown active reviewer lane "${reviewer.name}"`);
-          }
-          return { reviewer, lane };
-        });
-        activeLine = `Active reviewers: ${canonicalActive.map(({ reviewer, lane }) =>
-          reviewer.reason === 'baseline' ? lane : `${lane} (${reviewer.reason})`,
-        ).join(', ')}`;
-        agentLines = canonicalActive.map(({ reviewer, lane }) =>
-          `  Agent({ subagent_type: "${lane}", prompt: "Run proof-or-stop dispatch '{\\"storyId\\":\\"${storyId}\\",\\"agentType\\":\\"${lane}\\"}' to get the standard story-level prompt, then follow it (${reviewer.reason})" })`,
+        const roster = computeFinalReviewRoster(store, root, storyId, active);
+        activeLine = renderActiveReviewersText(active);
+        finalReviewLine = renderFinalReviewRoster(roster, storyId);
+        agentLines = roster.requiredReviewers.map(r =>
+          `  Agent({ subagent_type: "${r.lane}", prompt: "Run proof-or-stop dispatch '{\\"storyId\\":\\"${storyId}\\",\\"agentType\\":\\"${r.lane}\\"}' to get the standard story-level prompt, then follow it (${r.reason})" })`,
         ).join('\n');
       } catch {
         agentLines = `  Agent({ subagent_type: "proof-or-stop-review-concept", prompt: "Run proof-or-stop dispatch '{\\"storyId\\":\\"${storyId}\\",\\"agentType\\":\\"proof-or-stop-review-concept\\"}' to get the standard story-level prompt, then follow it" })
   Agent({ subagent_type: "proof-or-stop-review-quality", prompt: "Run proof-or-stop dispatch '{\\"storyId\\":\\"${storyId}\\",\\"agentType\\":\\"proof-or-stop-review-quality\\"}' to get the standard story-level prompt, then follow it" })`;
       }
-      let base = `→ ${activeLine}
+      let base = `→ ${activeLine}${finalReviewLine ? `\n${finalReviewLine}` : ''}
 → launch the above reviewers in parallel to review code (issue all Agent calls in a single message):
 ${agentLines}
 → reviewer liveness: each reviewer should first output REVIEW_START after starting
 ${renderAgentLivenessGuidance({ label: 'REVIEW reviewers' })}
 → After all return, proof-or-stop finding_list to aggregate
 → Once critical/high are all resolved: story_advance(${storyId}, TEST)
-→ Need code changes: story_advance(${storyId}, DEV) to return to DEV
+→ Need code changes: review_inventory_begin(${storyId}), finish all required lanes, dispatch topology critic and submit complete findingDispositions, then review_inventory_finalize(${storyId}); only its signed receipt authorizes story_advance(${storyId}, DEV)
 ⚠ When reviewers call finding_add they must pass the agent parameter (e.g. "agent":"proof-or-stop-review-behavior"), otherwise the finding will be marked as main agent and the TEST gate will refuse to advance`;
       // B-cfdd CHK-003: SOFT, advisory-only convergence-stall signal. Assessed
       // over COMPLETED rounds only (assessReviewConvergenceAtEntry drops the
@@ -346,6 +345,7 @@ ${renderAgentLivenessGuidance({ label: 'REVIEW reviewers' })}
           base += `\n${advisoryLines.join('\n')}`;
         }
       } catch { /* advisory-only: never block the transition */ }
+
       // B-5a48 CHK-002: surface the A/B-gated advisory Experience-Layer hints in
       // the REVIEW reviewer-launch guidance, right AFTER the Agent({
       // subagent_type: "proof-or-stop-review-*" }) launch lines + the round-2 advisory,

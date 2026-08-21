@@ -761,18 +761,89 @@ export function routeCandidateSpecs(args: {
   return { ...base, artifactDigest: digestCandidateRoutingValue(base) };
 }
 
-export function verifyCandidateSpecSet(artifact: CandidateSpecSetArtifact): boolean {
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === 'object' && !Array.isArray(value);
+}
+
+function isStringArray(value: unknown): value is string[] {
+  return Array.isArray(value) && value.every(entry => typeof entry === 'string');
+}
+
+function isNonNegativeInteger(value: unknown): value is number {
+  return typeof value === 'number' && Number.isInteger(value) && value >= 0;
+}
+
+function isCandidateReason(value: unknown): boolean {
+  if (!isRecord(value)) return false;
+  return (
+    (value.kind === 'related-doc' || value.kind === 'exact-path' || value.kind === 'registry-ref'
+      || value.kind === 'typed-risk' || value.kind === 'reviewer-evidence' || value.kind === 'path'
+      || value.kind === 'heading' || value.kind === 'body' || value.kind === 'host' || value.kind === 'negative-control')
+    && typeof value.term === 'string'
+    && typeof value.source === 'string'
+    && Number.isFinite(value.points)
+  );
+}
+
+/**
+ * Validate an untrusted persisted candidate-routing artifact before any consumer
+ * reads its nested arrays. The artifact is JSON on disk, so the static store type
+ * is not a runtime guarantee: malformed `candidates` used to reach consumers as
+ * a truthy value and could either throw or be mistaken for an absent artifact.
+ */
+export function verifyCandidateSpecSet(value: unknown): value is CandidateSpecSetArtifact {
+  if (!isRecord(value)) return false;
+  const artifact = value as unknown as CandidateSpecSetArtifact;
+  if (!Array.isArray(artifact.candidates) || !artifact.candidates.every(candidate => (
+    isRecord(candidate)
+    && typeof candidate.path === 'string'
+    && typeof candidate.contentHash === 'string'
+    && Number.isFinite(candidate.score)
+    && Array.isArray(candidate.reasons)
+    && candidate.reasons.every(isCandidateReason)
+  ))) return false;
+  if (!isStringArray(artifact.candidateSpecSet)
+    || artifact.candidateSpecSet.length !== artifact.candidates.length
+    || !artifact.candidates.every((candidate, index) => candidate.path === artifact.candidateSpecSet[index])) return false;
+  if (!isRecord(artifact.candidateBasis)
+    || !artifact.candidates.every(candidate => Array.isArray(artifact.candidateBasis[candidate.path])
+      && artifact.candidateBasis[candidate.path].every(isCandidateReason))) return false;
+  if (!Array.isArray(artifact.queryGroups) || !artifact.queryGroups.every(isStringArray)) return false;
+  if (!isRecord(artifact.budgets)
+    || !isNonNegativeInteger(artifact.budgets.candidates)
+    || !isNonNegativeInteger(artifact.budgets.queryGroups)
+    || !isNonNegativeInteger(artifact.budgets.rawHitsPerGroup)) return false;
+  if (!isRecord(artifact.rankingPolicy) || !Number.isFinite(artifact.rankingPolicy.minRankingAffectingCutoffScore)) return false;
+  if (!isStringArray(artifact.promptDigests) || !isStringArray(artifact.ambiguitySignals) || !isStringArray(artifact.escalationReasons)) return false;
+  if (typeof artifact.storyId !== 'string' || typeof artifact.corpusDigest !== 'string'
+    || typeof artifact.seedDigest !== 'string' || typeof artifact.storyInputDigest !== 'string'
+    || typeof artifact.headHash !== 'string' || typeof artifact.materialHash !== 'string'
+    || typeof artifact.artifactDigest !== 'string'
+    || (artifact.storyFilesHash !== undefined && typeof artifact.storyFilesHash !== 'string')) return false;
+  if (typeof artifact.requiresEscalation !== 'boolean' || typeof artifact.fullScan !== 'boolean'
+    || (artifact.scanEscalationReason !== null && typeof artifact.scanEscalationReason !== 'string')) return false;
   const { artifactDigest, ...base } = artifact;
   if (artifact.schemaVersion !== CANDIDATE_SET_SCHEMA) return false;
   if (artifact.mode !== 'shadow' && artifact.mode !== 'warn' && artifact.mode !== 'enforce') return false;
-  if (!artifact.queryFiltering || !Array.isArray(artifact.queryFiltering.filteredTerms)) return false;
+  if (!isRecord(artifact.queryFiltering) || !Number.isFinite(artifact.queryFiltering.maxDocumentFrequencyRatio)
+    || artifact.queryFiltering.maxDocumentFrequencyRatio < 0 || artifact.queryFiltering.maxDocumentFrequencyRatio > 1
+    || !Array.isArray(artifact.queryFiltering.filteredTerms)) return false;
   for (const term of artifact.queryFiltering.filteredTerms) {
     if (!term || typeof term.term !== 'string' || !Number.isInteger(term.documentCount) || term.documentCount < 0) return false;
     if (!Number.isFinite(term.documentFrequencyRatio) || term.documentFrequencyRatio < 0 || term.documentFrequencyRatio > 1) return false;
     if (term.reason !== 'overbroad' && term.reason !== 'zero_hits') return false;
     if ((term.reason === 'zero_hits') !== (term.documentCount === 0)) return false;
   }
-  if (!artifact.protectedRouting || !Array.isArray(artifact.protectedRouting.selectedPaths) || !Array.isArray(artifact.protectedRouting.missing)) return false;
+  if (!isRecord(artifact.protectedRouting) || !isStringArray(artifact.protectedRouting.selectedPaths)
+    || !Array.isArray(artifact.protectedRouting.missing)
+    || !artifact.protectedRouting.missing.every(row => isRecord(row)
+      && (row.kind === 'related-doc' || row.kind === 'exact-path' || row.kind === 'registry-ref'
+        || row.kind === 'typed-risk' || row.kind === 'reviewer-evidence')
+      && typeof row.path === 'string' && typeof row.sourceRef === 'string'
+      && (row.reason === 'unsafe_path' || row.reason === 'missing' || row.reason === 'not_regular_file'))
+    || !isNonNegativeInteger(artifact.protectedRouting.ordinaryBudget)
+    || !isNonNegativeInteger(artifact.protectedRouting.protectedCount)
+    || typeof artifact.protectedRouting.exceedsOrdinaryBudget !== 'boolean') return false;
   if (!Array.isArray(artifact.queryTruncation)) return false;
   for (const row of artifact.queryTruncation) {
     if (!row || !Array.isArray(row.queryGroup) || !row.queryGroup.every(term => typeof term === 'string')) return false;

@@ -33,6 +33,8 @@ import { collectReviewerEvidenceState } from '../core/review-run.js';
 import type { ReviewerEvidenceState } from '../core/review-run.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { isStoryMetadataPath } from '../core/evidence-freshness.js';
+import { withReviewInventoryMutationLock } from '../core/review-inventory-epoch.js';
+import { refreshReviewInventoryContextLocked } from './review-inventory.js';
 
 const MAX_PROPOSAL_OUTPUT_BYTES = 64 * 1024;
 
@@ -248,10 +250,12 @@ export function currentStoryRoutingInput(ctx: HandlerContext, storyId: string): 
   const understanding = ctx.store.readUnderstanding(storyId);
   const relatedDocs = checklist.items.flatMap(item => item.relatedDocs ?? []);
   const materialChangedPaths = changedPaths(ctx, storyId);
-  const exactPaths = [...new Set([
-    ...(understanding?.touchpoints ?? []),
-    ...materialChangedPaths,
-  ])];
+  // A diff path is freshness/ranking input, not a durable exact-path authority.
+  // Promoting every `main...HEAD` entry into protectedSources made an unrelated
+  // branch commit manufacture a selected candidate, so a routing-neutral reroute
+  // could never remain neutral. Explicit understanding touchpoints retain the
+  // protected exact-path contract; changed paths continue to seed ranking below.
+  const exactPaths = [...new Set(understanding?.touchpoints ?? [])];
   let reviewerEvidencePaths: string[] = [];
   try {
     const evidence = collectReviewerEvidenceState(ctx.store, storyId, ctx.root);
@@ -359,8 +363,13 @@ export function createCandidateSpecRoutingHandlers(
         ...snapshot,
       });
       if (args.persist !== false) {
-        ctx.store.writeCandidateSpecSet(args.storyId, artifact);
-        autoCommitStoryMetadata(ctx.root, args.storyId, 'candidate_spec_route');
+        withReviewInventoryMutationLock(ctx.store, args.storyId, () => {
+          ctx.store.writeCandidateSpecSet(args.storyId, artifact);
+          // A reroute is allowed to complete, but it atomically invalidates the
+          // old epoch before any consumer can mix old/new candidate universes.
+          refreshReviewInventoryContextLocked(ctx, args.storyId);
+          autoCommitStoryMetadata(ctx.root, args.storyId, 'candidate_spec_route');
+        });
       }
       if (args.json || args.format === 'json') return artifact;
       return renderCandidateSpecRouteText(artifact, corpus.entries.length, hostResult.attempts, config.candidateSpecRouting?.mode ?? 'shadow');

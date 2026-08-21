@@ -312,7 +312,7 @@ const CODEX_README_THIN_APPENDIX = `
 
 This repository uses registry-backed Codex prompts:
 
-- \`${PROOF_OR_STOP_ADAPTER_DIR}/${PROOF_OR_STOP_MANIFEST_FILENAME}\` records \`promptMode=registry\` and the package prompt registry hash. The five migrated reviewers resolve to a body-free \`review_run_start\` bootstrap; the command returns the single selected role body.
+- \`${PROOF_OR_STOP_ADAPTER_DIR}/${PROOF_OR_STOP_MANIFEST_FILENAME}\` records \`promptMode=registry\` and the package prompt registry hash. The six migrated reviewer definitions keep modular bodies; the five active REVIEW lanes resolve to a body-free \`review_run_start\` bootstrap, while topology-critic resolves as an ordinary role body. The command returns the single selected role body for those five lanes.
 - \`${PROOF_OR_STOP_ADAPTER_DIR}/agents\` prompt copies are not required for Proof-or-Stop adapter verification in this mode.
 - Legacy full-mode repositories may still materialize \`${PROOF_OR_STOP_ADAPTER_DIR}/agents\`; both modes remain supported.
 - This is adapter hygiene only. It does not replace validation evidence, receipts, or release-readiness assurance.

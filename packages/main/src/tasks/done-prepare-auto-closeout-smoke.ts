@@ -933,6 +933,50 @@ function assertConcurrentHeadCasRefusesAndPreservesIndex(): void {
   }
 }
 
+function assertHeadRollbackSurvivesRefreshAndRestoreFailures(): void {
+  const candidate = isolatedCommitCandidate();
+  const { root, storyId, baseline, expected } = candidate;
+  const originalExecFileSync = childProcess.execFileSync;
+  let refreshFailed = false;
+  let restoreFailed = false;
+  try {
+    const parent = git(root, ['rev-parse', 'HEAD']);
+    childProcess.execFileSync = ((command: string, argsOrOptions?: readonly string[] | childProcess.ExecFileSyncOptions, options?: childProcess.ExecFileSyncOptions) => {
+      const argv = Array.isArray(argsOrOptions) ? argsOrOptions.map(String) : [];
+      if (String(command).endsWith('git') && argv[0] === 'update-index' && argv.includes('--cacheinfo')) {
+        refreshFailed = true;
+        throw new Error('injected real-index refresh failure');
+      }
+      if (refreshFailed && String(command).endsWith('git') && argv[0] === 'update-index' && argv.includes('--force-remove')) {
+        restoreFailed = true;
+        throw new Error('injected real-index restore failure');
+      }
+      return (originalExecFileSync as any)(command, argsOrOptions as any, options);
+    }) as typeof childProcess.execFileSync;
+    syncBuiltinESMExports();
+
+    const result = withEnvSync(gitIdentityEnv(), () => commitDonePrepareGeneratedMetadata({
+      root,
+      gitCwd: root,
+      storyId,
+      storyDirRel: '.lattice/story/actives',
+      baseline,
+      expectedProcessEventBinding: expected,
+    }));
+
+    assert.equal(result.ok, false, 'post-CAS cleanup failure remains fail-closed');
+    assert.equal(refreshFailed, true, 'production real-index refresh path was exercised');
+    assert.equal(restoreFailed, true, 'production real-index restore path was exercised');
+    assert.match(result.reason ?? '', /real index refresh.*injected real-index refresh failure/);
+    assert.match(result.reason ?? '', /real index restore.*injected real-index restore failure/);
+    assert.equal(git(root, ['rev-parse', 'HEAD']), parent, 'HEAD CAS rollback is independent of index cleanup failures');
+  } finally {
+    childProcess.execFileSync = originalExecFileSync;
+    syncBuiltinESMExports();
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 function assertIsolatedIndexPathSetIsExact(): void {
   for (const mode of ['missing', 'extra'] as const) {
     const candidate = isolatedCommitCandidate();
@@ -1241,6 +1285,7 @@ void (async () => {
     assertIndexValidationClosesMutationWindows();
     assertIsolatedTreeExcludesSharedIndexRaces();
     assertConcurrentHeadCasRefusesAndPreservesIndex();
+    assertHeadRollbackSurvivesRefreshAndRestoreFailures();
     assertIsolatedIndexPathSetIsExact();
     assertCommitMessageHooksAndPostCommitSemantics();
     assertCommitMsgRejectionIsFailClosed();

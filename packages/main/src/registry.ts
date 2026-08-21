@@ -205,6 +205,7 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   registry.registerBatch(createGapHandlers(ctx));
   registry.registerBatch(createVerifierHandlers(ctx));
   registry.registerBatch(createReviewRunHandlers(ctx));
+  registry.registerBatch(createReviewInventoryHandlers(ctx));
   registry.registerBatch(createReviewLoopHandlers(ctx));
   registry.registerBatch(createFindingHandlers(ctx));
   registry.registerBatch(createEvaluateHandlers(ctx));
@@ -243,7 +244,6 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
 
   // B-1e1f CHK-001: PRE_CERT CertificationWindow begin/status/cancel
   registry.registerBatch(createCertificationWindowHandlers(ctx));
-  registry.registerBatch(createReviewInventoryHandlers(ctx));
 
   // B-3749 CHK-002: PLAN handoff package for test-intent agents.
   registry.registerBatch(createTestIntentHandoffHandlers(ctx));
@@ -388,9 +388,10 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   registry.registerBatch(createCapabilityListHandlers());
 
   // B-097f/B-235e: agent_prompt returns the canonical package-registry host
-  // render. The five migrated reviewers receive a body-free review_run_start
-  // bootstrap; ordinary roles receive their role body. review_run_start alone
-  // supplies one selected legacy/modular reviewer body.
+  // render. The six migrated reviewer definitions keep modular bodies; the five
+  // active REVIEW lanes receive a body-free review_run_start bootstrap, while
+  // topology-critic receives its ordinary role body. review_run_start alone
+  // supplies one selected legacy/modular reviewer body for those five lanes.
   registry.registerBatch(createAgentPromptHandlers(ctx));
   registry.registerBatch(createPromptMeasurementHandlers());
 

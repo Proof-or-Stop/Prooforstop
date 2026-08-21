@@ -60,7 +60,8 @@ export type AgentDispatchCanonicalType =
   | 'lattice-review-channel'
   | 'lattice-review-delivery'
   | 'lattice-finding-repair'
-  | 'lattice-cluster-repair';
+  | 'lattice-cluster-repair'
+  | 'acceptance-rollout-verifier';
 
 export type AgentDispatchRoleClass =
   | 'implementer'
@@ -87,7 +88,8 @@ export type AgentDispatchPromptBuilderKey =
   | 'coverage-review'
   | 'delivery-review'
   | 'finding-repair'
-  | 'cluster-repair';
+  | 'cluster-repair'
+  | 'rollout-verify';
 
 export type AgentDispatchMutationCommand =
   | 'checklist_update'
@@ -98,6 +100,7 @@ export type AgentDispatchMutationCommand =
   | 'review_run_start'
   | 'finding_add'
   | 'review_pass_set'
+  | 'review_inventory_critic_set'
   | 'delivery_check_set'
   | 'finding_resolve'
   // B-e10d (W2b): the RED-evidence subsystem's first mutating command. The
@@ -119,7 +122,21 @@ export type AgentDispatchReviewerLane =
   | 'proof-or-stop-review-behavior'
   | 'proof-or-stop-review-docs'
   | 'proof-or-stop-review-channel'
-  | 'proof-or-stop-review-delivery';
+  | 'proof-or-stop-review-delivery'
+  | 'acceptance-rollout-verifier'
+  // Historical spellings are accepted at the input/compatibility boundary;
+  // canonical proof-or-stop lanes remain the runtime authority.
+  | 'lattice-review-story-init'
+  | 'product-reviewer'
+  | 'lattice-review-scope-plan'
+  | 'lattice-review-topology-critic'
+  | 'lattice-review-concept'
+  | 'lattice-review-quality'
+  | 'lattice-review-test-coverage'
+  | 'lattice-review-behavior'
+  | 'lattice-review-docs'
+  | 'lattice-review-channel'
+  | 'lattice-review-delivery';
 
 export type AgentDispatchEvidenceOwnership =
   | 'checklist-status'
@@ -128,6 +145,7 @@ export type AgentDispatchEvidenceOwnership =
   | 'scope-check'
   | 'topology-exclusion-approval'
   | 'topology-critic-receipt'
+  | 'review-inventory-critic-receipt'
   | 'review-run'
   | 'finding'
   | 'review-pass'
@@ -1696,6 +1714,141 @@ export interface ReviewRun {
 
 export interface ReviewRunData {
   runs: ReviewRun[];
+}
+
+export type ReviewInventoryEpochState = 'OPEN' | 'FINALIZED' | 'INVALIDATED' | 'CANCELLED';
+
+export interface ReviewInventoryLaneTerminal {
+  lane: string;
+  reviewRunId: string;
+  terminal: 'pass' | 'finding';
+  hostIdentity: string;
+  promptIdentity: string;
+  evidenceIds: string[];
+  coverageDigest: string;
+}
+
+export interface ReviewInventoryWave {
+  wave: number;
+  startedAt: string;
+  completedAt?: string;
+  lanes: ReviewInventoryLaneTerminal[];
+  verifiedFindingFamilies: string[];
+  verifiedFindingSetDigest?: string;
+  newVerifiedFindingCount?: number;
+  criticDigest?: string;
+  saturated?: boolean;
+  /** Highest numeric ReviewRun id already existing when this checkpoint sealed the wave. */
+  nextRunSequenceBoundary?: number;
+}
+
+/** Signed frozen-candidate inventory fact. It never certifies remediated material. */
+export interface ReviewInventoryEpoch {
+  schemaVersion: 'proofbound.review_inventory_epoch.v1';
+  epochId: string;
+  storyId: string;
+  reviewRound: string;
+  state: ReviewInventoryEpochState;
+  begunAt: string;
+  updatedAt: string;
+  cutoff: { headHash: string; materialHash: string; storyFilesHash?: string };
+  /** Frozen REVIEW acceptance subject (scope contract + complete checklist semantics). */
+  scopeDigest: string;
+  /** Frozen signed candidate-routing universe, when routing exists at epoch begin. */
+  candidateSpecSetDigest?: string;
+  corpusDigest?: string;
+  requiredLanes: string[];
+  /** Highest numeric ReviewRun id existing at begin; current-wave runs must be strictly newer. */
+  initialRunSequenceBoundary?: number;
+  /** Signed snapshot of open verified findings from current-cutoff/current-round runs that predate begunAt. */
+  baselineFindingIds?: string[];
+  maxWaves: number;
+  waves: ReviewInventoryWave[];
+  invalidation?: {
+    detectedAt: string;
+    oldMaterialHash: string;
+    currentMaterialHash: string;
+    oldStoryFilesHash?: string;
+    currentStoryFilesHash?: string;
+    blockerCode:
+      | 'OPEN_REVIEW_INVENTORY_MATERIAL_MUTATION'
+      | 'OPEN_REVIEW_INVENTORY_SCOPE_MUTATION'
+      | 'OPEN_REVIEW_INVENTORY_CANDIDATE_ROUTING_MUTATION'
+      | 'OPEN_REVIEW_INVENTORY_INVALID_CANDIDATE_ARTIFACT';
+    oldScopeDigest?: string;
+    currentScopeDigest?: string;
+    oldRequiredLanes?: string[];
+    currentRequiredLanes?: string[];
+    oldCandidateSpecSetDigest?: string;
+    currentCandidateSpecSetDigest?: string;
+    oldCorpusDigest?: string;
+    currentCorpusDigest?: string;
+  };
+  cancelledAt?: string;
+  cancelReason?: string;
+  /** Highest ReviewRun sequence existing when CANCELLED/INVALIDATED became terminal. */
+  terminalRunSequenceBoundary?: number;
+  receiptId?: string;
+  consumedAt?: string;
+  consumedByReviewRound?: string;
+  _hash: string;
+}
+
+export interface ReviewInventoryReceipt {
+  schemaVersion: 'proofbound.review_inventory_receipt.v1';
+  receiptId: string;
+  epochId: string;
+  storyId: string;
+  reviewRound: string;
+  cutoff: { headHash: string; materialHash: string; storyFilesHash?: string };
+  scopeDigest: string;
+  requiredLanes: string[];
+  waveCount: number;
+  findingSetDigest: string;
+  coverageDigest: string;
+  saturationResult: 'ZERO_NEW_VERIFIED_FINDINGS';
+  authority: 'inventory-completeness-only';
+  authorizesTest: false;
+  issuedAt: string;
+  consumedAt?: string;
+  /** Signed revocation of an unconsumed receipt; revoked receipts never grant remediation authority. */
+  invalidatedAt?: string;
+  invalidationReason?: string;
+  _hash: string;
+}
+
+export interface ReviewInventoryCriticReceipt {
+  schemaVersion: 'proofbound.review_inventory_critic_receipt.v1';
+  criticReceiptId: string;
+  epochId: string;
+  storyId: string;
+  reviewRound: string;
+  wave: number;
+  cutoff: { headHash: string; materialHash: string; storyFilesHash?: string };
+  aggregateFindingSetDigest: string;
+  requiredLaneCoverageDigest: string;
+  criticLane: 'lattice-review-topology-critic';
+  reviewRunId: string;
+  terminalEvidenceIds: string[];
+  readEvidenceDigest: string;
+  findingDispositions: ReviewInventoryFindingDisposition[];
+  createdAt: string;
+  _hash: string;
+}
+
+export interface ReviewInventoryFindingDisposition {
+  findingId: string;
+  disposition: 'verified_family' | 'duplicate' | 'not_verified';
+  familyKey?: string;
+  canonicalFindingId?: string;
+  reason: string;
+}
+
+export interface ReviewInventoryEpochData {
+  schemaVersion: 'proofbound.review_inventory_epochs.v1';
+  epochs: ReviewInventoryEpoch[];
+  receipts: ReviewInventoryReceipt[];
+  criticReceipts: ReviewInventoryCriticReceipt[];
 }
 
 /** Evaluator scoring evidence (consumed by browser project DONE gate) */

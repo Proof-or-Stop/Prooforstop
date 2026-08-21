@@ -8,6 +8,7 @@ import { fileURLToPath } from 'node:url';
 import {
   LOAD_BEARING_LATTICE_PROMPT_SLICE,
   isModularComplexRoleId,
+  isActiveModularReviewerRoleId,
   isModularReviewerRoleId,
   readPromptRegistry,
   renderCodexPromptContent,
@@ -211,7 +212,7 @@ function assertMirrorsMatch(): void {
       : renderCodexPromptContent(packageContent);
     assert.equal(claudeContent, expectedClaude, `.claude asset matches canonical host input for ${file}`);
     assert.equal(codexContent, expectedCodex, `.proof-or-stop-codex asset matches canonical host input for ${file}`);
-    if (isModularReviewerRoleId(roleId)) {
+    if (isActiveModularReviewerRoleId(roleId)) {
       assert.match(claudeContent, /review_run_start/, `.claude bootstrap selects ${file} at runtime`);
       assert.match(codexContent, /review_run_start/, `.proof-or-stop-codex bootstrap selects ${file} at runtime`);
     } else if (isModularComplexRoleId(roleId)) {

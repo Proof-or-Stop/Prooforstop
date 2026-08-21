@@ -51,6 +51,7 @@ import {
   resolvePromptRoleBody,
 } from './prompt-role-contract-registry.js';
 import { reviewIncrementalContext } from './review-incremental-context.js';
+import { assertReviewInventoryCutoff } from './review-inventory-epoch.js';
 
 export const REVIEW_RUN_SALT = 'lattice-review-run-integrity-v1';
 
@@ -596,7 +597,7 @@ export function verifyCurrentReviewerDispatchBinding(args: {
 }): { ok: true; binding: VerifiedReviewerDispatchBinding } | { ok: false; reason: string } {
   const event = [...args.store.readProcessEvents(args.storyId)].reverse().find(candidate =>
     candidate.type === 'dispatch'
-    && candidate.targetKind === 'story-review'
+    && candidate.targetKind === (args.lane === 'lattice-review-topology-critic' ? 'topology-critic-review' : 'story-review')
     && candidate.agentType === args.lane
     && candidate.reviewRound === args.reviewRound);
   if (!event) {
@@ -795,6 +796,7 @@ export function verifyReviewRunPromptEnvelope(
           // doing so made every valid pass stale at DONE after review_pass_set
           // appended its own metadata commit.
           passesCutoffAt: run.startedAt,
+          findingProjection: envelope.findingProjection,
         },
       );
     } catch (error) {
@@ -878,7 +880,7 @@ function startRunHint(storyId: string, lane: string): string {
 
 function latestRunHint(storyId: string, lane: string, latestRunId?: string): string {
   const latest = latestRunId ? `(current latest: ${latestRunId})` : '';
-  return `→ Current lane already has a newer reviewer run${latest}: use the latest reviewRunId to resubmit finding_add/review_pass_set; do not reuse the old reviewRunId`;
+  return `→ Current lane already has a newer reviewer run${latest}: use the latest reviewRunId to resubmit finding_add; do not reuse the old reviewRunId`;
 }
 
 function roundMismatchHint(storyId: string, lane: string): string {
@@ -886,7 +888,8 @@ function roundMismatchHint(storyId: string, lane: string): string {
 }
 
 function staleMaterialHint(storyId: string, lane: string): string {
-  return `→ The reviewRunId's HEAD/materialHash is stale and cannot be fixed by repeatedly running review_run_start within the same REVIEW round; first return to DEV to fix and commit, then run proof-or-stop story_advance '{"storyId":"${storyId}","phase":"REVIEW"}' to enter a new currentReviewRound, and subsequently run proof-or-stop review_run_start '{"storyId":"${storyId}","agent":"${lane}"}'`;
+  return `→ The reviewRunId's HEAD/materialHash is stale and cannot be fixed by repeatedly running review_run_start within the same REVIEW round; run proof-or-stop review_inventory_begin --storyId=${storyId}, finish required lanes + topology critic findingDispositions + finalize, consume that receipt to enter DEV and commit the repair, then advance to REVIEW and run proof-or-stop review_run_start '{"storyId":"${storyId}","agent":"${lane}"}'`;
+
 }
 
 // ── B-6bfd CHK-005: review scope binding (scope-protected stories only) ──
@@ -1227,6 +1230,9 @@ export function assertCurrentReviewRunForEvidence(
   agent: string,
   reviewRunId: string | undefined,
 ): ReviewRun {
+  if (story.phase !== 'REVIEW') {
+    throw new Error(`REVIEW_EVIDENCE_PHASE_REQUIRED: story ${story.storyId} is ${story.phase}; reviewer evidence is writable only in REVIEW`);
+  }
   if (!story.currentReviewRound) {
     throw new Error(
       `review_run_start: story ${story.storyId} is marked REVIEW but missing currentReviewRound. ` +
@@ -1295,6 +1301,12 @@ export function assertCurrentReviewRunForEvidence(
   if (!freshness.fresh) {
     throw new Error(`review evidence for ${agent} bound reviewRunId ${reviewRunId} is stale: ${freshness.reason}. ${staleMaterialHint(story.storyId, agent)}`);
   }
+  const liveMaterialHash = currentMaterialHash(signedProjectRoot, 'HEAD', run.workspaceBinding?.metadataRoot ?? projectRoot);
+  if (!liveMaterialHash) throw new Error(`review inventory freshness: cannot compute current material hash for ${story.storyId}`);
+  assertReviewInventoryCutoff(store, story.storyId, {
+    materialHash: liveMaterialHash,
+    storyFilesHash: currentStoryFilesHash(signedProjectRoot, 'HEAD', run.workspaceBinding?.metadataRoot ?? projectRoot) ?? undefined,
+  });
   if (freshness.warnings?.length) {
     console.warn(`review evidence for ${agent} bound reviewRunId ${reviewRunId}: ${freshness.warnings.join('; ')}`);
   }
