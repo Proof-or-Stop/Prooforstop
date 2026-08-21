@@ -2,7 +2,7 @@
   "schemaVersion": "proofstory.pre_review_check.v1",
   "storyId": "B-5a15",
   "mode": "observe",
-  "cutoffAt": "2026-08-21T00:20:17.371Z",
+  "cutoffAt": "2026-08-21T00:21:31.283Z",
   "planBasisDigest": "sha256:bb43d92925c25e4ea65c1582657939b83cc1867e11fd9feff057df97daa27f8c",
   "preReviewBasisArtifact": {
     "schemaVersion": "proofstory.acceptance_basis_artifact.v1",
@@ -768,37 +768,532 @@
   "scopeContractDigest": "sha256:487afb9713427d2fca6ea2f3f0ceca247841f2f8505fcc35423bc7792e474356",
   "storyFilesHash": "f4b91d14aaf2c1c4d002e798d2a315ba04d718c6ac62eed2f97519f42e7f7d7b",
   "closureFilesHash": "sha256:59f5ab7929af79b05e2ff65a8f99ecfeb38ce545b9dfe895b07c7734333ec3f1",
-  "evidenceRefs": [],
+  "evidenceRefs": [
+    {
+      "intentRef": "CHK-001:adversarial:0",
+      "itemId": "CHK-001",
+      "evidenceIndex": 6,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:ebb91e9feeea3cdd8b5afd879d856a1f2241660504f80fccbcefc208d81f76b9"
+    },
+    {
+      "intentRef": "CHK-001:adversarial:1",
+      "itemId": "CHK-001",
+      "evidenceIndex": 7,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:155afaddee16b001d4bbbae95689027b9c33b55de07876ba0092beaa9627f6e6"
+    },
+    {
+      "intentRef": "CHK-001:adversarial:2",
+      "itemId": "CHK-001",
+      "evidenceIndex": 8,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:a32946ee11f623261ba760d7f164a5351ceca1eb71cbe825d134f85cc1cf1647"
+    },
+    {
+      "intentRef": "CHK-001:edge:0",
+      "itemId": "CHK-001",
+      "evidenceIndex": 3,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:acc5dc7b5bb530953d92b0682571cdfa32d8f12f146ff4470404cd22a3502dc4"
+    },
+    {
+      "intentRef": "CHK-001:edge:1",
+      "itemId": "CHK-001",
+      "evidenceIndex": 4,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:47d5844cbe3b72dd7512a54f761aa9f67bd327fbc4cd4986d53211a087963af9"
+    },
+    {
+      "intentRef": "CHK-001:edge:2",
+      "itemId": "CHK-001",
+      "evidenceIndex": 5,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:a6d447267060339cfd86e0fd131e1b04cd00c94b59d6e8416bfa23ea0074e57c"
+    },
+    {
+      "intentRef": "CHK-001:happy:0",
+      "itemId": "CHK-001",
+      "evidenceIndex": 0,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:c7bcaa019763281a16545ba7928f48d00e924f4ebaff9196f530a82526503e67"
+    },
+    {
+      "intentRef": "CHK-001:happy:1",
+      "itemId": "CHK-001",
+      "evidenceIndex": 1,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:7acd287a8a985b6f48e8cfd5c2345fb1c2d06bf3910231d8a9f18a5accc61121"
+    },
+    {
+      "intentRef": "CHK-001:happy:2",
+      "itemId": "CHK-001",
+      "evidenceIndex": 2,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:cbb53fa28a2ab650c3af6952ee6efe02341960ccd49b6c2d0ce2b4bd50b31ce2"
+    },
+    {
+      "intentRef": "CHK-002:adversarial:0",
+      "itemId": "CHK-002",
+      "evidenceIndex": 5,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:36496b92a4952a4c71f0bd0b3fadd64faa400e809dce721174e5303afa4ab378"
+    },
+    {
+      "intentRef": "CHK-002:adversarial:1",
+      "itemId": "CHK-002",
+      "evidenceIndex": 6,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:454b14c99f5060c0906d3157edbd1debd125d928c00bab7dcb088908bf3e0fb1"
+    },
+    {
+      "intentRef": "CHK-002:adversarial:2",
+      "itemId": "CHK-002",
+      "evidenceIndex": 7,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:3bc882e83deda41849d96235446806b0c28da6f3caeab3cc2de9b5a6d25bd535"
+    },
+    {
+      "intentRef": "CHK-002:adversarial:3",
+      "itemId": "CHK-002",
+      "evidenceIndex": 8,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:20bd73cbf32e5c56ce53f3613c532cecd4f94746dabfe11be2e2fa2d39e6c55b"
+    },
+    {
+      "intentRef": "CHK-002:edge:0",
+      "itemId": "CHK-002",
+      "evidenceIndex": 2,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:a6aca67d72af7b8071b56a2321c0d95bd4d83f1d1255561d3d492fe9f73bc226"
+    },
+    {
+      "intentRef": "CHK-002:edge:1",
+      "itemId": "CHK-002",
+      "evidenceIndex": 3,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:12f8fbc9fe61165eb23b5cef4fd3aa00c13cbd77a0eddee5e070449030a69054"
+    },
+    {
+      "intentRef": "CHK-002:edge:2",
+      "itemId": "CHK-002",
+      "evidenceIndex": 4,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:16892ad8adbcb0866d01ee393980acc0e8bb31fa45eb8adf55c22dba6af76126"
+    },
+    {
+      "intentRef": "CHK-002:happy:0",
+      "itemId": "CHK-002",
+      "evidenceIndex": 0,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:c6cd447d984b9d9887ef38f54145e294ab308ab7a2e80352750419921b73cc6b"
+    },
+    {
+      "intentRef": "CHK-002:happy:1",
+      "itemId": "CHK-002",
+      "evidenceIndex": 1,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:d9342a1f2637f65ae87bb9977e24e7beb8a51f201c0604c36256b54b4746f6ff"
+    },
+    {
+      "intentRef": "CHK-003:adversarial:0",
+      "itemId": "CHK-003",
+      "evidenceIndex": 6,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:41899f4fbfb59d5d3bf71c894b915aa9af930952b0cdfa612ab824eeefbc49a6"
+    },
+    {
+      "intentRef": "CHK-003:adversarial:1",
+      "itemId": "CHK-003",
+      "evidenceIndex": 7,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:c417eae533068b9d2e250ba41e54af713912ddfdc05b02b71ab7dfaeb6cfc846"
+    },
+    {
+      "intentRef": "CHK-003:adversarial:2",
+      "itemId": "CHK-003",
+      "evidenceIndex": 8,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:d4fd89485a30e231acd234527ec6e1c0d4b2bfa8b8662b73992624fc4846d0c6"
+    },
+    {
+      "intentRef": "CHK-003:adversarial:3",
+      "itemId": "CHK-003",
+      "evidenceIndex": 9,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:d84d674446041a1551043c24c70e9fbbac948a3f72f004710f99c46b85b83758"
+    },
+    {
+      "intentRef": "CHK-003:edge:0",
+      "itemId": "CHK-003",
+      "evidenceIndex": 3,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:eb1b923e1bdef7fe664de4fff859c4ba9d6d1cb03a7cb2e86cca5ab9c4d0a4e4"
+    },
+    {
+      "intentRef": "CHK-003:edge:1",
+      "itemId": "CHK-003",
+      "evidenceIndex": 4,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:1185a62d7957ea823d69ac83c1bd7cea413f1880edc7ab0369f7e447f8e39e3b"
+    },
+    {
+      "intentRef": "CHK-003:edge:2",
+      "itemId": "CHK-003",
+      "evidenceIndex": 5,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:878ba4ebea3d0ed71dd978cd7abdc698b4395d03e4fbd94a5300abbede600ca7"
+    },
+    {
+      "intentRef": "CHK-003:happy:0",
+      "itemId": "CHK-003",
+      "evidenceIndex": 0,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:67061ad749000dc0846bb11599ce001d315a5fca6ce0db970f68562dcc1f0d26"
+    },
+    {
+      "intentRef": "CHK-003:happy:1",
+      "itemId": "CHK-003",
+      "evidenceIndex": 1,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:ec25c3a1634184e63eceeff5cd72c45e29d85a6371596acaccd565aa07f58ab0"
+    },
+    {
+      "intentRef": "CHK-003:happy:2",
+      "itemId": "CHK-003",
+      "evidenceIndex": 2,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:1ab7e425ecdaead729d86fe8fb98d1c78b8b3766b28f28999abc7b57699b4250"
+    },
+    {
+      "intentRef": "CHK-004:adversarial:0",
+      "itemId": "CHK-004",
+      "evidenceIndex": 10,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:165ee6627fe440a29e78091918094d75060c5f76871cf22dbdd6333a2b6d8270"
+    },
+    {
+      "intentRef": "CHK-004:adversarial:1",
+      "itemId": "CHK-004",
+      "evidenceIndex": 11,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:3dd0af8d49c329961722ac625152982553a33296a78be279b0f0a440a68c4a87"
+    },
+    {
+      "intentRef": "CHK-004:edge:0",
+      "itemId": "CHK-004",
+      "evidenceIndex": 2,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:faf1740a38d4ea4c7fa6216dfdc812c31209d49ea94049e043637258902b088e"
+    },
+    {
+      "intentRef": "CHK-004:edge:1",
+      "itemId": "CHK-004",
+      "evidenceIndex": 3,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:c6a00e6c64fd24d44817468f794abead68d4c751f18f20114b6da562a73a13b6"
+    },
+    {
+      "intentRef": "CHK-004:edge:2",
+      "itemId": "CHK-004",
+      "evidenceIndex": 4,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:f952ec88a1563c947a1587f2202a2c2c60da1b0d3fb569ea3be67d4073a84ca9"
+    },
+    {
+      "intentRef": "CHK-004:edge:3",
+      "itemId": "CHK-004",
+      "evidenceIndex": 5,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:adc1d0db7eb2302a661a3a8ce6318b6244fa401e8eee4812429516913b98350f"
+    },
+    {
+      "intentRef": "CHK-004:edge:4",
+      "itemId": "CHK-004",
+      "evidenceIndex": 6,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:5dfe9828065333873fedf2d0d5ce4598ee5e8e99ef2d4c458481fe75c9f4c84d"
+    },
+    {
+      "intentRef": "CHK-004:edge:5",
+      "itemId": "CHK-004",
+      "evidenceIndex": 7,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:198445db2e64e16c57f2e6acd322b6c18d7e3803fc54ed166244c2ce38fed2f4"
+    },
+    {
+      "intentRef": "CHK-004:edge:6",
+      "itemId": "CHK-004",
+      "evidenceIndex": 8,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:80783c59d93a9f9e82af40e8f43de26a695cf1a9ee7d4522162fcea61bc5c49e"
+    },
+    {
+      "intentRef": "CHK-004:edge:7",
+      "itemId": "CHK-004",
+      "evidenceIndex": 9,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:482ab62c3b1a0bd0ca8067b70e40cc1c055e42218aadd55f9d54bb7b2bf4f348"
+    },
+    {
+      "intentRef": "CHK-004:happy:0",
+      "itemId": "CHK-004",
+      "evidenceIndex": 0,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:3d1fb8fc143e0072213e487580165f0964a755458be3966a4dbc69007879d1a1"
+    },
+    {
+      "intentRef": "CHK-004:happy:1",
+      "itemId": "CHK-004",
+      "evidenceIndex": 1,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:1755d877af7c7db35525235b308f15ca32a2671dcf7a9d39b76f04a054831582"
+    },
+    {
+      "intentRef": "CHK-005:adversarial:0",
+      "itemId": "CHK-005",
+      "evidenceIndex": 7,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:8639d4b2385cecbe5e9c46339a55662da9783f0b3ea323cbc207e32ec61734c1"
+    },
+    {
+      "intentRef": "CHK-005:adversarial:1",
+      "itemId": "CHK-005",
+      "evidenceIndex": 8,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:7f1b614e31721792ad3472dfea5ec38cf69ce9804a33bb76363daf51b471fba6"
+    },
+    {
+      "intentRef": "CHK-005:adversarial:2",
+      "itemId": "CHK-005",
+      "evidenceIndex": 9,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:5d9dd672150f106e560c356f1a083cb923fdb8668cf65fb7d6abd0788f21189c"
+    },
+    {
+      "intentRef": "CHK-005:edge:0",
+      "itemId": "CHK-005",
+      "evidenceIndex": 3,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:688c283bba9267364ef080ce0863f76fa843b53c4f45c94713bbcb9aff89516d"
+    },
+    {
+      "intentRef": "CHK-005:edge:1",
+      "itemId": "CHK-005",
+      "evidenceIndex": 4,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:88c59fce2bc4529bdcb3a8f792957cbc4216acf2a1843f94bf82948d72b1b73a"
+    },
+    {
+      "intentRef": "CHK-005:edge:2",
+      "itemId": "CHK-005",
+      "evidenceIndex": 5,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:bcbb90813d23848cad6bb72c613abf6e4bfe2dc1a1c33bf4b902a54edf54f72e"
+    },
+    {
+      "intentRef": "CHK-005:edge:3",
+      "itemId": "CHK-005",
+      "evidenceIndex": 6,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:390d5cf09b9333f238595baa148048de02cd6b36fe0d793e0bb571fb07b1276c"
+    },
+    {
+      "intentRef": "CHK-005:happy:0",
+      "itemId": "CHK-005",
+      "evidenceIndex": 0,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:dafaddd172791c8fc1771641cf494388a9748d22c62554faed6d166ca2e14e8a"
+    },
+    {
+      "intentRef": "CHK-005:happy:1",
+      "itemId": "CHK-005",
+      "evidenceIndex": 1,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:111832e1d3383aa21148beb12f5f3be972fc8220ff73ba437861606e1c1752bf"
+    },
+    {
+      "intentRef": "CHK-005:happy:2",
+      "itemId": "CHK-005",
+      "evidenceIndex": 2,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:c33b7bd0abcab6e6e1966a0b8a983858a694e78cb64486accae7cb9e067e254e"
+    }
+  ],
   "executableProof": {
     "schemaVersion": "proofstory.pre_review_executable_proof.v1",
     "storyId": "B-5a15",
     "producer": "registered-verification-command",
     "verifier": "pre-review-check-command-runner",
-    "commandDigests": [],
+    "commandDigests": [
+      "sha256:587e18d0692e8d556291055c6c96c8975310505465cff8e766f7bd5109ce3e01"
+    ],
     "caseRecordsEncoding": "gzip-base64",
-    "caseRecords": "",
+    "caseRecords": "H4sIAAAAAAACE92bTY+jRhCG/wpyriaiq7/Ah0jO7EaJolVWs3OzrBGDezxkPWA12Mn++4C/srarmiCFA30aG3DDPI/rLWjwYjGZhw+//h5GEQvf0u32WxhNppNtWeV1vjfNy9q8b8OqLu232c/h1prQmn1u/gqr9/KrmTULno8LnrM3k30Nf7pd0rxJV8042cakRZilRVnkWboJ98bmr7mxzSq7K4J/dxPcjhDUb6YIqHE/z798ufyp7c5MF4vJ1parXWZsaPbpZpfWptlSseV0McnKotq9N2tO+29XwHI5neRFbYp6dmIxO7CYRZP2M7eEmK+EOEVIkIQYSgh8JSQpQookBDeEzGpt/C0yTQGKEUAtirsaO/DxtsQSgo+OKD4M4+NrgWkqpDVQfK7rCzzvYprKaH2f0YB2MfC8i2kqo7UiCbEbQl5ntKYyWscIICSjwe+M1lRGxxHFB/3++JrRMZXRMVB8rjOae57RMZXR8X1GczSjuecZHVMZHSuSEEMJeVtkVEjHMUnotsq87mIxldJJhABCuhj3u4slVEonQPFhGB9fCyyhQjoRFJ/r+hKed7GEyujkPqMF2sWE510soTI6iUlC7IaQ1xmdUBnNogghhIS08DukWcRIQkARQr9C4C0hThISFCHACHFvCUmSkKIIcYyQ8JaQJgnFFCGBEZLeEiKTmpFJLTFCyldCjExqRia1wghpbwmRSc3IpNZXhKTnp9SMkVHN7qNaoifV0vOTasbIsGYxyYihjLw9KWJkXENEMoIbRl5fejAg8xoAQYRce0jPrz2AzGsQFCGGEfK2zICMa1AUIbTKvL32ADKsIaYIHa89Pl0eaEhXzceq1ObNf9DG0fuuTuu8LP4LqPOCw+H/+GdVFj9U+bpI6501M3oXl23C19KuTTM8ve1hixuW97sNLkNOg5ZicHbRvm0/ZwLzd5rVQWrr/LV50S5vJTXsaltuWtyPz/PHp99+mT88PT/NP33++PjxA7n4bOUMK2wifnMif2gOqzxdF2VV51lYvlTG7g/reHTy1e4zPBxBu5QhD1d8x+EUjDgjNrwy1kMZG6MyDg5lHFUmOpQxhzIYXhn0UAajVCYdyhSqTHcogytlMHwwQo9ghPEHI48dyhJMmcCe+KCDEYYPRugRjDD+YBSMViYAVcY7lDGHMhheGfRQNspgFMKhTKLKVIcyVzDy4ZXxHsr4KJVph7IYVZZ0KLs+yefD9zLeo5fx8fcyGdHKJMOUSey5D7qX8eF7Ge/Ry/j4e5nkDmUCVSY7lDGHMhheGfRQNspeJpVDmUaVxR3KwKGMD6+M91A2yl4mHbMfCp39UKxD2XUvE8P3MtGjl4nx9zLlmP1Q6OyHwm4o0r1MDN/LRI9eJsbfy5Rj9kOhsx9Kdyi77mVy+CqTPapMelBljtkPhc5+aOxeIl1lcvgqkz2qTI6/yrRj9kOjsx+adyhzVRkMrwx6KBvlGaN2zH5odPZDqw5lxzPGp3D+8NBOGbdmbFpUmc239f94M9HsmwMIN+W6GWBz/g5Yk5V2FTTIdunm2sPxbmCD8H27Me3mwYt5bVGf4X+3qhnpj8cPJ6aXV847i+SvFNnxZ4pplpltnRaZCV/yYpUX69kZ0HL5D1tOkO/XQgAA",
     "provenance": {
-      "runnerPath": "",
-      "runnerDigest": "",
-      "targetPath": "",
-      "targetDigest": "",
-      "buildCommand": ""
+      "runnerPath": "scripts/run-proofstory-pre-review-live-proof.mjs",
+      "runnerDigest": "sha256:e45f9001861defcd91a85f1c8f10df27d24487f95bb80dfd8ed6dde7c6a0f2e9",
+      "targetPath": "packages/main/dist/tasks/proofstory-pre-review-check-smoke.js",
+      "targetDigest": "sha256:b783196c1de51856975fa06e094f4f3f5a1e114348de0b994378c3922865081c",
+      "buildCommand": "npm --prefix packages/main run build"
     },
-    "bindingProofs": []
+    "bindingProofs": [
+      {
+        "bindingId": "ACC-001",
+        "positiveAssertionIds": [
+          "A-CHK-001-happy-0",
+          "A-CHK-001-happy-1",
+          "A-CHK-001-happy-2",
+          "A-CHK-001-edge-0",
+          "A-CHK-001-edge-1",
+          "A-CHK-001-edge-2",
+          "A-CHK-002-happy-0",
+          "A-CHK-002-happy-1",
+          "A-CHK-002-edge-0",
+          "A-CHK-002-edge-1",
+          "A-CHK-002-edge-2",
+          "A-CHK-003-happy-0",
+          "A-CHK-003-happy-1",
+          "A-CHK-003-happy-2",
+          "A-CHK-003-edge-0",
+          "A-CHK-003-edge-1",
+          "A-CHK-003-edge-2",
+          "A-CHK-004-happy-0",
+          "A-CHK-004-happy-1",
+          "A-CHK-004-edge-0",
+          "A-CHK-004-edge-1",
+          "A-CHK-004-edge-2",
+          "A-CHK-004-edge-3",
+          "A-CHK-004-edge-4",
+          "A-CHK-004-edge-5",
+          "A-CHK-004-edge-6",
+          "A-CHK-004-edge-7",
+          "A-CHK-005-happy-0",
+          "A-CHK-005-happy-1",
+          "A-CHK-005-happy-2",
+          "A-CHK-005-edge-0",
+          "A-CHK-005-edge-1",
+          "A-CHK-005-edge-2",
+          "A-CHK-005-edge-3"
+        ],
+        "mutationProofs": [
+          {
+            "mutationId": "M-CHK-001-adversarial-0",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-CHK-001-adversarial-1",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-CHK-001-adversarial-2",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-CHK-002-adversarial-0",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-CHK-002-adversarial-1",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-CHK-002-adversarial-2",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-CHK-002-adversarial-3",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-CHK-003-adversarial-0",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-CHK-003-adversarial-1",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-CHK-003-adversarial-2",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-CHK-003-adversarial-3",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-CHK-004-adversarial-0",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-CHK-004-adversarial-1",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-CHK-005-adversarial-0",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-CHK-005-adversarial-1",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-CHK-005-adversarial-2",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          }
+        ],
+        "transcriptProofs": [
+          {
+            "transcriptId": "T-ACC-001",
+            "producerRefs": [
+              "P-001"
+            ],
+            "consumerRefs": [
+              "C-001"
+            ],
+            "producerSequence": 177,
+            "consumerSequence": 178
+          }
+        ]
+      }
+    ]
   },
   "criticReceiptDigest": "sha256:f1e27433127b6a88d00583cccc41f0b2b98e5fee0f30811d1f692136fdc266cf",
-  "codes": [
-    "PR_POSITIVE_EVIDENCE_MISSING",
-    "PR_PRODUCTION_PATH_UNPROVEN",
-    "PR_MUTATION_EVIDENCE_MISSING",
-    "PR_MUTATION_DID_NOT_BITE",
-    "PR_CONTROL_NOT_RESTORED",
-    "PR_TRANSCRIPT_MISSING",
-    "PR_AUTHORITY_INADMISSIBLE",
-    "PR_EVIDENCE_STALE"
-  ],
-  "status": "fail",
-  "issuedAt": "2026-08-21T00:20:17.371Z",
+  "codes": [],
+  "status": "pass",
+  "issuedAt": "2026-08-21T00:21:31.283Z",
   "signerPublicKey": "4K3JOygx9kXStVuiYM8fjT485DCzR4yqnTy5Sch+TOQ=",
-  "signature": "EKkhXWgcmzN7aRMZq3aoJDyGvUXHdM9/UXIVX5CYGapIXzFs9ISABl++skZZwgIpqc3/hcWdTn9QV08NxVKLBg=="
+  "signature": "Xc+DpqelC0iOEpEHsyceCohKvDYxzEZSwNk4LmfUUgRBu1XH1gitHCkS3bdxLyRe50qKOABspifRliY8XDQiBw=="
 }
