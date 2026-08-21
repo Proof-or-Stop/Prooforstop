@@ -2172,6 +2172,97 @@
         "scanEscalationReason": null
       },
       "_hash": "686d22112e2c262aa4044faaac011ef46e0432efa25da8c256a24518599960bb"
+    },
+    {
+      "id": "B-5a88:RP-035",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 concept review passed: F-108 canonical freshness snapshot writer plus exact legacy dual-read/unknown rejection verified; F-109 active guidance and prompt baseline are canonical, and retained lattice spellings are explicitly compatibility-only.",
+      "createdAt": "2026-08-21T02:42:17.883Z",
+      "reviewRound": "2026-08-21T02:35:54.598Z",
+      "reviewRunId": "B-5a88:RR-136",
+      "envelopeId": "99b9810751f162323410c90954160da79ba08c9bcfbe3a19ef937186389cc22c",
+      "writerSessionId": "sess-2d49db2fb717b69ad76122a67bb806c3",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/proof-or-stop-review-concept.md",
+          ".proof-or-stop-codex/agents/proof-or-stop-review-concept.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/artifact-schema.ts",
+          "packages/main/src/core/reviewer-opt-in.ts",
+          "packages/main/tests/artifact-schema-migration.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "CLAUDE.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/prompt-role-migration.test.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1343957960733558c5a98a039ecf9a6aa9e9f057a50ac274d3360dfd8300fed8"
+    },
+    {
+      "id": "B-5a88:RP-036",
+      "agent": "lattice-review-quality",
+      "note": "F-107 canonical global-thin config, Codex manifest/env writer, managed assets, legacy manifest compatibility, adapter checks/heartbeat, type safety, and changed-file scope reviewed; no blocker found.",
+      "createdAt": "2026-08-21T02:46:45.054Z",
+      "reviewRound": "2026-08-21T02:35:54.598Z",
+      "reviewRunId": "B-5a88:RR-135",
+      "envelopeId": "5fb05980534a18f32b23869e8867b3f14f2aeca8a06d810911a95fe1b5c1e671",
+      "writerSessionId": "sess-800dbe94e2e995b332bc7611194be1eb",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/brand-env.ts",
+          "packages/main/src/tasks/thin-init-assets-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "package-lock.json",
+          "package.json",
+          "packages/lab/package-lock.json",
+          "packages/lab/package.json",
+          "packages/main/package-lock.json",
+          "packages/main/package.json",
+          "packages/main/src/cli-init.ts",
+          "packages/main/src/core/agent-asset-resolution.ts",
+          "packages/main/src/core/brand-paths.ts",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/managed-assets.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/release-push-approval.ts",
+          "packages/main/src/init-assets.ts",
+          "packages/main/src/tasks/codex-heartbeat-timeout-smoke.ts",
+          "packages/main/tests/artifact-schema-migration.test.mjs",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/prompt-role-migration.test.mjs",
+          "packages/utils/package-lock.json",
+          "packages/utils/package.json",
+          "scripts/verify-codex-assets.mjs",
+          "scripts/verify-entrypoints.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f99d086567c533cb6244cb28dd3a06f2d9f8ff1627e1022c5f2ecd3c37e85d88"
     }
   ]
 }
