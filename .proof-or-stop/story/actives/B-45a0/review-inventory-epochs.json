@@ -947,5 +947,43 @@
     }
   ],
   "receipts": [],
-  "criticReceipts": []
+  "criticReceipts": [
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-45a0:RI-027:CRIT-01",
+      "epochId": "B-45a0:RI-027",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "858a0a6cb5ff6eaa48e19fad6fbba1596ec8c0d9",
+        "materialHash": "61756af6f102c42b01810e9f5896b96b817c97df3beed5502c40eeddb1436959",
+        "storyFilesHash": "9a42e0b3981c90bca4eaffe7d18b21342abafe1065d7b032c69f98f11e5104e3"
+      },
+      "aggregateFindingSetDigest": "0d4c900f0f046a77e043af710720fd4e761043830f7621e12a76247c83d6ca58",
+      "requiredLaneCoverageDigest": "42159300a40e77310aa41ccd9e869810bceef32381e5a95b7c975d546a834251",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-45a0:RR-100",
+      "terminalEvidenceIds": [
+        "B-45a0:F-107"
+      ],
+      "readEvidenceDigest": "44232341e6db32025f78011a4491f4f3c0aec67abd4b9ff2e573677da43dc681",
+      "findingDispositions": [
+        {
+          "findingId": "B-45a0:F-105",
+          "disposition": "verified_family",
+          "familyKey": "historical-replay-execute-evidence-missing",
+          "reason": "Current acceptance basis is invalid/partial and the replay artifact is execute=false, pairedRequested=false, with all 50 records not-run and no pairedPerformance; this directly verifies the replay evidence blocker."
+        },
+        {
+          "findingId": "B-45a0:F-106",
+          "disposition": "verified_family",
+          "familyKey": "verification-evidence-current-head-stale",
+          "reason": "Current acceptance basis is stale/invalid and its binding reports old head/material/storyFilesHash; the 45 checklist evidence rows are not bound to current RI-027 material, so the coverage freshness blocker remains verified."
+        }
+      ],
+      "createdAt": "2026-08-21T19:22:23.272Z",
+      "_hash": "fed5503014e0b55f670fa901124532afd332fca9b040d1d2ec2302892a832f45"
+    }
+  ]
 }
