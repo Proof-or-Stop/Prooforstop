@@ -21,6 +21,7 @@ const {
 
 const {
   CAUSAL_DEPENDENCY_DOMAINS,
+  CAUSAL_RECEIPT_INDEX_FILE,
   DEFAULT_CAUSAL_SELECTOR_POLICY,
   causalDigest,
   computeCausalReceiptHash,
@@ -742,6 +743,82 @@ test('CHK-002: CAS receipts precede isolated import, retry commit only, and fail
     assert.throws(() => storyStore.readCausalEvidenceReceipt(storyId, key.key), /causal_receipt_tampered/);
     writeFileSync(receiptPath, original);
     assert.equal(storyStore.readCausalEvidenceReceipt(storyId, key.key).receiptHash, receipt.receiptHash);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('B-5a15: an injected index-write failure recovers the orphaned receipt without relaunching', async () => {
+  const root = mkdtempSync(join(tmpdir(), 'causal-evidence-index-recovery-'));
+  try {
+    writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
+      scanRoot: 'packages/main', rootDir: 'src', storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements',
+    }));
+    const storyStore = new StoryStore(root);
+    const originalWriteJsonFile = storyStore.writeJsonFile.bind(storyStore);
+    let injectIndexWriteFailure = true;
+    storyStore.writeJsonFile = (filePath, data) => {
+      if (injectIndexWriteFailure && filePath.endsWith(CAUSAL_RECEIPT_INDEX_FILE)) {
+        injectIndexWriteFailure = false;
+        throw new Error('injected causal-evidence index write failure');
+      }
+      return originalWriteJsonFile(filePath, data);
+    };
+
+    const persistedReceipts = [];
+    const store = {
+      readCausalEvidenceReceipt: (...args) => storyStore.readCausalEvidenceReceipt(...args),
+      writeCausalEvidenceReceipt: (...args) => {
+        persistedReceipts.push(args[1]);
+        return storyStore.writeCausalEvidenceReceipt(...args);
+      },
+    };
+    const storyId = 'B-causal-index-recovery';
+    const identity = { ...baseIdentity(storyId), cwd: root, inputs: { materialHash: 'material-index-recovery' }, storyFilesHash: 'story-index-recovery' };
+    const key = createCausalExecutionKey(identity).key;
+    const preflight = preflightFor(identity);
+    let launches = 0;
+
+    await assert.rejects(
+      executeCausalEvidence({
+        identity,
+        selector: 'INDEX-RECOVERY-MARKER',
+        run: async () => { launches++; return { code: 0, output: 'INDEX-RECOVERY-MARKER' }; },
+        receiptStore: store,
+        preflight,
+        revalidateBeforeRun: () => true,
+      }),
+      /injected causal-evidence index write failure/,
+    );
+    assert.equal(launches, 1);
+    assert.equal(persistedReceipts.length, 1);
+    const orphanedReceipt = persistedReceipts[0];
+    assert.equal(
+      readFileSync(storyStore.causalEvidenceReceiptPath(storyId, orphanedReceipt.receiptHash), 'utf8').length > 0,
+      true,
+      'the receipt remains durable when its index write fails',
+    );
+
+    const retry = await executeCausalEvidence({
+      identity,
+      selector: 'INDEX-RECOVERY-MARKER',
+      run: async () => { launches++; return { code: 0, output: 'unexpected duplicate launch' }; },
+      receiptStore: store,
+      preflight,
+      revalidateBeforeRun: () => true,
+    });
+    assert.equal(retry.disposition, 'reused');
+    assert.equal(launches, 1, 'retry reuses the orphaned receipt instead of launching again');
+    assert.equal(retry.receipt.receiptHash, orphanedReceipt.receiptHash);
+    assert.equal(verifyCausalEvidenceReceipt(retry.receipt, key), true);
+    assert.equal(storyStore.readCausalEvidenceReceipt(storyId, key).receiptHash, orphanedReceipt.receiptHash);
+
+    const index = JSON.parse(readFileSync(
+      join(root, '.proof-or-stop/story/actives', storyId, CAUSAL_RECEIPT_INDEX_FILE),
+      'utf8',
+    ));
+    assert.equal(index.receipts[key], orphanedReceipt.receiptHash, 'retry repairs the missing index entry');
+    assert.equal(persistedReceipts.length, 1, 'recovery does not write a second receipt');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

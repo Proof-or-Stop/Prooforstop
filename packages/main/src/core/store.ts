@@ -327,12 +327,51 @@ export class StoryStore {
     return join(this.storyDir(storyId), CAUSAL_RECEIPT_DIRECTORY, `${receiptHash}.json`);
   }
 
+  private recoverOrphanedCausalEvidenceReceipt(
+    storyId: string,
+    executionKey: string,
+  ): CausalEvidenceReceipt | null {
+    const receiptsDir = this.storyFilePath(storyId, CAUSAL_RECEIPT_DIRECTORY);
+    if (!existsSync(receiptsDir)) return null;
+
+    const matches: CausalEvidenceReceipt[] = [];
+    for (const entry of readdirSync(receiptsDir, { withFileTypes: true })) {
+      if (!entry.isFile() || !entry.name.endsWith('.json')) continue;
+      const receiptHash = entry.name.slice(0, -'.json'.length);
+      try {
+        const receipt = JSON.parse(readFileSync(join(receiptsDir, entry.name), 'utf8')) as CausalEvidenceReceipt;
+        if (
+          receipt.receiptHash === receiptHash
+          && receipt.reusable
+          && verifyCausalEvidenceReceipt(receipt, executionKey)
+        ) {
+          matches.push(receipt);
+        }
+      } catch {
+        // Ignore unrelated or incomplete orphan files; only a valid, exact CAS
+        // receipt can be promoted back into the execution-key index.
+      }
+    }
+
+    if (matches.length === 0) return null;
+    if (matches.length > 1) {
+      throw new Error(`Multiple CausalEvidence receipts match execution key ${executionKey} [causal_receipt_ambiguous]`);
+    }
+
+    // An index write can fail after the immutable receipt write succeeds. Reuse
+    // that exact receipt and rebuild only its missing index entry before the
+    // caller decides whether a command needs to run.
+    const [receipt] = matches;
+    this.writeCausalEvidenceReceipt(storyId, receipt);
+    return receipt;
+  }
+
   readCausalEvidenceReceipt(storyId: string, executionKey: string): CausalEvidenceReceipt | null {
     const indexPath = this.storyFilePath(storyId, CAUSAL_RECEIPT_INDEX_FILE);
-    if (!existsSync(indexPath)) return null;
+    if (!existsSync(indexPath)) return this.recoverOrphanedCausalEvidenceReceipt(storyId, executionKey);
     const index = JSON.parse(readFileSync(indexPath, 'utf8')) as { receipts?: Record<string, string> };
     const receiptHash = index.receipts?.[executionKey];
-    if (!receiptHash) return null;
+    if (!receiptHash) return this.recoverOrphanedCausalEvidenceReceipt(storyId, executionKey);
     const receiptPath = this.causalEvidenceReceiptPath(storyId, receiptHash);
     if (!existsSync(receiptPath)) throw new Error(`CausalEvidence receipt ${receiptHash} is missing [causal_receipt_missing]`);
     const receipt = JSON.parse(readFileSync(receiptPath, 'utf8')) as CausalEvidenceReceipt;
