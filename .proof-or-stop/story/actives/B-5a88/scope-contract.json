@@ -630,10 +630,26 @@
       "phase": "DEV",
       "headHash": "11411bc5ffa0eaca9a91547658ffa99b715364a8",
       "materialHash": "bcbad0369ccfdeba0af660e2a96a2c60b2c9a5f6eb99383107cdb10158121ec9"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "This documentation is the authoritative host_run lane usage guide and must be updated to canonical proof-or-stop reviewer IDs for F-101; legacy aliases remain explicitly labeled.",
+      "timestamp": "2026-08-21T01:43:25.093Z",
+      "paths": [
+        "docs/host-run-usage.md"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "docs/host-run-usage.md"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "aae4afb0004466eae18d1bc51bc7b103089aec19",
+      "materialHash": "132005af8d5402d8c3f8ae2a1db0e66a4e5b1ff7c1406377a7c044f2dad182e2"
     }
   ],
   "createdAt": "2026-08-20T05:20:00.402Z",
-  "updatedAt": "2026-08-21T01:32:14.441Z",
+  "updatedAt": "2026-08-21T01:43:25.093Z",
   "fileRules": [],
   "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
@@ -790,6 +806,7 @@
     "packages/main/src/tasks/adversarial-review-round-smoke.ts": "packages/main/src/tasks/adversarial-review-round-smoke.ts",
     "CLAUDE.md": "CLAUDE.md",
     "packages/main/src/core/adversarial-review-round.ts": "packages/main/src/core/adversarial-review-round.ts",
-    "packages/main/src/core/adversarial-review-verifier.ts": "packages/main/src/core/adversarial-review-verifier.ts"
+    "packages/main/src/core/adversarial-review-verifier.ts": "packages/main/src/core/adversarial-review-verifier.ts",
+    "docs/host-run-usage.md": "docs/host-run-usage.md"
   }
 }
