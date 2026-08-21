@@ -498,7 +498,42 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Shadow mode executes and verifies the dynamic subset, then the complete plan, and records per-command and final verdict equivalence with the full plan authoritative.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run test:dynamic-validation-shadow-equivalence",
+              "selector": "shadow/full oracle equivalent"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A reused row that becomes unavailable or a dynamic command failure is surfaced in the comparison ledger without hiding the full oracle result.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run test:dynamic-validation-shadow-rejections",
+              "selector": "shadow discrepancy reported"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A full-plan failure outside dynamic executed rows or any failure reused as PASS is detected as a false-negative soundness failure.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run test:dynamic-validation-shadow-false-negative",
+              "selector": "false negative detected"
+            }
+          }
+        ]
+      }
     },
     {
       "id": "CHK-009",
