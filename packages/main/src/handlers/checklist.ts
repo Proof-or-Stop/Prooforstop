@@ -521,14 +521,30 @@ function normalizeEvidenceKind(kind: VerificationEvidenceKindInput): Verificatio
   return kind;
 }
 
-function sameEvidenceIdentity(prior: VerificationEvidence, incoming: VerificationEvidenceInput): boolean {
-  return (incoming.command ?? undefined) === (prior.command ?? undefined)
-    && (incoming.result ?? undefined) === (prior.result ?? undefined);
+function sameEvidenceSemantics(prior: VerificationEvidence, incoming: VerificationEvidenceInput): boolean {
+  const incomingStructuredMetadata = digestCanonicalJson({
+    attestation: incoming.attestation ?? null,
+    actorTrust: incoming.actorTrust ?? null,
+    factProvenance: incoming.factProvenance ?? null,
+  });
+  const priorStructuredMetadata = digestCanonicalJson({
+    attestation: prior.attestation ?? null,
+    actorTrust: prior.actorTrust ?? null,
+    factProvenance: prior.factProvenance ?? null,
+  });
+  return normalizeEvidenceKind(incoming.kind) === prior.kind
+    && incoming.verdict === prior.verdict
+    && incoming.waiverType === prior.waiverType
+    && incoming.file === prior.file
+    && incoming.command === prior.command
+    && incoming.result === prior.result
+    && incoming.note.trim() === prior.note
+    && incomingStructuredMetadata === priorStructuredMetadata;
 }
 
 /**
  * Freshness bindings are server-owned. New evidence is bound to the current tree;
- * a same-command/result re-persist keeps the original on-disk binding so a caller
+ * an exact same-semantic re-persist keeps the original on-disk binding so a caller
  * cannot rebind a real receipt to hashes for a later tree without re-running it.
  */
 function evidenceHashesForPersistence(
@@ -539,7 +555,7 @@ function evidenceHashesForPersistence(
 ): ReturnType<typeof evidenceHashes> {
   const current = evidenceHashes(gitCwd, metadataRoot);
   const prior = existing?.find(e => e.intentRef === input.intentRef);
-  if (!prior || !sameEvidenceIdentity(prior, input)) return current;
+  if (!prior || !sameEvidenceSemantics(prior, input)) return current;
   return {
     ...(prior.headHash ? { headHash: prior.headHash } : {}),
     ...(prior.materialHash ? { materialHash: prior.materialHash } : {}),
@@ -768,25 +784,7 @@ function carryForwardOnDiskProvenance(
   const { mechanical: _callerMechanical, receipt: _callerReceipt, nonMechanicalReason: _callerReason, ...trusted } = incoming;
   const prior = existing?.find(e => e.intentRef === incoming.intentRef);
   if (!prior || prior.mechanical === undefined) return trusted; // no prior, or legacy/undefined provenance: nothing to carry
-  const incomingStructuredMetadata = digestCanonicalJson({
-    attestation: incoming.attestation ?? null,
-    actorTrust: incoming.actorTrust ?? null,
-    factProvenance: incoming.factProvenance ?? null,
-  });
-  const priorStructuredMetadata = digestCanonicalJson({
-    attestation: prior.attestation ?? null,
-    actorTrust: prior.actorTrust ?? null,
-    factProvenance: prior.factProvenance ?? null,
-  });
-  const sameSemantics = normalizeEvidenceKind(incoming.kind) === prior.kind
-    && incoming.verdict === prior.verdict
-    && incoming.waiverType === prior.waiverType
-    && incoming.file === prior.file
-    && incoming.command === prior.command
-    && incoming.result === prior.result
-    && incoming.note.trim() === prior.note
-    && incomingStructuredMetadata === priorStructuredMetadata;
-  if (!sameSemantics) return trusted;
+  if (!sameEvidenceSemantics(prior, incoming)) return trusted;
   if (prior.mechanical === true) {
     // A receipt is bound to both the exact evidence semantics and the material that was
     // executed. checklist_update does not run the verifier, so it may preserve authority
