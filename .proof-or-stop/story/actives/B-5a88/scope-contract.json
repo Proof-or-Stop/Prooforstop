@@ -864,10 +864,26 @@
       "phase": "DEV",
       "headHash": "dce25ebde139358a2a42c9c6ce567c5d0eb086d5",
       "materialHash": "c425b49ca9fe6971b2bbda60e4b2144529d88bf1c2e5d5abf8e7d8c8c31266e5"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "This migration contract verifier is the direct executable regression for the supersession citation finding and is required to prove the repaired identity migration gate.",
+      "timestamp": "2026-08-21T20:00:05.596Z",
+      "paths": [
+        "scripts/verify-migration-contract.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "scripts/verify-migration-contract.mjs"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "2ffa7abafce569ddc08f362c19a0757dfa551d19",
+      "materialHash": "901a2ddfe07ac8bdbfa87eea4b26d77f8f610eeef9d20c65a4ebd1a4a978d128"
     }
   ],
   "createdAt": "2026-08-20T05:20:00.402Z",
-  "updatedAt": "2026-08-21T19:40:38.973Z",
+  "updatedAt": "2026-08-21T20:00:05.596Z",
   "fileRules": [],
   "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
@@ -1079,6 +1095,7 @@
     "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
     "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
     "packages/main/src/tasks/review-incremental-context-smoke.ts": "packages/main/src/tasks/review-incremental-context-smoke.ts",
-    "packages/main/src/tasks/review-run-smoke.ts": "packages/main/src/tasks/review-run-smoke.ts"
+    "packages/main/src/tasks/review-run-smoke.ts": "packages/main/src/tasks/review-run-smoke.ts",
+    "scripts/verify-migration-contract.mjs": "scripts/verify-migration-contract.mjs"
   }
 }
