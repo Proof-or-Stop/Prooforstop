@@ -19,6 +19,7 @@ import { StoryStore } from '../core/store.js';
 import { acquireOwnerLease } from '../core/story-owner-lease.js';
 import { createChecklistHandlers } from '../handlers/checklist.js';
 import { buildVerificationCoverage } from '../core/verification.js';
+import { checkEvidenceFreshnessForGit, currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { resetConfigCache } from '../core/config.js';
 import type { ChecklistData, StoryInfo, VerificationExecutionReceipt, VerificationIntentType } from '../core/types.js';
 
@@ -512,6 +513,78 @@ const SELECTOR = 'MARKER_OK';
     assert.equal(exec.note, 'legitimate re-persist: metadata edit only, no receipt supplied', 're-persist applied the metadata edit');
     const cov = buildVerificationCoverage(cl);
     assert.equal(cov.missingRequired, 0, 'a re-persisted intent with its preserved real receipt + manual attestation cover both intents');
+  } finally { cleanup(env); }
+}
+
+// ── 12d. F-045: checklist_update cannot rebind a stale executable receipt to
+//        caller-supplied current-looking hashes. A same-evidence re-persist keeps
+//        the server-owned execution binding and therefore remains stale after a
+//        material change; the genuine receipt is still carried forward unchanged. ──
+{
+  const env = makeEnv([{ ref: 'INT-F045', type: 'cli' }]);
+  try {
+    await env.handlers.verification_evidence_add({
+      storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-F045', kind: 'integration_test',
+      command: PASS_CMD, selector: SELECTOR, result: 'pass', note: 'F-045 seed receipt',
+    });
+    const seeded = env.store.readChecklist(env.storyId).items[0].verificationEvidence?.[0];
+    assert.ok(seeded?.mechanical, 'F-045 seed: real receipt is mechanical');
+    assert.ok(seeded?.receipt, 'F-045 seed: real receipt exists');
+    assert.ok(seeded.headHash && seeded.materialHash && seeded.storyFilesHash, 'F-045 seed: all server bindings exist');
+
+    // The ordinary same-evidence carry-forward remains valid before any drift.
+    env.handlers.checklist_update({
+      storyId: env.storyId, itemId: 'CHK-001',
+      verificationEvidence: [{
+        intentRef: 'INT-F045', kind: seeded.kind, command: seeded.command, result: seeded.result,
+        note: 'F-045 legitimate same-evidence carry-forward',
+      }],
+    });
+    const carried = env.store.readChecklist(env.storyId).items[0].verificationEvidence?.[0];
+    assert.equal(carried?.receipt?.outputDigest, seeded.receipt.outputDigest, 'F-045 carry-forward keeps the real receipt');
+    assert.equal(carried?.headHash, seeded.headHash, 'F-045 carry-forward keeps the original head binding');
+    assert.equal(carried?.materialHash, seeded.materialHash, 'F-045 carry-forward keeps the original material binding');
+    assert.equal(carried?.storyFilesHash, seeded.storyFilesHash, 'F-045 carry-forward keeps the original story binding');
+
+    // Move HEAD and the material tree without rerunning PASS_CMD.
+    write(env.root, 'packages/main/src/base.ts', 'export const base = false;\n');
+    git(env.root, ['add', '.']);
+    git(env.root, ['commit', '-m', 'material drift']);
+    const current = {
+      headHash: currentGitHead(env.root),
+      materialHash: currentMaterialHash(env.root, 'HEAD', env.root),
+      storyFilesHash: currentStoryFilesHash(env.root, 'HEAD', env.root),
+    };
+    assert.notEqual(current.headHash, seeded.headHash, 'F-045 fixture must move HEAD');
+    assert.notEqual(current.materialHash, seeded.materialHash, 'F-045 fixture must move materialHash');
+    assert.notEqual(current.storyFilesHash, seeded.storyFilesHash, 'F-045 fixture must move storyFilesHash');
+
+    // These values are current-looking but caller-supplied. They must be ignored;
+    // otherwise the old receipt becomes fresh without another command execution.
+    env.handlers.checklist_update({
+      storyId: env.storyId, itemId: 'CHK-001',
+      verificationEvidence: [{
+        intentRef: 'INT-F045', kind: carried.kind, command: carried.command, result: carried.result,
+        note: 'F-045 forged current hashes must not refresh stale execution',
+        headHash: current.headHash,
+        materialHash: current.materialHash,
+        storyFilesHash: current.storyFilesHash,
+      }],
+    });
+    const rebound = env.store.readChecklist(env.storyId).items[0].verificationEvidence?.[0];
+    assert.equal(rebound?.receipt?.outputDigest, seeded.receipt.outputDigest, 'F-045 must not rerun or replace the real receipt');
+    assert.equal(rebound?.headHash, seeded.headHash, 'F-045 ignores caller headHash');
+    assert.equal(rebound?.materialHash, seeded.materialHash, 'F-045 ignores caller materialHash');
+    assert.equal(rebound?.storyFilesHash, seeded.storyFilesHash, 'F-045 ignores caller storyFilesHash');
+    const coverage = buildVerificationCoverage(
+      env.store.readChecklist(env.storyId),
+      current.headHash,
+      (headHash, evidence) => checkEvidenceFreshnessForGit(
+        env.root, headHash, evidence?.materialHash, env.root, evidence?.storyFilesHash,
+      ).fresh,
+    );
+    assert.equal(coverage.entries[0]?.status, 'stale', 'F-045 forged hashes cannot make stale executable evidence fresh');
+    assert.equal(coverage.missingRequired, 1, 'F-045 stale executable evidence remains uncovered until rerun');
   } finally { cleanup(env); }
 }
 

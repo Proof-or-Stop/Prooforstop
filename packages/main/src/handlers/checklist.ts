@@ -511,9 +511,40 @@ function normalizeEvidenceKind(kind: VerificationEvidenceKindInput): Verificatio
   return kind;
 }
 
-function normalizeEvidence(gitCwd: string, metadataRoot: string, input: VerificationEvidenceInput): VerificationEvidence {
+function sameEvidenceIdentity(prior: VerificationEvidence, incoming: VerificationEvidenceInput): boolean {
+  return (incoming.command ?? undefined) === (prior.command ?? undefined)
+    && (incoming.result ?? undefined) === (prior.result ?? undefined);
+}
+
+/**
+ * Freshness bindings are server-owned. New evidence is bound to the current tree;
+ * a same-command/result re-persist keeps the original on-disk binding so a caller
+ * cannot rebind a real receipt to hashes for a later tree without re-running it.
+ */
+function evidenceHashesForPersistence(
+  gitCwd: string,
+  metadataRoot: string,
+  input: VerificationEvidenceInput,
+  existing: readonly VerificationEvidence[] | undefined,
+): ReturnType<typeof evidenceHashes> {
+  const current = evidenceHashes(gitCwd, metadataRoot);
+  const prior = existing?.find(e => e.intentRef === input.intentRef);
+  if (!prior || !sameEvidenceIdentity(prior, input)) return current;
+  return {
+    ...(prior.headHash ? { headHash: prior.headHash } : {}),
+    ...(prior.materialHash ? { materialHash: prior.materialHash } : {}),
+    ...(prior.storyFilesHash ? { storyFilesHash: prior.storyFilesHash } : {}),
+  };
+}
+
+function normalizeEvidence(
+  gitCwd: string,
+  metadataRoot: string,
+  input: VerificationEvidenceInput,
+  existing?: readonly VerificationEvidence[],
+): VerificationEvidence {
   assertEvidenceIsNotAcceptanceMatrixProjection(input);
-  const hashes = evidenceHashes(gitCwd, metadataRoot);
+  const hashes = evidenceHashesForPersistence(gitCwd, metadataRoot, input, existing);
   const kind = normalizeEvidenceKind(input.kind);
   return makeEvidence({
     intentRef: input.intentRef,
@@ -524,9 +555,9 @@ function normalizeEvidence(gitCwd: string, metadataRoot: string, input: Verifica
     ...(input.command ? { command: input.command } : {}),
     ...(input.result ? { result: input.result } : {}),
     note: input.note.trim(),
-    headHash: input.headHash || hashes.headHash,
-    materialHash: input.materialHash || hashes.materialHash,
-    storyFilesHash: input.storyFilesHash || hashes.storyFilesHash,
+    headHash: hashes.headHash,
+    materialHash: hashes.materialHash,
+    storyFilesHash: hashes.storyFilesHash,
     ...(input.attestation ? { attestation: input.attestation } : {}),
     // B-ec67 F-007/F-008: preserve the tool-execution provenance on re-persist so a valid
     // mechanical receipt or audited attestation survives a checklist_update bulk set
@@ -728,12 +759,11 @@ function carryForwardOnDiskProvenance(
   const { mechanical: _callerMechanical, receipt: _callerReceipt, nonMechanicalReason: _callerReason, ...trusted } = incoming;
   const prior = existing?.find(e => e.intentRef === incoming.intentRef);
   if (!prior || prior.mechanical === undefined) return trusted; // no prior, or legacy/undefined provenance: nothing to carry
-  const sameCommand = (incoming.command ?? undefined) === (prior.command ?? undefined);
-  const sameResult = (incoming.result ?? undefined) === (prior.result ?? undefined);
+  const sameEvidence = sameEvidenceIdentity(prior, incoming);
   if (prior.mechanical === true) {
     // A receipt is bound to a specific command execution; carry it forward only when the
     // caller re-persists the SAME command + result (does not change the underlying evidence).
-    if (prior.receipt && sameCommand && sameResult) {
+    if (prior.receipt && sameEvidence) {
       return { ...trusted, mechanical: true, receipt: prior.receipt };
     }
     return trusted; // command/result changed → stale receipt dropped, row re-judged as fresh
@@ -742,7 +772,7 @@ function carryForwardOnDiskProvenance(
   // on-disk reason only for the same command + result, so a re-persist of an audited-escape
   // row stays attributable without accepting mutated evidence metadata (still demoted by
   // the coverage gate for executable intents).
-  if (!sameCommand || !sameResult) return trusted; // command/result changed → stale attestation dropped
+  if (!sameEvidence) return trusted; // command/result changed → stale attestation dropped
   return {
     ...trusted,
     mechanical: false,
@@ -2017,7 +2047,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
           assertEvidenceIsNotAcceptanceMatrixProjection(ev);
           assertChecklistUpdateEvidenceRowAllowed(item, ev);
         }
-        item.verificationEvidence = effectiveEvidence.map(ev => normalizeEvidence(resolveStoryGitCwd(args.storyId), root, ev));
+        item.verificationEvidence = effectiveEvidence.map(ev => normalizeEvidence(resolveStoryGitCwd(args.storyId), root, ev, priorEvidence));
         results.push(`verificationEvidence updated (${effectiveEvidence.length})`);
       }
 
