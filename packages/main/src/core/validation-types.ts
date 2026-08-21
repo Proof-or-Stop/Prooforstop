@@ -40,6 +40,20 @@ export interface ValidationCommandResult {
   timeoutMs?: number;
   failureKind?: ValidationFailureKind;
   durationMs: number;
+  /** Real command-boundary observations captured by the executor spawn seam. */
+  runtimeTrace?: {
+    command: string;
+    argv: string[];
+    cwd: string;
+    environmentKeys: string[];
+    startedAt: string;
+    endedAt: string;
+    exitCode: number;
+    /** Observable executor boundary events, in occurrence order. */
+    events: string[];
+    /** File/module/registry tracing is not available unless explicitly instrumented. */
+    unknownRuntimeInputs: string[];
+  };
   worktreePollution?: {
     statusLines: string[];
     paths: string[];

@@ -78,8 +78,8 @@ import {
 } from '../core/done-prepare-generated-metadata.js';
 import { normalizeRelPath } from '../core/lattice-paths.js';
 import { readBrandEnv } from '../core/brand-env.js';
-import { resolveDynamicMode, type DynamicValidationMode } from '../core/story-aware-validation.js';
-import { prepareStoryAwareValidation, runStoryAwareDynamicValidation } from './story-aware-validation.js';
+import { resolveDynamicMode, stableDigest, type DynamicValidationMode } from '../core/story-aware-validation.js';
+import { persistCanonicalFullBaseline, prepareStoryAwareValidation, runStoryAwareDynamicValidation } from './story-aware-validation.js';
 
 const STATUS_FALLBACK_TIMEOUT_MS = 10_000;
 const SHELL_META_RE = /[;&|<>$()`]/;
@@ -1589,11 +1589,26 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             deadlineAt: args.deadlineAt,
             deadlineError: args.deadlineError,
           });
+          const canonicalBaseline = args.story
+            ? undefined
+            : persistCanonicalFullBaseline({
+              projectRoot,
+              sourceHead: currentHead(handlerGitCwd) || '',
+              result: base,
+            });
           const dynamicValidation = dynamicPreview
             ? {
               ...dynamicPreview,
               fullPlanAllPass: base.allPass,
               oracleStatus: 'executed' as const,
+              ...(canonicalBaseline ? {
+                canonicalBaseline: {
+                  epochId: canonicalBaseline.epochId,
+                  sourceHead: canonicalBaseline.sourceHead,
+                  digest: stableDigest(canonicalBaseline),
+                  produced: true,
+                },
+              } : {}),
               // Observe/shadow remain oracle-authoritative, but record the
               // verdict comparison so a selection mismatch is visible rather
               // than silently looking like a successful optimization.

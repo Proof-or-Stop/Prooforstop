@@ -8,7 +8,7 @@
  * accepted when the core authority predicate says so.
  */
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { ValidationCommand, ValidationCommandResult, ValidationProgressReporter, ValidationResult } from '../core/validation-types.js';
 import { validateResourceClaims } from '../core/keyed-scheduler.js';
@@ -21,6 +21,7 @@ import {
   buildValidationSchedule,
   assertValidValidationCatalog,
   compileValidationCatalog,
+  createCanonicalFullBaseline,
   createValidationClosureCertificate,
   createValidationCommandReceipt,
   discoverValidationInventory,
@@ -32,6 +33,7 @@ import {
   type DynamicValidationContext,
   type DynamicValidationMode,
   type DynamicAuthorityDecision,
+  type CanonicalFullBaseline,
   type ReceiptRevocationLedger,
   type ScopeContractData,
   type StoryChangedFile,
@@ -41,6 +43,7 @@ import {
   type ValidationRuntimeTrace,
   type ValidationSelectionManifest,
   type VerificationIntent,
+  verifyCanonicalFullBaseline,
 } from '../core/story-aware-validation.js';
 import { executeValidationPlan } from '../core/validation-executor.js';
 
@@ -102,6 +105,113 @@ function initialLedger(args: PrepareStoryAwareValidationArgs): ReceiptRevocation
   return buildRevocationLedger([], []);
 }
 
+function canonicalBaselinePath(projectRoot: string): string {
+  return join(projectRoot, PROOF_OR_STOP_STATE_DIR, 'runtime', 'dynamic-validation', 'canonical-baseline.json');
+}
+
+export function readCanonicalFullBaseline(projectRoot: string): CanonicalFullBaseline | undefined {
+  try {
+    if (!existsSync(canonicalBaselinePath(projectRoot))) return undefined;
+    const parsed = JSON.parse(readFileSync(canonicalBaselinePath(projectRoot), 'utf8')) as CanonicalFullBaseline;
+    return verifyCanonicalFullBaseline(parsed) ? parsed : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+function sourceAuthorityPath(value: string): string | undefined {
+  const normalized = value.replace(/\\/g, '/').replace(/^\.\//, '');
+  if (!normalized.includes('/') || !/\.(?:c?m?js|mjs|mts|ts|tsx|json)$/.test(normalized)) return undefined;
+  if (normalized.startsWith('packages/main/dist/')) {
+    return normalized.replace(/^packages\/main\/dist\//, 'packages/main/src/').replace(/\.(?:c?m?js|mjs)$/, '.ts');
+  }
+  if (normalized.startsWith('dist/')) {
+    return normalized.replace(/^dist\//, 'packages/main/src/').replace(/\.(?:c?m?js|mjs)$/, '.ts');
+  }
+  return normalized;
+}
+
+/**
+ * Convert the executor's real spawn-boundary result into the closure trace.
+ *
+ * This intentionally does not inspect catalog args.  A catalog row describes
+ * what may run; only the result emitted by the process executor is evidence of
+ * what did run.  Missing instrumentation remains an unknown input and is
+ * consumed by createValidationClosureCertificate's fail-closed branch.
+ */
+function runtimeTraceForResult(result: ValidationCommandResult | undefined): ValidationRuntimeTrace {
+  if (!result?.runtimeTrace) {
+    return { unknownRuntimeInputs: ['executor did not emit runtime trace'] };
+  }
+  const boundary = result.runtimeTrace;
+  const spawnedPaths = boundary.argv
+    .map(sourceAuthorityPath)
+    .filter((path): path is string => Boolean(path));
+  return {
+    command: boundary.command,
+    argv: [...boundary.argv],
+    cwd: boundary.cwd,
+    startedAt: boundary.startedAt,
+    endedAt: boundary.endedAt,
+    exitCode: boundary.exitCode,
+    events: [...boundary.events],
+    spawnedPaths: [...new Set(spawnedPaths)],
+    environmentKeys: [...boundary.environmentKeys],
+    unknownRuntimeInputs: [...boundary.unknownRuntimeInputs],
+  };
+}
+
+export function persistCanonicalFullBaseline(args: {
+  projectRoot: string;
+  sourceHead: string;
+  result: ValidationResult;
+  buildProofDigest?: string;
+  toolchainDigest?: string;
+}): CanonicalFullBaseline | undefined {
+  if (!args.result.allPass) return undefined;
+  const inventory = discoverValidationInventory(args.projectRoot);
+  const catalog = compileValidationCatalog(inventory);
+  assertValidValidationCatalog(inventory, catalog);
+  const catalogDigest = stableDigest(catalog);
+  const traces: Record<string, ValidationRuntimeTrace> = {};
+  const closureCertificates: Record<string, ValidationClosureCertificate> = {};
+  for (const entry of catalog) {
+    const result = args.result.commands.find((row) => row.command === entry.command
+      && row.args.length === entry.args.length
+      && row.args.every((arg, index) => arg === entry.args[index]));
+    const trace = runtimeTraceForResult(result);
+    traces[entry.id] = trace;
+    closureCertificates[entry.id] = createValidationClosureCertificate({
+      commandId: entry.id,
+      baseHead: args.sourceHead,
+      inventoryDigest: inventory.digest,
+      catalogDigest,
+      staticPaths: entry.inputRoots,
+      runtimeTrace: trace,
+      processFacts: entry.triggerExtensions.processFacts,
+      capabilities: entry.triggerExtensions.capabilities,
+      producedBy: 'canonical-full-baseline-compiler',
+    });
+  }
+  const baseline = createCanonicalFullBaseline({
+    epochId: args.sourceHead,
+    sourceHead: args.sourceHead,
+    inventoryDigest: inventory.digest,
+    catalogDigest,
+    toolchainDigest: args.toolchainDigest || stableDigest({ node: process.version, platform: process.platform, arch: process.arch }),
+    runnerDigest: stableDigest({ provider: 'lattice-verifier-configured-commands', version: 1 }),
+    buildProofDigest: args.buildProofDigest || stableDigest(args.result.commands.map((row) => ({ command: row.command, args: row.args, code: row.code, output: row.output }))),
+    allPass: true,
+    createdAt: new Date().toISOString(),
+    traces,
+    closureCertificates,
+  });
+  const dir = join(args.projectRoot, PROOF_OR_STOP_STATE_DIR, 'runtime', 'dynamic-validation');
+  mkdirSync(dir, { recursive: true });
+  writeFileSync(canonicalBaselinePath(args.projectRoot), JSON.stringify(baseline, null, 2) + '\n', 'utf8');
+  return baseline;
+}
+
 function prepare(args: PrepareStoryAwareValidationArgs): PreparedStoryAwareValidation {
   const gitCwd = args.gitCwd || args.projectRoot;
   const head = args.head || currentHead(gitCwd);
@@ -124,9 +234,21 @@ function prepare(args: PrepareStoryAwareValidationArgs): PreparedStoryAwareValid
   const graph = args.changedFiles && args.changedFiles.length === 0
     ? undefined
     : buildDualRevisionImpactGraph({ gitCwd, baseHead: args.baseHead, head, catalog });
+  const baseline = readCanonicalFullBaseline(args.projectRoot);
+  const baselineUsable = baseline
+    && baseline.sourceHead === args.baseHead
+    && baseline.inventoryDigest === inventory.digest
+    && baseline.catalogDigest === catalogDigest
+    ? baseline
+    : undefined;
   const closures = new Map<string, ValidationClosureCertificate>();
   for (const entry of catalog) {
-    const trace = args.runtimeTraces?.get(entry.id);
+    const baselineCertificate = baselineUsable?.closureCertificates[entry.id];
+    if (baselineCertificate && baselineCertificate.baseHead === args.baseHead && verifyCanonicalFullBaseline(baselineUsable)) {
+      closures.set(entry.id, baselineCertificate);
+      continue;
+    }
+    const trace = args.runtimeTraces?.get(entry.id) || baselineUsable?.traces[entry.id];
     // Static closure allows first source-first execution. Isolated runtime
     // traces can still turn it into unverified when an undeclared read occurs.
     closures.set(entry.id, createValidationClosureCertificate({
@@ -136,6 +258,8 @@ function prepare(args: PrepareStoryAwareValidationArgs): PreparedStoryAwareValid
       catalogDigest,
       staticPaths: entry.inputRoots,
       runtimeTrace: trace,
+      processFacts: entry.triggerExtensions.processFacts,
+      capabilities: entry.triggerExtensions.capabilities,
       producedBy: 'story-closure-preview',
     }));
   }
