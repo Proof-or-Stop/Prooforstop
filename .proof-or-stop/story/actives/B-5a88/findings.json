@@ -8625,7 +8625,7 @@
       "desc": "scripts/verify-migration-contract.mjs:35-40 reads only docs/requirements/decisions/brand-rename-mapping.md and requires literal citations brand-rename-mapping.md:130 and brand-rename-mapping.md:72, but this Story rewrites those frozen rows and moves the supersession citations into proof-or-stop-identity-migration.md:52 and :66. The required migration-contract gate now fails with supersessionsDocumented=false, so the documented adversarial verification is not delivered after the identity migration.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-21T19:44:21.641Z",
@@ -8633,14 +8633,18 @@
       "reviewRunId": "B-5a88:RR-259",
       "_hash": "3a9103818c515c0c9029eb7aa5eff0807f4e8076ac5d04c5d12e489eb6bf8de6",
       "signatureTag": "missing|unknown|scripts-verify-migration",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 83fd156911: verify-migration-contract now mechanically requires brand-rename-mapping.md citations :72, :73, and :130; node scripts/verify-migration-contract.mjs passes.",
+      "resolvedAt": "2026-08-21T20:31:41.628Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-224",
       "desc": "verification-blocker: scripts/verify-entrypoints.mjs:729-735 runs the self-repository packages/main/dist/cli.js from the active Story worktree and asserts the serve launcher banner, but the CLI applies the active Story phase policy before starting serve; in REVIEW it returns `Command \"serve\" is not available in REVIEW phase` instead of `🐨 proof-or-stop serve`, so this in-scope entrypoint verifier is red under the required current-worktree review/test context. Repro: node scripts/verify-entrypoints.mjs (fails at 12/28 with missing `🐨 proof-or-stop serve`). Isolate the launcher smoke from the active Story lifecycle (or explicitly arrange an independent fixture project) before relying on this verifier.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-21T19:50:06.208Z",
@@ -8648,14 +8652,18 @@
       "reviewRunId": "B-5a88:RR-258",
       "_hash": "bcc69cf1de2d76429e82f73ac6fc68bb473e6140fef66ad3fceb4eeb279ec3dc",
       "signatureTag": "edge|unknown|verification-blocker-scripts",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 88dd31307a and verified on current HEAD: verify-entrypoints isolates the serve invocation with an independent root, and node scripts/verify-entrypoints.mjs passes 28/28.",
+      "resolvedAt": "2026-08-21T20:31:42.764Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-225",
       "desc": "scripts/verify-entrypoints.mjs:729-740 — the isolated --root serve regression check still fails at runtime: node scripts/verify-entrypoints.mjs reaches check 11/28, then proof-or-stop serve --web output lacks the required \"🐨 proof-or-stop serve\" launcher marker and exits non-zero. The --root isolation change does not establish the intended serve behavior, so F-224 remains unresolved.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-21T20:03:27.308Z",
@@ -8667,14 +8675,18 @@
         "packages/main/dist/cli.js"
       ],
       "signatureTag": "edge|mjs|scripts-verify-entrypoints",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by af292acb94: the self-contained tsx shim makes the isolated serve smoke runnable; current node scripts/verify-entrypoints.mjs passes 28/28.",
+      "resolvedAt": "2026-08-21T20:31:43.880Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-226",
       "desc": "scripts/verify-entrypoints.mjs:729-735 still cannot verify the serve contract after the --root change: it creates an empty tempDir, invokes the CLI there, and expects the built-in serve banner. The CLI then runs npx tsx from that empty project; in this worktree the command emits only the Node deprecation warning and times out without the expected banner, so verify-entrypoints exits at the serve assertion. The --root change removes the lifecycle-gate error but leaves the witness with no runnable project/core or local tsx precondition.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-21T20:05:10.081Z",
@@ -8682,14 +8694,18 @@
       "reviewRunId": "B-5a88:RR-264",
       "_hash": "50050f4d31eba858be59888438acceff0eb9eee6d977fcbe68dd038316e453ff",
       "signatureTag": "edge|unknown|scripts-verify-entrypoints",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by af292acb94: the isolated temp-root serve smoke now has a runnable local tsx shim; current node scripts/verify-entrypoints.mjs passes 28/28.",
+      "resolvedAt": "2026-08-21T20:31:45.086Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-227",
       "desc": "scripts/verify-entrypoints.mjs:724-751 passes 28/28 on current HEAD, but the 21 fresh intent receipts contain no intent-bound verify-entrypoints.mjs receipt and existing B-5a88:F-225/F-226 remain status=open. The runtime regression is reproduced as fixed, but its Proof-or-Stop finding closure is not recorded; do not claim F-225/F-226 root-cause closure until those findings are explicitly resolved or superseded with current evidence.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-08-21T20:18:00.568Z",
@@ -8701,14 +8717,18 @@
         "packages/main/dist/cli.js"
       ],
       "signatureTag": "missing|mjs|scripts-verify-entrypoints",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by explicit finding closure after current evidence refresh: F-225/F-226 are now resolved and current node scripts/verify-entrypoints.mjs passes 28/28; the prior closure gap is recorded here.",
+      "resolvedAt": "2026-08-21T20:31:46.313Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-228",
       "desc": "scripts/verify-entrypoints.mjs:738-745 — the serve smoke asserts only startup strings and ignores result.status; a process that prints those strings and then exits non-zero is treated as success because result.error is null for non-zero exits (only timeout is tolerated), so a real CLI/serve failure can be masked.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-08-21T20:19:04.880Z",
@@ -8719,14 +8739,18 @@
         "scripts/verify-entrypoints.mjs"
       ],
       "signatureTag": "adversarial|mjs|scripts-verify-entrypoints",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 83fd156911: verify-entrypoints now fails closed on unexpected non-zero serve exit while retaining the expected startup-timeout path; node scripts/verify-entrypoints.mjs passes 28/28.",
+      "resolvedAt": "2026-08-21T20:31:47.530Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-229",
       "desc": "scripts/verify-migration-contract.mjs:35-40 — 88dd31307a changed the required citation from brand-rename-mapping.md:72 to brand-rename-mapping.md:73. Line 72 is the bin-entries supersession row, while lines 73 and 130 are both cited from the @lattice/core discussion in proof-or-stop-identity-migration.md; the bin-alias supersession is no longer mechanically required, so the verifier can pass while that rationale citation is absent.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-08-21T20:19:07.429Z",
@@ -8738,6 +8762,137 @@
         "docs/requirements/decisions/proof-or-stop-identity-migration.md"
       ],
       "signatureTag": "adversarial|mjs|scripts-verify-migration",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 83fd156911: verify-migration-contract mechanically covers the bin supersession and both identity supersession citations (:72, :73, :130); node scripts/verify-migration-contract.mjs passes.",
+      "resolvedAt": "2026-08-21T20:31:48.732Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5a88:F-230",
+      "desc": "current-head-test-evidence: packages/main/src/tasks/review-incremental-context-smoke.ts:1652-1655,1756-1758 — rolloutModes is keyed by legacy lattice-review-* names while review_run_start persists canonical proof-or-stop-review-* lanes; under mask 31 the smoke reads an undefined mode and deterministically asserts that a full-envelope run has no envelope. node packages/main/dist/tasks/review-incremental-context-smoke.js --guard-scenario=31 fails, so the canonical alias/envelope concurrency matrix is not currently green or evidenced.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T20:37:40.245Z",
+      "reviewRound": "2026-08-21T20:31:23.190Z",
+      "reviewRunId": "B-5a88:RR-271",
+      "_hash": "63b30c31e96de756c9ad17a3e4fcb8e94191fc8b750a153b5713d6595c99d3d5",
+      "signatureTag": "edge|unknown|current-head-test",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-231",
+      "desc": "CHK-001:happy:0 remains under-covered at current HEAD: its pinned receipt only asserts canonicalAgentRoleId, while the authored must intent requires emission and acceptance through review_run_start, review_pass_set, init_check_set, and quorum resolution. The stronger brand-role migration test passes on current HEAD but is not intent-bound.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-21T20:37:45.583Z",
+      "reviewRound": "2026-08-21T20:31:23.190Z",
+      "reviewRunId": "B-5a88:RR-270",
+      "_hash": "ec348b81cea3c3d929be102eb39f7bb42113463a99332c2d5194acd4a8ef7202",
+      "files": [
+        "packages/main/tests/brand-role-migration.test.mjs",
+        "packages/main/dist/core/agent-role-identity.js"
+      ],
+      "signatureTag": "happy-remains-bound",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-232",
+      "desc": "CHK-002:happy:0, CHK-002:edge:0, and CHK-002:adversarial:0 remain under-covered at current HEAD: all pinned receipts execute imports from /private/tmp/proof-or-stop-b5a88-marker-build or /private/tmp/proof-or-stop-b5a88-init-build rather than the current repository producer/consumer and init paths. The current managed-marker migration test passes, but it is not bound to these intents.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-21T20:37:48.649Z",
+      "reviewRound": "2026-08-21T20:31:23.190Z",
+      "reviewRunId": "B-5a88:RR-270",
+      "_hash": "7f60b07fbe2f0b74ad25813384bccbcc64850b8b5af1378d5c8b574307144412",
+      "files": [
+        "packages/main/tests/managed-marker-migration.test.mjs",
+        "packages/main/src/core/managed-markers.ts",
+        "packages/main/src/init-assets.ts",
+        "packages/main/src/claude-md-sync.ts"
+      ],
+      "signatureTag": "coverage-remains-bound",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-233",
+      "desc": "CHK-004:happy:0, CHK-004:edge:0, and CHK-004:adversarial:0 remain under-covered at current HEAD: the pinned receipts are source-token and bash-syntax scans, not execution of create/write approval, pre-push canonical and legacy consumption, one-shot second-consume, invalid-schema, SHA-mismatch, and expiry rejection. release-push-approval-migration.test.mjs passes on current HEAD but is not intent-bound.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-21T20:37:51.688Z",
+      "reviewRound": "2026-08-21T20:31:23.190Z",
+      "reviewRunId": "B-5a88:RR-270",
+      "_hash": "459723cd590f921f6d43943fcb3baab9a6f0e7043e9fc7ceaf68aac652abf031",
+      "files": [
+        ".githooks/pre-push",
+        "packages/main/src/core/release-push-approval.ts",
+        "packages/main/tests/release-push-approval-migration.test.mjs"
+      ],
+      "signatureTag": "coverage-pinned-intents",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-234",
+      "desc": "CHK-007:edge:0 remains under-covered at current HEAD: its pinned receipt runs only dist/cli.js help, which cannot verify the required distinction between frozen historical evidence, compatibility readers, and unsupported new lattice command aliases. verify-lattice-residue.mjs --self-test and bin-alias-migration.test.mjs pass on current HEAD, but neither is bound to this edge intent.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-21T20:37:54.894Z",
+      "reviewRound": "2026-08-21T20:31:23.190Z",
+      "reviewRunId": "B-5a88:RR-270",
+      "_hash": "e64239ebe24ab8869456eaf3834b1274dfa7cf981b6ca688f9e9bde526d4f769",
+      "files": [
+        "packages/main/tests/bin-alias-migration.test.mjs",
+        "scripts/verify-lattice-residue.mjs",
+        "packages/main/dist/cli.js"
+      ],
+      "signatureTag": "edge-remains-bound",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-235",
+      "desc": "Current prompt-policy approval contract is not self-consistent: scripts/verify-proof-or-stop-prompt-baseline.mjs:151-158 approves proof-or-stop-test-intent with hash 2c665efd03d9f3bd31d1c3396aebb276c031d51b4bba33bb98fc203a1744f1f8, but node scripts/verify-proof-or-stop-prompt-baseline.mjs recomputes b28c73eeb25c4dd6ac31aae646188fd382c5394ebb0ea7c5f4d35901879f6170 from the current prompt and aborts at :1480 before collection. Prompt-role migration, prompt-registry smoke, and Codex asset checks pass, but the independent fail-closed approval manifest cannot validate this role, so the canonical prompt migration is not review-clean until the approved hash/body pair is reconciled.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-21T20:41:43.098Z",
+      "reviewRound": "2026-08-21T20:31:23.190Z",
+      "reviewRunId": "B-5a88:RR-272",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/templates/agents/proof-or-stop-test-intent.md",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/proof-or-stop-test-intent.md",
+          ".proof-or-stop-codex/agents/proof-or-stop-test-intent.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "d40207300e450731fe896f7f438b271179922383b3c33d908c6531f89c3fac5e",
+      "files": [
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+        "packages/main/templates/agents/proof-or-stop-test-intent.md",
+        ".claude/agents/proof-or-stop-test-intent.md",
+        ".proof-or-stop-codex/agents/proof-or-stop-test-intent.md"
+      ],
+      "signatureTag": "missing|mjs|current-prompt-policy",
       "signatureTagSource": "auto"
     }
   ]

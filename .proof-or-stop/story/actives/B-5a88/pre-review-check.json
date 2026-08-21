@@ -2,15 +2,15 @@
   "schemaVersion": "proofstory.pre_review_check.v1",
   "storyId": "B-5a88",
   "mode": "observe",
-  "cutoffAt": "2026-08-20T23:46:19.868Z",
-  "planBasisDigest": "sha256:0bc7c1052b92136129357743fbc52f86de849dadf372eb3ea2656311c6e3b3c8",
+  "cutoffAt": "2026-08-21T20:53:29.519Z",
+  "planBasisDigest": "sha256:86a3fd36cbfad3e342f5bac1bc7a815486f339de43d5e61dbd4d42b537433f3d",
   "preReviewBasisArtifact": {
     "schemaVersion": "proofstory.acceptance_basis_artifact.v1",
     "basis": {
       "schemaVersion": "proofstory.acceptance_coverage_basis.v1",
       "storyId": "B-5a88",
       "phaseBasis": "pre_review",
-      "priorPlanBasisDigest": "sha256:0bc7c1052b92136129357743fbc52f86de849dadf372eb3ea2656311c6e3b3c8",
+      "priorPlanBasisDigest": "sha256:86a3fd36cbfad3e342f5bac1bc7a815486f339de43d5e61dbd4d42b537433f3d",
       "status": "complete",
       "generatedBy": {
         "verifier": "acceptance-coverage-basis-verifier",
@@ -42,7 +42,7 @@
           "coverageClaim": "complete_for_scope",
           "blindSpots": [],
           "provenanceRefs": [
-            "source-file:packages/main/src/cli/command-catalog.ts:sha256:90d17cf706343757eeaf63555350d1e8a04c6bd420952c68cbee800e612118fc",
+            "source-file:packages/main/src/cli/command-catalog.ts:sha256:006870897bdd320d91c3c744415b4690fd2f8ef27a637bf970f7b14ec242bd70",
             "source-file:packages/main/src/handlers/agent-prompt.ts:sha256:f02583d891d8c482e4d862336e4cc98717559e747427d42cc8855ca92b607900",
             "source-file:packages/main/src/handlers/checklist.ts:sha256:dba24ecc555f1af1379b85388d8f9392759aad5c65710ef5babc110681942892",
             "source-file:packages/main/src/handlers/delivery-check.ts:sha256:dbd18c457615beda57c9a7555db9f402bbc732a66c846c9a358f81040882752a",
@@ -124,7 +124,23 @@
               "scope:file:packages/main/src/init-assets.ts",
               "scope:file:packages/main/src/registry.ts",
               "scope:file:packages/main/src/tasks/version-bump-smoke.ts",
-              "scope:file:packages/main/templates/agents",
+              "scope:file:packages/main/templates/agents/proof-or-stop-evaluator-cli.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-evaluator.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-implementation-reviewer.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-implementer.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-product-reviewer.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-review-behavior.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-review-channel.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-review-concept.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-review-delivery.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-review-docs.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-review-quality.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-review-scope-plan.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-review-story-init.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-review-test-coverage.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-review-topology-critic.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-test-case-reviewer.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-test-intent.md",
               "scope:file:packages/main/tests/artifact-schema-migration.test.mjs",
               "scope:file:packages/main/tests/bin-alias-migration.test.mjs",
               "scope:file:packages/main/tests/brand-role-migration.test.mjs",
@@ -145,7 +161,7 @@
               "scope:file:scripts/verify-proof-or-stop-prompt-baseline.mjs"
             ]
           },
-          "resultDigest": "sha256:821e2e80758943d2cf435f01b5d23b4e5d66b8f7d2ac9ba6c3e5a47833f78307"
+          "resultDigest": "sha256:2b5e37856afd8a02db1e3abe3248a86cd324c6a3db25227c781b22054f73229c"
         },
         {
           "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -180,7 +196,7 @@
             "source-file:packages/main/src/registry.ts:sha256:187248db63c3e3bde9197216404a14faacc2a70bcf711a2d984112e190f7db81",
             "source-file:proof-or-stop.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745",
             "source-file:scripts/run-proofstory-pre-review-live-proof.mjs:sha256:1572b45b9c889106ffa8eb70f8bb2bbc82148fa6ec442458e234ef2167bb1108",
-            "source-file:scripts/verify-process-fact-contract.mjs:sha256:bd828f58d2f7df248b7a8bd9d961faffb4ffc130816e88650657365146ddc5fc"
+            "source-file:scripts/verify-process-fact-contract.mjs:sha256:68725bff65c9fec87e06795f1dd3f166fa0fc989b84c120a0315eb8fbb27ee53"
           ],
           "asymmetryPolicy": {
             "kind": "exhaustive",
@@ -248,7 +264,23 @@
               "scope:file:packages/main/src/init-assets.ts",
               "scope:file:packages/main/src/registry.ts",
               "scope:file:packages/main/src/tasks/version-bump-smoke.ts",
-              "scope:file:packages/main/templates/agents",
+              "scope:file:packages/main/templates/agents/proof-or-stop-evaluator-cli.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-evaluator.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-implementation-reviewer.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-implementer.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-product-reviewer.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-review-behavior.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-review-channel.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-review-concept.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-review-delivery.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-review-docs.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-review-quality.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-review-scope-plan.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-review-story-init.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-review-test-coverage.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-review-topology-critic.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-test-case-reviewer.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-test-intent.md",
               "scope:file:packages/main/tests/artifact-schema-migration.test.mjs",
               "scope:file:packages/main/tests/bin-alias-migration.test.mjs",
               "scope:file:packages/main/tests/brand-role-migration.test.mjs",
@@ -269,7 +301,7 @@
               "scope:file:scripts/verify-proof-or-stop-prompt-baseline.mjs"
             ]
           },
-          "resultDigest": "sha256:4e7a27516ae6c7a358216c25540844914bfc51aa70d8b3a9bcad4d5139bf80f3"
+          "resultDigest": "sha256:1edb90de88f020da3e07aba67443f22c1d4e4e2d70098cf2ded8b60b7bb72729"
         },
         {
           "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -348,7 +380,23 @@
               "scope:file:packages/main/src/init-assets.ts",
               "scope:file:packages/main/src/registry.ts",
               "scope:file:packages/main/src/tasks/version-bump-smoke.ts",
-              "scope:file:packages/main/templates/agents",
+              "scope:file:packages/main/templates/agents/proof-or-stop-evaluator-cli.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-evaluator.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-implementation-reviewer.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-implementer.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-product-reviewer.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-review-behavior.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-review-channel.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-review-concept.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-review-delivery.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-review-docs.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-review-quality.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-review-scope-plan.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-review-story-init.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-review-test-coverage.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-review-topology-critic.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-test-case-reviewer.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-test-intent.md",
               "scope:file:packages/main/tests/artifact-schema-migration.test.mjs",
               "scope:file:packages/main/tests/bin-alias-migration.test.mjs",
               "scope:file:packages/main/tests/brand-role-migration.test.mjs",
@@ -369,7 +417,7 @@
               "scope:file:scripts/verify-proof-or-stop-prompt-baseline.mjs"
             ]
           },
-          "resultDigest": "sha256:657ce27139524bbe236696952ea0d4e25ffb8dbe5b71529c891329aaeb2f9021"
+          "resultDigest": "sha256:de0d8d2a1c7c8b71f9d2aa26acdcde563ff7372fd52b3ff32217fc407c4d2d28"
         },
         {
           "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -443,7 +491,23 @@
             "scope:file:packages/main/src/init-assets.ts",
             "scope:file:packages/main/src/registry.ts",
             "scope:file:packages/main/src/tasks/version-bump-smoke.ts",
-            "scope:file:packages/main/templates/agents",
+            "scope:file:packages/main/templates/agents/proof-or-stop-evaluator-cli.md",
+            "scope:file:packages/main/templates/agents/proof-or-stop-evaluator.md",
+            "scope:file:packages/main/templates/agents/proof-or-stop-implementation-reviewer.md",
+            "scope:file:packages/main/templates/agents/proof-or-stop-implementer.md",
+            "scope:file:packages/main/templates/agents/proof-or-stop-product-reviewer.md",
+            "scope:file:packages/main/templates/agents/proof-or-stop-review-behavior.md",
+            "scope:file:packages/main/templates/agents/proof-or-stop-review-channel.md",
+            "scope:file:packages/main/templates/agents/proof-or-stop-review-concept.md",
+            "scope:file:packages/main/templates/agents/proof-or-stop-review-delivery.md",
+            "scope:file:packages/main/templates/agents/proof-or-stop-review-docs.md",
+            "scope:file:packages/main/templates/agents/proof-or-stop-review-quality.md",
+            "scope:file:packages/main/templates/agents/proof-or-stop-review-scope-plan.md",
+            "scope:file:packages/main/templates/agents/proof-or-stop-review-story-init.md",
+            "scope:file:packages/main/templates/agents/proof-or-stop-review-test-coverage.md",
+            "scope:file:packages/main/templates/agents/proof-or-stop-review-topology-critic.md",
+            "scope:file:packages/main/templates/agents/proof-or-stop-test-case-reviewer.md",
+            "scope:file:packages/main/templates/agents/proof-or-stop-test-intent.md",
             "scope:file:packages/main/tests/artifact-schema-migration.test.mjs",
             "scope:file:packages/main/tests/bin-alias-migration.test.mjs",
             "scope:file:packages/main/tests/brand-role-migration.test.mjs",
@@ -532,7 +596,23 @@
               "scope:file:packages/main/src/init-assets.ts",
               "scope:file:packages/main/src/registry.ts",
               "scope:file:packages/main/src/tasks/version-bump-smoke.ts",
-              "scope:file:packages/main/templates/agents",
+              "scope:file:packages/main/templates/agents/proof-or-stop-evaluator-cli.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-evaluator.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-implementation-reviewer.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-implementer.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-product-reviewer.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-review-behavior.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-review-channel.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-review-concept.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-review-delivery.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-review-docs.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-review-quality.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-review-scope-plan.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-review-story-init.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-review-test-coverage.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-review-topology-critic.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-test-case-reviewer.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-test-intent.md",
               "scope:file:packages/main/tests/artifact-schema-migration.test.mjs",
               "scope:file:packages/main/tests/bin-alias-migration.test.mjs",
               "scope:file:packages/main/tests/brand-role-migration.test.mjs",
@@ -553,7 +633,7 @@
               "scope:file:scripts/verify-proof-or-stop-prompt-baseline.mjs"
             ]
           },
-          "resultDigest": "sha256:9869a9fbef9f29db45d5d626cec3cedfb33b6eee45e4cff50632d26941f18883"
+          "resultDigest": "sha256:55fb2c81b470daf7a6f33365268e8ac73451728930c9cbebf9ad9ab87674f398"
         },
         {
           "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -577,7 +657,7 @@
           "coverageClaim": "complete_for_scope",
           "blindSpots": [],
           "provenanceRefs": [
-            "source-file:.githooks/pre-push:sha256:a3f0234f63d6396d1fb94b66517e654030a7e2d0d05d2b89253957fa7cc37515",
+            "source-file:.githooks/pre-push:sha256:939c3b3096056cf118046caba648e9d1f032099950ebbf1ac552f6aa41b059cd",
             "source-file:package-lock.json:sha256:a74cfe9ea8511356f24679b6b0d0d240aa4c9617c23e33bd85cdb622c15cdb55",
             "source-file:package.json:sha256:2fdb0eae78c5c1eba2617e42d9e9cebd4c5602456e8219c272e902c76cbe0021",
             "source-file:packages/lab/package-lock.json:sha256:a8193a9349ce3799c464c5736e985f88e6920f1ba10153c59376b5018886ca45",
@@ -587,33 +667,33 @@
             "source-file:packages/lab/src/tool-defs.ts:sha256:e1ed853a4c9437f1179a55a62e5e103b9bef32c52fb15b201e3907ff4da031d1",
             "source-file:packages/main/package-lock.json:sha256:e84c94a8dd2ab82e9e4fbdc048e337a6c6b95ae7bbc250fd0a57003e3a9afe71",
             "source-file:packages/main/package.json:sha256:c0b63e1cbfc888927c6517ccb1cbedf5519a5f8bcd8428fc4dda3f23bc475f5c",
-            "source-file:packages/main/src/claude-md-sync.ts:sha256:8f8cce4f07d595f652f9c7cd907ecfc64cbdc2deeb9a391df5a0d68193edef9f",
-            "source-file:packages/main/src/cli-init.ts:sha256:8f52d2532050274b057b5fe8d2ab034c09674919bd8b00708d6f89988cbb3f92",
+            "source-file:packages/main/src/claude-md-sync.ts:sha256:9a5d0c070b9b880573be0a397df1f4721daf9ea9ec6385c6c4cd6a385b59c7d8",
+            "source-file:packages/main/src/cli-init.ts:sha256:367e953b6fd163fc3b6b7cbef03945bb18ecb2fc3b7f65b9ccabf36cb8e37af2",
             "source-file:packages/main/src/cli.ts:sha256:2b1353add9b5d9efd550e5cec362f4db22712a8b1aeff373fd16c004bd57b8a4",
             "source-file:packages/main/src/cli/help-renderer.ts:sha256:6f59e8594d15f440d951f89f8d314cfbccfc59f1d17fb7ceb391148431457502",
             "source-file:packages/main/src/core/acceptance-discovery-adapters.ts:sha256:ae9fb2b4b0a6c22847486ff5d1d6797d104f48653b251a7b2ee64a6845a0978e",
             "source-file:packages/main/src/core/acceptance-topology.ts:sha256:df44a37b6222c35311d1d6934d31138b5acb0b16b476e4b64fe33d33518c3dac",
-            "source-file:packages/main/src/core/agent-asset-resolution.ts:sha256:c19d1ad1faa58dc059728e47fad32e20001bd79e8166fbb3e639810d2183d2d9",
+            "source-file:packages/main/src/core/agent-asset-resolution.ts:sha256:2d171125686422e2c1292b24d80e40f5ea4d51468097becb1cced5e9821418a3",
             "source-file:packages/main/src/core/agent-dispatch-registry.ts:sha256:c6d71c513e528fe53f610a6c0a86e2cf6dac53cb81d619340883ba95ee7e9df4",
-            "source-file:packages/main/src/core/agent-role-identity.ts:sha256:a16a98c3ffaf26ebefc31739a6cc686c681d1aafe42be32e965e0f2f52f7916c",
+            "source-file:packages/main/src/core/agent-role-identity.ts:sha256:d7f09e46154f05a22336b8490a5bee4e7d9c2438ea63ad5f23c28a5728e9e31a",
             "source-file:packages/main/src/core/artifact-contract.ts:sha256:1901c14993eff1558784b882284324c97c082116bf0efeaec158fd060d80659f",
-            "source-file:packages/main/src/core/artifact-schema.ts:sha256:86098f5849b504bb2d348509742555ae487341d371bfb1887cdb9cab571ffeb6",
+            "source-file:packages/main/src/core/artifact-schema.ts:sha256:3c3ece36c934448ba61d011d0cde52febdc84deffe00a7ee997798397cb53b35",
             "source-file:packages/main/src/core/brand-env.ts:sha256:2840a6ab5aef001d991917730a6853a42dbbebd39438c4aa816febfa0ae82eb9",
-            "source-file:packages/main/src/core/closeout-trust.ts:sha256:70846e5f4c6ebc10c90f49ba69121d28b098a3eff19b8c2a61aab2c449d45a53",
+            "source-file:packages/main/src/core/closeout-trust.ts:sha256:8fdd192cbda85df16605c416521378b0e7ceeabcbe6b6f50fd0ebab2c03fdc70",
             "source-file:packages/main/src/core/done-required-validation.ts:sha256:457d13dbf7b532bc135bbe79e21f4d7dbc74b155b6032379aa2bd6c88b4d9f09",
-            "source-file:packages/main/src/core/evidence-freshness.ts:sha256:7431ca385337994ac6499465f9c955c78715221967939ddf9c12390e53909319",
+            "source-file:packages/main/src/core/evidence-freshness.ts:sha256:1175f9e0d3a023fc67846cd40ab33e9580ca6dc8d0e81079fc75fdabfd3da4c3",
             "source-file:packages/main/src/core/init-check-gate.ts:sha256:41f331a4e1f0211a07f92f583db534cd7f56dfc41c6d690a0748f474155a12b2",
-            "source-file:packages/main/src/core/lattice-brand.ts:sha256:572174010d726d361b704348b429dd06a23c62eec5c7d295ec009f0ba42b4c62",
-            "source-file:packages/main/src/core/managed-assets.ts:sha256:116094cc2d0cc6c1a677c643b124c27f264e11bf74da2cc2455c2f2997d391a6",
+            "source-file:packages/main/src/core/lattice-brand.ts:sha256:d553e2ecc2db033d6f3d67457d2eb073f7aa3e82ac700d96b5ac22a3504898d2",
+            "source-file:packages/main/src/core/managed-assets.ts:sha256:bb0d59cb69e807b69cbd255cf96ba03183524e1ffffdaef906e200d289898c62",
             "source-file:packages/main/src/core/managed-markers.ts:sha256:5e859db5637b0fe3ec2be4feb3d9f4c9033658d46bef0570152d04fdcffc0181",
             "source-file:packages/main/src/core/pre-review-check.ts:sha256:c3beb9d8b06fbecd208b442f12b753682390a851969f4c73d1db98509535cf00",
             "source-file:packages/main/src/core/pre-review-live-proof.ts:sha256:ea1f1f2175640d18170dd1e41e8a3886e6761c17054ab4d8f99a8bf429cd0880",
             "source-file:packages/main/src/core/process-fact-registry.ts:sha256:d9533e56820967beaabc8212c7d24d0001d44ae6ba0121fedbd5985de7a3e2ab",
-            "source-file:packages/main/src/core/prompt-registry.ts:sha256:e253b36551ac79b67ba0780976ea9572d688e99258242855526526719b162ec5",
-            "source-file:packages/main/src/core/prompt-role-contract-registry.ts:sha256:d5db1bdd5432c22bd26e4cc43a77e9c007e684903e06a8a540dabb9e37394136",
+            "source-file:packages/main/src/core/prompt-registry.ts:sha256:c01a241e67ead86a0aae8dfb1c8d2e941fdd550470f2da7c4e5f4ebf65052c52",
+            "source-file:packages/main/src/core/prompt-role-contract-registry.ts:sha256:49fb1f6038b8a3ea88e0263027f1ea24b8783ca54801ad6f3dee1675f813c019",
             "source-file:packages/main/src/core/release-push-approval.ts:sha256:0310d4d4be2b573a0c2360f039bf1a0d114e856bb3ea4e405b81b86895b8b951",
-            "source-file:packages/main/src/core/review-run.ts:sha256:d93c54fb0797ce664e54e7e793fd153c0bb0fe1efd144552e0f3d4454b8b992b",
-            "source-file:packages/main/src/core/reviewer-opt-in.ts:sha256:2478a803dbe564f0b534bd4ed956e2ead6ad23db423cb7b613d267c460aa34a8",
+            "source-file:packages/main/src/core/review-run.ts:sha256:49055676dbe10f0eeb3b773d5208d2553beee3defc8785aa3394f4504f3de6d3",
+            "source-file:packages/main/src/core/reviewer-opt-in.ts:sha256:b6d30acd0313dcf5e5deb040d1ad2c23ed730c010e33df6e6bf5bb74c1282bd5",
             "source-file:packages/main/src/core/reviewer-quorum.ts:sha256:3ef1add0f5195de3fc7fcfc615b4bacbc0a1dceb363927fc7a31866fa15665ac",
             "source-file:packages/main/src/core/runtime-environment-checks.ts:sha256:bd16b246d6776a86f2c711ec664e69a082a752d9e81f9cca621da92af119bb40",
             "source-file:packages/main/src/core/store.ts:sha256:880f716f54e9b84249e0a61b6b307a239dc23b60ee55c67e1280c1baaa860c66",
@@ -634,15 +714,32 @@
             "source-file:packages/main/src/handlers/transition-effects.ts:sha256:d479ec206d0deb4e1079b76b2fa278535844a0b0e9faadda32b94208d7f80e69",
             "source-file:packages/main/src/handlers/transition-orchestrator.ts:sha256:b43f5c91e74c8849588abb53ead643cd16ba0a200c8b907a467408c3d7657698",
             "source-file:packages/main/src/handlers/workflow.ts:sha256:db683780b3452ccf3d0cfa8d635b496248b0b417527a3f1dd9f53ce99430e960",
-            "source-file:packages/main/src/init-assets.ts:sha256:a03de01e901d0a9ce8a6d3118d586dbfa1aafd0bbab8064fb8cdb018a08d2f59",
+            "source-file:packages/main/src/init-assets.ts:sha256:8e2774fc71ecab95536eb1142ee20f3174f3eea62ba661ed6e827502baae6896",
             "source-file:packages/main/src/registry.ts:sha256:187248db63c3e3bde9197216404a14faacc2a70bcf711a2d984112e190f7db81",
             "source-file:packages/main/src/tasks/version-bump-smoke.ts:sha256:6b08e092463eed8cf13719de4cbcbc976f73cba10ef96c36f06dab99389b6598",
-            "source-file:packages/main/tests/artifact-schema-migration.test.mjs:sha256:fe924d4b534a2cac5a8a7db9dff8f049a82f9862d1cc6cdacf85a233345750f0",
-            "source-file:packages/main/tests/bin-alias-migration.test.mjs:sha256:acb582becc21c08cf47d58e99547df62f2296da377aaac7ce7a200d215dafeb0",
-            "source-file:packages/main/tests/brand-role-migration.test.mjs:sha256:c10b85319821f52c8e45bc1dc23a42008f547e449fc36697dec73ee04f48ab41",
-            "source-file:packages/main/tests/managed-marker-migration.test.mjs:sha256:d0b93eb5884ed7c6bc17974f5db84b8fa6b3b72c5a91b45b2680f5dfae8fe3d4",
+            "source-file:packages/main/templates/agents/proof-or-stop-evaluator-cli.md:sha256:4480d5afb848ec06e1248f83abd8524b4353692e8470d8dbc4fedd9f831ee411",
+            "source-file:packages/main/templates/agents/proof-or-stop-evaluator.md:sha256:0eea3dc9418481fb924a868006c8d426e77c4eb3a4ad1b0eedda664b0d77b135",
+            "source-file:packages/main/templates/agents/proof-or-stop-implementation-reviewer.md:sha256:d7c17684bf659a0fd4a0ed0a4150818db61218182641c1a5cdbbbd8f809cacd4",
+            "source-file:packages/main/templates/agents/proof-or-stop-implementer.md:sha256:0af0bd31ecb8f95bfbd01056d65d79ea75b8b5a8a8bd736749bd423263339e65",
+            "source-file:packages/main/templates/agents/proof-or-stop-product-reviewer.md:sha256:e9313040128319f8673ea878e71dba97be2596700236989018a01dfed27edd30",
+            "source-file:packages/main/templates/agents/proof-or-stop-review-behavior.md:sha256:7490a8894295481f55418059a42bb0a674a0fac8a6378b29859c479ffc27824f",
+            "source-file:packages/main/templates/agents/proof-or-stop-review-channel.md:sha256:519e3955828d5b0d61837fec99374bf7cb6b48115b0a07731bcc541c8962be33",
+            "source-file:packages/main/templates/agents/proof-or-stop-review-concept.md:sha256:4ecc060a050768abb4890992b728687fa80f49ea4d1556d6adb10b7e486ff1ed",
+            "source-file:packages/main/templates/agents/proof-or-stop-review-delivery.md:sha256:4e7ffebb30ad6ca195564ca8dfe3f56a0433227c4ae8c5f99bf5831a5230c66d",
+            "source-file:packages/main/templates/agents/proof-or-stop-review-docs.md:sha256:92c1cb7ce3b1c4b5d5641d2ff27e6dff1f49e4f5527037df624c56277813790a",
+            "source-file:packages/main/templates/agents/proof-or-stop-review-quality.md:sha256:6f793eaf3e8b7a7beb01eeef3b2337c3a20fee2d0391277bdffb3bef4cadf47b",
+            "source-file:packages/main/templates/agents/proof-or-stop-review-scope-plan.md:sha256:54d69e31a7afc2ba8445c6a2fa618e521fb51a38b7bb23be658e869939103939",
+            "source-file:packages/main/templates/agents/proof-or-stop-review-story-init.md:sha256:28f4fef77ba302fdad0d4faf3799d17c1242192b60199d130b5d253a6c91ee11",
+            "source-file:packages/main/templates/agents/proof-or-stop-review-test-coverage.md:sha256:b36ceac246f23c7be65f1f5652b04aa079d65e1a5e97660ea8deee86d64267fa",
+            "source-file:packages/main/templates/agents/proof-or-stop-review-topology-critic.md:sha256:492ad5ef92ea071be16071aa7c0397f9c67348fe744d20a47da2d01ba63fdff5",
+            "source-file:packages/main/templates/agents/proof-or-stop-test-case-reviewer.md:sha256:e0e206092c0b2845602f33eaa6659d3dbc0ec4d63ff488a269b83930fdb7e50f",
+            "source-file:packages/main/templates/agents/proof-or-stop-test-intent.md:sha256:151b3178397778c1e83bd108c11d29fb038d4853918a9abc10d070bc01e5c618",
+            "source-file:packages/main/tests/artifact-schema-migration.test.mjs:sha256:f8fcf8955dc5090767c599aed639772aee2a7531bb80de90b77499092a5cb13e",
+            "source-file:packages/main/tests/bin-alias-migration.test.mjs:sha256:c1dfda39b7eae3721144439143190e1e4ac2a5aff9231aaa3f596961879ee4ce",
+            "source-file:packages/main/tests/brand-role-migration.test.mjs:sha256:f1a244c54ba86b0a73ee62cb585a6d6bb7aa0c3cae203d206bf234bc09abf6f7",
+            "source-file:packages/main/tests/managed-marker-migration.test.mjs:sha256:788bad4c4c92f32686f02205ca49f0a9000df14bb9541c2fa49f107f1811e828",
             "source-file:packages/main/tests/package-identity-migration.test.mjs:sha256:e3bcd14a02f507ed8209ddf6f4edeffcb729cc6d9f78dd0d8eda41b6838bea33",
-            "source-file:packages/main/tests/prompt-role-migration.test.mjs:sha256:0ba7440bfcffa6bc80adf82ee3e1fe1be36f772d44a1b0b30a19bd45f14f6ff6",
+            "source-file:packages/main/tests/prompt-role-migration.test.mjs:sha256:d2a0fd872a200e4d2960b2527750b4fc9590e599844a2efe63ea5c7c0435a29d",
             "source-file:packages/main/tests/release-push-approval-migration.test.mjs:sha256:2c395b6355b197ed3876c0af2b41bb84447fa7178e8c71ccb1dd8482eb910e9e",
             "source-file:packages/utils/package-lock.json:sha256:7e75c716f2ff14a0661980f6a29b1055e6ba8bfd2fd127ed5a4af2d571f1a8ba",
             "source-file:packages/utils/package.json:sha256:753bf80f7df3e23558f03ab00fd83e1bc8757487f3fac81eec10ca5355c32775",
@@ -651,12 +748,12 @@
             "source-file:packages/utils/src/tool-defs.ts:sha256:13feb5238e7e505017c719be0f178a55e86fb23cc60894ddcac1689b8301528d",
             "source-file:proof-or-stop.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745",
             "source-file:scripts/run-proofstory-pre-review-live-proof.mjs:sha256:1572b45b9c889106ffa8eb70f8bb2bbc82148fa6ec442458e234ef2167bb1108",
-            "source-file:scripts/verify-codex-assets.mjs:sha256:2feab996f904d358c9154ca3ee3d2fe6a4d8e877a37b7c9acc72b89dcc473497",
-            "source-file:scripts/verify-entrypoints.mjs:sha256:80a0738194eac4b2b8f5f6b825fe43f6c9b06277cf0b88138e0ab609808a25b5",
+            "source-file:scripts/verify-codex-assets.mjs:sha256:0deb480da8c7440272f8c86c77c1fba952a2b4f4fa44c431eabe753bac889ef5",
+            "source-file:scripts/verify-entrypoints.mjs:sha256:69fa91489a9614a7ff157489d4a55dded133419b4c9c44cbf80197e430b2a862",
             "source-file:scripts/verify-global-lab-entrypoint.mjs:sha256:83f161a06e5ca1dc200657dbf31ba68ca5fbab666f163a0be28a457af3d16b51",
             "source-file:scripts/verify-lattice-residue.mjs:sha256:1552c50c1ddc25a400688877a2708a7c3b6d091d96174fcb0a17cb35406edd0e",
-            "source-file:scripts/verify-process-fact-contract.mjs:sha256:bd828f58d2f7df248b7a8bd9d961faffb4ffc130816e88650657365146ddc5fc",
-            "source-file:scripts/verify-proof-or-stop-prompt-baseline.mjs:sha256:7a6498bd1229944326b467e0146d71cbe1e09e676a40f27dea9407f86b5927e2"
+            "source-file:scripts/verify-process-fact-contract.mjs:sha256:68725bff65c9fec87e06795f1dd3f166fa0fc989b84c120a0315eb8fbb27ee53",
+            "source-file:scripts/verify-proof-or-stop-prompt-baseline.mjs:sha256:d8c128528ab5f3257168a2cb86a8b00c8dc70e34c6aa7aec7c123b710e23e145"
           ],
           "asymmetryPolicy": {
             "kind": "exhaustive",
@@ -724,7 +821,23 @@
               "scope:file:packages/main/src/init-assets.ts",
               "scope:file:packages/main/src/registry.ts",
               "scope:file:packages/main/src/tasks/version-bump-smoke.ts",
-              "scope:file:packages/main/templates/agents",
+              "scope:file:packages/main/templates/agents/proof-or-stop-evaluator-cli.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-evaluator.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-implementation-reviewer.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-implementer.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-product-reviewer.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-review-behavior.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-review-channel.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-review-concept.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-review-delivery.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-review-docs.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-review-quality.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-review-scope-plan.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-review-story-init.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-review-test-coverage.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-review-topology-critic.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-test-case-reviewer.md",
+              "scope:file:packages/main/templates/agents/proof-or-stop-test-intent.md",
               "scope:file:packages/main/tests/artifact-schema-migration.test.mjs",
               "scope:file:packages/main/tests/bin-alias-migration.test.mjs",
               "scope:file:packages/main/tests/brand-role-migration.test.mjs",
@@ -745,7 +858,7 @@
               "scope:file:scripts/verify-proof-or-stop-prompt-baseline.mjs"
             ]
           },
-          "resultDigest": "sha256:69b4bdead3968d46ed25a9d56c41541280751ab0988ae451fe843092cec85f33"
+          "resultDigest": "sha256:d0fcb7adf302a089b9a89ff58057b1634f6b1d85cf5f454c3e53e2a35343719e"
         }
       ],
       "scopeRefs": [
@@ -811,7 +924,23 @@
         "scope:file:packages/main/src/init-assets.ts",
         "scope:file:packages/main/src/registry.ts",
         "scope:file:packages/main/src/tasks/version-bump-smoke.ts",
-        "scope:file:packages/main/templates/agents",
+        "scope:file:packages/main/templates/agents/proof-or-stop-evaluator-cli.md",
+        "scope:file:packages/main/templates/agents/proof-or-stop-evaluator.md",
+        "scope:file:packages/main/templates/agents/proof-or-stop-implementation-reviewer.md",
+        "scope:file:packages/main/templates/agents/proof-or-stop-implementer.md",
+        "scope:file:packages/main/templates/agents/proof-or-stop-product-reviewer.md",
+        "scope:file:packages/main/templates/agents/proof-or-stop-review-behavior.md",
+        "scope:file:packages/main/templates/agents/proof-or-stop-review-channel.md",
+        "scope:file:packages/main/templates/agents/proof-or-stop-review-concept.md",
+        "scope:file:packages/main/templates/agents/proof-or-stop-review-delivery.md",
+        "scope:file:packages/main/templates/agents/proof-or-stop-review-docs.md",
+        "scope:file:packages/main/templates/agents/proof-or-stop-review-quality.md",
+        "scope:file:packages/main/templates/agents/proof-or-stop-review-scope-plan.md",
+        "scope:file:packages/main/templates/agents/proof-or-stop-review-story-init.md",
+        "scope:file:packages/main/templates/agents/proof-or-stop-review-test-coverage.md",
+        "scope:file:packages/main/templates/agents/proof-or-stop-review-topology-critic.md",
+        "scope:file:packages/main/templates/agents/proof-or-stop-test-case-reviewer.md",
+        "scope:file:packages/main/templates/agents/proof-or-stop-test-intent.md",
         "scope:file:packages/main/tests/artifact-schema-migration.test.mjs",
         "scope:file:packages/main/tests/bin-alias-migration.test.mjs",
         "scope:file:packages/main/tests/brand-role-migration.test.mjs",
@@ -904,6 +1033,23 @@
         "source-file:closure:packages/main/src/init-assets.ts",
         "source-file:closure:packages/main/src/registry.ts",
         "source-file:closure:packages/main/src/tasks/version-bump-smoke.ts",
+        "source-file:closure:packages/main/templates/agents/proof-or-stop-evaluator-cli.md",
+        "source-file:closure:packages/main/templates/agents/proof-or-stop-evaluator.md",
+        "source-file:closure:packages/main/templates/agents/proof-or-stop-implementation-reviewer.md",
+        "source-file:closure:packages/main/templates/agents/proof-or-stop-implementer.md",
+        "source-file:closure:packages/main/templates/agents/proof-or-stop-product-reviewer.md",
+        "source-file:closure:packages/main/templates/agents/proof-or-stop-review-behavior.md",
+        "source-file:closure:packages/main/templates/agents/proof-or-stop-review-channel.md",
+        "source-file:closure:packages/main/templates/agents/proof-or-stop-review-concept.md",
+        "source-file:closure:packages/main/templates/agents/proof-or-stop-review-delivery.md",
+        "source-file:closure:packages/main/templates/agents/proof-or-stop-review-docs.md",
+        "source-file:closure:packages/main/templates/agents/proof-or-stop-review-quality.md",
+        "source-file:closure:packages/main/templates/agents/proof-or-stop-review-scope-plan.md",
+        "source-file:closure:packages/main/templates/agents/proof-or-stop-review-story-init.md",
+        "source-file:closure:packages/main/templates/agents/proof-or-stop-review-test-coverage.md",
+        "source-file:closure:packages/main/templates/agents/proof-or-stop-review-topology-critic.md",
+        "source-file:closure:packages/main/templates/agents/proof-or-stop-test-case-reviewer.md",
+        "source-file:closure:packages/main/templates/agents/proof-or-stop-test-intent.md",
         "source-file:closure:packages/main/tests/artifact-schema-migration.test.mjs",
         "source-file:closure:packages/main/tests/bin-alias-migration.test.mjs",
         "source-file:closure:packages/main/tests/brand-role-migration.test.mjs",
@@ -1034,197 +1180,197 @@
         "schemaVersion": "proofstory.acceptance_snapshot_seal.v1",
         "inventoryDirectoryDigest": "sha256:a5ef8eb2a947839b69a8a89f10c15b3e602b38ec291afbafce056262ce82f9c7",
         "inventoryDirectoryCount": 21,
-        "sourceSnapshotDigest": "sha256:b11a1e74c24ae7a62413bda617870bbc21f9ed7500161d2883074d5090a562a2",
-        "sourceSnapshotCount": 846,
+        "sourceSnapshotDigest": "sha256:8920b8d8cf4ed0d707eb45e1bd80dc325784c5968373ac7164608cc79f879fe7",
+        "sourceSnapshotCount": 863,
         "configSnapshotDigest": "sha256:ab4b658eaf618dd6e859c44d6bab29230deefeef2b53889c500533b9dde9b251",
         "status": "complete",
         "issues": [],
-        "sealDigest": "sha256:18cda765744738f6366325db9868fd10b63b118986d0eba4c7d93ef77e504528"
+        "sealDigest": "sha256:90b9c8e8d7d8000352066400c529f30ce78874a8b326d1ec0f1157b84fe4010f"
       },
       "binding": {
-        "headHash": "6ecdeedd0fbc1fa027e7cf9ba9364b01a7c53df6",
-        "materialHash": "3d97c9e77ea180d64d31a0b408befcfb468eec7be61d882546e89fdd91ab5695",
-        "storyFilesHash": "5a3601fbad0a738c4b1b42c4c1d3f4ef659398cb79579d9dc649307523608413",
-        "scopeCheckDigest": "sha256:cbd8e7e44b42c1b396996e8b9294d95c898ba1c92e6f86e9cb055d351182a0f9",
-        "scopeContractDigest": "sha256:6b2878cc2490a50238fb1a69f0a3f0f7103b5c29a0d95f3d76e73092d98fb368",
-        "closureFilesHash": "sha256:76a1fe1d7035f96bdc2f18faafc2bdbf2cc2ca3a2d7411200dcf13b12e4d6621"
+        "headHash": "f98f853126558612e241f93273b97fcaa0dd3e4c",
+        "materialHash": "c32f8efc7c636cc5c73bdcd425530d1897fd0a91625732a5ac4d3c8520169e3a",
+        "storyFilesHash": "254e16d089a2079d9332bd375bf4104a3809e98a62db398b0916f5479daee69d",
+        "scopeCheckDigest": "sha256:6e25771291295e8b845cfcea367d37421c95c17ccf04c72a366a7a8f114543a5",
+        "scopeContractDigest": "sha256:c4450c68f683aa39b6e7bcb1ac0365d3d32199a8912caac82df5754eefe54a08",
+        "closureFilesHash": "sha256:bee58b64241a4b6527c5fddc83780b86332b0a510fdf336d3dc9228176c648a5"
       },
-      "receiptRef": "receipt:coverage-basis:B-5a88:pre_review:e008a9307a2cb129",
-      "basisDigest": "sha256:a24a40b5e0c0e93802636c60283659617cdacd48f5b355e30c8450b3005167dd"
+      "receiptRef": "receipt:coverage-basis:B-5a88:pre_review:38a990ea1a9b800a",
+      "basisDigest": "sha256:e00a60aed3cfaeb97dedba56ec61d6f54593ab4968efa8eed417cefd0ec5689b"
     },
     "receipt": {
       "schemaVersion": "proofstory.acceptance_basis_receipt.v1",
-      "receiptRef": "receipt:coverage-basis:B-5a88:pre_review:e008a9307a2cb129",
+      "receiptRef": "receipt:coverage-basis:B-5a88:pre_review:38a990ea1a9b800a",
       "issuer": "acceptance-coverage-basis-verifier",
       "issuerKeyId": "sha256:a944288d3323f4b761cbb51602e62f88fbc1b35530eabfa265971baee771138b",
       "signerPublicKey": "GpD4A2Km0wpT87L2EcszehhUu0nPgXbafTXgXTjTKAM=",
       "storyId": "B-5a88",
       "phaseBasis": "pre_review",
-      "basisDigest": "sha256:a24a40b5e0c0e93802636c60283659617cdacd48f5b355e30c8450b3005167dd",
-      "topologyDigest": "sha256:dbbcfb5ce48f59b037423b3de7ab80e0bcce2a552b562b0d92f472909b32b7be",
-      "scopeCheckDigest": "sha256:cbd8e7e44b42c1b396996e8b9294d95c898ba1c92e6f86e9cb055d351182a0f9",
-      "scopeContractDigest": "sha256:6b2878cc2490a50238fb1a69f0a3f0f7103b5c29a0d95f3d76e73092d98fb368",
-      "headHash": "6ecdeedd0fbc1fa027e7cf9ba9364b01a7c53df6",
-      "materialHash": "3d97c9e77ea180d64d31a0b408befcfb468eec7be61d882546e89fdd91ab5695",
-      "storyFilesHash": "5a3601fbad0a738c4b1b42c4c1d3f4ef659398cb79579d9dc649307523608413",
-      "closureFilesHash": "sha256:76a1fe1d7035f96bdc2f18faafc2bdbf2cc2ca3a2d7411200dcf13b12e4d6621",
-      "sealDigest": "sha256:18cda765744738f6366325db9868fd10b63b118986d0eba4c7d93ef77e504528",
+      "basisDigest": "sha256:e00a60aed3cfaeb97dedba56ec61d6f54593ab4968efa8eed417cefd0ec5689b",
+      "topologyDigest": "sha256:4e38caf410521c43a7e9ae42a2d3b870c427db980f9302a9711bb8acb8129529",
+      "scopeCheckDigest": "sha256:6e25771291295e8b845cfcea367d37421c95c17ccf04c72a366a7a8f114543a5",
+      "scopeContractDigest": "sha256:c4450c68f683aa39b6e7bcb1ac0365d3d32199a8912caac82df5754eefe54a08",
+      "headHash": "f98f853126558612e241f93273b97fcaa0dd3e4c",
+      "materialHash": "c32f8efc7c636cc5c73bdcd425530d1897fd0a91625732a5ac4d3c8520169e3a",
+      "storyFilesHash": "254e16d089a2079d9332bd375bf4104a3809e98a62db398b0916f5479daee69d",
+      "closureFilesHash": "sha256:bee58b64241a4b6527c5fddc83780b86332b0a510fdf336d3dc9228176c648a5",
+      "sealDigest": "sha256:90b9c8e8d7d8000352066400c529f30ce78874a8b326d1ec0f1157b84fe4010f",
       "workspaceIdentityDigest": "sha256:7269e2a5b5f07e8b7e813824b4892a55c277f4f75b9c118ed471e7c51cb3ee21",
-      "signature": "5hstyqdw/G1iNfk1S+eU8Eb/dzBygpUTAm19vhv1Qlnh/XnNOfJtN4+PW7qguqL2NphOpU5gB7sLNw5dzc1vBQ=="
+      "signature": "np/POhIBuNnvNUldmlD2o8KUFu7/hWtCQ7aY1/e5Bb4QFHb+oVosqlvTyv2e5D7CLyx4iM8GDsZOD4FnsEEWCA=="
     }
   },
-  "topologyDigest": "sha256:dbbcfb5ce48f59b037423b3de7ab80e0bcce2a552b562b0d92f472909b32b7be",
-  "scopeCheckDigest": "sha256:cbd8e7e44b42c1b396996e8b9294d95c898ba1c92e6f86e9cb055d351182a0f9",
-  "scopeContractDigest": "sha256:6b2878cc2490a50238fb1a69f0a3f0f7103b5c29a0d95f3d76e73092d98fb368",
-  "storyFilesHash": "5a3601fbad0a738c4b1b42c4c1d3f4ef659398cb79579d9dc649307523608413",
-  "closureFilesHash": "sha256:76a1fe1d7035f96bdc2f18faafc2bdbf2cc2ca3a2d7411200dcf13b12e4d6621",
+  "topologyDigest": "sha256:4e38caf410521c43a7e9ae42a2d3b870c427db980f9302a9711bb8acb8129529",
+  "scopeCheckDigest": "sha256:6e25771291295e8b845cfcea367d37421c95c17ccf04c72a366a7a8f114543a5",
+  "scopeContractDigest": "sha256:c4450c68f683aa39b6e7bcb1ac0365d3d32199a8912caac82df5754eefe54a08",
+  "storyFilesHash": "254e16d089a2079d9332bd375bf4104a3809e98a62db398b0916f5479daee69d",
+  "closureFilesHash": "sha256:bee58b64241a4b6527c5fddc83780b86332b0a510fdf336d3dc9228176c648a5",
   "evidenceRefs": [
     {
       "intentRef": "CHK-001:adversarial:0",
       "itemId": "CHK-001",
       "evidenceIndex": 2,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:867ef7e451d5dea50dfba665e8ef6db8a9026bb311cfa41bfa92e6b20a299a29"
+      "evidenceDigest": "sha256:86fa18011270a2577cca9a21c03480efbdca711050365fc14c7b184dde14cc89"
     },
     {
       "intentRef": "CHK-001:edge:0",
       "itemId": "CHK-001",
       "evidenceIndex": 1,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:489c2b9d448242fa4493aa3d35393ff8c56305713272ca4cb7e34060cca7ac3e"
+      "evidenceDigest": "sha256:75b175a772663fcb4a97388e53ed39d5f2d08ce788d82c8a090492f4fc097845"
     },
     {
       "intentRef": "CHK-001:happy:0",
       "itemId": "CHK-001",
       "evidenceIndex": 0,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:520fcc61345130ff9d9d2adc842352e4b259d68e070a5bbaa8cb40f448699b1e"
+      "evidenceDigest": "sha256:cca233b6863aa0cc59dd722428b506be411ea48b5e2c7d4ca8535c62260a0c17"
     },
     {
       "intentRef": "CHK-002:adversarial:0",
       "itemId": "CHK-002",
       "evidenceIndex": 2,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:4b7a33a13d125466b8dceee689e3332a5a4cb158f4de5735831802ec78082133"
+      "evidenceDigest": "sha256:c431e8dc4975f78ef28cd5d8682597c97246153fa6ef689f9ee7343f4559d872"
     },
     {
       "intentRef": "CHK-002:edge:0",
       "itemId": "CHK-002",
       "evidenceIndex": 1,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:a2fd1e1c4c84d03076672d507a5ecfae076489fd8db33baaa8782e18437e8751"
+      "evidenceDigest": "sha256:3477eb187f6e79bb57d5614609e7a48157638ec030c5d12b87afe2eb9ae289c8"
     },
     {
       "intentRef": "CHK-002:happy:0",
       "itemId": "CHK-002",
       "evidenceIndex": 0,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:88970fd7e6e7416a642fc3d4a00741611ed1f8895b694f9fd621e4e5e523dd02"
+      "evidenceDigest": "sha256:5bf2ac9596e4e3fd5c9f66fd5da6c2b914bbbb7b1940336c648bfae92b8946ed"
     },
     {
       "intentRef": "CHK-003:adversarial:0",
       "itemId": "CHK-003",
       "evidenceIndex": 2,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:87b19cff8242bb6fd30c883b3bfef8f67084023e6b731b2996e1c25a987e1bda"
+      "evidenceDigest": "sha256:c49e7edab6e100952857c99ad14c27149e05730e4a191a773c68774a889debea"
     },
     {
       "intentRef": "CHK-003:edge:0",
       "itemId": "CHK-003",
       "evidenceIndex": 1,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:77acaa4d0d6dfe955dd47add6d2bbb6294a0bffabdca3a717ed55d4404ab2cd0"
+      "evidenceDigest": "sha256:e402bc138835b611453f5dccf96c5a70833e9f76d7e84068095718b97c80f0e2"
     },
     {
       "intentRef": "CHK-003:happy:0",
       "itemId": "CHK-003",
       "evidenceIndex": 0,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:f25510f5a35f3f26330c72dbb2d5f410a46074147fa0637b80813b66ea52ea6d"
+      "evidenceDigest": "sha256:1a44f93bf82660d9cf65a517f68a71a23c58e0364b4d5067331b32f03b6a4086"
     },
     {
       "intentRef": "CHK-004:adversarial:0",
       "itemId": "CHK-004",
       "evidenceIndex": 2,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:6165886e46fd4210981043f655622917bec612a72c3167284bbc1c8437aacc55"
+      "evidenceDigest": "sha256:cd601cf0ae8c83c6aa6ade20ab7432d0f951f0fafc4181a600b7128b226f479e"
     },
     {
       "intentRef": "CHK-004:edge:0",
       "itemId": "CHK-004",
       "evidenceIndex": 1,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:c63c03afdc0305f4c57e173d2da435b9c8bf3b23268c4b08d249331f0b08b417"
+      "evidenceDigest": "sha256:488aff36756f67fc2e7d9ba3b3837647e8b6c2d88dbc74cec4b1ef35dae8b762"
     },
     {
       "intentRef": "CHK-004:happy:0",
       "itemId": "CHK-004",
       "evidenceIndex": 0,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:db81e726b70b59dab977b8170cb26596e10bed049129bae940c23750f4286e01"
+      "evidenceDigest": "sha256:6411542bd8ca471bcdec46f03d80ab25fb39c844f7b0f6897f9a0f751cc12dae"
     },
     {
       "intentRef": "CHK-005:adversarial:0",
       "itemId": "CHK-005",
       "evidenceIndex": 2,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:bc2113a3b60a69f68d505f2b3817181a7572542d70cecab74486882540869b27"
+      "evidenceDigest": "sha256:9322c931b0ab1179ac6eb6f10f0f9f656ff5192bd6e13ac47f4e6edda846649d"
     },
     {
       "intentRef": "CHK-005:edge:0",
       "itemId": "CHK-005",
       "evidenceIndex": 1,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:bc80ac0ca2c7df409005253cf3c3ecf5a1adc3f5e8ef7182574ed3de193b29f8"
+      "evidenceDigest": "sha256:3945e45cc4a86d9cc8070b9c68771edd80cb875e57288230dae80d83567c2c46"
     },
     {
       "intentRef": "CHK-005:happy:0",
       "itemId": "CHK-005",
       "evidenceIndex": 0,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:021c739ce7fb7d1c8c7931888873fd8ff6e8fbb03a613946912d5a89d9f3ee3c"
+      "evidenceDigest": "sha256:89f2caf7c0aabe20eb2779d940074bb024a97f79f044a249eb01ee2974b9751c"
     },
     {
       "intentRef": "CHK-006:adversarial:0",
       "itemId": "CHK-006",
       "evidenceIndex": 2,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:7064996cf16e96d6e49ebb7595ec393d13a406e419b1d492432636336db3d2ab"
+      "evidenceDigest": "sha256:014fc56b5120a8a7951baa6bb71d135cb7110e8898e05cfec5096d5b11c72f4c"
     },
     {
       "intentRef": "CHK-006:edge:0",
       "itemId": "CHK-006",
       "evidenceIndex": 1,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:9887d6dc72ab5c26d286123438a9d4e9b25324b6f9d7b8ff881b1f9fced59370"
+      "evidenceDigest": "sha256:8b11ce2dbd5ba284c7060db4dd15828876fa42ad97a80e8258b04aa1168d9a73"
     },
     {
       "intentRef": "CHK-006:happy:0",
       "itemId": "CHK-006",
       "evidenceIndex": 0,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:74737b43fb96a6989536d057cef239f6d2107854b44d5c3465f5a29c6cedc258"
+      "evidenceDigest": "sha256:55196cc7eeba2a1b828bd5730fc90a64554e569d9e5f226ccf03632ae0fc6862"
     },
     {
       "intentRef": "CHK-007:adversarial:0",
       "itemId": "CHK-007",
       "evidenceIndex": 2,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:987a878859f1d1b23fdb126b587fb56935b78b3e3ab0bc04555b8489de0c5858"
+      "evidenceDigest": "sha256:d7136e9384697b57ebc3c49fa2de3597bc29036a314255fd239c7387f6ff41a1"
     },
     {
       "intentRef": "CHK-007:edge:0",
       "itemId": "CHK-007",
       "evidenceIndex": 1,
       "kind": "manual_transcript",
-      "evidenceDigest": "sha256:de33badb1b1969689896750e1d1ef9e26b2926bd08d4d939e2a8af418584a0d2"
+      "evidenceDigest": "sha256:b39a58ef4301ad0a948f425a371fd42acc1da8b34d7b3f9e52f5eec6ae573a7c"
     },
     {
       "intentRef": "CHK-007:happy:0",
       "itemId": "CHK-007",
       "evidenceIndex": 0,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:a7e27232abd4711276885e8cc6e888d5272823ec00439835c283347e0000a011"
+      "evidenceDigest": "sha256:cc3c3845afc5c62106c6c85c2d3f81403348c6d1438e543b0d05d62353c34b84"
     }
   ],
   "executableProof": {
@@ -1232,355 +1378,29 @@
     "storyId": "B-5a88",
     "producer": "registered-verification-command",
     "verifier": "pre-review-check-command-runner",
-    "commandDigests": [
-      "sha256:318d1bf4e861475e49f41b35b63b33123226c2e1d4b919b6832465c546a42ddf"
-    ],
+    "commandDigests": [],
     "caseRecordsEncoding": "gzip-base64",
-    "caseRecords": "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",
+    "caseRecords": "",
     "provenance": {
-      "runnerPath": "scripts/run-proofstory-pre-review-live-proof.mjs",
-      "runnerDigest": "sha256:e45f9001861defcd91a85f1c8f10df27d24487f95bb80dfd8ed6dde7c6a0f2e9",
-      "targetPath": "packages/main/dist/tasks/proofstory-pre-review-check-smoke.js",
-      "targetDigest": "sha256:8c2d5bf3b82401c23c8214080f37c68b29f9f506cadde259e03cd39e7def87b6",
-      "buildCommand": "npm --prefix packages/main run build"
+      "runnerPath": "",
+      "runnerDigest": "",
+      "targetPath": "",
+      "targetDigest": "",
+      "buildCommand": ""
     },
-    "bindingProofs": [
-      {
-        "bindingId": "B-5a88-AC-001",
-        "positiveAssertionIds": [
-          "A-HAPPY-01",
-          "A-HAPPY-02",
-          "A-HAPPY-03",
-          "A-HAPPY-04",
-          "A-HAPPY-05",
-          "A-HAPPY-06",
-          "A-HAPPY-07"
-        ],
-        "mutationProofs": [
-          {
-            "mutationId": "M-01",
-            "expectedCode": "PR_MUTATION_DID_NOT_BITE",
-            "observedCode": "PR_MUTATION_DID_NOT_BITE",
-            "controlRestored": true
-          },
-          {
-            "mutationId": "M-02",
-            "expectedCode": "PR_PLANNED_PATH_UNRESOLVED",
-            "observedCode": "PR_PLANNED_PATH_UNRESOLVED",
-            "controlRestored": true
-          },
-          {
-            "mutationId": "M-03",
-            "expectedCode": "FAIL_CLOSED",
-            "observedCode": "FAIL_CLOSED",
-            "controlRestored": true
-          },
-          {
-            "mutationId": "M-04",
-            "expectedCode": "PR_TOPOLOGY_CRITIC_REATTESTATION_REQUIRED",
-            "observedCode": "PR_TOPOLOGY_CRITIC_REATTESTATION_REQUIRED",
-            "controlRestored": true
-          },
-          {
-            "mutationId": "M-05",
-            "expectedCode": "PASS",
-            "observedCode": "PASS",
-            "controlRestored": true
-          },
-          {
-            "mutationId": "M-06",
-            "expectedCode": "ABSENT",
-            "observedCode": "ABSENT",
-            "controlRestored": true
-          },
-          {
-            "mutationId": "M-07",
-            "expectedCode": "PASS",
-            "observedCode": "PASS",
-            "controlRestored": true
-          },
-          {
-            "mutationId": "M-08",
-            "expectedCode": "PROMPT_CONTRACT_REJECTED",
-            "observedCode": "PROMPT_CONTRACT_REJECTED",
-            "controlRestored": true
-          },
-          {
-            "mutationId": "M-09",
-            "expectedCode": "PROMPT_MIRROR_REJECTED",
-            "observedCode": "PROMPT_MIRROR_REJECTED",
-            "controlRestored": true
-          },
-          {
-            "mutationId": "M-10",
-            "expectedCode": "PASS",
-            "observedCode": "PASS",
-            "controlRestored": true
-          },
-          {
-            "mutationId": "M-11",
-            "expectedCode": "PR_AUTHORITY_INADMISSIBLE",
-            "observedCode": "PR_AUTHORITY_INADMISSIBLE",
-            "controlRestored": true
-          },
-          {
-            "mutationId": "M-12",
-            "expectedCode": "PR_AUTHORITY_INADMISSIBLE",
-            "observedCode": "PR_AUTHORITY_INADMISSIBLE",
-            "controlRestored": true
-          },
-          {
-            "mutationId": "M-13",
-            "expectedCode": "PASS",
-            "observedCode": "PASS",
-            "controlRestored": true
-          },
-          {
-            "mutationId": "M-14",
-            "expectedCode": "PR_NEW_PATH_UNMAPPED",
-            "observedCode": "PR_NEW_PATH_UNMAPPED",
-            "controlRestored": true
-          }
-        ],
-        "transcriptProofs": [
-          {
-            "transcriptId": "T-01",
-            "producerRefs": [
-              "P-DISPATCH"
-            ],
-            "consumerRefs": [
-              "C-DISPATCH"
-            ],
-            "producerSequence": 6,
-            "consumerSequence": 7
-          },
-          {
-            "transcriptId": "T-02",
-            "producerRefs": [
-              "P-DISPATCH"
-            ],
-            "consumerRefs": [
-              "C-DISPATCH"
-            ],
-            "producerSequence": 6,
-            "consumerSequence": 7
-          },
-          {
-            "transcriptId": "T-03",
-            "producerRefs": [
-              "P-DISPATCH"
-            ],
-            "consumerRefs": [
-              "C-DISPATCH"
-            ],
-            "producerSequence": 6,
-            "consumerSequence": 7
-          },
-          {
-            "transcriptId": "T-04",
-            "producerRefs": [
-              "P-DISPATCH"
-            ],
-            "consumerRefs": [
-              "C-DISPATCH"
-            ],
-            "producerSequence": 6,
-            "consumerSequence": 7
-          },
-          {
-            "transcriptId": "T-05",
-            "producerRefs": [
-              "P-DISPATCH"
-            ],
-            "consumerRefs": [
-              "C-DISPATCH"
-            ],
-            "producerSequence": 6,
-            "consumerSequence": 7
-          },
-          {
-            "transcriptId": "T-06",
-            "producerRefs": [
-              "P-DISPATCH"
-            ],
-            "consumerRefs": [
-              "C-DISPATCH"
-            ],
-            "producerSequence": 6,
-            "consumerSequence": 7
-          },
-          {
-            "transcriptId": "T-07",
-            "producerRefs": [
-              "P-DISPATCH"
-            ],
-            "consumerRefs": [
-              "C-DISPATCH"
-            ],
-            "producerSequence": 6,
-            "consumerSequence": 7
-          },
-          {
-            "transcriptId": "T-08",
-            "producerRefs": [
-              "P-DISPATCH"
-            ],
-            "consumerRefs": [
-              "C-DISPATCH"
-            ],
-            "producerSequence": 6,
-            "consumerSequence": 7
-          },
-          {
-            "transcriptId": "T-09",
-            "producerRefs": [
-              "P-DISPATCH"
-            ],
-            "consumerRefs": [
-              "C-DISPATCH"
-            ],
-            "producerSequence": 6,
-            "consumerSequence": 7
-          },
-          {
-            "transcriptId": "T-10",
-            "producerRefs": [
-              "P-DISPATCH"
-            ],
-            "consumerRefs": [
-              "C-DISPATCH"
-            ],
-            "producerSequence": 6,
-            "consumerSequence": 7
-          },
-          {
-            "transcriptId": "T-11",
-            "producerRefs": [
-              "P-DISPATCH"
-            ],
-            "consumerRefs": [
-              "C-DISPATCH"
-            ],
-            "producerSequence": 6,
-            "consumerSequence": 7
-          },
-          {
-            "transcriptId": "T-12",
-            "producerRefs": [
-              "P-DISPATCH"
-            ],
-            "consumerRefs": [
-              "C-DISPATCH"
-            ],
-            "producerSequence": 6,
-            "consumerSequence": 7
-          },
-          {
-            "transcriptId": "T-13",
-            "producerRefs": [
-              "P-DISPATCH"
-            ],
-            "consumerRefs": [
-              "C-DISPATCH"
-            ],
-            "producerSequence": 6,
-            "consumerSequence": 7
-          },
-          {
-            "transcriptId": "T-14",
-            "producerRefs": [
-              "P-DISPATCH"
-            ],
-            "consumerRefs": [
-              "C-DISPATCH"
-            ],
-            "producerSequence": 6,
-            "consumerSequence": 7
-          },
-          {
-            "transcriptId": "T-15",
-            "producerRefs": [
-              "P-DISPATCH"
-            ],
-            "consumerRefs": [
-              "C-DISPATCH"
-            ],
-            "producerSequence": 6,
-            "consumerSequence": 7
-          },
-          {
-            "transcriptId": "T-16",
-            "producerRefs": [
-              "P-DISPATCH"
-            ],
-            "consumerRefs": [
-              "C-DISPATCH"
-            ],
-            "producerSequence": 6,
-            "consumerSequence": 7
-          },
-          {
-            "transcriptId": "T-17",
-            "producerRefs": [
-              "P-DISPATCH"
-            ],
-            "consumerRefs": [
-              "C-DISPATCH"
-            ],
-            "producerSequence": 6,
-            "consumerSequence": 7
-          },
-          {
-            "transcriptId": "T-18",
-            "producerRefs": [
-              "P-DISPATCH"
-            ],
-            "consumerRefs": [
-              "C-DISPATCH"
-            ],
-            "producerSequence": 6,
-            "consumerSequence": 7
-          },
-          {
-            "transcriptId": "T-19",
-            "producerRefs": [
-              "P-DISPATCH"
-            ],
-            "consumerRefs": [
-              "C-DISPATCH"
-            ],
-            "producerSequence": 6,
-            "consumerSequence": 7
-          },
-          {
-            "transcriptId": "T-20",
-            "producerRefs": [
-              "P-DISPATCH"
-            ],
-            "consumerRefs": [
-              "C-DISPATCH"
-            ],
-            "producerSequence": 6,
-            "consumerSequence": 7
-          },
-          {
-            "transcriptId": "T-21",
-            "producerRefs": [
-              "P-DISPATCH"
-            ],
-            "consumerRefs": [
-              "C-DISPATCH"
-            ],
-            "producerSequence": 6,
-            "consumerSequence": 7
-          }
-        ]
-      }
-    ]
+    "bindingProofs": []
   },
-  "codes": [],
-  "status": "pass",
-  "issuedAt": "2026-08-20T23:46:19.868Z",
+  "criticReceiptDigest": "sha256:d6f7aadb07c1e7e336d959938fc54c6780350e960fa2a0a51cd1843259a0d568",
+  "codes": [
+    "PR_PRODUCTION_PATH_UNPROVEN",
+    "PR_MUTATION_EVIDENCE_MISSING",
+    "PR_MUTATION_DID_NOT_BITE",
+    "PR_CONTROL_NOT_RESTORED",
+    "PR_TRANSCRIPT_MISSING",
+    "PR_AUTHORITY_INADMISSIBLE"
+  ],
+  "status": "fail",
+  "issuedAt": "2026-08-21T20:53:29.519Z",
   "signerPublicKey": "4K3JOygx9kXStVuiYM8fjT485DCzR4yqnTy5Sch+TOQ=",
-  "signature": "UvxwkSt/iLs0blyiG1ZKISnGmiTaPDcUSyuQSm7MVqWCc+XylMqxjpt0NyznMG3yoWh2rI8UF2Vd0+E3s+zlAA=="
+  "signature": "Tfe8UdYCAyF0V+BBn2VwGrlBZsW1E5bnBtZun6YUkWuJ0FwmSK+coZ3m5Z/BymEPrcdEfGy2wxjSsSWacLnrCA=="
 }
