@@ -88,8 +88,16 @@ assert.ok(candidates.length >= 30, `historical replay requires at least 30 commi
 // IDs to over-represent one lifecycle family.
 const selected: typeof candidates = [];
 const selectedIds = new Set<string>();
+const diffCache = new Map<string, StoryChangedFile[]>();
+const candidateCategory = (candidate: typeof candidates[number]): string => {
+  const cached = diffCache.get(candidate.storyId);
+  if (cached) return classifyWithDiff(candidate.story, cached);
+  const files = changedFiles(candidate.pair.base, candidate.pair.head);
+  diffCache.set(candidate.storyId, files);
+  return classifyWithDiff(candidate.story, files);
+};
 for (const category of ['docs-only', 'local handler', 'shared core', 'lifecycle gate', 'process fact', 'validation runtime', 'package/config', 'rename/delete', 'test-only']) {
-  const candidate = candidates.find(row => row.category === category && !selectedIds.has(row.storyId));
+  const candidate = candidates.find(row => candidateCategory(row) === category && !selectedIds.has(row.storyId));
   if (candidate) { selected.push(candidate); selectedIds.add(candidate.storyId); }
 }
 for (const candidate of candidates) {
@@ -107,8 +115,9 @@ const closures = new Map(catalog.map((entry: ValidationCatalogEntry) => [entry.i
 const records: Array<Record<string, unknown>> = [];
 
 for (const candidate of selected) {
-  const files = changedFiles(candidate.pair.base, candidate.pair.head);
-  candidate.category = classifyWithDiff(candidate.story, files);
+  const files = diffCache.get(candidate.storyId) || changedFiles(candidate.pair.base, candidate.pair.head);
+  diffCache.set(candidate.storyId, files);
+  candidate.category = candidateCategory(candidate);
   const changes = buildStoryChangeManifest({ storyId: candidate.storyId, gitCwd: root, baseHead: candidate.pair.base, head: candidate.pair.head, changedFiles: files });
   const manifest = buildDynamicValidationPlan({
     storyId: candidate.storyId, baseHead: candidate.pair.base, head: candidate.pair.head,
