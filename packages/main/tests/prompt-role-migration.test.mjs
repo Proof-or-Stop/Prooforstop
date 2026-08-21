@@ -43,6 +43,18 @@ assert.match(
   /<!-- proof-or-stop:start -->[\s\S]*<!-- proof-or-stop:end -->/,
   'evaluator-cli render contains the load-bearing runtime guide',
 );
+const reviewChannel = registry.agents.find(entry => entry.file === 'proof-or-stop-review-channel.md');
+assert.ok(reviewChannel, 'canonical review-channel prompt is registered');
+assert.match(
+  registryModule.renderPromptEntryForHost(reviewChannel, 'claude'),
+  /<!-- proof-or-stop:start -->[\s\S]*<!-- proof-or-stop:end -->/,
+  'review-channel render contains the canonical load-bearing runtime guide',
+);
+assert.doesNotMatch(
+  registryModule.renderPromptEntryForHost(reviewChannel, 'claude'),
+  /<!-- lattice:start -->[\s\S]*<!-- lattice:end -->/,
+  'review-channel render does not emit legacy managed markers',
+);
 for (const entry of registry.agents) {
   assert.match(entry.file, /^proof-or-stop-[a-z0-9-]+\.md$/);
   assert.equal(entry.agentId, entry.agentId.trim());

@@ -97,7 +97,8 @@ function readRepo(path: string): string {
 }
 
 function extractLatticeBlock(content: string): string {
-  const match = content.match(/<!-- lattice:start -->[\s\S]*?<!-- lattice:end -->/);
+  const match = content.match(/<!-- proof-or-stop:start -->[\s\S]*?<!-- proof-or-stop:end -->/)
+    ?? content.match(/<!-- lattice:start -->[\s\S]*?<!-- lattice:end -->/);
   assert.ok(match, 'expected lattice managed block');
   return match[0];
 }
@@ -151,10 +152,13 @@ function assertPromptReductions(): void {
       assert.match(content, /<!-- proofbound:modular-role-body:v1 -->/, `${file} keeps the modular role-body marker`);
       assert.doesNotMatch(content, /<!-- lattice:start -->[\s\S]*?<!-- lattice:end -->/, `${file} does not inline the host runtime slice`);
     } else {
+      const expectedLoadBearingSlice = file === 'proof-or-stop-review-channel.md'
+        ? LOAD_BEARING_LATTICE_PROMPT_SLICE
+        : LEGACY_LOAD_BEARING_PROMPT_SLICE;
       assert.equal(
         extractLatticeBlock(content),
-        LEGACY_LOAD_BEARING_PROMPT_SLICE,
-        `${file} uses the historical load-bearing prompt slice`,
+        expectedLoadBearingSlice,
+        `${file} uses the expected load-bearing prompt slice`,
       );
       for (const phrase of requiredPromptPhrases) {
         assert.ok(content.includes(phrase), `${file} keeps prompt-safety phrase: ${phrase}`);

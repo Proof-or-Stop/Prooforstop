@@ -103,9 +103,9 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'proof-or-stop-review-channel',
-    // B-5a88: managed-block line wrapping only; legacy-projected content
-    // differs from the prior hash at four wrapped lines and no role tokens.
-    templateHash: '029d5fc9c42db199c513bda5674070b01550d9254172c71e572e229dc4de665b',
+    // B-5a88: canonical managed-block marker migration; legacy-projected
+    // content remains digest-checked without weakening the approval gate.
+    templateHash: 'dbde8cbb34a3ecab06473af4d97a48e3783ef587a38ac8e7519438a2a0f0de6f',
   },
   {
     role: 'proof-or-stop-review-concept',

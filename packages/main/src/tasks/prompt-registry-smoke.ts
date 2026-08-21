@@ -49,7 +49,7 @@ const registry = readPromptRegistry();
 const files = listPromptTemplateFiles(registry.root);
 const projectRoot = join(registry.root, '..', '..', '..', '..');
 const loadBearingPromptFiles = new Set([
-  'lattice-review-channel.md',
+  'proof-or-stop-review-channel.md',
   'proof-or-stop-evaluator-cli.md',
 ]);
 const requiredSafetyPhrases = [
@@ -72,10 +72,6 @@ const qualityProofMetadataPhrases = [
   'client-controlled or stale metadata cannot satisfy',
   'not receipt-backed production proof',
 ];
-const LEGACY_LOAD_BEARING_PROMPT_SLICE = LOAD_BEARING_LATTICE_PROMPT_SLICE
-  .replace('<!-- proof-or-stop:start -->', '<!-- lattice:start -->')
-  .replace('<!-- proof-or-stop:end -->', '<!-- lattice:end -->');
-
 function extractLatticeBlock(content: string): string | null {
   return content.match(/<!-- proof-or-stop:start -->[\s\S]*?<!-- proof-or-stop:end -->/)?.[0]
     ?? content.match(/<!-- lattice:start -->[\s\S]*?<!-- lattice:end -->/)?.[0]
@@ -117,14 +113,9 @@ for (const entry of registry.agents) {
     assert.equal(expectedCodex, renderCodexAgentContent(canonicalSource), `${entry.file} Codex render matches canonical transform`);
   }
   if (loadBearingPromptFiles.has(entry.file)) {
-    const expectedSlice = entry.file === 'proof-or-stop-evaluator-cli.md'
-      ? LOAD_BEARING_LATTICE_PROMPT_SLICE
-      : LEGACY_LOAD_BEARING_PROMPT_SLICE;
-    assert.equal(extractLatticeBlock(source), expectedSlice, `${entry.file} uses the expected load-bearing prompt slice`);
-    if (entry.file === 'proof-or-stop-evaluator-cli.md') {
-      assert.match(source, /<!-- proof-or-stop:start -->[\s\S]*<!-- proof-or-stop:end -->/);
-      assert.doesNotMatch(source, /<!-- lattice:start -->[\s\S]*<!-- lattice:end -->/);
-    }
+    assert.equal(extractLatticeBlock(source), LOAD_BEARING_LATTICE_PROMPT_SLICE, `${entry.file} uses the canonical load-bearing prompt slice`);
+    assert.match(source, /<!-- proof-or-stop:start -->[\s\S]*<!-- proof-or-stop:end -->/);
+    assert.doesNotMatch(source, /<!-- lattice:start -->[\s\S]*<!-- lattice:end -->/);
     for (const phrase of requiredSafetyPhrases) {
       assert.ok(source.includes(phrase), `${entry.file} keeps load-bearing prompt phrase: ${phrase}`);
     }
