@@ -2771,7 +2771,7 @@
       "desc": "packages/main/src/handlers/proofstory.ts:688-769,1052-1071; .proof-or-stop/story/actives/B-5a15/acceptance-basis.json:620-643; .proof-or-stop/story/actives/B-5a15/pre-review-check.json:5-6,739-770,1294-1295; .proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json:8422-8442 [high] — The verifier-owned acceptance chain is not current or admissible for this REVIEW run. ReviewRun B-5a15:RR-154 and current HEAD are 027ccf9, but the signed acceptance basis is bound to HEAD e06b1f1 with scopeContractDigest sha256:a84e13ebdc5fc43ff4b5be4420c72ca4c550a192850a998f9e4e1b596f5264f9, the pre-review artifact uses that same stale basis and cutoff 2026-08-21T15:24:38.999Z, and the rollout PASS is bound to HEAD f4857f4. The read-only consumers at proofstory.ts therefore cannot provide a current signed PASS for acceptance_topology_check -> pre_review_check_read -> acceptance_rollout_report_read/acceptance_rollout_check; focused evidence and the stale full-3x2 rollout cannot substitute. Reissue all verifier-owned artifacts at one current HEAD/materialHash/storyFilesHash/scope binding, then rerun the canonical chain before approving REVIEW.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-21T17:18:23.310Z",
@@ -2836,14 +2836,18 @@
         ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json"
       ],
       "signatureTag": "verifier-owned-acceptance-chain-current-binding",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Canonical remediation commit 4061d19a1c (lattice-implementer) refreshed all 50 verificationEvidence rows and regenerated acceptance-basis.json, pre-review-check.json, and acceptance-rollout-report.json at one current HEAD/materialHash/storyFilesHash/scope binding. acceptance_topology_check, pre_review_check_read, and acceptance_rollout_check now pass with full-3x2 rollout assurance; source review found no producer/consumer defect.",
+      "resolvedAt": "2026-08-21T17:49:31.122Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a15:F-078",
       "desc": "Wave-3 coverage review at HEAD 027ccf9ff70fe2b0809baeda4b4facf6a483a283 found 50/50 verification intents mapped one-to-one to 50 passing verificationEvidence rows, including 22 mandatory intents and 0 waivers, but every row is stale: checklist.json verificationEvidence records headHash 5ed667b3d64632e6b7ed4707be7eb3eb9acc4c80 while the current review HEAD is 027ccf9ff70fe2b0809baeda4b4facf6a483a283 (materialHash and storyFilesHash match). The implementation's freshness gate treats a stale headHash as stale evidence (packages/main/src/core/milestone-status.ts:275-320 and packages/main/src/core/proofstory.ts:1927-1972), so no current executable evidence covers any intent. The verifier-owned acceptance chain is independently not admissible: acceptance_topology_check returns status=fail, structuralPass=false, diagnostic AT_SCOPE_BINDING_MISSING for the acceptance-basis scope-contract digest, and pre_review_check_read returns status=fail with PR_ARTIFACT_TAMPERED (packages/main/src/core/pre-review-check.ts:407-433). acceptance_rollout_report_read is pass with current full-3x2 quorum, but rollout evidence cannot substitute for failed topology and pre-review prerequisites. Refresh all 50 verificationEvidence rows and regenerate the verifier-owned basis and pre-review artifacts at one consistent current binding before approving coverage.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-21T17:21:03.421Z",
@@ -2920,14 +2924,18 @@
         "packages/main/src/core/acceptance-topology.ts"
       ],
       "signatureTag": "missing|json|wave-coverage-review",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Canonical remediation commit 4061d19a1c (lattice-implementer) refreshed all 50 verificationEvidence rows and regenerated acceptance-basis.json, pre-review-check.json, and acceptance-rollout-report.json at one current HEAD/materialHash/storyFilesHash/scope binding. acceptance_topology_check, pre_review_check_read, and acceptance_rollout_check now pass with full-3x2 rollout assurance; source review found no producer/consumer defect.",
+      "resolvedAt": "2026-08-21T17:49:33.730Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a15:F-079",
       "desc": "verifier-owned-acceptance-chain-not-admissible: .proof-or-stop/story/actives/B-5a15/acceptance-basis.json:1 — at fresh quality ReviewRun B-5a15:RR-155 (HEAD 027ccf9), acceptance_topology_check returns status=fail and structuralPass=false with AT_SCOPE_BINDING_MISSING because the stored acceptance-basis receipt has a scope-contract digest mismatch; pre_review_check_read independently returns status=fail with PR_ARTIFACT_TAMPERED, matching packages/main/src/core/pre-review-check.ts:407. acceptance_rollout_check reports a rollout PASS, but that diagnostic/rollout receipt cannot substitute for the failed verifier-owned topology and pre-review prerequisites; the transition consumer preserves that authority boundary at packages/main/src/handlers/transition-orchestrator.ts:137-149. Regenerate the acceptance basis and pre-review artifact through the Proof-or-Stop verifier at one consistent current binding, then obtain current signed assurance evidence before approving this review.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-21T17:21:53.608Z",
@@ -3005,14 +3013,18 @@
         "packages/main/src/handlers/transition-orchestrator.ts"
       ],
       "signatureTag": "verifier-owned-acceptance-chain-stale",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Canonical remediation commit 4061d19a1c (lattice-implementer) refreshed all 50 verificationEvidence rows and regenerated acceptance-basis.json, pre-review-check.json, and acceptance-rollout-report.json at one current HEAD/materialHash/storyFilesHash/scope binding. acceptance_topology_check, pre_review_check_read, and acceptance_rollout_check now pass with full-3x2 rollout assurance; source review found no producer/consumer defect.",
+      "resolvedAt": "2026-08-21T17:49:36.676Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a15:F-080",
       "desc": "\"packages/main/src/handlers/proofstory.ts:688-769,1052-1071; packages/main/src/core/pre-review-check.ts:407-433; packages/main/src/handlers/transition-orchestrator.ts:137-149 [high] — The verifier-owned acceptance chain is not admissible at current HEAD 7c5d9c7789. The current acceptance_basis is invalid with AT_SCOPE_BINDING_MISSING and remains bound to stale HEAD e06b1f1bd52d7d70f1060d6b2e39728c071779dd and scopeContractDigest sha256:a84e13ebdc5fc43ff4b5be4420c72ca4c550a192850a998f9e4e1b596f5264f9; acceptance_topology_check fails with AT_SCOPE_BINDING_MISSING, while pre_review_check_read fails with PR_ARTIFACT_TAMPERED. acceptance_rollout_check reports a full-3x2 pass, but the rollout receipt cannot substitute for failed topology and pre-review prerequisites. Wave-3 findings F-077, F-078, and F-079 independently reproduce this same verified blocker with complete required-lane read coverage. Reissue the verifier-owned basis, pre-review artifact, and dependent acceptance chain at one consistent current HEAD/materialHash/storyFilesHash/scope binding before approving REVIEW.\"",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-topology-critic",
       "createdAt": "2026-08-21T17:30:54.734Z",
@@ -3073,7 +3085,11 @@
         "packages/main/src/handlers/transition-orchestrator.ts"
       ],
       "signatureTag": "verifier-owned-acceptance-chain-scope-binding",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Canonical remediation commit 4061d19a1c (lattice-implementer) refreshed all 50 verificationEvidence rows and regenerated acceptance-basis.json, pre-review-check.json, and acceptance-rollout-report.json at one current HEAD/materialHash/storyFilesHash/scope binding. acceptance_topology_check, pre_review_check_read, and acceptance_rollout_check now pass with full-3x2 rollout assurance; source review found no producer/consumer defect.",
+      "resolvedAt": "2026-08-21T17:49:39.437Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
