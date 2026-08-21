@@ -4336,6 +4336,54 @@
       ],
       "signatureTag": "verifier-causal-preflight-missing-artifact-family",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a15:F-106",
+      "desc": "Canonical missing-artifact family: docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md:136 documents node packages/main/dist/tasks/verifier-causal-preflight-smoke.js, but the acknowledged source packages/main/src/tasks/verifier-causal-preflight-smoke.ts and corresponding build artifact are absent. Reproducing the exact command exits MODULE_NOT_FOUND. The current pre_review_check_read also reports PR_ARTIFACT_TAMPERED and PR_COVERAGE_BASIS_CHANGED, so the verifier-owned CHK-004 producer/consumer acceptance path is not admissible.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-21T19:27:31.997Z",
+      "reviewRound": "2026-08-21T17:48:55.675Z",
+      "reviewRunId": "B-5a15:RR-191",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          "packages/main/dist/tasks/verifier-causal-preflight-smoke.js",
+          "packages/main/src/tasks/verifier-causal-preflight-smoke.ts",
+          "packages/main/tests/verifier-causal-preflight.test.mjs"
+        ],
+        "scanEscalationReason": "Exact documented command was executed and the acknowledged source/build paths were checked; the missing artifact and stale pre-review binding were directly verified."
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "aa9e37dafc28f5e224a3255581038b6c7454cfcf12e3d03efc93742738cbe929"
+      },
+      "readDiagnostics": [],
+      "_hash": "1f52888e7044796f71094b4ec8eca4e4e303ef65f14e87645679b088650b4841",
+      "files": [
+        "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+        "packages/main/src/tasks/verifier-causal-preflight-smoke.ts",
+        "packages/main/dist/tasks/verifier-causal-preflight-smoke.js",
+        "packages/main/tests/verifier-causal-preflight.test.mjs",
+        ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a15/pre-review-check.json"
+      ],
+      "signatureTag": "missing|md|canonical-missing-artifact",
+      "signatureTagSource": "auto"
     }
   ]
 }
