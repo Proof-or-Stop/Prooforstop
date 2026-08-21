@@ -39,7 +39,10 @@ import { executeValidationPlan } from '../core/validation-executor.js';
 import type { ValidationCommand } from '../core/validation-types.js';
 
 const replayRoot = mkdtempSync(`${tmpdir()}/proof-story-aware-replay-`);
-const replayCommand = (name: string) => ({ command: process.execPath, args: ['-e', `process.stdout.write(${JSON.stringify(`replay:${name}:pass`)});`, name] });
+const replayCommand = (name: string) => ({
+  command: process.execPath,
+  args: ['-e', `process.stdout.write(${JSON.stringify(`replay:${name}:pass`)}); if (process.env.PROOF_OR_STOP_REPLAY_FAIL === '1') process.exit(1);`, name],
+});
 const inventory = discoverValidationInventory(replayRoot, [
   { id: 'build', label: 'build', ...replayCommand('build'), originalIndex: 0, resources: [] },
   { id: 'unit', label: 'unit', ...replayCommand('unit'), originalIndex: 1, resources: [] },
@@ -97,19 +100,28 @@ try {
       assert.equal(first.totals.executed, first.totals.inventory);
     }
     const commandById = new Map(catalog.map((entry) => [entry.id, entry]));
+    const failureClass = index === 29;
     const toCommand = (entry: ValidationCatalogEntry): ValidationCommand => ({
       label: entry.label, command: entry.command, args: entry.args, ...(entry.cwd ? { cwd: entry.cwd } : {}),
       ...(entry.timeoutMs ? { timeoutMs: entry.timeoutMs } : {}), resources: entry.resources,
+      ...(failureClass && entry.id === 'e2e' ? { env: { PROOF_OR_STOP_REPLAY_FAIL: '1' } } : {}),
     });
     const full = await executeValidationPlan({ provider: 'replay-full-oracle', commands: catalog.map(toCommand), warnings: [] }, replayRoot, 'head', 'B-mutation', { jobs: 2 });
     const selectedEntries = first.rows.filter((row) => row.disposition === 'execute').map((row) => commandById.get(row.commandId)!).filter(Boolean);
     const dynamic = await executeValidationPlan({ provider: 'replay-dynamic-selection', commands: selectedEntries.map(toCommand), warnings: [] }, replayRoot, 'head', 'B-mutation', { jobs: 2 });
-    assert.equal(full.allPass, true, `complete oracle failed in replay class ${index}`);
-    assert.equal(dynamic.allPass, true, `dynamic selection failed in replay class ${index}`);
+    assert.equal(full.allPass, !failureClass, `complete oracle verdict mismatch in replay class ${index}`);
+    assert.equal(dynamic.allPass, !failureClass, `dynamic selection verdict mismatch in replay class ${index}`);
+    const dynamicById = new Map(dynamic.commands.map((row) => [catalog.find((entry) => entry.command === row.command && entry.args.join('\0') === row.args.join('\0'))!.id, row]));
+    for (const [commandIndex, fullRow] of full.commands.entries()) {
+      const commandId = catalog[commandIndex]!.id;
+      const selectedRow = dynamicById.get(commandId);
+      if (selectedRow) assert.equal(selectedRow.code, fullRow.code, `per-command verdict drift for ${commandId} in replay class ${index}`);
+      else assert.equal(fullRow.code, 0, `dynamic replay omitted failing command ${commandId} in class ${index}`);
+    }
     const fullFailureIds = full.commands.flatMap((row, commandIndex) => row.code === 0 ? [] : [catalog[commandIndex]!.id]);
     const selectedIds = new Set(selectedEntries.map((entry) => entry.id));
     assert.equal(fullFailureIds.every((id) => selectedIds.has(id)), true, `dynamic class ${index} omitted a complete-plan failure`);
-    const executedReceipts = full.commands.map((row, commandIndex) => createValidationCommandReceipt({
+    const executedReceipts = full.commands.flatMap((row, commandIndex) => row.code === 0 ? [createValidationCommandReceipt({
       id: `replay-${index}-${catalog[commandIndex]!.id}`,
       commandId: catalog[commandIndex]!.id,
       commandIdentityDigest: stableDigest({ command: row.command, args: row.args }),
@@ -119,8 +131,9 @@ try {
       sourceHead: 'head', sourceBaseHead: 'base', canonicalBaselineEpochId: 'epoch', producedBy: 'story-execution',
       cleanTreeDigest: 'clean', executionEnvironmentDigest: 'environment', result: row.code === 0 ? 'PASS' : 'FAIL', exitCode: row.code,
       outputDigest: stableDigest(row.output), durationMs: row.durationMs, createdAt: new Date().toISOString(), revocationLedgerDigest: 'ledger',
-    }));
+    })] : []);
     assert.equal(executedReceipts.every((receipt) => verifyValidationCommandReceipt(receipt).ok), true, `replay class ${index} receipt evidence invalid`);
+    assert.equal(executedReceipts.length, full.commands.filter((row) => row.code === 0).length);
     replayClasses++;
   }
 } finally {
