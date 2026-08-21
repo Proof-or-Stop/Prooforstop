@@ -4157,15 +4157,29 @@ async function assertPhaseGatesAndEffectsExtraction(): Promise<void> {
     });
     let stopped = false;
     const actor = { stop() { stopped = true; } };
+    let rejectionMessage = '';
     await assert.rejects(
       () => runValidateGate({ store, root: failRoot, scanRoot: join(failRoot, 'packages/main') }, storyId, actor),
-      /Cannot enter TEST: proof-or-stop validate (?:did not pass|execution error)/,
+      (error: unknown) => {
+        rejectionMessage = error instanceof Error ? error.message : String(error);
+        return /Cannot enter TEST: proof-or-stop validate (?:did not pass|execution error)/.test(rejectionMessage);
+      },
       'runValidateGate must block TEST when proof-or-stop validate fails',
     );
     assert.equal(stopped, false, 'runValidateGate must leave actor stop to transition-orchestrator');
-    // The fail-closed path still persists a FAIL test-evidence record (the
-    // behavior-preserving side effect annotated in phase-gates.ts).
-    assert.equal(store.readTestEvidence(storyId)?.result, 'FAIL', 'validate FAIL must persist a FAIL test-evidence record');
+    const causalPreflightRefusal = /Cannot enter TEST: proof-or-stop validate execution error/.test(rejectionMessage)
+      && /writerLease/.test(rejectionMessage)
+      && /causal_preflight_refused/.test(rejectionMessage);
+    if (causalPreflightRefusal) {
+      assert.match(rejectionMessage, /commandExecutions=0/);
+      assert.match(rejectionMessage, /evidenceWrites=0/);
+      assert.equal(store.readTestEvidence(storyId), null, 'causal preflight refusal must not persist test evidence');
+    } else {
+      assert.match(rejectionMessage, /Cannot enter TEST: proof-or-stop validate did not pass/);
+      // An ordinary validation failure still persists a FAIL test-evidence
+      // record (the behavior-preserving side effect annotated in phase-gates.ts).
+      assert.equal(store.readTestEvidence(storyId)?.result, 'FAIL', 'validate FAIL must persist a FAIL test-evidence record');
+    }
   } finally {
     rmSync(failRoot, { recursive: true, force: true });
     resetConfigCache();
