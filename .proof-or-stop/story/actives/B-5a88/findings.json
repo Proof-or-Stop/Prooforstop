@@ -9008,6 +9008,86 @@
       ],
       "signatureTag": "missing|json|acceptance-basis-json",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-240",
+      "desc": "RI-016 cannot receive the required completeness-critic receipt. review_inventory_status fail-closed the epoch as INVALIDATED with OPEN_REVIEW_INVENTORY_SCOPE_MUTATION: the frozen required lanes are proof-or-stop-review-concept, proof-or-stop-review-quality, and proof-or-stop-review-test-coverage, while the current computed lanes are lattice-review-concept, lattice-review-quality, and lattice-review-test-coverage. Material hash, story-files hash, and scope digest are unchanged, but review_inventory_critic_set requires an OPEN epoch and therefore rejects this epoch before any findingDispositions can be bound. The current round findings F-238 and F-239 have reviewer read evidence, but they cannot be classified into a valid RI-016 wave while the epoch is invalidated.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-21T23:27:36.610Z",
+      "reviewRound": "2026-08-21T23:08:44.617Z",
+      "reviewRunId": "B-5a88:RR-284",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5aca6253deea78be8304c079b442eb412eb50ddde8f84f37f3bb663b945eaec3",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+        "packages/main/src/handlers/review-inventory.ts",
+        "packages/main/src/core/review-inventory-epoch.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json"
+      ],
+      "signatureTag": "review-inventory-ri-016-invalidated",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-241",
+      "desc": "packages/main/src/tasks/agent-dispatch-registry-smoke.ts:615 — resolveReviewRunLane(\"lattice-review-topology-critic\") now canonicalizes the accepted legacy alias to proof-or-stop-review-topology-critic, but this migrated smoke still asserts the old lattice value and exits nonzero; update the expected value or compare canonical identities so the story verification suite can pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T23:29:31.128Z",
+      "reviewRound": "2026-08-21T23:08:44.617Z",
+      "reviewRunId": "B-5a88:RR-282",
+      "_hash": "5c3bcec94eb501963888150cc8a09f1901a16800d3fb70729fa58d5e9e12b4d4",
+      "signatureTag": "missing|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-242",
+      "desc": "The current review inventory cannot be critic-certified from complete lane evidence: F-241 is a verified open quality-lane finding in the 2026-08-21T23:08:44.617Z round, but its persisted record has no signed readManifest or readLog. The topology critic therefore cannot independently verify the finding evidence or treat it as a valid terminal lane contribution; this remains an additional blocker even apart from RI-016 already being INVALIDATED.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-21T23:30:48.967Z",
+      "reviewRound": "2026-08-21T23:08:44.617Z",
+      "reviewRunId": "B-5a88:RR-286",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/findings.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4a218e0147be1bae3b47f81be6753ccccd6f76f0d01d69ba8b8a787900c2df0e",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/findings.json",
+        "packages/main/src/handlers/review-inventory.ts"
+      ],
+      "signatureTag": "review-inventory-current-finding-read-evidence",
+      "signatureTagSource": "confirmed"
     }
   ]
 }

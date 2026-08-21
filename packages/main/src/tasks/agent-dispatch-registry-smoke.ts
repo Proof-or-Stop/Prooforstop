@@ -612,8 +612,8 @@ try {
   );
   assert.equal(
     resolveReviewRunLane('lattice-review-topology-critic'),
-    'lattice-review-topology-critic',
-    'independent topology critic must mint its own REVIEW ReviewRun before critic authority',
+    'proof-or-stop-review-topology-critic',
+    'independent topology critic must mint its own canonical REVIEW ReviewRun before critic authority',
   );
   const findingsBeforeDenied = JSON.stringify(store.readFindings(storyId));
   assert.throws(
