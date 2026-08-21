@@ -131,6 +131,7 @@
         ],
         "timeoutMs": 300000,
         "caseRegistryPath": "packages/main/src/tasks/story-aware-validation-domain-cases.json",
+        "runnerSourcePath": "packages/main/src/tasks/story-aware-validation-domain-case-runner.mjs",
         "env": {
           "LATTICE_VALIDATION_SHARD_ADAPTER": "case-registry-output-v1"
         },
@@ -588,6 +589,7 @@
         ],
         "timeoutMs": 1200000,
         "caseRegistryPath": "packages/main/src/tasks/story-aware-validation-domain-cases.json",
+        "runnerSourcePath": "packages/main/src/tasks/story-aware-validation-domain-case-runner.mjs",
         "env": {
           "LATTICE_VALIDATION_SHARD_ADAPTER": "case-registry-output-v1"
         },
