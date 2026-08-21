@@ -20,6 +20,7 @@ import {
 import { LATTICE_CLI_VERSION } from './lattice-brand.js';
 import type { ChecklistData, ScopeContractData, StoryInfo } from './types.js';
 import { digestScopeContract } from './guard-session.js';
+import { canonicalAgentRoleId } from './agent-role-identity.js';
 
 export const PROMPT_ENVELOPE_ASSEMBLER_VERSION = 'proofbound.full-context-assembler.v1';
 export const PROMPT_DISPATCH_PROTOCOL_VERSION = 'proofbound.prompt-dispatch.v1';
@@ -280,19 +281,20 @@ export function assembleFullPromptEnvelope(input: FullPromptAssemblyInput): Full
     throw new Error(`full Prompt Envelope requires an active role; ${input.roleContract.roleId} is ${input.roleContract.status}`);
   }
   assertContractRenderCoherence(input.runtimeContract, input.roleContract, input.rolePrompt);
+  const canonicalLane = input.lane === undefined ? undefined : canonicalAgentRoleId(input.lane);
   if (input.dispatchKind === 'review-run') {
     for (const [key, value] of Object.entries({
       reviewRunId: input.reviewRunId,
       reviewRound: input.reviewRound,
-      lane: input.lane,
+      lane: canonicalLane,
     })) {
       if (typeof value !== 'string' || value.trim().length === 0) {
         throw new Error(`review-run Prompt Envelope requires ${key}`);
       }
     }
-    if (input.roleContract.roleId !== input.lane) {
+    if (input.roleContract.roleId !== canonicalLane) {
       throw new Error(
-        `review-run Prompt Envelope role/lane mismatch: ${input.roleContract.roleId} !== ${input.lane}`,
+        `review-run Prompt Envelope role/lane mismatch: ${input.roleContract.roleId} !== ${canonicalLane}`,
       );
     }
     if (typeof input.dispatchPrompt !== 'string' || input.dispatchPrompt.length === 0) {
@@ -320,7 +322,7 @@ export function assembleFullPromptEnvelope(input: FullPromptAssemblyInput): Full
     dispatchKind: input.dispatchKind,
     ...(input.reviewRunId ? { reviewRunId: input.reviewRunId } : {}),
     ...(input.reviewRound ? { reviewRound: input.reviewRound } : {}),
-    ...(input.lane ? { lane: input.lane } : {}),
+    ...(canonicalLane ? { lane: canonicalLane } : {}),
     ...(input.dispatchPrompt ? { dispatchPromptDigest: reviewerDispatchPromptDigest(input.dispatchPrompt) } : {}),
     ...(input.hostRenderIdentityDigest ? { hostRenderIdentityDigest: input.hostRenderIdentityDigest } : {}),
     createdAt: input.createdAt,
@@ -381,7 +383,12 @@ export function assembleConditionalReviewPromptEnvelope(
     ? input.incrementalBudgetBytes!
     : 64_000;
   const fullBudgetViolation = full.envelope.bytes > fullBudgetBytes;
-  const basis = input.reviewBasis ?? null;
+  const basis = input.reviewBasis
+    ? { ...input.reviewBasis, lane: canonicalAgentRoleId(input.reviewBasis.lane) }
+    : null;
+  if (basis && basis.lane !== full.envelope.lane) {
+    throw new Error(`conditional review Prompt Envelope role/lane mismatch: ${full.envelope.lane} !== ${basis.lane}`);
+  }
   const safetyRequiresFull = !input.incrementalEligible || !basis;
   let incrementalPrompt: string | undefined;
   if (basis) {

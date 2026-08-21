@@ -7,11 +7,7 @@
  * remain opaque and are never silently migrated.
  */
 
-// validation-types.ts is intentionally outside this story's scope contract and
-// still exposes the historical literal.  Keep this public constant's declared
-// type source-compatible for existing producers while its runtime value is the
-// canonical proof-or-stop literal.
-export const DONE_REQUIRED_EVIDENCE_SCHEMA = 'proof-or-stop.done-required-evidence' as unknown as 'lattice.done-required-evidence';
+export const DONE_REQUIRED_EVIDENCE_SCHEMA = 'proof-or-stop.done-required-evidence' as const;
 export const DONE_REQUIRED_EVIDENCE_SCHEMA_LEGACY = 'lattice.done-required-evidence' as const;
 
 /** Versioned schema used by the proof-admissibility environment projection. */
@@ -19,7 +15,7 @@ export const DONE_REQUIRED_EVIDENCE_VERSIONED_SCHEMA = 'proof-or-stop.done_requi
 export const DONE_REQUIRED_EVIDENCE_VERSIONED_SCHEMA_LEGACY = 'lattice.done_required_evidence.v1' as const;
 
 /** Current portable command-spec envelope written by DONE-required validation. */
-export const DONE_REQUIRED_COMMAND_SPEC_SCHEMA = 'proof-or-stop.command-spec.v2' as unknown as 'lattice.command-spec.v2';
+export const DONE_REQUIRED_COMMAND_SPEC_SCHEMA = 'proof-or-stop.command-spec.v2' as const;
 export const DONE_REQUIRED_COMMAND_SPEC_SCHEMA_LEGACY_V2 = 'lattice.command-spec.v2' as const;
 
 /** Absolute-cwd command-spec schema retained only for historical verification. */
@@ -33,16 +29,18 @@ export const EVIDENCE_HASH_SNAPSHOT_SCHEMA = 'proof-or-stop.evidence_hash_snapsh
 /** Historical freshness snapshot accepted only for dual-read compatibility. */
 export const EVIDENCE_HASH_SNAPSHOT_SCHEMA_LEGACY = 'lattice.evidence_hash_snapshot.v1' as const;
 
-export type DoneRequiredEvidenceSchema = 'proof-or-stop.done-required-evidence' | 'lattice.done-required-evidence';
+export type DoneRequiredEvidenceSchema =
+  | typeof DONE_REQUIRED_EVIDENCE_SCHEMA
+  | typeof DONE_REQUIRED_EVIDENCE_SCHEMA_LEGACY;
 
 export type DoneRequiredEvidenceVersionedSchema =
   | typeof DONE_REQUIRED_EVIDENCE_VERSIONED_SCHEMA
   | typeof DONE_REQUIRED_EVIDENCE_VERSIONED_SCHEMA_LEGACY;
 
 export type DoneRequiredCommandSpecSchema =
-  | 'proof-or-stop.command-spec.v2'
-  | 'lattice.command-spec.v2'
-  | 'lattice.command-spec.v1';
+  | typeof DONE_REQUIRED_COMMAND_SPEC_SCHEMA
+  | typeof DONE_REQUIRED_COMMAND_SPEC_SCHEMA_LEGACY_V2
+  | typeof DONE_REQUIRED_COMMAND_SPEC_SCHEMA_LEGACY_V1;
 
 export type CloseoutWriteReceiptSchema =
   | typeof CLOSEOUT_WRITE_RECEIPT_SCHEMA

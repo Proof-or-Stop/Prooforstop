@@ -569,9 +569,17 @@ export function resolvePromptEnvelopeRolloutMode(
     throw new PromptRoleContractRegistryError('promptEnvelope.roles must be a plain object');
   }
   const roles = record.roles as Record<string, unknown>;
+  const logicalRoles = new Map<string, { key: string; mode: unknown }>();
   for (const key of Object.keys(roles)) {
     const canonicalKey = canonicalAgentRoleId(key);
     if (!PROMPT_ROLE_CONTRACT_BY_ID.has(canonicalKey)) throw new PromptRoleContractRegistryError(`promptEnvelope.roles contains unknown role "${key}"`);
+    const previous = logicalRoles.get(canonicalKey);
+    if (previous) {
+      throw new PromptRoleContractRegistryError(
+        `promptEnvelope.roles contains duplicate logical role "${canonicalKey}" via keys "${previous.key}" and "${key}"`,
+      );
+    }
+    logicalRoles.set(canonicalKey, { key, mode: roles[key] });
     if (!['legacy-full-context', 'full-envelope'].includes(roles[key] as string)) {
       throw new PromptRoleContractRegistryError(`promptEnvelope.roles.${key} has unsupported mode`);
     }
@@ -585,8 +593,7 @@ export function resolvePromptEnvelopeRolloutMode(
   if (Object.prototype.hasOwnProperty.call(roles, '__proto__') || Object.prototype.hasOwnProperty.call(roles, 'constructor')) {
     throw new PromptRoleContractRegistryError('promptEnvelope.roles contains a forbidden prototype key');
   }
-  const configured = roles[contract.roleId]
-    ?? Object.entries(roles).find(([key]) => canonicalAgentRoleId(key) === contract.roleId)?.[1];
+  const configured = logicalRoles.get(contract.roleId)?.mode;
   return configured === undefined ? 'legacy-full-context' : configured as PromptEnvelopeRolloutMode;
 }
 

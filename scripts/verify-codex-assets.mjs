@@ -40,6 +40,10 @@ import {
   runCodexAdapterChecks,
   summarizeCodexEvidence,
 } from '../packages/main/dist/core/codex-adapter-checks.js';
+import {
+  readPromptRegistry,
+  renderPromptEntryForHost,
+} from '../packages/main/dist/core/prompt-registry.js';
 import { StoryStore } from '../packages/main/dist/core/store.js';
 
 function assert(condition, message) {
@@ -112,6 +116,18 @@ const codexReadme = readFileSync(join(root, canonicalCodexDir, 'README.md'), 'ut
 const manifest = readFileSync(join(root, canonicalCodexManifest), 'utf8');
 const rootReadme = readFileSync(join(root, 'README.md'), 'utf8');
 const agents = readFileSync(join(root, 'AGENTS.md'), 'utf8');
+
+const testIntentEntry = readPromptRegistry().agents.find(
+  (entry) => entry.agentId === 'proof-or-stop-test-intent',
+);
+assert(testIntentEntry, 'prompt registry must expose the canonical test-intent role');
+const testIntentRender = renderPromptEntryForHost(testIntentEntry, 'claude');
+assert(testIntentRender.includes('verification-intent workflow'), 'prompt render must preserve verification-intent workflow prose');
+assert(!testIntentRender.includes('proof-or-stop-test-intent workflow'), 'prompt render must not rewrite workflow prose as a role ID');
+assert(
+  testIntentRender === readFileSync(join(root, '.claude', 'agents', testIntentEntry.file), 'utf8'),
+  'canonical test-intent prompt render must remain byte-identical to the Claude mirror',
+);
 
 assert(codexReadme === renderCodexReadmeTemplate('full', 'lattice'), `${canonicalCodexDir}/README.md drifted from canonical template`);
 assert(manifest === renderProofOrStopCodexAdapterManifest(), `${canonicalCodexManifest} drifted from canonical template`);

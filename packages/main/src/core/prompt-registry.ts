@@ -288,6 +288,34 @@ function sha256(content: string): string {
   return createHash('sha256').update(content).digest('hex');
 }
 
+/**
+ * Canonicalize role IDs embedded in prompt assets without rewriting ordinary
+ * process vocabulary. `verification-intent` is both a historical role alias
+ * and the name of the verification workflow, so free-form prompt prose must
+ * retain that spelling; structured role fields are canonicalized by their
+ * owning registries.
+ */
+function canonicalizePromptRoleText(text: string): string {
+  const protectedTokens: string[] = [];
+  const protectedText = text.replace(
+    /(^|[^A-Za-z0-9_-])(verification-intent)(?=$|@|[^A-Za-z0-9_-])/g,
+    (match, prefix: string, _alias: string, offset: number, source: string) => {
+      const before = source.slice(0, offset);
+      const isStructuredRoleValue = /(?:^|[\s{[(,])(?:role|roleId|agent|agentId|agentType|lane|canonicalType|alias|name)\s*["'`]?\s*[:=]\s*["'`]*$/i.test(before)
+        || /(?:--(?:agent|role|lane)(?:=|\s+))$/i.test(before);
+      if (isStructuredRoleValue) return match;
+      const token = `\u0000proof-or-stop-prompt-vocabulary-${protectedTokens.length}\u0000`;
+      protectedTokens.push(token);
+      return `${prefix}${token}`;
+    },
+  );
+  let result = canonicalizeAgentRoleText(protectedText);
+  for (const token of protectedTokens) {
+    result = result.replace(token, 'verification-intent');
+  }
+  return result;
+}
+
 export function isModularReviewerRoleId(roleId: string): roleId is ModularReviewerRoleId {
   return (MODULAR_REVIEWER_ROLE_IDS as readonly string[]).includes(canonicalAgentRoleId(roleId));
 }
@@ -309,7 +337,7 @@ export function restoreLegacyPromptTemplate(entry: PromptRegistryEntry): string 
   const modular = readPromptTemplate(entry);
   const canonicalRole = canonicalAgentRoleId(entry.agentId);
   const legacyRole = legacyAgentRoleIds(canonicalRole)[0] ?? canonicalRole;
-  if (!isModularRoleId(canonicalRole)) return canonicalizeAgentRoleText(modular);
+  if (!isModularRoleId(canonicalRole)) return canonicalizePromptRoleText(modular);
   if (!modular.includes(MODULAR_ROLE_BODY_MARKER)) {
     throw new Error(`modular reviewer prompt ${canonicalRole} is missing ${MODULAR_ROLE_BODY_MARKER}`);
   }
@@ -341,7 +369,7 @@ export function restoreLegacyPromptTemplate(entry: PromptRegistryEntry): string 
       `legacy reviewer prompt reconstruction drift for ${canonicalRole}: expected ${expectedDigest}, got ${actualDigest}`,
     );
   }
-  return canonicalizeAgentRoleText(historical);
+  return canonicalizePromptRoleText(historical);
 }
 
 export function resolvePromptTemplateBody(
@@ -350,7 +378,7 @@ export function resolvePromptTemplateBody(
 ): string {
   if (mode === 'legacy-full-context') return restoreLegacyPromptTemplate(entry);
   const source = readPromptTemplate(entry);
-  return canonicalizeAgentRoleText(source);
+  return canonicalizePromptRoleText(source);
 }
 
 /**
@@ -491,7 +519,7 @@ export function renderPromptEntryForHost(
 ): string {
   const selectedTemplate = canonicalizeRenderedManagedMarkers(isModularComplexRoleId(entry.agentId)
     ? resolvePromptTemplateBody(entry, mode)
-    : canonicalizeAgentRoleText(readPromptTemplate(entry)));
+    : canonicalizePromptRoleText(readPromptTemplate(entry)));
   const hostTemplate = renderPromptForHost(selectedTemplate, host);
   return isModularReviewerRoleId(entry.agentId)
     ? renderReviewerRunBootstrapForTemplate(hostTemplate, entry.file, entry.agentId)

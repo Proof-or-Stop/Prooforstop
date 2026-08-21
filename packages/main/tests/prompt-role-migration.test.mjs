@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -12,6 +12,7 @@ const distRoot = join(packageRoot, distName);
 const registryModule = await import(join(distRoot, 'core/prompt-registry.js'));
 const contracts = await import(join(distRoot, 'core/prompt-role-contract-registry.js'));
 const budget = await import(join(distRoot, 'core/prompt-budget.js'));
+const identity = await import(join(distRoot, 'core/agent-role-identity.js'));
 
 const registry = registryModule.readPromptRegistry();
 assert.equal(registry.agents.length, 17, 'all canonical prompt templates are registered');
@@ -60,6 +61,21 @@ for (const entry of registry.agents) {
   assert.equal(entry.agentId, entry.agentId.trim());
   assert.equal(contracts.promptRoleContract(entry.agentId).roleId, entry.agentId);
 }
+const testIntent = registry.agents.find(entry => entry.agentId === 'proof-or-stop-test-intent');
+assert.ok(testIntent, 'canonical test-intent prompt is registered');
+const testIntentClaude = registryModule.renderPromptEntryForHost(testIntent, 'claude');
+assert.equal(
+  testIntentClaude,
+  readFileSync(join(packageRoot, '..', '..', '.claude', 'agents', testIntent.file), 'utf8'),
+  'prompt registry preserves exact mirror bytes for ambiguous verification-intent prose',
+);
+assert.match(testIntentClaude, /verification-intent workflow/);
+assert.doesNotMatch(testIntentClaude, /proof-or-stop-test-intent workflow/);
+assert.equal(
+  identity.canonicalizeAgentRoleText('test-intentional product-reviewerish lattice-review-quality@host'),
+  'test-intentional product-reviewerish proof-or-stop-review-quality@host',
+  'role canonicalization respects identifier boundaries while retaining role suffixes',
+);
 for (const roleId of registryModule.MODULAR_COMPLEX_ROLE_IDS) {
   const entry = registry.agents.find(candidate => candidate.agentId === roleId);
   assert.ok(entry, `${roleId} complex role is registered`);
@@ -102,6 +118,17 @@ assert.equal(modular.mode, 'full-envelope');
 assert.equal(modular.legacyBytesRestored, false);
 assert.notEqual(modular.bodyDigest, legacy.bodyDigest);
 assert.equal(contracts.isPromptRoleEligibleForReviewEvidence('lattice-review-quality'), true);
+assert.throws(
+  () => contracts.resolvePromptEnvelopeRolloutMode('lattice-review-quality', {
+    version: contracts.PROMPT_ENVELOPE_ROLLOUT_VERSION,
+    roles: {
+      'lattice-review-quality': 'full-envelope',
+      'proof-or-stop-review-quality': 'legacy-full-context',
+    },
+  }),
+  /duplicate logical role/,
+  'canonical and legacy keys for one logical role fail closed',
+);
 for (const role of [
   'story-init',
   'scope-plan',

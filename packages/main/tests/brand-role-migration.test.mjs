@@ -13,6 +13,7 @@ const distName = existsSync(join(packageRoot, 'dist', 'core', 'agent-role-identi
 const distRoot = join(packageRoot, distName);
 
 const identity = await import(join(distRoot, 'core/agent-role-identity.js'));
+const schema = await import(join(distRoot, 'core/artifact-schema.js'));
 const dispatch = await import(join(distRoot, 'core/agent-dispatch-registry.js'));
 const reviewerList = await import(join(distRoot, 'handlers/reviewer-list.js'));
 const managedAssets = await import(join(distRoot, 'core/managed-assets.js'));
@@ -35,6 +36,32 @@ assert.throws(() => dispatch.resolveAgentDispatchType('proof-or-stop-review-qual
 assert.equal(dispatch.resolveAgentDispatchType('lattice-review-concept').canonicalType, 'proof-or-stop-review-concept');
 assert.equal(dispatch.resolveAgentDispatchType('lattice-review-test-coverage').canonicalType, 'proof-or-stop-review-test-coverage');
 assert.deepEqual(identity.legacyAgentRoleIds('proof-or-stop-implementer'), ['lattice-implementer']);
+assert.deepEqual(
+  identity.legacyAgentRoleIds('proof-or-stop-review-quality@fallback'),
+  ['lattice-review-quality@fallback'],
+  'fallback canonical roles reconstruct the suffixed legacy alias',
+);
+assert.deepEqual(
+  identity.legacyAgentRoleIds('lattice-review-quality@fallback'),
+  ['lattice-review-quality@fallback'],
+  'fallback legacy roles remain readable without dropping their suffix',
+);
+assert.deepEqual(identity.legacyAgentRoleIds('proof-or-stop-unknown@fallback'), []);
+assert.equal(
+  identity.agentRoleIdsEqual('lattice-review-quality@fallback', 'proof-or-stop-review-quality@fallback'),
+  true,
+  'canonical and legacy fallback roles compare equal',
+);
+assert.equal(schema.DONE_REQUIRED_EVIDENCE_SCHEMA, 'proof-or-stop.done-required-evidence');
+assert.equal(schema.DONE_REQUIRED_EVIDENCE_SCHEMA_LEGACY, 'lattice.done-required-evidence');
+assert.equal(schema.isDoneRequiredEvidenceSchema('proof-or-stop.done-required-evidence'), true);
+assert.equal(schema.isDoneRequiredEvidenceSchema('lattice.done-required-evidence'), true);
+assert.equal(schema.isDoneRequiredEvidenceSchema('lattice.done-required-evidence.v99'), false);
+assert.equal(schema.DONE_REQUIRED_COMMAND_SPEC_SCHEMA, 'proof-or-stop.command-spec.v2');
+assert.equal(schema.isDoneRequiredCommandSpecSchema('proof-or-stop.command-spec.v2'), true);
+assert.equal(schema.isDoneRequiredCommandSpecSchema('lattice.command-spec.v2'), true);
+assert.equal(schema.isDoneRequiredCommandSpecSchema('lattice.command-spec.v1'), true);
+assert.equal(schema.isDoneRequiredCommandSpecSchema('proof-or-stop.command-spec.v99'), false);
 assert.equal(
   identity.canonicalizeAgentRoleText('lattice-review-quality -> lattice-implementer'),
   'proof-or-stop-review-quality -> proof-or-stop-implementer',

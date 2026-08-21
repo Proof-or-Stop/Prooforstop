@@ -80,6 +80,7 @@ import {
   buildFullTaskContext,
   fullTaskSemanticDigest,
 } from '../core/prompt-envelope.js';
+import { canonicalAgentRoleId, legacyAgentRoleIds } from '../core/agent-role-identity.js';
 import {
   promptRoleContract,
   resolvePromptRoleBody,
@@ -374,15 +375,17 @@ function buildIncrementalRepo(): { root: string; baseSha: string; headSha: strin
 }
 
 function trustedReviewEvidence(storyId: string, role: string, runId: string, startedAt: string, passAt: string, boundHeadHash: string) {
-  const rollout = { version: 'proofbound.prompt-envelope-rollout.v1', roles: { [role]: 'full-envelope' } };
-  const roleBody = resolvePromptRoleBody(role, rollout).body;
-  const dispatchPrompt = `As ${role}, review story ${storyId} in full.`;
-  const host = reviewerHostRenderIdentity(process.cwd(), role, 'codex', 'full-envelope');
+  const canonicalRole = canonicalAgentRoleId(role);
+  const legacyRole = legacyAgentRoleIds(canonicalRole)[0] ?? canonicalRole;
+  const rollout = { version: 'proofbound.prompt-envelope-rollout.v1', roles: { [legacyRole]: 'full-envelope' } };
+  const roleBody = resolvePromptRoleBody(legacyRole, rollout).body;
+  const dispatchPrompt = `As ${legacyRole}, review story ${storyId} in full.`;
+  const host = reviewerHostRenderIdentity(process.cwd(), legacyRole, 'codex', 'full-envelope');
   const headHash = boundHeadHash;
   const materialHash = 'b'.repeat(64);
   const storyFilesHash = 'c'.repeat(64);
   const envelopeResult = assembleFullPromptEnvelope({
-    roleContract: promptRoleContract(role),
+    roleContract: promptRoleContract(canonicalRole),
     runtimeContract: BASELINE_RUNTIME_CONTRACT,
     rolePrompt: roleBody,
     taskContext: {
@@ -392,15 +395,16 @@ function trustedReviewEvidence(storyId: string, role: string, runId: string, sta
         verificationIntent: { happy: [{ id: 'CHK-001:happy:0', desc: 'Cutoff is respected.', type: 'logic' }], edge: [], adversarial: [] } }],
       headHash, materialHash, storyFilesHash,
     },
-    dispatchKind: 'review-run', reviewRunId: runId, reviewRound: 'round-1', lane: role,
+    dispatchKind: 'review-run', reviewRunId: runId, reviewRound: 'round-1', lane: legacyRole,
     dispatchPrompt, hostRenderIdentityDigest: host.identityDigest, createdAt: startedAt,
   });
-  const run: ReviewRun = { reviewRunId: runId, storyId, agent: role, lane: role, reviewRound: 'round-1', startedAt,
+  assert.equal(envelopeResult.envelope.lane, canonicalRole, 'legacy reviewer lane is canonicalized in the envelope');
+  const run: ReviewRun = { reviewRunId: runId, storyId, agent: canonicalRole, lane: canonicalRole, reviewRound: 'round-1', startedAt,
     headHash, materialHash, storyFilesHash, promptHash: envelopeResult.envelope.assembledPromptDigest,
     envelopeId: envelopeResult.envelope.envelopeId, assembledPrompt: envelopeResult.prompt };
-  run._hash = signReviewRun(storyId, runId, role, role, 'round-1', startedAt, headHash, materialHash,
+  run._hash = signReviewRun(storyId, runId, canonicalRole, canonicalRole, 'round-1', startedAt, headHash, materialHash,
     run.promptHash, undefined, undefined, storyFilesHash, run.envelopeId);
-  const pass = signedPass(storyId, `${runId}:PASS`, role, passAt, 'round-1');
+  const pass = signedPass(storyId, `${runId}:PASS`, canonicalRole, passAt, 'round-1');
   pass.reviewRunId = runId;
   pass.envelopeId = run.envelopeId;
   pass.writerSessionId = `${runId}-session`;
@@ -412,7 +416,7 @@ function trustedReviewEvidence(storyId: string, role: string, runId: string, sta
 
 function runTemporalCutoffRegression(root: string): void {
   const storyId = 'B-f675';
-  const role = 'lattice-review-quality';
+  const role = canonicalAgentRoleId('lattice-review-quality');
   const story = reviewStory(storyId, 2, 'round-1');
   const boundHeadHash = currentGitHead(root)!;
   const a = trustedReviewEvidence(storyId, role, 'RR-A', ts(5), ts(6), boundHeadHash);
@@ -438,7 +442,7 @@ function runTemporalCutoffRegression(root: string): void {
 function runProductionVerifierTemporalCutoffRegression(): void {
   const root = mkdtempSync(join(tmpdir(), 'lattice-review-cutoff-verifier-'));
   const storyId = 'B-cutoff-verifier';
-  const role = 'lattice-review-quality';
+  const role = canonicalAgentRoleId('lattice-review-quality');
   const round = '2026-07-20T00:00:00.000Z';
   const runCli = (command: string, payload: Record<string, unknown>, actor: string): void => {
     execFileSync(process.execPath, [
@@ -455,6 +459,7 @@ function runProductionVerifierTemporalCutoffRegression(): void {
         LATTICE_ACTIVITY_SOURCE: 'codex',
         LATTICE_AGENT: actor,
         LATTICE_SESSION_ID: `cutoff-${actor}`,
+        PROOF_OR_STOP_AGENT: actor,
       },
       stdio: ['ignore', 'pipe', 'pipe'],
     });
@@ -942,7 +947,7 @@ function runBoundedPathsDegradationCase(): void {
   const cap = FULL_TASK_CONTEXT_LIMITS.pathsPerList;
   const bounded = 'FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_PATHS';
   const storyId = 'B-bounded-paths';
-  const role = 'lattice-review-quality';
+  const role = canonicalAgentRoleId('lattice-review-quality');
   const storyFile = 'src/story.ts';
   const bulkFile = (index: number) => `src/bulk/f${String(index).padStart(5, '0')}.ts`;
   const root = mkdtempSync(join(tmpdir(), 'lattice-incremental-bounded-paths-'));

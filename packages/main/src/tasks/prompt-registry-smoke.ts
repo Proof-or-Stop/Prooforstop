@@ -27,7 +27,6 @@ import {
   renderPromptEntryForHost,
   restoreLegacyPromptTemplate,
 } from '../core/prompt-registry.js';
-import { canonicalizeAgentRoleText } from '../core/agent-role-identity.js';
 import { assertNoDuplicatePromptEnvelopeRoleKeys } from '../core/config.js';
 import {
   ACTIVE_MODULAR_REVIEWER_ROLE_IDS,
@@ -38,12 +37,7 @@ import {
   reviewerHostRenderIdentity,
 } from '../core/prompt-role-contract-registry.js';
 import { renderCodexAgentContent } from '../init-assets.js';
-// B-cc10 F-055: resolve whichever adapter dir exists. Hardcoding the renamed one made this
-// read a path that no longer exists (ENOENT) or scan zero files.
-function adapterDirName(base: string): string {
-  return existsSync(join(base, '.proof-or-stop-codex')) ? '.proof-or-stop-codex' : '.lattice-codex';
-}
-
+import { PROOF_OR_STOP_ADAPTER_DIR } from '../core/brand-paths.js';
 
 const registry = readPromptRegistry();
 const files = listPromptTemplateFiles(registry.root);
@@ -93,7 +87,7 @@ for (const entry of registry.agents) {
   const isComplexRole = MODULAR_COMPLEX_ROLE_IDS.includes(entry.agentId as typeof MODULAR_COMPLEX_ROLE_IDS[number]);
   const expectedClaude = renderPromptEntryForHost(entry, 'claude');
   const expectedCodex = renderPromptEntryForHost(entry, 'codex');
-  const canonicalSource = canonicalizeAgentRoleText(source);
+  const canonicalSource = renderPromptEntryForHost(entry, 'claude', 'full-envelope');
   if (MODULAR_REVIEWER_ROLE_IDS.includes(entry.agentId as typeof MODULAR_REVIEWER_ROLE_IDS[number])) {
     assert.match(expectedClaude, /review_run_start/, `${entry.file} Claude registry render is bootstrap-only`);
     assert.match(expectedCodex, /review_run_start/, `${entry.file} Codex registry render is bootstrap-only`);
@@ -131,11 +125,11 @@ for (const entry of registry.agents) {
   }
   const claudeMirrorPath = join(projectRoot, '.claude', 'agents', entry.file);
   if (existsSync(claudeMirrorPath)) {
-    assert.equal(canonicalizeAgentRoleText(readFileSync(claudeMirrorPath, 'utf8')), expectedClaude, `${entry.file} .claude asset matches its canonical host input`);
+    assert.equal(readFileSync(claudeMirrorPath, 'utf8'), expectedClaude, `${entry.file} .claude asset matches its canonical host render`);
   }
-  const codexMirrorPath = join(projectRoot, adapterDirName(projectRoot), 'agents', entry.file);
+  const codexMirrorPath = join(projectRoot, PROOF_OR_STOP_ADAPTER_DIR, 'agents', entry.file);
   if (existsSync(codexMirrorPath)) {
-    assert.equal(canonicalizeAgentRoleText(readFileSync(codexMirrorPath, 'utf8')), expectedCodex, `${entry.file} .lattice-codex asset matches its canonical host input`);
+    assert.equal(readFileSync(codexMirrorPath, 'utf8'), expectedCodex, `${entry.file} .proof-or-stop-codex asset matches its canonical host render`);
   }
   material.update(`${entry.file}\0${entry.templateHash}\0${entry.bytes}\n`);
 }

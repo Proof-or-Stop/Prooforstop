@@ -64,17 +64,41 @@ for (const canonical of CANONICAL_AGENT_ROLE_IDS) {
   }
 }
 
-export function canonicalAgentRoleId(roleId: string): string {
+function splitAgentRoleId(roleId: string): { base: string; suffix: string } {
   const trimmed = roleId.trim();
   const separator = trimmed.indexOf('@');
-  const base = separator === -1 ? trimmed : trimmed.slice(0, separator);
+  return separator === -1
+    ? { base: trimmed, suffix: '' }
+    : { base: trimmed.slice(0, separator), suffix: trimmed.slice(separator) };
+}
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function replaceRoleToken(text: string, token: string, replacement: string): string {
+  const pattern = new RegExp(
+    `(^|[^A-Za-z0-9_-])${escapeRegExp(token)}(?=$|@|[^A-Za-z0-9_-])`,
+    'g',
+  );
+  return text.replace(pattern, (_match, prefix: string) => `${prefix}${replacement}`);
+}
+
+function isCanonicalRoleBase(value: string): value is CanonicalAgentRoleId {
+  return (CANONICAL_AGENT_ROLE_IDS as readonly string[]).includes(value);
+}
+
+export function canonicalAgentRoleId(roleId: string): string {
+  const { base, suffix } = splitAgentRoleId(roleId);
   const canonical = CANONICAL_BY_ALIAS.get(base) ?? base;
-  return separator === -1 ? canonical : `${canonical}${trimmed.slice(separator)}`;
+  return `${canonical}${suffix}`;
 }
 
 export function legacyAgentRoleIds(roleId: string): readonly string[] {
-  const canonical = canonicalAgentRoleId(roleId) as CanonicalAgentRoleId;
-  return LEGACY_AGENT_ROLE_ALIASES[canonical] ?? [];
+  const canonicalized = canonicalAgentRoleId(roleId);
+  const { base, suffix } = splitAgentRoleId(canonicalized);
+  const aliases = isCanonicalRoleBase(base) ? LEGACY_AGENT_ROLE_ALIASES[base] : [];
+  return suffix ? aliases.map(alias => `${alias}${suffix}`) : aliases;
 }
 
 export function isCanonicalAgentRoleId(roleId: string): roleId is CanonicalAgentRoleId {
@@ -89,29 +113,15 @@ export function agentRoleIdsEqual(left: string | undefined, right: string | unde
 
 /** Replace role tokens in generated prompt text without changing unrelated prose. */
 export function canonicalizeAgentRoleText(text: string): string {
-  // Protect canonical tokens before replacing aliases.  Several historical
-  // aliases (for example `product-reviewer`) are substrings of their canonical
-  // forms, so a plain global replacement would turn an already-canonical role
-  // into `proof-or-stop-proof-or-stop-*` on the second pass.
-  const protectedTokens = CANONICAL_AGENT_ROLE_IDS.map((canonical, index) => ({
-    canonical,
-    token: `\u0000proof-or-stop-role-${index}\u0000`,
-  }));
-  const tokenByCanonical = new Map<string, string>(
-    protectedTokens.map(({ canonical, token }) => [canonical, token]),
-  );
+  // Role IDs are hyphenated, so ordinary word-boundary matching is not enough.
+  // Treat identifier characters (including '-') as part of a surrounding token
+  // and allow an @suffix to remain attached to the replaced role ID.
   let result = text;
-  for (const { canonical, token } of protectedTokens) {
-    result = result.split(canonical).join(token);
-  }
   const replacements = Object.entries(LEGACY_AGENT_ROLE_ALIASES)
     .flatMap(([canonical, aliases]) => aliases.map(alias => ({ alias, canonical })))
     .sort((left, right) => right.alias.length - left.alias.length);
   for (const { alias, canonical } of replacements) {
-    result = result.split(alias).join(tokenByCanonical.get(canonical) ?? canonical);
-  }
-  for (const { canonical, token } of protectedTokens) {
-    result = result.split(token).join(canonical);
+    result = replaceRoleToken(result, alias, canonical);
   }
   return result;
 }
@@ -131,7 +141,7 @@ export function legacyizeAgentRoleText(text: string): string {
     .sort((left, right) => right.canonical.length - left.canonical.length);
   let result = text;
   for (const { canonical, legacy } of replacements) {
-    result = result.split(canonical).join(legacy);
+    result = replaceRoleToken(result, canonical, legacy);
   }
   return result;
 }

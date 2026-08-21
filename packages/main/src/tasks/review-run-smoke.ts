@@ -25,19 +25,21 @@ const fullRollout = {
   version: 'proofbound.prompt-envelope-rollout.v1',
   roles: { 'lattice-review-quality': 'full-envelope' },
 } as const;
-const qualityPrompt = resolvePromptRoleBody('lattice-review-quality', fullRollout).body;
+const legacyLane = 'lattice-review-quality';
+const canonicalLane = promptRoleContract(legacyLane).roleId;
+const qualityPrompt = resolvePromptRoleBody(legacyLane, fullRollout).body;
 const dispatchPrompt = 'As lattice-review-quality, review story B-run in full.';
-const hostIdentity = reviewerHostRenderIdentity(process.cwd(), 'lattice-review-quality', 'codex', 'full-envelope');
+const hostIdentity = reviewerHostRenderIdentity(process.cwd(), legacyLane, 'codex', 'full-envelope');
 const dispatchPromptDigest = reviewerDispatchPromptDigest(dispatchPrompt);
 const dispatchBindingDigest = reviewerDispatchBindingDigest({
   storyId: 'B-run',
-  lane: 'lattice-review-quality',
+  lane: canonicalLane,
   reviewRound: 'round-1',
   dispatchPromptDigest,
   hostRenderIdentityDigest: hostIdentity.identityDigest,
 });
 const envelope = assembleFullPromptEnvelope({
-  roleContract: promptRoleContract('lattice-review-quality'),
+  roleContract: promptRoleContract(legacyLane),
   runtimeContract: BASELINE_RUNTIME_CONTRACT,
   rolePrompt: qualityPrompt,
   taskContext: {
@@ -66,7 +68,7 @@ const envelope = assembleFullPromptEnvelope({
   dispatchKind: 'review-run',
   reviewRunId: 'B-run:RR-001',
   reviewRound: 'round-1',
-  lane: 'lattice-review-quality',
+  lane: legacyLane,
   dispatchPrompt,
   hostRenderIdentityDigest: hostIdentity.identityDigest,
   createdAt: '2026-07-18T00:00:00.000Z',
@@ -75,8 +77,8 @@ const envelope = assembleFullPromptEnvelope({
 const run: ReviewRun = {
   reviewRunId: 'B-run:RR-001',
   storyId: 'B-run',
-  agent: 'lattice-review-quality',
-  lane: 'lattice-review-quality',
+  agent: canonicalLane,
+  lane: canonicalLane,
   reviewRound: 'round-1',
   startedAt: '2026-07-18T00:00:00.000Z',
   headHash: 'a'.repeat(40),
@@ -107,7 +109,7 @@ const store = {
   readProcessEvents: () => [{
     type: 'dispatch',
     targetKind: 'story-review',
-    agentType: 'lattice-review-quality',
+    agentType: canonicalLane,
     reviewRound: 'round-1',
     dispatchPrompt,
     dispatchPromptDigest,
