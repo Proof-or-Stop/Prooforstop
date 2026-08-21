@@ -3006,6 +3006,74 @@
       ],
       "signatureTag": "verifier-owned-acceptance-chain-stale",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a15:F-080",
+      "desc": "\"packages/main/src/handlers/proofstory.ts:688-769,1052-1071; packages/main/src/core/pre-review-check.ts:407-433; packages/main/src/handlers/transition-orchestrator.ts:137-149 [high] — The verifier-owned acceptance chain is not admissible at current HEAD 7c5d9c7789. The current acceptance_basis is invalid with AT_SCOPE_BINDING_MISSING and remains bound to stale HEAD e06b1f1bd52d7d70f1060d6b2e39728c071779dd and scopeContractDigest sha256:a84e13ebdc5fc43ff4b5be4420c72ca4c550a192850a998f9e4e1b596f5264f9; acceptance_topology_check fails with AT_SCOPE_BINDING_MISSING, while pre_review_check_read fails with PR_ARTIFACT_TAMPERED. acceptance_rollout_check reports a full-3x2 pass, but the rollout receipt cannot substitute for failed topology and pre-review prerequisites. Wave-3 findings F-077, F-078, and F-079 independently reproduce this same verified blocker with complete required-lane read coverage. Reissue the verifier-owned basis, pre-review artifact, and dependent acceptance chain at one consistent current HEAD/materialHash/storyFilesHash/scope binding before approving REVIEW.\"",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-21T17:30:54.734Z",
+      "reviewRound": "2026-08-21T15:29:32.809Z",
+      "reviewRunId": "B-5a15:RR-157",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a15/review-runs.json",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a15/scope-check.json",
+          ".proof-or-stop/story/actives/B-5a15/scope-contract.json",
+          ".proof-or-stop/story/actives/B-5a15/topology-critic-receipt.json",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/pre-review-live-proof.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "ddbdfc17633ff27afb5d1246815963c558c34c8789abe3ca00f6f8b280128b08"
+      },
+      "readDiagnostics": [],
+      "_hash": "823e4096d9adbef1644a2b6c66fe44aba5f82228a8de7984de99d433d9ae4e3a",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+        ".proof-or-stop/story/actives/B-5a15/review-runs.json",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/handlers/proofstory.ts",
+        "packages/main/src/handlers/transition-orchestrator.ts"
+      ],
+      "signatureTag": "verifier-owned-acceptance-chain-scope-binding",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
