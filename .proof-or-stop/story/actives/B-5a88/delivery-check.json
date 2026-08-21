@@ -1,0 +1,97 @@
+{
+  "storyId": "B-5a88",
+  "checkedAt": "2026-08-21T22:12:49.357Z",
+  "headHash": "b34bfe8f9de4db5e49e06da06fa79cef6c332b4a",
+  "materialHash": "c32f8efc7c636cc5c73bdcd425530d1897fd0a91625732a5ac4d3c8520169e3a",
+  "storyFilesHash": "254e16d089a2079d9332bd375bf4104a3809e98a62db398b0916f5479daee69d",
+  "reviewRound": "2026-08-21T20:53:57.831Z",
+  "agentId": "proof-or-stop-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "CLAUDE.md#reviewer-roles",
+      "promise": "Active reviewer and implementer guidance uses proof-or-stop-* role IDs while exact lattice-* aliases remain compatibility-readable.",
+      "status": "verified",
+      "verifiedBy": "diff/grep plus brand-role and prompt-role migration tests",
+      "evidence": "agent-role-identity canonicalizes known aliases; dispatch rejects unknown roles; brand-role-migration and prompt-role-migration passed on current HEAD."
+    },
+    {
+      "docPath": ".proof-or-stop-codex/README.md#canonical-paths-and-markers",
+      "promise": "New managed assets emit proof-or-stop managed markers and legacy lattice markers remain readable for upgrade compatibility.",
+      "status": "verified",
+      "verifiedBy": "source inspection plus managed-marker migration test",
+      "evidence": "managed-markers parser accepts legacy blocks, writers emit proof-or-stop markers, malformed mixed/nested blocks fail closed, and managed-marker migration test passed."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proof-or-stop-identity-migration.md#artifact-schemas",
+      "promise": "New artifact and command-spec records write proof-or-stop schemas while known lattice schemas remain readable and unknown schemas fail closed.",
+      "status": "verified",
+      "verifiedBy": "artifact schema migration test plus process-fact verifier",
+      "evidence": "artifact-schema-migration exercised canonical writes, legacy v1/v2 reads, and unknown-schema rejection; process-fact contract passed."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proof-or-stop-identity-migration.md#remote-push-approval",
+      "promise": "Remote push approvals write the proof-or-stop schema and pre-push accepts only the bounded legacy schema for valid one-shot approvals.",
+      "status": "verified",
+      "verifiedBy": "release approval migration test plus hook inspection",
+      "evidence": "release-push-approval migration passed canonical/legacy consume-once, invalid-schema, expiry, and rejection paths; pre-push syntax and schema checks passed."
+    },
+    {
+      "docPath": "README.md#cli-entrypoint",
+      "promise": "The root npm package writes the canonical proof-or-stop identity and users use proof-or-stop as the current CLI entrypoint.",
+      "status": "verified",
+      "verifiedBy": "package identity migration test plus entrypoint verifier",
+      "evidence": "package identity migration passed npm pkg name/version and runtime identity assertions; verify-entrypoints completed 28/28."
+    },
+    {
+      "docPath": "docs/CLI.md#package-build",
+      "promise": "Sibling packages use @proof-or-stop scoped names and the lab entrypoint resolves the canonical @proof-or-stop/lab package.",
+      "status": "verified",
+      "verifiedBy": "package identity migration test plus global lab entrypoint verifier",
+      "evidence": "package/lockfile dependency graph assertions passed and verify-global-lab-entrypoint versions passed."
+    },
+    {
+      "docPath": "docs/requirements/decisions/brand-rename-mapping.md#canonical-forms",
+      "promise": "The published npm bin map contains proof-or-stop and no lattice alias, while residue and help checks reject reintroduced lattice invocations.",
+      "status": "verified",
+      "verifiedBy": "bin-alias migration test, residue self-test, and entrypoint verifier",
+      "evidence": "bin-alias migration passed absence/canonical-resolution assertions; lattice residue self-test passed 65/65; entrypoint verifier passed 28/28."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Current-machine run after npm --prefix packages/main run build: node packages/main/tests/brand-role-migration.test.mjs and node packages/main/tests/prompt-role-migration.test.mjs both exited 0 and printed their migration test passed messages. Covered canonical role emission, exact legacy alias reads, unknown-role rejection, prompt registry, and role boundary behavior."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Current-machine run: node packages/main/tests/managed-marker-migration.test.mjs exited 0. Covered canonical writer markers, legacy block replacement, malformed nested/mixed rejection, profile markers, and generated asset templates."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Current-machine run: node packages/main/tests/artifact-schema-migration.test.mjs exited 0. Covered canonical command-spec/evidence/closeout schemas, legacy schema reads, unknown-schema fail-closed behavior, digest verification, and adjacent consumers."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Current-machine run: node packages/main/tests/release-push-approval-migration.test.mjs exited 0. Covered canonical and legacy approval schemas, one-shot consumption, second-consume rejection, invalid schema rejection, expiry rejection, and hook behavior."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "Current-machine run: node packages/main/tests/package-identity-migration.test.mjs exited 0. Covered root package and lockfile names/versions, canonical core identity, self-project compatibility reads, and npm pkg get name."
+    },
+    {
+      "featureId": "CHK-006",
+      "transcript": "Current-machine runs: node packages/main/tests/package-identity-migration.test.mjs and node scripts/verify-global-lab-entrypoint.mjs versions both exited 0. Covered @proof-or-stop/utils and @proof-or-stop/lab manifests, lockfile graph, exports, and lab entrypoint resolution."
+    },
+    {
+      "featureId": "CHK-007",
+      "transcript": "Current-machine run: node packages/main/tests/bin-alias-migration.test.mjs exited 0; node scripts/verify-lattice-residue.mjs --self-test passed 65/65; verify-entrypoints passed 28/28. Covered canonical bin presence, deprecated alias absence, help/residue rejection, and regression detectors."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All seven checklist promises have current source-backed delivery evidence and passing migration tests. Edge, malformed, unknown-schema, expiry, alias, and legacy-read paths were exercised; no unresolved non-test TODO/FIXME/HACK was introduced."
+  },
+  "_hash": "9d0145e35ee70173d5cc79c4b6586b114238626200968e8bc8b28f5073660dc5"
+}
