@@ -1598,6 +1598,180 @@
       ],
       "signatureTag": "missing|json|test-evidence-json",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-053",
+      "desc": "required-docs-missing: .proof-or-stop/story/actives/B-5a15/checklist.json:8-9 and :366-367 reference docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md and docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md, but neither file exists in the current repository; the declared U-03 source of truth is unavailable for concept-residue and promised-behavior review.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-21T13:13:29.943Z",
+      "reviewRound": "2026-08-21T13:09:42.171Z",
+      "reviewRunId": "B-5a15:RR-110",
+      "_hash": "8ba39a565c787db3888d3dde3cc29b57d3c7ce9daea0aa84d7530c126c447500",
+      "signatureTag": "missing|unknown|required-docs-missing",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-054",
+      "desc": ".proof-or-stop/story/actives/B-5a15/pre-review-check.json:1 is not a current admissible post-bounce proof: pre_review_check_read reports PR_ARTIFACT_TAMPERED, PR_EVIDENCE_STALE, PR_AUTHORITY_INADMISSIBLE, and PR_CUTOFF_UNBOUND; acceptance_topology_check independently reports AT_ADAPTER_RESULT_DIGEST_MISMATCH and AT_CLOSURE_FILES_STALE against the current HEAD/material/story-files binding. The verifier-owned pre-review and PLAN topology artifacts must be regenerated before this lane can attest causal authority and hash binding.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T13:16:18.915Z",
+      "reviewRound": "2026-08-21T13:09:42.171Z",
+      "reviewRunId": "B-5a15:RR-112",
+      "_hash": "b4bc779bb50056fe9272307e813fb49eca6f5e6a97f8159435e7dbfe61b97801",
+      "signatureTag": "missing|unknown|proof-stop-story",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-055",
+      "desc": ".proof-or-stop/story/actives/B-5a15/process-events.jsonl:283 records host verdicts bound to stale materialDigest cc13224d... and storyFilesHash 187c87..., while the current review scope is materialHash b38de9f6... and storyFilesHash 985eb4c7...; review_escalation_status therefore reports full quorum 0/3 rounds x2 and degraded fallback not satisfied. The required current independent assurance is missing, so this lane must not pass the story’s high-risk review boundary.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T13:16:32.052Z",
+      "reviewRound": "2026-08-21T13:09:42.171Z",
+      "reviewRunId": "B-5a15:RR-112",
+      "_hash": "c3529ea63085c7710f2f54a38f7db0befd97d20028f7275f7538106178af34ce",
+      "signatureTag": "missing|unknown|proof-stop-story",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-056",
+      "desc": ".proof-or-stop/story/actives/B-5a15/pre-review-check.json:1 — current verifier-owned pre-review evidence is not admissible: pre_review_check_read returns PR_ARTIFACT_TAMPERED, PR_EVIDENCE_STALE, PR_AUTHORITY_INADMISSIBLE, and PR_CUTOFF_UNBOUND, while acceptance_topology_check independently reports AT_ADAPTER_RESULT_DIGEST_MISMATCH and AT_CLOSURE_FILES_STALE. The implementation’s causal authority and hash/test coverage therefore cannot be accepted on this stale artifact set; regenerate the verifier-owned pre-review and topology artifacts through the CLI before passing REVIEW.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T13:17:30.159Z",
+      "reviewRound": "2026-08-21T13:09:42.171Z",
+      "reviewRunId": "B-5a15:RR-111",
+      "_hash": "abf8436a954d3cf7240178e5164afd548c8b47d27a64d84a329c9092b3bf7fb5",
+      "signatureTag": "missing|unknown|proof-stop-story",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-057",
+      "desc": ".proof-or-stop/story/actives/B-5a15/process-events.jsonl:283 — the current review-assurance host verdicts are bound to stale material/story-files hashes (cc13224d.../187c87...), while the signed current review scope is b38de9f6.../985eb4c7.... review_escalation_status consequently has zero valid 3-round x2 host rounds and no valid degraded fallback, so the high-risk review boundary lacks current independent assurance and must not pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-21T13:17:41.949Z",
+      "reviewRound": "2026-08-21T13:09:42.171Z",
+      "reviewRunId": "B-5a15:RR-111",
+      "_hash": "9d27befa96e96c5590e61986e6e20ff88863e3fbaf07d1e6e2042aa3b499de03",
+      "signatureTag": "missing|unknown|proof-stop-story",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-058",
+      "desc": "concept-review: required related documents are missing from the current worktree: docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md and docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md. They are declared by CHK-001 and CHK-002, and their absence prevents complete source-backed concept/residual review for the U-03 scope.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-21T13:23:25.017Z",
+      "reviewRound": "2026-08-21T13:09:42.171Z",
+      "reviewRunId": "B-5a15:RR-113",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": 34600
+        },
+        "digest": "80307658d9c73fad22d0909ea2f6a176989eb7f845a3657e471fee4a89f17b3c"
+      },
+      "readDiagnostics": [],
+      "_hash": "614e237c620d450c763179b9a83ea92f21ef7b3fed1bc6b2406e56d17f7a2a25",
+      "files": [
+        "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+        "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+      ],
+      "signatureTag": "missing|md|concept-review-required",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-059",
+      "desc": "Concept review: .proof-or-stop/story/actives/B-5a15/checklist.json:8-9,366-367,722-724,1110,1584 reference docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md and docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md, but both files are absent and no alternate path exists under docs/requirements. This prevents complete concept/residual verification against the stated U-03 source requirements; restore the documents or correct the relatedDocs references before review can complete.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-21T13:23:55.741Z",
+      "reviewRound": "2026-08-21T13:09:42.171Z",
+      "reviewRunId": "B-5a15:RR-114",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "744219bf686de424f0c914a93617f7ed65e8a6f72c606cf069d5d54d287a3df5"
+      },
+      "readDiagnostics": [],
+      "_hash": "b1d0e3ab39cbad06b15bef9ef68fef342d5ded50e2bc81be4117403cd6549aa3",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/checklist.json",
+        "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+        "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+      ],
+      "signatureTag": "missing|json|concept-review-proof",
+      "signatureTagSource": "auto"
     }
   ]
 }

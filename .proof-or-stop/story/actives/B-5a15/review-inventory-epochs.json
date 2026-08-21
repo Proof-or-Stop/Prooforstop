@@ -407,6 +407,54 @@
       "consumedAt": "2026-08-21T12:58:11.170Z",
       "consumedByReviewRound": "2026-08-21T11:29:50.266Z",
       "_hash": "49205227fa306bb78a338e18edea52db9928dacc2dd3a09c7f905169bd4bc81b"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-5a15:RIE-013",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-21T13:09:42.171Z",
+      "state": "CANCELLED",
+      "begunAt": "2026-08-21T13:18:07.843Z",
+      "updatedAt": "2026-08-21T13:18:52.037Z",
+      "cutoff": {
+        "headHash": "da58973a8538beab4a1cd188f11a8c49a6094199",
+        "materialHash": "b38de9f6b3c247c94a667f92756c974ca4541e2b76f7b2aaaae09d6d9e7fd8fb",
+        "storyFilesHash": "985eb4c7aa5d9de6bd8f232e1f41be9be8e5f72d21f688ec1acc1692ba3d5c0a"
+      },
+      "scopeDigest": "9e77d82a1a0238d354837047b962a30c4d96d685f3bf8e9c325a3de55f2cb936",
+      "requiredLanes": [],
+      "maxWaves": 1,
+      "waves": [],
+      "receiptId": "B-5a15:RIE-013:RCP-001",
+      "cancelledAt": "2026-08-21T13:18:52.037Z",
+      "cancelReason": "Late reviewer evidence and refreshed acceptance artifacts invalidated the finalized inventory receipt; start a fresh remediation epoch.",
+      "terminalRunSequenceBoundary": 112,
+      "_hash": "ed7656d937a6456f933424d51d9125bb74eeb61d8e627ba325a51c5b09b0459b"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-5a15:RI-007",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-21T13:09:42.171Z",
+      "state": "OPEN",
+      "begunAt": "2026-08-21T13:18:56.801Z",
+      "updatedAt": "2026-08-21T13:18:56.801Z",
+      "cutoff": {
+        "headHash": "da58973a8538beab4a1cd188f11a8c49a6094199",
+        "materialHash": "b38de9f6b3c247c94a667f92756c974ca4541e2b76f7b2aaaae09d6d9e7fd8fb",
+        "storyFilesHash": "985eb4c7aa5d9de6bd8f232e1f41be9be8e5f72d21f688ec1acc1692ba3d5c0a"
+      },
+      "scopeDigest": "725f4c10b724026492b6d0c5a327d2f29bd172c750a3f4bd28a604603566fc77",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage"
+      ],
+      "initialRunSequenceBoundary": 112,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [],
+      "_hash": "e7e0d7c97b68b3253b569e3eab28d6f57691a4ed5f5be59adadf7a6803e97f3b"
     }
   ],
   "receipts": [
@@ -538,6 +586,30 @@
       "issuedAt": "2026-08-21T12:58:05.890Z",
       "consumedAt": "2026-08-21T12:58:11.170Z",
       "_hash": "f2dc346fc59bdb9e063879ade85b53e0f84029a9cf9a508217d7d4d900d6c292"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_receipt.v1",
+      "receiptId": "B-5a15:RIE-013:RCP-001",
+      "epochId": "B-5a15:RIE-013",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-21T13:09:42.171Z",
+      "cutoff": {
+        "headHash": "da58973a8538beab4a1cd188f11a8c49a6094199",
+        "materialHash": "b38de9f6b3c247c94a667f92756c974ca4541e2b76f7b2aaaae09d6d9e7fd8fb",
+        "storyFilesHash": "985eb4c7aa5d9de6bd8f232e1f41be9be8e5f72d21f688ec1acc1692ba3d5c0a"
+      },
+      "scopeDigest": "9e77d82a1a0238d354837047b962a30c4d96d685f3bf8e9c325a3de55f2cb936",
+      "requiredLanes": [],
+      "waveCount": 0,
+      "findingSetDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "coverageDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "saturationResult": "ZERO_NEW_VERIFIED_FINDINGS",
+      "authority": "inventory-completeness-only",
+      "authorizesTest": false,
+      "issuedAt": "2026-08-21T13:18:07.843Z",
+      "invalidatedAt": "2026-08-21T13:18:52.037Z",
+      "invalidationReason": "Late reviewer evidence and refreshed acceptance artifacts invalidated the finalized inventory receipt; start a fresh remediation epoch.",
+      "_hash": "5096c2eb2e17d3ac899c73d3c86c7547c3a67a31bb58869b30ab21ce3babc95e"
     }
   ],
   "criticReceipts": [
