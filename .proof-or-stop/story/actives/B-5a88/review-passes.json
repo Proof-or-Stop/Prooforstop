@@ -1672,6 +1672,52 @@
         "scanEscalationReason": null
       },
       "_hash": "e1732ded564168063a91b04600bb9986d9ef07e22f744983b0ee5750a83970c2"
+    },
+    {
+      "id": "B-5a88:RP-027",
+      "agent": "proof-or-stop-review-concept",
+      "note": "No blocker in canonical role, marker, package migration; decision and understanding are English; brand-role, prompt-role, and bin-alias focused tests pass.",
+      "createdAt": "2026-08-21T00:49:38.870Z",
+      "reviewRound": "2026-08-21T00:46:07.057Z",
+      "reviewRunId": "B-5a88:RR-114",
+      "envelopeId": "e8d2bbc0706079ab13a2b959b229259b671835432976f6c82f13c4c0e918a7f2",
+      "writerSessionId": "sess-f94bd637b614e5d9b2fd59dd357b844c",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/decision.json",
+          ".proof-or-stop/story/actives/B-5a88/understanding.json",
+          "packages/main/src/core/artifact-schema.ts",
+          "packages/main/src/core/managed-markers.ts",
+          "packages/main/tests/bin-alias-migration.test.mjs",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/prompt-role-migration.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          "package-lock.json",
+          "package.json",
+          "packages/lab/package-lock.json",
+          "packages/lab/package.json",
+          "packages/main/package-lock.json",
+          "packages/main/package.json",
+          "packages/main/src/claude-md-sync.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/core/managed-assets.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/release-push-approval.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/reviewer-quorum.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/utils/package-lock.json",
+          "packages/utils/package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5777865154338d4fbcffe10f4dc212a5175339d258a767b830ee49a9fa969c73"
     }
   ]
 }
