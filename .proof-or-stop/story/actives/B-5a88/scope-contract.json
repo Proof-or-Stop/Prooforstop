@@ -690,10 +690,31 @@
       "phase": "DEV",
       "headHash": "671432c290632e20a028c14083684a5b94e5ce62",
       "materialHash": "778463f4917f222c10038bbe3bfa34c7f62d5bdd3a4db9fbe895b9996a2bda7c"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "F-129 requires canonical test-intent handoff output and an executable regression for the production guidance boundary.",
+      "timestamp": "2026-08-21T05:16:29.889Z",
+      "paths": [
+        "packages/main/src/handlers/testintent-handoff.ts",
+        "scripts/verify-testintent-handoff.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/handlers/testintent-handoff.ts",
+        "scripts/verify-testintent-handoff.mjs"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "2babd6edc52cc77da90fe03b6d022b7c04093232",
+      "materialHash": "17293903fe227d4e75cbaa58d0e325b0cfdab51e1c278e9bbb016a43898974b1",
+      "anchors": [
+        "canonical_test_intent_handoff"
+      ]
     }
   ],
   "createdAt": "2026-08-20T05:20:00.402Z",
-  "updatedAt": "2026-08-21T04:26:04.260Z",
+  "updatedAt": "2026-08-21T05:16:29.890Z",
   "fileRules": [],
   "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
@@ -859,6 +880,8 @@
     "packages/main/src/core/auto-commit-metadata.ts": "packages/main/src/core/auto-commit-metadata.ts",
     "packages/main/src/core/proof-admissibility.ts": "packages/main/src/core/proof-admissibility.ts",
     "packages/main/src/tasks/closeout-trust-smoke.ts": "packages/main/src/tasks/closeout-trust-smoke.ts",
-    "packages/main/src/tasks/proof-admissibility-smoke.ts": "packages/main/src/tasks/proof-admissibility-smoke.ts"
+    "packages/main/src/tasks/proof-admissibility-smoke.ts": "packages/main/src/tasks/proof-admissibility-smoke.ts",
+    "packages/main/src/handlers/testintent-handoff.ts": "packages/main/src/handlers/testintent-handoff.ts",
+    "scripts/verify-testintent-handoff.mjs": "scripts/verify-testintent-handoff.mjs"
   }
 }
