@@ -223,10 +223,26 @@
       "anchors": [
         "retiredAuthorityVocabularyGuardSmoke.dynamicBindingGraphBound"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "This one-file test harness update is necessary to assert causal validation preflight refusal without requiring a synthetic FAIL evidence record.",
+      "timestamp": "2026-08-21T09:09:34.717Z",
+      "paths": [
+        "packages/main/src/tasks/flow-stability-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/flow-stability-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "6259219bba3cbf32f2de6d379664ada38339c7a9",
+      "materialHash": "dc7de7ff7ba6546f5d2dbaa7be182b29a9193c53b3fa204f5838aea69da6c696"
     }
   ],
   "createdAt": "2026-08-20T09:29:12.295Z",
-  "updatedAt": "2026-08-21T07:02:27.661Z",
+  "updatedAt": "2026-08-21T09:09:34.717Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -265,6 +281,7 @@
     "packages/main/src/tasks/validate-command-timeout-smoke.ts": "packages/main/src/tasks/validate-command-timeout-smoke.ts",
     "packages/main/src/tasks/verification-run-and-guard-smoke.ts": "packages/main/src/tasks/verification-run-and-guard-smoke.ts",
     "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
-    "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+    "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+    "packages/main/src/tasks/flow-stability-smoke.ts": "packages/main/src/tasks/flow-stability-smoke.ts"
   }
 }
