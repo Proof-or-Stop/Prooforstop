@@ -309,7 +309,42 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The selection manifest deterministically partitions the complete inventory into execute and admissible reuse rows with zero unverified, uncovered, and unmapped rows.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run test:dynamic-validation-selection",
+              "selector": "complete ledger PASS"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Adding a changed file, process fact, capability, or pin can only add selected commands and never subtract a singleton contribution.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run test:dynamic-validation-selection-mutations",
+              "selector": "monotonicity PASS"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Incomplete closure, systemic ambiguity, impacted full-only command, scope violation, or catalog drift converts uncertainty to execution or complete-plan escalation.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run test:dynamic-validation-selection-fail-closed",
+              "selector": "fail-closed escalation PASS"
+            }
+          }
+        ]
+      }
     },
     {
       "id": "CHK-006",
