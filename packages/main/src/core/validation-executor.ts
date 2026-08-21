@@ -1343,7 +1343,10 @@ export function runValidationCommand(
           command: command.command,
           argv: [...command.args],
           cwd,
-          environmentKeys: Object.keys(spawnEnv).sort(),
+          // Keep only keys the child actually touched.  Inheriting the parent
+          // environment is not evidence of consumption and must not make an
+          // undeclared secret/config read look declared to the closure gate.
+          environmentKeys: [],
           startedAt,
           endedAt: new Date().toISOString(),
           exitCode: code,

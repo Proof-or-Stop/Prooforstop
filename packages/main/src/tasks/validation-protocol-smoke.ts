@@ -23,6 +23,7 @@ import { StoryStore } from '../core/store.js';
 import { getGuardFailureReason } from '../core/machine.js';
 import { assertStoryTransitionReachedTarget, canSendStoryEvent } from '../handlers/transition-orchestrator.js';
 import { renderProofOrStopBootstrapScript, renderProofOrStopCodexWrapperScript } from '../init-assets.js';
+import type { ChecklistData, StoryInfo } from '../core/types.js';
 
 // B-623a: keep this smoke hermetic and fast — doctor now runs an advisory host
 // burn scan over the real ~/.codex / ~/.claude stores by default; 0 disables it.
@@ -279,6 +280,53 @@ try {
     assert.equal(dynamicResult.dynamicValidation.manifest.totals.inventory, 1);
   } finally {
     rmSync(dynamicValidateFileRoot, { recursive: true, force: true });
+    resetConfigCache();
+  }
+
+  // Story-scoped validate-file coverage: exercise all three dynamic modes
+  // through the real verifier branch, not only the bounded no-story preview.
+  const storyDynamicValidateFileRoot = mkdtempSync(join(tmpdir(), 'lattice-validation-story-dynamic-validate-file-'));
+  try {
+    writeFileSync(join(storyDynamicValidateFileRoot, 'validate.ts'), 'console.log("story-scoped validate-file dynamic fixture")\n');
+    mkdirSync(join(storyDynamicValidateFileRoot, 'node_modules/.bin'), { recursive: true });
+    const tsxShim = join(storyDynamicValidateFileRoot, 'node_modules/.bin/tsx');
+    writeFileSync(tsxShim, '#!/usr/bin/env node\nconst { spawnSync } = require("node:child_process");\nconst r = spawnSync(process.execPath, process.argv.slice(2), { stdio: "inherit" });\nprocess.exit(r.status ?? 1);\n');
+    chmodSync(tsxShim, 0o755);
+    initSmokeGitRepo(storyDynamicValidateFileRoot);
+    gitQuiet(storyDynamicValidateFileRoot, ['add', '.']);
+    gitQuiet(storyDynamicValidateFileRoot, ['commit', '-m', 'seed story-scoped dynamic validate-file smoke']);
+    const storyId = 'B-dynamic-validate-file-story';
+    const storyStore = new StoryStore(storyDynamicValidateFileRoot);
+    const now = new Date().toISOString();
+    storyStore.writeStory(storyId, {
+      storyId, name: 'dynamic-validate-file-smoke', title: 'Story-scoped dynamic validate-file smoke',
+      description: 'Exercises observe, shadow and enforce-low-risk entrypoint routing.', type: 'chore', phase: 'DONE',
+      priority: 'medium', createdAt: now, startedAt: now, endedAt: now, events: [],
+    } as StoryInfo);
+    storyStore.writeChecklist(storyId, { items: [{
+      id: 'CHK-001', title: 'run story scoped validator', context: 'entrypoint smoke', status: 'done',
+      startTime: now, endTime: now, files: { modify: ['validate.ts'], create: [], test: [] },
+    }] } as ChecklistData);
+    storyStore.writeScopeContract(storyId, {
+      storyId, mode: 'enforce', allowedModify: ['validate.ts'], allowedCreate: [], allowedTest: [],
+      protectedFiles: [], explicitExcludes: [], acknowledgements: [], createdAt: now, updatedAt: now,
+    });
+    resetConfigCache();
+    for (const mode of ['observe', 'shadow', 'enforce-low-risk'] as const) {
+      const resultJson = await createVerifierHandlers({
+        root: storyDynamicValidateFileRoot,
+        scanRoot: storyDynamicValidateFileRoot,
+        store: storyStore,
+        log: () => {},
+      }).validate({ story: storyId, dynamicMode: mode, json: true });
+      const result = JSON.parse(String(resultJson));
+      assert.equal(result.dynamicValidation.mode, mode);
+      assert.equal(result.dynamicValidation.oracleStatus, 'executed');
+      assert.equal(typeof result.dynamicValidation.verdictEquivalent, 'boolean');
+      assert.ok(result.commands.length >= 1, `${mode} must execute the validate-file oracle`);
+    }
+  } finally {
+    rmSync(storyDynamicValidateFileRoot, { recursive: true, force: true });
     resetConfigCache();
   }
 
