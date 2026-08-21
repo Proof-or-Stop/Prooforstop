@@ -165,6 +165,9 @@ const schedule = buildValidationSchedule([
   { commandId: 'fast', originalIndex: 1, cpuWeight: 1, expectedP50Ms: 10, resources: [] },
 ]);
 assert.equal(verifyValidationSchedule(schedule, [...schedule]).ok, true);
+assert.throws(() => buildValidationSchedule([
+  { commandId: 'oversized', originalIndex: 0, cpuWeight: 5, expectedP50Ms: 10, resources: [] },
+], { workerCapacity: 2, cpuCapacity: 2 }), /exceeds scheduler capacity/);
 
 const cases = Array.from({ length: 12 }, (_, index) => ({ caseId: 'case-' + index, domain: 'quorum' as const, sentinel: index < 4 }));
 const shards = buildValidationShards(cases);
