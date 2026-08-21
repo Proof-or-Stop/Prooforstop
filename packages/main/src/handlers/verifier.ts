@@ -1771,7 +1771,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
         const reuse = built && args.story
           ? evaluateStoryRoutineReuse({ ctx, storyId: args.story, gitCwd: handlerGitCwd, identity: built.identity, coverage: built.snapshot.coverage })
           : null;
-        if (reuse?.reusable && built) {
+        if (reuse?.reusable && built && dynamicMode === 'off') {
           ctx.log?.('routine validation reused; commandExecutions=0');
           const reused = reusedStoryValidationResult({
             ctx, storyId: args.story!, gitCwd: handlerGitCwd,
@@ -1779,8 +1779,98 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           });
           return args.json ? JSON.stringify(reused) : renderExternalResult(reused);
         }
+        let dynamicValidation: any;
+        if (args.story && dynamicMode !== 'off' && !focus) {
+          try {
+            const baseHead = execFileSync('git', ['merge-base', 'main', 'HEAD'], {
+              cwd: handlerGitCwd,
+              encoding: 'utf8',
+            }).trim();
+            if (dynamicMode === 'observe') {
+              // Observe computes and persists the selection but the
+              // validate-file command below remains the sole oracle run.
+              const dynamic = prepareStoryAwareValidation({
+                projectRoot,
+                storyId: args.story,
+                baseHead,
+                head: currentHead(handlerGitCwd),
+                mode: dynamicMode,
+                commands: [identityCommand],
+                gitCwd: handlerGitCwd,
+              });
+              dynamicValidation = {
+                mode: dynamicMode,
+                manifest: dynamic.manifest,
+                report: dynamic.report,
+                authority: 'full-plan-oracle',
+                selectedCommands: dynamic.manifest.totals.executed,
+                reusedCommands: dynamic.manifest.totals.reused,
+                receipts: 0,
+              };
+            } else {
+              const dynamic = await runStoryAwareDynamicValidation({
+                projectRoot,
+                storyId: args.story,
+                baseHead,
+                head: currentHead(handlerGitCwd),
+                mode: dynamicMode,
+                commands: [identityCommand],
+                abortSignal: args.abortSignal,
+                deadlineAt: args.deadlineAt,
+                deadlineError: args.deadlineError,
+                progress: validationProgressReporter(ctx),
+              });
+              dynamicValidation = {
+                mode: dynamicMode,
+                manifest: dynamic.manifest,
+                report: dynamic.runtimeReport,
+                authority: dynamic.authority.authoritative ? 'enforce-authority' : dynamicMode === 'enforce-low-risk' ? 'full-fallback' : 'full-plan-oracle',
+                selectedCommands: dynamic.selectedResult.commands.length + dynamic.buildResult.commands.length,
+                reusedCommands: dynamic.manifest.totals.reused,
+                receipts: dynamic.receipts.length,
+                selectedAllPass: dynamic.dynamicAllPass,
+              };
+            }
+            ctx.log?.(dynamicValidation.report || 'dynamic validation prepared for validate-file entrypoint');
+          } catch (error) {
+            ctx.log?.('dynamic validation execution unavailable; retaining validate-file oracle: ' + (error instanceof Error ? error.message : String(error)));
+            dynamicValidation = { mode: dynamicMode, authority: 'full-plan-oracle', report: 'dynamic validation unavailable; validate-file oracle retained' };
+          }
+        }
         const commandResult = await runValidateFile();
         const { code, output } = commandResult;
+        if (dynamicValidation?.manifest) {
+          const manifest = dynamicValidation.manifest as ValidationSelectionManifest;
+          const commandId = manifest.rows[0]?.commandId;
+          const instrumentedOrder = commandId && commandResult.runtimeTrace?.events.includes('spawn') ? [commandId] : [];
+          const commandIds = manifest.rows.map((row) => row.commandId);
+          const observeOracle = dynamicMode === 'observe' ? runObserveOracle({
+            manifest,
+            fullOracle: { allPass: code === 0, failedCommandIds: code === 0 || !commandId ? [] : [commandId] },
+            instrumentedOrder,
+            authoritativeOrder: commandIds,
+          }) : undefined;
+          dynamicValidation = {
+            ...dynamicValidation,
+            fullPlanAllPass: code === 0,
+            oracleStatus: 'executed',
+            ...(observeOracle ? { observeOracle, verdictEquivalent: observeOracle.equivalent } : {
+              verdictEquivalent: dynamicValidation.selectedAllPass === undefined ? undefined : dynamicValidation.selectedAllPass === (code === 0),
+            }),
+          };
+          if (args.story && dynamicMode === 'observe') {
+            persistStoryAwareValidationArtifacts({
+              projectRoot,
+              storyId: args.story,
+              manifest,
+              report: `${dynamicValidation.report || ''}\nvalidate-file observe oracle: ${JSON.stringify(observeOracle)}`,
+              receipts: [],
+              revocationLedger: buildRevocationLedger([], []),
+              preserveExistingReceipts: true,
+            });
+          }
+        }
+        const attachDynamic = <T extends Record<string, unknown>>(value: T): T => dynamicValidation ? { ...value, dynamicValidation } : value;
         // Task B-6326 + B-4b22: verifier surfaces categorized dirty ownership
         // details AND respects dirty-gate-policy. When every polluted path
         // classifies as a passing category the pollution.blocking flag is
@@ -1788,7 +1878,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
         const pollutionDetails = formatWorktreePollutionDetails(commandResult, projectRoot, args.story);
         if (pollutionDetails.length > 0) {
           const isBlocking = commandResult.worktreePollution?.blocking !== false;
-          const polluted = externalResult({
+          const polluted = attachDynamic(externalResult({
             status: isBlocking ? 'fail' : 'pass',
             summary: isBlocking
               ? 'Validation command dirtied the worktree'
@@ -1802,7 +1892,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             ] : [],
             headSha: currentHead(handlerGitCwd),
             commands: [commandResult],
-          });
+          }));
           const focusedPolluted = focus ? markFocusedResult(polluted, focus) : polluted;
           const decorated = decorateAndMaybePersistStoryValidation(ctx, args.story, focus, focusedPolluted, built?.identity, [commandResult], 1);
           const surfaced = reuse && built ? { ...decorated, reuse: { ...reuse, identityDigest: built.identity.digest } } : decorated;
@@ -1825,7 +1915,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
               ctx,
               args.story,
               focus,
-              focusedParsed,
+              attachDynamic(focusedParsed),
               built?.identity,
               [commandResult],
               1,
@@ -1839,7 +1929,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             headSha = execSync('git rev-parse --short HEAD', { cwd: handlerGitCwd, encoding: 'utf-8' }).trim();
           } catch { /* not git — graceful: headSha stays undefined */ }
 
-          const wrapped = markFocusedResult({
+          const wrapped = markFocusedResult(attachDynamic({
             provider: 'lattice-verifier',
             status: code === 0 ? 'pass' : 'fail',
             allPass: code === 0,
@@ -1850,7 +1940,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             headSha,
             commands: [commandResult],
             ...(code === 0 ? {} : { failureKind: commandResult.failureKind ?? 'validation_failure' }),
-          }, focus ?? '');
+          }), focus ?? '');
           const decorated = decorateAndMaybePersistStoryValidation(ctx, args.story, focus, wrapped, built?.identity, [commandResult], 1);
           return JSON.stringify(reuse && built ? { ...decorated, reuse: { ...reuse, identityDigest: built.identity.digest } } : decorated);
         }
@@ -1869,12 +1959,12 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             );
             const verificationPolicy = resolveStoryVerificationPolicy(ctx, args.story);
             const advisories = collectStoryFilesHashAdvisories(cl, handlerGitCwd, projectRoot);
-            return maybePrefixFocusedText(output + '\n' + renderVerificationCoverage(coverage, verificationPolicy) + (advisories.length > 0 ? `\n${advisories.join('\n')}` : '') + (code !== 0 || coverage.missingRequired > 0 ? `\n(exit code: ${code || 1})` : ''), focus);
+            return maybePrefixFocusedText((dynamicValidation?.report ? `${dynamicValidation.report}\n` : '') + output + '\n' + renderVerificationCoverage(coverage, verificationPolicy) + (advisories.length > 0 ? `\n${advisories.join('\n')}` : '') + (code !== 0 || coverage.missingRequired > 0 ? `\n(exit code: ${code || 1})` : ''), focus);
           } catch {
             // If story metadata cannot be read, fall back to raw verifier output.
           }
         }
-        return maybePrefixFocusedText(output + (code !== 0 ? `\n(exit code: ${code})` : ''), focus);
+        return maybePrefixFocusedText((dynamicValidation?.report ? `${dynamicValidation.report}\n` : '') + output + (code !== 0 ? `\n(exit code: ${code})` : ''), focus);
       };
       return await runValidateFileAndRender();
       });

@@ -108,7 +108,11 @@ function waveZeroCommand(catalog: ValidationCatalogEntry[]): string | undefined 
   );
   // A dynamic source-first receipt is not safe without an explicit build
   // proof. An arbitrary first test must never be promoted to Wave-0.
-  return build?.id;
+  // A validate.ts/js/mts project may expose one authoritative command rather
+  // than a separately named build row.  In that bounded one-command inventory
+  // the command itself is the Wave-0 source-first proof; multi-command plans
+  // still fail closed until an explicit build row is declared.
+  return build?.id || (catalog.length === 1 ? catalog[0]?.id : undefined);
 }
 
 function initialLedger(args: PrepareStoryAwareValidationArgs): ReceiptRevocationLedger {
