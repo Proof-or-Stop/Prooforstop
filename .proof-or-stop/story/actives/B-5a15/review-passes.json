@@ -469,6 +469,43 @@
         "scanEscalationReason": "Coverage review inspected the canonical verifier-owned acceptance chain, live proof, signed rollout receipt, and all 50 current mechanical verification rows."
       },
       "_hash": "fabade558c04dfa9b694ada7f352e95fa0802a5514f019a5caafe0c750d77d5d"
+    },
+    {
+      "id": "B-5a15:RP-012",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage review passed: all 50 verification intents have concrete non-failing evidence with zero must-gaps and zero waivers; current topology, pre-review, rollout, full 3-round x 2-host, mutation, freshness, enforce, and rollback evidence is admissible at the reviewed material and story-files hashes.",
+      "createdAt": "2026-08-21T04:35:09.713Z",
+      "reviewRound": "2026-08-21T04:24:04.969Z",
+      "reviewRunId": "B-5a15:RR-083",
+      "envelopeId": "44a11cc087b22f2ceea962eb031fa77cdebdb0da53433d310e609c481223dec6",
+      "writerSessionId": "sess-1ff81192c8f5688bf40ac6afd86a20f7",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": "The two U-03 source decision documents named by the checklist are absent at this HEAD; the available hardening and material-drift decisions were read fully, while the missing paths were triaged by name and the committed story plan supplied the scoped requirements."
+      },
+      "_hash": "beb67f1100b88555b2dbe7e8073fabe3f5a667a60335ef0ae09b3baeb5a7bb9a"
     }
   ]
 }
