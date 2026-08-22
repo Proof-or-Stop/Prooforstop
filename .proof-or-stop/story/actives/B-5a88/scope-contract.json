@@ -906,10 +906,28 @@
         "review_inventory_certification",
         "canonical_reviewer_identity_migration"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "These two verifier and packaging paths are part of the story-wide proof-or-stop identity migration and are required to keep generated review guidance and shipped desktop metadata canonical.",
+      "timestamp": "2026-08-22T05:26:15.097Z",
+      "paths": [
+        "packages/main/src/tasks/story-review-ergonomics-smoke.ts",
+        "scripts/package-desktop.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/story-review-ergonomics-smoke.ts",
+        "scripts/package-desktop.mjs"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "793d02e629a46124110a3c3c0b470ad8d95526d3",
+      "materialHash": "a883261785bc024d6209525b43bc89374a323206a9318a57c96e49180c7ea0be"
     }
   ],
   "createdAt": "2026-08-20T05:20:00.402Z",
-  "updatedAt": "2026-08-21T23:05:36.329Z",
+  "updatedAt": "2026-08-22T05:26:15.097Z",
   "fileRules": [],
   "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
@@ -1126,6 +1144,8 @@
     "packages/main/src/core/review-incremental-context.ts": "packages/main/src/core/review-incremental-context.ts",
     "packages/main/src/core/review-inventory-epoch.ts": "packages/main/src/core/review-inventory-epoch.ts",
     "packages/main/src/handlers/review-inventory.ts": "packages/main/src/handlers/review-inventory.ts",
-    "packages/main/src/tasks/review-inventory-handler-smoke.ts": "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+    "packages/main/src/tasks/review-inventory-handler-smoke.ts": "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+    "packages/main/src/tasks/story-review-ergonomics-smoke.ts": "packages/main/src/tasks/story-review-ergonomics-smoke.ts",
+    "scripts/package-desktop.mjs": "scripts/package-desktop.mjs"
   }
 }

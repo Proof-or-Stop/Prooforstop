@@ -9431,6 +9431,730 @@
       ],
       "signatureTag": "missing|json|current-coverage-admissible",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-249",
+      "desc": "packages/main/src/handlers/review-inventory.ts:493-496 — B-5a88:RI-022 cannot receive a completeness receipt because the current acceptance_basis is not evidentiary: acceptance_basis --storyId=B-5a88 --json reports status=invalid, evidentiary=false, receiptVerification.code=AT_SCOPE_BINDING_MISSING with semantic discovery, scope-contract, closure-hash, snapshot-seal, and story-owned freshness mismatches. The same inventory status reports all required lanes pending, so the topology critic must not certify closure or invent finding dispositions.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-topology-critic",
+      "createdAt": "2026-08-22T00:22:22.313Z",
+      "reviewRound": "2026-08-21T23:08:44.617Z",
+      "reviewRunId": "B-5a88:RR-303",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "b8ee124e30ee9ea4334a2caabaf2103ccae071ca45d7c33dd431d4e2aa3bf473"
+      },
+      "readDiagnostics": [],
+      "_hash": "8dcac90af8fd16f5bf0592f02e3268a9aef8e3b98c54a484ae15b77c1172be6c",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+        "packages/main/src/handlers/review-inventory.ts",
+        "packages/main/src/core/review-inventory-epoch.ts"
+      ],
+      "signatureTag": "missing|json|packages-main-handlers",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-250",
+      "desc": "acceptance-basis.json:1127-1151, pre-review-check.json:1402, acceptance-rollout-report.json:3584-3615, test-evidence.json:7-9 — Wave-4 acceptance coverage is not admissible for current HEAD 4f4802963e9d88e42b7beed3e54a1375b490e669: acceptance_topology_check returns fail with AT_CLOSURE_FILES_STALE and AT_SCOPE_BINDING_MISSING; pre_review_check_read returns fail/inadmissible with PR_ARTIFACT_TAMPERED, PR_POSITIVE_EVIDENCE_MISSING, PR_PRODUCTION_PATH_UNPROVEN, PR_MUTATION_EVIDENCE_MISSING, PR_MUTATION_DID_NOT_BITE, PR_CONTROL_NOT_RESTORED, PR_TRANSCRIPT_MISSING, PR_AUTHORITY_INADMISSIBLE, PR_EVIDENCE_STALE, and PR_CUTOFF_UNBOUND; acceptance_rollout_report_read returns AR_REPORT_STALE and acceptance_rollout_check is enforce-blocking. The current test-evidence artifact is FAIL with verification coverage missing 21 required intents, and the 21 checklist evidence records are bound to stale hashes rather than current material ac4142be4f8709b41b4a0ff51816ead95c251c18b7bf261c8178ece2d871c193 and storyFiles a6d9e50cfcfd4f1c28c2a337364d22244cfaa3f580bb8d91bfb5fcd29247ffa9; the records therefore cannot prove current verificationIntent coverage or the required 3-round x 2-host acceptance receipt.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-22T00:22:25.310Z",
+      "reviewRound": "2026-08-21T23:08:44.617Z",
+      "reviewRunId": "B-5a88:RR-302",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a88/test-evidence.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "1d66418879ce7710623cdbc46bab4805e76d97ffc8a8b7964448462912f8a483",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+        ".proof-or-stop/story/actives/B-5a88/test-evidence.json",
+        ".proof-or-stop/story/actives/B-5a88/checklist.json"
+      ],
+      "signatureTag": "missing|json|acceptance-basis-json",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-251",
+      "desc": "concept-cleanup: packages/main/src/core/process-fact-registry.ts:285 and :291 still set reviewerLane to lattice-review-topology-critic for review_inventory_critic_set and review_inventory_wave_advance. These are active PROCESS_FACT_ARTIFACT_BY_COMMAND records consumed by the process-fact registry, not explicit legacy-read aliases; the same registry canonical reviewer-lane definition at :877-881 and the repaired REVIEW dispatch at packages/main/src/handlers/story-dispatch.ts:526-527 use proof-or-stop-review-topology-critic. The migration therefore still exposes the retired role in active process facts; replace both values with proof-or-stop-review-topology-critic and retain lattice only in the explicit compatibility map.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-22T00:22:30.070Z",
+      "reviewRound": "2026-08-21T23:08:44.617Z",
+      "reviewRunId": "B-5a88:RR-301",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "scripts/verify-lattice-residue.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "scanEscalationReason": "Repository-wide rg concept scan covered active source, scripts, templates, docs, and tests; decision documents were triaged by name and the affected process-fact and dispatch paths were read fully."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "ac1045f247e55200ce3062222f80b832059f70bf0e43507db586a30a23a2befd"
+      },
+      "readDiagnostics": [],
+      "_hash": "5940cd35da4d6615aabb9981daadc674feb43e4e49e15ef1be105a7749689287",
+      "files": [
+        "packages/main/src/core/process-fact-registry.ts",
+        "packages/main/src/handlers/story-dispatch.ts",
+        "packages/main/src/core/agent-role-identity.ts"
+      ],
+      "signatureTag": "missing|ts|concept-cleanup-packages",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-252",
+      "desc": "scripts/verify-process-fact-contract.mjs:4354 still requires the pre-migration literal args.lane === lattice-review-topology-critic, but review-run.ts:598-601 now canonicalizes args.lane and checks canonicalLane === proof-or-stop-review-topology-critic. As a result node scripts/verify-process-fact-contract.mjs --quiet exits 1 with ReviewRun verification must consume the topology critic dispatch target kind; update the verifier to assert the canonical implementation so the mandatory process-fact gate can pass.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-08-22T00:23:53.888Z",
+      "reviewRound": "2026-08-21T23:08:44.617Z",
+      "reviewRunId": "B-5a88:RR-300",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": null
+        },
+        "digest": "1a2397b6da691257fddf43c57d6da5348c0d5f83f075b006edf6e3d6a5bd2276"
+      },
+      "readDiagnostics": [],
+      "_hash": "95899bd63f09f66e8c0aedb691f23817efd1dfda51324525997db2c8486d9a7b",
+      "files": [
+        "scripts/verify-process-fact-contract.mjs",
+        "packages/main/src/core/review-run.ts"
+      ],
+      "signatureTag": "missing|mjs|scripts-verify-process",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-253",
+      "desc": "packages/main/src/handlers/review-inventory.ts:493-496 — B-5a88:RI-022 cannot receive a completeness receipt because the current acceptance_basis is not evidentiary: acceptance_basis --storyId=B-5a88 --json reports status=invalid, evidentiary=false, receiptVerification.code=AT_SCOPE_BINDING_MISSING with semantic discovery, scope-contract, closure-hash, snapshot-seal, and story-owned freshness mismatches. The same inventory status reports all required lanes pending, so the topology critic must not certify closure or invent finding dispositions.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-topology-critic",
+      "createdAt": "2026-08-22T00:23:55.872Z",
+      "reviewRound": "2026-08-21T23:08:44.617Z",
+      "reviewRunId": "B-5a88:RR-304",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "b8ee124e30ee9ea4334a2caabaf2103ccae071ca45d7c33dd431d4e2aa3bf473"
+      },
+      "readDiagnostics": [],
+      "_hash": "be17be1aed6018ec62b60e1834caa63d74aec5b96910aff1ed228adea99393b1",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+        "packages/main/src/handlers/review-inventory.ts",
+        "packages/main/src/core/review-inventory-epoch.ts"
+      ],
+      "signatureTag": "missing|json|packages-main-handlers",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-254",
+      "desc": "docs/requirements/baselines/proof-or-stop-prompt-baseline.json:65-66 and scripts/verify-proof-or-stop-prompt-baseline.mjs:139-146 leave the approved topology-critic prompt hash inconsistent with the verifier after the role rename. On current HEAD, node scripts/verify-proof-or-stop-prompt-baseline.mjs exits 1: the approved hash is 7db4368e..., while the verifier computes 2300cde0... after legacyizing the collected proof-or-stop-review-topology-critic body (the historical topology body hash is 2300cde0... in packages/main/src/core/prompt-registry.ts:99). Reconcile the approved manifest/legacy projection so the mandatory prompt-baseline gate can collect and verify the migrated topology-critic prompt.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-08-22T00:24:24.439Z",
+      "reviewRound": "2026-08-21T23:08:44.617Z",
+      "reviewRunId": "B-5a88:RR-300",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/proof-or-stop-review-topology-critic.md",
+          ".proof-or-stop-codex/agents/proof-or-stop-review-topology-critic.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/templates/agents/proof-or-stop-review-topology-critic.md",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "320629a93e586f16ad1f10fa01cf4b687a22d9d6d5ffad0e10192e04d64fea8d"
+      },
+      "readDiagnostics": [],
+      "_hash": "5b5371797036a1f92187873747d7307fb9555324c9701ca9c64b5eb0ab0fe03c",
+      "files": [
+        "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+        "packages/main/src/core/prompt-registry.ts"
+      ],
+      "signatureTag": "missing|json|docs-requirements-baselines",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-255",
+      "desc": "packages/main/src/handlers/review-inventory.ts:493-496 — B-5a88:RI-022 cannot receive a completeness receipt because the current acceptance_basis is not evidentiary: acceptance_basis --storyId=B-5a88 --json reports status=invalid, evidentiary=false, receiptVerification.code=AT_SCOPE_BINDING_MISSING with semantic discovery, scope-contract, closure-hash, snapshot-seal, and story-owned freshness mismatches. The same inventory status reports all required lanes pending, so the topology critic must not certify closure or invent finding dispositions.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-topology-critic",
+      "createdAt": "2026-08-22T00:24:57.736Z",
+      "reviewRound": "2026-08-21T23:08:44.617Z",
+      "reviewRunId": "B-5a88:RR-305",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "b8ee124e30ee9ea4334a2caabaf2103ccae071ca45d7c33dd431d4e2aa3bf473"
+      },
+      "readDiagnostics": [],
+      "_hash": "d5f5560fbfe40b8e1d5dbf00df7e8be8f73717be3dec970cba1fdc21912e9eef",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+        "packages/main/src/handlers/review-inventory.ts",
+        "packages/main/src/core/review-inventory-epoch.ts"
+      ],
+      "signatureTag": "missing|json|packages-main-handlers",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-256",
+      "desc": "acceptance-basis.json:1127-1151, pre-review-check.json:1402, acceptance-rollout-report.json:3584-3615, test-evidence.json:7-9 — Wave-4 acceptance coverage is not admissible for current HEAD 4f4802963e9d88e42b7beed3e54a1375b490e669: acceptance_topology_check returns fail with AT_CLOSURE_FILES_STALE and AT_SCOPE_BINDING_MISSING; pre_review_check_read returns fail/inadmissible with PR_ARTIFACT_TAMPERED, PR_POSITIVE_EVIDENCE_MISSING, PR_PRODUCTION_PATH_UNPROVEN, PR_MUTATION_EVIDENCE_MISSING, PR_MUTATION_DID_NOT_BITE, PR_CONTROL_NOT_RESTORED, PR_TRANSCRIPT_MISSING, PR_AUTHORITY_INADMISSIBLE, PR_EVIDENCE_STALE, and PR_CUTOFF_UNBOUND; acceptance_rollout_report_read returns stale and acceptance_rollout_check is enforce-blocking. The current test-evidence artifact is FAIL with verification coverage missing 21 required intents, so these records cannot prove current verificationIntent coverage or the required full-3x2 acceptance receipt.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-08-22T00:34:09.740Z",
+      "reviewRound": "2026-08-21T23:08:44.617Z",
+      "reviewRunId": "B-5a88:RR-308",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/proof-or-stop-review-topology-critic.md",
+          ".proof-or-stop-codex/agents/proof-or-stop-review-topology-critic.md",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/review-run.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a88/test-evidence.json",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "36e0d085397897867eec76b1b63e7bc64abeac956cf6b8829de3a78acb022e8e"
+      },
+      "readDiagnostics": [],
+      "_hash": "15fc71e55afe7a9187c3af93a856ca6e1ad82ad5277e6d15e6fa1fc63af9d016",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+        ".proof-or-stop/story/actives/B-5a88/test-evidence.json"
+      ],
+      "signatureTag": "missing|json|acceptance-basis-json",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-257",
+      "desc": "packages/main/src/core/process-fact-registry.ts:285,291 — active PROCESS_FACT_ARTIFACT_BY_COMMAND records for review_inventory_critic_set and review_inventory_wave_advance still set reviewerLane to lattice-review-topology-critic. These are consumed process facts, not explicit compatibility aliases; the canonical lane definition and REVIEW dispatch use proof-or-stop-review-topology-critic, so new machine-readable process facts still expose the retired role. Replace both values with proof-or-stop-review-topology-critic and retain lattice only in the explicit compatibility map.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-08-22T00:34:13.186Z",
+      "reviewRound": "2026-08-21T23:08:44.617Z",
+      "reviewRunId": "B-5a88:RR-308",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/proof-or-stop-review-topology-critic.md",
+          ".proof-or-stop-codex/agents/proof-or-stop-review-topology-critic.md",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/review-run.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a88/test-evidence.json",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "36e0d085397897867eec76b1b63e7bc64abeac956cf6b8829de3a78acb022e8e"
+      },
+      "readDiagnostics": [],
+      "_hash": "c1c663df3dbf02b26377bd84b0296926bbe863de7c8c49771822d7b30c2a50d9",
+      "files": [
+        "packages/main/src/core/process-fact-registry.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-core",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-258",
+      "desc": "scripts/verify-process-fact-contract.mjs:4354 — the verifier still requires args.lane === lattice-review-topology-critic, but packages/main/src/core/review-run.ts:598-601 canonicalizes args.lane and checks canonicalLane === proof-or-stop-review-topology-critic. node scripts/verify-process-fact-contract.mjs --quiet exits 1 with ReviewRun verification must consume the topology critic dispatch target kind; update the verifier to assert the canonical implementation so the mandatory process-fact gate can pass.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-08-22T00:34:16.625Z",
+      "reviewRound": "2026-08-21T23:08:44.617Z",
+      "reviewRunId": "B-5a88:RR-308",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/proof-or-stop-review-topology-critic.md",
+          ".proof-or-stop-codex/agents/proof-or-stop-review-topology-critic.md",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/review-run.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a88/test-evidence.json",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "36e0d085397897867eec76b1b63e7bc64abeac956cf6b8829de3a78acb022e8e"
+      },
+      "readDiagnostics": [],
+      "_hash": "cdc16149ace7d40b949e031a115fdf47399f3baa98a67bdbcc45259dba99591b",
+      "files": [
+        "scripts/verify-process-fact-contract.mjs",
+        "packages/main/src/core/review-run.ts"
+      ],
+      "signatureTag": "missing|mjs|scripts-verify-process",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-259",
+      "desc": "docs/requirements/baselines/proof-or-stop-prompt-baseline.json:65-66 and scripts/verify-proof-or-stop-prompt-baseline.mjs:139-146 — the approved topology-critic prompt hash remains 7db4368e..., while the verifier's legacy projection computes 2300cde0... from the current migrated prompt registry. node scripts/verify-proof-or-stop-prompt-baseline.mjs exits 1 before collection, so the mandatory prompt-baseline gate cannot validate the migrated topology-critic prompt; reconcile the approved manifest with the verifier's canonical/legacy projection.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-08-22T00:34:20.184Z",
+      "reviewRound": "2026-08-21T23:08:44.617Z",
+      "reviewRunId": "B-5a88:RR-308",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/proof-or-stop-review-topology-critic.md",
+          ".proof-or-stop-codex/agents/proof-or-stop-review-topology-critic.md",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/review-run.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a88/test-evidence.json",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "36e0d085397897867eec76b1b63e7bc64abeac956cf6b8829de3a78acb022e8e"
+      },
+      "readDiagnostics": [],
+      "_hash": "dcf24b486824cd563a9a14d755a3f88f4d9497bd716ccf4a2fa9776b20cab91f",
+      "files": [
+        "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+        "packages/main/src/core/prompt-registry.ts"
+      ],
+      "signatureTag": "missing|json|docs-requirements-baselines",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-260",
+      "desc": "concept-cleanup recheck of verified family F-251: packages/main/src/core/process-fact-registry.ts:285 and :291 still set reviewerLane to lattice-review-topology-critic for review_inventory_critic_set and review_inventory_wave_advance. These are active PROCESS_FACT_ARTIFACT_BY_COMMAND records consumed by the process-fact registry, not explicit legacy-read aliases; the canonical reviewer-lane definition and current REVIEW dispatch use proof-or-stop-review-topology-critic. The migration still exposes the retired role in active process facts; replace both values with proof-or-stop-review-topology-critic and retain lattice only in the explicit compatibility map.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-22T00:34:26.295Z",
+      "reviewRound": "2026-08-21T23:08:44.617Z",
+      "reviewRunId": "B-5a88:RR-306",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/story-dispatch.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "scanEscalationReason": "Repository-wide active concept scan covered source, scripts, templates, package metadata, hooks, and docs; historical evidence and generated dist were excluded."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "ac1045f247e55200ce3062222f80b832059f70bf0e43507db586a30a23a2befd"
+      },
+      "readDiagnostics": [],
+      "_hash": "b0ae2b794b3c65ffd67486c763847f931bb350b7f35f41603d29843397d63a93",
+      "signatureTag": "missing|unknown|concept-cleanup-recheck",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-261",
+      "desc": "Current RI-022 topology evidence is not admissible: acceptance_basis reports AT_SCOPE_BINDING_MISSING with semantic discovery, scope-contract, closure, snapshot-seal, and storyFilesHash freshness mismatches; pre_review_check_read reports PR_ARTIFACT_TAMPERED and stale/missing executable proof; acceptance_topology_check fails structural validation; acceptance_rollout_report_read reports AR_REPORT_STALE. The topology critic cannot certify the current basis, closure, or rollout.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-topology-critic",
+      "createdAt": "2026-08-22T00:48:31.556Z",
+      "reviewRound": "2026-08-21T23:08:44.617Z",
+      "reviewRunId": "B-5a88:RR-309",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "40bc89bdcefd8cb2f1021406becc155aaf6b67cf1914689c6b7475ffed44ad63",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+        ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json"
+      ],
+      "signatureTag": "ri-022-topology-basis-not-admissible",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-262",
+      "desc": "acceptance-basis.json:1127-1151, pre-review-check.json:1402, and acceptance-rollout-report.json:3584-36xx — RI-022 wave 3 quality recheck still has a live acceptance-evidence freshness/binding failure: acceptance_basis reports AT_SCOPE_BINDING_MISSING (semantic discovery, scope-contract, closure-file, snapshot-seal, and storyFilesHash freshness mismatches); pre_review_check_read reports PR_ARTIFACT_TAMPERED, PR_EVIDENCE_STALE, PR_CUTOFF_UNBOUND, and missing executable/mutation/transcript evidence; acceptance_rollout_report_read and acceptance_rollout_check both report AR_REPORT_STALE. This is current CLI evidence for the existing verified F-250/F-256 family, so the quality lane cannot truthfully pass this round.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-08-22T00:55:17.739Z",
+      "reviewRound": "2026-08-21T23:08:44.617Z",
+      "reviewRunId": "B-5a88:RR-312",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a88/test-evidence.json"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/review-run.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "954616403dd11e9eb01e3bfdbe74b43c245bd2145fcfb5f09cd9179da942b819"
+      },
+      "readDiagnostics": [],
+      "_hash": "cb277ba534e94639796d02bc088fa4f24259f497f1ce9659a0e734fa266481d3",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+        ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+        ".proof-or-stop/story/actives/B-5a88/test-evidence.json",
+        ".proof-or-stop/story/actives/B-5a88/checklist.json"
+      ],
+      "signatureTag": "missing|json|acceptance-basis-json",
+      "signatureTagSource": "auto"
     }
   ]
 }
