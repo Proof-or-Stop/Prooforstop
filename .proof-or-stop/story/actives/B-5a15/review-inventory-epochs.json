@@ -1446,6 +1446,34 @@
       "consumedAt": "2026-08-22T05:34:48.697Z",
       "consumedByReviewRound": "2026-08-21T20:31:33.599Z",
       "_hash": "203d9249e8ac496daed2f965e371decbb2819a173a4433ce7f13dd31840f5a17"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-5a15:RI-013",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-22T06:10:03.014Z",
+      "state": "CANCELLED",
+      "begunAt": "2026-08-22T06:24:15.733Z",
+      "updatedAt": "2026-08-22T06:26:20.075Z",
+      "cutoff": {
+        "headHash": "0e945fd0d8866b138ec99afee1c8175dc2170dde",
+        "materialHash": "9ef9d9e58737da562ae603f38a4ea393a304c5faf2f9affdeefcc0287d3c24e6",
+        "storyFilesHash": "e287c5f32d9aad03e0ce7ea8b20a2684ab0ac2e78ef99c6fc5b18e9b8e9c97e7"
+      },
+      "scopeDigest": "75d069e6db3754e67391b9d49cf4b747744dee0384b33b39c1c80302e325e714",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage"
+      ],
+      "initialRunSequenceBoundary": 225,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [],
+      "cancelledAt": "2026-08-22T06:26:20.075Z",
+      "cancelReason": "Stale quality review run predates the uncommitted REVIEW transition; cancel incomplete recovery epoch without claiming inventory completeness.",
+      "terminalRunSequenceBoundary": 225,
+      "_hash": "df13246c15cc093c7177f0a1343d60f339144a5571239841a0b70b5f5a263c66"
     }
   ],
   "receipts": [
