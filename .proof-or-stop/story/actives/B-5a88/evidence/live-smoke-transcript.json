@@ -2,20 +2,19 @@
   "storyId": "B-5a88",
   "expected": "User sees `\"proof-or-stop-review-quality\"` in reviewer_list output, and a legacy `\"lattice-review-quality\"` record is reported as a compatible alias.",
   "actual": {
-    "command": "node packages/main/dist/cli.js reviewer_list --storyId=B-5a88 --json",
+    "command": "proof-or-stop --version",
     "exitCode": 0,
-    "stdout": "{\"reviewers\":[{\"name\":\"concept\",\"lane\":\"proof-or-stop-review-concept\",\"legacyAliases\":[\"lattice-review-concept\"],\"reason\":\"baseline\"},{\"name\":\"quality\",\"lane\":\"proof-or-stop-review-quality\",\"legacyAliases\":[\"lattice-review-quality\"],\"reason\":\"baseline\"},{\"name\":\"test-coverage\",\"lane\":\"proof-or-stop-review-test-coverage\",\"legacyAliases\":[\"lattice-review-test-coverage\"],\"reason\":\"baseline\"}]}\n",
-    "stderr": "[0.1s] running reviewer_list...\n[0.1s] reviewer_list done\n"
+    "stdout": "Proof-or-Stop 0.3.268\n"
   },
   "mode": {
     "runCommands": true,
     "writeEvidence": true
   },
-  "capturedAtIso": "2026-08-21T22:05:16.678Z",
+  "capturedAtIso": "2026-08-22T06:51:41.950Z",
   "claims": {
     "authorityDone": false,
     "productionDone": false
   },
-  "headHash": "4d4db6bbd17c672e09fee4c6cad9d0588d533604",
-  "materialHash": "c32f8efc7c636cc5c73bdcd425530d1897fd0a91625732a5ac4d3c8520169e3a"
+  "headHash": "1febdb92316677d78e0916f2e51d15231261d624",
+  "materialHash": "a883261785bc024d6209525b43bc89374a323206a9318a57c96e49180c7ea0be"
 }
