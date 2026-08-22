@@ -2976,6 +2976,48 @@
       ],
       "createdAt": "2026-08-22T07:24:30.930Z",
       "_hash": "d74c9f72ab5f772635afcd754ad11e2a5fbc2fa01a8c7b0d06d5ec3d27f51a97"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-5a15:RI-014:CRIT-03",
+      "epochId": "B-5a15:RI-014",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-22T06:10:03.014Z",
+      "wave": 3,
+      "cutoff": {
+        "headHash": "31499b88f78d178cb86cc22fdb44e25dcff34176",
+        "materialHash": "9ef9d9e58737da562ae603f38a4ea393a304c5faf2f9affdeefcc0287d3c24e6",
+        "storyFilesHash": "e287c5f32d9aad03e0ce7ea8b20a2684ab0ac2e78ef99c6fc5b18e9b8e9c97e7"
+      },
+      "aggregateFindingSetDigest": "96a0604dfcee691c6a096c3b04c500afcaeef2e96cbc097682d8b125f995b7b2",
+      "requiredLaneCoverageDigest": "edbd7a82f4b9802ac7734c42ed36f6d3024ad23cc5f63896011d6de64f18c2ae",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-5a15:RR-248",
+      "terminalEvidenceIds": [
+        "B-5a15:RP-032"
+      ],
+      "readEvidenceDigest": "165b3278c10f16605f311d15968535d752f8da7c569ef4d6e89b1d205c695282",
+      "findingDispositions": [
+        {
+          "findingId": "B-5a15:F-159",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a15:F-155",
+          "reason": "Rechecked the current RI-014 Wave 3 evidence: CHK-003:happy:2 remains uncovered at the cited causal-evidence test boundary, matching the existing F-155 test-coverage family."
+        },
+        {
+          "findingId": "B-5a15:F-160",
+          "disposition": "verified_family",
+          "familyKey": "ri-014-verifier-acceptance-coverage-boundary",
+          "reason": "Current acceptance_topology_check and pre_review_check_read both remain inconclusive: the basis is partial with AT_UNMAPPED_SCOPE_REF, and executable/admissible positive, production-path, mutation, transcript, and authority evidence are absent or stale. This is a distinct verifier-acceptance coverage boundary, not a duplicate of the narrower F-155 family."
+        },
+        {
+          "findingId": "B-5a15:F-161",
+          "disposition": "not_verified",
+          "reason": "The causalCanonical input-collision behavior is a valid quality-lane concern, but it is outside this critic’s topology/completeness closure scope; no topology family is asserted for it here."
+        }
+      ],
+      "createdAt": "2026-08-22T07:57:35.154Z",
+      "_hash": "2f21b0cca444bbd27ed90e16ff70864af441a798fb736784d960f2c72cc6f8fd"
     }
   ]
 }

@@ -1274,6 +1274,66 @@
         "scanEscalationReason": null
       },
       "_hash": "c7152809a16cc150ec570ccb9b7129afd7b47da33418c959601f3d08cf76debf"
+    },
+    {
+      "id": "B-5a15:RP-031",
+      "agent": "lattice-review-topology-critic",
+      "note": "Completeness review found no additional raw finding beyond the current aggregate; topology receipt remains request_changes because the verifier basis is partial and unmapped.",
+      "createdAt": "2026-08-22T07:49:44.334Z",
+      "reviewRound": "2026-08-22T06:10:03.014Z",
+      "reviewRunId": "B-5a15:RR-247",
+      "envelopeId": "f2aa84ec723d9b852f0ac092abdea0d8c9b57a653e5791fc985c69e605e9cb3a",
+      "writerSessionId": "sess-311e9a7f009b31796279d49eb92ba9eb",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "45fab64ee2b4fe18573a0688c7e64971f7c4fc722ab351b136e3b0aeaaa35b0f"
+    },
+    {
+      "id": "B-5a15:RP-032",
+      "agent": "lattice-review-topology-critic",
+      "note": "Completeness review found no additional raw finding beyond the current aggregate; topology receipt remains request_changes because the verifier basis is partial and unmapped.",
+      "createdAt": "2026-08-22T07:57:20.054Z",
+      "reviewRound": "2026-08-22T06:10:03.014Z",
+      "reviewRunId": "B-5a15:RR-248",
+      "envelopeId": "07b79c908008a444a7596b342562c04629cd5cce0dd26d8cbc43dd57dfcb13b7",
+      "writerSessionId": "sess-311e9a7f009b31796279d49eb92ba9eb",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "2c35d084e1013a9cc32decad6f72c8f575751e9bd1dcf5b31592b1924b2af4c1"
     }
   ]
 }
