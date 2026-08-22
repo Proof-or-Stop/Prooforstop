@@ -7752,6 +7752,107 @@
       ],
       "signatureTag": "topology-critic-final-wave-current-admissibility",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a15:F-150",
+      "desc": "packages/main/src/handlers/checklist.ts:1566-1630 [high] Canonical causal import revalidates HEAD/material/storyFiles hashes and the receipt CAS index, but it does not compare the stamped preflight Git-index content digest or other preflight facts with the current probe. The current identity passed to importCausalEvidenceReceipt is rebuilt from receipt inputs and omits those facts, so a different but still ready index, lease, capability, or evidence target can pass import after command execution. This violates CHK-002 and CHK-004 atomic current-state revalidation and can bind canonical checklist evidence to a different transaction.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-22T06:27:13.193Z",
+      "reviewRound": "2026-08-22T06:10:03.014Z",
+      "reviewRunId": "B-5a15:RR-226",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "packages/main/src/core/causal-evidence.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/tests/causal-evidence.test.mjs",
+          "packages/main/tests/verifier-causal-preflight.test.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "203f65df39eab0f6ddcc7917f87981347437c5f72a9660b1b0823e8bb7fd2ad8",
+      "files": [
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/core/causal-evidence.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-handlers",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-151",
+      "desc": "doc-promise-undelivered: packages/main/src/handlers/certification-window.ts:82-107 [high] Production certification constructs the CausalDependencyDecision with nodes: [] and currentInputHashes: {}, so none of the declared source, test, build-input, manifest-semantic, integration, or review-subject dependency nodes enter the certification decision or affected closure. The causal evaluator and tests support those domains, but the real CertificationWindow gate cannot invalidate affected domains or require their reruns; it can only compare aggregate hashes. CHK-003 precise domain invalidation is therefore not delivered in the production gate.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-22T06:27:34.597Z",
+      "reviewRound": "2026-08-22T06:10:03.014Z",
+      "reviewRunId": "B-5a15:RR-226",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/handlers/certification-window.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/tests/causal-evidence.test.mjs",
+          "packages/main/tests/verifier-causal-preflight.test.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "60975f34f99379e772f359c6e9d49d21a11e0bc26f2f32924f2a720aa1479fb9",
+      "files": [
+        "packages/main/src/handlers/certification-window.ts",
+        "packages/main/src/core/evidence-freshness.ts",
+        "packages/main/src/core/causal-evidence.ts"
+      ],
+      "signatureTag": "missing|ts|promise-undelivered-packages",
+      "signatureTagSource": "auto"
     }
   ]
 }
