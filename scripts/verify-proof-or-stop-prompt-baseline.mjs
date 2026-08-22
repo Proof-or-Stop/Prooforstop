@@ -137,7 +137,7 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'proof-or-stop-review-topology-critic',
-    templateHash: '7db4368e21a0a2250ef7f8a7feee6b04fb85bfd518f72e8c188336ac90f80b35',
+    templateHash: '2300cde0d2c95e9ec8af14bf96ee7d9e58f962bdbd0bc7704279e457fac90224',
   },
   {
     role: 'proof-or-stop-product-reviewer',

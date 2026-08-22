@@ -4351,7 +4351,7 @@ function assertReviewInventoryRemediationContract() {
   const reviewRunPath = 'packages/main/src/core/review-run.ts';
   const reviewRunText = read(reviewRunPath);
   assert(
-    /args\.lane\s*===\s*'lattice-review-topology-critic'\s*\?\s*'topology-critic-review'\s*:\s*'story-review'/.test(reviewRunText),
+    /canonicalLane\s*===\s*'proof-or-stop-review-topology-critic'\s*\?\s*'topology-critic-review'\s*:\s*'story-review'/.test(reviewRunText),
     `${reviewRunPath}: ReviewRun verification must consume the topology critic dispatch target kind`,
   );
 

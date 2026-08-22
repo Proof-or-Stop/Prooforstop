@@ -282,13 +282,13 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     name: 'review-inventory-epochs.json', path: 'review-inventory-epochs.json', signed: true,
     signature: 'signReviewInventoryCriticReceipt/verifyReviewInventoryCriticReceipt with fresh topology-critic ReviewRun, terminal read evidence, and complete per-finding dispositions', producerCommand: 'review_inventory_critic_set',
     consumerGate: 'review_inventory_finalize current-wave independent completeness critic gate',
-    reviewerLane: 'lattice-review-topology-critic',
+    reviewerLane: 'proof-or-stop-review-topology-critic',
   },
   review_inventory_wave_advance: {
     name: 'review-inventory-epochs.json', path: 'review-inventory-epochs.json', signed: true,
     signature: 'signReviewInventoryEpoch/verifyReviewInventoryEpoch after validated current-wave critic receipt and nonzero new families; nextRunSequenceBoundary seals every lower/equal ReviewRun independent of timestamp equality', producerCommand: 'review_inventory_wave_advance',
     consumerGate: 'review_inventory_finalize zero-new saturation gate and reviewer terminal admission boundary',
-    reviewerLane: 'lattice-review-topology-critic',
+    reviewerLane: 'proof-or-stop-review-topology-critic',
   },
   review_inventory_finalize: {
     name: 'review-inventory-epochs.json',
