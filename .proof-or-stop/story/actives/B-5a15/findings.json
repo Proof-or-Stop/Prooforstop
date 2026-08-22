@@ -8453,6 +8453,114 @@
       ],
       "signatureTag": "adversarial|ts|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-162",
+      "desc": "CHK-003:happy:2 lacks valid executable coverage at packages/main/tests/causal-evidence.test.mjs:947-978 [high]. The only evaluateCertificationWindowAdmit call passes the partial stale causal decision and asserts pre_cert_causal_freshness_required; the test never passes the identity-bound advisory decision for an unrelated whole-tree merge, nor exercises the production certification-window handler. The emitted marker therefore claims CertificationWindow consumption/admission but proves only stale rejection, leaving the positive unrelated-advisory acceptance and related-freshness boundary unverified in the current evidence.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-22T08:06:58.255Z",
+      "reviewRound": "2026-08-22T06:10:03.014Z",
+      "reviewRunId": "B-5a15:RR-250",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": 18000
+        },
+        "digest": "693eb054440297317e856dd9565e416d1c4a24505636ea479ae527d548330f07"
+      },
+      "readDiagnostics": [],
+      "_hash": "35cb917bbbfb563c53cbd82911263be38e4f7f411524f77e8d21a7d45383cef8",
+      "files": [
+        "packages/main/tests/causal-evidence.test.mjs",
+        "packages/main/src/core/certification-window.ts",
+        "packages/main/src/handlers/certification-window.ts"
+      ],
+      "signatureTag": "missing|mjs|happy-lacks-valid",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-163",
+      "desc": "Verifier-owned Wave 4 acceptance coverage is not executable or admissible at the current RI-015/RR-250 binding [high]. .proof-or-stop/story/actives/B-5a15/pre-review-check.json is status=inconclusive with executableProof.commandDigests=0 and evidenceRefs=0; acceptance-basis.json remains basis.status=partial; and acceptance-rollout-report.json reports pass but is bound to headHash=cfc8402e1f8224c227d507f968b488bb21ebb28 while RR-250 is bound to headHash=f44b975e1682e3c11332fc347b919e4bb41fc4d6. There is no current signed executable coverage for acceptance_topology_check, pre_review_check_read, acceptance_rollout_report_read, or acceptance_rollout_check, including the required full 3-round x 2-host receipt, degraded-3x1 rejection, threshold/membership/freshness mutations, mode-invariant diagnostics, enforce-only blocking, and non-destructive rollback history.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-22T08:09:25.717Z",
+      "reviewRound": "2026-08-22T06:10:03.014Z",
+      "reviewRunId": "B-5a15:RR-250",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": 18000
+        },
+        "digest": "693eb054440297317e856dd9565e416d1c4a24505636ea479ae527d548330f07"
+      },
+      "readDiagnostics": [],
+      "_hash": "8442e2ba92de1f67c8571cda16997b6a7a60ca3f2ef1560da82b0df314bed48c",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+        "packages/main/src/handlers/proofstory.ts",
+        "packages/main/src/core/acceptance-rollout.ts"
+      ],
+      "signatureTag": "missing|json|verifier-owned-wave",
+      "signatureTagSource": "auto"
     }
   ]
 }
