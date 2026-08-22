@@ -2290,6 +2290,88 @@
       ],
       "createdAt": "2026-08-21T20:17:01.724Z",
       "_hash": "5c6c06031f9806dbed205d97ea5ff04ef80c66b6ec8d7ead1bb93cc64eb336eb"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-5a15:RI-012:CRIT-01",
+      "epochId": "B-5a15:RI-012",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-21T20:31:33.599Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "4d39e0a8fc0703d94d634006890ed7a7921a7314",
+        "materialHash": "9e06be194ed72ece1eb7bbe786d16261d77350f46302de5879ac3aabaad783a3",
+        "storyFilesHash": "74670ac76231cb340f9c8858274f19008ae2cab9e25b9f783b3faefbda6bdfe5"
+      },
+      "aggregateFindingSetDigest": "f75784974a674318152e15021dee5d1915ee4e80d0867664feefe0a16c279428",
+      "requiredLaneCoverageDigest": "c3642b78fc1624fa21de91ec62084bc16d5b86d27def8d752e1e82fe130d4b40",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-5a15:RR-211",
+      "terminalEvidenceIds": [
+        "B-5a15:F-129"
+      ],
+      "readEvidenceDigest": "c0a685062d319d0bf152f4e6e99ae70d781fda374f9e2ccc1a065a2aa216da53",
+      "findingDispositions": [
+        {
+          "findingId": "B-5a15:F-120",
+          "disposition": "verified_family",
+          "familyKey": "verification-evidence-current-binding-stale",
+          "reason": "F-120 independently establishes that the 50 checklist verification rows are stale against the current review binding; this is a distinct evidence-freshness family, not merely a pre-review artifact status."
+        },
+        {
+          "findingId": "B-5a15:F-121",
+          "disposition": "verified_family",
+          "familyKey": "pre-review-verifier-proof-inconclusive",
+          "reason": "F-121 independently establishes that the verifier-owned pre-review artifact is inconclusive and non-admissible with current path/basis binding; this is the canonical pre-review proof family."
+        },
+        {
+          "findingId": "B-5a15:F-122",
+          "disposition": "verified_family",
+          "familyKey": "causal-consumer-production-wiring",
+          "reason": "F-122 independently establishes that the production certification-window handler does not produce or load the signed causal decision; this is a distinct producer-to-consumer closure family."
+        },
+        {
+          "findingId": "B-5a15:F-123",
+          "disposition": "verified_family",
+          "familyKey": "causal-advisory-frozen-snapshot-binding",
+          "reason": "F-123 independently reproduces a cross-snapshot advisory bypass in the certification window; the missing previous-binding equality is distinct from the production wiring gap."
+        },
+        {
+          "findingId": "B-5a15:F-124",
+          "disposition": "verified_family",
+          "familyKey": "review-coverage-current-admissibility",
+          "reason": "F-124 independently establishes that coverage review cannot pass because all 50 rows and the required pre-review proof are not admissibly current; it is retained as the aggregate coverage-admissibility family."
+        },
+        {
+          "findingId": "B-5a15:F-125",
+          "disposition": "duplicate",
+          "familyKey": "causal-consumer-production-wiring",
+          "canonicalFindingId": "B-5a15:F-122",
+          "reason": "F-125 reconfirms the same certification-window producer/loader omission as canonical F-122 and adds no distinct topology or closure defect."
+        },
+        {
+          "findingId": "B-5a15:F-126",
+          "disposition": "duplicate",
+          "familyKey": "causal-advisory-frozen-snapshot-binding",
+          "canonicalFindingId": "B-5a15:F-123",
+          "reason": "F-126 reconfirms the same previous-binding cross-snapshot advisory bypass as canonical F-123 and adds no distinct family."
+        },
+        {
+          "findingId": "B-5a15:F-127",
+          "disposition": "duplicate",
+          "familyKey": "pre-review-verifier-proof-inconclusive",
+          "canonicalFindingId": "B-5a15:F-121",
+          "reason": "F-127 reconfirms the same current pre-review artifact failure and missing verifier rebind as canonical F-121."
+        },
+        {
+          "findingId": "B-5a15:F-128",
+          "disposition": "verified_family",
+          "familyKey": "scope-contract-receipts-unacknowledged",
+          "reason": "F-128 independently establishes two unacknowledged causal-evidence receipt paths in the scope contract; this is a distinct scope-admissibility family."
+        }
+      ],
+      "createdAt": "2026-08-21T21:06:22.672Z",
+      "_hash": "f30d33811087f66c724c692d6b2519ba0647f6dcc07244462427e414ead1f3b0"
     }
   ]
 }
