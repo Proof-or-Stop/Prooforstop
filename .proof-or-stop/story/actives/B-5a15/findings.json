@@ -6688,6 +6688,522 @@
       ],
       "signatureTag": "topology-acceptance-pre-review-inconclusive",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a15:F-130",
+      "desc": "CHK-001 through CHK-005: all 50 verification intents have structurally matching pass rows, but their current verificationEvidence is not admissible. proof-or-stop evidence_inspect --storyId=B-5a15 --format=json at HEAD e0d8310adadd20cbeab9864b313be1e577d5acfa reports evidenceCount=51, staleCount=51, freshCount=0; every row is bound to head b80c102c594c7a1be8f441724783cc20f41da9e8, material 853d5eb4322ecb6d3ba9b94131ecab4e76ac0b8a2e77f47f24a2c39fc04ac775, and storyFiles 01a95005cb46a073e03805e42aef1925a31b87ed2f3d0b43e4378a5e2f1f1406 instead of current material 9e06be194ed72ece1eb7bbe786d16261d77350f46302de5879ac3aabaad783a3 and storyFiles 74670ac76231cb340f9c8858274f19008ae2cab9e25b9f783b3faefbda6bdfe5. The live node --test packages/main/tests/causal-evidence.test.mjs run emitted PASS selectors for all 50 refs and 11/11 tests passed, and the exact node packages/main/dist/tasks/verifier-causal-preflight-smoke.js smoke passed 2/2, but neither execution was recorded as current checklist evidence. The 22 priority=must intents therefore have zero current admissible evidence; re-record current evidence before this coverage lane can pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-22T04:46:43.588Z",
+      "reviewRound": "2026-08-21T20:31:33.599Z",
+      "reviewRunId": "B-5a15:RR-213",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "packages/main/src/tasks/verifier-causal-preflight-smoke.ts",
+          "packages/main/tests/causal-evidence.test.mjs",
+          "packages/main/tests/verifier-causal-preflight.test.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 5,
+          "tokenCount": null
+        },
+        "digest": "10cd92072ec1f56beb20e580827acbbe3c38c1a6a57ce6c46a92fb75bbdd7c6f"
+      },
+      "readDiagnostics": [],
+      "_hash": "bff08794c83234996d3d1027e783fa216b1e92c5e4d53a0f5980af7e1d2afef8",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/checklist.json",
+        "packages/main/tests/causal-evidence.test.mjs",
+        "packages/main/src/tasks/verifier-causal-preflight-smoke.ts",
+        "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md"
+      ],
+      "signatureTag": "missing|json|through-verification-intents",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-131",
+      "desc": "Current-HEAD recheck: .proof-or-stop/story/actives/B-5a15/checklist.json has 50 passing verificationEvidence rows, but all 50 are bound to headHash b80c102c594c7a1be8f441724783cc20f41da9e8, materialHash 853d5eb4322ecb6d3ba9b94131ecab4e76ac0b8a2e77f47f24a2c39fc04ac775, and storyFilesHash 01a95005cb46a073e03805e42aef1925a31b87ed2f3d0b43e4378a5e2f1f1406. The current review run is bound to HEAD e0d8310adadd20cbeab9864b313be1e577d5acfa, materialHash 9e06be194ed72ece1eb7bbe786d16261d77350f46302de5879ac3aabaad783a3, and storyFilesHash 74670ac76231cb340f9c8858274f19008ae2cab9e25b9f783b3faefbda6bdfe5. The passing selectors therefore are not current admissible coverage; rerun and re-record all current intent evidence before REVIEW can pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-22T04:47:12.295Z",
+      "reviewRound": "2026-08-21T20:31:33.599Z",
+      "reviewRunId": "B-5a15:RR-212",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/tasks/verifier-causal-preflight-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/findings.json",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a15/review-runs.json",
+          ".proof-or-stop/story/actives/B-5a15/scope-contract.json",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/tests/causal-evidence.test.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Full B-5a15 story-level review of all five checklist items, declared U-03 decision documents, current verifier-owned acceptance artifacts, and current finding families."
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "7916eaaa4fc1c3bff6851a79e1d23183a6b01a104fdf5f2cd70c3ebc01e153f7"
+      },
+      "readDiagnostics": [],
+      "_hash": "ed4bf641423f906ae210d615ef8e282997c49f2c3ec848e099565b28529e50ea",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/checklist.json"
+      ],
+      "signatureTag": "B-5a15:F-116-current-stale-verification",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a15:F-132",
+      "desc": "Current-HEAD verifier-chain recheck: proof-or-stop pre_review_check_read --storyId=B-5a15 --json returns status=inconclusive, ok=false, plannedActual=incomplete, and codes PR_ARTIFACT_TAMPERED, PR_NEW_PATH_UNMAPPED, and PR_COVERAGE_BASIS_CHANGED at HEAD e0d8310adadd20cbeab9864b313be1e577d5acfa. acceptance_topology_check is only structural/read-only with result inconclusive_basis_unverified, while acceptance_rollout_report_read and acceptance_rollout_check are current full-3x2; the rollout receipt cannot substitute for a verifier-owned pre-review PASS. Reissue the pre-review basis and executable proof at this current scope/HEAD.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-22T04:47:17.904Z",
+      "reviewRound": "2026-08-21T20:31:33.599Z",
+      "reviewRunId": "B-5a15:RR-212",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/tasks/verifier-causal-preflight-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/findings.json",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a15/review-runs.json",
+          ".proof-or-stop/story/actives/B-5a15/scope-contract.json",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/tests/causal-evidence.test.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Full B-5a15 story-level review of all five checklist items, declared U-03 decision documents, current verifier-owned acceptance artifacts, and current finding families."
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "7916eaaa4fc1c3bff6851a79e1d23183a6b01a104fdf5f2cd70c3ebc01e153f7"
+      },
+      "readDiagnostics": [],
+      "_hash": "f02e4173e37c3505effd18ffa453df720b3e9fc88ba2ef03ac9f98a3ab739ef1",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+        "packages/main/src/handlers/proofstory.ts"
+      ],
+      "signatureTag": "B-5a15:F-117-current-pre-review-inconclusive",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a15:F-133",
+      "desc": "Current-HEAD scope recheck: proof-or-stop scope_contract_check --storyId=B-5a15 --json returns Scope gate: fail with 13 unacknowledged violations, including the story-scoped causal-evidence receipt/index paths and the verifier-causal-preflight-smoke path. The current review evidence is therefore not scope-admissible; repair the signed scope contract through the lifecycle command and rerun the gate before treating the story as complete.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-22T04:47:23.800Z",
+      "reviewRound": "2026-08-21T20:31:33.599Z",
+      "reviewRunId": "B-5a15:RR-212",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/tasks/verifier-causal-preflight-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/findings.json",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a15/review-runs.json",
+          ".proof-or-stop/story/actives/B-5a15/scope-contract.json",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/tests/causal-evidence.test.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Full B-5a15 story-level review of all five checklist items, declared U-03 decision documents, current verifier-owned acceptance artifacts, and current finding families."
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "7916eaaa4fc1c3bff6851a79e1d23183a6b01a104fdf5f2cd70c3ebc01e153f7"
+      },
+      "readDiagnostics": [],
+      "_hash": "cfcf86f764585d8797db40d77dc21c977a1b740b2d1188721806539d9ef68a3b",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/scope-contract.json"
+      ],
+      "signatureTag": "scope-contract-unacknowledged-receipts",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a15:F-134",
+      "desc": "doc-promise-undelivered: the U-03 decision documents state at docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md:93 and docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md:80 that the signed causal decision is consumed by CertificationWindow. At current HEAD, packages/main/src/core/certification-window.ts:180 and :445-464/:704-743 implement an optional signed consumer, but packages/main/src/handlers/certification-window.ts:76-165 collectAdmitFacts/currentCertificationIdentity never produce or load causalDecision, and :183-187/:265-269 call refreshCertificationWindowLineage without one. The production certification_window_begin/status path therefore cannot consume U-03b selective invalidation; the documented behavior is not delivered.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-22T04:47:28.625Z",
+      "reviewRound": "2026-08-21T20:31:33.599Z",
+      "reviewRunId": "B-5a15:RR-212",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/tasks/verifier-causal-preflight-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/findings.json",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a15/review-runs.json",
+          ".proof-or-stop/story/actives/B-5a15/scope-contract.json",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/tests/causal-evidence.test.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Full B-5a15 story-level review of all five checklist items, declared U-03 decision documents, current verifier-owned acceptance artifacts, and current finding families."
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "7916eaaa4fc1c3bff6851a79e1d23183a6b01a104fdf5f2cd70c3ebc01e153f7"
+      },
+      "readDiagnostics": [],
+      "_hash": "e3d800efc0c59233c70b0cb8336534f1ec4b791946b69cef838194b35da57b54",
+      "files": [
+        "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+        "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+        "packages/main/src/handlers/certification-window.ts",
+        "packages/main/src/core/certification-window.ts"
+      ],
+      "signatureTag": "causal-consumer-not-wired",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a15:F-135",
+      "desc": "Current-source adversarial recheck: packages/main/src/core/certification-window.ts:731-743 allows specialized unrelated drift when a signed advisory matches only the live current material/story/head identity; it never requires identityBinding.previousMaterialHash/previousStoryFilesHash/previousHeadHash to match window.frozen before bypassing frozen material drift. A valid advisory issued for previous m0/h0 and current m2/h2 can therefore be applied to a window frozen at m1/h1 and return drifted=false. The existing test at packages/main/tests/causal-evidence.test.mjs:1128-1135 covers the matching frozen m1/h1 case and a later m3/h3 rejection, not this cross-snapshot mismatch. Require previous-binding equality with frozen before allowing the advisory and add the missing mutation test.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-22T04:47:33.530Z",
+      "reviewRound": "2026-08-21T20:31:33.599Z",
+      "reviewRunId": "B-5a15:RR-212",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/tasks/verifier-causal-preflight-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/findings.json",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a15/review-runs.json",
+          ".proof-or-stop/story/actives/B-5a15/scope-contract.json",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/tests/causal-evidence.test.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Full B-5a15 story-level review of all five checklist items, declared U-03 decision documents, current verifier-owned acceptance artifacts, and current finding families."
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "7916eaaa4fc1c3bff6851a79e1d23183a6b01a104fdf5f2cd70c3ebc01e153f7"
+      },
+      "readDiagnostics": [],
+      "_hash": "3525f4bb875bcd9f564a1214e4a9b5113ebb6130d9a87d84f424211b16f71daf",
+      "files": [
+        "packages/main/src/core/certification-window.ts",
+        "packages/main/src/core/causal-evidence.ts",
+        "packages/main/tests/causal-evidence.test.mjs"
+      ],
+      "signatureTag": "B-5a15:F-119-cross-snapshot-advisory-bypass",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a15:F-136",
+      "desc": "packages/main/src/handlers/certification-window.ts:26-43,76-141,183-205,245-256 — the production certification-window path imports and calls evaluateCertificationWindowAdmit, but it never imports or loads CausalEvidence or passes a causalDecision into CertificationWindowAdmitFacts; currentCertificationIdentity only reads live hashes. CausalEvidence is wired in checklist evidence paths, not this certification consumer, so CHK-003 causal freshness cannot affect certification_window_begin in production. The focused causal-evidence test does not prove this missing production edge.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-22T04:49:15.777Z",
+      "reviewRound": "2026-08-21T20:31:33.599Z",
+      "reviewRunId": "B-5a15:RR-215",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "92724f8772a04a6b6d3de774a39b599dc9e6ddfb4e6432033e4d4c5ff61fa907",
+      "files": [
+        "packages/main/src/handlers/certification-window.ts",
+        "packages/main/src/core/certification-window.ts",
+        "packages/main/src/core/causal-evidence.ts",
+        "packages/main/tests/causal-evidence.test.mjs"
+      ],
+      "signatureTag": "ri-012-wave2-current-causal-consumer-unwired",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a15:F-137",
+      "desc": "packages/main/src/core/certification-window.ts:445-454,731-743 and packages/main/src/core/causal-evidence.ts:1206-1219 — evaluateCertificationWindowAdmit and detectCertificationWindowMaterialDrift validate causalDependencyDecisionMatchesCurrentIdentity only for advisory decisions. A signed completed rerun sets finalGateAdmissible=true at causal-evidence.ts:1206-1207, so a valid stale rerun bound to older headHash/materialHash/storyFilesHash can pass consumption without a live identity comparison; HEAD-only drift is sufficient. The CHK-003 tests cover partial rerun and advisory drift, but not a complete signed rerun with a stale current-snapshot tuple.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-22T04:49:35.145Z",
+      "reviewRound": "2026-08-21T20:31:33.599Z",
+      "reviewRunId": "B-5a15:RR-215",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "c9b3e44b559fc9087a3272fee32cbbd1888aab75b73eb57c47b93239d3f7110a",
+      "files": [
+        "packages/main/src/core/certification-window.ts",
+        "packages/main/src/core/causal-evidence.ts",
+        "packages/main/tests/causal-evidence.test.mjs"
+      ],
+      "signatureTag": "ri-012-wave2-current-causal-cross-snapshot",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a15:F-138",
+      "desc": ".proof-or-stop/story/actives/B-5a15/pre-review-check.json:1 — proof-or-stop pre_review_check_read --storyId=B-5a15 --json currently returns status=inconclusive, ok=false, blocking=false with PR_ARTIFACT_TAMPERED, PR_NEW_PATH_UNMAPPED, and PR_COVERAGE_BASIS_CHANGED. The nested artifact status=pass is not admissible because the reader rejects its binding; acceptance_topology_check is explicitly read-only/diagnostic-only and acceptance_rollout_check is a separate global full-3x2 receipt. No current signed pre-review PASS is therefore available for this fresh RR-215 review; recapture and reissue verifier-owned pre-review proof before passing admissibility.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-22T04:49:58.838Z",
+      "reviewRound": "2026-08-21T20:31:33.599Z",
+      "reviewRunId": "B-5a15:RR-215",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "a9fe43da4a11d28c332048704b59a4247a4bc0395e67aecf94ebab502f9d7c1e",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/acceptance-rollout.ts"
+      ],
+      "signatureTag": "ri-012-wave2-current-pre-review-inconclusive",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a15:F-139",
+      "desc": ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/05f7b12f2debde8acc4dd937cfe5a28f868632cc5318646fbf42e8cc22082179.json:1 — proof-or-stop scope_contract_check --storyId=B-5a15 --json returns status=fail in mode=enforce with 13 unacknowledged out_of_scope violations, and each of those receipt rows is blocking=true. The generated CausalEvidence receipt set is therefore not fully covered by the signed scope contract; scope remains unresolved for this review until the paths are explicitly authorized or removed.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-22T04:50:19.114Z",
+      "reviewRound": "2026-08-21T20:31:33.599Z",
+      "reviewRunId": "B-5a15:RR-215",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/05f7b12f2debde8acc4dd937cfe5a28f868632cc5318646fbf42e8cc22082179.json",
+          ".proof-or-stop/story/actives/B-5a15/scope-contract.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "43dd432e0061ff14810c054a0dfe5534f753465080c4587744bea79673ed7313",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/scope-contract.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/05f7b12f2debde8acc4dd937cfe5a28f868632cc5318646fbf42e8cc22082179.json"
+      ],
+      "signatureTag": "ri-012-wave2-current-scope-unacknowledged-receipts",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
