@@ -595,10 +595,12 @@ export function verifyCurrentReviewerDispatchBinding(args: {
   projectRoot: string;
   rolloutMode?: 'legacy-full-context' | 'full-envelope';
 }): { ok: true; binding: VerifiedReviewerDispatchBinding } | { ok: false; reason: string } {
+  const canonicalLane = canonicalAgentRoleId(args.lane);
   const event = [...args.store.readProcessEvents(args.storyId)].reverse().find(candidate =>
     candidate.type === 'dispatch'
-    && candidate.targetKind === (args.lane === 'lattice-review-topology-critic' ? 'topology-critic-review' : 'story-review')
-    && candidate.agentType === args.lane
+    && candidate.targetKind === (canonicalLane === 'proof-or-stop-review-topology-critic' ? 'topology-critic-review' : 'story-review')
+    && typeof candidate.agentType === 'string'
+    && agentRoleIdsEqual(candidate.agentType, canonicalLane)
     && candidate.reviewRound === args.reviewRound);
   if (!event) {
     return { ok: false, reason: `no trusted story-review dispatch binding for ${args.lane} in the current REVIEW round` };

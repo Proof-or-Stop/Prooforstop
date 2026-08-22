@@ -9305,6 +9305,132 @@
       ],
       "signatureTag": "missing|mjs|packages-main-tests",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-247",
+      "desc": "concept-cleanup: packages/main/src/handlers/story-dispatch.ts:526-527 still emits REVIEW topology-critic instructions with agent=\"lattice-review-topology-critic\" for review_run_start and review_inventory_critic_set, while the canonical prompt above and CHK-001 require proof-or-stop-review-topology-critic for new dispatch guidance and evidence. A fresh topology dispatch therefore still teaches and binds the retired role ID; update both emitted commands to the canonical role and cover the REVIEW prompt path.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-22T00:08:41.621Z",
+      "reviewRound": "2026-08-21T23:08:44.617Z",
+      "reviewRunId": "B-5a88:RR-298",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+          "packages/main/src/tasks/story-review-ergonomics-smoke.ts",
+          "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs",
+          "scripts/package-desktop.mjs",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "scanEscalationReason": "Repository-wide rg concept scan covered active source, scripts, templates, docs, and tests; decision documents were triaged by name and the affected producer paths were read fully."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "ac1045f247e55200ce3062222f80b832059f70bf0e43507db586a30a23a2befd"
+      },
+      "readDiagnostics": [],
+      "_hash": "59aef811ec8ea3bdd9bf1c026371236e1c3bfc6843c8748f06f315838280bd12",
+      "files": [
+        "packages/main/src/handlers/story-dispatch.ts"
+      ],
+      "signatureTag": "missing|ts|concept-cleanup-packages",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-248",
+      "desc": "Current RI-021 coverage is not admissible: checklist.json:111-118 and the corresponding CHK-001 through CHK-007 rows carry 21/21 must-intent receipts pinned to headHash 91eb6a92c2aef53808c544c35080943c052b9135, materialHash 83313a2237456066d5ad1f830603586cd4640a51aabd24e8ce59e6afb3936f32, and storyFilesHash b07033c3b3dbae9b8f29790341d64be32e45a1051143bec38414d61df91d7616, not current RR-299/RI-021 hashes head 9e8c0b7618f87f23a316c695f7a5f153dbcccb26, material 3af644a879cb9b3f01f12fed13dcc02aed2856b3b8021266e9115f65755dcacd, storyFiles 52f82874e454658b2c3cd217b555d1694d85e7bd1dcd65db06568c714ff59614. The required verifier-owned topology/pre-review/rollout coverage also fails: acceptance_topology_check reports AT_CLOSURE_FILES_STALE and AT_SCOPE_BINDING_MISSING; pre_review_check_read reports PR_PRODUCTION_PATH_UNPROVEN, PR_MUTATION_EVIDENCE_MISSING, PR_MUTATION_DID_NOT_BITE, PR_CONTROL_NOT_RESTORED, PR_TRANSCRIPT_MISSING, and PR_AUTHORITY_INADMISSIBLE (pre-review-check.json:1394-1402); acceptance_rollout_report_read and acceptance_rollout_check both report ok=false, status=fail, mode=enforce, blocking=true, AR_REPORT_STALE, despite the stored full-3x2 report being bound to historical hashes. No current signed executable coverage exists for this review, so coverage cannot pass until the 21 pinned verifiers and current acceptance artifacts are regenerated and rebound.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-22T00:09:10.383Z",
+      "reviewRound": "2026-08-21T23:08:44.617Z",
+      "reviewRunId": "B-5a88:RR-299",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a88/review-runs.json",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/templates/agents/proof-or-stop-review-test-coverage.md"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "package-lock.json",
+          "package.json",
+          "packages/lab/package-lock.json",
+          "packages/lab/package.json",
+          "packages/main/package-lock.json",
+          "packages/main/package.json",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/utils/package-lock.json",
+          "packages/utils/package.json",
+          "scripts/run-proofstory-pre-review-live-proof.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "59a4a51c1b90cc0dd28d7f7d6347edee3da22a4eca411f83d40a3d6376ec9c91"
+      },
+      "readDiagnostics": [],
+      "_hash": "1224aa7c7b39eb5f3830d5d7f2f5306bdf89c39cb3434189731ae1e9df0f2c86",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/checklist.json",
+        ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json"
+      ],
+      "signatureTag": "missing|json|current-coverage-admissible",
+      "signatureTagSource": "auto"
     }
   ]
 }

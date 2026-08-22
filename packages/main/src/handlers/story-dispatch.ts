@@ -523,8 +523,8 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     if (story.phase === 'REVIEW') {
       lines.push('',
         'For an OPEN review inventory wave, act as an independent completeness critic only after every required lane has terminal evidence.',
-        `Start a fresh critic run with proof-or-stop review_run_start '{"storyId":"${args.storyId}","agent":"lattice-review-topology-critic"}', inspect the aggregate finding set and required-lane read coverage, then submit finding_add or review_pass_set with complete read evidence.`,
-        `Finally bind that terminal evidence with proof-or-stop review_inventory_critic_set '{"storyId":"${args.storyId}","epochId":"<current epoch>","reviewRunId":"<critic ReviewRun>","agent":"lattice-review-topology-critic","findingDispositions":[{"findingId":"<verified finding id>","disposition":"verified_family","familyKey":"<independently assessed family>","reason":"<critic evidence>"}]}'. Use findingDispositions:[] only when the aggregate verified finding set is empty; classify every finding exactly once.`,
+        `Start a fresh critic run with proof-or-stop review_run_start '{"storyId":"${args.storyId}","agent":"proof-or-stop-review-topology-critic"}', inspect the aggregate finding set and required-lane read coverage, then submit finding_add or review_pass_set with complete read evidence.`,
+        `Finally bind that terminal evidence with proof-or-stop review_inventory_critic_set '{"storyId":"${args.storyId}","epochId":"<current epoch>","reviewRunId":"<critic ReviewRun>","agent":"proof-or-stop-review-topology-critic","findingDispositions":[{"findingId":"<verified finding id>","disposition":"verified_family","familyKey":"<independently assessed family>","reason":"<critic evidence>"}]}'. Use findingDispositions:[] only when the aggregate verified finding set is empty; classify every finding exactly once.`,
       );
     }
     return { prompt: lines.join('\n') };
