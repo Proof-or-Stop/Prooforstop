@@ -278,10 +278,28 @@
         "verifierCausalPreflightSmoke",
         "documentedVerificationCommand"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "The production handler and its smoke test are required to prove the CertificationWindow causal-evidence wiring and snapshot invalidation behavior.",
+      "timestamp": "2026-08-22T05:59:36.854Z",
+      "paths": [
+        "packages/main/src/handlers/certification-window.ts",
+        "packages/main/src/tasks/certification-window-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/handlers/certification-window.ts",
+        "packages/main/src/tasks/certification-window-smoke.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "cfc8402e1f8224c227d507f968b488bb21ebb28a",
+      "materialHash": "9ef9d9e58737da562ae603f38a4ea393a304c5faf2f9affdeefcc0287d3c24e6"
     }
   ],
   "createdAt": "2026-08-20T09:29:12.295Z",
-  "updatedAt": "2026-08-21T18:37:14.228Z",
+  "updatedAt": "2026-08-22T05:59:36.854Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -324,6 +342,8 @@
     "packages/main/src/tasks/flow-stability-smoke.ts": "packages/main/src/tasks/flow-stability-smoke.ts",
     "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md": "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
     "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md": "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
-    "packages/main/src/tasks/verifier-causal-preflight-smoke.ts": "packages/main/src/tasks/verifier-causal-preflight-smoke.ts"
+    "packages/main/src/tasks/verifier-causal-preflight-smoke.ts": "packages/main/src/tasks/verifier-causal-preflight-smoke.ts",
+    "packages/main/src/handlers/certification-window.ts": "packages/main/src/handlers/certification-window.ts",
+    "packages/main/src/tasks/certification-window-smoke.ts": "packages/main/src/tasks/certification-window-smoke.ts"
   }
 }
