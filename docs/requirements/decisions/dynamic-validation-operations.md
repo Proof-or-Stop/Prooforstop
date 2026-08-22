@@ -42,7 +42,8 @@ until that policy population is changed with fresh evidence.
 
 The registry is a project-relative JSON array. Each case has a stable `caseId`,
 domain (`quorum` or `review-pass`), a sentinel flag, and an executable
-`runner` (`command`, `args`, optional `cwd`/`env`, and a success marker). The
+`runner` (`command`, `args`, optional `cwd`/`env`, and an optional success marker;
+when omitted, the adapter derives a deterministic marker from the case id). The
 registered adapter checks the registry digest, exact case routing, executes
 every runner in an isolated shard, writes one case-evidence file bound by its
 content digest, and emits a signed `ValidationShardReceipt` for the shard;
