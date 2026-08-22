@@ -23,6 +23,7 @@ import {
   verifyValidationCommandReceipt,
   verifyStoryChangeManifest,
   verifyValidationSchedule,
+  assertSelectionIsSingletonUnionMonotonic,
   stableDigest,
 } from '../core/story-aware-validation.js';
 
@@ -102,7 +103,7 @@ const makeReceipt = (revocationLedgerDigest: string) => createValidationCommandR
   createdAt: new Date().toISOString(),
   revocationLedgerDigest,
 });
-const reusableReceipt = makeReceipt('ledger');
+const reusableReceipt = makeReceipt(stableDigest({}));
 const reusedSelection = buildDynamicValidationPlan({
   storyId: 'B-smoke', baseHead: 'base', head: 'head', inventory, catalog,
   changes: buildStoryChangeManifest({ storyId: 'B-smoke', gitCwd: '.', baseHead: 'base', head: 'head', changedFiles: [] }),
@@ -110,6 +111,7 @@ const reusedSelection = buildDynamicValidationPlan({
 });
 assert.equal(verifyValidationCommandReceipt(reusableReceipt).ok, true);
 assert.equal(reusedSelection.rows.find((row) => row.commandId === localRow.commandId)?.disposition, 'reuse');
+assertSelectionIsSingletonUnionMonotonic({} as never, reusedSelection);
 const unverifiedSelection = buildDynamicValidationPlan({
   storyId: 'B-smoke', baseHead: 'base', head: 'head', inventory, catalog,
   changes: buildStoryChangeManifest({ storyId: 'B-smoke', gitCwd: '.', baseHead: 'base', head: 'head', changedFiles: [] }),
@@ -165,9 +167,10 @@ assert.equal(verifyValidationCommandReceipt(tamperedReceipt).ok, false);
 
 const schedule = buildValidationSchedule([
   { commandId: 'slow', originalIndex: 0, cpuWeight: 1, expectedP50Ms: 20, resources: [] },
-  { commandId: 'fast', originalIndex: 1, cpuWeight: 1, expectedP50Ms: 10, resources: [] },
+  { commandId: 'fast', originalIndex: 1, cpuWeight: 1, expectedP50Ms: 10, resources: [], wave: 1 },
 ]);
 assert.equal(verifyValidationSchedule(schedule, [...schedule]).ok, true);
+assert.equal(schedule.find((row) => row.commandId === 'fast')!.startOffsetMs >= schedule.find((row) => row.commandId === 'slow')!.endOffsetMs, true);
 assert.throws(() => buildValidationSchedule([
   { commandId: 'oversized', originalIndex: 0, cpuWeight: 5, expectedP50Ms: 10, resources: [] },
 ], { workerCapacity: 2, cpuCapacity: 2 }), /exceeds scheduler capacity/);
@@ -186,6 +189,12 @@ const missingShard = aggregateValidationShards({
   results: shards.slice(1).map(shard => ({ shardId: shard.shardId, domain: shard.domain, caseIds: shard.caseIds, verdict: 'PASS' as const, executed: true })),
 });
 assert.equal(missingShard.ok, false);
+const omittedExecuted = aggregateValidationShards({
+  cases,
+  shards,
+  results: shards.map(shard => ({ shardId: shard.shardId, domain: shard.domain, caseIds: shard.caseIds, verdict: 'PASS' as const, sentinelObserved: true })),
+});
+assert.equal(omittedExecuted.ok, false);
 const duplicateCase = aggregateValidationShards({
   cases,
   shards,

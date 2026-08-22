@@ -97,8 +97,10 @@
         "policySource": "explicit-dyn1-audit-v1"
       },
       {
-        "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
-        "args": [],
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js"
+        ],
         "assurance": "story-selectable",
         "riskTier": "local",
         "closurePolicy": "static-and-traced",
@@ -168,6 +170,9 @@
         "env": {
           "LATTICE_VALIDATION_SHARD_ADAPTER": "case-registry-output-v1"
         },
+        "declaredEnvironmentKeys": [
+          "LATTICE_VALIDATION_SHARD_ADAPTER"
+        ],
         "assurance": "story-selectable",
         "riskTier": "gate",
         "closurePolicy": "static-and-traced",
@@ -787,6 +792,9 @@
         "env": {
           "LATTICE_VALIDATION_SHARD_ADAPTER": "case-registry-output-v1"
         },
+        "declaredEnvironmentKeys": [
+          "LATTICE_VALIDATION_SHARD_ADAPTER"
+        ],
         "assurance": "story-selectable",
         "riskTier": "gate",
         "closurePolicy": "static-and-traced",

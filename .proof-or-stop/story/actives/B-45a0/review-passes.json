@@ -663,6 +663,691 @@
       },
       "readDiagnostics": [],
       "_hash": "38ddc77a28bdc1d4a740d421ab31b4f4c1c57888f801ccc7589007b3bfecbc84"
+    },
+    {
+      "id": "B-45a0:RP-016",
+      "agent": "lattice-review-docs",
+      "note": "No blocker: extracted 755 diff symbol tokens; compared 19 targeted DYN-1/DYN-3/DYN-5 and operations/evidence documentation paragraphs against the implementation, current config, verifiers, production smoke, mutation audit, and CLI behavior. The plan integrity verifier reports the bound payload digest; current inventory is 112 with 58 full-only and 54 story-selectable rows; DYN-1 remains observe/full-oracle, DYN-3 is fail-closed, and DYN-5 receipts/sentinels/oracle aggregation are wired. Related legacy docs are triaged and do not contradict the new runbook.",
+      "createdAt": "2026-08-22T05:41:54.281Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-104",
+      "envelopeId": "691c0e5f4389c72859dc3837722765fa66ce2a84de7caee582546722b816c61d",
+      "writerSessionId": "sess-f2cf93f6d9fe5a340ef8f99f188183a3",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "packages/main/src/tasks/story-aware-validation-case-adapter.mjs",
+          "packages/main/src/tasks/story-aware-validation-domain-case-runner.mjs",
+          "packages/main/src/tasks/story-aware-validation-production-smoke.ts",
+          "scripts/verify-story-aware-validation-plan.mjs",
+          "scripts/verify-validation-catalog.mjs",
+          "scripts/verify-validation-inventory.mjs"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "docs/requirements/NAV.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "c55c5900cacae627225c7c2914cc9c394885c2fc7ef24e4ac98178af1b88c432"
+      },
+      "readDiagnostics": [],
+      "_hash": "224e7b849395c1700cab54994a438ffda6c9672bec88692b7fca787edd554c13"
+    },
+    {
+      "id": "B-45a0:RP-017",
+      "agent": "lattice-review-concept",
+      "note": "RI-029 wave-1 concept scan completed: no new concept deletion or replacement residue beyond the carried-forward F115/F121 shared-policy and shared-resolver families; B-38b7 and legacy testIntent references are documented compatibility/history, not new active concepts.",
+      "createdAt": "2026-08-22T06:12:38.279Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-118",
+      "envelopeId": "33a10f7f1e69f2dab0332b7371e78102ae95ddd237a70a8af1d76866508c7475",
+      "writerSessionId": "sess-2168ddaf0ed62578cb508306596a9839",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          "docs/CLI.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "docs/requirements/NAV.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/material-path-policy.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-runtime-tracer.cjs",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "packages/main/src/tasks/review-pass-discard-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-case-adapter.mjs",
+          "packages/main/src/tasks/story-aware-validation-domain-case-runner.mjs",
+          "packages/main/src/tasks/story-aware-validation-domain-cases.json",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-production-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "proof-or-stop.config.json",
+          "scripts/run-dynamic-validation-audit.mjs",
+          "scripts/run-dynamic-validation-fault-injection.mjs",
+          "scripts/run-dynamic-validation-replay.mjs",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-story-aware-validation-plan.mjs",
+          "scripts/verify-validation-catalog.mjs",
+          "scripts/verify-validation-inventory.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f04c1e0ed2d0ee09e09ea903c92f96595b10c32df724883f1da47361380c5513"
+    },
+    {
+      "id": "B-45a0:RP-018",
+      "agent": "lattice-review-concept",
+      "note": "RI-029 wave-2 concept scan completed at unchanged HEAD. No new concept deletion/replacement family was found beyond carried-forward F115/F121 shared-policy/resolver residue and excluded F125-F128 quality, coverage, docs, and topology families; B-38b7 remains absent and legacy compatibility references are not new active concepts.",
+      "createdAt": "2026-08-22T06:25:58.413Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-123",
+      "envelopeId": "72399535e3692c5cb52a9f9b5c1da727f403073f079ab9b89e2940ec25849cc3",
+      "writerSessionId": "sess-2168ddaf0ed62578cb508306596a9839",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          "docs/CLI.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "docs/requirements/NAV.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/material-path-policy.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-runtime-tracer.cjs",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "packages/main/src/tasks/review-pass-discard-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-case-adapter.mjs",
+          "packages/main/src/tasks/story-aware-validation-domain-case-runner.mjs",
+          "packages/main/src/tasks/story-aware-validation-domain-cases.json",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-production-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "proof-or-stop.config.json",
+          "scripts/run-dynamic-validation-audit.mjs",
+          "scripts/run-dynamic-validation-fault-injection.mjs",
+          "scripts/run-dynamic-validation-replay.mjs",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-story-aware-validation-plan.mjs",
+          "scripts/verify-validation-catalog.mjs",
+          "scripts/verify-validation-inventory.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b916f4efd47ed6a7842046f06142efed2b541296db7226a2076d39e9e40e9e8f"
+    },
+    {
+      "id": "B-45a0:RP-019",
+      "agent": "lattice-review-docs",
+      "note": "Wave-2 documentation review compared 755 diff-extracted symbols and 41 targeted documentation/code paragraphs across DYN-1 observe, DYN-3 authority prerequisites, DYN-5 registry/sharding, CLI mode behavior, catalog configuration, and current operational artifacts. No new distinct documentation contract family was verified beyond existing F-127, F-117, and F-123; those findings and prior implementation/evidence findings remain open and were not reissued.",
+      "createdAt": "2026-08-22T06:30:01.115Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-126",
+      "envelopeId": "428e91bbedd8d7fe9fd8b44387b02bfa98cc03e60020602302db0e6d63c8e97a",
+      "writerSessionId": "sess-f2cf93f6d9fe5a340ef8f99f188183a3",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/NAV.md"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "lattice.config.json",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/story-aware-validation-case-adapter.mjs",
+          "packages/main/src/tasks/story-aware-validation-domain-cases.json",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "63b8724adb843679d312f8e1f939a9dfb9a50baf998de3a314eced41e0b9da06"
+      },
+      "readDiagnostics": [],
+      "_hash": "effbdeeca009185a6f906f618f301c9cc2ca4a862de6ed071a58987363c10003"
+    },
+    {
+      "id": "B-45a0:RP-020",
+      "agent": "lattice-review-concept",
+      "note": "RI-029 final wave-3 concept scan completed at unchanged HEAD. No new concept deletion or replacement family was found beyond carried-forward F115/F121 shared-policy/resolver residue and excluded F125-F131 quality, coverage, docs, and topology families; B-38b7 remains absent and legacy compatibility references are not new active concepts.",
+      "createdAt": "2026-08-22T06:33:56.570Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-128",
+      "envelopeId": "245dd80a813b65213eb99793234df7e8f2779accbb678fa23332ebefc68a8cd6",
+      "writerSessionId": "sess-2168ddaf0ed62578cb508306596a9839",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          "docs/CLI.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "docs/requirements/NAV.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/material-path-policy.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-runtime-tracer.cjs",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "packages/main/src/tasks/review-pass-discard-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-case-adapter.mjs",
+          "packages/main/src/tasks/story-aware-validation-domain-case-runner.mjs",
+          "packages/main/src/tasks/story-aware-validation-domain-cases.json",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-production-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "proof-or-stop.config.json",
+          "scripts/run-dynamic-validation-audit.mjs",
+          "scripts/run-dynamic-validation-fault-injection.mjs",
+          "scripts/run-dynamic-validation-replay.mjs",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-story-aware-validation-plan.mjs",
+          "scripts/verify-validation-catalog.mjs",
+          "scripts/verify-validation-inventory.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "369d8e77758e628c81222f2713842bdeaa486c29dfe2630d5deb47143b5e21cc"
+    },
+    {
+      "id": "B-45a0:RP-021",
+      "agent": "lattice-review-docs",
+      "note": "Final RI-029 documentation review compared 755 diff-extracted symbols and 41 targeted documentation/code paragraphs across DYN-1 observe, DYN-3 authority and prerequisite reporting, DYN-5 registry/sharding, CLI behavior, catalog configuration, and runtime artifact inspection. The current docs and implementation show no new distinct documentation contract family beyond F-127 and the existing findings; F-127 remains confirmed because the two DYN-5 catalog rows still lack declaredEnvironmentKeys. No duplicate finding was issued.",
+      "createdAt": "2026-08-22T06:36:30.366Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-131",
+      "envelopeId": "e728e31084a40225ad9d63cb351bd54c69799ba13c2606f57ba2cef36cf4199c",
+      "writerSessionId": "sess-f2cf93f6d9fe5a340ef8f99f188183a3",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/NAV.md"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "lattice.config.json",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/story-aware-validation-case-adapter.mjs",
+          "packages/main/src/tasks/story-aware-validation-domain-cases.json",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "63b8724adb843679d312f8e1f939a9dfb9a50baf998de3a314eced41e0b9da06"
+      },
+      "readDiagnostics": [],
+      "_hash": "8e96f620583d03d8102489506f4d884f987053a1729dfb925c7bb728651ae3bf"
+    },
+    {
+      "id": "B-45a0:RP-022",
+      "agent": "lattice-review-test-coverage",
+      "note": "RI-030 wave-1 bounded delta review checked all 13 checklist items and 45 evidence rows at the unchanged current binding. Zero rows are fresh; identified gaps are already covered by F110, F111, F116, F120, F126, F129, F133 and carried findings. No distinct new test-coverage family was found. This lane pass is not an overall story or coverage pass.",
+      "createdAt": "2026-08-22T06:41:02.901Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-134",
+      "envelopeId": "b334775d3861525e4ed57deeb2866b88f16b95ca83c61d26a5e7f928fa3378b6",
+      "writerSessionId": "sess-b5f735dfadccd01132fe74629f537af8",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts",
+          "scripts/run-dynamic-validation-audit.mjs",
+          "scripts/verify-validation-catalog.mjs"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "docs/requirements/NAV.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b625590ee408e242d7294ebcd06509f9f7395fd53e8d6f0867ad386e0a90210d"
+    },
+    {
+      "id": "B-45a0:RP-023",
+      "agent": "lattice-review-concept",
+      "note": "RI-030 wave-1 bounded concept review completed at unchanged HEAD fb107c61f2572c87d2a00597d5728e9e0453f598. Existing F108-F134 families were dispositioned without duplicating them; the only concept-residue families in this scope are the already-registered F115 material-path-policy duplicate and F121 superseded changed-file helper residue. The bounded diff and repository scan found no distinct new concept deletion or replacement family, so this lane passes.",
+      "createdAt": "2026-08-22T06:41:59.042Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-135",
+      "envelopeId": "800a6f75a43c2893252de9d603a19fd8ef502522a0b1ec396fe0df777669699a",
+      "writerSessionId": "sess-2168ddaf0ed62578cb508306596a9839",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "packages/main/src/core/material-path-policy.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/NAV.md",
+          "packages/main/src/core/dirty-worktree.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/material-code-policy.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/review-scope-binding.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "620226bdedfc2749504aa39e3959062d9bcea5966d35e58c74e434498bcc5ec0"
+    },
+    {
+      "id": "B-45a0:RP-024",
+      "agent": "lattice-review-quality",
+      "note": "RI-030 wave-1 bounded quality review at unchanged HEAD: inspected current implementations for F109, F114, F122, F125, F130, and F132; focused story-aware validation smoke and package build both pass; no distinct new quality family found, and the remaining issues are already registered findings.",
+      "createdAt": "2026-08-22T06:42:11.726Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-133",
+      "envelopeId": "c4bc65b432c7013e8881ad761ead41a00e2ede27ee036264a9dd9f05c4d7babe",
+      "writerSessionId": "sess-290128d700be0cdb6ab965c15ac494b4",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/story-aware-validation.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "packages/main/src/handlers/verifier.ts",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "6cd2ccdab4aab39b6b8a920a9c73c2a1e9cd49f1628fe04a832487a94334fef3"
+    },
+    {
+      "id": "B-45a0:RP-025",
+      "agent": "lattice-review-docs",
+      "note": "RI-030 bounded docs review compared 755 diff-extracted symbols and 25 targeted documentation/code paragraphs for the F-117 canonical-baseline path, F-123 success-marker optionality, and F-127 DYN-5 declared-environment-key drift. All three existing families remain accurately reproduced at the unchanged HEAD; no distinct new documentation contract family was verified, so no duplicate finding was issued.",
+      "createdAt": "2026-08-22T06:43:36.510Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-136",
+      "envelopeId": "f65d434bec0e6b00eb1d945428549a529d5c426dda7bd3d79991494d49480a2f",
+      "writerSessionId": "sess-f2cf93f6d9fe5a340ef8f99f188183a3",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/NAV.md"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "lattice.config.json",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/story-aware-validation-case-adapter.mjs",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "63b8724adb843679d312f8e1f939a9dfb9a50baf998de3a314eced41e0b9da06"
+      },
+      "readDiagnostics": [],
+      "_hash": "02f30b075e36310b399f6cc99f6e62b197f31a70614dc5cdbdc261080e986291"
+    },
+    {
+      "id": "B-45a0:RP-026",
+      "agent": "lattice-review-concept",
+      "note": "RI-030 wave-2 bounded concept review completed at unchanged HEAD fb107c61f2572c87d2a00597d5728e9e0453f598. Existing F108-F135 families were checked and dispositioned without duplication; F115 remains the known material-path-policy duplicate and F121 remains the known superseded changed-file helper residue. The bounded concept diff and repository scan found no distinct new concept deletion or replacement family outside the established set, so this lane passes.",
+      "createdAt": "2026-08-22T06:47:55.533Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-138",
+      "envelopeId": "a8713bb24efcd26e62663db614f97d7ce6e83f6349398e614b81be87ca82327e",
+      "writerSessionId": "sess-2168ddaf0ed62578cb508306596a9839",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "packages/main/src/core/material-path-policy.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/NAV.md",
+          "packages/main/src/core/dirty-worktree.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/material-code-policy.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/review-scope-binding.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "328920e8f58a7a857e967816b9755d3194896e263168d018165e16fe91c27ebb"
+    },
+    {
+      "id": "B-45a0:RP-027",
+      "agent": "lattice-review-test-coverage",
+      "note": "RI-030 wave-2 bounded disposition reviewed the existing coverage families only. At unchanged HEAD, the 13 checklist items still have 45 evidence rows and no fresh binding; F110/F111/F116/F120/F126/F129/F133 and carried findings account for the observed gaps. No distinct new family was proven. This lane pass is not an overall story or coverage pass.",
+      "createdAt": "2026-08-22T06:48:00.013Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-140",
+      "envelopeId": "0e0c8667c1dd1570929507c6c025ef7564f096e40198b8928ca974af2260f1eb",
+      "writerSessionId": "sess-b5f735dfadccd01132fe74629f537af8",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts",
+          "scripts/run-dynamic-validation-audit.mjs",
+          "scripts/verify-validation-catalog.mjs"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "docs/requirements/NAV.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "688e0db7db2f898ca2d7db4c1864671bb2f7429c3081be4d3d119d7079eb7e71"
+    },
+    {
+      "id": "B-45a0:RP-028",
+      "agent": "lattice-review-quality",
+      "note": "RI-030 wave-2 bounded quality review at unchanged HEAD: rechecked F109, F114, F122, F125, F130, and F132 in the current implementation; focused story-aware validation smoke and package build both pass; no distinct new quality family found, and existing issues remain dispositioned by carried-forward findings.",
+      "createdAt": "2026-08-22T06:48:08.223Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-139",
+      "envelopeId": "40bde595f096085e743d83e664d84d488d806fb21c19ffc94a6d7ca472427969",
+      "writerSessionId": "sess-290128d700be0cdb6ab965c15ac494b4",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/story-aware-validation.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "packages/main/src/handlers/verifier.ts",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "c2b0f8ee57777106f3a3beb65a94286100d11e2d44838fd69edcfbd6d52cd8a9"
+    },
+    {
+      "id": "B-45a0:RP-029",
+      "agent": "lattice-review-docs",
+      "note": "RI-030 wave-2 bounded review compared the existing baseline-path, success-marker, and declared-environment-key documentation contracts at unchanged HEAD across 755 diff-extracted symbols and 25 targeted paragraphs. F-117 remains the canonical-full-baseline versus canonical-baseline path mismatch; F-123 remains successMarker optionality; F-127 remains missing declaredEnvironmentKeys on both DYN-5 catalog rows. No distinct new documentation family was verified, so no new finding was issued.",
+      "createdAt": "2026-08-22T06:49:20.002Z",
+      "reviewRound": "2026-08-21T11:57:12.698Z",
+      "reviewRunId": "B-45a0:RR-141",
+      "envelopeId": "bcc6500059f7d3dfd9e009e4dec4dfdfc476a18f3ebe10dbf82c18de4ed8650d",
+      "writerSessionId": "sess-f2cf93f6d9fe5a340ef8f99f188183a3",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/NAV.md"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "lattice.config.json",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/story-aware-validation-case-adapter.mjs",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "63b8724adb843679d312f8e1f939a9dfb9a50baf998de3a314eced41e0b9da06"
+      },
+      "readDiagnostics": [],
+      "_hash": "88144039333dbb8b36cf44626f4743b88b45cc77871ac8f1865974bd68251e1b"
     }
   ]
 }

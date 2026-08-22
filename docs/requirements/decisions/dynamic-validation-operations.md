@@ -88,6 +88,6 @@ unscoped complete validator with dynamic mode off:
 `proof-or-stop validate --dynamic-mode=off --json` after a clean build. The
 verifier writes the baseline only for this non-Story complete-plan run, after
 it passes and all runtime closure traces are admissible. Inspect the resulting
-`.proof-or-stop/runtime/dynamic-validation/canonical-full-baseline.json` before
+`.proof-or-stop/runtime/dynamic-validation/canonical-baseline.json` before
 expecting reuse. If it is missing, expired, or digest-mismatched, the gate
 selects full validation.
