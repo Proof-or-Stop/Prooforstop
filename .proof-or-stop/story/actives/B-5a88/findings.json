@@ -10201,6 +10201,53 @@
       ],
       "signatureTag": "missing|json|acceptance-basis-invalid",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-264",
+      "desc": "CHK-001 through CHK-007 and .proof-or-stop/story/actives/B-5a88/test-evidence.json:4-13 — all 21 required verificationEvidence rows are pinned to head 793d02e629a46124110a3c3c0b470ad8d95526d3, material a883261785bc024d6209525b43bc89374a323206a9318a57c96e49180c7ea0be, and storyFiles b7a3d2a131b146253a7087c8bf7c3adcb8d0c198026c8ca482ae29f34e502aa4, while signed review run B-5a88:RR-336 is bound to head 5d74d7928c7f536650b84617b96e1f0632945e95, material 5e1ce5317888187613e4eb5f177dd7441f4dc87c005f4c0e2b35910564b31ab4, and storyFiles e2375cdab16eb43b9a2a6fb83cc6ca74586b4d39596d01bda5050c4ede2511ed. The required Wave 4 executable boundary is also absent: acceptance_topology_check --storyId=B-5a88 --json reports evidentiary=false and result=inconclusive_basis_unverified, while pre_review_check_read --storyId=B-5a88 --json reports status=inconclusive, executableEvidence=missing, mutations=missing, transcript=missing, authority=inadmissible with PR_ARTIFACT_TAMPERED and related codes. Current must-intent and verifier-owned acceptance coverage therefore cannot support a truthful coverage pass or REVIEW to TEST; refresh/re-execute and rebind the current evidence.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-22T07:42:14.573Z",
+      "reviewRound": "2026-08-22T07:35:25.372Z",
+      "reviewRunId": "B-5a88:RR-336",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a88/test-evidence.json"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/tests/artifact-schema-migration.test.mjs",
+          "packages/main/tests/bin-alias-migration.test.mjs",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/package-identity-migration.test.mjs",
+          "packages/main/tests/prompt-role-migration.test.mjs",
+          "packages/main/tests/release-push-approval-migration.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a03e041e46c28d90d0a9a296093ff2e81ea60416ea04475fde3461cb7a99049b",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/checklist.json",
+        ".proof-or-stop/story/actives/B-5a88/test-evidence.json",
+        ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json"
+      ],
+      "signatureTag": "missing|json|through-proof-stop",
+      "signatureTagSource": "auto"
     }
   ]
 }
