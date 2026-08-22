@@ -929,7 +929,8 @@ For a command to participate in `shadow` or `enforce-low-risk`, its
 `cpuWeight`, and `expectedP50Ms`. DYN-5 entries additionally declare an
 in-root `caseRegistryPath`, `env.LATTICE_VALIDATION_SHARD_ADAPTER`, and the
 allowed `declaredEnvironmentKeys`. Registry rows contain executable case
-`runner` objects and a success marker; the registered adapter executes every
+`runner` objects and may declare a success marker (the adapter derives a
+deterministic default from the case id when omitted); the registered adapter executes every
 requested case in an isolated shard and writes case evidence bound by its
 content digest, then emits a signed `ValidationShardReceipt` for the shard.
 Echoing

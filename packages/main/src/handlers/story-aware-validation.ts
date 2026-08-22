@@ -424,9 +424,12 @@ export function persistStoryAwareValidationArtifacts(args: {
   writeFileSync(join(dir, 'report.txt'), args.report + '\n', 'utf8');
   if (!args.preserveExistingReceipts) {
     writeFileSync(join(dir, 'receipts.json'), JSON.stringify(args.receipts, null, 2) + '\n', 'utf8');
-    writeFileSync(join(dir, 'revocation-ledger.json'), JSON.stringify(args.revocationLedger, null, 2) + '\n', 'utf8');
     for (const receipt of args.receipts) writeFileSync(join(dir, 'receipts', `${receipt.id}.json`), JSON.stringify(receipt, null, 2) + '\n', 'utf8');
   }
+  // The revocation ledger is authoritative even during observe-only runs that
+  // preserve the existing receipt set. Always persist the newest signed ledger
+  // so a newly discovered invalid closure cannot be lost with the receipts.
+  writeFileSync(join(dir, 'revocation-ledger.json'), JSON.stringify(args.revocationLedger, null, 2) + '\n', 'utf8');
   if (args.shardArtifacts?.length) {
     const shardDir = join(dir, 'shards');
     mkdirSync(shardDir, { recursive: true });

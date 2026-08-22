@@ -145,7 +145,7 @@ function objectIdsAtRef(gitCwd: string, ref: string): Map<string, string> {
   } catch { /* missing ref is conservative input uncertainty */ }
   return result;
 }
-function mergeBase(gitCwd: string, head: string): string | undefined {
+export function resolveStoryMergeBase(gitCwd: string, head: string): string | undefined {
   for (const candidate of ['main', 'origin/main']) {
     try {
       const value = git(['merge-base', candidate, head], gitCwd).trim();
@@ -157,7 +157,7 @@ function mergeBase(gitCwd: string, head: string): string | undefined {
 
 /** Shared changed-file resolver. Rename rows retain both old and new paths. */
 export function resolveStoryChangedFiles(gitCwd: string, ref = 'HEAD', metadataRoot = gitCwd): StoryChangedFile[] {
-  const base = mergeBase(gitCwd, ref);
+  const base = resolveStoryMergeBase(gitCwd, ref);
   if (!base) return [];
   const ids = objectIdsAtRef(gitCwd, ref);
   const out: StoryChangedFile[] = [];
@@ -674,6 +674,8 @@ function isTrustedAncestor(sourceHead: string, currentHead: string, gitCwd = pro
 function receiptAdmissible(receipt: ValidationCommandReceipt | undefined, entry: ValidationCatalogEntry, closure: ValidationClosureCertificate, ctx: DynamicValidationContext, inputDigest: string): boolean {
   if (!receipt || receipt.commandId !== entry.id || receipt.inputDigest !== inputDigest) return false;
   if (!verifyValidationCommandReceipt(receipt, ctx.now || Date.now()).ok || isReceiptRevoked(receipt, ctx.revocationLedger)) return false;
+  const currentLedgerDigest = ctx.revocationLedger?.digest || stableDigest({});
+  if (receipt.revocationLedgerDigest !== currentLedgerDigest) return false;
   if (!verifyValidationClosureCertificate(closure) || receipt.closureCertificateDigest !== closure.signature) return false;
   if (receipt.catalogDigest !== stableDigest(ctx.catalog) || receipt.inventoryDigest !== currentInventoryDigest(ctx.inventory)) return false;
   if (ctx.runnerDigest && receipt.runnerDigest !== ctx.runnerDigest) return false;
@@ -824,7 +826,20 @@ export function buildDynamicValidationPlan(ctx: DynamicValidationContext): Valid
 export function verifyValidationSelectionManifest(manifest: ValidationSelectionManifest, current?: Partial<Pick<ValidationSelectionManifest, 'storyId' | 'head' | 'baseHead'>>): boolean {
   if (manifest.schema !== VALIDATION_SELECTION_SCHEMA || !verifyPayload(withoutSignature(manifest), manifest.signature)) return false;
   if (current && ((current.storyId !== undefined && current.storyId !== manifest.storyId) || (current.head !== undefined && current.head !== manifest.head) || (current.baseHead !== undefined && current.baseHead !== manifest.baseHead))) return false;
-  return manifest.totals.unverified === 0 && manifest.totals.uncovered === 0 && manifest.totals.unmappedChanges === 0 && manifest.rows.length === manifest.totals.inventory && manifest.rows.every(row => row.disposition !== 'unverified');
+  const commandIds = manifest.rows.map(row => row.commandId);
+  const executed = manifest.rows.filter(row => row.disposition === 'execute').length;
+  const reused = manifest.rows.filter(row => row.disposition === 'reuse').length;
+  const unverified = manifest.rows.filter(row => row.disposition === 'unverified').length;
+  return manifest.totals.unverified === unverified
+    && manifest.totals.executed === executed
+    && manifest.totals.reused === reused
+    && manifest.totals.inventory === manifest.rows.length
+    && new Set(commandIds).size === commandIds.length
+    && executed + reused + unverified === manifest.rows.length
+    && manifest.totals.unverified === 0
+    && manifest.totals.uncovered === 0
+    && manifest.totals.unmappedChanges === 0
+    && manifest.rows.every(row => row.disposition !== 'unverified');
 }
 export const buildSelectionManifest = buildDynamicValidationPlan;
 export const verifySelectionManifest = verifyValidationSelectionManifest;
@@ -915,7 +930,8 @@ export function buildValidationSchedule(entries: ScheduledValidationEntry[], opt
       waveIndex += 1;
     }
     const wave = waves[waveIndex] || (waves[waveIndex] = []);
-    const startOffsetMs = wave.reduce((max, row) => Math.max(max, row.endOffsetMs), 0);
+    const previousWaveEnd = waves.slice(0, waveIndex).flat().reduce((max, row) => Math.max(max, row.endOffsetMs), 0);
+    const startOffsetMs = previousWaveEnd + wave.reduce((max, row) => Math.max(max, row.endOffsetMs - previousWaveEnd), 0);
     wave.push({ ...entry, wave: waveIndex, startOffsetMs, endOffsetMs: startOffsetMs + Math.max(1, entry.expectedP50Ms) });
   }
   return waves.flat().sort((a, b) => a.wave - b.wave || b.expectedP50Ms - a.expectedP50Ms || a.originalIndex - b.originalIndex);
@@ -924,6 +940,13 @@ export const buildLptSchedule = buildValidationSchedule;
 export function verifyValidationSchedule(schedule: ValidationScheduleRow[], entries: ScheduledValidationEntry[]): { ok: boolean; errors: string[] } {
   const errors: string[] = []; const expected = new Set(entries.map(row => row.commandId)); const actual = schedule.map(row => row.commandId);
   if (actual.length !== expected.size || new Set(actual).size !== actual.length || actual.some(id => !expected.has(id))) errors.push('schedule missing or duplicate command');
+  const waveEnds = new Map<number, number>();
+  for (const row of schedule) {
+    if (!Number.isFinite(row.startOffsetMs) || !Number.isFinite(row.endOffsetMs) || row.endOffsetMs <= row.startOffsetMs) errors.push('invalid timeline:' + row.commandId);
+    const priorEnd = [...waveEnds.entries()].filter(([wave]) => wave < row.wave).reduce((max, [, end]) => Math.max(max, end), 0);
+    if (row.startOffsetMs < priorEnd) errors.push('wave starts before prior wave drains:' + row.commandId);
+    waveEnds.set(row.wave, Math.max(waveEnds.get(row.wave) || 0, row.endOffsetMs));
+  }
   for (const left of schedule) for (const right of schedule) {
     if (left.commandId >= right.commandId) continue;
     if (left.wave === right.wave && resourcesConflict(left.resources, right.resources)) errors.push('resource overlap:' + left.commandId + ':' + right.commandId);
@@ -990,7 +1013,7 @@ export function aggregateValidationShards(args: { cases: ValidationCase[]; shard
   for (const result of results) {
     const shard = shards.find(row => row.shardId === result.shardId);
     if (!shard || shard.caseIds.slice().sort().join('\0') !== result.caseIds.slice().sort().join('\0')) errors.push('routing mismatch:' + result.shardId);
-    if (result.staticPass || result.executed === false) errors.push('non-executed static PASS:' + result.shardId);
+    if (result.staticPass || result.executed !== true) errors.push('non-executed static PASS:' + result.shardId);
     if (result.residue && result.residue.length) errors.push('residue:' + result.shardId);
     if (result.sentinelObserved !== true) errors.push('sentinel not observed:' + result.shardId);
     if (shard && !result.caseIds.includes(shard.sentinelCaseId)) errors.push('sentinel omitted:' + result.shardId);

@@ -153,7 +153,7 @@ function receipt(overrides: Partial<ValidationCommandReceipt> = {}): ValidationC
     sourceBaseHead: 'base', canonicalBaselineEpochId: 'epoch', producedBy: 'story-execution',
     cleanTreeDigest: 'clean', executionEnvironmentDigest: 'environment', result: 'PASS', exitCode: 0,
     outputDigest: 'output', durationMs: 1, createdAt: new Date().toISOString(),
-    revocationLedgerDigest: 'ledger', ...overrides,
+    revocationLedgerDigest: stableDigest({}), ...overrides,
   });
 }
 
@@ -255,6 +255,9 @@ const duplicateRows = { ...baseline, rows: [...baseline.rows, baseline.rows[0]!]
 assert.equal(verifyValidationSelectionManifest(duplicateRows), false);
 const wrongRouting = { ...baseline, rows: baseline.rows.map((row, index) => index === 0 ? { ...row, commandId: 'e2e' } : row) };
 assert.equal(verifyValidationSelectionManifest(wrongRouting), false);
+const forgedTotalsBody = { ...baseline, totals: { ...baseline.totals, inventory: baseline.totals.inventory + 1 } };
+const forgedTotals = { ...forgedTotalsBody, signature: signPayload({ ...forgedTotalsBody, signature: undefined }) };
+assert.equal(verifyValidationSelectionManifest(forgedTotals), false);
 const ignoredEscalation = buildDynamicValidationPlan(context('packages/main/dist/ignored.js'));
 const ignoredEscalationMutant = { ...ignoredEscalation, fullEscalated: false };
 assert.equal(verifyValidationSelectionManifest(ignoredEscalationMutant), false);
