@@ -1803,9 +1803,9 @@
       "epochId": "B-5a88:RI-020",
       "storyId": "B-5a88",
       "reviewRound": "2026-08-21T23:08:44.617Z",
-      "state": "OPEN",
+      "state": "INVALIDATED",
       "begunAt": "2026-08-21T23:49:52.888Z",
-      "updatedAt": "2026-08-21T23:49:52.888Z",
+      "updatedAt": "2026-08-22T00:01:37.744Z",
       "cutoff": {
         "headHash": "3f96d9a3b24e95a9728528257350d693e77257fc",
         "materialHash": "1f0830573f73ba2502cd8913fe3a564234ed4a202319db9c2874c20f0c4ca024",
@@ -1824,7 +1824,41 @@
         "B-5a88:F-243",
         "B-5a88:F-244"
       ],
-      "_hash": "54411f1cf5cc9add0c38bf19b45b18b2929bd7ad218d3fc8a37663a8c2046adb"
+      "invalidation": {
+        "detectedAt": "2026-08-22T00:01:37.744Z",
+        "oldMaterialHash": "1f0830573f73ba2502cd8913fe3a564234ed4a202319db9c2874c20f0c4ca024",
+        "currentMaterialHash": "3af644a879cb9b3f01f12fed13dcc02aed2856b3b8021266e9115f65755dcacd",
+        "oldStoryFilesHash": "2c67803c111afcb57aeda7f0dea810a9b80eefae307ea3c250c0500e4062e413",
+        "currentStoryFilesHash": "52f82874e454658b2c3cd217b555d1694d85e7bd1dcd65db06568c714ff59614",
+        "blockerCode": "OPEN_REVIEW_INVENTORY_MATERIAL_MUTATION"
+      },
+      "terminalRunSequenceBoundary": 296,
+      "_hash": "11333a7747128dbf5eb5354e71137178cc744b4549fc5e1e5300fddb0d6e1f70"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-5a88:RI-021",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-21T23:08:44.617Z",
+      "state": "OPEN",
+      "begunAt": "2026-08-22T00:01:38.068Z",
+      "updatedAt": "2026-08-22T00:01:38.068Z",
+      "cutoff": {
+        "headHash": "9e8c0b7618f87f23a316c695f7a5f153dbcccb26",
+        "materialHash": "3af644a879cb9b3f01f12fed13dcc02aed2856b3b8021266e9115f65755dcacd",
+        "storyFilesHash": "52f82874e454658b2c3cd217b555d1694d85e7bd1dcd65db06568c714ff59614"
+      },
+      "scopeDigest": "7e45bda69f57fe01ddacdb0d6af3ffe521ab2c08851158392a54410c106f22ac",
+      "requiredLanes": [
+        "proof-or-stop-review-concept",
+        "proof-or-stop-review-quality",
+        "proof-or-stop-review-test-coverage"
+      ],
+      "initialRunSequenceBoundary": 296,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [],
+      "_hash": "e5bb71337eac0aec8113eeba2b9154a12bdc97189ce453657b42c3a8a817961d"
     }
   ],
   "receipts": [
