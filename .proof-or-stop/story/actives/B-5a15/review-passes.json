@@ -1230,6 +1230,50 @@
       },
       "readDiagnostics": [],
       "_hash": "d58baa539ad69fd6461e78fa24b4cfafaf87f2e01bef5c807fedfedfe3cd3c08"
+    },
+    {
+      "id": "B-5a15:RP-030",
+      "agent": "lattice-review-concept",
+      "note": "Concept-only final-wave review completed. The main diff adds CausalEvidence and strengthens existing analyzers; it does not delete or replace a named concept requiring repository-wide cleanup, and repository grep found no residual of a renamed or removed concept. Newly documented CausalEvidence commands, schemas, and metric names have corresponding source/test surfaces. The verifier-owned acceptance commands were checked read-only: the rollout receipt/check is signed pass with full-3x2, while acceptance_topology_check and pre_review_check_read are inconclusive under existing current-round findings F-154, F-157, and F-158; this lane pass does not claim overall acceptance admissibility.",
+      "createdAt": "2026-08-22T07:35:26.111Z",
+      "reviewRound": "2026-08-22T06:10:03.014Z",
+      "reviewRunId": "B-5a15:RR-242",
+      "envelopeId": "f900411c5a4d108035d1326520de77e24d08227f59aee1f3b2f95f2c8da45fa9",
+      "writerSessionId": "sess-a2954a22fcfca42a944c4485230c9999",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "packages/main/tests/causal-evidence.test.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c7152809a16cc150ec570ccb9b7129afd7b47da33418c959601f3d08cf76debf"
     }
   ]
 }
