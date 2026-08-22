@@ -4705,6 +4705,453 @@
         "scanEscalationReason": null
       },
       "_hash": "134a2ebbc727186691153ab07c4eedbbe363da0153547dc1a63c6099c4efe835"
+    },
+    {
+      "id": "B-5a88:RP-088",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "RI-022 wave-2 test-coverage re-evaluation at RR-307 and HEAD 4f4802963e9d88e42b7beed3e54a1375b490e669: reviewed the seven checklist items and 21 must intents. Current test-evidence is FAIL with 0/21 covered; all per-intent receipts remain stale and are bound to 91eb6a92c2aef53808c544c35080943c052b9135, material 83313a2237456066d5ad1f830603586cd4640a51aabd24e8ce59e6afb3936f32, and storyFiles b07033c3b3dbae9b8f29790341d64be32e45a1051143bec38414d61df91d7616 rather than this run cutoff. Re-evaluated the four RI-022 verified finding families: F-250 acceptance and verification coverage remains inadmissible; F-251 active process-fact records still retain the lattice topology-critic lane; F-252 the process-fact verifier still asserts the legacy topology dispatch spelling and fails; F-254 the approved prompt-baseline hash still mismatches and its verifier fails. All four remain open and verified. No additional independent coverage finding was identified; this pass does not resolve or supersede those findings.",
+      "createdAt": "2026-08-22T00:33:15.597Z",
+      "reviewRound": "2026-08-21T23:08:44.617Z",
+      "reviewRunId": "B-5a88:RR-307",
+      "envelopeId": "b3cfd73fa7f5f1d1f1bb1fac91e66a7a771317dd4a4388e5bd837164b8e806ac",
+      "writerSessionId": "sess-9010c647683900d35c88e31e4e0c3fb5",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a88/review-passes.json",
+          ".proof-or-stop/story/actives/B-5a88/review-runs.json",
+          ".proof-or-stop/story/actives/B-5a88/test-evidence.json",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/templates/agents/",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3bdffa4b22839f2b6f33b142854c8719038a0b8f945bc2e7f187bc5da3886754"
+    },
+    {
+      "id": "B-5a88:RP-089",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Wave 3 concept recheck completed for F-250, F-251, F-252, F-254 and current reaffirmation F-260. Existing concept residues are already represented by F-245/F-247/F-251/F-260; no new problem family or new blocker was found in this run.",
+      "createdAt": "2026-08-22T00:54:20.175Z",
+      "reviewRound": "2026-08-21T23:08:44.617Z",
+      "reviewRunId": "B-5a88:RR-311",
+      "envelopeId": "5b25e3bab5433a9932c4e2929c386bc24b77e77744659e75b45a8a656fdcbab7",
+      "writerSessionId": "sess-fde51d6e43ad40823ffd24269ee513ad",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "scripts/package-desktop.mjs",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/proof-or-stop-review-concept.md",
+          ".proof-or-stop-codex/agents/proof-or-stop-review-concept.md",
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          "packages/main/templates/agents/proof-or-stop-review-concept.md",
+          "packages/main/templates/agents/proof-or-stop-review-topology-critic.md"
+        ],
+        "scanEscalationReason": "Canonical full-context concept review compared the four requested verified families and their current reaffirmation records; all active concept residues were matched to existing families and no new family was found."
+      },
+      "_hash": "e2e20b72cc17373c6282214f9878d5c96a576ff90810dfaaa51650ac676b8176"
+    },
+    {
+      "id": "B-5a88:RP-090",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "wave 3 test coverage review rechecked F-250/F-251/F-252/F-254 and current reaffirmations F-256/F-257/F-258/F-259/F-260; no new problem family found; existing freshness blockers remain recorded separately",
+      "createdAt": "2026-08-22T00:54:42.787Z",
+      "reviewRound": "2026-08-21T23:08:44.617Z",
+      "reviewRunId": "B-5a88:RR-310",
+      "envelopeId": "ba6d036fdb0ca252420628fe09d17e3e98a2823931a983e534128974c98a42ae",
+      "writerSessionId": "sess-906c974f69899769a290faaf6f1b3946",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a88/test-evidence.json"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/templates/agents/",
+          "packages/main/tests/artifact-schema-migration.test.mjs",
+          "packages/main/tests/bin-alias-migration.test.mjs",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/package-identity-migration.test.mjs",
+          "packages/main/tests/prompt-role-migration.test.mjs",
+          "packages/main/tests/release-push-approval-migration.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "85f9990344e10119f16d64a362b4dbe8ea8e4339c3f79e6e5d57646c28054f10"
+    },
+    {
+      "id": "B-5a88:RP-091",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Reviewed RI-022 wave 3 aggregate findings and required-lane terminal read coverage; no additional finding beyond the inventoried verified records.",
+      "createdAt": "2026-08-22T01:03:39.209Z",
+      "reviewRound": "2026-08-21T23:08:44.617Z",
+      "reviewRunId": "B-5a88:RR-314",
+      "envelopeId": "f621a69772034fb2012debc85ee8a2f31a9476f67a0651f48e6784f460cb68c6",
+      "writerSessionId": "sess-101b7809ef9328ee1522b08cc78f6558",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a88/test-evidence.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "2764999fb5d6139b7fba555436b2469e2359c53ca08f4ead135ef5919f0478fb"
+    },
+    {
+      "id": "B-5a88:RP-092",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Reviewed RI-022 wave 3 aggregate findings and required-lane terminal read coverage; no additional finding beyond the inventoried verified records.",
+      "createdAt": "2026-08-22T01:05:34.455Z",
+      "reviewRound": "2026-08-21T23:08:44.617Z",
+      "reviewRunId": "B-5a88:RR-315",
+      "envelopeId": "60bf0a600bf405d57cb5591e992b0305097268453f13e5908f118a2a991d52b7",
+      "writerSessionId": "sess-101b7809ef9328ee1522b08cc78f6558",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a88/test-evidence.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "d2a2f663eb104319c30d7c5e9493e4e6159e067d007955c1bdec86ec3db2c357"
+    },
+    {
+      "id": "B-5a88:RP-093",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue review completed against the current diff and canonical/legacy role migration; no new blocker beyond the baseline families.",
+      "createdAt": "2026-08-22T05:04:54.678Z",
+      "reviewRound": "2026-08-21T23:08:44.617Z",
+      "reviewRunId": "B-5a88:RR-318",
+      "envelopeId": "e68f45dc926aabc2ad0b9e8d9043af07e753f582f976cf87fbfc6c417ab2f763",
+      "writerSessionId": "human-B-5a88-review-concept-20260822",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "scripts/verify-lattice-residue.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "879875528efa4bd193a5cc124bc0896b068f640d15457203c4ef7db3c7d2b91f"
+    },
+    {
+      "id": "B-5a88:RP-094",
+      "agent": "lattice-review-quality",
+      "note": "Quality review completed for the current diff; no new quality blocker beyond the existing canonical role/process-fact and prompt-baseline families already in the inventory baseline.",
+      "createdAt": "2026-08-22T05:05:22.609Z",
+      "reviewRound": "2026-08-21T23:08:44.617Z",
+      "reviewRunId": "B-5a88:RR-319",
+      "envelopeId": "53603774ecc84734c81d48d59f88e7a07897e16ede4cfd0a1dfb199b32af34f5",
+      "writerSessionId": "human-B-5a88-review-quality-20260822",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4861d8b01855aa7c48f2aebe626838a4d6cba92f3bb2b13580fb5b677aa81304"
+    },
+    {
+      "id": "B-5a88:RP-095",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage review completed; the known stale verification evidence and acceptance coverage family are already in the inventory baseline, with no new coverage family discovered in this wave.",
+      "createdAt": "2026-08-22T05:05:45.682Z",
+      "reviewRound": "2026-08-21T23:08:44.617Z",
+      "reviewRunId": "B-5a88:RR-320",
+      "envelopeId": "a0d8cd2f56ee4401319c4f55133e63e35f8006f27e7d3965cddc35892fdec1d6",
+      "writerSessionId": "human-B-5a88-review-coverage-20260822",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "71f6faa8f48242d5c9a702ca9fb6a28185a5ebde93842eb93830c76be7ba8af1"
+    },
+    {
+      "id": "B-5a88:RP-096",
+      "agent": "lattice-review-topology-critic",
+      "note": "Topology completeness review found the current acceptance basis stale/invalid, which is the existing F-250 acceptance-evidence family; no new raw finding family was introduced in RI-024 wave 1.",
+      "createdAt": "2026-08-22T05:14:07.805Z",
+      "reviewRound": "2026-08-21T23:08:44.617Z",
+      "reviewRunId": "B-5a88:RR-321",
+      "envelopeId": "3d3e7f3ecd7ffdd5a902d39aee57272544ae6df9ba474be17d1882f2a118d6f6",
+      "writerSessionId": "sess-bab634a0d379e91ddb7b16fcb59e92ac",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a88/test-evidence.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "560c0ee4744312ad41bcd5972f25d086027dfa71e66c36f47cae7348d9db29a2"
+    },
+    {
+      "id": "B-5a88:RP-097",
+      "agent": "lattice-review-topology-critic",
+      "note": "Topology completeness review found the current acceptance basis stale/invalid, which is the existing F-250 acceptance-evidence family; no new raw finding family was introduced in RI-024 wave 1.",
+      "createdAt": "2026-08-22T05:15:09.340Z",
+      "reviewRound": "2026-08-21T23:08:44.617Z",
+      "reviewRunId": "B-5a88:RR-322",
+      "envelopeId": "d471a6f5d90d7589e0a159e41bdaaf20b85e65ac875b0706da4d301d8d126ea6",
+      "writerSessionId": "sess-bab634a0d379e91ddb7b16fcb59e92ac",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a88/test-evidence.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "7d8178ee2718b3ddf467ec386b2abd18dc75c5b225aadb1cfa447172f32c0351"
+    },
+    {
+      "id": "B-5a88:RP-098",
+      "agent": "lattice-review-concept",
+      "note": "Wave 2 lattice-review-concept rechecked the current implementation and the established RI-024 baseline families; no new finding family was discovered.",
+      "createdAt": "2026-08-22T05:16:56.516Z",
+      "reviewRound": "2026-08-21T23:08:44.617Z",
+      "reviewRunId": "B-5a88:RR-323",
+      "envelopeId": "e971899f0f9c847019c1d17d73b0e8cf1a55ff48c59837d0056858f3322a8985",
+      "writerSessionId": "human-B-5a88-wave2-concept-20260822",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "994252682a84eeade4a49431fa629389420c49580d966f52cdf30b17879c916f"
+    },
+    {
+      "id": "B-5a88:RP-099",
+      "agent": "lattice-review-quality",
+      "note": "Wave 2 lattice-review-quality rechecked the current implementation and the established RI-024 baseline families; no new finding family was discovered.",
+      "createdAt": "2026-08-22T05:17:00.667Z",
+      "reviewRound": "2026-08-21T23:08:44.617Z",
+      "reviewRunId": "B-5a88:RR-324",
+      "envelopeId": "899363aecdf071166d3a102ea19ce512bb853f423397576602cb2627ad8bbe36",
+      "writerSessionId": "human-B-5a88-wave2-quality-20260822",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/review-run.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "5361d75e2ec433a2c91c31dfd54e80d0809f19af02a60181c40ca62143baf8c4"
+    },
+    {
+      "id": "B-5a88:RP-100",
+      "agent": "lattice-review-test-coverage",
+      "note": "Wave 2 lattice-review-test-coverage rechecked the current implementation and the established RI-024 baseline families; no new finding family was discovered.",
+      "createdAt": "2026-08-22T05:17:04.552Z",
+      "reviewRound": "2026-08-21T23:08:44.617Z",
+      "reviewRunId": "B-5a88:RR-325",
+      "envelopeId": "f33385e3660167cd820b708018d69f9d7ddc66de43330d345c8d80f398bbbd9f",
+      "writerSessionId": "human-B-5a88-wave2-coverage-20260822",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "459795eea5f56e62669d61afc05209f9309e474fc5ebb3fe8aea89bcd07dd548"
+    },
+    {
+      "id": "B-5a88:RP-101",
+      "agent": "lattice-review-topology-critic",
+      "note": "Wave 2 topology recheck found no new raw family; the stale acceptance basis remains the existing F-250 family.",
+      "createdAt": "2026-08-22T05:17:37.378Z",
+      "reviewRound": "2026-08-21T23:08:44.617Z",
+      "reviewRunId": "B-5a88:RR-326",
+      "envelopeId": "8f89af085e8b45b16ce96249bad1b558647570cdade912e8037146e8f4f53125",
+      "writerSessionId": "sess-bab634a0d379e91ddb7b16fcb59e92ac",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "0ce6b4f6d1fa7685a32b24880460db17e9367ed282ce423363c57758d07cf24d"
     }
   ]
 }
