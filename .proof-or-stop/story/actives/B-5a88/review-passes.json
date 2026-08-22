@@ -5152,6 +5152,86 @@
       },
       "readDiagnostics": [],
       "_hash": "0ce6b4f6d1fa7685a32b24880460db17e9367ed282ce423363c57758d07cf24d"
+    },
+    {
+      "id": "B-5a88:RP-102",
+      "agent": "lattice-review-concept",
+      "note": "Canonical topology reviewer process facts and verifier lane are aligned; legacy lattice role references remain only as compatibility aliases or test inputs, with no concept blocker in the reviewed diff.",
+      "createdAt": "2026-08-22T05:53:55.977Z",
+      "reviewRound": "2026-08-22T05:52:35.956Z",
+      "reviewRunId": "B-5a88:RR-327",
+      "envelopeId": "d6fedfde1cc896b6b2ef6f61f0eebe47ff07342ccdbd6bfae7318cfaffdf70ab",
+      "writerSessionId": "human-B-5a88-review-concept-20260822",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "49075ac48ca38483100260a9a9b1c3c345e16a38445858d7b9e2f8154ef6c1d4"
+    },
+    {
+      "id": "B-5a88:RP-103",
+      "agent": "lattice-review-quality",
+      "note": "The canonical reviewer-lane registry and verifier projection are type- and contract-consistent; generated prompt baselines match the approved canonical projection, with no quality blocker in the current diff.",
+      "createdAt": "2026-08-22T05:54:23.509Z",
+      "reviewRound": "2026-08-22T05:52:35.956Z",
+      "reviewRunId": "B-5a88:RR-328",
+      "envelopeId": "0d5bc9672a4995f1b8a45d550389b88444c1032fd9cea1d2b88511f2715b115e",
+      "writerSessionId": "human-B-5a88-review-quality-20260822",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "8e2e1ecc8367f51f8ed30c26d1ed24456fcfbfbfa17c21fc3031d65524072055"
+    },
+    {
+      "id": "B-5a88:RP-104",
+      "agent": "lattice-review-test-coverage",
+      "note": "All 21 must verification intents have current passing evidence: 7 items x 3 intents, with no must gaps or waivers; current acceptance rollout check is full 3x2.",
+      "createdAt": "2026-08-22T05:55:14.780Z",
+      "reviewRound": "2026-08-22T05:52:35.956Z",
+      "reviewRunId": "B-5a88:RR-329",
+      "envelopeId": "6237f60a45bd754db3307c2b44afa5790a2df15139e049f3baefc798151766da",
+      "writerSessionId": "human-B-5a88-review-coverage-20260822",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/test-evidence.json",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/tests/artifact-schema-migration.test.mjs",
+          "packages/main/tests/bin-alias-migration.test.mjs",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/package-identity-migration.test.mjs",
+          "packages/main/tests/prompt-role-migration.test.mjs",
+          "packages/main/tests/release-push-approval-migration.test.mjs",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "08c23f91f6f9efff3b086627a091006235b7f734ee9d93d148dc39dd36b01f6a"
     }
   ]
 }
