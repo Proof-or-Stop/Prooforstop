@@ -2426,7 +2426,10 @@ async function assertStoryAdvanceReviewEchoOmitsRetiredChannel(): Promise<void> 
       scanRoot: join(root, 'packages/main'),
     }).story_advance({ storyId, phase: 'REVIEW' });
 
-    assert.match(output, /Active reviewers: proof-or-stop-review-concept, proof-or-stop-review-quality, proof-or-stop-review-test-coverage/);
+    assert.match(
+      output,
+      /Active reviewers: proof-or-stop-review-concept \(legacy alias: lattice-review-concept\), proof-or-stop-review-quality \(legacy alias: lattice-review-quality\), proof-or-stop-review-test-coverage \(legacy alias: lattice-review-test-coverage\)/,
+    );
     assert.doesNotMatch(output, /lattice-review-channel/);
     assert.doesNotMatch(output, /channel \(normal channel\)/);
   } finally {

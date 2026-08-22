@@ -924,10 +924,29 @@
       "phase": "DEV",
       "headHash": "793d02e629a46124110a3c3c0b470ad8d95526d3",
       "materialHash": "a883261785bc024d6209525b43bc89374a323206a9318a57c96e49180c7ea0be"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "This existing flow-stability regression assertion must track the canonical reviewer output introduced by this story, otherwise the required root full-suite validation fails on a stale expected string.",
+      "timestamp": "2026-08-22T07:25:39.942Z",
+      "paths": [
+        "packages/main/src/tasks/flow-stability-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/flow-stability-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "b26ab4e4796164ea63ac96211aa73e95d0c47a2e",
+      "materialHash": "a883261785bc024d6209525b43bc89374a323206a9318a57c96e49180c7ea0be",
+      "anchors": [
+        "flowStabilitySmoke"
+      ]
     }
   ],
   "createdAt": "2026-08-20T05:20:00.402Z",
-  "updatedAt": "2026-08-22T05:26:15.097Z",
+  "updatedAt": "2026-08-22T07:25:39.942Z",
   "fileRules": [],
   "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
