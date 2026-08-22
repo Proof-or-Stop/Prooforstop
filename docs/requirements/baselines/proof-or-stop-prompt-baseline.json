@@ -63,7 +63,7 @@
       },
       {
         "role": "proof-or-stop-review-topology-critic",
-        "templateHash": "7db4368e21a0a2250ef7f8a7feee6b04fb85bfd518f72e8c188336ac90f80b35"
+        "templateHash": "2300cde0d2c95e9ec8af14bf96ee7d9e58f962bdbd0bc7704279e457fac90224"
       },
       {
         "role": "proof-or-stop-product-reviewer",
@@ -141,7 +141,7 @@
     "schemaVersion": "proof-or-stop.prompt-registry.v1",
     "source": "@proof-or-stop/core/templates/agents",
     "agentCount": 17,
-    "materialHash": "f490603ba63b6a1bbd88a67e160b2c6b17515fa0d2a6063ef3eeba4858a56a9f",
+    "materialHash": "c30e68408e07f55db4797476c1753a1936c631ac73f306e1bb63cd0ecef82122",
     "roles": [
       {
         "role": "proof-or-stop-evaluator-cli",
@@ -259,9 +259,9 @@
         "role": "proof-or-stop-review-topology-critic",
         "file": "proof-or-stop-review-topology-critic.md",
         "relPath": "templates/agents/proof-or-stop-review-topology-critic.md",
-        "templateHash": "6213dbefff421ea810c281982fed39d4d3daeaf2ce8d77c8bf4774dda50162c3",
-        "bytes": 1603,
-        "lines": 24
+        "templateHash": "cfff90be259ccd68487c9622f8de03014ad7df5807838a98e6a8d9e7fefc51a3",
+        "bytes": 6707,
+        "lines": 119
       },
       {
         "role": "proof-or-stop-test-case-reviewer",
@@ -371,9 +371,9 @@
       },
       {
         "role": "proof-or-stop-review-topology-critic",
-        "sha256": "0097fa5147026781e386467ed4dea8d3881354f3809ebe745db1c6f7f6dac872",
-        "bytes": 1604,
-        "lines": 25
+        "sha256": "cc3c34cf829f1ad6770ea05519fae24e60ef48a5abc74b3bf464eac285473c2b",
+        "bytes": 1645,
+        "lines": 26
       },
       {
         "role": "proof-or-stop-test-case-reviewer",
@@ -714,7 +714,7 @@
         {
           "role": "proof-or-stop-review-topology-critic",
           "relPath": "templates/agents/proof-or-stop-review-topology-critic.md",
-          "templateHash": "6213dbefff421ea810c281982fed39d4d3daeaf2ce8d77c8bf4774dda50162c3"
+          "templateHash": "cfff90be259ccd68487c9622f8de03014ad7df5807838a98e6a8d9e7fefc51a3"
         },
         {
           "role": "proof-or-stop-test-case-reviewer",
@@ -1745,6 +1745,18 @@
         "classification": "direct-write",
         "grandfathered": true,
         "note": "Registered direct story-file write instruction to replace with CLI-mediated writes in later milestones."
+      },
+      {
+        "id": "6ac805b5d795e574",
+        "role": "proof-or-stop-review-topology-critic",
+        "line": 22,
+        "references": [
+          "docs/story/"
+        ],
+        "excerpt": "- Story operations must use Proof-or-Stop CLI commands. Do not directly read or write story metadata under `docs/story/`, and do not write fixtures directly under `tests/fixtures/`.",
+        "classification": "policy-reminder",
+        "grandfathered": false,
+        "note": "Prompt reminds agents not to bypass CLI-mediated story operations."
       }
     ]
   }
