@@ -9,7 +9,7 @@ export const GIT_TREE_OUTPUT_MAX_BUFFER = 32 * 1024 * 1024;
 
 // B-d243 (host-2 soundness fix): the value currentStoryFilesHash returns for an
 // EMPTY story-owned diff (HEAD == main, or the story already resolved on main).
-// `changedStoryFilesBetween` then yields zero entries, so the hash is
+// The shared changed-file resolver then yields zero entries, so the hash is
 // sha256(''). This is NOT undefined — it is a real digest that vouches for
 // NOTHING. Treating it as a positive signal would let a delivery-check signed on
 // main (empty diff) re-match later under whole-tree drift while HEAD stays empty,
