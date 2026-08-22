@@ -7703,6 +7703,55 @@
       ],
       "signatureTag": "ri-012-wave3-current-scope-unacknowledged-receipts",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a15:F-149",
+      "desc": "Current RI-012 wave-3 acceptance is not admissible: acceptance_basis reports verified/complete and acceptance_topology_check reports a structural configured pass, but pre_review_check_read reports status=inconclusive, ok=false, codes PR_ARTIFACT_TAMPERED, PR_NEW_PATH_UNMAPPED, and PR_COVERAGE_BASIS_CHANGED with plannedActual=incomplete; scope_contract_check is enforce-mode fail with 13 unacknowledged causal-evidence receipt paths. These verifier-owned pre-review and scope failures prevent a truthful topology pass or closeout.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-22T05:26:35.651Z",
+      "reviewRound": "2026-08-21T20:31:33.599Z",
+      "reviewRunId": "B-5a15:RR-221",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a15/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a15/scope-contract.json",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "832edaf76535f8cdafbe7f7ffe5185e27cdbbf5112c0cd0146d54f9fcf96f670"
+      },
+      "readDiagnostics": [],
+      "_hash": "ccde9a7b5efe85dad25e810943e547410ac86c140843b8fac7d111018258fe2c",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a15/scope-contract.json",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/handlers/review-inventory.ts"
+      ],
+      "signatureTag": "topology-critic-final-wave-current-admissibility",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
