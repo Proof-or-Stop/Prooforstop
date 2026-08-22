@@ -1474,6 +1474,81 @@
       "cancelReason": "Stale quality review run predates the uncommitted REVIEW transition; cancel incomplete recovery epoch without claiming inventory completeness.",
       "terminalRunSequenceBoundary": 225,
       "_hash": "df13246c15cc093c7177f0a1343d60f339144a5571239841a0b70b5f5a263c66"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-5a15:RI-014",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-22T06:10:03.014Z",
+      "state": "OPEN",
+      "begunAt": "2026-08-22T06:29:28.757Z",
+      "updatedAt": "2026-08-22T06:58:31.806Z",
+      "cutoff": {
+        "headHash": "31499b88f78d178cb86cc22fdb44e25dcff34176",
+        "materialHash": "9ef9d9e58737da562ae603f38a4ea393a304c5faf2f9affdeefcc0287d3c24e6",
+        "storyFilesHash": "e287c5f32d9aad03e0ce7ea8b20a2684ab0ac2e78ef99c6fc5b18e9b8e9c97e7"
+      },
+      "scopeDigest": "75d069e6db3754e67391b9d49cf4b747744dee0384b33b39c1c80302e325e714",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage"
+      ],
+      "initialRunSequenceBoundary": 226,
+      "maxWaves": 3,
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-08-22T06:29:28.757Z",
+          "completedAt": "2026-08-22T06:58:31.806Z",
+          "lanes": [
+            {
+              "lane": "lattice-review-concept",
+              "reviewRunId": "B-5a15:RR-230",
+              "terminal": "pass",
+              "hostIdentity": "f78ef0f81b5ddefaabb77f7f702ecbb50307ccde212b0727114c65fd265f0e67",
+              "promptIdentity": "b10204e195ba609056b9e90b943914d04526f4533db22fac509cca7e14184b73",
+              "evidenceIds": [
+                "B-5a15:RP-028"
+              ],
+              "coverageDigest": "ebd87413fe8b544c376ea3f93ae80a137e74013933b2afedc5a5f31898606a20"
+            },
+            {
+              "lane": "lattice-review-quality",
+              "reviewRunId": "B-5a15:RR-228",
+              "terminal": "finding",
+              "hostIdentity": "f78ef0f81b5ddefaabb77f7f702ecbb50307ccde212b0727114c65fd265f0e67",
+              "promptIdentity": "53e5918e297f90ce66384df8c8c71bdc090d4bb48de886b511e781924a8c1abb",
+              "evidenceIds": [
+                "B-5a15:F-153"
+              ],
+              "coverageDigest": "d8a45f700b4a3c0ad05be0f478f43052f645da3c4cb86822b44afc9eaad76aad"
+            },
+            {
+              "lane": "lattice-review-test-coverage",
+              "reviewRunId": "B-5a15:RR-231",
+              "terminal": "finding",
+              "hostIdentity": "f78ef0f81b5ddefaabb77f7f702ecbb50307ccde212b0727114c65fd265f0e67",
+              "promptIdentity": "bab5ba14a69fd02b6350c236069ff7269f4cee46c20c3bc70bf610ab9ad83c64",
+              "evidenceIds": [
+                "B-5a15:F-152"
+              ],
+              "coverageDigest": "feadcc0341aa45b1f3a3d7bf83c46452acf1185df1a4af472ffd7e96f14baac3"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "cas-receipt-output-tail-boundary",
+            "certification-window-admission-coverage"
+          ],
+          "verifiedFindingSetDigest": "e9fd28e910908a14a344c270c131166b50a850ac904e52c7c86639f88db4f50b",
+          "newVerifiedFindingCount": 2,
+          "criticDigest": "db0faa6fd72408794aa1ddfc7852e8241b16eef3a9a747ade5d362113a721d8c",
+          "saturated": false,
+          "nextRunSequenceBoundary": 234
+        }
+      ],
+      "baselineFindingIds": [],
+      "_hash": "a93bc2d4bf761544681adcb690e6167c346cca5bdb82cf226a828537ae064ff5"
     }
   ],
   "receipts": [
@@ -2776,6 +2851,43 @@
       ],
       "createdAt": "2026-08-22T05:27:15.380Z",
       "_hash": "f3c23d6c9323575e86816f7a8f0a0381d1f1f93f8bd32cb00560138c846430c9"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-5a15:RI-014:CRIT-01",
+      "epochId": "B-5a15:RI-014",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-22T06:10:03.014Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "31499b88f78d178cb86cc22fdb44e25dcff34176",
+        "materialHash": "9ef9d9e58737da562ae603f38a4ea393a304c5faf2f9affdeefcc0287d3c24e6",
+        "storyFilesHash": "e287c5f32d9aad03e0ce7ea8b20a2684ab0ac2e78ef99c6fc5b18e9b8e9c97e7"
+      },
+      "aggregateFindingSetDigest": "e9fd28e910908a14a344c270c131166b50a850ac904e52c7c86639f88db4f50b",
+      "requiredLaneCoverageDigest": "0b0e81e50e2352ff35eeb907cd178fe90452cfa15c96b5bb1a189ad78164855b",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-5a15:RR-234",
+      "terminalEvidenceIds": [
+        "B-5a15:F-154"
+      ],
+      "readEvidenceDigest": "54210710710a9ca539e8ae004fafff18ab10ddc60d8fa2ccb83fddd2b3deea42",
+      "findingDispositions": [
+        {
+          "findingId": "B-5a15:F-152",
+          "disposition": "verified_family",
+          "familyKey": "certification-window-admission-coverage",
+          "reason": "Current-wave coverage finding independently confirmed: the cited test asserts a negative partial-rerun result and does not exercise the positive identity-bound advisory admission at the CertificationWindow consumer, so CHK-003:happy:2 remains unverified."
+        },
+        {
+          "findingId": "B-5a15:F-153",
+          "disposition": "verified_family",
+          "familyKey": "cas-receipt-output-tail-boundary",
+          "reason": "Current-wave receipt finding independently confirmed: verifyCausalEvidenceReceipt bounds outputProbe but not durable outputTail, which is later consumed by selectorVerdict, so the CAS/import boundary lacks the declared tail bound."
+        }
+      ],
+      "createdAt": "2026-08-22T06:55:07.868Z",
+      "_hash": "28cd08b951a33067f465f3deade8f14c6d2bce1af3120b4952cb1b7698f3fff0"
     }
   ]
 }
