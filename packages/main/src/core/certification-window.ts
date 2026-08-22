@@ -6,6 +6,7 @@ import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from './ev
 import { withMkdirLock } from './mkdir-lock.js';
 import {
   causalDependencyDecisionMatchesCurrentIdentity,
+  hasCausalDependencyDecisionIdentityBinding,
   verifyCausalDependencyDecision,
   type CausalDependencyDecision,
 } from './causal-evidence.js';
@@ -442,7 +443,7 @@ export function evaluateCertificationWindowAdmit(
       blockerDetail: `[${PRE_CERT_INVENTORY_API_ABSENT}] Review inventory admit APIs are absent; begin stays fail-closed and does not stub-always-admit. Inventory completeness is not PRE_CERT.`,
     };
   }
-  const causalDecisionBindingAdmissible = facts.causalDecision?.causalDecision !== 'advisory'
+  const causalDecisionBindingAdmissible = !facts.causalDecision
     || causalDependencyDecisionMatchesCurrentIdentity(facts.causalDecision, {
       materialHash: facts.materialHash,
       storyFilesHash: facts.storyFilesHash,
@@ -459,7 +460,7 @@ export function evaluateCertificationWindowAdmit(
       blockerDetail: facts.causalDecision && verifyCausalDependencyDecision(facts.causalDecision)
         ? causalDecisionBindingAdmissible
           ? `CausalEvidence requires fresh affected-node evidence: ${facts.causalDecision.reason}`
-          : 'CausalEvidence advisory binding does not match the live certification hashes; unrelated-material downgrade is refused.'
+          : 'CausalEvidence decision binding does not match the live certification hashes; stale evidence is refused.'
         : 'CausalEvidence decision is missing or tampered; stale affected-node bypass is refused.',
     };
   }
@@ -713,6 +714,19 @@ export interface CertificationWindowCurrentIdentity {
   causalDecision?: CausalDependencyDecision;
 }
 
+function causalDecisionMatchesCertificationSnapshot(
+  decision: CausalDependencyDecision,
+  frozen: CertificationWindowFrozenIdentity,
+  current: CertificationWindowCurrentIdentity,
+): boolean {
+  if (!hasCausalDependencyDecisionIdentityBinding(decision)) return false;
+  if (!causalDependencyDecisionMatchesCurrentIdentity(decision, current)) return false;
+  const binding = decision.identityBinding!;
+  return binding.previousMaterialHash === frozen.materialHash
+    && binding.previousStoryFilesHash === frozen.storyFilesHash
+    && binding.previousHeadHash === frozen.headHash;
+}
+
 export function detectCertificationWindowMaterialDrift(
   window: CertificationWindow,
   current: CertificationWindowCurrentIdentity,
@@ -728,11 +742,17 @@ export function detectCertificationWindowMaterialDrift(
   if (current.causalDecision && !current.causalDecision.gateAdmissible) {
     return { drifted: true, reason: current.causalDecision.reason };
   }
-  if (
-    current.causalDecision?.causalDecision === 'advisory'
-    && !causalDependencyDecisionMatchesCurrentIdentity(current.causalDecision, current)
-  ) {
-    return { drifted: true, reason: 'causal advisory binding does not match current certification hashes' };
+  if (current.causalDecision && !causalDecisionMatchesCertificationSnapshot(current.causalDecision, frozen, current)) {
+    const binding = current.causalDecision.identityBinding;
+    const currentMatches = binding
+      ? causalDependencyDecisionMatchesCurrentIdentity(current.causalDecision, current)
+      : false;
+    return {
+      drifted: true,
+      reason: currentMatches
+        ? 'causal dependency previous binding does not match frozen certification hashes'
+        : 'causal dependency current binding does not match current certification hashes [causal advisory binding mismatch]',
+    };
   }
   const allowSpecializedUnrelatedDrift = current.causalDecision?.causalDecision === 'advisory'
     && current.causalDecision.storyFilesHashAdvisory;

@@ -9,7 +9,12 @@ import {
   currentGitHead,
   currentMaterialHash,
   currentStoryFilesHash,
+  EMPTY_STORY_FILES_HASH,
 } from '../core/evidence-freshness.js';
+import {
+  evaluateCausalDependencies,
+  type CausalDependencyDecision,
+} from '../core/causal-evidence.js';
 import { resolveEffectiveBlockingSeverities } from '../core/guard-utils.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { buildVerificationCoverage } from '../core/verification.js';
@@ -37,6 +42,7 @@ import {
   PRE_CERT_INVENTORY_NOT_FINALIZED,
   type CertificationWindowAdmitFacts,
   type CertificationWindowCurrentIdentity,
+  type CertificationWindowFrozenIdentity,
   type CertificationWindowInventoryBinding,
   type CertificationWindowStatusProjection,
   type ReviewInventoryAdmitPair,
@@ -73,6 +79,34 @@ function readInventoryPair(
   }
 }
 
+function buildCertificationDecision(
+  current: CertificationWindowCurrentIdentity,
+  frozen?: CertificationWindowFrozenIdentity,
+): CausalDependencyDecision | undefined {
+  if (!current.materialHash || !current.storyFilesHash) return undefined;
+  const previous = frozen ?? {
+    headHash: current.headHash ?? '',
+    materialHash: current.materialHash,
+    storyFilesHash: current.storyFilesHash,
+    expectedMainSha: '',
+    verifierIdentity: PRECERT_VERIFIER_IDENTITY,
+    testIdentity: PRECERT_TEST_IDENTITY,
+  };
+  const emptyStoryFilesHash = previous.storyFilesHash === EMPTY_STORY_FILES_HASH
+    || current.storyFilesHash === EMPTY_STORY_FILES_HASH;
+  return evaluateCausalDependencies({
+    nodes: [],
+    currentInputHashes: {},
+    previousMaterialHash: previous.materialHash,
+    currentMaterialHash: current.materialHash,
+    previousStoryFilesHash: previous.storyFilesHash,
+    currentStoryFilesHash: current.storyFilesHash,
+    ...(previous.headHash !== undefined ? { previousHeadHash: previous.headHash } : {}),
+    ...(current.headHash !== undefined ? { currentHeadHash: current.headHash } : {}),
+    doneRequired: emptyStoryFilesHash,
+  });
+}
+
 function collectAdmitFacts(
   ctx: HandlerContext,
   storyId: string,
@@ -87,6 +121,7 @@ function collectAdmitFacts(
   const headHash = currentGitHead(gitCwd);
   const materialHash = currentMaterialHash(gitCwd, 'HEAD', ctx.root);
   const storyFilesHash = currentStoryFilesHash(gitCwd, 'HEAD', ctx.root);
+  const identity = currentCertificationIdentity(ctx, storyId);
   const expectedMainSha = donePrepareExpectedMainSha(gitCwd);
   let missingRequiredIntents = 0;
   try {
@@ -138,6 +173,7 @@ function collectAdmitFacts(
     dirtyNonRuntimePaths,
     gitIndexReadable: isDonePrepareGitIndexReadable(gitCwd),
     evidenceTargetWritable: isEvidenceTargetWritable(ctx.store.storyDirPath(storyId)),
+    causalDecision: identity.causalDecision,
   };
 }
 
@@ -155,7 +191,7 @@ export function currentCertificationIdentity(
   const materialHash = currentMaterialHash(gitCwd, 'HEAD', ctx.root);
   const storyFilesHash = currentStoryFilesHash(gitCwd, 'HEAD', ctx.root);
   const gitRepo = existsSync(join(gitCwd, '.git'));
-  return {
+  const identity: CertificationWindowCurrentIdentity = {
     headHash,
     materialHash,
     storyFilesHash,
@@ -163,6 +199,14 @@ export function currentCertificationIdentity(
     testIdentity: PRECERT_TEST_IDENTITY,
     hashUnavailable: gitRepo && (!materialHash || !storyFilesHash),
   };
+  if (!identity.hashUnavailable) {
+    const loaded = loadVerifiedCertificationWindow(ctx.store, storyId);
+    const frozen = loaded.window?.state === 'ADMITTED' || loaded.window?.state === 'RUNNING'
+      ? loaded.window.frozen
+      : undefined;
+    identity.causalDecision = buildCertificationDecision(identity, frozen);
+  }
+  return identity;
 }
 
 function inventoryBinding(pair: ReviewInventoryAdmitPair | null, consumedReceiptId?: string): CertificationWindowInventoryBinding {
