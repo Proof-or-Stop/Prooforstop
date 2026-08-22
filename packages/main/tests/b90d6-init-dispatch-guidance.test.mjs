@@ -323,7 +323,7 @@ function assertScopePlanDispatchAndReviewGuidance() {
       .story_review({ storyId });
     const issue = storyReview.issues.find((entry) => entry.type === 'missing_scope_check');
     assert.ok(issue, 'story_review should report missing_scope_check');
-    assert.match(issue.message, new RegExp(`proof-or-stop dispatch --storyId=${storyId} --agentType=lattice-review-scope-plan`));
+    assert.match(issue.message, new RegExp(`proof-or-stop dispatch --storyId=${storyId} --agentType=proof-or-stop-review-scope-plan`));
     assert.match(issue.message, /dispatch output is not gate evidence/);
     assert.match(issue.message, /proof-or-stop scope_check_save/);
   } finally {

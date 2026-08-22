@@ -9088,6 +9088,223 @@
       ],
       "signatureTag": "review-inventory-current-finding-read-evidence",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-243",
+      "desc": "CHK-001 through CHK-007: current-round verification coverage is stale and cannot support REVIEW. proof-or-stop evidence_inspect --storyId=B-5a88 --sourceHost=codex reports freshness=stale with staleRefs=22, while the latest proof-or-stop validate snapshot reports all configured project commands passed but verification coverage missing 21 required intents. The 21 checklist evidence rows are therefore historical attestations, not valid evidence bound to current HEAD 3f96d9a3b24e95a9728528257350d693e77257fc and materialHash 1f0830573f73ba2502cd8913fe3a564234ed4a202319db9c2874c20f0c4ca024; re-execute the pinned verifiers and refresh every required intent before coverage can pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-21T23:40:59.892Z",
+      "reviewRound": "2026-08-21T23:08:44.617Z",
+      "reviewRunId": "B-5a88:RR-288",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a88/test-evidence.json",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/tests/artifact-schema-migration.test.mjs",
+          "packages/main/tests/bin-alias-migration.test.mjs",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/package-identity-migration.test.mjs",
+          "packages/main/tests/prompt-role-migration.test.mjs",
+          "packages/main/tests/release-push-approval-migration.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "c8bdecd7ae637f403b1997bcf6c3d210ed629a06bdd3d9d7dc111c22479c7c4a"
+      },
+      "readDiagnostics": [],
+      "_hash": "c44bf4a1e02644a9217a0154561d558cb606e92242ae2d0332d402116c40fb9f",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/checklist.json",
+        ".proof-or-stop/story/actives/B-5a88/test-evidence.json",
+        "packages/main/tests/brand-role-migration.test.mjs",
+        "packages/main/tests/managed-marker-migration.test.mjs",
+        "packages/main/tests/artifact-schema-migration.test.mjs",
+        "packages/main/tests/release-push-approval-migration.test.mjs",
+        "packages/main/tests/package-identity-migration.test.mjs",
+        "packages/main/tests/prompt-role-migration.test.mjs",
+        "packages/main/tests/bin-alias-migration.test.mjs"
+      ],
+      "signatureTag": "missing|json|current-round-verification-coverage-stale",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-244",
+      "desc": "Current Wave 4 acceptance evidence is stale at the RI-019 cutoff and cannot certify this review. acceptance_rollout_report_read and acceptance_rollout_check both return status=fail, receipt=stale, diagnostic AR_REPORT_STALE despite quorum=full-3x2; the stored report binding is head d81a12f05cec876db7e71496ca94e8ab8e3081b3, material 83313a2237456066d5ad1f830603586cd4640a51aabd24e8ce59e6afb3936f32, and storyFiles b07033c3b3dbae9b8f29790341d64be32e45a1051143bec38414d61df91d7616, not current HEAD 3f96d9a3b24e95a9728528257350d693e77257fc, material 1f0830573f73ba2502cd8913fe3a564234ed4a202319db9c2874c20f0c4ca024, and storyFiles 2c67803c111afcb57aeda7f0dea810a9b80eefae307ea3c250c0500e4062e413. The same current read also reports pre_review_check FAIL with PR_ARTIFACT_TAMPERED and missing executable/mutation/transcript/authority proof; regenerate and rebind the verifier-owned acceptance and pre-review artifacts before accepting coverage.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-21T23:41:25.184Z",
+      "reviewRound": "2026-08-21T23:08:44.617Z",
+      "reviewRunId": "B-5a88:RR-288",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "07c4ce2c5fd83029b4b48ae2caa51e3eb37329e38fb7fff3c0359935fef187ef"
+      },
+      "readDiagnostics": [],
+      "_hash": "040f89165e663795b99907c5cbf386a602143cf642e00ca2aaa9043de0e5ee9b",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+        ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json"
+      ],
+      "signatureTag": "missing|json|wave4-acceptance-receipts-stale",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-245",
+      "desc": "concept-cleanup: scripts/package-desktop.mjs:242 writes the generated desktop manifest entry as bin/lattice.js via generated pkg-entry.js, but HEAD ships only bin/proof-or-stop.js and the migration requires canonical-only new output. This active artifact writer continues advertising the retired lattice bin rather than a historical compatibility read.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-21T23:55:21.306Z",
+      "reviewRound": "2026-08-21T23:08:44.617Z",
+      "reviewRunId": "B-5a88:RR-295",
+      "readManifest": {
+        "filesReadFully": [
+          "scripts/package-desktop.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "37bf846fe5c0c01b88345fe872f3c0020bca2fa25dbd0e63fe3f2750a3422fb7"
+      },
+      "readDiagnostics": [],
+      "_hash": "1fbf8dfb443c2e77563c7da3aa38e5473ebcfc4f2c11bb5434d1c8948a75f0d0",
+      "files": [
+        "scripts/package-desktop.mjs"
+      ],
+      "signatureTag": "missing|mjs|concept-cleanup-scripts",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-246",
+      "desc": "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs:326 and packages/main/src/tasks/story-review-ergonomics-smoke.ts:103 [medium] story_review now emits the canonical proof-or-stop-review-scope-plan identity, but these assertions still require lattice-review-scope-plan; both focused tests fail on current HEAD, so the migration leaves its guidance test suite red until the expectations are updated.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-08-21T23:59:24.358Z",
+      "reviewRound": "2026-08-21T23:08:44.617Z",
+      "reviewRunId": "B-5a88:RR-293",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/handlers/story-review.ts",
+          "packages/main/src/tasks/story-review-ergonomics-smoke.ts",
+          "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "624a556795ad45278e5cf84a66cc64ba6bb2ee2b5ada32799183c11c8a7545bd"
+      },
+      "readDiagnostics": [
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        }
+      ],
+      "_hash": "8d730265faf59674056f839078f6829c546fcc7efb7bd35972a7a9215bf93c68",
+      "files": [
+        "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs",
+        "packages/main/src/tasks/story-review-ergonomics-smoke.ts",
+        "packages/main/src/handlers/story-review.ts"
+      ],
+      "signatureTag": "missing|mjs|packages-main-tests",
+      "signatureTagSource": "auto"
     }
   ]
 }
