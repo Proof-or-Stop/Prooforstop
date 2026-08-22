@@ -10155,6 +10155,52 @@
       ],
       "signatureTag": "missing|json|acceptance-basis-json",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-263",
+      "desc": "acceptance basis is invalid at the current REVIEW cutoff: semantic discovery digest, scope-contract digest, closure files hash, snapshot seal digest, and evidence storyFilesHash are stale, so verifier-owned topology cannot be certified until pre-review artifacts are reissued.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-22T05:56:44.126Z",
+      "reviewRound": "2026-08-22T05:52:35.956Z",
+      "reviewRunId": "B-5a88:RR-330",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a88/test-evidence.json",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "c977e48536930ab307887c5068ab6820ff07ccb74a9990513879d6852e94284a",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+        ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json"
+      ],
+      "signatureTag": "missing|json|acceptance-basis-invalid",
+      "signatureTagSource": "auto"
     }
   ]
 }
