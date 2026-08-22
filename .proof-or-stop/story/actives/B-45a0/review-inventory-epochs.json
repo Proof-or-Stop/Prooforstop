@@ -1702,6 +1702,32 @@
       "cancelReason": "Current review evidence was invalidated by an untrusted closeout metadata artifact; return to DEV to remove the stale helper reference and rebind a fresh review epoch.",
       "terminalRunSequenceBoundary": 145,
       "_hash": "0a5d60536b7049b861e33e3ed4961239c6e1fbbc781c15267b77c1b8a3564f5d"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-45a0:RI-032",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-22T07:15:28.360Z",
+      "state": "OPEN",
+      "begunAt": "2026-08-22T07:22:01.735Z",
+      "updatedAt": "2026-08-22T07:22:01.735Z",
+      "cutoff": {
+        "headHash": "1e8e0bb3fbef30ddf265e395ef7daead88545acd",
+        "materialHash": "fd1e805be1f61f2b14bdb967b9abd5931d79e7f2d8ae2f116dea4105e041e140",
+        "storyFilesHash": "09f8435dc27b88e1f9c829786d714e6f1dd9a12fb4c7d9ac2f6187e519cf2e89"
+      },
+      "scopeDigest": "c0b12a8741295f9390ae580a85e1a7f5ca8568faee57eb276bf4d79dbc46c778",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage",
+        "lattice-review-docs"
+      ],
+      "initialRunSequenceBoundary": 145,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [],
+      "_hash": "6475fd6d926e5b4964ef21c29c749de4f119ca42d5bd1b0e1cce69195959ca1b"
     }
   ],
   "receipts": [
