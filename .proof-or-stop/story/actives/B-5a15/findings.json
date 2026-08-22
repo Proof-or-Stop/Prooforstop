@@ -7204,6 +7204,108 @@
       ],
       "signatureTag": "ri-012-wave2-current-scope-unacknowledged-receipts",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a15:F-140",
+      "desc": "Independent RI-012 wave 2 topology review cannot pass at the current acceptance boundary: acceptance_basis is verified and acceptance_topology_check is a diagnostic-only structural pass, but pre_review_check_read returns status=inconclusive with ok=false and PR_ARTIFACT_TAMPERED, PR_NEW_PATH_UNMAPPED, and PR_COVERAGE_BASIS_CHANGED; acceptance_rollout_check is a separate pass and does not repair the pre-review binding. scope_contract_check is enforce-mode fail with 13 unacknowledged generated CausalEvidence receipt paths. Reissue current verifier-owned pre-review evidence and explicitly authorize or remove the unacknowledged receipts before claiming admissibility.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-22T04:57:35.519Z",
+      "reviewRound": "2026-08-21T20:31:33.599Z",
+      "reviewRunId": "B-5a15:RR-216",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a15/scope-contract.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "e6b75ec3f2596db21229b8c02684235cde62a348b9c24fc6244ece4bf76bf0c3",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a15/scope-contract.json",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/acceptance-rollout.ts",
+        "packages/main/src/core/topology-critic-receipt.ts"
+      ],
+      "signatureTag": "topology-critic-current-admissibility",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a15:F-141",
+      "desc": "Independent RI-012 wave 2 topology review cannot pass at the current acceptance boundary: acceptance_basis is verified and acceptance_topology_check is a diagnostic-only structural pass, but pre_review_check_read returns status=inconclusive with ok=false and PR_ARTIFACT_TAMPERED, PR_NEW_PATH_UNMAPPED, and PR_COVERAGE_BASIS_CHANGED; acceptance_rollout_check is a separate pass and does not repair the pre-review binding. scope_contract_check is enforce-mode fail with 13 unacknowledged generated CausalEvidence receipt paths. Reissue current verifier-owned pre-review evidence and explicitly authorize or remove the unacknowledged receipts before claiming admissibility.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-22T05:03:27.620Z",
+      "reviewRound": "2026-08-21T20:31:33.599Z",
+      "reviewRunId": "B-5a15:RR-217",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a15/scope-contract.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "1c77cc4c91116f80c3966f0d184c18c1cb9e2744d64b6dbad75854c993323f06",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a15/scope-contract.json",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/acceptance-rollout.ts",
+        "packages/main/src/core/topology-critic-receipt.ts"
+      ],
+      "signatureTag": "topology-critic-current-admissibility",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
