@@ -1,0 +1,93 @@
+{
+  "schema": "lattice.done-required-evidence",
+  "version": 1,
+  "storyId": "B-5a88",
+  "status": "FAIL",
+  "startedAt": "2026-08-22T07:19:18.704Z",
+  "endedAt": "2026-08-22T07:19:44.808Z",
+  "durationMs": 26104,
+  "headHash": "26a55519df0ba610e7f9b5fdf35999826b2e9a39",
+  "materialHash": "a883261785bc024d6209525b43bc89374a323206a9318a57c96e49180c7ea0be",
+  "storyFilesHash": "b7a3d2a131b146253a7087c8bf7c3adcb8d0c198026c8ca482ae29f34e502aa4",
+  "policyHash": "6e3b308d27b3ecbdc367f7f51340bbd181a7f52483c83a6298eb0d6378cd18c3",
+  "commandSetHash": "03ffa95173e47709916f9181a6a61b482281186802535c1d9c22cbc09baf1fad",
+  "receipts": [
+    {
+      "label": "packages/main build",
+      "command": "npm",
+      "args": [
+        "--prefix",
+        "packages/main",
+        "run",
+        "build"
+      ],
+      "commandSpec": {
+        "schema": "lattice.command-spec.v2",
+        "digest": "a76398c632d34d84bee8e7f8311b0d8455e09520b58209a489f04c0f7317d9da",
+        "command": "npm",
+        "args": [
+          "--prefix",
+          "packages/main",
+          "run",
+          "build"
+        ],
+        "cwd": ".",
+        "resolvedCwd": "/Users/qipan/work/repo/Prooforstop/.worktrees/B-5a88",
+        "shell": false,
+        "env": {},
+        "timeoutMs": 290000
+      },
+      "cwd": "/Users/qipan/work/repo/Prooforstop/.worktrees/B-5a88",
+      "status": "PASS",
+      "exitCode": 0,
+      "durationMs": 682,
+      "outputDigest": "be2e2bfac9b47b359e45b6a08fca25dc998471874c4e84eba5e007a992d1c3d1",
+      "outputTail": "\n> @proof-or-stop/core@0.3.268 build\n> node ../../scripts/build-main-with-binding.mjs\n\n",
+      "startedAt": "2026-08-22T07:19:18.705Z",
+      "endedAt": "2026-08-22T07:19:19.387Z",
+      "effectiveEnvironmentDigest": "7d2922980f79991925e0a6bd077604a67ce7be273bf02eb93ce0f88968781fdb",
+      "executableDigest": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
+      "shellExecutableDigest": null,
+      "headHash": "26a55519df0ba610e7f9b5fdf35999826b2e9a39",
+      "materialHash": "a883261785bc024d6209525b43bc89374a323206a9318a57c96e49180c7ea0be",
+      "storyFilesHash": "b7a3d2a131b146253a7087c8bf7c3adcb8d0c198026c8ca482ae29f34e502aa4"
+    },
+    {
+      "label": "root full test suite",
+      "command": "npm",
+      "args": [
+        "test"
+      ],
+      "commandSpec": {
+        "schema": "lattice.command-spec.v2",
+        "digest": "6799a93ad997f9caf9d5c45a723d844aa642b9ed152a8a5ed54a2b8a09358df2",
+        "command": "npm",
+        "args": [
+          "test"
+        ],
+        "cwd": ".",
+        "resolvedCwd": "/Users/qipan/work/repo/Prooforstop/.worktrees/B-5a88",
+        "shell": false,
+        "env": {},
+        "timeoutMs": 7200000
+      },
+      "cwd": "/Users/qipan/work/repo/Prooforstop/.worktrees/B-5a88",
+      "status": "FAIL",
+      "exitCode": 1,
+      "durationMs": 25014,
+      "outputDigest": "f4801d703c27946489488399945c42a46cc21f7d2a05a369886d437d2f61f94b",
+      "outputTail": "ch '{\\\\\"storyId\\\\\":\\\\\"B-smoke\\\\\",\\\\\"agentType\\\\\":\\\\\"proof-or-stop-review-test-coverage\\\\\"}' to get the standard story-level prompt, then follow it (baseline)\" })\\n` +\n  '→ reviewer liveness: each reviewer should first output REVIEW_START after starting\\n' +\n  'Host-native task liveness policy:\\n' +\n  '- Elapsed time or silence alone never proves a stall and never authorizes a replacement.\\n' +\n  '- Query the host-native task status for the original task identity.\\n' +\n  '- If status is foreground, running, or background, continue bounded polling/waits on that same task identity; do not dispatch a duplicate, including after 10 minutes/600s.\\n' +\n  '- If status is unknown or temporarily unavailable, record the uncertainty and keep monitoring the same task identity; do not dispatch a duplicate.\\n' +\n  '- If status is completed, consume the original result exactly once.\\n' +\n  '- Only an authoritative failed, cancelled, missing, or dead status (or explicit operator cancellation) authorizes at most one replacement.\\n' +\n  '- Before replacing, record the terminal reason and ensure the former task can no longer write results or evidence.\\n' +\n  '- Explicit configured subprocess deadlines (including provider.codex and cross_host_review) are separate execution contracts and remain enforced.\\n' +\n  '→ After all return, proof-or-stop finding_list to aggregate\\n' +\n  '→ Once critical/high are all resolved: story_advance(B-smoke, TEST)\\n' +\n  '→ Need code changes: review_inventory_begin(B-smoke), finish all required lanes, dispatch topology critic and submit complete findingDispositions, then review_inventory_finalize(B-smoke); only its signed receipt authorizes story_advance(B-smoke, DEV)\\n' +\n  '⚠ When reviewers call finding_add they must pass the agent parameter (e.g. \"agent\":\"proof-or-stop-review-behavior\"), otherwise the finding will be marked as main agent and the TEST gate will refuse to advance\\n' +\n  'Pre-review check:\\n' +\n  '  mode=observe; status=fail; blocking=false\\n' +\n  '  plannedActual=incomplete; executableEvidence=missing; mutations=missing; transcript=missing; authority=inadmissible; criticReattestation=not_required\\n' +\n  '  codes=PR_ARTIFACT_MISSING\\n' +\n  '  remediation=Run proof-or-stop pre_review_check --storyId=<id> after recording a current canonical live_smoke_transcript proof.\\n' +\n  'Acceptance rollout enforcement:\\n' +\n  '  mode=observe; status=missing; blocking=false\\n' +\n  '  receipt=missing; quorum=degraded-or-missing\\n' +\n  '  codes=AR_REPORT_MISSING\\n' +\n  '\\n' +\n  '⚠ Scope protection: none (legacy story — checklist items have no file declarations; add files to checklist items and run scope_contract_init_from_plan to enable scope enforcement)\\n' +\n  '\\n' +\n  'Runtime memory advisory (not gate evidence):\\n' +\n  '## Memory Runtime Preflight\\n' +\n  '  authority=non_authoritative gateEvidence=false\\n' +\n  '  packDigest: 5fe4efa43647073e125f0eb2182a25a98334aecbab1a722106a91fd4ff7536d6\\n' +\n  '  topHitIds: none\\n' +\n  '  freshness: fresh\\n' +\n  '  sourceDigests: project=none global=none playbooks=none signatures=none\\n' +\n  '  empty: no relevant active playbooks or dev-memory entries surfaced\\n' +\n  '  render: maxLines=60 omittedCount=0'\n\n    at assertStoryAdvanceReviewEchoOmitsRetiredChannel (file:///Users/qipan/work/repo/Prooforstop/.worktrees/B-5a88/packages/main/dist/tasks/flow-stability-smoke.js:1894:16)\n    at async file:///Users/qipan/work/repo/Prooforstop/.worktrees/B-5a88/packages/main/dist/tasks/flow-stability-smoke.js:4163:1 {\n  generatedMessage: true,\n  code: 'ERR_ASSERTION',\n  actual: 'Story B-smoke advanced to REVIEW\\n' +\n    '✓ proof-or-stop metadata auto-committed: proof-or-stop: record B-smoke REVIEW metadata (d6ebfd3) (coexisting non-metadata dirt left untouched: runtime_artifact_changes=1)\\n' +\n    '→ Active reviewers: proof-or-stop-review-concept (legacy alias: lattice-review-concept), proof-or-stop-review-quality (legacy alias: lattice-review-quality), proof-or-st\n...[truncated 7619 chars]",
+      "startedAt": "2026-08-22T07:19:19.602Z",
+      "endedAt": "2026-08-22T07:19:44.616Z",
+      "effectiveEnvironmentDigest": "7d2922980f79991925e0a6bd077604a67ce7be273bf02eb93ce0f88968781fdb",
+      "executableDigest": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
+      "shellExecutableDigest": null,
+      "headHash": "26a55519df0ba610e7f9b5fdf35999826b2e9a39",
+      "materialHash": "a883261785bc024d6209525b43bc89374a323206a9318a57c96e49180c7ea0be",
+      "storyFilesHash": "b7a3d2a131b146253a7087c8bf7c3adcb8d0c198026c8ca482ae29f34e502aa4"
+    }
+  ],
+  "reasons": [
+    "command-failed: FAIL root full test suite: npm test exitCode=1"
+  ]
+}
