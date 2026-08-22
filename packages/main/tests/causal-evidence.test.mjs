@@ -27,6 +27,8 @@ const {
   computeCausalReceiptHash,
   createCausalExecutionKey,
   createCausalEvidenceBatch,
+  createCausalDependencyRerunEvidence,
+  causalDependencyExecutionInputs,
   deriveCausalMetrics,
   effectiveCausalEnvironment,
   evaluateCausalDependencies,
@@ -1133,6 +1135,83 @@ test('CHK-003: dependency domains shadow-compare closure and CertificationWindow
   const laterMaterial = detectCertificationWindowMaterialDrift(window, { materialHash: 'm3', storyFilesHash: 's1', headHash: 'h3', causalDecision: advisory });
   assert.equal(laterMaterial.drifted, true, 'an advisory bound to m2 must not bypass a later live m3 material change');
   assert.match(laterMaterial.reason, /causal advisory binding|materialHash/);
+
+  const completedRerunNode = {
+    id: 'source-node',
+    domain: 'source',
+    inputIds: ['input-source'],
+    recordedInputHashes: { 'input-source': 'old' },
+  };
+  const completedRerunInputs = { 'input-source': 'new' };
+  const completedRerunIdentity = baseIdentity('B-causal-completed-rerun', {
+    inputs: causalDependencyExecutionInputs(completedRerunNode.id, completedRerunInputs),
+  });
+  const completedRerunStore = new MemoryReceiptStore();
+  const completedRerunExecution = await executeCausalEvidence({
+    identity: completedRerunIdentity,
+    selector: 'COMPLETED-RERUN',
+    run: async () => ({ code: 0, output: 'COMPLETED-RERUN' }),
+    receiptStore: completedRerunStore,
+    preflight: preflightFor(completedRerunIdentity),
+    revalidateBeforeRun: () => true,
+  });
+  const completedPreviousMismatch = evaluateCausalDependencies({
+    nodes: [completedRerunNode],
+    currentInputHashes: completedRerunInputs,
+    previousMaterialHash: 'm0',
+    currentMaterialHash: 'm1',
+    previousStoryFilesHash: 's1',
+    currentStoryFilesHash: 's1',
+    previousHeadHash: 'h0',
+    currentHeadHash: 'h1',
+    rerunEvidence: [createCausalDependencyRerunEvidence(completedRerunNode.id, completedRerunExecution.receipt)],
+  });
+  assert.equal(completedPreviousMismatch.causalDecision, 'rerun');
+  assert.equal(completedPreviousMismatch.gateAdmissible, true);
+  const previousSnapshotMismatch = detectCertificationWindowMaterialDrift(window, {
+    materialHash: 'm1',
+    storyFilesHash: 's1',
+    headHash: 'h1',
+    causalDecision: completedPreviousMismatch,
+  });
+  assert.equal(previousSnapshotMismatch.drifted, true, 'completed rerun from a different frozen snapshot must invalidate');
+  assert.match(String(previousSnapshotMismatch.reason), /previous binding/);
+
+  const completedCurrentMismatch = evaluateCausalDependencies({
+    nodes: [completedRerunNode],
+    currentInputHashes: completedRerunInputs,
+    previousMaterialHash: 'm1',
+    currentMaterialHash: 'm2',
+    previousStoryFilesHash: 's1',
+    currentStoryFilesHash: 's1',
+    previousHeadHash: 'h1',
+    currentHeadHash: 'h2',
+    rerunEvidence: [createCausalDependencyRerunEvidence(completedRerunNode.id, completedRerunExecution.receipt)],
+  });
+  const currentSnapshotMismatch = detectCertificationWindowMaterialDrift(window, {
+    materialHash: 'm1',
+    storyFilesHash: 's1',
+    headHash: 'h1',
+    causalDecision: completedCurrentMismatch,
+  });
+  assert.equal(currentSnapshotMismatch.drifted, true, 'completed rerun with a different current snapshot must invalidate');
+  assert.match(String(currentSnapshotMismatch.reason), /current binding/);
+  assert.equal(evaluateCertificationWindowAdmit({
+    inventoryApisPresent: true,
+    inventory: null,
+    currentStoryId: 'B-causal-test',
+    headHash: 'h1',
+    materialHash: 'm1',
+    storyFilesHash: 's1',
+    expectedMainSha: 'h1',
+    mainIsAncestor: true,
+    openBlockingFindingIds: [],
+    missingRequiredIntents: 0,
+    dirtyNonRuntimePaths: [],
+    gitIndexReadable: true,
+    evidenceTargetWritable: true,
+    causalDecision: completedCurrentMismatch,
+  }).admit, false, 'admission must reject a completed rerun bound to another current snapshot');
   const { _hash: _forgedHash, ...forgedAdvisoryPayload } = advisory;
   const forgedAdvisory = {
     ...advisory,

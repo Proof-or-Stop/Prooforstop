@@ -852,6 +852,42 @@ git(replayRoot, ['commit', '-m', 'metadata-only']);
 const metadataStatus = replayWindowHandlers.certification_window_status({ storyId: replayStoryId });
 assertStatusSurface(metadataStatus, 'RUNNING');
 
+// F-142: the production handler must construct a signed causal decision and
+// pass it through lineage refresh so an unrelated material commit stays
+// admitted while a story-owned commit invalidates the same window.
+const selectiveRoot = makeGitRoot();
+git(selectiveRoot, ['checkout', '-b', 'story/B-cw-selective']);
+mkdirSync(join(selectiveRoot, 'src'), { recursive: true });
+writeFileSync(join(selectiveRoot, 'src', 'app.ts'), 'export const n = 1;\n');
+git(selectiveRoot, ['add', 'src/app.ts']);
+git(selectiveRoot, ['commit', '-m', 'story source baseline']);
+const selectiveStoryId = 'B-cw-selective';
+const selectiveStore = makeStore(selectiveRoot, selectiveStoryId);
+selectiveStore.writeChecklist(selectiveStoryId, { items: [] });
+const selectiveMock = mockInventoryApis({
+  storyId: selectiveStoryId,
+  materialHash: currentMaterialHash(selectiveRoot, 'HEAD', selectiveRoot)!,
+  storyFilesHash: currentStoryFilesHash(selectiveRoot, 'HEAD', selectiveRoot)!,
+});
+setReviewInventoryAdmitApisForTest(selectiveMock.apis);
+const selectiveHandlers = createCertificationWindowHandlers({
+  store: selectiveStore,
+  root: selectiveRoot,
+  scanRoot: join(selectiveRoot, 'packages', 'main'),
+});
+assertStatusSurface(selectiveHandlers.certification_window_begin({ storyId: selectiveStoryId }), 'ADMITTED');
+git(selectiveRoot, ['checkout', 'main']);
+writeFileSync(join(selectiveRoot, 'unrelated.txt'), 'unrelated material\n');
+git(selectiveRoot, ['add', 'unrelated.txt']);
+git(selectiveRoot, ['commit', '-m', 'unrelated material change']);
+git(selectiveRoot, ['checkout', 'story/B-cw-selective']);
+git(selectiveRoot, ['merge', 'main', '--no-edit']);
+assertStatusSurface(selectiveHandlers.certification_window_status({ storyId: selectiveStoryId }), 'ADMITTED');
+writeFileSync(join(selectiveRoot, 'src', 'app.ts'), 'export const n = 2;\n');
+git(selectiveRoot, ['add', 'src/app.ts']);
+git(selectiveRoot, ['commit', '-m', 'story source change']);
+assertStatusSurface(selectiveHandlers.certification_window_status({ storyId: selectiveStoryId }), 'INVALIDATED');
+
 mkdirSync(join(replayRoot, 'src'), { recursive: true });
 mkdirSync(join(replayRoot, 'tests'), { recursive: true });
 writeFileSync(join(replayRoot, 'src', 'app.ts'), 'export const n = 1;\n');
