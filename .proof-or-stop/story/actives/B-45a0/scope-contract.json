@@ -100,10 +100,50 @@
         "DYN_5",
         "mutation_audit"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "These paths are required to keep the dynamic validation implementation, canonical config mirror, runtime binding, process-fact contract, and operator documentation consistent with the approved story.",
+      "timestamp": "2026-08-22T07:15:05.864Z",
+      "paths": [
+        "docs/CLI.md",
+        "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+        "docs/requirements/decisions/dynamic-validation-operations.md",
+        "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+        "packages/main/src/core/types.ts",
+        "packages/main/src/core/validation-executor.ts",
+        "packages/main/src/core/validation-runtime-tracer.cjs",
+        "proof-or-stop.config.json",
+        "scripts/build-main-with-binding.mjs",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "docs/CLI.md",
+        "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+        "docs/requirements/decisions/dynamic-validation-operations.md",
+        "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+        "packages/main/src/core/types.ts",
+        "packages/main/src/core/validation-executor.ts",
+        "packages/main/src/core/validation-runtime-tracer.cjs",
+        "proof-or-stop.config.json",
+        "scripts/build-main-with-binding.mjs",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "affectedPathCount": 10,
+      "phase": "DEV",
+      "headHash": "05f6a2d2067eae1876dd4f42370bee630cd12982",
+      "materialHash": "fd1e805be1f61f2b14bdb967b9abd5931d79e7f2d8ae2f116dea4105e041e140",
+      "anchors": [
+        "story_aware_validation",
+        "DYN_3",
+        "DYN_5",
+        "process_fact_registry"
+      ]
     }
   ],
   "createdAt": "2026-08-21T07:07:34.430Z",
-  "updatedAt": "2026-08-21T08:11:49.269Z",
+  "updatedAt": "2026-08-22T07:15:05.864Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -140,6 +180,16 @@
     "scripts/run-dynamic-validation-fault-injection.mjs": "scripts/run-dynamic-validation-fault-injection.mjs",
     "scripts/run-dynamic-validation-replay.mjs": "scripts/run-dynamic-validation-replay.mjs",
     "scripts/verify-validation-catalog.mjs": "scripts/verify-validation-catalog.mjs",
-    "scripts/verify-validation-inventory.mjs": "scripts/verify-validation-inventory.mjs"
+    "scripts/verify-validation-inventory.mjs": "scripts/verify-validation-inventory.mjs",
+    "docs/CLI.md": "docs/CLI.md",
+    "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md": "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+    "docs/requirements/decisions/dynamic-validation-operations.md": "docs/requirements/decisions/dynamic-validation-operations.md",
+    "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md": "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+    "packages/main/src/core/types.ts": "packages/main/src/core/types.ts",
+    "packages/main/src/core/validation-executor.ts": "packages/main/src/core/validation-executor.ts",
+    "packages/main/src/core/validation-runtime-tracer.cjs": "packages/main/src/core/validation-runtime-tracer.cjs",
+    "proof-or-stop.config.json": "proof-or-stop.config.json",
+    "scripts/build-main-with-binding.mjs": "scripts/build-main-with-binding.mjs",
+    "scripts/verify-process-fact-contract.mjs": "scripts/verify-process-fact-contract.mjs"
   }
 }
