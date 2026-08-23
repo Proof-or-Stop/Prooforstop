@@ -11184,6 +11184,241 @@
       ],
       "signatureTag": "missing|json|coverage-finding-intents",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-283",
+      "desc": "RI-032 fresh quality re-submission of existing B-5a88:F-279 family (not a new family): docs/CLI.md:1074 [high] claims a globally installed @proof-or-stop/core binary automatically enables lab behavior whenever @proof-or-stop/lab is resolvable, but the published entrypoint packages/main/src/cli.ts:12-16 only calls runCli() without extra lab registration; lab wiring exists only in repo-local bin/bootstrap-runner.js:130-158, so the documented global behavior remains undelivered.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-08-23T11:58:32.795Z",
+      "reviewRound": "2026-08-23T10:36:59.797Z",
+      "reviewRunId": "B-5a88:RR-373",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "bin/bootstrap-runner.js",
+          "docs/CLI.md",
+          "packages/main/src/cli.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "649e4247136186c8b45be536a4866976b8d1a71ea648569be0bcd8890e730e2b",
+      "files": [
+        "docs/CLI.md",
+        "packages/main/src/cli.ts",
+        "bin/bootstrap-runner.js"
+      ],
+      "signatureTag": "missing|md|docs-1074-high",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-284",
+      "desc": "RI-032 fresh test-coverage re-submission of existing B-5a88:F-277 family (not a new family): checklist.json:81-115,211-233,476-502 record must-intent evidence that does not execute the claimed behaviors. CHK-001:happy:0 only calls canonicalAgentRoleId and never exercises review_run_start, review_pass_set, init_check_set, or quorum resolution. CHK-002:edge:0 runs nested/mixed malformed-marker rejection instead of valid legacy-block replacement, while CHK-002:adversarial:0 only scans canonical template strings instead of testing mismatched/nested rejection; both commands import unbound /private/tmp builds. CHK-004 happy/edge/adversarial only scan source or hook strings (plus bash -n), not approval creation, canonical/legacy hook acceptance, one-shot consumption, or invalid/stale rejection. The stronger focused tests exist in packages/main/tests/brand-role-migration.test.mjs:194-242, packages/main/tests/managed-marker-migration.test.mjs:17-44, and packages/main/tests/release-push-approval-migration.test.mjs:11-98, but they are not the recorded verificationEvidence commands.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-23T11:58:52.983Z",
+      "reviewRound": "2026-08-23T10:36:59.797Z",
+      "reviewRunId": "B-5a88:RR-371",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/release-push-approval-migration.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/managed-markers.ts",
+          "packages/main/src/core/release-push-approval.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7485b28275f8165d63c670363ff9d2f5f7e1f1525881927844c9c7ed858eac51",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/checklist.json",
+        "packages/main/tests/brand-role-migration.test.mjs",
+        "packages/main/tests/managed-marker-migration.test.mjs",
+        "packages/main/tests/release-push-approval-migration.test.mjs",
+        "packages/main/src/core/agent-role-identity.ts",
+        "packages/main/src/core/managed-markers.ts",
+        "packages/main/src/core/release-push-approval.ts",
+        ".githooks/pre-push"
+      ],
+      "signatureTag": "missing|json|coverage-medium-proof",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-285",
+      "desc": "RI-032 fresh test-coverage re-submission of existing B-5a88:F-278 family (not a new family): six must intents have pass-shaped verificationEvidence that does not execute the claimed behavior. checklist.json:81-115 CHK-001:happy:0 only calls canonicalAgentRoleId and does not exercise review_run_start, review_pass_set, init_check_set, or quorum resolution. checklist.json:211-233 CHK-002:edge:0 tests nested/mixed malformed-marker rejection instead of valid legacy-block replacement, while CHK-002:adversarial:0 scans canonical template strings instead of testing mismatched/nested rejection; both commands import unbound /private/tmp builds. checklist.json:476-503 CHK-004 happy/edge/adversarial only scan source or hook strings and run bash -n, not approval creation, canonical/legacy hook acceptance, one-shot consumption, or invalid/stale rejection. The executable focused tests at brand-role-migration.test.mjs:194-242, managed-marker-migration.test.mjs:17-44, and release-push-approval-migration.test.mjs:11-98 are not the recorded verificationEvidence commands, so the evidence does not establish the claimed coverage. The current RI-032 inventory is INVALIDATED with OPEN_REVIEW_INVENTORY_SCOPE_MUTATION, so no inventory critic was admissible and no basis/pre-review regeneration was performed.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-23T11:59:12.443Z",
+      "reviewRound": "2026-08-23T10:36:59.797Z",
+      "reviewRunId": "B-5a88:RR-371",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/release-push-approval-migration.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          "packages/main/src/core/acceptance-topology.ts"
+        ],
+        "scanEscalationReason": "RI-032 was read as INVALIDATED with OPEN_REVIEW_INVENTORY_SCOPE_MUTATION; the current inventory critic path was not admissible, and basis/pre-review artifacts were not regenerated."
+      },
+      "_hash": "ab568e19dc8c62c9d17cc802b1fc30309a265722663d029d0c9f8cb21363fd86",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/checklist.json",
+        ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+        "packages/main/tests/brand-role-migration.test.mjs",
+        "packages/main/tests/managed-marker-migration.test.mjs",
+        "packages/main/tests/release-push-approval-migration.test.mjs",
+        "packages/main/src/core/acceptance-topology.ts"
+      ],
+      "signatureTag": "missing|json|coverage-finding-intents",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-286",
+      "desc": "docs/CLI.md:1074 [high] claims a globally installed @proof-or-stop/core binary automatically enables  whenever @proof-or-stop/lab is resolvable, but the published entrypoint packages/main/src/cli.ts:12-16 only calls runCli() without extra lab registration; lab wiring exists only in the repo-local bin/bootstrap-runner.js:130-158, so the documented global behavior is undelivered.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-08-23T11:59:16.337Z",
+      "reviewRound": "2026-08-23T10:36:59.797Z",
+      "reviewRunId": "B-5a88:RR-372",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "bin/bootstrap-runner.js",
+          "docs/CLI.md",
+          "packages/main/src/cli.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "3e30ec54cff103bb7256a260e6bf42be3a441d1d06506895848716a6564ba970",
+      "files": [
+        "docs/CLI.md",
+        "packages/main/src/cli.ts",
+        "bin/bootstrap-runner.js"
+      ],
+      "signatureTag": "missing|md|docs-1074-high",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-287",
+      "desc": "coverage-gap (medium): .proof-or-stop/story/actives/B-5a88/checklist.json:81-115,211-233,476-502 record must-intent evidence that does not execute the claimed behaviors. CHK-001:happy:0 only calls canonicalAgentRoleId and never exercises review_run_start, review_pass_set, init_check_set, or quorum resolution. CHK-002:edge:0 runs nested/mixed malformed-marker rejection instead of valid legacy-block replacement, while CHK-002:adversarial:0 only scans canonical template strings instead of testing mismatched/nested rejection; both commands import unbound /private/tmp builds. CHK-004 happy/edge/adversarial only scan source or hook strings (plus bash -n), not approval creation, canonical/legacy hook acceptance, one-shot consumption, or invalid/stale rejection. The stronger focused tests exist in packages/main/tests/brand-role-migration.test.mjs:194-242, packages/main/tests/managed-marker-migration.test.mjs:17-44, and packages/main/tests/release-push-approval-migration.test.mjs:11-98, but they are not the recorded verificationEvidence commands for those intents.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-23T11:59:39.335Z",
+      "reviewRound": "2026-08-23T10:36:59.797Z",
+      "reviewRunId": "B-5a88:RR-374",
+      "readManifest": {
+        "filesReadFully": [
+          ".githooks/pre-push",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/managed-markers.ts",
+          "packages/main/src/core/release-push-approval.ts",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/release-push-approval-migration.test.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "19d25d76808120a68b6218dddc3dc5b8ee1dcf01ffe84a95274fbe2f6f029f22",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/checklist.json",
+        "packages/main/tests/brand-role-migration.test.mjs",
+        "packages/main/tests/managed-marker-migration.test.mjs",
+        "packages/main/tests/release-push-approval-migration.test.mjs",
+        "packages/main/src/core/agent-role-identity.ts",
+        "packages/main/src/core/managed-markers.ts",
+        "packages/main/src/core/release-push-approval.ts",
+        ".githooks/pre-push"
+      ],
+      "signatureTag": "missing|json|coverage-medium-proof",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-288",
+      "desc": "RI-027 coverage finding: six must intents have pass-shaped verificationEvidence that does not execute the claimed behavior. checklist.json:81-115 CHK-001:happy:0 only calls canonicalAgentRoleId and does not exercise review_run_start, review_pass_set, init_check_set, or quorum resolution. checklist.json:211-233 CHK-002:edge:0 tests nested/mixed malformed-marker rejection instead of valid legacy-block replacement, while CHK-002:adversarial:0 scans canonical template strings instead of testing mismatched/nested rejection; both commands import unbound /private/tmp builds. checklist.json:476-503 CHK-004 happy/edge/adversarial only scan source or hook strings and run bash -n, not approval creation, canonical/legacy hook acceptance, one-shot consumption, or invalid/stale rejection. The executable focused tests at brand-role-migration.test.mjs:194-242, managed-marker-migration.test.mjs:17-44, and release-push-approval-migration.test.mjs:11-98 are not the recorded verificationEvidence commands, so 21/21 rows do not establish the claimed coverage. The required Wave 4 read is also not fully green: acceptance_topology_check --storyId=B-5a88 --json currently returns status=fail and structuralPass=false with AT_ADAPTER_RESULT_DIGEST_MISMATCH and AT_CLOSURE_FILES_STALE, even though pre_review_check_read and acceptance_rollout_report_read currently report pass.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-23T11:59:53.733Z",
+      "reviewRound": "2026-08-23T10:36:59.797Z",
+      "reviewRunId": "B-5a88:RR-374",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/release-push-approval-migration.test.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "8504c6d728db4fd0de5d630b575875415ac1dcb7dcfe6ef3650eb408f2abe940",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/checklist.json",
+        ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+        "packages/main/tests/brand-role-migration.test.mjs",
+        "packages/main/tests/managed-marker-migration.test.mjs",
+        "packages/main/tests/release-push-approval-migration.test.mjs",
+        "packages/main/src/core/acceptance-topology.ts"
+      ],
+      "signatureTag": "missing|json|coverage-finding-intents",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
