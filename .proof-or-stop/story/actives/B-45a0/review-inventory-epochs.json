@@ -3146,7 +3146,7 @@
       "reviewRound": "2026-08-23T13:46:47.948Z",
       "state": "OPEN",
       "begunAt": "2026-08-23T14:33:47.259Z",
-      "updatedAt": "2026-08-23T14:44:26.516Z",
+      "updatedAt": "2026-08-23T14:56:55.484Z",
       "cutoff": {
         "headHash": "fd74242d8f8cf8e198435361ffdc74b4506c68ff",
         "materialHash": "aa5beaab4316c22ebcfd403395a217d890edac9bd1dbbca1d8221554cd13dda0",
@@ -3233,6 +3233,80 @@
           "criticDigest": "b3bed585295b86bd8db6e69fa8d5e98337e67695968daa18f653b4de3e05d95f",
           "saturated": false,
           "nextRunSequenceBoundary": 340
+        },
+        {
+          "wave": 2,
+          "startedAt": "2026-08-23T14:44:26.516Z",
+          "completedAt": "2026-08-23T14:56:55.484Z",
+          "lanes": [
+            {
+              "lane": "lattice-review-concept",
+              "reviewRunId": "B-45a0:RR-342",
+              "terminal": "pass",
+              "hostIdentity": "369880bf2d52ee079e9a65b1158c2fe103a9df602731c93a5f85afda23ac90a4",
+              "promptIdentity": "c20e553b77917b61ef3c15444679f925361e15f45015b6f6dc59714a076a122b",
+              "evidenceIds": [
+                "B-45a0:RP-088"
+              ],
+              "coverageDigest": "305a5c660ceb79445a8aeba9d4a29be2a3935e18bf4f4792ecaafb6177107e45"
+            },
+            {
+              "lane": "lattice-review-quality",
+              "reviewRunId": "B-45a0:RR-341",
+              "terminal": "pass",
+              "hostIdentity": "369880bf2d52ee079e9a65b1158c2fe103a9df602731c93a5f85afda23ac90a4",
+              "promptIdentity": "c7d371d0820397241eea7a5eab449cca56c9013b4115a42889e30376e29aa83c",
+              "evidenceIds": [
+                "B-45a0:RP-087"
+              ],
+              "coverageDigest": "17aa1cc8a6ba345a939aa5bf8b75d8fd8086f0ca4ac2f0bda43fae3a1c8664c7"
+            },
+            {
+              "lane": "lattice-review-test-coverage",
+              "reviewRunId": "B-45a0:RR-343",
+              "terminal": "finding",
+              "hostIdentity": "d7c5fff0cb7ed33d42877480cca9de58faf3e63e08980986030454092091d548",
+              "promptIdentity": "1dc9dbfd948177e5f0a7f5db529bc90e8a693ae394ea26ded78be31495022710",
+              "evidenceIds": [
+                "B-45a0:F-213"
+              ],
+              "coverageDigest": "39790094f7f5ea96eae2d970e052a1348d7550ba16a26ea854d14ea6b5537a86"
+            },
+            {
+              "lane": "lattice-review-docs",
+              "reviewRunId": "B-45a0:RR-344",
+              "terminal": "finding",
+              "hostIdentity": "10b95f72b4e9571d8c83c16d200825fd1520d74adea997a73a89f1d6952f298d",
+              "promptIdentity": "b0a1a1f6f10f5799dfcedf376c473064f880616ccc45adfaf5dcceabbd8e31e0",
+              "evidenceIds": [
+                "B-45a0:F-214"
+              ],
+              "coverageDigest": "7804da9ae225896e6f682ee288b3658840abbccb32ffb0d6ceb16dc4bb00e50f"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "finding:B-45a0:F-198",
+            "finding:B-45a0:F-199",
+            "finding:B-45a0:F-200",
+            "finding:B-45a0:F-201",
+            "finding:B-45a0:F-202",
+            "finding:B-45a0:F-203",
+            "finding:B-45a0:F-204",
+            "finding:B-45a0:F-205",
+            "finding:B-45a0:F-206",
+            "finding:B-45a0:F-207",
+            "finding:B-45a0:F-208",
+            "finding:B-45a0:F-209",
+            "finding:B-45a0:F-210",
+            "finding:B-45a0:F-211",
+            "finding:B-45a0:F-213",
+            "finding:B-45a0:F-214"
+          ],
+          "verifiedFindingSetDigest": "287fd969cf21aa4ca64034e27095e01f2ad91c9e9c8fee1f4e23cf181f2745a6",
+          "newVerifiedFindingCount": 2,
+          "criticDigest": "1d818b12e8f0dff252433261273ad98479921e0f15b306b3f8841d4245a3c5c0",
+          "saturated": false,
+          "nextRunSequenceBoundary": 345
         }
       ],
       "baselineFindingIds": [
@@ -3250,7 +3324,7 @@
         "B-45a0:F-209",
         "B-45a0:F-210"
       ],
-      "_hash": "23fb03e6c1322f2f6b0004ea5b821c2d7bd0d7b24cce138f80a85a9896b1dbb6"
+      "_hash": "8daa54a00851db9f78e2736faae849b102478d2bef129ae8b3bc47c39446ae5b"
     }
   ],
   "receipts": [
