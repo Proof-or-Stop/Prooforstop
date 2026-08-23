@@ -14600,7 +14600,7 @@
       "desc": "CHK-007:edge:0 lacks intent-matching residue evidence: the bound command `node packages/main/dist/cli.js help` only demonstrates the canonical help entrypoint and does not test that residue scanning distinguishes frozen historical/compatibility values from unsupported lattice command aliases. The relevant distinction is exercised only by the separately recorded CHK-007:adversarial:0 self-test, while the edge intent has no bound residue-scan proof.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-08-23T18:49:06.926Z",
@@ -14646,7 +14646,11 @@
         "packages/main/src/cli/help-renderer.ts"
       ],
       "signatureTag": "edge|mjs|edge-lacks-intent",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Partially mitigated: verify-lattice-residue.mjs --self-test passes all 65 cases, including the historical/compatibility distinction. The immutable CHK-007:edge:0 help-only pin remains narrower than that residue proof, so the residual evidence limitation is explicit.",
+      "resolvedAt": "2026-08-23T21:08:00.030Z",
+      "resolutionType": "partially_mitigated",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-355",
