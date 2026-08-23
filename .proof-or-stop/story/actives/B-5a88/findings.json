@@ -12469,7 +12469,7 @@
       "desc": "CHK-003:happy:0, CHK-003:edge:0, and CHK-003:adversarial:0 are pinned to node packages/main/tests/artifact-schema-migration.test.mjs, which passes but does not execute the two named archived-story CLI signature and freshness checks required by the migration plan: node bin/proof-or-stop.js story_get --storyId=B-0168 and node bin/proof-or-stop.js story_get --storyId=B-META-framework-audit. The current independent CLI reads exited 0, and node scripts/verify-state-dir-migration.mjs exited 0 with B-0168=INIT, B-META-framework-audit=META, historyFollows=true, and archiveFloorHeld=true. Those witnesses are not bound to any CHK-003 verificationEvidence row and cannot retroactively substitute for the immutable pinned command, so all three CHK-003 must intents remain under-covered.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-08-23T14:06:45.457Z",
@@ -12511,7 +12511,11 @@
         "docs/requirements/decisions/proof-or-stop-identity-migration.md"
       ],
       "signatureTag": "missing|json|happy-edge-adversarial",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by the later current coverage finding B-5a88:F-351, which records the same all-21 verificationEvidence stale family at the latest coverage review.",
+      "resolvedAt": "2026-08-23T18:51:27.678Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-311",
