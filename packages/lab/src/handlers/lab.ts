@@ -81,7 +81,7 @@ function resolveFilePath(root: string, path: string): string {
 function readCandidateContent(root: string, targetPath: string): string {
   const resolved = resolveFilePath(root, targetPath);
   if (!existsSync(resolved)) {
-    throw new Error(`lattice-lab candidate target 不存在: ${targetPath}`);
+    throw new Error(`proof-or-stop-lab candidate target 不存在: ${targetPath}`);
   }
   return readFileSync(resolved, 'utf8');
 }
@@ -177,7 +177,7 @@ function evaluateCandidate(args: {
   }
 
   if (!chosenMetrics) {
-    throw new Error(`lattice-lab candidate evaluation failed for ${args.targetPath}`);
+    throw new Error(`proof-or-stop-lab candidate evaluation failed for ${args.targetPath}`);
   }
 
   const stability = computeStabilityPenalty({ repeatScores, hadCrash });

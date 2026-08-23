@@ -59,6 +59,7 @@ try {
   const configPath = join(temp, 'experiments', 'configs', 'lab-reviewer-reviewer-quality-v1.json');
   assert(existsSync(configPath), 'lab create should write experiment config');
   const config = JSON.parse(readFileSync(configPath, 'utf8'));
+  assert(config.$schema === 'proof-or-stop-lab/experiment.v1', 'new experiment configs should use the canonical proof-or-stop-lab schema');
   assert(config.target.entryFile === '.proof-or-stop-codex/agents/proof-or-stop-test-case-reviewer.md', 'test-case-reviewer should use the canonical proof-or-stop agent path first');
   assert(
     JSON.stringify(config.target.editableFiles) === JSON.stringify([
@@ -100,6 +101,11 @@ try {
   assert(Boolean(sandboxPath && existsSync(sandboxPath)), 'lab run --confirm should create sandbox worktree');
   const resultPath = join(temp, 'experiments', 'runs', 'lab-reviewer-reviewer-quality-v1', 'run-001', 'result.json');
   assert(existsSync(resultPath), 'lab run should write result.json placeholder');
+  const snapshot = JSON.parse(readFileSync(
+    join(temp, 'experiments', 'runs', 'lab-reviewer-reviewer-quality-v1', 'run-001', 'config.snapshot.json'),
+    'utf8',
+  ));
+  assert(snapshot.$schema === 'proof-or-stop-lab/experiment.v1', 'lab run snapshots should preserve the canonical proof-or-stop-lab schema');
 
   const allowedEval = lab.lab_eval({
     config: 'experiments/configs/lab-reviewer-reviewer-quality-v1.json',
