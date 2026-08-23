@@ -11916,6 +11916,45 @@
       ],
       "signatureTag": "missing|json|ri044-wave2-coverage",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-227",
+      "desc": "RI-044 wave 2 topology review confirms the acceptance topology is structurally complete and rollout evidence remains current full-3x2, but the verifier-owned pre-review acceptance proof is still not admissible at the current head: pre_review_check_read reports artifact tampering, changed coverage basis, missing executable positive/production/mutation/transcript evidence, authority inadmissibility, stale evidence, and an unbound cutoff. The basis receipt remains structurally bound to an older plan head and cannot authorize the current review wave.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-23T16:08:25.072Z",
+      "reviewRound": "2026-08-23T15:41:58.443Z",
+      "reviewRunId": "B-45a0:RR-379",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "466e0ef5969bed7aedf6d8ae9d2061c297eb44bcf80a1e4f35faef56260dbf1f",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json"
+      ],
+      "signatureTag": "missing|json|wave-topology-review",
+      "signatureTagSource": "auto"
     }
   ]
 }
