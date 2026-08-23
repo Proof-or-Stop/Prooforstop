@@ -3932,6 +3932,247 @@
       ],
       "createdAt": "2026-08-23T10:05:40.697Z",
       "_hash": "647ff8125375da53d30673e11bb3be7c379630f019b0e53c149349ec956e50c7"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-5a15:RI-017:CRIT-01",
+      "epochId": "B-5a15:RI-017",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-22T06:10:03.014Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "f632989c06ad86f1d34ccde167c946fc2dd24b37",
+        "materialHash": "9ef9d9e58737da562ae603f38a4ea393a304c5faf2f9affdeefcc0287d3c24e6",
+        "storyFilesHash": "e287c5f32d9aad03e0ce7ea8b20a2684ab0ac2e78ef99c6fc5b18e9b8e9c97e7"
+      },
+      "aggregateFindingSetDigest": "f918d1b048e99cf246255b0677fd9cdc0b1bab2cd68f83aa56c166ae4e1969b0",
+      "requiredLaneCoverageDigest": "87dfab9e7c82dea59accdbce15b4bf0135ee691ea4482c33063629f3a31eb8cf",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-5a15:RR-293",
+      "terminalEvidenceIds": [
+        "B-5a15:F-185"
+      ],
+      "readEvidenceDigest": "57d9d9097e937bb317fe54ef822ef47d25ce2c1cc89d8889e3eb8e2ed428e577",
+      "findingDispositions": [
+        {
+          "findingId": "B-5a15:F-152",
+          "disposition": "verified_family",
+          "familyKey": "coverage:CHK-003:happy:2",
+          "reason": "Positive unrelated-advisory CertificationWindow coverage remains a distinct verified gap."
+        },
+        {
+          "findingId": "B-5a15:F-153",
+          "disposition": "verified_family",
+          "familyKey": "receipt:output-tail-bound",
+          "reason": "Receipt verification lacks the durable outputTail size bound."
+        },
+        {
+          "findingId": "B-5a15:F-154",
+          "disposition": "verified_family",
+          "familyKey": "topology:acceptance-basis-partial",
+          "reason": "The verifier-owned basis is partial and topology closure is not admissible."
+        },
+        {
+          "findingId": "B-5a15:F-155",
+          "disposition": "duplicate",
+          "familyKey": "coverage:CHK-003:happy:2",
+          "canonicalFindingId": "B-5a15:F-152",
+          "reason": "Current-round recheck confirms the same CHK-003 happy-path coverage gap."
+        },
+        {
+          "findingId": "B-5a15:F-156",
+          "disposition": "verified_family",
+          "familyKey": "validation:command-spec-identity",
+          "reason": "Validation preflight keys a lossy command string instead of the full execution specification."
+        },
+        {
+          "findingId": "B-5a15:F-157",
+          "disposition": "duplicate",
+          "familyKey": "topology:acceptance-basis-partial",
+          "canonicalFindingId": "B-5a15:F-154",
+          "reason": "Same unmapped producer-consumer path and inconclusive verifier topology."
+        },
+        {
+          "findingId": "B-5a15:F-158",
+          "disposition": "duplicate",
+          "familyKey": "topology:acceptance-basis-partial",
+          "canonicalFindingId": "B-5a15:F-154",
+          "reason": "Same partial basis and non-admissible topology/pre-review chain."
+        },
+        {
+          "findingId": "B-5a15:F-159",
+          "disposition": "duplicate",
+          "familyKey": "coverage:CHK-003:happy:2",
+          "canonicalFindingId": "B-5a15:F-152",
+          "reason": "Same uncovered positive CertificationWindow admission path."
+        },
+        {
+          "findingId": "B-5a15:F-160",
+          "disposition": "verified_family",
+          "familyKey": "acceptance:wave4-executable-coverage",
+          "reason": "Verifier-owned Wave 4 acceptance commands lack current admissible executable coverage."
+        },
+        {
+          "findingId": "B-5a15:F-161",
+          "disposition": "verified_family",
+          "familyKey": "causal:explicit-input-type-separation",
+          "reason": "Non-JSON explicit inputs can alias during causal identity canonicalization."
+        },
+        {
+          "findingId": "B-5a15:F-162",
+          "disposition": "duplicate",
+          "familyKey": "coverage:CHK-003:happy:2",
+          "canonicalFindingId": "B-5a15:F-152",
+          "reason": "Same CHK-003 happy-path evidence only proves stale rejection, not positive admission."
+        },
+        {
+          "findingId": "B-5a15:F-163",
+          "disposition": "duplicate",
+          "familyKey": "acceptance:wave4-executable-coverage",
+          "canonicalFindingId": "B-5a15:F-160",
+          "reason": "Same missing current Wave 4 executable and admissible coverage."
+        },
+        {
+          "findingId": "B-5a15:F-164",
+          "disposition": "verified_family",
+          "familyKey": "preflight:authority-root-bound",
+          "reason": "Signed preflight authority is not bound to the canonical target root."
+        },
+        {
+          "findingId": "B-5a15:F-165",
+          "disposition": "duplicate",
+          "familyKey": "acceptance:wave4-executable-coverage",
+          "canonicalFindingId": "B-5a15:F-160",
+          "reason": "Same Wave 4 coverage absence at a later review binding."
+        },
+        {
+          "findingId": "B-5a15:F-166",
+          "disposition": "duplicate",
+          "familyKey": "coverage:CHK-003:happy:2",
+          "canonicalFindingId": "B-5a15:F-152",
+          "reason": "Same CHK-003 positive unrelated-advisory admission gap."
+        },
+        {
+          "findingId": "B-5a15:F-167",
+          "disposition": "verified_family",
+          "familyKey": "metrics:commit-failure-reruns",
+          "reason": "The recorded commitFailureReruns metric does not satisfy the must-intent contract."
+        },
+        {
+          "findingId": "B-5a15:F-168",
+          "disposition": "verified_family",
+          "familyKey": "metrics:derived-ledger-values",
+          "reason": "The metrics test accepts caller-supplied values instead of deriving them from a mixed causal run."
+        },
+        {
+          "findingId": "B-5a15:F-169",
+          "disposition": "verified_family",
+          "familyKey": "preflight:launch-order-production-event",
+          "reason": "The launch-order assertion injects the preflight event instead of observing a producer event."
+        },
+        {
+          "findingId": "B-5a15:F-170",
+          "disposition": "verified_family",
+          "familyKey": "coverage:CHK-001:production-batch-boundary",
+          "reason": "CHK-001 happy-path evidence bypasses the authored production evidence-batch handler boundary."
+        },
+        {
+          "findingId": "B-5a15:F-171",
+          "disposition": "duplicate",
+          "familyKey": "topology:acceptance-basis-partial",
+          "canonicalFindingId": "B-5a15:F-154",
+          "reason": "Same partial topology/pre-review acceptance chain."
+        },
+        {
+          "findingId": "B-5a15:F-172",
+          "disposition": "duplicate",
+          "familyKey": "topology:acceptance-basis-partial",
+          "canonicalFindingId": "B-5a15:F-154",
+          "reason": "Same partial topology/pre-review acceptance chain despite rollout evidence."
+        },
+        {
+          "findingId": "B-5a15:F-173",
+          "disposition": "verified_family",
+          "familyKey": "causal:story-files-hash-invalidation",
+          "reason": "storyFilesHash-only drift is incorrectly admitted as fresh causal evidence."
+        },
+        {
+          "findingId": "B-5a15:F-174",
+          "disposition": "verified_family",
+          "familyKey": "import:transaction-preflight-identity",
+          "reason": "Canonical import does not bind the stamped preflight facts to the import transaction."
+        },
+        {
+          "findingId": "B-5a15:F-175",
+          "disposition": "verified_family",
+          "familyKey": "certification:production-causal-dag",
+          "reason": "Production CertificationWindow constructs an empty causal dependency DAG."
+        },
+        {
+          "findingId": "B-5a15:F-176",
+          "disposition": "duplicate",
+          "familyKey": "receipt:output-tail-bound",
+          "canonicalFindingId": "B-5a15:F-153",
+          "reason": "Same missing durable outputTail bound."
+        },
+        {
+          "findingId": "B-5a15:F-177",
+          "disposition": "duplicate",
+          "familyKey": "validation:command-spec-identity",
+          "canonicalFindingId": "B-5a15:F-156",
+          "reason": "Same lossy validation command identity used for preflight."
+        },
+        {
+          "findingId": "B-5a15:F-178",
+          "disposition": "duplicate",
+          "familyKey": "causal:explicit-input-type-separation",
+          "canonicalFindingId": "B-5a15:F-161",
+          "reason": "Same explicit-input canonicalization alias."
+        },
+        {
+          "findingId": "B-5a15:F-179",
+          "disposition": "duplicate",
+          "familyKey": "preflight:authority-root-bound",
+          "canonicalFindingId": "B-5a15:F-164",
+          "reason": "Same caller-controlled authority-root trust boundary."
+        },
+        {
+          "findingId": "B-5a15:F-180",
+          "disposition": "duplicate",
+          "familyKey": "causal:story-files-hash-invalidation",
+          "canonicalFindingId": "B-5a15:F-173",
+          "reason": "Same storyFilesHash-only stale-evidence admission."
+        },
+        {
+          "findingId": "B-5a15:F-181",
+          "disposition": "duplicate",
+          "familyKey": "topology:acceptance-basis-partial",
+          "canonicalFindingId": "B-5a15:F-154",
+          "reason": "Same verifier basis blind spot and incomplete producer-consumer closure."
+        },
+        {
+          "findingId": "B-5a15:F-182",
+          "disposition": "verified_family",
+          "familyKey": "causal-decision:story-and-graph-identity",
+          "reason": "Causal decisions omit story and dependency-graph identity from the signed binding."
+        },
+        {
+          "findingId": "B-5a15:F-183",
+          "disposition": "duplicate",
+          "familyKey": "topology:acceptance-basis-partial",
+          "canonicalFindingId": "B-5a15:F-154",
+          "reason": "Same partial basis and inconclusive topology/pre-review evidence."
+        },
+        {
+          "findingId": "B-5a15:F-184",
+          "disposition": "duplicate",
+          "familyKey": "acceptance:wave4-executable-coverage",
+          "canonicalFindingId": "B-5a15:F-160",
+          "reason": "Same missing executable Wave 4 acceptance coverage."
+        }
+      ],
+      "createdAt": "2026-08-23T10:59:41.253Z",
+      "_hash": "7b36f98d111d9e43206073f094968ef6c23fa2cea06faceef0efd562b611b340"
     }
   ]
 }
