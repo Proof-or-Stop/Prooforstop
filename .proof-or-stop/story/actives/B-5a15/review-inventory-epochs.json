@@ -2979,7 +2979,7 @@
       "reviewRound": "2026-08-23T16:46:31.561Z",
       "state": "OPEN",
       "begunAt": "2026-08-23T16:51:50.280Z",
-      "updatedAt": "2026-08-23T16:51:50.280Z",
+      "updatedAt": "2026-08-23T17:13:47.485Z",
       "cutoff": {
         "headHash": "e60ad56fc7392eced310df437329cd7c1d2dd30b",
         "materialHash": "41c6cc5292244472d1c39f14ff24db385986581252fdd7774d615019e35042e5",
@@ -2993,9 +2993,58 @@
       ],
       "initialRunSequenceBoundary": 367,
       "maxWaves": 3,
-      "waves": [],
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-08-23T16:51:50.280Z",
+          "completedAt": "2026-08-23T17:13:47.485Z",
+          "lanes": [
+            {
+              "lane": "lattice-review-concept",
+              "reviewRunId": "B-5a15:RR-369",
+              "terminal": "pass",
+              "hostIdentity": "2d9e443213945df7b5c33f64b6f6f4ef95b87a921a89330c0cb7f2bfbaa920b9",
+              "promptIdentity": "4c36d356c78fd317f43f72d93e37efb76b90166acb42aad7a3a71f9ce34bbf12",
+              "evidenceIds": [
+                "B-5a15:RP-071"
+              ],
+              "coverageDigest": "54223db05f89cd693c8a3fae43f774a1c4607900c1080926e13f6b3a48c35fd7"
+            },
+            {
+              "lane": "lattice-review-quality",
+              "reviewRunId": "B-5a15:RR-370",
+              "terminal": "pass",
+              "hostIdentity": "2d9e443213945df7b5c33f64b6f6f4ef95b87a921a89330c0cb7f2bfbaa920b9",
+              "promptIdentity": "4bd208e57cfc08f3b9d3d284eb6b5fd389469de1216fb4e0aa61b9d86260dcc9",
+              "evidenceIds": [
+                "B-5a15:RP-072"
+              ],
+              "coverageDigest": "a06a021327c915cdfe70aaaf1ab7817f55cd6d860cbd9cb97a13f3295788eeb6"
+            },
+            {
+              "lane": "lattice-review-test-coverage",
+              "reviewRunId": "B-5a15:RR-374",
+              "terminal": "finding",
+              "hostIdentity": "2e3ab65443a6b0f5338597376d096cf38827b3ceffb777c2fbe7da2c8ba8b3c8",
+              "promptIdentity": "db44da864a40f07c5685416f09160fb1d797244ecc775ef0f0e87d7576ad9353",
+              "evidenceIds": [
+                "B-5a15:F-240"
+              ],
+              "coverageDigest": "adada921edd859cfd3ff0a0e19013ad6d0ce5447d8931d2915a39368c3f34653"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "stale-verifier-binding"
+          ],
+          "verifiedFindingSetDigest": "643425317da23b158d5149764b6df71751f9591a14930d95c5f47a290a02cf4c",
+          "newVerifiedFindingCount": 1,
+          "criticDigest": "24eeb403137bf9ca5bcdc5ab046fc78171345ac3d428a78e9dc9a0daa111d6af",
+          "saturated": false,
+          "nextRunSequenceBoundary": 375
+        }
+      ],
       "baselineFindingIds": [],
-      "_hash": "c4ac74b7576c8f226890630d2c412208131affb3f7a8f431b89d312e71917e65"
+      "_hash": "41fdc252bb9ebb0f42c0bc7185f0dfa9dff2b30e57ae579417708fcf572f4917"
     }
   ],
   "receipts": [

@@ -3173,6 +3173,65 @@
       },
       "readDiagnostics": [],
       "_hash": "beefa9935b7fba4feff2eaeecfe93319af7023c0fb97cccae27d1f83634787db"
+    },
+    {
+      "id": "B-5a15:RP-074",
+      "agent": "lattice-review-concept",
+      "note": "Wave 2 concept review complete: no concept deletion or replacement was introduced since wave 1. Current implementation seams, required story context, related decision docs, current intent/evidence counts, wave-1 finding state, and repository residue scan were reviewed; no concept-lane blocker found.",
+      "createdAt": "2026-08-23T17:17:00.184Z",
+      "reviewRound": "2026-08-23T16:46:31.561Z",
+      "reviewRunId": "B-5a15:RR-377",
+      "envelopeId": "60b82290eef2ec2fd1a79d7afcb897da7abd775919f321af0f9654a6eadc7ad1",
+      "writerSessionId": "sess-9e8a8f9ae04ecb0d7e864cc2e7eab879",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/findings.json",
+          ".proof-or-stop/story/actives/B-5a15/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a15/test-evidence.json",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "packages/main/src/tasks/verifier-causal-preflight-smoke.ts",
+          "packages/main/tests/causal-evidence-concurrency.test.mjs",
+          "packages/main/tests/causal-evidence.test.mjs",
+          "packages/main/tests/checklist-causal-preflight-batch.test.mjs",
+          "packages/main/tests/verifier-causal-preflight.test.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "7916eaaa4fc1c3bff6851a79e1d23183a6b01a104fdf5f2cd70c3ebc01e153f7"
+      },
+      "readDiagnostics": [],
+      "_hash": "55565135a12215f4213f12b4b1d956229b5a1d3ed201f9fce03d7e54b9bf44f3"
     }
   ]
 }
