@@ -2726,9 +2726,9 @@
       "epochId": "B-5a88:RI-030",
       "storyId": "B-5a88",
       "reviewRound": "2026-08-23T10:36:59.797Z",
-      "state": "OPEN",
+      "state": "CANCELLED",
       "begunAt": "2026-08-23T11:10:50.983Z",
-      "updatedAt": "2026-08-23T11:27:01.467Z",
+      "updatedAt": "2026-08-23T11:40:54.369Z",
       "cutoff": {
         "headHash": "b4867e419e2ab5725e010e4ced38cbb18f0258d3",
         "materialHash": "60f80f78a14e8d006ba59b55639603a154ae90a636d665978264ff83acc73b8a",
@@ -2797,7 +2797,30 @@
         "B-5a88:F-278",
         "B-5a88:F-279"
       ],
-      "_hash": "46200deb82fcfeb90af465b577c4014e8a7e2f6ed9bee3b0c81ee019a68095ff"
+      "cancelledAt": "2026-08-23T11:40:54.369Z",
+      "cancelReason": "Current review metadata moved the verifier-bound basis after the wave; cancel the incomplete epoch and consume a stable inventory-completeness receipt before DEV remediation.",
+      "terminalRunSequenceBoundary": 368,
+      "_hash": "305dd6cec5de1ed4a35ba0c63447dc55d3943a020211187c526f782f3feae4da"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-5a88:RIE-041",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-23T10:36:59.797Z",
+      "state": "FINALIZED",
+      "begunAt": "2026-08-23T11:40:56.943Z",
+      "updatedAt": "2026-08-23T11:40:56.943Z",
+      "cutoff": {
+        "headHash": "dbef043b06604319a797ad1ade9ac4f331bb7ea9",
+        "materialHash": "60f80f78a14e8d006ba59b55639603a154ae90a636d665978264ff83acc73b8a",
+        "storyFilesHash": "0a84bdcbd6ee5b9115b0cc367978fba393aa597a24688ad24fad7245b14dbd22"
+      },
+      "scopeDigest": "6dc0dc4c03609da48fa8f292355dc29e3e7dbe334332881b69dad7e9fcc055c0",
+      "requiredLanes": [],
+      "maxWaves": 1,
+      "waves": [],
+      "receiptId": "B-5a88:RIE-041:RCP-001",
+      "_hash": "b74403ae8d1c2e21964f2dd39ee31c4477b7bd6083e1723b69336f97e9912e98"
     }
   ],
   "receipts": [
@@ -3197,6 +3220,28 @@
       "invalidatedAt": "2026-08-23T11:10:46.064Z",
       "invalidationReason": "Late evidence refresh changed the finalized receipt binding; reopen a stable inventory receipt before DEV remediation.",
       "_hash": "5f512e1ed5c0dc85a827371da08a33a7c82eb7a5d6ab0931adafbbd29031a551"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_receipt.v1",
+      "receiptId": "B-5a88:RIE-041:RCP-001",
+      "epochId": "B-5a88:RIE-041",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-23T10:36:59.797Z",
+      "cutoff": {
+        "headHash": "dbef043b06604319a797ad1ade9ac4f331bb7ea9",
+        "materialHash": "60f80f78a14e8d006ba59b55639603a154ae90a636d665978264ff83acc73b8a",
+        "storyFilesHash": "0a84bdcbd6ee5b9115b0cc367978fba393aa597a24688ad24fad7245b14dbd22"
+      },
+      "scopeDigest": "6dc0dc4c03609da48fa8f292355dc29e3e7dbe334332881b69dad7e9fcc055c0",
+      "requiredLanes": [],
+      "waveCount": 0,
+      "findingSetDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "coverageDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "saturationResult": "ZERO_NEW_VERIFIED_FINDINGS",
+      "authority": "inventory-completeness-only",
+      "authorizesTest": false,
+      "issuedAt": "2026-08-23T11:40:56.943Z",
+      "_hash": "d48987bad831a3ad17015cd8aad61c721237bf92739ea12ea81af87c340f6c35"
     }
   ],
   "criticReceipts": [
