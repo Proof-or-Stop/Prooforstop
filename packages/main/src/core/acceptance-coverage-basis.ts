@@ -511,6 +511,12 @@ export function reconcileTopologyWithCoverageBasis(
   const excluded = new Set(basis.excludedPathRefs.map(item => item.pathRef));
   const pathMapped = (path: string): boolean => {
     if (path.startsWith('actual:') && basis.plannedActualReconciliations.some(row => row.actualPathRefs.includes(path))) return true;
+    const staticCall = /^path:static-call:([^#]+)#([^>]+)->consumer:([^#]+)#([^>]+)$/.exec(path);
+    if (staticCall && basis.plannedPathRecords.some(record => {
+      return record.producer.expectedFileRef === staticCall[1]
+        && record.producer.expectedSymbolOrFact === staticCall[2]
+        && record.consumers.some(endpoint => endpoint.expectedFileRef === staticCall[3]);
+    })) return true;
     if (topologySourceRefs.includes(`basis-path:${path}`)) return true;
     const processMatch = /^path:process-fact:(.+)->consumer:/.exec(path);
     if (processMatch && topologySourceRefs.includes(`process-fact:${processMatch[1]}`)) return true;
