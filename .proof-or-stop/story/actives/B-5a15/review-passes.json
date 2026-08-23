@@ -2642,6 +2642,49 @@
       },
       "readDiagnostics": [],
       "_hash": "ad2a33d1a978b5a7c1659ab0fbeda5fef97b43720ac6d36ab6c4bf95162bc792"
+    },
+    {
+      "id": "B-5a15:RP-061",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion or replacement was introduced by the frozen candidate. The source diff and repository-wide Grep scan found no deleted concept with residual references; existing empty-DAG and Wave-4 coverage findings remain covered by canonical families F-197 and F-198/F-193 and are unchanged.",
+      "createdAt": "2026-08-23T13:36:01.778Z",
+      "reviewRound": "2026-08-22T06:10:03.014Z",
+      "reviewRunId": "B-5a15:RR-330",
+      "envelopeId": "a658f30423837ca965e862a517422b45276d3f955a2e812d286b27a506c10202",
+      "writerSessionId": "sess-1ff81192c8f5688bf40ac6afd86a20f7",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/context.ts",
+          "packages/main/src/handlers/live-smoke-transcript.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "packages/main/tests/causal-evidence-concurrency.test.mjs",
+          "packages/main/tests/causal-evidence.test.mjs",
+          "packages/main/tests/checklist-causal-preflight-batch.test.mjs",
+          "packages/main/tests/verifier-causal-preflight.test.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "44eae997596da50b5ce95f3f3d161bc335cdd20543520fe8df3da732852b5563"
     }
   ]
 }
