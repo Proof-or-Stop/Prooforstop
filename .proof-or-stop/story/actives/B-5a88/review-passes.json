@@ -8084,6 +8084,81 @@
         "scanEscalationReason": "Repository-wide active-token scan was bounded by the current candidate-spec and the approved rename mapping; all hits were classified as compatibility, frozen, preserved, or already-resolved story families."
       },
       "_hash": "6ae8f209d61ee98b6a09db2466e5652afe2d636c7cf1456a9eeb3e27efafbdb0"
+    },
+    {
+      "id": "B-5a88:RP-150",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Round 40 concept review completed: canonical role, marker, schema, approval, package, and bin replacements have current writers and bounded legacy readers; repository residue is limited to declared compatibility, historical, or out-of-scope surfaces, with no new concept blocker.",
+      "createdAt": "2026-08-23T21:05:26.569Z",
+      "reviewRound": "2026-08-23T20:56:20.268Z",
+      "reviewRunId": "B-5a88:RR-495",
+      "envelopeId": "014f79bf7831ff02a09710b6dd1ec19520d6c2cae550ef9fefedf48a8c36993e",
+      "writerSessionId": "sess-3d27a9d0b222a9bd9fbb9cfc7251692f",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/",
+          ".githooks/pre-push",
+          ".proof-or-stop-codex/agents/",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          "package.json",
+          "packages/lab/package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/agent-asset-resolution.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/artifact-schema.ts",
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/managed-markers.ts",
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/core/release-push-approval.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/reviewer-opt-in.ts",
+          "packages/main/src/core/reviewer-quorum.ts",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/handlers/done-closure.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/templates/agents/",
+          "packages/main/tests/artifact-schema-migration.test.mjs",
+          "packages/main/tests/bin-alias-migration.test.mjs",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/package-identity-migration.test.mjs",
+          "packages/main/tests/release-push-approval-migration.test.mjs",
+          "packages/utils/package.json",
+          "proof-or-stop.config.json",
+          "scripts/verify-entrypoints.mjs",
+          "scripts/verify-global-lab-entrypoint.mjs",
+          "scripts/verify-lattice-residue.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Repository-wide concept residue scan performed; compatibility readers, frozen historical material, and unrelated playbook/experiment namespaces were classified separately from the B-5a88 canonical migration."
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "62e1b23587cd5f4369ff67615800d82d86610835d4882a627daa1527353d5301"
+      },
+      "readDiagnostics": [],
+      "_hash": "29038db55959d3fb7470e6c6797ba71c1ff9b0d0e180c18604634ee32e3c10a1"
     }
   ]
 }
