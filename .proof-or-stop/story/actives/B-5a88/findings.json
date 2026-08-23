@@ -1080,7 +1080,7 @@
       "desc": "Current coverage cannot be accepted: all 21 checklist verificationEvidence entries in .proof-or-stop/story/actives/B-5a88/checklist.json are result=pass and mechanical=true, but every receipt is bound to headHash eb6b5a121d6ddabfee77c3f5ebd528d4d2c20088, materialHash bd93b090d404e74938ba53cf2fbbeeb6d7a93379013c497172770dfbb1ca9f5b, and storyFilesHash 7454053b8fa426a08066d5f487291d9baf8ea935011ae9c7621b8aa6687f170a. The current signed review run B-5a88:RR-056 is bound to headHash 152318f306aa01e5ea523851ed79c1d243ae44fc, materialHash 2ce77f36028ddd6fc00aaf1e1bb54f0aac847bbb6ee8825ee295b7a5f7554523, and storyFilesHash 04856e7ea2af89b7c1c9f7c842ce535bf9047a85266c02bebcfb112d17f6b53b, so none of the 21 must-intent receipts is current. The current acceptance-basis artifact is partial with blind spots for packages/main/templates/agents; acceptance_topology_check is inconclusive with AT_ADAPTER_RESULT_DIGEST_MISMATCH, AT_CLOSURE_FILES_STALE, and AT_COVERAGE_BASIS_PARTIAL; pre_review_check_read is inconclusive with PR_COVERAGE_INCONCLUSIVE, PR_MUTATION_EVIDENCE_MISSING, PR_TRANSCRIPT_MISSING, PR_AUTHORITY_INADMISSIBLE, and PR_EVIDENCE_STALE. Re-execute and rebind the 21 intents and regenerate admissible current acceptance/pre-review proof before coverage can pass.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-08-20T15:12:02.637Z",
@@ -1129,7 +1129,11 @@
         ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json"
       ],
       "signatureTag": "missing|json|current-coverage-cannot",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by B-5a88:F-344, the later current-round finding that records the same all-21 verificationEvidence staleness family at the latest reviewed cutoff.",
+      "resolvedAt": "2026-08-23T18:44:07.393Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-028",
@@ -14239,6 +14243,136 @@
       ],
       "signatureTag": "adversarial|json|current-verifier-owned",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-348",
+      "desc": "pre-review-current-head: node bin/proof-or-stop.js pre_review_check_read --storyId=B-5a88 --json returns status=fail, ok=false, codes=PR_ARTIFACT_TAMPERED and PR_AUTHORITY_INADMISSIBLE, authority=inadmissible. The verifier-owned pre-review artifact is therefore not an admissible current signed PASS for HEAD 014b581; packages/main/src/core/pre-review-check.ts:407-415 rejects tampered/non-current provenance and packages/main/src/handlers/transition-orchestrator.ts:122-132 consumes the result for the DEV-to-REVIEW gate. Reissue the pre-review basis/proof and rollout receipts for this HEAD before treating the migration review as admissible.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-08-23T18:17:55.455Z",
+      "reviewRound": "2026-08-23T15:15:00.463Z",
+      "reviewRunId": "B-5a88:RR-462",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "9aa1131238a8dc69c9737fba0d89cde1929e1c577b2521ee2c23753a9e3f02af",
+      "files": [
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/handlers/transition-orchestrator.ts",
+        "packages/main/src/core/pre-review-live-proof.ts",
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json"
+      ],
+      "signatureTag": "adversarial|ts|review-current-head",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-349",
+      "desc": "RI-050: Active package descriptions still use the legacy Proofbound spelling in packages/lab/package.json and packages/utils/package.json; the approved rename mapping marks active descriptions as RENAMED to Proof-or-Stop, so these manifests remain cleanup residue.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-23T18:37:23.548Z",
+      "reviewRound": "2026-08-23T15:15:00.463Z",
+      "reviewRunId": "B-5a88:RR-461",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md"
+        ],
+        "filesTriagedByName": [
+          "packages/lab/package.json",
+          "packages/utils/package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "fbdb9d0c5c6a635871a9d4fd50ac8f45359b15c8652040d54bd1e961c2775067"
+      },
+      "readDiagnostics": [],
+      "_hash": "1b2def31d8c84cca3c7dd3a1b6aa96e89df8f27722734a47bb74eefcf07fa693",
+      "files": [
+        "packages/lab/package.json",
+        "packages/utils/package.json",
+        "docs/requirements/decisions/brand-rename-mapping.md"
+      ],
+      "signatureTag": "cleanup|json|active-package-descriptions",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-350",
+      "desc": "Current HEAD pre-review artifact blocker: at HEAD 014b5817a168145be79cc104662a4988c6feb0cb, pre_review_check_read returned PR_ARTIFACT_TAMPERED and PR_AUTHORITY_INADMISSIBLE for the current pre-review artifact; this remains the active high-severity adversarial blocker.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-08-23T18:39:55.432Z",
+      "reviewRound": "2026-08-23T15:15:00.463Z",
+      "reviewRunId": "B-5a88:RR-462",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          "packages/main/src/core/pre-review-check.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "0750441dd2c83882902b094462c576a3382a4eb403767baad710992e0dae6b11"
+      },
+      "readDiagnostics": [],
+      "_hash": "6793c2b2cb1d7016a49eb8dddaaad3e7fd910b71bc974adb7bc55a934908427a",
+      "files": [
+        "packages/main/src/core/pre-review-check.ts",
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json"
+      ],
+      "signatureTag": "adversarial|ts|current-head-review",
+      "signatureTagSource": "auto"
     }
   ]
 }
