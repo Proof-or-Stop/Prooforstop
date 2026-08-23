@@ -10381,6 +10381,59 @@
       ],
       "signatureTag": "missing|ts|production-causal-wired",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-195",
+      "desc": "RI-018 wave-2 topology review is request_changes: the verifier-owned acceptance basis is signed but partial, and acceptance_topology_check is inconclusive because AT_UNMAPPED_SCOPE_REF leaves the causal-decision identity-binding producer-to-consumer path unmapped. The current pre_review_check_read is also inconclusive with missing executable evidence and inadmissible authority, so the topology cannot be promoted to an admissible pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-23T13:06:56.745Z",
+      "reviewRound": "2026-08-22T06:10:03.014Z",
+      "reviewRunId": "B-5a15:RR-323",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/reviewer-read-evidence.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "62f18acfe527443bddd1dbeaeda2cd0a8aade632d833b67298c90e7c5f696b71",
+      "files": [
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/handlers/proofstory.ts",
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/src/core/causal-evidence.ts",
+        "packages/main/src/core/certification-window.ts",
+        "packages/main/src/handlers/certification-window.ts"
+      ],
+      "signatureTag": "ri-018-wave2-topology-basis-partial",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
