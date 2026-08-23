@@ -9945,6 +9945,112 @@
       ],
       "signatureTag": "missing|ts|frozen-acceptance-basis",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-186",
+      "desc": "RI-017 wave-2 coverage remains incomplete: CHK-001 through CHK-005 have no executable, admissible Wave 4 coverage for verifier-owned acceptance_topology_check, pre_review_check_read, acceptance_rollout_report_read, and acceptance_rollout_check. The current checklist evidence covers the 50 intents (22 must, 0 waivers), but no executable evidence proves the required current signed receipt, full 3 rounds x 2 hosts, degraded-3x1 rejection, threshold/membership/freshness mutations, mode-invariant diagnostics, enforce-only blocking, and non-destructive rollback-history behaviors.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-23T11:20:50.545Z",
+      "reviewRound": "2026-08-22T06:10:03.014Z",
+      "reviewRunId": "B-5a15:RR-295",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "ddbdfc17633ff27afb5d1246815963c558c34c8789abe3ca00f6f8b280128b08"
+      },
+      "readDiagnostics": [],
+      "_hash": "f7991fa128f11b81592f8ee4ea2720a503d56b154abed6d9d159682a27bd3249",
+      "files": [
+        "packages/main/src/handlers/proofstory.ts",
+        "packages/main/src/core/acceptance-rollout.ts",
+        "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|wave-coverage-remains",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-187",
+      "desc": "RI-017 wave-2 coverage remains incomplete: CHK-001 through CHK-005 have no executable, admissible Wave 4 coverage for verifier-owned acceptance_topology_check, pre_review_check_read, acceptance_rollout_report_read, and acceptance_rollout_check. The current checklist evidence covers the 50 intents (22 must, 0 waivers), but no executable evidence proves the required current signed receipt, full 3 rounds x 2 hosts, degraded-3x1 rejection, threshold/membership/freshness mutations, mode-invariant diagnostics, enforce-only blocking, and non-destructive rollback-history behaviors.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-23T11:22:53.106Z",
+      "reviewRound": "2026-08-22T06:10:03.014Z",
+      "reviewRunId": "B-5a15:RR-296",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "ddbdfc17633ff27afb5d1246815963c558c34c8789abe3ca00f6f8b280128b08"
+      },
+      "readDiagnostics": [],
+      "_hash": "a6966dc0a63a918505a173188aacbf2c92179c72dc60da83d36ac95587cd6b90",
+      "files": [
+        "packages/main/src/handlers/proofstory.ts",
+        "packages/main/src/core/acceptance-rollout.ts",
+        "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|wave-coverage-remains",
+      "signatureTagSource": "auto"
     }
   ]
 }
