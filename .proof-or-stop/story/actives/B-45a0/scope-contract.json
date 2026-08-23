@@ -194,10 +194,55 @@
       "phase": "REVIEW",
       "headHash": "c81bd68101da49dc068290f9f1f3cc7a03c9c77a",
       "materialHash": "02bf71452432190de8ce0ae66682fb409f383fab4bba07ffe810170b115ccf12"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "These committed paths are required by the approved dynamic-validation implementation, its registered CLI facts, production smoke adapters, replay and mutation evidence, and the package runtime boundary.",
+      "timestamp": "2026-08-23T12:16:30.811Z",
+      "paths": [
+        "packages/main/package.json",
+        "packages/main/src/cli/command-catalog.ts",
+        "packages/main/src/core/process-fact-levels.ts",
+        "packages/main/src/core/story-aware-validation.ts",
+        "packages/main/src/tasks/review-pass-discard-smoke.ts",
+        "packages/main/src/tasks/story-aware-validation-case-adapter.mjs",
+        "packages/main/src/tasks/story-aware-validation-domain-case-runner.mjs",
+        "packages/main/src/tasks/story-aware-validation-domain-cases.json",
+        "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+        "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts",
+        "packages/main/src/tasks/story-aware-validation-production-smoke.ts",
+        "packages/main/src/tasks/story-aware-validation-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/package.json",
+        "packages/main/src/cli/command-catalog.ts",
+        "packages/main/src/core/process-fact-levels.ts",
+        "packages/main/src/core/story-aware-validation.ts",
+        "packages/main/src/tasks/review-pass-discard-smoke.ts",
+        "packages/main/src/tasks/story-aware-validation-case-adapter.mjs",
+        "packages/main/src/tasks/story-aware-validation-domain-case-runner.mjs",
+        "packages/main/src/tasks/story-aware-validation-domain-cases.json",
+        "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+        "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts",
+        "packages/main/src/tasks/story-aware-validation-production-smoke.ts",
+        "packages/main/src/tasks/story-aware-validation-smoke.ts"
+      ],
+      "affectedPathCount": 12,
+      "phase": "DEV",
+      "headHash": "826fd4761089c2df900da4dc338c79f228ae17e4",
+      "materialHash": "aa5beaab4316c22ebcfd403395a217d890edac9bd1dbbca1d8221554cd13dda0",
+      "anchors": [
+        "DYN_1",
+        "DYN_2",
+        "DYN_3",
+        "DYN_4",
+        "DYN_5"
+      ]
     }
   ],
   "createdAt": "2026-08-21T07:07:34.430Z",
-  "updatedAt": "2026-08-23T11:56:35.029Z",
+  "updatedAt": "2026-08-23T12:16:30.811Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -255,6 +300,18 @@
     "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts": "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts",
     "packages/main/src/tasks/done-required-validation-smoke.ts": "packages/main/src/tasks/done-required-validation-smoke.ts",
     "packages/main/src/tasks/validation-evidence-buffer-smoke.ts": "packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
-    "packages/main/tests/validate-plan-scheduling.test.mjs": "packages/main/tests/validate-plan-scheduling.test.mjs"
+    "packages/main/tests/validate-plan-scheduling.test.mjs": "packages/main/tests/validate-plan-scheduling.test.mjs",
+    "packages/main/package.json": "packages/main/package.json",
+    "packages/main/src/cli/command-catalog.ts": "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/process-fact-levels.ts": "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/story-aware-validation.ts": "packages/main/src/core/story-aware-validation.ts",
+    "packages/main/src/tasks/review-pass-discard-smoke.ts": "packages/main/src/tasks/review-pass-discard-smoke.ts",
+    "packages/main/src/tasks/story-aware-validation-case-adapter.mjs": "packages/main/src/tasks/story-aware-validation-case-adapter.mjs",
+    "packages/main/src/tasks/story-aware-validation-domain-case-runner.mjs": "packages/main/src/tasks/story-aware-validation-domain-case-runner.mjs",
+    "packages/main/src/tasks/story-aware-validation-domain-cases.json": "packages/main/src/tasks/story-aware-validation-domain-cases.json",
+    "packages/main/src/tasks/story-aware-validation-historical-replay.ts": "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+    "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts": "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts",
+    "packages/main/src/tasks/story-aware-validation-production-smoke.ts": "packages/main/src/tasks/story-aware-validation-production-smoke.ts",
+    "packages/main/src/tasks/story-aware-validation-smoke.ts": "packages/main/src/tasks/story-aware-validation-smoke.ts"
   }
 }
