@@ -10417,6 +10417,59 @@
       ],
       "signatureTag": "missing|json|wave-coverage-remains",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-268",
+      "desc": "Current Wave 4 completeness recheck remains blocked: acceptance_topology_check is structural-only (evidentiary=false, result=inconclusive_basis_unverified), while pre_review_check_read fails with PR_ARTIFACT_TAMPERED and plannedActual=incomplete, executableEvidence=missing, mutations=missing, transcript=missing, authority=inadmissible. The 21/21 fresh mechanical verification rows and the full-3x2 rollout pass do not supply the missing current admissible verifier-owned pre-review executable receipt. F-265, F-266, and F-267 remain one verified residual pre-review family; F-264 is resolved only as partial mitigation.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-23T08:22:58.322Z",
+      "reviewRound": "2026-08-22T07:35:25.372Z",
+      "reviewRunId": "B-5a88:RR-343",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a88/test-evidence.json",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "68dc3c81dee5152b9b714749bb970d0f185e8b22c4f4c2d6e58618a7640bd385",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+        ".proof-or-stop/story/actives/B-5a88/checklist.json",
+        ".proof-or-stop/story/actives/B-5a88/test-evidence.json",
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-rollout.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/pre-review-live-proof.ts",
+        "packages/main/src/handlers/review-inventory.ts"
+      ],
+      "signatureTag": "wave-4-pre-review-boundary",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
