@@ -10290,6 +10290,97 @@
       ],
       "signatureTag": "missing|json|wave-coverage-missing",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-193",
+      "desc": "CHK-001 through CHK-005 lack executable current-story Wave 4 coverage. checklist.json contains only node --test packages/main/tests/causal-evidence.test.mjs evidence and no executable evidence for acceptance_topology_check, pre_review_check_read, acceptance_rollout_report_read, or acceptance_rollout_check. pre-review-check.json:787-813 has commandDigests=[], empty caseRecords and bindingProofs, and status=inconclusive. acceptance-rollout-report.json:8400-8440 is a pass for six B-cb/B-cc fixture pairs, not a current B-5a15 execution. Therefore full 3 rounds x 2 hosts, degraded-3x1 rejection, mutation coverage, mode-invariant diagnostics, enforce blocking, and rollback-history coverage are unproven for this candidate.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-23T12:59:01.382Z",
+      "reviewRound": "2026-08-22T06:10:03.014Z",
+      "reviewRunId": "B-5a15:RR-320",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "557764b0d480960d890d656a98520e286c1e06bed12f6b96dced29de40f1beb5"
+      },
+      "readDiagnostics": [],
+      "_hash": "531c7ae19dd4496e199200b4d44be2c0f31ef44600a0a13a0bf27d5751c1b1d2",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/checklist.json",
+        ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json"
+      ],
+      "signatureTag": "missing|json|through-lack-executable",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-194",
+      "desc": "production causal DAG is not wired: packages/main/src/handlers/certification-window.ts:98-99 calls evaluateCausalDependencies with nodes: [] and currentInputHashes: {}, so the CertificationWindow production path can never derive changed or affected dependency nodes and cannot enforce CHK-003 related-drift reruns; this leaves the promised causal invalidation behavior undelivered.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-23T13:00:36.239Z",
+      "reviewRound": "2026-08-22T06:10:03.014Z",
+      "reviewRunId": "B-5a15:RR-321",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": null
+        },
+        "digest": "eb09d75c684e4cb0785207bc02e44329b5cfab27cedda0249ef2c93a90dd96f8"
+      },
+      "readDiagnostics": [],
+      "_hash": "b2cfb861d3ea20e8e01bf84f9dfbd9f2960dca7b0b29195abf79b0a0870fd4aa",
+      "files": [
+        "packages/main/src/handlers/certification-window.ts",
+        "packages/main/src/core/causal-evidence.ts"
+      ],
+      "signatureTag": "missing|ts|production-causal-wired",
+      "signatureTagSource": "auto"
     }
   ]
 }

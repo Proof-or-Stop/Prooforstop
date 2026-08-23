@@ -2574,6 +2574,35 @@
       },
       "readDiagnostics": [],
       "_hash": "66af9d70963a3fdd171e426fa403a26d6499e055421bb1d3b5ff66484bc838d4"
+    },
+    {
+      "id": "B-5a15:RP-059",
+      "agent": "lattice-review-concept",
+      "note": "Reviewed the frozen candidate diff and the U-03 decision documents; no concept deletion or replacement was identified, so there is no concept residue blocker for this run.",
+      "createdAt": "2026-08-23T13:00:22.300Z",
+      "reviewRound": "2026-08-22T06:10:03.014Z",
+      "reviewRunId": "B-5a15:RR-322",
+      "envelopeId": "502bcf1c83adf3956673d19f87bbb66da1ae89590ba8210768e6704de6749b28",
+      "writerSessionId": "sess-1ff81192c8f5688bf40ac6afd86a20f7",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "bba4fcdf02594940fb052e3e1fff8182867089c914e0938e2afbbfcecf056f5b"
     }
   ]
 }
