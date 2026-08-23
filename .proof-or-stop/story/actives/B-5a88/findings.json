@@ -1624,7 +1624,7 @@
       "desc": "All 21 must verification intents have passing mechanical records, but every verificationEvidence receipt is bound to stale head eb6b5a121d6d; current review run RR-060 is bound to head 152318f306aa. No current executable evidence covers the 21 intents.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-20T15:43:57.058Z",
@@ -1662,7 +1662,11 @@
         ".proof-or-stop/story/actives/B-5a88/review-runs.json"
       ],
       "signatureTag": "missing|json|verification-intents-passing",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by B-5a88:F-344, the later current-round finding that records the same all-21 verificationEvidence staleness family at the latest reviewed cutoff.",
+      "resolvedAt": "2026-08-23T18:44:17.833Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-039",
