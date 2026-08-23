@@ -104,14 +104,15 @@ const makeReceipt = (revocationLedgerDigest: string) => createValidationCommandR
   revocationLedgerDigest,
 });
 const reusableReceipt = makeReceipt(stableDigest({}));
-const reusedSelection = buildDynamicValidationPlan({
+const reusedContext = {
   storyId: 'B-smoke', baseHead: 'base', head: 'head', inventory, catalog,
   changes: buildStoryChangeManifest({ storyId: 'B-smoke', gitCwd: '.', baseHead: 'base', head: 'head', changedFiles: [] }),
-  closures, receipts: [reusableReceipt], baselineEpochId: 'epoch', buildProofDigest: 'build', mode: 'observe',
-});
+  closures, receipts: [reusableReceipt], baselineEpochId: 'epoch', buildProofDigest: 'build', mode: 'observe' as const,
+};
+const reusedSelection = buildDynamicValidationPlan(reusedContext);
 assert.equal(verifyValidationCommandReceipt(reusableReceipt).ok, true);
 assert.equal(reusedSelection.rows.find((row) => row.commandId === localRow.commandId)?.disposition, 'reuse');
-assertSelectionIsSingletonUnionMonotonic({} as never, reusedSelection);
+assertSelectionIsSingletonUnionMonotonic(reusedContext, reusedSelection);
 const unverifiedSelection = buildDynamicValidationPlan({
   storyId: 'B-smoke', baseHead: 'base', head: 'head', inventory, catalog,
   changes: buildStoryChangeManifest({ storyId: 'B-smoke', gitCwd: '.', baseHead: 'base', head: 'head', changedFiles: [] }),

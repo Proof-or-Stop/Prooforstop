@@ -25,6 +25,8 @@ import {
   stableDigest,
   validateValidationCatalog,
   evaluateDynamicAuthority,
+  assertSelectionIsSingletonUnionMonotonic,
+  assertSelectionMonotonicity,
   runObserveOracle,
   verifyStoryChangeManifest,
   verifyValidationClosureCertificate,
@@ -177,6 +179,41 @@ const cleanRun = buildDynamicValidationPlan({
 });
 assert.equal(cleanRun.rows.find((row) => row.commandId === 'unit')?.disposition, 'reuse');
 assert.equal(cleanRun.totals.unverified, 0);
+
+// The executable selection must be monotone as a clean, receipt-backed plan
+// is expanded with a changed source file. The signed singleton union must
+// still cover every execute/reuse row, and removing one independent
+// contribution must be rejected even when the remaining rows are untouched.
+const cleanContext = {
+  ...context('packages/main/src/no-change.ts'),
+  changes: buildStoryChangeManifest({ storyId: 'B-mutation', gitCwd: '.', baseHead: 'base', head: 'head', changedFiles: [] }),
+};
+const cleanPlan = buildDynamicValidationPlan(cleanContext);
+const cleanReceipts = cleanPlan.rows.map(row => createValidationCommandReceipt({
+  id: `clean-${row.commandId}`, commandId: row.commandId,
+  commandIdentityDigest: stableDigest({ commandId: row.commandId }), inputDigest: row.inputDigest,
+  closureCertificateDigest: closures.get(row.commandId)!.signature, catalogDigest,
+  inventoryDigest: inventory.digest, runnerDigest: 'runner', toolchainDigest: 'toolchain', buildProofDigest: 'build',
+  sourceHead: 'head', sourceBaseHead: 'base', canonicalBaselineEpochId: 'epoch', producedBy: 'story-execution',
+  cleanTreeDigest: 'clean', executionEnvironmentDigest: 'environment', result: 'PASS', exitCode: 0,
+  outputDigest: 'clean-output', durationMs: 1, createdAt: new Date().toISOString(), revocationLedgerDigest: stableDigest({}),
+}));
+const cleanReceiptContext = { ...cleanContext, receipts: cleanReceipts };
+const expandedContext = context('packages/main/src/expanded-monotonicity.ts');
+const monotonicPlans = assertSelectionMonotonicity(cleanReceiptContext, expandedContext);
+assert.equal(monotonicPlans.base.rows.every(row => row.disposition === 'reuse'), true);
+assert.equal(monotonicPlans.expanded.rows.every(row => row.disposition === 'execute'), true);
+assertSelectionIsSingletonUnionMonotonic(expandedContext, monotonicPlans.expanded);
+const directContribution = monotonicPlans.expanded.singletonContributions.find(row => row.source.startsWith('file-direct:') && row.commandIds.includes('unit'))!;
+const contributionMutationBody = {
+  ...monotonicPlans.expanded,
+  singletonContributions: monotonicPlans.expanded.singletonContributions.map(row => row === directContribution
+    ? { ...row, commandIds: row.commandIds.filter(commandId => commandId !== 'unit') }
+    : row),
+};
+const contributionMutation = { ...contributionMutationBody, signature: signPayload({ ...contributionMutationBody, signature: undefined }) };
+assert.equal(verifyValidationSelectionManifest(contributionMutation), false);
+assert.throws(() => assertSelectionIsSingletonUnionMonotonic(expandedContext, contributionMutation), /singleton|monotonicity|manifest/i);
 
 const staleReceipt = receipt({
   createdAt: '2020-01-01T00:00:00.000Z', expiresAt: '2020-01-02T00:00:00.000Z',

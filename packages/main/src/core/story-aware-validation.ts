@@ -654,11 +654,18 @@ export function loadBestMatchingAdmissiblePassReceipt(args: { commandId: string;
 }
 
 export interface SelectionRow { commandId: string; disposition: DynamicDisposition; reasons: string[]; inputDigest: string; receiptId?: string; closureCertificateDigest?: string; }
+export interface ValidationSingletonContribution {
+  /** The independently computed singleton input that contributed commands. */
+  source: string;
+  /** Command IDs selected by this one input, in canonical order. */
+  commandIds: string[];
+}
 export interface ValidationSelectionManifest {
   schema: typeof VALIDATION_SELECTION_SCHEMA; storyId: string; baseHead: string; head: string; changeDigest: string;
   scopeContractDigest: string; catalogDigest: string; inventoryDigest: string; dependencyGraphDigest: string;
   closureCertificateSetDigest: string; toolchainDigest: string; buildProofDigest: string; canonicalBaselineEpochId: string;
   receiptRevocationLedgerDigest: string; changedFiles: StoryChangedFile[]; rows: SelectionRow[];
+  singletonContributions: ValidationSingletonContribution[];
   totals: { inventory: number; executed: number; reused: number; unverified: number; uncovered: number; unmappedChanges: number };
   escalationReasons: string[]; fullEscalated: boolean; mode: DynamicValidationMode; signature: string;
 }
@@ -677,6 +684,15 @@ function closureMap(value: DynamicValidationContext['closures']): Map<string, Va
 }
 function currentInventoryDigest(inventory: ValidationInventory | ValidationInventoryCommand[]): string {
   return Array.isArray(inventory) ? stableDigest(inventory) : inventory.digest;
+}
+function normalizeSingletonContributions(contributions: ValidationSingletonContribution[]): ValidationSingletonContribution[] {
+  return contributions
+    .map(row => ({ source: row.source, commandIds: uniqueSorted(row.commandIds) }))
+    .filter(row => row.source.length > 0 && row.commandIds.length > 0)
+    .sort((a, b) => a.source.localeCompare(b.source));
+}
+function singletonUnion(contributions: ValidationSingletonContribution[]): Set<string> {
+  return new Set(contributions.flatMap(row => row.commandIds));
 }
 function isTrustedAncestor(sourceHead: string, currentHead: string, gitCwd = process.cwd()): boolean {
   if (!sourceHead || sourceHead === currentHead) return true;
@@ -718,31 +734,44 @@ export function classifyFullValidationReasons(changes: StoryChangeManifest, cata
   }
   return uniqueSorted(reasons);
 }
-export function buildDynamicValidationPlan(ctx: DynamicValidationContext): ValidationSelectionManifest {
+function buildDynamicValidationPlanInternal(ctx: DynamicValidationContext): ValidationSelectionManifest {
   const inventory = Array.isArray(ctx.inventory) ? ctx.inventory : ctx.inventory.commands;
   const catalogById = new Map(ctx.catalog.map(entry => [entry.id, entry]));
   const closures = closureMap(ctx.closures); const selected = new Map<string, string[]>(); const unmapped: string[] = [];
-  const select = (id: string, reason: string) => {
+  const contributionSets = new Map<string, Set<string>>();
+  const contribute = (source: string, ids: Iterable<string>) => {
+    const commandIds = contributionSets.get(source) || new Set<string>();
+    for (const id of ids) {
+      if (!catalogById.has(id)) throw new Error('singleton contribution references unmapped command: ' + id);
+      commandIds.add(id);
+    }
+    if (commandIds.size > 0) contributionSets.set(source, commandIds);
+  };
+  const select = (id: string, reason: string, source = reason) => {
     if (!catalogById.has(id)) throw new Error('selection references unmapped command: ' + id);
     const reasons = selected.get(id) || []; if (!reasons.includes(reason)) reasons.push(reason); selected.set(id, reasons);
+    contribute(source, [id]);
   };
-  for (const entry of ctx.catalog) if (entry.assurance === 'always') select(entry.id, 'always');
-  if (ctx.buildCommandId) select(ctx.buildCommandId, 'wave-0-build');
+  for (const entry of ctx.catalog) if (entry.assurance === 'always') select(entry.id, 'always', 'always');
+  if (ctx.buildCommandId) select(ctx.buildCommandId, 'wave-0-build', 'wave-0-build');
   for (const pin of ctx.changes.pinnedValidationCommands) {
     const row = inventory.find(command => command.id === pin || command.label === pin || command.command === pin);
     if (!row) throw new Error('pinned command absent: ' + pin);
-    select(row.id, 'verification-intent-pin');
+    select(row.id, 'verification-intent-pin', 'pin:' + pin);
   }
   for (const change of ctx.changes.changedFiles) {
     const direct = ctx.catalog.filter(entry => [...(entry.inputRoots || []), ...(entry.triggerExtensions.files || [])].some(path => matchesPath(change.path, [path]))).map(entry => entry.id);
     const graph = ctx.graph ? ctx.graph.commandsAffectedBy(change) : [];
     const affected = uniqueSorted([...direct, ...graph]);
     if (!affected.length) unmapped.push(change.path);
-    for (const id of direct) select(id, 'file-trigger:' + change.path);
-    for (const id of graph) select(id, 'reverse-dependency:' + change.path);
+    for (const id of direct) select(id, 'file-trigger:' + change.path, 'file-direct:' + change.path);
+    for (const id of graph) select(id, 'reverse-dependency:' + change.path, 'file-graph:' + change.path);
   }
-  for (const fact of ctx.changes.affectedProcessFacts) for (const entry of ctx.catalog.filter(row => (row.triggerExtensions.processFacts || []).includes(fact))) select(entry.id, 'process-fact:' + fact);
-  for (const capability of ctx.changes.affectedCapabilities) for (const entry of ctx.catalog.filter(row => (row.triggerExtensions.capabilities || []).includes(capability))) select(entry.id, 'capability:' + capability);
+  for (const fact of ctx.changes.affectedProcessFacts) for (const entry of ctx.catalog.filter(row => (row.triggerExtensions.processFacts || []).includes(fact))) select(entry.id, 'process-fact:' + fact, 'process-fact:' + fact);
+  for (const capability of ctx.changes.affectedCapabilities) for (const entry of ctx.catalog.filter(row => (row.triggerExtensions.capabilities || []).includes(capability))) select(entry.id, 'capability:' + capability, 'capability:' + capability);
+  for (const entry of ctx.catalog) {
+    if (entry.closurePolicy === 'never-reuse') select(entry.id, 'never-reuse-policy', 'never-reuse-policy');
+  }
   const escalationReasons = uniqueSorted([...classifyFullValidationReasons(ctx.changes, ctx.catalog), ...unmapped.map(path => 'unmapped-change:' + path)]);
   // Normative full-only semantics: an impacted full-only command escalates the
   // complete plan. An unimpacted command may avoid that escalation only when
@@ -785,7 +814,7 @@ export function buildDynamicValidationPlan(ctx: DynamicValidationContext): Valid
   }
   if (ctx.graph && ctx.graph.graphUnknown) escalationReasons.push('dependency-graph-unavailable');
   const fullEscalated = escalationReasons.length > 0;
-  if (fullEscalated) for (const entry of ctx.catalog) select(entry.id, 'full-escalation:' + escalationReasons.join(','));
+  if (fullEscalated) for (const entry of ctx.catalog) select(entry.id, 'full-escalation:' + escalationReasons.join(','), 'full-escalation');
   const rows: SelectionRow[] = inventory.map(row => {
     const entry = catalogById.get(row.id); if (!entry) throw new Error('inventory command absent from catalog: ' + row.id);
     const closure = closures.get(row.id);
@@ -812,6 +841,16 @@ export function buildDynamicValidationPlan(ctx: DynamicValidationContext): Valid
     if (receipt) return { commandId: row.id, disposition: 'reuse', reasons: ['certified-input-closure-unchanged'], inputDigest, receiptId: receipt.id, closureCertificateDigest: closure.signature };
     return { commandId: row.id, disposition: 'execute', reasons: ['no-admissible-reusable-receipt'], inputDigest, closureCertificateDigest: closure.signature };
   });
+  const coveredByIndependentInputs = singletonUnion([...contributionSets.entries()].map(([source, ids]) => ({ source, commandIds: [...ids] })));
+  for (const row of rows) {
+    if (coveredByIndependentInputs.has(row.commandId)) continue;
+    // A command with no triggering singleton still belongs to the complete
+    // logical ledger: either an admissible receipt reused it or the absence of
+    // one forces execution. Record that terminal decision explicitly so the
+    // signed union cannot silently omit a command.
+    contribute(row.disposition === 'reuse' ? 'admissible-receipt-reuse' : 'default-execution', [row.commandId]);
+  }
+  const singletonContributions = normalizeSingletonContributions([...contributionSets.entries()].map(([source, ids]) => ({ source, commandIds: [...ids] })));
   const totals = {
     inventory: rows.length, executed: rows.filter(row => row.disposition === 'execute').length,
     reused: rows.filter(row => row.disposition === 'reuse').length, unverified: rows.filter(row => row.disposition === 'unverified').length,
@@ -829,18 +868,32 @@ export function buildDynamicValidationPlan(ctx: DynamicValidationContext): Valid
     closureCertificateSetDigest: stableDigest([...closures.entries()]), toolchainDigest: ctx.toolchainDigest || '',
     buildProofDigest: ctx.buildProofDigest || '', canonicalBaselineEpochId: ctx.baselineEpochId || '',
     receiptRevocationLedgerDigest: ctx.revocationLedger ? ctx.revocationLedger.digest : stableDigest({}),
-    changedFiles: ctx.changes.changedFiles, rows, totals, escalationReasons: uniqueSorted(escalationReasons),
+    changedFiles: ctx.changes.changedFiles, rows, singletonContributions, totals, escalationReasons: uniqueSorted(escalationReasons),
     fullEscalated, mode: ctx.mode || 'observe',
   };
   return { ...body, signature: signPayload(body) };
 }
+export function buildDynamicValidationPlan(ctx: DynamicValidationContext): ValidationSelectionManifest {
+  const manifest = buildDynamicValidationPlanInternal(ctx);
+  assertSelectionIsSingletonUnionMonotonic(ctx, manifest);
+  return manifest;
+}
 export function verifyValidationSelectionManifest(manifest: ValidationSelectionManifest, current?: Partial<Pick<ValidationSelectionManifest, 'storyId' | 'head' | 'baseHead'>>): boolean {
   if (manifest.schema !== VALIDATION_SELECTION_SCHEMA || !verifyPayload(withoutSignature(manifest), manifest.signature)) return false;
   if (current && ((current.storyId !== undefined && current.storyId !== manifest.storyId) || (current.head !== undefined && current.head !== manifest.head) || (current.baseHead !== undefined && current.baseHead !== manifest.baseHead))) return false;
+  if (!Array.isArray(manifest.singletonContributions)) return false;
+  const normalizedContributions = normalizeSingletonContributions(manifest.singletonContributions);
+  if (normalizedContributions.length !== manifest.singletonContributions.length
+    || stableDigest(normalizedContributions) !== stableDigest(manifest.singletonContributions)) return false;
+  const contributionSources = new Set<string>();
+  if (normalizedContributions.some(row => contributionSources.has(row.source) || row.commandIds.length === 0)) return false;
+  for (const row of normalizedContributions) contributionSources.add(row.source);
   const commandIds = manifest.rows.map(row => row.commandId);
   const executed = manifest.rows.filter(row => row.disposition === 'execute').length;
   const reused = manifest.rows.filter(row => row.disposition === 'reuse').length;
   const unverified = manifest.rows.filter(row => row.disposition === 'unverified').length;
+  const selectedIds = new Set(manifest.rows.filter(row => row.disposition === 'execute' || row.disposition === 'reuse').map(row => row.commandId));
+  const contributedIds = singletonUnion(normalizedContributions);
   return manifest.totals.unverified === unverified
     && manifest.totals.executed === executed
     && manifest.totals.reused === reused
@@ -850,6 +903,8 @@ export function verifyValidationSelectionManifest(manifest: ValidationSelectionM
     && manifest.totals.unverified === 0
     && manifest.totals.uncovered === 0
     && manifest.totals.unmappedChanges === 0
+    && contributedIds.size === selectedIds.size
+    && [...contributedIds].every(id => selectedIds.has(id))
     && manifest.rows.every(row => row.disposition !== 'unverified');
 }
 export const buildSelectionManifest = buildDynamicValidationPlan;
@@ -858,9 +913,33 @@ export function assertCompleteInventoryCoverage(inventory: ValidationInventory |
   const commands = Array.isArray(inventory) ? inventory : inventory.commands; const ids = new Set(commands.map(row => row.id));
   if (rows.length !== ids.size || rows.some(row => !ids.has(row.commandId)) || rows.some(row => row.disposition === 'unverified')) throw new Error('selection inventory coverage is incomplete');
 }
-export function assertSelectionIsSingletonUnionMonotonic(_context: DynamicValidationContext, manifest: ValidationSelectionManifest): void {
+export function assertSelectionIsSingletonUnionMonotonic(context: DynamicValidationContext, manifest: ValidationSelectionManifest): void {
   if (manifest.totals.executed + manifest.totals.reused + manifest.totals.unverified !== manifest.totals.inventory) throw new Error('selection ledger does not partition inventory');
   if (manifest.totals.unverified !== 0 || manifest.totals.uncovered !== 0) throw new Error('selection monotonicity cannot be certified with gaps');
+  if (!verifyValidationSelectionManifest(manifest, { storyId: context.storyId, head: context.head, baseHead: context.baseHead })) throw new Error('selection monotonicity manifest is invalid');
+  const expected = buildDynamicValidationPlanInternal(context);
+  const expectedRows = expected.rows.map(row => ({ commandId: row.commandId, disposition: row.disposition, reasons: row.reasons, inputDigest: row.inputDigest, receiptId: row.receiptId, closureCertificateDigest: row.closureCertificateDigest }));
+  const actualRows = manifest.rows.map(row => ({ commandId: row.commandId, disposition: row.disposition, reasons: row.reasons, inputDigest: row.inputDigest, receiptId: row.receiptId, closureCertificateDigest: row.closureCertificateDigest }));
+  if (stableDigest(actualRows) !== stableDigest(expectedRows)) throw new Error('selection monotonicity manifest does not match authoritative recomputation');
+  if (stableDigest(manifest.singletonContributions) !== stableDigest(expected.singletonContributions)) throw new Error('selection singleton contributions do not match authoritative recomputation');
+  const expectedSelected = singletonUnion(expected.singletonContributions);
+  const actualSelected = singletonUnion(manifest.singletonContributions);
+  if (expectedSelected.size !== actualSelected.size || [...expectedSelected].some(id => !actualSelected.has(id))) throw new Error('selection singleton union is not authoritative');
+}
+/**
+ * Compare two authoritative plans where the second context contains an
+ * expanded change set.  The executable selection is monotone: adding a
+ * changed file/fact/capability may add commands, but can never remove one.
+ * The per-manifest singleton-union check above separately proves complete
+ * execute/reuse accounting.
+ */
+export function assertSelectionMonotonicity(baseContext: DynamicValidationContext, expandedContext: DynamicValidationContext): { base: ValidationSelectionManifest; expanded: ValidationSelectionManifest } {
+  const base = buildDynamicValidationPlan(baseContext);
+  const expanded = buildDynamicValidationPlan(expandedContext);
+  const baseExecuted = new Set(base.rows.filter(row => row.disposition === 'execute').map(row => row.commandId));
+  const expandedExecuted = new Set(expanded.rows.filter(row => row.disposition === 'execute').map(row => row.commandId));
+  if ([...baseExecuted].some(commandId => !expandedExecuted.has(commandId))) throw new Error('selection monotonicity violated: expanded change set removed an executable command');
+  return { base, expanded };
 }
 
 export interface DynamicEnforcementPrerequisites {
