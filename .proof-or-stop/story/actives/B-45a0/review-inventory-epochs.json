@@ -2036,9 +2036,9 @@
       "epochId": "B-45a0:RI-035",
       "storyId": "B-45a0",
       "reviewRound": "2026-08-23T08:18:33.747Z",
-      "state": "OPEN",
+      "state": "CANCELLED",
       "begunAt": "2026-08-23T09:53:38.077Z",
-      "updatedAt": "2026-08-23T10:16:24.168Z",
+      "updatedAt": "2026-08-23T10:38:05.485Z",
       "cutoff": {
         "headHash": "581815e4eaa59f01a0f2b6b34ebf8352a9084974",
         "materialHash": "02bf71452432190de8ce0ae66682fb409f383fab4bba07ffe810170b115ccf12",
@@ -2121,7 +2121,168 @@
         "B-45a0:F-143",
         "B-45a0:F-144"
       ],
-      "_hash": "ea29cb8801c7dc5cdad47c29dec37162b4154b5f66bb5cbac6733312819047aa"
+      "cancelledAt": "2026-08-23T10:38:05.485Z",
+      "cancelReason": "The review retention registry changed to trust signed topology critic protocol evidence; RI-035 was frozen before that material fix and must be replaced with a current-head inventory.",
+      "terminalRunSequenceBoundary": 202,
+      "_hash": "6c93e0d31eb8a9dd1e3d67cb26ee0fb078522de9c0ff29c6a4bfd34067840a79"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-45a0:RI-036",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-23T08:18:33.747Z",
+      "state": "CANCELLED",
+      "begunAt": "2026-08-23T10:38:13.227Z",
+      "updatedAt": "2026-08-23T11:02:30.661Z",
+      "cutoff": {
+        "headHash": "c369103c32afa02cef320de5bffd4c9b7addeefc",
+        "materialHash": "2c12be2da6bd325e2ec334ca632e12ef99069b48a35d701d3680c135b093ad41",
+        "storyFilesHash": "5737e0ed024ff69756bfe1fded66deab002ffb1a716f60af7d9e24acb39a83f8"
+      },
+      "scopeDigest": "af6d76777f80e689244e18bee84e5901158e6abaa5a1fa392affa4ac8e8aba3e",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage",
+        "lattice-review-docs"
+      ],
+      "initialRunSequenceBoundary": 202,
+      "maxWaves": 3,
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-08-23T10:38:13.227Z",
+          "completedAt": "2026-08-23T10:45:12.285Z",
+          "lanes": [
+            {
+              "lane": "lattice-review-concept",
+              "reviewRunId": "B-45a0:RR-205",
+              "terminal": "pass",
+              "hostIdentity": "a0c7122cd5b36ae6171b276f62d774501021be9c9ff212161abaa222aa3c500f",
+              "promptIdentity": "0e226782834cf08860cdde4e9a7b2cf543740bd8af36a2e49ac77b9148a6c811",
+              "evidenceIds": [
+                "B-45a0:RP-055"
+              ],
+              "coverageDigest": "958a8ad5bef42e2b607dfc62e8c5d6d13c2386410473b828a7697a2d9bd0e00e"
+            },
+            {
+              "lane": "lattice-review-quality",
+              "reviewRunId": "B-45a0:RR-204",
+              "terminal": "finding",
+              "hostIdentity": "a0c7122cd5b36ae6171b276f62d774501021be9c9ff212161abaa222aa3c500f",
+              "promptIdentity": "d410e62c20ed575a10924d7296bba36d533eb14ad23e881370b3c5929e36d07c",
+              "evidenceIds": [
+                "B-45a0:F-151"
+              ],
+              "coverageDigest": "5c04ee38b87ebb9bdd85dbb5748f189eae3646ea17f9dd93074d04c81eafb8c6"
+            },
+            {
+              "lane": "lattice-review-test-coverage",
+              "reviewRunId": "B-45a0:RR-208",
+              "terminal": "finding",
+              "hostIdentity": "a0c7122cd5b36ae6171b276f62d774501021be9c9ff212161abaa222aa3c500f",
+              "promptIdentity": "affddbdcee68de47d8840dc7c3661aa05a4757b66cf73f528acdc260956fcf2a",
+              "evidenceIds": [
+                "B-45a0:F-152"
+              ],
+              "coverageDigest": "3960eba3b5d77b2aa205b729c3dfa703c75d67ae7aed4e2668dc03bda43d31c7"
+            },
+            {
+              "lane": "lattice-review-docs",
+              "reviewRunId": "B-45a0:RR-207",
+              "terminal": "finding",
+              "hostIdentity": "a0c7122cd5b36ae6171b276f62d774501021be9c9ff212161abaa222aa3c500f",
+              "promptIdentity": "ab4d9c793663da5a1ac9486417c554f49ebd7fbf6de9262292b4181a8ae382cd",
+              "evidenceIds": [
+                "B-45a0:F-153",
+                "B-45a0:F-154"
+              ],
+              "coverageDigest": "bfdc29bcf6a82061add7982d25ed50d8bdfcfa2bbf93eba200021ceeec1ea181"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "acceptance-gate-coverage-inadmissible",
+            "changed-file-manifest-error-fail-open",
+            "docs-dynamic-config-compatibility-path-drift",
+            "docs-dynamic-config-type-contract-drift"
+          ],
+          "verifiedFindingSetDigest": "c85abbfe05bbca0b24c8d87e738a4d1b2ae74457cbf055b804d4d31641fe9ed3",
+          "newVerifiedFindingCount": 4,
+          "criticDigest": "4e34702194cd00188a1cee06eacad1720fa40e3e0b7c9960309080ef509797b4",
+          "saturated": false,
+          "nextRunSequenceBoundary": 212
+        },
+        {
+          "wave": 2,
+          "startedAt": "2026-08-23T10:45:12.285Z",
+          "completedAt": "2026-08-23T10:50:53.130Z",
+          "lanes": [
+            {
+              "lane": "lattice-review-concept",
+              "reviewRunId": "B-45a0:RR-214",
+              "terminal": "pass",
+              "hostIdentity": "418789031922c2d9764c3f7ef50fad94b5a6570c89abb48fda4790aadf7578ef",
+              "promptIdentity": "e709eec42bc9fddd1d6d4a5e071ef1a52b004169ce823ee02c00d2d9a56d90da",
+              "evidenceIds": [
+                "B-45a0:RP-057"
+              ],
+              "coverageDigest": "d3b343be59b6769f500d781dc4d150afc73274ab4677f09360fdb0955f8d45af"
+            },
+            {
+              "lane": "lattice-review-quality",
+              "reviewRunId": "B-45a0:RR-215",
+              "terminal": "finding",
+              "hostIdentity": "418789031922c2d9764c3f7ef50fad94b5a6570c89abb48fda4790aadf7578ef",
+              "promptIdentity": "dc1cd0c088716123fe1c7510f1e535282a61d8b8518ae12a4fcc483af7913cac",
+              "evidenceIds": [
+                "B-45a0:F-156"
+              ],
+              "coverageDigest": "d39447f73b2352982f41e9604db7e13f5276c6cc192bfe275689106f601f1eb9"
+            },
+            {
+              "lane": "lattice-review-test-coverage",
+              "reviewRunId": "B-45a0:RR-217",
+              "terminal": "finding",
+              "hostIdentity": "418789031922c2d9764c3f7ef50fad94b5a6570c89abb48fda4790aadf7578ef",
+              "promptIdentity": "9c3d995bdbc3315004624a553eda20bb25f19ca63ecbedaad01dde29048dc767",
+              "evidenceIds": [
+                "B-45a0:F-158"
+              ],
+              "coverageDigest": "5713cb5c351276a5ec7ad29f76e4ff647ff4d42749e06145e918adb5b1943507"
+            },
+            {
+              "lane": "lattice-review-docs",
+              "reviewRunId": "B-45a0:RR-218",
+              "terminal": "finding",
+              "hostIdentity": "418789031922c2d9764c3f7ef50fad94b5a6570c89abb48fda4790aadf7578ef",
+              "promptIdentity": "e960b7988f6d4845d9f4ecf68283e542ea1cdffa4df9d4d9bbdb392bddba465b",
+              "evidenceIds": [
+                "B-45a0:F-157"
+              ],
+              "coverageDigest": "72c64b57952cee00a100e9f4d01ffd0465de1d92d876096842126f560925cf46"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "acceptance-gate-coverage-inadmissible",
+            "acceptance-gate-coverage-inadmissible-wave2",
+            "changed-file-manifest-error-fail-open",
+            "changed-file-manifest-error-fail-open-wave2",
+            "docs-dynamic-config-compatibility-path-drift",
+            "docs-dynamic-config-type-contract-drift",
+            "docs-dynamic-config-type-contract-drift-wave2"
+          ],
+          "verifiedFindingSetDigest": "d46056df6b0455d77ce4b42218f8fa7da3ad9e25aefc5236d47130fba772096f",
+          "newVerifiedFindingCount": 3,
+          "criticDigest": "5d176daf018eacf4c57ec97206bd8c23e1d2aaec492c4b089f019d06bd68a37e",
+          "saturated": false,
+          "nextRunSequenceBoundary": 222
+        }
+      ],
+      "baselineFindingIds": [],
+      "cancelledAt": "2026-08-23T11:02:30.661Z",
+      "cancelReason": "Wave-3 reached the reviewer budget while exposing actionable resolver, typed-config, and acceptance-gate findings; cancel the stale frozen epoch before current-head remediation.",
+      "terminalRunSequenceBoundary": 232,
+      "_hash": "468649e758719a3d395dcb5846fa1f53c9038ee6d36596305c7c3398bc527e28"
     }
   ],
   "receipts": [
@@ -2995,6 +3156,147 @@
       ],
       "createdAt": "2026-08-23T10:16:13.810Z",
       "_hash": "231ea176149b92c53d471ac9ccb0d817d99828cce48f7ce564573a8c7a65ed6f"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-45a0:RI-036:CRIT-01",
+      "epochId": "B-45a0:RI-036",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-23T08:18:33.747Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "c369103c32afa02cef320de5bffd4c9b7addeefc",
+        "materialHash": "2c12be2da6bd325e2ec334ca632e12ef99069b48a35d701d3680c135b093ad41",
+        "storyFilesHash": "5737e0ed024ff69756bfe1fded66deab002ffb1a716f60af7d9e24acb39a83f8"
+      },
+      "aggregateFindingSetDigest": "c85abbfe05bbca0b24c8d87e738a4d1b2ae74457cbf055b804d4d31641fe9ed3",
+      "requiredLaneCoverageDigest": "b0f79aac0c40e5aa139434932ab78af3d5a9bfb566007f4616dce1017e8ef77a",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-45a0:RR-212",
+      "terminalEvidenceIds": [
+        "B-45a0:F-155"
+      ],
+      "readEvidenceDigest": "80585d396b720ddd7b4d6022cb97420e2805a0d27ed17fdebfcc3c7c6017cade",
+      "findingDispositions": [
+        {
+          "findingId": "B-45a0:F-151",
+          "disposition": "verified_family",
+          "familyKey": "changed-file-manifest-error-fail-open",
+          "reason": "Verified quality-lane finding: merge-base/diff/object-ID errors still yield an empty changed-file list, allowing a signed no-change manifest and reuse without full escalation."
+        },
+        {
+          "findingId": "B-45a0:F-152",
+          "disposition": "verified_family",
+          "familyKey": "acceptance-gate-coverage-inadmissible",
+          "reason": "Verified coverage-lane finding: all 45 intents are evidenced, but the verifier-owned acceptance topology/pre-review/rollout chain is partial, inconclusive, tampered, and stale rather than executable current gate evidence."
+        },
+        {
+          "findingId": "B-45a0:F-153",
+          "disposition": "verified_family",
+          "familyKey": "docs-dynamic-config-type-contract-drift",
+          "reason": "Verified docs-lane finding: documented validate.dynamic configuration is absent from the shared typed config contract and reached through casts."
+        },
+        {
+          "findingId": "B-45a0:F-154",
+          "disposition": "verified_family",
+          "familyKey": "docs-dynamic-config-compatibility-path-drift",
+          "reason": "Verified docs-lane finding: the documented validate.dynamic.mode promise and current config/handler compatibility path remain mismatched, duplicating a distinct raw current-wave record."
+        }
+      ],
+      "createdAt": "2026-08-23T10:45:00.666Z",
+      "_hash": "f39ab32f4b1df9431bb21c4542945cc3dbd10488a4b66b95d550fbee4a44e746"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-45a0:RI-036:CRIT-02",
+      "epochId": "B-45a0:RI-036",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-23T08:18:33.747Z",
+      "wave": 2,
+      "cutoff": {
+        "headHash": "c369103c32afa02cef320de5bffd4c9b7addeefc",
+        "materialHash": "2c12be2da6bd325e2ec334ca632e12ef99069b48a35d701d3680c135b093ad41",
+        "storyFilesHash": "5737e0ed024ff69756bfe1fded66deab002ffb1a716f60af7d9e24acb39a83f8"
+      },
+      "aggregateFindingSetDigest": "d46056df6b0455d77ce4b42218f8fa7da3ad9e25aefc5236d47130fba772096f",
+      "requiredLaneCoverageDigest": "5f9fe090b01d6e53119877f92b9311d13287ba418a75f31aee904c79e946f472",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-45a0:RR-222",
+      "terminalEvidenceIds": [
+        "B-45a0:F-160"
+      ],
+      "readEvidenceDigest": "cd0060836c396e3ca12492026dfeafc7797dd498830ba7f5b86a6616af800e56",
+      "findingDispositions": [
+        {
+          "findingId": "B-45a0:F-156",
+          "disposition": "verified_family",
+          "familyKey": "changed-file-manifest-error-fail-open-wave2",
+          "reason": "Verified quality-lane raw finding: changed-file resolution errors still collapse to an empty manifest and can permit unsafe reuse without full escalation."
+        },
+        {
+          "findingId": "B-45a0:F-157",
+          "disposition": "verified_family",
+          "familyKey": "docs-dynamic-config-type-contract-drift-wave2",
+          "reason": "Verified docs-lane raw finding: documented validate.dynamic.mode is absent from the typed config contract and reached through casts."
+        },
+        {
+          "findingId": "B-45a0:F-158",
+          "disposition": "verified_family",
+          "familyKey": "acceptance-gate-coverage-inadmissible-wave2",
+          "reason": "Verified coverage-lane raw finding: intent evidence is complete, but verifier-owned acceptance topology, pre-review, and rollout gate evidence is not current or admissible."
+        }
+      ],
+      "createdAt": "2026-08-23T10:50:37.073Z",
+      "_hash": "e5c8a11f6fe9453e16fff19040fa67b25f181d81edb6233dc32711b97af43910"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-45a0:RI-036:CRIT-03",
+      "epochId": "B-45a0:RI-036",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-23T08:18:33.747Z",
+      "wave": 3,
+      "cutoff": {
+        "headHash": "c369103c32afa02cef320de5bffd4c9b7addeefc",
+        "materialHash": "2c12be2da6bd325e2ec334ca632e12ef99069b48a35d701d3680c135b093ad41",
+        "storyFilesHash": "5737e0ed024ff69756bfe1fded66deab002ffb1a716f60af7d9e24acb39a83f8"
+      },
+      "aggregateFindingSetDigest": "9dbb894e268083686db598d0d36978198666052ec6f062499f579baa38931303",
+      "requiredLaneCoverageDigest": "aa82981b077255e41494aeecb40c32282662ad55b6d85561564c96dec2bee892",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-45a0:RR-232",
+      "terminalEvidenceIds": [
+        "B-45a0:F-165"
+      ],
+      "readEvidenceDigest": "d016a8b41dd1e725cd895504bb622aa12457757eb5a979aa246c94822de99b21",
+      "findingDispositions": [
+        {
+          "findingId": "B-45a0:F-161",
+          "disposition": "verified_family",
+          "familyKey": "changed-file-resolution-error-fail-open-wave3-primary",
+          "reason": "Independent topology critic confirms this required-lane quality finding remains open and verified at the current review head; it is the primary changed-file-resolution fail-open family."
+        },
+        {
+          "findingId": "B-45a0:F-162",
+          "disposition": "verified_family",
+          "familyKey": "changed-file-resolution-error-fail-open-wave3-confirmation",
+          "reason": "Independent topology critic confirms this required-lane quality finding remains open and verified at the current review head; it is a separately recorded confirmation family."
+        },
+        {
+          "findingId": "B-45a0:F-163",
+          "disposition": "verified_family",
+          "familyKey": "typed-validation-contract-doc-drift-wave3",
+          "reason": "Independent topology critic confirms this required-lane docs finding remains open and verified at the current review head; it is a distinct typed-contract documentation drift family."
+        },
+        {
+          "findingId": "B-45a0:F-164",
+          "disposition": "verified_family",
+          "familyKey": "acceptance-gate-coverage-inadmissible-wave3",
+          "reason": "Independent topology critic confirms this required-lane coverage finding remains open and verified: 45 intents are covered, but acceptance-gate evidence is inadmissible and stale."
+        }
+      ],
+      "createdAt": "2026-08-23T11:00:07.703Z",
+      "_hash": "60629e956df8c926485db458ce9249e1ee386782af51cd070905acb9eed25418"
     }
   ]
 }

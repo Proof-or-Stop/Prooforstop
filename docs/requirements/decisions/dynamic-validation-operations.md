@@ -4,7 +4,8 @@ This runbook is the operator contract for the four policy modes.
 
 ## Mode selection and rollback
 
-Set `validate.dynamic.mode` (or pass `--dynamic-mode`) to one of:
+Set `validate.dynamic.mode` (or the legacy `validation.dynamic.mode` alias, or
+pass `--dynamic-mode`) to one of:
 
 | Mode | Behavior | Authority |
 | --- | --- | --- |
@@ -15,6 +16,10 @@ Set `validate.dynamic.mode` (or pass `--dynamic-mode`) to one of:
 
 Without `--story`, all non-off modes are bounded previews: zero project
 commands execute, no receipts are issued, and no TEST/DONE authority is granted.
+
+The typed project configuration also accepts `validate.dynamic.policyDefaults`
+for catalog defaults such as `assurance`, `riskTier`, `closurePolicy`,
+`fullBaselineReusePolicy`, `cpuWeight`, and `expectedP50Ms`.
 
 ## Required configuration
 

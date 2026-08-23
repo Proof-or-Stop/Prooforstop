@@ -156,9 +156,16 @@ export function resolveStoryMergeBase(gitCwd: string, head: string): string | un
 }
 
 /** Shared changed-file resolver. Rename rows retain both old and new paths. */
-export function resolveStoryChangedFiles(gitCwd: string, ref = 'HEAD', metadataRoot = gitCwd): StoryChangedFile[] {
-  const base = resolveStoryMergeBase(gitCwd, ref);
-  if (!base) return [];
+export function resolveStoryChangedFiles(
+  gitCwd: string,
+  ref = 'HEAD',
+  metadataRoot = gitCwd,
+  explicitBaseHead?: string,
+): StoryChangedFile[] {
+  const base = explicitBaseHead?.trim() || resolveStoryMergeBase(gitCwd, ref);
+  if (!base) {
+    throw new Error(`story change manifest could not resolve a merge base for ${ref}`);
+  }
   const ids = objectIdsAtRef(gitCwd, ref);
   const out: StoryChangedFile[] = [];
   try {
@@ -179,7 +186,9 @@ export function resolveStoryChangedFiles(gitCwd: string, ref = 'HEAD', metadataR
         out.push({ path, status, ...(status === 'deleted' ? { blobId: '<deleted>' } : { blobId: ids.get(path) || '<deleted>' }) });
       }
     }
-  } catch { return []; }
+  } catch (error) {
+    throw new Error(`story change manifest diff failed for ${base}..${ref}: ${error instanceof Error ? error.message : String(error)}`);
+  }
   return out.sort((a, b) => a.path.localeCompare(b.path) || (a.oldPath || '').localeCompare(b.oldPath || ''));
 }
 function pinnedCommands(intents: VerificationIntent[] = []): string[] {
@@ -196,7 +205,7 @@ function changedPackage(path: string): string | undefined {
   return parts[0] === 'packages' && parts[1] ? 'packages/' + parts[1] : undefined;
 }
 export function buildStoryChangeManifest(input: StoryChangeResolverInput): StoryChangeManifest {
-  const changes = input.changedFiles || resolveStoryChangedFiles(input.gitCwd, input.head);
+  const changes = input.changedFiles || resolveStoryChangedFiles(input.gitCwd, input.head, input.gitCwd, input.baseHead);
   const scope = input.scopeContract || {};
   const plannedFiles = uniqueSorted([...(scope.plannedFiles || []), ...(scope.allowedPaths || [])]);
   const pins = pinnedCommands(input.verificationIntents);

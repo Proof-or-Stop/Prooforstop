@@ -2473,6 +2473,272 @@
         "scanEscalationReason": null
       },
       "_hash": "7948450cc58bdb8370f9f4f44741a2b8bad0cadfa5d0126e7ce4f11d625f8b84"
+    },
+    {
+      "id": "B-45a0:RP-055",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion or replacement was introduced in this diff: removed-line search found no testIntent, TEST_CASE, or TEST_CASE_REVIEW deletions; remaining legacy references are explicitly compatibility surfaces.",
+      "createdAt": "2026-08-23T10:39:57.426Z",
+      "reviewRound": "2026-08-23T08:18:33.747Z",
+      "reviewRunId": "B-45a0:RR-205",
+      "envelopeId": "0e226782834cf08860cdde4e9a7b2cf543740bd8af36a2e49ac77b9148a6c811",
+      "writerSessionId": "sess-b7218410854a53fd45d69a8d0d3eb1ae",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/NAV.md",
+          "lattice.config.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/material-path-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-runtime-tracer.cjs",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/story-aware-validation-case-adapter.mjs",
+          "packages/main/src/tasks/story-aware-validation-domain-case-runner.mjs",
+          "packages/main/src/tasks/story-aware-validation-domain-cases.json",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-production-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "proof-or-stop.config.json",
+          "scripts/run-dynamic-validation-audit.mjs",
+          "scripts/run-dynamic-validation-fault-injection.mjs",
+          "scripts/run-dynamic-validation-replay.mjs",
+          "scripts/verify-story-aware-validation-plan.mjs",
+          "scripts/verify-validation-catalog.mjs",
+          "scripts/verify-validation-inventory.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "431e83f7d3f8741d538c77680f93e47216c874d2b55b9981c16d1469cbd22225"
+      },
+      "readDiagnostics": [],
+      "_hash": "3ef8bc8b8d820793382c548c40a02b06e84563bfb352aaf18e311429553ffa12"
+    },
+    {
+      "id": "B-45a0:RP-056",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion or replacement was introduced in this wave: removed-line search found no testIntent, TEST_CASE, or TEST_CASE_REVIEW deletions; remaining legacy references are explicitly compatibility or baseline surfaces.",
+      "createdAt": "2026-08-23T10:45:51.302Z",
+      "reviewRound": "2026-08-23T08:18:33.747Z",
+      "reviewRunId": "B-45a0:RR-213",
+      "envelopeId": "9eaade1aa739c6903264349145a9f32b1572c4df866621585c8df483ec141a05",
+      "writerSessionId": "sess-b7218410854a53fd45d69a8d0d3eb1ae",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/NAV.md",
+          "lattice.config.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/material-path-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-runtime-tracer.cjs",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/story-aware-validation-case-adapter.mjs",
+          "packages/main/src/tasks/story-aware-validation-domain-case-runner.mjs",
+          "packages/main/src/tasks/story-aware-validation-domain-cases.json",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-production-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "proof-or-stop.config.json",
+          "scripts/run-dynamic-validation-audit.mjs",
+          "scripts/run-dynamic-validation-fault-injection.mjs",
+          "scripts/run-dynamic-validation-replay.mjs",
+          "scripts/verify-story-aware-validation-plan.mjs",
+          "scripts/verify-validation-catalog.mjs",
+          "scripts/verify-validation-inventory.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "431e83f7d3f8741d538c77680f93e47216c874d2b55b9981c16d1469cbd22225"
+      },
+      "readDiagnostics": [],
+      "_hash": "563bbb78adabfdd0775e0214ddc2c3e795f8070d7e075fca35e7e53a6a4abd29"
+    },
+    {
+      "id": "B-45a0:RP-057",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion or replacement was introduced in this wave: removed-line search found no testIntent, TEST_CASE, or TEST_CASE_REVIEW deletions; remaining legacy references are explicitly compatibility or baseline surfaces.",
+      "createdAt": "2026-08-23T10:46:27.575Z",
+      "reviewRound": "2026-08-23T08:18:33.747Z",
+      "reviewRunId": "B-45a0:RR-214",
+      "envelopeId": "e709eec42bc9fddd1d6d4a5e071ef1a52b004169ce823ee02c00d2d9a56d90da",
+      "writerSessionId": "sess-b7218410854a53fd45d69a8d0d3eb1ae",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/NAV.md",
+          "lattice.config.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/material-path-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-runtime-tracer.cjs",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/story-aware-validation-case-adapter.mjs",
+          "packages/main/src/tasks/story-aware-validation-domain-case-runner.mjs",
+          "packages/main/src/tasks/story-aware-validation-domain-cases.json",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-production-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "proof-or-stop.config.json",
+          "scripts/run-dynamic-validation-audit.mjs",
+          "scripts/run-dynamic-validation-fault-injection.mjs",
+          "scripts/run-dynamic-validation-replay.mjs",
+          "scripts/verify-story-aware-validation-plan.mjs",
+          "scripts/verify-validation-catalog.mjs",
+          "scripts/verify-validation-inventory.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "431e83f7d3f8741d538c77680f93e47216c874d2b55b9981c16d1469cbd22225"
+      },
+      "readDiagnostics": [],
+      "_hash": "fbaefe46ba63664f00405ac3d2f8f2d81ec8775537eb803cdfd78c6e442eb6e3"
+    },
+    {
+      "id": "B-45a0:RP-058",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion or replacement was introduced in this wave: removed-line search found no testIntent, TEST_CASE, or TEST_CASE_REVIEW deletions; remaining legacy references are explicitly compatibility or baseline surfaces.",
+      "createdAt": "2026-08-23T10:53:14.888Z",
+      "reviewRound": "2026-08-23T08:18:33.747Z",
+      "reviewRunId": "B-45a0:RR-224",
+      "envelopeId": "120103510891be0aab3b9b6eacab802db0721b306dee69e8e170b5b03baff75b",
+      "writerSessionId": "sess-66102e293d385af8614772fcac5794a5",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/NAV.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/material-path-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-runtime-tracer.cjs",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "packages/main/src/tasks/review-pass-discard-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-case-adapter.mjs",
+          "packages/main/src/tasks/story-aware-validation-domain-case-runner.mjs",
+          "packages/main/src/tasks/story-aware-validation-domain-cases.json",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-production-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "proof-or-stop.config.json",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/run-dynamic-validation-audit.mjs",
+          "scripts/run-dynamic-validation-fault-injection.mjs",
+          "scripts/run-dynamic-validation-replay.mjs",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-story-aware-validation-plan.mjs",
+          "scripts/verify-validation-catalog.mjs",
+          "scripts/verify-validation-inventory.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "f2085ecb96087a20c87fd9abe9828835a5dd0766df586624bd4d7ce8d192dcb2"
+      },
+      "readDiagnostics": [],
+      "_hash": "f5d5948aebbf66f62a6f3cee033f55c5393a0a6227fdd52cc7b2447a34ad5147"
     }
   ]
 }
