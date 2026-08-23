@@ -23,6 +23,7 @@ import {
   preReviewCaseAggregateDigest,
   preReviewCaseSemanticBindingForSourceRef,
   preReviewCaseSemanticMatches,
+  REGISTERED_PRE_REVIEW_ACTIVE_TOPOLOGY_BINDINGS,
 } from '../core/pre-review-live-proof.js';
 import {
   currentAcceptanceRolloutBinding,
@@ -56,13 +57,49 @@ const actualScenarioEvents: Array<[string, number]> = [];
 const scenarioSourceRefs = new Map<string, string>();
 type ScenarioCaseKind = PreReviewCaseRecordV1[1];
 const registeredScenarioKinds = new Map<string, ScenarioCaseKind>([
-  ...Array.from({ length: 5 }, (_, index) => [`A-POS-${index + 1}`, 'positive'] as const),
-  ...Array.from({ length: 17 }, (_, index) => [`A-MUT-${index + 1}`, 'mutation'] as const),
+  ...Array.from({ length: 7 }, (_, index) => [`A-POS-${index + 1}`, 'positive'] as const),
+  ...Array.from({ length: 21 }, (_, index) => [`A-MUT-${index + 1}`, 'mutation'] as const),
   ['A-TRANSCRIPT-1', 'transcript'] as const,
 ]);
 const activeScenarioAssertions = new Map<string, { kind: ScenarioCaseKind; sourceRef: string }>();
 const activeScenarioKinds = new Map<string, ScenarioCaseKind>();
 const activeScenarioStoryId = scenarioMode ? (activeStoryArgId || process.env.LATTICE_ACTIVE_STORY_ID) : undefined;
+
+type JsonObject = Record<string, unknown>;
+
+function readRepositoryJson(relativePath: string): JsonObject {
+  return JSON.parse(readFileSync(join(repositoryRoot, relativePath), 'utf8')) as JsonObject;
+}
+
+function objectValue(value: unknown): JsonObject {
+  return value && typeof value === 'object' ? value as JsonObject : {};
+}
+
+function siblingPackageGraphPass(input: {
+  core: JsonObject;
+  utils: JsonObject;
+  lab: JsonObject;
+  utilsLock: JsonObject;
+  labLock: JsonObject;
+}): boolean {
+  const coreDependencies = objectValue(input.core.dependencies);
+  const utilsDependencies = objectValue(input.utils.dependencies);
+  const labDependencies = objectValue(input.lab.dependencies);
+  const utilsLockPackages = objectValue(input.utilsLock.packages);
+  const labLockPackages = objectValue(input.labLock.packages);
+  return input.utils.name === '@proof-or-stop/utils'
+    && input.lab.name === '@proof-or-stop/lab'
+    && coreDependencies['@proof-or-stop/lab'] === '0.3.65'
+    && utilsDependencies['@proof-or-stop/core'] === '0.3.65'
+    && labDependencies['@proof-or-stop/core'] === '0.3.65'
+    && objectValue(utilsLockPackages['']).name === '@proof-or-stop/utils'
+    && objectValue(labLockPackages['']).name === '@proof-or-stop/lab';
+}
+
+function canonicalMainBinPass(packageJson: JsonObject): boolean {
+  const bin = objectValue(packageJson.bin);
+  return Object.keys(bin).length === 1 && bin['proof-or-stop'] === 'dist/cli.js';
+}
 
 function isCanonicalRolloutSmokePass(output: string): boolean {
   return output.trim().split(/\r?\n/).at(-1)?.trim() === CANONICAL_ROLLOUT_SMOKE_PASS;
@@ -628,6 +665,41 @@ assert.throws(
   'the encoded proof boundary rejects the same active semantic clone',
 );
 
+const migrationActiveAssertions = new Map<string, { kind: ScenarioCaseKind; sourceRef: string }>([
+  ['A-CHK-006-happy-0', { kind: 'positive', sourceRef: 'intent:CHK-006:happy:0' }],
+  ['A-CHK-007-happy-0', { kind: 'positive', sourceRef: 'intent:CHK-007:happy:0' }],
+]);
+const migrationCanonicalRecords: PreReviewCaseRecordV1[] = [
+  ['A-POS-6', 'positive', 'package-identity:sibling-package-graph', 'package-identity-migration', 'execute the sibling package identity migration test against current package metadata, lockfiles, and dependency graph', 'PASS', 'PASS', true, [['producer-evaluated', 0], ['consumer-verified', 1]], 'intent:A-POS-6'],
+  ['A-POS-7', 'positive', 'bin-alias:canonical-only', 'npm-bin-migration', 'execute the current residue and npm-bin verifier against the package metadata with only proof-or-stop published', 'PASS', 'PASS', true, [['producer-evaluated', 2], ['consumer-verified', 3]], 'intent:A-POS-7'],
+];
+const migrationActiveRecords = adaptCanonicalScenarioRecordsToActiveTopology(migrationActiveAssertions, migrationCanonicalRecords);
+assert.deepEqual(
+  migrationActiveRecords.map(record => [record[2], record[3]]),
+  [
+    ['package-identity:sibling-package-graph', 'package-identity-migration'],
+    ['bin-alias:canonical-only', 'npm-bin-migration'],
+  ],
+  'CHK-006 and CHK-007 active assertions select their own executed canonical operations',
+);
+const swappedMigrationCanonicalRecords = structuredClone(migrationCanonicalRecords);
+const swappedMigrationSix = swappedMigrationCanonicalRecords[0]!;
+const swappedMigrationSeven = swappedMigrationCanonicalRecords[1]!;
+[swappedMigrationSix[2], swappedMigrationSix[3], swappedMigrationSix[4]] = [swappedMigrationSeven[2], swappedMigrationSeven[3], swappedMigrationSeven[4]];
+[swappedMigrationSeven[2], swappedMigrationSeven[3], swappedMigrationSeven[4]] = ['package-identity:sibling-package-graph', 'package-identity-migration', 'execute the sibling package identity migration test against current package metadata, lockfiles, and dependency graph'];
+assert.throws(
+  () => adaptCanonicalScenarioRecordsToActiveTopology(migrationActiveAssertions, swappedMigrationCanonicalRecords),
+  /semantic canonical-case binding does not match/,
+  'swapping CHK-006 and CHK-007 canonical semantics fails closed before proof assembly',
+);
+assert.equal(preReviewCaseSemanticBindingForSourceRef('intent:CHK-006:happy:0')?.canonicalCaseId, 'A-POS-6');
+assert.equal(preReviewCaseSemanticBindingForSourceRef('intent:CHK-007:happy:0')?.canonicalCaseId, 'A-POS-7');
+assert.notEqual(
+  REGISTERED_PRE_REVIEW_ACTIVE_TOPOLOGY_BINDINGS.get('intent:CHK-006:happy:0')?.canonicalCaseId,
+  REGISTERED_PRE_REVIEW_ACTIVE_TOPOLOGY_BINDINGS.get('intent:CHK-007:happy:0')?.canonicalCaseId,
+  'CHK-006 and CHK-007 must remain distinct verifier-owned canonical cases',
+);
+
 const root = mkdtempSync(join(tmpdir(), 'proofstory-pre-review-'));
 const originalCwd = process.cwd();
 try {
@@ -1102,6 +1174,64 @@ try {
       && planText.includes('five positive paths and the seventeen')
       && planText.includes('5 positive / 17 mutation / 1 transcript');
     recordExecutedCase(['A-POS-4', 'positive', 'docs:canonical-wave4-status', 'docs-contract', 'execute canonical Wave 4 status and exact live-proof inventory contract check', 'PASS', docsPassed ? 'PASS' : 'FAIL', true, [['producer-evaluated', scenarioEvent('producer-evaluated')], ['consumer-verified', scenarioEvent('consumer-verified')]]]);
+
+    // F-339: CHK-006 and CHK-007 must bind to the migration operations they
+    // claim, not to an unrelated role/cohort case that happens to have the
+    // same assertion kind. These controls execute the current worktree's real
+    // migration checks before the assertion-specific records are emitted.
+    const packageIdentityOutput = execFileSync(process.execPath, [join(repositoryRoot, 'packages/main/tests/package-identity-migration.test.mjs')], {
+      cwd: repositoryRoot,
+      encoding: 'utf8',
+    });
+    const packageIdentityPassed = /package identity migration test passed/.test(packageIdentityOutput);
+    assert.equal(packageIdentityPassed, true, `sibling package migration check did not pass: ${packageIdentityOutput}`);
+    recordExecutedCase(['A-POS-6', 'positive', 'package-identity:sibling-package-graph', 'package-identity-migration', 'execute the sibling package identity migration test against current package metadata, lockfiles, and dependency graph', 'PASS', packageIdentityPassed ? 'PASS' : 'FAIL', true, [['producer-evaluated', scenarioEvent('producer-evaluated')], ['consumer-verified', scenarioEvent('consumer-verified')]]]);
+
+    const packageIdentityControl = {
+      core: readRepositoryJson('packages/main/package.json'),
+      utils: readRepositoryJson('packages/utils/package.json'),
+      lab: readRepositoryJson('packages/lab/package.json'),
+      utilsLock: readRepositoryJson('packages/utils/package-lock.json'),
+      labLock: readRepositoryJson('packages/lab/package-lock.json'),
+    };
+    const packageIdentityMutant = structuredClone(packageIdentityControl);
+    packageIdentityMutant.utils.name = '@lattice/utils';
+    const packageGraphControl = siblingPackageGraphPass(packageIdentityControl);
+    const packageGraphMutantRejected = !siblingPackageGraphPass(packageIdentityMutant);
+    recordExecutedCase(['A-MUT-19', 'mutation', 'package-identity:mixed-graph', 'package-identity-mixed-graph', 'mutate one sibling package name to the retired scope and require the package graph verifier to reject the mixed graph', 'PACKAGE_GRAPH_REJECTED', packageGraphControl && packageGraphMutantRejected ? 'PACKAGE_GRAPH_REJECTED' : 'MUTANT_SURVIVED', true, [['mutation-applied', scenarioEvent('mutation-applied')], ['diagnostic-observed', scenarioEvent('diagnostic-observed')], ['control-rerun', scenarioEvent('control-rerun')]]]);
+
+    const globalLabOutput = execFileSync(process.execPath, [join(repositoryRoot, 'scripts/verify-global-lab-entrypoint.mjs'), 'versions'], {
+      cwd: repositoryRoot,
+      encoding: 'utf8',
+    });
+    const globalLabPassed = /ok versions/.test(globalLabOutput);
+    assert.equal(globalLabPassed, true, `global lab entrypoint migration check did not pass: ${globalLabOutput}`);
+    recordExecutedCase(['A-MUT-18', 'mutation', 'package-identity:global-lab-entrypoint', 'package-identity-entrypoint', 'execute the global lab entrypoint version check against the canonical sibling package names and versions', 'PASS', globalLabPassed ? 'PASS' : 'FAIL', true, [['mutation-applied', scenarioEvent('mutation-applied')], ['diagnostic-observed', scenarioEvent('diagnostic-observed')], ['control-rerun', scenarioEvent('control-rerun')]]]);
+
+    const binResidueOutput = execFileSync('npm', ['--prefix', 'packages/main', 'run', 'test:lattice-residue'], {
+      cwd: repositoryRoot,
+      encoding: 'utf8',
+    });
+    const binResiduePassed = /PASS lattice-residue \[npm-bin\]/.test(binResidueOutput)
+      && /PASS lattice-residue \[brand-decision\]/.test(binResidueOutput);
+    assert.equal(binResiduePassed, true, `removed-bin-alias migration check did not pass: ${binResidueOutput}`);
+    recordExecutedCase(['A-POS-7', 'positive', 'bin-alias:canonical-only', 'npm-bin-migration', 'execute the current residue and npm-bin verifier against the package metadata with only proof-or-stop published', 'PASS', binResiduePassed ? 'PASS' : 'FAIL', true, [['producer-evaluated', scenarioEvent('producer-evaluated')], ['consumer-verified', scenarioEvent('consumer-verified')]]]);
+
+    const binHelpOutput = execFileSync(process.execPath, [join(repositoryRoot, 'packages/main/dist/cli.js'), 'help'], {
+      cwd: repositoryRoot,
+      encoding: 'utf8',
+    });
+    const binHelpPassed = binHelpOutput.includes('Entrypoint: proof-or-stop') && !/Usage: lattice(?:\s|$)/.test(binHelpOutput);
+    recordExecutedCase(['A-MUT-20', 'mutation', 'bin-alias:canonical-help', 'canonical-help-boundary', 'execute the canonical CLI help path and verify it advertises proof-or-stop without a retired lattice invocation', 'PASS', binHelpPassed ? 'PASS' : 'FAIL', true, [['mutation-applied', scenarioEvent('mutation-applied')], ['diagnostic-observed', scenarioEvent('diagnostic-observed')], ['control-rerun', scenarioEvent('control-rerun')]]]);
+
+    const binControl = readRepositoryJson('packages/main/package.json');
+    const binMutant = structuredClone(binControl);
+    const mutantBin = objectValue(binMutant.bin);
+    mutantBin.lattice = 'dist/cli.js';
+    binMutant.bin = mutantBin;
+    const binControlPassed = canonicalMainBinPass(binControl);
+    const binMutantRejected = !canonicalMainBinPass(binMutant);
+    recordExecutedCase(['A-MUT-21', 'mutation', 'bin-alias:removed-alias', 'npm-bin-reintroduction', 'mutate package metadata to reintroduce the lattice bin alias and require the canonical-only verifier to reject it', 'BIN_ALIAS_REJECTED', binControlPassed && binMutantRejected ? 'BIN_ALIAS_REJECTED' : 'MUTANT_SURVIVED', true, [['mutation-applied', scenarioEvent('mutation-applied')], ['diagnostic-observed', scenarioEvent('diagnostic-observed')], ['control-rerun', scenarioEvent('control-rerun')]]]);
 
     const controlRows = rolloutReport.sourceRecords.filter(record =>
       record.arm === 'candidate' && ['docs_only', 'legacy', 'ordinary'].includes(record.claimClass));

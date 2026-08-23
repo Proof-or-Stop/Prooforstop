@@ -1645,8 +1645,17 @@ function assertProofStoryProgressiveBoundary() {
       && acceptanceRolloutSmokeText.includes('--issuer-mutations')
       && acceptanceRolloutSmokeText.includes('restoration commit is missing or malformed')
       && acceptanceRolloutSmokeText.includes('restoration commit must be later than mutation commit')
-      && preReviewScenarioText.includes('Array.from({ length: 5 }')
-      && preReviewScenarioText.includes('Array.from({ length: 17 }')
+      // F-339: the registered scenario catalog includes assertion-specific
+      // package-identity/bin-alias controls in addition to the original
+      // rollout catalog. The process-fact guard must track both the catalog
+      // cardinality and the real migration operations, or a stale guard could
+      // silently accept an unrelated semantic projection.
+      && preReviewScenarioText.includes('Array.from({ length: 7 }')
+      && preReviewScenarioText.includes('Array.from({ length: 21 }')
+      && preReviewScenarioText.includes("['A-POS-6', 'positive', 'package-identity:sibling-package-graph'")
+      && preReviewScenarioText.includes("['A-POS-7', 'positive', 'bin-alias:canonical-only'")
+      && preReviewScenarioText.includes("['A-MUT-19', 'mutation', 'package-identity:mixed-graph'")
+      && preReviewScenarioText.includes("['A-MUT-21', 'mutation', 'bin-alias:removed-alias'")
       && preReviewScenarioText.includes("['A-TRANSCRIPT-1', 'transcript']")
       && preReviewScenarioText.includes('LATTICE_ACCEPTANCE_ROLLOUT_COHORT_FILE')
       && preReviewScenarioText.includes('scenario execution refuses to spawn the expensive registered cohort runner')

@@ -17,8 +17,14 @@ export const REGISTERED_PRE_REVIEW_SCENARIO_SEMANTICS = new Map<string, {
   ['A-POS-2', { sourceRef: 'intent:CHK-002:happy:real-cohort-receipt', target: 'rollout:verified-cohort-receipt', mutationKind: 'rollout-receipt-verification' }],
   ['A-POS-3', { sourceRef: 'intent:CHK-003:happy:bounded-thresholds', target: 'rollout:bounded-threshold-matrix', mutationKind: 'threshold-contract' }],
   ['A-POS-4', { sourceRef: 'intent:CHK-005:happy:canonical-wave4-status', target: 'docs:canonical-wave4-status', mutationKind: 'docs-contract' }],
+  ['A-POS-6', { sourceRef: 'intent:CHK-006:happy:sibling-package-graph', target: 'package-identity:sibling-package-graph', mutationKind: 'package-identity-migration' }],
+  ['A-POS-7', { sourceRef: 'intent:CHK-007:happy:removed-bin-alias', target: 'bin-alias:canonical-only', mutationKind: 'npm-bin-migration' }],
   ['A-MUT-2', { sourceRef: 'intent:CHK-002:edge:false-block-controls', target: 'rollout:false-block-controls', mutationKind: 'docs-legacy-single-outcome-controls' }],
   ['A-MUT-6', { sourceRef: 'intent:CHK-001:adversarial:prompt-authority', target: 'role-guidance:authority-boundary', mutationKind: 'prompt-contract-mutations' }],
+  ['A-MUT-18', { sourceRef: 'intent:CHK-006:edge:global-lab-entrypoint', target: 'package-identity:global-lab-entrypoint', mutationKind: 'package-identity-entrypoint' }],
+  ['A-MUT-19', { sourceRef: 'intent:CHK-006:adversarial:mixed-package-graph', target: 'package-identity:mixed-graph', mutationKind: 'package-identity-mixed-graph' }],
+  ['A-MUT-20', { sourceRef: 'intent:CHK-007:edge:canonical-help', target: 'bin-alias:canonical-help', mutationKind: 'canonical-help-boundary' }],
+  ['A-MUT-21', { sourceRef: 'intent:CHK-007:adversarial:reintroduced-bin-alias', target: 'bin-alias:removed-alias', mutationKind: 'npm-bin-reintroduction' }],
 ]);
 
 export interface PreReviewCanonicalCaseBindingV1 {
@@ -41,22 +47,22 @@ export const REGISTERED_PRE_REVIEW_ACTIVE_TOPOLOGY_BINDINGS = new Map<string, Pr
   ['intent:CHK-003:happy:0', { canonicalCaseId: 'A-POS-3', target: 'rollout:bounded-threshold-matrix', mutationKind: 'threshold-contract', operation: 'evaluate every canonical promotion threshold from the verifier-derived report metrics' }],
   ['intent:CHK-004:happy:0', { canonicalCaseId: 'A-POS-4', target: 'docs:canonical-wave4-status', mutationKind: 'docs-contract', operation: 'execute canonical Wave 4 status and exact live-proof inventory contract check' }],
   ['intent:CHK-005:happy:0', { canonicalCaseId: 'A-POS-5', target: 'rollout:focused-enforce-rollback', mutationKind: 'focused-rollout-control', operation: 'execute focused Wave 4 rollout smoke with enforce, rollback, and history-preservation controls' }],
-  ['intent:CHK-006:happy:0', { canonicalCaseId: 'A-POS-1', target: 'role-guidance:codex-claude-mirrors', mutationKind: 'prompt-contract', operation: 'execute exact role guidance token and mirror contract over all Codex/Claude role pairs' }],
-  ['intent:CHK-007:happy:0', { canonicalCaseId: 'A-POS-2', target: 'rollout:verified-cohort-receipt', mutationKind: 'rollout-receipt-verification', operation: 'load the frozen registered production cohort, issue a signed report, and verify the exact current receipt without respawning the cohort runner' }],
+  ['intent:CHK-006:happy:0', { canonicalCaseId: 'A-POS-6', target: 'package-identity:sibling-package-graph', mutationKind: 'package-identity-migration', operation: 'execute the sibling package identity migration test against current package metadata, lockfiles, and dependency graph' }],
+  ['intent:CHK-007:happy:0', { canonicalCaseId: 'A-POS-7', target: 'bin-alias:canonical-only', mutationKind: 'npm-bin-migration', operation: 'execute the current residue and npm-bin verifier against the package metadata with only proof-or-stop published' }],
   ['intent:CHK-001:edge:0', { canonicalCaseId: 'A-MUT-9', target: 'mutation:observed-polarity', mutationKind: 'polarity-restore', operation: 'replace observed mutation outcome then rerun clean control' }],
   ['intent:CHK-002:edge:0', { canonicalCaseId: 'A-MUT-5', target: 'planned-actual:consumer-symbol', mutationKind: 'planned-actual', operation: 'remove declared current consumer symbol' }],
   ['intent:CHK-003:edge:0', { canonicalCaseId: 'A-MUT-12', target: 'cutoff:evidence-at-boundary', mutationKind: 'temporal-cutoff', operation: 'move evidence timestamp to the signed cutoff boundary' }],
   ['intent:CHK-004:edge:0', { canonicalCaseId: 'A-MUT-15', target: 'critic:enforce-reattestation', mutationKind: 'critic-reattestation', operation: 'enable enforce mode without a current independent critic receipt' }],
   ['intent:CHK-005:edge:0', { canonicalCaseId: 'A-MUT-13', target: 'config:warn-rollback', mutationKind: 'legacy-config-rollback', operation: 'rollback enforce configuration to warn without stale blocking state' }],
-  ['intent:CHK-006:edge:0', { canonicalCaseId: 'A-MUT-17', target: 'source:wave-boundary', mutationKind: 'wave-leakage', operation: 'scan production producer and consumer for later-wave symbols' }],
-  ['intent:CHK-007:edge:0', { canonicalCaseId: 'A-MUT-2', target: 'rollout:false-block-controls', mutationKind: 'docs-legacy-single-outcome-controls', operation: 'execute docs-only, legacy, and ordinary single-outcome candidate controls through the rollout verifier' }],
+  ['intent:CHK-006:edge:0', { canonicalCaseId: 'A-MUT-18', target: 'package-identity:global-lab-entrypoint', mutationKind: 'package-identity-entrypoint', operation: 'execute the global lab entrypoint version check against the canonical sibling package names and versions' }],
+  ['intent:CHK-007:edge:0', { canonicalCaseId: 'A-MUT-20', target: 'bin-alias:canonical-help', mutationKind: 'canonical-help-boundary', operation: 'execute the canonical CLI help path and verify it advertises proof-or-stop without a retired lattice invocation' }],
   ['intent:CHK-001:adversarial:0', { canonicalCaseId: 'A-MUT-6', target: 'role-guidance:authority-boundary', mutationKind: 'prompt-contract-mutations', operation: 'remove required command, degrade full-3x2 to 3x1, and promote prompt prose to authority; every mutant must fail' }],
   ['intent:CHK-002:adversarial:0', { canonicalCaseId: 'A-MUT-1', target: 'role-guidance:mirror-parity', mutationKind: 'codex-claude-mirror', operation: 'mutate one Claude role suffix while retaining the Codex role; exact mirror contract must fail' }],
   ['intent:CHK-003:adversarial:0', { canonicalCaseId: 'A-MUT-16', target: 'contract:process-fact-registry', mutationKind: 'process-fact-contract', operation: 'run the canonical process-fact contract verifier' }],
   ['intent:CHK-004:adversarial:0', { canonicalCaseId: 'A-MUT-4', target: 'authority:direct-store-replay', mutationKind: 'authority-replay', operation: 'direct StoryStore proof without causal receipt' }],
   ['intent:CHK-005:adversarial:0', { canonicalCaseId: 'A-MUT-11', target: 'bypass:direct-store', mutationKind: 'bypass-campaign', operation: 'direct-file and caller-authority bypass attempt' }],
-  ['intent:CHK-006:adversarial:0', { canonicalCaseId: 'A-MUT-14', target: 'codes:direct-vs-lifecycle', mutationKind: 'stable-gate-codes', operation: 'direct verifier and lifecycle consumer agree on pass status' }],
-  ['intent:CHK-007:adversarial:0', { canonicalCaseId: 'A-MUT-7', target: 'topology:consumer-omission', mutationKind: 'topology-omission', operation: 'remove current topology consumer against retained basis' }],
+  ['intent:CHK-006:adversarial:0', { canonicalCaseId: 'A-MUT-19', target: 'package-identity:mixed-graph', mutationKind: 'package-identity-mixed-graph', operation: 'mutate one sibling package name to the retired scope and require the package graph verifier to reject the mixed graph' }],
+  ['intent:CHK-007:adversarial:0', { canonicalCaseId: 'A-MUT-21', target: 'bin-alias:removed-alias', mutationKind: 'npm-bin-reintroduction', operation: 'mutate package metadata to reintroduce the lattice bin alias and require the canonical-only verifier to reject it' }],
 ]);
 
 const TRANSCRIPT_BINDING: PreReviewCanonicalCaseBindingV1 = {
