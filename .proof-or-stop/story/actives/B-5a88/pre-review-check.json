@@ -2,7 +2,7 @@
   "schemaVersion": "proofstory.pre_review_check.v1",
   "storyId": "B-5a88",
   "mode": "observe",
-  "cutoffAt": "2026-08-23T10:19:42.987Z",
+  "cutoffAt": "2026-08-23T10:22:18.701Z",
   "planBasisDigest": "sha256:948cc01fd2e56da78bb56090a2fcc7d246af5cd4d7dc51c16e72f84e08655395",
   "preReviewBasisArtifact": {
     "schemaVersion": "proofstory.acceptance_basis_artifact.v1",
@@ -1224,14 +1224,162 @@
   "scopeContractDigest": "sha256:66637f8e4bf23ad0f7f696addc599b461b00cfe815f27276f83a0c0f31e626a0",
   "storyFilesHash": "0a84bdcbd6ee5b9115b0cc367978fba393aa597a24688ad24fad7245b14dbd22",
   "closureFilesHash": "sha256:47d9c093b3695c9eea828a4185010d82698a5cec1d1020fc6a7f0a7e7aa4890d",
-  "evidenceRefs": [],
+  "evidenceRefs": [
+    {
+      "intentRef": "CHK-001:adversarial:0",
+      "itemId": "CHK-001",
+      "evidenceIndex": 2,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:e7318a3fa50795d2867fb4ee9024733ca94246390adad594257c4e7a09ac4a21"
+    },
+    {
+      "intentRef": "CHK-001:edge:0",
+      "itemId": "CHK-001",
+      "evidenceIndex": 1,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:93da8ac5f4adb152181ef18c90288a9714eda4215af73363670ca1d45698c0b0"
+    },
+    {
+      "intentRef": "CHK-001:happy:0",
+      "itemId": "CHK-001",
+      "evidenceIndex": 0,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:c92b40a3f1349825147c2637836a8a2ec6b43c7c7ed2d70954431ea0656c9d7c"
+    },
+    {
+      "intentRef": "CHK-002:adversarial:0",
+      "itemId": "CHK-002",
+      "evidenceIndex": 2,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:03358d5a0f7941b4220d982cd3948695c1fc4710c9b0b587c95c3a175d1759db"
+    },
+    {
+      "intentRef": "CHK-002:edge:0",
+      "itemId": "CHK-002",
+      "evidenceIndex": 1,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:d13a0199cb3d4816fe577273bd1c726b5b909553c162b0040de65343b83c45dc"
+    },
+    {
+      "intentRef": "CHK-002:happy:0",
+      "itemId": "CHK-002",
+      "evidenceIndex": 0,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:32d2c885b6287008852add03334e54ca0b686fe1ee5c04fe84645f678d64a79d"
+    },
+    {
+      "intentRef": "CHK-003:adversarial:0",
+      "itemId": "CHK-003",
+      "evidenceIndex": 2,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:f360e99f9ba1d214d559f2cc014564a589285183f5b9bec2167e5d2612c3f8e2"
+    },
+    {
+      "intentRef": "CHK-003:edge:0",
+      "itemId": "CHK-003",
+      "evidenceIndex": 1,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:45407d24ead92f74010404b83ccf2c1f27db7d2e4306d9ec2de2097431795ffd"
+    },
+    {
+      "intentRef": "CHK-003:happy:0",
+      "itemId": "CHK-003",
+      "evidenceIndex": 0,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:51781eaac155a778fa7310b547e8562718265be02a4d78241cab9cb9f43f35fd"
+    },
+    {
+      "intentRef": "CHK-004:adversarial:0",
+      "itemId": "CHK-004",
+      "evidenceIndex": 2,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:0c51e6127db89fdeb2500ef787a65835b13c5c8bc65ef6f14417180862ea3547"
+    },
+    {
+      "intentRef": "CHK-004:edge:0",
+      "itemId": "CHK-004",
+      "evidenceIndex": 1,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:a863d12a305faee5ba209a122562f6b93cb8b2d156f5ea4efe8313828f821ed1"
+    },
+    {
+      "intentRef": "CHK-004:happy:0",
+      "itemId": "CHK-004",
+      "evidenceIndex": 0,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:c347dc561ef9a0c20e2d6cbd365571fd426f3018ad4fefd262b992a2b032ecf7"
+    },
+    {
+      "intentRef": "CHK-005:adversarial:0",
+      "itemId": "CHK-005",
+      "evidenceIndex": 2,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:febe5a65781c8170f4da23e7f39c8b3eb99d9434b81a8ee68540d8145132bb33"
+    },
+    {
+      "intentRef": "CHK-005:edge:0",
+      "itemId": "CHK-005",
+      "evidenceIndex": 1,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:ceec340f9d6c1bcf3b522751a2fa293e01c026dec096a44906f172b8c9d6c3d1"
+    },
+    {
+      "intentRef": "CHK-005:happy:0",
+      "itemId": "CHK-005",
+      "evidenceIndex": 0,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:40c747dc7e98958a0c70573e774761711adad179e34522ae92cb1b6439a11d9a"
+    },
+    {
+      "intentRef": "CHK-006:adversarial:0",
+      "itemId": "CHK-006",
+      "evidenceIndex": 2,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:0b5df0faa3da4304c7b885f2667fe6d1ac607f58b28ae3fd70ab01097daf691f"
+    },
+    {
+      "intentRef": "CHK-006:edge:0",
+      "itemId": "CHK-006",
+      "evidenceIndex": 1,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:8cfc24817646b1f9031b9c562749714f148eadbfa7e08fc02d07786d538d840a"
+    },
+    {
+      "intentRef": "CHK-006:happy:0",
+      "itemId": "CHK-006",
+      "evidenceIndex": 0,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:216d5b6f87e62dd4a257c7c0966b503c7c24eb4f9c1998106604730acf2d5db8"
+    },
+    {
+      "intentRef": "CHK-007:adversarial:0",
+      "itemId": "CHK-007",
+      "evidenceIndex": 2,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:dcc13a851eae76589b9c4be75e71de77e9e365cb8805822e0803ee12019a9102"
+    },
+    {
+      "intentRef": "CHK-007:edge:0",
+      "itemId": "CHK-007",
+      "evidenceIndex": 1,
+      "kind": "manual_transcript",
+      "evidenceDigest": "sha256:304a990b33dbdea136dea0ac64295f40f43fba2dc72ddbee0ff80a8633c4c96d"
+    },
+    {
+      "intentRef": "CHK-007:happy:0",
+      "itemId": "CHK-007",
+      "evidenceIndex": 0,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:e65807c60fe95c56c8414d1f1fce089a5837486ffe9a0c727ae26c50b4a2a7ea"
+    }
+  ],
   "executableProof": {
     "schemaVersion": "proofstory.pre_review_executable_proof.v1",
     "storyId": "B-5a88",
     "producer": "registered-verification-command",
     "verifier": "pre-review-check-command-runner",
     "commandDigests": [
-      "sha256:e67f08d4ca28a773d0a3303d8e8ee6efecd4854006c74b11cfaa05c74bd2f24a"
+      "sha256:2844e2115fc67807e283729d018ac351ef412bb86f1654fc160c35be0dcc796f"
     ],
     "caseRecordsEncoding": "gzip-base64",
     "caseRecords": "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",
@@ -1577,12 +1725,9 @@
     ]
   },
   "criticReceiptDigest": "sha256:48486ca7be0dc612fe65a7fb58d5dfd08850f82a8bf2ba04acf87264ad84868a",
-  "codes": [
-    "PR_POSITIVE_EVIDENCE_MISSING",
-    "PR_EVIDENCE_STALE"
-  ],
-  "status": "fail",
-  "issuedAt": "2026-08-23T10:19:42.987Z",
+  "codes": [],
+  "status": "pass",
+  "issuedAt": "2026-08-23T10:22:18.701Z",
   "signerPublicKey": "4K3JOygx9kXStVuiYM8fjT485DCzR4yqnTy5Sch+TOQ=",
-  "signature": "oFF9/JBWXPUP1pukLIwVcsLD9t5hapnfJYddWAhrQAUl2twtvfi8WNuZxnVCRS5S7XOLpGXZjlB+kRo5VWgmAA=="
+  "signature": "ymkLM4FhmjcSAsJ7I9dUTqZzxbJh6pwfExDVEYu//RgMwXzRTqWg2sBjDCkKMnd6TT9t/G6NHv8TYE/JI7AjBg=="
 }
