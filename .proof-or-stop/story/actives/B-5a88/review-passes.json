@@ -8631,6 +8631,44 @@
         "scanEscalationReason": null
       },
       "_hash": "0171516797a1ad25e3ed1c53e011628ab216a6c1646498edf7d55fda956870a5"
+    },
+    {
+      "id": "B-5a88:RP-162",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "RR-520 rechecked the regenerated signed acceptance basis and current acceptance topology. The basis is complete and verified, the topology check is structuralPass=true with no diagnostics, and the persisted topology receipt now verifies. No new distinct verified topology family was found; the prior stale-basis blocker is no longer current.",
+      "createdAt": "2026-08-23T23:07:43.758Z",
+      "reviewRound": "2026-08-23T20:56:20.268Z",
+      "reviewRunId": "B-5a88:RR-520",
+      "envelopeId": "eabe3fd274d05cbefc2e899346446dff34732286b3fd3c87af71af926b8d524f",
+      "writerSessionId": "sess-67b3cc2300acc10ab8294ca137237139",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/core/evidence-pin-guard.ts",
+          "packages/main/src/core/stale-detector.ts",
+          "packages/main/src/tasks/lattice-only-absence-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": null
+        },
+        "digest": "1a2397b6da691257fddf43c57d6da5348c0d5f83f075b006edf6e3d6a5bd2276"
+      },
+      "readDiagnostics": [],
+      "_hash": "5ff8ce8c4d619d1d8c0ac55574636b774d1691a6d7dac9b85522e0d0a4c8bc5e"
     }
   ]
 }
