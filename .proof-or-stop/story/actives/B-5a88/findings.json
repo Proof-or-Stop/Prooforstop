@@ -12403,7 +12403,7 @@
       "desc": "CHK-001:happy:0, CHK-001:edge:0, CHK-001:adversarial:0 through CHK-007:happy:0, CHK-007:edge:0, CHK-007:adversarial:0: all 21 current verificationEvidence rows report result=pass but are stale against the signed current review run. checklist_get shows stored headHash values a586127674a4d6bd46e0a81fff1264a5dd8e7fb9, 3792345083404596d4ba6ef487c8940240a7c1f7, or bd5642afe574bdb631a55ad632969e5e61d1b50b, while B-5a88:RR-399 is bound to HEAD b9672a43c721db927b39fb8ba9dd95a80a9ab452; materialHash 60f80f78a14e8d006ba59b55639603a154ae90a636d665978264ff83acc73b8a and storyFilesHash 0a84bdcbd6ee5b9115b0cc367978fba393aa597a24688ad24fad7245b14dbd22 match. The pinned rows therefore provide no fresh evidence for the 21 must intents. Successful reruns are independent witnesses and cannot replace immutable stored verificationEvidence rows.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-08-23T14:06:20.447Z",
@@ -12458,7 +12458,11 @@
         "scripts/verify-lattice-residue.mjs"
       ],
       "signatureTag": "missing|json|happy-edge-adversarial",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by the later current coverage finding B-5a88:F-351, which records the same all-21 verificationEvidence stale family at the latest coverage review.",
+      "resolvedAt": "2026-08-23T18:51:22.369Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-310",
@@ -14380,6 +14384,216 @@
         ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json"
       ],
       "signatureTag": "adversarial|ts|current-head-review",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-351",
+      "desc": "B-5a88 checklist verificationEvidence is stale for all 21 must intents: every entry is bound to RR-414 with head d0fa9df2, material c11118fd, and storyFiles 1dfdbd24, while current review run B-5a88:RR-465 is bound to head 0ced23fc, material 54478644, and storyFiles 06648257. No current-hash evidence can support the REVIEW coverage gate.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-23T18:48:17.228Z",
+      "reviewRound": "2026-08-23T15:15:00.463Z",
+      "reviewRunId": "B-5a88:RR-465",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/core/managed-markers.ts",
+          "packages/main/tests/bin-alias-migration.test.mjs",
+          "packages/main/tests/lab-brand-migration.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/package-identity-migration.test.mjs",
+          "scripts/verify-global-lab-entrypoint.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/lab/package.json",
+          "packages/main/dist/cli.js",
+          "packages/main/package.json",
+          "packages/main/tests/artifact-schema-migration.test.mjs",
+          "packages/utils/package.json",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "0750441dd2c83882902b094462c576a3382a4eb403767baad710992e0dae6b11"
+      },
+      "readDiagnostics": [],
+      "_hash": "d5e335ea5358767557293195b7e1665be0828cb0d3474276539fd9f63d34b9ff",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/checklist.json",
+        "packages/main/src/core/evidence-freshness.ts",
+        "packages/main/src/core/review-run.ts"
+      ],
+      "signatureTag": "missing|json|5a88-checklist-verificationevidence",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-352",
+      "desc": "CHK-002:adversarial:0 has no intent-matching evidence: its recorded selector CHK-002-TEMPLATE-PASS only checks that init templates contain proof-or-stop markers and never exercises rejection/unchanged behavior for mismatched or nested marker pairs. The implementation test covers those cases at packages/main/tests/managed-marker-migration.test.mjs:21-22 and :30-62, but that proof is not the evidence bound to this adversarial intent.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-23T18:48:35.141Z",
+      "reviewRound": "2026-08-23T15:15:00.463Z",
+      "reviewRunId": "B-5a88:RR-465",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/core/managed-markers.ts",
+          "packages/main/tests/bin-alias-migration.test.mjs",
+          "packages/main/tests/lab-brand-migration.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/package-identity-migration.test.mjs",
+          "scripts/verify-global-lab-entrypoint.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/lab/package.json",
+          "packages/main/dist/cli.js",
+          "packages/main/package.json",
+          "packages/main/tests/artifact-schema-migration.test.mjs",
+          "packages/utils/package.json",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "0750441dd2c83882902b094462c576a3382a4eb403767baad710992e0dae6b11"
+      },
+      "readDiagnostics": [],
+      "_hash": "1975b57aa119fd762b053c2b11c15cebf8c974fd71c1e7b0e9179bde4f189cc8",
+      "files": [
+        "packages/main/tests/managed-marker-migration.test.mjs",
+        "packages/main/src/core/managed-markers.ts",
+        "packages/main/src/init-assets.ts"
+      ],
+      "signatureTag": "adversarial|mjs|adversarial-intent-matching",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-353",
+      "desc": "CHK-006:edge:0 lacks intent-matching executable evidence: the bound command `node scripts/verify-global-lab-entrypoint.mjs versions` only reads package manifests and checks names, versions, dependencies, and the bin map at scripts/verify-global-lab-entrypoint.mjs:59-81. It does not execute the global lab entrypoint resolution path; that behavior is in the separate lab-help/core-without-lab checks at :82-115 and is not the recorded evidence for this edge intent.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-23T18:48:52.782Z",
+      "reviewRound": "2026-08-23T15:15:00.463Z",
+      "reviewRunId": "B-5a88:RR-465",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/core/managed-markers.ts",
+          "packages/main/tests/bin-alias-migration.test.mjs",
+          "packages/main/tests/lab-brand-migration.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/package-identity-migration.test.mjs",
+          "scripts/verify-global-lab-entrypoint.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/lab/package.json",
+          "packages/main/dist/cli.js",
+          "packages/main/package.json",
+          "packages/main/tests/artifact-schema-migration.test.mjs",
+          "packages/utils/package.json",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "0750441dd2c83882902b094462c576a3382a4eb403767baad710992e0dae6b11"
+      },
+      "readDiagnostics": [],
+      "_hash": "4229d044590a0cbd61ceb35b972755ce2e41ff9526f0981db9d3cff50de576b2",
+      "files": [
+        "scripts/verify-global-lab-entrypoint.mjs",
+        "packages/main/tests/lab-brand-migration.test.mjs",
+        "packages/lab/src/index.ts",
+        "packages/lab/src/register.ts"
+      ],
+      "signatureTag": "edge|mjs|edge-lacks-intent",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-354",
+      "desc": "CHK-007:edge:0 lacks intent-matching residue evidence: the bound command `node packages/main/dist/cli.js help` only demonstrates the canonical help entrypoint and does not test that residue scanning distinguishes frozen historical/compatibility values from unsupported lattice command aliases. The relevant distinction is exercised only by the separately recorded CHK-007:adversarial:0 self-test, while the edge intent has no bound residue-scan proof.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-23T18:49:06.926Z",
+      "reviewRound": "2026-08-23T15:15:00.463Z",
+      "reviewRunId": "B-5a88:RR-465",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/core/managed-markers.ts",
+          "packages/main/tests/bin-alias-migration.test.mjs",
+          "packages/main/tests/lab-brand-migration.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/package-identity-migration.test.mjs",
+          "scripts/verify-global-lab-entrypoint.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/lab/package.json",
+          "packages/main/dist/cli.js",
+          "packages/main/package.json",
+          "packages/main/tests/artifact-schema-migration.test.mjs",
+          "packages/utils/package.json",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "0750441dd2c83882902b094462c576a3382a4eb403767baad710992e0dae6b11"
+      },
+      "readDiagnostics": [],
+      "_hash": "f5b3618e98db81d7e7107893683644353f949ebc3f539b47834389cbb2270f29",
+      "files": [
+        "packages/main/tests/bin-alias-migration.test.mjs",
+        "scripts/verify-lattice-residue.mjs",
+        "scripts/verify-entrypoints.mjs",
+        "packages/main/src/cli/help-renderer.ts"
+      ],
+      "signatureTag": "edge|mjs|edge-lacks-intent",
       "signatureTagSource": "auto"
     }
   ]
