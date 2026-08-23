@@ -159,9 +159,10 @@ try {
     artifactBytes,
   }).ok, false, 'unknown closeout schemas fail closed and are not rewritten');
 
-  // A schema migration may start a new canonical receipt epoch. Validate the
-  // complete legacy chain and the reset canonical chain through the same
-  // causal reader used by review-retention and pre-review gates.
+  // Global CLI/package interop can interleave the two exact supported schema
+  // aliases: canonical seq1..18, legacy seq1..3, then canonical seq4..5.
+  // Validate that real ledger shape through the same causal reader used by
+  // review-retention and pre-review gates.
   const migrationStoryDir = join(root, 'migration-story');
   mkdirSync(migrationStoryDir, { recursive: true });
   const migrationStoryId = 'B-schema-migration';
@@ -198,14 +199,22 @@ try {
   let previousMigrationReceipt = null;
   for (let sequence = 1; sequence <= 18; sequence += 1) {
     previousMigrationReceipt = writeMigrationReceipt({
+      schemaVersion: 'proof-or-stop.closeout_write_receipt.v3',
+      sequence,
+      previousIntegrityHash: previousMigrationReceipt?.integrityHash ?? null,
+      value: `canonical-${sequence}`,
+    });
+  }
+  previousMigrationReceipt = null;
+  for (let sequence = 1; sequence <= 3; sequence += 1) {
+    previousMigrationReceipt = writeMigrationReceipt({
       schemaVersion: 'lattice.closeout_write_receipt.v3',
       sequence,
       previousIntegrityHash: previousMigrationReceipt?.integrityHash ?? null,
       value: `legacy-${sequence}`,
     });
   }
-  previousMigrationReceipt = null;
-  for (let sequence = 1; sequence <= 4; sequence += 1) {
+  for (let sequence = 4; sequence <= 5; sequence += 1) {
     previousMigrationReceipt = writeMigrationReceipt({
       schemaVersion: 'proof-or-stop.closeout_write_receipt.v3',
       sequence,
@@ -220,13 +229,14 @@ try {
     { projectRoot: root, metadataRoot: root },
   );
   assert.equal(migratedReceipt?.schemaVersion, 'proof-or-stop.closeout_write_receipt.v3');
-  assert.equal(migratedReceipt?.sequence, 4, 'canonical epoch is selected after a sequence reset');
+  assert.equal(migratedReceipt?.sequence, 5, 'canonical interop resumes after the legacy epoch');
 
   const migrationLedger = readFileSync(migrationReceiptPath, 'utf8');
   const tamperedLegacy = migrationLedger.replace(
-    '"sequence":1,"previousIntegrityHash":null',
-    '"sequence":2,"previousIntegrityHash":null',
+    /("schemaVersion":"lattice\.closeout_write_receipt\.v3"[^\n]*?)"sequence":1,"previousIntegrityHash":null/,
+    '$1"sequence":2,"previousIntegrityHash":null',
   );
+  assert.notEqual(tamperedLegacy, migrationLedger, 'the legacy epoch tamper fixture must target a legacy receipt');
   writeFileSync(migrationReceiptPath, tamperedLegacy);
   assert.equal(
     closeout.latestCausallyValidCloseoutReceipt(migrationStoryDir, migrationStoryId, migrationArtifactPath),
