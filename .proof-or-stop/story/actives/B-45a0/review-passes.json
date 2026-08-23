@@ -3750,6 +3750,36 @@
       },
       "readDiagnostics": [],
       "_hash": "69e8777e1a0f46d6e73250ccaa33b232bfb95628318d2cf3c89a018afad8ee66"
+    },
+    {
+      "id": "B-45a0:RP-086",
+      "agent": "lattice-review-concept",
+      "note": "RI-042 concept review at current HEAD 236a6f00: the diff adds the dynamic-validation capability and relocates changed-file/story-metadata helpers into canonical shared modules; it does not delete or replace a repository concept requiring residue cleanup. Grep found no stale changedStoryFilesBetween or mergeBaseWithMain references; legacy TEST_CASE/testIntent and LATTICE aliases remain explicitly marked compatibility/legacy. Wave-4 canonical chain is current and consistent: acceptance_topology_check PASS in observe diagnostic-only mode; pre_review_check_read observe/inconclusive with blocking=false; acceptance_rollout_report_read and acceptance_rollout_check current signed PASS, full-3x2, diagnostics none. No degraded 3x1 or new concept residue was found; historical acceptance-chain findings were not duplicated.",
+      "createdAt": "2026-08-23T14:40:58.465Z",
+      "reviewRound": "2026-08-23T13:46:47.948Z",
+      "reviewRunId": "B-45a0:RR-337",
+      "envelopeId": "f16eb8083bf0085931a128c258473b0cf73cc420198edf7b909587d5c4fa830d",
+      "writerSessionId": "sess-4192c149ecc174c77487f2c745d3396f",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/lattice-paths.ts",
+          "packages/main/src/core/material-path-policy.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/CLI.md",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "570fd3fe58aa5c8a4ee955fb722e4673167c5555a1b67ea95dfddc6b643d8434"
     }
   ]
 }
