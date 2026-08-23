@@ -6688,6 +6688,43 @@
       ],
       "createdAt": "2026-08-23T17:13:04.041Z",
       "_hash": "deae54664205ab5f141d292800fc0f59c36b56aa51686dd2fdc0f35d797595f9"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-5a15:RI-021:CRIT-02",
+      "epochId": "B-5a15:RI-021",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-23T16:46:31.561Z",
+      "wave": 2,
+      "cutoff": {
+        "headHash": "e60ad56fc7392eced310df437329cd7c1d2dd30b",
+        "materialHash": "41c6cc5292244472d1c39f14ff24db385986581252fdd7774d615019e35042e5",
+        "storyFilesHash": "0d7a9df645e064c99c3609c6fdfa049d8bb4d22bd7461c737e40c231ab415f7b"
+      },
+      "aggregateFindingSetDigest": "643425317da23b158d5149764b6df71751f9591a14930d95c5f47a290a02cf4c",
+      "requiredLaneCoverageDigest": "b6a6704125face7eb9c204901c5c2d5e3b19577f28076243fa0fad2bfaeb6ef5",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-5a15:RR-379",
+      "terminalEvidenceIds": [
+        "B-5a15:RP-075"
+      ],
+      "readEvidenceDigest": "c7d1f1e974863b941edaa95694c75687a39c7a6c496f331e2b4a2bfbcf163816",
+      "findingDispositions": [
+        {
+          "findingId": "B-5a15:F-241",
+          "disposition": "verified_family",
+          "familyKey": "stale-verifier-binding",
+          "reason": "F-241 is verified at current HEAD 969ad61dfcd617c3b92e432a15a1d019c39e53e2: acceptance_basis is invalid with receiptVerification.ok=false and AT_SCOPE_BINDING_MISSING, acceptance_topology_check is fail with structuralPass=false and inconclusive_basis_unverified, and pre_review_check_read is inconclusive with PR_ARTIFACT_TAMPERED, PR_NEW_PATH_UNMAPPED, and PR_COVERAGE_BASIS_CHANGED. The independently passing full-3x2 rollout evidence cannot substitute for these failed verifier-owned prerequisites. This is the stale-verifier-binding family."
+        },
+        {
+          "findingId": "B-5a15:F-242",
+          "disposition": "verified_family",
+          "familyKey": "stale-verifier-binding",
+          "reason": "F-242 is verified at current HEAD 969ad61dfcd617c3b92e432a15a1d019c39e53e2: the acceptance basis receipt remains bound to an older head/scope contract, acceptance_topology_check remains diagnostic-only and structurally failed with AT_SCOPE_BINDING_MISSING, and pre_review_check_read remains inconclusive with PR_ARTIFACT_TAMPERED, PR_NEW_PATH_UNMAPPED, and PR_COVERAGE_BASIS_CHANGED. The rollout report/check pass is separately bound and cannot make the verifier-owned topology/pre-review artifacts admissible. This is the same stale-verifier-binding family."
+        }
+      ],
+      "createdAt": "2026-08-23T17:23:09.771Z",
+      "_hash": "fbe88ecd6e71c3d89daa7d957225a3159848f0c0a78d9901d2e8e5eb42239e6f"
     }
   ]
 }
