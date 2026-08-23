@@ -4175,6 +4175,43 @@
       ],
       "createdAt": "2026-08-23T11:44:04.292Z",
       "_hash": "8696de890403dc25872bd4f383633e679cec91a850bfb223de417a4a4507f4b4"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-45a0:RI-040:CRIT-01",
+      "epochId": "B-45a0:RI-040",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-23T12:16:56.573Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "2d9c448efae9b507c592cbbd5f5e338116dbb406",
+        "materialHash": "aa5beaab4316c22ebcfd403395a217d890edac9bd1dbbca1d8221554cd13dda0",
+        "storyFilesHash": "cc7ed81b116ac565f747818a589cb8156963be09cb009bc7e55f715cf97fd619"
+      },
+      "aggregateFindingSetDigest": "48ec48944f62473bf89139c046ad820939413fc5f1edcd4d39d0d779e9fa1934",
+      "requiredLaneCoverageDigest": "08501a54938a331c9f13f6c1619a62b43192991cffa938c81969c05ab6b04538",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-45a0:RR-298",
+      "terminalEvidenceIds": [
+        "B-45a0:F-193"
+      ],
+      "readEvidenceDigest": "99ea5c4ada2ecc7707fd983360fbc0f0c12057d9a2dfd24a8e6b4c02abd35a60",
+      "findingDispositions": [
+        {
+          "findingId": "B-45a0:F-191",
+          "disposition": "verified_family",
+          "familyKey": "ri038-wave1-concept-chain-incomplete",
+          "reason": "RI-040 concept finding repeats the established acceptance-chain incompleteness family; no new family evidence."
+        },
+        {
+          "findingId": "B-45a0:F-192",
+          "disposition": "verified_family",
+          "familyKey": "ri038-wave1-acceptance-gate-coverage-incomplete",
+          "reason": "RI-040 coverage finding repeats the established stale/inadmissible acceptance-gate family; no new family evidence."
+        }
+      ],
+      "createdAt": "2026-08-23T12:25:39.260Z",
+      "_hash": "4538ef304097850e49f09d0cbb845fd6a1fc600df29188d4c625cb1aa6028ec0"
     }
   ]
 }

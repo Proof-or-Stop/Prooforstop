@@ -10405,6 +10405,49 @@
       ],
       "signatureTag": "missing|json|verification-intents-stale",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-193",
+      "desc": "topology/acceptance-chain-incomplete: At RI-040 cutoff materialHash aa5beaab4316c22ebcfd403395a217d890edac9bd1dbbca1d8221554cd13dda0, acceptance_basis is status=invalid despite basisStatus=complete and reports AT_SCOPE_BINDING_MISSING; acceptance_topology_check is status=fail with structuralPass=false and topologyState=configured for scope-contract mismatch. pre_review_check_read is status=inconclusive with plannedActual=incomplete, executableEvidence=missing, mutations=missing, transcript=missing, and authority=inadmissible. acceptance_rollout_report_read is not admissible, reporting AT_ADAPTER_RESULT_DIGEST_MISMATCH, AT_UNMAPPED_SCOPE_REF, AT_ORPHAN_PRODUCER, and AT_UNKNOWN_REF; the historical rollout PASS projection cannot override these upstream failures. The topology critic therefore cannot pass or claim complete acceptance topology. Source refs: packages/main/src/core/acceptance-coverage-basis.ts, packages/main/src/core/acceptance-topology.ts, packages/main/src/core/pre-review-check.ts, packages/main/src/core/acceptance-rollout.ts, packages/main/src/handlers/proofstory.ts.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-23T12:25:25.336Z",
+      "reviewRound": "2026-08-23T12:16:56.573Z",
+      "reviewRunId": "B-45a0:RR-298",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "scanEscalationReason": "Current verifier-owned acceptance basis/topology/pre-review/rollout surfaces were inspected with canonical CLI outputs and targeted source triage."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "cfb7eb4e67e6dee36608302fae9ebe10fee6e3c8cd162d442a52e1b2db300e0d",
+      "files": [
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/acceptance-rollout.ts",
+        "packages/main/src/handlers/proofstory.ts"
+      ],
+      "signatureTag": "missing|ts|topology-acceptance-chain",
+      "signatureTagSource": "auto"
     }
   ]
 }
