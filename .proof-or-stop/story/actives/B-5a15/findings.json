@@ -10574,6 +10574,106 @@
       ],
       "signatureTag": "missing|ts|wave-coverage-missing",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-199",
+      "desc": "RI-018 final-wave topology review confirms the verifier-owned acceptance basis remains partial and non-admissible: acceptance_topology_check is inconclusive with AT_COVERAGE_BASIS_PARTIAL and AT_UNMAPPED_SCOPE_REF, while pre_review_check_read is non-admissible with artifact, coverage, executable-proof, mutation, transcript, authority, and cutoff failures. The production CertificationWindow handler still constructs the causal decision with nodes: [] (F-197), and the current story has no executable Wave 4 evidence for the four verifier-owned acceptance commands (F-198). The independent topology critic cannot certify closure or completeness at this binding.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-23T13:31:21.069Z",
+      "reviewRound": "2026-08-22T06:10:03.014Z",
+      "reviewRunId": "B-5a15:RR-329",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "78063444f561b43afa5698c0afc50f13218f296c9f9cebcd274cb63f5ced203e",
+      "files": [
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/causal-evidence.ts",
+        "packages/main/src/core/certification-window.ts",
+        "packages/main/src/handlers/certification-window.ts",
+        "packages/main/src/handlers/proofstory.ts",
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+        "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+        "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts"
+      ],
+      "signatureTag": "ri-018-final-wave-topology-basis-partial",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a15:F-200",
+      "desc": "RR-332 current-story coverage remains incomplete for verifier-owned Wave 4 commands: checklist_get reports 50/50 passing verificationEvidence rows, all backed by the causal-evidence focused test, but no current evidence executes or records acceptance_topology_check, pre_review_check_read, acceptance_rollout_report_read, or acceptance_rollout_check. The required full-3x2 host receipt, degraded-3x1 rejection, threshold/membership/freshness mutations, mode invariance, enforce-only blocking, and rollback-history checks therefore remain uncovered. This is unchanged canonical family B-5a15:F-198 (also covered by F-192/F-193), not a new causal implementation defect.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-23T13:36:11.336Z",
+      "reviewRound": "2026-08-22T06:10:03.014Z",
+      "reviewRunId": "B-5a15:RR-332",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "e09b5707e45bc9506e8abb7b54940090b71ef562d81407b26a759a801cf4f8b0",
+      "files": [
+        "packages/main/src/handlers/proofstory.ts",
+        "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+        "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+        "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+        "packages/main/tests/causal-evidence.test.mjs"
+      ],
+      "signatureTag": "missing|ts|wave-coverage-missing",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
