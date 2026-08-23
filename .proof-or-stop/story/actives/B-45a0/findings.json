@@ -10835,6 +10835,86 @@
       ],
       "signatureTag": "missing|ts|topology-chain-incomplete",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-203",
+      "desc": "concept/acceptance-artifact-integrity-new-family: RI-041 wave-2 at current HEAD ab5935a introduces a distinct verifier-owned integrity failure beyond the recorded F-199/F-200 incompleteness families: pre_review_check_read emits PR_ARTIFACT_TAMPERED and requires discarding/reissuing the invalid artifact. The verifier compares the signed artifact against the expected canonical artifact and receipt integrity at packages/main/src/core/pre-review-check.ts:403-407 and packages/main/src/core/pre-review-check.ts:430-433; the current acceptance chain therefore lacks a current admissible pre-review PASS even though rollout remains receipt=current full-3x2 PASS. Source refs: packages/main/src/core/pre-review-check.ts:407; packages/main/src/core/pre-review-check.ts:433; packages/main/src/handlers/proofstory.ts:688.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-23T13:58:27.796Z",
+      "reviewRound": "2026-08-23T13:46:47.948Z",
+      "reviewRunId": "B-45a0:RR-318",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "scanEscalationReason": "Current RI-041 wave-2 acceptance chain and concept residue were inspected with canonical CLI outputs and targeted source triage."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "c8bd895385106045a297ba82e762e60312e95a6c63e14e1a3a59aa01a7617895",
+      "files": [
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/handlers/proofstory.ts",
+        "packages/main/src/core/acceptance-rollout.ts"
+      ],
+      "signatureTag": "missing|ts|concept-acceptance-artifact",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-204",
+      "desc": "coverage/wave-2-executable-evidence-missing: At current HEAD ab5935a and signed run B-45a0:RR-317, the checklist projection remains complete (13/13 items, 45 intents, 45 passing verificationEvidence records, 0 failing, 0 waivers), but none of those records executes or evidences the verifier-owned acceptance_topology_check, pre_review_check_read, acceptance_rollout_report_read/check boundary. acceptance_topology_check is structurally PASS and rollout reports current full-3x2, yet pre_review_check_read remains INCONCLUSIVE with plannedActual=incomplete, executableEvidence=missing, mutations=missing, transcript=missing, and authority=inadmissible. The required coverage boundary therefore lacks current executable pre-review, mutation, transcript, and authority proof; broad checklist evidence cannot substitute for these artifacts. Source refs: packages/main/src/core/acceptance-topology.ts, packages/main/src/core/pre-review-check.ts, packages/main/src/core/acceptance-rollout.ts, packages/main/src/handlers/proofstory.ts.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-23T13:59:22.202Z",
+      "reviewRound": "2026-08-23T13:46:47.948Z",
+      "reviewRunId": "B-45a0:RR-317",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "scanEscalationReason": "Checklist coverage counts and canonical current-head acceptance verifier outputs were inspected; source paths were targeted-triaged."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "839006bf4aa175a839142c7194a8a363cb762295ffa3054b1b214cdf172632e4",
+      "files": [
+        "packages/main/src/core/acceptance-rollout.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/handlers/proofstory.ts"
+      ],
+      "signatureTag": "missing|ts|coverage-wave-executable",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
