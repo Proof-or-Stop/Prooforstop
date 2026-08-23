@@ -2945,6 +2945,36 @@
         "scanEscalationReason": null
       },
       "_hash": "9f668ad4cf2cf8e8912e64cd6f27f230e92ab55dec6dd810465e7f3158f57bbe"
+    },
+    {
+      "id": "B-5a15:RP-068",
+      "agent": "lattice-review-concept",
+      "note": "Wave-2 concept review completed against the frozen cutoff. No new concept deletion or replacement residue was found; sameFileCallableCalls remains absent. The pre_review_check acceptance-chain residue and causal findings are unchanged carry-forward evidence from the prior wave, not new concept findings.",
+      "createdAt": "2026-08-23T15:19:20.489Z",
+      "reviewRound": "2026-08-22T06:10:03.014Z",
+      "reviewRunId": "B-5a15:RR-360",
+      "envelopeId": "2c63dff317f6150fc87bd064f763097c7743184dc1975d838a0fb77cd9e7e303",
+      "writerSessionId": "sess-1ff81192c8f5688bf40ac6afd86a20f7",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b98e57e81ef41949b789896e467da89e952268af03289d219be4b67911d775cb"
     }
   ]
 }
