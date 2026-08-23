@@ -21,7 +21,82 @@ export const REGISTERED_PRE_REVIEW_SCENARIO_SEMANTICS = new Map<string, {
   ['A-MUT-6', { sourceRef: 'intent:CHK-001:adversarial:prompt-authority', target: 'role-guidance:authority-boundary', mutationKind: 'prompt-contract-mutations' }],
 ]);
 
-export function preReviewCaseSemanticMatches(record: PreReviewCaseRecordV1): boolean {
+export interface PreReviewCanonicalCaseBindingV1 {
+  canonicalCaseId: string;
+  target: string;
+  mutationKind: string;
+  operation: string;
+}
+
+/**
+ * Active topologies may use story-specific assertion IDs, but the live proof
+ * runner only executes the registered canonical cases.  This is the verifier-
+ * owned semantic bridge between those two namespaces.  It is intentionally
+ * finite: an unregistered active source reference cannot borrow a canonical
+ * record merely by matching its kind.
+ */
+export const REGISTERED_PRE_REVIEW_ACTIVE_TOPOLOGY_BINDINGS = new Map<string, PreReviewCanonicalCaseBindingV1>([
+  ['intent:CHK-001:happy:0', { canonicalCaseId: 'A-POS-1', target: 'role-guidance:codex-claude-mirrors', mutationKind: 'prompt-contract', operation: 'execute exact role guidance token and mirror contract over all Codex/Claude role pairs' }],
+  ['intent:CHK-002:happy:0', { canonicalCaseId: 'A-POS-2', target: 'rollout:verified-cohort-receipt', mutationKind: 'rollout-receipt-verification', operation: 'load the frozen registered production cohort, issue a signed report, and verify the exact current receipt without respawning the cohort runner' }],
+  ['intent:CHK-003:happy:0', { canonicalCaseId: 'A-POS-3', target: 'rollout:bounded-threshold-matrix', mutationKind: 'threshold-contract', operation: 'evaluate every canonical promotion threshold from the verifier-derived report metrics' }],
+  ['intent:CHK-004:happy:0', { canonicalCaseId: 'A-POS-4', target: 'docs:canonical-wave4-status', mutationKind: 'docs-contract', operation: 'execute canonical Wave 4 status and exact live-proof inventory contract check' }],
+  ['intent:CHK-005:happy:0', { canonicalCaseId: 'A-POS-5', target: 'rollout:focused-enforce-rollback', mutationKind: 'focused-rollout-control', operation: 'execute focused Wave 4 rollout smoke with enforce, rollback, and history-preservation controls' }],
+  ['intent:CHK-006:happy:0', { canonicalCaseId: 'A-POS-1', target: 'role-guidance:codex-claude-mirrors', mutationKind: 'prompt-contract', operation: 'execute exact role guidance token and mirror contract over all Codex/Claude role pairs' }],
+  ['intent:CHK-007:happy:0', { canonicalCaseId: 'A-POS-2', target: 'rollout:verified-cohort-receipt', mutationKind: 'rollout-receipt-verification', operation: 'load the frozen registered production cohort, issue a signed report, and verify the exact current receipt without respawning the cohort runner' }],
+  ['intent:CHK-001:edge:0', { canonicalCaseId: 'A-MUT-9', target: 'mutation:observed-polarity', mutationKind: 'polarity-restore', operation: 'replace observed mutation outcome then rerun clean control' }],
+  ['intent:CHK-002:edge:0', { canonicalCaseId: 'A-MUT-5', target: 'planned-actual:consumer-symbol', mutationKind: 'planned-actual', operation: 'remove declared current consumer symbol' }],
+  ['intent:CHK-003:edge:0', { canonicalCaseId: 'A-MUT-12', target: 'cutoff:evidence-at-boundary', mutationKind: 'temporal-cutoff', operation: 'move evidence timestamp to the signed cutoff boundary' }],
+  ['intent:CHK-004:edge:0', { canonicalCaseId: 'A-MUT-15', target: 'critic:enforce-reattestation', mutationKind: 'critic-reattestation', operation: 'enable enforce mode without a current independent critic receipt' }],
+  ['intent:CHK-005:edge:0', { canonicalCaseId: 'A-MUT-13', target: 'config:warn-rollback', mutationKind: 'legacy-config-rollback', operation: 'rollback enforce configuration to warn without stale blocking state' }],
+  ['intent:CHK-006:edge:0', { canonicalCaseId: 'A-MUT-17', target: 'source:wave-boundary', mutationKind: 'wave-leakage', operation: 'scan production producer and consumer for later-wave symbols' }],
+  ['intent:CHK-007:edge:0', { canonicalCaseId: 'A-MUT-2', target: 'rollout:false-block-controls', mutationKind: 'docs-legacy-single-outcome-controls', operation: 'execute docs-only, legacy, and ordinary single-outcome candidate controls through the rollout verifier' }],
+  ['intent:CHK-001:adversarial:0', { canonicalCaseId: 'A-MUT-6', target: 'role-guidance:authority-boundary', mutationKind: 'prompt-contract-mutations', operation: 'remove required command, degrade full-3x2 to 3x1, and promote prompt prose to authority; every mutant must fail' }],
+  ['intent:CHK-002:adversarial:0', { canonicalCaseId: 'A-MUT-1', target: 'role-guidance:mirror-parity', mutationKind: 'codex-claude-mirror', operation: 'mutate one Claude role suffix while retaining the Codex role; exact mirror contract must fail' }],
+  ['intent:CHK-003:adversarial:0', { canonicalCaseId: 'A-MUT-16', target: 'contract:process-fact-registry', mutationKind: 'process-fact-contract', operation: 'run the canonical process-fact contract verifier' }],
+  ['intent:CHK-004:adversarial:0', { canonicalCaseId: 'A-MUT-4', target: 'authority:direct-store-replay', mutationKind: 'authority-replay', operation: 'direct StoryStore proof without causal receipt' }],
+  ['intent:CHK-005:adversarial:0', { canonicalCaseId: 'A-MUT-11', target: 'bypass:direct-store', mutationKind: 'bypass-campaign', operation: 'direct-file and caller-authority bypass attempt' }],
+  ['intent:CHK-006:adversarial:0', { canonicalCaseId: 'A-MUT-14', target: 'codes:direct-vs-lifecycle', mutationKind: 'stable-gate-codes', operation: 'direct verifier and lifecycle consumer agree on pass status' }],
+  ['intent:CHK-007:adversarial:0', { canonicalCaseId: 'A-MUT-7', target: 'topology:consumer-omission', mutationKind: 'topology-omission', operation: 'remove current topology consumer against retained basis' }],
+]);
+
+const TRANSCRIPT_BINDING: PreReviewCanonicalCaseBindingV1 = {
+  canonicalCaseId: 'A-TRANSCRIPT-1',
+  target: 'events:producer-consumer',
+  mutationKind: 'event-log-relation',
+  operation: 'actual producer invocation precedes canonical lifecycle consumer',
+};
+
+export const REGISTERED_PRE_REVIEW_ACTIVE_TRANSCRIPT_BINDINGS = new Map<string, PreReviewCanonicalCaseBindingV1>(
+  ['happy', 'edge', 'adversarial'].flatMap(lane =>
+    Array.from({ length: 7 }, (_, index) => [`intent:CHK-${String(index + 1).padStart(3, '0')}:${lane}:0`, TRANSCRIPT_BINDING] as const)),
+);
+
+export function preReviewCaseSemanticBindingForSourceRef(
+  sourceRef: string,
+  kind?: PreReviewCaseRecordV1[1],
+): PreReviewCanonicalCaseBindingV1 | null {
+  return kind === 'transcript'
+    ? REGISTERED_PRE_REVIEW_ACTIVE_TRANSCRIPT_BINDINGS.get(sourceRef) ?? null
+    : REGISTERED_PRE_REVIEW_ACTIVE_TOPOLOGY_BINDINGS.get(sourceRef) ?? null;
+}
+
+export function preReviewCaseRequiresSemanticBinding(sourceRef: string): boolean {
+  return /^intent:CHK-\d{3}:(happy|edge|adversarial):\d+$/.test(sourceRef)
+    || sourceRef.startsWith('acceptance-binding:');
+}
+
+export function preReviewCaseSemanticMatches(
+  record: PreReviewCaseRecordV1,
+  expectedSourceRef = record[9],
+  requireRegisteredBinding = false,
+): boolean {
+  const activeBinding = preReviewCaseSemanticBindingForSourceRef(expectedSourceRef, record[1]);
+  if (activeBinding) {
+    return record[2] === activeBinding.target
+      && record[3] === activeBinding.mutationKind
+      && record[4] === activeBinding.operation;
+  }
+  if (requireRegisteredBinding) return false;
   const expected = REGISTERED_PRE_REVIEW_SCENARIO_SEMANTICS.get(record[0]);
   return !expected
     || !record[9].startsWith('intent:CHK-')
@@ -89,7 +164,7 @@ export function assemblePreReviewCaseRecords(
     if (record[9] !== canonicalPreReviewAssertionSourceRef(assertion.sourceRef)) {
       throw new Error(`pre-review executed record sourceRef mismatch for ${assertion.id}`);
     }
-    if (!preReviewCaseSemanticMatches(record)) {
+    if (!preReviewCaseSemanticMatches(record, record[9], preReviewCaseRequiresSemanticBinding(record[9]))) {
       throw new Error(`pre-review executed record semantic contract mismatch for ${assertion.id}`);
     }
     return record;
@@ -110,7 +185,11 @@ export function encodePreReviewCaseRecords(caseRecords: readonly PreReviewCaseRe
 
 export function decodePreReviewCaseRecords(value: string): PreReviewCaseRecordV1[] {
   const records = JSON.parse(gunzipSync(Buffer.from(value, 'base64')).toString('utf8')) as PreReviewCaseRecordV1[];
-  const semanticMismatch = records.find(record => !preReviewCaseSemanticMatches(record));
+  const semanticMismatch = records.find(record => !preReviewCaseSemanticMatches(
+    record,
+    record[9],
+    preReviewCaseRequiresSemanticBinding(record[9]),
+  ));
   if (semanticMismatch) {
     throw new Error(`pre-review decoded record semantic contract mismatch for ${semanticMismatch[0]}`);
   }

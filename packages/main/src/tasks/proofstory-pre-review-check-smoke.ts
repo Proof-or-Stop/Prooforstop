@@ -21,6 +21,8 @@ import {
   decodePreReviewCaseRecords,
   encodePreReviewCaseRecords,
   preReviewCaseAggregateDigest,
+  preReviewCaseSemanticBindingForSourceRef,
+  preReviewCaseSemanticMatches,
 } from '../core/pre-review-live-proof.js';
 import {
   currentAcceptanceRolloutBinding,
@@ -202,32 +204,29 @@ function selectActiveScenarioRecords(
 
 /**
  * The canonical scenario body executes a finite set of real operations. An active
- * story may expose a different, story-specific topology, so the executed results
- * are projected onto that topology after execution. Projection is deliberately
- * kind-preserving and sourceRef-bound: it may reuse a canonical result as a
- * template, but it cannot invent an assertion, change its kind, or retain the
- * template's source attribution.
+ * story may expose a different topology, so the runner may use only an explicit
+ * verifier-owned semantic binding to select a canonical result. A kind/index
+ * projection is deliberately forbidden: an active assertion must identify the
+ * canonical target, mutation kind, and operation that actually ran.
  */
 function adaptCanonicalScenarioRecordsToActiveTopology(
   expected: ReadonlyMap<string, { kind: ScenarioCaseKind; sourceRef: string }>,
   canonicalRecords: readonly PreReviewCaseRecordV1[],
 ): PreReviewCaseRecordV1[] {
-  const templatesByKind = new Map<ScenarioCaseKind, PreReviewCaseRecordV1[]>();
-  for (const record of canonicalRecords) {
-    const templates = templatesByKind.get(record[1]) ?? [];
-    templates.push(record);
-    templatesByKind.set(record[1], templates);
-  }
-  for (const kind of ['positive', 'mutation', 'transcript'] as const) {
-    if ([...expected.values()].some(assertion => assertion.kind === kind) && !templatesByKind.has(kind)) {
-      throw new Error(`canonical scenario ledger has no ${kind} result for active topology`);
-    }
-  }
+  const canonicalById = new Map(canonicalRecords.map(record => [record[0], record]));
+  const adapted = [...expected].map(([id, assertion]) => {
+    const exact = canonicalById.get(id);
+    if (exact && exact[1] === assertion.kind && exact[9] === assertion.sourceRef
+      && preReviewCaseSemanticMatches(exact, assertion.sourceRef, false)) return exact;
 
-  const adapted = [...expected].map(([id, assertion], index) => {
-    const templates = templatesByKind.get(assertion.kind);
-    if (!templates || templates.length === 0) throw new Error(`active topology assertion ${id} has no canonical ${assertion.kind} result`);
-    const template = templates[index % templates.length];
+    const binding = preReviewCaseSemanticBindingForSourceRef(assertion.sourceRef, assertion.kind);
+    if (!binding) {
+      throw new Error(`active topology assertion ${id} has no verified semantic canonical-case binding for ${assertion.sourceRef}`);
+    }
+    const template = canonicalById.get(binding.canonicalCaseId);
+    if (!template || template[1] !== assertion.kind || !preReviewCaseSemanticMatches(template, assertion.sourceRef, true)) {
+      throw new Error(`active topology assertion ${id} semantic canonical-case binding does not match an executed ${assertion.kind} result`);
+    }
     const record = structuredClone(template);
     record[0] = id;
     record[1] = assertion.kind;
@@ -591,26 +590,42 @@ assert.throws(
   'known assertion ID cannot be rebound to a different kind',
 );
 const arbitraryActiveAssertions = new Map<string, { kind: ScenarioCaseKind; sourceRef: string }>([
-  ['A-CHK-001-happy-0', { kind: 'positive', sourceRef: 'intent:CHK-001:happy:0' }],
   ['A-CHK-002-edge-1', { kind: 'positive', sourceRef: 'intent:CHK-002:edge:1' }],
+  ['A-CHK-001-happy-0', { kind: 'positive', sourceRef: 'intent:CHK-001:happy:0' }],
   ['M-CHK-003-adversarial-0', { kind: 'mutation', sourceRef: 'intent:CHK-003:adversarial:0' }],
   ['T-ACC-001', { kind: 'transcript', sourceRef: 'acceptance-binding:ACC-001' }],
 ]);
-const arbitraryActiveRecords = adaptCanonicalScenarioRecordsToActiveTopology(arbitraryActiveAssertions, expandedRecords);
-assert.deepEqual(
-  arbitraryActiveRecords.map(record => [record[0], record[1], record[9]]),
-  [...arbitraryActiveAssertions].map(([id, assertion]) => [id, assertion.kind, assertion.sourceRef]),
-  'active topology projection preserves arbitrary IDs, kinds, and sourceRefs',
+assert.throws(
+  () => adaptCanonicalScenarioRecordsToActiveTopology(arbitraryActiveAssertions, expandedRecords),
+  /no verified semantic canonical-case binding/,
+  'an active topology with no verifier-owned semantic binding cannot borrow canonical records by kind',
+);
+
+const activeSemanticContract = structuredClone(expandedContract);
+const activeSemanticAssertion = activeSemanticContract.acceptanceBindings[0].verificationTopology!.positiveAssertionRefs[0]!;
+activeSemanticAssertion.sourceRef = { refKind: 'existing', canonicalSourceRef: 'intent:CHK-001:happy:0' };
+const activeSemanticRecord = structuredClone(expandedRecords[0]);
+activeSemanticRecord[2] = 'role-guidance:codex-claude-mirrors';
+activeSemanticRecord[3] = 'prompt-contract';
+activeSemanticRecord[4] = 'execute exact role guidance token and mirror contract over all Codex/Claude role pairs';
+activeSemanticRecord[9] = 'intent:CHK-001:happy:0';
+assert.doesNotThrow(
+  () => assemblePreReviewCaseRecords(activeSemanticContract, [activeSemanticRecord, ...expandedRecords.slice(1)]),
+  'a registered active assertion accepts only its bound canonical semantic case',
+);
+const mismatchedActiveRecord = structuredClone(activeSemanticRecord);
+mismatchedActiveRecord[2] = 'rollout:verified-cohort-receipt';
+mismatchedActiveRecord[3] = 'rollout-receipt-verification';
+mismatchedActiveRecord[4] = 'load the frozen registered production cohort, issue a signed report, and verify the exact current receipt without respawning the cohort runner';
+assert.throws(
+  () => assemblePreReviewCaseRecords(activeSemanticContract, [mismatchedActiveRecord, ...expandedRecords.slice(1)]),
+  /semantic contract mismatch for A-POS-1/,
+  'a semantically mismatched active clone is rejected before proof assembly',
 );
 assert.throws(
-  () => selectActiveScenarioRecords(
-    arbitraryActiveAssertions,
-    [...arbitraryActiveRecords, structuredClone(arbitraryActiveRecords[0])],
-    new Map([...arbitraryActiveAssertions].map(([id, assertion]) => [id, assertion.kind] as const)),
-    true,
-  ),
-  /executed scenario ledger contains duplicate assertion ID/,
-  'active topology projection rejects duplicate records',
+  () => decodePreReviewCaseRecords(encodePreReviewCaseRecords([mismatchedActiveRecord])),
+  /decoded record semantic contract mismatch for A-POS-1/,
+  'the encoded proof boundary rejects the same active semantic clone',
 );
 
 const root = mkdtempSync(join(tmpdir(), 'proofstory-pre-review-'));
