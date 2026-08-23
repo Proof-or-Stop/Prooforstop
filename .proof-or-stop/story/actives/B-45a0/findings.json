@@ -11085,6 +11085,49 @@
       ],
       "signatureTag": "missing|ts|coverage-wave-executable",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-209",
+      "desc": "topology/RI-041-wave3-chain-incomplete: At current HEAD 3650a26, acceptance_basis is verified/complete and acceptance_topology_check is structural PASS/configured, while pre_review_check_read remains INCONCLUSIVE with plannedActual=incomplete, executableEvidence=missing, mutations=missing, transcript=missing, and authority=inadmissible. The committed topology receipt still verifies basisStatus=partial with AT_TOPOLOGY_CRITIC_INCOMPLETE_BASIS, so the current integrated chain cannot authorize a topology pass. F-208 is the current recurring executable acceptance-evidence finding; earlier F-203 remains the distinct PR_ARTIFACT_TAMPERED family.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-23T14:22:08.230Z",
+      "reviewRound": "2026-08-23T13:46:47.948Z",
+      "reviewRunId": "B-45a0:RR-332",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "scanEscalationReason": "Current basis/topology/pre-review/rollout outputs, committed receipt check, and targeted producer/consumer source paths were inspected; source paths were triaged by relevant symbols."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "21d4baa84dbad9a7c23190d56c38d6b963f32087d1c96274b71e79d28cd7d90d",
+      "files": [
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/acceptance-rollout.ts",
+        "packages/main/src/handlers/proofstory.ts"
+      ],
+      "signatureTag": "missing|ts|topology-wave-acceptance",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
