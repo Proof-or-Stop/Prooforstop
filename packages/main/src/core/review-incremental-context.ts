@@ -816,7 +816,7 @@ export function reviewIncrementalContext(
         reviewBasis = null;
       } else {
       reviewBasis = {
-        schemaVersion: 'proofbound.incremental-review-basis.v1',
+        schemaVersion: 'proof-or-stop.incremental-review-basis.v1',
         storyId,
         lane: role,
         priorPassRef: args.prior.pass.id,

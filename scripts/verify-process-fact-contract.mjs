@@ -1711,10 +1711,10 @@ function assertProofStoryProgressiveBoundary() {
       && topologyCriticPolicy.gateEvidence !== true
       && activityPolicyText.includes("'topology_critic_receipt_check'")
       && read(topologyCriticTemplatePath).startsWith('---\n')
-      && read(topologyCriticTemplatePath).includes('<!-- proofbound:modular-role-body:v1 -->')
+      && read(topologyCriticTemplatePath).includes('<!-- proof-or-stop:modular-role-body:v1 -->')
       && read(topologyCriticTemplatePath).includes('- A pass is forbidden when the basis')
       && topologyCriticHostPaths.every(path => read(path).startsWith('---\n')
-        && read(path).includes('<!-- proofbound:modular-role-body:v1 -->')
+        && read(path).includes('<!-- proof-or-stop:modular-role-body:v1 -->')
         && read(path).includes('- A pass is forbidden when the basis')
         && !read(path).includes('review_run_start')),
     'topology critic contract must bind role prompt, production producer/read-only verifier, required registered dispatch events, signed current fields, four-dimensional independence, exact scope-plan approvals, incomplete-basis rejection, and explicitly no Wave 2A lifecycle admission gate',

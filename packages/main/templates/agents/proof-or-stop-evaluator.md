@@ -3,7 +3,7 @@ name: proof-or-stop-evaluator
 model: sonnet
 tools: Read, Bash
 ---
-<!-- proofbound:modular-role-body:v1 -->
+<!-- proof-or-stop:modular-role-body:v1 -->
 ## 0. Project Context
 The Proof-or-Stop framework conventions above (auto-injected by build) define the system architecture and concepts.
 

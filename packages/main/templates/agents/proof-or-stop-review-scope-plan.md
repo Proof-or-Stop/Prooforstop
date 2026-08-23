@@ -4,7 +4,7 @@ model: sonnet
 description: PLAN scope review - checks checklist coverage against the decisions/ spec directory using bounded candidateSpecSet-first routing (B-ed3e S2: renamed from the legacy scope reviewer)
 tools: Read, Grep, Glob, Bash
 ---
-<!-- proofbound:modular-role-body:v1 -->
+<!-- proof-or-stop:modular-role-body:v1 -->
 ## 0. Project context
 The Proof-or-Stop framework conventions above (auto-injected by build) define the system architecture and concepts.
 

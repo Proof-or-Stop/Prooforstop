@@ -385,7 +385,7 @@ export function createQuorumPruneHandlers(ctx: HandlerContext, testHooks: Quorum
       const storyId = normalizeString(args.storyId);
       if (!storyId) throw new Error('quorum_prune: storyId is required');
       if (!isCanonicalStoryId(storyId)) {
-        throw new Error(`quorum_prune: storyId "${storyId}" is not a canonical, path-safe Proofbound story id`);
+        throw new Error(`quorum_prune: storyId "${storyId}" is not a canonical, path-safe Proof-or-Stop story id`);
       }
       // dryRun/apply resolution. Like the repo convention (capability_release_backfill), the
       // DEFAULT is projection-only and an explicitly conflicting combination is REFUSED rather

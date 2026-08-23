@@ -1,7 +1,8 @@
 import { createHash } from 'node:crypto';
 import type { AdmissibilityReasonCode } from './proof-admissibility.js';
+import { PROOF_BINDING_SCHEMA } from './artifact-schema.js';
 
-export const PROOF_BINDING_SCHEMA_VERSION = 'lattice.proof_binding.v1' as const;
+export const PROOF_BINDING_SCHEMA_VERSION = PROOF_BINDING_SCHEMA;
 
 export interface StrictShapeResult {
   ok: boolean;

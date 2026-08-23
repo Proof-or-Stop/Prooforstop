@@ -44,7 +44,8 @@ export function canonicalPromptRegistrySchemaVersion(value: unknown): typeof PRO
 }
 export const PROMPT_REGISTRY_SOURCE = '@proof-or-stop/core/templates/agents';
 export const SUPPORTED_PROMPT_HOSTS = ['claude', 'codex'] as const;
-export const MODULAR_ROLE_BODY_MARKER = '<!-- proofbound:modular-role-body:v1 -->';
+export const MODULAR_ROLE_BODY_MARKER = '<!-- proof-or-stop:modular-role-body:v1 -->';
+export const MODULAR_ROLE_BODY_MARKER_LEGACY = '<!-- proofbound:modular-role-body:v1 -->';
 export const MODULAR_REVIEWER_ROLE_IDS = [
   'proof-or-stop-review-behavior',
   'proof-or-stop-review-concept',
@@ -109,7 +110,8 @@ const LEGACY_COMPLEX_TEMPLATE_SHA256: Readonly<Record<string, string>> = Object.
   'lattice-evaluator': 'dd8cf73174e1ddf292b7b4cf9ebb70ff8c32584f44ccb78f2221b33da8407b97',
 });
 
-const STORY_INIT_LEGACY_TAIL_MARKER = '<!-- proofbound:story-init-legacy-tail:v1 -->';
+const STORY_INIT_LEGACY_TAIL_MARKER = '<!-- proof-or-stop:story-init-legacy-tail:v1 -->';
+const STORY_INIT_LEGACY_TAIL_MARKER_LEGACY = '<!-- proofbound:story-init-legacy-tail:v1 -->';
 // Frozen gzip -n payload of the pre-Story-6 `## 4. Procedure` through EOF.
 // B-cdf6 CHK-003: re-encoded after the `lattice` -> `proof-or-stop` bin rename.
 // This payload is injected into the LIVE story-init reviewer body (default mode
@@ -350,20 +352,30 @@ export function restoreLegacyPromptTemplate(entry: PromptRegistryEntry): string 
   const canonicalRole = canonicalAgentRoleId(entry.agentId);
   const legacyRole = legacyAgentRoleIds(canonicalRole)[0] ?? canonicalRole;
   if (!isModularRoleId(canonicalRole)) return canonicalizePromptRoleText(modular);
-  if (!modular.includes(MODULAR_ROLE_BODY_MARKER)) {
+  const modularMarker = modular.includes(MODULAR_ROLE_BODY_MARKER)
+    ? MODULAR_ROLE_BODY_MARKER
+    : modular.includes(MODULAR_ROLE_BODY_MARKER_LEGACY)
+      ? MODULAR_ROLE_BODY_MARKER_LEGACY
+      : null;
+  if (!modularMarker) {
     throw new Error(`modular reviewer prompt ${canonicalRole} is missing ${MODULAR_ROLE_BODY_MARKER}`);
   }
   let restored = modular.replace(
-    MODULAR_ROLE_BODY_MARKER,
+    modularMarker,
     canonicalRole === 'proof-or-stop-review-test-coverage'
       ? TEST_COVERAGE_LEGACY_PROCESS_CONTRACT
       : LOAD_BEARING_LATTICE_PROMPT_SLICE,
   );
   if (canonicalRole === 'proof-or-stop-review-story-init') {
-    if (!restored.includes(STORY_INIT_LEGACY_TAIL_MARKER)) {
+    const tailMarker = restored.includes(STORY_INIT_LEGACY_TAIL_MARKER)
+      ? STORY_INIT_LEGACY_TAIL_MARKER
+      : restored.includes(STORY_INIT_LEGACY_TAIL_MARKER_LEGACY)
+        ? STORY_INIT_LEGACY_TAIL_MARKER_LEGACY
+        : null;
+    if (!tailMarker) {
       throw new Error(`modular story-init prompt is missing ${STORY_INIT_LEGACY_TAIL_MARKER}`);
     }
-    restored = restored.replace(STORY_INIT_LEGACY_TAIL_MARKER, STORY_INIT_LEGACY_TAIL.trimEnd());
+    restored = restored.replace(tailMarker, STORY_INIT_LEGACY_TAIL.trimEnd());
   }
   // Template assets are now canonical, but these digests deliberately pin the
   // historical prompt bytes. Project the reconstructed canonical body back to

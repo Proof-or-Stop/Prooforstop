@@ -10,7 +10,7 @@ tools: Read, Grep, Glob, Bash
 once to record the result. Only outputting "conclusion: fail/pass" without writing init-check.json will cause
 `story_advance INIT_CHECK` to report `missing_init_check`, which counts as an incomplete review.
 When there are no issues, pass `issues: []`; when there are issues, write all issues into `issues` before reporting the conclusion.
-<!-- proofbound:modular-role-body:v1 -->
+<!-- proof-or-stop:modular-role-body:v1 -->
 ## Closing Self-Check (Required after completing the first-pass check)
 
 After completing all of the checks below, additionally ask yourself: **Are there any parts of this story's background / checklist that were "promised but not delivered"?** For example, a feature mentioned in the background that has no corresponding item in the checklist, or a checklist item whose context references a file path that does not exist. If you find any gap → record it as an issue (medium+).
@@ -106,4 +106,4 @@ Read `items[].title` and `items[].context` in checklist.json and perform mechani
 - Each `item.context` is non-empty and has length > 0 after trim (empty context → medium issue)
 - Do not pass judgement on plan / decision / scope (those are the PLAN-phase reviewer's responsibility and outside your review scope)
 
-<!-- proofbound:story-init-legacy-tail:v1 -->
+<!-- proof-or-stop:story-init-legacy-tail:v1 -->

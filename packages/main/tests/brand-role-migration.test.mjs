@@ -25,6 +25,11 @@ const aliases = [
   ['verification-intent', 'proof-or-stop-test-intent'],
 ];
 const projectConfig = JSON.parse(readFileSync(join(repoRoot, 'proof-or-stop.config.json'), 'utf8'));
+const globalLabProbe = execFileSync(process.execPath, [
+  join(repoRoot, 'scripts/verify-global-lab-entrypoint.mjs'),
+  'lab-help',
+], { cwd: repoRoot, encoding: 'utf8' });
+assert.match(globalLabProbe, /global core bin should show lab_create help|ok lab-help/, 'global lab entrypoint resolves through the canonical core wrapper');
 const configuredPromptRoles = projectConfig.promptEnvelope?.roles ?? {};
 for (const relativePath of [
   '.claude/agents/proof-or-stop-product-reviewer.md',

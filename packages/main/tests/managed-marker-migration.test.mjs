@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -13,6 +14,12 @@ const distRoot = join(packageRoot, distName);
 const markers = await import(join(distRoot, 'core/managed-markers.js'));
 const sync = await import(join(distRoot, 'claude-md-sync.js'));
 const assets = await import(join(distRoot, 'init-assets.js'));
+
+const residueSelfTest = execFileSync(process.execPath, [
+  join(packageRoot, '..', '..', 'scripts/verify-lattice-residue.mjs'),
+  '--self-test',
+], { cwd: packageRoot, encoding: 'utf8' });
+assert.match(residueSelfTest, /PASS lattice-residue self-test:/, 'residue detector distinguishes historical paths from active brand residue');
 
 const legacy = 'before\n<!-- lattice:start -->\nold\n<!-- lattice:end -->\nafter\n';
 const replacement = '<!-- proof-or-stop:start -->\nnew\n<!-- proof-or-stop:end -->';

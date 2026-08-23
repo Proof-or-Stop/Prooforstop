@@ -10,6 +10,9 @@ import {
   validateIncrementalReviewBasis,
   validateKnownExecutionEnvironment,
   validatePromptEnvelope,
+  FULL_TASK_CONTEXT_SCHEMA,
+  KNOWN_EXECUTION_ENVIRONMENT_SCHEMA,
+  PROMPT_ENVELOPE_SCHEMA,
   type FullTaskContext,
   type IncrementalReviewBasis,
   type KnownExecutionEnvironment,
@@ -23,8 +26,10 @@ import type { ChecklistData, ScopeContractData, StoryInfo } from './types.js';
 import { digestScopeContract } from './guard-session.js';
 import { canonicalAgentRoleId } from './agent-role-identity.js';
 
-export const PROMPT_ENVELOPE_ASSEMBLER_VERSION = 'proofbound.full-context-assembler.v1';
-export const PROMPT_DISPATCH_PROTOCOL_VERSION = 'proofbound.prompt-dispatch.v1';
+export const PROMPT_ENVELOPE_ASSEMBLER_VERSION = 'proof-or-stop.full-context-assembler.v1';
+export const PROMPT_ENVELOPE_ASSEMBLER_VERSION_LEGACY = 'proofbound.full-context-assembler.v1';
+export const PROMPT_DISPATCH_PROTOCOL_VERSION = 'proof-or-stop.prompt-dispatch.v1';
+export const PROMPT_DISPATCH_PROTOCOL_VERSION_LEGACY = 'proofbound.prompt-dispatch.v1';
 
 export interface FullPromptAssemblyInput {
   roleContract: RoleContract;
@@ -150,7 +155,7 @@ export function buildFullTaskContext(args: {
   scopeContract?: ScopeContractData | null;
 }): FullTaskContext {
   const context: FullTaskContext = {
-    schemaVersion: 'proofbound.full-task-context.v1',
+    schemaVersion: FULL_TASK_CONTEXT_SCHEMA,
     storyId: args.story.storyId,
     title: args.story.title,
     description: args.story.description,
@@ -247,7 +252,7 @@ export function fullTaskSemanticDigest(context: FullTaskContext): string {
 
 export function captureKnownExecutionEnvironment(): KnownExecutionEnvironment {
   const value: KnownExecutionEnvironment = {
-    schemaVersion: 'proofbound.known-execution-environment.v1',
+    schemaVersion: KNOWN_EXECUTION_ENVIRONMENT_SCHEMA,
     nodeVersion: process.version,
     platform: process.platform,
     architecture: process.arch,
@@ -319,7 +324,7 @@ export function assembleFullPromptEnvelope(input: FullPromptAssemblyInput): Full
     input.dispatchPrompt,
   );
   const envelopeWithoutId: Omit<PromptEnvelope, 'envelopeId'> = {
-    schemaVersion: 'proofbound.prompt-envelope.v1',
+    schemaVersion: PROMPT_ENVELOPE_SCHEMA,
     roleId: input.roleContract.roleId,
     storyId: input.taskContext.storyId,
     dispatchKind: input.dispatchKind,

@@ -9,6 +9,7 @@ import {
   type RoleContract,
   type RoleLifecycleStatus,
   validateRoleContract,
+  ROLE_CONTRACT_SCHEMA,
 } from './prompt-contracts.js';
 import {
   MODULAR_COMPLEX_ROLE_IDS,
@@ -27,8 +28,10 @@ import { isCodexAdapterManifestOwner } from '../init-assets.js';
 
 export { ACTIVE_MODULAR_REVIEWER_ROLE_IDS, isActiveModularReviewerRoleId } from './prompt-registry.js';
 
-export const PROMPT_ROLE_CONTRACT_REGISTRY_VERSION = 'proofbound.prompt-role-contract-registry.v1';
-export const PROMPT_ENVELOPE_ROLLOUT_VERSION = 'proofbound.prompt-envelope-rollout.v1';
+export const PROMPT_ROLE_CONTRACT_REGISTRY_VERSION = 'proof-or-stop.prompt-role-contract-registry.v1';
+export const PROMPT_ROLE_CONTRACT_REGISTRY_VERSION_LEGACY = 'proofbound.prompt-role-contract-registry.v1';
+export const PROMPT_ENVELOPE_ROLLOUT_VERSION = 'proof-or-stop.prompt-envelope-rollout.v1';
+export const PROMPT_ENVELOPE_ROLLOUT_VERSION_LEGACY = 'proofbound.prompt-envelope-rollout.v1';
 export type PromptEnvelopeRolloutMode = 'legacy-full-context' | 'full-envelope';
 export const ACTIVE_MODULAR_COMPLEX_ROLE_IDS: readonly string[] = Object.freeze([...MODULAR_COMPLEX_ROLE_IDS]);
 
@@ -41,7 +44,7 @@ export interface ResolvedPromptRoleBody {
 }
 
 export interface ReviewerHostRenderIdentity {
-  schemaVersion: 'proofbound.reviewer-host-render-identity.v1';
+  schemaVersion: 'proof-or-stop.reviewer-host-render-identity.v1' | 'proofbound.reviewer-host-render-identity.v1';
   roleId: string;
   rolloutMode: PromptEnvelopeRolloutMode;
   host: PromptHost;
@@ -181,7 +184,7 @@ export function reviewerHostRenderIdentity(
   }
   const selectedRoleBody = renderPromptForHost(packageTemplate, host);
   const semantic = {
-    schemaVersion: 'proofbound.reviewer-host-render-identity.v1' as const,
+    schemaVersion: 'proof-or-stop.reviewer-host-render-identity.v1' as const,
     roleId: canonicalRoleId,
     rolloutMode,
     host,
@@ -375,7 +378,7 @@ export class PromptRoleContractRegistryError extends Error {
 
 function roleSemanticValue(roleId: string, policy: RolePolicy): Record<string, unknown> {
   return {
-    schemaVersion: 'proofbound.role-contract.v1',
+    schemaVersion: ROLE_CONTRACT_SCHEMA,
     registryVersion: PROMPT_ROLE_CONTRACT_REGISTRY_VERSION,
     roleId,
     status: policy.status,
@@ -398,7 +401,7 @@ export function buildPromptRoleContracts(snapshot: PromptRegistrySnapshot = read
   const contracts = snapshot.agents.map(entry => {
     const policy = ROLE_POLICIES[entry.agentId]!;
     const contract: RoleContract = {
-      schemaVersion: 'proofbound.role-contract.v1',
+      schemaVersion: ROLE_CONTRACT_SCHEMA,
       roleId: entry.agentId,
       status: policy.status,
       ...(policy.replacementAgentType ? { replacementAgentType: policy.replacementAgentType } : {}),
@@ -562,7 +565,8 @@ export function resolvePromptEnvelopeRolloutMode(
   for (const key of Object.keys(record)) {
     if (!['version', 'roles'].includes(key)) throw new PromptRoleContractRegistryError(`promptEnvelope.${key} is unknown`);
   }
-  if (record.version !== PROMPT_ENVELOPE_ROLLOUT_VERSION) {
+  if (record.version !== PROMPT_ENVELOPE_ROLLOUT_VERSION
+    && record.version !== PROMPT_ENVELOPE_ROLLOUT_VERSION_LEGACY) {
     throw new PromptRoleContractRegistryError(`promptEnvelope.version must be ${PROMPT_ENVELOPE_ROLLOUT_VERSION}`);
   }
   if (!record.roles || typeof record.roles !== 'object' || Array.isArray(record.roles) || Object.getPrototypeOf(record.roles) !== Object.prototype) {

@@ -4,7 +4,7 @@ description: REVIEW audit: code quality (dead code / type safety / I/O isolation
 model: sonnet
 tools: Read, Grep, Glob, Bash
 ---
-<!-- proofbound:modular-role-body:v1 -->
+<!-- proof-or-stop:modular-role-body:v1 -->
 ## Closing Self-Check (Mandatory after completing the first-pass checks)
 
 After completing all checks below, additionally ask yourself: **Does this diff contain any "promised but undelivered" parts?** Any `proof-or-stop <cmd>` examples, handler schema fields, ENV variables, or behavior paragraphs newly added in CLAUDE.md / README — all must be cross-checked against the code for corresponding implementations. If you find "promised but undelivered" → **critical finding** (category=`missing`, prefix desc with `doc-promise-undelivered:`).

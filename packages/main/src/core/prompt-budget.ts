@@ -27,7 +27,7 @@ export type BudgetedComplexRoleId = typeof BUDGETED_COMPLEX_ROLE_IDS[number];
 export type PromptBudgetMode = 'observe';
 
 export interface PromptBudgetObservation {
-  schemaVersion: 'proofbound.prompt-budget-observation.v1';
+  schemaVersion: 'proof-or-stop.prompt-budget-observation.v1';
   roleId: string;
   contextMode: 'full' | 'incremental';
   mode: PromptBudgetMode;
@@ -57,7 +57,7 @@ export function observeComplexRolePromptBudget(args: {
   const withinBudget = Number.isSafeInteger(args.bytes) && args.bytes <= limitBytes;
   const roleId = canonicalAgentRoleId(args.roleId);
   return {
-    schemaVersion: 'proofbound.prompt-budget-observation.v1',
+    schemaVersion: 'proof-or-stop.prompt-budget-observation.v1',
     roleId,
     contextMode: args.contextMode,
     mode: 'observe',
