@@ -10792,6 +10792,49 @@
       ],
       "signatureTag": "missing|md|promise-undelivered-normative",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-202",
+      "desc": "topology/RI-041-chain-incomplete: Current acceptance_basis and acceptance_topology_check are verified/structurally PASS, and acceptance_rollout_report_read is current full-3x2 PASS, but pre_review_check_read remains inconclusive with executableEvidence, mutations, transcript, and authority missing. The aggregate also contains F-201, a distinct critical verified doc-promise-undelivered singleton-union monotonicity gap; that finding cannot be collapsed into the recurring pre-review family. The integrated topology critic therefore records request_changes and cannot authorize a pass. Source refs: packages/main/src/core/acceptance-coverage-basis.ts, packages/main/src/core/acceptance-topology.ts, packages/main/src/core/pre-review-check.ts, packages/main/src/core/acceptance-rollout.ts, packages/main/src/handlers/proofstory.ts.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-23T13:54:58.364Z",
+      "reviewRound": "2026-08-23T13:46:47.948Z",
+      "reviewRunId": "B-45a0:RR-315",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "scanEscalationReason": "Current RI-041 aggregate findings and verifier-owned acceptance surfaces were reviewed after the request_changes receipt."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "0ee13eb1fe462507f6603f4015d9c628207dcd333c8a6c9412c580d97c2bf6a7",
+      "files": [
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/acceptance-rollout.ts",
+        "packages/main/src/handlers/proofstory.ts"
+      ],
+      "signatureTag": "missing|ts|topology-chain-incomplete",
+      "signatureTagSource": "auto"
     }
   ]
 }
