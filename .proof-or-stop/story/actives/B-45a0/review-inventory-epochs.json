@@ -5195,6 +5195,174 @@
       ],
       "createdAt": "2026-08-23T15:03:37.503Z",
       "_hash": "ba236d6f7e1ad3b8ffcce2a1afc9c9abc6526a91e30ddb06e4fb7c7987a290eb"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-45a0:RI-043:CRIT-01",
+      "epochId": "B-45a0:RI-043",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-23T13:46:47.948Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "3577cdde05c0adb7a404e6de536fa52fb83fe42f",
+        "materialHash": "aa5beaab4316c22ebcfd403395a217d890edac9bd1dbbca1d8221554cd13dda0",
+        "storyFilesHash": "cc7ed81b116ac565f747818a589cb8156963be09cb009bc7e55f715cf97fd619"
+      },
+      "aggregateFindingSetDigest": "26cc99b0a50330d41076afe620985abd3e13e8973a4656008b702146093d69d3",
+      "requiredLaneCoverageDigest": "0f6c9c9b5a9a872ea2c6d5187558f9a426a8ca59840a96e15b9af25503b4aeb2",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-45a0:RR-355",
+      "terminalEvidenceIds": [
+        "B-45a0:F-219"
+      ],
+      "readEvidenceDigest": "3d82472b6439ea8febd5ce950fca57ba752607e766a4eb6df5efff39b63039b5",
+      "findingDispositions": [
+        {
+          "findingId": "B-45a0:F-198",
+          "disposition": "verified_family",
+          "familyKey": "acceptance-executable-evidence-missing",
+          "reason": "Canonical family for recurring verifier-owned executable coverage gap"
+        },
+        {
+          "findingId": "B-45a0:F-199",
+          "disposition": "verified_family",
+          "familyKey": "acceptance-topology-pre-review-chain-incomplete",
+          "reason": "Canonical family for recurring topology and pre-review admissibility gap"
+        },
+        {
+          "findingId": "B-45a0:F-200",
+          "disposition": "duplicate",
+          "familyKey": "acceptance-topology-pre-review-chain-incomplete",
+          "canonicalFindingId": "B-45a0:F-199",
+          "reason": "Same topology/pre-review admissibility family as F-199"
+        },
+        {
+          "findingId": "B-45a0:F-201",
+          "disposition": "verified_family",
+          "familyKey": "singleton-union-monotonicity-contract-undelivered",
+          "reason": "Canonical normative singleton-union monotonicity implementation gap"
+        },
+        {
+          "findingId": "B-45a0:F-202",
+          "disposition": "duplicate",
+          "familyKey": "acceptance-topology-pre-review-chain-incomplete",
+          "canonicalFindingId": "B-45a0:F-199",
+          "reason": "Same topology/pre-review admissibility family as F-199"
+        },
+        {
+          "findingId": "B-45a0:F-203",
+          "disposition": "verified_family",
+          "familyKey": "acceptance-artifact-integrity-failure",
+          "reason": "Distinct verifier-owned acceptance artifact integrity family"
+        },
+        {
+          "findingId": "B-45a0:F-204",
+          "disposition": "duplicate",
+          "familyKey": "acceptance-executable-evidence-missing",
+          "canonicalFindingId": "B-45a0:F-198",
+          "reason": "Same executable coverage family as F-198"
+        },
+        {
+          "findingId": "B-45a0:F-205",
+          "disposition": "duplicate",
+          "familyKey": "acceptance-topology-pre-review-chain-incomplete",
+          "canonicalFindingId": "B-45a0:F-199",
+          "reason": "Same topology/pre-review admissibility family as F-199"
+        },
+        {
+          "findingId": "B-45a0:F-206",
+          "disposition": "duplicate",
+          "familyKey": "acceptance-topology-pre-review-chain-incomplete",
+          "canonicalFindingId": "B-45a0:F-199",
+          "reason": "Same topology/pre-review admissibility family as F-199"
+        },
+        {
+          "findingId": "B-45a0:F-207",
+          "disposition": "duplicate",
+          "familyKey": "acceptance-topology-pre-review-chain-incomplete",
+          "canonicalFindingId": "B-45a0:F-199",
+          "reason": "Same topology/pre-review admissibility family as F-199"
+        },
+        {
+          "findingId": "B-45a0:F-208",
+          "disposition": "duplicate",
+          "familyKey": "acceptance-executable-evidence-missing",
+          "canonicalFindingId": "B-45a0:F-198",
+          "reason": "Same executable coverage family as F-198"
+        },
+        {
+          "findingId": "B-45a0:F-209",
+          "disposition": "duplicate",
+          "familyKey": "acceptance-topology-pre-review-chain-incomplete",
+          "canonicalFindingId": "B-45a0:F-199",
+          "reason": "Same topology/pre-review admissibility family as F-199"
+        },
+        {
+          "findingId": "B-45a0:F-210",
+          "disposition": "duplicate",
+          "familyKey": "acceptance-topology-pre-review-chain-incomplete",
+          "canonicalFindingId": "B-45a0:F-199",
+          "reason": "Same topology/pre-review admissibility family as F-199"
+        },
+        {
+          "findingId": "B-45a0:F-211",
+          "disposition": "duplicate",
+          "familyKey": "acceptance-executable-evidence-missing",
+          "canonicalFindingId": "B-45a0:F-198",
+          "reason": "Same executable coverage family as F-198"
+        },
+        {
+          "findingId": "B-45a0:F-212",
+          "disposition": "duplicate",
+          "familyKey": "acceptance-topology-pre-review-chain-incomplete",
+          "canonicalFindingId": "B-45a0:F-199",
+          "reason": "Same topology/pre-review admissibility family as F-199"
+        },
+        {
+          "findingId": "B-45a0:F-213",
+          "disposition": "duplicate",
+          "familyKey": "acceptance-executable-evidence-missing",
+          "canonicalFindingId": "B-45a0:F-198",
+          "reason": "Same executable coverage family as F-198"
+        },
+        {
+          "findingId": "B-45a0:F-214",
+          "disposition": "duplicate",
+          "familyKey": "singleton-union-monotonicity-contract-undelivered",
+          "canonicalFindingId": "B-45a0:F-201",
+          "reason": "Same singleton-union monotonicity family as F-201"
+        },
+        {
+          "findingId": "B-45a0:F-215",
+          "disposition": "duplicate",
+          "familyKey": "acceptance-topology-pre-review-chain-incomplete",
+          "canonicalFindingId": "B-45a0:F-199",
+          "reason": "Same topology/pre-review admissibility family as F-199"
+        },
+        {
+          "findingId": "B-45a0:F-216",
+          "disposition": "duplicate",
+          "familyKey": "acceptance-executable-evidence-missing",
+          "canonicalFindingId": "B-45a0:F-198",
+          "reason": "Same executable coverage family as F-198"
+        },
+        {
+          "findingId": "B-45a0:F-217",
+          "disposition": "duplicate",
+          "familyKey": "acceptance-topology-pre-review-chain-incomplete",
+          "canonicalFindingId": "B-45a0:F-199",
+          "reason": "Same topology/pre-review admissibility family as F-199"
+        },
+        {
+          "findingId": "B-45a0:F-218",
+          "disposition": "duplicate",
+          "familyKey": "acceptance-executable-evidence-missing",
+          "canonicalFindingId": "B-45a0:F-198",
+          "reason": "Same executable coverage family as F-198"
+        }
+      ],
+      "createdAt": "2026-08-23T15:13:16.524Z",
+      "_hash": "caf4f7f8655f38e82811085cdab7d4fb66a47bfd0307cfe13e7b4c93b20e480a"
     }
   ]
 }
