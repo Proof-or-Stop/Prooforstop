@@ -11579,6 +11579,59 @@
       ],
       "signatureTag": "missing|ts|topology-wave-acceptance",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-220",
+      "desc": "coverage-boundary-undelivered: RI-043 wave-2 still has passing verificationEvidence for the declared intents, but no current executable evidence invokes verifier-owned acceptance_topology_check, pre_review_check_read, acceptance_rollout_report_read, and acceptance_rollout_check with full 3 rounds x 2 hosts (codex-cli and claude-cli), degraded-3x1 rejection, threshold/membership/freshness mutations, mode-invariant diagnostics, enforce-only blocking, and rollback-history preservation. The required validate command was attempted in RR-357 but remains owner-gated for this reviewer session, so coverage cannot be promoted to a terminal pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-23T15:15:59.906Z",
+      "reviewRound": "2026-08-23T13:46:47.948Z",
+      "reviewRunId": "B-45a0:RR-357",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-45a0/review-passes.json",
+          ".proof-or-stop/story/actives/B-45a0/review-runs.json",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": "Coverage review used the current review context and attempted validate. The command was owner-gated, so no new executable acceptance-boundary receipt could be established."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "5a7727b7d210e473aa3edc85ec97e2acf705cf7847f7f1a1ec4fc91501ac96cb"
+      },
+      "readDiagnostics": [],
+      "_hash": "4b980450e58103ec0148a09dcb4dd8e00ab85cdaf9d235e2ed6fef2986404f50",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/checklist.json",
+        ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+        ".proof-or-stop/story/actives/B-45a0/review-passes.json",
+        ".proof-or-stop/story/actives/B-45a0/review-runs.json",
+        "packages/main/src/handlers/verifier.ts"
+      ],
+      "signatureTag": "missing|json|coverage-boundary-undelivered",
+      "signatureTagSource": "auto"
     }
   ]
 }
