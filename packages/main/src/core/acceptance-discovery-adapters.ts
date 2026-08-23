@@ -1170,9 +1170,15 @@ function buildBoundedSourceGraph(input: AcceptanceDiscoveryInput): BoundedSource
   const phaseControlFacts = new Set([...planControlFacts, ...preReviewControlFacts, 'acceptance_topology_check',
     'topology_exclusion_approval_set', 'topology_critic_receipt_set', 'topology_critic_receipt_check',
     'artifact:topology-exclusion-approvals.json', 'artifact:topology-critic-receipt.json']);
-  const allowedPhaseControlFacts = (input.phaseBasis ?? 'plan') === 'pre_review'
-    ? new Set([...planControlFacts, ...preReviewControlFacts]) : planControlFacts;
   const explicitTopologyFactNames = topologyFactNames(input);
+  // Pre-review control facts are phase material only when the current
+  // acceptance topology explicitly declares them. This keeps the basis
+  // closure total for stories whose topology predates the pre-review control
+  // surface while preserving the strict materialization test for declared
+  // future-phase mappings.
+  const allowedPhaseControlFacts = (input.phaseBasis ?? 'plan') === 'pre_review'
+    ? new Set([...planControlFacts, ...[...preReviewControlFacts].filter(fact => explicitTopologyFactNames.has(fact))])
+    : planControlFacts;
   const plannedFactNames = new Set(input.plannedPathRecords.flatMap(record => [
     record.outputFactRef.replace(/^process-fact:/, '').replace(/-/g, '_'),
     record.producer.expectedSymbolOrFact,
