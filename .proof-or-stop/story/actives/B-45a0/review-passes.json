@@ -1600,6 +1600,237 @@
       },
       "readDiagnostics": [],
       "_hash": "0b74aec942ceebf0082bf8021d2870f0da1f8e75d358a626df4d947aee91c256"
+    },
+    {
+      "id": "B-45a0:RP-036",
+      "agent": "lattice-review-concept",
+      "note": "RI-033 concept review completed at unchanged current HEAD 94e7d7948b6f3ba9bfbaf9c20d1ec142137da179. The current diff contains no source or documentation concept replacement beyond stabilized review metadata. The bounded repository scan found no superseded changed-file resolver names; only canonical DEFAULT_STORY_METADATA_PREFIXES and objectIdsAtRef inside the shared resolver remain. No new concept deletion/residue family was verified, so this lane passes.",
+      "createdAt": "2026-08-22T08:08:00.509Z",
+      "reviewRound": "2026-08-22T08:04:25.650Z",
+      "reviewRunId": "B-45a0:RR-159",
+      "envelopeId": "ffc3ce0f8398e0026eeaf29899090c999b752671343335853bece369be1a018c",
+      "writerSessionId": "sess-2168ddaf0ed62578cb508306596a9839",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "packages/main/src/core/material-path-policy.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/NAV.md",
+          "packages/main/src/core/dirty-worktree.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/material-code-policy.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/review-scope-binding.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "659ffd9b79bc32da65c852f987b271d23085af85057bd7ed116d898788950ff9"
+    },
+    {
+      "id": "B-45a0:RP-037",
+      "agent": "lattice-review-test-coverage",
+      "note": "RI-033 coverage review at current HEAD: all 45 verificationEvidence rows cover the 45 checklist intents, including all 39 must intents, with zero waivers and current materialHash/storyFilesHash bindings. HEAD differs from evidence only because the current commit records rejected review attempts in Proof-or-Stop metadata; no distinct executable coverage gap was found beyond carried-forward findings.",
+      "createdAt": "2026-08-22T08:08:31.296Z",
+      "reviewRound": "2026-08-22T08:04:25.650Z",
+      "reviewRunId": "B-45a0:RR-160",
+      "envelopeId": "668aa6ad0073e58117506a33d7d617b556c4b4c2014f2cb21a4f2cf915e8ae52",
+      "writerSessionId": "sess-b5f735dfadccd01132fe74629f537af8",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-45a0/review-inventory-epochs.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "a24b4fa9db8eadf89091fa46a8bcb3d8dafebdaa473b7dc474cc8a3ed4f60ff9"
+    },
+    {
+      "id": "B-45a0:RP-038",
+      "agent": "lattice-review-docs",
+      "note": "RI-033 docs lane reviewed current CLI and dynamic-validation operations/enforcement contracts at HEAD 94e7d7948b; marker, registry, receipt, mode and fail-closed documentation match the implementation. No new finding family.",
+      "createdAt": "2026-08-22T08:11:08.908Z",
+      "reviewRound": "2026-08-22T08:04:25.650Z",
+      "reviewRunId": "B-45a0:RR-162",
+      "envelopeId": "c741ba9c80c7c263820f26f2aeb36ae2ddad03448b6aa2390be902ce621d7228",
+      "writerSessionId": "sess-a101d190ddd4d13817810ae81cd00dcf",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/tasks/story-aware-validation-case-adapter.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": null
+        },
+        "digest": "192e14d6bb5ae57c779093cac67a65b4b2f2bad83dd92667aba69a4ba203a090"
+      },
+      "readDiagnostics": [],
+      "_hash": "6f6d295a087608d6b380a7b5a33f76d7d7107459658f84024943f895d8e4dd4b"
+    },
+    {
+      "id": "B-45a0:RP-039",
+      "agent": "lattice-review-quality",
+      "note": "RI-033 current-head quality review at unchanged HEAD 94e7d7948b: RR-161 reviewed the current implementation and metadata-only rejected-attempt commit. Focused story-aware-validation smoke, package build, catalog/inventory/plan/process-fact verifiers all passed. No distinct current quality family beyond carried-forward findings; observe/full-plan fallback and gate-owned boundaries remain intact.",
+      "createdAt": "2026-08-22T08:12:02.122Z",
+      "reviewRound": "2026-08-22T08:04:25.650Z",
+      "reviewRunId": "B-45a0:RR-161",
+      "envelopeId": "7dad67b72acee78440a7692351fb5fd2c7f9b415af30803ddd3a1bd5ccada210",
+      "writerSessionId": "sess-290128d700be0cdb6ab965c15ac494b4",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/closeout-write-receipts.jsonl",
+          ".proof-or-stop/story/actives/B-45a0/decision.json",
+          ".proof-or-stop/story/actives/B-45a0/dev-memory-preflight-ack.json",
+          ".proof-or-stop/story/actives/B-45a0/evidence/live-smoke-transcript.json",
+          ".proof-or-stop/story/actives/B-45a0/findings.json",
+          ".proof-or-stop/story/actives/B-45a0/index.json",
+          ".proof-or-stop/story/actives/B-45a0/intent-collision.json",
+          ".proof-or-stop/story/actives/B-45a0/milestone-ledger.json",
+          ".proof-or-stop/story/actives/B-45a0/original-intent-snapshot.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-45a0/process-events.jsonl",
+          ".proof-or-stop/story/actives/B-45a0/process-metrics.json",
+          ".proof-or-stop/story/actives/B-45a0/prompt-envelopes.json",
+          ".proof-or-stop/story/actives/B-45a0/proofstory.json",
+          ".proof-or-stop/story/actives/B-45a0/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-45a0/review-passes.json",
+          ".proof-or-stop/story/actives/B-45a0/review-runs.json",
+          ".proof-or-stop/story/actives/B-45a0/review.json",
+          ".proof-or-stop/story/actives/B-45a0/scope-check.json",
+          ".proof-or-stop/story/actives/B-45a0/scope-contract.json",
+          ".proof-or-stop/story/actives/B-45a0/understanding.json",
+          "docs/CLI.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/NAV.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/material-path-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-runtime-tracer.cjs",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "packages/main/src/tasks/review-pass-discard-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-case-adapter.mjs",
+          "packages/main/src/tasks/story-aware-validation-domain-case-runner.mjs",
+          "packages/main/src/tasks/story-aware-validation-domain-cases.json",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-production-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "proof-or-stop.config.json",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/run-dynamic-validation-audit.mjs",
+          "scripts/run-dynamic-validation-fault-injection.mjs",
+          "scripts/run-dynamic-validation-replay.mjs",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-story-aware-validation-plan.mjs",
+          "scripts/verify-validation-catalog.mjs",
+          "scripts/verify-validation-inventory.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "88df24dc3f59c5a0982622c8a7ded16710ed8ffbc10d3ac75e22a38be331c4f5"
+    },
+    {
+      "id": "B-45a0:RP-040",
+      "agent": "lattice-review-topology-critic",
+      "note": "Fresh RR-163 critic review checked the current RI-033 aggregate: four terminal passes cover concept, quality, test-coverage, and docs with read evidence; no current verified findings are present and no new family is introduced.",
+      "createdAt": "2026-08-23T08:06:18.584Z",
+      "reviewRound": "2026-08-22T08:04:25.650Z",
+      "reviewRunId": "B-45a0:RR-163",
+      "envelopeId": "da18ad16ba4e96ee211e43d78cf62263a7486bfc1db44fa22c3382049364a33c",
+      "writerSessionId": "sess-28282a1f573caa6e7307a6cdea0ec609",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/findings.json",
+          ".proof-or-stop/story/actives/B-45a0/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-45a0/review-passes.json",
+          ".proof-or-stop/story/actives/B-45a0/review-runs.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "a7e8c3827874b0a58e542adb675c848e6f6f8bf4ffa6af4e908b3052762dd9f4"
     }
   ]
 }
