@@ -10248,6 +10248,48 @@
       ],
       "signatureTag": "missing|ts|promise-undelivered-packages",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-192",
+      "desc": "RI-018 Wave 4 coverage is missing: current B-5a15 verificationEvidence is 50/50 passing but records focused causal-evidence tests and does not execute acceptance_topology_check, pre_review_check_read, acceptance_rollout_report_read, or acceptance_rollout_check for the current story. The existing acceptance-rollout-report.json is a signed cohort artifact, not a current-story executable Wave 4 transcript proving the current receipt, full 3 rounds x 2 hosts (codex-cli + claude-cli), degraded-3x1 rejection, threshold/membership/freshness mutations, mode-invariant diagnostics, enforce-only blocking, and non-destructive rollback history.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-23T12:26:10.897Z",
+      "reviewRound": "2026-08-22T06:10:03.014Z",
+      "reviewRunId": "B-5a15:RR-312",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/test-evidence.json",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "90e8ed93c16967ed4def69a7ab7d9298243145cdbd08c0eb2f3a31ce47fb0526",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/test-evidence.json",
+        ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+        "packages/main/tests/causal-evidence.test.mjs"
+      ],
+      "signatureTag": "missing|json|wave-coverage-missing",
+      "signatureTagSource": "auto"
     }
   ]
 }
