@@ -11134,6 +11134,56 @@
       ],
       "signatureTag": "missing|json|ri-028-basis-regeneration",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-282",
+      "desc": "RI-030 topology recheck confirms the existing acceptance-coverage and pre-review family remains unresolved: topology_critic_receipt_set cannot accept the current basis because live semantic verification returns AT_ADAPTER_RESULT_DIGEST_MISMATCH (basis semantic discovery digest mismatch), while the read-only pre_review_check_read remains fail with PR_ARTIFACT_TAMPERED and PR_COVERAGE_BASIS_CHANGED. acceptance_topology_check is only diagnostic observe-mode output and does not override the failed admissibility check. This is a verified recheck of B-5a88:F-278, not a new finding family.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-topology-critic",
+      "createdAt": "2026-08-23T11:25:03.232Z",
+      "reviewRound": "2026-08-23T10:36:59.797Z",
+      "reviewRunId": "B-5a88:RR-364",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a88/review-passes.json"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "scanEscalationReason": "RI-030 Wave 4 read-only checks found a signed-basis semantic digest mismatch and the existing pre-review tamper and coverage failure; acceptance rollout was independently read as current full-3x2."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "8323185d783efa4485b4a4f13c897e48797e04ab4a8e9da86e4fdb12ec369b09",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+        ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/topology-critic-receipt.ts"
+      ],
+      "signatureTag": "missing|json|coverage-finding-intents",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
