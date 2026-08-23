@@ -1140,7 +1140,7 @@
       "desc": "Current coverage is blocked: all 21 checklist verificationEvidence entries in .proof-or-stop/story/actives/B-5a88/checklist.json are result=pass and mechanical=true, but every receipt is bound to headHash eb6b5a121d6ddabfee77c3f5ebd528d4d2c20088, materialHash bd93b090d404e74938ba53cf2fbbeeb6d7a93379013c497172770dfbb1ca9f5b, and storyFilesHash 7454053b8fa426a08066d5f487291d9baf8ea935011ae9c7621b8aa6687f170a. Current signed run B-5a88:RR-056 is bound to headHash 152318f306aa01e5ea523851ed79c1d243ae44fc, materialHash 2ce77f36028ddd6fc00aaf1e1bb54f0aac847bbb6ee8825ee295b7a5f7554523, and storyFilesHash 04856e7ea2af89b7c1c9f7c842ce535bf9047a85266c02bebcf1b12d17f6b53b, so none of the 21 must-intent receipts is current. The acceptance-basis artifact is partial with blind spots for packages/main/templates/agents; acceptance_topology_check is inconclusive with AT_ADAPTER_RESULT_DIGEST_MISMATCH, AT_CLOSURE_FILES_STALE, and AT_COVERAGE_BASIS_PARTIAL; pre_review_check_read is inconclusive with PR_COVERAGE_INCONCLUSIVE, PR_MUTATION_EVIDENCE_MISSING, PR_TRANSCRIPT_MISSING, PR_AUTHORITY_INADMISSIBLE, and PR_EVIDENCE_STALE. Re-execute and rebind all 21 intents and regenerate admissible current acceptance/pre-review proof before coverage can pass.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-08-20T15:13:43.748Z",
@@ -1189,7 +1189,11 @@
         ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json"
       ],
       "signatureTag": "missing|json|current-coverage-blocked",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by B-5a88:F-344, the later current-round finding that records the same all-21 verificationEvidence staleness family at the latest reviewed cutoff.",
+      "resolvedAt": "2026-08-23T18:44:14.268Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-029",
