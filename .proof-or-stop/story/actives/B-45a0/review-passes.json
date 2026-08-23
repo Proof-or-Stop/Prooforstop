@@ -3700,6 +3700,56 @@
         "scanEscalationReason": "Implementation unchanged from prior quality review; canonical current-head pre_review_check_read and targeted verifier-owned acceptance paths were rechecked at HEAD 560a201."
       },
       "_hash": "ef88002818fad43d0dbf85bb44444e8b52e641472b8ed21e1276b63b3d550245"
+    },
+    {
+      "id": "B-45a0:RP-085",
+      "agent": "lattice-review-docs",
+      "note": "RI-042 current-head documentation/code consistency review at bb203202d5c6e1b9b175d399f3afa8a8369b3bc6: git diff main...HEAD yielded 775 changed exported symbols; 7 referenced documentation sections plus the dynamic-validation decision, runbook, CLI, and verifier-owned Wave-2/Wave-3/Wave-4 command implementations were compared. The current pre_review_check_read is observe-mode inconclusive and non-blocking, matching the documented contract. acceptance_rollout_report_read and acceptance_rollout_check both return the current signed PASS with genuine full-3x2 quorum and no diagnostics, matching the Wave-4 boundary. No new documentation/code inconsistency was found; the existing F-201 singleton-union verifier finding is not duplicated.",
+      "createdAt": "2026-08-23T14:36:57.140Z",
+      "reviewRound": "2026-08-23T13:46:47.948Z",
+      "reviewRunId": "B-45a0:RR-335",
+      "envelopeId": "e5427579adaf7676efef3a6ad434eb8744a1d9649aa05acb8314e80223cd9366",
+      "writerSessionId": "sess-4192c149ecc174c77487f2c745d3396f",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/NAV.md",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 8,
+          "tokenCount": null
+        },
+        "digest": "c5db20f0b24973e6c0d2afe34ec87a97547a8017ea5bd7cefc9f78cd7bdccc2e"
+      },
+      "readDiagnostics": [],
+      "_hash": "69e8777e1a0f46d6e73250ccaa33b232bfb95628318d2cf3c89a018afad8ee66"
     }
   ]
 }
