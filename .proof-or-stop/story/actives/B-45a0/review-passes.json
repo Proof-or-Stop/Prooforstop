@@ -3780,6 +3780,36 @@
         "scanEscalationReason": null
       },
       "_hash": "570fd3fe58aa5c8a4ee955fb722e4673167c5555a1b67ea95dfddc6b643d8434"
+    },
+    {
+      "id": "B-45a0:RP-087",
+      "agent": "lattice-review-quality",
+      "note": "RI-042 wave-2 quality re-attestation found no new implementation-quality blocker. The implementation tree is unchanged from prior quality review; current pre_review_check_read remains inconclusive with PR_ARTIFACT_TAMPERED and missing executable, mutation, transcript, and authority proof, already covered by existing acceptance-chain findings. No duplicate finding is added.",
+      "createdAt": "2026-08-23T14:46:17.748Z",
+      "reviewRound": "2026-08-23T13:46:47.948Z",
+      "reviewRunId": "B-45a0:RR-341",
+      "envelopeId": "c7d371d0820397241eea7a5eab449cca56c9013b4115a42889e30376e29aa83c",
+      "writerSessionId": "sess-06e74054142e99f795d55fb22cbfbe6e",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+        ],
+        "scanEscalationReason": "Implementation unchanged from prior quality review; canonical current-head pre_review_check_read and targeted verifier-owned acceptance paths were rechecked at HEAD cf816cf."
+      },
+      "_hash": "87bc4af56255baad7d1d952bfe951e636d13ba8984e05d43410625811b5341eb"
     }
   ]
 }
