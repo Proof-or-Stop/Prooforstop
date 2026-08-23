@@ -10323,6 +10323,47 @@
       ],
       "signatureTag": "missing|ts|topology-acceptance-basis",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-191",
+      "desc": "concept/acceptance-chain-current-head-incomplete: At current implementation state (HEAD 2d9c448; lifecycle metadata-only commit thereafter), the canonical verifier-owned acceptance_topology_check -> pre_review_check_read -> acceptance_rollout_report_read/acceptance_rollout_check chain is not complete. acceptance_topology_check returns status=fail with basisStatus=complete and topologyState=configured but diagnostic AT_SCOPE_BINDING_MISSING (scope-contract digest mismatch); pre_review_check_read remains status=inconclusive with plannedActual=incomplete, executableEvidence=missing, mutations=missing, transcript=missing, and authority=inadmissible. acceptance_rollout_check reports a PASS projection, but that downstream report cannot establish the missing upstream topology/pre-review evidence or a current all-chain PASS. No concept-lane PASS is admissible. Source refs: packages/main/src/core/acceptance-topology.ts, packages/main/src/core/pre-review-check.ts, packages/main/src/core/acceptance-rollout.ts, packages/main/src/handlers/proofstory.ts.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-23T12:19:06.824Z",
+      "reviewRound": "2026-08-23T12:16:56.573Z",
+      "reviewRunId": "B-45a0:RR-293",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "scanEscalationReason": "Current concept and verifier-owned acceptance-chain review used targeted diff/residue scans plus canonical read-only gate outputs at unchanged implementation state."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "02acdf8bfa0781ccfd6b3362d30781ebce36cfcc241f45d9a9cce2da5da853b5",
+      "files": [
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/acceptance-rollout.ts",
+        "packages/main/src/handlers/proofstory.ts"
+      ],
+      "signatureTag": "missing|ts|concept-acceptance-chain",
+      "signatureTagSource": "auto"
     }
   ]
 }
