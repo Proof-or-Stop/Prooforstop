@@ -140,10 +140,26 @@
         "DYN_5",
         "process_fact_registry"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "The review retention registry must recognize signed topology critic artifacts so the required inventory critic can close without treating its own evidence as untrusted.",
+      "timestamp": "2026-08-23T10:36:01.131Z",
+      "paths": [
+        "packages/main/src/core/lifecycle-registry.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/lifecycle-registry.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "REVIEW",
+      "headHash": "c81bd68101da49dc068290f9f1f3cc7a03c9c77a",
+      "materialHash": "02bf71452432190de8ce0ae66682fb409f383fab4bba07ffe810170b115ccf12"
     }
   ],
   "createdAt": "2026-08-21T07:07:34.430Z",
-  "updatedAt": "2026-08-22T07:15:05.864Z",
+  "updatedAt": "2026-08-23T10:36:01.131Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -190,6 +206,7 @@
     "packages/main/src/core/validation-runtime-tracer.cjs": "packages/main/src/core/validation-runtime-tracer.cjs",
     "proof-or-stop.config.json": "proof-or-stop.config.json",
     "scripts/build-main-with-binding.mjs": "scripts/build-main-with-binding.mjs",
-    "scripts/verify-process-fact-contract.mjs": "scripts/verify-process-fact-contract.mjs"
+    "scripts/verify-process-fact-contract.mjs": "scripts/verify-process-fact-contract.mjs",
+    "packages/main/src/core/lifecycle-registry.ts": "packages/main/src/core/lifecycle-registry.ts"
   }
 }
