@@ -2,6 +2,7 @@
 
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
+import { createHmac } from 'node:crypto';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -22,26 +23,120 @@ const freshness = await import(join(distRoot, 'core/evidence-freshness.js'));
 const artifactStore = await import(join(distRoot, 'core/evidence/artifact-store.js'));
 const checklistStatus = await import(join(distRoot, 'core/checklist-status.js'));
 const processFacts = await import(join(distRoot, 'core/process-fact-registry.js'));
+const findingVerification = await import(join(distRoot, 'core/finding-verify.js'));
 
 // CHK-003 migration witness: exercise the local worktree CLI against two named
 // archives from different eras. The schema/integrity/freshness/byte assertions
 // below remain in this same pinned test, so a passing receipt covers both the
 // executable read path and the historical artifact invariants.
 const archivedStories = [
-  { storyId: 'B-0168', phase: 'INIT', era: 'earliest-era archive' },
-  { storyId: 'B-META-framework-audit', phase: 'META', era: 'signed cross-story ledger' },
+  {
+    storyId: 'B-0168',
+    phase: 'INIT',
+    era: 'earliest-era archive',
+    files: [
+      'index.json',
+      'checklist.json',
+      'scope-boundary.json',
+      'execution-boundary.json',
+      'scope-freeze-check.json',
+    ],
+  },
+  {
+    storyId: 'B-META-framework-audit',
+    phase: 'META',
+    era: 'signed cross-story ledger',
+    files: ['index.json', 'findings.json', 'gap-log-provenance.jsonl'],
+  },
 ];
+const archiveBytesBefore = new Map(
+  archivedStories.flatMap(({ storyId, files }) => files.map((file) => {
+    const path = join(repoRoot, '.proof-or-stop/story/actives', storyId, file);
+    return [path, readFileSync(path)];
+  })),
+);
+const cliJson = (command, args) => JSON.parse(execFileSync(
+  process.execPath,
+  [localCli, command, JSON.stringify(args)],
+  { cwd: repoRoot, encoding: 'utf8' },
+));
+
+const migrationWitness = execFileSync(
+  process.execPath,
+  [join(repoRoot, 'scripts/verify-state-dir-migration.mjs')],
+  { cwd: repoRoot, encoding: 'utf8' },
+);
+assert.match(migrationWitness, /state dir migration verified/);
+
 for (const expected of archivedStories) {
-  const output = execFileSync(
-    process.execPath,
-    [localCli, 'story_get', JSON.stringify({ storyId: expected.storyId, detail: true })],
-    { cwd: repoRoot, encoding: 'utf8' },
-  );
-  const result = JSON.parse(output);
+  const result = cliJson('story_get', { storyId: expected.storyId, detail: true });
   assert.equal(result.index?.storyId, expected.storyId, `${expected.era} CLI read returns the requested story`);
   assert.equal(result.index?.phase, expected.phase, `${expected.era} CLI read preserves its historical phase`);
   assert.ok(Array.isArray(result.checklist?.items), `${expected.era} CLI read returns checklist data`);
   assert.ok(Array.isArray(result.review?.reviews), `${expected.era} CLI read returns review data`);
+}
+
+// B-0168's archived scope artifacts are the earliest-era signed evidence. The
+// public preflight CLI must still validate their integrity and expose the
+// current-binding result rather than silently treating stale historical data as
+// fresh evidence.
+const earliestPreflight = cliJson('init_preflight', { storyId: 'B-0168', json: true });
+const earliestPrerequisites = new Map(earliestPreflight.prerequisites.map((row) => [row.id, row.status]));
+for (const id of ['scope-boundary', 'execution-boundary', 'scope-freeze-check']) {
+  assert.equal(earliestPrerequisites.get(id), 'PASS', `B-0168 ${id} signature remains valid`);
+}
+assert.equal(typeof earliestPreflight.gate?.ready, 'boolean', 'B-0168 preflight reports current binding state');
+
+// B-META-framework-audit's archive is a signed finding ledger. Read it through
+// the local CLI, verify every historical finding signature, then verify the
+// existing HMAC receipt chain and its current-HEAD ancestor bindings. Receipt
+// path/schema spellings are accepted in their canonical or historical forms;
+// their bytes and signatures are never rewritten by a read.
+const metaFindings = cliJson('finding_list', {
+  storyId: 'B-META-framework-audit',
+  format: 'json',
+});
+assert.ok(metaFindings.findings.length > 0, 'B-META archive returns signed findings');
+assert.ok(
+  metaFindings.findings.every((finding) => findingVerification.verifyFinding('B-META-framework-audit', finding)),
+  'B-META archive finding signatures verify',
+);
+const metaReceipts = findingVerification.readGapLogProvenanceLedger(repoRoot);
+assert.ok(metaReceipts.length > 0, 'B-META archive returns its provenance receipts');
+const commonDir = execFileSync('git', ['rev-parse', '--git-common-dir'], { cwd: repoRoot, encoding: 'utf8' }).trim();
+const commonDirPath = commonDir.startsWith('/') ? commonDir : join(repoRoot, commonDir);
+const receiptKey = readFileSync(join(commonDirPath, 'lattice-gap-log-provenance.key'));
+const canonicalReceiptArtifactPath = findingVerification.GAP_LOG_ARTIFACT_PATH;
+const legacyReceiptArtifactPath = '.lattice/story/actives/B-META-framework-audit/findings.json';
+const canonicalReceiptLedgerPath = findingVerification.GAP_LOG_PROVENANCE_LEDGER_PATH;
+let previousIntegrityHash = '';
+for (const [index, receipt] of metaReceipts.entries()) {
+  const { integrityHash, ...unsigned } = receipt;
+  const expectedIntegrityHash = createHmac('sha256', receiptKey)
+    .update(JSON.stringify(unsigned))
+    .digest('hex');
+  assert.equal(receipt.sequence, index + 1, 'B-META receipt sequence is contiguous');
+  assert.equal(receipt.previousIntegrityHash, previousIntegrityHash, 'B-META receipt chain links to its predecessor');
+  assert.equal(integrityHash, expectedIntegrityHash, 'B-META receipt HMAC verifies');
+  assert.ok(
+    [canonicalReceiptArtifactPath, legacyReceiptArtifactPath].includes(receipt.artifactPath),
+    'B-META receipt artifact path is canonical or historical-compatible',
+  );
+  assert.ok(
+    [canonicalReceiptLedgerPath, '.lattice/story/actives/B-META-framework-audit/gap-log-provenance.jsonl'].includes(receipt.ledgerPath),
+    'B-META receipt ledger path is canonical or historical-compatible',
+  );
+  execFileSync('git', ['merge-base', '--is-ancestor', receipt.parentHead, 'HEAD'], { cwd: repoRoot });
+  previousIntegrityHash = integrityHash;
+}
+assert.equal(
+  metaReceipts.at(-1).postArtifactDigest,
+  findingVerification.digestGapLogArtifact({ findings: metaFindings.findings }),
+  'B-META latest receipt binds the CLI-read archive bytes',
+);
+
+for (const [path, bytes] of archiveBytesBefore) {
+  assert.deepEqual(readFileSync(path), bytes, `archive bytes preserved after CLI reads: ${path}`);
 }
 
 const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-artifact-schema-'));

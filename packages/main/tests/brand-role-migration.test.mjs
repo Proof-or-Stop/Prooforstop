@@ -87,6 +87,7 @@ assert.equal(forcedQuality.some((reviewer) => reviewer.name === 'proof-or-stop-r
 assert.equal(forcedQuality.some((reviewer) => reviewer.name === 'lattice-review-quality'), false);
 const qualityReviewer = forcedQuality.find((reviewer) => reviewer.name === 'quality');
 assert.ok(qualityReviewer);
+assert.equal(qualityReviewer.lane, 'proof-or-stop-review-quality', 'forced short names keep canonical reviewer lanes');
 assert.equal(qualityReviewer.forced, true, 'deduplicated logical reviewer remains forced');
 const reviewerText = reviewerList.renderActiveReviewersText(
   reviewerList.computeActiveReviewers(

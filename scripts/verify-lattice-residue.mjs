@@ -705,18 +705,10 @@ const BRAND_PROSE_CASES = [
   ['| `lattice-review-scope-plan` | PLAN |', false],
   // signature salts (FROZEN)
   ['salt = `lattice-delivery-check-integrity-v1`', false],
-  // Deprecated-but-still-READ npm package name.
-  //
-  // B-cc10 CHK-007 reconciles a STALE rationale here: this case used to be justified
-  // as "npm package name (FROZEN — pre-push hook gates on it)". That is no longer
-  // true. CHK-005 renamed the package (`packages/main/package.json` now declares
-  // `@proof-or-stop/core`) and the pre-push hook accepts BOTH spellings, so the
-  // token is deprecated-but-read, not frozen. The EXPECTATION is unchanged (`false`)
-  // and for an unchanged structural reason: `@lattice/core` carries `@` and `/`, and
-  // the brand-prose detector's fences reject both, so it can never match an
-  // INVOCATION. It is check 4, not check 2, that governs whether a deprecated
-  // spelling may be used as a decision.
-  ["import { devHost } from '@lattice/core/dev-host';", false],
+  // Canonical package import. The deprecated @lattice/core spelling is forbidden
+  // in product runtime source by CHK-007; compatibility remains only at the
+  // explicitly named readers, not as a frozen residue fixture.
+  ["import { devHost } from '@proof-or-stop/core/dev-host';", false],
   // Deprecated-but-still-READ config filename (B-cc10 CHK-004 flipped canonical to
   // `proof-or-stop.config.json`; this spelling still resolves for reads).
   ['edit `lattice.config.json` directly', false],
