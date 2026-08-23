@@ -195,27 +195,27 @@ the same commit: `scripts/verify-runtime-fact-contract.mjs` and
 - **Managed assets and remote approvals are canonical-write migrations**: generated blocks use
   `proof-or-stop` markers and approval creation uses `proof-or-stop.remote-push-approval.v1`;
   exact legacy forms remain only at the readers named in the active rows above.
-- `CHANGELOG.md` untouched (FROZEN, historical release record).
+- `CHANGELOG.md` records the release announcement for the root and sibling package
+  renames; it is historical release documentation, not an unchanged-package exception.
 
-### Known residual drift for CHK-007 (reported, deliberately not fixed here)
+### CHK-007 residue decision (resolved by B-5a88)
 
-`scripts/verify-lattice-residue.mjs` holds a fixture asserting
-`"import { devHost } from '@lattice/core/dev-host';"` is **exempt**, commented
-"deprecated package compatibility read". That exemption rationale is now stale.
+`scripts/verify-lattice-residue.mjs` now uses the canonical
+`"import { devHost } from '@proof-or-stop/core/dev-host';"` fixture. The deprecated
+`@lattice/core` spelling is not a frozen runtime exception: CHK-007 forbids it at
+product decision sites, while the pre-push reader retains the explicitly documented
+legacy compatibility check.
 ~~Correspondingly `CLAUDE.md:192` still documents the old `@lattice/core/dev-host` import in its
 `debug.ts` example.~~ **RETRACTED (B-cc10 F-066):** that half was already false when written —
 `CLAUDE.md:192` reads `@proof-or-stop/core/dev-host` at this HEAD, renamed within this story's own
-diff. A reader following the claim would hunt a defect that does not exist. Only the residue-script
-fixture exemption above is genuinely still open, and it belongs to CHK-007, which owns flipping
-`@lattice/core` from exempt to **forbidden** in product runtime source.
+diff. A reader following the claim would hunt a defect that does not exist. The residue-script
+fixture is now canonical as recorded above, while check 4 still forbids deprecated `@lattice/core`
+decision sites in product runtime source.
 
-Found while verifying F-066 (same drift class, different file): `CLAUDE.md:1070` and the
-`.githooks/pre-push` header comment both said the hook's self-repo check requires the name
-`@lattice/core`. The package is now `@proof-or-stop/core`, so as written they told a reader the
-hook no-ops on this repo. The hook itself is fine — B-cdf6 deliberately widened the comparison to
-a name SET so that a later rename could never silently disarm the recursive tsc gate, and B-cc10
-is exactly the rename it was hardened against. Prose corrected in both places; the code was
-already right.
+The F-066 note also records the related self-repo detection wording drift: `CLAUDE.md:1070` and
+the `.githooks/pre-push` header now describe the canonical `@proof-or-stop/core` name together
+with the bounded legacy read. The hook's name-set comparison remains intentional so a later rename
+cannot silently disarm the recursive tsc gate.
 
 ## CHK-008 revert claim: RETRACTED (B-cc10 F-007)
 

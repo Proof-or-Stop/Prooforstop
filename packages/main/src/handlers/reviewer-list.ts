@@ -109,7 +109,7 @@ export function normalizeForceReviewerName(value: string): string {
     throw new Error('reviewer_list: topology-critic is independent critic authority, not a required inventory lane');
   }
   if (isReviewRunLane(raw) && isPromptRoleEligibleForReviewEvidence(raw)) return reviewerLaneShortName(raw);
-  const lane = `lattice-review-${raw}`;
+  const lane = `proof-or-stop-review-${raw}`;
   if (isReviewRunLane(lane) && isPromptRoleEligibleForReviewEvidence(lane)) return raw;
   throw new Error(
     `reviewer_list: forceReviewer "${raw}" is not supported by review_run_start. Supported reviewers: ${supportedForceReviewerNames()}`,

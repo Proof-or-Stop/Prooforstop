@@ -30,7 +30,9 @@
   `@proof-or-stop/core`. Nothing in-repo imports it by name (both sibling packages reach
   it through relative paths into `packages/main/dist`), and no alias package is published;
   an external project pinning `@lattice/core` in its own `package.json` must update that
-  reference. Sibling names `@lattice/utils` / `@lattice/lab` are unchanged.
+  reference. **Sibling packages are also renamed:** `@lattice/utils` →
+  `@proof-or-stop/utils` and `@lattice/lab` → `@proof-or-stop/lab`. No deprecated
+  alias packages are published; external consumers must update those dependency names.
 
   **Not affected:** the `lattice` npm bin alias (`lattice --version` still resolves) is a
   separate identity and remains retained. Projects
