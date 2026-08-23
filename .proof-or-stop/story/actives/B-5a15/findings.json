@@ -10484,6 +10484,45 @@
       ],
       "signatureTag": "missing|ts|fresh-topology-review",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-197",
+      "desc": "certification-window.ts:98-99 [high/missing] buildCertificationDecision supplies nodes: [] and currentInputHashes: {}, so the production CertificationWindow consumer never evaluates the declared causal dependency DAG or affected-node closure. Material/story hash drift therefore falls through to the empty-DAG aggregate instead of revalidating the actual dependency nodes, leaving the promised related-change invalidation and affectedNodeRerun=100% behavior undelivered.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-23T13:22:15.811Z",
+      "reviewRound": "2026-08-22T06:10:03.014Z",
+      "reviewRunId": "B-5a15:RR-326",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/certification-window.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/causal-evidence.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "21b34bf30f8c41fab7ed5bace144696c63ece1770a420482bb2c179675bae150",
+      "files": [
+        "packages/main/src/handlers/certification-window.ts",
+        "packages/main/src/core/causal-evidence.ts"
+      ],
+      "signatureTag": "missing|ts|certification-window-high",
+      "signatureTagSource": "auto"
     }
   ]
 }
