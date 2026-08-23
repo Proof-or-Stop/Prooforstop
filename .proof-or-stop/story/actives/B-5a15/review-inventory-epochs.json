@@ -2741,7 +2741,7 @@
       "reviewRound": "2026-08-22T06:10:03.014Z",
       "state": "OPEN",
       "begunAt": "2026-08-23T14:55:19.630Z",
-      "updatedAt": "2026-08-23T14:55:19.630Z",
+      "updatedAt": "2026-08-23T15:14:53.547Z",
       "cutoff": {
         "headHash": "68d7f0e6bf3c8ef01993170c58e7a9187f8ce943",
         "materialHash": "9ef9d9e58737da562ae603f38a4ea393a304c5faf2f9affdeefcc0287d3c24e6",
@@ -2755,7 +2755,82 @@
       ],
       "initialRunSequenceBoundary": 350,
       "maxWaves": 3,
-      "waves": [],
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-08-23T14:55:19.630Z",
+          "completedAt": "2026-08-23T15:14:53.547Z",
+          "lanes": [
+            {
+              "lane": "lattice-review-concept",
+              "reviewRunId": "B-5a15:RR-354",
+              "terminal": "pass",
+              "hostIdentity": "e1af7ed6120d8c4d085fb6166a2f35122e7b32aa8277bcfce5602d10c3c651bc",
+              "promptIdentity": "63cdde0ac4d07ff9fef1b4160bc8ab358d7cbd62192ce6c734907d05f9e6a5e0",
+              "evidenceIds": [
+                "B-5a15:RP-067"
+              ],
+              "coverageDigest": "0376a6918ebb687e5493cd13f6f41baa2875c1c8382b3201136ff70088808b31"
+            },
+            {
+              "lane": "lattice-review-quality",
+              "reviewRunId": "B-5a15:RR-355",
+              "terminal": "finding",
+              "hostIdentity": "e1af7ed6120d8c4d085fb6166a2f35122e7b32aa8277bcfce5602d10c3c651bc",
+              "promptIdentity": "4b8fbdd76f0ae642c3eb25e34ff6960091c6ac368ce14063541e849269a9f7f4",
+              "evidenceIds": [
+                "B-5a15:F-214",
+                "B-5a15:F-216",
+                "B-5a15:F-218",
+                "B-5a15:F-220",
+                "B-5a15:F-222",
+                "B-5a15:F-224"
+              ],
+              "coverageDigest": "e8ff3c3361acb708f7988051c7b8093667e473a1e35e5a6e8c0e542cb695ac47"
+            },
+            {
+              "lane": "lattice-review-test-coverage",
+              "reviewRunId": "B-5a15:RR-352",
+              "terminal": "finding",
+              "hostIdentity": "e1af7ed6120d8c4d085fb6166a2f35122e7b32aa8277bcfce5602d10c3c651bc",
+              "promptIdentity": "a012bac9d2e22f5bb614a6b034e4dcb6c5a9edabfdb59c40bd26ed209a15acd7",
+              "evidenceIds": [
+                "B-5a15:F-213"
+              ],
+              "coverageDigest": "9a3670e9d83ebbca571bc6ccc5bb02d56e0710b3db0fd8c6942a012d72b0caa0"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "family:acceptance-basis-unmapped-topology",
+            "family:canonical-import-preflight-transaction",
+            "family:causal-decision-consumer-identity",
+            "family:causal-input-identity-collision",
+            "family:causal-receipt-output-tail-bound",
+            "family:chk003-advisory-admission-coverage",
+            "family:commit-failure-rerun-metric",
+            "family:derived-causal-metrics",
+            "family:preflight-authority-root-binding",
+            "family:preflight-event-ordering",
+            "family:production-empty-causal-dag",
+            "family:production-evidence-batch-boundary",
+            "family:story-files-hash-drift",
+            "family:validation-command-spec-identity",
+            "family:verifier-owned-wave4-coverage",
+            "finding:B-5a15:F-150",
+            "finding:B-5a15:F-173",
+            "finding:B-5a15:F-176",
+            "finding:B-5a15:F-177",
+            "finding:B-5a15:F-182",
+            "finding:B-5a15:F-197",
+            "finding:B-5a15:F-198"
+          ],
+          "verifiedFindingSetDigest": "6d540c424211ae2f60df15df82d752a828b295504947a21f64cc461c4a110681",
+          "newVerifiedFindingCount": 22,
+          "criticDigest": "5310f27bc141c2456610c7c456a80b7fa775629ddaee7c1c74ddea383dc52419",
+          "saturated": false,
+          "nextRunSequenceBoundary": 356
+        }
+      ],
       "baselineFindingIds": [
         "B-5a15:F-152",
         "B-5a15:F-153",
@@ -2818,7 +2893,7 @@
         "B-5a15:F-211",
         "B-5a15:F-212"
       ],
-      "_hash": "627160b952b1471441ba60c97dcdbc5c43760c27b1323b91a0a64a9b31d0c9ae"
+      "_hash": "5e7c6f4e9b1cb2cbd1119d3b6297f30258ca64ad583dd86a49c10e15356499e6"
     }
   ],
   "receipts": [

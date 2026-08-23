@@ -11864,6 +11864,95 @@
       ],
       "signatureTag": "wave4-acceptance-coverage",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a15:F-228",
+      "desc": "production-certification-empty-dag: packages/main/src/handlers/certification-window.ts:97-106 builds the signed production CausalDependencyDecision with nodes: [] and currentInputHashes: {}, so CertificationWindow never records or invalidates source/test/build-input/manifest/integration/review dependencies; a real related change can be admitted on aggregate hashes without the promised precise DAG invalidation.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-23T15:18:23.881Z",
+      "reviewRound": "2026-08-22T06:10:03.014Z",
+      "reviewRunId": "B-5a15:RR-357",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "7916eaaa4fc1c3bff6851a79e1d23183a6b01a104fdf5f2cd70c3ebc01e153f7"
+      },
+      "readDiagnostics": [],
+      "_hash": "58b4e74d064bf4248ed1f471243eb1d22b62cbd192b154f200ae59b4d05f77bf",
+      "files": [
+        "packages/main/src/handlers/certification-window.ts"
+      ],
+      "signatureTag": "missing|ts|production-certification-empty",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-229",
+      "desc": "Wave 4 acceptance coverage remains missing: the current verificationEvidence for CHK-001 through CHK-005 is repeated focused causal-evidence test output only, and does not provide executable evidence for acceptance_topology_check, pre_review_check_read, acceptance_rollout_report_read, or acceptance_rollout_check; the full 3x2 codex-cli/claude-cli cohort, degraded 3x1 rejection, threshold/membership/freshness mutations, mode invariants, enforce-only blocking, and non-destructive rollback history are therefore not covered.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-23T15:18:37.059Z",
+      "reviewRound": "2026-08-22T06:10:03.014Z",
+      "reviewRunId": "B-5a15:RR-359",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/handlers/live-smoke-transcript.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "e188ae353ae9674bf25bd1e8b3e6724941453b75e62e615c0588491cb043d745",
+      "files": [
+        "packages/main/tests/causal-evidence.test.mjs",
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/pre-review-live-proof.ts",
+        "packages/main/src/handlers/live-smoke-transcript.ts"
+      ],
+      "signatureTag": "missing|mjs|wave-acceptance-coverage",
+      "signatureTagSource": "auto"
     }
   ]
 }
