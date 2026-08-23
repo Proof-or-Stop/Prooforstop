@@ -1664,7 +1664,7 @@
       "reviewRound": "2026-08-22T06:10:03.014Z",
       "state": "OPEN",
       "begunAt": "2026-08-22T08:01:25.168Z",
-      "updatedAt": "2026-08-22T08:01:25.168Z",
+      "updatedAt": "2026-08-23T08:48:18.179Z",
       "cutoff": {
         "headHash": "f44b975e1682e3c11332fc347b919e4bb41fc4d6",
         "materialHash": "9ef9d9e58737da562ae603f38a4ea393a304c5faf2f9affdeefcc0287d3c24e6",
@@ -1678,7 +1678,126 @@
       ],
       "initialRunSequenceBoundary": 248,
       "maxWaves": 3,
-      "waves": [],
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-08-22T08:01:25.168Z",
+          "completedAt": "2026-08-23T08:18:26.596Z",
+          "lanes": [
+            {
+              "lane": "lattice-review-concept",
+              "reviewRunId": "B-5a15:RR-249",
+              "terminal": "pass",
+              "hostIdentity": "ff638d6718b438a54aee00bf8ef81d7d3cad46e8afaef4f6312bd6406afea343",
+              "promptIdentity": "f460bd65d206eb0cd6c9940637933fe354c1d457ad18db41459c077a59e67ca6",
+              "evidenceIds": [
+                "B-5a15:RP-033"
+              ],
+              "coverageDigest": "1ea96531ad529eb6d8c450cb93db3a594aaf5a151ea0fd16f408542bfe2ef036"
+            },
+            {
+              "lane": "lattice-review-quality",
+              "reviewRunId": "B-5a15:RR-251",
+              "terminal": "finding",
+              "hostIdentity": "ff638d6718b438a54aee00bf8ef81d7d3cad46e8afaef4f6312bd6406afea343",
+              "promptIdentity": "afe7e89b2161a67049985a292dd7fd85526d26b9a7d687ca0c89778c6c4c1cdc",
+              "evidenceIds": [
+                "B-5a15:F-164"
+              ],
+              "coverageDigest": "3a6013bcc4b70fc1283a268d1a31570e158cf640d46fcbe81ceba11e3844906a"
+            },
+            {
+              "lane": "lattice-review-test-coverage",
+              "reviewRunId": "B-5a15:RR-250",
+              "terminal": "finding",
+              "hostIdentity": "ff638d6718b438a54aee00bf8ef81d7d3cad46e8afaef4f6312bd6406afea343",
+              "promptIdentity": "8840e0a06f3711d4bf44d8482c962732cc122ebb5d63e07fe2f58dca87d574a6",
+              "evidenceIds": [
+                "B-5a15:F-162",
+                "B-5a15:F-163"
+              ],
+              "coverageDigest": "1780c3205b984fd22b9756008251ff0913e1e54b5238b686ec306986525f8704"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "acceptance-topology-unmapped-producer-consumer",
+            "causal-execution-input-canonicalization",
+            "causal-preflight-authority-root-binding",
+            "causal-receipt-output-tail-bound",
+            "chk003-certification-admission-positive-coverage",
+            "validation-command-spec-canonical-identity",
+            "wave4-verifier-owned-coverage-admissibility"
+          ],
+          "verifiedFindingSetDigest": "182bbd106be7afa72454eee0bdf62f2f0cc19c1ae1a48267938c866303bef91d",
+          "newVerifiedFindingCount": 7,
+          "criticDigest": "b29d36621253baf620772712cad063eb14a2b0c29f529bc9bf8980ae10c1dfe2",
+          "saturated": false,
+          "nextRunSequenceBoundary": 256
+        },
+        {
+          "wave": 2,
+          "startedAt": "2026-08-23T08:18:26.596Z",
+          "completedAt": "2026-08-23T08:48:18.179Z",
+          "lanes": [
+            {
+              "lane": "lattice-review-concept",
+              "reviewRunId": "B-5a15:RR-259",
+              "terminal": "pass",
+              "hostIdentity": "c8c8e40556dbf4f06625f589255643bb9b16d9614be3f6bbbb1aa6e730f637ae",
+              "promptIdentity": "38f8e00bb1a1000c68caa508a5d8a17d566e21c33a8e4e27e3dda85b0ca3555f",
+              "evidenceIds": [
+                "B-5a15:RP-039"
+              ],
+              "coverageDigest": "8216e41d972ffda1cb2269b706fabca500a9bd7736e52b3871505ac3952b1b38"
+            },
+            {
+              "lane": "lattice-review-quality",
+              "reviewRunId": "B-5a15:RR-258",
+              "terminal": "pass",
+              "hostIdentity": "c8c8e40556dbf4f06625f589255643bb9b16d9614be3f6bbbb1aa6e730f637ae",
+              "promptIdentity": "367cfa948291e3dd71b458c92a31a2a1bb9119ad64e3ae535cd27a4931b0cdfd",
+              "evidenceIds": [
+                "B-5a15:RP-040"
+              ],
+              "coverageDigest": "eee4d217d6dffc51295400fabcbe5f6ea6b16495f99bccd4f33ef9d5cb0cd196"
+            },
+            {
+              "lane": "lattice-review-test-coverage",
+              "reviewRunId": "B-5a15:RR-257",
+              "terminal": "finding",
+              "hostIdentity": "c8c8e40556dbf4f06625f589255643bb9b16d9614be3f6bbbb1aa6e730f637ae",
+              "promptIdentity": "3a44afde1e9ac72d604fa6ec1b8b5eb305c5d0539667f5102dc6078a2f0db36c",
+              "evidenceIds": [
+                "B-5a15:F-165",
+                "B-5a15:F-166",
+                "B-5a15:F-167",
+                "B-5a15:F-168",
+                "B-5a15:F-169",
+                "B-5a15:F-170"
+              ],
+              "coverageDigest": "3cc7fa246117e91465619d5ee94902bc062ffedb2b1d21681d39e40b6d40c0b5"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "acceptance-topology-unmapped-producer-consumer",
+            "causal-execution-input-canonicalization",
+            "causal-preflight-authority-root-binding",
+            "causal-receipt-output-tail-bound",
+            "chk001-production-evidence-batch-boundary-coverage",
+            "chk003-certification-admission-positive-coverage",
+            "chk004-preflight-launch-order-production-evidence",
+            "chk005-canonical-causal-metrics-provenance",
+            "chk005-commit-failure-rerun-metric-contract",
+            "validation-command-spec-canonical-identity",
+            "wave4-verifier-owned-coverage-admissibility"
+          ],
+          "verifiedFindingSetDigest": "e5922f91fecd151e7feebfff11919d2802b1aaead595cce7d04d98cb911716f4",
+          "newVerifiedFindingCount": 4,
+          "criticDigest": "dfb4a20c98766dd81c1d274467307ae0f0611e9f3a872ca9dbf7efec6753cdc0",
+          "saturated": false,
+          "nextRunSequenceBoundary": 262
+        }
+      ],
       "baselineFindingIds": [
         "B-5a15:F-152",
         "B-5a15:F-153",
@@ -1691,7 +1810,7 @@
         "B-5a15:F-160",
         "B-5a15:F-161"
       ],
-      "_hash": "ca758453fa1d6c5e772116abc2c16cd395eec477183753eb59caf74edba4b76f"
+      "_hash": "11a186cd841905c40873beaa511e3369ca40132298fa60a45db029fc40f16f5f"
     }
   ],
   "receipts": [
@@ -3110,6 +3229,176 @@
       ],
       "createdAt": "2026-08-22T07:57:35.154Z",
       "_hash": "2f21b0cca444bbd27ed90e16ff70864af441a798fb736784d960f2c72cc6f8fd"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-5a15:RI-015:CRIT-01",
+      "epochId": "B-5a15:RI-015",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-22T06:10:03.014Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "f44b975e1682e3c11332fc347b919e4bb41fc4d6",
+        "materialHash": "9ef9d9e58737da562ae603f38a4ea393a304c5faf2f9affdeefcc0287d3c24e6",
+        "storyFilesHash": "e287c5f32d9aad03e0ce7ea8b20a2684ab0ac2e78ef99c6fc5b18e9b8e9c97e7"
+      },
+      "aggregateFindingSetDigest": "182bbd106be7afa72454eee0bdf62f2f0cc19c1ae1a48267938c866303bef91d",
+      "requiredLaneCoverageDigest": "ddf3d6872ce6d62aa2e936107526ee076512dabffa0bf9799f640b00a22cd7cd",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-5a15:RR-256",
+      "terminalEvidenceIds": [
+        "B-5a15:RP-038"
+      ],
+      "readEvidenceDigest": "7c6b872c6cb0e8c141b64ffb0ba5cb8b3f0394059cac3390cfe0234533be1d6c",
+      "findingDispositions": [
+        {
+          "findingId": "B-5a15:F-152",
+          "disposition": "verified_family",
+          "familyKey": "chk003-certification-admission-positive-coverage",
+          "reason": "Verified current-wave coverage gap: the recorded test exercises stale partial-decision rejection, not positive identity-bound advisory admission through the consumer."
+        },
+        {
+          "findingId": "B-5a15:F-153",
+          "disposition": "verified_family",
+          "familyKey": "causal-receipt-output-tail-bound",
+          "reason": "Verified current-wave receipt-contract gap: outputProbe is bounded but durable outputTail is not validated at CAS/import verification."
+        },
+        {
+          "findingId": "B-5a15:F-154",
+          "disposition": "verified_family",
+          "familyKey": "acceptance-topology-unmapped-producer-consumer",
+          "reason": "Verified from the current acceptance_basis command: basisStatus remains partial with AT_UNMAPPED_SCOPE_REF for the causal identity-binding producer-consumer path."
+        },
+        {
+          "findingId": "B-5a15:F-155",
+          "disposition": "duplicate",
+          "familyKey": "chk003-certification-admission-positive-coverage",
+          "canonicalFindingId": "B-5a15:F-152",
+          "reason": "Same CHK-003:happy:2 positive CertificationWindow-admission coverage gap as F-152; this record explicitly identifies it as the unresolved F-152 family."
+        },
+        {
+          "findingId": "B-5a15:F-156",
+          "disposition": "verified_family",
+          "familyKey": "validation-command-spec-canonical-identity",
+          "reason": "Verified current-wave identity gap: preflight key construction collapses structured command semantics into a lossy command-plus-joined-args string."
+        },
+        {
+          "findingId": "B-5a15:F-157",
+          "disposition": "duplicate",
+          "familyKey": "acceptance-topology-unmapped-producer-consumer",
+          "canonicalFindingId": "B-5a15:F-154",
+          "reason": "Same unmapped causal identity-binding topology and non-admissible acceptance-chain basis as F-154, carried from the prior RI-014 wave."
+        },
+        {
+          "findingId": "B-5a15:F-158",
+          "disposition": "duplicate",
+          "familyKey": "acceptance-topology-unmapped-producer-consumer",
+          "canonicalFindingId": "B-5a15:F-154",
+          "reason": "Same AT_UNMAPPED_SCOPE_REF and inconclusive acceptance topology/pre-review evidence family as F-154; no independent topology family is added."
+        },
+        {
+          "findingId": "B-5a15:F-159",
+          "disposition": "duplicate",
+          "familyKey": "chk003-certification-admission-positive-coverage",
+          "canonicalFindingId": "B-5a15:F-152",
+          "reason": "Same CHK-003:happy:2 positive unrelated-advisory admission coverage gap as F-152; only the review round changed."
+        },
+        {
+          "findingId": "B-5a15:F-160",
+          "disposition": "verified_family",
+          "familyKey": "wave4-verifier-owned-coverage-admissibility",
+          "reason": "Verified acceptance-boundary family: verifier-owned pre-review/topology/rollout evidence is inconclusive or stale, with no executable proof or admissible current coverage."
+        },
+        {
+          "findingId": "B-5a15:F-161",
+          "disposition": "verified_family",
+          "familyKey": "causal-execution-input-canonicalization",
+          "reason": "Verified current-wave key-integrity gap: [] and [undefined] canonicalize to the same execution identity, allowing distinct explicit inputs to alias."
+        },
+        {
+          "findingId": "B-5a15:F-162",
+          "disposition": "duplicate",
+          "familyKey": "chk003-certification-admission-positive-coverage",
+          "canonicalFindingId": "B-5a15:F-152",
+          "reason": "Same CHK-003:happy:2 positive CertificationWindow-admission coverage gap as F-152; the later coverage review restates the same missing positive path."
+        },
+        {
+          "findingId": "B-5a15:F-163",
+          "disposition": "duplicate",
+          "familyKey": "wave4-verifier-owned-coverage-admissibility",
+          "canonicalFindingId": "B-5a15:F-160",
+          "reason": "Same verifier-owned Wave-4 acceptance coverage admissibility gap as F-160, with a newer RR-250/current-binding restatement rather than a new family."
+        },
+        {
+          "findingId": "B-5a15:F-164",
+          "disposition": "verified_family",
+          "familyKey": "causal-preflight-authority-root-binding",
+          "reason": "Verified current-wave authority gap: preflight authorityRoot is caller-controlled rather than bound to canonical project identity, enabling cross-root forged readiness."
+        }
+      ],
+      "createdAt": "2026-08-23T08:15:55.027Z",
+      "_hash": "abf7767f464891ed94762a8e419933b50f5b3d0d1a8edfd7c5d0a8f813336079"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-5a15:RI-015:CRIT-02",
+      "epochId": "B-5a15:RI-015",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-22T06:10:03.014Z",
+      "wave": 2,
+      "cutoff": {
+        "headHash": "f44b975e1682e3c11332fc347b919e4bb41fc4d6",
+        "materialHash": "9ef9d9e58737da562ae603f38a4ea393a304c5faf2f9affdeefcc0287d3c24e6",
+        "storyFilesHash": "e287c5f32d9aad03e0ce7ea8b20a2684ab0ac2e78ef99c6fc5b18e9b8e9c97e7"
+      },
+      "aggregateFindingSetDigest": "e5922f91fecd151e7feebfff11919d2802b1aaead595cce7d04d98cb911716f4",
+      "requiredLaneCoverageDigest": "f2086ed4b652e50ce4cf35d308272e01c1b1816bb6a2abb1d9d9a5d724ca046c",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-5a15:RR-262",
+      "terminalEvidenceIds": [
+        "B-5a15:F-172"
+      ],
+      "readEvidenceDigest": "895426f565e2e70be7bd81017ddcc581d42ce118d582604d319690c801dcc23e",
+      "findingDispositions": [
+        {
+          "findingId": "B-5a15:F-165",
+          "disposition": "verified_family",
+          "familyKey": "wave4-verifier-owned-coverage-admissibility",
+          "reason": "Verified instance of the existing verifier-owned acceptance-coverage admissibility family: the basis is partial, topology is inconclusive, and current executable proof is absent."
+        },
+        {
+          "findingId": "B-5a15:F-166",
+          "disposition": "verified_family",
+          "familyKey": "chk003-certification-admission-positive-coverage",
+          "reason": "Verified CHK-003 positive-admission coverage gap: the evidence asserts rejection/stale material behavior, not an identity-bound unrelated-merge acceptance."
+        },
+        {
+          "findingId": "B-5a15:F-167",
+          "disposition": "verified_family",
+          "familyKey": "chk005-commit-failure-rerun-metric-contract",
+          "reason": "Distinct verified gap: the evidence records commitFailureReruns=1 while the must-intent requires zero after import retry."
+        },
+        {
+          "findingId": "B-5a15:F-168",
+          "disposition": "verified_family",
+          "familyKey": "chk005-canonical-causal-metrics-provenance",
+          "reason": "Distinct verified gap: caller-supplied ledger fields are rehashed synthetically rather than produced by a mixed causal-dependency execution path."
+        },
+        {
+          "findingId": "B-5a15:F-169",
+          "disposition": "verified_family",
+          "familyKey": "chk004-preflight-launch-order-production-evidence",
+          "reason": "Distinct verified gap: the test injects the preflight-pass event before execution and does not establish an implementation-produced event or production launch seam."
+        },
+        {
+          "findingId": "B-5a15:F-170",
+          "disposition": "verified_family",
+          "familyKey": "chk001-production-evidence-batch-boundary-coverage",
+          "reason": "Distinct verified gap: the test calls the core executor directly and does not exercise the production verification_evidence_batch_add checklist/CLI boundary."
+        }
+      ],
+      "createdAt": "2026-08-23T08:46:29.983Z",
+      "_hash": "ba8b99ec35075abc6c0a9cd7ae7369a638638b50246518fc09ababe880fba1b2"
     }
   ]
 }
