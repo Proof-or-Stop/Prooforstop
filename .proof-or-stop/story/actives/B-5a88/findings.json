@@ -15421,7 +15421,7 @@
       "desc": "Official acceptance_basis and acceptance_topology_check are invalid and inconclusive for B-5a88: AT_CLOSURE_FILES_STALE reports registered producer/consumer closure changed after the PLAN basis, while AT_SCOPE_BINDING_MISSING reports semantic-discovery, scope-contract, closure-files, snapshot-seal, and storyFilesHash freshness mismatches. The verifier-directed next action is acceptance_basis_generate by the Story owner; a topology pass is not admissible until the basis is regenerated and rechecked.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-topology-critic",
       "createdAt": "2026-08-23T23:04:53.423Z",
@@ -15460,6 +15460,64 @@
         "packages/main/src/core/acceptance-topology.ts"
       ],
       "signatureTag": "missing|json|official-acceptance-basis",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Owner regenerated acceptance_basis at current HEAD 780c7834; the verifier returned status=complete and verification.ok=true with a fresh snapshot seal and closure binding. The subsequent independent topology run RR-520 reports acceptance_topology_check PASS with structuralPass=true and topology_critic_receipt_check PASS code=ok, removing the stale-basis condition.",
+      "resolvedAt": "2026-08-23T23:09:42.659Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5a88:F-373",
+      "desc": "bin/bootstrap-runner.js:63 and packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts:54,116-120 — active bootstrap/test comments and failure guidance still claim current full-suite calls use the removed bin/lattice.js entrypoint. The current package.json test script invokes packages/main/dist/tasks/full-suite-runner.js, and bin/lattice.js is intentionally absent under CHK-007. This is not a legacy-read path; it leaves current diagnostics and a runnable smoke task teaching a retired entrypoint. Canonicalize the text to proof-or-stop or explicitly scope it to historical compatibility.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-23T23:08:14.448Z",
+      "reviewRound": "2026-08-23T20:56:20.268Z",
+      "reviewRunId": "B-5a88:RR-519",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "bin/bootstrap-runner.js",
+          "CLAUDE.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "package.json",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "scripts/ensure-dist.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": null
+        },
+        "digest": "5686c0cb77147fd55dd41ee50c35cbe8600f6ea8fc4ac34346b7ae5768634da5"
+      },
+      "readDiagnostics": [],
+      "_hash": "fd78ce0ca2bd2a4d45d5ce97a95bb1fd5ee3a97bdb29e162b7a2bf0c62a0181c",
+      "files": [
+        "bin/bootstrap-runner.js",
+        "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts"
+      ],
+      "signatureTag": "missing|js|bootstrap-runner-packages",
       "signatureTagSource": "auto"
     }
   ]
