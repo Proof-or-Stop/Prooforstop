@@ -797,60 +797,60 @@
           "kind": "logic_test",
           "command": "npm --prefix packages/main run test:dynamic-validation-selection",
           "result": "pass",
-          "note": "Pinned verifier rerun for CHK-005:happy:0 at the current DEV head.",
+          "note": "Refresh complete selection ledger evidence after the final monotonicity correction.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "4a392a0132ec2360b2628dec148d862c384625be722c2aef9a4c498271a5564b",
             "outputTail": "\n> @proof-or-stop/core@0.3.268 test:dynamic-validation-selection\n> node ../../scripts/run-dynamic-validation-audit.mjs selection\n\ncomplete ledger PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-23T13:23:25.587Z",
+            "executedAt": "2026-08-23T15:34:58.325Z",
             "timeoutMs": 270000
           },
-          "headHash": "8450f8529e6c801eb0ff31e074c92ff4191e906d",
-          "materialHash": "aa5beaab4316c22ebcfd403395a217d890edac9bd1dbbca1d8221554cd13dda0",
-          "storyFilesHash": "cc7ed81b116ac565f747818a589cb8156963be09cb009bc7e55f715cf97fd619",
-          "timestamp": "2026-08-23T13:36:12.334Z"
+          "headHash": "d4239c8af146cd5ae3d59b3fe5bb098556cee7a6",
+          "materialHash": "fb9433e9e43d8d28ab243d0edf1208c21013f35117f94e80bbbbd11e3350c348",
+          "storyFilesHash": "8c25d7522f52a2a32241422609562c158b48cd5c5d6fcb40448060795274ec45",
+          "timestamp": "2026-08-23T15:35:52.673Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run test:dynamic-validation-selection-mutations",
           "result": "pass",
-          "note": "Pinned verifier rerun for CHK-005:edge:0 at the current DEV head.",
+          "note": "Refresh monotonicity evidence covering execute and reuse selected-command unions.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "e660e05922c38fd900ee066a1ce87b5489a4ee8f57456108b694f37fb9e7033b",
             "outputTail": "\n> @proof-or-stop/core@0.3.268 test:dynamic-validation-selection-mutations\n> node ../../scripts/run-dynamic-validation-audit.mjs selection-mutations\n\nmonotonicity PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-23T13:23:43.469Z",
+            "executedAt": "2026-08-23T15:35:25.035Z",
             "timeoutMs": 270000
           },
-          "headHash": "8450f8529e6c801eb0ff31e074c92ff4191e906d",
-          "materialHash": "aa5beaab4316c22ebcfd403395a217d890edac9bd1dbbca1d8221554cd13dda0",
-          "storyFilesHash": "cc7ed81b116ac565f747818a589cb8156963be09cb009bc7e55f715cf97fd619",
-          "timestamp": "2026-08-23T13:36:12.334Z"
+          "headHash": "d4239c8af146cd5ae3d59b3fe5bb098556cee7a6",
+          "materialHash": "fb9433e9e43d8d28ab243d0edf1208c21013f35117f94e80bbbbd11e3350c348",
+          "storyFilesHash": "8c25d7522f52a2a32241422609562c158b48cd5c5d6fcb40448060795274ec45",
+          "timestamp": "2026-08-23T15:35:52.673Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run test:dynamic-validation-selection-fail-closed",
           "result": "pass",
-          "note": "Pinned verifier rerun for CHK-005:adversarial:0 at the current DEV head.",
+          "note": "Refresh fail-closed escalation evidence after the final manifest contract correction.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "526e334c92a8eab01348dc214d5b198fa070043893ed92ec4da7fe86841cd2cd",
             "outputTail": "\n> @proof-or-stop/core@0.3.268 test:dynamic-validation-selection-fail-closed\n> node ../../scripts/run-dynamic-validation-audit.mjs selection-fail-closed\n\nfail-closed escalation PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-23T13:24:01.794Z",
+            "executedAt": "2026-08-23T15:35:52.249Z",
             "timeoutMs": 270000
           },
-          "headHash": "8450f8529e6c801eb0ff31e074c92ff4191e906d",
-          "materialHash": "aa5beaab4316c22ebcfd403395a217d890edac9bd1dbbca1d8221554cd13dda0",
-          "storyFilesHash": "cc7ed81b116ac565f747818a589cb8156963be09cb009bc7e55f715cf97fd619",
-          "timestamp": "2026-08-23T13:36:12.334Z"
+          "headHash": "d4239c8af146cd5ae3d59b3fe5bb098556cee7a6",
+          "materialHash": "fb9433e9e43d8d28ab243d0edf1208c21013f35117f94e80bbbbd11e3350c348",
+          "storyFilesHash": "8c25d7522f52a2a32241422609562c158b48cd5c5d6fcb40448060795274ec45",
+          "timestamp": "2026-08-23T15:35:52.673Z"
         }
       ],
       "userSeesSnapshot": {
