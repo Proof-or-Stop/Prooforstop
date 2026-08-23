@@ -13923,7 +13923,7 @@
       "desc": "Current verifier-owned gate evidence does not substantiate the F-337/F-339 semantic pre-review binding at HEAD 5ae626d: pre_review_check_read for .proof-or-stop/story/actives/B-5a88/pre-review-check.json returns status=fail with PR_ARTIFACT_TAMPERED and PR_AUTHORITY_INADMISSIBLE; acceptance_topology_check returns AT_ADAPTER_RESULT_DIGEST_MISMATCH and AT_CLOSURE_FILES_STALE; acceptance_rollout_check returns blocking AR_REPORT_STALE. The embedded pre-review and rollout records claim pass but are bound to stale story-owned/basis/closure/material hashes, so the current code path cannot support REVIEW until verifier-owned basis, pre-review proof, and rollout receipts are reissued for this HEAD. This is the current gate-consuming false-proof risk after the F-337/F-339 code changes, not a claim that the older CHK-006/A-POS-1 mapping remains in source.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-08-23T17:37:48.058Z",
@@ -13960,7 +13960,11 @@
         "packages/main/src/core/pre-review-check.ts"
       ],
       "signatureTag": "adversarial|json|current-verifier-owned",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by B-5a88:F-350, the later current-HEAD quality finding that records the same current pre-review gate inadmissibility family.",
+      "resolvedAt": "2026-08-23T19:21:51.032Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-342",
