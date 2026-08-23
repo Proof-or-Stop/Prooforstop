@@ -10532,6 +10532,49 @@
       ],
       "signatureTag": "missing|json|wave-coverage-attestation",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-196",
+      "desc": "topology/wave-2-acceptance-chain-incomplete: The RI-040 wave-2 verifier chain remains incomplete at materialHash aa5beaab4316c22ebcfd403395a217d890edac9bd1dbbca1d8221554cd13dda0. acceptance_basis is invalid with AT_SCOPE_BINDING_MISSING; acceptance_topology_check fails structuralPass with scope-contract mismatch; pre_review_check_read is inconclusive with plannedActual, executable, mutation, transcript, and authority evidence missing; acceptance_rollout_report_read is not admissible because the current topology/basis projection has stale or inconsistent bindings. This recurring topology family cannot pass or claim complete acceptance topology. Source refs: packages/main/src/core/acceptance-coverage-basis.ts, packages/main/src/core/acceptance-topology.ts, packages/main/src/core/pre-review-check.ts, packages/main/src/core/acceptance-rollout.ts, packages/main/src/handlers/proofstory.ts.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-23T12:33:10.858Z",
+      "reviewRound": "2026-08-23T12:16:56.573Z",
+      "reviewRunId": "B-45a0:RR-306",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "scanEscalationReason": "Current RI-040 wave-2 verifier outputs were inspected with canonical CLI checks and targeted source triage."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "4595888c53cc72a2fed3d9037a4e751faa6c3039a935b4c59066d9e7c9af3c84",
+      "files": [
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/acceptance-rollout.ts",
+        "packages/main/src/handlers/proofstory.ts"
+      ],
+      "signatureTag": "missing|ts|topology-wave-acceptance",
+      "signatureTagSource": "auto"
     }
   ]
 }
