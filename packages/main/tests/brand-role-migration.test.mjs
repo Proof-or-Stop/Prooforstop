@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { tmpdir } from 'node:os';
@@ -24,6 +24,30 @@ const aliases = [
   ['lattice-review-quality@fallback', 'proof-or-stop-review-quality@fallback'],
   ['verification-intent', 'proof-or-stop-test-intent'],
 ];
+const projectConfig = JSON.parse(readFileSync(join(repoRoot, 'proof-or-stop.config.json'), 'utf8'));
+const configuredPromptRoles = projectConfig.promptEnvelope?.roles ?? {};
+assert.deepEqual(
+  Object.keys(configuredPromptRoles).sort(),
+  [
+    'proof-or-stop-implementer',
+    'proof-or-stop-review-behavior',
+    'proof-or-stop-review-concept',
+    'proof-or-stop-review-delivery',
+    'proof-or-stop-review-docs',
+    'proof-or-stop-review-quality',
+    'proof-or-stop-review-scope-plan',
+    'proof-or-stop-review-story-init',
+    'proof-or-stop-review-test-coverage',
+    'proof-or-stop-review-topology-critic',
+    'proof-or-stop-evaluator',
+  ].sort(),
+  'active prompt-envelope roles use the canonical configured role IDs',
+);
+assert.equal(
+  Object.keys(configuredPromptRoles).some(roleId => roleId.startsWith('lattice-')),
+  false,
+  'legacy lattice role IDs remain compatibility reads, not active configuration keys',
+);
 for (const [legacy, canonical] of aliases) {
   assert.equal(identity.canonicalAgentRoleId(legacy), canonical, `${legacy} canonicalizes`);
   assert.equal(identity.agentRoleIdsEqual(legacy, canonical), true, `${legacy} compares equal to its canonical role`);

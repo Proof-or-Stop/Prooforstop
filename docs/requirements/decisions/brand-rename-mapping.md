@@ -168,21 +168,38 @@ Note for CHK-004: `scripts/verify-lattice-residue.mjs`'s self-test currently ass
 FROZEN) but its *stated meaning* contradicts the new brand direction and must be reworded, not
 deleted.
 
-### The 13 `lattice-`prefixed role IDs (of 17 registry templates)
+### Canonical role-template IDs and historical compatibility reads (B-5a88 supersession)
 
-Verified by `ls packages/main/templates/agents/` — 17 templates total,
-`scripts/verify-proof-or-stop-prompt-baseline.mjs:35` pins `EXPECTED_ROLE_COUNT = 17`, of which
-13 carry the `lattice-` prefix:
+The current 17-template registry and `packages/main/templates/agents/` emit canonical
+`proof-or-stop-*` role IDs. The active `promptEnvelope.roles` configuration in
+`proof-or-stop.config.json` uses those same canonical IDs. Exact historical `lattice-*` IDs
+remain reader-only compatibility spellings through the explicit `agent-role-identity.ts`
+mapping; they are accepted for old or in-flight records and are never emitted by current
+templates, registry output, or configuration. No other `lattice-*` spelling is an alias for
+these template roles.
 
-`lattice-evaluator`, `lattice-evaluator-cli`, `lattice-implementer`, `lattice-review-behavior`,
-`lattice-review-channel`, `lattice-review-concept`, `lattice-review-delivery`,
-`lattice-review-docs`, `lattice-review-quality`, `lattice-review-scope-plan`,
-`lattice-review-story-init`, `lattice-review-test-coverage`, `lattice-review-topology-critic`.
+The 13 historical `lattice-*` IDs map to these canonical role IDs:
 
-The remaining 4 (`implementation-reviewer`, `product-reviewer`, `test-case-reviewer`,
-`test-intent`) carry no brand token but are listed above for completeness of the 17-role set.
+| Historical compatibility read | Canonical emitted role ID |
+|---|---|
+| `lattice-evaluator` | `proof-or-stop-evaluator` |
+| `lattice-evaluator-cli` | `proof-or-stop-evaluator-cli` |
+| `lattice-implementer` | `proof-or-stop-implementer` |
+| `lattice-review-behavior` | `proof-or-stop-review-behavior` |
+| `lattice-review-channel` | `proof-or-stop-review-channel` |
+| `lattice-review-concept` | `proof-or-stop-review-concept` |
+| `lattice-review-delivery` | `proof-or-stop-review-delivery` |
+| `lattice-review-docs` | `proof-or-stop-review-docs` |
+| `lattice-review-quality` | `proof-or-stop-review-quality` |
+| `lattice-review-scope-plan` | `proof-or-stop-review-scope-plan` |
+| `lattice-review-story-init` | `proof-or-stop-review-story-init` |
+| `lattice-review-test-coverage` | `proof-or-stop-review-test-coverage` |
+| `lattice-review-topology-critic` | `proof-or-stop-review-topology-critic` |
 
-CLAUDE.md's "16 thin-shim" claim is stale on both counts and is corrected to 13-of-17 in CHK-003.
+The four formerly non-branded template IDs are also emitted with canonical names:
+`proof-or-stop-implementation-reviewer`, `proof-or-stop-product-reviewer`,
+`proof-or-stop-test-case-reviewer`, and `proof-or-stop-test-intent`. Their exact historical
+spellings remain compatibility reads only, as registered by the same runtime identity map.
 
 ### Frozen story archives
 
