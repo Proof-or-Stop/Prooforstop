@@ -2905,9 +2905,9 @@
       "epochId": "B-45a0:RI-041",
       "storyId": "B-45a0",
       "reviewRound": "2026-08-23T13:46:47.948Z",
-      "state": "OPEN",
+      "state": "CANCELLED",
       "begunAt": "2026-08-23T13:47:12.679Z",
-      "updatedAt": "2026-08-23T14:28:16.233Z",
+      "updatedAt": "2026-08-23T14:29:07.212Z",
       "cutoff": {
         "headHash": "fd0233d5d91243b2ecc1a6e659e518b2d9dd6bdc",
         "materialHash": "aa5beaab4316c22ebcfd403395a217d890edac9bd1dbbca1d8221554cd13dda0",
@@ -3111,7 +3111,10 @@
         }
       ],
       "baselineFindingIds": [],
-      "_hash": "d0e20d85756bbd639c61581d48162d4dd12461acb1b545d7471fe4eeea8b7261"
+      "cancelledAt": "2026-08-23T14:29:07.212Z",
+      "cancelReason": "RI-041 exhausted its three-wave budget after a terminal topology finding; cancel for a controlled replan and implementation repair.",
+      "terminalRunSequenceBoundary": 333,
+      "_hash": "b648ccdf8fe1665d231781de5baa787e098490caa14968b75bd53a2c1df42a69"
     }
   ],
   "receipts": [
