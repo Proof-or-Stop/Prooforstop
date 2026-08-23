@@ -14384,7 +14384,7 @@
       "desc": "Current HEAD pre-review artifact blocker: at HEAD 014b5817a168145be79cc104662a4988c6feb0cb, pre_review_check_read returned PR_ARTIFACT_TAMPERED and PR_AUTHORITY_INADMISSIBLE for the current pre-review artifact; this remains the active high-severity adversarial blocker.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-08-23T18:39:55.432Z",
@@ -14420,7 +14420,11 @@
         ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json"
       ],
       "signatureTag": "adversarial|ts|current-head-review",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by the current admissible pre-review evidence: the official live proof capture and pre_review_check now pass against the current story state with executableEvidence current, mutations biting, transcript related, and authority admissible. The original stale/tampered artifact at the cited historical HEAD is no longer the active closure artifact.",
+      "resolvedAt": "2026-08-23T21:07:45.505Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-351",
