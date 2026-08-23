@@ -8364,6 +8364,56 @@
         "scanEscalationReason": null
       },
       "_hash": "2aa5b8e26d4386871326dc8c9b5c5bdd3554050134aea031947ae494c91bf2ce"
+    },
+    {
+      "id": "B-5a88:RP-156",
+      "agent": "proof-or-stop-review-concept",
+      "note": "RI-054 concept review complete: repository-wide residue scan and promised-but-undelivered self-check found no new distinct family beyond the separately tracked verified baseline F-363/F-364/F-365; duplicate reports F-366 through F-371 were not re-added. Historical salts, archived story content, legacy-read aliases, compatibility paths, and frozen filenames remain explicitly allowed by the migration decisions.",
+      "createdAt": "2026-08-23T22:45:15.734Z",
+      "reviewRound": "2026-08-23T20:56:20.268Z",
+      "reviewRunId": "B-5a88:RR-510",
+      "envelopeId": "433fbee1fd247994d3059864426f707dab095caf1988666837e1abe2e9d5c9ba",
+      "writerSessionId": "sess-38bd76c9f5d1ee4068f87a223b6dbbae",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop-codex/agents/proof-or-stop-review-concept.md",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/core/evidence-pin-guard.ts",
+          "packages/main/src/core/stale-detector.ts",
+          "packages/main/src/tasks/lattice-only-absence-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/proof-or-stop-review-concept.md",
+          ".githooks/pre-push",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "package-lock.json",
+          "package.json",
+          "packages/lab/package-lock.json",
+          "packages/lab/package.json",
+          "packages/main/package-lock.json",
+          "packages/main/package.json",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/artifact-schema.ts",
+          "packages/main/src/core/managed-markers.ts",
+          "packages/main/src/core/release-push-approval.ts",
+          "packages/main/templates/agents/",
+          "packages/utils/package-lock.json",
+          "packages/utils/package.json",
+          "README.md",
+          "scripts/verify-codex-assets.mjs",
+          "scripts/verify-entrypoints.mjs",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": "High-risk global identity migration and candidate ambiguity required a repository-wide concept-residue scan; current scan was bounded to tracked source, markdown, and JSON while excluding node_modules, dist, and .git."
+      },
+      "_hash": "e3131061e22625f95c27f91d950b33bad98d72a79fc6662189e7bab7a037f287"
     }
   ]
 }
