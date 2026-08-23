@@ -12743,7 +12743,7 @@
       "desc": "Current verifier-owned pre-review evidence is inadmissible: the read-only command `node bin/proof-or-stop.js pre_review_check_read --storyId=B-5a88 --json` returns status=fail with codes PR_ARTIFACT_TAMPERED and PR_COVERAGE_BASIS_CHANGED, while the acceptance_basis read verifies basisStatus=complete. REVIEW cannot rely on the executable pre-review proof until the owner reissues it through the verifier-owned pre_review_check flow.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-08-23T14:30:40.619Z",
@@ -12773,7 +12773,11 @@
         ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json"
       ],
       "signatureTag": "adversarial|json|current-verifier-owned",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by B-5a88:F-350, the later current-HEAD quality finding that records the same pre-review artifact inadmissibility family.",
+      "resolvedAt": "2026-08-23T19:21:46.064Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-316",
