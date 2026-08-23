@@ -6377,6 +6377,108 @@
       ],
       "createdAt": "2026-08-23T15:13:47.210Z",
       "_hash": "14c9ac5e82ff0829e7d423a5cf416c5fb472d81399ec3613ff74ca94c531a0dc"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-5a15:RI-020:CRIT-02",
+      "epochId": "B-5a15:RI-020",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-22T06:10:03.014Z",
+      "wave": 2,
+      "cutoff": {
+        "headHash": "68d7f0e6bf3c8ef01993170c58e7a9187f8ce943",
+        "materialHash": "9ef9d9e58737da562ae603f38a4ea393a304c5faf2f9affdeefcc0287d3c24e6",
+        "storyFilesHash": "e287c5f32d9aad03e0ce7ea8b20a2684ab0ac2e78ef99c6fc5b18e9b8e9c97e7"
+      },
+      "aggregateFindingSetDigest": "6d540c424211ae2f60df15df82d752a828b295504947a21f64cc461c4a110681",
+      "requiredLaneCoverageDigest": "3bfdb94ba8d5d96d17b2afb854151d01be19d2384b5c23ccdaa1a8ae9e518ffb",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-5a15:RR-365",
+      "terminalEvidenceIds": [
+        "B-5a15:RP-070"
+      ],
+      "readEvidenceDigest": "2434aec81a9afa41d9540f444367fb920deef1aff8433a9813e1fd67c1c20d3e",
+      "findingDispositions": [
+        {
+          "findingId": "B-5a15:F-228",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a15:F-197",
+          "reason": "Current-wave representative of the established empty-production-DAG family: CertificationWindow still constructs an empty dependency graph and input set."
+        },
+        {
+          "findingId": "B-5a15:F-229",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a15:F-198",
+          "reason": "Current-wave representative of the established Wave-4 acceptance-coverage family: verifier-owned topology, pre-review, rollout, degraded-cohort, mutation, mode-invariant, enforce-only, and rollback coverage is still absent."
+        },
+        {
+          "findingId": "B-5a15:F-230",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a15:F-176",
+          "reason": "Current-wave representative of the established unbounded-outputTail family: receipt verification bounds outputProbe but not durable outputTail."
+        },
+        {
+          "findingId": "B-5a15:F-231",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a15:F-177",
+          "reason": "Current-wave representative of the established lossy-validation-command-identity family: structured command semantics are collapsed before causal preflight identity is derived."
+        },
+        {
+          "findingId": "B-5a15:F-232",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a15:F-150",
+          "reason": "Current-wave representative of the established incomplete-preflight-identity family: canonical import revalidation omits stamped preflight transaction facts."
+        },
+        {
+          "findingId": "B-5a15:F-233",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a15:F-182",
+          "reason": "Current-wave representative of the established cross-story/graph-replay family: the signed decision lacks story and dependency-graph identity binding."
+        },
+        {
+          "findingId": "B-5a15:F-234",
+          "disposition": "duplicate",
+          "familyKey": "finding:B-5a15:F-197",
+          "canonicalFindingId": "B-5a15:F-228",
+          "reason": "Repeats the current-wave empty-production-DAG representative F-228 and the existing F-197 family; no new family is introduced."
+        },
+        {
+          "findingId": "B-5a15:F-235",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a15:F-173",
+          "reason": "Current-wave representative of the established storyFilesHash-only freshness-bypass family: a story-owned hash mismatch still falls through as fresh."
+        },
+        {
+          "findingId": "B-5a15:F-236",
+          "disposition": "duplicate",
+          "familyKey": "finding:B-5a15:F-176",
+          "canonicalFindingId": "B-5a15:F-230",
+          "reason": "Repeats the current-wave unbounded-outputTail representative F-230 and the existing F-176 family; no new family is introduced."
+        },
+        {
+          "findingId": "B-5a15:F-237",
+          "disposition": "duplicate",
+          "familyKey": "finding:B-5a15:F-177",
+          "canonicalFindingId": "B-5a15:F-231",
+          "reason": "Repeats the current-wave lossy-validation-command-identity representative F-231 and the existing F-177 family; no new family is introduced."
+        },
+        {
+          "findingId": "B-5a15:F-238",
+          "disposition": "duplicate",
+          "familyKey": "finding:B-5a15:F-150",
+          "canonicalFindingId": "B-5a15:F-232",
+          "reason": "Repeats the current-wave incomplete-preflight-identity representative F-232 and the existing F-150 family; no new family is introduced."
+        },
+        {
+          "findingId": "B-5a15:F-239",
+          "disposition": "duplicate",
+          "familyKey": "finding:B-5a15:F-182",
+          "canonicalFindingId": "B-5a15:F-233",
+          "reason": "Repeats the current-wave cross-story/graph-replay representative F-233 and the existing F-182 family; no new family is introduced."
+        }
+      ],
+      "createdAt": "2026-08-23T15:32:31.008Z",
+      "_hash": "f5e2db04f0a6fafabc7591f5ee38e5c9a5444fc21e20e18825054cec06d1fd35"
     }
   ]
 }
