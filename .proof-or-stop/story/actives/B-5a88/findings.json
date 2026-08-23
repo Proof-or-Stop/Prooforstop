@@ -10648,6 +10648,230 @@
       ],
       "signatureTag": "wave-4-pre-review-boundary",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-272",
+      "desc": "RI-026 wave 2/3 topology completeness remains blocked: proof-or-stop pre_review_check_read --storyId=B-5a88 --json returns status=inconclusive and ok=false with plannedActual=incomplete, executableEvidence=missing, mutations=missing, transcript=missing, and authority=inadmissible. The current artifact has no executable command digest, case records, runner or target provenance, or binding proofs, so the diagnostic-only structural topology pass and separate full-3x2 rollout report cannot substitute for the missing verifier-owned pre-review evidence. Reissue current verifier-owned pre_review_check evidence before review completion; do not pass or dismiss this gap.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-23T08:50:38.001Z",
+      "reviewRound": "2026-08-22T07:35:25.372Z",
+      "reviewRunId": "B-5a88:RR-347",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+        ],
+        "scanEscalationReason": "Independent review narrowed to the verifier-owned pre-review executable boundary after checking the current pre_review_check_read result, the full pre-review producer/provenance code, structural topology authority, rollout evidence, and current-wave disposition rules."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "01c677bd2869ba48042d17050cd4484019720f4d11fb9407c35fc0126ba03610"
+      },
+      "readDiagnostics": [],
+      "_hash": "08b2a49d91b28bd4852e0f0603cde17a1ed93f4fcb1194413389b9b40a8d7a79",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/pre-review-live-proof.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/acceptance-rollout.ts",
+        "packages/main/src/handlers/review-inventory.ts",
+        "packages/main/src/core/review-inventory-epoch.ts"
+      ],
+      "signatureTag": "wave-2-pre-review-verifier-boundary",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-273",
+      "desc": "RI-026 wave 3 coverage remains blocked: the fresh read-only proof-or-stop pre_review_check_read --storyId=B-5a88 --json returns status=inconclusive, plannedActual=incomplete, executableEvidence=missing, mutations=missing, transcript=missing, and authority=inadmissible, with PR_ARTIFACT_TAMPERED, PR_MUTATION_EVIDENCE_MISSING, PR_MUTATION_DID_NOT_BITE, PR_CONTROL_NOT_RESTORED, PR_TRANSCRIPT_MISSING, PR_AUTHORITY_INADMISSIBLE, PR_EVIDENCE_STALE, and PR_CUTOFF_UNBOUND. packages/main/src/core/pre-review-check.ts:282-287,345-358,399-443 makes these states fail closed when the verifier-owned executable proof or current provenance is absent. The 21/21 fresh checklist receipts and separate acceptance_topology_check / acceptance_rollout_check passes do not supply the required current verifier-owned executable, mutation, transcript, and authority receipt; acceptance_topology_check is diagnostic-only and evidentiary=false. Reissue a current live proof and pre-review receipt before passing. This is the still-valid verified residual family represented by B-5a88:F-265 and B-5a88:F-269, not a fabricated new defect.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-23T09:02:11.454Z",
+      "reviewRound": "2026-08-22T07:35:25.372Z",
+      "reviewRunId": "B-5a88:RR-348",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "scripts/run-proofstory-pre-review-live-proof.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "222062313a09192987105deeea720d87f2f23dfe26ad3c312334ee17f21bc50a"
+      },
+      "readDiagnostics": [],
+      "_hash": "64bedd63a158ee8c78ab436326ad48de8a9014e6b0e8a7509280afec6fc4ef03",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a88/checklist.json",
+        ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/pre-review-live-proof.ts",
+        "packages/main/src/handlers/proofstory.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+      ],
+      "signatureTag": "wave-4-pre-review-boundary",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-274",
+      "desc": "RI-026 wave 3 quality recheck: the verifier-owned pre_review_check remains non-admissible at the current cutoff. Fresh proof-or-stop pre_review_check_read --storyId=B-5a88 --json reports status=inconclusive and ok=false with plannedActual=incomplete, executableEvidence=missing, mutations=missing, transcript=missing, and authority=inadmissible, including PR_ARTIFACT_TAMPERED, PR_EVIDENCE_STALE, and PR_CUTOFF_UNBOUND. The current signed pre-review artifact has empty executableProof data (no commandDigests, caseRecords, provenance, or bindingProofs). pre-review-check.ts:282-318 rejects this state, proofstory.ts:692-704 exposes the read-only result, and pre-review-live-proof.ts:120-144 shows that executable proof must be produced from executed case records. Fresh checklist evidence is material-fresh, but test-evidence is stale on storyFilesHash; there is no current signed PASS receipt, so this quality lane cannot truthfully pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-23T09:04:51.707Z",
+      "reviewRound": "2026-08-22T07:35:25.372Z",
+      "reviewRunId": "B-5a88:RR-350",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "scanEscalationReason": "Wave-3 quality recheck focused on verifier-owned pre-review proof after inspecting the current source, fresh evidence inspection, and verified prior pre-review findings; the missing signed PASS is independently sufficient to block a truthful pass."
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": 7600
+        },
+        "digest": "f6885772a5178817dfff56434aa5e8f2026ad53b4d0c19854a48970d7601ccc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "77804de1a74267bac10727799c19bb163cafb40da080e4f07f5cfccbce3c8165",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/handlers/proofstory.ts",
+        "packages/main/src/core/pre-review-live-proof.ts"
+      ],
+      "signatureTag": "missing|json|wave-quality-recheck",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-275",
+      "desc": "RI-026 wave 3/3 concept review: fresh pre_review_check_read is inconclusive with PR_ARTIFACT_TAMPERED, plannedActual=incomplete, executableEvidence=missing, mutations=missing, transcript=missing, and authority=inadmissible; pre-review-check.json:1381-1411 has empty commandDigests, caseRecords, provenance, and bindingProofs. acceptance_topology_check is evidentiary=false and diagnostic_only at acceptance-topology.ts:699-704, so structural and rollout passes do not provide current admissible pre-review executable proof.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-23T09:07:47.234Z",
+      "reviewRound": "2026-08-22T07:35:25.372Z",
+      "reviewRunId": "B-5a88:RR-349",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        }
+      ],
+      "_hash": "a96fd1c71469f02cac98f08d8df9da6421e22fc65158d98ff5cb0231162a0f71",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/pre-review-check.ts"
+      ],
+      "signatureTag": "missing|json|wave-concept-review",
+      "signatureTagSource": "auto"
     }
   ]
 }
