@@ -10756,6 +10756,109 @@
       ],
       "signatureTag": "missing|ts|wave-coverage-missing",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a15:F-203",
+      "desc": "Fresh topology review at B-5a15:RR-338 confirms acceptance_basis is structurally verified but basisStatus=partial because AT_UNMAPPED_SCOPE_REF remains for path:static-call:packages/main/src/core/causal-evidence.ts#hasCausalDependencyDecisionIdentityBinding->consumer:packages/main/src/core/certification-window.ts#hasCausalDependencyDecisionIdentityBinding. acceptance_topology_check therefore remains inconclusive and the topology critic cannot issue a pass; this is the unchanged canonical acceptance-basis family B-5a15:F-196.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-23T14:00:54.614Z",
+      "reviewRound": "2026-08-22T06:10:03.014Z",
+      "reviewRunId": "B-5a15:RR-338",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        }
+      ],
+      "_hash": "b817f5e191ab66e9b942cbf6b1f1d82abc8a80070f98a9f51aead38f2692f95a",
+      "files": [
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/causal-evidence.ts",
+        "packages/main/src/core/certification-window.ts",
+        "packages/main/src/core/topology-critic-receipt.ts",
+        "packages/main/src/handlers/certification-window.ts",
+        "packages/main/src/handlers/proofstory.ts"
+      ],
+      "signatureTag": "missing|ts|fresh-topology-review",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a15:F-204",
+      "desc": "same-family:B-5a15:F-197 — unchanged at packages/main/src/handlers/certification-window.ts:97-107: buildCertificationDecision still passes nodes: [] and currentInputHashes: {} into evaluateCausalDependencies. The production CertificationWindow therefore still cannot evaluate declared dependency nodes or affected-node closure, so related-drift reruns and affectedNodeRerun=100% remain undelivered. This is the existing F-197 family, not a new defect.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-23T14:16:19.898Z",
+      "reviewRound": "2026-08-22T06:10:03.014Z",
+      "reviewRunId": "B-5a15:RR-343",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/certification-window.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/causal-evidence.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "6886e0eed81d4de39dfdd7059359fdc2f42e46aaa674c7de0fbdbc4c353b5965",
+      "files": [
+        "packages/main/src/handlers/certification-window.ts",
+        "packages/main/src/core/certification-window.ts",
+        "packages/main/src/core/causal-evidence.ts"
+      ],
+      "signatureTag": "missing|ts|certification-window-high",
+      "signatureTagSource": "confirmed"
     }
   ]
 }

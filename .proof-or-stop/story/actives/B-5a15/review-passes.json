@@ -2685,6 +2685,50 @@
         "scanEscalationReason": null
       },
       "_hash": "44eae997596da50b5ce95f3f3d161bc335cdd20543520fe8df3da732852b5563"
+    },
+    {
+      "id": "B-5a15:RP-062",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion or replacement was introduced by this story. The frozen diff and repository-wide CausalEvidence/legacy-term scans found no residual of a deleted concept and no newly promised-but-undelivered concept; the unchanged legacy testIntent references are pre-existing compatibility/docs material, not this story's deletion.",
+      "createdAt": "2026-08-23T14:16:03.620Z",
+      "reviewRound": "2026-08-22T06:10:03.014Z",
+      "reviewRunId": "B-5a15:RR-344",
+      "envelopeId": "94713b16d79e4ecb6743eb1c8da54b3f5e903469fab5734979c8a3ac3014c5dc",
+      "writerSessionId": "sess-1ff81192c8f5688bf40ac6afd86a20f7",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/context.ts",
+          "packages/main/src/handlers/live-smoke-transcript.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "packages/main/src/tasks/verifier-causal-preflight-smoke.ts",
+          "packages/main/tests/causal-evidence-concurrency.test.mjs",
+          "packages/main/tests/causal-evidence.test.mjs",
+          "packages/main/tests/checklist-causal-preflight-batch.test.mjs",
+          "packages/main/tests/verifier-causal-preflight.test.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Concept review used the frozen git diff/name inventory plus repository-wide Glob/Grep scans; no deleted or replaced concept was identified, so no decisions-directory escalation was needed."
+      },
+      "_hash": "7274cd673b7f095f5c26e971d552ca5659f3f6d35c6cf5640f565801810c06d3"
     }
   ]
 }
