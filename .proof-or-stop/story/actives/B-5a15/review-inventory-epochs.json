@@ -5781,6 +5781,527 @@
       ],
       "createdAt": "2026-08-23T14:52:38.230Z",
       "_hash": "8a3073602646ab963ef69d5cd255047c9b6b72c3facb1aa2893cfc5cc3375ef7"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-5a15:RI-020:CRIT-01",
+      "epochId": "B-5a15:RI-020",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-22T06:10:03.014Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "68d7f0e6bf3c8ef01993170c58e7a9187f8ce943",
+        "materialHash": "9ef9d9e58737da562ae603f38a4ea393a304c5faf2f9affdeefcc0287d3c24e6",
+        "storyFilesHash": "e287c5f32d9aad03e0ce7ea8b20a2684ab0ac2e78ef99c6fc5b18e9b8e9c97e7"
+      },
+      "aggregateFindingSetDigest": "6d540c424211ae2f60df15df82d752a828b295504947a21f64cc461c4a110681",
+      "requiredLaneCoverageDigest": "7fc08ceb9bc68262d84243ee32017a6198ece17194490ce6a46fabd20ac612ae",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-5a15:RR-356",
+      "terminalEvidenceIds": [
+        "B-5a15:F-227"
+      ],
+      "readEvidenceDigest": "38f284d7a43eb83aea79011ffa10e593a9d4d9e89fd5d5ad9b96569867e5a8e4",
+      "findingDispositions": [
+        {
+          "findingId": "B-5a15:F-152",
+          "disposition": "verified_family",
+          "familyKey": "family:chk003-advisory-admission-coverage",
+          "reason": "Existing family representative."
+        },
+        {
+          "findingId": "B-5a15:F-153",
+          "disposition": "verified_family",
+          "familyKey": "family:causal-receipt-output-tail-bound",
+          "reason": "Existing family representative."
+        },
+        {
+          "findingId": "B-5a15:F-154",
+          "disposition": "duplicate",
+          "familyKey": "family:acceptance-basis-unmapped-topology",
+          "canonicalFindingId": "B-5a15:F-196",
+          "reason": "Existing family duplicate."
+        },
+        {
+          "findingId": "B-5a15:F-155",
+          "disposition": "duplicate",
+          "familyKey": "family:chk003-advisory-admission-coverage",
+          "canonicalFindingId": "B-5a15:F-152",
+          "reason": "Existing family duplicate."
+        },
+        {
+          "findingId": "B-5a15:F-156",
+          "disposition": "verified_family",
+          "familyKey": "family:validation-command-spec-identity",
+          "reason": "Existing family representative."
+        },
+        {
+          "findingId": "B-5a15:F-157",
+          "disposition": "duplicate",
+          "familyKey": "family:acceptance-basis-unmapped-topology",
+          "canonicalFindingId": "B-5a15:F-196",
+          "reason": "Existing family duplicate."
+        },
+        {
+          "findingId": "B-5a15:F-158",
+          "disposition": "duplicate",
+          "familyKey": "family:acceptance-basis-unmapped-topology",
+          "canonicalFindingId": "B-5a15:F-196",
+          "reason": "Existing family duplicate."
+        },
+        {
+          "findingId": "B-5a15:F-159",
+          "disposition": "duplicate",
+          "familyKey": "family:chk003-advisory-admission-coverage",
+          "canonicalFindingId": "B-5a15:F-152",
+          "reason": "Existing family duplicate."
+        },
+        {
+          "findingId": "B-5a15:F-160",
+          "disposition": "verified_family",
+          "familyKey": "family:verifier-owned-wave4-coverage",
+          "reason": "Existing family representative."
+        },
+        {
+          "findingId": "B-5a15:F-161",
+          "disposition": "verified_family",
+          "familyKey": "family:causal-input-identity-collision",
+          "reason": "Existing family representative."
+        },
+        {
+          "findingId": "B-5a15:F-162",
+          "disposition": "duplicate",
+          "familyKey": "family:chk003-advisory-admission-coverage",
+          "canonicalFindingId": "B-5a15:F-152",
+          "reason": "Existing family duplicate."
+        },
+        {
+          "findingId": "B-5a15:F-163",
+          "disposition": "duplicate",
+          "familyKey": "family:verifier-owned-wave4-coverage",
+          "canonicalFindingId": "B-5a15:F-160",
+          "reason": "Existing family duplicate."
+        },
+        {
+          "findingId": "B-5a15:F-164",
+          "disposition": "verified_family",
+          "familyKey": "family:preflight-authority-root-binding",
+          "reason": "Existing family representative."
+        },
+        {
+          "findingId": "B-5a15:F-165",
+          "disposition": "duplicate",
+          "familyKey": "family:verifier-owned-wave4-coverage",
+          "canonicalFindingId": "B-5a15:F-160",
+          "reason": "Existing family duplicate."
+        },
+        {
+          "findingId": "B-5a15:F-166",
+          "disposition": "duplicate",
+          "familyKey": "family:chk003-advisory-admission-coverage",
+          "canonicalFindingId": "B-5a15:F-152",
+          "reason": "Existing family duplicate."
+        },
+        {
+          "findingId": "B-5a15:F-167",
+          "disposition": "verified_family",
+          "familyKey": "family:commit-failure-rerun-metric",
+          "reason": "Existing family representative."
+        },
+        {
+          "findingId": "B-5a15:F-168",
+          "disposition": "verified_family",
+          "familyKey": "family:derived-causal-metrics",
+          "reason": "Existing family representative."
+        },
+        {
+          "findingId": "B-5a15:F-169",
+          "disposition": "verified_family",
+          "familyKey": "family:preflight-event-ordering",
+          "reason": "Existing family representative."
+        },
+        {
+          "findingId": "B-5a15:F-170",
+          "disposition": "verified_family",
+          "familyKey": "family:production-evidence-batch-boundary",
+          "reason": "Existing family representative."
+        },
+        {
+          "findingId": "B-5a15:F-171",
+          "disposition": "duplicate",
+          "familyKey": "family:acceptance-basis-unmapped-topology",
+          "canonicalFindingId": "B-5a15:F-196",
+          "reason": "Existing family duplicate."
+        },
+        {
+          "findingId": "B-5a15:F-172",
+          "disposition": "duplicate",
+          "familyKey": "family:acceptance-basis-unmapped-topology",
+          "canonicalFindingId": "B-5a15:F-196",
+          "reason": "Existing family duplicate."
+        },
+        {
+          "findingId": "B-5a15:F-173",
+          "disposition": "verified_family",
+          "familyKey": "family:story-files-hash-drift",
+          "reason": "Existing family representative."
+        },
+        {
+          "findingId": "B-5a15:F-174",
+          "disposition": "verified_family",
+          "familyKey": "family:canonical-import-preflight-transaction",
+          "reason": "Existing family representative."
+        },
+        {
+          "findingId": "B-5a15:F-175",
+          "disposition": "verified_family",
+          "familyKey": "family:production-empty-causal-dag",
+          "reason": "Existing family representative."
+        },
+        {
+          "findingId": "B-5a15:F-176",
+          "disposition": "duplicate",
+          "familyKey": "family:causal-receipt-output-tail-bound",
+          "canonicalFindingId": "B-5a15:F-153",
+          "reason": "Existing family duplicate."
+        },
+        {
+          "findingId": "B-5a15:F-177",
+          "disposition": "duplicate",
+          "familyKey": "family:validation-command-spec-identity",
+          "canonicalFindingId": "B-5a15:F-156",
+          "reason": "Existing family duplicate."
+        },
+        {
+          "findingId": "B-5a15:F-178",
+          "disposition": "duplicate",
+          "familyKey": "family:causal-input-identity-collision",
+          "canonicalFindingId": "B-5a15:F-161",
+          "reason": "Existing family duplicate."
+        },
+        {
+          "findingId": "B-5a15:F-179",
+          "disposition": "duplicate",
+          "familyKey": "family:preflight-authority-root-binding",
+          "canonicalFindingId": "B-5a15:F-164",
+          "reason": "Existing family duplicate."
+        },
+        {
+          "findingId": "B-5a15:F-180",
+          "disposition": "duplicate",
+          "familyKey": "family:story-files-hash-drift",
+          "canonicalFindingId": "B-5a15:F-173",
+          "reason": "Existing family duplicate."
+        },
+        {
+          "findingId": "B-5a15:F-181",
+          "disposition": "duplicate",
+          "familyKey": "family:acceptance-basis-unmapped-topology",
+          "canonicalFindingId": "B-5a15:F-196",
+          "reason": "Existing family duplicate."
+        },
+        {
+          "findingId": "B-5a15:F-182",
+          "disposition": "verified_family",
+          "familyKey": "family:causal-decision-consumer-identity",
+          "reason": "Existing family representative."
+        },
+        {
+          "findingId": "B-5a15:F-183",
+          "disposition": "duplicate",
+          "familyKey": "family:acceptance-basis-unmapped-topology",
+          "canonicalFindingId": "B-5a15:F-196",
+          "reason": "Existing family duplicate."
+        },
+        {
+          "findingId": "B-5a15:F-184",
+          "disposition": "duplicate",
+          "familyKey": "family:verifier-owned-wave4-coverage",
+          "canonicalFindingId": "B-5a15:F-160",
+          "reason": "Existing family duplicate."
+        },
+        {
+          "findingId": "B-5a15:F-185",
+          "disposition": "duplicate",
+          "familyKey": "family:acceptance-basis-unmapped-topology",
+          "canonicalFindingId": "B-5a15:F-196",
+          "reason": "Existing family duplicate."
+        },
+        {
+          "findingId": "B-5a15:F-186",
+          "disposition": "duplicate",
+          "familyKey": "family:verifier-owned-wave4-coverage",
+          "canonicalFindingId": "B-5a15:F-160",
+          "reason": "Existing family duplicate."
+        },
+        {
+          "findingId": "B-5a15:F-187",
+          "disposition": "duplicate",
+          "familyKey": "family:verifier-owned-wave4-coverage",
+          "canonicalFindingId": "B-5a15:F-160",
+          "reason": "Existing family duplicate."
+        },
+        {
+          "findingId": "B-5a15:F-188",
+          "disposition": "duplicate",
+          "familyKey": "family:acceptance-basis-unmapped-topology",
+          "canonicalFindingId": "B-5a15:F-196",
+          "reason": "Existing family duplicate."
+        },
+        {
+          "findingId": "B-5a15:F-189",
+          "disposition": "duplicate",
+          "familyKey": "family:verifier-owned-wave4-coverage",
+          "canonicalFindingId": "B-5a15:F-160",
+          "reason": "Existing family duplicate."
+        },
+        {
+          "findingId": "B-5a15:F-191",
+          "disposition": "duplicate",
+          "familyKey": "family:production-empty-causal-dag",
+          "canonicalFindingId": "B-5a15:F-175",
+          "reason": "Existing family duplicate."
+        },
+        {
+          "findingId": "B-5a15:F-192",
+          "disposition": "duplicate",
+          "familyKey": "family:verifier-owned-wave4-coverage",
+          "canonicalFindingId": "B-5a15:F-160",
+          "reason": "Existing family duplicate."
+        },
+        {
+          "findingId": "B-5a15:F-193",
+          "disposition": "duplicate",
+          "familyKey": "family:verifier-owned-wave4-coverage",
+          "canonicalFindingId": "B-5a15:F-160",
+          "reason": "Existing family duplicate."
+        },
+        {
+          "findingId": "B-5a15:F-194",
+          "disposition": "duplicate",
+          "familyKey": "family:production-empty-causal-dag",
+          "canonicalFindingId": "B-5a15:F-175",
+          "reason": "Existing family duplicate."
+        },
+        {
+          "findingId": "B-5a15:F-195",
+          "disposition": "duplicate",
+          "familyKey": "family:acceptance-basis-unmapped-topology",
+          "canonicalFindingId": "B-5a15:F-196",
+          "reason": "Existing family duplicate."
+        },
+        {
+          "findingId": "B-5a15:F-196",
+          "disposition": "verified_family",
+          "familyKey": "family:acceptance-basis-unmapped-topology",
+          "reason": "Existing family representative."
+        },
+        {
+          "findingId": "B-5a15:F-197",
+          "disposition": "duplicate",
+          "familyKey": "family:production-empty-causal-dag",
+          "canonicalFindingId": "B-5a15:F-175",
+          "reason": "Existing family duplicate."
+        },
+        {
+          "findingId": "B-5a15:F-198",
+          "disposition": "duplicate",
+          "familyKey": "family:verifier-owned-wave4-coverage",
+          "canonicalFindingId": "B-5a15:F-160",
+          "reason": "Existing family duplicate."
+        },
+        {
+          "findingId": "B-5a15:F-199",
+          "disposition": "duplicate",
+          "familyKey": "family:acceptance-basis-unmapped-topology",
+          "canonicalFindingId": "B-5a15:F-196",
+          "reason": "Existing family duplicate."
+        },
+        {
+          "findingId": "B-5a15:F-200",
+          "disposition": "duplicate",
+          "familyKey": "family:verifier-owned-wave4-coverage",
+          "canonicalFindingId": "B-5a15:F-160",
+          "reason": "Existing family duplicate."
+        },
+        {
+          "findingId": "B-5a15:F-201",
+          "disposition": "duplicate",
+          "familyKey": "family:production-empty-causal-dag",
+          "canonicalFindingId": "B-5a15:F-175",
+          "reason": "Existing family duplicate."
+        },
+        {
+          "findingId": "B-5a15:F-202",
+          "disposition": "duplicate",
+          "familyKey": "family:verifier-owned-wave4-coverage",
+          "canonicalFindingId": "B-5a15:F-160",
+          "reason": "Existing family duplicate."
+        },
+        {
+          "findingId": "B-5a15:F-203",
+          "disposition": "duplicate",
+          "familyKey": "family:acceptance-basis-unmapped-topology",
+          "canonicalFindingId": "B-5a15:F-196",
+          "reason": "Existing family duplicate."
+        },
+        {
+          "findingId": "B-5a15:F-204",
+          "disposition": "duplicate",
+          "familyKey": "family:production-empty-causal-dag",
+          "canonicalFindingId": "B-5a15:F-175",
+          "reason": "Existing family duplicate."
+        },
+        {
+          "findingId": "B-5a15:F-205",
+          "disposition": "duplicate",
+          "familyKey": "family:verifier-owned-wave4-coverage",
+          "canonicalFindingId": "B-5a15:F-160",
+          "reason": "Existing family duplicate."
+        },
+        {
+          "findingId": "B-5a15:F-206",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a15:F-198",
+          "reason": "Existing family representative."
+        },
+        {
+          "findingId": "B-5a15:F-207",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a15:F-197",
+          "reason": "Existing family representative."
+        },
+        {
+          "findingId": "B-5a15:F-208",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a15:F-173",
+          "reason": "Existing family representative."
+        },
+        {
+          "findingId": "B-5a15:F-209",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a15:F-176",
+          "reason": "Existing family representative."
+        },
+        {
+          "findingId": "B-5a15:F-210",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a15:F-177",
+          "reason": "Existing family representative."
+        },
+        {
+          "findingId": "B-5a15:F-211",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a15:F-150",
+          "reason": "Existing family representative."
+        },
+        {
+          "findingId": "B-5a15:F-212",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a15:F-182",
+          "reason": "Existing family representative."
+        },
+        {
+          "findingId": "B-5a15:F-213",
+          "disposition": "duplicate",
+          "familyKey": "finding:B-5a15:F-198",
+          "canonicalFindingId": "B-5a15:F-206",
+          "reason": "Existing family duplicate."
+        },
+        {
+          "findingId": "B-5a15:F-214",
+          "disposition": "duplicate",
+          "familyKey": "finding:B-5a15:F-197",
+          "canonicalFindingId": "B-5a15:F-207",
+          "reason": "Existing family duplicate."
+        },
+        {
+          "findingId": "B-5a15:F-215",
+          "disposition": "duplicate",
+          "familyKey": "finding:B-5a15:F-197",
+          "canonicalFindingId": "B-5a15:F-207",
+          "reason": "Existing family duplicate."
+        },
+        {
+          "findingId": "B-5a15:F-216",
+          "disposition": "duplicate",
+          "familyKey": "finding:B-5a15:F-173",
+          "canonicalFindingId": "B-5a15:F-208",
+          "reason": "Existing family duplicate."
+        },
+        {
+          "findingId": "B-5a15:F-217",
+          "disposition": "duplicate",
+          "familyKey": "finding:B-5a15:F-173",
+          "canonicalFindingId": "B-5a15:F-208",
+          "reason": "Existing family duplicate."
+        },
+        {
+          "findingId": "B-5a15:F-218",
+          "disposition": "duplicate",
+          "familyKey": "finding:B-5a15:F-176",
+          "canonicalFindingId": "B-5a15:F-209",
+          "reason": "Existing family duplicate."
+        },
+        {
+          "findingId": "B-5a15:F-219",
+          "disposition": "duplicate",
+          "familyKey": "finding:B-5a15:F-176",
+          "canonicalFindingId": "B-5a15:F-209",
+          "reason": "Existing family duplicate."
+        },
+        {
+          "findingId": "B-5a15:F-220",
+          "disposition": "duplicate",
+          "familyKey": "finding:B-5a15:F-177",
+          "canonicalFindingId": "B-5a15:F-210",
+          "reason": "Existing family duplicate."
+        },
+        {
+          "findingId": "B-5a15:F-221",
+          "disposition": "duplicate",
+          "familyKey": "finding:B-5a15:F-177",
+          "canonicalFindingId": "B-5a15:F-210",
+          "reason": "Existing family duplicate."
+        },
+        {
+          "findingId": "B-5a15:F-222",
+          "disposition": "duplicate",
+          "familyKey": "finding:B-5a15:F-150",
+          "canonicalFindingId": "B-5a15:F-211",
+          "reason": "Existing family duplicate."
+        },
+        {
+          "findingId": "B-5a15:F-223",
+          "disposition": "duplicate",
+          "familyKey": "finding:B-5a15:F-150",
+          "canonicalFindingId": "B-5a15:F-211",
+          "reason": "Existing family duplicate."
+        },
+        {
+          "findingId": "B-5a15:F-224",
+          "disposition": "duplicate",
+          "familyKey": "finding:B-5a15:F-182",
+          "canonicalFindingId": "B-5a15:F-212",
+          "reason": "Existing family duplicate."
+        },
+        {
+          "findingId": "B-5a15:F-225",
+          "disposition": "duplicate",
+          "familyKey": "finding:B-5a15:F-182",
+          "canonicalFindingId": "B-5a15:F-212",
+          "reason": "Existing family duplicate."
+        },
+        {
+          "findingId": "B-5a15:F-226",
+          "disposition": "duplicate",
+          "familyKey": "finding:B-5a15:F-198",
+          "canonicalFindingId": "B-5a15:F-206",
+          "reason": "Existing family duplicate."
+        }
+      ],
+      "createdAt": "2026-08-23T15:13:47.210Z",
+      "_hash": "14c9ac5e82ff0829e7d423a5cf416c5fb472d81399ec3613ff74ca94c531a0dc"
     }
   ]
 }
