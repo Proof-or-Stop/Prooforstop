@@ -9651,6 +9651,635 @@
       ],
       "signatureTag": "missing|ts|acceptance-topology-remains",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-175",
+      "desc": "Concept-chain review cannot pass: the verifier-owned acceptance_topology_check is inconclusive with structuralPass=false, basisStatus=partial, topologyState=legacy_missing, and AT_CLOSURE_FILES_STALE, AT_SCOPE_BINDING_MISSING, AT_UNMAPPED_SCOPE_REF, and AT_MISSING_TOPOLOGY diagnostics; pre_review_check_read is inconclusive with executable evidence, mutations, transcript, and admissible authority missing; acceptance_rollout_check is blocking with AR_REPORT_STALE and a stale receipt. A current signed PASS receipt for the canonical chain is therefore not established.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-23T11:18:39.435Z",
+      "reviewRound": "2026-08-23T08:18:33.747Z",
+      "reviewRunId": "B-45a0:RR-254",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-basis-receipt.ts",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "9e3e7738c8c633423b305c1d7ab68893601322b835ea315f92c92eea51034eb6",
+      "files": [
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/acceptance-basis-receipt.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/acceptance-rollout.ts"
+      ],
+      "signatureTag": "missing|ts|concept-chain-review",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-176",
+      "desc": "Checklist intent coverage is complete (45 intents, 45 passing evidence records, zero must-gaps and zero waivers), but required acceptance-gate coverage is not admissible: acceptance_topology_check is inconclusive with a partial legacy_missing basis and AT_MISSING_TOPOLOGY/AT_SCOPE_BINDING_MISSING diagnostics; pre_review_check_read is inconclusive with executable proof, mutations, transcript, and authority missing; acceptance_rollout_check is blocking with AR_REPORT_STALE and a stale receipt. The coverage reviewer cannot establish current executable coverage for the verifier-owned gate chain.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-23T11:20:21.106Z",
+      "reviewRound": "2026-08-23T08:18:33.747Z",
+      "reviewRunId": "B-45a0:RR-256",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/pre-review-check.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "efb357bb0c8c336b5797307979b070530956626a2bb77d91518e9fa789e53e3d",
+      "files": [
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/acceptance-rollout.ts",
+        "packages/main/src/core/evidence-freshness.ts"
+      ],
+      "signatureTag": "missing|ts|checklist-intent-coverage",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-177",
+      "desc": "Acceptance topology remains structurally incomplete: acceptance_topology_check is inconclusive with basisStatus=partial and topologyState=legacy_missing. The verifier reports stale closure, partial coverage basis, missing scope binding, four unmapped scope references, and AT_MISSING_TOPOLOGY for the required acceptance binding. The topology critic cannot pass until the PLAN basis and verification topology are regenerated and the named diagnostics are repaired.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-23T11:22:37.628Z",
+      "reviewRound": "2026-08-23T08:18:33.747Z",
+      "reviewRunId": "B-45a0:RR-259",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-basis-receipt.ts",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "5eea35587349cf2598c9db506ba723d48f67cb4916e5b86dacf42ef9c4e3fabf",
+      "files": [
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/acceptance-basis-receipt.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/acceptance-rollout.ts"
+      ],
+      "signatureTag": "missing|ts|acceptance-topology-remains",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-178",
+      "desc": "Wave-2 concept review cannot pass: the verifier-owned acceptance chain remains structurally and evidentially incomplete. acceptance_topology_check is inconclusive with basisStatus=partial, topologyState=legacy_missing, stale closure/scope bindings, unmapped scope references, and AT_MISSING_TOPOLOGY; pre_review_check_read is inconclusive with executable proof, mutations, transcript, and admissible authority missing; acceptance_rollout_check is blocking with AR_REPORT_STALE and a stale receipt. No current signed PASS receipt is established for this contract.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-23T11:24:43.204Z",
+      "reviewRound": "2026-08-23T08:18:33.747Z",
+      "reviewRunId": "B-45a0:RR-260",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-basis-receipt.ts",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "45300ee41f3b82ad67db0ce2d054927bf4339df543af7ec66e1806168762f903",
+      "files": [
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/acceptance-basis-receipt.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/acceptance-rollout.ts"
+      ],
+      "signatureTag": "missing|ts|wave-concept-review",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-179",
+      "desc": "Wave-2 coverage review confirms 45 verification intents with 45 passing evidence records, zero must-gaps, and zero waivers, but the required verifier-owned acceptance-gate coverage is not admissible/current: acceptance_topology_check is inconclusive with a partial legacy_missing basis and AT_MISSING_TOPOLOGY/AT_SCOPE_BINDING_MISSING diagnostics; pre_review_check_read is inconclusive with executable proof, mutations, transcript, and admissible authority missing; acceptance_rollout_check is blocking with AR_REPORT_STALE and a stale receipt. Current executable gate coverage cannot be certified.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-23T11:26:06.765Z",
+      "reviewRound": "2026-08-23T08:18:33.747Z",
+      "reviewRunId": "B-45a0:RR-263",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/pre-review-check.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "ef24f0dbb98eb3ef7a503c29e691163b999b7fee97a75a9253723fd8030b5c03",
+      "files": [
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/acceptance-rollout.ts",
+        "packages/main/src/core/evidence-freshness.ts"
+      ],
+      "signatureTag": "missing|ts|wave-coverage-review",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-180",
+      "desc": "Acceptance topology remains structurally incomplete: the verifier-owned basis is partial and topologyState is legacy_missing, with stale closure and scope bindings, unmapped acceptance paths, and AT_MISSING_TOPOLOGY for the required binding. A topology pass is forbidden until the PLAN basis and verification topology are regenerated and the AT_* diagnostics are repaired.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-23T11:27:44.184Z",
+      "reviewRound": "2026-08-23T08:18:33.747Z",
+      "reviewRunId": "B-45a0:RR-267",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-basis-receipt.ts",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "12ba5586d8374b1b43802877cdb497c46451754a937da5c5a25424d435e013b6",
+      "files": [
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/acceptance-basis-receipt.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/acceptance-rollout.ts"
+      ],
+      "signatureTag": "missing|ts|acceptance-topology-remains",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-181",
+      "desc": "Wave-3 concept review cannot pass: acceptance_topology_check remains inconclusive with basisStatus=partial, topologyState=legacy_missing, stale closure/scope bindings, unmapped scope references, and AT_MISSING_TOPOLOGY; pre_review_check_read remains inconclusive with executable proof, mutations, transcript, and admissible authority missing; acceptance_rollout_check remains blocking with AR_REPORT_STALE and a stale receipt. The required current signed PASS contract is not established.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-23T11:28:49.118Z",
+      "reviewRound": "2026-08-23T08:18:33.747Z",
+      "reviewRunId": "B-45a0:RR-268",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-basis-receipt.ts",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "e9a3e7f9718c661b52c886083f123bdf34569d85b5dcba958ffa57adfc8df6f0",
+      "files": [
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/acceptance-basis-receipt.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/acceptance-rollout.ts"
+      ],
+      "signatureTag": "missing|ts|wave-concept-review",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-182",
+      "desc": "Wave-3 coverage review confirms 45 verification intents with 45 passing evidence records, zero must-gaps, and zero waivers, but required executable acceptance-gate coverage remains inadmissible/current: acceptance_topology_check is inconclusive with a partial legacy_missing basis and AT_MISSING_TOPOLOGY/AT_SCOPE_BINDING_MISSING diagnostics; pre_review_check_read is inconclusive with executable proof, mutations, transcript, and admissible authority missing; acceptance_rollout_check is blocking with AR_REPORT_STALE and a stale receipt. Current verifier-owned gate coverage cannot be certified.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-23T11:29:57.926Z",
+      "reviewRound": "2026-08-23T08:18:33.747Z",
+      "reviewRunId": "B-45a0:RR-271",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/pre-review-check.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "6bc4b61ba71e076c21258522edf815fcdefc2f3f2acc96087be5d75d25626ebd",
+      "files": [
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/acceptance-rollout.ts",
+        "packages/main/src/core/evidence-freshness.ts"
+      ],
+      "signatureTag": "missing|ts|wave-coverage-review",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-183",
+      "desc": "Acceptance topology remains structurally incomplete: the verifier-owned basis is partial and topologyState is legacy_missing, with stale closure and scope bindings, unmapped acceptance paths, and AT_MISSING_TOPOLOGY for the required binding. A topology pass is forbidden until the PLAN basis and verification topology are regenerated and the AT_* diagnostics are repaired.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-23T11:30:41.994Z",
+      "reviewRound": "2026-08-23T08:18:33.747Z",
+      "reviewRunId": "B-45a0:RR-273",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-basis-receipt.ts",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "03b9b9137d56adeb67e21499e63870cc6819c7d5a5d61e7aee821a7bfc51d40a",
+      "files": [
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/acceptance-basis-receipt.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/acceptance-rollout.ts"
+      ],
+      "signatureTag": "missing|ts|acceptance-topology-remains",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-184",
+      "desc": "RI-039 concept review confirms the acceptance topology remains incomplete: acceptance_topology_check is inconclusive with structuralPass=false, basisStatus=partial, topologyState=legacy_missing, stale closure and scope bindings, unmapped acceptance paths, and AT_MISSING_TOPOLOGY for the required acceptance binding. A current structurally complete contract is not established, so this lane cannot pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-23T11:32:12.778Z",
+      "reviewRound": "2026-08-23T08:18:33.747Z",
+      "reviewRunId": "B-45a0:RR-275",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-basis-receipt.ts",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-topology.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "22f328768dadb7f4715773cad3406ef0d14e67e6c9b9200ec0d09612117643f3",
+      "files": [
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/acceptance-basis-receipt.ts"
+      ],
+      "signatureTag": "missing|ts|concept-review-confirms",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-185",
+      "desc": "RI-039 coverage review confirms 45 verification intents with 45 passing evidence records, zero must-gaps, and zero waivers, but current acceptance-gate coverage is not structurally admissible: acceptance_topology_check is inconclusive with structuralPass=false, basisStatus=partial, topologyState=legacy_missing, stale closure/scope bindings, unmapped scope references, and AT_MISSING_TOPOLOGY. The verifier-owned acceptance gate cannot be certified from this state.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-23T11:33:10.612Z",
+      "reviewRound": "2026-08-23T08:18:33.747Z",
+      "reviewRunId": "B-45a0:RR-277",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-basis-receipt.ts",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/evidence-freshness.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "2642478bc13f9f30da2d8521f4f47d2e7bbdc0a227865105c32d2a65bc146e76",
+      "files": [
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/acceptance-basis-receipt.ts",
+        "packages/main/src/core/evidence-freshness.ts"
+      ],
+      "signatureTag": "missing|ts|coverage-review-confirms",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-186",
+      "desc": "Acceptance topology remains structurally incomplete: the verifier-owned basis is partial and topologyState is legacy_missing, with stale closure and scope bindings, unmapped acceptance paths, and AT_MISSING_TOPOLOGY for the required binding. A topology pass is forbidden until the PLAN basis and verification topology are regenerated and the AT_* diagnostics are repaired.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-23T11:34:01.419Z",
+      "reviewRound": "2026-08-23T08:18:33.747Z",
+      "reviewRunId": "B-45a0:RR-279",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-basis-receipt.ts",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "ec886154b769f01d2f6cae823aa505f11e26abc036ab4b550bebc4c15c6da14d",
+      "files": [
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/acceptance-basis-receipt.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/acceptance-rollout.ts"
+      ],
+      "signatureTag": "missing|ts|acceptance-topology-remains",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-187",
+      "desc": "Acceptance topology remains structurally incomplete: the verifier-owned basis is partial and topologyState is legacy_missing, with stale closure and scope bindings, unmapped acceptance paths, and AT_MISSING_TOPOLOGY for the required binding. A topology pass is forbidden until the PLAN basis and verification topology are regenerated and the AT_* diagnostics are repaired.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-23T11:34:51.100Z",
+      "reviewRound": "2026-08-23T08:18:33.747Z",
+      "reviewRunId": "B-45a0:RR-281",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-basis-receipt.ts",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "bd28530d8ef33400089e424579a8ed56984fca30d405b8965d697f7275c073fc",
+      "files": [
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/acceptance-basis-receipt.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/acceptance-rollout.ts"
+      ],
+      "signatureTag": "missing|ts|acceptance-topology-remains",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-188",
+      "desc": "concept/acceptance-chain-incomplete: The verifier-owned acceptance_topology_check -> pre_review_check_read -> acceptance_rollout_report_read/acceptance_rollout_check chain is not complete at current head 2366466. acceptance_topology_check is status=inconclusive with basisStatus=partial and topologyState=legacy_missing, including AT_CLOSURE_FILES_STALE, AT_COVERAGE_BASIS_PARTIAL, AT_SCOPE_BINDING_MISSING, and AT_MISSING_TOPOLOGY; pre_review_check_read is inconclusive with PR_COVERAGE_INCONCLUSIVE, PR_AUTHORITY_INADMISSIBLE, PR_EVIDENCE_STALE, and PR_CUTOFF_UNBOUND; acceptance_rollout_check reports AR_REPORT_STALE. Source refs: packages/main/src/core/acceptance-topology.ts, packages/main/src/core/pre-review-check.ts, packages/main/src/core/acceptance-rollout.ts, packages/main/src/handlers/proofstory.ts. A current signed full 3 rounds x 2 hosts PASS and complete topology are not evidenced, so this lane cannot pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-23T11:39:07.674Z",
+      "reviewRound": "2026-08-23T08:18:33.747Z",
+      "reviewRunId": "B-45a0:RR-282",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "scanEscalationReason": "Current verifier-owned acceptance chain was triaged by targeted source search and canonical read-only CLI outputs."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "87387c9d3f31cf13a43d39e00250a109685f20d804d15630b5adb58b26a68479",
+      "files": [
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/acceptance-rollout.ts",
+        "packages/main/src/handlers/proofstory.ts"
+      ],
+      "signatureTag": "missing|ts|concept-acceptance-chain",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-189",
+      "desc": "Current-head coverage review found all 45 verificationEvidence rows for 45 intents (39 must) passing, but every receipt is stale: all rows bind headHash f2dd0de7d97d05bc8bf1a7a0b0acf74c56045a5d and storyFilesHash b11f433cb88ed6723f0fae22131da93c171368158b74c7fb8dbeda34ddbc1e28, while signed coverage run RR-285 is at current head 2366466 with story hash fb175be. No verification row is current-head-attested, so coverage cannot be accepted for this review until the evidence is rerun or refreshed at the current head.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-23T11:40:29.540Z",
+      "reviewRound": "2026-08-23T08:18:33.747Z",
+      "reviewRunId": "B-45a0:RR-285",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/checklist.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "6053c9d0e2ecdc512a84e0c9c3a9c16ad6124d3262a2ae8a462a6f16e043adee",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/checklist.json"
+      ],
+      "signatureTag": "coverage|verification-evidence|stale-current-head",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
