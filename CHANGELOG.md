@@ -34,11 +34,11 @@
   `@proof-or-stop/utils` and `@lattice/lab` → `@proof-or-stop/lab`. No deprecated
   alias packages are published; external consumers must update those dependency names.
 
-  **Not affected:** the `lattice` npm bin alias (`lattice --version` still resolves) is a
-  separate identity and remains retained. Projects
-  initialized before the rename that carry their own local `bin/lattice.js` are also
-  unaffected: `init` and `check` still recognize the old wrapper name in downstream
-  projects, so no managed file is stranded.
+  **Published CLI identity:** the canonical published npm bin is `proof-or-stop`.
+  The deprecated `lattice` wrapper/bin is removed; no published `lattice` alias
+  remains. Projects initialized before the rename that carry their own local
+  `bin/lattice.js` are still unaffected: `init` and `check` recognize the old
+  wrapper name in downstream projects, so no managed file is stranded.
 
 ## Proof-or-Stop v0.3.265 - 2026-08-19
 
