@@ -8,6 +8,8 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const packageRoot = fileURLToPath(new URL('..', import.meta.url));
+const repoRoot = join(packageRoot, '..', '..');
+const localCli = join(repoRoot, 'bin', 'proof-or-stop.js');
 const distName = existsSync(join(packageRoot, 'dist', 'core', 'artifact-schema.js'))
   ? 'dist'
   : 'dist.staging';
@@ -20,6 +22,27 @@ const freshness = await import(join(distRoot, 'core/evidence-freshness.js'));
 const artifactStore = await import(join(distRoot, 'core/evidence/artifact-store.js'));
 const checklistStatus = await import(join(distRoot, 'core/checklist-status.js'));
 const processFacts = await import(join(distRoot, 'core/process-fact-registry.js'));
+
+// CHK-003 migration witness: exercise the local worktree CLI against two named
+// archives from different eras. The schema/integrity/freshness/byte assertions
+// below remain in this same pinned test, so a passing receipt covers both the
+// executable read path and the historical artifact invariants.
+const archivedStories = [
+  { storyId: 'B-0168', phase: 'INIT', era: 'earliest-era archive' },
+  { storyId: 'B-META-framework-audit', phase: 'META', era: 'signed cross-story ledger' },
+];
+for (const expected of archivedStories) {
+  const output = execFileSync(
+    process.execPath,
+    [localCli, 'story_get', JSON.stringify({ storyId: expected.storyId, detail: true })],
+    { cwd: repoRoot, encoding: 'utf8' },
+  );
+  const result = JSON.parse(output);
+  assert.equal(result.index?.storyId, expected.storyId, `${expected.era} CLI read returns the requested story`);
+  assert.equal(result.index?.phase, expected.phase, `${expected.era} CLI read preserves its historical phase`);
+  assert.ok(Array.isArray(result.checklist?.items), `${expected.era} CLI read returns checklist data`);
+  assert.ok(Array.isArray(result.review?.reviews), `${expected.era} CLI read returns review data`);
+}
 
 const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-artifact-schema-'));
 try {
