@@ -1342,6 +1342,21 @@ function staticCallPaths(input: AcceptanceDiscoveryInput, graph: BoundedSourceGr
     ...input.plannedPathRecords.flatMap(record => [record.producer, ...record.consumers].map(endpoint => endpoint.expectedFileRef)),
     ...graph.factories.filter(factory => factory.commandKeys.some(command => explicitFacts.has(command))).map(factory => factory.sourceFile),
   ]);
+  // Existing `basis-path:path:static-call:...` references are explicit
+  // forward declarations at PLAN and become mandatory current edges at
+  // pre-review. Include their bounded endpoints in the scan so a declared
+  // edge is actually discoverable even when neither endpoint is already in
+  // the process-fact closure. The emitted path is still derived from the
+  // source import/call scan below; the declaration never self-certifies.
+  for (const ref of input.topologyPathRefs ?? []) {
+    const path = ref.startsWith('basis-path:') ? ref.slice('basis-path:'.length) : ref;
+    const match = /^path:static-call:([^#]+)#[^>]+->consumer:([^#]+)#[^>]+$/.exec(path);
+    if (!match) continue;
+    relevantFiles.add(match[1]);
+    relevantFiles.add(match[2]);
+    bindingRequiredFiles.add(match[1]);
+    bindingRequiredFiles.add(match[2]);
+  }
   for (const file of stable([...relevantFiles]).filter(value => !value.endsWith('/registry.ts'))) {
     const absolute = resolve(input.workspaceRoot, file);
     if (!existsSync(absolute)) continue;
