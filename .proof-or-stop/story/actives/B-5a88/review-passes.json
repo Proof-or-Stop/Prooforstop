@@ -8558,6 +8558,54 @@
         "scanEscalationReason": null
       },
       "_hash": "a3506959cf398a6314f694ece6e7465ffe47096575cb28d862b429312336ceba"
+    },
+    {
+      "id": "B-5a88:RP-160",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Test-coverage review passed: 7/7 checklist items and 21/21 must verification intents have current non-failing executable evidence, including acceptance topology/pre-review/rollout checks, full 3 rounds x 2 hosts, degraded-3x1 rejection, threshold/membership/freshness mutations, mode-invariant diagnostics, enforce-only blocking, and non-destructive rollback history. No new distinct coverage family beyond existing F-363/F-364/F-365; F-366..F-371 are duplicate reports.",
+      "createdAt": "2026-08-23T22:52:35.188Z",
+      "reviewRound": "2026-08-23T20:56:20.268Z",
+      "reviewRunId": "B-5a88:RR-515",
+      "envelopeId": "fa32c5e2b39d5f6d5425c6fdb52907fa8122ab4ad68ee23d09dc3dd5faf8b6d8",
+      "writerSessionId": "sess-1f17bba9f003c303412892608b3cce3f",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".githooks/pre-push",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "package-lock.json",
+          "package.json",
+          "packages/lab/package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/evidence-pin-guard.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/release-push-approval.ts",
+          "packages/main/src/core/stale-detector.ts",
+          "packages/main/src/tasks/lattice-only-absence-smoke.ts",
+          "packages/main/tests/artifact-schema-migration.test.mjs",
+          "packages/main/tests/bin-alias-migration.test.mjs",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/lab-brand-migration.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/package-identity-migration.test.mjs",
+          "packages/main/tests/prompt-role-migration.test.mjs",
+          "packages/main/tests/release-push-approval-migration.test.mjs",
+          "packages/utils/package.json",
+          "scripts/verify-global-lab-entrypoint.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/templates/agents/"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "62dabbbb6e7759e3b9ab543393896a1205e521a43ddba05e4116432be79f9a67"
     }
   ]
 }
