@@ -11675,6 +11675,59 @@
       ],
       "signatureTag": "missing|ts|topology-wave-acceptance",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-222",
+      "desc": "coverage-stale-after-F-201: current storyFilesHash changed to 8c25d752, leaving 42 verification-intent evidence bindings stale; no current executable evidence invokes verifier-owned acceptance_topology_check, pre_review_check_read, acceptance_rollout_report_read, and acceptance_rollout_check with full 3 rounds x 2 hosts, degraded-3x1 rejection, threshold/membership/freshness mutations, mode-invariant diagnostics, enforce-only blocking, and rollback-history preservation. The required validate command was attempted in RR-363 but remains owner-gated for this reviewer session, so coverage cannot be promoted to a terminal pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-23T15:44:06.172Z",
+      "reviewRound": "2026-08-23T15:41:58.443Z",
+      "reviewRunId": "B-45a0:RR-363",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-45a0/review-passes.json",
+          ".proof-or-stop/story/actives/B-45a0/review-runs.json",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": "Current-round coverage review used the fresh story context; 42 intent evidence bindings are stale after the F-201 story-owned change, and the required validate command was attempted but owner-gated, so no current executable acceptance-boundary receipt could be established."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "5a7727b7d210e473aa3edc85ec97e2acf705cf7847f7f1a1ec4fc91501ac96cb"
+      },
+      "readDiagnostics": [],
+      "_hash": "68a403d2ea99622cdd67bbb94ee42249fb43682430ccbf74f59ac83fa744bba8",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/checklist.json",
+        ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+        ".proof-or-stop/story/actives/B-45a0/review-passes.json",
+        ".proof-or-stop/story/actives/B-45a0/review-runs.json",
+        "packages/main/src/handlers/verifier.ts"
+      ],
+      "signatureTag": "missing|json|coverage-stale-current",
+      "signatureTagSource": "auto"
     }
   ]
 }
