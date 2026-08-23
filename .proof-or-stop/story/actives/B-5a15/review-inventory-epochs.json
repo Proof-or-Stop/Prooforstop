@@ -2033,7 +2033,7 @@
       "reviewRound": "2026-08-22T06:10:03.014Z",
       "state": "OPEN",
       "begunAt": "2026-08-23T10:27:53.205Z",
-      "updatedAt": "2026-08-23T11:00:23.358Z",
+      "updatedAt": "2026-08-23T11:59:51.075Z",
       "cutoff": {
         "headHash": "f632989c06ad86f1d34ccde167c946fc2dd24b37",
         "materialHash": "9ef9d9e58737da562ae603f38a4ea393a304c5faf2f9affdeefcc0287d3c24e6",
@@ -2109,6 +2109,69 @@
           "criticDigest": "4f680b14c72b5694768c2301eadd01d245f8069881b07d8b0bfcd07feedd1212",
           "saturated": false,
           "nextRunSequenceBoundary": 293
+        },
+        {
+          "wave": 2,
+          "startedAt": "2026-08-23T11:00:23.358Z",
+          "completedAt": "2026-08-23T11:59:51.075Z",
+          "lanes": [
+            {
+              "lane": "lattice-review-concept",
+              "reviewRunId": "B-5a15:RR-299",
+              "terminal": "pass",
+              "hostIdentity": "580d3f83093af98497be299e369ee8017ccf49131dd2e83ca2a125245b81e504",
+              "promptIdentity": "ad9432b45e2028429233fab593e477a99a98ecc5d88ce7e1db3e0f7d5eb288a7",
+              "evidenceIds": [
+                "B-5a15:RP-052"
+              ],
+              "coverageDigest": "998678c7d2617dc9e3514cd9a00bdd7ec019ce4378908ef5345c273f73c7e500"
+            },
+            {
+              "lane": "lattice-review-quality",
+              "reviewRunId": "B-5a15:RR-300",
+              "terminal": "pass",
+              "hostIdentity": "67706aea9363c8cdfd290b9d9bf64f7f4a39fe5c553c57941eaa83f52b39ae57",
+              "promptIdentity": "71221e9ee0ec74d8095f6cbc9a36c3f15901b246f47467cfa5c9fc898cfe30e7",
+              "evidenceIds": [
+                "B-5a15:RP-053"
+              ],
+              "coverageDigest": "0a0157572e98b4aa14627f3b87fd1d744b9c4bcbe906aac9272c6c182f863de5"
+            },
+            {
+              "lane": "lattice-review-test-coverage",
+              "reviewRunId": "B-5a15:RR-296",
+              "terminal": "finding",
+              "hostIdentity": "2ccfa74a15da8ea7be3c0c2c5dd5925ebca96864a6b8127ed0a6d14a2263ff59",
+              "promptIdentity": "92a0a1474c9747216601e8821eb7fd48d48318d24b59f0713ba9281d24cf6cbd",
+              "evidenceIds": [
+                "B-5a15:F-187"
+              ],
+              "coverageDigest": "63b556f9a587ac0c5dc016a3a60bc86b8a21e679e52f6df8df7d42fbddc29089"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "acceptance:wave4-executable-coverage",
+            "causal-decision:story-and-graph-identity",
+            "causal:explicit-input-type-separation",
+            "causal:story-files-hash-invalidation",
+            "certification:production-causal-dag",
+            "coverage:CHK-001:production-batch-boundary",
+            "coverage:CHK-003:happy:2",
+            "import:transaction-preflight-identity",
+            "metrics:commit-failure-reruns",
+            "metrics:derived-ledger-values",
+            "missing|ts|wave-coverage-remains",
+            "preflight:authority-root-bound",
+            "preflight:launch-order-production-event",
+            "receipt:output-tail-bound",
+            "topology:acceptance-basis-partial",
+            "validation:command-spec-identity"
+          ],
+          "verifiedFindingSetDigest": "b4d9592d9b7bb745db8ba9a5ede927266480fc072ef9968db24449c902badb77",
+          "newVerifiedFindingCount": 1,
+          "criticDigest": "8cc926ab49c272753e8bcce8c08c3fd417c177134909507b1efecce689242e66",
+          "saturated": false,
+          "nextRunSequenceBoundary": 304
         }
       ],
       "baselineFindingIds": [
@@ -2145,7 +2208,7 @@
         "B-5a15:F-182",
         "B-5a15:F-183"
       ],
-      "_hash": "c77c24c6edff423699bad8d02b6fb7976e498cb0172c43503c3aa38dd4b34bcf"
+      "_hash": "fb9470a6b1e212f74a913813a05b21b9c76ef67a58d30fdcddac6e227dbe763c"
     }
   ],
   "receipts": [
@@ -4236,6 +4299,43 @@
       ],
       "createdAt": "2026-08-23T10:59:41.253Z",
       "_hash": "7b36f98d111d9e43206073f094968ef6c23fa2cea06faceef0efd562b611b340"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-5a15:RI-017:CRIT-02",
+      "epochId": "B-5a15:RI-017",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-22T06:10:03.014Z",
+      "wave": 2,
+      "cutoff": {
+        "headHash": "f632989c06ad86f1d34ccde167c946fc2dd24b37",
+        "materialHash": "9ef9d9e58737da562ae603f38a4ea393a304c5faf2f9affdeefcc0287d3c24e6",
+        "storyFilesHash": "e287c5f32d9aad03e0ce7ea8b20a2684ab0ac2e78ef99c6fc5b18e9b8e9c97e7"
+      },
+      "aggregateFindingSetDigest": "b4d9592d9b7bb745db8ba9a5ede927266480fc072ef9968db24449c902badb77",
+      "requiredLaneCoverageDigest": "e8cc23a359d4157ae4655ce7e812baa0ff3d213f2a64e965250d79fad3db9dcf",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-5a15:RR-304",
+      "terminalEvidenceIds": [
+        "B-5a15:F-188"
+      ],
+      "readEvidenceDigest": "c9440f7fde2279abe835a684d060b96d847e22745117c3cd574ad567daa01687",
+      "findingDispositions": [
+        {
+          "findingId": "B-5a15:F-186",
+          "disposition": "verified_family",
+          "familyKey": "missing|ts|wave-coverage-remains",
+          "reason": "The current-wave coverage finding is verified by its read evidence and independently matches the recurring verifier-owned Wave 4 coverage gap: current acceptance checks do not provide executable, admissible coverage for the story checklist paths."
+        },
+        {
+          "findingId": "B-5a15:F-187",
+          "disposition": "verified_family",
+          "familyKey": "missing|ts|wave-coverage-remains",
+          "reason": "The repeated current-wave coverage report describes the same missing executable Wave 4 coverage for CHK-001 through CHK-005; retain it in the same verified family rather than treating repeated wording as a new topology family."
+        }
+      ],
+      "createdAt": "2026-08-23T11:59:36.257Z",
+      "_hash": "b9de6a883640e8f61dba6b9176aa5462ec41246b30bdc96bb46212db8dc58427"
     }
   ]
 }
