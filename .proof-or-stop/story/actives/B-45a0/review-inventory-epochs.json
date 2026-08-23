@@ -3121,9 +3121,9 @@
       "epochId": "B-45a0:RIE-042",
       "storyId": "B-45a0",
       "reviewRound": "2026-08-23T13:46:47.948Z",
-      "state": "FINALIZED",
+      "state": "CANCELLED",
       "begunAt": "2026-08-23T14:31:14.922Z",
-      "updatedAt": "2026-08-23T14:31:14.922Z",
+      "updatedAt": "2026-08-23T14:33:37.625Z",
       "cutoff": {
         "headHash": "1952eb80bdfc8e86f31684087d6ecbe0dffbe885",
         "materialHash": "aa5beaab4316c22ebcfd403395a217d890edac9bd1dbbca1d8221554cd13dda0",
@@ -3134,7 +3134,10 @@
       "maxWaves": 1,
       "waves": [],
       "receiptId": "B-45a0:RIE-042:RCP-001",
-      "_hash": "02685fc5128ca00d756ee6b8b2640a88a426e26f0e78cbfec4871bf06fa22076"
+      "cancelledAt": "2026-08-23T14:33:37.625Z",
+      "cancelReason": "The empty completeness receipt cannot authorize remediation on this build; invalidate it and reopen a full signed inventory epoch at the stable current HEAD.",
+      "terminalRunSequenceBoundary": 333,
+      "_hash": "8436da7ab4b9ca75fb3aa1b7a7db3dce52f11f48eb3ae8d1b81be247608da216"
     }
   ],
   "receipts": [
@@ -3298,7 +3301,9 @@
       "authority": "inventory-completeness-only",
       "authorizesTest": false,
       "issuedAt": "2026-08-23T14:31:14.922Z",
-      "_hash": "b2550d19283f4d9e9ee7dabad7080f33c1c9f75f95929f4bd1e49ca2b1b02ee4"
+      "invalidatedAt": "2026-08-23T14:33:37.625Z",
+      "invalidationReason": "The empty completeness receipt cannot authorize remediation on this build; invalidate it and reopen a full signed inventory epoch at the stable current HEAD.",
+      "_hash": "8e22c1854cb854e12ef1ffed25ba9d93ae2cac24fc480db20f84f5da9782b834"
     }
   ],
   "criticReceipts": [
