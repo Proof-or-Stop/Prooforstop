@@ -2935,9 +2935,9 @@
       "epochId": "B-5a88:RIE-045",
       "storyId": "B-5a88",
       "reviewRound": "2026-08-23T10:36:59.797Z",
-      "state": "FINALIZED",
+      "state": "CANCELLED",
       "begunAt": "2026-08-23T12:00:45.082Z",
-      "updatedAt": "2026-08-23T12:00:45.082Z",
+      "updatedAt": "2026-08-23T12:01:06.838Z",
       "cutoff": {
         "headHash": "ad197b576873afd43e0699f997a11bd3091b1534",
         "materialHash": "60f80f78a14e8d006ba59b55639603a154ae90a636d665978264ff83acc73b8a",
@@ -2948,7 +2948,33 @@
       "maxWaves": 1,
       "waves": [],
       "receiptId": "B-5a88:RIE-045:RCP-001",
-      "_hash": "de36b08134d87128900cb47b1ac263c4228c24c4bb5f515f763fd05ab72af95f"
+      "cancelledAt": "2026-08-23T12:01:06.838Z",
+      "cancelReason": "The second human convergence-breaker acknowledgement changed the sealed receipt binding; reissue the remediation receipt on the acknowledged HEAD.",
+      "terminalRunSequenceBoundary": 374,
+      "_hash": "82527b4cf4a203f99439d0596e1540ed471c18cd3b0304ab5b644aee3e763d07"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-5a88:RIE-046",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-23T10:36:59.797Z",
+      "state": "CANCELLED",
+      "begunAt": "2026-08-23T12:01:07.857Z",
+      "updatedAt": "2026-08-23T12:02:33.621Z",
+      "cutoff": {
+        "headHash": "40f35959581a15c00b88e1f42d5ad53b01332b4e",
+        "materialHash": "60f80f78a14e8d006ba59b55639603a154ae90a636d665978264ff83acc73b8a",
+        "storyFilesHash": "0a84bdcbd6ee5b9115b0cc367978fba393aa597a24688ad24fad7245b14dbd22"
+      },
+      "scopeDigest": "d50f58ea5c8b5869d3a1a0ac6acb4bb7eb8aa251b0ee6543283f7b543e71379d",
+      "requiredLanes": [],
+      "maxWaves": 1,
+      "waves": [],
+      "receiptId": "B-5a88:RIE-046:RCP-001",
+      "cancelledAt": "2026-08-23T12:02:33.621Z",
+      "cancelReason": "Reissue the remediation receipt with lifecycle metadata committed atomically so the DEV transition can consume its exact binding.",
+      "terminalRunSequenceBoundary": 374,
+      "_hash": "f571e934633cfd39ae2a59ec7142a9ae6e92b4bded2a51450254f18e7aec796a"
     }
   ],
   "receipts": [
@@ -3417,7 +3443,33 @@
       "authority": "inventory-completeness-only",
       "authorizesTest": false,
       "issuedAt": "2026-08-23T12:00:45.082Z",
-      "_hash": "dc46415e97c8cb27497676d5f965ceb15f5fbd3ffe07e337b5b10aba1a398fe5"
+      "invalidatedAt": "2026-08-23T12:01:06.838Z",
+      "invalidationReason": "The second human convergence-breaker acknowledgement changed the sealed receipt binding; reissue the remediation receipt on the acknowledged HEAD.",
+      "_hash": "127402814a307aff69e836fd5d9e834619b820fc5c0a08fafec75faecfae8d4d"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_receipt.v1",
+      "receiptId": "B-5a88:RIE-046:RCP-001",
+      "epochId": "B-5a88:RIE-046",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-23T10:36:59.797Z",
+      "cutoff": {
+        "headHash": "40f35959581a15c00b88e1f42d5ad53b01332b4e",
+        "materialHash": "60f80f78a14e8d006ba59b55639603a154ae90a636d665978264ff83acc73b8a",
+        "storyFilesHash": "0a84bdcbd6ee5b9115b0cc367978fba393aa597a24688ad24fad7245b14dbd22"
+      },
+      "scopeDigest": "d50f58ea5c8b5869d3a1a0ac6acb4bb7eb8aa251b0ee6543283f7b543e71379d",
+      "requiredLanes": [],
+      "waveCount": 0,
+      "findingSetDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "coverageDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "saturationResult": "ZERO_NEW_VERIFIED_FINDINGS",
+      "authority": "inventory-completeness-only",
+      "authorizesTest": false,
+      "issuedAt": "2026-08-23T12:01:07.857Z",
+      "invalidatedAt": "2026-08-23T12:02:33.621Z",
+      "invalidationReason": "Reissue the remediation receipt with lifecycle metadata committed atomically so the DEV transition can consume its exact binding.",
+      "_hash": "99808027ddb9f1f151c25cbe77a39fe532e618ccd1e4ca16bd11ccd25e1ab80f"
     }
   ],
   "criticReceipts": [
