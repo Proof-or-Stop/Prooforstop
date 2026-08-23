@@ -239,10 +239,38 @@
         "DYN_4",
         "DYN_5"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "These paths are required to prove the declared resolver-to-graph acceptance edge, preserve complete pre-review executable output, and validate current-head mutation and transcript evidence.",
+      "timestamp": "2026-08-23T18:51:30.085Z",
+      "paths": [
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-discovery-adapters.ts",
+        "packages/main/src/handlers/live-smoke-transcript.ts",
+        "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-discovery-adapters.ts",
+        "packages/main/src/handlers/live-smoke-transcript.ts",
+        "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+      ],
+      "affectedPathCount": 4,
+      "phase": "DEV",
+      "headHash": "bb4adb728131df66c0e4ff3015320fabd031f5ce",
+      "materialHash": "068aa4c202853efb5b39deb1fccbd1b07adef6a62bf247fc70ddb691370cb67a",
+      "anchors": [
+        "acceptance_coverage_basis",
+        "bounded_endpoint_discovery",
+        "pre_review_executable_proof",
+        "live_transcript_capture"
+      ]
     }
   ],
   "createdAt": "2026-08-21T07:07:34.430Z",
-  "updatedAt": "2026-08-23T12:16:30.811Z",
+  "updatedAt": "2026-08-23T18:51:30.085Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -312,6 +340,10 @@
     "packages/main/src/tasks/story-aware-validation-historical-replay.ts": "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
     "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts": "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts",
     "packages/main/src/tasks/story-aware-validation-production-smoke.ts": "packages/main/src/tasks/story-aware-validation-production-smoke.ts",
-    "packages/main/src/tasks/story-aware-validation-smoke.ts": "packages/main/src/tasks/story-aware-validation-smoke.ts"
+    "packages/main/src/tasks/story-aware-validation-smoke.ts": "packages/main/src/tasks/story-aware-validation-smoke.ts",
+    "packages/main/src/core/acceptance-coverage-basis.ts": "packages/main/src/core/acceptance-coverage-basis.ts",
+    "packages/main/src/core/acceptance-discovery-adapters.ts": "packages/main/src/core/acceptance-discovery-adapters.ts",
+    "packages/main/src/handlers/live-smoke-transcript.ts": "packages/main/src/handlers/live-smoke-transcript.ts",
+    "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
   }
 }
