@@ -30,15 +30,13 @@
   `@proof-or-stop/core`. Nothing in-repo imports it by name (both sibling packages reach
   it through relative paths into `packages/main/dist`), and no alias package is published;
   an external project pinning `@lattice/core` in its own `package.json` must update that
-  reference. **Sibling packages are also renamed:** `@lattice/utils` →
-  `@proof-or-stop/utils` and `@lattice/lab` → `@proof-or-stop/lab`. No deprecated
-  alias packages are published; external consumers must update those dependency names.
+  reference. Sibling names `@lattice/utils` / `@lattice/lab` are unchanged.
 
-  **Published CLI identity:** the canonical published npm bin is `proof-or-stop`.
-  The deprecated `lattice` wrapper/bin is removed; no published `lattice` alias
-  remains. Projects initialized before the rename that carry their own local
-  `bin/lattice.js` are still unaffected: `init` and `check` recognize the old
-  wrapper name in downstream projects, so no managed file is stranded.
+  **Not affected:** the `lattice` npm bin alias (`lattice --version` still resolves) is a
+  separate identity and remains retained. Projects
+  initialized before the rename that carry their own local `bin/lattice.js` are also
+  unaffected: `init` and `check` still recognize the old wrapper name in downstream
+  projects, so no managed file is stranded.
 
 ## Proof-or-Stop v0.3.265 - 2026-08-19
 
