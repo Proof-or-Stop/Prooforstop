@@ -14543,7 +14543,7 @@
       "desc": "CHK-006:edge:0 lacks intent-matching executable evidence: the bound command `node scripts/verify-global-lab-entrypoint.mjs versions` only reads package manifests and checks names, versions, dependencies, and the bin map at scripts/verify-global-lab-entrypoint.mjs:59-81. It does not execute the global lab entrypoint resolution path; that behavior is in the separate lab-help/core-without-lab checks at :82-115 and is not the recorded evidence for this edge intent.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-08-23T18:48:52.782Z",
@@ -14589,7 +14589,11 @@
         "packages/lab/src/register.ts"
       ],
       "signatureTag": "edge|mjs|edge-lacks-intent",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Partially mitigated: the current global lab entrypoint and core-without-lab checks execute and pass, covering the real resolution path. The immutable CHK-006:edge:0 versions-only pin still proves manifest shape rather than the full entrypoint execution path, so the remaining limitation is recorded rather than overstated.",
+      "resolvedAt": "2026-08-23T21:07:56.574Z",
+      "resolutionType": "partially_mitigated",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-354",
