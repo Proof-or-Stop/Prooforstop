@@ -14902,6 +14902,54 @@
       "resolvedAt": "2026-08-23T20:21:32.088Z",
       "resolutionType": "duplicate",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5a88:F-361",
+      "desc": "Current REVIEW topology cannot certify the verifier-owned pre-review and acceptance closure as current admissible evidence: the existing pre-review artifact is bound to an older head/material/story-files state and reports stale or tampered evidence, so this is the same pre-review-admissibility family already tracked by B-5a88:F-355. No distinct migration defect is claimed.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-topology-critic",
+      "createdAt": "2026-08-23T20:28:19.357Z",
+      "reviewRound": "2026-08-23T20:01:20.269Z",
+      "reviewRunId": "B-5a88:RR-491",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          "docs/requirements/decisions/pre-review-gates-execution-plan.md",
+          "packages/main/src/core/pre-review-check.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": null
+        },
+        "digest": "fe2fbed2cc46bc1a0a75832c1f2af6d8979c29d139789affc33db74e962e5f98"
+      },
+      "readDiagnostics": [],
+      "_hash": "96ede1b1a69aa9dea2de08bd774a1a3c2ec8f9c753aab0a355097966dcbb2496",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+        "packages/main/src/core/pre-review-check.ts"
+      ],
+      "signatureTag": "missing|json|current-review-topology",
+      "signatureTagSource": "auto"
     }
   ]
 }
