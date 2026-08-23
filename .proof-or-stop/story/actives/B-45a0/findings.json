@@ -7273,6 +7273,42 @@
       ],
       "signatureTag": "missing|json|current-acceptance-topology",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-141",
+      "desc": "CHK-011:happy:0 lacks valid coverage: the current evidence receipt for node scripts/run-dynamic-validation-replay.mjs --verify-threshold explicitly reports historical replay mode: plan-only and historical replay assurance BLOCKED (plan-only or incomplete), so it does not execute 30-50 historical Stories or prove full failures are a subset of dynamic executed rows.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-23T08:23:08.942Z",
+      "reviewRound": "2026-08-23T08:18:33.747Z",
+      "reviewRunId": "B-45a0:RR-165",
+      "_hash": "dd17583288cbededf378fb767d2286c2732502b883fb4dfa1a0e3237e617643c",
+      "files": [
+        "scripts/run-dynamic-validation-replay.mjs"
+      ],
+      "signatureTag": "missing|mjs|happy-lacks-valid",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-142",
+      "desc": "base-head-manifest-binding: packages/main/src/core/story-aware-validation.ts:159-166 and :198-200 ignore the caller-provided baseHead when changedFiles is omitted: resolveStoryChangedFiles always recomputes merge-base against main, then buildStoryChangeManifest labels those paths with the supplied baseHead. Reproduced at HEAD 9c33e84a17 by passing baseHead=HEAD and head=HEAD with gitCwd=.; the manifest still returned 40 main..HEAD changed files instead of an empty set. A signed Story/validation context using an explicit non-main or already-advanced base can therefore select/escalate commands from unrelated revisions and bind the wrong changeDigest; thread the explicit baseHead into the resolver (or reject mismatched refs) before signing the manifest.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-23T08:26:04.903Z",
+      "reviewRound": "2026-08-23T08:18:33.747Z",
+      "reviewRunId": "B-45a0:RR-166",
+      "_hash": "5de9582df844f1a8d2b4604262ba09c3032143c104235547e9b0120797e4f256",
+      "files": [
+        "packages/main/src/core/story-aware-validation.ts"
+      ],
+      "signatureTag": "edge|ts|base-head-manifest-binding",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
