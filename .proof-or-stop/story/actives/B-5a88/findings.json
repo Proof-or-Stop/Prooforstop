@@ -15157,7 +15157,7 @@
       "desc": "packages/main/src/core/evidence-pin-guard.ts:57-62,108-110 — the canonical proof-or-stop evidence command is not recognized: hasLatticeMarker() only matches lattice/cli.js, and parseEvidenceCommand(\"proof-or-stop verification_evidence_add {\\\"storyId\\\":\\\"B-5a88\\\",\\\"intentRef\\\":\\\"CHK-001:happy:0\\\"}\") returns null while the legacy lattice form parses. This leaves the pre-tool immutable-pin seatbelt bypassed for canonical invocations; preserve the legacy read but add the canonical proof-or-stop entrypoint.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-08-23T22:16:13.554Z",
@@ -15193,14 +15193,18 @@
       "readDiagnostics": [],
       "_hash": "2f05adffdc9730840fb648b853479a9bf20df56b409baa12d0bc28544a86867b",
       "signatureTag": "missing|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Resolved as a duplicate of B-5a88:F-363 by the independent RI-055 completeness critic receipt B-5a88:RI-055:CRIT-01 from topology run B-5a88:RR-521; same source family and no distinct behavior.",
+      "resolvedAt": "2026-08-23T23:30:58.439Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-367",
       "desc": "packages/main/src/tasks/lattice-only-absence-smoke.ts:11-14,38-63 — this active smoke task still describes the lattice entrypoint and lattice.config.json as the only active CLI/config surfaces and asserts lattice.config.json as the active configuration. That directly contradicts CHK-007/CHK-005 canonical new-write identity (proof-or-stop bin and proof-or-stop.config.json); it is not marked as deprecated or a historical compatibility fixture, so the concept migration remains incomplete in a runnable task.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-08-23T22:16:48.701Z",
@@ -15236,14 +15240,18 @@
       "readDiagnostics": [],
       "_hash": "d7af09a49db66e1a5f7ecd9a5a2446669b61e59ad40a0c665d9ed01626fdcbed",
       "signatureTag": "missing|unknown|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Resolved as a duplicate of B-5a88:F-364 by the independent RI-055 completeness critic receipt B-5a88:RI-055:CRIT-01 from topology run B-5a88:RR-521; same source family and no distinct behavior.",
+      "resolvedAt": "2026-08-23T23:30:59.746Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-368",
       "desc": "packages/main/src/core/stale-detector.ts:2,5,138-152 — the active stale-state warning still tells users it is running before the last \"lattice command\" and describes the detector as a lattice command hook, even though the canonical field/output path is idleProofOrStop and the story retires lattice as the supported CLI identity. The idleLattice config key is explicitly documented as a legacy read, but this warning text is not marked compatibility-only and remains visible product residue; canonicalize the message/comments while retaining legacy config reads.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-08-23T22:16:56.888Z",
@@ -15279,14 +15287,18 @@
       "readDiagnostics": [],
       "_hash": "df782050af21ebbb042fd42f3f9537e460f7d3a9b2e02c25f6433025d2cb1ed5",
       "signatureTag": "missing|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Resolved as a duplicate of B-5a88:F-365 by the independent RI-055 completeness critic receipt B-5a88:RI-055:CRIT-01 from topology run B-5a88:RR-521; same source family and no distinct behavior.",
+      "resolvedAt": "2026-08-23T23:31:01.061Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-369",
       "desc": "packages/main/src/core/evidence-pin-guard.ts:57-62,108-110 — parseEvidenceCommand returns null for canonical proof-or-stop verification_evidence_add syntax while the legacy lattice syntax returns a parsed invocation; the canonical pre-tool immutable-pin guard is bypassed. Preserve legacy reads and recognize the canonical entrypoint.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-08-23T22:17:52.281Z",
@@ -15324,14 +15336,18 @@
         "packages/main/src/core/evidence-pin-guard.ts"
       ],
       "signatureTag": "missing|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Resolved as a duplicate of B-5a88:F-363 by the independent RI-055 completeness critic receipt B-5a88:RI-055:CRIT-01 from topology run B-5a88:RR-521; same source family and no distinct behavior.",
+      "resolvedAt": "2026-08-23T23:31:02.376Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-370",
       "desc": "packages/main/src/tasks/lattice-only-absence-smoke.ts:11-14,38-63 — this active smoke task still says the lattice entrypoint and lattice.config.json are the only active CLI/config surfaces and asserts the legacy config as active, contradicting CHK-005/CHK-007 canonical proof-or-stop writes. It is not marked as a compatibility fixture.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-08-23T22:18:08.395Z",
@@ -15369,14 +15385,18 @@
         "packages/main/src/tasks/lattice-only-absence-smoke.ts"
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Resolved as a duplicate of B-5a88:F-364 by the independent RI-055 completeness critic receipt B-5a88:RI-055:CRIT-01 from topology run B-5a88:RR-521; same source family and no distinct behavior.",
+      "resolvedAt": "2026-08-23T23:31:03.655Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-371",
       "desc": "packages/main/src/core/stale-detector.ts:2,5,138-152 — active stale-state warning text tells users it has been since the last lattice command; this remains visible product residue although idleProofOrStop is canonical and idleLattice is only the legacy-read config key. Canonicalize warning text/comments while retaining the legacy config read.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-08-23T22:18:22.750Z",
@@ -15414,7 +15434,11 @@
         "packages/main/src/core/stale-detector.ts"
       ],
       "signatureTag": "missing|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Resolved as a duplicate of B-5a88:F-365 by the independent RI-055 completeness critic receipt B-5a88:RI-055:CRIT-01 from topology run B-5a88:RR-521; same source family and no distinct behavior.",
+      "resolvedAt": "2026-08-23T23:31:04.885Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-372",
