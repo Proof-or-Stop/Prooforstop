@@ -10100,6 +10100,62 @@
       ],
       "signatureTag": "ri-017-wave2-topology-basis-partial",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a15:F-189",
+      "desc": "Fresh RI-017 final-wave coverage review: CHK-001 through CHK-005 currently show passing evidence for all 50 intents (22 must), but every verificationEvidence row uses the causal-evidence test command and none executes the four verifier-owned Wave 4 acceptance commands acceptance_topology_check, pre_review_check_read, acceptance_rollout_report_read, or acceptance_rollout_check. The handlers exist at packages/main/src/handlers/proofstory.ts:688-779 and :1052-1067, and the focused smoke source names or exercises related commands at packages/main/src/tasks/proofstory-pre-review-check-smoke.ts:147-150, :790-800, and :1121-1201; implementation/source presence is not current signed story verificationEvidence. The frozen candidate therefore lacks executable, admissible Wave 4 coverage, so a coverage pass would overclaim verifier-owned acceptance.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-23T12:07:29.802Z",
+      "reviewRound": "2026-08-22T06:10:03.014Z",
+      "reviewRunId": "B-5a15:RR-307",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "7a379ae896039fe0c16b2c085c3556d762b9b36c0418c9ea00328f86c8b59d97"
+      },
+      "readDiagnostics": [],
+      "_hash": "a5fcf18412c184cb141a64f5f2e049acb31f0d82b7501b718520032ee5bdd121",
+      "files": [
+        "packages/main/src/handlers/proofstory.ts",
+        "packages/main/src/core/acceptance-rollout.ts",
+        "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+        ".proof-or-stop/story/actives/B-5a15/checklist.json"
+      ],
+      "signatureTag": "missing|ts|fresh-final-wave",
+      "signatureTagSource": "auto"
     }
   ]
 }
