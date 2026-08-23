@@ -467,6 +467,32 @@
             "desc": "The signed Story change manifest and shared resolver agree on the current merge-base-to-HEAD file set and selection inputs.",
             "type": "logic",
             "priority": "must",
+            "plannedPathDeclarations": [
+              {
+                "schemaVersion": "proofstory.verification_planned_path_declaration.v1",
+                "id": "VPP-CHK-003",
+                "relation": "producer_to_consumer",
+                "producer": {
+                  "id": "EP-CHK-003-PRODUCER",
+                  "role": "producer",
+                  "expectedArtifactKind": "source_file",
+                  "expectedFileRef": "packages/main/src/core/story-change-resolver.ts",
+                  "expectedSymbolOrFact": "buildStoryChangeManifest",
+                  "fileDeclarationRef": "CHK-003:files:create:0"
+                },
+                "consumers": [
+                  {
+                    "id": "EP-CHK-003-CONSUMER",
+                    "role": "consumer",
+                    "expectedArtifactKind": "source_file",
+                    "expectedFileRef": "packages/main/src/core/dual-revision-impact-graph.ts",
+                    "expectedSymbolOrFact": "buildDualRevisionImpactGraph",
+                    "fileDeclarationRef": "CHK-003:files:create:1"
+                  }
+                ],
+                "outputFactRef": "process-fact:story-change-manifest"
+              }
+            ],
             "verification": {
               "command": "npm --prefix packages/main run test:dynamic-validation-change-manifest",
               "selector": "change manifest PASS"
