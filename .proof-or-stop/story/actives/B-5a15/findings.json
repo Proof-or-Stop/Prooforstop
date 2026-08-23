@@ -10051,6 +10051,55 @@
       ],
       "signatureTag": "missing|ts|wave-coverage-remains",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-188",
+      "desc": "Acceptance topology cannot receive a pass at the current RI-017 binding. proof-or-stop acceptance_basis reports status=verified but basisStatus=partial with diagnostic AT_UNMAPPED_SCOPE_REF for path:static-call:packages/main/src/core/causal-evidence.ts#hasCausalDependencyDecisionIdentityBinding->consumer:packages/main/src/core/certification-window.ts#hasCausalDependencyDecisionIdentityBinding. acceptance_topology_check is inconclusive, and pre_review_check_read is inconclusive with PR_ARTIFACT_TAMPERED, PR_NEW_PATH_UNMAPPED, PR_COVERAGE_INCONCLUSIVE, PR_AUTHORITY_INADMISSIBLE, and related missing-proof codes. acceptance_rollout_report_read and acceptance_rollout_check are current pass/full-3x2, but their positive rollout result cannot make the verifier-owned basis complete or repair the unmapped topology. Repair the basis/topology mapping, regenerate the verifier artifacts, and re-run the topology and pre-review checks before claiming admissibility.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-23T11:58:49.060Z",
+      "reviewRound": "2026-08-22T06:10:03.014Z",
+      "reviewRunId": "B-5a15:RR-304",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "18ab49cbd764f71d3e6d880807914a167d3f12d59a4f9e67402b6d345ece8c87",
+      "files": [
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/acceptance-rollout.ts",
+        "packages/main/src/handlers/verifier.ts"
+      ],
+      "signatureTag": "ri-017-wave2-topology-basis-partial",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
