@@ -26,6 +26,14 @@ const aliases = [
 ];
 const projectConfig = JSON.parse(readFileSync(join(repoRoot, 'proof-or-stop.config.json'), 'utf8'));
 const configuredPromptRoles = projectConfig.promptEnvelope?.roles ?? {};
+for (const relativePath of [
+  '.claude/agents/proof-or-stop-product-reviewer.md',
+  '.claude/agents/proof-or-stop-implementation-reviewer.md',
+  '.proof-or-stop-codex/agents/proof-or-stop-product-reviewer.md',
+  '.proof-or-stop-codex/agents/proof-or-stop-implementation-reviewer.md',
+]) {
+  assert.equal(existsSync(join(repoRoot, relativePath)), true, `${relativePath} uses the canonical role basename`);
+}
 assert.deepEqual(
   Object.keys(configuredPromptRoles).sort(),
   [
