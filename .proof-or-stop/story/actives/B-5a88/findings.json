@@ -11491,6 +11491,346 @@
       "dismissedAt": "2026-08-23T12:12:17.373Z",
       "dismissReasonType": "duplicate",
       "dismissEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5a88:F-289",
+      "desc": "CHK-001:happy:0 and CHK-001:edge:0 lack valid evidence for their full claims. packages/main/tests/brand-role-migration.test.mjs:183-242 and :247-291 exercise review_run_start/review_pass_set/quorum/init_check_set, but the recorded happy receipt only calls canonicalAgentRoleId and the edge receipt only compares aliases; neither receipt proves the consumer path or that historical evidence bytes remain unchanged.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-23T12:21:49.925Z",
+      "reviewRound": "2026-08-23T10:36:59.797Z",
+      "reviewRunId": "B-5a88:RR-377",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/package-identity-migration.test.mjs",
+          "packages/main/tests/release-push-approval-migration.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          "packages/main/src/cli/help-renderer.ts",
+          "packages/main/src/tasks/version-bump-smoke.ts",
+          "scripts/verify-global-lab-entrypoint.mjs",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "624a556795ad45278e5cf84a66cc64ba6bb2ee2b5ada32799183c11c8a7545bd"
+      },
+      "readDiagnostics": [],
+      "_hash": "bff436edfb72769b132debfe228ab35376904c97be615e72e8cf9885dffbe199",
+      "files": [
+        "packages/main/tests/brand-role-migration.test.mjs"
+      ],
+      "signatureTag": "missing|mjs|happy-edge-lack",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Current brand-role migration test passes the canonical dispatch/consumer paths; the historical CHK-001 happy/edge command pins are immutable and do not express the full matrix, so this is recorded as partially mitigated rather than repinned.",
+      "resolvedAt": "2026-08-23T12:27:35.785Z",
+      "resolutionType": "partially_mitigated",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5a88:F-290",
+      "desc": "CHK-002:edge:0 and CHK-002:adversarial:0 are evidence-bound to the wrong behaviors. packages/main/tests/managed-marker-migration.test.mjs:17-22 covers valid legacy replacement plus malformed markers, while :31-37 covers in-place profile upgrade; the edge receipt runs only the malformed/nested case and the adversarial receipt only inspects canonical template strings, so no receipt proves the edge replacement or adversarial no-destructive-rewrite claim.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-23T12:22:13.990Z",
+      "reviewRound": "2026-08-23T10:36:59.797Z",
+      "reviewRunId": "B-5a88:RR-377",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/package-identity-migration.test.mjs",
+          "packages/main/tests/release-push-approval-migration.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          "packages/main/src/cli/help-renderer.ts",
+          "packages/main/src/tasks/version-bump-smoke.ts",
+          "scripts/verify-global-lab-entrypoint.mjs",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "624a556795ad45278e5cf84a66cc64ba6bb2ee2b5ada32799183c11c8a7545bd"
+      },
+      "readDiagnostics": [],
+      "_hash": "03d39437230ee7eeb543cc7db98da9b5bf7c455cca012953af0dc86edfc25644",
+      "files": [
+        "packages/main/tests/managed-marker-migration.test.mjs"
+      ],
+      "signatureTag": "missing|mjs|edge-adversarial-evidence",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Current managed-marker migration test passes canonical emission, legacy replacement, malformed/nested rejection, and duplicate prevention; the historical CHK-002 edge/adversarial command pins remain immutable, so this is partially mitigated.",
+      "resolvedAt": "2026-08-23T12:27:37.316Z",
+      "resolutionType": "partially_mitigated",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5a88:F-291",
+      "desc": "CHK-004:happy:0, CHK-004:edge:0, and CHK-004:adversarial:0 have source-text/bash-syntax receipts, not executable hook behavior. packages/main/tests/release-push-approval-migration.test.mjs:32-95 is the required behavior test for canonical and legacy acceptance, one-shot consumption, invalid schema, and stale approval, but none of the three recorded receipts runs it or invokes the hook.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-23T12:22:22.628Z",
+      "reviewRound": "2026-08-23T10:36:59.797Z",
+      "reviewRunId": "B-5a88:RR-377",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/package-identity-migration.test.mjs",
+          "packages/main/tests/release-push-approval-migration.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          "packages/main/src/cli/help-renderer.ts",
+          "packages/main/src/tasks/version-bump-smoke.ts",
+          "scripts/verify-global-lab-entrypoint.mjs",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "624a556795ad45278e5cf84a66cc64ba6bb2ee2b5ada32799183c11c8a7545bd"
+      },
+      "readDiagnostics": [],
+      "_hash": "bb81891f4ab69a31de81be5c644412408421ecfef21b9ca8a542fc8220965b30",
+      "files": [
+        "packages/main/tests/release-push-approval-migration.test.mjs",
+        ".githooks/pre-push"
+      ],
+      "signatureTag": "missing|mjs|happy-edge-adversarial",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Current release-push-approval migration test passes canonical and legacy hook acceptance, invalid/stale rejection, and one-shot consumption; the historical CHK-004 receipts are source/bash checks and immutable, so this is partially mitigated.",
+      "resolvedAt": "2026-08-23T12:27:38.746Z",
+      "resolutionType": "partially_mitigated",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5a88:F-292",
+      "desc": "CHK-005:edge:0 and CHK-005:adversarial:0 do not prove their stated behaviors. packages/main/src/tasks/version-bump-smoke.ts:138-156 covers package/lock identity drift and legacy readability, while the recorded edge receipt runs that smoke without asserting self-host detection and the adversarial receipt only exercises canonical/legacy self-host names, not a split package/lockfile name or version detected before publish/install.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-23T12:22:31.389Z",
+      "reviewRound": "2026-08-23T10:36:59.797Z",
+      "reviewRunId": "B-5a88:RR-377",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/package-identity-migration.test.mjs",
+          "packages/main/tests/release-push-approval-migration.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          "packages/main/src/cli/help-renderer.ts",
+          "packages/main/src/tasks/version-bump-smoke.ts",
+          "scripts/verify-global-lab-entrypoint.mjs",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "624a556795ad45278e5cf84a66cc64ba6bb2ee2b5ada32799183c11c8a7545bd"
+      },
+      "readDiagnostics": [],
+      "_hash": "ce7bc47af14ba363823661cae9fb7676e3a7d34c46a5ce786221fda07bef5f56",
+      "files": [
+        "packages/main/src/tasks/version-bump-smoke.ts",
+        "packages/main/tests/package-identity-migration.test.mjs"
+      ],
+      "signatureTag": "missing|ts|edge-adversarial-prove",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Current package-identity migration test and version-bump checks pass for the producer/consumer behavior; the historical CHK-005 edge/adversarial command pins remain immutable and narrower than the claim, so this is partially mitigated.",
+      "resolvedAt": "2026-08-23T12:27:40.320Z",
+      "resolutionType": "partially_mitigated",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5a88:F-293",
+      "desc": "CHK-006:adversarial:0 lacks executable coverage for the no-mixed-consumer claim. packages/main/tests/package-identity-migration.test.mjs:19-41 checks selected current manifest fields only; the recorded one-liner repeats those static assertions and does not scan or mutate in-repo consumers to demonstrate that an old sibling name cannot remain resolvable in a mixed graph.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-23T12:22:40.637Z",
+      "reviewRound": "2026-08-23T10:36:59.797Z",
+      "reviewRunId": "B-5a88:RR-377",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/package-identity-migration.test.mjs",
+          "packages/main/tests/release-push-approval-migration.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          "packages/main/src/cli/help-renderer.ts",
+          "packages/main/src/tasks/version-bump-smoke.ts",
+          "scripts/verify-global-lab-entrypoint.mjs",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "624a556795ad45278e5cf84a66cc64ba6bb2ee2b5ada32799183c11c8a7545bd"
+      },
+      "readDiagnostics": [],
+      "_hash": "e7ac50a475718130b8bd0709b0b31e0b9629210527125cfb1502c31aaa953220",
+      "files": [
+        "packages/main/tests/package-identity-migration.test.mjs",
+        "scripts/verify-global-lab-entrypoint.mjs"
+      ],
+      "signatureTag": "missing|mjs|adversarial-lacks-executable",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Current package-identity and global-lab entrypoint verifiers pass, including no-mixed-consumer behavior; the historical CHK-006 adversarial receipt remains immutable and does not execute the full claim, so this is partially mitigated.",
+      "resolvedAt": "2026-08-23T12:27:41.836Z",
+      "resolutionType": "partially_mitigated",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5a88:F-294",
+      "desc": "CHK-007:edge:0 is not covered by its recorded receipt. packages/main/src/cli/help-renderer.ts:115-120 and scripts/verify-lattice-residue.mjs:49-110 define distinct help and residue-exception behavior; the edge receipt only captures node ... cli.js help, while the residue gate that verifies frozen historical evidence and compatibility readers is attached to CHK-007:happy:0, leaving the edge intent without corresponding evidence.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-23T12:22:49.931Z",
+      "reviewRound": "2026-08-23T10:36:59.797Z",
+      "reviewRunId": "B-5a88:RR-377",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/package-identity-migration.test.mjs",
+          "packages/main/tests/release-push-approval-migration.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          "packages/main/src/cli/help-renderer.ts",
+          "packages/main/src/tasks/version-bump-smoke.ts",
+          "scripts/verify-global-lab-entrypoint.mjs",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "624a556795ad45278e5cf84a66cc64ba6bb2ee2b5ada32799183c11c8a7545bd"
+      },
+      "readDiagnostics": [],
+      "_hash": "a9cd2e80be5b7db82e7a21a2abb8718ec500dce57da3666f69988dcfed5f0072",
+      "files": [
+        "scripts/verify-lattice-residue.mjs",
+        "packages/main/src/cli/help-renderer.ts"
+      ],
+      "signatureTag": "missing|mjs|edge-covered-recorded",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Current lattice-residue and global CLI verification pass, including the help/entrypoint surface; the historical CHK-007 edge receipt remains immutable and narrower than the claim, so this is partially mitigated.",
+      "resolvedAt": "2026-08-23T12:27:43.575Z",
+      "resolutionType": "partially_mitigated",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }

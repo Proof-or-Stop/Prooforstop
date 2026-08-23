@@ -6547,6 +6547,116 @@
         "scanEscalationReason": null
       },
       "_hash": "7d4a48f004f9b178d218bd691acce9ebce935ef4bf0b3fc22fda26be10c99a19"
+    },
+    {
+      "id": "B-5a88:RP-122",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Concept review completed: canonical role, marker, artifact-schema, approval, package, sibling-package, and npm-bin surfaces are implemented; remaining lattice spellings are bounded compatibility readers, frozen salts, fixtures, or historical evidence, with no blocking residue.",
+      "createdAt": "2026-08-23T12:24:23.768Z",
+      "reviewRound": "2026-08-23T10:36:59.797Z",
+      "reviewRunId": "B-5a88:RR-378",
+      "envelopeId": "9495386806f78f22595aab84072fcd8a90391c3ef7f7e3b46b2790456fe35127",
+      "writerSessionId": "sess-8790d0078fce0dfaa8a301aecb4febfe",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/artifact-schema.ts",
+          "packages/main/src/core/managed-markers.ts",
+          "packages/main/src/core/release-push-approval.ts"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/core/agent-asset-resolution.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/release.ts",
+          "packages/main/src/handlers/reviewer-list.ts",
+          "packages/main/src/handlers/story-query.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b2b32405d77a1801ed4118bcbb69a044bfa89db865663b2921d04a91b6b61664"
+    },
+    {
+      "id": "B-5a88:RP-123",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Reviewed the full story contract, seven checklist items, relevant migration decisions, canonical role/marker/schema/approval/package/bin seams, and focused producer-consumer evidence. No source-level blocker found; the entrypoint verifier limitation is host permission only.",
+      "createdAt": "2026-08-23T12:26:29.774Z",
+      "reviewRound": "2026-08-23T10:36:59.797Z",
+      "reviewRunId": "B-5a88:RR-375",
+      "envelopeId": "dc1db6b1525954053c9d09392a94e6b2f7915b91068b172ed4c22f6084df233d",
+      "writerSessionId": "sess-fcaf105250937d498b1bc9d94ca7f586",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".githooks/pre-push",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "package.json",
+          "packages/lab/package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/artifact-schema.ts",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/core/managed-markers.ts",
+          "packages/main/src/core/release-push-approval.ts",
+          "packages/main/tests/artifact-schema-migration.test.mjs",
+          "packages/main/tests/bin-alias-migration.test.mjs",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/f081-f085-canonical-role-boundaries.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/package-identity-migration.test.mjs",
+          "packages/main/tests/prompt-role-migration.test.mjs",
+          "packages/main/tests/release-push-approval-migration.test.mjs",
+          "packages/utils/package.json"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "package-lock.json",
+          "packages/main/src/claude-md-sync.ts",
+          "packages/main/src/cli-init.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/core/global-agents.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/handlers/lattice-cli.ts",
+          "packages/main/src/init-assets.ts",
+          "packages/main/templates/agents/"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "e64ff994b00a526d38fe10588e55e6683b849e42db2887b6de72c4bb0224b193"
+      },
+      "readDiagnostics": [],
+      "_hash": "bff5a04b7c8d7e724d813d40fb32b57c0828130a938b324b871503254cf7e807"
     }
   ]
 }

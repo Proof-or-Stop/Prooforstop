@@ -3021,6 +3021,31 @@
       "cancelReason": "Cancel the unconsumed completeness-only receipt before reconciling stale and duplicate review findings; no implementation evidence is being discarded.",
       "terminalRunSequenceBoundary": 374,
       "_hash": "d16498ccba02dc7d1baaf27da32dadaa92ebc41cbb24c67008f4ef9cfd6c1571"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-5a88:RI-033",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-23T10:36:59.797Z",
+      "state": "OPEN",
+      "begunAt": "2026-08-23T12:14:34.804Z",
+      "updatedAt": "2026-08-23T12:14:34.804Z",
+      "cutoff": {
+        "headHash": "b38316edf7e2ed4c167538f287815981d88c02e4",
+        "materialHash": "60f80f78a14e8d006ba59b55639603a154ae90a636d665978264ff83acc73b8a",
+        "storyFilesHash": "0a84bdcbd6ee5b9115b0cc367978fba393aa597a24688ad24fad7245b14dbd22"
+      },
+      "scopeDigest": "e080db7a10d4bd24e5267bd46bace1ad44140b7c25f8850e08d9c32e170512a1",
+      "requiredLanes": [
+        "proof-or-stop-review-concept",
+        "proof-or-stop-review-quality",
+        "proof-or-stop-review-test-coverage"
+      ],
+      "initialRunSequenceBoundary": 374,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [],
+      "_hash": "48fbf99f7ab2c8e033f2fd1d4e243c10c8ff7a0ba11ae4c2dfcc36c96a9d79b8"
     }
   ],
   "receipts": [
