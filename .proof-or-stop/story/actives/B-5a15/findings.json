@@ -10523,6 +10523,57 @@
       ],
       "signatureTag": "missing|ts|certification-window-high",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-198",
+      "desc": "Wave 4 coverage is missing from the current B-5a15 evidence: all 50 verificationEvidence records (22 must intents, 0 waivers) execute only node --test packages/main/tests/causal-evidence.test.mjs; none executes the verifier-owned acceptance_topology_check, pre_review_check_read, acceptance_rollout_report_read, or acceptance_rollout_check chain. The authoritative handlers exist at packages/main/src/handlers/proofstory.ts:688-762 and :1052-1055, but source presence, prompt tokens, and smoke-test source assertions are not executable current-story evidence. Therefore this story has no admissible evidence for the required current signed receipt, full 3 rounds x 2 hosts (codex-cli and claude-cli), degraded-3x1 rejection, threshold/membership/freshness mutations, mode-invariant diagnostics, enforce-only blocking, or non-destructive rollback history; add executable current-story evidence for the complete chain before treating coverage as passed.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-23T13:24:00.573Z",
+      "reviewRound": "2026-08-22T06:10:03.014Z",
+      "reviewRunId": "B-5a15:RR-327",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "32402bb06e5a3253b660bd98869c0d7c2eeb660a95f3fef14c5aecb5cbc8cf64"
+      },
+      "readDiagnostics": [],
+      "_hash": "35cd5e66bbad5acb43953ee8bf965fc1077894edd111c2a25bda33c43eb5e4f8",
+      "files": [
+        "packages/main/src/handlers/proofstory.ts",
+        "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+        "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+        "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|wave-coverage-missing",
+      "signatureTagSource": "auto"
     }
   ]
 }
