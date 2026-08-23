@@ -514,12 +514,6 @@ export function reconcileTopologyWithCoverageBasis(
     if (topologySourceRefs.includes(`basis-path:${path}`)) return true;
     const processMatch = /^path:process-fact:(.+)->consumer:/.exec(path);
     if (processMatch && topologySourceRefs.includes(`process-fact:${processMatch[1]}`)) return true;
-    // These three verifier-owned pre-review control facts are discovered as
-    // part of the platform's phase-specific closure. They are not
-    // story-authored acceptance edges, so their presence in the current
-    // basis must not manufacture an unmapped-story-path diagnostic.
-    if (processMatch && basis.phaseBasis === 'pre_review'
-      && acceptanceDiscoveryFactActivationPhase(processMatch[1]) === 'pre_review') return true;
     const runtimeMatch = /^path:runtime-fact:(.+)->checker:/.exec(path);
     if (runtimeMatch && topologySourceRefs.includes(`runtime-fact:${runtimeMatch[1]}`)) return true;
     return topology.has(path);

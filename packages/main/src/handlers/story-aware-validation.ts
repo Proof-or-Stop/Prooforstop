@@ -14,11 +14,11 @@ import { isAbsolute, join, relative, resolve } from 'node:path';
 import type { ValidationCommand, ValidationCommandResult, ValidationProgressReporter, ValidationResult } from '../core/validation-types.js';
 import { validateResourceClaims } from '../core/keyed-scheduler.js';
 import { PROOF_OR_STOP_STATE_DIR } from '../core/brand-paths.js';
+import { buildDualRevisionImpactGraph } from '../core/dual-revision-impact-graph.js';
+import { buildStoryChangeManifest } from '../core/story-change-resolver.js';
 import {
   buildDynamicValidationPlan,
-  buildDualRevisionImpactGraph,
   buildRevocationLedger,
-  buildStoryChangeManifest,
   buildValidationSchedule,
   assertValidValidationCatalog,
   compileValidationCatalog,
@@ -290,7 +290,19 @@ function prepare(args: PrepareStoryAwareValidationArgs): PreparedStoryAwareValid
   });
   const graph = args.changedFiles && args.changedFiles.length === 0
     ? undefined
-    : buildDualRevisionImpactGraph({ gitCwd, baseHead: args.baseHead, head, catalog });
+    : buildDualRevisionImpactGraph({
+      gitCwd,
+      baseHead: args.baseHead,
+      head,
+      catalog,
+      storyId: args.storyId,
+      changeManifest: changes,
+      scopeContract: args.scopeContract,
+      verificationIntents: args.verificationIntents,
+      changedFiles: args.changedFiles,
+      affectedProcessFacts: args.affectedProcessFacts,
+      affectedCapabilities: args.affectedCapabilities,
+    });
   const toolchainDigest = args.toolchainDigest || stableDigest({ node: process.version, platform: process.platform, arch: process.arch });
   const baseline = readCanonicalFullBaseline(args.projectRoot);
   const baselineUsable = baseline
