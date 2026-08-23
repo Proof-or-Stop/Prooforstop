@@ -2739,6 +2739,309 @@
       },
       "readDiagnostics": [],
       "_hash": "f5d5948aebbf66f62a6f3cee033f55c5393a0a6227fdd52cc7b2447a34ad5147"
+    },
+    {
+      "id": "B-45a0:RP-059",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion or replacement was introduced in this wave: removed-line search found no testIntent, TEST_CASE, or TEST_CASE_REVIEW deletions; retained legacy references are compatibility or baseline surfaces, and no new promised concept was found without a corresponding implementation surface.",
+      "createdAt": "2026-08-23T11:03:36.942Z",
+      "reviewRound": "2026-08-23T08:18:33.747Z",
+      "reviewRunId": "B-45a0:RR-234",
+      "envelopeId": "b391a0b2e248f7a43f8626c6e74acca1a071f00eed1470c2f3b1c3b096973a3a",
+      "writerSessionId": "sess-66102e293d385af8614772fcac5794a5",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/NAV.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/acceptance-basis-receipt.ts",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/material-path-policy.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-runtime-tracer.cjs",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/handlers/rollout-check.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "proof-or-stop.config.json",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-story-aware-validation-plan.mjs",
+          "scripts/verify-validation-catalog.mjs",
+          "scripts/verify-validation-inventory.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "f2085ecb96087a20c87fd9abe9828835a5dd0766df586624bd4d7ce8d192dcb2"
+      },
+      "readDiagnostics": [],
+      "_hash": "12b8358a3aa6f5f87c65eef6be29b142b91010be666d67fe43155b23f64f81c5"
+    },
+    {
+      "id": "B-45a0:RP-060",
+      "agent": "lattice-review-docs",
+      "note": "Step 1 extracted 4 contract symbols: validate.dynamic.mode, validation.dynamic.mode, --dynamic-mode, and validate.dynamic.policyDefaults. Step 2 compared 4 contract sections across docs/CLI.md, docs/requirements/decisions/dynamic-validation-operations.md, packages/main/src/core/config.ts, and packages/main/src/handlers/verifier.ts. No blockers: current head now types validate.dynamic.mode and policyDefaults and verifier accesses both supported config paths directly, matching the documented contract.",
+      "createdAt": "2026-08-23T11:04:41.524Z",
+      "reviewRound": "2026-08-23T08:18:33.747Z",
+      "reviewRunId": "B-45a0:RR-235",
+      "envelopeId": "a85d65d40c912960c52b61f807fe9a80fd63c4ab3713130427419ccbf1b63ddc",
+      "writerSessionId": "sess-cd77847d60f0dc3f9eeb048a5e3f518d",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-operations.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "5e5390d1c8448aa5a5dd27cd166570e5a3c637f654a38be6e962950a679015a8"
+      },
+      "readDiagnostics": [],
+      "_hash": "0be266b39fdec0a9126c2304571d79fb0e2a731e7fb20677bafafa18c6385f70"
+    },
+    {
+      "id": "B-45a0:RP-061",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion or replacement was introduced in this wave: removed-line search found no testIntent, TEST_CASE, or TEST_CASE_REVIEW deletions; retained legacy references are compatibility or baseline surfaces, and no new promised concept was found without an implementation surface.",
+      "createdAt": "2026-08-23T11:08:33.516Z",
+      "reviewRound": "2026-08-23T08:18:33.747Z",
+      "reviewRunId": "B-45a0:RR-240",
+      "envelopeId": "6f1ca109216a6da5754e10b3ec20d9249a872d7e1508b3ab76a1b6b63ad54773",
+      "writerSessionId": "sess-66102e293d385af8614772fcac5794a5",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/NAV.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/acceptance-basis-receipt.ts",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/material-path-policy.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-runtime-tracer.cjs",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/handlers/rollout-check.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "proof-or-stop.config.json",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-story-aware-validation-plan.mjs",
+          "scripts/verify-validation-catalog.mjs",
+          "scripts/verify-validation-inventory.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "f2085ecb96087a20c87fd9abe9828835a5dd0766df586624bd4d7ce8d192dcb2"
+      },
+      "readDiagnostics": [],
+      "_hash": "46ef4c00fb5c2f3e6d35fe17778fe9462487c8be3f1d1eff1e1c76f48041f0b1"
+    },
+    {
+      "id": "B-45a0:RP-062",
+      "agent": "lattice-review-docs",
+      "note": "Step 1 extracted 4 contract symbols: validate.dynamic.mode, validation.dynamic.mode, --dynamic-mode, and validate.dynamic.policyDefaults. Step 2 compared 4 contract sections across docs/CLI.md, docs/requirements/decisions/dynamic-validation-operations.md, packages/main/src/core/config.ts, and packages/main/src/handlers/verifier.ts. No blockers: the docs, typed validate.dynamic.mode and policyDefaults definitions, and verifier access paths are aligned at the current head.",
+      "createdAt": "2026-08-23T11:09:21.735Z",
+      "reviewRound": "2026-08-23T08:18:33.747Z",
+      "reviewRunId": "B-45a0:RR-242",
+      "envelopeId": "89435bef58ca10606ec43ba3e14a0b3081a320ad9d2e107958307c9faa2813b0",
+      "writerSessionId": "sess-cd77847d60f0dc3f9eeb048a5e3f518d",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-operations.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "5e5390d1c8448aa5a5dd27cd166570e5a3c637f654a38be6e962950a679015a8"
+      },
+      "readDiagnostics": [],
+      "_hash": "1444ac879418f179cd1f5195ad7f6f21bec87b942160ea47eb15d7e96ebddf10"
+    },
+    {
+      "id": "B-45a0:RP-063",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion or replacement was introduced in this wave: removed-line search found no testIntent, TEST_CASE, or TEST_CASE_REVIEW deletions; retained legacy references are compatibility or baseline surfaces, and no new promised concept was found without an implementation surface.",
+      "createdAt": "2026-08-23T11:12:16.522Z",
+      "reviewRound": "2026-08-23T08:18:33.747Z",
+      "reviewRunId": "B-45a0:RR-246",
+      "envelopeId": "7c7562626638affc667f15ea361e18b744be548f1ebef1df9a0b2d57655d0acf",
+      "writerSessionId": "sess-66102e293d385af8614772fcac5794a5",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/NAV.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/acceptance-basis-receipt.ts",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/material-path-policy.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-runtime-tracer.cjs",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/handlers/rollout-check.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "proof-or-stop.config.json",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-story-aware-validation-plan.mjs",
+          "scripts/verify-validation-catalog.mjs",
+          "scripts/verify-validation-inventory.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "f2085ecb96087a20c87fd9abe9828835a5dd0766df586624bd4d7ce8d192dcb2"
+      },
+      "readDiagnostics": [],
+      "_hash": "6c08f3b289c1b699754dc4a32e9a7a726979db7f1988e5f7556eee43d437f239"
+    },
+    {
+      "id": "B-45a0:RP-064",
+      "agent": "lattice-review-docs",
+      "note": "Step 1 extracted 4 contract symbols: validate.dynamic.mode, validation.dynamic.mode, --dynamic-mode, and validate.dynamic.policyDefaults. Step 2 compared 4 contract sections across docs/CLI.md, docs/requirements/decisions/dynamic-validation-operations.md, packages/main/src/core/config.ts, and packages/main/src/handlers/verifier.ts. No blockers: the docs, typed validate.dynamic.mode and policyDefaults definitions, and verifier access paths remain aligned at the current head.",
+      "createdAt": "2026-08-23T11:13:11.922Z",
+      "reviewRound": "2026-08-23T08:18:33.747Z",
+      "reviewRunId": "B-45a0:RR-248",
+      "envelopeId": "d7207ee1c5dabc601a9a253a72052259df6636a166ea3bd5fe873853eea994eb",
+      "writerSessionId": "sess-cd77847d60f0dc3f9eeb048a5e3f518d",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-operations.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "5e5390d1c8448aa5a5dd27cd166570e5a3c637f654a38be6e962950a679015a8"
+      },
+      "readDiagnostics": [],
+      "_hash": "6b60f6900dc944712cc83547bae7324bdebef2f9d026fefe3bc88f1c1a73a46a"
     }
   ]
 }

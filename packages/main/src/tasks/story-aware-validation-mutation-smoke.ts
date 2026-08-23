@@ -31,6 +31,7 @@ import {
   verifyValidationCommandReceipt,
   verifyValidationSchedule,
   verifyValidationSelectionManifest,
+  resolveStoryChangedFiles,
   type ValidationCatalogEntry,
   type ValidationCommandReceipt,
   type ValidationSelectionManifest,
@@ -57,6 +58,11 @@ assert.throws(
   () => buildStoryChangeManifest({ storyId: 'B-mutation-invalid-base', gitCwd: '.', baseHead: 'missing-base-head', head: 'HEAD' }),
   /could not resolve a merge base|diff failed/,
   'unresolvable base/head must fail closed instead of signing an empty change manifest',
+);
+assert.throws(
+  () => resolveStoryChangedFiles('.', 'missing-head-ref', '.', 'HEAD'),
+  /could not read tree/,
+  'unreadable tree identity lookup must fail closed instead of manufacturing deleted blob identities',
 );
 const closures = new Map(catalog.map((entry) => [entry.id, createValidationClosureCertificate({
   commandId: entry.id,
