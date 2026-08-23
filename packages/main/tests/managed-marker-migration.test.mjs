@@ -26,8 +26,41 @@ assert.match(profile, /<!-- proof-or-stop-profile:start -->/);
 assert.match(profile, /must use the proof-or-stop-implementer subagent/);
 assert.doesNotMatch(profile, /lattice-implementer/);
 assert.equal(markers.inspectManagedBlock(profile, 'profile').status, 'valid');
+
+const malformedProfileCases = [
+  {
+    name: 'nested',
+    content: 'before\n<!-- lattice-profile:start -->\nlegacy\n<!-- lattice-profile:start -->\ninner\n<!-- lattice-profile:end -->\n<!-- lattice-profile:end -->\nafter\n',
+  },
+  {
+    name: 'mixed',
+    content: 'before\n<!-- lattice-profile:start -->\nlegacy\n<!-- proof-or-stop-profile:end -->\nafter\n',
+  },
+  {
+    name: 'unterminated',
+    content: 'before\n<!-- proof-or-stop-profile:start -->\nnew\nafter\n',
+  },
+];
 const syncRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-marker-sync-'));
 try {
+  for (const { name, content } of malformedProfileCases) {
+    assert.equal(
+      markers.inspectManagedBlock(content, 'profile').status,
+      'malformed',
+      `${name} managed profile markers are rejected by the canonical parser`,
+    );
+    assert.equal(
+      markers.replaceManagedBlock(content, profile, 'profile'),
+      null,
+      `${name} managed profile markers cannot be replaced`,
+    );
+
+    const malformedPath = join(syncRoot, `${name}.md`);
+    writeFileSync(malformedPath, content);
+    assert.equal(sync.syncProfileSection(malformedPath, 'balanced'), false, `${name} migration is refused`);
+    assert.equal(readFileSync(malformedPath, 'utf8'), content, `${name} migration leaves the file unchanged`);
+  }
+
   const claudePath = join(syncRoot, 'CLAUDE.md');
   writeFileSync(claudePath, 'before\n<!-- lattice-profile:start -->\nlegacy\n<!-- lattice-profile:end -->\nafter\n');
   assert.equal(sync.syncProfileSection(claudePath, 'balanced'), true);
