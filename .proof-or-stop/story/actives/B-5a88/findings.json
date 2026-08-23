@@ -14338,7 +14338,7 @@
       "desc": "RI-050: Active package descriptions still use the legacy Proofbound spelling in packages/lab/package.json and packages/utils/package.json; the approved rename mapping marks active descriptions as RENAMED to Proof-or-Stop, so these manifests remain cleanup residue.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-08-23T18:37:23.548Z",
@@ -14373,7 +14373,11 @@
         "docs/requirements/decisions/brand-rename-mapping.md"
       ],
       "signatureTag": "cleanup|json|active-package-descriptions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "The active package-description family is fixed by the B-5a88 implementation commit 2180e94a2a: packages/lab/package.json and packages/utils/package.json now use the canonical Proof-or-Stop identity. package-identity-migration.test.mjs and the focused build pass against the current implementation.",
+      "resolvedAt": "2026-08-23T21:02:11.102Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-350",
@@ -14685,7 +14689,7 @@
       "desc": "RI-050 concept-cleanup: active CLI validation errors still emit the retired product spelling Proofbound at packages/main/src/handlers/dev-memory.ts:237 and packages/main/src/handlers/quorum-prune.ts:388. The approved brand-rename mapping classifies Proofbound in active user-facing prose as RENAMED to Proof-or-Stop; these runtime error strings are not historical evidence or compatibility readers, so invalid story-id requests still teach the retired product identity. This is distinct from F-349 package descriptions and the existing pre-review/coverage families F-350 through F-354.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-08-23T19:17:43.184Z",
@@ -14722,14 +14726,18 @@
         "docs/requirements/decisions/brand-rename-mapping.md"
       ],
       "signatureTag": "missing|ts|concept-cleanup-active",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "The active validation-error family is fixed by 2180e94a2a: dev-memory and quorum-prune user-facing validation errors use Proof-or-Stop. The current build and migration-focused test suite pass.",
+      "resolvedAt": "2026-08-23T21:02:12.565Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-357",
       "desc": "concept-schema-prefix: active runtime/schema producers still emit legacy-only lattice.* identities instead of canonical proof-or-stop.* writes or an explicit dual-read helper: packages/main/src/core/agent-asset-resolution.ts:34,253 emits lattice.agent_asset_resolution.v1; packages/main/src/handlers/done-prepare.ts:191,1089 emits lattice.done_prepare.v1; packages/main/src/handlers/done-closure.ts:35,204 emits lattice.done_closure.v1; packages/main/src/core/proof-admissibility-binding.ts:4 emits lattice.proof_binding.v1; packages/main/src/core/observability-snapshot.ts:31,382 emits lattice.observability_snapshot.v1; and packages/main/src/core/usage-sweep.ts:499,644 emits lattice.usage_sweep.v1. The approved brand mapping says only persisted signature salts are frozen and requires current/future outputs to use proof-or-stop; the new artifact-schema.ts allow-list does not cover these active producers, leaving the retired schema concept in new runtime output and without a bounded legacy-read contract.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-08-23T19:17:50.677Z",
@@ -14764,14 +14772,18 @@
       "readDiagnostics": [],
       "_hash": "abd29b65c6812288e168aa06a694828b39a04074561b0d3cbabd68d5c3bdb22b",
       "signatureTag": "missing|unknown|concept-schema-prefix",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "The six active lattice.* producer family is fixed by 2180e94a2a: each producer now uses the canonical artifact schema helper with bounded legacy-read compatibility. artifact-schema-migration.test.mjs, focused build, and current residue checks pass.",
+      "resolvedAt": "2026-08-23T21:02:13.949Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-358",
       "desc": "concept-protocol-prefix: active prompt/config protocol writers still emit the retired Proofbound namespace instead of a canonical proof-or-stop form or an explicit bounded compatibility rule: proof-or-stop.config.json:10 writes proofbound.prompt-envelope-rollout.v1; packages/main/templates/agents/proof-or-stop-review-concept.md:7 and the other canonical role templates retain proofbound:modular-role-body:v1; packages/main/src/handlers/agent-prompt.ts:133,194 writes proofbound prompt-envelope/agent-prompt response identities; packages/main/src/core/prompt-contracts.ts:33-202 validates proofbound protocol schemas. The approved brand mapping classifies Proofbound as a legacy spelling to normalize and does not list these active protocol markers/schema writers as frozen evidence. This is distinct from F-349 package descriptions, F-350 through F-354 known blockers, F-356 active validation errors, and F-357 lattice.* artifact producers; current canonical prompt output still teaches and emits the retired concept.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-08-23T19:19:22.490Z",
@@ -14803,7 +14815,11 @@
       "readDiagnostics": [],
       "_hash": "9ecd61443a1fe4c610b4d30172e891705cef9581138aca42968a89360a6ff414",
       "signatureTag": "missing|unknown|concept-protocol-prefix",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "The active Proofbound prompt/config protocol-writer family is fixed by 2180e94a2a: canonical prompt/config writers and contract readers use the proof-or-stop namespace with bounded legacy compatibility. prompt-role-migration.test.mjs, focused build, and current residue checks pass.",
+      "resolvedAt": "2026-08-23T21:02:15.438Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-359",

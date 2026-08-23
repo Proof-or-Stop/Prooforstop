@@ -8039,6 +8039,51 @@
         "scanEscalationReason": "Story-level coverage review bounded by the current candidate-spec; focused migration tests and executable verifier checks were rerun for all seven checklist items."
       },
       "_hash": "46c3ac8f6398b5752717f0ddc429d13d58658f43c22769a4f3343b10c7708145"
+    },
+    {
+      "id": "B-5a88:RP-149",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Round 40 story-level concept review passed with no new distinct residue finding. The migration diff is covered by the canonical role/marker/schema/package/bin tests and the 65/65 lattice-residue plus process-fact contract checks; remaining legacy tokens are bounded compatibility reads, frozen salts/archives, preserved ProofStory or documented config/path aliases, not new active migration writers. Prior fixed families F-349 and F-356 through F-358 remain resolved.",
+      "createdAt": "2026-08-23T21:03:35.854Z",
+      "reviewRound": "2026-08-23T20:56:20.268Z",
+      "reviewRunId": "B-5a88:RR-494",
+      "envelopeId": "14b498e398304615ae3796da47ef95322aaaa8f1e6a624ad179d79cf2fd0fd8d",
+      "writerSessionId": "sess-57191706b5aeee1aa231fbc35f9e8923",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/tests/artifact-schema-migration.test.mjs",
+          "packages/main/tests/bin-alias-migration.test.mjs",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/lab-brand-migration.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/package-identity-migration.test.mjs",
+          "packages/main/tests/prompt-role-migration.test.mjs",
+          "packages/main/tests/release-push-approval-migration.test.mjs"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/artifact-schema.ts",
+          "packages/main/src/core/managed-markers.ts",
+          "packages/main/src/core/quorum-submit.ts",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/handlers/dev-memory.ts",
+          "packages/main/src/handlers/quorum-prune.ts",
+          "packages/main/templates/agents/",
+          "scripts/verify-lattice-residue.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Repository-wide active-token scan was bounded by the current candidate-spec and the approved rename mapping; all hits were classified as compatibility, frozen, preserved, or already-resolved story families."
+      },
+      "_hash": "6ae8f209d61ee98b6a09db2466e5652afe2d636c7cf1456a9eeb3e27efafbdb0"
     }
   ]
 }
