@@ -13286,7 +13286,7 @@
       "desc": "CHK-001:happy:0 through CHK-007:adversarial:0: all 21 stored verificationEvidence rows in .proof-or-stop/story/actives/B-5a88/checklist.json report pass but are bound to RI-039-era headHash d0fa9df2d2eada9cd8bb5a1243db065dc08b2009, materialHash c11118fd7da602726e82117174691d1bc678c6665bc7ea3a896f5909e1aeca78, and storyFilesHash 1dfdbd2495319eb158aa76ab767d2c95874b3f2f41b3f8e913cc07c7ded4c58b, not the current RI-042/RR-428 cutoff headHash e2fe686625338e05a3b41f5122f1929aa2f19e57, materialHash 9fb65be0aa9d8a84f8d2067768b64b67917385d99ca839700a5dd42d8da20137, and storyFilesHash f4c58507af0daa947611ee2e22c624b0f2d370568ae3ba965b870f095b0207bd. No must-intent verificationEvidence row is current, so coverage cannot pass until the 21 intents are re-executed and rebound.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-08-23T15:47:53.016Z",
@@ -13326,7 +13326,11 @@
         "packages/main/tests/artifact-schema-migration.test.mjs"
       ],
       "signatureTag": "missing|json|happy-through-adversarial",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by B-5a88:F-351, the later current-round finding covering the same stale happy/edge/adversarial verification receipts.",
+      "resolvedAt": "2026-08-23T18:51:31.962Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-329",
