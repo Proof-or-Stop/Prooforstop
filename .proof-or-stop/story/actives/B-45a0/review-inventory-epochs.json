@@ -3146,7 +3146,7 @@
       "reviewRound": "2026-08-23T13:46:47.948Z",
       "state": "OPEN",
       "begunAt": "2026-08-23T14:33:47.259Z",
-      "updatedAt": "2026-08-23T14:33:47.259Z",
+      "updatedAt": "2026-08-23T14:44:26.516Z",
       "cutoff": {
         "headHash": "fd74242d8f8cf8e198435361ffdc74b4506c68ff",
         "materialHash": "aa5beaab4316c22ebcfd403395a217d890edac9bd1dbbca1d8221554cd13dda0",
@@ -3161,7 +3161,80 @@
       ],
       "initialRunSequenceBoundary": 333,
       "maxWaves": 3,
-      "waves": [],
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-08-23T14:33:47.259Z",
+          "completedAt": "2026-08-23T14:44:26.516Z",
+          "lanes": [
+            {
+              "lane": "lattice-review-concept",
+              "reviewRunId": "B-45a0:RR-337",
+              "terminal": "pass",
+              "hostIdentity": "47713688d1a2132c8c5dddef6ae22c86694007720446c611ecdd7811332643d2",
+              "promptIdentity": "f16eb8083bf0085931a128c258473b0cf73cc420198edf7b909587d5c4fa830d",
+              "evidenceIds": [
+                "B-45a0:RP-086"
+              ],
+              "coverageDigest": "79124c688b7f74a0e937d868474b98ddebb931bf50b949b2ac649caf5ebb7d57"
+            },
+            {
+              "lane": "lattice-review-quality",
+              "reviewRunId": "B-45a0:RR-334",
+              "terminal": "pass",
+              "hostIdentity": "9ef51d19bc456ec23a67ba2c72e3b96aedc1ffb34b622a69e4ca44891a19d5de",
+              "promptIdentity": "fba09c0e1f9f9da84e75e1c233e09c9771f24391b170e4ac7b8b6286f81801e9",
+              "evidenceIds": [
+                "B-45a0:RP-084"
+              ],
+              "coverageDigest": "d00692dfcf06d99404308d88289839bfc79fb1ce8b0d82220861df7f36679ab6"
+            },
+            {
+              "lane": "lattice-review-test-coverage",
+              "reviewRunId": "B-45a0:RR-336",
+              "terminal": "finding",
+              "hostIdentity": "47713688d1a2132c8c5dddef6ae22c86694007720446c611ecdd7811332643d2",
+              "promptIdentity": "0a3111d3964bd66ee4dd3b6dfd8c45071aca76c17f57de7c20c62432568f5f0a",
+              "evidenceIds": [
+                "B-45a0:F-211"
+              ],
+              "coverageDigest": "29f6f435126417772b7963e197a2f03eb52e70ea0e4b4f767b45f0f2f9165d4b"
+            },
+            {
+              "lane": "lattice-review-docs",
+              "reviewRunId": "B-45a0:RR-335",
+              "terminal": "pass",
+              "hostIdentity": "c168308226d316ff1787cff5575316e05b88a9706f61f68a66126ca80805488a",
+              "promptIdentity": "e5427579adaf7676efef3a6ad434eb8744a1d9649aa05acb8314e80223cd9366",
+              "evidenceIds": [
+                "B-45a0:RP-085"
+              ],
+              "coverageDigest": "71291d33cb4699c3cd6625f19702c7931689c95ed7a0df77eae374d01c144601"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "finding:B-45a0:F-198",
+            "finding:B-45a0:F-199",
+            "finding:B-45a0:F-200",
+            "finding:B-45a0:F-201",
+            "finding:B-45a0:F-202",
+            "finding:B-45a0:F-203",
+            "finding:B-45a0:F-204",
+            "finding:B-45a0:F-205",
+            "finding:B-45a0:F-206",
+            "finding:B-45a0:F-207",
+            "finding:B-45a0:F-208",
+            "finding:B-45a0:F-209",
+            "finding:B-45a0:F-210",
+            "finding:B-45a0:F-211"
+          ],
+          "verifiedFindingSetDigest": "64c90aa22fa6ef2c0c37c3930d8f91808c267c2beb00d3f49278c2135076add4",
+          "newVerifiedFindingCount": 14,
+          "criticDigest": "b3bed585295b86bd8db6e69fa8d5e98337e67695968daa18f653b4de3e05d95f",
+          "saturated": false,
+          "nextRunSequenceBoundary": 340
+        }
+      ],
       "baselineFindingIds": [
         "B-45a0:F-198",
         "B-45a0:F-199",
@@ -3177,7 +3250,7 @@
         "B-45a0:F-209",
         "B-45a0:F-210"
       ],
-      "_hash": "852fac7b0c24fe060e7784df846773e8df8e6a514adf3bd8676cf4c55a550fee"
+      "_hash": "23fb03e6c1322f2f6b0004ea5b821c2d7bd0d7b24cce138f80a85a9896b1dbb6"
     }
   ],
   "receipts": [
@@ -4821,6 +4894,115 @@
       ],
       "createdAt": "2026-08-23T14:28:04.191Z",
       "_hash": "756a46065214a5a38398de9de84c0600b35a63829a3713a68cbef9bf527d05f5"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-45a0:RI-042:CRIT-01",
+      "epochId": "B-45a0:RI-042",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-23T13:46:47.948Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "fd74242d8f8cf8e198435361ffdc74b4506c68ff",
+        "materialHash": "aa5beaab4316c22ebcfd403395a217d890edac9bd1dbbca1d8221554cd13dda0",
+        "storyFilesHash": "cc7ed81b116ac565f747818a589cb8156963be09cb009bc7e55f715cf97fd619"
+      },
+      "aggregateFindingSetDigest": "64c90aa22fa6ef2c0c37c3930d8f91808c267c2beb00d3f49278c2135076add4",
+      "requiredLaneCoverageDigest": "c9606269999a9dc20192183b45de5f6be3f3f26f5cf95937e185e1eb9684aee2",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-45a0:RR-340",
+      "terminalEvidenceIds": [
+        "B-45a0:F-212"
+      ],
+      "readEvidenceDigest": "923d966a5e481077edc0bdc35ba070fdf59addebf0967f87131025b4aeb67ac5",
+      "findingDispositions": [
+        {
+          "findingId": "B-45a0:F-198",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-45a0:F-198",
+          "reason": "Conservative executable default: retain this verified finding as its own family"
+        },
+        {
+          "findingId": "B-45a0:F-199",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-45a0:F-199",
+          "reason": "Conservative executable default: retain this verified finding as its own family"
+        },
+        {
+          "findingId": "B-45a0:F-200",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-45a0:F-200",
+          "reason": "Conservative executable default: retain this verified finding as its own family"
+        },
+        {
+          "findingId": "B-45a0:F-201",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-45a0:F-201",
+          "reason": "Conservative executable default: retain this verified finding as its own family"
+        },
+        {
+          "findingId": "B-45a0:F-202",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-45a0:F-202",
+          "reason": "Conservative executable default: retain this verified finding as its own family"
+        },
+        {
+          "findingId": "B-45a0:F-203",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-45a0:F-203",
+          "reason": "Conservative executable default: retain this verified finding as its own family"
+        },
+        {
+          "findingId": "B-45a0:F-204",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-45a0:F-204",
+          "reason": "Conservative executable default: retain this verified finding as its own family"
+        },
+        {
+          "findingId": "B-45a0:F-205",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-45a0:F-205",
+          "reason": "Conservative executable default: retain this verified finding as its own family"
+        },
+        {
+          "findingId": "B-45a0:F-206",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-45a0:F-206",
+          "reason": "Conservative executable default: retain this verified finding as its own family"
+        },
+        {
+          "findingId": "B-45a0:F-207",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-45a0:F-207",
+          "reason": "Conservative executable default: retain this verified finding as its own family"
+        },
+        {
+          "findingId": "B-45a0:F-208",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-45a0:F-208",
+          "reason": "Conservative executable default: retain this verified finding as its own family"
+        },
+        {
+          "findingId": "B-45a0:F-209",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-45a0:F-209",
+          "reason": "Conservative executable default: retain this verified finding as its own family"
+        },
+        {
+          "findingId": "B-45a0:F-210",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-45a0:F-210",
+          "reason": "Conservative executable default: retain this verified finding as its own family"
+        },
+        {
+          "findingId": "B-45a0:F-211",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-45a0:F-211",
+          "reason": "Conservative executable default: retain this verified finding as its own family"
+        }
+      ],
+      "createdAt": "2026-08-23T14:44:09.312Z",
+      "_hash": "aa7d78a494b9017c90f9557c800cfc92dc53c50ff1306612d3fb5394b5d5088a"
     }
   ]
 }
