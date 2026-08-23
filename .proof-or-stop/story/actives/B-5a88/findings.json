@@ -848,7 +848,7 @@
       "desc": "pre-review-check.json:14,1023-1112 is status inconclusive with a partial basis, empty commandDigests/caseRecords, and empty runner/target/build provenance; acceptance-rollout-report.json:8422-8444 reports pass only for receipt head 88ac3238/storyFilesHash 986b6b1c, which is stale against current signed run B-5a88:RR-050 head 152318f/storyFilesHash 04856e7. The Wave 4 acceptance rollout and pre-review boundary therefore have no current executable proof and cannot support REVIEW coverage or TEST/DONE promotion.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-08-20T14:58:35.180Z",
@@ -862,7 +862,11 @@
         ".proof-or-stop/story/actives/B-5a88/evidence/live-smoke-transcript.json"
       ],
       "signatureTag": "missing|json|review-check-json",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by the later current-round pre-review artifact finding B-5a88:F-347; the pre-review freshness condition remains represented by the latest finding rather than this earlier duplicate.",
+      "resolvedAt": "2026-08-23T18:07:34.324Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-019",
