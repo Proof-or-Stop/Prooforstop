@@ -928,7 +928,7 @@ export function assertSelectionIsSingletonUnionMonotonic(context: DynamicValidat
 }
 /**
  * Compare two authoritative plans where the second context contains an
- * expanded change set.  The executable selection is monotone: adding a
+ * expanded change set. The final selected command set is monotone: adding a
  * changed file/fact/capability may add commands, but can never remove one.
  * The per-manifest singleton-union check above separately proves complete
  * execute/reuse accounting.
@@ -936,9 +936,9 @@ export function assertSelectionIsSingletonUnionMonotonic(context: DynamicValidat
 export function assertSelectionMonotonicity(baseContext: DynamicValidationContext, expandedContext: DynamicValidationContext): { base: ValidationSelectionManifest; expanded: ValidationSelectionManifest } {
   const base = buildDynamicValidationPlan(baseContext);
   const expanded = buildDynamicValidationPlan(expandedContext);
-  const baseExecuted = new Set(base.rows.filter(row => row.disposition === 'execute').map(row => row.commandId));
-  const expandedExecuted = new Set(expanded.rows.filter(row => row.disposition === 'execute').map(row => row.commandId));
-  if ([...baseExecuted].some(commandId => !expandedExecuted.has(commandId))) throw new Error('selection monotonicity violated: expanded change set removed an executable command');
+  const baseSelected = new Set(base.rows.filter(row => row.disposition === 'execute' || row.disposition === 'reuse').map(row => row.commandId));
+  const expandedSelected = new Set(expanded.rows.filter(row => row.disposition === 'execute' || row.disposition === 'reuse').map(row => row.commandId));
+  if ([...baseSelected].some(commandId => !expandedSelected.has(commandId))) throw new Error('selection monotonicity violated: expanded change set removed a selected command');
   return { base, expanded };
 }
 

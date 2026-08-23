@@ -180,8 +180,8 @@ const cleanRun = buildDynamicValidationPlan({
 assert.equal(cleanRun.rows.find((row) => row.commandId === 'unit')?.disposition, 'reuse');
 assert.equal(cleanRun.totals.unverified, 0);
 
-// The executable selection must be monotone as a clean, receipt-backed plan
-// is expanded with a changed source file. The signed singleton union must
+// The final selected command set (execute or reuse) must be monotone as a
+// clean, receipt-backed plan is expanded with a changed source file. The signed singleton union must
 // still cover every execute/reuse row, and removing one independent
 // contribution must be rejected even when the remaining rows are untouched.
 const cleanContext = {
@@ -201,6 +201,9 @@ const cleanReceipts = cleanPlan.rows.map(row => createValidationCommandReceipt({
 const cleanReceiptContext = { ...cleanContext, receipts: cleanReceipts };
 const expandedContext = context('packages/main/src/expanded-monotonicity.ts');
 const monotonicPlans = assertSelectionMonotonicity(cleanReceiptContext, expandedContext);
+const baseSelectedIds = new Set(monotonicPlans.base.rows.filter(row => row.disposition === 'execute' || row.disposition === 'reuse').map(row => row.commandId));
+const expandedSelectedIds = new Set(monotonicPlans.expanded.rows.filter(row => row.disposition === 'execute' || row.disposition === 'reuse').map(row => row.commandId));
+assert.equal([...baseSelectedIds].every(commandId => expandedSelectedIds.has(commandId)), true);
 assert.equal(monotonicPlans.base.rows.every(row => row.disposition === 'reuse'), true);
 assert.equal(monotonicPlans.expanded.rows.every(row => row.disposition === 'execute'), true);
 assertSelectionIsSingletonUnionMonotonic(expandedContext, monotonicPlans.expanded);
