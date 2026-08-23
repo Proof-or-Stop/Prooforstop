@@ -2,7 +2,7 @@
 
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -158,6 +158,82 @@ try {
     artifactPath: 'summary.json',
     artifactBytes,
   }).ok, false, 'unknown closeout schemas fail closed and are not rewritten');
+
+  // A schema migration may start a new canonical receipt epoch. Validate the
+  // complete legacy chain and the reset canonical chain through the same
+  // causal reader used by review-retention and pre-review gates.
+  const migrationStoryDir = join(root, 'migration-story');
+  mkdirSync(migrationStoryDir, { recursive: true });
+  const migrationStoryId = 'B-schema-migration';
+  const migrationArtifactPath = 'summary.json';
+  const migrationReceiptPath = join(migrationStoryDir, closeout.CLOSEOUT_WRITE_RECEIPTS_PATH);
+  const writeMigrationReceipt = ({ schemaVersion, sequence, previousIntegrityHash, value }) => {
+    const migrationBytes = JSON.stringify({ value }) + '\n';
+    writeFileSync(join(migrationStoryDir, migrationArtifactPath), migrationBytes);
+    const parentHead = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim();
+    const baseReceipt = closeout.buildCloseoutWriteReceipt({
+      storyId: migrationStoryId,
+      artifactPath: migrationArtifactPath,
+      writerCommand: 'summary_set',
+      artifactDigest: closeout.rawArtifactDigest(migrationBytes),
+      phase: 'TEST',
+      headHash: parentHead,
+      materialHash: freshness.currentMaterialHash(root, parentHead, root),
+      storyFilesHash: freshness.currentStoryFilesHash(root, parentHead, root),
+      sequence,
+      previousIntegrityHash,
+    });
+    const { integrityHash: _baseIntegrityHash, ...unsigned } = { ...baseReceipt, schemaVersion };
+    const receipt = {
+      ...unsigned,
+      integrityHash: closeout.computeCloseoutWriteReceiptIntegrity(unsigned),
+    };
+    const existingLedger = existsSync(migrationReceiptPath) ? readFileSync(migrationReceiptPath, 'utf8') : '';
+    writeFileSync(migrationReceiptPath, `${existingLedger}${JSON.stringify(receipt)}\n`);
+    execFileSync('git', ['add', 'migration-story'], { cwd: root, stdio: 'ignore' });
+    execFileSync('git', ['commit', '-m', `receipt ${schemaVersion} ${sequence}`], { cwd: root, stdio: 'ignore' });
+    return receipt;
+  };
+
+  let previousMigrationReceipt = null;
+  for (let sequence = 1; sequence <= 18; sequence += 1) {
+    previousMigrationReceipt = writeMigrationReceipt({
+      schemaVersion: 'lattice.closeout_write_receipt.v3',
+      sequence,
+      previousIntegrityHash: previousMigrationReceipt?.integrityHash ?? null,
+      value: `legacy-${sequence}`,
+    });
+  }
+  previousMigrationReceipt = null;
+  for (let sequence = 1; sequence <= 4; sequence += 1) {
+    previousMigrationReceipt = writeMigrationReceipt({
+      schemaVersion: 'proof-or-stop.closeout_write_receipt.v3',
+      sequence,
+      previousIntegrityHash: previousMigrationReceipt?.integrityHash ?? null,
+      value: `canonical-${sequence}`,
+    });
+  }
+  const migratedReceipt = closeout.latestCausallyValidCloseoutReceipt(
+    migrationStoryDir,
+    migrationStoryId,
+    migrationArtifactPath,
+    { projectRoot: root, metadataRoot: root },
+  );
+  assert.equal(migratedReceipt?.schemaVersion, 'proof-or-stop.closeout_write_receipt.v3');
+  assert.equal(migratedReceipt?.sequence, 4, 'canonical epoch is selected after a sequence reset');
+
+  const migrationLedger = readFileSync(migrationReceiptPath, 'utf8');
+  const tamperedLegacy = migrationLedger.replace(
+    '"sequence":1,"previousIntegrityHash":null',
+    '"sequence":2,"previousIntegrityHash":null',
+  );
+  writeFileSync(migrationReceiptPath, tamperedLegacy);
+  assert.equal(
+    closeout.latestCausallyValidCloseoutReceipt(migrationStoryDir, migrationStoryId, migrationArtifactPath),
+    null,
+    'tampering inside the legacy epoch remains fail closed after migration',
+  );
+  writeFileSync(migrationReceiptPath, migrationLedger);
 
   // Exercise the adjacent consumers that must continue to read the migrated
   // artifact family: freshness classification, immutable evidence storage,
