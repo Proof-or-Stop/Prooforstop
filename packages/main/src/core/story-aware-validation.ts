@@ -142,7 +142,9 @@ function objectIdsAtRef(gitCwd: string, ref: string): Map<string, string> {
       const path = normalPath(row.slice(tab + 1));
       if (parts[2] && path) result.set(path, parts[2]);
     }
-  } catch { /* missing ref is conservative input uncertainty */ }
+  } catch (error) {
+    throw new Error(`story change manifest could not read tree ${ref}: ${error instanceof Error ? error.message : String(error)}`);
+  }
   return result;
 }
 export function resolveStoryMergeBase(gitCwd: string, head: string): string | undefined {

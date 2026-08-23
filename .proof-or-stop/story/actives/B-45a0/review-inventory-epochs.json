@@ -2283,6 +2283,158 @@
       "cancelReason": "Wave-3 reached the reviewer budget while exposing actionable resolver, typed-config, and acceptance-gate findings; cancel the stale frozen epoch before current-head remediation.",
       "terminalRunSequenceBoundary": 232,
       "_hash": "468649e758719a3d395dcb5846fa1f53c9038ee6d36596305c7c3398bc527e28"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-45a0:RI-037",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-23T08:18:33.747Z",
+      "state": "CANCELLED",
+      "begunAt": "2026-08-23T11:02:43.818Z",
+      "updatedAt": "2026-08-23T11:16:58.925Z",
+      "cutoff": {
+        "headHash": "168b69a376edcc4b7ee333a07df65c48cb432812",
+        "materialHash": "b1ae1024d51585e686f52263abfca5daa42d39f3cf89a4edd524f60e55e8e6c8",
+        "storyFilesHash": "f7e57acdaeda4085779ce0a4bfbf7794a132be9f4f916231fdb3cfb2b0be4e8e"
+      },
+      "scopeDigest": "af6d76777f80e689244e18bee84e5901158e6abaa5a1fa392affa4ac8e8aba3e",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage",
+        "lattice-review-docs"
+      ],
+      "initialRunSequenceBoundary": 232,
+      "maxWaves": 3,
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-08-23T11:02:43.818Z",
+          "completedAt": "2026-08-23T11:07:51.380Z",
+          "lanes": [
+            {
+              "lane": "lattice-review-concept",
+              "reviewRunId": "B-45a0:RR-234",
+              "terminal": "pass",
+              "hostIdentity": "0a34a9443a4e0346b7774ad74ae49681af461e8cfedfda223c17ae453464381b",
+              "promptIdentity": "b391a0b2e248f7a43f8626c6e74acca1a071f00eed1470c2f3b1c3b096973a3a",
+              "evidenceIds": [
+                "B-45a0:RP-059"
+              ],
+              "coverageDigest": "60d0f01db6b1b012df5056d7948b712025ab438be22d68c82722d4a8b0d4d7bb"
+            },
+            {
+              "lane": "lattice-review-quality",
+              "reviewRunId": "B-45a0:RR-233",
+              "terminal": "finding",
+              "hostIdentity": "0a34a9443a4e0346b7774ad74ae49681af461e8cfedfda223c17ae453464381b",
+              "promptIdentity": "bfbc82b44a2e6e69a328b116526c1b89b110ddd35291af0a76715e12351b7803",
+              "evidenceIds": [
+                "B-45a0:F-166"
+              ],
+              "coverageDigest": "552437e97690765ac0ca0fc91b7efae2b71bf4149da344abf604f04391bb9bc3"
+            },
+            {
+              "lane": "lattice-review-test-coverage",
+              "reviewRunId": "B-45a0:RR-236",
+              "terminal": "finding",
+              "hostIdentity": "0a34a9443a4e0346b7774ad74ae49681af461e8cfedfda223c17ae453464381b",
+              "promptIdentity": "8ec0ab5f6b6d8d10884fe1141ebd98325e999745f19165d37f736ccc17c678b7",
+              "evidenceIds": [
+                "B-45a0:F-167"
+              ],
+              "coverageDigest": "d2142bc4dc05981a0f55ceb39cc88e7cda5fd8d7bd659c50794418d372b54839"
+            },
+            {
+              "lane": "lattice-review-docs",
+              "reviewRunId": "B-45a0:RR-235",
+              "terminal": "pass",
+              "hostIdentity": "0a34a9443a4e0346b7774ad74ae49681af461e8cfedfda223c17ae453464381b",
+              "promptIdentity": "a85d65d40c912960c52b61f807fe9a80fd63c4ab3713130427419ccbf1b63ddc",
+              "evidenceIds": [
+                "B-45a0:RP-060"
+              ],
+              "coverageDigest": "61421b44bf344cd7014dc3df2491e6b1847344916118fe754b59d0d56719d0c4"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "acceptance-gate-coverage-inadmissible-ri037-wave1",
+            "typed-validation-contract-doc-drift-ri037-wave1"
+          ],
+          "verifiedFindingSetDigest": "655da83ecc285512172bd6dbd92a92552b676705ecfcd31962da5bbcf8bcbe6b",
+          "newVerifiedFindingCount": 2,
+          "criticDigest": "86ff65a860cd683aa621a6afd410136c333c16e766fc9a4b2bbe06116062ece7",
+          "saturated": false,
+          "nextRunSequenceBoundary": 239
+        },
+        {
+          "wave": 2,
+          "startedAt": "2026-08-23T11:07:51.380Z",
+          "completedAt": "2026-08-23T11:11:29.877Z",
+          "lanes": [
+            {
+              "lane": "lattice-review-concept",
+              "reviewRunId": "B-45a0:RR-240",
+              "terminal": "pass",
+              "hostIdentity": "ce47dcbd13f62f1a418cb297fa85bb598ab86c5e635899a242d1bcc7641366a6",
+              "promptIdentity": "6f1ca109216a6da5754e10b3ec20d9249a872d7e1508b3ab76a1b6b63ad54773",
+              "evidenceIds": [
+                "B-45a0:RP-061"
+              ],
+              "coverageDigest": "8717517caf41ae86c75430f912dd49094e48d29491236ce80f39be79dde836f6"
+            },
+            {
+              "lane": "lattice-review-quality",
+              "reviewRunId": "B-45a0:RR-241",
+              "terminal": "finding",
+              "hostIdentity": "ce47dcbd13f62f1a418cb297fa85bb598ab86c5e635899a242d1bcc7641366a6",
+              "promptIdentity": "71ffdb17f2d1b905074461b45bf1445bbf28b25a6cb1901db5839ac143586ad7",
+              "evidenceIds": [
+                "B-45a0:F-169"
+              ],
+              "coverageDigest": "8d5a1e5b7dbfd6be1ed84c8cf55a6557a3bbcbb2ebb097ed914c39ee48dff2e0"
+            },
+            {
+              "lane": "lattice-review-test-coverage",
+              "reviewRunId": "B-45a0:RR-243",
+              "terminal": "finding",
+              "hostIdentity": "ce47dcbd13f62f1a418cb297fa85bb598ab86c5e635899a242d1bcc7641366a6",
+              "promptIdentity": "3984d7556fc08bb0b6f2a3e2b8af8ff1a55ca3ec7ea6dd65aaab3efb3cd6d806",
+              "evidenceIds": [
+                "B-45a0:F-170"
+              ],
+              "coverageDigest": "0119e5b8adabfe1a24d9c09a682584fc8bc2f561acd3b56d5692ff0f3f7bc554"
+            },
+            {
+              "lane": "lattice-review-docs",
+              "reviewRunId": "B-45a0:RR-242",
+              "terminal": "pass",
+              "hostIdentity": "ce47dcbd13f62f1a418cb297fa85bb598ab86c5e635899a242d1bcc7641366a6",
+              "promptIdentity": "89435bef58ca10606ec43ba3e14a0b3081a320ad9d2e107958307c9faa2813b0",
+              "evidenceIds": [
+                "B-45a0:RP-062"
+              ],
+              "coverageDigest": "db273be43ecb3d92fcc8bb1cc00f3dde90ba3c034e65364601c6b2d9a30fdd73"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "acceptance-gate-coverage-inadmissible-ri037-wave1",
+            "acceptance-gate-coverage-inadmissible-ri037-wave2",
+            "typed-validation-contract-doc-drift-ri037-wave1",
+            "typed-validation-contract-doc-drift-ri037-wave2"
+          ],
+          "verifiedFindingSetDigest": "5194636e2ec5e5b536cd7868a5b416e24b2968d65563118d430aa05d4fbdba28",
+          "newVerifiedFindingCount": 2,
+          "criticDigest": "8439498aceb9b6e0d79c56487bfa9604a6413ee9aba3e9f5d70da3c4e0c6a7d0",
+          "saturated": false,
+          "nextRunSequenceBoundary": 245
+        }
+      ],
+      "baselineFindingIds": [],
+      "cancelledAt": "2026-08-23T11:16:58.925Z",
+      "cancelReason": "Wave-3 confirmed the remaining object-tree resolver fail-open branch; cancel the stale frozen epoch before committing and reviewing the current fail-closed fix.",
+      "terminalRunSequenceBoundary": 252,
+      "_hash": "5f346c1bf2bc62b78963e98f0243930dca81d1117865516cd4967e576f8d24f6"
     }
   ],
   "receipts": [
@@ -3297,6 +3449,117 @@
       ],
       "createdAt": "2026-08-23T11:00:07.703Z",
       "_hash": "60629e956df8c926485db458ce9249e1ee386782af51cd070905acb9eed25418"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-45a0:RI-037:CRIT-01",
+      "epochId": "B-45a0:RI-037",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-23T08:18:33.747Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "168b69a376edcc4b7ee333a07df65c48cb432812",
+        "materialHash": "b1ae1024d51585e686f52263abfca5daa42d39f3cf89a4edd524f60e55e8e6c8",
+        "storyFilesHash": "f7e57acdaeda4085779ce0a4bfbf7794a132be9f4f916231fdb3cfb2b0be4e8e"
+      },
+      "aggregateFindingSetDigest": "655da83ecc285512172bd6dbd92a92552b676705ecfcd31962da5bbcf8bcbe6b",
+      "requiredLaneCoverageDigest": "3818541451a759e2f8f26715b3c440ebd3ba22258fda44da60e957402eac2aa3",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-45a0:RR-239",
+      "terminalEvidenceIds": [
+        "B-45a0:F-168"
+      ],
+      "readEvidenceDigest": "d922d2f8e3e89fc8611e7d2c883cfbbb0b99296f24d099f01d3ffae15ffc2073",
+      "findingDispositions": [
+        {
+          "findingId": "B-45a0:F-166",
+          "disposition": "verified_family",
+          "familyKey": "typed-validation-contract-doc-drift-ri037-wave1",
+          "reason": "Independent topology review confirms the required-lane documentation finding remains open and verified at the current review head as a distinct typed-contract documentation drift family."
+        },
+        {
+          "findingId": "B-45a0:F-167",
+          "disposition": "verified_family",
+          "familyKey": "acceptance-gate-coverage-inadmissible-ri037-wave1",
+          "reason": "Independent topology review confirms the required-lane coverage finding remains open and verified: intent evidence is complete, but verifier-owned acceptance-gate evidence is stale and inadmissible."
+        }
+      ],
+      "createdAt": "2026-08-23T11:07:20.874Z",
+      "_hash": "90a9bb8945107b6b3aef0284d0ccdc56cff295298c286b4069971b2b1e46fb12"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-45a0:RI-037:CRIT-02",
+      "epochId": "B-45a0:RI-037",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-23T08:18:33.747Z",
+      "wave": 2,
+      "cutoff": {
+        "headHash": "168b69a376edcc4b7ee333a07df65c48cb432812",
+        "materialHash": "b1ae1024d51585e686f52263abfca5daa42d39f3cf89a4edd524f60e55e8e6c8",
+        "storyFilesHash": "f7e57acdaeda4085779ce0a4bfbf7794a132be9f4f916231fdb3cfb2b0be4e8e"
+      },
+      "aggregateFindingSetDigest": "5194636e2ec5e5b536cd7868a5b416e24b2968d65563118d430aa05d4fbdba28",
+      "requiredLaneCoverageDigest": "6ead3734ec2880c08ccc01a80c9b1f996690150bc2e7f6150aa6fca474ac5787",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-45a0:RR-245",
+      "terminalEvidenceIds": [
+        "B-45a0:F-171"
+      ],
+      "readEvidenceDigest": "133a66982bf1217eafe0cf3f043db82bd4e309e35a31ea66cb3fa93e35c2554a",
+      "findingDispositions": [
+        {
+          "findingId": "B-45a0:F-169",
+          "disposition": "verified_family",
+          "familyKey": "typed-validation-contract-doc-drift-ri037-wave2",
+          "reason": "Independent topology critic confirms this required-lane documentation finding remains open and verified at the current review head as a distinct typed-contract documentation drift family."
+        },
+        {
+          "findingId": "B-45a0:F-170",
+          "disposition": "verified_family",
+          "familyKey": "acceptance-gate-coverage-inadmissible-ri037-wave2",
+          "reason": "Independent topology critic confirms this required-lane coverage finding remains open and verified: intent evidence is covered, but verifier-owned acceptance-gate evidence is stale and inadmissible."
+        }
+      ],
+      "createdAt": "2026-08-23T11:11:17.541Z",
+      "_hash": "9d1b46d35e3d360442c8e39aa1deefa7f9a2c3fd9530158f62773a8ae608ae60"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-45a0:RI-037:CRIT-03",
+      "epochId": "B-45a0:RI-037",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-23T08:18:33.747Z",
+      "wave": 3,
+      "cutoff": {
+        "headHash": "168b69a376edcc4b7ee333a07df65c48cb432812",
+        "materialHash": "b1ae1024d51585e686f52263abfca5daa42d39f3cf89a4edd524f60e55e8e6c8",
+        "storyFilesHash": "f7e57acdaeda4085779ce0a4bfbf7794a132be9f4f916231fdb3cfb2b0be4e8e"
+      },
+      "aggregateFindingSetDigest": "80df415e3e952225095ef320efbc9701313b84c4f4e1c7be1885867d4ea3e7be",
+      "requiredLaneCoverageDigest": "a15b995bc1056007c78c48f464c844af0b9abfea54b43f09c6e5ae263ee5683b",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-45a0:RR-252",
+      "terminalEvidenceIds": [
+        "B-45a0:F-174"
+      ],
+      "readEvidenceDigest": "2538f977867619fcbfbe9f6b6599ce434ab5f4df4ab2923c668e7bf9880c3899",
+      "findingDispositions": [
+        {
+          "findingId": "B-45a0:F-172",
+          "disposition": "verified_family",
+          "familyKey": "ri037-wave3-required-lane-contract",
+          "reason": "Current wave-3 required-lane evidence is independently verified as an open contract-family finding and remains relevant to the aggregate inventory."
+        },
+        {
+          "findingId": "B-45a0:F-173",
+          "disposition": "verified_family",
+          "familyKey": "ri037-wave3-acceptance-gate-coverage",
+          "reason": "Current wave-3 coverage evidence is independently verified against the acceptance gate and remains relevant to the aggregate inventory."
+        }
+      ],
+      "createdAt": "2026-08-23T11:16:02.516Z",
+      "_hash": "190a86413e7c2d115f2a7e2bbb2fbbe8177a1e9b276fa88af5014f70434c1523"
     }
   ]
 }
