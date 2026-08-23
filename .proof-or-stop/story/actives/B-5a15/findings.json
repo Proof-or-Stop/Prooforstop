@@ -10156,6 +10156,54 @@
       ],
       "signatureTag": "missing|ts|fresh-final-wave",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-190",
+      "desc": "Fresh RI-017 final-wave topology review confirms the verifier-owned acceptance basis remains partial and cannot receive a pass: acceptance_topology_check reports AT_COVERAGE_BASIS_PARTIAL and AT_UNMAPPED_SCOPE_REF for the causal-decision identity-binding producer/consumer path. The review also inspected pre_review_check_read and the rollout checks; this is the same structural blocker represented by existing F-188.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-23T12:18:09.294Z",
+      "reviewRound": "2026-08-22T06:10:03.014Z",
+      "reviewRunId": "B-5a15:RR-309",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "eb813a8b16871a64c407daed50d9975989c9fce3767f94461549f7d83d8e34cf",
+      "files": [
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/handlers/proofstory.ts",
+        "packages/main/src/handlers/verifier.ts"
+      ],
+      "signatureTag": "missing|ts|fresh-final-wave",
+      "signatureTagSource": "auto"
     }
   ]
 }

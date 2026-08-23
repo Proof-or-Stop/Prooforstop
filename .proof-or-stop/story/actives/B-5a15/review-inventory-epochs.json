@@ -4336,6 +4336,37 @@
       ],
       "createdAt": "2026-08-23T11:59:36.257Z",
       "_hash": "b9de6a883640e8f61dba6b9176aa5462ec41246b30bdc96bb46212db8dc58427"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-5a15:RI-017:CRIT-03",
+      "epochId": "B-5a15:RI-017",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-22T06:10:03.014Z",
+      "wave": 3,
+      "cutoff": {
+        "headHash": "f632989c06ad86f1d34ccde167c946fc2dd24b37",
+        "materialHash": "9ef9d9e58737da562ae603f38a4ea393a304c5faf2f9affdeefcc0287d3c24e6",
+        "storyFilesHash": "e287c5f32d9aad03e0ce7ea8b20a2684ab0ac2e78ef99c6fc5b18e9b8e9c97e7"
+      },
+      "aggregateFindingSetDigest": "ce55c1488df9b299e53cbe9ee00ac0465b2a70bee01bc9a3f4a988c184473f48",
+      "requiredLaneCoverageDigest": "1f90bc0e9f521b9ff32b4bb335443844dd32f364a68ffee43cca51f548357546",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-5a15:RR-309",
+      "terminalEvidenceIds": [
+        "B-5a15:F-190"
+      ],
+      "readEvidenceDigest": "bbbd90aa8c968ae218a6a35acd295d1a567253886595792a91102d32921c5d52",
+      "findingDispositions": [
+        {
+          "findingId": "B-5a15:F-189",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a15:F-189",
+          "reason": "Conservative executable default: retain this verified finding as its own family"
+        }
+      ],
+      "createdAt": "2026-08-23T12:18:28.826Z",
+      "_hash": "dc90c4d7b31a0fa395fa08c1f0b82ffdb723752f78158bc84569e1cfe97b1aeb"
     }
   ]
 }
