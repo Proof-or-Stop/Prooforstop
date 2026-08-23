@@ -21,6 +21,7 @@ const {
 
 const {
   CAUSAL_DEPENDENCY_DOMAINS,
+  CAUSAL_OUTPUT_TAIL_CHARS,
   CAUSAL_RECEIPT_INDEX_FILE,
   DEFAULT_CAUSAL_SELECTOR_POLICY,
   causalDigest,
@@ -28,6 +29,8 @@ const {
   createCausalExecutionKey,
   createCausalEvidenceBatch,
   createCausalDependencyRerunEvidence,
+  causalDependencyContextDigests,
+  causalDependencyDecisionMatchesCurrentIdentity,
   causalDependencyExecutionInputs,
   deriveCausalMetrics,
   effectiveCausalEnvironment,
@@ -372,6 +375,16 @@ test('CHK-001: keys bind all identity fields, deduplicate exact complete work, a
   );
   assert.equal(tamperExecutions, 1);
   assert.equal(tamperResult.verdict.result, 'pass');
+  const oversizedTail = {
+    ...tamperResult.receipt,
+    outputTail: 'x'.repeat(CAUSAL_OUTPUT_TAIL_CHARS + 1),
+  };
+  oversizedTail.receiptHash = computeCausalReceiptHash(oversizedTail);
+  assert.equal(
+    verifyCausalEvidenceReceipt(oversizedTail, tamperResult.key.key),
+    false,
+    'a receipt exceeding the bounded output tail is rejected',
+  );
   emitIntentMarker('CHK-001:adversarial:0', 'tampered CAS receipt is rejected and cannot produce PASS');
 
   const collisionStore = new MemoryReceiptStore();
@@ -966,6 +979,62 @@ test('CHK-003: dependency domains shadow-compare closure and CertificationWindow
     ...node,
     recordedInputHashes: { [`input-${node.domain}`]: current[`input-${node.domain}`] },
   }));
+  const storyFilesDrift = evaluateCausalDependencies({
+    nodes: matchingNodes,
+    currentInputHashes: current,
+    previousMaterialHash: 'm1',
+    currentMaterialHash: 'm1',
+    previousStoryFilesHash: 's1',
+    currentStoryFilesHash: 's2',
+  });
+  assert.equal(storyFilesDrift.causalDecision, 'strict');
+  assert.equal(storyFilesDrift.gateAdmissible, false, 'storyFilesHash-only drift is never fresh');
+  assert.match(storyFilesDrift.reason, /storyFilesHash changed/);
+  emitIntentMarker(
+    'CHK-003:adversarial:4',
+    'storyFilesHash-only drift refuses a fresh decision even when material and dependency inputs are unchanged',
+  );
+  const boundDecision = evaluateCausalDependencies({
+    storyId: 'B-causal-bound',
+    nodes: matchingNodes,
+    currentInputHashes: current,
+    previousMaterialHash: 'm1',
+    currentMaterialHash: 'm1',
+    previousStoryFilesHash: 's1',
+    currentStoryFilesHash: 's1',
+  });
+  const boundDigests = causalDependencyContextDigests(matchingNodes, current);
+  assert.equal(verifyCausalDependencyDecision(boundDecision), true);
+  assert.equal(causalDependencyDecisionMatchesCurrentIdentity(boundDecision, {
+    storyId: 'B-causal-bound',
+    materialHash: 'm1',
+    storyFilesHash: 's1',
+    dependencyGraphDigest: boundDigests.dependencyGraphDigest,
+    currentInputHashesDigest: boundDigests.currentInputHashesDigest,
+  }), true);
+  assert.equal(causalDependencyDecisionMatchesCurrentIdentity(boundDecision, {
+    storyId: 'B-causal-other-story',
+    materialHash: 'm1',
+    storyFilesHash: 's1',
+    dependencyGraphDigest: boundDigests.dependencyGraphDigest,
+    currentInputHashesDigest: boundDigests.currentInputHashesDigest,
+  }), false, 'a decision cannot cross story identities');
+  const alteredGraph = matchingNodes.map(node => node.id === 'source-node'
+    ? { ...node, inputIds: ['input-source', 'input-extra'] }
+    : node);
+  const alteredDigests = causalDependencyContextDigests(alteredGraph, current);
+  assert.notEqual(alteredDigests.dependencyGraphDigest, boundDigests.dependencyGraphDigest);
+  assert.equal(causalDependencyDecisionMatchesCurrentIdentity(boundDecision, {
+    storyId: 'B-causal-bound',
+    materialHash: 'm1',
+    storyFilesHash: 's1',
+    dependencyGraphDigest: alteredDigests.dependencyGraphDigest,
+    currentInputHashesDigest: boundDigests.currentInputHashesDigest,
+  }), false, 'a decision cannot cross dependency graph identities');
+  emitIntentMarker(
+    'CHK-003:adversarial:5',
+    'story and dependency graph identity mismatches refuse a signed causal decision',
+  );
   const doneStrict = evaluateCausalDependencies({
     nodes: matchingNodes, currentInputHashes: current, previousMaterialHash: 'm1', currentMaterialHash: 'm2', previousStoryFilesHash: 's1', currentStoryFilesHash: 's1', doneRequired: true,
   });

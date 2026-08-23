@@ -522,6 +522,7 @@ export function verifyCausalEvidenceReceipt(
     receipt.identity.cwd,
   )) return false;
   if (typeof receipt.outputProbe !== 'string' || receipt.outputProbe.length > CAUSAL_MAX_OUTPUT_CHARS) return false;
+  if (typeof receipt.outputTail !== 'string' || receipt.outputTail.length > CAUSAL_OUTPUT_TAIL_CHARS) return false;
   if (receipt.identity.schemaVersion !== CAUSAL_EXECUTION_KEY_SCHEMA) return false;
   if (receipt.identityDigest !== causalDigest(receipt.identity)) return false;
   if (receipt.executionKey !== `ce:v1:${receipt.identityDigest}`) return false;
@@ -1019,6 +1020,9 @@ export interface CausalDependencyNode {
 }
 
 export interface CausalDependencyDecisionIdentityBinding {
+  storyId?: string;
+  dependencyGraphDigest?: string;
+  currentInputHashesDigest?: string;
   previousMaterialHash?: string;
   currentMaterialHash?: string;
   previousStoryFilesHash?: string;
@@ -1059,6 +1063,21 @@ export interface CausalDependencyDecision {
   identityBinding?: CausalDependencyDecisionIdentityBinding;
   authorityBinding: CausalDependencyDecisionAuthorityBinding;
   _hash: string;
+}
+
+export function causalDependencyContextDigests(
+  nodes: readonly CausalDependencyNode[],
+  currentInputHashes: Record<string, string>,
+): { dependencyGraphDigest: string; currentInputHashesDigest: string } {
+  return {
+    dependencyGraphDigest: causalDigest(nodes.map(node => ({
+      id: node.id,
+      domain: node.domain,
+      inputIds: [...node.inputIds].sort(),
+      dependencyIds: [...(node.dependencyIds ?? [])].sort(),
+    })).sort((a, b) => a.id.localeCompare(b.id))),
+    currentInputHashesDigest: causalDigest(currentInputHashes),
+  };
 }
 
 function dependencyClosure(nodes: readonly CausalDependencyNode[], changed: Set<string>): Set<string> {
@@ -1122,6 +1141,7 @@ function verifyCausalDependencyRerunEvidence(
 }
 
 export function evaluateCausalDependencies(args: {
+  storyId?: string;
   nodes: readonly CausalDependencyNode[];
   currentInputHashes: Record<string, string>;
   previousMaterialHash?: string;
@@ -1164,6 +1184,9 @@ export function evaluateCausalDependencies(args: {
   const storyFilesMatch = [args.previousStoryFilesHash, args.currentStoryFilesHash]
     .every(value => typeof value === 'string' && value.length > 0)
     && args.previousStoryFilesHash === args.currentStoryFilesHash;
+  const storyFilesHashComplete = [args.previousStoryFilesHash, args.currentStoryFilesHash]
+    .every(value => typeof value === 'string' && value.length > 0);
+  const storyFilesDrift = storyFilesHashComplete && !storyFilesMatch;
   const doneRequiredStrict = args.doneRequired === true;
   let causalDecision: CausalDependencyDecision['causalDecision'] = 'fresh';
   let reason = 'causal dependency inputs match';
@@ -1180,6 +1203,10 @@ export function evaluateCausalDependencies(args: {
   } else if (affected.size > 0) {
     causalDecision = 'rerun';
     reason = 'affected dependency closure requires fresh execution';
+    gateAdmissible = false;
+  } else if (storyFilesDrift) {
+    causalDecision = 'strict';
+    reason = 'storyFilesHash changed; story-owned evidence requires fresh execution';
     gateAdmissible = false;
   } else if (materialDrift && storyFilesMatch && !doneRequiredStrict) {
     causalDecision = 'advisory';
@@ -1209,7 +1236,14 @@ export function evaluateCausalDependencies(args: {
   // stale-rerun observation. Do not turn the derived affected closure into a
   // false-fresh count when the input identity itself is not admissible.
   const falseFresh = identityComplete ? missingReruns.length : 0;
+  const { dependencyGraphDigest, currentInputHashesDigest } = causalDependencyContextDigests(
+    args.nodes,
+    args.currentInputHashes,
+  );
   const identityBinding: CausalDependencyDecisionIdentityBinding = {
+    ...(args.storyId !== undefined
+      ? { storyId: args.storyId, dependencyGraphDigest, currentInputHashesDigest }
+      : {}),
     previousMaterialHash: args.previousMaterialHash,
     currentMaterialHash: args.currentMaterialHash,
     previousStoryFilesHash: args.previousStoryFilesHash,
@@ -1264,13 +1298,26 @@ export function hasCausalDependencyDecisionIdentityBinding(
     binding.previousStoryFilesHash,
     binding.currentStoryFilesHash,
   ].every(value => typeof value === 'string' && value.length > 0)
+    && (binding.storyId === undefined || typeof binding.storyId === 'string')
+    && ((binding.dependencyGraphDigest === undefined && binding.currentInputHashesDigest === undefined)
+      || (typeof binding.dependencyGraphDigest === 'string'
+        && binding.dependencyGraphDigest.length > 0
+        && typeof binding.currentInputHashesDigest === 'string'
+        && binding.currentInputHashesDigest.length > 0))
     && (binding.previousHeadHash === undefined || typeof binding.previousHeadHash === 'string')
     && (binding.currentHeadHash === undefined || typeof binding.currentHeadHash === 'string');
 }
 
 export function causalDependencyDecisionMatchesCurrentIdentity(
   decision: CausalDependencyDecision,
-  current: { materialHash?: string; storyFilesHash?: string; headHash?: string },
+  current: {
+    storyId?: string;
+    materialHash?: string;
+    storyFilesHash?: string;
+    headHash?: string;
+    dependencyGraphDigest?: string;
+    currentInputHashesDigest?: string;
+  },
 ): boolean {
   if (!verifyCausalDependencyDecision(decision) || !hasCausalDependencyDecisionIdentityBinding(decision)) return false;
   const binding = decision.identityBinding!;
@@ -1278,6 +1325,11 @@ export function causalDependencyDecisionMatchesCurrentIdentity(
     binding.currentMaterialHash !== current.materialHash
     || binding.currentStoryFilesHash !== current.storyFilesHash
   ) return false;
+  if (current.storyId !== undefined && binding.storyId !== current.storyId) return false;
+  if (current.dependencyGraphDigest !== undefined
+    && binding.dependencyGraphDigest !== current.dependencyGraphDigest) return false;
+  if (current.currentInputHashesDigest !== undefined
+    && binding.currentInputHashesDigest !== current.currentInputHashesDigest) return false;
   if (current.headHash !== undefined) return binding.currentHeadHash === current.headHash;
   return binding.currentHeadHash === undefined;
 }
