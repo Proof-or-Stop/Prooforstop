@@ -2910,6 +2910,41 @@
       },
       "readDiagnostics": [],
       "_hash": "77518f2595020cab4a64ae90af46e0614c6384a996f80061f2af0fe6ee245ede"
+    },
+    {
+      "id": "B-5a15:RP-067",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion or replacement blocker. Reviewed the B-5a15 background and plan, the current checklist context, the integrated main...HEAD diff, and the verifier-owned command surfaces. The only identified internal rename is sameFileCallableCalls to sameFileCallableReachable; a repository-wide tracked source/docs/metadata scan found zero sameFileCallableCalls residue. U-03 commands and acceptance surfaces have corresponding catalog, handler, registry, contract-verifier, smoke/test, or task implementations. This concept-lane pass does not claim acceptance-topology or pre-review admissibility.",
+      "createdAt": "2026-08-23T14:59:18.207Z",
+      "reviewRound": "2026-08-22T06:10:03.014Z",
+      "reviewRunId": "B-5a15:RR-354",
+      "envelopeId": "63cdde0ac4d07ff9fef1b4160bc8ab358d7cbd62192ce6c734907d05f9e6a5e0",
+      "writerSessionId": "sess-b5a15-concept-20260823",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/tests/causal-evidence.test.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9f668ad4cf2cf8e8912e64cd6f27f230e92ab55dec6dd810465e7f3158f57bbe"
     }
   ]
 }
