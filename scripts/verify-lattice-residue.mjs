@@ -25,8 +25,9 @@
  *   The `lattice` token CANNOT be scanned with a zero-tolerance detector the way
  *   `koala` can. Measured fact: 602 files under the src roots legitimately contain it
  *   — signature salts, `.lattice/` state paths, `LATTICE_*` env vars, `@lattice/core`
- *   imports, the 13 frozen `lattice-*` role IDs, `lattice.config.json`. Every one of
- *   those is an explicit FROZEN / FROZEN-THIS-STORY row in the mapping table. A
+ *   imports, the historical `lattice-*` role IDs retained as compatibility-only
+ *   legacy reads, and `lattice.config.json`. The genuinely frozen rows and the
+ *   compatibility-read rows are explicit in the mapping table. A
  *   `/lattice/i` sweep would flag all 602 and be useless, so this check is deliberately
  *   NOT modelled on check 1.
  *
@@ -38,10 +39,10 @@
  *   CHK-003 file re-introduces `lattice <cmd>` and fails the gate (verified in CHK-004
  *   by reverting CLAUDE.md to main — 40+ hits, exit 1).
  *
- *   Why FROZEN identifiers do NOT false-positive: they are all structurally
+ *   Why preserved identifiers do NOT false-positive: they are all structurally
  *   distinguishable from an invocation by the character that follows the token —
  *   `.lattice/` and `bin/lattice.js` carry a path separator or dot, `LATTICE_*` and
- *   `lattice-review-*` / `@lattice/core` carry `_` `-` `/`, `lattice.config.json`
+ *   historical `lattice-review-*` role IDs / `@lattice/core` carry `_` `-` `/`, `lattice.config.json`
  *   carries a dot. The detector requires WHITESPACE after the token and a lowercase
  *   subcommand-shaped word after that, so none of those classes can match. That is
  *   a structural exclusion, not an allowlist.
@@ -292,9 +293,11 @@ export function isCanonicalMainPackageMetadata(value) {
  * changed. Both are real defects a reader/agent would act on: unlike a doc, a stale
  * host prompt is fed verbatim to a spawned agent, so it actively teaches the retired
  * bin name. Gating them costs no exemptions — the invocation detector already
- * ignores every FROZEN identifier shape that legitimately appears here
- * (`lattice-implementer` and the other 12 role IDs, `.lattice/` paths, `LATTICE_*`
- * env vars, `lattice-*-v1` salts) because its lookbehind excludes `-`, `.`, `/`, `_`.
+ * ignores every preserved identifier shape that legitimately appears here
+ * (`lattice-implementer` and the other 12 historical role aliases, `.lattice/` paths,
+ * `LATTICE_*` env vars, `lattice-*-v1` salts) because its lookbehind excludes `-`, `.`,
+ * `/`, `_`. B-5a88 makes `proof-or-stop-*` canonical for new writes; these `lattice-*`
+ * role IDs remain compatibility-only legacy reads.
  */
 const DOC_SCAN_ROOTS = [
   'README.md',
@@ -700,7 +703,8 @@ const BRAND_PROSE_CASES = [
   // LATTICE_* env prefix (FROZEN, 56 vars)
   ['export LATTICE_SESSION_BRIEF_FRESH_MINUTES=60', false],
   ['`LATTICE_CLI_VERSION` must be bumped', false],
-  // the 13 frozen lattice-* role IDs (FROZEN-THIS-STORY)
+  // the 13 historical lattice-* role IDs (B-5a88: compatibility-only legacy reads;
+  // proof-or-stop-* is canonical for new writes)
   ['Agent({ subagent_type: "lattice-implementer" })', false],
   ['| `lattice-review-scope-plan` | PLAN |', false],
   // signature salts (FROZEN)
