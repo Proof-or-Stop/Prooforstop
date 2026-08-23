@@ -183,7 +183,7 @@ function currentBasisDerivationForContext(ctx: HandlerContext, storyId: string, 
   return { workspace, scopeCheck, scopeContract, derivation };
 }
 
-function currentPreReviewInputForContext(ctx: HandlerContext, storyId: string): PreReviewCheckInput {
+export function currentPreReviewInputForContext(ctx: HandlerContext, storyId: string): PreReviewCheckInput {
   const planArtifact = ctx.store.readAcceptanceBasis(storyId);
   if (!planArtifact) throw new Error('pre_review_check requires the verifier-owned PLAN acceptance basis');
   const current = currentBasisDerivationForContext(ctx, storyId, 'pre_review', planArtifact.basis.basisDigest);

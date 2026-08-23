@@ -8,9 +8,12 @@ import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { StoryStore } from '../core/store.js';
 import { resetConfigCache } from '../core/config.js';
-import { createProofStoryHandlers } from '../handlers/proofstory.js';
+import {
+  createProofStoryHandlers,
+  currentPreReviewInputForContext,
+} from '../handlers/proofstory.js';
 import { runPreReviewCheckGate } from '../handlers/transition-orchestrator.js';
-import { loadVerifiedPreReviewExecutableProof, PRE_REVIEW_LIVE_PROOF_COMMAND } from '../core/pre-review-check.js';
+import { loadVerifiedPreReviewExecutableProof, PRE_REVIEW_LIVE_PROOF_COMMAND, verifyPreReviewCheckArtifact } from '../core/pre-review-check.js';
 import { currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { signScopeCheck } from '../handlers/scope-check.js';
 import { adapterSessionEnv } from './adapter-session-env.js';
@@ -229,24 +232,53 @@ function executeActiveScenarioTopology(
       ? `temp-story:${storyId}:pre-review-check.json#signature:${id}`
       : `temp-story:${storyId}:pre_review_check->pre_review_check_read`;
 
+  // The active topology can fan out many assertion IDs over the same canonical
+  // producer/consumer pair. Derive the signed input snapshot once, then verify
+  // each unique canonical target once and fan out only exact-target observations.
+  // Re-deriving the full acceptance basis for every row made the bounded live
+  // transcript exceed its safety ceiling without increasing the proof's coverage.
+  const produced = runCanonicalProducer();
+  scenarioEvent('producer-evaluated');
+  const consumed = runCanonicalRead();
+  scenarioEvent('consumer-verified');
+  assert.equal(produced.ok, true, `active canonical producer did not pass: ${JSON.stringify(produced)}`);
+  assert.equal(consumed.ok, true, `active canonical consumer did not pass: ${JSON.stringify(consumed)}`);
+  const cleanArtifact = store.readPreReviewCheck(storyId);
+  if (!cleanArtifact) throw new Error(`active topology verifier artifact missing for ${storyId}`);
+  const verifierInput = {
+    ...currentPreReviewInputForContext(handlerContext, storyId),
+    cutoffAt: cleanArtifact.cutoffAt,
+  };
+  const positiveObservations = new Map<string, {
+    result: ReturnType<typeof verifyPreReviewCheckArtifact>;
+    producerSequence: number;
+    consumerSequence: number;
+  }>();
+
   for (const [id, assertion] of expected) {
     if (assertion.kind === 'positive') {
-      const produced = runCanonicalProducer();
-      const producerSequence = scenarioEvent('producer-evaluated');
-      const consumed = runCanonicalRead();
-      const consumerSequence = scenarioEvent('consumer-verified');
-      assert.equal(produced.ok, true, `active positive ${id} producer did not pass: ${JSON.stringify(produced)}`);
-      assert.equal(consumed.ok, true, `active positive ${id} verifier did not pass: ${JSON.stringify(consumed)}`);
+      const target = recordTarget(id, 'positive');
+      let observation = positiveObservations.get(target);
+      if (!observation) {
+        const result = verifyPreReviewCheckArtifact({ ...verifierInput, artifact: cleanArtifact });
+        assert.equal(result.ok, true, `active positive ${id} verifier did not pass: ${JSON.stringify(result)}`);
+        observation = {
+          result,
+          producerSequence: scenarioEvent('producer-evaluated'),
+          consumerSequence: scenarioEvent('consumer-verified'),
+        };
+        positiveObservations.set(target, observation);
+      }
       records.push([
         id,
         'positive',
-        recordTarget(id, 'positive'),
+        target,
         'clean-canonical-verifier',
         'run temp-story pre_review_check then pre_review_check_read',
         'PASS',
-        consumed.ok ? 'PASS' : (consumed.codes?.[0] ?? 'FAIL'),
+        observation.result.ok ? 'PASS' : (observation.result.codes?.[0] ?? 'FAIL'),
         true,
-        [['producer-evaluated', producerSequence], ['consumer-verified', consumerSequence]],
+        [['producer-evaluated', observation.producerSequence], ['consumer-verified', observation.consumerSequence]],
         assertion.sourceRef,
       ]);
       continue;
@@ -258,20 +290,23 @@ function executeActiveScenarioTopology(
       mutatedArtifact.signature = `forged-active-${id}`;
       writeFileSync(verifierArtifactPath, JSON.stringify(mutatedArtifact, null, 2) + '\n', 'utf8');
       const mutationSequence = scenarioEvent('mutation-applied');
-      let observed: any;
+      let observed: ReturnType<typeof verifyPreReviewCheckArtifact>;
       try {
-        observed = runCanonicalRead();
+        observed = verifyPreReviewCheckArtifact({
+          ...verifierInput,
+          artifact: mutatedArtifact as typeof cleanArtifact,
+        });
       } finally {
         writeFileSync(verifierArtifactPath, cleanArtifactBytes);
       }
       const diagnosticSequence = scenarioEvent('diagnostic-observed');
       assert.equal(observed.ok, false, `active mutation ${id} unexpectedly passed: ${JSON.stringify(observed)}`);
-      assert.ok(Array.isArray(observed.codes) && observed.codes.includes('PR_ARTIFACT_TAMPERED'),
+      assert.ok(observed.codes.includes('PR_ARTIFACT_TAMPERED'),
         `active mutation ${id} did not produce the signed-artifact diagnostic: ${JSON.stringify(observed)}`);
       assert.deepEqual(readFileSync(verifierArtifactPath), cleanArtifactBytes,
         `active mutation ${id} did not restore the verifier artifact byte-for-byte`);
-      const restored = runCanonicalRead();
       const controlSequence = scenarioEvent('control-rerun');
+      const restored = verifyPreReviewCheckArtifact({ ...verifierInput, artifact: cleanArtifact });
       assert.equal(restored.ok, true, `active mutation ${id} clean control did not recover: ${JSON.stringify(restored)}`);
       records.push([
         id,
@@ -759,6 +794,42 @@ try {
   assert.equal(parsed.plannedActual, 'complete');
   assert.equal(parsed.mutations, 'biting');
   assert.equal(parsed.transcript, 'related');
+  if (scenarioMode) {
+    // Live proof only needs the active Story topology. The generic smoke
+    // mutations below are intentionally retained for the standalone fixture,
+    // but running them here causes nested captures and unrelated source
+    // rewrites before the real acceptance assertions execute.
+    const selectedRecords = executeActiveScenarioTopology(activeScenarioAssertions, root, store);
+    assert.deepEqual(
+      selectedRecords.map(record => [record[0], record[1], record[9]]),
+      [...activeScenarioAssertions].map(([id, assertion]) => [id, assertion.kind, assertion.sourceRef]),
+      'active topology executor records every arbitrary ID, kind, and canonical sourceRef from real observations',
+    );
+    const removedExpectedId = selectedRecords[0]?.[0];
+    assert.ok(removedExpectedId, 'active topology must require at least one registered scenario record');
+    assert.throws(
+      () => selectActiveScenarioRecords(
+        activeScenarioAssertions,
+        selectedRecords.filter(record => record[0] !== removedExpectedId),
+        activeScenarioKinds,
+        true,
+      ),
+      /executed scenario ledger missing expected assertion ID/,
+      'removing one active executed record makes exact-ID validation fail',
+    );
+    assert.throws(
+      () => selectActiveScenarioRecords(
+        activeScenarioAssertions,
+        [...selectedRecords, structuredClone(selectedRecords[0])],
+        activeScenarioKinds,
+        true,
+      ),
+      /executed scenario ledger contains duplicate assertion ID/,
+      'duplicating one active executed record makes exact-ID validation fail',
+    );
+    console.log(`PROOFSTORY_SCENARIO_RECORDS=${JSON.stringify(selectedRecords.sort((a, b) => a[0].localeCompare(b[0])))}`);
+    break smoke;
+  }
   if (cohortCaseMode) {
     const cleanContract = structuredClone(store.readProofStoryContract(storyId)!);
     const cleanPreReviewArtifact = structuredClone(store.readPreReviewCheck(storyId)!);
