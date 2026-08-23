@@ -14853,6 +14853,55 @@
       ],
       "signatureTag": "missing|json|5a88-intent-verificationevidence",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-360",
+      "desc": "Current REVIEW topology cannot certify the verifier-owned pre-review artifact: pre_review_check_read is fail/inadmissible with PR_ARTIFACT_TAMPERED and PR_AUTHORITY_INADMISSIBLE after metadata-only HEAD movement. This is the same current pre-review admissibility family already recorded as B-5a88:F-355; it requires DEV-phase pre_review_check reissuance before TEST/DONE.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-topology-critic",
+      "createdAt": "2026-08-23T20:15:15.188Z",
+      "reviewRound": "2026-08-23T20:01:20.269Z",
+      "reviewRunId": "B-5a88:RR-487",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          "packages/main/src/core/pre-review-check.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": null
+        },
+        "digest": "1a2397b6da691257fddf43c57d6da5348c0d5f83f075b006edf6e3d6a5bd2276"
+      },
+      "readDiagnostics": [],
+      "_hash": "e5c575c3d3f51ea597f6f42e699b8a2b32daabf33c4dd445c58c5eb28023d314",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+        "packages/main/src/core/pre-review-check.ts"
+      ],
+      "signatureTag": "missing|json|current-review-topology",
+      "signatureTagSource": "auto",
+      "resolvedReason": "This topology critic finding duplicates the current verifier-owned pre-review admissibility family B-5a88:F-355; the fresh topology run recorded the same PR_ARTIFACT_TAMPERED and PR_AUTHORITY_INADMISSIBLE condition, so only F-355 remains canonical.",
+      "resolvedAt": "2026-08-23T20:21:32.088Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }

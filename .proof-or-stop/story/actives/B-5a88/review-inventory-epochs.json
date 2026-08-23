@@ -4082,7 +4082,7 @@
       "reviewRound": "2026-08-23T20:01:20.269Z",
       "state": "OPEN",
       "begunAt": "2026-08-23T20:01:59.930Z",
-      "updatedAt": "2026-08-23T20:01:59.930Z",
+      "updatedAt": "2026-08-23T20:16:00.932Z",
       "cutoff": {
         "headHash": "24fff4546a81cbf295b5726c0929e46576f6cab9",
         "materialHash": "b54b7b5c7f26b83d5b49f9746fbde422f265b724f2dd120605dd12c3011d0a06",
@@ -4096,9 +4096,58 @@
       ],
       "initialRunSequenceBoundary": 482,
       "maxWaves": 3,
-      "waves": [],
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-08-23T20:01:59.930Z",
+          "completedAt": "2026-08-23T20:16:00.932Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-5a88:RR-483",
+              "terminal": "pass",
+              "hostIdentity": "6aa94942b22c92ec387d52189cb6183e2998c9c8f165d00c10399fedfd22b37c",
+              "promptIdentity": "3671093c7ee42df086f7661d82797a6434b1d8f95930b97a5790191ffb810ac0",
+              "evidenceIds": [
+                "B-5a88:RP-144"
+              ],
+              "coverageDigest": "ef3d5e474ccf4b11f8f0e3895e0ccdcd6f4ffadd964bfc8ec36bdb131220b4f7"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-5a88:RR-486",
+              "terminal": "pass",
+              "hostIdentity": "6aa94942b22c92ec387d52189cb6183e2998c9c8f165d00c10399fedfd22b37c",
+              "promptIdentity": "4bbd703f060f65e1d387f1947e7ebaec2c968b94a81e396c1924a107e3cc2cb2",
+              "evidenceIds": [
+                "B-5a88:RP-143"
+              ],
+              "coverageDigest": "47d9624f1362783a3dce31cf049847183555051bb88ae1e9dac2c8bb4847f936"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-5a88:RR-485",
+              "terminal": "finding",
+              "hostIdentity": "6aa94942b22c92ec387d52189cb6183e2998c9c8f165d00c10399fedfd22b37c",
+              "promptIdentity": "5a4cbcee0c1b8c53269c1366cfe6e9dc291878b890efb83eb9166275f1e58d46",
+              "evidenceIds": [
+                "B-5a88:F-359"
+              ],
+              "coverageDigest": "f36dfd5957a918eee0430c2f637b208168ce99d5efd9cf219e12eb8041f0831d"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "verification-evidence-freshness"
+          ],
+          "verifiedFindingSetDigest": "678d661d2f7dad2a2af39a49a39162d291b64d04cc78d39308e47115d32f6853",
+          "newVerifiedFindingCount": 1,
+          "criticDigest": "2ee035714e59a5ba3c72c410b6d8459847f4f6cc9ea47c4aef5b3242a9d9609d",
+          "saturated": false,
+          "nextRunSequenceBoundary": 487
+        }
+      ],
       "baselineFindingIds": [],
-      "_hash": "09c6dcef0445e3aaa893635f96c4fc9fdd63a538bac392b7c538af8cae7ba4ca"
+      "_hash": "cbea2ff7d699bf2ae9761c1e4e26e567ca6d3fd908a7a417a49558e8cf87c6cf"
     }
   ],
   "receipts": [
@@ -6912,6 +6961,37 @@
       "findingDispositions": [],
       "createdAt": "2026-08-23T19:32:31.005Z",
       "_hash": "f9892dc83553befaf780da4e5c2bbc9b68b69861fdbeed5069793519a9f1d81b"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-5a88:RI-051:CRIT-01",
+      "epochId": "B-5a88:RI-051",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-23T20:01:20.269Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "24fff4546a81cbf295b5726c0929e46576f6cab9",
+        "materialHash": "b54b7b5c7f26b83d5b49f9746fbde422f265b724f2dd120605dd12c3011d0a06",
+        "storyFilesHash": "55f595242b6269cb4093768accad374c332d2088c82f7474c84eb080079c3950"
+      },
+      "aggregateFindingSetDigest": "678d661d2f7dad2a2af39a49a39162d291b64d04cc78d39308e47115d32f6853",
+      "requiredLaneCoverageDigest": "6b875633d94feb038f6d160482b87a8287ff3d2f3da8fcd679d9ab5897f4871e",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-5a88:RR-487",
+      "terminalEvidenceIds": [
+        "B-5a88:F-360"
+      ],
+      "readEvidenceDigest": "ad3430b29335df45d626798f7cf1d7825166ff56798f8b17addd2e82aa83ba36",
+      "findingDispositions": [
+        {
+          "findingId": "B-5a88:F-359",
+          "disposition": "verified_family",
+          "familyKey": "verification-evidence-freshness",
+          "reason": "The current test-coverage reviewer evidence and evidence_inspect output agree that all 21 must receipts are stale against current HEAD/material/story hashes; this is a real current family."
+        }
+      ],
+      "createdAt": "2026-08-23T20:15:56.908Z",
+      "_hash": "4bf5630b2e8b0adb43ef7ee47b0c9cea6e697a1e39793f8abf8c1b8b5a304395"
     }
   ]
 }
