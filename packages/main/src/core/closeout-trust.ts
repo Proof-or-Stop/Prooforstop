@@ -526,12 +526,34 @@ function validReceiptChain(receipts: CloseoutWriteReceipt[], storyId: string, ar
   if (artifactReceipts.some((item) => !isCloseoutWriteReceiptSchema(item.schemaVersion))) return false;
 
   let previous: CloseoutWriteReceipt | null = null;
+  let schemaVersion: CloseoutWriteReceiptSchema | null = null;
+  let migratedToCanonical = false;
   for (const receipt of artifactReceipts) {
     if (receipt.storyId !== storyId) return false;
-    if (receipt.sequence !== (previous?.sequence ?? 0) + 1) return false;
-    if (receipt.previousIntegrityHash !== (previous?.integrityHash ?? null)) return false;
     const { integrityHash, ...unsigned } = receipt;
     if (integrityHash !== computeCloseoutWriteReceiptIntegrity(unsigned)) return false;
+
+    if (schemaVersion === null) {
+      schemaVersion = receipt.schemaVersion;
+      if (receipt.sequence !== 1 || receipt.previousIntegrityHash !== null) return false;
+    } else if (receipt.schemaVersion !== schemaVersion) {
+      // B-5a88 schema migration may either continue the historical chain or
+      // begin a fresh canonical epoch. It is deliberately one-way and
+      // single-use: canonical -> legacy and a second transition remain
+      // invalid, while each epoch still has to pass its own chain checks.
+      if (schemaVersion !== CLOSEOUT_WRITE_RECEIPT_SCHEMA_LEGACY
+        || receipt.schemaVersion !== CLOSEOUT_WRITE_RECEIPT_SCHEMA
+        || migratedToCanonical) return false;
+      migratedToCanonical = true;
+      schemaVersion = receipt.schemaVersion;
+      const continuesHistoricalChain = receipt.sequence === (previous?.sequence ?? 0) + 1
+        && receipt.previousIntegrityHash === (previous?.integrityHash ?? null);
+      const startsCanonicalEpoch = receipt.sequence === 1 && receipt.previousIntegrityHash === null;
+      if (!continuesHistoricalChain && !startsCanonicalEpoch) return false;
+    } else {
+      if (receipt.sequence !== (previous?.sequence ?? 0) + 1) return false;
+      if (receipt.previousIntegrityHash !== (previous?.integrityHash ?? null)) return false;
+    }
     previous = receipt;
   }
   return previous !== null;
