@@ -16109,6 +16109,81 @@
       ],
       "signatureTag": "missing|json|promise-undelivered-packages",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-375",
+      "desc": "Active runtime guidance still exposes the retired lattice command vocabulary outside the already tracked canonical families: packages/main/src/core/machine.ts:1299,1303; packages/main/src/handlers/context.ts:60,156; packages/main/src/handlers/worktree.ts:1062; packages/main/src/core/usage-burn-alert.ts:331; and packages/main/src/tasks/story-metadata-protection-smoke.ts:202,213,269,338. These are active user-facing diagnostics, worktree guidance, or runnable smoke assertions, not archived compatibility evidence, so the migration leaves a distinct guidance-residue family.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-23T23:29:17.467Z",
+      "reviewRound": "2026-08-23T20:56:20.268Z",
+      "reviewRunId": "B-5a88:RR-526",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "bin/bootstrap-runner.js",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/core/evidence-pin-guard.ts",
+          "packages/main/src/core/stale-detector.ts",
+          "packages/main/src/tasks/lattice-only-absence-smoke.ts",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          ".gitignore",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "package.json",
+          "packages/lab/package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/story-metadata-protection.ts",
+          "packages/main/src/core/usage-burn-alert.ts",
+          "packages/main/src/handlers/context.ts",
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/handlers/worktree.ts",
+          "packages/main/src/tasks/story-metadata-protection-smoke.ts",
+          "packages/utils/package.json",
+          "README.md",
+          "scripts/verify-entrypoints.mjs",
+          "scripts/verify-lattice-residue.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": null
+        },
+        "digest": "5686c0cb77147fd55dd41ee50c35cbe8600f6ea8fc4ac34346b7ae5768634da5"
+      },
+      "readDiagnostics": [],
+      "_hash": "482bea1fd289a8d9bd465b80835b8815349d00ce607c22e9488f526f8984939a",
+      "files": [
+        "packages/main/src/core/machine.ts",
+        "packages/main/src/handlers/context.ts",
+        "packages/main/src/handlers/worktree.ts",
+        "packages/main/src/core/usage-burn-alert.ts",
+        "packages/main/src/tasks/story-metadata-protection-smoke.ts"
+      ],
+      "signatureTag": "active-lattice-command-guidance-residue",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
