@@ -3919,6 +3919,36 @@
         "scanEscalationReason": "Quality review was bounded to changed implementation and triaged the remaining changed files by name; no additional quality blocker was found."
       },
       "_hash": "3ad41cc262c6c779eb9fd205aee8414da8cf8e10dc5ceaa4d9d60a81a3ef7184"
+    },
+    {
+      "id": "B-45a0:RP-090",
+      "agent": "lattice-review-concept",
+      "note": "RI-042 final-wave concept review at current HEAD 30ebca7e: no material source/docs change was introduced after the prior concept review; only review metadata advanced. The canonical shared-helper scan found no stale changedStoryFilesBetween or mergeBaseWithMain references; DEFAULT_STORY_METADATA_PREFIXES remains only in its canonical material-path-policy module. Legacy TEST_CASE/testIntent and LATTICE aliases remain explicitly marked compatibility/legacy. Wave-4 chain is current and consistent: acceptance_topology_check PASS in observe diagnostic-only mode; pre_review_check_read observe/inconclusive with blocking=false; acceptance_rollout_report_read and acceptance_rollout_check current signed PASS, full-3x2, diagnostics none. No new concept residue or degraded 3x1 evidence was found; earlier acceptance-chain findings were not duplicated.",
+      "createdAt": "2026-08-23T15:00:50.301Z",
+      "reviewRound": "2026-08-23T13:46:47.948Z",
+      "reviewRunId": "B-45a0:RR-347",
+      "envelopeId": "a13fbd57e5589f88bb723e5d03f4d82170b443258aaed2d3e641ce571c2576ca",
+      "writerSessionId": "sess-4192c149ecc174c77487f2c745d3396f",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/lattice-paths.ts",
+          "packages/main/src/core/material-path-policy.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/CLI.md",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a09842ba30e30d258dd2edd53f20f7d9534ffe0eec5a5db3b22c0b82165f6a6f"
     }
   ]
 }
