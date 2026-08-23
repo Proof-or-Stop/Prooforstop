@@ -3138,6 +3138,46 @@
       "cancelReason": "The empty completeness receipt cannot authorize remediation on this build; invalidate it and reopen a full signed inventory epoch at the stable current HEAD.",
       "terminalRunSequenceBoundary": 333,
       "_hash": "8436da7ab4b9ca75fb3aa1b7a7db3dce52f11f48eb3ae8d1b81be247608da216"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-45a0:RI-042",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-23T13:46:47.948Z",
+      "state": "OPEN",
+      "begunAt": "2026-08-23T14:33:47.259Z",
+      "updatedAt": "2026-08-23T14:33:47.259Z",
+      "cutoff": {
+        "headHash": "fd74242d8f8cf8e198435361ffdc74b4506c68ff",
+        "materialHash": "aa5beaab4316c22ebcfd403395a217d890edac9bd1dbbca1d8221554cd13dda0",
+        "storyFilesHash": "cc7ed81b116ac565f747818a589cb8156963be09cb009bc7e55f715cf97fd619"
+      },
+      "scopeDigest": "53212bb31b5d485cd739285abf9d6bbeb968ae10b16639441bece256ba3c6022",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage",
+        "lattice-review-docs"
+      ],
+      "initialRunSequenceBoundary": 333,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [
+        "B-45a0:F-198",
+        "B-45a0:F-199",
+        "B-45a0:F-200",
+        "B-45a0:F-201",
+        "B-45a0:F-202",
+        "B-45a0:F-203",
+        "B-45a0:F-204",
+        "B-45a0:F-205",
+        "B-45a0:F-206",
+        "B-45a0:F-207",
+        "B-45a0:F-208",
+        "B-45a0:F-209",
+        "B-45a0:F-210"
+      ],
+      "_hash": "852fac7b0c24fe060e7784df846773e8df8e6a514adf3bd8676cf4c55a550fee"
     }
   ],
   "receipts": [
