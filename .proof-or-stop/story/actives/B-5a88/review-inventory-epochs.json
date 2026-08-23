@@ -2571,6 +2571,101 @@
       "consumedAt": "2026-08-23T09:45:51.029Z",
       "consumedByReviewRound": "2026-08-22T07:35:25.372Z",
       "_hash": "5b1cfd9f0c9975a26c879ffcfa2171089119468d06654cdda52a847cb4a21ce4"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-5a88:RI-027",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-23T10:36:59.797Z",
+      "state": "INVALIDATED",
+      "begunAt": "2026-08-23T10:44:48.653Z",
+      "updatedAt": "2026-08-23T10:54:36.154Z",
+      "cutoff": {
+        "headHash": "65b2e6866711081de8fbee8485774f177f332241",
+        "materialHash": "60f80f78a14e8d006ba59b55639603a154ae90a636d665978264ff83acc73b8a",
+        "storyFilesHash": "0a84bdcbd6ee5b9115b0cc367978fba393aa597a24688ad24fad7245b14dbd22"
+      },
+      "scopeDigest": "e080db7a10d4bd24e5267bd46bace1ad44140b7c25f8850e08d9c32e170512a1",
+      "requiredLanes": [
+        "proof-or-stop-review-concept",
+        "proof-or-stop-review-quality",
+        "proof-or-stop-review-test-coverage"
+      ],
+      "initialRunSequenceBoundary": 354,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [],
+      "invalidation": {
+        "detectedAt": "2026-08-23T10:54:36.154Z",
+        "oldMaterialHash": "60f80f78a14e8d006ba59b55639603a154ae90a636d665978264ff83acc73b8a",
+        "currentMaterialHash": "60f80f78a14e8d006ba59b55639603a154ae90a636d665978264ff83acc73b8a",
+        "oldStoryFilesHash": "0a84bdcbd6ee5b9115b0cc367978fba393aa597a24688ad24fad7245b14dbd22",
+        "currentStoryFilesHash": "0a84bdcbd6ee5b9115b0cc367978fba393aa597a24688ad24fad7245b14dbd22",
+        "blockerCode": "OPEN_REVIEW_INVENTORY_SCOPE_MUTATION",
+        "oldScopeDigest": "e080db7a10d4bd24e5267bd46bace1ad44140b7c25f8850e08d9c32e170512a1",
+        "currentScopeDigest": "e080db7a10d4bd24e5267bd46bace1ad44140b7c25f8850e08d9c32e170512a1",
+        "oldRequiredLanes": [
+          "proof-or-stop-review-concept",
+          "proof-or-stop-review-quality",
+          "proof-or-stop-review-test-coverage"
+        ],
+        "currentRequiredLanes": [
+          "lattice-review-concept",
+          "lattice-review-quality",
+          "lattice-review-test-coverage"
+        ]
+      },
+      "terminalRunSequenceBoundary": 357,
+      "_hash": "5e6f853a683b18f05bd7c055c392d3da9c93260f8649311fa8cfbbc983081213"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-5a88:RI-028",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-23T10:36:59.797Z",
+      "state": "INVALIDATED",
+      "begunAt": "2026-08-23T11:00:22.681Z",
+      "updatedAt": "2026-08-23T11:02:19.322Z",
+      "cutoff": {
+        "headHash": "65b2e6866711081de8fbee8485774f177f332241",
+        "materialHash": "60f80f78a14e8d006ba59b55639603a154ae90a636d665978264ff83acc73b8a",
+        "storyFilesHash": "0a84bdcbd6ee5b9115b0cc367978fba393aa597a24688ad24fad7245b14dbd22"
+      },
+      "scopeDigest": "e080db7a10d4bd24e5267bd46bace1ad44140b7c25f8850e08d9c32e170512a1",
+      "requiredLanes": [
+        "proof-or-stop-review-concept",
+        "proof-or-stop-review-quality",
+        "proof-or-stop-review-test-coverage"
+      ],
+      "initialRunSequenceBoundary": 358,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [
+        "B-5a88:F-278",
+        "B-5a88:F-279"
+      ],
+      "invalidation": {
+        "detectedAt": "2026-08-23T11:02:19.322Z",
+        "oldMaterialHash": "60f80f78a14e8d006ba59b55639603a154ae90a636d665978264ff83acc73b8a",
+        "currentMaterialHash": "60f80f78a14e8d006ba59b55639603a154ae90a636d665978264ff83acc73b8a",
+        "oldStoryFilesHash": "0a84bdcbd6ee5b9115b0cc367978fba393aa597a24688ad24fad7245b14dbd22",
+        "currentStoryFilesHash": "0a84bdcbd6ee5b9115b0cc367978fba393aa597a24688ad24fad7245b14dbd22",
+        "blockerCode": "OPEN_REVIEW_INVENTORY_SCOPE_MUTATION",
+        "oldScopeDigest": "e080db7a10d4bd24e5267bd46bace1ad44140b7c25f8850e08d9c32e170512a1",
+        "currentScopeDigest": "e080db7a10d4bd24e5267bd46bace1ad44140b7c25f8850e08d9c32e170512a1",
+        "oldRequiredLanes": [
+          "proof-or-stop-review-concept",
+          "proof-or-stop-review-quality",
+          "proof-or-stop-review-test-coverage"
+        ],
+        "currentRequiredLanes": [
+          "lattice-review-concept",
+          "lattice-review-quality",
+          "lattice-review-test-coverage"
+        ]
+      },
+      "terminalRunSequenceBoundary": 359,
+      "_hash": "8c6189ce89ac0c83972579867a859213883a419d63ede6b06e4e0e6d90fc1673"
     }
   ],
   "receipts": [
