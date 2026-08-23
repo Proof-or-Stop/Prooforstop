@@ -10364,6 +10364,47 @@
       ],
       "signatureTag": "missing|ts|concept-acceptance-chain",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-192",
+      "desc": "All 45 must verification intents are stale at current RI-040 review head f370d341b2: their mechanical rows bind older head/material/story hashes. The current evidence refresh dry-run enumerates 45 rows requiring rerun; without current receipts coverage cannot authorize TEST.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-23T12:22:26.609Z",
+      "reviewRound": "2026-08-23T12:16:56.573Z",
+      "reviewRunId": "B-45a0:RR-295",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "bac4226b75066aec9b9a961ff19295763073da5be53277c9cfd8617ddee1404c",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/checklist.json",
+        "packages/main/src/handlers/story-aware-validation.ts",
+        "packages/main/src/handlers/verifier.ts",
+        "scripts/run-dynamic-validation-replay.mjs"
+      ],
+      "signatureTag": "missing|json|verification-intents-stale",
+      "signatureTagSource": "auto"
     }
   ]
 }
