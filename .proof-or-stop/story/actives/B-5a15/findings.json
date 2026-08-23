@@ -9861,6 +9861,49 @@
       ],
       "signatureTag": "ri-016-wave2-topology-completeness",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a15:F-184",
+      "desc": "CHK-001 through CHK-005 have no executable Wave 4 coverage for verifier-owned acceptance_topology_check, pre_review_check_read, acceptance_rollout_report_read, or acceptance_rollout_check. All 50 verificationEvidence entries point only to node --test packages/main/tests/causal-evidence.test.mjs, so the current signed receipt, full 3 rounds x 2 hosts (codex-cli and claude-cli), degraded-3x1 rejection, threshold/membership/freshness mutations, mode-invariant diagnostics, enforce-only blocking, and non-destructive rollback history are not exercised by admissible evidence.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-23T10:39:31.876Z",
+      "reviewRound": "2026-08-22T06:10:03.014Z",
+      "reviewRunId": "B-5a15:RR-287",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "444bcae0579d68128cd342176d27f00e73d8291aae5f1af49be6709a015dfd9c",
+      "files": [
+        "packages/main/src/handlers/proofstory.ts",
+        "packages/main/src/core/acceptance-rollout.ts",
+        "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|through-executable-wave",
+      "signatureTagSource": "auto"
     }
   ]
 }

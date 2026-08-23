@@ -2165,6 +2165,36 @@
         "scanEscalationReason": null
       },
       "_hash": "efdf0099d6f535b320ee1b4ae831edc44e1d7e4ea5de17b10436058128750961"
+    },
+    {
+      "id": "B-5a15:RP-050",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion or replacement was introduced; the full story diff and repository residue scan found no current concept-cleanup blocker.",
+      "createdAt": "2026-08-23T10:39:27.208Z",
+      "reviewRound": "2026-08-22T06:10:03.014Z",
+      "reviewRunId": "B-5a15:RR-288",
+      "envelopeId": "0ebb8bb86ac9ba2fd2e59e9101d49209e46494ee2e24a2ff9c0058a07866c1c6",
+      "writerSessionId": "sess-1ff81192c8f5688bf40ac6afd86a20f7",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "830aec44350f15fbc4efa1c7daa70c996d0a97aff49a0cff0dbd10751d2adc9c"
     }
   ]
 }
