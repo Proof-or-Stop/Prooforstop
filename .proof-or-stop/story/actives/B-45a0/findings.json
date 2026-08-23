@@ -10958,6 +10958,49 @@
       ],
       "signatureTag": "missing|ts|topology-wave-acceptance",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-206",
+      "desc": "topology/RI-041-wave2-chain-incomplete: At current HEAD e2ec2d7, acceptance_basis reports verified/complete and acceptance_topology_check reports structural PASS/configured, but pre_review_check_read remains INCONCLUSIVE with plannedActual=incomplete, executableEvidence=missing, mutations=missing, transcript=missing, and authority=inadmissible. The current topology receipt remains request_changes with incomplete discovery semantics; F-203 is the independently verified new PR_ARTIFACT_TAMPERED integrity family, while F-204 is the recurring executable acceptance-evidence family. The integrated topology critic cannot authorize a pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-23T14:07:28.480Z",
+      "reviewRound": "2026-08-23T13:46:47.948Z",
+      "reviewRunId": "B-45a0:RR-325",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "scanEscalationReason": "Current basis/topology/pre-review/rollout verifier outputs and targeted producer/consumer source paths were inspected; all source paths were triaged by name and relevant symbols."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "9215763c6572ff24eadcda9da8d289133a83f0328014909808463edfbf8cc8cf",
+      "files": [
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/acceptance-rollout.ts",
+        "packages/main/src/handlers/proofstory.ts"
+      ],
+      "signatureTag": "missing|ts|topology-wave-acceptance",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
