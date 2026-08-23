@@ -11214,6 +11214,49 @@
       ],
       "signatureTag": "missing|ts|coverage-executable-boundary",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-212",
+      "desc": "At current HEAD d0e2992, the acceptance basis and pre-review evidence are not admissible for a topology pass: the basis artifact remains bound to older HEAD 42056bc, while pre_review_check_read is inconclusive with PR_ARTIFACT_TAMPERED and related PR_* diagnostics, plannedActual=incomplete, executableEvidence=missing, mutations=missing, transcript=missing, and authority=inadmissible. acceptance_topology_check is structural PASS/configured but explicitly non-evidentiary, and the committed topology receipt remains request_changes with AT_TOPOLOGY_CRITIC_INCOMPLETE_BASIS. Therefore this current topology run cannot pass; the raw coverage finding F-211 remains a separate acceptance-gate family.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-23T14:43:03.590Z",
+      "reviewRound": "2026-08-23T13:46:47.948Z",
+      "reviewRunId": "B-45a0:RR-340",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "scanEscalationReason": "Current basis/topology/pre-review/rollout outputs, committed receipt check, and targeted verifier producer/consumer source paths were inspected; source paths were triaged by relevant symbols."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "4f3ea140851bc953565fe39383038fab4c7c8913113ba648b5248d5699eff331",
+      "files": [
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/acceptance-rollout.ts",
+        "packages/main/src/handlers/proofstory.ts"
+      ],
+      "signatureTag": "missing|ts|topology-wave-acceptance",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
