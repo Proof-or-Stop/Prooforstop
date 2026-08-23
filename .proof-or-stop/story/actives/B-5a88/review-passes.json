@@ -8258,6 +8258,112 @@
         "scanEscalationReason": null
       },
       "_hash": "5c7696ed3df4cb6dee1a36aaa18e293726c7855c3f7f545218583bd8624c77a1"
+    },
+    {
+      "id": "B-5a88:RP-153",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Reviewed the frozen main-to-HEAD quality diff for dead code, type safety, empty catches, I/O isolation, and Wave 4 verifier ownership. Focused migration tests, contract verifiers, residue self-test, and main build passed. No new distinct blocker; existing F-362 is not duplicated.",
+      "createdAt": "2026-08-23T22:18:43.445Z",
+      "reviewRound": "2026-08-23T20:56:20.268Z",
+      "reviewRunId": "B-5a88:RR-502",
+      "envelopeId": "dd1e85001a973df384ad774577bd89b3f474327a1dbc7ad8453e24762a05748f",
+      "writerSessionId": "sess-4d21222c9e013fd9a499ceebbd240b5f",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop-codex/agents/proof-or-stop-review-quality.md",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/handlers/review-run.ts"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents",
+          ".githooks/pre-push",
+          ".proof-or-stop-codex/agents",
+          "docs/requirements/decisions",
+          "packages/lab/src",
+          "packages/main/src",
+          "packages/main/templates/agents",
+          "packages/utils/src",
+          "scripts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e4a4ff04508c3771982c46e539e15ec035d484298e929838a1e85f904cdfaf22"
+    },
+    {
+      "id": "B-5a88:RP-154",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Test coverage review passed: all 7 checklist items and 21/21 must intents have passing concrete evidence. Executable Wave 4 coverage is present: pre_review_check_read, acceptance_rollout_report_read, acceptance_rollout_check, and acceptance_topology_check were run; the focused pre-review smoke passed producer/read/lifecycle parity, biting tamper and equal-cutoff mutations, topology omission, observe/enforce/warn rollback, and Wave 4 leakage checks. Rollout read/check are current PASS full-3x2 with 6 matched pairs, 3 rounds x 2 hosts, threshold/membership/freshness mutation coverage, and preserved rollback history. acceptance_topology_check itself reports only non-blocking observe-mode stale-plan diagnostics (AT_CLOSURE_FILES_STALE and AT_SCOPE_BINDING_MISSING); current pre-review and rollout gates remain admissible and passing.",
+      "createdAt": "2026-08-23T22:21:33.367Z",
+      "reviewRound": "2026-08-23T20:56:20.268Z",
+      "reviewRunId": "B-5a88:RR-501",
+      "envelopeId": "9723e9a2d0900474259775939c77b1912f7ffb09b93a0572c5f919f29dbdfd93",
+      "writerSessionId": "sess-8dcf2f22c308ce14591d523a73f8d7e9",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a88/test-evidence.json",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/tests/artifact-schema-migration.test.mjs",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/package-identity-migration.test.mjs",
+          "packages/main/tests/release-push-approval-migration.test.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f0fbfec36f85245176b4aad405827cbd77f368ef2a1339d229b4d59ab95c539a"
+    },
+    {
+      "id": "B-5a88:RP-155",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "RI-053 topology completeness pass: F-363/F-366/F-369 are one evidence-pin-guard family, F-364/F-367/F-370 are one active smoke-task family, and F-365/F-368/F-371 are one stale-warning family; no additional distinct topology defect was found in the frozen candidate.",
+      "createdAt": "2026-08-23T22:37:00.691Z",
+      "reviewRound": "2026-08-23T20:56:20.268Z",
+      "reviewRunId": "B-5a88:RR-507",
+      "envelopeId": "e65156998d7fa86f87a5207ccd85d731c0b0b3e613c471724e55c02936e3eed7",
+      "writerSessionId": "sess-9174832283a0257f0a0f2d9ab7d70634",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          "packages/main/src/core/evidence-pin-guard.ts",
+          "packages/main/src/core/stale-detector.ts",
+          "packages/main/src/tasks/lattice-only-absence-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2aa5b8e26d4386871326dc8c9b5c5bdd3554050134aea031947ae494c91bf2ce"
     }
   ]
 }

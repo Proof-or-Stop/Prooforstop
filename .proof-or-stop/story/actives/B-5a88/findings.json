@@ -15151,6 +15151,270 @@
       ],
       "signatureTag": "doc-code-drift|ts|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-366",
+      "desc": "packages/main/src/core/evidence-pin-guard.ts:57-62,108-110 — the canonical proof-or-stop evidence command is not recognized: hasLatticeMarker() only matches lattice/cli.js, and parseEvidenceCommand(\"proof-or-stop verification_evidence_add {\\\"storyId\\\":\\\"B-5a88\\\",\\\"intentRef\\\":\\\"CHK-001:happy:0\\\"}\") returns null while the legacy lattice form parses. This leaves the pre-tool immutable-pin seatbelt bypassed for canonical invocations; preserve the legacy read but add the canonical proof-or-stop entrypoint.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-23T22:16:13.554Z",
+      "reviewRound": "2026-08-23T20:56:20.268Z",
+      "reviewRunId": "B-5a88:RR-499",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/core/evidence-pin-guard.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/stale-detector.ts",
+          "packages/main/src/tasks/lattice-only-absence-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "624a556795ad45278e5cf84a66cc64ba6bb2ee2b5ada32799183c11c8a7545bd"
+      },
+      "readDiagnostics": [],
+      "_hash": "2f05adffdc9730840fb648b853479a9bf20df56b409baa12d0bc28544a86867b",
+      "signatureTag": "missing|unknown|packages-main-core",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-367",
+      "desc": "packages/main/src/tasks/lattice-only-absence-smoke.ts:11-14,38-63 — this active smoke task still describes the lattice entrypoint and lattice.config.json as the only active CLI/config surfaces and asserts lattice.config.json as the active configuration. That directly contradicts CHK-007/CHK-005 canonical new-write identity (proof-or-stop bin and proof-or-stop.config.json); it is not marked as deprecated or a historical compatibility fixture, so the concept migration remains incomplete in a runnable task.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-23T22:16:48.701Z",
+      "reviewRound": "2026-08-23T20:56:20.268Z",
+      "reviewRunId": "B-5a88:RR-499",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/core/evidence-pin-guard.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/stale-detector.ts",
+          "packages/main/src/tasks/lattice-only-absence-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "624a556795ad45278e5cf84a66cc64ba6bb2ee2b5ada32799183c11c8a7545bd"
+      },
+      "readDiagnostics": [],
+      "_hash": "d7af09a49db66e1a5f7ecd9a5a2446669b61e59ad40a0c665d9ed01626fdcbed",
+      "signatureTag": "missing|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-368",
+      "desc": "packages/main/src/core/stale-detector.ts:2,5,138-152 — the active stale-state warning still tells users it is running before the last \"lattice command\" and describes the detector as a lattice command hook, even though the canonical field/output path is idleProofOrStop and the story retires lattice as the supported CLI identity. The idleLattice config key is explicitly documented as a legacy read, but this warning text is not marked compatibility-only and remains visible product residue; canonicalize the message/comments while retaining legacy config reads.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-23T22:16:56.888Z",
+      "reviewRound": "2026-08-23T20:56:20.268Z",
+      "reviewRunId": "B-5a88:RR-499",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/core/evidence-pin-guard.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/stale-detector.ts",
+          "packages/main/src/tasks/lattice-only-absence-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "624a556795ad45278e5cf84a66cc64ba6bb2ee2b5ada32799183c11c8a7545bd"
+      },
+      "readDiagnostics": [],
+      "_hash": "df782050af21ebbb042fd42f3f9537e460f7d3a9b2e02c25f6433025d2cb1ed5",
+      "signatureTag": "missing|unknown|packages-main-core",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-369",
+      "desc": "packages/main/src/core/evidence-pin-guard.ts:57-62,108-110 — parseEvidenceCommand returns null for canonical proof-or-stop verification_evidence_add syntax while the legacy lattice syntax returns a parsed invocation; the canonical pre-tool immutable-pin guard is bypassed. Preserve legacy reads and recognize the canonical entrypoint.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-23T22:17:52.281Z",
+      "reviewRound": "2026-08-23T20:56:20.268Z",
+      "reviewRunId": "B-5a88:RR-500",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/core/evidence-pin-guard.ts",
+          "packages/main/src/core/stale-detector.ts",
+          "packages/main/src/tasks/lattice-only-absence-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": null
+        },
+        "digest": "1a2397b6da691257fddf43c57d6da5348c0d5f83f075b006edf6e3d6a5bd2276"
+      },
+      "readDiagnostics": [],
+      "_hash": "73d5e74c0d3b0ae09d54f3a599509e032f21c7d6ac91dc4e6bcd4c8bf1501132",
+      "files": [
+        "packages/main/src/core/evidence-pin-guard.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-core",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-370",
+      "desc": "packages/main/src/tasks/lattice-only-absence-smoke.ts:11-14,38-63 — this active smoke task still says the lattice entrypoint and lattice.config.json are the only active CLI/config surfaces and asserts the legacy config as active, contradicting CHK-005/CHK-007 canonical proof-or-stop writes. It is not marked as a compatibility fixture.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-23T22:18:08.395Z",
+      "reviewRound": "2026-08-23T20:56:20.268Z",
+      "reviewRunId": "B-5a88:RR-500",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/core/evidence-pin-guard.ts",
+          "packages/main/src/core/stale-detector.ts",
+          "packages/main/src/tasks/lattice-only-absence-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": null
+        },
+        "digest": "1a2397b6da691257fddf43c57d6da5348c0d5f83f075b006edf6e3d6a5bd2276"
+      },
+      "readDiagnostics": [],
+      "_hash": "1c6036b91003d1368074a62a2e1c4d895a0d00ecacfffe2300406b66cfe40f46",
+      "files": [
+        "packages/main/src/tasks/lattice-only-absence-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-371",
+      "desc": "packages/main/src/core/stale-detector.ts:2,5,138-152 — active stale-state warning text tells users it has been since the last lattice command; this remains visible product residue although idleProofOrStop is canonical and idleLattice is only the legacy-read config key. Canonicalize warning text/comments while retaining the legacy config read.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-23T22:18:22.750Z",
+      "reviewRound": "2026-08-23T20:56:20.268Z",
+      "reviewRunId": "B-5a88:RR-500",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/core/evidence-pin-guard.ts",
+          "packages/main/src/core/stale-detector.ts",
+          "packages/main/src/tasks/lattice-only-absence-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": null
+        },
+        "digest": "1a2397b6da691257fddf43c57d6da5348c0d5f83f075b006edf6e3d6a5bd2276"
+      },
+      "readDiagnostics": [],
+      "_hash": "ec44a10d33b5d0a9350ef73e42a4dec204fb1e2bc42310ee2d5e2704b2813475",
+      "files": [
+        "packages/main/src/core/stale-detector.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
