@@ -2,15 +2,15 @@
   "schemaVersion": "proofstory.pre_review_check.v1",
   "storyId": "B-45a0",
   "mode": "observe",
-  "cutoffAt": "2026-08-21T11:38:02.626Z",
-  "planBasisDigest": "sha256:f41e1b89429d22f5080e6d62b0386f2e073b3ee4ca8d4cd71477e3e467ef72bd",
+  "cutoffAt": "2026-08-23T13:36:41.514Z",
+  "planBasisDigest": "sha256:c2dca34381dbb8f0a7717514ba86019e56cf1f9c0fdc0bda8b3992d947e064db",
   "preReviewBasisArtifact": {
     "schemaVersion": "proofstory.acceptance_basis_artifact.v1",
     "basis": {
       "schemaVersion": "proofstory.acceptance_coverage_basis.v1",
       "storyId": "B-45a0",
       "phaseBasis": "pre_review",
-      "priorPlanBasisDigest": "sha256:f41e1b89429d22f5080e6d62b0386f2e073b3ee4ca8d4cd71477e3e467ef72bd",
+      "priorPlanBasisDigest": "sha256:c2dca34381dbb8f0a7717514ba86019e56cf1f9c0fdc0bda8b3992d947e064db",
       "status": "partial",
       "generatedBy": {
         "verifier": "acceptance-coverage-basis-verifier",
@@ -38,18 +38,13 @@
             "path:process-fact:pre_review_check->consumer:transition-orchestrator DEV to REVIEW executable gate",
             "path:process-fact:pre_review_check_read->consumer:transition-orchestrator DEV to REVIEW executable gate"
           ],
-          "coverageClaim": "partial",
-          "blindSpots": [
-            "source file is unreadable or disappeared: packages/main/src/core/story-aware-validation-cli.ts",
-            "source file is unreadable or disappeared: packages/main/src/tasks/**",
-            "source file is unreadable or disappeared: packages/main/tests/**",
-            "source file is unreadable or disappeared: packages/main/tests/story-aware-validation-cli.test.mjs",
-            "source file is unreadable or disappeared: packages/main/tests/story-aware-validation.test.mjs"
-          ],
+          "coverageClaim": "complete_for_scope",
+          "blindSpots": [],
           "provenanceRefs": [
             "source-file:packages/main/src/cli/command-catalog.ts:sha256:eff1b9176cfa80167799871296f5d502709fcc4148aa73e9ad7f6ecb1accb9a2",
             "source-file:packages/main/src/handlers/proofstory.ts:sha256:8b905cb9188c700a9b6fed1bfa989f2a7b5ffc76708aa4683f0529af70e8626c",
-            "source-file:packages/main/src/handlers/verifier.ts:sha256:bedaba477d424cd8fc6ffc5e793097259a02f4baaa01f4c640d61d9d0c28991c",
+            "source-file:packages/main/src/handlers/scope-check.ts:sha256:daf8735ca090401162bb586dd39fcad69423e21c93f869f66a3ef0f42e9a1bf2",
+            "source-file:packages/main/src/handlers/verifier.ts:sha256:a0a2bda844bad949864c4dd3e8b263b427809e518e673dca3725f0dd977fed59",
             "source-file:packages/main/src/registry.ts:sha256:59922304a859c7420856ecee9b49a42d57b14a029cf670edf641d30db62ec021",
             "source-file:proof-or-stop.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745"
           ],
@@ -70,28 +65,64 @@
               "scope:checklist:CHK-011",
               "scope:checklist:CHK-012",
               "scope:checklist:CHK-013",
+              "scope:file:docs/CLI.md",
+              "scope:file:docs/requirements/NAV.md",
+              "scope:file:docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+              "scope:file:docs/requirements/decisions/dynamic-validation-operations.md",
+              "scope:file:docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
               "scope:file:docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
               "scope:file:lattice.config.json",
               "scope:file:package.json",
-              "scope:file:packages/main/package.json",
-              "scope:file:packages/main/src/cli/command-catalog.ts",
+              "scope:file:packages/main/src/core/config.ts",
+              "scope:file:packages/main/src/core/dual-revision-impact-graph.ts",
+              "scope:file:packages/main/src/core/dynamic-validation-enforcement.ts",
+              "scope:file:packages/main/src/core/dynamic-validation-observer.ts",
+              "scope:file:packages/main/src/core/dynamic-validation-report.ts",
+              "scope:file:packages/main/src/core/dynamic-validation-scheduling.ts",
+              "scope:file:packages/main/src/core/dynamic-validation-selection.ts",
+              "scope:file:packages/main/src/core/dynamic-validation-shadow.ts",
+              "scope:file:packages/main/src/core/evidence-freshness.ts",
               "scope:file:packages/main/src/core/keyed-scheduler.ts",
-              "scope:file:packages/main/src/core/process-fact-levels.ts",
               "scope:file:packages/main/src/core/process-fact-registry.ts",
+              "scope:file:packages/main/src/core/runtime-artifact-registry.ts",
               "scope:file:packages/main/src/core/runtime-fact-registry.ts",
-              "scope:file:packages/main/src/core/story-aware-validation-cli.ts",
-              "scope:file:packages/main/src/core/story-aware-validation.ts",
+              "scope:file:packages/main/src/core/story-change-resolver.ts",
+              "scope:file:packages/main/src/core/validation-baseline-epoch.ts",
+              "scope:file:packages/main/src/core/validation-build-proof.ts",
+              "scope:file:packages/main/src/core/validation-catalog.ts",
+              "scope:file:packages/main/src/core/validation-closure-certificate.ts",
+              "scope:file:packages/main/src/core/validation-command-receipt.ts",
+              "scope:file:packages/main/src/core/validation-evidence-admissibility.ts",
+              "scope:file:packages/main/src/core/validation-evidence-reuse.ts",
+              "scope:file:packages/main/src/core/validation-execution-lock.ts",
+              "scope:file:packages/main/src/core/validation-executor.ts",
+              "scope:file:packages/main/src/core/validation-revocation-ledger.ts",
+              "scope:file:packages/main/src/core/validation-runtime-tracer.ts",
+              "scope:file:packages/main/src/core/validation-selection-manifest.ts",
               "scope:file:packages/main/src/core/validation-types.ts",
+              "scope:file:packages/main/src/handlers/phase-gates.ts",
+              "scope:file:packages/main/src/handlers/scope-check.ts",
               "scope:file:packages/main/src/handlers/verifier.ts",
-              "scope:file:packages/main/src/tasks/**",
-              "scope:file:packages/main/src/tasks/story-aware-validation-mutation-smoke.ts",
-              "scope:file:packages/main/src/tasks/story-aware-validation-smoke.ts",
-              "scope:file:packages/main/tests/**",
-              "scope:file:packages/main/tests/story-aware-validation-cli.test.mjs",
-              "scope:file:packages/main/tests/story-aware-validation.test.mjs"
+              "scope:file:packages/main/src/tasks/done-required-validation-smoke.ts",
+              "scope:file:packages/main/src/tasks/quorum-submit-shards.ts",
+              "scope:file:packages/main/src/tasks/quorum-submit-smoke.ts",
+              "scope:file:packages/main/src/tasks/review-pass-provenance-smoke.ts",
+              "scope:file:packages/main/src/tasks/review-pass-shards.ts",
+              "scope:file:packages/main/src/tasks/story-files-hash-batch-smoke.ts",
+              "scope:file:packages/main/src/tasks/validate-focused-full-layering-smoke.ts",
+              "scope:file:packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+              "scope:file:packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+              "scope:file:packages/main/src/tasks/validation-protocol-smoke.ts",
+              "scope:file:packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts",
+              "scope:file:packages/main/tests/validate-plan-scheduling.test.mjs",
+              "scope:file:packages/main/tests/validate-resource-claims.test.mjs",
+              "scope:file:scripts/run-dynamic-validation-fault-injection.mjs",
+              "scope:file:scripts/run-dynamic-validation-replay.mjs",
+              "scope:file:scripts/verify-process-fact-contract.mjs",
+              "scope:file:scripts/verify-validation-catalog.mjs"
             ]
           },
-          "resultDigest": "sha256:4df6ccde6dbd858c9355eb3369bdbdecd2d815c6293bb0856676a20b15a432bb"
+          "resultDigest": "sha256:b28d0b2be8e0a435c773239780b0a03b2beeebada8b10c5b783c41fc1b905c29"
         },
         {
           "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -106,14 +137,8 @@
             "path:process-fact:pre_review_check->consumer:transition-orchestrator DEV to REVIEW executable gate",
             "path:process-fact:pre_review_check_read->consumer:transition-orchestrator DEV to REVIEW executable gate"
           ],
-          "coverageClaim": "partial",
-          "blindSpots": [
-            "source file is unreadable or disappeared: packages/main/src/core/story-aware-validation-cli.ts",
-            "source file is unreadable or disappeared: packages/main/src/tasks/**",
-            "source file is unreadable or disappeared: packages/main/tests/**",
-            "source file is unreadable or disappeared: packages/main/tests/story-aware-validation-cli.test.mjs",
-            "source file is unreadable or disappeared: packages/main/tests/story-aware-validation.test.mjs"
-          ],
+          "coverageClaim": "complete_for_scope",
+          "blindSpots": [],
           "provenanceRefs": [
             "process-fact:acceptance_basis:da66e0998516b4d2ca3f45bc57585700a1f0675eeb30267234df766ee32d288f",
             "process-fact:acceptance_basis_generate:d589e8b03849fe472cddac8dbeaacd5466e53cd46d96d44a1ef11c4632daa08c",
@@ -130,7 +155,7 @@
             "source-file:packages/main/src/registry.ts:sha256:59922304a859c7420856ecee9b49a42d57b14a029cf670edf641d30db62ec021",
             "source-file:proof-or-stop.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745",
             "source-file:scripts/run-proofstory-pre-review-live-proof.mjs:sha256:1572b45b9c889106ffa8eb70f8bb2bbc82148fa6ec442458e234ef2167bb1108",
-            "source-file:scripts/verify-process-fact-contract.mjs:sha256:bf39c850c932aeba43eae186637c18040fef1946d0f34818cf24d3eb8fc744f1"
+            "source-file:scripts/verify-process-fact-contract.mjs:sha256:4e43da178c3f5411adc5816f850285824922661918b60d4bb4a9c2c874e0e2a2"
           ],
           "asymmetryPolicy": {
             "kind": "exhaustive",
@@ -149,28 +174,64 @@
               "scope:checklist:CHK-011",
               "scope:checklist:CHK-012",
               "scope:checklist:CHK-013",
+              "scope:file:docs/CLI.md",
+              "scope:file:docs/requirements/NAV.md",
+              "scope:file:docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+              "scope:file:docs/requirements/decisions/dynamic-validation-operations.md",
+              "scope:file:docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
               "scope:file:docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
               "scope:file:lattice.config.json",
               "scope:file:package.json",
-              "scope:file:packages/main/package.json",
-              "scope:file:packages/main/src/cli/command-catalog.ts",
+              "scope:file:packages/main/src/core/config.ts",
+              "scope:file:packages/main/src/core/dual-revision-impact-graph.ts",
+              "scope:file:packages/main/src/core/dynamic-validation-enforcement.ts",
+              "scope:file:packages/main/src/core/dynamic-validation-observer.ts",
+              "scope:file:packages/main/src/core/dynamic-validation-report.ts",
+              "scope:file:packages/main/src/core/dynamic-validation-scheduling.ts",
+              "scope:file:packages/main/src/core/dynamic-validation-selection.ts",
+              "scope:file:packages/main/src/core/dynamic-validation-shadow.ts",
+              "scope:file:packages/main/src/core/evidence-freshness.ts",
               "scope:file:packages/main/src/core/keyed-scheduler.ts",
-              "scope:file:packages/main/src/core/process-fact-levels.ts",
               "scope:file:packages/main/src/core/process-fact-registry.ts",
+              "scope:file:packages/main/src/core/runtime-artifact-registry.ts",
               "scope:file:packages/main/src/core/runtime-fact-registry.ts",
-              "scope:file:packages/main/src/core/story-aware-validation-cli.ts",
-              "scope:file:packages/main/src/core/story-aware-validation.ts",
+              "scope:file:packages/main/src/core/story-change-resolver.ts",
+              "scope:file:packages/main/src/core/validation-baseline-epoch.ts",
+              "scope:file:packages/main/src/core/validation-build-proof.ts",
+              "scope:file:packages/main/src/core/validation-catalog.ts",
+              "scope:file:packages/main/src/core/validation-closure-certificate.ts",
+              "scope:file:packages/main/src/core/validation-command-receipt.ts",
+              "scope:file:packages/main/src/core/validation-evidence-admissibility.ts",
+              "scope:file:packages/main/src/core/validation-evidence-reuse.ts",
+              "scope:file:packages/main/src/core/validation-execution-lock.ts",
+              "scope:file:packages/main/src/core/validation-executor.ts",
+              "scope:file:packages/main/src/core/validation-revocation-ledger.ts",
+              "scope:file:packages/main/src/core/validation-runtime-tracer.ts",
+              "scope:file:packages/main/src/core/validation-selection-manifest.ts",
               "scope:file:packages/main/src/core/validation-types.ts",
+              "scope:file:packages/main/src/handlers/phase-gates.ts",
+              "scope:file:packages/main/src/handlers/scope-check.ts",
               "scope:file:packages/main/src/handlers/verifier.ts",
-              "scope:file:packages/main/src/tasks/**",
-              "scope:file:packages/main/src/tasks/story-aware-validation-mutation-smoke.ts",
-              "scope:file:packages/main/src/tasks/story-aware-validation-smoke.ts",
-              "scope:file:packages/main/tests/**",
-              "scope:file:packages/main/tests/story-aware-validation-cli.test.mjs",
-              "scope:file:packages/main/tests/story-aware-validation.test.mjs"
+              "scope:file:packages/main/src/tasks/done-required-validation-smoke.ts",
+              "scope:file:packages/main/src/tasks/quorum-submit-shards.ts",
+              "scope:file:packages/main/src/tasks/quorum-submit-smoke.ts",
+              "scope:file:packages/main/src/tasks/review-pass-provenance-smoke.ts",
+              "scope:file:packages/main/src/tasks/review-pass-shards.ts",
+              "scope:file:packages/main/src/tasks/story-files-hash-batch-smoke.ts",
+              "scope:file:packages/main/src/tasks/validate-focused-full-layering-smoke.ts",
+              "scope:file:packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+              "scope:file:packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+              "scope:file:packages/main/src/tasks/validation-protocol-smoke.ts",
+              "scope:file:packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts",
+              "scope:file:packages/main/tests/validate-plan-scheduling.test.mjs",
+              "scope:file:packages/main/tests/validate-resource-claims.test.mjs",
+              "scope:file:scripts/run-dynamic-validation-fault-injection.mjs",
+              "scope:file:scripts/run-dynamic-validation-replay.mjs",
+              "scope:file:scripts/verify-process-fact-contract.mjs",
+              "scope:file:scripts/verify-validation-catalog.mjs"
             ]
           },
-          "resultDigest": "sha256:63dc9759a36cc41f3db83ecf7246cb40c985668d8efc566687f50584357325f2"
+          "resultDigest": "sha256:143b77696ec3b7d29abb37ffc5d7dd046acf21374cba7e8e818cb6a9655ed11b"
         },
         {
           "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -200,34 +261,72 @@
               "scope:checklist:CHK-011",
               "scope:checklist:CHK-012",
               "scope:checklist:CHK-013",
+              "scope:file:docs/CLI.md",
+              "scope:file:docs/requirements/NAV.md",
+              "scope:file:docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+              "scope:file:docs/requirements/decisions/dynamic-validation-operations.md",
+              "scope:file:docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
               "scope:file:docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
               "scope:file:lattice.config.json",
               "scope:file:package.json",
-              "scope:file:packages/main/package.json",
-              "scope:file:packages/main/src/cli/command-catalog.ts",
+              "scope:file:packages/main/src/core/config.ts",
+              "scope:file:packages/main/src/core/dual-revision-impact-graph.ts",
+              "scope:file:packages/main/src/core/dynamic-validation-enforcement.ts",
+              "scope:file:packages/main/src/core/dynamic-validation-observer.ts",
+              "scope:file:packages/main/src/core/dynamic-validation-report.ts",
+              "scope:file:packages/main/src/core/dynamic-validation-scheduling.ts",
+              "scope:file:packages/main/src/core/dynamic-validation-selection.ts",
+              "scope:file:packages/main/src/core/dynamic-validation-shadow.ts",
+              "scope:file:packages/main/src/core/evidence-freshness.ts",
               "scope:file:packages/main/src/core/keyed-scheduler.ts",
-              "scope:file:packages/main/src/core/process-fact-levels.ts",
               "scope:file:packages/main/src/core/process-fact-registry.ts",
+              "scope:file:packages/main/src/core/runtime-artifact-registry.ts",
               "scope:file:packages/main/src/core/runtime-fact-registry.ts",
-              "scope:file:packages/main/src/core/story-aware-validation-cli.ts",
-              "scope:file:packages/main/src/core/story-aware-validation.ts",
+              "scope:file:packages/main/src/core/story-change-resolver.ts",
+              "scope:file:packages/main/src/core/validation-baseline-epoch.ts",
+              "scope:file:packages/main/src/core/validation-build-proof.ts",
+              "scope:file:packages/main/src/core/validation-catalog.ts",
+              "scope:file:packages/main/src/core/validation-closure-certificate.ts",
+              "scope:file:packages/main/src/core/validation-command-receipt.ts",
+              "scope:file:packages/main/src/core/validation-evidence-admissibility.ts",
+              "scope:file:packages/main/src/core/validation-evidence-reuse.ts",
+              "scope:file:packages/main/src/core/validation-execution-lock.ts",
+              "scope:file:packages/main/src/core/validation-executor.ts",
+              "scope:file:packages/main/src/core/validation-revocation-ledger.ts",
+              "scope:file:packages/main/src/core/validation-runtime-tracer.ts",
+              "scope:file:packages/main/src/core/validation-selection-manifest.ts",
               "scope:file:packages/main/src/core/validation-types.ts",
+              "scope:file:packages/main/src/handlers/phase-gates.ts",
+              "scope:file:packages/main/src/handlers/scope-check.ts",
               "scope:file:packages/main/src/handlers/verifier.ts",
-              "scope:file:packages/main/src/tasks/**",
-              "scope:file:packages/main/src/tasks/story-aware-validation-mutation-smoke.ts",
-              "scope:file:packages/main/src/tasks/story-aware-validation-smoke.ts",
-              "scope:file:packages/main/tests/**",
-              "scope:file:packages/main/tests/story-aware-validation-cli.test.mjs",
-              "scope:file:packages/main/tests/story-aware-validation.test.mjs"
+              "scope:file:packages/main/src/tasks/done-required-validation-smoke.ts",
+              "scope:file:packages/main/src/tasks/quorum-submit-shards.ts",
+              "scope:file:packages/main/src/tasks/quorum-submit-smoke.ts",
+              "scope:file:packages/main/src/tasks/review-pass-provenance-smoke.ts",
+              "scope:file:packages/main/src/tasks/review-pass-shards.ts",
+              "scope:file:packages/main/src/tasks/story-files-hash-batch-smoke.ts",
+              "scope:file:packages/main/src/tasks/validate-focused-full-layering-smoke.ts",
+              "scope:file:packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+              "scope:file:packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+              "scope:file:packages/main/src/tasks/validation-protocol-smoke.ts",
+              "scope:file:packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts",
+              "scope:file:packages/main/tests/validate-plan-scheduling.test.mjs",
+              "scope:file:packages/main/tests/validate-resource-claims.test.mjs",
+              "scope:file:scripts/run-dynamic-validation-fault-injection.mjs",
+              "scope:file:scripts/run-dynamic-validation-replay.mjs",
+              "scope:file:scripts/verify-process-fact-contract.mjs",
+              "scope:file:scripts/verify-validation-catalog.mjs"
             ]
           },
-          "resultDigest": "sha256:cfed661bb0462eda79673699c9e41f49bcf00c52ce2929e8c98ad876d343a830"
+          "resultDigest": "sha256:d6fc12b4b2048d121ccfb79fc23c67609e6516a0015aa359b563f85c4b2d85f4"
         },
         {
           "schemaVersion": "proofstory.coverage_adapter_result.v1",
           "adapterId": "scope-contract:plan:v1",
           "method": "scope_contract",
-          "pathRefs": [],
+          "pathRefs": [
+            "planned:CHK-003:happy:0:VPP-CHK-003"
+          ],
           "coverageClaim": "complete_for_scope",
           "blindSpots": [],
           "provenanceRefs": [
@@ -244,25 +343,63 @@
             "scope:checklist:CHK-011",
             "scope:checklist:CHK-012",
             "scope:checklist:CHK-013",
+            "scope:file:docs/CLI.md",
+            "scope:file:docs/requirements/NAV.md",
+            "scope:file:docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+            "scope:file:docs/requirements/decisions/dynamic-validation-operations.md",
+            "scope:file:docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
             "scope:file:docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
             "scope:file:lattice.config.json",
             "scope:file:package.json",
-            "scope:file:packages/main/package.json",
-            "scope:file:packages/main/src/cli/command-catalog.ts",
+            "scope:file:packages/main/src/core/config.ts",
+            "scope:file:packages/main/src/core/dual-revision-impact-graph.ts",
+            "scope:file:packages/main/src/core/dynamic-validation-enforcement.ts",
+            "scope:file:packages/main/src/core/dynamic-validation-observer.ts",
+            "scope:file:packages/main/src/core/dynamic-validation-report.ts",
+            "scope:file:packages/main/src/core/dynamic-validation-scheduling.ts",
+            "scope:file:packages/main/src/core/dynamic-validation-selection.ts",
+            "scope:file:packages/main/src/core/dynamic-validation-shadow.ts",
+            "scope:file:packages/main/src/core/evidence-freshness.ts",
             "scope:file:packages/main/src/core/keyed-scheduler.ts",
-            "scope:file:packages/main/src/core/process-fact-levels.ts",
             "scope:file:packages/main/src/core/process-fact-registry.ts",
+            "scope:file:packages/main/src/core/runtime-artifact-registry.ts",
             "scope:file:packages/main/src/core/runtime-fact-registry.ts",
-            "scope:file:packages/main/src/core/story-aware-validation-cli.ts",
-            "scope:file:packages/main/src/core/story-aware-validation.ts",
+            "scope:file:packages/main/src/core/story-change-resolver.ts",
+            "scope:file:packages/main/src/core/validation-baseline-epoch.ts",
+            "scope:file:packages/main/src/core/validation-build-proof.ts",
+            "scope:file:packages/main/src/core/validation-catalog.ts",
+            "scope:file:packages/main/src/core/validation-closure-certificate.ts",
+            "scope:file:packages/main/src/core/validation-command-receipt.ts",
+            "scope:file:packages/main/src/core/validation-evidence-admissibility.ts",
+            "scope:file:packages/main/src/core/validation-evidence-reuse.ts",
+            "scope:file:packages/main/src/core/validation-execution-lock.ts",
+            "scope:file:packages/main/src/core/validation-executor.ts",
+            "scope:file:packages/main/src/core/validation-revocation-ledger.ts",
+            "scope:file:packages/main/src/core/validation-runtime-tracer.ts",
+            "scope:file:packages/main/src/core/validation-selection-manifest.ts",
             "scope:file:packages/main/src/core/validation-types.ts",
+            "scope:file:packages/main/src/handlers/phase-gates.ts",
+            "scope:file:packages/main/src/handlers/scope-check.ts",
             "scope:file:packages/main/src/handlers/verifier.ts",
-            "scope:file:packages/main/src/tasks/**",
-            "scope:file:packages/main/src/tasks/story-aware-validation-mutation-smoke.ts",
-            "scope:file:packages/main/src/tasks/story-aware-validation-smoke.ts",
-            "scope:file:packages/main/tests/**",
-            "scope:file:packages/main/tests/story-aware-validation-cli.test.mjs",
-            "scope:file:packages/main/tests/story-aware-validation.test.mjs",
+            "scope:file:packages/main/src/tasks/done-required-validation-smoke.ts",
+            "scope:file:packages/main/src/tasks/quorum-submit-shards.ts",
+            "scope:file:packages/main/src/tasks/quorum-submit-smoke.ts",
+            "scope:file:packages/main/src/tasks/review-pass-provenance-smoke.ts",
+            "scope:file:packages/main/src/tasks/review-pass-shards.ts",
+            "scope:file:packages/main/src/tasks/story-files-hash-batch-smoke.ts",
+            "scope:file:packages/main/src/tasks/validate-focused-full-layering-smoke.ts",
+            "scope:file:packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+            "scope:file:packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+            "scope:file:packages/main/src/tasks/validation-protocol-smoke.ts",
+            "scope:file:packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts",
+            "scope:file:packages/main/tests/validate-plan-scheduling.test.mjs",
+            "scope:file:packages/main/tests/validate-resource-claims.test.mjs",
+            "scope:file:scripts/run-dynamic-validation-fault-injection.mjs",
+            "scope:file:scripts/run-dynamic-validation-replay.mjs",
+            "scope:file:scripts/verify-process-fact-contract.mjs",
+            "scope:file:scripts/verify-validation-catalog.mjs",
+            "source-file:packages/main/src/core/dual-revision-impact-graph.ts:sha256:71db5675c38d52329b3fddfd1a9c33f65bc6743877fe021a9d728130a447069c",
+            "source-file:packages/main/src/core/story-change-resolver.ts:sha256:71db5675c38d52329b3fddfd1a9c33f65bc6743877fe021a9d728130a447069c",
             "source-file:proof-or-stop.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745"
           ],
           "asymmetryPolicy": {
@@ -282,28 +419,64 @@
               "scope:checklist:CHK-011",
               "scope:checklist:CHK-012",
               "scope:checklist:CHK-013",
+              "scope:file:docs/CLI.md",
+              "scope:file:docs/requirements/NAV.md",
+              "scope:file:docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+              "scope:file:docs/requirements/decisions/dynamic-validation-operations.md",
+              "scope:file:docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
               "scope:file:docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
               "scope:file:lattice.config.json",
               "scope:file:package.json",
-              "scope:file:packages/main/package.json",
-              "scope:file:packages/main/src/cli/command-catalog.ts",
+              "scope:file:packages/main/src/core/config.ts",
+              "scope:file:packages/main/src/core/dual-revision-impact-graph.ts",
+              "scope:file:packages/main/src/core/dynamic-validation-enforcement.ts",
+              "scope:file:packages/main/src/core/dynamic-validation-observer.ts",
+              "scope:file:packages/main/src/core/dynamic-validation-report.ts",
+              "scope:file:packages/main/src/core/dynamic-validation-scheduling.ts",
+              "scope:file:packages/main/src/core/dynamic-validation-selection.ts",
+              "scope:file:packages/main/src/core/dynamic-validation-shadow.ts",
+              "scope:file:packages/main/src/core/evidence-freshness.ts",
               "scope:file:packages/main/src/core/keyed-scheduler.ts",
-              "scope:file:packages/main/src/core/process-fact-levels.ts",
               "scope:file:packages/main/src/core/process-fact-registry.ts",
+              "scope:file:packages/main/src/core/runtime-artifact-registry.ts",
               "scope:file:packages/main/src/core/runtime-fact-registry.ts",
-              "scope:file:packages/main/src/core/story-aware-validation-cli.ts",
-              "scope:file:packages/main/src/core/story-aware-validation.ts",
+              "scope:file:packages/main/src/core/story-change-resolver.ts",
+              "scope:file:packages/main/src/core/validation-baseline-epoch.ts",
+              "scope:file:packages/main/src/core/validation-build-proof.ts",
+              "scope:file:packages/main/src/core/validation-catalog.ts",
+              "scope:file:packages/main/src/core/validation-closure-certificate.ts",
+              "scope:file:packages/main/src/core/validation-command-receipt.ts",
+              "scope:file:packages/main/src/core/validation-evidence-admissibility.ts",
+              "scope:file:packages/main/src/core/validation-evidence-reuse.ts",
+              "scope:file:packages/main/src/core/validation-execution-lock.ts",
+              "scope:file:packages/main/src/core/validation-executor.ts",
+              "scope:file:packages/main/src/core/validation-revocation-ledger.ts",
+              "scope:file:packages/main/src/core/validation-runtime-tracer.ts",
+              "scope:file:packages/main/src/core/validation-selection-manifest.ts",
               "scope:file:packages/main/src/core/validation-types.ts",
+              "scope:file:packages/main/src/handlers/phase-gates.ts",
+              "scope:file:packages/main/src/handlers/scope-check.ts",
               "scope:file:packages/main/src/handlers/verifier.ts",
-              "scope:file:packages/main/src/tasks/**",
-              "scope:file:packages/main/src/tasks/story-aware-validation-mutation-smoke.ts",
-              "scope:file:packages/main/src/tasks/story-aware-validation-smoke.ts",
-              "scope:file:packages/main/tests/**",
-              "scope:file:packages/main/tests/story-aware-validation-cli.test.mjs",
-              "scope:file:packages/main/tests/story-aware-validation.test.mjs"
+              "scope:file:packages/main/src/tasks/done-required-validation-smoke.ts",
+              "scope:file:packages/main/src/tasks/quorum-submit-shards.ts",
+              "scope:file:packages/main/src/tasks/quorum-submit-smoke.ts",
+              "scope:file:packages/main/src/tasks/review-pass-provenance-smoke.ts",
+              "scope:file:packages/main/src/tasks/review-pass-shards.ts",
+              "scope:file:packages/main/src/tasks/story-files-hash-batch-smoke.ts",
+              "scope:file:packages/main/src/tasks/validate-focused-full-layering-smoke.ts",
+              "scope:file:packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+              "scope:file:packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+              "scope:file:packages/main/src/tasks/validation-protocol-smoke.ts",
+              "scope:file:packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts",
+              "scope:file:packages/main/tests/validate-plan-scheduling.test.mjs",
+              "scope:file:packages/main/tests/validate-resource-claims.test.mjs",
+              "scope:file:scripts/run-dynamic-validation-fault-injection.mjs",
+              "scope:file:scripts/run-dynamic-validation-replay.mjs",
+              "scope:file:scripts/verify-process-fact-contract.mjs",
+              "scope:file:scripts/verify-validation-catalog.mjs"
             ]
           },
-          "resultDigest": "sha256:447087deb6d90d1d696f3f3e4207a5577c1eb01a112e5460b8217a2ff15e75c4"
+          "resultDigest": "sha256:bb42772bccac4dcc4dd3ab1b20ed20dfe890291ea78f061a90efac1c88288fb7"
         },
         {
           "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -318,42 +491,71 @@
             "path:process-fact:pre_review_check->consumer:transition-orchestrator DEV to REVIEW executable gate",
             "path:process-fact:pre_review_check_read->consumer:transition-orchestrator DEV to REVIEW executable gate"
           ],
-          "coverageClaim": "partial",
-          "blindSpots": [
-            "source file is unreadable or disappeared: packages/main/src/core/story-aware-validation-cli.ts",
-            "source file is unreadable or disappeared: packages/main/src/tasks/**",
-            "source file is unreadable or disappeared: packages/main/tests/**",
-            "source file is unreadable or disappeared: packages/main/tests/story-aware-validation-cli.test.mjs",
-            "source file is unreadable or disappeared: packages/main/tests/story-aware-validation.test.mjs"
-          ],
+          "coverageClaim": "complete_for_scope",
+          "blindSpots": [],
           "provenanceRefs": [
+            "source-file:docs/CLI.md:sha256:47ab23cf00703ca6a636f8d76d02fc57f13015aafac0587463f698b9d21363a9",
+            "source-file:docs/requirements/NAV.md:sha256:c6cd05959a09023d90bb416b8dae3e7f389502a2521652a81f7cf4c327c3f78a",
+            "source-file:docs/requirements/decisions/dynamic-validation-enforcement-evidence.md:sha256:50228d9bf4a860c68c4cc127173e6faaec92f800d852d067473d6ea2a2c58611",
+            "source-file:docs/requirements/decisions/dynamic-validation-operations.md:sha256:f98b808920648698702a4e10a83fb8e2b5d0428525026831a890f40ef720165e",
+            "source-file:docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md:sha256:6428ee537d3e3ee122314615c8320debac21ad07796f8dc07036f1518654d130",
             "source-file:docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md:sha256:7270bb2120c5e37bf23d69ab2c73426d575ff3a6f31f934f0367740fa68e3cbd",
-            "source-file:lattice.config.json:sha256:dcdae27001dba1e6fe80ea070f2e0e2d4064e6dd5a574556999aa0bf56e4df12",
+            "source-file:lattice.config.json:sha256:587c036dd4212d9d97a2dcfcd86d607669ce46ad264e229fb76b1cd6a308f714",
             "source-file:package.json:sha256:059e73928cec44cc74265c947b064499c0098ab322b4ab4463fc4a66bb86325e",
-            "source-file:packages/main/package.json:sha256:642dd7a9e59c65910418534a6887b799a1df39082ed65b90e74907c25273d452",
-            "source-file:packages/main/src/cli/command-catalog.ts:sha256:eff1b9176cfa80167799871296f5d502709fcc4148aa73e9ad7f6ecb1accb9a2",
             "source-file:packages/main/src/core/acceptance-topology.ts:sha256:df44a37b6222c35311d1d6934d31138b5acb0b16b476e4b64fe33d33518c3dac",
+            "source-file:packages/main/src/core/config.ts:sha256:b68298179c7e8838d32a5c672d6b0caea21fd17d4cd1cdfd9f20ccb36a0dc9ca",
+            "source-file:packages/main/src/core/dual-revision-impact-graph.ts:sha256:71db5675c38d52329b3fddfd1a9c33f65bc6743877fe021a9d728130a447069c",
+            "source-file:packages/main/src/core/dynamic-validation-enforcement.ts:sha256:71db5675c38d52329b3fddfd1a9c33f65bc6743877fe021a9d728130a447069c",
+            "source-file:packages/main/src/core/dynamic-validation-observer.ts:sha256:71db5675c38d52329b3fddfd1a9c33f65bc6743877fe021a9d728130a447069c",
+            "source-file:packages/main/src/core/dynamic-validation-report.ts:sha256:71db5675c38d52329b3fddfd1a9c33f65bc6743877fe021a9d728130a447069c",
+            "source-file:packages/main/src/core/dynamic-validation-scheduling.ts:sha256:71db5675c38d52329b3fddfd1a9c33f65bc6743877fe021a9d728130a447069c",
+            "source-file:packages/main/src/core/dynamic-validation-selection.ts:sha256:71db5675c38d52329b3fddfd1a9c33f65bc6743877fe021a9d728130a447069c",
+            "source-file:packages/main/src/core/dynamic-validation-shadow.ts:sha256:71db5675c38d52329b3fddfd1a9c33f65bc6743877fe021a9d728130a447069c",
+            "source-file:packages/main/src/core/evidence-freshness.ts:sha256:e50cab3362e4d092af241cedb215af49448770bccdb91d0710bd9433d2efb1cd",
             "source-file:packages/main/src/core/keyed-scheduler.ts:sha256:8f56a9e0dac1dedb63f93f5b2537851f18374826bc95cbda7cb6cb11b5d2d6f4",
             "source-file:packages/main/src/core/pre-review-check.ts:sha256:b2dafeac349dc3a3860f218230f21b935e15008f0067dc36ac712f9fd7bda773",
             "source-file:packages/main/src/core/pre-review-live-proof.ts:sha256:ea1f1f2175640d18170dd1e41e8a3886e6761c17054ab4d8f99a8bf429cd0880",
-            "source-file:packages/main/src/core/process-fact-levels.ts:sha256:78004d8b243b842414b3ae07a9da0e0e467875c3e11058d7df8bbd371e0caaad",
-            "source-file:packages/main/src/core/process-fact-registry.ts:sha256:eedb78780a3998ea1e78a2ffd5c57dd91a1d0fd3d5579a50c14a4d1e7cac2fa5",
+            "source-file:packages/main/src/core/process-fact-registry.ts:sha256:df6575c775e0585cfebe9223b58c84fdad54ae18725e1a13db00c9dfb6c8cc1d",
+            "source-file:packages/main/src/core/runtime-artifact-registry.ts:sha256:aa1f8a62625b346cac8f3bb0f7efaa0bd262be90ead387960462e19cfb474161",
             "source-file:packages/main/src/core/runtime-fact-registry.ts:sha256:d4750e803c4ac8c4584f2d5821e67917f5febfb5452ad0e0ac72f5cadbc6f67e",
-            "source-file:packages/main/src/core/story-aware-validation-cli.ts:uninspectable",
-            "source-file:packages/main/src/core/story-aware-validation.ts:sha256:d1f9cc20fbc121a9df817426cfab0cda608aa2732c2167e607d8fc1071caf7e0",
-            "source-file:packages/main/src/core/validation-types.ts:sha256:4610bc932ef65bb1abec82322bc25303cd2902fe0b6c94bc14834d71964bc849",
+            "source-file:packages/main/src/core/story-change-resolver.ts:sha256:71db5675c38d52329b3fddfd1a9c33f65bc6743877fe021a9d728130a447069c",
+            "source-file:packages/main/src/core/validation-baseline-epoch.ts:sha256:71db5675c38d52329b3fddfd1a9c33f65bc6743877fe021a9d728130a447069c",
+            "source-file:packages/main/src/core/validation-build-proof.ts:sha256:71db5675c38d52329b3fddfd1a9c33f65bc6743877fe021a9d728130a447069c",
+            "source-file:packages/main/src/core/validation-catalog.ts:sha256:71db5675c38d52329b3fddfd1a9c33f65bc6743877fe021a9d728130a447069c",
+            "source-file:packages/main/src/core/validation-closure-certificate.ts:sha256:71db5675c38d52329b3fddfd1a9c33f65bc6743877fe021a9d728130a447069c",
+            "source-file:packages/main/src/core/validation-command-receipt.ts:sha256:71db5675c38d52329b3fddfd1a9c33f65bc6743877fe021a9d728130a447069c",
+            "source-file:packages/main/src/core/validation-evidence-admissibility.ts:sha256:ec8126769814e488ae578b0b7eba37e08880ff59e24d90d4b6376a04b09758dd",
+            "source-file:packages/main/src/core/validation-evidence-reuse.ts:sha256:57df3554a61f506292a89035d1b6b534e03ed7cbdf3526fd204bf0a9665311c6",
+            "source-file:packages/main/src/core/validation-execution-lock.ts:sha256:263f0ecb59b85b836b0e70e1cb396bcd692f0cc5831d164f52899938c16f4ced",
+            "source-file:packages/main/src/core/validation-executor.ts:sha256:adc25dc1c24c4b736b7d7198340d2c35a9b4a93271da3d37e5c7f890325f53f2",
+            "source-file:packages/main/src/core/validation-revocation-ledger.ts:sha256:71db5675c38d52329b3fddfd1a9c33f65bc6743877fe021a9d728130a447069c",
+            "source-file:packages/main/src/core/validation-runtime-tracer.ts:sha256:71db5675c38d52329b3fddfd1a9c33f65bc6743877fe021a9d728130a447069c",
+            "source-file:packages/main/src/core/validation-selection-manifest.ts:sha256:71db5675c38d52329b3fddfd1a9c33f65bc6743877fe021a9d728130a447069c",
+            "source-file:packages/main/src/core/validation-types.ts:sha256:daf222067199156b372250d185c2a14934e409c16297f8e78a0ad2be80684d82",
+            "source-file:packages/main/src/handlers/phase-gates.ts:sha256:5b7fdf20d9d2490879e6a941c13610da6ffb2b70215cde19e197810c19a1ad0e",
             "source-file:packages/main/src/handlers/proofstory.ts:sha256:8b905cb9188c700a9b6fed1bfa989f2a7b5ffc76708aa4683f0529af70e8626c",
+            "source-file:packages/main/src/handlers/scope-check.ts:sha256:daf8735ca090401162bb586dd39fcad69423e21c93f869f66a3ef0f42e9a1bf2",
             "source-file:packages/main/src/handlers/transition-orchestrator.ts:sha256:7fb4fda1ff54740cbbd7e8060854006b3c232c4ff44b15633367a6eaa4841eb8",
-            "source-file:packages/main/src/handlers/verifier.ts:sha256:bedaba477d424cd8fc6ffc5e793097259a02f4baaa01f4c640d61d9d0c28991c",
-            "source-file:packages/main/src/tasks/**:uninspectable",
-            "source-file:packages/main/src/tasks/story-aware-validation-mutation-smoke.ts:sha256:edb0c9c1fbc0e8d4416d415124b7555202ccb0e754752094d7851b685d91a263",
-            "source-file:packages/main/src/tasks/story-aware-validation-smoke.ts:sha256:7a886fa183c8af8c3934e8c16e7f13468b3aceb26aad2094ffee5ff486d579c6",
-            "source-file:packages/main/tests/**:uninspectable",
-            "source-file:packages/main/tests/story-aware-validation-cli.test.mjs:uninspectable",
-            "source-file:packages/main/tests/story-aware-validation.test.mjs:uninspectable",
+            "source-file:packages/main/src/handlers/verifier.ts:sha256:a0a2bda844bad949864c4dd3e8b263b427809e518e673dca3725f0dd977fed59",
+            "source-file:packages/main/src/tasks/done-required-validation-smoke.ts:sha256:59d69d428af7cf8ee75dda3dd2ccd85fd548a737e4757e41104fc0d5fec9a1b6",
+            "source-file:packages/main/src/tasks/quorum-submit-shards.ts:sha256:008bcf39aa0e4c73d205906ec5db011ee98fd20dee85468e77a7b48305581192",
+            "source-file:packages/main/src/tasks/quorum-submit-smoke.ts:sha256:6d643a18231c2ffb2bbb55fca9a369458be8f0b232ac5a07e98e296f28a8a943",
+            "source-file:packages/main/src/tasks/review-pass-provenance-smoke.ts:sha256:2c7da73c073bd2468343b7c5d75bfd696df3654d17d67768f32cd2a34ac6d50a",
+            "source-file:packages/main/src/tasks/review-pass-shards.ts:sha256:008bcf39aa0e4c73d205906ec5db011ee98fd20dee85468e77a7b48305581192",
+            "source-file:packages/main/src/tasks/story-files-hash-batch-smoke.ts:sha256:08205778e4f5644d07ce16ed0e3b79c767636a9d24a1164a96c7f38afdca51ec",
+            "source-file:packages/main/src/tasks/validate-focused-full-layering-smoke.ts:sha256:912cba71293ee63fb3789ba5c46006e1fde8cb20a77caf46e02cc77990d860de",
+            "source-file:packages/main/src/tasks/validation-evidence-buffer-smoke.ts:sha256:5cbbfa44a564d209cc45113e3dc2e1268bee0feea26660357e9ca213e876c92c",
+            "source-file:packages/main/src/tasks/validation-evidence-reuse-smoke.ts:sha256:b1e3cb840534a3b9ede06b6edbf77b76bcec4f76243a778087a4eedcf5b80bc6",
+            "source-file:packages/main/src/tasks/validation-protocol-smoke.ts:sha256:1fd415ff63bd49d17192c71dc7bdb7e2ad744d34d80f11665f6a88b38d6fa7b1",
+            "source-file:packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts:sha256:12f47bd3ebe01c0f72083fbe558dae0c6dcc2faf921d8d1aafff3dfdb47a6d42",
+            "source-file:packages/main/tests/validate-plan-scheduling.test.mjs:sha256:b10eea825cccf261170769b351e2512df0eddd05eaf384d059adc7486961d67b",
+            "source-file:packages/main/tests/validate-resource-claims.test.mjs:sha256:29f5c4ecabec6ab2067f08326c4aa5fa14e6ae0cf0cec52fa89798adbc399631",
             "source-file:proof-or-stop.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745",
+            "source-file:scripts/run-dynamic-validation-fault-injection.mjs:sha256:c4f95bb3eea69e61fad4f355d87ef281aee116e02c2d18110abf2e1ce1a18554",
+            "source-file:scripts/run-dynamic-validation-replay.mjs:sha256:1f51acfa11ae61a59123130f71d4bfaecc06d3834bfdc1c8d96e4ad18163687a",
             "source-file:scripts/run-proofstory-pre-review-live-proof.mjs:sha256:1572b45b9c889106ffa8eb70f8bb2bbc82148fa6ec442458e234ef2167bb1108",
-            "source-file:scripts/verify-process-fact-contract.mjs:sha256:bf39c850c932aeba43eae186637c18040fef1946d0f34818cf24d3eb8fc744f1"
+            "source-file:scripts/verify-process-fact-contract.mjs:sha256:4e43da178c3f5411adc5816f850285824922661918b60d4bb4a9c2c874e0e2a2",
+            "source-file:scripts/verify-validation-catalog.mjs:sha256:02c190d9f3e3f09f0afaddbd0bb7c146fe05b2f95ff1fb06fb38ce56feb8a502"
           ],
           "asymmetryPolicy": {
             "kind": "exhaustive",
@@ -372,28 +574,64 @@
               "scope:checklist:CHK-011",
               "scope:checklist:CHK-012",
               "scope:checklist:CHK-013",
+              "scope:file:docs/CLI.md",
+              "scope:file:docs/requirements/NAV.md",
+              "scope:file:docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+              "scope:file:docs/requirements/decisions/dynamic-validation-operations.md",
+              "scope:file:docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
               "scope:file:docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
               "scope:file:lattice.config.json",
               "scope:file:package.json",
-              "scope:file:packages/main/package.json",
-              "scope:file:packages/main/src/cli/command-catalog.ts",
+              "scope:file:packages/main/src/core/config.ts",
+              "scope:file:packages/main/src/core/dual-revision-impact-graph.ts",
+              "scope:file:packages/main/src/core/dynamic-validation-enforcement.ts",
+              "scope:file:packages/main/src/core/dynamic-validation-observer.ts",
+              "scope:file:packages/main/src/core/dynamic-validation-report.ts",
+              "scope:file:packages/main/src/core/dynamic-validation-scheduling.ts",
+              "scope:file:packages/main/src/core/dynamic-validation-selection.ts",
+              "scope:file:packages/main/src/core/dynamic-validation-shadow.ts",
+              "scope:file:packages/main/src/core/evidence-freshness.ts",
               "scope:file:packages/main/src/core/keyed-scheduler.ts",
-              "scope:file:packages/main/src/core/process-fact-levels.ts",
               "scope:file:packages/main/src/core/process-fact-registry.ts",
+              "scope:file:packages/main/src/core/runtime-artifact-registry.ts",
               "scope:file:packages/main/src/core/runtime-fact-registry.ts",
-              "scope:file:packages/main/src/core/story-aware-validation-cli.ts",
-              "scope:file:packages/main/src/core/story-aware-validation.ts",
+              "scope:file:packages/main/src/core/story-change-resolver.ts",
+              "scope:file:packages/main/src/core/validation-baseline-epoch.ts",
+              "scope:file:packages/main/src/core/validation-build-proof.ts",
+              "scope:file:packages/main/src/core/validation-catalog.ts",
+              "scope:file:packages/main/src/core/validation-closure-certificate.ts",
+              "scope:file:packages/main/src/core/validation-command-receipt.ts",
+              "scope:file:packages/main/src/core/validation-evidence-admissibility.ts",
+              "scope:file:packages/main/src/core/validation-evidence-reuse.ts",
+              "scope:file:packages/main/src/core/validation-execution-lock.ts",
+              "scope:file:packages/main/src/core/validation-executor.ts",
+              "scope:file:packages/main/src/core/validation-revocation-ledger.ts",
+              "scope:file:packages/main/src/core/validation-runtime-tracer.ts",
+              "scope:file:packages/main/src/core/validation-selection-manifest.ts",
               "scope:file:packages/main/src/core/validation-types.ts",
+              "scope:file:packages/main/src/handlers/phase-gates.ts",
+              "scope:file:packages/main/src/handlers/scope-check.ts",
               "scope:file:packages/main/src/handlers/verifier.ts",
-              "scope:file:packages/main/src/tasks/**",
-              "scope:file:packages/main/src/tasks/story-aware-validation-mutation-smoke.ts",
-              "scope:file:packages/main/src/tasks/story-aware-validation-smoke.ts",
-              "scope:file:packages/main/tests/**",
-              "scope:file:packages/main/tests/story-aware-validation-cli.test.mjs",
-              "scope:file:packages/main/tests/story-aware-validation.test.mjs"
+              "scope:file:packages/main/src/tasks/done-required-validation-smoke.ts",
+              "scope:file:packages/main/src/tasks/quorum-submit-shards.ts",
+              "scope:file:packages/main/src/tasks/quorum-submit-smoke.ts",
+              "scope:file:packages/main/src/tasks/review-pass-provenance-smoke.ts",
+              "scope:file:packages/main/src/tasks/review-pass-shards.ts",
+              "scope:file:packages/main/src/tasks/story-files-hash-batch-smoke.ts",
+              "scope:file:packages/main/src/tasks/validate-focused-full-layering-smoke.ts",
+              "scope:file:packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+              "scope:file:packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+              "scope:file:packages/main/src/tasks/validation-protocol-smoke.ts",
+              "scope:file:packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts",
+              "scope:file:packages/main/tests/validate-plan-scheduling.test.mjs",
+              "scope:file:packages/main/tests/validate-resource-claims.test.mjs",
+              "scope:file:scripts/run-dynamic-validation-fault-injection.mjs",
+              "scope:file:scripts/run-dynamic-validation-replay.mjs",
+              "scope:file:scripts/verify-process-fact-contract.mjs",
+              "scope:file:scripts/verify-validation-catalog.mjs"
             ]
           },
-          "resultDigest": "sha256:33c6d9800f2b92fdf0831189de22ccec8b55b49c71207f379adba372ed7d6f24"
+          "resultDigest": "sha256:d20f14717d74fc04ede7164a8b47fdae11be73277a4ced7fd8a3396824b65fb7"
         }
       ],
       "scopeRefs": [
@@ -410,29 +648,66 @@
         "scope:checklist:CHK-011",
         "scope:checklist:CHK-012",
         "scope:checklist:CHK-013",
+        "scope:file:docs/CLI.md",
+        "scope:file:docs/requirements/NAV.md",
+        "scope:file:docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+        "scope:file:docs/requirements/decisions/dynamic-validation-operations.md",
+        "scope:file:docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
         "scope:file:docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
         "scope:file:lattice.config.json",
         "scope:file:package.json",
-        "scope:file:packages/main/package.json",
-        "scope:file:packages/main/src/cli/command-catalog.ts",
+        "scope:file:packages/main/src/core/config.ts",
+        "scope:file:packages/main/src/core/dual-revision-impact-graph.ts",
+        "scope:file:packages/main/src/core/dynamic-validation-enforcement.ts",
+        "scope:file:packages/main/src/core/dynamic-validation-observer.ts",
+        "scope:file:packages/main/src/core/dynamic-validation-report.ts",
+        "scope:file:packages/main/src/core/dynamic-validation-scheduling.ts",
+        "scope:file:packages/main/src/core/dynamic-validation-selection.ts",
+        "scope:file:packages/main/src/core/dynamic-validation-shadow.ts",
+        "scope:file:packages/main/src/core/evidence-freshness.ts",
         "scope:file:packages/main/src/core/keyed-scheduler.ts",
-        "scope:file:packages/main/src/core/process-fact-levels.ts",
         "scope:file:packages/main/src/core/process-fact-registry.ts",
+        "scope:file:packages/main/src/core/runtime-artifact-registry.ts",
         "scope:file:packages/main/src/core/runtime-fact-registry.ts",
-        "scope:file:packages/main/src/core/story-aware-validation-cli.ts",
-        "scope:file:packages/main/src/core/story-aware-validation.ts",
+        "scope:file:packages/main/src/core/story-change-resolver.ts",
+        "scope:file:packages/main/src/core/validation-baseline-epoch.ts",
+        "scope:file:packages/main/src/core/validation-build-proof.ts",
+        "scope:file:packages/main/src/core/validation-catalog.ts",
+        "scope:file:packages/main/src/core/validation-closure-certificate.ts",
+        "scope:file:packages/main/src/core/validation-command-receipt.ts",
+        "scope:file:packages/main/src/core/validation-evidence-admissibility.ts",
+        "scope:file:packages/main/src/core/validation-evidence-reuse.ts",
+        "scope:file:packages/main/src/core/validation-execution-lock.ts",
+        "scope:file:packages/main/src/core/validation-executor.ts",
+        "scope:file:packages/main/src/core/validation-revocation-ledger.ts",
+        "scope:file:packages/main/src/core/validation-runtime-tracer.ts",
+        "scope:file:packages/main/src/core/validation-selection-manifest.ts",
         "scope:file:packages/main/src/core/validation-types.ts",
+        "scope:file:packages/main/src/handlers/phase-gates.ts",
+        "scope:file:packages/main/src/handlers/scope-check.ts",
         "scope:file:packages/main/src/handlers/verifier.ts",
-        "scope:file:packages/main/src/tasks/**",
-        "scope:file:packages/main/src/tasks/story-aware-validation-mutation-smoke.ts",
-        "scope:file:packages/main/src/tasks/story-aware-validation-smoke.ts",
-        "scope:file:packages/main/tests/**",
-        "scope:file:packages/main/tests/story-aware-validation-cli.test.mjs",
-        "scope:file:packages/main/tests/story-aware-validation.test.mjs"
+        "scope:file:packages/main/src/tasks/done-required-validation-smoke.ts",
+        "scope:file:packages/main/src/tasks/quorum-submit-shards.ts",
+        "scope:file:packages/main/src/tasks/quorum-submit-smoke.ts",
+        "scope:file:packages/main/src/tasks/review-pass-provenance-smoke.ts",
+        "scope:file:packages/main/src/tasks/review-pass-shards.ts",
+        "scope:file:packages/main/src/tasks/story-files-hash-batch-smoke.ts",
+        "scope:file:packages/main/src/tasks/validate-focused-full-layering-smoke.ts",
+        "scope:file:packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+        "scope:file:packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+        "scope:file:packages/main/src/tasks/validation-protocol-smoke.ts",
+        "scope:file:packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts",
+        "scope:file:packages/main/tests/validate-plan-scheduling.test.mjs",
+        "scope:file:packages/main/tests/validate-resource-claims.test.mjs",
+        "scope:file:scripts/run-dynamic-validation-fault-injection.mjs",
+        "scope:file:scripts/run-dynamic-validation-replay.mjs",
+        "scope:file:scripts/verify-process-fact-contract.mjs",
+        "scope:file:scripts/verify-validation-catalog.mjs"
       ],
       "sourceInventoryRefs": [
         "artifact:acceptance-basis.json",
         "artifact:pre-review-check.json",
+        "planned:CHK-003:happy:0:VPP-CHK-003",
         "process-fact:acceptance_basis:da66e0998516b4d2ca3f45bc57585700a1f0675eeb30267234df766ee32d288f",
         "process-fact:acceptance_basis_generate:d589e8b03849fe472cddac8dbeaacd5466e53cd46d96d44a1ef11c4632daa08c",
         "process-fact:acceptance_topology_check:98a1a08190c79f0f548f297fa08b2d573493faec90f156fe9e07e66f9e3ff095",
@@ -440,32 +715,67 @@
         "process-fact:artifact:pre-review-check.json:b0d932560f345ed4130e89e7674f3e61967bf107d592f0e0082ba2186bc5aad4",
         "process-fact:pre_review_check:2c370593cd93bce5b4f4ed881481163fde83a8609e47b87d6a5280f52518d5f0",
         "process-fact:pre_review_check_read:25ea87d6732906e5c958332f5292b9e31c356661f51329e8665c8e60a232dcfe",
+        "source-file:closure:docs/CLI.md",
+        "source-file:closure:docs/requirements/NAV.md",
+        "source-file:closure:docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+        "source-file:closure:docs/requirements/decisions/dynamic-validation-operations.md",
+        "source-file:closure:docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
         "source-file:closure:docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
         "source-file:closure:lattice.config.json",
         "source-file:closure:package.json",
-        "source-file:closure:packages/main/package.json",
-        "source-file:closure:packages/main/src/cli/command-catalog.ts",
         "source-file:closure:packages/main/src/core/acceptance-topology.ts",
+        "source-file:closure:packages/main/src/core/config.ts",
+        "source-file:closure:packages/main/src/core/dual-revision-impact-graph.ts",
+        "source-file:closure:packages/main/src/core/dynamic-validation-enforcement.ts",
+        "source-file:closure:packages/main/src/core/dynamic-validation-observer.ts",
+        "source-file:closure:packages/main/src/core/dynamic-validation-report.ts",
+        "source-file:closure:packages/main/src/core/dynamic-validation-scheduling.ts",
+        "source-file:closure:packages/main/src/core/dynamic-validation-selection.ts",
+        "source-file:closure:packages/main/src/core/dynamic-validation-shadow.ts",
+        "source-file:closure:packages/main/src/core/evidence-freshness.ts",
         "source-file:closure:packages/main/src/core/keyed-scheduler.ts",
         "source-file:closure:packages/main/src/core/pre-review-check.ts",
         "source-file:closure:packages/main/src/core/pre-review-live-proof.ts",
-        "source-file:closure:packages/main/src/core/process-fact-levels.ts",
         "source-file:closure:packages/main/src/core/process-fact-registry.ts",
+        "source-file:closure:packages/main/src/core/runtime-artifact-registry.ts",
         "source-file:closure:packages/main/src/core/runtime-fact-registry.ts",
-        "source-file:closure:packages/main/src/core/story-aware-validation-cli.ts",
-        "source-file:closure:packages/main/src/core/story-aware-validation.ts",
+        "source-file:closure:packages/main/src/core/story-change-resolver.ts",
+        "source-file:closure:packages/main/src/core/validation-baseline-epoch.ts",
+        "source-file:closure:packages/main/src/core/validation-build-proof.ts",
+        "source-file:closure:packages/main/src/core/validation-catalog.ts",
+        "source-file:closure:packages/main/src/core/validation-closure-certificate.ts",
+        "source-file:closure:packages/main/src/core/validation-command-receipt.ts",
+        "source-file:closure:packages/main/src/core/validation-evidence-admissibility.ts",
+        "source-file:closure:packages/main/src/core/validation-evidence-reuse.ts",
+        "source-file:closure:packages/main/src/core/validation-execution-lock.ts",
+        "source-file:closure:packages/main/src/core/validation-executor.ts",
+        "source-file:closure:packages/main/src/core/validation-revocation-ledger.ts",
+        "source-file:closure:packages/main/src/core/validation-runtime-tracer.ts",
+        "source-file:closure:packages/main/src/core/validation-selection-manifest.ts",
         "source-file:closure:packages/main/src/core/validation-types.ts",
+        "source-file:closure:packages/main/src/handlers/phase-gates.ts",
         "source-file:closure:packages/main/src/handlers/proofstory.ts",
+        "source-file:closure:packages/main/src/handlers/scope-check.ts",
         "source-file:closure:packages/main/src/handlers/transition-orchestrator.ts",
         "source-file:closure:packages/main/src/handlers/verifier.ts",
-        "source-file:closure:packages/main/src/tasks/**",
-        "source-file:closure:packages/main/src/tasks/story-aware-validation-mutation-smoke.ts",
-        "source-file:closure:packages/main/src/tasks/story-aware-validation-smoke.ts",
-        "source-file:closure:packages/main/tests/**",
-        "source-file:closure:packages/main/tests/story-aware-validation-cli.test.mjs",
-        "source-file:closure:packages/main/tests/story-aware-validation.test.mjs",
+        "source-file:closure:packages/main/src/tasks/done-required-validation-smoke.ts",
+        "source-file:closure:packages/main/src/tasks/quorum-submit-shards.ts",
+        "source-file:closure:packages/main/src/tasks/quorum-submit-smoke.ts",
+        "source-file:closure:packages/main/src/tasks/review-pass-provenance-smoke.ts",
+        "source-file:closure:packages/main/src/tasks/review-pass-shards.ts",
+        "source-file:closure:packages/main/src/tasks/story-files-hash-batch-smoke.ts",
+        "source-file:closure:packages/main/src/tasks/validate-focused-full-layering-smoke.ts",
+        "source-file:closure:packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+        "source-file:closure:packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+        "source-file:closure:packages/main/src/tasks/validation-protocol-smoke.ts",
+        "source-file:closure:packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts",
+        "source-file:closure:packages/main/tests/validate-plan-scheduling.test.mjs",
+        "source-file:closure:packages/main/tests/validate-resource-claims.test.mjs",
+        "source-file:closure:scripts/run-dynamic-validation-fault-injection.mjs",
+        "source-file:closure:scripts/run-dynamic-validation-replay.mjs",
         "source-file:closure:scripts/run-proofstory-pre-review-live-proof.mjs",
         "source-file:closure:scripts/verify-process-fact-contract.mjs",
+        "source-file:closure:scripts/verify-validation-catalog.mjs",
         "source-file:config:proof-or-stop.config.json",
         "source-file:consumer:acceptance_basis:packages/main/src/core/acceptance-topology.ts",
         "source-file:consumer:acceptance_basis:packages/main/src/handlers/transition-orchestrator.ts",
@@ -502,9 +812,48 @@
         "source-file:producer:pre_review_check:scripts/run-proofstory-pre-review-live-proof.mjs",
         "source-file:producer:pre_review_check_read:packages/main/src/core/pre-review-check.ts",
         "source-file:producer:pre_review_check_read:packages/main/src/core/pre-review-live-proof.ts",
-        "source-file:producer:pre_review_check_read:scripts/run-proofstory-pre-review-live-proof.mjs"
+        "source-file:producer:pre_review_check_read:scripts/run-proofstory-pre-review-live-proof.mjs",
+        "source_file:packages/main/src/core/dual-revision-impact-graph.ts#buildDualRevisionImpactGraph",
+        "source_file:packages/main/src/core/story-change-resolver.ts#buildStoryChangeManifest"
       ],
-      "plannedPathRecords": [],
+      "plannedPathRecords": [
+        {
+          "schemaVersion": "proofstory.planned_coverage_path.v1",
+          "plannedPathRef": "planned:CHK-003:happy:0:VPP-CHK-003",
+          "plannedPathDeclarationRef": "CHK-003:happy:0:VPP-CHK-003",
+          "declarationDigest": "sha256:28d5faf88ac30bc5f3084807a02b8e744f9c50474a67814c29e078b7b6b503e5",
+          "producer": {
+            "id": "EP-CHK-003-PRODUCER",
+            "role": "producer",
+            "expectedArtifactKind": "source_file",
+            "expectedFileRef": "packages/main/src/core/story-change-resolver.ts",
+            "expectedSymbolOrFact": "buildStoryChangeManifest",
+            "fileDeclarationRef": "CHK-003:files:create:0"
+          },
+          "consumers": [
+            {
+              "id": "EP-CHK-003-CONSUMER",
+              "role": "consumer",
+              "expectedArtifactKind": "source_file",
+              "expectedFileRef": "packages/main/src/core/dual-revision-impact-graph.ts",
+              "expectedSymbolOrFact": "buildDualRevisionImpactGraph",
+              "fileDeclarationRef": "CHK-003:files:create:1"
+            }
+          ],
+          "outputFactRef": "process-fact:story-change-manifest",
+          "acceptanceBindingRefs": [
+            "acceptance-binding:B-45a0-complete-dynamic-validation"
+          ],
+          "verificationIntentRefs": [
+            "CHK-003:happy:0"
+          ],
+          "declarationRefs": [
+            "CHK-003:files:create:0",
+            "CHK-003:files:create:1"
+          ],
+          "plannedPathDigest": "sha256:e6a85aa68315c3f0c86e2d21d1af19b3af1697a9e1cc76588da1a474651bf63f"
+        }
+      ],
       "plannedActualReconciliations": [],
       "enumeratedPathRefs": [
         "path:process-fact:acceptance_basis->consumer:<audit-only>",
@@ -513,61 +862,53 @@
         "path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
         "path:process-fact:artifact:pre-review-check.json->consumer:pre_review_check_read and transition-orchestrator DEV to REVIEW executable gate",
         "path:process-fact:pre_review_check->consumer:transition-orchestrator DEV to REVIEW executable gate",
-        "path:process-fact:pre_review_check_read->consumer:transition-orchestrator DEV to REVIEW executable gate"
+        "path:process-fact:pre_review_check_read->consumer:transition-orchestrator DEV to REVIEW executable gate",
+        "planned:CHK-003:happy:0:VPP-CHK-003"
       ],
       "excludedPathRefs": [],
       "blindSpots": [
-        "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_basis->consumer:<audit-only>",
-        "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
-        "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
-        "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+        "snapshot-seal:derivation_diagnostic:inventory:AT_TOPOLOGY_OUTSIDE_BASIS:path:static-call:packages/main/src/core/acceptance-topology.ts#buildAcceptanceMatrixReport->consumer:packages/main/src/handlers/proofstory.ts#buildAcceptanceMatrixReport",
+        "snapshot-seal:derivation_diagnostic:inventory:AT_TOPOLOGY_OUTSIDE_BASIS:path:static-call:packages/main/src/core/acceptance-topology.ts#evaluateAcceptanceTopologyCheck->consumer:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceTopologyCheck",
+        "snapshot-seal:derivation_diagnostic:inventory:AT_TOPOLOGY_OUTSIDE_BASIS:path:static-call:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceRolloutForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluateAcceptanceRolloutForContext",
+        "snapshot-seal:derivation_diagnostic:inventory:AT_TOPOLOGY_OUTSIDE_BASIS:path:static-call:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceTopologyForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluateAcceptanceTopologyForContext",
+        "snapshot-seal:derivation_diagnostic:inventory:AT_TOPOLOGY_OUTSIDE_BASIS:path:static-call:packages/main/src/handlers/proofstory.ts#evaluatePreReviewCheckForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluatePreReviewCheckForContext",
         "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:artifact:pre-review-check.json->consumer:pre_review_check_read and transition-orchestrator DEV to REVIEW executable gate",
         "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:pre_review_check->consumer:transition-orchestrator DEV to REVIEW executable gate",
-        "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:pre_review_check_read->consumer:transition-orchestrator DEV to REVIEW executable gate",
-        "snapshot-seal:snapshot_missing:inventory:packages/main/src/core/story-aware-validation-cli.ts",
-        "snapshot-seal:snapshot_missing:inventory:packages/main/src/tasks/**",
-        "snapshot-seal:snapshot_missing:inventory:packages/main/tests/**",
-        "snapshot-seal:snapshot_missing:inventory:packages/main/tests/story-aware-validation-cli.test.mjs",
-        "snapshot-seal:snapshot_missing:inventory:packages/main/tests/story-aware-validation.test.mjs",
-        "snapshot-seal:snapshot_missing:source_file:packages/main/src/core/story-aware-validation-cli.ts",
-        "snapshot-seal:snapshot_missing:source_file:packages/main/src/tasks/**",
-        "snapshot-seal:snapshot_missing:source_file:packages/main/tests/**",
-        "snapshot-seal:snapshot_missing:source_file:packages/main/tests/story-aware-validation-cli.test.mjs",
-        "snapshot-seal:snapshot_missing:source_file:packages/main/tests/story-aware-validation.test.mjs",
-        "source file is unreadable or disappeared: packages/main/src/core/story-aware-validation-cli.ts",
-        "source file is unreadable or disappeared: packages/main/src/tasks/**",
-        "source file is unreadable or disappeared: packages/main/tests/**",
-        "source file is unreadable or disappeared: packages/main/tests/story-aware-validation-cli.test.mjs",
-        "source file is unreadable or disappeared: packages/main/tests/story-aware-validation.test.mjs"
+        "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:pre_review_check_read->consumer:transition-orchestrator DEV to REVIEW executable gate"
       ],
       "snapshotSeal": {
         "schemaVersion": "proofstory.acceptance_snapshot_seal.v1",
-        "inventoryDirectoryDigest": "sha256:e2533ac969f95bdaa01b5b60bb8d700c524103423cc18d643cc01930440c49d5",
+        "inventoryDirectoryDigest": "sha256:808f2da2b6edbd4525a1d9e55f01492ada9184ae94f99e023273cace524ee613",
         "inventoryDirectoryCount": 21,
-        "sourceSnapshotDigest": "sha256:20d3d42219d527a53356da6c97f3918690ab1182055c1905bb67f0d5b217e93a",
-        "sourceSnapshotCount": 829,
+        "sourceSnapshotDigest": "sha256:f64dd3f55b9e3424116a3c7fed768d13a5d0f4204019660fc6c5152d74b02c38",
+        "sourceSnapshotCount": 861,
         "configSnapshotDigest": "sha256:ab4b658eaf618dd6e859c44d6bab29230deefeef2b53889c500533b9dde9b251",
         "status": "partial",
         "issues": [
           {
             "code": "derivation_diagnostic",
             "targetKind": "inventory",
-            "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_basis->consumer:<audit-only>"
+            "canonicalRef": "AT_TOPOLOGY_OUTSIDE_BASIS:path:static-call:packages/main/src/core/acceptance-topology.ts#buildAcceptanceMatrixReport->consumer:packages/main/src/handlers/proofstory.ts#buildAcceptanceMatrixReport"
           },
           {
             "code": "derivation_diagnostic",
             "targetKind": "inventory",
-            "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
+            "canonicalRef": "AT_TOPOLOGY_OUTSIDE_BASIS:path:static-call:packages/main/src/core/acceptance-topology.ts#evaluateAcceptanceTopologyCheck->consumer:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceTopologyCheck"
           },
           {
             "code": "derivation_diagnostic",
             "targetKind": "inventory",
-            "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate"
+            "canonicalRef": "AT_TOPOLOGY_OUTSIDE_BASIS:path:static-call:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceRolloutForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluateAcceptanceRolloutForContext"
           },
           {
             "code": "derivation_diagnostic",
             "targetKind": "inventory",
-            "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
+            "canonicalRef": "AT_TOPOLOGY_OUTSIDE_BASIS:path:static-call:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceTopologyForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluateAcceptanceTopologyForContext"
+          },
+          {
+            "code": "derivation_diagnostic",
+            "targetKind": "inventory",
+            "canonicalRef": "AT_TOPOLOGY_OUTSIDE_BASIS:path:static-call:packages/main/src/handlers/proofstory.ts#evaluatePreReviewCheckForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluatePreReviewCheckForContext"
           },
           {
             "code": "derivation_diagnostic",
@@ -583,412 +924,362 @@
             "code": "derivation_diagnostic",
             "targetKind": "inventory",
             "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:pre_review_check_read->consumer:transition-orchestrator DEV to REVIEW executable gate"
-          },
-          {
-            "code": "snapshot_missing",
-            "targetKind": "inventory",
-            "canonicalRef": "packages/main/src/core/story-aware-validation-cli.ts"
-          },
-          {
-            "code": "snapshot_missing",
-            "targetKind": "inventory",
-            "canonicalRef": "packages/main/src/tasks/**"
-          },
-          {
-            "code": "snapshot_missing",
-            "targetKind": "inventory",
-            "canonicalRef": "packages/main/tests/**"
-          },
-          {
-            "code": "snapshot_missing",
-            "targetKind": "inventory",
-            "canonicalRef": "packages/main/tests/story-aware-validation-cli.test.mjs"
-          },
-          {
-            "code": "snapshot_missing",
-            "targetKind": "inventory",
-            "canonicalRef": "packages/main/tests/story-aware-validation.test.mjs"
-          },
-          {
-            "code": "snapshot_missing",
-            "targetKind": "source_file",
-            "canonicalRef": "packages/main/src/core/story-aware-validation-cli.ts"
-          },
-          {
-            "code": "snapshot_missing",
-            "targetKind": "source_file",
-            "canonicalRef": "packages/main/src/tasks/**"
-          },
-          {
-            "code": "snapshot_missing",
-            "targetKind": "source_file",
-            "canonicalRef": "packages/main/tests/**"
-          },
-          {
-            "code": "snapshot_missing",
-            "targetKind": "source_file",
-            "canonicalRef": "packages/main/tests/story-aware-validation-cli.test.mjs"
-          },
-          {
-            "code": "snapshot_missing",
-            "targetKind": "source_file",
-            "canonicalRef": "packages/main/tests/story-aware-validation.test.mjs"
           }
         ],
-        "sealDigest": "sha256:6e60dc139f162db8b1d08f83adb389111788943780a4d815d3ffe34bcb2a7984"
+        "sealDigest": "sha256:f7fc88b1ea0d09d171866417e7604499e60faa5c339c0f0c82324fe8ee42d65f"
       },
       "binding": {
-        "headHash": "a55593c7d912a4e53bc353cbdf6e00c00543ba11",
-        "materialHash": "da7ea3cf71e219f9b0a8ab8e4b04e817ee33469c57ffd2e50be2a2c9f6b762ed",
-        "storyFilesHash": "664e53bf0722de20105130ef63ff0e9186c3317cc709e5aeb129f48714005c94",
-        "scopeCheckDigest": "sha256:054f3f334041a513b6fb1bd00c9269a03e87bedee3a7b170d6d81355f6e50628",
-        "scopeContractDigest": "sha256:bb3f1946a86d91ef7da91bfdbf240ae7a9293e6a057cf132d625d1d83db57e68",
-        "closureFilesHash": "sha256:d3276b9bf7e737c4222d95a362cdb8361548f99665bc7088abb4cfbd15e95546"
+        "headHash": "ee70deec1eb4bdeaca31a66f41f40d70834352b6",
+        "materialHash": "aa5beaab4316c22ebcfd403395a217d890edac9bd1dbbca1d8221554cd13dda0",
+        "storyFilesHash": "cc7ed81b116ac565f747818a589cb8156963be09cb009bc7e55f715cf97fd619",
+        "scopeCheckDigest": "sha256:f1b838291540371b2626f5c27a003064984d9cb454ae1a5814f2091c21c193b5",
+        "scopeContractDigest": "sha256:d2eacb969b9b229a90ff58d7b23dc4b806503db1f84c453cbe08dfd232917684",
+        "closureFilesHash": "sha256:a33b037660f15a484c9760c9a84097a9565137d8547919511eb0215a29e967e7"
       },
-      "receiptRef": "receipt:coverage-basis:B-45a0:pre_review:3ada262489726e65",
-      "basisDigest": "sha256:5e19a740b1cf3798059719a70e52148aeeab35cf8f465041455d368888c36fb4"
+      "receiptRef": "receipt:coverage-basis:B-45a0:pre_review:48a9abf781ec0ce1",
+      "basisDigest": "sha256:8f5915dbb8697ebc651302931b73c352f0d75a1a93ce83ae1c6e9b0eda6c4e54"
     },
     "receipt": {
       "schemaVersion": "proofstory.acceptance_basis_receipt.v1",
-      "receiptRef": "receipt:coverage-basis:B-45a0:pre_review:3ada262489726e65",
+      "receiptRef": "receipt:coverage-basis:B-45a0:pre_review:48a9abf781ec0ce1",
       "issuer": "acceptance-coverage-basis-verifier",
       "issuerKeyId": "sha256:a944288d3323f4b761cbb51602e62f88fbc1b35530eabfa265971baee771138b",
       "signerPublicKey": "GpD4A2Km0wpT87L2EcszehhUu0nPgXbafTXgXTjTKAM=",
       "storyId": "B-45a0",
       "phaseBasis": "pre_review",
-      "basisDigest": "sha256:5e19a740b1cf3798059719a70e52148aeeab35cf8f465041455d368888c36fb4",
-      "topologyDigest": "sha256:3870a63cdee26a832976a9e78d4e291c21042ad4ba2834470070370ae0994360",
-      "scopeCheckDigest": "sha256:054f3f334041a513b6fb1bd00c9269a03e87bedee3a7b170d6d81355f6e50628",
-      "scopeContractDigest": "sha256:bb3f1946a86d91ef7da91bfdbf240ae7a9293e6a057cf132d625d1d83db57e68",
-      "headHash": "a55593c7d912a4e53bc353cbdf6e00c00543ba11",
-      "materialHash": "da7ea3cf71e219f9b0a8ab8e4b04e817ee33469c57ffd2e50be2a2c9f6b762ed",
-      "storyFilesHash": "664e53bf0722de20105130ef63ff0e9186c3317cc709e5aeb129f48714005c94",
-      "closureFilesHash": "sha256:d3276b9bf7e737c4222d95a362cdb8361548f99665bc7088abb4cfbd15e95546",
-      "sealDigest": "sha256:6e60dc139f162db8b1d08f83adb389111788943780a4d815d3ffe34bcb2a7984",
+      "basisDigest": "sha256:8f5915dbb8697ebc651302931b73c352f0d75a1a93ce83ae1c6e9b0eda6c4e54",
+      "topologyDigest": "sha256:0a71e566eebd058398e7b336dd448074eab68bd83d4383dd05a0305b70668102",
+      "scopeCheckDigest": "sha256:f1b838291540371b2626f5c27a003064984d9cb454ae1a5814f2091c21c193b5",
+      "scopeContractDigest": "sha256:d2eacb969b9b229a90ff58d7b23dc4b806503db1f84c453cbe08dfd232917684",
+      "headHash": "ee70deec1eb4bdeaca31a66f41f40d70834352b6",
+      "materialHash": "aa5beaab4316c22ebcfd403395a217d890edac9bd1dbbca1d8221554cd13dda0",
+      "storyFilesHash": "cc7ed81b116ac565f747818a589cb8156963be09cb009bc7e55f715cf97fd619",
+      "closureFilesHash": "sha256:a33b037660f15a484c9760c9a84097a9565137d8547919511eb0215a29e967e7",
+      "sealDigest": "sha256:f7fc88b1ea0d09d171866417e7604499e60faa5c339c0f0c82324fe8ee42d65f",
       "workspaceIdentityDigest": "sha256:3982df8a3a496488d75aa257cf83262705901996a517a2a911848309f9519ccd",
-      "signature": "CKBzQoK0yfekAf3UIcIeVjV5NAT2rbKxkiCfXb+JSifgOL4MXOeKGIvJOkluRL5unZbY5TQoBnn1nYIEIo+GAQ=="
+      "signature": "aBYxsVweMTjjVqGnjT7U0eiG37SoYjPA21YUXgsirybulZuO7DDdjD4URQkJAE+KNfcBLbsC9dhA8rBL4+cEAg=="
     }
   },
-  "topologyDigest": "sha256:3870a63cdee26a832976a9e78d4e291c21042ad4ba2834470070370ae0994360",
-  "scopeCheckDigest": "sha256:054f3f334041a513b6fb1bd00c9269a03e87bedee3a7b170d6d81355f6e50628",
-  "scopeContractDigest": "sha256:bb3f1946a86d91ef7da91bfdbf240ae7a9293e6a057cf132d625d1d83db57e68",
-  "storyFilesHash": "664e53bf0722de20105130ef63ff0e9186c3317cc709e5aeb129f48714005c94",
-  "closureFilesHash": "sha256:d3276b9bf7e737c4222d95a362cdb8361548f99665bc7088abb4cfbd15e95546",
+  "topologyDigest": "sha256:0a71e566eebd058398e7b336dd448074eab68bd83d4383dd05a0305b70668102",
+  "scopeCheckDigest": "sha256:f1b838291540371b2626f5c27a003064984d9cb454ae1a5814f2091c21c193b5",
+  "scopeContractDigest": "sha256:d2eacb969b9b229a90ff58d7b23dc4b806503db1f84c453cbe08dfd232917684",
+  "storyFilesHash": "cc7ed81b116ac565f747818a589cb8156963be09cb009bc7e55f715cf97fd619",
+  "closureFilesHash": "sha256:a33b037660f15a484c9760c9a84097a9565137d8547919511eb0215a29e967e7",
   "evidenceRefs": [
     {
       "intentRef": "CHK-001:adversarial:0",
       "itemId": "CHK-001",
       "evidenceIndex": 4,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:44c0714fc8f54c067ebbe9fe01cab3d12f51b42ba5c5be79b448260bff94d2c4"
+      "evidenceDigest": "sha256:850a902844bfc6d46108d468ad98af463159d428c6af6226efa18c5046c6b6ba"
     },
     {
       "intentRef": "CHK-001:adversarial:1",
       "itemId": "CHK-001",
       "evidenceIndex": 5,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:186cf92a8b29cb4fb08de8fa6b104bb99333b36f704d174216aa773ccaf37850"
+      "evidenceDigest": "sha256:2e81cf22101744a5b5d0fad9bb9143db2fbd0c587451b16fd9bf723111f94a9d"
     },
     {
       "intentRef": "CHK-001:edge:0",
       "itemId": "CHK-001",
       "evidenceIndex": 2,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:71244e44f60479814bf4e93e3550d92eda0974690984abdc5cac400c42a9ed20"
+      "evidenceDigest": "sha256:8f081e157fbc731d4addc9c06ee99713e0b611be0d0ae05e81f9f0ef7f088739"
     },
     {
       "intentRef": "CHK-001:edge:1",
       "itemId": "CHK-001",
       "evidenceIndex": 3,
       "kind": "docs_check",
-      "evidenceDigest": "sha256:15fa705be0315d2a8d709625c77a78519aac86fede8b13fbab2ab63be480ea94"
+      "evidenceDigest": "sha256:b822e8d6e6de8a3710d8d8b697309ca46646e95cd03c1467a0e9e75deb2288b7"
     },
     {
       "intentRef": "CHK-001:happy:0",
       "itemId": "CHK-001",
       "evidenceIndex": 0,
       "kind": "docs_check",
-      "evidenceDigest": "sha256:5506c0f27995db9dd8113e48fa292f4f44b27e5c7cbd46d5327e6a65560a4f32"
+      "evidenceDigest": "sha256:e46e88132e53066468e06b8c047a93809fcac002369cc7da977164ca6e97515e"
     },
     {
       "intentRef": "CHK-001:happy:1",
       "itemId": "CHK-001",
       "evidenceIndex": 1,
       "kind": "docs_check",
-      "evidenceDigest": "sha256:c9d12af76c0ff3fb3535615e96e6d207f52a01e9db221bfac5d64fc7bddcff7a"
+      "evidenceDigest": "sha256:fed7150acc833e6413d488cd971dc810d9d11f131ac710032ab80fbe2f717578"
     },
     {
       "intentRef": "CHK-002:adversarial:0",
       "itemId": "CHK-002",
       "evidenceIndex": 4,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:b3b89c2bebf99f864853fa1113b2cccef2aa8164011e72dff31f0304a25129b3"
+      "evidenceDigest": "sha256:af9e1a67f18c1706421e3e647086cda32efd632b352078460ce532e766a750c5"
     },
     {
       "intentRef": "CHK-002:adversarial:1",
       "itemId": "CHK-002",
       "evidenceIndex": 5,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:3d7d63fc3637802ff3b6fbc3dc93f4afe84b22c2efad9e4f0969a295c97c5e94"
+      "evidenceDigest": "sha256:018cb57fb0c27375e4041c67c8e5614955ae22de91c3e70e8c705bc1b2c8c358"
     },
     {
       "intentRef": "CHK-002:edge:0",
       "itemId": "CHK-002",
       "evidenceIndex": 2,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:ef71e4c32d070f415cb6aa0e3356b438a6f745d9092c0f9fd3f5ff460a20d39a"
+      "evidenceDigest": "sha256:f34267f864265ff453983813eff2d1406589a3928583dffefe16be86b19563fe"
     },
     {
       "intentRef": "CHK-002:edge:1",
       "itemId": "CHK-002",
       "evidenceIndex": 3,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:abe8c49b599da742d1839369699a956a00e93f66b83942cf8d3313ab03af6012"
+      "evidenceDigest": "sha256:731cf00269f926bebcb4561869aab63669dcdb17d01b68d890545dd479902781"
     },
     {
       "intentRef": "CHK-002:happy:0",
       "itemId": "CHK-002",
       "evidenceIndex": 0,
       "kind": "manual_transcript",
-      "evidenceDigest": "sha256:8235da8ffa6e40a4c65720c2744708be9bb8dc970332f627f38ea2831e583d22"
+      "evidenceDigest": "sha256:0335c9c7aa204000b4dcdf17aaccc7045b8248bfdc519b333c807d7fc90b0322"
     },
     {
       "intentRef": "CHK-002:happy:1",
       "itemId": "CHK-002",
       "evidenceIndex": 1,
       "kind": "docs_check",
-      "evidenceDigest": "sha256:8af7632d5d85705b41c02c428ba0f18f9f37c7430d7dd66d5bb0a0acb800633c"
+      "evidenceDigest": "sha256:891d372fab8dd3bc5d5c85881354246fbdf53e612b1fc826fc2eb029683206d9"
     },
     {
       "intentRef": "CHK-003:adversarial:0",
       "itemId": "CHK-003",
       "evidenceIndex": 2,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:bb38e460c0a028f1eaeabb832158b9814e55ebd09515eb7214bb6049ff0c6bb1"
+      "evidenceDigest": "sha256:7bd6514aed48be4896c96dc929ab6c53776f856afc17e433ce961585e9ee4727"
     },
     {
       "intentRef": "CHK-003:edge:0",
       "itemId": "CHK-003",
       "evidenceIndex": 1,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:fa98c9713d63d3c3c5ee67a967389daf890ab28f7685bb03fa67664585ebc906"
+      "evidenceDigest": "sha256:e4849fe0fdd6396f3b767bcb6404a3ab1b7aa6e40f1c6615c5833dbdce0e9fb6"
     },
     {
       "intentRef": "CHK-003:happy:0",
       "itemId": "CHK-003",
       "evidenceIndex": 0,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:c0769c3b454ab7d1661d0d9ddc26a79dccc238a42cf15e17186e5ddf41110cbb"
+      "evidenceDigest": "sha256:c789c8819a77781d85f657a7f398f38b17b9d0b3da5265be1ab96e27354270d2"
     },
     {
       "intentRef": "CHK-004:adversarial:0",
       "itemId": "CHK-004",
       "evidenceIndex": 2,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:6b55f069511f87e75a9c75f17959f9cdc35ea2f6cb96ebd0eefdcc3b10971cb9"
+      "evidenceDigest": "sha256:47592e768e0a4666cb9d0830269b051129d606e705a5b8933fb517c65c48f73e"
     },
     {
       "intentRef": "CHK-004:edge:0",
       "itemId": "CHK-004",
       "evidenceIndex": 1,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:36ee02512941f9573213523f5bf1084299175fe3bb1961220c98c2d89a7fad67"
+      "evidenceDigest": "sha256:cafa843a8c4bdce38ab7ea3654552fbc824978f342ad930f1ea080d604f7eed1"
     },
     {
       "intentRef": "CHK-004:happy:0",
       "itemId": "CHK-004",
       "evidenceIndex": 0,
-      "kind": "logic_test",
-      "evidenceDigest": "sha256:2ca27879c4fa79d8f1983f4b4af6978e9957d6d4b879689c309f3b2336f8df01"
+      "kind": "manual_transcript",
+      "evidenceDigest": "sha256:df758d48f47852d2edc1e292f01145eeab22b3b16599309b4241e2ee01e7ff1b"
     },
     {
       "intentRef": "CHK-005:adversarial:0",
       "itemId": "CHK-005",
       "evidenceIndex": 2,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:577997aafe6a41dc2ed15f2449ee6c2e4d0b0041926fc6f994d672e5f145c161"
+      "evidenceDigest": "sha256:29139c4d418b57d0bb83bb604b32f0b43cefd9f5254b1b2820fe7286d7da4330"
     },
     {
       "intentRef": "CHK-005:edge:0",
       "itemId": "CHK-005",
       "evidenceIndex": 1,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:4f85ca530338c1a97776a5c6f5819f93d89e822c665096c37568fb3a8e7e4df7"
+      "evidenceDigest": "sha256:32e546f58b570acb22e371dec85d3f14f8de57991c398a15525e352c6f654fcf"
     },
     {
       "intentRef": "CHK-005:happy:0",
       "itemId": "CHK-005",
       "evidenceIndex": 0,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:59b0381226a7a1ca2822df96d418011217c450df9e4c9e908a2f0aa1e9d7f882"
+      "evidenceDigest": "sha256:6aa1ea22afaf5e854364b12fc601a4920c9ba7fbda72bc3deaf47e0dfd5c96ef"
     },
     {
       "intentRef": "CHK-006:adversarial:0",
       "itemId": "CHK-006",
       "evidenceIndex": 2,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:f4d5fc5bc784be0e9e88bf14a712cb073af94de2182c3bbc3ee938ad6d71daad"
+      "evidenceDigest": "sha256:cfef19ca5fac023d32fa7dfbafb9c711053a2ae54b5541dcfe06cdb24f2f01f9"
     },
     {
       "intentRef": "CHK-006:edge:0",
       "itemId": "CHK-006",
       "evidenceIndex": 1,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:3e54d0514adbfcd3a9b42de5efc45e1f3fa3ea471ad3f76c00464e1c0291b27d"
+      "evidenceDigest": "sha256:1340e69f0cb817bbc37963ed314cd015190c4b67a700fcbd451aec748bd6bc9e"
     },
     {
       "intentRef": "CHK-006:happy:0",
       "itemId": "CHK-006",
       "evidenceIndex": 0,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:a2674bb76418c88a7abc2688564e38b96cd5682d613e3f9541dc0999632ae152"
+      "evidenceDigest": "sha256:e46fbfa00479385547c7e0bcf916d34d8b5513639efc1d8503315e67328b3588"
     },
     {
       "intentRef": "CHK-007:adversarial:0",
       "itemId": "CHK-007",
       "evidenceIndex": 2,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:059fb6a5740852b1a9f7760bd8a6bb88c1e0088d0d96bfa09f884ffd20c1489a"
+      "evidenceDigest": "sha256:994eaef4dec12d98021bf23f75970f6c88c125fa110dde7dc836b16d628a47c5"
     },
     {
       "intentRef": "CHK-007:edge:0",
       "itemId": "CHK-007",
       "evidenceIndex": 1,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:de65c0356f2c3ffc7cd62d96a6482bcdbb1c6654f04053ffffb3113a21e2355e"
+      "evidenceDigest": "sha256:56ff5284fb91e61be47939862f0a13fede3db0dc11733bb8a023464a2b5cf6d3"
     },
     {
       "intentRef": "CHK-007:happy:0",
       "itemId": "CHK-007",
       "evidenceIndex": 0,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:1951842dbef258b94d7d9d4453c0d7f51bc6c3d234aa77bff047f142335c1825"
+      "evidenceDigest": "sha256:7621b46328e6ec38c236f69a4f23c5b7869ffd5bdb9e9240787f0e97ac189acd"
     },
     {
       "intentRef": "CHK-008:adversarial:0",
       "itemId": "CHK-008",
       "evidenceIndex": 2,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:4001134c0454f6da54a397750e2db8cf3d58227a1c4e8ff32cb7212a9dd8e86d"
+      "evidenceDigest": "sha256:d90e7c945f2961167b6d037e5f9b4cbe5ed550336416571e5dab53d5554ea0a1"
     },
     {
       "intentRef": "CHK-008:edge:0",
       "itemId": "CHK-008",
       "evidenceIndex": 1,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:ac4042f6dd0ec2f747ed860b18f5440950c101e388adf96e9268c62558c03add"
+      "evidenceDigest": "sha256:b38cd41aaac8baf9737c397b12c5e17e714a5cb44ef4dca2d2ecfac20a2b7537"
     },
     {
       "intentRef": "CHK-008:happy:0",
       "itemId": "CHK-008",
       "evidenceIndex": 0,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:59d629de9a83aa7ed0a2940c0f94cafc77d968d63572e9afd05bf1e19bb24771"
+      "evidenceDigest": "sha256:0f15c494176ca3be89e6fe9fddcb36e801e611878adff050a73b99e0234b9eae"
     },
     {
       "intentRef": "CHK-009:adversarial:0",
       "itemId": "CHK-009",
       "evidenceIndex": 2,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:51aca6f71b62321838c6a7662cea597e1b0a23785a966061ce778a84e95ecff9"
+      "evidenceDigest": "sha256:f1a9192f4a9470a84b6739bf472c039b4ab5fbaf35e2cba1f7a74ec9b8003a33"
     },
     {
       "intentRef": "CHK-009:edge:0",
       "itemId": "CHK-009",
       "evidenceIndex": 1,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:84df13a901fb9e3a34137b185d5b6520087692f380cd5b11d42d81fd63454139"
+      "evidenceDigest": "sha256:a2555d52c45548c400f318054dcea584ea653beb68f5f1bf5daf5d64ee8152e2"
     },
     {
       "intentRef": "CHK-009:happy:0",
       "itemId": "CHK-009",
       "evidenceIndex": 0,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:9fe062b92bad0321e160f7f84fe8e1858e76082fa8b2f9bec11efe2bf07812ae"
+      "evidenceDigest": "sha256:ff85a5cd5512bf86a6e0c4799cdc74fbad2ab3596e475dbadf17fe62ecbd97cf"
     },
     {
       "intentRef": "CHK-010:adversarial:0",
       "itemId": "CHK-010",
       "evidenceIndex": 1,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:717c5108b67db044263c2db52941c413a152832c0a13776775bc6d75fcd497ad"
+      "evidenceDigest": "sha256:a65db6403487f131cc4960812bca3e0d3da3d4450b317d0d73aa0d8170ce3586"
     },
     {
       "intentRef": "CHK-010:edge:0",
       "itemId": "CHK-010",
       "evidenceIndex": 0,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:376760a56d2f4bb7941c153222a01ae2cd41c131fdc4cc5b8110d8662150e936"
+      "evidenceDigest": "sha256:9f59b472224726b8f4925230ac87062eb117a278660e6f46c1b1883454068dd0"
     },
     {
       "intentRef": "CHK-010:happy:0",
       "itemId": "CHK-010",
       "evidenceIndex": 2,
       "kind": "manual_transcript",
-      "evidenceDigest": "sha256:be2f0d687867e205c4135b754648b77aac32e7ae16fa66695f25bb6c9522d935"
+      "evidenceDigest": "sha256:b630364495b0235f4def5a9727d983cd5c94a5e1315d380ba44294afb9193257"
     },
     {
       "intentRef": "CHK-011:adversarial:0",
       "itemId": "CHK-011",
       "evidenceIndex": 2,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:a8a62797a87525a51f43d28b6ee60fe6241f1fea9a493dc67b356cb9c2a5109f"
+      "evidenceDigest": "sha256:e957fc0ac1b3cad5e7f28c6ef27d734bed16168b68cd5243ffce00bb7ddfdc06"
     },
     {
       "intentRef": "CHK-011:edge:0",
       "itemId": "CHK-011",
       "evidenceIndex": 1,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:2a3e0d34286da2ba8d3da84348f3c717d5e0e72e5ee6acd94238b0a99233ea0f"
+      "evidenceDigest": "sha256:aa1a2c9df96e89f015a41b404cfbce353666a95d7152c636819685b7ab8b9754"
     },
     {
       "intentRef": "CHK-011:happy:0",
       "itemId": "CHK-011",
       "evidenceIndex": 0,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:b448839ba8a53a2764ee58c69d267e4faba604557827a88dc499a5c4eb60c6ea"
+      "evidenceDigest": "sha256:e782aa851482df3f474d050ae3f192a7ff09a729b69b123bd6fbe0ddccaefb3a"
     },
     {
       "intentRef": "CHK-012:adversarial:0",
       "itemId": "CHK-012",
       "evidenceIndex": 2,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:da38bcfe73af1e5a24f79dcf462a05a5e1610203188d489b0caaeb2b489ec374"
+      "evidenceDigest": "sha256:73da9007bb2b85ec8012529404cd184ea8644f2a3b46154942ab5b07961cd229"
     },
     {
       "intentRef": "CHK-012:edge:0",
       "itemId": "CHK-012",
       "evidenceIndex": 1,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:66ec3d4dafaf7d309ceffc547ae803109cde5c032ee48a3b2def1235081236b0"
+      "evidenceDigest": "sha256:e098cdfbf6d6fa98e821f67b5f819e2e505b1f4504a670d32352cb5ba931e7eb"
     },
     {
       "intentRef": "CHK-012:happy:0",
       "itemId": "CHK-012",
       "evidenceIndex": 0,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:5737c61aa082143213d845f9b518f039859f264a52c8d1fffc950adadc1fab57"
+      "evidenceDigest": "sha256:2f1081bf5b3e1d86af015e5483d979cec4763497974cdaa933c4cabaf8b3467f"
     },
     {
       "intentRef": "CHK-013:adversarial:0",
       "itemId": "CHK-013",
       "evidenceIndex": 2,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:ba26277a8cb47ff9f6d2803552d400457bdb83c843190e2770557426e4ffb568"
+      "evidenceDigest": "sha256:132843072c4a0688365c25a2ada5dbd841c82be352a473f6753f4a2221afc205"
     },
     {
       "intentRef": "CHK-013:edge:0",
       "itemId": "CHK-013",
       "evidenceIndex": 1,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:219483d1c94d8ad4e0a1701c24912468bbfa8d210eb76a6dd2720e2cbac7f5e4"
+      "evidenceDigest": "sha256:52790c27c702d99e0985e6d38c6ce03b32a8282bc4e53cb584740f41a08e071d"
     },
     {
       "intentRef": "CHK-013:happy:0",
       "itemId": "CHK-013",
       "evidenceIndex": 0,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:ce298ff4e9da54e85e8b0944aec91694033462723d510acab9a81820df24c342"
+      "evidenceDigest": "sha256:c95057e4d166ada2ba23768aac6d108bac9b536edb84678a15baac168410affa"
     }
   ],
   "executableProof": {
@@ -1008,10 +1299,12 @@
     },
     "bindingProofs": []
   },
+  "criticReceiptDigest": "sha256:c69accb53cb764f29f57b4b23ec77d2227c3ec851bbffcd900b162bcc80be739",
   "codes": [
     "PR_NEW_PATH_UNMAPPED",
     "PR_COVERAGE_BASIS_CHANGED",
     "PR_COVERAGE_INCONCLUSIVE",
+    "PR_PLANNED_PATH_UNRESOLVED",
     "PR_PRODUCTION_PATH_UNPROVEN",
     "PR_MUTATION_EVIDENCE_MISSING",
     "PR_MUTATION_DID_NOT_BITE",
@@ -1020,7 +1313,7 @@
     "PR_AUTHORITY_INADMISSIBLE"
   ],
   "status": "inconclusive",
-  "issuedAt": "2026-08-21T11:38:02.626Z",
+  "issuedAt": "2026-08-23T13:36:41.514Z",
   "signerPublicKey": "4K3JOygx9kXStVuiYM8fjT485DCzR4yqnTy5Sch+TOQ=",
-  "signature": "oSmePYQytusYQ5vYxvfx2HbnszRq5+Qw6WsdHT/r/kLFUz78wqNlT9O+YaThLU+Tyk/aDELnd4Ter3d2GJqnCA=="
+  "signature": "fMWPnPGsOh4CftNp8CEcMjjRk5hvMnTIQdI6pBu/YEJ1a8xCRqBqVCcrhYgVjwhf5xJQR8crfw/r+ylzuhxDAg=="
 }
