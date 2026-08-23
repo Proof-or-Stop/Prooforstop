@@ -24,21 +24,31 @@ const add = (list, value) => {
   if (!list.includes(value)) list.push(value);
 };
 const pathArg = value => typeof value === 'string' ? value : (value && typeof value.path === 'string' ? value.path : undefined);
-const originalEnvironment = process.env;
-process.env = new Proxy(originalEnvironment, {
-  get(target, property, receiver) {
-    if (typeof property === 'string') add(trace.environmentKeys, property);
-    return Reflect.get(target, property, receiver);
-  },
-  has(target, property) {
-    if (typeof property === 'string') add(trace.environmentKeys, property);
-    return Reflect.has(target, property);
-  },
-  ownKeys(target) {
-    for (const key of Reflect.ownKeys(target)) if (typeof key === 'string') add(trace.environmentKeys, key);
-    return Reflect.ownKeys(target);
-  },
-});
+// npm's own CLI reads and mutates process.env using native assumptions that a
+// Proxy does not satisfy (the wrapper exits 1 before it can print anything).
+// Keep the wrapper transparent and trace the actual verifier child instead;
+// npm propagates NODE_OPTIONS/trace-file to that child, where the Proxy is
+// compatible. This is deliberately scoped to the npm entrypoint, not a broad
+// environment-tracing disablement.
+const mainScript = typeof process.argv[1] === 'string' ? process.argv[1] : '';
+const isNpmWrapper = /(?:^|[\\/])npm(?:-cli)?(?:\.js)?$/.test(mainScript);
+if (!isNpmWrapper) {
+  const originalEnvironment = process.env;
+  process.env = new Proxy(originalEnvironment, {
+    get(target, property, receiver) {
+      if (typeof property === 'string') add(trace.environmentKeys, property);
+      return Reflect.get(target, property, receiver);
+    },
+    has(target, property) {
+      if (typeof property === 'string') add(trace.environmentKeys, property);
+      return Reflect.has(target, property);
+    },
+    ownKeys(target) {
+      for (const key of Reflect.ownKeys(target)) if (typeof key === 'string') add(trace.environmentKeys, key);
+      return Reflect.ownKeys(target);
+    },
+  });
+}
 
 const originalReadFileSync = fs.readFileSync;
 fs.readFileSync = function wrappedReadFileSync(path, ...args) {
