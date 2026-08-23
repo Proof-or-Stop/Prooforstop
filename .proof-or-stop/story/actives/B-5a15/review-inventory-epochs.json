@@ -6608,6 +6608,37 @@
       ],
       "createdAt": "2026-08-23T15:32:31.008Z",
       "_hash": "f5e2db04f0a6fafabc7591f5ee38e5c9a5444fc21e20e18825054cec06d1fd35"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-5a15:RI-021:CRIT-01",
+      "epochId": "B-5a15:RI-021",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-23T16:46:31.561Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "e60ad56fc7392eced310df437329cd7c1d2dd30b",
+        "materialHash": "41c6cc5292244472d1c39f14ff24db385986581252fdd7774d615019e35042e5",
+        "storyFilesHash": "0d7a9df645e064c99c3609c6fdfa049d8bb4d22bd7461c737e40c231ab415f7b"
+      },
+      "aggregateFindingSetDigest": "643425317da23b158d5149764b6df71751f9591a14930d95c5f47a290a02cf4c",
+      "requiredLaneCoverageDigest": "5e8b9976571c4ebf9892d601c1cd68d9f3494f14a83785a307560241904934ab",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-5a15:RR-375",
+      "terminalEvidenceIds": [
+        "B-5a15:RP-073"
+      ],
+      "readEvidenceDigest": "cd7babc2e5563e26ba9b8ed090ab4b498b9bbbca1eb8d95fa6a95d3279a58ed6",
+      "findingDispositions": [
+        {
+          "findingId": "B-5a15:F-240",
+          "disposition": "verified_family",
+          "familyKey": "stale-verifier-binding",
+          "reason": "F-240 is independently verified at HEAD 577bf85f9dcc5f8fd90571d42b7821b25da92139: acceptance_topology_check fails with AT_SCOPE_BINDING_MISSING at acceptance-basis.json.receipt, while pre_review_check_read is inconclusive with PR_ARTIFACT_TAMPERED, PR_NEW_PATH_UNMAPPED, and PR_COVERAGE_BASIS_CHANGED. The rollout checks are full-3x2 but cannot substitute for the failed topology and pre-review prerequisites. This is the stale verifier-owned acceptance-artifact binding family."
+        }
+      ],
+      "createdAt": "2026-08-23T17:13:04.041Z",
+      "_hash": "deae54664205ab5f141d292800fc0f59c36b56aa51686dd2fdc0f35d797595f9"
     }
   ]
 }
