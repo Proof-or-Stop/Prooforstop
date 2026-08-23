@@ -4538,6 +4538,43 @@
       ],
       "createdAt": "2026-08-23T13:55:11.179Z",
       "_hash": "fe48d01ac52022e9d9bc8ef8b1e62d335ff0a1064a6daed7388fbcc6ece6db52"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-45a0:RI-041:CRIT-02",
+      "epochId": "B-45a0:RI-041",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-23T13:46:47.948Z",
+      "wave": 2,
+      "cutoff": {
+        "headHash": "fd0233d5d91243b2ecc1a6e659e518b2d9dd6bdc",
+        "materialHash": "aa5beaab4316c22ebcfd403395a217d890edac9bd1dbbca1d8221554cd13dda0",
+        "storyFilesHash": "cc7ed81b116ac565f747818a589cb8156963be09cb009bc7e55f715cf97fd619"
+      },
+      "aggregateFindingSetDigest": "3eabe83ea20e073a241743c381d212598f23fb8b2b14e044dff69450c9f91ebc",
+      "requiredLaneCoverageDigest": "050bef29d478c40c10b9b2995d2bbab41803829e6980e497d7530ae302017514",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-45a0:RR-327",
+      "terminalEvidenceIds": [
+        "B-45a0:F-207"
+      ],
+      "readEvidenceDigest": "6335c249b28a136f5c85f9e9b4f055dd9cdaf75375b69907175871b1308f0c9a",
+      "findingDispositions": [
+        {
+          "findingId": "B-45a0:F-203",
+          "disposition": "verified_family",
+          "familyKey": "ri041-pr-artifact-tampered",
+          "reason": "Current PR_ARTIFACT_TAMPERED pre-review artifact is the same verified family identified by the independent concept lane."
+        },
+        {
+          "findingId": "B-45a0:F-204",
+          "disposition": "verified_family",
+          "familyKey": "ri038-wave1-acceptance-gate-coverage-incomplete",
+          "reason": "Current missing executable pre-review coverage is the recurring acceptance-gate coverage family, independently confirmed at this cutoff."
+        }
+      ],
+      "createdAt": "2026-08-23T14:12:39.452Z",
+      "_hash": "186d32e41290201d3ed699161b7c84c6bd19b433c55c959b3e713c5a15d7ccac"
     }
   ]
 }
