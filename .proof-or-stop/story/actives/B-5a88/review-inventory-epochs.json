@@ -4205,9 +4205,9 @@
       "epochId": "B-5a88:RI-052",
       "storyId": "B-5a88",
       "reviewRound": "2026-08-23T20:56:20.268Z",
-      "state": "OPEN",
+      "state": "INVALIDATED",
       "begunAt": "2026-08-23T21:58:54.268Z",
-      "updatedAt": "2026-08-23T21:58:54.268Z",
+      "updatedAt": "2026-08-23T22:08:51.118Z",
       "cutoff": {
         "headHash": "250cc2f642d9276e8da53a7fd97c39bb1562bb45",
         "materialHash": "b54b7b5c7f26b83d5b49f9746fbde422f265b724f2dd120605dd12c3011d0a06",
@@ -4223,7 +4223,78 @@
       "maxWaves": 3,
       "waves": [],
       "baselineFindingIds": [],
-      "_hash": "e17dfbc2575656f3fb8001a98d9ac708d308a018783b90a8e9ff15619c6ea415"
+      "invalidation": {
+        "detectedAt": "2026-08-23T22:08:51.118Z",
+        "oldMaterialHash": "b54b7b5c7f26b83d5b49f9746fbde422f265b724f2dd120605dd12c3011d0a06",
+        "currentMaterialHash": "b54b7b5c7f26b83d5b49f9746fbde422f265b724f2dd120605dd12c3011d0a06",
+        "oldStoryFilesHash": "55f595242b6269cb4093768accad374c332d2088c82f7474c84eb080079c3950",
+        "currentStoryFilesHash": "55f595242b6269cb4093768accad374c332d2088c82f7474c84eb080079c3950",
+        "blockerCode": "OPEN_REVIEW_INVENTORY_SCOPE_MUTATION",
+        "oldScopeDigest": "b6bd66c7d7f518c5846afa434d44ddf780146742660a9a11ad65112d5f2710a4",
+        "currentScopeDigest": "b6bd66c7d7f518c5846afa434d44ddf780146742660a9a11ad65112d5f2710a4",
+        "oldRequiredLanes": [
+          "proof-or-stop-review-concept",
+          "proof-or-stop-review-quality",
+          "proof-or-stop-review-test-coverage"
+        ],
+        "currentRequiredLanes": [
+          "lattice-review-concept",
+          "lattice-review-quality",
+          "lattice-review-test-coverage"
+        ]
+      },
+      "terminalRunSequenceBoundary": 498,
+      "_hash": "01e517f3974e47e0068934513f5fbbbab9d11c7326c5c30f67bfc3c0896b3f21"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-5a88:RI-053",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-23T20:56:20.268Z",
+      "state": "INVALIDATED",
+      "begunAt": "2026-08-23T22:10:15.593Z",
+      "updatedAt": "2026-08-23T22:40:25.552Z",
+      "cutoff": {
+        "headHash": "0d41320ebbf851da1fd9e796c6dcb3c2c1237634",
+        "materialHash": "b54b7b5c7f26b83d5b49f9746fbde422f265b724f2dd120605dd12c3011d0a06",
+        "storyFilesHash": "55f595242b6269cb4093768accad374c332d2088c82f7474c84eb080079c3950"
+      },
+      "scopeDigest": "b6bd66c7d7f518c5846afa434d44ddf780146742660a9a11ad65112d5f2710a4",
+      "requiredLanes": [
+        "proof-or-stop-review-concept",
+        "proof-or-stop-review-quality",
+        "proof-or-stop-review-test-coverage"
+      ],
+      "initialRunSequenceBoundary": 498,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [
+        "B-5a88:F-363",
+        "B-5a88:F-364",
+        "B-5a88:F-365"
+      ],
+      "invalidation": {
+        "detectedAt": "2026-08-23T22:40:25.552Z",
+        "oldMaterialHash": "b54b7b5c7f26b83d5b49f9746fbde422f265b724f2dd120605dd12c3011d0a06",
+        "currentMaterialHash": "b54b7b5c7f26b83d5b49f9746fbde422f265b724f2dd120605dd12c3011d0a06",
+        "oldStoryFilesHash": "55f595242b6269cb4093768accad374c332d2088c82f7474c84eb080079c3950",
+        "currentStoryFilesHash": "55f595242b6269cb4093768accad374c332d2088c82f7474c84eb080079c3950",
+        "blockerCode": "OPEN_REVIEW_INVENTORY_SCOPE_MUTATION",
+        "oldScopeDigest": "b6bd66c7d7f518c5846afa434d44ddf780146742660a9a11ad65112d5f2710a4",
+        "currentScopeDigest": "b6bd66c7d7f518c5846afa434d44ddf780146742660a9a11ad65112d5f2710a4",
+        "oldRequiredLanes": [
+          "proof-or-stop-review-concept",
+          "proof-or-stop-review-quality",
+          "proof-or-stop-review-test-coverage"
+        ],
+        "currentRequiredLanes": [
+          "lattice-review-concept",
+          "lattice-review-quality",
+          "lattice-review-test-coverage"
+        ]
+      },
+      "terminalRunSequenceBoundary": 507,
+      "_hash": "fa55696354365cc4c2d2c4a27ea6490691bd3b1168767214f5a9e4c92177a02d"
     }
   ],
   "receipts": [
